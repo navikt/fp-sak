@@ -19,10 +19,8 @@ import java.util.List;
 
 import javax.enterprise.inject.Instance;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
@@ -34,19 +32,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.registerinnhenting.KontrollerFaktaInngangsVilkårUtleder;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 
-@RunWith(CdiRunner.class)
 public class EndringskontrollerTest {
-
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
 
     private KontrollerFaktaInngangsVilkårUtleder kontrollerFaktaTjenesteMock;
     private Instance<KontrollerFaktaInngangsVilkårUtleder> kontrollerFaktaTjenesterMock;
@@ -57,7 +49,7 @@ public class EndringskontrollerTest {
 
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
 
-    @Before
+    @BeforeEach
     public void before() {
         kontrollerFaktaTjenesteMock = mock(KontrollerFaktaInngangsVilkårUtleder.class);
         when(kontrollerFaktaTjenesteMock.utledAksjonspunkterTilHøyreForStartpunkt(any(), any(StartpunktType.class))).thenReturn(new ArrayList<>());

@@ -5,19 +5,16 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.time.LocalDate;
 
-import javax.enterprise.inject.Any;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
+import javax.enterprise.inject.spi.CDI;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
@@ -26,6 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
@@ -34,35 +32,32 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.diff.DiffResult;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
+import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
+import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.BehandlingÅrsakTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.EndringsresultatSjekker;
 import no.nav.foreldrepenger.domene.registerinnhenting.impl.RegisterinnhentingHistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
+import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-@RunWith(CdiRunner.class)
-public class BehandlingÅrsakTjenesteTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+@ExtendWith(MockitoExtension.class)
+public class BehandlingÅrsakTjenesteTest extends EntityManagerAwareTest {
 
-    private AktørId AKTØRID = AktørId.dummy();
+    private final AktørId AKTØRID = AktørId.dummy();
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
+    private BehandlingRepositoryProvider repositoryProvider;
 
     private BehandlingÅrsakTjeneste tjeneste;
-
-    @Inject
-    private EndringsresultatSjekker endringsresultatSjekker;
-    private Behandling behandling;
-
-    @Inject
-    @Any
-    Instance<BehandlingÅrsakUtleder> utledere;
 
     @Mock
     private DiffResult diffResult;
@@ -70,25 +65,38 @@ public class BehandlingÅrsakTjenesteTest {
     private RegisterinnhentingHistorikkinnslagTjeneste historikkinnslagTjeneste;
     @Mock
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    @Mock
+    private MedlemTjeneste medlemTjeneste;
 
-    private Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build();
+    private final Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build();
 
-    @Before
+    @BeforeEach
     public void setup() {
-        initMocks(this);
+        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
+        var personopplysningRepository = new PersonopplysningRepository(getEntityManager());
+        var personopplysningTjeneste = new PersonopplysningTjeneste(personopplysningRepository);
+        var familieHendelseTjeneste = new FamilieHendelseTjeneste(null, new FamilieHendelseRepository(getEntityManager()));
+        var ytelsesFordelingRepository = new YtelsesFordelingRepository(getEntityManager());
+        var ytelseFordelingTjeneste = new YtelseFordelingTjeneste(ytelsesFordelingRepository);
+        var endringsresultatSjekker = new EndringsresultatSjekker(personopplysningTjeneste,
+            familieHendelseTjeneste, medlemTjeneste, new AbakusInMemoryInntektArbeidYtelseTjeneste(), ytelseFordelingTjeneste);
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(skjæringstidspunkt);
+        var utledere = CDI.current().select(BehandlingÅrsakUtleder.class);
         tjeneste = new BehandlingÅrsakTjeneste(utledere, endringsresultatSjekker, historikkinnslagTjeneste, skjæringstidspunktTjeneste);
+    }
+
+    private Behandling opprettBehandling() {
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBruker(AKTØRID, NavBrukerKjønn.KVINNE)
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         scenario.medSøknadHendelse().medAntallBarn(1).medFødselsDato(LocalDate.now().minusMonths(1));
         scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusMonths(1)).build());
-        behandling = scenario.lagre(repositoryProvider);
+        return scenario.lagre(repositoryProvider);
     }
 
     @Test
     public void test_skal_ikke_returnere_behandlingsårsaker_hvis_ikke_endringer() {
-        when(diffResult.isEmpty()).thenReturn(true); // Indikerer at det ikke finnes diff
+        var behandling = opprettBehandling();
 
         EndringsresultatDiff endringsresultat = EndringsresultatDiff.opprett();
         endringsresultat.leggTilSporetEndring(EndringsresultatDiff.medDiff(PersonInformasjonEntitet.class, 1L, 1L), () -> diffResult);
@@ -106,6 +114,7 @@ public class BehandlingÅrsakTjenesteTest {
 
     @Test
     public void test_behandlingsårsaker_når_endring_i_familiehendelse() {
+        var behandling = opprettBehandling();
         EndringsresultatDiff endringsresultat = EndringsresultatDiff.opprett();
         when(diffResult.isEmpty()).thenReturn(false); // Indikerer at det finnes diff
         endringsresultat.leggTilSporetEndring(EndringsresultatDiff.medDiff(FamilieHendelseGrunnlagEntitet.class, 1L, 2L), () -> diffResult);
@@ -119,9 +128,10 @@ public class BehandlingÅrsakTjenesteTest {
 
     @Test
     public void test_behandlingsårsaker_når_endring_dødsdato_søker() {
+        var behandling = opprettBehandling();
         final LocalDate dødsdato = LocalDate.now().minusDays(10);
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(null);
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(dødsdato);
+        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(behandling, null);
+        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(behandling, dødsdato);
 
         EndringsresultatDiff endringsresultat = EndringsresultatDiff.opprett();
         when(diffResult.isEmpty()).thenReturn(false); // Indikerer at det finnes diff
@@ -134,7 +144,7 @@ public class BehandlingÅrsakTjenesteTest {
         verify(historikkinnslagTjeneste).opprettHistorikkinnslagForBehandlingMedNyeOpplysninger(any(), eq(BehandlingÅrsakType.RE_OPPLYSNINGER_OM_DØD));
     }
 
-    private PersonopplysningGrunnlagEntitet opprettPersonopplysningGrunnlag(LocalDate dødsdato) {
+    private PersonopplysningGrunnlagEntitet opprettPersonopplysningGrunnlag(Behandling behandling, LocalDate dødsdato) {
         PersonopplysningRepository personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
         Long behandlingId = behandling.getId();
         final PersonInformasjonBuilder builder = personopplysningRepository.opprettBuilderForRegisterdata(behandlingId);

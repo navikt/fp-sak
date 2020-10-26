@@ -8,10 +8,7 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.Optional;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -25,10 +22,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnh
 
 public class RegisterdataInnhenterTest {
 
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
-
-    private String durationInstance = "PT10H";
+    private final String durationInstance = "PT10H";
 
     @Test
     public void skal_innhente_registeropplysninger_på_nytt_når_det_ble_hentet_inn_i_går() {

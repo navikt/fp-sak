@@ -5,16 +5,16 @@ import static no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType.IN
 import static no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType.UTTAKSVILKÅR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
@@ -23,6 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
@@ -33,25 +34,29 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class StartpunktUtlederYtelseFordelingTest {
+@ExtendWith(MockitoExtension.class)
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest {
 
     private static final BigDecimal ARBEIDSPROSENT_30 = new BigDecimal(30);
     private static final String AG1 = "123";
     private static final String AG2 = "456";
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
+
+    private BehandlingRepositoryProvider repositoryProvider;
     private StartpunktUtlederYtelseFordeling utleder;
-    private SøknadRepository søknadRepository = repositoryProvider.getSøknadRepository();
+    private SøknadRepository søknadRepository;
     @Mock
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
-    @Before
+    @BeforeEach
     public void oppsett() {
-        initMocks(this);
+        var entityManager = getEntityManager();
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        søknadRepository = new SøknadRepository(entityManager, new BehandlingRepository(entityManager));
         utleder = new StartpunktUtlederYtelseFordeling(repositoryProvider, skjæringstidspunktTjeneste);
     }
 
@@ -102,7 +107,6 @@ public class StartpunktUtlederYtelseFordelingTest {
         LocalDate førsteuttaksdato = LocalDate.now();
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medFørsteUttaksdato(førsteuttaksdato).medUtledetSkjæringstidspunkt(førsteuttaksdato).build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
-        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(revurdering.getId())).thenReturn(skjæringstidspunkt);
 
         // Act/Assert
         assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, skjæringstidspunkt), 1L, 2L)).isEqualTo(UTTAKSVILKÅR);
@@ -131,7 +135,6 @@ public class StartpunktUtlederYtelseFordelingTest {
 
         LocalDate førsteuttaksdato = LocalDate.now();
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(førsteuttaksdato).build();
-        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
 
         lagreEndringssøknad(revurdering);
         opprettYtelsesFordelingMedGradering(revurdering, AG1, ARBEIDSPROSENT_30);

@@ -6,14 +6,14 @@ import static no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType.UD
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.time.LocalDate;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
@@ -29,32 +29,27 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonRelasjon;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.Personopplysning;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.familiehendelse.dødsfall.BarnBorteEndringIdentifiserer;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class StartpunktUtlederPersonopplysningTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+@ExtendWith(MockitoExtension.class)
+public class StartpunktUtlederPersonopplysningTest extends EntityManagerAwareTest {
 
     private static final AktørId BARN_AKTØR_ID = AktørId.dummy();
     private static final AktørId EKTE_AKTØR_ID = AktørId.dummy();
 
-
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-
-    BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
     @Mock
-    SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    @Mock
-    BarnBorteEndringIdentifiserer barnBorteEndringIdentifiserer;
-    private StartpunktUtlederPersonopplysning utleder;
+    private BarnBorteEndringIdentifiserer barnBorteEndringIdentifiserer;
 
-    @Before
-    public void oppsett() {
-        initMocks(this);
+    private BehandlingRepositoryProvider repositoryProvider;
+
+    @BeforeEach
+    void setUp() {
+        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         when(barnBorteEndringIdentifiserer.erEndret(any())).thenReturn(false);
-        utleder = new StartpunktUtlederPersonopplysning(repositoryProvider.getPersonopplysningRepository(), barnBorteEndringIdentifiserer);
     }
 
     @Test
@@ -73,7 +68,6 @@ public class StartpunktUtlederPersonopplysningTest {
         Long behandlingId = originalBehandling.getId();
 
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(origSkjæringsdato).build();
-        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
 
         ScenarioMorSøkerForeldrepenger revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlingType(BehandlingType.REVURDERING);
@@ -89,6 +83,7 @@ public class StartpunktUtlederPersonopplysningTest {
         Long revurderingId = revurdering.getId();
 
         // Act/Assert
+        var utleder = new StartpunktUtlederPersonopplysning(repositoryProvider.getPersonopplysningRepository(), barnBorteEndringIdentifiserer);
         assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, skjæringstidspunkt),
             repositoryProvider.getPersonopplysningRepository().hentPersonopplysninger(behandlingId).getId(),
             repositoryProvider.getPersonopplysningRepository().hentPersonopplysninger(revurderingId).getId())).isEqualTo(UDEFINERT);
@@ -129,7 +124,6 @@ public class StartpunktUtlederPersonopplysningTest {
         Long behandlingId = originalBehandling.getId();
 
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(origSkjæringsdato).build();
-        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
 
         ScenarioMorSøkerForeldrepenger revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlingType(BehandlingType.REVURDERING);
@@ -145,6 +139,7 @@ public class StartpunktUtlederPersonopplysningTest {
         Long revurderingId = revurdering.getId();
 
         // Act/Assert
+        var utleder = new StartpunktUtlederPersonopplysning(repositoryProvider.getPersonopplysningRepository(), barnBorteEndringIdentifiserer);
         assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, skjæringstidspunkt),
             repositoryProvider.getPersonopplysningRepository().hentPersonopplysninger(behandlingId).getId(),
             repositoryProvider.getPersonopplysningRepository().hentPersonopplysninger(revurderingId).getId())).isEqualTo(SØKERS_RELASJON_TIL_BARNET);

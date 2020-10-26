@@ -2,43 +2,23 @@ package no.nav.foreldrepenger.domene.registerinnhenting.impl.startpunkt;
 
 import static no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.time.LocalDate;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.mockito.Mock;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 public class StartpunktUtlederFamilieHendelseTest {
-
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-
-    BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-    @Mock
-    SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    private StartpunktUtlederFamilieHendelse utleder;
-    private FamilieHendelseTjeneste familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
-
-    @Before
-    public void oppsett() {
-        initMocks(this);
-        utleder = new StartpunktUtlederFamilieHendelse(skjæringstidspunktTjeneste, familieHendelseTjeneste);
-    }
 
     @Test
     public void skal_returnere_startpunkt_opplysningsplikt_dersom_familiehendelse_bekreftes_og_endrer_skjæringspunkt() {
@@ -48,8 +28,10 @@ public class StartpunktUtlederFamilieHendelseTest {
 
         ScenarioMorSøkerForeldrepenger førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        var repositoryProvider = førstegangScenario.mockBehandlingRepositoryProvider();
         Behandling originalBehandling = førstegangScenario.lagre(repositoryProvider);
 
+        var skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(origSkjæringsdato).build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
 
@@ -60,6 +42,8 @@ public class StartpunktUtlederFamilieHendelseTest {
         Behandling revurdering = revurderingScenario.lagre(repositoryProvider);
 
         // Act/Assert
+        var familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
+        var utleder = new StartpunktUtlederFamilieHendelse(skjæringstidspunktTjeneste, familieHendelseTjeneste);
         assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, skjæringstidspunkt), 1L, 2L)).isEqualTo(INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
     }
 
@@ -73,8 +57,10 @@ public class StartpunktUtlederFamilieHendelseTest {
         ScenarioMorSøkerForeldrepenger førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         førstegangScenario.medBekreftetHendelse().medFødselsDato(origBekreftetfødselsdato);
+        var repositoryProvider = førstegangScenario.mockBehandlingRepositoryProvider();
         Behandling originalBehandling = førstegangScenario.lagre(repositoryProvider);
 
+        var skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(origSkjæringsdato).build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
 
@@ -85,6 +71,8 @@ public class StartpunktUtlederFamilieHendelseTest {
         Behandling revurdering = revurderingScenario.lagre(repositoryProvider);
 
         // Act/Assert
+        var familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
+        var utleder = new StartpunktUtlederFamilieHendelse(skjæringstidspunktTjeneste, familieHendelseTjeneste);
         assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, skjæringstidspunkt), 1L, 2L)).isEqualTo(INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
     }
 
@@ -96,8 +84,10 @@ public class StartpunktUtlederFamilieHendelseTest {
 
         ScenarioMorSøkerForeldrepenger førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        var repositoryProvider = førstegangScenario.mockBehandlingRepositoryProvider();
         Behandling originalBehandling = førstegangScenario.lagre(repositoryProvider);
 
+        var skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(origSkjæringsdato).build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
 
@@ -110,6 +100,8 @@ public class StartpunktUtlederFamilieHendelseTest {
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(revurdering.getId())).thenReturn(nySkjæringstidspunkt);
 
         // Act/Assert
+        var familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
+        var utleder = new StartpunktUtlederFamilieHendelse(skjæringstidspunktTjeneste, familieHendelseTjeneste);
         assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, nySkjæringstidspunkt), 1L, 2L)).isEqualTo(INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
     }
 
