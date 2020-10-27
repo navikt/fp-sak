@@ -54,7 +54,9 @@ public class AktørTjeneste {
         request.setGrupper(List.of(IdentGruppe.AKTORID));
         request.setHistorikk(Boolean.FALSE);
         var projection = new IdentlisteResponseProjection()
-            .identer(new IdentInformasjonResponseProjection().ident());
+            .identer(new IdentInformasjonResponseProjection()
+                .ident()
+                .gruppe());
 
         var identliste = pdlKlient.hentIdenter(request, projection, Tema.FOR);
 
