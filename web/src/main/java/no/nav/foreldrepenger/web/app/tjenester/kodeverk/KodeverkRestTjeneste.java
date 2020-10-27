@@ -38,6 +38,9 @@ import no.nav.vedtak.util.LRUCache;
 @Produces(MediaType.APPLICATION_JSON)
 public class KodeverkRestTjeneste {
 
+    public static final String KODERVERK_PATH = "/kodeverk";
+    public static final String ENHETER_PATH = KODERVERK_PATH + "/behandlende-enheter";
+
     private HentKodeverkTjeneste hentKodeverkTjeneste; // NOSONAR
 
     private final JacksonJsonConfig jsonMapper = new JacksonJsonConfig(true); // generere kodeverk med navn

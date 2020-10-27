@@ -31,8 +31,6 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
 import no.nav.foreldrepenger.web.app.tjenester.VurderProsessTaskStatusForPollingApi;
-import no.nav.foreldrepenger.web.app.tjenester.aktoer.AktoerIdDto;
-import no.nav.foreldrepenger.web.app.tjenester.aktoer.AktoerRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkRestTjeneste;
@@ -63,11 +61,10 @@ public class FagsakApplikasjonTjeneste {
 
     @Inject
     public FagsakApplikasjonTjeneste(FagsakRepository fagsakRespository,
-            BehandlingRepository behandlingRepository,
-            ProsesseringAsynkTjeneste prosesseringAsynkTjeneste, PersoninfoAdapter personinfoAdapter,
-            FamilieHendelseTjeneste familieHendelseTjeneste,
-            DekningsgradTjeneste dekningsgradTjeneste) {
-
+                                     BehandlingRepository behandlingRepository,
+                                     ProsesseringAsynkTjeneste prosesseringAsynkTjeneste, PersoninfoAdapter personinfoAdapter,
+                                     FamilieHendelseTjeneste familieHendelseTjeneste,
+                                     DekningsgradTjeneste dekningsgradTjeneste) {
         this.fagsakRespository = fagsakRespository;
         this.personinfoAdapter = personinfoAdapter;
         this.behandlingRepository = behandlingRepository;
@@ -99,6 +96,10 @@ public class FagsakApplikasjonTjeneste {
         } else {
             return hentFagsakForSaksnummer(new Saksnummer(søkestreng));
         }
+    }
+
+    public Optional<PersoninfoBasis> hentBruker(Saksnummer saksnummer) {
+        return fagsakRespository.hentSakGittSaksnummer(saksnummer).map(Fagsak::getAktørId).flatMap(personinfoAdapter::hentBrukerBasisForAktør);
     }
 
     private FagsakSamlingForBruker hentSakerForFnr(PersonIdent fnr) {
@@ -172,13 +173,18 @@ public class FagsakApplikasjonTjeneste {
     public static List<ResourceLink> lagLenker(Fagsak fagsak) {
         List<ResourceLink> lenkene = new ArrayList<>();
         var saksnummer = new SaksnummerDto(fagsak.getSaksnummer());
-        lenkene.add(get(AktoerRestTjeneste.AKTOER_INFO_PATH, "sak-aktoer-person", new AktoerIdDto(fagsak.getAktørId().getId())));
-        lenkene.add(get(FagsakRestTjeneste.FAGSAK_PATH, "fagsak", saksnummer));
         lenkene.add(get(BehandlingRestTjeneste.HANDLING_RETTIGHETER_V2_PATH, "handling-rettigheter-v2", saksnummer));
+        lenkene.add(get(FagsakRestTjeneste.RETTIGHETER_PATH, "sak-rettigheter", saksnummer));
         lenkene.add(get(HistorikkRestTjeneste.HISTORIKK_PATH, "sak-historikk", saksnummer));
         lenkene.add(get(DokumentRestTjeneste.DOKUMENTER_PATH, "sak-dokumentliste", saksnummer));
         lenkene.add(get(BehandlingRestTjeneste.BEHANDLINGER_ALLE_PATH, "sak-alle-behandlinger", saksnummer));
         lenkene.add(get(BehandlingRestTjeneste.ANNEN_PART_BEHANDLING_PATH, "sak-annen-part-behandling", saksnummer));
+        return lenkene;
+    }
+
+    public static List<ResourceLink> lagLenkerEngangshent(Fagsak fagsak) {
+        List<ResourceLink> lenkene = new ArrayList<>();
+        lenkene.add(get(FagsakRestTjeneste.BRUKER_PATH, "sak-bruker", new SaksnummerDto(fagsak.getSaksnummer())));
         return lenkene;
     }
 

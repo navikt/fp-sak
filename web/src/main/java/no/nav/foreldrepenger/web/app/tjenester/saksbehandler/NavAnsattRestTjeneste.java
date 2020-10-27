@@ -20,6 +20,9 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 @ApplicationScoped
 @Transactional
 public class NavAnsattRestTjeneste {
+
+    public static final String NAV_ANSATT_PATH = "/nav-ansatt";
+
     private TilgangerTjeneste tilgangerTjeneste;
 
     public NavAnsattRestTjeneste() {

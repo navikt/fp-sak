@@ -33,6 +33,9 @@ import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 @Transactional
 @Produces(MediaType.APPLICATION_JSON)
 public class FeatureToggleRestTjeneste {
+
+    public static final String FEATURE_TOGGLE_PATH = "/feature-toggle";
+
     private Unleash unleash;
 
     public FeatureToggleRestTjeneste() {

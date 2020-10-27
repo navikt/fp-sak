@@ -97,7 +97,9 @@ public class AktoerRestTjeneste {
                             null,
                             fagsak.getSkalTilInfotrygd(),
                             fagsak.getRelasjonsRolleType(),
-                            finnDekningsgrad(fagsak.getSaksnummer()), FagsakApplikasjonTjeneste.lagLenker(fagsak)));
+                            finnDekningsgrad(fagsak.getSaksnummer()),
+                        FagsakApplikasjonTjeneste.lagLenker(fagsak),
+                        FagsakApplikasjonTjeneste.lagLenkerEngangshent(fagsak)));
                 }
                 aktoerInfoDto.setFagsaker(fagsakDtoer);
                 return Response.ok(aktoerInfoDto).build();

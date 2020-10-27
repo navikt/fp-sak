@@ -53,6 +53,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAkt�
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsoppretterApplikasjonTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessApplikasjonTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningApplikasjonTjeneste;
@@ -82,6 +83,7 @@ import no.nav.vedtak.feil.deklarasjon.FunksjonellFeil;
 import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 import no.nav.vedtak.felles.jpa.TomtResultatException;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
+import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
 @ApplicationScoped
 @Transactional
@@ -114,6 +116,8 @@ public class BehandlingRestTjeneste {
     public static final String HANDLING_RETTIGHETER_PATH = BASE_PATH + HANDLING_RETTIGHETER_PART_PATH;
     private static final String HANDLING_RETTIGHETER_V2_PART_PATH = "/handling-rettigheter-v2";
     public static final String HANDLING_RETTIGHETER_V2_PATH = BASE_PATH + HANDLING_RETTIGHETER_V2_PART_PATH;
+    private static final String RETTIGHETER_PART_PATH = "/rettigheter";
+    public static final String RETTIGHETER_PATH = BASE_PATH + RETTIGHETER_PART_PATH;
     private static final String ENDRE_VENTEFRIST_PART_PATH = "/endre-pa-vent";
     public static final String ENDRE_VENTEFRIST_PATH = BASE_PATH + ENDRE_VENTEFRIST_PART_PATH;
 
@@ -126,6 +130,7 @@ public class BehandlingRestTjeneste {
     private BehandlingDtoTjeneste behandlingDtoTjeneste;
     private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
     private VergeTjeneste vergeTjeneste;
+    private TotrinnTjeneste totrinnTjeneste;
 
     public BehandlingRestTjeneste() {
         // for resteasy
@@ -140,7 +145,8 @@ public class BehandlingRestTjeneste {
             VergeTjeneste vergeTjeneste,
             HenleggBehandlingTjeneste henleggBehandlingTjeneste,
             BehandlingDtoTjeneste behandlingDtoTjeneste,
-            RelatertBehandlingTjeneste relatertBehandlingTjeneste) {
+            RelatertBehandlingTjeneste relatertBehandlingTjeneste,
+            TotrinnTjeneste totrinnTjeneste) {
         this.behandlingsutredningApplikasjonTjeneste = behandlingsutredningApplikasjonTjeneste;
         this.behandlingsoppretterApplikasjonTjeneste = behandlingsoppretterApplikasjonTjeneste;
         this.behandlingOpprettingTjeneste = behandlingOpprettingTjeneste;
@@ -150,6 +156,7 @@ public class BehandlingRestTjeneste {
         this.henleggBehandlingTjeneste = henleggBehandlingTjeneste;
         this.behandlingDtoTjeneste = behandlingDtoTjeneste;
         this.relatertBehandlingTjeneste = relatertBehandlingTjeneste;
+        this.totrinnTjeneste = totrinnTjeneste;
     }
 
     @POST
@@ -439,11 +446,8 @@ public class BehandlingRestTjeneste {
         Saksnummer saksnummer = new Saksnummer(s.getVerdi());
         Fagsak f = fagsakTjeneste.finnFagsakGittSaksnummer(saksnummer, false).orElseThrow();
         var operasjoner = behandlingsutredningApplikasjonTjeneste.hentBehandlingerForSaksnummer(saksnummer).stream()
-            .filter(b -> !b.erSaksbehandlingAvsluttet() && !BehandlingStatus.FATTER_VEDTAK.equals(b.getStatus()))
-            .map(b -> new BehandlingOperasjonerDto(b.getUuid(), !b.erKøet(), true,
-                b.isBehandlingPåVent() && !b.erKøet(), !b.isBehandlingPåVent(),
-                b.erRevurdering() && !b.isBehandlingPåVent() && !b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING) && !b.erKøet(),
-                vergeTjeneste.utledBehandlingsmeny(b.getId()).getVergeBehandlingsmeny()))
+            .filter(b -> !b.erSaksbehandlingAvsluttet())
+            .map(this::lovligeOperasjoner)
             .collect(Collectors.toList());
          var oppretting = Stream.of(BehandlingType.getYtelseBehandlingTyper(), BehandlingType.getAndreBehandlingTyper())
             .flatMap(Collection::stream)
@@ -452,7 +456,42 @@ public class BehandlingRestTjeneste {
         return new SakRettigheterDto(f.getSkalTilInfotrygd(), oppretting, operasjoner);
     }
 
+    @GET
+    @Path(RETTIGHETER_PART_PATH)
+    @Operation(description = "Henter rettigheter for menyvalg", tags = "behandlinger")
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public BehandlingOperasjonerDto hentMenyOpsjoner(
+        @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
 
+        Behandling behandling = behandlingsprosessTjeneste.hentBehandling(uuidDto.getBehandlingUuid());
+
+        return lovligeOperasjoner(behandling);
+    }
+
+
+    private BehandlingOperasjonerDto lovligeOperasjoner(Behandling b) {
+        if (b.erSaksbehandlingAvsluttet()) {
+            return BehandlingOperasjonerDto.builder().build(); // Skal ikke foreta menyvalg lenger
+        } else if (BehandlingStatus.FATTER_VEDTAK.equals(b.getStatus())) {
+            boolean tilgokjenning = b.getAnsvarligSaksbehandler() != null && !b.getAnsvarligSaksbehandler().equalsIgnoreCase(SubjectHandler.getSubjectHandler().getUid());
+            return BehandlingOperasjonerDto.builder().medTilGodkjenning(tilgokjenning).build();
+        } else {
+            boolean kanÅpnesForEndring = b.erRevurdering() && !b.isBehandlingPåVent() && !b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING) && !b.erKøet();
+            boolean totrinnRetur = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(b).stream()
+                .anyMatch(tt -> !tt.isGodkjent());
+            return BehandlingOperasjonerDto.builder()
+                .medTilGodkjenning(false)
+                .medFraBeslutter(!b.isBehandlingPåVent() && totrinnRetur)
+                .medKanBytteEnhet(!b.erKøet())
+                .medKanHenlegges(true)
+                .medKanSettesPaVent(!b.isBehandlingPåVent())
+                .medKanGjenopptas(b.isBehandlingPåVent() && !b.erKøet())
+                .medKanOpnesForEndringer(kanÅpnesForEndring)
+                .medKanSendeMelding(!b.isBehandlingPåVent())
+                .medVergemeny(vergeTjeneste.utledBehandlingsmeny(b.getId()).getVergeBehandlingsmeny())
+                .build();
+        }
+    }
 
     private interface BehandlingRestTjenesteFeil extends DeklarerteFeil {
         BehandlingRestTjenesteFeil FACTORY = FeilFactory.create(BehandlingRestTjenesteFeil.class); // NOSONAR
