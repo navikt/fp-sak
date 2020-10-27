@@ -145,7 +145,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
         when(repositoryProvider.getSøknadRepository()).thenReturn(søknadRepository);
         when(repositoryProvider.getMottatteDokumentRepository()).thenReturn(mottatteDokumentRepository);
         when(repositoryProvider.getOpptjeningRepository()).thenReturn(opptjeningRepository);
-        when(repositoryProvider.getFamilieGrunnlagRepository()).thenReturn(familieHendelseRepository);
+        when(repositoryProvider.getFamilieHendelseRepository()).thenReturn(familieHendelseRepository);
 
         return behandlingRepository;
     }

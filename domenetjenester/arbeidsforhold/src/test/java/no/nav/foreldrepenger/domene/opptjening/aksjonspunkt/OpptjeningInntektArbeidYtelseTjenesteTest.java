@@ -12,9 +12,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
@@ -30,10 +30,9 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYRepositoryProvider;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
@@ -47,28 +46,36 @@ import no.nav.foreldrepenger.domene.opptjening.VurderingsStatus;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-@RunWith(CdiRunner.class)
-public class OpptjeningInntektArbeidYtelseTjenesteTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class OpptjeningInntektArbeidYtelseTjenesteTest extends EntityManagerAwareTest {
 
     public static final String NAV_ORG_NUMMER = "889640782";
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
+
     private final LocalDate skjæringstidspunkt = LocalDate.now();
-    private IAYRepositoryProvider repositoryProvider = new IAYRepositoryProvider(repoRule.getEntityManager());
-    private BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-    private FagsakRepository fagsakRepository = new FagsakRepository(repoRule.getEntityManager());
-    private InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
-    private OpptjeningRepository opptjeningRepository = repositoryProvider.getOpptjeningRepository();
-    private VirksomhetTjeneste virksomhetTjeneste = mock(VirksomhetTjeneste.class);
-    private AksjonspunktutlederForVurderOppgittOpptjening apoOpptjening = new AksjonspunktutlederForVurderOppgittOpptjening(opptjeningRepository, iayTjeneste, virksomhetTjeneste);
-    private AksjonspunktutlederForVurderBekreftetOpptjening apbOpptjening = new AksjonspunktutlederForVurderBekreftetOpptjening(opptjeningRepository, iayTjeneste);
-    private OpptjeningsperioderTjeneste asdf = new OpptjeningsperioderTjeneste(iayTjeneste, repositoryProvider.getOpptjeningRepository(),
-        apoOpptjening, apbOpptjening);
-    private OpptjeningInntektArbeidYtelseTjeneste opptjeningTjeneste = new OpptjeningInntektArbeidYtelseTjeneste(iayTjeneste, repositoryProvider.getOpptjeningRepository(), asdf);
-    private InternArbeidsforholdRef ARBEIDSFORHOLD_ID = InternArbeidsforholdRef.nyRef();
-    private AktørId AKTØRID = AktørId.dummy();
+    private BehandlingRepository behandlingRepository;
+    private FagsakRepository fagsakRepository;
+    private final InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
+    private OpptjeningRepository opptjeningRepository;
+    private final VirksomhetTjeneste virksomhetTjeneste = mock(VirksomhetTjeneste.class);
+    private OpptjeningInntektArbeidYtelseTjeneste opptjeningTjeneste;
+    private final InternArbeidsforholdRef ARBEIDSFORHOLD_ID = InternArbeidsforholdRef.nyRef();
+    private final AktørId AKTØRID = AktørId.dummy();
+
+    @BeforeEach
+    void setUp() {
+        behandlingRepository = new BehandlingRepository(getEntityManager());
+        fagsakRepository = new FagsakRepository(getEntityManager());
+        opptjeningRepository = new OpptjeningRepository(getEntityManager(), behandlingRepository);
+        var apoOpptjening = new AksjonspunktutlederForVurderOppgittOpptjening(opptjeningRepository, iayTjeneste,
+            virksomhetTjeneste);
+        var apbOpptjening = new AksjonspunktutlederForVurderBekreftetOpptjening(opptjeningRepository, iayTjeneste);
+        var opptjeningsperioderTjeneste = new OpptjeningsperioderTjeneste(iayTjeneste, opptjeningRepository, apoOpptjening,
+            apbOpptjening);
+        opptjeningTjeneste = new OpptjeningInntektArbeidYtelseTjeneste(iayTjeneste, opptjeningRepository,
+            opptjeningsperioderTjeneste);
+    }
 
     @Test
     public void skal_utlede_en_periode_for_egen_næring() {
@@ -173,7 +180,7 @@ public class OpptjeningInntektArbeidYtelseTjenesteTest {
         final VilkårResultat nyttResultat = VilkårResultat.builder().buildFor(behandling);
         behandlingRepository.lagre(nyttResultat, behandlingRepository.taSkriveLås(behandling));
 
-        repositoryProvider.getOpptjeningRepository().lagreOpptjeningsperiode(behandling, skjæringstidspunkt.minusMonths(10), skjæringstidspunkt, false);
+        opptjeningRepository.lagreOpptjeningsperiode(behandling, skjæringstidspunkt.minusMonths(10), skjæringstidspunkt, false);
         return behandling;
     }
 }

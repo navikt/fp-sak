@@ -9,8 +9,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.abakus.iaygrunnlag.AktørIdPersonident;
 import no.nav.abakus.iaygrunnlag.ArbeidsforholdRefDto;
@@ -60,15 +59,12 @@ import no.nav.abakus.iaygrunnlag.ytelse.v1.FordelingDto;
 import no.nav.abakus.iaygrunnlag.ytelse.v1.YtelseDto;
 import no.nav.abakus.iaygrunnlag.ytelse.v1.YtelseGrunnlagDto;
 import no.nav.abakus.iaygrunnlag.ytelse.v1.YtelserDto;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 public class IAYDtoMapperRoundtripTest {
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
     private final UUID uuid = UUID.randomUUID();
     private final LocalDate fom = LocalDate.now();
     private final LocalDate tom = LocalDate.now();
@@ -81,9 +77,10 @@ public class IAYDtoMapperRoundtripTest {
     private final LocalDateTime tidspunkt = LocalDateTime.now();
     private final OffsetDateTime offTidspunkt = OffsetDateTime.now();
     private final JournalpostId journalpostId = new JournalpostId("ImajournalpostId");
-    private final ArbeidsforholdRefDto arbeidsforholdId = new ArbeidsforholdRefDto(InternArbeidsforholdRef.nyRef().getReferanse(), "aaregRef");
+    private final ArbeidsforholdRefDto arbeidsforholdId = new ArbeidsforholdRefDto(InternArbeidsforholdRef.nyRef().getReferanse(),
+        "aaregRef");
 
-    private IAYFraDtoMapper fraDtoMapper = new IAYFraDtoMapper(aktørId);
+    private final IAYFraDtoMapper fraDtoMapper = new IAYFraDtoMapper(aktørId);
 
     @Test
     public void roundtrip_mapping_dto_til_grunnlag_til_dto() {

@@ -9,12 +9,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoArbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -37,20 +33,16 @@ public class ArbeidsgiverHistorikkinnslagTest {
     private static final InternArbeidsforholdRef ARBEIDSFORHOLD_REF = InternArbeidsforholdRef.namedRef("TEST-REF");
     private static final String SUFFIX = ARBEIDSFORHOLD_REF.getReferanse().substring(ARBEIDSFORHOLD_REF.getReferanse().length()-4);
 
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
-    @Mock
-    private PersonIdentTjeneste tpsTjeneste;
-
     private ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslag;
 
-    @Before
-    public void setup() {
-        when(tpsTjeneste.hentBrukerForAktør(any(AktørId.class))).thenReturn(Optional.of(lagPersoninfo()));
+    @BeforeEach
+    void setup() {
+        var personIdentTjeneste = mock(PersonIdentTjeneste.class);
+        when(personIdentTjeneste.hentBrukerForAktør(any(AktørId.class))).thenReturn(Optional.of(lagPersoninfo()));
 
         var virksomhetTjeneste = mock(VirksomhetTjeneste.class);
         when(virksomhetTjeneste.hentOrganisasjon(any())).thenReturn(VIRKSOMHET);
-        ArbeidsgiverTjeneste arbeidsgiverTjeneste = new ArbeidsgiverTjeneste(tpsTjeneste, virksomhetTjeneste);
+        ArbeidsgiverTjeneste arbeidsgiverTjeneste = new ArbeidsgiverTjeneste(personIdentTjeneste, virksomhetTjeneste);
         arbeidsgiverHistorikkinnslag = new ArbeidsgiverHistorikkinnslag(arbeidsgiverTjeneste);
     }
 

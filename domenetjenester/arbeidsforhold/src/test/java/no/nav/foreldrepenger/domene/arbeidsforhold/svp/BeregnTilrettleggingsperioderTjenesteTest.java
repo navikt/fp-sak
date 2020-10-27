@@ -7,17 +7,15 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
@@ -27,7 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.Tilrett
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYRepositoryProvider;
@@ -40,35 +38,36 @@ import no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
 
-@RunWith(CdiRunner.class)
-public class BeregnTilrettleggingsperioderTjenesteTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class BeregnTilrettleggingsperioderTjenesteTest extends EntityManagerAwareTest {
 
     private static final String ARBEIDSGIVER_ORGNR = KUNSTIG_ORG;
     public static final InternArbeidsforholdRef ARB_1 = InternArbeidsforholdRef.namedRef("arb1");
     public static final InternArbeidsforholdRef ARB_2 = InternArbeidsforholdRef.namedRef("arb2");
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
 
-    private FamilieHendelseRepository familieHendelseRepository = new FamilieHendelseRepository(repoRule.getEntityManager());
-    private SvangerskapspengerRepository svangerskapspengerRepository = new SvangerskapspengerRepository(repoRule.getEntityManager());
+    private final InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
+
+    private FamilieHendelseRepository familieHendelseRepository;
     private BeregnTilrettleggingsperioderTjeneste tjeneste;
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-    private IAYRepositoryProvider iay = new IAYRepositoryProvider(repoRule.getEntityManager());
-    private InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
+    private IAYRepositoryProvider iayRepositoryProvider;
+    private SvangerskapspengerRepository svangerskapspengerRepository;
 
-
-    @Before
-    public void settOpp() {
+    @BeforeEach
+    void setUp() {
+        var entityManager = getEntityManager();
+        iayRepositoryProvider = new IAYRepositoryProvider(entityManager);
+        familieHendelseRepository = iayRepositoryProvider.getFamilieHendelseRepository();
+        svangerskapspengerRepository = new SvangerskapspengerRepository(entityManager);
         tjeneste = new BeregnTilrettleggingsperioderTjeneste(svangerskapspengerRepository, iayTjeneste, familieHendelseRepository);
     }
 
     @Test
     public void skal_beregne_perioder() {
         IAYScenarioBuilder scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
-        Behandling behandling = scenario.lagre(iay);
+        Behandling behandling = scenario.lagre(iayRepositoryProvider);
         LocalDate termindato = LocalDate.now().plusDays(22);
         LocalDate jordmorsdato = LocalDate.now().minusDays(10);
         LocalDate delvisTilrettelegging = LocalDate.now();
@@ -80,7 +79,7 @@ public class BeregnTilrettleggingsperioderTjenesteTest {
             .medOpprinneligeTilrettelegginger(List.of(opprettTilrettelegging(jordmorsdato, delvisTilrettelegging, BigDecimal.valueOf(40), InternArbeidsforholdRef.nullRef())))
             .build();
 
-        repositoryProvider.getSvangerskapspengerRepository().lagreOgFlush(svpGrunnlag);
+        svangerskapspengerRepository.lagreOgFlush(svpGrunnlag);
         BehandlingReferanse behandlingReferanse = BehandlingReferanse.fra(behandling);
 
         InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
@@ -103,7 +102,7 @@ public class BeregnTilrettleggingsperioderTjenesteTest {
     @Test
     public void skal_beregne_perioder_riktig_ved_to_arbeidsforhold_i_samme_bedrift() {
         IAYScenarioBuilder scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
-        Behandling behandling = scenario.lagre(iay);
+        Behandling behandling = scenario.lagre(iayRepositoryProvider);
         LocalDate termindato = LocalDate.now().plusDays(22);
         LocalDate jordmorsdato = LocalDate.now().minusDays(10);
         LocalDate delvisTilrettelegging = LocalDate.now();
@@ -115,7 +114,7 @@ public class BeregnTilrettleggingsperioderTjenesteTest {
             .medOpprinneligeTilrettelegginger(List.of(opprettTilrettelegging(jordmorsdato, delvisTilrettelegging, BigDecimal.valueOf(50), ARB_1),
                 opprettTilrettelegging(jordmorsdato, delvisTilrettelegging, BigDecimal.valueOf(40), ARB_2)))
             .build();
-        repositoryProvider.getSvangerskapspengerRepository().lagreOgFlush(svpGrunnlag);
+        svangerskapspengerRepository.lagreOgFlush(svpGrunnlag);
         BehandlingReferanse behandlingReferanse = BehandlingReferanse.fra(behandling);
 
         InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
@@ -148,7 +147,7 @@ public class BeregnTilrettleggingsperioderTjenesteTest {
     @Test
     public void skal_beregne_perioder_riktig_ved_to_arbeidsforhold_i_samme_bedrift_der_det_ene_er_inaktivt_og_man_søker_uten_arbeidsforholdId() {
         IAYScenarioBuilder scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
-        Behandling behandling = scenario.lagre(iay);
+        Behandling behandling = scenario.lagre(iayRepositoryProvider);
         LocalDate termindato = LocalDate.now().plusDays(22);
         LocalDate jordmorsdato = LocalDate.now().minusDays(10);
         LocalDate delvisTilrettelegging = LocalDate.now();
@@ -160,7 +159,7 @@ public class BeregnTilrettleggingsperioderTjenesteTest {
             .medOpprinneligeTilrettelegginger(List.of(opprettTilrettelegging(jordmorsdato, delvisTilrettelegging, BigDecimal.valueOf(50), InternArbeidsforholdRef.nullRef())))
             .build();
 
-        repositoryProvider.getSvangerskapspengerRepository().lagreOgFlush(svpGrunnlag);
+        svangerskapspengerRepository.lagreOgFlush(svpGrunnlag);
         BehandlingReferanse behandlingReferanse = BehandlingReferanse.fra(behandling);
 
         InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
@@ -205,7 +204,7 @@ public class BeregnTilrettleggingsperioderTjenesteTest {
             .medMottattDato(søknadsdato)
             .medErEndringssøknad(false)
             .build();
-        repositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
+        iayRepositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
     }
 
     private FamilieHendelseEntitet byggFamilieHendelse(Behandling behandling, LocalDate termindato) {

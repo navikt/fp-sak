@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -15,12 +14,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.inject.Inject;
+import javax.enterprise.inject.spi.CDI;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
@@ -29,12 +27,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
+import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
@@ -63,46 +63,38 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 import no.nav.vedtak.konfig.Tid;
 
-@RunWith(CdiRunner.class)
-public class AvklarArbeidsforholdOppdatererTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class AvklarArbeidsforholdOppdatererTest extends EntityManagerAwareTest {
 
     private static final String NAV_ORGNR = "889640782";
     private static final InternArbeidsforholdRef ARBEIDSFORHOLD_REF = InternArbeidsforholdRef.namedRef("TEST-REF");
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private IAYRepositoryProvider repositoryProvider = new IAYRepositoryProvider(repoRule.getEntityManager());
 
-    @Inject
-    private HistorikkTjenesteAdapter historikkAdapter;
-    @Inject
-    private PersonIdentTjeneste tpsTjeneste;
-    @Inject
-    private VurderArbeidsforholdTjeneste vurderArbeidsforholdTjeneste;
-
-    private InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
+    private IAYRepositoryProvider repositoryProvider;
     private AvklarArbeidsforholdOppdaterer oppdaterer;
-    private InntektsmeldingTjeneste inntektsmeldingTjeneste = new InntektsmeldingTjeneste(iayTjeneste);
-    private String randomId = UUID.randomUUID().toString();
-    private VirksomhetTjeneste virksomhetTjeneste = mock(VirksomhetTjeneste.class);
 
-    @Before
-    public void oppsett() {
-        initMocks(this);
-        ArbeidsgiverTjeneste arbeidsgiverTjeneste = new ArbeidsgiverTjeneste(tpsTjeneste, virksomhetTjeneste);
-        ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste = new ArbeidsforholdAdministrasjonTjeneste(
+    private final InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
+    private final InntektsmeldingTjeneste inntektsmeldingTjeneste = new InntektsmeldingTjeneste(iayTjeneste);
+    private final String randomId = UUID.randomUUID().toString();
+    private final VirksomhetTjeneste virksomhetTjeneste = mock(VirksomhetTjeneste.class);
+
+    @BeforeEach
+    void setUp() {
+        repositoryProvider = new IAYRepositoryProvider(getEntityManager());
+        var historikkAdapter = new HistorikkTjenesteAdapter(new HistorikkRepository(getEntityManager()), mock(DokumentArkivTjeneste.class));
+        var tpsTjeneste = mock(PersonIdentTjeneste.class);
+        var vurderArbeidsforholdTjeneste = CDI.current().select(VurderArbeidsforholdTjeneste.class).get();
+        var arbeidsgiverTjeneste = new ArbeidsgiverTjeneste(tpsTjeneste, virksomhetTjeneste);
+        var arbeidsforholdAdministrasjonTjeneste = new ArbeidsforholdAdministrasjonTjeneste(
             vurderArbeidsforholdTjeneste,
             arbeidsgiverTjeneste,
             inntektsmeldingTjeneste,
             iayTjeneste);
         var arbeidsgiverHistorikkinnslagTjeneste = new ArbeidsgiverHistorikkinnslag(arbeidsgiverTjeneste);
-        ArbeidsforholdHistorikkinnslagTjeneste arbeidsforholdHistorikkinnslagTjeneste = new ArbeidsforholdHistorikkinnslagTjeneste(historikkAdapter, arbeidsgiverHistorikkinnslagTjeneste);
-        oppdaterer = new AvklarArbeidsforholdOppdaterer(
-            arbeidsforholdAdministrasjonTjeneste,
-            iayTjeneste,
-            arbeidsforholdHistorikkinnslagTjeneste);
+        var arbeidsforholdHistorikkinnslagTjeneste = new ArbeidsforholdHistorikkinnslagTjeneste(historikkAdapter, arbeidsgiverHistorikkinnslagTjeneste);
+        oppdaterer = new AvklarArbeidsforholdOppdaterer(arbeidsforholdAdministrasjonTjeneste, iayTjeneste, arbeidsforholdHistorikkinnslagTjeneste);
     }
 
     @Test
