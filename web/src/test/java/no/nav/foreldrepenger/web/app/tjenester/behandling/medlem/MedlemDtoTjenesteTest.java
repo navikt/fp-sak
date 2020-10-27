@@ -114,7 +114,7 @@ public class MedlemDtoTjenesteTest {
             assertThat(medlemDto.getMedlemskapPerioder()).hasSize(1);
             assertThat(medlemDto.getInntekt()).hasSize(1);
             InntektDto inntektDto = medlemDto.getInntekt().get(0);
-            assertThat(inntektDto.getUtbetaler()).isEqualTo("Lisa ...(01.01.2018)");
+            assertThat(inntektDto.getUtbetaler()).isEqualTo(arbeidsgiver.getIdentifikator());
             assertThat(inntektDto.getNavn()).isEqualTo(navn);
         });
     }

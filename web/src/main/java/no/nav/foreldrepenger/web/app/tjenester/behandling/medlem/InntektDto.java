@@ -4,7 +4,7 @@ import java.time.LocalDate;
 
 public class InntektDto {
     private String navn;
-    private String utbetaler;
+    private String utbetaler; // Orgnummer eller AktørId
     private LocalDate fom;
     private LocalDate tom;
     private Boolean ytelse;
