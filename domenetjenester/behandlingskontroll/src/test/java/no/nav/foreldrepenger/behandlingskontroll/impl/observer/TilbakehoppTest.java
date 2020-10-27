@@ -9,15 +9,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.EntityManager;
-
 import org.assertj.core.api.AbstractComparableAssert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg.TransisjonType;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
@@ -38,11 +34,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingL�
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-@RunWith(CdiRunner.class)
-public class TilbakehoppTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class TilbakehoppTest extends EntityManagerAwareTest {
 
     private BehandlingStegType steg1;
     private BehandlingStegType steg2;
@@ -51,31 +47,30 @@ public class TilbakehoppTest {
     private BehandlingStegType steg5;
     private BehandlingStegType steg6;
 
-    private List<StegTransisjon> transisjoner = new ArrayList<>();
+    private final List<StegTransisjon> transisjoner = new ArrayList<>();
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private EntityManager em = repoRule.getEntityManager();
     private final BehandlingModellRepository behandlingModellRepository = new BehandlingModellRepository();
-    private BehandlingskontrollServiceProvider serviceProvider = new BehandlingskontrollServiceProvider(em, behandlingModellRepository, null);
-    private final BehandlingRepository behandlingRepository = serviceProvider.getBehandlingRepository();
+    private BehandlingskontrollServiceProvider serviceProvider;
+    private BehandlingRepository behandlingRepository;
 
-    private BehandlingskontrollTransisjonTilbakeføringEventObserver observer = new BehandlingskontrollTransisjonTilbakeføringEventObserver(serviceProvider) {
-        @Override
-        protected void hoppBakover(BehandlingStegModell s,
-                                   no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegOvergangEvent.BehandlingStegTilbakeføringEvent event,
-                                   BehandlingStegType førsteSteg, BehandlingStegType sisteSteg) {
-            transisjoner.add(new StegTransisjon(TransisjonType.HOPP_OVER_BAKOVER, s.getBehandlingStegType()));
-        }
-    };
+    private BehandlingskontrollTransisjonTilbakeføringEventObserver observer;
 
     private Behandling behandling;
     private BehandlingLås behandlingLås;
-    private BehandlingModell modell;
 
-    @Before
-    public void before() throws Exception {
-        modell = behandlingModellRepository.getModell(BehandlingType.FØRSTEGANGSSØKNAD, FagsakYtelseType.FORELDREPENGER);
+    @BeforeEach
+    void setUp() {
+        serviceProvider = new BehandlingskontrollServiceProvider(getEntityManager(), behandlingModellRepository, null);
+        behandlingRepository = serviceProvider.getBehandlingRepository();
+        var modell = behandlingModellRepository.getModell(BehandlingType.FØRSTEGANGSSØKNAD, FagsakYtelseType.FORELDREPENGER);
+        observer = new BehandlingskontrollTransisjonTilbakeføringEventObserver(serviceProvider) {
+            @Override
+            protected void hoppBakover(BehandlingStegModell s,
+                                       no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegOvergangEvent.BehandlingStegTilbakeføringEvent event,
+                                       BehandlingStegType førsteSteg, BehandlingStegType sisteSteg) {
+                transisjoner.add(new StegTransisjon(TransisjonType.HOPP_OVER_BAKOVER, s.getBehandlingStegType()));
+            }
+        };
         steg1 = BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT;
 
         // siden konfig er statisk definert p.t. må vi lete fram noen passende steg til å hoppe mellom

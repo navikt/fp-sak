@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandlingskontroll.impl;
 import static no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat.opprettForAksjonspunkt;
 import static no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat.opprettForAksjonspunktMedFrist;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -10,12 +11,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.inject.Inject;
-
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegUtfall;
@@ -32,21 +30,18 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
-@SuppressWarnings("resource")
-@RunWith(CdiRunner.class)
-public class BehandlingModellTest {
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
+
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class BehandlingModellTest extends EntityManagerAwareTest {
 
     private static final LocalDateTime FRIST_TID = LocalDateTime.now().plusWeeks(4).withNano(0);
 
     private final BehandlingType behandlingType = BehandlingType.FØRSTEGANGSSØKNAD;
     private final FagsakYtelseType fagsakYtelseType = FagsakYtelseType.ENGANGSTØNAD;
 
-    @Rule
-    public final ExpectedException expectedException = ExpectedException.none();
-
-    @Rule
     public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
 
     private static final BehandlingStegType STEG_1 = BehandlingStegType.INNHENT_REGISTEROPP;
@@ -54,10 +49,7 @@ public class BehandlingModellTest {
     private static final BehandlingStegType STEG_3 = BehandlingStegType.SØKERS_RELASJON_TIL_BARN;
     private static final BehandlingStegType STEG_4 = BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR;
 
-    @Inject
     private BehandlingskontrollTjeneste kontrollTjeneste;
-
-    @Inject
     private BehandlingskontrollServiceProvider serviceProvider;
 
     private final DummySteg nullSteg = new DummySteg();
@@ -65,6 +57,13 @@ public class BehandlingModellTest {
     private final DummySteg aksjonspunktSteg = new DummySteg(opprettForAksjonspunkt(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL));
     private final DummySteg aksjonspunktModifisererSteg = new DummySteg(opprettForAksjonspunktMedFrist(
         AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, Venteårsak.AVV_DOK, FRIST_TID));
+
+    @BeforeEach
+    void setUp() {
+        serviceProvider = new BehandlingskontrollServiceProvider(getEntityManager(),
+            new BehandlingModellRepository(), null);
+        kontrollTjeneste = new BehandlingskontrollTjenesteImpl(serviceProvider);
+    }
 
     @Test
     public void skal_finne_aksjonspunkter_som_ligger_etter_et_gitt_steg() {
@@ -260,7 +259,7 @@ public class BehandlingModellTest {
         assertThat(gjenoppta.kjørteSteg).isEqualTo(List.of(STEG_2, STEG_3));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void skal_feile_ved_gjenopptak_vanlig_steg() {
         // Arrange
         List<TestStegKonfig> modellData = List.of(
@@ -274,7 +273,7 @@ public class BehandlingModellTest {
 
         // Act 1
         BehandlingStegVisitorVenterUtenLagring visitor = lagVisitorVenter(behandling);
-        modell.prosesserFra(STEG_1, visitor);
+        assertThrows(IllegalStateException.class, () -> modell.prosesserFra(STEG_1, visitor));
     }
 
     @Test

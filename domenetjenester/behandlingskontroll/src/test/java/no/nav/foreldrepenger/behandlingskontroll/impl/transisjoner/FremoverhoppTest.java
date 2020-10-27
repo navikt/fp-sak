@@ -10,13 +10,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.EntityManager;
-
 import org.assertj.core.api.AbstractComparableAssert;
 import org.assertj.core.api.Assertions;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
@@ -26,6 +24,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingTransisjonEvent;
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingModellRepository;
 import no.nav.foreldrepenger.behandlingskontroll.impl.observer.BehandlingskontrollFremoverhoppTransisjonEventObserver;
+import no.nav.foreldrepenger.behandlingskontroll.impl.observer.StegTransisjon;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
 import no.nav.foreldrepenger.behandlingskontroll.testutilities.TestScenario;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -41,37 +40,40 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingL�
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class FremoverhoppTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class FremoverhoppTest extends EntityManagerAwareTest {
 
-    private List<no.nav.foreldrepenger.behandlingskontroll.impl.observer.StegTransisjon> transisjoner = new ArrayList<>();
+    private final List<StegTransisjon> transisjoner = new ArrayList<>();
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private EntityManager em = repoRule.getEntityManager();
-    private BehandlingRepository behandlingRepository = new BehandlingRepository(em);
-    private BehandlingModellRepository behandlingModellRepository = new BehandlingModellRepository();
+    private BehandlingRepository behandlingRepository;
+    private final BehandlingModellRepository behandlingModellRepository = new BehandlingModellRepository();
 
-    private BehandlingskontrollServiceProvider serviceProvider = new BehandlingskontrollServiceProvider(em, behandlingModellRepository, null);
+    private BehandlingskontrollServiceProvider serviceProvider;
 
     private BehandlingStegType steg1 ;
     private BehandlingStegType steg2;
     private BehandlingStegType steg3;
-    private BehandlingskontrollFremoverhoppTransisjonEventObserver observer = new BehandlingskontrollFremoverhoppTransisjonEventObserver(serviceProvider) {
-        @Override
-        protected void hoppFramover(BehandlingStegModell stegModell, BehandlingTransisjonEvent transisjonEvent, BehandlingStegType sisteSteg,
-                                    BehandlingStegType finalFørsteSteg) {
-            transisjoner.add(new no.nav.foreldrepenger.behandlingskontroll.impl.observer.StegTransisjon(TransisjonType.HOPP_OVER_FRAMOVER,
-                stegModell.getBehandlingStegType()));
-        }
-    };
+    private BehandlingskontrollFremoverhoppTransisjonEventObserver observer;
 
     private Behandling behandling;
     private BehandlingLås behandlingLås;
 
-    @Before
-    public void before() throws Exception {
+    @BeforeEach
+    void setUp() {
+        serviceProvider = new BehandlingskontrollServiceProvider(getEntityManager(), behandlingModellRepository, null);
+        behandlingRepository = serviceProvider.getBehandlingRepository();
+        observer = new BehandlingskontrollFremoverhoppTransisjonEventObserver(serviceProvider) {
+            @Override
+            protected void hoppFramover(BehandlingStegModell stegModell, BehandlingTransisjonEvent transisjonEvent, BehandlingStegType sisteSteg,
+                                        BehandlingStegType finalFørsteSteg) {
+                transisjoner.add(new StegTransisjon(TransisjonType.HOPP_OVER_FRAMOVER,
+                    stegModell.getBehandlingStegType()));
+            }
+        };
+
         var modell = behandlingModellRepository.getModell(BehandlingType.FØRSTEGANGSSØKNAD, FagsakYtelseType.FORELDREPENGER);
         steg1 = BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG;
         steg2 = modell.finnNesteSteg(steg1).getBehandlingStegType();
@@ -111,12 +113,12 @@ public class FremoverhoppTest {
     @Test
     public void skal_kalle_transisjoner_på_steg_det_hoppes_over() throws Exception {
         assertThat(transisjonerVedFremoverhopp(fra(steg1, INN), til(steg3))).contains(
-            no.nav.foreldrepenger.behandlingskontroll.impl.observer.StegTransisjon.hoppFremoverOver(steg1),
-            no.nav.foreldrepenger.behandlingskontroll.impl.observer.StegTransisjon.hoppFremoverOver(steg2));
+            StegTransisjon.hoppFremoverOver(steg1),
+            StegTransisjon.hoppFremoverOver(steg2));
         assertThat(transisjonerVedFremoverhopp(fra(steg1, UT), til(steg3)))
-            .contains(no.nav.foreldrepenger.behandlingskontroll.impl.observer.StegTransisjon.hoppFremoverOver(steg2));
+            .contains(StegTransisjon.hoppFremoverOver(steg2));
         assertThat(transisjonerVedFremoverhopp(fra(steg2, INN), til(steg3)))
-            .contains(no.nav.foreldrepenger.behandlingskontroll.impl.observer.StegTransisjon.hoppFremoverOver(steg2));
+            .contains(StegTransisjon.hoppFremoverOver(steg2));
         assertThat(transisjonerVedFremoverhopp(fra(steg2, UT), til(steg3))).isEmpty();
     }
 
@@ -129,7 +131,7 @@ public class FremoverhoppTest {
         assertAPStatusEtterHopp(fra, til, ap).isEqualTo(orginalStatus);
     }
 
-    private List<no.nav.foreldrepenger.behandlingskontroll.impl.observer.StegTransisjon> transisjonerVedFremoverhopp(StegPort fra, BehandlingStegType til) {
+    private List<StegTransisjon> transisjonerVedFremoverhopp(StegPort fra, BehandlingStegType til) {
         // skal ikke spille noen rolle for transisjoner hvilke aksjonspunkter som finnes
         Aksjonspunkt ap = medAP(steg1, UT);
 
@@ -215,7 +217,7 @@ public class FremoverhoppTest {
         @Override
         public void vedHoppOverFramover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType fraSteg,
                                         BehandlingStegType tilSteg) {
-            transisjoner.add(new no.nav.foreldrepenger.behandlingskontroll.impl.observer.StegTransisjon(TransisjonType.HOPP_OVER_FRAMOVER, behandlingStegType));
+            transisjoner.add(new StegTransisjon(TransisjonType.HOPP_OVER_FRAMOVER, behandlingStegType));
         }
 
     }

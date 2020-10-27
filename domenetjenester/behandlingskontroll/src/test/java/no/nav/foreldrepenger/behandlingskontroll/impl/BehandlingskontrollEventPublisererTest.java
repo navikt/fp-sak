@@ -4,13 +4,12 @@ import static no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat.opp
 
 import java.util.List;
 
-import javax.inject.Inject;
+import javax.enterprise.inject.spi.CDI;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
@@ -26,11 +25,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-@RunWith(CdiRunner.class)
-public class BehandlingskontrollEventPublisererTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class BehandlingskontrollEventPublisererTest extends EntityManagerAwareTest {
     private final BehandlingType behandlingType = BehandlingType.FØRSTEGANGSSØKNAD;
     private final FagsakYtelseType fagsakYtelseType = FagsakYtelseType.ENGANGSTØNAD;
 
@@ -39,20 +38,17 @@ public class BehandlingskontrollEventPublisererTest {
     private static final BehandlingStegType STEG_3 = BehandlingStegType.SØKERS_RELASJON_TIL_BARN;
 
     private static final BehandlingStegType STEG_4 = BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR;
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
 
-    @Inject
-    BehandlingskontrollEventPubliserer eventPubliserer;
+    private BehandlingskontrollServiceProvider serviceProvider;
 
-    @Inject
-    BehandlingskontrollServiceProvider serviceProvider;
+    private BehandlingskontrollTjenesteImpl kontrollTjeneste;
 
-    // No Inject
-    BehandlingskontrollTjenesteImpl kontrollTjeneste;
+    @BeforeEach
+    void setup() {
+        serviceProvider = new BehandlingskontrollServiceProvider(getEntityManager(), new BehandlingModellRepository(),
+            new BehandlingskontrollEventPubliserer(CDI.current().getBeanManager()));
+        kontrollTjeneste = new BehandlingskontrollTjenesteImpl(serviceProvider);
 
-    @Before
-    public void setup() {
         BehandlingModellImpl behandlingModell = byggModell();
 
         kontrollTjeneste = new BehandlingskontrollTjenesteImpl(serviceProvider) {
@@ -65,7 +61,7 @@ public class BehandlingskontrollEventPublisererTest {
         TestEventObserver.startCapture();
     }
 
-    @After
+    @AfterEach
     public void after() {
         TestEventObserver.reset();
     }
