@@ -95,15 +95,14 @@ public class InntektsmeldingTjenesteTest extends EntityManagerAwareTest {
     private IAYRepositoryProvider repositoryProvider;
     private BehandlingRepository behandlingRepository;
     private FagsakRepository fagsakRepository;
-    private InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
-    private InntektsmeldingTjeneste inntektsmeldingTjeneste = new InntektsmeldingTjeneste(iayTjeneste);
+    private final InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
+    private final InntektsmeldingTjeneste inntektsmeldingTjeneste = new InntektsmeldingTjeneste(iayTjeneste);
     private InntektsmeldingRegisterTjeneste inntektsmeldingArkivTjeneste;
     private Arbeidsgiver arbeidsgiver;
-    private ArbeidsforholdTjenesteMock arbeidsforholdTjenesteMock;
     private Arbeidsgiver arbeidsgiver2;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         fagsakRepository = new FagsakRepository(getEntityManager());
         repositoryProvider = new IAYRepositoryProvider(getEntityManager());
         behandlingRepository = repositoryProvider.getBehandlingRepository();
@@ -115,7 +114,7 @@ public class InntektsmeldingTjenesteTest extends EntityManagerAwareTest {
 
         var virksomhetTjeneste = mock(VirksomhetTjeneste.class);
         when(virksomhetTjeneste.hentOrganisasjon(any())).thenReturn(virksomhet1);
-        arbeidsforholdTjenesteMock = new ArbeidsforholdTjenesteMock(false);
+        ArbeidsforholdTjenesteMock arbeidsforholdTjenesteMock = new ArbeidsforholdTjenesteMock(false);
         var vurderArbeidsforholdTjeneste = mock(VurderArbeidsforholdTjeneste.class);
         arbeidsgiver2 = Arbeidsgiver.virksomhet(virksomhet2.getOrgnr());
         Set<InternArbeidsforholdRef> arbeidsforholdRefSet = new HashSet<>();

@@ -3,8 +3,9 @@ package no.nav.foreldrepenger.domene.opptjening.aksjonspunkt;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -15,15 +16,19 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class OpptjeningIUtlandDokStatusTjenesteTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class OpptjeningIUtlandDokStatusTjenesteTest extends EntityManagerAwareTest {
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
+    private OpptjeningIUtlandDokStatusTjeneste tjeneste;
 
-    private OpptjeningIUtlandDokStatusTjeneste tjeneste = new OpptjeningIUtlandDokStatusTjeneste(new OpptjeningIUtlandDokStatusRepository(repoRule.getEntityManager()));
+    @BeforeEach
+    void setUp() {
+        tjeneste = new OpptjeningIUtlandDokStatusTjeneste(new OpptjeningIUtlandDokStatusRepository(getEntityManager()));
+    }
 
     @Test
     public void skalLagreOgHente() {
@@ -58,10 +63,11 @@ public class OpptjeningIUtlandDokStatusTjenesteTest {
 
     private Behandling opprettBehandling() {
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
-        new FagsakRepository(repoRule.getEntityManager()).opprettNy(fagsak);
+        var entityManager = getEntityManager();
+        new FagsakRepository(entityManager).opprettNy(fagsak);
         var builder = Behandling.forFørstegangssøknad(fagsak);
         var behandling = builder.build();
-        new BehandlingRepository(repoRule.getEntityManager()).lagre(behandling, new BehandlingLåsRepository(repoRule.getEntityManager()).taLås(behandling.getId()));
+        new BehandlingRepository(entityManager).lagre(behandling, new BehandlingLåsRepository(entityManager).taLås(behandling.getId()));
         return behandling;
     }
 }

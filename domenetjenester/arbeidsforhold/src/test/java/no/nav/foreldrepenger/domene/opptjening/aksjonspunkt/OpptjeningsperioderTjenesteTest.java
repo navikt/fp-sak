@@ -11,9 +11,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import javax.persistence.EntityManager;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
@@ -30,10 +32,9 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYRepositoryProvider;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjonBuilder;
@@ -63,36 +64,39 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-@RunWith(CdiRunner.class)
-public class OpptjeningsperioderTjenesteTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class OpptjeningsperioderTjenesteTest extends EntityManagerAwareTest {
 
     private static final String ORG_NUMMER = KUNSTIG_ORG;
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
+    private BehandlingRepository behandlingRepository;
 
-    private IAYRepositoryProvider repositoryProvider = new IAYRepositoryProvider(repoRule.getEntityManager());
+    private FagsakRepository fagsakRepository;
 
-    private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-
-    private FagsakRepository fagsakRepository = new FagsakRepository(repoRule.getEntityManager());
-
-    private OpptjeningRepository opptjeningRepository = repositoryProvider.getOpptjeningRepository();
+    private OpptjeningRepository opptjeningRepository;
 
     private final InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
     private final VirksomhetTjeneste virksomhetTjeneste = mock(VirksomhetTjeneste.class);
-    private final AksjonspunktutlederForVurderOppgittOpptjening aksjonspunktutlederForVurderOpptjening = new AksjonspunktutlederForVurderOppgittOpptjening(
-        opptjeningRepository, iayTjeneste, virksomhetTjeneste);
-    private AksjonspunktutlederForVurderBekreftetOpptjening apbOpptjening = new AksjonspunktutlederForVurderBekreftetOpptjening(
-        repositoryProvider.getOpptjeningRepository(), iayTjeneste);
-    private OpptjeningsperioderTjeneste forSaksbehandlingTjeneste = new OpptjeningsperioderTjeneste(iayTjeneste, repositoryProvider.getOpptjeningRepository(),
-        aksjonspunktutlederForVurderOpptjening, apbOpptjening);
+    private OpptjeningsperioderTjeneste forSaksbehandlingTjeneste;
 
-    private InternArbeidsforholdRef ARBEIDSFORHOLD_ID = InternArbeidsforholdRef.nyRef();
-    private AktørId AKTØRID = AktørId.dummy();
+    private final InternArbeidsforholdRef ARBEIDSFORHOLD_ID = InternArbeidsforholdRef.nyRef();
+    private final AktørId AKTØRID = AktørId.dummy();
     private final LocalDate skjæringstidspunkt = LocalDate.now();
+
+    @BeforeEach
+    void setUp() {
+        var entityManager = getEntityManager();
+        behandlingRepository = new BehandlingRepository(entityManager);
+        fagsakRepository = new FagsakRepository(entityManager);
+        opptjeningRepository = new OpptjeningRepository(entityManager, behandlingRepository);
+        var aksjonspunktutlederForVurderOpptjening = new AksjonspunktutlederForVurderOppgittOpptjening(opptjeningRepository,
+            iayTjeneste, virksomhetTjeneste);
+        var apbOpptjening = new AksjonspunktutlederForVurderBekreftetOpptjening(opptjeningRepository, iayTjeneste);
+        forSaksbehandlingTjeneste = new OpptjeningsperioderTjeneste(iayTjeneste, opptjeningRepository, aksjonspunktutlederForVurderOpptjening,
+            apbOpptjening);
+    }
 
     @Test
     public void skal_utlede_opptjening_aktivitet_periode_uten_overstyrt() {

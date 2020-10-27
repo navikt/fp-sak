@@ -6,32 +6,28 @@ import static org.mockito.Mockito.mock;
 
 import java.time.LocalDate;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYRepositoryProvider;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYScenarioBuilder;
 import no.nav.vedtak.felles.integrasjon.organisasjon.OrganisasjonRestKlient;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-
-public class VirksomhetTjenesteTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class VirksomhetTjenesteTest extends EntityManagerAwareTest {
     private static final String ORGNR = KUNSTIG_ORG;
     private static final String NAVN = "Kunstig virksomhet";
-    private static final LocalDate REGISTRERTDATO = LocalDate.of(1978, 01, 01);
-
-    @Rule
-    public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
-
-    private IAYRepositoryProvider repositoryProvider = new IAYRepositoryProvider(repositoryRule.getEntityManager());
+    private static final LocalDate REGISTRERTDATO = LocalDate.of(1978, 1, 1);
 
     @Test
-    public void skal_kalle_consumer_og_oversette_response() throws Exception {
+    public void skal_kalle_consumer_og_oversette_response() {
         // Arrange
         IAYScenarioBuilder  scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.ENGANGSTØNAD);
-        scenario.lagre(repositoryProvider);
+        scenario.lagre(new IAYRepositoryProvider(getEntityManager()));
 
         var organisasjonConsumer = mock(OrganisasjonRestKlient.class);
 

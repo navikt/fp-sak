@@ -22,7 +22,7 @@ public class ArbeidsforholdTjenesteMock {
     private static final LocalDate PERIODE_FOM = LocalDate.now().minusYears(3L);
     private final no.nav.foreldrepenger.domene.abakus.ArbeidsforholdTjeneste arbeidsforholdTjeneste;
 
-    public ArbeidsforholdTjenesteMock(boolean medToArbeidsforhold) throws Exception {
+    public ArbeidsforholdTjenesteMock(boolean medToArbeidsforhold) {
         List<ArbeidsforholdDto> response = opprettResponse(medToArbeidsforhold);
 
         AbakusTjeneste arbeidsforholdConsumer = mock(AbakusTjeneste.class);
@@ -34,7 +34,7 @@ public class ArbeidsforholdTjenesteMock {
         return arbeidsforholdTjeneste;
     }
 
-    private List<ArbeidsforholdDto> opprettResponse(boolean medToArbeidsforhold) throws Exception {
+    private List<ArbeidsforholdDto> opprettResponse(boolean medToArbeidsforhold) {
         final var arbeidsforhold = new ArbeidsforholdDto(new Organisasjon(ORGNR1), ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
         arbeidsforhold.setAnsettelsesperiode(List.of(new Periode(PERIODE_FOM, Tid.TIDENES_ENDE)));
         arbeidsforhold.setArbeidsforholdId(new ArbeidsforholdRefDto(null, "1"));

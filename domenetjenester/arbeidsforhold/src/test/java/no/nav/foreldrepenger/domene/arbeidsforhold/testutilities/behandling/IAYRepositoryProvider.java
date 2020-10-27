@@ -97,7 +97,7 @@ public class IAYRepositoryProvider {
         return beregningsresultatRepository;
     }
 
-    public FamilieHendelseRepository getFamilieGrunnlagRepository() {
+    public FamilieHendelseRepository getFamilieHendelseRepository() {
         return familieHendelseRepository;
     }
 

@@ -10,8 +10,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -28,7 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
@@ -49,26 +50,34 @@ import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class VurderArbeidsforholdTjenesteTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class VurderArbeidsforholdTjenesteTest extends EntityManagerAwareTest {
 
     private static final LocalDate IDAG = LocalDate.now();
-    private LocalDateTime nåTid = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-    private volatile int nåTidTeller;
+    private final LocalDateTime nåTid = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
 
     private final LocalDate skjæringstidspunkt = IDAG.minusDays(30);
 
-    @Rule
-    public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
-    private IAYRepositoryProvider repositoryProvider = new IAYRepositoryProvider(repositoryRule.getEntityManager());
-    private InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
-    private InntektsmeldingTjeneste inntektsmeldingTjeneste = new InntektsmeldingTjeneste(iayTjeneste);
-    private InntektsmeldingFilterYtelse inntektsmeldingFilterYtelse = new InntektsmeldingFilterYtelseImpl();
-    private InntektsmeldingRegisterTjeneste inntektsmeldingArkivTjeneste = new InntektsmeldingRegisterTjeneste(iayTjeneste, inntektsmeldingTjeneste,
-            null, new UnitTestLookupInstanceImpl<>(inntektsmeldingFilterYtelse));
-    private PåkrevdeInntektsmeldingerTjeneste påkrevdeInntektsmeldingerTjeneste = new PåkrevdeInntektsmeldingerTjeneste(inntektsmeldingArkivTjeneste,
+    private final InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
+    private final InntektsmeldingTjeneste inntektsmeldingTjeneste = new InntektsmeldingTjeneste(iayTjeneste);
+    private final InntektsmeldingFilterYtelse inntektsmeldingFilterYtelse = new InntektsmeldingFilterYtelseImpl();
+    private final InntektsmeldingRegisterTjeneste inntektsmeldingArkivTjeneste =
+        new InntektsmeldingRegisterTjeneste(iayTjeneste, inntektsmeldingTjeneste, null,
+            new UnitTestLookupInstanceImpl<>(inntektsmeldingFilterYtelse));
+    private VurderArbeidsforholdTjeneste tjeneste;
+
+    private IAYRepositoryProvider repositoryProvider;
+
+    @BeforeEach
+    void setUp() {
+        var entityManager = getEntityManager();
+        repositoryProvider = new IAYRepositoryProvider(entityManager);
+        var påkrevdeInntektsmeldingerTjeneste = new PåkrevdeInntektsmeldingerTjeneste(inntektsmeldingArkivTjeneste,
             repositoryProvider.getSøknadRepository());
-    private VurderArbeidsforholdTjeneste tjeneste = new VurderArbeidsforholdTjeneste(påkrevdeInntektsmeldingerTjeneste);
+        tjeneste = new VurderArbeidsforholdTjeneste(påkrevdeInntektsmeldingerTjeneste);
+    }
 
     @Test
     public void skal_ikke_gi_aksjonspunkt() {
@@ -93,7 +102,7 @@ public class VurderArbeidsforholdTjenesteTest {
         arbeidBuilder.leggTilYrkesaktivitet(yrkesBuilder);
         builder.leggTilAktørArbeid(arbeidBuilder);
         iayTjeneste.lagreIayAggregat(behandling.getId(), builder);
-        sendNyInntektsmelding(behandling, virksomhet, ref);
+        sendNyInntektsmelding(behandling, virksomhet, ref, nåTid);
 
         Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> vurder = hentArbeidsforhold(behandling);
         assertThat(vurder).isEmpty();
@@ -103,7 +112,7 @@ public class VurderArbeidsforholdTjenesteTest {
         @SuppressWarnings("unused")
         var revurdering = opprettRevurderingsbehandling(behandling);
 
-        sendInnInntektsmelding(behandling, virksomhet, null);
+        sendInnInntektsmelding(behandling, virksomhet, null, nåTid.plusSeconds(1));
 
         vurder = hentArbeidsforhold(behandling);
         assertThat(vurder).isEmpty();
@@ -138,7 +147,7 @@ public class VurderArbeidsforholdTjenesteTest {
         builder.leggTilAktørArbeid(arbeidBuilder);
         iayTjeneste.lagreIayAggregat(behandling.getId(), builder);
 
-        sendNyInntektsmelding(behandling, virksomhet, ref);
+        sendNyInntektsmelding(behandling, virksomhet, ref, nåTid);
 
         Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> vurder = hentArbeidsforhold(behandling);
         assertThat(vurder).isEmpty();
@@ -148,7 +157,7 @@ public class VurderArbeidsforholdTjenesteTest {
         @SuppressWarnings("unused")
         var revurdering = opprettRevurderingsbehandling(behandling);
 
-        sendInnInntektsmelding(behandling, virksomhet, ref);
+        sendInnInntektsmelding(behandling, virksomhet, ref, nåTid);
 
         vurder = hentArbeidsforhold(behandling);
         assertThat(vurder).isEmpty();
@@ -157,8 +166,7 @@ public class VurderArbeidsforholdTjenesteTest {
     private Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> hentArbeidsforhold(final Behandling behandling) {
         var iayGrunnlag = iayTjeneste.hentGrunnlag(behandling.getId());
         var sakInntektsmeldinger = iayTjeneste.hentInntektsmeldinger(behandling.getFagsak().getSaksnummer());
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> vurder = tjeneste.vurder(lagRef(behandling), iayGrunnlag, sakInntektsmeldinger, true);
-        return vurder;
+        return tjeneste.vurder(lagRef(behandling), iayGrunnlag, sakInntektsmeldinger, true);
     }
 
     @Test
@@ -200,8 +208,8 @@ public class VurderArbeidsforholdTjenesteTest {
         builder.leggTilAktørArbeid(arbeidBuilder);
         iayTjeneste.lagreIayAggregat(behandling.getId(), builder);
 
-        sendNyInntektsmelding(behandling, virksomhet, ref);
-        sendNyInntektsmelding(behandling, virksomhet, ref1);
+        sendNyInntektsmelding(behandling, virksomhet, ref, nåTid);
+        sendNyInntektsmelding(behandling, virksomhet, ref1, nåTid.plusSeconds(1));
 
         var iayGrunnlag = iayTjeneste.hentGrunnlag(behandling.getId());
         var sakInntektsmeldinger = iayTjeneste.hentInntektsmeldinger(behandling.getFagsak().getSaksnummer());
@@ -240,7 +248,7 @@ public class VurderArbeidsforholdTjenesteTest {
                         .medPeriode(DatoIntervallEntitet.fraOgMed(skjæringstidspunkt.minusMonths(1)))
                         .medVirksomhetType(VirksomhetType.FISKE))));
 
-        sendNyInntektsmelding(behandling, virksomhet, ref);
+        sendNyInntektsmelding(behandling, virksomhet, ref, nåTid);
 
         var iayGrunnlag = iayTjeneste.hentGrunnlag(behandling.getId());
         var sakInntektsmeldinger = iayTjeneste.hentInntektsmeldinger(behandling.getFagsak().getSaksnummer());
@@ -248,7 +256,10 @@ public class VurderArbeidsforholdTjenesteTest {
         assertThat(vurder).isNotEmpty();
     }
 
-    private void sendNyInntektsmelding(Behandling behandling, Arbeidsgiver arbeidsgiver, EksternArbeidsforholdRef ref) {
+    private void sendNyInntektsmelding(Behandling behandling,
+                                       Arbeidsgiver arbeidsgiver,
+                                       EksternArbeidsforholdRef ref,
+                                       LocalDateTime innsendingstidspunkt) {
         MottattDokument mottattDokument = new MottattDokument.Builder()
                 .medFagsakId(behandling.getFagsakId())
                 .medBehandlingId(behandling.getId())
@@ -264,23 +275,21 @@ public class VurderArbeidsforholdTjenesteTest {
                 .medBeløp(BigDecimal.TEN)
                 .medStartDatoPermisjon(skjæringstidspunkt)
                 .medInntektsmeldingaarsak(InntektsmeldingInnsendingsårsak.NY)
-                .medInnsendingstidspunkt(nyTid()).medJournalpostId(mottattDokument.getJournalpostId());
+                .medInnsendingstidspunkt(innsendingstidspunkt)
+            .medJournalpostId(mottattDokument.getJournalpostId());
 
         inntektsmeldingTjeneste.lagreInntektsmelding(behandling.getFagsak().getSaksnummer(), behandling.getId(), inntektsmeldingBuilder);
     }
 
-    private LocalDateTime nyTid() {
-        return nåTid.plusSeconds((nåTidTeller++));
-    }
-
-    private void sendInnInntektsmelding(Behandling behandling, Arbeidsgiver arbeidsgiver, EksternArbeidsforholdRef ref) {
+    private void sendInnInntektsmelding(Behandling behandling, Arbeidsgiver arbeidsgiver, EksternArbeidsforholdRef ref, LocalDateTime innsendingstidspunkt) {
         var inntektsmeldingBuilder = InntektsmeldingBuilder.builder()
                 .medArbeidsgiver(arbeidsgiver)
                 .medArbeidsforholdId(ref)
                 .medBeløp(BigDecimal.TEN)
                 .medStartDatoPermisjon(skjæringstidspunkt)
                 .medInntektsmeldingaarsak(InntektsmeldingInnsendingsårsak.ENDRING)
-                .medInnsendingstidspunkt(nyTid()).medJournalpostId(new JournalpostId("123"));
+                .medInnsendingstidspunkt(innsendingstidspunkt)
+            .medJournalpostId(new JournalpostId("123"));
 
         inntektsmeldingTjeneste.lagreInntektsmelding(behandling.getFagsak().getSaksnummer(), behandling.getId(), inntektsmeldingBuilder);
     }
