@@ -54,15 +54,11 @@ public class AktørTjeneste {
         request.setGrupper(List.of(IdentGruppe.AKTORID));
         request.setHistorikk(Boolean.FALSE);
         var projection = new IdentlisteResponseProjection()
-            .identer(new IdentInformasjonResponseProjection()
-                .ident()
-                .gruppe());
+            .identer(new IdentInformasjonResponseProjection().ident());
 
         var identliste = pdlKlient.hentIdenter(request, projection, Tema.FOR);
 
-        var aktørId = identliste.getIdenter().stream()
-            .filter(i -> IdentGruppe.AKTORID.equals(i.getGruppe()))
-            .findFirst().map(IdentInformasjon::getIdent).map(AktørId::new);
+        var aktørId = identliste.getIdenter().stream().findFirst().map(IdentInformasjon::getIdent).map(AktørId::new);
         aktørId.ifPresent(a -> cacheIdentTilAktørId.put(personIdent, a)); // Kan ikke legge til i cache aktørId -> ident ettersom ident kan være ikke-current
         return aktørId;
     }
@@ -77,15 +73,11 @@ public class AktørTjeneste {
         request.setGrupper(List.of(IdentGruppe.FOLKEREGISTERIDENT));
         request.setHistorikk(Boolean.FALSE);
         var projection = new IdentlisteResponseProjection()
-            .identer(new IdentInformasjonResponseProjection()
-                .ident()
-                .gruppe());
+            .identer(new IdentInformasjonResponseProjection().ident());
 
         var identliste = pdlKlient.hentIdenter(request, projection, Tema.FOR);
 
-        var ident = identliste.getIdenter().stream()
-            .filter(i -> IdentGruppe.FOLKEREGISTERIDENT.equals(i.getGruppe()))
-            .findFirst().map(IdentInformasjon::getIdent).map(PersonIdent::new);
+        var ident = identliste.getIdenter().stream().findFirst().map(IdentInformasjon::getIdent).map(PersonIdent::new);
         ident.ifPresent(i -> {
             cacheAktørIdTilIdent.put(aktørId, i);
             cacheIdentTilAktørId.put(i, aktørId); // OK her, men ikke over ettersom dette er gjeldende mapping
