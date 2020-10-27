@@ -10,9 +10,9 @@ import java.time.Period;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
@@ -38,12 +38,12 @@ public class VurderBehovForÅHindreTilbaketrekkTest {
     private static final InternArbeidsforholdRef REF2 = InternArbeidsforholdRef.nyRef();
     private static final InternArbeidsforholdRef REF3 = InternArbeidsforholdRef.nyRef();
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         settSimulertNåtidTil(LocalDate.of(2019, Month.FEBRUARY, 4));
     }
 
-    @AfterClass
+    @AfterAll
     public static void teardown() {
         settSimulertNåtidTil(LocalDate.now());
         FPDateUtil.init();

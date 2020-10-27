@@ -7,11 +7,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import javax.persistence.EntityManager;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -27,31 +25,41 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskateg
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.ytelse.beregning.fp.BeregnFeriepenger;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
-public class BeregnFeriepengerTjenesteTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class BeregnFeriepengerTjenesteTest extends EntityManagerAwareTest {
 
     private static final LocalDate SKJÆRINGSTIDSPUNKT_MOR = LocalDate.of(2018, 12, 1);
     private static final LocalDate SKJÆRINGSTIDSPUNKT_FAR = SKJÆRINGSTIDSPUNKT_MOR.plusWeeks(6);
     private static final LocalDate SISTE_DAG_FAR = SKJÆRINGSTIDSPUNKT_FAR.plusWeeks(4);
     private static final int DAGSATS = 123;
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private final EntityManager entityManager = repoRule.getEntityManager();
-    private final Repository repository = repoRule.getRepository();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-    private BeregningsresultatRepository beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
+
+    private Repository repository;
+    private BehandlingRepositoryProvider repositoryProvider;
+    private BeregningsresultatRepository beregningsresultatRepository;
 
     private BeregnFeriepengerTjeneste tjeneste;
+    private FagsakRelasjonRepository fagsakRelasjonRepository;
 
-    @Before
+    @BeforeEach
     public void setUp() {
+        var entityManager = getEntityManager();
+        repository = new Repository(entityManager);
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
         tjeneste = new BeregnFeriepenger(repositoryProvider, 60);
+        fagsakRelasjonRepository = new FagsakRelasjonRepository(entityManager, new YtelsesFordelingRepository(entityManager),
+            new FagsakLåsRepository(entityManager));
     }
 
     @Test
@@ -60,8 +68,8 @@ public class BeregnFeriepengerTjenesteTest {
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medDefaultOppgittDekningsgrad();
         Behandling morsBehandling = scenario.lagre(repositoryProvider);
-        repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
-        repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
+        fagsakRelasjonRepository.opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
+        fagsakRelasjonRepository.kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
         BeregningsresultatEntitet morsBeregningsresultatFP = lagBeregningsresultatFP(SKJÆRINGSTIDSPUNKT_MOR, SKJÆRINGSTIDSPUNKT_FAR, Inntektskategori.ARBEIDSTAKER);
 
         // Act
@@ -76,7 +84,7 @@ public class BeregnFeriepengerTjenesteTest {
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medDefaultOppgittDekningsgrad();
         Behandling morsBehandling = scenario.lagre(repositoryProvider);
-        repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
+        fagsakRelasjonRepository.opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
         BeregningsresultatEntitet morsBeregningsresultatFP = lagBeregningsresultatFP(SKJÆRINGSTIDSPUNKT_MOR, SKJÆRINGSTIDSPUNKT_MOR.plusMonths(6), Inntektskategori.ARBEIDSTAKER_UTEN_FERIEPENGER);
 
         // Act

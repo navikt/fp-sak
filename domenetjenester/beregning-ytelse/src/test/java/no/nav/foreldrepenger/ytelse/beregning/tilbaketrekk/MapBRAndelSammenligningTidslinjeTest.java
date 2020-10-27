@@ -10,8 +10,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
@@ -32,7 +32,7 @@ public class MapBRAndelSammenligningTidslinjeTest {
     private static final InternArbeidsforholdRef REF1 = InternArbeidsforholdRef.nyRef();
     private static final InternArbeidsforholdRef REF2 = InternArbeidsforholdRef.nyRef();
 
-    @After
+    @AfterEach
     public void teardown() {
         settSimulertNåtidTil(LocalDate.now());
         FPDateUtil.init();
