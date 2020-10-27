@@ -124,6 +124,7 @@ public class InntektArbeidYtelseDtoMapper {
 
     private void mapArbeidsgiverIdentifikator(ArbeidsforholdWrapper wrapper, ArbeidsforholdDto arbeidsforholdDto) {
         arbeidsforholdDto.setArbeidsgiverIdentifikator(wrapper.getArbeidsgiverIdentifikator());
+        arbeidsforholdDto.setArbeidsgiverReferanse(wrapper.getArbeidsgiverReferanse());
         if (gjelderVirksomhet(wrapper)) {
             arbeidsforholdDto.setArbeidsgiverIdentifiktorGUI(wrapper.getArbeidsgiverIdentifikator());
         } else {

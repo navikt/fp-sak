@@ -6,7 +6,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -38,7 +37,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
@@ -131,11 +129,7 @@ public class MedlemDtoTjeneste {
         if (arbeidsgiver == null) {
             return null;
         }
-        if (arbeidsgiver.erAktørId()) {
-            return lagPrivatpersontekst(arbeidsgiver);
-        } else {
-            return arbeidsgiver.getIdentifikator();
-        }
+        return arbeidsgiver.getIdentifikator();
     }
 
     public Optional<MedlemV2Dto> lagMedlemV2Dto(Long behandlingId) {
@@ -292,18 +286,6 @@ public class MedlemDtoTjeneste {
         return personopplysning.getNavn(); //$NON-NLS-1$
     }
 
-    private String lagPrivatpersontekst(Arbeidsgiver arbeidsgiver) {
-        ArbeidsgiverOpplysninger opplysninger = arbeidsgiverTjeneste.hent(arbeidsgiver);
-        if (opplysninger.getNavn() == null) {
-            return UKJENT_NAVN;
-        }
-        String navn = opplysninger.getNavn();
-        String avkortetNavn = navn.length() < 5 ? navn : navn.substring(0, 5);
-        String formatertFødselsdato = opplysninger.getFødselsdato() != null
-            ? opplysninger.getFødselsdato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
-            : opplysninger.getIdentifikator();
-        return avkortetNavn + "..." + "(" + formatertFødselsdato + ")";
-    }
 
     //TODO(OJR) Hack!!! kan fjernes hvis man ønsker å utføre en migrerning(kompleks) av gamle medlemskapvurdering i produksjon
     private String hentBegrunnelseFraAksjonspuntk(Set<Aksjonspunkt> aksjonspunkter) {

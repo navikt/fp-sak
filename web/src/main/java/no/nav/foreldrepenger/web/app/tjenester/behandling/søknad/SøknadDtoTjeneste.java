@@ -169,6 +169,7 @@ public class SøknadDtoTjeneste {
         dto.setNavn(opplysninger.getNavn());
         dto.setFødselsdato(opplysninger.getFødselsdato());
         dto.setAktørId(aktørId);
+        dto.setArbeidsgiverReferanse(aktørId);
 
         // Dette må gjøres for å ikke knekke frontend, kan fjernes når frontend er rettet.
         dto.setOrganisasjonsnummer(opplysninger.getIdentifikator());
@@ -179,6 +180,7 @@ public class SøknadDtoTjeneste {
     private ArbeidsgiverDto virksomhetArbeidsgiver(String orgnr) {
         ArbeidsgiverOpplysninger opplysninger = arbeidsgiverTjeneste.hent(Arbeidsgiver.virksomhet(orgnr));
         ArbeidsgiverDto dto = new ArbeidsgiverDto();
+        dto.setArbeidsgiverReferanse(orgnr);
         dto.setOrganisasjonsnummer(orgnr);
         dto.setNavn(opplysninger.getNavn());
         return dto;

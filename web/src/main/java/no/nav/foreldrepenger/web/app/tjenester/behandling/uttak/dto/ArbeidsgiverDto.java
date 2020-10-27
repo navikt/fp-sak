@@ -17,11 +17,14 @@ public class ArbeidsgiverDto {
 
     private String navn;
 
+    private String arbeidsgiverReferanse;
+
     private ArbeidsgiverDto(String identifikator, String navn, AktørId aktørId, LocalDate fødselsdato) {
         this.identifikator = identifikator;
         this.navn = navn;
         this.aktørId = aktørId;
         this.fødselsdato = fødselsdato;
+        this.arbeidsgiverReferanse = aktørId != null ? aktørId.getId() : identifikator;
     }
 
     public static ArbeidsgiverDto virksomhet(String identifikator, String navn) {
@@ -30,6 +33,10 @@ public class ArbeidsgiverDto {
 
     public static ArbeidsgiverDto person(String navn, AktørId aktørId, LocalDate fødselsdato) {
         return new ArbeidsgiverDto(null, navn, aktørId, fødselsdato);
+    }
+
+    public String getArbeidsgiverReferanse() {
+        return arbeidsgiverReferanse;
     }
 
     public String getIdentifikator() {

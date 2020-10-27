@@ -6,13 +6,22 @@ public class TotrinnskontrollAktivitetDto {
 
     private String aktivitetType;
     private Boolean erEndring;
+    private boolean godkjent;
+    private String arbeidsgiverReferanse;
     private String arbeidsgiverNavn;
     private String orgnr;
-    private boolean godkjent;
     private LocalDate privatpersonFødselsdato;
 
     public TotrinnskontrollAktivitetDto() {
         //Tom
+    }
+
+    public String getArbeidsgiverReferanse() {
+        return arbeidsgiverReferanse;
+    }
+
+    public void setArbeidsgiverReferanse(String arbeidsgiverReferanse) {
+        this.arbeidsgiverReferanse = arbeidsgiverReferanse;
     }
 
     public String getAktivitetType() {

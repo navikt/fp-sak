@@ -456,6 +456,7 @@ public class ArbeidsforholdAdministrasjonTjeneste {
     }
 
     private void mapArbeidsgiver(ArbeidsforholdWrapper wrapper, Arbeidsgiver arbeidsgiver, List<ArbeidsforholdOverstyring> overstyringer) {
+        wrapper.setArbeidsgiverReferanse(arbeidsgiver.getIdentifikator());
         ArbeidsgiverOpplysninger opplysninger = arbeidsgiverTjeneste.hent(arbeidsgiver);
         Optional<String> navnOpt = overstyringer.stream()
             .filter(o -> o.getArbeidsgiver().equals(arbeidsgiver) && o.getArbeidsgiverNavn() != null)
@@ -474,6 +475,7 @@ public class ArbeidsforholdAdministrasjonTjeneste {
     }
 
     private void mapArbeidsgiverForOverstyring(ArbeidsforholdWrapper wrapper, Arbeidsgiver arbeidsgiver, List<ArbeidsforholdOverstyring> overstyringer) {
+        wrapper.setArbeidsgiverReferanse(arbeidsgiver.getIdentifikator());
         ArbeidsgiverOpplysninger opplysninger = arbeidsgiverTjeneste.hent(arbeidsgiver);
         if (opplysninger == null) {
             wrapper.setNavn("N/A");

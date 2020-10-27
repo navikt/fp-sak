@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 //NOSONAR
 public class ArbeidsforholdWrapper {
 
+    private String arbeidsgiverReferanse;
     private String navn;
     private String arbeidsgiverIdentifikator;
     private String personArbeidsgiverIdentifikator;
@@ -50,6 +51,14 @@ public class ArbeidsforholdWrapper {
 
     public void setHarAksjonspunkt(boolean harAksjonspunkt) {
         this.harAksjonspunkt = harAksjonspunkt;
+    }
+
+    public String getArbeidsgiverReferanse() {
+        return arbeidsgiverReferanse;
+    }
+
+    public void setArbeidsgiverReferanse(String arbeidsgiverReferanse) {
+        this.arbeidsgiverReferanse = arbeidsgiverReferanse;
     }
 
     public String getNavn() {

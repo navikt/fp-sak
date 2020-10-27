@@ -7,6 +7,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStat
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 
 public class BeregningsresultatPeriodeAndelDto {
+    private String arbeidsgiverReferanse;
     private final String arbeidsgiverNavn;
     private final String arbeidsgiverOrgnr;
     private final Integer refusjon;
@@ -22,6 +23,7 @@ public class BeregningsresultatPeriodeAndelDto {
     private final BigDecimal stillingsprosent;
 
     private BeregningsresultatPeriodeAndelDto(Builder builder) {
+        this.arbeidsgiverReferanse = builder.arbeidsgiverReferanse;
         this.arbeidsgiverNavn = builder.arbeidsgiverNavn;
         this.arbeidsgiverOrgnr = builder.arbeidsgiverOrgnr;
         this.refusjon = builder.refusjon;
@@ -35,6 +37,10 @@ public class BeregningsresultatPeriodeAndelDto {
         this.aktørId = builder.aktørId;
         this.arbeidsforholdType = builder.arbeidsforholdType;
         this.stillingsprosent = builder.stillingsprosent;
+    }
+
+    public String getArbeidsgiverReferanse() {
+        return arbeidsgiverReferanse;
     }
 
     public String getArbeidsgiverNavn() {
@@ -94,6 +100,7 @@ public class BeregningsresultatPeriodeAndelDto {
     }
 
     public static class Builder {
+        private String arbeidsgiverReferanse;
         private String arbeidsgiverNavn;
         private String arbeidsgiverOrgnr;
         private Integer refusjon;
@@ -111,6 +118,10 @@ public class BeregningsresultatPeriodeAndelDto {
         private Builder() {
         }
 
+        public Builder medArbeidsgiverReferanse(String ref) {
+            this.arbeidsgiverReferanse = ref;
+            return this;
+        }
         public Builder medArbeidsgiverOrgnr(String arbeidsgiverOrgnr) {
             this.arbeidsgiverOrgnr = arbeidsgiverOrgnr;
             return this;

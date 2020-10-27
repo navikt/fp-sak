@@ -18,6 +18,7 @@ public class DokumentDto {
     private String tittel;
     private Kommunikasjonsretning kommunikasjonsretning;
     private String gjelderFor;
+    private String arbeidsgiverReferanse;
 
     public DokumentDto() {
         // trengs for deserialisering av JSON
@@ -86,6 +87,14 @@ public class DokumentDto {
 
     public void setGjelderFor(String gjelderFor) {
         this.gjelderFor = gjelderFor;
+    }
+
+    public String getArbeidsgiverReferanse() {
+        return arbeidsgiverReferanse;
+    }
+
+    public void setArbeidsgiverReferanse(String arbeidsgiverReferanse) {
+        this.arbeidsgiverReferanse = arbeidsgiverReferanse;
     }
 
     @Override

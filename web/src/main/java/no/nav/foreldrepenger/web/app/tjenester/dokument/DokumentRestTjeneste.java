@@ -39,6 +39,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
@@ -223,6 +224,11 @@ public class DokumentRestTjeneste {
                     })// TODO slå opp navnet på privatpersonen?
                     .findFirst();
             navn.ifPresent(dto::setGjelderFor);
+            var referanse = inntektsMeldinger.getOrDefault(dto.getJournalpostId(), Collections.emptyList()).stream()
+                .map(Inntektsmelding::getArbeidsgiver)
+                .map(Arbeidsgiver::getIdentifikator)
+                .findFirst();
+            referanse.ifPresent(dto::setArbeidsgiverReferanse);
         }
         return dto;
     }
