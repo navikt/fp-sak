@@ -33,7 +33,7 @@
     "LOADBALANCER_FQDN": "fpsak-q1.nais.preprod.local",
     "LOADBALANCER_FPSAK_POOLNAME": "nais",
     "LOADBALANCER_FPSAK_CONTEXTROOTS": "fpsak",
-    "OIDC_STS_ISSUER_URL": "http://security-token-service.default",
+    "OIDC_STS_ISSUER_URL": "https://security-token-service.nais.preprod.local",
     "OIDC_STS_JWKS_URL": "http://security-token-service.default/rest/v1/sts/jwks",
     "OIDC_OPENAM_AGENTNAME": "fpsak-q1",
     "OIDC_OPENAM_HOSTURL": "https://isso-q.adeo.no:443/isso/oauth2",
