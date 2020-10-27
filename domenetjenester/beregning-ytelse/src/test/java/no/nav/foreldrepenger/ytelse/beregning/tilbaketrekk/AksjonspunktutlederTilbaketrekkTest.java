@@ -10,11 +10,9 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import javax.persistence.EntityManager;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
@@ -31,7 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
@@ -40,9 +38,10 @@ import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class AksjonspunktutlederTilbaketrekkTest {
-
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class AksjonspunktutlederTilbaketrekkTest extends EntityManagerAwareTest {
 
     public static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now().minusMonths(2);
     public static final String ORGNR1 = KUNSTIG_ORG + "1";
@@ -51,37 +50,43 @@ public class AksjonspunktutlederTilbaketrekkTest {
     public static final Arbeidsgiver ARBEIDSGIVER2 = Arbeidsgiver.virksomhet(ORGNR2);
     public static final int DAGSATS = 2134;
     public static final long ORIGINAL_BEHANDLING_ID = 83724923L;
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private final EntityManager entityManager = repoRule.getEntityManager();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-    private BeregningsresultatRepository beregningsresultatRepository = mock(BeregningsresultatRepository.class);
-    private AksjonspunktutlederTilbaketrekk aksjonspunktutlederTilbaketrekk;
-    private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
-    private Behandling behandling;
-    private BehandlingReferanse behandlingReferanse = mock(BehandlingReferanse.class);
 
-    @Before
-    public void setUp() {
-        behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
+    private final BeregningsresultatRepository beregningsresultatRepository = mock(BeregningsresultatRepository.class);
+    private AksjonspunktutlederTilbaketrekk aksjonspunktutlederTilbaketrekk;
+    private final InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
+
+    @BeforeEach
+    void setUp() {
+        var beregningsresultatTidslinjetjeneste = new BeregningsresultatTidslinjetjeneste(beregningsresultatRepository);
+        aksjonspunktutlederTilbaketrekk = new AksjonspunktutlederTilbaketrekk(beregningsresultatTidslinjetjeneste, inntektArbeidYtelseTjeneste);
+    }
+
+    private BehandlingReferanse mockReferanse(Behandling behandling) {
+        var behandlingReferanse = mock(BehandlingReferanse.class);
         when(behandlingReferanse.getBehandlingId()).thenReturn(behandling.getId());
         when(behandlingReferanse.erRevurdering()).thenReturn(true);
         when(behandlingReferanse.getAktørId()).thenReturn(behandling.getAktørId());
         when(behandlingReferanse.getUtledetSkjæringstidspunkt()).thenReturn(SKJÆRINGSTIDSPUNKT);
         when(behandlingReferanse.getOriginalBehandlingId()).thenReturn(Optional.of(ORIGINAL_BEHANDLING_ID));
-        aksjonspunktutlederTilbaketrekk = new AksjonspunktutlederTilbaketrekk(new BeregningsresultatTidslinjetjeneste(beregningsresultatRepository), inntektArbeidYtelseTjeneste);
+        return behandlingReferanse;
     }
 
+    private Behandling opprettBehandling() {
+        return ScenarioMorSøkerForeldrepenger.forFødsel()
+            .lagre(new BehandlingRepositoryProvider(getEntityManager()));
+    }
 
     @Test
     public void skal_få_aksjonspunkt_for_arbeidsforhold_som_tilkommer_med_avsluttet_arbeidsforhold_i_ulike_virksomheter() {
         // Arrange
+        var behandling = opprettBehandling();
         lagUtbetaltBeregningsresultatMedEnAndelTilBruker(ARBEIDSGIVER1, SKJÆRINGSTIDSPUNKT);
-        lagBeregningsresultatForTilkommetArbeidMedRefusjon(ARBEIDSGIVER2, ARBEIDSGIVER1, SKJÆRINGSTIDSPUNKT);
-        lagIayForAvsluttetOgTilkommetArbeid();
+        lagBeregningsresultatForTilkommetArbeidMedRefusjon(ARBEIDSGIVER2, ARBEIDSGIVER1, SKJÆRINGSTIDSPUNKT, behandling.getId());
+        lagIayForAvsluttetOgTilkommetArbeid(behandling);
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = aksjonspunktutlederTilbaketrekk.utledAksjonspunkterFor(new AksjonspunktUtlederInput(behandlingReferanse));
+        var param = new AksjonspunktUtlederInput(mockReferanse(behandling));
+        List<AksjonspunktResultat> aksjonspunktResultater = aksjonspunktutlederTilbaketrekk.utledAksjonspunkterFor(param);
 
         // Assert
         assertThat(aksjonspunktResultater).hasSize(1);
@@ -91,30 +96,35 @@ public class AksjonspunktutlederTilbaketrekkTest {
     public void skal_få_aksjonspunkt_for_arbeidsforhold_med_ansettelsesperioder_som_slutter_før_skjæringstidspunktet() {
         // Arrange
         // Bygg IAY
+        var behandling = opprettBehandling();
         InntektArbeidYtelseAggregatBuilder registerBuilder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
         Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet("977011833");
         InternArbeidsforholdRef arbeidsforholdId1 = InternArbeidsforholdRef.nyRef();
-        YrkesaktivitetBuilder ya1 = lagYrkesaktivitet(arbeidsgiver, arbeidsforholdId1, DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.minusMonths(3)));
+        YrkesaktivitetBuilder ya1 = lagYrkesaktivitet(arbeidsgiver, arbeidsforholdId1,
+            DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.minusMonths(3)));
         Arbeidsgiver arbeidsgiver2 = Arbeidsgiver.virksomhet("924042648");
-        YrkesaktivitetBuilder ya2 = lagYrkesaktivitet(arbeidsgiver2, InternArbeidsforholdRef.nullRef(), DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(1)));
+        YrkesaktivitetBuilder ya2 = lagYrkesaktivitet(arbeidsgiver2, InternArbeidsforholdRef.nullRef(),
+            DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(1)));
         InternArbeidsforholdRef arbeidsforholdId = InternArbeidsforholdRef.nyRef();
-        YrkesaktivitetBuilder ya3 = lagYrkesaktivitet(arbeidsgiver, arbeidsforholdId, DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusMonths(1).minusDays(1)));
-        leggTilYrkesaktiviteter(registerBuilder, ya1, ya2, ya3);
+        YrkesaktivitetBuilder ya3 = lagYrkesaktivitet(arbeidsgiver, arbeidsforholdId,
+            DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusMonths(1).minusDays(1)));
+        leggTilYrkesaktiviteter(behandling, registerBuilder, ya1, ya2, ya3);
         inntektArbeidYtelseTjeneste.lagreIayAggregat(behandling.getId(), registerBuilder);
 
         // ALLEREDE UTBETALT
         lagUtbetaltBeregningsresultatMedEnAndelTilBruker(arbeidsgiver, SKJÆRINGSTIDSPUNKT.plusMonths(1));
         // NYTT RESULTAT
-        lagBeregningsresultatForTilkommetArbeidMedRefusjon(arbeidsgiver2, arbeidsgiver, SKJÆRINGSTIDSPUNKT.plusMonths(1));
+        lagBeregningsresultatForTilkommetArbeidMedRefusjon(arbeidsgiver2, arbeidsgiver, SKJÆRINGSTIDSPUNKT.plusMonths(1), behandling.getId());
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = aksjonspunktutlederTilbaketrekk.utledAksjonspunkterFor(new AksjonspunktUtlederInput(behandlingReferanse));
+        var param = new AksjonspunktUtlederInput(mockReferanse(behandling));
+        List<AksjonspunktResultat> aksjonspunktResultater = aksjonspunktutlederTilbaketrekk.utledAksjonspunkterFor(param);
 
         // Assert
         assertThat(aksjonspunktResultater).hasSize(1);
     }
 
-    private void leggTilYrkesaktiviteter(InntektArbeidYtelseAggregatBuilder registerBuilder, YrkesaktivitetBuilder... yas) {
+    private void leggTilYrkesaktiviteter(Behandling behandling, InntektArbeidYtelseAggregatBuilder registerBuilder, YrkesaktivitetBuilder... yas) {
         InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = registerBuilder.getAktørArbeidBuilder(behandling.getAktørId());
         for (YrkesaktivitetBuilder ya : yas) {
             aktørArbeidBuilder.leggTilYrkesaktivitet(ya);
@@ -122,7 +132,9 @@ public class AksjonspunktutlederTilbaketrekkTest {
         registerBuilder.leggTilAktørArbeid(aktørArbeidBuilder);
     }
 
-    private YrkesaktivitetBuilder lagYrkesaktivitet(Arbeidsgiver arbeidsgiver4, InternArbeidsforholdRef arbeidsforholdId, DatoIntervallEntitet periode) {
+    private YrkesaktivitetBuilder lagYrkesaktivitet(Arbeidsgiver arbeidsgiver,
+                                                    InternArbeidsforholdRef arbeidsforholdId,
+                                                    DatoIntervallEntitet periode) {
         return YrkesaktivitetBuilder.oppdatere(Optional.empty())
             .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
                 .medPeriode(periode))
@@ -131,10 +143,10 @@ public class AksjonspunktutlederTilbaketrekkTest {
                 .medPeriode(periode))
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
             .medArbeidsforholdId(arbeidsforholdId)
-            .medArbeidsgiver(arbeidsgiver4);
+            .medArbeidsgiver(arbeidsgiver);
     }
 
-    private void lagIayForAvsluttetOgTilkommetArbeid() {
+    private void lagIayForAvsluttetOgTilkommetArbeid(Behandling behandling) {
         InntektArbeidYtelseAggregatBuilder registerBuilder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
         InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = registerBuilder.getAktørArbeidBuilder(behandling.getAktørId());
         aktørArbeidBuilder.leggTilYrkesaktivitet(lagYrkesaktivitetForAvsluttetArbeid())
@@ -145,14 +157,16 @@ public class AksjonspunktutlederTilbaketrekkTest {
 
     private YrkesaktivitetBuilder lagYrkesaktivitetForAvsluttetArbeid() {
         return YrkesaktivitetBuilder.oppdatere(Optional.empty())
-            .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny().medPeriode(no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusYears(2), SKJÆRINGSTIDSPUNKT.plusMonths(1))))
+            .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusYears(2), SKJÆRINGSTIDSPUNKT.plusMonths(1))))
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
             .medArbeidsgiver(ARBEIDSGIVER1);
     }
 
     private YrkesaktivitetBuilder lagYrkesaktivitetForTilkommetArbeid() {
         return YrkesaktivitetBuilder.oppdatere(Optional.empty())
-            .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny().medPeriode(no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(1).plusDays(1))))
+            .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
+                .medPeriode(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(1).plusDays(1))))
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
             .medArbeidsgiver(ARBEIDSGIVER2);
     }
@@ -179,7 +193,10 @@ public class AksjonspunktutlederTilbaketrekkTest {
         when(beregningsresultatRepository.hentUtbetBeregningsresultat(ORIGINAL_BEHANDLING_ID)).thenReturn(Optional.of(build));
     }
 
-    private void lagBeregningsresultatForTilkommetArbeidMedRefusjon(Arbeidsgiver tilkommetArbeid, Arbeidsgiver bortfaltArbeid, LocalDate beregningsresultatPeriodeFom) {
+    private void lagBeregningsresultatForTilkommetArbeidMedRefusjon(Arbeidsgiver tilkommetArbeid,
+                                                                    Arbeidsgiver bortfaltArbeid,
+                                                                    LocalDate beregningsresultatPeriodeFom,
+                                                                    Long behandlingId) {
         BeregningsresultatEntitet build = BeregningsresultatEntitet.builder()
             .medRegelInput("regelinput")
             .medRegelSporing("Regelsporing")
@@ -220,7 +237,7 @@ public class AksjonspunktutlederTilbaketrekkTest {
             .medArbeidsforholdType(OpptjeningAktivitetType.ARBEID)
             .medDagsatsFraBg(0)
             .build(periode);
-        when(beregningsresultatRepository.hentBeregningsresultat(behandling.getId())).thenReturn(Optional.of(build));
+        when(beregningsresultatRepository.hentBeregningsresultat(behandlingId)).thenReturn(Optional.of(build));
     }
 
 }

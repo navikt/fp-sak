@@ -6,9 +6,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -19,41 +19,35 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.ytelse.beregning.rest.VurderTilbaketrekkDto;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class VurderTilbaketrekkOppdatererTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class VurderTilbaketrekkOppdatererTest extends EntityManagerAwareTest {
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-    private Behandling behandling;
-    private HistorikkTjenesteAdapter historikkAdapter;
     private VurderTilbaketrekkOppdaterer vurderTilbaketrekkOppdaterer;
     private BeregningsresultatRepository beregningsresultatRepository;
 
-    @SuppressWarnings("unused")
-    private BeregningsresultatEntitet beregningsresultat;
-
-    @Before
+    @BeforeEach
     public void setup() {
-        historikkAdapter = new HistorikkTjenesteAdapter(repositoryProvider.getHistorikkRepository(), null);
+        var repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
+        var historikkAdapter = new HistorikkTjenesteAdapter(new HistorikkRepository(getEntityManager()), null);
         vurderTilbaketrekkOppdaterer = new VurderTilbaketrekkOppdaterer(repositoryProvider, historikkAdapter);
-        beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        behandling = scenario.lagre(repositoryProvider);
-        beregningsresultat = buildBeregningsresultatFP();
+        beregningsresultatRepository = new BeregningsresultatRepository(getEntityManager());
     }
 
     @Test
     public void skal_teste_at_oppdatering_gjøres_riktig_dersom_tilbaketrekk_skal_utføres() {
         // Arrange
+        Behandling behandling = opprettBehandling();
         VurderTilbaketrekkDto dto = new VurderTilbaketrekkDto("Begrunnelse", false);
 
         // Act
@@ -62,12 +56,20 @@ public class VurderTilbaketrekkOppdatererTest {
 
         // Assert
         assertThat(test).isPresent();
-        assertThat(test.get().skalHindreTilbaketrekk().get()).isFalse();
+        assertThat(test.get().skalHindreTilbaketrekk().orElseThrow()).isFalse();
+    }
+
+    private Behandling opprettBehandling() {
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var behandling = scenario.lagre(new BehandlingRepositoryProvider(getEntityManager()));
+        opprettBehandlingsresultat(behandling);
+        return behandling;
     }
 
     @Test
     public void skal_teste_at_oppdatering_gjøres_riktig_dersom_tilbaketrekk_ikke_skal_utføres() {
         // Arrange
+        Behandling behandling = opprettBehandling();
         VurderTilbaketrekkDto dto = new VurderTilbaketrekkDto("Begrunnelse", true);
 
         // Act
@@ -76,12 +78,11 @@ public class VurderTilbaketrekkOppdatererTest {
 
         // Assert
         assertThat(test).isPresent();
-        assertThat(test.get().skalHindreTilbaketrekk().get()).isTrue();
+        assertThat(test.get().skalHindreTilbaketrekk().orElseThrow()).isTrue();
     }
 
-
-    private BeregningsresultatAndel buildBeregningsresultatAndel(BeregningsresultatPeriode beregningsresultatPeriode) {
-        return BeregningsresultatAndel.builder()
+    private void buildBeregningsresultatAndel(BeregningsresultatPeriode beregningsresultatPeriode) {
+        BeregningsresultatAndel.builder()
             .medBrukerErMottaker(true)
             .medArbeidsforholdType(OpptjeningAktivitetType.ARBEID)
             .medArbeidsgiver(Arbeidsgiver.person(AktørId.dummy()))
@@ -100,7 +101,7 @@ public class VurderTilbaketrekkOppdatererTest {
             .build(beregningsresultat);
     }
 
-    private BeregningsresultatEntitet buildBeregningsresultatFP() {
+    private void opprettBehandlingsresultat(Behandling behandling) {
         BeregningsresultatEntitet.Builder builder = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
             .medRegelSporing("clob2");
@@ -108,7 +109,6 @@ public class VurderTilbaketrekkOppdatererTest {
         BeregningsresultatPeriode brPeriode = buildBeregningsresultatPeriode(beregningsresultat);
         buildBeregningsresultatAndel(brPeriode);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        return beregningsresultat;
     }
 
 }
