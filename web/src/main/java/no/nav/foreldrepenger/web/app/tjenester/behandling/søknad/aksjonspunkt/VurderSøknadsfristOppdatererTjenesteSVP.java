@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.aksjonspunkt;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.steg.søknadsfrist.SøknadsfristPeriode;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
@@ -14,10 +13,9 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 public class VurderSøknadsfristOppdatererTjenesteSVP extends VurderSøknadsfristOppdatererTjeneste {
 
     @Inject
-    public VurderSøknadsfristOppdatererTjenesteSVP(@FagsakYtelseTypeRef("SVP") SøknadsfristPeriode søknadsfristPeriode,
-                                                   HistorikkTjenesteAdapter historikkAdapter,
+    public VurderSøknadsfristOppdatererTjenesteSVP(HistorikkTjenesteAdapter historikkAdapter,
                                                    BehandlingRepositoryProvider repositoryProvider) {
-        super(søknadsfristPeriode, historikkAdapter, repositoryProvider);
+        super(historikkAdapter, repositoryProvider);
     }
 
     VurderSøknadsfristOppdatererTjenesteSVP() {

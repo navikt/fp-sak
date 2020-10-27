@@ -54,17 +54,6 @@ public class DatoerGrunnlagByggerTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ha_første_lovlige_uttaksdato() {
-        LocalDate familiehendelsedato = LocalDate.now().plusWeeks(3);
-        LocalDate førsteLovligeUttaksdag = familiehendelsedato.minusWeeks(12);
-        Behandling behandling = scenarioMedDatoer(ScenarioMorSøkerForeldrepenger.forFødsel(), null, førsteLovligeUttaksdag);
-
-        var familieHendelse = FamilieHendelse.forFødsel(familiehendelsedato, null, List.of(), 0);
-        Datoer grunnlag = byggGrunnlag(lagInput(behandling, familieHendelse));
-        assertThat(grunnlag.getFørsteLovligeUttaksdag()).isEqualTo(førsteLovligeUttaksdag);
-    }
-
-    @Test
     public void søker_har_ingen_dødsdato() {
         LocalDate søkersDødsdato = null;
         Behandling behandling = scenarioMedDatoer(ScenarioMorSøkerForeldrepenger.forFødsel(), søkersDødsdato, førsteUttaksdato);
@@ -147,7 +136,7 @@ public class DatoerGrunnlagByggerTest extends EntityManagerAwareTest {
     }
 
     private DatoerGrunnlagBygger grunnlagBygger() {
-        return new DatoerGrunnlagBygger(repositoryProvider.getUttaksperiodegrenseRepository(), personopplysningTjeneste);
+        return new DatoerGrunnlagBygger(personopplysningTjeneste);
     }
 
     private Datoer byggGrunnlag(UttakInput input) {

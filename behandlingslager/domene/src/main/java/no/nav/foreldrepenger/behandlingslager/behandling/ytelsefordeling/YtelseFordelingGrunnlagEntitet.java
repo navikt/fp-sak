@@ -49,9 +49,6 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
     @ChangeTracked
     private OppgittRettighetEntitet oppgittRettighet;
 
-    /**
-     * TODO Diamant bør ryddes opp ( bør ligge i en struktur som er felles for begge søkere. Kopieres nå til {@link no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon} )
-     */
     @ManyToOne
     @JoinColumn(name = "so_dekningsgrad_id", updatable = false, unique = true)
     @ChangeTracked

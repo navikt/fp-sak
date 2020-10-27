@@ -316,7 +316,6 @@ public class UttakPeriodeEndringDtoTjenesteTest {
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
             .build();
         UttakResultatPeriodeSøknadEntitet periodeSøknad = new UttakResultatPeriodeSøknadEntitet.Builder()
-            .medMottattDato(LocalDate.now())
             .medUttakPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .medGraderingArbeidsprosent(graderingArbeidsprosent)
             .medSamtidigUttak(true)

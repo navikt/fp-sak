@@ -280,6 +280,18 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
         return getArbeidsprosent() != null && getArbeidsprosent().compareTo(BigDecimal.ZERO) > 0;
     }
 
+    public boolean erOpphold() {
+        return getÅrsak() instanceof OppholdÅrsak;
+    }
+
+    public boolean erOverføring() {
+        return getÅrsak() instanceof OverføringÅrsak;
+    }
+
+    public boolean erUtsettelse() {
+        return getÅrsak() instanceof UtsettelseÅrsak;
+    }
+
     public LocalDate getMottattDato() {
         return mottattDatoTemp;
     }
@@ -287,6 +299,13 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
     public void setMottattDato(LocalDate mottattDato) {
         this.mottattDato = mottattDato;
         this.mottattDatoTemp = mottattDato;
+    }
+
+    /**
+     * Kommer denne perioden fra uttaksresultatet til et tidligere vedtak
+     */
+    public boolean erVedtaksperiode() {
+        return getPeriodeKilde().equals(FordelingPeriodeKilde.TIDLIGERE_VEDTAK);
     }
 
     public boolean erOmsluttetAv(OppgittPeriodeEntitet periode2) {

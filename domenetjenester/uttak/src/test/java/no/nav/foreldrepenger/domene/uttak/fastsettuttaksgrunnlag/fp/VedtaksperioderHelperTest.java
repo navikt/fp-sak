@@ -11,7 +11,6 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
@@ -154,26 +153,26 @@ public class VedtaksperioderHelperTest {
         assertThat(oppgittPeriode1.getPeriodeType()).isEqualTo(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL);
         assertThat(oppgittPeriode1.getFom()).isEqualTo(fødselsdato.minusWeeks(3));
         assertThat(oppgittPeriode1.getTom()).isEqualTo(fødselsdato.minusDays(1));
-        assertThat(oppgittPeriode1.getPeriodeKilde()).isEqualTo(FordelingPeriodeKilde.TIDLIGERE_VEDTAK);
+        assertThat(oppgittPeriode1.erVedtaksperiode()).isTrue();
 
         OppgittPeriodeEntitet oppgittPeriode2 = perioder.get(1);
         assertThat(oppgittPeriode2.getPeriodeType()).isEqualTo(UttakPeriodeType.MØDREKVOTE);
         assertThat(oppgittPeriode2.getFom()).isEqualTo(fødselsdato);
         assertThat(oppgittPeriode2.getTom()).isEqualTo(fødselsdato.plusWeeks(6).minusDays(1));
-        assertThat(oppgittPeriode2.getPeriodeKilde()).isEqualTo(FordelingPeriodeKilde.TIDLIGERE_VEDTAK);
+        assertThat(oppgittPeriode2.erVedtaksperiode()).isTrue();
 
         OppgittPeriodeEntitet oppgittPeriode3 = perioder.get(2);
         assertThat(oppgittPeriode3.getPeriodeType()).isEqualTo(UttakPeriodeType.FELLESPERIODE);
         assertThat(oppgittPeriode3.getÅrsak()).isEqualTo(UtsettelseÅrsak.FERIE);
         assertThat(oppgittPeriode3.getFom()).isEqualTo(fødselsdato.plusWeeks(6));
         assertThat(oppgittPeriode3.getTom()).isEqualTo(fødselsdato.plusWeeks(10).minusDays(1));
-        assertThat(oppgittPeriode3.getPeriodeKilde()).isEqualTo(FordelingPeriodeKilde.SØKNAD);
+        assertThat(oppgittPeriode3.erVedtaksperiode()).isFalse();
 
         OppgittPeriodeEntitet oppgittPeriode4 = perioder.get(3);
         assertThat(oppgittPeriode4.getPeriodeType()).isEqualTo(UttakPeriodeType.FELLESPERIODE);
         assertThat(oppgittPeriode4.getFom()).isEqualTo(fødselsdato.plusWeeks(10));
         assertThat(oppgittPeriode4.getTom()).isEqualTo(fødselsdato.plusWeeks(20).minusDays(1));
-        assertThat(oppgittPeriode4.getPeriodeKilde()).isEqualTo(FordelingPeriodeKilde.SØKNAD);
+        assertThat(oppgittPeriode4.erVedtaksperiode()).isFalse();
     }
 
 
@@ -204,7 +203,7 @@ public class VedtaksperioderHelperTest {
         assertThat(oppgittPeriode1.getPeriodeType()).isEqualTo(UttakPeriodeType.FELLESPERIODE);
         assertThat(oppgittPeriode1.getFom()).isEqualTo(fødselsdato.plusWeeks(10));
         assertThat(oppgittPeriode1.getTom()).isEqualTo(fødselsdato.plusWeeks(20).minusDays(1));
-        assertThat(oppgittPeriode1.getPeriodeKilde()).isEqualTo(FordelingPeriodeKilde.SØKNAD);
+        assertThat(oppgittPeriode1.erVedtaksperiode()).isFalse();
 
     }
 
@@ -236,13 +235,13 @@ public class VedtaksperioderHelperTest {
         assertThat(vedtaksperiodeFraUke10.getPeriodeType()).isEqualTo(UttakPeriodeType.FELLESPERIODE);
         assertThat(vedtaksperiodeFraUke10.getFom()).isEqualTo(fødselsdato.plusWeeks(10));
         assertThat(vedtaksperiodeFraUke10.getTom()).isEqualTo(fødselsdato.plusWeeks(12).minusDays(1));
-        assertThat(vedtaksperiodeFraUke10.getPeriodeKilde()).isEqualTo(FordelingPeriodeKilde.TIDLIGERE_VEDTAK);
+        assertThat(vedtaksperiodeFraUke10.erVedtaksperiode()).isTrue();
 
         OppgittPeriodeEntitet mødrekvoteFraUke12 = perioder.get(1);
         assertThat(mødrekvoteFraUke12.getPeriodeType()).isEqualTo(UttakPeriodeType.MØDREKVOTE);
         assertThat(mødrekvoteFraUke12.getFom()).isEqualTo(fødselsdato.plusWeeks(12));
         assertThat(mødrekvoteFraUke12.getTom()).isEqualTo(fødselsdato.plusWeeks(16).minusDays(1));
-        assertThat(mødrekvoteFraUke12.getPeriodeKilde()).isEqualTo(FordelingPeriodeKilde.SØKNAD);
+        assertThat(mødrekvoteFraUke12.erVedtaksperiode()).isFalse();
     }
 
     @Test
@@ -271,13 +270,13 @@ public class VedtaksperioderHelperTest {
         assertThat(overlappendeMK.getPeriodeType()).isEqualTo(UttakPeriodeType.MØDREKVOTE);
         assertThat(overlappendeMK.getFom()).isEqualTo(fødselsdato);
         assertThat(overlappendeMK.getTom()).isEqualTo(fødselsdato.plusWeeks(3).minusDays(2));
-        assertThat(overlappendeMK.getPeriodeKilde()).isEqualTo(FordelingPeriodeKilde.TIDLIGERE_VEDTAK);
+        assertThat(overlappendeMK.erVedtaksperiode()).isTrue();
 
         OppgittPeriodeEntitet fellesperioderFraEndring = perioder.get(1);
         assertThat(fellesperioderFraEndring.getPeriodeType()).isEqualTo(UttakPeriodeType.FELLESPERIODE);
         assertThat(fellesperioderFraEndring.getFom()).isEqualTo(fødselsdato.plusWeeks(3).minusDays(1));
         assertThat(fellesperioderFraEndring.getTom()).isEqualTo(fødselsdato.plusWeeks(10).minusDays(1));
-        assertThat(fellesperioderFraEndring.getPeriodeKilde()).isEqualTo(FordelingPeriodeKilde.SØKNAD);
+        assertThat(fellesperioderFraEndring.erVedtaksperiode()).isFalse();
     }
 
     @Test
@@ -288,7 +287,6 @@ public class VedtaksperioderHelperTest {
         uttakResultatPerioderEntitet.leggTilPeriode(nyPeriode(PeriodeResultatType.INNVILGET, fødselsdato.plusWeeks(6), fødselsdato.plusWeeks(12).minusDays(1), StønadskontoType.FELLESPERIODE));
 
         UttakResultatPeriodeSøknadEntitet periodeSøknad = new UttakResultatPeriodeSøknadEntitet.Builder()
-            .medMottattDato(LocalDate.now())
             .medUttakPeriodeType(toUttakPeriodeType(StønadskontoType.FELLESPERIODE))
             .build();
         UttakResultatPeriodeEntitet avlått = new UttakResultatPeriodeEntitet.Builder(fødselsdato.plusWeeks(12), fødselsdato.plusWeeks(16).minusDays(1))
@@ -320,7 +318,7 @@ public class VedtaksperioderHelperTest {
         assertThat(oppgittPeriode.getPeriodeType()).isEqualTo(UttakPeriodeType.FELLESPERIODE);
         assertThat(oppgittPeriode.getFom()).isEqualTo(fødselsdato.plusWeeks(6));
         assertThat(oppgittPeriode.getTom()).isEqualTo(fødselsdato.plusWeeks(12).minusDays(1));
-        assertThat(oppgittPeriode.getPeriodeKilde()).isEqualTo(FordelingPeriodeKilde.TIDLIGERE_VEDTAK);
+        assertThat(oppgittPeriode.erVedtaksperiode()).isTrue();
     }
 
     @Test
@@ -331,7 +329,6 @@ public class VedtaksperioderHelperTest {
         uttakResultatPerioderEntitet.leggTilPeriode(nyPeriode(PeriodeResultatType.INNVILGET, fødselsdato.plusWeeks(6), fødselsdato.plusWeeks(12).minusDays(1), StønadskontoType.FELLESPERIODE));
 
         UttakResultatPeriodeSøknadEntitet periodeSøknad = new UttakResultatPeriodeSøknadEntitet.Builder()
-            .medMottattDato(LocalDate.now())
             .medUttakPeriodeType(toUttakPeriodeType(StønadskontoType.FELLESPERIODE))
             .build();
         UttakResultatPeriodeEntitet avlått = new UttakResultatPeriodeEntitet.Builder(fødselsdato.plusWeeks(12), fødselsdato.plusWeeks(16).minusDays(1))
@@ -363,7 +360,7 @@ public class VedtaksperioderHelperTest {
         assertThat(oppgittPeriode.getPeriodeType()).isEqualTo(UttakPeriodeType.FELLESPERIODE);
         assertThat(oppgittPeriode.getFom()).isEqualTo(fødselsdato.plusWeeks(6));
         assertThat(oppgittPeriode.getTom()).isEqualTo(fødselsdato.plusWeeks(12).minusDays(1));
-        assertThat(oppgittPeriode.getPeriodeKilde()).isEqualTo(FordelingPeriodeKilde.TIDLIGERE_VEDTAK);
+        assertThat(oppgittPeriode.erVedtaksperiode()).isTrue();
     }
 
     @Test
@@ -799,7 +796,6 @@ public class VedtaksperioderHelperTest {
             .medResultatType(resultat, PeriodeResultatÅrsak.UKJENT);
         if (knyttTilSøknadsperiode) {
             UttakResultatPeriodeSøknadEntitet periodeSøknad = new UttakResultatPeriodeSøknadEntitet.Builder()
-                .medMottattDato(LocalDate.now())
                 .medUttakPeriodeType(toUttakPeriodeType(stønadskontoType))
                 .medGraderingArbeidsprosent(BigDecimal.valueOf(100.00))
                 .medSamtidigUttak(true)

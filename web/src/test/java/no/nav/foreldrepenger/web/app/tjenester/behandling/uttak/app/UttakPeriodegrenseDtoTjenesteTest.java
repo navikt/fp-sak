@@ -9,7 +9,6 @@ import javax.inject.Inject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
 @RunWith(CdiRunner.class)
@@ -23,11 +22,11 @@ public class UttakPeriodegrenseDtoTjenesteTest {
         LocalDate periodeStart = LocalDate.of(2018, 1, 31);
         LocalDate forventetSøknadsfrist = LocalDate.of(2018, 4, 30);
 
-        LocalDate søknadsfrist = tjeneste.finnSøknadsfristForPeriodeMedStart(periodeStart, FagsakYtelseType.FORELDREPENGER);
+        LocalDate søknadsfrist = tjeneste.finnSøknadsfristForPeriodeMedStart(periodeStart);
         assertThat(søknadsfrist).isEqualTo(forventetSøknadsfrist);
 
         periodeStart = LocalDate.of(2018, 1, 31);
-        søknadsfrist = tjeneste.finnSøknadsfristForPeriodeMedStart(periodeStart, FagsakYtelseType.FORELDREPENGER);
+        søknadsfrist = tjeneste.finnSøknadsfristForPeriodeMedStart(periodeStart);
         assertThat(søknadsfrist).isEqualTo(forventetSøknadsfrist);
     }
 

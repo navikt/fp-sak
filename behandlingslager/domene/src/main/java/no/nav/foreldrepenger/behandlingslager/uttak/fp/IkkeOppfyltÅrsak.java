@@ -49,7 +49,7 @@ public enum IkkeOppfyltÅrsak implements PeriodeResultatÅrsak {
     FAR_HAR_IKKE_OMSORG("4012", "§14-10 fjerde ledd: Far/medmor har ikke omsorg", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-10\"}}}", Set.of(UTTAK)),
     MOR_SØKER_FELLESPERIODE_FØR_12_UKER_FØR_TERMIN_FØDSEL("4013", "§14-10 første ledd: Mor søker uttak før 12 uker før termin/fødsel", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-10\"}}}", Set.of(UTTAK), Set.of(FELLESPERIODE, FORELDREPENGER)),
     _4018("4018", "§14-10 andre ledd: Søkt uttak/utsettelse før omsorgsovertakelse", "", Set.of(UTTAK, UTSETTELSE), LocalDate.of(2001,1,1)),
-    SØKNADSFRIST("4020", "§22-13 tredje ledd: Brudd på søknadsfrist", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"22-13\"}}}", Set.of(UTTAK)),
+    SØKNADSFRIST("4020", "§22-13 tredje ledd: Brudd på søknadsfrist", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"22-13\"}}}", Set.of(UTTAK, UTSETTELSE)),
     BARN_OVER_3_ÅR("4022", "§14-10 tredje ledd: Barnet er over 3 år", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-10\"}}}", Set.of(UTTAK, UTSETTELSE)),
     ARBEIDER_I_UTTAKSPERIODEN_MER_ENN_0_PROSENT("4023", "§14-10 femte ledd: Arbeider i uttaksperioden mer enn 0%", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-10\"}}}", Set.of(UTTAK)),
     AVSLAG_GRADERING_ARBEIDER_100_PROSENT_ELLER_MER("4025", "§14-16 første ledd: Avslag gradering - arbeid 100% eller mer", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-16\"}}}", Set.of(UTTAK)),

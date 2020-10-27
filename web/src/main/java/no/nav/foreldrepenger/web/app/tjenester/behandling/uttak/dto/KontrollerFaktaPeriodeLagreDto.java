@@ -215,11 +215,11 @@ public class KontrollerFaktaPeriodeLagreDto {
             medPeriodeKilde(periode.getOppgittPeriode().getPeriodeKilde());
             medMottattDato(periode.getOppgittPeriode().getMottattDato());
 
-            if (periode.getOppgittPeriode().getÅrsak() instanceof UtsettelseÅrsak) {
+            if (periode.getOppgittPeriode().erUtsettelse()) {
                 medUtsettelseÅrsak((UtsettelseÅrsak) periode.getOppgittPeriode().getÅrsak()); //NOSONAR
-            } else if (periode.getOppgittPeriode().getÅrsak() instanceof OverføringÅrsak) {
+            } else if (periode.getOppgittPeriode().erOverføring()) {
                 medOverføringÅrsak((OverføringÅrsak) periode.getOppgittPeriode().getÅrsak()); //NOSONAR
-            } else if (periode.getOppgittPeriode().getÅrsak() instanceof OppholdÅrsak) {
+            } else if (periode.getOppgittPeriode().erOpphold()) {
                 medOppholdÅrsak((OppholdÅrsak) periode.getOppgittPeriode().getÅrsak()); //NOSONAR
             }
 

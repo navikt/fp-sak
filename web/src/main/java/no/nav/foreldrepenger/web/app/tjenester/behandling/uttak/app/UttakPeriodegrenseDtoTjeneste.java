@@ -2,21 +2,19 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAdjusters;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.steg.søknadsfrist.SøknadsfristPeriode;
 import no.nav.foreldrepenger.behandling.steg.søknadsfrist.SøktPeriodeTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
+import no.nav.foreldrepenger.regler.SøknadsfristUtil;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakPeriodegrenseDto;
 
 @ApplicationScoped
@@ -60,7 +58,7 @@ public class UttakPeriodegrenseDtoTjeneste {
         var søktPeriodeOpt = FagsakYtelseTypeRef.Lookup.find(SøktPeriodeTjeneste.class, ref.getFagsakYtelseType()).orElseThrow().finnSøktPeriode(input);
 
         søktPeriodeOpt.ifPresent(søktPeriode -> {
-            var søknadsfrist = finnSøknadsfristForPeriodeMedStart(søktPeriode.getFomDato(), ref.getFagsakYtelseType());
+            var søknadsfrist = finnSøknadsfristForPeriodeMedStart(søktPeriode.getFomDato());
             var søknad = søknadRepository.hentSøknad(ref.getBehandlingId());
             dto.setSoknadsperiodeStart(søktPeriode.getFomDato());
             dto.setSoknadsperiodeSlutt(søktPeriode.getTomDato());
@@ -71,9 +69,9 @@ public class UttakPeriodegrenseDtoTjeneste {
         });
     }
 
-    LocalDate finnSøknadsfristForPeriodeMedStart(LocalDate periodeStart, FagsakYtelseType fagsakYtelseType) {
-        var søknadsfristPeriode = FagsakYtelseTypeRef.Lookup.find(SøknadsfristPeriode.class, fagsakYtelseType).orElseThrow().getValue();
-        return periodeStart.plus(søknadsfristPeriode).with(TemporalAdjusters.lastDayOfMonth());
+    LocalDate finnSøknadsfristForPeriodeMedStart(LocalDate periodeStart) {
+        //TODO FP kode som brukes av SVP
+        return SøknadsfristUtil.finnSøknadsfrist(periodeStart);
     }
 
 }

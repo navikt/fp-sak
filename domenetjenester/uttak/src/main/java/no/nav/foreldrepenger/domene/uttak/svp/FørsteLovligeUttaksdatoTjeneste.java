@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.domene.uttak.svp;
 
 import java.time.LocalDate;
-import java.time.Period;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -15,28 +14,21 @@ import no.nav.foreldrepenger.regler.soknadsfrist.SøknadsfristRegelOrkestrering;
 import no.nav.foreldrepenger.regler.soknadsfrist.SøknadsfristResultat;
 import no.nav.foreldrepenger.regler.soknadsfrist.grunnlag.SøknadsfristGrunnlag;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
-import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
 public class FørsteLovligeUttaksdatoTjeneste {
 
     private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
-    private Period søknadsfristEtterFørsteUttaksdag;
 
     FørsteLovligeUttaksdatoTjeneste() {
         //For CDI
     }
 
-    /**
-     * @param søknadsfristEtterFørsteUttaksdag - Maks antall måneder mellom søknadens mottattdato og første uttaksdag i søknaden.
-     */
     @Inject
-    public FørsteLovligeUttaksdatoTjeneste(UttakRepositoryProvider uttakRepositoryProvider,
-                                           @KonfigVerdi(value = "svp.søknadfrist.etter.første.uttaksdag", defaultVerdi = "P3M") Period søknadsfristEtterFørsteUttaksdag) {
+    public FørsteLovligeUttaksdatoTjeneste(UttakRepositoryProvider uttakRepositoryProvider) {
         this.uttaksperiodegrenseRepository = uttakRepositoryProvider.getUttaksperiodegrenseRepository();
         this.behandlingsresultatRepository = uttakRepositoryProvider.getBehandlingsresultatRepository();
-        this.søknadsfristEtterFørsteUttaksdag = søknadsfristEtterFørsteUttaksdag;
     }
 
     public SøknadsfristResultat utledFørsteLovligeUttaksdato(UttakInput input, LocalDateInterval uttaksgrenser) {
@@ -45,7 +37,6 @@ public class FørsteLovligeUttaksdatoTjeneste {
         LocalDate søknadMottattDato = input.getSøknadMottattDato();
         //Sjekk søknadsfristregel
         var søknadsfristGrunnlag = new SøknadsfristGrunnlag.Builder()
-            .medAntallMånederSøknadsfrist(søknadsfristEtterFørsteUttaksdag.getMonths()) // TODO, broken må rette uttak-regler den dagen det ikke er heltall antall måneder her.
             .medFørsteUttaksdato(uttaksgrenser.getFomDato())
             .medSøknadMottattDato(søknadMottattDato)
             .build();

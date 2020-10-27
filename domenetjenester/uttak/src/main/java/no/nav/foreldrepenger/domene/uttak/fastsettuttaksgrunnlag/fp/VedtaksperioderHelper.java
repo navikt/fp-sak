@@ -30,12 +30,9 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktiv
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.uttak.KodeMapper;
+import no.nav.foreldrepenger.domene.uttak.UttakEnumMapper;
 
 public class VedtaksperioderHelper {
-    private static final KodeMapper<UttakUtsettelseType, UtsettelseÅrsak> utsettelseÅrsakMapper = initUtsettelseÅrsakMapper();
-
-    private static final KodeMapper<StønadskontoType, UttakPeriodeType> periodeTypeMapper = initPeriodeTypeMapper();
 
     List<OppgittPeriodeEntitet> opprettOppgittePerioder(UttakResultatEntitet uttakResultatFraForrigeBehandling,
                                                         List<OppgittPeriodeEntitet> søknadsperioder,
@@ -193,7 +190,7 @@ public class VedtaksperioderHelper {
             .max(Comparator.comparing(aktivitet -> aktivitet.getTrekkdager().decimalValue()))
             .map(UttakResultatPeriodeAktivitetEntitet::getTrekkonto);
         if (stønadskontoType.isPresent()) {
-            Optional<UttakPeriodeType> uttakPeriodeType = periodeTypeMapper.map(stønadskontoType.get());
+            Optional<UttakPeriodeType> uttakPeriodeType = UttakEnumMapper.mapTilYf(stønadskontoType.get());
             if (uttakPeriodeType.isPresent()) {
                 return uttakPeriodeType.get();
             }
@@ -203,7 +200,7 @@ public class VedtaksperioderHelper {
 
     private Optional<UtsettelseÅrsak> finnUtsettelsesÅrsak(UttakResultatPeriodeEntitet uttakResultatPeriode) {
         if (erInnvilgetUtsettelse(uttakResultatPeriode)) {
-            return utsettelseÅrsakMapper.map(uttakResultatPeriode.getUtsettelseType());
+            return UttakEnumMapper.mapTilYf(uttakResultatPeriode.getUtsettelseType());
         }
         return Optional.empty();
     }
@@ -226,29 +223,6 @@ public class VedtaksperioderHelper {
 
     private boolean harOppholdÅrsak(UttakResultatPeriodeEntitet uttakResultatPeriode) {
         return !OppholdÅrsak.UDEFINERT.equals(uttakResultatPeriode.getOppholdÅrsak());
-    }
-
-    private static KodeMapper<UttakUtsettelseType, UtsettelseÅrsak> initUtsettelseÅrsakMapper() {
-        return KodeMapper
-            .medMapping(UttakUtsettelseType.FERIE, UtsettelseÅrsak.FERIE)
-            .medMapping(UttakUtsettelseType.ARBEID, UtsettelseÅrsak.ARBEID)
-            .medMapping(UttakUtsettelseType.SYKDOM_SKADE, UtsettelseÅrsak.SYKDOM)
-            .medMapping(UttakUtsettelseType.SØKER_INNLAGT, UtsettelseÅrsak.INSTITUSJON_SØKER)
-            .medMapping(UttakUtsettelseType.BARN_INNLAGT, UtsettelseÅrsak.INSTITUSJON_BARN)
-            .medMapping(UttakUtsettelseType.HV_OVELSE, UtsettelseÅrsak.HV_OVELSE)
-            .medMapping(UttakUtsettelseType.NAV_TILTAK, UtsettelseÅrsak.NAV_TILTAK)
-            .build();
-    }
-
-    private static KodeMapper<StønadskontoType, UttakPeriodeType> initPeriodeTypeMapper() {
-        return KodeMapper
-            .medMapping(StønadskontoType.FEDREKVOTE, UttakPeriodeType.FEDREKVOTE)
-            .medMapping(StønadskontoType.FELLESPERIODE, UttakPeriodeType.FELLESPERIODE)
-            .medMapping(StønadskontoType.FORELDREPENGER_FØR_FØDSEL, UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
-            .medMapping(StønadskontoType.MØDREKVOTE, UttakPeriodeType.MØDREKVOTE)
-            .medMapping(StønadskontoType.FORELDREPENGER, UttakPeriodeType.FORELDREPENGER)
-            .medMapping(StønadskontoType.UDEFINERT, UttakPeriodeType.UDEFINERT)
-            .build();
     }
 
 

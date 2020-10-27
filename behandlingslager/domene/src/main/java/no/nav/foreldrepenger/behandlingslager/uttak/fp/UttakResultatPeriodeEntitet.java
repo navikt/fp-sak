@@ -241,6 +241,22 @@ public class UttakResultatPeriodeEntitet extends BaseEntitet {
         return Objects.equals(getResultatType(), PeriodeResultatType.INNVILGET);
     }
 
+    public boolean erSøktGradering() {
+        return getAktiviteter().stream().anyMatch(a -> a.isSøktGradering());
+    }
+
+    public boolean erOpphold() {
+        return !Objects.equals(getOppholdÅrsak(), OppholdÅrsak.UDEFINERT);
+    }
+
+    public boolean erUtsettelse() {
+        return !Objects.equals(getUtsettelseType(), UttakUtsettelseType.UDEFINERT);
+    }
+
+    public boolean erOverføring() {
+        return !Objects.equals(getOverføringÅrsak(), OverføringÅrsak.UKJENT);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

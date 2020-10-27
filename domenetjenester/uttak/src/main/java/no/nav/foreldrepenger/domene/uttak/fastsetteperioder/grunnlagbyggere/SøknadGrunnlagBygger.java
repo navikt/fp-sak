@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere;
 
 import static no.nav.foreldrepenger.domene.uttak.UttakEnumMapper.map;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -48,13 +47,13 @@ public class SøknadGrunnlagBygger {
 
     private YtelsesFordelingRepository ytelsesFordelingRepository;
 
-    SøknadGrunnlagBygger() {
-        // CDI
-    }
-
     @Inject
     public SøknadGrunnlagBygger(YtelsesFordelingRepository ytelsesFordelingRepository) {
         this.ytelsesFordelingRepository = ytelsesFordelingRepository;
+    }
+
+    SøknadGrunnlagBygger() {
+        // CDI
     }
 
     public Søknad.Builder byggGrunnlag(UttakInput input) {
@@ -63,20 +62,16 @@ public class SøknadGrunnlagBygger {
         return new Søknad.Builder()
             .medType(type(input.getYtelsespesifiktGrunnlag()))
             .medDokumentasjon(dokumentasjon(ytelseFordelingAggregat))
-            .medOppgittePerioder(oppgittePerioder(input, ytelseFordelingAggregat))
-            .medMottattDato(input.getSøknadMottattDato());
+            .medOppgittePerioder(oppgittePerioder(input, ytelseFordelingAggregat));
     }
 
     private List<OppgittPeriode> oppgittePerioder(UttakInput input, YtelseFordelingAggregat ytelseFordelingAggregat) {
-        var søknadPerioder = ytelseFordelingAggregat.getGjeldendeSøknadsperioder().getOppgittePerioder();
-        validerIkkeOverlappSøknadsperioder(søknadPerioder);
+        var oppgittePerioder = ytelseFordelingAggregat.getGjeldendeSøknadsperioder().getOppgittePerioder();
+        validerIkkeOverlappOppgittePerioder(oppgittePerioder);
 
-        List<OppgittPeriode> list = new ArrayList<>();
-        for (var oppgittPeriode : søknadPerioder) {
-            list.add(byggOppgittperiode(oppgittPeriode, new UttakYrkesaktiviteter(input).tilAktivitetIdentifikatorer()));
-        }
-
-        return list;
+        return oppgittePerioder.stream()
+            .map(op -> byggOppgittperiode(op, new UttakYrkesaktiviteter(input).tilAktivitetIdentifikatorer()))
+            .collect(Collectors.toList());
     }
 
     private OppgittPeriode byggOppgittperiode(OppgittPeriodeEntitet oppgittPeriode,
@@ -86,9 +81,9 @@ public class SøknadGrunnlagBygger {
 
         final OppgittPeriode periode;
         if (UttakPeriodeType.STØNADSPERIODETYPER.contains(oppgittPeriodeType)) {
-            if (erUtsettelse(oppgittPeriode)) {
+            if (oppgittPeriode.erUtsettelse()) {
                 periode = byggUtsettelseperiode(oppgittPeriode);
-            } else if (oppgittPeriode.getÅrsak() instanceof OverføringÅrsak) {
+            } else if (oppgittPeriode.erOverføring()) {
                 periode = byggOverføringPeriode(oppgittPeriode, stønadskontotype);
             } else {
                 periode = byggStønadsperiode(oppgittPeriode, stønadskontotype, aktiviteter);
@@ -101,10 +96,6 @@ public class SøknadGrunnlagBygger {
         return periode;
     }
 
-    private static boolean erUtsettelse(OppgittPeriodeEntitet oppgittPeriode) {
-        return oppgittPeriode.getÅrsak() instanceof UtsettelseÅrsak;
-    }
-
     private static OppgittPeriode byggStønadsperiode(OppgittPeriodeEntitet oppgittPeriode,
                                                      Stønadskontotype stønadskontotype,
                                                      Set<AktivitetIdentifikator> aktiviter) {
@@ -112,8 +103,9 @@ public class SøknadGrunnlagBygger {
         if (oppgittPeriode.erGradert()) {
             return byggGradertPeriode(oppgittPeriode, stønadskontotype, aktiviter);
         }
-        return OppgittPeriode.forVanligPeriode(stønadskontotype, oppgittPeriode.getFom(), oppgittPeriode.getTom(), map(oppgittPeriode.getPeriodeKilde()),
-            samtidigUttaksprosent(oppgittPeriode), oppgittPeriode.isFlerbarnsdager(), map(oppgittPeriode.getPeriodeVurderingType()));
+        return OppgittPeriode.forVanligPeriode(stønadskontotype, oppgittPeriode.getFom(), oppgittPeriode.getTom(),
+            samtidigUttaksprosent(oppgittPeriode), oppgittPeriode.isFlerbarnsdager(), map(oppgittPeriode.getPeriodeVurderingType()),
+            oppgittPeriode.getMottattDato());
     }
 
     private static SamtidigUttaksprosent samtidigUttaksprosent(OppgittPeriodeEntitet oppgittPeriode) {
@@ -136,8 +128,9 @@ public class SøknadGrunnlagBygger {
             throw new IllegalStateException("Forventer minst en gradert aktivitet ved gradering i søknadsperioden");
         }
 
-        return OppgittPeriode.forGradering(stønadskontotype, oppgittPeriode.getFom(), oppgittPeriode.getTom(), map(oppgittPeriode.getPeriodeKilde()),
-            oppgittPeriode.getArbeidsprosent(), samtidigUttaksprosent(oppgittPeriode), oppgittPeriode.isFlerbarnsdager(), gradertAktivitet, periodeVurderingType);
+        return OppgittPeriode.forGradering(stønadskontotype, oppgittPeriode.getFom(), oppgittPeriode.getTom(),
+            oppgittPeriode.getArbeidsprosent(), samtidigUttaksprosent(oppgittPeriode), oppgittPeriode.isFlerbarnsdager(),
+            gradertAktivitet, periodeVurderingType, oppgittPeriode.getMottattDato());
     }
 
     private static Set<AktivitetIdentifikator> finnGraderteAktiviteter(OppgittPeriodeEntitet oppgittPeriode, Set<AktivitetIdentifikator> aktiviter) {
@@ -161,28 +154,29 @@ public class SøknadGrunnlagBygger {
         var periodeVurderingType = map(oppgittPeriode.getPeriodeVurderingType());
 
         return OppgittPeriode.forOverføring(stønadskontotype, oppgittPeriode.getFom(), oppgittPeriode.getTom(),
-            map(oppgittPeriode.getPeriodeKilde()), periodeVurderingType, overføringÅrsak);
+            periodeVurderingType, overføringÅrsak, oppgittPeriode.getMottattDato());
     }
 
-    private OppgittPeriode byggUtsettelseperiode(OppgittPeriodeEntitet oppgittPeriode) {
+    private static OppgittPeriode byggUtsettelseperiode(OppgittPeriodeEntitet oppgittPeriode) {
         var utsettelseÅrsak = map((UtsettelseÅrsak) oppgittPeriode.getÅrsak());
         var periodeVurderingType = map(oppgittPeriode.getPeriodeVurderingType());
 
-        return OppgittPeriode.forUtsettelse(oppgittPeriode.getFom(), oppgittPeriode.getTom(), map(oppgittPeriode.getPeriodeKilde()),
-            periodeVurderingType, utsettelseÅrsak);
+        return OppgittPeriode.forUtsettelse(oppgittPeriode.getFom(), oppgittPeriode.getTom(),
+            periodeVurderingType, utsettelseÅrsak, oppgittPeriode.getMottattDato());
     }
 
     private static OppgittPeriode byggTilOppholdPeriode(OppgittPeriodeEntitet oppgittPeriode) {
-        var årsak = oppgittPeriode.getÅrsak();
-        if (årsak instanceof OppholdÅrsak) {
+        if (oppgittPeriode.erOpphold()) {
+            var årsak = oppgittPeriode.getÅrsak();
             var oppholdÅrsak = (OppholdÅrsak) årsak;
             var mappedÅrsak = map(oppholdÅrsak);
-            return OppgittPeriode.forOpphold(oppgittPeriode.getFom(), oppgittPeriode.getTom(), map(oppgittPeriode.getPeriodeKilde()), mappedÅrsak);
+            return OppgittPeriode.forOpphold(oppgittPeriode.getFom(), oppgittPeriode.getTom(),
+                mappedÅrsak, oppgittPeriode.getMottattDato());
         }
-        throw new IllegalArgumentException("Ikke-støttet årsakstype: " + årsak);
+        throw new IllegalArgumentException("Ikke-støttet årsakstype: " + oppgittPeriode.getÅrsak());
     }
 
-    private static void validerIkkeOverlappSøknadsperioder(List<OppgittPeriodeEntitet> søknadPerioder) {
+    private static void validerIkkeOverlappOppgittePerioder(List<OppgittPeriodeEntitet> søknadPerioder) {
         int size = søknadPerioder.size();
         for (int i = 0; i < size; i++) {
             OppgittPeriodeEntitet periode1 = søknadPerioder.get(i);

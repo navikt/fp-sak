@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandling.YtelseMaksdatoTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.AndelGraderingTjeneste;
 import no.nav.foreldrepenger.behandling.steg.søknadsfrist.fp.FastsettUttaksgrunnlagOgVurderSøknadsfristSteg;
-import no.nav.foreldrepenger.behandling.steg.søknadsfrist.fp.SøknadsfristPeriodeFP;
 import no.nav.foreldrepenger.behandling.steg.søknadsfrist.fp.VurderSøknadsfristTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
@@ -91,8 +90,7 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest extends EntityM
         var iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
         var uttakInputTjeneste = new UttakInputTjeneste(behandlingRepositoryProvider, beregningsgrunnlagTjeneste,
             iayTjeneste, skjæringstidspunktTjeneste, mock(MedlemTjeneste.class), andelGraderingTjeneste);
-        var vurderSøknadsfristTjeneste = new VurderSøknadsfristTjeneste(new SøknadsfristPeriodeFP(Period.ofMonths(3)),
-            behandlingRepositoryProvider);
+        var vurderSøknadsfristTjeneste = new VurderSøknadsfristTjeneste(behandlingRepositoryProvider);
         var uttakRepositoryProvider = new UttakRepositoryProvider(entityManager);
         var fagsakRepository = new FagsakRepository(entityManager);
         var fagsakLåsRepository = new FagsakLåsRepository(entityManager);

@@ -31,6 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Avklart
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
@@ -132,8 +133,7 @@ public class FastsettePerioderTjenesteTest extends EntityManagerAwareTest {
             new AnnenPartGrunnlagBygger(repositoryProvider.getFpUttakRepository()),
             new ArbeidGrunnlagBygger(repositoryProvider),
             new BehandlingGrunnlagBygger(),
-            new DatoerGrunnlagBygger(repositoryProvider.getUttaksperiodegrenseRepository(),
-                new PersonopplysningTjeneste(new PersonopplysningRepository(getEntityManager()))),
+            new DatoerGrunnlagBygger(new PersonopplysningTjeneste(new PersonopplysningRepository(getEntityManager()))),
             new MedlemskapGrunnlagBygger(),
             new RettOgOmsorgGrunnlagBygger(repositoryProvider, new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository())),
             new RevurderingGrunnlagBygger(repositoryProvider.getYtelsesFordelingRepository(), repositoryProvider.getFpUttakRepository()),
@@ -323,21 +323,9 @@ public class FastsettePerioderTjenesteTest extends EntityManagerAwareTest {
             .medPeriode(fødselsdato, fødselsdato.plusWeeks(6).minusDays(1))
             .build();
 
-        OppgittPeriodeEntitet periode2 = OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
-            .medArbeidsgiver(virksomhet)
-            .medPeriode(fødselsdato.plusWeeks(6), fødselsdato.plusWeeks(10).minusDays(1))
-            .build();
-
-        OppgittPeriodeEntitet periode3 = OppgittPeriodeBuilder.ny()
-            .medPeriodeType(FORELDREPENGER_FØR_FØDSEL)
-            .medArbeidsgiver(virksomhet)
-            .medPeriode(fødselsdato.minusWeeks(3), fødselsdato.minusDays(1))
-            .build();
-
         Fagsak fagsak = opprettFagsak(aktørId);
 
-        Behandling behandling = byggBehandlingForElektroniskSøknadOmFødsel(fagsak, List.of(periode1, periode2, periode3));
+        Behandling behandling = byggBehandlingForElektroniskSøknadOmFødsel(fagsak, List.of(periode1));
         byggArbeidForBehandling(behandling, aktørId, fødselsdato, Collections.singletonList(virksomhet));
         opprettStønadskontoerForFarOgMor(behandling);
         opprettPersonopplysninger(behandling);
@@ -355,31 +343,31 @@ public class FastsettePerioderTjenesteTest extends EntityManagerAwareTest {
 
         Optional<UttakResultatEntitet> uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
         assertThat(uttakResultat).isPresent();
-        List<UttakResultatPeriodeEntitet> uttakResultatPerioder = uttakResultat.get().getOpprinneligPerioder().getPerioder();
-        assertThat(uttakResultatPerioder).hasSize(3);
+        var uttakResultatPerioder = uttakResultat.get().getOpprinneligPerioder().getPerioder();
+        assertThat(uttakResultatPerioder).hasSize(1);
 
-        Optional<UttakResultatPeriodeEntitet> mødrekvote = uttakResultatPerioder
-            .stream().filter(p -> StønadskontoType.FORELDREPENGER_FØR_FØDSEL.getKode().equals(p.getAktiviteter().get(0).getTrekkonto().getKode()))
+        var mødrekvote = uttakResultatPerioder
+            .stream().filter(p -> StønadskontoType.MØDREKVOTE.getKode().equals(p.getAktiviteter().get(0).getTrekkonto().getKode()))
             .findFirst();
         assertThat(mødrekvote).isPresent();
-        assertThat(mødrekvote.get().getResultatType()).isEqualTo(PeriodeResultatType.AVSLÅTT);
 
-        // Steg 2: Perioder finnes fra før, skal fastsettes på nytt pga ny mottatt dato
-        opprettGrunnlag(behandling.getId(), mottattDato.minusMonths(1).withDayOfMonth(1));
+        List<OppgittPeriodeEntitet> nyePerioder = List.of(OppgittPeriodeBuilder.ny()
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+            .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+            .medPeriode(fødselsdato, fødselsdato.plusWeeks(6).minusDays(1))
+            .build());
+        ytelsesFordelingRepository.lagre(behandling.getId(), new OppgittFordelingEntitet(nyePerioder, true));
 
         // Act
         fastsettePerioderTjeneste.fastsettePerioder(lagInput(behandling, fødselsdato));
 
-        uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
-        assertThat(uttakResultat).isPresent();
-        uttakResultatPerioder = uttakResultat.get().getOpprinneligPerioder().getPerioder();
-        assertThat(uttakResultatPerioder).hasSize(3);
+        var resultat = fpUttakRepository.hentUttakResultat(behandling.getId()).getOpprinneligPerioder().getPerioder();
+        assertThat(resultat).hasSize(1);
 
-        Optional<UttakResultatPeriodeEntitet> nyMødrekvote = uttakResultatPerioder
-            .stream().filter(p -> StønadskontoType.FORELDREPENGER_FØR_FØDSEL.getKode().equals(p.getAktiviteter().get(0).getTrekkonto().getKode()))
+        var foreldrepengerPeriode = resultat
+            .stream().filter(p -> StønadskontoType.FORELDREPENGER.getKode().equals(p.getAktiviteter().get(0).getTrekkonto().getKode()))
             .findFirst();
-        assertThat(nyMødrekvote).isPresent();
-        assertThat(nyMødrekvote.get().getResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
+        assertThat(foreldrepengerPeriode).isPresent();
     }
 
     @Test

@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.steg.søknadsfrist.SøknadsfristPeriode;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
@@ -26,11 +25,10 @@ public class VurderSøknadsfristOppdatererTjenesteFP extends VurderSøknadsfrist
     private YtelsesFordelingRepository ytelsesFordelingRepository;
 
     @Inject
-    public VurderSøknadsfristOppdatererTjenesteFP(@FagsakYtelseTypeRef("FP") SøknadsfristPeriode søknadsfristPeriode,
-                                                  HistorikkTjenesteAdapter historikkAdapter,
+    public VurderSøknadsfristOppdatererTjenesteFP(HistorikkTjenesteAdapter historikkAdapter,
                                                   BehandlingRepositoryProvider repositoryProvider,
                                                   YtelsesFordelingRepository ytelsesFordelingRepository) {
-        super(søknadsfristPeriode, historikkAdapter, repositoryProvider);
+        super(historikkAdapter, repositoryProvider);
         this.ytelsesFordelingRepository = ytelsesFordelingRepository;
     }
 

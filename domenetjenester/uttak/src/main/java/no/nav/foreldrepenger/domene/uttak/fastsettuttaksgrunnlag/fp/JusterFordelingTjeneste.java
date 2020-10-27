@@ -17,8 +17,6 @@ import java.util.stream.Collectors;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.domene.tid.IntervalUtils;
 import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
 
@@ -83,7 +81,7 @@ class JusterFordelingTjeneste {
             Objects.equals(periode1.isSamtidigUttak(), periode2.isSamtidigUttak()) &&
             Objects.equals(periode1.getArbeidsgiver(), periode2.getArbeidsgiver()) &&
             Objects.equals(periode1.getMorsAktivitet(), periode2.getMorsAktivitet()) &&
-            Objects.equals(periode1.getPeriodeKilde(), periode2.getPeriodeKilde()) &&
+            Objects.equals(periode1.erVedtaksperiode(), periode2.erVedtaksperiode()) &&
             Objects.equals(periode1.getPeriodeType(), periode2.getPeriodeType()) &&
             Objects.equals(periode1.getPeriodeVurderingType(), periode2.getPeriodeVurderingType()) &&
             Objects.equals(periode1.getSamtidigUttaksprosent(), periode2.getSamtidigUttaksprosent()) &&
@@ -479,11 +477,10 @@ class JusterFordelingTjeneste {
      * @return true dersom perioden kan flyttes, ellers false.
      */
     private boolean erPeriodeFlyttbar(OppgittPeriodeEntitet periode) {
-        if (periode.getÅrsak() != null) {
-            if (periode.getÅrsak() instanceof UtsettelseÅrsak || periode.getÅrsak() instanceof OppholdÅrsak) {
-                return false;
-            }
+        if (periode.erUtsettelse() || periode.erOpphold()) {
+            return false;
         }
+
         return !periode.erGradert() && !(periode instanceof JusterPeriodeHull) && !periode.isSamtidigUttak();
     }
 

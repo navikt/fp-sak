@@ -8,8 +8,6 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
-import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
@@ -21,16 +19,13 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Dødsdatoer;
 public class DatoerGrunnlagBygger {
 
     private PersonopplysningTjeneste personopplysningTjeneste;
-    private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
 
     DatoerGrunnlagBygger() {
         // CDI
     }
 
     @Inject
-    public DatoerGrunnlagBygger(UttaksperiodegrenseRepository uttaksperiodegrenseRepository,
-                                PersonopplysningTjeneste personopplysningTjeneste) {
-        this.uttaksperiodegrenseRepository = uttaksperiodegrenseRepository;
+    public DatoerGrunnlagBygger(PersonopplysningTjeneste personopplysningTjeneste) {
         this.personopplysningTjeneste = personopplysningTjeneste;
     }
 
@@ -42,13 +37,7 @@ public class DatoerGrunnlagBygger {
             .medFødsel(gjeldendeFamilieHendelse.getFødselsdato().orElse(null))
             .medTermin(gjeldendeFamilieHendelse.getTermindato().orElse(null))
             .medOmsorgsovertakelse(gjeldendeFamilieHendelse.getOmsorgsovertakelse().orElse(null))
-            .medFørsteLovligeUttaksdag(førsteLovligeUttaksdag(ref))
             .medDødsdatoer(byggDødsdatoer(ytelsespesifiktGrunnlag, ref));
-    }
-
-    private LocalDate førsteLovligeUttaksdag(BehandlingReferanse ref) {
-        Uttaksperiodegrense uttaksperiodegrense = uttaksperiodegrenseRepository.hent(ref.getBehandlingId());
-        return uttaksperiodegrense.getFørsteLovligeUttaksdag();
     }
 
     private Dødsdatoer.Builder byggDødsdatoer(ForeldrepengerGrunnlag foreldrepengerGrunnlag, BehandlingReferanse ref) {
