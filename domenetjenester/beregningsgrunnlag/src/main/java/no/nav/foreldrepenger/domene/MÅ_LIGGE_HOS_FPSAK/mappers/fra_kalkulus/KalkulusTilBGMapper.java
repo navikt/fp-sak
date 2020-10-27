@@ -117,9 +117,8 @@ public class KalkulusTilBGMapper {
         builder.medLønnsendringIBeregningsperioden(fraKalkulus.erLønnsendringIBeregningsperioden());
         builder.medTidsbegrensetArbeidsforhold(fraKalkulus.getErTidsbegrensetArbeidsforhold());
         builder.medRefusjonskravPrÅr(fraKalkulus.getRefusjonskravPrÅr());
-        // TODO Fjern utkomentering av linjer under når vi er klare til å ta ibruk feltene når TFP-3838 er ferdig
-        // builder.medSaksbehandletRefusjonPrÅr(fraKalkulus.getSaksbehandletRefusjonPrÅr());
-        // builder.medFordeltRefusjonPrÅr(fraKalkulus.getFordeltRefusjonPrÅr());
+        builder.medSaksbehandletRefusjonPrÅr(fraKalkulus.getSaksbehandletRefusjonPrÅr());
+        builder.medFordeltRefusjonPrÅr(fraKalkulus.getFordeltRefusjonPrÅr());
         fraKalkulus.getArbeidsperiodeTom().ifPresent(builder::medArbeidsperiodeTom);
         fraKalkulus.getNaturalytelseBortfaltPrÅr().ifPresent(builder::medNaturalytelseBortfaltPrÅr);
         fraKalkulus.getNaturalytelseTilkommetPrÅr().ifPresent(builder::medNaturalytelseTilkommetPrÅr);
