@@ -2146,6 +2146,69 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         );
     }
 
+    /**
+     * Førstegangsbehandling med 2 perioder samme dagsatser til AG <br>
+     * Revurdering med to perioder og bortfall av all ytelse<br
+     * Ny revurdering med to ny oppfylte perioder med hhv refusjon og utbetaling til bruker<br
+     */
+    @Test
+    public void skalSendeOppdragMedOpphørNårAllInnvilgetYtelseBortfaller() {
+        // Arrange
+        LocalDate b10fom = LocalDate.of(I_ÅR, 7, 1);
+        LocalDate b10tom = LocalDate.of(I_ÅR, 7, 31);
+        LocalDate b11fom = LocalDate.of(I_ÅR, 8, 1);
+        LocalDate b11tom = LocalDate.of(I_ÅR, 8, 15);
+        LocalDate b12fom = LocalDate.of(I_ÅR, 9, 16);
+        LocalDate b12tom = LocalDate.of(I_ÅR, 9, 30);
+        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatBrukerFP(null, List.of(0, 0, 0),  List.of(0, 800, 800), b10fom, b10tom, b11fom, b11tom, b12fom, b12tom);
+        beregningsresultatRepository.lagre(behandling, beregningsresultat);
+        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+
+        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
+
+        LocalDate b2p1fom = LocalDate.of(I_ÅR, 8, 1);
+        LocalDate b2p1tom = LocalDate.of(I_ÅR, 8, 15);
+        LocalDate b2p2fom = LocalDate.of(I_ÅR, 9, 16);
+        LocalDate b2p2tom = LocalDate.of(I_ÅR, 9, 30);
+        BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatBrukerFP(null, List.of(0, 0), List.of(0, 0), b2p1fom, b2p1tom, b2p2fom, b2p2tom);
+        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+
+        // Act
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+
+        //Assert
+        List<Oppdragslinje150> opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste().stream()
+            .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
+            .collect(Collectors.toList());
+
+        assertThat(opp150RevurderingListe).hasSize(2); // AG + FP
+        assertThat(opp150RevurderingListe).allSatisfy(linje -> assertThat(linje.gjelderOpphør()).isTrue());
+        assertThat(opp150RevurderingListe).anySatisfy(linje -> assertThat(linje.getDatoStatusFom()).isEqualTo(b2p1fom));
+        OppdragskontrollTestVerktøy.verifiserAttestant180(opp150RevurderingListe);
+
+        // Arrange 2
+        Behandling revurdering2 = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
+        LocalDate endringsdato = LocalDate.of(I_ÅR, 9, 1);
+        LocalDate b3p1fom = LocalDate.of(I_ÅR, 9, 1);
+        LocalDate b3p1tom = LocalDate.of(I_ÅR, 9, 15);
+        LocalDate b3p2fom = LocalDate.of(I_ÅR, 9, 16);
+        LocalDate b3p2tom = LocalDate.of(I_ÅR, 9, 30);
+        BeregningsresultatEntitet beregningsresultatRevurderingFP2 = buildBeregningsresultatBrukerFP(endringsdato, List.of(0, 820), List.of(820, 0), b3p1fom, b3p1tom, b3p2fom, b3p2tom);
+        beregningsresultatRepository.lagre(revurdering2, beregningsresultatRevurderingFP2);
+
+        // Act 2
+        Oppdragskontroll oppdragRevurdering2 = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering2);
+
+        //Assert 2
+        List<Oppdragslinje150> opp150RevurderingListe2 = oppdragRevurdering2.getOppdrag110Liste().stream()
+            .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
+            .collect(Collectors.toList());
+
+        assertThat(opp150RevurderingListe2).hasSize(4); // AG + Bruker + 2 * FP
+        assertThat(opp150RevurderingListe2).noneSatisfy(linje -> assertThat(linje.gjelderOpphør()).isTrue());
+    }
+
+
     private List<Oppdragslinje150> sortOppdragslinj150Liste(List<Oppdragslinje150> opp150OpphForDPListe) {
         return opp150OpphForDPListe.stream().sorted(Comparator.comparing(Oppdragslinje150::getDelytelseId)).collect(Collectors.toList());
     }

@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.TidligereOppdrag
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.VurderFeriepengerBeregning;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.fp.OppdragInput;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.wrapper.OppdragsmottakerInfo;
+import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.wrapper.TilkjentYtelse;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.wrapper.TilkjentYtelseAndel;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.wrapper.TilkjentYtelsePeriode;
 
@@ -185,7 +186,9 @@ public class OpprettOppdragslinje150Tjeneste {
         LocalDate vedtaksdato = behandlingInfo.getVedtaksdato();
         String kodeEndringLinje = gjelderOpphør ? OppdragskontrollConstants.KODE_ENDRING_LINJE_ENDRING : OppdragskontrollConstants.KODE_ENDRING_LINJE_NY;
         String typeSats = gjelderFeriepenger ? OppdragskontrollConstants.TYPE_SATS_FERIEPENGER : OppdragskontrollConstants.TYPE_SATS_DAG;
-        if (gjelderOpphør) {
+        boolean erEndringMedBortfallAvHeleYtelsen = summerHeleTilkjentYtelse(getPerioderForTilkjentYtelse(behandlingInfo)) == 0 &&
+            summerHeleTilkjentYtelse(behandlingInfo.getForrigeTilkjentYtelsePerioder()) > 0;
+        if (gjelderOpphør || erEndringMedBortfallAvHeleYtelsen) {
             oppdr150Builder.medKodeStatusLinje(OppdragskontrollConstants.KODE_STATUS_LINJE_OPPHØR);
         }
         oppdr150Builder.medKodeEndringLinje(kodeEndringLinje)
@@ -196,4 +199,16 @@ public class OpprettOppdragslinje150Tjeneste {
             .medHenvisning(behandlingInfo.getBehandlingId())
             .medTypeSats(typeSats);
     }
+
+    private static List<TilkjentYtelsePeriode> getPerioderForTilkjentYtelse(OppdragInput behandlingInfo) {
+        return behandlingInfo.getTilkjentYtelse().map(TilkjentYtelse::getTilkjentYtelsePerioder).orElse(Collections.emptyList());
+    }
+
+    private static int summerHeleTilkjentYtelse(List<TilkjentYtelsePeriode> perioder) {
+        return perioder.stream()
+            .flatMap(p -> p.getTilkjentYtelseAndeler().stream())
+            .map(TilkjentYtelseAndel::getDagsats)
+            .reduce(Integer::sum).orElse(0);
+    }
+
 }
