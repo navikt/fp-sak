@@ -61,7 +61,7 @@ public class GeneralRestExceptionMapperTest {
     }
 
     @Test
-    public void skalMappeManglerTilgangFeil() {
+    public void skalIkkeMappeManglerTilgangFeil() {
         Feil manglerTilgangFeil = TestFeil.FACTORY.manglerTilgangFeil();
 
         Response response = generalRestExceptionMapper.toResponse(new ApplicationException(manglerTilgangFeil.toException()));
@@ -72,7 +72,7 @@ public class GeneralRestExceptionMapperTest {
 
         assertThat(feilDto.getType()).isEqualTo(FeilType.MANGLER_TILGANG_FEIL);
         assertThat(feilDto.getFeilmelding()).isEqualTo("ManglerTilgangFeilmeldingKode");
-        assertThat(logSniffer.search("ManglerTilgangFeilmeldingKode", Level.WARN)).hasSize(1);
+        assertThat(logSniffer.search("ManglerTilgangFeilmeldingKode", Level.WARN)).hasSize(0);
     }
 
     @Test

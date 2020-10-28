@@ -145,11 +145,16 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<ApplicationEx
     }
 
     private static void loggTilApplikasjonslogg(Throwable cause) {
-        if (cause instanceof VLException) {
+        if (cause instanceof ManglerTilgangException) {
+            // ikke logg
+        } else if (cause instanceof VLException) {
             ((VLException) cause).log(LOGGER);
+        } else if (cause instanceof UnsupportedOperationException) {
+            String message = cause.getMessage() != null ? LoggerUtils.removeLineBreaks(cause.getMessage()) : "";
+            LOGGER.info("Fikk ikke-implementert-feil: " + message, cause);
         } else {
             String message = cause.getMessage() != null ? LoggerUtils.removeLineBreaks(cause.getMessage()) : "";
-            LOGGER.error("Fikk uventet feil:" + message, cause); // NOSONAR //$NON-NLS-1$
+            LOGGER.error("Fikk uventet feil:" + message, cause);
         }
 
         // key for å tracke prosess -- nullstill denne
