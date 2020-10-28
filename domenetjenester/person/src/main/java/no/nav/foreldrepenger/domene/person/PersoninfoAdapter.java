@@ -159,7 +159,9 @@ public class PersoninfoAdapter {
     }
 
     public GeografiskTilknytning hentGeografiskTilknytning(AktørId aktørId) {
-        return tilknytningTjeneste.hentGeografiskTilknytning(aktørId);
+        // Bruk TPS og PersonV3 inntil PDL er modent.
+        return hentFnr(aktørId).map(f -> tpsAdapter.hentGeografiskTilknytning(f))
+            .orElse(new GeografiskTilknytning(null, Diskresjonskode.UDEFINERT));
     }
 
     public Optional<Tuple<PersonIdent, Diskresjonskode>> hentPersonIdentMedDiskresjonskode(AktørId aktørId) {

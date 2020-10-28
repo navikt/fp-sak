@@ -94,6 +94,9 @@ public enum Diskresjonskode implements Kodeverdi {
     }
 
     public static Diskresjonskode finnForKodeverkEiersKode(String diskresjonskode) {
+        if (diskresjonskode == null) {
+            return Diskresjonskode.UDEFINERT;
+        }
         return List.of(values()).stream().filter(k -> Objects.equals(k.offisiellKode, diskresjonskode)).findFirst().orElse(UDEFINERT);
     }
 
