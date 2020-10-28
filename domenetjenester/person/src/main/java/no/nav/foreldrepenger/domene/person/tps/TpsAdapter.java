@@ -11,12 +11,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.extra.Interval;
 
+import no.nav.foreldrepenger.behandlingslager.aktør.GeografiskTilknytning;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Personhistorikkinfo;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
 import no.nav.foreldrepenger.domene.person.pdl.AktørTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.tjeneste.virksomhet.person.v3.binding.HentGeografiskTilknytningPersonIkkeFunnet;
+import no.nav.tjeneste.virksomhet.person.v3.binding.HentGeografiskTilknytningSikkerhetsbegrensing;
 import no.nav.tjeneste.virksomhet.person.v3.binding.HentPersonPersonIkkeFunnet;
 import no.nav.tjeneste.virksomhet.person.v3.binding.HentPersonSikkerhetsbegrensning;
 import no.nav.tjeneste.virksomhet.person.v3.binding.HentPersonhistorikkPersonIkkeFunnet;
@@ -26,6 +30,8 @@ import no.nav.tjeneste.virksomhet.person.v3.informasjon.Bruker;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Informasjonsbehov;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Periode;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person;
+import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentGeografiskTilknytningRequest;
+import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentGeografiskTilknytningResponse;
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonRequest;
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonResponse;
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonhistorikkRequest;
@@ -60,6 +66,25 @@ public class TpsAdapter {
 
     public Optional<PersonIdent> hentIdentForAktørId(AktørId aktørId) {
         return aktørConsumer.hentPersonIdentForAktørId(aktørId);
+    }
+
+    // Last method standing ....
+    public GeografiskTilknytning hentGeografiskTilknytning(PersonIdent personIdent) {
+        HentGeografiskTilknytningRequest request = new HentGeografiskTilknytningRequest();
+        request.setAktoer(TpsUtil.lagPersonIdent(personIdent.getIdent()));
+        try {
+            HentGeografiskTilknytningResponse response = personConsumer.hentGeografiskTilknytning(request);
+            String geoTilkn = response.getGeografiskTilknytning() != null
+                ? response.getGeografiskTilknytning().getGeografiskTilknytning()
+                : null;
+            String diskKode = response.getDiskresjonskode() != null ? response.getDiskresjonskode().getValue() : null;
+
+            return new GeografiskTilknytning(geoTilkn, Diskresjonskode.finnForKodeverkEiersKode(diskKode));
+        } catch (HentGeografiskTilknytningSikkerhetsbegrensing e) {
+            throw TpsFeilmeldinger.FACTORY.tpsUtilgjengeligGeografiskTilknytningSikkerhetsbegrensing(e).toException();
+        } catch (HentGeografiskTilknytningPersonIkkeFunnet e) {
+            throw TpsFeilmeldinger.FACTORY.geografiskTilknytningIkkeFunnet(e).toException();
+        }
     }
 
     private Personinfo håndterPersoninfoRespons(AktørId aktørId, HentPersonRequest request)

@@ -36,6 +36,7 @@ public class TilknytningTjeneste {
         this.pdlKlient = pdlKlient;
     }
 
+    // IKKE BRUK DENNE - PDL kommer med nytt skjema og ny metode hentDiskresjonsKode
     public GeografiskTilknytning hentGeografiskTilknytning(AktørId aktørId) {
 
         var query = new HentPersonQueryRequest();
