@@ -471,15 +471,15 @@ public class BehandlingRestTjeneste {
 
     private BehandlingOperasjonerDto lovligeOperasjoner(Behandling b) {
         if (b.erSaksbehandlingAvsluttet()) {
-            return BehandlingOperasjonerDto.builder().build(); // Skal ikke foreta menyvalg lenger
+            return BehandlingOperasjonerDto.builder(b.getUuid()).build(); // Skal ikke foreta menyvalg lenger
         } else if (BehandlingStatus.FATTER_VEDTAK.equals(b.getStatus())) {
             boolean tilgokjenning = b.getAnsvarligSaksbehandler() != null && !b.getAnsvarligSaksbehandler().equalsIgnoreCase(SubjectHandler.getSubjectHandler().getUid());
-            return BehandlingOperasjonerDto.builder().medTilGodkjenning(tilgokjenning).build();
+            return BehandlingOperasjonerDto.builder(b.getUuid()).medTilGodkjenning(tilgokjenning).build();
         } else {
             boolean kanÅpnesForEndring = b.erRevurdering() && !b.isBehandlingPåVent() && !b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING) && !b.erKøet();
             boolean totrinnRetur = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(b).stream()
                 .anyMatch(tt -> !tt.isGodkjent());
-            return BehandlingOperasjonerDto.builder()
+            return BehandlingOperasjonerDto.builder(b.getUuid())
                 .medTilGodkjenning(false)
                 .medFraBeslutter(!b.isBehandlingPåVent() && totrinnRetur)
                 .medKanBytteEnhet(!b.erKøet())

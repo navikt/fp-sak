@@ -1,9 +1,12 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.dto;
 
+import java.util.UUID;
+
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeBehandlingsmenyEnum;
 
 public class BehandlingOperasjonerDto {
 
+    private UUID uuid;
     private boolean behandlingKanBytteEnhet;
     private boolean behandlingKanHenlegges;
     private boolean behandlingKanGjenopptas;
@@ -13,6 +16,10 @@ public class BehandlingOperasjonerDto {
     private boolean behandlingFraBeslutter;
     private boolean behandlingTilGodkjenning;
     private VergeBehandlingsmenyEnum vergeBehandlingsmeny;
+
+    public UUID getUuid() {
+        return uuid;
+    }
 
     public boolean isBehandlingKanBytteEnhet() {
         return behandlingKanBytteEnhet;
@@ -50,15 +57,16 @@ public class BehandlingOperasjonerDto {
         return vergeBehandlingsmeny;
     }
 
-    public static Builder builder() {
-        return new Builder();
+    public static Builder builder(UUID uuid) {
+        return new Builder(uuid);
     }
 
     public static class Builder {
         private BehandlingOperasjonerDto kladd;
 
-        private Builder() {
+        private Builder(UUID uuid) {
             kladd = new BehandlingOperasjonerDto();
+            kladd.uuid = uuid;
             kladd.vergeBehandlingsmeny = VergeBehandlingsmenyEnum.SKJUL;
         }
 
