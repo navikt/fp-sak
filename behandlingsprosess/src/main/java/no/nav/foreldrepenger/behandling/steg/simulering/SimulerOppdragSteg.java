@@ -117,11 +117,14 @@ public class SimulerOppdragSteg implements BehandlingSteg {
         Optional<SimuleringResultatDto> simuleringResultatDto = simuleringIntegrasjonTjeneste.hentResultat(behandling.getId());
         if (simuleringResultatDto.isPresent()) {
             SimuleringResultatDto resultatDto = simuleringResultatDto.get();
+
+            //TODO dette har ingenting med utledning av aksjonspunkt å gjøre, og bør flyttes til alternativ metode
+            tilbakekrevingRepository.lagre(behandling, resultatDto.isSlåttAvInntrekk());
+
             if (kanOppdatereEksisterendeTilbakekrevingsbehandling(behandling, resultatDto)) { // vi sender TILBAKEKREVING_OPPDATER når det finnes et simulering resultat
                 lagreTilbakekrevingValg(behandling, TilbakekrevingValg.medOppdaterTilbakekrevingsbehandling());
                 return BehandleStegResultat.utførtUtenAksjonspunkter();
             }
-            tilbakekrevingRepository.lagre(behandling, resultatDto.isSlåttAvInntrekk());
 
             if (resultatDto.harFeilutbetaling()) {
                 return BehandleStegResultat.utførtMedAksjonspunkter(singletonList(AksjonspunktDefinisjon.VURDER_FEILUTBETALING));
