@@ -1,36 +1,41 @@
 package no.nav.foreldrepenger.domene.risikoklassifisering.modell;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Optional;
 
-import javax.persistence.EntityManager;
-
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 import no.nav.vedtak.felles.testutilities.db.Repository;
-import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
 
-public class RisikoklassifiseringRepositoryTest {
-    @Rule
-    public final RepositoryRule repoRule = new UnittestRepositoryRule();
-    private final EntityManager entityManager = repoRule.getEntityManager();
-    private final RisikoklassifiseringRepository risikorepository = new RisikoklassifiseringRepository(entityManager);
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class RisikoklassifiseringRepositoryTest extends EntityManagerAwareTest {
 
-    private Repository repository = repoRule.getRepository();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-    private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
+    private RisikoklassifiseringRepository risikorepository;
+
+    private Repository repository;
+    private BehandlingRepository behandlingRepository;
+
+    @BeforeEach
+    void setUp() {
+        var entityManager = getEntityManager();
+        repository = new Repository(entityManager);
+        behandlingRepository = new BehandlingRepository(entityManager);
+        risikorepository = new RisikoklassifiseringRepository(entityManager);
+    }
 
     @Test
     public void skal_lagre_og_hente_klassifisering() {
@@ -134,13 +139,14 @@ public class RisikoklassifiseringRepositoryTest {
         assertThat(entitet.getFaresignalVurdering()).isEqualTo(FaresignalVurdering.INGEN_INNVIRKNING);
     }
 
-    @Test( expected = IllegalStateException.class)
+    @Test
     public void skal_feile_under_oppdatering_når_gammelt_grunnlag_ikke_finnes() {
         // Arrange
         Behandling behandling = opprettBehandling();
 
         // Act
-        risikorepository.lagreVurderingAvFaresignalerForRisikoklassifisering(FaresignalVurdering.INGEN_INNVIRKNING, behandling.getId());
+        assertThrows(IllegalStateException.class,
+            () -> risikorepository.lagreVurderingAvFaresignalerForRisikoklassifisering(FaresignalVurdering.INGEN_INNVIRKNING, behandling.getId()));
     }
 
     private RisikoklassifiseringEntitet lagRisikoklassifisering(Long behandlingId, Kontrollresultat kontrollresultat, FaresignalVurdering faresignalvurdering) {

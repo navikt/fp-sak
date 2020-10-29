@@ -6,29 +6,19 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import javax.inject.Inject;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.risikoklassifisering.modell.Kontrollresultat;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.FaresignalWrapper;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.KontrollresultatWrapper;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.rest.FaresignalerRespons;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.rest.Faresignalgruppe;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 import no.nav.vedtak.kontroll.kodeverk.KontrollResultatkode;
 import no.nav.vedtak.kontroll.v1.KontrollResultatV1;
 
-@RunWith(CdiRunner.class)
 public class KontrollresultatMapperTest {
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
 
-    @Inject
-    KontrollresultatMapper kontrollresultatMapper;
+    private final KontrollresultatMapper kontrollresultatMapper = new KontrollresultatMapper();
 
     @Test
     public void skal_teste_at_mapping_av_kontoll_resultat_skjer_korrekt_for_høy_risiko() {
