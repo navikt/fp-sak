@@ -8,7 +8,7 @@ import static org.mockito.Mockito.spy;
 import java.time.LocalDate;
 import java.util.Collections;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
