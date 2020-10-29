@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
@@ -26,7 +26,7 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 public class VurdereYtelseSammeBarnAnnenForelderOppdatererTest {
 
-    private VilkårResultat.Builder vilkårBuilder = VilkårResultat.builder();
+    private final VilkårResultat.Builder vilkårBuilder = VilkårResultat.builder();
 
     @Test
     public void skal_oppdatere_vilkår_for_adopsjon() {

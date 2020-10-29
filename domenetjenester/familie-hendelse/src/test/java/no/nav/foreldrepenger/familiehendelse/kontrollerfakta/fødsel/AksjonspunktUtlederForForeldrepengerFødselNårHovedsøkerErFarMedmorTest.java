@@ -12,9 +12,9 @@ import static org.mockito.Mockito.verify;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -30,28 +30,30 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractT
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon.Builder;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
 
-public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedmorTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedmorTest extends EntityManagerAwareTest {
 
     private static final LocalDate TERMINDAT0_NÅ = LocalDate.now();
     private static final LocalDate FØDSEL_17_SIDEN = LocalDate.now().minusDays(27);
 
-    private static AktørId GITT_AKTØR_ID = AktørId.dummy();
+    private static final AktørId GITT_AKTØR_ID = AktørId.dummy();
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
+    private BehandlingRepositoryProvider repositoryProvider;
 
     private AksjonspunktUtlederForForeldrepengerFødsel apUtleder;
-    private FamilieHendelseTjeneste familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
+    private FamilieHendelseTjeneste familieHendelseTjeneste;
 
-    @Before
+    @BeforeEach
     public void oppsett() {
+        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
+        familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
         apUtleder = Mockito.spy(new AksjonspunktUtlederForForeldrepengerFødsel(mock(InntektArbeidYtelseTjeneste.class), familieHendelseTjeneste));
     }
 

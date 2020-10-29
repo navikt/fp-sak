@@ -10,8 +10,8 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.dbstoette.Databaseskjemainitialisering;
 
@@ -26,7 +26,7 @@ public class SjekkDbStrukturTest {
     private static DataSource ds;
     private static String schema;
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
         var dbconp = Databaseskjemainitialisering.defaultProperties();
         ds = Databaseskjemainitialisering.ds(dbconp);

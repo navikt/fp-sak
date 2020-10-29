@@ -4,12 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import javax.inject.Inject;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
@@ -21,80 +18,92 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-@RunWith(CdiRunner.class)
-public class BarnBorteEndringIdentifisererTest {
-    private AktørId AKTØRID_SØKER = AktørId.dummy();
-    private AktørId AKTØRID_BARN = AktørId.dummy();
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class BarnBorteEndringIdentifisererTest extends EntityManagerAwareTest {
+    private final AktørId AKTØRID_SØKER = AktørId.dummy();
+    private final AktørId AKTØRID_BARN = AktørId.dummy();
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-
-    @Inject
     private BarnBorteEndringIdentifiserer endringIdentifiserer;
 
     private PersonopplysningRepository personopplysningRepository;
+    private BehandlingRepositoryProvider repositoryProvider;
 
-    private Behandling behandlingOrig;
-    private Behandling behandlingNy;
-
-
-    @Before
+    @BeforeEach
     public void setup() {
-        personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
+        var entityManager = getEntityManager();
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        endringIdentifiserer = new BarnBorteEndringIdentifiserer(repositoryProvider);
+        personopplysningRepository = new PersonopplysningRepository(entityManager);
+    }
 
-        behandlingOrig = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBruker(AKTØRID_SØKER, NavBrukerKjønn.KVINNE)
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
-            .lagre(repositoryProvider);
-        behandlingNy = ScenarioMorSøkerForeldrepenger.forFødsel()
+    @Test
+    public void ingen_endring_i_registrerte_barn() {
+        Behandling behandlingOrig = førstegangsbehandling();
+        Behandling behandlingNy = revurdering(behandlingOrig);
+        opprettPersonopplysningGrunnlag(behandlingOrig, true);
+        opprettPersonopplysningGrunnlag(behandlingNy, true);
+
+        boolean erEndret = endringIdentifiserer.erEndret(lagReferanse(behandlingNy));
+
+        assertThat(erEndret).as("Idenfifiserer færre registrerte barn på ny behandling").isFalse();
+    }
+
+    private Behandling revurdering(Behandling behandlingOrig) {
+        return ScenarioMorSøkerForeldrepenger.forFødsel()
             .medOriginalBehandling(behandlingOrig, BehandlingÅrsakType.RE_ANNET)
             .medBruker(AKTØRID_SØKER, NavBrukerKjønn.KVINNE)
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
             .lagre(repositoryProvider);
     }
 
-    @Test
-    public void ingen_endring_i_registrerte_barn() {
-        opprettPersonopplysningGrunnlag(behandlingOrig, true);
-        opprettPersonopplysningGrunnlag(behandlingNy, true);
-
-        boolean erEndret = endringIdentifiserer.erEndret(lagReferanse());
-
-        assertThat(erEndret).as("Idenfifiserer færre registrerte barn på ny behandling").isFalse();
+    private Behandling førstegangsbehandling() {
+        return ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medBruker(AKTØRID_SØKER, NavBrukerKjønn.KVINNE)
+            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
+            .lagre(repositoryProvider);
     }
 
-    private BehandlingReferanse lagReferanse() {
-        return BehandlingReferanse.fra(behandlingNy);
+    BehandlingReferanse lagReferanse(Behandling behandling) {
+        return BehandlingReferanse.fra(behandling);
     }
 
     @Test
     public void barn_fjernet_fra_tps_på_ny_behandling() {
+        Behandling behandlingOrig = førstegangsbehandling();
+        Behandling behandlingNy = revurdering(behandlingOrig);
         opprettPersonopplysningGrunnlag(behandlingOrig, true);
         opprettPersonopplysningGrunnlag(behandlingNy, false);
 
-        boolean erEndret = endringIdentifiserer.erEndret(lagReferanse());
+        boolean erEndret = endringIdentifiserer.erEndret(lagReferanse(behandlingNy));
 
         assertThat(erEndret).as("Idenfifiserer færre registrerte barn på ny behandling").isTrue();
     }
 
     @Test
     public void barn_lagt_til_i_tps_på_ny_behandling() {
+        Behandling behandlingOrig = førstegangsbehandling(ScenarioMorSøkerForeldrepenger.forFødsel());
+        Behandling behandlingNy = revurdering(behandlingOrig);
         opprettPersonopplysningGrunnlag(behandlingOrig, false);
         opprettPersonopplysningGrunnlag(behandlingNy, true);
 
-        boolean erEndret = endringIdentifiserer.erEndret(lagReferanse());
+        boolean erEndret = endringIdentifiserer.erEndret(lagReferanse(behandlingNy));
 
         assertThat(erEndret).as("Idenfifiserer færre registrerte barn på ny behandling").isFalse();
     }
 
+    private Behandling førstegangsbehandling(ScenarioMorSøkerForeldrepenger scenarioMorSøkerForeldrepenger) {
+        return scenarioMorSøkerForeldrepenger
+            .medBruker(AKTØRID_SØKER, NavBrukerKjønn.KVINNE)
+            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
+            .lagre(repositoryProvider);
+    }
 
     private void opprettPersonopplysningGrunnlag(Behandling behandling, boolean registrerMedBarn) {
-        final PersonInformasjonBuilder builder = personopplysningRepository.opprettBuilderForRegisterdata(behandlingNy.getId());
+        final PersonInformasjonBuilder builder = personopplysningRepository.opprettBuilderForRegisterdata(behandling.getId());
         builder.leggTil(builder.getPersonopplysningBuilder(AKTØRID_SØKER).medFødselsdato(LocalDate.now().minusYears(30)));
         if (registrerMedBarn) {
             builder.leggTil(builder.getPersonopplysningBuilder(AKTØRID_BARN).medFødselsdato(LocalDate.now().minusMonths(1)));

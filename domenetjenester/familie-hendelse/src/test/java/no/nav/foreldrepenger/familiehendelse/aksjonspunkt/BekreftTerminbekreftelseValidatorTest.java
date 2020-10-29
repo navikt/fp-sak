@@ -5,8 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.time.Period;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftTerminbekreftelseAksjonspunktDto;
 
@@ -15,7 +15,7 @@ public class BekreftTerminbekreftelseValidatorTest {
     private static Period tidlistUtstedelseAvTerminBekreftelse = Period.parse("P18W3D");
     private static BekreftTerminbekreftelseValidator validator;
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
         validator = new BekreftTerminbekreftelseValidator(tidlistUtstedelseAvTerminBekreftelse);
     }

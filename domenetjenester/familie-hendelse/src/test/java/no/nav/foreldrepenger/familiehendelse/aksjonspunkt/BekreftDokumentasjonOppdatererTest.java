@@ -12,8 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -28,7 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftDokumentertDatoAksjonspunktDto;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
@@ -36,16 +37,25 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class BekreftDokumentasjonOppdatererTest {
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class BekreftDokumentasjonOppdatererTest extends EntityManagerAwareTest {
+
     private final HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder();
-    private DateTimeFormatter formatterer = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-    private FamilieHendelseTjeneste familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
-    private final SkjæringstidspunktRegisterinnhentingTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
-        new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
+    private final DateTimeFormatter formatterer = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+    private BehandlingRepositoryProvider repositoryProvider;
+    private FamilieHendelseTjeneste familieHendelseTjeneste;
+    private SkjæringstidspunktRegisterinnhentingTjeneste skjæringstidspunktTjeneste;
+
+    @BeforeEach
+    void setUp() {
+        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
+        familieHendelseTjeneste = new FamilieHendelseTjeneste(null,
+            repositoryProvider.getFamilieHendelseRepository());
+        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
+            new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
+    }
 
     @Test
     public void skal_generere_historikkinnslag_ved_avklaring_av_dokumentert_adopsjonsdato() {

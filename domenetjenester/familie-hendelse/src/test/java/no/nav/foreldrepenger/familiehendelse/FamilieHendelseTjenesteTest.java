@@ -8,8 +8,9 @@ import java.time.Month;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
@@ -21,21 +22,28 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.HendelseVersjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.familiehendelse.event.FamiliehendelseEventPubliserer;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class FamilieHendelseTjenesteTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class FamilieHendelseTjenesteTest extends EntityManagerAwareTest {
 
     private static final LocalDate NÅ = LocalDate.now();
     private static final LocalDate FØDSELSDATO_BARN = LocalDate.of(2017, Month.JANUARY, 1);
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
+    private BehandlingRepositoryProvider repositoryProvider;
 
-    private final FamilieHendelseTjeneste tjeneste = new FamilieHendelseTjeneste(mock(FamiliehendelseEventPubliserer.class), repositoryProvider.getFamilieHendelseRepository());
+    private FamilieHendelseTjeneste tjeneste;
+
+    @BeforeEach
+    void setUp() {
+        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
+        tjeneste = new FamilieHendelseTjeneste(mock(FamiliehendelseEventPubliserer.class),
+            repositoryProvider.getFamilieHendelseRepository());
+    }
 
     @Test
     public void skal_uttrekke_gyldig_fødselsperiode_for_barn_som_fom_en_dag_før_tom_en_dag_etter_dersom_fødselsdato_er_oppgitt() {
