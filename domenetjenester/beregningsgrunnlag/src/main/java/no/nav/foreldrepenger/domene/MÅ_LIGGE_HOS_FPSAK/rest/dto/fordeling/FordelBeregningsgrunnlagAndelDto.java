@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.fordeling;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Inntektskategori;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 

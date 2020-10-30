@@ -12,7 +12,6 @@ import javax.enterprise.inject.spi.CDI;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.steg.beregnytelse.BeregneYtelseStegImpl;
@@ -48,7 +47,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktiv
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand;
@@ -62,10 +61,8 @@ import no.nav.foreldrepenger.ytelse.beregning.SjekkForIngenAndelerOgAndelerUtenD
 import no.nav.foreldrepenger.ytelse.beregning.SjekkOmPerioderHarEndringIAndeler;
 import no.nav.foreldrepenger.ytelse.beregning.fp.FinnEndringsdatoBeregningsresultatTjenesteImpl;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
-import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 import no.nav.vedtak.util.Tuple;
 
-@ExtendWith(FPsakEntityManagerAwareExtension.class)
 public class BeregneYtelseStegImplTest extends EntityManagerAwareTest {
     private static final String ORGNR = "000000000";
     private static final AktørId AKTØR_ID = AktørId.dummy();

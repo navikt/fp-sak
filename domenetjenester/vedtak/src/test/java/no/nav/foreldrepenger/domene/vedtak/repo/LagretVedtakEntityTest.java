@@ -2,8 +2,10 @@ package no.nav.foreldrepenger.domene.vedtak.repo;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import no.nav.foreldrepenger.behandlingslager.lagretvedtak.LagretVedtak;
 
 public class LagretVedtakEntityTest {
