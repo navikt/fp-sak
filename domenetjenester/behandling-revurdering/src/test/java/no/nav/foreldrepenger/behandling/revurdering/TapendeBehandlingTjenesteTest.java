@@ -31,7 +31,8 @@ public class TapendeBehandlingTjenesteTest {
 
     @Rule
     public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
+    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(
+        repoRule.getEntityManager());
 
     @Test
     public void tapende_berørtBehandling() {
@@ -93,7 +94,8 @@ public class TapendeBehandlingTjenesteTest {
         Behandling farBehandling = farFørstegangsbehandling(farSøknadMottattDato, morBehandling);
 
         opprettBehandlingAvEndringssøknadMor(morBehandling, farSøknadMottattDato.plusWeeks(1));
-        var manuellRevurderingFar = opprettManuellRevurderingFar(farBehandling, BehandlingÅrsakType.RE_OPPLYSNINGER_OM_FORDELING);
+        var manuellRevurderingFar = opprettManuellRevurderingFar(farBehandling,
+            BehandlingÅrsakType.RE_OPPLYSNINGER_OM_FORDELING);
 
         var tapende = tjeneste.erTapendeBehandling(manuellRevurderingFar);
         assertThat(tapende).isFalse();
@@ -109,7 +111,8 @@ public class TapendeBehandlingTjenesteTest {
         Behandling farBehandling = farFørstegangsbehandling(farSøknadMottattDato, morBehandling);
 
         opprettBehandlingAvEndringssøknadMor(morBehandling, farSøknadMottattDato.plusWeeks(1));
-        var manuellRevurderingFar = opprettManuellRevurderingFar(farBehandling, BehandlingÅrsakType.RE_OPPLYSNINGER_OM_INNTEKT);
+        var manuellRevurderingFar = opprettManuellRevurderingFar(farBehandling,
+            BehandlingÅrsakType.RE_OPPLYSNINGER_OM_INNTEKT);
 
         var tapende = tjeneste.erTapendeBehandling(manuellRevurderingFar);
         assertThat(tapende).isTrue();
@@ -181,7 +184,9 @@ public class TapendeBehandlingTjenesteTest {
         morEndringssøknadScenario.medBehandlingVedtak().medVedtakResultatType(VedtakResultatType.INNVILGET);
         var endringssøknadMorBehandling = morEndringssøknadScenario.lagre(repositoryProvider);
         endringssøknadMorBehandling.avsluttBehandling();
-        repositoryProvider.getBehandlingRepository().lagre(endringssøknadMorBehandling, repositoryProvider.getBehandlingLåsRepository().taLås(endringssøknadMorBehandling.getId()));
+        repositoryProvider.getBehandlingRepository()
+            .lagre(endringssøknadMorBehandling,
+                repositoryProvider.getBehandlingLåsRepository().taLås(endringssøknadMorBehandling.getId()));
 
         var tapende = tjeneste.erTapendeBehandling(farBehandling);
         assertThat(tapende).isFalse();
@@ -195,7 +200,8 @@ public class TapendeBehandlingTjenesteTest {
 
     private Behandling farFørstegangsbehandling(LocalDate søknadMottattDato, Behandling morBehandling) {
         Behandling farBehandling = farFørstegangsbehandling(søknadMottattDato);
-        repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak(), morBehandling);
+        repositoryProvider.getFagsakRelasjonRepository()
+            .kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak(), morBehandling);
         return farBehandling;
     }
 
@@ -213,7 +219,8 @@ public class TapendeBehandlingTjenesteTest {
         return avsluttMedVedtak(morScenario);
     }
 
-    private Behandling opprettBehandlingAvEndringssøknadMor(Behandling originalBehandling, LocalDate søknadMottattDato) {
+    private Behandling opprettBehandlingAvEndringssøknadMor(Behandling originalBehandling,
+                                                            LocalDate søknadMottattDato) {
         ScenarioMorSøkerForeldrepenger endringBehandlingMor = ScenarioMorSøkerForeldrepenger.forFødsel();
         endringBehandlingMor.medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
         endringBehandlingMor.medSøknad().medMottattDato(søknadMottattDato);
@@ -224,7 +231,8 @@ public class TapendeBehandlingTjenesteTest {
         ScenarioFarSøkerForeldrepenger manuellRevurdering = ScenarioFarSøkerForeldrepenger.forFødsel();
         manuellRevurdering.medOriginalBehandling(originalBehandling, årsak);
         var behandling = avsluttMedVedtak(manuellRevurdering);
-        repositoryProvider.getSøknadRepository().lagreOgFlush(behandling, repositoryProvider.getSøknadRepository().hentSøknad(originalBehandling.getId()));
+        repositoryProvider.getSøknadRepository()
+            .lagreOgFlush(behandling, repositoryProvider.getSøknadRepository().hentSøknad(originalBehandling.getId()));
         return behandling;
     }
 
@@ -254,7 +262,8 @@ public class TapendeBehandlingTjenesteTest {
     }
 
     private TapendeBehandlingTjeneste tjeneste() {
-        return new TapendeBehandlingTjeneste(repositoryProvider.getSøknadRepository(), new RelatertBehandlingTjeneste(repositoryProvider),
+        return new TapendeBehandlingTjeneste(repositoryProvider.getSøknadRepository(),
+            new RelatertBehandlingTjeneste(repositoryProvider),
             new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()));
     }
 }

@@ -104,7 +104,9 @@ public class RevurderingTjenesteImplTest {
         Optional<HistorikkinnslagFelt> fodsel = del.getOpplysning(HistorikkOpplysningType.FODSELSDATO);
         Optional<HistorikkinnslagFelt> antallBarn = del.getOpplysning(HistorikkOpplysningType.TPS_ANTALL_BARN);
         assertThat(fodsel).hasValueSatisfying(v -> assertThat(v.getTilVerdi()).isEqualTo("04.09.2017"));
-        assertThat(antallBarn).as("antallBarn").hasValueSatisfying(v -> assertThat(v.getTilVerdi()).as("antallBarn.tilVerdi").isEqualTo(Integer.toString(1)));
+        assertThat(antallBarn).as("antallBarn")
+            .hasValueSatisfying(
+                v -> assertThat(v.getTilVerdi()).as("antallBarn.tilVerdi").isEqualTo(Integer.toString(1)));
     }
 
     @Test
@@ -129,8 +131,11 @@ public class RevurderingTjenesteImplTest {
         Optional<HistorikkinnslagFelt> fodsel = del.getOpplysning(HistorikkOpplysningType.FODSELSDATO);
         Optional<HistorikkinnslagFelt> antallBarn = del.getOpplysning(HistorikkOpplysningType.TPS_ANTALL_BARN);
         String dateString = dateFormat.format(fødselsdato1) + ", " + dateFormat.format(fødselsdato2);
-        assertThat(fodsel).as("fodsel").hasValueSatisfying(v -> assertThat(v.getTilVerdi()).as("fodsel.tilVerdi").isEqualTo(dateString));
-        assertThat(antallBarn).as("antallBarn").hasValueSatisfying(v -> assertThat(v.getTilVerdi()).as("antallBarn.tilVerdi").isEqualTo(Integer.toString(3)));
+        assertThat(fodsel).as("fodsel")
+            .hasValueSatisfying(v -> assertThat(v.getTilVerdi()).as("fodsel.tilVerdi").isEqualTo(dateString));
+        assertThat(antallBarn).as("antallBarn")
+            .hasValueSatisfying(
+                v -> assertThat(v.getTilVerdi()).as("antallBarn.tilVerdi").isEqualTo(Integer.toString(3)));
     }
 
     @Test
@@ -141,27 +146,35 @@ public class RevurderingTjenesteImplTest {
             .medVedtakstidspunkt(LocalDateTime.now())
             .medVedtakResultatType(VedtakResultatType.INNVILGET);
 
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_ADOPSJONSDOKUMENTAJON, BehandlingStegType.KONTROLLER_FAKTA);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_ADOPSJONSDOKUMENTAJON,
+            BehandlingStegType.KONTROLLER_FAKTA);
         scenario.medBehandlingstidFrist(LocalDate.now().minusDays(5));
         Behandling behandlingSomSkalRevurderes = scenario.lagre(repositoryProvider);
-        repositoryProvider.getOpptjeningRepository().lagreOpptjeningsperiode(behandlingSomSkalRevurderes, LocalDate.now().minusYears(1), LocalDate.now(), false);
+        repositoryProvider.getOpptjeningRepository()
+            .lagreOpptjeningsperiode(behandlingSomSkalRevurderes, LocalDate.now().minusYears(1), LocalDate.now(),
+                false);
         revurderingTestUtil.avsluttBehandling(behandlingSomSkalRevurderes);
 
-        final BehandlingskontrollTjenesteImpl behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(serviceProvider);
+        final BehandlingskontrollTjenesteImpl behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(
+            serviceProvider);
         RevurderingTjenesteFelles revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider);
-        RevurderingTjeneste revurderingTjeneste = new RevurderingTjenesteImpl(repositoryProvider, behandlingskontrollTjeneste,
+        RevurderingTjeneste revurderingTjeneste = new RevurderingTjenesteImpl(repositoryProvider,
+            behandlingskontrollTjeneste,
             iayTjeneste, revurderingEndringES, revurderingTjenesteFelles, vergeRepository);
 
         // Act
         Behandling revurdering = revurderingTjeneste
-            .opprettAutomatiskRevurdering(behandlingSomSkalRevurderes.getFagsak(), BehandlingÅrsakType.RE_HENDELSE_FØDSEL, new OrganisasjonsEnhet("1234", "Test"));
+            .opprettAutomatiskRevurdering(behandlingSomSkalRevurderes.getFagsak(),
+                BehandlingÅrsakType.RE_HENDELSE_FØDSEL, new OrganisasjonsEnhet("1234", "Test"));
 
         // Assert
         assertThat(revurdering.getFagsak()).isEqualTo(behandlingSomSkalRevurderes.getFagsak());
-        assertThat(revurdering.getBehandlingÅrsaker().get(0).getBehandlingÅrsakType()).isEqualTo(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
+        assertThat(revurdering.getBehandlingÅrsaker().get(0).getBehandlingÅrsakType()).isEqualTo(
+            BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
         assertThat(revurdering.getType()).isEqualTo(BehandlingType.REVURDERING);
         assertThat(revurdering.getAksjonspunkter()).isEmpty();
-        assertThat(revurdering.getBehandlingstidFrist()).isNotEqualTo(behandlingSomSkalRevurderes.getBehandlingstidFrist());
+        assertThat(revurdering.getBehandlingstidFrist()).isNotEqualTo(
+            behandlingSomSkalRevurderes.getBehandlingstidFrist());
     }
 
     private void opprettRevurderingsKandidat() {

@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -74,7 +73,6 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest extends EntityM
     private FastsettUttaksgrunnlagOgVurderSøknadsfristSteg fastsettUttaksgrunnlagOgVurderSøknadsfristSteg;
     private FamilieHendelseRepository familieHendelseRepository;
 
-
     @BeforeEach
     public void setup() {
         var entityManager = getEntityManager();
@@ -84,7 +82,7 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest extends EntityM
         var beregningsgrunnlagTjeneste = new HentOgLagreBeregningsgrunnlagTjeneste(entityManager);
         var skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(behandlingRepositoryProvider,
             new YtelseMaksdatoTjeneste(behandlingRepositoryProvider, new RelatertBehandlingTjeneste(behandlingRepositoryProvider)),
-            new SkjæringstidspunktUtils(Period.ofMonths(6), Period.ofMonths(6), Period.ofMonths(6), Period.ofMonths(6)));
+            new SkjæringstidspunktUtils());
         var uttakTjeneste = new ForeldrepengerUttakTjeneste(new FpUttakRepository(entityManager));
         var andelGraderingTjeneste = new AndelGraderingTjeneste(uttakTjeneste, ytelsesFordelingRepository);
         var iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();

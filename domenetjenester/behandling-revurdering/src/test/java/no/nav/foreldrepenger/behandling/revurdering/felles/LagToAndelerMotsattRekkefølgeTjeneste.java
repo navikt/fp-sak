@@ -14,10 +14,12 @@ import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BGAndelArbeidsforh
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPrStatusOgAndel;
 
-public  class LagToAndelerMotsattRekkefølgeTjeneste implements LagAndelTjeneste {
+public class LagToAndelerMotsattRekkefølgeTjeneste implements LagAndelTjeneste {
 
     @Override
-    public void lagAndeler(BeregningsgrunnlagPeriode periode, boolean medOppjustertDagsat, boolean skalDeleAndelMellomArbeidsgiverOgBruker) {
+    public void lagAndeler(BeregningsgrunnlagPeriode periode,
+                           boolean medOppjustertDagsat,
+                           boolean skalDeleAndelMellomArbeidsgiverOgBruker) {
         List<Dagsatser> dagsatser = Arrays.asList(new Dagsatser(true, skalDeleAndelMellomArbeidsgiverOgBruker),
             new Dagsatser(false, skalDeleAndelMellomArbeidsgiverOgBruker));
         BGAndelArbeidsforhold.Builder bga = BGAndelArbeidsforhold

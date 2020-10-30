@@ -10,8 +10,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 
-public  class LagBeregningsresultatTjeneste {
-    public static BeregningsresultatEntitet lagBeregningsresultatperiodeMedEndringstidspunkt(LocalDate endringsdato, boolean gjelderOriginalBehandling, String orgnr) {
+public class LagBeregningsresultatTjeneste {
+    public static BeregningsresultatEntitet lagBeregningsresultatperiodeMedEndringstidspunkt(LocalDate endringsdato,
+                                                                                             boolean gjelderOriginalBehandling,
+                                                                                             String orgnr) {
         BeregningsresultatEntitet brFP = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
             .medRegelSporing("clob2")
@@ -31,7 +33,10 @@ public  class LagBeregningsresultatTjeneste {
         return brFP;
     }
 
-    private static void buildBeregningsresultatAndel(BeregningsresultatPeriode beregningsresultatPeriode, Boolean brukerErMottaker, int dagsats, String orgnr) {
+    private static void buildBeregningsresultatAndel(BeregningsresultatPeriode beregningsresultatPeriode,
+                                                     Boolean brukerErMottaker,
+                                                     int dagsats,
+                                                     String orgnr) {
         BeregningsresultatAndel.builder()
             .medBrukerErMottaker(brukerErMottaker)
             .medArbeidsgiver(Arbeidsgiver.virksomhet(orgnr))

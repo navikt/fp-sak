@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.skjæringstidspunkt.fp;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -14,7 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Hendels
 
 public class SkjæringstidspunktUtilsTest {
 
-    private SkjæringstidspunktUtils innhentingIntervall = new SkjæringstidspunktUtils(Period.parse("P10M"), Period.parse("P12W"), Period.parse("P4M"), Period.parse("P1Y"));
+    private final SkjæringstidspunktUtils innhentingIntervall = new SkjæringstidspunktUtils();
 
     @Test
     public void skal_gi_false_hvis_like() {

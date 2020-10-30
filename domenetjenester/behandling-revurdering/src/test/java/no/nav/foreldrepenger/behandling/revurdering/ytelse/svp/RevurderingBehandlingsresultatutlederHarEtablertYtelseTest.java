@@ -41,11 +41,12 @@ public class RevurderingBehandlingsresultatutlederHarEtablertYtelseTest extends 
         revurderingTestUtil = new BeregningRevurderingTestUtil(repositoryProvider);
         uttakRepository = repositoryProvider.getSvangerskapspengerUttakResultatRepository();
         resultatUtleder = new RevurderingBehandlingsresultatutleder(repositoryProvider, null,
-            null, null,null, null);
+            null, null, null, null);
     }
 
     private Behandling opprettBehandling() {
-        var behandlingSomSkalRevurderes = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger().lagre(repositoryProvider);
+        var behandlingSomSkalRevurderes = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger()
+            .lagre(repositoryProvider);
         revurderingTestUtil.avsluttBehandling(behandlingSomSkalRevurderes);
         return behandlingSomSkalRevurderes;
     }
@@ -55,12 +56,14 @@ public class RevurderingBehandlingsresultatutlederHarEtablertYtelseTest extends 
         // Arrange
         var behandlingSomSkalRevurderes = opprettBehandling();
 
-        SvangerskapspengerUttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
-            Collections.singletonList(new LocalDateInterval(LocalDate.now().minusDays(10), LocalDate.now().plusDays(10)))
+        SvangerskapspengerUttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(
+            behandlingSomSkalRevurderes,
+            Collections.singletonList(
+                new LocalDateInterval(LocalDate.now().minusDays(10), LocalDate.now().plusDays(10)))
         );
 
         // Act
-        boolean etablertYtelse = resultatUtleder.harEtablertYtelse( null,true,
+        boolean etablertYtelse = resultatUtleder.harEtablertYtelse(null, true,
             new UttakResultatHolderSVP(Optional.of(uttakResultatOriginal), null));
 
         // Assert
@@ -72,13 +75,15 @@ public class RevurderingBehandlingsresultatutlederHarEtablertYtelseTest extends 
         // Arrange
         var behandlingSomSkalRevurderes = opprettBehandling();
 
-        SvangerskapspengerUttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
-            Collections.singletonList(new LocalDateInterval(LocalDate.now().minusDays(10), LocalDate.now().plusDays(10)))
+        SvangerskapspengerUttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(
+            behandlingSomSkalRevurderes,
+            Collections.singletonList(
+                new LocalDateInterval(LocalDate.now().minusDays(10), LocalDate.now().plusDays(10)))
         );
         boolean finnesInnvilgetIkkeOpphørtVedtak = false;
         // Act
         boolean etablertYtelse = resultatUtleder.harEtablertYtelse(null, finnesInnvilgetIkkeOpphørtVedtak,
-            new UttakResultatHolderSVP( Optional.of(uttakResultatOriginal), null));
+            new UttakResultatHolderSVP(Optional.of(uttakResultatOriginal), null));
 
         // Assert
         assertThat(etablertYtelse).isFalse();
@@ -89,12 +94,13 @@ public class RevurderingBehandlingsresultatutlederHarEtablertYtelseTest extends 
         // Arrange
         var behandlingSomSkalRevurderes = opprettBehandling();
 
-        SvangerskapspengerUttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
+        SvangerskapspengerUttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(
+            behandlingSomSkalRevurderes,
             Collections.singletonList(new LocalDateInterval(LocalDate.now().minusDays(10), LocalDate.now()))
         );
         // Act
         boolean etablertYtelse = resultatUtleder.harEtablertYtelse(null, true,
-            new UttakResultatHolderSVP( Optional.of(uttakResultatOriginal), null));
+            new UttakResultatHolderSVP(Optional.of(uttakResultatOriginal), null));
 
         // Assert
         assertThat(etablertYtelse).isTrue();
@@ -105,12 +111,13 @@ public class RevurderingBehandlingsresultatutlederHarEtablertYtelseTest extends 
         // Arrange
         var behandlingSomSkalRevurderes = opprettBehandling();
 
-        SvangerskapspengerUttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
+        SvangerskapspengerUttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(
+            behandlingSomSkalRevurderes,
             Collections.singletonList(new LocalDateInterval(LocalDate.now().minusDays(10), LocalDate.now().plusDays(5)))
         );
         // Act
         boolean etablertYtelse = resultatUtleder.harEtablertYtelse(null, false,
-            new UttakResultatHolderSVP( Optional.of(uttakResultatOriginal), null));
+            new UttakResultatHolderSVP(Optional.of(uttakResultatOriginal), null));
 
         // Assert
         assertThat(etablertYtelse).isFalse();
@@ -121,19 +128,23 @@ public class RevurderingBehandlingsresultatutlederHarEtablertYtelseTest extends 
         // Arrange
         var behandlingSomSkalRevurderes = opprettBehandling();
 
-        SvangerskapspengerUttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandlingSomSkalRevurderes,
-            Collections.singletonList(new LocalDateInterval(LocalDate.now().minusDays(10), LocalDate.now().minusDays(5)))
+        SvangerskapspengerUttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(
+            behandlingSomSkalRevurderes,
+            Collections.singletonList(
+                new LocalDateInterval(LocalDate.now().minusDays(10), LocalDate.now().minusDays(5)))
         );
         // Act
         boolean etablertYtelse = resultatUtleder.harEtablertYtelse(null, true,
-            new UttakResultatHolderSVP( Optional.of(uttakResultatOriginal), null));
+            new UttakResultatHolderSVP(Optional.of(uttakResultatOriginal), null));
 
         // Assert
         assertThat(etablertYtelse).isFalse();
     }
 
-    private SvangerskapspengerUttakResultatEntitet lagUttakResultatPlanForBehandling(Behandling behandling, List<LocalDateInterval> perioder) {
-        SvangerskapspengerUttakResultatEntitet uttakresultat = LagUttakResultatPlanTjeneste.lagUttakResultatPlanSVPTjeneste(behandling, perioder,
+    private SvangerskapspengerUttakResultatEntitet lagUttakResultatPlanForBehandling(Behandling behandling,
+                                                                                     List<LocalDateInterval> perioder) {
+        SvangerskapspengerUttakResultatEntitet uttakresultat = LagUttakResultatPlanTjeneste.lagUttakResultatPlanSVPTjeneste(
+            behandling, perioder,
             Collections.nCopies(perioder.size(), PeriodeResultatType.INNVILGET),
             Collections.nCopies(perioder.size(), PeriodeIkkeOppfyltÅrsak.INGEN),
             Collections.nCopies(perioder.size(), 100));

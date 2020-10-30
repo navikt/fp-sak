@@ -4,6 +4,7 @@ package no.nav.foreldrepenger.behandling.revurdering.satsregulering;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static no.nav.foreldrepenger.behandling.revurdering.satsregulering.AutomatiskArenaReguleringBatchArguments.DATE_PATTERN;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -12,12 +13,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -31,7 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingL�
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
@@ -39,41 +37,35 @@ import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Beregningsgrunnlag
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-@RunWith(CdiRunner.class)
-public class AutomatiskArenaReguleringBatchTjenesteTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class AutomatiskArenaReguleringBatchTjenesteTest extends EntityManagerAwareTest {
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-
-    @Inject
     private BehandlingRepository behandlingRepository;
-    @Inject
-    private ProsessTaskRepository prosessTaskRepositoryMock;
-
     private AutomatiskArenaReguleringBatchTjeneste tjeneste;
-
-    @Inject
-    private BehandlingRepositoryProvider repositoryProvider;
-
-    @Inject
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
 
     private LocalDate arenaDato;
     private LocalDate cutoff;
-    private LocalDate nySatsDato;
-    AutomatiskArenaReguleringBatchArguments batchArgs;
+    private AutomatiskArenaReguleringBatchArguments batchArgs;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    public void setUp() {
+        var entityManager = getEntityManager();
+        behandlingRepository = new BehandlingRepository(entityManager);
+        beregningsgrunnlagRepository = new BeregningsgrunnlagRepository(entityManager);
+
         arenaDato = AutomatiskArenaReguleringBatchArguments.DATO;
         cutoff = arenaDato.isAfter(LocalDate.now()) ? arenaDato : LocalDate.now();
-        nySatsDato = cutoff.plusWeeks(3).plusDays(2);
-        tjeneste = new AutomatiskArenaReguleringBatchTjeneste(repositoryProvider, prosessTaskRepositoryMock);
+        var nySatsDato = cutoff.plusWeeks(3).plusDays(2);
+        var prosessTaskRepositoryMock = mock(ProsessTaskRepository.class);
+        tjeneste = new AutomatiskArenaReguleringBatchTjeneste(new BehandlingRepositoryProvider(getEntityManager()),
+            prosessTaskRepositoryMock);
         Map<String, String> arguments = new HashMap<>();
         arguments.put(AutomatiskArenaReguleringBatchArguments.REVURDER_KEY, "True");
-        arguments.put(AutomatiskArenaReguleringBatchArguments.SATS_DATO_KEY, nySatsDato.format(ofPattern(DATE_PATTERN)));
+        arguments.put(AutomatiskArenaReguleringBatchArguments.SATS_DATO_KEY,
+            nySatsDato.format(ofPattern(DATE_PATTERN)));
         batchArgs = new AutomatiskArenaReguleringBatchArguments(arguments);
     }
 
@@ -111,7 +103,9 @@ public class AutomatiskArenaReguleringBatchTjenesteTest {
             .medFødselsDato(terminDato)
             .medAntallBarn(1);
 
-        scenario.medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
+        scenario.medBehandlingsresultat(
+            Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
+        var repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         Behandling behandling = scenario.lagre(repositoryProvider);
 
         if (BehandlingStatus.AVSLUTTET.equals(status)) {
@@ -151,8 +145,7 @@ public class AutomatiskArenaReguleringBatchTjenesteTest {
             .medUtbetalingsgrad(new BigDecimal(100))
             .build(brFPper);
         repositoryProvider.getBeregningsresultatRepository().lagre(behandling, brFP);
-        repoRule.getRepository().flushAndClear();
-        return repoRule.getEntityManager().find(Behandling.class, behandling.getId());
+        return behandlingRepository.hentBehandling(behandling.getId());
     }
 
 }

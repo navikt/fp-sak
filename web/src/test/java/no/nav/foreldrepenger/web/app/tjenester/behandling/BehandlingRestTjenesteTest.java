@@ -3,8 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-import java.time.Period;
-
 import javax.ws.rs.core.Response;
 
 import org.apache.http.HttpStatus;
@@ -69,8 +67,7 @@ public class BehandlingRestTjenesteTest extends RepositoryAwareTest {
         var beregningsgrunnlagTjeneste = new HentOgLagreBeregningsgrunnlagTjeneste(getEntityManager());
         var fagsakTjeneste = new FagsakTjeneste(fagsakRepository, søknadRepository, null);
         var relatertBehandlingTjeneste = new RelatertBehandlingTjeneste(repositoryProvider);
-        var stputil = new SkjæringstidspunktUtils(Period.parse("P10M"),
-                Period.parse("P6M"), Period.parse("P1Y"), Period.parse("P6M"));
+        var stputil = new SkjæringstidspunktUtils();
         var ytelseMaksdatoTjeneste = new YtelseMaksdatoTjeneste(repositoryProvider, new RelatertBehandlingTjeneste(repositoryProvider));
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste, stputil);
         var behandlingDtoTjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningsgrunnlagTjeneste, tilbakekrevingRepository,

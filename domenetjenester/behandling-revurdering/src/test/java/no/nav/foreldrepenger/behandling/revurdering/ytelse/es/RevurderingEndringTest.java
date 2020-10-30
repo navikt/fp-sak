@@ -36,18 +36,22 @@ public class RevurderingEndringTest {
 
     @Rule
     public final UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
+    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(
+        repositoryRule.getEntityManager());
     private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
 
-    private LegacyESBeregningRepository beregningRepository = new LegacyESBeregningRepository(repositoryRule.getEntityManager());
+    private LegacyESBeregningRepository beregningRepository = new LegacyESBeregningRepository(
+        repositoryRule.getEntityManager());
 
     @Test
     public void erRevurderingMedUendretUtfall() {
         Behandling originalBehandling = opprettOriginalBehandling(1L, BehandlingResultatType.INNVILGET);
-        RevurderingTjeneste revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, originalBehandling.getFagsak().getYtelseType()).orElseThrow();
+        RevurderingTjeneste revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class,
+            originalBehandling.getFagsak().getYtelseType()).orElseThrow();
 
         Behandling revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandlingId(originalBehandling.getId())).build();
+            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL)
+                .medOriginalBehandlingId(originalBehandling.getId())).build();
 
         Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET).buildFor(revurdering);
         BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
@@ -65,7 +69,8 @@ public class RevurderingEndringTest {
         RevurderingEndring revurderingEndring = new RevurderingEndringImpl(behandlingRepository, beregningRepository);
 
         Behandling revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandlingId(originalBehandling.getId())).build();
+            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL)
+                .medOriginalBehandlingId(originalBehandling.getId())).build();
 
         Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET).buildFor(revurdering);
         BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
@@ -73,17 +78,20 @@ public class RevurderingEndringTest {
         LegacyESBeregningsresultat beregningResultat = opprettBeregning(revurdering, 1L);
         beregningRepository.lagre(beregningResultat, lås);
 
-        assertThat(revurderingEndring.erRevurderingMedUendretUtfall(revurdering, BehandlingResultatType.INNVILGET)).isTrue();
+        assertThat(
+            revurderingEndring.erRevurderingMedUendretUtfall(revurdering, BehandlingResultatType.INNVILGET)).isTrue();
     }
 
     @Test
     public void erRevurderingMedEndretAntallBarn() {
         Behandling originalBehandling = opprettOriginalBehandling(2L, BehandlingResultatType.INNVILGET);
-        RevurderingTjeneste revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, originalBehandling.getFagsak().getYtelseType()).orElseThrow();
+        RevurderingTjeneste revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class,
+            originalBehandling.getFagsak().getYtelseType()).orElseThrow();
 
 
         Behandling revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandlingId(originalBehandling.getId())).build();
+            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL)
+                .medOriginalBehandlingId(originalBehandling.getId())).build();
 
         Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET).buildFor(revurdering);
         BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
@@ -97,10 +105,12 @@ public class RevurderingEndringTest {
     @Test
     public void erRevurderingDerBeggeErAvslått() {
         Behandling originalBehandling = opprettOriginalBehandling(2L, BehandlingResultatType.AVSLÅTT);
-        RevurderingTjeneste revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, originalBehandling.getFagsak().getYtelseType()).orElseThrow();
+        RevurderingTjeneste revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class,
+            originalBehandling.getFagsak().getYtelseType()).orElseThrow();
 
         Behandling revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandlingId(originalBehandling.getId())).build();
+            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL)
+                .medOriginalBehandlingId(originalBehandling.getId())).build();
 
         Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT).buildFor(revurdering);
         BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
@@ -114,7 +124,8 @@ public class RevurderingEndringTest {
     @Test
     public void skal_gi_false_dersom_behandling_ikke_er_revurdering() {
         Behandling originalBehandling = opprettOriginalBehandling(2L, BehandlingResultatType.AVSLÅTT);
-        RevurderingTjeneste revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, originalBehandling.getFagsak().getYtelseType()).orElseThrow();
+        RevurderingTjeneste revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class,
+            originalBehandling.getFagsak().getYtelseType()).orElseThrow();
 
         assertThat(revurderingTjeneste.erRevurderingMedUendretUtfall(originalBehandling)).isFalse();
     }
@@ -122,10 +133,12 @@ public class RevurderingEndringTest {
     @Test(expected = TekniskException.class)
     public void skal_gi_feil_dersom_revurdering_ikke_har_original_behandling() {
         Behandling originalBehandling = opprettOriginalBehandling(2L, BehandlingResultatType.AVSLÅTT);
-        RevurderingTjeneste revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, originalBehandling.getFagsak().getYtelseType()).orElseThrow();
+        RevurderingTjeneste revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class,
+            originalBehandling.getFagsak().getYtelseType()).orElseThrow();
 
         Behandling revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandlingId(null)).build();
+            .medBehandlingÅrsak(
+                BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandlingId(null)).build();
 
         Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT).buildFor(revurdering);
         BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
@@ -139,11 +152,13 @@ public class RevurderingEndringTest {
     @Test
     public void erRevurderingMedEndretResultatFraInnvilgetTilAvslått() {
         Behandling originalBehandling = opprettOriginalBehandling(1L, BehandlingResultatType.INNVILGET);
-        RevurderingTjeneste revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, originalBehandling.getFagsak().getYtelseType()).orElseThrow();
+        RevurderingTjeneste revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class,
+            originalBehandling.getFagsak().getYtelseType()).orElseThrow();
 
 
         Behandling revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandlingId(originalBehandling.getId())).build();
+            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL)
+                .medOriginalBehandlingId(originalBehandling.getId())).build();
 
         Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT).buildFor(revurdering);
         BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
@@ -155,10 +170,12 @@ public class RevurderingEndringTest {
     @Test
     public void erRevurderingMedEndretResultatFraAvslåttTilInnvilget() {
         Behandling originalBehandling = opprettOriginalBehandling(1L, BehandlingResultatType.AVSLÅTT);
-        RevurderingTjeneste revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, originalBehandling.getFagsak().getYtelseType()).orElseThrow();
+        RevurderingTjeneste revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class,
+            originalBehandling.getFagsak().getYtelseType()).orElseThrow();
 
         Behandling revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandlingId(originalBehandling.getId())).build();
+            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL)
+                .medOriginalBehandlingId(originalBehandling.getId())).build();
 
         Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET).buildFor(revurdering);
         BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
@@ -200,7 +217,9 @@ public class RevurderingEndringTest {
 
     private LegacyESBeregningsresultat opprettBeregning(Behandling behandling, long antallBarn) {
         LegacyESBeregning beregning = new LegacyESBeregning(1000L, antallBarn, antallBarn * 1000, LocalDateTime.now());
-        return LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling, behandling.getBehandlingsresultat());
+        return LegacyESBeregningsresultat.builder()
+            .medBeregning(beregning)
+            .buildFor(behandling, behandling.getBehandlingsresultat());
     }
 
 }

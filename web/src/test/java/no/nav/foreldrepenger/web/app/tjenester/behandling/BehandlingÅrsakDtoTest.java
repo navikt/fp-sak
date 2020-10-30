@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.List;
 
 import org.junit.Before;
@@ -47,8 +46,7 @@ public class BehandlingÅrsakDtoTest {
 
     @Before
     public void setup() {
-        var stputil = new SkjæringstidspunktUtils(Period.parse("P10M"),
-            Period.parse("P6M"), Period.parse("P1Y"), Period.parse("P6M"));
+        var stputil = new SkjæringstidspunktUtils();
         var ytelseMaksdatoTjeneste = new YtelseMaksdatoTjeneste(repositoryProvider, new RelatertBehandlingTjeneste(repositoryProvider));
                 skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste, stputil);
         var beregningsgrunnlagTjeneste = new HentOgLagreBeregningsgrunnlagTjeneste(repoRule.getEntityManager());

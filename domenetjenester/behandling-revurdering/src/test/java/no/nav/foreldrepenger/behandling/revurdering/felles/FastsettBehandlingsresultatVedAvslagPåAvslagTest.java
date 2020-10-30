@@ -4,9 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -20,36 +20,31 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
-public class FastsettBehandlingsresultatVedAvslagPåAvslagTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class FastsettBehandlingsresultatVedAvslagPåAvslagTest extends EntityManagerAwareTest {
 
-    @Rule
-    public final RepositoryRule repoRule = new UnittestRepositoryRule();
+    private BehandlingRepository behandlingRepository;
 
-    private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-
-    private BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-    private Behandling originalBehandling;
-    private Behandling revurdering;
-
-    @Before
+    @BeforeEach
     public void setUp() {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        originalBehandling = scenario.lagre(repositoryProvider);
-        originalBehandling.avsluttBehandling();
-        revurdering = lagRevurdering(originalBehandling);
+        behandlingRepository = new BehandlingRepository(getEntityManager());
     }
 
     @Test
     public void skal_ikke_gi_avslag_på_avslag() {
         // Arrange
+        var originalBehandling = opprettOriginalBehandling();
+        var revurdering = lagRevurdering(originalBehandling);
 
         // Act
         boolean erAvslagPåAvslag = FastsettBehandlingsresultatVedAvslagPåAvslag.vurder(
-            lagBehandlingsresultat(revurdering, BehandlingResultatType.INGEN_ENDRING, KonsekvensForYtelsen.INGEN_ENDRING),
-            lagBehandlingsresultat(originalBehandling, BehandlingResultatType.INNVILGET, KonsekvensForYtelsen.UDEFINERT), originalBehandling.getType());
+            lagBehandlingsresultat(revurdering, BehandlingResultatType.INGEN_ENDRING,
+                KonsekvensForYtelsen.INGEN_ENDRING),
+            lagBehandlingsresultat(originalBehandling, BehandlingResultatType.INNVILGET,
+                KonsekvensForYtelsen.UDEFINERT), originalBehandling.getType());
 
         // Assert
         assertThat(erAvslagPåAvslag).isFalse();
@@ -58,11 +53,15 @@ public class FastsettBehandlingsresultatVedAvslagPåAvslagTest {
     @Test
     public void skal_gi_avslag_på_avslag() {
         // Arrange
+        var originalBehandling = opprettOriginalBehandling();
+        var revurdering = lagRevurdering(originalBehandling);
 
         // Act
         boolean erAvslagPåAvslag = FastsettBehandlingsresultatVedAvslagPåAvslag.vurder(
-            lagBehandlingsresultat(revurdering, BehandlingResultatType.INGEN_ENDRING, KonsekvensForYtelsen.INGEN_ENDRING),
-            lagBehandlingsresultat(originalBehandling, BehandlingResultatType.AVSLÅTT, KonsekvensForYtelsen.UDEFINERT), originalBehandling.getType());
+            lagBehandlingsresultat(revurdering, BehandlingResultatType.INGEN_ENDRING,
+                KonsekvensForYtelsen.INGEN_ENDRING),
+            lagBehandlingsresultat(originalBehandling, BehandlingResultatType.AVSLÅTT, KonsekvensForYtelsen.UDEFINERT),
+            originalBehandling.getType());
 
         // Assert
         assertThat(erAvslagPåAvslag).isTrue();
@@ -79,12 +78,22 @@ public class FastsettBehandlingsresultatVedAvslagPåAvslagTest {
         return revurdering;
     }
 
-    private Optional<Behandlingsresultat> lagBehandlingsresultat(Behandling behandling, BehandlingResultatType resultatType, KonsekvensForYtelsen konsekvensForYtelsen) {
+    private Behandling opprettOriginalBehandling() {
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var originalBehandling = scenario.lagre(new BehandlingRepositoryProvider(getEntityManager()));
+        originalBehandling.avsluttBehandling();
+        return originalBehandling;
+    }
+
+    private Optional<Behandlingsresultat> lagBehandlingsresultat(Behandling behandling,
+                                                                 BehandlingResultatType resultatType,
+                                                                 KonsekvensForYtelsen konsekvensForYtelsen) {
         Behandlingsresultat behandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(resultatType)
             .leggTilKonsekvensForYtelsen(konsekvensForYtelsen).buildFor(behandling);
 
         VilkårResultat.builder().medVilkårResultatType(VilkårResultatType.AVSLÅTT).buildFor(behandling);
-        behandlingRepository.lagre(behandling.getBehandlingsresultat().getVilkårResultat(), behandlingRepository.taSkriveLås(behandling));
+        behandlingRepository.lagre(behandling.getBehandlingsresultat().getVilkårResultat(),
+            behandlingRepository.taSkriveLås(behandling));
 
         return Optional.of(behandlingsresultat);
     }

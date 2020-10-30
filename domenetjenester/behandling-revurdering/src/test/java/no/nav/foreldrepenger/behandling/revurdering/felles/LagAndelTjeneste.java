@@ -5,6 +5,8 @@ import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Beregningsgrunnlag
 
 public interface LagAndelTjeneste {
 
-    public void lagAndeler(BeregningsgrunnlagPeriode periode, boolean medOppjustertDagsat, boolean skalDeleAndelMellomArbeidsgiverOgBruker);
+    void lagAndeler(BeregningsgrunnlagPeriode periode,
+                           boolean medOppjustertDagsat,
+                           boolean skalDeleAndelMellomArbeidsgiverOgBruker);
 
 }

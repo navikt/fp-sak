@@ -15,7 +15,9 @@ import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Beregningsgrunnlag
 public class LagEnAndelTjeneste implements LagAndelTjeneste {
 
     @Override
-    public void lagAndeler(BeregningsgrunnlagPeriode periode, boolean medOppjustertDagsat, boolean skalDeleAndelMellomArbeidsgiverOgBruker) {
+    public void lagAndeler(BeregningsgrunnlagPeriode periode,
+                           boolean medOppjustertDagsat,
+                           boolean skalDeleAndelMellomArbeidsgiverOgBruker) {
         Dagsatser ds = new Dagsatser(medOppjustertDagsat, skalDeleAndelMellomArbeidsgiverOgBruker);
         BGAndelArbeidsforhold.Builder bga = BGAndelArbeidsforhold
             .builder()
