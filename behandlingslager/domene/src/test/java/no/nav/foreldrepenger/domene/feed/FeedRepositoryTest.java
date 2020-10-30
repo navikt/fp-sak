@@ -7,13 +7,10 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
-import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
-import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 
 //Trengs en omskriving hvis testene skal kunne kjøres i parallell
-@ExtendWith(FPsakEntityManagerAwareExtension.class)
 public class FeedRepositoryTest extends EntityManagerAwareTest {
 
     private static final String TYPE2 = "type2";

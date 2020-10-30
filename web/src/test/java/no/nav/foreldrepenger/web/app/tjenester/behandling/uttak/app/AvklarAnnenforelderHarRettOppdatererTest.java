@@ -8,9 +8,8 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
@@ -27,7 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
@@ -38,37 +37,45 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.aksjonspunkt.Avk
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AvklarAnnenforelderHarRettDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.FørsteUttaksdatoTjenesteImpl;
 
-public class AvklarAnnenforelderHarRettOppdatererTest {
+public class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAwareTest {
 
     private static final AksjonspunktDefinisjon AKSONSPUNKT_DEF = AksjonspunktDefinisjon.AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT;
 
-    @Rule
-    public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
-
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
-    private YtelseFordelingTjeneste ytelseFordelingTjeneste = new YtelseFordelingTjeneste(new YtelsesFordelingRepository(repositoryRule.getEntityManager()));
-    private HistorikkTjenesteAdapter historikkApplikasjonTjeneste = mock(HistorikkTjenesteAdapter.class);
-    private final HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder();
-    private ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste = mock(ArbeidsgiverHistorikkinnslag.class);
-    private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste = mock(InntektArbeidYtelseTjeneste.class);
+    private BehandlingRepositoryProvider repositoryProvider;
+    private HistorikkTjenesteAdapter historikkApplikasjonTjeneste;
+    private HistorikkInnslagTekstBuilder tekstBuilder;
 
     private FaktaUttakHistorikkTjeneste faktaUttakHistorikkTjeneste;
-    private FaktaUttakToTrinnsTjeneste faktaUttakToTrinnsTjeneste = new FaktaUttakToTrinnsTjeneste(ytelseFordelingTjeneste);
-    private FørsteUttaksdatoTjenesteImpl førsteUttaksdatoTjeneste = new FørsteUttaksdatoTjenesteImpl(ytelseFordelingTjeneste, new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()));
-    private KontrollerOppgittFordelingTjeneste kontrollerOppgittFordelingTjeneste = new KontrollerOppgittFordelingTjeneste(ytelseFordelingTjeneste, repositoryProvider, førsteUttaksdatoTjeneste);
+    private FaktaUttakToTrinnsTjeneste faktaUttakToTrinnsTjeneste;
+    private KontrollerOppgittFordelingTjeneste kontrollerOppgittFordelingTjeneste;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        when(inntektArbeidYtelseTjeneste.hentGrunnlag(anyLong())).thenReturn(InntektArbeidYtelseGrunnlagBuilder.nytt().build());
-        faktaUttakHistorikkTjeneste = new FaktaUttakHistorikkTjeneste(lagMockHistory(), arbeidsgiverHistorikkinnslagTjeneste, ytelseFordelingTjeneste, inntektArbeidYtelseTjeneste);
+        var entityManager = getEntityManager();
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        YtelseFordelingTjeneste ytelseFordelingTjeneste = new YtelseFordelingTjeneste(
+            new YtelsesFordelingRepository(entityManager));
+        historikkApplikasjonTjeneste = mock(HistorikkTjenesteAdapter.class);
+        tekstBuilder = new HistorikkInnslagTekstBuilder();
+        ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste = mock(ArbeidsgiverHistorikkinnslag.class);
+        InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste = mock(InntektArbeidYtelseTjeneste.class);
+        faktaUttakToTrinnsTjeneste = new FaktaUttakToTrinnsTjeneste(ytelseFordelingTjeneste);
+        var uttakTjeneste = new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository());
+        FørsteUttaksdatoTjenesteImpl førsteUttaksdatoTjeneste = new FørsteUttaksdatoTjenesteImpl(
+            ytelseFordelingTjeneste, uttakTjeneste);
+        kontrollerOppgittFordelingTjeneste = new KontrollerOppgittFordelingTjeneste(ytelseFordelingTjeneste,
+            repositoryProvider, førsteUttaksdatoTjeneste);
+        when(inntektArbeidYtelseTjeneste.hentGrunnlag(anyLong())).thenReturn(
+            InntektArbeidYtelseGrunnlagBuilder.nytt().build());
+        faktaUttakHistorikkTjeneste = new FaktaUttakHistorikkTjeneste(lagMockHistory(),
+            arbeidsgiverHistorikkinnslagTjeneste, ytelseFordelingTjeneste, inntektArbeidYtelseTjeneste);
     }
 
     @Test
     public void skal_opprette_historikkinnslag_ved_endring() {
         //Scenario med avklar fakta annen forelder har rett
         ScenarioMorSøkerForeldrepenger scenario = AvklarFaktaTestUtil.opprettScenarioMorSøkerForeldrepenger();
-        scenario.leggTilAksjonspunkt(AKSONSPUNKT_DEF,
-            BehandlingStegType.VURDER_UTTAK);
+        scenario.leggTilAksjonspunkt(AKSONSPUNKT_DEF, BehandlingStegType.VURDER_UTTAK);
         scenario.lagre(repositoryProvider);
 
         var behandling = AvklarFaktaTestUtil.opprettBehandling(scenario);
@@ -89,10 +96,10 @@ public class AvklarAnnenforelderHarRettOppdatererTest {
             assertThat(rett.getFraVerdi()).isNull();
             assertThat(rett.getTilVerdi()).isEqualTo(HistorikkEndretFeltVerdiType.ANNEN_FORELDER_HAR_RETT.getKode());
         });
-        assertThat(del.getSkjermlenke())
-            .hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.FAKTA_OM_UTTAK.getKode()));
-        assertThat(del.getBegrunnelse())
-            .hasValueSatisfying(begrunnelse -> assertThat(begrunnelse).isEqualTo("Har rett"));
+        assertThat(del.getSkjermlenke()).hasValueSatisfying(
+            skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.FAKTA_OM_UTTAK.getKode()));
+        assertThat(del.getBegrunnelse()).hasValueSatisfying(
+            begrunnelse -> assertThat(begrunnelse).isEqualTo("Har rett"));
     }
 
     @Test
@@ -106,14 +113,16 @@ public class AvklarAnnenforelderHarRettOppdatererTest {
         AvklarAnnenforelderHarRettDto dto = AvklarFaktaTestUtil.opprettDtoAvklarAnnenforelderharIkkeRett();
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode()).get();
 
-        OppdateringResultat resultat = oppdaterer().oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
+        OppdateringResultat resultat = oppdaterer().oppdater(dto,
+            new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
         //assert
         assertThat(behandling.harAksjonspunktMedType(AKSONSPUNKT_DEF)).isTrue();
         assertThat(resultat.kreverTotrinnsKontroll()).isTrue();
     }
 
     private AvklarAnnenforelderHarRettOppdaterer oppdaterer() {
-        return new AvklarAnnenforelderHarRettOppdaterer(kontrollerOppgittFordelingTjeneste, faktaUttakHistorikkTjeneste, faktaUttakToTrinnsTjeneste);
+        return new AvklarAnnenforelderHarRettOppdaterer(kontrollerOppgittFordelingTjeneste, faktaUttakHistorikkTjeneste,
+            faktaUttakToTrinnsTjeneste);
     }
 
     private HistorikkTjenesteAdapter lagMockHistory() {

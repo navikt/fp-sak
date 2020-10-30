@@ -6,17 +6,14 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import javax.enterprise.context.ApplicationScoped;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
-import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 
 /** Demonstrerer lookup med repeatble annotations.
  * Extender @{@link EntityManagerAwareTest} fpr at cdi settes opp
  * Sikkert en bedre måte å gjøre dette på...
  * */
-@ExtendWith(FPsakEntityManagerAwareExtension.class)
 public class FagsakYtelseTypeRefTest extends EntityManagerAwareTest {
 
     @Test

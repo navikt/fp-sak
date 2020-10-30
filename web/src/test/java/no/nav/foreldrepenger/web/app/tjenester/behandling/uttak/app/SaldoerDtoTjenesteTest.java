@@ -12,25 +12,24 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import javax.inject.Inject;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
@@ -50,12 +49,13 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntit
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.TapteDagerFpffTjeneste;
+import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.StønadskontoRegelAdapter;
 import no.nav.foreldrepenger.domene.uttak.input.Annenpart;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
@@ -63,9 +63,9 @@ import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
-import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.domene.uttak.saldo.fp.MaksDatoUttakTjenesteImpl;
+import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.TrekkdagerUtregningUtil;
 import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Periode;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AktivitetIdentifikatorDto;
@@ -74,36 +74,40 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SaldoerDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.StønadskontoDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPeriodeAktivitetLagreDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPeriodeLagreDto;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 import no.nav.vedtak.util.Tuple;
 
-@RunWith(CdiRunner.class)
-public class SaldoerDtoTjenesteTest {
+public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
 
-    @Rule
-    public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
-    private BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-
-    @Inject
+    private BehandlingRepositoryProvider repositoryProvider;
+    private BehandlingRepository behandlingRepository;
     private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
-
-    @Inject
     private FpUttakRepository fpUttakRepository;
-
-    @Inject @FagsakYtelseTypeRef("FP")
-    private MaksDatoUttakTjeneste maksDatoUttakTjeneste;
-
-    @Inject
     private StønadskontoRegelAdapter stønadskontoRegelAdapter;
-
-    @Inject
     private TapteDagerFpffTjeneste tapteDagerFpffTjeneste;
-
-    @Inject
     private ForeldrepengerUttakTjeneste uttakTjeneste;
 
     private SaldoerDtoTjeneste tjeneste;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
+
+    @BeforeEach
+    public void setUp() {
+        var entityManager = getEntityManager();
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        behandlingRepository = new BehandlingRepository(entityManager);
+        var uttakRepositoryProvider = new UttakRepositoryProvider(entityManager);
+        stønadskontoSaldoTjeneste = new StønadskontoSaldoTjeneste(uttakRepositoryProvider);
+        fpUttakRepository = new FpUttakRepository(entityManager);
+        stønadskontoRegelAdapter = new StønadskontoRegelAdapter(uttakRepositoryProvider);
+        tapteDagerFpffTjeneste = new TapteDagerFpffTjeneste(uttakRepositoryProvider,
+            new YtelseFordelingTjeneste(new YtelsesFordelingRepository(entityManager)));
+        uttakTjeneste = new ForeldrepengerUttakTjeneste(fpUttakRepository);
+        var maksDatoUttakTjeneste = new MaksDatoUttakTjenesteImpl(fpUttakRepository,
+            stønadskontoSaldoTjeneste);
+        tjeneste = new SaldoerDtoTjeneste(stønadskontoSaldoTjeneste, maksDatoUttakTjeneste,
+            mock(ArbeidsgiverDtoTjeneste.class), stønadskontoRegelAdapter, repositoryProvider, uttakTjeneste,
+            tapteDagerFpffTjeneste);
+        behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
+    }
 
     private static Stønadskonto lagStønadskonto(StønadskontoType fellesperiode, int maxDager) {
         return Stønadskonto.builder().medMaxDager(maxDager).medStønadskontoType(fellesperiode).build();
@@ -116,12 +120,6 @@ public class SaldoerDtoTjenesteTest {
         Stream.of(stønadskontoer)
             .forEach(builder::medStønadskonto);
         return builder.build();
-    }
-
-    @Before
-    public void setUp() {
-        tjeneste = new SaldoerDtoTjeneste(stønadskontoSaldoTjeneste, maksDatoUttakTjeneste,
-            mock(ArbeidsgiverDtoTjeneste.class), stønadskontoRegelAdapter, repositoryProvider, uttakTjeneste, tapteDagerFpffTjeneste);
     }
 
     @Test
@@ -140,17 +138,21 @@ public class SaldoerDtoTjenesteTest {
         UttakAktivitetEntitet uttakAktivitetForMor = lagUttakAktivitet(virksomhetForMor);
         UttakResultatPerioderEntitet uttakResultatPerioderForMor = new UttakResultatPerioderEntitet();
 
-        lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato.minusWeeks(3), fødseldato.minusDays(1), StønadskontoType.FORELDREPENGER_FØR_FØDSEL);
-        lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato, fødseldato.plusWeeks(6).minusDays(1), StønadskontoType.MØDREKVOTE);
-        lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato.plusWeeks(6), fødseldato.plusWeeks(16).minusDays(1), StønadskontoType.FELLESPERIODE);
+        lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato.minusWeeks(3), fødseldato.minusDays(1),
+            StønadskontoType.FORELDREPENGER_FØR_FØDSEL);
+        lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato, fødseldato.plusWeeks(6).minusDays(1),
+            StønadskontoType.MØDREKVOTE);
+        lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato.plusWeeks(6),
+            fødseldato.plusWeeks(16).minusDays(1), StønadskontoType.FELLESPERIODE);
 
         Behandlingsresultat behandlingsresultatForMor = getBehandlingsresultat(morsBehandling.getId());
-        Behandlingsresultat.builderEndreEksisterende(behandlingsresultatForMor).medBehandlingResultatType(BehandlingResultatType.INNVILGET);
-        repositoryRule.getRepository().lagre(behandlingsresultatForMor);
+        Behandlingsresultat.builderEndreEksisterende(behandlingsresultatForMor)
+            .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
+        lagre(behandlingsresultatForMor);
 
         fpUttakRepository.lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), uttakResultatPerioderForMor);
         morsBehandling.avsluttBehandling();
-        repositoryRule.getRepository().lagre(morsBehandling);
+        lagre(morsBehandling);
 
 
         //
@@ -174,7 +176,17 @@ public class SaldoerDtoTjenesteTest {
         StønadskontoDto fpDto = saldoer.getStonadskontoer().get(StønadskontoType.FELLESPERIODE.getKode());
         assertKonto(fpDto, maxDagerFP, maxDagerFP - (10 * 5));
         assertThat(saldoer.getMaksDatoUttak()).isPresent();
-        assertThat(saldoer.getMaksDatoUttak().get()).isEqualTo(fødseldato.plusWeeks(16 /* forbrukte uker */ + 9 /* saldo MK */ + 6 /* saldo FP */).minusDays(1));
+        assertThat(saldoer.getMaksDatoUttak().get()).isEqualTo(
+            fødseldato.plusWeeks(16 /* forbrukte uker */ + 9 /* saldo MK */ + 6 /* saldo FP */).minusDays(1));
+    }
+
+    private void lagre(Behandlingsresultat behandlingsresultatForMor) {
+        behandlingsresultatRepository
+            .lagre(behandlingsresultatForMor.getBehandlingId(), behandlingsresultatForMor);
+    }
+
+    private BehandlingLås lås(Behandling behandling) {
+        return new BehandlingLåsRepository(getEntityManager()).taLås(behandling.getId());
     }
 
     private UttakInput input(Behandling behandling, Annenpart annenpart, LocalDate skjæringstidspunkt) {
@@ -218,15 +230,16 @@ public class SaldoerDtoTjenesteTest {
             .build();
         UttakResultatPerioderEntitet uttakResultatPerioderForMor = new UttakResultatPerioderEntitet();
 
-        lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato, fødseldato.plusWeeks(6).minusDays(1), StønadskontoType.MØDREKVOTE);
+        lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato, fødseldato.plusWeeks(6).minusDays(1),
+            StønadskontoType.MØDREKVOTE);
 
         Behandlingsresultat behandlingsresultatForMor = getBehandlingsresultat(morsBehandling.getId());
-        Behandlingsresultat.builderEndreEksisterende(behandlingsresultatForMor).medBehandlingResultatType(BehandlingResultatType.INNVILGET);
-        repositoryRule.getRepository().lagre(behandlingsresultatForMor);
+        Behandlingsresultat.builderEndreEksisterende(behandlingsresultatForMor)
+            .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
+        lagre(behandlingsresultatForMor);
 
         fpUttakRepository.lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), uttakResultatPerioderForMor);
-        morsBehandling.avsluttBehandling();
-        repositoryRule.getRepository().lagre(morsBehandling);
+        lagre(morsBehandling);
 
 
         //
@@ -251,11 +264,16 @@ public class SaldoerDtoTjenesteTest {
             .medPeriodeResultatÅrsak(InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .build();
         // Act
-        SaldoerDto saldoer = tjeneste.lagStønadskontoerDto(input(morsBehandling, fødseldato), Collections.singletonList(dto));
+        SaldoerDto saldoer = tjeneste.lagStønadskontoerDto(input(morsBehandling, fødseldato),
+            Collections.singletonList(dto));
 
         // Assert
         StønadskontoDto mkDto = saldoer.getStonadskontoer().get(StønadskontoType.MØDREKVOTE.getKode());
         assertKonto(mkDto, maxDagerMK, maxDagerMK - (6 * 5));
+    }
+
+    private Long lagre(Behandling morsBehandling) {
+        return behandlingRepository.lagre(morsBehandling, lås(morsBehandling));
     }
 
 
@@ -275,17 +293,21 @@ public class SaldoerDtoTjenesteTest {
         UttakAktivitetEntitet uttakAktivitetForMor = lagUttakAktivitet(virksomhetForMor);
         UttakResultatPerioderEntitet uttakResultatPerioderForMor = new UttakResultatPerioderEntitet();
 
-        lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato.minusWeeks(3), fødseldato.minusDays(1), StønadskontoType.FORELDREPENGER_FØR_FØDSEL);
-        lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato, fødseldato.plusWeeks(15).minusDays(1), StønadskontoType.MØDREKVOTE);
-        lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato.plusWeeks(15), fødseldato.plusWeeks(15 + 17).minusDays(1), StønadskontoType.FELLESPERIODE);
+        lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato.minusWeeks(3), fødseldato.minusDays(1),
+            StønadskontoType.FORELDREPENGER_FØR_FØDSEL);
+        lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato, fødseldato.plusWeeks(15).minusDays(1),
+            StønadskontoType.MØDREKVOTE);
+        lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato.plusWeeks(15),
+            fødseldato.plusWeeks(15 + 17).minusDays(1), StønadskontoType.FELLESPERIODE);
 
         Behandlingsresultat behandlingsresultatForMor = getBehandlingsresultat(morsBehandling.getId());
-        Behandlingsresultat.builderEndreEksisterende(behandlingsresultatForMor).medBehandlingResultatType(BehandlingResultatType.INNVILGET);
-        repositoryRule.getRepository().lagre(behandlingsresultatForMor);
+        Behandlingsresultat.builderEndreEksisterende(behandlingsresultatForMor)
+            .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
+        lagre(behandlingsresultatForMor);
 
         fpUttakRepository.lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), uttakResultatPerioderForMor);
         morsBehandling.avsluttBehandling();
-        repositoryRule.getRepository().lagre(morsBehandling);
+        lagre(morsBehandling);
 
 
         //
@@ -330,17 +352,21 @@ public class SaldoerDtoTjenesteTest {
         UttakAktivitetEntitet uttakAktivitetForMor = lagUttakAktivitet(virksomhetForMor);
         UttakResultatPerioderEntitet uttakResultatPerioderForMor = new UttakResultatPerioderEntitet();
 
-        lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato.minusWeeks(3), fødseldato.minusDays(1), StønadskontoType.FORELDREPENGER_FØR_FØDSEL);
-        lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato, fødseldato.plusWeeks(6).minusDays(1), StønadskontoType.MØDREKVOTE);
-        lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato.plusWeeks(6), fødseldato.plusWeeks(16).minusDays(1), StønadskontoType.FELLESPERIODE, true, true);
+        lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato.minusWeeks(3), fødseldato.minusDays(1),
+            StønadskontoType.FORELDREPENGER_FØR_FØDSEL);
+        lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato, fødseldato.plusWeeks(6).minusDays(1),
+            StønadskontoType.MØDREKVOTE);
+        lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato.plusWeeks(6),
+            fødseldato.plusWeeks(16).minusDays(1), StønadskontoType.FELLESPERIODE, true, true);
 
         Behandlingsresultat behandlingsresultatForMor = getBehandlingsresultat(morsBehandling.getId());
-        Behandlingsresultat.builderEndreEksisterende(behandlingsresultatForMor).medBehandlingResultatType(BehandlingResultatType.INNVILGET);
-        repositoryRule.getRepository().lagre(behandlingsresultatForMor);
+        Behandlingsresultat.builderEndreEksisterende(behandlingsresultatForMor)
+            .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
+        lagre(behandlingsresultatForMor);
 
         fpUttakRepository.lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), uttakResultatPerioderForMor);
         morsBehandling.avsluttBehandling();
-        repositoryRule.getRepository().lagre(morsBehandling);
+        lagre(morsBehandling);
 
 
         //
@@ -358,7 +384,8 @@ public class SaldoerDtoTjenesteTest {
             lagStønadskonto(StønadskontoType.MØDREKVOTE, maxDagerMK),
             lagStønadskonto(StønadskontoType.FLERBARNSDAGER, maxDagerFlerbarn));
 
-        repositoryProvider.getFagsakRelasjonRepository().lagre(morsBehandling.getFagsak(), morsBehandling.getId(), stønadskontoberegning);
+        repositoryProvider.getFagsakRelasjonRepository()
+            .lagre(morsBehandling.getFagsak(), morsBehandling.getId(), stønadskontoberegning);
 
 
         // Act
@@ -374,7 +401,8 @@ public class SaldoerDtoTjenesteTest {
         StønadskontoDto fbDto = saldoer.getStonadskontoer().get(StønadskontoType.FLERBARNSDAGER.getKode());
         assertKonto(fbDto, maxDagerFlerbarn, maxDagerFlerbarn - (10 * 5));
         assertThat(saldoer.getMaksDatoUttak()).isPresent();
-        assertThat(saldoer.getMaksDatoUttak().get()).isEqualTo(fødseldato.plusWeeks(16 /* forbrukte uker */ + 9 /* saldo MK */ + 23 /* saldo FP */).minusDays(1));
+        assertThat(saldoer.getMaksDatoUttak().get()).isEqualTo(
+            fødseldato.plusWeeks(16 /* forbrukte uker */ + 9 /* saldo MK */ + 23 /* saldo FP */).minusDays(1));
     }
 
     @Test
@@ -385,26 +413,33 @@ public class SaldoerDtoTjenesteTest {
         Arbeidsgiver virksomhetForMor = arbeidsgiver("123");
         UttakAktivitetEntitet uttakAktivitetForMor = lagUttakAktivitet(virksomhetForMor);
         UttakResultatPerioderEntitet uttakMor = new UttakResultatPerioderEntitet();
-        lagPeriode(uttakMor, uttakAktivitetForMor, fødseldato.plusWeeks(6), fødseldato.plusWeeks(16).minusDays(1), StønadskontoType.FELLESPERIODE, false, true);
+        lagPeriode(uttakMor, uttakAktivitetForMor, fødseldato.plusWeeks(6), fødseldato.plusWeeks(16).minusDays(1),
+            StønadskontoType.FELLESPERIODE, false, true);
 
         AbstractTestScenario<?> scenarioMor = ScenarioMorSøkerForeldrepenger.forFødsel();
         Behandling behandlingMor = avsluttetBehandlingMedUttak(fødseldato, scenarioMor, uttakMor);
 
         int maxDagerFlerbarn = 17 * 5;
-        Stønadskontoberegning stønadskontoberegning  = lagStønadskontoberegning(lagStønadskonto(StønadskontoType.FLERBARNSDAGER, maxDagerFlerbarn));
-        repositoryProvider.getFagsakRelasjonRepository().lagre(behandlingMor.getFagsak(), behandlingMor.getId(), stønadskontoberegning);
+        Stønadskontoberegning stønadskontoberegning = lagStønadskontoberegning(
+            lagStønadskonto(StønadskontoType.FLERBARNSDAGER, maxDagerFlerbarn));
+        repositoryProvider.getFagsakRelasjonRepository()
+            .lagre(behandlingMor.getFagsak(), behandlingMor.getId(), stønadskontoberegning);
 
         Arbeidsgiver virksomhetForFar = arbeidsgiver("456");
         UttakAktivitetEntitet uttakAktivitetForFar = lagUttakAktivitet(virksomhetForFar);
         UttakResultatPerioderEntitet uttakFar = new UttakResultatPerioderEntitet();
-        lagPeriode(uttakFar, uttakAktivitetForFar, fødseldato.plusWeeks(11), fødseldato.plusWeeks(15).minusDays(1), StønadskontoType.FELLESPERIODE, false, true);
-        lagPeriode(uttakFar, uttakAktivitetForFar, fødseldato.plusWeeks(15), fødseldato.plusWeeks(16).minusDays(1), StønadskontoType.FELLESPERIODE, true, true);
-        lagPeriode(uttakFar, uttakAktivitetForFar, fødseldato.plusWeeks(16), fødseldato.plusWeeks(21).minusDays(1), StønadskontoType.FELLESPERIODE, false, true);
+        lagPeriode(uttakFar, uttakAktivitetForFar, fødseldato.plusWeeks(11), fødseldato.plusWeeks(15).minusDays(1),
+            StønadskontoType.FELLESPERIODE, false, true);
+        lagPeriode(uttakFar, uttakAktivitetForFar, fødseldato.plusWeeks(15), fødseldato.plusWeeks(16).minusDays(1),
+            StønadskontoType.FELLESPERIODE, true, true);
+        lagPeriode(uttakFar, uttakAktivitetForFar, fødseldato.plusWeeks(16), fødseldato.plusWeeks(21).minusDays(1),
+            StønadskontoType.FELLESPERIODE, false, true);
 
         Behandling behandlingFar = behandlingMedUttakFar(fødseldato, behandlingMor, uttakFar);
 
         // Act
-        SaldoerDto saldoer = tjeneste.lagStønadskontoerDto(input(behandlingFar, new Annenpart(false, behandlingMor.getId()), fødseldato));
+        SaldoerDto saldoer = tjeneste.lagStønadskontoerDto(
+            input(behandlingFar, new Annenpart(false, behandlingMor.getId()), fødseldato));
 
         // Assert
         StønadskontoDto fbDto = saldoer.getStonadskontoer().get(StønadskontoType.FLERBARNSDAGER.getKode());
@@ -429,12 +464,16 @@ public class SaldoerDtoTjenesteTest {
         UttakAktivitetEntitet uttakAktivitetForMor2 = lagUttakAktivitet(virksomhetForMor2);
 
         UttakResultatPerioderEntitet uttakMor = new UttakResultatPerioderEntitet();
-        lagPeriode(uttakMor, fødseldato.minusWeeks(3), fødseldato.minusDays(1), StønadskontoType.FORELDREPENGER_FØR_FØDSEL, false, false,
+        lagPeriode(uttakMor, fødseldato.minusWeeks(3), fødseldato.minusDays(1),
+            StønadskontoType.FORELDREPENGER_FØR_FØDSEL, false, false,
             new Tuple<>(uttakAktivitetForMor1, Optional.empty()), new Tuple<>(uttakAktivitetForMor2, Optional.empty()));
-        lagPeriode(uttakMor, fødseldato, fødseldato.plusWeeks(6).minusDays(1), StønadskontoType.MØDREKVOTE, false, false,
+        lagPeriode(uttakMor, fødseldato, fødseldato.plusWeeks(6).minusDays(1), StønadskontoType.MØDREKVOTE, false,
+            false,
             new Tuple<>(uttakAktivitetForMor1, Optional.empty()), new Tuple<>(uttakAktivitetForMor2, Optional.empty()));
-        lagPeriode(uttakMor, fødseldato.plusWeeks(6), fødseldato.plusWeeks(16).minusDays(1), StønadskontoType.FELLESPERIODE, false, false,
-            new Tuple<>(uttakAktivitetForMor1, Optional.of(new Trekkdager(25))), new Tuple<>(uttakAktivitetForMor2, Optional.empty()));
+        lagPeriode(uttakMor, fødseldato.plusWeeks(6), fødseldato.plusWeeks(16).minusDays(1),
+            StønadskontoType.FELLESPERIODE, false, false,
+            new Tuple<>(uttakAktivitetForMor1, Optional.of(new Trekkdager(25))),
+            new Tuple<>(uttakAktivitetForMor2, Optional.empty()));
 
         AbstractTestScenario<?> scenarioMor = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenarioMor.medSøknadHendelse().medFødselsDato(fødseldato);
@@ -452,8 +491,10 @@ public class SaldoerDtoTjenesteTest {
 
         // Act
         ArbeidsgiverTjeneste arbeidsgiverTjeneste = mock(ArbeidsgiverTjeneste.class);
-        when(arbeidsgiverTjeneste.hentVirksomhet(virksomhetForMor1.getOrgnr())).thenReturn(new Virksomhet.Builder().medOrgnr(virksomhetForMor1.getOrgnr()).build());
-        when(arbeidsgiverTjeneste.hentVirksomhet(virksomhetForMor2.getOrgnr())).thenReturn(new Virksomhet.Builder().medOrgnr(virksomhetForMor2.getOrgnr()).build());
+        when(arbeidsgiverTjeneste.hentVirksomhet(virksomhetForMor1.getOrgnr())).thenReturn(
+            new Virksomhet.Builder().medOrgnr(virksomhetForMor1.getOrgnr()).build());
+        when(arbeidsgiverTjeneste.hentVirksomhet(virksomhetForMor2.getOrgnr())).thenReturn(
+            new Virksomhet.Builder().medOrgnr(virksomhetForMor2.getOrgnr()).build());
 
         SaldoerDtoTjeneste tjeneste = new SaldoerDtoTjeneste(stønadskontoSaldoTjeneste,
             new MaksDatoUttakTjenesteImpl(repositoryProvider.getFpUttakRepository(), stønadskontoSaldoTjeneste),
@@ -480,8 +521,10 @@ public class SaldoerDtoTjenesteTest {
         StønadskontoDto fpDto = saldoer.getStonadskontoer().get(StønadskontoType.FELLESPERIODE.getKode());
         assertThat(fpDto.getMaxDager()).isEqualTo(maxDagerFP);
         assertThat(fpDto.getAktivitetSaldoDtoList()).hasSize(2);
-        Optional<AktivitetSaldoDto> aktivitetSaldo1 = finnRiktigAktivitetSaldo(fpDto.getAktivitetSaldoDtoList(), uttakAktivitetForMor1);
-        Optional<AktivitetSaldoDto> aktivitetSaldo2 = finnRiktigAktivitetSaldo(fpDto.getAktivitetSaldoDtoList(), uttakAktivitetForMor2);
+        Optional<AktivitetSaldoDto> aktivitetSaldo1 = finnRiktigAktivitetSaldo(fpDto.getAktivitetSaldoDtoList(),
+            uttakAktivitetForMor1);
+        Optional<AktivitetSaldoDto> aktivitetSaldo2 = finnRiktigAktivitetSaldo(fpDto.getAktivitetSaldoDtoList(),
+            uttakAktivitetForMor2);
         assertThat(aktivitetSaldo1).isPresent();
         assertThat(aktivitetSaldo2).isPresent();
         assertThat(aktivitetSaldo1.get().getSaldo()).isEqualTo(maxDagerFP - 25);
@@ -489,7 +532,8 @@ public class SaldoerDtoTjenesteTest {
         assertThat(fpDto.getSaldo()).isEqualTo(maxDagerFP - 25);
 
         assertThat(saldoer.getMaksDatoUttak()).isPresent();
-        assertThat(saldoer.getMaksDatoUttak().get()).isEqualTo(fødseldato.plusWeeks(16 /* forbrukte uker */ + 9 /* saldo MK */ + 11 /* saldo FP */).minusDays(1));
+        assertThat(saldoer.getMaksDatoUttak().get()).isEqualTo(
+            fødseldato.plusWeeks(16 /* forbrukte uker */ + 9 /* saldo MK */ + 11 /* saldo FP */).minusDays(1));
     }
 
     @Test
@@ -499,8 +543,10 @@ public class SaldoerDtoTjenesteTest {
         Arbeidsgiver virksomhetForMor = arbeidsgiver("123");
         UttakAktivitetEntitet uttakAktivitetForMor = lagUttakAktivitet(virksomhetForMor);
         UttakResultatPerioderEntitet uttakMor = new UttakResultatPerioderEntitet();
-        lagPeriode(uttakMor, uttakAktivitetForMor, fødseldato.minusWeeks(3), fødseldato.minusDays(1), StønadskontoType.FORELDREPENGER_FØR_FØDSEL);
-        lagPeriode(uttakMor, uttakAktivitetForMor, fødseldato, fødseldato.plusWeeks(6).minusDays(1), StønadskontoType.MØDREKVOTE);
+        lagPeriode(uttakMor, uttakAktivitetForMor, fødseldato.minusWeeks(3), fødseldato.minusDays(1),
+            StønadskontoType.FORELDREPENGER_FØR_FØDSEL);
+        lagPeriode(uttakMor, uttakAktivitetForMor, fødseldato, fødseldato.plusWeeks(6).minusDays(1),
+            StønadskontoType.MØDREKVOTE);
 
         AbstractTestScenario<?> scenarioMor = ScenarioMorSøkerForeldrepenger.forFødsel();
         Behandling behandlingMor = avsluttetBehandlingMedUttak(fødseldato, scenarioMor, uttakMor);
@@ -514,12 +560,14 @@ public class SaldoerDtoTjenesteTest {
         Arbeidsgiver virksomhetForFar = arbeidsgiver("456");
         UttakAktivitetEntitet uttakAktivitetForFar = lagUttakAktivitet(virksomhetForFar);
         UttakResultatPerioderEntitet uttakFar = new UttakResultatPerioderEntitet();
-        lagPeriode(uttakFar, uttakAktivitetForFar, fødseldato.plusWeeks(6), fødseldato.plusWeeks(18).minusDays(1), StønadskontoType.FELLESPERIODE);
+        lagPeriode(uttakFar, uttakAktivitetForFar, fødseldato.plusWeeks(6), fødseldato.plusWeeks(18).minusDays(1),
+            StønadskontoType.FELLESPERIODE);
 
         Behandling behandlingFar = behandlingMedUttakFar(fødseldato, behandlingMor, uttakFar);
 
         // Act
-        SaldoerDto saldoer = tjeneste.lagStønadskontoerDto(input(behandlingFar, new Annenpart(false, behandlingMor.getId()), fødseldato));
+        SaldoerDto saldoer = tjeneste.lagStønadskontoerDto(
+            input(behandlingFar, new Annenpart(false, behandlingMor.getId()), fødseldato));
 
         // Assert
         StønadskontoDto fpffDto = saldoer.getStonadskontoer().get(StønadskontoType.FORELDREPENGER_FØR_FØDSEL.getKode());
@@ -531,11 +579,12 @@ public class SaldoerDtoTjenesteTest {
         StønadskontoDto fkDto = saldoer.getStonadskontoer().get(StønadskontoType.FEDREKVOTE.getKode());
         assertKonto(fkDto, maxDagerFK, maxDagerFK);
         assertThat(saldoer.getMaksDatoUttak()).isPresent();
-        assertThat(saldoer.getMaksDatoUttak().get()).isEqualTo(fødseldato.plusWeeks(18 /* forbrukte uker */ + 4 /* saldo FP */ + 15 /* saldo FK*/).minusDays(1));
+        assertThat(saldoer.getMaksDatoUttak().get()).isEqualTo(
+            fødseldato.plusWeeks(18 /* forbrukte uker */ + 4 /* saldo FP */ + 15 /* saldo FK*/).minusDays(1));
     }
 
     private Behandlingsresultat getBehandlingsresultat(Long behandlingId) {
-        return repositoryProvider.getBehandlingsresultatRepository().hent(behandlingId);
+        return behandlingsresultatRepository.hent(behandlingId);
     }
 
     @Test
@@ -545,9 +594,12 @@ public class SaldoerDtoTjenesteTest {
         Arbeidsgiver virksomhetForMor = arbeidsgiver("123");
         UttakAktivitetEntitet aktiviteterMor = lagUttakAktivitet(virksomhetForMor);
         UttakResultatPerioderEntitet uttakMor = new UttakResultatPerioderEntitet();
-        lagPeriode(uttakMor, aktiviteterMor, fødseldato.minusWeeks(3), fødseldato.minusDays(1), StønadskontoType.FORELDREPENGER_FØR_FØDSEL);
-        lagPeriode(uttakMor, aktiviteterMor, fødseldato, fødseldato.plusWeeks(6).minusDays(1), StønadskontoType.MØDREKVOTE);
-        lagPeriode(uttakMor, aktiviteterMor, fødseldato.plusWeeks(6), fødseldato.plusWeeks(16).minusDays(1), StønadskontoType.FELLESPERIODE);
+        lagPeriode(uttakMor, aktiviteterMor, fødseldato.minusWeeks(3), fødseldato.minusDays(1),
+            StønadskontoType.FORELDREPENGER_FØR_FØDSEL);
+        lagPeriode(uttakMor, aktiviteterMor, fødseldato, fødseldato.plusWeeks(6).minusDays(1),
+            StønadskontoType.MØDREKVOTE);
+        lagPeriode(uttakMor, aktiviteterMor, fødseldato.plusWeeks(6), fødseldato.plusWeeks(16).minusDays(1),
+            StønadskontoType.FELLESPERIODE);
 
         AbstractTestScenario<?> scenarioMor = ScenarioMorSøkerForeldrepenger.forFødsel();
         Behandling behandlingMor = avsluttetBehandlingMedUttak(fødseldato, scenarioMor, uttakMor);
@@ -561,13 +613,16 @@ public class SaldoerDtoTjenesteTest {
         Arbeidsgiver virksomhetForFar = arbeidsgiver("456");
         UttakAktivitetEntitet aktiviteterFar = lagUttakAktivitet(virksomhetForFar);
         UttakResultatPerioderEntitet uttakFar = new UttakResultatPerioderEntitet();
-        lagPeriode(uttakFar, aktiviteterFar, fødseldato.plusWeeks(11), fødseldato.plusWeeks(16).minusDays(1), StønadskontoType.FELLESPERIODE);
-        lagPeriode(uttakFar, aktiviteterFar, fødseldato.plusWeeks(16), fødseldato.plusWeeks(21).minusDays(1), StønadskontoType.FELLESPERIODE);
+        lagPeriode(uttakFar, aktiviteterFar, fødseldato.plusWeeks(11), fødseldato.plusWeeks(16).minusDays(1),
+            StønadskontoType.FELLESPERIODE);
+        lagPeriode(uttakFar, aktiviteterFar, fødseldato.plusWeeks(16), fødseldato.plusWeeks(21).minusDays(1),
+            StønadskontoType.FELLESPERIODE);
 
         Behandling behandlingFar = behandlingMedUttakFar(fødseldato, behandlingMor, uttakFar);
 
         // Act
-        SaldoerDto saldoer = tjeneste.lagStønadskontoerDto(input(behandlingFar, new Annenpart(false, behandlingMor.getId()), fødseldato));
+        SaldoerDto saldoer = tjeneste.lagStønadskontoerDto(
+            input(behandlingFar, new Annenpart(false, behandlingMor.getId()), fødseldato));
 
         // Assert
         StønadskontoDto fpffDto = saldoer.getStonadskontoer().get(StønadskontoType.FORELDREPENGER_FØR_FØDSEL.getKode());
@@ -579,10 +634,13 @@ public class SaldoerDtoTjenesteTest {
         StønadskontoDto fkDto = saldoer.getStonadskontoer().get(StønadskontoType.FEDREKVOTE.getKode());
         assertKonto(fkDto, maxDagerFK, maxDagerFK);
         assertThat(saldoer.getMaksDatoUttak()).isPresent();
-        assertThat(saldoer.getMaksDatoUttak().get()).isEqualTo(fødseldato.plusWeeks(21 /* forbrukte uker */ + 1 /* saldo FP */ + 15 /* saldo FK*/).minusDays(1));
+        assertThat(saldoer.getMaksDatoUttak().get()).isEqualTo(
+            fødseldato.plusWeeks(21 /* forbrukte uker */ + 1 /* saldo FP */ + 15 /* saldo FK*/).minusDays(1));
     }
 
-    private Behandling behandlingMedUttakFar(LocalDate fødseldato, Behandling behandlingMor, UttakResultatPerioderEntitet uttakFar) {
+    private Behandling behandlingMedUttakFar(LocalDate fødseldato,
+                                             Behandling behandlingMor,
+                                             UttakResultatPerioderEntitet uttakFar) {
         ScenarioFarSøkerForeldrepenger scenarioFar = ScenarioFarSøkerForeldrepenger.forFødsel();
         scenarioFar.medFordeling(new OppgittFordelingEntitet(List.of(), true));
         scenarioFar.medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
@@ -591,20 +649,28 @@ public class SaldoerDtoTjenesteTest {
 
         Behandling behandlingFar = scenarioFar.lagre(repositoryProvider);
 
-        repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(behandlingMor.getFagsak(), behandlingFar.getFagsak(), behandlingMor);
+        repositoryProvider.getFagsakRelasjonRepository()
+            .kobleFagsaker(behandlingMor.getFagsak(), behandlingFar.getFagsak(), behandlingMor);
         return behandlingFar;
     }
 
-    private void lagreStønadskontoBeregning(Behandling behandling, int maxDagerFPFF, int maxDagerFP, int maxDagerFK, int maxDagerMK) {
+    private void lagreStønadskontoBeregning(Behandling behandling,
+                                            int maxDagerFPFF,
+                                            int maxDagerFP,
+                                            int maxDagerFK,
+                                            int maxDagerMK) {
         final Stønadskontoberegning stønadskontoberegning = lagStønadskontoberegning(
             lagStønadskonto(StønadskontoType.FORELDREPENGER_FØR_FØDSEL, maxDagerFPFF),
             lagStønadskonto(StønadskontoType.FELLESPERIODE, maxDagerFP),
             lagStønadskonto(StønadskontoType.FEDREKVOTE, maxDagerFK),
             lagStønadskonto(StønadskontoType.MØDREKVOTE, maxDagerMK));
-        repositoryProvider.getFagsakRelasjonRepository().lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning);
+        repositoryProvider.getFagsakRelasjonRepository()
+            .lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning);
     }
 
-    private Behandling avsluttetBehandlingMedUttak(LocalDate fødseldato, AbstractTestScenario<?> scenarioMor, UttakResultatPerioderEntitet uttak) {
+    private Behandling avsluttetBehandlingMedUttak(LocalDate fødseldato,
+                                                   AbstractTestScenario<?> scenarioMor,
+                                                   UttakResultatPerioderEntitet uttak) {
         scenarioMor.medSøknadHendelse().medFødselsDato(fødseldato);
         scenarioMor.medBehandlingVedtak().medVedtakResultatType(VedtakResultatType.INNVILGET);
         scenarioMor.medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk100());
@@ -615,7 +681,8 @@ public class SaldoerDtoTjenesteTest {
     private Behandling lagAvsluttet(AbstractTestScenario<?> scenario) {
         Behandling behandling = scenario.lagre(repositoryProvider);
         behandling.avsluttBehandling();
-        behandlingRepository.lagre(behandling, repositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId()));
+        behandlingRepository.lagre(behandling,
+            repositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId()));
         return behandling;
     }
 
@@ -626,9 +693,12 @@ public class SaldoerDtoTjenesteTest {
         Arbeidsgiver virksomhetForMor = arbeidsgiver("123");
         UttakAktivitetEntitet uttakAktivitetForMor = lagUttakAktivitet(virksomhetForMor);
         UttakResultatPerioderEntitet uttakMor = new UttakResultatPerioderEntitet();
-        lagPeriode(uttakMor, uttakAktivitetForMor, fødseldato.minusWeeks(3), fødseldato.minusDays(1), StønadskontoType.FORELDREPENGER_FØR_FØDSEL);
-        lagPeriode(uttakMor, uttakAktivitetForMor, fødseldato, fødseldato.plusWeeks(6).minusDays(1), StønadskontoType.MØDREKVOTE);
-        lagPeriode(uttakMor, uttakAktivitetForMor, fødseldato.plusWeeks(6), fødseldato.plusWeeks(16).minusDays(1), StønadskontoType.FELLESPERIODE);
+        lagPeriode(uttakMor, uttakAktivitetForMor, fødseldato.minusWeeks(3), fødseldato.minusDays(1),
+            StønadskontoType.FORELDREPENGER_FØR_FØDSEL);
+        lagPeriode(uttakMor, uttakAktivitetForMor, fødseldato, fødseldato.plusWeeks(6).minusDays(1),
+            StønadskontoType.MØDREKVOTE);
+        lagPeriode(uttakMor, uttakAktivitetForMor, fødseldato.plusWeeks(6), fødseldato.plusWeeks(16).minusDays(1),
+            StønadskontoType.FELLESPERIODE);
 
         AbstractTestScenario<?> scenarioMor = ScenarioMorSøkerForeldrepenger.forFødsel();
         Behandling behandlingMor = avsluttetBehandlingMedUttak(fødseldato, scenarioMor, uttakMor);
@@ -642,13 +712,15 @@ public class SaldoerDtoTjenesteTest {
         Arbeidsgiver virksomhetForFar = arbeidsgiver("456");
         UttakAktivitetEntitet uttakAktivitetForFar = lagUttakAktivitet(virksomhetForFar);
         UttakResultatPerioderEntitet uttakFar = new UttakResultatPerioderEntitet();
-        lagPeriode(uttakFar, uttakAktivitetForFar, fødseldato.plusWeeks(11), fødseldato.plusWeeks(16).minusDays(1), StønadskontoType.FELLESPERIODE, true, false);
+        lagPeriode(uttakFar, uttakAktivitetForFar, fødseldato.plusWeeks(11), fødseldato.plusWeeks(16).minusDays(1),
+            StønadskontoType.FELLESPERIODE, true, false);
 
 
         Behandling behandlingFar = behandlingMedUttakFar(fødseldato, behandlingMor, uttakFar);
 
         // Act
-        SaldoerDto saldoer = tjeneste.lagStønadskontoerDto(input(behandlingFar, new Annenpart(false, behandlingMor.getId()), fødseldato));
+        SaldoerDto saldoer = tjeneste.lagStønadskontoerDto(
+            input(behandlingFar, new Annenpart(false, behandlingMor.getId()), fødseldato));
 
         // Assert
         StønadskontoDto fpffDto = saldoer.getStonadskontoer().get(StønadskontoType.FORELDREPENGER_FØR_FØDSEL.getKode());
@@ -660,7 +732,8 @@ public class SaldoerDtoTjenesteTest {
         StønadskontoDto fkDto = saldoer.getStonadskontoer().get(StønadskontoType.FEDREKVOTE.getKode());
         assertKonto(fkDto, maxDagerFK, maxDagerFK);
         assertThat(saldoer.getMaksDatoUttak()).isPresent();
-        assertThat(saldoer.getMaksDatoUttak().get()).isEqualTo(fødseldato.plusWeeks(16 /* forbrukte uker */ + 1 /* saldo FP */ + 15 /* saldo FK*/).minusDays(1));
+        assertThat(saldoer.getMaksDatoUttak().get()).isEqualTo(
+            fødseldato.plusWeeks(16 /* forbrukte uker */ + 1 /* saldo FP */ + 15 /* saldo FK*/).minusDays(1));
     }
 
     @Test
@@ -672,12 +745,16 @@ public class SaldoerDtoTjenesteTest {
         UttakAktivitetEntitet uttakAktivitetForMor1 = lagUttakAktivitet(virksomhetForMor1);
         UttakAktivitetEntitet uttakAktivitetForMor2 = lagUttakAktivitet(virksomhetForMor2);
         UttakResultatPerioderEntitet uttakMor = new UttakResultatPerioderEntitet();
-        lagPeriode(uttakMor, fødseldato.minusWeeks(3), fødseldato.minusDays(1), StønadskontoType.FORELDREPENGER_FØR_FØDSEL, false, false,
+        lagPeriode(uttakMor, fødseldato.minusWeeks(3), fødseldato.minusDays(1),
+            StønadskontoType.FORELDREPENGER_FØR_FØDSEL, false, false,
             new Tuple<>(uttakAktivitetForMor1, Optional.empty()), new Tuple<>(uttakAktivitetForMor2, Optional.empty()));
-        lagPeriode(uttakMor, fødseldato, fødseldato.plusWeeks(6).minusDays(1), StønadskontoType.MØDREKVOTE, false, false,
+        lagPeriode(uttakMor, fødseldato, fødseldato.plusWeeks(6).minusDays(1), StønadskontoType.MØDREKVOTE, false,
+            false,
             new Tuple<>(uttakAktivitetForMor1, Optional.empty()), new Tuple<>(uttakAktivitetForMor2, Optional.empty()));
-        lagPeriode(uttakMor, fødseldato.plusWeeks(6), fødseldato.plusWeeks(16).minusDays(1), StønadskontoType.FELLESPERIODE, false, false,
-            new Tuple<>(uttakAktivitetForMor1, Optional.of(new Trekkdager(10))), new Tuple<>(uttakAktivitetForMor2, Optional.empty()));
+        lagPeriode(uttakMor, fødseldato.plusWeeks(6), fødseldato.plusWeeks(16).minusDays(1),
+            StønadskontoType.FELLESPERIODE, false, false,
+            new Tuple<>(uttakAktivitetForMor1, Optional.of(new Trekkdager(10))),
+            new Tuple<>(uttakAktivitetForMor2, Optional.empty()));
 
         AbstractTestScenario<?> scenarioMor = ScenarioMorSøkerForeldrepenger.forFødsel();
         Behandling behandlingMor = avsluttetBehandlingMedUttak(fødseldato, scenarioMor, uttakMor);
@@ -691,13 +768,16 @@ public class SaldoerDtoTjenesteTest {
         Arbeidsgiver virksomhetForFar = arbeidsgiver("456");
         UttakAktivitetEntitet uttakAktivitetForFar = lagUttakAktivitet(virksomhetForFar);
         UttakResultatPerioderEntitet uttakFar = new UttakResultatPerioderEntitet();
-        lagPeriode(uttakFar, uttakAktivitetForFar, fødseldato.plusWeeks(11), fødseldato.plusWeeks(16).minusDays(1), StønadskontoType.FELLESPERIODE);
-        lagPeriode(uttakFar, uttakAktivitetForFar, fødseldato.plusWeeks(16), fødseldato.plusWeeks(21).minusDays(1), StønadskontoType.FELLESPERIODE);
+        lagPeriode(uttakFar, uttakAktivitetForFar, fødseldato.plusWeeks(11), fødseldato.plusWeeks(16).minusDays(1),
+            StønadskontoType.FELLESPERIODE);
+        lagPeriode(uttakFar, uttakAktivitetForFar, fødseldato.plusWeeks(16), fødseldato.plusWeeks(21).minusDays(1),
+            StønadskontoType.FELLESPERIODE);
 
         Behandling behandlingFar = behandlingMedUttakFar(fødseldato, behandlingMor, uttakFar);
 
         // Act
-        SaldoerDto saldoer = tjeneste.lagStønadskontoerDto(input(behandlingFar, new Annenpart(false, behandlingMor.getId()), fødseldato));
+        SaldoerDto saldoer = tjeneste.lagStønadskontoerDto(
+            input(behandlingFar, new Annenpart(false, behandlingMor.getId()), fødseldato));
 
         // Assert
         StønadskontoDto fpffDto = saldoer.getStonadskontoer().get(StønadskontoType.FORELDREPENGER_FØR_FØDSEL.getKode());
@@ -709,14 +789,20 @@ public class SaldoerDtoTjenesteTest {
         StønadskontoDto fkDto = saldoer.getStonadskontoer().get(StønadskontoType.FEDREKVOTE.getKode());
         assertKonto(fkDto, maxDagerFK, maxDagerFK);
         assertThat(saldoer.getMaksDatoUttak()).isPresent();
-        assertThat(saldoer.getMaksDatoUttak().get()).isEqualTo(fødseldato.plusWeeks(21 /* forbrukte uker */ + 5 /* saldo FP */ + 15 /* saldo FK */).minusDays(1));
+        assertThat(saldoer.getMaksDatoUttak().get()).isEqualTo(
+            fødseldato.plusWeeks(21 /* forbrukte uker */ + 5 /* saldo FP */ + 15 /* saldo FK */).minusDays(1));
     }
 
-    private Optional<AktivitetSaldoDto> finnRiktigAktivitetSaldo(List<AktivitetSaldoDto> aktivitetSaldoer, UttakAktivitetEntitet aktivitetEntitet) {
+    private Optional<AktivitetSaldoDto> finnRiktigAktivitetSaldo(List<AktivitetSaldoDto> aktivitetSaldoer,
+                                                                 UttakAktivitetEntitet aktivitetEntitet) {
         return aktivitetSaldoer.stream().filter(as -> {
             AktivitetIdentifikatorDto aktId = as.getAktivitetIdentifikator();
             return aktId.getUttakArbeidType().equals(aktivitetEntitet.getUttakArbeidType()) &&
-                aktId.getArbeidsgiver().getIdentifikator().equals(aktivitetEntitet.getArbeidsgiver().isPresent() ? aktivitetEntitet.getArbeidsgiver().get().getIdentifikator() : null) &&
+                aktId.getArbeidsgiver()
+                    .getIdentifikator()
+                    .equals(aktivitetEntitet.getArbeidsgiver().isPresent() ? aktivitetEntitet.getArbeidsgiver()
+                        .get()
+                        .getIdentifikator() : null) &&
                 aktId.getArbeidsforholdId().equals(aktivitetEntitet.getArbeidsforholdRef().getReferanse());
         }).findFirst();
     }
@@ -744,7 +830,8 @@ public class SaldoerDtoTjenesteTest {
                             StønadskontoType stønadskontoType,
                             boolean samtidigUttak,
                             boolean flerbarnsdager) {
-        lagPeriode(uttakResultatPerioder, fom, tom, stønadskontoType, samtidigUttak, flerbarnsdager, new Tuple<>(uttakAktivitet, Optional.empty()));
+        lagPeriode(uttakResultatPerioder, fom, tom, stønadskontoType, samtidigUttak, flerbarnsdager,
+            new Tuple<>(uttakAktivitet, Optional.empty()));
     }
 
     @SafeVarargs
@@ -774,7 +861,8 @@ public class SaldoerDtoTjenesteTest {
                     null).decimalValue());
             }
 
-            UttakResultatPeriodeAktivitetEntitet aktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, aktivitetTuple.getElement1())
+            UttakResultatPeriodeAktivitetEntitet aktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode,
+                aktivitetTuple.getElement1())
                 .medTrekkdager(trekkdager)
                 .medTrekkonto(stønadskontoType)
                 .medArbeidsprosent(BigDecimal.ZERO)

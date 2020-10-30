@@ -7,8 +7,10 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.UUID;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import no.nav.foreldrepenger.domene.risikoklassifisering.JsonObjectMapper;
 import no.nav.foreldrepenger.domene.risikoklassifisering.json.KontrollresultatMapper;
 import no.nav.foreldrepenger.domene.risikoklassifisering.modell.Kontrollresultat;

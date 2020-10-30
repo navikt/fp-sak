@@ -14,14 +14,12 @@ import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
-import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.produksjonsstyring.opprettgsak.OpprettGSakTjeneste;
 import no.nav.foreldrepenger.web.RepositoryAwareTest;
 
-@ExtendWith(FPsakEntityManagerAwareExtension.class)
 @ExtendWith(MockitoExtension.class)
 public class OpprettSakTjenesteTest extends RepositoryAwareTest {
 

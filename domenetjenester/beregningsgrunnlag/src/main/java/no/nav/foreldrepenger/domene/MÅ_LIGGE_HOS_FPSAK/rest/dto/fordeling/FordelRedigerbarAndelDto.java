@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.fordeling;
 
 
 import java.time.LocalDate;
-import java.util.Objects;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;

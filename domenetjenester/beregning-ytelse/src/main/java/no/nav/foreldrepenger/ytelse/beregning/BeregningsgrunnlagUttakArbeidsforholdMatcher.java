@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.ytelse.beregning;
 
+import java.util.Objects;
+
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakAktivitet;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Arbeidsforhold;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.BeregningsgrunnlagPrStatus;
-
-import java.util.Objects;
 
 public final class BeregningsgrunnlagUttakArbeidsforholdMatcher {
 
