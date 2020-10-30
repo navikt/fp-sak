@@ -13,7 +13,10 @@ import no.nav.pdl.HentIdenterQueryRequest;
 import no.nav.pdl.IdentGruppe;
 import no.nav.pdl.IdentInformasjon;
 import no.nav.pdl.IdentInformasjonResponseProjection;
+import no.nav.pdl.Identliste;
 import no.nav.pdl.IdentlisteResponseProjection;
+import no.nav.vedtak.exception.FunksjonellException;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.pdl.PdlKlient;
 import no.nav.vedtak.felles.integrasjon.pdl.Tema;
 import no.nav.vedtak.util.LRUCache;
@@ -56,7 +59,18 @@ public class AktørTjeneste {
         var projection = new IdentlisteResponseProjection()
             .identer(new IdentInformasjonResponseProjection().ident());
 
-        var identliste = pdlKlient.hentIdenter(request, projection, Tema.FOR);
+        final Identliste identliste;
+
+        try {
+            identliste = pdlKlient.hentIdenter(request, projection, Tema.FOR);
+        } catch (FunksjonellException f) {
+            return Optional.empty();
+        } catch (TekniskException t) {
+            if (t.getFeil().getFeilmelding() != null && t.getFeil().getFeilmelding().contains("Fant ikke person")) {
+                return Optional.empty();
+            }
+            throw t;
+        }
 
         var aktørId = identliste.getIdenter().stream().findFirst().map(IdentInformasjon::getIdent).map(AktørId::new);
         aktørId.ifPresent(a -> cacheIdentTilAktørId.put(personIdent, a)); // Kan ikke legge til i cache aktørId -> ident ettersom ident kan være ikke-current
@@ -75,7 +89,18 @@ public class AktørTjeneste {
         var projection = new IdentlisteResponseProjection()
             .identer(new IdentInformasjonResponseProjection().ident());
 
-        var identliste = pdlKlient.hentIdenter(request, projection, Tema.FOR);
+        final Identliste identliste;
+
+        try {
+            identliste = pdlKlient.hentIdenter(request, projection, Tema.FOR);
+        } catch (FunksjonellException f) {
+            return Optional.empty();
+        } catch (TekniskException t) {
+            if (t.getFeil().getFeilmelding() != null && t.getFeil().getFeilmelding().contains("Fant ikke person")) {
+                return Optional.empty();
+            }
+            throw t;
+        }
 
         var ident = identliste.getIdenter().stream().findFirst().map(IdentInformasjon::getIdent).map(PersonIdent::new);
         ident.ifPresent(i -> {
