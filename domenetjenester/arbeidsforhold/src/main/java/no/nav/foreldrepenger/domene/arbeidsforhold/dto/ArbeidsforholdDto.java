@@ -16,6 +16,8 @@ public class ArbeidsforholdDto {
     private String arbeidsgiverIdentifikator;
     // For visning i GUI (orgnr for virksomhet, og fødselsdato formatert dd.MM.yyyy for person-arbeidsgiver)
     private String arbeidsgiverIdentifiktorGUI;
+    // For ny visning i GUI (orgnr eller aktørId)
+    private String arbeidsgiverReferanse;
     private String arbeidsforholdId;
     private String eksternArbeidsforholdId;
     private String begrunnelse;
@@ -47,6 +49,14 @@ public class ArbeidsforholdDto {
     private List<PermisjonDto> permisjoner;
     private LocalDate overstyrtTom;
     private Boolean kanOppretteNyttArbforFraIM;
+
+    public String getArbeidsgiverReferanse() {
+        return arbeidsgiverReferanse;
+    }
+
+    public void setArbeidsgiverReferanse(String arbeidsgiverReferanse) {
+        this.arbeidsgiverReferanse = arbeidsgiverReferanse;
+    }
 
     public String getNavn() {
         return navn;

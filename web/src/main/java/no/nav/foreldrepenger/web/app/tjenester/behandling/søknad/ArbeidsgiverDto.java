@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 public class ArbeidsgiverDto {
 
+    private String arbeidsgiverReferanse;
     private String navn;
     private String organisasjonsnummer;
     private LocalDate fødselsdato;
@@ -39,5 +40,13 @@ public class ArbeidsgiverDto {
 
     public void setAktørId(String aktørId) {
         this.aktørId = aktørId;
+    }
+
+    public String getArbeidsgiverReferanse() {
+        return arbeidsgiverReferanse;
+    }
+
+    public void setArbeidsgiverReferanse(String arbeidsgiverReferanse) {
+        this.arbeidsgiverReferanse = arbeidsgiverReferanse;
     }
 }

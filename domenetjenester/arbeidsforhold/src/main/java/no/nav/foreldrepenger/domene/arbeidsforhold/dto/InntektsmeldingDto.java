@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.domene.iay.modell.UtsettelsePeriode;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 
 public class InntektsmeldingDto {
+    private String arbeidsgiverReferanse;
     private String arbeidsgiver;
     private String arbeidsgiverOrgnr;
     private LocalDate arbeidsgiverStartdato;
@@ -29,6 +30,7 @@ public class InntektsmeldingDto {
     }
 
     public InntektsmeldingDto(Inntektsmelding inntektsmelding, Optional<Virksomhet> virksomhet) {
+        this.arbeidsgiverReferanse = inntektsmelding.getArbeidsgiver().getIdentifikator();
         Arbeidsgiver arb = inntektsmelding.getArbeidsgiver();
         this.arbeidsgiver = arb.getErVirksomhet()
             ? virksomhet.orElseThrow(() -> {
@@ -100,5 +102,13 @@ public class InntektsmeldingDto {
 
     public void setGetRefusjonBeløpPerMnd(Beløp getRefusjonBeløpPerMnd) {
         this.getRefusjonBeløpPerMnd = getRefusjonBeløpPerMnd;
+    }
+
+    public String getArbeidsgiverReferanse() {
+        return arbeidsgiverReferanse;
+    }
+
+    public void setArbeidsgiverReferanse(String arbeidsgiverReferanse) {
+        this.arbeidsgiverReferanse = arbeidsgiverReferanse;
     }
 }

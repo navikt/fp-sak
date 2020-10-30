@@ -103,7 +103,7 @@ public class MedlemDtoTjenesteTest {
                 .thenReturn(EndringsresultatPersonopplysningerForMedlemskap.builder().build());
 
         ArbeidsgiverTjeneste arbeidsgiverTjeneste = mock(ArbeidsgiverTjeneste.class);
-        when(arbeidsgiverTjeneste.hent(any())).thenReturn(new ArbeidsgiverOpplysninger(null, navn, LocalDate.of(2018, 1, 1)));
+        when(arbeidsgiverTjeneste.hent(any())).thenReturn(new ArbeidsgiverOpplysninger(AktørId.dummy(), null, navn, LocalDate.of(2018, 1, 1)));
 
         MedlemDtoTjeneste dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, arbeidsgiverTjeneste, skjæringstidspunktTjeneste, iayTjeneste,
                 medlemTjenesteMock, personopplysningTjenesteMock, mock(PersonopplysningDtoTjeneste.class));
@@ -114,7 +114,7 @@ public class MedlemDtoTjenesteTest {
             assertThat(medlemDto.getMedlemskapPerioder()).hasSize(1);
             assertThat(medlemDto.getInntekt()).hasSize(1);
             InntektDto inntektDto = medlemDto.getInntekt().get(0);
-            assertThat(inntektDto.getUtbetaler()).isEqualTo("Lisa ...(01.01.2018)");
+            assertThat(inntektDto.getUtbetaler()).isEqualTo(arbeidsgiver.getIdentifikator());
             assertThat(inntektDto.getNavn()).isEqualTo(navn);
         });
     }
@@ -169,7 +169,7 @@ public class MedlemDtoTjenesteTest {
         when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any())).thenReturn(endringsresultatPersonopplysningerForMedlemskap);
 
         ArbeidsgiverTjeneste arbeidsgiverTjeneste = mock(ArbeidsgiverTjeneste.class);
-        when(arbeidsgiverTjeneste.hent(any())).thenReturn(new ArbeidsgiverOpplysninger(null, navn, LocalDate.of(2018, 1, 1)));
+        when(arbeidsgiverTjeneste.hent(any())).thenReturn(new ArbeidsgiverOpplysninger(AktørId.dummy(), null, navn, LocalDate.of(2018, 1, 1)));
 
         MedlemDtoTjeneste dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, arbeidsgiverTjeneste, skjæringstidspunktTjeneste, iayTjeneste,
                 medlemTjenesteMock, personopplysningTjenesteMock, mock(PersonopplysningDtoTjeneste.class));

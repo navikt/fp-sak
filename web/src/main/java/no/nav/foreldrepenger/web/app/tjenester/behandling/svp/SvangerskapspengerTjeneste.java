@@ -124,6 +124,7 @@ public class SvangerskapspengerTjeneste {
             var arbeidsgiver = svpTilrettelegging.getArbeidsgiver().get();;
             dto.setVelferdspermisjoner(mapVelferdspermisjoner(svpTilrettelegging, filter, arbeidsgiver, saksbehandletFilter));
             ArbeidsgiverOpplysninger arbeidsgiverOpplysninger = arbeidsgiverTjeneste.hent(svpTilrettelegging.getArbeidsgiver().get());
+            dto.setArbeidsgiverReferanse(svpTilrettelegging.getArbeidsgiver().get().getIdentifikator());
             dto.setArbeidsgiverNavn(arbeidsgiverOpplysninger.getNavn());
             dto.setArbeidsgiverIdent(arbeidsgiver.getIdentifikator());
             dto.setArbeidsgiverIdentVisning(arbeidsgiverOpplysninger.getIdentifikator());

@@ -74,13 +74,13 @@ public class TotrinnArbeidsforholdDtoTjeneste {
             if (arbeidsgiverOpplysninger != null) {
                 String navn = arbeidsgiverOpplysninger.getNavn();
                 String fødselsdato = arbeidsgiverOpplysninger.getIdentifikator();
-                return new TotrinnsArbeidsforholdDto(navn, fødselsdato, ref, handling, brukPermisjon);
+                return new TotrinnsArbeidsforholdDto(arbeidsforhold.getArbeidsgiver().getIdentifikator(), navn, fødselsdato, ref, handling, brukPermisjon);
             }
         }
         if (arbeidsforhold.getArbeidsgiver().getErVirksomhet()) {
             String orgnr = arbeidsforhold.getArbeidsgiver().getOrgnr();
             String navn = arbeidsgiverTjeneste.hentVirksomhet(orgnr).getNavn();
-            return new TotrinnsArbeidsforholdDto(navn, orgnr, ref, handling, brukPermisjon);
+            return new TotrinnsArbeidsforholdDto(arbeidsforhold.getArbeidsgiver().getIdentifikator(), navn, orgnr, ref, handling, brukPermisjon);
         }
         throw new IllegalStateException("Klarer ikke identifisere arbeidsgiver under iverksettelse av totrinnskontroll");
     }

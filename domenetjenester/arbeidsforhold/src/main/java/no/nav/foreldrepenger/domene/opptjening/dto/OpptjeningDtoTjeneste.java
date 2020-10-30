@@ -94,6 +94,7 @@ public class OpptjeningDtoTjeneste {
             lagOpptjeningAktivitetDtoForArbeidsgiver(oap, dto, true, overstyringer);
         } else {
             dto.setArbeidsgiver(oap.getArbeidsgiverUtlandNavn());
+            dto.setUtlandskArbeidsgiverNavn(oap.getArbeidsgiverUtlandNavn());
         }
         settVurdering(oap, dto);
         leggPåFellesEgenskaper(oap, dto);
@@ -132,11 +133,13 @@ public class OpptjeningDtoTjeneste {
         }
         dto.setOppdragsgiverOrg(oap.getOrgnr());
         dto.setArbeidsgiverIdentifikator(oap.getOrgnr());
+        dto.setArbeidsgiverReferanse(oap.getArbeidsgiver().getIdentifikator());
         dto.setStillingsandel(Optional.ofNullable(oap.getStillingsprosent()).map(Stillingsprosent::getVerdi).orElse(BigDecimal.ZERO));
     }
 
     private void lagOpptjeningAktivitetDtoForPrivatArbeidsgiver(OpptjeningsperiodeForSaksbehandling oap, OpptjeningAktivitetDto dto) {
         ArbeidsgiverOpplysninger arbeidsgiver = arbeidsgiverTjeneste.hent(oap.getArbeidsgiver());
+        dto.setArbeidsgiverReferanse(oap.getArbeidsgiver().getIdentifikator());
         if (arbeidsgiver != null) {
             dto.setPrivatpersonNavn(arbeidsgiver.getNavn());
             dto.setPrivatpersonFødselsdato(arbeidsgiver.getFødselsdato());

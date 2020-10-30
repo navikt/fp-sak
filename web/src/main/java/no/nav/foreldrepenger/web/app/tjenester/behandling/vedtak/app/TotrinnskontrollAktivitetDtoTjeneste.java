@@ -81,6 +81,7 @@ public class TotrinnskontrollAktivitetDtoTjeneste {
     }
 
     private void mapArbeidsgiverOpplysninger(TotrinnskontrollAktivitetDto dto, Arbeidsgiver arbeidsgiver) {
+        dto.setArbeidsgiverReferanse(arbeidsgiver.getIdentifikator());
         if (arbeidsgiver.erAktørId()) {
             ArbeidsgiverOpplysninger arbeidsgiverOpplysninger = arbeidsgiverTjeneste.hent(arbeidsgiver);
             if (arbeidsgiverOpplysninger != null) {

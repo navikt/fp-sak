@@ -4,22 +4,30 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingTy
 
 public class TotrinnsArbeidsforholdDto {
 
-    private String navn;
-    private String organisasjonsnummer;
     private String arbeidsforholdId;
     private ArbeidsforholdHandlingType arbeidsforholdHandlingType;
     private Boolean brukPermisjon;
+    private String arbeidsgiverReferanse;
+    private String navn;
+    private String organisasjonsnummer;
 
-    public TotrinnsArbeidsforholdDto(String navn,
+
+    public TotrinnsArbeidsforholdDto(String arbeidsgiverReferanse,
+                                     String navn,
                                      String organisasjonsnummer,
                                      String arbeidsforholdId,
                                      ArbeidsforholdHandlingType handling,
                                      Boolean brukPermisjon) {
+        this.arbeidsgiverReferanse = arbeidsgiverReferanse;
         this.navn = navn;
         this.organisasjonsnummer = organisasjonsnummer;
         this.arbeidsforholdId = arbeidsforholdId;
         this.arbeidsforholdHandlingType = handling;
         this.brukPermisjon = brukPermisjon;
+    }
+
+    public String getArbeidsgiverReferanse() {
+        return arbeidsgiverReferanse;
     }
 
     public String getNavn() {

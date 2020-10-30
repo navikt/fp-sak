@@ -158,6 +158,7 @@ public class BeregningsresultatMedUttaksplanMapper {
     private void settArbeidsgiverfelter(Arbeidsgiver arb, BeregningsresultatPeriodeAndelDto.Builder dtoBuilder) {
         ArbeidsgiverOpplysninger opplysninger = arbeidsgiverTjeneste.hent(arb);
         if (opplysninger != null) {
+            dtoBuilder.medArbeidsgiverReferanse(arb.getIdentifikator());
             dtoBuilder.medArbeidsgiverNavn(opplysninger.getNavn());
             dtoBuilder.medArbeidsgiverOrgnr(opplysninger.getIdentifikator());
         } else {

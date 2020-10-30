@@ -16,6 +16,7 @@ public class SvpArbeidsforholdDto {
     private Long tilretteleggingId;
     private LocalDate tilretteleggingBehovFom;
     private List<SvpTilretteleggingDatoDto> tilretteleggingDatoer = new ArrayList<>();
+    private String arbeidsgiverReferanse;
     private String arbeidsgiverNavn;
     private String arbeidsgiverIdent;
     private String arbeidsgiverIdentVisning;
@@ -152,4 +153,11 @@ public class SvpArbeidsforholdDto {
         this.velferdspermisjoner = velferdspermisjoner;
     }
 
+    public String getArbeidsgiverReferanse() {
+        return arbeidsgiverReferanse;
+    }
+
+    public void setArbeidsgiverReferanse(String arbeidsgiverReferanse) {
+        this.arbeidsgiverReferanse = arbeidsgiverReferanse;
+    }
 }

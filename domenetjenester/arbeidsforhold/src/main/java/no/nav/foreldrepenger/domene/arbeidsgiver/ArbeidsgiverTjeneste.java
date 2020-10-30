@@ -61,7 +61,7 @@ public class ArbeidsgiverTjeneste {
             if (personinfo.isPresent()) {
                 PersoninfoArbeidsgiver info = personinfo.get();
                 String fødselsdato = info.getFødselsdato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-                ArbeidsgiverOpplysninger nyOpplysninger = new ArbeidsgiverOpplysninger(fødselsdato, info.getNavn(), info.getFødselsdato());
+                ArbeidsgiverOpplysninger nyOpplysninger = new ArbeidsgiverOpplysninger(arbeidsgiver.getAktørId(), fødselsdato, info.getNavn(), info.getFødselsdato());
                 cache.put(arbeidsgiver.getIdentifikator(), nyOpplysninger);
                 return nyOpplysninger;
             } else {
