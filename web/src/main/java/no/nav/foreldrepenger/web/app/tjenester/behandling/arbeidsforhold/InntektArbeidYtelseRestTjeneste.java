@@ -4,12 +4,12 @@ import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
 import java.time.LocalDate;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -237,11 +237,9 @@ public class InntektArbeidYtelseRestTjeneste {
                 .map(OppgittEgenNæring::getVirksomhetOrgnr).filter(Objects::nonNull).map(Arbeidsgiver::virksomhet).forEach(arbeidsgivere::add);
         });
 
-        Map<String, ArbeidsgiverOpplysningerDto> oversikt = new HashMap<>();
-        arbeidsgivere.stream()
+        Map<String, ArbeidsgiverOpplysningerDto> oversikt = arbeidsgivere.stream()
             .map(this::mapFra)
-            .collect(Collectors.groupingBy(ArbeidsgiverOpplysningerDto::getReferanse))
-            .forEach((key, value) -> oversikt.putIfAbsent(key, value.stream().findFirst().orElseGet(() -> new ArbeidsgiverOpplysningerDto(key, "Ukjent"))));
+            .collect(Collectors.toMap(ArbeidsgiverOpplysningerDto::getReferanse, Function.identity()));
         return new ArbeidsgiverOversiktDto(oversikt);
     }
 

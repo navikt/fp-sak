@@ -57,7 +57,7 @@ public class FaktaUttakArbeidsforholdTjenesteTest extends EntityManagerAwareTest
         Arbeidsgiver virksomhet456 = Arbeidsgiver.virksomhet(virksomhetOrgnr2);
         Arbeidsgiver person = Arbeidsgiver.person(aktørId);
 
-        Mockito.when(arbeidsgiverTjeneste.hent(person)).thenReturn(new ArbeidsgiverOpplysninger(aktørId.getId(), NAVN, FØDSEL));
+        Mockito.when(arbeidsgiverTjeneste.hent(person)).thenReturn(new ArbeidsgiverOpplysninger(aktørId, aktørId.getId(), NAVN, FØDSEL));
         Mockito.when(arbeidsgiverTjeneste.hent(virksomhet123)).thenReturn(new ArbeidsgiverOpplysninger(virksomhet123.getOrgnr(), virksomhet1.getNavn()));
         Mockito.when(arbeidsgiverTjeneste.hent(virksomhet456)).thenReturn(new ArbeidsgiverOpplysninger(virksomhet456.getOrgnr(), virksomhet2.getNavn()));
 

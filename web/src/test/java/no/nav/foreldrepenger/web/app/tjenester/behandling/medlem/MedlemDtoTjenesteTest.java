@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.medlem;
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -103,7 +104,7 @@ public class MedlemDtoTjenesteTest {
                 .thenReturn(EndringsresultatPersonopplysningerForMedlemskap.builder().build());
 
         ArbeidsgiverTjeneste arbeidsgiverTjeneste = mock(ArbeidsgiverTjeneste.class);
-        when(arbeidsgiverTjeneste.hent(any())).thenReturn(new ArbeidsgiverOpplysninger(null, navn, LocalDate.of(2018, 1, 1)));
+        when(arbeidsgiverTjeneste.hent(any())).thenReturn(new ArbeidsgiverOpplysninger(AktørId.dummy(), null, navn, LocalDate.of(2018, 1, 1)));
 
         MedlemDtoTjeneste dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, arbeidsgiverTjeneste, skjæringstidspunktTjeneste, iayTjeneste,
                 medlemTjenesteMock, personopplysningTjenesteMock, mock(PersonopplysningDtoTjeneste.class));
@@ -169,7 +170,7 @@ public class MedlemDtoTjenesteTest {
         when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any())).thenReturn(endringsresultatPersonopplysningerForMedlemskap);
 
         ArbeidsgiverTjeneste arbeidsgiverTjeneste = mock(ArbeidsgiverTjeneste.class);
-        when(arbeidsgiverTjeneste.hent(any())).thenReturn(new ArbeidsgiverOpplysninger(null, navn, LocalDate.of(2018, 1, 1)));
+        when(arbeidsgiverTjeneste.hent(any())).thenReturn(new ArbeidsgiverOpplysninger(AktørId.dummy(), null, navn, LocalDate.of(2018, 1, 1)));
 
         MedlemDtoTjeneste dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, arbeidsgiverTjeneste, skjæringstidspunktTjeneste, iayTjeneste,
                 medlemTjenesteMock, personopplysningTjenesteMock, mock(PersonopplysningDtoTjeneste.class));
