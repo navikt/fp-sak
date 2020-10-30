@@ -42,7 +42,8 @@ public class UttakGrunnlagTjenesteTest extends EntityManagerAwareTest {
             behandlingRepository), relatertBehandlingTjeneste, foreldrepengerUttakTjeneste);
         var familieHendelseRepository = new FamilieHendelseRepository(entityManager);
         var familieHendelseTjeneste = new FamilieHendelseTjeneste(null, familieHendelseRepository);
-        tjeneste = new UttakGrunnlagTjeneste(repositoryProvider, tapendeBehandlingTjeneste, relatertBehandlingTjeneste, familieHendelseTjeneste);
+        tjeneste = new UttakGrunnlagTjeneste(repositoryProvider, tapendeBehandlingTjeneste, relatertBehandlingTjeneste,
+            familieHendelseTjeneste);
     }
 
     @Test
@@ -61,9 +62,22 @@ public class UttakGrunnlagTjenesteTest extends EntityManagerAwareTest {
         var grunnlagRevurdering = tjeneste.grunnlag(BehandlingReferanse.fra(revurdering));
         var grunnlagFørstegangsBehandling = tjeneste.grunnlag(BehandlingReferanse.fra(behandling));
 
-        assertThat(grunnlagRevurdering.orElseThrow().getOriginalBehandling().orElseThrow().getFamilieHendelser().getOverstyrtFamilieHendelse()).isEmpty();
-        assertThat(grunnlagRevurdering.orElseThrow().getOriginalBehandling().orElseThrow().getFamilieHendelser().getGjeldendeFamilieHendelse().getFamilieHendelseDato()).isEqualTo(fødselsDato);
-        assertThat(grunnlagFørstegangsBehandling.orElseThrow().getFamilieHendelser().getOverstyrtFamilieHendelse()).isEmpty();
-        assertThat(grunnlagFørstegangsBehandling.orElseThrow().getFamilieHendelser().getGjeldendeFamilieHendelse().getFamilieHendelseDato()).isEqualTo(fødselsDato);
+        assertThat(grunnlagRevurdering.orElseThrow()
+            .getOriginalBehandling()
+            .orElseThrow()
+            .getFamilieHendelser()
+            .getOverstyrtFamilieHendelse()).isEmpty();
+        assertThat(grunnlagRevurdering.orElseThrow()
+            .getOriginalBehandling()
+            .orElseThrow()
+            .getFamilieHendelser()
+            .getGjeldendeFamilieHendelse()
+            .getFamilieHendelseDato()).isEqualTo(fødselsDato);
+        assertThat(
+            grunnlagFørstegangsBehandling.orElseThrow().getFamilieHendelser().getOverstyrtFamilieHendelse()).isEmpty();
+        assertThat(grunnlagFørstegangsBehandling.orElseThrow()
+            .getFamilieHendelser()
+            .getGjeldendeFamilieHendelse()
+            .getFamilieHendelseDato()).isEqualTo(fødselsDato);
     }
 }

@@ -55,8 +55,10 @@ public class HarEtablertYtelseFPTest extends EntityManagerAwareTest {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         var relatertBehandlingTjeneste = new RelatertBehandlingTjeneste(repositoryProvider);
         stønadskontoSaldoTjeneste = mock(StønadskontoSaldoTjeneste.class);
-        harEtablertYtelse = new HarEtablertYtelseFP(stønadskontoSaldoTjeneste, uttakInputTjeneste, relatertBehandlingTjeneste,
-            new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()), repositoryProvider.getBehandlingVedtakRepository());
+        harEtablertYtelse = new HarEtablertYtelseFP(stønadskontoSaldoTjeneste, uttakInputTjeneste,
+            relatertBehandlingTjeneste,
+            new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()),
+            repositoryProvider.getBehandlingVedtakRepository());
     }
 
     private Behandling opprettBehandling() {
@@ -107,12 +109,18 @@ public class HarEtablertYtelseFPTest extends EntityManagerAwareTest {
                 .medAnsvarligSaksbehandler(" ");
             var behandlingAnnenpart = scenarioAnnenpart
                 .lagre(repositoryProvider);
-            repositoryProvider.getFagsakRepository().oppdaterFagsakStatus(behandlingAnnenpart.getFagsakId(), FagsakStatus.LØPENDE);
+            repositoryProvider.getFagsakRepository()
+                .oppdaterFagsakStatus(behandlingAnnenpart.getFagsakId(), FagsakStatus.LØPENDE);
             var originalBehandling = finnOriginalBehandling(behandling);
-            repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(originalBehandling.getFagsak(), behandlingAnnenpart.getFagsak(), originalBehandling);
-            repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(behandlingAnnenpart.getId(), uttakAnnenpart.get().getOpprinneligPerioder());
+            repositoryProvider.getFagsakRelasjonRepository()
+                .kobleFagsaker(originalBehandling.getFagsak(), behandlingAnnenpart.getFagsak(), originalBehandling);
+            repositoryProvider.getFpUttakRepository()
+                .lagreOpprinneligUttakResultatPerioder(behandlingAnnenpart.getId(),
+                    uttakAnnenpart.get().getOpprinneligPerioder());
             behandlingAnnenpart.avsluttBehandling();
-            repositoryProvider.getBehandlingRepository().lagre(behandlingAnnenpart, repositoryProvider.getBehandlingLåsRepository().taLås(behandlingAnnenpart.getId()));
+            repositoryProvider.getBehandlingRepository()
+                .lagre(behandlingAnnenpart,
+                    repositoryProvider.getBehandlingLåsRepository().taLås(behandlingAnnenpart.getId()));
         });
 
         var behandlingsresultat = uttakResultatOriginal.getBehandlingsresultat();
@@ -124,7 +132,8 @@ public class HarEtablertYtelseFPTest extends EntityManagerAwareTest {
     }
 
     private Behandling finnOriginalBehandling(Behandling behandling) {
-        return new BehandlingRepository(getEntityManager()).hentBehandling(behandling.getOriginalBehandlingId().orElseThrow());
+        return new BehandlingRepository(getEntityManager()).hentBehandling(
+            behandling.getOriginalBehandlingId().orElseThrow());
     }
 
     @Test
@@ -140,7 +149,8 @@ public class HarEtablertYtelseFPTest extends EntityManagerAwareTest {
         );
         boolean finnesInnvilgetIkkeOpphørtVedtak = false;
         // Act
-        boolean etablertYtelse = vurder(uttakResultatOriginal, finnesInnvilgetIkkeOpphørtVedtak, Optional.empty(), false, behandling);
+        boolean etablertYtelse = vurder(uttakResultatOriginal, finnesInnvilgetIkkeOpphørtVedtak, Optional.empty(),
+            false, behandling);
 
         // Assert
         assertThat(etablertYtelse).isFalse();
@@ -173,7 +183,8 @@ public class HarEtablertYtelseFPTest extends EntityManagerAwareTest {
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandling,
             List.of(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.plusDays(5))),
             List.of(false), List.of(PeriodeResultatType.AVSLÅTT), List.of(PeriodeResultatÅrsak.UKJENT),
-            List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER)
+            List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(12)),
+            List.of(StønadskontoType.FORELDREPENGER)
         );
         // Act
         boolean etablertYtelse = vurder(uttakResultatOriginal, true, Optional.empty(), true, behandling);
@@ -191,7 +202,8 @@ public class HarEtablertYtelseFPTest extends EntityManagerAwareTest {
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandling,
             List.of(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.minusDays(5))),
             List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT),
-            List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER)
+            List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(12)),
+            List.of(StønadskontoType.FORELDREPENGER)
         );
         // Act
         boolean etablertYtelse = vurder(uttakResultatOriginal, true, Optional.empty(), true, behandling);
@@ -209,7 +221,8 @@ public class HarEtablertYtelseFPTest extends EntityManagerAwareTest {
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandling,
             List.of(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.minusDays(5))),
             List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT),
-            List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER)
+            List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(12)),
+            List.of(StønadskontoType.FORELDREPENGER)
         );
         // Act
         boolean etablertYtelse = vurder(uttakResultatOriginal, true, Optional.empty(), false, behandling);
@@ -237,18 +250,28 @@ public class HarEtablertYtelseFPTest extends EntityManagerAwareTest {
         );
 
         // Act
-        boolean etablertYtelse = vurder(uttakResultatOriginal, true, Optional.of(uttakResultatAnnenPart), true, behandling);
+        boolean etablertYtelse = vurder(uttakResultatOriginal, true, Optional.of(uttakResultatAnnenPart), true,
+            behandling);
 
         // Assert
         assertThat(etablertYtelse).isTrue();
     }
 
-    private UttakResultatEntitet lagUttakResultatPlanForBehandling(Behandling behandling, List<LocalDateInterval> perioder, List<Boolean> samtidigUttak,
-                                                                   List<PeriodeResultatType> periodeResultatTyper, List<PeriodeResultatÅrsak> periodeResultatÅrsak,
-                                                                   List<Boolean> graderingInnvilget, List<Integer> andelIArbeid,
-                                                                   List<Integer> utbetalingsgrad, List<Trekkdager> trekkdager, List<StønadskontoType> stønadskontoTyper) {
-        UttakResultatEntitet uttakresultat = LagUttakResultatPlanTjeneste.lagUttakResultatPlanTjeneste(behandling, perioder, samtidigUttak, periodeResultatTyper, periodeResultatÅrsak, graderingInnvilget, andelIArbeid, utbetalingsgrad, trekkdager, stønadskontoTyper);
-        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttakresultat.getGjeldendePerioder());
+    private UttakResultatEntitet lagUttakResultatPlanForBehandling(Behandling behandling,
+                                                                   List<LocalDateInterval> perioder,
+                                                                   List<Boolean> samtidigUttak,
+                                                                   List<PeriodeResultatType> periodeResultatTyper,
+                                                                   List<PeriodeResultatÅrsak> periodeResultatÅrsak,
+                                                                   List<Boolean> graderingInnvilget,
+                                                                   List<Integer> andelIArbeid,
+                                                                   List<Integer> utbetalingsgrad,
+                                                                   List<Trekkdager> trekkdager,
+                                                                   List<StønadskontoType> stønadskontoTyper) {
+        UttakResultatEntitet uttakresultat = LagUttakResultatPlanTjeneste.lagUttakResultatPlanTjeneste(behandling,
+            perioder, samtidigUttak, periodeResultatTyper, periodeResultatÅrsak, graderingInnvilget, andelIArbeid,
+            utbetalingsgrad, trekkdager, stønadskontoTyper);
+        repositoryProvider.getFpUttakRepository()
+            .lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttakresultat.getGjeldendePerioder());
         return uttakresultat;
 
     }

@@ -31,21 +31,24 @@ public class LagUttakResultatPlanTjeneste {
     private static final InternArbeidsforholdRef ARBEIDSFORHOLD_ID = InternArbeidsforholdRef.namedRef("TEST-REF");
 
 
-    public static SvangerskapspengerUttakResultatEntitet lagUttakResultatPlanSVPTjeneste(Behandling behandling, List<LocalDateInterval> perioder,
+    public static SvangerskapspengerUttakResultatEntitet lagUttakResultatPlanSVPTjeneste(Behandling behandling,
+                                                                                         List<LocalDateInterval> perioder,
                                                                                          List<PeriodeResultatType> periodeResultatTyper,
-                                                                                         List<PeriodeIkkeOppfyltÅrsak> ikkeOppfyltÅrsak, List<Integer> utbetalingsgrad) {
+                                                                                         List<PeriodeIkkeOppfyltÅrsak> ikkeOppfyltÅrsak,
+                                                                                         List<Integer> utbetalingsgrad) {
         SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder uttakResultatArbeidsforholdBuilder = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder()
             .medArbeidsforhold(Arbeidsgiver.person(behandling.getAktørId()), null)
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID);
         for (int i = 0; i < perioder.size(); i++) {
             LocalDateInterval p = perioder.get(i);
-            uttakResultatArbeidsforholdBuilder.medPeriode(new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(p.getFomDato(), p.getTomDato())
-                .medRegelInput("{}")
-                .medRegelEvaluering("{}")
-                .medUtbetalingsgrad(BigDecimal.valueOf(utbetalingsgrad.get(i)))
-                .medPeriodeIkkeOppfyltÅrsak(ikkeOppfyltÅrsak.get(i))
-                .medPeriodeResultatType(periodeResultatTyper.get(i))
-                .build());
+            uttakResultatArbeidsforholdBuilder.medPeriode(
+                new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(p.getFomDato(), p.getTomDato())
+                    .medRegelInput("{}")
+                    .medRegelEvaluering("{}")
+                    .medUtbetalingsgrad(BigDecimal.valueOf(utbetalingsgrad.get(i)))
+                    .medPeriodeIkkeOppfyltÅrsak(ikkeOppfyltÅrsak.get(i))
+                    .medPeriodeResultatType(periodeResultatTyper.get(i))
+                    .build());
         }
 
         var uttakArbeidsforhold = uttakResultatArbeidsforholdBuilder.build();
@@ -53,11 +56,18 @@ public class LagUttakResultatPlanTjeneste {
             .medUttakResultatArbeidsforhold(uttakArbeidsforhold).build();
     }
 
-    public static UttakResultatEntitet lagUttakResultatPlanTjeneste(Behandling behandling, List<LocalDateInterval> perioder, List<Boolean> samtidigUttak,
-                                                             List<PeriodeResultatType> periodeResultatTyper, List<PeriodeResultatÅrsak> periodeResultatÅrsak,
-                                                             List<Boolean> graderingInnvilget, List<Integer> andelIArbeid,
-                                                             List<Integer> utbetalingsgrad, List<Trekkdager> trekkdager, List<StønadskontoType> stønadskontoTyper) {
-        UttakResultatEntitet.Builder uttakResultatPlanBuilder = new UttakResultatEntitet.Builder(behandling.getBehandlingsresultat());
+    public static UttakResultatEntitet lagUttakResultatPlanTjeneste(Behandling behandling,
+                                                                    List<LocalDateInterval> perioder,
+                                                                    List<Boolean> samtidigUttak,
+                                                                    List<PeriodeResultatType> periodeResultatTyper,
+                                                                    List<PeriodeResultatÅrsak> periodeResultatÅrsak,
+                                                                    List<Boolean> graderingInnvilget,
+                                                                    List<Integer> andelIArbeid,
+                                                                    List<Integer> utbetalingsgrad,
+                                                                    List<Trekkdager> trekkdager,
+                                                                    List<StønadskontoType> stønadskontoTyper) {
+        UttakResultatEntitet.Builder uttakResultatPlanBuilder = new UttakResultatEntitet.Builder(
+            behandling.getBehandlingsresultat());
         UttakResultatPerioderEntitet uttakResultatPerioder = new UttakResultatPerioderEntitet();
         assertThat(perioder).hasSize(samtidigUttak.size());
         assertThat(perioder).hasSize(periodeResultatTyper.size());
@@ -66,26 +76,40 @@ public class LagUttakResultatPlanTjeneste {
         int antallPerioder = perioder.size();
         for (int i = 0; i < antallPerioder; i++) {
             lagUttakPeriodeMedPeriodeAktivitet(uttakResultatPerioder, perioder.get(i),
-                samtidigUttak.get(i), periodeResultatTyper.get(i), periodeResultatÅrsak.get(i), graderingInnvilget.get(i), andelIArbeid, utbetalingsgrad, trekkdager, stønadskontoTyper);
+                samtidigUttak.get(i), periodeResultatTyper.get(i), periodeResultatÅrsak.get(i),
+                graderingInnvilget.get(i), andelIArbeid, utbetalingsgrad, trekkdager, stønadskontoTyper);
         }
         return uttakResultatPlanBuilder.medOpprinneligPerioder(uttakResultatPerioder).build();
     }
 
-    private static void lagUttakPeriodeMedPeriodeAktivitet(UttakResultatPerioderEntitet uttakResultatPerioder, LocalDateInterval periode, boolean samtidigUttak, PeriodeResultatType periodeResultatType,
-                                                    PeriodeResultatÅrsak periodeResultatÅrsak, boolean graderingInnvilget, List<Integer> andelIArbeid, List<Integer> utbetalingsgrad, List<Trekkdager> trekkdager, List<StønadskontoType> stønadskontoTyper) {
-        UttakResultatPeriodeEntitet uttakResultatPeriode = byggPeriode(periode.getFomDato(), periode.getTomDato(), samtidigUttak, periodeResultatType, periodeResultatÅrsak, graderingInnvilget);
+    private static void lagUttakPeriodeMedPeriodeAktivitet(UttakResultatPerioderEntitet uttakResultatPerioder,
+                                                           LocalDateInterval periode,
+                                                           boolean samtidigUttak,
+                                                           PeriodeResultatType periodeResultatType,
+                                                           PeriodeResultatÅrsak periodeResultatÅrsak,
+                                                           boolean graderingInnvilget,
+                                                           List<Integer> andelIArbeid,
+                                                           List<Integer> utbetalingsgrad,
+                                                           List<Trekkdager> trekkdager,
+                                                           List<StønadskontoType> stønadskontoTyper) {
+        UttakResultatPeriodeEntitet uttakResultatPeriode = byggPeriode(periode.getFomDato(), periode.getTomDato(),
+            samtidigUttak, periodeResultatType, periodeResultatÅrsak, graderingInnvilget);
 
         int antallAktiviteter = stønadskontoTyper.size();
         for (int i = 0; i < antallAktiviteter; i++) {
-            UttakResultatPeriodeAktivitetEntitet periodeAktivitet = lagPeriodeAktivitet(stønadskontoTyper.get(i), uttakResultatPeriode, trekkdager.get(i),
+            UttakResultatPeriodeAktivitetEntitet periodeAktivitet = lagPeriodeAktivitet(stønadskontoTyper.get(i),
+                uttakResultatPeriode, trekkdager.get(i),
                 andelIArbeid.get(i), utbetalingsgrad.get(i));
             uttakResultatPeriode.leggTilAktivitet(periodeAktivitet);
         }
         uttakResultatPerioder.leggTilPeriode(uttakResultatPeriode);
     }
 
-    private static UttakResultatPeriodeAktivitetEntitet lagPeriodeAktivitet(StønadskontoType stønadskontoType, UttakResultatPeriodeEntitet uttakResultatPeriode,
-                                                                     Trekkdager trekkdager, int andelIArbeid, int utbetalingsgrad) {
+    private static UttakResultatPeriodeAktivitetEntitet lagPeriodeAktivitet(StønadskontoType stønadskontoType,
+                                                                            UttakResultatPeriodeEntitet uttakResultatPeriode,
+                                                                            Trekkdager trekkdager,
+                                                                            int andelIArbeid,
+                                                                            int utbetalingsgrad) {
         UttakAktivitetEntitet uttakAktivitet = new UttakAktivitetEntitet.Builder()
             .medArbeidsforhold(Arbeidsgiver.virksomhet(KUNSTIG_ORG), ARBEIDSFORHOLD_ID)
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
@@ -99,7 +123,12 @@ public class LagUttakResultatPlanTjeneste {
             .build();
     }
 
-    private static UttakResultatPeriodeEntitet byggPeriode(LocalDate fom, LocalDate tom, boolean samtidigUttak, PeriodeResultatType periodeResultatType, PeriodeResultatÅrsak periodeResultatÅrsak, boolean graderingInnvilget) {
+    private static UttakResultatPeriodeEntitet byggPeriode(LocalDate fom,
+                                                           LocalDate tom,
+                                                           boolean samtidigUttak,
+                                                           PeriodeResultatType periodeResultatType,
+                                                           PeriodeResultatÅrsak periodeResultatÅrsak,
+                                                           boolean graderingInnvilget) {
         return new UttakResultatPeriodeEntitet.Builder(fom, tom)
             .medSamtidigUttak(samtidigUttak)
             .medResultatType(periodeResultatType, periodeResultatÅrsak)

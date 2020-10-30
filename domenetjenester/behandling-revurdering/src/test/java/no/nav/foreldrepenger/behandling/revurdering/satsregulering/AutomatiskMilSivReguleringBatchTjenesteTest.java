@@ -73,31 +73,45 @@ public class AutomatiskMilSivReguleringBatchTjenesteTest {
     @Before
     public void setUp() throws Exception {
         nySats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getVerdi();
-        cutoff = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getPeriode().getFomDato();
-        gammelSats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoff.minusDays(1)).getVerdi();
-        tjeneste = new AutomatiskMilSivReguleringBatchTjeneste(behandlingRevurderingRepository, beregningsresultatRepository, prosessTaskRepository);
+        cutoff = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now())
+            .getPeriode()
+            .getFomDato();
+        gammelSats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoff.minusDays(1))
+            .getVerdi();
+        tjeneste = new AutomatiskMilSivReguleringBatchTjeneste(behandlingRevurderingRepository,
+            beregningsresultatRepository, prosessTaskRepository);
     }
 
     @Test
     public void skal_ikke_finne_saker_til_revurdering() {
-        opprettRevurderingsKandidat(BehandlingStatus.UTREDES, cutoff.plusDays(5), gammelSats, gammelSats * 3); // Har åpen behandling
-        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.minusDays(5), gammelSats, gammelSats * 3); // Uttak før "1/5"
+        opprettRevurderingsKandidat(BehandlingStatus.UTREDES, cutoff.plusDays(5), gammelSats,
+            gammelSats * 3); // Har åpen behandling
+        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.minusDays(5), gammelSats,
+            gammelSats * 3); // Uttak før "1/5"
         String svar = tjeneste.launch(null);
-        assertThat(svar).isEqualTo(AutomatiskMilSivReguleringBatchTjeneste.BATCHNAME+"-0");
+        assertThat(svar).isEqualTo(AutomatiskMilSivReguleringBatchTjeneste.BATCHNAME + "-0");
     }
 
     @Test
     public void skal_finne_to_saker_til_revurdering() {
-        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusWeeks(2), gammelSats, gammelSats * 3); // Skal finnes
-        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusDays(2), gammelSats, gammelSats * 2);  // Skal finnes
-        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusDays(2), gammelSats, gammelSats * 4); // Over streken på 3G
-        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.minusDays(2), gammelSats, gammelSats * 2); // Uttak før "1/5"
-        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusWeeks(2), nySats, gammelSats * 2); // Har allerede ny G
+        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusWeeks(2), gammelSats,
+            gammelSats * 3); // Skal finnes
+        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusDays(2), gammelSats,
+            gammelSats * 2);  // Skal finnes
+        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusDays(2), gammelSats,
+            gammelSats * 4); // Over streken på 3G
+        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.minusDays(2), gammelSats,
+            gammelSats * 2); // Uttak før "1/5"
+        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusWeeks(2), nySats,
+            gammelSats * 2); // Har allerede ny G
         String svar = tjeneste.launch(null);
-        assertThat(svar).isEqualTo(AutomatiskMilSivReguleringBatchTjeneste.BATCHNAME+"-2");
+        assertThat(svar).isEqualTo(AutomatiskMilSivReguleringBatchTjeneste.BATCHNAME + "-2");
     }
 
-    private Behandling opprettRevurderingsKandidat(BehandlingStatus status, LocalDate uttakFom, long sats, long brutto) {
+    private Behandling opprettRevurderingsKandidat(BehandlingStatus status,
+                                                   LocalDate uttakFom,
+                                                   long sats,
+                                                   long brutto) {
         LocalDate terminDato = uttakFom.plusWeeks(3);
 
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
@@ -107,7 +121,8 @@ public class AutomatiskMilSivReguleringBatchTjenesteTest {
             .medFødselsDato(terminDato)
             .medAntallBarn(1);
 
-        scenario.medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
+        scenario.medBehandlingsresultat(
+            Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         Behandling behandling = scenario.lagre(repositoryProvider);
 
         if (BehandlingStatus.AVSLUTTET.equals(status)) {

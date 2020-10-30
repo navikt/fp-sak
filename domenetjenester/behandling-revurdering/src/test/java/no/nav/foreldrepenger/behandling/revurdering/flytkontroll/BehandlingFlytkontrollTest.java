@@ -9,8 +9,10 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -27,7 +29,8 @@ public class BehandlingFlytkontrollTest {
     private static Long BERØRT_ID = 98L;
 
     private BehandlingRepository behandlingRepository = mock(BehandlingRepository.class);
-    private BehandlingRevurderingRepository behandlingRevurderingRepository = mock(BehandlingRevurderingRepository.class);
+    private BehandlingRevurderingRepository behandlingRevurderingRepository = mock(
+        BehandlingRevurderingRepository.class);
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste = mock(BehandlingskontrollTjeneste.class);
     private BehandlingFlytkontroll flytkontroll;
     private Behandling behandling = mock(Behandling.class);
@@ -39,7 +42,7 @@ public class BehandlingFlytkontrollTest {
 
 
     @BeforeEach
-    public void setup(){
+    public void setup() {
         when(behandling.getFagsak()).thenReturn(fagsak);
         when(behandling.getId()).thenReturn(BEHANDLING_ID);
         when(behandlingBerørt.getId()).thenReturn(BERØRT_ID);
@@ -48,7 +51,8 @@ public class BehandlingFlytkontrollTest {
         when(fagsakAnnenPart.getId()).thenReturn(FAGSAK_AP_ID);
         when(behandlingRepository.hentBehandling(BEHANDLING_ID)).thenReturn(behandling);
         when(behandlingBerørt.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)).thenReturn(true);
-        flytkontroll = new BehandlingFlytkontroll(behandlingRevurderingRepository, behandlingskontrollTjeneste, behandlingRepository);
+        flytkontroll = new BehandlingFlytkontroll(behandlingRevurderingRepository, behandlingskontrollTjeneste,
+            behandlingRepository);
     }
 
     @Test
@@ -60,40 +64,50 @@ public class BehandlingFlytkontrollTest {
     @Test
     public void fgangSkalIkkeVenteNårKobletIngenBehandlinger() {
         when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak)).thenReturn(Optional.of(fagsakAnnenPart));
-        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_AP_ID)).thenReturn(Collections.emptyList());
+        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_AP_ID)).thenReturn(
+            Collections.emptyList());
         assertThat(flytkontroll.uttaksProsessenSkalVente(BEHANDLING_ID)).isFalse();
     }
 
     @Test
     public void fgangSkalIkkeVenteNårKobletBehandlingErFørUttak() {
         when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak)).thenReturn(Optional.of(fagsakAnnenPart));
-        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_AP_ID)).thenReturn(List.of(behandlingAnnenPart));
-        when(behandlingskontrollTjeneste.erStegPassert(behandlingAnnenPart, StartpunktType.UTTAKSVILKÅR.getBehandlingSteg())).thenReturn(false);
+        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_AP_ID)).thenReturn(
+            List.of(behandlingAnnenPart));
+        when(behandlingskontrollTjeneste.erStegPassert(behandlingAnnenPart,
+            StartpunktType.UTTAKSVILKÅR.getBehandlingSteg())).thenReturn(false);
         assertThat(flytkontroll.uttaksProsessenSkalVente(BEHANDLING_ID)).isFalse();
     }
 
     @Test
     public void fgangSkalVenteNårKobletBehandlingErIUttak() {
         when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak)).thenReturn(Optional.of(fagsakAnnenPart));
-        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_AP_ID)).thenReturn(List.of(behandlingAnnenPart));
-        when(behandlingskontrollTjeneste.erStegPassert(behandlingAnnenPart, StartpunktType.UTTAKSVILKÅR.getBehandlingSteg())).thenReturn(true);
+        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_AP_ID)).thenReturn(
+            List.of(behandlingAnnenPart));
+        when(behandlingskontrollTjeneste.erStegPassert(behandlingAnnenPart,
+            StartpunktType.UTTAKSVILKÅR.getBehandlingSteg())).thenReturn(true);
         assertThat(flytkontroll.uttaksProsessenSkalVente(BEHANDLING_ID)).isTrue();
     }
 
     @Test
     public void fgangSkalVenteNårKobletHarBerørt() {
         when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak)).thenReturn(Optional.of(fagsakAnnenPart));
-        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_AP_ID)).thenReturn(List.of(behandlingBerørt));
-        when(behandlingskontrollTjeneste.erStegPassert(behandlingBerørt, StartpunktType.UTTAKSVILKÅR.getBehandlingSteg())).thenReturn(false);
+        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_AP_ID)).thenReturn(
+            List.of(behandlingBerørt));
+        when(behandlingskontrollTjeneste.erStegPassert(behandlingBerørt,
+            StartpunktType.UTTAKSVILKÅR.getBehandlingSteg())).thenReturn(false);
         assertThat(flytkontroll.uttaksProsessenSkalVente(BEHANDLING_ID)).isTrue();
     }
 
     @Test
     public void revurderingSkalVenteNårSammeSakHarBerørt() {
         when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak)).thenReturn(Optional.of(fagsakAnnenPart));
-        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_ID)).thenReturn(List.of(behandlingBerørt));
-        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_AP_ID)).thenReturn(Collections.emptyList());
-        when(behandlingskontrollTjeneste.erStegPassert(behandlingBerørt, StartpunktType.UTTAKSVILKÅR.getBehandlingSteg())).thenReturn(false);
+        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_ID)).thenReturn(
+            List.of(behandlingBerørt));
+        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_AP_ID)).thenReturn(
+            Collections.emptyList());
+        when(behandlingskontrollTjeneste.erStegPassert(behandlingBerørt,
+            StartpunktType.UTTAKSVILKÅR.getBehandlingSteg())).thenReturn(false);
         assertThat(flytkontroll.uttaksProsessenSkalVente(BEHANDLING_ID)).isTrue();
     }
 
@@ -106,49 +120,59 @@ public class BehandlingFlytkontrollTest {
     @Test
     public void nyrevurderingSkalIkkeVenteNårKobletIngenBehandlinger() {
         when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak)).thenReturn(Optional.of(fagsakAnnenPart));
-        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_AP_ID)).thenReturn(Collections.emptyList());
+        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_AP_ID)).thenReturn(
+            Collections.emptyList());
         assertThat(flytkontroll.nyRevurderingSkalVente(fagsak)).isFalse();
     }
 
     @Test
     public void nyrevurderingSkalIkkeVenteNårKobletFørstegangBehandlingErFørUttak() {
         when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak)).thenReturn(Optional.of(fagsakAnnenPart));
-        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_AP_ID)).thenReturn(List.of(behandlingAnnenPart));
+        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_AP_ID)).thenReturn(
+            List.of(behandlingAnnenPart));
         when(behandlingAnnenPart.erRevurdering()).thenReturn(false);
-        when(behandlingskontrollTjeneste.erStegPassert(behandlingAnnenPart, StartpunktType.UTTAKSVILKÅR.getBehandlingSteg())).thenReturn(false);
+        when(behandlingskontrollTjeneste.erStegPassert(behandlingAnnenPart,
+            StartpunktType.UTTAKSVILKÅR.getBehandlingSteg())).thenReturn(false);
         assertThat(flytkontroll.nyRevurderingSkalVente(fagsak)).isFalse();
     }
 
     @Test
     public void nyrevurderingSkalVenteNårKobletRevurderingBehandlingErFørUttak() {
         when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak)).thenReturn(Optional.of(fagsakAnnenPart));
-        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_AP_ID)).thenReturn(List.of(behandlingAnnenPart));
+        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_AP_ID)).thenReturn(
+            List.of(behandlingAnnenPart));
         when(behandlingAnnenPart.erRevurdering()).thenReturn(true);
-        when(behandlingskontrollTjeneste.erStegPassert(behandlingAnnenPart, StartpunktType.UTTAKSVILKÅR.getBehandlingSteg())).thenReturn(false);
+        when(behandlingskontrollTjeneste.erStegPassert(behandlingAnnenPart,
+            StartpunktType.UTTAKSVILKÅR.getBehandlingSteg())).thenReturn(false);
         assertThat(flytkontroll.nyRevurderingSkalVente(fagsak)).isTrue();
     }
 
     @Test
     public void nyrevurderingSkalVenteNårKobletFørstegangBehandlingErIUttak() {
         when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak)).thenReturn(Optional.of(fagsakAnnenPart));
-        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_AP_ID)).thenReturn(List.of(behandlingAnnenPart));
+        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_AP_ID)).thenReturn(
+            List.of(behandlingAnnenPart));
         when(behandlingAnnenPart.erRevurdering()).thenReturn(false);
-        when(behandlingskontrollTjeneste.erStegPassert(behandlingAnnenPart, StartpunktType.UTTAKSVILKÅR.getBehandlingSteg())).thenReturn(true);
+        when(behandlingskontrollTjeneste.erStegPassert(behandlingAnnenPart,
+            StartpunktType.UTTAKSVILKÅR.getBehandlingSteg())).thenReturn(true);
         assertThat(flytkontroll.nyRevurderingSkalVente(fagsak)).isTrue();
     }
 
     @Test
     public void nyrevurderingSkalVenteNårKobletHarBerørt() {
         when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak)).thenReturn(Optional.of(fagsakAnnenPart));
-        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_AP_ID)).thenReturn(List.of(behandlingBerørt));
-        when(behandlingskontrollTjeneste.erStegPassert(behandlingBerørt, StartpunktType.UTTAKSVILKÅR.getBehandlingSteg())).thenReturn(false);
+        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_AP_ID)).thenReturn(
+            List.of(behandlingBerørt));
+        when(behandlingskontrollTjeneste.erStegPassert(behandlingBerørt,
+            StartpunktType.UTTAKSVILKÅR.getBehandlingSteg())).thenReturn(false);
         assertThat(flytkontroll.nyRevurderingSkalVente(fagsak)).isTrue();
     }
 
     @Test
     public void nyrevurderingSkalIkkeVenteNårSammesakHarÅpenBehandling() {
         when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak)).thenReturn(Optional.of(fagsakAnnenPart));
-        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_ID)).thenReturn(List.of(behandlingSammeSak));
+        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_ID)).thenReturn(
+            List.of(behandlingSammeSak));
         assertThat(flytkontroll.nyRevurderingSkalVente(fagsak)).isFalse();
         verifyNoInteractions(behandlingskontrollTjeneste);
     }
@@ -156,9 +180,12 @@ public class BehandlingFlytkontrollTest {
     @Test
     public void nyrevurderingSkalVenteNårSammeSakHarBerørt() {
         when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak)).thenReturn(Optional.of(fagsakAnnenPart));
-        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_ID)).thenReturn(List.of(behandlingBerørt));
-        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_AP_ID)).thenReturn(Collections.emptyList());
-        when(behandlingskontrollTjeneste.erStegPassert(behandlingBerørt, StartpunktType.UTTAKSVILKÅR.getBehandlingSteg())).thenReturn(false);
+        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_ID)).thenReturn(
+            List.of(behandlingBerørt));
+        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(FAGSAK_AP_ID)).thenReturn(
+            Collections.emptyList());
+        when(behandlingskontrollTjeneste.erStegPassert(behandlingBerørt,
+            StartpunktType.UTTAKSVILKÅR.getBehandlingSteg())).thenReturn(false);
         assertThat(flytkontroll.nyRevurderingSkalVente(fagsak)).isTrue();
     }
 }

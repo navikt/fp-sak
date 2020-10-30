@@ -75,16 +75,20 @@ public class AutomatiskGrunnbelopReguleringTaskTest extends EntityManagerAwareTe
     }
 
     private void assertRevurdering(Behandling behandling, BehandlingÅrsakType behandlingÅrsakType) {
-        Optional< Behandling> revurdering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(behandling.getFagsakId(), BehandlingType.REVURDERING);
+        Optional<Behandling> revurdering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(
+            behandling.getFagsakId(), BehandlingType.REVURDERING);
         assertThat(revurdering).as("Ingen revurdering").isPresent();
         List<BehandlingÅrsak> behandlingÅrsaker = revurdering.get().getBehandlingÅrsaker();
         assertThat(behandlingÅrsaker).isNotEmpty();
-        List<BehandlingÅrsakType> årsaker = behandlingÅrsaker.stream().map(bå -> bå.getBehandlingÅrsakType()).collect(Collectors.toList());
+        List<BehandlingÅrsakType> årsaker = behandlingÅrsaker.stream()
+            .map(bå -> bå.getBehandlingÅrsakType())
+            .collect(Collectors.toList());
         assertThat(årsaker).contains(behandlingÅrsakType);
     }
 
     private void assertIngenRevurdering(Fagsak fagsak) {
-        Optional<Behandling> revurdering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(fagsak.getId(), BehandlingType.REVURDERING);
+        Optional<Behandling> revurdering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(
+            fagsak.getId(), BehandlingType.REVURDERING);
         assertThat(revurdering).as("Har revurdering: " + fagsak.getId()).isNotPresent();
     }
 
@@ -122,7 +126,8 @@ public class AutomatiskGrunnbelopReguleringTaskTest extends EntityManagerAwareTe
         var task = createTask();
         task.doTask(prosessTaskData);
 
-        Optional<Behandling> regulering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(behandling.getFagsakId(), BehandlingType.REVURDERING);
+        Optional<Behandling> regulering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(
+            behandling.getFagsakId(), BehandlingType.REVURDERING);
         assertThat(regulering.filter(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.RE_SATS_REGULERING))).isPresent();
         verify(flytkontroll).settNyRevurderingPåVent(regulering.get());
     }
@@ -156,7 +161,8 @@ public class AutomatiskGrunnbelopReguleringTaskTest extends EntityManagerAwareTe
             .medAnsvarligSaksbehandler("Severin Saksbehandler")
             .build();
 
-        scenario.medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
+        scenario.medBehandlingsresultat(
+            Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
 
         Behandling behandling = scenario.lagre(repositoryProvider);
 
@@ -165,7 +171,8 @@ public class AutomatiskGrunnbelopReguleringTaskTest extends EntityManagerAwareTe
         BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, lås);
 
-        repositoryProvider.getOpptjeningRepository().lagreOpptjeningsperiode(behandling, LocalDate.now().minusYears(1), LocalDate.now(), false);
+        repositoryProvider.getOpptjeningRepository()
+            .lagreOpptjeningsperiode(behandling, LocalDate.now().minusYears(1), LocalDate.now(), false);
 
         return behandlingRepository.hentBehandling(behandling.getId());
     }

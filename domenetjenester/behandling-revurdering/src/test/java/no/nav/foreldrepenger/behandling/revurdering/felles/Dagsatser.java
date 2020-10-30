@@ -12,8 +12,10 @@ public class Dagsatser {
 
     Dagsatser(boolean medOppjustertDagsat, boolean skalDeleAndelMellomArbeidsgiverOgBruker) {
         BigDecimal aktuellDagsats = medOppjustertDagsat ? TOTAL_ANDEL_OPPJUSTERT : TOTAL_ANDEL_NORMAL;
-        this.dagsatsBruker = skalDeleAndelMellomArbeidsgiverOgBruker ? aktuellDagsats.divide(BigDecimal.valueOf(2), 0, RoundingMode.HALF_UP) : aktuellDagsats;
-        this.dagsatsArbeidstaker = skalDeleAndelMellomArbeidsgiverOgBruker ? aktuellDagsats.divide(BigDecimal.valueOf(2), 0, RoundingMode.HALF_UP) : BigDecimal.ZERO;
+        this.dagsatsBruker = skalDeleAndelMellomArbeidsgiverOgBruker ? aktuellDagsats.divide(BigDecimal.valueOf(2), 0,
+            RoundingMode.HALF_UP) : aktuellDagsats;
+        this.dagsatsArbeidstaker = skalDeleAndelMellomArbeidsgiverOgBruker ? aktuellDagsats.divide(
+            BigDecimal.valueOf(2), 0, RoundingMode.HALF_UP) : BigDecimal.ZERO;
     }
 
     public BigDecimal getDagsatsBruker() {

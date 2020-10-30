@@ -90,35 +90,47 @@ public class AndelGraderingTjenesteTest {
         Behandling behandling = scenario.lagMocked();
         medFordeling(behandling, fordeling);
 
-        Set<AndelGradering> andelGraderingList = tjeneste.utled(BehandlingReferanse.fra(behandling)).getAndelGradering();
+        Set<AndelGradering> andelGraderingList = tjeneste.utled(BehandlingReferanse.fra(behandling))
+            .getAndelGradering();
 
         assertThat(andelGraderingList).hasSize(3);
-        List<AndelGradering> andelGraderingArbeidsgiver1 = forArbeidsgiver(andelGraderingList, arbeidsgiver1, AktivitetStatus.ARBEIDSTAKER);
+        List<AndelGradering> andelGraderingArbeidsgiver1 = forArbeidsgiver(andelGraderingList, arbeidsgiver1,
+            AktivitetStatus.ARBEIDSTAKER);
         assertThat(andelGraderingArbeidsgiver1).hasSize(1);
         List<AndelGradering.Gradering> graderingerArbeidsgiver1 = andelGraderingArbeidsgiver1.get(0).getGraderinger();
         assertThat(graderingerArbeidsgiver1).hasSize(2);
         assertThat(graderingerArbeidsgiver1).anySatisfy(gradering -> {
-            assertThat(gradering.getPeriode()).isEqualTo(Intervall.fraOgMedTilOgMed(gradering1.getFom(), gradering1.getTom()));
+            assertThat(gradering.getPeriode()).isEqualTo(
+                Intervall.fraOgMedTilOgMed(gradering1.getFom(), gradering1.getTom()));
         });
         assertThat(graderingerArbeidsgiver1).anySatisfy(gradering -> {
-            assertThat(gradering.getPeriode()).isEqualTo(Intervall.fraOgMedTilOgMed(gradering2.getFom(), gradering2.getTom()));
+            assertThat(gradering.getPeriode()).isEqualTo(
+                Intervall.fraOgMedTilOgMed(gradering2.getFom(), gradering2.getTom()));
         });
-        assertThat(andelGraderingArbeidsgiver1.get(0).getArbeidsgiver().getIdentifikator()).isEqualTo(arbeidsgiver1.getIdentifikator());
-        assertThat(graderingerArbeidsgiver1.get(0).getArbeidstidProsent()).isIn(gradering1.getArbeidsprosent(), gradering2.getArbeidsprosent());
-        assertThat(graderingerArbeidsgiver1.get(1).getArbeidstidProsent()).isIn(gradering1.getArbeidsprosent(), gradering2.getArbeidsprosent());
+        assertThat(andelGraderingArbeidsgiver1.get(0).getArbeidsgiver().getIdentifikator()).isEqualTo(
+            arbeidsgiver1.getIdentifikator());
+        assertThat(graderingerArbeidsgiver1.get(0).getArbeidstidProsent()).isIn(gradering1.getArbeidsprosent(),
+            gradering2.getArbeidsprosent());
+        assertThat(graderingerArbeidsgiver1.get(1).getArbeidstidProsent()).isIn(gradering1.getArbeidsprosent(),
+            gradering2.getArbeidsprosent());
 
-        List<AndelGradering> andelGraderingArbeidsgiver2 = forArbeidsgiver(andelGraderingList, arbeidsgiver2, AktivitetStatus.ARBEIDSTAKER);
+        List<AndelGradering> andelGraderingArbeidsgiver2 = forArbeidsgiver(andelGraderingList, arbeidsgiver2,
+            AktivitetStatus.ARBEIDSTAKER);
         assertThat(andelGraderingArbeidsgiver2).hasSize(1);
         List<AndelGradering.Gradering> graderingerArbeidsgiver2 = andelGraderingArbeidsgiver2.get(0).getGraderinger();
         assertThat(graderingerArbeidsgiver2).hasSize(1);
-        assertThat(graderingerArbeidsgiver2.get(0).getPeriode()).isEqualTo(Intervall.fraOgMedTilOgMed(gradering3.getFom(), gradering3.getTom()));
-        assertThat(andelGraderingArbeidsgiver2.get(0).getArbeidsgiver().getIdentifikator()).isEqualTo(arbeidsgiver2.getIdentifikator());
+        assertThat(graderingerArbeidsgiver2.get(0).getPeriode()).isEqualTo(
+            Intervall.fraOgMedTilOgMed(gradering3.getFom(), gradering3.getTom()));
+        assertThat(andelGraderingArbeidsgiver2.get(0).getArbeidsgiver().getIdentifikator()).isEqualTo(
+            arbeidsgiver2.getIdentifikator());
         assertThat(graderingerArbeidsgiver2.get(0).getArbeidstidProsent()).isEqualTo(gradering3.getArbeidsprosent());
-        List<AndelGradering> andelGraderingFrilans = forArbeidsgiver(andelGraderingList, null, AktivitetStatus.FRILANSER);
+        List<AndelGradering> andelGraderingFrilans = forArbeidsgiver(andelGraderingList, null,
+            AktivitetStatus.FRILANSER);
         assertThat(andelGraderingFrilans).hasSize(1);
         List<AndelGradering.Gradering> graderingerFrilans = andelGraderingFrilans.get(0).getGraderinger();
         assertThat(graderingerFrilans).hasSize(1);
-        assertThat(graderingerFrilans.get(0).getPeriode()).isEqualTo(Intervall.fraOgMedTilOgMed(gradering4.getFom(), gradering4.getTom()));
+        assertThat(graderingerFrilans.get(0).getPeriode()).isEqualTo(
+            Intervall.fraOgMedTilOgMed(gradering4.getFom(), gradering4.getTom()));
         assertThat(graderingerFrilans.get(0).getArbeidstidProsent()).isEqualTo(gradering3.getArbeidsprosent());
         assertThat(andelGraderingFrilans.get(0).getArbeidsgiver()).isNull();
     }
@@ -126,7 +138,8 @@ public class AndelGraderingTjenesteTest {
     private void medFordeling(Behandling behandling, OppgittFordelingEntitet fordeling) {
         YtelseFordelingAggregat ytelseFordelingAggregat = Mockito.mock(YtelseFordelingAggregat.class);
         when(ytelseFordelingAggregat.getGjeldendeSøknadsperioder()).thenReturn(fordeling);
-        when(ytelsesRepo.hentAggregatHvisEksisterer(behandling.getId())).thenReturn(Optional.of(ytelseFordelingAggregat));
+        when(ytelsesRepo.hentAggregatHvisEksisterer(behandling.getId())).thenReturn(
+            Optional.of(ytelseFordelingAggregat));
 
     }
 
@@ -144,7 +157,7 @@ public class AndelGraderingTjenesteTest {
             .medSøktGraderingForAktivitetIPeriode(true)
             .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID, arbeidsgiver, null))
             .build();
-        var uttaksperiodeMedGradering =  new ForeldrepengerUttakPeriode.Builder()
+        var uttaksperiodeMedGradering = new ForeldrepengerUttakPeriode.Builder()
             .medTidsperiode(LocalDate.of(2019, 5, 10), LocalDate.of(2019, 6, 20))
             .medGraderingInnvilget(true)
             .medResultatType(PeriodeResultatType.INNVILGET)
@@ -174,10 +187,12 @@ public class AndelGraderingTjenesteTest {
         Behandling behandling = scenario.lagMocked();
         medFordeling(behandling, fordeling);
 
-        Set<AndelGradering> andelGraderingList = tjeneste.utled(BehandlingReferanse.fra(behandling)).getAndelGradering();
+        Set<AndelGradering> andelGraderingList = tjeneste.utled(BehandlingReferanse.fra(behandling))
+            .getAndelGradering();
 
         assertThat(andelGraderingList).hasSize(1);
-        List<AndelGradering> andelGraderingArbeidsgiver = forArbeidsgiver(andelGraderingList, arbeidsgiver, AktivitetStatus.ARBEIDSTAKER);
+        List<AndelGradering> andelGraderingArbeidsgiver = forArbeidsgiver(andelGraderingList, arbeidsgiver,
+            AktivitetStatus.ARBEIDSTAKER);
         assertThat(andelGraderingArbeidsgiver).hasSize(1);
         List<AndelGradering.Gradering> graderinger = andelGraderingArbeidsgiver.get(0).getGraderinger();
         assertThat(graderinger).hasSize(2);
@@ -189,9 +204,11 @@ public class AndelGraderingTjenesteTest {
         });
         assertThat(graderinger).anySatisfy(gradering -> {
             assertThat(gradering.getPeriode())
-                .isEqualTo(Intervall.fraOgMedTilOgMed(oppgittPeriodeMedGradering.getFom(), oppgittPeriodeMedGradering.getTom()));
+                .isEqualTo(Intervall.fraOgMedTilOgMed(oppgittPeriodeMedGradering.getFom(),
+                    oppgittPeriodeMedGradering.getTom()));
         });
-        assertThat(andelGraderingArbeidsgiver.get(0).getArbeidsgiver().getIdentifikator()).isEqualTo(arbeidsgiver.getIdentifikator());
+        assertThat(andelGraderingArbeidsgiver.get(0).getArbeidsgiver().getIdentifikator()).isEqualTo(
+            arbeidsgiver.getIdentifikator());
     }
 
     private void medUttak(Behandling behandling, List<ForeldrepengerUttakPeriode> perioder) {
@@ -226,16 +243,19 @@ public class AndelGraderingTjenesteTest {
         Behandling behandling = scenario.lagMocked();
         medFordeling(behandling, new OppgittFordelingEntitet(Collections.emptyList(), false));
 
-        Set<AndelGradering> andelGraderingList = tjeneste.utled(BehandlingReferanse.fra(behandling)).getAndelGradering();
+        Set<AndelGradering> andelGraderingList = tjeneste.utled(BehandlingReferanse.fra(behandling))
+            .getAndelGradering();
 
         assertThat(andelGraderingList).hasSize(1);
-        List<AndelGradering> graderingArbeidsgiver = forArbeidsgiver(andelGraderingList, arbeidsgiver, AktivitetStatus.ARBEIDSTAKER);
+        List<AndelGradering> graderingArbeidsgiver = forArbeidsgiver(andelGraderingList, arbeidsgiver,
+            AktivitetStatus.ARBEIDSTAKER);
         assertThat(graderingArbeidsgiver).hasSize(1);
         List<AndelGradering.Gradering> graderinger = graderingArbeidsgiver.get(0).getGraderinger();
         assertThat(graderinger).hasSize(1);
         assertThat(graderinger.get(0).getPeriode().getFomDato()).isEqualTo(gradering.getFom());
         assertThat(graderinger.get(0).getPeriode().getTomDato()).isEqualTo(gradering.getTom());
-        assertThat(graderingArbeidsgiver.get(0).getArbeidsgiver().getIdentifikator()).isEqualTo(arbeidsgiver.getIdentifikator());
+        assertThat(graderingArbeidsgiver.get(0).getArbeidsgiver().getIdentifikator()).isEqualTo(
+            arbeidsgiver.getIdentifikator());
     }
 
     @Test
@@ -262,20 +282,24 @@ public class AndelGraderingTjenesteTest {
         Behandling behandling = scenario.lagMocked();
         medFordeling(behandling, fordeling);
 
-        Set<AndelGradering> andelGraderingList = tjeneste.utled(BehandlingReferanse.fra(behandling)).getAndelGradering();
+        Set<AndelGradering> andelGraderingList = tjeneste.utled(BehandlingReferanse.fra(behandling))
+            .getAndelGradering();
 
         assertThat(andelGraderingList).hasSize(1);
-        List<AndelGradering> andelGraderingArbeidsgiver = forArbeidsgiver(andelGraderingList, null, AktivitetStatus.FRILANSER);
+        List<AndelGradering> andelGraderingArbeidsgiver = forArbeidsgiver(andelGraderingList, null,
+            AktivitetStatus.FRILANSER);
         assertThat(andelGraderingArbeidsgiver).hasSize(1);
         List<AndelGradering.Gradering> graderinger = andelGraderingArbeidsgiver.get(0).getGraderinger();
         assertThat(graderinger).hasSize(2);
         assertThat(graderinger).anySatisfy(gradering -> {
             assertThat(gradering.getPeriode())
-                .isEqualTo(Intervall.fraOgMedTilOgMed(uttaksperiodeMedGradering.getFom(), uttaksperiodeMedGradering.getTom()));
+                .isEqualTo(
+                    Intervall.fraOgMedTilOgMed(uttaksperiodeMedGradering.getFom(), uttaksperiodeMedGradering.getTom()));
         });
         assertThat(graderinger).anySatisfy(gradering -> {
             assertThat(gradering.getPeriode())
-                .isEqualTo(Intervall.fraOgMedTilOgMed(oppgittPeriodeMedGradering.getFom(), oppgittPeriodeMedGradering.getTom()));
+                .isEqualTo(Intervall.fraOgMedTilOgMed(oppgittPeriodeMedGradering.getFom(),
+                    oppgittPeriodeMedGradering.getTom()));
         });
     }
 
@@ -304,25 +328,32 @@ public class AndelGraderingTjenesteTest {
         Behandling behandling = scenario.lagMocked();
         medFordeling(behandling, fordeling);
 
-        Set<AndelGradering> andelGraderingList = tjeneste.utled(BehandlingReferanse.fra(behandling)).getAndelGradering();
+        Set<AndelGradering> andelGraderingList = tjeneste.utled(BehandlingReferanse.fra(behandling))
+            .getAndelGradering();
 
         assertThat(andelGraderingList).hasSize(1);
-        List<AndelGradering> andelGraderingArbeidsgiver = forArbeidsgiver(andelGraderingList, null, AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE);
+        List<AndelGradering> andelGraderingArbeidsgiver = forArbeidsgiver(andelGraderingList, null,
+            AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE);
         assertThat(andelGraderingArbeidsgiver).hasSize(1);
         List<AndelGradering.Gradering> graderinger = andelGraderingArbeidsgiver.get(0).getGraderinger();
         assertThat(graderinger).hasSize(2);
         assertThat(graderinger).anySatisfy(gradering -> {
             assertThat(gradering.getPeriode())
-                .isEqualTo(Intervall.fraOgMedTilOgMed(uttaksperiodeMedGradering.getFom(), uttaksperiodeMedGradering.getTom()));
+                .isEqualTo(
+                    Intervall.fraOgMedTilOgMed(uttaksperiodeMedGradering.getFom(), uttaksperiodeMedGradering.getTom()));
         });
         assertThat(graderinger).anySatisfy(gradering -> {
             assertThat(gradering.getPeriode())
-                .isEqualTo(Intervall.fraOgMedTilOgMed(oppgittPeriodeMedGradering.getFom(), oppgittPeriodeMedGradering.getTom()));
+                .isEqualTo(Intervall.fraOgMedTilOgMed(oppgittPeriodeMedGradering.getFom(),
+                    oppgittPeriodeMedGradering.getTom()));
         });
     }
 
 
-    private ForeldrepengerUttakPeriode gradertUttaksperiode(Arbeidsgiver arbeidsgiver, UttakArbeidType uttakArbeidType, LocalDate fom, LocalDate tom) {
+    private ForeldrepengerUttakPeriode gradertUttaksperiode(Arbeidsgiver arbeidsgiver,
+                                                            UttakArbeidType uttakArbeidType,
+                                                            LocalDate fom,
+                                                            LocalDate tom) {
         var aktivitet = new ForeldrepengerUttakPeriodeAktivitet.Builder()
             .medTrekkonto(StønadskontoType.MØDREKVOTE)
             .medArbeidsprosent(BigDecimal.TEN)
@@ -364,7 +395,9 @@ public class AndelGraderingTjenesteTest {
             .build();
     }
 
-    private List<AndelGradering> forArbeidsgiver(Collection<AndelGradering> andelGraderingList, Arbeidsgiver arbeidsgiver, AktivitetStatus status) {
+    private List<AndelGradering> forArbeidsgiver(Collection<AndelGradering> andelGraderingList,
+                                                 Arbeidsgiver arbeidsgiver,
+                                                 AktivitetStatus status) {
         return andelGraderingList.stream()
             .filter(ag -> {
                 var arbeidsgier1 = arbeidsgiver == null ? null : arbeidsgiver.getIdentifikator();

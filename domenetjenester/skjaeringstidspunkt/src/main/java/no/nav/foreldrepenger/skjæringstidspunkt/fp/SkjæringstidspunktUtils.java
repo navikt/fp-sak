@@ -28,14 +28,10 @@ public class SkjæringstidspunktUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SkjæringstidspunktUtils.class);
 
-    private Period grenseverdiFør;
-    private Period grenseverdiEtter;
-    private Period opptjeningsperiode;
-    private Period tidligsteUttakFørFødselPeriode;
-
-    SkjæringstidspunktUtils() {
-        // CDI
-    }
+    private final Period grenseverdiFør;
+    private final Period grenseverdiEtter;
+    private final Period opptjeningsperiode;
+    private final Period tidligsteUttakFørFødselPeriode;
 
     /**
      *
@@ -53,6 +49,10 @@ public class SkjæringstidspunktUtils {
         this.grenseverdiEtter = grenseverdiAvvikEtter;
         this.opptjeningsperiode = opptjeningsperiode;
         this.tidligsteUttakFørFødselPeriode = tidligsteUttakFørFødselPeriode;
+    }
+
+    public SkjæringstidspunktUtils() {
+        this(Period.ofMonths(10), Period.ofWeeks(12), Period.ofMonths(4), Period.ofYears(1));
     }
 
     LocalDate utledSkjæringstidspunktRegisterinnhenting(FamilieHendelseGrunnlagEntitet familieHendelseAggregat) {

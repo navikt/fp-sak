@@ -61,7 +61,8 @@ public class ErKunEndringIFordelingAvYtelsenTest {
     public static final String ORGNR = KUNSTIG_ORG;
     private static final LocalDate SKJÆRINGSTIDSPUNKT_BEREGNING = LocalDate.now();
     private static final List<InternArbeidsforholdRef> ARBEIDSFORHOLDLISTE = List.of(
-        InternArbeidsforholdRef.nyRef(), InternArbeidsforholdRef.nyRef(), InternArbeidsforholdRef.nyRef(), InternArbeidsforholdRef.nyRef());
+        InternArbeidsforholdRef.nyRef(), InternArbeidsforholdRef.nyRef(), InternArbeidsforholdRef.nyRef(),
+        InternArbeidsforholdRef.nyRef());
 
     @Rule
     public final RepositoryRule repoRule = new UnittestRepositoryRule();
@@ -73,13 +74,15 @@ public class ErKunEndringIFordelingAvYtelsenTest {
     private InntektArbeidYtelseTjeneste iayTjeneste;
     @Inject
     private BeregningRevurderingTestUtil revurderingTestUtil;
-    @Inject @FagsakYtelseTypeRef("FP")
+    @Inject
+    @FagsakYtelseTypeRef("FP")
     private RevurderingEndring revurderingEndring;
 
     @Inject
     private VergeRepository vergeRepository;
 
-    private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
+    private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(
+        repoRule.getEntityManager());
     private Behandling behandlingSomSkalRevurderes;
     private Behandling revurdering;
     private Behandlingsresultat revurderingResultat;
@@ -88,12 +91,15 @@ public class ErKunEndringIFordelingAvYtelsenTest {
     @Before
     public void setUp() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE, BehandlingStegType.KONTROLLER_FAKTA);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE,
+            BehandlingStegType.KONTROLLER_FAKTA);
         scenario.medBehandlingVedtak()
             .medVedtakstidspunkt(LocalDateTime.now())
             .medVedtakResultatType(VedtakResultatType.INNVILGET);
         behandlingSomSkalRevurderes = scenario.lagre(repositoryProvider);
-        repositoryProvider.getOpptjeningRepository().lagreOpptjeningsperiode(behandlingSomSkalRevurderes, LocalDate.now().minusYears(1), LocalDate.now(), false);
+        repositoryProvider.getOpptjeningRepository()
+            .lagreOpptjeningsperiode(behandlingSomSkalRevurderes, LocalDate.now().minusYears(1), LocalDate.now(),
+                false);
         revurderingTestUtil.avsluttBehandling(behandlingSomSkalRevurderes);
         var behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(serviceProvider
         );
@@ -101,14 +107,18 @@ public class ErKunEndringIFordelingAvYtelsenTest {
         var revurderingTjeneste = new RevurderingTjenesteImpl(repositoryProvider, behandlingskontrollTjeneste,
             iayTjeneste, revurderingEndring, revurderingTjenesteFelles, vergeRepository);
         revurdering = revurderingTjeneste
-            .opprettAutomatiskRevurdering(behandlingSomSkalRevurderes.getFagsak(), BehandlingÅrsakType.RE_HENDELSE_FØDSEL, new OrganisasjonsEnhet("1234", "Test"));
-        revurderingResultat = repositoryProvider.getBehandlingsresultatRepository().hentHvisEksisterer(revurdering.getId()).orElse(null);
+            .opprettAutomatiskRevurdering(behandlingSomSkalRevurderes.getFagsak(),
+                BehandlingÅrsakType.RE_HENDELSE_FØDSEL, new OrganisasjonsEnhet("1234", "Test"));
+        revurderingResultat = repositoryProvider.getBehandlingsresultatRepository()
+            .hentHvisEksisterer(revurdering.getId())
+            .orElse(null);
     }
 
     @Test
     public void skal_gi_endring_i_ytelse_ved_forskjellig_fordeling_av_andeler() {
         // Arrange
-        List<ÅpenDatoIntervallEntitet> bgPeriode = Collections.singletonList(ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT_BEREGNING, null));
+        List<ÅpenDatoIntervallEntitet> bgPeriode = Collections.singletonList(
+            ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT_BEREGNING, null));
         BeregningsgrunnlagEntitet originalGrunnlag = byggBeregningsgrunnlagForBehandling(false, false, bgPeriode);
         BeregningsgrunnlagEntitet revurderingGrunnlag = byggBeregningsgrunnlagForBehandling(false, true, bgPeriode);
 
@@ -123,7 +133,8 @@ public class ErKunEndringIFordelingAvYtelsenTest {
     @Test
     public void skal_gi_ingen_endring_i_ytelse_ved_lik_fordeling_av_andeler() {
         // Arrange
-        List<ÅpenDatoIntervallEntitet> bgPeriode = Collections.singletonList(ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT_BEREGNING, null));
+        List<ÅpenDatoIntervallEntitet> bgPeriode = Collections.singletonList(
+            ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT_BEREGNING, null));
         BeregningsgrunnlagEntitet originalGrunnlag = byggBeregningsgrunnlagForBehandling(false, false, bgPeriode);
         BeregningsgrunnlagEntitet revurderingGrunnlag = byggBeregningsgrunnlagForBehandling(false, false, bgPeriode);
 
@@ -165,7 +176,9 @@ public class ErKunEndringIFordelingAvYtelsenTest {
         assertThat(endring).isTrue();
     }
 
-    private BeregningsgrunnlagEntitet forProdCase(List<LocalDateInterval> perioder, List<Integer> dagsatserBR, List<Integer> dagsatserAG) {
+    private BeregningsgrunnlagEntitet forProdCase(List<LocalDateInterval> perioder,
+                                                  List<Integer> dagsatserBR,
+                                                  List<Integer> dagsatserAG) {
         BeregningsgrunnlagEntitet grunnlag = BeregningsgrunnlagEntitet.builder()
             .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_BEREGNING)
             .medGrunnbeløp(BigDecimal.valueOf(91425L))
@@ -181,17 +194,23 @@ public class ErKunEndringIFordelingAvYtelsenTest {
         List<Integer> dagsatser = List.of(123, 5781, 5781);
 
         List<LocalDateInterval> originaleBGPerioder = new ArrayList<>();
-        originaleBGPerioder.add(new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING, SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(10)));
-        originaleBGPerioder.add(new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(11), SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(20)));
+        originaleBGPerioder.add(
+            new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING, SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(10)));
+        originaleBGPerioder.add(new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(11),
+            SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(20)));
         originaleBGPerioder.add(new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(21), null));
 
         List<LocalDateInterval> revurderingBGPerioder = new ArrayList<>();
-        revurderingBGPerioder.add(new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING, SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(10)));
-        revurderingBGPerioder.add(new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(11), SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(15)));
+        revurderingBGPerioder.add(
+            new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING, SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(10)));
+        revurderingBGPerioder.add(new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(11),
+            SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(15)));
         revurderingBGPerioder.add(new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(16), null));
 
-        BeregningsgrunnlagEntitet originalGrunnlag = byggBeregningsgrunnlagForBehandling(false, originaleBGPerioder, dagsatser);
-        BeregningsgrunnlagEntitet revurderingGrunnlag = byggBeregningsgrunnlagForBehandling(false, revurderingBGPerioder, dagsatser);
+        BeregningsgrunnlagEntitet originalGrunnlag = byggBeregningsgrunnlagForBehandling(false, originaleBGPerioder,
+            dagsatser);
+        BeregningsgrunnlagEntitet revurderingGrunnlag = byggBeregningsgrunnlagForBehandling(false,
+            revurderingBGPerioder, dagsatser);
 
         // Act
         boolean endring = ErKunEndringIFordelingAvYtelsen.vurder(false, false,
@@ -209,17 +228,23 @@ public class ErKunEndringIFordelingAvYtelsenTest {
 
 
         List<LocalDateInterval> originaleBGPerioder = new ArrayList<>();
-        originaleBGPerioder.add(new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING, SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(10)));
-        originaleBGPerioder.add(new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(10), SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(20)));
+        originaleBGPerioder.add(
+            new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING, SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(10)));
+        originaleBGPerioder.add(new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(10),
+            SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(20)));
         originaleBGPerioder.add(new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(20), null));
 
         List<LocalDateInterval> revurderingBGPerioder = new ArrayList<>();
-        revurderingBGPerioder.add(new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING, SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(10)));
-        revurderingBGPerioder.add(new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(10), SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(15)));
+        revurderingBGPerioder.add(
+            new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING, SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(10)));
+        revurderingBGPerioder.add(new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(10),
+            SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(15)));
         revurderingBGPerioder.add(new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(15), null));
 
-        BeregningsgrunnlagEntitet originalGrunnlag = byggBeregningsgrunnlagForBehandling(false, originaleBGPerioder, dagsatser);
-        BeregningsgrunnlagEntitet revurderingGrunnlag = byggBeregningsgrunnlagForBehandling(false, revurderingBGPerioder, dagsatserRevurdering);
+        BeregningsgrunnlagEntitet originalGrunnlag = byggBeregningsgrunnlagForBehandling(false, originaleBGPerioder,
+            dagsatser);
+        BeregningsgrunnlagEntitet revurderingGrunnlag = byggBeregningsgrunnlagForBehandling(false,
+            revurderingBGPerioder, dagsatserRevurdering);
 
         // Act
         boolean endring = ErKunEndringIFordelingAvYtelsen.vurder(false, false,
@@ -230,33 +255,39 @@ public class ErKunEndringIFordelingAvYtelsenTest {
     }
 
     @Test
-    public void skal_teste_fastsettelse_av_behandlingsresultatet_ved_varsel_om_revurdering_sendt(){
+    public void skal_teste_fastsettelse_av_behandlingsresultatet_ved_varsel_om_revurdering_sendt() {
         // Act
-        Behandlingsresultat behandlingsresultat = ErKunEndringIFordelingAvYtelsen.fastsett(revurdering, revurderingResultat, true);
+        Behandlingsresultat behandlingsresultat = ErKunEndringIFordelingAvYtelsen.fastsett(revurdering,
+            revurderingResultat, true);
 
         // Assert
         assertThat(behandlingsresultat.getVedtaksbrev()).isEqualTo(Vedtaksbrev.AUTOMATISK);
         assertThat(behandlingsresultat.getKonsekvenserForYtelsen()).hasSize(1);
-        assertThat(behandlingsresultat.getKonsekvenserForYtelsen().get(0)).isEqualTo(KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN);
+        assertThat(behandlingsresultat.getKonsekvenserForYtelsen().get(0)).isEqualTo(
+            KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN);
         assertThat(behandlingsresultat.getRettenTil()).isEqualTo(RettenTil.HAR_RETT_TIL_FP);
-        assertThat(behandlingsresultat.getBehandlingResultatType()).isEqualTo(BehandlingResultatType.FORELDREPENGER_ENDRET);
+        assertThat(behandlingsresultat.getBehandlingResultatType()).isEqualTo(
+            BehandlingResultatType.FORELDREPENGER_ENDRET);
     }
 
     @Test
-    public void skal_teste_fastsettelse_av_behandlingsresultatet_ved_varsel_om_revurdering_ikke_sendt(){
+    public void skal_teste_fastsettelse_av_behandlingsresultatet_ved_varsel_om_revurdering_ikke_sendt() {
         // Act
-        Behandlingsresultat behandlingsresultat = ErKunEndringIFordelingAvYtelsen.fastsett(revurdering, revurderingResultat, false);
+        Behandlingsresultat behandlingsresultat = ErKunEndringIFordelingAvYtelsen.fastsett(revurdering,
+            revurderingResultat, false);
 
         // Assert
         assertThat(behandlingsresultat.getVedtaksbrev()).isEqualTo(Vedtaksbrev.INGEN);
         assertThat(behandlingsresultat.getKonsekvenserForYtelsen()).hasSize(1);
-        assertThat(behandlingsresultat.getKonsekvenserForYtelsen().get(0)).isEqualTo(KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN);
+        assertThat(behandlingsresultat.getKonsekvenserForYtelsen().get(0)).isEqualTo(
+            KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN);
         assertThat(behandlingsresultat.getRettenTil()).isEqualTo(RettenTil.HAR_RETT_TIL_FP);
-        assertThat(behandlingsresultat.getBehandlingResultatType()).isEqualTo(BehandlingResultatType.FORELDREPENGER_ENDRET);
+        assertThat(behandlingsresultat.getBehandlingResultatType()).isEqualTo(
+            BehandlingResultatType.FORELDREPENGER_ENDRET);
     }
 
     @Test
-    public void skal_gi_ingen_endring_dersom_begge_grunnlag_mangler(){
+    public void skal_gi_ingen_endring_dersom_begge_grunnlag_mangler() {
         // Act
         boolean endringIBeregning = ErKunEndringIFordelingAvYtelsen.vurder(false, false,
             Optional.empty(), Optional.empty(), false);
@@ -266,11 +297,13 @@ public class ErKunEndringIFordelingAvYtelsenTest {
     }
 
     @Test
-    public void skal_gi_endring_dersom_et_grunnlag_mangler(){
+    public void skal_gi_endring_dersom_et_grunnlag_mangler() {
         List<Integer> dagsatserRevurdering = Collections.singletonList(123);
         List<LocalDateInterval> revurderingBGPerioder = new ArrayList<>();
-        revurderingBGPerioder.add(new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING, SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(10)));
-        BeregningsgrunnlagEntitet revurderingGrunnlag = byggBeregningsgrunnlagForBehandling(false, revurderingBGPerioder, dagsatserRevurdering);
+        revurderingBGPerioder.add(
+            new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING, SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(10)));
+        BeregningsgrunnlagEntitet revurderingGrunnlag = byggBeregningsgrunnlagForBehandling(false,
+            revurderingBGPerioder, dagsatserRevurdering);
 
         // Act
         boolean endringIBeregning = ErKunEndringIFordelingAvYtelsen.vurder(false, false,
@@ -281,16 +314,20 @@ public class ErKunEndringIFordelingAvYtelsenTest {
     }
 
     @Test
-    public void skal_gi_ingen_endring_når_revurderingsgrunnlag_starter_før_originalgrunnlag(){
+    public void skal_gi_ingen_endring_når_revurderingsgrunnlag_starter_før_originalgrunnlag() {
         List<Integer> dagsatserRevurdering = Collections.singletonList(123);
 
         List<LocalDateInterval> originalePerioder = new ArrayList<>();
-        originalePerioder.add(new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(1), SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(11)));
-        BeregningsgrunnlagEntitet originaltGrunnlag= byggBeregningsgrunnlagForBehandling(false, originalePerioder, dagsatserRevurdering);
+        originalePerioder.add(
+            new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(1), SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(11)));
+        BeregningsgrunnlagEntitet originaltGrunnlag = byggBeregningsgrunnlagForBehandling(false, originalePerioder,
+            dagsatserRevurdering);
 
         List<LocalDateInterval> revurderingBGPerioder = new ArrayList<>();
-        revurderingBGPerioder.add(new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING, SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(10)));
-        BeregningsgrunnlagEntitet revurderingGrunnlag = byggBeregningsgrunnlagForBehandling(false, revurderingBGPerioder, dagsatserRevurdering);
+        revurderingBGPerioder.add(
+            new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING, SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(10)));
+        BeregningsgrunnlagEntitet revurderingGrunnlag = byggBeregningsgrunnlagForBehandling(false,
+            revurderingBGPerioder, dagsatserRevurdering);
 
         // Act
         boolean endringIBeregning = ErKunEndringIFordelingAvYtelsen.vurder(false, false,
@@ -301,16 +338,20 @@ public class ErKunEndringIFordelingAvYtelsenTest {
     }
 
     @Test
-    public void skal_gi_endring_når_revurderingsgrunnlag_starter_før_originalgrunnlag_men_erEndringISkalHindreTilbakketrekk_true(){
+    public void skal_gi_endring_når_revurderingsgrunnlag_starter_før_originalgrunnlag_men_erEndringISkalHindreTilbakketrekk_true() {
         List<Integer> dagsatserRevurdering = Collections.singletonList(123);
 
         List<LocalDateInterval> originalePerioder = new ArrayList<>();
-        originalePerioder.add(new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(1), SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(11)));
-        BeregningsgrunnlagEntitet originaltGrunnlag= byggBeregningsgrunnlagForBehandling(false, originalePerioder, dagsatserRevurdering);
+        originalePerioder.add(
+            new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(1), SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(11)));
+        BeregningsgrunnlagEntitet originaltGrunnlag = byggBeregningsgrunnlagForBehandling(false, originalePerioder,
+            dagsatserRevurdering);
 
         List<LocalDateInterval> revurderingBGPerioder = new ArrayList<>();
-        revurderingBGPerioder.add(new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING, SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(10)));
-        BeregningsgrunnlagEntitet revurderingGrunnlag = byggBeregningsgrunnlagForBehandling(false, revurderingBGPerioder, dagsatserRevurdering);
+        revurderingBGPerioder.add(
+            new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING, SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(10)));
+        BeregningsgrunnlagEntitet revurderingGrunnlag = byggBeregningsgrunnlagForBehandling(false,
+            revurderingBGPerioder, dagsatserRevurdering);
 
         // Act
         boolean endringIBeregning = ErKunEndringIFordelingAvYtelsen.vurder(false, false,
@@ -320,12 +361,22 @@ public class ErKunEndringIFordelingAvYtelsenTest {
         assertThat(endringIBeregning).isTrue();
     }
 
-    private BeregningsgrunnlagEntitet byggBeregningsgrunnlagForBehandling(boolean skalDeleAndelMellomArbeidsgiverOgBruker, List<LocalDateInterval> perioder, List<Integer> dagsatser) {
+    private BeregningsgrunnlagEntitet byggBeregningsgrunnlagForBehandling(boolean skalDeleAndelMellomArbeidsgiverOgBruker,
+                                                                          List<LocalDateInterval> perioder,
+                                                                          List<Integer> dagsatser) {
         List<Integer> dagsatsBruker = skalDeleAndelMellomArbeidsgiverOgBruker ?
-            dagsatser.stream().map(dagsats -> BigDecimal.valueOf(dagsats).divide(BigDecimal.valueOf(2), 0, RoundingMode.HALF_UP).intValue()).collect(Collectors.toList())
+            dagsatser.stream()
+                .map(dagsats -> BigDecimal.valueOf(dagsats)
+                    .divide(BigDecimal.valueOf(2), 0, RoundingMode.HALF_UP)
+                    .intValue())
+                .collect(Collectors.toList())
             : dagsatser;
         List<Integer> dagsatsArbeidstaker = skalDeleAndelMellomArbeidsgiverOgBruker ?
-            dagsatser.stream().map(dagsats -> BigDecimal.valueOf(dagsats).divide(BigDecimal.valueOf(2), 0, RoundingMode.HALF_UP).intValue()).collect(Collectors.toList())
+            dagsatser.stream()
+                .map(dagsats -> BigDecimal.valueOf(dagsats)
+                    .divide(BigDecimal.valueOf(2), 0, RoundingMode.HALF_UP)
+                    .intValue())
+                .collect(Collectors.toList())
             : Collections.nCopies(dagsatser.size(), 0);
 
         BeregningsgrunnlagEntitet grunnlag = BeregningsgrunnlagEntitet.builder()
@@ -337,7 +388,10 @@ public class ErKunEndringIFordelingAvYtelsenTest {
         return grunnlag;
     }
 
-    private void byggBeregningsgrunnlagPeriodeOgAndeler(BeregningsgrunnlagEntitet grunnlag, List<LocalDateInterval> perioder, List<Integer> dagsatserBruker, List<Integer> dagsatserArbeidstaker) {
+    private void byggBeregningsgrunnlagPeriodeOgAndeler(BeregningsgrunnlagEntitet grunnlag,
+                                                        List<LocalDateInterval> perioder,
+                                                        List<Integer> dagsatserBruker,
+                                                        List<Integer> dagsatserArbeidstaker) {
         for (int i = 0; i < perioder.size(); i++) {
             LocalDateInterval datoIntervall = perioder.get(i);
             Integer dagsatsBruker = dagsatserBruker.get(i);
@@ -351,7 +405,9 @@ public class ErKunEndringIFordelingAvYtelsenTest {
         }
     }
 
-    private void byggBeregningsgrunnlagAndel(BeregningsgrunnlagPeriode periode, Integer dagsatsBruker, Integer dagsatsArbeidsgiver) {
+    private void byggBeregningsgrunnlagAndel(BeregningsgrunnlagPeriode periode,
+                                             Integer dagsatsBruker,
+                                             Integer dagsatsArbeidsgiver) {
         BGAndelArbeidsforhold.Builder bga = BGAndelArbeidsforhold
             .builder()
             .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
@@ -367,12 +423,17 @@ public class ErKunEndringIFordelingAvYtelsenTest {
             .build(periode);
     }
 
-    private BeregningsgrunnlagEntitet byggBeregningsgrunnlagForBehandling(boolean medOppjustertDagsat, boolean skalDeleAndelMellomArbeidsgiverOgBruker, List<ÅpenDatoIntervallEntitet> perioder) {
-        return byggBeregningsgrunnlagForBehandling(medOppjustertDagsat, skalDeleAndelMellomArbeidsgiverOgBruker, perioder, new LagEnAndelTjeneste());
+    private BeregningsgrunnlagEntitet byggBeregningsgrunnlagForBehandling(boolean medOppjustertDagsat,
+                                                                          boolean skalDeleAndelMellomArbeidsgiverOgBruker,
+                                                                          List<ÅpenDatoIntervallEntitet> perioder) {
+        return byggBeregningsgrunnlagForBehandling(medOppjustertDagsat, skalDeleAndelMellomArbeidsgiverOgBruker,
+            perioder, new LagEnAndelTjeneste());
     }
 
-    private BeregningsgrunnlagEntitet byggBeregningsgrunnlagForBehandling(boolean medOppjustertDagsat, boolean skalDeleAndelMellomArbeidsgiverOgBruker, List<ÅpenDatoIntervallEntitet> perioder,
-                                                                   LagAndelTjeneste lagAndelTjeneste) {
+    private BeregningsgrunnlagEntitet byggBeregningsgrunnlagForBehandling(boolean medOppjustertDagsat,
+                                                                          boolean skalDeleAndelMellomArbeidsgiverOgBruker,
+                                                                          List<ÅpenDatoIntervallEntitet> perioder,
+                                                                          LagAndelTjeneste lagAndelTjeneste) {
 
         beregningsgrunnlag = BeregningsgrunnlagEntitet.builder()
             .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_BEREGNING)
@@ -382,14 +443,17 @@ public class ErKunEndringIFordelingAvYtelsenTest {
             .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .build(beregningsgrunnlag);
         for (ÅpenDatoIntervallEntitet datoPeriode : perioder) {
-            BeregningsgrunnlagPeriode periode = byggBGPeriode(datoPeriode, medOppjustertDagsat, skalDeleAndelMellomArbeidsgiverOgBruker, lagAndelTjeneste);
+            BeregningsgrunnlagPeriode periode = byggBGPeriode(datoPeriode, medOppjustertDagsat,
+                skalDeleAndelMellomArbeidsgiverOgBruker, lagAndelTjeneste);
             BeregningsgrunnlagPeriode.builder(periode)
                 .build(beregningsgrunnlag);
         }
         return beregningsgrunnlag;
     }
 
-    private BeregningsgrunnlagPeriode byggBGPeriode(ÅpenDatoIntervallEntitet datoPeriode, boolean medOppjustertDagsat, boolean skalDeleAndelMellomArbeidsgiverOgBruker,
+    private BeregningsgrunnlagPeriode byggBGPeriode(ÅpenDatoIntervallEntitet datoPeriode,
+                                                    boolean medOppjustertDagsat,
+                                                    boolean skalDeleAndelMellomArbeidsgiverOgBruker,
                                                     LagAndelTjeneste lagAndelTjeneste) {
         BeregningsgrunnlagPeriode periode = BeregningsgrunnlagPeriode.builder()
             .medBeregningsgrunnlagPeriode(datoPeriode.getFomDato(), datoPeriode.getTomDato())

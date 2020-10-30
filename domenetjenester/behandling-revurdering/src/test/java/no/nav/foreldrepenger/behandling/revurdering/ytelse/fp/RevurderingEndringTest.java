@@ -28,7 +28,7 @@ public class RevurderingEndringTest extends EntityManagerAwareTest {
 
     private final RevurderingEndring revurderingEndring = new no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.RevurderingEndring();
 
-    private BehandlingRepository behandlingRepository ;
+    private BehandlingRepository behandlingRepository;
 
     @BeforeEach
     void setup() {
@@ -53,7 +53,8 @@ public class RevurderingEndringTest extends EntityManagerAwareTest {
 
     private Behandling opprettRevurdering(Behandling originalBehandling) {
         var revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandlingId(originalBehandling.getId())).build();
+            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL)
+                .medOriginalBehandlingId(originalBehandling.getId())).build();
         BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
         behandlingRepository.lagre(revurdering, lås);
         return revurdering;

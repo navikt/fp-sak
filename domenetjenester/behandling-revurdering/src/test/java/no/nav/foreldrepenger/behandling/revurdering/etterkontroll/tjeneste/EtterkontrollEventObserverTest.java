@@ -59,7 +59,8 @@ public class EtterkontrollEventObserverTest extends EntityManagerAwareTest {
         etterkontrollRepository = new EtterkontrollRepository(getEntityManager());
         familieHendelseRepository = new FamilieHendelseRepository(getEntityManager());
         behandlingRepository = new BehandlingRepository(getEntityManager());
-        etterkontrollEventObserver = new EtterkontrollEventObserver(etterkontrollRepository, familieHendelseRepository, behandlingRepository, Period.parse("P60D"));
+        etterkontrollEventObserver = new EtterkontrollEventObserver(etterkontrollRepository, familieHendelseRepository,
+            behandlingRepository, Period.parse("P60D"));
     }
 
     @Test
@@ -67,16 +68,21 @@ public class EtterkontrollEventObserverTest extends EntityManagerAwareTest {
 
         Behandling behandling = opprettBehandlingMedOppgittTermin(TERMINDATO);
 
-        Etterkontroll etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId()).medErBehandlet(false).medKontrollTidspunkt(LocalDate.now().atStartOfDay()).medKontrollType(KontrollType.MANGLENDE_FØDSEL).build();
+        Etterkontroll etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId()).medErBehandlet(false)
+            .medKontrollTidspunkt(LocalDate.now().atStartOfDay())
+            .medKontrollType(KontrollType.MANGLENDE_FØDSEL)
+            .build();
         etterkontrollRepository.lagre(etterkontroll);
 
-        FamiliehendelseEvent familiehendelseEvent = new FamiliehendelseEvent(FamiliehendelseEvent.EventType.TERMIN_TIL_FØDSEL, behandling.getAktørId(),
+        FamiliehendelseEvent familiehendelseEvent = new FamiliehendelseEvent(
+            FamiliehendelseEvent.EventType.TERMIN_TIL_FØDSEL, behandling.getAktørId(),
             behandling.getFagsakId(), behandling.getId(), FagsakYtelseType.FORELDREPENGER, null, null);
         etterkontrollEventObserver.observerFamiliehendelseEvent(familiehendelseEvent);
 
-        List<Etterkontroll> ekListe  = etterkontrollRepository.finnEtterkontrollForFagsak(behandling.getFagsakId(),KontrollType.MANGLENDE_FØDSEL);
+        List<Etterkontroll> ekListe = etterkontrollRepository.finnEtterkontrollForFagsak(behandling.getFagsakId(),
+            KontrollType.MANGLENDE_FØDSEL);
 
-        for(Etterkontroll ek : ekListe){
+        for (Etterkontroll ek : ekListe) {
             ek.setErBehandlet(true);
             assertThat(ek.isBehandlet()).isTrue();
         }
@@ -89,13 +95,14 @@ public class EtterkontrollEventObserverTest extends EntityManagerAwareTest {
         Behandling behandling = opprettBehandlingMedOppgittTermin(TERMINDATO);
 
         BehandlingVedtak vedtak = byggVedtak();
-        BehandlingVedtakEvent event = new BehandlingVedtakEvent(vedtak,behandling);
+        BehandlingVedtakEvent event = new BehandlingVedtakEvent(vedtak, behandling);
         etterkontrollEventObserver.observerBehandlingVedtakEvent(event);
 
-        List<Etterkontroll> ekListe  = etterkontrollRepository.finnEtterkontrollForFagsak(behandling.getFagsakId(),KontrollType.MANGLENDE_FØDSEL);
+        List<Etterkontroll> ekListe = etterkontrollRepository.finnEtterkontrollForFagsak(behandling.getFagsakId(),
+            KontrollType.MANGLENDE_FØDSEL);
 
         // Assert
-        for(Etterkontroll ek : ekListe){
+        for (Etterkontroll ek : ekListe) {
             ek.setErBehandlet(true);
             assertThat(ek.isBehandlet()).isTrue();
         }
