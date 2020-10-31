@@ -73,7 +73,7 @@ public final class Redirect {
     private static URI honorXForwardedProto(URI location) {
         URI newLocation = null;
         if (relativLocationAndRequestAvailable(location)) {
-            HttpRequest httpRequest = ResteasyProviderFactory.getContextData(HttpRequest.class);
+            HttpRequest httpRequest = ResteasyProviderFactory.getInstance().getContextData(HttpRequest.class);
             String xForwardedProto = getXForwardedProtoHeader(httpRequest);
 
             if (mismatchedScheme(xForwardedProto, httpRequest)) {
@@ -98,7 +98,7 @@ public final class Redirect {
     private static boolean relativLocationAndRequestAvailable(URI location) {
         return location != null &&
                 !location.isAbsolute() &&
-                ResteasyProviderFactory.getContextData(HttpRequest.class) != null;
+                ResteasyProviderFactory.getInstance().getContextData(HttpRequest.class) != null;
     }
 
     /**

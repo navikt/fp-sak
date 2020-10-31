@@ -59,17 +59,6 @@
             <artifactId>fpsak-tidsserie</artifactId>
         </dependency>
         
-        <dependency>
-            <groupId>org.jboss.resteasy</groupId>
-            <artifactId>resteasy-jaxrs</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.swagger.core.v3</groupId>
-            <artifactId>swagger-core</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
         <!-- Test avhengigheter -->
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>

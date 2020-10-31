@@ -15,8 +15,7 @@ import no.nav.pdl.IdentInformasjon;
 import no.nav.pdl.IdentInformasjonResponseProjection;
 import no.nav.pdl.Identliste;
 import no.nav.pdl.IdentlisteResponseProjection;
-import no.nav.vedtak.exception.FunksjonellException;
-import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.integrasjon.pdl.PdlKlient;
 import no.nav.vedtak.felles.integrasjon.pdl.Tema;
 import no.nav.vedtak.util.LRUCache;
@@ -63,13 +62,11 @@ public class AktørTjeneste {
 
         try {
             identliste = pdlKlient.hentIdenter(request, projection, Tema.FOR);
-        } catch (FunksjonellException f) {
-            return Optional.empty();
-        } catch (TekniskException t) {
-            if (t.getFeil().getFeilmelding() != null && t.getFeil().getFeilmelding().contains("Fant ikke person")) {
+        } catch (VLException v) {
+            if (PdlKlient.PDL_KLIENT_NOT_FOUND_KODE.equals(v.getKode())) {
                 return Optional.empty();
             }
-            throw t;
+            throw v;
         }
 
         var aktørId = identliste.getIdenter().stream().findFirst().map(IdentInformasjon::getIdent).map(AktørId::new);
@@ -93,13 +90,11 @@ public class AktørTjeneste {
 
         try {
             identliste = pdlKlient.hentIdenter(request, projection, Tema.FOR);
-        } catch (FunksjonellException f) {
-            return Optional.empty();
-        } catch (TekniskException t) {
-            if (t.getFeil().getFeilmelding() != null && t.getFeil().getFeilmelding().contains("Fant ikke person")) {
+        } catch (VLException v) {
+            if (PdlKlient.PDL_KLIENT_NOT_FOUND_KODE.equals(v.getKode())) {
                 return Optional.empty();
             }
-            throw t;
+            throw v;
         }
 
         var ident = identliste.getIdenter().stream().findFirst().map(IdentInformasjon::getIdent).map(PersonIdent::new);

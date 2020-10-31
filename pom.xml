@@ -57,6 +57,8 @@
         <sha1 />
         <changelist>-SNAPSHOT</changelist>
 
+        <jupiter.version>5.7.0</jupiter.version>
+
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
@@ -64,8 +66,8 @@
 
         <svp-uttak.version>2.1-20200310092959-0d007c3</svp-uttak.version>
 
-        <felles.version>2.3.0-20201016103538-3a0fe71</felles.version>
-        <prosesstask.version>2.4.4-20201008065023-4841974</prosesstask.version>
+        <felles.version>2.4.0-20201030150500-a194147</felles.version>
+        <prosesstask.version>2.4.4-20201029071156-ebb43cc</prosesstask.version>
         <ukelonn.felles.version>1.0.0-20200914112449-039464d</ukelonn.felles.version>
 
         <fp-kontrakter.version>5.1-20200923133920-c1d8fa1</fp-kontrakter.version>
@@ -611,6 +613,22 @@
                 <artifactId>jsr305</artifactId>
                 <version>3.0.2</version>
             </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-params</artifactId>
+                <version>${jupiter.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-api</artifactId>
+                <version>${jupiter.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-slf4j18-impl</artifactId>
+                <version>2.13.3</version>
+            </dependency>
+
 
             <!-- Java11 -->
             <dependency>
@@ -651,31 +669,18 @@
             <artifactId>ojdbc8</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jaxb</groupId>
-            <artifactId>jaxb-runtime</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.xml.ws</groupId>
-            <artifactId>jaxws-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.xml.messaging.saaj</groupId>
-            <artifactId>saaj-impl</artifactId>
-        </dependency>
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
-            <version>5.7.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j18-impl</artifactId>
-            <version>2.13.3</version>
         </dependency>
     </dependencies>
 
