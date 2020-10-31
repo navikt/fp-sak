@@ -147,7 +147,11 @@ public class BrukerHarOmsorgAksjonspunktUtleder implements FaktaUttakAksjonspunk
             .collect(Collectors.toList());
 
         if (!barnRelasjoner.isEmpty()) {
-            return barnRelasjoner.stream().allMatch(PersonRelasjonEntitet::getHarSammeBosted) ? JA : NEI;
+            // Utleder fra adresse pga avvik i TPS sin FR . harSammeBosted ifm overgang fra DSF til FREG
+            if (barnRelasjoner.stream().allMatch(PersonRelasjonEntitet::getHarSammeBosted)) {
+                return JA;
+            }
+            return harSammeAdresseSomBarn(personopplysningerAggregat) ? JA : NEI;
         } else {
             return harSammeAdresseSomBarn(personopplysningerAggregat) ? JA : NEI;
         }
@@ -175,11 +179,20 @@ public class BrukerHarOmsorgAksjonspunktUtleder implements FaktaUttakAksjonspunk
             return true;
         }
         for (PersonAdresseEntitet opplysningAdresseBarn : personopplysningerAggregat.getAdresserFor(barn.getAktørId())) {
-            if (Objects.equals(opplysningAdresseSøker.getAdresselinje1(), opplysningAdresseBarn.getAdresselinje1())
+            var sammeperiode = opplysningAdresseSøker.getPeriode().overlapper(opplysningAdresseBarn.getPeriode());
+            if (sammeperiode && likAdresseIgnoringCase(opplysningAdresseSøker.getAdresselinje1(), opplysningAdresseBarn.getAdresselinje1())
                 && Objects.equals(opplysningAdresseSøker.getPostnummer(), opplysningAdresseBarn.getPostnummer())) {
                 return true;
             }
         }
         return false;
+    }
+
+    private boolean likAdresseIgnoringCase(String adresse1, String adresse2) {
+        if (adresse1 == null && adresse2 == null)
+            return true;
+        if (adresse1 == null || adresse2 == null)
+            return false;
+        return adresse1.equalsIgnoreCase(adresse2);
     }
 }

@@ -251,8 +251,9 @@ public class PersonopplysningerAggregat {
                     familierelasjon.getTilAktørId().equals(aktørId) &&
                     familierelasjon.getRelasjonsrolle().equals(relasjonsRolle))
                 .findFirst();
-        if (ektefelleRelasjon.isPresent() && ektefelleRelasjon.get().getHarSammeBosted() != null) {
-            return ektefelleRelasjon.get().getHarSammeBosted();
+        // Overgang DSF->FREG gir !harSammeBosted fra TPS
+        if (ektefelleRelasjon.filter(PersonRelasjonEntitet::getHarSammeBosted).isPresent()) {
+            return true;
         } else {
             return harSammeAdresseSom(aktørId);
         }
@@ -265,13 +266,22 @@ public class PersonopplysningerAggregat {
 
         for (PersonAdresseEntitet opplysningAdresseSøker : getAdresserFor(søkerAktørId)) {
             for (PersonAdresseEntitet opplysningAdresseAnnenpart : getAdresserFor(aktørId)) {
-                if (Objects.equals(opplysningAdresseSøker.getAdresselinje1(), opplysningAdresseAnnenpart.getAdresselinje1())
-                        && Objects.equals(opplysningAdresseSøker.getPostnummer(), opplysningAdresseAnnenpart.getPostnummer())) {
+                var sammeperiode = opplysningAdresseSøker.getPeriode().overlapper(opplysningAdresseAnnenpart.getPeriode());
+                if (sammeperiode && likAdresseIgnoringCase(opplysningAdresseSøker.getAdresselinje1(), opplysningAdresseAnnenpart.getAdresselinje1())
+                    && Objects.equals(opplysningAdresseSøker.getPostnummer(), opplysningAdresseAnnenpart.getPostnummer())) {
                     return true;
                 }
             }
         }
         return false;
+    }
+
+    private boolean likAdresseIgnoringCase(String adresse1, String adresse2) {
+        if (adresse1 == null && adresse2 == null)
+            return true;
+        if (adresse1 == null || adresse2 == null)
+            return false;
+        return adresse1.equalsIgnoreCase(adresse2);
     }
 
 

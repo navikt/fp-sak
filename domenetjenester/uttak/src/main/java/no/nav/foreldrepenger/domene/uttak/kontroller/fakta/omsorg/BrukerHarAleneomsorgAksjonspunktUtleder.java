@@ -77,11 +77,8 @@ public class BrukerHarAleneomsorgAksjonspunktUtleder implements FaktaUttakAksjon
 
     private boolean harAnnenforeldreSammeBosted(PersonopplysningerAggregat personopplysningerAggregat) {
         final Optional<PersonopplysningEntitet> annenPart = personopplysningerAggregat.getAnnenPart();
-        if (annenPart.isPresent()) {
-            // ANNEN PART HAR IKKE RELASJON
-            return personopplysningerAggregat.søkerHarSammeAdresseSom(annenPart.get().getAktørId(), RelasjonsRolleType.UDEFINERT);
-        }
-        return false;
+        // ANNEN PART HAR IKKE RELASJON
+        return annenPart.filter(personopplysningEntitet -> personopplysningerAggregat.søkerHarSammeAdresseSom(personopplysningEntitet.getAktørId(), RelasjonsRolleType.UDEFINERT)).isPresent();
     }
 
     private boolean harSivilstatusGift(PersonopplysningEntitet søker) {
@@ -90,10 +87,7 @@ public class BrukerHarAleneomsorgAksjonspunktUtleder implements FaktaUttakAksjon
 
     private boolean harEktefelleSammeBosted(PersonopplysningerAggregat personopplysningerAggregat) {
         final Optional<PersonopplysningEntitet> ektefelle = personopplysningerAggregat.getEktefelle();
-        if (ektefelle.isPresent()) {
-            return personopplysningerAggregat.søkerHarSammeAdresseSom(ektefelle.get().getAktørId(), RelasjonsRolleType.EKTE);
-        }
-        return false;
+        return ektefelle.filter(personopplysningEntitet -> personopplysningerAggregat.søkerHarSammeAdresseSom(personopplysningEntitet.getAktørId(), RelasjonsRolleType.EKTE)).isPresent();
     }
 
 }
