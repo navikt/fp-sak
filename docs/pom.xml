@@ -27,11 +27,12 @@
 			<classifier>sources</classifier>
 		</dependency>
 
-		<!-- WAR classes -->
-		<dependency>
-			<groupId>no.nav.foreldrepenger</groupId>
-			<artifactId>web-webapp</artifactId>
-		</dependency>
+        <!-- Sysdoclet og iterering over SoapWebService -->
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+            <artifactId>felles-integrasjon-webservice</artifactId>
+            <type>jar</type>
+        </dependency>
 
 		<!-- avhengigheter som trengs av doclets -->
 		<dependency>

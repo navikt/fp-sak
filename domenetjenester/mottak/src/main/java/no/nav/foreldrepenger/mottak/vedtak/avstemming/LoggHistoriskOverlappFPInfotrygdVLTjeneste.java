@@ -29,7 +29,6 @@ import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdFPGrunnlag;
-import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdSVPGrunnlag;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
@@ -47,7 +46,6 @@ public class LoggHistoriskOverlappFPInfotrygdVLTjeneste {
 
     private BeregningsresultatRepository beregningsresultatRepository;
     private PersoninfoAdapter personinfoAdapter;
-    private InfotrygdSVPGrunnlag infotrygdSVPGrTjeneste;
     private InfotrygdFPGrunnlag infotrygdFPGrTjeneste;
     private OverlappVedtakRepository overlappRepository;
 
@@ -58,12 +56,10 @@ public class LoggHistoriskOverlappFPInfotrygdVLTjeneste {
     @Inject
     public LoggHistoriskOverlappFPInfotrygdVLTjeneste(BeregningsresultatRepository beregningsresultatRepository,
                                                       PersoninfoAdapter personinfoAdapter,
-                                                      InfotrygdSVPGrunnlag infotrygdSVPGrTjeneste,
                                                       InfotrygdFPGrunnlag infotrygdFPGrTjeneste,
                                                       OverlappVedtakRepository overlappRepository) {
         this.beregningsresultatRepository = beregningsresultatRepository;
         this.personinfoAdapter = personinfoAdapter;
-        this.infotrygdSVPGrTjeneste = infotrygdSVPGrTjeneste;
         this.infotrygdFPGrTjeneste = infotrygdFPGrTjeneste;
         this.overlappRepository = overlappRepository;
     }
@@ -91,11 +87,6 @@ public class LoggHistoriskOverlappFPInfotrygdVLTjeneste {
                 infotrygdFpPerioderEtterDato(førsteDatoVL, overlappData.getAnnenPartAktørId()).getDatoIntervaller()
                     .forEach(grunnlagPeriode -> resultat.add(opprettOverlappIT(overlappData, FagsakYtelseType.FORELDREPENGER.getKode(), "AnPART" + førsteDatoVL, grunnlagPeriode)));
             }
-            // Brukers SVP-saker i Infotrygd
-            if (RelasjonsRolleType.erMor(overlappData.getRolle())) {
-                infotrygdSvpPerioderEtterDato(førsteDatoVL, overlappData.getAktørId()).getDatoIntervaller()
-                    .forEach(grunnlagPeriode -> resultat.add(opprettOverlappIT(overlappData, FagsakYtelseType.SVANGERSKAPSPENGER.getKode(), "FOM" + førsteDatoVL, grunnlagPeriode)));
-            }
         } else if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(overlappData.getYtelseType())) {
             // Her skal vi oppdage alle ytelser med netto overlapp - kun utbetalinger
             LocalDateTimeline<Boolean> perioderVL = hentPerioderSVP(overlappData.getBehandlingId());
@@ -104,9 +95,6 @@ public class LoggHistoriskOverlappFPInfotrygdVLTjeneste {
                 infotrygdFpPerioderEtterDato(førsteDatoVL, overlappData.getAktørId())
                     .intersection(perioderVL, StandardCombinators::alwaysTrueForMatch).compress().getDatoIntervaller()
                     .forEach(grunnlagPeriode -> resultat.add(opprettOverlappIT(overlappData, FagsakYtelseType.FORELDREPENGER.getKode(), null, grunnlagPeriode)));
-                infotrygdSvpPerioderEtterDato(førsteDatoVL, overlappData.getAktørId())
-                    .intersection(perioderVL, StandardCombinators::alwaysTrueForMatch).compress().getDatoIntervaller()
-                    .forEach(grunnlagPeriode -> resultat.add(opprettOverlappIT(overlappData, FagsakYtelseType.SVANGERSKAPSPENGER.getKode(), null, grunnlagPeriode)));
             }
         }
         return resultat;
@@ -119,15 +107,6 @@ public class LoggHistoriskOverlappFPInfotrygdVLTjeneste {
 
         return finnTidslinjeFraGrunnlagene(infotrygdFPGrunnlag, førsteDatoVL);
     }
-
-    private LocalDateTimeline<Boolean> infotrygdSvpPerioderEtterDato(LocalDate førsteDatoVL, AktørId finnForAktørId) {
-        var ident = getFnrFraAktørId(finnForAktørId);
-
-        List<Grunnlag> infotrygdSVPGrunnlag = infotrygdSVPGrTjeneste.hentGrunnlag(ident.getIdent(), førsteDatoVL.minusWeeks(4), førsteDatoVL.plusYears(3));
-
-        return finnTidslinjeFraGrunnlagene(infotrygdSVPGrunnlag, førsteDatoVL);
-    }
-
 
     private PersonIdent getFnrFraAktørId(AktørId aktørId) {
         return personinfoAdapter.hentFnr(aktørId).orElseThrow();

@@ -35,17 +35,6 @@
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>behandling-prosessering</artifactId>
         </dependency>
-        
-        <dependency>
-            <groupId>org.jboss.resteasy</groupId>
-            <artifactId>resteasy-jaxrs</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.swagger.core.v3</groupId>
-            <artifactId>swagger-core</artifactId>
-            <scope>provided</scope>
-        </dependency>
 
         <!--Testavhengigheter-->
         <dependency>

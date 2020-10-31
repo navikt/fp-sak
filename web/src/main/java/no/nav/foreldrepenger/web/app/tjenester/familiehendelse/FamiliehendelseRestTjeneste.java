@@ -1,8 +1,9 @@
-package no.nav.foreldrepenger.familiehendelse.rest;
+package no.nav.foreldrepenger.web.app.tjenester.familiehendelse;
 
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.FAGSAK;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -26,8 +27,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
+import no.nav.foreldrepenger.familiehendelse.rest.FamilieHendelseGrunnlagDto;
+import no.nav.foreldrepenger.familiehendelse.rest.FamiliehendelseDataDtoTjeneste;
+import no.nav.foreldrepenger.familiehendelse.rest.FamiliehendelseDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 @Path(FamiliehendelseRestTjeneste.BASE_PATH)
@@ -37,7 +45,9 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 public class FamiliehendelseRestTjeneste {
 
     private BehandlingRepository behandlingRepository;
-    private FamiliehendelseDataDtoTjeneste dtoMapper;
+    private BehandlingVedtakRepository behandlingVedtakRepository;
+    private FamilieHendelseRepository familieHendelseRepository;
+    private BehandlingRepositoryProvider behandlingRepositoryProvider;
 
     static final String BASE_PATH = "/behandling";
     private static final String FAMILIEHENDELSE_PART_PATH = "/familiehendelse";
@@ -50,9 +60,12 @@ public class FamiliehendelseRestTjeneste {
     }
 
     @Inject
-    public FamiliehendelseRestTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider, FamiliehendelseDataDtoTjeneste dtoMapper) {
-        this.dtoMapper = dtoMapper;
-        this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
+    public FamiliehendelseRestTjeneste(BehandlingRepository behandlingRepository,
+                                       BehandlingVedtakRepository behandlingVedtakRepository,
+                                       FamilieHendelseRepository familieHendelseRepository) {
+        this.behandlingRepository = behandlingRepository;
+        this.behandlingVedtakRepository = behandlingVedtakRepository;
+        this.familieHendelseRepository = familieHendelseRepository;
     }
 
     @POST
@@ -69,7 +82,9 @@ public class FamiliehendelseRestTjeneste {
         Behandling behandling = behandlingId != null
                 ? behandlingRepository.hentBehandling(behandlingId)
                 : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
-        Optional<FamiliehendelseDto> dtoOpt = dtoMapper.mapFra(behandling);
+        Optional<FamilieHendelseGrunnlagEntitet> grunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
+        Optional<LocalDate> vedtaksdato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId()).map(BehandlingVedtak::getVedtaksdato);
+        Optional<FamiliehendelseDto> dtoOpt = FamiliehendelseDataDtoTjeneste.mapFra(behandling, grunnlag, vedtaksdato);
         return dtoOpt.orElse(null);
     }
 
@@ -98,7 +113,9 @@ public class FamiliehendelseRestTjeneste {
         Behandling behandling = behandlingId != null
                 ? behandlingRepository.hentBehandling(behandlingId)
                 : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
-        return dtoMapper.mapGrunnlagFra(behandling);
+        Optional<FamilieHendelseGrunnlagEntitet> grunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
+        Optional<LocalDate> vedtaksdato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId()).map(BehandlingVedtak::getVedtaksdato);
+        return FamiliehendelseDataDtoTjeneste.mapGrunnlagFra(behandling, grunnlag, vedtaksdato);
     }
 
     @GET

@@ -12,6 +12,16 @@
     <artifactId>beregningsgrunnlag</artifactId>
     <dependencies>
         <dependency>
+            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+            <artifactId>unleash-klient</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>behandlingslager-domene</artifactId>
         </dependency>
@@ -26,11 +36,18 @@
         <dependency>
             <groupId>no.nav.folketrygdloven.kalkulus</groupId>
             <artifactId>kalkulator</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.el</groupId>
+                    <artifactId>javax.el-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>no.nav.folketrygdloven.kalkulus</groupId>
             <artifactId>felles</artifactId>
         </dependency>
+
 
 
         <!-- Test avhengigheter -->
