@@ -8,8 +8,11 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.Kopimaskin;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -21,7 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingL�
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningAktivitetAggregatEntitet;
@@ -45,9 +47,11 @@ import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Sammenligningsgrun
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareExtension;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
-public class BeregningsgrunnlagRepositoryTest extends EntityManagerAwareTest {
+@ExtendWith(EntityManagerAwareExtension.class)
+public class BeregningsgrunnlagRepositoryTest {
 
     private static final InternArbeidsforholdRef ARBEIDSFORHOLD_ID = InternArbeidsforholdRef.namedRef("TEST-REF");
 
@@ -59,8 +63,7 @@ public class BeregningsgrunnlagRepositoryTest extends EntityManagerAwareTest {
     private FagsakBehandlingBuilder behandlingBuilder;
 
     @BeforeEach
-    public void setup() {
-        var entityManager = getEntityManager();
+    public void setup(EntityManager entityManager) {
         beregningsgrunnlagRepository = new BeregningsgrunnlagRepository(entityManager);
         behandlingRepository = new BehandlingRepository(entityManager);
         behandlingBuilder = new FagsakBehandlingBuilder(entityManager);
@@ -73,24 +76,25 @@ public class BeregningsgrunnlagRepositoryTest extends EntityManagerAwareTest {
         BeregningAktivitetAggregatEntitet beregningAktivitetAggregat = lagAktivitetAggregat();
         BeregningsgrunnlagEntitet beregningsgrunnlag = buildBeregningsgrunnlag();
         BeregningsgrunnlagGrunnlagBuilder builder = BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.empty())
-            .medBeregningsgrunnlag(beregningsgrunnlag)
-            .medRegisterAktiviteter(beregningAktivitetAggregat);
+                .medBeregningsgrunnlag(beregningsgrunnlag)
+                .medRegisterAktiviteter(beregningAktivitetAggregat);
         beregningsgrunnlagRepository.lagre(behandling.getId(), builder, BeregningsgrunnlagTilstand.FASTSATT);
         Behandling revurdering = Behandling.nyBehandlingFor(behandling.getFagsak(), BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(
-                BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
-                    .medManueltOpprettet(false)
-                    .medOriginalBehandlingId(behandling.getId()))
-            .build();
+                .medBehandlingÅrsak(
+                        BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
+                                .medManueltOpprettet(false)
+                                .medOriginalBehandlingId(behandling.getId()))
+                .build();
         BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
         behandlingRepository.lagre(revurdering, lås);
         // Act
-        beregningsgrunnlagRepository.kopierGrunnlagFraEksisterendeBehandling(behandling.getId(), revurdering.getId(), BeregningsgrunnlagTilstand.FASTSATT);
+        beregningsgrunnlagRepository.kopierGrunnlagFraEksisterendeBehandling(behandling.getId(), revurdering.getId(),
+                BeregningsgrunnlagTilstand.FASTSATT);
 
         // Assert
         Optional<BeregningsgrunnlagGrunnlagEntitet> entitetOpt = beregningsgrunnlagRepository
-            .hentSisteBeregningsgrunnlagGrunnlagEntitet(revurdering.getId(),
-            BeregningsgrunnlagTilstand.FASTSATT);
+                .hentSisteBeregningsgrunnlagGrunnlagEntitet(revurdering.getId(),
+                        BeregningsgrunnlagTilstand.FASTSATT);
         assertThat(entitetOpt).as("entitetOpt").hasValueSatisfying(entitet -> {
             assertThat(entitet.erAktivt()).isTrue();
             assertBeregningAktivitetAggregat(entitet.getRegisterAktiviteter(), beregningAktivitetAggregat);
@@ -105,30 +109,31 @@ public class BeregningsgrunnlagRepositoryTest extends EntityManagerAwareTest {
         BeregningAktivitetAggregatEntitet beregningAktivitetAggregat = lagAktivitetAggregat();
         BeregningsgrunnlagEntitet beregningsgrunnlag = buildBeregningsgrunnlag();
         BeregningsgrunnlagGrunnlagBuilder builder = BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.empty())
-            .medBeregningsgrunnlag(beregningsgrunnlag)
-            .medRegisterAktiviteter(beregningAktivitetAggregat);
+                .medBeregningsgrunnlag(beregningsgrunnlag)
+                .medRegisterAktiviteter(beregningAktivitetAggregat);
         // Act
         beregningsgrunnlagRepository.lagre(behandling.getId(), builder, BeregningsgrunnlagTilstand.OPPRETTET);
 
         // Assert
-        Optional<BeregningsgrunnlagGrunnlagEntitet> entitetOpt = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId());
+        Optional<BeregningsgrunnlagGrunnlagEntitet> entitetOpt = beregningsgrunnlagRepository
+                .hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId());
         assertThat(entitetOpt).as("entitetOpt").hasValueSatisfying(entitet -> {
             assertThat(entitet.erAktivt()).isTrue();
             assertBeregningAktivitetAggregat(entitet.getRegisterAktiviteter(), beregningAktivitetAggregat);
-            assertThat(entitet.getBeregningsgrunnlag()).hasValueSatisfying(bg ->
-                assertThat(bg).isSameAs(beregningsgrunnlag));
+            assertThat(entitet.getBeregningsgrunnlag()).hasValueSatisfying(bg -> assertThat(bg).isSameAs(beregningsgrunnlag));
             assertThat(entitet.getBeregningsgrunnlagTilstand()).isEqualTo(BeregningsgrunnlagTilstand.OPPRETTET);
         });
     }
 
-    private void assertBeregningAktivitetAggregat(BeregningAktivitetAggregatEntitet actualAggregat, BeregningAktivitetAggregatEntitet expectedAggregat) {
+    private void assertBeregningAktivitetAggregat(BeregningAktivitetAggregatEntitet actualAggregat,
+            BeregningAktivitetAggregatEntitet expectedAggregat) {
         assertThat(actualAggregat.getSkjæringstidspunktOpptjening()).isEqualTo(SKJÆRINGSTIDSPUNKT);
         assertThat(actualAggregat.getBeregningAktiviteter()).hasSize(expectedAggregat.getBeregningAktiviteter().size());
         for (int i = 0; i < expectedAggregat.getBeregningAktiviteter().size(); i++) {
             BeregningAktivitetEntitet expected = expectedAggregat.getBeregningAktiviteter().get(i);
             assertThat(actualAggregat.getBeregningAktiviteter())
-                .as("expected.getBeregningAktiviteter().get(" + i + ")")
-                .anySatisfy(actual -> assertBeregningAktivitet(actual, expected));
+                    .as("expected.getBeregningAktiviteter().get(" + i + ")")
+                    .anySatisfy(actual -> assertBeregningAktivitet(actual, expected));
         }
     }
 
@@ -149,7 +154,8 @@ public class BeregningsgrunnlagRepositoryTest extends EntityManagerAwareTest {
         beregningsgrunnlagRepository.lagreSaksbehandledeAktiviteter(behandling.getId(), beregningAktivitetAggregat, STEG_OPPRETTET);
 
         // Assert
-        Optional<BeregningsgrunnlagGrunnlagEntitet> entitetOpt = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId());
+        Optional<BeregningsgrunnlagGrunnlagEntitet> entitetOpt = beregningsgrunnlagRepository
+                .hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId());
         assertThat(entitetOpt).as("entitetOpt").hasValueSatisfying(entitet -> {
             assertThat(entitet.erAktivt()).isTrue();
             assertBeregningAktivitetAggregat(entitet.getSaksbehandletAktiviteter().get(), beregningAktivitetAggregat);
@@ -164,8 +170,8 @@ public class BeregningsgrunnlagRepositoryTest extends EntityManagerAwareTest {
         BeregningAktivitetAggregatEntitet beregningAktivitetAggregat = lagAktivitetAggregat();
         BeregningsgrunnlagEntitet beregningsgrunnlag = buildBeregningsgrunnlag();
         BeregningsgrunnlagGrunnlagBuilder builder = BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.empty())
-            .medBeregningsgrunnlag(beregningsgrunnlag)
-            .medRegisterAktiviteter(beregningAktivitetAggregat);
+                .medBeregningsgrunnlag(beregningsgrunnlag)
+                .medRegisterAktiviteter(beregningAktivitetAggregat);
         // Act: Lagre BG
         beregningsgrunnlagRepository.lagre(behandling.getId(), builder, BeregningsgrunnlagTilstand.OPPRETTET);
 
@@ -176,7 +182,8 @@ public class BeregningsgrunnlagRepositoryTest extends EntityManagerAwareTest {
         beregningsgrunnlagRepository.lagre(behandling.getId(), beregningAktivitetOverstyringer);
 
         // Assert
-        Optional<BeregningsgrunnlagGrunnlagEntitet> entitetOpt = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId());
+        Optional<BeregningsgrunnlagGrunnlagEntitet> entitetOpt = beregningsgrunnlagRepository
+                .hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId());
         assertThat(entitetOpt).as("entitetOpt").hasValueSatisfying(entitet -> {
             assertThat(entitet.erAktivt()).isTrue();
             assertThat(entitet.getBeregningsgrunnlag()).isPresent();
@@ -190,19 +197,20 @@ public class BeregningsgrunnlagRepositoryTest extends EntityManagerAwareTest {
         // Arrange
         var behandling = opprettBehandling();
         BeregningsgrunnlagEntitet beregningsgrunnlag = buildBeregningsgrunnlag();
-        BeregningRefusjonOverstyringEntitet overstyring = BeregningRefusjonOverstyringEntitet.builder().medArbeidsgiver(Arbeidsgiver.virksomhet("test123")).medFørsteMuligeRefusjonFom(LocalDate.now()).build();
+        BeregningRefusjonOverstyringEntitet overstyring = BeregningRefusjonOverstyringEntitet.builder()
+                .medArbeidsgiver(Arbeidsgiver.virksomhet("test123")).medFørsteMuligeRefusjonFom(LocalDate.now()).build();
         BeregningRefusjonOverstyringerEntitet refusjon = BeregningRefusjonOverstyringerEntitet.builder().leggTilOverstyring(
-            overstyring
-        ).build();
+                overstyring).build();
         BeregningsgrunnlagGrunnlagBuilder builder = BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.empty())
-            .medBeregningsgrunnlag(beregningsgrunnlag)
-            .medRefusjonOverstyring(refusjon);
+                .medBeregningsgrunnlag(beregningsgrunnlag)
+                .medRefusjonOverstyring(refusjon);
 
         // Act: Lagre BG
         beregningsgrunnlagRepository.lagre(behandling.getId(), builder, BeregningsgrunnlagTilstand.OPPRETTET);
 
         // Assert
-        Optional<BeregningsgrunnlagGrunnlagEntitet> entitetOpt = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId());
+        Optional<BeregningsgrunnlagGrunnlagEntitet> entitetOpt = beregningsgrunnlagRepository
+                .hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId());
         assertThat(entitetOpt).as("entitetOpt").hasValueSatisfying(entitet -> {
             assertThat(entitet.erAktivt()).isTrue();
             assertThat(entitet.getRefusjonOverstyringer().get().getRefusjonOverstyringer().get(0)).isEqualTo(overstyring);
@@ -226,35 +234,34 @@ public class BeregningsgrunnlagRepositoryTest extends EntityManagerAwareTest {
     private BeregningAktivitetOverstyringerEntitet lagOverstyringer() {
 
         return BeregningAktivitetOverstyringerEntitet.builder()
-            .leggTilOverstyring(BeregningAktivitetOverstyringEntitet.builder()
-                .medHandling(BeregningAktivitetHandlingType.IKKE_BENYTT)
-                .medOpptjeningAktivitetType(OpptjeningAktivitetType.ARBEID)
-                .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
-                .medPeriode(ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(12), TIDENES_ENDE))
-                .medArbeidsforholdRef(ARBEIDSFORHOLD_ID)
-                .build()
-            )
-            .build();
+                .leggTilOverstyring(BeregningAktivitetOverstyringEntitet.builder()
+                        .medHandling(BeregningAktivitetHandlingType.IKKE_BENYTT)
+                        .medOpptjeningAktivitetType(OpptjeningAktivitetType.ARBEID)
+                        .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
+                        .medPeriode(ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(12), TIDENES_ENDE))
+                        .medArbeidsforholdRef(ARBEIDSFORHOLD_ID)
+                        .build())
+                .build();
     }
 
     private BeregningAktivitetAggregatEntitet lagAktivitetAggregat() {
         BeregningAktivitetEntitet a1 = BeregningAktivitetEntitet.builder()
-            .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
-            .medArbeidsforholdRef(InternArbeidsforholdRef.nullRef())
-            .medOpptjeningAktivitetType(OpptjeningAktivitetType.FRILANS)
-            .medPeriode(ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now().minusMonths(8), LocalDate.now()))
-            .build();
+                .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
+                .medArbeidsforholdRef(InternArbeidsforholdRef.nullRef())
+                .medOpptjeningAktivitetType(OpptjeningAktivitetType.FRILANS)
+                .medPeriode(ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now().minusMonths(8), LocalDate.now()))
+                .build();
         BeregningAktivitetEntitet a2 = BeregningAktivitetEntitet.builder()
-            .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
-            .medArbeidsforholdRef(ARBEIDSFORHOLD_ID)
-            .medOpptjeningAktivitetType(OpptjeningAktivitetType.ARBEID)
-            .medPeriode(ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now().minusMonths(8), LocalDate.now()))
-            .build();
+                .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
+                .medArbeidsforholdRef(ARBEIDSFORHOLD_ID)
+                .medOpptjeningAktivitetType(OpptjeningAktivitetType.ARBEID)
+                .medPeriode(ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now().minusMonths(8), LocalDate.now()))
+                .build();
         return BeregningAktivitetAggregatEntitet.builder()
-            .medSkjæringstidspunktOpptjening(SKJÆRINGSTIDSPUNKT)
-            .leggTilAktivitet(a1)
-            .leggTilAktivitet(a2)
-            .build();
+                .medSkjæringstidspunktOpptjening(SKJÆRINGSTIDSPUNKT)
+                .leggTilAktivitet(a1)
+                .leggTilAktivitet(a2)
+                .build();
     }
 
     @Test
@@ -267,7 +274,8 @@ public class BeregningsgrunnlagRepositoryTest extends EntityManagerAwareTest {
         beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag, STEG_OPPRETTET);
 
         // Assert
-        Optional<BeregningsgrunnlagGrunnlagEntitet> entitetOpt = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId());
+        Optional<BeregningsgrunnlagGrunnlagEntitet> entitetOpt = beregningsgrunnlagRepository
+                .hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId());
         assertThat(entitetOpt).as("entitetOpt").hasValueSatisfying(entitet -> {
             assertThat(entitet.erAktivt()).isTrue();
             assertThat(entitet.getBeregningsgrunnlag().get()).isSameAs(beregningsgrunnlag);
@@ -289,7 +297,8 @@ public class BeregningsgrunnlagRepositoryTest extends EntityManagerAwareTest {
         beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag3, BeregningsgrunnlagTilstand.FORESLÅTT);
 
         // Act
-        Optional<BeregningsgrunnlagGrunnlagEntitet> entitetOpt = beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitet(behandling.getId(), STEG_OPPRETTET);
+        Optional<BeregningsgrunnlagGrunnlagEntitet> entitetOpt = beregningsgrunnlagRepository
+                .hentSisteBeregningsgrunnlagGrunnlagEntitet(behandling.getId(), STEG_OPPRETTET);
 
         // Assert
         assertThat(entitetOpt).as("entitetOpt").hasValueSatisfying(entitet -> {
@@ -313,7 +322,8 @@ public class BeregningsgrunnlagRepositoryTest extends EntityManagerAwareTest {
 
         // Act
         beregningsgrunnlagRepository.reaktiverBeregningsgrunnlagGrunnlagEntitet(behandling.getId(), STEG_OPPRETTET);
-        Optional<BeregningsgrunnlagGrunnlagEntitet> entitetOpt = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId());
+        Optional<BeregningsgrunnlagGrunnlagEntitet> entitetOpt = beregningsgrunnlagRepository
+                .hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId());
 
         assertThat(entitetOpt).as("entitetOpt").hasValueSatisfying(entitet -> {
             assertThat(entitet.erAktivt()).as("bg.aktiv").isTrue();
@@ -335,7 +345,8 @@ public class BeregningsgrunnlagRepositoryTest extends EntityManagerAwareTest {
         Long id = beregningsgrunnlag.getId();
         assertThat(id).isNotNull();
 
-        Optional<BeregningsgrunnlagEntitet> beregningsgrunnlagLest = beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(behandling.getId());
+        Optional<BeregningsgrunnlagEntitet> beregningsgrunnlagLest = beregningsgrunnlagRepository
+                .hentBeregningsgrunnlagForBehandling(behandling.getId());
 
         assertThat(beregningsgrunnlagLest).isEqualTo(Optional.of(beregningsgrunnlag));
     }
@@ -353,28 +364,32 @@ public class BeregningsgrunnlagRepositoryTest extends EntityManagerAwareTest {
         // Assert
         Long id = beregningsgrunnlag.getId();
         assertThat(id).isNotNull();
-        BGAndelArbeidsforhold arbFor = beregningsgrunnlag.getBeregningsgrunnlagPerioder().get(0).getBeregningsgrunnlagPrStatusOgAndelList().get(0).getBgAndelArbeidsforhold().get();
+        BGAndelArbeidsforhold arbFor = beregningsgrunnlag.getBeregningsgrunnlagPerioder().get(0).getBeregningsgrunnlagPrStatusOgAndelList().get(0)
+                .getBgAndelArbeidsforhold().get();
         assertThat(arbFor.getArbeidsgiver().getIdentifikator()).isEqualTo(aktørId.getId());
 
-        Optional<BeregningsgrunnlagEntitet> beregningsgrunnlagLest = beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(behandling.getId());
+        Optional<BeregningsgrunnlagEntitet> beregningsgrunnlagLest = beregningsgrunnlagRepository
+                .hentBeregningsgrunnlagForBehandling(behandling.getId());
 
         assertThat(beregningsgrunnlagLest).isEqualTo(Optional.of(beregningsgrunnlag));
-        arbFor = beregningsgrunnlagLest.get().getBeregningsgrunnlagPerioder().get(0).getBeregningsgrunnlagPrStatusOgAndelList().get(0).getBgAndelArbeidsforhold().get();
+        arbFor = beregningsgrunnlagLest.get().getBeregningsgrunnlagPerioder().get(0).getBeregningsgrunnlagPrStatusOgAndelList().get(0)
+                .getBgAndelArbeidsforhold().get();
         assertThat(arbFor.getArbeidsgiver().getIdentifikator()).isEqualTo(aktørId.getId());
 
     }
 
     private BeregningsgrunnlagEntitet buildBeregningsgrunnlagPrivatpersonArbgiver(AktørId aktørId) {
         BeregningsgrunnlagEntitet beregningsgrunnlag = buildBeregningsgrunnlag();
-        BeregningsgrunnlagPrStatusOgAndel andel = beregningsgrunnlag.getBeregningsgrunnlagPerioder().get(0).getBeregningsgrunnlagPrStatusOgAndelList().get(0);
+        BeregningsgrunnlagPrStatusOgAndel andel = beregningsgrunnlag.getBeregningsgrunnlagPerioder().get(0).getBeregningsgrunnlagPrStatusOgAndelList()
+                .get(0);
         BGAndelArbeidsforhold bgArbFor = andel.getBgAndelArbeidsforhold().get();
         BGAndelArbeidsforhold.Builder bgBuilder = BGAndelArbeidsforhold
-            .builder(bgArbFor)
-            .medArbeidsgiver(Arbeidsgiver.person(aktørId));
-        BeregningsgrunnlagPrStatusOgAndel.builder(andel).medBGAndelArbeidsforhold(bgBuilder).build(beregningsgrunnlag.getBeregningsgrunnlagPerioder().get(0));
+                .builder(bgArbFor)
+                .medArbeidsgiver(Arbeidsgiver.person(aktørId));
+        BeregningsgrunnlagPrStatusOgAndel.builder(andel).medBGAndelArbeidsforhold(bgBuilder)
+                .build(beregningsgrunnlag.getBeregningsgrunnlagPerioder().get(0));
         return beregningsgrunnlag;
     }
-
 
     @Test
     public void lagreBeregningsgrunnlagOgUnderliggendeTabeller() {
@@ -435,11 +450,12 @@ public class BeregningsgrunnlagRepositoryTest extends EntityManagerAwareTest {
         beregningsgrunnlagRepository.lagre(behandling2.getId(), beregningsgrunnlag, STEG_OPPRETTET);
 
         // Assert
-        Optional<BeregningsgrunnlagEntitet> beregningsgrunnlagOpt1 = beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(behandling.getId());
-        Optional<BeregningsgrunnlagEntitet> beregningsgrunnlagOpt2 = beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(behandling2.getId());
-        assertThat(beregningsgrunnlagOpt1).hasValueSatisfying(beregningsgrunnlag1 ->
-            assertThat(beregningsgrunnlagOpt2).hasValueSatisfying(beregningsgrunnlag2 ->
-                assertThat(beregningsgrunnlag1).isSameAs(beregningsgrunnlag2)));
+        Optional<BeregningsgrunnlagEntitet> beregningsgrunnlagOpt1 = beregningsgrunnlagRepository
+                .hentBeregningsgrunnlagForBehandling(behandling.getId());
+        Optional<BeregningsgrunnlagEntitet> beregningsgrunnlagOpt2 = beregningsgrunnlagRepository
+                .hentBeregningsgrunnlagForBehandling(behandling2.getId());
+        assertThat(beregningsgrunnlagOpt1).hasValueSatisfying(beregningsgrunnlag1 -> assertThat(beregningsgrunnlagOpt2)
+                .hasValueSatisfying(beregningsgrunnlag2 -> assertThat(beregningsgrunnlag1).isSameAs(beregningsgrunnlag2)));
     }
 
     private Behandling opprettBehandling() {
@@ -453,8 +469,8 @@ public class BeregningsgrunnlagRepositoryTest extends EntityManagerAwareTest {
         Behandling behandling2 = opprettBehandling();
         BeregningsgrunnlagEntitet beregningsgrunnlag = buildBeregningsgrunnlag();
         BeregningsgrunnlagEntitet beregningsgrunnlag2 = BeregningsgrunnlagEntitet.builder(Kopimaskin.deepCopy(beregningsgrunnlag))
-            .medSkjæringstidspunkt(beregningsgrunnlag.getSkjæringstidspunkt().plusDays(1))
-            .build();
+                .medSkjæringstidspunkt(beregningsgrunnlag.getSkjæringstidspunkt().plusDays(1))
+                .build();
 
         // Act
         beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag, STEG_OPPRETTET);
@@ -462,47 +478,48 @@ public class BeregningsgrunnlagRepositoryTest extends EntityManagerAwareTest {
         beregningsgrunnlagRepository.lagre(behandling2.getId(), beregningsgrunnlag2, STEG_OPPRETTET);
 
         // Assert
-        Optional<BeregningsgrunnlagEntitet> beregningsgrunnlagOpt = beregningsgrunnlagRepository.hentBeregningsgrunnlagForId(beregningsgrunnlag2.getId());
+        Optional<BeregningsgrunnlagEntitet> beregningsgrunnlagOpt = beregningsgrunnlagRepository
+                .hentBeregningsgrunnlagForId(beregningsgrunnlag2.getId());
         assertThat(beregningsgrunnlagOpt).hasValueSatisfying(bg -> assertThat(bg).isSameAs(beregningsgrunnlag2));
     }
 
     private BeregningsgrunnlagPrStatusOgAndel buildBgPrStatusOgAndel(BeregningsgrunnlagPeriode beregningsgrunnlagPeriode) {
         BGAndelArbeidsforhold.Builder bga = BGAndelArbeidsforhold
-            .builder()
-            .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
-            .medNaturalytelseBortfaltPrÅr(BigDecimal.valueOf(3232.32))
-            .medArbeidsperiodeFom(LocalDate.now().minusYears(1))
-            .medArbeidsperiodeTom(LocalDate.now().plusYears(2));
+                .builder()
+                .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
+                .medNaturalytelseBortfaltPrÅr(BigDecimal.valueOf(3232.32))
+                .medArbeidsperiodeFom(LocalDate.now().minusYears(1))
+                .medArbeidsperiodeTom(LocalDate.now().plusYears(2));
         return BeregningsgrunnlagPrStatusOgAndel.builder()
-            .medBGAndelArbeidsforhold(bga)
-            .medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
-            .medBeregningsperiode(LocalDate.now().minusDays(10), LocalDate.now().minusDays(5))
-            .medOverstyrtPrÅr(BigDecimal.valueOf(4444432.32))
-            .medAvkortetPrÅr(BigDecimal.valueOf(423.23))
-            .medRedusertPrÅr(BigDecimal.valueOf(52335))
-            .build(beregningsgrunnlagPeriode);
+                .medBGAndelArbeidsforhold(bga)
+                .medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
+                .medBeregningsperiode(LocalDate.now().minusDays(10), LocalDate.now().minusDays(5))
+                .medOverstyrtPrÅr(BigDecimal.valueOf(4444432.32))
+                .medAvkortetPrÅr(BigDecimal.valueOf(423.23))
+                .medRedusertPrÅr(BigDecimal.valueOf(52335))
+                .build(beregningsgrunnlagPeriode);
     }
 
     private BeregningsgrunnlagPeriode buildBeregningsgrunnlagPeriode(BeregningsgrunnlagEntitet beregningsgrunnlag) {
         return BeregningsgrunnlagPeriode.builder()
-            .medBeregningsgrunnlagPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(15))
-            .medBruttoPrÅr(BigDecimal.valueOf(534343.55))
-            .medAvkortetPrÅr(BigDecimal.valueOf(223421.33))
-            .medRedusertPrÅr(BigDecimal.valueOf(23412.32))
-            .medRegelEvalueringForeslå("input1", "clob1")
-            .medRegelEvalueringFastsett("input2", "clob2")
-            .leggTilPeriodeÅrsak(PeriodeÅrsak.UDEFINERT)
-            .build(beregningsgrunnlag);
+                .medBeregningsgrunnlagPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(15))
+                .medBruttoPrÅr(BigDecimal.valueOf(534343.55))
+                .medAvkortetPrÅr(BigDecimal.valueOf(223421.33))
+                .medRedusertPrÅr(BigDecimal.valueOf(23412.32))
+                .medRegelEvalueringForeslå("input1", "clob1")
+                .medRegelEvalueringFastsett("input2", "clob2")
+                .leggTilPeriodeÅrsak(PeriodeÅrsak.UDEFINERT)
+                .build(beregningsgrunnlag);
     }
 
     private BeregningsgrunnlagEntitet buildBeregningsgrunnlag() {
         BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.builder()
-            .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
-            .medGrunnbeløp(BigDecimal.valueOf(91425))
-            .medRegelloggSkjæringstidspunkt("input1", "clob1")
-            .medRegelloggBrukersStatus("input2", "clob2")
-            .medRegelinputPeriodisering("input3")
-            .build();
+                .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
+                .medGrunnbeløp(BigDecimal.valueOf(91425))
+                .medRegelloggSkjæringstidspunkt("input1", "clob1")
+                .medRegelloggBrukersStatus("input2", "clob2")
+                .medRegelinputPeriodisering("input3")
+                .build();
         buildSammenligningsgrunnlag(beregningsgrunnlag);
         buildBgAktivitetStatus(beregningsgrunnlag);
         BeregningsgrunnlagPeriode bgPeriode = buildBeregningsgrunnlagPeriode(beregningsgrunnlag);
@@ -512,15 +529,15 @@ public class BeregningsgrunnlagRepositoryTest extends EntityManagerAwareTest {
 
     private BeregningsgrunnlagAktivitetStatus buildBgAktivitetStatus(BeregningsgrunnlagEntitet beregningsgrunnlag) {
         return BeregningsgrunnlagAktivitetStatus.builder()
-            .medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
-            .build(beregningsgrunnlag);
+                .medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
+                .build(beregningsgrunnlag);
     }
 
     private Sammenligningsgrunnlag buildSammenligningsgrunnlag(BeregningsgrunnlagEntitet beregningsgrunnlag) {
         return Sammenligningsgrunnlag.builder()
-            .medSammenligningsperiode(LocalDate.now().minusDays(12), LocalDate.now().minusDays(6))
-            .medRapportertPrÅr(BigDecimal.valueOf(323212.12))
-            .medAvvikPromille(BigDecimal.valueOf(120))
-            .build(beregningsgrunnlag);
+                .medSammenligningsperiode(LocalDate.now().minusDays(12), LocalDate.now().minusDays(6))
+                .medRapportertPrÅr(BigDecimal.valueOf(323212.12))
+                .medAvvikPromille(BigDecimal.valueOf(120))
+                .build(beregningsgrunnlag);
     }
 }
