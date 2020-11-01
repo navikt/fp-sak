@@ -392,7 +392,7 @@ public class BeregningsgrunnlagRepositoryTest {
     }
 
     @Test
-    public void lagreBeregningsgrunnlagOgUnderliggendeTabeller() {
+    public void lagreBeregningsgrunnlagOgUnderliggendeTabeller(EntityManager em) {
         // Arrange
         var behandling = opprettBehandling();
         BeregningsgrunnlagEntitet beregningsgrunnlag = buildBeregningsgrunnlag();
@@ -415,7 +415,7 @@ public class BeregningsgrunnlagRepositoryTest {
         Long bgPeriodeÅrsakId = bgPeriodeLagret.getBeregningsgrunnlagPeriodeÅrsaker().get(0).getId();
         assertThat(bgPeriodeÅrsakId).isNotNull();
 
-        var repository = new Repository(getEntityManager());
+        var repository = new Repository(em);
         repository.flushAndClear();
         BeregningsgrunnlagEntitet beregningsgrunnlagLest = repository.hent(BeregningsgrunnlagEntitet.class, bgId);
         BeregningsgrunnlagAktivitetStatus bgAktivitetStatusLest = repository.hent(BeregningsgrunnlagAktivitetStatus.class, bgAktivitetStatusId);
