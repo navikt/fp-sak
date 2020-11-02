@@ -51,25 +51,8 @@ public class KalkulatorHåndteringInputTjeneste {
                                                                                 String håndteringKode,
                                                                                 Optional<BeregningsgrunnlagGrunnlagEntitet> grunnlagFraHåndteringTilstand) {
         BeregningsgrunnlagInput inputMedBG = beregningTilInputTjeneste.lagInputMedVerdierFraBeregning(input);
-
-        // Til vi får flyttet tilbakerulling før overstyring: https://github.com/navikt/fp-sak/pull/1406
-        inputMedBG = spesialhåndterOverstyring(input, håndteringKode, inputMedBG);
-
         return new HåndterBeregningsgrunnlagInput(inputMedBG, no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BeregningsgrunnlagTilstand.fraKode(MapHåndteringskodeTilTilstand.map(håndteringKode).getKode()))
             .medForrigeGrunnlagFraHåndtering(grunnlagFraHåndteringTilstand.map(BehandlingslagerTilKalkulusMapper::mapGrunnlag).orElse(null));
-    }
-
-    private BeregningsgrunnlagInput spesialhåndterOverstyring(BeregningsgrunnlagInput input, String håndteringKode, BeregningsgrunnlagInput inputMedBG) {
-        if (håndteringKode.equals(HåndteringKode.OVERSTYRING_AV_BEREGNINGSGRUNNLAG_KODE.getKode())) {
-            Long behandlingId = input.getKoblingReferanse().getKoblingId();
-            var oppdatertMedAndeler = beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(
-                behandlingId,
-                behandlingRepository.hentBehandling(behandlingId).getOriginalBehandlingId(),
-                BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER)
-                .map(BehandlingslagerTilKalkulusMapper::mapGrunnlag);
-            inputMedBG = oppdatertMedAndeler.map(inputMedBG::medBeregningsgrunnlagGrunnlag).orElse(inputMedBG);
-        }
-        return inputMedBG;
     }
 
 }
