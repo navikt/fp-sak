@@ -8,14 +8,11 @@ import java.time.Month;
 import java.util.Properties;
 
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -47,7 +44,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndrin
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiTypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
@@ -62,11 +59,9 @@ import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.TfradragTillegg
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.HentOppdragMedPositivKvittering;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class DvhVedtakXmlTjenesteEngangsstønadTest {
     private static final AktørId BRUKER_AKTØR_ID = AktørId.dummy();
     private static final Saksnummer SAKSNUMMER = new Saksnummer("12345");
@@ -76,24 +71,22 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
     private static final Long OPPDRAG_FAGSYSTEM_ID = 44L;
     private static final LocalDate FØDSELSDATO_BARN = LocalDate.of(2017, Month.JANUARY, 1);
     private static LocalDateTime VEDTAK_DATO = LocalDateTime.parse("2017-10-11T08:00");
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
     @Mock
     private PersoninfoAdapter personinfoAdapter;
     @Inject
     private PersonopplysningTjeneste personopplysningTjeneste;
-    private Repository repository = repoRule.getRepository();
 
     private DvhVedtakXmlTjeneste dvhVedtakXmlTjenesteES;
 
     private DvhPersonopplysningXmlTjenesteImpl personopplysningXmlTjenesteEngangsstønad;
     private VedtakXmlTjeneste vedtakXmlTjeneste;
 
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-    private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-    private final BehandlingsresultatRepository behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
+    @Inject
+    private BehandlingRepositoryProvider repositoryProvider;
+    @Inject
+    private BehandlingRepository behandlingRepository;
+    @Inject
+    private BehandlingsresultatRepository behandlingsresultatRepository;
 
     @Inject
     private ØkonomioppdragRepository økonomioppdragRepository;
@@ -116,25 +109,25 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
     @Inject
     private InntektArbeidYtelseTjeneste iayTjeneste;
 
-    @Before
+    @BeforeEach
     public void oppsett() {
-        HentOppdragMedPositivKvittering hentOppdragMedPositivKvittering = new HentOppdragMedPositivKvittering(økonomioppdragRepository);
+        var hentOppdragMedPositivKvittering = new HentOppdragMedPositivKvittering(økonomioppdragRepository);
         vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider);
         var poXmlFelles = new PersonopplysningXmlFelles(personinfoAdapter);
-        personopplysningXmlTjenesteEngangsstønad =
-                new DvhPersonopplysningXmlTjenesteImpl(poXmlFelles,
-                    familieHendelseRepository,
-                    vergeRepository,
-                    medlemskapRepository,
-                    personopplysningTjeneste, iayTjeneste);
-        OppdragXmlTjenesteImpl oppdragXmlTjenesteImpl = new OppdragXmlTjenesteImpl(hentOppdragMedPositivKvittering);
-        dvhVedtakXmlTjenesteES = new DvhVedtakXmlTjeneste(repositoryProvider, vedtakXmlTjeneste, new UnitTestLookupInstanceImpl<>(personopplysningXmlTjenesteEngangsstønad),
-            new UnitTestLookupInstanceImpl<>(oppdragXmlTjenesteImpl), behandlingsresultatXmlTjeneste, skjæringstidspunktTjeneste);
+        personopplysningXmlTjenesteEngangsstønad = new DvhPersonopplysningXmlTjenesteImpl(poXmlFelles,
+                familieHendelseRepository,
+                vergeRepository,
+                medlemskapRepository,
+                personopplysningTjeneste, iayTjeneste);
+        var oppdragXmlTjenesteImpl = new OppdragXmlTjenesteImpl(hentOppdragMedPositivKvittering);
+        dvhVedtakXmlTjenesteES = new DvhVedtakXmlTjeneste(repositoryProvider, vedtakXmlTjeneste,
+                new UnitTestLookupInstanceImpl<>(personopplysningXmlTjenesteEngangsstønad),
+                new UnitTestLookupInstanceImpl<>(oppdragXmlTjenesteImpl), behandlingsresultatXmlTjeneste, skjæringstidspunktTjeneste);
     }
 
     @Test
-    public void skal_opprette_vedtaks_xml_med_oppdrag() {
-        Behandling behandling = byggFødselBehandlingMedVedtak(true);
+    public void skal_opprette_vedtaks_xml_med_oppdrag(EntityManager em) {
+        Behandling behandling = byggFødselBehandlingMedVedtak(em, true);
         Long delytelseId = 65L;
         String delytelseXmlElement = String.format("delytelseId>%s</", delytelseId);
         String fagsystemIdXmlElement = String.format("fagsystemId>%s</", OPPDRAG_FAGSYSTEM_ID);
@@ -151,8 +144,8 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
     }
 
     @Test
-    public void skal_opprette_vedtaks_xml_innvilget_uten_oppdrag() {
-        Behandling behandling = byggFødselBehandlingMedVedtak(true);
+    public void skal_opprette_vedtaks_xml_innvilget_uten_oppdrag(EntityManager em) {
+        Behandling behandling = byggFødselBehandlingMedVedtak(em, true);
         String delytelseXmlElement = "delytelseId>";
 
         // Act
@@ -165,8 +158,8 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
     }
 
     @Test
-    public void skal_opprette_vedtaks_xml_avslag_uten_oppdrag() {
-        Behandling behandling = byggFødselBehandlingMedVedtak(false);
+    public void skal_opprette_vedtaks_xml_avslag_uten_oppdrag(EntityManager em) {
+        Behandling behandling = byggFødselBehandlingMedVedtak(em, false);
         String delytelseXmlElement = "delytelseId>";
 
         // Act
@@ -179,8 +172,8 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
     }
 
     @Test
-    public void skal_opprette_vedtaks_xml_adopsjon() {
-        Behandling behandling = byggAdopsjonMedVedtak(true);
+    public void skal_opprette_vedtaks_xml_adopsjon(EntityManager em) {
+        Behandling behandling = byggAdopsjonMedVedtak(em, true);
         String adopsjonXmlElement = "adopsjon>";
 
         // Act
@@ -193,7 +186,8 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
     }
 
     /**
-     * Personopplyusning for vedtaks xml til datavarehus skal ikke inneholde fødselsnummer. Men istedenfor aktørId.
+     * Personopplyusning for vedtaks xml til datavarehus skal ikke inneholde
+     * fødselsnummer. Men istedenfor aktørId.
      */
     private void assertPersonopplysningDvh(AktørId aktørId, String vedtaksXml) {
         String aktørIdXmlElement = String.format("aktoerId>%s</", aktørId.getId());
@@ -202,72 +196,73 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
         assertThat(vedtaksXml).doesNotContain(fødselsnummerXmlElement);
     }
 
-    private Behandling byggAdopsjonMedVedtak(boolean innvilget) {
+    private Behandling byggAdopsjonMedVedtak(EntityManager em, boolean innvilget) {
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
-            .medBruker(BRUKER_AKTØR_ID, NavBrukerKjønn.KVINNE)
-            .medSaksnummer(SAKSNUMMER);
+                .medBruker(BRUKER_AKTØR_ID, NavBrukerKjønn.KVINNE)
+                .medSaksnummer(SAKSNUMMER);
         scenario.medSøknadAnnenPart().medAktørId(ANNEN_PART_AKTØR_ID);
 
         scenario.medSøknadHendelse().medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder()
-            .medOmsorgsovertakelseDato(LocalDate.now().plusDays(50)))
-            .leggTilBarn(FØDSELSDATO_BARN)
-            .medAntallBarn(1);
+                .medOmsorgsovertakelseDato(LocalDate.now().plusDays(50)))
+                .leggTilBarn(FØDSELSDATO_BARN)
+                .medAntallBarn(1);
 
-        return lagreBehandlingOgVedtak(innvilget, scenario);
+        return lagreBehandlingOgVedtak(em, innvilget, scenario);
 
     }
 
-    private Behandling byggFødselBehandlingMedVedtak(boolean innvilget) {
+    private Behandling byggFødselBehandlingMedVedtak(EntityManager em, boolean innvilget) {
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
-            .medBruker(BRUKER_AKTØR_ID, NavBrukerKjønn.KVINNE)
-            .medSaksnummer(SAKSNUMMER);
+                .medBruker(BRUKER_AKTØR_ID, NavBrukerKjønn.KVINNE)
+                .medSaksnummer(SAKSNUMMER);
         scenario.medSøknadAnnenPart().medAktørId(ANNEN_PART_AKTØR_ID);
         scenario.medSøknadHendelse()
-            .medFødselsDato(FØDSELSDATO_BARN);
+                .medFødselsDato(FØDSELSDATO_BARN);
 
-        return lagreBehandlingOgVedtak(innvilget, scenario);
+        return lagreBehandlingOgVedtak(em, innvilget, scenario);
     }
 
-    private Behandling lagreBehandlingOgVedtak(boolean innvilget, ScenarioMorSøkerEngangsstønad scenario) {
+    private Behandling lagreBehandlingOgVedtak(EntityManager em, boolean innvilget, ScenarioMorSøkerEngangsstønad scenario) {
         Behandling behandling = scenario.lagre(repositoryProvider);
 
         BehandlingVedtakRepository behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         BehandlingVedtak vedtak = BehandlingVedtak.builder()
-            .medAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER)
-            .medIverksettingStatus(IVERKSETTING_STATUS)
-            .medVedtakstidspunkt(VEDTAK_DATO)
-            .medVedtakResultatType(innvilget ? VedtakResultatType.INNVILGET : VedtakResultatType.AVSLAG)
-            .medBehandlingsresultat(behandling.getBehandlingsresultat())
-            .build();
+                .medAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER)
+                .medIverksettingStatus(IVERKSETTING_STATUS)
+                .medVedtakstidspunkt(VEDTAK_DATO)
+                .medVedtakResultatType(innvilget ? VedtakResultatType.INNVILGET : VedtakResultatType.AVSLAG)
+                .medBehandlingsresultat(behandling.getBehandlingsresultat())
+                .build();
         behandlingVedtakRepository.lagre(vedtak, behandlingRepository.taSkriveLås(behandling));
 
-        oppdaterMedBehandlingsresultat(behandling, innvilget);
+        oppdaterMedBehandlingsresultat(em, behandling, innvilget);
 
         return behandling;
     }
 
-    private void oppdaterMedBehandlingsresultat(Behandling behandling, boolean innvilget) {
+    private void oppdaterMedBehandlingsresultat(EntityManager em, Behandling behandling, boolean innvilget) {
         VilkårResultat vilkårResultat = VilkårResultat.builder()
-            .leggTilVilkårResultat(VilkårType.FØDSELSVILKÅRET_MOR, innvilget ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT, null, new Properties(), null, false, false, null, null)
-            .medVilkårResultatType(innvilget ? VilkårResultatType.INNVILGET : VilkårResultatType.AVSLÅTT)
-            .buildFor(behandling);
-        repository.lagre(vilkårResultat);
+                .leggTilVilkårResultat(VilkårType.FØDSELSVILKÅRET_MOR, innvilget ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT, null,
+                        new Properties(), null, false, false, null, null)
+                .medVilkårResultatType(innvilget ? VilkårResultatType.INNVILGET : VilkårResultatType.AVSLÅTT)
+                .buildFor(behandling);
+        em.persist(vilkårResultat);
         if (innvilget) {
             var bres = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
             LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder()
-                .medBeregning(new LegacyESBeregning(48500L, 1L, 48500L, LocalDateTime.now()))
-                .buildFor(behandling, bres);
-            repository.lagre(beregningResultat);
+                    .medBeregning(new LegacyESBeregning(48500L, 1L, 48500L, LocalDateTime.now()))
+                    .buildFor(behandling, bres);
+            em.persist(beregningResultat);
         }
     }
 
     private void buildOppdragskontroll(Long behandlingId, Long delytelseId) {
         Oppdragskontroll oppdrag = Oppdragskontroll.builder()
-            .medBehandlingId(behandlingId)
-            .medSaksnummer(SAKSNUMMER)
-            .medVenterKvittering(false)
-            .medProsessTaskId(56L)
-            .build();
+                .medBehandlingId(behandlingId)
+                .medSaksnummer(SAKSNUMMER)
+                .medVenterKvittering(false)
+                .medProsessTaskId(56L)
+                .build();
 
         Avstemming115 avstemming115 = buildAvstemming115();
         Oppdrag110 oppdrag110 = buildOppdrag110(oppdrag, avstemming115);
@@ -280,52 +275,51 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
     private Oppdragslinje150 buildOppdragslinje150(Oppdrag110 oppdrag110, Long delytelseId) {
 
         return Oppdragslinje150.builder()
-            .medKodeEndringLinje("ENDR")
-            .medKodeStatusLinje("OPPH")
-            .medDatoStatusFom(LocalDate.now())
-            .medVedtakId("345")
-            .medDelytelseId(delytelseId)
-            .medKodeKlassifik("FPENFOD-OP")
-            .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
-            .medSats(61122L)
-            .medFradragTillegg(TfradragTillegg.F.value())
-            .medTypeSats(ØkonomiTypeSats.UKE.name())
-            .medBrukKjoreplan("B")
-            .medSaksbehId("F2365245")
-            .medUtbetalesTilId("123456789")
-            .medOppdrag110(oppdrag110)
-            .medHenvisning(43L)
-            .medRefDelytelseId(1L)
-            .build();
+                .medKodeEndringLinje("ENDR")
+                .medKodeStatusLinje("OPPH")
+                .medDatoStatusFom(LocalDate.now())
+                .medVedtakId("345")
+                .medDelytelseId(delytelseId)
+                .medKodeKlassifik("FPENFOD-OP")
+                .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
+                .medSats(61122L)
+                .medFradragTillegg(TfradragTillegg.F.value())
+                .medTypeSats(ØkonomiTypeSats.UKE.name())
+                .medBrukKjoreplan("B")
+                .medSaksbehId("F2365245")
+                .medUtbetalesTilId("123456789")
+                .medOppdrag110(oppdrag110)
+                .medHenvisning(43L)
+                .medRefDelytelseId(1L)
+                .build();
     }
 
     private OppdragKvittering buildOppdragKvittering(Oppdrag110 oppdrag110) {
         return OppdragKvittering.builder().medOppdrag110(oppdrag110)
-            .medAlvorlighetsgrad("00")
-            .build();
+                .medAlvorlighetsgrad("00")
+                .build();
     }
 
     private Avstemming115 buildAvstemming115() {
         return Avstemming115.builder()
-            .medKodekomponent(Fagsystem.FPSAK.getOffisiellKode())
-            .medNokkelAvstemming("nokkelAvstemming")
-            .medTidspnktMelding("tidspnktMelding")
-            .build();
+                .medKodekomponent(Fagsystem.FPSAK.getOffisiellKode())
+                .medNokkelAvstemming("nokkelAvstemming")
+                .medTidspnktMelding("tidspnktMelding")
+                .build();
     }
 
     private Oppdrag110 buildOppdrag110(Oppdragskontroll oppdragskontroll, Avstemming115 avstemming115) {
         return Oppdrag110.builder()
-            .medKodeAksjon(ØkonomiKodeAksjon.TRE.getKodeAksjon())
-            .medKodeEndring(ØkonomiKodeEndring.NY.name())
-            .medKodeFagomrade(ØkonomiKodeFagområde.REFUTG.name())
-            .medFagSystemId(OPPDRAG_FAGSYSTEM_ID)
-            .medUtbetFrekvens(ØkonomiUtbetFrekvens.DAG.getUtbetFrekvens())
-            .medOppdragGjelderId("12345678901")
-            .medDatoOppdragGjelderFom(LocalDate.of(2000, 1, 1))
-            .medSaksbehId("J5624215")
-            .medAvstemming115(avstemming115)
-            .medOppdragskontroll(oppdragskontroll)
-            .build();
+                .medKodeAksjon(ØkonomiKodeAksjon.TRE.getKodeAksjon())
+                .medKodeEndring(ØkonomiKodeEndring.NY.name())
+                .medKodeFagomrade(ØkonomiKodeFagområde.REFUTG.name())
+                .medFagSystemId(OPPDRAG_FAGSYSTEM_ID)
+                .medUtbetFrekvens(ØkonomiUtbetFrekvens.DAG.getUtbetFrekvens())
+                .medOppdragGjelderId("12345678901")
+                .medDatoOppdragGjelderFom(LocalDate.of(2000, 1, 1))
+                .medSaksbehId("J5624215")
+                .medAvstemming115(avstemming115)
+                .medOppdragskontroll(oppdragskontroll)
+                .build();
     }
 }
-

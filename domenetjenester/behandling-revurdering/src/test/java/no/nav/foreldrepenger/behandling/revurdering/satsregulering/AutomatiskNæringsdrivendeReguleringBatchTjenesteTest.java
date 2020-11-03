@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandling.revurdering.satsregulering;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
@@ -8,11 +7,10 @@ import java.time.LocalDate;
 import java.util.Collections;
 
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -29,7 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
@@ -37,13 +35,9 @@ import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Beregningsgrunnlag
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class AutomatiskNæringsdrivendeReguleringBatchTjenesteTest {
-
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
 
     @Inject
     private BehandlingRepository behandlingRepository;
@@ -69,60 +63,59 @@ public class AutomatiskNæringsdrivendeReguleringBatchTjenesteTest {
     private long nySats;
     private LocalDate cutoff;
 
-
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         nySats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getVerdi();
         cutoff = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now())
-            .getPeriode()
-            .getFomDato();
+                .getPeriode()
+                .getFomDato();
         gammelSats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoff.minusDays(1))
-            .getVerdi();
+                .getVerdi();
         tjeneste = new AutomatiskNæringsdrivendeReguleringBatchTjeneste(behandlingRevurderingRepository,
-            beregningsresultatRepository, prosessTaskRepository);
+                beregningsresultatRepository, prosessTaskRepository);
     }
 
     @Test
-    public void skal_ikke_finne_saker_til_revurdering() {
-        opprettRevurderingsKandidat(BehandlingStatus.UTREDES, cutoff.plusDays(5), gammelSats,
-            gammelSats); // Har åpen behandling
-        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.minusDays(5), gammelSats,
-            gammelSats * 4); // Uttak før "1/5"
+    public void skal_ikke_finne_saker_til_revurdering(EntityManager em) {
+        opprettRevurderingsKandidat(em, BehandlingStatus.UTREDES, cutoff.plusDays(5), gammelSats,
+                gammelSats); // Har åpen behandling
+        opprettRevurderingsKandidat(em, BehandlingStatus.AVSLUTTET, cutoff.minusDays(5), gammelSats,
+                gammelSats * 4); // Uttak før "1/5"
         String svar = tjeneste.launch(null);
         assertThat(svar).isEqualTo(AutomatiskNæringsdrivendeReguleringBatchTjeneste.BATCHNAME + "-0");
     }
 
     @Test
-    public void skal_finne_tre_saker_til_revurdering() {
-        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusWeeks(2), gammelSats,
-            gammelSats); // Skal plukke
-        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusDays(2), gammelSats,
-            gammelSats * 8); // Skal plukke
-        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusDays(2), gammelSats,
-            gammelSats * 4); // Skal plukke
-        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.minusDays(2), gammelSats,
-            gammelSats * 2); // Uttak før "1/5"
-        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusWeeks(2), nySats,
-            gammelSats * 7); // Har allerede ny G
+    public void skal_finne_tre_saker_til_revurdering(EntityManager em) {
+        opprettRevurderingsKandidat(em, BehandlingStatus.AVSLUTTET, cutoff.plusWeeks(2), gammelSats,
+                gammelSats); // Skal plukke
+        opprettRevurderingsKandidat(em, BehandlingStatus.AVSLUTTET, cutoff.plusDays(2), gammelSats,
+                gammelSats * 8); // Skal plukke
+        opprettRevurderingsKandidat(em, BehandlingStatus.AVSLUTTET, cutoff.plusDays(2), gammelSats,
+                gammelSats * 4); // Skal plukke
+        opprettRevurderingsKandidat(em, BehandlingStatus.AVSLUTTET, cutoff.minusDays(2), gammelSats,
+                gammelSats * 2); // Uttak før "1/5"
+        opprettRevurderingsKandidat(em, BehandlingStatus.AVSLUTTET, cutoff.plusWeeks(2), nySats,
+                gammelSats * 7); // Har allerede ny G
         String svar = tjeneste.launch(null);
         assertThat(svar).isEqualTo(AutomatiskNæringsdrivendeReguleringBatchTjeneste.BATCHNAME + "-3");
     }
 
-    private Behandling opprettRevurderingsKandidat(BehandlingStatus status,
-                                                   LocalDate uttakFom,
-                                                   long sats,
-                                                   long brutto) {
+    private Behandling opprettRevurderingsKandidat(EntityManager em, BehandlingStatus status,
+            LocalDate uttakFom,
+            long sats,
+            long brutto) {
         LocalDate terminDato = uttakFom.plusWeeks(3);
 
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medSøknadDato(terminDato.minusDays(40));
+                .medSøknadDato(terminDato.minusDays(40));
 
         scenario.medBekreftetHendelse()
-            .medFødselsDato(terminDato)
-            .medAntallBarn(1);
+                .medFødselsDato(terminDato)
+                .medAntallBarn(1);
 
         scenario.medBehandlingsresultat(
-            Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
+                Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         Behandling behandling = scenario.lagre(repositoryProvider);
 
         if (BehandlingStatus.AVSLUTTET.equals(status)) {
@@ -133,41 +126,42 @@ public class AutomatiskNæringsdrivendeReguleringBatchTjenesteTest {
         behandlingRepository.lagre(behandling, lås);
 
         BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.builder()
-            .medGrunnbeløp(BigDecimal.valueOf(sats))
-            .medSkjæringstidspunkt(uttakFom)
-            .build();
+                .medGrunnbeløp(BigDecimal.valueOf(sats))
+                .medSkjæringstidspunkt(uttakFom)
+                .build();
         BeregningsgrunnlagAktivitetStatus.builder()
-            .medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
-            .build(beregningsgrunnlag);
+                .medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
+                .build(beregningsgrunnlag);
         BeregningsgrunnlagPeriode periode = BeregningsgrunnlagPeriode.builder()
-            .medBeregningsgrunnlagPeriode(uttakFom, uttakFom.plusMonths(3))
-            .medBruttoPrÅr(BigDecimal.valueOf(brutto))
-            .medAvkortetPrÅr(BigDecimal.valueOf(brutto))
-            .build(beregningsgrunnlag);
+                .medBeregningsgrunnlagPeriode(uttakFom, uttakFom.plusMonths(3))
+                .medBruttoPrÅr(BigDecimal.valueOf(brutto))
+                .medAvkortetPrÅr(BigDecimal.valueOf(brutto))
+                .build(beregningsgrunnlag);
         BeregningsgrunnlagPeriode.builder(periode)
-            .build(beregningsgrunnlag);
+                .build(beregningsgrunnlag);
         beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag, BeregningsgrunnlagTilstand.FASTSATT);
 
         BeregningsresultatEntitet brFP = BeregningsresultatEntitet.builder()
-            .medRegelInput("clob1")
-            .medRegelSporing("clob2")
-            .build();
+                .medRegelInput("clob1")
+                .medRegelSporing("clob2")
+                .build();
         BeregningsresultatPeriode brFPper = BeregningsresultatPeriode.builder()
-            .medBeregningsresultatPeriodeFomOgTom(uttakFom, uttakFom.plusMonths(3))
-            .medBeregningsresultatAndeler(Collections.emptyList())
-            .build(brFP);
+                .medBeregningsresultatPeriodeFomOgTom(uttakFom, uttakFom.plusMonths(3))
+                .medBeregningsresultatAndeler(Collections.emptyList())
+                .build(brFP);
         BeregningsresultatAndel.builder()
-            .medDagsats(2300)
-            .medDagsatsFraBg(1000)
-            .medBrukerErMottaker(true)
-            .medStillingsprosent(new BigDecimal(100))
-            .medInntektskategori(Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE)
-            .medUtbetalingsgrad(new BigDecimal(100))
-            .build(brFPper);
+                .medDagsats(2300)
+                .medDagsatsFraBg(1000)
+                .medBrukerErMottaker(true)
+                .medStillingsprosent(new BigDecimal(100))
+                .medInntektskategori(Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE)
+                .medUtbetalingsgrad(new BigDecimal(100))
+                .build(brFPper);
 
         repositoryProvider.getBeregningsresultatRepository().lagre(behandling, brFP);
-        repoRule.getRepository().flushAndClear();
-        return repoRule.getEntityManager().find(Behandling.class, behandling.getId());
+        em.flush();
+        em.clear();
+        return em.find(Behandling.class, behandling.getId());
     }
 
 }
