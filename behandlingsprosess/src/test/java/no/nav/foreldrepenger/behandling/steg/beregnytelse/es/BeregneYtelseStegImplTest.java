@@ -8,11 +8,10 @@ import java.time.Period;
 import java.util.stream.IntStream;
 
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
@@ -32,42 +31,45 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 import no.nav.vedtak.felles.testutilities.db.Repository;
-import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.util.Tuple;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class BeregneYtelseStegImplTest {
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-    private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-    private final BehandlingsresultatRepository behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
-    private final BeregningsresultatRepository beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
+    private BehandlingRepositoryProvider repositoryProvider;
+    private BehandlingRepository behandlingRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
+    private BeregningsresultatRepository beregningsresultatRepository;
+
     @Inject
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
-    private Repository repository = repoRule.getRepository();
-    @Inject
-    @KonfigVerdi(value = "es.maks.stønadsalder.adopsjon", defaultVerdi = "15")
-    private int maksStønadsalder;
-    private LegacyESBeregningRepository beregningRepository = new LegacyESBeregningRepository(repoRule.getEntityManager());
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
-        new RegisterInnhentingIntervall(Period.of(0, 1, 0), Period.of(0, 6, 0)));
+    private Repository repository;
+    // @Inject
+    // @KonfigVerdi(value = "es.maks.stønadsalder.adopsjon", defaultVerdi = "15")
+    private int maksStønadsalder = 15;
+    private LegacyESBeregningRepository beregningRepository;
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     private BeregneYtelseEngangsstønadStegImpl beregneYtelseSteg;
     private Fagsak fagsak = FagsakBuilder.nyEngangstønadForMor().build();
-
     private BeregningSats sats;
     private BeregningSats sats2017;
 
-    @Before
-    public void oppsett() {
+    @BeforeEach
+    public void oppsett(EntityManager em) {
+        repository = new Repository(em);
+        beregningRepository = new LegacyESBeregningRepository(em);
+        repositoryProvider = new BehandlingRepositoryProvider(em);
+        behandlingRepository = repositoryProvider.getBehandlingRepository();
+        behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
+        beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
+        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
+                new RegisterInnhentingIntervall(Period.of(0, 1, 0), Period.of(0, 6, 0)));
         repository.lagre(fagsak.getNavBruker());
         repository.lagre(fagsak);
         repository.flush();
@@ -76,7 +78,8 @@ public class BeregneYtelseStegImplTest {
 
         sats2017 = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.ENGANG, LocalDate.of(2017, 10, 1));
 
-        beregneYtelseSteg = new BeregneYtelseEngangsstønadStegImpl(repositoryProvider, beregningRepository, maksStønadsalder, skjæringstidspunktTjeneste);
+        beregneYtelseSteg = new BeregneYtelseEngangsstønadStegImpl(repositoryProvider, beregningRepository, maksStønadsalder,
+                skjæringstidspunktTjeneste);
     }
 
     @Test
@@ -91,7 +94,8 @@ public class BeregneYtelseStegImplTest {
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
 
         // Assert
-        LegacyESBeregningsresultat beregningResultat = getBehandlingsresultat(repository.hent(Behandling.class, kontekst.getBehandlingId())).getBeregningResultat();
+        LegacyESBeregningsresultat beregningResultat = getBehandlingsresultat(repository.hent(Behandling.class, kontekst.getBehandlingId()))
+                .getBeregningResultat();
         assertThat(beregningResultat.getSisteBeregning().get()).isNotNull();
 
         LegacyESBeregning beregning = beregningResultat.getSisteBeregning().get();
@@ -132,8 +136,8 @@ public class BeregneYtelseStegImplTest {
         Behandling behandling = behandlingKontekst.getElement1();
         BehandlingskontrollKontekst kontekst = behandlingKontekst.getElement2();
         LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder()
-            .medBeregning(new LegacyESBeregning(1000L, antallBarn, 1000L, LocalDateTime.now()))
-            .buildFor(behandling, getBehandlingsresultat(behandling));
+                .medBeregning(new LegacyESBeregning(1000L, antallBarn, 1000L, LocalDateTime.now()))
+                .buildFor(behandling, getBehandlingsresultat(behandling));
         beregningRepository.lagre(beregningResultat, kontekst.getSkriveLås());
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
 
@@ -153,9 +157,9 @@ public class BeregneYtelseStegImplTest {
         Behandling behandling = behandlingKontekst.getElement1();
         BehandlingskontrollKontekst kontekst = behandlingKontekst.getElement2();
         LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder()
-            .medBeregning(new LegacyESBeregning(1000L, antallBarn, 1000L, LocalDateTime.now(), false, null))
-            .medBeregning(new LegacyESBeregning(500L, antallBarn, 1000L, LocalDateTime.now(), true, 1000L))
-            .buildFor(behandling, getBehandlingsresultat(behandling));
+                .medBeregning(new LegacyESBeregning(1000L, antallBarn, 1000L, LocalDateTime.now(), false, null))
+                .medBeregning(new LegacyESBeregning(500L, antallBarn, 1000L, LocalDateTime.now(), true, 1000L))
+                .buildFor(behandling, getBehandlingsresultat(behandling));
         beregningRepository.lagre(beregningResultat, kontekst.getSkriveLås());
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
 
@@ -166,8 +170,8 @@ public class BeregneYtelseStegImplTest {
         Behandlingsresultat behandlingsresultat = getBehandlingsresultat(repository.hent(Behandling.class, kontekst.getBehandlingId()));
         assertThat(behandlingsresultat.getBeregningResultat().getBeregninger()).hasSize(2);
         assertThat(behandlingsresultat.getBeregningResultat().getBeregninger()).extracting(LegacyESBeregning::isOverstyrt)
-            .contains(true)
-            .contains(false); // en av hver
+                .contains(true)
+                .contains(false); // en av hver
     }
 
     @Test
@@ -178,15 +182,14 @@ public class BeregneYtelseStegImplTest {
         Behandling behandling = behandlingKontekst.getElement1();
         BehandlingskontrollKontekst kontekst = behandlingKontekst.getElement2();
         LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder()
-            .medBeregning(new LegacyESBeregning(1000L, antallBarn, 1000L, LocalDateTime.now(), false, null))
-            .medBeregning(new LegacyESBeregning(500L, antallBarn, 1000L, LocalDateTime.now(), true, 1000L))
-            .buildFor(behandling, getBehandlingsresultat(behandling));
+                .medBeregning(new LegacyESBeregning(1000L, antallBarn, 1000L, LocalDateTime.now(), false, null))
+                .medBeregning(new LegacyESBeregning(500L, antallBarn, 1000L, LocalDateTime.now(), true, 1000L))
+                .buildFor(behandling, getBehandlingsresultat(behandling));
         beregningRepository.lagre(beregningResultat, kontekst.getSkriveLås());
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
 
         // Act
-        beregneYtelseSteg.vedTransisjon(kontekst, null, BehandlingSteg.TransisjonType.HOPP_OVER_FRAMOVER, null, null
-        );
+        beregneYtelseSteg.vedTransisjon(kontekst, null, BehandlingSteg.TransisjonType.HOPP_OVER_FRAMOVER, null, null);
 
         // Assert
         Behandlingsresultat behandlingsresultat = getBehandlingsresultat(repository.hent(Behandling.class, kontekst.getBehandlingId()));
@@ -200,16 +203,16 @@ public class BeregneYtelseStegImplTest {
         BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
         final FamilieHendelseBuilder søknadVersjon = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(behandling)
-            .medFødselsDato(fødselsdato)
-            .medAntallBarn(antallBarn);
+                .medFødselsDato(fødselsdato)
+                .medAntallBarn(antallBarn);
         repositoryProvider.getFamilieHendelseRepository().lagre(behandling, søknadVersjon);
         final FamilieHendelseBuilder bekreftetVersjon = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(behandling)
-            .medAntallBarn(antallBarn).tilbakestillBarn();
+                .medAntallBarn(antallBarn).tilbakestillBarn();
         IntStream.range(0, antallBarn).forEach(it -> bekreftetVersjon.medFødselsDato(fødselsdato));
         repositoryProvider.getFamilieHendelseRepository().lagre(behandling, bekreftetVersjon);
         SøknadEntitet søknad = new SøknadEntitet.Builder()
-            .medSøknadsdato(LocalDate.now())
-            .build();
+                .medSøknadsdato(LocalDate.now())
+                .build();
         repositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
 
         return new Tuple<>(behandling, kontekst);
