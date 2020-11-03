@@ -11,7 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import no.nav.vedtak.felles.testutilities.cdi.CdiAwareExtension;
 
 @Target({ ElementType.TYPE })
-@Retention(RetentionPolicy.CLASS)
+@Retention(RetentionPolicy.RUNTIME)
 @Documented
 @ExtendWith(CdiAwareExtension.class)
 @ExtendWith(FPsakEntityManagerAwareExtension.class)

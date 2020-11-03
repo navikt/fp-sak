@@ -12,7 +12,6 @@ import javax.persistence.EntityManager;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
@@ -32,16 +31,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
-import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
-import no.nav.vedtak.felles.testutilities.cdi.CdiAwareExtension;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 import no.nav.vedtak.util.Tuple;
 
-@ExtendWith(CdiAwareExtension.class)
-@ExtendWith(FPsakEntityManagerAwareExtension.class)
+@CdiDbAwareTest
 public class BeregneYtelseStegImplTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
