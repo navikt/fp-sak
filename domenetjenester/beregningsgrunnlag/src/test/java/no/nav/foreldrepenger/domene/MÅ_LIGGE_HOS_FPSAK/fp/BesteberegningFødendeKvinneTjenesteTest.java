@@ -13,9 +13,7 @@ import javax.persistence.EntityManager;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -36,7 +34,6 @@ import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 
 @CdiDbAwareTest
-@ExtendWith(MockitoExtension.class)
 public class BesteberegningFødendeKvinneTjenesteTest {
 
     private static final String ORGNR = "973861778";
