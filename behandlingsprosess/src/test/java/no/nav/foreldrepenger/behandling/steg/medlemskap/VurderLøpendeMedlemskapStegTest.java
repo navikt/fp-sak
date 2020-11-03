@@ -10,11 +10,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
@@ -59,29 +58,25 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktiv
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.VurderLøpendeMedlemskap;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 import no.nav.vedtak.felles.testutilities.db.Repository;
-import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class VurderLøpendeMedlemskapStegTest {
 
-    @Rule
-    public RepositoryRule repositoryRule = new UnittestRepositoryRule();
-    private BehandlingRepositoryProvider provider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
-    private BehandlingRepository behandlingRepository = provider.getBehandlingRepository();
-    private BehandlingsresultatRepository behandlingsresultatRepository = provider.getBehandlingsresultatRepository();
-    private MedlemskapRepository medlemskapRepository = provider.getMedlemskapRepository();
-    private PersonopplysningRepository personopplysningRepository = provider.getPersonopplysningRepository();
-    private FamilieHendelseRepository familieHendelseRepository = provider.getFamilieHendelseRepository();
-    private FagsakRepository fagsakRepository = provider.getFagsakRepository();
-    private MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository = provider.getMedlemskapVilkårPeriodeRepository();
-    private Repository repository = repositoryRule.getRepository();
+    private final BehandlingRepositoryProvider provider;
+    private final BehandlingRepository behandlingRepository;
+    private final BehandlingsresultatRepository behandlingsresultatRepository;
+    private final MedlemskapRepository medlemskapRepository;
+    private final PersonopplysningRepository personopplysningRepository;
+    private final FamilieHendelseRepository familieHendelseRepository;
+    private final FagsakRepository fagsakRepository;
+    private final MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository;
+    private final Repository repository;
 
     private VurderLøpendeMedlemskapSteg steg;
 
@@ -91,7 +86,20 @@ public class VurderLøpendeMedlemskapStegTest {
     @Inject
     private VurderLøpendeMedlemskap vurdertLøpendeMedlemskapTjeneste;
 
-    @Before
+    public VurderLøpendeMedlemskapStegTest(EntityManager em) {
+        provider = new BehandlingRepositoryProvider(em);
+        repository = new Repository(em);
+        behandlingRepository = provider.getBehandlingRepository();
+        behandlingsresultatRepository = provider.getBehandlingsresultatRepository();
+        medlemskapRepository = provider.getMedlemskapRepository();
+        personopplysningRepository = provider.getPersonopplysningRepository();
+        familieHendelseRepository = provider.getFamilieHendelseRepository();
+        fagsakRepository = provider.getFagsakRepository();
+        medlemskapVilkårPeriodeRepository = provider.getMedlemskapVilkårPeriodeRepository();
+
+    }
+
+    @BeforeEach
     public void setUp() {
         steg = new VurderLøpendeMedlemskapSteg(vurdertLøpendeMedlemskapTjeneste, provider);
     }
@@ -104,8 +112,8 @@ public class VurderLøpendeMedlemskapStegTest {
         LocalDate iDag = LocalDate.now();
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         AvklarteUttakDatoerEntitet avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder()
-            .medFørsteUttaksdato(LocalDate.now())
-            .build();
+                .medFørsteUttaksdato(LocalDate.now())
+                .build();
         scenario.medAvklarteUttakDatoer(avklarteUttakDatoer);
         scenario.medDefaultSøknadTerminbekreftelse();
         MedlemskapPerioderEntitet periode = opprettPeriode(ettÅrSiden, iDag, MedlemskapDekningType.FTL_2_6);
@@ -113,7 +121,8 @@ public class VurderLøpendeMedlemskapStegTest {
 
         Behandling behandling = scenario.lagre(provider);
         PersonInformasjonBuilder personInformasjonBuilder = personopplysningRepository.opprettBuilderForRegisterdata(behandling.getId());
-        PersonInformasjonBuilder.PersonstatusBuilder personstatusBuilder = personInformasjonBuilder.getPersonstatusBuilder(scenario.getDefaultBrukerAktørId(), DatoIntervallEntitet.fraOgMed(ettÅrSiden));
+        PersonInformasjonBuilder.PersonstatusBuilder personstatusBuilder = personInformasjonBuilder
+                .getPersonstatusBuilder(scenario.getDefaultBrukerAktørId(), DatoIntervallEntitet.fraOgMed(ettÅrSiden));
         personstatusBuilder.medPersonstatus(PersonstatusType.BOSA);
         personInformasjonBuilder.leggTil(personstatusBuilder);
 
@@ -153,18 +162,20 @@ public class VurderLøpendeMedlemskapStegTest {
         Optional<MedlemskapVilkårPeriodeGrunnlagEntitet> grunnlagOpt = medlemskapVilkårPeriodeRepository.hentAggregatHvisEksisterer(revudering);
         assertThat(grunnlagOpt).isPresent();
         MedlemskapVilkårPeriodeGrunnlagEntitet grunnlag = grunnlagOpt.get();
-        List<MedlemskapsvilkårPerioderEntitet> ikkeOppfylt = grunnlag.getMedlemskapsvilkårPeriode().getPerioder().stream().filter(p -> p.getVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT)).collect(Collectors.toList());
+        List<MedlemskapsvilkårPerioderEntitet> ikkeOppfylt = grunnlag.getMedlemskapsvilkårPeriode().getPerioder().stream()
+                .filter(p -> p.getVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT)).collect(Collectors.toList());
         assertThat(ikkeOppfylt).hasSize(1);
         Behandlingsresultat behandlingsresultat1 = behandlingsresultatRepository.hent(revudering.getId());
-        assertThat(behandlingsresultat1.getVilkårResultat().getVilkårene().stream().filter(p -> p.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT) && p.getAvslagsårsak() != null).count()).isEqualTo(1);
+        assertThat(behandlingsresultat1.getVilkårResultat().getVilkårene().stream()
+                .filter(p -> p.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT) && p.getAvslagsårsak() != null).count()).isEqualTo(1);
     }
 
     private Behandling opprettRevudering(Behandling behandling) {
         BehandlingÅrsak.Builder revurderingÅrsak = BehandlingÅrsak.builder(BehandlingÅrsakType.RE_FEIL_ELLER_ENDRET_FAKTA)
-            .medOriginalBehandlingId(behandling.getId());
+                .medOriginalBehandlingId(behandling.getId());
 
         Behandling revudering = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(revurderingÅrsak).build();
+                .medBehandlingÅrsak(revurderingÅrsak).build();
         Long behandlingId = behandling.getId();
 
         Long revurderingId = behandlingRepository.lagre(revudering, behandlingRepository.taSkriveLås((Long) null));
@@ -184,12 +195,12 @@ public class VurderLøpendeMedlemskapStegTest {
 
     private MedlemskapPerioderEntitet opprettPeriode(LocalDate fom, LocalDate tom, MedlemskapDekningType dekningType) {
         MedlemskapPerioderEntitet periode = new MedlemskapPerioderBuilder()
-            .medDekningType(dekningType)
-            .medMedlemskapType(MedlemskapType.FORELOPIG)
-            .medKildeType(MedlemskapKildeType.MEDL)
-            .medPeriode(fom, tom)
-            .medMedlId(1L)
-            .build();
+                .medDekningType(dekningType)
+                .medMedlemskapType(MedlemskapType.FORELOPIG)
+                .medKildeType(MedlemskapKildeType.MEDL)
+                .medPeriode(fom, tom)
+                .medMedlId(1L)
+                .build();
         return periode;
     }
 
@@ -205,18 +216,18 @@ public class VurderLøpendeMedlemskapStegTest {
     private UttakResultatPerioderEntitet lagUttaksPeriode() {
         LocalDate idag = LocalDate.now();
         UttakResultatPeriodeEntitet periode = new UttakResultatPeriodeEntitet.Builder(idag, idag.plusDays(6))
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
-            .build();
+                .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+                .build();
         UttakAktivitetEntitet uttakAktivtet = new UttakAktivitetEntitet.Builder()
-            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
-            .medArbeidsforhold(Arbeidsgiver.virksomhet("123"), InternArbeidsforholdRef.nyRef())
-            .build();
+                .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+                .medArbeidsforhold(Arbeidsgiver.virksomhet("123"), InternArbeidsforholdRef.nyRef())
+                .build();
         UttakResultatPeriodeAktivitetEntitet periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivtet)
-            .medUtbetalingsgrad(new Utbetalingsgrad(100))
-            .medArbeidsprosent(BigDecimal.valueOf(100L))
-            .medErSøktGradering(true)
-            .medTrekkonto(StønadskontoType.MØDREKVOTE)
-            .build();
+                .medUtbetalingsgrad(new Utbetalingsgrad(100))
+                .medArbeidsprosent(BigDecimal.valueOf(100L))
+                .medErSøktGradering(true)
+                .medTrekkonto(StønadskontoType.MØDREKVOTE)
+                .build();
         periode.leggTilAktivitet(periodeAktivitet);
         UttakResultatPerioderEntitet perioder = new UttakResultatPerioderEntitet();
         perioder.leggTilPeriode(periode);
@@ -225,12 +236,12 @@ public class VurderLøpendeMedlemskapStegTest {
 
     private void oppdaterMedlem(LocalDate datoMedEndring, MedlemskapPerioderEntitet periode, Long behandlingId) {
         MedlemskapPerioderEntitet nyPeriode = new MedlemskapPerioderBuilder()
-            .medPeriode(datoMedEndring, null)
-            .medDekningType(MedlemskapDekningType.FULL)
-            .medMedlemskapType(MedlemskapType.ENDELIG)
-            .medKildeType(MedlemskapKildeType.MEDL)
-            .medMedlId(2L)
-            .build();
+                .medPeriode(datoMedEndring, null)
+                .medDekningType(MedlemskapDekningType.FULL)
+                .medMedlemskapType(MedlemskapType.ENDELIG)
+                .medKildeType(MedlemskapKildeType.MEDL)
+                .medMedlId(2L)
+                .build();
         medlemskapRepository.lagreMedlemskapRegisterOpplysninger(behandlingId, asList(periode, nyPeriode));
     }
 }

@@ -3,18 +3,19 @@ package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.fp;
 import static no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet.fraOgMedTilOgMed;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -24,7 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.RepositoryProvider;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.opptjening.OpptjeningAktiviteter;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.opptjening.OpptjeningForBeregningTjeneste;
@@ -33,38 +34,43 @@ import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjen
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
+@ExtendWith(MockitoExtension.class)
 public class BesteberegningFødendeKvinneTjenesteTest {
 
-    public static final String ORGNR = "973861778";
+    private static final String ORGNR = "973861778";
     private static LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.of(2018, 7, 1);
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private final RepositoryProvider repositoryProvider = new RepositoryProvider(repoRule.getEntityManager());
+    private final RepositoryProvider repositoryProvider;
     private BehandlingReferanse behandlingReferanse;
-    private static final ÅpenDatoIntervallEntitet OPPTJENINGSPERIODE = fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusYears(1), SKJÆRINGSTIDSPUNKT.plusYears(10));
+    private static final ÅpenDatoIntervallEntitet OPPTJENINGSPERIODE = fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusYears(1),
+            SKJÆRINGSTIDSPUNKT.plusYears(10));
 
     @Inject
     private FamilieHendelseRepository familieHendelseRepository;
 
-    private BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-
-    private OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste = mock(OpptjeningForBeregningTjeneste.class);
+    private final BehandlingRepository behandlingRepository;
+    @Mock
+    private OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste;
 
     private BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste;
     private Behandling behandling;
 
-    @Before
+    public BesteberegningFødendeKvinneTjenesteTest(EntityManager em) {
+        repositoryProvider = new RepositoryProvider(em);
+        behandlingRepository = repositoryProvider.getBehandlingRepository();
+    }
+
+    @BeforeEach
     public void setUp() {
         ScenarioForeldrepenger scenario = ScenarioForeldrepenger.nyttScenario();
         behandlingReferanse = scenario.lagre(repositoryProvider);
         behandling = behandlingRepository.hentBehandling(behandlingReferanse.getBehandlingId());
         AbakusInMemoryInntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
-        inntektArbeidYtelseTjeneste.lagreIayAggregat(behandlingReferanse.getBehandlingId(), InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER));
+        inntektArbeidYtelseTjeneste.lagreIayAggregat(behandlingReferanse.getBehandlingId(),
+                InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER));
         besteberegningFødendeKvinneTjeneste = new BesteberegningFødendeKvinneTjeneste(familieHendelseRepository,
-            opptjeningForBeregningTjeneste, inntektArbeidYtelseTjeneste);
+                opptjeningForBeregningTjeneste, inntektArbeidYtelseTjeneste);
     }
 
     @Test
@@ -99,9 +105,9 @@ public class BesteberegningFødendeKvinneTjenesteTest {
         BehandlingReferanse ref = lagBehandlingReferanseMedStp(behandlingReferanse);
         lagreFamilihendelseFødsel();
         OpptjeningAktiviteter opptjeningAktiviteter = OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER,
-            new no.nav.abakus.iaygrunnlag.Periode(OPPTJENINGSPERIODE.getFomDato(), OPPTJENINGSPERIODE.getTomDato()));
+                new no.nav.abakus.iaygrunnlag.Periode(OPPTJENINGSPERIODE.getFomDato(), OPPTJENINGSPERIODE.getTomDato()));
         when(opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(any(), any()))
-            .thenReturn(Optional.of(opptjeningAktiviteter));
+                .thenReturn(Optional.of(opptjeningAktiviteter));
 
         // Act
         boolean resultat = besteberegningFødendeKvinneTjeneste.brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(ref);
@@ -114,9 +120,9 @@ public class BesteberegningFødendeKvinneTjenesteTest {
     public void skalIkkeGiBesteberegningIkkeDagpengerIOpptjeningsperioden() {
         lagreFamilihendelseFødsel();
         OpptjeningAktiviteter opptjeningAktiviteter = OpptjeningAktiviteter.fraOrgnr(OpptjeningAktivitetType.ARBEID,
-            new no.nav.abakus.iaygrunnlag.Periode(OPPTJENINGSPERIODE.getFomDato(), OPPTJENINGSPERIODE.getTomDato()), ORGNR);
+                new no.nav.abakus.iaygrunnlag.Periode(OPPTJENINGSPERIODE.getFomDato(), OPPTJENINGSPERIODE.getTomDato()), ORGNR);
         when(opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(any(), any()))
-            .thenReturn(Optional.of(opptjeningAktiviteter));
+                .thenReturn(Optional.of(opptjeningAktiviteter));
         BehandlingReferanse ref = lagBehandlingReferanseMedStp(behandlingReferanse);
         // Act
         boolean resultat = besteberegningFødendeKvinneTjeneste.brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(ref);
@@ -127,8 +133,8 @@ public class BesteberegningFødendeKvinneTjenesteTest {
 
     private void lagreFamilihendelseFødsel() {
         FamilieHendelseBuilder familieHendelseBuilder = familieHendelseRepository.opprettBuilderFor(behandling)
-            .medAntallBarn(1)
-            .medFødselsDato(SKJÆRINGSTIDSPUNKT.plusWeeks(3));
+                .medAntallBarn(1)
+                .medFødselsDato(SKJÆRINGSTIDSPUNKT.plusWeeks(3));
         familieHendelseRepository.lagre(behandlingReferanse.getBehandlingId(), familieHendelseBuilder);
     }
 

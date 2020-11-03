@@ -36,6 +36,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 import no.nav.vedtak.felles.testutilities.db.Repository;
+import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.util.Tuple;
 
 @CdiDbAwareTest
@@ -49,8 +50,8 @@ public class BeregneYtelseStegImplTest {
     @Inject
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private Repository repository;
-    // @Inject
-    // @KonfigVerdi(value = "es.maks.stønadsalder.adopsjon", defaultVerdi = "15")
+    @Inject
+    @KonfigVerdi(value = "es.maks.stønadsalder.adopsjon", defaultVerdi = "15")
     private int maksStønadsalder = 15;
     private LegacyESBeregningRepository beregningRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;

@@ -14,11 +14,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
@@ -44,22 +43,18 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class KontrollerFaktaStegImplTest {
 
-    @Rule
-    public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
-
     private Behandling behandling;
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
-    private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-    private final SvangerskapspengerRepository svangerskapspengerRepository = repositoryProvider.getSvangerskapspengerRepository();
+    private final BehandlingRepositoryProvider repositoryProvider;
+    private final BehandlingRepository behandlingRepository;
+    private final SvangerskapspengerRepository svangerskapspengerRepository;
 
     @Inject
     @BehandlingTypeRef
@@ -72,18 +67,24 @@ public class KontrollerFaktaStegImplTest {
     private AktørId aktørId = AktørId.dummy();
     private LocalDate jordmorsdato = LocalDate.now().minusDays(30);
 
+    public KontrollerFaktaStegImplTest(EntityManager em) {
+        repositoryProvider = new BehandlingRepositoryProvider(em);
+        behandlingRepository = repositoryProvider.getBehandlingRepository();
+        svangerskapspengerRepository = repositoryProvider.getSvangerskapspengerRepository();
 
-    @Before
+    }
+
+    @BeforeEach
     public void oppsett() {
         ScenarioMorSøkerSvangerskapspenger scenario = byggBehandlingMedMorSøkerSVP();
         scenario.medBruker(aktørId, NavBrukerKjønn.KVINNE);
         MedlemskapPerioderBuilder builder = new MedlemskapPerioderBuilder();
         builder.medPeriode(LocalDate.now().minusMonths(2), LocalDate.now().plusDays(2))
-            .medDekningType(MedlemskapDekningType.UNNTATT)
-            .medKildeType(MedlemskapKildeType.TPS);
+                .medDekningType(MedlemskapDekningType.UNNTATT)
+                .medKildeType(MedlemskapKildeType.TPS);
 
         scenario.leggTilMedlemskapPeriode(builder.build());
-        behandling =lagre(scenario);
+        behandling = lagre(scenario);
         iayTjeneste.lagreOppgittOpptjening(behandling.getId(), OppgittOpptjeningBuilder.ny());
         lagreSvp(behandling, jordmorsdato);
     }
@@ -104,13 +105,13 @@ public class KontrollerFaktaStegImplTest {
 
         // Assert
         List<VilkårType> resulat = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId()).getVilkårResultat().getVilkårene()
-            .stream()
-            .map(Vilkår::getVilkårType)
-            .collect(Collectors.toList());
+                .stream()
+                .map(Vilkår::getVilkårType)
+                .collect(Collectors.toList());
 
         assertThat(resulat)
-            .containsExactlyInAnyOrder(MEDLEMSKAPSVILKÅRET, SØKERSOPPLYSNINGSPLIKT, OPPTJENINGSPERIODEVILKÅR, OPPTJENINGSVILKÅRET,
-                BEREGNINGSGRUNNLAGVILKÅR, SVANGERSKAPSPENGERVILKÅR);
+                .containsExactlyInAnyOrder(MEDLEMSKAPSVILKÅRET, SØKERSOPPLYSNINGSPLIKT, OPPTJENINGSPERIODEVILKÅR, OPPTJENINGSVILKÅRET,
+                        BEREGNINGSGRUNNLAGVILKÅR, SVANGERSKAPSPENGERVILKÅR);
     }
 
     private ScenarioMorSøkerSvangerskapspenger byggBehandlingMedMorSøkerSVP() {
@@ -125,25 +126,25 @@ public class KontrollerFaktaStegImplTest {
         PersonInformasjon.Builder builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
         AktørId søkerAktørId = scenario.getDefaultBrukerAktørId();
         PersonInformasjon søker = builderForRegisteropplysninger
-            .medPersonas()
-            .voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, NavBrukerKjønn.KVINNE, Region.UDEFINERT)
-            .build();
+                .medPersonas()
+                .voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, NavBrukerKjønn.KVINNE, Region.UDEFINERT)
+                .build();
         scenario.medRegisterOpplysninger(søker);
     }
 
     private void lagreSvp(Behandling behandling, LocalDate jordmorsdato) {
         SvpTilretteleggingEntitet tilrettelegging = new SvpTilretteleggingEntitet.Builder()
-            .medBehovForTilretteleggingFom(jordmorsdato)
-            .medIngenTilrettelegging(jordmorsdato)
-            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .medArbeidsgiver(Arbeidsgiver.person(AktørId.dummy()))
-            .medMottattTidspunkt(LocalDateTime.now())
-            .medKopiertFraTidligereBehandling(false)
-            .build();
+                .medBehovForTilretteleggingFom(jordmorsdato)
+                .medIngenTilrettelegging(jordmorsdato)
+                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+                .medArbeidsgiver(Arbeidsgiver.person(AktørId.dummy()))
+                .medMottattTidspunkt(LocalDateTime.now())
+                .medKopiertFraTidligereBehandling(false)
+                .build();
         SvpGrunnlagEntitet svpGrunnlag = new SvpGrunnlagEntitet.Builder()
-            .medBehandlingId(behandling.getId())
-            .medOpprinneligeTilrettelegginger(List.of(tilrettelegging))
-            .build();
+                .medBehandlingId(behandling.getId())
+                .medOpprinneligeTilrettelegginger(List.of(tilrettelegging))
+                .build();
         svangerskapspengerRepository.lagreOgFlush(svpGrunnlag);
     }
 }
