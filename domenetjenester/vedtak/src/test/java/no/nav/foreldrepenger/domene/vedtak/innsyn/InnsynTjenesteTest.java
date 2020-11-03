@@ -4,17 +4,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.time.LocalDate;
 
 import javax.inject.Inject;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
@@ -32,17 +31,14 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
+@ExtendWith(MockitoExtension.class)
 public class InnsynTjenesteTest {
-
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
 
     @Inject
     private BehandlingskontrollTjeneste behandlingKontrollTjeneste;
@@ -58,20 +54,17 @@ public class InnsynTjenesteTest {
     private BehandlingRepository behandlingRepository;
     @Inject
     private InnsynRepository innsynRepository;
-
     @Mock
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
-
     private InnsynTjeneste innsynTjeneste;
-
     private ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
 
-    @Before
+    @BeforeEach
     public void oppsett() {
-        initMocks(this);
         when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(new OrganisasjonsEnhet("1234", ""));
-        var oppretter = new BehandlingOpprettingTjeneste(behandlingKontrollTjeneste, behandlendeEnhetTjeneste, historikkRepository, mock(ProsessTaskRepository.class));
-        innsynTjeneste = new InnsynTjeneste(oppretter, fagsakRepository,behandlingRepository, behandlingsresultatRepository, innsynRepository);
+        var oppretter = new BehandlingOpprettingTjeneste(behandlingKontrollTjeneste, behandlendeEnhetTjeneste, historikkRepository,
+                mock(ProsessTaskRepository.class));
+        innsynTjeneste = new InnsynTjeneste(oppretter, fagsakRepository, behandlingRepository, behandlingsresultatRepository, innsynRepository);
     }
 
     @Test
@@ -110,10 +103,10 @@ public class InnsynTjenesteTest {
 
     private InnsynEntitet lagResultat(Behandling innsynbehandling, InnsynResultatType delvisInnvilget) {
         return InnsynEntitet.InnsynBuilder.builder()
-            .medMottattDato(LocalDate.of(2019, 7, 3))
-            .medBehandlingId(innsynbehandling.getId())
-            .medBegrunnelse("foo")
-            .medInnsynResultatType(delvisInnvilget)
-            .build();
+                .medMottattDato(LocalDate.of(2019, 7, 3))
+                .medBehandlingId(innsynbehandling.getId())
+                .medBegrunnelse("foo")
+                .medInnsynResultatType(delvisInnvilget)
+                .build();
     }
 }

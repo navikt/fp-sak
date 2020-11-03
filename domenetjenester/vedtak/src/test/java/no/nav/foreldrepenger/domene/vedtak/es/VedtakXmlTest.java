@@ -20,12 +20,8 @@ import java.util.Properties;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
@@ -63,7 +59,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioKlageEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.vedtak.xml.BehandlingsresultatXmlTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.xml.BeregningsgrunnlagXmlTjeneste;
@@ -73,32 +69,22 @@ import no.nav.foreldrepenger.domene.vedtak.xml.VedtakXmlUtil;
 import no.nav.foreldrepenger.domene.vedtak.xml.VilkårsgrunnlagXmlTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.xml.YtelseXmlTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class VedtakXmlTest {
     private static final String KLAGE_BEGRUNNELSE = "Begrunnelse for klagevurdering er bla.bla.bla.";
     private static final String BEHANDLENDE_ENHET_ID = "1234";
 
     private static final AktørId AKTØR_ID = AktørId.dummy();
 
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
-
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private final EntityManager entityManager = repoRule.getEntityManager();
-
-    private Repository repository = repoRule.getRepository();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-    private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-    private final BehandlingsresultatRepository behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
-
-    private LegacyESBeregningRepository beregningRepository = new LegacyESBeregningRepository(repoRule.getEntityManager());
-
-    private FagsakRepository fagsakRepository = new FagsakRepository(entityManager);
+    private final Repository repository;
+    private final BehandlingRepositoryProvider repositoryProvider;
+    private final BehandlingRepository behandlingRepository;
+    private final BehandlingsresultatRepository behandlingsresultatRepository;
+    private final LegacyESBeregningRepository beregningRepository;
+    private final FagsakRepository fagsakRepository;
 
     @Inject
     private BehandlingsresultatXmlTjeneste behandlingsgrunnlagXmlTjeneste;
@@ -124,8 +110,16 @@ public class VedtakXmlTest {
 
     private FatteVedtakXmlTjeneste tjeneste;
 
+    public VedtakXmlTest(EntityManager em) {
+        repository = new Repository(em);
+        repositoryProvider = new BehandlingRepositoryProvider(em);
+        behandlingRepository = repositoryProvider.getBehandlingRepository();
+        behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
+        beregningRepository = new LegacyESBeregningRepository(em);
+        fagsakRepository = new FagsakRepository(em);
+    }
 
-    @Before
+    @BeforeEach
     public void oppsett() {
 
         SøknadRepository søknadRepository = mock(SøknadRepository.class);
@@ -137,7 +131,7 @@ public class VedtakXmlTest {
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(skjæringstidspunkt);
 
         tjeneste = new FatteVedtakXmlTjeneste(repositoryProvider, vedtakXmlTjeneste, new UnitTestLookupInstanceImpl<>(personopplysningXmlTjeneste),
-            behandlingsgrunnlagXmlTjeneste, skjæringstidspunktTjeneste);
+                behandlingsgrunnlagXmlTjeneste, skjæringstidspunktTjeneste);
 
         SøknadEntitet søknad = new SøknadEntitet.Builder().medMottattDato(LocalDate.now()).medSøknadsdato(LocalDate.now()).build();
         when(søknadRepository.hentSøknadHvisEksisterer(any())).thenReturn(Optional.ofNullable(søknad));
@@ -191,7 +185,7 @@ public class VedtakXmlTest {
     public void skal_opprette_xml_med_klage_avvist() {
         // Arrange
         Behandling behandling = opprettKlageBehandling(ScenarioKlageEngangsstønad.forAvvistNFP(ScenarioMorSøkerEngangsstønad.forAdopsjon()),
-            null);
+                null);
         String xml = tjeneste.opprettVedtakXml(behandling.getId());
         assertThat(xml).isNotNull();
     }
@@ -200,7 +194,7 @@ public class VedtakXmlTest {
     public void skal_opprette_xml_med_klage_medhold() {
         // Arrange
         Behandling behandling = opprettKlageBehandling(ScenarioKlageEngangsstønad.forMedholdNFP(ScenarioMorSøkerEngangsstønad.forAdopsjon()),
-        KlageMedholdÅrsak.NYE_OPPLYSNINGER);
+                KlageMedholdÅrsak.NYE_OPPLYSNINGER);
         String xml = tjeneste.opprettVedtakXml(behandling.getId());
         assertThat(xml).isNotNull();
     }
@@ -209,7 +203,7 @@ public class VedtakXmlTest {
     public void skal_opprette_xml_med_klage_oppheve_ytelsesvedtak() {
         // Arrange
         Behandling behandling = opprettKlageBehandling(ScenarioKlageEngangsstønad.forOpphevetNK(ScenarioMorSøkerEngangsstønad.forAdopsjon()),
-            KlageMedholdÅrsak.PROSESSUELL_FEIL);
+                KlageMedholdÅrsak.PROSESSUELL_FEIL);
         String xml = tjeneste.opprettVedtakXml(behandling.getId());
         assertThat(xml).isNotNull();
     }
@@ -219,9 +213,9 @@ public class VedtakXmlTest {
         // Arrange
         final ScenarioMorSøkerEngangsstønad adopsjon = ScenarioMorSøkerEngangsstønad.forAdopsjon();
         adopsjon.medSøknadHendelse()
-            .medAdopsjon(adopsjon.medSøknadHendelse().getAdopsjonBuilder()
-                .medOmsorgsovertakelseDato(LocalDate.now().plusDays(40)))
-            .medAntallBarn(3);
+                .medAdopsjon(adopsjon.medSøknadHendelse().getAdopsjonBuilder()
+                        .medOmsorgsovertakelseDato(LocalDate.now().plusDays(40)))
+                .medAntallBarn(3);
         Behandling behandling = opprettKlageBehandling(ScenarioKlageEngangsstønad.forStadfestetNK(adopsjon), null);
         String xml = tjeneste.opprettVedtakXml(behandling.getId());
         assertThat(xml).isNotNull();
@@ -229,7 +223,7 @@ public class VedtakXmlTest {
 
     private Behandling opprettKlageBehandling(ScenarioKlageEngangsstønad scenario, KlageMedholdÅrsak klageMedholdÅrsak) {
         Behandling behandling = scenario.medKlageMedholdÅrsak(klageMedholdÅrsak)
-            .medBegrunnelse(KLAGE_BEGRUNNELSE).medBehandlendeEnhet(BEHANDLENDE_ENHET_ID).lagre(repositoryProvider, klageRepository);
+                .medBegrunnelse(KLAGE_BEGRUNNELSE).medBehandlendeEnhet(BEHANDLENDE_ENHET_ID).lagre(repositoryProvider, klageRepository);
 
         Behandlingsresultat behandlingsresultat = opprettBehandlingsresultat(behandling, BehandlingResultatType.INNVILGET);
         repository.lagre(behandlingsresultat);
@@ -256,24 +250,24 @@ public class VedtakXmlTest {
         final FamilieHendelseRepository fgRepo = repositoryProvider.getFamilieHendelseRepository();
         final FamilieHendelseBuilder søknadVersjon = fgRepo.opprettBuilderFor(behandling);
         søknadVersjon
-            .medTerminbekreftelse(søknadVersjon.getTerminbekreftelseBuilder()
-                .medNavnPå("Legen min")
-                .medTermindato(LocalDate.now().plusDays(40))
-                .medUtstedtDato(LocalDate.now()))
-            .medAntallBarn(1);
+                .medTerminbekreftelse(søknadVersjon.getTerminbekreftelseBuilder()
+                        .medNavnPå("Legen min")
+                        .medTermindato(LocalDate.now().plusDays(40))
+                        .medUtstedtDato(LocalDate.now()))
+                .medAntallBarn(1);
         fgRepo.lagre(behandling, søknadVersjon);
         final FamilieHendelseBuilder hendelseBuilder = fgRepo.opprettBuilderFor(behandling);
         hendelseBuilder
-            .medTerminbekreftelse(hendelseBuilder.getTerminbekreftelseBuilder()
-                .medTermindato(LocalDate.now().plusDays(40))
-                .medNavnPå("Legen min")
-                .medUtstedtDato(LocalDate.now().minusDays(7)))
-            .medAntallBarn(1);
+                .medTerminbekreftelse(hendelseBuilder.getTerminbekreftelseBuilder()
+                        .medTermindato(LocalDate.now().plusDays(40))
+                        .medNavnPå("Legen min")
+                        .medUtstedtDato(LocalDate.now().minusDays(7)))
+                .medAntallBarn(1);
         fgRepo.lagre(behandling, hendelseBuilder);
 
         SøknadEntitet søknad = new SøknadEntitet.Builder()
-            .medSøknadsdato(LocalDate.now())
-            .build();
+                .medSøknadsdato(LocalDate.now())
+                .build();
         repositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
 
         return behandling;
@@ -281,15 +275,16 @@ public class VedtakXmlTest {
 
     private void oppdaterMedBehandlingsresultat(Behandling behandling, boolean innvilget) {
         VilkårResultat.builder()
-            .leggTilVilkårResultat(VilkårType.FØDSELSVILKÅRET_MOR, innvilget ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT, null, new Properties(),
-                null, false, false, null, null)
-            .medVilkårResultatType(innvilget ? VilkårResultatType.INNVILGET : VilkårResultatType.AVSLÅTT)
-            .buildFor(behandling);
+                .leggTilVilkårResultat(VilkårType.FØDSELSVILKÅRET_MOR, innvilget ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT, null,
+                        new Properties(),
+                        null, false, false, null, null)
+                .medVilkårResultatType(innvilget ? VilkårResultatType.INNVILGET : VilkårResultatType.AVSLÅTT)
+                .buildFor(behandling);
         if (innvilget) {
             var bres = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
             LegacyESBeregningsresultat.builder()
-                .medBeregning(new LegacyESBeregning(48500L, 1L, 48500L, LocalDateTime.now()))
-                .buildFor(behandling, bres);
+                    .medBeregning(new LegacyESBeregning(48500L, 1L, 48500L, LocalDateTime.now()))
+                    .buildFor(behandling, bres);
         }
     }
 
@@ -298,7 +293,7 @@ public class VedtakXmlTest {
         Behandling.Builder behandlingBuilder = Behandling.forFørstegangssøknad(opprettFagsak());
 
         final Behandling behandling = behandlingBuilder.medBehandlendeEnhet(new OrganisasjonsEnhet(BEHANDLENDE_ENHET_ID, null))
-            .build();
+                .build();
 
         utførAksjonspunkt(behandling, SØKERS_OPPLYSNINGSPLIKT_MANU);
         utførAksjonspunkt(behandling, KONTROLLER_OPPLYSNINGER_OM_SØKNADSFRIST);
@@ -312,16 +307,16 @@ public class VedtakXmlTest {
         LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling, bres);
         beregningRepository.lagre(beregningResultat, behandlingRepository.taSkriveLås(behandling));
         final FamilieHendelseBuilder hendelseBuilder = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(behandling)
-            .medFødselsDato(fødselsdato)
-            .medAntallBarn(1);
+                .medFødselsDato(fødselsdato)
+                .medAntallBarn(1);
         repositoryProvider.getFamilieHendelseRepository().lagre(behandling, hendelseBuilder);
         final FamilieHendelseBuilder builder = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(behandling)
-            .medFødselsDato(fødselsdato);
+                .medFødselsDato(fødselsdato);
         repositoryProvider.getFamilieHendelseRepository().lagre(behandling, builder);
 
         final SøknadEntitet søknad = new SøknadEntitet.Builder()
-            .medSøknadsdato(LocalDate.now())
-            .build();
+                .medSøknadsdato(LocalDate.now())
+                .build();
 
         repositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
         return behandling;
@@ -334,12 +329,12 @@ public class VedtakXmlTest {
     private void opprettBehandlingsvedtak(Behandling behandling, Behandlingsresultat behandlingsresultat) {
         BehandlingVedtakRepository behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         BehandlingVedtak vedtak = BehandlingVedtak.builder()
-            .medAnsvarligSaksbehandler("saksbehandler gundersen")
-            .medIverksettingStatus(IverksettingStatus.IVERKSATT)
-            .medVedtakstidspunkt(LocalDateTime.now())
-            .medVedtakResultatType(VedtakResultatType.INNVILGET)
-            .medBehandlingsresultat(behandlingsresultat)
-            .build();
+                .medAnsvarligSaksbehandler("saksbehandler gundersen")
+                .medIverksettingStatus(IverksettingStatus.IVERKSATT)
+                .medVedtakstidspunkt(LocalDateTime.now())
+                .medVedtakResultatType(VedtakResultatType.INNVILGET)
+                .medBehandlingsresultat(behandlingsresultat)
+                .build();
         behandlingVedtakRepository.lagre(vedtak, behandlingRepository.taSkriveLås(behandling));
     }
 
@@ -357,7 +352,7 @@ public class VedtakXmlTest {
         Behandling.Builder behandlingBuilder = Behandling.forFørstegangssøknad(opprettFagsak());
 
         final Behandling behandling = behandlingBuilder.medBehandlendeEnhet(new OrganisasjonsEnhet(BEHANDLENDE_ENHET_ID, null))
-            .build();
+                .build();
         Behandlingsresultat behandlingsresultat = opprettBehandlingsresultat(behandling, BehandlingResultatType.INNVILGET);
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         opprettBehandlingsvedtak(behandling, behandlingsresultat);
@@ -369,23 +364,23 @@ public class VedtakXmlTest {
 
         final FamilieHendelseBuilder søknadVersjon = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(behandling);
         søknadVersjon
-            .medAdopsjon(søknadVersjon.getAdopsjonBuilder()
-                .medOmsorgsovertakelseDato(LocalDate.now().plusDays(50)))
-            .leggTilBarn(fødselsdato)
-            .leggTilBarn(fødselsdato.minusYears(2))
-            .medAntallBarn(2);
+                .medAdopsjon(søknadVersjon.getAdopsjonBuilder()
+                        .medOmsorgsovertakelseDato(LocalDate.now().plusDays(50)))
+                .leggTilBarn(fødselsdato)
+                .leggTilBarn(fødselsdato.minusYears(2))
+                .medAntallBarn(2);
         repositoryProvider.getFamilieHendelseRepository().lagre(behandling, søknadVersjon);
         final FamilieHendelseBuilder hendelseBuilder = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(behandling);
         hendelseBuilder
-            .medAdopsjon(hendelseBuilder.getAdopsjonBuilder()
-                .medAdoptererAlene(false)
-                .medErEktefellesBarn(false))
-            .leggTilBarn(fødselsdato).leggTilBarn(fødselsdato.minusYears(2));
+                .medAdopsjon(hendelseBuilder.getAdopsjonBuilder()
+                        .medAdoptererAlene(false)
+                        .medErEktefellesBarn(false))
+                .leggTilBarn(fødselsdato).leggTilBarn(fødselsdato.minusYears(2));
         repositoryProvider.getFamilieHendelseRepository().lagre(behandling, hendelseBuilder);
 
         final SøknadEntitet søknad = new SøknadEntitet.Builder()
-            .medSøknadsdato(LocalDate.now())
-            .build();
+                .medSøknadsdato(LocalDate.now())
+                .build();
         repositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
         return behandling;
     }

@@ -14,11 +14,10 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.folketrygdloven.beregningsgrunnlag.regelmodell.Periode;
 import no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.ForeldrepengerGrunnlag;
@@ -33,7 +32,7 @@ import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.input.KalkulatorStegProsesseringInputTjeneste;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus.IAYMapperTilKalkulus;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus.MapBehandlingRef;
@@ -60,18 +59,15 @@ import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class BeregningsgrunnlagKopierOgLagreTjenesteKontrollerFaktaTest {
 
     private static final String ORG_NUMMER = "915933149";
 
     public static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private final RepositoryProvider repositoryProvider = new RepositoryProvider(repoRule.getEntityManager());
-    private final BeregningsgrunnlagRepository beregningsgrunnlagRepository = repositoryProvider.getBeregningsgrunnlagRepository();
+    private RepositoryProvider repositoryProvider;
+    private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
     private BehandlingReferanse behandlingReferanse;
     private BeregningsgrunnlagInput input;
@@ -81,9 +77,10 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteKontrollerFaktaTest {
     @Inject
     private BeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
 
-    @Before
-    public void setUp() {
-
+    @BeforeEach
+    public void setUp(EntityManager em) {
+        repositoryProvider = new RepositoryProvider(em);
+        beregningsgrunnlagRepository = repositoryProvider.getBeregningsgrunnlagRepository();
         beregningsgrunnlagKopierOgLagreTjeneste = new BeregningsgrunnlagKopierOgLagreTjeneste(
                 beregningsgrunnlagRepository,
                 beregningsgrunnlagTjeneste,
