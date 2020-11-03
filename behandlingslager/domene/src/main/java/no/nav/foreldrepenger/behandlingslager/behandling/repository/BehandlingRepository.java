@@ -5,6 +5,7 @@ import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentUniktResultat;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -28,6 +29,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -375,19 +378,6 @@ public class BehandlingRepository {
         return optionalFirst(query.getResultList());
     }
 
-    private Optional<Behandling> finnSisteBehandling(Long fagsakId, boolean readOnly) {
-        Objects.requireNonNull(fagsakId, FAGSAK_ID);
-
-        TypedQuery<Behandling> query = getEntityManager().createQuery(
-            "from Behandling where fagsak.id=:fagsakId order by opprettetTidspunkt desc",
-            Behandling.class);
-        query.setParameter(FAGSAK_ID, fagsakId);
-        if (readOnly) {
-            query.setHint(QueryHints.HINT_READONLY, "true");
-        }
-        return optionalFirst(query.getResultList());
-    }
-
     public Optional<Behandling> finnSisteIkkeHenlagteYtelseBehandlingFor(Long fagsakId) {
         return finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeForFagsakId(fagsakId, BehandlingType.getYtelseBehandlingTyper());
     }
@@ -544,6 +534,24 @@ public class BehandlingRepository {
 
         query.setParameter("behandling", behandling);
         query.setHint(QueryHints.HINT_READONLY, "true"); //$NON-NLS-1$
+        return query.getResultList();
+    }
+
+    public List<Behandling> unntakOmsorg() {
+        TypedQuery<Behandling> query = entityManager.createQuery(
+            "SELECT behandling FROM Behandling behandling " +
+                "INNER JOIN Aksjonspunkt ap on ap.behandling.id=behandling.id " +
+                " WHERE ap.status IN :aapneAksjonspunktKoder " +
+                "   AND ap.opprettetTidspunkt > :fom " +
+                "   AND ap.opprettetTidspunkt < :tom " +
+                "   AND ap.aksjonspunktDefinisjon = :aksjonspunkt ",
+            Behandling.class);
+        query.setHint(QueryHints.HINT_READONLY, "true");
+        query.setParameter("aapneAksjonspunktKoder", AksjonspunktStatus.getÅpneAksjonspunktStatuser());
+        query.setParameter("aksjonspunkt", AksjonspunktDefinisjon.MANUELL_KONTROLL_AV_OM_BRUKER_HAR_OMSORG);
+        query.setParameter("fom", LocalDate.of(2020,10,27).atStartOfDay());
+        query.setParameter("tom", LocalDate.of(2020,11,1).atStartOfDay());
+
         return query.getResultList();
     }
 }

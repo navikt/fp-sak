@@ -32,6 +32,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAkt�
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
@@ -61,6 +62,7 @@ public class ForvaltningStegRestTjeneste {
     private FamilieHendelseRepository familieHendelseRepository;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     private VilkårResultatRepository vilkårResultatRepository;
+    private BehandlingRepository behandlingRepository;
 
     @Inject
     public ForvaltningStegRestTjeneste(BehandlingsprosessApplikasjonTjeneste behandlingsprosessTjeneste,
@@ -75,10 +77,22 @@ public class ForvaltningStegRestTjeneste {
         this.historikkRepository = repositoryProvider.getHistorikkRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
         this.vilkårResultatRepository = vilkårResultatRepository;
+        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
     }
 
     public ForvaltningStegRestTjeneste() {
         // CDI
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "Generelt tilbakehopp", tags = "FORVALTNING-steg-hopp")
+    @Path("/omsorg")
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
+    public Response omsorg() {
+        behandlingRepository.unntakOmsorg().forEach(b -> hoppTilbake(b.getId(), BehandlingStegType.KONTROLLER_LØPENDE_MEDLEMSKAP));
+
+        return Response.ok().build();
     }
 
     @POST
