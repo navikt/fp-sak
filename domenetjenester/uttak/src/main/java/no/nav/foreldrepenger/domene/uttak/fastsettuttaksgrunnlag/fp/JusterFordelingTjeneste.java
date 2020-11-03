@@ -22,8 +22,6 @@ import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
 
 class JusterFordelingTjeneste {
 
-    private static final int VIRKEDAGER_PR_UKE = 5;
-
     /**
      * Skyver perioder basert på antall virkedager i mellom familiehendelsene.
      * Gradering, utsettelse, opphold og hull mellom perioder flyttes ikke.
@@ -172,14 +170,15 @@ class JusterFordelingTjeneste {
         return sortert;
     }
 
-    private List<OppgittPeriodeEntitet> fyllHullSkaptAvIkkeFlyttbarePerioder(List<OppgittPeriodeEntitet> justertePerioder, List<OppgittPeriodeEntitet> oppgittePerioder) {
+    private List<OppgittPeriodeEntitet> fyllHullSkaptAvIkkeFlyttbarePerioder(List<OppgittPeriodeEntitet> justertePerioder,
+                                                                             List<OppgittPeriodeEntitet> oppgittePerioder) {
         List<OppgittPeriodeEntitet> resultat = new ArrayList<>();
 
         for (int i = 0; i < justertePerioder.size() - 1; i++) {
             resultat.add(justertePerioder.get(i));
             if (erHullMellom(justertePerioder.get(i).getTom(), justertePerioder.get(i + 1).getFom())) {
                 LocalDate førsteVirkedagIHull = plusVirkedager(justertePerioder.get(i).getTom(), 1);
-                LocalDate sisteVirkedagIHull = minusVirkedager(justertePerioder.get(i + 1).getFom(), 1);
+                LocalDate sisteVirkedagIHull = minusVirkedag(justertePerioder.get(i + 1).getFom());
                 //sjekker om hullet vi finner ikke finnes i oppgitteperioder (hvis det er søkt med hull i perioden skal vi ikke fylle)
                 if (!hullFinnesIOppgittePeriode(oppgittePerioder, førsteVirkedagIHull, sisteVirkedagIHull)) {
                     OppgittPeriodeEntitet sisteFlyttbarPeriode = sisteFlyttbarePeriode(resultat);
@@ -310,7 +309,7 @@ class JusterFordelingTjeneste {
         int i = 0;
         //flytter en og en dag
         while (i < antallVirkedagerSomSkalSkyves) {
-            nyFom = minusVirkedager(nyFom, 1);
+            nyFom = minusVirkedag(nyFom);
             if (erLedigVirkedager(ikkeFlyttbarePerioder, nyFom)) {
                 i++;
             }
@@ -318,12 +317,9 @@ class JusterFordelingTjeneste {
         return nyFom;
     }
 
-    private LocalDate minusVirkedager(LocalDate fom, int virkedager) {
-        int uker = virkedager / VIRKEDAGER_PR_UKE;
-        int dager = virkedager % VIRKEDAGER_PR_UKE;
-
-        LocalDate resultat = fom.plusWeeks(uker);
-
+    private LocalDate minusVirkedag(LocalDate dato) {
+        var resultat = dato;
+        var dager = 1;
         while (dager > 0 || erHelg(resultat)) {
             if (!erHelg(resultat)) {
                 dager--;

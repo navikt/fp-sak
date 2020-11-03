@@ -109,8 +109,7 @@ public class MaksDatoUttakTjenesteImpl implements MaksDatoUttakTjeneste {
         for (Stønadskontotype stønadskonto : gyldigeStønadskontoer) {
             tilgjengeligeDager += saldoUtregning.saldo(stønadskonto);
         }
-        //Helg + 0 virkedager gir mandag
-        var maksdato = tilgjengeligeDager == 0 ? sisteUttaksdato : Virkedager.plusVirkedager(sisteUttaksdato, tilgjengeligeDager);
+        var maksdato = Virkedager.plusVirkedager(sisteUttaksdato, tilgjengeligeDager);
         return korrigerBortFraHelg(maksdato);
     }
 
