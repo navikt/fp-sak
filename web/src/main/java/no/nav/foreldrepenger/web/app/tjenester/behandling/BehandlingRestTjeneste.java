@@ -69,7 +69,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.Redirect;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.ReåpneBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.SakRettigheterDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.SettBehandlingPaVentDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.AnnenPartBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.ProsessTaskGruppeIdDto;
@@ -409,18 +408,9 @@ public class BehandlingRestTjeneste {
             @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer må være et eksisterende saksnummer") @Valid SaksnummerDto s) {
         Saksnummer saksnummer = new Saksnummer(s.getVerdi());
 
-        Optional<Behandling> behandlingOpt = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattBehandling(saksnummer);
-
-        ResponseBuilder responseBuilder;
-        if (behandlingOpt.isPresent()) {
-            Behandling behandling = behandlingOpt.get();
-            AnnenPartBehandlingDto dto = behandlingDtoTjeneste.lagAnnenPartBehandlingDto(behandling);
-            responseBuilder = Response.ok().entity(dto);
-        } else {
-            responseBuilder = Response.ok();
-        }
-
-        return responseBuilder.build();
+        return relatertBehandlingTjeneste.hentAnnenPartsGjeldendeYtelsesBehandling(saksnummer)
+            .map(behandlingDtoTjeneste::lagAnnenPartBehandlingDto)
+            .map(apDto -> Response.ok().entity(apDto).build()).orElseGet(() -> Response.ok().build());
     }
 
     @GET
