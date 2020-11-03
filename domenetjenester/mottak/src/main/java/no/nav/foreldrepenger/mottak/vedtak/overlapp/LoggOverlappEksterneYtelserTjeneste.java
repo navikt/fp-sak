@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.mottak.vedtak.overlapp;
 
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,11 +25,15 @@ import no.nav.abakus.iaygrunnlag.request.AktørDatoRequest;
 import no.nav.abakus.vedtak.ytelse.Desimaltall;
 import no.nav.abakus.vedtak.ytelse.v1.YtelseV1;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.abakus.AbakusTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
@@ -60,6 +65,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(LoggOverlappEksterneYtelserTjeneste.class);
     private static final BigDecimal HUNDRE = new BigDecimal(100);
 
+    private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
     private BehandlingRepository behandlingRepository;
     private PersoninfoAdapter personinfoAdapter;
@@ -77,7 +83,8 @@ public class LoggOverlappEksterneYtelserTjeneste {
     }
 
     @Inject
-    public LoggOverlappEksterneYtelserTjeneste(BeregningsresultatRepository beregningsresultatRepository,
+    public LoggOverlappEksterneYtelserTjeneste(BeregningsgrunnlagRepository beregningsgrunnlagRepository,
+                                               BeregningsresultatRepository beregningsresultatRepository,
                                                PersoninfoAdapter personinfoAdapter,
                                                InfotrygdPSGrunnlag infotrygdPSGrTjeneste,
                                                InfotrygdSPGrunnlag infotrygdSPGrTjeneste,
@@ -85,6 +92,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
                                                SpokelseKlient spokelseKlient,
                                                OverlappVedtakRepository overlappRepository,
                                                BehandlingRepository behandlingRepository) {
+        this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
         this.beregningsresultatRepository = beregningsresultatRepository;
         this.behandlingRepository = behandlingRepository;
         this.personinfoAdapter = personinfoAdapter;
@@ -119,7 +127,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
         sakerForBruker.stream()
             .flatMap(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()).stream())
             .forEach(b -> {
-                var fpTimeline = getTidslinjeForBehandling(b.getId());
+                var fpTimeline = getTidslinjeForBehandling(b.getId(), b.getFagsakYtelseType());
                 var overlapp = finnGradertOverlapp(fpTimeline, Fagsystem.K9SAK.getKode(), ytelse.getType().getKode(), ytelse.getSaksnummer(), ytelseTidslinje);
                 overlapp.stream()
                     .map(builder -> builder.medSaksnummer(b.getFagsak().getSaksnummer()).medBehandlingId(b.getId()).medHendelse(OverlappVedtak.HENDELSE_VEDTAK_OMS))
@@ -129,7 +137,8 @@ public class LoggOverlappEksterneYtelserTjeneste {
     }
 
     private List<OverlappVedtak.Builder> loggOverlappendeYtelser(Long behandlingId, Saksnummer saksnummer, AktørId aktørId) {
-        LocalDateTimeline<BigDecimal> perioderFpGradert = getTidslinjeForBehandling(behandlingId);
+        var ytelseType = behandlingRepository.hentBehandling(behandlingId).getFagsakYtelseType();
+        LocalDateTimeline<BigDecimal> perioderFpGradert = getTidslinjeForBehandling(behandlingId, ytelseType);
         if (perioderFpGradert.getDatoIntervaller().isEmpty())
             return Collections.emptyList();
         var tidligsteUttakFP = perioderFpGradert.getDatoIntervaller().stream().map(LocalDateInterval::getFomDato).min(Comparator.naturalOrder()).orElse(Tid.TIDENES_ENDE);
@@ -145,7 +154,13 @@ public class LoggOverlappEksterneYtelserTjeneste {
             .collect(Collectors.toList());
     }
 
-    private LocalDateTimeline<BigDecimal> getTidslinjeForBehandling(Long behandlingId) {
+    private LocalDateTimeline<BigDecimal> getTidslinjeForBehandling(Long behandlingId, FagsakYtelseType ytelseType) {
+        if (FagsakYtelseType.FORELDREPENGER.equals(ytelseType))
+            return getTidslinjeForBehandlingFP(behandlingId);
+        return FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelseType) ? getTidslinjeForBehandlingSVP(behandlingId) : new LocalDateTimeline<>(Collections.emptyList());
+    }
+
+    private LocalDateTimeline<BigDecimal> getTidslinjeForBehandlingFP(Long behandlingId) {
         var segments = beregningsresultatRepository.hentBeregningsresultat(behandlingId)
             .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
             .filter(beregningsresultatPeriode -> beregningsresultatPeriode.getDagsats() > 0)
@@ -153,6 +168,39 @@ public class LoggOverlappEksterneYtelserTjeneste {
             .collect(Collectors.toList());
 
         return new LocalDateTimeline<>(segments, LoggOverlappEksterneYtelserTjeneste::max).compress(this::like, this::kombiner);
+    }
+
+    private LocalDateTimeline<BigDecimal> getTidslinjeForBehandlingSVP(Long behandlingId) {
+        var beregningsgrunnlag = beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(behandlingId).orElse(null);
+        if (beregningsgrunnlag == null) {
+            return new LocalDateTimeline<>(Collections.emptyList());
+        }
+        List<LocalDateSegment<BigDecimal>> grunnlagUtbetGrad = beregningsgrunnlag.getBeregningsgrunnlagPerioder().stream()
+            .filter(p -> p.getDagsats() > 0)
+            .map(p -> new LocalDateSegment<>(p.getBeregningsgrunnlagPeriodeFom(), p.getBeregningsgrunnlagPeriodeTom(), beregnGrunnlagUtbetGradSvp(p, beregningsgrunnlag.getGrunnbeløp().getVerdi())))
+            .collect(Collectors.toList());
+        List<LocalDateSegment<BigDecimal>> resultatsegments = beregningsresultatRepository.hentBeregningsresultat(behandlingId)
+            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
+            .filter(beregningsresultatPeriode -> beregningsresultatPeriode.getDagsats() > 0)
+            .map(p -> finnUtbetalingsgradFor(p, grunnlagUtbetGrad))
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
+        return new LocalDateTimeline<>(resultatsegments, LoggOverlappEksterneYtelserTjeneste::max).compress(this::like, this::kombiner);
+    }
+
+    private BigDecimal beregnGrunnlagUtbetGradSvp(BeregningsgrunnlagPeriode bgPeriode, BigDecimal grunnbeløp) {
+        var seksG = new BigDecimal(6).multiply(grunnbeløp);
+        var avkortet = bgPeriode.getBruttoPrÅr().compareTo(seksG) > 0 ? seksG : bgPeriode.getBruttoPrÅr();
+        return BigDecimal.ZERO.compareTo(avkortet) == 0 ? BigDecimal.ZERO :
+            BigDecimal.TEN.multiply(BigDecimal.TEN).multiply(bgPeriode.getRedusertPrÅr()).divide(avkortet, RoundingMode.HALF_EVEN);
+    }
+
+    private LocalDateSegment<BigDecimal> finnUtbetalingsgradFor(BeregningsresultatPeriode periode, List<LocalDateSegment<BigDecimal>> grader) {
+        return grader.stream()
+            .filter(d -> d.getLocalDateInterval().encloses(periode.getBeregningsresultatPeriodeFom())) // Antar at BR-perioder ikke krysser BG-perioder
+            .findFirst()
+            .map(v -> new LocalDateSegment<>(periode.getBeregningsresultatPeriodeFom(), periode.getBeregningsresultatPeriodeTom(), v.getValue()))
+            .orElse(null);
     }
 
     private LocalDateTimeline<BigDecimal> lagTidslinjeforYtelseV1(YtelseV1 ytelse) {

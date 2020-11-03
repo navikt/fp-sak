@@ -1,9 +1,11 @@
 package no.nav.foreldrepenger.domene.vedtak.observer;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -27,20 +29,29 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRepository;
+import no.nav.fpsak.tidsserie.LocalDateSegment;
+import no.nav.fpsak.tidsserie.LocalDateTimeline;
+import no.nav.fpsak.tidsserie.StandardCombinators;
 import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
 public class VedtattYtelseTjeneste {
 
     private BehandlingVedtakRepository vedtakRepository;
+    private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private BeregningsresultatRepository tilkjentYtelseRepository;
 
     public VedtattYtelseTjeneste() {
     }
 
     @Inject
-    public VedtattYtelseTjeneste(BehandlingVedtakRepository vedtakRepository, BeregningsresultatRepository tilkjentYtelseRepository) {
+    public VedtattYtelseTjeneste(BehandlingVedtakRepository vedtakRepository,
+                                 BeregningsgrunnlagRepository beregningsgrunnlagRepository,
+                                 BeregningsresultatRepository tilkjentYtelseRepository) {
         this.vedtakRepository = vedtakRepository;
+        this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
         this.tilkjentYtelseRepository = tilkjentYtelseRepository;
     }
 
@@ -60,29 +71,88 @@ public class VedtattYtelseTjeneste {
         ytelse.setStatus(map(behandling.getFagsak().getStatus()));
 
         ytelse.setPeriode(utledPeriode(vedtak, berResultat.orElse(null)));
-        ytelse.setAnvist(map(berResultat.orElse(null)));
+        ytelse.setAnvist(map(behandling, berResultat.orElse(null)));
         return ytelse;
     }
 
-    private List<Anvisning> map(BeregningsresultatEntitet uttakResultatEntitet) {
-        if (uttakResultatEntitet == null) {
+    private List<Anvisning> map(Behandling behandling, BeregningsresultatEntitet tilkjentYtelse) {
+        if (tilkjentYtelse == null) {
             return List.of();
         }
-        return uttakResultatEntitet.getBeregningsresultatPerioder().stream()
+        if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
+            return mapForeldrepenger(tilkjentYtelse);
+        }
+        if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType())) {
+            return mapSvangerskapspenger(behandling, tilkjentYtelse); // TODO - følg med på TFP-2667 må finne ny metode når Beregning/SVP er skrevet om.
+        }
+        return List.of();
+    }
+
+    private List<Anvisning> mapForeldrepenger(BeregningsresultatEntitet tilkjent) {
+        return tilkjent.getBeregningsresultatPerioder().stream()
             .filter(periode -> periode.getDagsats() > 0)
-            .map(this::map)
+            .map(this::mapForeldrepengerPeriode)
             .collect(Collectors.toList());
     }
 
-    private Anvisning map(BeregningsresultatPeriode periode) {
+    private Anvisning mapForeldrepengerPeriode(BeregningsresultatPeriode periode) {
         final Anvisning anvisning = new Anvisning();
         final Periode p = new Periode();
         p.setFom(periode.getBeregningsresultatPeriodeFom());
         p.setTom(periode.getBeregningsresultatPeriodeTom());
         anvisning.setPeriode(p);
         anvisning.setDagsats(new Desimaltall(new BigDecimal(periode.getDagsatsFraBg())));
-        anvisning.setUtbetalingsgrad(periode.getLavestUtbetalingsgrad().map(Desimaltall::new).orElse(null));
+        anvisning.setUtbetalingsgrad(new Desimaltall(periode.getKalkulertUtbetalingsgrad()));
         return anvisning;
+    }
+
+    private List<Anvisning> mapSvangerskapspenger(Behandling behandling, BeregningsresultatEntitet tilkjent) {
+        var beregningsgrunnlag = beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(behandling.getId()).orElse(null);
+        if (beregningsgrunnlag == null) {
+            return List.of();
+        }
+        List<LocalDateSegment<DagsatsUtbgradSVP>> grunnlagSatsUtbetGrad = beregningsgrunnlag.getBeregningsgrunnlagPerioder().stream()
+            .filter(p -> p.getDagsats() > 0)
+            .map(p -> new LocalDateSegment<>(p.getBeregningsgrunnlagPeriodeFom(), p.getBeregningsgrunnlagPeriodeTom(), beregnGrunnlagSatsUtbetGradSvp(p, beregningsgrunnlag.getGrunnbeløp().getVerdi())))
+            .collect(Collectors.toList());
+        LocalDateTimeline<DagsatsUtbgradSVP> resultatTidslinje = new LocalDateTimeline<>(tilkjent.getBeregningsresultatPerioder().stream()
+            .filter(p -> p.getDagsats() > 0)
+            .map(p -> finnKombinertDagsatsUtbetaling(p, grunnlagSatsUtbetGrad))
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList()), StandardCombinators::coalesceLeftHandSide);
+
+        return resultatTidslinje.compress(Objects::equals, StandardCombinators::leftOnly).toSegments().stream()
+            .map(this::mapSvangerskapspengerPeriode)
+            .collect(Collectors.toList());
+    }
+
+    private LocalDateSegment<DagsatsUtbgradSVP> finnKombinertDagsatsUtbetaling(BeregningsresultatPeriode periode, List<LocalDateSegment<DagsatsUtbgradSVP>> dagsatsGrader) {
+        return dagsatsGrader.stream()
+            .filter(d -> d.getLocalDateInterval().encloses(periode.getBeregningsresultatPeriodeFom())) // Antar at BR-perioder ikke krysser BG-perioder
+            .findFirst()
+            .map(v -> new LocalDateSegment<>(periode.getBeregningsresultatPeriodeFom(), periode.getBeregningsresultatPeriodeTom(), v.getValue()))
+            .orElse(null);
+    }
+
+    private Anvisning mapSvangerskapspengerPeriode(LocalDateSegment<DagsatsUtbgradSVP> periode) {
+        final Anvisning anvisning = new Anvisning();
+        final Periode p = new Periode();
+        p.setFom(periode.getFom());
+        p.setTom(periode.getTom());
+        anvisning.setPeriode(p);
+        anvisning.setDagsats(new Desimaltall(new BigDecimal(periode.getValue().getDagsats())));
+        anvisning.setUtbetalingsgrad(new Desimaltall(new BigDecimal(periode.getValue().getUtbetalingsgrad())));
+        return anvisning;
+    }
+
+    private DagsatsUtbgradSVP beregnGrunnlagSatsUtbetGradSvp(BeregningsgrunnlagPeriode bgPeriode, BigDecimal grunnbeløp) {
+        var seksG = new BigDecimal(6).multiply(grunnbeløp);
+        var avkortet = bgPeriode.getBruttoPrÅr().compareTo(seksG) > 0 ? seksG : bgPeriode.getBruttoPrÅr();
+        var grad = BigDecimal.ZERO.compareTo(avkortet) == 0 ? 0 :
+            BigDecimal.TEN.multiply(BigDecimal.TEN).multiply(bgPeriode.getRedusertPrÅr()).divide(avkortet, RoundingMode.HALF_EVEN).longValue();
+        var dagsats = BigDecimal.ZERO.compareTo(bgPeriode.getRedusertPrÅr()) == 0 ? 0 :
+             new BigDecimal(bgPeriode.getDagsats()).multiply(avkortet).divide(bgPeriode.getRedusertPrÅr(), RoundingMode.HALF_EVEN).longValue();
+        return new DagsatsUtbgradSVP(dagsats, grad);
     }
 
     private Periode utledPeriode(BehandlingVedtak vedtak, BeregningsresultatEntitet beregningsresultat) {
@@ -139,5 +209,32 @@ public class VedtattYtelseTjeneste {
             typeKode = YtelseStatus.OPPRETTET;
         }
         return typeKode;
+    }
+
+    private static class DagsatsUtbgradSVP {
+        private long dagsats;
+        private long utbetalingsgrad;
+
+        DagsatsUtbgradSVP(long dagsats, long utbetalingsgrad) {
+            this.dagsats = dagsats;
+            this.utbetalingsgrad = utbetalingsgrad;
+        }
+
+        public long getDagsats() {
+            return dagsats;
+        }
+
+        public long getUtbetalingsgrad() {
+            return utbetalingsgrad;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            DagsatsUtbgradSVP that = (DagsatsUtbgradSVP) o;
+            return dagsats == that.dagsats &&
+                utbetalingsgrad == that.utbetalingsgrad;
+        }
     }
 }
