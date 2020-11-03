@@ -12,6 +12,7 @@ import javax.persistence.EntityManager;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
@@ -31,14 +32,16 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
-import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
+import no.nav.vedtak.felles.testutilities.cdi.CdiAwareExtension;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 import no.nav.vedtak.util.Tuple;
 
-@CdiDbAwareTest
+@ExtendWith(CdiAwareExtension.class)
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
 public class BeregneYtelseStegImplTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
@@ -70,9 +73,9 @@ public class BeregneYtelseStegImplTest {
         beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
                 new RegisterInnhentingIntervall(Period.of(0, 1, 0), Period.of(0, 6, 0)));
-        // repository.lagre(fagsak.getNavBruker());
-        // repository.lagre(fagsak);
-        // repository.flush();
+        repository.lagre(fagsak.getNavBruker());
+        repository.lagre(fagsak);
+        repository.flush();
 
         sats = beregningsresultatRepository.finnGjeldendeSats(BeregningSatsType.ENGANG);
 
