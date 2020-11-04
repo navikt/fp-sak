@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Period;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioF
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon.Builder;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.BasisPersonopplysningTjeneste;
@@ -42,22 +42,25 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 
-public class FødselsvilkårMorTest {
+public class FødselsvilkårMorTest extends EntityManagerAwareTest {
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
+    private BehandlingRepositoryProvider repositoryProvider;
 
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-    private InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private InngangsvilkårOversetter oversetter;
 
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
-        new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
-    private BasisPersonopplysningTjeneste personopplysningTjeneste = new BasisPersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository());
-    private InngangsvilkårOversetter oversetter = new InngangsvilkårOversetter(repositoryProvider,
-        personopplysningTjeneste, new YtelseMaksdatoTjeneste(repositoryProvider,
-            new RelatertBehandlingTjeneste(repositoryProvider)),
-        iayTjeneste,
-        Period.parse("P18W3D"));
+    @BeforeEach
+    void setUp() {
+        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
+        InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
+        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
+            new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
+        BasisPersonopplysningTjeneste personopplysningTjeneste = new BasisPersonopplysningTjeneste(
+            repositoryProvider.getPersonopplysningRepository());
+        oversetter = new InngangsvilkårOversetter(repositoryProvider, personopplysningTjeneste,
+            new YtelseMaksdatoTjeneste(repositoryProvider, new RelatertBehandlingTjeneste(repositoryProvider)),
+            iayTjeneste, Period.parse("P18W3D"));
+    }
 
     @Test
     public void skal_vurdere_vilkår_som_ikke_oppfylt_når_søker_ikke_er_kvinne() throws JsonProcessingException, IOException {
@@ -87,8 +90,7 @@ public class FødselsvilkårMorTest {
     private void leggTilSøker(AbstractTestScenario<?> scenario, NavBrukerKjønn kjønn) {
         Builder builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
         AktørId søkerAktørId = scenario.getDefaultBrukerAktørId();
-        PersonInformasjon søker = builderForRegisteropplysninger
-            .medPersonas()
+        PersonInformasjon søker = builderForRegisteropplysninger.medPersonas()
             .voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, kjønn, Region.UDEFINERT)
             .build();
         scenario.medRegisterOpplysninger(søker);
@@ -126,13 +128,15 @@ public class FødselsvilkårMorTest {
         // Arrange
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse()
-            .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
                 .medTermindato(LocalDate.now().plusWeeks(18).plusDays(4))
                 .medNavnPå("LEGEN MIN")
                 .medUtstedtDato(LocalDate.now()));
         scenario.medSøknadDato(LocalDate.now().minusDays(2))
             .medOverstyrtHendelse()
-            .medTerminbekreftelse(scenario.medOverstyrtHendelse().getTerminbekreftelseBuilder()
+            .medTerminbekreftelse(scenario.medOverstyrtHendelse()
+                .getTerminbekreftelseBuilder()
                 .medTermindato(LocalDate.now().plusWeeks(18).plusDays(4))
                 .medNavnPå("LEGEN MIN")
                 .medUtstedtDato(LocalDate.now()));
@@ -154,13 +158,15 @@ public class FødselsvilkårMorTest {
         // Arrange
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse()
-            .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
                 .medTermindato(LocalDate.now().plusWeeks(18).plusDays(2))
                 .medNavnPå("LEGEN MIN")
                 .medUtstedtDato(LocalDate.now().minusDays(2)));
         scenario.medSøknadDato(LocalDate.now().minusDays(2))
             .medOverstyrtHendelse()
-            .medTerminbekreftelse(scenario.medOverstyrtHendelse().getTerminbekreftelseBuilder()
+            .medTerminbekreftelse(scenario.medOverstyrtHendelse()
+                .getTerminbekreftelseBuilder()
                 .medTermindato(LocalDate.now().plusWeeks(18).plusDays(2))
                 .medNavnPå("LEGEN MIN")
                 .medUtstedtDato(LocalDate.now().minusDays(2)));
@@ -182,13 +188,15 @@ public class FødselsvilkårMorTest {
         // Arrange
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse()
-            .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
                 .medTermindato(LocalDate.now().minusDays(24))
                 .medNavnPå("LEGEN MIN")
                 .medUtstedtDato(LocalDate.now()));
         scenario.medSøknadDato(LocalDate.now().minusMonths(5))
             .medOverstyrtHendelse()
-            .medTerminbekreftelse(scenario.medOverstyrtHendelse().getTerminbekreftelseBuilder()
+            .medTerminbekreftelse(scenario.medOverstyrtHendelse()
+                .getTerminbekreftelseBuilder()
                 .medTermindato(LocalDate.now().minusDays(24))
                 .medNavnPå("LEGEN MIN")
                 .medUtstedtDato(LocalDate.now()));
@@ -208,12 +216,14 @@ public class FødselsvilkårMorTest {
         // Arrange
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse()
-            .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
                 .medTermindato(LocalDate.now().minusDays(26))
                 .medUtstedtDato(LocalDate.now())
                 .medNavnPå("LEGE LEGESEN"));
         scenario.medOverstyrtHendelse()
-            .medTerminbekreftelse(scenario.medOverstyrtHendelse().getTerminbekreftelseBuilder()
+            .medTerminbekreftelse(scenario.medOverstyrtHendelse()
+                .getTerminbekreftelseBuilder()
                 .medTermindato(LocalDate.now().minusDays(26))
                 .medUtstedtDato(LocalDate.now())
                 .medNavnPå("LEGE LEGESEN"));
@@ -261,14 +271,12 @@ public class FødselsvilkårMorTest {
         AktørId barnAktørId = AktørId.dummy();
         AktørId søkerAktørId = scenario.getDefaultBrukerAktørId();
 
-        PersonInformasjon fødtBarn = builderForRegisteropplysninger
-            .medPersonas()
+        PersonInformasjon fødtBarn = builderForRegisteropplysninger.medPersonas()
             .fødtBarn(barnAktørId, fødselsdato)
             .relasjonTil(søkerAktørId, rolle, true)
             .build();
 
-        PersonInformasjon søker = builderForRegisteropplysninger
-            .medPersonas()
+        PersonInformasjon søker = builderForRegisteropplysninger.medPersonas()
             .kvinne(søkerAktørId, SivilstandType.GIFT, Region.NORDEN)
             .statsborgerskap(Landkoder.NOR)
             .relasjonTil(barnAktørId, RelasjonsRolleType.BARN, true)
@@ -280,7 +288,8 @@ public class FødselsvilkårMorTest {
     }
 
     private BehandlingReferanse lagRef(Behandling behandling) {
-        return BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
+        return BehandlingReferanse.fra(behandling,
+            skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
     }
 
 }

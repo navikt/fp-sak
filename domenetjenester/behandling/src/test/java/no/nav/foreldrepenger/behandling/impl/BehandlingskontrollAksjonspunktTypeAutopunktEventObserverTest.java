@@ -14,9 +14,8 @@ import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
@@ -28,13 +27,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
 
 public class BehandlingskontrollAksjonspunktTypeAutopunktEventObserverTest {
 
-    @Rule
-    public RepositoryRule repositoryRule = new UnittestRepositoryRule();
     private HistorikkInnslagForAksjonspunktEventObserver observer; // objectet vi tester
 
     private BehandlingskontrollKontekst behandlingskontrollKontekst;
@@ -45,9 +40,8 @@ public class BehandlingskontrollAksjonspunktTypeAutopunktEventObserverTest {
     private String PERIODE = "P2W";
     private LocalDate localDate = LocalDate.now().plus(Period.parse(PERIODE));
 
-    @Before
+    @BeforeEach
     public void setup() {
-
         manuellpunkt = Mockito.mock(Aksjonspunkt.class);
         when(manuellpunkt.getAksjonspunktDefinisjon()).thenReturn(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET);
 

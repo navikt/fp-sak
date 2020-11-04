@@ -5,32 +5,28 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.testutilities.behandling.ScenarioForeldrepenger;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class RyddBeregningsgrunnlagTest {
-
-    @Rule
-    public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
-    private RepositoryProvider repositoryProvider = new RepositoryProvider(repositoryRule.getEntityManager());
+public class RyddBeregningsgrunnlagTest extends EntityManagerAwareTest {
 
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private BehandlingReferanse referanse;
     private RyddBeregningsgrunnlag ryddBeregningsgrunnlag;
 
-    @Before
+    @BeforeEach
     public void setup() {
+        var repositoryProvider = new RepositoryProvider(getEntityManager());
         beregningsgrunnlagRepository = repositoryProvider.getBeregningsgrunnlagRepository();
 
         ScenarioForeldrepenger scenario = ScenarioForeldrepenger.nyttScenario();

@@ -7,13 +7,12 @@ import static org.mockito.Mockito.verify;
 
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import javax.persistence.EntityManager;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
@@ -21,7 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAkt�
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.dokumentbestiller.BrevHistorikkinnslag;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
@@ -31,16 +30,11 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEventPubliserer;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 
+@CdiDbAwareTest
 public class DokumentKafkaBestillerTest {
 
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule();
-    @Rule
-    public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
     private DokumentKafkaBestiller dokumentKafkaBestiller;
-    private BehandlingRepositoryProvider repositoryProvider;
 
-    private BehandlingRepository behandlingRepository;
     private ProsessTaskRepository prosessTaskRepository;
 
     @Mock
@@ -51,19 +45,18 @@ public class DokumentKafkaBestillerTest {
 
     private Behandling behandling;
 
-    @Before
-    public void setup() {
-        repositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
+    @BeforeEach
+    public void setup(EntityManager entityManager) {
+        BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(entityManager);
 
         ProsessTaskEventPubliserer eventPubliserer = Mockito.mock(ProsessTaskEventPubliserer.class);
-        behandlingRepository = repositoryProvider.getBehandlingRepository();
-        prosessTaskRepository = new ProsessTaskRepositoryImpl(repositoryRule.getEntityManager(), null, eventPubliserer);
+        BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
+        prosessTaskRepository = new ProsessTaskRepositoryImpl(entityManager, null, eventPubliserer);
 
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.lagre(repositoryProvider);
         behandling = scenario.getBehandling();
-        dokumentKafkaBestiller = new DokumentKafkaBestiller(
-            behandlingRepository,
+        dokumentKafkaBestiller = new DokumentKafkaBestiller(behandlingRepository,
             prosessTaskRepository,
             brevHistorikkinnslag,
             dokumentBehandlingTjeneste);

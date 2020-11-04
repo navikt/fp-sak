@@ -14,16 +14,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.VariantFormat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivFilType;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
@@ -52,17 +50,14 @@ public class DokumentArkivTjenesteTest {
     private static final JournalpostId JOURNAL_ID = new JournalpostId("42");
     private static final String DOKUMENT_ID = "66";
     private static final Saksnummer KJENT_SAK = new Saksnummer("123456");
-    private static final String DOKUMENT_TITTEL_TERMINBEKREFTELSE = "Bekreftelse på ventet fødselsdato";
     private static final LocalDateTime NOW = LocalDateTime.of(LocalDate.now(), LocalTime.of(10, 10));
     private static final LocalDateTime YESTERDAY = LocalDateTime.of(LocalDate.now().minusDays(1), LocalTime.of(10, 10));
     private static DokumentTypeId SØK_ENG_FØDSEL;
 
     private DokumentArkivTjeneste dokumentApplikasjonTjeneste;
     private JournalConsumer mockJournalProxyService;
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
 
-    @Before
+    @BeforeEach
     public void setUp() {
         mockJournalProxyService = mock(JournalConsumer.class);
         final FagsakRepository fagsakRepository = mock(FagsakRepository.class);

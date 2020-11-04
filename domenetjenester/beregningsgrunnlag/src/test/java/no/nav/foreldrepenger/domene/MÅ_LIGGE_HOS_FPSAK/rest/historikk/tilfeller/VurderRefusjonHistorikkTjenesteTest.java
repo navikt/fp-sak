@@ -9,11 +9,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import javax.persistence.EntityManager;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
@@ -24,7 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.FaktaBeregningLagreDto;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.RefusjonskravPrArbeidsgiverVurderingDto;
@@ -47,22 +44,20 @@ import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
-public class VurderRefusjonHistorikkTjenesteTest {
+public class VurderRefusjonHistorikkTjenesteTest extends EntityManagerAwareTest {
     private static final String NAV_ORGNR = "889640782";
     private static final Arbeidsgiver VIRKSOMHET = Arbeidsgiver.virksomhet(NAV_ORGNR);
     private final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
     private final Beløp GRUNNBELØP = new Beløp(600000);
 
-    @Rule
-    public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
-    private EntityManager em = repositoryRule.getEntityManager();
     private HistorikkTjenesteAdapter historikkTjenesteAdapter;
     private VurderRefusjonHistorikkTjeneste vurderRefusjonHistorikkTjeneste;
-    private Historikkinnslag historikkinnslag = new Historikkinnslag();
+    private final Historikkinnslag historikkinnslag = new Historikkinnslag();
 
-    @Before
+    @BeforeEach
     public void setUp() {
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
+        var em = getEntityManager();
         DokumentArkivTjeneste dokumentArkivTjeneste = new DokumentArkivTjeneste(null,
             new FagsakRepository(em));
         historikkTjenesteAdapter = new HistorikkTjenesteAdapter(new HistorikkRepository(em), dokumentArkivTjeneste);

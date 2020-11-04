@@ -8,23 +8,20 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.queue.producer.ØkonomioppdragJmsProducer;
 
+@ExtendWith(MockitoExtension.class)
 public class ØkonomiOppdragKøTjenesteTest {
     private final Long behandlingId = 1L;
 
     private ØkonomiOppdragKøTjeneste oppdragKøTjeneste;
-
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
 
     @Mock
     private ØkonomioppdragRepository økonomiRepository;
@@ -32,7 +29,7 @@ public class ØkonomiOppdragKøTjenesteTest {
     private ØkonomioppdragJmsProducer økonomiJmsProducer;
 
 
-    @Before
+    @BeforeEach
     public void setUp() {
         oppdragKøTjeneste = new ØkonomiOppdragKøTjeneste(økonomiRepository, økonomiJmsProducer);
     }

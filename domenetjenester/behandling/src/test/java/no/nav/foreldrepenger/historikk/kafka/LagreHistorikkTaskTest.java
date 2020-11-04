@@ -2,56 +2,41 @@ package no.nav.foreldrepenger.historikk.kafka;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDokumentLink;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
-public class LagreHistorikkTaskTest {
-
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    String melding = new String(Files.readAllBytes(Paths.get(ClassLoader.getSystemResource("historikkinnslagmelding.json").toURI())));
-    private HistorikkRepository historikkRepository;
-    private Behandling behandling;
-    private HistorikkFraDtoMapper historikkFraDtoMapper;
-    private LagreHistorikkTask task;
-    private AbstractTestScenario<?> scenario;
-
-    public LagreHistorikkTaskTest() throws IOException, URISyntaxException {
-    }
-
-    @Before
-    public void setup() {
-        BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-        scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.lagre(repositoryProvider);
-        behandling = scenario.getBehandling();
-        melding = melding.replace("PLACEHOLDER-UUID", behandling.getUuid().toString());
-        historikkRepository = new HistorikkRepository(repoRule.getEntityManager());
-        historikkFraDtoMapper = new HistorikkFraDtoMapper(repositoryProvider.getBehandlingRepository(), repositoryProvider.getFagsakRepository());
-        task = new LagreHistorikkTask(historikkRepository, historikkFraDtoMapper);
-    }
-
+public class LagreHistorikkTaskTest extends EntityManagerAwareTest {
 
     @Test
-    public void skal_parse_melding_og_lagre_historikkinnslag() {
+    public void skal_parse_melding_og_lagre_historikkinnslag() throws Exception {
+        var entityManager = getEntityManager();
+        AbstractTestScenario<?> scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        scenario.lagre(new BehandlingRepositoryProvider(entityManager));
+        Behandling behandling = scenario.getBehandling();
+        String melding = new String(
+            Files.readAllBytes(Paths.get(ClassLoader.getSystemResource("historikkinnslagmelding.json").toURI())))
+            .replace("PLACEHOLDER-UUID", behandling.getUuid().toString());
+        HistorikkRepository historikkRepository = new HistorikkRepository(entityManager);
+        HistorikkFraDtoMapper historikkFraDtoMapper = new HistorikkFraDtoMapper(
+            new BehandlingRepository(entityManager), new FagsakRepository(entityManager));
+        LagreHistorikkTask task = new LagreHistorikkTask(historikkRepository, historikkFraDtoMapper);
+
         ProsessTaskData data = new ProsessTaskData(LagreHistorikkTask.TASKTYPE);
         data.setPayload(melding);
         task.doTask(data);

@@ -2,9 +2,9 @@ package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 
 import static java.time.LocalDate.now;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -94,7 +94,7 @@ public class DokumentmottakerKlageTest {
         historikkinnslagTjeneste = mock(HistorikkinnslagTjeneste.class);
         klageVurderingTjeneste = mock(KlageVurderingTjeneste.class);
         OrganisasjonsEnhet enhet = new OrganisasjonsEnhet("4806", "NAV Drammen");
-        when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(enhet);
+        lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(enhet);
 
         BehandlingskontrollTjeneste behandlingskontrollTjeneste = DokumentmottakTestUtil.lagBehandlingskontrollTjenesteMock(serviceProvider);
 

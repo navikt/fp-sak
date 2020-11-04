@@ -12,14 +12,14 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.KodeverkSynkroniseringRepository;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.tjeneste.virksomhet.kodeverk.v2.HentKodeverkHentKodeverkKodeverkIkkeFunnet;
 import no.nav.tjeneste.virksomhet.kodeverk.v2.informasjon.EnkeltKodeverk;
 import no.nav.tjeneste.virksomhet.kodeverk.v2.informasjon.Kode;
 import no.nav.tjeneste.virksomhet.kodeverk.v2.informasjon.Periode;
@@ -29,27 +29,20 @@ import no.nav.tjeneste.virksomhet.kodeverk.v2.meldinger.HentKodeverkRequest;
 import no.nav.tjeneste.virksomhet.kodeverk.v2.meldinger.HentKodeverkResponse;
 import no.nav.vedtak.felles.integrasjon.kodeverk.KodeverkConsumer;
 
-public class KodeverkSynkroniseringTest {
+public class KodeverkSynkroniseringTest extends EntityManagerAwareTest {
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
+    private final LocalDate MAX_DATE = LocalDate.of(9999, 12, 31);
 
-    private LocalDate MAX_DATE = LocalDate.of(9999, 12, 31);
-
-    private KodeverkSynkroniseringRepository kodeverkSynkroniseringRepository = Mockito
-            .spy(new KodeverkSynkroniseringRepository(repoRule.getEntityManager()));
+    private KodeverkSynkroniseringRepository kodeverkSynkroniseringRepository;
     private KodeverkSynkronisering kodeverkSynkronisering;
-    private KodeverkConsumer kodeverkConsumer = mock(KodeverkConsumer.class);
+    private final KodeverkConsumer kodeverkConsumer = mock(KodeverkConsumer.class);
 
-    private ArgumentMatcher<HentKodeverkRequest> kodeverkRequestArgumentMatcher = new ArgumentMatcher<HentKodeverkRequest>() {
-        @Override
-        public boolean matches(HentKodeverkRequest o) {
-            return o.getNavn().compareTo("Postnummer") == 0;
-        }
-    };
+    private final ArgumentMatcher<HentKodeverkRequest> kodeverkRequestArgumentMatcher = o -> o.getNavn().compareTo("Postnummer") == 0;
 
-    @Before
-    public void setup() throws Exception {
+    @BeforeEach
+    public void setup() {
+        kodeverkSynkroniseringRepository = Mockito
+                .spy(new KodeverkSynkroniseringRepository(getEntityManager()));
         kodeverkSynkronisering = new KodeverkSynkronisering(kodeverkSynkroniseringRepository, new KodeverkTjeneste(kodeverkConsumer));
 
         // reset oppdateringmetoder slik at de ikke endrer noe
@@ -61,7 +54,7 @@ public class KodeverkSynkroniseringTest {
     }
 
     @Test
-    public void skal_synke_kodeverk_ved_ny_versjon() throws Exception {
+    public void skal_synke_kodeverk_ved_ny_versjon() throws HentKodeverkHentKodeverkKodeverkIkkeFunnet {
         // Arrange
         HentKodeverkResponse kodeverkResponse = opprettEnkeltKodeverkResponse();
         when(kodeverkConsumer.hentKodeverk(argThat(kodeverkRequestArgumentMatcher))).thenReturn(kodeverkResponse);
@@ -83,7 +76,7 @@ public class KodeverkSynkroniseringTest {
     }
 
     @Test
-    public void skal_ikke_synke_kodeverk_ved_samme_versjon() throws Exception {
+    public void skal_ikke_synke_kodeverk_ved_samme_versjon() throws HentKodeverkHentKodeverkKodeverkIkkeFunnet {
         // Arrange
         HentKodeverkResponse kodeverkResponse = opprettEnkeltKodeverkResponse();
         when(kodeverkConsumer.hentKodeverk(argThat(kodeverkRequestArgumentMatcher))).thenReturn(kodeverkResponse);
@@ -115,7 +108,7 @@ public class KodeverkSynkroniseringTest {
         return response;
     }
 
-    private HentKodeverkResponse opprettEnkeltKodeverkResponse() throws Exception {
+    private HentKodeverkResponse opprettEnkeltKodeverkResponse() {
         EnkeltKodeverk enkeltKodeverk = new EnkeltKodeverk();
         enkeltKodeverk.setNavn("Postnummer");
         enkeltKodeverk.setVersjonsnummer("6");

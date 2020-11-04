@@ -8,8 +8,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Optional;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -30,17 +30,23 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.vedtak.felles.testutilities.db.Repository;
-import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
 
-public class RelatertBehandlingTjenesteTest {
-    @Rule
-    public RepositoryRule repoRule = new UnittestRepositoryRule();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-    private Repository repository = repoRule.getRepository();
+public class RelatertBehandlingTjenesteTest extends EntityManagerAwareTest {
 
-    private RelatertBehandlingTjeneste relatertBehandlingTjeneste = new RelatertBehandlingTjeneste(repositoryProvider);
+    private BehandlingRepositoryProvider repositoryProvider;
+    private Repository repository;
+
+    private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
+
+    @BeforeEach
+    void setUp() {
+        var entityManager = getEntityManager();
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        repository = new Repository(entityManager);
+        relatertBehandlingTjeneste = new RelatertBehandlingTjeneste(repositoryProvider);
+    }
 
     @Test
     public void finnesIngenRelatertFagsakReturnererOptionalEmpty() {

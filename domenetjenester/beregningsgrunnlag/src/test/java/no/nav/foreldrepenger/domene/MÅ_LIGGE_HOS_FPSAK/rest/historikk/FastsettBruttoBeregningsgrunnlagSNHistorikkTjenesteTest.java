@@ -7,8 +7,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.FastsettBruttoBeregningsgrunnlagSNDto;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.VurderVarigEndringEllerNyoppstartetSNDto;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus;
@@ -34,24 +34,28 @@ import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Inntektskategori;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
-public class FastsettBruttoBeregningsgrunnlagSNHistorikkTjenesteTest {
-    private AbstractTestScenario<?> scenario;
-    @Rule
-    public final UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
+public class FastsettBruttoBeregningsgrunnlagSNHistorikkTjenesteTest extends EntityManagerAwareTest {
+
+    private BehandlingRepositoryProvider repositoryProvider;
     private static final int BRUTTO_BG = 200000;
 
     private final HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder();
-    private Behandling behandling;
-    private FastsettBruttoBeregningsgrunnlagSNHistorikkTjeneste fastsettBruttoBeregningsgrunnlagSNHistorikkTjeneste = new FastsettBruttoBeregningsgrunnlagSNHistorikkTjeneste(lagMockHistory());
-    private VurderVarigEndringEllerNyoppstarteteSNHistorikkTjeneste vurderVarigEndringEllerNyoppstarteteSNHistorikkTjeneste = new VurderVarigEndringEllerNyoppstarteteSNHistorikkTjeneste(lagMockHistory());
+    private FastsettBruttoBeregningsgrunnlagSNHistorikkTjeneste fastsettBruttoBeregningsgrunnlagSNHistorikkTjeneste;
+    private VurderVarigEndringEllerNyoppstarteteSNHistorikkTjeneste vurderVarigEndringEllerNyoppstarteteSNHistorikkTjeneste;
 
+
+    @BeforeEach
+    void setUp() {
+        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
+        fastsettBruttoBeregningsgrunnlagSNHistorikkTjeneste = new FastsettBruttoBeregningsgrunnlagSNHistorikkTjeneste(lagMockHistory());
+        vurderVarigEndringEllerNyoppstarteteSNHistorikkTjeneste = new VurderVarigEndringEllerNyoppstarteteSNHistorikkTjeneste(lagMockHistory());
+    }
 
     @Test
     public void skal_generere_historikkinnslag_ved_fastsettelse_av_brutto_beregningsgrunnlag_SN() {
         // Arrange
         boolean varigEndring = true;
-        buildOgLagreBeregningsgrunnlag();
+        var behandling = buildOgLagreBeregningsgrunnlag();
 
         //Dto
         var vurderVarigEndringEllerNyoppstartetSNDto = new VurderVarigEndringEllerNyoppstartetSNDto("begrunnelse1", varigEndring);
@@ -98,16 +102,16 @@ public class FastsettBruttoBeregningsgrunnlagSNHistorikkTjenesteTest {
         return mockHistory;
     }
 
-    private BeregningsgrunnlagEntitet buildOgLagreBeregningsgrunnlag() {
-        scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        behandling = scenario.lagre(repositoryProvider);
+    private Behandling buildOgLagreBeregningsgrunnlag() {
+        AbstractTestScenario<?> scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var behandling = scenario.lagre(repositoryProvider);
         BeregningsgrunnlagEntitet.Builder beregningsgrunnlagBuilder = BeregningsgrunnlagEntitet.builder()
             .medGrunnbeløp(BigDecimal.ONE)
             .medSkjæringstidspunkt(LocalDate.now().minusDays(5));
 
         leggTilBeregningsgrunnlagPeriode(beregningsgrunnlagBuilder, LocalDate.now());
 
-        return beregningsgrunnlagBuilder.build();
+        return behandling;
     }
 
     private void leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagEntitet.Builder beregningsgrunnlagBuilder, LocalDate fomDato) {
