@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -34,27 +34,30 @@ public class FinnStatusForMottakereTest extends OppdragskontrollTjenesteTestBase
     private ForrigeOppdragInput forrigeOppdragInputFPFP;
     private BehandlingVedtakOppdrag behandlingVedtakFP;
 
-    @Before
+    @BeforeEach
     public void setup() {
         super.setUp();
         forrigeOppdragInputFPFP = mock(ForrigeOppdragInput.class);
-        behandlingVedtakFP = new BehandlingVedtakOppdrag("Saksbehandler", BehandlingResultatType.FORELDREPENGER_ENDRET, DAGENS_DATO);
+        behandlingVedtakFP = new BehandlingVedtakOppdrag("Saksbehandler", BehandlingResultatType.FORELDREPENGER_ENDRET,
+            DAGENS_DATO);
     }
 
     @Test
     public void skalMottakerStatusForBrukerSettesTilENDRNårBrukerErMottakerBådeIForrigeBehandlingOgEndretTilkjentYtelseIRevurdering() {
         //Arrange
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(), List.of(1000, 0),
-            List.of(true, false), List.of(false, false), List.of(false, false));
-        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering, Optional.of(DAGENS_DATO.plusDays(1)),
-            List.of(1200, 0), List.of(true, false), List.of(false, false), List.of(false, false));
+        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(),
+            List.of(1000, 0), List.of(true, false), List.of(false, false), List.of(false, false));
+        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering,
+            Optional.of(DAGENS_DATO.plusDays(1)), List.of(1200, 0), List.of(true, false), List.of(false, false),
+            List.of(false, false));
         List<TilkjentYtelseAndel> andelerOriginal = getOppdragAndeler(forrigeBeregningsresultatFP);
         List<TilkjentYtelseAndel> andelerRevurdering = getOppdragAndeler(revurderingBeregningsresultatFP);
         OppdragInput behandlingInfoFP = opprettBehandlingInfoFP(revurdering, revurderingBeregningsresultatFP);
 
         //Act
-        OppdragsmottakerStatus status = FinnStatusForMottakere.finnStatusForMottakerBruker(behandlingInfoFP, andelerOriginal, andelerRevurdering, true);
+        OppdragsmottakerStatus status = FinnStatusForMottakere.finnStatusForMottakerBruker(behandlingInfoFP,
+            andelerOriginal, andelerRevurdering, true);
 
         //Assert
         assertThat(status).isEqualTo(OppdragsmottakerStatus.ENDR);
@@ -64,19 +67,22 @@ public class FinnStatusForMottakereTest extends OppdragskontrollTjenesteTestBase
     public void skalMottakerStatusForBrukerSettesTilUENDRNårBrukerErMottakerIForrigeBehandlingOgFørEndringsdatoITilkjentYtelseIRevurdering() {
         //Arrange
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(), List.of(1000, 1000),
-            List.of(true, false), List.of(false, false), List.of(false, false));
-        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering, Optional.of(DAGENS_DATO.plusDays(6)),
-            List.of(1000, 1000), List.of(true, false), List.of(false, false), List.of(true, false));
+        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(),
+            List.of(1000, 1000), List.of(true, false), List.of(false, false), List.of(false, false));
+        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering,
+            Optional.of(DAGENS_DATO.plusDays(6)), List.of(1000, 1000), List.of(true, false), List.of(false, false),
+            List.of(true, false));
         List<TilkjentYtelseAndel> andelerOriginal = getOppdragAndeler(forrigeBeregningsresultatFP);
-        List<TilkjentYtelsePeriode> tilkjentYtelsePeriodeList = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL).mapPerioderFomEndringsdato(revurderingBeregningsresultatFP);
+        List<TilkjentYtelsePeriode> tilkjentYtelsePeriodeList = new TilkjentYtelseMapper(
+            FamilieYtelseType.FØDSEL).mapPerioderFomEndringsdato(revurderingBeregningsresultatFP);
         List<TilkjentYtelseAndel> andelerRevurdering = tilkjentYtelsePeriodeList.stream()
             .flatMap(periode -> periode.getTilkjentYtelseAndeler().stream())
             .collect(Collectors.toList());
         OppdragInput behandlingInfoFP = opprettBehandlingInfoFP(revurdering, revurderingBeregningsresultatFP);
 
         //Act
-        OppdragsmottakerStatus status = FinnStatusForMottakere.finnStatusForMottakerBruker(behandlingInfoFP, andelerOriginal, andelerRevurdering, true);
+        OppdragsmottakerStatus status = FinnStatusForMottakere.finnStatusForMottakerBruker(behandlingInfoFP,
+            andelerOriginal, andelerRevurdering, true);
 
         //Assert
         assertThat(status).isEqualTo(OppdragsmottakerStatus.UENDR);
@@ -86,16 +92,18 @@ public class FinnStatusForMottakereTest extends OppdragskontrollTjenesteTestBase
     public void skalMottakerStatusForBrukerSettesTilOPPHNårBrukerErMottakerIForrigeOgIkkeMottakerIRevurdering() {
         //Arrange
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(), List.of(1000, 1000),
-            List.of(true, false), List.of(false, false), List.of(false, false));
-        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering, Optional.of(DAGENS_DATO.plusDays(1)),
-            List.of(0, 1000), List.of(true, false), List.of(false, false), List.of(false, false));
+        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(),
+            List.of(1000, 1000), List.of(true, false), List.of(false, false), List.of(false, false));
+        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering,
+            Optional.of(DAGENS_DATO.plusDays(1)), List.of(0, 1000), List.of(true, false), List.of(false, false),
+            List.of(false, false));
         List<TilkjentYtelseAndel> andelerOriginal = getOppdragAndeler(forrigeBeregningsresultatFP);
         List<TilkjentYtelseAndel> andelerRevurdering = getOppdragAndeler(revurderingBeregningsresultatFP);
         OppdragInput behandlingInfoFP = opprettBehandlingInfoFP(revurdering, revurderingBeregningsresultatFP);
 
         //Act
-        OppdragsmottakerStatus status = FinnStatusForMottakere.finnStatusForMottakerBruker(behandlingInfoFP, andelerOriginal, andelerRevurdering, true);
+        OppdragsmottakerStatus status = FinnStatusForMottakere.finnStatusForMottakerBruker(behandlingInfoFP,
+            andelerOriginal, andelerRevurdering, true);
 
         //Assert
         assertThat(status).isEqualTo(OppdragsmottakerStatus.OPPH);
@@ -105,16 +113,18 @@ public class FinnStatusForMottakereTest extends OppdragskontrollTjenesteTestBase
     public void skalMottakerStatusForBrukerSettesTilIKKE_MOTTAKERNårBrukerErMottakerHverkenIForrigeBehandlingEllerIRevurdering() {
         //Arrange
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(), List.of(0, 1000),
-            List.of(true, false), List.of(false, false), List.of(false, false));
-        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering, Optional.of(DAGENS_DATO.plusDays(1)),
+        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(),
             List.of(0, 1000), List.of(true, false), List.of(false, false), List.of(false, false));
+        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering,
+            Optional.of(DAGENS_DATO.plusDays(1)), List.of(0, 1000), List.of(true, false), List.of(false, false),
+            List.of(false, false));
         List<TilkjentYtelseAndel> andelerOriginal = getOppdragAndeler(forrigeBeregningsresultatFP);
         List<TilkjentYtelseAndel> andelerRevurdering = getOppdragAndeler(revurderingBeregningsresultatFP);
         OppdragInput behandlingInfoFP = opprettBehandlingInfoFP(revurdering, revurderingBeregningsresultatFP);
 
         //Act
-        OppdragsmottakerStatus status = FinnStatusForMottakere.finnStatusForMottakerBruker(behandlingInfoFP, andelerOriginal, andelerRevurdering, false);
+        OppdragsmottakerStatus status = FinnStatusForMottakere.finnStatusForMottakerBruker(behandlingInfoFP,
+            andelerOriginal, andelerRevurdering, false);
 
         //Assert
         assertThat(status).isEqualTo(OppdragsmottakerStatus.IKKE_MOTTAKER);
@@ -124,16 +134,18 @@ public class FinnStatusForMottakereTest extends OppdragskontrollTjenesteTestBase
     public void skalMottakerStatusForBrukerSettesTilENDRNårBrukerIkkeErMottakerIForrigeBehandlingOgMottakerIRevurderingOgDetFinnesOppdragForBrukerFraFør() {
         //Arrange
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(), List.of(0, 1000),
-            List.of(true, false), List.of(false, false), List.of(false, false));
-        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering, Optional.of(DAGENS_DATO.plusDays(1)),
-            List.of(1000, 1000), List.of(true, false), List.of(false, false), List.of(false, false));
+        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(),
+            List.of(0, 1000), List.of(true, false), List.of(false, false), List.of(false, false));
+        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering,
+            Optional.of(DAGENS_DATO.plusDays(1)), List.of(1000, 1000), List.of(true, false), List.of(false, false),
+            List.of(false, false));
         List<TilkjentYtelseAndel> andelerOriginal = getOppdragAndeler(forrigeBeregningsresultatFP);
         List<TilkjentYtelseAndel> andelerRevurdering = getOppdragAndeler(revurderingBeregningsresultatFP);
         OppdragInput behandlingInfoFP = opprettBehandlingInfoFP(revurdering, revurderingBeregningsresultatFP);
 
         //Act
-        OppdragsmottakerStatus status = FinnStatusForMottakere.finnStatusForMottakerBruker(behandlingInfoFP, andelerOriginal, andelerRevurdering, true);
+        OppdragsmottakerStatus status = FinnStatusForMottakere.finnStatusForMottakerBruker(behandlingInfoFP,
+            andelerOriginal, andelerRevurdering, true);
 
         //Assert
         assertThat(status).isEqualTo(OppdragsmottakerStatus.ENDR);
@@ -143,16 +155,18 @@ public class FinnStatusForMottakereTest extends OppdragskontrollTjenesteTestBase
     public void skalMottakerStatusForBrukerSettesTilNYNårBrukerIkkeErMottakerIForrigeBehandlingOgBlirOppdragsmottakerFørstegangIRevurdering() {
         //Arrange
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(), List.of(0, 1000),
-            List.of(true, false), List.of(false, false), List.of(false, false));
-        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering, Optional.of(DAGENS_DATO.plusDays(1)),
-            List.of(1000, 1000), List.of(true, false), List.of(false, false), List.of(false, false));
+        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(),
+            List.of(0, 1000), List.of(true, false), List.of(false, false), List.of(false, false));
+        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering,
+            Optional.of(DAGENS_DATO.plusDays(1)), List.of(1000, 1000), List.of(true, false), List.of(false, false),
+            List.of(false, false));
         List<TilkjentYtelseAndel> andelerOriginal = getOppdragAndeler(forrigeBeregningsresultatFP);
         List<TilkjentYtelseAndel> andelerRevurdering = getOppdragAndeler(revurderingBeregningsresultatFP);
         OppdragInput behandlingInfoFP = opprettBehandlingInfoFP(revurdering, revurderingBeregningsresultatFP);
 
         //Act
-        OppdragsmottakerStatus status = FinnStatusForMottakere.finnStatusForMottakerBruker(behandlingInfoFP, andelerOriginal, andelerRevurdering, false);
+        OppdragsmottakerStatus status = FinnStatusForMottakere.finnStatusForMottakerBruker(behandlingInfoFP,
+            andelerOriginal, andelerRevurdering, false);
 
         //Assert
         assertThat(status).isEqualTo(OppdragsmottakerStatus.NY);
@@ -162,17 +176,19 @@ public class FinnStatusForMottakereTest extends OppdragskontrollTjenesteTestBase
     public void skalMottakerStatusForArbeidsgiverSettesTilENDRNårArbeidsgiverErMottakerBådeIForrigeBehandlingOgEndretTilkjentYtelseIRevurdering() {
         //Arrange
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(), List.of(0, 1000),
-            List.of(true, false), List.of(false, false), List.of(false, false));
-        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering, Optional.of(DAGENS_DATO.plusDays(1)),
-            List.of(0, 1200), List.of(true, false), List.of(false, false), List.of(false, false));
+        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(),
+            List.of(0, 1000), List.of(true, false), List.of(false, false), List.of(false, false));
+        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering,
+            Optional.of(DAGENS_DATO.plusDays(1)), List.of(0, 1200), List.of(true, false), List.of(false, false),
+            List.of(false, false));
         List<TilkjentYtelseAndel> andelerOriginal = getOppdragAndeler(forrigeBeregningsresultatFP);
         List<TilkjentYtelseAndel> andelerRevurdering = getOppdragAndeler(revurderingBeregningsresultatFP);
         OppdragInput behandlingInfoFP = opprettBehandlingInfoFP(revurdering, revurderingBeregningsresultatFP);
 
         //Act
-        List<Oppdragsmottaker> mottakerList = FinnStatusForMottakere.finnStatusForMottakerArbeidsgiver(behandlingInfoFP, andelerOriginal,
-            andelerRevurdering, Collections.singletonList(OppdragskontrollTestVerktøy.endreTilElleveSiffer(virksomhet)));
+        List<Oppdragsmottaker> mottakerList = FinnStatusForMottakere.finnStatusForMottakerArbeidsgiver(behandlingInfoFP,
+            andelerOriginal, andelerRevurdering,
+            Collections.singletonList(OppdragskontrollTestVerktøy.endreTilElleveSiffer(virksomhet)));
 
         //Assert
         assertThat(mottakerList).hasSize(1);
@@ -183,20 +199,23 @@ public class FinnStatusForMottakereTest extends OppdragskontrollTjenesteTestBase
     public void skalMottakerStatusForArbeidsgiverSettesTilUENDRNårArbeidsgiverErMottakerIForrigeBehandlingOgFørEndringsdatoITilkjentYtelseIRevurdering() {
         //Arrange
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(), List.of(1000, 1000),
-            List.of(true, false), List.of(false, false), List.of(false, false));
-        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering, Optional.of(DAGENS_DATO.plusDays(6)),
-            List.of(1000, 1000), List.of(true, false), List.of(false, false), List.of(false, true));
+        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(),
+            List.of(1000, 1000), List.of(true, false), List.of(false, false), List.of(false, false));
+        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering,
+            Optional.of(DAGENS_DATO.plusDays(6)), List.of(1000, 1000), List.of(true, false), List.of(false, false),
+            List.of(false, true));
         List<TilkjentYtelseAndel> andelerOriginal = getOppdragAndeler(forrigeBeregningsresultatFP);
-        List<TilkjentYtelsePeriode> tilkjentYtelsePeriodeList = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL).mapPerioderFomEndringsdato(revurderingBeregningsresultatFP);
+        List<TilkjentYtelsePeriode> tilkjentYtelsePeriodeList = new TilkjentYtelseMapper(
+            FamilieYtelseType.FØDSEL).mapPerioderFomEndringsdato(revurderingBeregningsresultatFP);
         List<TilkjentYtelseAndel> andelerRevurdering = tilkjentYtelsePeriodeList.stream()
             .flatMap(periode -> periode.getTilkjentYtelseAndeler().stream())
             .collect(Collectors.toList());
         OppdragInput behandlingInfoFP = opprettBehandlingInfoFP(revurdering, revurderingBeregningsresultatFP);
 
         //Act
-        List<Oppdragsmottaker> mottakerList = FinnStatusForMottakere.finnStatusForMottakerArbeidsgiver(behandlingInfoFP, andelerOriginal,
-            andelerRevurdering, Collections.singletonList(OppdragskontrollTestVerktøy.endreTilElleveSiffer(virksomhet)));
+        List<Oppdragsmottaker> mottakerList = FinnStatusForMottakere.finnStatusForMottakerArbeidsgiver(behandlingInfoFP,
+            andelerOriginal, andelerRevurdering,
+            Collections.singletonList(OppdragskontrollTestVerktøy.endreTilElleveSiffer(virksomhet)));
 
         //Assert
         assertThat(mottakerList).hasSize(1);
@@ -207,17 +226,19 @@ public class FinnStatusForMottakereTest extends OppdragskontrollTjenesteTestBase
     public void skalMottakerStatusForArbeidsgiverSettesTilOPPHNårArbeidsgiverErMottakerIForrigeOgIkkeMottakerIRevurdering() {
         //Arrange
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(), List.of(1000, 1000),
-            List.of(true, false), List.of(false, false), List.of(false, false));
-        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering, Optional.of(DAGENS_DATO.plusDays(1)),
-            List.of(1000, 0), List.of(true, false), List.of(false, false), List.of(false, false));
+        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(),
+            List.of(1000, 1000), List.of(true, false), List.of(false, false), List.of(false, false));
+        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering,
+            Optional.of(DAGENS_DATO.plusDays(1)), List.of(1000, 0), List.of(true, false), List.of(false, false),
+            List.of(false, false));
         List<TilkjentYtelseAndel> andelerOriginal = getOppdragAndeler(forrigeBeregningsresultatFP);
         List<TilkjentYtelseAndel> andelerRevurdering = getOppdragAndeler(revurderingBeregningsresultatFP);
         OppdragInput behandlingInfoFP = opprettBehandlingInfoFP(revurdering, revurderingBeregningsresultatFP);
 
         //Act
-        List<Oppdragsmottaker> mottakerList = FinnStatusForMottakere.finnStatusForMottakerArbeidsgiver(behandlingInfoFP, andelerOriginal,
-            andelerRevurdering, Collections.singletonList(OppdragskontrollTestVerktøy.endreTilElleveSiffer(virksomhet)));
+        List<Oppdragsmottaker> mottakerList = FinnStatusForMottakere.finnStatusForMottakerArbeidsgiver(behandlingInfoFP,
+            andelerOriginal, andelerRevurdering,
+            Collections.singletonList(OppdragskontrollTestVerktøy.endreTilElleveSiffer(virksomhet)));
 
         //Assert
         assertThat(mottakerList).hasSize(1);
@@ -228,17 +249,19 @@ public class FinnStatusForMottakereTest extends OppdragskontrollTjenesteTestBase
     public void skalMottakerStatusForArbeidsgiverSettesTilENDRNårArbeidsgiverIkkeErMottakerIForrigeBehandlingOgMottakerIRevurderingOgDetFinnesOppdragForArbeidsgiverFraFør() {
         //Arrange
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(), List.of(1000, 0),
-            List.of(true, false), List.of(false, false), List.of(false, false));
-        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering, Optional.of(DAGENS_DATO.plusDays(1)),
-            List.of(1000, 1000), List.of(true, false), List.of(false, false), List.of(false, false));
+        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(),
+            List.of(1000, 0), List.of(true, false), List.of(false, false), List.of(false, false));
+        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering,
+            Optional.of(DAGENS_DATO.plusDays(1)), List.of(1000, 1000), List.of(true, false), List.of(false, false),
+            List.of(false, false));
         List<TilkjentYtelseAndel> andelerOriginal = getOppdragAndeler(forrigeBeregningsresultatFP);
         List<TilkjentYtelseAndel> andelerRevurdering = getOppdragAndeler(revurderingBeregningsresultatFP);
         OppdragInput behandlingInfoFP = opprettBehandlingInfoFP(revurdering, revurderingBeregningsresultatFP);
 
         //Act
-        List<Oppdragsmottaker> mottakerList = FinnStatusForMottakere.finnStatusForMottakerArbeidsgiver(behandlingInfoFP, andelerOriginal,
-            andelerRevurdering, Collections.singletonList(OppdragskontrollTestVerktøy.endreTilElleveSiffer(virksomhet)));
+        List<Oppdragsmottaker> mottakerList = FinnStatusForMottakere.finnStatusForMottakerArbeidsgiver(behandlingInfoFP,
+            andelerOriginal, andelerRevurdering,
+            Collections.singletonList(OppdragskontrollTestVerktøy.endreTilElleveSiffer(virksomhet)));
 
         //Assert
         assertThat(mottakerList).hasSize(1);
@@ -249,17 +272,18 @@ public class FinnStatusForMottakereTest extends OppdragskontrollTjenesteTestBase
     public void skalMottakerStatusForArbeidsgiverSettesTilNYNårArbeidsgiverIkkeErMottakerIForrigeBehandlingOgBlirOppdragsmottakerFørstegangIRevurdering() {
         //Arrange
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(), List.of(1000, 0),
-            List.of(true, false), List.of(false, false), List.of(false, false));
-        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering, Optional.of(DAGENS_DATO.plusDays(1)),
-            List.of(1000, 1000), List.of(true, false), List.of(false, false), List.of(false, false));
+        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(),
+            List.of(1000, 0), List.of(true, false), List.of(false, false), List.of(false, false));
+        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering,
+            Optional.of(DAGENS_DATO.plusDays(1)), List.of(1000, 1000), List.of(true, false), List.of(false, false),
+            List.of(false, false));
         List<TilkjentYtelseAndel> andelerOriginal = getOppdragAndeler(forrigeBeregningsresultatFP);
         List<TilkjentYtelseAndel> andelerRevurdering = getOppdragAndeler(revurderingBeregningsresultatFP);
         OppdragInput behandlingInfoFP = opprettBehandlingInfoFP(revurdering, revurderingBeregningsresultatFP);
 
         //Act
-        List<Oppdragsmottaker> mottakerList = FinnStatusForMottakere.finnStatusForMottakerArbeidsgiver(behandlingInfoFP, andelerOriginal,
-            andelerRevurdering, Collections.emptyList());
+        List<Oppdragsmottaker> mottakerList = FinnStatusForMottakere.finnStatusForMottakerArbeidsgiver(behandlingInfoFP,
+            andelerOriginal, andelerRevurdering, Collections.emptyList());
 
         //Assert
         assertThat(mottakerList).hasSize(1);
@@ -270,16 +294,18 @@ public class FinnStatusForMottakereTest extends OppdragskontrollTjenesteTestBase
     public void skalMottakerStatusForBrukerSettesTilENDRNårPrivatArbeidsgiverErMottakerBådeIForrigeBehandlingOgEndretTilkjentYtelseIRevurdering() {
         //Arrange
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(), List.of(0, 1000),
-            List.of(true, false), List.of(true, true), List.of(false, false));
-        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering, Optional.of(DAGENS_DATO.plusDays(1)),
-            List.of(0, 1200), List.of(true, false), List.of(false, true), List.of(false, false));
+        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(),
+            List.of(0, 1000), List.of(true, false), List.of(true, true), List.of(false, false));
+        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering,
+            Optional.of(DAGENS_DATO.plusDays(1)), List.of(0, 1200), List.of(true, false), List.of(false, true),
+            List.of(false, false));
         List<TilkjentYtelseAndel> andelerOriginal = getOppdragAndeler(forrigeBeregningsresultatFP);
         List<TilkjentYtelseAndel> andelerRevurdering = getOppdragAndeler(revurderingBeregningsresultatFP);
         OppdragInput behandlingInfoFP = opprettBehandlingInfoFP(revurdering, revurderingBeregningsresultatFP);
 
         //Act
-        OppdragsmottakerStatus status = FinnStatusForMottakere.finnStatusForMottakerBruker(behandlingInfoFP, andelerOriginal, andelerRevurdering, true);
+        OppdragsmottakerStatus status = FinnStatusForMottakere.finnStatusForMottakerBruker(behandlingInfoFP,
+            andelerOriginal, andelerRevurdering, true);
 
         //Assert
         assertThat(status).isEqualTo(OppdragsmottakerStatus.ENDR);
@@ -289,16 +315,18 @@ public class FinnStatusForMottakereTest extends OppdragskontrollTjenesteTestBase
     public void skalMottakerStatusForBrukerSettesTilENDRNårPrivatArbeidsgiverErMottakerIForrigeBehandlingOgBrukerBlirMottakerIEndretTilkjentYtelseIRevurdering() {
         //Arrange
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(), List.of(0, 1000),
-            List.of(true, false), List.of(true, true), List.of(false, false));
-        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering, Optional.of(DAGENS_DATO.plusDays(1)),
-            List.of(1000, 0), List.of(true, false), List.of(true, true), List.of(false, false));
+        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(),
+            List.of(0, 1000), List.of(true, false), List.of(true, true), List.of(false, false));
+        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering,
+            Optional.of(DAGENS_DATO.plusDays(1)), List.of(1000, 0), List.of(true, false), List.of(true, true),
+            List.of(false, false));
         List<TilkjentYtelseAndel> andelerOriginal = getOppdragAndeler(forrigeBeregningsresultatFP);
         List<TilkjentYtelseAndel> andelerRevurdering = getOppdragAndeler(revurderingBeregningsresultatFP);
         OppdragInput behandlingInfoFP = opprettBehandlingInfoFP(revurdering, revurderingBeregningsresultatFP);
 
         //Act
-        OppdragsmottakerStatus status = FinnStatusForMottakere.finnStatusForMottakerBruker(behandlingInfoFP, andelerOriginal, andelerRevurdering, true);
+        OppdragsmottakerStatus status = FinnStatusForMottakere.finnStatusForMottakerBruker(behandlingInfoFP,
+            andelerOriginal, andelerRevurdering, true);
 
         //Assert
         assertThat(status).isEqualTo(OppdragsmottakerStatus.ENDR);
@@ -308,16 +336,18 @@ public class FinnStatusForMottakereTest extends OppdragskontrollTjenesteTestBase
     public void skalMottakerStatusForBrukerSettesTilENDRNårPrivatArbeidsgiverErMottakerIForrigeBehandlingOgBrukerMedArbforholdHosEnOrgBlirMottakerIEndretTilkjentYtelseIRevurdering() {
         //Arrange
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(), List.of(0, 1000),
-            List.of(true, false), List.of(true, true), List.of(false, false));
-        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering, Optional.of(DAGENS_DATO.plusDays(1)),
-            List.of(1000, 0), List.of(true, false), List.of(false, true), List.of(false, false));
+        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(),
+            List.of(0, 1000), List.of(true, false), List.of(true, true), List.of(false, false));
+        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering,
+            Optional.of(DAGENS_DATO.plusDays(1)), List.of(1000, 0), List.of(true, false), List.of(false, true),
+            List.of(false, false));
         List<TilkjentYtelseAndel> andelerOriginal = getOppdragAndeler(forrigeBeregningsresultatFP);
         List<TilkjentYtelseAndel> andelerRevurdering = getOppdragAndeler(revurderingBeregningsresultatFP);
         OppdragInput behandlingInfoFP = opprettBehandlingInfoFP(revurdering, revurderingBeregningsresultatFP);
 
         //Act
-        OppdragsmottakerStatus status = FinnStatusForMottakere.finnStatusForMottakerBruker(behandlingInfoFP, andelerOriginal, andelerRevurdering, true);
+        OppdragsmottakerStatus status = FinnStatusForMottakere.finnStatusForMottakerBruker(behandlingInfoFP,
+            andelerOriginal, andelerRevurdering, true);
 
         //Assert
         assertThat(status).isEqualTo(OppdragsmottakerStatus.ENDR);
@@ -327,16 +357,18 @@ public class FinnStatusForMottakereTest extends OppdragskontrollTjenesteTestBase
     public void skalMottakerStatusForBrukerSettesTilENDRNårBrukerErMottakerIForrigeBehandlingOgPrivatArbeidsgiverBlirMottakerIEndretTilkjentYtelseIRevurdering() {
         //Arrange
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(), List.of(1000, 0),
-            List.of(true, false), List.of(true, true), List.of(false, false));
-        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering, Optional.of(DAGENS_DATO.plusDays(1)),
-            List.of(0, 1000), List.of(true, false), List.of(true, true), List.of(false, false));
+        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(),
+            List.of(1000, 0), List.of(true, false), List.of(true, true), List.of(false, false));
+        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering,
+            Optional.of(DAGENS_DATO.plusDays(1)), List.of(0, 1000), List.of(true, false), List.of(true, true),
+            List.of(false, false));
         List<TilkjentYtelseAndel> andelerOriginal = getOppdragAndeler(forrigeBeregningsresultatFP);
         List<TilkjentYtelseAndel> andelerRevurdering = getOppdragAndeler(revurderingBeregningsresultatFP);
         OppdragInput behandlingInfoFP = opprettBehandlingInfoFP(revurdering, revurderingBeregningsresultatFP);
 
         //Act
-        OppdragsmottakerStatus status = FinnStatusForMottakere.finnStatusForMottakerBruker(behandlingInfoFP, andelerOriginal, andelerRevurdering, true);
+        OppdragsmottakerStatus status = FinnStatusForMottakere.finnStatusForMottakerBruker(behandlingInfoFP,
+            andelerOriginal, andelerRevurdering, true);
 
         //Assert
         assertThat(status).isEqualTo(OppdragsmottakerStatus.ENDR);
@@ -346,16 +378,18 @@ public class FinnStatusForMottakereTest extends OppdragskontrollTjenesteTestBase
     public void skalMottakerStatusForBrukerSettesTilENDRNårBrukerMedArbforholdHosEnOrgErMottakerIForrigeBehandlingOgPrivatArbeidsgiverBlirMottakerIEndretTilkjentYtelseIRevurdering() {
         //Arrange
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(), List.of(1000, 0),
-            List.of(true, false), List.of(false, true), List.of(false, false));
-        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering, Optional.of(DAGENS_DATO.plusDays(1)),
-            List.of(0, 1000), List.of(true, false), List.of(true, true), List.of(false, false));
+        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(),
+            List.of(1000, 0), List.of(true, false), List.of(false, true), List.of(false, false));
+        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering,
+            Optional.of(DAGENS_DATO.plusDays(1)), List.of(0, 1000), List.of(true, false), List.of(true, true),
+            List.of(false, false));
         List<TilkjentYtelseAndel> andelerOriginal = getOppdragAndeler(forrigeBeregningsresultatFP);
         List<TilkjentYtelseAndel> andelerRevurdering = getOppdragAndeler(revurderingBeregningsresultatFP);
         OppdragInput behandlingInfoFP = opprettBehandlingInfoFP(revurdering, revurderingBeregningsresultatFP);
 
         //Act
-        OppdragsmottakerStatus status = FinnStatusForMottakere.finnStatusForMottakerBruker(behandlingInfoFP, andelerOriginal, andelerRevurdering, true);
+        OppdragsmottakerStatus status = FinnStatusForMottakere.finnStatusForMottakerBruker(behandlingInfoFP,
+            andelerOriginal, andelerRevurdering, true);
 
         //Assert
         assertThat(status).isEqualTo(OppdragsmottakerStatus.ENDR);
@@ -365,19 +399,22 @@ public class FinnStatusForMottakereTest extends OppdragskontrollTjenesteTestBase
     public void skalMottakerStatusForBrukerSettesTilUENDRNårPrivatArbeidsgiverErMottakerIForrigeBehandlingOgFørEndringsdatoITilkjentYtelseIRevurdering() {
         //Arrange
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(), List.of(1000, 1000),
-            List.of(false, false), List.of(false, true), List.of(false, false));
-        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering, Optional.of(DAGENS_DATO.plusDays(6)),
-            List.of(1000, 1000), List.of(false, false), List.of(false, true), List.of(false, true));
+        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(),
+            List.of(1000, 1000), List.of(false, false), List.of(false, true), List.of(false, false));
+        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering,
+            Optional.of(DAGENS_DATO.plusDays(6)), List.of(1000, 1000), List.of(false, false), List.of(false, true),
+            List.of(false, true));
         List<TilkjentYtelseAndel> andelerOriginal = getOppdragAndeler(forrigeBeregningsresultatFP);
-        List<TilkjentYtelsePeriode> tilkjentYtelsePeriodeList = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL).mapPerioderFomEndringsdato(revurderingBeregningsresultatFP);
+        List<TilkjentYtelsePeriode> tilkjentYtelsePeriodeList = new TilkjentYtelseMapper(
+            FamilieYtelseType.FØDSEL).mapPerioderFomEndringsdato(revurderingBeregningsresultatFP);
         List<TilkjentYtelseAndel> andelerRevurdering = tilkjentYtelsePeriodeList.stream()
             .flatMap(periode -> periode.getTilkjentYtelseAndeler().stream())
             .collect(Collectors.toList());
         OppdragInput behandlingInfoFP = opprettBehandlingInfoFP(revurdering, revurderingBeregningsresultatFP);
 
         //Act
-        OppdragsmottakerStatus status = FinnStatusForMottakere.finnStatusForMottakerBruker(behandlingInfoFP, andelerOriginal, andelerRevurdering, true);
+        OppdragsmottakerStatus status = FinnStatusForMottakere.finnStatusForMottakerBruker(behandlingInfoFP,
+            andelerOriginal, andelerRevurdering, true);
 
         //Assert
         assertThat(status).isEqualTo(OppdragsmottakerStatus.UENDR);
@@ -387,16 +424,18 @@ public class FinnStatusForMottakereTest extends OppdragskontrollTjenesteTestBase
     public void skalMottakerStatusForBrukerSettesTilOPPHNårPrivatArbeidsgiverenErMottakerIForrigeBehandlingOgBlirIkkeMottakerIEndretTilkjentYtelseIRevurderingLenger() {
         //Arrange
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(), List.of(1000, 1000),
-            List.of(false, false), List.of(true, true), List.of(false, false));
-        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering, Optional.of(DAGENS_DATO.plusDays(1)),
-            List.of(1000, 0), List.of(false, false), List.of(false, true), List.of(false, false));
+        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(),
+            List.of(1000, 1000), List.of(false, false), List.of(true, true), List.of(false, false));
+        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering,
+            Optional.of(DAGENS_DATO.plusDays(1)), List.of(1000, 0), List.of(false, false), List.of(false, true),
+            List.of(false, false));
         List<TilkjentYtelseAndel> andelerOriginal = getOppdragAndeler(forrigeBeregningsresultatFP);
         List<TilkjentYtelseAndel> andelerRevurdering = getOppdragAndeler(revurderingBeregningsresultatFP);
         OppdragInput behandlingInfoFP = opprettBehandlingInfoFP(revurdering, revurderingBeregningsresultatFP);
 
         //Act
-        OppdragsmottakerStatus status = FinnStatusForMottakere.finnStatusForMottakerBruker(behandlingInfoFP, andelerOriginal, andelerRevurdering, true);
+        OppdragsmottakerStatus status = FinnStatusForMottakere.finnStatusForMottakerBruker(behandlingInfoFP,
+            andelerOriginal, andelerRevurdering, true);
 
         //Assert
         assertThat(status).isEqualTo(OppdragsmottakerStatus.OPPH);
@@ -406,16 +445,18 @@ public class FinnStatusForMottakereTest extends OppdragskontrollTjenesteTestBase
     public void skalMottakerStatusForBrukerSettesTilOPPHNårBrukerOgPrivatArbeidsgiverErMottakereIForrigeBehandlingOgDeBlirIkkeMottakerIEndretTilkjentYtelseIRevurderingLenger() {
         //Arrange
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(), List.of(1000, 1000),
-            List.of(true, false), List.of(true, true), List.of(false, false));
-        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering, Optional.of(DAGENS_DATO.plusDays(1)),
-            List.of(1000, 1000), List.of(false, false), List.of(false, false), List.of(false, false));
+        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(),
+            List.of(1000, 1000), List.of(true, false), List.of(true, true), List.of(false, false));
+        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering,
+            Optional.of(DAGENS_DATO.plusDays(1)), List.of(1000, 1000), List.of(false, false), List.of(false, false),
+            List.of(false, false));
         List<TilkjentYtelseAndel> andelerOriginal = getOppdragAndeler(forrigeBeregningsresultatFP);
         List<TilkjentYtelseAndel> andelerRevurdering = getOppdragAndeler(revurderingBeregningsresultatFP);
         OppdragInput behandlingInfoFP = opprettBehandlingInfoFP(revurdering, revurderingBeregningsresultatFP);
 
         //Act
-        OppdragsmottakerStatus status = FinnStatusForMottakere.finnStatusForMottakerBruker(behandlingInfoFP, andelerOriginal, andelerRevurdering, true);
+        OppdragsmottakerStatus status = FinnStatusForMottakere.finnStatusForMottakerBruker(behandlingInfoFP,
+            andelerOriginal, andelerRevurdering, true);
 
         //Assert
         assertThat(status).isEqualTo(OppdragsmottakerStatus.OPPH);
@@ -425,16 +466,18 @@ public class FinnStatusForMottakereTest extends OppdragskontrollTjenesteTestBase
     public void skalMottakerStatusForBrukerSettesTilIKKE_MOTTAKERNårPrivatArbeidsgiverErMottakerHverkenIForrigeBehandlingEllerIRevurdering() {
         //Arrange
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(), List.of(1000, 1000),
-            List.of(false, false), List.of(false, false), List.of(false, false));
-        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering, Optional.of(DAGENS_DATO.plusDays(1)),
-            List.of(1100, 1100), List.of(false, false), List.of(false, false), List.of(false, false));
+        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(),
+            List.of(1000, 1000), List.of(false, false), List.of(false, false), List.of(false, false));
+        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering,
+            Optional.of(DAGENS_DATO.plusDays(1)), List.of(1100, 1100), List.of(false, false), List.of(false, false),
+            List.of(false, false));
         List<TilkjentYtelseAndel> andelerOriginal = getOppdragAndeler(forrigeBeregningsresultatFP);
         List<TilkjentYtelseAndel> andelerRevurdering = getOppdragAndeler(revurderingBeregningsresultatFP);
         OppdragInput behandlingInfoFP = opprettBehandlingInfoFP(revurdering, revurderingBeregningsresultatFP);
 
         //Act
-        OppdragsmottakerStatus status = FinnStatusForMottakere.finnStatusForMottakerBruker(behandlingInfoFP, andelerOriginal, andelerRevurdering, false);
+        OppdragsmottakerStatus status = FinnStatusForMottakere.finnStatusForMottakerBruker(behandlingInfoFP,
+            andelerOriginal, andelerRevurdering, false);
 
         //Assert
         assertThat(status).isEqualTo(OppdragsmottakerStatus.IKKE_MOTTAKER);
@@ -444,16 +487,18 @@ public class FinnStatusForMottakereTest extends OppdragskontrollTjenesteTestBase
     public void skalMottakerStatusForBrukerSettesTilENDRNårPrivatArbeidsgiverIkkeErMottakerIForrigeBehandlingOgMottakerIRevurderingOgDetFinnesOppdragForPrivatArbeidsgiverFraFør() {
         //Arrange
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(), List.of(1000, 1000),
-            List.of(false, false), List.of(false, false), List.of(false, false));
-        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering, Optional.of(DAGENS_DATO.plusDays(1)),
-            List.of(0, 1000), List.of(false, false), List.of(true, true), List.of(false, false));
+        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(),
+            List.of(1000, 1000), List.of(false, false), List.of(false, false), List.of(false, false));
+        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering,
+            Optional.of(DAGENS_DATO.plusDays(1)), List.of(0, 1000), List.of(false, false), List.of(true, true),
+            List.of(false, false));
         List<TilkjentYtelseAndel> andelerOriginal = getOppdragAndeler(forrigeBeregningsresultatFP);
         List<TilkjentYtelseAndel> andelerRevurdering = getOppdragAndeler(revurderingBeregningsresultatFP);
         OppdragInput behandlingInfoFP = opprettBehandlingInfoFP(revurdering, revurderingBeregningsresultatFP);
 
         //Act
-        OppdragsmottakerStatus status = FinnStatusForMottakere.finnStatusForMottakerBruker(behandlingInfoFP, andelerOriginal, andelerRevurdering, true);
+        OppdragsmottakerStatus status = FinnStatusForMottakere.finnStatusForMottakerBruker(behandlingInfoFP,
+            andelerOriginal, andelerRevurdering, true);
 
         //Assert
         assertThat(status).isEqualTo(OppdragsmottakerStatus.ENDR);
@@ -463,16 +508,18 @@ public class FinnStatusForMottakereTest extends OppdragskontrollTjenesteTestBase
     public void skalMottakerStatusForBrukerSettesTilNYNårPrivatArbeidsgiverIkkeErMottakerIForrigeBehandlingOgBlirOppdragsmottakerFørstegangIRevurdering() {
         //Arrange
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(), List.of(1000, 1000),
-            List.of(false, false), List.of(false, false), List.of(false, false));
-        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering, Optional.of(DAGENS_DATO.plusDays(1)),
-            List.of(0, 1000), List.of(false, false), List.of(true, true), List.of(false, false));
+        BeregningsresultatEntitet forrigeBeregningsresultatFP = lagBeregningsresultatFP(behandling, Optional.empty(),
+            List.of(1000, 1000), List.of(false, false), List.of(false, false), List.of(false, false));
+        BeregningsresultatEntitet revurderingBeregningsresultatFP = lagBeregningsresultatFP(revurdering,
+            Optional.of(DAGENS_DATO.plusDays(1)), List.of(0, 1000), List.of(false, false), List.of(true, true),
+            List.of(false, false));
         List<TilkjentYtelseAndel> andelerOriginal = getOppdragAndeler(forrigeBeregningsresultatFP);
         List<TilkjentYtelseAndel> andelerRevurdering = getOppdragAndeler(revurderingBeregningsresultatFP);
         OppdragInput behandlingInfoFP = opprettBehandlingInfoFP(revurdering, revurderingBeregningsresultatFP);
 
         //Act
-        OppdragsmottakerStatus status = FinnStatusForMottakere.finnStatusForMottakerBruker(behandlingInfoFP, andelerOriginal, andelerRevurdering, false);
+        OppdragsmottakerStatus status = FinnStatusForMottakere.finnStatusForMottakerBruker(behandlingInfoFP,
+            andelerOriginal, andelerRevurdering, false);
 
         //Assert
         assertThat(status).isEqualTo(OppdragsmottakerStatus.NY);
@@ -507,16 +554,22 @@ public class FinnStatusForMottakereTest extends OppdragskontrollTjenesteTestBase
             .build();
     }
 
-    private BeregningsresultatEntitet lagBeregningsresultatFP(Behandling behandling, Optional<LocalDate> endringsdatoOpt, List<Integer> dagsats,
-                                                         List<Boolean> brukerErMottaker, List<Boolean> medPrivatArbeidsgiver, List<Boolean> erKunMottakerFørEndringsdato) {
+    private BeregningsresultatEntitet lagBeregningsresultatFP(Behandling behandling,
+                                                              Optional<LocalDate> endringsdatoOpt,
+                                                              List<Integer> dagsats,
+                                                              List<Boolean> brukerErMottaker,
+                                                              List<Boolean> medPrivatArbeidsgiver,
+                                                              List<Boolean> erKunMottakerFørEndringsdato) {
         BeregningsresultatEntitet forrigeBeregningsresultatFP = buildBeregningsresultatFP(endringsdatoOpt);
         BeregningsresultatPeriode b1Periode_1 = buildBeregningsresultatPeriode(forrigeBeregningsresultatFP, 1, 5);
         BeregningsresultatPeriode b1Periode_2 = buildBeregningsresultatPeriode(forrigeBeregningsresultatFP, 6, 10);
         for (int i = 0; i < brukerErMottaker.size(); i++) {
             String virksomhetEntitet = medPrivatArbeidsgiver.get(i) ? null : virksomhet;
-            buildBeregningsresultatAndel(b1Periode_1, brukerErMottaker.get(i), dagsats.get(i), BigDecimal.valueOf(100), virksomhetEntitet);
+            buildBeregningsresultatAndel(b1Periode_1, brukerErMottaker.get(i), dagsats.get(i), BigDecimal.valueOf(100),
+                virksomhetEntitet);
             if (!erKunMottakerFørEndringsdato.get(i)) {
-                buildBeregningsresultatAndel(b1Periode_2, brukerErMottaker.get(i), dagsats.get(i), BigDecimal.valueOf(100), virksomhetEntitet);
+                buildBeregningsresultatAndel(b1Periode_2, brukerErMottaker.get(i), dagsats.get(i),
+                    BigDecimal.valueOf(100), virksomhetEntitet);
             }
         }
         beregningsresultatRepository.lagre(behandling, forrigeBeregningsresultatFP);

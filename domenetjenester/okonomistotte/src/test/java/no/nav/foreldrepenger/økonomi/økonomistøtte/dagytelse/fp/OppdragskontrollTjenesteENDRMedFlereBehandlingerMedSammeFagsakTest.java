@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
@@ -32,7 +32,7 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragMedPositivKvitterin
 public class OppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTest extends OppdragskontrollTjenesteTestBase {
 
     @Override
-    @Before
+    @BeforeEach
     public void setUp() {
         super.setUp();
     }

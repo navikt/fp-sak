@@ -6,10 +6,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.time.LocalDate;
 import java.util.List;
 
-import javax.persistence.EntityManager;
-
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Attestant180;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming115;
@@ -20,19 +18,21 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragsenhet120;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
-public class ØkonomioppdragRepositoryTest {
+public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private final Repository repository = repoRule.getRepository();
+    private Repository repository;
+    private ØkonomioppdragRepository økonomioppdragRepository;
 
-    private final EntityManager entityManager = repoRule.getEntityManager();
-    private final ØkonomioppdragRepository økonomioppdragRepository = new ØkonomioppdragRepository( entityManager);
-
+    @BeforeEach
+    void setUp() {
+        var entityManager = getEntityManager();
+        repository = new Repository(entityManager);
+        økonomioppdragRepository = new ØkonomioppdragRepository(entityManager);
+    }
 
     @Test
     public void lagreOgHenteOppdragskontroll() {

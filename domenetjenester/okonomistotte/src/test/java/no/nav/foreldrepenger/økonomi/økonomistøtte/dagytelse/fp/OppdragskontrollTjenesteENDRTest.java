@@ -15,8 +15,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.assertj.core.util.Sets;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
@@ -41,7 +41,7 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.oppdrag110.KodeF
 public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTestBase {
 
     @Override
-    @Before
+    @BeforeEach
     public void setUp() {
         super.setUp();
     }

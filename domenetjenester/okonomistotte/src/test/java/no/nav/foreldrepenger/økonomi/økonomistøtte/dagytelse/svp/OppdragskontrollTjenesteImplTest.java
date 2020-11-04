@@ -8,8 +8,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
@@ -27,7 +27,7 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.oppdrag110.KodeF
 public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTestBase {
 
     @Override
-    @Before
+    @BeforeEach
     public void setUp() {
         super.setUp();
     }

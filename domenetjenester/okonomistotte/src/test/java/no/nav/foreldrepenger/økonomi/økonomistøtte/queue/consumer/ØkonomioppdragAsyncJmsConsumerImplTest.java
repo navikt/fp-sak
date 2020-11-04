@@ -1,13 +1,13 @@
 package no.nav.foreldrepenger.økonomi.økonomistøtte.queue.consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -15,13 +15,12 @@ import java.nio.file.Paths;
 import javax.jms.JMSException;
 import javax.jms.TextMessage;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.økonomi.økonomistøtte.BehandleØkonomioppdragKvittering;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomiKvittering;
@@ -29,18 +28,18 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.jms.BaseJmsKonfig;
 import no.nav.vedtak.felles.integrasjon.jms.precond.DefaultDatabaseOppePreconditionChecker;
 
+@ExtendWith(MockitoExtension.class)
 public class ØkonomioppdragAsyncJmsConsumerImplTest {
 
     private static final long BEHANDLINGID = 802L;
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
+
     @Mock
     private BehandleØkonomioppdragKvittering behandleØkonomioppdragKvittering;
 
     private ArgumentCaptor<ØkonomiKvittering> captor;
     private ØkonomioppdragAsyncJmsConsumerImpl økonomioppdragAsyncJmsConsumerImpl;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         final DefaultDatabaseOppePreconditionChecker mockDefaultDatabaseOppePreconditionChecker = mock(DefaultDatabaseOppePreconditionChecker.class);
         final BaseJmsKonfig jmsKonfig = new BaseJmsKonfig("qu");
@@ -51,13 +50,13 @@ public class ØkonomioppdragAsyncJmsConsumerImplTest {
         captor = ArgumentCaptor.forClass(ØkonomiKvittering.class);
     }
 
-    @Test(expected = TekniskException.class)
+    @Test
     public void testHandleMessageWithUnparseableMessage() throws JMSException, IOException, URISyntaxException {
         // Arrange
         TextMessage message = opprettKvitteringXml("parsingFeil.xml");
 
         // Act
-        økonomioppdragAsyncJmsConsumerImpl.handle(message);
+        assertThrows(TekniskException.class, () -> økonomioppdragAsyncJmsConsumerImpl.handle(message));
     }
 
     @Test
@@ -99,7 +98,7 @@ public class ØkonomioppdragAsyncJmsConsumerImplTest {
 
     private String getInputXML(String filename) throws IOException, URISyntaxException {
         Path path = Paths.get(getClass().getClassLoader().getResource(filename).toURI());
-        return new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
+        return Files.readString(path);
     }
 
     private void verifiserKvittering(ØkonomiKvittering kvittering, String alvorlighetsgrad, String meldingKode, Long behandlingId, String beskrMelding) {

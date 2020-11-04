@@ -8,14 +8,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
-import javax.persistence.EntityManager;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.finn.unleash.FakeUnleash;
 import no.finn.unleash.Unleash;
@@ -26,7 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.FinnNyesteOppdragForSak;
@@ -38,33 +35,37 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.SimulerOppdragApplikasjonT
 import no.nav.foreldrepenger.økonomi.økonomistøtte.kontantytelse.es.OppdragskontrollEngangsstønad;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.kontantytelse.es.adapter.MapBehandlingInfoES;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
+import no.nav.vedtak.felles.testutilities.db.Repository;
 
-public class SimulerOppdragApplikasjonTjenesteTest {
+@ExtendWith(MockitoExtension.class)
+public class SimulerOppdragApplikasjonTjenesteTest extends EntityManagerAwareTest {
 
     private static final PersonIdent PERSON_IDENT = PersonIdent.fra("12345678901");
 
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private final EntityManager entityManager = repoRule.getEntityManager();
-    private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+    private BehandlingRepositoryProvider repositoryProvider;
 
-    private ØkonomioppdragRepository økonomioppdragRepository = new ØkonomioppdragRepository(entityManager);
-    private FinnNyesteOppdragForSak finnNyesteOppdragForSak = new FinnNyesteOppdragForSak(økonomioppdragRepository);
+    private ØkonomioppdragRepository økonomioppdragRepository;
+    private FinnNyesteOppdragForSak finnNyesteOppdragForSak;
 
-    private LegacyESBeregningRepository beregningRepository = new LegacyESBeregningRepository(entityManager);
-    private BehandlingVedtakRepository behandlingVedtakRepository = new BehandlingVedtakRepository(entityManager);
-    private FamilieHendelseRepository familieHendelseRepository = new FamilieHendelseRepository(entityManager);
+    private LegacyESBeregningRepository beregningRepository;
+    private BehandlingVedtakRepository behandlingVedtakRepository;
+    private FamilieHendelseRepository familieHendelseRepository;
 
     private SimulerOppdragApplikasjonTjeneste simulerOppdragApplikasjonTjeneste;
-    private Unleash unleash = new FakeUnleash();
+    private final Unleash unleash = new FakeUnleash();
 
     @Mock
     private PersoninfoAdapter tpsTjeneste;
 
-    @Before
+    @BeforeEach
     public void setup() {
+        var entityManager = getEntityManager();
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        økonomioppdragRepository = new ØkonomioppdragRepository(entityManager);
+        finnNyesteOppdragForSak = new FinnNyesteOppdragForSak(økonomioppdragRepository);
+        beregningRepository = new LegacyESBeregningRepository(entityManager);
+        behandlingVedtakRepository = new BehandlingVedtakRepository(entityManager);
+        familieHendelseRepository = new FamilieHendelseRepository(entityManager);
         when(tpsTjeneste.hentFnrForAktør(any())).thenReturn(PERSON_IDENT);
         simulerOppdragApplikasjonTjeneste = new SimulerOppdragApplikasjonTjeneste(mockTjeneste());
     }
@@ -73,8 +74,7 @@ public class SimulerOppdragApplikasjonTjenesteTest {
         OppdragskontrollManagerFactory oppdragskontrollManagerFactory = mockFactoryES();
         OppdragskontrollManagerFactoryProvider providerMock = mock(OppdragskontrollManagerFactoryProvider.class);
         when(providerMock.getTjeneste(any(FagsakYtelseType.class))).thenReturn(oppdragskontrollManagerFactory);
-        OppdragskontrollTjeneste oppdragskontrollTjeneste = new OppdragskontrollTjenesteImpl(repositoryProvider, økonomioppdragRepository, providerMock, unleash);
-        return oppdragskontrollTjeneste;
+        return new OppdragskontrollTjenesteImpl(repositoryProvider, økonomioppdragRepository, providerMock, unleash);
     }
 
     private OppdragskontrollManagerFactory mockFactoryES() {
@@ -92,7 +92,7 @@ public class SimulerOppdragApplikasjonTjenesteTest {
         // Arrange
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         Behandling behandling = scenario.lagre(repositoryProvider);
-        repoRule.getRepository().lagre(behandling.getBehandlingsresultat());
+        new Repository(getEntityManager()).lagre(behandling.getBehandlingsresultat());
 
         // Act
         var resultat = simulerOppdragApplikasjonTjeneste.simulerOppdrag(behandling.getId(), 0L);

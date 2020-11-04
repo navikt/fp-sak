@@ -14,8 +14,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
@@ -29,7 +29,7 @@ public class OppdragskontrollTjenesteFeriepengerTest extends OppdragskontrollTje
     private static final Long PROSESS_TASK_ID_2 = 89L;
 
     @Override
-    @Before
+    @BeforeEach
     public void setUp() {
         super.setUp();
     }

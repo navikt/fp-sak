@@ -9,13 +9,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.persistence.EntityManager;
-
-import org.junit.Before;
-import org.junit.FixMethodOrder;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.finn.unleash.FakeUnleash;
 import no.finn.unleash.Unleash;
@@ -48,7 +43,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagomr
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodekomponent;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
@@ -64,49 +59,49 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.kontantytelse.es.adapter.M
 import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class OppdragskontrollTjenesteImplKontantytelseTest {
+public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManagerAwareTest {
 
     private static final String KODE_KLASSIFIK_FODSEL = "FPENFOD-OP";
     private static final String TYPE_SATS_ES = "ENG";
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private Repository repository = repoRule.getRepository();
-    private final EntityManager entityManager = repoRule.getEntityManager();
-    private ØkonomioppdragRepository økonomioppdragRepository = new ØkonomioppdragRepository(entityManager);
-    private FinnNyesteOppdragForSak finnNyesteOppdragForSak = new FinnNyesteOppdragForSak(økonomioppdragRepository);
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-    private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
+    private Repository repository;
 
-    private LegacyESBeregningRepository beregningRepository = new LegacyESBeregningRepository(entityManager);
-    private BehandlingVedtakRepository behandlingVedtakRepository = new BehandlingVedtakRepository(entityManager);
-    private FamilieHendelseRepository familieHendelseRepository = new FamilieHendelseRepository(entityManager);
+    private ØkonomioppdragRepository økonomioppdragRepository;
+    private BehandlingRepositoryProvider repositoryProvider;
+    private BehandlingRepository behandlingRepository;
+
+    private LegacyESBeregningRepository beregningRepository;
     private OppdragskontrollTjeneste oppdragskontrollTjeneste;
 
     private BehandlingVedtak behandlingVedtak;
     private Fagsak fagsak;
-    private PersonIdent personIdent = PersonIdent.fra("12345678901");
-    private RevurderingEndring revurderingEndring;
-    private Unleash unleash = new FakeUnleash();
+    private final PersonIdent personIdent = PersonIdent.fra("12345678901");
+    private final Unleash unleash = new FakeUnleash();
 
-    @Before
+    @BeforeEach
     public void setUp() {
+        var entityManager = getEntityManager();
+        beregningRepository = new LegacyESBeregningRepository(entityManager);
+        BehandlingVedtakRepository behandlingVedtakRepository = new BehandlingVedtakRepository(entityManager);
+        FamilieHendelseRepository familieHendelseRepository = new FamilieHendelseRepository(entityManager);
 
+        repository = new Repository(entityManager);
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        behandlingRepository = repositoryProvider.getBehandlingRepository();
+        økonomioppdragRepository = new ØkonomioppdragRepository(entityManager);
         var tpsTjeneste = mock(PersoninfoAdapter.class);
-        var mapBehandlingInfo = new MapBehandlingInfoES(finnNyesteOppdragForSak, tpsTjeneste,
-            beregningRepository, behandlingVedtakRepository, familieHendelseRepository
-            );
-
+        FinnNyesteOppdragForSak finnNyesteOppdragForSak = new FinnNyesteOppdragForSak(økonomioppdragRepository);
+        var mapBehandlingInfo = new MapBehandlingInfoES(finnNyesteOppdragForSak, tpsTjeneste, beregningRepository,
+            behandlingVedtakRepository, familieHendelseRepository);
         var oppdragskontrollEngangsstønad = new OppdragskontrollEngangsstønad(mapBehandlingInfo);
-        revurderingEndring = mock(RevurderingEndring.class);
+        RevurderingEndring revurderingEndring = mock(RevurderingEndring.class);
 
-        var oppdragskontrollManagerFactory = new OppdragskontrollManagerFactoryKontantytelse(revurderingEndring, oppdragskontrollEngangsstønad);
-
+        var oppdragskontrollManagerFactory = new OppdragskontrollManagerFactoryKontantytelse(revurderingEndring,
+            oppdragskontrollEngangsstønad);
         var providerMock = mock(OppdragskontrollManagerFactoryProvider.class);
+        oppdragskontrollTjeneste = new OppdragskontrollTjenesteImpl(repositoryProvider, økonomioppdragRepository,
+            providerMock, unleash);
         when(providerMock.getTjeneste(any(FagsakYtelseType.class))).thenReturn(oppdragskontrollManagerFactory);
-
-        oppdragskontrollTjeneste = new OppdragskontrollTjenesteImpl(repositoryProvider, økonomioppdragRepository, providerMock, unleash);
         when(tpsTjeneste.hentFnrForAktør(any(AktørId.class))).thenReturn(personIdent);
 
     }
@@ -117,7 +112,8 @@ public class OppdragskontrollTjenesteImplKontantytelseTest {
         final long prosessTaskId = 22L;
         Behandling behandling = opprettOgLagreBehandlingES();
         // Act
-        Oppdragskontroll oppdragskontroll = oppdragskontrollTjeneste.opprettOppdrag(behandling.getId(), prosessTaskId).get();
+        Oppdragskontroll oppdragskontroll = oppdragskontrollTjeneste.opprettOppdrag(behandling.getId(), prosessTaskId)
+            .get();
 
         // Assert
         verifiserOppdragskontroll(oppdragskontroll, prosessTaskId);
@@ -132,7 +128,8 @@ public class OppdragskontrollTjenesteImplKontantytelseTest {
     public void hentOppdragskontrollTestES() {
         // Arrange
         Behandling behandling = opprettOgLagreBehandlingES();
-        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste,
+            behandling);
         Long oppdrkontrollId = økonomioppdragRepository.lagre(originaltOppdrag);
         assertThat(oppdrkontrollId).isNotNull();
 
@@ -160,16 +157,19 @@ public class OppdragskontrollTjenesteImplKontantytelseTest {
     public void innvilgelseSomReferererTilTidligereOppdragPåSammeSak() {
         // Act 1: Førstegangsbehandling
         Behandling behandling = opprettOgLagreBehandlingES();
-        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste,
+            behandling);
         Oppdrag110 originaltOppdrag110 = originaltOppdrag.getOppdrag110Liste().get(0);
 
         // Arrange 2: Revurdering
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, 2);
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste,
+            revurdering);
 
         // Assert 2: Revurdering
         Oppdragslinje150 originalOppdragslinje150 = originaltOppdrag110.getOppdragslinje150Liste().get(0);
-        Oppdragslinje150 oppdragslinje150 = verifiserOppdrag110(oppdragRevurdering, ØkonomiKodeEndring.UEND, originaltOppdrag110.getFagsystemId());
+        Oppdragslinje150 oppdragslinje150 = verifiserOppdrag110(oppdragRevurdering, ØkonomiKodeEndring.UEND,
+            originaltOppdrag110.getFagsystemId());
         verifiserOppdragslinje150(oppdragslinje150, ØkonomiKodeEndringLinje.NY, null,
             originalOppdragslinje150.getDelytelseId() + 1, originalOppdragslinje150.getDelytelseId(),
             originaltOppdrag110.getFagsystemId(), 2 * OpprettBehandlingForOppdrag.SATS);
@@ -179,18 +179,21 @@ public class OppdragskontrollTjenesteImplKontantytelseTest {
     public void avslagSomReferererTilTidligereOppdragPåSammeSak() {
         // Act 1: Førstegangsbehandling
         Behandling behandling = opprettOgLagreBehandlingES();
-        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste,
+            behandling);
         Oppdrag110 originaltOppdrag110 = originaltOppdrag.getOppdrag110Liste().get(0);
 
         // Arrange 2: Revurdering
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.AVSLAG, 0);
 
         // Act 2
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste,
+            revurdering);
 
         // Assert 2: Revurdering
         Oppdragslinje150 originalOppdragslinje150 = originaltOppdrag110.getOppdragslinje150Liste().get(0);
-        Oppdragslinje150 oppdragslinje150 = verifiserOppdrag110(oppdragRevurdering, ØkonomiKodeEndring.UEND, originaltOppdrag110.getFagsystemId());
+        Oppdragslinje150 oppdragslinje150 = verifiserOppdrag110(oppdragRevurdering, ØkonomiKodeEndring.UEND,
+            originaltOppdrag110.getFagsystemId());
         verifiserOppdragslinje150(oppdragslinje150, ØkonomiKodeEndringLinje.ENDR, ØkonomiKodeStatusLinje.OPPH,
             originalOppdragslinje150.getDelytelseId(), null, null, OpprettBehandlingForOppdrag.SATS);
     }
@@ -205,7 +208,8 @@ public class OppdragskontrollTjenesteImplKontantytelseTest {
         Behandling førsteRevurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, 1);
 
         // Act 2
-        Oppdragskontroll oppdragFørsteRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, førsteRevurdering);
+        Oppdragskontroll oppdragFørsteRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(
+            oppdragskontrollTjeneste, førsteRevurdering);
         assertThat(oppdragFørsteRevurdering.getOppdrag110Liste()).hasSize(1);
         Oppdrag110 førsteRevurderingOpp110 = oppdragFørsteRevurdering.getOppdrag110Liste().get(0);
 
@@ -213,7 +217,8 @@ public class OppdragskontrollTjenesteImplKontantytelseTest {
         Behandling andreRevurdering = opprettOgLagreRevurdering(førsteRevurdering, VedtakResultatType.AVSLAG, 1);
 
         // Act 3
-        Oppdragskontroll oppdragAndreRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, andreRevurdering);
+        Oppdragskontroll oppdragAndreRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste,
+            andreRevurdering);
 
         // Assert 3: Revurdering
         assertThat(førsteRevurderingOpp110.getOppdragslinje150Liste()).hasSize(1);
@@ -228,7 +233,9 @@ public class OppdragskontrollTjenesteImplKontantytelseTest {
             førsteRevurderingOpp150.getDelytelseId(), null, null, OpprettBehandlingForOppdrag.SATS);
     }
 
-    private Oppdragslinje150 verifiserOppdrag110(Oppdragskontroll oppdragskontroll, ØkonomiKodeEndring kodeEndring, Long fagsystemId) {
+    private Oppdragslinje150 verifiserOppdrag110(Oppdragskontroll oppdragskontroll,
+                                                 ØkonomiKodeEndring kodeEndring,
+                                                 Long fagsystemId) {
         assertThat(oppdragskontroll.getOppdrag110Liste()).hasSize(1);
         Oppdrag110 oppdrag110 = oppdragskontroll.getOppdrag110Liste().get(0);
         assertThat(oppdrag110.getKodeEndring()).isEqualTo(kodeEndring.name());
@@ -237,8 +244,13 @@ public class OppdragskontrollTjenesteImplKontantytelseTest {
         return oppdrag110.getOppdragslinje150Liste().get(0);
     }
 
-    private void verifiserOppdragslinje150(Oppdragslinje150 oppdragslinje150, ØkonomiKodeEndringLinje kodeEndringLinje,
-                                           ØkonomiKodeStatusLinje kodeStatusLinje, Long delYtelseId, Long refDelytelseId, Long refFagsystemId, long sats) {
+    private void verifiserOppdragslinje150(Oppdragslinje150 oppdragslinje150,
+                                           ØkonomiKodeEndringLinje kodeEndringLinje,
+                                           ØkonomiKodeStatusLinje kodeStatusLinje,
+                                           Long delYtelseId,
+                                           Long refDelytelseId,
+                                           Long refFagsystemId,
+                                           long sats) {
         assertThat(oppdragslinje150.getKodeEndringLinje()).isEqualTo(kodeEndringLinje.name());
         if (kodeStatusLinje == null) {
             assertThat(oppdragslinje150.getKodeStatusLinje()).isNull();
@@ -272,12 +284,15 @@ public class OppdragskontrollTjenesteImplKontantytelseTest {
             Oppdragslinje150 oppdragslinje150 = oppdragslinje150List.get(0);
             assertThat(oppdragslinje150.getKodeEndringLinje()).isEqualTo(ØkonomiKodeEndringLinje.NY.name());
             assertThat(oppdragslinje150.getVedtakId()).isEqualTo(vedtaksdatoES.toString());
-            assertThat(oppdragslinje150.getDelytelseId()).isEqualTo(concatenateValues(oppdrag110.getFagsystemId(), løpenummer));
+            assertThat(oppdragslinje150.getDelytelseId()).isEqualTo(
+                concatenateValues(oppdrag110.getFagsystemId(), løpenummer));
             assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(KODE_KLASSIFIK_FODSEL);
             assertThat(oppdragslinje150.getDatoVedtakFom()).isEqualTo(vedtaksdatoES);
             assertThat(oppdragslinje150.getDatoVedtakTom()).isEqualTo(vedtaksdatoES);
-            assertThat(oppdragslinje150.getSats()).isEqualTo(getBehandlingsresultat(behandling)
-                .getBeregningResultat().getSisteBeregning().get().getBeregnetTilkjentYtelse());
+            assertThat(oppdragslinje150.getSats()).isEqualTo(getBehandlingsresultat(behandling).getBeregningResultat()
+                .getSisteBeregning()
+                .get()
+                .getBeregnetTilkjentYtelse());
             assertThat(oppdragslinje150.getTypeSats()).isEqualTo(TYPE_SATS_ES);
             assertThat(oppdragslinje150.getHenvisning()).isEqualTo(behandling.getId());
             assertThat(oppdragslinje150.getUtbetalesTilId()).isEqualTo(personIdent.getIdent());
@@ -320,7 +335,8 @@ public class OppdragskontrollTjenesteImplKontantytelseTest {
             assertThat(oppdrag110.getKodeAksjon()).isEqualTo(ØkonomiKodeAksjon.EN.getKodeAksjon());
             assertThat(oppdrag110.getKodeEndring()).isEqualTo(ØkonomiKodeEndring.NY.name());
             assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(ØkonomiKodeFagområde.REFUTG.name());
-            assertThat(oppdrag110.getFagsystemId()).isEqualTo(concatenateValues(Long.parseLong(fagsak.getSaksnummer().getVerdi()), initialLøpenummer++));
+            assertThat(oppdrag110.getFagsystemId()).isEqualTo(
+                concatenateValues(Long.parseLong(fagsak.getSaksnummer().getVerdi()), initialLøpenummer++));
             assertThat(oppdrag110.getSaksbehId()).isEqualTo(behandlingVedtak.getAnsvarligSaksbehandler());
             assertThat(oppdrag110.getUtbetFrekvens()).isEqualTo(ØkonomiUtbetFrekvens.MÅNED.getUtbetFrekvens());
             assertThat(oppdrag110.getOppdragGjelderId()).isEqualTo(personIdent.getIdent());
@@ -344,14 +360,19 @@ public class OppdragskontrollTjenesteImplKontantytelseTest {
         return Long.valueOf(result);
     }
 
-    private Behandling opprettOgLagreRevurdering(Behandling originalBehandling, VedtakResultatType vedtakResultatType, int antallbarn) {
+    private Behandling opprettOgLagreRevurdering(Behandling originalBehandling,
+                                                 VedtakResultatType vedtakResultatType,
+                                                 int antallbarn) {
 
         Behandling revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandlingId(originalBehandling.getId())).build();
+            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL)
+                .medOriginalBehandlingId(originalBehandling.getId()))
+            .build();
 
         BehandlingLås behandlingLås = behandlingRepository.taSkriveLås(revurdering);
         behandlingRepository.lagre(revurdering, behandlingLås);
-        repositoryProvider.getFamilieHendelseRepository().kopierGrunnlagFraEksisterendeBehandling(originalBehandling.getId(), revurdering.getId());
+        repositoryProvider.getFamilieHendelseRepository()
+            .kopierGrunnlagFraEksisterendeBehandling(originalBehandling.getId(), revurdering.getId());
         OpprettBehandlingForOppdrag.genererBehandlingOgResultat(revurdering, vedtakResultatType, antallbarn);
         Behandlingsresultat behandlingsresultat = getBehandlingsresultat(revurdering);
         behandlingRepository.lagre(behandlingsresultat.getVilkårResultat(), behandlingLås);
@@ -360,7 +381,8 @@ public class OppdragskontrollTjenesteImplKontantytelseTest {
         }
         repository.lagre(behandlingsresultat);
 
-        BehandlingVedtak behandlingVedtak = OpprettBehandlingForOppdrag.opprettBehandlingVedtak(revurdering, behandlingsresultat, vedtakResultatType);
+        BehandlingVedtak behandlingVedtak = OpprettBehandlingForOppdrag.opprettBehandlingVedtak(revurdering,
+            behandlingsresultat, vedtakResultatType);
         repositoryProvider.getBehandlingVedtakRepository().lagre(behandlingVedtak, behandlingLås);
         repository.flush();
 
@@ -385,7 +407,8 @@ public class OppdragskontrollTjenesteImplKontantytelseTest {
         beregningRepository.lagre(behandlingsresultat.getBeregningResultat(), lås);
         repository.lagre(behandlingsresultat);
 
-        behandlingVedtak = OpprettBehandlingForOppdrag.opprettBehandlingVedtak(behandling, behandlingsresultat, VedtakResultatType.INNVILGET, vedtaksdatoFørIDag);
+        behandlingVedtak = OpprettBehandlingForOppdrag.opprettBehandlingVedtak(behandling, behandlingsresultat,
+            VedtakResultatType.INNVILGET, vedtaksdatoFørIDag);
         repositoryProvider.getBehandlingVedtakRepository().lagre(behandlingVedtak, lås);
 
         repository.flush();

@@ -8,8 +8,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragMedPositivKvitterin
 public class OppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest extends OppdragskontrollTjenesteTestBase {
 
     @Override
-    @Before
+    @BeforeEach
     public void setUp() {
         super.setUp();
     }
