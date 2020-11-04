@@ -12,10 +12,8 @@ import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
@@ -37,7 +35,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
@@ -61,32 +59,31 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.Medlemskapsv
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class InngangsvilkårOversetterTest {
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
 
     private InngangsvilkårOversetter oversetter;
 
     @Inject
     private BasisPersonopplysningTjeneste personopplysningTjeneste;
 
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
+    @Inject
+    private BehandlingRepositoryProvider repositoryProvider;
     private InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
 
     private YrkesaktivitetBuilder yrkesaktivitetBuilder;
 
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
-        new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
-    @Before
+    @BeforeEach
     public void oppsett() {
+        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
+                new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
         oversetter = new InngangsvilkårOversetter(repositoryProvider, personopplysningTjeneste,
-            new YtelseMaksdatoTjeneste(repositoryProvider, new RelatertBehandlingTjeneste(repositoryProvider)),
-            iayTjeneste,
-            null);
+                new YtelseMaksdatoTjeneste(repositoryProvider, new RelatertBehandlingTjeneste(repositoryProvider)),
+                iayTjeneste,
+                null);
     }
 
     private Behandling lagre(AbstractTestScenario<?> scenario) {
@@ -131,38 +128,38 @@ public class InngangsvilkårOversetterTest {
     }
 
     private Behandling opprettBehandlingForFødsel(LocalDate now, LocalDate søknadsdato, LocalDate fødselFødselsdato,
-                                                  RelasjonsRolleType rolle) {
+            RelasjonsRolleType rolle) {
         // Arrange
         LocalDate søknadFødselsdato = now.plusDays(2);
 
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
 
         scenario.medSøknad()
-            .medSøknadsdato(søknadsdato);
+                .medSøknadsdato(søknadsdato);
 
         scenario.medSøknadHendelse().medFødselsDato(søknadFødselsdato);
 
         scenario.medBekreftetHendelse()
-            // Fødsel
-            .leggTilBarn(fødselFødselsdato)
-            .medAntallBarn(1);
+                // Fødsel
+                .leggTilBarn(fødselFødselsdato)
+                .medAntallBarn(1);
 
         var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
         AktørId barnAktørId = AktørId.dummy();
         AktørId søkerAktørId = scenario.getDefaultBrukerAktørId();
 
         PersonInformasjon fødtBarn = builderForRegisteropplysninger
-            .medPersonas()
-            .fødtBarn(barnAktørId, LocalDate.now().plusDays(7))
-            .relasjonTil(søkerAktørId, rolle, null)
-            .build();
+                .medPersonas()
+                .fødtBarn(barnAktørId, LocalDate.now().plusDays(7))
+                .relasjonTil(søkerAktørId, rolle, null)
+                .build();
 
         PersonInformasjon søker = builderForRegisteropplysninger
-            .medPersonas()
-            .kvinne(søkerAktørId, SivilstandType.GIFT, Region.NORDEN)
-            .statsborgerskap(Landkoder.NOR)
-            .relasjonTil(barnAktørId, RelasjonsRolleType.BARN, null)
-            .build();
+                .medPersonas()
+                .kvinne(søkerAktørId, SivilstandType.GIFT, Region.NORDEN)
+                .statsborgerskap(Landkoder.NOR)
+                .relasjonTil(barnAktørId, RelasjonsRolleType.BARN, null)
+                .build();
         scenario.medRegisterOpplysninger(søker);
         scenario.medRegisterOpplysninger(fødtBarn);
 
@@ -180,24 +177,24 @@ public class InngangsvilkårOversetterTest {
 
         var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
         scenario.medSøknad()
-            .medSøknadsdato(søknadsdato)
-            .build();
+                .medSøknadsdato(søknadsdato)
+                .build();
         scenario.medSøknadHendelse().medFødselsDato(søknadFødselsdato);
 
         scenario.medBekreftetHendelse().medAdopsjon(
-            scenario.medBekreftetHendelse().getAdopsjonBuilder()
-                .medErEktefellesBarn(true)
-                .medAdoptererAlene(true)
-                .medOmsorgsovertakelseDato(fødselAdopsjonsdatoFraSøknad))
-            .leggTilBarn(fødselAdopsjonsdatoFraSøknad)
-            // Adosjon
-            .build();
+                scenario.medBekreftetHendelse().getAdopsjonBuilder()
+                        .medErEktefellesBarn(true)
+                        .medAdoptererAlene(true)
+                        .medOmsorgsovertakelseDato(fødselAdopsjonsdatoFraSøknad))
+                .leggTilBarn(fødselAdopsjonsdatoFraSøknad)
+                // Adosjon
+                .build();
 
         PersonInformasjon søker = scenario.opprettBuilderForRegisteropplysninger()
-            .medPersonas()
-            .mann(scenario.getDefaultBrukerAktørId(), SivilstandType.UOPPGITT, Region.NORDEN)
-            .statsborgerskap(Landkoder.NOR)
-            .build();
+                .medPersonas()
+                .mann(scenario.getDefaultBrukerAktørId(), SivilstandType.UOPPGITT, Region.NORDEN)
+                .statsborgerskap(Landkoder.NOR)
+                .build();
         scenario.medRegisterOpplysninger(søker);
 
         Behandling behandling = lagre(scenario);
@@ -224,11 +221,11 @@ public class InngangsvilkårOversetterTest {
         opprettArbeidOgInntektForBehandling(behandling, skjæringstidspunkt.minusMonths(5), skjæringstidspunkt.plusMonths(4), true);
 
         VurdertMedlemskap vurdertMedlemskap = new VurdertMedlemskapBuilder()
-            .medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.MEDLEM)
-            .medBosattVurdering(true)
-            .medLovligOppholdVurdering(true)
-            .medOppholdsrettVurdering(true)
-            .build();
+                .medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.MEDLEM)
+                .medBosattVurdering(true)
+                .medLovligOppholdVurdering(true)
+                .medOppholdsrettVurdering(true)
+                .build();
         MedlemskapRepository medlemskapRepository = repositoryProvider.getMedlemskapRepository();
         medlemskapRepository.lagreMedlemskapVurdering(behandling.getId(), vurdertMedlemskap);
 
@@ -282,20 +279,20 @@ public class InngangsvilkårOversetterTest {
         scenario.medDefaultOppgittTilknytning();
         scenario.medSøknadHendelse().medFødselsDato(skjæringstidspunkt);
         scenario.medSøknad()
-            .medMottattDato(LocalDate.of(2017, 3, 15));
+                .medMottattDato(LocalDate.of(2017, 3, 15));
 
         PersonInformasjon søker = scenario.opprettBuilderForRegisteropplysninger()
-            .medPersonas()
-            .kvinne(scenario.getDefaultBrukerAktørId(), SivilstandType.GIFT, Region.NORDEN)
-            .personstatus(PersonstatusType.BOSA)
-            .statsborgerskap(Landkoder.NOR)
-            .build();
+                .medPersonas()
+                .kvinne(scenario.getDefaultBrukerAktørId(), SivilstandType.GIFT, Region.NORDEN)
+                .personstatus(PersonstatusType.BOSA)
+                .statsborgerskap(Landkoder.NOR)
+                .build();
         scenario.medRegisterOpplysninger(søker);
         return scenario;
     }
 
     private void opprettArbeidOgInntektForBehandling(Behandling behandling, LocalDate fom, LocalDate tom,
-                                                                                   boolean harPensjonsgivendeInntekt) {
+            boolean harPensjonsgivendeInntekt) {
 
         String orgnr = "42";
 
@@ -310,9 +307,9 @@ public class InngangsvilkårOversetterTest {
     }
 
     private AktørArbeid lagAktørArbeid(InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder, AktørId aktørId, String virksomhetOrgnr,
-                                       LocalDate fom, LocalDate tom, ArbeidType arbeidType, Optional<InternArbeidsforholdRef> arbeidsforholdRef) {
+            LocalDate fom, LocalDate tom, ArbeidType arbeidType, Optional<InternArbeidsforholdRef> arbeidsforholdRef) {
         var aktørArbeidBuilder = inntektArbeidYtelseAggregatBuilder
-            .getAktørArbeidBuilder(aktørId);
+                .getAktørArbeidBuilder(aktørId);
 
         Opptjeningsnøkkel opptjeningsnøkkel;
         Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet(virksomhetOrgnr);
@@ -323,14 +320,14 @@ public class InngangsvilkårOversetterTest {
         }
 
         yrkesaktivitetBuilder = aktørArbeidBuilder
-            .getYrkesaktivitetBuilderForNøkkelAvType(opptjeningsnøkkel, arbeidType);
+                .getYrkesaktivitetBuilderForNøkkelAvType(opptjeningsnøkkel, arbeidType);
         var aktivitetsAvtaleBuilder = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder();
 
         var aktivitetsAvtale = aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
 
         yrkesaktivitetBuilder.leggTilAktivitetsAvtale(aktivitetsAvtale)
-            .medArbeidType(arbeidType)
-            .medArbeidsgiver(arbeidsgiver);
+                .medArbeidType(arbeidType)
+                .medArbeidsgiver(arbeidsgiver);
 
         yrkesaktivitetBuilder.medArbeidsforholdId(arbeidsforholdRef.orElse(null));
 
@@ -340,7 +337,7 @@ public class InngangsvilkårOversetterTest {
     }
 
     private void lagInntekt(InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder, AktørId aktørId, String virksomhetOrgnr,
-                            LocalDate fom, LocalDate tom, boolean harPensjonsgivendeInntekt) {
+            LocalDate fom, LocalDate tom, boolean harPensjonsgivendeInntekt) {
         var opptjeningsnøkkel = Opptjeningsnøkkel.forOrgnummer(virksomhetOrgnr);
 
         var aktørInntektBuilder = inntektArbeidYtelseAggregatBuilder.getAktørInntektBuilder(aktørId);
@@ -355,9 +352,9 @@ public class InngangsvilkårOversetterTest {
         inntektsKildeStream.forEach(kilde -> {
             InntektBuilder inntektBuilder = aktørInntektBuilder.getInntektBuilder(kilde, opptjeningsnøkkel);
             InntektspostBuilder inntektspost = InntektspostBuilder.ny()
-                .medBeløp(BigDecimal.valueOf(35000))
-                .medPeriode(fom, tom)
-                .medInntektspostType(InntektspostType.LØNN);
+                    .medBeløp(BigDecimal.valueOf(35000))
+                    .medPeriode(fom, tom)
+                    .medInntektspostType(InntektspostType.LØNN);
             inntektBuilder.leggTilInntektspost(inntektspost).medArbeidsgiver(yrkesaktivitetBuilder.build().getArbeidsgiver());
             aktørInntektBuilder.leggTilInntekt(inntektBuilder);
             inntektArbeidYtelseAggregatBuilder.leggTilAktørInntekt(aktørInntektBuilder);

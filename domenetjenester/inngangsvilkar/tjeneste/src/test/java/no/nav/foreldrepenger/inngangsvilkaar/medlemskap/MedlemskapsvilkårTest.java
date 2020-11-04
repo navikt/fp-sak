@@ -11,10 +11,8 @@ import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -44,7 +42,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopp
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon.Builder;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
@@ -65,25 +63,22 @@ import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class MedlemskapsvilkårTest {
 
     public static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
 
     @Inject
     private BasisPersonopplysningTjeneste personopplysningTjeneste;
 
     private InngangsvilkårOversetter oversetter;
 
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
+    @Inject
+    private BehandlingRepositoryProvider repositoryProvider;
     private InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
 
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
-        new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     private InngangsvilkårMedlemskap vurderMedlemskapsvilkarEngangsstonad;
     private YrkesaktivitetBuilder yrkesaktivitetBuilder;
@@ -92,18 +87,19 @@ public class MedlemskapsvilkårTest {
         return scenario.lagre(repositoryProvider);
     }
 
-    @Before
+    @BeforeEach
     public void before() throws Exception {
+        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
+                new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
         this.oversetter = new InngangsvilkårOversetter(repositoryProvider,
-            personopplysningTjeneste, new YtelseMaksdatoTjeneste(repositoryProvider, new RelatertBehandlingTjeneste(repositoryProvider)),
-            iayTjeneste,
-            null);
-        this.vurderMedlemskapsvilkarEngangsstonad = new InngangsvilkårMedlemskap( oversetter);
+                personopplysningTjeneste, new YtelseMaksdatoTjeneste(repositoryProvider, new RelatertBehandlingTjeneste(repositoryProvider)),
+                iayTjeneste,
+                null);
+        this.vurderMedlemskapsvilkarEngangsstonad = new InngangsvilkårMedlemskap(oversetter);
     }
 
     /**
-     * Input:
-     * - bruker manuelt avklart som ikke medlem (FP VK 2.13) = JA
+     * Input: - bruker manuelt avklart som ikke medlem (FP VK 2.13) = JA
      * <p>
      * Forventet: Ikke oppfylt, avslagsid 1020
      */
@@ -124,8 +120,7 @@ public class MedlemskapsvilkårTest {
     }
 
     /**
-     * Input:
-     * - bruker registrert som ikke medlem (FP VK 2.13) = JA
+     * Input: - bruker registrert som ikke medlem (FP VK 2.13) = JA
      * <p>
      * Forventet: Ikke oppfylt, avslagsid 1020
      */
@@ -145,9 +140,8 @@ public class MedlemskapsvilkårTest {
     }
 
     /**
-     * Input:
-     * - bruker registrert som ikke medlem (FP VK 2.13) = NEI
-     * - bruker avklart som pliktig eller frivillig medlem (FP VK 2.2) = JA
+     * Input: - bruker registrert som ikke medlem (FP VK 2.13) = NEI - bruker
+     * avklart som pliktig eller frivillig medlem (FP VK 2.2) = JA
      * <p>
      * Forventet: Oppfylt
      *
@@ -177,11 +171,10 @@ public class MedlemskapsvilkårTest {
     }
 
     /**
-     * Input:
-     * - bruker registrert som ikke medlem (FP VK 2.13) = NEI
-     * - bruker avklart som pliktig eller frivillig medlem (FP VK 2.2) = NEI
-     * - bruker registrert som utvandret (FP VK 2.1) = JA
-     * - bruker har relevant arbeidsforhold og inntekt som dekker skjæringstidspunkt (FP_VK_2.2.1) = NEI
+     * Input: - bruker registrert som ikke medlem (FP VK 2.13) = NEI - bruker
+     * avklart som pliktig eller frivillig medlem (FP VK 2.2) = NEI - bruker
+     * registrert som utvandret (FP VK 2.1) = JA - bruker har relevant
+     * arbeidsforhold og inntekt som dekker skjæringstidspunkt (FP_VK_2.2.1) = NEI
      * <p>
      * Forventet: Ikke oppfylt, avslagsid 1021
      */
@@ -202,11 +195,10 @@ public class MedlemskapsvilkårTest {
     }
 
     /**
-     * Input:
-     * - bruker registrert som ikke medlem (FP VK 2.13) = NEI
-     * - bruker avklart som pliktig eller frivillig medlem (FP VK 2.2) = NEI
-     * - bruker registrert som utvandret (FP VK 2.1) = JA
-     * - bruker har relevant arbeidsforhold og inntekt som dekker skjæringstidspunkt (FP_VK_2.2.1) = JA
+     * Input: - bruker registrert som ikke medlem (FP VK 2.13) = NEI - bruker
+     * avklart som pliktig eller frivillig medlem (FP VK 2.2) = NEI - bruker
+     * registrert som utvandret (FP VK 2.1) = JA - bruker har relevant
+     * arbeidsforhold og inntekt som dekker skjæringstidspunkt (FP_VK_2.2.1) = JA
      * <p>
      * Forventet: Ikke oppfylt, avslagsid 1021
      */
@@ -227,12 +219,11 @@ public class MedlemskapsvilkårTest {
     }
 
     /**
-     * Input:
-     * - bruker registrert som ikke medlem (FP VK 2.13) = NEI
-     * - bruker avklart som pliktig eller frivillig medlem (FP VK 2.2) = NEI
-     * - bruker registrert som utvandret (FP VK 2.1) = NEI
-     * - bruker avklart som ikke bosatt = JA
-     * - bruker har relevant arbeidsforhold og inntekt som dekker skjæringstidspunkt (FP_VK_2.2.1) = JA
+     * Input: - bruker registrert som ikke medlem (FP VK 2.13) = NEI - bruker
+     * avklart som pliktig eller frivillig medlem (FP VK 2.2) = NEI - bruker
+     * registrert som utvandret (FP VK 2.1) = NEI - bruker avklart som ikke bosatt =
+     * JA - bruker har relevant arbeidsforhold og inntekt som dekker
+     * skjæringstidspunkt (FP_VK_2.2.1) = JA
      * <p>
      * Forventet: Ikke oppfylt, avslagsid 1025
      */
@@ -254,12 +245,11 @@ public class MedlemskapsvilkårTest {
     }
 
     /**
-     * Input:
-     * - bruker registrert som ikke medlem (FP VK 2.13) = NEI
-     * - bruker avklart som pliktig eller frivillig medlem (FP VK 2.2) = NEI
-     * - bruker registrert som utvandret (FP VK 2.1) = NEI
-     * - bruker avklart som ikke bosatt = JA
-     * - bruker har relevant arbeidsforhold og inntekt som dekker skjæringstidspunkt (FP_VK_2.2.1) = NEI
+     * Input: - bruker registrert som ikke medlem (FP VK 2.13) = NEI - bruker
+     * avklart som pliktig eller frivillig medlem (FP VK 2.2) = NEI - bruker
+     * registrert som utvandret (FP VK 2.1) = NEI - bruker avklart som ikke bosatt =
+     * JA - bruker har relevant arbeidsforhold og inntekt som dekker
+     * skjæringstidspunkt (FP_VK_2.2.1) = NEI
      * <p>
      * Forventet: Ikke oppfylt, avslagsid 1025
      */
@@ -281,14 +271,12 @@ public class MedlemskapsvilkårTest {
     }
 
     /**
-     * Input:
-     * - bruker registrert som ikke medlem (FP VK 2.13) = NEI
-     * - bruker avklart som pliktig eller frivillig medlem (FP VK 2.2) = NEI
-     * - bruker registrert som utvandret (FP VK 2.1) = NEI
-     * - bruker avklart som ikke bosatt = NEI
-     * - bruker oppgir opphold i norge (FP VK 2.3) = JA
-     * - bruker oppgir opphold norge minst 12 mnd (FP VK 2.5) = JA
-     * - bruker norsk/nordisk statsborger i TPS (FP VK 2.11) = JA
+     * Input: - bruker registrert som ikke medlem (FP VK 2.13) = NEI - bruker
+     * avklart som pliktig eller frivillig medlem (FP VK 2.2) = NEI - bruker
+     * registrert som utvandret (FP VK 2.1) = NEI - bruker avklart som ikke bosatt =
+     * NEI - bruker oppgir opphold i norge (FP VK 2.3) = JA - bruker oppgir opphold
+     * norge minst 12 mnd (FP VK 2.5) = JA - bruker norsk/nordisk statsborger i TPS
+     * (FP VK 2.11) = JA
      * <p>
      * Forventet: oppfylt
      */
@@ -309,16 +297,13 @@ public class MedlemskapsvilkårTest {
     }
 
     /**
-     * Input:
-     * - bruker registrert som ikke medlem (FP VK 2.13) = NEI
-     * - bruker avklart som pliktig eller frivillig medlem (FP VK 2.2) = NEI
-     * - bruker registrert som utvandret (FP VK 2.1) = NEI
-     * - bruker avklart som ikke bosatt = NEI
-     * - bruker oppgir opphold i norge (FP VK 2.3) = JA
-     * - bruker oppgir opphold norge minst 12 mnd (FP VK 2.5) = JA
-     * - bruker norsk/nordisk statsborger i TPS (FP VK 2.11) = NEI
-     * - bruker EU/EØS statsborger = JA
-     * - bruker har avklart oppholdsrett (FP VK 2.12) = JA
+     * Input: - bruker registrert som ikke medlem (FP VK 2.13) = NEI - bruker
+     * avklart som pliktig eller frivillig medlem (FP VK 2.2) = NEI - bruker
+     * registrert som utvandret (FP VK 2.1) = NEI - bruker avklart som ikke bosatt =
+     * NEI - bruker oppgir opphold i norge (FP VK 2.3) = JA - bruker oppgir opphold
+     * norge minst 12 mnd (FP VK 2.5) = JA - bruker norsk/nordisk statsborger i TPS
+     * (FP VK 2.11) = NEI - bruker EU/EØS statsborger = JA - bruker har avklart
+     * oppholdsrett (FP VK 2.12) = JA
      * <p>
      * Forventet: oppfylt
      */
@@ -339,16 +324,13 @@ public class MedlemskapsvilkårTest {
     }
 
     /**
-     * Input:
-     * - bruker registrert som ikke medlem (FP VK 2.13) = NEI
-     * - bruker avklart som pliktig eller frivillig medlem (FP VK 2.2) = NEI
-     * - bruker registrert som utvandret (FP VK 2.1) = NEI
-     * - bruker avklart som ikke bosatt = NEI
-     * - bruker oppgir opphold i norge (FP VK 2.3) = JA
-     * - bruker oppgir opphold norge minst 12 mnd (FP VK 2.5) = JA
-     * - bruker norsk/nordisk statsborger i TPS (FP VK 2.11) = NEI
-     * - bruker EU/EØS statsborger = JA
-     * - bruker har avklart oppholdsrett (FP VK 2.12) = NEI
+     * Input: - bruker registrert som ikke medlem (FP VK 2.13) = NEI - bruker
+     * avklart som pliktig eller frivillig medlem (FP VK 2.2) = NEI - bruker
+     * registrert som utvandret (FP VK 2.1) = NEI - bruker avklart som ikke bosatt =
+     * NEI - bruker oppgir opphold i norge (FP VK 2.3) = JA - bruker oppgir opphold
+     * norge minst 12 mnd (FP VK 2.5) = JA - bruker norsk/nordisk statsborger i TPS
+     * (FP VK 2.11) = NEI - bruker EU/EØS statsborger = JA - bruker har avklart
+     * oppholdsrett (FP VK 2.12) = NEI
      * <p>
      * Forventet: Ikke oppfylt, avslagsid 1024
      */
@@ -370,16 +352,13 @@ public class MedlemskapsvilkårTest {
     }
 
     /**
-     * Input:
-     * - bruker registrert som ikke medlem (FP VK 2.13) = NEI
-     * - bruker avklart som pliktig eller frivillig medlem (FP VK 2.2) = NEI
-     * - bruker registrert som utvandret (FP VK 2.1) = NEI
-     * - bruker avklart som ikke bosatt = NEI
-     * - bruker oppgir opphold i norge (FP VK 2.3) = JA
-     * - bruker oppgir opphold norge minst 12 mnd (FP VK 2.5) = JA
-     * - bruker norsk/nordisk statsborger i TPS (FP VK 2.11) = NEI
-     * - bruker EU/EØS statsborger = NEI
-     * - bruker har avklart lovlig opphold (FP VK 2.12) = NEI
+     * Input: - bruker registrert som ikke medlem (FP VK 2.13) = NEI - bruker
+     * avklart som pliktig eller frivillig medlem (FP VK 2.2) = NEI - bruker
+     * registrert som utvandret (FP VK 2.1) = NEI - bruker avklart som ikke bosatt =
+     * NEI - bruker oppgir opphold i norge (FP VK 2.3) = JA - bruker oppgir opphold
+     * norge minst 12 mnd (FP VK 2.5) = JA - bruker norsk/nordisk statsborger i TPS
+     * (FP VK 2.11) = NEI - bruker EU/EØS statsborger = NEI - bruker har avklart
+     * lovlig opphold (FP VK 2.12) = NEI
      * <p>
      * Forventet: Ikke oppfylt, avslagsid 1023
      */
@@ -389,7 +368,7 @@ public class MedlemskapsvilkårTest {
         Landkoder land = Landkoder.ARG;
         var scenario = lagTestScenario(MedlemskapDekningType.UNNTATT, land, PersonstatusType.BOSA);
         scenario.medMedlemskap().medBosattVurdering(true).medLovligOppholdVurdering(false)
-            .medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.IKKE_RELEVANT);
+                .medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.IKKE_RELEVANT);
         Behandling behandling = lagre(scenario);
 
         // Act
@@ -402,16 +381,13 @@ public class MedlemskapsvilkårTest {
     }
 
     /**
-     * Input:
-     * - bruker registrert som ikke medlem (FP VK 2.13) = NEI
-     * - bruker avklart som pliktig eller frivillig medlem (FP VK 2.2) = NEI
-     * - bruker registrert som utvandret (FP VK 2.1) = NEI
-     * - bruker avklart som ikke bosatt = NEI
-     * - bruker oppgir opphold i norge (FP VK 2.3) = JA
-     * - bruker oppgir opphold norge minst 12 mnd (FP VK 2.5) = JA
-     * - bruker norsk/nordisk statsborger i TPS (FP VK 2.11) = NEI
-     * - bruker EU/EØS statsborger = NEI
-     * - bruker har avklart lovlig opphold (FP VK 2.12) = JA
+     * Input: - bruker registrert som ikke medlem (FP VK 2.13) = NEI - bruker
+     * avklart som pliktig eller frivillig medlem (FP VK 2.2) = NEI - bruker
+     * registrert som utvandret (FP VK 2.1) = NEI - bruker avklart som ikke bosatt =
+     * NEI - bruker oppgir opphold i norge (FP VK 2.3) = JA - bruker oppgir opphold
+     * norge minst 12 mnd (FP VK 2.5) = JA - bruker norsk/nordisk statsborger i TPS
+     * (FP VK 2.11) = NEI - bruker EU/EØS statsborger = NEI - bruker har avklart
+     * lovlig opphold (FP VK 2.12) = JA
      * <p>
      * Forventet: oppfylt
      */
@@ -432,7 +408,8 @@ public class MedlemskapsvilkårTest {
     }
 
     /**
-     * - bruker har relevant arbeidsforhold og inntekt som dekker skjæringstidspunkt (FP_VK_2.2.1) = NEI
+     * - bruker har relevant arbeidsforhold og inntekt som dekker skjæringstidspunkt
+     * (FP_VK_2.2.1) = NEI
      */
     @Test
     public void skal_få_medlemskapsvilkåret_satt_til_ikke_oppfylt_når_saksbehandler_setter_personstatus_til_utvandert_og_ingen_relevant_arbeid_og_inntekt() {
@@ -446,10 +423,12 @@ public class MedlemskapsvilkårTest {
         Behandling behandling = lagre(scenario);
 
         Long behandlingId = behandling.getId();
-        final PersonInformasjonBuilder personInformasjonBuilder = repositoryProvider.getPersonopplysningRepository().opprettBuilderForOverstyring(behandlingId);
+        final PersonInformasjonBuilder personInformasjonBuilder = repositoryProvider.getPersonopplysningRepository()
+                .opprettBuilderForOverstyring(behandlingId);
         LocalDate utvandretDato = LocalDate.now().minusYears(10);
-        personInformasjonBuilder.leggTil(personInformasjonBuilder.getPersonstatusBuilder(behandling.getAktørId(), DatoIntervallEntitet.fraOgMed(utvandretDato))
-            .medPersonstatus(PersonstatusType.UTVA));
+        personInformasjonBuilder
+                .leggTil(personInformasjonBuilder.getPersonstatusBuilder(behandling.getAktørId(), DatoIntervallEntitet.fraOgMed(utvandretDato))
+                        .medPersonstatus(PersonstatusType.UTVA));
         repositoryProvider.getPersonopplysningRepository().lagre(behandlingId, personInformasjonBuilder);
 
         // Act
@@ -462,7 +441,8 @@ public class MedlemskapsvilkårTest {
     }
 
     /**
-     * - bruker har relevant arbeidsforhold og inntekt som dekker skjæringstidspunkt (FP_VK_2.2.1) = JA
+     * - bruker har relevant arbeidsforhold og inntekt som dekker skjæringstidspunkt
+     * (FP_VK_2.2.1) = JA
      */
     @Test
     public void skal_få_medlemskapsvilkåret_satt_til_ikke_oppfylt_når_saksbehandler_setter_personstatus_til_utvandert_og_relevant_arbeid_og_inntekt_finnes() {
@@ -478,10 +458,12 @@ public class MedlemskapsvilkårTest {
         opprettArbeidOgInntektForBehandling(behandling, SKJÆRINGSTIDSPUNKT.minusMonths(5), SKJÆRINGSTIDSPUNKT.plusDays(2));
 
         Long behandlingId = behandling.getId();
-        final PersonInformasjonBuilder personInformasjonBuilder = repositoryProvider.getPersonopplysningRepository().opprettBuilderForOverstyring(behandlingId);
+        final PersonInformasjonBuilder personInformasjonBuilder = repositoryProvider.getPersonopplysningRepository()
+                .opprettBuilderForOverstyring(behandlingId);
         LocalDate utvandretDato = LocalDate.now().minusYears(10);
-        personInformasjonBuilder.leggTil(personInformasjonBuilder.getPersonstatusBuilder(behandling.getAktørId(), DatoIntervallEntitet.fraOgMed(utvandretDato))
-            .medPersonstatus(PersonstatusType.UTVA));
+        personInformasjonBuilder
+                .leggTil(personInformasjonBuilder.getPersonstatusBuilder(behandling.getAktørId(), DatoIntervallEntitet.fraOgMed(utvandretDato))
+                        .medPersonstatus(PersonstatusType.UTVA));
         repositoryProvider.getPersonopplysningRepository().lagre(behandlingId, personInformasjonBuilder);
 
         // Act
@@ -493,38 +475,39 @@ public class MedlemskapsvilkårTest {
     }
 
     /**
-     * Lager minimalt testscenario med en medlemsperiode som indikerer om søker er medlem eller ikke.
+     * Lager minimalt testscenario med en medlemsperiode som indikerer om søker er
+     * medlem eller ikke.
      */
     private ScenarioMorSøkerEngangsstønad lagTestScenario(MedlemskapDekningType dekningType, Landkoder statsborgerskap,
-                                                          PersonstatusType personstatusType) {
+            PersonstatusType personstatusType) {
         return lagTestScenario(dekningType, statsborgerskap, personstatusType, Region.NORDEN);
     }
 
     private ScenarioMorSøkerEngangsstønad lagTestScenario(MedlemskapDekningType dekningType, Landkoder statsborgerskap,
-                                                          PersonstatusType personstatusType, Region region) {
+            PersonstatusType personstatusType, Region region) {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse()
-            .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
-                .medTermindato(SKJÆRINGSTIDSPUNKT)
-                .medNavnPå("navn navnesen")
-                .medUtstedtDato(LocalDate.now()));
+                .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
+                        .medTermindato(SKJÆRINGSTIDSPUNKT)
+                        .medNavnPå("navn navnesen")
+                        .medUtstedtDato(LocalDate.now()));
         if (dekningType != null) {
             scenario.leggTilMedlemskapPeriode(new MedlemskapPerioderBuilder()
-                .medDekningType(dekningType)
-                .medMedlemskapType(MedlemskapType.ENDELIG)
-                .medPeriode(LocalDate.now().minusMonths(1), LocalDate.now().plusMonths(1))
-                .build());
+                    .medDekningType(dekningType)
+                    .medMedlemskapType(MedlemskapType.ENDELIG)
+                    .medPeriode(LocalDate.now().minusMonths(1), LocalDate.now().plusMonths(1))
+                    .build());
         }
 
         Builder builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
         AktørId søkerAktørId = scenario.getDefaultBrukerAktørId();
 
         PersonInformasjon søker = builderForRegisteropplysninger
-            .medPersonas()
-            .kvinne(søkerAktørId, SivilstandType.GIFT, region)
-            .personstatus(personstatusType)
-            .statsborgerskap(statsborgerskap)
-            .build();
+                .medPersonas()
+                .kvinne(søkerAktørId, SivilstandType.GIFT, region)
+                .personstatus(personstatusType)
+                .statsborgerskap(statsborgerskap)
+                .build();
         scenario.medRegisterOpplysninger(søker);
         return scenario;
     }
@@ -535,18 +518,18 @@ public class MedlemskapsvilkårTest {
         AktørId søkerAktørId = scenario.getDefaultBrukerAktørId();
 
         PersonInformasjon fødtBarn = builderForRegisteropplysninger
-            .medPersonas()
-            .fødtBarn(barnAktørId, LocalDate.now().plusDays(7))
-            .relasjonTil(søkerAktørId, RelasjonsRolleType.MORA, null)
-            .build();
+                .medPersonas()
+                .fødtBarn(barnAktørId, LocalDate.now().plusDays(7))
+                .relasjonTil(søkerAktørId, RelasjonsRolleType.MORA, null)
+                .build();
 
         PersonInformasjon søker = builderForRegisteropplysninger
-            .medPersonas()
-            .kvinne(søkerAktørId, SivilstandType.GIFT, region)
-            .statsborgerskap(statsborgerskapLand)
-            .personstatus(personstatus)
-            .relasjonTil(barnAktørId, RelasjonsRolleType.BARN, null)
-            .build();
+                .medPersonas()
+                .kvinne(søkerAktørId, SivilstandType.GIFT, region)
+                .statsborgerskap(statsborgerskapLand)
+                .personstatus(personstatus)
+                .relasjonTil(barnAktørId, RelasjonsRolleType.BARN, null)
+                .build();
         scenario.medRegisterOpplysninger(søker);
         scenario.medRegisterOpplysninger(fødtBarn);
     }
@@ -570,9 +553,9 @@ public class MedlemskapsvilkårTest {
     }
 
     private AktørArbeid lagAktørArbeid(InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder, AktørId aktørId, String virksomhetOrgnr,
-                                       LocalDate fom, LocalDate tom, ArbeidType arbeidType, Optional<InternArbeidsforholdRef> arbeidsforholdRef) {
+            LocalDate fom, LocalDate tom, ArbeidType arbeidType, Optional<InternArbeidsforholdRef> arbeidsforholdRef) {
         var aktørArbeidBuilder = inntektArbeidYtelseAggregatBuilder
-            .getAktørArbeidBuilder(aktørId);
+                .getAktørArbeidBuilder(aktørId);
 
         Opptjeningsnøkkel opptjeningsnøkkel;
         Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet(virksomhetOrgnr);
@@ -588,8 +571,8 @@ public class MedlemskapsvilkårTest {
         var aktivitetsAvtale = aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
 
         yrkesaktivitetBuilder.leggTilAktivitetsAvtale(aktivitetsAvtale)
-            .medArbeidType(arbeidType)
-            .medArbeidsgiver(arbeidsgiver);
+                .medArbeidType(arbeidType)
+                .medArbeidsgiver(arbeidsgiver);
 
         yrkesaktivitetBuilder.medArbeidsforholdId(arbeidsforholdRef.orElse(null));
 
@@ -599,7 +582,7 @@ public class MedlemskapsvilkårTest {
     }
 
     private void lagInntekt(InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder, AktørId aktørId, String virksomhetOrgnr,
-                            LocalDate fom, LocalDate tom) {
+            LocalDate fom, LocalDate tom) {
         Opptjeningsnøkkel opptjeningsnøkkel = Opptjeningsnøkkel.forOrgnummer(virksomhetOrgnr);
 
         var aktørInntektBuilder = inntektArbeidYtelseAggregatBuilder.getAktørInntektBuilder(aktørId);
@@ -607,9 +590,9 @@ public class MedlemskapsvilkårTest {
         Stream.of(InntektsKilde.INNTEKT_BEREGNING, InntektsKilde.INNTEKT_SAMMENLIGNING, InntektsKilde.INNTEKT_OPPTJENING).forEach(kilde -> {
             InntektBuilder inntektBuilder = aktørInntektBuilder.getInntektBuilder(kilde, opptjeningsnøkkel);
             InntektspostBuilder inntektspost = InntektspostBuilder.ny()
-                .medBeløp(BigDecimal.valueOf(35000))
-                .medPeriode(fom, tom)
-                .medInntektspostType(InntektspostType.LØNN);
+                    .medBeløp(BigDecimal.valueOf(35000))
+                    .medPeriode(fom, tom)
+                    .medInntektspostType(InntektspostType.LØNN);
             inntektBuilder.leggTilInntektspost(inntektspost).medArbeidsgiver(yrkesaktivitetBuilder.build().getArbeidsgiver());
             aktørInntektBuilder.leggTilInntekt(inntektBuilder);
             inntektArbeidYtelseAggregatBuilder.leggTilAktørInntekt(aktørInntektBuilder);

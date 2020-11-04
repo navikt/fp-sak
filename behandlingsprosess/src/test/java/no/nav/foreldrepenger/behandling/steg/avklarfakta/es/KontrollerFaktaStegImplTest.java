@@ -11,10 +11,8 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.steg.avklarfakta.KontrollerFaktaSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingModell;
@@ -36,43 +34,41 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractT
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon.Builder;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class KontrollerFaktaStegImplTest {
 
     private static final LocalDate FØDSELSDATO_BARN = LocalDate.of(2017, Month.JANUARY, 1);
-
-    @Rule
-    public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
 
     @Inject
     @FagsakYtelseTypeRef("ES")
     private KontrollerFaktaTjeneste kontrollerFaktaTjeneste;
 
     private Behandling behandling;
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
-    private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
+    @Inject
+    private BehandlingRepositoryProvider repositoryProvider;
+    @Inject
+    private BehandlingRepository behandlingRepository;
 
     private final SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
-        new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
+            new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
 
     private KontrollerFaktaSteg steg;
 
     private ScenarioFarSøkerEngangsstønad byggBehandlingMedFarSøkerType(FarSøkerType farSøkerType) {
         AktørId aktørId = AktørId.dummy();
         ScenarioFarSøkerEngangsstønad scenario = ScenarioFarSøkerEngangsstønad
-            .forAdopsjon();
+                .forAdopsjon();
         scenario.medBruker(aktørId, NavBrukerKjønn.MANN);
         scenario.medSøknad()
-            .medFarSøkerType(farSøkerType);
+                .medFarSøkerType(farSøkerType);
         scenario.medSøknadHendelse()
-            .medFødselsDato(FØDSELSDATO_BARN);
+                .medFødselsDato(FØDSELSDATO_BARN);
 
         // Søker må være lagret i BekreftetForeldre
         leggTilSøker(scenario, NavBrukerKjønn.MANN);
@@ -80,7 +76,7 @@ public class KontrollerFaktaStegImplTest {
         return scenario;
     }
 
-    @Before
+    @BeforeEach
     public void oppsett() {
         ScenarioFarSøkerEngangsstønad scenario = byggBehandlingMedFarSøkerType(FarSøkerType.ADOPTERER_ALENE);
         scenario.medBruker(AktørId.dummy(), NavBrukerKjønn.MANN);
@@ -94,7 +90,7 @@ public class KontrollerFaktaStegImplTest {
         Fagsak fagsak = behandling.getFagsak();
         // Arrange
         BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(),fagsak.getAktørId(), lås);
+        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
 
         BehandlingStegModell stegModellMock = mock(BehandlingStegModell.class);
         BehandlingModell modellmock = mock(BehandlingModell.class);
@@ -117,9 +113,9 @@ public class KontrollerFaktaStegImplTest {
         Builder builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
         AktørId søkerAktørId = scenario.getDefaultBrukerAktørId();
         PersonInformasjon søker = builderForRegisteropplysninger
-            .medPersonas()
-            .voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, kjønn, Region.UDEFINERT)
-            .build();
+                .medPersonas()
+                .voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, kjønn, Region.UDEFINERT)
+                .build();
         scenario.medRegisterOpplysninger(søker);
     }
 }
