@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.behandling.steg.foreslåvedtak;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -9,12 +10,11 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
@@ -31,20 +31,15 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPrStatusOgAndel;
 
+@ExtendWith(MockitoExtension.class)
 public class ForeslåVedtakRevurderingStegImplTest {
 
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
-
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
     @Mock
     private ForeslåVedtakTjeneste foreslåVedtakTjeneste;
     @Mock
@@ -62,14 +57,14 @@ public class ForeslåVedtakRevurderingStegImplTest {
     @Mock
     private Behandlingsresultat orginalBehandlingsresultat;
 
-    private BehandlingRepositoryProvider repositoryProvider = mock(BehandlingRepositoryProvider.class);
+    private final BehandlingRepositoryProvider repositoryProvider = mock(BehandlingRepositoryProvider.class);
     private ForeslåVedtakRevurderingStegImpl foreslåVedtakRevurderingStegForeldrepenger;
 
     private Behandling orginalBehandling;
     private Behandling revurdering;
     private BehandlingskontrollKontekst kontekstRevurdering;
 
-    @Before
+    @BeforeEach
     public void before() {
         when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
         when(repositoryProvider.getBehandlingRevurderingRepository()).thenReturn(behandlingRevurderingRepository);
@@ -83,18 +78,18 @@ public class ForeslåVedtakRevurderingStegImplTest {
             .lagMocked();
 
         behandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.IKKE_FASTSATT).buildFor(revurdering);
-        when(behandlingsresultatRepository.hent(revurdering.getId())).thenReturn(behandlingsresultat);
+        lenient().when(behandlingsresultatRepository.hent(revurdering.getId())).thenReturn(behandlingsresultat);
 
         kontekstRevurdering = mock(BehandlingskontrollKontekst.class);
         BehandlingLås behandlingLås = mock(BehandlingLås.class);
-        when(kontekstRevurdering.getBehandlingId()).thenReturn(revurdering.getId());
-        when(kontekstRevurdering.getSkriveLås()).thenReturn(behandlingLås);
-        when(behandlingRepository.hentBehandling(kontekstRevurdering.getBehandlingId())).thenReturn(revurdering);
+        lenient().when(kontekstRevurdering.getBehandlingId()).thenReturn(revurdering.getId());
+        lenient().when(kontekstRevurdering.getSkriveLås()).thenReturn(behandlingLås);
+        lenient().when(behandlingRepository.hentBehandling(kontekstRevurdering.getBehandlingId())).thenReturn(revurdering);
 
         foreslåVedtakRevurderingStegForeldrepenger =
             new ForeslåVedtakRevurderingStegImpl(foreslåVedtakTjeneste, beregningsgrunnlagTjeneste, repositoryProvider);
-        when(foreslåVedtakTjeneste.foreslåVedtak(revurdering, kontekstRevurdering)).thenReturn(behandleStegResultat);
-        when(behandleStegResultat.getAksjonspunktResultater()).thenReturn(Collections.emptyList());
+        lenient().when(foreslåVedtakTjeneste.foreslåVedtak(revurdering, kontekstRevurdering)).thenReturn(behandleStegResultat);
+        lenient().when(behandleStegResultat.getAksjonspunktResultater()).thenReturn(Collections.emptyList());
     }
 
     @Test
@@ -134,7 +129,6 @@ public class ForeslåVedtakRevurderingStegImplTest {
         // Arrange
         orginalBehandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT).buildFor(orginalBehandling);
         when(behandlingsresultatRepository.hent(orginalBehandling.getId())).thenReturn(orginalBehandlingsresultat);
-        when(beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(orginalBehandling.getId())).thenReturn(Optional.of(buildBeregningsgrunnlag(1000L)));
         when(beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(revurdering.getId())).thenReturn(Optional.of(buildBeregningsgrunnlag(900L)));
         when(behandlingRepository.hentBehandling(orginalBehandling.getId())).thenReturn(orginalBehandling);
 
@@ -150,7 +144,6 @@ public class ForeslåVedtakRevurderingStegImplTest {
         // Arrange
         orginalBehandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.OPPHØR).buildFor(orginalBehandling);
         when(behandlingsresultatRepository.hent(orginalBehandling.getId())).thenReturn(orginalBehandlingsresultat);
-        when(beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(orginalBehandling.getId())).thenReturn(Optional.of(buildBeregningsgrunnlag(1000L)));
         when(beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(revurdering.getId())).thenReturn(Optional.of(buildBeregningsgrunnlag(900L)));
         when(behandlingRepository.hentBehandling(orginalBehandling.getId())).thenReturn(orginalBehandling);
 

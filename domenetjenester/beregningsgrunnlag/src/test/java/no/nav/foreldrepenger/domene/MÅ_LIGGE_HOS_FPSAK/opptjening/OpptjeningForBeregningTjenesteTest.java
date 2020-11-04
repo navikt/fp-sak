@@ -11,16 +11,15 @@ import java.util.List;
 import java.util.Optional;
 
 import org.assertj.core.api.Assertions;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.RepositoryProvider;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.testutilities.behandling.ScenarioForeldrepenger;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
@@ -33,20 +32,19 @@ import no.nav.foreldrepenger.domene.opptjening.OpptjeningsperiodeForSaksbehandli
 import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.OpptjeningsperioderUtenOverstyringTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
-public class OpptjeningForBeregningTjenesteTest {
+public class OpptjeningForBeregningTjenesteTest extends EntityManagerAwareTest {
 
     private static final LocalDate SKJÆRINGSTIDSPUNKT_OPPTJENING = LocalDate.of(2018, 12, 12);
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private RepositoryProvider repositoryProvider = new RepositoryProvider(repoRule.getEntityManager());
-    private InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
-    private List<OpptjeningsperiodeForSaksbehandling> opptjeningsperioder = new ArrayList<>();
+
+    private final InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
+    private final List<OpptjeningsperiodeForSaksbehandling> opptjeningsperioder = new ArrayList<>();
     private OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste;
     private BehandlingReferanse behandlingReferanse;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         ScenarioForeldrepenger scenario = ScenarioForeldrepenger.nyttScenario();
+        RepositoryProvider repositoryProvider = new RepositoryProvider(getEntityManager());
         BehandlingReferanse referanse = scenario.lagre(repositoryProvider);
         var opptjeningsperioderTjeneste = mock(OpptjeningsperioderUtenOverstyringTjeneste.class);
         behandlingReferanse = referanse.medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_OPPTJENING);

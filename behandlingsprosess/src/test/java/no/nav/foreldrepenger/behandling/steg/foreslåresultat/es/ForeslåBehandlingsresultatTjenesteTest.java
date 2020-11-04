@@ -1,16 +1,15 @@
 package no.nav.foreldrepenger.behandling.steg.foreslåresultat.es;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
 import java.time.LocalDate;
 import java.util.List;
 
-import javax.persistence.EntityManager;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
@@ -29,29 +28,29 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 
-public class ForeslåBehandlingsresultatTjenesteTest {
+public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
+    private BehandlingRepositoryProvider repositoryProvider;
 
-    private final EntityManager entityManager = repoRule.getEntityManager();
-    private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+    private final RevurderingEndringImpl revurderingEndring = mock(RevurderingEndringImpl.class);
+    private BehandlingRepository behandlingRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
+    private final AvslagsårsakTjeneste avslagsårsakTjeneste = new AvslagsårsakTjeneste();
+    private ForeslåBehandlingsresultatTjenesteImpl foreslåVedtaTjenesteES;
 
-    private RevurderingEndringImpl revurderingEndring = Mockito.mock(RevurderingEndringImpl.class);
-    private BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-    private BehandlingsresultatRepository behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
-    private AvslagsårsakTjeneste avslagsårsakTjeneste = new AvslagsårsakTjeneste();
-    private ForeslåBehandlingsresultatTjenesteImpl foreslåVedtaTjenesteES = new ForeslåBehandlingsresultatTjenesteImpl(
-        repositoryProvider.getBehandlingsresultatRepository(),
-        repositoryProvider.getBehandlingRepository(),
-        avslagsårsakTjeneste,revurderingEndring);
-
-    @Before
+    @BeforeEach
     public void setup() {
-        Mockito.doReturn(false).when(revurderingEndring).erRevurderingMedUendretUtfall(Mockito.any(), Mockito.any());
+        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
+        doReturn(false).when(revurderingEndring).erRevurderingMedUendretUtfall(any(), any());
+        behandlingRepository = repositoryProvider.getBehandlingRepository();
+        behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
+        foreslåVedtaTjenesteES = new ForeslåBehandlingsresultatTjenesteImpl(
+            repositoryProvider.getBehandlingsresultatRepository(),
+            repositoryProvider.getBehandlingRepository(),
+            avslagsårsakTjeneste,revurderingEndring);
     }
 
     @Test
@@ -96,7 +95,7 @@ public class ForeslåBehandlingsresultatTjenesteTest {
 
     @Test
     public void setter_konsekvens_for_ytelse_ingen_endring() {
-        Mockito.doReturn(true).when(revurderingEndring).erRevurderingMedUendretUtfall(Mockito.any(), Mockito.any());
+        doReturn(true).when(revurderingEndring).erRevurderingMedUendretUtfall(any(), any());
         Behandling behandling = vilkårOppsett(VilkårUtfallType.OPPFYLT, VilkårResultatType.INNVILGET);
         foreslåBehandlingsresultat(behandling);
         List<KonsekvensForYtelsen> konsekvenserForYtelsen = getBehandlingsresultat(behandling).getKonsekvenserForYtelsen();

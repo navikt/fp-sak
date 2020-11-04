@@ -7,24 +7,19 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
-import javax.enterprise.inject.spi.CDI;
+import javax.inject.Inject;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
@@ -34,24 +29,17 @@ import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.input.YtelsespesifiktGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
-import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 
-public class KontrollerFaktaUttakTjenesteTest extends EntityManagerAwareTest {
+@CdiDbAwareTest
+public class KontrollerFaktaUttakTjenesteTest {
 
     private final AktørId aktørId = AktørId.dummy();
 
+    @Inject
     private UttakRepositoryProvider repositoryProvider;
 
+    @Inject
     private KontrollerFaktaUttakTjeneste tjeneste;
-
-    @BeforeEach
-    void setUp() {
-        var entityManager = getEntityManager();
-        repositoryProvider = new UttakRepositoryProvider(entityManager);
-        var ytelseFordelingTjeneste = new YtelseFordelingTjeneste(new YtelsesFordelingRepository(entityManager));
-        var personopplysningTjeneste = new PersonopplysningRepository(entityManager);
-        tjeneste = tjeneste(ytelseFordelingTjeneste, personopplysningTjeneste);
-    }
 
     @Test
     public void aksjonspunkt_dersom_far_søker_og_ikke_oppgitt_omsorg_til_barnet() {
@@ -132,12 +120,6 @@ public class KontrollerFaktaUttakTjenesteTest extends EntityManagerAwareTest {
 
         var perioderAnnenforelderHarRett = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId()).getPerioderAnnenforelderHarRett();
         assertThat(perioderAnnenforelderHarRett).isEmpty();
-    }
-
-    private KontrollerFaktaUttakTjeneste tjeneste(YtelseFordelingTjeneste ytelseFordelingTjeneste, PersonopplysningRepository personopplysningTjeneste) {
-        var annotationLiteral = new FagsakYtelseTypeRef.FagsakYtelseTypeRefLiteral(FagsakYtelseType.FORELDREPENGER);
-        var utledere = CDI.current().select(FaktaUttakAksjonspunktUtleder.class, annotationLiteral);
-        return new KontrollerFaktaUttakTjeneste(utledere, ytelseFordelingTjeneste, personopplysningTjeneste);
     }
 
     private Behandling opprettBehandlingForFarSomSøker() {

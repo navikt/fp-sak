@@ -7,8 +7,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
@@ -25,7 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioF
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.YtelserKonsolidertTjeneste;
@@ -41,22 +41,20 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class AksjonspunktUtlederForTidligereMottattYtelseTest {
+public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityManagerAwareTest {
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
+    private BehandlingRepositoryProvider repositoryProvider;
+    private final InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
+    private AksjonspunktUtlederForTidligereMottattYtelse utleder;
+    private final Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build();
 
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-    private InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
-    private AksjonspunktUtlederForTidligereMottattYtelse utleder = new AksjonspunktUtlederForTidligereMottattYtelse(
-        iayTjeneste,
-        new YtelserKonsolidertTjeneste(repositoryProvider),
-        new PersonopplysningRepository(repoRule.getEntityManager()));
-
-    private Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build();
-
-    private Behandling lagre(AbstractTestScenario<?> scenario) {
-        return scenario.lagre(repositoryProvider);
+    @BeforeEach
+    void setUp() {
+        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
+        utleder = new AksjonspunktUtlederForTidligereMottattYtelse(
+            iayTjeneste,
+            new YtelserKonsolidertTjeneste(repositoryProvider),
+            new PersonopplysningRepository(getEntityManager()));
     }
 
     @Test
@@ -264,7 +262,7 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest {
         scenario.medBruker(aktørId)
             .medSøknad().medMottattDato(LocalDate.now().minusWeeks(2));
         scenario.medSøknadAnnenPart().medAktørId(annenAktørId);
-        return lagre(scenario);
+        return scenario.lagre(repositoryProvider);
     }
 
     private void leggTilYtelseForAktør(Behandling behandling,

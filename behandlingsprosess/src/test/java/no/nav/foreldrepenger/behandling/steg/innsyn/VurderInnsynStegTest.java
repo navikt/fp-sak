@@ -2,8 +2,8 @@ package no.nav.foreldrepenger.behandling.steg.innsyn;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
@@ -15,22 +15,24 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
 
-public class VurderInnsynStegTest {
+public class VurderInnsynStegTest extends EntityManagerAwareTest {
 
     private static final AktørId AKTØR_ID_MOR = AktørId.dummy();
 
-    @Rule
-    public RepositoryRule repositoryRule = new UnittestRepositoryRule();
+    private BehandlingRepositoryProvider repositoryProvider;
 
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
+    private BehandlingRepository behandlingRepository;
 
-    private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
+    private final VurderInnsynSteg steg = new VurderInnsynSteg();
 
-    private VurderInnsynSteg steg = new VurderInnsynSteg();
+    @BeforeEach
+    void setUp() {
+        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
+        behandlingRepository = repositoryProvider.getBehandlingRepository();
+    }
 
     @Test
     public void skal_liste_ut_aksjonspunktet_for_vurder_innsyn(){

@@ -11,9 +11,8 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -50,7 +49,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
@@ -62,34 +61,37 @@ import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.util.Tuple;
 
-public class ForeslåBehandlingsresultatTjenesteTest {
+public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
+    private BehandlingRepositoryProvider repositoryProvider;
 
-    private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste = new HentOgLagreBeregningsgrunnlagTjeneste(repoRule.getEntityManager());
-    private DokumentBehandlingTjeneste dokumentBehandlingTjeneste = mock(DokumentBehandlingTjeneste.class);
-    private RelatertBehandlingTjeneste relatertBehandlingTjeneste = mock(RelatertBehandlingTjeneste.class);
-    private OpphørUttakTjeneste opphørUttakTjeneste = mock(OpphørUttakTjeneste.class);
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
+    private final DokumentBehandlingTjeneste dokumentBehandlingTjeneste = mock(DokumentBehandlingTjeneste.class);
+    private final RelatertBehandlingTjeneste relatertBehandlingTjeneste = mock(RelatertBehandlingTjeneste.class);
+    private final OpphørUttakTjeneste opphørUttakTjeneste = mock(OpphørUttakTjeneste.class);
+    private final SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
     private RevurderingBehandlingsresultatutleder revurderingBehandlingsresultatutleder;
     private ForeslåBehandlingsresultatTjenesteImpl tjeneste;
-    private BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-    private FpUttakRepository fpUttakRepository = repositoryProvider.getFpUttakRepository();
-    private final BehandlingVedtakRepository behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
-    private MedlemTjeneste medlemTjeneste = mock(MedlemTjeneste.class);
+    private BehandlingRepository behandlingRepository;
+    private FpUttakRepository fpUttakRepository;
+    private BehandlingVedtakRepository behandlingVedtakRepository;
+    private final MedlemTjeneste medlemTjeneste = mock(MedlemTjeneste.class);
 
-    @Before
+    @BeforeEach
     public void setup() {
         AvslagsårsakTjeneste avslagsårsakTjeneste = new AvslagsårsakTjeneste();
         when(medlemTjeneste.utledVilkårUtfall(any())).thenReturn(new Tuple<>(VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT));
-        StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste = new StønadskontoSaldoTjeneste(new UttakRepositoryProvider(repoRule.getEntityManager()));
+        var entityManager = getEntityManager();
+        StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste = new StønadskontoSaldoTjeneste(new UttakRepositoryProvider(
+            entityManager));
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        fpUttakRepository = repositoryProvider.getFpUttakRepository();
         var uttakTjeneste = new ForeldrepengerUttakTjeneste(fpUttakRepository);
         AndelGraderingTjeneste andelGraderingTjeneste = new AndelGraderingTjeneste(uttakTjeneste,
             repositoryProvider.getYtelsesFordelingRepository()
         );
+        HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste = new HentOgLagreBeregningsgrunnlagTjeneste(
+            entityManager);
         UttakInputTjeneste uttakInputTjeneste = new UttakInputTjeneste(repositoryProvider, beregningsgrunnlagTjeneste, new AbakusInMemoryInntektArbeidYtelseTjeneste(),
             skjæringstidspunktTjeneste, medlemTjeneste, andelGraderingTjeneste);
         revurderingBehandlingsresultatutleder = spy(new RevurderingBehandlingsresultatutleder(repositoryProvider,
@@ -105,6 +107,8 @@ public class ForeslåBehandlingsresultatTjenesteTest {
             avslagsårsakTjeneste,
             dokumentBehandlingTjeneste,
             revurderingBehandlingsresultatutleder);
+        behandlingRepository = repositoryProvider.getBehandlingRepository();
+        behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
     }
 
     @Test
