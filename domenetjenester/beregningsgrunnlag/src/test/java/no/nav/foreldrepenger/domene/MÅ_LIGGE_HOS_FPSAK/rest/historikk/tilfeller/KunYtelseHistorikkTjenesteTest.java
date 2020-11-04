@@ -12,17 +12,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.persistence.EntityManager;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.FaktaBeregningLagreDto;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.FastsattBrukersAndel;
@@ -44,32 +41,26 @@ import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.vedtak.felles.integrasjon.journal.v3.JournalConsumerImpl;
 
-public class KunYtelseHistorikkTjenesteTest {
+public class KunYtelseHistorikkTjenesteTest extends EntityManagerAwareTest {
 
     private static final Long ANDELSNR = 1L;
     private final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
     private final Beløp GRUNNBELØP = new Beløp(600000);
 
-    @Rule
-    public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
-
-    private EntityManager em = repositoryRule.getEntityManager();
-
-    private final DokumentArkivTjeneste dokumentArkivTjeneste = new DokumentArkivTjeneste(mock(JournalConsumerImpl.class), new FagsakRepository(em));
-    private HistorikkTjenesteAdapter historikkAdapter = new HistorikkTjenesteAdapter(
-        new HistorikkRepository(repositoryRule.getEntityManager()), dokumentArkivTjeneste);
+    private HistorikkTjenesteAdapter historikkAdapter;
     private KunYtelseHistorikkTjeneste kunYtelseHistorikkTjeneste;
-    private ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste;
     private BeregningsgrunnlagEntitet beregningsgrunnlag;
 
-    @Before
+    @BeforeEach
     public void setup() {
         var arbeidsgiverTjeneste = new ArbeidsgiverTjeneste(null, mock(VirksomhetTjeneste.class));
-        this.arbeidsgiverHistorikkinnslagTjeneste = new ArbeidsgiverHistorikkinnslag(arbeidsgiverTjeneste);
-        this.kunYtelseHistorikkTjeneste = new KunYtelseHistorikkTjeneste(arbeidsgiverHistorikkinnslagTjeneste);
+        ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste = new ArbeidsgiverHistorikkinnslag(
+            arbeidsgiverTjeneste);
+        kunYtelseHistorikkTjeneste = new KunYtelseHistorikkTjeneste(arbeidsgiverHistorikkinnslagTjeneste);
         beregningsgrunnlag = BeregningsgrunnlagEntitet.builder()
             .medGrunnbeløp(GRUNNBELØP)
-            .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
+            .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
+            .build();
         BeregningsgrunnlagPeriode periode1 = BeregningsgrunnlagPeriode.builder()
             .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusMonths(2).minusDays(1))
             .build(beregningsgrunnlag);
@@ -78,6 +69,10 @@ public class KunYtelseHistorikkTjenesteTest {
             .medLagtTilAvSaksbehandler(false)
             .medAktivitetStatus(BRUKERS_ANDEL)
             .build(periode1);
+        var entityManager = getEntityManager();
+        DokumentArkivTjeneste dokumentArkivTjeneste = new DokumentArkivTjeneste(mock(JournalConsumerImpl.class),
+            new FagsakRepository(entityManager));
+        historikkAdapter = new HistorikkTjenesteAdapter(new HistorikkRepository(entityManager), dokumentArkivTjeneste);
     }
 
     @Test
@@ -87,14 +82,16 @@ public class KunYtelseHistorikkTjenesteTest {
         boolean lagtTilAvSaksbehandler = false;
         Integer fastsatt = 100000;
         Inntektskategori inntektskategori = Inntektskategori.SJØMANN;
-        FastsattBrukersAndel andel = new FastsattBrukersAndel(nyAndel, ANDELSNR, lagtTilAvSaksbehandler, fastsatt, inntektskategori);
+        FastsattBrukersAndel andel = new FastsattBrukersAndel(nyAndel, ANDELSNR, lagtTilAvSaksbehandler, fastsatt,
+            inntektskategori);
         FastsettBgKunYtelseDto kunYtelseDto = new FastsettBgKunYtelseDto(Collections.singletonList(andel), null);
-        FaktaBeregningLagreDto dto = new FaktaBeregningLagreDto(Collections.singletonList(FaktaOmBeregningTilfelle.FASTSETT_BG_KUN_YTELSE),
-            kunYtelseDto);
+        FaktaBeregningLagreDto dto = new FaktaBeregningLagreDto(
+            Collections.singletonList(FaktaOmBeregningTilfelle.FASTSETT_BG_KUN_YTELSE), kunYtelseDto);
 
         // Act
         HistorikkInnslagTekstBuilder tekstBuilder = historikkAdapter.tekstBuilder();
-        kunYtelseHistorikkTjeneste.lagHistorikk(null, dto, tekstBuilder, beregningsgrunnlag, Optional.empty(), InntektArbeidYtelseGrunnlagBuilder.nytt().build());
+        kunYtelseHistorikkTjeneste.lagHistorikk(null, dto, tekstBuilder, beregningsgrunnlag, Optional.empty(),
+            InntektArbeidYtelseGrunnlagBuilder.nytt().build());
         tekstBuilder.ferdigstillHistorikkinnslagDel();
 
         // Assert
@@ -108,22 +105,25 @@ public class KunYtelseHistorikkTjenesteTest {
         boolean lagtTilAvSaksbehandler = false;
         Integer fastsatt = 100000;
         Inntektskategori inntektskategori = Inntektskategori.SJØMANN;
-        FastsattBrukersAndel brukersAndel = new FastsattBrukersAndel(nyAndel, ANDELSNR, lagtTilAvSaksbehandler, fastsatt, inntektskategori);
+        FastsattBrukersAndel brukersAndel = new FastsattBrukersAndel(nyAndel, ANDELSNR, lagtTilAvSaksbehandler,
+            fastsatt, inntektskategori);
         FastsettBgKunYtelseDto kunYtelseDto = new FastsettBgKunYtelseDto(Collections.singletonList(brukersAndel), null);
-        FaktaBeregningLagreDto dto = new FaktaBeregningLagreDto(Collections.singletonList(FaktaOmBeregningTilfelle.FASTSETT_BG_KUN_YTELSE),
-            kunYtelseDto);
+        FaktaBeregningLagreDto dto = new FaktaBeregningLagreDto(
+            Collections.singletonList(FaktaOmBeregningTilfelle.FASTSETT_BG_KUN_YTELSE), kunYtelseDto);
 
         BeregningsgrunnlagEntitet forrigeBg = beregningsgrunnlag.dypKopi();
-        forrigeBg.getBeregningsgrunnlagPerioder().forEach(periode -> periode.getBeregningsgrunnlagPrStatusOgAndelList().forEach(andel ->
-            BeregningsgrunnlagPrStatusOgAndel.builder(andel).medBeregnetPrÅr(BigDecimal.valueOf(fastsatt * 12))));
+        forrigeBg.getBeregningsgrunnlagPerioder()
+            .forEach(periode -> periode.getBeregningsgrunnlagPrStatusOgAndelList()
+                .forEach(andel -> BeregningsgrunnlagPrStatusOgAndel.builder(andel)
+                    .medBeregnetPrÅr(BigDecimal.valueOf(fastsatt * 12))));
 
-        BeregningsgrunnlagGrunnlagEntitet forrigeGrunnlag = BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.empty())
-            .medBeregningsgrunnlag(forrigeBg)
-            .build(1L, BeregningsgrunnlagTilstand.KOFAKBER_UT);
+        BeregningsgrunnlagGrunnlagEntitet forrigeGrunnlag = BeregningsgrunnlagGrunnlagBuilder.oppdatere(
+            Optional.empty()).medBeregningsgrunnlag(forrigeBg).build(1L, BeregningsgrunnlagTilstand.KOFAKBER_UT);
 
         // Act
         HistorikkInnslagTekstBuilder tekstBuilder = historikkAdapter.tekstBuilder();
-        kunYtelseHistorikkTjeneste.lagHistorikk(null, dto, tekstBuilder, beregningsgrunnlag, Optional.of(forrigeGrunnlag), InntektArbeidYtelseGrunnlagBuilder.nytt().build());
+        kunYtelseHistorikkTjeneste.lagHistorikk(null, dto, tekstBuilder, beregningsgrunnlag,
+            Optional.of(forrigeGrunnlag), InntektArbeidYtelseGrunnlagBuilder.nytt().build());
         tekstBuilder.ferdigstillHistorikkinnslagDel();
 
         // Assert
@@ -132,23 +132,36 @@ public class KunYtelseHistorikkTjenesteTest {
 
     private void assertHistorikkinnslagFordeling(Integer fastsatt, Integer overstyrt, String andelsInfo) {
         List<HistorikkinnslagDel> deler = historikkAdapter.tekstBuilder().getHistorikkinnslagDeler();
-        List<HistorikkinnslagDel> andelHistorikkinnslag = deler.stream().filter(del ->
-            del != null &&
-                del.getTema().isPresent() &&
-                andelsInfo.equals(del.getTema().get().getNavnVerdi()))
+        List<HistorikkinnslagDel> andelHistorikkinnslag = deler.stream()
+            .filter(del -> del != null && del.getTema().isPresent() && andelsInfo.equals(
+                del.getTema().get().getNavnVerdi()))
             .collect(Collectors.toList());
-        Optional<HistorikkinnslagDel> fordelingInnslag = andelHistorikkinnslag.stream().filter(del -> del.getEndretFelt(HistorikkEndretFeltType.FORDELING_FOR_ANDEL).isPresent()).findFirst();
+        Optional<HistorikkinnslagDel> fordelingInnslag = andelHistorikkinnslag.stream()
+            .filter(del -> del.getEndretFelt(HistorikkEndretFeltType.FORDELING_FOR_ANDEL).isPresent())
+            .findFirst();
         Integer fastsattÅrsbeløp = fastsatt * 12;
         if (overstyrt != null && overstyrt.equals(fastsattÅrsbeløp)) {
             assertThat(fordelingInnslag.isPresent()).isFalse();
         } else if (overstyrt == null) {
             assertThat(fordelingInnslag).isPresent();
-            assertThat(fordelingInnslag.get().getEndretFelt(HistorikkEndretFeltType.FORDELING_FOR_ANDEL).get().getFraVerdi()).isNull();
-            assertThat(fordelingInnslag.get().getEndretFelt(HistorikkEndretFeltType.FORDELING_FOR_ANDEL).get().getTilVerdi()).isEqualTo(fastsatt.toString());
+            assertThat(fordelingInnslag.get()
+                .getEndretFelt(HistorikkEndretFeltType.FORDELING_FOR_ANDEL)
+                .get()
+                .getFraVerdi()).isNull();
+            assertThat(fordelingInnslag.get()
+                .getEndretFelt(HistorikkEndretFeltType.FORDELING_FOR_ANDEL)
+                .get()
+                .getTilVerdi()).isEqualTo(fastsatt.toString());
         } else {
             assertThat(fordelingInnslag).isPresent();
-            assertThat(fordelingInnslag.get().getEndretFelt(HistorikkEndretFeltType.FORDELING_FOR_ANDEL).get().getFraVerdi()).isEqualTo(overstyrt.toString());
-            assertThat(fordelingInnslag.get().getEndretFelt(HistorikkEndretFeltType.FORDELING_FOR_ANDEL).get().getTilVerdi()).isEqualTo(fastsatt.toString());
+            assertThat(fordelingInnslag.get()
+                .getEndretFelt(HistorikkEndretFeltType.FORDELING_FOR_ANDEL)
+                .get()
+                .getFraVerdi()).isEqualTo(overstyrt.toString());
+            assertThat(fordelingInnslag.get()
+                .getEndretFelt(HistorikkEndretFeltType.FORDELING_FOR_ANDEL)
+                .get()
+                .getTilVerdi()).isEqualTo(fastsatt.toString());
         }
     }
 

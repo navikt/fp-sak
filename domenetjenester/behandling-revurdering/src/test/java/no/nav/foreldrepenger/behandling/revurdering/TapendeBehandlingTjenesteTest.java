@@ -6,8 +6,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -24,15 +24,17 @@ import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 
-public class TapendeBehandlingTjenesteTest {
+public class TapendeBehandlingTjenesteTest extends EntityManagerAwareTest {
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(
-        repoRule.getEntityManager());
+    private BehandlingRepositoryProvider repositoryProvider;
+
+    @BeforeEach
+    void setUp() {
+        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
+    }
 
     @Test
     public void tapende_berørtBehandling() {
@@ -242,9 +244,9 @@ public class TapendeBehandlingTjenesteTest {
     }
 
     private Behandling avsluttMedUttak(Behandling behandling) {
-        var uttaksperiode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(), LocalDate.now().plusWeeks(6))
-            .medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
-            .build();
+        var uttaksperiode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(),
+            LocalDate.now().plusWeeks(6)).medResultatType(PeriodeResultatType.INNVILGET,
+            InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE).build();
         var uttak = new UttakResultatPerioderEntitet();
         repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttak);
         uttak.leggTilPeriode(uttaksperiode);

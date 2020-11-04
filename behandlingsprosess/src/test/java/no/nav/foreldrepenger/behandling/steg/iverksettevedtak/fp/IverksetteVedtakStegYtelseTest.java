@@ -6,12 +6,11 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import javax.persistence.EntityManager;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
 
 import no.nav.foreldrepenger.behandling.steg.iverksettevedtak.IverksetteVedtakStegFelles;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
@@ -33,38 +32,41 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.vedtak.OpprettProsessTaskIverksett;
 import no.nav.foreldrepenger.domene.vedtak.impl.VurderBehandlingerUnderIverksettelse;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
+@CdiDbAwareTest
 public class IverksetteVedtakStegYtelseTest {
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
 
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-    private BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
+    private BehandlingRepositoryProvider repositoryProvider;
+    private BehandlingRepository behandlingRepository;
 
     private Behandling behandling;
 
     @Mock
     private OpprettProsessTaskIverksett opprettProsessTaskIverksett;
 
-    private Repository repository = repoRule.getRepository();
-    private BehandlingVedtakRepository behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
-    private HistorikkRepository historikkRepository = repositoryProvider.getHistorikkRepository();
+    private Repository repository;
+    private BehandlingVedtakRepository behandlingVedtakRepository;
+    private HistorikkRepository historikkRepository;
 
     @Mock
     private VurderBehandlingerUnderIverksettelse vurderBehandlingerUnderIverksettelse;
 
     private IverksetteVedtakStegFelles iverksetteVedtakSteg;
 
-    @Before
-    public void setup() {
-        iverksetteVedtakSteg = new IverksetteVedtakStegFelles(repositoryProvider, opprettProsessTaskIverksett, vurderBehandlingerUnderIverksettelse);
+    @BeforeEach
+    public void setup(EntityManager entityManager) {
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        repository = new Repository(entityManager);
+        behandlingRepository = repositoryProvider.getBehandlingRepository();
+        behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
+        historikkRepository = repositoryProvider.getHistorikkRepository();
+        iverksetteVedtakSteg = new IverksetteVedtakStegFelles(repositoryProvider, opprettProsessTaskIverksett,
+            vurderBehandlingerUnderIverksettelse);
         behandling = opprettBehandling();
     }
 

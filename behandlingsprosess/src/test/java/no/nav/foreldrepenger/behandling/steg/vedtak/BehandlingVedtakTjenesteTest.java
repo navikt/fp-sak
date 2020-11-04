@@ -8,9 +8,8 @@ import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Properties;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -38,26 +37,31 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.vedtak.impl.BehandlingVedtakEventPubliserer;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
-public class BehandlingVedtakTjenesteTest {
+public class BehandlingVedtakTjenesteTest extends EntityManagerAwareTest {
 
     public static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private final Repository repository = repoRule.getRepository();
-    private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-    private BehandlingVedtakTjeneste behandlingVedtakTjeneste;
-    private BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-    private FpUttakRepository fpUttakRepository = repositoryProvider.getFpUttakRepository();
-    private BehandlingVedtakRepository behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
 
-    @Before
+    private Repository repository;
+    private BehandlingRepositoryProvider repositoryProvider;
+    private BehandlingVedtakTjeneste behandlingVedtakTjeneste;
+    private BehandlingRepository behandlingRepository;
+    private FpUttakRepository fpUttakRepository;
+    private BehandlingVedtakRepository behandlingVedtakRepository;
+
+    @BeforeEach
     public void setUp() {
         BehandlingVedtakEventPubliserer behandlingVedtakEventPubliserer = mock(BehandlingVedtakEventPubliserer.class);
+        var entityManager = getEntityManager();
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         behandlingVedtakTjeneste = new BehandlingVedtakTjeneste(behandlingVedtakEventPubliserer, repositoryProvider);
+        repository = new Repository(entityManager);
+        behandlingRepository = repositoryProvider.getBehandlingRepository();
+        fpUttakRepository = repositoryProvider.getFpUttakRepository();
+        behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
     }
 
     @Test
