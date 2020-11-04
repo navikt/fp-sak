@@ -8,10 +8,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
@@ -33,15 +32,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class VurderSøknadsfristOppdatererTjenesteFPTest {
-
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
 
     @Inject
     @FagsakYtelseTypeRef("FP")
@@ -59,21 +54,20 @@ public class VurderSøknadsfristOppdatererTjenesteFPTest {
     @Inject
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
 
-
     @Test
-    public void skal_oppdatere_behandlingsresultet_med_uttaksperiodegrense() {
+    public void skal_oppdatere_behandlingsresultet_med_uttaksperiodegrense(EntityManager em) {
         // Arrange
-        LocalDate nyMottattDato = LocalDate.of(2018,1,15);
-        LocalDate førsteLovligeUttaksdag = LocalDate.of(2017,10,1);
-        var dto = new VurderSøknadsfristDto( "Begrunnelse", true);
+        LocalDate nyMottattDato = LocalDate.of(2018, 1, 15);
+        LocalDate førsteLovligeUttaksdag = LocalDate.of(2017, 10, 1);
+        var dto = new VurderSøknadsfristDto("Begrunnelse", true);
         dto.setAnsesMottattDato(nyMottattDato);
-        var behandling = byggBehandlingMedYf();
+        var behandling = byggBehandlingMedYf(em);
 
         // Act
         tjeneste.oppdater(dto, aksjonspunktParam(behandling, dto));
 
         // Assert
-        var uttaksperiodegrense =  uttaksperiodegrenseRepository.hent(behandling.getId());
+        var uttaksperiodegrense = uttaksperiodegrenseRepository.hent(behandling.getId());
         assertThat(uttaksperiodegrense.getErAktivt()).isTrue();
         assertThat(uttaksperiodegrense.getMottattDato()).isEqualTo(nyMottattDato);
         assertThat(uttaksperiodegrense.getFørsteLovligeUttaksdag()).isEqualTo(førsteLovligeUttaksdag);
@@ -85,21 +79,21 @@ public class VurderSøknadsfristOppdatererTjenesteFPTest {
     }
 
     @Test
-    public void skal_oppdatere_behandlingsresultat_med_eksisterende_uttaksperiodegrense() {
+    public void skal_oppdatere_behandlingsresultat_med_eksisterende_uttaksperiodegrense(EntityManager em) {
         // Arrange
-        LocalDate gammelMottatDato = LocalDate.of(2018,3,15);
-        LocalDate gammelFørsteLovligeUttaksdag = LocalDate.of(2017,3,15);
+        LocalDate gammelMottatDato = LocalDate.of(2018, 3, 15);
+        LocalDate gammelFørsteLovligeUttaksdag = LocalDate.of(2017, 3, 15);
 
-        var behandling = byggBehandlingMedYf();
+        var behandling = byggBehandlingMedYf(em);
         var br = behandlingsresultatRepository.hent(behandling.getId());
         var gammelUttaksperiodegrense = new Uttaksperiodegrense.Builder(br)
-            .medFørsteLovligeUttaksdag(gammelFørsteLovligeUttaksdag)
-            .medMottattDato(gammelMottatDato)
-            .build();
+                .medFørsteLovligeUttaksdag(gammelFørsteLovligeUttaksdag)
+                .medMottattDato(gammelMottatDato)
+                .build();
         uttaksperiodegrenseRepository.lagre(behandling.getId(), gammelUttaksperiodegrense);
 
-        LocalDate nyMottattDato = LocalDate.of(2018,2,28);
-        LocalDate førsteLovligeUttaksdag = LocalDate.of(2017,11,1);
+        LocalDate nyMottattDato = LocalDate.of(2018, 2, 28);
+        LocalDate førsteLovligeUttaksdag = LocalDate.of(2017, 11, 1);
         var dto = new VurderSøknadsfristDto("Begrunnelse", true);
         dto.setAnsesMottattDato(nyMottattDato);
 
@@ -114,31 +108,31 @@ public class VurderSøknadsfristOppdatererTjenesteFPTest {
     }
 
     @Test
-    public void skal_oppdatere_mottatt_dato_i_oppgitte_perioder() {
-        var nyMottattDato = LocalDate.of(2018,1,15);
+    public void skal_oppdatere_mottatt_dato_i_oppgitte_perioder(EntityManager em) {
+        var nyMottattDato = LocalDate.of(2018, 1, 15);
         var dto = new VurderSøknadsfristDto("begrunnelse", true);
         dto.setAnsesMottattDato(nyMottattDato);
 
-        var behandling = byggBehandlingMedYf();
+        var behandling = byggBehandlingMedYf(em);
         tjeneste.oppdater(dto, aksjonspunktParam(behandling, dto));
 
         var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
         var justertFordelingSortert = ytelseFordelingAggregat.getJustertFordeling().orElseThrow().getOppgittePerioder().stream()
-            .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
-            .collect(Collectors.toList());
-        //Skal ikke oppdatere vedtaksperioder
+                .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
+                .collect(Collectors.toList());
+        // Skal ikke oppdatere vedtaksperioder
         assertThat(justertFordelingSortert.get(0).getMottattDato()).isNotEqualTo(nyMottattDato);
         assertThat(justertFordelingSortert.get(1).getMottattDato()).isEqualTo(nyMottattDato);
     }
 
     @Test
-    public void lagrerMottattDatoFraSøknadVedEndringFraGyldigGrunnTilIkkeGyldigGrunn() {
-        var behandling = byggBehandlingMedYf();
+    public void lagrerMottattDatoFraSøknadVedEndringFraGyldigGrunnTilIkkeGyldigGrunn(EntityManager em) {
+        var behandling = byggBehandlingMedYf(em);
         var mottattDatoSøknad = LocalDate.of(2019, 1, 1);
         var søknad = new SøknadEntitet.Builder()
-            .medMottattDato(mottattDatoSøknad)
-            .medSøknadsdato(mottattDatoSøknad)
-            .build();
+                .medMottattDato(mottattDatoSøknad)
+                .medSøknadsdato(mottattDatoSøknad)
+                .build();
         søknadRepository.lagreOgFlush(behandling, søknad);
 
         var dto = new VurderSøknadsfristDto("bg", false);
@@ -151,33 +145,33 @@ public class VurderSøknadsfristOppdatererTjenesteFPTest {
         assertThat(uttaksperiodegrense.getMottattDato()).isEqualTo(mottattDatoSøknad);
     }
 
-    private Behandling byggBehandlingMedYf() {
+    private Behandling byggBehandlingMedYf(EntityManager em) {
         var mødrekvote = OppgittPeriodeBuilder.ny()
-            .medPeriodeKilde(FordelingPeriodeKilde.TIDLIGERE_VEDTAK)
-            .medMottattDato(LocalDate.of(2020, 1, 1))
-            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
-            .medPeriode(LocalDate.of(2020, 1, 1), LocalDate.of(2020, 2, 2))
-            .build();
+                .medPeriodeKilde(FordelingPeriodeKilde.TIDLIGERE_VEDTAK)
+                .medMottattDato(LocalDate.of(2020, 1, 1))
+                .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+                .medPeriode(LocalDate.of(2020, 1, 1), LocalDate.of(2020, 2, 2))
+                .build();
         var fellesperiode = OppgittPeriodeBuilder.ny()
-            .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
-            .medMottattDato(LocalDate.of(2020, 1, 1))
-            .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
-            .medPeriode(LocalDate.of(2020, 2, 3), LocalDate.of(2020, 3, 3))
-            .build();
+                .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+                .medMottattDato(LocalDate.of(2020, 1, 1))
+                .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
+                .medPeriode(LocalDate.of(2020, 2, 3), LocalDate.of(2020, 3, 3))
+                .build();
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(mødrekvote.getFom()).build())
-            .medJustertFordeling(new OppgittFordelingEntitet(List.of(mødrekvote, fellesperiode), true))
-            .leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRIST, BehandlingStegType.SØKNADSFRIST_FORELDREPENGER)
-            .medBehandlingsresultat(new Behandlingsresultat.Builder())
-            .lagre(new BehandlingRepositoryProvider(repoRule.getEntityManager()));
+                .medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(mødrekvote.getFom()).build())
+                .medJustertFordeling(new OppgittFordelingEntitet(List.of(mødrekvote, fellesperiode), true))
+                .leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRIST, BehandlingStegType.SØKNADSFRIST_FORELDREPENGER)
+                .medBehandlingsresultat(new Behandlingsresultat.Builder())
+                .lagre(new BehandlingRepositoryProvider(em));
         var søknad = new SøknadEntitet.Builder()
-            .medSøknadsdato(mødrekvote.getFom())
-            .medMottattDato(mødrekvote.getFom())
-            .build();
+                .medSøknadsdato(mødrekvote.getFom())
+                .medMottattDato(mødrekvote.getFom())
+                .build();
         søknadRepository.lagreOgFlush(behandling, søknad);
         var uttaksperiodegrense = new Uttaksperiodegrense.Builder(behandlingsresultatRepository.hent(behandling.getId()))
-            .medFørsteLovligeUttaksdag(mødrekvote.getFom().minusYears(1))
-            .medMottattDato(mødrekvote.getFom());
+                .medFørsteLovligeUttaksdag(mødrekvote.getFom().minusYears(1))
+                .medMottattDato(mødrekvote.getFom());
         uttaksperiodegrenseRepository.lagre(behandling.getId(), uttaksperiodegrense.build());
         return behandling;
     }

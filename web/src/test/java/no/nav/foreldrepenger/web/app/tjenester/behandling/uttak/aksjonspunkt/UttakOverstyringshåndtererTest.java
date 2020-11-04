@@ -10,10 +10,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverhoppKontroll;
@@ -36,7 +34,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntit
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettePerioderTjeneste;
@@ -46,18 +44,15 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.OverstyringU
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPeriodeAktivitetLagreDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPeriodeLagreDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.overstyring.UttakOverstyringshåndterer;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class UttakOverstyringshåndtererTest {
 
     private static final String ORGNR = OrgNummer.KUNSTIG_ORG;
     private static final String ARBEIDSFORHOLD_ID = InternArbeidsforholdRef.nyRef().getReferanse();
 
-    @Rule
-    public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
-
+    @Inject
+    private BehandlingRepositoryProvider repositoryProvider;
     @Inject
     private FastsettePerioderTjeneste fastettePerioderTjeneste;
     @Inject
@@ -67,10 +62,10 @@ public class UttakOverstyringshåndtererTest {
 
     private UttakOverstyringshåndterer oppdaterer;
 
-    @Before
+    @BeforeEach
     public void setup() {
         oppdaterer = new UttakOverstyringshåndterer(mock(HistorikkTjenesteAdapter.class),
-            fastettePerioderTjeneste, uttakTjeneste, uttakInputTjeneste);
+                fastettePerioderTjeneste, uttakTjeneste, uttakInputTjeneste);
     }
 
     @Test
@@ -78,37 +73,37 @@ public class UttakOverstyringshåndtererTest {
         LocalDate fom = LocalDate.now();
         LocalDate tom = LocalDate.now().plusWeeks(2);
         UttakResultatPeriodeAktivitetLagreDto aktivitetLagreDto = new UttakResultatPeriodeAktivitetLagreDto.Builder()
-            .medArbeidsforholdId(ARBEIDSFORHOLD_ID)
-            .medArbeidsgiver(new ArbeidsgiverLagreDto(ORGNR, null))
-            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
-            .medTrekkdager(BigDecimal.ZERO)
-            .build();
+                .medArbeidsforholdId(ARBEIDSFORHOLD_ID)
+                .medArbeidsgiver(new ArbeidsgiverLagreDto(ORGNR, null))
+                .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+                .medTrekkdager(BigDecimal.ZERO)
+                .build();
         List<UttakResultatPeriodeAktivitetLagreDto> aktiviteter = Collections.singletonList(aktivitetLagreDto);
         PeriodeResultatType periodeResultatType = PeriodeResultatType.INNVILGET;
         PeriodeResultatÅrsak periodeResultatÅrsak = InnvilgetÅrsak.UTTAK_OPPFYLT;
         StønadskontoType stønadskontoType = StønadskontoType.FORELDREPENGER;
         String begrunnelse = "Dette er begrunnelsen";
         UttakResultatPeriodeLagreDto periode = new UttakResultatPeriodeLagreDto.Builder()
-            .medTidsperiode(fom, tom)
-            .medAktiviteter(aktiviteter)
-            .medBegrunnelse(begrunnelse)
-            .medPeriodeResultatType(periodeResultatType)
-            .medPeriodeResultatÅrsak(periodeResultatÅrsak)
-            .medFlerbarnsdager(false)
-            .medSamtidigUttak(false)
-            .build();
+                .medTidsperiode(fom, tom)
+                .medAktiviteter(aktiviteter)
+                .medBegrunnelse(begrunnelse)
+                .medPeriodeResultatType(periodeResultatType)
+                .medPeriodeResultatÅrsak(periodeResultatÅrsak)
+                .medFlerbarnsdager(false)
+                .medSamtidigUttak(false)
+                .build();
 
         List<UttakResultatPeriodeLagreDto> perioder = Collections.singletonList(periode);
         OverstyringUttakDto dto = new OverstyringUttakDto(perioder);
 
-        //arrange
+        // arrange
         UttakResultatPerioderEntitet opprinneligPerioder = opprettUttakResultatPeriode(periodeResultatType, fom, tom, stønadskontoType);
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medDefaultOppgittFordeling(fom)
-            .medDefaultSøknadTerminbekreftelse()
-            .medDefaultBekreftetTerminbekreftelse()
-            .medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(fom).build())
-            .lagre(repositoryProvider);
+                .medDefaultOppgittFordeling(fom)
+                .medDefaultSøknadTerminbekreftelse()
+                .medDefaultBekreftetTerminbekreftelse()
+                .medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(fom).build())
+                .lagre(repositoryProvider);
         repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(behandling.getId(), opprinneligPerioder);
 
         OppdateringResultat result = oppdaterer.håndterOverstyring(dto, behandling, kontekst(behandling));
@@ -128,27 +123,27 @@ public class UttakOverstyringshåndtererTest {
 
     private BehandlingskontrollKontekst kontekst(Behandling behandling) {
         return new BehandlingskontrollKontekst(behandling.getFagsakId(), behandling.getAktørId(),
-            repositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId()));
+                repositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId()));
     }
 
     private UttakResultatPerioderEntitet opprettUttakResultatPeriode(PeriodeResultatType resultat,
-                                                                     LocalDate fom,
-                                                                     LocalDate tom,
-                                                                     StønadskontoType stønadskontoType) {
+            LocalDate fom,
+            LocalDate tom,
+            StønadskontoType stønadskontoType) {
         UttakResultatPeriodeEntitet uttakResultatPeriode = new UttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medResultatType(resultat, PeriodeResultatÅrsak.UKJENT)
-            .build();
+                .medResultatType(resultat, PeriodeResultatÅrsak.UKJENT)
+                .build();
 
         UttakAktivitetEntitet uttakAktivitet = new UttakAktivitetEntitet.Builder()
-            .medArbeidsforhold(Arbeidsgiver.virksomhet(ORGNR), InternArbeidsforholdRef.ref(ARBEIDSFORHOLD_ID))
-            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
-            .build();
+                .medArbeidsforhold(Arbeidsgiver.virksomhet(ORGNR), InternArbeidsforholdRef.ref(ARBEIDSFORHOLD_ID))
+                .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+                .build();
         UttakResultatPeriodeAktivitetEntitet periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(uttakResultatPeriode, uttakAktivitet)
-            .medTrekkonto(stønadskontoType)
-            .medTrekkdager(new Trekkdager(10))
-            .medArbeidsprosent(BigDecimal.ZERO)
-            .medUtbetalingsgrad(new Utbetalingsgrad(100))
-            .build();
+                .medTrekkonto(stønadskontoType)
+                .medTrekkdager(new Trekkdager(10))
+                .medArbeidsprosent(BigDecimal.ZERO)
+                .medUtbetalingsgrad(new Utbetalingsgrad(100))
+                .build();
 
         uttakResultatPeriode.leggTilAktivitet(periodeAktivitet);
 

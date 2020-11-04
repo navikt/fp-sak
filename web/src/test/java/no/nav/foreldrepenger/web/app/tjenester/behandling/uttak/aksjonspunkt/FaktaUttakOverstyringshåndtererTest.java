@@ -12,10 +12,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
@@ -35,7 +33,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.uttak.kontroller.fakta.KontrollerFaktaUttakTjeneste;
@@ -52,16 +50,12 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.OverstyringF
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SlettetUttakPeriodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.overstyring.FaktaUttakOverstyringFelles;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.overstyring.FaktaUttakOverstyringshåndterer;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class FaktaUttakOverstyringshåndtererTest {
 
-    @Rule
-    public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
-
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
-
+    @Inject
+    private BehandlingRepositoryProvider repositoryProvider;
     @Inject
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
 
@@ -83,16 +77,16 @@ public class FaktaUttakOverstyringshåndtererTest {
 
     private FaktaUttakOverstyringshåndterer faktaUttakOverstyringshåndterer;
 
-    @Before
+    @BeforeEach
     public void setup() {
         when(inntektArbeidYtelseTjeneste.hentGrunnlag(anyLong())).thenReturn(InntektArbeidYtelseGrunnlagBuilder.nytt().build());
         this.faktaUttakHistorikkTjeneste = new FaktaUttakHistorikkTjeneste(historikkApplikasjonTjeneste,
-            arbeidsgiverHistorikkinnslagTjeneste,
-            ytelseFordelingTjeneste, inntektArbeidYtelseTjeneste);
+                arbeidsgiverHistorikkinnslagTjeneste,
+                ytelseFordelingTjeneste, inntektArbeidYtelseTjeneste);
 
         this.faktaUttakOverstyringshåndterer = new FaktaUttakOverstyringshåndterer(historikkApplikasjonTjeneste,
-            faktaUttakHistorikkTjeneste,
-            new FaktaUttakOverstyringFelles(fordelingTjeneste, kontrollerFaktaUttakTjeneste, uttakInputTjeneste));
+                faktaUttakHistorikkTjeneste,
+                new FaktaUttakOverstyringFelles(fordelingTjeneste, kontrollerFaktaUttakTjeneste, uttakInputTjeneste));
     }
 
     @Test
@@ -111,10 +105,12 @@ public class FaktaUttakOverstyringshåndtererTest {
         assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
         HistorikkinnslagDel del = historikkinnslag.getHistorikkinnslagDeler().get(0);
         assertThat(del.getSkjermlenke()).as("skjermlenke")
-            .hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.FAKTA_OM_UTTAK.getKode()));
-        assertThat(del.getResultat()).hasValueSatisfying(resultat -> assertThat(resultat).isEqualTo(HistorikkResultatType.OVERSTYRING_FAKTA_UTTAK.getKode()));
-        assertThat(del.getAvklartSoeknadsperiode()).as("soeknadsperiode").hasValueSatisfying(soeknadsperiode -> assertThat(soeknadsperiode.getNavn()).as("navn")
-            .isEqualTo(HistorikkAvklartSoeknadsperiodeType.SLETTET_SOEKNASPERIODE.getKode()));
+                .hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.FAKTA_OM_UTTAK.getKode()));
+        assertThat(del.getResultat())
+                .hasValueSatisfying(resultat -> assertThat(resultat).isEqualTo(HistorikkResultatType.OVERSTYRING_FAKTA_UTTAK.getKode()));
+        assertThat(del.getAvklartSoeknadsperiode()).as("soeknadsperiode")
+                .hasValueSatisfying(soeknadsperiode -> assertThat(soeknadsperiode.getNavn()).as("navn")
+                        .isEqualTo(HistorikkAvklartSoeknadsperiodeType.SLETTET_SOEKNASPERIODE.getKode()));
     }
 
     private OverstyringFaktaUttakDto.OverstyrerFaktaUttakDto opprettOverstyringSøknadsperioderDto() {
@@ -139,13 +135,13 @@ public class FaktaUttakOverstyringshåndtererTest {
         Behandling førstegangsbehandling = scenario.getBehandling();
 
         final OppgittPeriodeEntitet periode_1 = OppgittPeriodeBuilder.ny()
-            .medPeriode(LocalDate.now().minusDays(10), LocalDate.now())
-            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .build();
+                .medPeriode(LocalDate.now().minusDays(10), LocalDate.now())
+                .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+                .build();
         final OppgittPeriodeEntitet periode_2 = OppgittPeriodeBuilder.ny()
-            .medPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(11))
-            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .build();
+                .medPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(11))
+                .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+                .build();
         fordelingRepository.lagre(førstegangsbehandling.getId(), new OppgittFordelingEntitet(List.of(periode_1, periode_2), true));
         return førstegangsbehandling;
     }
@@ -153,11 +149,11 @@ public class FaktaUttakOverstyringshåndtererTest {
     private BekreftetOppgittPeriodeDto getBekreftetUttakPeriodeDto(LocalDate fom, LocalDate tom) {
         var bekreftetUttakPeriodeDto = new BekreftetOppgittPeriodeDto();
         var bekreftetperiode = OppgittPeriodeBuilder.ny()
-            .medPeriode(fom, tom)
-            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .build();
+                .medPeriode(fom, tom)
+                .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+                .build();
         var bekreftetPeriodeDto = new KontrollerFaktaPeriodeLagreDto.Builder(KontrollerFaktaPeriode.ubekreftet(bekreftetperiode),
-            null).build();
+                null).build();
         bekreftetUttakPeriodeDto.setBekreftetPeriode(bekreftetPeriodeDto);
         bekreftetUttakPeriodeDto.setOrginalFom(fom);
         bekreftetUttakPeriodeDto.setOrginalTom(tom);

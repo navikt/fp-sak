@@ -5,7 +5,9 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -20,10 +22,8 @@ import java.util.Properties;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
@@ -65,7 +65,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
@@ -94,18 +94,13 @@ import no.nav.foreldrepenger.produksjonsstyring.totrinn.Totrinnsvurdering;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.økonomi.simulering.tjeneste.SimulerInntrekkSjekkeTjeneste;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class FatteVedtakStegTest {
 
     private static final String BEHANDLENDE_ENHET = "Stord";
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
-
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private final EntityManager entityManager = repoRule.getEntityManager();
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
@@ -130,8 +125,8 @@ public class FatteVedtakStegTest {
 
     private KompletthetsjekkerProvider kompletthetssjekkerProvider = mock(KompletthetsjekkerProvider.class);
 
-    @Before
-    public void oppsett() {
+    @BeforeEach
+    public void oppsett(EntityManager entityManager) {
         LagretVedtakRepository vedtakRepository = new LagretVedtakRepository(entityManager);
 
         OppgaveTjeneste oppgaveTjeneste = mock(OppgaveTjeneste.class);
@@ -140,23 +135,26 @@ public class FatteVedtakStegTest {
 
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
         SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
-        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(skjæringstidspunkt);
+        lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(skjæringstidspunkt);
 
         VedtakXmlTjeneste vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider);
         var poXmlFelles = new PersonopplysningXmlFelles(personinfoAdapter);
         PersonopplysningXmlTjenesteImpl personopplysningXmlTjeneste = new PersonopplysningXmlTjenesteImpl(
-            poXmlFelles, repositoryProvider, personopplysningTjeneste, iayTjeneste, mock(VergeRepository.class));
-        VilkårsgrunnlagXmlTjeneste vilkårsgrunnlagXmlTjeneste = new VilkårsgrunnlagXmlTjenesteImpl(repositoryProvider, kompletthetssjekkerProvider, skjæringstidspunktTjeneste);
+                poXmlFelles, repositoryProvider, personopplysningTjeneste, iayTjeneste, mock(VergeRepository.class));
+        VilkårsgrunnlagXmlTjeneste vilkårsgrunnlagXmlTjeneste = new VilkårsgrunnlagXmlTjenesteImpl(repositoryProvider, kompletthetssjekkerProvider,
+                skjæringstidspunktTjeneste);
         YtelseXmlTjeneste ytelseXmlTjeneste = new YtelseXmlTjenesteImpl(beregningRepository);
         BeregningsgrunnlagXmlTjeneste beregningsgrunnlagXmlTjeneste = new BeregningsgrunnlagXmlTjenesteImpl(beregningRepository);
-        BeregningsresultatXmlTjeneste beregningsresultatXmlTjeneste = new BeregningsresultatXmlTjenesteImpl(beregningsgrunnlagXmlTjeneste, ytelseXmlTjeneste);
-        var behandlingsresultatXmlTjeneste = nyBeregningsresultatXmlTjeneste(vilkårsgrunnlagXmlTjeneste, beregningsresultatXmlTjeneste);
+        BeregningsresultatXmlTjeneste beregningsresultatXmlTjeneste = new BeregningsresultatXmlTjenesteImpl(beregningsgrunnlagXmlTjeneste,
+                ytelseXmlTjeneste);
+        var behandlingsresultatXmlTjeneste = nyBeregningsresultatXmlTjeneste(entityManager, vilkårsgrunnlagXmlTjeneste,
+                beregningsresultatXmlTjeneste);
 
         TotrinnTjeneste totrinnTjeneste = mock(TotrinnTjeneste.class);
 
         FatteVedtakXmlTjeneste fpSakVedtakXmlTjeneste = new FatteVedtakXmlTjeneste(repositoryProvider, vedtakXmlTjeneste,
-            new UnitTestLookupInstanceImpl<>(personopplysningXmlTjeneste),
-            behandlingsresultatXmlTjeneste, skjæringstidspunktTjeneste);
+                new UnitTestLookupInstanceImpl<>(personopplysningXmlTjeneste),
+                behandlingsresultatXmlTjeneste, skjæringstidspunktTjeneste);
         var klageAnkeVedtakTjeneste = new KlageAnkeVedtakTjeneste(klageRepository, ankeRepository);
         VedtakTjeneste vedtakTjeneste = new VedtakTjeneste(null, repositoryProvider, klageAnkeVedtakTjeneste, mock(TotrinnTjeneste.class));
 
@@ -165,31 +163,32 @@ public class FatteVedtakStegTest {
         behandlingVedtakTjeneste = new BehandlingVedtakTjeneste(behandlingVedtakEventPubliserer, repositoryProvider);
         var klageanke = new KlageAnkeVedtakTjeneste(klageRepository, mock(AnkeRepository.class));
         var fatteVedtakTjeneste = new FatteVedtakTjeneste(vedtakRepository, klageanke, fpSakVedtakXmlTjeneste, vedtakTjeneste,
-            oppgaveTjeneste, totrinnTjeneste, behandlingVedtakTjeneste);
+                oppgaveTjeneste, totrinnTjeneste, behandlingVedtakTjeneste);
         var simuler = new SimulerInntrekkSjekkeTjeneste(null, null, null, null);
         fatteVedtakSteg = new FatteVedtakSteg(repositoryProvider, fatteVedtakTjeneste, simuler);
     }
 
-    private BehandlingsresultatXmlTjeneste nyBeregningsresultatXmlTjeneste(VilkårsgrunnlagXmlTjeneste vilkårsgrunnlagXmlTjeneste,
-                                                     BeregningsresultatXmlTjeneste beregningsresultatXmlTjeneste) {
+    private BehandlingsresultatXmlTjeneste nyBeregningsresultatXmlTjeneste(EntityManager em, VilkårsgrunnlagXmlTjeneste vilkårsgrunnlagXmlTjeneste,
+            BeregningsresultatXmlTjeneste beregningsresultatXmlTjeneste) {
         return new BehandlingsresultatXmlTjeneste(
-            new UnitTestLookupInstanceImpl<>(beregningsresultatXmlTjeneste),
-            new UnitTestLookupInstanceImpl<>(vilkårsgrunnlagXmlTjeneste),
-            behandlingVedtakRepository,
-            klageRepository,
-            ankeRepository,
-            new VilkårResultatRepository(entityManager));
+                new UnitTestLookupInstanceImpl<>(beregningsresultatXmlTjeneste),
+                new UnitTestLookupInstanceImpl<>(vilkårsgrunnlagXmlTjeneste),
+                behandlingVedtakRepository,
+                klageRepository,
+                ankeRepository,
+                new VilkårResultatRepository(em));
     }
 
-    @Test(expected = TekniskException.class)
+    @Test
     public void skal_feile_hvis_behandling_i_feil_tilstand() {
         // Arrange
         int antallBarn = 1;
-        BehandlingskontrollKontekst kontekst = byggBehandlingsgrunnlagForFødsel(antallBarn, BehandlingStegType.SØKERS_RELASJON_TIL_BARN, Collections.emptyList());
+        BehandlingskontrollKontekst kontekst = byggBehandlingsgrunnlagForFødsel(antallBarn, BehandlingStegType.SØKERS_RELASJON_TIL_BARN,
+                Collections.emptyList());
         oppdaterMedBehandlingsresultat(kontekst, true, antallBarn);
 
         // Act
-        fatteVedtakSteg.utførSteg(kontekst);
+        assertThrows(TekniskException.class, () -> fatteVedtakSteg.utførSteg(kontekst));
     }
 
     @Test
@@ -220,7 +219,9 @@ public class FatteVedtakStegTest {
         Behandling originalBehandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
 
         Behandling revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandlingId(originalBehandling.getId())).build();
+                .medBehandlingÅrsak(
+                        BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandlingId(originalBehandling.getId()))
+                .build();
 
         forceOppdaterBehandlingSteg(revurdering, BehandlingStegType.FATTE_VEDTAK);
         BehandlingLås behandlingLås = lagreBehandling(revurdering);
@@ -230,7 +231,8 @@ public class FatteVedtakStegTest {
         oppdaterMedBehandlingsresultat(revurderingKontekst, false, antallBarn);
 
         fatteVedtakSteg.utførSteg(revurderingKontekst);
-        Optional<BehandlingVedtak> behandlingVedtakOpt = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(revurderingKontekst.getBehandlingId());
+        Optional<BehandlingVedtak> behandlingVedtakOpt = behandlingVedtakRepository
+                .hentForBehandlingHvisEksisterer(revurderingKontekst.getBehandlingId());
         assertThat(behandlingVedtakOpt).isPresent();
         BehandlingVedtak behandlingVedtak = behandlingVedtakOpt.get();
         assertThat(behandlingVedtak).isNotNull();
@@ -242,13 +244,16 @@ public class FatteVedtakStegTest {
     public void revurdering_med_endret_antall_barn_skal_ha_nytt_vedtak() {
         int originalAntallBarn = 1;
         int faktiskAntallBarn = 2;
-        BehandlingskontrollKontekst kontekst = byggBehandlingsgrunnlagForFødsel(originalAntallBarn, BehandlingStegType.FATTE_VEDTAK, Collections.emptyList());
+        BehandlingskontrollKontekst kontekst = byggBehandlingsgrunnlagForFødsel(originalAntallBarn, BehandlingStegType.FATTE_VEDTAK,
+                Collections.emptyList());
         oppdaterMedBehandlingsresultat(kontekst, true, originalAntallBarn);
         oppdaterMedVedtak(kontekst);
         Behandling originalBehandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
 
         Behandling revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandlingId(originalBehandling.getId())).build();
+                .medBehandlingÅrsak(
+                        BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandlingId(originalBehandling.getId()))
+                .build();
 
         forceOppdaterBehandlingSteg(revurdering, BehandlingStegType.FATTE_VEDTAK);
         BehandlingLås behandlingLås = lagreBehandling(revurdering);
@@ -258,7 +263,8 @@ public class FatteVedtakStegTest {
         oppdaterMedBehandlingsresultat(revurderingKontekst, true, faktiskAntallBarn);
 
         fatteVedtakSteg.utførSteg(revurderingKontekst);
-        Optional<BehandlingVedtak> behandlingVedtakOpt = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(revurderingKontekst.getBehandlingId());
+        Optional<BehandlingVedtak> behandlingVedtakOpt = behandlingVedtakRepository
+                .hentForBehandlingHvisEksisterer(revurderingKontekst.getBehandlingId());
         assertThat(behandlingVedtakOpt).isPresent();
         BehandlingVedtak behandlingVedtak = behandlingVedtakOpt.get();
         assertThat(behandlingVedtak).isNotNull();
@@ -275,7 +281,9 @@ public class FatteVedtakStegTest {
         Behandling originalBehandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
 
         Behandling revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandlingId(originalBehandling.getId())).build();
+                .medBehandlingÅrsak(
+                        BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandlingId(originalBehandling.getId()))
+                .build();
 
         forceOppdaterBehandlingSteg(revurdering, BehandlingStegType.FATTE_VEDTAK);
 
@@ -287,7 +295,8 @@ public class FatteVedtakStegTest {
         oppdaterMedBehandlingsresultat(revurderingKontekst, true, antallBarn);
 
         fatteVedtakSteg.utførSteg(revurderingKontekst);
-        Optional<BehandlingVedtak> behandlingVedtakOpt = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(revurderingKontekst.getBehandlingId());
+        Optional<BehandlingVedtak> behandlingVedtakOpt = behandlingVedtakRepository
+                .hentForBehandlingHvisEksisterer(revurderingKontekst.getBehandlingId());
         assertThat(behandlingVedtakOpt).isPresent();
         BehandlingVedtak behandlingVedtak = behandlingVedtakOpt.get();
         assertThat(behandlingVedtak).isNotNull();
@@ -314,7 +323,9 @@ public class FatteVedtakStegTest {
         Behandling originalBehandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
 
         Behandling revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandlingId(originalBehandling.getId())).build();
+                .medBehandlingÅrsak(
+                        BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandlingId(originalBehandling.getId()))
+                .build();
 
         forceOppdaterBehandlingSteg(revurdering, BehandlingStegType.FATTE_VEDTAK);
         BehandlingLås behandlingLås = lagreBehandling(revurdering);
@@ -324,7 +335,8 @@ public class FatteVedtakStegTest {
         oppdaterMedBehandlingsresultat(revurderingKontekst, false, antallBarn);
 
         fatteVedtakSteg.utførSteg(revurderingKontekst);
-        Optional<BehandlingVedtak> behandlingVedtakOpt = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(revurderingKontekst.getBehandlingId());
+        Optional<BehandlingVedtak> behandlingVedtakOpt = behandlingVedtakRepository
+                .hentForBehandlingHvisEksisterer(revurderingKontekst.getBehandlingId());
         assertThat(behandlingVedtakOpt).isPresent();
         BehandlingVedtak behandlingVedtak = behandlingVedtakOpt.get();
         assertThat(behandlingVedtak).isNotNull();
@@ -333,41 +345,43 @@ public class FatteVedtakStegTest {
     }
 
     @Test
-    public void skal_lukke_godkjent_aksjonspunkter_og_sette_steg_til_utført() {
+    public void skal_lukke_godkjent_aksjonspunkter_og_sette_steg_til_utført(EntityManager entityManager) {
         // Arrange
         LagretVedtakRepository vedtakRepository = new LagretVedtakRepository(entityManager);
 
         OppgaveTjeneste oppgaveTjeneste = mock(OppgaveTjeneste.class);
         SøknadRepository søknadRepository = mock(SøknadRepository.class);
-        PersoninfoAdapter personinfoAdapter = Mockito.mock(PersoninfoAdapter.class);
-        PersonopplysningTjeneste personopplysningTjeneste = Mockito.mock(PersonopplysningTjeneste.class);
+        PersoninfoAdapter personinfoAdapter = mock(PersoninfoAdapter.class);
+        PersonopplysningTjeneste personopplysningTjeneste = mock(PersonopplysningTjeneste.class);
         SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
         Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(Mockito.any())).thenReturn(skjæringstidspunkt);
         var poXmlFelles = new PersonopplysningXmlFelles(personinfoAdapter);
         PersonopplysningXmlTjenesteImpl personopplysningXmlTjeneste = new PersonopplysningXmlTjenesteImpl(poXmlFelles, repositoryProvider,
-            personopplysningTjeneste, iayTjeneste, mock(VergeRepository.class));
+                personopplysningTjeneste, iayTjeneste, mock(VergeRepository.class));
         VedtakXmlTjeneste vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider);
         VilkårsgrunnlagXmlTjeneste vilkårsgrunnlagXmlTjeneste = new VilkårsgrunnlagXmlTjenesteImpl(repositoryProvider, kompletthetssjekkerProvider,
-            skjæringstidspunktTjeneste);
+                skjæringstidspunktTjeneste);
         YtelseXmlTjeneste ytelseXmlTjeneste = new YtelseXmlTjenesteImpl(beregningRepository);
         BeregningsgrunnlagXmlTjeneste beregningsgrunnlagXmlTjeneste = new BeregningsgrunnlagXmlTjenesteImpl(beregningRepository);
         BeregningsresultatXmlTjeneste beregningsresultatXmlTjeneste = new BeregningsresultatXmlTjenesteImpl(beregningsgrunnlagXmlTjeneste,
-            ytelseXmlTjeneste);
-        var behandlingsresultatXmlTjeneste = nyBeregningsresultatXmlTjeneste(vilkårsgrunnlagXmlTjeneste, beregningsresultatXmlTjeneste);
+                ytelseXmlTjeneste);
+        var behandlingsresultatXmlTjeneste = nyBeregningsresultatXmlTjeneste(entityManager, vilkårsgrunnlagXmlTjeneste,
+                beregningsresultatXmlTjeneste);
         TotrinnTjeneste totrinnTjeneste = mock(TotrinnTjeneste.class);
 
         SøknadEntitet søknad = new SøknadEntitet.Builder().medMottattDato(LocalDate.now()).medSøknadsdato(LocalDate.now()).build();
-        when(søknadRepository.hentSøknadHvisEksisterer(any())).thenReturn(Optional.ofNullable(søknad));
+        lenient().when(søknadRepository.hentSøknadHvisEksisterer(any())).thenReturn(Optional.ofNullable(søknad));
 
         FatteVedtakXmlTjeneste fpSakVedtakXmlTjeneste = new FatteVedtakXmlTjeneste(repositoryProvider, vedtakXmlTjeneste,
-            new UnitTestLookupInstanceImpl<>(personopplysningXmlTjeneste),
-            behandlingsresultatXmlTjeneste, skjæringstidspunktTjeneste);
+                new UnitTestLookupInstanceImpl<>(personopplysningXmlTjeneste),
+                behandlingsresultatXmlTjeneste, skjæringstidspunktTjeneste);
         var klageAnkeVedtakTjeneste = new KlageAnkeVedtakTjeneste(klageRepository, ankeRepository);
         VedtakTjeneste vedtakTjeneste = new VedtakTjeneste(null, repositoryProvider, klageAnkeVedtakTjeneste, mock(TotrinnTjeneste.class));
 
         int antallBarn = 2;
-        BehandlingskontrollKontekst kontekst = byggBehandlingsgrunnlagForFødsel(antallBarn, BehandlingStegType.FATTE_VEDTAK, List.of(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL));
+        BehandlingskontrollKontekst kontekst = byggBehandlingsgrunnlagForFødsel(antallBarn, BehandlingStegType.FATTE_VEDTAK,
+                List.of(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL));
         oppdaterMedBehandlingsresultat(kontekst, true, antallBarn);
 
         Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
@@ -382,7 +396,7 @@ public class FatteVedtakStegTest {
         when(totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling)).thenReturn(totrinnsvurderings);
         var klageanke = new KlageAnkeVedtakTjeneste(klageRepository, mock(AnkeRepository.class));
         FatteVedtakTjeneste fvtei = new FatteVedtakTjeneste(vedtakRepository, klageanke, fpSakVedtakXmlTjeneste, vedtakTjeneste,
-            oppgaveTjeneste, totrinnTjeneste, behandlingVedtakTjeneste);
+                oppgaveTjeneste, totrinnTjeneste, behandlingVedtakTjeneste);
 
         var simuler = new SimulerInntrekkSjekkeTjeneste(null, null, null, null);
         fatteVedtakSteg = new FatteVedtakSteg(repositoryProvider, fvtei, simuler);
@@ -396,7 +410,7 @@ public class FatteVedtakStegTest {
     }
 
     @Test
-    public void tilbakefører_og_reåpner_aksjonspunkt_når_totrinnskontroll_ikke_godkjent() {
+    public void tilbakefører_og_reåpner_aksjonspunkt_når_totrinnskontroll_ikke_godkjent(EntityManager entityManager) {
         LagretVedtakRepository vedtakRepository = new LagretVedtakRepository(entityManager);
 
         OppgaveTjeneste oppgaveTjeneste = mock(OppgaveTjeneste.class);
@@ -406,31 +420,34 @@ public class FatteVedtakStegTest {
         VedtakXmlTjeneste vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider);
         SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
         Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
-        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(Mockito.any())).thenReturn(skjæringstidspunkt);
+        lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(Mockito.any())).thenReturn(skjæringstidspunkt);
         var poXmlFelles = new PersonopplysningXmlFelles(personinfoAdapter);
         PersonopplysningXmlTjenesteImpl personopplysningXmlTjeneste = new PersonopplysningXmlTjenesteImpl(poXmlFelles, repositoryProvider,
-            personopplysningTjeneste, iayTjeneste, mock(VergeRepository.class));
+                personopplysningTjeneste, iayTjeneste, mock(VergeRepository.class));
         VilkårsgrunnlagXmlTjeneste vilkårsgrunnlagXmlTjeneste = new VilkårsgrunnlagXmlTjenesteImpl(repositoryProvider, kompletthetssjekkerProvider,
-            skjæringstidspunktTjeneste);
+                skjæringstidspunktTjeneste);
         YtelseXmlTjeneste ytelseXmlTjeneste = new YtelseXmlTjenesteImpl(beregningRepository);
         BeregningsgrunnlagXmlTjeneste beregningsgrunnlagXmlTjeneste = new BeregningsgrunnlagXmlTjenesteImpl(beregningRepository);
         BeregningsresultatXmlTjeneste beregningsresultatXmlTjeneste = new BeregningsresultatXmlTjenesteImpl(beregningsgrunnlagXmlTjeneste,
-            ytelseXmlTjeneste);
-        var behandlingsresultatXmlTjeneste = nyBeregningsresultatXmlTjeneste(vilkårsgrunnlagXmlTjeneste, beregningsresultatXmlTjeneste);
+                ytelseXmlTjeneste);
+        var behandlingsresultatXmlTjeneste = nyBeregningsresultatXmlTjeneste(entityManager, vilkårsgrunnlagXmlTjeneste,
+                beregningsresultatXmlTjeneste);
 
         TotrinnTjeneste totrinnTjeneste = mock(TotrinnTjeneste.class);
 
         SøknadEntitet søknad = new SøknadEntitet.Builder().medMottattDato(LocalDate.now()).medSøknadsdato(LocalDate.now()).build();
-        when(søknadRepository.hentSøknadHvisEksisterer(any())).thenReturn(Optional.ofNullable(søknad));
+        lenient().when(søknadRepository.hentSøknadHvisEksisterer(any())).thenReturn(Optional.ofNullable(søknad));
 
         FatteVedtakXmlTjeneste fpSakVedtakXmlTjeneste = new FatteVedtakXmlTjeneste(repositoryProvider, vedtakXmlTjeneste,
-            new UnitTestLookupInstanceImpl<>(personopplysningXmlTjeneste),
-            behandlingsresultatXmlTjeneste, skjæringstidspunktTjeneste);
+                new UnitTestLookupInstanceImpl<>(personopplysningXmlTjeneste),
+                behandlingsresultatXmlTjeneste, skjæringstidspunktTjeneste);
         var klageAnkeVedtakTjeneste = new KlageAnkeVedtakTjeneste(klageRepository, ankeRepository);
         VedtakTjeneste vedtakTjeneste = new VedtakTjeneste(null, repositoryProvider, klageAnkeVedtakTjeneste, mock(TotrinnTjeneste.class));
 
         int antallBarn = 2;
-        BehandlingskontrollKontekst kontekst = byggBehandlingsgrunnlagForFødsel(antallBarn, BehandlingStegType.FATTE_VEDTAK, List.of(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET, AksjonspunktDefinisjon.FORESLÅ_VEDTAK));
+        BehandlingskontrollKontekst kontekst = byggBehandlingsgrunnlagForFødsel(antallBarn, BehandlingStegType.FATTE_VEDTAK,
+                List.of(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET,
+                        AksjonspunktDefinisjon.FORESLÅ_VEDTAK));
         oppdaterMedBehandlingsresultat(kontekst, true, antallBarn);
 
         Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
@@ -440,9 +457,11 @@ public class FatteVedtakStegTest {
 
         // Legg til data i totrinsvurdering.
         Totrinnsvurdering.Builder vurdering = new Totrinnsvurdering.Builder(behandling, AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL);
-        Totrinnsvurdering vurderesPåNytt = vurdering.medGodkjent(false).medBegrunnelse("Må vurderes på nytt").medVurderÅrsak(VurderÅrsak.FEIL_LOV).build();
+        Totrinnsvurdering vurderesPåNytt = vurdering.medGodkjent(false).medBegrunnelse("Må vurderes på nytt").medVurderÅrsak(VurderÅrsak.FEIL_LOV)
+                .build();
 
-        Totrinnsvurdering.Builder vurdering2 = new Totrinnsvurdering.Builder(behandling, AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET);
+        Totrinnsvurdering.Builder vurdering2 = new Totrinnsvurdering.Builder(behandling,
+                AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET);
         Totrinnsvurdering vurderesOk = vurdering2.medGodkjent(true).medBegrunnelse("").build();
 
         List<Totrinnsvurdering> totrinnsvurderings = new ArrayList<>();
@@ -451,7 +470,7 @@ public class FatteVedtakStegTest {
         when(totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling)).thenReturn(totrinnsvurderings);
         var klageanke = new KlageAnkeVedtakTjeneste(klageRepository, mock(AnkeRepository.class));
         FatteVedtakTjeneste fvtei = new FatteVedtakTjeneste(vedtakRepository, klageanke, fpSakVedtakXmlTjeneste, vedtakTjeneste,
-            oppgaveTjeneste, totrinnTjeneste, behandlingVedtakTjeneste);
+                oppgaveTjeneste, totrinnTjeneste, behandlingVedtakTjeneste);
 
         var simuler = new SimulerInntrekkSjekkeTjeneste(null, null, null, null);
         fatteVedtakSteg = new FatteVedtakSteg(repositoryProvider, fvtei, simuler);
@@ -469,7 +488,8 @@ public class FatteVedtakStegTest {
         assertThat(oppdatertForeslåVedtak).isPresent();
         assertThat(oppdatertForeslåVedtak.get().getStatus()).isEqualTo(AksjonspunktStatus.OPPRETTET);
 
-        Optional<Aksjonspunkt> oppdatertSøknFristVilkåret = behandling.getAksjonspunktMedDefinisjonOptional(MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET);
+        Optional<Aksjonspunkt> oppdatertSøknFristVilkåret = behandling
+                .getAksjonspunktMedDefinisjonOptional(MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET);
         assertThat(oppdatertSøknFristVilkåret).isPresent();
     }
 
@@ -491,17 +511,18 @@ public class FatteVedtakStegTest {
         assertThat(behandlingVedtak.getVedtakResultatType()).isEqualTo(VedtakResultatType.AVSLAG);
     }
 
-    private BehandlingskontrollKontekst byggBehandlingsgrunnlagForFødsel(int antallBarn, BehandlingStegType behandlingStegType, List<AksjonspunktDefinisjon> aksjonspunkter) {
+    private BehandlingskontrollKontekst byggBehandlingsgrunnlagForFødsel(int antallBarn, BehandlingStegType behandlingStegType,
+            List<AksjonspunktDefinisjon> aksjonspunkter) {
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medBekreftetHendelse().medFødselsDato(SKJÆRINGSTIDSPUNKT)
-            .medAntallBarn(antallBarn);
+                .medAntallBarn(antallBarn);
         aksjonspunkter.forEach(apd -> scenario.leggTilAksjonspunkt(apd, BehandlingStegType.KONTROLLER_FAKTA));
 
         Behandling behandling = scenario
-            .medBehandlingStegStart(behandlingStegType)
-            .medBehandlendeEnhet(BEHANDLENDE_ENHET)
-            .medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET))
-            .lagre(repositoryProvider);
+                .medBehandlingStegStart(behandlingStegType)
+                .medBehandlendeEnhet(BEHANDLENDE_ENHET)
+                .medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET))
+                .lagre(repositoryProvider);
         LegacyESBeregning beregning = new LegacyESBeregning(1L, 1L, 1L, LocalDateTime.now());
         var bres = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
         LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling, bres);
@@ -515,14 +536,14 @@ public class FatteVedtakStegTest {
         Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         Behandlingsresultat behandlingsresultat = getBehandlingsresultat(behandling);
         VedtakResultatType vedtakResultatType = behandlingsresultat.getBehandlingResultatType()
-            .equals(BehandlingResultatType.INNVILGET) ? VedtakResultatType.INNVILGET : VedtakResultatType.AVSLAG;
+                .equals(BehandlingResultatType.INNVILGET) ? VedtakResultatType.INNVILGET : VedtakResultatType.AVSLAG;
         BehandlingVedtak behandlingVedtak = BehandlingVedtak.builder()
-            .medBehandlingsresultat(behandlingsresultat)
-            .medAnsvarligSaksbehandler("VL")
-            .medVedtakstidspunkt(LocalDateTime.now())
-            .medIverksettingStatus(IverksettingStatus.IVERKSATT)
-            .medBeslutning(false)
-            .medVedtakResultatType(vedtakResultatType).build();
+                .medBehandlingsresultat(behandlingsresultat)
+                .medAnsvarligSaksbehandler("VL")
+                .medVedtakstidspunkt(LocalDateTime.now())
+                .medIverksettingStatus(IverksettingStatus.IVERKSATT)
+                .medBeslutning(false)
+                .medVedtakResultatType(vedtakResultatType).build();
 
         behandlingVedtakRepository.lagre(behandlingVedtak, kontekst.getSkriveLås());
     }
@@ -535,10 +556,10 @@ public class FatteVedtakStegTest {
         Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
 
         VilkårResultat vilkårResultat = VilkårResultat.builder()
-            .leggTilVilkårResultat(VilkårType.FØDSELSVILKÅRET_MOR, innvilget ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT,
-                null, new Properties(), null, false, false, null, null)
-            .medVilkårResultatType(innvilget ? VilkårResultatType.INNVILGET : VilkårResultatType.AVSLÅTT)
-            .buildFor(behandling);
+                .leggTilVilkårResultat(VilkårType.FØDSELSVILKÅRET_MOR, innvilget ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT,
+                        null, new Properties(), null, false, false, null, null)
+                .medVilkårResultatType(innvilget ? VilkårResultatType.INNVILGET : VilkårResultatType.AVSLÅTT)
+                .buildFor(behandling);
 
         BehandlingLås lås = kontekst.getSkriveLås();
         behandlingRepository.lagre(vilkårResultat, lås);
@@ -546,14 +567,14 @@ public class FatteVedtakStegTest {
         if (innvilget) {
             var bres = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
             LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder()
-                .medBeregning(new LegacyESBeregning(48500L, antallBarn, 48500L * antallBarn, LocalDateTime.now()))
-                .buildFor(behandling, bres);
+                    .medBeregning(new LegacyESBeregning(48500L, antallBarn, 48500L * antallBarn, LocalDateTime.now()))
+                    .buildFor(behandling, bres);
             beregningRepository.lagre(beregningResultat, lås);
         }
 
         Behandlingsresultat.builderEndreEksisterende(getBehandlingsresultat(behandling))
-            .medBehandlingResultatType(innvilget ? BehandlingResultatType.INNVILGET : BehandlingResultatType.AVSLÅTT)
-            .buildFor(behandling);
+                .medBehandlingResultatType(innvilget ? BehandlingResultatType.INNVILGET : BehandlingResultatType.AVSLÅTT)
+                .buildFor(behandling);
 
         behandlingRepository.lagre(behandling, lås);
     }

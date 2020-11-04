@@ -6,12 +6,11 @@ import java.time.LocalDate;
 
 import javax.inject.Inject;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class UttakPeriodegrenseDtoTjenesteTest {
 
     @Inject
