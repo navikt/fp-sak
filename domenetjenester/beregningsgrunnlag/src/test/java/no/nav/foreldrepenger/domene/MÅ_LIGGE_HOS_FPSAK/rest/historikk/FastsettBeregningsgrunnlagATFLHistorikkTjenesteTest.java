@@ -11,9 +11,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -27,7 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractT
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.FastsettBeregningsgrunnlagATFLDto;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.InntektPrAndelDto;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus;
@@ -44,7 +43,7 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
-public class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
+public class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest extends EntityManagerAwareTest {
     private static final String NAV_ORGNR = "889640782";
     private static final BigDecimal GRUNNBELØP = BigDecimal.valueOf(90000);
     private static final InternArbeidsforholdRef ARBEIDSFORHOLD_ID = InternArbeidsforholdRef.namedRef("TEST-REF");
@@ -52,33 +51,33 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
     private static final int OVERSTYRT_PR_AR = 200000;
     private static final int FRILANSER_INNTEKT = 4000;
 
-    @Rule
-    public final UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
+    private BehandlingRepositoryProvider repositoryProvider;
 
     private final HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder();
-    private VirksomhetTjeneste virksomhetTjeneste = mock(VirksomhetTjeneste.class);
+    private final VirksomhetTjeneste virksomhetTjeneste = mock(VirksomhetTjeneste.class);
 
     private final InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste = mock(InntektArbeidYtelseTjeneste.class);
-    private ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste = new ArbeidsgiverHistorikkinnslag(new ArbeidsgiverTjeneste(null, virksomhetTjeneste));
 
     private FastsettBeregningsgrunnlagATFLHistorikkTjeneste fastsettBeregningsgrunnlagATFLHistorikkTjeneste;
 
     private Behandling behandling;
     private Virksomhet virk;
-    private AbstractTestScenario<?> scenario;
 
-
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setUp() {
+        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
+        ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste = new ArbeidsgiverHistorikkinnslag(
+            new ArbeidsgiverTjeneste(null, virksomhetTjeneste));
         when(inntektArbeidYtelseTjeneste.hentGrunnlag(anyLong())).thenReturn(InntektArbeidYtelseGrunnlagBuilder.nytt().build());
-        fastsettBeregningsgrunnlagATFLHistorikkTjeneste = new FastsettBeregningsgrunnlagATFLHistorikkTjeneste(lagMockHistory(), arbeidsgiverHistorikkinnslagTjeneste, inntektArbeidYtelseTjeneste);
+        fastsettBeregningsgrunnlagATFLHistorikkTjeneste = new FastsettBeregningsgrunnlagATFLHistorikkTjeneste(lagMockHistory(),
+            arbeidsgiverHistorikkinnslagTjeneste, inntektArbeidYtelseTjeneste);
         virk = new Virksomhet.Builder()
             .medOrgnr(NAV_ORGNR)
             .medNavn("AF1")
             .build();
         when(virksomhetTjeneste.hentOrganisasjon(NAV_ORGNR)).thenReturn(virk);
     }
+
     @Test
     public void skal_generere_historikkinnslag_ved_fastsettelse_av_brutto_beregningsgrunnlag_AT() {
         // Arrange
@@ -144,7 +143,7 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
     }
 
     private BeregningsgrunnlagEntitet buildOgLagreBeregningsgrunnlag(boolean erFrilans) {
-        scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        AbstractTestScenario<?> scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = scenario.lagre(repositoryProvider);
         BeregningsgrunnlagEntitet.Builder beregningsgrunnlagBuilder = BeregningsgrunnlagEntitet.builder()
             .medGrunnbeløp(GRUNNBELØP)

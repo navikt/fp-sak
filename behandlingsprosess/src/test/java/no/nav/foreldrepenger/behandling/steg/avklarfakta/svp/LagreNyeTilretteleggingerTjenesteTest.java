@@ -7,26 +7,30 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 
-public class LagreNyeTilretteleggingerTjenesteTest {
+public class LagreNyeTilretteleggingerTjenesteTest extends EntityManagerAwareTest {
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
+    private BehandlingRepositoryProvider repositoryProvider;
 
-    private SvangerskapspengerRepository svangerskapspengerRepository = repositoryProvider.getSvangerskapspengerRepository();
+    private SvangerskapspengerRepository svangerskapspengerRepository;
 
-    private LagreNyeTilretteleggingerTjeneste lagreNyeTilretteleggingerTjeneste =
-        new LagreNyeTilretteleggingerTjeneste(svangerskapspengerRepository);
+    private LagreNyeTilretteleggingerTjeneste lagreNyeTilretteleggingerTjeneste;
+
+    @BeforeEach
+    void setUp() {
+        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
+        svangerskapspengerRepository = new SvangerskapspengerRepository(getEntityManager());
+        lagreNyeTilretteleggingerTjeneste = new LagreNyeTilretteleggingerTjeneste(svangerskapspengerRepository);
+    }
 
     @Test
     public void skal_lagre_nye_tilrettelegginger_og_beholde_de_opprinnelige_unleash_enabled(){

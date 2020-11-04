@@ -5,31 +5,27 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
-import javax.persistence.EntityManager;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
-public class FinnNyesteOppdragForSakTest {
+public class FinnNyesteOppdragForSakTest extends EntityManagerAwareTest {
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private final Repository repository = repoRule.getRepository();
-
-    private final EntityManager entityManager = repoRule.getEntityManager();
-    private final ØkonomioppdragRepository økonomioppdragRepository = new ØkonomioppdragRepository(entityManager);
+    private Repository repository;
+    private ØkonomioppdragRepository økonomioppdragRepository;
     private FinnNyesteOppdragForSak tjeneste;
 
-    @Before
+    @BeforeEach
     public void setup() {
         tjeneste = new FinnNyesteOppdragForSak(økonomioppdragRepository);
+        var entityManager = getEntityManager();
+        repository = new Repository(entityManager);
+        økonomioppdragRepository = new ØkonomioppdragRepository(entityManager);
     }
 
     @Test
