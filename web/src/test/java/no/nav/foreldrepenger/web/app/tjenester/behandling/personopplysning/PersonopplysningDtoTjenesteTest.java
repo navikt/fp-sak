@@ -7,10 +7,8 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
@@ -18,21 +16,17 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class PersonopplysningDtoTjenesteTest {
 
-
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
     @Inject
     PersonopplysningTjeneste personopplysningTjeneste;
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
+    @Inject
+    private BehandlingRepositoryProvider repositoryProvider;
     private PersonopplysningDtoTjeneste tjeneste;
 
     @Inject
@@ -40,15 +34,14 @@ public class PersonopplysningDtoTjenesteTest {
     @Inject
     private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
 
-
-    @Before
+    @BeforeEach
     public void setUp() {
         tjeneste = new PersonopplysningDtoTjeneste(this.personopplysningTjeneste, repositoryProvider, vergeRepository, relatertBehandlingTjeneste);
     }
 
     @Test
     public void skal_takle_at_man_spør_etter_opplysninger_utenfor_tidsserien() {
-        //sørger for at vi bommer når vi spør etter personstatus
+        // sørger for at vi bommer når vi spør etter personstatus
         LocalDate enTilfeldigDato = LocalDate.of(1989, 9, 29);
         Behandling behandling = lagBehandling();
 
@@ -60,7 +53,7 @@ public class PersonopplysningDtoTjenesteTest {
 
     private Behandling lagBehandling() {
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger
-            .forFødselMedGittAktørId(AktørId.dummy());
+                .forFødselMedGittAktørId(AktørId.dummy());
 
         scenario.medDefaultOppgittFordeling(LocalDate.now());
         return scenario.lagre(repositoryProvider);

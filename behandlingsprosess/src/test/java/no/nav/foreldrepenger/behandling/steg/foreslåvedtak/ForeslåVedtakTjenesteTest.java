@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.behandling.steg.foreslåvedtak;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -12,13 +12,9 @@ import static org.mockito.Mockito.when;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
@@ -42,24 +38,18 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioKlageEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.vedtak.impl.KlageAnkeVedtakTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.vedtak.felles.testutilities.Whitebox;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class ForeslåVedtakTjenesteTest {
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private final EntityManager entityManager = repoRule.getEntityManager();
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
-
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+    @Inject
+    private BehandlingRepositoryProvider repositoryProvider;
 
     @Inject
     private BehandlingRepository behandlingRepository;
@@ -80,24 +70,25 @@ public class ForeslåVedtakTjenesteTest {
     private OppgaveTjeneste oppgaveTjeneste;
     @Mock
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
-    private HistorikkRepository historikkRepository = spy(repositoryProvider.getHistorikkRepository());
+    private HistorikkRepository historikkRepository;
     @Mock
     private Behandling behandling;
     private BehandlingskontrollKontekst kontekst;
 
     private ForeslåVedtakTjeneste tjeneste;
 
-
-    @Before
-    public void setUp() {
+    @BeforeEach
+    public void setUp(EntityManager em) {
+        historikkRepository = spy(repositoryProvider.getHistorikkRepository());
         behandling = ScenarioMorSøkerEngangsstønad.forFødsel().lagre(repositoryProvider);
-        entityManager.persist(behandling.getBehandlingsresultat());
+        em.persist(behandling.getBehandlingsresultat());
         kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
 
-        when(oppgaveTjeneste.harÅpneOppgaverAvType(any(AktørId.class), any())).thenReturn(Boolean.FALSE);
-        when(dokumentBehandlingTjeneste.erDokumentBestilt(anyLong(), any())).thenReturn(true);
+        lenient().when(oppgaveTjeneste.harÅpneOppgaverAvType(any(AktørId.class), any())).thenReturn(Boolean.FALSE);
+        lenient().when(dokumentBehandlingTjeneste.erDokumentBestilt(anyLong(), any())).thenReturn(true);
 
-        SjekkMotEksisterendeOppgaverTjeneste sjekkMotEksisterendeOppgaverTjeneste = new SjekkMotEksisterendeOppgaverTjeneste(historikkRepository, oppgaveTjeneste);
+        SjekkMotEksisterendeOppgaverTjeneste sjekkMotEksisterendeOppgaverTjeneste = new SjekkMotEksisterendeOppgaverTjeneste(historikkRepository,
+                oppgaveTjeneste);
         var klageAnke = new KlageAnkeVedtakTjeneste(klageRepository, ankeRepository);
         tjeneste = new ForeslåVedtakTjeneste(fagsakRepository, klageAnke, sjekkMotEksisterendeOppgaverTjeneste);
     }
@@ -116,7 +107,6 @@ public class ForeslåVedtakTjenesteTest {
         assertThat(stegResultat.getAksjonspunktListe().get(0)).isEqualTo(AksjonspunktDefinisjon.FORESLÅ_VEDTAK);
     }
 
-
     @Test
     public void setterTotrinnskontrollPaBehandlingHvisIkkeSattFraFør() {
         // Arrange
@@ -128,7 +118,6 @@ public class ForeslåVedtakTjenesteTest {
         // Assert
         assertThat(behandling.isToTrinnsBehandling()).isTrue();
     }
-
 
     @Test
     public void setterPåVentHvisÅpentAksjonspunktVedtakUtenTotrinnskontroll() {
@@ -194,7 +183,7 @@ public class ForeslåVedtakTjenesteTest {
     public void lagerIkkeNyeAksjonspunkterNårAksjonspunkterAlleredeFinnes() {
         // Arrange
         leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDERE_ANNEN_YTELSE_FØR_VEDTAK, false);
-        when(oppgaveTjeneste.harÅpneOppgaverAvType(any(AktørId.class), any())).thenReturn(Boolean.TRUE);
+        lenient().when(oppgaveTjeneste.harÅpneOppgaverAvType(any(AktørId.class), any())).thenReturn(Boolean.TRUE);
 
         // Act
         BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(behandling, kontekst);
@@ -221,11 +210,11 @@ public class ForeslåVedtakTjenesteTest {
     public void utførerMedAksjonspunktForeslåVedtakManueltHvisRevurderingOpprettetManueltOgIkkeTotrinnskontroll() {
         // Arrange
         Behandling behandling = ScenarioMorSøkerEngangsstønad.forFødsel()
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
-            .lagre(repositoryProvider);
+                .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
+                .lagre(repositoryProvider);
         Behandling revurdering = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING).medManueltOpprettet(true))
-            .build();
+                .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING).medManueltOpprettet(true))
+                .build();
         BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
         behandlingRepository.lagre(revurdering, lås);
 
@@ -256,11 +245,11 @@ public class ForeslåVedtakTjenesteTest {
     public void utførerMedAksjonspunktForeslåVedtakManueltHvisRevurderingOpprettetManueltOgIkkeTotrinnskontrollBehandling2TrinnIkkeReset() {
         // Arrange
         Behandling behandling = ScenarioMorSøkerEngangsstønad.forFødsel()
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
-            .lagre(repositoryProvider);
+                .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
+                .lagre(repositoryProvider);
         Behandling revurdering = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING).medManueltOpprettet(true))
-            .build();
+                .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING).medManueltOpprettet(true))
+                .build();
         revurdering.setToTrinnsBehandling();
         BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
         behandlingRepository.lagre(revurdering, lås);
@@ -288,7 +277,6 @@ public class ForeslåVedtakTjenesteTest {
         assertThat(stegResultat.getAksjonspunktListe()).hasSize(1);
         assertThat(stegResultat.getAksjonspunktListe().get(0)).isEqualTo(AksjonspunktDefinisjon.FORESLÅ_VEDTAK);
     }
-
 
     @Test
     public void skalUtføreUtenAksjonspunkterHvisKlageHarResultatHjemsendt() {
