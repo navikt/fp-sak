@@ -7,10 +7,8 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.FagsakRelasjonEventPubliserer;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
@@ -32,22 +30,17 @@ import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.Skjermlenke
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class VurderDekningsgradOppdatererTest {
 
     private static final String BEGRUNNELSE = "begrunnelse";
 
-    @Rule
-    public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
-    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(),
-        FagsakRelasjonEventPubliserer.NULL_EVENT_PUB, repositoryProvider.getFagsakRepository());
-
-
+    @Inject
+    private BehandlingRepositoryProvider repositoryProvider;
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     @Inject
     private HistorikkTjenesteAdapter historikkTjenesteAdapter;
 
@@ -58,11 +51,13 @@ public class VurderDekningsgradOppdatererTest {
     private Behandling behandling;
     private Aksjonspunkt aksjonspunkt;
 
-    @Before
-    public void oppsett(){
+    @BeforeEach
+    public void oppsett() {
+        fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(),
+                FagsakRelasjonEventPubliserer.NULL_EVENT_PUB, repositoryProvider.getFagsakRepository());
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         this.behandling = scenario.lagre(repositoryProvider);
-        this.vurderDekningsgradOppdaterer = new VurderDekningsgradOppdaterer(historikkTjenesteAdapter, repositoryProvider,fagsakRelasjonTjeneste);
+        this.vurderDekningsgradOppdaterer = new VurderDekningsgradOppdaterer(historikkTjenesteAdapter, repositoryProvider, fagsakRelasjonTjeneste);
         this.historikkRepository = repositoryProvider.getHistorikkRepository();
         this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
@@ -73,7 +68,7 @@ public class VurderDekningsgradOppdatererTest {
     }
 
     @Test
-    public void skal_ikke_lage_historikkinnslag_hvis_ingen_endring(){
+    public void skal_ikke_lage_historikkinnslag_hvis_ingen_endring() {
         // Arrange
         Dekningsgrad lagretDekningsgrad = Dekningsgrad._80;
         int dekningsgradFraDto = 80;
@@ -88,7 +83,7 @@ public class VurderDekningsgradOppdatererTest {
     }
 
     @Test
-    public void skal_lage_historikkinnslag_hvis_endring_i_begrunnelse(){
+    public void skal_lage_historikkinnslag_hvis_endring_i_begrunnelse() {
         // Arrange
         Dekningsgrad lagretDekningsgrad = Dekningsgrad._80;
         int dekningsgradFraDto = 80;
@@ -103,15 +98,16 @@ public class VurderDekningsgradOppdatererTest {
         List<HistorikkinnslagDel> deler = historikk.get(0).getHistorikkinnslagDeler();
         assertThat(deler).hasSize(1);
         assertThat(deler.get(0).getBegrunnelse()).hasValueSatisfying(begrunnelse -> assertThat(begrunnelse).isEqualTo("en endret begrunnelse"));
-        assertThat(deler.get(0).getSkjermlenke()).hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.BEREGNING_FORELDREPENGER.getKode()));
-        assertThat(deler.get(0).getEndretFelt(HistorikkEndretFeltType.DEKNINGSGRAD)).hasValueSatisfying(felt ->
-            assertThat(felt.getFraVerdi()).isEqualTo("80%"));
-        assertThat(deler.get(0).getEndretFelt(HistorikkEndretFeltType.DEKNINGSGRAD)).hasValueSatisfying(felt ->
-            assertThat(felt.getTilVerdi()).isEqualTo("80%"));
+        assertThat(deler.get(0).getSkjermlenke())
+                .hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.BEREGNING_FORELDREPENGER.getKode()));
+        assertThat(deler.get(0).getEndretFelt(HistorikkEndretFeltType.DEKNINGSGRAD))
+                .hasValueSatisfying(felt -> assertThat(felt.getFraVerdi()).isEqualTo("80%"));
+        assertThat(deler.get(0).getEndretFelt(HistorikkEndretFeltType.DEKNINGSGRAD))
+                .hasValueSatisfying(felt -> assertThat(felt.getTilVerdi()).isEqualTo("80%"));
     }
 
     @Test
-    public void skal_lage_historikkinnslag_hvis_endring_i_dekningsgrad(){
+    public void skal_lage_historikkinnslag_hvis_endring_i_dekningsgrad() {
         // Arrange
         Dekningsgrad lagretDekningsgrad = Dekningsgrad._80;
         int dekningsgradFraDto = 100;
@@ -126,15 +122,16 @@ public class VurderDekningsgradOppdatererTest {
         List<HistorikkinnslagDel> deler = historikk.get(0).getHistorikkinnslagDeler();
         assertThat(deler).hasSize(1);
         assertThat(deler.get(0).getBegrunnelse()).hasValueSatisfying(begrunnelse -> assertThat(begrunnelse).isEqualTo(BEGRUNNELSE));
-        assertThat(deler.get(0).getSkjermlenke()).hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.BEREGNING_FORELDREPENGER.getKode()));
-        assertThat(deler.get(0).getEndretFelt(HistorikkEndretFeltType.DEKNINGSGRAD)).hasValueSatisfying(felt ->
-            assertThat(felt.getFraVerdi()).isEqualTo("80%"));
-        assertThat(deler.get(0).getEndretFelt(HistorikkEndretFeltType.DEKNINGSGRAD)).hasValueSatisfying(felt ->
-            assertThat(felt.getTilVerdi()).isEqualTo("100%"));
+        assertThat(deler.get(0).getSkjermlenke())
+                .hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.BEREGNING_FORELDREPENGER.getKode()));
+        assertThat(deler.get(0).getEndretFelt(HistorikkEndretFeltType.DEKNINGSGRAD))
+                .hasValueSatisfying(felt -> assertThat(felt.getFraVerdi()).isEqualTo("80%"));
+        assertThat(deler.get(0).getEndretFelt(HistorikkEndretFeltType.DEKNINGSGRAD))
+                .hasValueSatisfying(felt -> assertThat(felt.getTilVerdi()).isEqualTo("100%"));
     }
 
     @Test
-    public void skal_lage_historikkinnslag_hvis_endring_i_dekningsgrad_og_begrunnelse(){
+    public void skal_lage_historikkinnslag_hvis_endring_i_dekningsgrad_og_begrunnelse() {
         // Arrange
         Dekningsgrad lagretDekningsgrad = Dekningsgrad._80;
         int dekningsgradFraDto = 100;
@@ -149,15 +146,16 @@ public class VurderDekningsgradOppdatererTest {
         List<HistorikkinnslagDel> deler = historikk.get(0).getHistorikkinnslagDeler();
         assertThat(deler).hasSize(1);
         assertThat(deler.get(0).getBegrunnelse()).hasValueSatisfying(begrunnelse -> assertThat(begrunnelse).isEqualTo("en endret begrunnelse"));
-        assertThat(deler.get(0).getSkjermlenke()).hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.BEREGNING_FORELDREPENGER.getKode()));
-        assertThat(deler.get(0).getEndretFelt(HistorikkEndretFeltType.DEKNINGSGRAD)).hasValueSatisfying(felt ->
-            assertThat(felt.getFraVerdi()).isEqualTo("80%"));
-        assertThat(deler.get(0).getEndretFelt(HistorikkEndretFeltType.DEKNINGSGRAD)).hasValueSatisfying(felt ->
-            assertThat(felt.getTilVerdi()).isEqualTo("100%"));
+        assertThat(deler.get(0).getSkjermlenke())
+                .hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.BEREGNING_FORELDREPENGER.getKode()));
+        assertThat(deler.get(0).getEndretFelt(HistorikkEndretFeltType.DEKNINGSGRAD))
+                .hasValueSatisfying(felt -> assertThat(felt.getFraVerdi()).isEqualTo("80%"));
+        assertThat(deler.get(0).getEndretFelt(HistorikkEndretFeltType.DEKNINGSGRAD))
+                .hasValueSatisfying(felt -> assertThat(felt.getTilVerdi()).isEqualTo("100%"));
     }
 
     @Test
-    public void skal_lagre_hvis_dekningsgrad_er_endret(){
+    public void skal_lagre_hvis_dekningsgrad_er_endret() {
         // Arrange
         Dekningsgrad lagretDekningsgrad = Dekningsgrad._80;
         int dekningsgradFraDto = 100;
@@ -169,11 +167,11 @@ public class VurderDekningsgradOppdatererTest {
         Optional<Behandlingsresultat> behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
         assertThat(fagsakRelasjonRepository.finnRelasjonFor(behandling.getFagsak()).getGjeldendeDekningsgrad().getVerdi()).isEqualTo(100);
         assertThat(fagsakRelasjonRepository.finnRelasjonFor(behandling.getFagsak()).getDekningsgrad().getVerdi()).isNotEqualTo(100);
-        assertThat(behandlingsresultat).hasValueSatisfying( r -> assertThat(r.isEndretDekningsgrad()).isTrue());
+        assertThat(behandlingsresultat).hasValueSatisfying(r -> assertThat(r.isEndretDekningsgrad()).isTrue());
     }
 
     @Test
-    public void skal_ikke_endre_lagret_verdier_hvis_dekningsgrad_ikke_er_endret(){
+    public void skal_ikke_endre_lagret_verdier_hvis_dekningsgrad_ikke_er_endret() {
         // Arrange
         Dekningsgrad lagretDekningsgrad = Dekningsgrad._100;
         int dekningsgradFraDto = 100;
@@ -185,7 +183,7 @@ public class VurderDekningsgradOppdatererTest {
         Optional<Behandlingsresultat> behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
         assertThat(fagsakRelasjonRepository.finnRelasjonFor(behandling.getFagsak()).getGjeldendeDekningsgrad().getVerdi()).isEqualTo(100);
         assertThat(fagsakRelasjonRepository.finnRelasjonFor(behandling.getFagsak()).getDekningsgrad().getVerdi()).isEqualTo(100);
-        assertThat(behandlingsresultat).hasValueSatisfying( r -> assertThat(r.isEndretDekningsgrad()).isFalse());
+        assertThat(behandlingsresultat).hasValueSatisfying(r -> assertThat(r.isEndretDekningsgrad()).isFalse());
     }
 
 }

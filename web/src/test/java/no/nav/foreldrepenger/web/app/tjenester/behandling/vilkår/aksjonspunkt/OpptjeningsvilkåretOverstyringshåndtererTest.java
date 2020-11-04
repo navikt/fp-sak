@@ -8,9 +8,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -26,18 +24,16 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktApplikasjonTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt.dto.OverstyringOpptjeningsvilkåretDto;
 import no.nav.vedtak.exception.FunksjonellException;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class OpptjeningsvilkåretOverstyringshåndtererTest {
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
+    @Inject
+    private BehandlingRepositoryProvider repositoryProvider;
     @Inject
     private AksjonspunktApplikasjonTjeneste aksjonspunktApplikasjonTjeneste;
 
@@ -47,14 +43,14 @@ public class OpptjeningsvilkåretOverstyringshåndtererTest {
         // Behandling
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING,
-            BehandlingStegType.VURDER_OPPTJENINGSVILKÅR);
+                BehandlingStegType.VURDER_OPPTJENINGSVILKÅR);
         scenario.leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT);
         scenario.lagre(repositoryProvider);
 
         Behandling behandling = scenario.getBehandling();
         // Dto
         OverstyringOpptjeningsvilkåretDto overstyringspunktDto = new OverstyringOpptjeningsvilkåretDto(false,
-            "test av overstyring opptjeningsvilkåret", "1035");
+                "test av overstyring opptjeningsvilkåret", "1035");
         assertThat(behandling.getAksjonspunkter()).hasSize(1);
 
         // Act
@@ -64,10 +60,10 @@ public class OpptjeningsvilkåretOverstyringshåndtererTest {
         Set<Aksjonspunkt> aksjonspunktSet = behandling.getAksjonspunkter();
         assertThat(aksjonspunktSet).hasSize(2);
         assertThat(aksjonspunktSet).extracting("aksjonspunktDefinisjon")
-            .contains(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING);
+                .contains(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING);
         assertThat(aksjonspunktSet.stream()
-            .filter(ap -> ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.OVERSTYRING_AV_OPPTJENINGSVILKÅRET)))
-            .anySatisfy(ap -> assertThat(ap.getStatus()).isEqualTo(AksjonspunktStatus.UTFØRT));
+                .filter(ap -> ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.OVERSTYRING_AV_OPPTJENINGSVILKÅRET)))
+                        .anySatisfy(ap -> assertThat(ap.getStatus()).isEqualTo(AksjonspunktStatus.UTFØRT));
     }
 
     @Test
@@ -76,14 +72,14 @@ public class OpptjeningsvilkåretOverstyringshåndtererTest {
         // Behandling
         ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING,
-            BehandlingStegType.VURDER_OPPTJENINGSVILKÅR);
+                BehandlingStegType.VURDER_OPPTJENINGSVILKÅR);
         scenario.leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT);
         scenario.lagre(repositoryProvider);
 
         Behandling behandling = scenario.getBehandling();
         // Dto
         OverstyringOpptjeningsvilkåretDto overstyringspunktDto = new OverstyringOpptjeningsvilkåretDto(false,
-            "test av overstyring opptjeningsvilkåret", "1035");
+                "test av overstyring opptjeningsvilkåret", "1035");
 
         // Act
         aksjonspunktApplikasjonTjeneste.overstyrAksjonspunkter(Set.of(overstyringspunktDto), behandling.getId());
@@ -105,21 +101,22 @@ public class OpptjeningsvilkåretOverstyringshåndtererTest {
         // Behandling
         ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING,
-            BehandlingStegType.VURDER_OPPTJENINGSVILKÅR);
+                BehandlingStegType.VURDER_OPPTJENINGSVILKÅR);
         scenario.leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT);
         scenario.lagre(repositoryProvider);
 
         Behandling behandling = scenario.getBehandling();
         // Dto
         OverstyringOpptjeningsvilkåretDto overstyringspunktDto = new OverstyringOpptjeningsvilkåretDto(true,
-            "test av overstyring opptjeningsvilkåret", "1035");
+                "test av overstyring opptjeningsvilkåret", "1035");
 
         // Act
         try {
             aksjonspunktApplikasjonTjeneste.overstyrAksjonspunkter(Set.of(overstyringspunktDto), behandling.getId());
             fail("Skal kaste exception");
         } catch (FunksjonellException e) {
-            assertThat(e).hasMessage("FP-093923:Kan ikke overstyre vilkår. Det må være minst en aktivitet for at opptjeningsvilkåret skal kunne overstyres.");
+            assertThat(e).hasMessage(
+                    "FP-093923:Kan ikke overstyre vilkår. Det må være minst en aktivitet for at opptjeningsvilkåret skal kunne overstyres.");
         }
     }
 }
