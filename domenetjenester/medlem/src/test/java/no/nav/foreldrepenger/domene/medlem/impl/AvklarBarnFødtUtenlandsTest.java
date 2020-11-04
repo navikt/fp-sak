@@ -7,28 +7,26 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittLandOppholdEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 
-public class AvklarBarnFødtUtenlandsTest {
+public class AvklarBarnFødtUtenlandsTest extends EntityManagerAwareTest {
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private BehandlingRepositoryProvider provider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
+    private BehandlingRepositoryProvider provider;
 
     private AvklarBarnFødtUtenlands tjeneste;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        this.tjeneste = new AvklarBarnFødtUtenlands(provider);
+        provider = new BehandlingRepositoryProvider(getEntityManager());
+        tjeneste = new AvklarBarnFødtUtenlands(provider);
     }
 
     @Test

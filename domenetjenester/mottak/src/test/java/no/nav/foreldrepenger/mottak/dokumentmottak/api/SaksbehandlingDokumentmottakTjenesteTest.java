@@ -8,9 +8,8 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -18,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
@@ -37,13 +35,11 @@ public class SaksbehandlingDokumentmottakTjenesteTest {
     private static final Boolean ELEKTRONISK_SØKNAD = Boolean.TRUE;
     private static final String PAYLOAD_XML = "<test></test>";
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
     private ProsessTaskRepository prosessTaskRepository;
     private SaksbehandlingDokumentmottakTjeneste saksbehandlingDokumentmottakTjeneste;
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
 
-    @Before
+    @BeforeEach
     public void before() {
         prosessTaskRepository = mock(ProsessTaskRepository.class);
         mottatteDokumentTjeneste = mock(MottatteDokumentTjeneste.class);

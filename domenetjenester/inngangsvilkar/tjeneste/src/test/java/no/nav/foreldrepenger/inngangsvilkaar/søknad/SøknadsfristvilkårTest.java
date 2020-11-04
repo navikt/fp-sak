@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Period;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -22,9 +22,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.BasisPersonopplysningTjeneste;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
@@ -32,20 +31,24 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 
-public class SøknadsfristvilkårTest {
+public class SøknadsfristvilkårTest extends EntityManagerAwareTest {
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
+    private BehandlingRepositoryProvider repositoryProvider;
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private InngangsvilkårOversetter oversetter;
 
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-    private InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
-
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
-    private BasisPersonopplysningTjeneste personopplysningTjeneste = new BasisPersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository());
-    private InngangsvilkårOversetter oversetter = new InngangsvilkårOversetter(repositoryProvider,
-        personopplysningTjeneste, new YtelseMaksdatoTjeneste(repositoryProvider, new RelatertBehandlingTjeneste(repositoryProvider)),
-        iayTjeneste,
-        null);
+    @BeforeEach
+    void setUp() {
+        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
+        var iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
+        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
+        var personopplysningTjeneste = new BasisPersonopplysningTjeneste(
+            repositoryProvider.getPersonopplysningRepository());
+        oversetter = new InngangsvilkårOversetter(repositoryProvider,
+            personopplysningTjeneste, new YtelseMaksdatoTjeneste(repositoryProvider, new RelatertBehandlingTjeneste(repositoryProvider)),
+            iayTjeneste,
+            null);
+    }
 
     @Test
     public void skal_vurdere_vilkår_som_oppfylt_når_elektronisk_søknad_og_søknad_mottat_innen_6_mnd_fra_skjæringstidspunkt() throws JsonProcessingException, IOException {

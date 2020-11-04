@@ -12,8 +12,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -41,14 +41,14 @@ public class HistorikkinnslagTjenesteTest {
     private HistorikkRepository historikkRepository;
     private DokumentArkivTjeneste dokumentArkivTjeneste;
     private HistorikkinnslagTjeneste historikkinnslagTjeneste;
-    private PersoninfoAdapter personinfoAdapter;
 
-    @Before
+    @BeforeEach
     public void before() {
         historikkRepository = mock(HistorikkRepository.class);
         dokumentArkivTjeneste = mock(DokumentArkivTjeneste.class);
-        personinfoAdapter = mock(PersoninfoAdapter.class);
-        historikkinnslagTjeneste = new HistorikkinnslagTjeneste(historikkRepository, dokumentArkivTjeneste, personinfoAdapter);
+        var personinfoAdapter = mock(PersoninfoAdapter.class);
+        historikkinnslagTjeneste = new HistorikkinnslagTjeneste(historikkRepository, dokumentArkivTjeneste,
+            personinfoAdapter);
     }
 
     @Test

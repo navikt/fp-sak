@@ -8,14 +8,15 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.YtelseMaksdatoTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
@@ -37,23 +38,27 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktiv
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.vedtak.felles.testutilities.db.Repository;
-import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
 
-public class YtelseMaksdatoTjenesteTest {
+public class YtelseMaksdatoTjenesteTest extends EntityManagerAwareTest {
 
-    @Rule
-    public final RepositoryRule repoRule = new UnittestRepositoryRule();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-    private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-    private final BehandlingVedtakRepository behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
+    private BehandlingRepositoryProvider repositoryProvider;
+    private BehandlingRepository behandlingRepository;
+    private BehandlingVedtakRepository behandlingVedtakRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
+    private YtelseMaksdatoTjeneste beregnMorsMaksdatoTjeneste;
 
-    private final Repository repository = repoRule.getRepository();
-    private final RelatertBehandlingTjeneste relatertBehandlingTjeneste = new RelatertBehandlingTjeneste(repositoryProvider);
-    private final YtelseMaksdatoTjeneste beregnMorsMaksdatoTjeneste = new YtelseMaksdatoTjeneste(repositoryProvider, relatertBehandlingTjeneste);
 
+    @BeforeEach
+    void setUp() {
+        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
+        behandlingRepository = repositoryProvider.getBehandlingRepository();
+        behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
+        var relatertBehandlingTjeneste = new RelatertBehandlingTjeneste(repositoryProvider);
+        beregnMorsMaksdatoTjeneste = new YtelseMaksdatoTjeneste(repositoryProvider, relatertBehandlingTjeneste);
+        behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
+    }
 
     @Test
     public void finnesIngenVedtattBehandlingForMorSkalReturnereOptionalEmpty() {
@@ -103,12 +108,12 @@ public class YtelseMaksdatoTjenesteTest {
 
         Behandlingsresultat behandlingsresultat = getBehandlingsresultat(morsBehandling);
         Behandlingsresultat.builderEndreEksisterende(behandlingsresultat).medBehandlingResultatType(BehandlingResultatType.INNVILGET);
-        repository.lagre(behandlingsresultat);
+        behandlingsresultatRepository.lagre(morsBehandling.getId(), behandlingsresultat);
 
         repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), perioder);
 
         morsBehandling.avsluttBehandling();
-        repository.lagre(morsBehandling);
+        lagre(morsBehandling);
 
         final BehandlingVedtak behandlingVedtak = BehandlingVedtak.builder().medVedtakstidspunkt(LocalDateTime.now()).medBehandlingsresultat(behandlingsresultat)
             .medVedtakResultatType(VedtakResultatType.INNVILGET).medAnsvarligSaksbehandler("mor vedtak").build();
@@ -118,8 +123,6 @@ public class YtelseMaksdatoTjenesteTest {
         opprettStønadskontoerForFarOgMor(morsBehandling);
         repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
 
-        repository.flushAndClear();
-
         // Act
         Optional<LocalDate> morsMaksdato = beregnMorsMaksdatoTjeneste.beregnMorsMaksdato(farsBehandling.getFagsak().getSaksnummer(), farsBehandling.getRelasjonsRolleType());
 
@@ -127,6 +130,10 @@ public class YtelseMaksdatoTjenesteTest {
         assertThat(morsMaksdato).isPresent();
         assertThat(morsMaksdato.get()).isEqualTo(LocalDate.of(2018, 9, 28));
 
+    }
+
+    private void lagre(Behandling morsBehandling) {
+        behandlingRepository.lagre(morsBehandling, behandlingRepository.taSkriveLås(morsBehandling.getId()));
     }
 
     @Test
@@ -221,12 +228,12 @@ public class YtelseMaksdatoTjenesteTest {
 
         Behandlingsresultat behandlingsresultat = getBehandlingsresultat(morsBehandling);
         Behandlingsresultat.builderEndreEksisterende(behandlingsresultat).medBehandlingResultatType(BehandlingResultatType.INNVILGET);
-        repository.lagre(behandlingsresultat);
+        behandlingsresultatRepository.lagre(morsBehandling.getId(), behandlingsresultat);
 
         repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), perioder);
 
         morsBehandling.avsluttBehandling();
-        repository.lagre(morsBehandling);
+        lagre(morsBehandling);
 
         Behandling farsBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         opprettStønadskontoerForFarOgMor(morsBehandling);

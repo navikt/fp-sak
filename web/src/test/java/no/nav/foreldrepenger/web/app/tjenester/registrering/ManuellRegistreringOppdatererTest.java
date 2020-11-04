@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import javax.enterprise.inject.Any;
 import javax.inject.Inject;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -17,10 +17,10 @@ public class ManuellRegistreringOppdatererTest {
 
     @Inject
     @Any
-    ManuellRegistreringOppdaterer registreringOppdaterer;
+    private ManuellRegistreringOppdaterer registreringOppdaterer;
 
     @Test
-    public void test_har_instanser() throws Exception {
+    public void test_har_instanser() {
         assertThat(registreringOppdaterer.finnSøknadMapper(FagsakYtelseType.FORELDREPENGER, BehandlingType.FØRSTEGANGSSØKNAD)).isNotNull();
 
         assertThat(registreringOppdaterer.finnSøknadMapper(FagsakYtelseType.FORELDREPENGER, BehandlingType.REVURDERING)).isNotNull();

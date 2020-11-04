@@ -17,12 +17,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -32,7 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
@@ -48,33 +44,28 @@ import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.inntektsmelding.v1.M
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.inntektsmelding.v1.MottattDokumentWrapperInntektsmelding;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.xml.MottattDokumentXmlParser;
 
-public class MottattDokumentOversetterInntektsmeldingTest {
-    private static final DatatypeFactory DATATYPE_FACTORY;
-    static {
-        try {
-            DATATYPE_FACTORY = DatatypeFactory.newInstance();
-        } catch (DatatypeConfigurationException e) {
-            throw new ExceptionInInitializerError(e);
-        }
-    }
-
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
+public class MottattDokumentOversetterInntektsmeldingTest extends EntityManagerAwareTest {
 
     private final VirksomhetTjeneste virksomhetTjeneste = mock(VirksomhetTjeneste.class);
     private final FileToStringUtil fileToStringUtil = new FileToStringUtil();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
+    private BehandlingRepositoryProvider repositoryProvider;
 
-    private final InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
-    private final InntektsmeldingTjeneste inntektsmeldingTjeneste = new InntektsmeldingTjeneste(iayTjeneste);
-    private MottatteDokumentRepository mottatteDokumentRepository = new MottatteDokumentRepository(repoRule.getEntityManager());
+    private InntektArbeidYtelseTjeneste iayTjeneste;
+    private MottatteDokumentRepository mottatteDokumentRepository;
     private MottattDokumentOversetterInntektsmelding oversetter;
 
-    @Before
-    public void setUp() throws Exception {
-        when(virksomhetTjeneste.finnOrganisasjon(any()))
-            .thenReturn(Optional.of(Virksomhet.getBuilder().medOrgnr(KUNSTIG_ORG).medNavn("Ukjent Firma").medRegistrert(LocalDate.now().minusDays(1)).build()));
+    @BeforeEach
+    public void setUp() {
+        when(virksomhetTjeneste.finnOrganisasjon(any())).thenReturn(Optional.of(Virksomhet.getBuilder()
+            .medOrgnr(KUNSTIG_ORG)
+            .medNavn("Ukjent Firma")
+            .medRegistrert(LocalDate.now().minusDays(1))
+            .build()));
+        var inntektsmeldingTjeneste = new InntektsmeldingTjeneste(iayTjeneste);
         oversetter = new MottattDokumentOversetterInntektsmelding(inntektsmeldingTjeneste, virksomhetTjeneste);
+        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
+        iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
+        mottatteDokumentRepository = new MottatteDokumentRepository(getEntityManager());
     }
 
     @Test
@@ -88,17 +79,17 @@ public class MottattDokumentOversetterInntektsmeldingTest {
         //Hent ut alle endringsrefusjoner fra alle inntektsmeldingene.
         List<Refusjon> endringerIRefusjon = grunnlag.getInntektsmeldinger()
             .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
-            .map(i -> i.stream()
-                .flatMap(im -> im.getEndringerRefusjon().stream())
-                .collect(Collectors.toList()))
+            .map(i -> i.stream().flatMap(im -> im.getEndringerRefusjon().stream()).collect(Collectors.toList()))
             .orElse(Collections.emptyList());
 
-        assertThat(endringerIRefusjon.size()).as("Forventer at vi har en endring i refusjon lagret fra inntektsmeldingen.").isEqualTo(1);
+        assertThat(endringerIRefusjon.size()).as(
+            "Forventer at vi har en endring i refusjon lagret fra inntektsmeldingen.").isEqualTo(1);
     }
 
     @Test
     public void skalVedMappingLeseBeløpPerMndForNaturalytelseForGjenopptakelseFraOpphørListe() throws IOException, URISyntaxException {
-        final Behandling behandling = opprettScenarioOgLagreInntektsmelding("inntektsmelding_naturalytelse_gjenopptak_ignorer_belop.xml");
+        final Behandling behandling = opprettScenarioOgLagreInntektsmelding(
+            "inntektsmelding_naturalytelse_gjenopptak_ignorer_belop.xml");
 
         final InntektArbeidYtelseGrunnlag grunnlag = iayTjeneste.hentGrunnlag(behandling.getId());
 
@@ -108,9 +99,11 @@ public class MottattDokumentOversetterInntektsmeldingTest {
             .map(e -> e.stream().flatMap(im -> im.getNaturalYtelser().stream()).collect(Collectors.toList()))
             .orElse(Collections.emptyList());
 
-        assertThat(naturalYtelser.size()).as("Forventet fire naturalytelser, to opphørt og to gjenopptatt.").isEqualTo(4);
+        assertThat(naturalYtelser.size()).as("Forventet fire naturalytelser, to opphørt og to gjenopptatt.")
+            .isEqualTo(4);
 
-        assertThat(naturalYtelser.stream().map(e -> e.getType()).collect(Collectors.toList())).containsOnly(AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS, ELEKTRISK_KOMMUNIKASJON);
+        assertThat(naturalYtelser.stream().map(e -> e.getType()).collect(Collectors.toList())).containsOnly(
+            AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS, ELEKTRISK_KOMMUNIKASJON);
         assertThat(naturalYtelser.stream().map(e -> e.getBeloepPerMnd())).containsOnly(new Beløp(100));
     }
 
@@ -120,7 +113,8 @@ public class MottattDokumentOversetterInntektsmeldingTest {
         final Behandling behandling = opprettBehandling();
         MottattDokument mottattDokument = opprettDokument(behandling, "inntektsmelding.xml");
 
-        final MottattDokumentWrapperInntektsmelding wrapper = (MottattDokumentWrapperInntektsmelding) MottattDokumentXmlParser.unmarshallXml(mottattDokument.getPayloadXml());
+        final MottattDokumentWrapperInntektsmelding wrapper = (MottattDokumentWrapperInntektsmelding) MottattDokumentXmlParser
+            .unmarshallXml(mottattDokument.getPayloadXml());
 
         // Act
         oversetter.trekkUtDataOgPersister(wrapper, mottattDokument, behandling, Optional.empty());
@@ -130,8 +124,11 @@ public class MottattDokumentOversetterInntektsmeldingTest {
 
         Optional<LocalDateTime> innsendingstidspunkt = grunnlag.getInntektsmeldinger()
             .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
-            .stream().flatMap(e -> e.stream().map(it -> it.getInnsendingstidspunkt()))
-            .collect(Collectors.toList()).stream().findFirst();
+            .stream()
+            .flatMap(e -> e.stream().map(it -> it.getInnsendingstidspunkt()))
+            .collect(Collectors.toList())
+            .stream()
+            .findFirst();
 
         assertThat(innsendingstidspunkt).isPresent();
         assertThat(innsendingstidspunkt).hasValue(wrapper.getInnsendingstidspunkt().get());
@@ -143,7 +140,8 @@ public class MottattDokumentOversetterInntektsmeldingTest {
         // Arrange
         final Behandling behandling = opprettBehandling();
         MottattDokument mottattDokument = opprettDokument(behandling, "inntektsmelding.xml");
-        MottattDokumentWrapperInntektsmelding wrapper = (MottattDokumentWrapperInntektsmelding) MottattDokumentXmlParser.unmarshallXml(mottattDokument.getPayloadXml());
+        MottattDokumentWrapperInntektsmelding wrapper = (MottattDokumentWrapperInntektsmelding) MottattDokumentXmlParser
+            .unmarshallXml(mottattDokument.getPayloadXml());
 
         MottattDokumentWrapperInntektsmelding wrapperSpied = Mockito.spy(wrapper);
 
@@ -164,12 +162,17 @@ public class MottattDokumentOversetterInntektsmeldingTest {
 
         Optional<LocalDateTime> innsendingstidspunkt = grunnlag.getInntektsmeldinger()
             .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
-            .stream().flatMap(e -> e.stream().map(it -> it.getInnsendingstidspunkt()))
-            .collect(Collectors.toList()).stream().findFirst();
+            .stream()
+            .flatMap(e -> e.stream().map(it -> it.getInnsendingstidspunkt()))
+            .collect(Collectors.toList())
+            .stream()
+            .findFirst();
 
         assertThat(innsendingstidspunkt).isPresent();
         assertThat(innsendingstidspunkt).hasValue(nyereDato);
-        assertThat(grunnlag.getInntektsmeldinger().map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes).get()).hasSize(1);
+        assertThat(grunnlag.getInntektsmeldinger()
+            .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
+            .get()).hasSize(1);
 
     }
 
@@ -178,7 +181,8 @@ public class MottattDokumentOversetterInntektsmeldingTest {
         // Arrange
         final Behandling behandling = opprettBehandling();
         MottattDokument mottattDokument = opprettDokument(behandling, "inntektsmelding.xml");
-        MottattDokumentWrapperInntektsmelding wrapper = (MottattDokumentWrapperInntektsmelding) MottattDokumentXmlParser.unmarshallXml(mottattDokument.getPayloadXml());
+        MottattDokumentWrapperInntektsmelding wrapper = (MottattDokumentWrapperInntektsmelding) MottattDokumentXmlParser
+            .unmarshallXml(mottattDokument.getPayloadXml());
 
         MottattDokumentWrapperInntektsmelding wrapperSpied = Mockito.spy(wrapper);
 
@@ -199,19 +203,25 @@ public class MottattDokumentOversetterInntektsmeldingTest {
 
         Optional<LocalDateTime> innsendingstidspunkt = grunnlag.getInntektsmeldinger()
             .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
-            .stream().flatMap(e -> e.stream().map(it -> it.getInnsendingstidspunkt()))
-            .collect(Collectors.toList()).stream().findFirst();
+            .stream()
+            .flatMap(e -> e.stream().map(it -> it.getInnsendingstidspunkt()))
+            .collect(Collectors.toList())
+            .stream()
+            .findFirst();
 
         assertThat(innsendingstidspunkt).isPresent();
         assertThat(innsendingstidspunkt).hasValue(nyereDato);
-        assertThat(grunnlag.getInntektsmeldinger().map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes).get()).hasSize(1);
+        assertThat(grunnlag.getInntektsmeldinger()
+            .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
+            .get()).hasSize(1);
     }
 
     private Behandling opprettScenarioOgLagreInntektsmelding(String inntektsmeldingFilnavn) throws URISyntaxException, IOException {
         final Behandling behandling = opprettBehandling();
         MottattDokument mottattDokument = opprettDokument(behandling, inntektsmeldingFilnavn);
 
-        final MottattDokumentWrapperInntektsmelding wrapper = (MottattDokumentWrapperInntektsmelding) MottattDokumentXmlParser.unmarshallXml(mottattDokument.getPayloadXml());
+        final MottattDokumentWrapperInntektsmelding wrapper = (MottattDokumentWrapperInntektsmelding) MottattDokumentXmlParser
+            .unmarshallXml(mottattDokument.getPayloadXml());
 
         oversetter.trekkUtDataOgPersister(wrapper, mottattDokument, behandling, Optional.empty());
         return behandling;
@@ -222,8 +232,10 @@ public class MottattDokumentOversetterInntektsmeldingTest {
         return scenario.lagre(repositoryProvider);
     }
 
-    private MottattDokument opprettDokument(Behandling behandling, String inntektsmeldingFilnavn) throws IOException, URISyntaxException {
-        final InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
+    private MottattDokument opprettDokument(Behandling behandling,
+                                            String inntektsmeldingFilnavn) throws IOException, URISyntaxException {
+        final InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder = iayTjeneste.opprettBuilderForRegister(
+            behandling.getId());
         iayTjeneste.lagreIayAggregat(behandling.getId(), inntektArbeidYtelseAggregatBuilder);
         final String xml = fileToStringUtil.readFile(inntektsmeldingFilnavn);
         final MottattDokument.Builder builder = new MottattDokument.Builder();

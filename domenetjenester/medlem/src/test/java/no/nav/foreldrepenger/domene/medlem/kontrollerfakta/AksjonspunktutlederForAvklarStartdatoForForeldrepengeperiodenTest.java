@@ -9,9 +9,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.mockito.Spy;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
@@ -28,7 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
@@ -41,22 +40,28 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.konfig.Tid;
 
-public class AksjonspunktutlederForAvklarStartdatoForForeldrepengeperiodenTest {
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
+public class AksjonspunktutlederForAvklarStartdatoForForeldrepengeperiodenTest extends EntityManagerAwareTest {
 
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
+    private BehandlingRepositoryProvider repositoryProvider;
 
-    private InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
+    private InntektArbeidYtelseTjeneste iayTjeneste;
 
-    private InntektsmeldingTjeneste inntektsmeldingTjeneste = new InntektsmeldingTjeneste(iayTjeneste);
+    private InntektsmeldingTjeneste inntektsmeldingTjeneste;
 
-    private YtelsesFordelingRepository ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+    private YtelsesFordelingRepository ytelsesFordelingRepository;
 
-    @Spy
-    private AksjonspunktutlederForAvklarStartdatoForForeldrepengeperioden utleder = new AksjonspunktutlederForAvklarStartdatoForForeldrepengeperioden(
-        iayTjeneste,
-        ytelsesFordelingRepository);
+    private AksjonspunktutlederForAvklarStartdatoForForeldrepengeperioden utleder;
+
+    @BeforeEach
+    void setUp() {
+        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
+        iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
+        inntektsmeldingTjeneste = new InntektsmeldingTjeneste(iayTjeneste);
+        ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+        utleder = new AksjonspunktutlederForAvklarStartdatoForForeldrepengeperioden(
+            iayTjeneste,
+            ytelsesFordelingRepository);
+    }
 
     private Skjæringstidspunkt lagSkjæringstidspunkt(LocalDate dato) {
         return Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(dato).medFørsteUttaksdato(dato).build();
