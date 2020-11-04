@@ -12,21 +12,24 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum DokumentMalType implements Kodeverdi {
 
-    POSITIVT_VEDTAK_DOK("POSVED", "Positivt vedtaksbrev"),
+    //Mal hos team dokument
     INNHENT_DOK("INNHEN", "Innhent dokumentasjon"),
+    POSITIVT_VEDTAK_DOK("POSVED", "Positivt vedtaksbrev"),
     HENLEGG_BEHANDLING_DOK("HENLEG", "Behandling henlagt"),
     AVSLAGSVEDTAK_DOK("AVSLAG", "Avslagsbrev"),
     UENDRETUTFALL_DOK("UENDRE", "Uendret utfall"),
+    REVURDERING_DOK("REVURD", "Varsel om revurdering"),
     FORLENGET_DOK("FORLEN", "Forlenget saksbehandlingstid"),
     FORLENGET_MEDL_DOK("FORLME", "Forlenget saksbehandlingstid - medlemskap"),
     FORLENGET_TIDLIG_SOK("FORLTS", "Forlenget saksbehandlingstid - Tidlig søknad"),
     FORLENGET_OPPTJENING("FOROPT", "Forlenget saksbehandlingstid - Venter Opptjening"),
-    REVURDERING_DOK("REVURD", "Varsel om revurdering"),
     INNSYNSKRAV_SVAR("INSSKR", "Svar på innsynskrav"),
     INNVILGELSE_FORELDREPENGER_DOK("INNVFP", "Innvilgelsesbrev Foreldrepenger"),
     OPPHØR_DOK("OPPHOR", "Opphør brev"),
     INNTEKTSMELDING_FOR_TIDLIG_DOK("INNTID", "Ikke mottatt søknad"),
     AVSLAG_FORELDREPENGER_DOK("AVSLFP", "Avslagsbrev Foreldrepenger"),
+
+    //Fritekstbrev - tekst unntatt header og footer genereres av fpformidling
     FRITEKST_DOK("FRITKS", "Fritekstbrev"),
     ETTERLYS_INNTEKTSMELDING_DOK("INNLYS", "Etterlys inntektsmelding"),
     INFO_TIL_ANNEN_FORELDER_DOK("INAFOR", "Informasjonsbrev til den andre forelderen"),
@@ -38,7 +41,10 @@ public enum DokumentMalType implements Kodeverdi {
     KLAGE_OMGJØRING("KOMGJO", "Vedtak om omgjøring av klage"), // medhold
     KLAGE_OVERSENDT_KLAGEINSTANS("KOVKLA", "Klage oversendt til klageinstans"),
     KLAGE_HJEMSENDT("KHJEMS", "Klage hjemsendt/opphevet"),
+
+    //Dokgen
     INNVILGELSE_ENGANGSSTØNAD ("INNVES", "Innvilget engangsstønad"),
+    INNHENTE_OPPLYSNINGER ("INNOPP", "Innhente opplysninger"),
 
     // Disse brevene er utgåtte, men beholdes her grunnet historisk bruk i databasen:
     @Deprecated

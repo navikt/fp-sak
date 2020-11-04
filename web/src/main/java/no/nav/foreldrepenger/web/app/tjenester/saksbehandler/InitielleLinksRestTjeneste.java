@@ -42,6 +42,7 @@ public class InitielleLinksRestTjeneste {
     public InitLinksDto hentInitielleRessurser() {
         List<ResourceLink> toggleRelatert = new ArrayList<>();
         toggleRelatert.add(post(FeatureToggleRestTjeneste.FEATURE_TOGGLE_PATH, "feature-toggle"));
+        toggleRelatert.add(get(FeatureToggleRestTjeneste.ER_PROD_PATH, "er-prod"));
         List<ResourceLink> lenkene = new ArrayList<>();
         lenkene.add(get(NavAnsattRestTjeneste.NAV_ANSATT_PATH, "nav-ansatt"));
         lenkene.add(get(KodeverkRestTjeneste.KODERVERK_PATH, "kodeverk"));
