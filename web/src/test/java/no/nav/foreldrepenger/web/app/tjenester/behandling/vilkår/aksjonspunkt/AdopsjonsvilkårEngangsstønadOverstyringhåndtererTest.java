@@ -6,9 +6,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -20,17 +18,15 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktApplikasjonTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt.es.OverstyringAdopsjonsvilkåretDto;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class AdopsjonsvilkårEngangsstønadOverstyringhåndtererTest {
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
+    @Inject
+    private BehandlingRepositoryProvider repositoryProvider;
     @Inject
     private AksjonspunktApplikasjonTjeneste aksjonspunktApplikasjonTjeneste;
 
@@ -62,7 +58,7 @@ public class AdopsjonsvilkårEngangsstønadOverstyringhåndtererTest {
                 .contains(AksjonspunktDefinisjon.AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN);
         assertThat(aksjonspunktSet.stream()
                 .filter(ap -> ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.OVERSTYRING_AV_ADOPSJONSVILKÅRET)))
-                .anySatisfy(ap -> assertThat(ap.getStatus()).isEqualTo(AksjonspunktStatus.UTFØRT));
+                        .anySatisfy(ap -> assertThat(ap.getStatus()).isEqualTo(AksjonspunktStatus.UTFØRT));
     }
 
 }

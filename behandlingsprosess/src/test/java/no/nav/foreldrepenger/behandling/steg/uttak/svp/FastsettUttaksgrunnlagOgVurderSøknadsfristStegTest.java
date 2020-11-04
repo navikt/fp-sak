@@ -7,11 +7,10 @@ import java.time.Month;
 import java.util.Optional;
 
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandling.steg.søknadsfrist.SøktPeriodeTjeneste;
@@ -27,21 +26,15 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.uttak.svp.FørsteLovligeUttaksdatoTjeneste;
 import no.nav.foreldrepenger.domene.uttak.svp.RegelmodellSøknaderMapper;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest {
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private Repository repository = repoRule.getRepository();
-
-
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
+    @Inject
+    private BehandlingRepositoryProvider repositoryProvider;
 
     @Inject
     private BehandlingRepository behandlingRepository;
@@ -57,34 +50,38 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest {
 
     private FastsettUttaksgrunnlagOgVurderSøknadsfristSteg fastsettUttaksgrunnlagOgVurderSøknadsfristSteg;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    public void setup(EntityManager em) {
 
         svpHelper = new SvpHelper(repositoryProvider);
         behandling = svpHelper.lagreBehandling();
-        repository.flushAndClear();
+        em.flush();
+        em.clear();
 
         RegelmodellSøknaderMapper regelmodellSøknaderMapper = new RegelmodellSøknaderMapper();
         SøktPeriodeTjeneste søktPeriodeTjeneste = new SøktPeriodeTjenesteImpl(regelmodellSøknaderMapper);
-        fastsettUttaksgrunnlagOgVurderSøknadsfristSteg = new FastsettUttaksgrunnlagOgVurderSøknadsfristSteg(repositoryProvider, uttakInputTjeneste, søktPeriodeTjeneste, førsteLovligeUttaksdatoTjeneste);
+        fastsettUttaksgrunnlagOgVurderSøknadsfristSteg = new FastsettUttaksgrunnlagOgVurderSøknadsfristSteg(repositoryProvider, uttakInputTjeneste,
+                søktPeriodeTjeneste, førsteLovligeUttaksdatoTjeneste);
     }
 
     @Test
-    public void ingen_aksjonspunkt_når_søkt_i_tide() {
+    public void ingen_aksjonspunkt_når_søkt_i_tide(EntityManager em) {
         var jordsmorsdato = LocalDate.of(2019, Month.MAY, 5);
         var mottatdato = jordsmorsdato;
         svpHelper.lagreTerminbekreftelse(behandling, LocalDate.of(2019, Month.JULY, 1));
         svpHelper.lagreIngenTilrettelegging(behandling, jordsmorsdato);
         var søknad = opprettSøknad(jordsmorsdato, mottatdato);
         repositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
-        repository.flushAndClear();
+        em.flush();
+        em.clear();
         var fagsak = behandling.getFagsak();
 
         // Act
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), behandlingRepository.taSkriveLås(behandling));
+        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
+                behandlingRepository.taSkriveLås(behandling));
         BehandleStegResultat behandleStegResultat = fastsettUttaksgrunnlagOgVurderSøknadsfristSteg.utførSteg(kontekst);
-        repository.flushAndClear();
-
+        em.flush();
+        em.clear();
         // Assert
         assertThat(behandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
         assertThat(behandleStegResultat.getAksjonspunktListe()).hasSize(0);
@@ -97,20 +94,23 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest {
     }
 
     @Test
-    public void aksjonspunkt_når_søkt_for_sent() {
+    public void aksjonspunkt_når_søkt_for_sent(EntityManager em) {
         var jordsmorsdato = LocalDate.of(2019, Month.MAY, 5);
         var mottatdato = LocalDate.of(2019, Month.SEPTEMBER, 3);
         svpHelper.lagreTerminbekreftelse(behandling, LocalDate.of(2019, Month.JULY, 1));
         svpHelper.lagreIngenTilrettelegging(behandling, jordsmorsdato);
         var søknad = opprettSøknad(jordsmorsdato, mottatdato);
         repositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
-        repository.flushAndClear();
+        em.flush();
+        em.clear();
         var fagsak = behandling.getFagsak();
 
         // Act
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), behandlingRepository.taSkriveLås(behandling));
+        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
+                behandlingRepository.taSkriveLås(behandling));
         BehandleStegResultat behandleStegResultat = fastsettUttaksgrunnlagOgVurderSøknadsfristSteg.utførSteg(kontekst);
-        repository.flushAndClear();
+        em.flush();
+        em.clear();
 
         // Assert
         assertThat(behandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
@@ -126,15 +126,15 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest {
 
     private SøknadEntitet opprettSøknad(LocalDate fødselsdato, LocalDate mottattDato) {
         final FamilieHendelseBuilder søknadHendelse = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(behandling)
-            .medAntallBarn(1)
-            .medFødselsDato(fødselsdato);
+                .medAntallBarn(1)
+                .medFødselsDato(fødselsdato);
         repositoryProvider.getFamilieHendelseRepository().lagre(behandling, søknadHendelse);
 
-                return new SøknadEntitet.Builder()
-            .medSøknadsdato(LocalDate.now())
-            .medMottattDato(mottattDato)
-            .medElektroniskRegistrert(true)
-            .build();
+        return new SøknadEntitet.Builder()
+                .medSøknadsdato(LocalDate.now())
+                .medMottattDato(mottattDato)
+                .medElektroniskRegistrert(true)
+                .build();
     }
 
 }

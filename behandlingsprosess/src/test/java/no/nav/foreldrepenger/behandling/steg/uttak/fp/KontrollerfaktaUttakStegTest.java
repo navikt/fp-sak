@@ -9,10 +9,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
@@ -38,23 +36,20 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioF
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonAdresse;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.kontroller.fakta.KontrollerFaktaUttakTjeneste;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class KontrollerfaktaUttakStegTest {
 
     private static AktørId FAR_AKTØR_ID = AktørId.dummy();
 
-    @Rule
-    public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
-
     private Behandling behandling;
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
-    private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
+    @Inject
+    private BehandlingRepositoryProvider repositoryProvider;
+    @Inject
+    private BehandlingRepository behandlingRepository;
 
     @Inject
     private RyddFaktaUttakTjenesteFørstegangsbehandling ryddKontrollerFaktaUttakTjeneste;
@@ -75,10 +70,10 @@ public class KontrollerfaktaUttakStegTest {
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
 
         PersonInformasjon personInformasjon = scenario
-            .opprettBuilderForRegisteropplysninger()
-            .medPersonas()
-            .mann(FAR_AKTØR_ID, SivilstandType.SAMBOER).statsborgerskap(Landkoder.NOR)
-            .build();
+                .opprettBuilderForRegisteropplysninger()
+                .medPersonas()
+                .mann(FAR_AKTØR_ID, SivilstandType.SAMBOER).statsborgerskap(Landkoder.NOR)
+                .build();
 
         scenario.medRegisterOpplysninger(personInformasjon);
 
@@ -86,13 +81,13 @@ public class KontrollerfaktaUttakStegTest {
         scenario.medOppgittRettighet(rettighet);
         LocalDate now = LocalDate.now();
         scenario.medFordeling(new OppgittFordelingEntitet(Collections.singletonList(OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
-            .medPeriode(now.plusWeeks(8), now.plusWeeks(12))
-            .build()), true));
+                .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
+                .medPeriode(now.plusWeeks(8), now.plusWeeks(12))
+                .build()), true));
         return scenario;
     }
 
-    @Before
+    @BeforeEach
     public void oppsett() {
         var scenario = opprettBehandlingForFarSomSøker();
         behandling = scenario.lagre(repositoryProvider);
@@ -103,7 +98,7 @@ public class KontrollerfaktaUttakStegTest {
     public void utførerMedAksjonspunktFaktaForOmsorg() {
         Fagsak fagsak = behandling.getFagsak();
         BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(),fagsak.getAktørId(), lås);
+        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
 
         BehandleStegResultat behandleStegResultat = steg.utførSteg(kontekst);
         assertThat(behandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
@@ -138,40 +133,41 @@ public class KontrollerfaktaUttakStegTest {
         var bostedsadresse = PersonAdresse.builder().adresselinje1("Portveien 2").postnummer("7000").land(Landkoder.NOR);
 
         PersonInformasjon annenPrt = builderForRegisteropplysninger
-            .medPersonas()
-            .mann(AKTØR_ID_FAR, SivilstandType.GIFT)
-            .bostedsadresse(bostedsadresse)
-            .relasjonTil(AKTØR_ID_MOR, RelasjonsRolleType.EKTE, true)
-            .build();
+                .medPersonas()
+                .mann(AKTØR_ID_FAR, SivilstandType.GIFT)
+                .bostedsadresse(bostedsadresse)
+                .relasjonTil(AKTØR_ID_MOR, RelasjonsRolleType.EKTE, true)
+                .build();
         scenario.medRegisterOpplysninger(annenPrt);
 
         PersonInformasjon søker = builderForRegisteropplysninger
-            .medPersonas()
-            .kvinne(AKTØR_ID_MOR, SivilstandType.GIFT, Region.NORDEN)
-            .bostedsadresse(bostedsadresse)
-            .statsborgerskap(Landkoder.NOR)
-            .relasjonTil(AKTØR_ID_FAR, RelasjonsRolleType.EKTE, true)
-            .build();
+                .medPersonas()
+                .kvinne(AKTØR_ID_MOR, SivilstandType.GIFT, Region.NORDEN)
+                .bostedsadresse(bostedsadresse)
+                .statsborgerskap(Landkoder.NOR)
+                .relasjonTil(AKTØR_ID_FAR, RelasjonsRolleType.EKTE, true)
+                .build();
 
         scenario.medRegisterOpplysninger(søker);
 
         scenario.medSøknadAnnenPart()
-            .medAktørId(AKTØR_ID_FAR);
+                .medAktørId(AKTØR_ID_FAR);
 
         scenario.medSøknad();
         scenario.medOppgittRettighet(rettighet);
         var hendelseBuilder = scenario.medSøknadHendelse();
         LocalDate termindato = LocalDate.now().plusDays(35);
         hendelseBuilder.medTerminbekreftelse(hendelseBuilder.getTerminbekreftelseBuilder()
-            .medNavnPå("asdf")
-            .medUtstedtDato(LocalDate.now())
-            .medTermindato(termindato));
+                .medNavnPå("asdf")
+                .medUtstedtDato(LocalDate.now())
+                .medTermindato(termindato));
 
         scenario.medFordeling(new OppgittFordelingEntitet(Collections.singletonList(
-            OppgittPeriodeBuilder.ny()
-                .medPeriode(termindato, termindato.plusWeeks(6))
-                .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-                .build()), true));
+                OppgittPeriodeBuilder.ny()
+                        .medPeriode(termindato, termindato.plusWeeks(6))
+                        .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+                        .build()),
+                true));
 
         behandling = scenario.lagre(repositoryProvider);
         return behandling;

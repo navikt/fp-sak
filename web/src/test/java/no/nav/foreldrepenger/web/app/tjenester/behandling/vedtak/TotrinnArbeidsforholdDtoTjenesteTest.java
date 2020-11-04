@@ -2,21 +2,17 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak;
 
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -26,7 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractT
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
@@ -41,20 +37,16 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.Totrinnsvurdering;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.app.TotrinnArbeidsforholdDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.dto.TotrinnsArbeidsforholdDto;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
-import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class TotrinnArbeidsforholdDtoTjenesteTest {
 
     private static final InternArbeidsforholdRef ARBEIDSFORHOLD_ID = InternArbeidsforholdRef.namedRef("TEST-REF");
     private static final String ORGNR = KUNSTIG_ORG;
     private static final String PRIVATPERSON_NAVN = "Mikke Mus";
 
-    @Rule
-    public final RepositoryRule repoRule = new UnittestRepositoryRule();
-    private final EntityManager entityManager = repoRule.getEntityManager();
-    private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+    @Inject
+    private BehandlingRepositoryProvider repositoryProvider;
 
     @Inject
     private InntektArbeidYtelseTjeneste iayTjeneste;
@@ -67,18 +59,18 @@ public class TotrinnArbeidsforholdDtoTjenesteTest {
     private Behandling behandling;
     private Totrinnsvurdering vurdering;
 
-    @Before
+    @BeforeEach
     public void setup() {
-        initMocks(this);
         ArbeidsgiverTjeneste arbeidsgiverTjeneste = mock(ArbeidsgiverTjeneste.class);
-        when(arbeidsgiverTjeneste.hent(Mockito.any())).thenReturn(new ArbeidsgiverOpplysninger(null, PRIVATPERSON_NAVN));
-        when(arbeidsgiverTjeneste.hentVirksomhet(Mockito.any())).thenReturn(virksomhet);
+        lenient().when(arbeidsgiverTjeneste.hent(Mockito.any())).thenReturn(new ArbeidsgiverOpplysninger(null, PRIVATPERSON_NAVN));
+        lenient().when(arbeidsgiverTjeneste.hentVirksomhet(Mockito.any())).thenReturn(virksomhet);
         totrinnArbeidsforholdDtoTjeneste = new TotrinnArbeidsforholdDtoTjeneste(iayTjeneste, arbeidsgiverTjeneste);
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = lagre(scenario);
         Totrinnsvurdering.Builder vurderingBuilder = new Totrinnsvurdering.Builder(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
         vurdering = vurderingBuilder.medGodkjent(true).medBegrunnelse("").build();
     }
+
     private Behandling lagre(AbstractTestScenario<?> scenario) {
         return scenario.lagre(repositoryProvider);
     }
@@ -100,7 +92,8 @@ public class TotrinnArbeidsforholdDtoTjenesteTest {
     @Test
     public void skal_opprette_arbeidsforholdDto_for_privatperson_som_arbeidsgiver_med_bekreftet_permisjon_med_status_IKKE_BRUK_PERMISJON() {
         // Arrange
-        BekreftetPermisjon bekreftetPermisjon = new BekreftetPermisjon(LocalDate.now(), LocalDate.now(), BekreftetPermisjonStatus.IKKE_BRUK_PERMISJON);
+        BekreftetPermisjon bekreftetPermisjon = new BekreftetPermisjon(LocalDate.now(), LocalDate.now(),
+                BekreftetPermisjonStatus.IKKE_BRUK_PERMISJON);
         opprettArbeidsforholdInformasjon(Arbeidsgiver.person(AktørId.dummy()), Optional.of(bekreftetPermisjon));
         // Act
         List<TotrinnsArbeidsforholdDto> dtoer = totrinnArbeidsforholdDtoTjeneste.hentArbeidsforhold(behandling, vurdering, Optional.empty());
@@ -147,10 +140,10 @@ public class TotrinnArbeidsforholdDtoTjenesteTest {
 
     private Virksomhet getVirksomheten() {
         return new Virksomhet.Builder()
-            .medOrgnr(ORGNR)
-            .medNavn("Virksomheten")
-            .medRegistrert(LocalDate.now().minusYears(2L))
-            .medOppstart(LocalDate.now().minusYears(1L))
-            .build();
+                .medOrgnr(ORGNR)
+                .medNavn("Virksomheten")
+                .medRegistrert(LocalDate.now().minusYears(2L))
+                .medOppstart(LocalDate.now().minusYears(1L))
+                .build();
     }
 }

@@ -11,10 +11,8 @@ import java.util.Optional;
 import javax.enterprise.inject.Any;
 import javax.inject.Inject;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
@@ -49,42 +47,41 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopp
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.Personstatus;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.Statsborgerskap;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class KontrollerFaktaRevurderingStegImplTest {
 
-    @Rule
-    public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
-
     private Behandling behandling;
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
-    private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
+    @Inject
+    private BehandlingRepositoryProvider repositoryProvider;
+    @Inject
+    private BehandlingRepository behandlingRepository;
     private PersonInformasjon.Builder personopplysningBuilder;
 
-    @Inject @Any
+    @Inject
+    @Any
     private KontrollerFaktaRevurderingStegImpl steg;
 
-    @Before
+    @BeforeEach
     public void oppsett() {
         LocalDate fødselsdato = LocalDate.now().minusYears(20);
         AktørId aktørId = AktørId.dummy();
 
         ScenarioMorSøkerForeldrepenger førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
-            .medBehandlingStegStart(BehandlingStegType.KONTROLLER_FAKTA);
+                .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
+                .medBehandlingStegStart(BehandlingStegType.KONTROLLER_FAKTA);
 
         førstegangScenario.medDefaultOppgittTilknytning();
 
         AktørId søkerAktørId = førstegangScenario.getDefaultBrukerAktørId();
 
         PersonInformasjon personInformasjon = førstegangScenario
-            .opprettBuilderForRegisteropplysninger()
-            .medPersonas()
-            .kvinne(søkerAktørId, SivilstandType.SAMBOER).statsborgerskap(Landkoder.USA)
-            .build();
+                .opprettBuilderForRegisteropplysninger()
+                .medPersonas()
+                .kvinne(søkerAktørId, SivilstandType.SAMBOER).statsborgerskap(Landkoder.USA)
+                .build();
 
         førstegangScenario.medRegisterOpplysninger(personInformasjon);
 
@@ -92,28 +89,27 @@ public class KontrollerFaktaRevurderingStegImplTest {
 
         personopplysningBuilder = førstegangScenario.opprettBuilderForRegisteropplysninger();
         personopplysningBuilder.leggTilPersonopplysninger(
-            Personopplysning.builder().aktørId(aktørId).sivilstand(SivilstandType.GIFT)
-                .fødselsdato(fødselsdato).brukerKjønn(NavBrukerKjønn.KVINNE).navn("Marie Curie")
-                .region(Region.UDEFINERT)
-        ).leggTilAdresser(
-            PersonAdresse.builder()
-                .adresselinje1("dsffsd 13").aktørId(aktørId).land("USA")
-                .adresseType(AdresseType.POSTADRESSE_UTLAND)
-                .periode(fødselsdato, LocalDate.now())
-        ).leggTilPersonstatus(
-            Personstatus.builder().aktørId(aktørId).personstatus(PersonstatusType.UTVA)
-                .periode(fødselsdato, LocalDate.now())
-        ).leggTilStatsborgerskap(
-            Statsborgerskap.builder().aktørId(aktørId)
-                .periode(fødselsdato, LocalDate.now())
-                .region(Region.UDEFINERT)
-                .statsborgerskap(Landkoder.USA)
-        );
+                Personopplysning.builder().aktørId(aktørId).sivilstand(SivilstandType.GIFT)
+                        .fødselsdato(fødselsdato).brukerKjønn(NavBrukerKjønn.KVINNE).navn("Marie Curie")
+                        .region(Region.UDEFINERT))
+                .leggTilAdresser(
+                        PersonAdresse.builder()
+                                .adresselinje1("dsffsd 13").aktørId(aktørId).land("USA")
+                                .adresseType(AdresseType.POSTADRESSE_UTLAND)
+                                .periode(fødselsdato, LocalDate.now()))
+                .leggTilPersonstatus(
+                        Personstatus.builder().aktørId(aktørId).personstatus(PersonstatusType.UTVA)
+                                .periode(fødselsdato, LocalDate.now()))
+                .leggTilStatsborgerskap(
+                        Statsborgerskap.builder().aktørId(aktørId)
+                                .periode(fødselsdato, LocalDate.now())
+                                .region(Region.UDEFINERT)
+                                .statsborgerskap(Landkoder.USA));
 
         førstegangScenario.medRegisterOpplysninger(personopplysningBuilder.build());
         AvklarteUttakDatoerEntitet avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder()
-            .medFørsteUttaksdato(LocalDate.now())
-            .build();
+                .medFørsteUttaksdato(LocalDate.now())
+                .build();
         førstegangScenario.medAvklarteUttakDatoer(avklarteUttakDatoer);
 
         Behandling originalBehandling = førstegangScenario.lagre(repositoryProvider);
@@ -121,32 +117,33 @@ public class KontrollerFaktaRevurderingStegImplTest {
         BehandlingLås lås = behandlingRepository.taSkriveLås(originalBehandling);
         behandlingRepository.lagre(originalBehandling, lås);
         Uttaksperiodegrense uttaksperiodegrense = new Uttaksperiodegrense.Builder(originalBehandling.getBehandlingsresultat())
-            .medFørsteLovligeUttaksdag(LocalDate.now())
-            .medMottattDato(LocalDate.now())
-            .build();
+                .medFørsteLovligeUttaksdag(LocalDate.now())
+                .medMottattDato(LocalDate.now())
+                .build();
         repositoryProvider.getUttaksperiodegrenseRepository().lagre(originalBehandling.getId(), uttaksperiodegrense);
         // Legg til Opptjeningsperidoe -> dessverre ikke tilgjengelig i scenariobygger
-        repositoryProvider.getOpptjeningRepository().lagreOpptjeningsperiode(originalBehandling, LocalDate.now().minusYears(1), LocalDate.now(), false);
-        //Legg til fordelingsperiode
+        repositoryProvider.getOpptjeningRepository().lagreOpptjeningsperiode(originalBehandling, LocalDate.now().minusYears(1), LocalDate.now(),
+                false);
+        // Legg til fordelingsperiode
         OppgittPeriodeEntitet foreldrepenger = OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .medPeriode(LocalDate.now(), LocalDate.now().plusWeeks(20))
-            .build();
+                .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+                .medPeriode(LocalDate.now(), LocalDate.now().plusWeeks(20))
+                .build();
         OppgittFordelingEntitet fordeling = new OppgittFordelingEntitet(Collections.singletonList(foreldrepenger), true);
         Long orgBehandlingId = originalBehandling.getId();
         repositoryProvider.getYtelsesFordelingRepository().lagre(orgBehandlingId, fordeling);
 
         ScenarioMorSøkerForeldrepenger revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.REVURDERING)
-            .medRegisterOpplysninger(personopplysningBuilder.build())
-            .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_MANGLER_FØDSEL);
+                .medBehandlingType(BehandlingType.REVURDERING)
+                .medRegisterOpplysninger(personopplysningBuilder.build())
+                .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_MANGLER_FØDSEL);
         revurderingScenario.medDefaultOppgittTilknytning();
 
         revurderingScenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now()).build());
 
         revurderingScenario.medSøknadHendelse().medFødselsDato(LocalDate.now().minusDays(10));
         behandling = revurderingScenario.lagre(repositoryProvider);
-        //kopierer ytelsefordeling grunnlag
+        // kopierer ytelsefordeling grunnlag
         repositoryProvider.getYtelsesFordelingRepository().kopierGrunnlagFraEksisterendeBehandling(originalBehandling.getId(), behandling.getId());
 
         // Nødvendig å sette aktivt steg for KOFAK revurdering
@@ -160,7 +157,7 @@ public class KontrollerFaktaRevurderingStegImplTest {
         Fagsak fagsak = behandling.getFagsak();
         // Arrange
         BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(),fagsak.getAktørId(), lås);
+        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
         behandling.setStartpunkt(StartpunktType.UTTAKSVILKÅR);
 
         // Act
@@ -175,14 +172,15 @@ public class KontrollerFaktaRevurderingStegImplTest {
         Fagsak fagsak = behandling.getFagsak();
         // Arrange
         BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(),fagsak.getAktørId(), lås);
+        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
 
         // Act
         List<AksjonspunktDefinisjon> aksjonspunkter = steg.utførSteg(kontekst).getAksjonspunktListe();
 
         // Assert
         assertThat(aksjonspunkter).contains(AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD);
-        // Må verifisere at startpunkt er før aksjonpunktet for at assert ovenfor skal ha mening
+        // Må verifisere at startpunkt er før aksjonpunktet for at assert ovenfor skal
+        // ha mening
         assertThat(behandling.getStartpunkt()).isEqualTo(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
     }
 
@@ -192,11 +190,12 @@ public class KontrollerFaktaRevurderingStegImplTest {
         Fagsak fagsak = behandling.getFagsak();
         // Arrange
         BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(),fagsak.getAktørId(), lås);
+        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
 
         // Act
         steg.utførSteg(kontekst).getAksjonspunktListe();
-        Optional<YtelseFordelingAggregat> ytelseFordelingAggregat = repositoryProvider.getYtelsesFordelingRepository().hentAggregatHvisEksisterer(behandling.getId());
+        Optional<YtelseFordelingAggregat> ytelseFordelingAggregat = repositoryProvider.getYtelsesFordelingRepository()
+                .hentAggregatHvisEksisterer(behandling.getId());
         assertThat(ytelseFordelingAggregat).isPresent();
         YtelseFordelingAggregat aggregat = ytelseFordelingAggregat.get();
         assertThat(aggregat.getOppgittFordeling()).isNotNull();
@@ -214,9 +213,9 @@ public class KontrollerFaktaRevurderingStegImplTest {
         Behandling originalBehandling = opprettFørstegangsbehandling(behandlingsresultat);
 
         ScenarioMorSøkerForeldrepenger revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.REVURDERING)
-            .medRegisterOpplysninger(personopplysningBuilder.build())
-            .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_OPPLYSNINGER_OM_SØKERS_REL);
+                .medBehandlingType(BehandlingType.REVURDERING)
+                .medRegisterOpplysninger(personopplysningBuilder.build())
+                .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_OPPLYSNINGER_OM_SØKERS_REL);
 
         revurderingScenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now()).build());
         revurderingScenario.medDefaultOppgittTilknytning();
@@ -225,11 +224,11 @@ public class KontrollerFaktaRevurderingStegImplTest {
         repositoryProvider.getFamilieHendelseRepository().kopierGrunnlagFraEksisterendeBehandling(originalBehandling.getId(), revurdering.getId());
         BehandlingÅrsak.Builder builder = BehandlingÅrsak.builder(Collections.singletonList(BehandlingÅrsakType.RE_OPPLYSNINGER_OM_SØKERS_REL));
         revurdering.getBehandlingÅrsaker().add(builder.medManueltOpprettet(true).buildFor(revurdering).get(0));
-        //Legg til fordelingsperiode
+        // Legg til fordelingsperiode
         OppgittPeriodeEntitet foreldrepenger = OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .medPeriode(fom, tom)
-            .build();
+                .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+                .medPeriode(fom, tom)
+                .build();
         OppgittFordelingEntitet fordeling = new OppgittFordelingEntitet(Collections.singletonList(foreldrepenger), true);
         repositoryProvider.getYtelsesFordelingRepository().lagre(revurdering.getId(), fordeling);
 
@@ -241,11 +240,12 @@ public class KontrollerFaktaRevurderingStegImplTest {
         Fagsak fagsak = revurdering.getFagsak();
         // Arrange
         BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(),fagsak.getAktørId(), lås);
+        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
 
         // Act
         steg.utførSteg(kontekst).getAksjonspunktListe();
-        Optional<YtelseFordelingAggregat> ytelseFordelingAggregat = repositoryProvider.getYtelsesFordelingRepository().hentAggregatHvisEksisterer(revurdering.getId());
+        Optional<YtelseFordelingAggregat> ytelseFordelingAggregat = repositoryProvider.getYtelsesFordelingRepository()
+                .hentAggregatHvisEksisterer(revurdering.getId());
         assertThat(ytelseFordelingAggregat).isPresent();
         YtelseFordelingAggregat aggregat = ytelseFordelingAggregat.get();
         assertThat(aggregat.getOppgittFordeling()).isNotNull();
@@ -266,11 +266,12 @@ public class KontrollerFaktaRevurderingStegImplTest {
         Fagsak fagsak = revurdering.getFagsak();
         // Arrange
         BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(),fagsak.getAktørId(), lås);
+        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
 
         // Act
         steg.utførSteg(kontekst).getAksjonspunktListe();
-        Optional<YtelseFordelingAggregat> ytelseFordelingAggregat = repositoryProvider.getYtelsesFordelingRepository().hentAggregatHvisEksisterer(revurdering.getId());
+        Optional<YtelseFordelingAggregat> ytelseFordelingAggregat = repositoryProvider.getYtelsesFordelingRepository()
+                .hentAggregatHvisEksisterer(revurdering.getId());
         assertThat(ytelseFordelingAggregat).isPresent();
         YtelseFordelingAggregat aggregat = ytelseFordelingAggregat.get();
         assertThat(aggregat.getOppgittFordeling()).isNotNull();
@@ -282,22 +283,23 @@ public class KontrollerFaktaRevurderingStegImplTest {
     }
 
     private Behandling opprettRevurderingPgaEndringsSøknad(Behandling originalBehandling, LocalDate fom, LocalDate tom) {
-        repositoryProvider.getOpptjeningRepository().lagreOpptjeningsperiode(originalBehandling, LocalDate.now().minusYears(1), LocalDate.now(), false);
+        repositoryProvider.getOpptjeningRepository().lagreOpptjeningsperiode(originalBehandling, LocalDate.now().minusYears(1), LocalDate.now(),
+                false);
 
         ScenarioMorSøkerForeldrepenger revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.REVURDERING)
-            .medRegisterOpplysninger(personopplysningBuilder.build())
-            .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
+                .medBehandlingType(BehandlingType.REVURDERING)
+                .medRegisterOpplysninger(personopplysningBuilder.build())
+                .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
         revurderingScenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now()).build());
         revurderingScenario.medDefaultOppgittTilknytning();
 
         revurderingScenario.medSøknadHendelse().medFødselsDato(LocalDate.now().minusDays(10));
         Behandling revurdering = revurderingScenario.lagre(repositoryProvider);
-        //Legg til fordelingsperiode
+        // Legg til fordelingsperiode
         OppgittPeriodeEntitet foreldrepenger = OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .medPeriode(fom, tom)
-            .build();
+                .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+                .medPeriode(fom, tom)
+                .build();
         OppgittFordelingEntitet fordeling = new OppgittFordelingEntitet(Collections.singletonList(foreldrepenger), true);
         repositoryProvider.getYtelsesFordelingRepository().lagre(revurdering.getId(), fordeling);
 
@@ -315,7 +317,7 @@ public class KontrollerFaktaRevurderingStegImplTest {
         Behandling revurdering = opprettRevurderingPgaBerørtBehandling();
         Fagsak fagsak = revurdering.getFagsak();
         BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(),fagsak.getAktørId(), lås);
+        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
 
         // Act
         steg.utførSteg(kontekst).getAksjonspunktListe();
@@ -338,7 +340,7 @@ public class KontrollerFaktaRevurderingStegImplTest {
 
         Fagsak fagsak = behandling.getFagsak();
         BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(),fagsak.getAktørId(), lås);
+        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
 
         // Act
         steg.utførSteg(kontekst).getAksjonspunktListe();
@@ -350,12 +352,13 @@ public class KontrollerFaktaRevurderingStegImplTest {
 
     private Behandling opprettRevurderingPgaBerørtBehandling() {
         var førstegangsbehandling = opprettFørstegangsbehandling(new Behandlingsresultat.Builder());
-        repositoryProvider.getOpptjeningRepository().lagreOpptjeningsperiode(førstegangsbehandling, LocalDate.now().minusYears(1), LocalDate.now(), false);
+        repositoryProvider.getOpptjeningRepository().lagreOpptjeningsperiode(førstegangsbehandling, LocalDate.now().minusYears(1), LocalDate.now(),
+                false);
 
         ScenarioMorSøkerForeldrepenger revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.REVURDERING)
-            .medRegisterOpplysninger(personopplysningBuilder.build())
-            .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.BERØRT_BEHANDLING);
+                .medBehandlingType(BehandlingType.REVURDERING)
+                .medRegisterOpplysninger(personopplysningBuilder.build())
+                .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.BERØRT_BEHANDLING);
         revurderingScenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now()).build());
         revurderingScenario.medDefaultOppgittTilknytning();
 
@@ -377,17 +380,17 @@ public class KontrollerFaktaRevurderingStegImplTest {
         AktørId aktørId = AktørId.dummy();
 
         ScenarioMorSøkerForeldrepenger førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
-            .medBehandlingsresultat(behandlingsresultat)
-            .medBehandlingStegStart(BehandlingStegType.KONTROLLER_FAKTA);
+                .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
+                .medBehandlingsresultat(behandlingsresultat)
+                .medBehandlingStegStart(BehandlingStegType.KONTROLLER_FAKTA);
 
         AktørId søkerAktørId = førstegangScenario.getDefaultBrukerAktørId();
 
         PersonInformasjon personInformasjon = førstegangScenario
-            .opprettBuilderForRegisteropplysninger()
-            .medPersonas()
-            .kvinne(søkerAktørId, SivilstandType.SAMBOER).statsborgerskap(Landkoder.USA)
-            .build();
+                .opprettBuilderForRegisteropplysninger()
+                .medPersonas()
+                .kvinne(søkerAktørId, SivilstandType.SAMBOER).statsborgerskap(Landkoder.USA)
+                .build();
 
         førstegangScenario.medRegisterOpplysninger(personInformasjon);
 
@@ -395,23 +398,22 @@ public class KontrollerFaktaRevurderingStegImplTest {
 
         personopplysningBuilder = førstegangScenario.opprettBuilderForRegisteropplysninger();
         personopplysningBuilder.leggTilPersonopplysninger(
-            Personopplysning.builder().aktørId(aktørId).sivilstand(SivilstandType.GIFT)
-                .fødselsdato(fødselsdato).brukerKjønn(NavBrukerKjønn.KVINNE).navn("Marie Curie")
-                .region(Region.UDEFINERT)
-        ).leggTilAdresser(
-            PersonAdresse.builder()
-                .adresselinje1("dsffsd 13").aktørId(aktørId).land("USA")
-                .adresseType(AdresseType.POSTADRESSE_UTLAND)
-                .periode(fødselsdato, LocalDate.now())
-        ).leggTilPersonstatus(
-            Personstatus.builder().aktørId(aktørId).personstatus(PersonstatusType.UTVA)
-                .periode(fødselsdato, LocalDate.now())
-        ).leggTilStatsborgerskap(
-            Statsborgerskap.builder().aktørId(aktørId)
-                .periode(fødselsdato, LocalDate.now())
-                .region(Region.UDEFINERT)
-                .statsborgerskap(Landkoder.USA)
-        );
+                Personopplysning.builder().aktørId(aktørId).sivilstand(SivilstandType.GIFT)
+                        .fødselsdato(fødselsdato).brukerKjønn(NavBrukerKjønn.KVINNE).navn("Marie Curie")
+                        .region(Region.UDEFINERT))
+                .leggTilAdresser(
+                        PersonAdresse.builder()
+                                .adresselinje1("dsffsd 13").aktørId(aktørId).land("USA")
+                                .adresseType(AdresseType.POSTADRESSE_UTLAND)
+                                .periode(fødselsdato, LocalDate.now()))
+                .leggTilPersonstatus(
+                        Personstatus.builder().aktørId(aktørId).personstatus(PersonstatusType.UTVA)
+                                .periode(fødselsdato, LocalDate.now()))
+                .leggTilStatsborgerskap(
+                        Statsborgerskap.builder().aktørId(aktørId)
+                                .periode(fødselsdato, LocalDate.now())
+                                .region(Region.UDEFINERT)
+                                .statsborgerskap(Landkoder.USA));
 
         førstegangScenario.medRegisterOpplysninger(personopplysningBuilder.build());
         førstegangScenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now()).build());
