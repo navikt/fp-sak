@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandling.steg.avklarfakta.es;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -15,7 +14,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.steg.avklarfakta.KontrollerFaktaSteg;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
@@ -55,8 +53,6 @@ public class KontrollerFaktaStegImplTest {
     @Inject
     private BehandlingRepository behandlingRepository;
 
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-
     private KontrollerFaktaSteg steg;
 
     private ScenarioFarSøkerEngangsstønad byggBehandlingMedFarSøkerType(FarSøkerType farSøkerType) {
@@ -77,8 +73,8 @@ public class KontrollerFaktaStegImplTest {
 
     @BeforeEach
     public void oppsett() {
-        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
-                new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
+        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
+            new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
         ScenarioFarSøkerEngangsstønad scenario = byggBehandlingMedFarSøkerType(FarSøkerType.ADOPTERER_ALENE);
         scenario.medBruker(AktørId.dummy(), NavBrukerKjønn.MANN);
         behandling = scenario.lagre(repositoryProvider);
@@ -94,8 +90,6 @@ public class KontrollerFaktaStegImplTest {
         BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
 
         BehandlingStegModell stegModellMock = mock(BehandlingStegModell.class);
-        BehandlingModell modellmock = mock(BehandlingModell.class);
-        when(stegModellMock.getBehandlingModell()).thenReturn(modellmock);
 
         // Act
         steg.vedTransisjon(kontekst, stegModellMock, BehandlingSteg.TransisjonType.HOPP_OVER_BAKOVER, null, null);
