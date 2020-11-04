@@ -6,19 +6,25 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.junit.Rule;
-import org.junit.Test;
+import javax.persistence.EntityManager;
 
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
-public class SatsTypeTest {
+public class SatsTypeTest extends EntityManagerAwareTest {
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private final Repository repository = repoRule.getRepository();
-    private final BeregningsresultatRepository beregningRepository = new BeregningsresultatRepository(repoRule.getEntityManager());
+    private Repository repository;
+    private BeregningsresultatRepository beregningRepository;
+
+    @BeforeEach
+    void setUp(EntityManager entityManager) {
+        repository = new Repository(entityManager);
+        beregningRepository = new BeregningsresultatRepository(entityManager);
+    }
 
     @Test
     public void skal_teste_verdier_for_sats_gbeløp_og_gsnitt() {

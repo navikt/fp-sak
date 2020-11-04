@@ -3,38 +3,35 @@ package no.nav.foreldrepenger.mottak.vedtak.overlapp;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.MockitoAnnotations.initMocks;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
-public class VurderOpphørAvYtelserTaskTest {
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-    private BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
+public class VurderOpphørAvYtelserTaskTest extends EntityManagerAwareTest {
+
+    private BehandlingRepositoryProvider repositoryProvider;
 
     private VurderOpphørAvYtelserTask vurderOpphørAvYtelserTask;
-    private LoggOverlappEksterneYtelserTjeneste identifiserOverlappendeInfotrygdYtelser = Mockito.mock(LoggOverlappEksterneYtelserTjeneste.class);
-    private VurderOpphørAvYtelser vurderOpphørAvYtelser = Mockito.mock(VurderOpphørAvYtelser.class);
+    private final LoggOverlappEksterneYtelserTjeneste identifiserOverlappendeInfotrygdYtelser = Mockito.mock(
+        LoggOverlappEksterneYtelserTjeneste.class);
+    private final VurderOpphørAvYtelser vurderOpphørAvYtelser = Mockito.mock(VurderOpphørAvYtelser.class);
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        initMocks(this);
-        vurderOpphørAvYtelserTask = new VurderOpphørAvYtelserTask(vurderOpphørAvYtelser, identifiserOverlappendeInfotrygdYtelser, repositoryProvider );
+        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
+        vurderOpphørAvYtelserTask = new VurderOpphørAvYtelserTask(vurderOpphørAvYtelser,
+            identifiserOverlappendeInfotrygdYtelser, repositoryProvider);
     }
 
     @Test
@@ -46,8 +43,10 @@ public class VurderOpphørAvYtelserTaskTest {
 
         vurderOpphørAvYtelserTask.doTask(prosessTaskData);
 
-        verify(identifiserOverlappendeInfotrygdYtelser, times(1)).loggOverlappForVedtakFPSAK(behandling.getId(), behandling.getFagsak().getSaksnummer(), behandling.getAktørId());
-        verify(vurderOpphørAvYtelser, times(1)).vurderOpphørAvYtelser(behandling.getFagsak().getId(), behandling.getId());
+        verify(identifiserOverlappendeInfotrygdYtelser, times(1)).loggOverlappForVedtakFPSAK(behandling.getId(),
+            behandling.getFagsak().getSaksnummer(), behandling.getAktørId());
+        verify(vurderOpphørAvYtelser, times(1)).vurderOpphørAvYtelser(behandling.getFagsak().getId(),
+            behandling.getId());
     }
 
     @Test
@@ -59,15 +58,18 @@ public class VurderOpphørAvYtelserTaskTest {
 
         vurderOpphørAvYtelserTask.doTask(prosessTaskData);
 
-        verify(identifiserOverlappendeInfotrygdYtelser, times(1)).loggOverlappForVedtakFPSAK(behandling.getId(), behandling.getFagsak().getSaksnummer(), behandling.getAktørId());
-        verify(vurderOpphørAvYtelser, times(0)).vurderOpphørAvYtelser(behandling.getFagsak().getId(), behandling.getId());
+        verify(identifiserOverlappendeInfotrygdYtelser, times(1)).loggOverlappForVedtakFPSAK(behandling.getId(),
+            behandling.getFagsak().getSaksnummer(), behandling.getAktørId());
+        verify(vurderOpphørAvYtelser, times(0)).vurderOpphørAvYtelser(behandling.getFagsak().getId(),
+            behandling.getId());
     }
 
     public Behandling lagBehandlingFP(BehandlingType behandlingType) {
         ScenarioMorSøkerForeldrepenger scenarioFP;
         scenarioFP = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenarioFP.medBehandlingType(behandlingType);
-        scenarioFP.medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
+        scenarioFP.medBehandlingsresultat(
+            Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         scenarioFP.medVilkårResultatType(VilkårResultatType.INNVILGET);
 
         Behandling behandling = scenarioFP.lagre(repositoryProvider);

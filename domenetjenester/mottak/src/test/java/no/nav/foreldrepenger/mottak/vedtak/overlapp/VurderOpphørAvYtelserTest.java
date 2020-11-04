@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -15,16 +14,14 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.persistence.EntityManager;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -49,7 +46,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioF
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.KøKontroller;
@@ -61,7 +58,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEventPubliserer;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 
-public class VurderOpphørAvYtelserTest {
+@ExtendWith(MockitoExtension.class)
+public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
     private static final LocalDate FØDSELS_DATO_1 = VirkedagUtil.fomVirkedag(LocalDate.now().minusMonths(2));
     private static final LocalDate SISTE_DAG_MOR = FØDSELS_DATO_1.plusWeeks(6);
@@ -78,33 +76,29 @@ public class VurderOpphørAvYtelserTest {
     private static final AktørId MEDF_AKTØR_ID = AktørId.dummy();
 
     private VurderOpphørAvYtelser vurderOpphørAvYtelser;
-    private OverlappFPInfotrygdTjeneste sjekkInfotrygdTjeneste = mock(OverlappFPInfotrygdTjeneste.class);
+    private final OverlappFPInfotrygdTjeneste sjekkInfotrygdTjeneste = mock(OverlappFPInfotrygdTjeneste.class);
 
-
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private final EntityManager entityManager = repoRule.getEntityManager();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-    private FagsakRepository fagsakRepository = repositoryProvider.getFagsakRepository();
-    private BeregningsresultatRepository beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
-    private ProsessTaskEventPubliserer eventPubliserer = Mockito.mock(ProsessTaskEventPubliserer.class);
-    private ProsessTaskRepository prosessTaskRepository = new ProsessTaskRepositoryImpl(entityManager, null, eventPubliserer);
-    private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste = Mockito.mock(BehandlendeEnhetTjeneste.class);
+    private BehandlingRepositoryProvider repositoryProvider;
+    private FagsakRepository fagsakRepository;
+    private BeregningsresultatRepository beregningsresultatRepository;
+    private final ProsessTaskEventPubliserer eventPubliserer = Mockito.mock(ProsessTaskEventPubliserer.class);
+    private ProsessTaskRepository prosessTaskRepository;
+    private final BehandlendeEnhetTjeneste behandlendeEnhetTjeneste = Mockito.mock(BehandlendeEnhetTjeneste.class);
 
     @Mock
-    @FagsakYtelseTypeRef("FP")
     private RevurderingTjeneste revurderingTjenesteMockFP;
     @Mock
-    @FagsakYtelseTypeRef("SVP")
     private RevurderingTjeneste revurderingTjenesteMockSVP;
     @Mock
     private BehandlingProsesseringTjeneste behandlingProsesseringTjenesteMock;
 
-
-
-    @Before
+    @BeforeEach
     public void setUp() {
-        initMocks(this);
+        var entityManager = getEntityManager();
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
+        fagsakRepository = new FagsakRepository(entityManager);
+        prosessTaskRepository = new ProsessTaskRepositoryImpl(entityManager, null, eventPubliserer);
         vurderOpphørAvYtelser = new VurderOpphørAvYtelser(repositoryProvider, revurderingTjenesteMockFP, revurderingTjenesteMockSVP,
             prosessTaskRepository, behandlendeEnhetTjeneste, behandlingProsesseringTjenesteMock, sjekkInfotrygdTjeneste, mock(KøKontroller.class) );
     }
