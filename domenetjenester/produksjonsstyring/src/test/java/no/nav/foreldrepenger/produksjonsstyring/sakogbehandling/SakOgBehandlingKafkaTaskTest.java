@@ -7,9 +7,8 @@ import static org.mockito.Mockito.verify;
 import java.time.LocalDate;
 import java.util.Collections;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import contract.sob.dto.BehandlingAvsluttet;
@@ -20,27 +19,26 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.kafka.JsonObjectMapper;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.kafka.SakOgBehandlingHendelseProducer;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.task.SakOgBehandlingTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.testutilities.Whitebox;
 
-public class SakOgBehandlingKafkaTaskTest {
+public class SakOgBehandlingKafkaTaskTest extends EntityManagerAwareTest {
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
     private SakOgBehandlingTask observer;
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
+    private BehandlingRepositoryProvider repositoryProvider;
 
     private SakOgBehandlingHendelseProducer producer;
 
-    @Before
+    @BeforeEach
     public void setup() {
 
         producer = mock(SakOgBehandlingHendelseProducer.class);
 
+        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         observer = new SakOgBehandlingTask(producer, repositoryProvider);
     }
 

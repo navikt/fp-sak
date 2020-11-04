@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.vedtak.task;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -10,13 +11,12 @@ import static org.mockito.Mockito.when;
 import java.util.Optional;
 
 import org.assertj.core.api.Assertions;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.finn.unleash.FakeUnleash;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -28,6 +28,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHendelse;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
+@ExtendWith(MockitoExtension.class)
 public class VurderOgSendØkonomiOppdragTaskTest {
 
     private static final Long BEHANDLING_ID = 139L;
@@ -35,9 +36,6 @@ public class VurderOgSendØkonomiOppdragTaskTest {
     private static final Long TASK_ID = 238L;
 
     private static final String AKTØR_ID = AktørId.dummy().getId();
-
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
 
     @Mock
     private ProsessTaskRepository repo;
@@ -50,15 +48,15 @@ public class VurderOgSendØkonomiOppdragTaskTest {
 
     private VurderOgSendØkonomiOppdragTask task;
 
-    private FakeUnleash fakeUnleash = new FakeUnleash();
+    private final FakeUnleash fakeUnleash = new FakeUnleash();
 
-    @Before
+    @BeforeEach
     public void setUp() {
         when(prosessTaskData.getBehandlingId()).thenReturn(BEHANDLING_ID.toString());
-        when(prosessTaskData.getId()).thenReturn(TASK_ID);
-        when(prosessTaskData.getAktørId()).thenReturn(AKTØR_ID);
-        task = new VurderOgSendØkonomiOppdragTask(oppdragskontrollTjeneste,
-            repo, ScenarioMorSøkerForeldrepenger.forFødsel().mockBehandlingRepositoryProvider(), fakeUnleash);
+        lenient().when(prosessTaskData.getId()).thenReturn(TASK_ID);
+        lenient().when(prosessTaskData.getAktørId()).thenReturn(AKTØR_ID);
+        task = new VurderOgSendØkonomiOppdragTask(oppdragskontrollTjeneste, repo,
+            ScenarioMorSøkerForeldrepenger.forFødsel().mockBehandlingRepositoryProvider(), fakeUnleash);
     }
 
     @Test
@@ -70,7 +68,8 @@ public class VurderOgSendØkonomiOppdragTaskTest {
             .medVenterKvittering(true)
             .medSaksnummer(new Saksnummer(BEHANDLING_ID.toString()))
             .build();
-        when(oppdragskontrollTjeneste.opprettOppdrag(anyLong(), anyLong())).thenReturn(Optional.ofNullable(oppdragskontroll));
+        when(oppdragskontrollTjeneste.opprettOppdrag(anyLong(), anyLong())).thenReturn(
+            Optional.ofNullable(oppdragskontroll));
         when(prosessTaskData.getHendelse()).thenReturn(Optional.empty());
 
         // Act

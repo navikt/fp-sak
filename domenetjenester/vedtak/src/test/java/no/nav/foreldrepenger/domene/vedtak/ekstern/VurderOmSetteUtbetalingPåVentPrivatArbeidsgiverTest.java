@@ -15,9 +15,8 @@ import java.time.LocalDateTime;
 
 import javax.persistence.EntityManager;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -34,7 +33,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingL�
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -51,7 +49,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeStatus
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodekomponent;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiTypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.TfradragTillegg;
@@ -60,6 +58,7 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomistøtteUtils;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
+@CdiDbAwareTest
 public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
 
     private static final String SAKS_BEHANDLER = "Z1236525";
@@ -67,15 +66,11 @@ public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
     private static final AktørId AKTØR_ID_PRIVAT_ARBEIDSGIVER2 = AktørId.dummy();
     private static final String ARBEIDSGIVER_ORGNR = KUNSTIG_ORG;
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private Repository repository = repoRule.getRepository();
-    private final EntityManager entityManager = repoRule.getEntityManager();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-    private BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-    private BehandlingVedtakRepository behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
-    private BeregningsresultatRepository beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
-    private ØkonomioppdragRepository økonomioppdragRepository = new ØkonomioppdragRepository(entityManager);
+    private Repository repository;
+    private BehandlingRepositoryProvider repositoryProvider;
+    private BehandlingRepository behandlingRepository;
+    private BeregningsresultatRepository beregningsresultatRepository;
+    private ØkonomioppdragRepository økonomioppdragRepository;
 
     private Behandling behandling;
     private Oppdragskontroll oppdragskontroll;
@@ -85,13 +80,19 @@ public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
     private ArgumentCaptor<LocalDate> vedtaksdatoCaptor;
     private ArgumentCaptor<AktørId> aktørIdCaptor;
 
-    private OppgaveTjeneste oppgaveTjenesteMock = mock(OppgaveTjeneste.class);
-    private VurderOmSetteUtbetalingPåVentPrivatArbeidsgiver testKlass =
-        new VurderOmSetteUtbetalingPåVentPrivatArbeidsgiver(beregningsresultatRepository, økonomioppdragRepository,
-            oppgaveTjenesteMock, behandlingVedtakRepository);
+    private final OppgaveTjeneste oppgaveTjenesteMock = mock(OppgaveTjeneste.class);
+    private VurderOmSetteUtbetalingPåVentPrivatArbeidsgiver testKlass;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    public void setUp(EntityManager entityManager) {
+        repository = new Repository(entityManager);
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        behandlingRepository = repositoryProvider.getBehandlingRepository();
+        var behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
+        beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
+        økonomioppdragRepository = new ØkonomioppdragRepository(entityManager);
+        testKlass = new VurderOmSetteUtbetalingPåVentPrivatArbeidsgiver(beregningsresultatRepository, økonomioppdragRepository,
+            oppgaveTjenesteMock, behandlingVedtakRepository);
         behandling = opprettOgLagreBehandling();
         oppdragskontroll = byggOppdagskontroll();
         beregningsresultat = byggBeregningsresultatFP();

@@ -126,7 +126,6 @@ import no.nav.vedtak.felles.testutilities.Whitebox;
  * <p>
  * Mer avansert bruk er ikke gitt at kan bruke denne klassen.
  */
-@SuppressWarnings("deprecation")
 public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
     public static final String ADOPSJON = "adopsjon";

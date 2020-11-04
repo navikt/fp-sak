@@ -4,11 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
 
-import javax.persistence.EntityManager;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
@@ -24,34 +21,39 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioInnsynEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.vedtak.felles.testutilities.Whitebox;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
-public class VurderBehandlingerUnderIverksettelseTest {
+public class VurderBehandlingerUnderIverksettelseTest extends EntityManagerAwareTest {
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private final EntityManager entityManager = repoRule.getEntityManager();
-    private final Repository repository = repoRule.getRepository();
-    private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-    private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-    private final BehandlingVedtakRepository behandlingVedtakRepository = new BehandlingVedtakRepository(entityManager);
+    private Repository repository;
+    private BehandlingRepositoryProvider repositoryProvider;
+    private BehandlingRepository behandlingRepository;
+    private BehandlingVedtakRepository behandlingVedtakRepository;
+    private VurderBehandlingerUnderIverksettelse tjeneste;
 
-    private final VurderBehandlingerUnderIverksettelse tjeneste = new VurderBehandlingerUnderIverksettelse(repositoryProvider);
-
-    private Behandling førstegangBehandling;
-
-    @Before
+    @BeforeEach
     public void setup() {
+        var entityManager = getEntityManager();
+        repository = new Repository(entityManager);
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        behandlingRepository = repositoryProvider.getBehandlingRepository();
+        behandlingVedtakRepository = new BehandlingVedtakRepository(entityManager);
+        tjeneste = new VurderBehandlingerUnderIverksettelse(repositoryProvider);
+    }
+
+    private Behandling lagreBehandling() {
         ScenarioMorSøkerForeldrepenger førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         førstegangScenario.medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår());
-        førstegangBehandling = førstegangScenario.lagre(repositoryProvider);
+        var førstegangBehandling = førstegangScenario.lagre(repositoryProvider);
         repository.lagre(getBehandlingsresultat(førstegangBehandling));
+        return førstegangBehandling;
     }
 
     @Test
     public void neiHvisIngenAnnenBehandling() {
+        var førstegangBehandling = lagreBehandling();
         // Act
         boolean resultat = tjeneste.vurder(førstegangBehandling);
 
@@ -62,8 +64,9 @@ public class VurderBehandlingerUnderIverksettelseTest {
     @Test
     public void neiHvisAnnenBehandlingErIverksatt() {
         // Arrange
+        var førstegangBehandling = lagreBehandling();
         lagreBehandlingVedtak(førstegangBehandling, IverksettingStatus.IVERKSATT);
-        Behandling revurdering = lagreRevurdering();
+        Behandling revurdering = lagreRevurdering(førstegangBehandling);
         lagreBehandlingVedtak(revurdering, IverksettingStatus.IKKE_IVERKSATT);
 
         // Act
@@ -76,8 +79,9 @@ public class VurderBehandlingerUnderIverksettelseTest {
     @Test
     public void jaHvisAnnenBehandlingErIkkeIverksatt() {
         // Arrange
+        var førstegangBehandling = lagreBehandling();
         lagreBehandlingVedtak(førstegangBehandling, IverksettingStatus.IKKE_IVERKSATT);
-        Behandling revurdering = lagreRevurdering();
+        Behandling revurdering = lagreRevurdering(førstegangBehandling);
         lagreBehandlingVedtak(revurdering, IverksettingStatus.IKKE_IVERKSATT);
 
         // Act
@@ -90,8 +94,9 @@ public class VurderBehandlingerUnderIverksettelseTest {
     @Test
     public void neiForFørstegangsbehandlingNårRevurderingErUnderIverksetting() {
         // Arrange
+        var førstegangBehandling = lagreBehandling();
         lagreBehandlingVedtak(førstegangBehandling, IverksettingStatus.IKKE_IVERKSATT);
-        Behandling revurdering = lagreRevurdering();
+        Behandling revurdering = lagreRevurdering(førstegangBehandling);
         lagreBehandlingVedtak(revurdering, IverksettingStatus.IKKE_IVERKSATT);
 
         // Act
@@ -107,7 +112,8 @@ public class VurderBehandlingerUnderIverksettelseTest {
         ScenarioMorSøkerEngangsstønad førstegangScenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         ScenarioInnsynEngangsstønad scenarioInnsyn = ScenarioInnsynEngangsstønad.innsyn(førstegangScenario);
         Behandling innsyn = scenarioInnsyn.lagre(repositoryProvider);
-        Behandling originalBehandling = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(innsyn.getFagsakId(), BehandlingType.FØRSTEGANGSSØKNAD).get();
+        Behandling originalBehandling = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(
+            innsyn.getFagsakId(), BehandlingType.FØRSTEGANGSSØKNAD).get();
         lagreBehandlingVedtak(originalBehandling, IverksettingStatus.IKKE_IVERKSATT);
 
         // Act
@@ -117,8 +123,9 @@ public class VurderBehandlingerUnderIverksettelseTest {
         assertThat(resultat).isFalse();
     }
 
-    private Behandling lagreRevurdering() {
-        Behandling revurdering = Behandling.fraTidligereBehandling(førstegangBehandling, BehandlingType.REVURDERING).build();
+    private Behandling lagreRevurdering(Behandling førstegangBehandling) {
+        Behandling revurdering = Behandling.fraTidligereBehandling(førstegangBehandling, BehandlingType.REVURDERING)
+            .build();
         BehandlingLås lås = new BehandlingLås(revurdering.getId());
         behandlingRepository.lagre(revurdering, lås);
         Behandlingsresultat behandlingsresultat = Behandlingsresultat.builderForInngangsvilkår().buildFor(revurdering);
@@ -137,7 +144,8 @@ public class VurderBehandlingerUnderIverksettelseTest {
             .medIverksettingStatus(iverksettingStatus)
             .medBehandlingsresultat(behandlingsresultat)
             .build();
-        LocalDateTime opprettetTidspunkt = behandling.erRevurdering() ? LocalDateTime.now().plusSeconds(1) : LocalDateTime.now();
+        LocalDateTime opprettetTidspunkt = behandling.erRevurdering() ? LocalDateTime.now()
+            .plusSeconds(1) : LocalDateTime.now();
         Whitebox.setInternalState(behandlingVedtak, "opprettetTidspunkt", opprettetTidspunkt);
         behandlingVedtakRepository.lagre(behandlingVedtak, lås);
         if (IverksettingStatus.IKKE_IVERKSATT.equals(iverksettingStatus)) {

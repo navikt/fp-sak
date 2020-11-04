@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -10,11 +11,9 @@ import java.util.Optional;
 
 import javax.persistence.EntityManager;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -26,7 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -40,36 +39,35 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
+@CdiDbAwareTest
 public class OpprettOppgaveForBehandlingTaskTest {
 
     private static final String FNR = "00000000000";
-    private static final LocalDate FØDSELSDATO = LocalDate.now().minusYears(20);
     private static final Oppgave OPPGAVE = new Oppgave(99L, null, null, null, null,
         Tema.FOR.getOffisiellKode(), null, null, null, 1, "4806",
         LocalDate.now().plusDays(1), LocalDate.now(), Prioritet.NORM, Oppgavestatus.AAPNET);
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private final EntityManager entityManager = repoRule.getEntityManager();
-    private Repository repository = repoRule.getRepository();
+    private Repository repository;
     private OppgaveTjeneste tjeneste;
 
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-    private BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
+    private BehandlingRepositoryProvider repositoryProvider;
+    private BehandlingRepository behandlingRepository;
     private OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository;
-    private OppgaveRestKlient oppgaveRestKlient;
 
     private Fagsak fagsak;
 
+    @Mock
+    private OppgaveRestKlient oppgaveRestKlient;
     @Mock
     private PersoninfoAdapter personinfoAdapter;
     @Mock
     private ProsessTaskRepository prosessTaskRepository;
 
-    @Before
-    public void setup() {
-        personinfoAdapter = Mockito.mock(PersoninfoAdapter.class);
-        oppgaveRestKlient = Mockito.mock(OppgaveRestKlient.class);
+    @BeforeEach
+    public void setup(EntityManager entityManager) {
+        repository = new Repository(entityManager);
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        behandlingRepository = repositoryProvider.getBehandlingRepository();
         oppgaveBehandlingKoblingRepository = new OppgaveBehandlingKoblingRepository(entityManager);
         tjeneste = new OppgaveTjeneste(new FagsakRepository(entityManager), new BehandlingRepository(entityManager),
             oppgaveBehandlingKoblingRepository, oppgaveRestKlient, prosessTaskRepository, personinfoAdapter);
@@ -78,7 +76,7 @@ public class OpprettOppgaveForBehandlingTaskTest {
         fagsak = opprettOgLagreFagsak();
 
         // Sett opp default mock-oppførsel
-        when(personinfoAdapter.hentFnr(fagsak.getNavBruker().getAktørId())).thenReturn(Optional.of(new PersonIdent(FNR)));
+        lenient().when(personinfoAdapter.hentFnr(fagsak.getNavBruker().getAktørId())).thenReturn(Optional.of(new PersonIdent(FNR)));
     }
 
     @Test

@@ -49,7 +49,6 @@ import no.nav.vedtak.felles.testutilities.Whitebox;
  * Mer avansert bruk er ikke gitt at kan bruke denne
  * klassen.
  */
-@SuppressWarnings("deprecation")
 public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
     private static final AtomicLong FAKE_ID = new AtomicLong(100999L);

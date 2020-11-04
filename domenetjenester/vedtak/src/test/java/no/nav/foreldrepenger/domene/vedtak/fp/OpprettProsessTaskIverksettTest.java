@@ -10,16 +10,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.vedtak.OpprettProsessTaskIverksett;
 import no.nav.foreldrepenger.domene.vedtak.ekstern.SettUtbetalingPåVentPrivatArbeidsgiverTask;
 import no.nav.foreldrepenger.domene.vedtak.ekstern.VurderOppgaveArenaTask;
@@ -35,14 +34,10 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 
-public class OpprettProsessTaskIverksettTest {
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
+@ExtendWith(MockitoExtension.class)
+public class OpprettProsessTaskIverksettTest extends EntityManagerAwareTest {
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-
-    private ProsessTaskRepository prosessTaskRepository = new ProsessTaskRepositoryImpl(repoRule.getEntityManager(), null, null);
+    private ProsessTaskRepository prosessTaskRepository;
 
     @Mock
     private OppgaveTjeneste oppgaveTjeneste;
@@ -50,10 +45,11 @@ public class OpprettProsessTaskIverksettTest {
     private Behandling behandling;
     private OpprettProsessTaskIverksett opprettProsessTaskIverksettFP;
 
-    @Before
+    @BeforeEach
     public void setup() {
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = scenario.lagMocked();
+        prosessTaskRepository = new ProsessTaskRepositoryImpl(getEntityManager(), null, null);
         opprettProsessTaskIverksettFP = new OpprettProsessTaskIverksett(prosessTaskRepository, null, null, null,oppgaveTjeneste);
     }
 

@@ -11,8 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -30,7 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractT
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.behandlingslager.ytelse.TemaUnderkategori;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
@@ -42,28 +42,23 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.testutilities.db.Repository;
-import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
 
-public class VurderOmArenaYtelseSkalOpphøreTest {
+public class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest {
 
-    @Rule
-    public final RepositoryRule repoRule = new UnittestRepositoryRule();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-    private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-    private final BehandlingVedtakRepository behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
-    private final Repository repository = repoRule.getRepository();
-    private final BeregningsresultatRepository beregningsresultatRepository = new BeregningsresultatRepository(repoRule.getEntityManager());
+    private BehandlingRepositoryProvider repositoryProvider;
+    private BehandlingRepository behandlingRepository;
+    private BehandlingVedtakRepository behandlingVedtakRepository;
+    private Repository repository;
+    private BeregningsresultatRepository beregningsresultatRepository;
 
     private static final AktørId AKTØR_ID = AktørId.dummy();
     private static final String SAK_ID = "1200095";
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
-    private static Long MELDEKORTPERIODE = 14L;
+    private static final Long MELDEKORTPERIODE = 14L;
 
     private final ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID);
-    private InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
-    private final VurderOmArenaYtelseSkalOpphøre vurdereOmArenaYtelseSkalOpphør = new VurderOmArenaYtelseSkalOpphøre(
-        beregningsresultatRepository,
-        iayTjeneste, behandlingVedtakRepository, null);
+    private InntektArbeidYtelseTjeneste iayTjeneste;
+    private VurderOmArenaYtelseSkalOpphøre vurdereOmArenaYtelseSkalOpphør;
 
     private Behandling behandling;
 
@@ -72,6 +67,20 @@ public class VurderOmArenaYtelseSkalOpphøreTest {
 
     private Behandling lagre(AbstractTestScenario<?> scenario) {
         return scenario.lagre(repositoryProvider);
+    }
+
+    @BeforeEach
+    void setUp() {
+        var entityManager = getEntityManager();
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        behandlingRepository = repositoryProvider.getBehandlingRepository();
+        behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
+        repository = new Repository(entityManager);
+        beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
+        iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
+        vurdereOmArenaYtelseSkalOpphør = new VurderOmArenaYtelseSkalOpphøre(
+            beregningsresultatRepository,
+            iayTjeneste, behandlingVedtakRepository, null);
     }
 
     @Test

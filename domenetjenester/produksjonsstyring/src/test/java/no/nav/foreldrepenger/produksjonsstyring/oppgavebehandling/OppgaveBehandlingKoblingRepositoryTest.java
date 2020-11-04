@@ -6,76 +6,90 @@ import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Set;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
-public class OppgaveBehandlingKoblingRepositoryTest {
+public class OppgaveBehandlingKoblingRepositoryTest extends EntityManagerAwareTest {
 
     private static final Saksnummer DUMMY_SAKSNUMMER = new Saksnummer("123");
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private Repository repository = repoRule.getRepository();
+    private Repository repository;
 
-    private OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository = new OppgaveBehandlingKoblingRepository(
-        repoRule.getEntityManager());
+    private OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository;
+
+    @BeforeEach
+    void setUp() {
+        var entityManager = getEntityManager();
+        oppgaveBehandlingKoblingRepository = new OppgaveBehandlingKoblingRepository(entityManager);
+        repository = new Repository(entityManager);
+    }
 
     @Test
     public void skal_hente_opp_oppgave_behandling_kobling_basert_på_oppgave_id() {
         // Arrange
         String oppgaveId = "G1502453";
-        Behandling behandling = new BasicBehandlingBuilder(repoRule.getEntityManager()).opprettOgLagreFørstegangssøknad(FagsakYtelseType.ENGANGSTØNAD);
-        lagOppgave(new OppgaveBehandlingKobling(OppgaveÅrsak.BEHANDLE_SAK, oppgaveId, DUMMY_SAKSNUMMER, behandling.getId()));
+        Behandling behandling = new BasicBehandlingBuilder(getEntityManager()).opprettOgLagreFørstegangssøknad(
+            FagsakYtelseType.ENGANGSTØNAD);
+        lagOppgave(
+            new OppgaveBehandlingKobling(OppgaveÅrsak.BEHANDLE_SAK, oppgaveId, DUMMY_SAKSNUMMER, behandling.getId()));
 
         // Act
-        Optional<OppgaveBehandlingKobling> behandlingKoblingOpt = oppgaveBehandlingKoblingRepository.hentOppgaveBehandlingKobling(oppgaveId);
+        Optional<OppgaveBehandlingKobling> behandlingKoblingOpt = oppgaveBehandlingKoblingRepository.hentOppgaveBehandlingKobling(
+            oppgaveId);
 
         // Assert
-        assertThat(behandlingKoblingOpt).hasValueSatisfying(behandlingKobling ->
-            assertThat(behandlingKobling.getOppgaveÅrsak()).isEqualTo(OppgaveÅrsak.BEHANDLE_SAK)
-        );
+        assertThat(behandlingKoblingOpt).hasValueSatisfying(
+            behandlingKobling -> assertThat(behandlingKobling.getOppgaveÅrsak()).isEqualTo(OppgaveÅrsak.BEHANDLE_SAK));
 
         // Act
-        Optional<OppgaveBehandlingKobling> oppBehandlingKoblingOpt = oppgaveBehandlingKoblingRepository.hentOppgaveBehandlingKobling(behandling.getId(), oppgaveId);
+        Optional<OppgaveBehandlingKobling> oppBehandlingKoblingOpt = oppgaveBehandlingKoblingRepository.hentOppgaveBehandlingKobling(
+            behandling.getId(), oppgaveId);
 
         // Assert
-        assertThat(oppBehandlingKoblingOpt).hasValueSatisfying(behandlingKobling ->
-            assertThat(behandlingKobling.getOppgaveÅrsak()).isEqualTo(OppgaveÅrsak.BEHANDLE_SAK)
-        );
+        assertThat(oppBehandlingKoblingOpt).hasValueSatisfying(
+            behandlingKobling -> assertThat(behandlingKobling.getOppgaveÅrsak()).isEqualTo(OppgaveÅrsak.BEHANDLE_SAK));
     }
 
     @Test
     public void skal_hente_opp_oppgave_behandling_kobling_basert_på_saksnummer() {
         // Arrange
         String oppgaveId = "G1502453";
-        Behandling behandling = new BasicBehandlingBuilder(repoRule.getEntityManager()).opprettOgLagreFørstegangssøknad(FagsakYtelseType.ENGANGSTØNAD);
-        lagOppgave(new OppgaveBehandlingKobling(OppgaveÅrsak.BEHANDLE_SAK, oppgaveId, DUMMY_SAKSNUMMER, behandling.getId()));
+        Behandling behandling = new BasicBehandlingBuilder(getEntityManager()).opprettOgLagreFørstegangssøknad(
+            FagsakYtelseType.ENGANGSTØNAD);
+        lagOppgave(
+            new OppgaveBehandlingKobling(OppgaveÅrsak.BEHANDLE_SAK, oppgaveId, DUMMY_SAKSNUMMER, behandling.getId()));
 
         // Act
-        Optional<OppgaveBehandlingKobling> behandlingKoblingOpt = oppgaveBehandlingKoblingRepository.hentOppgaveBehandlingKobling(oppgaveId, DUMMY_SAKSNUMMER);
+        Optional<OppgaveBehandlingKobling> behandlingKoblingOpt = oppgaveBehandlingKoblingRepository.hentOppgaveBehandlingKobling(
+            oppgaveId, DUMMY_SAKSNUMMER);
 
         // Assert
-        assertThat(behandlingKoblingOpt).hasValueSatisfying(behandlingKobling ->
-            assertThat(behandlingKobling.getOppgaveÅrsak()).isEqualTo(OppgaveÅrsak.BEHANDLE_SAK)
-        );
+        assertThat(behandlingKoblingOpt).hasValueSatisfying(
+            behandlingKobling -> assertThat(behandlingKobling.getOppgaveÅrsak()).isEqualTo(OppgaveÅrsak.BEHANDLE_SAK));
     }
 
     @Test
     public void skal_hente_opp_oppgave_behandling_koblinger_for_åpne_oppgaver() {
         // Arrange
-        Behandling behandling = new BasicBehandlingBuilder(repoRule.getEntityManager()).opprettOgLagreFørstegangssøknad(FagsakYtelseType.ENGANGSTØNAD);
-        OppgaveBehandlingKobling bsAvsl = new OppgaveBehandlingKobling(OppgaveÅrsak.BEHANDLE_SAK, "O1234", DUMMY_SAKSNUMMER, behandling.getId());
+        Behandling behandling = new BasicBehandlingBuilder(getEntityManager()).opprettOgLagreFørstegangssøknad(
+            FagsakYtelseType.ENGANGSTØNAD);
+        OppgaveBehandlingKobling bsAvsl = new OppgaveBehandlingKobling(OppgaveÅrsak.BEHANDLE_SAK, "O1234",
+            DUMMY_SAKSNUMMER, behandling.getId());
         bsAvsl.ferdigstillOppgave("I11111");
-        OppgaveBehandlingKobling bsAapen = new OppgaveBehandlingKobling(OppgaveÅrsak.BEHANDLE_SAK, "O1235", DUMMY_SAKSNUMMER, behandling.getId());
-        OppgaveBehandlingKobling godkjenn = new OppgaveBehandlingKobling(OppgaveÅrsak.GODKJENNE_VEDTAK, "O1236", DUMMY_SAKSNUMMER, behandling.getId());
-        OppgaveBehandlingKobling registrer = new OppgaveBehandlingKobling(OppgaveÅrsak.REGISTRER_SØKNAD, "O1238", DUMMY_SAKSNUMMER, behandling.getId());
-        OppgaveBehandlingKobling revurder = new OppgaveBehandlingKobling(OppgaveÅrsak.REVURDER, "O1237", DUMMY_SAKSNUMMER, behandling.getId());
+        OppgaveBehandlingKobling bsAapen = new OppgaveBehandlingKobling(OppgaveÅrsak.BEHANDLE_SAK, "O1235",
+            DUMMY_SAKSNUMMER, behandling.getId());
+        OppgaveBehandlingKobling godkjenn = new OppgaveBehandlingKobling(OppgaveÅrsak.GODKJENNE_VEDTAK, "O1236",
+            DUMMY_SAKSNUMMER, behandling.getId());
+        OppgaveBehandlingKobling registrer = new OppgaveBehandlingKobling(OppgaveÅrsak.REGISTRER_SØKNAD, "O1238",
+            DUMMY_SAKSNUMMER, behandling.getId());
+        OppgaveBehandlingKobling revurder = new OppgaveBehandlingKobling(OppgaveÅrsak.REVURDER, "O1237",
+            DUMMY_SAKSNUMMER, behandling.getId());
 
         lagOppgave(bsAapen);
         lagOppgave(bsAvsl);
@@ -94,8 +108,8 @@ public class OppgaveBehandlingKoblingRepositoryTest {
         // Change + reassert
         revurder.ferdigstillOppgave("I11111");
         lagOppgave(revurder);
-        behandlingKobling = oppgaveBehandlingKoblingRepository.hentUferdigeOppgaverOpprettetTidsrom(LocalDate.now(), LocalDate.now(),
-            Set.of(OppgaveÅrsak.BEHANDLE_SAK, OppgaveÅrsak.REVURDER));
+        behandlingKobling = oppgaveBehandlingKoblingRepository.hentUferdigeOppgaverOpprettetTidsrom(LocalDate.now(),
+            LocalDate.now(), Set.of(OppgaveÅrsak.BEHANDLE_SAK, OppgaveÅrsak.REVURDER));
         assertThat(behandlingKobling).contains(bsAapen);
         assertThat(behandlingKobling).doesNotContain(godkjenn, registrer, bsAvsl, revurder);
 

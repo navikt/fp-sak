@@ -4,38 +4,33 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
-public class OppgaveBehandlingKoblingTest {
+public class OppgaveBehandlingKoblingTest extends EntityManagerAwareTest {
     private static final Saksnummer SAKSNUMMER = new Saksnummer("123");
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private Repository repository = repoRule.getRepository();
 
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
+    private Repository repository;
 
-    private OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository = new OppgaveBehandlingKoblingRepository(repoRule.getEntityManager());
+    private BehandlingRepositoryProvider repositoryProvider;
 
-    private Fagsak fagsak = FagsakBuilder.nyEngangstønadForMor().build();
+    private OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository;
 
-    @Before
+    @BeforeEach
     public void setup() {
-        repository.lagre(fagsak.getNavBruker());
-        repository.lagre(fagsak);
-        repository.flush();
+        var entityManager = getEntityManager();
+        repository = new Repository(entityManager);
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        oppgaveBehandlingKoblingRepository = new OppgaveBehandlingKoblingRepository(entityManager);
     }
 
     @Test

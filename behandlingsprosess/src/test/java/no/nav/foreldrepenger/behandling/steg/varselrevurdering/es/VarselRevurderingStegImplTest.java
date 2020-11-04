@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.vedtak.felles.testutilities.Whitebox;
 
-@SuppressWarnings("deprecation")
 public class VarselRevurderingStegImplTest {
 
     private BehandlingRepository behandlingRepository;

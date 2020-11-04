@@ -48,7 +48,6 @@ import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 import no.nav.vedtak.felles.testutilities.Whitebox;
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-@SuppressWarnings("deprecation")
 @RunWith(CdiRunner.class)
 public class OpprettNyFørstegangsbehandlingTest {
 

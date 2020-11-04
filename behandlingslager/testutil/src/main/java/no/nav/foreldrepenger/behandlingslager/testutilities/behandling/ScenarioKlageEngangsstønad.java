@@ -9,7 +9,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_NFP;
 import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.HJEMSENDE_UTEN_Å_OPPHEVE;
 import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.STADFESTE_YTELSESVEDTAK;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.lenient;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -50,7 +50,6 @@ import no.nav.vedtak.felles.testutilities.Whitebox;
  * <p>
  * Alle scenarioene som har NK resultat, har NFP resultat stadfestet.
  */
-@SuppressWarnings("deprecation")
 public class ScenarioKlageEngangsstønad {
 
     private KlageRepository klageRepository = mockKlageRepository();
@@ -250,7 +249,7 @@ public class ScenarioKlageEngangsstønad {
 
     public BehandlingRepository mockBehandlingRepository() {
         BehandlingRepository behandlingRepository = abstractTestScenario.mockBehandlingRepository();
-        when(behandlingRepository.hentBehandling(klageBehandling.getId())).thenReturn(klageBehandling);
+        lenient().when(behandlingRepository.hentBehandling(klageBehandling.getId())).thenReturn(klageBehandling);
         return behandlingRepository;
     }
 

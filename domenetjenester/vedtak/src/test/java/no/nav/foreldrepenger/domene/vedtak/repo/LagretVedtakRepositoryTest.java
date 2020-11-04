@@ -2,21 +2,17 @@ package no.nav.foreldrepenger.domene.vedtak.repo;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.lagretvedtak.LagretVedtak;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
-public class LagretVedtakRepositoryTest {
+public class LagretVedtakRepositoryTest extends EntityManagerAwareTest {
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-
-    private final Repository repository = repoRule.getRepository();
-    private final LagretVedtakRepository lagretVedtakRepository = new LagretVedtakRepository(repoRule.getEntityManager());
+    private Repository repository;
+    private LagretVedtakRepository lagretVedtakRepository;
 
     private LagretVedtak.Builder lagretVedtakBuilder;
 
@@ -24,9 +20,12 @@ public class LagretVedtakRepositoryTest {
     private static final Long BEHANDLING_ID = 265L;
     private static final String STRING_XML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><element>test av xml</element>";
 
-    @Before
+    @BeforeEach
     public void setup() {
         lagretVedtakBuilder = LagretVedtak.builder();
+        var entityManager = getEntityManager();
+        repository = new Repository(entityManager);
+        lagretVedtakRepository = new LagretVedtakRepository(entityManager);
     }
 
     @Test

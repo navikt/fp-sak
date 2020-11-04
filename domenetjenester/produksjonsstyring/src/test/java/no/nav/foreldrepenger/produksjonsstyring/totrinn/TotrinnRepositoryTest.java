@@ -10,36 +10,33 @@ import java.util.Optional;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class TotrinnRepositoryTest {
+public class TotrinnRepositoryTest extends EntityManagerAwareTest {
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private final EntityManager entityManager = repoRule.getEntityManager();
-    private final BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-    private final TotrinnRepository totrinnRepository = new TotrinnRepository(entityManager);
+    private TotrinnRepository totrinnRepository;
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
+    private EntityManager entityManager;
 
-    @Before
+    @BeforeEach
     public void setup() {
-        fagsakRepository = repositoryProvider.getFagsakRepository();
-        behandlingRepository = repositoryProvider.getBehandlingRepository();
+        entityManager = getEntityManager();
+        fagsakRepository = new FagsakRepository(entityManager);
+        behandlingRepository = new BehandlingRepository(entityManager);
+        totrinnRepository = new TotrinnRepository(entityManager);
     }
 
     @Test
@@ -49,23 +46,25 @@ public class TotrinnRepositoryTest {
         fagsakRepository.opprettNy(fagsak);
 
         Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
-        behandlingRepository.lagre(behandling, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
+        behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
-        Totrinnresultatgrunnlag gammeltTotrinnresultatgrunnlag = new Totrinnresultatgrunnlag(behandling,
-            null, null, null, null);
+        Totrinnresultatgrunnlag gammeltTotrinnresultatgrunnlag = new Totrinnresultatgrunnlag(behandling, null, null,
+            null, null);
 
-        Totrinnresultatgrunnlag nyttTotrinnresultatgrunnlag = new Totrinnresultatgrunnlag(behandling,
-            null, null, null, null);
+        Totrinnresultatgrunnlag nyttTotrinnresultatgrunnlag = new Totrinnresultatgrunnlag(behandling, null, null, null,
+            null);
 
         totrinnRepository.lagreOgFlush(behandling, gammeltTotrinnresultatgrunnlag);
         totrinnRepository.lagreOgFlush(behandling, nyttTotrinnresultatgrunnlag);
 
         // Hent ut aktiv totrinnsgrunnlag
-        Optional<Totrinnresultatgrunnlag> optionalNyttTotrinnresultatgrunnlag = totrinnRepository.hentTotrinngrunnlag(behandling);
+        Optional<Totrinnresultatgrunnlag> optionalNyttTotrinnresultatgrunnlag = totrinnRepository.hentTotrinngrunnlag(
+            behandling);
 
         // Hent ut inaktive totrinnsgrunnlag
         TypedQuery<Totrinnresultatgrunnlag> query = entityManager.createQuery(
-            "SELECT trg FROM Totrinnresultatgrunnlag trg WHERE trg.behandling.id = :behandling_id AND trg.aktiv = 'N'", //$NON-NLS-1$
+            "SELECT trg FROM Totrinnresultatgrunnlag trg WHERE trg.behandling.id = :behandling_id AND trg.aktiv = 'N'",
+            //$NON-NLS-1$
             Totrinnresultatgrunnlag.class);
         query.setParameter("behandling_id", behandling.getId()); //$NON-NLS-1$
         List<Totrinnresultatgrunnlag> inaktive = query.getResultList();
@@ -73,7 +72,8 @@ public class TotrinnRepositoryTest {
         assertThat(inaktive).hasSize(1);
         assertThat(inaktive.get(0)).isEqualToComparingFieldByField(gammeltTotrinnresultatgrunnlag);
         assertThat(optionalNyttTotrinnresultatgrunnlag).isPresent();
-        assertThat(optionalNyttTotrinnresultatgrunnlag.get().getId()).isNotEqualTo(gammeltTotrinnresultatgrunnlag.getId());
+        assertThat(optionalNyttTotrinnresultatgrunnlag.get().getId()).isNotEqualTo(
+            gammeltTotrinnresultatgrunnlag.getId());
         assertThat(optionalNyttTotrinnresultatgrunnlag.get().isAktiv()).isTrue();
 
     }
@@ -85,7 +85,7 @@ public class TotrinnRepositoryTest {
         fagsakRepository.opprettNy(fagsak);
 
         Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
-        behandlingRepository.lagre(behandling, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
+        behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
         // Opprett vurderinger som skal være inaktive
         Totrinnsvurdering inaktivTotrinnsvurdering1 = lagTotrinnsvurdering(behandling,
@@ -116,11 +116,13 @@ public class TotrinnRepositoryTest {
         totrinnRepository.lagreOgFlush(behandling, aktivTotrinnsvurderingList);
 
         // Hent aktive vurderinger etter flush
-        Collection<Totrinnsvurdering> repoAktiveTotrinnsvurderinger = totrinnRepository.hentTotrinnaksjonspunktvurderinger(behandling);
+        Collection<Totrinnsvurdering> repoAktiveTotrinnsvurderinger = totrinnRepository.hentTotrinnaksjonspunktvurderinger(
+            behandling);
 
         // Hent inaktive vurderinger etter flush
         TypedQuery<Totrinnsvurdering> query = entityManager.createQuery(
-            "SELECT tav FROM Totrinnsvurdering tav WHERE tav.behandling.id = :behandling_id AND tav.aktiv = 'N'", //$NON-NLS-1$
+            "SELECT tav FROM Totrinnsvurdering tav WHERE tav.behandling.id = :behandling_id AND tav.aktiv = 'N'",
+            //$NON-NLS-1$
             Totrinnsvurdering.class);
         query.setParameter("behandling_id", behandling.getId()); //$NON-NLS-1$
         List<Totrinnsvurdering> repoInaktiveTotrinnsvurderinger = query.getResultList();
@@ -135,10 +137,12 @@ public class TotrinnRepositoryTest {
 
     }
 
-    private Totrinnsvurdering lagTotrinnsvurdering(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon,
-                                                   boolean godkjent, String begrunnelse, VurderÅrsak vurderÅrsak){
-        return new Totrinnsvurdering.Builder(behandling, aksjonspunktDefinisjon)
-            .medGodkjent(godkjent)
+    private Totrinnsvurdering lagTotrinnsvurdering(Behandling behandling,
+                                                   AksjonspunktDefinisjon aksjonspunktDefinisjon,
+                                                   boolean godkjent,
+                                                   String begrunnelse,
+                                                   VurderÅrsak vurderÅrsak) {
+        return new Totrinnsvurdering.Builder(behandling, aksjonspunktDefinisjon).medGodkjent(godkjent)
             .medBegrunnelse(begrunnelse)
             .medVurderÅrsak(vurderÅrsak)
             .build();

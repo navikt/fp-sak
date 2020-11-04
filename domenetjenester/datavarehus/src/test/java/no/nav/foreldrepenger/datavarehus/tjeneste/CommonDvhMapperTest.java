@@ -10,7 +10,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.vedtak.felles.testutilities.Whitebox;
 
-@SuppressWarnings("deprecation")
 public class CommonDvhMapperTest {
 
     private static final String OPPRETTET_AV = "OpprettetAv";

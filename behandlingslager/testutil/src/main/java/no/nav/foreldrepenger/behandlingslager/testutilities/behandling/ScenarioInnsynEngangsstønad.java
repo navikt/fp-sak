@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.vedtak.felles.testutilities.Whitebox;
 
-@SuppressWarnings("deprecation")
 public class ScenarioInnsynEngangsstønad {
 
     public static ScenarioInnsynEngangsstønad innsyn(AbstractTestScenario<?> abstractTestScenario) {

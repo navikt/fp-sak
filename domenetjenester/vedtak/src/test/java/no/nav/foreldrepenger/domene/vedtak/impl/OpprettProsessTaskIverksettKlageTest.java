@@ -9,18 +9,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.persistence.EntityManager;
-
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioKlageEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.vedtak.OpprettProsessTaskIverksett;
 import no.nav.foreldrepenger.domene.vedtak.intern.AvsluttBehandlingTask;
 import no.nav.foreldrepenger.domene.vedtak.intern.SendVedtaksbrevTask;
@@ -33,31 +31,28 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 
-public class OpprettProsessTaskIverksettKlageTest {
+@ExtendWith(MockitoExtension.class)
+public class OpprettProsessTaskIverksettKlageTest extends EntityManagerAwareTest {
 
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
-
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-
-    private final EntityManager entityManager = repoRule.getEntityManager();
-    private ProsessTaskRepository prosessTaskRepository = new ProsessTaskRepositoryImpl(entityManager, null, null);
+    private ProsessTaskRepository prosessTaskRepository;
 
     @Mock
     private OppgaveTjeneste oppgaveTjeneste;
 
-    private Behandling behandling;
+    @BeforeEach
+    void setUp() {
+        prosessTaskRepository = new ProsessTaskRepositoryImpl(getEntityManager(), null, null);
+    }
 
     @Test
     public void testOpprettIverksettingstaskerForKlagebehandling() {
         // Arrange
         ScenarioMorSøkerEngangsstønad abstractScenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         ScenarioKlageEngangsstønad scenario = ScenarioKlageEngangsstønad.forStadfestetNK(abstractScenario);
-        behandling = scenario.lagMocked();
-        mockOpprettTaskAvsluttOppgave();
+        var behandling = scenario.lagMocked();
+        mockOpprettTaskAvsluttOppgave(behandling);
 
-        List<ProsessTaskData> resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
+        List<ProsessTaskData> resultat;
 
         // Act
         OpprettProsessTaskIverksett opprettProsessTaskIverksettKlage = opprettKlageProsessTask(scenario);
@@ -74,10 +69,10 @@ public class OpprettProsessTaskIverksettKlageTest {
         // Arrange
         ScenarioMorSøkerEngangsstønad abstractScenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         ScenarioKlageEngangsstønad scenario = ScenarioKlageEngangsstønad.forStadfestetNK(abstractScenario);
-        behandling = scenario.lagMocked();
-        mockOpprettTaskAvsluttOppgave();
+        var behandling = scenario.lagMocked();
+        mockOpprettTaskAvsluttOppgave(behandling);
 
-        List<ProsessTaskData> resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
+        List<ProsessTaskData> resultat;
 
         // Act
         OpprettProsessTaskIverksett opprettProsessTaskIverksettKlage = opprettKlageProsessTask(scenario);
@@ -95,9 +90,9 @@ public class OpprettProsessTaskIverksettKlageTest {
         // Arrange
         ScenarioMorSøkerEngangsstønad abstractScenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         ScenarioKlageEngangsstønad scenario = ScenarioKlageEngangsstønad.forStadfestetNK(abstractScenario);
-        behandling = scenario.lagMocked();
+        var behandling = scenario.lagMocked();
 
-        List<ProsessTaskData> resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
+        List<ProsessTaskData> resultat;
 
         // Act
         OpprettProsessTaskIverksett opprettProsessTaskIverksettKlage = opprettKlageProsessTask(scenario);
@@ -114,9 +109,9 @@ public class OpprettProsessTaskIverksettKlageTest {
         // Arrange
         ScenarioMorSøkerEngangsstønad abstractScenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         ScenarioKlageEngangsstønad scenario = ScenarioKlageEngangsstønad.forMedholdNK(abstractScenario);
-        behandling = scenario.lagMocked();
-        mockOpprettTaskAvsluttOppgave();
-        List<ProsessTaskData> resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
+        var behandling = scenario.lagMocked();
+        mockOpprettTaskAvsluttOppgave(behandling);
+        List<ProsessTaskData> resultat;
 
         // Act
         OpprettProsessTaskIverksett opprettProsessTaskIverksettKlage = opprettKlageProsessTask(scenario);
@@ -133,8 +128,8 @@ public class OpprettProsessTaskIverksettKlageTest {
         // Arrange
         ScenarioMorSøkerEngangsstønad abstractScenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         ScenarioKlageEngangsstønad scenario = ScenarioKlageEngangsstønad.forMedholdNK(abstractScenario);
-        behandling = scenario.lagMocked();
-        List<ProsessTaskData> resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
+        var behandling = scenario.lagMocked();
+        List<ProsessTaskData> resultat;
 
         // Act
         OpprettProsessTaskIverksett opprettProsessTaskIverksettKlage = opprettKlageProsessTask(scenario);
@@ -151,9 +146,9 @@ public class OpprettProsessTaskIverksettKlageTest {
         // Arrange
         ScenarioMorSøkerEngangsstønad abstractScenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         ScenarioKlageEngangsstønad scenario = ScenarioKlageEngangsstønad.forOpphevetNK(abstractScenario);
-        behandling = scenario.lagMocked();
-        mockOpprettTaskAvsluttOppgave();
-        List<ProsessTaskData> resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
+        var behandling = scenario.lagMocked();
+        mockOpprettTaskAvsluttOppgave(behandling);
+        List<ProsessTaskData> resultat;
 
         // Act
         OpprettProsessTaskIverksett opprettProsessTaskIverksettKlage = opprettKlageProsessTask(scenario);
@@ -177,9 +172,9 @@ public class OpprettProsessTaskIverksettKlageTest {
         // Arrange
         ScenarioMorSøkerEngangsstønad abstractScenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         ScenarioKlageEngangsstønad scenario = ScenarioKlageEngangsstønad.forHjemsendtNK(abstractScenario);
-        behandling = scenario.lagMocked();
-        mockOpprettTaskAvsluttOppgave();
-        List<ProsessTaskData> resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
+        var behandling = scenario.lagMocked();
+        mockOpprettTaskAvsluttOppgave(behandling);
+        List<ProsessTaskData> resultat;
 
         // Act
         OpprettProsessTaskIverksett opprettProsessTaskIverksettKlage = opprettKlageProsessTask(scenario);
@@ -197,9 +192,9 @@ public class OpprettProsessTaskIverksettKlageTest {
         // Arrange
         ScenarioMorSøkerEngangsstønad abstractScenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         ScenarioKlageEngangsstønad scenario = ScenarioKlageEngangsstønad.forAvvistNK(abstractScenario);
-        behandling = scenario.lagMocked();
-        mockOpprettTaskAvsluttOppgave();
-        List<ProsessTaskData> resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
+        var behandling = scenario.lagMocked();
+        mockOpprettTaskAvsluttOppgave(behandling);
+        List<ProsessTaskData> resultat;
 
         // Act
         OpprettProsessTaskIverksett opprettProsessTaskIverksettKlage = opprettKlageProsessTask(scenario);
@@ -216,9 +211,9 @@ public class OpprettProsessTaskIverksettKlageTest {
         // Arrange
         ScenarioMorSøkerEngangsstønad abstractScenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         ScenarioKlageEngangsstønad scenario = ScenarioKlageEngangsstønad.forUtenVurderingResultat(abstractScenario);
-        behandling = scenario.lagMocked();
-        mockOpprettTaskAvsluttOppgave();
-        List<ProsessTaskData> resultat = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
+        var behandling = scenario.lagMocked();
+        mockOpprettTaskAvsluttOppgave(behandling);
+        List<ProsessTaskData> resultat;
 
         // Act
         OpprettProsessTaskIverksett opprettProsessTaskIverksettKlage = opprettKlageProsessTask(scenario);
@@ -231,7 +226,7 @@ public class OpprettProsessTaskIverksettKlageTest {
     }
 
 
-    private void mockOpprettTaskAvsluttOppgave() {
+    private void mockOpprettTaskAvsluttOppgave(Behandling behandling) {
         ProsessTaskData prosessTaskData = new ProsessTaskData(AvsluttOppgaveTask.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setOppgaveId("1001");

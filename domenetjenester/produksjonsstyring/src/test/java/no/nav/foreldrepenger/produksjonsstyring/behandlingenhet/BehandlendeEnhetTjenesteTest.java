@@ -8,9 +8,8 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
@@ -24,32 +23,28 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioF
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon.Builder;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.event.BehandlingEnhetEventPubliserer;
 
-public class BehandlendeEnhetTjenesteTest {
+public class BehandlendeEnhetTjenesteTest extends EntityManagerAwareTest {
 
-    private static AktørId MOR_AKTØR_ID = AktørId.dummy();
+    private static final AktørId MOR_AKTØR_ID = AktørId.dummy();
 
-    private static AktørId FAR_AKTØR_ID = AktørId.dummy();
+    private static final AktørId FAR_AKTØR_ID = AktørId.dummy();
 
-    private static OrganisasjonsEnhet enhetNormal = new OrganisasjonsEnhet("4849", "NAV Tromsø");
-    private static OrganisasjonsEnhet enhetKode6 = new OrganisasjonsEnhet("2103", "NAV Viken");
+    private static final OrganisasjonsEnhet enhetNormal = new OrganisasjonsEnhet("4849", "NAV Tromsø");
+    private static final OrganisasjonsEnhet enhetKode6 = new OrganisasjonsEnhet("2103", "NAV Viken");
 
-
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
+    private BehandlingRepositoryProvider repositoryProvider;
     private EnhetsTjeneste enhetsTjeneste;
-    private BehandlingEnhetEventPubliserer eventPubliserer;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
 
-
-    @Before
+    @BeforeEach
     public void oppsett() {
         enhetsTjeneste = mock(EnhetsTjeneste.class);
-        eventPubliserer = mock(BehandlingEnhetEventPubliserer.class);
+        var eventPubliserer = mock(BehandlingEnhetEventPubliserer.class);
+        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         behandlendeEnhetTjeneste = new BehandlendeEnhetTjeneste(enhetsTjeneste, eventPubliserer, repositoryProvider);
     }
 

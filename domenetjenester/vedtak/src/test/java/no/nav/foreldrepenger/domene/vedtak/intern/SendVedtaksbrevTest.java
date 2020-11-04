@@ -1,19 +1,18 @@
 package no.nav.foreldrepenger.domene.vedtak.intern;
 
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -37,10 +36,8 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerApplikasjonTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 
+@ExtendWith(MockitoExtension.class)
 public class SendVedtaksbrevTest {
-
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
 
     @Mock
     private DokumentBestillerApplikasjonTjeneste dokumentBestillerApplikasjonTjeneste;
@@ -65,19 +62,18 @@ public class SendVedtaksbrevTest {
 
     private BehandlingRepository behandlingRepository;
 
-    private BehandlingRepositoryProvider repositoryProvider;
-
-    @Before
+    @BeforeEach
     public void oppsett() {
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         behandling = scenario.lagMocked();
         behandlingRepository = scenario.mockBehandlingRepository();
-        repositoryProvider = scenario.mockBehandlingRepositoryProvider();
+        BehandlingRepositoryProvider repositoryProvider = scenario.mockBehandlingRepositoryProvider();
         behandlingVedtak = scenario.mockBehandlingVedtak();
-        sendVedtaksbrev = new SendVedtaksbrev(behandlingRepository, repositoryProvider.getBehandlingVedtakRepository(), null, dokumentBestillerApplikasjonTjeneste, dokumentBehandlingTjeneste, klageRepository);
-        when(behandlingsresultat.getVedtaksbrev()).thenReturn(Vedtaksbrev.AUTOMATISK);
-        when(behandlingVedtak.getBehandlingsresultat()).thenReturn(behandlingsresultat);
-        when(behandlingVedtak.getVedtakResultatType()).thenReturn(VedtakResultatType.INNVILGET);
+        sendVedtaksbrev = new SendVedtaksbrev(behandlingRepository, repositoryProvider.getBehandlingVedtakRepository(),
+            null, dokumentBestillerApplikasjonTjeneste, dokumentBehandlingTjeneste, klageRepository);
+        lenient().when(behandlingsresultat.getVedtaksbrev()).thenReturn(Vedtaksbrev.AUTOMATISK);
+        lenient().when(behandlingVedtak.getBehandlingsresultat()).thenReturn(behandlingsresultat);
+        lenient().when(behandlingVedtak.getVedtakResultatType()).thenReturn(VedtakResultatType.INNVILGET);
 
     }
 
@@ -93,7 +89,7 @@ public class SendVedtaksbrevTest {
     @Test
     public void testSendVedtaksbrevVedtakAvslag() {
         // Arrange
-        when(behandlingVedtak.getVedtakResultatType()).thenReturn(VedtakResultatType.AVSLAG);
+        lenient().when(behandlingVedtak.getVedtakResultatType()).thenReturn(VedtakResultatType.AVSLAG);
 
         // Act
         sendVedtaksbrev.sendVedtaksbrev(behandling.getId());
@@ -104,37 +100,41 @@ public class SendVedtaksbrevTest {
 
     @Test
     public void testSendVedtaksbrevEtterKlagebehandlingAvvistNFP() {
-        testSendVedtaksbrevEtterKlagebehandling(BehandlingResultatType.KLAGE_AVVIST, KlageVurdering.AVVIS_KLAGE, KlageVurdertAv.NFP);
+        testSendVedtaksbrevEtterKlagebehandling(BehandlingResultatType.KLAGE_AVVIST, KlageVurdering.AVVIS_KLAGE,
+            KlageVurdertAv.NFP);
     }
 
     @Test
     public void testSendVedtaksbrevEtterKlagebehandlingAvvistNK() {
-        testSendVedtaksbrevEtterKlagebehandling(BehandlingResultatType.KLAGE_AVVIST, KlageVurdering.AVVIS_KLAGE, KlageVurdertAv.NK);
+        testSendVedtaksbrevEtterKlagebehandling(BehandlingResultatType.KLAGE_AVVIST, KlageVurdering.AVVIS_KLAGE,
+            KlageVurdertAv.NK);
     }
 
     @Test
     public void testSendVedtaksbrevEtterKlagebehandlingMedholdNFP() {
-        testSendVedtaksbrevEtterKlagebehandling(BehandlingResultatType.KLAGE_MEDHOLD, KlageVurdering.MEDHOLD_I_KLAGE, KlageVurdertAv.NFP,
-            true);
+        testSendVedtaksbrevEtterKlagebehandling(BehandlingResultatType.KLAGE_MEDHOLD, KlageVurdering.MEDHOLD_I_KLAGE,
+            KlageVurdertAv.NFP, true);
     }
 
     @Test
     public void testSendVedtaksbrevEtterKlagebehandlingMedholdNK() {
-        testSendVedtaksbrevEtterKlagebehandling(BehandlingResultatType.KLAGE_MEDHOLD, KlageVurdering.MEDHOLD_I_KLAGE, KlageVurdertAv.NK,
-            true);
+        testSendVedtaksbrevEtterKlagebehandling(BehandlingResultatType.KLAGE_MEDHOLD, KlageVurdering.MEDHOLD_I_KLAGE,
+            KlageVurdertAv.NK, true);
     }
 
     @Test
     public void testIkkeSendVedtaksbrevEtterKlagebehandlingMedholdNFP() {
-        when(behandlingMock.harBehandlingÅrsak(BehandlingÅrsakType.ETTER_KLAGE)).thenReturn(true);
-        when(behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(fagsakMock.getId(), BehandlingType.KLAGE)).thenReturn(Optional.of(behandlingMock));
-        testSendVedtaksbrevEtterKlagebehandling(BehandlingResultatType.KLAGE_MEDHOLD, KlageVurdering.MEDHOLD_I_KLAGE, KlageVurdertAv.NFP, false);
+        lenient().when(behandlingMock.harBehandlingÅrsak(BehandlingÅrsakType.ETTER_KLAGE)).thenReturn(true);
+        lenient().when(behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(fagsakMock.getId(),
+            BehandlingType.KLAGE)).thenReturn(Optional.of(behandlingMock));
+        testSendVedtaksbrevEtterKlagebehandling(BehandlingResultatType.KLAGE_MEDHOLD, KlageVurdering.MEDHOLD_I_KLAGE,
+            KlageVurdertAv.NFP, false);
     }
 
     @Test
     public void testSendVedtaksbrevEtterKlagebehandlingOpphevet() {
-        testSendVedtaksbrevEtterKlagebehandling(BehandlingResultatType.KLAGE_YTELSESVEDTAK_OPPHEVET, KlageVurdering.OPPHEVE_YTELSESVEDTAK,
-            KlageVurdertAv.NK);
+        testSendVedtaksbrevEtterKlagebehandling(BehandlingResultatType.KLAGE_YTELSESVEDTAK_OPPHEVET,
+            KlageVurdering.OPPHEVE_YTELSESVEDTAK, KlageVurdertAv.NK);
     }
 
     @Test
@@ -143,23 +143,27 @@ public class SendVedtaksbrevTest {
             KlageVurdering.STADFESTE_YTELSESVEDTAK, KlageVurdertAv.NK);
     }
 
-    private void testSendVedtaksbrevEtterKlagebehandling(BehandlingResultatType behandlingResultat, KlageVurdering klageVurdering,
+    private void testSendVedtaksbrevEtterKlagebehandling(BehandlingResultatType behandlingResultat,
+                                                         KlageVurdering klageVurdering,
                                                          KlageVurdertAv klageVurdertAv) {
         testSendVedtaksbrevEtterKlagebehandling(behandlingResultat, klageVurdering, klageVurdertAv, true);
     }
 
-    private void testSendVedtaksbrevEtterKlagebehandling(BehandlingResultatType behandlingResultat, KlageVurdering klageVurdering,
-                                                         KlageVurdertAv klageVurdertAv, boolean skalSende) {
+    private void testSendVedtaksbrevEtterKlagebehandling(BehandlingResultatType behandlingResultat,
+                                                         KlageVurdering klageVurdering,
+                                                         KlageVurdertAv klageVurdertAv,
+                                                         boolean skalSende) {
         // Arrange
         // TODO (ONYX) erstatt med scenario
-        when(klageRepository.hentGjeldendeKlageVurderingResultat(behandlingMock)).thenReturn(Optional.of(klageVurderingResultat));
-        when(fagsakMock.getYtelseType()).thenReturn(FagsakYtelseType.ENGANGSTØNAD);
-        when(behandlingMock.getFagsak()).thenReturn(fagsakMock);
-        when(behandlingVedtak.getVedtakResultatType()).thenReturn(VedtakResultatType.VEDTAK_I_KLAGEBEHANDLING);
-        when(behandlingRepository.hentBehandling(behandling.getId())).thenReturn(behandlingMock);
-        when(klageVurderingResultat.getKlageVurdering()).thenReturn(klageVurdering);
-        when(klageVurderingResultat.getKlageVurdertAv()).thenReturn(klageVurdertAv);
-        when(behandlingsresultat.getBehandlingResultatType()).thenReturn(behandlingResultat);
+        lenient().when(klageRepository.hentGjeldendeKlageVurderingResultat(behandlingMock)).thenReturn(
+            Optional.of(klageVurderingResultat));
+        lenient().when(fagsakMock.getYtelseType()).thenReturn(FagsakYtelseType.ENGANGSTØNAD);
+        lenient().when(behandlingMock.getFagsak()).thenReturn(fagsakMock);
+        lenient().when(behandlingVedtak.getVedtakResultatType()).thenReturn(VedtakResultatType.VEDTAK_I_KLAGEBEHANDLING);
+        lenient().when(behandlingRepository.hentBehandling(behandling.getId())).thenReturn(behandlingMock);
+        lenient().when(klageVurderingResultat.getKlageVurdering()).thenReturn(klageVurdering);
+        lenient().when(klageVurderingResultat.getKlageVurdertAv()).thenReturn(klageVurdertAv);
+        lenient().when(behandlingsresultat.getBehandlingResultatType()).thenReturn(behandlingResultat);
 
         // Act
         sendVedtaksbrev.sendVedtaksbrev(behandling.getId());
@@ -174,9 +178,9 @@ public class SendVedtaksbrevTest {
 
     @Test
     public void senderBrevOmUendretUtfallVedRevurdering() {
-        when(behandlingVedtak.isBeslutningsvedtak()).thenReturn(true);
-        when(dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.REVURDERING_DOK))
-            .thenReturn(true);
+        lenient().when(behandlingVedtak.isBeslutningsvedtak()).thenReturn(true);
+        lenient().when(dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(),
+            DokumentMalType.REVURDERING_DOK)).thenReturn(true);
 
         sendVedtaksbrev.sendVedtaksbrev(behandling.getId());
 
@@ -185,9 +189,9 @@ public class SendVedtaksbrevTest {
 
     @Test
     public void senderIkkeBrevOmUendretUtfallHvisIkkeSendtVarselbrevOmRevurdering() {
-        when(behandlingVedtak.isBeslutningsvedtak()).thenReturn(true);
-        when(dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.REVURDERING_DOK))
-            .thenReturn(false);
+        lenient().when(behandlingVedtak.isBeslutningsvedtak()).thenReturn(true);
+        lenient().when(dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(),
+            DokumentMalType.REVURDERING_DOK)).thenReturn(false);
 
         sendVedtaksbrev.sendVedtaksbrev(behandling.getId());
 
@@ -206,7 +210,7 @@ public class SendVedtaksbrevTest {
     @Test
     public void sender_brev_dersom_førstegangsøknad_som_er_migrert_fra_infotrygd_men_overstyrt_til_fritekstbrev() {
         behandling.setMigrertKilde(Fagsystem.INFOTRYGD);
-        when(behandlingsresultat.getVedtaksbrev()).thenReturn(Vedtaksbrev.FRITEKST);
+        lenient().when(behandlingsresultat.getVedtaksbrev()).thenReturn(Vedtaksbrev.FRITEKST);
 
         sendVedtaksbrev.sendVedtaksbrev(behandling.getId());
 

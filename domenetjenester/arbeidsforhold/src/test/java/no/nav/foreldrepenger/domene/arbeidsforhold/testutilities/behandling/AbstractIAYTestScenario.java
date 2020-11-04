@@ -73,7 +73,6 @@ import no.nav.vedtak.felles.testutilities.Whitebox;
  * Mer avansert bruk er ikke gitt at kan bruke denne
  * klassen.
  */
-@SuppressWarnings("deprecation")
 abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
 
     public static final String ADOPSJON = "adopsjon";
