@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev;
 
-
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev.SendInformasjonsbrevBatchArguments.DATE_PATTERN;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -11,11 +10,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -40,17 +38,13 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntit
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class SendInformasjonsbrevBatchTjenesteTest {
-
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
 
     @Inject
     private BehandlingRepository behandlingRepository;
@@ -75,8 +69,7 @@ public class SendInformasjonsbrevBatchTjenesteTest {
     private LocalDate uttakFomOpphold = fom.minusWeeks(4);
     SendInformasjonsbrevBatchArguments batchArgs;
 
-
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         tjeneste = new SendInformasjonsbrevBatchTjeneste(repository, prosessTaskRepositoryMock);
         Map<String, String> arguments = new HashMap<>();
@@ -92,91 +85,93 @@ public class SendInformasjonsbrevBatchTjenesteTest {
     }
 
     @Test
-    public void skal_ikke_finne_saker_til_revurdering() {
-        opprettRevurderingsKandidat(BehandlingStatus.UTREDES, uttakFom, false);
-        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, uttakFom.minusWeeks(4), false);
+    public void skal_ikke_finne_saker_til_revurdering(EntityManager em) {
+        opprettRevurderingsKandidat(em, BehandlingStatus.UTREDES, uttakFom, false);
+        opprettRevurderingsKandidat(em, BehandlingStatus.AVSLUTTET, uttakFom.minusWeeks(4), false);
         String svar = tjeneste.launch(batchArgs);
         assertThat(svar).isEqualTo(SendInformasjonsbrevBatchTjeneste.BATCHNAVN + "-0");
     }
 
     @Test
-    public void skal_finne_en_sak_til_revurdering() {
-        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, uttakFom, false);
+    public void skal_finne_en_sak_til_revurdering(EntityManager em) {
+        opprettRevurderingsKandidat(em, BehandlingStatus.AVSLUTTET, uttakFom, false);
         String svar = tjeneste.launch(batchArgs);
         assertThat(svar).isEqualTo(SendInformasjonsbrevBatchTjeneste.BATCHNAVN + "-1");
     }
 
     @Test
-    public void skal_ikke_finne_saker_til_revurdering_med_opphold() {
-        opprettRevurderingsKandidat(BehandlingStatus.UTREDES, uttakFom, true);
-        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, uttakFom.minusWeeks(4), true);
+    public void skal_ikke_finne_saker_til_revurdering_med_opphold(EntityManager em) {
+        opprettRevurderingsKandidat(em, BehandlingStatus.UTREDES, uttakFom, true);
+        opprettRevurderingsKandidat(em, BehandlingStatus.AVSLUTTET, uttakFom.minusWeeks(4), true);
         String svar = tjenesteOpphold.launch(batchArgs);
         assertThat(svar).isEqualTo(SendInformasjonsbrevOppholdBatchTjeneste.BATCHNAVN + "-0");
     }
 
     @Test
-    public void skal_finne_en_sak_til_revurdering_med_opphold() {
-        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, uttakFomOpphold, true);
+    public void skal_finne_en_sak_til_revurdering_med_opphold(EntityManager em) {
+        opprettRevurderingsKandidat(em, BehandlingStatus.AVSLUTTET, uttakFomOpphold, true);
         String svar = tjenesteOpphold.launch(batchArgs);
         assertThat(svar).isEqualTo(SendInformasjonsbrevOppholdBatchTjeneste.BATCHNAVN + "-1");
     }
 
-
-    private Behandling opprettRevurderingsKandidat(BehandlingStatus status, LocalDate uttakFom, boolean medOpphold) {
+    private Behandling opprettRevurderingsKandidat(EntityManager em, BehandlingStatus status, LocalDate uttakFom, boolean medOpphold) {
         LocalDate terminDato = uttakFom.plusWeeks(3);
 
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medSøknadDato(terminDato.minusDays(40));
+                .medSøknadDato(terminDato.minusDays(40));
         scenario.medSøknadAnnenPart().medAktørId(new AktørId("0000000000000")).medNavn("Ola Dunk").build();
 
         scenario.medBekreftetHendelse()
-            .medFødselsDato(terminDato)
-            .medAntallBarn(1);
+                .medFødselsDato(terminDato)
+                .medAntallBarn(1);
 
         // Uttak periode 1
         UttakResultatPerioderEntitet perioder = new UttakResultatPerioderEntitet();
         Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG);
 
         UttakResultatPeriodeEntitet uttakFFF = new UttakResultatPeriodeEntitet.Builder(uttakFom, terminDato.minusDays(1))
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
-            .build();
+                .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+                .build();
 
         UttakAktivitetEntitet arbeidsforhold1 = new UttakAktivitetEntitet.Builder()
-            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
-            .medArbeidsforhold(arbeidsgiver, InternArbeidsforholdRef.nyRef())
-            .build();
+                .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+                .medArbeidsforhold(arbeidsgiver, InternArbeidsforholdRef.nyRef())
+                .build();
 
         UttakResultatPeriodeAktivitetEntitet.builder(uttakFFF, arbeidsforhold1)
-            .medTrekkdager(new Trekkdager(21))
-            .medTrekkonto(StønadskontoType.FORELDREPENGER_FØR_FØDSEL)
-            .medArbeidsprosent(BigDecimal.TEN).build();
+                .medTrekkdager(new Trekkdager(21))
+                .medTrekkonto(StønadskontoType.FORELDREPENGER_FØR_FØDSEL)
+                .medArbeidsprosent(BigDecimal.TEN).build();
 
         perioder.leggTilPeriode(uttakFFF);
 
         // Uttak periode 2
         UttakResultatPeriodeEntitet uttakMødre = new UttakResultatPeriodeEntitet.Builder(terminDato, terminDato.plusWeeks(6).minusDays(1))
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
-            .build();
+                .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+                .build();
         UttakResultatPeriodeAktivitetEntitet.builder(uttakMødre, arbeidsforhold1)
-            .medTrekkdager(new Trekkdager(42))
-            .medTrekkonto(StønadskontoType.MØDREKVOTE)
-            .medArbeidsprosent(BigDecimal.TEN).build();
+                .medTrekkdager(new Trekkdager(42))
+                .medTrekkonto(StønadskontoType.MØDREKVOTE)
+                .medArbeidsprosent(BigDecimal.TEN).build();
         perioder.leggTilPeriode(uttakMødre);
 
         if (medOpphold) {
-            UttakResultatPeriodeEntitet uttakFelles = new UttakResultatPeriodeEntitet.Builder(terminDato.plusWeeks(6), terminDato.plusWeeks(6).plusDays(8))
-                .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).medOppholdÅrsak(OppholdÅrsak.KVOTE_FELLESPERIODE_ANNEN_FORELDER)
-                .build();
+            UttakResultatPeriodeEntitet uttakFelles = new UttakResultatPeriodeEntitet.Builder(terminDato.plusWeeks(6),
+                    terminDato.plusWeeks(6).plusDays(8))
+                            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+                            .medOppholdÅrsak(OppholdÅrsak.KVOTE_FELLESPERIODE_ANNEN_FORELDER)
+                            .build();
             perioder.leggTilPeriode(uttakFelles);
             scenario.medUttak(perioder);
         } else {
-            UttakResultatPeriodeEntitet uttakFelles = new UttakResultatPeriodeEntitet.Builder(terminDato.plusWeeks(6), terminDato.plusWeeks(6).plusDays(8))
-                .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
-                .build();
+            UttakResultatPeriodeEntitet uttakFelles = new UttakResultatPeriodeEntitet.Builder(terminDato.plusWeeks(6),
+                    terminDato.plusWeeks(6).plusDays(8))
+                            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+                            .build();
             UttakResultatPeriodeAktivitetEntitet.builder(uttakFelles, arbeidsforhold1)
-                .medTrekkdager(new Trekkdager(7))
-                .medTrekkonto(StønadskontoType.FELLESPERIODE)
-                .medArbeidsprosent(BigDecimal.TEN).build();
+                    .medTrekkdager(new Trekkdager(7))
+                    .medTrekkonto(StønadskontoType.FELLESPERIODE)
+                    .medArbeidsprosent(BigDecimal.TEN).build();
             perioder.leggTilPeriode(uttakFelles);
             scenario.medUttak(perioder);
         }
@@ -186,7 +181,7 @@ public class SendInformasjonsbrevBatchTjenesteTest {
 
         Behandlingsresultat behandlingsresultat = behandling.getBehandlingsresultat();
         Behandlingsresultat.builderEndreEksisterende(behandlingsresultat).medBehandlingResultatType(BehandlingResultatType.INNVILGET);
-        repoRule.getRepository().lagre(behandlingsresultat);
+        em.persist(behandlingsresultat);
 
         if (BehandlingStatus.AVSLUTTET.equals(status)) {
             behandling.avsluttBehandling();
@@ -196,16 +191,15 @@ public class SendInformasjonsbrevBatchTjenesteTest {
         behandlingRepository.lagre(behandling, lås);
 
         var konto = Stønadskontoberegning.builder()
-            .medStønadskonto(Stønadskonto.builder().medStønadskontoType(StønadskontoType.MØDREKVOTE).medMaxDager(75).build())
-            .medRegelInput("{ blablabla }").medRegelEvaluering("{ blablabla }");
+                .medStønadskonto(Stønadskonto.builder().medStønadskontoType(StønadskontoType.MØDREKVOTE).medMaxDager(75).build())
+                .medRegelInput("{ blablabla }").medRegelEvaluering("{ blablabla }");
 
         repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
         repositoryProvider.getFagsakRelasjonRepository().lagre(behandling.getFagsak(), behandling.getId(), konto.build());
 
-        repoRule.getRepository().flushAndClear();
-        behandling = repoRule.getEntityManager().find(Behandling.class, behandling.getId());
-
-        return behandling;
+        em.flush();
+        em.clear();
+        return em.find(Behandling.class, behandling.getId());
     }
 
 }

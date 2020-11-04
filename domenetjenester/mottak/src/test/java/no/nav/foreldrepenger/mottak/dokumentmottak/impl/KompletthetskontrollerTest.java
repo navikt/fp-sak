@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 import static java.time.LocalDate.now;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -13,13 +14,10 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -35,20 +33,16 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.kompletthet.KompletthetsjekkerProvider;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.mottak.kompletthettjeneste.KompletthetModell;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class KompletthetskontrollerTest {
-
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
@@ -74,24 +68,22 @@ public class KompletthetskontrollerTest {
     private Behandling behandling;
     private MottattDokument mottattDokument;
 
-    @Before
+    @BeforeEach
     public void oppsett() {
-        MockitoAnnotations.initMocks(this);
-
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = scenario.lagMocked();
 
         // Simuler at provider alltid gir kompletthetssjekker
-        when(kompletthetsjekkerProvider.finnKompletthetsjekkerFor(any(), any())).thenReturn(kompletthetsjekker);
+        lenient().when(kompletthetsjekkerProvider.finnKompletthetsjekkerFor(any(), any())).thenReturn(kompletthetsjekker);
 
         KompletthetModell modell = new KompletthetModell(behandlingskontrollTjeneste, kompletthetsjekkerProvider);
         SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = Mockito.mock(SkjæringstidspunktTjeneste.class);
 
         kompletthetskontroller = new Kompletthetskontroller(dokumentmottakerFelles,
-            mottatteDokumentTjeneste,
-            modell,
-            behandlingProsesseringTjeneste,
-            skjæringstidspunktTjeneste);
+                mottatteDokumentTjeneste,
+                modell,
+                behandlingProsesseringTjeneste,
+                skjæringstidspunktTjeneste);
 
         mottattDokument = DokumentmottakTestUtil.byggMottattDokument(DokumentTypeId.INNTEKTSMELDING, behandling.getFagsakId(), "", now(), true, null);
 
@@ -122,8 +114,9 @@ public class KompletthetskontrollerTest {
         LocalDateTime ventefrist = LocalDateTime.now().plusDays(1);
 
         when(kompletthetsjekkerProvider.finnKompletthetsjekkerFor(any(), any())).thenReturn(kompletthetsjekker);
-        when(kompletthetsjekker.vurderEtterlysningInntektsmelding(any())).thenReturn(KompletthetResultat.ikkeOppfylt(ventefrist, Venteårsak.AVV_FODSEL));
-        when(behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.REGISTRER_SØKNAD)).thenReturn(true);
+        when(kompletthetsjekker.vurderEtterlysningInntektsmelding(any()))
+                .thenReturn(KompletthetResultat.ikkeOppfylt(ventefrist, Venteårsak.AVV_FODSEL));
+        lenient().when(behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.REGISTRER_SØKNAD)).thenReturn(true);
 
         // Act
         kompletthetskontroller.persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
@@ -144,7 +137,6 @@ public class KompletthetskontrollerTest {
     @Test
     public void skal_gjenoppta_behandling_dersom_behandling_er_komplett_og_kompletthet_ikke_passert() {
         // Arrange
-        when(kompletthetsjekker.vurderForsendelseKomplett(any())).thenReturn(KompletthetResultat.oppfylt());
         when(behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.VURDER_KOMPLETTHET)).thenReturn(false);
         when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling.getId(), BehandlingStegType.VURDER_KOMPLETTHET)).thenReturn(true);
 
@@ -156,7 +148,6 @@ public class KompletthetskontrollerTest {
     @Test
     public void skal_gjenoppta_behandling_dersom_behandling_er_komplett_og_regsok_ikke_passert() {
         // Arrange
-        when(kompletthetsjekker.vurderForsendelseKomplett(any())).thenReturn(KompletthetResultat.oppfylt());
         when(behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.VURDER_KOMPLETTHET)).thenReturn(false);
         when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling.getId(), BehandlingStegType.VURDER_KOMPLETTHET)).thenReturn(false);
 
@@ -181,7 +172,6 @@ public class KompletthetskontrollerTest {
     @Test
     public void skal_spole_til_startpunkt_dersom_komplett_og_vurder_kompletthet_er_passert() {
         // Arrange
-        when(kompletthetsjekker.vurderForsendelseKomplett(any())).thenReturn(KompletthetResultat.oppfylt());
         when(behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.VURDER_KOMPLETTHET)).thenReturn(true);
         when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling.getId(), BehandlingStegType.VURDER_KOMPLETTHET)).thenReturn(true);
 
@@ -204,9 +194,7 @@ public class KompletthetskontrollerTest {
     public void skal_opprette_historikkinnslag_for_tidlig_mottatt_søknad() {
         // Arrange
         LocalDateTime frist = LocalDateTime.now().minusSeconds(30);
-        when(kompletthetsjekker.vurderSøknadMottatt(any())).thenReturn(KompletthetResultat.oppfylt());
         when(kompletthetsjekker.vurderSøknadMottattForTidlig(any())).thenReturn(KompletthetResultat.ikkeOppfylt(frist, Venteårsak.FOR_TIDLIG_SOKNAD));
-        when(kompletthetsjekker.vurderForsendelseKomplett(any())).thenReturn(KompletthetResultat.ikkeOppfylt(frist, Venteårsak.FOR_TIDLIG_SOKNAD));
 
         // Act
         kompletthetskontroller.persisterKøetDokumentOgVurderKompletthet(behandling, mottattDokument, Optional.empty());
@@ -214,7 +202,7 @@ public class KompletthetskontrollerTest {
         // Assert
         verify(mottatteDokumentTjeneste).persisterDokumentinnhold(behandling, mottattDokument, Optional.empty());
         verify(dokumentmottakerFelles).opprettHistorikkinnslagForVenteFristRelaterteInnslag(behandling, HistorikkinnslagType.BEH_VENT, frist,
-            Venteårsak.FOR_TIDLIG_SOKNAD);
+                Venteårsak.FOR_TIDLIG_SOKNAD);
     }
 
     @Test
@@ -232,6 +220,6 @@ public class KompletthetskontrollerTest {
         // Assert
         verify(mottatteDokumentTjeneste).persisterDokumentinnhold(behandling, mottattDokument, Optional.empty());
         verify(dokumentmottakerFelles).opprettHistorikkinnslagForVenteFristRelaterteInnslag(behandling, HistorikkinnslagType.BEH_VENT, frist,
-            Venteårsak.AVV_DOK);
+                Venteårsak.AVV_DOK);
     }
 }

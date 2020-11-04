@@ -55,8 +55,7 @@ public class KontrollerFaktaStegImplTest {
     @Inject
     private BehandlingRepository behandlingRepository;
 
-    private final SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
-            new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     private KontrollerFaktaSteg steg;
 
@@ -78,6 +77,8 @@ public class KontrollerFaktaStegImplTest {
 
     @BeforeEach
     public void oppsett() {
+        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
+                new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
         ScenarioFarSøkerEngangsstønad scenario = byggBehandlingMedFarSøkerType(FarSøkerType.ADOPTERER_ALENE);
         scenario.medBruker(AktørId.dummy(), NavBrukerKjønn.MANN);
         behandling = scenario.lagre(repositoryProvider);

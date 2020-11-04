@@ -10,9 +10,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
@@ -49,32 +47,30 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktiv
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.medlem.UtledVurderingsdatoerForMedlemskapTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
 
-    @Rule
-    public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
-
-    private BehandlingRepositoryProvider provider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
-    private BehandlingRepository behandlingRepository = provider.getBehandlingRepository();
-    private MedlemskapRepository medlemskapRepository = provider.getMedlemskapRepository();
-    private PersonopplysningRepository personopplysningRepository = provider.getPersonopplysningRepository();
-    private FagsakRepository fagsakRepository = provider.getFagsakRepository();
-
+    @Inject
+    private BehandlingRepositoryProvider provider;
+    @Inject
+    private BehandlingRepository behandlingRepository;
+    @Inject
+    private MedlemskapRepository medlemskapRepository;
+    @Inject
+    private PersonopplysningRepository personopplysningRepository;
+    @Inject
+    private FagsakRepository fagsakRepository;
     @Inject
     private UtledVurderingsdatoerForMedlemskapTjeneste tjeneste;
-
     @Inject
     private InntektArbeidYtelseTjeneste iayTjeneste;
-
 
     @Test
     public void skal_ikke_utlede_dato_når_overlappende_perioder_uten_endring_i_medl() {
@@ -83,21 +79,21 @@ public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
         scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now()).build());
         scenario.medDefaultSøknadTerminbekreftelse();
         MedlemskapPerioderEntitet periode = new MedlemskapPerioderBuilder()
-            .medDekningType(MedlemskapDekningType.FULL)
-            .medMedlemskapType(MedlemskapType.ENDELIG)
-            .medPeriode(LocalDate.of(2014, 2, 17), TIDENES_ENDE)
-            .medKildeType(MedlemskapKildeType.AVGSYS)
-            .medBeslutningsdato(LocalDate.of(2014, 3, 5))
-            .medMedlId(1L)
-            .build();
+                .medDekningType(MedlemskapDekningType.FULL)
+                .medMedlemskapType(MedlemskapType.ENDELIG)
+                .medPeriode(LocalDate.of(2014, 2, 17), TIDENES_ENDE)
+                .medKildeType(MedlemskapKildeType.AVGSYS)
+                .medBeslutningsdato(LocalDate.of(2014, 3, 5))
+                .medMedlId(1L)
+                .build();
         MedlemskapPerioderEntitet periode2 = new MedlemskapPerioderBuilder()
-            .medDekningType(MedlemskapDekningType.FULL)
-            .medMedlemskapType(MedlemskapType.ENDELIG)
-            .medPeriode(LocalDate.of(2017, 1, 1), TIDENES_ENDE)
-            .medKildeType(MedlemskapKildeType.AVGSYS)
-            .medBeslutningsdato(LocalDate.of(2018, 8, 31))
-            .medMedlId(1L)
-            .build();
+                .medDekningType(MedlemskapDekningType.FULL)
+                .medMedlemskapType(MedlemskapType.ENDELIG)
+                .medPeriode(LocalDate.of(2017, 1, 1), TIDENES_ENDE)
+                .medKildeType(MedlemskapKildeType.AVGSYS)
+                .medBeslutningsdato(LocalDate.of(2018, 8, 31))
+                .medMedlId(1L)
+                .build();
 
         scenario.leggTilMedlemskapPeriode(periode);
         scenario.leggTilMedlemskapPeriode(periode2);
@@ -121,21 +117,21 @@ public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
         scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now()).build());
         scenario.medDefaultSøknadTerminbekreftelse();
         MedlemskapPerioderEntitet periode = new MedlemskapPerioderBuilder()
-            .medDekningType(MedlemskapDekningType.FULL)
-            .medMedlemskapType(MedlemskapType.ENDELIG)
-            .medPeriode(LocalDate.of(2014, 2, 17), TIDENES_ENDE)
-            .medKildeType(MedlemskapKildeType.AVGSYS)
-            .medBeslutningsdato(LocalDate.of(2014, 3, 5))
-            .medMedlId(1L)
-            .build();
+                .medDekningType(MedlemskapDekningType.FULL)
+                .medMedlemskapType(MedlemskapType.ENDELIG)
+                .medPeriode(LocalDate.of(2014, 2, 17), TIDENES_ENDE)
+                .medKildeType(MedlemskapKildeType.AVGSYS)
+                .medBeslutningsdato(LocalDate.of(2014, 3, 5))
+                .medMedlId(1L)
+                .build();
         MedlemskapPerioderEntitet periode2 = new MedlemskapPerioderBuilder()
-            .medDekningType(MedlemskapDekningType.FULL)
-            .medMedlemskapType(MedlemskapType.ENDELIG)
-            .medPeriode(LocalDate.of(2017, 1, 1), TIDENES_ENDE)
-            .medKildeType(MedlemskapKildeType.AVGSYS)
-            .medBeslutningsdato(LocalDate.of(2018, 8, 31))
-            .medMedlId(1L)
-            .build();
+                .medDekningType(MedlemskapDekningType.FULL)
+                .medMedlemskapType(MedlemskapType.ENDELIG)
+                .medPeriode(LocalDate.of(2017, 1, 1), TIDENES_ENDE)
+                .medKildeType(MedlemskapKildeType.AVGSYS)
+                .medBeslutningsdato(LocalDate.of(2018, 8, 31))
+                .medMedlId(1L)
+                .build();
 
         scenario.leggTilMedlemskapPeriode(periode);
         scenario.leggTilMedlemskapPeriode(periode2);
@@ -147,13 +143,13 @@ public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
 
         LocalDate endringsdato = LocalDate.now().plusMonths(1);
         MedlemskapPerioderEntitet endretPeriode = new MedlemskapPerioderBuilder()
-            .medDekningType(MedlemskapDekningType.FULL)
-            .medMedlemskapType(MedlemskapType.ENDELIG)
-            .medPeriode(endringsdato, TIDENES_ENDE)
-            .medKildeType(MedlemskapKildeType.AVGSYS)
-            .medBeslutningsdato(LocalDate.of(2018, 8, 31))
-            .medMedlId(1L)
-            .build();
+                .medDekningType(MedlemskapDekningType.FULL)
+                .medMedlemskapType(MedlemskapType.ENDELIG)
+                .medPeriode(endringsdato, TIDENES_ENDE)
+                .medKildeType(MedlemskapKildeType.AVGSYS)
+                .medBeslutningsdato(LocalDate.of(2018, 8, 31))
+                .medMedlId(1L)
+                .build();
         medlemskapRepository.lagreMedlemskapRegisterOpplysninger(revurderingId, List.of(periode, endretPeriode));
 
         // Act
@@ -162,7 +158,6 @@ public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
         // Assert
         assertThat(vurderingsdatoer).containsExactly(endringsdato);
     }
-
 
     @Test
     public void skal_utled_vurderingsdato_ved_endring_i_medlemskapsperioder() {
@@ -206,10 +201,14 @@ public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
         Long behandlingId = behandling.getId();
         PersonopplysningGrunnlagEntitet personopplysningGrunnlag = personopplysningRepository.hentPersonopplysninger(behandlingId);
 
-        PersonInformasjonBuilder personInformasjonBuilder = PersonInformasjonBuilder.oppdater(personopplysningGrunnlag.getRegisterVersjon(), PersonopplysningVersjonType.REGISTRERT);
-        PersonInformasjonBuilder.StatsborgerskapBuilder norgeFørsteÅr = personInformasjonBuilder.getStatsborgerskapBuilder(søkerAktørId, førsteÅr, Landkoder.NOR, Region.NORDEN);
-        PersonInformasjonBuilder.StatsborgerskapBuilder spaniaAndreÅr = personInformasjonBuilder.getStatsborgerskapBuilder(søkerAktørId, andreÅr, Landkoder.ESP, Region.EOS);
-        PersonInformasjonBuilder.StatsborgerskapBuilder norgeTredjeÅr = personInformasjonBuilder.getStatsborgerskapBuilder(søkerAktørId, tredjeÅr, Landkoder.NOR, Region.NORDEN);
+        PersonInformasjonBuilder personInformasjonBuilder = PersonInformasjonBuilder.oppdater(personopplysningGrunnlag.getRegisterVersjon(),
+                PersonopplysningVersjonType.REGISTRERT);
+        PersonInformasjonBuilder.StatsborgerskapBuilder norgeFørsteÅr = personInformasjonBuilder.getStatsborgerskapBuilder(søkerAktørId, førsteÅr,
+                Landkoder.NOR, Region.NORDEN);
+        PersonInformasjonBuilder.StatsborgerskapBuilder spaniaAndreÅr = personInformasjonBuilder.getStatsborgerskapBuilder(søkerAktørId, andreÅr,
+                Landkoder.ESP, Region.EOS);
+        PersonInformasjonBuilder.StatsborgerskapBuilder norgeTredjeÅr = personInformasjonBuilder.getStatsborgerskapBuilder(søkerAktørId, tredjeÅr,
+                Landkoder.NOR, Region.NORDEN);
         personInformasjonBuilder.leggTil(norgeFørsteÅr);
         personInformasjonBuilder.leggTil(spaniaAndreÅr);
         personInformasjonBuilder.leggTil(norgeTredjeÅr);
@@ -238,10 +237,14 @@ public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
         Long behandlingId = behandling.getId();
         PersonopplysningGrunnlagEntitet personopplysningGrunnlag = personopplysningRepository.hentPersonopplysninger(behandlingId);
 
-        PersonInformasjonBuilder personInformasjonBuilder = PersonInformasjonBuilder.oppdater(personopplysningGrunnlag.getRegisterVersjon(), PersonopplysningVersjonType.REGISTRERT);
-        PersonInformasjonBuilder.PersonstatusBuilder førsteÅrBosa = personInformasjonBuilder.getPersonstatusBuilder(søkerAktørId, førsteÅr).medPersonstatus(PersonstatusType.BOSA);
-        PersonInformasjonBuilder.PersonstatusBuilder andreÅrBosa = personInformasjonBuilder.getPersonstatusBuilder(søkerAktørId, andreÅr).medPersonstatus(PersonstatusType.UTVA);
-        PersonInformasjonBuilder.PersonstatusBuilder tredjeÅrBosa = personInformasjonBuilder.getPersonstatusBuilder(søkerAktørId, tredjeÅr).medPersonstatus(PersonstatusType.DØD);
+        PersonInformasjonBuilder personInformasjonBuilder = PersonInformasjonBuilder.oppdater(personopplysningGrunnlag.getRegisterVersjon(),
+                PersonopplysningVersjonType.REGISTRERT);
+        PersonInformasjonBuilder.PersonstatusBuilder førsteÅrBosa = personInformasjonBuilder.getPersonstatusBuilder(søkerAktørId, førsteÅr)
+                .medPersonstatus(PersonstatusType.BOSA);
+        PersonInformasjonBuilder.PersonstatusBuilder andreÅrBosa = personInformasjonBuilder.getPersonstatusBuilder(søkerAktørId, andreÅr)
+                .medPersonstatus(PersonstatusType.UTVA);
+        PersonInformasjonBuilder.PersonstatusBuilder tredjeÅrBosa = personInformasjonBuilder.getPersonstatusBuilder(søkerAktørId, tredjeÅr)
+                .medPersonstatus(PersonstatusType.DØD);
         personInformasjonBuilder.leggTil(førsteÅrBosa);
         personInformasjonBuilder.leggTil(andreÅrBosa);
         personInformasjonBuilder.leggTil(tredjeÅrBosa);
@@ -270,10 +273,14 @@ public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
         Long behandlingId = behandling.getId();
         PersonopplysningGrunnlagEntitet personopplysningGrunnlag = personopplysningRepository.hentPersonopplysninger(behandlingId);
 
-        PersonInformasjonBuilder personInformasjonBuilder = PersonInformasjonBuilder.oppdater(personopplysningGrunnlag.getRegisterVersjon(), PersonopplysningVersjonType.REGISTRERT);
-        PersonInformasjonBuilder.AdresseBuilder bostedFørsteÅr = personInformasjonBuilder.getAdresseBuilder(søkerAktørId, førsteÅr, AdresseType.BOSTEDSADRESSE);
-        PersonInformasjonBuilder.AdresseBuilder utlandAndreÅr = personInformasjonBuilder.getAdresseBuilder(søkerAktørId, andreÅr, AdresseType.POSTADRESSE_UTLAND);
-        PersonInformasjonBuilder.AdresseBuilder bostedTredjeÅr = personInformasjonBuilder.getAdresseBuilder(søkerAktørId, tredjeÅr, AdresseType.BOSTEDSADRESSE);
+        PersonInformasjonBuilder personInformasjonBuilder = PersonInformasjonBuilder.oppdater(personopplysningGrunnlag.getRegisterVersjon(),
+                PersonopplysningVersjonType.REGISTRERT);
+        PersonInformasjonBuilder.AdresseBuilder bostedFørsteÅr = personInformasjonBuilder.getAdresseBuilder(søkerAktørId, førsteÅr,
+                AdresseType.BOSTEDSADRESSE);
+        PersonInformasjonBuilder.AdresseBuilder utlandAndreÅr = personInformasjonBuilder.getAdresseBuilder(søkerAktørId, andreÅr,
+                AdresseType.POSTADRESSE_UTLAND);
+        PersonInformasjonBuilder.AdresseBuilder bostedTredjeÅr = personInformasjonBuilder.getAdresseBuilder(søkerAktørId, tredjeÅr,
+                AdresseType.BOSTEDSADRESSE);
         personInformasjonBuilder.leggTil(bostedFørsteÅr);
         personInformasjonBuilder.leggTil(utlandAndreÅr);
         personInformasjonBuilder.leggTil(bostedTredjeÅr);
@@ -302,10 +309,14 @@ public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
         Long behandlingId = behandling.getId();
         PersonopplysningGrunnlagEntitet personopplysningGrunnlag = personopplysningRepository.hentPersonopplysninger(behandlingId);
 
-        PersonInformasjonBuilder personInformasjonBuilder = PersonInformasjonBuilder.oppdater(personopplysningGrunnlag.getRegisterVersjon(), PersonopplysningVersjonType.REGISTRERT);
-        PersonInformasjonBuilder.AdresseBuilder bostedFørsteÅr = personInformasjonBuilder.getAdresseBuilder(søkerAktørId, førsteÅr, AdresseType.BOSTEDSADRESSE);
-        PersonInformasjonBuilder.AdresseBuilder utlandAndreÅr = personInformasjonBuilder.getAdresseBuilder(søkerAktørId, andreÅr, AdresseType.POSTADRESSE_UTLAND);
-        PersonInformasjonBuilder.AdresseBuilder bostedTredjeÅr = personInformasjonBuilder.getAdresseBuilder(søkerAktørId, tredjeÅr, AdresseType.BOSTEDSADRESSE);
+        PersonInformasjonBuilder personInformasjonBuilder = PersonInformasjonBuilder.oppdater(personopplysningGrunnlag.getRegisterVersjon(),
+                PersonopplysningVersjonType.REGISTRERT);
+        PersonInformasjonBuilder.AdresseBuilder bostedFørsteÅr = personInformasjonBuilder.getAdresseBuilder(søkerAktørId, førsteÅr,
+                AdresseType.BOSTEDSADRESSE);
+        PersonInformasjonBuilder.AdresseBuilder utlandAndreÅr = personInformasjonBuilder.getAdresseBuilder(søkerAktørId, andreÅr,
+                AdresseType.POSTADRESSE_UTLAND);
+        PersonInformasjonBuilder.AdresseBuilder bostedTredjeÅr = personInformasjonBuilder.getAdresseBuilder(søkerAktørId, tredjeÅr,
+                AdresseType.BOSTEDSADRESSE);
         personInformasjonBuilder.leggTil(bostedFørsteÅr);
         personInformasjonBuilder.leggTil(utlandAndreÅr);
         personInformasjonBuilder.leggTil(bostedTredjeÅr);
@@ -320,24 +331,25 @@ public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
 
     private void oppdaterMedlem(LocalDate datoMedEndring, MedlemskapPerioderEntitet periode, Long behandlingId) {
         MedlemskapPerioderEntitet nyPeriode = new MedlemskapPerioderBuilder()
-            .medPeriode(datoMedEndring, null)
-            .medDekningType(MedlemskapDekningType.FULL)
-            .medMedlemskapType(MedlemskapType.ENDELIG)
-            .medKildeType(MedlemskapKildeType.MEDL)
-            .medMedlId(2L)
-            .build();
+                .medPeriode(datoMedEndring, null)
+                .medDekningType(MedlemskapDekningType.FULL)
+                .medMedlemskapType(MedlemskapType.ENDELIG)
+                .medKildeType(MedlemskapKildeType.MEDL)
+                .medMedlId(2L)
+                .build();
         medlemskapRepository.lagreMedlemskapRegisterOpplysninger(behandlingId, List.of(periode, nyPeriode));
     }
 
     private Behandling opprettRevudering(Behandling behandling) {
         BehandlingÅrsak.Builder revurderingÅrsak = BehandlingÅrsak.builder(BehandlingÅrsakType.RE_FEIL_ELLER_ENDRET_FAKTA)
-            .medOriginalBehandlingId(behandling.getId());
+                .medOriginalBehandlingId(behandling.getId());
 
         Behandling revudering = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(revurderingÅrsak).build();
+                .medBehandlingÅrsak(revurderingÅrsak).build();
 
         Long behandlingId = behandling.getId();
-        // TODO(FC): Her burde kanskje behandlingId vært låst inntil revurdering er opprettet?
+        // TODO(FC): Her burde kanskje behandlingId vært låst inntil revurdering er
+        // opprettet?
         behandlingRepository.lagre(revudering, behandlingRepository.taSkriveLås(revudering.getId()));
         Long revurderingId = revudering.getId();
         medlemskapRepository.kopierGrunnlagFraEksisterendeBehandling(behandlingId, revurderingId);
@@ -358,30 +370,30 @@ public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
 
     private MedlemskapPerioderEntitet opprettPeriode(LocalDate fom, LocalDate tom, MedlemskapDekningType dekningType) {
         MedlemskapPerioderEntitet periode = new MedlemskapPerioderBuilder()
-            .medDekningType(dekningType)
-            .medMedlemskapType(MedlemskapType.FORELOPIG)
-            .medPeriode(fom, tom)
-            .medKildeType(MedlemskapKildeType.MEDL)
-            .medMedlId(1L)
-            .build();
+                .medDekningType(dekningType)
+                .medMedlemskapType(MedlemskapType.FORELOPIG)
+                .medPeriode(fom, tom)
+                .medKildeType(MedlemskapKildeType.MEDL)
+                .medMedlId(1L)
+                .build();
         return periode;
     }
 
     private UttakResultatPerioderEntitet lagUttaksPeriode() {
         LocalDate idag = LocalDate.now();
         UttakResultatPeriodeEntitet periode = new UttakResultatPeriodeEntitet.Builder(idag, idag.plusDays(6))
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
-            .build();
+                .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+                .build();
         UttakAktivitetEntitet uttakAktivtet = new UttakAktivitetEntitet.Builder()
-            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
-            .medArbeidsforhold(Arbeidsgiver.virksomhet("123"), InternArbeidsforholdRef.nyRef())
-            .build();
+                .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+                .medArbeidsforhold(Arbeidsgiver.virksomhet("123"), InternArbeidsforholdRef.nyRef())
+                .build();
         UttakResultatPeriodeAktivitetEntitet periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivtet)
-            .medUtbetalingsgrad(new Utbetalingsgrad(100))
-            .medArbeidsprosent(BigDecimal.valueOf(100L))
-            .medErSøktGradering(true)
-            .medTrekkonto(StønadskontoType.MØDREKVOTE)
-            .build();
+                .medUtbetalingsgrad(new Utbetalingsgrad(100))
+                .medArbeidsprosent(BigDecimal.valueOf(100L))
+                .medErSøktGradering(true)
+                .medTrekkonto(StønadskontoType.MØDREKVOTE)
+                .build();
         periode.leggTilAktivitet(periodeAktivitet);
         UttakResultatPerioderEntitet perioder = new UttakResultatPerioderEntitet();
         perioder.leggTilPeriode(periode);
