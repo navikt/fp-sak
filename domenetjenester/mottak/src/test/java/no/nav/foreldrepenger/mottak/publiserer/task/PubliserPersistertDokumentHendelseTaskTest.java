@@ -10,9 +10,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
@@ -26,7 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsmeldingInnsendingsårsak;
@@ -37,7 +36,7 @@ import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.mottak.publiserer.producer.DialogHendelseProducer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
-public class PubliserPersistertDokumentHendelseTaskTest {
+public class PubliserPersistertDokumentHendelseTaskTest extends EntityManagerAwareTest {
 
     private static final JournalpostId JOURNALPOST_ID = new JournalpostId("2");
     private static final AktørId AKTØR_ID = new AktørId("0000000000000");
@@ -49,26 +48,25 @@ public class PubliserPersistertDokumentHendelseTaskTest {
     private static final LocalDateTime INNSENDING = LocalDateTime.now().minusHours(1);
     private static final LocalDate STARTDATO = LocalDate.now().minusWeeks(2);
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-
-
     private long FAGSAK_ID = 1L;
     private long BEHANDLING_ID = 100L;
     private PubliserPersistertDokumentHendelseTask publiserPersistertDokumentHendelseTask;
     private DialogHendelseProducer dialogHendelseProducer;
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-    private FagsakRepository fagsakRepository = new FagsakRepository(repoRule.getEntityManager());
 
-    @Before
+    @BeforeEach
     public void before() {
         var mottatteDokumentTjeneste = mock(MottatteDokumentTjeneste.class);
         var inntektsmeldingTjeneste = mock(InntektsmeldingTjeneste.class);
         dialogHendelseProducer = mock(DialogHendelseProducer.class);
-        FAGSAK_ID = repositoryProvider.getFagsakRepository().opprettNy(Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()), RelasjonsRolleType.MORA, SAKSNUMMER));
+        var entityManager = getEntityManager();
+        BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        FAGSAK_ID = repositoryProvider.getFagsakRepository()
+            .opprettNy(Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()),
+                RelasjonsRolleType.MORA, SAKSNUMMER));
         var fagsak = repositoryProvider.getFagsakRepository().finnEksaktFagsak(FAGSAK_ID);
         var behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
-        BEHANDLING_ID = repositoryProvider.getBehandlingRepository().lagre(behandling, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
+        BEHANDLING_ID = repositoryProvider.getBehandlingRepository()
+            .lagre(behandling, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
         var mottattDokument = MottattDokument.Builder.ny()
             .medFagsakId(FAGSAK_ID)
             .medDokumentType(DOKUMENTTYPE)
@@ -76,7 +74,8 @@ public class PubliserPersistertDokumentHendelseTaskTest {
             .medJournalPostId(JOURNALPOST_ID)
             .medId(MOTTATT_DOKUMENT_ID)
             .build();
-        when(mottatteDokumentTjeneste.hentMottattDokument(MOTTATT_DOKUMENT_ID)).thenReturn(Optional.of(mottattDokument));
+        when(mottatteDokumentTjeneste.hentMottattDokument(MOTTATT_DOKUMENT_ID)).thenReturn(
+            Optional.of(mottattDokument));
         var inntektsmelding = InntektsmeldingBuilder.builder()
             .medArbeidsgiver(ARBEIDSGIVER)
             .medInnsendingstidspunkt(INNSENDING)
@@ -86,8 +85,11 @@ public class PubliserPersistertDokumentHendelseTaskTest {
             .medJournalpostId(JOURNALPOST_ID)
             .medKildesystem("AltInn Portal")
             .build();
-        when(inntektsmeldingTjeneste.hentInntektsMeldingFor(BEHANDLING_ID, JOURNALPOST_ID)).thenReturn(Optional.of(inntektsmelding));
-        publiserPersistertDokumentHendelseTask = new PubliserPersistertDokumentHendelseTask(fagsakRepository, mottatteDokumentTjeneste, inntektsmeldingTjeneste, dialogHendelseProducer);
+        when(inntektsmeldingTjeneste.hentInntektsMeldingFor(BEHANDLING_ID, JOURNALPOST_ID)).thenReturn(
+            Optional.of(inntektsmelding));
+        FagsakRepository fagsakRepository = new FagsakRepository(entityManager);
+        publiserPersistertDokumentHendelseTask = new PubliserPersistertDokumentHendelseTask(fagsakRepository,
+            mottatteDokumentTjeneste, inntektsmeldingTjeneste, dialogHendelseProducer);
     }
 
     @Test
@@ -95,7 +97,8 @@ public class PubliserPersistertDokumentHendelseTaskTest {
         // Arrange
         ProsessTaskData prosessTask = new ProsessTaskData(PubliserPersistertDokumentHendelseTask.TASKTYPE);
         prosessTask.setBehandling(FAGSAK_ID, BEHANDLING_ID, AKTØR_ID.getId());
-        prosessTask.setProperty(PubliserPersistertDokumentHendelseTask.MOTTATT_DOKUMENT_ID_KEY, MOTTATT_DOKUMENT_ID.toString());
+        prosessTask.setProperty(PubliserPersistertDokumentHendelseTask.MOTTATT_DOKUMENT_ID_KEY,
+            MOTTATT_DOKUMENT_ID.toString());
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 
         // Act
@@ -104,9 +107,9 @@ public class PubliserPersistertDokumentHendelseTaskTest {
         // Assert
         verify(dialogHendelseProducer).sendJsonMedNøkkel(eq(REFERANSE), captor.capture());
         assertThat(captor.getValue()).contains("\"hendelse\" : \"INNTEKTSMELDING_NY\"");
-        assertThat(captor.getValue()).contains("\"saksnummer\" : \""+SAKSNUMMER.getVerdi()+"\"");
-        assertThat(captor.getValue()).contains("\"startDato\" : \""+STARTDATO.toString()+"\"");
-        assertThat(captor.getValue()).contains("\"referanseId\" : \""+REFERANSE+"\"");
-        assertThat(captor.getValue()).contains("\"arbeidsgiverId\" : \""+ARBEIDSGIVER.getIdentifikator()+"\"");
+        assertThat(captor.getValue()).contains("\"saksnummer\" : \"" + SAKSNUMMER.getVerdi() + "\"");
+        assertThat(captor.getValue()).contains("\"startDato\" : \"" + STARTDATO.toString() + "\"");
+        assertThat(captor.getValue()).contains("\"referanseId\" : \"" + REFERANSE + "\"");
+        assertThat(captor.getValue()).contains("\"arbeidsgiverId\" : \"" + ARBEIDSGIVER.getIdentifikator() + "\"");
     }
 }

@@ -11,13 +11,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Attestant180;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming115;
@@ -30,10 +29,8 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.BehandleØkonomioppdragKvi
 import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomistøtteUtils;
 
+@ExtendWith(MockitoExtension.class)
 public class GrensesnittavstemmingApplikasjonBatchTjenesteTest {
-
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
 
     private GrensesnittavstemmingApplikasjonBatchTjeneste grensesnittavstemmingApplikasjonTjeneste;
 
@@ -43,24 +40,27 @@ public class GrensesnittavstemmingApplikasjonBatchTjenesteTest {
     @Mock
     private GrensesnittavstemmingJmsProducer grensesnittavstemmingJmsProducer;
 
-    private List<Oppdrag110> oppdragsliste = new ArrayList<>();
+    private final List<Oppdrag110> oppdragsliste = new ArrayList<>();
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        grensesnittavstemmingApplikasjonTjeneste = new GrensesnittavstemmingApplikasjonBatchTjeneste(økonomiRepository, grensesnittavstemmingJmsProducer);
-        when(økonomiRepository.hentOppdrag110ForPeriodeOgFagområde(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(oppdragsliste);
+        grensesnittavstemmingApplikasjonTjeneste = new GrensesnittavstemmingApplikasjonBatchTjeneste(økonomiRepository,
+            grensesnittavstemmingJmsProducer);
+        when(økonomiRepository.hentOppdrag110ForPeriodeOgFagområde(Mockito.any(), Mockito.any(),
+            Mockito.any())).thenReturn(oppdragsliste);
     }
 
     @Test
-    public void avstemmingUtenOppdragSkalIkkeSendeAvstemmingsmeldinger(){
-         // Arrange
+    public void avstemmingUtenOppdragSkalIkkeSendeAvstemmingsmeldinger() {
+        // Arrange
         final HashMap<String, String> argMap = new HashMap<>();
         argMap.put("tom", "23-08-2017");
         argMap.put("fom", "17-08-2017");
         argMap.put("fagomrade", "FP");
 
         // Act
-        final String launch = grensesnittavstemmingApplikasjonTjeneste.launch(new GrensesnittavstemmingBatchArguments(argMap));
+        final String launch = grensesnittavstemmingApplikasjonTjeneste.launch(
+            new GrensesnittavstemmingBatchArguments(argMap));
         assertThat(launch).startsWith(grensesnittavstemmingApplikasjonTjeneste.getBatchName());
 
         // Assert
@@ -73,7 +73,7 @@ public class GrensesnittavstemmingApplikasjonBatchTjenesteTest {
     }
 
     @Test
-    public void avstemmingSkalSendeAvstemmingsmeldingerUtenParametere(){
+    public void avstemmingSkalSendeAvstemmingsmeldingerUtenParametere() {
         // Arrange
         setupOppdragsliste();
         final HashMap<String, String> argMap = new HashMap<>();
@@ -87,8 +87,8 @@ public class GrensesnittavstemmingApplikasjonBatchTjenesteTest {
     }
 
     @Test
-    public void avstemmingSkalSendeAvstemmingsmeldinger(){
-         // Arrange
+    public void avstemmingSkalSendeAvstemmingsmeldinger() {
+        // Arrange
         setupOppdragsliste();
         final HashMap<String, String> argMap = new HashMap<>();
         argMap.put("tom", "23-08-2017");
@@ -105,46 +105,43 @@ public class GrensesnittavstemmingApplikasjonBatchTjenesteTest {
     private Oppdragskontroll opprettOppdrag() {
         Oppdragskontroll oppdrag = new Oppdragskontroll();
         Avstemming115 a115 = mock(Avstemming115.class);
-        when(a115.getKodekomponent()).thenReturn("KK");
         String localDateTimeStr = ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now());
         when(a115.getNokkelAvstemming()).thenReturn(localDateTimeStr);
         when(a115.getTidspnktMelding()).thenReturn(localDateTimeStr);
-        Oppdrag110 o110 = new Oppdrag110.Builder()
-                .medAvstemming115(a115)
-                .medKodeAksjon(BehandleØkonomioppdragKvitteringTest.KODEAKSJON)
-                .medKodeEndring(BehandleØkonomioppdragKvitteringTest.KODEENDRING)
-                .medKodeFagomrade(BehandleØkonomioppdragKvitteringTest.KODEFAGOMRADE_ES)
-                .medFagSystemId(BehandleØkonomioppdragKvitteringTest.FAGSYSTEMID_BRUKER)
-                .medUtbetFrekvens(BehandleØkonomioppdragKvitteringTest.UTBETFREKVENS)
-                .medOppdragGjelderId(BehandleØkonomioppdragKvitteringTest.OPPDRAGGJELDERID)
-                .medDatoOppdragGjelderFom(LocalDate.now())
-                .medSaksbehId(BehandleØkonomioppdragKvitteringTest.SAKSBEHID)
-                .medOppdragskontroll(oppdrag)
-                .build();
-        new Oppdragsenhet120.Builder()
-                .medTypeEnhet(BehandleØkonomioppdragKvitteringTest.TYPEENHET)
-                .medDatoEnhetFom(LocalDate.now())
-                .medEnhet(BehandleØkonomioppdragKvitteringTest.ENHET)
-                .medOppdrag110(o110)
-                .build();
-        Oppdragslinje150 o150 = new Oppdragslinje150.Builder()
-                .medVedtakId(BehandleØkonomioppdragKvitteringTest.VEDTAKID)
-                .medKodeEndringLinje(BehandleØkonomioppdragKvitteringTest.KODEENDRINGLINJE)
-                .medKodeKlassifik(BehandleØkonomioppdragKvitteringTest.KODEKLASSIFIK_ES)
+        Oppdrag110 o110 = new Oppdrag110.Builder().medAvstemming115(a115)
+            .medKodeAksjon(BehandleØkonomioppdragKvitteringTest.KODEAKSJON)
+            .medKodeEndring(BehandleØkonomioppdragKvitteringTest.KODEENDRING)
+            .medKodeFagomrade(BehandleØkonomioppdragKvitteringTest.KODEFAGOMRADE_ES)
+            .medFagSystemId(BehandleØkonomioppdragKvitteringTest.FAGSYSTEMID_BRUKER)
+            .medUtbetFrekvens(BehandleØkonomioppdragKvitteringTest.UTBETFREKVENS)
+            .medOppdragGjelderId(BehandleØkonomioppdragKvitteringTest.OPPDRAGGJELDERID)
+            .medDatoOppdragGjelderFom(LocalDate.now())
+            .medSaksbehId(BehandleØkonomioppdragKvitteringTest.SAKSBEHID)
+            .medOppdragskontroll(oppdrag)
+            .build();
+        new Oppdragsenhet120.Builder().medTypeEnhet(BehandleØkonomioppdragKvitteringTest.TYPEENHET)
+            .medDatoEnhetFom(LocalDate.now())
+            .medEnhet(BehandleØkonomioppdragKvitteringTest.ENHET)
+            .medOppdrag110(o110)
+            .build();
+        Oppdragslinje150 o150 = new Oppdragslinje150.Builder().medVedtakId(
+            BehandleØkonomioppdragKvitteringTest.VEDTAKID)
+            .medKodeEndringLinje(BehandleØkonomioppdragKvitteringTest.KODEENDRINGLINJE)
+            .medKodeKlassifik(BehandleØkonomioppdragKvitteringTest.KODEKLASSIFIK_ES)
             .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
-                .medSats(BehandleØkonomioppdragKvitteringTest.SATS)
-                .medFradragTillegg(BehandleØkonomioppdragKvitteringTest.FRADRAGTILLEGG)
-                .medTypeSats(BehandleØkonomioppdragKvitteringTest.TYPESATS_ES)
-                .medBrukKjoreplan("N")
-                .medSaksbehId(BehandleØkonomioppdragKvitteringTest.SAKSBEHID)
-                .medUtbetalesTilId(BehandleØkonomioppdragKvitteringTest.OPPDRAGGJELDERID)
-                .medHenvisning(BehandleØkonomioppdragKvitteringTest.BEHANDLINGID_ES)
-                .medOppdrag110(o110)
-                .build();
+            .medSats(BehandleØkonomioppdragKvitteringTest.SATS)
+            .medFradragTillegg(BehandleØkonomioppdragKvitteringTest.FRADRAGTILLEGG)
+            .medTypeSats(BehandleØkonomioppdragKvitteringTest.TYPESATS_ES)
+            .medBrukKjoreplan("N")
+            .medSaksbehId(BehandleØkonomioppdragKvitteringTest.SAKSBEHID)
+            .medUtbetalesTilId(BehandleØkonomioppdragKvitteringTest.OPPDRAGGJELDERID)
+            .medHenvisning(BehandleØkonomioppdragKvitteringTest.BEHANDLINGID_ES)
+            .medOppdrag110(o110)
+            .build();
         Attestant180.builder()
-                .medAttestantId(BehandleØkonomioppdragKvitteringTest.SAKSBEHID)
-                .medOppdragslinje150(o150)
-                .build();
+            .medAttestantId(BehandleØkonomioppdragKvitteringTest.SAKSBEHID)
+            .medOppdragslinje150(o150)
+            .build();
         oppdrag.getOppdrag110Liste().add(o110);
         return oppdrag;
     }

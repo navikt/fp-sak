@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -14,16 +15,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
@@ -41,11 +39,10 @@ import no.nav.foreldrepenger.familiehendelse.fødsel.FødselForretningshendelse;
 import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.mottak.hendelser.saksvelger.FødselForretningshendelseSaksvelger;
 
+@ExtendWith(MockitoExtension.class)
 public class FødselForretningshendelseSaksvelgerTest {
 
     public static final LocalDate FØDSELSDATO = LocalDate.now();
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
 
     @Mock
     private BehandlingRepositoryProvider repositoryProvider;
@@ -70,12 +67,12 @@ public class FødselForretningshendelseSaksvelgerTest {
 
     private FødselForretningshendelseSaksvelger saksvelger;
 
-    @Before
+    @BeforeEach
     public void before() {
-        when(repositoryProvider.getFagsakRepository()).thenReturn(fagsakRepository);
-        when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
-        when(repositoryProvider.getBehandlingsresultatRepository()).thenReturn(behandlingsresultatRepository);
-        when(repositoryProvider.getBeregningsresultatRepository()).thenReturn(beregningsresultatRepository);
+        lenient().when(repositoryProvider.getFagsakRepository()).thenReturn(fagsakRepository);
+        lenient().when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
+        lenient().when(repositoryProvider.getBehandlingsresultatRepository()).thenReturn(behandlingsresultatRepository);
+        lenient().when(repositoryProvider.getBeregningsresultatRepository()).thenReturn(beregningsresultatRepository);
         saksvelger = new FødselForretningshendelseSaksvelger(repositoryProvider, familieHendelseTjeneste, historikkinnslagTjeneste);
     }
 
@@ -149,9 +146,6 @@ public class FødselForretningshendelseSaksvelgerTest {
         Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
         when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(Optional.of(behandling));
         when(behandlingRepository.finnSisteInnvilgetBehandling(any())).thenReturn(Optional.of(behandling));
-        Behandlingsresultat behandlingsresultat = new Behandlingsresultat.Builder()
-            .medBehandlingResultatType(BehandlingResultatType.INNVILGET).buildFor(behandling);
-        when(behandlingsresultatRepository.hentHvisEksisterer(any())).thenReturn(Optional.of(behandlingsresultat));
         when(familieHendelseTjeneste.erFødselsHendelseRelevantFor(any(), any())).thenReturn(Boolean.TRUE);
         FødselForretningshendelse hendelse = new FødselForretningshendelse(singletonList(aktørId), FØDSELSDATO, Endringstype.OPPRETTET);
 
@@ -172,11 +166,6 @@ public class FødselForretningshendelseSaksvelgerTest {
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, null);
         fagsak.setAvsluttet();
         when(fagsakRepository.hentForBruker(aktørId)).thenReturn(singletonList(fagsak));
-        Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
-        when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(Optional.of(behandling));
-        Behandlingsresultat behandlingsresultat = new Behandlingsresultat.Builder()
-            .medBehandlingResultatType(BehandlingResultatType.AVSLÅTT).buildFor(behandling);
-        when(behandlingsresultatRepository.hentHvisEksisterer(any())).thenReturn(Optional.of(behandlingsresultat));
 
         FødselForretningshendelse hendelse = new FødselForretningshendelse(singletonList(aktørId), FØDSELSDATO, Endringstype.OPPRETTET);
 
@@ -196,13 +185,6 @@ public class FødselForretningshendelseSaksvelgerTest {
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, null);
         fagsak.setAvsluttet();
         when(fagsakRepository.hentForBruker(aktørId)).thenReturn(singletonList(fagsak));
-        Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
-        when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(Optional.of(behandling));
-        Behandlingsresultat behandlingsresultat = new Behandlingsresultat.Builder()
-            .medBehandlingResultatType(BehandlingResultatType.INNVILGET).buildFor(behandling);
-        when(behandlingsresultatRepository.hentHvisEksisterer(any())).thenReturn(Optional.of(behandlingsresultat));
-        LocalDate gammelFødsel = LocalDate.now().minusYears(2);
-        when(familieHendelseTjeneste.erFødselsHendelseRelevantFor(any(), any())).thenReturn(Boolean.TRUE);
 
         FødselForretningshendelse hendelse = new FødselForretningshendelse(singletonList(aktørId), FØDSELSDATO, Endringstype.OPPRETTET);
 
@@ -269,7 +251,6 @@ public class FødselForretningshendelseSaksvelgerTest {
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.SVANGERSKAPSPENGER, null);
         when(fagsakRepository.hentForBruker(aktørId)).thenReturn(singletonList(fagsak));
         Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
-        when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(Optional.of(behandling));
         when(behandlingRepository.finnSisteInnvilgetBehandling(any())).thenReturn(Optional.of(behandling));
         when(beregningsresultatRepository.hentBeregningsresultat(any()))
             .thenReturn(Optional.of(opprettBeregningsresultatPerioder(FØDSELSDATO.minusDays(2))));
@@ -290,10 +271,7 @@ public class FødselForretningshendelseSaksvelgerTest {
         AktørId aktørId = AktørId.dummy();
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
         when(fagsakRepository.hentForBruker(aktørId)).thenReturn(singletonList(fagsak));
-        Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
-        when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(Optional.of(behandling));
         FødselForretningshendelse hendelse = new FødselForretningshendelse(singletonList(aktørId), FØDSELSDATO, Endringstype.ANNULLERT);
-        when(familieHendelseTjeneste.erFødselsHendelseRelevantFor(any(), any())).thenReturn(Boolean.TRUE);
 
         // Act
         Map<BehandlingÅrsakType, List<Fagsak>> behandlingÅrsakTypeListMap = saksvelger.finnRelaterteFagsaker(hendelse);

@@ -14,12 +14,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -35,10 +34,8 @@ import no.nav.foreldrepenger.familiehendelse.dødsfall.DødfødselForretningshen
 import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.mottak.hendelser.saksvelger.DødfødselForretningshendelseSaksvelger;
 
+@ExtendWith(MockitoExtension.class)
 public class DødfødselForretningshendelseSaksvelgerTest {
-
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
 
     @Mock
     private BehandlingRepositoryProvider repositoryProvider;
@@ -57,7 +54,7 @@ public class DødfødselForretningshendelseSaksvelgerTest {
 
     private DødfødselForretningshendelseSaksvelger saksvelger;
 
-    @Before
+    @BeforeEach
     public void before() {
         when(repositoryProvider.getFagsakRepository()).thenReturn(fagsakRepository);
         when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
@@ -93,8 +90,6 @@ public class DødfødselForretningshendelseSaksvelgerTest {
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
         fagsak.setAvsluttet();
         when(fagsakRepository.hentForBruker(aktørId)).thenReturn(singletonList(fagsak));
-        Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
-        when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(Optional.of(behandling));
 
         DødfødselForretningshendelse hendelse = new DødfødselForretningshendelse(singletonList(aktørId), LocalDate.now(), Endringstype.OPPRETTET);
 
@@ -113,8 +108,6 @@ public class DødfødselForretningshendelseSaksvelgerTest {
         AktørId aktørId = AktørId.dummy();
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, null);
         when(fagsakRepository.hentForBruker(aktørId)).thenReturn(singletonList(fagsak));
-        Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
-        when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(Optional.of(behandling));
 
         DødfødselForretningshendelse hendelse = new DødfødselForretningshendelse(singletonList(aktørId), LocalDate.now(), Endringstype.OPPRETTET);
 
@@ -133,9 +126,6 @@ public class DødfødselForretningshendelseSaksvelgerTest {
         AktørId aktørId = AktørId.dummy();
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
         when(fagsakRepository.hentForBruker(aktørId)).thenReturn(singletonList(fagsak));
-        Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
-        when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(Optional.of(behandling));
-        when(familieHendelseTjeneste.erFødselsHendelseRelevantFor(any(), any())).thenReturn(Boolean.TRUE);
 
         DødfødselForretningshendelse hendelse = new DødfødselForretningshendelse(singletonList(aktørId), LocalDate.now(), Endringstype.ANNULLERT);
 
