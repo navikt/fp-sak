@@ -25,12 +25,12 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.BasisKodeverdi;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningApplikasjonTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningTjeneste;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = KlageVurderingResultatAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
 public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVurderingResultatAksjonspunktDto> {
-    private BehandlingsutredningApplikasjonTjeneste behandlingsutredningApplikasjonTjeneste;
+    private BehandlingsutredningTjeneste behandlingsutredningTjeneste;
     private HistorikkTjenesteAdapter historikkApplikasjonTjeneste;
     private KlageVurderingTjeneste klageVurderingTjeneste;
     private AksjonspunktRepository aksjonspunktRepository = new AksjonspunktRepository();
@@ -42,11 +42,11 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
 
     @Inject
     public KlagevurderingOppdaterer(HistorikkTjenesteAdapter historikkApplikasjonTjeneste,
-                                    BehandlingsutredningApplikasjonTjeneste behandlingsutredningApplikasjonTjeneste,
+                                    BehandlingsutredningTjeneste behandlingsutredningTjeneste,
                                     KlageVurderingTjeneste klageVurderingTjeneste,
                                     BehandlendeEnhetTjeneste behandlendeEnhetTjeneste) {
         this.historikkApplikasjonTjeneste = historikkApplikasjonTjeneste;
-        this.behandlingsutredningApplikasjonTjeneste = behandlingsutredningApplikasjonTjeneste;
+        this.behandlingsutredningTjeneste = behandlingsutredningTjeneste;
         this.klageVurderingTjeneste = klageVurderingTjeneste;
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
     }
@@ -165,7 +165,7 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
     private void oppdatereDatavarehus(KlageVurderingResultatAksjonspunktDto dto, Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon) {
         KlageVurdering klageVurdering = dto.getKlageVurdering();
         if (erNfpAksjonspunkt(aksjonspunktDefinisjon) && klageVurdering.equals(KlageVurdering.STADFESTE_YTELSESVEDTAK)) {
-            behandlingsutredningApplikasjonTjeneste.byttBehandlendeEnhet(behandling.getId(),behandlendeEnhetTjeneste.getKlageInstans(),
+            behandlingsutredningTjeneste.byttBehandlendeEnhet(behandling.getId(),behandlendeEnhetTjeneste.getKlageInstans(),
                 "", //Det er ikke behov for en begrunnelse i dette tilfellet.
                 HistorikkAktør.VEDTAKSLØSNINGEN);
         }

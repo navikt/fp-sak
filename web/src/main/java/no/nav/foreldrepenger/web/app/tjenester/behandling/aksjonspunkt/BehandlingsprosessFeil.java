@@ -9,7 +9,7 @@ import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
 import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 
-interface BehandlingsprosessApplikasjonFeil extends DeklarerteFeil, ProsessTaskFeilmelder {
+interface BehandlingsprosessFeil extends DeklarerteFeil, ProsessTaskFeilmelder {
 
     String FORSINKELSE_I_TASK = "FP-193309";
     String FEIL_I_TASK = "FP-193308";

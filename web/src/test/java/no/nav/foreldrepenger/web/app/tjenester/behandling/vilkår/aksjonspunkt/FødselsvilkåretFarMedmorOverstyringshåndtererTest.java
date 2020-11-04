@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktApplikasjonTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt.dto.OverstyringFødselvilkåretFarMedmorDto;
 
 @CdiDbAwareTest
@@ -32,7 +32,7 @@ public class FødselsvilkåretFarMedmorOverstyringshåndtererTest {
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
     @Inject
-    private AksjonspunktApplikasjonTjeneste aksjonspunktApplikasjonTjeneste;
+    private AksjonspunktTjeneste aksjonspunktTjeneste;
 
     @Test
     public void skal_generere_historikkinnslag_om_resultat_fødsel_far_medmor_er_overstyrt() {
@@ -51,7 +51,7 @@ public class FødselsvilkåretFarMedmorOverstyringshåndtererTest {
         assertThat(behandling.getAksjonspunkter()).hasSize(1);
 
         // Act
-        aksjonspunktApplikasjonTjeneste.overstyrAksjonspunkter(Set.of(overstyringDto), behandling.getId());
+        aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(overstyringDto), behandling.getId());
 
         // Assert
         List<Historikkinnslag> historikkinnslagene = repositoryProvider.getHistorikkRepository().hentHistorikk(behandling.getId());

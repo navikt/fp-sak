@@ -24,16 +24,16 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
  */
 
 @ApplicationScoped
-public class GrensesnittavstemmingApplikasjonBatchTjeneste implements BatchTjeneste {
+public class GrensesnittavstemmingBatchTjeneste implements BatchTjeneste {
 
     private static final String BATCHNAVN = "BVL001";
-    private static final Logger log = LoggerFactory.getLogger(GrensesnittavstemmingApplikasjonBatchTjeneste.class);
+    private static final Logger log = LoggerFactory.getLogger(GrensesnittavstemmingBatchTjeneste.class);
     private ØkonomioppdragRepository økonomioppdragRepository;
     private GrensesnittavstemmingJmsProducer grensesnittavstemmingJmsProducer;
 
     @Inject
-    public GrensesnittavstemmingApplikasjonBatchTjeneste(ØkonomioppdragRepository økonomioppdragRepository,
-                                                         GrensesnittavstemmingJmsProducer grensesnittavstemmingJmsProducer) {
+    public GrensesnittavstemmingBatchTjeneste(ØkonomioppdragRepository økonomioppdragRepository,
+                                              GrensesnittavstemmingJmsProducer grensesnittavstemmingJmsProducer) {
         this.økonomioppdragRepository = økonomioppdragRepository;
         this.grensesnittavstemmingJmsProducer = grensesnittavstemmingJmsProducer;
     }

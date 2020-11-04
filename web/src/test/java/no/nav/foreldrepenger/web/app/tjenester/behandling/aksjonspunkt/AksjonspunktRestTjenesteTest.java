@@ -43,8 +43,8 @@ public class AksjonspunktRestTjenesteTest {
     private static final LocalDate utstedtdato = now.minusDays(10);
     private static final int antallBarn = 1;
     private AksjonspunktRestTjeneste aksjonspunktRestTjeneste;
-    private AksjonspunktApplikasjonTjeneste aksjonspunktApplikasjonTjenesteMock = mock(AksjonspunktApplikasjonTjeneste.class);
-    private BehandlingsutredningApplikasjonTjeneste behandlingsutredningApplikasjonTjenesteMock = mock(BehandlingsutredningApplikasjonTjeneste.class);
+    private AksjonspunktTjeneste aksjonspunktTjenesteMock = mock(AksjonspunktTjeneste.class);
+    private BehandlingsutredningTjeneste behandlingsutredningTjenesteMock = mock(BehandlingsutredningTjeneste.class);
     private BehandlingRepository behandlingRepository = mock(BehandlingRepository.class);
     private Behandling behandling = mock(Behandling.class);
     private TotrinnTjeneste totrinnTjeneste = mock(TotrinnTjeneste.class);
@@ -55,9 +55,9 @@ public class AksjonspunktRestTjenesteTest {
         when(behandlingRepository.hentBehandling(anyLong())).thenReturn(behandling);
         when(behandlingRepository.hentBehandling(any(UUID.class))).thenReturn(behandling);
         when(behandling.getStatus()).thenReturn(no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus.OPPRETTET);
-        doNothing().when(behandlingsutredningApplikasjonTjenesteMock).kanEndreBehandling(anyLong(), anyLong());
-        aksjonspunktRestTjeneste = new AksjonspunktRestTjeneste(aksjonspunktApplikasjonTjenesteMock, behandlingRepository,
-                behandlingsutredningApplikasjonTjenesteMock, totrinnTjeneste);
+        doNothing().when(behandlingsutredningTjenesteMock).kanEndreBehandling(anyLong(), anyLong());
+        aksjonspunktRestTjeneste = new AksjonspunktRestTjeneste(aksjonspunktTjenesteMock, behandlingRepository,
+            behandlingsutredningTjenesteMock, totrinnTjeneste);
 
     }
 
@@ -73,7 +73,7 @@ public class AksjonspunktRestTjenesteTest {
 
         aksjonspunktRestTjeneste.bekreft(BekreftedeAksjonspunkterDto.lagDto(behandlingId, behandlingVersjon, aksjonspunkt));
 
-        verify(aksjonspunktApplikasjonTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
+        verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
     }
 
     @Test
@@ -89,7 +89,7 @@ public class AksjonspunktRestTjenesteTest {
 
         aksjonspunktRestTjeneste.bekreft(BekreftedeAksjonspunkterDto.lagDto(behandlingId, behandlingVersjon, aksjonspunkt));
 
-        verify(aksjonspunktApplikasjonTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
+        verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
     }
 
     @Test
@@ -104,7 +104,7 @@ public class AksjonspunktRestTjenesteTest {
 
         aksjonspunktRestTjeneste.bekreft(BekreftedeAksjonspunkterDto.lagDto(behandlingId, behandlingVersjon, aksjonspunkt));
 
-        verify(aksjonspunktApplikasjonTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
+        verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
 
     }
 
@@ -122,7 +122,7 @@ public class AksjonspunktRestTjenesteTest {
 
         aksjonspunktRestTjeneste.bekreft(BekreftedeAksjonspunkterDto.lagDto(behandlingId, behandlingVersjon, aksjonspunkt));
 
-        verify(aksjonspunktApplikasjonTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
+        verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
     }
 
     @Test

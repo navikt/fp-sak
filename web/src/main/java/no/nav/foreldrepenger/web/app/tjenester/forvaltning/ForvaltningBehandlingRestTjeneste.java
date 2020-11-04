@@ -50,7 +50,7 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.HåndterMottattDokumentTask;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsoppretterApplikasjonTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsoppretterTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerJournalpostDto;
@@ -65,7 +65,7 @@ public class ForvaltningBehandlingRestTjeneste {
 
     private static final Logger logger = LoggerFactory.getLogger(ForvaltningBehandlingRestTjeneste.class);
 
-    private BehandlingsoppretterApplikasjonTjeneste behandlingsoppretterApplikasjonTjeneste;
+    private BehandlingsoppretterTjeneste behandlingsoppretterTjeneste;
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
     private MottatteDokumentRepository mottatteDokumentRepository;
@@ -75,7 +75,7 @@ public class ForvaltningBehandlingRestTjeneste {
 
     @Inject
     public ForvaltningBehandlingRestTjeneste(BerørtBehandlingForvaltningTjeneste berørtBehandlingForvaltningTjeneste,
-            BehandlingsoppretterApplikasjonTjeneste behandlingsoppretterApplikasjonTjeneste,
+            BehandlingsoppretterTjeneste behandlingsoppretterTjeneste,
             ProsessTaskRepository prosessTaskRepository,
             BehandlingRepositoryProvider repositoryProvider,
             HistorikkTjenesteAdapter historikkTjenesteAdapter) {
@@ -84,7 +84,7 @@ public class ForvaltningBehandlingRestTjeneste {
         this.mottatteDokumentRepository = repositoryProvider.getMottatteDokumentRepository();
         this.prosessTaskRepository = prosessTaskRepository;
         this.berørtBehandlingTjeneste = berørtBehandlingForvaltningTjeneste;
-        this.behandlingsoppretterApplikasjonTjeneste = behandlingsoppretterApplikasjonTjeneste;
+        this.behandlingsoppretterTjeneste = behandlingsoppretterTjeneste;
         this.historikkTjenesteAdapter = historikkTjenesteAdapter;
     }
 
@@ -148,7 +148,7 @@ public class ForvaltningBehandlingRestTjeneste {
                     BehandlingType.FØRSTEGANGSSØKNAD);
             if (behandling.isPresent() && !behandling.get().erAvsluttet()) {
                 logger.info("Henlegger og oppretter ny førstegangsbehandling for fagsak med saksnummer: {}", saksnummer.getVerdi()); // NOSONAR
-                behandlingsoppretterApplikasjonTjeneste.henleggÅpenFørstegangsbehandlingOgOpprettNy(fagsak.getId(), saksnummer);
+                behandlingsoppretterTjeneste.henleggÅpenFørstegangsbehandlingOgOpprettNy(fagsak.getId(), saksnummer);
                 return Response.ok().build();
             }
             logger.warn("Fant ingen åpen førstegangsbehandling for fagsak med saksnummer: {}", saksnummer.getVerdi()); // NOSONAR

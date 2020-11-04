@@ -30,9 +30,9 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomistøtteUtils;
 
 @ExtendWith(MockitoExtension.class)
-public class GrensesnittavstemmingApplikasjonBatchTjenesteTest {
+public class GrensesnittavstemmingBatchTjenesteTest {
 
-    private GrensesnittavstemmingApplikasjonBatchTjeneste grensesnittavstemmingApplikasjonTjeneste;
+    private GrensesnittavstemmingBatchTjeneste grensesnittavstemmingApplikasjonTjeneste;
 
     @Mock
     private ØkonomioppdragRepository økonomiRepository;
@@ -44,7 +44,7 @@ public class GrensesnittavstemmingApplikasjonBatchTjenesteTest {
 
     @BeforeEach
     public void setUp() {
-        grensesnittavstemmingApplikasjonTjeneste = new GrensesnittavstemmingApplikasjonBatchTjeneste(økonomiRepository,
+        grensesnittavstemmingApplikasjonTjeneste = new GrensesnittavstemmingBatchTjeneste(økonomiRepository,
             grensesnittavstemmingJmsProducer);
         when(økonomiRepository.hentOppdrag110ForPeriodeOgFagområde(Mockito.any(), Mockito.any(),
             Mockito.any())).thenReturn(oppdragsliste);

@@ -22,14 +22,14 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 
 @ExtendWith(MockitoExtension.class)
-public class BehandlingsprosessApplikasjonTjenesteTest {
+public class BehandlingsprosessTjenesteTest {
 
     private static final String GRUPPE_1 = "gruppe1";
 
     private final ProsessTaskData taskData = new ProsessTaskData("taskType1");
     private Behandling behandling;
 
-    public BehandlingsprosessApplikasjonTjenesteTest() {
+    public BehandlingsprosessTjenesteTest() {
         this.taskData.setGruppe(GRUPPE_1);
         this.behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
     }
@@ -37,7 +37,7 @@ public class BehandlingsprosessApplikasjonTjenesteTest {
     @Test
     public void skal_returnere_gruppe_når_ikke_er_kjørt() throws Exception {
 
-        BehandlingsprosessApplikasjonTjeneste sut = initSut(GRUPPE_1, taskData);
+        BehandlingsprosessTjeneste sut = initSut(GRUPPE_1, taskData);
         Optional<AsyncPollingStatus> status = sut.sjekkProsessTaskPågårForBehandling(behandling, null);
         assertThat(status.get().getStatus()).isEqualTo(Status.PENDING);
 
@@ -49,7 +49,7 @@ public class BehandlingsprosessApplikasjonTjenesteTest {
     public void skal_ikke_returnere_gruppe_når_er_kjørt() throws Exception {
         markerFerdig(taskData);
 
-        BehandlingsprosessApplikasjonTjeneste sut = initSut(GRUPPE_1, taskData);
+        BehandlingsprosessTjeneste sut = initSut(GRUPPE_1, taskData);
         Optional<AsyncPollingStatus> status = sut.sjekkProsessTaskPågårForBehandling(behandling, null);
         assertThat(status).isEmpty();
 
@@ -62,7 +62,7 @@ public class BehandlingsprosessApplikasjonTjenesteTest {
     public void skal_kaste_exception_når_task_har_feilet_null_gruppe() throws Exception {
         markerFeilet(taskData);
 
-        BehandlingsprosessApplikasjonTjeneste sut = initSut(GRUPPE_1, taskData);
+        BehandlingsprosessTjeneste sut = initSut(GRUPPE_1, taskData);
         Optional<AsyncPollingStatus> status = sut.sjekkProsessTaskPågårForBehandling(behandling, null);
 
         assertThat(status.get().getStatus()).isEqualTo(Status.HALTED);
@@ -72,7 +72,7 @@ public class BehandlingsprosessApplikasjonTjenesteTest {
     public void skal_kaste_exception_når_task_har_feilet_angitt_gruppe() throws Exception {
         markerFeilet(taskData);
 
-        BehandlingsprosessApplikasjonTjeneste sut = initSut(GRUPPE_1, taskData);
+        BehandlingsprosessTjeneste sut = initSut(GRUPPE_1, taskData);
 
         Optional<AsyncPollingStatus> status = sut.sjekkProsessTaskPågårForBehandling(behandling, GRUPPE_1);
 
@@ -83,7 +83,7 @@ public class BehandlingsprosessApplikasjonTjenesteTest {
     public void skal_kaste_exception_når_task_neste_kjøring_er_utsatt() throws Exception {
         taskData.medNesteKjøringEtter(LocalDateTime.now().plusHours(1));
 
-        BehandlingsprosessApplikasjonTjeneste sut = initSut(GRUPPE_1, taskData);
+        BehandlingsprosessTjeneste sut = initSut(GRUPPE_1, taskData);
         Optional<AsyncPollingStatus> status = sut.sjekkProsessTaskPågårForBehandling(behandling, GRUPPE_1);
 
         assertThat(status.get().getStatus()).isEqualTo(Status.DELAYED);
@@ -103,14 +103,14 @@ public class BehandlingsprosessApplikasjonTjenesteTest {
         pt.setSistKjørt(LocalDateTime.now());
     }
 
-    private static BehandlingsprosessApplikasjonTjeneste initSut(String gruppe, ProsessTaskData taskData) {
+    private static BehandlingsprosessTjeneste initSut(String gruppe, ProsessTaskData taskData) {
         ProsesseringAsynkTjeneste tjeneste = Mockito.mock(ProsesseringAsynkTjeneste.class);
 
         Map<String, ProsessTaskData> data = new HashMap<>();
         data.put(gruppe, taskData);
 
         when(tjeneste.sjekkProsessTaskPågårForBehandling(Mockito.any(), Mockito.any())).thenReturn(data);
-        BehandlingsprosessApplikasjonTjeneste sut = new BehandlingsprosessApplikasjonTjeneste(tjeneste);
+        BehandlingsprosessTjeneste sut = new BehandlingsprosessTjeneste(tjeneste);
         return sut;
     }
 }

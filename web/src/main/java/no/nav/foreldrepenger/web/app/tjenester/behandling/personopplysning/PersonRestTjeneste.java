@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.domene.person.verge.VergeDtoTjeneste;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeBackendDto;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessApplikasjonTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.medlem.MedlemDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.medlem.MedlemV2Dto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -59,7 +59,7 @@ public class PersonRestTjeneste {
     private MedlemDtoTjeneste medlemDtoTjeneste;
     private PersonopplysningDtoPersonIdentTjeneste personopplysningFnrFinder;
     private PersonopplysningDtoTjeneste personopplysningDtoTjeneste;
-    private BehandlingsprosessApplikasjonTjeneste behandlingsprosessApplikasjonTjeneste;
+    private BehandlingsprosessTjeneste behandlingsprosessTjeneste;
 
     public PersonRestTjeneste() {
         // for CDI proxy
@@ -71,13 +71,13 @@ public class PersonRestTjeneste {
             MedlemDtoTjeneste medlemTjeneste,
             PersonopplysningDtoTjeneste personopplysningTjeneste,
             PersonopplysningDtoPersonIdentTjeneste personopplysningFnrFinder,
-            BehandlingsprosessApplikasjonTjeneste behandlingsprosessApplikasjonTjeneste) {
+            BehandlingsprosessTjeneste behandlingsprosessTjeneste) {
         this.vergeRepository = vergeRepository;
         this.medlemDtoTjeneste = medlemTjeneste;
         this.vergeDtoTjenesteImpl = vergeTjeneste;
         this.personopplysningDtoTjeneste = personopplysningTjeneste;
         this.personopplysningFnrFinder = personopplysningFnrFinder;
-        this.behandlingsprosessApplikasjonTjeneste = behandlingsprosessApplikasjonTjeneste;
+        this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
     }
 
     @POST
@@ -191,7 +191,7 @@ public class PersonRestTjeneste {
         if (behandlingId != null) {
             return behandlingId;
         } else {
-            Behandling behandling = behandlingsprosessApplikasjonTjeneste.hentBehandling(behandlingIdDto.getBehandlingUuid());
+            Behandling behandling = behandlingsprosessTjeneste.hentBehandling(behandlingIdDto.getBehandlingUuid());
             return behandling.getId();
         }
     }

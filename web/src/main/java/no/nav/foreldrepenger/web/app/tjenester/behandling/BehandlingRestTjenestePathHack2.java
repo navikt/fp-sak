@@ -20,7 +20,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningApplikasjonTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
@@ -39,7 +39,7 @@ public class BehandlingRestTjenestePathHack2 {
     private static final String FAGSAK_BEHANDLING_PART_PATH = "/behandling";
     public static final String FAGSAK_BEHANDLING_PATH = BASE_PATH + FAGSAK_BEHANDLING_PART_PATH; // NOSONAR TFP-2234
 
-    private BehandlingsutredningApplikasjonTjeneste behandlingsutredningApplikasjonTjeneste;
+    private BehandlingsutredningTjeneste behandlingsutredningTjeneste;
     private BehandlingDtoTjeneste behandlingDtoTjeneste;
 
     public BehandlingRestTjenestePathHack2() {
@@ -47,9 +47,9 @@ public class BehandlingRestTjenestePathHack2 {
     }
 
     @Inject
-    public BehandlingRestTjenestePathHack2(BehandlingsutredningApplikasjonTjeneste behandlingsutredningApplikasjonTjeneste,
-            BehandlingDtoTjeneste behandlingDtoTjeneste) {
-        this.behandlingsutredningApplikasjonTjeneste = behandlingsutredningApplikasjonTjeneste;
+    public BehandlingRestTjenestePathHack2(BehandlingsutredningTjeneste behandlingsutredningTjeneste,
+                                           BehandlingDtoTjeneste behandlingDtoTjeneste) {
+        this.behandlingsutredningTjeneste = behandlingsutredningTjeneste;
         this.behandlingDtoTjeneste = behandlingDtoTjeneste;
     }
 
@@ -61,7 +61,7 @@ public class BehandlingRestTjenestePathHack2 {
     public List<BehandlingDto> hentAlleBehandlinger(
             @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer må være et eksisterende saksnummer") @Valid SaksnummerDto s) {
         Saksnummer saksnummer = new Saksnummer(s.getVerdi());
-        List<Behandling> behandlinger = behandlingsutredningApplikasjonTjeneste.hentBehandlingerForSaksnummer(saksnummer);
+        List<Behandling> behandlinger = behandlingsutredningTjeneste.hentBehandlingerForSaksnummer(saksnummer);
         return behandlingDtoTjeneste.lagBehandlingDtoer(behandlinger);
     }
 }

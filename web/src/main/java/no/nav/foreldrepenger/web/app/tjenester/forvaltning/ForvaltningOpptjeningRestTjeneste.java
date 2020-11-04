@@ -36,7 +36,7 @@ import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.VirksomhetType;
 import no.nav.foreldrepenger.domene.registerinnhenting.task.InnhentIAYIAbakusTask;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessApplikasjonTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.LeggTilOppgittFrilansDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.LeggTilOppgittNæringDto;
@@ -55,16 +55,16 @@ public class ForvaltningOpptjeningRestTjeneste {
             "F", VirksomhetType.FISKE,
             "J", VirksomhetType.JORDBRUK_SKOGBRUK);
 
-    private BehandlingsprosessApplikasjonTjeneste behandlingsprosessTjeneste;
+    private BehandlingsprosessTjeneste behandlingsprosessTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private VirksomhetTjeneste virksomhetTjeneste;
     private ProsessTaskRepository prosessTaskRepository;
 
     @Inject
-    public ForvaltningOpptjeningRestTjeneste(BehandlingsprosessApplikasjonTjeneste behandlingsprosessTjeneste,
-            InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
-            VirksomhetTjeneste virksomhetTjeneste,
-            ProsessTaskRepository prosessTaskRepository) {
+    public ForvaltningOpptjeningRestTjeneste(BehandlingsprosessTjeneste behandlingsprosessTjeneste,
+                                             InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
+                                             VirksomhetTjeneste virksomhetTjeneste,
+                                             ProsessTaskRepository prosessTaskRepository) {
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.virksomhetTjeneste = virksomhetTjeneste;

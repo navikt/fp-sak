@@ -22,7 +22,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.UuidDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessApplikasjonTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoForBackendTjeneste;
@@ -38,7 +38,7 @@ public class BehandlingBackendRestTjeneste {
     private static final String BACKEND_ROOT_PATH = "/backend-root";
     public static final String BEHANDLINGER_BACKEND_ROOT_PATH = BASE_PATH + BACKEND_ROOT_PATH;
 
-    private BehandlingsprosessApplikasjonTjeneste behandlingsprosessTjeneste;
+    private BehandlingsprosessTjeneste behandlingsprosessTjeneste;
     private BehandlingDtoForBackendTjeneste behandlingDtoForBackendTjeneste;
 
     public BehandlingBackendRestTjeneste() {
@@ -46,8 +46,8 @@ public class BehandlingBackendRestTjeneste {
     }
 
     @Inject
-    public BehandlingBackendRestTjeneste(BehandlingsprosessApplikasjonTjeneste behandlingsprosessTjeneste,
-            BehandlingDtoForBackendTjeneste behandlingDtoForBackendTjeneste) {
+    public BehandlingBackendRestTjeneste(BehandlingsprosessTjeneste behandlingsprosessTjeneste,
+                                         BehandlingDtoForBackendTjeneste behandlingDtoForBackendTjeneste) {
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
         this.behandlingDtoForBackendTjeneste = behandlingDtoForBackendTjeneste;
     }

@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAkt√
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
+import no.nav.foreldrepenger.dokumentbestiller.VarselRevurderingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.VarselRevurderingAksjonspunktDto;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 @DtoTilServiceAdapter(dto = VarselRevurderingDto.class, adapter=AksjonspunktOppdaterer.class)
 public class VarselRevurderingOppdaterer implements AksjonspunktOppdaterer<VarselRevurderingDto> {
 
-    private DokumentBestillerTjeneste dokumentTjeneste;
+    private VarselRevurderingTjeneste dokumentTjeneste;
     private HistorikkTjenesteAdapter historikkApplikasjonTjeneste;
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
 
@@ -31,7 +31,7 @@ public class VarselRevurderingOppdaterer implements AksjonspunktOppdaterer<Varse
     }
 
     @Inject
-    public VarselRevurderingOppdaterer(DokumentBestillerTjeneste dokumentTjeneste, HistorikkTjenesteAdapter historikkApplikasjonTjeneste,
+    public VarselRevurderingOppdaterer(VarselRevurderingTjeneste dokumentTjeneste, HistorikkTjenesteAdapter historikkApplikasjonTjeneste,
                                        DokumentBehandlingTjeneste dokumentBehandlingTjeneste) {
         this.dokumentTjeneste = dokumentTjeneste;
         this.historikkApplikasjonTjeneste = historikkApplikasjonTjeneste;

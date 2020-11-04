@@ -17,14 +17,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerApplikasjonTjeneste;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 
 @ApplicationScoped
 public class SendBrevForAutopunkt {
 
-    private DokumentBestillerApplikasjonTjeneste dokumentBestillerApplikasjonTjeneste;
+    private DokumentBestillerTjeneste dokumentBestillerTjeneste;
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
     private BehandlingRepository behandlingRepository;
     private SøknadRepository søknadRepository;
@@ -34,10 +34,10 @@ public class SendBrevForAutopunkt {
     }
 
     @Inject
-    public SendBrevForAutopunkt(DokumentBestillerApplikasjonTjeneste dokumentBestillerApplikasjonTjeneste,
+    public SendBrevForAutopunkt(DokumentBestillerTjeneste dokumentBestillerTjeneste,
                                 DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
                                 BehandlingRepositoryProvider provider) {
-        this.dokumentBestillerApplikasjonTjeneste = dokumentBestillerApplikasjonTjeneste;
+        this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
         this.søknadRepository = provider.getSøknadRepository();
         this.behandlingRepository = provider.getBehandlingRepository();
@@ -50,7 +50,7 @@ public class SendBrevForAutopunkt {
         }
         if (!harSendtBrevForMal(behandling.getId(), dokumentMalType)) {
             BestillBrevDto bestillBrevDto = new BestillBrevDto(behandling.getId(), dokumentMalType);
-            dokumentBestillerApplikasjonTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN, false);
+            dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN, false);
         }
     }
 
@@ -59,7 +59,7 @@ public class SendBrevForAutopunkt {
         if (!harSendtBrevForMal(behandling.getId(), dokumentMalType) &&
             erSøktPåPapir(behandling)) {
             BestillBrevDto bestillBrevDto = new BestillBrevDto(behandling.getId(), dokumentMalType);
-            dokumentBestillerApplikasjonTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN, false);
+            dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN, false);
         }
         oppdaterBehandlingMedNyFrist(behandling.getId(), beregnBehandlingstidsfrist(ap, behandling));
     }
@@ -71,7 +71,7 @@ public class SendBrevForAutopunkt {
         if (!harSendtBrevForMal(behandling.getId(), dokumentMalType) &&
             frist.isAfter(LocalDate.now().plusDays(1))) {
             BestillBrevDto bestillBrevDto = new BestillBrevDto(behandling.getId(), dokumentMalType);
-            dokumentBestillerApplikasjonTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN, false);
+            dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN, false);
         }
         oppdaterBehandlingMedNyFrist(behandling.getId(), beregnBehandlingstidsfrist(ap, behandling));
     }
@@ -81,7 +81,7 @@ public class SendBrevForAutopunkt {
         if (!harSendtBrevForMal(behandling.getId(), dokumentMalType) &&
             skalSendeForlengelsesbrevAutomatisk()) { //NOSONAR
             BestillBrevDto bestillBrevDto = new BestillBrevDto(behandling.getId(), dokumentMalType);
-            dokumentBestillerApplikasjonTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN, false);
+            dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN, false);
         }
         oppdaterBehandlingMedNyFrist(behandling.getId(), beregnBehandlingstidsfrist(ap, behandling));
     }
@@ -91,7 +91,7 @@ public class SendBrevForAutopunkt {
         if (!harSendtBrevForMal(behandling.getId(), dokumentMalType)) {
             BestillBrevDto bestillBrevDto = new BestillBrevDto(behandling.getId(), dokumentMalType);
             bestillBrevDto.setÅrsakskode(RevurderingVarslingÅrsak.BARN_IKKE_REGISTRERT_FOLKEREGISTER.getKode());
-            dokumentBestillerApplikasjonTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN, false);
+            dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN, false);
         }
     }
 

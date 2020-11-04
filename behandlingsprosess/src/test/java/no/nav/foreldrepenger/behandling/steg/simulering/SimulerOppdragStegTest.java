@@ -39,7 +39,7 @@ import no.nav.foreldrepenger.økonomi.simulering.kontrakt.SimulerOppdragDto;
 import no.nav.foreldrepenger.økonomi.simulering.kontrakt.SimuleringResultatDto;
 import no.nav.foreldrepenger.økonomi.simulering.tjeneste.SimuleringIntegrasjonTjeneste;
 import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.SimulerOppdragApplikasjonTjeneste;
+import no.nav.foreldrepenger.økonomi.økonomistøtte.SimulerOppdragTjeneste;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
 @CdiDbAwareTest
@@ -49,8 +49,8 @@ public class SimulerOppdragStegTest {
     private TilbakekrevingRepository tilbakekrevingRepository;
 
     private SimulerOppdragSteg steg;
-    private final SimulerOppdragApplikasjonTjeneste simulerOppdragTjenesteMock = mock(
-        SimulerOppdragApplikasjonTjeneste.class);
+    private final SimulerOppdragTjeneste simulerOppdragTjenesteMock = mock(
+        SimulerOppdragTjeneste.class);
     private final FpOppdragRestKlient fpOppdragRestKlientMock = mock(FpOppdragRestKlient.class);
     private final FpoppdragSystembrukerRestKlient fpoppdragSystembrukerRestKlientMock = mock(
         FpoppdragSystembrukerRestKlient.class);

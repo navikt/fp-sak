@@ -17,18 +17,18 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 @ApplicationScoped
 @ActivateRequestContext
 @Transactional
-public class SimulerOppdragApplikasjonTjeneste {
+public class SimulerOppdragTjeneste {
 
     private OppdragskontrollTjeneste oppdragskontrollTjeneste;
 
-    private static final Logger log = LoggerFactory.getLogger(SimulerOppdragApplikasjonTjeneste.class);
+    private static final Logger log = LoggerFactory.getLogger(SimulerOppdragTjeneste.class);
 
-    SimulerOppdragApplikasjonTjeneste() {
+    SimulerOppdragTjeneste() {
         // for CDI
     }
 
     @Inject
-    public SimulerOppdragApplikasjonTjeneste(OppdragskontrollTjeneste oppdragskontrollTjeneste) {
+    public SimulerOppdragTjeneste(OppdragskontrollTjeneste oppdragskontrollTjeneste) {
         this.oppdragskontrollTjeneste = oppdragskontrollTjeneste;
     }
 

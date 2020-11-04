@@ -19,13 +19,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.Tilbakek
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.økonomi.simulering.kontrakt.SimuleringResultatDto;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.SimulerOppdragApplikasjonTjeneste;
+import no.nav.foreldrepenger.økonomi.økonomistøtte.SimulerOppdragTjeneste;
 
 @ApplicationScoped
 public class SimulerInntrekkSjekkeTjeneste {
 
     private SimuleringIntegrasjonTjeneste simuleringIntegrasjonTjeneste;
-    private SimulerOppdragApplikasjonTjeneste simulerOppdragTjeneste;
+    private SimulerOppdragTjeneste simulerOppdragTjeneste;
     private TilbakekrevingRepository tilbakekrevingRepository;
     private HistorikkRepository historikkRepository;
 
@@ -37,7 +37,7 @@ public class SimulerInntrekkSjekkeTjeneste {
 
     @Inject
     public SimulerInntrekkSjekkeTjeneste(SimuleringIntegrasjonTjeneste simuleringIntegrasjonTjeneste,
-                                         SimulerOppdragApplikasjonTjeneste simulerOppdragTjeneste,
+                                         SimulerOppdragTjeneste simulerOppdragTjeneste,
                                          TilbakekrevingRepository tilbakekrevingRepository,
                                          HistorikkRepository historikkRepository) {
         this.simuleringIntegrasjonTjeneste = simuleringIntegrasjonTjeneste;

@@ -30,7 +30,7 @@ import no.nav.foreldrepenger.økonomi.simulering.klient.FpoppdragSystembrukerRes
 import no.nav.foreldrepenger.økonomi.simulering.kontrakt.SimuleringResultatDto;
 import no.nav.foreldrepenger.økonomi.simulering.tjeneste.SimuleringIntegrasjonTjeneste;
 import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.SimulerOppdragApplikasjonTjeneste;
+import no.nav.foreldrepenger.økonomi.økonomistøtte.SimulerOppdragTjeneste;
 import no.nav.vedtak.exception.TekniskException;
 
 @BehandlingStegRef(kode = "SIMOPP")
@@ -46,7 +46,7 @@ public class SimulerOppdragSteg implements BehandlingSteg {
 
     private BehandlingRepository behandlingRepository;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
-    private SimulerOppdragApplikasjonTjeneste simulerOppdragTjeneste;
+    private SimulerOppdragTjeneste simulerOppdragTjeneste;
     private SimuleringIntegrasjonTjeneste simuleringIntegrasjonTjeneste;
     private TilbakekrevingRepository tilbakekrevingRepository;
     private FpoppdragSystembrukerRestKlient fpoppdragSystembrukerRestKlient;
@@ -59,7 +59,7 @@ public class SimulerOppdragSteg implements BehandlingSteg {
     @Inject
     public SimulerOppdragSteg(BehandlingRepositoryProvider repositoryProvider,
                               BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
-                              SimulerOppdragApplikasjonTjeneste simulerOppdragTjeneste,
+                              SimulerOppdragTjeneste simulerOppdragTjeneste,
                               SimuleringIntegrasjonTjeneste simuleringIntegrasjonTjeneste,
                               TilbakekrevingRepository tilbakekrevingRepository,
                               FpoppdragSystembrukerRestKlient fpoppdragSystembrukerRestKlient,

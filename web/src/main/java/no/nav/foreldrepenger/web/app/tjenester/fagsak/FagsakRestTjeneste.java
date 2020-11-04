@@ -39,13 +39,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsoppretterApplikasjonTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsoppretterTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingOpprettingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.Redirect;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.SakRettigheterDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.ProsessTaskGruppeIdDto;
-import no.nav.foreldrepenger.web.app.tjenester.fagsak.app.FagsakApplikasjonTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.app.FagsakTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.app.FagsakSamlingForBruker;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakBackendDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakDto;
@@ -74,18 +74,18 @@ public class FagsakRestTjeneste {
     private static final String SOK_PART_PATH = "/sok";
     public static final String SOK_PATH = BASE_PATH + SOK_PART_PATH; // NOSONAR TFP-2234
 
-    private FagsakApplikasjonTjeneste fagsakApplikasjonTjeneste;
-    private BehandlingsoppretterApplikasjonTjeneste behandlingsoppretterApplikasjonTjeneste;
+    private FagsakTjeneste fagsakTjeneste;
+    private BehandlingsoppretterTjeneste behandlingsoppretterTjeneste;
 
     public FagsakRestTjeneste() {
         // For Rest-CDI
     }
 
     @Inject
-    public FagsakRestTjeneste(FagsakApplikasjonTjeneste fagsakApplikasjonTjeneste,
-                              BehandlingsoppretterApplikasjonTjeneste behandlingsoppretterApplikasjonTjeneste) {
-        this.fagsakApplikasjonTjeneste = fagsakApplikasjonTjeneste;
-        this.behandlingsoppretterApplikasjonTjeneste = behandlingsoppretterApplikasjonTjeneste;
+    public FagsakRestTjeneste(FagsakTjeneste fagsakTjeneste,
+                              BehandlingsoppretterTjeneste behandlingsoppretterTjeneste) {
+        this.fagsakTjeneste = fagsakTjeneste;
+        this.behandlingsoppretterTjeneste = behandlingsoppretterTjeneste;
     }
 
     @GET
@@ -100,7 +100,7 @@ public class FagsakRestTjeneste {
             @QueryParam("gruppe") @Valid ProsessTaskGruppeIdDto gruppeDto) {
         Saksnummer saksnummer = new Saksnummer(idDto.getVerdi());
         String gruppe = gruppeDto == null ? null : gruppeDto.getGruppe();
-        Optional<AsyncPollingStatus> prosessTaskGruppePågår = fagsakApplikasjonTjeneste.sjekkProsessTaskPågår(saksnummer, gruppe);
+        Optional<AsyncPollingStatus> prosessTaskGruppePågår = fagsakTjeneste.sjekkProsessTaskPågår(saksnummer, gruppe);
         return Redirect.tilFagsakEllerPollStatus(saksnummer, prosessTaskGruppePågår.orElse(null));
     }
 
@@ -113,7 +113,7 @@ public class FagsakRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response hentBrukerForFagsak(@NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
         Saksnummer saksnummer = new Saksnummer(s.getVerdi());
-        var personInfo = fagsakApplikasjonTjeneste.hentBruker(saksnummer);
+        var personInfo = fagsakTjeneste.hentBruker(saksnummer);
         if (personInfo.isEmpty()) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
@@ -132,7 +132,7 @@ public class FagsakRestTjeneste {
     public Response hentFagsak(@NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
 
         Saksnummer saksnummer = new Saksnummer(s.getVerdi());
-        FagsakSamlingForBruker view = fagsakApplikasjonTjeneste.hentFagsakForSaksnummer(saksnummer);
+        FagsakSamlingForBruker view = fagsakTjeneste.hentFagsakForSaksnummer(saksnummer);
         List<FagsakDto> list = tilDtoer(view);
         if (list.isEmpty()) {
             // return 403 Forbidden istdf 404 Not Found (sikkerhet - ikke avslør for mye)
@@ -156,11 +156,11 @@ public class FagsakRestTjeneste {
     public Response hentFagsakBackend(@NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
 
         Saksnummer saksnummer = new Saksnummer(s.getVerdi());
-        var fagsak = fagsakApplikasjonTjeneste.hentFagsakForSaksnummerBackend(saksnummer);
+        var fagsak = fagsakTjeneste.hentFagsakForSaksnummerBackend(saksnummer);
         if (fagsak.isEmpty()) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-        var dekning = fagsakApplikasjonTjeneste.hentDekningsgradForSaksnummerBackend(saksnummer).map(Dekningsgrad::getVerdi).orElse(null);
+        var dekning = fagsakTjeneste.hentDekningsgradForSaksnummerBackend(saksnummer).map(Dekningsgrad::getVerdi).orElse(null);
         var dto = new FagsakBackendDto(fagsak.get(), dekning);
         return Response.ok(dto).build();
     }
@@ -175,13 +175,13 @@ public class FagsakRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response hentRettigheter(@NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
         Saksnummer saksnummer = new Saksnummer(s.getVerdi());
-        var fagsak = fagsakApplikasjonTjeneste.hentFagsakForSaksnummerBackend(saksnummer);
+        var fagsak = fagsakTjeneste.hentFagsakForSaksnummerBackend(saksnummer);
         if (fagsak.isEmpty()) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
         var fagsakId = fagsak.map(Fagsak::getId).orElseThrow();
         var oppretting = Stream.of(BehandlingType.getYtelseBehandlingTyper(), BehandlingType.getAndreBehandlingTyper()).flatMap(Collection::stream)
-            .map(bt -> new BehandlingOpprettingDto(bt, behandlingsoppretterApplikasjonTjeneste.kanOppretteNyBehandlingAvType(fagsakId, bt)))
+            .map(bt -> new BehandlingOpprettingDto(bt, behandlingsoppretterTjeneste.kanOppretteNyBehandlingAvType(fagsakId, bt)))
             .collect(Collectors.toList());
 
         var dto = new SakRettigheterDto(fagsak.map(Fagsak::getSkalTilInfotrygd).orElse(false), oppretting, List.of());
@@ -197,7 +197,7 @@ public class FagsakRestTjeneste {
     @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public List<FagsakDto> søkFagsaker(
             @Parameter(description = "Søkestreng kan være saksnummer, fødselsnummer eller D-nummer.") @Valid SokefeltDto søkestreng) {
-        FagsakSamlingForBruker view = fagsakApplikasjonTjeneste.hentSaker(søkestreng.getSearchString());
+        FagsakSamlingForBruker view = fagsakTjeneste.hentSaker(søkestreng.getSearchString());
         return tilDtoer(view);
     }
 
@@ -220,7 +220,7 @@ public class FagsakRestTjeneste {
             Integer antallBarn = info.getAntallBarn();
             var dekningsgrad = info.getDekningsgrad().map(d -> d.getVerdi()).orElse(null);
             dtoer.add(new FagsakDto(fagsak, personDto, fødselsdato, antallBarn, kanRevurderingOpprettes, fagsak.getSkalTilInfotrygd(),
-                    fagsak.getRelasjonsRolleType(), dekningsgrad, FagsakApplikasjonTjeneste.lagLenker(fagsak), FagsakApplikasjonTjeneste.lagLenkerEngangshent(fagsak)));
+                    fagsak.getRelasjonsRolleType(), dekningsgrad, FagsakTjeneste.lagLenker(fagsak), FagsakTjeneste.lagLenkerEngangshent(fagsak)));
         }
         return dtoer;
     }
