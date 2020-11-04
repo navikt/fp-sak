@@ -8,11 +8,11 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.Totrinnresultatgrunnlag;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.Totrinnsvurdering;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.VurderÅrsakTotrinnsvurdering;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.dto.TotrinnskontrollAksjonspunkterDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.dto.TotrinnskontrollVurderÅrsak;
 
 @ApplicationScoped
 public class TotrinnsaksjonspunktDtoTjeneste {
@@ -56,10 +56,9 @@ public class TotrinnsaksjonspunktDtoTjeneste {
             .build();
     }
 
-    private Set<TotrinnskontrollVurderÅrsak> hentVurderPåNyttÅrsaker(Totrinnsvurdering aksjonspunkt) {
+    private Set<VurderÅrsak> hentVurderPåNyttÅrsaker(Totrinnsvurdering aksjonspunkt) {
         return aksjonspunkt.getVurderPåNyttÅrsaker().stream()
             .map(VurderÅrsakTotrinnsvurdering::getÅrsaksType)
-            .map(arsakType -> new TotrinnskontrollVurderÅrsak(arsakType.getKode(), arsakType.getNavn()))
             .collect(Collectors.toSet());
     }
 }

@@ -205,10 +205,6 @@ public class FagsakRestTjeneste {
         if (view.isEmpty()) {
             return new ArrayList<>();
         }
-        PersoninfoBasis brukerInfo = view.getBrukerInfo();
-
-        PersonDto personDto = mapFraPersoninfoBasis(brukerInfo);
-
         List<FagsakDto> dtoer = new ArrayList<>();
         List<FagsakSamlingForBruker.FagsakRad> fagsakInfoer = view.getFagsakInfoer();
         for (FagsakSamlingForBruker.FagsakRad info : fagsakInfoer) {
@@ -219,7 +215,7 @@ public class FagsakRestTjeneste {
 
             Integer antallBarn = info.getAntallBarn();
             var dekningsgrad = info.getDekningsgrad().map(d -> d.getVerdi()).orElse(null);
-            dtoer.add(new FagsakDto(fagsak, personDto, fødselsdato, antallBarn, kanRevurderingOpprettes, fagsak.getSkalTilInfotrygd(),
+            dtoer.add(new FagsakDto(fagsak, fødselsdato, antallBarn, kanRevurderingOpprettes, fagsak.getSkalTilInfotrygd(),
                     fagsak.getRelasjonsRolleType(), dekningsgrad, FagsakTjeneste.lagLenker(fagsak), FagsakTjeneste.lagLenkerEngangshent(fagsak)));
         }
         return dtoer;

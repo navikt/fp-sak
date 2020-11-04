@@ -28,7 +28,7 @@ public class FamiliehendelseDataDtoTjeneste {
     }
 
     public static Optional<FamiliehendelseDto> mapFra(Behandling behandling, Optional<FamilieHendelseGrunnlagEntitet> grunnlag, Optional<LocalDate> vedtaksdato) {
-        return mapFraType(behandling, grunnlag, vedtaksdato);
+        return grunnlag.flatMap(g -> FamiliehendelseDataDtoTjeneste.mapHendelseGrunnlag(g, behandling, vedtaksdato));
     }
 
     public static FamilieHendelseGrunnlagDto mapGrunnlagFra(Behandling behandling, Optional<FamilieHendelseGrunnlagEntitet> grunnlag, Optional<LocalDate> vedtaksdato) {
@@ -116,15 +116,6 @@ public class FamiliehendelseDataDtoTjeneste {
             dto.setAntallBarnTermin(hendelse.getAntallBarn());
             finnUkerUtISvangerskapet(terminbekreftelse, vedtaksdato.orElse(null)).ifPresent(dto::setVedtaksDatoSomSvangerskapsuke);
         });
-    }
-
-    private static Optional<FamiliehendelseDto> mapFraType(Behandling behandling, Optional<FamilieHendelseGrunnlagEntitet> grunnlagOpt1, Optional<LocalDate> vedtaksdato) {
-        if (grunnlagOpt1.isPresent()) {
-            FamilieHendelseGrunnlagEntitet grunnlag = grunnlagOpt1.get();
-
-            return mapHendelseGrunnlag(grunnlag, behandling, vedtaksdato);
-        }
-        return Optional.empty();
     }
 
     private static Optional<FamiliehendelseDto> mapHendelseGrunnlag(FamilieHendelseGrunnlagEntitet grunnlag, Behandling behandling, Optional<LocalDate> vedtaksdato) {

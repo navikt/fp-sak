@@ -5,11 +5,8 @@ import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREAT
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.UPDATE;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -59,15 +56,12 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.Behandlin
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingOperasjonerDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingOpprettingDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingRettigheterDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.ByttBehandlendeEnhetDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.GjenopptaBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.HenleggBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.NyBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.Redirect;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.ReåpneBehandlingDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.SakRettigheterDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.SettBehandlingPaVentDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoTjeneste;
@@ -111,10 +105,6 @@ public class BehandlingRestTjeneste {
     public static final String OPNE_FOR_ENDRINGER_PATH = BASE_PATH + OPNE_FOR_ENDRINGER_PART_PATH;
     private static final String SETT_PA_VENT_PART_PATH = "/sett-pa-vent";
     public static final String SETT_PA_VENT_PATH = BASE_PATH + SETT_PA_VENT_PART_PATH;
-    private static final String HANDLING_RETTIGHETER_PART_PATH = "/handling-rettigheter";
-    public static final String HANDLING_RETTIGHETER_PATH = BASE_PATH + HANDLING_RETTIGHETER_PART_PATH;
-    private static final String HANDLING_RETTIGHETER_V2_PART_PATH = "/handling-rettigheter-v2";
-    public static final String HANDLING_RETTIGHETER_V2_PATH = BASE_PATH + HANDLING_RETTIGHETER_V2_PART_PATH;
     private static final String RETTIGHETER_PART_PATH = "/rettigheter";
     public static final String RETTIGHETER_PATH = BASE_PATH + RETTIGHETER_PART_PATH;
     private static final String ENDRE_VENTEFRIST_PART_PATH = "/endre-pa-vent";
@@ -414,39 +404,6 @@ public class BehandlingRestTjeneste {
     }
 
     @GET
-    @Path(HANDLING_RETTIGHETER_PART_PATH)
-    @Operation(description = "Henter rettigheter for lovlige behandlingsoperasjoner", tags = "behandlinger")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-
-    public BehandlingRettigheterDto hentBehandlingOperasjonRettigheter(
-            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        Behandling behandling = behandlingsprosessTjeneste.hentBehandling(uuidDto.getBehandlingUuid());
-        Boolean harSoknad = behandlingDtoTjeneste.finnBehandlingOperasjonRettigheter(behandling);
-        // TODO (TOR) Denne skal etterkvart returnere rettighetene knytta til
-        // behandlingsmeny i frontend
-        return new BehandlingRettigheterDto(harSoknad);
-    }
-
-    @GET
-    @Path(HANDLING_RETTIGHETER_V2_PART_PATH)
-    @Operation(description = "Henter rettigheter for lovlige behandlingsoppretting", tags = "behandlinger")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public SakRettigheterDto hentMuligeBehandlingOpprettinger(
-        @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer må være et eksisterende saksnummer") @Valid SaksnummerDto s) {
-        Saksnummer saksnummer = new Saksnummer(s.getVerdi());
-        Fagsak f = fagsakTjeneste.finnFagsakGittSaksnummer(saksnummer, false).orElseThrow();
-        var operasjoner = behandlingsutredningTjeneste.hentBehandlingerForSaksnummer(saksnummer).stream()
-            .filter(b -> !b.erSaksbehandlingAvsluttet())
-            .map(this::lovligeOperasjoner)
-            .collect(Collectors.toList());
-         var oppretting = Stream.of(BehandlingType.getYtelseBehandlingTyper(), BehandlingType.getAndreBehandlingTyper())
-            .flatMap(Collection::stream)
-            .map(bt -> new BehandlingOpprettingDto(bt, behandlingsoppretterTjeneste.kanOppretteNyBehandlingAvType(f.getId(), bt)))
-             .collect(Collectors.toList());
-        return new SakRettigheterDto(f.getSkalTilInfotrygd(), oppretting, operasjoner);
-    }
-
-    @GET
     @Path(RETTIGHETER_PART_PATH)
     @Operation(description = "Henter rettigheter for menyvalg", tags = "behandlinger")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
@@ -457,7 +414,6 @@ public class BehandlingRestTjeneste {
 
         return lovligeOperasjoner(behandling);
     }
-
 
     private BehandlingOperasjonerDto lovligeOperasjoner(Behandling b) {
         if (b.erSaksbehandlingAvsluttet()) {
