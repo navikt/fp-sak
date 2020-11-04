@@ -12,10 +12,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
@@ -35,7 +33,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.uttak.kontroller.fakta.KontrollerFaktaUttakTjeneste;
@@ -49,18 +47,14 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BekreftetOpp
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.FaktaUttakDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.KontrollerFaktaPeriodeLagreDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SlettetUttakPeriodeDto;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class FaktaUttakOppdatererTest {
 
     private static final AksjonspunktDefinisjon AKSJONSPUNKT_DEF = AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_SAKSBEHANDLER_OVERSTYRING;
 
-    @Rule
-    public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
-
-    private BehandlingRepositoryProvider behandlingRepositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
-
+    @Inject
+    private BehandlingRepositoryProvider behandlingRepositoryProvider;
     @Inject
     private UttakInputTjeneste uttakInputTjeneste;
 
@@ -80,17 +74,17 @@ public class FaktaUttakOppdatererTest {
 
     private FaktaUttakOppdaterer faktaUttakOppdaterer;
 
-    @Before
+    @BeforeEach
     public void setup() {
         when(inntektArbeidYtelseTjeneste.hentGrunnlag(anyLong())).thenReturn(InntektArbeidYtelseGrunnlagBuilder.nytt().build());
         var faktaUttakHistorikkTjeneste = new FaktaUttakHistorikkTjeneste(historikkApplikasjonTjeneste,
-            arbeidsgiverHistorikkinnslagTjeneste,
-            ytelseFordelingTjeneste, inntektArbeidYtelseTjeneste);
+                arbeidsgiverHistorikkinnslagTjeneste,
+                ytelseFordelingTjeneste, inntektArbeidYtelseTjeneste);
         this.faktaUttakOppdaterer = new FaktaUttakOppdaterer(uttakInputTjeneste,
-            kontrollerFaktaUttakTjeneste,
-            kontrollerOppgittFordelingTjeneste,
-            faktaUttakHistorikkTjeneste,
-            faktaUttakToTrinnsTjeneste);
+                kontrollerFaktaUttakTjeneste,
+                kontrollerOppgittFordelingTjeneste,
+                faktaUttakHistorikkTjeneste,
+                faktaUttakToTrinnsTjeneste);
     }
 
     @Test
@@ -116,10 +110,11 @@ public class FaktaUttakOppdatererTest {
         assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
         HistorikkinnslagDel del = historikkinnslag.getHistorikkinnslagDeler().get(0);
         assertThat(del.getSkjermlenke()).as("skjermlenke")
-            .hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.FAKTA_OM_UTTAK.getKode()));
+                .hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.FAKTA_OM_UTTAK.getKode()));
         assertThat(del.getResultat()).isEmpty();
-        assertThat(del.getAvklartSoeknadsperiode()).as("soeknadsperiode").hasValueSatisfying(soeknadsperiode -> assertThat(soeknadsperiode.getNavn()).as("navn")
-            .isEqualTo(HistorikkAvklartSoeknadsperiodeType.SLETTET_SOEKNASPERIODE.getKode()));
+        assertThat(del.getAvklartSoeknadsperiode()).as("soeknadsperiode")
+                .hasValueSatisfying(soeknadsperiode -> assertThat(soeknadsperiode.getNavn()).as("navn")
+                        .isEqualTo(HistorikkAvklartSoeknadsperiodeType.SLETTET_SOEKNASPERIODE.getKode()));
     }
 
     @Test
@@ -139,7 +134,7 @@ public class FaktaUttakOppdatererTest {
         var resultat = faktaUttakOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
 
         boolean ikkeFinnes = resultat.getEkstraAksjonspunktResultat().stream()
-            .noneMatch(aer -> aer.getElement1().equals(AKSJONSPUNKT_DEF) && !AksjonspunktStatus.AVBRUTT.equals(aer.getElement2()));
+                .noneMatch(aer -> aer.getElement1().equals(AKSJONSPUNKT_DEF) && !AksjonspunktStatus.AVBRUTT.equals(aer.getElement2()));
 
         assertThat(ikkeFinnes).isTrue();
     }
@@ -150,9 +145,9 @@ public class FaktaUttakOppdatererTest {
         // Scenario med både avklar fakta uttak og manuell avklar fakta uttak
         ScenarioMorSøkerForeldrepenger scenario = AvklarFaktaTestUtil.opprettScenarioMorSøkerForeldrepenger();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER,
-            BehandlingStegType.VURDER_UTTAK);
+                BehandlingStegType.VURDER_UTTAK);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.OVERSTYRING_AV_FAKTA_UTTAK,
-            BehandlingStegType.VURDER_UTTAK);
+                BehandlingStegType.VURDER_UTTAK);
         scenario.lagre(behandlingRepositoryProvider);
         // Behandling
         Behandling behandling = AvklarFaktaTestUtil.opprettBehandling(scenario);
@@ -164,8 +159,8 @@ public class FaktaUttakOppdatererTest {
         var resultat = faktaUttakOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
 
         boolean finnesAvbrutt = resultat.getEkstraAksjonspunktResultat().stream()
-            .anyMatch(aer -> aer.getElement1().getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.OVERSTYRING_AV_FAKTA_UTTAK) && AksjonspunktStatus.AVBRUTT.equals(aer.getElement2()));
-
+                .anyMatch(aer -> aer.getElement1().getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.OVERSTYRING_AV_FAKTA_UTTAK)
+                        && AksjonspunktStatus.AVBRUTT.equals(aer.getElement2()));
 
         assertThat(finnesAvbrutt).isTrue();
     }
@@ -174,10 +169,10 @@ public class FaktaUttakOppdatererTest {
     public void skalLagreOppgittPeriodeMedPrivatpersonSomArbeidsgiver() {
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medFordeling(new OppgittFordelingEntitet(List.of(OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
-            .medPeriode(LocalDate.now(), LocalDate.now())
-            .build()), false))
-        .medSøknadHendelse().medFødselsDato(LocalDate.now());
+                .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+                .medPeriode(LocalDate.now(), LocalDate.now())
+                .build()), false))
+                .medSøknadHendelse().medFødselsDato(LocalDate.now());
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER, BehandlingStegType.VURDER_UTTAK);
         Behandling behandling = scenario.lagre(behandlingRepositoryProvider);
 
@@ -185,19 +180,19 @@ public class FaktaUttakOppdatererTest {
         BekreftetOppgittPeriodeDto bekreftetDto = new BekreftetOppgittPeriodeDto();
         ArbeidsgiverLagreDto arbeidsgiverDto = new ArbeidsgiverLagreDto(behandling.getAktørId());
         bekreftetDto.setBekreftetPeriode(new KontrollerFaktaPeriodeLagreDto.Builder()
-            .medPeriode(LocalDate.now(), LocalDate.now())
-            .medUttakPeriodeType(UttakPeriodeType.MØDREKVOTE)
-            .medArbeidstidsprosent(BigDecimal.TEN)
-            .medArbeidsgiver(arbeidsgiverDto)
-            .medMottattDato(LocalDate.now())
-            .build());
+                .medPeriode(LocalDate.now(), LocalDate.now())
+                .medUttakPeriodeType(UttakPeriodeType.MØDREKVOTE)
+                .medArbeidstidsprosent(BigDecimal.TEN)
+                .medArbeidsgiver(arbeidsgiverDto)
+                .medMottattDato(LocalDate.now())
+                .build());
         avklarFaktaDto.setBekreftedePerioder(List.of(bekreftetDto));
         var aksjonspunkt = behandling.getAksjonspunktFor(avklarFaktaDto.getKode());
 
         faktaUttakOppdaterer.oppdater(avklarFaktaDto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, avklarFaktaDto));
 
         List<OppgittPeriodeEntitet> lagretPerioder = behandlingRepositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId())
-            .getGjeldendeSøknadsperioder().getOppgittePerioder();
+                .getGjeldendeSøknadsperioder().getOppgittePerioder();
         assertThat(lagretPerioder).hasSize(1);
         assertThat(lagretPerioder.get(0).getArbeidsgiver().getIdentifikator()).isEqualTo(arbeidsgiverDto.getAktørId().getId());
         assertThat(lagretPerioder.get(0).getArbeidsgiver().getAktørId().getId()).isEqualTo(arbeidsgiverDto.getAktørId().getId());
@@ -206,7 +201,8 @@ public class FaktaUttakOppdatererTest {
 
     private FaktaUttakDto opprettDtoAvklarFaktaUttakDto() {
         FaktaUttakDto dto = new FaktaUttakDto.FaktaUttakPerioderDto();
-        BekreftetOppgittPeriodeDto bekreftetOppgittPeriodeDto = getBekreftetUttakPeriodeDto(LocalDate.now().minusDays(20), LocalDate.now().minusDays(11));
+        BekreftetOppgittPeriodeDto bekreftetOppgittPeriodeDto = getBekreftetUttakPeriodeDto(LocalDate.now().minusDays(20),
+                LocalDate.now().minusDays(11));
         SlettetUttakPeriodeDto slettetPeriodeDto = new SlettetUttakPeriodeDto();
         slettetPeriodeDto.setBegrunnelse("ugyldig søknadsperiode");
         slettetPeriodeDto.setUttakPeriodeType(UttakPeriodeType.FORELDREPENGER);
@@ -220,12 +216,13 @@ public class FaktaUttakOppdatererTest {
     private BekreftetOppgittPeriodeDto getBekreftetUttakPeriodeDto(LocalDate fom, LocalDate tom) {
         BekreftetOppgittPeriodeDto bekreftetOppgittPeriodeDto = new BekreftetOppgittPeriodeDto();
         OppgittPeriodeEntitet bekreftetperiode = OppgittPeriodeBuilder.ny()
-            .medPeriode(fom, tom)
-            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .build();
-        KontrollerFaktaPeriodeLagreDto bekreftetPeriodeDto = new KontrollerFaktaPeriodeLagreDto.Builder(KontrollerFaktaPeriode.ubekreftet(bekreftetperiode),
-            null)
+                .medPeriode(fom, tom)
+                .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
                 .build();
+        KontrollerFaktaPeriodeLagreDto bekreftetPeriodeDto = new KontrollerFaktaPeriodeLagreDto.Builder(
+                KontrollerFaktaPeriode.ubekreftet(bekreftetperiode),
+                null)
+                        .build();
         bekreftetOppgittPeriodeDto.setBekreftetPeriode(bekreftetPeriodeDto);
         bekreftetOppgittPeriodeDto.setOrginalFom(fom);
         bekreftetOppgittPeriodeDto.setOrginalTom(tom);

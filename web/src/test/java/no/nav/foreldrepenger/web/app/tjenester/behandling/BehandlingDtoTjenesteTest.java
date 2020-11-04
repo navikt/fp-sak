@@ -13,10 +13,8 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.UuidDto;
@@ -34,7 +32,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.OpptjeningIUtlandDokStatusTjeneste;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
@@ -44,13 +42,9 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.Behandl
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.UtvidetBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.tilbakekreving.TilbakekrevingRestTjeneste;
 import no.nav.foreldrepenger.web.app.util.RestUtils;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class BehandlingDtoTjenesteTest {
-
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
@@ -82,11 +76,11 @@ public class BehandlingDtoTjenesteTest {
 
     private Collection<ResourceLink> existingRoutes;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         existingRoutes = RestUtils.getRoutes();
         tjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningsgrunnlagTjeneste, tilbakekrevingRepository, skjæringstidspunktTjeneste,
-            opptjeningIUtlandDokStatusTjeneste, behandlingDokumentRepository, relatertBehandlingTjeneste, foreldrepengerUttakTjeneste, null);
+                opptjeningIUtlandDokStatusTjeneste, behandlingDokumentRepository, relatertBehandlingTjeneste, foreldrepengerUttakTjeneste, null);
     }
 
     @Test
@@ -103,7 +97,8 @@ public class BehandlingDtoTjenesteTest {
     public void skal_ha_med_tilbakekrevings_link_når_det_finnes_et_resultat() {
         Behandling behandling = lagBehandling();
 
-        tilbakekrevingRepository.lagre(behandling, TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.TILBAKEKREV_I_INFOTRYGD, "varsel"));
+        tilbakekrevingRepository.lagre(behandling,
+                TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.TILBAKEKREV_I_INFOTRYGD, "varsel"));
 
         UtvidetBehandlingDto dto = tjeneste.lagUtvidetBehandlingDto(behandling, null);
         var href = RestUtils.getApiPath(TilbakekrevingRestTjeneste.VALG_PATH);
@@ -155,25 +150,25 @@ public class BehandlingDtoTjenesteTest {
 
     private Behandling lagBehandling() {
         return ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medDefaultSøknadTerminbekreftelse()
-            .medDefaultBekreftetTerminbekreftelse()
-            .medFordeling(new OppgittFordelingEntitet(Collections.singletonList(OppgittPeriodeBuilder.ny()
-                .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
-                .medPeriode(now.plusWeeks(8), now.plusWeeks(12))
-                .build()), true))
-            .lagre(repositoryProvider);
+                .medDefaultSøknadTerminbekreftelse()
+                .medDefaultBekreftetTerminbekreftelse()
+                .medFordeling(new OppgittFordelingEntitet(Collections.singletonList(OppgittPeriodeBuilder.ny()
+                        .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
+                        .medPeriode(now.plusWeeks(8), now.plusWeeks(12))
+                        .build()), true))
+                .lagre(repositoryProvider);
     }
 
     private Behandling lagBehandling(BehandlingType behandlingType) {
         return ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medDefaultSøknadTerminbekreftelse()
-            .medDefaultBekreftetTerminbekreftelse()
-            .medFordeling(new OppgittFordelingEntitet(Collections.singletonList(OppgittPeriodeBuilder.ny()
-                .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
-                .medPeriode(now.plusWeeks(8), now.plusWeeks(12))
-                .build()), true))
-            .medBehandlingType(behandlingType)
-            .lagre(repositoryProvider);
+                .medDefaultSøknadTerminbekreftelse()
+                .medDefaultBekreftetTerminbekreftelse()
+                .medFordeling(new OppgittFordelingEntitet(Collections.singletonList(OppgittPeriodeBuilder.ny()
+                        .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
+                        .medPeriode(now.plusWeeks(8), now.plusWeeks(12))
+                        .build()), true))
+                .medBehandlingType(behandlingType)
+                .lagre(repositoryProvider);
     }
 
     private Behandling lagBehandling(FagsakYtelseType fagsakYtelseType) {

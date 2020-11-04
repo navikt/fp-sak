@@ -4,9 +4,7 @@ import java.time.LocalDate;
 
 import javax.inject.Inject;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.steg.inngangsvilkår.InngangsvilkårFellesTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
@@ -20,24 +18,18 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Avklart
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
-import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class VurderOpptjeningsvilkårStegTest {
-
-    @Rule
-    public final RepositoryRule repoRule = new UnittestRepositoryRule();
-
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-
+    @Inject
+    private BehandlingRepositoryProvider repositoryProvider;
     @Inject
     public InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste;
-    
+
     @Inject
     private OpptjeningRepository opptjeningRepository;
-    
+
     @Inject
     private BehandlingRepository behandlingRepository;
 
@@ -59,14 +51,15 @@ public class VurderOpptjeningsvilkårStegTest {
         scenario.leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.IKKE_VURDERT);
 
         AvklarteUttakDatoerEntitet avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder()
-            .medFørsteUttaksdato(idag)
-            .build();
+                .medFørsteUttaksdato(idag)
+                .build();
 
         scenario.medAvklarteUttakDatoer(avklarteUttakDatoer);
 
         Behandling behandling = lagre(scenario);
         Fagsak fagsak = behandling.getFagsak();
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),behandlingRepository.taSkriveLås(behandling));
+        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
+                behandlingRepository.taSkriveLås(behandling));
 
         // Act
         // opprett opptjening

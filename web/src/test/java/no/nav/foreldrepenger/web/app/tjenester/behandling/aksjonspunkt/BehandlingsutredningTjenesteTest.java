@@ -1,22 +1,19 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.Period;
 
 import javax.inject.Inject;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
 
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingModellRepository;
@@ -31,23 +28,16 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveBehandlingKobling;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveBehandlingKoblingRepository;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
+import no.nav.vedtak.exception.FunksjonellException;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class BehandlingsutredningTjenesteTest {
-
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
-
     @Inject
     private OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository;
 
@@ -76,24 +66,25 @@ public class BehandlingsutredningTjenesteTest {
 
     private Long behandlingId;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         Behandling behandling = ScenarioMorSøkerEngangsstønad
-            .forFødsel()
-            .lagre(repositoryProvider);
+                .forFødsel()
+                .lagre(repositoryProvider);
         behandlingId = behandling.getId();
 
         BehandlingskontrollTjenesteImpl behandlingskontrollTjenesteImpl = new BehandlingskontrollTjenesteImpl(behandlingskontrollServiceProvider);
 
-        when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(new OrganisasjonsEnhet("1234", "Testlokasjon"));
+        lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class)))
+                .thenReturn(new OrganisasjonsEnhet("1234", "Testlokasjon"));
 
         behandlingsutredningTjeneste = new BehandlingsutredningTjeneste(
-            Period.parse("P4W"),
-            repositoryProvider,
-            oppgaveTjenesteMock,
-            behandlendeEnhetTjeneste,
-            behandlingskontrollTjenesteImpl);
+                Period.parse("P4W"),
+                repositoryProvider,
+                oppgaveTjenesteMock,
+                behandlendeEnhetTjeneste,
+                behandlingskontrollTjenesteImpl);
     }
 
     @Test
@@ -123,13 +114,14 @@ public class BehandlingsutredningTjenesteTest {
         assertThat(behandling.getVenteårsak()).isEqualTo(Venteårsak.AVV_FODSEL);
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void skal_kaste_feil_når_oppdatering_av_ventefrist_av_behandling_som_ikke_er_på_vent() {
         // Arrange
         LocalDate toUkerFrem = LocalDate.now().plusWeeks(2);
 
         // Act
-        behandlingsutredningTjeneste.endreBehandlingPaVent(behandlingId, toUkerFrem, Venteårsak.AVV_FODSEL);
+        assertThrows(FunksjonellException.class,
+                () -> behandlingsutredningTjeneste.endreBehandlingPaVent(behandlingId, toUkerFrem, Venteårsak.AVV_FODSEL));
     }
 
     @Test
@@ -137,7 +129,7 @@ public class BehandlingsutredningTjenesteTest {
         // Arrange
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         OppgaveBehandlingKobling oppgave = new OppgaveBehandlingKobling(OppgaveÅrsak.BEHANDLE_SAK, "1",
-            behandling.getFagsak().getSaksnummer(), behandling.getId());
+                behandling.getFagsak().getSaksnummer(), behandling.getId());
         oppgaveBehandlingKoblingRepository.lagre(oppgave);
 
         // Act

@@ -10,9 +10,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -36,7 +34,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
@@ -47,30 +45,24 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BekreftetOpp
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.KontrollerFaktaPeriodeLagreDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.OverstyringFaktaUttakDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SlettetUttakPeriodeDto;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class FaktaUttakSaksbehandlerOverstyringshåndtererTest {
 
-    @Rule
-    public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
-
-    private BehandlingRepositoryProvider behandlingRepositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
-
+    @Inject
+    private BehandlingRepositoryProvider behandlingRepositoryProvider;
     @Inject
     private FamilieHendelseRepository familieHendelseRepository;
-
     @Inject
     private AksjonspunktTjeneste aksjonspunktTjeneste;
-
     @Inject
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
-
     @Inject
     private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
 
     private void lagreIAYGrunnlag(Long behandlingId) {
-        inntektArbeidYtelseTjeneste.lagreIayAggregat(behandlingId, InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER));
+        inntektArbeidYtelseTjeneste.lagreIayAggregat(behandlingId,
+                InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER));
     }
 
     @Test
@@ -91,10 +83,11 @@ public class FaktaUttakSaksbehandlerOverstyringshåndtererTest {
         assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
         HistorikkinnslagDel del = historikkinnslag.getHistorikkinnslagDeler().get(0);
         assertThat(del.getSkjermlenke()).as("skjermlenke")
-            .hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.FAKTA_OM_UTTAK.getKode()));
+                .hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.FAKTA_OM_UTTAK.getKode()));
         assertThat(del.getResultat()).isEmpty();
-        assertThat(del.getAvklartSoeknadsperiode()).as("soeknadsperiode").hasValueSatisfying(soeknadsperiode -> assertThat(soeknadsperiode.getNavn()).as("navn")
-            .isEqualTo(HistorikkAvklartSoeknadsperiodeType.SLETTET_SOEKNASPERIODE.getKode()));
+        assertThat(del.getAvklartSoeknadsperiode()).as("soeknadsperiode")
+                .hasValueSatisfying(soeknadsperiode -> assertThat(soeknadsperiode.getNavn()).as("navn")
+                        .isEqualTo(HistorikkAvklartSoeknadsperiodeType.SLETTET_SOEKNASPERIODE.getKode()));
     }
 
     @Test
@@ -145,7 +138,8 @@ public class FaktaUttakSaksbehandlerOverstyringshåndtererTest {
 
     private OverstyringFaktaUttakDto.SaksbehandlerOverstyrerFaktaUttakDto opprettOverstyringUttaksperioderDto() {
         OverstyringFaktaUttakDto.SaksbehandlerOverstyrerFaktaUttakDto dto = new OverstyringFaktaUttakDto.SaksbehandlerOverstyrerFaktaUttakDto();
-        BekreftetOppgittPeriodeDto bekreftetOppgittPeriodeDto = getBekreftetUttakPeriodeDto(LocalDate.now().minusDays(20), LocalDate.now().minusDays(11));
+        BekreftetOppgittPeriodeDto bekreftetOppgittPeriodeDto = getBekreftetUttakPeriodeDto(LocalDate.now().minusDays(20),
+                LocalDate.now().minusDays(11));
         SlettetUttakPeriodeDto slettetPeriodeDto = new SlettetUttakPeriodeDto();
         slettetPeriodeDto.setBegrunnelse("ugyldig søknadsperiode");
         slettetPeriodeDto.setUttakPeriodeType(UttakPeriodeType.FORELDREPENGER);
@@ -160,14 +154,16 @@ public class FaktaUttakSaksbehandlerOverstyringshåndtererTest {
         Behandling revurdering = opprettRevurderingBehandling(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
         var behandlingsresultat = behandlingRepositoryProvider.getBehandlingsresultatRepository().hent(revurdering.getId());
         var uttaksperiodegrense = new Uttaksperiodegrense.Builder(behandlingsresultat)
-            .medMottattDato(LocalDate.of(2010, 1, 1))
-            .medFørsteLovligeUttaksdag(LocalDate.of(2010, 1, 1))
-            .build();
+                .medMottattDato(LocalDate.of(2010, 1, 1))
+                .medFørsteLovligeUttaksdag(LocalDate.of(2010, 1, 1))
+                .build();
         behandlingRepositoryProvider.getUttaksperiodegrenseRepository().lagre(revurdering.getId(), uttaksperiodegrense);
 
-        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(revurdering, AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER);
+        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(revurdering,
+                AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER);
         AksjonspunktTestSupport.setToTrinnsBehandlingKreves(aksjonspunkt);
-        // Der var aksjonspunkt 5070 pga avvik inntektsmelding men fikk nye inntektsmelding med riktig info, løsningen er tilbake hopp
+        // Der var aksjonspunkt 5070 pga avvik inntektsmelding men fikk nye
+        // inntektsmelding med riktig info, løsningen er tilbake hopp
         // og 5070 er avbrutt men ikke opprettet siden fått riktig inntektsmelding
         AksjonspunktTestSupport.setTilAvbrutt(aksjonspunkt);
         return revurdering;
@@ -181,44 +177,46 @@ public class FaktaUttakSaksbehandlerOverstyringshåndtererTest {
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER, BehandlingStegType.KONTROLLER_FAKTA_UTTAK);
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
         final OppgittPeriodeEntitet periode_1 = OppgittPeriodeBuilder.ny()
-            .medPeriode(LocalDate.now().minusDays(10), LocalDate.now())
-            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .build();
+                .medPeriode(LocalDate.now().minusDays(10), LocalDate.now())
+                .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+                .build();
         final OppgittPeriodeEntitet periode_2 = OppgittPeriodeBuilder.ny()
-            .medPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(11))
-            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .build();
+                .medPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(11))
+                .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+                .build();
         scenario.medFordeling(new OppgittFordelingEntitet(List.of(periode_1, periode_2), true));
         Behandling førstegangsbehandling = scenario.lagre(behandlingRepositoryProvider);
 
         var behandlingsresultat = behandlingRepositoryProvider.getBehandlingsresultatRepository().hent(førstegangsbehandling.getId());
         var uttaksperiodegrense = new Uttaksperiodegrense.Builder(behandlingsresultat)
-            .medMottattDato(LocalDate.of(2019, 1, 1))
-            .medFørsteLovligeUttaksdag(LocalDate.of(2010, 1, 1))
-            .build();
+                .medMottattDato(LocalDate.of(2019, 1, 1))
+                .medFørsteLovligeUttaksdag(LocalDate.of(2010, 1, 1))
+                .build();
         uttaksperiodegrenseRepository.lagre(førstegangsbehandling.getId(), uttaksperiodegrense);
 
         ScenarioMorSøkerForeldrepenger revurderingsscenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medOriginalBehandling(førstegangsbehandling, behandlingÅrsakType)
-            .medBehandlingType(BehandlingType.REVURDERING);
+                .medOriginalBehandling(førstegangsbehandling, behandlingÅrsakType)
+                .medBehandlingType(BehandlingType.REVURDERING);
 
         revurderingsscenario.medSøknad().medMottattDato(LocalDate.now());
         var revurdering = revurderingsscenario.lagre(behandlingRepositoryProvider);
         familieHendelseRepository.kopierGrunnlagFraEksisterendeBehandling(førstegangsbehandling.getId(), revurdering.getId());
-        behandlingRepositoryProvider.getYtelsesFordelingRepository().kopierGrunnlagFraEksisterendeBehandling(førstegangsbehandling.getId(), revurdering.getId());
+        behandlingRepositoryProvider.getYtelsesFordelingRepository().kopierGrunnlagFraEksisterendeBehandling(førstegangsbehandling.getId(),
+                revurdering.getId());
         return revurdering;
     }
 
     private BekreftetOppgittPeriodeDto getBekreftetUttakPeriodeDto(LocalDate fom, LocalDate tom) {
         BekreftetOppgittPeriodeDto bekreftetOppgittPeriodeDto = new BekreftetOppgittPeriodeDto();
         OppgittPeriodeEntitet bekreftetperiode = OppgittPeriodeBuilder.ny()
-            .medPeriode(fom, tom)
-            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .medMottattDato(fom)
-            .build();
-        KontrollerFaktaPeriodeLagreDto bekreftetPeriodeDto = new KontrollerFaktaPeriodeLagreDto.Builder(KontrollerFaktaPeriode.ubekreftet(bekreftetperiode),
-            null)
+                .medPeriode(fom, tom)
+                .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+                .medMottattDato(fom)
                 .build();
+        KontrollerFaktaPeriodeLagreDto bekreftetPeriodeDto = new KontrollerFaktaPeriodeLagreDto.Builder(
+                KontrollerFaktaPeriode.ubekreftet(bekreftetperiode),
+                null)
+                        .build();
         bekreftetOppgittPeriodeDto.setBekreftetPeriode(bekreftetPeriodeDto);
         bekreftetOppgittPeriodeDto.setOrginalFom(fom);
         bekreftetOppgittPeriodeDto.setOrginalTom(tom);
