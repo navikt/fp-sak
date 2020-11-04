@@ -24,17 +24,13 @@
 			<groupId>no.nav.foreldrepenger</groupId>
 			<artifactId>behandlingslager-domene</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>no.nav.foreldrepenger</groupId>
-			<artifactId>kodeverk</artifactId>
-		</dependency>
+
 
 		<!-- Integrasjon avhengigheter -->
 		<dependency>
 			<groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
 			<artifactId>journal-klient</artifactId>
 		</dependency>
-
 
 		<!-- Test avhengigheter -->
 		<dependency>

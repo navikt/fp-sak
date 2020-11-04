@@ -13,9 +13,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeOmgjørÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
@@ -63,10 +65,15 @@ public class AnkeVurderingTjeneste {
         lagreAnkeVurderingResultat(behandling, builder, true);
     }
 
-    public void oppdaterBekreftetMerknaderAksjonspunkt(Behandling behandling, boolean erMerknaderMottatt, String merknadKommentar) {
+    public void oppdaterBekreftetMerknaderAksjonspunkt(Behandling behandling, boolean erMerknaderMottatt, String merknadKommentar,
+                                                       AnkeVurdering trVurdering, AnkeVurderingOmgjør trVurderOmgjør, AnkeOmgjørÅrsak trOmgjørÅrsak) {
         var builder = hentAnkeVurderingResultatBuilder(behandling)
             .medErMerknaderMottatt(erMerknaderMottatt)
-            .medMerknaderFraBruker(merknadKommentar);
+            .medMerknaderFraBruker(merknadKommentar)
+            //.medTrygderettVurdering(trVurdering != null ? trVurdering : AnkeVurdering.UDEFINERT)
+            //.medTrygderettVurderingOmgjør(trVurderOmgjør != null ? trVurderOmgjør : AnkeVurderingOmgjør.UDEFINERT)
+            //.medTrygderettOmgjørÅrsak(trOmgjørÅrsak != null ? trOmgjørÅrsak : AnkeOmgjørÅrsak.UDEFINERT)
+            ;
         ankeRepository.lagreVurderingsResultat(behandling.getId(), builder.build());
     }
 

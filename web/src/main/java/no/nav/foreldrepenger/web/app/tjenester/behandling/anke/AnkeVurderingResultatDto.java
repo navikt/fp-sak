@@ -42,6 +42,12 @@ public class AnkeVurderingResultatDto {
     private Long paAnketBehandlingId;
     @JsonProperty("paAnketBehandlingUuid")
     private UUID paAnketBehandlingUuid;
+    @JsonProperty("trygderettVurdering")
+    private AnkeVurdering trygderettVurdering;
+    @JsonProperty("trygderettOmgjoerArsak")
+    private AnkeOmgjørÅrsak trygderettOmgjoerArsak;
+    @JsonProperty("trygderettVurderingOmgjoer")
+    private AnkeVurderingOmgjør trygderettVurderingOmgjoer;
 
     public AnkeVurderingResultatDto() {
     }
@@ -164,5 +170,29 @@ public class AnkeVurderingResultatDto {
 
     public void setPaAnketBehandlingUuid(UUID paAnketBehandlingUuid) {
         this.paAnketBehandlingUuid = paAnketBehandlingUuid;
+    }
+
+    public AnkeVurdering getTrygderettVurdering() {
+        return trygderettVurdering;
+    }
+
+    public void setTrygderettVurdering(AnkeVurdering trygderettVurdering) {
+        this.trygderettVurdering = trygderettVurdering;
+    }
+
+    public AnkeOmgjørÅrsak getTrygderettOmgjoerArsak() {
+        return trygderettOmgjoerArsak;
+    }
+
+    public void setTrygderettOmgjoerArsak(AnkeOmgjørÅrsak trygderettOmgjoerArsak) {
+        this.trygderettOmgjoerArsak = trygderettOmgjoerArsak;
+    }
+
+    public AnkeVurderingOmgjør getTrygderettVurderingOmgjoer() {
+        return trygderettVurderingOmgjoer;
+    }
+
+    public void setTrygderettVurderingOmgjoer(AnkeVurderingOmgjør trygderettVurderingOmgjoer) {
+        this.trygderettVurderingOmgjoer = trygderettVurderingOmgjoer;
     }
 }

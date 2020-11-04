@@ -12,5 +12,6 @@
 	<entity class="no.nav.foreldrepenger.behandlingslager.kodeverk.KodelisteNavnI18N" />
 
 	<entity class="no.nav.foreldrepenger.behandlingslager.geografisk.Poststed" />
+	<entity class="no.nav.foreldrepenger.behandlingslager.geografisk.Postnummer" />
 
 </entity-mappings>
