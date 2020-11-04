@@ -14,9 +14,7 @@ import java.util.Collections;
 import javax.inject.Inject;
 
 import org.assertj.core.api.Assertions;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -34,22 +32,17 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftTerminbekreftelseAksjonspunktDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.OmsorgsvilkårAksjonspunktDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.aksjonspunkt.AvklarSaksopplysningerDto;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
-import no.nav.vedtak.felles.testutilities.db.RepositoryRule;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class AksjonspunktApplikasjonTjenesteTest {
 
     private static final String BEGRUNNELSE = "begrunnelse";
     private static final LocalDate TERMINDATO = LocalDate.now().plusDays(40);
     private static final LocalDate UTSTEDTDATO = LocalDate.now().minusDays(7);
-
-    @Rule
-    public final RepositoryRule repoRule = new UnittestRepositoryRule();
 
     @Inject
     private AksjonspunktApplikasjonTjeneste aksjonspunktApplikasjonTjeneste;
@@ -93,7 +86,7 @@ public class AksjonspunktApplikasjonTjenesteTest {
         AbstractTestScenario<?> scenario = lagScenarioMedAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET);
         Behandling behandling = scenario.lagre(repositoryProvider);
         OmsorgsvilkårAksjonspunktDto dto = new OmsorgsvilkårAksjonspunktDto(BEGRUNNELSE, false,
-            Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O.getKode());
+                Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O.getKode());
 
         // Act
         aksjonspunktApplikasjonTjeneste.bekreftAksjonspunkter(singletonList(dto), behandling.getId());
@@ -102,7 +95,7 @@ public class AksjonspunktApplikasjonTjenesteTest {
         assertThat(behandling.getBehandlingsresultat().getVilkårResultat()).isNotNull();
         assertThat(behandling.getBehandlingsresultat().getVilkårResultat().getVilkårene()).hasSize(1);
         assertThat(behandling.getBehandlingsresultat().getVilkårResultat().getVilkårene().iterator().next().getAvslagsårsak())
-            .isEqualTo(Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O);
+                .isEqualTo(Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O);
         assertThat(behandling.getBehandlingStegTilstand().get().getBehandlingSteg()).isEqualTo(BehandlingStegType.FORESLÅ_BEHANDLINGSRESULTAT);
     }
 
@@ -147,7 +140,8 @@ public class AksjonspunktApplikasjonTjenesteTest {
         // Arrange
         Behandling førstegangsbehandling = opprettFørstegangsbehandlingMedAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FAKTA_FOR_PERSONSTATUS);
         AksjonspunktTestSupport.setTilUtført(førstegangsbehandling.getAksjonspunkter().iterator().next(), BEGRUNNELSE);
-        Behandling revurdering = opprettRevurderingsbehandlingMedAksjonspunkt(førstegangsbehandling, AksjonspunktDefinisjon.AVKLAR_FAKTA_FOR_PERSONSTATUS);
+        Behandling revurdering = opprettRevurderingsbehandlingMedAksjonspunkt(førstegangsbehandling,
+                AksjonspunktDefinisjon.AVKLAR_FAKTA_FOR_PERSONSTATUS);
         AvklarSaksopplysningerDto dto = new AvklarSaksopplysningerDto(BEGRUNNELSE, "UTVA", true);
 
         // Act
@@ -164,31 +158,33 @@ public class AksjonspunktApplikasjonTjenesteTest {
         // Arrange
         Behandling førstegangsbehandling = opprettFørstegangsbehandlingMedAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET);
         AksjonspunktTestSupport.setTilUtført(førstegangsbehandling.getAksjonspunkter().iterator().next(), BEGRUNNELSE);
-        Behandling revurdering = opprettRevurderingsbehandlingMedAksjonspunkt(førstegangsbehandling, AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET);
+        Behandling revurdering = opprettRevurderingsbehandlingMedAksjonspunkt(førstegangsbehandling,
+                AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET);
         OmsorgsvilkårAksjonspunktDto dto = new OmsorgsvilkårAksjonspunktDto(BEGRUNNELSE, false,
-            Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O.getKode());
+                Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O.getKode());
 
         // Act
         aksjonspunktApplikasjonTjeneste.bekreftAksjonspunkter(singletonList(dto), revurdering.getId());
 
         // Assert
         Behandling oppdatertBehandling = behandlingRepository.hentBehandling(revurdering.getId());
-        assertThat(oppdatertBehandling.getBehandlingStegTilstand().get().getBehandlingSteg()).isEqualTo(BehandlingStegType.SØKNADSFRIST_FORELDREPENGER);
+        assertThat(oppdatertBehandling.getBehandlingStegTilstand().get().getBehandlingSteg())
+                .isEqualTo(BehandlingStegType.SØKNADSFRIST_FORELDREPENGER);
         assertThat(oppdatertBehandling.getBehandlingsresultat().getVilkårResultat()).isNotNull();
         assertThat(oppdatertBehandling.getBehandlingsresultat().getVilkårResultat().getVilkårene()).hasSize(1);
         assertThat(oppdatertBehandling.getBehandlingsresultat().getVilkårResultat().getVilkårene().iterator().next().getAvslagsårsak())
-            .isEqualTo(Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O);
+                .isEqualTo(Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O);
     }
 
     private Behandling opprettFørstegangsbehandlingMedAksjonspunkt(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
         var førstegangsscenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         førstegangsscenario.medSøknad().medMottattDato(LocalDate.now());
         førstegangsscenario.medSøknadHendelse()
-            .medAntallBarn(1)
-            .medTerminbekreftelse(førstegangsscenario.medSøknadHendelse()
-                .getTerminbekreftelseBuilder()
-                .medTermindato(TERMINDATO)
-                .medUtstedtDato(UTSTEDTDATO));
+                .medAntallBarn(1)
+                .medTerminbekreftelse(førstegangsscenario.medSøknadHendelse()
+                        .getTerminbekreftelseBuilder()
+                        .medTermindato(TERMINDATO)
+                        .medUtstedtDato(UTSTEDTDATO));
 
         førstegangsscenario.leggTilAksjonspunkt(aksjonspunktDefinisjon, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         Behandling behandling = førstegangsscenario.lagre(repositoryProvider);
@@ -205,8 +201,8 @@ public class AksjonspunktApplikasjonTjenesteTest {
         avsluttBehandlingOgFagsak(førstegangsbehandling);
 
         var revurderingsscenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.RE_HENDELSE_FØDSEL)
-            .medBehandlingType(BehandlingType.REVURDERING);
+                .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.RE_HENDELSE_FØDSEL)
+                .medBehandlingType(BehandlingType.REVURDERING);
         revurderingsscenario.medSøknad().medMottattDato(LocalDate.now());
         revurderingsscenario.leggTilAksjonspunkt(aksjonspunktDefinisjon, BehandlingStegType.KONTROLLER_FAKTA);
 
