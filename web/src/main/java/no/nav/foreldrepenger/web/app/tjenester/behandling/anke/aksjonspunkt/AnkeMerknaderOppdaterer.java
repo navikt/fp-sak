@@ -57,7 +57,8 @@ public class AnkeMerknaderOppdaterer implements AksjonspunktOppdaterer<AnkeMerkn
     }
 
     private void håndterAnkeVurdering(Behandling behandling, AnkeMerknaderResultatAksjonspunktDto dto) {
-        ankeVurderingTjeneste.oppdaterBekreftetMerknaderAksjonspunkt(behandling, dto.erMerknaderMottatt(), dto.getMerknadKommentar());
+        ankeVurderingTjeneste.oppdaterBekreftetMerknaderAksjonspunkt(behandling, dto.erMerknaderMottatt(), dto.getMerknadKommentar(),
+            dto.getTrygderettVurdering(), dto.getTrygderettVurderingOmgjoer(), dto.getTrygderettOmgjoerArsak());
     }
 
 }

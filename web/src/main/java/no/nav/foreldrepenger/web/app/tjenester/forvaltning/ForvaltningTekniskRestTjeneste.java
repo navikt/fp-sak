@@ -14,6 +14,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -39,7 +40,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
+import no.nav.foreldrepenger.behandlingslager.geografisk.PostnummerKodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
+import no.nav.foreldrepenger.poststed.PostnummerSynkroniseringTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.BehandlingAksjonspunktDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
@@ -62,6 +65,8 @@ public class ForvaltningTekniskRestTjeneste {
     private AksjonspunktRepository aksjonspunktRepository = new AksjonspunktRepository();
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private OppgaveTjeneste oppgaveTjeneste;
+    private PostnummerKodeverkRepository postnummerKodeverkRepository;
+    private PostnummerSynkroniseringTjeneste postnummerTjeneste;
 
     public ForvaltningTekniskRestTjeneste() {
         // For CDI
@@ -70,11 +75,15 @@ public class ForvaltningTekniskRestTjeneste {
     @Inject
     public ForvaltningTekniskRestTjeneste(BehandlingRepositoryProvider repositoryProvider,
             OppgaveTjeneste oppgaveTjeneste,
+            PostnummerKodeverkRepository postnummerKodeverkRepository,
+            PostnummerSynkroniseringTjeneste postnummerTjeneste,
             BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.oppgaveTjeneste = oppgaveTjeneste;
+        this.postnummerKodeverkRepository = postnummerKodeverkRepository;
+        this.postnummerTjeneste = postnummerTjeneste;
     }
 
     @POST
@@ -288,6 +297,30 @@ public class ForvaltningTekniskRestTjeneste {
         public AbacDataAttributter apply(Object obj) {
             return AbacDataAttributter.opprett();
         }
+    }
+
+
+    @POST
+    @Path("/synk-postnummer")
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    @Operation(description = "Hente og lagre kodeverk Postnummer", tags = "FORVALTNING-teknisk")
+    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
+    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    public Response synkPostnummer() {
+        postnummerTjeneste.synkroniserPostnummer();
+        return Response.ok().build();
+    }
+
+    @GET
+    @Path("/hent-postnummer")
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    @Operation(description = "Hente lokale Postnummer", tags = "FORVALTNING-teknisk")
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)
+    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    public Response hentPostnummer() {
+        return Response.ok(postnummerKodeverkRepository.finnPostnummer("SYNK")).build();
     }
 
 }

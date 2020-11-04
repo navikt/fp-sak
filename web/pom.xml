@@ -89,6 +89,10 @@
         </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
+            <artifactId>poststed</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>beregningsgrunnlag</artifactId>
         </dependency>
 

@@ -423,6 +423,11 @@
                 <artifactId>kodeverk</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger</groupId>
+                <artifactId>poststed</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>no.nav.modig</groupId>

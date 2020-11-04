@@ -15,6 +15,7 @@
     <modules>
         <module>batch</module>
         <module>kodeverk</module>
+        <module>poststed</module>
     </modules>
 
 </project>

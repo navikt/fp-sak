@@ -44,7 +44,7 @@ public class AnkeVurderingResultatEntitet extends BaseEntitet {
     @Column(name = "begrunnelse")
     private String begrunnelse;
 
-    @Column(name = "fritekst_til_brev_ny")
+    @Column(name = "fritekst_til_brev")
     private String fritekstTilBrev;
 
     @Column(name = "merknader_fra_bruker")
@@ -82,6 +82,18 @@ public class AnkeVurderingResultatEntitet extends BaseEntitet {
     @Column(name = "er_subsidiart_realitet_beh", nullable = false)
     private boolean erSubsidiartRealitetsbehandles;
 
+    @Convert(converter = AnkeVurdering.KodeverdiConverter.class)
+    @Column(name="tr_vurdering", nullable = false)
+    private AnkeVurdering trygderettVurdering = AnkeVurdering.UDEFINERT;
+
+    @Convert(converter = AnkeOmgjørÅrsak.KodeverdiConverter.class)
+    @Column(name="tr_omgjoer_aarsak", nullable = false)
+    private AnkeOmgjørÅrsak trygderettOmgjørÅrsak = AnkeOmgjørÅrsak.UDEFINERT;
+
+    @Convert(converter = AnkeVurderingOmgjør.KodeverdiConverter.class)
+    @Column(name="tr_vurdering_omgjoer", nullable = false)
+    private AnkeVurderingOmgjør trygderettVurderingOmgjør = AnkeVurderingOmgjør.UDEFINERT;
+
     public AnkeVurderingResultatEntitet() {
         // Hibernate
     }
@@ -110,6 +122,9 @@ public class AnkeVurderingResultatEntitet extends BaseEntitet {
         this.erIkkeKonkret = entitet.erIkkeKonkret;
         this.erIkkeSignert = entitet.erIkkeSignert;
         this.erSubsidiartRealitetsbehandles = entitet.erSubsidiartRealitetsbehandles;
+        this.trygderettVurdering = entitet.trygderettVurdering;
+        this.trygderettVurderingOmgjør = entitet.trygderettVurderingOmgjør;
+        this.trygderettOmgjørÅrsak = entitet.trygderettOmgjørÅrsak;
     }
 
     public Long getId() {
@@ -180,6 +195,18 @@ public class AnkeVurderingResultatEntitet extends BaseEntitet {
         return erSubsidiartRealitetsbehandles;
     }
 
+    public AnkeVurdering getTrygderettVurdering() {
+        return trygderettVurdering;
+    }
+
+    public AnkeOmgjørÅrsak getTrygderettOmgjørÅrsak() {
+        return trygderettOmgjørÅrsak;
+    }
+
+    public AnkeVurderingOmgjør getTrygderettVurderingOmgjør() {
+        return trygderettVurderingOmgjør;
+    }
+
     public List<AnkeAvvistÅrsak> hentAvvistÅrsaker(){
         List<AnkeAvvistÅrsak> avvistÅrsaker = new ArrayList<>();
         if(erFristIkkeOverholdt()){
@@ -226,12 +253,17 @@ public class AnkeVurderingResultatEntitet extends BaseEntitet {
             ankeVurdering == that.ankeVurdering &&
             ankeOmgjørÅrsak == that.ankeOmgjørÅrsak &&
             ankeVurderingOmgjør == that.ankeVurderingOmgjør &&
+            trygderettVurdering == that.trygderettVurdering &&
+            trygderettOmgjørÅrsak == that.trygderettOmgjørÅrsak &&
+            trygderettVurderingOmgjør == that.trygderettVurderingOmgjør &&
             Objects.equals(begrunnelse, that.begrunnelse);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(ankeResultat, ankeVurdering, ankeOmgjørÅrsak, ankeVurderingOmgjør, begrunnelse, fritekstTilBrev, merknaderFraBruker, erMerknaderMottatt, gjelderVedtak, erAnkerIkkePart, erFristIkkeOverholdt, erIkkeKonkret, erIkkeSignert, erSubsidiartRealitetsbehandles);
+        return Objects.hash(ankeResultat, ankeVurdering, ankeOmgjørÅrsak, ankeVurderingOmgjør, begrunnelse, fritekstTilBrev,
+            merknaderFraBruker, erMerknaderMottatt, gjelderVedtak, erAnkerIkkePart, erFristIkkeOverholdt, erIkkeKonkret, erIkkeSignert, erSubsidiartRealitetsbehandles,
+            trygderettVurdering, trygderettVurderingOmgjør, trygderettOmgjørÅrsak);
     }
 
     @Override
@@ -329,6 +361,21 @@ public class AnkeVurderingResultatEntitet extends BaseEntitet {
 
         public Builder medErSubsidiartRealitetsbehandles(boolean erSubsidiartRealitetsbehandles) {
             ankeVurderingResultatMal.erSubsidiartRealitetsbehandles = erSubsidiartRealitetsbehandles;
+            return this;
+        }
+
+        public Builder medTrygderettVurdering(AnkeVurdering trVurdering) {
+            ankeVurderingResultatMal.trygderettVurdering = trVurdering == null ? AnkeVurdering.UDEFINERT : trVurdering;
+            return this;
+        }
+
+        public Builder medTrygderettOmgjørÅrsak(AnkeOmgjørÅrsak trOmgjørÅrsak) {
+            ankeVurderingResultatMal.trygderettOmgjørÅrsak = trOmgjørÅrsak == null ? AnkeOmgjørÅrsak.UDEFINERT : trOmgjørÅrsak;
+            return this;
+        }
+
+        public Builder medTrygderettVurderingOmgjør(AnkeVurderingOmgjør trVurderingOmgjør) {
+            ankeVurderingResultatMal.trygderettVurderingOmgjør = trVurderingOmgjør == null ? AnkeVurderingOmgjør.UDEFINERT : trVurderingOmgjør;
             return this;
         }
 

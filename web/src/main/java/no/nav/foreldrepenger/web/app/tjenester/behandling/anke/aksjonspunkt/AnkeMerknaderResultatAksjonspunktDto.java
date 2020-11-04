@@ -9,6 +9,10 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeOmgjørÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
+import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
 
 @JsonTypeName(AksjonspunktKodeDefinisjon.MANUELL_VURDERING_AV_ANKE_MERKNADER_KODE)
@@ -25,6 +29,19 @@ public class AnkeMerknaderResultatAksjonspunktDto extends BekreftetAksjonspunktD
     @Pattern(regexp = InputValideringRegex.FRITEKST)
     @JsonProperty("merknadKommentar")
     private String merknadKommentar;
+
+    @ValidKodeverk
+    @JsonProperty("trygderettVurdering")
+    private AnkeVurdering trygderettVurdering;
+
+    @ValidKodeverk
+    @JsonProperty("trygderettOmgjoerArsak")
+    private AnkeOmgjørÅrsak trygderettOmgjoerArsak;
+
+    @ValidKodeverk
+    @JsonProperty("trygderettVurderingOmgjoer")
+    private AnkeVurderingOmgjør trygderettVurderingOmgjoer;
+
 
     AnkeMerknaderResultatAksjonspunktDto() {
         // For Jackson
@@ -48,5 +65,17 @@ public class AnkeMerknaderResultatAksjonspunktDto extends BekreftetAksjonspunktD
 
     public boolean skalAvslutteBehandling() {
         return avsluttBehandling;
+    }
+
+    public AnkeVurdering getTrygderettVurdering() {
+        return trygderettVurdering;
+    }
+
+    public AnkeOmgjørÅrsak getTrygderettOmgjoerArsak() {
+        return trygderettOmgjoerArsak;
+    }
+
+    public AnkeVurderingOmgjør getTrygderettVurderingOmgjoer() {
+        return trygderettVurderingOmgjoer;
     }
 }
