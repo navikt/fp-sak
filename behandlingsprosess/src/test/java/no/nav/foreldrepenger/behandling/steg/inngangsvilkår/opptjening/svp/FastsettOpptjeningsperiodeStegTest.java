@@ -13,9 +13,7 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
@@ -42,7 +40,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittAnnenAktivitet;
@@ -53,20 +51,20 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 import no.nav.vedtak.konfig.Tid;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class FastsettOpptjeningsperiodeStegTest {
 
     private static final String ORGNR = "100";
     private final int ANTALL_DAGER_SVANGERSKAP_SKAL_SJEKKE_FOR_OPPTJENING = 28;
 
-    @Rule
-    public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
-    private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-    private final SvangerskapspengerRepository svangerskapspengerRepository = repositoryProvider.getSvangerskapspengerRepository();
+    @Inject
+    private BehandlingRepositoryProvider repositoryProvider;
+    @Inject
+    private BehandlingRepository behandlingRepository;
+    @Inject
+    private SvangerskapspengerRepository svangerskapspengerRepository;
 
     @Inject
     private InntektArbeidYtelseTjeneste iayTjeneste;
@@ -106,8 +104,10 @@ public class FastsettOpptjeningsperiodeStegTest {
 
         assertThat(opptjening.getFom()).isEqualTo(jordmorsdato.minusDays(28));
         assertThat(opptjening.getTom()).isEqualTo(jordmorsdato.minusDays(1));
-        // between tar -> the start date, inclusive, not null & the end date, exclusive, not null
-        assertThat(Period.between(opptjening.getFom(), opptjening.getTom().plusDays(1)).getDays()).isEqualTo(ANTALL_DAGER_SVANGERSKAP_SKAL_SJEKKE_FOR_OPPTJENING);
+        // between tar -> the start date, inclusive, not null & the end date, exclusive,
+        // not null
+        assertThat(Period.between(opptjening.getFom(), opptjening.getTom().plusDays(1)).getDays())
+                .isEqualTo(ANTALL_DAGER_SVANGERSKAP_SKAL_SJEKKE_FOR_OPPTJENING);
     }
 
     @Test
@@ -117,7 +117,8 @@ public class FastsettOpptjeningsperiodeStegTest {
         Behandling behandling = lagre(scenario);
 
         var aggregatBuilder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
-        lagAktørArbeid(aggregatBuilder, behandling.getAktørId(), ORGNR, LocalDate.now().minusYears(1), Tid.TIDENES_ENDE, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
+        lagAktørArbeid(aggregatBuilder, behandling.getAktørId(), ORGNR, LocalDate.now().minusYears(1), Tid.TIDENES_ENDE,
+                ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
         lagAktørInntekt(aggregatBuilder, behandling.getAktørId(), ORGNR, LocalDate.now().minusYears(1), jordmorsdato);
         iayTjeneste.lagreIayAggregat(behandling.getId(), aggregatBuilder);
 
@@ -130,7 +131,6 @@ public class FastsettOpptjeningsperiodeStegTest {
         var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
         opptjeningsperiodeSvpSteg.utførSteg(kontekst);
 
-
         var lås2 = behandlingRepository.taSkriveLås(behandling.getId());
         var kontekst2 = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås2);
 
@@ -139,10 +139,10 @@ public class FastsettOpptjeningsperiodeStegTest {
 
         var behandlingsresultat = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId());
         Vilkår opptjeningsvilkåret = behandlingsresultat.getVilkårResultat().getVilkårene()
-            .stream()
-            .filter(v -> v.getVilkårType().equals(OPPTJENINGSVILKÅRET))
-            .findFirst()
-            .orElseThrow();
+                .stream()
+                .filter(v -> v.getVilkårType().equals(OPPTJENINGSVILKÅRET))
+                .findFirst()
+                .orElseThrow();
 
         Opptjening opptjening = repositoryProvider.getOpptjeningRepository().finnOpptjening(behandling.getId()).orElseThrow();
         assertThat(opptjeningsvilkåret.getGjeldendeVilkårUtfall()).isEqualTo(VilkårUtfallType.OPPFYLT);
@@ -163,7 +163,6 @@ public class FastsettOpptjeningsperiodeStegTest {
         var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
         opptjeningsperiodeSvpSteg.utførSteg(kontekst);
 
-
         var lås2 = behandlingRepository.taSkriveLås(behandling.getId());
         var kontekst2 = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås2);
 
@@ -172,10 +171,10 @@ public class FastsettOpptjeningsperiodeStegTest {
 
         Behandlingsresultat behandlingsresultat = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId());
         Vilkår opptjeningsvilkåret = behandlingsresultat.getVilkårResultat().getVilkårene()
-            .stream()
-            .filter(v -> v.getVilkårType().equals(OPPTJENINGSVILKÅRET))
-            .findFirst()
-            .orElseThrow();
+                .stream()
+                .filter(v -> v.getVilkårType().equals(OPPTJENINGSVILKÅRET))
+                .findFirst()
+                .orElseThrow();
 
         assertThat(opptjeningsvilkåret.getGjeldendeVilkårUtfall()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
     }
@@ -194,11 +193,10 @@ public class FastsettOpptjeningsperiodeStegTest {
         var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
         opptjeningsperiodeSvpSteg.utførSteg(kontekst);
 
-
         var lås2 = behandlingRepository.taSkriveLås(behandling.getId());
         var kontekst2 = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås2);
 
-        //simuler at aktiviteten har blitt godkjent
+        // simuler at aktiviteten har blitt godkjent
         var aktivitetsPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now().minusMonths(6), LocalDate.now().plusMonths(6));
         var oppgitt = OppgittOpptjeningBuilder.ny();
         oppgitt.leggTilAnnenAktivitet(new OppgittAnnenAktivitet(aktivitetsPeriode, ArbeidType.MILITÆR_ELLER_SIVILTJENESTE));
@@ -211,17 +209,18 @@ public class FastsettOpptjeningsperiodeStegTest {
 
         Behandlingsresultat behandlingsresultat = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId());
         Vilkår opptjeningsvilkåret = behandlingsresultat.getVilkårResultat().getVilkårene()
-            .stream()
-            .filter(v -> v.getVilkårType().equals(OPPTJENINGSVILKÅRET))
-            .findFirst()
-            .orElseThrow();
+                .stream()
+                .filter(v -> v.getVilkårType().equals(OPPTJENINGSVILKÅRET))
+                .findFirst()
+                .orElseThrow();
 
         Opptjening opptjening = repositoryProvider.getOpptjeningRepository().finnOpptjening(behandling.getId()).orElseThrow();
         assertThat(opptjeningsvilkåret.getGjeldendeVilkårUtfall()).isEqualTo(VilkårUtfallType.OPPFYLT);
         assertThat(opptjening.getOpptjentPeriode().getDays()).isEqualTo(ANTALL_DAGER_SVANGERSKAP_SKAL_SJEKKE_FOR_OPPTJENING);
     }
 
-    private void godkjennGittArbeidtypeMedPeriode(Behandling behandling, ArbeidType militærEllerSiviltjeneste, DatoIntervallEntitet aktivitetsPeriode) {
+    private void godkjennGittArbeidtypeMedPeriode(Behandling behandling, ArbeidType militærEllerSiviltjeneste,
+            DatoIntervallEntitet aktivitetsPeriode) {
         var builder = iayTjeneste.opprettBuilderForSaksbehandlet(behandling.getId());
         var aktørArbeidBuilder = builder.getAktørArbeidBuilder(behandling.getAktørId());
         var builderY = aktørArbeidBuilder.getYrkesaktivitetBuilderForType(militærEllerSiviltjeneste);
@@ -242,56 +241,56 @@ public class FastsettOpptjeningsperiodeStegTest {
         var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
         AktørId søkerAktørId = scenario.getDefaultBrukerAktørId();
         PersonInformasjon søker = builderForRegisteropplysninger
-            .medPersonas()
-            .voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, NavBrukerKjønn.KVINNE, Region.UDEFINERT)
-            .build();
+                .medPersonas()
+                .voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, NavBrukerKjønn.KVINNE, Region.UDEFINERT)
+                .build();
         scenario.medRegisterOpplysninger(søker);
     }
 
     private void opprettVilkår(List<VilkårType> typeList, Behandling behandling, BehandlingLås skriveLås) {
-        // Opprett Vilkårsresultat med vilkårne som skal vurderes, og sett dem som ikke vurdert
+        // Opprett Vilkårsresultat med vilkårne som skal vurderes, og sett dem som ikke
+        // vurdert
         var behandlingsresultat = behandling.getBehandlingsresultat();
         var vilkårBuilder = behandlingsresultat != null
-            ? VilkårResultat.builderFraEksisterende(behandlingsresultat.getVilkårResultat())
-            : VilkårResultat.builder();
+                ? VilkårResultat.builderFraEksisterende(behandlingsresultat.getVilkårResultat())
+                : VilkårResultat.builder();
         typeList
-            .forEach(vilkårType -> vilkårBuilder.leggTilVilkår(vilkårType, VilkårUtfallType.IKKE_VURDERT));
+                .forEach(vilkårType -> vilkårBuilder.leggTilVilkår(vilkårType, VilkårUtfallType.IKKE_VURDERT));
         VilkårResultat vilkårResultat = vilkårBuilder.buildFor(behandling);
         behandlingRepository.lagre(vilkårResultat, skriveLås);
     }
 
     private void lagAktørArbeid(InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder, AktørId aktørId, String virksomhetOrgnr,
-                                LocalDate fom, LocalDate tom, ArbeidType arbeidType) {
+            LocalDate fom, LocalDate tom, ArbeidType arbeidType) {
         var aktørArbeidBuilder = inntektArbeidYtelseAggregatBuilder
-            .getAktørArbeidBuilder(aktørId);
+                .getAktørArbeidBuilder(aktørId);
         var opptjeningsnøkkel = Opptjeningsnøkkel.forOrgnummer(virksomhetOrgnr);
 
         var yrkesaktivitetBuilder = aktørArbeidBuilder
-            .getYrkesaktivitetBuilderForNøkkelAvType(opptjeningsnøkkel, arbeidType);
+                .getYrkesaktivitetBuilderForNøkkelAvType(opptjeningsnøkkel, arbeidType);
         var aktivitetsAvtaleBuilder = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder();
 
-        var aktivitetsAvtale = aktivitetsAvtaleBuilder.
-            medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
+        var aktivitetsAvtale = aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
         yrkesaktivitetBuilder.leggTilAktivitetsAvtale(aktivitetsAvtale)
-            .medArbeidType(arbeidType)
-            .medArbeidsgiver(Arbeidsgiver.virksomhet(virksomhetOrgnr));
+                .medArbeidType(arbeidType)
+                .medArbeidsgiver(Arbeidsgiver.virksomhet(virksomhetOrgnr));
 
         aktørArbeidBuilder.leggTilYrkesaktivitet(yrkesaktivitetBuilder);
         inntektArbeidYtelseAggregatBuilder.leggTilAktørArbeid(aktørArbeidBuilder);
     }
 
     private void lagAktørInntekt(InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder, AktørId aktørId, String virksomhetOrgnr,
-                                 LocalDate fom, LocalDate tom) {
+            LocalDate fom, LocalDate tom) {
         var aktørInntektBuilder = inntektArbeidYtelseAggregatBuilder
-            .getAktørInntektBuilder(aktørId);
+                .getAktørInntektBuilder(aktørId);
         var opptjeningsnøkkel = Opptjeningsnøkkel.forOrgnummer(virksomhetOrgnr);
 
         var inntektsBuiler = aktørInntektBuilder.getInntektBuilder(InntektsKilde.INNTEKT_OPPTJENING, opptjeningsnøkkel)
-            .medArbeidsgiver(Arbeidsgiver.virksomhet(virksomhetOrgnr));
+                .medArbeidsgiver(Arbeidsgiver.virksomhet(virksomhetOrgnr));
         var inntektsPostBuilder = inntektsBuiler.getInntektspostBuilder()
-            .medInntektspostType(InntektspostType.LØNN)
-            .medBeløp(BigDecimal.ONE)
-            .medPeriode(fom, tom);
+                .medInntektspostType(InntektspostType.LØNN)
+                .medBeløp(BigDecimal.ONE)
+                .medPeriode(fom, tom);
 
         inntektsBuiler.leggTilInntektspost(inntektsPostBuilder);
 
@@ -301,17 +300,17 @@ public class FastsettOpptjeningsperiodeStegTest {
 
     private void lagreSvp(Behandling behandling, LocalDate jordmorsdato) {
         SvpTilretteleggingEntitet tilrettelegging = new SvpTilretteleggingEntitet.Builder()
-            .medBehovForTilretteleggingFom(jordmorsdato)
-            .medIngenTilrettelegging(jordmorsdato)
-            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .medArbeidsgiver(Arbeidsgiver.person(AktørId.dummy()))
-            .medMottattTidspunkt(LocalDateTime.now())
-            .medKopiertFraTidligereBehandling(false)
-            .build();
+                .medBehovForTilretteleggingFom(jordmorsdato)
+                .medIngenTilrettelegging(jordmorsdato)
+                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+                .medArbeidsgiver(Arbeidsgiver.person(AktørId.dummy()))
+                .medMottattTidspunkt(LocalDateTime.now())
+                .medKopiertFraTidligereBehandling(false)
+                .build();
         SvpGrunnlagEntitet svpGrunnlag = new SvpGrunnlagEntitet.Builder()
-            .medBehandlingId(behandling.getId())
-            .medOpprinneligeTilrettelegginger(List.of(tilrettelegging))
-            .build();
+                .medBehandlingId(behandling.getId())
+                .medOpprinneligeTilrettelegginger(List.of(tilrettelegging))
+                .build();
         svangerskapspengerRepository.lagreOgFlush(svpGrunnlag);
     }
 }

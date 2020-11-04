@@ -9,6 +9,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -17,13 +18,9 @@ import java.time.LocalDateTime;
 
 import javax.inject.Inject;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingModell;
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingModellRepository;
@@ -44,20 +41,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerApplikasjonTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class HenleggBehandlingTjenesteTest {
-
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
-
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
 
     private BehandlingRepositoryProvider repositoryProvider;
 
@@ -82,7 +72,7 @@ public class HenleggBehandlingTjenesteTest {
 
     private Behandling behandling;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         behandling = scenario.lagMocked();
@@ -93,19 +83,19 @@ public class HenleggBehandlingTjenesteTest {
         when(repositoryProvider.getHistorikkRepository()).thenReturn(historikkRepositoryMock);
 
         var serviceProvider = new BehandlingskontrollServiceProvider(
-            repositoryProvider.getFagsakRepository(),
-            repositoryProvider.getBehandlingRepository(),
-            repositoryProvider.getFagsakLåsRepository(),
-            repositoryProvider.getBehandlingLåsRepository(),
-            behandlingModellRepository,
-            aksjonspunktKontrollRepository);
+                repositoryProvider.getFagsakRepository(),
+                repositoryProvider.getBehandlingRepository(),
+                repositoryProvider.getFagsakLåsRepository(),
+                repositoryProvider.getBehandlingLåsRepository(),
+                behandlingModellRepository,
+                aksjonspunktKontrollRepository);
 
         BehandlingskontrollTjenesteImpl behandlingskontrollTjenesteImpl = new BehandlingskontrollTjenesteImpl(serviceProvider);
-        when(modell.erStegAFørStegB(any(), any())).thenReturn(true);
+        lenient().when(modell.erStegAFørStegB(any(), any())).thenReturn(true);
 
         henleggBehandlingTjeneste = new HenleggBehandlingTjeneste(repositoryProvider,
-            behandlingskontrollTjenesteImpl,
-            dokumentBestillerApplikasjonTjenesteMock, prosessTaskRepositoryMock);
+                behandlingskontrollTjenesteImpl,
+                dokumentBestillerApplikasjonTjenesteMock, prosessTaskRepositoryMock);
     }
 
     @Test
@@ -141,7 +131,7 @@ public class HenleggBehandlingTjenesteTest {
         // Arrange
         BehandlingResultatType behandlingsresultat = BehandlingResultatType.HENLAGT_FEILOPPRETTET;
         Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling,
-            AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL);
+                AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL);
         assertThat(aksjonspunkt.getStatus()).isEqualTo(AksjonspunktStatus.OPPRETTET);
 
         // Act
@@ -202,7 +192,7 @@ public class HenleggBehandlingTjenesteTest {
 
         // Act
         assertThatThrownBy(() -> henleggBehandlingTjeneste.henleggBehandling(behandling.getId(), behandlingsresultat, "begrunnelse"))
-            .hasMessageContaining("FP-143308");
+                .hasMessageContaining("FP-143308");
     }
 
     @Test
@@ -213,7 +203,7 @@ public class HenleggBehandlingTjenesteTest {
 
         // Act
         assertThatThrownBy(() -> henleggBehandlingTjeneste.henleggBehandling(behandling.getId(), behandlingsresultat, "begrunnelse"))
-            .hasMessageContaining("FP-143308");
+                .hasMessageContaining("FP-143308");
     }
 
 }

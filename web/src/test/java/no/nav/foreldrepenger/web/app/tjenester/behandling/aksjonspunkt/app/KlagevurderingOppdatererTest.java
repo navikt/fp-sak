@@ -4,19 +4,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import javax.inject.Inject;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
@@ -41,7 +41,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioF
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioKlageEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerApplikasjonTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
@@ -51,34 +51,31 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.Behandlin
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageVurderingResultatAksjonspunktDto.KlageVurderingResultatNfpAksjonspunktDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageVurderingResultatAksjonspunktDto.KlageVurderingResultatNkAksjonspunktDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlagevurderingOppdaterer;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class KlagevurderingOppdatererTest {
 
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-
-    private KlageRepository klageRepository = new KlageRepository(repoRule.getEntityManager());
+    @Inject
+    private BehandlingRepositoryProvider repositoryProvider;
+    @Inject
+    private KlageRepository klageRepository;
+    @Mock
     private HistorikkTjenesteAdapter historikkApplikasjonTjeneste;
+    @Mock
     private DokumentBestillerApplikasjonTjeneste dokumentBestillerApplikasjonTjeneste;
+    @Mock
     private BehandlingsutredningApplikasjonTjeneste behandlingsutredningApplikasjonTjeneste;
+    @Mock
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
+    @Mock
     private ProsesseringAsynkTjeneste prosesseringAsynkTjeneste;
+    @Mock
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
 
     // TODO (FLUORITT): Renskriv tester med færre mocks
-    @Before
+    @BeforeEach
     public void oppsett() {
-        historikkApplikasjonTjeneste = mock(HistorikkTjenesteAdapter.class);
-        dokumentBestillerApplikasjonTjeneste = mock(DokumentBestillerApplikasjonTjeneste.class);
-        behandlingsutredningApplikasjonTjeneste = mock(BehandlingsutredningApplikasjonTjeneste.class);
-        behandlingskontrollTjeneste = mock(BehandlingskontrollTjeneste.class);
-        prosesseringAsynkTjeneste = mock(ProsesseringAsynkTjeneste.class);
-        behandlendeEnhetTjeneste = mock(BehandlendeEnhetTjeneste.class);
-        when(behandlendeEnhetTjeneste.getKlageInstans()).thenReturn(new OrganisasjonsEnhet("4292", "NAV Klageinstans Midt-Norge"));
+        lenient().when(behandlendeEnhetTjeneste.getKlageInstans()).thenReturn(new OrganisasjonsEnhet("4292", "NAV Klageinstans Midt-Norge"));
     }
 
     @Test
@@ -119,12 +116,14 @@ public class KlagevurderingOppdatererTest {
         assertThat(historikkinnslag.getType()).isEqualTo(HistorikkinnslagType.KLAGE_BEH_NFP);
         assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
         HistorikkinnslagDel del = historikkinnslag.getHistorikkinnslagDeler().get(0);
-        assertThat(del.getSkjermlenke()).as("skjermlenke").hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.KLAGE_BEH_NFP.getKode()));
+        assertThat(del.getSkjermlenke()).as("skjermlenke")
+                .hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.KLAGE_BEH_NFP.getKode()));
         assertThat(del.getEndretFelt(HistorikkEndretFeltType.KLAGE_RESULTAT_NFP)).isNotNull();
 
         // Verifiserer at behandlende enhet er byttet til NAV Klageinstans
         ArgumentCaptor<OrganisasjonsEnhet> enhetCapture = ArgumentCaptor.forClass(OrganisasjonsEnhet.class);
-        verify(behandlingsutredningApplikasjonTjeneste).byttBehandlendeEnhet(anyLong(), enhetCapture.capture(), eq(""), eq(HistorikkAktør.VEDTAKSLØSNINGEN));
+        verify(behandlingsutredningApplikasjonTjeneste).byttBehandlendeEnhet(anyLong(), enhetCapture.capture(), eq(""),
+                eq(HistorikkAktør.VEDTAKSLØSNINGEN));
         OrganisasjonsEnhet enhet = enhetCapture.getValue();
         assertThat(enhet.getEnhetId()).isEqualTo(behandlendeEnhetTjeneste.getKlageInstans().getEnhetId());
         assertThat(enhet.getEnhetNavn()).isEqualTo(behandlendeEnhetTjeneste.getKlageInstans().getEnhetNavn());
@@ -156,8 +155,9 @@ public class KlagevurderingOppdatererTest {
     private KlagevurderingOppdaterer getKlageVurderer(BehandlingRepositoryProvider repositoryProvider, KlageRepository klageRepository) {
         var behandlingRepository = repositoryProvider.getBehandlingRepository();
         final KlageVurderingTjeneste klageVurderingTjeneste = new KlageVurderingTjeneste(dokumentBestillerApplikasjonTjeneste,
-            prosesseringAsynkTjeneste, behandlingRepository, klageRepository, behandlingskontrollTjeneste);
-        return new KlagevurderingOppdaterer(historikkApplikasjonTjeneste, behandlingsutredningApplikasjonTjeneste, klageVurderingTjeneste,behandlendeEnhetTjeneste);
+                prosesseringAsynkTjeneste, behandlingRepository, klageRepository, behandlingskontrollTjeneste);
+        return new KlagevurderingOppdaterer(historikkApplikasjonTjeneste, behandlingsutredningApplikasjonTjeneste, klageVurderingTjeneste,
+                behandlendeEnhetTjeneste);
     }
 
     @Test
@@ -190,7 +190,8 @@ public class KlagevurderingOppdatererTest {
         assertThat(historikkinnslag.getType()).isEqualTo(HistorikkinnslagType.KLAGE_BEH_NK);
         assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
         HistorikkinnslagDel del = historikkinnslag.getHistorikkinnslagDeler().get(0);
-        assertThat(del.getSkjermlenke()).as("skjermlenke").hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.KLAGE_BEH_NK.getKode()));
+        assertThat(del.getSkjermlenke()).as("skjermlenke")
+                .hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.KLAGE_BEH_NK.getKode()));
         assertThat(del.getEndretFelt(HistorikkEndretFeltType.KLAGE_RESULTAT_KA)).isNotNull();
         assertThat(del.getEndretFelt(HistorikkEndretFeltType.KLAGE_OMGJØR_ÅRSAK)).isNotNull();
     }

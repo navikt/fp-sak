@@ -11,9 +11,7 @@ import java.time.LocalDate;
 
 import javax.inject.Inject;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -21,17 +19,16 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktApplikasjonTjeneste;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class UtlandssakManuellOverstyringTest {
 
-    @Rule
-    public UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repoRule.getEntityManager());
-    private final BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
+    @Inject
+    private BehandlingRepositoryProvider repositoryProvider;
+    @Inject
+    private BehandlingRepository behandlingRepository;
 
     @Inject
     private AksjonspunktApplikasjonTjeneste applikasjonstjeneste;
@@ -49,8 +46,10 @@ public class UtlandssakManuellOverstyringTest {
 
         Behandling behandling = scenario.lagre(repositoryProvider);
 
-        behandling.getAksjonspunktMedDefinisjonOptional(AUTOMATISK_MARKERING_AV_UTENLANDSSAK).ifPresent(a -> AksjonspunktTestSupport.setTilUtført(a, "test"));
-        behandling.getAksjonspunktMedDefinisjonOptional(MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET).ifPresent(a -> AksjonspunktTestSupport.setTilUtført(a, "test"));
+        behandling.getAksjonspunktMedDefinisjonOptional(AUTOMATISK_MARKERING_AV_UTENLANDSSAK)
+                .ifPresent(a -> AksjonspunktTestSupport.setTilUtført(a, "test"));
+        behandling.getAksjonspunktMedDefinisjonOptional(MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET)
+                .ifPresent(a -> AksjonspunktTestSupport.setTilUtført(a, "test"));
         behandling.getAksjonspunktMedDefinisjonOptional(SJEKK_MANGLENDE_FØDSEL).ifPresent(a -> AksjonspunktTestSupport.setTilUtført(a, "test"));
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         var behandlingId = behandling.getId();
@@ -64,6 +63,7 @@ public class UtlandssakManuellOverstyringTest {
         behandling = behandlingRepository.hentBehandling(behandlingId);
         assertThat(behandling.getAksjonspunktMedDefinisjonOptional(SJEKK_MANGLENDE_FØDSEL).orElseThrow().getStatus()).isEqualTo(UTFØRT);
         assertThat(behandling.getAksjonspunktMedDefinisjonOptional(AUTOMATISK_MARKERING_AV_UTENLANDSSAK).orElseThrow().getStatus()).isEqualTo(UTFØRT);
-        assertThat(behandling.getAksjonspunktMedDefinisjonOptional(MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET).orElseThrow().getStatus()).isEqualTo(UTFØRT);
+        assertThat(behandling.getAksjonspunktMedDefinisjonOptional(MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET).orElseThrow().getStatus())
+                .isEqualTo(UTFØRT);
     }
 }
