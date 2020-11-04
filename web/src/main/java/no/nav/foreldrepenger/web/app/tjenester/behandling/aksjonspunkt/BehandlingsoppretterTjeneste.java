@@ -35,21 +35,21 @@ import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
 import no.nav.vedtak.feil.deklarasjon.FunksjonellFeil;
 
 @ApplicationScoped
-public class BehandlingsoppretterApplikasjonTjeneste {
+public class BehandlingsoppretterTjeneste {
 
     private BehandlingRepository behandlingRepository;
     private MottatteDokumentRepository mottatteDokumentRepository;
     private SaksbehandlingDokumentmottakTjeneste saksbehandlingDokumentmottakTjeneste;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
 
-    BehandlingsoppretterApplikasjonTjeneste() {
+    BehandlingsoppretterTjeneste() {
         // CDI
     }
 
     @Inject
-    public BehandlingsoppretterApplikasjonTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
-                                                       SaksbehandlingDokumentmottakTjeneste saksbehandlingDokumentmottakTjeneste,
-                                                       BehandlendeEnhetTjeneste behandlendeEnhetTjeneste) {
+    public BehandlingsoppretterTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
+                                        SaksbehandlingDokumentmottakTjeneste saksbehandlingDokumentmottakTjeneste,
+                                        BehandlendeEnhetTjeneste behandlendeEnhetTjeneste) {
         Objects.requireNonNull(behandlingRepositoryProvider, "behandlingRepositoryProvider");
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.mottatteDokumentRepository = behandlingRepositoryProvider.getMottatteDokumentRepository();
@@ -87,12 +87,12 @@ public class BehandlingsoppretterApplikasjonTjeneste {
 
         if (erLovÅOppretteNyBehandling(behandlinger)) {
             if (erEtterKlageBehandling && !erEtterKlageGyldigValg(fagsakId)) {
-                throw BehandlingsoppretterApplikasjonTjenesteFeil.FACTORY.kanIkkeOppretteNyFørstegangsbehandlingEtterKlage(fagsakId).toException();
+                throw BehandlingsoppretterTjenesteFeil.FACTORY.kanIkkeOppretteNyFørstegangsbehandlingEtterKlage(fagsakId).toException();
             }
             BehandlingÅrsakType behandlingÅrsakType = erEtterKlageBehandling ? BehandlingÅrsakType.ETTER_KLAGE : BehandlingÅrsakType.UDEFINERT;
             doOpprettNyBehandlingIgjennomMottak(fagsakId, behandlingÅrsakType);
         } else {
-            throw BehandlingsoppretterApplikasjonTjenesteFeil.FACTORY.kanIkkeOppretteNyFørstegangsbehandling(fagsakId).toException();
+            throw BehandlingsoppretterTjenesteFeil.FACTORY.kanIkkeOppretteNyFørstegangsbehandling(fagsakId).toException();
         }
     }
 
@@ -126,7 +126,7 @@ public class BehandlingsoppretterApplikasjonTjeneste {
         if (sisteMottatteInntektsmelding != null && sisteBehandling.isPresent()) {
             saksbehandlingDokumentmottakTjeneste.opprettFraTidligereBehandling(sisteMottatteInntektsmelding, sisteBehandling.get(), behandlingÅrsakType);
         } else {
-            throw BehandlingsoppretterApplikasjonTjenesteFeil.FACTORY.ingenSøknadEllerImÅOppretteNyFørstegangsbehandlingPå(fagsakId).toException();
+            throw BehandlingsoppretterTjenesteFeil.FACTORY.ingenSøknadEllerImÅOppretteNyFørstegangsbehandlingPå(fagsakId).toException();
         }
     }
 
@@ -136,7 +136,7 @@ public class BehandlingsoppretterApplikasjonTjeneste {
         if (harMinstEnÅpenFørstegangsbehandling(behandlinger)) {
             doOpprettNyBehandlingIgjennomMottak(fagsakId, BehandlingÅrsakType.UDEFINERT);
         } else {
-            throw BehandlingsoppretterApplikasjonTjenesteFeil.FACTORY.kanIkkeHenleggeÅpenBehandlingOgOppretteNyFørstegangsbehandling(fagsakId).toException();
+            throw BehandlingsoppretterTjenesteFeil.FACTORY.kanIkkeHenleggeÅpenBehandlingOgOppretteNyFørstegangsbehandling(fagsakId).toException();
         }
     }
 
@@ -144,7 +144,7 @@ public class BehandlingsoppretterApplikasjonTjeneste {
         RevurderingTjeneste revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, fagsak.getYtelseType()).orElseThrow();
         Boolean kanRevurderingOpprettes = kanOppretteRevurdering(fagsak.getId());
         if (!kanRevurderingOpprettes) {
-            throw BehandlingsoppretterApplikasjonTjenesteFeil.FACTORY.kanIkkeOppretteRevurdering(fagsak.getSaksnummer()).toException();
+            throw BehandlingsoppretterTjenesteFeil.FACTORY.kanIkkeOppretteRevurdering(fagsak.getSaksnummer()).toException();
         }
 
         OrganisasjonsEnhet enhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak);
@@ -216,8 +216,8 @@ public class BehandlingsoppretterApplikasjonTjeneste {
         return klage != null && klage.erAvsluttet();
     }
 
-    interface BehandlingsoppretterApplikasjonTjenesteFeil extends DeklarerteFeil {
-        BehandlingsoppretterApplikasjonTjenesteFeil FACTORY = FeilFactory.create(BehandlingsoppretterApplikasjonTjenesteFeil.class); // NOSONAR
+    interface BehandlingsoppretterTjenesteFeil extends DeklarerteFeil {
+        BehandlingsoppretterTjenesteFeil FACTORY = FeilFactory.create(BehandlingsoppretterTjenesteFeil.class); // NOSONAR
 
         @FunksjonellFeil(feilkode = "FP-663487", feilmelding = "Fagsak med saksnummer %s oppfyller ikke kravene for revurdering", løsningsforslag = "", logLevel = INFO)
         Feil kanIkkeOppretteRevurdering(Saksnummer saksnummer);

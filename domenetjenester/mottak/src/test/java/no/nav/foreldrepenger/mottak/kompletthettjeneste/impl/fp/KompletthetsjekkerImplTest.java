@@ -39,7 +39,7 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerApplikasjonTjeneste;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
@@ -68,7 +68,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     @Mock
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     @Mock
-    private DokumentBestillerApplikasjonTjeneste dokumentBestillerApplikasjonTjenesteMock;
+    private DokumentBestillerTjeneste dokumentBestillerTjenesteMock;
     @Mock
     private DokumentBehandlingTjeneste dokumentBehandlingTjenesteMock;
     @Mock
@@ -95,7 +95,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         KompletthetssjekkerInntektsmelding kompletthetssjekkerInntektsmelding = new KompletthetssjekkerInntektsmeldingImpl(
             inntektsmeldingArkivTjeneste);
         KompletthetsjekkerFelles kompletthetsjekkerFelles = new KompletthetsjekkerFelles(repositoryProvider,
-            dokumentBestillerApplikasjonTjenesteMock, dokumentBehandlingTjenesteMock);
+            dokumentBestillerTjenesteMock, dokumentBehandlingTjenesteMock);
         søknadRepository = repositoryProvider.getSøknadRepository();
         kompletthetsjekkerImpl = new KompletthetsjekkerImpl(kompletthetssjekkerSøknadImpl,
             kompletthetssjekkerInntektsmelding, inntektsmeldingTjeneste, kompletthetsjekkerFelles, søknadRepository);
@@ -149,7 +149,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isTrue();
         assertThat(kompletthetResultat.getVentefrist()).isNull();
-        verify(dokumentBestillerApplikasjonTjenesteMock, never()).bestillDokument(any(), any(), Mockito.anyBoolean());
+        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(), any(), Mockito.anyBoolean());
     }
 
     @Test
@@ -168,7 +168,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isTrue();
         assertThat(kompletthetResultat.getVentefrist()).isNull();
-        verify(dokumentBestillerApplikasjonTjenesteMock, never()).bestillDokument(any(), any(), Mockito.anyBoolean());
+        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(), any(), Mockito.anyBoolean());
     }
 
     @Test
@@ -187,7 +187,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
         assertThat(kompletthetResultat.getVentefrist().toLocalDate()).isEqualTo(STARTDATO_PERMISJON);
-        verify(dokumentBestillerApplikasjonTjenesteMock, never()).bestillDokument(any(), any(), Mockito.anyBoolean());
+        verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(), any(), Mockito.anyBoolean());
     }
 
     @Test
@@ -206,7 +206,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
         assertThat(kompletthetResultat.getVentefrist().toLocalDate()).isEqualTo(LocalDate.now().plusWeeks(3));
-        verify(dokumentBestillerApplikasjonTjenesteMock, times(1)).bestillDokument(any(), any(), Mockito.anyBoolean());
+        verify(dokumentBestillerTjenesteMock, times(1)).bestillDokument(any(), any(), Mockito.anyBoolean());
 
         // Act 2
         stp = LocalDate.now().plusWeeks(3);
@@ -216,7 +216,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         // Assert
         assertThat(kompletthetResultat2.erOppfylt()).isFalse();
         assertThat(kompletthetResultat2.getVentefrist().toLocalDate()).isEqualTo(stp);
-        verify(dokumentBestillerApplikasjonTjenesteMock, times(2)).bestillDokument(any(), any(), Mockito.anyBoolean());
+        verify(dokumentBestillerTjenesteMock, times(2)).bestillDokument(any(), any(), Mockito.anyBoolean());
     }
 
     @Test
@@ -235,7 +235,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
         assertThat(kompletthetResultat.getVentefrist().toLocalDate()).isEqualTo(LocalDate.now().plusWeeks(3));
-        verify(dokumentBestillerApplikasjonTjenesteMock, times(1)).bestillDokument(any(), any(), Mockito.anyBoolean());
+        verify(dokumentBestillerTjenesteMock, times(1)).bestillDokument(any(), any(), Mockito.anyBoolean());
     }
 
     @Test

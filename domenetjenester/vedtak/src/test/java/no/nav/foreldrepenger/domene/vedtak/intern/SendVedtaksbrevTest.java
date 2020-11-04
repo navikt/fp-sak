@@ -33,14 +33,14 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerApplikasjonTjeneste;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 
 @ExtendWith(MockitoExtension.class)
 public class SendVedtaksbrevTest {
 
     @Mock
-    private DokumentBestillerApplikasjonTjeneste dokumentBestillerApplikasjonTjeneste;
+    private DokumentBestillerTjeneste dokumentBestillerTjeneste;
     @Mock
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
     @Mock
@@ -70,7 +70,7 @@ public class SendVedtaksbrevTest {
         BehandlingRepositoryProvider repositoryProvider = scenario.mockBehandlingRepositoryProvider();
         behandlingVedtak = scenario.mockBehandlingVedtak();
         sendVedtaksbrev = new SendVedtaksbrev(behandlingRepository, repositoryProvider.getBehandlingVedtakRepository(),
-            null, dokumentBestillerApplikasjonTjeneste, dokumentBehandlingTjeneste, klageRepository);
+            null, dokumentBestillerTjeneste, dokumentBehandlingTjeneste, klageRepository);
         lenient().when(behandlingsresultat.getVedtaksbrev()).thenReturn(Vedtaksbrev.AUTOMATISK);
         lenient().when(behandlingVedtak.getBehandlingsresultat()).thenReturn(behandlingsresultat);
         lenient().when(behandlingVedtak.getVedtakResultatType()).thenReturn(VedtakResultatType.INNVILGET);
@@ -83,7 +83,7 @@ public class SendVedtaksbrevTest {
         sendVedtaksbrev.sendVedtaksbrev(behandling.getId());
 
         // Assert
-        verify(dokumentBestillerApplikasjonTjeneste).produserVedtaksbrev(behandlingVedtak);
+        verify(dokumentBestillerTjeneste).produserVedtaksbrev(behandlingVedtak);
     }
 
     @Test
@@ -95,7 +95,7 @@ public class SendVedtaksbrevTest {
         sendVedtaksbrev.sendVedtaksbrev(behandling.getId());
 
         // Assert
-        verify(dokumentBestillerApplikasjonTjeneste).produserVedtaksbrev(behandlingVedtak);
+        verify(dokumentBestillerTjeneste).produserVedtaksbrev(behandlingVedtak);
     }
 
     @Test
@@ -170,9 +170,9 @@ public class SendVedtaksbrevTest {
 
         // Assert
         if (skalSende) {
-            verify(dokumentBestillerApplikasjonTjeneste).produserVedtaksbrev(behandlingVedtak);
+            verify(dokumentBestillerTjeneste).produserVedtaksbrev(behandlingVedtak);
         } else {
-            verify(dokumentBestillerApplikasjonTjeneste, Mockito.never()).produserVedtaksbrev(behandlingVedtak);
+            verify(dokumentBestillerTjeneste, Mockito.never()).produserVedtaksbrev(behandlingVedtak);
         }
     }
 
@@ -184,7 +184,7 @@ public class SendVedtaksbrevTest {
 
         sendVedtaksbrev.sendVedtaksbrev(behandling.getId());
 
-        verify(dokumentBestillerApplikasjonTjeneste).produserVedtaksbrev(behandlingVedtak);
+        verify(dokumentBestillerTjeneste).produserVedtaksbrev(behandlingVedtak);
     }
 
     @Test
@@ -195,7 +195,7 @@ public class SendVedtaksbrevTest {
 
         sendVedtaksbrev.sendVedtaksbrev(behandling.getId());
 
-        verify(dokumentBestillerApplikasjonTjeneste, never()).produserVedtaksbrev(behandlingVedtak);
+        verify(dokumentBestillerTjeneste, never()).produserVedtaksbrev(behandlingVedtak);
     }
 
     @Test
@@ -204,7 +204,7 @@ public class SendVedtaksbrevTest {
 
         sendVedtaksbrev.sendVedtaksbrev(behandling.getId());
 
-        verify(dokumentBestillerApplikasjonTjeneste, never()).produserVedtaksbrev(behandlingVedtak);
+        verify(dokumentBestillerTjeneste, never()).produserVedtaksbrev(behandlingVedtak);
     }
 
     @Test
@@ -214,7 +214,7 @@ public class SendVedtaksbrevTest {
 
         sendVedtaksbrev.sendVedtaksbrev(behandling.getId());
 
-        verify(dokumentBestillerApplikasjonTjeneste, times(1)).produserVedtaksbrev(behandlingVedtak);
+        verify(dokumentBestillerTjeneste, times(1)).produserVedtaksbrev(behandlingVedtak);
     }
 
 

@@ -1,44 +1,71 @@
 package no.nav.foreldrepenger.dokumentbestiller;
 
-import java.time.Period;
+import static no.nav.foreldrepenger.dokumentbestiller.vedtak.VedtaksbrevUtleder.velgDokumentMalForVedtak;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveBehandlingKoblingRepository;
-import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
-import no.nav.vedtak.konfig.KonfigVerdi;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
+import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
+import no.nav.foreldrepenger.dokumentbestiller.kafka.DokumentKafkaBestiller;
 
 @ApplicationScoped
 public class DokumentBestillerTjeneste {
 
-    private Period defaultVenteFrist;
-    private OppgaveTjeneste oppgaveTjeneste;
-    private OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository;
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
-    private DokumentBestillerApplikasjonTjeneste dokumentBestillerApplikasjonTjeneste;
+    private BehandlingRepository behandlingRepository;
+    private KlageRepository klageRepository;
+    private AnkeRepository ankeRepository;
 
-    DokumentBestillerTjeneste() {
-        // CDI
+    private BrevHistorikkinnslag brevHistorikkinnslag;
+    private DokumentKafkaBestiller dokumentKafkaBestiller;
+
+    public DokumentBestillerTjeneste() {
+        // for cdi proxy
     }
 
     @Inject
-    public DokumentBestillerTjeneste(@KonfigVerdi(value = "behandling.default.ventefrist.periode", defaultVerdi = "P4W") Period defaultVenteFrist,
-                                     OppgaveTjeneste oppgaveTjeneste,
-                                     OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository,
-                                     BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                     DokumentBestillerApplikasjonTjeneste dokumentBestillerApplikasjonTjeneste) {
-        this.defaultVenteFrist = defaultVenteFrist;
-        this.oppgaveTjeneste = oppgaveTjeneste;
-        this.oppgaveBehandlingKoblingRepository = oppgaveBehandlingKoblingRepository;
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
-        this.dokumentBestillerApplikasjonTjeneste = dokumentBestillerApplikasjonTjeneste;
+    public DokumentBestillerTjeneste(BehandlingRepository behandlingRepository,
+                                     KlageRepository klageRepository,
+                                     AnkeRepository ankeRepository,
+                                     BrevHistorikkinnslag brevHistorikkinnslag,
+                                     DokumentKafkaBestiller dokumentKafkaBestiller) {
+        this.behandlingRepository = behandlingRepository;
+        this.klageRepository = klageRepository;
+        this.ankeRepository = ankeRepository;
+        this.brevHistorikkinnslag = brevHistorikkinnslag;
+        this.dokumentKafkaBestiller = dokumentKafkaBestiller;
     }
 
-    public void håndterVarselRevurdering(Behandling behandling, VarselRevurderingAksjonspunktDto adapter) {
-        new VarselRevurderingHåndterer(defaultVenteFrist, oppgaveBehandlingKoblingRepository, oppgaveTjeneste, behandlingskontrollTjeneste, dokumentBestillerApplikasjonTjeneste)
-            .oppdater(behandling, adapter);
+    public void produserVedtaksbrev(BehandlingVedtak behandlingVedtak) {
+        final Behandlingsresultat behandlingsresultat = behandlingVedtak.getBehandlingsresultat();
+
+        if (Vedtaksbrev.INGEN.equals(behandlingsresultat.getVedtaksbrev())) {
+            return;
+        }
+
+        var behandling = behandlingRepository.hentBehandling(behandlingsresultat.getBehandlingId());
+        DokumentMalType dokumentMal = velgDokumentMalForVedtak(behandling, behandlingsresultat, behandlingVedtak,
+            klageRepository, ankeRepository);
+        dokumentKafkaBestiller.bestillBrev(behandling, dokumentMal, null, null, HistorikkAktør.VEDTAKSLØSNINGEN);
+    }
+
+    public void bestillDokument(BestillBrevDto bestillBrevDto, HistorikkAktør aktør) {
+        bestillDokument(bestillBrevDto, aktør, false);
+    }
+
+    public void bestillDokument(BestillBrevDto bestillBrevDto, HistorikkAktør aktør, boolean manueltBrev) {
+        if (manueltBrev) {
+            final Behandling behandling = behandlingRepository.hentBehandling(bestillBrevDto.getBehandlingId());
+            brevHistorikkinnslag.opprettHistorikkinnslagForManueltBestiltBrev(aktør, behandling,
+                bestillBrevDto.getBrevmalkode());
+        }
+        dokumentKafkaBestiller.bestillBrevFraKafka(bestillBrevDto, aktør);
     }
 }

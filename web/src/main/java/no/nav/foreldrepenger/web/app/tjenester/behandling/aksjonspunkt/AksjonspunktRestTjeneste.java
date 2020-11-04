@@ -62,9 +62,9 @@ public class AksjonspunktRestTjeneste {
     private static final String AKSJONSPUNKT_KONTROLLER_REVURDERING_PART_PATH = "/aksjonspunkt/kontroller-revurdering";
     public static final String AKSJONSPUNKT_KONTROLLER_REVURDERING_PATH = BASE_PATH + AKSJONSPUNKT_KONTROLLER_REVURDERING_PART_PATH;
 
-    private AksjonspunktApplikasjonTjeneste applikasjonstjeneste;
+    private AksjonspunktTjeneste applikasjonstjeneste;
     private BehandlingRepository behandlingRepository;
-    private BehandlingsutredningApplikasjonTjeneste behandlingutredningTjeneste;
+    private BehandlingsutredningTjeneste behandlingutredningTjeneste;
     private TotrinnTjeneste totrinnTjeneste;
 
     public AksjonspunktRestTjeneste() {
@@ -73,9 +73,9 @@ public class AksjonspunktRestTjeneste {
 
     @Inject
     public AksjonspunktRestTjeneste(
-            AksjonspunktApplikasjonTjeneste aksjonpunktApplikasjonTjeneste,
-            BehandlingRepository behandlingRepository,
-            BehandlingsutredningApplikasjonTjeneste behandlingutredningTjeneste, TotrinnTjeneste totrinnTjeneste) {
+        AksjonspunktTjeneste aksjonpunktApplikasjonTjeneste,
+        BehandlingRepository behandlingRepository,
+        BehandlingsutredningTjeneste behandlingutredningTjeneste, TotrinnTjeneste totrinnTjeneste) {
 
         this.applikasjonstjeneste = aksjonpunktApplikasjonTjeneste;
         this.behandlingRepository = behandlingRepository;

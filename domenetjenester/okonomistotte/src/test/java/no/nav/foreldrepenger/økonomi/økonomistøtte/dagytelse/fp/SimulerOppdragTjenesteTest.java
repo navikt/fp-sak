@@ -23,16 +23,16 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.SimulerOppdragApplikasjonTjeneste;
+import no.nav.foreldrepenger.økonomi.økonomistøtte.SimulerOppdragTjeneste;
 
 @CdiDbAwareTest
-public class SimulerOppdragApplikasjonTjenesteTest {
+public class SimulerOppdragTjenesteTest {
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
     @Inject
     private BeregningsresultatRepository beregningsresultatRepository;
     @Inject
-    private SimulerOppdragApplikasjonTjeneste simulerOppdragApplikasjonTjeneste;
+    private SimulerOppdragTjeneste simulerOppdragTjeneste;
 
     @Test
     public void simulerOppdrag_uten_behandling_vedtak_FP(EntityManager em) {
@@ -48,7 +48,7 @@ public class SimulerOppdragApplikasjonTjenesteTest {
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
 
         // Act
-        var resultat = simulerOppdragApplikasjonTjeneste.simulerOppdrag(behandling.getId(), 0L);
+        var resultat = simulerOppdragTjeneste.simulerOppdrag(behandling.getId(), 0L);
 
         // Assert
         assertThat(resultat).hasSize(1);

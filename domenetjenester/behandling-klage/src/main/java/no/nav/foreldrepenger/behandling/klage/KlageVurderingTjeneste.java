@@ -25,14 +25,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingL�
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerApplikasjonTjeneste;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 
 @ApplicationScoped
 public class KlageVurderingTjeneste {
 
-    private DokumentBestillerApplikasjonTjeneste dokumentBestillerApplikasjonTjeneste;
+    private DokumentBestillerTjeneste dokumentBestillerTjeneste;
     private ProsesseringAsynkTjeneste prosesseringAsynkTjeneste;
     private KlageRepository klageRepository;
     private BehandlingRepository behandlingRepository;
@@ -43,12 +43,12 @@ public class KlageVurderingTjeneste {
     }
 
     @Inject
-    public KlageVurderingTjeneste(DokumentBestillerApplikasjonTjeneste dokumentBestillerApplikasjonTjeneste,
+    public KlageVurderingTjeneste(DokumentBestillerTjeneste dokumentBestillerTjeneste,
                                   ProsesseringAsynkTjeneste prosesseringAsynkTjeneste,
                                   BehandlingRepository behandlingRepository,
                                   KlageRepository klageRepository,
                                   BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
-        this.dokumentBestillerApplikasjonTjeneste = dokumentBestillerApplikasjonTjeneste;
+        this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
         this.prosesseringAsynkTjeneste = prosesseringAsynkTjeneste;
         this.klageRepository = klageRepository;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
@@ -145,7 +145,7 @@ public class KlageVurderingTjeneste {
             && !Fagsystem.INFOTRYGD.equals(behandling.getMigrertKilde())) {
 
             BestillBrevDto bestillBrevDto = new BestillBrevDto(behandling.getId(), DokumentMalType.KLAGE_OVERSENDT_KLAGEINSTANS);
-            dokumentBestillerApplikasjonTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.SAKSBEHANDLER, false);
+            dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.SAKSBEHANDLER, false);
             oppdaterBehandlingMedNyFrist(behandling);
         }
         KlageResultatEntitet klageResultatEntitet = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());

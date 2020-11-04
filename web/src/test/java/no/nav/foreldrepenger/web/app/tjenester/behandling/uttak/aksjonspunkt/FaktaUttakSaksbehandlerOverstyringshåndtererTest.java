@@ -42,7 +42,7 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilde
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.uttak.kontroller.fakta.uttakperioder.KontrollerFaktaPeriode;
 import no.nav.foreldrepenger.historikk.HistorikkAvklartSoeknadsperiodeType;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktApplikasjonTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BekreftetOppgittPeriodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.KontrollerFaktaPeriodeLagreDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.OverstyringFaktaUttakDto;
@@ -61,7 +61,7 @@ public class FaktaUttakSaksbehandlerOverstyringshåndtererTest {
     private FamilieHendelseRepository familieHendelseRepository;
 
     @Inject
-    private AksjonspunktApplikasjonTjeneste aksjonspunktApplikasjonTjeneste;
+    private AksjonspunktTjeneste aksjonspunktTjeneste;
 
     @Inject
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
@@ -83,7 +83,7 @@ public class FaktaUttakSaksbehandlerOverstyringshåndtererTest {
         // dto
         OverstyringFaktaUttakDto.SaksbehandlerOverstyrerFaktaUttakDto dto = opprettOverstyringUttaksperioderDto();
 
-        aksjonspunktApplikasjonTjeneste.overstyrAksjonspunkter(Set.of(dto), behandling.getId());
+        aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(dto), behandling.getId());
 
         // Verifiserer HistorikkinnslagDto
         Historikkinnslag historikkinnslag = behandlingRepositoryProvider.getHistorikkRepository().hentHistorikk(behandling.getId()).get(0);
@@ -105,7 +105,7 @@ public class FaktaUttakSaksbehandlerOverstyringshåndtererTest {
 
         // dto
         OverstyringFaktaUttakDto.SaksbehandlerOverstyrerFaktaUttakDto dto = opprettOverstyringUttaksperioderDto();
-        aksjonspunktApplikasjonTjeneste.overstyrAksjonspunkter(Set.of(dto), behandling.getId());
+        aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(dto), behandling.getId());
 
         // assert
         assertThat(behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_SAKSBEHANDLER_OVERSTYRING)).isTrue();
@@ -122,7 +122,7 @@ public class FaktaUttakSaksbehandlerOverstyringshåndtererTest {
 
         // dto
         OverstyringFaktaUttakDto.SaksbehandlerOverstyrerFaktaUttakDto dto = opprettOverstyringUttaksperioderDto();
-        aksjonspunktApplikasjonTjeneste.overstyrAksjonspunkter(Set.of(dto), behandling.getId());
+        aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(dto), behandling.getId());
 
         // assert
         assertThat(behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_SAKSBEHANDLER_OVERSTYRING)).isTrue();
@@ -139,7 +139,7 @@ public class FaktaUttakSaksbehandlerOverstyringshåndtererTest {
 
         OverstyringFaktaUttakDto.SaksbehandlerOverstyrerFaktaUttakDto dto = opprettOverstyringUttaksperioderDto();
 
-        assertThatCode(() -> aksjonspunktApplikasjonTjeneste.overstyrAksjonspunkter(Set.of(dto), behandling.getId())).doesNotThrowAnyException();
+        assertThatCode(() -> aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(dto), behandling.getId())).doesNotThrowAnyException();
 
     }
 

@@ -25,7 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktApplikasjonTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt.dto.OverstyringOpptjeningsvilkåretDto;
 import no.nav.vedtak.exception.FunksjonellException;
 
@@ -35,7 +35,7 @@ public class OpptjeningsvilkåretOverstyringshåndtererTest {
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
     @Inject
-    private AksjonspunktApplikasjonTjeneste aksjonspunktApplikasjonTjeneste;
+    private AksjonspunktTjeneste aksjonspunktTjeneste;
 
     @Test
     public void skal_opprette_aksjonspunkt_for_overstyring() {
@@ -54,7 +54,7 @@ public class OpptjeningsvilkåretOverstyringshåndtererTest {
         assertThat(behandling.getAksjonspunkter()).hasSize(1);
 
         // Act
-        aksjonspunktApplikasjonTjeneste.overstyrAksjonspunkter(Set.of(overstyringspunktDto), behandling.getId());
+        aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(overstyringspunktDto), behandling.getId());
 
         // Assert
         Set<Aksjonspunkt> aksjonspunktSet = behandling.getAksjonspunkter();
@@ -82,7 +82,7 @@ public class OpptjeningsvilkåretOverstyringshåndtererTest {
                 "test av overstyring opptjeningsvilkåret", "1035");
 
         // Act
-        aksjonspunktApplikasjonTjeneste.overstyrAksjonspunkter(Set.of(overstyringspunktDto), behandling.getId());
+        aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(overstyringspunktDto), behandling.getId());
 
         // Assert
         List<Historikkinnslag> historikkinnslagene = repositoryProvider.getHistorikkRepository().hentHistorikk(behandling.getId());
@@ -112,7 +112,7 @@ public class OpptjeningsvilkåretOverstyringshåndtererTest {
 
         // Act
         try {
-            aksjonspunktApplikasjonTjeneste.overstyrAksjonspunkter(Set.of(overstyringspunktDto), behandling.getId());
+            aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(overstyringspunktDto), behandling.getId());
             fail("Skal kaste exception");
         } catch (FunksjonellException e) {
             assertThat(e).hasMessage(

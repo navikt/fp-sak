@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerApplikasjonTjeneste;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 
@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 @FagsakYtelseTypeRef()
 @ApplicationScoped
 public class IverksetteInnsynVedtakStegFelles implements IverksetteVedtakSteg {
-    private DokumentBestillerApplikasjonTjeneste dokumentBestillerTjeneste;
+    private DokumentBestillerTjeneste dokumentBestillerTjeneste;
     private BehandlingRepository behandlingRepository;
 
     public IverksetteInnsynVedtakStegFelles() {
@@ -32,7 +32,7 @@ public class IverksetteInnsynVedtakStegFelles implements IverksetteVedtakSteg {
     }
 
     @Inject
-    protected IverksetteInnsynVedtakStegFelles(DokumentBestillerApplikasjonTjeneste dokumentBestillerTjeneste, BehandlingRepositoryProvider repositoryProvider) {
+    protected IverksetteInnsynVedtakStegFelles(DokumentBestillerTjeneste dokumentBestillerTjeneste, BehandlingRepositoryProvider repositoryProvider) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
     }

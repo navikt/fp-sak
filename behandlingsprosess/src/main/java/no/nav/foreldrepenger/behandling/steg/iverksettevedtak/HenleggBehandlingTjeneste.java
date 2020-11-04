@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerApplikasjonTjeneste;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
@@ -31,7 +31,7 @@ public class HenleggBehandlingTjeneste {
 
     private BehandlingRepository behandlingRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
-    private DokumentBestillerApplikasjonTjeneste dokumentBestillerApplikasjonTjeneste;
+    private DokumentBestillerTjeneste dokumentBestillerTjeneste;
     private ProsessTaskRepository prosessTaskRepository;
     private SøknadRepository søknadRepository;
     private FagsakRepository fagsakRepository;
@@ -44,11 +44,11 @@ public class HenleggBehandlingTjeneste {
     @Inject
     public HenleggBehandlingTjeneste(BehandlingRepositoryProvider repositoryProvider,
                                      BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                     DokumentBestillerApplikasjonTjeneste dokumentBestillerApplikasjonTjeneste,
+                                     DokumentBestillerTjeneste dokumentBestillerTjeneste,
                                      ProsessTaskRepository prosessTaskRepository) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
-        this.dokumentBestillerApplikasjonTjeneste = dokumentBestillerApplikasjonTjeneste;
+        this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
         this.prosessTaskRepository = prosessTaskRepository;
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
@@ -116,7 +116,7 @@ public class HenleggBehandlingTjeneste {
 
     private void sendHenleggelsesbrev(long behandlingId, HistorikkAktør aktør) {
         BestillBrevDto bestillBrevDto = new BestillBrevDto(behandlingId, DokumentMalType.HENLEGG_BEHANDLING_DOK);
-        dokumentBestillerApplikasjonTjeneste.bestillDokument(bestillBrevDto, aktør, false);
+        dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, aktør, false);
     }
 
     private void lagHistorikkinnslagForHenleggelse(Long behandlingsId, BehandlingResultatType aarsak, String begrunnelse, HistorikkAktør aktør) {

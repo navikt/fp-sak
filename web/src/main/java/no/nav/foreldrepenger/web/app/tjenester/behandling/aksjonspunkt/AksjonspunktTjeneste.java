@@ -54,7 +54,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
 @ApplicationScoped
-public class AksjonspunktApplikasjonTjeneste {
+public class AksjonspunktTjeneste {
 
     private static final Set<AksjonspunktDefinisjon> VEDTAK_AP = Set.of(
         AksjonspunktDefinisjon.FORESLÅ_VEDTAK,
@@ -74,23 +74,23 @@ public class AksjonspunktApplikasjonTjeneste {
 
     private HistorikkTjenesteAdapter historikkTjenesteAdapter;
 
-    private BehandlingsprosessApplikasjonTjeneste behandlingsprosessApplikasjonTjeneste;
+    private BehandlingsprosessTjeneste behandlingsprosessTjeneste;
 
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
-    public AksjonspunktApplikasjonTjeneste() {
+    public AksjonspunktTjeneste() {
         // CDI proxy
     }
 
     @Inject
-    public AksjonspunktApplikasjonTjeneste(BehandlingRepositoryProvider repositoryProvider,
-                                           BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                           BehandlingsprosessApplikasjonTjeneste behandlingsprosessApplikasjonTjeneste,
-                                           SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                           HistorikkTjenesteAdapter historikkTjenesteAdapter,
-                                           HenleggBehandlingTjeneste henleggBehandlingTjeneste) {
+    public AksjonspunktTjeneste(BehandlingRepositoryProvider repositoryProvider,
+                                BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                BehandlingsprosessTjeneste behandlingsprosessTjeneste,
+                                SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                HistorikkTjenesteAdapter historikkTjenesteAdapter,
+                                HenleggBehandlingTjeneste henleggBehandlingTjeneste) {
 
-        this.behandlingsprosessApplikasjonTjeneste = behandlingsprosessApplikasjonTjeneste;
+        this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.historikkTjenesteAdapter = historikkTjenesteAdapter;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
@@ -191,9 +191,9 @@ public class AksjonspunktApplikasjonTjeneste {
 
     private void fortsettBehandlingen(Behandling behandling, OverhoppResultat overhoppResultat) {
         if (overhoppResultat.skalOppdatereGrunnlag()) {
-            behandlingsprosessApplikasjonTjeneste.asynkRegisteroppdateringKjørProsess(behandling);
+            behandlingsprosessTjeneste.asynkRegisteroppdateringKjørProsess(behandling);
         } else {
-            behandlingsprosessApplikasjonTjeneste.asynkKjørProsess(behandling);
+            behandlingsprosessTjeneste.asynkKjørProsess(behandling);
         }
     }
 

@@ -54,9 +54,9 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsoppretterApplikasjonTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessApplikasjonTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningApplikasjonTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsoppretterTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingOperasjonerDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingOpprettingDto;
@@ -120,10 +120,10 @@ public class BehandlingRestTjeneste {
     private static final String ENDRE_VENTEFRIST_PART_PATH = "/endre-pa-vent";
     public static final String ENDRE_VENTEFRIST_PATH = BASE_PATH + ENDRE_VENTEFRIST_PART_PATH;
 
-    private BehandlingsutredningApplikasjonTjeneste behandlingsutredningApplikasjonTjeneste;
-    private BehandlingsoppretterApplikasjonTjeneste behandlingsoppretterApplikasjonTjeneste;
+    private BehandlingsutredningTjeneste behandlingsutredningTjeneste;
+    private BehandlingsoppretterTjeneste behandlingsoppretterTjeneste;
     private BehandlingOpprettingTjeneste behandlingOpprettingTjeneste;
-    private BehandlingsprosessApplikasjonTjeneste behandlingsprosessTjeneste;
+    private BehandlingsprosessTjeneste behandlingsprosessTjeneste;
     private FagsakTjeneste fagsakTjeneste;
     private HenleggBehandlingTjeneste henleggBehandlingTjeneste;
     private BehandlingDtoTjeneste behandlingDtoTjeneste;
@@ -136,18 +136,18 @@ public class BehandlingRestTjeneste {
     }
 
     @Inject
-    public BehandlingRestTjeneste(BehandlingsutredningApplikasjonTjeneste behandlingsutredningApplikasjonTjeneste, // NOSONAR
-            BehandlingsoppretterApplikasjonTjeneste behandlingsoppretterApplikasjonTjeneste,
-            BehandlingOpprettingTjeneste behandlingOpprettingTjeneste,
-            BehandlingsprosessApplikasjonTjeneste behandlingsprosessTjeneste,
-            FagsakTjeneste fagsakTjeneste,
-            VergeTjeneste vergeTjeneste,
-            HenleggBehandlingTjeneste henleggBehandlingTjeneste,
-            BehandlingDtoTjeneste behandlingDtoTjeneste,
-            RelatertBehandlingTjeneste relatertBehandlingTjeneste,
-            TotrinnTjeneste totrinnTjeneste) {
-        this.behandlingsutredningApplikasjonTjeneste = behandlingsutredningApplikasjonTjeneste;
-        this.behandlingsoppretterApplikasjonTjeneste = behandlingsoppretterApplikasjonTjeneste;
+    public BehandlingRestTjeneste(BehandlingsutredningTjeneste behandlingsutredningTjeneste, // NOSONAR
+                                  BehandlingsoppretterTjeneste behandlingsoppretterTjeneste,
+                                  BehandlingOpprettingTjeneste behandlingOpprettingTjeneste,
+                                  BehandlingsprosessTjeneste behandlingsprosessTjeneste,
+                                  FagsakTjeneste fagsakTjeneste,
+                                  VergeTjeneste vergeTjeneste,
+                                  HenleggBehandlingTjeneste henleggBehandlingTjeneste,
+                                  BehandlingDtoTjeneste behandlingDtoTjeneste,
+                                  RelatertBehandlingTjeneste relatertBehandlingTjeneste,
+                                  TotrinnTjeneste totrinnTjeneste) {
+        this.behandlingsutredningTjeneste = behandlingsutredningTjeneste;
+        this.behandlingsoppretterTjeneste = behandlingsoppretterTjeneste;
         this.behandlingOpprettingTjeneste = behandlingOpprettingTjeneste;
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
         this.fagsakTjeneste = fagsakTjeneste;
@@ -224,8 +224,8 @@ public class BehandlingRestTjeneste {
     @Operation(description = "Setter behandling på vent", tags = "behandlinger")
     @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public void settBehandlingPaVent(@Parameter(description = "Frist for behandling på vent") @Valid SettBehandlingPaVentDto dto) {
-        behandlingsutredningApplikasjonTjeneste.kanEndreBehandling(dto.getBehandlingId(), dto.getBehandlingVersjon());
-        behandlingsutredningApplikasjonTjeneste.settBehandlingPaVent(dto.getBehandlingId(), dto.getFrist(), dto.getVentearsak());
+        behandlingsutredningTjeneste.kanEndreBehandling(dto.getBehandlingId(), dto.getBehandlingVersjon());
+        behandlingsutredningTjeneste.settBehandlingPaVent(dto.getBehandlingId(), dto.getFrist(), dto.getVentearsak());
     }
 
     @POST
@@ -235,8 +235,8 @@ public class BehandlingRestTjeneste {
     @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.VENTEFRIST)
     public void endreFristForBehandlingPaVent(
             @Parameter(description = "Frist for behandling på vent") @Valid SettBehandlingPaVentDto dto) {
-        behandlingsutredningApplikasjonTjeneste.kanEndreBehandling(dto.getBehandlingId(), dto.getBehandlingVersjon());
-        behandlingsutredningApplikasjonTjeneste.endreBehandlingPaVent(dto.getBehandlingId(), dto.getFrist(), dto.getVentearsak());
+        behandlingsutredningTjeneste.kanEndreBehandling(dto.getBehandlingId(), dto.getBehandlingVersjon());
+        behandlingsutredningTjeneste.endreBehandlingPaVent(dto.getBehandlingId(), dto.getFrist(), dto.getVentearsak());
     }
 
     @POST
@@ -247,7 +247,7 @@ public class BehandlingRestTjeneste {
 
     public void henleggBehandling(@Parameter(description = "Henleggelsesårsak") @Valid HenleggBehandlingDto dto) {
         Long behandlingId = dto.getBehandlingId();
-        behandlingsutredningApplikasjonTjeneste.kanEndreBehandling(behandlingId, dto.getBehandlingVersjon());
+        behandlingsutredningTjeneste.kanEndreBehandling(behandlingId, dto.getBehandlingVersjon());
         BehandlingResultatType årsakKode = tilHenleggBehandlingResultatType(dto.getÅrsakKode());
         henleggBehandlingTjeneste.henleggBehandling(behandlingId, årsakKode, dto.getBegrunnelse());
     }
@@ -266,7 +266,7 @@ public class BehandlingRestTjeneste {
         Long behandlingVersjon = dto.getBehandlingVersjon();
 
         // precondition - sjekk behandling versjon/lås
-        behandlingsutredningApplikasjonTjeneste.kanEndreBehandling(behandlingId, behandlingVersjon);
+        behandlingsutredningTjeneste.kanEndreBehandling(behandlingId, behandlingVersjon);
 
         // gjenoppta behandling ( sparkes i gang asynkront, derav redirect til status
         // url under )
@@ -284,12 +284,12 @@ public class BehandlingRestTjeneste {
     public void byttBehandlendeEnhet(@Parameter(description = "Ny enhet som skal byttes") @Valid ByttBehandlendeEnhetDto dto) {
         Long behandlingId = dto.getBehandlingId();
         Long behandlingVersjon = dto.getBehandlingVersjon();
-        behandlingsutredningApplikasjonTjeneste.kanEndreBehandling(behandlingId, behandlingVersjon);
+        behandlingsutredningTjeneste.kanEndreBehandling(behandlingId, behandlingVersjon);
 
         String enhetId = dto.getEnhetId();
         String enhetNavn = dto.getEnhetNavn();
         String begrunnelse = dto.getBegrunnelse();
-        behandlingsutredningApplikasjonTjeneste.byttBehandlendeEnhet(behandlingId, new OrganisasjonsEnhet(enhetId, enhetNavn), begrunnelse,
+        behandlingsutredningTjeneste.byttBehandlendeEnhet(behandlingId, new OrganisasjonsEnhet(enhetId, enhetNavn), begrunnelse,
                 HistorikkAktør.SAKSBEHANDLER);
     }
 
@@ -313,7 +313,7 @@ public class BehandlingRestTjeneste {
 
         Fagsak fagsak = funnetFagsak.get();
         try {
-            if (!behandlingsoppretterApplikasjonTjeneste.kanOppretteNyBehandlingAvType(fagsak.getId(), kode)) {
+            if (!behandlingsoppretterTjeneste.kanOppretteNyBehandlingAvType(fagsak.getId(), kode)) {
                 LOG.info("BEHREST opprett behandling får nei for sak {} behandlingtype {}", fagsak.getSaksnummer().getVerdi(), kode.getKode());
             }
         } catch (Exception e) {
@@ -332,12 +332,12 @@ public class BehandlingRestTjeneste {
 
         } else if (BehandlingType.REVURDERING.equals(kode)) {
             BehandlingÅrsakType behandlingÅrsakType = BehandlingÅrsakType.fraKode(dto.getBehandlingArsakType().getKode());
-            Behandling behandling = behandlingsoppretterApplikasjonTjeneste.opprettRevurdering(fagsak, behandlingÅrsakType);
+            Behandling behandling = behandlingsoppretterTjeneste.opprettRevurdering(fagsak, behandlingÅrsakType);
             String gruppe = behandlingsprosessTjeneste.asynkStartBehandlingsprosess(behandling);
             return Redirect.tilBehandlingPollStatus(behandling.getUuid(), Optional.of(gruppe));
 
         } else if (BehandlingType.FØRSTEGANGSSØKNAD.equals(kode)) {
-            behandlingsoppretterApplikasjonTjeneste.opprettNyFørstegangsbehandling(fagsak.getId(), saksnummer, dto.getNyBehandlingEtterKlage());
+            behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(fagsak.getId(), saksnummer, dto.getNyBehandlingEtterKlage());
             // ved førstegangssønad opprettes egen task for vurdere denne,
             // sender derfor ikke viderer til prosesser behandling (i motsetning til de
             // andre).
@@ -368,7 +368,7 @@ public class BehandlingRestTjeneste {
     public List<BehandlingDto> hentBehandlinger(
             @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer må være et eksisterende saksnummer") @Valid SaksnummerDto s) {
         Saksnummer saksnummer = new Saksnummer(s.getVerdi());
-        List<Behandling> behandlinger = behandlingsutredningApplikasjonTjeneste.hentBehandlingerForSaksnummer(saksnummer);
+        List<Behandling> behandlinger = behandlingsutredningTjeneste.hentBehandlingerForSaksnummer(saksnummer);
         return behandlingDtoTjeneste.lagBehandlingDtoer(behandlinger);
     }
 
@@ -386,7 +386,7 @@ public class BehandlingRestTjeneste {
         Long behandlingVersjon = dto.getBehandlingVersjon();
 
         // precondition - sjekk behandling versjon/lås
-        behandlingsutredningApplikasjonTjeneste.kanEndreBehandling(behandlingId, behandlingVersjon);
+        behandlingsutredningTjeneste.kanEndreBehandling(behandlingId, behandlingVersjon);
         var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
         if (behandling.isBehandlingPåVent()) {
             throw BehandlingRestTjenesteFeil.FACTORY.måTaAvVent(behandlingId).toException();
@@ -435,13 +435,13 @@ public class BehandlingRestTjeneste {
         @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer må være et eksisterende saksnummer") @Valid SaksnummerDto s) {
         Saksnummer saksnummer = new Saksnummer(s.getVerdi());
         Fagsak f = fagsakTjeneste.finnFagsakGittSaksnummer(saksnummer, false).orElseThrow();
-        var operasjoner = behandlingsutredningApplikasjonTjeneste.hentBehandlingerForSaksnummer(saksnummer).stream()
+        var operasjoner = behandlingsutredningTjeneste.hentBehandlingerForSaksnummer(saksnummer).stream()
             .filter(b -> !b.erSaksbehandlingAvsluttet())
             .map(this::lovligeOperasjoner)
             .collect(Collectors.toList());
          var oppretting = Stream.of(BehandlingType.getYtelseBehandlingTyper(), BehandlingType.getAndreBehandlingTyper())
             .flatMap(Collection::stream)
-            .map(bt -> new BehandlingOpprettingDto(bt, behandlingsoppretterApplikasjonTjeneste.kanOppretteNyBehandlingAvType(f.getId(), bt)))
+            .map(bt -> new BehandlingOpprettingDto(bt, behandlingsoppretterTjeneste.kanOppretteNyBehandlingAvType(f.getId(), bt)))
              .collect(Collectors.toList());
         return new SakRettigheterDto(f.getSkalTilInfotrygd(), oppretting, operasjoner);
     }

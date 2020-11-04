@@ -34,9 +34,9 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
 @ApplicationScoped
-public class BehandlingsprosessApplikasjonTjeneste {
+public class BehandlingsprosessTjeneste {
 
-    private static final BehandlingsprosessApplikasjonFeil FEIL = FeilFactory.create(BehandlingsprosessApplikasjonFeil.class);
+    private static final BehandlingsprosessFeil FEIL = FeilFactory.create(BehandlingsprosessFeil.class);
 
     private BehandlingRepository behandlingRepository;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
@@ -44,17 +44,17 @@ public class BehandlingsprosessApplikasjonTjeneste {
     private ProsesseringAsynkTjeneste prosesseringAsynkTjeneste;
     private HistorikkRepository historikkRepository;
 
-    BehandlingsprosessApplikasjonTjeneste() {
+    BehandlingsprosessTjeneste() {
         // for CDI proxy
     }
 
     // test only
-    BehandlingsprosessApplikasjonTjeneste(ProsesseringAsynkTjeneste prosesseringAsynkTjeneste) {
+    BehandlingsprosessTjeneste(ProsesseringAsynkTjeneste prosesseringAsynkTjeneste) {
         this.prosesseringAsynkTjeneste = prosesseringAsynkTjeneste;
     }
 
     @Inject
-    public BehandlingsprosessApplikasjonTjeneste(
+    public BehandlingsprosessTjeneste(
                                                      BehandlingRepository behandlingRepository,
                                                      ProsesseringAsynkTjeneste prosesseringAsynkTjeneste,
                                                      BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,

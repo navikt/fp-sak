@@ -38,14 +38,14 @@ import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.OmsorgsvilkårAksj
 import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.aksjonspunkt.AvklarSaksopplysningerDto;
 
 @CdiDbAwareTest
-public class AksjonspunktApplikasjonTjenesteTest {
+public class AksjonspunktTjenesteTest {
 
     private static final String BEGRUNNELSE = "begrunnelse";
     private static final LocalDate TERMINDATO = LocalDate.now().plusDays(40);
     private static final LocalDate UTSTEDTDATO = LocalDate.now().minusDays(7);
 
     @Inject
-    private AksjonspunktApplikasjonTjeneste aksjonspunktApplikasjonTjeneste;
+    private AksjonspunktTjeneste aksjonspunktTjeneste;
 
     @Inject
     private BehandlingRepository behandlingRepository;
@@ -73,7 +73,7 @@ public class AksjonspunktApplikasjonTjenesteTest {
         var dto = new BekreftTerminbekreftelseAksjonspunktDto(BEGRUNNELSE, TERMINDATO, UTSTEDTDATO, 1);
 
         // Act
-        aksjonspunktApplikasjonTjeneste.bekreftAksjonspunkter(singletonList(dto), behandling.getId());
+        aksjonspunktTjeneste.bekreftAksjonspunkter(singletonList(dto), behandling.getId());
 
         // Assert
         Behandling oppdatertBehandling = behandlingRepository.hentBehandling(behandling.getId());
@@ -89,7 +89,7 @@ public class AksjonspunktApplikasjonTjenesteTest {
                 Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O.getKode());
 
         // Act
-        aksjonspunktApplikasjonTjeneste.bekreftAksjonspunkter(singletonList(dto), behandling.getId());
+        aksjonspunktTjeneste.bekreftAksjonspunkter(singletonList(dto), behandling.getId());
 
         // Assert
         assertThat(behandling.getBehandlingsresultat().getVilkårResultat()).isNotNull();
@@ -103,7 +103,7 @@ public class AksjonspunktApplikasjonTjenesteTest {
     public void skal_sette_ansvarlig_saksbehandler() {
         // Arrange
         // Bruker BekreftTerminbekreftelseAksjonspunktDto som konkret case
-        AksjonspunktApplikasjonTjeneste aksjonspunktApplikasjonTjenesteImpl = aksjonspunktApplikasjonTjeneste;
+        AksjonspunktTjeneste aksjonspunktTjenesteImpl = aksjonspunktTjeneste;
         AbstractTestScenario<?> scenario = lagScenarioMedAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE);
         Behandling behandling = scenario.lagre(repositoryProvider);
         Behandling behandlingSpy = spy(behandling);
@@ -111,7 +111,7 @@ public class AksjonspunktApplikasjonTjenesteTest {
         BekreftTerminbekreftelseAksjonspunktDto dto = new BekreftTerminbekreftelseAksjonspunktDto(BEGRUNNELSE, TERMINDATO, UTSTEDTDATO, 1);
 
         // Act
-        aksjonspunktApplikasjonTjenesteImpl.setAnsvarligSaksbehandler(singletonList(dto), behandlingSpy);
+        aksjonspunktTjenesteImpl.setAnsvarligSaksbehandler(singletonList(dto), behandlingSpy);
 
         // Assert
         verify(behandlingSpy, times(1)).setAnsvarligSaksbehandler(any());
@@ -121,7 +121,7 @@ public class AksjonspunktApplikasjonTjenesteTest {
     public void skal_ikke_sette_ansvarlig_saksbehandler_hvis_bekreftet_aksjonspunkt_er_fatter_vedtak() {
         // Arrange
         // Bruker BekreftTerminbekreftelseAksjonspunktDto som konkret case
-        AksjonspunktApplikasjonTjeneste aksjonspunktApplikasjonTjenesteImpl = aksjonspunktApplikasjonTjeneste;
+        AksjonspunktTjeneste aksjonspunktTjenesteImpl = aksjonspunktTjeneste;
         AbstractTestScenario<?> scenario = lagScenarioMedAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE);
         Behandling behandling = scenario.lagre(repositoryProvider);
         Behandling behandlingSpy = spy(behandling);
@@ -129,7 +129,7 @@ public class AksjonspunktApplikasjonTjenesteTest {
         FatterVedtakAksjonspunktDto dto = new FatterVedtakAksjonspunktDto(BEGRUNNELSE, Collections.emptyList());
 
         // Act
-        aksjonspunktApplikasjonTjenesteImpl.setAnsvarligSaksbehandler(singletonList(dto), behandlingSpy);
+        aksjonspunktTjenesteImpl.setAnsvarligSaksbehandler(singletonList(dto), behandlingSpy);
 
         // Assert
         verify(behandlingSpy, never()).setAnsvarligSaksbehandler(any());
@@ -145,7 +145,7 @@ public class AksjonspunktApplikasjonTjenesteTest {
         AvklarSaksopplysningerDto dto = new AvklarSaksopplysningerDto(BEGRUNNELSE, "UTVA", true);
 
         // Act
-        aksjonspunktApplikasjonTjeneste.bekreftAksjonspunkter(singletonList(dto), revurdering.getId());
+        aksjonspunktTjeneste.bekreftAksjonspunkter(singletonList(dto), revurdering.getId());
 
         // Assert
         Behandling oppdatertBehandling = behandlingRepository.hentBehandling(revurdering.getId());
@@ -164,7 +164,7 @@ public class AksjonspunktApplikasjonTjenesteTest {
                 Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O.getKode());
 
         // Act
-        aksjonspunktApplikasjonTjeneste.bekreftAksjonspunkter(singletonList(dto), revurdering.getId());
+        aksjonspunktTjeneste.bekreftAksjonspunkter(singletonList(dto), revurdering.getId());
 
         // Assert
         Behandling oppdatertBehandling = behandlingRepository.hentBehandling(revurdering.getId());

@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktApplikasjonTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt.es.OverstyringAdopsjonsvilkåretDto;
 
 @CdiDbAwareTest
@@ -28,7 +28,7 @@ public class AdopsjonsvilkårEngangsstønadOverstyringhåndtererTest {
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
     @Inject
-    private AksjonspunktApplikasjonTjeneste aksjonspunktApplikasjonTjeneste;
+    private AksjonspunktTjeneste aksjonspunktTjeneste;
 
     @Test
     public void skal_opprette_aksjonspunkt_for_overstyring() {
@@ -49,7 +49,7 @@ public class AdopsjonsvilkårEngangsstønadOverstyringhåndtererTest {
         assertThat(behandling.getAksjonspunkter()).hasSize(1);
 
         // Act
-        aksjonspunktApplikasjonTjeneste.overstyrAksjonspunkter(Set.of(overstyringspunktDto), behandling.getId());
+        aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(overstyringspunktDto), behandling.getId());
 
         // Assert
         Set<Aksjonspunkt> aksjonspunktSet = behandling.getAksjonspunkter();

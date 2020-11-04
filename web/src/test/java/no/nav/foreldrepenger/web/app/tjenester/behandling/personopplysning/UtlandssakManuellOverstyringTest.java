@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktApplikasjonTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktTjeneste;
 
 @CdiDbAwareTest
 public class UtlandssakManuellOverstyringTest {
@@ -31,7 +31,7 @@ public class UtlandssakManuellOverstyringTest {
     private BehandlingRepository behandlingRepository;
 
     @Inject
-    private AksjonspunktApplikasjonTjeneste applikasjonstjeneste;
+    private AksjonspunktTjeneste applikasjonstjeneste;
 
     @Test
     public void spesial_tilfelle_utland_markering() throws Exception {

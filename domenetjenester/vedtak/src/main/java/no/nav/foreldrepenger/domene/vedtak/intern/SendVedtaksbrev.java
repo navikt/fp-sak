@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerApplikasjonTjeneste;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 
 @ApplicationScoped
@@ -33,7 +33,7 @@ public class SendVedtaksbrev {
 
     private BehandlingRepository behandlingRepository;
     private KlageRepository klageRepository;
-    private DokumentBestillerApplikasjonTjeneste dokumentBestillerApplikasjonTjeneste;
+    private DokumentBestillerTjeneste dokumentBestillerTjeneste;
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
     private AnkeRepository ankeRepository;
 
@@ -47,12 +47,12 @@ public class SendVedtaksbrev {
     public SendVedtaksbrev(BehandlingRepository behandlingRepository,
                            BehandlingVedtakRepository behandlingVedtakRepository,
                            AnkeRepository ankeRepository,
-                           DokumentBestillerApplikasjonTjeneste dokumentBestillerApplikasjonTjeneste,
+                           DokumentBestillerTjeneste dokumentBestillerTjeneste,
                            DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
                            KlageRepository klageRepository) {
         this.behandlingRepository = behandlingRepository;
         this.behandlingVedtakRepository = behandlingVedtakRepository;
-        this.dokumentBestillerApplikasjonTjeneste = dokumentBestillerApplikasjonTjeneste;
+        this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
         this.klageRepository = klageRepository;
         this.ankeRepository = ankeRepository;
@@ -100,7 +100,7 @@ public class SendVedtaksbrev {
         } else {
             log.info("Sender vedtaksbrev({}) for foreldrepenger i behandling: {}", behandlingVedtak.getVedtakResultatType().getKode(), behandlingId); //$NON-NLS-1
         }
-        dokumentBestillerApplikasjonTjeneste.produserVedtaksbrev(behandlingVedtak);
+        dokumentBestillerTjeneste.produserVedtaksbrev(behandlingVedtak);
     }
 
     private boolean gjelderEngangsstønad(Behandling behandling) {

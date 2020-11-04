@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAkt�
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerApplikasjonTjeneste;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 
 public class IverksetteInnsynVedtakStegFellesTest {
@@ -29,7 +29,7 @@ public class IverksetteInnsynVedtakStegFellesTest {
     @Test
     public void skalBestilleVedtaksbrev() {
         ScenarioMorSøkerEngangsstønad scenario = innsynsScenario();
-        DokumentBestillerApplikasjonTjeneste dokumentBestillerTjeneste = mock(DokumentBestillerApplikasjonTjeneste.class);
+        DokumentBestillerTjeneste dokumentBestillerTjeneste = mock(DokumentBestillerTjeneste.class);
         BehandlingRepositoryProvider repositoryProvider = scenario.mockBehandlingRepositoryProvider();
         IverksetteInnsynVedtakStegFelles steg = new IverksetteInnsynVedtakStegFelles(dokumentBestillerTjeneste, repositoryProvider);
         Behandling behandling = scenario.getBehandling();
@@ -46,7 +46,7 @@ public class IverksetteInnsynVedtakStegFellesTest {
     @Test
     public void skalDefaulteFritekstTilMellomrom() {
         ScenarioMorSøkerEngangsstønad scenario = innsynsScenario();
-        DokumentBestillerApplikasjonTjeneste dokumentBestillerTjeneste = mock(DokumentBestillerApplikasjonTjeneste.class);
+        DokumentBestillerTjeneste dokumentBestillerTjeneste = mock(DokumentBestillerTjeneste.class);
         BehandlingRepositoryProvider repositoryProvider = scenario.mockBehandlingRepositoryProvider();
         IverksetteInnsynVedtakStegFelles steg = new IverksetteInnsynVedtakStegFelles(dokumentBestillerTjeneste, repositoryProvider);
         Behandling behandling = scenario.getBehandling();
@@ -66,7 +66,7 @@ public class IverksetteInnsynVedtakStegFellesTest {
     public void skalBrukeBegrunnelseFraAksjonspunktSomFritekst() {
         String begrunnelse = "begrunnelse!!";
         ScenarioMorSøkerEngangsstønad scenario = innsynsScenario(begrunnelse);
-        DokumentBestillerApplikasjonTjeneste dokumentBestillerTjeneste = mock(DokumentBestillerApplikasjonTjeneste.class);
+        DokumentBestillerTjeneste dokumentBestillerTjeneste = mock(DokumentBestillerTjeneste.class);
         BehandlingRepositoryProvider repositoryProvider = scenario.mockBehandlingRepositoryProvider();
         IverksetteInnsynVedtakStegFelles steg = new IverksetteInnsynVedtakStegFelles(dokumentBestillerTjeneste, repositoryProvider);
         Behandling behandling = scenario.getBehandling();

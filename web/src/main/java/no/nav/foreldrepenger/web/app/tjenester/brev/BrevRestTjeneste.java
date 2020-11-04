@@ -28,7 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsa
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerApplikasjonTjeneste;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.foreldrepenger.web.app.tjenester.dokument.dto.DokumentProdusertDto;
@@ -49,7 +49,7 @@ public class BrevRestTjeneste {
     private static final String BREV_BESTILL_PART_PATH = "/bestill";
     public static final String BREV_BESTILL_PATH = BASE_PATH + BREV_BESTILL_PART_PATH;
 
-    private DokumentBestillerApplikasjonTjeneste dokumentBestillerApplikasjonTjeneste;
+    private DokumentBestillerTjeneste dokumentBestillerTjeneste;
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
     private BehandlingRepository behandlingRepository;
 
@@ -58,10 +58,10 @@ public class BrevRestTjeneste {
     }
 
     @Inject
-    public BrevRestTjeneste(DokumentBestillerApplikasjonTjeneste dokumentBestillerApplikasjonTjeneste,
-            DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
-            BehandlingRepository behandlingRepository) {
-        this.dokumentBestillerApplikasjonTjeneste = dokumentBestillerApplikasjonTjeneste;
+    public BrevRestTjeneste(DokumentBestillerTjeneste dokumentBestillerTjeneste,
+                            DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
+                            BehandlingRepository behandlingRepository) {
+        this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
         this.behandlingRepository = behandlingRepository;
     }
@@ -76,7 +76,7 @@ public class BrevRestTjeneste {
         // FIXME: behandlingUuid brukes mot fp-formidling og kan derfor også brukes mot
         // fpsak-frontend her
         LOGGER.info("Brev med brevmalkode={} bestilt på behandlingId={}", bestillBrevDto.getBrevmalkode(), bestillBrevDto.getBehandlingId());
-        dokumentBestillerApplikasjonTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.SAKSBEHANDLER, true);
+        dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.SAKSBEHANDLER, true);
         oppdaterBehandlingBasertPåManueltBrev(DokumentMalType.fraKode(bestillBrevDto.getBrevmalkode()), bestillBrevDto.getBehandlingId());
     }
 

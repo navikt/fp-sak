@@ -43,9 +43,9 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 import no.nav.foreldrepenger.web.RepositoryAwareTest;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsoppretterApplikasjonTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessApplikasjonTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningApplikasjonTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsoppretterTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.VergeTjeneste;
@@ -58,13 +58,13 @@ public class BehandlingRestTjenesteESTest extends RepositoryAwareTest {
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     @Mock
-    private BehandlingsutredningApplikasjonTjeneste behandlingsutredningApplikasjonTjeneste;
+    private BehandlingsutredningTjeneste behandlingsutredningTjeneste;
     @Mock
-    private BehandlingsoppretterApplikasjonTjeneste behandlingsoppretterApplikasjonTjeneste;
+    private BehandlingsoppretterTjeneste behandlingsoppretterTjeneste;
     @Mock
     private BehandlingOpprettingTjeneste behandlingOpprettingTjeneste;
     @Mock
-    private BehandlingsprosessApplikasjonTjeneste behandlingsprosessTjenste;
+    private BehandlingsprosessTjeneste behandlingsprosessTjenste;
     @Mock
     private OpptjeningIUtlandDokStatusTjeneste opptjeningIUtlandDokStatusTjeneste;
     @Mock
@@ -84,8 +84,8 @@ public class BehandlingRestTjenesteESTest extends RepositoryAwareTest {
                 relatertBehandlingTjeneste,
                 new ForeldrepengerUttakTjeneste(fpUttakRepository), null);
 
-        behandlingRestTjeneste = new BehandlingRestTjeneste(behandlingsutredningApplikasjonTjeneste,
-                behandlingsoppretterApplikasjonTjeneste,
+        behandlingRestTjeneste = new BehandlingRestTjeneste(behandlingsutredningTjeneste,
+                behandlingsoppretterTjeneste,
                 behandlingOpprettingTjeneste,
                 behandlingsprosessTjenste,
                 fagsakTjeneste,
@@ -132,7 +132,7 @@ public class BehandlingRestTjenesteESTest extends RepositoryAwareTest {
         OppgittFordelingEntitet fordeling = new OppgittFordelingEntitet(List.of(periode1, periode2), true);
         ytelsesfordelingRepository.lagre(behandlingId, fordeling);
 
-        when(behandlingsutredningApplikasjonTjeneste.hentBehandlingerForSaksnummer(saksnummer)).thenReturn(singletonList(behandling));
+        when(behandlingsutredningTjeneste.hentBehandlingerForSaksnummer(saksnummer)).thenReturn(singletonList(behandling));
 
         List<BehandlingDto> dto = behandlingRestTjeneste.hentBehandlinger(new SaksnummerDto(saksnummer.getVerdi()));
 

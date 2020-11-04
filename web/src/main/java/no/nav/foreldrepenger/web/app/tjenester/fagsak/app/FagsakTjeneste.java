@@ -42,7 +42,7 @@ import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-public class FagsakApplikasjonTjeneste {
+public class FagsakTjeneste {
     private static FagsakProsessTaskFeil FEIL = FeilFactory.create(FagsakProsessTaskFeil.class);
 
     private FagsakRepository fagsakRespository;
@@ -55,16 +55,16 @@ public class FagsakApplikasjonTjeneste {
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private DekningsgradTjeneste dekningsgradTjeneste;
 
-    protected FagsakApplikasjonTjeneste() {
+    protected FagsakTjeneste() {
         // CDI runner
     }
 
     @Inject
-    public FagsakApplikasjonTjeneste(FagsakRepository fagsakRespository,
-                                     BehandlingRepository behandlingRepository,
-                                     ProsesseringAsynkTjeneste prosesseringAsynkTjeneste, PersoninfoAdapter personinfoAdapter,
-                                     FamilieHendelseTjeneste familieHendelseTjeneste,
-                                     DekningsgradTjeneste dekningsgradTjeneste) {
+    public FagsakTjeneste(FagsakRepository fagsakRespository,
+                          BehandlingRepository behandlingRepository,
+                          ProsesseringAsynkTjeneste prosesseringAsynkTjeneste, PersoninfoAdapter personinfoAdapter,
+                          FamilieHendelseTjeneste familieHendelseTjeneste,
+                          DekningsgradTjeneste dekningsgradTjeneste) {
         this.fagsakRespository = fagsakRespository;
         this.personinfoAdapter = personinfoAdapter;
         this.behandlingRepository = behandlingRepository;

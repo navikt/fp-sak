@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.foreldrepenger.dokumentbestiller.kafka.DokumentKafkaBestiller;
 
 @ExtendWith(MockitoExtension.class)
-public class DokumentBestillerApplikasjonTjenesteTest {
+public class DokumentBestillerTjenesteTest {
     @Mock
     private HistorikkRepository historikkRepositoryMock;
 
@@ -30,7 +30,7 @@ public class DokumentBestillerApplikasjonTjenesteTest {
 
     private Behandling behandling;
     private BehandlingRepositoryProvider repositoryProvider;
-    private DokumentBestillerApplikasjonTjeneste tjeneste;
+    private DokumentBestillerTjeneste tjeneste;
 
     private void settOpp(AbstractTestScenario<?> scenario) {
         this.behandling = scenario.lagMocked();
@@ -38,7 +38,7 @@ public class DokumentBestillerApplikasjonTjenesteTest {
 
         BrevHistorikkinnslag brevHistorikkinnslag = new BrevHistorikkinnslag(historikkRepositoryMock);
 
-        tjeneste = new DokumentBestillerApplikasjonTjeneste(
+        tjeneste = new DokumentBestillerTjeneste(
                 repositoryProvider.getBehandlingRepository(),
                 null,
                 null,

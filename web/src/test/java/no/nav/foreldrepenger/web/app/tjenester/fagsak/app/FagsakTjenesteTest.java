@@ -43,13 +43,13 @@ import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.vedtak.felles.testutilities.Whitebox;
 
 @ExtendWith(MockitoExtension.class)
-public class FagsakApplikasjonTjenesteTest {
+public class FagsakTjenesteTest {
 
     private static final String FNR = "12345678901";
     private static final AktørId AKTØR_ID = AktørId.dummy();
     private static final Saksnummer SAKSNUMMER = new Saksnummer("123");
 
-    private FagsakApplikasjonTjeneste tjeneste;
+    private FagsakTjeneste tjeneste;
     @Mock
     private FagsakRepository fagsakRepository;
     @Mock
@@ -77,7 +77,7 @@ public class FagsakApplikasjonTjenesteTest {
     public void oppsett() {
 
         ProsesseringAsynkTjeneste prosesseringAsynkTjeneste = mock(ProsesseringAsynkTjeneste.class);
-        tjeneste = new FagsakApplikasjonTjeneste(fagsakRepository, behandlingRepository, prosesseringAsynkTjeneste, personinfoAdapter, hendelseTjeneste,
+        tjeneste = new FagsakTjeneste(fagsakRepository, behandlingRepository, prosesseringAsynkTjeneste, personinfoAdapter, hendelseTjeneste,
                 dekningsgradTjeneste);
     }
 

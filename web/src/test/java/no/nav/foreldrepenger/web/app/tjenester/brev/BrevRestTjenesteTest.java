@@ -19,24 +19,24 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerApplikasjonTjeneste;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 
 public class BrevRestTjenesteTest {
 
     private BrevRestTjeneste brevRestTjeneste;
-    private DokumentBestillerApplikasjonTjeneste dokumentBestillerApplikasjonTjenesteMock;
+    private DokumentBestillerTjeneste dokumentBestillerTjenesteMock;
     private DokumentBehandlingTjeneste dokumentBehandlingTjenesteMock;
     private BehandlingRepository behandlingRepository;
 
     @BeforeEach
     public void setUp() {
-        dokumentBestillerApplikasjonTjenesteMock = mock(DokumentBestillerApplikasjonTjeneste.class);
+        dokumentBestillerTjenesteMock = mock(DokumentBestillerTjeneste.class);
         dokumentBehandlingTjenesteMock = mock(DokumentBehandlingTjeneste.class);
         behandlingRepository = mock(BehandlingRepository.class);
         when(behandlingRepository.hentBehandling(anyLong())).thenReturn(mock(Behandling.class));
 
-        brevRestTjeneste = new BrevRestTjeneste(dokumentBestillerApplikasjonTjenesteMock, dokumentBehandlingTjenesteMock, behandlingRepository);
+        brevRestTjeneste = new BrevRestTjeneste(dokumentBestillerTjenesteMock, dokumentBehandlingTjenesteMock, behandlingRepository);
     }
 
     @Test
@@ -49,7 +49,7 @@ public class BrevRestTjenesteTest {
         brevRestTjeneste.bestillDokument(bestillBrevDto);
 
         // Assert
-        verify(dokumentBestillerApplikasjonTjenesteMock).bestillDokument(eq(bestillBrevDto), eq(HistorikkAktør.SAKSBEHANDLER), eq(true));
+        verify(dokumentBestillerTjenesteMock).bestillDokument(eq(bestillBrevDto), eq(HistorikkAktør.SAKSBEHANDLER), eq(true));
     }
 
     @Test

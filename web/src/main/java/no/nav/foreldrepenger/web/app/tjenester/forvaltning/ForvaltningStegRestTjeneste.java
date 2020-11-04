@@ -44,7 +44,7 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministra
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessApplikasjonTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.HoppTilbakeDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.HoppTilbakeTil5080OgSlettInntektsmeldingDto;
@@ -55,7 +55,7 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 @Transactional
 public class ForvaltningStegRestTjeneste {
 
-    private BehandlingsprosessApplikasjonTjeneste behandlingsprosessTjeneste;
+    private BehandlingsprosessTjeneste behandlingsprosessTjeneste;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste;
     private HistorikkRepository historikkRepository;
@@ -65,11 +65,11 @@ public class ForvaltningStegRestTjeneste {
     private BehandlingRepository behandlingRepository;
 
     @Inject
-    public ForvaltningStegRestTjeneste(BehandlingsprosessApplikasjonTjeneste behandlingsprosessTjeneste,
-            BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-            ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste,
-            InntektsmeldingTjeneste inntektsmeldingTjeneste,
-            BehandlingRepositoryProvider repositoryProvider, VilkårResultatRepository vilkårResultatRepository) {
+    public ForvaltningStegRestTjeneste(BehandlingsprosessTjeneste behandlingsprosessTjeneste,
+                                       BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                       ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste,
+                                       InntektsmeldingTjeneste inntektsmeldingTjeneste,
+                                       BehandlingRepositoryProvider repositoryProvider, VilkårResultatRepository vilkårResultatRepository) {
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.arbeidsforholdAdministrasjonTjeneste = arbeidsforholdAdministrasjonTjeneste;

@@ -40,7 +40,7 @@ import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjenest
 import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
 @RunWith(CdiRunner.class)
-public class BehandlingsutredningApplikasjonTjenesteTest {
+public class BehandlingsutredningTjenesteTest {
 
     @Rule
     public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
@@ -72,7 +72,7 @@ public class BehandlingsutredningApplikasjonTjenesteTest {
     @Mock
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
 
-    private BehandlingsutredningApplikasjonTjeneste behandlingsutredningApplikasjonTjeneste;
+    private BehandlingsutredningTjeneste behandlingsutredningTjeneste;
 
     private Long behandlingId;
 
@@ -88,7 +88,7 @@ public class BehandlingsutredningApplikasjonTjenesteTest {
 
         when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(new OrganisasjonsEnhet("1234", "Testlokasjon"));
 
-        behandlingsutredningApplikasjonTjeneste = new BehandlingsutredningApplikasjonTjeneste(
+        behandlingsutredningTjeneste = new BehandlingsutredningTjeneste(
             Period.parse("P4W"),
             repositoryProvider,
             oppgaveTjenesteMock,
@@ -99,7 +99,7 @@ public class BehandlingsutredningApplikasjonTjenesteTest {
     @Test
     public void skal_sette_behandling_pa_vent() {
         // Act
-        behandlingsutredningApplikasjonTjeneste.settBehandlingPaVent(behandlingId, LocalDate.now(), Venteårsak.AVV_DOK);
+        behandlingsutredningTjeneste.settBehandlingPaVent(behandlingId, LocalDate.now(), Venteårsak.AVV_DOK);
 
         // Assert
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
@@ -114,8 +114,8 @@ public class BehandlingsutredningApplikasjonTjenesteTest {
         LocalDate toUkerFrem = LocalDate.now().plusWeeks(2);
 
         // Act
-        behandlingsutredningApplikasjonTjeneste.settBehandlingPaVent(behandlingId, LocalDate.now(), Venteårsak.AVV_DOK);
-        behandlingsutredningApplikasjonTjeneste.endreBehandlingPaVent(behandlingId, toUkerFrem, Venteårsak.AVV_FODSEL);
+        behandlingsutredningTjeneste.settBehandlingPaVent(behandlingId, LocalDate.now(), Venteårsak.AVV_DOK);
+        behandlingsutredningTjeneste.endreBehandlingPaVent(behandlingId, toUkerFrem, Venteårsak.AVV_FODSEL);
 
         // Assert
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
@@ -129,7 +129,7 @@ public class BehandlingsutredningApplikasjonTjenesteTest {
         LocalDate toUkerFrem = LocalDate.now().plusWeeks(2);
 
         // Act
-        behandlingsutredningApplikasjonTjeneste.endreBehandlingPaVent(behandlingId, toUkerFrem, Venteårsak.AVV_FODSEL);
+        behandlingsutredningTjeneste.endreBehandlingPaVent(behandlingId, toUkerFrem, Venteårsak.AVV_FODSEL);
     }
 
     @Test
@@ -141,7 +141,7 @@ public class BehandlingsutredningApplikasjonTjenesteTest {
         oppgaveBehandlingKoblingRepository.lagre(oppgave);
 
         // Act
-        behandlingsutredningApplikasjonTjeneste.settBehandlingPaVent(behandlingId, LocalDate.now(), Venteårsak.AVV_DOK);
+        behandlingsutredningTjeneste.settBehandlingPaVent(behandlingId, LocalDate.now(), Venteårsak.AVV_DOK);
 
         // Assert
         verify(oppgaveTjenesteMock).opprettTaskAvsluttOppgave(any(Behandling.class));
@@ -159,7 +159,7 @@ public class BehandlingsutredningApplikasjonTjenesteTest {
         OrganisasjonsEnhet enhet = new OrganisasjonsEnhet(enhetId, enhetNavn);
 
         // Act
-        behandlingsutredningApplikasjonTjeneste.byttBehandlendeEnhet(behandlingId, enhet, årsak, HistorikkAktør.SAKSBEHANDLER);
+        behandlingsutredningTjeneste.byttBehandlendeEnhet(behandlingId, enhet, årsak, HistorikkAktør.SAKSBEHANDLER);
 
         // Assert
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);

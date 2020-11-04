@@ -68,7 +68,7 @@ public class OpprettNyFørstegangsbehandlingTest {
 
     private ProsessTaskRepository prosessTaskRepository;
     private SaksbehandlingDokumentmottakTjeneste saksbehandlingDokumentmottakTjeneste;
-    private BehandlingsoppretterApplikasjonTjeneste behandlingsoppretterApplikasjonTjeneste;
+    private BehandlingsoppretterTjeneste behandlingsoppretterTjeneste;
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
     MottattDokument.Builder md1 = new MottattDokument.Builder()
         .medJournalPostId(new JournalpostId("123"))
@@ -123,7 +123,7 @@ public class OpprettNyFørstegangsbehandlingTest {
     private void mockResterende() {
         saksbehandlingDokumentmottakTjeneste = new SaksbehandlingDokumentmottakTjeneste(prosessTaskRepository, mottatteDokumentTjeneste);
 
-        behandlingsoppretterApplikasjonTjeneste = new BehandlingsoppretterApplikasjonTjeneste(
+        behandlingsoppretterTjeneste = new BehandlingsoppretterTjeneste(
             repositoryProvider,
             saksbehandlingDokumentmottakTjeneste,
             null);
@@ -210,14 +210,14 @@ public class OpprettNyFørstegangsbehandlingTest {
     public void skal_kaste_exception_når_behandling_fortsatt_er_åpen() {
         mockMottatteDokumentRepository(repositoryProvider);
         //Act and expect Exception
-        behandlingsoppretterApplikasjonTjeneste.opprettNyFørstegangsbehandling(behandling.getFagsakId(), behandling.getFagsak().getSaksnummer(), false);
+        behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(behandling.getFagsakId(), behandling.getFagsak().getSaksnummer(), false);
     }
 
     @Test(expected = FunksjonellException.class)
     public void skal_kaste_exception_når_behandling_ikke_eksisterer() {
         mockMottatteDokumentRepository(repositoryProvider);
         //Act and expect Exception
-        behandlingsoppretterApplikasjonTjeneste.opprettNyFørstegangsbehandling(-1L, new Saksnummer("50"), false);
+        behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(-1L, new Saksnummer("50"), false);
     }
 
     @Test
@@ -239,7 +239,7 @@ public class OpprettNyFørstegangsbehandlingTest {
         repositoryProvider.getBehandlingRepository().lagre(klage, repositoryProvider.getBehandlingRepository().taSkriveLås(klage));
 
         //Act
-        behandlingsoppretterApplikasjonTjeneste.opprettNyFørstegangsbehandling(behandling.getFagsakId(), behandling.getFagsak().getSaksnummer(),true);
+        behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(behandling.getFagsakId(), behandling.getFagsak().getSaksnummer(),true);
 
         // Assert
         ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
@@ -255,7 +255,7 @@ public class OpprettNyFørstegangsbehandlingTest {
         mockMottatteDokumentRepositoryElsokUtenBehandling(repositoryProvider);
 
         //Act
-        behandlingsoppretterApplikasjonTjeneste.opprettNyFørstegangsbehandling(behandling.getFagsakId(), behandling.getFagsak().getSaksnummer(),false);
+        behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(behandling.getFagsakId(), behandling.getFagsak().getSaksnummer(),false);
 
         // Assert
         ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
@@ -271,7 +271,7 @@ public class OpprettNyFørstegangsbehandlingTest {
         mockMottatteDokumentRepositoryElsokMedBehandling(repositoryProvider);
 
         //Act
-        behandlingsoppretterApplikasjonTjeneste.opprettNyFørstegangsbehandling(behandling.getFagsakId(), behandling.getFagsak().getSaksnummer(),false);
+        behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(behandling.getFagsakId(), behandling.getFagsak().getSaksnummer(),false);
 
         // Assert
         ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
@@ -287,7 +287,7 @@ public class OpprettNyFørstegangsbehandlingTest {
         mockMottatteDokumentRepositoryImMedBehandling(repositoryProvider);
 
         // Act
-        behandlingsoppretterApplikasjonTjeneste.opprettNyFørstegangsbehandling(behandling.getFagsakId(), behandling.getFagsak().getSaksnummer(),false);
+        behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(behandling.getFagsakId(), behandling.getFagsak().getSaksnummer(),false);
 
         // Assert
         ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
@@ -303,7 +303,7 @@ public class OpprettNyFørstegangsbehandlingTest {
         mockMottatteDokumentRepositoryUtenSøknadEllerIm(repositoryProvider);
 
         // Act
-        behandlingsoppretterApplikasjonTjeneste.opprettNyFørstegangsbehandling(behandling.getFagsakId(), behandling.getFagsak().getSaksnummer(),false);
+        behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(behandling.getFagsakId(), behandling.getFagsak().getSaksnummer(),false);
     }
 
     @Test(expected = FunksjonellException.class)
@@ -313,14 +313,14 @@ public class OpprettNyFørstegangsbehandlingTest {
         behandling.avsluttBehandling();
 
         //Act
-        behandlingsoppretterApplikasjonTjeneste.opprettNyFørstegangsbehandling(behandling.getFagsakId(), behandling.getFagsak().getSaksnummer(),true);
+        behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(behandling.getFagsakId(), behandling.getFagsak().getSaksnummer(),true);
     }
 
     @Test
     public void skal_opprette_ny_førstegangsbehandling_når_behandlingen_er_åpen() {
         //Act
         mockMottatteDokumentRepository(repositoryProvider);
-        behandlingsoppretterApplikasjonTjeneste.henleggÅpenFørstegangsbehandlingOgOpprettNy(behandling.getFagsakId(), behandling.getFagsak().getSaksnummer());
+        behandlingsoppretterTjeneste.henleggÅpenFørstegangsbehandlingOgOpprettNy(behandling.getFagsakId(), behandling.getFagsak().getSaksnummer());
 
         //Assert
         ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
@@ -333,7 +333,7 @@ public class OpprettNyFørstegangsbehandlingTest {
     public void skal_opprette_ny_førstegangsbehandling_når_behandlingen_er_åpen_elektronisk() {
         //Act
         mockMottatteDokumentRepositoryElsokMedBehandling(repositoryProvider);
-        behandlingsoppretterApplikasjonTjeneste.henleggÅpenFørstegangsbehandlingOgOpprettNy(behandling.getFagsakId(), behandling.getFagsak().getSaksnummer());
+        behandlingsoppretterTjeneste.henleggÅpenFørstegangsbehandlingOgOpprettNy(behandling.getFagsakId(), behandling.getFagsak().getSaksnummer());
 
         //Assert
         ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
@@ -349,7 +349,7 @@ public class OpprettNyFørstegangsbehandlingTest {
         behandling.avsluttBehandling();
 
         //Act
-        behandlingsoppretterApplikasjonTjeneste.henleggÅpenFørstegangsbehandlingOgOpprettNy(behandling.getFagsakId(), behandling.getFagsak().getSaksnummer());
+        behandlingsoppretterTjeneste.henleggÅpenFørstegangsbehandlingOgOpprettNy(behandling.getFagsakId(), behandling.getFagsak().getSaksnummer());
 
         //Assert
         verify(prosessTaskRepository, times(0)).lagre(any(ProsessTaskData.class));

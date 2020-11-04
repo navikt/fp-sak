@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjenest
 class VarselRevurderingHåndterer {
 
     private Period defaultVenteFrist;
-    private DokumentBestillerApplikasjonTjeneste dokumentBestillerApplikasjonTjeneste;
+    private DokumentBestillerTjeneste dokumentBestillerTjeneste;
     private OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository;
     private OppgaveTjeneste oppgaveTjeneste;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
@@ -28,18 +28,18 @@ class VarselRevurderingHåndterer {
     VarselRevurderingHåndterer(Period defaultVenteFrist, OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository,
                                OppgaveTjeneste oppgaveTjeneste,
                                BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                               DokumentBestillerApplikasjonTjeneste dokumentBestillerApplikasjonTjeneste) {
+                               DokumentBestillerTjeneste dokumentBestillerTjeneste) {
         this.defaultVenteFrist = defaultVenteFrist;
         this.oppgaveBehandlingKoblingRepository = oppgaveBehandlingKoblingRepository;
         this.oppgaveTjeneste = oppgaveTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
-        this.dokumentBestillerApplikasjonTjeneste = dokumentBestillerApplikasjonTjeneste;
+        this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
     }
 
     void oppdater(Behandling behandling, VarselRevurderingAksjonspunktDto adapter) {
         BestillBrevDto bestillBrevDto = new BestillBrevDto(behandling.getId(), DokumentMalType.REVURDERING_DOK, adapter.getFritekst());
         bestillBrevDto.setÅrsakskode(RevurderingVarslingÅrsak.ANNET.getKode());
-        dokumentBestillerApplikasjonTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.SAKSBEHANDLER);
+        dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.SAKSBEHANDLER);
         settBehandlingPaVent(behandling, adapter.getFrist(), fraDto(adapter.getVenteÅrsakKode()));
     }
 

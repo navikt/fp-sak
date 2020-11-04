@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerApplikasjonTjeneste;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 
@@ -36,7 +36,7 @@ public class KompletthetsjekkerFelles {
     public static final Integer VENTEFRIST_FOR_MANGLENDE_SØKNAD = 4;
 
     private SøknadRepository søknadRepository;
-    private DokumentBestillerApplikasjonTjeneste dokumentBestillerApplikasjonTjeneste;
+    private DokumentBestillerTjeneste dokumentBestillerTjeneste;
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
     private BehandlingRepository behandlingRepository;
 
@@ -46,11 +46,11 @@ public class KompletthetsjekkerFelles {
 
     @Inject
     public KompletthetsjekkerFelles(BehandlingRepositoryProvider provider,
-                                      DokumentBestillerApplikasjonTjeneste dokumentBestillerApplikasjonTjeneste,
+                                      DokumentBestillerTjeneste dokumentBestillerTjeneste,
                                       DokumentBehandlingTjeneste dokumentBehandlingTjeneste) {
         this.søknadRepository = provider.getSøknadRepository();
         this.behandlingRepository = provider.getBehandlingRepository();
-        this.dokumentBestillerApplikasjonTjeneste = dokumentBestillerApplikasjonTjeneste;
+        this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
     }
 
@@ -82,7 +82,7 @@ public class KompletthetsjekkerFelles {
     public void sendBrev(Long behandlingId, DokumentMalType dokumentMalType, String årsakskode) {
         if (!erSendtBrev(behandlingId, dokumentMalType)) {
             BestillBrevDto bestillBrevDto = new BestillBrevDto(behandlingId, dokumentMalType, null, årsakskode);
-            dokumentBestillerApplikasjonTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN, false);
+            dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN, false);
         }
     }
 

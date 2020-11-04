@@ -32,7 +32,7 @@ import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.ekstern.RegenererVedtaksXmlTask;
 import no.nav.foreldrepenger.domene.vedtak.repo.LagretVedtakRepository;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessApplikasjonTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -44,7 +44,7 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 @Transactional
 public class DatavarehusAdminRestTjeneste {
 
-    private BehandlingsprosessApplikasjonTjeneste behandlingsprosessTjeneste;
+    private BehandlingsprosessTjeneste behandlingsprosessTjeneste;
     private ProsessTaskRepository prosessTaskRepository;
     private LagretVedtakRepository lagretVedtakRepository;
     private DatavarehusTjeneste datavarehusTjeneste;
@@ -56,11 +56,11 @@ public class DatavarehusAdminRestTjeneste {
     }
 
     @Inject
-    public DatavarehusAdminRestTjeneste(BehandlingsprosessApplikasjonTjeneste behandlingsprosessTjeneste,
-            ProsessTaskRepository prosessTaskRepository,
-            LagretVedtakRepository lagretVedtakRepository,
-            DatavarehusTjeneste datavarehusTjeneste,
-            VedtakTjeneste vedtakTjeneste) {
+    public DatavarehusAdminRestTjeneste(BehandlingsprosessTjeneste behandlingsprosessTjeneste,
+                                        ProsessTaskRepository prosessTaskRepository,
+                                        LagretVedtakRepository lagretVedtakRepository,
+                                        DatavarehusTjeneste datavarehusTjeneste,
+                                        VedtakTjeneste vedtakTjeneste) {
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
         this.prosessTaskRepository = prosessTaskRepository;
         this.lagretVedtakRepository = lagretVedtakRepository;

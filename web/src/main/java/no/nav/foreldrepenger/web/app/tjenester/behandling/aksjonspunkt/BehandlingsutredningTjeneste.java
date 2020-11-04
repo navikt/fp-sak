@@ -32,7 +32,7 @@ import no.nav.vedtak.feil.deklarasjon.FunksjonellFeil;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
-public class BehandlingsutredningApplikasjonTjeneste {
+public class BehandlingsutredningTjeneste {
 
     private Period defaultVenteFrist;
     private BehandlingRepository behandlingRepository;
@@ -40,16 +40,16 @@ public class BehandlingsutredningApplikasjonTjeneste {
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
 
-    BehandlingsutredningApplikasjonTjeneste() {
+    BehandlingsutredningTjeneste() {
         // for CDI proxy
     }
 
     @Inject
-    public BehandlingsutredningApplikasjonTjeneste(@KonfigVerdi(value = "behandling.default.ventefrist.periode", defaultVerdi = "P4W") Period defaultVenteFrist,
-                                                   BehandlingRepositoryProvider behandlingRepositoryProvider,
-                                                   OppgaveTjeneste oppgaveTjeneste,
-                                                   BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
-                                                   BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
+    public BehandlingsutredningTjeneste(@KonfigVerdi(value = "behandling.default.ventefrist.periode", defaultVerdi = "P4W") Period defaultVenteFrist,
+                                        BehandlingRepositoryProvider behandlingRepositoryProvider,
+                                        OppgaveTjeneste oppgaveTjeneste,
+                                        BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
+                                        BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
         this.defaultVenteFrist = defaultVenteFrist;
         Objects.requireNonNull(behandlingRepositoryProvider, "behandlingRepositoryProvider");
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
@@ -91,7 +91,7 @@ public class BehandlingsutredningApplikasjonTjeneste {
     public void endreBehandlingPaVent(Long behandlingsId, LocalDate frist, Venteårsak venteårsak) {
         Behandling behandling = behandlingRepository.hentBehandling(behandlingsId);
         if (!behandling.isBehandlingPåVent()) {
-            throw BehandlingsutredningApplikasjonTjenesteFeil.FACTORY.kanIkkeEndreVentefristForBehandlingIkkePaVent(behandlingsId)
+            throw BehandlingsutredningTjenesteFeil.FACTORY.kanIkkeEndreVentefristForBehandlingIkkePaVent(behandlingsId)
                 .toException();
         }
         if (venteårsak == null) {
@@ -115,12 +115,12 @@ public class BehandlingsutredningApplikasjonTjeneste {
     public void kanEndreBehandling(Long behandlingId, Long versjon) {
         Boolean kanEndreBehandling = behandlingRepository.erVersjonUendret(behandlingId, versjon);
         if (!kanEndreBehandling) {
-            throw BehandlingsutredningApplikasjonTjenesteFeil.FACTORY.endringerHarForekommetPåBehandlingen().toException();
+            throw BehandlingsutredningTjenesteFeil.FACTORY.endringerHarForekommetPåBehandlingen().toException();
         }
     }
 
-    interface BehandlingsutredningApplikasjonTjenesteFeil extends DeklarerteFeil {
-        BehandlingsutredningApplikasjonTjenesteFeil FACTORY = FeilFactory.create(BehandlingsutredningApplikasjonTjenesteFeil.class); // NOSONAR
+    interface BehandlingsutredningTjenesteFeil extends DeklarerteFeil {
+        BehandlingsutredningTjenesteFeil FACTORY = FeilFactory.create(BehandlingsutredningTjenesteFeil.class); // NOSONAR
 
         @FunksjonellFeil(feilkode = "FP-992332", feilmelding = "BehandlingId %s er ikke satt på vent, og ventefrist kan derfor ikke oppdateres", løsningsforslag = "Forsett saksbehandlingen", logLevel = ERROR)
         Feil kanIkkeEndreVentefristForBehandlingIkkePaVent(Long behandlingId);

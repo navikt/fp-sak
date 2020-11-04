@@ -49,7 +49,7 @@ import no.nav.foreldrepenger.domene.vedtak.ekstern.ValiderOgRegenererVedtaksXmlT
 import no.nav.foreldrepenger.domene.vedtak.innsyn.VedtakInnsynTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.observer.VedtattYtelseTjeneste;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.FeedDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessApplikasjonTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.vedtak.vedtakfattet.dto.AktørParam;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -78,7 +78,7 @@ public class VedtakRestTjeneste {
     private FagsakTjeneste fagsakTjeneste;
     private VedtattYtelseTjeneste vedtattYtelseTjeneste;
     private BehandlingRepository behandlingRepository;
-    private BehandlingsprosessApplikasjonTjeneste behandlingsprosessTjeneste;
+    private BehandlingsprosessTjeneste behandlingsprosessTjeneste;
     private ProsessTaskRepository prosessTaskRepository;
     private RegenererVedtaksXmlTjeneste regenererVedtaksXmlTjeneste;
     private final Logger log = LoggerFactory.getLogger(VedtakRestTjeneste.class);
@@ -88,14 +88,14 @@ public class VedtakRestTjeneste {
     }
 
     @Inject
-    public VedtakRestTjeneste(BehandlingsprosessApplikasjonTjeneste behandlingsprosessTjeneste,
-            ProsessTaskRepository prosessTaskRepository,
-            VedtakInnsynTjeneste vedtakInnsynTjeneste,
-            VedtakTjeneste vedtakTjeneste,
-            FagsakTjeneste fagsakTjeneste,
-            VedtattYtelseTjeneste vedtattYtelseTjeneste,
-            BehandlingRepository behandlingRepository,
-            RegenererVedtaksXmlTjeneste regenererVedtaksXmlTjeneste) {
+    public VedtakRestTjeneste(BehandlingsprosessTjeneste behandlingsprosessTjeneste,
+                              ProsessTaskRepository prosessTaskRepository,
+                              VedtakInnsynTjeneste vedtakInnsynTjeneste,
+                              VedtakTjeneste vedtakTjeneste,
+                              FagsakTjeneste fagsakTjeneste,
+                              VedtattYtelseTjeneste vedtattYtelseTjeneste,
+                              BehandlingRepository behandlingRepository,
+                              RegenererVedtaksXmlTjeneste regenererVedtaksXmlTjeneste) {
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
         this.vedtakInnsynTjeneste = vedtakInnsynTjeneste;
         this.vedtakTjeneste = vedtakTjeneste;

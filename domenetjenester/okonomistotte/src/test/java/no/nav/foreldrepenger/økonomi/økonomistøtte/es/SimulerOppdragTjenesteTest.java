@@ -31,14 +31,14 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollManagerFac
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollManagerFactoryProvider;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollTjenesteImpl;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.SimulerOppdragApplikasjonTjeneste;
+import no.nav.foreldrepenger.økonomi.økonomistøtte.SimulerOppdragTjeneste;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.kontantytelse.es.OppdragskontrollEngangsstønad;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.kontantytelse.es.adapter.MapBehandlingInfoES;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
 @ExtendWith(MockitoExtension.class)
-public class SimulerOppdragApplikasjonTjenesteTest extends EntityManagerAwareTest {
+public class SimulerOppdragTjenesteTest extends EntityManagerAwareTest {
 
     private static final PersonIdent PERSON_IDENT = PersonIdent.fra("12345678901");
 
@@ -51,7 +51,7 @@ public class SimulerOppdragApplikasjonTjenesteTest extends EntityManagerAwareTes
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private FamilieHendelseRepository familieHendelseRepository;
 
-    private SimulerOppdragApplikasjonTjeneste simulerOppdragApplikasjonTjeneste;
+    private SimulerOppdragTjeneste simulerOppdragTjeneste;
     private final Unleash unleash = new FakeUnleash();
 
     @Mock
@@ -67,7 +67,7 @@ public class SimulerOppdragApplikasjonTjenesteTest extends EntityManagerAwareTes
         behandlingVedtakRepository = new BehandlingVedtakRepository(entityManager);
         familieHendelseRepository = new FamilieHendelseRepository(entityManager);
         when(tpsTjeneste.hentFnrForAktør(any())).thenReturn(PERSON_IDENT);
-        simulerOppdragApplikasjonTjeneste = new SimulerOppdragApplikasjonTjeneste(mockTjeneste());
+        simulerOppdragTjeneste = new SimulerOppdragTjeneste(mockTjeneste());
     }
 
     private OppdragskontrollTjeneste mockTjeneste() {
@@ -95,7 +95,7 @@ public class SimulerOppdragApplikasjonTjenesteTest extends EntityManagerAwareTes
         new Repository(getEntityManager()).lagre(behandling.getBehandlingsresultat());
 
         // Act
-        var resultat = simulerOppdragApplikasjonTjeneste.simulerOppdrag(behandling.getId(), 0L);
+        var resultat = simulerOppdragTjeneste.simulerOppdrag(behandling.getId(), 0L);
 
         // Assert
         assertThat(resultat).hasSize(1);

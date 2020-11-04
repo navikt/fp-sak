@@ -31,8 +31,8 @@ import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.BehandlingIdVersjonDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeBehandlingsmenyDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessApplikasjonTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningApplikasjonTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.Redirect;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
@@ -50,19 +50,19 @@ public class VergeRestTjeneste {
     private static final String VERGE_FJERN_PART_PATH = "/fjern";
     public static final String VERGE_FJERN_PATH = BASE_PATH + VERGE_FJERN_PART_PATH;
 
-    private BehandlingsprosessApplikasjonTjeneste behandlingsprosessTjeneste;
-    private BehandlingsutredningApplikasjonTjeneste behandlingsutredningApplikasjonTjeneste;
+    private BehandlingsprosessTjeneste behandlingsprosessTjeneste;
+    private BehandlingsutredningTjeneste behandlingsutredningTjeneste;
     private VergeTjeneste vergeTjeneste;
 
     public VergeRestTjeneste() {
     }
 
     @Inject
-    public VergeRestTjeneste(BehandlingsprosessApplikasjonTjeneste behandlingsprosessTjeneste,
-            BehandlingsutredningApplikasjonTjeneste behandlingsutredningApplikasjonTjeneste,
-            VergeTjeneste vergeTjeneste) {
+    public VergeRestTjeneste(BehandlingsprosessTjeneste behandlingsprosessTjeneste,
+                             BehandlingsutredningTjeneste behandlingsutredningTjeneste,
+                             VergeTjeneste vergeTjeneste) {
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
-        this.behandlingsutredningApplikasjonTjeneste = behandlingsutredningApplikasjonTjeneste;
+        this.behandlingsutredningTjeneste = behandlingsutredningTjeneste;
         this.vergeTjeneste = vergeTjeneste;
     }
 
@@ -91,7 +91,7 @@ public class VergeRestTjeneste {
         Long behandlingVersjon = dto.getBehandlingVersjon();
 
         // Precondition - sjekk behandling versjon/lås
-        behandlingsutredningApplikasjonTjeneste.kanEndreBehandling(behandling.getId(), behandlingVersjon);
+        behandlingsutredningTjeneste.kanEndreBehandling(behandling.getId(), behandlingVersjon);
 
         vergeTjeneste.opprettVergeAksjonspunktOgHoppTilbakeTilKofakHvisSenereSteg(behandling);
 
@@ -111,7 +111,7 @@ public class VergeRestTjeneste {
         Long behandlingVersjon = dto.getBehandlingVersjon();
 
         // Precondition - sjekk behandling versjon/lås
-        behandlingsutredningApplikasjonTjeneste.kanEndreBehandling(behandling.getId(), behandlingVersjon);
+        behandlingsutredningTjeneste.kanEndreBehandling(behandling.getId(), behandlingVersjon);
 
         vergeTjeneste.fjernVergeGrunnlagOgAksjonspunkt(behandling);
 
