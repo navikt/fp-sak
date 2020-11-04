@@ -12,10 +12,8 @@ import java.util.Properties;
 
 import javax.inject.Inject;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
@@ -49,19 +47,15 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioKlageEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class DokumentmottakerKlageTest {
-
-    @Rule
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
@@ -91,7 +85,7 @@ public class DokumentmottakerKlageTest {
     private DokumentmottakerKlage dokumentmottaker;
     private BehandlingRepository behandlingRepository;
 
-    @Before
+    @BeforeEach
     public void oppsett() {
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         MottatteDokumentTjeneste mottatteDokumentTjeneste = mock(MottatteDokumentTjeneste.class);
@@ -105,12 +99,13 @@ public class DokumentmottakerKlageTest {
         BehandlingskontrollTjeneste behandlingskontrollTjeneste = DokumentmottakTestUtil.lagBehandlingskontrollTjenesteMock(serviceProvider);
 
         dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, prosessTaskRepository,
-            behandlendeEnhetTjeneste, historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter);
+                behandlendeEnhetTjeneste, historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter);
         dokumentmottakerFelles = Mockito.spy(dokumentmottakerFelles);
-        var behOpprettTjeneste = new BehandlingOpprettingTjeneste(behandlingskontrollTjeneste, behandlendeEnhetTjeneste, mock(HistorikkRepository.class), prosessTaskRepository);
+        var behOpprettTjeneste = new BehandlingOpprettingTjeneste(behandlingskontrollTjeneste, behandlendeEnhetTjeneste,
+                mock(HistorikkRepository.class), prosessTaskRepository);
 
         dokumentmottaker = new DokumentmottakerKlage(repositoryProvider, behOpprettTjeneste, dokumentmottakerFelles,
-            klageVurderingTjeneste);
+                klageVurderingTjeneste);
         dokumentmottaker = Mockito.spy(dokumentmottaker);
     }
 
@@ -179,7 +174,8 @@ public class DokumentmottakerKlageTest {
         dokumentmottaker.opprettFraTidligereAvsluttetBehandling(fagsak, behandling.getId(), mottattDokument, BehandlingÅrsakType.UDEFINERT, false);
 
         // Assert
-        verify(dokumentmottaker).opprettFraTidligereAvsluttetBehandling(fagsak, behandling.getId(), mottattDokument, BehandlingÅrsakType.UDEFINERT, false);
+        verify(dokumentmottaker).opprettFraTidligereAvsluttetBehandling(fagsak, behandling.getId(), mottattDokument, BehandlingÅrsakType.UDEFINERT,
+                false);
     }
 
     @Test
@@ -198,7 +194,7 @@ public class DokumentmottakerKlageTest {
     private Behandling byggAvsluttetKlage() {
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medBekreftetHendelse()
-            .medAntallBarn(1).medFødselsDato(LocalDate.now());
+                .medAntallBarn(1).medFødselsDato(LocalDate.now());
         ScenarioKlageEngangsstønad scenarioKlage = ScenarioKlageEngangsstønad.forUtenVurderingResultat(scenario);
         return scenarioKlage.lagre(repositoryProvider, klageRepository);
     }
@@ -206,34 +202,34 @@ public class DokumentmottakerKlageTest {
     private Behandling byggAvsluttetSøknadsbehandlingForFødsel(int antallBarn) {
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medBekreftetHendelse()
-            .medAntallBarn(antallBarn).medFødselsDato(LocalDate.now());
+                .medAntallBarn(antallBarn).medFødselsDato(LocalDate.now());
 
         Behandling behandling = scenario
-            .medBehandlingStegStart(BehandlingStegType.FATTE_VEDTAK)
-            .lagre(repositoryProvider);
+                .medBehandlingStegStart(BehandlingStegType.FATTE_VEDTAK)
+                .lagre(repositoryProvider);
         Fagsak fagsak = behandling.getFagsak();
         BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
-            behandlingRepository.taSkriveLås(behandling));
+                behandlingRepository.taSkriveLås(behandling));
 
         Behandlingsresultat.builderForInngangsvilkår()
-            .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
-            .buildFor(behandling);
+                .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
+                .buildFor(behandling);
         VilkårResultat.builder()
-            .leggTilVilkårResultat(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT,
-                null, new Properties(), null, false, false, "", "")
-            .medVilkårResultatType(VilkårResultatType.INNVILGET)
-            .buildFor(behandling);
+                .leggTilVilkårResultat(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT,
+                        null, new Properties(), null, false, false, "", "")
+                .medVilkårResultatType(VilkårResultatType.INNVILGET)
+                .buildFor(behandling);
         Behandlingsresultat behandlingsresultat = behandling.getBehandlingsresultat();
         LegacyESBeregningsresultat.builder()
-            .medBeregning(new LegacyESBeregning(48500L, 1L, 48500L, LocalDateTime.now()))
-            .buildFor(behandling, behandlingsresultat);
+                .medBeregning(new LegacyESBeregning(48500L, 1L, 48500L, LocalDateTime.now()))
+                .buildFor(behandling, behandlingsresultat);
         BehandlingVedtak vedtak = BehandlingVedtak.builder()
-            .medVedtakResultatType(VedtakResultatType.INNVILGET)
-            .medBehandlingsresultat(behandlingsresultat)
-            .medIverksettingStatus(IverksettingStatus.IVERKSATT)
-            .medVedtakstidspunkt(LocalDateTime.now())
-            .medAnsvarligSaksbehandler("VL")
-            .build();
+                .medVedtakResultatType(VedtakResultatType.INNVILGET)
+                .medBehandlingsresultat(behandlingsresultat)
+                .medIverksettingStatus(IverksettingStatus.IVERKSATT)
+                .medVedtakstidspunkt(LocalDateTime.now())
+                .medAnsvarligSaksbehandler("VL")
+                .build();
         behandling.avsluttBehandling();
         BehandlingLås lås = kontekst.getSkriveLås();
         behandlingRepository.lagre(behandlingsresultat.getVilkårResultat(), lås);

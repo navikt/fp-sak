@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.medlem.impl;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
@@ -8,9 +7,7 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -28,25 +25,25 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.felles.testutilities.cdi.CdiRunner;
 import no.nav.vedtak.util.Tuple;
 
-@RunWith(CdiRunner.class)
+@CdiDbAwareTest
 public class MedlemTjenesteTest {
 
-    @Rule
-    public UnittestRepositoryRule rule = new UnittestRepositoryRule();
-    private BehandlingRepositoryProvider provider = new BehandlingRepositoryProvider(rule.getEntityManager());
-    private MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository = provider.getMedlemskapVilkårPeriodeRepository();
-    private FagsakRepository fagsakRepository = new FagsakRepository(rule.getEntityManager());
-    private BehandlingRepository behandlingRepository = provider.getBehandlingRepository();
+    @Inject
+    private BehandlingRepositoryProvider provider;
+    @Inject
+    private MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository;
+    @Inject
+    private FagsakRepository fagsakRepository;
+    @Inject
+    private BehandlingRepository behandlingRepository;
 
     @Inject
     private MedlemTjeneste tjeneste;
-
 
     @Test
     public void skal_returnere_empty_når_vilkåret_er_overstyrt_til_godkjent() {
