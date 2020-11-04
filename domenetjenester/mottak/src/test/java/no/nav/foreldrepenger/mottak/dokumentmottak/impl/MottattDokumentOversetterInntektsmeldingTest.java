@@ -61,10 +61,10 @@ public class MottattDokumentOversetterInntektsmeldingTest extends EntityManagerA
             .medNavn("Ukjent Firma")
             .medRegistrert(LocalDate.now().minusDays(1))
             .build()));
+        iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
         var inntektsmeldingTjeneste = new InntektsmeldingTjeneste(iayTjeneste);
         oversetter = new MottattDokumentOversetterInntektsmelding(inntektsmeldingTjeneste, virksomhetTjeneste);
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
         mottatteDokumentRepository = new MottatteDokumentRepository(getEntityManager());
     }
 
