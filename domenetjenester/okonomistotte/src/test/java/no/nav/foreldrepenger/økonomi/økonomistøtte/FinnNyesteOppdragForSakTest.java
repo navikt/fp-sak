@@ -22,10 +22,10 @@ public class FinnNyesteOppdragForSakTest extends EntityManagerAwareTest {
 
     @BeforeEach
     public void setup() {
-        tjeneste = new FinnNyesteOppdragForSak(økonomioppdragRepository);
         var entityManager = getEntityManager();
-        repository = new Repository(entityManager);
         økonomioppdragRepository = new ØkonomioppdragRepository(entityManager);
+        tjeneste = new FinnNyesteOppdragForSak(økonomioppdragRepository);
+        repository = new Repository(entityManager);
     }
 
     @Test
