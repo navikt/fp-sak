@@ -33,14 +33,14 @@ public class PoststedKodeverkRepository {
     }
 
     public List<Poststed> hentAllePostnummer() {
-        TypedQuery<Poststed> query = entityManager.createQuery("from Postnummer p where poststednummer <> :postnr", Poststed.class)
+        TypedQuery<Poststed> query = entityManager.createQuery("from Poststed p where poststednummer <> :postnr", Poststed.class)
                 .setParameter("postnr", SYNK_POSTNUMMER)
                 .setHint(QueryHints.HINT_READONLY, "true");
         return query.getResultList();
     }
 
     public Optional<Poststed> finnPoststed(String postnummer) {
-        TypedQuery<Poststed> query = entityManager.createQuery("from Postnummer p where poststednummer = :postnr", Poststed.class)
+        TypedQuery<Poststed> query = entityManager.createQuery("from Poststed p where poststednummer = :postnr", Poststed.class)
                 .setParameter("postnr", postnummer)
                 .setHint(QueryHints.HINT_READONLY, "true");
         return HibernateVerktøy.hentUniktResultat(query);
