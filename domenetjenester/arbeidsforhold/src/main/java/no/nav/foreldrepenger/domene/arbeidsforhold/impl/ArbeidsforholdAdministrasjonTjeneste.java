@@ -85,7 +85,7 @@ public class ArbeidsforholdAdministrasjonTjeneste {
     /**
      * Rydder opp i inntektsmeldinger som blir erstattet
      *
-     * @param behandling behandlingen
+     * @param behandlingId behandlingId
      * @param builder    ArbeidsforholdsOverstyringene som skal lagrers
      */
     public void lagre(Long behandlingId, AktørId aktørId, ArbeidsforholdInformasjonBuilder builder) {
@@ -325,8 +325,11 @@ public class ArbeidsforholdAdministrasjonTjeneste {
             wrapper.setKilde(utledKilde(Optional.empty(), mottattDatoInntektsmelding, overstyring.getHandling()));
             wrapper.setIkkeRegistrertIAaRegister(true);
             List<ArbeidsforholdOverstyrtePerioder> arbeidsforholdOverstyrtePerioder = overstyring.getArbeidsforholdOverstyrtePerioder();
-            if (arbeidsforholdOverstyrtePerioder.size() != 1) {
+            if (arbeidsforholdOverstyrtePerioder.size() > 1) {
                 throw new IllegalStateException("Forventer kun ett innslag i listen");
+            }
+            if (arbeidsforholdOverstyrtePerioder.isEmpty()) {
+                throw new IllegalArgumentException("Finner ikke overstyrte perioder for " + arbeidsgiver.getIdentifikator() + "med ref=" + arbeidsforholdRef.getReferanse());
             }
             wrapper.setFomDato(arbeidsforholdOverstyrtePerioder.get(0).getOverstyrtePeriode().getFomDato());
             wrapper.setTomDato(arbeidsforholdOverstyrtePerioder.get(0).getOverstyrtePeriode().getTomDato());
