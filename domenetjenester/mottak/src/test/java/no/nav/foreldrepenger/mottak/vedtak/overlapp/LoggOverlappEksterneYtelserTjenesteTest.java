@@ -62,6 +62,7 @@ public class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareT
     private BehandlingRepositoryProvider repositoryProvider;
     private BeregningsresultatRepository beregningsresultatRepository;
     private OverlappVedtakRepository overlappRepository;
+    private BehandlingRepository behandlingRepository;
 
     @Mock
     private PersoninfoAdapter personinfoAdapter;
@@ -77,11 +78,12 @@ public class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareT
     public void oppsett() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         overlappRepository = new OverlappVedtakRepository(getEntityManager());
+        behandlingRepository = new BehandlingRepository(getEntityManager());
         beregningsresultatRepository = new BeregningsresultatRepository(getEntityManager());
-        overlappendeInfotrygdYtelseTjeneste = new LoggOverlappEksterneYtelserTjeneste(beregningsresultatRepository, personinfoAdapter,
+        overlappendeInfotrygdYtelseTjeneste = new LoggOverlappEksterneYtelserTjeneste(null, beregningsresultatRepository, personinfoAdapter,
                 infotrygdPSGrTjenesteMock,
                 infotrygdSPGrTjenesteMock, mock(AbakusTjeneste.class), mock(SpokelseKlient.class), overlappRepository,
-                mock(BehandlingRepository.class));
+                behandlingRepository);
         førsteUttaksdatoFp = LocalDate.now().minusMonths(4).minusWeeks(2);
         førsteUttaksdatoFp = VirkedagUtil.fomVirkedag(førsteUttaksdatoFp);
 
