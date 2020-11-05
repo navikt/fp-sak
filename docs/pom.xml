@@ -39,16 +39,11 @@
 			<groupId>io.github.swagger2markup</groupId>
 			<artifactId>markup-document-builder</artifactId>
 		</dependency>
-
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-		</dependency>
 	</dependencies>
 
 	<profiles>
-		<!-- Generer systemdokumentasjon Kan kjoeres separat som : 'mvn test -P sysdoc -pl docs' fra root. Lager Asciidoc output, samt tranformerer 
-			Asciidoc til HTML Output legges under generated/ katalog . Deretter kan det sjekkes inn. Krever at ./docs module er bygd slik at applikasjonsspesifikke 
+		<!-- Generer systemdokumentasjon Kan kjoeres separat som : 'mvn test -P sysdoc -pl docs' fra root. Lager Asciidoc output, samt tranformerer
+			Asciidoc til HTML Output legges under generated/ katalog . Deretter kan det sjekkes inn. Krever at ./docs module er bygd slik at applikasjonsspesifikke
 			doclets inkluderes her. -->
 		<profile>
 			<id>sysdoc</id>

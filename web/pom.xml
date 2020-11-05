@@ -34,7 +34,7 @@
             <artifactId>ojdbc8</artifactId>
             <scope>compile</scope>
         </dependency>
-       
+
         <dependency>
             <groupId>no.nav.vedtak.prosesstask</groupId>
             <artifactId>prosesstask-legacy</artifactId>
@@ -325,11 +325,6 @@
             <artifactId>swagger-jaxrs2</artifactId>
         </dependency>
         <!-- Må gjenta her for å få riktig scope (kolliderer ellers med dependencyManagement -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>

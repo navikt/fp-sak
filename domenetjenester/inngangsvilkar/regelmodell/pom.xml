@@ -26,18 +26,12 @@
 		</dependency>
 
 		<!-- NB -->
-		<!-- Hold denne modulen fri for avhengigheter til andre deler av løsningen. 
-			(ikke trekk inn behandlingslager el.). Denne skal kunne legges ut som separat 
+		<!-- Hold denne modulen fri for avhengigheter til andre deler av løsningen.
+			(ikke trekk inn behandlingslager el.). Denne skal kunne legges ut som separat
 			bibliotek. -->
 		<!-- NB -->
 
 		<!-- Test avhengigheter. Hold denne så tight som mulig! -->
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
-
 		<dependency>
 			<groupId>org.assertj</groupId>
 			<artifactId>assertj-core</artifactId>
