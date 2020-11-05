@@ -5,8 +5,8 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
@@ -30,17 +30,24 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.FaktaUttakDt
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.OverstyringFaktaUttakDto;
 import no.nav.vedtak.felles.integrasjon.journal.v3.JournalConsumerImpl;
 
-public class FaktaUttakHistorikkTjenesteTest {
-    @Rule
-    public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
+public class FaktaUttakHistorikkTjenesteTest extends EntityManagerAwareTest {
 
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
-    private final DokumentArkivTjeneste dokumentArkivTjeneste = new DokumentArkivTjeneste(mock(JournalConsumerImpl.class), repositoryProvider.getFagsakRepository());
-    private YtelseFordelingTjeneste ytelseFordelingTjeneste = new YtelseFordelingTjeneste(new YtelsesFordelingRepository(repositoryRule.getEntityManager()));
-    private HistorikkTjenesteAdapter historikkApplikasjonTjeneste = new HistorikkTjenesteAdapter(repositoryProvider.getHistorikkRepository(),
-        dokumentArkivTjeneste);
-    private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste = mock(InntektArbeidYtelseTjeneste.class);
+    private BehandlingRepositoryProvider repositoryProvider;
+    private YtelseFordelingTjeneste ytelseFordelingTjeneste;
+    private HistorikkTjenesteAdapter historikkApplikasjonTjeneste;
+    private final InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste = mock(InntektArbeidYtelseTjeneste.class);
 
+
+    @BeforeEach
+    void setUp() {
+        var entityManager = getEntityManager();
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        DokumentArkivTjeneste dokumentArkivTjeneste = new DokumentArkivTjeneste(mock(JournalConsumerImpl.class),
+            repositoryProvider.getFagsakRepository());
+        ytelseFordelingTjeneste = new YtelseFordelingTjeneste(new YtelsesFordelingRepository(entityManager));
+        historikkApplikasjonTjeneste = new HistorikkTjenesteAdapter(repositoryProvider.getHistorikkRepository(),
+            dokumentArkivTjeneste);
+    }
 
     @Test
     public void skal_generere_historikkinnslag_ved_ny_søknadsperiode_avklar_fakta() {
@@ -58,12 +65,18 @@ public class FaktaUttakHistorikkTjenesteTest {
 
         tjeneste().byggHistorikkinnslag(dto.getBekreftedePerioder(), dto.getSlettedePerioder(), behandling, false);
 
-        Historikkinnslag historikkinnslag = repositoryProvider.getHistorikkRepository().hentHistorikk(behandling.getId()).get(0);
+        Historikkinnslag historikkinnslag = repositoryProvider.getHistorikkRepository()
+            .hentHistorikk(behandling.getId())
+            .get(0);
         assertThat(historikkinnslag.getType()).isEqualTo(HistorikkinnslagType.UTTAK);
         assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
         HistorikkinnslagDel del = historikkinnslag.getHistorikkinnslagDeler().get(0);
-        assertThat(del.getSkjermlenke()).as("skjermlenke").hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.FAKTA_OM_UTTAK.getKode()));
-        assertThat(del.getAvklartSoeknadsperiode()).as("soeknadsperiode").hasValueSatisfying(soeknadsperiode -> assertThat(soeknadsperiode.getNavn()).as("navn").isEqualTo(HistorikkAvklartSoeknadsperiodeType.NY_SOEKNADSPERIODE.getKode()));
+        assertThat(del.getSkjermlenke()).as("skjermlenke")
+            .hasValueSatisfying(
+                skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.FAKTA_OM_UTTAK.getKode()));
+        assertThat(del.getAvklartSoeknadsperiode()).as("soeknadsperiode")
+            .hasValueSatisfying(soeknadsperiode -> assertThat(soeknadsperiode.getNavn()).as("navn")
+                .isEqualTo(HistorikkAvklartSoeknadsperiodeType.NY_SOEKNADSPERIODE.getKode()));
     }
 
     @Test
@@ -82,16 +95,24 @@ public class FaktaUttakHistorikkTjenesteTest {
 
         tjeneste().byggHistorikkinnslag(dto.getBekreftedePerioder(), dto.getSlettedePerioder(), behandling, false);
 
-        Historikkinnslag historikkinnslag = repositoryProvider.getHistorikkRepository().hentHistorikk(behandling.getId()).get(0);
+        Historikkinnslag historikkinnslag = repositoryProvider.getHistorikkRepository()
+            .hentHistorikk(behandling.getId())
+            .get(0);
         assertThat(historikkinnslag.getType()).isEqualTo(HistorikkinnslagType.UTTAK);
         assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
         HistorikkinnslagDel del = historikkinnslag.getHistorikkinnslagDeler().get(0);
-        assertThat(del.getSkjermlenke()).as("skjermlenke").hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.FAKTA_OM_UTTAK.getKode()));
-        assertThat(del.getAvklartSoeknadsperiode()).as("soeknadsperiode").hasValueSatisfying(soeknadsperiode -> assertThat(soeknadsperiode.getNavn()).as("navn").isEqualTo(HistorikkAvklartSoeknadsperiodeType.NY_SOEKNADSPERIODE.getKode()));
+        assertThat(del.getSkjermlenke()).as("skjermlenke")
+            .hasValueSatisfying(
+                skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.FAKTA_OM_UTTAK.getKode()));
+        assertThat(del.getAvklartSoeknadsperiode()).as("soeknadsperiode")
+            .hasValueSatisfying(soeknadsperiode -> assertThat(soeknadsperiode.getNavn()).as("navn")
+                .isEqualTo(HistorikkAvklartSoeknadsperiodeType.NY_SOEKNADSPERIODE.getKode()));
     }
 
     private FaktaUttakHistorikkTjeneste tjeneste() {
-        when(inntektArbeidYtelseTjeneste.hentGrunnlag(anyLong())).thenReturn(InntektArbeidYtelseGrunnlagBuilder.nytt().build());
-        return new FaktaUttakHistorikkTjeneste(historikkApplikasjonTjeneste, null, ytelseFordelingTjeneste, inntektArbeidYtelseTjeneste);
+        when(inntektArbeidYtelseTjeneste.hentGrunnlag(anyLong())).thenReturn(
+            InntektArbeidYtelseGrunnlagBuilder.nytt().build());
+        return new FaktaUttakHistorikkTjeneste(historikkApplikasjonTjeneste, null, ytelseFordelingTjeneste,
+            inntektArbeidYtelseTjeneste);
     }
 }

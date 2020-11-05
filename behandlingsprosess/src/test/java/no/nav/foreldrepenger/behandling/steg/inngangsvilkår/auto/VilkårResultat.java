@@ -16,7 +16,14 @@ public class VilkårResultat {
     public VilkårResultat() {
     }
 
-    public VilkårResultat(Long id, LocalDate kjøreTidspunkt, String vilkarType, String utfall, String avslagKode, LocalDate opptjeningFom, LocalDate opptjeningTom, String opptjentTid) {
+    public VilkårResultat(Long id,
+                          LocalDate kjøreTidspunkt,
+                          String vilkarType,
+                          String utfall,
+                          String avslagKode,
+                          LocalDate opptjeningFom,
+                          LocalDate opptjeningTom,
+                          String opptjentTid) {
         this.id = id;
         this.kjøreTidspunkt = kjøreTidspunkt;
         this.vilkarType = vilkarType;
@@ -61,15 +68,6 @@ public class VilkårResultat {
 
     @Override
     public String toString() {
-        return "VilkårResultat{" +
-            "id=" + id +
-            ", kjøreTidspunkt=" + kjøreTidspunkt +
-            ", vilkarType='" + vilkarType + '\'' +
-            ", utfall='" + utfall + '\'' +
-            ", avslagKode='" + avslagKode + '\'' +
-            ", opptjeningFom=" + opptjeningFom +
-            ", opptjeningTom=" + opptjeningTom +
-            ", opptjentTid='" + opptjentTid + '\'' +
-            '}';
+        return "VilkårResultat{" + "id=" + id + ", kjøreTidspunkt=" + kjøreTidspunkt + ", vilkarType='" + vilkarType + '\'' + ", utfall='" + utfall + '\'' + ", avslagKode='" + avslagKode + '\'' + ", opptjeningFom=" + opptjeningFom + ", opptjeningTom=" + opptjeningTom + ", opptjentTid='" + opptjentTid + '\'' + '}';
     }
 }

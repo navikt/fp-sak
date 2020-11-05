@@ -9,12 +9,11 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
@@ -28,8 +27,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeType;
@@ -38,25 +37,20 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
+import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeBehandlingsmenyDto;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeBehandlingsmenyEnum;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
-public class VergeTjenesteTest {
-
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule().silent();
-    @Rule
-    public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
+@ExtendWith(MockitoExtension.class)
+public class VergeTjenesteTest extends EntityManagerAwareTest {
 
     @Mock
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     @Mock
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
 
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
     private BehandlingRepository behandlingRepository;
     private FagsakRepository fagsakRepository;
     private VergeRepository vergeRepository;
@@ -64,13 +58,15 @@ public class VergeTjenesteTest {
 
     private VergeTjeneste vergeTjeneste;
 
-    @Before
-    public void before() {
-        behandlingRepository = repositoryProvider.getBehandlingRepository();
-        fagsakRepository = repositoryProvider.getFagsakRepository();
-        vergeRepository = new VergeRepository(repositoryProvider.getEntityManager(), repositoryProvider.getBehandlingLåsRepository());
-        historikkRepository = repositoryProvider.getHistorikkRepository();
-        vergeTjeneste = new VergeTjeneste(behandlingskontrollTjeneste, behandlingProsesseringTjeneste, repositoryProvider, vergeRepository);
+    @BeforeEach
+    public void setUp() {
+        var entityManager = getEntityManager();
+        behandlingRepository = new BehandlingRepository(entityManager);
+        fagsakRepository = new FagsakRepository(entityManager);
+        vergeRepository = new VergeRepository(entityManager, new BehandlingLåsRepository(entityManager));
+        historikkRepository = new HistorikkRepository(entityManager);
+        vergeTjeneste = new VergeTjeneste(behandlingskontrollTjeneste, behandlingProsesseringTjeneste, vergeRepository,
+            historikkRepository, behandlingRepository);
     }
 
     @Test
@@ -139,8 +135,7 @@ public class VergeTjenesteTest {
         Behandling behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
         behandling.setStartpunkt(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
-        VergeBuilder vergeBuilder = new VergeBuilder()
-            .medVergeType(VergeType.BARN)
+        VergeBuilder vergeBuilder = new VergeBuilder().medVergeType(VergeType.BARN)
             .gyldigPeriode(LocalDate.now().minusYears(1), LocalDate.now().plusYears(1));
         vergeRepository.lagreOgFlush(behandling.getId(), vergeBuilder);
 
@@ -162,8 +157,10 @@ public class VergeTjenesteTest {
         vergeTjeneste.opprettVergeAksjonspunktOgHoppTilbakeTilKofakHvisSenereSteg(behandling);
 
         // Assert
-        verify(behandlingskontrollTjeneste).lagreAksjonspunkterFunnet(any(), eq(List.of(AksjonspunktDefinisjon.AVKLAR_VERGE)));
-        verify(behandlingProsesseringTjeneste).reposisjonerBehandlingTilbakeTil(behandling, BehandlingStegType.KONTROLLER_FAKTA);
+        verify(behandlingskontrollTjeneste).lagreAksjonspunkterFunnet(any(),
+            eq(List.of(AksjonspunktDefinisjon.AVKLAR_VERGE)));
+        verify(behandlingProsesseringTjeneste).reposisjonerBehandlingTilbakeTil(behandling,
+            BehandlingStegType.KONTROLLER_FAKTA);
         verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandling(behandling);
     }
 
@@ -174,8 +171,7 @@ public class VergeTjenesteTest {
         Behandling behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AVKLAR_VERGE);
-        VergeBuilder vergeBuilder = new VergeBuilder()
-            .medVergeType(VergeType.BARN)
+        VergeBuilder vergeBuilder = new VergeBuilder().medVergeType(VergeType.BARN)
             .gyldigPeriode(LocalDate.now().minusYears(1), LocalDate.now().plusYears(1));
         vergeRepository.lagreOgFlush(behandling.getId(), vergeBuilder);
 
@@ -188,11 +184,13 @@ public class VergeTjenesteTest {
         verify(behandlingskontrollTjeneste).lagreAksjonspunkterAvbrutt(any(), any(), eq(List.of(ap)));
         verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandling(behandling);
         List<Historikkinnslag> historikkinnslag = historikkRepository.hentHistorikk(behandling.getId());
-        assertThat(historikkinnslag.stream().map(Historikkinnslag::getType).collect(Collectors.toList())).contains(HistorikkinnslagType.FJERNET_VERGE);
+        assertThat(historikkinnslag.stream().map(Historikkinnslag::getType).collect(Collectors.toList())).contains(
+            HistorikkinnslagType.FJERNET_VERGE);
     }
 
     private Fagsak opprettFagsak() {
-        Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()), RelasjonsRolleType.MORA, new Saksnummer("123"));
+        Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()),
+            RelasjonsRolleType.MORA, new Saksnummer("123"));
         fagsakRepository.opprettNy(fagsak);
         return fagsak;
     }

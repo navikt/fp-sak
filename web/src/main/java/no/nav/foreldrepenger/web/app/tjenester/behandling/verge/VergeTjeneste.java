@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
@@ -39,19 +38,21 @@ public class VergeTjeneste {
     private HistorikkRepository historikkRepository;
     private BehandlingRepository behandlingRepository;
 
-    public VergeTjeneste() {
-    }
-
     @Inject
     public VergeTjeneste(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                          BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
-                         BehandlingRepositoryProvider behandlingRepositoryProvider,
-                         VergeRepository vergeRepository) {
+                         VergeRepository vergeRepository,
+                         HistorikkRepository historikkRepository,
+                         BehandlingRepository behandlingRepository) {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.vergeRepository = vergeRepository;
-        this.historikkRepository = behandlingRepositoryProvider.getHistorikkRepository();
-        this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
+        this.historikkRepository = historikkRepository;
+        this.behandlingRepository = behandlingRepository;
+    }
+
+    VergeTjeneste() {
+        //CDI
     }
 
     public VergeBehandlingsmenyDto utledBehandlingsmeny(Long behandlingId) {
@@ -79,7 +80,8 @@ public class VergeTjeneste {
         }
         BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         behandlingskontrollTjeneste.lagreAksjonspunkterFunnet(kontekst, List.of(AksjonspunktDefinisjon.AVKLAR_VERGE));
-        behandlingProsesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling, BehandlingStegType.KONTROLLER_FAKTA);
+        behandlingProsesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling,
+            BehandlingStegType.KONTROLLER_FAKTA);
         behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
     }
 
@@ -93,12 +95,13 @@ public class VergeTjeneste {
     private void fjernVergeAksjonspunkt(Behandling behandling) {
         BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AVKLAR_VERGE).
-            ifPresent(aksjonspunkt -> behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(), List.of(aksjonspunkt)));
+            ifPresent(aksjonspunkt -> behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst,
+                behandling.getAktivtBehandlingSteg(), List.of(aksjonspunkt)));
     }
 
     private void opprettHistorikkinnslagForFjernetVerge(Behandling behandling) {
-        HistorikkInnslagTekstBuilder historikkInnslagTekstBuilder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.FJERNET_VERGE);
+        HistorikkInnslagTekstBuilder historikkInnslagTekstBuilder = new HistorikkInnslagTekstBuilder().medHendelse(
+            HistorikkinnslagType.FJERNET_VERGE);
         Historikkinnslag historikkinnslag = new Historikkinnslag();
         historikkinnslag.setAktør(HistorikkAktør.SAKSBEHANDLER);
         historikkinnslag.setType(HistorikkinnslagType.FJERNET_VERGE);
@@ -109,10 +112,12 @@ public class VergeTjeneste {
     }
 
     private interface VergeRestTjenesteFeil extends DeklarerteFeil {
-        VergeTjeneste.VergeRestTjenesteFeil FACTORY = FeilFactory.create(VergeTjeneste.VergeRestTjenesteFeil.class); // NOSONAR
+        VergeTjeneste.VergeRestTjenesteFeil FACTORY = FeilFactory.create(
+            VergeTjeneste.VergeRestTjenesteFeil.class); // NOSONAR
 
         @TekniskFeil(feilkode = "FP-185321", feilmelding = "Behandling %s har allerede aksjonspunkt 5030 for verge/fullmektig", logLevel = WARN)
         Feil harAlleredeAksjonspunktForVerge(Long behandlingID);
+
         @TekniskFeil(feilkode = "FP-185322", feilmelding = "Behandling %s er ikke en ytelsesbehandling - kan ikke registrere verge/fullmektig", logLevel = WARN)
         Feil erIkkeYtelsesbehandling(Long behandlingID);
     }
