@@ -468,11 +468,7 @@ public class TpsAdresseOversetter {
         if (HARDKODET_POSTNR.equals(postnummer)) {
             return HARDKODET_POSTSTED;
         }
-        Optional<Poststed> poststed = poststedKodeverkRepository.finnPoststed(postnummer);
-        if (poststed.isPresent()) {
-            return poststed.get().getNavn();
-        }
-        return HARDKODET_POSTSTED;
+        return poststedKodeverkRepository.finnPoststed(postnummer).map(Poststed::getPoststednavn).orElse(HARDKODET_POSTSTED);
     }
 
     private String tilLand(Landkoder landkoder) {

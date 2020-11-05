@@ -85,10 +85,6 @@
         </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
-            <artifactId>kodeverk</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>poststed</artifactId>
         </dependency>
         <dependency>

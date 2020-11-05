@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.kodeverk;
+package no.nav.foreldrepenger.poststed;
 
 import java.util.UUID;
 
@@ -9,27 +9,27 @@ import no.nav.foreldrepenger.batch.BatchArguments;
 import no.nav.foreldrepenger.batch.BatchStatus;
 import no.nav.foreldrepenger.batch.BatchTjeneste;
 /**
- * Henter ned offisielle kodeverk fra NAV som brukes i løsningen og synker den til egen kodeverk-tabell. 
+ * Henter ned offisielle kodeverk fra NAV som brukes i løsningen og synker den til egen kodeverk-tabell.
  */
 @ApplicationScoped
-public class KodeverkSynkroniseringBatchTjeneste implements BatchTjeneste {
+public class PoststedBatchTjeneste implements BatchTjeneste {
 
     private static final String BATCHNAVN = "BVL005";
 
-    private KodeverkSynkronisering kodeverkSynkronisering;
+    private PostnummerSynkroniseringTjeneste kodeverkSynkronisering;
 
-    KodeverkSynkroniseringBatchTjeneste() {
+    PoststedBatchTjeneste() {
         // for CDI proxy
     }
 
     @Inject
-    public KodeverkSynkroniseringBatchTjeneste(KodeverkSynkronisering kodeverkSynkronisering) {
+    public PoststedBatchTjeneste(PostnummerSynkroniseringTjeneste kodeverkSynkronisering) {
         this.kodeverkSynkronisering = kodeverkSynkronisering;
     }
 
     @Override
     public String launch(BatchArguments arguments) {
-        kodeverkSynkronisering.synkroniserAlleKodeverk();
+        kodeverkSynkronisering.synkroniserPostnummer();
         return BATCHNAVN + "-" + UUID.randomUUID();
     }
 
