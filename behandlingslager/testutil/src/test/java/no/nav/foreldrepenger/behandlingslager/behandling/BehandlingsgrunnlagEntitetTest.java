@@ -51,7 +51,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Poststed;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
@@ -59,6 +58,8 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
+
+    private static final String OSLO = "0103";
 
     private BehandlingRepository behandlingRepository;
     private PersonopplysningRepository personopplysningRepository;
@@ -614,7 +615,7 @@ public class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
             .leggTil(informasjonBuilder
                 .getAdresseBuilder(forelder, DatoIntervallEntitet.fraOgMed(fødselsdato), AdresseType.BOSTEDSADRESSE)
                 .medAdresselinje1("Testadresse")
-                .medLand("NOR").medPostnummer(Poststed.OSLO.getKode()));
+                .medLand("NOR").medPostnummer(OSLO));
 
         personopplysningRepository.lagre(behandlingId, informasjonBuilder);
 
@@ -707,7 +708,7 @@ public class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
             .leggTil(informasjonBuilder
                 .getAdresseBuilder(forelder, DatoIntervallEntitet.fraOgMed(fødselsdato), AdresseType.BOSTEDSADRESSE)
                 .medAdresselinje1("Testadresse")
-                .medLand("NOR").medPostnummer(Poststed.OSLO.getKode()));
+                .medLand("NOR").medPostnummer(OSLO));
 
         personopplysningRepository.lagre(behandlingId, informasjonBuilder);
 
@@ -754,7 +755,7 @@ public class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         ).leggTil(informasjonBuilder
             .getAdresseBuilder(aktørId, DatoIntervallEntitet.fraOgMedTilOgMed(fødselsdato, dødsdatoForelder1), AdresseType.BOSTEDSADRESSE)
             .medAdresselinje1("Testadresse")
-            .medLand("NOR").medPostnummer("1234").medPoststed(Poststed.OSLO.getKode())
+            .medLand("NOR").medPostnummer("1234").medPoststed(OSLO)
         ).leggTil(informasjonBuilder
             .getAdresseBuilder(aktørId, DatoIntervallEntitet.fraOgMedTilOgMed(fødselsdato, dødsdatoForelder1), AdresseType.MIDLERTIDIG_POSTADRESSE_UTLAND)
             .medAdresselinje1("Testadresse")

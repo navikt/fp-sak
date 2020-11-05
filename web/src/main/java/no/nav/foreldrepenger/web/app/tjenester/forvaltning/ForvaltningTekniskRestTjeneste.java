@@ -40,7 +40,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
-import no.nav.foreldrepenger.behandlingslager.geografisk.PostnummerKodeverkRepository;
+import no.nav.foreldrepenger.behandlingslager.geografisk.PoststedKodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.poststed.PostnummerSynkroniseringTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
@@ -65,7 +65,7 @@ public class ForvaltningTekniskRestTjeneste {
     private AksjonspunktRepository aksjonspunktRepository = new AksjonspunktRepository();
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private OppgaveTjeneste oppgaveTjeneste;
-    private PostnummerKodeverkRepository postnummerKodeverkRepository;
+    private PoststedKodeverkRepository postnummerKodeverkRepository;
     private PostnummerSynkroniseringTjeneste postnummerTjeneste;
 
     public ForvaltningTekniskRestTjeneste() {
@@ -75,7 +75,7 @@ public class ForvaltningTekniskRestTjeneste {
     @Inject
     public ForvaltningTekniskRestTjeneste(BehandlingRepositoryProvider repositoryProvider,
             OppgaveTjeneste oppgaveTjeneste,
-            PostnummerKodeverkRepository postnummerKodeverkRepository,
+            PoststedKodeverkRepository postnummerKodeverkRepository,
             PostnummerSynkroniseringTjeneste postnummerTjeneste,
             BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
@@ -320,7 +320,7 @@ public class ForvaltningTekniskRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response hentPostnummer() {
-        return Response.ok(postnummerKodeverkRepository.finnPostnummer("SYNK")).build();
+        return Response.ok(postnummerKodeverkRepository.finnPoststed("SYNK")).build();
     }
 
 }
