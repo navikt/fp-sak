@@ -8,31 +8,38 @@ import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import no.nav.folketrygdloven.kalkulus.felles.jpa.BaseEntitet;
 import no.nav.folketrygdloven.kalkulus.felles.jpa.IntervallEntitet;
 import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BeregningsgrunnlagPeriodeRegelType;
 
 @Entity(name = "RegelSporingPeriodeEntitet")
-@Table(name = "REGEL_SPORING_PERIODE")
+@Table(name = "BG_REGEL_SPORING_PERIODE")
 public class RegelSporingPeriodeEntitet extends BaseEntitet {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_REGEL_SPORING_PERIODE")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_BG_REGEL_SPORING_PERIODE")
     private Long id;
 
     @Version
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
-    @Column(name = "behandling_id", nullable = false, updatable = false)
-    private Long behandlingId;
+    @JsonBackReference
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @JoinColumn(name = "regel_sporing_aggregat_id", nullable = false, updatable = false)
+    private RegelSporingAggregatEntitet regelSporingAggregat;
 
     @Lob
     @Column(name = "regel_evaluering")
@@ -53,9 +60,6 @@ public class RegelSporingPeriodeEntitet extends BaseEntitet {
     })
     private IntervallEntitet periode;
 
-    @Column(name = "aktiv", nullable = false)
-    private boolean aktiv = true;
-
     public RegelSporingPeriodeEntitet() {
     }
 
@@ -63,9 +67,6 @@ public class RegelSporingPeriodeEntitet extends BaseEntitet {
         return id;
     }
 
-    public Long getBehandlingId() {
-        return behandlingId;
-    }
 
     public String getRegelEvaluering() {
         return regelEvaluering;
@@ -83,12 +84,12 @@ public class RegelSporingPeriodeEntitet extends BaseEntitet {
         return periode;
     }
 
-    public boolean erAktiv() {
-        return aktiv;
+    public RegelSporingAggregatEntitet getRegelSporingAggregat() {
+        return regelSporingAggregat;
     }
 
-    public void setAktiv(boolean aktiv) {
-        this.aktiv = aktiv;
+    void setRegelSporingAggregat(RegelSporingAggregatEntitet regelSporingAggregat) {
+        this.regelSporingAggregat = regelSporingAggregat;
     }
 
     public static Builder ny() {
@@ -121,13 +122,11 @@ public class RegelSporingPeriodeEntitet extends BaseEntitet {
             return this;
         }
 
-        public RegelSporingPeriodeEntitet build(Long behandlingId, BeregningsgrunnlagPeriodeRegelType regelType) {
-            Objects.requireNonNull(behandlingId, "behandlingId");
+        public RegelSporingPeriodeEntitet build(BeregningsgrunnlagPeriodeRegelType regelType) {
             Objects.requireNonNull(regelType, "regelType");
             Objects.requireNonNull(kladd.regelEvaluering, "regelEvaluering");
             Objects.requireNonNull(kladd.regelInput, "regelInput");
             Objects.requireNonNull(kladd.periode, "periode");
-            kladd.behandlingId = behandlingId;
             kladd.regelType = regelType;
             return kladd;
         }

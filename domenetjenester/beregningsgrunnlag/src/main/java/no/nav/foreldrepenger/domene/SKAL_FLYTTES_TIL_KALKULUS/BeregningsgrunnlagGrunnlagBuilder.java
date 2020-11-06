@@ -3,6 +3,8 @@ package no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS;
 import java.util.Objects;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.sporing.RegelSporingAggregatEntitet;
+
 public class BeregningsgrunnlagGrunnlagBuilder {
     private BeregningsgrunnlagGrunnlagEntitet kladd;
     private boolean built;
@@ -51,6 +53,12 @@ public class BeregningsgrunnlagGrunnlagBuilder {
     public BeregningsgrunnlagGrunnlagBuilder medSaksbehandletAktiviteter(BeregningAktivitetAggregatEntitet saksbehandletAktiviteter) {
         verifiserKanModifisere();
         kladd.setSaksbehandletAktiviteter(saksbehandletAktiviteter);
+        return this;
+    }
+
+    public BeregningsgrunnlagGrunnlagBuilder medRegelSporingAggregat(RegelSporingAggregatEntitet regelSporingAggregat) {
+        verifiserKanModifisere();
+        kladd.setRegelSporingAggregat(regelSporingAggregat);
         return this;
     }
 

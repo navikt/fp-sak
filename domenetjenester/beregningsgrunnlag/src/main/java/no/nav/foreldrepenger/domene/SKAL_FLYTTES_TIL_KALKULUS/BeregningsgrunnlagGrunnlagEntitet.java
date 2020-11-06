@@ -17,6 +17,7 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.sporing.RegelSporingAggregatEntitet;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
@@ -55,6 +56,10 @@ public class BeregningsgrunnlagGrunnlagEntitet extends BaseEntitet {
     @ManyToOne
     @JoinColumn(name = "br_overstyringer_id", updatable = false, unique = true)
     private BeregningRefusjonOverstyringerEntitet refusjonOverstyringer;
+
+    @ManyToOne
+    @JoinColumn(name = "regel_sporing_aggregat_id", updatable = false, unique = true)
+    private RegelSporingAggregatEntitet regelSporingAggregat;
 
     @Convert(converter = BooleanToStringConverter.class)
     @Column(name = "aktiv", nullable = false)
@@ -202,6 +207,11 @@ public class BeregningsgrunnlagGrunnlagEntitet extends BaseEntitet {
     void setBeregningsgrunnlagTilstand(BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
         this.beregningsgrunnlagTilstand = beregningsgrunnlagTilstand;
     }
+
+    void setRegelSporingAggregat(RegelSporingAggregatEntitet regelSporingAggregat) {
+        this.regelSporingAggregat = regelSporingAggregat;
+    }
+
 
     void setOverstyringer(BeregningAktivitetOverstyringerEntitet overstyringer) {
         this.overstyringer = overstyringer;
