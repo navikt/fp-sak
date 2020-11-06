@@ -18,8 +18,6 @@ import java.time.Period;
 import java.util.List;
 import java.util.UUID;
 
-import javax.enterprise.inject.spi.CDI;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -107,32 +105,27 @@ public class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
     private FamiliehendelseEventPubliserer familiehendelseEventPubliserer;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
 
-    private ScenarioMorSøkerEngangsstønad scenarioFødsel = ScenarioMorSøkerEngangsstønad.forFødsel();
-    private ScenarioMorSøkerEngangsstønad scenarioAdopsjon = ScenarioMorSøkerEngangsstønad.forAdopsjon();
+    private final ScenarioMorSøkerEngangsstønad scenarioFødsel = ScenarioMorSøkerEngangsstønad.forFødsel();
+    private final ScenarioMorSøkerEngangsstønad scenarioAdopsjon = ScenarioMorSøkerEngangsstønad.forAdopsjon();
     private BehandlingRepositoryProvider repositoryProvider;
-    private BehandlingModellRepository behandlingModellRepository = new BehandlingModellRepository();
-    private BehandlingskontrollEventPubliserer bkEventPubliserer;
-    private BehandlingskontrollServiceProvider behandlingskontrollServiceProvider;
+    private final BehandlingModellRepository behandlingModellRepository = new BehandlingModellRepository();
 
-    private SkjæringstidspunktTjenesteImpl skjæringstidspunktTjeneste;
     private OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste;
     private AbakusInnhentingGrunnlagLoggRepository loggRepository;
-
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
 
     @BeforeEach
     public void before() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
-            new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
-        bkEventPubliserer = new BehandlingskontrollEventPubliserer(CDI.current().getBeanManager());
-        behandlingskontrollServiceProvider = new BehandlingskontrollServiceProvider(getEntityManager(), behandlingModellRepository,
-            bkEventPubliserer);
+        SkjæringstidspunktTjenesteImpl skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(
+            repositoryProvider, new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
+        BehandlingskontrollServiceProvider behandlingskontrollServiceProvider = new BehandlingskontrollServiceProvider(
+            getEntityManager(), behandlingModellRepository, BehandlingskontrollEventPubliserer.NULL_EVENT_PUB);
         opplysningsPeriodeTjeneste = new OpplysningsPeriodeTjeneste(skjæringstidspunktTjeneste,
             Period.of(1, 0, 0), Period.of(0, 6, 0), Period.of(0, 4, 0),
             Period.of(1, 0, 0), Period.of(1, 0, 0), Period.of(0, 6, 0));
         loggRepository = new AbakusInnhentingGrunnlagLoggRepository(getEntityManager());
-        behandlingskontrollTjeneste = Mockito.spy(new BehandlingskontrollTjenesteImpl(behandlingskontrollServiceProvider));
+        BehandlingskontrollTjeneste behandlingskontrollTjeneste = Mockito.spy(
+            new BehandlingskontrollTjenesteImpl(behandlingskontrollServiceProvider));
         lenient().when(endringsresultatSjekker.opprettEndringsresultatPåBehandlingsgrunnlagSnapshot(Mockito.anyLong()))
             .thenReturn(EndringsresultatSnapshot.opprett());
         lenient().when(endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(Mockito.anyLong(), any(EndringsresultatSnapshot.class)))

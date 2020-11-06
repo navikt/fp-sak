@@ -2,18 +2,18 @@ package no.nav.foreldrepenger.behandling.revurdering.ytelse.fp;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.lenient;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import javax.enterprise.inject.spi.CDI;
+import javax.inject.Inject;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil;
@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.behandling.revurdering.felles.LagUttakResultatPlanT
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
@@ -33,25 +32,27 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
-public class HarEtablertYtelseFPTest extends EntityManagerAwareTest {
+@CdiDbAwareTest
+public class HarEtablertYtelseFPTest {
 
+    @Inject
     private BehandlingRepositoryProvider repositoryProvider;
+    @Inject
+    private UttakInputTjeneste uttakInputTjeneste;
+    @Inject
+    private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
+    @Mock
+    private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
 
     private HarEtablertYtelseFP harEtablertYtelse;
-    private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
 
     @BeforeEach
     void setUp() {
-        var entityManager = getEntityManager();
-        var uttakInputTjeneste = CDI.current().select(UttakInputTjeneste.class).get();
-        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        var relatertBehandlingTjeneste = new RelatertBehandlingTjeneste(repositoryProvider);
-        stønadskontoSaldoTjeneste = mock(StønadskontoSaldoTjeneste.class);
         harEtablertYtelse = new HarEtablertYtelseFP(stønadskontoSaldoTjeneste, uttakInputTjeneste,
             relatertBehandlingTjeneste,
             new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()),
@@ -97,7 +98,7 @@ public class HarEtablertYtelseFPTest extends EntityManagerAwareTest {
                            Optional<UttakResultatEntitet> uttakAnnenpart,
                            boolean sluttPåTrekkdager,
                            Behandling behandling) {
-        when(stønadskontoSaldoTjeneste.erSluttPåStønadsdager(any())).thenReturn(sluttPåTrekkdager);
+        lenient().when(stønadskontoSaldoTjeneste.erSluttPåStønadsdager(any())).thenReturn(sluttPåTrekkdager);
         uttakAnnenpart.ifPresent(uttak -> {
             var scenarioAnnenpart = ScenarioFarSøkerForeldrepenger.forFødsel();
             scenarioAnnenpart.medBehandlingVedtak()
@@ -129,7 +130,7 @@ public class HarEtablertYtelseFPTest extends EntityManagerAwareTest {
     }
 
     private Behandling finnOriginalBehandling(Behandling behandling) {
-        return new BehandlingRepository(getEntityManager()).hentBehandling(
+        return repositoryProvider.getBehandlingRepository().hentBehandling(
             behandling.getOriginalBehandlingId().orElseThrow());
     }
 

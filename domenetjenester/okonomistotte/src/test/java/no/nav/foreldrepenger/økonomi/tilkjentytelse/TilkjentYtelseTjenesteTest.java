@@ -6,9 +6,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collection;
 
-import javax.enterprise.inject.spi.CDI;
+import javax.inject.Inject;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -17,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -25,33 +23,28 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.kontrakter.tilkjentytelse.TilkjentYtelse;
 import no.nav.foreldrepenger.kontrakter.tilkjentytelse.v1.TilkjentYtelseAndelV1;
 import no.nav.foreldrepenger.kontrakter.tilkjentytelse.v1.TilkjentYtelseBehandlingInfoV1;
 import no.nav.foreldrepenger.kontrakter.tilkjentytelse.v1.TilkjentYtelsePeriodeV1;
 import no.nav.foreldrepenger.kontrakter.tilkjentytelse.v1.TilkjentYtelseV1;
 
-public class TilkjentYtelseTjenesteTest extends EntityManagerAwareTest {
+@CdiDbAwareTest
+public class TilkjentYtelseTjenesteTest {
 
-    private TilkjentYtelseTjeneste tjeneste;
+    @Inject
     private BehandlingRepositoryProvider behandlingRepositoryProvider;
+    @Inject
     private BehandlingRepository behandlingRepository;
+    @Inject
     private BeregningsresultatRepository beregningsresultatRepository;
+    @Inject
     private BehandlingVedtakRepository behandlingVedtakRepository;
+    @Inject
     private BehandlingsresultatRepository behandlingsresultatRepository;
-
-    @BeforeEach
-    void setUp() {
-        var entityManager = getEntityManager();
-        behandlingRepository = new BehandlingRepository(entityManager);
-        behandlingVedtakRepository = new BehandlingVedtakRepository(entityManager);
-        beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
-        tjeneste = new TilkjentYtelseTjeneste(behandlingRepository, behandlingVedtakRepository,
-            new FamilieHendelseRepository(entityManager), CDI.current().select(YtelseTypeTilkjentYtelseTjeneste.class));
-        behandlingRepositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
-    }
+    @Inject
+    private TilkjentYtelseTjeneste tjeneste;
 
     @Test
     public void skal_hente_beregningsresultat_og_mappe_om() {

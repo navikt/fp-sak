@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandling.revurdering.ytelse.fp;
 
 import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand.FASTSATT;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -10,16 +9,13 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
-import javax.enterprise.inject.spi.CDI;
+import javax.inject.Inject;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
-import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjenesteFelles;
 import no.nav.foreldrepenger.behandling.revurdering.felles.LagAndelTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.felles.LagBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.felles.LagBeregningsresultatTjeneste;
@@ -27,10 +23,7 @@ import no.nav.foreldrepenger.behandling.revurdering.felles.LagEnAndelTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.felles.LagToAndelerMotsattRekkefølgeTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.felles.LagToAndelerTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.felles.LagUttakResultatPlanTjeneste;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingModellRepository;
-import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingskontrollTjenesteImpl;
-import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
+import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -44,13 +37,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
-import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
@@ -67,22 +57,15 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRepository;
-import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
-import no.nav.foreldrepenger.domene.uttak.OpphørUttakTjeneste;
-import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
-import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
-public class RevurderingBehandlingsresultatutlederTest extends EntityManagerAwareTest {
+@CdiDbAwareTest
+public class RevurderingBehandlingsresultatutlederTest {
 
     public static final String ORGNR = "987123987";
     private static final LocalDate SKJÆRINGSTIDSPUNKT_BEREGNING = LocalDate.now();
@@ -92,60 +75,31 @@ public class RevurderingBehandlingsresultatutlederTest extends EntityManagerAwar
     public static final BigDecimal TOTAL_ANDEL_NORMAL = BigDecimal.valueOf(300000);
     public static final BigDecimal TOTAL_ANDEL_OPPJUSTERT = BigDecimal.valueOf(350000);
 
+    @Inject
     private BeregningRevurderingTestUtil revurderingTestUtil;
-
+    @Inject
     private YtelsesFordelingRepository ytelsesFordelingRepository;
+    @Inject
     private BehandlingRepository behandlingRepository;
+    @Inject
+    @FagsakYtelseTypeRef("FP")
     private RevurderingTjeneste revurderingTjeneste;
+    @Inject
     private BeregningsresultatRepository beregningsresultatRepository;
+    @Inject
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
+    @Inject
     private FpUttakRepository fpUttakRepository;
+    @Inject
+    private OpptjeningRepository opptjeningRepository;
+    @Inject
+    @FagsakYtelseTypeRef("FP")
     private RevurderingBehandlingsresultatutleder revurderingBehandlingsresultatutleder;
+    @Inject
+    private BehandlingRepositoryProvider repositoryProvider;
 
     private final boolean erVarselOmRevurderingSendt = true;
-    private final SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
     private final LocalDate endringsdato = LocalDate.now().minusMonths(3);
-    private final RelatertBehandlingTjeneste relatertBehandlingTjeneste = mock(RelatertBehandlingTjeneste.class);
-    private final OpphørUttakTjeneste opphørUttakTjeneste = mock(OpphørUttakTjeneste.class);
-
-    @BeforeEach
-    public void setUp() {
-        var entityManager = getEntityManager();
-        var repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        behandlingRepository = new BehandlingRepository(entityManager);
-        revurderingTestUtil = new BeregningRevurderingTestUtil(new BehandlingRepositoryProvider(entityManager));
-        var revurderingEndring = new no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.RevurderingEndring();
-        var iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
-        var serviceProvider = new BehandlingskontrollServiceProvider(entityManager,
-            new BehandlingModellRepository(), null);
-        //CDI pga forferdelig å manuelt konstruere..
-        var medlemTjeneste = CDI.current().select(MedlemTjeneste.class).get();
-        var stønadskontoSaldoTjeneste = new StønadskontoSaldoTjeneste(
-            new UttakRepositoryProvider(entityManager));
-        var behandlingLåsRepository = new BehandlingLåsRepository(entityManager);
-        var vergeRepository = new VergeRepository(entityManager, behandlingLåsRepository);
-        fpUttakRepository = new FpUttakRepository(entityManager);
-        var foreldrepengerUttakTjeneste = new ForeldrepengerUttakTjeneste(fpUttakRepository);
-        ytelsesFordelingRepository = new YtelsesFordelingRepository(entityManager);
-        var andelGraderingTjeneste = new AndelGraderingTjeneste(foreldrepengerUttakTjeneste,
-            ytelsesFordelingRepository);
-        var hentOgLagreBeregningsgrunnlagTjeneste = new HentOgLagreBeregningsgrunnlagTjeneste(
-            entityManager);
-        var uttakInputTjeneste = new UttakInputTjeneste(repositoryProvider,
-            hentOgLagreBeregningsgrunnlagTjeneste, iayTjeneste, skjæringstidspunktTjeneste, medlemTjeneste,
-            andelGraderingTjeneste);
-        var behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(serviceProvider);
-        var revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider);
-        revurderingTjeneste = new RevurderingTjenesteImpl(repositoryProvider, behandlingskontrollTjeneste, iayTjeneste,
-            revurderingEndring, revurderingTjenesteFelles, vergeRepository);
-        beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
-        beregningsgrunnlagRepository = new BeregningsgrunnlagRepository(entityManager);
-        var harEtablertYtelse = new HarEtablertYtelseFP(stønadskontoSaldoTjeneste, uttakInputTjeneste,
-            relatertBehandlingTjeneste, foreldrepengerUttakTjeneste, new BehandlingVedtakRepository(entityManager));
-        revurderingBehandlingsresultatutleder = new RevurderingBehandlingsresultatutleder(repositoryProvider,
-            hentOgLagreBeregningsgrunnlagTjeneste, opphørUttakTjeneste, harEtablertYtelse, skjæringstidspunktTjeneste,
-            medlemTjeneste, foreldrepengerUttakTjeneste);
-    }
 
     private Behandling opprettRevurdering(Behandling førstegangsbehandling) {
         return revurderingTjeneste
@@ -161,8 +115,8 @@ public class RevurderingBehandlingsresultatutlederTest extends EntityManagerAwar
             .medVedtakResultatType(VedtakResultatType.INNVILGET);
         scenario
             .leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE, BehandlingStegType.KONTROLLER_FAKTA);
-        var førstegangsbehandling = scenario.lagre(new BehandlingRepositoryProvider(getEntityManager()));
-        new OpptjeningRepository(getEntityManager(), behandlingRepository)
+        var førstegangsbehandling = scenario.lagre(repositoryProvider);
+        opptjeningRepository
             .lagreOpptjeningsperiode(førstegangsbehandling, LocalDate.now().minusYears(1), LocalDate.now(),
                 false);
         revurderingTestUtil.avsluttBehandling(førstegangsbehandling);

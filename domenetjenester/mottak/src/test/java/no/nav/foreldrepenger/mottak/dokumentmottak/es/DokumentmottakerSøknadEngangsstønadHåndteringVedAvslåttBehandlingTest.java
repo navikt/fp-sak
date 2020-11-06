@@ -6,6 +6,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -35,8 +36,8 @@ public class DokumentmottakerSøknadEngangsstønadHåndteringVedAvslåttBehandli
     private Behandlingsoppretter behandlingsoppretterSpied;
     private KøKontroller køKontroller;
 
-    @Override
-    protected void setUpBeforeEach() {
+    @BeforeEach
+    void setUp() {
         this.behandlingsoppretterSpied = Mockito.spy(behandlingsoppretter);
         this.køKontroller = Mockito.mock(KøKontroller.class);
         dokumentmottakerSøknad = new DokumentmottakerSøknadEngangsstønad(
@@ -53,8 +54,6 @@ public class DokumentmottakerSøknadEngangsstønadHåndteringVedAvslåttBehandli
         MottatteDokumentTjeneste mockMD = Mockito.mock(MottatteDokumentTjeneste.class);
         HistorikkinnslagTjeneste mockHist = Mockito.mock(HistorikkinnslagTjeneste.class);
         BehandlendeEnhetTjeneste enhetsTjeneste = mock(BehandlendeEnhetTjeneste.class);
-        OrganisasjonsEnhet enhet = new OrganisasjonsEnhet("0312", "enhetNavn");
-        when(enhetsTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(enhet);
         ProsessTaskRepository taskrepo = mock(ProsessTaskRepository.class);
         DokumentmottakerFelles felles = new DokumentmottakerFelles(repositoryProvider,
             taskrepo,
@@ -94,8 +93,6 @@ public class DokumentmottakerSøknadEngangsstønadHåndteringVedAvslåttBehandli
         MottatteDokumentTjeneste mockMD = Mockito.mock(MottatteDokumentTjeneste.class);
         HistorikkinnslagTjeneste mockHist = Mockito.mock(HistorikkinnslagTjeneste.class);
         BehandlendeEnhetTjeneste enhetsTjeneste = mock(BehandlendeEnhetTjeneste.class);
-        OrganisasjonsEnhet enhet = new OrganisasjonsEnhet("0312", "enhetNavn");
-        when(enhetsTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(enhet);
         ProsessTaskRepository taskrepo = mock(ProsessTaskRepository.class);
         DokumentmottakerFelles felles = new DokumentmottakerFelles(repositoryProvider,
             taskrepo,
@@ -111,7 +108,6 @@ public class DokumentmottakerSøknadEngangsstønadHåndteringVedAvslåttBehandli
             køKontroller, fpUttakTjeneste);
         Behandling nyBehandling = opprettNyBehandlingUtenVedtak(FagsakYtelseType.ENGANGSTØNAD);
         Mockito.doReturn(nyBehandling).when(behandlingsoppretterSpied).opprettNyFørstegangsbehandlingFraTidligereSøknad(Mockito.any(),  Mockito.any(), Mockito.any());
-        doNothing().when(mockMD).persisterDokumentinnhold(any(), any(), any());
 
         Behandling behandling = opprettBehandling(
             FagsakYtelseType.ENGANGSTØNAD,

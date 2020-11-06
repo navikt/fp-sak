@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -22,8 +23,8 @@ public class DokumentmottakerInntektsmeldingHåndteringVedAvslåttBehandlingTest
     private Behandlingsoppretter behandlingsoppretterSpied;
     private DokumentmottakerFelles dokumentmottakerFellesSpied;
 
-    @Override
-    protected void setUpBeforeEach() {
+    @BeforeEach
+    void setUp() {
         this.behandlingsoppretterSpied = Mockito.spy(behandlingsoppretter);
         this.dokumentmottakerFellesSpied = Mockito.spy(dokumentmottakerFelles);
 

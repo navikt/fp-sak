@@ -5,9 +5,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType.F
 
 import java.time.LocalDate;
 
-import javax.enterprise.inject.spi.CDI;
-
-import org.junit.jupiter.api.BeforeEach;
+import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -27,36 +25,30 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 
-public abstract class DokumentmottakerTestsupport extends EntityManagerAwareTest {
+@CdiDbAwareTest
+public abstract class DokumentmottakerTestsupport {
 
     protected static final int FRIST_INNSENDING_UKER = 6;
     protected final LocalDate DATO_ETTER_INNSENDINGSFRISTEN = LocalDate.now().minusWeeks(FRIST_INNSENDING_UKER + 2);
     protected final LocalDate DATO_FØR_INNSENDINGSFRISTEN = LocalDate.now().minusWeeks(FRIST_INNSENDING_UKER - 2);
 
+    @Inject
     protected DokumentmottakerFelles dokumentmottakerFelles;
+    @Inject
     protected MottatteDokumentTjeneste mottatteDokumentTjeneste;
+    @Inject
     protected Behandlingsoppretter behandlingsoppretter;
+    @Inject
     protected Kompletthetskontroller kompletthetskontroller;
+    @Inject
     protected BehandlingRepositoryProvider repositoryProvider;
+    @Inject
     protected ForeldrepengerUttakTjeneste fpUttakTjeneste;
-
-    @BeforeEach
-    void setUp() {
-        dokumentmottakerFelles = CDI.current().select(DokumentmottakerFelles.class).get();
-        mottatteDokumentTjeneste = CDI.current().select(MottatteDokumentTjeneste.class).get();
-        behandlingsoppretter = CDI.current().select(Behandlingsoppretter.class).get();
-        kompletthetskontroller = CDI.current().select(Kompletthetskontroller.class).get();
-        repositoryProvider = CDI.current().select(BehandlingRepositoryProvider.class).get();
-        fpUttakTjeneste = CDI.current().select(ForeldrepengerUttakTjeneste.class).get();
-        setUpBeforeEach();
-    }
-
-    protected abstract void setUpBeforeEach();
 
     protected Behandling opprettNyBehandlingUtenVedtak(FagsakYtelseType fagsakYtelseType) {
         Behandling behandling = null;

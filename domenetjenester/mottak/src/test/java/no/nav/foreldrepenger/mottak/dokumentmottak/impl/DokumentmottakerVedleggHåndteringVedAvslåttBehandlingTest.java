@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 
 import static org.mockito.ArgumentMatchers.any;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -19,8 +20,8 @@ public class DokumentmottakerVedleggHåndteringVedAvslåttBehandlingTest extends
     private DokumentmottakerVedlegg dokumentmottakerVedlegg;
     private DokumentmottakerFelles dokumentmottakerFellesSpied;
 
-    @Override
-    protected void setUpBeforeEach() {
+    @BeforeEach
+    void setUp() {
         this.dokumentmottakerFellesSpied = Mockito.spy(dokumentmottakerFelles);
 
         Mockito.doNothing().when(dokumentmottakerFellesSpied).opprettHistorikkinnslagForVedlegg(Mockito.any(), Mockito.any());

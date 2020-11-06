@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.spi.CDI;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -33,9 +32,7 @@ public class BehandlingModellTest {
     public void skal_sjekke_alle_definerte_behandlingsteg_konfigurasjoner_har_matchende_steg_implementasjoner(Tuple<BehandlingType, FagsakYtelseType> tuple) {
         var behandlingType = tuple.getElement1();
         var ytelseType = tuple.getElement2();
-        BehandlingModellRepository behandlingModellRepository = CDI.current()
-            .select(BehandlingModellRepository.class)
-            .get();
+        BehandlingModellRepository behandlingModellRepository = new BehandlingModellRepository();
         BehandlingModell modell = behandlingModellRepository.getModell(behandlingType, ytelseType);
         for (BehandlingStegType stegType : modell.getAlleBehandlingStegTyper()) {
             BehandlingStegModell steg = modell.finnSteg(stegType);

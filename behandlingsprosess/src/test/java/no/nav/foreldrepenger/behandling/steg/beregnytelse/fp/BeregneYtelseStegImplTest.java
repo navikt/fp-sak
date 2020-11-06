@@ -1,38 +1,32 @@
 package no.nav.foreldrepenger.behandling.steg.beregnytelse.fp;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import javax.enterprise.inject.spi.CDI;
+import javax.inject.Inject;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.steg.beregnytelse.BeregneYtelseStegImpl;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingModellRepository;
-import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingskontrollTjenesteImpl;
-import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
+import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKontrollRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
@@ -47,7 +41,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktiv
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand;
@@ -55,53 +49,46 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.ytelse.beregning.BeregnFeriepengerTjeneste;
 import no.nav.foreldrepenger.ytelse.beregning.BeregnYtelseTjeneste;
-import no.nav.foreldrepenger.ytelse.beregning.FinnEndringsdatoMellomPeriodeLister;
-import no.nav.foreldrepenger.ytelse.beregning.SjekkForEndringMellomPerioder;
-import no.nav.foreldrepenger.ytelse.beregning.SjekkForIngenAndelerOgAndelerUtenDagsats;
-import no.nav.foreldrepenger.ytelse.beregning.SjekkOmPerioderHarEndringIAndeler;
-import no.nav.foreldrepenger.ytelse.beregning.fp.FinnEndringsdatoBeregningsresultatTjenesteImpl;
+import no.nav.foreldrepenger.ytelse.beregning.FinnEndringsdatoBeregningsresultatTjeneste;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 import no.nav.vedtak.util.Tuple;
 
-public class BeregneYtelseStegImplTest extends EntityManagerAwareTest {
+@CdiDbAwareTest
+public class BeregneYtelseStegImplTest {
     private static final String ORGNR = "000000000";
     private static final AktørId AKTØR_ID = AktørId.dummy();
 
+    @Inject
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
-
+    @Inject
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
-
+    @Inject
     private BehandlingRepositoryProvider repositoryProvider;
+    @Inject
     private BeregningsresultatRepository beregningsresultatRepository ;
+    @Inject
     private FpUttakRepository fpUttakRepository;
+    @Inject
     private BehandlingRepository behandlingRepository;
+
+    @FagsakYtelseTypeRef("FP")
+    @Inject
+    private FinnEndringsdatoBeregningsresultatTjeneste finnEndringsdatoBeregningsresultatTjeneste;
+
+    @Mock
+    private BeregnYtelseTjeneste beregnYtelseTjeneste;
+    @Mock
+    private BeregnFeriepengerTjeneste beregnFeriepengerTjeneste;
 
     private BeregneYtelseStegImpl steg;
 
-    private BeregnYtelseTjeneste beregnYtelseTjeneste;
-
     @BeforeEach
     void setup() {
-        var entityManager = getEntityManager();
-        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
-        fpUttakRepository = new FpUttakRepository(entityManager);
-        behandlingRepository = new BehandlingRepository(entityManager);
-        var beregnFeriepengerTjeneste = mock(BeregnFeriepengerTjeneste.class);
-        var finnEndringsdatoBeregningsresultatTjeneste = new FinnEndringsdatoBeregningsresultatTjenesteImpl(beregningsresultatRepository,
-            new FinnEndringsdatoMellomPeriodeLister(new SjekkForEndringMellomPerioder(new SjekkForIngenAndelerOgAndelerUtenDagsats(),
-                new SjekkOmPerioderHarEndringIAndeler())));
-        beregnYtelseTjeneste = mock(BeregnYtelseTjeneste.class);
-        beregningsgrunnlagKopierOgLagreTjeneste = CDI.current().select(BeregningsgrunnlagKopierOgLagreTjeneste.class).get();
         steg = new BeregneYtelseStegImpl(behandlingRepository,
             beregningsresultatRepository,
             new UnitTestLookupInstanceImpl<>(beregnFeriepengerTjeneste),
             new UnitTestLookupInstanceImpl<>(finnEndringsdatoBeregningsresultatTjeneste),
-                beregnYtelseTjeneste);
-        behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(new BehandlingskontrollServiceProvider(
-            new FagsakRepository(entityManager), behandlingRepository, new FagsakLåsRepository(entityManager), new BehandlingLåsRepository(entityManager),
-            new BehandlingModellRepository(), new AksjonspunktKontrollRepository()
-        ));
+            beregnYtelseTjeneste);
     }
 
     private BeregningsresultatEntitet opprettBeregningsresultat() {

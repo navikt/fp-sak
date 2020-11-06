@@ -10,9 +10,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import javax.enterprise.inject.spi.CDI;
+import javax.inject.Inject;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
@@ -59,7 +58,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
@@ -69,14 +67,13 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
@@ -87,46 +84,42 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
-public class UttakStegImplTest extends EntityManagerAwareTest {
+@CdiDbAwareTest
+public class UttakStegImplTest {
 
     private static final String ORGNR = "123";
     private static final InternArbeidsforholdRef ARBEIDSFORHOLD_ID = InternArbeidsforholdRef.nyRef();
     private static final AktørId AKTØRID = AktørId.dummy();
 
-    private final InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
-
+    @Inject
+    private InntektArbeidYtelseTjeneste iayTjeneste;
+    @Inject
     private BehandlingRepositoryProvider repositoryProvider;
+    @Inject
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
-
+    @Inject
     private FagsakRepository fagsakRepository;
+    @Inject
     private FagsakRelasjonRepository fagsakRelasjonRepository;
+    @Inject
     private FamilieHendelseRepository familieHendelseRepository;
+    @Inject
     private YtelsesFordelingRepository ytelsesFordelingRepository;
+    @Inject
     private SøknadRepository søknadRepository;
+    @Inject
     private FpUttakRepository fpUttakRepository;
+    @Inject
     private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
+    @Inject
     private BehandlingRepository behandlingRepository;
+    @Inject
     private PersonopplysningRepository personopplysningRepository;
+    @Inject
     private BehandlingLåsRepository behandlingLåsRepository;
-
+    @Inject
+    @FagsakYtelseTypeRef("FP")
     private UttakStegImpl steg;
-
-    @BeforeEach
-    void setUp() {
-        repositoryProvider = CDI.current().select(BehandlingRepositoryProvider.class).get();
-        beregningsgrunnlagKopierOgLagreTjeneste = CDI.current().select(BeregningsgrunnlagKopierOgLagreTjeneste.class).get();
-        steg = FagsakYtelseTypeRef.Lookup.find(UttakStegImpl.class, FagsakYtelseType.FORELDREPENGER).orElseThrow();
-        fagsakRepository = repositoryProvider.getFagsakRepository();
-        fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
-        familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
-        ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
-        søknadRepository = repositoryProvider.getSøknadRepository();
-        fpUttakRepository = repositoryProvider.getFpUttakRepository();
-        uttaksperiodegrenseRepository = repositoryProvider.getUttaksperiodegrenseRepository();
-        behandlingRepository =  repositoryProvider.getBehandlingRepository();
-        personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
-        behandlingLåsRepository = repositoryProvider.getBehandlingLåsRepository();
-    }
 
     private Behandling opprettBehandling() {
         var fagsak = opprettFagsak();

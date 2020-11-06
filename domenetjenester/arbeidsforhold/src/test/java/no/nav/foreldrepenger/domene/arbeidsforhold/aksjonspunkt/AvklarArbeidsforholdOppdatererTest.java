@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.domene.arbeidsforhold.aksjonspunkt;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -14,10 +14,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.enterprise.inject.spi.CDI;
+import javax.inject.Inject;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
@@ -32,7 +33,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -64,34 +65,42 @@ import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.vedtak.konfig.Tid;
 
-public class AvklarArbeidsforholdOppdatererTest extends EntityManagerAwareTest {
+@CdiDbAwareTest
+public class AvklarArbeidsforholdOppdatererTest {
 
     private static final String NAV_ORGNR = "889640782";
     private static final InternArbeidsforholdRef ARBEIDSFORHOLD_REF = InternArbeidsforholdRef.namedRef("TEST-REF");
 
+    @Inject
     private IAYRepositoryProvider repositoryProvider;
-    private AvklarArbeidsforholdOppdaterer oppdaterer;
+    @Inject
+    private HistorikkRepository historikkRepository;
+    @Inject
+    private VurderArbeidsforholdTjeneste vurderArbeidsforholdTjeneste;
 
     private final InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
     private final InntektsmeldingTjeneste inntektsmeldingTjeneste = new InntektsmeldingTjeneste(iayTjeneste);
     private final String randomId = UUID.randomUUID().toString();
-    private final VirksomhetTjeneste virksomhetTjeneste = mock(VirksomhetTjeneste.class);
+    @Mock
+    private VirksomhetTjeneste virksomhetTjeneste;
+    @Mock
+    private DokumentArkivTjeneste dokumentArkivTjeneste;
+    @Mock
+    private PersonIdentTjeneste personIdentTjeneste;
+
+    private AvklarArbeidsforholdOppdaterer oppdaterer;
 
     @BeforeEach
     void setUp() {
-        repositoryProvider = new IAYRepositoryProvider(getEntityManager());
-        var historikkAdapter = new HistorikkTjenesteAdapter(new HistorikkRepository(getEntityManager()), mock(DokumentArkivTjeneste.class));
-        var tpsTjeneste = mock(PersonIdentTjeneste.class);
-        var vurderArbeidsforholdTjeneste = CDI.current().select(VurderArbeidsforholdTjeneste.class).get();
-        var arbeidsgiverTjeneste = new ArbeidsgiverTjeneste(tpsTjeneste, virksomhetTjeneste);
+        var arbeidsgiverTjeneste = new ArbeidsgiverTjeneste(personIdentTjeneste, virksomhetTjeneste);
         var arbeidsforholdAdministrasjonTjeneste = new ArbeidsforholdAdministrasjonTjeneste(
-            vurderArbeidsforholdTjeneste,
-            arbeidsgiverTjeneste,
-            inntektsmeldingTjeneste,
-            iayTjeneste);
+            vurderArbeidsforholdTjeneste, arbeidsgiverTjeneste, inntektsmeldingTjeneste, iayTjeneste);
         var arbeidsgiverHistorikkinnslagTjeneste = new ArbeidsgiverHistorikkinnslag(arbeidsgiverTjeneste);
-        var arbeidsforholdHistorikkinnslagTjeneste = new ArbeidsforholdHistorikkinnslagTjeneste(historikkAdapter, arbeidsgiverHistorikkinnslagTjeneste);
-        oppdaterer = new AvklarArbeidsforholdOppdaterer(arbeidsforholdAdministrasjonTjeneste, iayTjeneste, arbeidsforholdHistorikkinnslagTjeneste);
+        var historikkAdapter = new HistorikkTjenesteAdapter(historikkRepository, dokumentArkivTjeneste);
+        var arbeidsforholdHistorikkinnslagTjeneste = new ArbeidsforholdHistorikkinnslagTjeneste(historikkAdapter,
+            arbeidsgiverHistorikkinnslagTjeneste);
+        oppdaterer = new AvklarArbeidsforholdOppdaterer(arbeidsforholdAdministrasjonTjeneste, iayTjeneste,
+            arbeidsforholdHistorikkinnslagTjeneste);
     }
 
     @Test
@@ -102,13 +111,19 @@ public class AvklarArbeidsforholdOppdatererTest extends EntityManagerAwareTest {
         Behandling behandling = scenario.lagre(repositoryProvider);
         opprettIAYAggregat(behandling, false, LocalDate.of(2018, 1, 1));
 
-        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
+        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling,
+            AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
 
-        AvklarArbeidsforholdDto avklarArbeidsforholdDto = new AvklarArbeidsforholdDto("Har tatt stilling til dette", List.of());
-        Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.of(2019, 1, 1)).build();
+        AvklarArbeidsforholdDto avklarArbeidsforholdDto = new AvklarArbeidsforholdDto("Har tatt stilling til dette",
+            List.of());
+        Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder()
+            .medUtledetSkjæringstidspunkt(LocalDate.of(2019, 1, 1))
+            .build();
 
         // Act
-        OppdateringResultat resultat = oppdaterer.oppdater(avklarArbeidsforholdDto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, skjæringstidspunkt, avklarArbeidsforholdDto.getBegrunnelse()));
+        OppdateringResultat resultat = oppdaterer.oppdater(avklarArbeidsforholdDto,
+            new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, skjæringstidspunkt,
+                avklarArbeidsforholdDto.getBegrunnelse()));
 
         // Assert
         BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
@@ -126,7 +141,8 @@ public class AvklarArbeidsforholdOppdatererTest extends EntityManagerAwareTest {
         opprettTomtIAYAggregat(behandling);
 
         //simulere at 5080 har oppstått
-        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
+        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling,
+            AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
 
         LocalDate stp = LocalDate.of(2019, 1, 1);
 
@@ -141,27 +157,34 @@ public class AvklarArbeidsforholdOppdatererTest extends EntityManagerAwareTest {
         nyttArbeidsforhod.setBrukArbeidsforholdet(true);
 
         List<ArbeidsforholdDto> nyeArbeidsforhold = List.of(nyttArbeidsforhod);
-        AvklarArbeidsforholdDto avklarArbeidsforholdDto = new AvklarArbeidsforholdDto("Har lagt til et nytt arbeidsforhold", nyeArbeidsforhold);
+        AvklarArbeidsforholdDto avklarArbeidsforholdDto = new AvklarArbeidsforholdDto(
+            "Har lagt til et nytt arbeidsforhold", nyeArbeidsforhold);
 
         //Act
-        oppdaterer.oppdater(avklarArbeidsforholdDto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).build(), avklarArbeidsforholdDto.getBegrunnelse()));
+        oppdaterer.oppdater(avklarArbeidsforholdDto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt,
+            Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).build(),
+            avklarArbeidsforholdDto.getBegrunnelse()));
 
         // Assert
         List<ArbeidsforholdOverstyring> overstyring = hentGrunnlag(behandling).getArbeidsforholdInformasjon()
-            .map(ArbeidsforholdInformasjon::getOverstyringer).orElse(Collections.emptyList());
+            .map(ArbeidsforholdInformasjon::getOverstyringer)
+            .orElse(Collections.emptyList());
 
         assertThat(overstyring).hasSize(1);
         ArbeidsforholdOverstyring overstyrtArbeidsforhold = overstyring.get(0);
         assertThat(overstyrtArbeidsforhold.getStillingsprosent()).isEqualTo(new Stillingsprosent(stillingsprosent));
         assertThat(overstyrtArbeidsforhold.getArbeidsgiverNavn()).isEqualTo(navn);
         assertThat(overstyrtArbeidsforhold.getArbeidsforholdOverstyrtePerioder()).hasSize(1);
-        assertThat(overstyrtArbeidsforhold.getArbeidsforholdOverstyrtePerioder().get(0).getOverstyrtePeriode()).isEqualByComparingTo(DatoIntervallEntitet.fraOgMed(fomDato));
+        assertThat(overstyrtArbeidsforhold.getArbeidsforholdOverstyrtePerioder()
+            .get(0)
+            .getOverstyrtePeriode()).isEqualByComparingTo(DatoIntervallEntitet.fraOgMed(fomDato));
 
         AktørId aktørId = behandling.getAktørId();
 
         // Henter opp yrkesaktivitet med overstyring
         InntektArbeidYtelseGrunnlag grunnlag = hentGrunnlag(behandling);
-        var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(aktørId)).før(stp);
+        var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(),
+            grunnlag.getAktørArbeidFraRegister(aktørId)).før(stp);
         Collection<Yrkesaktivitet> yrkesaktiviteter = filter.getYrkesaktiviteter();
         Yrkesaktivitet yrkesaktivitet = yrkesaktiviteter.iterator().next();
         List<AktivitetsAvtale> ansettelsesPerioder = filter.getAnsettelsesPerioder(yrkesaktivitet);
@@ -169,7 +192,8 @@ public class AvklarArbeidsforholdOppdatererTest extends EntityManagerAwareTest {
         assertThat(ansettelsesPerioder.get(0).getPeriode().getFomDato()).isEqualTo(fomDato);
         Collection<AktivitetsAvtale> aktivitetsAvtaler = filter.getAktivitetsAvtalerForArbeid();
         assertThat(aktivitetsAvtaler).hasSize(1);
-        assertThat(aktivitetsAvtaler.iterator().next().getProsentsats().getVerdi()).isEqualByComparingTo(stillingsprosent);
+        assertThat(aktivitetsAvtaler.iterator().next().getProsentsats().getVerdi()).isEqualByComparingTo(
+            stillingsprosent);
     }
 
     @Test
@@ -180,7 +204,8 @@ public class AvklarArbeidsforholdOppdatererTest extends EntityManagerAwareTest {
         opprettTomtIAYAggregat(behandling);
 
         //simulere at 5080 har oppstått
-        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
+        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling,
+            AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
 
         LocalDate stp = LocalDate.of(2019, 1, 1);
 
@@ -197,27 +222,34 @@ public class AvklarArbeidsforholdOppdatererTest extends EntityManagerAwareTest {
         nyttArbeidsforhod.setArbeidsgiverIdentifikator(NAV_ORGNR);
 
         List<ArbeidsforholdDto> nyeArbeidsforhold = List.of(nyttArbeidsforhod);
-        AvklarArbeidsforholdDto avklarArbeidsforholdDto = new AvklarArbeidsforholdDto("Har lagt til et nytt arbeidsforhold", nyeArbeidsforhold);
+        AvklarArbeidsforholdDto avklarArbeidsforholdDto = new AvklarArbeidsforholdDto(
+            "Har lagt til et nytt arbeidsforhold", nyeArbeidsforhold);
 
         //Act
-        oppdaterer.oppdater(avklarArbeidsforholdDto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).build(), avklarArbeidsforholdDto.getBegrunnelse()));
+        oppdaterer.oppdater(avklarArbeidsforholdDto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt,
+            Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).build(),
+            avklarArbeidsforholdDto.getBegrunnelse()));
 
         // Assert
         List<ArbeidsforholdOverstyring> overstyring = hentGrunnlag(behandling).getArbeidsforholdInformasjon()
-            .map(ArbeidsforholdInformasjon::getOverstyringer).orElse(Collections.emptyList());
+            .map(ArbeidsforholdInformasjon::getOverstyringer)
+            .orElse(Collections.emptyList());
 
         assertThat(overstyring).hasSize(1);
         ArbeidsforholdOverstyring overstyrtArbeidsforhold = overstyring.get(0);
         assertThat(overstyrtArbeidsforhold.getStillingsprosent()).isEqualTo(new Stillingsprosent(stillingsprosent));
         assertThat(overstyrtArbeidsforhold.getArbeidsgiverNavn()).isEqualTo(navn);
         assertThat(overstyrtArbeidsforhold.getArbeidsforholdOverstyrtePerioder()).hasSize(1);
-        assertThat(overstyrtArbeidsforhold.getArbeidsforholdOverstyrtePerioder().get(0).getOverstyrtePeriode()).isEqualByComparingTo(DatoIntervallEntitet.fraOgMed(fomDato));
+        assertThat(overstyrtArbeidsforhold.getArbeidsforholdOverstyrtePerioder()
+            .get(0)
+            .getOverstyrtePeriode()).isEqualByComparingTo(DatoIntervallEntitet.fraOgMed(fomDato));
 
         AktørId aktørId = behandling.getAktørId();
 
         // Henter opp yrkesaktivitet med overstyring
         InntektArbeidYtelseGrunnlag grunnlag = hentGrunnlag(behandling);
-        var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(aktørId)).før(stp);
+        var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(),
+            grunnlag.getAktørArbeidFraRegister(aktørId)).før(stp);
         Collection<Yrkesaktivitet> yrkesaktiviteter = filter.getYrkesaktiviteter();
         Yrkesaktivitet yrkesaktivitet = yrkesaktiviteter.iterator().next();
         List<AktivitetsAvtale> ansettelsesPerioder = filter.getAnsettelsesPerioder(yrkesaktivitet);
@@ -225,7 +257,8 @@ public class AvklarArbeidsforholdOppdatererTest extends EntityManagerAwareTest {
         assertThat(ansettelsesPerioder.get(0).getPeriode().getFomDato()).isEqualTo(fomDato);
         Collection<AktivitetsAvtale> aktivitetsAvtaler = filter.getAktivitetsAvtalerForArbeid();
         assertThat(aktivitetsAvtaler).hasSize(1);
-        assertThat(aktivitetsAvtaler.iterator().next().getProsentsats().getVerdi()).isEqualByComparingTo(stillingsprosent);
+        assertThat(aktivitetsAvtaler.iterator().next().getProsentsats().getVerdi()).isEqualByComparingTo(
+            stillingsprosent);
     }
 
     @Test
@@ -243,7 +276,8 @@ public class AvklarArbeidsforholdOppdatererTest extends EntityManagerAwareTest {
         Behandling behandling = scenario.lagre(repositoryProvider);
         opprettIAYAggregat(behandling, false, fomDato);
 
-        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
+        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling,
+            AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
 
         ArbeidsforholdDto arbeidsforhold = new ArbeidsforholdDto();
         arbeidsforhold.setNavn(navn);
@@ -257,24 +291,24 @@ public class AvklarArbeidsforholdOppdatererTest extends EntityManagerAwareTest {
         arbeidsforhold.setBrukArbeidsforholdet(true);
 
         List<ArbeidsforholdDto> nyeArbeidsforhold = List.of(arbeidsforhold);
-        AvklarArbeidsforholdDto avklarArbeidsforholdDto = new AvklarArbeidsforholdDto("periode overstyrt", nyeArbeidsforhold);
+        AvklarArbeidsforholdDto avklarArbeidsforholdDto = new AvklarArbeidsforholdDto("periode overstyrt",
+            nyeArbeidsforhold);
 
-        Skjæringstidspunkt stp = Skjæringstidspunkt.builder()
-            .medUtledetSkjæringstidspunkt(stpDato)
-            .build();
+        Skjæringstidspunkt stp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stpDato).build();
 
         //Act
-        oppdaterer.oppdater(avklarArbeidsforholdDto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, stp, avklarArbeidsforholdDto.getBegrunnelse()));
+        oppdaterer.oppdater(avklarArbeidsforholdDto,
+            new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, stp, avklarArbeidsforholdDto.getBegrunnelse()));
 
         // Assert
-        List<ArbeidsforholdOverstyring> overstyringer = hentGrunnlag(behandling)
-            .getArbeidsforholdInformasjon()
+        List<ArbeidsforholdOverstyring> overstyringer = hentGrunnlag(behandling).getArbeidsforholdInformasjon()
             .map(ArbeidsforholdInformasjon::getOverstyringer)
             .orElse(Collections.emptyList());
 
         assertThat(overstyringer).as("overstyringer").hasSize(1);
         ArbeidsforholdOverstyring overstyrtArbeidsforhold = overstyringer.get(0);
-        assertThat(overstyrtArbeidsforhold.getHandling()).isEqualTo(ArbeidsforholdHandlingType.BRUK_MED_OVERSTYRT_PERIODE);
+        assertThat(overstyrtArbeidsforhold.getHandling()).isEqualTo(
+            ArbeidsforholdHandlingType.BRUK_MED_OVERSTYRT_PERIODE);
         List<ArbeidsforholdOverstyrtePerioder> overstyrtePerioder = overstyrtArbeidsforhold.getArbeidsforholdOverstyrtePerioder();
         assertThat(overstyrtePerioder).as("overstyrtePerioder").hasSize(1);
         assertThat(overstyrtePerioder.get(0).getOverstyrtePeriode().getTomDato()).isEqualTo(overstyrtTomDato);
@@ -288,15 +322,17 @@ public class AvklarArbeidsforholdOppdatererTest extends EntityManagerAwareTest {
         opprettIAYAggregatProdCase(behandling, false, LocalDate.now().minusYears(1));
 
         //simulere at 5080 har oppstått
-        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
+        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling,
+            AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
 
         LocalDate stp = LocalDate.now();
         LocalDate fomDato = stp.minusYears(1);
         final String navikt = "990983666";
         final String annetforetak = "973861778";
-        when(virksomhetTjeneste.hentOrganisasjon(navikt)).thenReturn(Virksomhet.getBuilder().medNavn("NAV IKT").medOrgnr(navikt).build());
-        when(virksomhetTjeneste.hentOrganisasjon(annetforetak)).thenReturn(Virksomhet.getBuilder().medNavn("Annet foretak").medOrgnr(annetforetak).build());
-        when(virksomhetTjeneste.hentOrganisasjon(NAV_ORGNR)).thenReturn(Virksomhet.getBuilder().medNavn("NAV").medOrgnr(NAV_ORGNR).build());
+        when(virksomhetTjeneste.hentOrganisasjon(annetforetak)).thenReturn(
+            Virksomhet.getBuilder().medNavn("Annet foretak").medOrgnr(annetforetak).build());
+        when(virksomhetTjeneste.hentOrganisasjon(NAV_ORGNR)).thenReturn(
+            Virksomhet.getBuilder().medNavn("NAV").medOrgnr(NAV_ORGNR).build());
 
         ArbeidsforholdDto nyttArbeidsforholdFraIM = new ArbeidsforholdDto();
         nyttArbeidsforholdFraIM.setNavn("NAV IKT");
@@ -328,29 +364,45 @@ public class AvklarArbeidsforholdOppdatererTest extends EntityManagerAwareTest {
         normaltArbeidsforhold.setId(randomId);
         normaltArbeidsforhold.setArbeidsgiverIdentifikator(NAV_ORGNR);
 
-        List<ArbeidsforholdDto> nyeArbeidsforhold = List.of(normaltArbeidsforhold, arbeidsforholdZeroProsent, nyttArbeidsforholdFraIM);
+        List<ArbeidsforholdDto> nyeArbeidsforhold = List.of(normaltArbeidsforhold, arbeidsforholdZeroProsent,
+            nyttArbeidsforholdFraIM);
 
 
-        AvklarArbeidsforholdDto avklarArbeidsforholdDto = new AvklarArbeidsforholdDto("Har lagt til et nytt arbeidsforhold", nyeArbeidsforhold);
+        AvklarArbeidsforholdDto avklarArbeidsforholdDto = new AvklarArbeidsforholdDto(
+            "Har lagt til et nytt arbeidsforhold", nyeArbeidsforhold);
 
         //Act
-        oppdaterer.oppdater(avklarArbeidsforholdDto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).build(), avklarArbeidsforholdDto.getBegrunnelse()));
+        oppdaterer.oppdater(avklarArbeidsforholdDto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt,
+            Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).build(),
+            avklarArbeidsforholdDto.getBegrunnelse()));
 
         // Assert
         InntektArbeidYtelseGrunnlag grunnlag = hentGrunnlag(behandling);
         List<ArbeidsforholdOverstyring> overstyring = grunnlag.getArbeidsforholdInformasjon()
-            .map(ArbeidsforholdInformasjon::getOverstyringer).orElse(Collections.emptyList());
+            .map(ArbeidsforholdInformasjon::getOverstyringer)
+            .orElse(Collections.emptyList());
 
         assertThat(overstyring).hasSize(3);
 
-        var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(behandling.getAktørId())).før(stp);
+        var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(),
+            grunnlag.getAktørArbeidFraRegister(behandling.getAktørId())).før(stp);
         Collection<Yrkesaktivitet> yrkesaktiviteter = filter.getYrkesaktiviteter();
         assertThat(yrkesaktiviteter).hasSize(3);
-        assertThat(yrkesaktiviteter.stream().filter(y -> y.getArbeidsgiver().getOrgnr().equals(NAV_ORGNR)).count()).isEqualTo(1);
-        assertThat(yrkesaktiviteter.stream().filter(y -> y.getArbeidsgiver().getOrgnr().equals(navikt)).count()).isEqualTo(1);
-        var annet = yrkesaktiviteter.stream().filter(y -> y.getArbeidsgiver().getOrgnr().equals(annetforetak)).findFirst().orElse(null);
-        var ansattTil = filter.getAnsettelsesPerioder(annet).stream().findFirst()
-            .map(AktivitetsAvtale::getPeriode).map(DatoIntervallEntitet::getTomDato).orElse(null);
+        assertThat(
+            yrkesaktiviteter.stream().filter(y -> y.getArbeidsgiver().getOrgnr().equals(NAV_ORGNR)).count()).isEqualTo(
+            1);
+        assertThat(
+            yrkesaktiviteter.stream().filter(y -> y.getArbeidsgiver().getOrgnr().equals(navikt)).count()).isEqualTo(1);
+        var annet = yrkesaktiviteter.stream()
+            .filter(y -> y.getArbeidsgiver().getOrgnr().equals(annetforetak))
+            .findFirst()
+            .orElse(null);
+        var ansattTil = filter.getAnsettelsesPerioder(annet)
+            .stream()
+            .findFirst()
+            .map(AktivitetsAvtale::getPeriode)
+            .map(DatoIntervallEntitet::getTomDato)
+            .orElse(null);
         assertThat(ansattTil).isEqualTo(stp.minusMonths(2));
     }
 
@@ -369,7 +421,8 @@ public class AvklarArbeidsforholdOppdatererTest extends EntityManagerAwareTest {
         Behandling behandling = scenario.lagre(repositoryProvider);
         opprettIAYAggregat(behandling, true, LocalDate.of(2018, 1, 1));
 
-        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
+        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling,
+            AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
         String erstatterArbeidsforholdId = ARBEIDSFORHOLD_REF.getReferanse();
 
         ArbeidsforholdDto arbeidsforhold = new ArbeidsforholdDto();
@@ -394,18 +447,17 @@ public class AvklarArbeidsforholdOppdatererTest extends EntityManagerAwareTest {
         arbeidsforhold2.setArbeidsforholdId(nyArbeidsforholdRef);
 
         List<ArbeidsforholdDto> nyeArbeidsforhold = List.of(arbeidsforhold, arbeidsforhold2);
-        AvklarArbeidsforholdDto avklarArbeidsforholdDto = new AvklarArbeidsforholdDto("Har lagt til et nytt arbeidsforhold", nyeArbeidsforhold);
+        AvklarArbeidsforholdDto avklarArbeidsforholdDto = new AvklarArbeidsforholdDto(
+            "Har lagt til et nytt arbeidsforhold", nyeArbeidsforhold);
 
-        Skjæringstidspunkt stp = Skjæringstidspunkt.builder()
-            .medUtledetSkjæringstidspunkt(stpDato)
-            .build();
+        Skjæringstidspunkt stp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stpDato).build();
 
         //Act
-        oppdaterer.oppdater(avklarArbeidsforholdDto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, stp, avklarArbeidsforholdDto.getBegrunnelse()));
+        oppdaterer.oppdater(avklarArbeidsforholdDto,
+            new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, stp, avklarArbeidsforholdDto.getBegrunnelse()));
 
         // Assert
-        List<ArbeidsforholdOverstyring> overstyringer = hentGrunnlag(behandling)
-            .getArbeidsforholdInformasjon()
+        List<ArbeidsforholdOverstyring> overstyringer = hentGrunnlag(behandling).getArbeidsforholdInformasjon()
             .map(ArbeidsforholdInformasjon::getOverstyringer)
             .orElse(Collections.emptyList());
 
@@ -438,7 +490,8 @@ public class AvklarArbeidsforholdOppdatererTest extends EntityManagerAwareTest {
         Behandling behandling = scenario.lagre(repositoryProvider);
         opprettIAYAggregat(behandling, false, LocalDate.of(2018, 1, 1));
 
-        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
+        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling,
+            AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
 
         ArbeidsforholdDto arbeidsforhold = new ArbeidsforholdDto();
         arbeidsforhold.setNavn(navn);
@@ -451,20 +504,19 @@ public class AvklarArbeidsforholdOppdatererTest extends EntityManagerAwareTest {
         arbeidsforhold.setBrukArbeidsforholdet(true);
 
         List<ArbeidsforholdDto> nyeArbeidsforhold = List.of(arbeidsforhold);
-        AvklarArbeidsforholdDto avklarArbeidsforholdDto = new AvklarArbeidsforholdDto("inntekt ikke med til bg", nyeArbeidsforhold);
+        AvklarArbeidsforholdDto avklarArbeidsforholdDto = new AvklarArbeidsforholdDto("inntekt ikke med til bg",
+            nyeArbeidsforhold);
 
-        Skjæringstidspunkt stp = Skjæringstidspunkt.builder()
-            .medUtledetSkjæringstidspunkt(stpDato)
-            .build();
+        Skjæringstidspunkt stp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stpDato).build();
 
-        AksjonspunktOppdaterParameter params = new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, stp, avklarArbeidsforholdDto.getBegrunnelse());
+        AksjonspunktOppdaterParameter params = new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, stp,
+            avklarArbeidsforholdDto.getBegrunnelse());
 
         //Act
         oppdaterer.oppdater(avklarArbeidsforholdDto, params);
 
         // Assert
-        List<ArbeidsforholdOverstyring> overstyring = hentGrunnlag(behandling)
-            .getArbeidsforholdInformasjon()
+        List<ArbeidsforholdOverstyring> overstyring = hentGrunnlag(behandling).getArbeidsforholdInformasjon()
             .map(ArbeidsforholdInformasjon::getOverstyringer)
             .orElse(Collections.emptyList());
 
@@ -487,7 +539,8 @@ public class AvklarArbeidsforholdOppdatererTest extends EntityManagerAwareTest {
         Behandling behandling = scenario.lagre(repositoryProvider);
         opprettIAYAggregat(behandling, false, LocalDate.of(2018, 1, 1));
 
-        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
+        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling,
+            AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
 
         ArbeidsforholdDto arbeidsforhold = new ArbeidsforholdDto();
         arbeidsforhold.setNavn(navn);
@@ -499,26 +552,26 @@ public class AvklarArbeidsforholdOppdatererTest extends EntityManagerAwareTest {
         arbeidsforhold.setBrukArbeidsforholdet(true);
 
         List<ArbeidsforholdDto> nyeArbeidsforhold = List.of(arbeidsforhold);
-        AvklarArbeidsforholdDto avklarArbeidsforholdDto = new AvklarArbeidsforholdDto("Har lagt til et nytt arbeidsforhold", nyeArbeidsforhold);
+        AvklarArbeidsforholdDto avklarArbeidsforholdDto = new AvklarArbeidsforholdDto(
+            "Har lagt til et nytt arbeidsforhold", nyeArbeidsforhold);
 
-        Skjæringstidspunkt stp = Skjæringstidspunkt.builder()
-            .medUtledetSkjæringstidspunkt(stpDato)
-            .build();
+        Skjæringstidspunkt stp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stpDato).build();
 
-        AksjonspunktOppdaterParameter params = new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, stp, avklarArbeidsforholdDto.getBegrunnelse());
+        AksjonspunktOppdaterParameter params = new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, stp,
+            avklarArbeidsforholdDto.getBegrunnelse());
 
         //Act
         oppdaterer.oppdater(avklarArbeidsforholdDto, params);
 
         // Assert
-        List<ArbeidsforholdOverstyring> overstyring = hentGrunnlag(behandling)
-            .getArbeidsforholdInformasjon()
+        List<ArbeidsforholdOverstyring> overstyring = hentGrunnlag(behandling).getArbeidsforholdInformasjon()
             .map(ArbeidsforholdInformasjon::getOverstyringer)
             .orElse(Collections.emptyList());
 
         assertThat(overstyring).hasSize(1);
         ArbeidsforholdOverstyring overstyrtArbeidsforhold = overstyring.get(0);
-        assertThat(overstyrtArbeidsforhold.getHandling()).isEqualTo(ArbeidsforholdHandlingType.LAGT_TIL_AV_SAKSBEHANDLER);
+        assertThat(overstyrtArbeidsforhold.getHandling()).isEqualTo(
+            ArbeidsforholdHandlingType.LAGT_TIL_AV_SAKSBEHANDLER);
     }
 
     private InntektArbeidYtelseGrunnlag hentGrunnlag(Behandling behandling) {
@@ -529,27 +582,29 @@ public class AvklarArbeidsforholdOppdatererTest extends EntityManagerAwareTest {
         LocalDate tom = AbstractLocalDateInterval.TIDENES_ENDE;
         YrkesaktivitetBuilder yrkesaktivitetBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
         AktivitetsAvtaleBuilder aktivitetsAvtaleBuilder = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder();
-        AktivitetsAvtaleBuilder aktivitetsAvtale = aktivitetsAvtaleBuilder
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom))
-            .medProsentsats(BigDecimal.valueOf(100));
+        AktivitetsAvtaleBuilder aktivitetsAvtale = aktivitetsAvtaleBuilder.medPeriode(
+            DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom)).medProsentsats(BigDecimal.valueOf(100));
         AktivitetsAvtaleBuilder ansettelsesperiode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
-        yrkesaktivitetBuilder
-            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+        yrkesaktivitetBuilder.medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
             .medArbeidsgiver(Arbeidsgiver.virksomhet(NAV_ORGNR))
             .medArbeidsforholdId(medArbeidsforholdRef ? ARBEIDSFORHOLD_REF : null)
             .leggTilAktivitetsAvtale(aktivitetsAvtale)
             .leggTilAktivitetsAvtale(ansettelsesperiode);
-        InntektArbeidYtelseAggregatBuilder builder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
-        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = builder.getAktørArbeidBuilder(behandling.getAktørId());
+        InntektArbeidYtelseAggregatBuilder builder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(),
+            VersjonType.REGISTER);
+        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = builder.getAktørArbeidBuilder(
+            behandling.getAktørId());
         aktørArbeidBuilder.leggTilYrkesaktivitet(yrkesaktivitetBuilder);
         builder.leggTilAktørArbeid(aktørArbeidBuilder);
         iayTjeneste.lagreIayAggregat(behandling.getId(), builder);
     }
 
     private void opprettTomtIAYAggregat(Behandling behandling) {
-        InntektArbeidYtelseAggregatBuilder builder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
-        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = builder.getAktørArbeidBuilder(behandling.getAktørId());
+        InntektArbeidYtelseAggregatBuilder builder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(),
+            VersjonType.REGISTER);
+        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = builder.getAktørArbeidBuilder(
+            behandling.getAktørId());
         builder.leggTilAktørArbeid(aktørArbeidBuilder);
         iayTjeneste.lagreIayAggregat(behandling.getId(), builder);
     }
@@ -562,8 +617,7 @@ public class AvklarArbeidsforholdOppdatererTest extends EntityManagerAwareTest {
             .medProsentsats(BigDecimal.valueOf(100));
         AktivitetsAvtaleBuilder ansettelsesperiode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
-        yrkesaktivitetBuilder
-            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+        yrkesaktivitetBuilder.medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
             .medArbeidsgiver(Arbeidsgiver.virksomhet(NAV_ORGNR))
             .medArbeidsforholdId(medArbeidsforholdRef ? ARBEIDSFORHOLD_REF : null)
             .leggTilAktivitetsAvtale(aktivitetsAvtaleBuilder)
@@ -575,14 +629,15 @@ public class AvklarArbeidsforholdOppdatererTest extends EntityManagerAwareTest {
             .medSisteLønnsendringsdato(fom.minusMonths(1));
         AktivitetsAvtaleBuilder ansettelsesperiode2 = yrkesaktivitetBuilder2.getAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
-        yrkesaktivitetBuilder2
-            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+        yrkesaktivitetBuilder2.medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
             .medArbeidsgiver(Arbeidsgiver.virksomhet("973861778"))
             .medArbeidsforholdId(medArbeidsforholdRef ? ARBEIDSFORHOLD_REF : null)
             .leggTilAktivitetsAvtale(aktivitetsAvtaleBuilder2)
             .leggTilAktivitetsAvtale(ansettelsesperiode2);
-        InntektArbeidYtelseAggregatBuilder builder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
-        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = builder.getAktørArbeidBuilder(behandling.getAktørId());
+        InntektArbeidYtelseAggregatBuilder builder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(),
+            VersjonType.REGISTER);
+        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = builder.getAktørArbeidBuilder(
+            behandling.getAktørId());
         aktørArbeidBuilder.leggTilYrkesaktivitet(yrkesaktivitetBuilder);
         aktørArbeidBuilder.leggTilYrkesaktivitet(yrkesaktivitetBuilder2);
         builder.leggTilAktørArbeid(aktørArbeidBuilder);
@@ -590,11 +645,9 @@ public class AvklarArbeidsforholdOppdatererTest extends EntityManagerAwareTest {
     }
 
     private void opprettVirksomhetAG() {
-        Virksomhet virksomhet = new Virksomhet.Builder()
-            .medOrgnr(NAV_ORGNR)
-            .build();
-        when(virksomhetTjeneste.finnOrganisasjon(any())).thenReturn(Optional.of(virksomhet));
-        when(virksomhetTjeneste.hentOrganisasjon(any())).thenReturn(virksomhet);
+        Virksomhet virksomhet = new Virksomhet.Builder().medOrgnr(NAV_ORGNR).build();
+        lenient().when(virksomhetTjeneste.finnOrganisasjon(any())).thenReturn(Optional.of(virksomhet));
+        lenient().when(virksomhetTjeneste.hentOrganisasjon(any())).thenReturn(virksomhet);
     }
 
 }

@@ -4,7 +4,7 @@ import static no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat.opp
 
 import java.util.List;
 
-import javax.enterprise.inject.spi.CDI;
+import javax.inject.Inject;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,9 +24,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 
-public class BehandlingskontrollEventPublisererTest extends EntityManagerAwareTest {
+@CdiDbAwareTest
+public class BehandlingskontrollEventPublisererTest {
     private final BehandlingType behandlingType = BehandlingType.FØRSTEGANGSSØKNAD;
     private final FagsakYtelseType fagsakYtelseType = FagsakYtelseType.ENGANGSTØNAD;
 
@@ -36,18 +37,14 @@ public class BehandlingskontrollEventPublisererTest extends EntityManagerAwareTe
 
     private static final BehandlingStegType STEG_4 = BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR;
 
+    @Inject
     private BehandlingskontrollServiceProvider serviceProvider;
 
     private BehandlingskontrollTjenesteImpl kontrollTjeneste;
 
     @BeforeEach
     void setup() {
-        serviceProvider = new BehandlingskontrollServiceProvider(getEntityManager(), new BehandlingModellRepository(),
-            new BehandlingskontrollEventPubliserer(CDI.current().getBeanManager()));
-        kontrollTjeneste = new BehandlingskontrollTjenesteImpl(serviceProvider);
-
-        BehandlingModellImpl behandlingModell = byggModell();
-
+        var behandlingModell = byggModell();
         kontrollTjeneste = new BehandlingskontrollTjenesteImpl(serviceProvider) {
             @Override
             protected BehandlingModellImpl getModell(BehandlingType behandlingType, FagsakYtelseType ytelseType) {
