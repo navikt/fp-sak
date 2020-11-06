@@ -11,9 +11,7 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -68,20 +66,19 @@ public class FamiliehendelseRestTjeneste {
         this.familieHendelseRepository = familieHendelseRepository;
     }
 
-    @POST
+    @GET
     @Path(FAMILIEHENDELSE_PART_PATH)
-    @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Hent informasjon om familiehendelse til grunn for ytelse", tags = "familiehendelse", responses = {
             @ApiResponse(responseCode = "200", description = "Returnerer info om familiehendelse, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = "application/json", schema = @Schema(implementation = FamiliehendelseDto.class)))
     })
     @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @Deprecated
     public FamiliehendelseDto getAvklartFamiliehendelseDto(
-            @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
-        Long behandlingId = behandlingIdDto.getBehandlingId();
+            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        var input = new BehandlingIdDto(uuidDto);
+        Long behandlingId = input.getBehandlingId();
         Behandling behandling = behandlingId != null
-                ? behandlingRepository.hentBehandling(behandlingId)
-                : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
+            ? behandlingRepository.hentBehandling(behandlingId)
+            : behandlingRepository.hentBehandling(input.getBehandlingUuid());
         Optional<FamilieHendelseGrunnlagEntitet> grunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
         Optional<LocalDate> vedtaksdato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId()).map(BehandlingVedtak::getVedtaksdato);
         Optional<FamiliehendelseDto> dtoOpt = FamiliehendelseDataDtoTjeneste.mapFra(behandling, grunnlag, vedtaksdato);
@@ -89,43 +86,20 @@ public class FamiliehendelseRestTjeneste {
     }
 
     @GET
-    @Path(FAMILIEHENDELSE_PART_PATH)
-    @Operation(description = "Hent informasjon om familiehendelse til grunn for ytelse", tags = "familiehendelse", responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer info om familiehendelse, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = "application/json", schema = @Schema(implementation = FamiliehendelseDto.class)))
-    })
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    public FamiliehendelseDto getAvklartFamiliehendelseDto(
-            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        return getAvklartFamiliehendelseDto(new BehandlingIdDto(uuidDto));
-    }
-
-    @POST
     @Path(FAMILIEHENDELSE_V2_PART_PATH)
-    @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Hent informasjon om familiehendelse til grunn for ytelse", tags = "familiehendelse", responses = {
             @ApiResponse(responseCode = "200", description = "Returnerer hele FamilieHendelse grunnlaget", content = @Content(mediaType = "application/json", schema = @Schema(implementation = FamilieHendelseGrunnlagDto.class)))
     })
     @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    @Deprecated
     public FamilieHendelseGrunnlagDto getFamiliehendelseGrunnlagDto(
-            @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
-        Long behandlingId = behandlingIdDto.getBehandlingId();
+            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        var input = new BehandlingIdDto(uuidDto);
+        Long behandlingId = input.getBehandlingId();
         Behandling behandling = behandlingId != null
-                ? behandlingRepository.hentBehandling(behandlingId)
-                : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
+            ? behandlingRepository.hentBehandling(behandlingId)
+            : behandlingRepository.hentBehandling(input.getBehandlingUuid());
         Optional<FamilieHendelseGrunnlagEntitet> grunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
         Optional<LocalDate> vedtaksdato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId()).map(BehandlingVedtak::getVedtaksdato);
         return FamiliehendelseDataDtoTjeneste.mapGrunnlagFra(behandling, grunnlag, vedtaksdato);
-    }
-
-    @GET
-    @Path(FAMILIEHENDELSE_V2_PART_PATH)
-    @Operation(description = "Hent informasjon om familiehendelse til grunn for ytelse", tags = "familiehendelse", responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer hele FamilieHendelse grunnlaget", content = @Content(mediaType = "application/json", schema = @Schema(implementation = FamilieHendelseGrunnlagDto.class)))
-    })
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
-    public FamilieHendelseGrunnlagDto getFamiliehendelseGrunnlagDto(
-            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        return getFamiliehendelseGrunnlagDto(new BehandlingIdDto(uuidDto));
     }
 }

@@ -17,7 +17,6 @@ public class FagsakDto {
     private RelasjonsRolleType relasjonsRolleType;
     private FagsakStatus status;
     private LocalDate barnFodt;
-    private PersonDto person;
     private LocalDateTime opprettet;
     private LocalDateTime endret;
     private Integer antallBarn;
@@ -34,7 +33,6 @@ public class FagsakDto {
     }
 
     public FagsakDto(Fagsak fagsak,
-                     PersonDto person,
                      LocalDate barnFodt,
                      Integer antallBarn,
                      Boolean kanRevurderingOpprettes,
@@ -47,7 +45,6 @@ public class FagsakDto {
         this.aktoerId = fagsak.getAktørId().getId();
         this.sakstype = fagsak.getYtelseType();
         this.status = fagsak.getStatus();
-        this.person = person;
         this.opprettet = fagsak.getOpprettetTidspunkt();
         this.endret = fagsak.getEndretTidspunkt();
         this.barnFodt = barnFodt;
@@ -70,10 +67,6 @@ public class FagsakDto {
 
     public FagsakStatus getStatus() {
         return status;
-    }
-
-    public PersonDto getPerson() {
-        return person;
     }
 
     public LocalDate getBarnFodt() {
@@ -127,7 +120,6 @@ public class FagsakDto {
             ", status=" + status + //$NON-NLS-1$
             ", barnFodt=" + barnFodt + //$NON-NLS-1$
             ", antallBarn=" + antallBarn + //$NON-NLS-1$
-            ", person=" + person + //$NON-NLS-1$
             ", opprettet=" + opprettet + //$NON-NLS-1$
             ", endret=" + endret + //$NON-NLS-1$
             ", relasjonsrolle=" + relasjonsRolleType + //$NON-NLS-1$
@@ -146,7 +138,6 @@ public class FagsakDto {
         if (!sakstype.equals(fagsakDto.sakstype)) return false;
         if (!status.equals(fagsakDto.status)) return false;
         if (barnFodt != null ? !barnFodt.equals(fagsakDto.barnFodt) : fagsakDto.barnFodt != null) return false;
-        if (!person.equals(fagsakDto.person)) return false;
         if (opprettet != null ? !opprettet.equals(fagsakDto.opprettet) : fagsakDto.opprettet != null) return false;
         if (!relasjonsRolleType.equals(fagsakDto.relasjonsRolleType)) return false;
         if (!dekningsgrad.equals(fagsakDto.dekningsgrad)) return false;
@@ -159,7 +150,6 @@ public class FagsakDto {
         result = 31 * result + sakstype.hashCode();
         result = 31 * result + status.hashCode();
         result = 31 * result + (barnFodt != null ? barnFodt.hashCode() : 0);
-        result = 31 * result + person.hashCode();
         result = 31 * result + relasjonsRolleType.hashCode();
         result = 31 * result + dekningsgrad.hashCode();
         result = 31 * result + (opprettet != null ? opprettet.hashCode() : 0);

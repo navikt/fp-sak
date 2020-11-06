@@ -107,12 +107,8 @@ public class FagsakTjeneste {
         if (aktørId == null) {
             return FagsakSamlingForBruker.emptyView();
         }
-        Optional<PersoninfoBasis> funnetNavBruker = personinfoAdapter.hentBrukerBasisForAktør(aktørId);
-        if (funnetNavBruker.isEmpty()) {
-            return FagsakSamlingForBruker.emptyView();
-        }
         List<Fagsak> fagsaker = fagsakRespository.hentForBruker(aktørId);
-        return tilFagsakView(fagsaker, finnAntallBarnTps(fagsaker), funnetNavBruker.get());
+        return tilFagsakView(fagsaker, finnAntallBarnTps(fagsaker));
     }
 
     /** Returnerer samling med kun en fagsak. */
@@ -122,14 +118,8 @@ public class FagsakTjeneste {
             return FagsakSamlingForBruker.emptyView();
         }
         List<Fagsak> fagsaker = Collections.singletonList(fagsak.get());
-        AktørId aktørId = fagsak.get().getNavBruker().getAktørId();
 
-        Optional<PersoninfoBasis> funnetNavBruker = personinfoAdapter.hentBrukerBasisForAktør(aktørId);
-        if (funnetNavBruker.isEmpty()) {
-            return FagsakSamlingForBruker.emptyView();
-        }
-
-        return tilFagsakView(fagsaker, finnAntallBarnTps(fagsaker), funnetNavBruker.get());
+        return tilFagsakView(fagsaker, finnAntallBarnTps(fagsaker));
     }
 
     public Optional<Fagsak> hentFagsakForSaksnummerBackend(Saksnummer saksnummer) {
@@ -140,8 +130,8 @@ public class FagsakTjeneste {
         return dekningsgradTjeneste.finnDekningsgrad(saksnummer);
     }
 
-    private FagsakSamlingForBruker tilFagsakView(List<Fagsak> fagsaker, Map<Long, Integer> antallBarnPerFagsak, PersoninfoBasis personinfo) {
-        FagsakSamlingForBruker view = new FagsakSamlingForBruker(personinfo);
+    private FagsakSamlingForBruker tilFagsakView(List<Fagsak> fagsaker, Map<Long, Integer> antallBarnPerFagsak) {
+        FagsakSamlingForBruker view = new FagsakSamlingForBruker();
         fagsaker.forEach(sak -> {
             var dekningsgrad = dekningsgradTjeneste.finnDekningsgrad(sak.getSaksnummer());
             view.leggTil(sak, antallBarnPerFagsak.get(sak.getId()), hentBarnsFødselsdato(sak), dekningsgrad.orElse(null));
@@ -173,7 +163,6 @@ public class FagsakTjeneste {
     public static List<ResourceLink> lagLenker(Fagsak fagsak) {
         List<ResourceLink> lenkene = new ArrayList<>();
         var saksnummer = new SaksnummerDto(fagsak.getSaksnummer());
-        lenkene.add(get(BehandlingRestTjeneste.HANDLING_RETTIGHETER_V2_PATH, "handling-rettigheter-v2", saksnummer));
         lenkene.add(get(FagsakRestTjeneste.RETTIGHETER_PATH, "sak-rettigheter", saksnummer));
         lenkene.add(get(HistorikkRestTjeneste.HISTORIKK_PATH, "sak-historikk", saksnummer));
         lenkene.add(get(DokumentRestTjeneste.DOKUMENTER_PATH, "sak-dokumentliste", saksnummer));

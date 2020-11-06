@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.dto;
 import java.util.List;
 import java.util.Set;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderÅrsak;
 import no.nav.foreldrepenger.domene.uttak.kontroller.fakta.uttakperioder.UttakPeriodeEndringDto;
 
 public class TotrinnskontrollAksjonspunkterDto {
@@ -12,7 +13,7 @@ public class TotrinnskontrollAksjonspunkterDto {
     private TotrinnsBeregningDto beregningDto;
     private String besluttersBegrunnelse;
     private Boolean totrinnskontrollGodkjent;
-    private Set<TotrinnskontrollVurderÅrsak> vurderPaNyttArsaker;
+    private Set<VurderÅrsak> vurderPaNyttArsaker;
     private List<UttakPeriodeEndringDto> uttakPerioder;
     private List<TotrinnsArbeidsforholdDto> arbeidforholdDtos;
 
@@ -33,7 +34,7 @@ public class TotrinnskontrollAksjonspunkterDto {
         return totrinnskontrollGodkjent;
     }
 
-    public Set<TotrinnskontrollVurderÅrsak> getVurderPaNyttArsaker() {
+    public Set<VurderÅrsak> getVurderPaNyttArsaker() {
         return vurderPaNyttArsaker;
     }
 
@@ -77,7 +78,7 @@ public class TotrinnskontrollAksjonspunkterDto {
             return this;
         }
 
-        public Builder medVurderPaNyttArsaker(Set<TotrinnskontrollVurderÅrsak> vurderPaNyttArsaker) {
+        public Builder medVurderPaNyttArsaker(Set<VurderÅrsak> vurderPaNyttArsaker) {
             kladd.vurderPaNyttArsaker = vurderPaNyttArsaker;
             return this;
         }

@@ -94,7 +94,6 @@ public class AktoerRestTjeneste {
                             null,
                             null,
                             null,
-                            null,
                             fagsak.getSkalTilInfotrygd(),
                             fagsak.getRelasjonsRolleType(),
                             finnDekningsgrad(fagsak.getSaksnummer()),

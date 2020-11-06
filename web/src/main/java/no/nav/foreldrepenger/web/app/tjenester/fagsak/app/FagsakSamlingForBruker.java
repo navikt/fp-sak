@@ -5,29 +5,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 
 // View = respons fra applikasjonslag (velges foreløpig fremfor å la applikasjonslag bruke DTO direkte)
 public class FagsakSamlingForBruker {
 
-    private PersoninfoBasis brukerInfo;
     private List<FagsakRad> fagsakInfoer = new ArrayList<>();
 
-    private FagsakSamlingForBruker() {
-    }
-
-    FagsakSamlingForBruker(PersoninfoBasis brukerInfo) {
-        this.brukerInfo = brukerInfo;
+    FagsakSamlingForBruker() {
     }
 
     static FagsakSamlingForBruker emptyView() {
         return new FagsakSamlingForBruker();
-    }
-
-    public PersoninfoBasis getBrukerInfo() {
-        return brukerInfo;
     }
 
     public List<FagsakRad> getFagsakInfoer() {
@@ -35,7 +25,7 @@ public class FagsakSamlingForBruker {
     }
 
     public boolean isEmpty() {
-        return brukerInfo == null;
+        return fagsakInfoer.isEmpty();
     }
 
     void leggTil(Fagsak fagsak, Integer antallBarn, LocalDate fødselsdato, Dekningsgrad dekningsgrad) {

@@ -20,7 +20,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
-import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagBuilder;
@@ -32,7 +31,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.NavBrukerBuilder;
-import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.NavPersoninfoBuilder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
@@ -83,10 +81,8 @@ public class FagsakTjenesteTest {
 
     @Test
     public void skal_hente_saker_på_fnr() {
-        PersoninfoBasis personinfo = new NavPersoninfoBuilder().medAktørId(AKTØR_ID).build();
         NavBruker navBruker = new NavBrukerBuilder().medAktørId(AKTØR_ID).build();
         when(personinfoAdapter.hentAktørForFnr(new PersonIdent(FNR))).thenReturn(Optional.of(AKTØR_ID));
-        when(personinfoAdapter.hentBrukerBasisForAktør(AKTØR_ID)).thenReturn(Optional.of(personinfo));
 
         Fagsak fagsak = FagsakBuilder.nyEngangstønad(RelasjonsRolleType.MORA).medBruker(navBruker).medSaksnummer(SAKSNUMMER).build();
         Whitebox.setInternalState(fagsak, "id", -1L);
@@ -112,7 +108,6 @@ public class FagsakTjenesteTest {
 
     @Test
     public void skal_hente_saker_på_saksreferanse() {
-        PersoninfoBasis personinfo = new NavPersoninfoBuilder().medAktørId(AKTØR_ID).build();
         NavBruker navBruker = new NavBrukerBuilder().medAktørId(AKTØR_ID).build();
         Fagsak fagsak = FagsakBuilder.nyEngangstønad(RelasjonsRolleType.MORA).medBruker(navBruker).medSaksnummer(SAKSNUMMER).build();
         Whitebox.setInternalState(fagsak, "id", -1L);
@@ -125,8 +120,6 @@ public class FagsakTjenesteTest {
         when(hendelseTjeneste.finnAggregat(any())).thenReturn(Optional.of(grunnlag));
         var dekningsgrad = Optional.of(Dekningsgrad._80);
         when(dekningsgradTjeneste.finnDekningsgrad(any())).thenReturn(dekningsgrad);
-
-        when(personinfoAdapter.hentBrukerBasisForAktør(AKTØR_ID)).thenReturn(Optional.of(personinfo));
 
         FagsakSamlingForBruker view = tjeneste.hentSaker(SAKSNUMMER.getVerdi());
 
