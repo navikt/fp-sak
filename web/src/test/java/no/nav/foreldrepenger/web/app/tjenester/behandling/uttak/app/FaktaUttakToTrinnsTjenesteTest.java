@@ -35,7 +35,7 @@ public class FaktaUttakToTrinnsTjenesteTest extends EntityManagerAwareTest {
             BehandlingStegType.VURDER_UTTAK);
         scenario.lagre(behandlingRepositoryProvider);
         // Behandling
-        Behandling behandling = AvklarFaktaTestUtil.opprettBehandling(scenario);
+        Behandling behandling = AvklarFaktaTestUtil.opprettBehandling(scenario, getEntityManager());
 
         // dto
         FaktaUttakDto dto = AvklarFaktaTestUtil.opprettDtoAvklarFaktaUttakDto();

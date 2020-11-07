@@ -39,7 +39,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftEktefelleAksjonspunktDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.SjekkManglendeFodselDto;
@@ -51,7 +50,6 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnh
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 import no.nav.vedtak.felles.jpa.TomtResultatException;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
 @ExtendWith(MockitoExtension.class)
 public class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
@@ -59,11 +57,10 @@ public class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest 
 
     private static final AksjonspunktDefinisjon AKSJONSPUNKT_DEF = AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL;
 
-    public UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
-    private Repository repo;
+
     private final LocalDate now = LocalDate.now();
 
-    private BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(repositoryRule.getEntityManager());
+    private BehandlingRepositoryProvider repositoryProvider;
     private HistorikkInnslagTekstBuilder tekstBuilder;
 
     private DateTimeFormatter formatterer = DateTimeFormatter.ofPattern("dd.MM.yyyy");
@@ -74,10 +71,9 @@ public class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest 
 
     @BeforeEach
     public void setUp() {
-        repo = new Repository(getEntityManager());
+        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
             new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
-        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         tekstBuilder =  new HistorikkInnslagTekstBuilder();
         familieHendelseTjeneste = new FamilieHendelseTjeneste(familiehendelseEventPubliserer, repositoryProvider.getFamilieHendelseRepository());
 

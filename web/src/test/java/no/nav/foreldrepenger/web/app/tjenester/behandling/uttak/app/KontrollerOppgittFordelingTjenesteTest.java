@@ -53,7 +53,7 @@ public class KontrollerOppgittFordelingTjenesteTest extends EntityManagerAwareTe
             BehandlingStegType.VURDER_UTTAK);
         scenario.lagre(repositoryProvider);
         // Behandling
-        Behandling behandling = AvklarFaktaTestUtil.opprettBehandling(scenario);
+        Behandling behandling = AvklarFaktaTestUtil.opprettBehandling(scenario, getEntityManager());
 
         FaktaUttakDto dto = AvklarFaktaTestUtil.opprettDtoAvklarFaktaUttakDto();
         tjeneste().bekreftOppgittePerioder(dto.getBekreftedePerioder(), behandling);
@@ -78,7 +78,7 @@ public class KontrollerOppgittFordelingTjenesteTest extends EntityManagerAwareTe
             BehandlingStegType.VURDER_UTTAK);
         scenario.lagre(repositoryProvider);
         // Behandling
-        Behandling behandling = AvklarFaktaTestUtil.opprettBehandling(scenario);
+        Behandling behandling = AvklarFaktaTestUtil.opprettBehandling(scenario, getEntityManager());
 
         OverstyringFaktaUttakDto.SaksbehandlerOverstyrerFaktaUttakDto dto = AvklarFaktaTestUtil.opprettDtoManuellAvklarFaktaUttakDto();
         tjeneste().bekreftOppgittePerioder(dto.getBekreftedePerioder(), behandling);
@@ -112,7 +112,7 @@ public class KontrollerOppgittFordelingTjenesteTest extends EntityManagerAwareTe
         scenario.medFordeling(new OppgittFordelingEntitet(gjeldendePerioder, false));
         scenario.lagre(repositoryProvider);
 
-        Behandling behandling = AvklarFaktaTestUtil.opprettBehandling(scenario);
+        Behandling behandling = AvklarFaktaTestUtil.opprettBehandling(scenario, getEntityManager());
 
         LocalDate nyDato = LocalDate.of(2019, 2, 10);
         BekreftetOppgittPeriodeDto bekreftetOppgittPeriodeDto = getBekreftetUttakPeriodeDto(nyDato, nyDato.plusDays(1),

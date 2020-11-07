@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -88,14 +89,14 @@ public class FaktaUttakOppdatererTest {
     }
 
     @Test
-    public void skal_generere_historikkinnslag_ved_slettet_søknadsperiode() {
+    public void skal_generere_historikkinnslag_ved_slettet_søknadsperiode(EntityManager entityManager) {
 
         // Scenario med avklar fakta uttak
         ScenarioMorSøkerForeldrepenger scenario = AvklarFaktaTestUtil.opprettScenarioMorSøkerForeldrepenger();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER, BehandlingStegType.VURDER_UTTAK);
         scenario.lagre(behandlingRepositoryProvider);
         // Behandling
-        Behandling behandling = AvklarFaktaTestUtil.opprettBehandling(scenario);
+        Behandling behandling = AvklarFaktaTestUtil.opprettBehandling(scenario, entityManager);
         // dto
         FaktaUttakDto dto = opprettDtoAvklarFaktaUttakDto();
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
@@ -118,7 +119,7 @@ public class FaktaUttakOppdatererTest {
     }
 
     @Test
-    public void skal_fjerne_saksbehandling_overstyrings_aksjonspunkt_hvis_finnes() {
+    public void skal_fjerne_saksbehandling_overstyrings_aksjonspunkt_hvis_finnes(EntityManager entityManager) {
 
         // Scenario med både avklar fakta uttak og manuell avklar fakta uttak
         ScenarioMorSøkerForeldrepenger scenario = AvklarFaktaTestUtil.opprettScenarioMorSøkerForeldrepenger();
@@ -126,7 +127,7 @@ public class FaktaUttakOppdatererTest {
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER, BehandlingStegType.VURDER_UTTAK);
         scenario.lagre(behandlingRepositoryProvider);
         // Behandling
-        Behandling behandling = AvklarFaktaTestUtil.opprettBehandling(scenario);
+        Behandling behandling = AvklarFaktaTestUtil.opprettBehandling(scenario, entityManager);
         // dto
         FaktaUttakDto dto = opprettDtoAvklarFaktaUttakDto();
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
@@ -140,7 +141,7 @@ public class FaktaUttakOppdatererTest {
     }
 
     @Test
-    public void skal_avbryte_overstyrings_aksjonspunkt_hvis_finnes() {
+    public void skal_avbryte_overstyrings_aksjonspunkt_hvis_finnes(EntityManager entityManager) {
 
         // Scenario med både avklar fakta uttak og manuell avklar fakta uttak
         ScenarioMorSøkerForeldrepenger scenario = AvklarFaktaTestUtil.opprettScenarioMorSøkerForeldrepenger();
@@ -150,7 +151,7 @@ public class FaktaUttakOppdatererTest {
                 BehandlingStegType.VURDER_UTTAK);
         scenario.lagre(behandlingRepositoryProvider);
         // Behandling
-        Behandling behandling = AvklarFaktaTestUtil.opprettBehandling(scenario);
+        Behandling behandling = AvklarFaktaTestUtil.opprettBehandling(scenario, entityManager);
 
         // dto
         FaktaUttakDto dto = opprettDtoAvklarFaktaUttakDto();

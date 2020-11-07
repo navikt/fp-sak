@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 
 public class BehandlingModellTest extends EntityManagerAwareTest {
 
@@ -38,8 +37,6 @@ public class BehandlingModellTest extends EntityManagerAwareTest {
 
     private final BehandlingType behandlingType = BehandlingType.FØRSTEGANGSSØKNAD;
     private final FagsakYtelseType fagsakYtelseType = FagsakYtelseType.ENGANGSTØNAD;
-
-    public final UnittestRepositoryRule repoRule = new UnittestRepositoryRule();
 
     private static final BehandlingStegType STEG_1 = BehandlingStegType.INNHENT_REGISTEROPP;
     private static final BehandlingStegType STEG_2 = BehandlingStegType.KONTROLLER_FAKTA;

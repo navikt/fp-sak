@@ -58,7 +58,7 @@ public class FaktaUttakHistorikkTjenesteTest extends EntityManagerAwareTest {
             BehandlingStegType.VURDER_UTTAK);
         scenario.lagre(repositoryProvider);
         // Behandling
-        Behandling behandling = AvklarFaktaTestUtil.opprettBehandling(scenario);
+        Behandling behandling = AvklarFaktaTestUtil.opprettBehandling(scenario, getEntityManager());
 
         // dto
         FaktaUttakDto dto = AvklarFaktaTestUtil.opprettDtoAvklarFaktaUttakDto();
@@ -88,7 +88,7 @@ public class FaktaUttakHistorikkTjenesteTest extends EntityManagerAwareTest {
             BehandlingStegType.VURDER_UTTAK);
         scenario.lagre(repositoryProvider);
         // Behandling
-        Behandling behandling = AvklarFaktaTestUtil.opprettBehandling(scenario);
+        Behandling behandling = AvklarFaktaTestUtil.opprettBehandling(scenario, getEntityManager());
 
         // dto
         OverstyringFaktaUttakDto.SaksbehandlerOverstyrerFaktaUttakDto dto = AvklarFaktaTestUtil.opprettDtoManuellAvklarFaktaUttakDto();

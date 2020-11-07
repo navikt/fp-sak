@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.junit.Rule;
+import javax.persistence.EntityManager;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
-import no.nav.foreldrepenger.dbstoette.UnittestRepositoryRule;
 import no.nav.foreldrepenger.domene.uttak.kontroller.fakta.uttakperioder.KontrollerFaktaPeriode;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AvklarAnnenforelderHarRettDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BekreftetOppgittPeriodeDto;
@@ -26,42 +25,45 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.KontrollerFa
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.OverstyringFaktaUttakDto;
 
 public class AvklarFaktaTestUtil {
-    @Rule
-    public static UnittestRepositoryRule repositoryRule = new UnittestRepositoryRule();
-
-    private static BehandlingsresultatRepository behandlingsresultatRepository = new BehandlingsresultatRepository(repositoryRule.getEntityManager());
-    private static YtelsesFordelingRepository ytelsesFordelingRepository = new YtelsesFordelingRepository(repositoryRule.getEntityManager());
 
     private AvklarFaktaTestUtil() {
     }
 
     public static FaktaUttakDto opprettDtoAvklarFaktaUttakDto() {
         FaktaUttakDto dto = new FaktaUttakDto.FaktaUttakPerioderDto();
-        BekreftetOppgittPeriodeDto bekreftetOppgittPeriodeDto1 = getBekreftetUttakPeriodeDto(LocalDate.now().minusDays(20), LocalDate.now().minusDays(11), true);
+        BekreftetOppgittPeriodeDto bekreftetOppgittPeriodeDto1 = getBekreftetUttakPeriodeDto(
+            LocalDate.now().minusDays(20), LocalDate.now().minusDays(11), true);
         bekreftetOppgittPeriodeDto1.setOrginalFom(LocalDate.now().minusDays(20));
         bekreftetOppgittPeriodeDto1.setOrginalTom(LocalDate.now().minusDays(11));
         bekreftetOppgittPeriodeDto1.setOriginalResultat(UttakPeriodeVurderingType.PERIODE_OK);
-        BekreftetOppgittPeriodeDto bekreftetOppgittPeriodeDto2 = getBekreftetUttakPeriodeDto(LocalDate.now().minusDays(10), LocalDate.now(), true);
+        BekreftetOppgittPeriodeDto bekreftetOppgittPeriodeDto2 = getBekreftetUttakPeriodeDto(
+            LocalDate.now().minusDays(10), LocalDate.now(), true);
         bekreftetOppgittPeriodeDto2.setOrginalFom(LocalDate.now().minusDays(10));
         bekreftetOppgittPeriodeDto2.setOrginalTom(LocalDate.now());
         bekreftetOppgittPeriodeDto2.setOriginalResultat(UttakPeriodeVurderingType.PERIODE_OK);
-        BekreftetOppgittPeriodeDto bekreftetOppgittPeriodeDto3 = getBekreftetUttakPeriodeDto(LocalDate.now().plusDays(1), LocalDate.now().plusDays(10), false);
-        dto.setBekreftedePerioder(List.of(bekreftetOppgittPeriodeDto1, bekreftetOppgittPeriodeDto2, bekreftetOppgittPeriodeDto3));
+        BekreftetOppgittPeriodeDto bekreftetOppgittPeriodeDto3 = getBekreftetUttakPeriodeDto(
+            LocalDate.now().plusDays(1), LocalDate.now().plusDays(10), false);
+        dto.setBekreftedePerioder(
+            List.of(bekreftetOppgittPeriodeDto1, bekreftetOppgittPeriodeDto2, bekreftetOppgittPeriodeDto3));
         return dto;
     }
 
     public static OverstyringFaktaUttakDto.SaksbehandlerOverstyrerFaktaUttakDto opprettDtoManuellAvklarFaktaUttakDto() {
         OverstyringFaktaUttakDto.SaksbehandlerOverstyrerFaktaUttakDto dto = new OverstyringFaktaUttakDto.SaksbehandlerOverstyrerFaktaUttakDto();
-        BekreftetOppgittPeriodeDto bekreftetOppgittPeriodeDto1 = getBekreftetUttakPeriodeDto(LocalDate.now().minusDays(20), LocalDate.now().minusDays(11), true);
+        BekreftetOppgittPeriodeDto bekreftetOppgittPeriodeDto1 = getBekreftetUttakPeriodeDto(
+            LocalDate.now().minusDays(20), LocalDate.now().minusDays(11), true);
         bekreftetOppgittPeriodeDto1.setOrginalFom(LocalDate.now().minusDays(20));
         bekreftetOppgittPeriodeDto1.setOrginalTom(LocalDate.now().minusDays(11));
         bekreftetOppgittPeriodeDto1.setOriginalResultat(UttakPeriodeVurderingType.PERIODE_OK);
-        BekreftetOppgittPeriodeDto bekreftetOppgittPeriodeDto2 = getBekreftetUttakPeriodeDto(LocalDate.now().minusDays(10), LocalDate.now(), true);
+        BekreftetOppgittPeriodeDto bekreftetOppgittPeriodeDto2 = getBekreftetUttakPeriodeDto(
+            LocalDate.now().minusDays(10), LocalDate.now(), true);
         bekreftetOppgittPeriodeDto2.setOrginalFom(LocalDate.now().minusDays(10));
         bekreftetOppgittPeriodeDto2.setOrginalTom(LocalDate.now());
         bekreftetOppgittPeriodeDto2.setOriginalResultat(UttakPeriodeVurderingType.PERIODE_OK);
-        BekreftetOppgittPeriodeDto bekreftetOppgittPeriodeDto3 = getBekreftetUttakPeriodeDto(LocalDate.now().plusDays(1), LocalDate.now().plusDays(10), false);
-        dto.setBekreftedePerioder(List.of(bekreftetOppgittPeriodeDto1, bekreftetOppgittPeriodeDto2, bekreftetOppgittPeriodeDto3));
+        BekreftetOppgittPeriodeDto bekreftetOppgittPeriodeDto3 = getBekreftetUttakPeriodeDto(
+            LocalDate.now().plusDays(1), LocalDate.now().plusDays(10), false);
+        dto.setBekreftedePerioder(
+            List.of(bekreftetOppgittPeriodeDto1, bekreftetOppgittPeriodeDto2, bekreftetOppgittPeriodeDto3));
         return dto;
     }
 
@@ -71,7 +73,7 @@ public class AvklarFaktaTestUtil {
         return dto;
     }
 
-    public static Behandling opprettBehandling(ScenarioMorSøkerForeldrepenger scenario) {
+    public static Behandling opprettBehandling(ScenarioMorSøkerForeldrepenger scenario, EntityManager entityManager) {
 
         Behandling behandling = scenario.getBehandling();
 
@@ -83,13 +85,14 @@ public class AvklarFaktaTestUtil {
             .medPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(11))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .build();
-        ytelsesFordelingRepository.lagre(behandling.getId(), new OppgittFordelingEntitet(List.of(periode_1, periode_2), true));
+        YtelsesFordelingRepository ytelsesFordelingRepository = new YtelsesFordelingRepository(entityManager);
+        ytelsesFordelingRepository.lagre(behandling.getId(),
+            new OppgittFordelingEntitet(List.of(periode_1, periode_2), true));
+        var behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
         var behandlingsresultat = behandlingsresultatRepository.hent(behandling.getId());
-        var uttaksperiodegrense = new Uttaksperiodegrense.Builder(behandlingsresultat)
-            .medMottattDato(LocalDate.now().minusMonths(1))
-            .medFørsteLovligeUttaksdag(LocalDate.of(2010, 1, 1))
-            .build();
-        new UttaksperiodegrenseRepository(repositoryRule.getEntityManager()).lagre(behandling.getId(), uttaksperiodegrense);
+        var uttaksperiodegrense = new Uttaksperiodegrense.Builder(behandlingsresultat).medMottattDato(
+            LocalDate.now().minusMonths(1)).medFørsteLovligeUttaksdag(LocalDate.of(2010, 1, 1)).build();
+        new UttaksperiodegrenseRepository(entityManager).lagre(behandling.getId(), uttaksperiodegrense);
         return behandling;
     }
 
@@ -108,13 +111,14 @@ public class AvklarFaktaTestUtil {
             .medPeriode(fom, tom)
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .build();
-        if(bekreftet) {
-            KontrollerFaktaPeriodeLagreDto bekreftetFaktaPeriodeDto = new KontrollerFaktaPeriodeLagreDto.Builder(KontrollerFaktaPeriode.automatiskBekreftet(bekreftetperiode, UttakPeriodeVurderingType.PERIODE_OK), null)
-                .build();
+        if (bekreftet) {
+            KontrollerFaktaPeriodeLagreDto bekreftetFaktaPeriodeDto = new KontrollerFaktaPeriodeLagreDto.Builder(
+                KontrollerFaktaPeriode.automatiskBekreftet(bekreftetperiode, UttakPeriodeVurderingType.PERIODE_OK),
+                null).build();
             bekreftetOppgittPeriodeDto.setBekreftetPeriode(bekreftetFaktaPeriodeDto);
         } else {
-            KontrollerFaktaPeriodeLagreDto ubekreftetFaktaPeriodeDto = new KontrollerFaktaPeriodeLagreDto.Builder(KontrollerFaktaPeriode.ubekreftet(bekreftetperiode), null)
-                .build();
+            KontrollerFaktaPeriodeLagreDto ubekreftetFaktaPeriodeDto = new KontrollerFaktaPeriodeLagreDto.Builder(
+                KontrollerFaktaPeriode.ubekreftet(bekreftetperiode), null).build();
             bekreftetOppgittPeriodeDto.setBekreftetPeriode(ubekreftetFaktaPeriodeDto);
         }
         return bekreftetOppgittPeriodeDto;

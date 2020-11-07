@@ -78,7 +78,7 @@ public class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAware
         scenario.leggTilAksjonspunkt(AKSONSPUNKT_DEF, BehandlingStegType.VURDER_UTTAK);
         scenario.lagre(repositoryProvider);
 
-        var behandling = AvklarFaktaTestUtil.opprettBehandling(scenario);
+        var behandling = AvklarFaktaTestUtil.opprettBehandling(scenario, getEntityManager());
         AvklarAnnenforelderHarRettDto dto = AvklarFaktaTestUtil.opprettDtoAvklarAnnenforelderharIkkeRett();
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
 
@@ -109,7 +109,7 @@ public class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAware
         scenario.leggTilAksjonspunkt(AKSONSPUNKT_DEF, BehandlingStegType.VURDER_UTTAK);
         scenario.lagre(repositoryProvider);
 
-        var behandling = AvklarFaktaTestUtil.opprettBehandling(scenario);
+        var behandling = AvklarFaktaTestUtil.opprettBehandling(scenario, getEntityManager());
         AvklarAnnenforelderHarRettDto dto = AvklarFaktaTestUtil.opprettDtoAvklarAnnenforelderharIkkeRett();
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode()).get();
 
