@@ -70,10 +70,9 @@ public class AnkeVurderingTjeneste {
         var builder = hentAnkeVurderingResultatBuilder(behandling)
             .medErMerknaderMottatt(erMerknaderMottatt)
             .medMerknaderFraBruker(merknadKommentar)
-            //.medTrygderettVurdering(trVurdering != null ? trVurdering : AnkeVurdering.UDEFINERT)
-            //.medTrygderettVurderingOmgjør(trVurderOmgjør != null ? trVurderOmgjør : AnkeVurderingOmgjør.UDEFINERT)
-            //.medTrygderettOmgjørÅrsak(trOmgjørÅrsak != null ? trOmgjørÅrsak : AnkeOmgjørÅrsak.UDEFINERT)
-            ;
+            .medTrygderettVurdering(trVurdering != null ? trVurdering : AnkeVurdering.UDEFINERT)
+            .medTrygderettVurderingOmgjør(trVurderOmgjør != null ? trVurderOmgjør : AnkeVurderingOmgjør.UDEFINERT)
+            .medTrygderettOmgjørÅrsak(trOmgjørÅrsak != null ? trOmgjørÅrsak : AnkeOmgjørÅrsak.UDEFINERT);
         ankeRepository.lagreVurderingsResultat(behandling.getId(), builder.build());
     }
 

@@ -741,7 +741,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
             fødselsdatoene.add(fødselsdato);
         }
 
-        hendelseBuilder.medAntallBarn(antallBarn);
+        hendelseBuilder.tilbakestillBarn().medAntallBarn(antallBarn);
         for (LocalDate localDate : fødselsdatoene) {
             hendelseBuilder.leggTilBarn(localDate);
         }
@@ -759,7 +759,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
     private void byggOmsorgsovertakelsesrelaterteFelter(Omsorgsovertakelse omsorgsovertakelse, FamilieHendelseBuilder hendelseBuilder, SøknadEntitet.Builder søknadBuilder) {
         List<LocalDate> fødselsdatoene = omsorgsovertakelse.getFoedselsdato();
 
-        hendelseBuilder.medAntallBarn(omsorgsovertakelse.getAntallBarn());
+        hendelseBuilder.tilbakestillBarn().medAntallBarn(omsorgsovertakelse.getAntallBarn());
         final FamilieHendelseBuilder.AdopsjonBuilder familieHendelseAdopsjon = hendelseBuilder.getAdopsjonBuilder()
             .medOmsorgsovertakelseDato(omsorgsovertakelse.getOmsorgsovertakelsesdato());
         for (LocalDate localDate : fødselsdatoene) {
@@ -780,7 +780,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
     private void byggAdopsjonsrelaterteFelter(Adopsjon adopsjon, FamilieHendelseBuilder hendelseBuilder) {
         List<LocalDate> fødselsdatoene = adopsjon.getFoedselsdato();
 
-        hendelseBuilder.medAntallBarn(adopsjon.getAntallBarn());
+        hendelseBuilder.tilbakestillBarn().medAntallBarn(adopsjon.getAntallBarn());
         final FamilieHendelseBuilder.AdopsjonBuilder familieHendelseAdopsjon = hendelseBuilder.getAdopsjonBuilder()
             .medAnkomstDato(adopsjon.getAnkomstdato())
             .medErEktefellesBarn(adopsjon.isAdopsjonAvEktefellesBarn())

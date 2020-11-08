@@ -172,6 +172,9 @@ public class AnkeRestTjeneste {
         dto.setErSubsidiartRealitetsbehandles(ankeVurderingResultat.erSubsidiartRealitetsbehandles());
         dto.setErMerknaderMottatt(ankeVurderingResultat.getErMerknaderMottatt());
         dto.setMerknadKommentar(ankeVurderingResultat.getMerknaderFraBruker());
+        dto.setTrygderettVurdering(ankeVurderingResultat.getTrygderettVurdering());
+        dto.setTrygderettVurderingOmgjoer(ankeVurderingResultat.getTrygderettVurderingOmgjør());
+        dto.setTrygderettOmgjoerArsak(ankeVurderingResultat.getTrygderettOmgjørÅrsak());
         dto.setPaAnketBehandlingId(paAnketBehandlingId);
         dto.setPaAnketBehandlingUuid(paAnketBehandlingUuid);
         return dto;

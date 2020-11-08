@@ -31,7 +31,6 @@ BEGIN
         THEN
             -- Grant for fpinfo_schema (fpinfo)
             EXECUTE IMMEDIATE ('GRANT SELECT ON FAGSAK                              TO fpinfo_schema WITH GRANT OPTION');
-            EXECUTE IMMEDIATE ('GRANT SELECT ON KODELISTE                           TO fpinfo_schema WITH GRANT OPTION');
             EXECUTE IMMEDIATE ('GRANT SELECT ON FH_FAMILIE_HENDELSE                 TO fpinfo_schema WITH GRANT OPTION');
             EXECUTE IMMEDIATE ('GRANT SELECT ON GR_PERSONOPPLYSNING                 TO fpinfo_schema WITH GRANT OPTION');
             EXECUTE IMMEDIATE ('GRANT SELECT ON PO_INFORMASJON                      TO fpinfo_schema WITH GRANT OPTION');
