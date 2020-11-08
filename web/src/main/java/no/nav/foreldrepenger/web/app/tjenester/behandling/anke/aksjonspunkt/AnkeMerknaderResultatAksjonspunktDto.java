@@ -47,14 +47,6 @@ public class AnkeMerknaderResultatAksjonspunktDto extends BekreftetAksjonspunktD
         // For Jackson
     }
 
-    public AnkeMerknaderResultatAksjonspunktDto (boolean avsluttBehandling,
-                                                 boolean erMerknaderMottatt,
-                                                 String merknadKommentar){
-        this.erMerknaderMottatt = erMerknaderMottatt;
-        this.merknadKommentar = merknadKommentar;
-        this.avsluttBehandling =avsluttBehandling;
-    }
-
     public boolean erMerknaderMottatt() {
         return erMerknaderMottatt;
     }
