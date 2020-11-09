@@ -7,7 +7,7 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 
 public class KalkulusTilIAYMapper {
-    public static InternArbeidsforholdRef mapArbeidsforholdRed(InternArbeidsforholdRefDto arbeidsforholdRef) {
+    public static InternArbeidsforholdRef mapArbeidsforholdRef(InternArbeidsforholdRefDto arbeidsforholdRef) {
         return InternArbeidsforholdRef.ref(arbeidsforholdRef.getReferanse());
     }
 

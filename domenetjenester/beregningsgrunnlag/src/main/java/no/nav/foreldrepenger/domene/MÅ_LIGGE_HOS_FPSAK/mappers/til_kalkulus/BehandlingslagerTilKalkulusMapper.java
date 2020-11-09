@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -15,11 +16,16 @@ import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningRefu
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagGrunnlagDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagGrunnlagDtoBuilder;
+import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.FaktaAggregatDto;
+import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.FaktaAktørDto;
+import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.FaktaArbeidsforholdDto;
 import no.nav.folketrygdloven.kalkulator.modell.opptjening.OpptjeningAktivitetType;
+import no.nav.folketrygdloven.kalkulator.modell.typer.InternArbeidsforholdRefDto;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BeregningAktivitetHandlingType;
 import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BeregningsgrunnlagRegelType;
 import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.FaktaOmBeregningTilfelle;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningAktivitetAggregatEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningAktivitetEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningAktivitetOverstyringerEntitet;
@@ -27,6 +33,7 @@ import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningRefusjonO
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningRefusjonPeriodeEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagGrunnlagEntitet;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRegelSporing;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 
@@ -130,7 +137,7 @@ public class BehandlingslagerTilKalkulusMapper {
         oppdatere.medRegisterAktiviteter(mapRegisterAktiviteter(beregningsgrunnlagFraFpsak.getRegisterAktiviteter()));
         beregningsgrunnlagFraFpsak.getSaksbehandletAktiviteter().ifPresent(beregningAktivitetAggregatDto -> oppdatere.medSaksbehandletAktiviteter(mapSaksbehandletAktivitet(beregningAktivitetAggregatDto)));
         beregningsgrunnlagFraFpsak.getRefusjonOverstyringer().ifPresent(beregningRefusjonOverstyringerDto -> oppdatere.medRefusjonOverstyring(mapRefusjonOverstyring(beregningRefusjonOverstyringerDto)));
-
+        beregningsgrunnlagFraFpsak.getBeregningsgrunnlag().flatMap(BehandlingslagerTilKalkulusMapper::mapFaktaAggregat).ifPresent(oppdatere::medFaktaAggregat);
         return oppdatere.build(no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BeregningsgrunnlagTilstand.fraKode(beregningsgrunnlagFraFpsak.getBeregningsgrunnlagTilstand().getKode()));
     }
 
@@ -140,4 +147,92 @@ public class BehandlingslagerTilKalkulusMapper {
         registerAktiviteter.getBeregningAktiviteter().forEach(mapAktivitet(builder));
         return builder.build();
     }
+
+    public static Optional<FaktaAggregatDto> mapFaktaAggregat(BeregningsgrunnlagEntitet beregningsgrunnlagEntitet) {
+        // I fakta om beregning settes alle faktaavklaringer på første periode og vi kan derfor bruke denne til å hente ut avklart fakta
+        var førstePeriode = beregningsgrunnlagEntitet.getBeregningsgrunnlagPerioder().get(0);
+        var andeler = førstePeriode.getBeregningsgrunnlagPrStatusOgAndelList();
+        FaktaAggregatDto.Builder faktaAggregatBuilder = FaktaAggregatDto.builder();
+        mapFaktaArbeidsforhold(andeler).forEach(faktaAggregatBuilder::erstattEksisterendeEllerLeggTil);
+        mapFaktaAktør(andeler, beregningsgrunnlagEntitet.getFaktaOmBeregningTilfeller())
+            .ifPresent(faktaAggregatBuilder::medFaktaAktør);
+        return faktaAggregatBuilder.manglerFakta() ? Optional.empty() : Optional.of(faktaAggregatBuilder.build());
+    }
+
+    private static List<FaktaArbeidsforholdDto> mapFaktaArbeidsforhold(List<BeregningsgrunnlagPrStatusOgAndel> andeler) {
+        return andeler.stream()
+            .filter(a -> a.getAktivitetStatus().erArbeidstaker())
+            .filter(a -> a.getArbeidsgiver().isPresent())
+            .map(a -> {
+                FaktaArbeidsforholdDto.Builder builder = new FaktaArbeidsforholdDto.Builder(IAYMapperTilKalkulus.mapArbeidsgiver(a.getArbeidsgiver().get()),
+                    a.getArbeidsforholdRef().map(IAYMapperTilKalkulus::mapArbeidsforholdRef).orElse(InternArbeidsforholdRefDto.nullRef()));
+                a.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getErTidsbegrensetArbeidsforhold).ifPresent(builder::medErTidsbegrenset);
+                a.mottarYtelse().ifPresent(builder::medHarMottattYtelse);
+                a.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::erLønnsendringIBeregningsperioden).ifPresent(builder::medHarLønnsendringIBeregningsperioden);
+                return builder.manglerFakta() ? null : builder.build();
+            })
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
+    }
+
+    private static Optional<FaktaAktørDto> mapFaktaAktør(List<BeregningsgrunnlagPrStatusOgAndel> andeler, List<no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller) {
+        FaktaAktørDto.Builder faktaAktørBuilder = FaktaAktørDto.builder();
+        mapEtterlønnSluttpakke(faktaOmBeregningTilfeller, faktaAktørBuilder);
+        mapMottarFLYtelse(andeler, faktaOmBeregningTilfeller, faktaAktørBuilder);
+        mapErNyIArbeidslivetSN(andeler, faktaOmBeregningTilfeller, faktaAktørBuilder);
+        mapSkalBesteberegnes(faktaOmBeregningTilfeller, faktaAktørBuilder);
+        mapErNyoppstartetFL(andeler, faktaOmBeregningTilfeller, faktaAktørBuilder);
+        return faktaAktørBuilder.erUgyldig() ? Optional.empty() : Optional.of(faktaAktørBuilder.build());
+    }
+
+    private static void mapErNyoppstartetFL(List<BeregningsgrunnlagPrStatusOgAndel> andeler,
+                                            List<no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller,
+                                            FaktaAktørDto.Builder faktaAktørBuilder) {
+        boolean harVurdertNyoppstartetFL = faktaOmBeregningTilfeller.stream().anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle.VURDER_NYOPPSTARTET_FL));
+        if (harVurdertNyoppstartetFL) {
+            andeler.stream().filter(a -> a.getAktivitetStatus().erFrilanser() && a.erNyoppstartet().isPresent())
+                .findFirst()
+                .map(BeregningsgrunnlagPrStatusOgAndel::erNyoppstartet)
+                .map(Optional::get)
+                .ifPresent(faktaAktørBuilder::medErNyoppstartetFL);
+        }
+    }
+
+    private static void mapSkalBesteberegnes(List<no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller, FaktaAktørDto.Builder faktaAktørBuilder) {
+        boolean harVurdertBesteberegning = faktaOmBeregningTilfeller.stream().anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle.VURDER_BESTEBEREGNING));
+        if (harVurdertBesteberegning) {
+            boolean harFastsattBesteberegning = faktaOmBeregningTilfeller.stream().anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle.FASTSETT_BESTEBEREGNING_FØDENDE_KVINNE));
+            faktaAktørBuilder.medSkalBesteberegnes(harFastsattBesteberegning);
+        }
+    }
+
+    private static void mapErNyIArbeidslivetSN(List<BeregningsgrunnlagPrStatusOgAndel> andeler, List<no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller, FaktaAktørDto.Builder faktaAktørBuilder) {
+        boolean harVurdertNyIArbeidslivetSN = faktaOmBeregningTilfeller.stream().anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle.VURDER_SN_NY_I_ARBEIDSLIVET));
+        if (harVurdertNyIArbeidslivetSN) {
+            andeler.stream().filter(a -> a.getAktivitetStatus().erSelvstendigNæringsdrivende())
+                .findFirst()
+                .map(BeregningsgrunnlagPrStatusOgAndel::getNyIArbeidslivet)
+                .ifPresent(faktaAktørBuilder::medErNyIArbeidslivetSN);
+        }
+    }
+
+    private static void mapMottarFLYtelse(List<BeregningsgrunnlagPrStatusOgAndel> andeler, List<no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller, FaktaAktørDto.Builder faktaAktørBuilder) {
+        boolean harVurdertMottarYtelse = faktaOmBeregningTilfeller.stream().anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle.VURDER_MOTTAR_YTELSE));
+        if (harVurdertMottarYtelse) {
+            andeler.stream().filter(a -> a.getAktivitetStatus().erFrilanser() && a.mottarYtelse().isPresent())
+                .findFirst()
+                .map(BeregningsgrunnlagPrStatusOgAndel::mottarYtelse)
+                .map(Optional::get)
+                .ifPresent(faktaAktørBuilder::medHarFLMottattYtelse);
+        }
+    }
+
+    private static void mapEtterlønnSluttpakke(List<no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller, FaktaAktørDto.Builder faktaAktørBuilder) {
+        boolean harVurdertEtterlønnSluttpakke = faktaOmBeregningTilfeller.stream().anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle.VURDER_ETTERLØNN_SLUTTPAKKE));
+        boolean harEtterlønnSlutpakke = faktaOmBeregningTilfeller.stream().anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle.FASTSETT_ETTERLØNN_SLUTTPAKKE));
+        if (harVurdertEtterlønnSluttpakke) {
+            faktaAktørBuilder.medMottarEtterlønnSluttpakke(harEtterlønnSlutpakke);
+        }
+    }
+
 }
