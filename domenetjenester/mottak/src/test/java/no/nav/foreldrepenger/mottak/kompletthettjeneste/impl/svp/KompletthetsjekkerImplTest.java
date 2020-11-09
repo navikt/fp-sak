@@ -26,11 +26,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
@@ -85,22 +83,18 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         KompletthetssjekkerSøknadImpl kompletthetssjekkerSøknadImpl = new KompletthetssjekkerSøknadFørstegangsbehandlingImpl(
             dokumentArkivTjeneste, repositoryProvider, Period.parse("P4W"));
-        KompletthetssjekkerInntektsmelding kompletthetssjekkerInntektsmelding = new KompletthetssjekkerInntektsmeldingImpl(
+        KompletthetssjekkerInntektsmelding kompletthetssjekkerInntektsmelding = new KompletthetssjekkerInntektsmelding(
             inntektsmeldingArkivTjeneste);
         KompletthetsjekkerFelles kompletthetsjekkerFelles = new KompletthetsjekkerFelles(repositoryProvider,
-            dokumentBestillerTjenesteMock, dokumentBehandlingTjenesteMock);
-        SøknadRepository søknadRepository = repositoryProvider.getSøknadRepository();
-        BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-        kompletthetsjekkerImpl = new KompletthetsjekkerImpl(kompletthetssjekkerSøknadImpl,
-            kompletthetssjekkerInntektsmelding, inntektsmeldingTjeneste, kompletthetsjekkerFelles, søknadRepository,
-            behandlingRepository);
+            dokumentBestillerTjenesteMock, dokumentBehandlingTjenesteMock, kompletthetssjekkerInntektsmelding, inntektsmeldingTjeneste);
+        kompletthetsjekkerImpl = new KompletthetsjekkerImpl(kompletthetssjekkerSøknadImpl, kompletthetsjekkerFelles);
         testUtil = new KompletthetssjekkerTestUtil(repositoryProvider);
     }
 
     @Test
     public void skal_sende_brev_når_inntektsmelding_mangler() {
         // Arrange
-        Behandling behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
+        Behandling behandling =  ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger().lagre(repositoryProvider);
         mockManglendeInntektsmeldingGrunnlag();
         testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusWeeks(1),
             STARTDATO_PERMISJON);
@@ -119,7 +113,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     @Test
     public void skal_ikke_sende_brev_når_inntektsmelding_mangler_men_sak_er_migrert_fra_infotrygd() {
         // Arrange
-        Behandling behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
+        Behandling behandling = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger().lagre(repositoryProvider);
         behandling.setMigrertKilde(Fagsystem.INFOTRYGD);
         mockManglendeInntektsmeldingGrunnlag();
         testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusWeeks(1),

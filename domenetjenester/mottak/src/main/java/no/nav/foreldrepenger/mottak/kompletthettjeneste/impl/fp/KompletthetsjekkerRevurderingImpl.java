@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsa
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
-import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
@@ -32,7 +31,6 @@ public class KompletthetsjekkerRevurderingImpl implements Kompletthetsjekker {
 
     private KompletthetssjekkerSøknad kompletthetssjekkerSøknad;
     private KompletthetsjekkerFelles fellesUtil;
-    private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     private SøknadRepository søknadRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
 
@@ -43,12 +41,10 @@ public class KompletthetsjekkerRevurderingImpl implements Kompletthetsjekker {
     @Inject
     public KompletthetsjekkerRevurderingImpl(@FagsakYtelseTypeRef("FP") @BehandlingTypeRef("BT-004") KompletthetssjekkerSøknad kompletthetssjekkerSøknad,
                                            KompletthetsjekkerFelles fellesUtil,
-                                           InntektsmeldingTjeneste inntektsmeldingTjeneste,
                                            SøknadRepository søknadRepository,
                                            BehandlingVedtakRepository behandlingVedtakRepository) {
         this.kompletthetssjekkerSøknad = kompletthetssjekkerSøknad;
         this.fellesUtil = fellesUtil;
-        this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.søknadRepository = søknadRepository;
         this.behandlingVedtakRepository = behandlingVedtakRepository;
     }
@@ -93,8 +89,7 @@ public class KompletthetsjekkerRevurderingImpl implements Kompletthetsjekker {
 
     @Override
     public List<ManglendeVedlegg> utledAlleManglendeVedleggSomIkkeKommer(BehandlingReferanse ref) {
-        return inntektsmeldingTjeneste
-            .hentAlleInntektsmeldingerSomIkkeKommer(ref.getBehandlingId())
+        return fellesUtil.hentAlleInntektsmeldingerSomIkkeKommer(ref)
             .stream()
             .map(e -> new ManglendeVedlegg(DokumentTypeId.INNTEKTSMELDING, e.getArbeidsgiver().getIdentifikator(), true))
             .collect(Collectors.toList());

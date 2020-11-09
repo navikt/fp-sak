@@ -50,10 +50,10 @@ public class KompletthetsjekkerRevurderingImplTest extends EntityManagerAwareTes
         testUtil = new KompletthetssjekkerTestUtil(repositoryProvider);
         var dokumentBestillerApplikasjonTjeneste = mock(DokumentBestillerTjeneste.class);
         var dokumentBehandlingTjeneste = mock(DokumentBehandlingTjeneste.class);
-        var kompletthetsjekkerFelles = new KompletthetsjekkerFelles(repositoryProvider, dokumentBestillerApplikasjonTjeneste, dokumentBehandlingTjeneste);
+        var kompletthetsjekkerFelles = new KompletthetsjekkerFelles(repositoryProvider, dokumentBestillerApplikasjonTjeneste,
+            dokumentBehandlingTjeneste, null, new InntektsmeldingTjeneste(new AbakusInMemoryInntektArbeidYtelseTjeneste()));
         kompletthetsjekkerRevurderingImpl = new KompletthetsjekkerRevurderingImpl(
             kompletthetssjekkerSøknad, kompletthetsjekkerFelles,
-            new InntektsmeldingTjeneste(new AbakusInMemoryInntektArbeidYtelseTjeneste()),
             new SøknadRepository(entityManager, new BehandlingRepository(entityManager)),
             new BehandlingVedtakRepository(entityManager));
 

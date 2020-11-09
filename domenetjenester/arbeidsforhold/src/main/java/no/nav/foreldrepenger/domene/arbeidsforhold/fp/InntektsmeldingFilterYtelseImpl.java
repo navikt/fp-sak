@@ -3,7 +3,9 @@ package no.nav.foreldrepenger.domene.arbeidsforhold.fp;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -20,6 +22,7 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektspost;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 @FagsakYtelseTypeRef("FP")
 @ApplicationScoped
@@ -46,19 +49,37 @@ public class InntektsmeldingFilterYtelseImpl implements InntektsmeldingFilterYte
         }
         Map<Arbeidsgiver, Set<V>> filtrert = new HashMap<>();
         Map<Arbeidsgiver, Set<Inntektspost>> inntekterPrArbgiver = hentInntekterForUtledningAvInntektsmeldinger(referanse, inntektArbeidYtelseGrunnlag.get());
-        påkrevde.entrySet().forEach(entry -> {
-            if (inntekterPrArbgiver.get(entry.getKey()) != null && !inntekterPrArbgiver.get(entry.getKey()).isEmpty()) {
-                filtrert.put(entry.getKey(), entry.getValue());
+        påkrevde.forEach((key, value) -> {
+            if (inntekterPrArbgiver.get(key) != null && !inntekterPrArbgiver.get(key).isEmpty()) {
+                filtrert.put(key, value);
             }
         });
         // Ligg til annen logikk, som fx utelate arbeidsforhold med stillingsprosent 0.
         return filtrert;
     }
 
+    @Override
+    public <V> Map<Arbeidsgiver, Set<V>> filtrerInntektsmeldingerForKompletthetAktive(BehandlingReferanse referanse,
+                                                                               Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
+                                                                               Map<Arbeidsgiver, Set<V>> påkrevde) {
+        if (!inntektArbeidYtelseGrunnlag.isPresent()) {
+            return påkrevde;
+        }
+        Map<Arbeidsgiver, Set<V>> filtrert = new HashMap<>();
+        Map<Arbeidsgiver, Set<Inntektspost>> inntekterPrArbgiver = hentInntekterForUtledningAvInntektsmeldinger(referanse, inntektArbeidYtelseGrunnlag.get());
+        List<Arbeidsgiver> aktiveArbeidsgivere = inntekterSisteFireMåneder(referanse, inntekterPrArbgiver);
+        påkrevde.forEach((key, value) -> {
+            if (aktiveArbeidsgivere.contains(key)) {
+                filtrert.put(key, value);
+            }
+        });
+        return filtrert;
+    }
+
     private Map<Arbeidsgiver, Set<Inntektspost>> hentInntekterForUtledningAvInntektsmeldinger(BehandlingReferanse referanse, InntektArbeidYtelseGrunnlag grunnlag) {
         LocalDate inntektsPeriodeFom = referanse.getUtledetSkjæringstidspunkt().minus(SJEKK_INNTEKT_PERIODE);
         Map<Arbeidsgiver, Set<Inntektspost>> inntekterPrArbgiver = new HashMap<>();
-        
+
         var filter = grunnlag.getAktørInntektFraRegister(referanse.getAktørId()).map(ai -> new InntektFilter(ai).før(referanse.getUtledetSkjæringstidspunkt())).orElse(InntektFilter.EMPTY);
 
         filter.getAlleInntektPensjonsgivende()
@@ -75,5 +96,22 @@ public class InntektsmeldingFilterYtelseImpl implements InntektsmeldingFilterYte
             }
         });
         return inntekterPrArbgiver;
+    }
+
+    private List<Arbeidsgiver> inntekterSisteFireMåneder(BehandlingReferanse referanse, Map<Arbeidsgiver, Set<Inntektspost>> inntektOpptjeningsperiode) {
+        List<Arbeidsgiver> aktiveArbeidsgivere = new ArrayList<>();
+        var stp = referanse.getUtledetSkjæringstidspunkt();
+        var tidligstedato = LocalDate.now().isBefore(stp) ? LocalDate.now() : stp;
+        var inntekterFom = tidligstedato.getDayOfMonth() > 5 ? tidligstedato.minusMonths(4).withDayOfMonth(1) : tidligstedato.minusMonths(5).withDayOfMonth(1);
+        inntektOpptjeningsperiode.forEach((key, value) -> {
+            var poster = value.stream()
+                .filter(i -> i.getPeriode().getTomDato().isAfter(inntekterFom) && i.getPeriode().getFomDato().isBefore(tidligstedato))
+                .map(Inntektspost::getPeriode).map(DatoIntervallEntitet::getFomDato).map(LocalDate::getMonthValue)
+                .collect(Collectors.toSet());
+            if (poster.size() >= 3) {
+                aktiveArbeidsgivere.add(key);
+            }
+        });
+        return aktiveArbeidsgivere;
     }
 }

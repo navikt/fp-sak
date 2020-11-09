@@ -1,25 +1,52 @@
 package no.nav.foreldrepenger.mottak.kompletthettjeneste;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
+import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
 
-public interface KompletthetssjekkerInntektsmelding {
+@ApplicationScoped
+public class KompletthetssjekkerInntektsmelding {
 
-    /**
-     * Utleder manglende inntektsmeldinger
-     *
-     * @return Manglende påkrevde inntektsmeldinger som ennå ikke er mottatt
-     */
-    List<ManglendeVedlegg> utledManglendeInntektsmeldinger(BehandlingReferanse ref);
+    private InntektsmeldingRegisterTjeneste inntektsmeldingArkivTjeneste;
 
-    /**
-     * Henter alle påkrevde inntektsmeldinger fra grunnlaget, og filterer ut alle
-     * motatte.
-     *
-     * @return Manglende påkrevde inntektsmeldinger som ennå ikke er motatt
-     */
-    List<ManglendeVedlegg> utledManglendeInntektsmeldingerFraGrunnlag(BehandlingReferanse ref);
+    public KompletthetssjekkerInntektsmelding() {
+        //DCI
+    }
 
+    @Inject
+    public KompletthetssjekkerInntektsmelding(InntektsmeldingRegisterTjeneste inntektsmeldingArkivTjeneste) {
+        this.inntektsmeldingArkivTjeneste = inntektsmeldingArkivTjeneste;
+    }
+
+
+    public List<ManglendeVedlegg> utledManglendeInntektsmeldinger(BehandlingReferanse ref) {
+        return inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraAAreg(ref, false)
+            .keySet()
+            .stream()
+            .map(it -> new ManglendeVedlegg(DokumentTypeId.INNTEKTSMELDING, it.getIdentifikator()))
+            .collect(Collectors.toList());
+    }
+
+    public List<ManglendeVedlegg> utledManglendeInntektsmeldingerFraGrunnlag(BehandlingReferanse ref) {
+        return inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(ref, false)
+            .keySet()
+            .stream()
+            .map(it -> new ManglendeVedlegg(DokumentTypeId.INNTEKTSMELDING, it.getIdentifikator()))
+            .collect(Collectors.toList());
+    }
+
+    public List<ManglendeVedlegg> utledManglendeInntektsmeldingerFraGrunnlagForAutopunkt(BehandlingReferanse ref) {
+        return inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlagForAutopunkt(ref, false)
+            .keySet()
+            .stream()
+            .map(it -> new ManglendeVedlegg(DokumentTypeId.INNTEKTSMELDING, it.getIdentifikator()))
+            .collect(Collectors.toList());
+    }
 }
