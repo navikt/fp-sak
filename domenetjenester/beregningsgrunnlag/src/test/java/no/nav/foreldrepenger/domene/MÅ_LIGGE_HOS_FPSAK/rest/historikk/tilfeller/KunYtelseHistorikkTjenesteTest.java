@@ -66,7 +66,6 @@ public class KunYtelseHistorikkTjenesteTest extends EntityManagerAwareTest {
             .build(beregningsgrunnlag);
         BeregningsgrunnlagPrStatusOgAndel.builder()
             .medAndelsnr(ANDELSNR)
-            .medLagtTilAvSaksbehandler(false)
             .medAktivitetStatus(BRUKERS_ANDEL)
             .build(periode1);
         var entityManager = getEntityManager();

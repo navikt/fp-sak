@@ -92,7 +92,6 @@ public class KalkulusTilBGMapper {
             .medNyIArbeidslivet(fraKalkulus.getNyIArbeidslivet())
             .medInntektskategori(fraKalkulus.getInntektskategori() == null ? null : Inntektskategori.fraKode(fraKalkulus.getInntektskategori().getKode()))
             .medKilde(AndelKilde.fraKode(fraKalkulus.getKilde().getKode()))
-            .medLagtTilAvSaksbehandler(fraKalkulus.getLagtTilAvSaksbehandler())
             .medOrginalDagsatsFraTilstøtendeYtelse(fraKalkulus.getOrginalDagsatsFraTilstøtendeYtelse());
 
         if (fraKalkulus.getBeregningsperiodeFom() != null) {

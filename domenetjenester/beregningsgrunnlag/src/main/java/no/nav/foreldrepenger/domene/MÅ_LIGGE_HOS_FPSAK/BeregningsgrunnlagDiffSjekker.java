@@ -242,7 +242,7 @@ class BeregningsgrunnlagDiffSjekker {
         List<BeregningsgrunnlagPrStatusOgAndel> forrigeAndeler = forrigePeriode
             .getBeregningsgrunnlagPrStatusOgAndelList()
             .stream()
-            .filter(a -> !a.getLagtTilAvSaksbehandler())
+            .filter(a -> !a.erLagtTilAvSaksbehandler())
             .collect(Collectors.toList());
         return new Tuple<>(aktiveAndeler, forrigeAndeler);
     }

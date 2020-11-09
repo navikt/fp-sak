@@ -17,7 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.persistence.AttributeOverride;
@@ -42,7 +41,6 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.Kopimaskin;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
-import no.nav.foreldrepenger.domene.typer.Beløp;
 
 @Entity(name = "BeregningsgrunnlagPeriode")
 @Table(name = "BEREGNINGSGRUNNLAG_PERIODE")
@@ -286,7 +284,7 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
             verifiserKanModifisere();
             List<BeregningsgrunnlagPrStatusOgAndel> andelerSomSkalFjernes = new ArrayList<>();
             for (BeregningsgrunnlagPrStatusOgAndel andel : kladd.getBeregningsgrunnlagPrStatusOgAndelList()) {
-                if (!listeAvAndelsnr.contains(andel.getAndelsnr()) && andel.getLagtTilAvSaksbehandler()) {
+                if (!listeAvAndelsnr.contains(andel.getAndelsnr()) && andel.erLagtTilAvSaksbehandler()) {
                     andelerSomSkalFjernes.add(andel);
                 }
             }
