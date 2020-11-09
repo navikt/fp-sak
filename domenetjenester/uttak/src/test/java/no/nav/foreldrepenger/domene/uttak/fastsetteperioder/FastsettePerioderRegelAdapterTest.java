@@ -14,8 +14,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -59,7 +62,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEnti
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
@@ -102,7 +105,8 @@ import no.nav.foreldrepenger.regler.uttak.konfig.Konfigurasjon;
 import no.nav.foreldrepenger.regler.uttak.konfig.Parametertype;
 import no.nav.foreldrepenger.regler.uttak.konfig.StandardKonfigurasjon;
 
-public class FastsettePerioderRegelAdapterTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class FastsettePerioderRegelAdapterTest {
 
     private final LocalDate fødselsdato = LocalDate.of(2018, 6, 22);
     private final LocalDate mottattDato = LocalDate.of(2018, 6, 22);
@@ -121,15 +125,15 @@ public class FastsettePerioderRegelAdapterTest extends EntityManagerAwareTest {
     private FastsettePerioderRegelAdapter fastsettePerioderRegelAdapter;
 
     @BeforeEach
-    public void setUp() {
-        repositoryProvider = new UttakRepositoryProvider(getEntityManager());
+    public void setUp(EntityManager entityManager) {
+        repositoryProvider = new UttakRepositoryProvider(entityManager);
         var fastsettePerioderRegelResultatKonverterer = new FastsettePerioderRegelResultatKonverterer(repositoryProvider.getFpUttakRepository(),
             repositoryProvider.getYtelsesFordelingRepository());
         var grunnlagBygger = new FastsettePerioderRegelGrunnlagBygger(
             new AnnenPartGrunnlagBygger(repositoryProvider.getFpUttakRepository()),
             new ArbeidGrunnlagBygger(repositoryProvider),
             new BehandlingGrunnlagBygger(),
-            new DatoerGrunnlagBygger(new PersonopplysningTjeneste(new PersonopplysningRepository(getEntityManager()))),
+            new DatoerGrunnlagBygger(new PersonopplysningTjeneste(new PersonopplysningRepository(entityManager))),
             new MedlemskapGrunnlagBygger(),
             new RettOgOmsorgGrunnlagBygger(repositoryProvider, new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository())),
             new RevurderingGrunnlagBygger(repositoryProvider.getYtelsesFordelingRepository(), repositoryProvider.getFpUttakRepository()),

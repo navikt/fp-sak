@@ -8,8 +8,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.Optional;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -24,18 +27,18 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 
-public class OpphørUttakTjenesteTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class OpphørUttakTjenesteTest {
 
     private UttakRepositoryProvider repositoryProvider;
     private OpphørUttakTjeneste opphørUttakTjeneste;
 
 
     @BeforeEach
-    public void setup() {
-        var entityManager = getEntityManager();
+    void setUp(EntityManager entityManager) {
         repositoryProvider = new UttakRepositoryProvider(entityManager);
         opphørUttakTjeneste = new OpphørUttakTjeneste(repositoryProvider);
     }

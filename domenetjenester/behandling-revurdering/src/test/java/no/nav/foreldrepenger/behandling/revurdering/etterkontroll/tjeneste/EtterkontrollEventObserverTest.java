@@ -8,6 +8,8 @@ import java.time.Month;
 import java.time.Period;
 import java.util.List;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,11 +35,12 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 @ExtendWith(MockitoExtension.class)
-public class EtterkontrollEventObserverTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class EtterkontrollEventObserverTest {
 
     private static AktørId GITT_MOR_AKTØR_ID = AktørId.dummy();
     private static final LocalDate TERMINDATO = LocalDate.now().plusMonths(3);
@@ -52,17 +55,17 @@ public class EtterkontrollEventObserverTest extends EntityManagerAwareTest {
     private BehandlingRepository behandlingRepository;
 
     @BeforeEach
-    public void setUp() {
-        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        etterkontrollRepository = new EtterkontrollRepository(getEntityManager());
-        familieHendelseRepository = new FamilieHendelseRepository(getEntityManager());
-        behandlingRepository = new BehandlingRepository(getEntityManager());
+    public void setUp(EntityManager entityManager) {
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        etterkontrollRepository = new EtterkontrollRepository(entityManager);
+        familieHendelseRepository = new FamilieHendelseRepository(entityManager);
+        behandlingRepository = new BehandlingRepository(entityManager);
         etterkontrollEventObserver = new EtterkontrollEventObserver(etterkontrollRepository, familieHendelseRepository,
             behandlingRepository, Period.parse("P60D"));
     }
 
     @Test
-    public void observerFamiliehendelseEvent() throws Exception {
+    public void observerFamiliehendelseEvent() {
 
         Behandling behandling = opprettBehandlingMedOppgittTermin(TERMINDATO);
 
@@ -88,7 +91,7 @@ public class EtterkontrollEventObserverTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void observerBehandlingVedtakEvent() throws Exception {
+    public void observerBehandlingVedtakEvent() {
 
         Behandling behandling = opprettBehandlingMedOppgittTermin(TERMINDATO);
 

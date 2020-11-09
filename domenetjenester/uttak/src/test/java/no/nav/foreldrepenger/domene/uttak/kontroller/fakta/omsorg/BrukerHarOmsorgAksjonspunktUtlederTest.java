@@ -7,8 +7,11 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
@@ -24,7 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
@@ -38,7 +41,8 @@ import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.personopplysn
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.personopplysning.PersonInformasjon;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.personopplysning.PersonInformasjon.Builder;
 
-public class BrukerHarOmsorgAksjonspunktUtlederTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class BrukerHarOmsorgAksjonspunktUtlederTest {
 
     private static final LocalDate TERMINDATO = LocalDate.now().plusMonths(3);
     private static final LocalDate FØDSELSDATO_NÅ = LocalDate.now();
@@ -54,8 +58,7 @@ public class BrukerHarOmsorgAksjonspunktUtlederTest extends EntityManagerAwareTe
     private BrukerHarOmsorgAksjonspunktUtleder aksjonspunktUtleder;
 
     @BeforeEach
-    public void oppsett() {
-        var entityManager = getEntityManager();
+    void setUp(EntityManager entityManager) {
         repositoryProvider = new UttakRepositoryProvider(entityManager);
         aksjonspunktUtleder = new BrukerHarOmsorgAksjonspunktUtleder(repositoryProvider,
             new PersonopplysningTjeneste(new PersonopplysningRepository(entityManager)), FORBEHOLDT_MOR_ETTER_FØDSEL);

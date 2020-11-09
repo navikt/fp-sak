@@ -6,12 +6,15 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
@@ -20,7 +23,8 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.input.YtelsespesifiktGrunnlag;
 import no.nav.svangerskapspenger.domene.søknad.IngenTilrettelegging;
 
-public class RegelmodellSøknaderMapperTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class RegelmodellSøknaderMapperTest {
 
     private RegelmodellSøknaderMapper regelmodellSøknaderMapper;
     private GrunnlagOppretter grunnlagOppretter;
@@ -28,8 +32,8 @@ public class RegelmodellSøknaderMapperTest extends EntityManagerAwareTest {
     private final LocalDate skjæringstidspunkt = LocalDate.now();
 
     @BeforeEach
-    public void setup() {
-        var uttakRepositoryProvider = new UttakRepositoryProvider(getEntityManager());
+    void setUp(EntityManager entityManager) {
+        var uttakRepositoryProvider = new UttakRepositoryProvider(entityManager);
         regelmodellSøknaderMapper = new RegelmodellSøknaderMapper();
         grunnlagOppretter = new GrunnlagOppretter(uttakRepositoryProvider);
     }

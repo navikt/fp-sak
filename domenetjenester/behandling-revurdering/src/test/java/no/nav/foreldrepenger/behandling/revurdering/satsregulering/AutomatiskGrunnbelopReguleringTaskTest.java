@@ -11,8 +11,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.revurdering.flytkontroll.BehandlingFlytkontroll;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
@@ -32,14 +35,15 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 import no.nav.vedtak.felles.testutilities.Whitebox;
 
-public class AutomatiskGrunnbelopReguleringTaskTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class AutomatiskGrunnbelopReguleringTaskTest {
 
     private final BehandlingFlytkontroll flytkontroll = mock(BehandlingFlytkontroll.class);
     private final BehandlendeEnhetTjeneste enhetsTjeneste = mock(BehandlendeEnhetTjeneste.class);
@@ -49,8 +53,7 @@ public class AutomatiskGrunnbelopReguleringTaskTest extends EntityManagerAwareTe
     private ProsessTaskRepository prosessTaskRepository;
 
     @BeforeEach
-    void setUp() {
-        var entityManager = getEntityManager();
+    void setUp(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         behandlingRepository = new BehandlingRepository(entityManager);
         prosessTaskRepository = new ProsessTaskRepositoryImpl(entityManager, null, null);
@@ -90,7 +93,7 @@ public class AutomatiskGrunnbelopReguleringTaskTest extends EntityManagerAwareTe
     }
 
     private AutomatiskGrunnbelopReguleringTask createTask() {
-        return new AutomatiskGrunnbelopReguleringTask(new BehandlingRepositoryProvider(getEntityManager()),
+        return new AutomatiskGrunnbelopReguleringTask(repositoryProvider,
             prosessTaskRepository, enhetsTjeneste, flytkontroll);
 
     }

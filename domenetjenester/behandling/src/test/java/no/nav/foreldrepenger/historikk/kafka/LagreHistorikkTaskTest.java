@@ -6,7 +6,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
@@ -18,14 +21,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
-public class LagreHistorikkTaskTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class LagreHistorikkTaskTest {
 
     @Test
-    public void skal_parse_melding_og_lagre_historikkinnslag() throws Exception {
-        var entityManager = getEntityManager();
+    public void skal_parse_melding_og_lagre_historikkinnslag(EntityManager entityManager) throws Exception {
         AbstractTestScenario<?> scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.lagre(new BehandlingRepositoryProvider(entityManager));
         Behandling behandling = scenario.getBehandling();

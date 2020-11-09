@@ -5,8 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.List;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -14,7 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
@@ -26,18 +29,20 @@ import no.nav.foreldrepenger.domene.uttak.input.YtelsespesifiktGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Datoer;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
-public class DatoerGrunnlagByggerTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class DatoerGrunnlagByggerTest {
 
     private final LocalDate førsteUttaksdato = LocalDate.now().minusWeeks(12);
     private UttakRepositoryProvider repositoryProvider;
     private PersonopplysningTjeneste personopplysningTjeneste;
+    private PersonopplysningRepository personopplysningRepository;
 
     @BeforeEach
-    public void setup() {
-        repositoryProvider = new UttakRepositoryProvider(getEntityManager());
-        personopplysningTjeneste = new PersonopplysningTjeneste(new PersonopplysningRepository(getEntityManager()));
+    void setUp(EntityManager entityManager) {
+        repositoryProvider = new UttakRepositoryProvider(entityManager);
+        personopplysningRepository = new PersonopplysningRepository(entityManager);
+        personopplysningTjeneste = new PersonopplysningTjeneste(personopplysningRepository);
     }
 
     @Test
@@ -107,16 +112,12 @@ public class DatoerGrunnlagByggerTest extends EntityManagerAwareTest {
         Behandling behandling = scenario.lagre(repositoryProvider);
 
         leggTilSøkersDødsdato(behandling, søkersDødsdato);
-        Repository repository = new Repository(getEntityManager());
-        var br = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId());
-        repository.lagre(br);
         lagreUttaksperiodegrense(repositoryProvider.getUttaksperiodegrenseRepository(), førsteLovligeUttaksdag, behandling.getId());
 
         return behandling;
     }
 
     private void leggTilSøkersDødsdato(Behandling behandling, LocalDate søkersDødsdato) {
-        PersonopplysningRepository personopplysningRepository = new PersonopplysningRepository(repositoryProvider.getEntityManager());
         final PersonInformasjonBuilder builder = personopplysningRepository.opprettBuilderForRegisterdata(behandling.getId());
         final PersonInformasjonBuilder.PersonopplysningBuilder personopplysningBuilder = builder.getPersonopplysningBuilder(behandling.getAktørId());
         personopplysningBuilder.medDødsdato(søkersDødsdato);

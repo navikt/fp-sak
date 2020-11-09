@@ -6,8 +6,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -24,16 +27,17 @@ import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 
-public class TapendeBehandlingTjenesteTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class TapendeBehandlingTjenesteTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
 
     @BeforeEach
-    void setUp() {
-        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
+    void setUp(EntityManager entityManager) {
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
     }
 
     @Test

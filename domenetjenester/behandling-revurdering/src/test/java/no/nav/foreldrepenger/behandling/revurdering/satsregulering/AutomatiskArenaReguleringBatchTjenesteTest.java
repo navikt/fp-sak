@@ -13,8 +13,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -28,7 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingL�
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
@@ -37,7 +40,8 @@ import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Beregningsgrunnlag
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
-public class AutomatiskArenaReguleringBatchTjenesteTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class AutomatiskArenaReguleringBatchTjenesteTest {
 
     private BehandlingRepository behandlingRepository;
     private AutomatiskArenaReguleringBatchTjeneste tjeneste;
@@ -46,10 +50,11 @@ public class AutomatiskArenaReguleringBatchTjenesteTest extends EntityManagerAwa
     private LocalDate arenaDato;
     private LocalDate cutoff;
     private AutomatiskArenaReguleringBatchArguments batchArgs;
+    private BehandlingRepositoryProvider repositoryProvider;
 
     @BeforeEach
-    public void setUp() {
-        var entityManager = getEntityManager();
+    public void setUp(EntityManager entityManager) {
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         behandlingRepository = new BehandlingRepository(entityManager);
         beregningsgrunnlagRepository = new BeregningsgrunnlagRepository(entityManager);
 
@@ -57,7 +62,7 @@ public class AutomatiskArenaReguleringBatchTjenesteTest extends EntityManagerAwa
         cutoff = arenaDato.isAfter(LocalDate.now()) ? arenaDato : LocalDate.now();
         var nySatsDato = cutoff.plusWeeks(3).plusDays(2);
         var prosessTaskRepositoryMock = mock(ProsessTaskRepository.class);
-        tjeneste = new AutomatiskArenaReguleringBatchTjeneste(new BehandlingRepositoryProvider(getEntityManager()),
+        tjeneste = new AutomatiskArenaReguleringBatchTjeneste(repositoryProvider,
             prosessTaskRepositoryMock);
         Map<String, String> arguments = new HashMap<>();
         arguments.put(AutomatiskArenaReguleringBatchArguments.REVURDER_KEY, "True");
@@ -102,7 +107,6 @@ public class AutomatiskArenaReguleringBatchTjenesteTest extends EntityManagerAwa
 
         scenario.medBehandlingsresultat(
             Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
-        var repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         Behandling behandling = scenario.lagre(repositoryProvider);
 
         if (BehandlingStatus.AVSLUTTET.equals(status)) {

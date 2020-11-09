@@ -9,8 +9,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -41,7 +44,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEnti
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
@@ -82,7 +85,8 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.RegelGrunnla
 import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Stønadskontotype;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
-public class FastsettePerioderRegelGrunnlagByggerTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class FastsettePerioderRegelGrunnlagByggerTest {
 
     private UttakRepositoryProvider repositoryProvider;
     private final AbakusInMemoryInntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
@@ -91,13 +95,13 @@ public class FastsettePerioderRegelGrunnlagByggerTest extends EntityManagerAware
     private FastsettePerioderRegelGrunnlagBygger grunnlagBygger;
 
     @BeforeEach
-    public void setup() {
-        repositoryProvider = new UttakRepositoryProvider(getEntityManager());
+    void setUp(EntityManager entityManager) {
+        repositoryProvider = new UttakRepositoryProvider(entityManager);
         grunnlagBygger = new FastsettePerioderRegelGrunnlagBygger(
             new AnnenPartGrunnlagBygger(repositoryProvider.getFpUttakRepository()),
             new ArbeidGrunnlagBygger(repositoryProvider),
             new BehandlingGrunnlagBygger(),
-            new DatoerGrunnlagBygger(new PersonopplysningTjeneste(new PersonopplysningRepository(getEntityManager()))),
+            new DatoerGrunnlagBygger(new PersonopplysningTjeneste(new PersonopplysningRepository(entityManager))),
             new MedlemskapGrunnlagBygger(),
             new RettOgOmsorgGrunnlagBygger(repositoryProvider, new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository())),
             new RevurderingGrunnlagBygger(repositoryProvider.getYtelsesFordelingRepository(), repositoryProvider.getFpUttakRepository()),
@@ -283,8 +287,8 @@ public class FastsettePerioderRegelGrunnlagByggerTest extends EntityManagerAware
     }
 
     @Test
-    public void mapperAnnenPartsUttaksperioder() {
-        Repository repository = new Repository(getEntityManager());
+    public void mapperAnnenPartsUttaksperioder(EntityManager entityManager) {
+        Repository repository = new Repository(entityManager);
 
         // Arrange - mors behandling
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();

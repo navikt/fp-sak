@@ -7,13 +7,16 @@ import java.time.Month;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.BasisPersonopplysningTjeneste;
@@ -24,14 +27,14 @@ import no.nav.foreldrepenger.domene.uttak.input.SvangerskapspengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.input.YtelsespesifiktGrunnlag;
 
-public class AvklarteDatoerTjenesteTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class AvklarteDatoerTjenesteTest {
 
     private GrunnlagOppretter grunnlagOppretter;
     private AvklarteDatoerTjeneste avklarteDatoerTjeneste;
 
     @BeforeEach
-    public void setup() {
-        var entityManager = getEntityManager();
+    void setUp(EntityManager entityManager) {
         UttakRepositoryProvider repositoryProvider = new UttakRepositoryProvider(entityManager);
         BasisPersonopplysningTjeneste basisPersonopplysningTjeneste = new BasisPersonopplysningTjeneste(new PersonopplysningRepository(entityManager));
         InntektsmeldingTjeneste inntektsmeldingTjeneste = new InntektsmeldingTjeneste(new AbakusInMemoryInntektArbeidYtelseTjeneste());

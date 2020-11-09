@@ -13,8 +13,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingEndring;
@@ -31,9 +34,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
@@ -53,14 +54,15 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntit
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.fastsettuttaksgrunnlag.fp.EndringsdatoRevurderingUtlederImpl;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
-public class ErEndringIUttakTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class ErEndringIUttakTest {
     private static final InternArbeidsforholdRef ARBEIDSFORHOLD_ID = InternArbeidsforholdRef.namedRef("TEST-REF");
     private static final String ORGNR = OrgNummer.KUNSTIG_ORG;
 
@@ -74,28 +76,26 @@ public class ErEndringIUttakTest extends EntityManagerAwareTest {
     private FpUttakRepository fpUttakRepository;
     private final EndringsdatoRevurderingUtlederImpl datoRevurderingUtlederImpl = mock(
         EndringsdatoRevurderingUtlederImpl.class);
+    private BehandlingRepositoryProvider repositoryProvider;
 
     @BeforeEach
-    public void setUp() {
-        var entityManager = getEntityManager();
+    public void setUp(EntityManager entityManager) {
         fpUttakRepository = new FpUttakRepository(entityManager);
         beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
         serviceProvider = new BehandlingskontrollServiceProvider(entityManager, new BehandlingModellRepository(), null);
         iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
-        revurderingTestUtil = new BeregningRevurderingTestUtil(new BehandlingRepositoryProvider(entityManager));
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        revurderingTestUtil = new BeregningRevurderingTestUtil(repositoryProvider);
         vergeRepository = new VergeRepository(entityManager, new BehandlingLåsRepository(entityManager));
         revurderingEndring = new no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.RevurderingEndring();
     }
 
     private Behandling opprettRevurdering(Behandling behandlingSomSkalRevurderes) {
-        var entityManager = getEntityManager();
         BehandlingskontrollTjenesteImpl behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(
             serviceProvider);
-        RevurderingTjenesteFelles revurderingTjenesteFelles = new RevurderingTjenesteFelles(
-            new BehandlingRepositoryProvider(entityManager));
-        RevurderingTjeneste revurderingTjeneste = new RevurderingTjenesteImpl(
-            new BehandlingRepositoryProvider(entityManager), behandlingskontrollTjeneste, iayTjeneste,
-            revurderingEndring, revurderingTjenesteFelles, vergeRepository);
+        RevurderingTjenesteFelles revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider);
+        RevurderingTjeneste revurderingTjeneste = new RevurderingTjenesteImpl(repositoryProvider,
+            behandlingskontrollTjeneste, iayTjeneste, revurderingEndring, revurderingTjenesteFelles, vergeRepository);
         LocalDate dato = LocalDate.now().minusMonths(3);
         when(datoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(dato);
         return revurderingTjeneste.opprettAutomatiskRevurdering(behandlingSomSkalRevurderes.getFagsak(),
@@ -104,13 +104,13 @@ public class ErEndringIUttakTest extends EntityManagerAwareTest {
 
     private Behandling opprettFørstegangsbehandling() {
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now())
+        scenario.medBehandlingVedtak()
+            .medVedtakstidspunkt(LocalDateTime.now())
             .medVedtakResultatType(VedtakResultatType.INNVILGET);
-        scenario
-            .leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE, BehandlingStegType.KONTROLLER_FAKTA);
-        var entityManager = getEntityManager();
-        var behandlingSomSkalRevurderes = scenario.lagre(new BehandlingRepositoryProvider(entityManager));
-        new OpptjeningRepository(entityManager, new BehandlingRepository(entityManager))
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE,
+            BehandlingStegType.KONTROLLER_FAKTA);
+        var behandlingSomSkalRevurderes = scenario.lagre(repositoryProvider);
+        repositoryProvider.getOpptjeningRepository()
             .lagreOpptjeningsperiode(behandlingSomSkalRevurderes, LocalDate.now().minusYears(1), LocalDate.now(),
                 false);
         revurderingTestUtil.avsluttBehandling(behandlingSomSkalRevurderes);
@@ -335,8 +335,8 @@ public class ErEndringIUttakTest extends EntityManagerAwareTest {
         UttakResultatEntitet uttakResultatRevurdering = uttakResultatPlanBuilderRev.build();
         fpUttakRepository.lagreOpprinneligUttakResultatPerioder(revurdering.getId(),
             uttakResultatRevurdering.getOpprinneligPerioder());
-        fpUttakRepository
-            .lagreOverstyrtUttakResultatPerioder(revurdering.getId(), uttakResultatRevurdering.getOverstyrtPerioder());
+        fpUttakRepository.lagreOverstyrtUttakResultatPerioder(revurdering.getId(),
+            uttakResultatRevurdering.getOverstyrtPerioder());
 
         // Act
         var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
@@ -500,8 +500,8 @@ public class ErEndringIUttakTest extends EntityManagerAwareTest {
     @Test
     public void skal_gi_ingen_endring_dersom_begge_uttak_mangler() {
         // Act
-        boolean endringIUttak = new UttakResultatHolderFP(Optional.empty(), null)
-            .harUlikUttaksplan(new UttakResultatHolderFP(Optional.empty(), null));
+        boolean endringIUttak = new UttakResultatHolderFP(Optional.empty(), null).harUlikUttaksplan(
+            new UttakResultatHolderFP(Optional.empty(), null));
 
         // Assert
         assertThat(endringIUttak).isFalse();
@@ -674,8 +674,11 @@ public class ErEndringIUttakTest extends EntityManagerAwareTest {
                                                      OppholdÅrsak oppholdÅrsak) {
         UttakResultatPeriodeEntitet uttakResultatPeriode = new UttakResultatPeriodeEntitet.Builder(periode.getFomDato(),
             periode.getTomDato()).medSamtidigUttak(samtidigUttak)
-            .medResultatType(periodeResultatType, periodeResultatÅrsak).medGraderingInnvilget(graderingInnvilget)
-            .medFlerbarnsdager(erFlerbarnsdager).medOppholdÅrsak(oppholdÅrsak).build();
+            .medResultatType(periodeResultatType, periodeResultatÅrsak)
+            .medGraderingInnvilget(graderingInnvilget)
+            .medFlerbarnsdager(erFlerbarnsdager)
+            .medOppholdÅrsak(oppholdÅrsak)
+            .build();
         uttakResultatPerioder.leggTilPeriode(uttakResultatPeriode);
     }
 
@@ -684,13 +687,16 @@ public class ErEndringIUttakTest extends EntityManagerAwareTest {
                                                                      Trekkdager trekkdager,
                                                                      int andelIArbeid,
                                                                      int utbetalingsgrad) {
-        UttakAktivitetEntitet uttakAktivitet = new UttakAktivitetEntitet.Builder()
-            .medArbeidsforhold(Arbeidsgiver.virksomhet(ORGNR), ARBEIDSFORHOLD_ID)
-            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID).build();
+        UttakAktivitetEntitet uttakAktivitet = new UttakAktivitetEntitet.Builder().medArbeidsforhold(
+            Arbeidsgiver.virksomhet(ORGNR), ARBEIDSFORHOLD_ID)
+            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+            .build();
         return UttakResultatPeriodeAktivitetEntitet.builder(uttakResultatPeriode, uttakAktivitet)
-            .medTrekkonto(stønadskontoType).medTrekkdager(trekkdager)
+            .medTrekkonto(stønadskontoType)
+            .medTrekkdager(trekkdager)
             .medArbeidsprosent(BigDecimal.valueOf(andelIArbeid))
-            .medUtbetalingsgrad(new Utbetalingsgrad(utbetalingsgrad)).build();
+            .medUtbetalingsgrad(new Utbetalingsgrad(utbetalingsgrad))
+            .build();
     }
 
     private UttakResultatEntitet lagUttakResultatPlanForBehandling(Behandling behandling,
@@ -751,8 +757,8 @@ public class ErEndringIUttakTest extends EntityManagerAwareTest {
         }
         UttakResultatEntitet uttakResultat = uttakResultatPlanBuilder.medOpprinneligPerioder(uttakResultatPerioder)
             .build();
-        fpUttakRepository
-            .lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttakResultat.getGjeldendePerioder());
+        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(),
+            uttakResultat.getGjeldendePerioder());
         return uttakResultat;
 
     }
@@ -800,17 +806,19 @@ public class ErEndringIUttakTest extends EntityManagerAwareTest {
                                                     boolean graderingInnvilget,
                                                     boolean erFlerbarnsdager) {
         return new UttakResultatPeriodeEntitet.Builder(fom, tom).medSamtidigUttak(samtidigUttak)
-            .medResultatType(periodeResultatType, periodeResultatÅrsak).medGraderingInnvilget(graderingInnvilget)
-            .medFlerbarnsdager(erFlerbarnsdager).build();
+            .medResultatType(periodeResultatType, periodeResultatÅrsak)
+            .medGraderingInnvilget(graderingInnvilget)
+            .medFlerbarnsdager(erFlerbarnsdager)
+            .build();
     }
 
     private void lagBeregningsresultatperiodeMedEndringstidspunkt(LocalDate dato,
                                                                   Behandling førstegangsbehandling,
                                                                   Behandling revurdering) {
-        BeregningsresultatEntitet originaltresultat = LagBeregningsresultatTjeneste
-            .lagBeregningsresultatperiodeMedEndringstidspunkt(dato, true, ORGNR);
-        BeregningsresultatEntitet revurderingsresultat = LagBeregningsresultatTjeneste
-            .lagBeregningsresultatperiodeMedEndringstidspunkt(dato, false, ORGNR);
+        BeregningsresultatEntitet originaltresultat = LagBeregningsresultatTjeneste.lagBeregningsresultatperiodeMedEndringstidspunkt(
+            dato, true, ORGNR);
+        BeregningsresultatEntitet revurderingsresultat = LagBeregningsresultatTjeneste.lagBeregningsresultatperiodeMedEndringstidspunkt(
+            dato, false, ORGNR);
         beregningsresultatRepository.lagre(revurdering, revurderingsresultat);
         beregningsresultatRepository.lagre(førstegangsbehandling, originaltresultat);
     }

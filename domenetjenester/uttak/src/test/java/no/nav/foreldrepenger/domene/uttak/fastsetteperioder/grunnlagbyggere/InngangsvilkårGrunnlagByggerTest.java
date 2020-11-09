@@ -2,8 +2,11 @@ package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -13,19 +16,22 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Inngangsvilkår;
 
-public class InngangsvilkårGrunnlagByggerTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class InngangsvilkårGrunnlagByggerTest {
 
     private UttakRepositoryProvider repositoryProvider;
+    private BehandlingRepository behandlingRepository;
 
     @BeforeEach
-    public void setup() {
-        repositoryProvider = new UttakRepositoryProvider(getEntityManager());
+    void setUp(EntityManager entityManager) {
+        repositoryProvider = new UttakRepositoryProvider(entityManager);
+        behandlingRepository = new BehandlingRepository(entityManager);
     }
 
     @Test
@@ -55,7 +61,6 @@ public class InngangsvilkårGrunnlagByggerTest extends EntityManagerAwareTest {
     }
 
     private void lagreVilkår(Behandling behandling, VilkårResultat.Builder vilkårBuilder) {
-        var behandlingRepository = new BehandlingRepository(getEntityManager());
         behandlingRepository.lagre(vilkårBuilder.buildFor(behandling), behandlingRepository.taSkriveLås(behandling.getId()));
     }
 

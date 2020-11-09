@@ -3,8 +3,11 @@ package no.nav.foreldrepenger.behandling.revurdering.ytelse.fp;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingEndring;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingEndringBasertPåKonsekvenserForYtelsen;
@@ -19,17 +22,20 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingL�
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 
-public class RevurderingEndringTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class RevurderingEndringTest {
 
     private final RevurderingEndring revurderingEndring = new no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.RevurderingEndring();
 
     private BehandlingRepository behandlingRepository;
+    private BehandlingRepositoryProvider repositoryProvider;
 
     @BeforeEach
-    void setup() {
-        behandlingRepository = new BehandlingRepository(getEntityManager());
+    void setup(EntityManager entityManager) {
+        behandlingRepository = new BehandlingRepository(entityManager);
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
     }
 
     @Test
@@ -122,7 +128,7 @@ public class RevurderingEndringTest extends EntityManagerAwareTest {
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger
             .forFødsel()
             .medDefaultBekreftetTerminbekreftelse();
-        Behandling originalBehandling = scenario.lagre(new BehandlingRepositoryProvider(getEntityManager()));
+        Behandling originalBehandling = scenario.lagre(repositoryProvider);
         BehandlingLås behandlingLås = behandlingRepository.taSkriveLås(originalBehandling);
         behandlingRepository.lagre(originalBehandling, behandlingLås);
         return originalBehandling;

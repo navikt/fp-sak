@@ -21,8 +21,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
@@ -57,7 +60,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEnti
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
@@ -82,7 +85,8 @@ import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.AbstractTestS
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
 
-public class EndringsdatoRevurderingUtlederImplTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class EndringsdatoRevurderingUtlederImplTest {
 
     private static final LocalDate MANUELT_SATT_FØRSTE_UTTAKSDATO = FØDSELSDATO.plusDays(1);
     private static final LocalDate OMSORGSOVERTAKELSEDATO = FØDSELSDATO.plusDays(10);
@@ -103,8 +107,7 @@ public class EndringsdatoRevurderingUtlederImplTest extends EntityManagerAwareTe
     private UttakBeregningsandelTjenesteTestUtil uttakBeregningsandelTjeneste;
 
     @BeforeEach
-    public void before() {
-        var entityManager = getEntityManager();
+    void setUp(EntityManager entityManager) {
         repositoryProvider = new UttakRepositoryProvider(entityManager);
         behandlingRepository = new BehandlingRepository(entityManager);
         ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();

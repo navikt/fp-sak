@@ -6,8 +6,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.List;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
@@ -16,7 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
@@ -31,7 +34,8 @@ import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioFarS�
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 
-public class AnnenForelderHarRettAksjonspunktUtlederTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class AnnenForelderHarRettAksjonspunktUtlederTest {
 
     private static final AktørId AKTØR_ID_MOR = AktørId.dummy();
     private static final AktørId AKTØR_ID_FAR = AktørId.dummy();
@@ -40,8 +44,7 @@ public class AnnenForelderHarRettAksjonspunktUtlederTest extends EntityManagerAw
     private AnnenForelderHarRettAksjonspunktUtleder aksjonspunktUtleder;
 
     @BeforeEach
-    public void before() {
-        var entityManager = getEntityManager();
+    void setUp(EntityManager entityManager) {
         repositoryProvider = new UttakRepositoryProvider(entityManager);
         PersonopplysningTjeneste personopplysningTjeneste = new PersonopplysningTjeneste(new PersonopplysningRepository(entityManager));
         ForeldrepengerUttakTjeneste uttakTjeneste = new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository());

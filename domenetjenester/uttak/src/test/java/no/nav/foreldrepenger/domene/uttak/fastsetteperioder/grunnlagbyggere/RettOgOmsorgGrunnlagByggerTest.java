@@ -4,7 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collections;
 
+import javax.persistence.EntityManager;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -12,7 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAleneOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
@@ -22,7 +26,15 @@ import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioFarS�
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.RettOgOmsorg;
 
-public class RettOgOmsorgGrunnlagByggerTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class RettOgOmsorgGrunnlagByggerTest {
+
+    private UttakRepositoryProvider repositoryProvider;
+
+    @BeforeEach
+    void setUp(EntityManager entityManager) {
+        repositoryProvider = new UttakRepositoryProvider(entityManager);
+    }
 
     @Test
     public void skalLeggeTilHvemSomHarRett_SøkerMorHarRettAnnenForeldreHarIkkeRett() {
@@ -121,11 +133,11 @@ public class RettOgOmsorgGrunnlagByggerTest extends EntityManagerAwareTest {
             scenario.medPeriodeMedAleneomsorg(perioderAleneOmsorg);
         }
 
-        return scenario.lagre(new UttakRepositoryProvider(getEntityManager()));
+        return scenario.lagre(repositoryProvider);
     }
 
     private RettOgOmsorgGrunnlagBygger grunnlagBygger() {
-        var repositoryProvider = new UttakRepositoryProvider(getEntityManager());
+        var repositoryProvider = this.repositoryProvider;
         return new RettOgOmsorgGrunnlagBygger(repositoryProvider,
             new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()));
     }
@@ -145,7 +157,7 @@ public class RettOgOmsorgGrunnlagByggerTest extends EntityManagerAwareTest {
         if (!søkerRett) {
             scenario.medVilkårResultatType(VilkårResultatType.AVSLÅTT);
         }
-        return scenario.lagre(new UttakRepositoryProvider(getEntityManager()));
+        return scenario.lagre(repositoryProvider);
     }
 
     private RettOgOmsorg byggGrunnlag(Behandling behandling) {

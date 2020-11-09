@@ -8,14 +8,17 @@ import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
@@ -25,12 +28,14 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 
-public class UttakYrkesaktiviteterTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class UttakYrkesaktiviteterTest {
 
     @Test
-    public void stillingsprosent_ved_flere_overlappende_aktivitetsavtaler_på_dato_skal_velge_stilling_med_maks() {
+    public void stillingsprosent_ved_flere_overlappende_aktivitetsavtaler_på_dato_skal_velge_stilling_med_maks(
+        EntityManager entityManager) {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        var behandling = scenario.lagre(new UttakRepositoryProvider(getEntityManager()));
+        var behandling = scenario.lagre(new UttakRepositoryProvider(entityManager));
         var dato = LocalDate.of(2020, 5, 4);
         var arbeidsgiver = Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG);
         var ansettelsesperiode = AktivitetsAvtaleBuilder.ny()
@@ -64,9 +69,9 @@ public class UttakYrkesaktiviteterTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_tåle_null_stillingsprosent_på_aktivitetsavtale() {
+    public void skal_tåle_null_stillingsprosent_på_aktivitetsavtale(EntityManager entityManager) {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        var behandling = scenario.lagre(new UttakRepositoryProvider(getEntityManager()));
+        var behandling = scenario.lagre(new UttakRepositoryProvider(entityManager));
         var dato = LocalDate.of(2020, 5, 4);
         var arbeidsgiver = Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG);
         var ansettelsesperiode = AktivitetsAvtaleBuilder.ny()

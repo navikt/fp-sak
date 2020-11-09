@@ -7,8 +7,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.Etterkontroll;
 import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.EtterkontrollRepository;
@@ -27,22 +30,24 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 
-public class EtterkontrollRepositoryTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class EtterkontrollRepositoryTest {
 
     private final static int revurderingDagerTilbake = 60;
 
     private BehandlingRepository behandlingRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private EtterkontrollRepository etterkontrollRepository;
+    private BehandlingRepositoryProvider repositoryProvider;
 
     @BeforeEach
-    void setUp() {
-        var entityManager = getEntityManager();
+    void setUp(EntityManager entityManager) {
         behandlingRepository = new BehandlingRepository(entityManager);
         behandlingVedtakRepository = new BehandlingVedtakRepository(entityManager);
         etterkontrollRepository = new EtterkontrollRepository(entityManager);
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
     }
 
     @Test
@@ -151,8 +156,8 @@ public class EtterkontrollRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_hente_ut_siste_vedtak_til_revurdering() {
-        final FamilieHendelseRepository grunnlagRepository = new FamilieHendelseRepository(getEntityManager());
+    public void skal_hente_ut_siste_vedtak_til_revurdering(EntityManager entityManager) {
+        final FamilieHendelseRepository grunnlagRepository = new FamilieHendelseRepository(entityManager);
         Behandling behandling = opprettRevurderingsKandidat(revurderingDagerTilbake + 2);
         LocalDate terminDato = LocalDate.now().minusDays(revurderingDagerTilbake + 2);
 
@@ -221,7 +226,7 @@ public class EtterkontrollRepositoryTest extends EntityManagerAwareTest {
                 .medUtstedtDato(terminDato.minusDays(40)))
             .medAntallBarn(1);
 
-        var behandling = scenario.lagre(new BehandlingRepositoryProvider(getEntityManager()));
+        var behandling = scenario.lagre(repositoryProvider);
         Behandlingsresultat behandlingsresultat = Behandlingsresultat.builder()
             .medBehandlingResultatType(BehandlingResultatType.INNVILGET).buildFor(behandling);
         final BehandlingVedtak behandlingVedtak = BehandlingVedtak.builder()

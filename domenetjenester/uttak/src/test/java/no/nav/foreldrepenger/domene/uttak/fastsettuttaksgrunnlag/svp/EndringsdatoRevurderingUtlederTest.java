@@ -5,8 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -21,13 +24,14 @@ import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakR
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 
-public class EndringsdatoRevurderingUtlederTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class EndringsdatoRevurderingUtlederTest {
 
     private static final LocalDate FØRSTE_DAG = LocalDate.now();
     private static final LocalDate SISTE_DAG = LocalDate.now().plusMonths(3);
@@ -38,8 +42,7 @@ public class EndringsdatoRevurderingUtlederTest extends EntityManagerAwareTest {
     private EndringsdatoRevurderingUtlederImpl utleder;
 
     @BeforeEach
-    public void setup() {
-        var entityManager = getEntityManager();
+    void setUp(EntityManager entityManager) {
         repositoryProvider = new UttakRepositoryProvider(entityManager);
         behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
         uttakRepository = repositoryProvider.getSvangerskapspengerUttakResultatRepository();

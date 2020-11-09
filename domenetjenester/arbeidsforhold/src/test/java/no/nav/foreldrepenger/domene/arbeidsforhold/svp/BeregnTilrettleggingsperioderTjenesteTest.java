@@ -7,8 +7,11 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -24,7 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.Tilrett
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYRepositoryProvider;
@@ -38,7 +41,8 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
-public class BeregnTilrettleggingsperioderTjenesteTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class BeregnTilrettleggingsperioderTjenesteTest {
 
     private static final String ARBEIDSGIVER_ORGNR = KUNSTIG_ORG;
     public static final InternArbeidsforholdRef ARB_1 = InternArbeidsforholdRef.namedRef("arb1");
@@ -52,8 +56,7 @@ public class BeregnTilrettleggingsperioderTjenesteTest extends EntityManagerAwar
     private SvangerskapspengerRepository svangerskapspengerRepository;
 
     @BeforeEach
-    void setUp() {
-        var entityManager = getEntityManager();
+    void setUp(EntityManager entityManager) {
         iayRepositoryProvider = new IAYRepositoryProvider(entityManager);
         familieHendelseRepository = iayRepositoryProvider.getFamilieHendelseRepository();
         svangerskapspengerRepository = new SvangerskapspengerRepository(entityManager);

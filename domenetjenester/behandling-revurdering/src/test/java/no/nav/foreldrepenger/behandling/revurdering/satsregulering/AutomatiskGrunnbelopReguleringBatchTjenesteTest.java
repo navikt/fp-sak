@@ -11,8 +11,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -34,7 +37,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Ytelses
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
@@ -45,7 +48,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEventPubliserer;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 
-public class AutomatiskGrunnbelopReguleringBatchTjenesteTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class AutomatiskGrunnbelopReguleringBatchTjenesteTest {
 
     private BehandlingRepository behandlingRepository;
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
@@ -53,10 +57,10 @@ public class AutomatiskGrunnbelopReguleringBatchTjenesteTest extends EntityManag
     private BeregningsresultatRepository beregningsresultatRepository;
 
     private AutomatiskGrunnbelopReguleringBatchTjeneste tjeneste;
+    private BehandlingRepositoryProvider repositoryProvider;
 
     @BeforeEach
-    public void setUp() {
-        var entityManager = getEntityManager();
+    public void setUp(EntityManager entityManager) {
         behandlingRepository = new BehandlingRepository(entityManager);
         beregningsgrunnlagRepository = new BeregningsgrunnlagRepository(entityManager);
         prosessTaskRepository = new ProsessTaskRepositoryImpl(entityManager, () -> "test",
@@ -72,6 +76,7 @@ public class AutomatiskGrunnbelopReguleringBatchTjenesteTest extends EntityManag
             entityManager, behandlingRepository, fagsakRelasjonRepository, søknadRepository, behandlingLåsRepository);
         tjeneste = new AutomatiskGrunnbelopReguleringBatchTjeneste(behandlingRevurderingRepository,
             beregningsresultatRepository, prosessTaskRepository);
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
     }
 
     @Test
@@ -148,7 +153,7 @@ public class AutomatiskGrunnbelopReguleringBatchTjenesteTest extends EntityManag
 
         scenario.medBehandlingsresultat(
             Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
-        Behandling behandling = scenario.lagre(new BehandlingRepositoryProvider(getEntityManager()));
+        Behandling behandling = scenario.lagre(repositoryProvider);
 
         if (BehandlingStatus.AVSLUTTET.equals(status)) {
             behandling.avsluttBehandling();

@@ -3,28 +3,35 @@ package no.nav.foreldrepenger.domene.opptjening.aksjonspunkt;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.utlanddok.OpptjeningIUtlandDokStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.utlanddok.OpptjeningIUtlandDokStatusRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class OpptjeningIUtlandDokStatusTjenesteTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class OpptjeningIUtlandDokStatusTjenesteTest {
 
     private OpptjeningIUtlandDokStatusTjeneste tjeneste;
+    private FagsakRepository fagsakRepository;
+    private BehandlingRepository behandlingRepository;
 
     @BeforeEach
-    void setUp() {
-        tjeneste = new OpptjeningIUtlandDokStatusTjeneste(new OpptjeningIUtlandDokStatusRepository(getEntityManager()));
+    void setUp(EntityManager entityManager) {
+        tjeneste = new OpptjeningIUtlandDokStatusTjeneste(new OpptjeningIUtlandDokStatusRepository(entityManager));
+        fagsakRepository = new FagsakRepository(entityManager);
+        behandlingRepository = new BehandlingRepository(entityManager);
     }
 
     @Test
@@ -60,11 +67,11 @@ public class OpptjeningIUtlandDokStatusTjenesteTest extends EntityManagerAwareTe
 
     private Behandling opprettBehandling() {
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
-        var entityManager = getEntityManager();
-        new FagsakRepository(entityManager).opprettNy(fagsak);
+
+        fagsakRepository.opprettNy(fagsak);
         var builder = Behandling.forFørstegangssøknad(fagsak);
         var behandling = builder.build();
-        new BehandlingRepository(entityManager).lagre(behandling, new BehandlingLåsRepository(entityManager).taLås(behandling.getId()));
+        behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling.getId()));
         return behandling;
     }
 }

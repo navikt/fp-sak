@@ -5,8 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
@@ -16,7 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
@@ -24,7 +27,8 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.personopplysning.PersonInformasjon;
 
-public class BrukerHarAleneomsorgAksjonspunktUtlederTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class BrukerHarAleneomsorgAksjonspunktUtlederTest {
 
     private static final AktørId AKTØR_ID_MOR = AktørId.dummy();
     private static final AktørId AKTØR_ID_FAR = AktørId.dummy();
@@ -35,8 +39,7 @@ public class BrukerHarAleneomsorgAksjonspunktUtlederTest extends EntityManagerAw
     private BrukerHarAleneomsorgAksjonspunktUtleder aksjonspunktUtleder;
 
     @BeforeEach
-    public void oppsett() {
-        var entityManager = getEntityManager();
+    void setUp(EntityManager entityManager) {
         repositoryProvider = new UttakRepositoryProvider(entityManager);
         var personopplysningTjeneste = new PersonopplysningTjeneste(new PersonopplysningRepository(entityManager));
         aksjonspunktUtleder = new BrukerHarAleneomsorgAksjonspunktUtleder(repositoryProvider, personopplysningTjeneste);

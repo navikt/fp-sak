@@ -6,25 +6,29 @@ import static org.mockito.Mockito.mock;
 
 import java.time.LocalDate;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYRepositoryProvider;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYScenarioBuilder;
 import no.nav.vedtak.felles.integrasjon.organisasjon.OrganisasjonRestKlient;
 
-public class VirksomhetTjenesteTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class VirksomhetTjenesteTest {
     private static final String ORGNR = KUNSTIG_ORG;
     private static final String NAVN = "Kunstig virksomhet";
     private static final LocalDate REGISTRERTDATO = LocalDate.of(1978, 1, 1);
 
     @Test
-    public void skal_kalle_consumer_og_oversette_response() {
+    public void skal_kalle_consumer_og_oversette_response(EntityManager entityManager) {
         // Arrange
         IAYScenarioBuilder  scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.ENGANGSTØNAD);
-        scenario.lagre(new IAYRepositoryProvider(getEntityManager()));
+        scenario.lagre(new IAYRepositoryProvider(entityManager));
 
         var organisasjonConsumer = mock(OrganisasjonRestKlient.class);
 

@@ -6,12 +6,15 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.ArbeidsforholdIkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.PeriodeIkkeOppfyltÅrsak;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
@@ -21,15 +24,16 @@ import no.nav.svangerskapspenger.domene.felles.Arbeidsforhold;
 import no.nav.svangerskapspenger.domene.resultat.Uttaksperiode;
 import no.nav.svangerskapspenger.domene.resultat.Uttaksperioder;
 
-public class UttaksresultatMapperTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class UttaksresultatMapperTest {
 
     @Test
-    public void mapping_av_regelmodell() {
+    public void mapping_av_regelmodell(EntityManager entityManager) {
         AktørId aktørId = AktørId.dummy();
         String internRef = InternArbeidsforholdRef.nyRef().getReferanse();
 
         var scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
-        var repositoryProvider = new UttakRepositoryProvider(getEntityManager());
+        var repositoryProvider = new UttakRepositoryProvider(entityManager);
         var behandling = scenario.lagre(repositoryProvider);
         var perioder = new Uttaksperioder();
         var periode = new Uttaksperiode(LocalDate.of(2019, Month.JANUARY, 1), LocalDate.of(2019, Month.MARCH, 31), BigDecimal.ZERO);

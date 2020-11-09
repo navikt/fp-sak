@@ -6,6 +6,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,13 +32,14 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.felles.testutilities.Whitebox;
 
 @ExtendWith(MockitoExtension.class)
-public class FagsakTjenesteTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class FagsakTjenesteTest {
 
     private FagsakTjeneste tjeneste;
 
@@ -47,15 +50,15 @@ public class FagsakTjenesteTest extends EntityManagerAwareTest {
     private Fagsak fagsak;
 
     private final AktørId forelderAktørId = AktørId.dummy();
-    private LocalDate forelderFødselsdato = LocalDate.of(1990, JANUARY, 1);
+    private final LocalDate forelderFødselsdato = LocalDate.of(1990, JANUARY, 1);
 
     @BeforeEach
-    public void oppsett() {
-        brukerRepository = new NavBrukerRepository(getEntityManager());
-        behandlingRepository = new BehandlingRepository(getEntityManager());
-        personopplysningRepository = new PersonopplysningRepository(getEntityManager());
-        tjeneste = new FagsakTjeneste(new FagsakRepository(getEntityManager()),
-                new SøknadRepository(getEntityManager(), behandlingRepository), null);
+    public void oppsett(EntityManager entityManager) {
+        brukerRepository = new NavBrukerRepository(entityManager);
+        behandlingRepository = new BehandlingRepository(entityManager);
+        personopplysningRepository = new PersonopplysningRepository(entityManager);
+        tjeneste = new FagsakTjeneste(new FagsakRepository(entityManager),
+                new SøknadRepository(entityManager, behandlingRepository), null);
 
     }
 

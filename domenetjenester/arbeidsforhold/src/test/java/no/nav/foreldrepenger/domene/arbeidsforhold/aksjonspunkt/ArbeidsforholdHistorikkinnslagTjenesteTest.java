@@ -7,6 +7,8 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.util.List;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,7 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYRepositoryProvider;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYScenarioBuilder;
@@ -31,7 +33,8 @@ import no.nav.foreldrepenger.historikk.VurderArbeidsforholdHistorikkinnslag;
 import no.nav.vedtak.felles.integrasjon.journal.v3.JournalConsumer;
 
 @ExtendWith(MockitoExtension.class)
-public class ArbeidsforholdHistorikkinnslagTjenesteTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class ArbeidsforholdHistorikkinnslagTjenesteTest {
 
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
 
@@ -46,8 +49,7 @@ public class ArbeidsforholdHistorikkinnslagTjenesteTest extends EntityManagerAwa
     private ArbeidsforholdHistorikkinnslagTjeneste arbeidsforholdHistorikkinnslagTjeneste;
 
     @BeforeEach
-    void setup() {
-        var entityManager = getEntityManager();
+    void setup(EntityManager entityManager) {
         provider = new IAYRepositoryProvider(entityManager);
         HistorikkRepository historikkRepository = new HistorikkRepository(entityManager);
         DokumentArkivTjeneste dokumentApplikasjonTjeneste = new DokumentArkivTjeneste(journalConsumer, provider.getFagsakRepository());

@@ -7,8 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -23,11 +26,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Ytelses
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class BekreftFaktaForOmsorgAksjonspunktTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class BekreftFaktaForOmsorgAksjonspunktTest {
 
     private BehandlingRepository behandlingRepository;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
@@ -36,8 +40,7 @@ public class BekreftFaktaForOmsorgAksjonspunktTest extends EntityManagerAwareTes
     private BekreftFaktaForOmsorgAksjonspunkt bekreftFaktaForOmsorgAksjonspunkt;
 
     @BeforeEach
-    public void oppsett() {
-        var entityManager = getEntityManager();
+    void setUp(EntityManager entityManager) {
         behandlingRepository = new BehandlingRepository(entityManager);
         ytelsesFordelingRepository = new YtelsesFordelingRepository(entityManager);
         fagsakRepository = new FagsakRepository(entityManager);

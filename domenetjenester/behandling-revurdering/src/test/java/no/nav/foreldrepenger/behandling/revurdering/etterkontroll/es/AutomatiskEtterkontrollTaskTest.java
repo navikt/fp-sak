@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,7 +43,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
@@ -51,7 +53,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
 @ExtendWith(MockitoExtension.class)
-public class AutomatiskEtterkontrollTaskTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class AutomatiskEtterkontrollTaskTest {
 
     @Mock
     private PersoninfoAdapter tpsFamilieTjenesteMock;
@@ -79,12 +82,12 @@ public class AutomatiskEtterkontrollTaskTest extends EntityManagerAwareTest {
     private Repository repo;
 
     @BeforeEach
-    public void setUp() {
-        repo = new Repository(getEntityManager());
-        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        legacyESBeregningRepository = new LegacyESBeregningRepository(getEntityManager());
+    public void setUp(EntityManager entityManager) {
+        repo = new Repository(entityManager);
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        legacyESBeregningRepository = new LegacyESBeregningRepository(entityManager);
         behandlingRepository = repositoryProvider.getBehandlingRepository();
-        etterkontrollRepository = new EtterkontrollRepository(getEntityManager());
+        etterkontrollRepository = new EtterkontrollRepository(entityManager);
         familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
         task = new AutomatiskEtterkontrollTask(repositoryProvider, etterkontrollRepository, historikkRepository,
             familieHendelseTjeneste, tpsFamilieTjenesteMock,
@@ -297,7 +300,7 @@ public class AutomatiskEtterkontrollTaskTest extends EntityManagerAwareTest {
 
         repo.flushAndClear();
 
-        return getEntityManager().find(Behandling.class, behandling.getId());
+        return behandlingRepository.hentBehandling(behandling.getId());
     }
 
     private FødtBarnInfo byggBaby(LocalDate fødselsdato) {

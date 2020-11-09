@@ -4,8 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
@@ -17,24 +20,26 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 
-public class HistorikkRepositoryTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class HistorikkRepositoryTest {
 
     private HistorikkRepository historikkRepository;
     private BehandlingRepository behandlingRepository;
     private BehandlingLåsRepository behandlingLåsRepository;
+    private BasicBehandlingBuilder basicBehandlingBuilder;
 
     @BeforeEach
-    void setup() {
-        var entityManager = getEntityManager();
+    void setup(EntityManager entityManager) {
         historikkRepository = new HistorikkRepository(entityManager);
         behandlingRepository = new BehandlingRepository(entityManager);
         behandlingLåsRepository = new BehandlingLåsRepository(entityManager);
+        basicBehandlingBuilder = new BasicBehandlingBuilder(entityManager);
     }
 
     private Fagsak opprettFagsak() {
-        return new BasicBehandlingBuilder(getEntityManager()).opprettFagsak(FagsakYtelseType.FORELDREPENGER);
+        return basicBehandlingBuilder.opprettFagsak(FagsakYtelseType.FORELDREPENGER);
     }
 
     @Test

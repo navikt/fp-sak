@@ -13,8 +13,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -56,7 +59,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntit
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
@@ -96,7 +99,8 @@ import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorS�
 import no.nav.foreldrepenger.domene.uttak.testutilities.fagsak.FagsakBuilder;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
-public class FastsettePerioderTjenesteTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class FastsettePerioderTjenesteTest {
 
     private UttakRepositoryProvider repositoryProvider;
 
@@ -116,10 +120,10 @@ public class FastsettePerioderTjenesteTest extends EntityManagerAwareTest {
 
     private final AbakusInMemoryInntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
     private final UttakBeregningsandelTjenesteTestUtil beregningsandelTjeneste = new UttakBeregningsandelTjenesteTestUtil();
+    private PersonopplysningRepository personopplysningRepository;
 
     @BeforeEach
-    public void setup() {
-        var entityManager = getEntityManager();
+    void setUp(EntityManager entityManager) {
         repositoryProvider = new UttakRepositoryProvider(entityManager);
         behandlingRepository = new BehandlingRepository(entityManager);
         ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
@@ -130,7 +134,7 @@ public class FastsettePerioderTjenesteTest extends EntityManagerAwareTest {
             new AnnenPartGrunnlagBygger(repositoryProvider.getFpUttakRepository()),
             new ArbeidGrunnlagBygger(repositoryProvider),
             new BehandlingGrunnlagBygger(),
-            new DatoerGrunnlagBygger(new PersonopplysningTjeneste(new PersonopplysningRepository(getEntityManager()))),
+            new DatoerGrunnlagBygger(new PersonopplysningTjeneste(new PersonopplysningRepository(entityManager))),
             new MedlemskapGrunnlagBygger(),
             new RettOgOmsorgGrunnlagBygger(repositoryProvider, new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository())),
             new RevurderingGrunnlagBygger(repositoryProvider.getYtelsesFordelingRepository(), repositoryProvider.getFpUttakRepository()),
@@ -141,6 +145,7 @@ public class FastsettePerioderTjenesteTest extends EntityManagerAwareTest {
             new KontoerGrunnlagBygger(repositoryProvider)
         ), new FastsettePerioderRegelResultatKonverterer(fpUttakRepository, ytelsesFordelingRepository));
         uttakTjeneste = new ForeldrepengerUttakTjeneste(fpUttakRepository);
+        personopplysningRepository = new PersonopplysningRepository(entityManager);
     }
 
     @Test
@@ -597,7 +602,6 @@ public class FastsettePerioderTjenesteTest extends EntityManagerAwareTest {
     }
 
     private void opprettPersonopplysninger(Behandling behandling) {
-        PersonopplysningRepository personopplysningRepository = new PersonopplysningRepository(repositoryProvider.getEntityManager());
         final PersonInformasjonBuilder builder = personopplysningRepository.opprettBuilderForRegisterdata(behandling.getId());
         final PersonInformasjonBuilder.PersonopplysningBuilder personopplysningBuilder = builder.getPersonopplysningBuilder(behandling.getAktørId());
         personopplysningBuilder.medFødselsdato(LocalDate.now().minusYears(20));

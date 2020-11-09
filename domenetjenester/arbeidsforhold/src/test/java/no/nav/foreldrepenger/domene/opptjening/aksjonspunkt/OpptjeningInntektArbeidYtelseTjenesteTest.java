@@ -12,8 +12,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
@@ -29,7 +32,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
@@ -46,7 +49,8 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
-public class OpptjeningInntektArbeidYtelseTjenesteTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class OpptjeningInntektArbeidYtelseTjenesteTest {
 
     public static final String NAV_ORG_NUMMER = "889640782";
 
@@ -61,10 +65,10 @@ public class OpptjeningInntektArbeidYtelseTjenesteTest extends EntityManagerAwar
     private final AktørId AKTØRID = AktørId.dummy();
 
     @BeforeEach
-    void setUp() {
-        behandlingRepository = new BehandlingRepository(getEntityManager());
-        fagsakRepository = new FagsakRepository(getEntityManager());
-        opptjeningRepository = new OpptjeningRepository(getEntityManager(), behandlingRepository);
+    void setUp(EntityManager entityManager) {
+        behandlingRepository = new BehandlingRepository(entityManager);
+        fagsakRepository = new FagsakRepository(entityManager);
+        opptjeningRepository = new OpptjeningRepository(entityManager, behandlingRepository);
         var apoOpptjening = new AksjonspunktutlederForVurderOppgittOpptjening(opptjeningRepository, iayTjeneste,
             virksomhetTjeneste);
         var apbOpptjening = new AksjonspunktutlederForVurderBekreftetOpptjening(opptjeningRepository, iayTjeneste);

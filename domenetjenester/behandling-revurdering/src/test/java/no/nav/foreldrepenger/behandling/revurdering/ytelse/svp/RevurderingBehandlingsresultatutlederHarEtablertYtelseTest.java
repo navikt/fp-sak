@@ -7,8 +7,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.revurdering.BeregningRevurderingTestUtil;
 import no.nav.foreldrepenger.behandling.revurdering.felles.LagUttakResultatPlanTjeneste;
@@ -19,10 +22,11 @@ import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.PeriodeIkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
-public class RevurderingBehandlingsresultatutlederHarEtablertYtelseTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class RevurderingBehandlingsresultatutlederHarEtablertYtelseTest {
 
     private BeregningRevurderingTestUtil revurderingTestUtil;
 
@@ -32,8 +36,7 @@ public class RevurderingBehandlingsresultatutlederHarEtablertYtelseTest extends 
     private RevurderingBehandlingsresultatutleder resultatUtleder;
 
     @BeforeEach
-    void setUp() {
-        var entityManager = getEntityManager();
+    void setUp(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         revurderingTestUtil = new BeregningRevurderingTestUtil(repositoryProvider);
         uttakRepository = repositoryProvider.getSvangerskapspengerUttakResultatRepository();

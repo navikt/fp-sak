@@ -10,8 +10,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -21,13 +24,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYRepositoryProvider;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYScenarioBuilder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
-public class PåkrevdeInntektsmeldingerTjenesteTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class PåkrevdeInntektsmeldingerTjenesteTest {
 
     private final InntektsmeldingRegisterTjeneste inntektsmeldingArkivTjeneste = Mockito.mock(InntektsmeldingRegisterTjeneste.class);
 
@@ -36,8 +40,8 @@ public class PåkrevdeInntektsmeldingerTjenesteTest extends EntityManagerAwareTe
     private Map<Arbeidsgiver, Set<ArbeidsforholdMedÅrsak>> result;
 
     @BeforeEach
-    void setUp(){
-        repositoryProvider = new IAYRepositoryProvider(getEntityManager());
+    void setUp(EntityManager entityManager){
+        repositoryProvider = new IAYRepositoryProvider(entityManager);
         påkrevdeInntektsmeldingerTjeneste = new PåkrevdeInntektsmeldingerTjeneste(inntektsmeldingArkivTjeneste, repositoryProvider.getSøknadRepository());
         result = new HashMap<>();
     }

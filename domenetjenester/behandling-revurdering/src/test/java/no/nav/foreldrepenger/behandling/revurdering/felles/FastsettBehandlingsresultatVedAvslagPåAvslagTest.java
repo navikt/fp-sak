@@ -4,8 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -19,15 +22,18 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 
-public class FastsettBehandlingsresultatVedAvslagPåAvslagTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class FastsettBehandlingsresultatVedAvslagPåAvslagTest {
 
     private BehandlingRepository behandlingRepository;
+    private BehandlingRepositoryProvider repositoryProvider;
 
     @BeforeEach
-    public void setUp() {
-        behandlingRepository = new BehandlingRepository(getEntityManager());
+    public void setUp(EntityManager entityManager) {
+        behandlingRepository = new BehandlingRepository(entityManager);
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
     }
 
     @Test
@@ -77,7 +83,7 @@ public class FastsettBehandlingsresultatVedAvslagPåAvslagTest extends EntityMan
 
     private Behandling opprettOriginalBehandling() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        var originalBehandling = scenario.lagre(new BehandlingRepositoryProvider(getEntityManager()));
+        var originalBehandling = scenario.lagre(repositoryProvider);
         originalBehandling.avsluttBehandling();
         return originalBehandling;
     }
