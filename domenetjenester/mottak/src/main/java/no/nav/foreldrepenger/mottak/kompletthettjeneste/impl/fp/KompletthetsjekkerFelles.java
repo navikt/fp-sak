@@ -148,9 +148,10 @@ public class KompletthetsjekkerFelles {
             }
             return ventefristEtterlysning;
         } else {
-            // Det er mottatt IM. Hvis uten etterlysning vent til STP-3w+3d. Hvis med brev vent inntil STP-2w. Sjekk på aktive AG
+            // Det er mottatt IM. Hvis uten etterlysning vent til STP-3w+3d. Hvis med brev vent inntil STP-2w. Sjekk på aktive AG (inntekter siste 3-4 mnd)
             Period p = erSendtBrev ? Period.ofWeeks(1) : Period.ofDays(3);
             List<ManglendeVedlegg> manglerFraAktiveArbeidsgivere = kompletthetssjekkerInntektsmelding.utledManglendeInntektsmeldingerFraGrunnlagForAutopunkt(ref);
+            LOGGER.info("ETTERLYS behandlingId {} erSendtBrev {} manglerIm {}", ref.getBehandlingId(), erSendtBrev, !manglerFraAktiveArbeidsgivere.isEmpty());
             return manglerFraAktiveArbeidsgivere.isEmpty() ? Optional.empty():
                 finnVentefrist(ventefristEtterlysning.get().toLocalDate().minusWeeks(VENTEFRIST_ETTER_ETTERLYSNING_UKER).plus(p));
         }
