@@ -11,8 +11,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegUtfall;
@@ -29,9 +32,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 
-public class BehandlingModellTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class BehandlingModellTest {
 
     private static final LocalDateTime FRIST_TID = LocalDateTime.now().plusWeeks(4).withNano(0);
 
@@ -48,14 +52,14 @@ public class BehandlingModellTest extends EntityManagerAwareTest {
 
     private final DummySteg nullSteg = new DummySteg();
     private final DummyVenterSteg nullVenterSteg = new DummyVenterSteg();
-    private final DummySteg aksjonspunktSteg = new DummySteg(opprettForAksjonspunkt(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL));
-    private final DummySteg aksjonspunktModifisererSteg = new DummySteg(opprettForAksjonspunktMedFrist(
-        AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, Venteårsak.AVV_DOK, FRIST_TID));
+    private final DummySteg aksjonspunktSteg = new DummySteg(
+        opprettForAksjonspunkt(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL));
+    private final DummySteg aksjonspunktModifisererSteg = new DummySteg(
+        opprettForAksjonspunktMedFrist(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, Venteårsak.AVV_DOK, FRIST_TID));
 
     @BeforeEach
-    void setUp() {
-        serviceProvider = new BehandlingskontrollServiceProvider(getEntityManager(),
-            new BehandlingModellRepository(), null);
+    void setUp(EntityManager entityManager) {
+        serviceProvider = new BehandlingskontrollServiceProvider(entityManager, new BehandlingModellRepository(), null);
         kontrollTjeneste = new BehandlingskontrollTjenesteImpl(serviceProvider);
     }
 
@@ -92,16 +96,13 @@ public class BehandlingModellTest extends EntityManagerAwareTest {
 
                 getKode(), a1_0.
 
-                    getKode(),
-                a1_1.
+                getKode(), a1_1.
 
-                    getKode(),
-                a2_0.
+                getKode(), a2_0.
 
-                    getKode(),
-                a2_1.
+                getKode(), a2_1.
 
-                    getKode());
+                getKode());
 
         ads = modell.finnAksjonspunktDefinisjonerEtter(STEG_2);
 
@@ -111,10 +112,9 @@ public class BehandlingModellTest extends EntityManagerAwareTest {
 
                 getKode(), a2_0.
 
-                    getKode(),
-                a2_1.
+                getKode(), a2_1.
 
-                    getKode());
+                getKode());
 
         ads = modell.finnAksjonspunktDefinisjonerEtter(STEG_3);
 
@@ -170,7 +170,8 @@ public class BehandlingModellTest extends EntityManagerAwareTest {
         List<TestStegKonfig> modellData = List.of(
             new TestStegKonfig(STEG_1, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()),
             new TestStegKonfig(STEG_2, behandlingType, fagsakYtelseType, aksjonspunktSteg, ap(), ap()),
-            new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, nullSteg, ap(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL), ap()),
+            new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, nullSteg,
+                ap(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL), ap()),
             new TestStegKonfig(STEG_4, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()));
         BehandlingModellImpl modell = setupModell(modellData);
 
@@ -206,7 +207,7 @@ public class BehandlingModellTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_stoppe_når_settes_på_vent_deretter_fortsette()  {
+    public void skal_stoppe_når_settes_på_vent_deretter_fortsette() {
         // Arrange
         List<TestStegKonfig> modellData = List.of(
             new TestStegKonfig(STEG_1, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()),
@@ -286,8 +287,8 @@ public class BehandlingModellTest extends EntityManagerAwareTest {
         Behandling behandling = scenario.lagre(serviceProvider);
         BehandlingStegVisitorUtenLagring visitor = lagVisitor(behandling);
 
-        Aksjonspunkt aksjonspunkt = serviceProvider.getAksjonspunktKontrollRepository().leggTilAksjonspunkt(behandling, aksjonspunktDefinisjon,
-            STEG_1);
+        Aksjonspunkt aksjonspunkt = serviceProvider.getAksjonspunktKontrollRepository()
+            .leggTilAksjonspunkt(behandling, aksjonspunktDefinisjon, STEG_1);
         serviceProvider.getAksjonspunktKontrollRepository().setReåpnet(aksjonspunkt);
 
         BehandlingStegUtfall siste = modell.prosesserFra(STEG_3, visitor);
@@ -317,7 +318,8 @@ public class BehandlingModellTest extends EntityManagerAwareTest {
         List<TestStegKonfig> modellData = List.of(
             new TestStegKonfig(STEG_1, behandlingType, fagsakYtelseType, aksjonspunktModifisererSteg, ap(), ap()),
             new TestStegKonfig(STEG_2, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()),
-            new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, nullSteg, ap(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL), ap()));
+            new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, nullSteg,
+                ap(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL), ap()));
         BehandlingModellImpl modell = setupModell(modellData);
         TestScenario scenario = TestScenario.forEngangsstønad();
         Behandling behandling = scenario.lagre(serviceProvider);
@@ -342,13 +344,15 @@ public class BehandlingModellTest extends EntityManagerAwareTest {
 
     private BehandlingStegVisitorUtenLagring lagVisitor(Behandling behandling) {
         BehandlingskontrollKontekst kontekst = kontrollTjeneste.initBehandlingskontroll(behandling);
-        var lokalServiceProvider = new BehandlingskontrollServiceProvider(serviceProvider.getEntityManager(), serviceProvider.getBehandlingModellRepository(), null);
+        var lokalServiceProvider = new BehandlingskontrollServiceProvider(serviceProvider.getEntityManager(),
+            serviceProvider.getBehandlingModellRepository(), null);
         return new BehandlingStegVisitorUtenLagring(lokalServiceProvider, kontekst);
     }
 
     private BehandlingStegVisitorVenterUtenLagring lagVisitorVenter(Behandling behandling) {
         BehandlingskontrollKontekst kontekst = kontrollTjeneste.initBehandlingskontroll(behandling);
-        var lokalServiceProvider = new BehandlingskontrollServiceProvider(serviceProvider.getEntityManager(), serviceProvider.getBehandlingModellRepository(), null);
+        var lokalServiceProvider = new BehandlingskontrollServiceProvider(serviceProvider.getEntityManager(),
+            serviceProvider.getBehandlingModellRepository(), null);
         return new BehandlingStegVisitorVenterUtenLagring(lokalServiceProvider, kontekst);
     }
 
@@ -362,7 +366,8 @@ public class BehandlingModellTest extends EntityManagerAwareTest {
         }
 
         @Override
-        protected StegProsesseringResultat prosesserStegISavepoint(Behandling behandling, BehandlingStegVisitor stegVisitor) {
+        protected StegProsesseringResultat prosesserStegISavepoint(Behandling behandling,
+                                                                   BehandlingStegVisitor stegVisitor) {
             // bypass savepoint
             this.kjørteSteg.add(stegVisitor.getStegModell().getBehandlingStegType());
             return super.prosesserSteg(stegVisitor);
@@ -372,13 +377,14 @@ public class BehandlingModellTest extends EntityManagerAwareTest {
     static class BehandlingStegVisitorVenterUtenLagring extends TekniskBehandlingStegVenterVisitor {
         List<BehandlingStegType> kjørteSteg = new ArrayList<>();
 
-        BehandlingStegVisitorVenterUtenLagring (BehandlingskontrollServiceProvider repositoryProvider,
-                                         BehandlingskontrollKontekst kontekst) {
+        BehandlingStegVisitorVenterUtenLagring(BehandlingskontrollServiceProvider repositoryProvider,
+                                               BehandlingskontrollKontekst kontekst) {
             super(repositoryProvider, kontekst);
         }
 
         @Override
-        protected StegProsesseringResultat prosesserStegISavepoint(Behandling behandling, BehandlingStegVisitor stegVisitor) {
+        protected StegProsesseringResultat prosesserStegISavepoint(Behandling behandling,
+                                                                   BehandlingStegVisitor stegVisitor) {
             // bypass savepoint
             this.kjørteSteg.add(stegVisitor.getStegModell().getBehandlingStegType());
             return super.prosesserSteg(stegVisitor);

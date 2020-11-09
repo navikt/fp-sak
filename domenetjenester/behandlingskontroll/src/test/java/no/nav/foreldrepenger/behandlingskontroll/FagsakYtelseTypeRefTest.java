@@ -8,19 +8,20 @@ import javax.enterprise.context.ApplicationScoped;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 
-/** Demonstrerer lookup med repeatble annotations.
- * Extender @{@link EntityManagerAwareTest} fpr at cdi settes opp
- * Sikkert en bedre måte å gjøre dette på...
- * */
-public class FagsakYtelseTypeRefTest extends EntityManagerAwareTest {
+
+/**
+ * Demonstrerer lookup med repeatble annotations.
+ */
+@CdiDbAwareTest
+public class FagsakYtelseTypeRefTest {
 
     @Test
     public void skal_få_duplikat_instans_av_cdi_bean() {
-        assertThatThrownBy(() -> FagsakYtelseTypeRef.Lookup.find(Bokstav.class, FagsakYtelseType.FORELDREPENGER))
-            .isInstanceOf(IllegalStateException.class)
-            .hasMessageContaining("Har flere matchende instanser");
+        assertThatThrownBy(
+            () -> FagsakYtelseTypeRef.Lookup.find(Bokstav.class, FagsakYtelseType.FORELDREPENGER)).isInstanceOf(
+            IllegalStateException.class).hasMessageContaining("Har flere matchende instanser");
     }
 
     @Test
@@ -35,13 +36,13 @@ public class FagsakYtelseTypeRefTest extends EntityManagerAwareTest {
     @ApplicationScoped
     @FagsakYtelseTypeRef("FP")
     @FagsakYtelseTypeRef("SVP")
-    public static class A implements Bokstav{
+    public static class A implements Bokstav {
 
     }
 
     @ApplicationScoped
     @FagsakYtelseTypeRef("FP")
-    public static class B implements Bokstav{
+    public static class B implements Bokstav {
 
     }
 }

@@ -10,16 +10,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.EntityManager;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.RepositoryProvider;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.testutilities.behandling.ScenarioForeldrepenger;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
@@ -32,7 +36,8 @@ import no.nav.foreldrepenger.domene.opptjening.OpptjeningsperiodeForSaksbehandli
 import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.OpptjeningsperioderUtenOverstyringTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
-public class OpptjeningForBeregningTjenesteTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class OpptjeningForBeregningTjenesteTest {
 
     private static final LocalDate SKJÆRINGSTIDSPUNKT_OPPTJENING = LocalDate.of(2018, 12, 12);
 
@@ -42,9 +47,9 @@ public class OpptjeningForBeregningTjenesteTest extends EntityManagerAwareTest {
     private BehandlingReferanse behandlingReferanse;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp(EntityManager entityManager) {
         ScenarioForeldrepenger scenario = ScenarioForeldrepenger.nyttScenario();
-        RepositoryProvider repositoryProvider = new RepositoryProvider(getEntityManager());
+        RepositoryProvider repositoryProvider = new RepositoryProvider(entityManager);
         BehandlingReferanse referanse = scenario.lagre(repositoryProvider);
         var opptjeningsperioderTjeneste = mock(OpptjeningsperioderUtenOverstyringTjeneste.class);
         behandlingReferanse = referanse.medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_OPPTJENING);

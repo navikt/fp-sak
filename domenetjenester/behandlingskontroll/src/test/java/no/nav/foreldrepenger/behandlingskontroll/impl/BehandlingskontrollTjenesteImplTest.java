@@ -10,8 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingModellVisitor;
@@ -27,9 +30,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 
-public class BehandlingskontrollTjenesteImplTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class BehandlingskontrollTjenesteImplTest {
 
     private BehandlingskontrollTjenesteImpl kontrollTjeneste;
     private final BehandlingskontrollEventPublisererForTest eventPubliserer = new BehandlingskontrollEventPublisererForTest();
@@ -45,8 +49,8 @@ public class BehandlingskontrollTjenesteImplTest extends EntityManagerAwareTest 
     private String steg2UtgangAksjonspunkt;
 
     @BeforeEach
-    void setUp() {
-        serviceProvider = new BehandlingskontrollServiceProvider(getEntityManager(), new BehandlingModellRepository(), eventPubliserer);
+    void setUp(EntityManager entityManager) {
+        serviceProvider = new BehandlingskontrollServiceProvider(entityManager, new BehandlingModellRepository(), eventPubliserer);
         var modell = serviceProvider.getBehandlingModellRepository().getModell(BehandlingType.FØRSTEGANGSSØKNAD, FagsakYtelseType.ENGANGSTØNAD);
 
         steg2 = modell.getAlleBehandlingStegTyper().get(5);

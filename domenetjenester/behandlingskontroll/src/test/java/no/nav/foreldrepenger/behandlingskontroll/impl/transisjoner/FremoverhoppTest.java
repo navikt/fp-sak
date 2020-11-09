@@ -10,10 +10,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.EntityManager;
+
 import org.assertj.core.api.AbstractComparableAssert;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
@@ -39,9 +42,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingL�
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 
-public class FremoverhoppTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class FremoverhoppTest {
 
     private final List<StegTransisjon> transisjoner = new ArrayList<>();
 
@@ -59,8 +63,8 @@ public class FremoverhoppTest extends EntityManagerAwareTest {
     private BehandlingLås behandlingLås;
 
     @BeforeEach
-    void setUp() {
-        serviceProvider = new BehandlingskontrollServiceProvider(getEntityManager(), behandlingModellRepository, null);
+    void setUp(EntityManager entityManager) {
+        serviceProvider = new BehandlingskontrollServiceProvider(entityManager, behandlingModellRepository, null);
         behandlingRepository = serviceProvider.getBehandlingRepository();
         observer = new BehandlingskontrollFremoverhoppTransisjonEventObserver(serviceProvider) {
             @Override

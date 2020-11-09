@@ -12,14 +12,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.FaktaBeregningLagreDto;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.FastsattBrukersAndel;
@@ -41,7 +45,8 @@ import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.vedtak.felles.integrasjon.journal.v3.JournalConsumerImpl;
 
-public class KunYtelseHistorikkTjenesteTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class KunYtelseHistorikkTjenesteTest {
 
     private static final Long ANDELSNR = 1L;
     private final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
@@ -52,7 +57,7 @@ public class KunYtelseHistorikkTjenesteTest extends EntityManagerAwareTest {
     private BeregningsgrunnlagEntitet beregningsgrunnlag;
 
     @BeforeEach
-    public void setup() {
+    public void setup(EntityManager entityManager) {
         var arbeidsgiverTjeneste = new ArbeidsgiverTjeneste(null, mock(VirksomhetTjeneste.class));
         ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste = new ArbeidsgiverHistorikkinnslag(
             arbeidsgiverTjeneste);
@@ -69,7 +74,6 @@ public class KunYtelseHistorikkTjenesteTest extends EntityManagerAwareTest {
             .medLagtTilAvSaksbehandler(false)
             .medAktivitetStatus(BRUKERS_ANDEL)
             .build(periode1);
-        var entityManager = getEntityManager();
         DokumentArkivTjeneste dokumentArkivTjeneste = new DokumentArkivTjeneste(mock(JournalConsumerImpl.class),
             new FagsakRepository(entityManager));
         historikkAdapter = new HistorikkTjenesteAdapter(new HistorikkRepository(entityManager), dokumentArkivTjeneste);

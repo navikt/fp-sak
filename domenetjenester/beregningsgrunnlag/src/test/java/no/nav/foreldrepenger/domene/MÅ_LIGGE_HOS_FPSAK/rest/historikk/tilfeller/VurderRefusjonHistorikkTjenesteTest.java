@@ -9,8 +9,11 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
@@ -21,7 +24,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.FaktaBeregningLagreDto;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.RefusjonskravPrArbeidsgiverVurderingDto;
@@ -44,7 +48,8 @@ import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
-public class VurderRefusjonHistorikkTjenesteTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class VurderRefusjonHistorikkTjenesteTest {
     private static final String NAV_ORGNR = "889640782";
     private static final Arbeidsgiver VIRKSOMHET = Arbeidsgiver.virksomhet(NAV_ORGNR);
     private final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
@@ -55,12 +60,11 @@ public class VurderRefusjonHistorikkTjenesteTest extends EntityManagerAwareTest 
     private final Historikkinnslag historikkinnslag = new Historikkinnslag();
 
     @BeforeEach
-    public void setUp() {
+    public void setUp(EntityManager entityManager) {
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
-        var em = getEntityManager();
         DokumentArkivTjeneste dokumentArkivTjeneste = new DokumentArkivTjeneste(null,
-            new FagsakRepository(em));
-        historikkTjenesteAdapter = new HistorikkTjenesteAdapter(new HistorikkRepository(em), dokumentArkivTjeneste);
+            new FagsakRepository(entityManager));
+        historikkTjenesteAdapter = new HistorikkTjenesteAdapter(new HistorikkRepository(entityManager), dokumentArkivTjeneste);
         VirksomhetTjeneste virksomhetTjeneste = mock(VirksomhetTjeneste.class);
         when(virksomhetTjeneste.hentOrganisasjon(VIRKSOMHET.getIdentifikator()))
             .thenReturn(new Virksomhet.Builder().medOrgnr(VIRKSOMHET.getOrgnr()).build());

@@ -5,28 +5,33 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.testutilities.behandling.ScenarioForeldrepenger;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class RyddBeregningsgrunnlagTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class RyddBeregningsgrunnlagTest {
 
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private BehandlingReferanse referanse;
     private RyddBeregningsgrunnlag ryddBeregningsgrunnlag;
 
     @BeforeEach
-    public void setup() {
-        var repositoryProvider = new RepositoryProvider(getEntityManager());
+    public void setup(EntityManager entityManager) {
+        var repositoryProvider = new RepositoryProvider(entityManager);
         beregningsgrunnlagRepository = repositoryProvider.getBeregningsgrunnlagRepository();
 
         ScenarioForeldrepenger scenario = ScenarioForeldrepenger.nyttScenario();

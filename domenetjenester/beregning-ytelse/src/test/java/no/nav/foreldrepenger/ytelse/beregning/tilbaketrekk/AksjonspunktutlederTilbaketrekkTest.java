@@ -10,8 +10,11 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
@@ -28,7 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
@@ -38,7 +41,8 @@ import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
-public class AksjonspunktutlederTilbaketrekkTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class AksjonspunktutlederTilbaketrekkTest  {
 
     public static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now().minusMonths(2);
     public static final String ORGNR1 = KUNSTIG_ORG + "1";
@@ -51,9 +55,11 @@ public class AksjonspunktutlederTilbaketrekkTest extends EntityManagerAwareTest 
     private final BeregningsresultatRepository beregningsresultatRepository = mock(BeregningsresultatRepository.class);
     private AksjonspunktutlederTilbaketrekk aksjonspunktutlederTilbaketrekk;
     private final InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
+    private BehandlingRepositoryProvider repositoryProvider;
 
     @BeforeEach
-    void setUp() {
+    void setUp(EntityManager entityManager) {
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         var beregningsresultatTidslinjetjeneste = new BeregningsresultatTidslinjetjeneste(beregningsresultatRepository);
         aksjonspunktutlederTilbaketrekk = new AksjonspunktutlederTilbaketrekk(beregningsresultatTidslinjetjeneste, inntektArbeidYtelseTjeneste);
     }
@@ -70,7 +76,7 @@ public class AksjonspunktutlederTilbaketrekkTest extends EntityManagerAwareTest 
 
     private Behandling opprettBehandling() {
         return ScenarioMorSøkerForeldrepenger.forFødsel()
-            .lagre(new BehandlingRepositoryProvider(getEntityManager()));
+            .lagre(repositoryProvider);
     }
 
     @Test

@@ -6,8 +6,11 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -23,22 +26,24 @@ import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAk
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.ytelse.beregning.rest.VurderTilbaketrekkDto;
 
-public class VurderTilbaketrekkOppdatererTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class VurderTilbaketrekkOppdatererTest {
 
     private VurderTilbaketrekkOppdaterer vurderTilbaketrekkOppdaterer;
     private BeregningsresultatRepository beregningsresultatRepository;
+    private BehandlingRepositoryProvider repositoryProvider;
 
     @BeforeEach
-    public void setup() {
-        var repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        var historikkAdapter = new HistorikkTjenesteAdapter(new HistorikkRepository(getEntityManager()), null);
+    public void setup(EntityManager entityManager) {
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        var historikkAdapter = new HistorikkTjenesteAdapter(new HistorikkRepository(entityManager), null);
         vurderTilbaketrekkOppdaterer = new VurderTilbaketrekkOppdaterer(repositoryProvider, historikkAdapter);
-        beregningsresultatRepository = new BeregningsresultatRepository(getEntityManager());
+        beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
     }
 
     @Test
@@ -58,7 +63,7 @@ public class VurderTilbaketrekkOppdatererTest extends EntityManagerAwareTest {
 
     private Behandling opprettBehandling() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        var behandling = scenario.lagre(new BehandlingRepositoryProvider(getEntityManager()));
+        var behandling = scenario.lagre(repositoryProvider);
         opprettBehandlingsresultat(behandling);
         return behandling;
     }
