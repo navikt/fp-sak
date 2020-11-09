@@ -274,46 +274,9 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
             kladd = eksisterendeBeregningsgrunnlagPeriod;
         }
 
-        public Builder leggTilBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel beregningsgrunnlagPrStatusOgAndel) {
-            verifiserKanModifisere();
-            kladd.beregningsgrunnlagPrStatusOgAndelList.add(beregningsgrunnlagPrStatusOgAndel);
-            return this;
-        }
-
-        public Builder fjernBeregningsgrunnlagPrStatusOgAndelerSomIkkeLiggerIListeAvAndelsnr(List<Long> listeAvAndelsnr) {
-            verifiserKanModifisere();
-            List<BeregningsgrunnlagPrStatusOgAndel> andelerSomSkalFjernes = new ArrayList<>();
-            for (BeregningsgrunnlagPrStatusOgAndel andel : kladd.getBeregningsgrunnlagPrStatusOgAndelList()) {
-                if (!listeAvAndelsnr.contains(andel.getAndelsnr()) && andel.erLagtTilAvSaksbehandler()) {
-                    andelerSomSkalFjernes.add(andel);
-                }
-            }
-            kladd.beregningsgrunnlagPrStatusOgAndelList.removeAll(andelerSomSkalFjernes);
-            return this;
-        }
-
         public Builder leggTilBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel.Builder prStatusOgAndelBuilder) {
             verifiserKanModifisere();
             prStatusOgAndelBuilder.build(kladd);
-            return this;
-        }
-
-        public Builder medBeregningsgrunnlagPrStatusOgAndel(List<BeregningsgrunnlagPrStatusOgAndel> beregningsgrunnlagPrStatusOgAndeler) {
-            verifiserKanModifisere();
-            kladd.beregningsgrunnlagPrStatusOgAndelList = beregningsgrunnlagPrStatusOgAndeler;
-            return this;
-        }
-
-        public Builder fjernAlleBeregningsgrunnlagPrStatusOgAndeler() {
-            verifiserKanModifisere();
-            List<BeregningsgrunnlagPrStatusOgAndel> beregningsgrunnlagPrStatusOgAndelList = Kopimaskin.deepCopy(kladd.getBeregningsgrunnlagPrStatusOgAndelList());
-            beregningsgrunnlagPrStatusOgAndelList.forEach(this::fjernBeregningsgrunnlagPrStatusOgAndel);
-            return this;
-        }
-
-        public Builder fjernBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel beregningsgrunnlagPrStatusOgAndel) {
-            verifiserKanModifisere();
-            kladd.beregningsgrunnlagPrStatusOgAndelList.remove(beregningsgrunnlagPrStatusOgAndel);
             return this;
         }
 
@@ -402,18 +365,6 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
                 bgPeriodeÅrsakBuilder.medPeriodeÅrsak(periodeÅrsak);
                 bgPeriodeÅrsakBuilder.build(kladd);
             }
-            return this;
-        }
-
-        public Builder leggTilPeriodeÅrsaker(Collection<PeriodeÅrsak> periodeÅrsaker) {
-            verifiserKanModifisere();
-            periodeÅrsaker.forEach(this::leggTilPeriodeÅrsak);
-            return this;
-        }
-
-        public Builder tilbakestillPeriodeÅrsaker() {
-            verifiserKanModifisere();
-            kladd.beregningsgrunnlagPeriodeÅrsaker.clear();
             return this;
         }
 
