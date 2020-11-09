@@ -62,7 +62,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <fp-uttak.version>4.0-20201103113840-d2ecdd0</fp-uttak.version>
+        <fp-uttak.version>4.0-20201109104852-a687357</fp-uttak.version>
 
         <svp-uttak.version>2.1-20200310092959-0d007c3</svp-uttak.version>
 
