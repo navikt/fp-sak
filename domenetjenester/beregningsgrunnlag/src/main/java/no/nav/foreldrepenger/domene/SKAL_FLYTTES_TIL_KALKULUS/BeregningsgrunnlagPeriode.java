@@ -17,7 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.persistence.AttributeOverride;
@@ -42,7 +41,6 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.Kopimaskin;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
-import no.nav.foreldrepenger.domene.typer.Beløp;
 
 @Entity(name = "BeregningsgrunnlagPeriode")
 @Table(name = "BEREGNINGSGRUNNLAG_PERIODE")
@@ -176,17 +174,6 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
         regelSporingMap.put(beregningsgrunnlagPeriodeRegelSporing.getRegelType(), beregningsgrunnlagPeriodeRegelSporing);
     }
 
-    public Beløp getTotaltRefusjonkravIPeriode() {
-        return new Beløp(beregningsgrunnlagPrStatusOgAndelList.stream()
-            .map(BeregningsgrunnlagPrStatusOgAndel::getBgAndelArbeidsforhold)
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .map(BGAndelArbeidsforhold::getRefusjonskravPrÅr)
-            .filter(Objects::nonNull)
-            .reduce(BigDecimal::add)
-            .orElse(BigDecimal.ZERO));
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (obj == this) {
@@ -287,46 +274,9 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
             kladd = eksisterendeBeregningsgrunnlagPeriod;
         }
 
-        public Builder leggTilBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel beregningsgrunnlagPrStatusOgAndel) {
-            verifiserKanModifisere();
-            kladd.beregningsgrunnlagPrStatusOgAndelList.add(beregningsgrunnlagPrStatusOgAndel);
-            return this;
-        }
-
-        public Builder fjernBeregningsgrunnlagPrStatusOgAndelerSomIkkeLiggerIListeAvAndelsnr(List<Long> listeAvAndelsnr) {
-            verifiserKanModifisere();
-            List<BeregningsgrunnlagPrStatusOgAndel> andelerSomSkalFjernes = new ArrayList<>();
-            for (BeregningsgrunnlagPrStatusOgAndel andel : kladd.getBeregningsgrunnlagPrStatusOgAndelList()) {
-                if (!listeAvAndelsnr.contains(andel.getAndelsnr()) && andel.getLagtTilAvSaksbehandler()) {
-                    andelerSomSkalFjernes.add(andel);
-                }
-            }
-            kladd.beregningsgrunnlagPrStatusOgAndelList.removeAll(andelerSomSkalFjernes);
-            return this;
-        }
-
         public Builder leggTilBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel.Builder prStatusOgAndelBuilder) {
             verifiserKanModifisere();
             prStatusOgAndelBuilder.build(kladd);
-            return this;
-        }
-
-        public Builder medBeregningsgrunnlagPrStatusOgAndel(List<BeregningsgrunnlagPrStatusOgAndel> beregningsgrunnlagPrStatusOgAndeler) {
-            verifiserKanModifisere();
-            kladd.beregningsgrunnlagPrStatusOgAndelList = beregningsgrunnlagPrStatusOgAndeler;
-            return this;
-        }
-
-        public Builder fjernAlleBeregningsgrunnlagPrStatusOgAndeler() {
-            verifiserKanModifisere();
-            List<BeregningsgrunnlagPrStatusOgAndel> beregningsgrunnlagPrStatusOgAndelList = Kopimaskin.deepCopy(kladd.getBeregningsgrunnlagPrStatusOgAndelList());
-            beregningsgrunnlagPrStatusOgAndelList.forEach(this::fjernBeregningsgrunnlagPrStatusOgAndel);
-            return this;
-        }
-
-        public Builder fjernBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel beregningsgrunnlagPrStatusOgAndel) {
-            verifiserKanModifisere();
-            kladd.beregningsgrunnlagPrStatusOgAndelList.remove(beregningsgrunnlagPrStatusOgAndel);
             return this;
         }
 
@@ -415,18 +365,6 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
                 bgPeriodeÅrsakBuilder.medPeriodeÅrsak(periodeÅrsak);
                 bgPeriodeÅrsakBuilder.build(kladd);
             }
-            return this;
-        }
-
-        public Builder leggTilPeriodeÅrsaker(Collection<PeriodeÅrsak> periodeÅrsaker) {
-            verifiserKanModifisere();
-            periodeÅrsaker.forEach(this::leggTilPeriodeÅrsak);
-            return this;
-        }
-
-        public Builder tilbakestillPeriodeÅrsaker() {
-            verifiserKanModifisere();
-            kladd.beregningsgrunnlagPeriodeÅrsaker.clear();
             return this;
         }
 

@@ -98,7 +98,6 @@ public class BGMapperTilKalkulus {
             .medÅrsbeløpFraTilstøtendeYtelse(fraFpsak.getÅrsbeløpFraTilstøtendeYtelse() == null ? null : fraFpsak.getÅrsbeløpFraTilstøtendeYtelse().getVerdi())
             .medInntektskategori(fraFpsak.getInntektskategori() == null ? null : Inntektskategori.fraKode(fraFpsak.getInntektskategori().getKode()))
             .medKilde(AndelKilde.fraKode(fraFpsak.getKilde().getKode()))
-            .medLagtTilAvSaksbehandler(fraFpsak.getLagtTilAvSaksbehandler())
             .medOrginalDagsatsFraTilstøtendeYtelse(fraFpsak.getOrginalDagsatsFraTilstøtendeYtelse());
 
         if (fraFpsak.getAktivitetStatus().erArbeidstaker()) {
@@ -159,7 +158,8 @@ public class BGMapperTilKalkulus {
         builder.medLønnsendringIBeregningsperioden(fraFpsak.erLønnsendringIBeregningsperioden());
         builder.medTidsbegrensetArbeidsforhold(fraFpsak.getErTidsbegrensetArbeidsforhold());
         builder.medRefusjonskravPrÅr(fraFpsak.getRefusjonskravPrÅr());
-
+        builder.medSaksbehandletRefusjonPrÅr(fraFpsak.getSaksbehandletRefusjonPrÅr());
+        builder.medFordeltRefusjonPrÅr(fraFpsak.getFordeltRefusjonPrÅr());
         fraFpsak.getArbeidsperiodeTom().ifPresent(builder::medArbeidsperiodeTom);
         fraFpsak.getNaturalytelseBortfaltPrÅr().ifPresent(builder::medNaturalytelseBortfaltPrÅr);
         fraFpsak.getNaturalytelseTilkommetPrÅr().ifPresent(builder::medNaturalytelseTilkommetPrÅr);

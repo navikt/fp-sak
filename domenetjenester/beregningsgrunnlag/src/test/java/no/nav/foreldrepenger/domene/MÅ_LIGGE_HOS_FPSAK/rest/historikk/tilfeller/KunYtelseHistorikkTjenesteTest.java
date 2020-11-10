@@ -71,7 +71,6 @@ public class KunYtelseHistorikkTjenesteTest {
             .build(beregningsgrunnlag);
         BeregningsgrunnlagPrStatusOgAndel.builder()
             .medAndelsnr(ANDELSNR)
-            .medLagtTilAvSaksbehandler(false)
             .medAktivitetStatus(BRUKERS_ANDEL)
             .build(periode1);
         DokumentArkivTjeneste dokumentArkivTjeneste = new DokumentArkivTjeneste(mock(JournalConsumerImpl.class),

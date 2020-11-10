@@ -206,6 +206,12 @@ class BeregningsgrunnlagDiffSjekker {
         if (!erLike(aktivArbeidsforhold.getRefusjonskravPrÅr(), forrigeArbeidsforhold.getRefusjonskravPrÅr())) {
             return true;
         }
+        if (!erLike(aktivArbeidsforhold.getSaksbehandletRefusjonPrÅr(), forrigeArbeidsforhold.getSaksbehandletRefusjonPrÅr())) {
+            return true;
+        }
+        if (!erLike(aktivArbeidsforhold.getFordeltRefusjonPrÅr(), forrigeArbeidsforhold.getFordeltRefusjonPrÅr())) {
+            return true;
+        }
         if (aktivArbeidsforhold.erLønnsendringIBeregningsperioden() != null && !aktivArbeidsforhold.erLønnsendringIBeregningsperioden().equals(forrigeArbeidsforhold.erLønnsendringIBeregningsperioden())) {
             return true;
         }
@@ -236,7 +242,7 @@ class BeregningsgrunnlagDiffSjekker {
         List<BeregningsgrunnlagPrStatusOgAndel> forrigeAndeler = forrigePeriode
             .getBeregningsgrunnlagPrStatusOgAndelList()
             .stream()
-            .filter(a -> !a.getLagtTilAvSaksbehandler())
+            .filter(a -> !a.erLagtTilAvSaksbehandler())
             .collect(Collectors.toList());
         return new Tuple<>(aktiveAndeler, forrigeAndeler);
     }
