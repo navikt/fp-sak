@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.mottak.kompletthettjeneste.impl.fp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Period;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -29,6 +29,7 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
+import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingSomIkkeKommer;
 import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
@@ -136,8 +137,10 @@ public class KompletthetsjekkerFelles {
             return Optional.empty();
         // Gjeldende logikk: Etterlys hvis ingen mottatte
         boolean erSendtBrev = erSendtBrev(ref.getBehandlingId(), DokumentMalType.ETTERLYS_INNTEKTSMELDING_DOK);
-        if (inntektsmeldingTjeneste.hentInntektsmeldinger(ref, ref.getUtledetSkjæringstidspunkt()).isEmpty()) {
+        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, ref.getUtledetSkjæringstidspunkt());
+        if (inntektsmeldinger.isEmpty()) {
             if (!erSendtBrev) {
+                // TODO: Fjerne brevsjekken når restene i Infotrygd er ferdig. Da skal man sende brev. Kan returnere ved migrering FP
                 var skalIkkeSendeBrev = FagsakYtelseType.SVANGERSKAPSPENGER.equals(ref.getFagsakYtelseType()) &&
                     behandlingRepository.finnUnikBehandlingForBehandlingId(ref.getBehandlingId()).map(Behandling::getMigrertKilde).filter(Fagsystem.INFOTRYGD::equals).isPresent();
                 if (skalIkkeSendeBrev) {
@@ -148,13 +151,24 @@ public class KompletthetsjekkerFelles {
             }
             return ventefristEtterlysning;
         } else {
-            // Det er mottatt IM. Hvis uten etterlysning vent til STP-3w+3d. Hvis med brev vent inntil STP-2w. Sjekk på aktive AG (inntekter siste 3-4 mnd)
-            Period p = erSendtBrev ? Period.ofWeeks(1) : Period.ofDays(3);
-            List<ManglendeVedlegg> manglerFraAktiveArbeidsgivere = kompletthetssjekkerInntektsmelding.utledManglendeInntektsmeldingerFraGrunnlagForAutopunkt(ref);
-            LOGGER.info("ETTERLYS behandlingId {} erSendtBrev {} manglerIm {}", ref.getBehandlingId(), erSendtBrev, !manglerFraAktiveArbeidsgivere.isEmpty());
-            return manglerFraAktiveArbeidsgivere.isEmpty() ? Optional.empty():
-                finnVentefrist(ventefristEtterlysning.get().toLocalDate().minusWeeks(VENTEFRIST_ETTER_ETTERLYSNING_UKER).plus(p));
+            return finnVentefristNårFinnesInntektsmelding(ref, ventefristEtterlysning.get(), erSendtBrev, inntektsmeldinger);
         }
+    }
+
+    private Optional<LocalDateTime> finnVentefristNårFinnesInntektsmelding(BehandlingReferanse ref, LocalDateTime frist, boolean erSendtBrev, List<Inntektsmelding> inntektsmeldinger) {
+        List<ManglendeVedlegg> manglerFraAktiveArbeidsgivere = kompletthetssjekkerInntektsmelding.utledManglendeInntektsmeldingerFraGrunnlagForAutopunkt(ref);
+        if (manglerFraAktiveArbeidsgivere.isEmpty()) {
+            return Optional.empty();
+        }
+        var baseline = frist.minusWeeks(VENTEFRIST_ETTER_ETTERLYSNING_UKER).minusWeeks(VENTEFRIST_ETTER_MOTATT_DATO_UKER);
+        var tidligstMottatt = inntektsmeldinger.stream()
+            .map(Inntektsmelding::getInnsendingstidspunkt)
+            .filter(baseline::isBefore)  // Filtrer ut IM sendt før søknad
+            .min(Comparator.naturalOrder()).orElseGet(() -> frist.minusWeeks(VENTEFRIST_ETTER_MOTATT_DATO_UKER));
+        LOGGER.info("ETTERLYS behandlingId {} erSendtBrev {} manglerIm {}", ref.getBehandlingId(), erSendtBrev, manglerFraAktiveArbeidsgivere.size());
+
+        // Vent N=3 døgn etter første mottatte IM. Bruk N+1 pga startofday.
+        return finnVentefrist(tidligstMottatt.toLocalDate().plusDays(4));
     }
 
     private Optional<LocalDateTime> finnVentefristTilManglendeInntektsmelding(BehandlingReferanse ref) {
