@@ -75,41 +75,31 @@ abstract class AbstractJettyServer {
         this.appKonfigurasjon = appKonfigurasjon;
     }
 
-    protected void bootStrap() throws Exception { // NOSONAR
+    protected void bootStrap() throws Exception {
         konfigurer();
         migrerDatabaser();
         start(appKonfigurasjon);
     }
 
-    protected void konfigurer() throws Exception { // NOSONAR
+    protected void konfigurer() throws Exception {
         konfigurerMiljø();
         konfigurerSikkerhet();
         konfigurerJndi();
     }
 
-    protected abstract void konfigurerMiljø() throws Exception; // NOSONAR
+    protected abstract void konfigurerMiljø() throws Exception;
 
     protected void konfigurerSikkerhet() {
         Security.setProperty(AuthConfigFactory.DEFAULT_FACTORY_SECURITY_PROPERTY, AuthConfigFactoryImpl.class.getCanonicalName());
 
-        File jaspiConf = new File(System.getProperty("conf", "./conf") + "/jaspi-conf.xml"); // NOSONAR
+        File jaspiConf = new File(System.getProperty("conf", "./conf") + "/jaspi-conf.xml");
         if (!jaspiConf.exists()) {
             throw new IllegalStateException("Missing required file: " + jaspiConf.getAbsolutePath());
         }
         System.setProperty("org.apache.geronimo.jaspic.configurationFile", jaspiConf.getAbsolutePath());
-
-        konfigurerSwaggerHash();
     }
 
-    /**
-     * @see SecurityFilter#getSwaggerHash()
-     */
-    protected void konfigurerSwaggerHash() {
-        // System.setProperty(SecurityFilter.SWAGGER_HASH_KEY,
-        // appKonfigurasjon.getSwaggerHash());
-    }
-
-    protected abstract void konfigurerJndi() throws Exception; // NOSONAR
+    protected abstract void konfigurerJndi() throws Exception;
 
     protected abstract void migrerDatabaser() throws IOException;
 
@@ -122,7 +112,6 @@ abstract class AbstractJettyServer {
         server.join();
     }
 
-    @SuppressWarnings("resource")
     protected List<Connector> createConnectors(AppKonfigurasjon appKonfigurasjon, Server server) {
         List<Connector> connectors = new ArrayList<>();
         ServerConnector httpConnector = new ServerConnector(server, new HttpConnectionFactory(createHttpConfiguration()));

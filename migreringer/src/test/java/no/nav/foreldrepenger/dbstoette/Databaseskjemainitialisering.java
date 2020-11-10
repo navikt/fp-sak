@@ -19,9 +19,7 @@ public final class Databaseskjemainitialisering {
 
     private static final Environment ENV = Environment.current();
 
-    public static final List<DBProperties> UNIT_TEST = List.of(cfg("fpsak.default"), cfg("fpsak.hist"));
-
-    public static final List<DBProperties> DBA = List.of(cfg("fpsak.dba"));
+    public static final List<DBProperties> UNIT_TEST = List.of(cfg("defaultDS"), cfg("dvhDS"));
 
     private static final Logger LOG = LoggerFactory.getLogger(Databaseskjemainitialisering.class);
 
@@ -31,7 +29,6 @@ public final class Databaseskjemainitialisering {
 
     public static void migrer() {
         try {
-            migrer(DBA);
             migrer(UNIT_TEST);
         } catch (Exception e) {
             throw new RuntimeException("Feil under migrering av enhetstest-skjemaer", e);
