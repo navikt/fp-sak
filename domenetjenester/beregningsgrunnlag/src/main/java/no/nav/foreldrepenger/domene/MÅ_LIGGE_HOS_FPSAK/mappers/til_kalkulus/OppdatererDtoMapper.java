@@ -88,7 +88,8 @@ public class OppdatererDtoMapper {
             a.getArbeidsgiverOrgnr(),
             a.getArbeidsgiverAktoerId(),
             a.getInternArbeidsforholdRef(),
-            a.getFastsattRefusjonFom()))
+            a.getFastsattRefusjonFom(),
+            a.getDelvisRefusjonPrMndFørStart()))
             .collect(Collectors.toList());
     }
 

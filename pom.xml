@@ -72,7 +72,7 @@
 
         <fp-kontrakter.version>5.1-20200923133920-c1d8fa1</fp-kontrakter.version>
 
-        <kalkulus.version>1.1-2020.11.09.145542-6af0a43</kalkulus.version>
+        <kalkulus.version>1.1-SNAPSHOT</kalkulus.version>
         <abakus-kontrakt.version>1.2-2020.09.28.084651-5d745b8</abakus-kontrakt.version>
 
         <swaggercore.version>2.1.5</swaggercore.version>
@@ -591,7 +591,7 @@
             <dependency>
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-core</artifactId>
-                <version>3.18.1</version>
+                <version>3.18.0</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jaxb</groupId>
@@ -621,7 +621,7 @@
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-slf4j18-impl</artifactId>
-                <version>2.14.0</version>
+                <version>2.13.3</version>
             </dependency>
 
 

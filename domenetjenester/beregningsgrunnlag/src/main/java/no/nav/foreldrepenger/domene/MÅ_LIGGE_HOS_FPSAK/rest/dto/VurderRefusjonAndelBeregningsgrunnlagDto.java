@@ -20,6 +20,9 @@ public class VurderRefusjonAndelBeregningsgrunnlagDto {
     @NotNull
     private LocalDate fastsattRefusjonFom;
 
+    @Valid
+    private Integer delvisRefusjonPrMndFørStart;
+
     VurderRefusjonAndelBeregningsgrunnlagDto() { // NOSONAR
         // Jackson
     }
@@ -27,11 +30,13 @@ public class VurderRefusjonAndelBeregningsgrunnlagDto {
     public VurderRefusjonAndelBeregningsgrunnlagDto(@Valid String arbeidsgiverOrgnr,
                                                     @Valid String arbeidsgiverAktoerId,
                                                     @Valid String internArbeidsforholdRef,
-                                                    @Valid @NotNull LocalDate fastsattRefusjonFom) {
+                                                    @Valid @NotNull LocalDate fastsattRefusjonFom,
+                                                    @Valid Integer delvisRefusjonPrMndFørStart) {
         this.arbeidsgiverOrgnr = arbeidsgiverOrgnr;
         this.arbeidsgiverAktoerId = arbeidsgiverAktoerId;
         this.internArbeidsforholdRef = internArbeidsforholdRef;
         this.fastsattRefusjonFom = fastsattRefusjonFom;
+        this.delvisRefusjonPrMndFørStart = delvisRefusjonPrMndFørStart;
     }
 
     public String getArbeidsgiverOrgnr() {
@@ -48,5 +53,9 @@ public class VurderRefusjonAndelBeregningsgrunnlagDto {
 
     public LocalDate getFastsattRefusjonFom() {
         return fastsattRefusjonFom;
+    }
+
+    public Integer getDelvisRefusjonPrMndFørStart() {
+        return delvisRefusjonPrMndFørStart;
     }
 }

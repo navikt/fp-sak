@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.historikk;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
@@ -18,10 +20,14 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.VurderRefusjonAndelBeregningsgrunnlagDto;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.VurderRefusjonBeregningsgrunnlagDto;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningRefusjonOverstyringEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningRefusjonOverstyringerEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningRefusjonPeriodeEntitet;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagGrunnlagEntitet;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -31,7 +37,7 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ApplicationScoped
 public class VurderRefusjonBeregningsgrunnlagHistorikkTjeneste {
-
+    private static final BigDecimal MÅNEDER_I_ÅR = BigDecimal.valueOf(12);
     private ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste;
     private HistorikkTjenesteAdapter historikkTjenesteAdapter;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
@@ -58,9 +64,13 @@ public class VurderRefusjonBeregningsgrunnlagHistorikkTjeneste {
             .flatMap(BeregningsgrunnlagGrunnlagEntitet::getRefusjonOverstyringer)
             .map(BeregningRefusjonOverstyringerEntitet::getRefusjonOverstyringer)
             .orElse(Collections.emptyList());
+        Optional<BeregningsgrunnlagEntitet> forrigeBeregningsgrunnlag = forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
         for (VurderRefusjonAndelBeregningsgrunnlagDto fastsattAndel : dto.getFastsatteAndeler()) {
-            Optional<BeregningRefusjonPeriodeEntitet> forrigeOverstyring = finnForrigeOverstyringForArbeidsforhold(fastsattAndel, forrigeOverstyringer);
-            leggTilArbeidsforholdHistorikkinnslag(tekstBuilder, fastsattAndel, forrigeOverstyring, arbeidsforholdOverstyringer);
+            Optional<LocalDate> forrigeRefusjonsstart = finnForrigeRefusjonsstartForArbeidsforhold(fastsattAndel, forrigeOverstyringer);
+            Optional<BigDecimal> forrigeDelvisRefusjonPrÅr = forrigeRefusjonsstart.isEmpty()
+                ? Optional.empty()
+                : finnForrigeDelvisRefusjon(fastsattAndel, forrigeRefusjonsstart.get(), forrigeBeregningsgrunnlag);
+            leggTilArbeidsforholdHistorikkinnslag(tekstBuilder, fastsattAndel, forrigeRefusjonsstart, forrigeDelvisRefusjonPrÅr, arbeidsforholdOverstyringer);
         }
 
         lagHistorikkInnslag(dto, param, tekstBuilder);
@@ -68,17 +78,46 @@ public class VurderRefusjonBeregningsgrunnlagHistorikkTjeneste {
         return OppdateringResultat.utenOveropp();
     }
 
-    private Optional<BeregningRefusjonPeriodeEntitet> finnForrigeOverstyringForArbeidsforhold(VurderRefusjonAndelBeregningsgrunnlagDto fastsattAndel, List<BeregningRefusjonOverstyringEntitet> forrigeOverstyringer) {
+    private Optional<BigDecimal> finnForrigeDelvisRefusjon(VurderRefusjonAndelBeregningsgrunnlagDto fastsattAndel,
+                                                           LocalDate forrigeRefusjonsstart,
+                                                           Optional<BeregningsgrunnlagEntitet> forrigeBeregningsgrunnlag) {
+        List<BeregningsgrunnlagPeriode> forrigeBGPerioder = forrigeBeregningsgrunnlag
+            .map(BeregningsgrunnlagEntitet::getBeregningsgrunnlagPerioder)
+            .orElse(Collections.emptyList());
+        List<BeregningsgrunnlagPrStatusOgAndel> andelerIForrugeGrunnlagFørRefusjonstart = forrigeBGPerioder.stream()
+            .filter(bgp -> bgp.getBeregningsgrunnlagPeriodeFom().isBefore(forrigeRefusjonsstart))
+            .findFirst()
+            .map(BeregningsgrunnlagPeriode::getBeregningsgrunnlagPrStatusOgAndelList)
+            .orElse(Collections.emptyList());
+        Optional<BeregningsgrunnlagPrStatusOgAndel> forrigeMatchendeAndel = andelerIForrugeGrunnlagFørRefusjonstart.stream()
+            .filter(andel -> andel.getArbeidsgiver().isPresent() && matcherAG(andel.getArbeidsgiver().get(), fastsattAndel)
+            && matcherReferanse(andel.getArbeidsforholdRef().orElse(InternArbeidsforholdRef.nullRef()), fastsattAndel))
+            .findFirst();
+
+        // Hvis saksbehandletRefusjonPrÅr var > 0 i denne andelen som ligger i en periode før forrige startdato for refusjon
+        // betyr det at det var tidligere innvilget delvis refusjon
+        Optional<BigDecimal> forrigeSaksbehandletRefusjonPrÅr = forrigeMatchendeAndel
+            .flatMap(BeregningsgrunnlagPrStatusOgAndel::getBgAndelArbeidsforhold)
+            .map(BGAndelArbeidsforhold::getSaksbehandletRefusjonPrÅr);
+        if (forrigeSaksbehandletRefusjonPrÅr.isPresent() && forrigeSaksbehandletRefusjonPrÅr.get().compareTo(BigDecimal.ZERO) > 0) {
+            return forrigeSaksbehandletRefusjonPrÅr;
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    private Optional<LocalDate> finnForrigeRefusjonsstartForArbeidsforhold(VurderRefusjonAndelBeregningsgrunnlagDto fastsattAndel, List<BeregningRefusjonOverstyringEntitet> forrigeOverstyringer) {
         List<BeregningRefusjonPeriodeEntitet> refusjonsperioderHosSammeAG = forrigeOverstyringer.stream()
             .filter(os -> matcherAG(os.getArbeidsgiver(), fastsattAndel))
             .findFirst()
             .map(BeregningRefusjonOverstyringEntitet::getRefusjonPerioder)
             .orElse(Collections.emptyList());
-        return refusjonsperioderHosSammeAG.stream().filter(rp -> matcherReferanse(rp.getArbeidsforholdRef(), fastsattAndel.getInternArbeidsforholdRef())).findFirst();
+        Optional<BeregningRefusjonPeriodeEntitet> first = refusjonsperioderHosSammeAG.stream().filter(rp -> matcherReferanse(rp.getArbeidsforholdRef(), fastsattAndel)).findFirst();
+        return first.map(BeregningRefusjonPeriodeEntitet::getStartdatoRefusjon);
     }
 
-    private boolean matcherReferanse(InternArbeidsforholdRef arbeidsforholdRef, String internArbeidsforholdRef) {
-        return Objects.equals(arbeidsforholdRef.getReferanse(), internArbeidsforholdRef);
+    private boolean matcherReferanse(InternArbeidsforholdRef arbeidsforholdRef, VurderRefusjonAndelBeregningsgrunnlagDto fastsattAndel) {
+        return Objects.equals(arbeidsforholdRef.getReferanse(), fastsattAndel.getInternArbeidsforholdRef());
     }
 
     private boolean matcherAG(Arbeidsgiver arbeidsgiver, VurderRefusjonAndelBeregningsgrunnlagDto fastsattAndel) {
@@ -91,7 +130,8 @@ public class VurderRefusjonBeregningsgrunnlagHistorikkTjeneste {
 
     private void leggTilArbeidsforholdHistorikkinnslag(HistorikkInnslagTekstBuilder historikkBuilder,
                                                        VurderRefusjonAndelBeregningsgrunnlagDto fastsattAndel,
-                                                       Optional<BeregningRefusjonPeriodeEntitet> forrigeOverstyring,
+                                                       Optional<LocalDate> forrigeRefusjonsstart,
+                                                       Optional<BigDecimal> forrigeDelvisRefusjonPrÅr,
                                                        List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
         Arbeidsgiver ag;
         if (fastsattAndel.getArbeidsgiverAktoerId() != null) {
@@ -101,10 +141,16 @@ public class VurderRefusjonBeregningsgrunnlagHistorikkTjeneste {
         }
         Optional<InternArbeidsforholdRef> ref = fastsattAndel.getInternArbeidsforholdRef() == null ? Optional.empty() : Optional.of(InternArbeidsforholdRef.ref(fastsattAndel.getInternArbeidsforholdRef()));
         String arbeidsforholdInfo = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(AktivitetStatus.ARBEIDSTAKER, Optional.of(ag), ref, arbeidsforholdOverstyringer);
-        HistorikkEndretFeltType endretFeltType = HistorikkEndretFeltType.NY_STARTDATO_REFUSJON;
-        LocalDate fraVerdi = forrigeOverstyring.map(BeregningRefusjonPeriodeEntitet::getStartdatoRefusjon).orElse(null);
-        LocalDate tilVerdi = fastsattAndel.getFastsattRefusjonFom();
-        historikkBuilder.medEndretFelt(endretFeltType, arbeidsforholdInfo, fraVerdi, tilVerdi);
+        LocalDate fraStartdato = forrigeRefusjonsstart.orElse(null);
+        LocalDate tilStartdato = fastsattAndel.getFastsattRefusjonFom();
+        historikkBuilder.medEndretFelt(HistorikkEndretFeltType.NY_STARTDATO_REFUSJON, arbeidsforholdInfo, fraStartdato, tilStartdato);
+        if (fastsattAndel.getDelvisRefusjonPrMndFørStart() != null && fastsattAndel.getDelvisRefusjonPrMndFørStart() != 0) {
+            Integer fraBeløpPrMnd = forrigeDelvisRefusjonPrÅr.map(forrigeDelvisRef -> forrigeDelvisRef.divide(MÅNEDER_I_ÅR, RoundingMode.HALF_EVEN))
+                .map(BigDecimal::intValue)
+                .orElse(null);
+            Integer tilBeløpPrMnd = fastsattAndel.getDelvisRefusjonPrMndFørStart();
+            historikkBuilder.medEndretFelt(HistorikkEndretFeltType.DELVIS_REFUSJON_FØR_STARTDATO, arbeidsforholdInfo, fraBeløpPrMnd, tilBeløpPrMnd);
+        }
         if (!historikkBuilder.erSkjermlenkeSatt()) {
             historikkBuilder.medSkjermlenke(SkjermlenkeType.FAKTA_OM_FORDELING);
         }

@@ -137,6 +137,7 @@ public enum HistorikkEndretFeltType implements Kodeverdi {
     MILITÆR_ELLER_SIVIL("MILITÆR_ELLER_SIVIL", "Militær- eller siviltjeneste"),
     NY_REFUSJONSFRIST("NY_REFUSJONSFRIST", "Ny refusjonsfrist"),
     NY_STARTDATO_REFUSJON("NY_STARTDATO_REFUSJON", "Ny startdato for refusjon"),
+    DELVIS_REFUSJON_FØR_STARTDATO("DELVIS_REFUSJON_FØR_STARTDATO", "Delvis refusjon som utbetales før startdato for full refusjon"),
     ORGANISASJONSNUMMER("ORGANISASJONSNUMMER", "Organisasjonsnummer"),
     ARBEIDSFORHOLD_BEKREFTET_TOM_DATO("ARBEIDSFORHOLD_BEKREFTET_TOM_DATO", "Til og med dato fastsatt av saksbehandler"),
     ANKE_AVVIST_ÅRSAK("ANKE_AVVIST_ÅRSAK", "Årsak til avvist anke")
