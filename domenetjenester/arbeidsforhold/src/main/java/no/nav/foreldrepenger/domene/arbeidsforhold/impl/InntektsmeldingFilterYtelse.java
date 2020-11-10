@@ -16,4 +16,9 @@ public interface InntektsmeldingFilterYtelse {
 
     <V> Map<Arbeidsgiver, Set<V>> filtrerInntektsmeldingerForYtelseUtvidet(BehandlingReferanse referanse, Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
                                                                         Map<Arbeidsgiver, Set<V>> påkrevde);
+
+    /** Returnerer påkrevde IM etter vurdering av aktive arbeidsforhold. */
+    <V> Map<Arbeidsgiver, Set<V>> filtrerInntektsmeldingerForKompletthetAktive(BehandlingReferanse referanse,
+                                                                               Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
+                                                                               Map<Arbeidsgiver, Set<V>> påkrevde);
 }

@@ -119,7 +119,7 @@ public class InntektsmeldingRegisterTjeneste {
     }
 
     /**
-     * Liste av arbeidsforhold per arbeidsgiver (ident) som må sende inntektsmelding for.
+     * Liste av arbeidsforhold per arbeidsgiver (ident) som må sende inntektsmelding. Filtrert ut åpenbart passive arbeidsforhold
      */
     public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> utledManglendeInntektsmeldingerFraGrunnlag(BehandlingReferanse referanse, boolean erEndringssøknad) {
         Objects.requireNonNull(referanse, VALID_REF);
@@ -134,6 +134,24 @@ public class InntektsmeldingRegisterTjeneste {
         Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> filtrert = filtrerInntektsmeldingerForYtelse(referanse, inntektArbeidYtelseGrunnlag, påkrevdeInntektsmeldinger);
         return filtrerInntektsmeldingerForYtelseUtvidet(referanse, inntektArbeidYtelseGrunnlag, filtrert);
     }
+
+    /**
+     * Liste av arbeidsforhold per arbeidsgiver (ident) som må sende inntektsmelding. Filtrert ut annet enn åpenbart aktive arbeidsforhold
+     */
+    public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> utledManglendeInntektsmeldingerFraGrunnlagForAutopunkt(BehandlingReferanse referanse, boolean erEndringssøknad) {
+        Objects.requireNonNull(referanse, VALID_REF);
+        final Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(
+            referanse.getBehandlingId());
+        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger = utledPåkrevdeInntektsmeldingerFraGrunnlag(referanse, inntektArbeidYtelseGrunnlag);
+        logInntektsmeldinger(referanse, påkrevdeInntektsmeldinger, "UFILTRERT");
+
+        filtrerUtMottatteInntektsmeldinger(referanse, påkrevdeInntektsmeldinger, erEndringssøknad, (a, i) -> i);
+        logInntektsmeldinger(referanse, påkrevdeInntektsmeldinger, "FILTRERT");
+
+        return filtrerInntektsmeldingerForKompletthetAktive(referanse, inntektArbeidYtelseGrunnlag, påkrevdeInntektsmeldinger);
+    }
+
+    //
 
     /**
      * Liste av arbeidsforhold per arbeidsgiver (ident) som må sende inntektsmelding for.
@@ -287,4 +305,12 @@ public class InntektsmeldingRegisterTjeneste {
             .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + referanse.getFagsakYtelseType().getKode()));
         return filter.filtrerInntektsmeldingerForYtelseUtvidet(referanse, inntektArbeidYtelseGrunnlag, påkrevdeInntektsmeldinger);
     }
+
+    private <V> Map<Arbeidsgiver, Set<V>> filtrerInntektsmeldingerForKompletthetAktive(BehandlingReferanse referanse, Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag, Map<Arbeidsgiver, Set<V>> påkrevdeInntektsmeldinger) {
+        InntektsmeldingFilterYtelse filter = FagsakYtelseTypeRef.Lookup.find(inntektsmeldingFiltere, referanse.getFagsakYtelseType())
+            .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + referanse.getFagsakYtelseType().getKode()));
+        return filter.filtrerInntektsmeldingerForKompletthetAktive(referanse, inntektArbeidYtelseGrunnlag, påkrevdeInntektsmeldinger);
+    }
+
+
 }

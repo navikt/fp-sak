@@ -44,9 +44,9 @@ public class InntektsmeldingFilterYtelseImpl implements InntektsmeldingFilterYte
             .map(svpGrunnlagEntitet -> new TilretteleggingFilter(svpGrunnlagEntitet).getAktuelleTilretteleggingerUfiltrert())
             .orElse(Collections.emptyList());
 
-        påkrevde.entrySet().forEach(entry -> {
-            if (arbeidsforholdFraSøknad.stream().anyMatch(trlg -> trlg.getArbeidsgiver().map(arbeidsgiver -> arbeidsgiver.equals(entry.getKey())).orElse(false))) {
-                filtrert.put(entry.getKey(), entry.getValue());
+        påkrevde.forEach((key, value) -> {
+            if (arbeidsforholdFraSøknad.stream().anyMatch(trlg -> trlg.getArbeidsgiver().map(arbeidsgiver -> arbeidsgiver.equals(key)).orElse(false))) {
+                filtrert.put(key, value);
             }
         });
         return filtrert;
@@ -56,5 +56,12 @@ public class InntektsmeldingFilterYtelseImpl implements InntektsmeldingFilterYte
     public <V> Map<Arbeidsgiver, Set<V>> filtrerInntektsmeldingerForYtelseUtvidet(BehandlingReferanse referanse, Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
                                                                                   Map<Arbeidsgiver, Set<V>> påkrevde) {
         return påkrevde;
+    }
+
+    @Override
+    public <V> Map<Arbeidsgiver, Set<V>> filtrerInntektsmeldingerForKompletthetAktive(BehandlingReferanse referanse,
+                                                                                      Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
+                                                                                      Map<Arbeidsgiver, Set<V>> påkrevde) {
+        return filtrerInntektsmeldingerForYtelse(referanse, inntektArbeidYtelseGrunnlag, påkrevde);
     }
 }

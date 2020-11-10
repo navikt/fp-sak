@@ -92,13 +92,13 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         KompletthetssjekkerSøknadImpl kompletthetssjekkerSøknadImpl = new KompletthetssjekkerSøknadFørstegangsbehandlingImpl(
             dokumentArkivTjeneste, repositoryProvider, Period.parse("P4W"));
-        KompletthetssjekkerInntektsmelding kompletthetssjekkerInntektsmelding = new KompletthetssjekkerInntektsmeldingImpl(
+        KompletthetssjekkerInntektsmelding kompletthetssjekkerInntektsmelding = new KompletthetssjekkerInntektsmelding(
             inntektsmeldingArkivTjeneste);
         KompletthetsjekkerFelles kompletthetsjekkerFelles = new KompletthetsjekkerFelles(repositoryProvider,
-            dokumentBestillerTjenesteMock, dokumentBehandlingTjenesteMock);
+            dokumentBestillerTjenesteMock, dokumentBehandlingTjenesteMock, kompletthetssjekkerInntektsmelding, inntektsmeldingTjeneste);
         søknadRepository = repositoryProvider.getSøknadRepository();
         kompletthetsjekkerImpl = new KompletthetsjekkerImpl(kompletthetssjekkerSøknadImpl,
-            kompletthetssjekkerInntektsmelding, inntektsmeldingTjeneste, kompletthetsjekkerFelles, søknadRepository);
+            kompletthetssjekkerInntektsmelding, kompletthetsjekkerFelles);
         testUtil = new KompletthetssjekkerTestUtil(repositoryProvider);
     }
 
@@ -136,10 +136,10 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     public void skal_ikke_sende_brev_når_inntektsmelding_finnes() {
         // Arrange
         Behandling behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
-        mockManglendeInntektsmeldingGrunnlag();
+        mockManglendeInntektsmeldingKompletthet();
         testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusWeeks(2),
             STARTDATO_PERMISJON);
-        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(
+        lenient().when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(
             List.of(InntektsmeldingBuilder.builder().build()));
 
         // Act
@@ -156,9 +156,9 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     public void skal_ikke_sende_brev_når_frister_passert() {
         // Arrange
         Behandling behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
-        mockManglendeInntektsmeldingGrunnlag();
+        mockManglendeInntektsmeldingKompletthet();
         testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusWeeks(3), LocalDate.now());
-        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(
+        lenient().when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(
             List.of(InntektsmeldingBuilder.builder().build()));
 
         // Act
@@ -175,7 +175,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     public void skal_ikke_sende_brev_når_etterlysning_sendt() {
         // Arrange
         Behandling behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
-        mockManglendeInntektsmeldingGrunnlag();
+        mockManglendeInntektsmeldingKompletthet();
         testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusWeeks(4),
             STARTDATO_PERMISJON);
         when(dokumentBehandlingTjenesteMock.erDokumentBestilt(any(), any())).thenReturn(true);
@@ -195,7 +195,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         // Arrange
         LocalDate stp = LocalDate.now().plusDays(2).plusWeeks(3);
         Behandling behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
-        mockManglendeInntektsmeldingGrunnlag();
+        mockManglendeInntektsmeldingKompletthet();
         testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusWeeks(1), stp);
         when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(Collections.emptyList());
 
@@ -223,7 +223,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     public void skal_sende_brev_når_inntektsmelding_mangler() {
         // Arrange
         Behandling behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
-        mockManglendeInntektsmeldingGrunnlag();
+        mockManglendeInntektsmeldingKompletthet();
         testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusWeeks(1),
             STARTDATO_PERMISJON);
         when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(Collections.emptyList());
@@ -282,7 +282,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     public void skal_returnere_hvilke_vedlegg_som_mangler() {
         // Arrange
         Behandling behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
-        mockManglendeInntektsmeldingGrunnlag();
+        mockManglendeInntektsmeldingKompletthet();
         opprettSøknadMedPåkrevdVedlegg(behandling);
 
         // Act
@@ -313,7 +313,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
             manglendeInntektsmeldinger);
     }
 
-    private void mockManglendeInntektsmeldingGrunnlag() {
+    private void mockManglendeInntektsmeldingKompletthet() {
         HashMap<Arbeidsgiver, Set<InternArbeidsforholdRef>> manglendeInntektsmeldinger = new HashMap<>();
         manglendeInntektsmeldinger.put(Arbeidsgiver.virksomhet("1"), new HashSet<>());
         when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(any(), anyBoolean())).thenReturn(
