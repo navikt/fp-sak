@@ -1,36 +1,59 @@
 package no.nav.foreldrepenger.dbstoette;
 
+import java.io.File;
+
+import javax.sql.DataSource;
+
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
 public final class DBProperties {
 
-    private String datasource;
-    private String schema;
-    private String defaultSchema;
-    private String url;
-    private String user;
-    private String password;
-
-    private String migrationScriptsFilesystemRoot;
-    private String migrationScriptsClasspathRoot;
-
-    private String versjonstabell;
-    private boolean defaultDataSource;
-    private boolean migrateClean;
-
-    private DBProperties() {
-    }
+    private final String datasource;
+    private final String schema;
+    private final String url;
+    private final String user;
+    private final String password;
+    private final boolean isDefaultDS;
+    private final DataSource ds;
 
     private DBProperties(Builder builder) {
         this.datasource = builder.datasource;
         this.schema = builder.schema;
-        this.defaultSchema = builder.defaultSchema;
         this.url = builder.url;
         this.user = builder.user;
         this.password = builder.password;
-        this.migrationScriptsFilesystemRoot = builder.migrationScriptsFilesystemRoot;
-        this.migrationScriptsClasspathRoot = builder.migrationScriptsClasspathRoot;
-        this.versjonstabell = builder.versjonstabell;
-        this.defaultDataSource = builder.defaultDataSource;
-        this.migrateClean = builder.migrateClean;
+        this.isDefaultDS = builder.isDefaultDS;
+        this.ds = ds();
+    }
+
+    public DataSource getDs() {
+        return ds;
+    }
+
+    String getScriptLocation() {
+        if (DBTestUtil.kjøresAvMaven()) {
+            return classpathScriptLocation();
+        }
+        return fileScriptLocation();
+    }
+
+    private String classpathScriptLocation() {
+        return "classpath:/db/migration/" + getDatasource();
+    }
+
+    private String fileScriptLocation() {
+        String relativePath = "migreringer/src/main/resources/db/migration/" + datasource;
+        File baseDir = new File(".").getAbsoluteFile();
+        File location = new File(baseDir, relativePath);
+        while (!location.exists()) {
+            baseDir = baseDir.getParentFile();
+            if (baseDir == null || !baseDir.isDirectory()) {
+                throw new IllegalArgumentException("Klarte ikke finne : " + baseDir);
+            }
+            location = new File(baseDir, relativePath);
+        }
+        return "filesystem:" + location.getPath();
     }
 
     String getDatasource() {
@@ -53,42 +76,35 @@ public final class DBProperties {
         return password;
     }
 
-    String getMigrationScriptsFilesystemRoot() {
-        return migrationScriptsFilesystemRoot;
+    boolean isDefaultDS() {
+        return isDefaultDS;
     }
 
-    String getMigrationScriptsClasspathRoot() {
-        return migrationScriptsClasspathRoot;
+    private DataSource ds() {
+        var ds = new HikariDataSource(hikariConfig());
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> ds.close()));
+        return ds;
     }
 
-    String getVersjonstabell() {
-        return versjonstabell;
-    }
-
-    boolean isDefaultDataSource() {
-        return defaultDataSource;
-    }
-
-    boolean isMigrateClean() {
-        return migrateClean;
-    }
-
-    String getDefaultSchema() {
-        return defaultSchema;
+    private HikariConfig hikariConfig() {
+        var cfg = new HikariConfig();
+        cfg.setJdbcUrl(this.getUrl());
+        cfg.setUsername(this.getUser());
+        cfg.setPassword(this.getPassword());
+        cfg.setConnectionTimeout(1000);
+        cfg.setMinimumIdle(0);
+        cfg.setMaximumPoolSize(4);
+        cfg.setAutoCommit(false);
+        return cfg;
     }
 
     static class Builder {
         private String datasource;
         private String schema;
-        private String defaultSchema;
         private String url;
         private String user;
         private String password;
-        private String migrationScriptsFilesystemRoot;
-        private String migrationScriptsClasspathRoot;
-        private String versjonstabell;
-        private boolean defaultDataSource;
-        private boolean migrateClean;
+        private boolean isDefaultDS;
 
         Builder datasource(String datasource) {
             this.datasource = datasource;
@@ -97,11 +113,6 @@ public final class DBProperties {
 
         Builder schema(String schema) {
             this.schema = schema;
-            return this;
-        }
-
-        Builder defaultSchema(String defaultSchema) {
-            this.defaultSchema = defaultSchema;
             return this;
         }
 
@@ -120,28 +131,8 @@ public final class DBProperties {
             return this;
         }
 
-        Builder migrationScriptsFilesystemRoot(String migrationScriptsFilesystemRoot) {
-            this.migrationScriptsFilesystemRoot = migrationScriptsFilesystemRoot;
-            return this;
-        }
-
-        Builder migrationScriptsClasspathRoot(String migrationScriptsClasspathRoot) {
-            this.migrationScriptsClasspathRoot = migrationScriptsClasspathRoot;
-            return this;
-        }
-
-        Builder versjonstabell(String versjonstabell) {
-            this.versjonstabell = versjonstabell;
-            return this;
-        }
-
         Builder defaultDataSource(boolean defaultDataSource) {
-            this.defaultDataSource = defaultDataSource;
-            return this;
-        }
-
-        Builder migrateClean(boolean migrateClean) {
-            this.migrateClean = migrateClean;
+            this.isDefaultDS = defaultDataSource;
             return this;
         }
 
