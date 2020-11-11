@@ -77,4 +77,14 @@ public class BeregningsgrunnlagPrStatus {
             return this;
         }
     }
+
+    @Override
+    public String toString() {
+        return "BeregningsgrunnlagPrStatus{" +
+            "aktivitetStatus=" + aktivitetStatus +
+            ", arbeidsforhold=" + arbeidsforhold +
+            ", redusertBrukersAndelPrÅr=" + redusertBrukersAndelPrÅr +
+            ", inntektskategori=" + inntektskategori +
+            '}';
+    }
 }
