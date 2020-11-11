@@ -12,6 +12,7 @@ import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -27,6 +28,7 @@ import no.nav.foreldrepenger.web.app.tjenester.saksbehandler.dto.FeatureToggleNa
 import no.nav.vedtak.felles.integrasjon.unleash.strategier.ByAnsvarligSaksbehandlerStrategy;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
+import no.nav.vedtak.util.env.Environment;
 
 @Path("/feature-toggle")
 @ApplicationScoped
@@ -34,7 +36,11 @@ import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 @Produces(MediaType.APPLICATION_JSON)
 public class FeatureToggleRestTjeneste {
 
+    private static final Environment ENV = Environment.current();
+
     public static final String FEATURE_TOGGLE_PATH = "/feature-toggle";
+    private static final String ER_PROD_PART_PATH = "/er-prod";
+    public static final String ER_PROD_PATH = FEATURE_TOGGLE_PATH + "/er-prod";
 
     private Unleash unleash;
 
@@ -60,6 +66,14 @@ public class FeatureToggleRestTjeneste {
                 .map(FeatureToggleNavnDto::getNavn)
                 .collect(Collectors.toMap(Function.identity(), toggle -> unleash.isEnabled(toggle, unleashContext)));
         return new FeatureToggleDto(values);
+    }
+
+    @GET
+    @Path(ER_PROD_PART_PATH)
+    @Operation(description = "Svarer på om Fpsak kjører i produksjon", tags = "feature-toggle")
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.APPLIKASJON, sporingslogg = false)
+    public boolean erProd() {
+        return ENV.isProd();
     }
 
 }
