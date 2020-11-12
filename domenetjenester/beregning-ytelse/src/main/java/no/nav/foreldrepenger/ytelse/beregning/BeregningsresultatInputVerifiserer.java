@@ -60,9 +60,9 @@ public final class BeregningsresultatInputVerifiserer {
     private static void finnMatchendeBGArbeidsforhold(UttakAktivitet uttakAndel, List<BeregningsgrunnlagPrStatus> bGAndeler) {
         List<BeregningsgrunnlagPrArbeidsforhold> bgArbeidsforhold = bGAndeler.stream()
             .filter(a -> a.getAktivitetStatus().equals(AktivitetStatus.ATFL))
-            .findFirst()
             .map(BeregningsgrunnlagPrStatus::getArbeidsforhold)
-            .orElse(Collections.emptyList());
+            .flatMap(Collection::stream)
+            .collect(Collectors.toList());
         Optional<BeregningsgrunnlagPrArbeidsforhold> matchetBGArbfor = bgArbeidsforhold.stream()
             .filter(a -> BeregningsgrunnlagUttakArbeidsforholdMatcher.matcherArbeidsforhold(uttakAndel.getArbeidsforhold(), a.getArbeidsforhold()))
             .findFirst();
