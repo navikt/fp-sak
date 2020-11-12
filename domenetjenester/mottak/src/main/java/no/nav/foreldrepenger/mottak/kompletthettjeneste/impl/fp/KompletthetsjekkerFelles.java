@@ -158,6 +158,7 @@ public class KompletthetsjekkerFelles {
     private Optional<LocalDateTime> finnVentefristNårFinnesInntektsmelding(BehandlingReferanse ref, LocalDateTime frist, boolean erSendtBrev, List<Inntektsmelding> inntektsmeldinger) {
         List<ManglendeVedlegg> manglerFraAktiveArbeidsgivere = kompletthetssjekkerInntektsmelding.utledManglendeInntektsmeldingerFraGrunnlagForAutopunkt(ref);
         if (manglerFraAktiveArbeidsgivere.isEmpty()) {
+            LOGGER.info("ETTERLYS mangler ikke IM fra aktive arbeidsforhold behandlingId {}", ref.getBehandlingId());
             return Optional.empty();
         }
         var baseline = frist.minusWeeks(VENTEFRIST_ETTER_ETTERLYSNING_UKER).minusWeeks(VENTEFRIST_ETTER_MOTATT_DATO_UKER);

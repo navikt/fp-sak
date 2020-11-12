@@ -49,6 +49,8 @@ public class VurderFagsystemFellesUtils {
     private static final Period MAKS_AVVIK_DAGER_IM_INPUT = Period.of(0,3,1);
     private static final Period OPPLYSNINGSPLIKT_INTERVALL = Period.of(0,2,1);
     private static final Period PERIODE_FOR_AKTUELLE_SAKER = Period.ofMonths(10);
+    private static final Period PERIODE_FOR_AKTUELLE_SAKER_IM = Period.ofMonths(10);
+    private static final Period PERIODE_FOR_MULIGE_SAKER_IM = Period.ofMonths(14);
 
     private BehandlingRepository behandlingRepository;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
@@ -110,8 +112,21 @@ public class VurderFagsystemFellesUtils {
     }
 
     public boolean harSakOpprettetInnenIntervall(List<Fagsak> sakerGittYtelseType) {
+        var sammenlign = LocalDateTime.now().minus(PERIODE_FOR_AKTUELLE_SAKER);
         return sakerGittYtelseType.stream()
-            .anyMatch(f -> f.getOpprettetTidspunkt() != null && f.getOpprettetTidspunkt().isAfter(LocalDateTime.now().minus(PERIODE_FOR_AKTUELLE_SAKER)));
+            .anyMatch(f -> f.getOpprettetTidspunkt() != null && f.getOpprettetTidspunkt().isAfter(sammenlign));
+    }
+
+    public boolean harSakOpprettetInnenTvilsintervall(List<Fagsak> sakerGittYtelseType) {
+        var sammenlign = LocalDateTime.now().minus(PERIODE_FOR_MULIGE_SAKER_IM);
+        return sakerGittYtelseType.stream()
+            .anyMatch(f -> f.getOpprettetTidspunkt() != null && f.getOpprettetTidspunkt().isAfter(sammenlign));
+    }
+
+    public boolean harSakOpprettetInnenIntervallForIM(List<Fagsak> sakerGittYtelseType, LocalDate referanseDato) {
+        var sammenlign = referanseDato.atStartOfDay().minus(PERIODE_FOR_AKTUELLE_SAKER_IM);
+        return sakerGittYtelseType.stream()
+            .anyMatch(f -> f.getOpprettetTidspunkt() != null && f.getOpprettetTidspunkt().isAfter(sammenlign));
     }
 
     public boolean erFagsakMedFamilieHendelsePassendeForFamilieHendelse(VurderFagsystem vurderFagsystem, Fagsak fagsak) {
@@ -174,14 +189,14 @@ public class VurderFagsystemFellesUtils {
         if (!sorterteSaker.getOrDefault(SorteringSaker.GRUNNLAG_MULIG_MATCH, List.of()).isEmpty()) {
             return behandlendeFagsystemFraFagsaker(sorterteSaker.get(SorteringSaker.GRUNNLAG_MULIG_MATCH), SorteringSaker.GRUNNLAG_MULIG_MATCH, vurderFagsystem);
         }
-        if (!sorterteSaker.getOrDefault(SorteringSaker.GRUNNLAG_MISMATCH, List.of()).isEmpty() && harSakOpprettetInnenIntervall(sorterteSaker.get(SorteringSaker.GRUNNLAG_MISMATCH))) {
+        if (!sorterteSaker.getOrDefault(SorteringSaker.GRUNNLAG_MISMATCH, List.of()).isEmpty() && harSakOpprettetInnenTvilsintervall(sorterteSaker.get(SorteringSaker.GRUNNLAG_MISMATCH))) {
             LOG.info("VurderFagsystem FP IM manuell pga nylige saker av type {} for {}", SorteringSaker.GRUNNLAG_MISMATCH, vurderFagsystem.getAktørId());
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
         if (!sorterteSaker.getOrDefault(SorteringSaker.INNTEKTSMELDING_DATO_MATCH, List.of()).isEmpty()) {
             return behandlendeFagsystemFraFagsaker(sorterteSaker.get(SorteringSaker.INNTEKTSMELDING_DATO_MATCH), SorteringSaker.INNTEKTSMELDING_DATO_MATCH, vurderFagsystem);
         }
-        if (!sorterteSaker.getOrDefault(SorteringSaker.INNTEKTSMELDING_MISMATCH, List.of()).isEmpty() && harSakOpprettetInnenIntervall(sorterteSaker.get(SorteringSaker.INNTEKTSMELDING_MISMATCH))) {
+        if (!sorterteSaker.getOrDefault(SorteringSaker.INNTEKTSMELDING_MISMATCH, List.of()).isEmpty() && harSakOpprettetInnenTvilsintervall(sorterteSaker.get(SorteringSaker.INNTEKTSMELDING_MISMATCH))) {
             LOG.info("VurderFagsystem FP IM manuell pga nylige saker av type {} for {}", SorteringSaker.INNTEKTSMELDING_MISMATCH, vurderFagsystem.getAktørId());
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
@@ -218,9 +233,10 @@ public class VurderFagsystemFellesUtils {
         }
         // Her har vi registrert søknad
         LocalDate førsteDagBehandling = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).getFørsteUttaksdato();
+        var referanseDatoForSaker = LocalDate.now().isBefore(startdatoIM) ? LocalDate.now() : startdatoIM;
         if (førsteDagBehandling.minus(MAKS_AVVIK_DAGER_IM_INPUT).isBefore(startdatoIM) && førsteDagBehandling.plus(MAKS_AVVIK_DAGER_IM_INPUT).isAfter(startdatoIM)) {
             return SorteringSaker.GRUNNLAG_DATO_MATCH;
-        } else if ((fagsak.erÅpen() && harSakOpprettetInnenIntervall(List.of(fagsak))) || erBehandlingAvsluttetFørOpplysningspliktIntervall(behandling)) {
+        } else if ((fagsak.erÅpen() && harSakOpprettetInnenIntervallForIM(List.of(fagsak), referanseDatoForSaker)) || erBehandlingAvsluttetFørOpplysningspliktIntervall(behandling)) {
             return SorteringSaker.GRUNNLAG_MULIG_MATCH;
         } else {
             return SorteringSaker.GRUNNLAG_MISMATCH;
