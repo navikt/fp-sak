@@ -192,6 +192,9 @@ public class OppdragskontrollOpphør implements OppdragskontrollManager {
     }
 
     private void opprettOpphørsoppdragForBruker(OppdragInput behandlingInfo, Oppdragskontroll oppdragskontroll) {
+        if (OpphørUtil.erBrukerAllredeFullstendigOpphørt(behandlingInfo)) {
+            return;
+        }
         Optional<Oppdragslinje150> sisteOppdr150BrukerOpt = TidligereOppdragTjeneste.finnSisteLinjeIKjedeForBruker(behandlingInfo);
         if (sisteOppdr150BrukerOpt.isPresent()) {
             Oppdragslinje150 sisteOppdr150Bruker = sisteOppdr150BrukerOpt.get();

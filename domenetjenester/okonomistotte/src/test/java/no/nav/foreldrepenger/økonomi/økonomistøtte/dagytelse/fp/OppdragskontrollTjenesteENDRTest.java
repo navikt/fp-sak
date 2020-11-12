@@ -2187,7 +2187,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         OppdragskontrollTestVerktøy.verifiserAttestant180(opp150RevurderingListe);
 
         // Arrange 2
-        Behandling revurdering2 = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
+        Behandling revurdering2 = opprettOgLagreRevurdering(revurdering, VedtakResultatType.INNVILGET, false, true);
         LocalDate endringsdato = LocalDate.of(I_ÅR, 9, 1);
         LocalDate b3p1fom = LocalDate.of(I_ÅR, 9, 1);
         LocalDate b3p1tom = LocalDate.of(I_ÅR, 9, 15);
@@ -2206,6 +2206,107 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
 
         assertThat(opp150RevurderingListe2).hasSize(4); // AG + Bruker + 2 * FP
         assertThat(opp150RevurderingListe2).noneSatisfy(linje -> assertThat(linje.gjelderOpphør()).isTrue());
+    }
+
+    /**
+     * Prodscenario der bruker suksessivt mister ytelse. Til man til slutt står uten og det skal sendes opphørsoppdrag
+     */
+    @Test
+    public void skalSendeOppdragMedOpphørNårAllInnvilgetYtelseBortfallerBrukerErOpphørtTidligere() {
+        // Arrange
+        LocalDate bminfom = LocalDate.of(I_ÅR, 7, 13);
+        LocalDate bmaxtom = LocalDate.of(I_ÅR, 10, 23);
+        LocalDate bmax2tom = LocalDate.of(I_ÅR, 12, 4);
+
+        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatBrukerFP(null, List.of(2116),  List.of(0), bminfom, bmaxtom);
+        beregningsresultatRepository.lagre(behandling, beregningsresultat);
+        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+
+        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
+
+        BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatBrukerFP(bminfom, List.of(0), List.of(2143), bminfom, bmaxtom);
+        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+
+        // Act
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+
+        //Assert -- opphør av bruker
+        List<Oppdragslinje150> opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste().stream()
+            .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
+            .filter(l -> l.getUtbetalesTilId() != null)
+            .collect(Collectors.toList());
+
+        assertThat(opp150RevurderingListe).hasSize(2); // Bruker + FP
+        assertThat(opp150RevurderingListe).allSatisfy(linje -> assertThat(linje.gjelderOpphør()).isTrue());
+
+        // Arrange 2 -- opphør deler av AG
+        LocalDate b21fom = LocalDate.of(I_ÅR, 8, 24);
+        LocalDate b20tom = LocalDate.of(I_ÅR, 8, 23);
+
+        Behandling revurdering2 = opprettOgLagreRevurdering(revurdering, VedtakResultatType.INNVILGET, false, true);
+        BeregningsresultatEntitet beregningsresultatRevurderingFP2 = buildBeregningsresultatBrukerFP(bminfom, List.of(0, 0), List.of(0, 2143),
+            bminfom, b20tom, b21fom, bmax2tom);
+        beregningsresultatRepository.lagre(revurdering2, beregningsresultatRevurderingFP2);
+
+        // Act 2
+        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering2);
+
+        // Arrange 3 -- opphør enda mer AG
+        LocalDate b30tom = LocalDate.of(I_ÅR, 8, 23);
+        LocalDate b31fom = LocalDate.of(I_ÅR, 8, 24);
+        LocalDate b31tom = LocalDate.of(I_ÅR, 8, 31);
+        LocalDate b32fom = LocalDate.of(I_ÅR, 9, 1);
+        LocalDate b32tom = LocalDate.of(I_ÅR, 10, 18);
+        LocalDate b33fom = LocalDate.of(I_ÅR, 10, 19);
+
+        Behandling revurdering3 = opprettOgLagreRevurdering(revurdering2, VedtakResultatType.INNVILGET, false, true);
+        BeregningsresultatEntitet beregningsresultatRevurderingFP3 = buildBeregningsresultatBrukerFP(b31fom, List.of(0,0,0,0), List.of(0,0,2143,0),
+            bminfom, b30tom, b31fom, b31tom, b32fom, b32tom, b33fom, bmax2tom);
+        beregningsresultatRepository.lagre(revurdering3, beregningsresultatRevurderingFP3);
+
+        // Act 3
+        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering3);
+
+
+        // Arrange 4 -- opphør enda mer AG
+        LocalDate b41fom = LocalDate.of(I_ÅR, 9, 1);
+        LocalDate b41tom = LocalDate.of(I_ÅR, 10, 2);
+        LocalDate b42fom = LocalDate.of(I_ÅR, 10, 3);
+        LocalDate b42tom = LocalDate.of(I_ÅR, 10, 18);
+        LocalDate b43fom = LocalDate.of(I_ÅR, 10, 19);
+
+        Behandling revurdering4 = opprettOgLagreRevurdering(revurdering3, VedtakResultatType.INNVILGET, false, true);
+        BeregningsresultatEntitet beregningsresultatRevurderingFP4 = buildBeregningsresultatBrukerFP(b41fom, List.of(0,0,0), List.of(0,2143,0),
+            b41fom, b41tom, b42fom, b42tom, b43fom, bmax2tom);
+        beregningsresultatRepository.lagre(revurdering4, beregningsresultatRevurderingFP4);
+
+        // Act 4
+        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering4);
+
+
+        // Arrange 5 -- opphør resten av AG
+        LocalDate b51fom = LocalDate.of(I_ÅR, 10, 3);
+        LocalDate b51tom = LocalDate.of(I_ÅR, 10, 18);
+        LocalDate b52fom = LocalDate.of(I_ÅR, 10, 19);
+        LocalDate b52tom = LocalDate.of(I_ÅR, 10, 23);
+        LocalDate b53fom = LocalDate.of(I_ÅR, 10, 24);
+
+        Behandling revurdering5 = opprettOgLagreRevurdering(revurdering4, VedtakResultatType.INNVILGET, false, true);
+        BeregningsresultatEntitet beregningsresultatRevurderingFP5 = buildBeregningsresultatBrukerFP(b51fom, List.of(0,0,0), List.of(0,0,0),
+            b51fom, b51tom, b52fom, b52tom, b53fom, bmax2tom);
+        beregningsresultatRepository.lagre(revurdering5, beregningsresultatRevurderingFP5);
+
+        // Act 5
+        Oppdragskontroll oppdragRevurdering5 = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering5);
+
+        //Assert 5 -- alt opphøres
+        List<Oppdragslinje150> opp150RevurderingListe5 = oppdragRevurdering5.getOppdrag110Liste().stream()
+            .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
+            .collect(Collectors.toList());
+
+        assertThat(opp150RevurderingListe5).hasSize(2); // AG +  FP
+        assertThat(opp150RevurderingListe5).allSatisfy(l -> assertThat(l.gjelderOpphør()).isTrue());
+
     }
 
 
