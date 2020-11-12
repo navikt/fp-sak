@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
+import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragKvitteringTjeneste;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.fp.OppdragInput;
 
 public class OpphørUtil {
@@ -22,14 +23,17 @@ public class OpphørUtil {
     }
 
     static Set<ØkonomiKodeKlassifik> finnKlassekoderSomIkkeErOpphørt(List<Oppdrag110> oppdrag110Liste) {
-        return førsteAktiveDatoPrKodeKlassifik(oppdrag110Liste).keySet();
+        return førsteAktiveDatoPrKodeKlassifik(oppdrag110Liste, false).keySet();
     }
 
-    private static Map<ØkonomiKodeKlassifik, LocalDate> førsteAktiveDatoPrKodeKlassifik(List<Oppdrag110> oppdrag110Liste) {
+    private static Map<ØkonomiKodeKlassifik, LocalDate> førsteAktiveDatoPrKodeKlassifik(List<Oppdrag110> oppdrag110Liste, boolean kunBruker) {
         Map<ØkonomiKodeKlassifik, LocalDate> tidligsteDato = new HashMap<>();
 
         for (Oppdrag110 oppdrag110 : sorterEtterOpprettetTidspunk(oppdrag110Liste)) {
             for (Oppdragslinje150 linje : sorterEtterDelytelseId(oppdrag110.getOppdragslinje150Liste())) {
+                if (kunBruker && linje.getUtbetalesTilId() == null) {
+                    continue;
+                }
                 ØkonomiKodeKlassifik kodeKlassifik = ØkonomiKodeKlassifik.fraKode(linje.getKodeKlassifik());
                 LocalDate tidligste = tidligsteDato.get(kodeKlassifik);
                 if (linje.gjelderOpphør()) {
@@ -60,5 +64,19 @@ public class OpphørUtil {
             .sorted(Comparator.comparing(Oppdrag110::getOpprettetTidspunkt))
             .collect(Collectors.toList());
     }
+
+    static boolean erBrukerAllredeFullstendigOpphørt(OppdragInput behandlingInfo) {
+        List<Oppdrag110> oppdragForBruker = behandlingInfo.getAlleTidligereOppdrag110().stream()
+            .filter(OpphørUtil::gjelderBruker)
+            .filter(o -> o.venterKvittering() || OppdragKvitteringTjeneste.harPositivKvittering(o))
+            .collect(Collectors.toList());
+
+        return førsteAktiveDatoPrKodeKlassifik(oppdragForBruker, true).isEmpty();
+    }
+
+    private static boolean gjelderBruker(Oppdrag110 oppdrag110) {
+        return oppdrag110.getOppdragslinje150Liste().stream().anyMatch(ol -> ol.getUtbetalesTilId() != null);
+    }
+
 }
 
