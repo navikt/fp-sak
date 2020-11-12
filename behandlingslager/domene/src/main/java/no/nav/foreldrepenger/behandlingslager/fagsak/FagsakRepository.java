@@ -194,21 +194,6 @@ public class FagsakRepository {
         return saksnumre.stream().filter(Objects::nonNull).map(Saksnummer::new).collect(Collectors.toList());
     }
 
-    /**
-     * @deprecated : Er kun til migrering av vedtak fra fpsak til fp-abakus
-     * @param fagsakId min fagsakid
-     * @param maxResult antall rader
-     * @return liste over fagsaker
-     */
-    @Deprecated(forRemoval = true)
-    public List<Fagsak> hentFagsakerMedIdStørreEnn(long fagsakId, int maxResult) {
-        final TypedQuery<Fagsak> query = entityManager.createQuery("SELECT f FROM Fagsak f WHERE f.id > :fagsakId order by f.id asc",
-            Fagsak.class);
-        query.setParameter("fagsakId", fagsakId); // NOSONAR
-        query.setMaxResults(maxResult);
-        return query.getResultList();
-    }
-
     public void fagsakSkalBehandlesAvInfotrygd(Long fagsakId) {
         Fagsak fagsak = finnEksaktFagsak(fagsakId);
         fagsak.setSkalTilInfotrygd(true);
