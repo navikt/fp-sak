@@ -12,11 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.persistence.EntityManager;
-
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonEventPubliserer;
@@ -29,7 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
-import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
@@ -40,28 +35,17 @@ import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryProviderForTest;
 
-@ExtendWith(FPsakEntityManagerAwareExtension.class)
 public class BeregnStønadskontoerTjenesteTest {
 
-    private UttakRepositoryProvider repositoryProvider;
-    private YtelsesFordelingRepository ytelsesFordelingRepository;
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
-
-    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
-
-    private ForeldrepengerUttakTjeneste uttakTjeneste;
-
-    @BeforeEach
-    void setUp(EntityManager entityManager) {
-        repositoryProvider = new UttakRepositoryProvider(entityManager);
-        ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
-        fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
-        var fagsakRepository = repositoryProvider.getFagsakRepository();
-        fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(fagsakRelasjonRepository, FagsakRelasjonEventPubliserer.NULL_EVENT_PUB, fagsakRepository);
-        uttakTjeneste = new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository());
-
-    }
+    private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryProviderForTest();
+    private final YtelsesFordelingRepository ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+    private final FagsakRelasjonRepository fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
+    private final FagsakRelasjonTjeneste fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(fagsakRelasjonRepository,
+        FagsakRelasjonEventPubliserer.NULL_EVENT_PUB, repositoryProvider.getFagsakRepository());
+    private final ForeldrepengerUttakTjeneste uttakTjeneste = new ForeldrepengerUttakTjeneste(
+        repositoryProvider.getFpUttakRepository());
 
     @Test
     public void bådeMorOgFarHarRettTermin() {
@@ -71,7 +55,8 @@ public class BeregnStønadskontoerTjenesteTest {
         OppgittDekningsgradEntitet dekningsgrad = OppgittDekningsgradEntitet.bruk100();
         Long behandlingId = behandling.getId();
         ytelsesFordelingRepository.lagre(behandlingId, dekningsgrad);
-        fagsakRelasjonRepository.opprettRelasjon(behandling.getFagsak(), Dekningsgrad.grad(dekningsgrad.getDekningsgrad()));
+        fagsakRelasjonRepository.opprettRelasjon(behandling.getFagsak(),
+            Dekningsgrad.grad(dekningsgrad.getDekningsgrad()));
 
         OppgittRettighetEntitet rettighet = new OppgittRettighetEntitet(true, true, false);
         ytelsesFordelingRepository.lagre(behandlingId, rettighet);
@@ -79,13 +64,15 @@ public class BeregnStønadskontoerTjenesteTest {
         FamilieHendelser familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse);
 
         // Act
-        BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider,fagsakRelasjonTjeneste, uttakTjeneste);
+        BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider,
+            fagsakRelasjonTjeneste, uttakTjeneste);
         var input = input(behandling, fpGrunnlag(familieHendelser));
         beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
 
         // Assert
         Optional<Stønadskontoberegning> stønadskontoberegning = repositoryProvider.getFagsakRelasjonRepository()
-            .finnRelasjonFor(input.getBehandlingReferanse().getSaksnummer()).getGjeldendeStønadskontoberegning();
+            .finnRelasjonFor(input.getBehandlingReferanse().getSaksnummer())
+            .getGjeldendeStønadskontoberegning();
         assertThat(stønadskontoberegning).isPresent();
         Set<Stønadskonto> stønadskontoer = stønadskontoberegning.get().getStønadskontoer();
 
@@ -109,19 +96,22 @@ public class BeregnStønadskontoerTjenesteTest {
         OppgittDekningsgradEntitet dekningsgrad = OppgittDekningsgradEntitet.bruk100();
         Long behandlingId = behandling.getId();
         ytelsesFordelingRepository.lagre(behandlingId, dekningsgrad);
-        fagsakRelasjonRepository.opprettRelasjon(behandling.getFagsak(), Dekningsgrad.grad(dekningsgrad.getDekningsgrad()));
+        fagsakRelasjonRepository.opprettRelasjon(behandling.getFagsak(),
+            Dekningsgrad.grad(dekningsgrad.getDekningsgrad()));
 
         OppgittRettighetEntitet rettighet = new OppgittRettighetEntitet(true, true, false);
         ytelsesFordelingRepository.lagre(behandlingId, rettighet);
 
         // Act
-        BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider,fagsakRelasjonTjeneste, uttakTjeneste);
+        BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider,
+            fagsakRelasjonTjeneste, uttakTjeneste);
         var input = input(behandling, fpGrunnlag(familieHendelser));
         beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
 
         // Assert
         Optional<Stønadskontoberegning> stønadskontoberegning = repositoryProvider.getFagsakRelasjonRepository()
-            .finnRelasjonFor(input.getBehandlingReferanse().getSaksnummer()).getGjeldendeStønadskontoberegning();
+            .finnRelasjonFor(input.getBehandlingReferanse().getSaksnummer())
+            .getGjeldendeStønadskontoberegning();
         assertThat(stønadskontoberegning).isPresent();
         Set<Stønadskonto> stønadskontoer = stønadskontoberegning.get().getStønadskontoer();
 
@@ -142,22 +132,24 @@ public class BeregnStønadskontoerTjenesteTest {
         OppgittDekningsgradEntitet dekningsgrad = OppgittDekningsgradEntitet.bruk80();
         Long behandlingId = behandling.getId();
         ytelsesFordelingRepository.lagre(behandlingId, dekningsgrad);
-        fagsakRelasjonRepository.opprettRelasjon(behandling.getFagsak(), Dekningsgrad.grad(dekningsgrad.getDekningsgrad()));
+        fagsakRelasjonRepository.opprettRelasjon(behandling.getFagsak(),
+            Dekningsgrad.grad(dekningsgrad.getDekningsgrad()));
 
         OppgittRettighetEntitet rettighet = new OppgittRettighetEntitet(true, true, true);
         ytelsesFordelingRepository.lagre(behandlingId, rettighet);
-        var familieHendelse = FamilieHendelse.forFødsel(null, fødselsdato,
-            List.of(new Barn()), 1);
+        var familieHendelse = FamilieHendelse.forFødsel(null, fødselsdato, List.of(new Barn()), 1);
         FamilieHendelser familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse);
 
         // Act
-        BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider,fagsakRelasjonTjeneste, uttakTjeneste);
+        BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider,
+            fagsakRelasjonTjeneste, uttakTjeneste);
         var input = input(behandling, fpGrunnlag(familieHendelser));
         beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
 
         // Assert
         Optional<Stønadskontoberegning> stønadskontoberegning = repositoryProvider.getFagsakRelasjonRepository()
-            .finnRelasjonFor(input.getBehandlingReferanse().getSaksnummer()).getGjeldendeStønadskontoberegning();
+            .finnRelasjonFor(input.getBehandlingReferanse().getSaksnummer())
+            .getGjeldendeStønadskontoberegning();
         assertThat(stønadskontoberegning).isPresent();
         Set<Stønadskonto> stønadskontoer = stønadskontoberegning.get().getStønadskontoer();
 
@@ -174,22 +166,24 @@ public class BeregnStønadskontoerTjenesteTest {
         OppgittDekningsgradEntitet dekningsgrad = OppgittDekningsgradEntitet.bruk100();
         Long behandlingId = behandling.getId();
         ytelsesFordelingRepository.lagre(behandlingId, dekningsgrad);
-        fagsakRelasjonRepository.opprettRelasjon(behandling.getFagsak(), Dekningsgrad.grad(dekningsgrad.getDekningsgrad()));
+        fagsakRelasjonRepository.opprettRelasjon(behandling.getFagsak(),
+            Dekningsgrad.grad(dekningsgrad.getDekningsgrad()));
 
         OppgittRettighetEntitet rettighet = new OppgittRettighetEntitet(false, true, false);
         ytelsesFordelingRepository.lagre(behandlingId, rettighet);
-        var familieHendelse = FamilieHendelse.forFødsel(null, fødselsdato,
-            List.of(new Barn()), 1);
+        var familieHendelse = FamilieHendelse.forFødsel(null, fødselsdato, List.of(new Barn()), 1);
         FamilieHendelser familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse);
 
         // Act
-        BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider,fagsakRelasjonTjeneste, uttakTjeneste);
+        BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider,
+            fagsakRelasjonTjeneste, uttakTjeneste);
         var input = input(behandling, fpGrunnlag(familieHendelser));
         beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
 
         // Assert
         Optional<Stønadskontoberegning> stønadskontoberegning = repositoryProvider.getFagsakRelasjonRepository()
-            .finnRelasjonFor(input.getBehandlingReferanse().getSaksnummer()).getGjeldendeStønadskontoberegning();
+            .finnRelasjonFor(input.getBehandlingReferanse().getSaksnummer())
+            .getGjeldendeStønadskontoberegning();
         assertThat(stønadskontoberegning).isPresent();
         Set<Stønadskonto> stønadskontoer = stønadskontoberegning.get().getStønadskontoer();
 
@@ -206,21 +200,23 @@ public class BeregnStønadskontoerTjenesteTest {
         OppgittDekningsgradEntitet dekningsgrad = OppgittDekningsgradEntitet.bruk100();
         Long behandlingId = behandling.getId();
         ytelsesFordelingRepository.lagre(behandlingId, dekningsgrad);
-        fagsakRelasjonRepository.opprettRelasjon(behandling.getFagsak(), Dekningsgrad.grad(dekningsgrad.getDekningsgrad()));
+        fagsakRelasjonRepository.opprettRelasjon(behandling.getFagsak(),
+            Dekningsgrad.grad(dekningsgrad.getDekningsgrad()));
 
         OppgittRettighetEntitet rettighet = new OppgittRettighetEntitet(false, true, false);
         ytelsesFordelingRepository.lagre(behandlingId, rettighet);
-        var familieHendelse = FamilieHendelse.forFødsel(null, fødselsdato,
-            List.of(new Barn()), 1);
+        var familieHendelse = FamilieHendelse.forFødsel(null, fødselsdato, List.of(new Barn()), 1);
         FamilieHendelser familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse);
 
         // Act
-        BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider,fagsakRelasjonTjeneste, uttakTjeneste);
+        BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider,
+            fagsakRelasjonTjeneste, uttakTjeneste);
         var input = input(behandling, fpGrunnlag(familieHendelser));
         beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
 
         // Assert
-        Optional<Stønadskontoberegning> stønadskontoberegning = repositoryProvider.getFagsakRelasjonRepository().finnRelasjonFor(input.getBehandlingReferanse().getSaksnummer())
+        Optional<Stønadskontoberegning> stønadskontoberegning = repositoryProvider.getFagsakRelasjonRepository()
+            .finnRelasjonFor(input.getBehandlingReferanse().getSaksnummer())
             .getGjeldendeStønadskontoberegning();
         assertThat(stønadskontoberegning).isPresent();
         Set<Stønadskonto> stønadskontoer = stønadskontoberegning.get().getStønadskontoer();

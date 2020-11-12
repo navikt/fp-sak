@@ -28,12 +28,12 @@ public class FagsakRepository {
 
     private EntityManager entityManager;
 
-    FagsakRepository() {
+    public FagsakRepository() {
         // for CDI proxy
     }
 
     @Inject
-    public FagsakRepository( EntityManager entityManager) {
+    public FagsakRepository(EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
         this.entityManager = entityManager;
     }

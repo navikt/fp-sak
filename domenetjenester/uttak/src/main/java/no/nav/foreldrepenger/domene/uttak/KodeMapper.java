@@ -31,13 +31,6 @@ public class KodeMapper<K extends BasisKodeverdi, O> {
             .findAny();
     }
 
-    public Optional<K> omvendtMap(O o) {
-        return mappinger.stream()
-            .filter(mapping -> mapping.getElement2().equals(o))
-            .map(Tuple::getElement1)
-            .findAny();
-    }
-
     public static <R extends BasisKodeverdi, T> Builder<R, T> medMapping(R r, T t) {
         return new Builder<R, T>().medMapping(r, t);
     }

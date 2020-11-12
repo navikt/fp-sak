@@ -116,7 +116,7 @@ public class YtelseFordelingAggregat {
             return ytelseFordelingAggregat.map(Builder::oppdatere).orElseGet(Builder::nytt);
         }
 
-        Builder medOppgittFordeling(OppgittFordelingEntitet fordeling) {
+        public Builder medOppgittFordeling(OppgittFordelingEntitet fordeling) {
             kladd.oppgittFordeling = fordeling;
             return this;
         }
@@ -134,22 +134,22 @@ public class YtelseFordelingAggregat {
             return this;
         }
 
-        Builder medOppgittDekningsgrad(OppgittDekningsgradEntitet oppgittDekningsgrad) {
+        public Builder medOppgittDekningsgrad(OppgittDekningsgradEntitet oppgittDekningsgrad) {
             kladd.oppgittDekningsgrad = oppgittDekningsgrad;
             return this;
         }
 
-        Builder medOppgittRettighet(OppgittRettighetEntitet oppgittRettighet) {
+        public Builder medOppgittRettighet(OppgittRettighetEntitet oppgittRettighet) {
             kladd.oppgittRettighet = oppgittRettighet;
             return this;
         }
 
-        Builder medPerioderUtenOmsorg(PerioderUtenOmsorgEntitet perioderUtenOmsorg) {
+        public Builder medPerioderUtenOmsorg(PerioderUtenOmsorgEntitet perioderUtenOmsorg) {
             kladd.perioderUtenOmsorg = perioderUtenOmsorg;
             return this;
         }
 
-        Builder medPerioderAleneOmsorg(PerioderAleneOmsorgEntitet perioderAleneOmsorg) {
+        public Builder medPerioderAleneOmsorg(PerioderAleneOmsorgEntitet perioderAleneOmsorg) {
             kladd.perioderAleneOmsorg = perioderAleneOmsorg;
             return this;
         }
