@@ -20,6 +20,7 @@ import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.DefaultIdentityService;
 import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.security.jaspi.JaspiAuthenticatorFactory;
+import org.eclipse.jetty.server.AbstractNetworkConnector;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -36,7 +37,6 @@ import org.eclipse.jetty.webapp.WebXmlConfiguration;
 import org.slf4j.MDC;
 
 abstract class AbstractJettyServer {
-    private static final String SERVER_HOST = "0.0.0.0";
 
     /**
      * Legges først slik at alltid resetter context før prosesserer nye requests.
@@ -50,6 +50,15 @@ abstract class AbstractJettyServer {
         }
     }
 
+    /**
+     * @see AbstractNetworkConnector#getHost()
+     * @see org.eclipse.jetty.server.ServerConnector#openAcceptChannel()
+     */
+    // TODO (u139158): Trenger vi egentlig å sette denne? Spec ser ut til å si at
+    // det er eq med null, settes den default til null eller binder
+    // den mot et interface?
+
+    protected static final String SERVER_HOST = "0.0.0.0";
     /**
      * nedstrippet sett med Jetty configurations for raskere startup.
      */
@@ -66,33 +75,43 @@ abstract class AbstractJettyServer {
         this.appKonfigurasjon = appKonfigurasjon;
     }
 
-    protected void bootStrap() throws Exception {
+    protected void bootStrap() throws Exception { // NOSONAR
         konfigurer();
         migrerDatabaser();
         start(appKonfigurasjon);
     }
 
-    protected void konfigurer() throws Exception {
+    protected void konfigurer() throws Exception { // NOSONAR
         konfigurerMiljø();
         konfigurerSikkerhet();
         konfigurerJndi();
     }
 
-    protected abstract void konfigurerMiljø() throws Exception;
+    protected abstract void konfigurerMiljø() throws Exception; // NOSONAR
 
     protected void konfigurerSikkerhet() {
         Security.setProperty(AuthConfigFactory.DEFAULT_FACTORY_SECURITY_PROPERTY, AuthConfigFactoryImpl.class.getCanonicalName());
 
-        var jaspiConf = new File(System.getProperty("conf", "./conf") + "/jaspi-conf.xml");
+        File jaspiConf = new File(System.getProperty("conf", "./conf") + "/jaspi-conf.xml"); // NOSONAR
         if (!jaspiConf.exists()) {
             throw new IllegalStateException("Missing required file: " + jaspiConf.getAbsolutePath());
         }
         System.setProperty("org.apache.geronimo.jaspic.configurationFile", jaspiConf.getAbsolutePath());
+
+        konfigurerSwaggerHash();
     }
 
-    protected abstract void konfigurerJndi() throws Exception;
+    /**
+     * @see SecurityFilter#getSwaggerHash()
+     */
+    protected void konfigurerSwaggerHash() {
+        // System.setProperty(SecurityFilter.SWAGGER_HASH_KEY,
+        // appKonfigurasjon.getSwaggerHash());
+    }
 
-    protected abstract void migrerDatabaser();
+    protected abstract void konfigurerJndi() throws Exception; // NOSONAR
+
+    protected abstract void migrerDatabaser() throws IOException;
 
     protected void start(AppKonfigurasjon appKonfigurasjon) throws Exception {
         Server server = new Server(appKonfigurasjon.getServerPort());
@@ -103,9 +122,10 @@ abstract class AbstractJettyServer {
         server.join();
     }
 
+    @SuppressWarnings("resource")
     protected List<Connector> createConnectors(AppKonfigurasjon appKonfigurasjon, Server server) {
         List<Connector> connectors = new ArrayList<>();
-        var httpConnector = new ServerConnector(server, new HttpConnectionFactory(createHttpConfiguration()));
+        ServerConnector httpConnector = new ServerConnector(server, new HttpConnectionFactory(createHttpConfiguration()));
         httpConnector.setPort(appKonfigurasjon.getServerPort());
         httpConnector.setHost(SERVER_HOST);
         connectors.add(httpConnector);
@@ -114,7 +134,7 @@ abstract class AbstractJettyServer {
     }
 
     protected WebAppContext createContext(AppKonfigurasjon appKonfigurasjon) throws IOException {
-        var webAppContext = new WebAppContext();
+        WebAppContext webAppContext = new WebAppContext();
         webAppContext.setParentLoaderPriority(true);
 
         // må hoppe litt bukk for å hente web.xml fra classpath i stedet for fra

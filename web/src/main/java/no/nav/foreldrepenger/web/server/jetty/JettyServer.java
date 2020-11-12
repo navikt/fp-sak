@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.server.jetty;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,16 +13,13 @@ import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceCollection;
 import org.eclipse.jetty.webapp.MetaData;
 import org.eclipse.jetty.webapp.WebAppContext;
-import org.flywaydb.core.Flyway;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.web.app.ApplicationConfig;
+import no.nav.foreldrepenger.web.server.jetty.DataSourceKonfig.DBConnProp;
 import no.nav.vedtak.isso.IssoApplication;
 
 public class JettyServer extends AbstractJettyServer {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JettyServer.class);
     private DataSourceKonfig dataSourceKonfig;
 
     public JettyServer() {
@@ -37,58 +35,58 @@ public class JettyServer extends AbstractJettyServer {
     }
 
     public static void main(String[] args) throws Exception {
-        jettyServer(args).bootStrap();
-    }
+        JettyServer jettyServer;
 
-    private static JettyServer jettyServer(String[] args) {
         if (args.length > 0) {
-            return new JettyServer(Integer.parseUnsignedInt(args[0]));
+            int serverPort = Integer.parseUnsignedInt(args[0]);
+            jettyServer = new JettyServer(serverPort);
+        } else {
+            jettyServer = new JettyServer();
         }
-        return new JettyServer();
+        jettyServer.bootStrap();
     }
 
     @Override
-    protected void konfigurerMiljø() {
+    protected void konfigurerMiljø() throws Exception {
         dataSourceKonfig = new DataSourceKonfig();
-        tull();
+        hacks4Nais();
     }
 
-    private void tull() {
+    private void hacks4Nais() {
+        loadBalancerFqdnTilLoadBalancerUrl();
+        temporært();
+    }
 
+    private void loadBalancerFqdnTilLoadBalancerUrl() {
         if (System.getenv("LOADBALANCER_FQDN") != null) {
-            LOG.info("Trickser med loadbalanser.url");
             String loadbalancerFqdn = System.getenv("LOADBALANCER_FQDN");
             String protocol = (loadbalancerFqdn.startsWith("localhost")) ? "http" : "https";
             System.setProperty("loadbalancer.url", protocol + "://" + loadbalancerFqdn);
         }
-        // FIXME (u139158): PFP-1176 Skriv om i OpenAmIssoHealthCheck og
-        // AuthorizationRequestBuilder når Jboss dør
+    }
+
+    private void temporært() {
+        // FIXME (u139158): PFP-1176 Skriv om i OpenAmIssoHealthCheck og AuthorizationRequestBuilder når Jboss dør
         if (System.getenv("OIDC_OPENAM_HOSTURL") != null) {
-            LOG.info("Trickser med OIDC_OPENAM_HOSTURL");
             System.setProperty("OpenIdConnect.issoHost", System.getenv("OIDC_OPENAM_HOSTURL"));
         }
-        // FIXME (u139158): PFP-1176 Skriv om i AuthorizationRequestBuilder og
-        // IdTokenAndRefreshTokenProvider når Jboss dør
+        // FIXME (u139158): PFP-1176 Skriv om i AuthorizationRequestBuilder og IdTokenAndRefreshTokenProvider når Jboss dør
         if (System.getenv("OIDC_OPENAM_AGENTNAME") != null) {
-            LOG.info("Trickser med OIDC_OPENAM_AGENTNAME");
             System.setProperty("OpenIdConnect.username", System.getenv("OIDC_OPENAM_AGENTNAME"));
         }
-        // FIXME (u139158): PFP-1176 Skriv om i IdTokenAndRefreshTokenProvider når Jboss
-        // dør
+        // FIXME (u139158): PFP-1176 Skriv om i IdTokenAndRefreshTokenProvider når Jboss dør
         if (System.getenv("OIDC_OPENAM_PASSWORD") != null) {
-            LOG.info("Trickser med OIDC_OPENAM_PASSWORD");
             System.setProperty("OpenIdConnect.password", System.getenv("OIDC_OPENAM_PASSWORD"));
         }
         // FIXME (u139158): PFP-1176 Skriv om i BaseJmsKonfig når Jboss dør
         if (System.getenv("FPSAK_CHANNEL_NAME") != null) {
-            LOG.info("Trickser med OIDC_OPENAM_PASSWORD");
             System.setProperty("mqGateway02.channel", System.getenv("FPSAK_CHANNEL_NAME"));
         }
     }
 
     @Override
     protected void konfigurerJndi() throws Exception {
-        new EnvEntry("jdbc/defaultDS", dataSourceKonfig.defaultDS());
+        new EnvEntry("jdbc/defaultDS", dataSourceKonfig.getDefaultDatasource().getDatasource()); // NOSONAR - crap jetty EnvEntry API
         konfigurerJms();
     }
 
@@ -100,20 +98,15 @@ public class JettyServer extends AbstractJettyServer {
     }
 
     @Override
-    protected void migrerDatabaser() {
-        for (var cfg : dataSourceKonfig.getDataSources()) {
-            LOG.info("Migrerer {}", cfg);
-            var flyway = new Flyway();
-            flyway.setDataSource(cfg.getDatasource());
-            flyway.setLocations(cfg.getLocations());
-            flyway.setBaselineOnMigrate(true);
-            flyway.migrate();
+    protected void migrerDatabaser() throws IOException {
+        for (DBConnProp dbConnProp : dataSourceKonfig.getDataSources()) {
+            new DatabaseScript(dbConnProp.getDatasource(), false, dbConnProp.getMigrationScripts()).migrate();
         }
     }
 
     @Override
     protected WebAppContext createContext(AppKonfigurasjon appKonfigurasjon) throws IOException {
-        var webAppContext = super.createContext(appKonfigurasjon);
+        WebAppContext webAppContext = super.createContext(appKonfigurasjon);
         webAppContext.setParentLoaderPriority(true);
         updateMetaData(webAppContext.getMetaData());
         return webAppContext;
@@ -121,23 +114,26 @@ public class JettyServer extends AbstractJettyServer {
 
     private void updateMetaData(MetaData metaData) {
         // Find path to class-files while starting jetty from development environment.
-        var resources = getWebInfClasses().stream()
-                .map(c -> Resource.newResource(c.getProtectionDomain().getCodeSource().getLocation()))
-                .distinct()
-                .collect(Collectors.toList());
+        List<Class<?>> appClasses = getWebInfClasses();
+
+        List<Resource> resources = appClasses.stream()
+            .map(c -> Resource.newResource(c.getProtectionDomain().getCodeSource().getLocation()))
+            .distinct()
+            .collect(Collectors.toList());
 
         metaData.setWebInfClassesDirs(resources);
     }
 
     protected List<Class<?>> getWebInfClasses() {
-        return List.of(ApplicationConfig.class, IssoApplication.class);
+        return Arrays.asList(ApplicationConfig.class, IssoApplication.class);
     }
 
     @Override
     protected ResourceCollection createResourceCollection() throws IOException {
         return new ResourceCollection(
-                Resource.newClassPathResource("META-INF/resources/webjars/"),
-                Resource.newClassPathResource("/web"));
+            Resource.newClassPathResource("META-INF/resources/webjars/"),
+            Resource.newClassPathResource("/web")
+        );
     }
 
 }

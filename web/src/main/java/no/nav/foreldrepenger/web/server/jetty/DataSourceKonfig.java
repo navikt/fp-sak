@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.server.jetty;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -14,22 +15,22 @@ class DataSourceKonfig {
 
     private static final Environment ENV = Environment.current();
 
-    private final DBConnProp defaultDS;
-    private final List<DBConnProp> dataSources;
+    private static final String MIGRATIONS_LOCATION = "classpath:/db/migration/";
+    private DBConnProp defaultDatasource;
+    private List<DBConnProp> dataSources;
 
     DataSourceKonfig() {
-        var defaultDSName = "defaultDS";
-        this.defaultDS = new DBConnProp(ds(defaultDSName), defaultDSName);
-        var dvhDSName = "dvhDS";
-        dataSources = List.of(this.defaultDS, new DBConnProp(ds(dvhDSName), dvhDSName));
+        defaultDatasource = new DBConnProp(createDatasource("defaultDS"), MIGRATIONS_LOCATION + "defaultDS");
+        dataSources = Arrays.asList(
+                defaultDatasource,
+                new DBConnProp(createDatasource("dvhDS"), MIGRATIONS_LOCATION + "dvhDS"));
     }
 
-    private static DataSource ds(String dataSourceName) {
-        var config = new HikariConfig();
-        var schema = ENV.getRequiredProperty(dataSourceName + ".schema");
+    private static DataSource createDatasource(String dataSourceName) {
+        HikariConfig config = new HikariConfig();
         config.setJdbcUrl(ENV.getProperty(dataSourceName + ".url"));
-        config.setUsername(ENV.getProperty(dataSourceName + ".username", schema));
-        config.setPassword(ENV.getProperty(dataSourceName + ".password", schema));
+        config.setUsername(ENV.getProperty(dataSourceName + ".username"));
+        config.setPassword(ENV.getProperty(dataSourceName + ".password")); // NOSONAR false positive
 
         config.setConnectionTimeout(1000);
         config.setMinimumIdle(5);
@@ -43,16 +44,30 @@ class DataSourceKonfig {
         return new HikariDataSource(config);
     }
 
+    DBConnProp getDefaultDatasource() {
+        return defaultDatasource;
+    }
+
     List<DBConnProp> getDataSources() {
         return dataSources;
     }
 
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + " [defaultDS=" + defaultDS + ", dataSources=" + dataSources + "]";
+    static final class DBConnProp {
+        private DataSource datasource;
+        private String migrationScripts;
+
+        public DBConnProp(DataSource datasource, String migrationScripts) {
+            this.datasource = datasource;
+            this.migrationScripts = migrationScripts;
+        }
+
+        public DataSource getDatasource() {
+            return datasource;
+        }
+
+        public String getMigrationScripts() {
+            return migrationScripts;
+        }
     }
 
-    public DataSource defaultDS() {
-        return defaultDS.getDatasource();
-    }
 }
