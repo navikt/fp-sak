@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.anke.aksjonspunkt;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -82,7 +83,7 @@ public class AnkevurderingOppdaterer implements AksjonspunktOppdaterer<AnkeVurde
                 .medErFristIkkeOverholdt(apDto.erFristIkkeOverholdt())
                 .medErIkkeKonkret(apDto.erIkkeKonkret())
                 .medErIkkeSignert(apDto.erIkkeSignert());
-        } else if (AnkeVurdering.ANKE_OMGJOER.equals(apDto.getAnkeVurdering())) {
+        } else if (Set.of(AnkeVurdering.ANKE_OMGJOER, AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE).contains(apDto.getAnkeVurdering())) {
             builder.medAnkeOmgjørÅrsak(apDto.getAnkeOmgjoerArsak())
                 .medAnkeVurderingOmgjør(apDto.getAnkeVurderingOmgjoer());
         }
