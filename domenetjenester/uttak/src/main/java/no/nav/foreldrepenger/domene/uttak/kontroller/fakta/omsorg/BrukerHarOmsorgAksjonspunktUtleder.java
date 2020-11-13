@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.domene.uttak.kontroller.fakta.omsorg;
 
-import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.JA;
-import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.NEI;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.MANUELL_KONTROLL_AV_OM_BRUKER_HAR_OMSORG;
 
 import java.time.LocalDate;
@@ -10,7 +8,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -19,15 +16,11 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonAdresseEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonRelasjonEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
-import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.uttak.PersonopplysningerForUttak;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
@@ -43,7 +36,7 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 public class BrukerHarOmsorgAksjonspunktUtleder implements FaktaUttakAksjonspunktUtleder {
 
     private YtelsesFordelingRepository ytelsesFordelingRepository;
-    private PersonopplysningTjeneste personopplysningTjeneste;
+    private PersonopplysningerForUttak personopplysninger;
     private Period periodeForbeholdtMorEtterFødsel;
 
     BrukerHarOmsorgAksjonspunktUtleder() {
@@ -54,10 +47,10 @@ public class BrukerHarOmsorgAksjonspunktUtleder implements FaktaUttakAksjonspunk
      */
     @Inject
     public BrukerHarOmsorgAksjonspunktUtleder(UttakRepositoryProvider repositoryProvider,
-                                              PersonopplysningTjeneste personopplysningTjeneste,
+                                              PersonopplysningerForUttak personopplysninger,
                                               @KonfigVerdi(value = "fp.periode.forbeholdt.mor.etter.fødsel", defaultVerdi = "P6W") Period periodeForbeholdtMorEtterFødsel) {
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
-        this.personopplysningTjeneste = personopplysningTjeneste;
+        this.personopplysninger = personopplysninger;
         this.periodeForbeholdtMorEtterFødsel = periodeForbeholdtMorEtterFødsel;
     }
 
@@ -75,8 +68,7 @@ public class BrukerHarOmsorgAksjonspunktUtleder implements FaktaUttakAksjonspunk
         }
 
         if (harOppgittOmsorgTilBarnetIHeleSøknadsperioden(ytelseFordelingAggregat) == Utfall.JA) {
-            var personopplysningerAggregat = personopplysningTjeneste.hentPersonopplysninger(ref);
-            if (bekreftetFH.isPresent() && erBarnetFødt(bekreftetFH.get()) == Utfall.JA && harBarnSammeBosted(personopplysningerAggregat) == Utfall.NEI) {
+            if (bekreftetFH.isPresent() && erBarnetFødt(bekreftetFH.get()) == Utfall.JA && !personopplysninger.barnHarSammeBosted(ref)) {
                 return List.of(MANUELL_KONTROLL_AV_OM_BRUKER_HAR_OMSORG);
             }
         } else {
@@ -139,60 +131,4 @@ public class BrukerHarOmsorgAksjonspunktUtleder implements FaktaUttakAksjonspunk
             .map(OppgittPeriodeEntitet::getTom);
     }
 
-    private Utfall harBarnSammeBosted(PersonopplysningerAggregat personopplysningerAggregat) {
-        List<PersonRelasjonEntitet> barnRelasjoner = personopplysningerAggregat.getSøkersRelasjoner().stream()
-            .filter(familierelasjon -> familierelasjon.getRelasjonsrolle().equals(RelasjonsRolleType.BARN))
-            .filter(rel -> Objects.nonNull(rel.getHarSammeBosted()))
-            .filter(rel -> erIkkeDød(personopplysningerAggregat, rel))
-            .collect(Collectors.toList());
-
-        if (!barnRelasjoner.isEmpty()) {
-            // Utleder fra adresse pga avvik i TPS sin FR . harSammeBosted ifm overgang fra DSF til FREG
-            if (barnRelasjoner.stream().allMatch(PersonRelasjonEntitet::getHarSammeBosted)) {
-                return JA;
-            }
-            return harSammeAdresseSomBarn(personopplysningerAggregat) ? JA : NEI;
-        } else {
-            return harSammeAdresseSomBarn(personopplysningerAggregat) ? JA : NEI;
-        }
-    }
-
-    private boolean erIkkeDød(PersonopplysningerAggregat personopplysningerAggregat, PersonRelasjonEntitet rel) {
-        return personopplysningerAggregat.getPersonopplysning(rel.getTilAktørId()).getDødsdato() == null;
-    }
-
-    private boolean harSammeAdresseSomBarn(PersonopplysningerAggregat personopplysningerAggregat) {
-        for (PersonAdresseEntitet opplysningAdresseSøker : personopplysningerAggregat.getAdresserFor(personopplysningerAggregat.getSøker().getAktørId())) {
-            for (PersonopplysningEntitet barn : personopplysningerAggregat.getBarna()) {
-                if (harBarnetSammeAdresse(personopplysningerAggregat, opplysningAdresseSøker, barn)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private boolean harBarnetSammeAdresse(PersonopplysningerAggregat personopplysningerAggregat,
-                                          PersonAdresseEntitet opplysningAdresseSøker,
-                                          PersonopplysningEntitet barn) {
-        if (barn.getDødsdato() != null) {
-            return true;
-        }
-        for (PersonAdresseEntitet opplysningAdresseBarn : personopplysningerAggregat.getAdresserFor(barn.getAktørId())) {
-            var sammeperiode = opplysningAdresseSøker.getPeriode().overlapper(opplysningAdresseBarn.getPeriode());
-            if (sammeperiode && likAdresseIgnoringCase(opplysningAdresseSøker.getAdresselinje1(), opplysningAdresseBarn.getAdresselinje1())
-                && Objects.equals(opplysningAdresseSøker.getPostnummer(), opplysningAdresseBarn.getPostnummer())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean likAdresseIgnoringCase(String adresse1, String adresse2) {
-        if (adresse1 == null && adresse2 == null)
-            return true;
-        if (adresse1 == null || adresse2 == null)
-            return false;
-        return adresse1.equalsIgnoreCase(adresse2);
-    }
 }

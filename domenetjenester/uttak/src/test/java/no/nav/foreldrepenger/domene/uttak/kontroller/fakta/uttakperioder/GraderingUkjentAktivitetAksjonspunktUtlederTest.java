@@ -8,42 +8,30 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-import javax.persistence.EntityManager;
-
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.UttakBeregningsandelTjenesteTestUtil;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryProviderForTest;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 
-@ExtendWith(FPsakEntityManagerAwareExtension.class)
 public class GraderingUkjentAktivitetAksjonspunktUtlederTest {
 
     private static final LocalDate FOM = LocalDate.of(2018, 1, 14);
     private static final LocalDate TOM = LocalDate.of(2018, 1, 31);
 
-    private UttakRepositoryProvider repositoryProvider;
-    private GraderingUkjentAktivitetAksjonspunktUtleder utleder;
-
+    private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryProviderForTest();
+    private final GraderingUkjentAktivitetAksjonspunktUtleder utleder = new GraderingUkjentAktivitetAksjonspunktUtleder(
+        new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()));
     private final UttakBeregningsandelTjenesteTestUtil beregningandelUtil = new UttakBeregningsandelTjenesteTestUtil();
-
-    @BeforeEach
-    void setUp(EntityManager entityManager) {
-        repositoryProvider = new UttakRepositoryProvider(entityManager);
-        var ytelseFordelingTjeneste = new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository());
-        utleder = new GraderingUkjentAktivitetAksjonspunktUtleder(ytelseFordelingTjeneste);
-    }
 
     @Test
     public void søktGraderingMedArbeidsforholdSomIkkeFinnesIBeregningSkalGiManuellBehandling_ordinærtArbeid() {
