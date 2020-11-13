@@ -68,7 +68,7 @@ public class FagsakRelasjon extends BaseEntitet {
         // For Hibernate
     }
 
-    FagsakRelasjon(Fagsak fagsakNrEn,
+    public FagsakRelasjon(Fagsak fagsakNrEn,
                    Fagsak fagsakNrTo,
                    Stønadskontoberegning stønadskontoberegning,
                    Stønadskontoberegning overstyrtStønadskontoberegning,

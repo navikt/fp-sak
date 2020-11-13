@@ -8,11 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import javax.persistence.EntityManager;
-
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -20,37 +16,22 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
-import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryProviderForTest;
 
-@ExtendWith(FPsakEntityManagerAwareExtension.class)
 public class OpphørUttakTjenesteTest {
 
-    private UttakRepositoryProvider repositoryProvider;
-    private OpphørUttakTjeneste opphørUttakTjeneste;
-
-
-    @BeforeEach
-    void setUp(EntityManager entityManager) {
-        repositoryProvider = new UttakRepositoryProvider(entityManager);
-        opphørUttakTjeneste = new OpphørUttakTjeneste(repositoryProvider);
-    }
+    private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryProviderForTest();
+    private final OpphørUttakTjeneste opphørUttakTjeneste = new OpphørUttakTjeneste(repositoryProvider);
 
     private Behandling opprettOriginalBehandling(UttakRepositoryProvider repositoryProvider) {
-        Behandlingsresultat.Builder originalResultat = Behandlingsresultat.builderForInngangsvilkår()
-            .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
-
-        var scenario = ScenarioMorSøkerForeldrepenger
-            .forFødsel()
-            .medVilkårResultatType(VilkårResultatType.INNVILGET);
-        scenario.medBehandlingsresultat(originalResultat);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         return scenario.lagre(repositoryProvider);
     }
 
@@ -82,7 +63,7 @@ public class OpphørUttakTjenesteTest {
         return ScenarioMorSøkerForeldrepenger.forFødsel()
             .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_HENDELSE_FØDSEL)
             .medBehandlingType(BehandlingType.REVURDERING)
-            .medBehandlingsresultat(behandlingsresultat)
+            .medBehandlingsresultat(behandlingsresultat.build())
             .lagre(repositoryProvider);
     }
 
