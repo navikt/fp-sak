@@ -6,11 +6,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-import javax.persistence.EntityManager;
-
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -30,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
-import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.Annenpart;
@@ -38,18 +33,13 @@ import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryProviderForTest;
 
-@ExtendWith(FPsakEntityManagerAwareExtension.class)
 public class AnnenForelderIkkeRettOgLøpendeVedtakAksjonspunktUtlederTest {
 
-    private UttakRepositoryProvider repositoryProvider;
-    private ForeldrepengerUttakTjeneste uttakTjeneste;
-
-    @BeforeEach
-    void setUp(EntityManager entityManager) {
-        repositoryProvider = new UttakRepositoryProvider(entityManager);
-        uttakTjeneste = new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository());
-    }
+    private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryProviderForTest();
+    private final ForeldrepengerUttakTjeneste uttakTjeneste = new ForeldrepengerUttakTjeneste(
+        repositoryProvider.getFpUttakRepository());
 
     @Test
     public void ingen_aksjonspunkt_hvis_uten_ytelsefordeling() {
@@ -80,7 +70,8 @@ public class AnnenForelderIkkeRettOgLøpendeVedtakAksjonspunktUtlederTest {
 
         kobleSaker(morBehandling, farBehandling);
 
-        var resultat = utleder.utledAksjonspunkterFor(input(farBehandling, new Annenpart(false, morBehandling.getId())));
+        var resultat = utleder.utledAksjonspunkterFor(
+            input(farBehandling, new Annenpart(false, morBehandling.getId())));
 
         assertThat(resultat).hasSize(1);
     }
@@ -102,26 +93,28 @@ public class AnnenForelderIkkeRettOgLøpendeVedtakAksjonspunktUtlederTest {
 
         kobleSaker(morBehandling, farBehandling);
 
-        var resultat = utleder.utledAksjonspunkterFor(input(farBehandling, new Annenpart(false, morBehandling.getId())));
+        var resultat = utleder.utledAksjonspunkterFor(
+            input(farBehandling, new Annenpart(false, morBehandling.getId())));
 
         assertThat(resultat).isEmpty();
     }
 
     private void kobleSaker(Behandling morBehandling, Behandling farBehandling) {
         repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(morBehandling.getFagsak(), Dekningsgrad._100);
-        repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak(), morBehandling);
+        repositoryProvider.getFagsakRelasjonRepository()
+            .kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak(), morBehandling);
     }
 
     private Behandling morBehandlingMedLøpendeUtbetaling() {
         ScenarioMorSøkerForeldrepenger scenarioMor = ScenarioMorSøkerForeldrepenger.forFødsel();
         UttakResultatPerioderEntitet uttakMor = new UttakResultatPerioderEntitet();
-        UttakResultatPeriodeEntitet morUttakPeriode =
-            new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2019, 3, 28), LocalDate.of(2019, 3, 28))
-                .medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.UTTAK_OPPFYLT)
-                .build();
-        UttakResultatPeriodeAktivitetEntitet morUttakAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(morUttakPeriode,
-            new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build())
-            .medUtbetalingsgrad(new Utbetalingsgrad(100))
+        UttakResultatPeriodeEntitet morUttakPeriode = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2019, 3, 28),
+            LocalDate.of(2019, 3, 28)).medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.UTTAK_OPPFYLT)
+            .build();
+        UttakResultatPeriodeAktivitetEntitet morUttakAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(
+            morUttakPeriode,
+            new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build()).medUtbetalingsgrad(
+            new Utbetalingsgrad(100))
             .medTrekkdager(new Trekkdager(10))
             .medArbeidsprosent(BigDecimal.valueOf(100))
             .medTrekkonto(StønadskontoType.MØDREKVOTE)

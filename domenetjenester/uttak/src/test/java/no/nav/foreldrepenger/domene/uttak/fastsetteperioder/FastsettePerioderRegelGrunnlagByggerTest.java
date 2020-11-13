@@ -9,15 +9,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-import javax.persistence.EntityManager;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
@@ -44,13 +40,11 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEnti
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
-import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
-import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
@@ -75,17 +69,17 @@ import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.AbstractTestScenario;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.PersonopplysningerForUttakForTest;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryProviderForTest;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetType;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AnnenpartUttakPeriode;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OppgittPeriode;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.RegelGrunnlag;
 import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Stønadskontotype;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
-@ExtendWith(FPsakEntityManagerAwareExtension.class)
 public class FastsettePerioderRegelGrunnlagByggerTest {
 
     private UttakRepositoryProvider repositoryProvider;
@@ -95,13 +89,13 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
     private FastsettePerioderRegelGrunnlagBygger grunnlagBygger;
 
     @BeforeEach
-    void setUp(EntityManager entityManager) {
-        repositoryProvider = new UttakRepositoryProvider(entityManager);
+    void setUp() {
+        repositoryProvider = new UttakRepositoryProviderForTest();
         grunnlagBygger = new FastsettePerioderRegelGrunnlagBygger(
             new AnnenPartGrunnlagBygger(repositoryProvider.getFpUttakRepository()),
             new ArbeidGrunnlagBygger(repositoryProvider),
             new BehandlingGrunnlagBygger(),
-            new DatoerGrunnlagBygger(new PersonopplysningTjeneste(new PersonopplysningRepository(entityManager))),
+            new DatoerGrunnlagBygger(new PersonopplysningerForUttakForTest()),
             new MedlemskapGrunnlagBygger(),
             new RettOgOmsorgGrunnlagBygger(repositoryProvider, new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository())),
             new RevurderingGrunnlagBygger(repositoryProvider.getYtelsesFordelingRepository(), repositoryProvider.getFpUttakRepository()),
@@ -287,9 +281,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
     }
 
     @Test
-    public void mapperAnnenPartsUttaksperioder(EntityManager entityManager) {
-        Repository repository = new Repository(entityManager);
-
+    public void mapperAnnenPartsUttaksperioder() {
         // Arrange - mors behandling
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         LocalDate fødselsdato = LocalDate.of(2018, 5, 14);
@@ -343,9 +335,6 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
 
         repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), perioder);
 
-        morsBehandling.avsluttBehandling();
-        repository.lagre(morsBehandling);
-
         lagreStønadskontoer(morsBehandling, repositoryProvider.getFagsakRelasjonRepository());
 
         // Arrange - fars behandling
@@ -371,8 +360,6 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
         repositoryProvider.getYtelsesFordelingRepository().lagre(farsBehandling.getId(), new AvklarteUttakDatoerEntitet.Builder().medJustertEndringsdato(fødselsdato).build());
         lagreYrkesAktiviter(farsBehandling, virksomhet, Collections.singletonList(aktivitet.getArbeidsforholdId()),
             BigDecimal.valueOf(100), fødselsdato.minusYears(1));
-        repository.flushAndClear();
-
 
         beregningsandelTjeneste.leggTilOrdinærtArbeid(virksomhet, InternArbeidsforholdRef.ref(aktivitet.getArbeidsforholdId()));
         // Act

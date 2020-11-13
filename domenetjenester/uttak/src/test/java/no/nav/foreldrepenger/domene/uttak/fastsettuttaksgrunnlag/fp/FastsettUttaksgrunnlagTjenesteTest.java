@@ -8,11 +8,7 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
-import javax.persistence.EntityManager;
-
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -24,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
-import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
@@ -34,22 +29,15 @@ import no.nav.foreldrepenger.domene.uttak.input.OriginalBehandling;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryProviderForTest;
 
-@ExtendWith(FPsakEntityManagerAwareExtension.class)
 public class FastsettUttaksgrunnlagTjenesteTest {
 
-    private UttakRepositoryProvider repositoryProvider;
-
+    private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryProviderForTest();
     private final EndringsdatoFørstegangsbehandlingUtleder endringsdatoUtleder = mock(EndringsdatoFørstegangsbehandlingUtleder.class);
-    private FastsettUttaksgrunnlagTjeneste tjeneste;
-
-    @BeforeEach
-    void setUp(EntityManager entityManager) {
-        repositoryProvider = new UttakRepositoryProvider(entityManager);
-        tjeneste = new FastsettUttaksgrunnlagTjeneste(repositoryProvider,
-            endringsdatoUtleder,
-            mock(EndringsdatoRevurderingUtlederImpl.class));
-    }
+    private final FastsettUttaksgrunnlagTjeneste tjeneste = new FastsettUttaksgrunnlagTjeneste(repositoryProvider,
+        endringsdatoUtleder,
+        mock(EndringsdatoRevurderingUtlederImpl.class));
 
     @Test
     public void skal_kopiere_søknadsperioder_fra_forrige_behandling_hvis_forrige_behandling_ikke_har_uttaksresultat() {
