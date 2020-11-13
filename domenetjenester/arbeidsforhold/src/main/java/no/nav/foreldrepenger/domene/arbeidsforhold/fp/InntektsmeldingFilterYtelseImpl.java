@@ -108,7 +108,7 @@ public class InntektsmeldingFilterYtelseImpl implements InntektsmeldingFilterYte
                 .filter(i -> i.getPeriode().getTomDato().isAfter(inntekterFom) && i.getPeriode().getFomDato().isBefore(tidligstedato))
                 .map(Inntektspost::getPeriode).map(DatoIntervallEntitet::getFomDato).map(LocalDate::getMonthValue)
                 .collect(Collectors.toSet());
-            if (poster.size() >= 3) {
+            if (poster.size() >= 2) {
                 aktiveArbeidsgivere.add(key);
             }
         });
