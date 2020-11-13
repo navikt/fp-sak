@@ -83,6 +83,11 @@ public class InntektArbeidYtelseScenario {
             return new InntektArbeidYtelseScenarioTestBuilder(inntektArbeidYtelseAggregatBuilder);
         }
 
+        public InntektArbeidYtelseScenarioTestBuilder medAktørId(AktørId aktørId) {
+            this.aktørId = aktørId;
+            return this;
+        }
+
         private YtelseBuilder buildRelaterteYtelserGrunnlag(RelatertYtelseType ytelseType) {
             return YtelseBuilder.oppdatere(Optional.empty())
                 .medKilde(ytelseKilde)

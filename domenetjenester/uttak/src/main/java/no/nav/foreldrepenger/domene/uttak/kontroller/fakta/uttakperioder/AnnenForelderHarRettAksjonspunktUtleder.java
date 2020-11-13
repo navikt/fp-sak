@@ -10,15 +10,19 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
-import no.nav.foreldrepenger.domene.uttak.PersonopplysningerForUttak;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
@@ -32,15 +36,14 @@ import no.nav.foreldrepenger.domene.uttak.kontroller.fakta.FaktaUttakAksjonspunk
 public class AnnenForelderHarRettAksjonspunktUtleder implements FaktaUttakAksjonspunktUtleder {
 
     private YtelsesFordelingRepository ytelsesFordelingRepository;
-    private PersonopplysningerForUttak personopplysninger;
+    private PersonopplysningTjeneste personopplysningTjeneste;
     private ForeldrepengerUttakTjeneste uttakTjeneste;
 
     @Inject
     public AnnenForelderHarRettAksjonspunktUtleder(UttakRepositoryProvider repositoryProvider,
-                                                   PersonopplysningerForUttak personopplysninger,
-                                                   ForeldrepengerUttakTjeneste uttakTjeneste) {
+                                                   PersonopplysningTjeneste personopplysningTjeneste, ForeldrepengerUttakTjeneste uttakTjeneste) {
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
-        this.personopplysninger = personopplysninger;
+        this.personopplysningTjeneste = personopplysningTjeneste;
         this.uttakTjeneste = uttakTjeneste;
     }
 
@@ -54,7 +57,7 @@ public class AnnenForelderHarRettAksjonspunktUtleder implements FaktaUttakAksjon
         YtelseFordelingAggregat ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.getBehandlingId());
 
         if (!Objects.equals(ref.getBehandlingType(), BehandlingType.FØRSTEGANGSSØKNAD) ||
-            !personopplysninger.harOppgittAnnenpart(ref)) {
+            oppgittAnnenpart(ref).isEmpty()) {
             return List.of();
         }
 
@@ -95,6 +98,11 @@ public class AnnenForelderHarRettAksjonspunktUtleder implements FaktaUttakAksjon
 
     private List<AksjonspunktDefinisjon> aksjonspunkt() {
         return List.of(AksjonspunktDefinisjon.AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT);
+    }
+
+    private Optional<AktørId> oppgittAnnenpart(BehandlingReferanse ref) {
+        final PersonopplysningerAggregat personopplysningerAggregat = personopplysningTjeneste.hentPersonopplysninger(ref);
+        return personopplysningerAggregat.getOppgittAnnenPart().map(OppgittAnnenPartEntitet::getAktørId);
     }
 
     private boolean erFarMedmor(RelasjonsRolleType relasjonsRolleType) {

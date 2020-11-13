@@ -8,7 +8,11 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.EntityManager;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -19,6 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
@@ -28,7 +33,6 @@ import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryProviderForTest;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.FastsettePeriodeResultat;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Trekkdager;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
@@ -39,20 +43,27 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UttakPeriode
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UttakPeriodeAktivitet;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.utfall.InnvilgetÅrsak;
 
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
 public class FastsettePerioderRegelResultatKonvertererTest {
 
-    private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryProviderForTest();
+    private UttakRepositoryProvider repositoryProvider;
 
     private final AbakusInMemoryInntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
     private final UttakBeregningsandelTjenesteTestUtil beregningsandelTjeneste = new UttakBeregningsandelTjenesteTestUtil();
 
-    private final FastsettePerioderRegelResultatKonverterer konverterer = new FastsettePerioderRegelResultatKonverterer(
-        repositoryProvider.getFpUttakRepository(), repositoryProvider.getYtelsesFordelingRepository());
+    private FastsettePerioderRegelResultatKonverterer konverterer;
+
+    @BeforeEach
+    void setUp(EntityManager entityManager) {
+        repositoryProvider = new UttakRepositoryProvider(entityManager);
+        konverterer = new FastsettePerioderRegelResultatKonverterer(repositoryProvider.getFpUttakRepository(),
+            repositoryProvider.getYtelsesFordelingRepository());
+    }
 
     private UttakInput lagInput(Behandling behandling, LocalDate stp) {
         var ref = BehandlingReferanse.fra(behandling, stp);
-        return new UttakInput(ref, iayTjeneste.hentGrunnlag(behandling.getId()),
-            new ForeldrepengerGrunnlag()).medBeregningsgrunnlagStatuser(beregningsandelTjeneste.hentStatuser());
+        return new UttakInput(ref, iayTjeneste.hentGrunnlag(behandling.getId()), new ForeldrepengerGrunnlag())
+            .medBeregningsgrunnlagStatuser(beregningsandelTjeneste.hentStatuser());
     }
 
     @Test
@@ -75,12 +86,12 @@ public class FastsettePerioderRegelResultatKonvertererTest {
         byggArbeidForBehandling(behandling, arbeidsgiver, stillingsprosent);
         beregningsandelTjeneste.leggTilOrdinærtArbeid(arbeidsgiver, InternArbeidsforholdRef.nullRef());
 
-        var aktivitet = new UttakPeriodeAktivitet(
-            AktivitetIdentifikator.forArbeid(arbeidsgiver.getIdentifikator(), null), Utbetalingsgrad.TEN,
-            Trekkdager.ZERO, false);
-        var uttakPeriode = new UttakPeriode(periodeFom, periodeTom, Perioderesultattype.INNVILGET, null,
-            InnvilgetÅrsak.UTSETTELSE_GYLDIG_PGA_100_PROSENT_ARBEID, null, Set.of(aktivitet), false, null, null, null,
-            null, UtsettelseÅrsak.ARBEID, null);
+        var aktivitet = new UttakPeriodeAktivitet(AktivitetIdentifikator.forArbeid(arbeidsgiver.getIdentifikator(), null),
+            Utbetalingsgrad.TEN, Trekkdager.ZERO, false);
+        var uttakPeriode = new UttakPeriode(periodeFom, periodeTom, Perioderesultattype.INNVILGET,
+            null, InnvilgetÅrsak.UTSETTELSE_GYLDIG_PGA_100_PROSENT_ARBEID, null, Set.of(aktivitet),
+            false, null, null, null, null,
+            UtsettelseÅrsak.ARBEID, null);
         var fastsetteResultat = List.of(new FastsettePeriodeResultat(uttakPeriode, null, null, null));
         var input = lagInput(behandling, periodeFom);
         var konvertert = konverterer.konverter(input, fastsetteResultat);
@@ -100,7 +111,8 @@ public class FastsettePerioderRegelResultatKonvertererTest {
         var aktørArbeidBuilder = inntektArbeidYtelseAggregatBuilder.getAktørArbeidBuilder(behandling.getAktørId());
 
         var yrkesaktivitetBuilder = aktørArbeidBuilder.getYrkesaktivitetBuilderForNøkkelAvType(
-            new Opptjeningsnøkkel(null, arbeidsgiver.getIdentifikator(), null), ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
+            new Opptjeningsnøkkel(null, arbeidsgiver.getIdentifikator(), null),
+            ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
 
         var aktivitetsAvtale = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.MIN, LocalDate.MAX))
@@ -110,13 +122,15 @@ public class FastsettePerioderRegelResultatKonvertererTest {
         var ansettelesperiode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.MIN, LocalDate.MAX));
 
-        yrkesaktivitetBuilder.medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+        yrkesaktivitetBuilder
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
             .medArbeidsgiver(arbeidsgiver)
             .leggTilAktivitetsAvtale(aktivitetsAvtale)
             .leggTilAktivitetsAvtale(ansettelesperiode)
             .build();
 
-        var aktørArbeid = aktørArbeidBuilder.leggTilYrkesaktivitet(yrkesaktivitetBuilder);
+        var aktørArbeid = aktørArbeidBuilder
+            .leggTilYrkesaktivitet(yrkesaktivitetBuilder);
         inntektArbeidYtelseAggregatBuilder.leggTilAktørArbeid(aktørArbeid);
 
         iayTjeneste.lagreIayAggregat(behandling.getId(), inntektArbeidYtelseAggregatBuilder);

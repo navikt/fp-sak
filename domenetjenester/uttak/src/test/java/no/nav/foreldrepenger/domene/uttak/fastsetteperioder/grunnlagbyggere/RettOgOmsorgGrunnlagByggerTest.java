@@ -4,20 +4,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collections;
 
+import javax.persistence.EntityManager;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAleneOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
@@ -25,12 +24,17 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryProviderForTest;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.RettOgOmsorg;
 
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
 public class RettOgOmsorgGrunnlagByggerTest {
 
-    private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryProviderForTest();
+    private UttakRepositoryProvider repositoryProvider;
+
+    @BeforeEach
+    void setUp(EntityManager entityManager) {
+        repositoryProvider = new UttakRepositoryProvider(entityManager);
+    }
 
     @Test
     public void skalLeggeTilHvemSomHarRett_SøkerMorHarRettAnnenForeldreHarIkkeRett() {
@@ -146,26 +150,14 @@ public class RettOgOmsorgGrunnlagByggerTest {
         return scenarioMedRett(ScenarioFarSøkerForeldrepenger.forFødsel(), søkerHarRett, annenForelderHarRett);
     }
 
-    private Behandling scenarioMedRett(AbstractTestScenario<?> scenario,
-                                       boolean søkerRett,
-                                       boolean annenForelderHarRett) {
+    private Behandling scenarioMedRett(AbstractTestScenario<?> scenario, boolean søkerRett, boolean annenForelderHarRett) {
         scenario.medFordeling(new OppgittFordelingEntitet(Collections.emptyList(), true));
         scenario.medOppgittRettighet(new OppgittRettighetEntitet(annenForelderHarRett, true, false));
 
         if (!søkerRett) {
-            var behandlingsresultat = behandlingsresultatMedAvslåttVilkår();
-            scenario.medBehandlingsresultat(behandlingsresultat);
-        } return scenario.lagre(repositoryProvider);
-    }
-
-    private Behandlingsresultat behandlingsresultatMedAvslåttVilkår() {
-        var vilkårBuilder = VilkårResultat.builder().medVilkårResultatType(VilkårResultatType.AVSLÅTT);
-        vilkårBuilder.leggTilVilkårResultat(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER,
-            VilkårUtfallType.IKKE_OPPFYLT, VilkårUtfallMerknad.UDEFINERT, null, Avslagsårsak.UDEFINERT, false,
-            false, null, null);
-        var behandlingsresultat = Behandlingsresultat.builderForInngangsvilkår().build();
-        behandlingsresultat.medOppdatertVilkårResultat(vilkårBuilder.build());
-        return behandlingsresultat;
+            scenario.medVilkårResultatType(VilkårResultatType.AVSLÅTT);
+        }
+        return scenario.lagre(repositoryProvider);
     }
 
     private RettOgOmsorg byggGrunnlag(Behandling behandling) {

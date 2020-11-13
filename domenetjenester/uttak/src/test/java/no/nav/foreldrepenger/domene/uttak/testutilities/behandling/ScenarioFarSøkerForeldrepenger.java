@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.uttak.testutilities.behandling;
 
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -19,12 +20,12 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 public class ScenarioFarSøkerForeldrepenger extends AbstractTestScenario<ScenarioFarSøkerForeldrepenger> {
 
     private ScenarioFarSøkerForeldrepenger() {
-        super(FagsakYtelseType.FORELDREPENGER, RelasjonsRolleType.FARA);
+        super(FagsakYtelseType.FORELDREPENGER, RelasjonsRolleType.FARA, NavBrukerKjønn.MANN);
 
     }
 
     private ScenarioFarSøkerForeldrepenger(AktørId aktørId) {
-        super(FagsakYtelseType.FORELDREPENGER, RelasjonsRolleType.FARA, aktørId);
+        super(FagsakYtelseType.FORELDREPENGER, RelasjonsRolleType.FARA, NavBrukerKjønn.MANN, aktørId);
     }
 
     public static ScenarioFarSøkerForeldrepenger forFødsel() {

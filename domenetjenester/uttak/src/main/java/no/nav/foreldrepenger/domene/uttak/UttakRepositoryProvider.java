@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakR
 @ApplicationScoped
 public class UttakRepositoryProvider {
 
+    private EntityManager entityManager;
     private FagsakRepository fagsakRepository;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
 
@@ -31,13 +32,14 @@ public class UttakRepositoryProvider {
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository;
 
-    public UttakRepositoryProvider() {
+    UttakRepositoryProvider() {
         // for CDI proxy
     }
 
     @Inject
     public UttakRepositoryProvider( EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
+        this.entityManager = entityManager;
 
         // fp spesifikke behandling aggregater
         this.ytelsesFordelingRepository = new YtelsesFordelingRepository(entityManager);
@@ -53,6 +55,10 @@ public class UttakRepositoryProvider {
         this.behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
 
         this.svangerskapspengerUttakResultatRepository = new SvangerskapspengerUttakResultatRepository(entityManager);
+    }
+
+    public EntityManager getEntityManager() {
+        return entityManager;
     }
 
     public FagsakRepository getFagsakRepository() {

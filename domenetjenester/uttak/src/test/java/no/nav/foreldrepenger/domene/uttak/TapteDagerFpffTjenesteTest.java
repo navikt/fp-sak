@@ -7,7 +7,11 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+import javax.persistence.EntityManager;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -27,6 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
@@ -34,12 +39,17 @@ import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.OriginalBehandling;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryProviderForTest;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
 public class TapteDagerFpffTjenesteTest {
 
-    private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryProviderForTest();
+    private UttakRepositoryProvider repositoryProvider;
+
+    @BeforeEach
+    void setUp(EntityManager entityManager) {
+        repositoryProvider = new UttakRepositoryProvider(entityManager);
+    }
 
     @Test
     public void skal_ikke_ha_tapte_dager_ved_søknad_på_termin() {

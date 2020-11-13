@@ -2,15 +2,13 @@ package no.nav.foreldrepenger.domene.uttak.kontroller.fakta;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.MANUELL_KONTROLL_AV_OM_BRUKER_HAR_OMSORG;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.jupiter.api.BeforeEach;
+import javax.inject.Inject;
+
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -20,8 +18,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
-import no.nav.foreldrepenger.domene.uttak.PersonopplysningerForUttak;
+import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
@@ -29,55 +28,18 @@ import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.input.YtelsespesifiktGrunnlag;
-import no.nav.foreldrepenger.domene.uttak.kontroller.fakta.omsorg.BrukerHarAleneomsorgAksjonspunktUtleder;
-import no.nav.foreldrepenger.domene.uttak.kontroller.fakta.omsorg.BrukerHarOmsorgAksjonspunktUtleder;
-import no.nav.foreldrepenger.domene.uttak.kontroller.fakta.uttakperioder.AnnenForelderHarRettAksjonspunktUtleder;
-import no.nav.foreldrepenger.domene.uttak.kontroller.fakta.uttakperioder.AnnenForelderIkkeRettOgLøpendeVedtakAksjonspunktUtleder;
-import no.nav.foreldrepenger.domene.uttak.kontroller.fakta.uttakperioder.AvklarFaktaUttakPerioderTjeneste;
-import no.nav.foreldrepenger.domene.uttak.kontroller.fakta.uttakperioder.AvklarHendelseAksjonspunktUtleder;
-import no.nav.foreldrepenger.domene.uttak.kontroller.fakta.uttakperioder.FørsteUttaksdatoAksjonspunktUtleder;
-import no.nav.foreldrepenger.domene.uttak.kontroller.fakta.uttakperioder.GraderingAktivitetUtenBGAksjonspunktUtleder;
-import no.nav.foreldrepenger.domene.uttak.kontroller.fakta.uttakperioder.GraderingUkjentAktivitetAksjonspunktUtleder;
-import no.nav.foreldrepenger.domene.uttak.kontroller.fakta.uttakperioder.SøknadsperioderMåKontrolleresAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
-import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryProviderForTest;
-import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 
+@CdiDbAwareTest
 public class KontrollerFaktaUttakTjenesteTest {
 
-    private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryProviderForTest();
+    private final AktørId aktørId = AktørId.dummy();
 
+    @Inject
+    private UttakRepositoryProvider repositoryProvider;
+
+    @Inject
     private KontrollerFaktaUttakTjeneste tjeneste;
-
-    private PersonopplysningerForUttak personopplysninger;
-
-    @BeforeEach
-    void setUp() {
-        personopplysninger = mock(PersonopplysningerForUttak.class);
-        var uttakTjeneste = new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository());
-        var annenForelderHarRettAksjonspunktUtleder = new AnnenForelderHarRettAksjonspunktUtleder(repositoryProvider,
-            personopplysninger, uttakTjeneste);
-        var annenForelderIkkeRettOgLøpendeVedtakAksjonspunktUtleder = new AnnenForelderIkkeRettOgLøpendeVedtakAksjonspunktUtleder(
-            repositoryProvider, uttakTjeneste);
-        var avklarHendelseAksjonspunktUtleder = new AvklarHendelseAksjonspunktUtleder();
-        var brukerHarAleneomsorgAksjonspunktUtleder = new BrukerHarAleneomsorgAksjonspunktUtleder(repositoryProvider,
-            personopplysninger);
-        var brukerHarOmsorgAksjonspunktUtleder = new BrukerHarOmsorgAksjonspunktUtleder(repositoryProvider,
-            personopplysninger, Period.ofWeeks(6));
-        var førsteUttaksdatoAksjonspunktUtleder = new FørsteUttaksdatoAksjonspunktUtleder(repositoryProvider);
-        var graderingAktivitetUtenBGAksjonspunktUtleder = new GraderingAktivitetUtenBGAksjonspunktUtleder();
-        var ytelseFordelingTjeneste = new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository());
-        var graderingUkjentAktivitetAksjonspunktUtleder = new GraderingUkjentAktivitetAksjonspunktUtleder(
-            ytelseFordelingTjeneste);
-        var søknadsperioderMåKontrolleresAksjonspunktUtleder = new SøknadsperioderMåKontrolleresAksjonspunktUtleder(
-            new AvklarFaktaUttakPerioderTjeneste(repositoryProvider.getYtelsesFordelingRepository()));
-        var utledere = List.of(annenForelderHarRettAksjonspunktUtleder,
-            annenForelderIkkeRettOgLøpendeVedtakAksjonspunktUtleder, avklarHendelseAksjonspunktUtleder,
-            brukerHarAleneomsorgAksjonspunktUtleder, brukerHarOmsorgAksjonspunktUtleder,
-            førsteUttaksdatoAksjonspunktUtleder, graderingAktivitetUtenBGAksjonspunktUtleder,
-            graderingUkjentAktivitetAksjonspunktUtleder, søknadsperioderMåKontrolleresAksjonspunktUtleder);
-        tjeneste = new KontrollerFaktaUttakTjeneste(utledere, ytelseFordelingTjeneste, personopplysninger);
-    }
 
     @Test
     public void aksjonspunkt_dersom_far_søker_og_ikke_oppgitt_omsorg_til_barnet() {
@@ -85,8 +47,8 @@ public class KontrollerFaktaUttakTjenesteTest {
         Behandling behandling = opprettBehandlingForFarSomSøker();
         //Act
         var familieHendelse = FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(new Barn()), 1);
-        YtelsespesifiktGrunnlag fpGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
-            new FamilieHendelser().medBekreftetHendelse(familieHendelse));
+        YtelsespesifiktGrunnlag fpGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(new FamilieHendelser()
+            .medBekreftetHendelse(familieHendelse));
         var input = new UttakInput(BehandlingReferanse.fra(behandling, LocalDate.now()), null, fpGrunnlag);
         var aksjonspunktResultater = tjeneste.utledAksjonspunkter(input);
 
@@ -95,35 +57,29 @@ public class KontrollerFaktaUttakTjenesteTest {
     }
 
     @Test
-    public void automatisk_avklare_at_annen_forelder_ikke_har_rett_hvis_oppgitt_rett_og_annenpart_uten_norsk_id() {
+    public void automatisk_avklare_at_annen_forelder_ikke_har_rett_hvis_annen_forelder_ikke_er_i_tps_og_oppgitt_at_annen_forelder_har_rett() {
         ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
+        scenario.medSøknadAnnenPart().medUtenlandskFnr("SVERIGE NUMBA 1").medUtenlandskFnrLand(Landkoder.SWE).medAktørId(null);
         Behandling behandling = scenario.lagre(repositoryProvider);
-        var ref = BehandlingReferanse.fra(behandling);
-        when(personopplysninger.oppgittAnnenpartUtenNorskID(ref)).thenReturn(true);
 
-        tjeneste.avklarOmAnnenForelderHarRett(ref);
+        tjeneste.avklarOmAnnenForelderHarRett(BehandlingReferanse.fra(behandling));
 
-        var perioderAnnenforelderHarRett = repositoryProvider.getYtelsesFordelingRepository()
-            .hentAggregat(behandling.getId())
-            .getPerioderAnnenforelderHarRett();
+        var perioderAnnenforelderHarRett = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId()).getPerioderAnnenforelderHarRett();
         assertThat(perioderAnnenforelderHarRett).isPresent();
         assertThat(perioderAnnenforelderHarRett.get().getPerioder()).isEmpty();
     }
 
     @Test
-    public void automatisk_avklare_at_annen_forelder_ikke_har_rett_hvis_ikke_oppgitt_rett_og_annenpart_uten_norsk_id() {
+    public void ikke_automatisk_avklare_at_annen_forelder_ikke_har_rett_hvis_annen_forelder_ikke_er_i_tps_og_ikke_oppgitt_at_annen_forelder_har_rett() {
         ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medOppgittRettighet(new OppgittRettighetEntitet(false, true, false));
+        scenario.medSøknadAnnenPart().medUtenlandskFnr("SVERIGE NUMBA 1").medUtenlandskFnrLand(Landkoder.SWE).medAktørId(null);
         Behandling behandling = scenario.lagre(repositoryProvider);
-        var ref = BehandlingReferanse.fra(behandling);
-        when(personopplysninger.oppgittAnnenpartUtenNorskID(ref)).thenReturn(true);
 
-        tjeneste.avklarOmAnnenForelderHarRett(ref);
+        tjeneste.avklarOmAnnenForelderHarRett(BehandlingReferanse.fra(behandling));
 
-        var perioderAnnenforelderHarRett = repositoryProvider.getYtelsesFordelingRepository()
-            .hentAggregat(behandling.getId())
-            .getPerioderAnnenforelderHarRett();
+        var perioderAnnenforelderHarRett = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId()).getPerioderAnnenforelderHarRett();
         assertThat(perioderAnnenforelderHarRett).isEmpty();
     }
 
@@ -131,15 +87,12 @@ public class KontrollerFaktaUttakTjenesteTest {
     public void ikke_automatisk_avklare_at_annen_forelder_ikke_har_rett_hvis_annen_forelder_er_i_tps() {
         ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
+        scenario.medSøknadAnnenPart().medAktørId(AktørId.dummy());
         Behandling behandling = scenario.lagre(repositoryProvider);
-        var ref = BehandlingReferanse.fra(behandling);
-        when(personopplysninger.oppgittAnnenpartUtenNorskID(ref)).thenReturn(false);
 
-        tjeneste.avklarOmAnnenForelderHarRett(ref);
+        tjeneste.avklarOmAnnenForelderHarRett(BehandlingReferanse.fra(behandling));
 
-        var perioderAnnenforelderHarRett = repositoryProvider.getYtelsesFordelingRepository()
-            .hentAggregat(behandling.getId())
-            .getPerioderAnnenforelderHarRett();
+        var perioderAnnenforelderHarRett = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId()).getPerioderAnnenforelderHarRett();
         assertThat(perioderAnnenforelderHarRett).isEmpty();
     }
 
@@ -151,19 +104,30 @@ public class KontrollerFaktaUttakTjenesteTest {
 
         tjeneste.avklarOmAnnenForelderHarRett(BehandlingReferanse.fra(behandling));
 
-        var perioderAnnenforelderHarRett = repositoryProvider.getYtelsesFordelingRepository()
-            .hentAggregat(behandling.getId())
-            .getPerioderAnnenforelderHarRett();
+        var perioderAnnenforelderHarRett = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId()).getPerioderAnnenforelderHarRett();
+        assertThat(perioderAnnenforelderHarRett).isEmpty();
+    }
+
+    @Test
+    public void ikke_automatisk_avklare_at_annen_forelder_ikke_har_rett_hvis_annen_forelder_er_ukjent() {
+        ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
+        //Ukjent forelder lagres slik i db
+        scenario.medSøknadAnnenPart().medAktørId(null).medUtenlandskFnr(null);
+        Behandling behandling = scenario.lagre(repositoryProvider);
+
+        tjeneste.avklarOmAnnenForelderHarRett(BehandlingReferanse.fra(behandling));
+
+        var perioderAnnenforelderHarRett = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId()).getPerioderAnnenforelderHarRett();
         assertThat(perioderAnnenforelderHarRett).isEmpty();
     }
 
     private Behandling opprettBehandlingForFarSomSøker() {
-        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(aktørId);
         OppgittRettighetEntitet rettighet = new OppgittRettighetEntitet(true, false, false);
         scenario.medOppgittRettighet(rettighet);
 
-        OppgittPeriodeEntitet periode = OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
+        OppgittPeriodeEntitet periode = OppgittPeriodeBuilder.ny().medPeriodeType(UttakPeriodeType.FEDREKVOTE)
             .medPeriode(LocalDate.now().plusWeeks(6), LocalDate.now().plusWeeks(10))
             .build();
 

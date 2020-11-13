@@ -22,6 +22,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
@@ -52,8 +54,7 @@ public class UttakRevurderingTestUtil {
 
     private final InntektArbeidYtelseTjeneste iayTjeneste;
 
-    public UttakRevurderingTestUtil(UttakRepositoryProvider repositoryProvider,
-                                    InntektArbeidYtelseTjeneste iayTjeneste) {
+    public UttakRevurderingTestUtil(UttakRepositoryProvider repositoryProvider, InntektArbeidYtelseTjeneste iayTjeneste) {
         this.repositoryProvider = repositoryProvider;
         this.iayTjeneste = iayTjeneste;
     }
@@ -67,17 +68,14 @@ public class UttakRevurderingTestUtil {
         if (behandlingÅrsakType.equals(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
             fordeling.add(OppgittPeriodeBuilder.ny()
                 .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
-                .medPeriode(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK.plusDays(10),
-                    FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK.plusDays(10))
+                .medPeriode(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK.plusDays(10), FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK.plusDays(10))
                 .build());
         }
         return opprettRevurdering(aktørId, behandlingÅrsakType, defaultUttaksresultat(),
             new OppgittFordelingEntitet(fordeling, true), OppgittDekningsgradEntitet.bruk100());
     }
 
-    public Behandling opprettEndringssøknadRevurdering(AktørId aktørId,
-                                                       LocalDate startDato,
-                                                       BehandlingÅrsakType behandlingÅrsakType) {
+    public Behandling opprettEndringssøknadRevurdering(AktørId aktørId, LocalDate startDato, BehandlingÅrsakType behandlingÅrsakType) {
         List<OppgittPeriodeEntitet> fordeling = new ArrayList<>();
         fordeling.add(OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
@@ -88,9 +86,10 @@ public class UttakRevurderingTestUtil {
     }
 
     private List<UttakResultatPeriodeEntitet> defaultUttaksresultat() {
-        return Collections.singletonList(new UttakResultatPeriodeEntitet.Builder(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK,
-            FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK.plusDays(10)).medResultatType(PeriodeResultatType.INNVILGET,
-            PeriodeResultatÅrsak.UKJENT).build());
+        return Collections
+            .singletonList(new UttakResultatPeriodeEntitet.Builder(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK, FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK.plusDays(10))
+                .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+                .build());
     }
 
     public Behandling opprettRevurdering(AktørId aktørId,
@@ -101,8 +100,7 @@ public class UttakRevurderingTestUtil {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(aktørId);
         Behandling førstegangsbehandling = byggFørstegangsbehandling(scenario, opprinneligUttaksResultatPerioder);
 
-        ScenarioMorSøkerForeldrepenger revurderingsscenario = ScenarioMorSøkerForeldrepenger.forFødselUtenSøknad(
-            aktørId)
+        ScenarioMorSøkerForeldrepenger revurderingsscenario = ScenarioMorSøkerForeldrepenger.forFødselUtenSøknad(aktørId)
             .medOriginalBehandling(førstegangsbehandling, behandlingÅrsakType)
             .medBehandlingType(BehandlingType.REVURDERING)
             .medFordeling(nyFordeling)
@@ -112,8 +110,7 @@ public class UttakRevurderingTestUtil {
         Behandling revurdering = lagre(revurderingsscenario);
         lagreUttaksperiodegrense(revurdering.getId());
         kopierGrunnlagsdata(revurdering);
-        repositoryProvider.getFagsakRelasjonRepository()
-            .opprettRelasjon(revurdering.getFagsak(), map(oppgittDekningsgrad));
+        repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(revurdering.getFagsak(), map(oppgittDekningsgrad));
         return revurdering;
     }
 
@@ -144,8 +141,7 @@ public class UttakRevurderingTestUtil {
         return revurdering;
     }
 
-    private Behandling byggFørstegangsbehandling(ScenarioMorSøkerForeldrepenger scenario,
-                                                 List<UttakResultatPeriodeEntitet> perioder) {
+    private Behandling byggFørstegangsbehandling(ScenarioMorSøkerForeldrepenger scenario, List<UttakResultatPeriodeEntitet> perioder) {
         scenario.medDefaultInntektArbeidYtelse();
 
         scenario.medFordeling(defaultFordeling());
@@ -154,7 +150,9 @@ public class UttakRevurderingTestUtil {
         perioder.forEach(p -> uttak.leggTilPeriode(p));
         scenario.medUttak(uttak);
 
-        return lagre(scenario);
+        Behandling førstegangsbehandling = lagre(scenario);
+        avsluttBehandlingOgFagsak(førstegangsbehandling);
+        return førstegangsbehandling;
     }
 
     private OppgittFordelingEntitet defaultFordeling() {
@@ -166,7 +164,8 @@ public class UttakRevurderingTestUtil {
 
     private void lagreUttaksperiodegrense(Long behandlingId) {
         var br = repositoryProvider.getBehandlingsresultatRepository().hent(behandlingId);
-        var grense = new Uttaksperiodegrense.Builder(br).medFørsteLovligeUttaksdag(LocalDate.of(2018, 1, 1))
+        var grense = new Uttaksperiodegrense.Builder(br)
+            .medFørsteLovligeUttaksdag(LocalDate.of(2018, 1, 1))
             .medMottattDato(FØDSELSDATO)
             .build();
         repositoryProvider.getUttaksperiodegrenseRepository().lagre(behandlingId, grense);
@@ -180,8 +179,12 @@ public class UttakRevurderingTestUtil {
         for (UttakResultatPeriodeEntitet periode : perioder) {
             uttakResultatPerioder.leggTilPeriode(periode);
         }
-        repositoryProvider.getFpUttakRepository()
-            .lagreOpprinneligUttakResultatPerioder(førstegangsbehandling.getId(), uttakResultatPerioder);
+        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(førstegangsbehandling.getId(), uttakResultatPerioder);
+    }
+
+    private void avsluttBehandlingOgFagsak(Behandling behandling) {
+        FagsakRepository fagsakRepository = repositoryProvider.getFagsakRepository();
+        fagsakRepository.oppdaterFagsakStatus(behandling.getFagsakId(), FagsakStatus.LØPENDE);
     }
 
     private void kopierGrunnlagsdata(Behandling revurdering) {
@@ -196,20 +199,15 @@ public class UttakRevurderingTestUtil {
             .medArbeidsgiver(getVirksomhet());
         OppgittPeriodeBuilder periode2 = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .medPeriode(FØRSTE_UTTAKSDATO_SØKNAD_MOR_FPFF.plusWeeks(2).plusDays(1),
-                FØRSTE_UTTAKSDATO_SØKNAD_MOR_FPFF.plusWeeks(10))
+            .medPeriode(FØRSTE_UTTAKSDATO_SØKNAD_MOR_FPFF.plusWeeks(2).plusDays(1), FØRSTE_UTTAKSDATO_SØKNAD_MOR_FPFF.plusWeeks(10))
             .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR));
 
-        OppgittFordelingEntitet oppgittFordeling = new OppgittFordelingEntitet(
-            asList(periode2.build(), periode1.build()), true);
+        OppgittFordelingEntitet oppgittFordeling = new OppgittFordelingEntitet(asList(periode2.build(), periode1.build()), true);
         repositoryProvider.getYtelsesFordelingRepository().lagre(behandling.getId(), oppgittFordeling);
         return oppgittFordeling;
     }
 
-    public OppgittFordelingEntitet byggOgLagreOppgittFordelingMedPeriode(Behandling behandling,
-                                                                         LocalDate fom,
-                                                                         LocalDate tom,
-                                                                         UttakPeriodeType uttakPeriodeType) {
+    public OppgittFordelingEntitet byggOgLagreOppgittFordelingMedPeriode(Behandling behandling, LocalDate fom, LocalDate tom, UttakPeriodeType uttakPeriodeType) {
         OppgittPeriodeBuilder periode = OppgittPeriodeBuilder.ny()
             .medPeriodeType(uttakPeriodeType)
             .medPeriode(fom, tom)
@@ -228,7 +226,8 @@ public class UttakRevurderingTestUtil {
     }
 
     private void opprettOgLagreVirksomhet() {
-        virksomhet = new Virksomhet.Builder().medOrgnr(ORGNR)
+        virksomhet = new Virksomhet.Builder()
+            .medOrgnr(ORGNR)
             .medNavn("Virksomhet")
             .medRegistrert(FØDSELSDATO.minusYears(10L))
             .medOppstart(FØDSELSDATO.minusYears(10L))
@@ -241,48 +240,40 @@ public class UttakRevurderingTestUtil {
             .medBeløp(BigDecimal.TEN)
             .medStartDatoPermisjon(FØDSELSDATO)
             .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
-            .medInnsendingstidspunkt(FØDSELSDATO.atStartOfDay())
-            .medJournalpostId(journalpostId);
+            .medInnsendingstidspunkt(FØDSELSDATO.atStartOfDay()).medJournalpostId(journalpostId);
 
-        new InntektsmeldingTjeneste(iayTjeneste).lagreInntektsmelding(revurdering.getFagsak().getSaksnummer(),
-            revurdering.getId(), inntektsmeldingBuilder);
+        new InntektsmeldingTjeneste(iayTjeneste).lagreInntektsmelding(revurdering.getFagsak().getSaksnummer(), revurdering.getId(), inntektsmeldingBuilder);
     }
 
-    public Behandling byggFørstegangsbehandlingForRevurderingBerørtSak(AktørId aktørId,
-                                                                       List<UttakResultatPeriodeEntitet> perioder) {
+    public Behandling byggFørstegangsbehandlingForRevurderingBerørtSak(AktørId aktørId, List<UttakResultatPeriodeEntitet> perioder) {
         return byggFørstegangsbehandlingForRevurderingBerørtSak(aktørId, perioder, null);
     }
 
-    public Behandling byggFørstegangsbehandlingForRevurderingBerørtSak(AktørId aktørId,
-                                                                       List<UttakResultatPeriodeEntitet> perioder,
-                                                                       Fagsak relatertFagsak) {
+    public Behandling byggFørstegangsbehandlingForRevurderingBerørtSak(AktørId aktørId, List<UttakResultatPeriodeEntitet> perioder, Fagsak relatertFagsak) {
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(aktørId);
         scenario.medDefaultInntektArbeidYtelse();
-        var behandlingsresultat = new Behandlingsresultat.Builder().medBehandlingResultatType(
-            BehandlingResultatType.INNVILGET).build();
-        scenario.medBehandlingsresultat(behandlingsresultat);
+        scenario.medBehandlingsresultat(new Behandlingsresultat.Builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         Behandling førstegangsbehandling = lagre(scenario);
-        repositoryProvider.getFagsakRelasjonRepository()
-            .opprettRelasjon(førstegangsbehandling.getFagsak(), Dekningsgrad._100);
+        repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(førstegangsbehandling.getFagsak(), Dekningsgrad._100);
         if (relatertFagsak != null) {
-            repositoryProvider.getFagsakRelasjonRepository()
-                .kobleFagsaker(førstegangsbehandling.getFagsak(), relatertFagsak, førstegangsbehandling);
+            repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(førstegangsbehandling.getFagsak(), relatertFagsak, førstegangsbehandling);
         }
         opprettUttakResultat(førstegangsbehandling, perioder);
+        avsluttBehandlingOgFagsak(førstegangsbehandling);
         return førstegangsbehandling;
     }
 
     public List<UttakResultatPeriodeEntitet> uttaksresultatBerørtSak(LocalDate fom) {
-        return Collections.singletonList(new UttakResultatPeriodeEntitet.Builder(fom, fom.plusDays(10)).medResultatType(
-            PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build());
+        return Collections.singletonList(new UttakResultatPeriodeEntitet.Builder(fom, fom.plusDays(10))
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+            .build());
     }
 
     public Behandling opprettRevurderingBerørtSak(AktørId aktørId,
                                                   BehandlingÅrsakType behandlingÅrsakType,
                                                   Behandling førstegangsbehandling) {
 
-        ScenarioMorSøkerForeldrepenger revurderingsscenario = ScenarioMorSøkerForeldrepenger.forFødselUtenSøknad(
-            aktørId)
+        ScenarioMorSøkerForeldrepenger revurderingsscenario = ScenarioMorSøkerForeldrepenger.forFødselUtenSøknad(aktørId)
             .medOriginalBehandling(førstegangsbehandling, behandlingÅrsakType)
             .medBehandlingType(BehandlingType.REVURDERING);
 

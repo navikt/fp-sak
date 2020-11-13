@@ -6,7 +6,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.List;
 
+import javax.persistence.EntityManager;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
@@ -15,20 +19,26 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryProviderForTest;
 
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
 public class EndringsdatoFørstegangsbehandlingUtlederTest {
 
     private static final String ORGNR = KUNSTIG_ORG;
 
     private static final LocalDate FØRSTE_UTTAKSDATO_OPPGITT = LocalDate.now().plusDays(10);
 
-    private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryProviderForTest();
+    private UttakRepositoryProvider repositoryProvider;
 
-    private final EndringsdatoFørstegangsbehandlingUtleder endringsdatoFørstegangsbehandlingUtleder = new EndringsdatoFørstegangsbehandlingUtleder(
-        repositoryProvider.getYtelsesFordelingRepository());
+    private EndringsdatoFørstegangsbehandlingUtleder endringsdatoFørstegangsbehandlingUtleder;
+
+    @BeforeEach
+    void setUp(EntityManager entityManager) {
+        repositoryProvider = new UttakRepositoryProvider(entityManager);
+        endringsdatoFørstegangsbehandlingUtleder = new EndringsdatoFørstegangsbehandlingUtleder(repositoryProvider.getYtelsesFordelingRepository());
+    }
 
     @Test
     public void skal_utlede_at_endringsdatoen_er_første_uttaksdato_i_søknaden_når_det_ikke_finnes_manuell_vurdering() {
@@ -39,8 +49,7 @@ public class EndringsdatoFørstegangsbehandlingUtlederTest {
         Behandling behandling = scenario.lagre(repositoryProvider);
 
         // Act
-        LocalDate endringsdato = endringsdatoFørstegangsbehandlingUtleder.utledEndringsdato(behandling.getId(),
-            perioder);
+        LocalDate endringsdato = endringsdatoFørstegangsbehandlingUtleder.utledEndringsdato(behandling.getId(), perioder);
 
         // Assert
         assertThat(endringsdato).isEqualTo(FØRSTE_UTTAKSDATO_OPPGITT);
@@ -54,8 +63,7 @@ public class EndringsdatoFørstegangsbehandlingUtlederTest {
         Behandling behandling = scenario.lagre(repositoryProvider);
 
         // Act
-        LocalDate endringsdato = endringsdatoFørstegangsbehandlingUtleder.utledEndringsdato(behandling.getId(),
-            opprettOppgittePerioder());
+        LocalDate endringsdato = endringsdatoFørstegangsbehandlingUtleder.utledEndringsdato(behandling.getId(), opprettOppgittePerioder());
 
         // Assert
         assertThat(endringsdato).isEqualTo(FØRSTE_UTTAKSDATO_OPPGITT);
@@ -69,8 +77,7 @@ public class EndringsdatoFørstegangsbehandlingUtlederTest {
         Behandling behandling = scenario.lagre(repositoryProvider);
 
         // Act
-        LocalDate endringsdato = endringsdatoFørstegangsbehandlingUtleder.utledEndringsdato(behandling.getId(),
-            opprettOppgittePerioder());
+        LocalDate endringsdato = endringsdatoFørstegangsbehandlingUtleder.utledEndringsdato(behandling.getId(), opprettOppgittePerioder());
 
         // Assert
         assertThat(endringsdato).isEqualTo(FØRSTE_UTTAKSDATO_OPPGITT.minusDays(1));

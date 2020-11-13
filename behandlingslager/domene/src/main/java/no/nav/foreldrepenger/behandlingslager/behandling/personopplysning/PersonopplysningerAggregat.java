@@ -254,8 +254,9 @@ public class PersonopplysningerAggregat {
         // Overgang DSF->FREG gir !harSammeBosted fra TPS
         if (ektefelleRelasjon.filter(PersonRelasjonEntitet::getHarSammeBosted).isPresent()) {
             return true;
+        } else {
+            return harSammeAdresseSom(aktørId);
         }
-        return harSammeAdresseSom(aktørId);
     }
 
     private boolean harSammeAdresseSom(AktørId aktørId) {

@@ -7,7 +7,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.domene.uttak.PersonopplysningerForUttak;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
+import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
@@ -17,15 +18,15 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Dødsdatoer;
 @ApplicationScoped
 public class DatoerGrunnlagBygger {
 
-    private PersonopplysningerForUttak personopplysninger;
+    private PersonopplysningTjeneste personopplysningTjeneste;
 
     DatoerGrunnlagBygger() {
         // CDI
     }
 
     @Inject
-    public DatoerGrunnlagBygger(PersonopplysningerForUttak personopplysninger) {
-        this.personopplysninger = personopplysninger;
+    public DatoerGrunnlagBygger(PersonopplysningTjeneste personopplysningTjeneste) {
+        this.personopplysningTjeneste = personopplysningTjeneste;
     }
 
     public Datoer.Builder byggGrunnlag(UttakInput input) {
@@ -41,9 +42,14 @@ public class DatoerGrunnlagBygger {
 
     private Dødsdatoer.Builder byggDødsdatoer(ForeldrepengerGrunnlag foreldrepengerGrunnlag, BehandlingReferanse ref) {
         return new Dødsdatoer.Builder()
-            .medSøkersDødsdato(personopplysninger.søkersDødsdato(ref).orElse(null))
+            .medSøkersDødsdato(søkersDødsdato(ref).orElse(null))
             .medBarnsDødsdato(barnsDødsdato(foreldrepengerGrunnlag).orElse(null))
             .medErAlleBarnDøde(erAlleBarnDøde(foreldrepengerGrunnlag));
+    }
+
+    private Optional<LocalDate> søkersDødsdato(BehandlingReferanse ref) {
+        PersonopplysningerAggregat personopplysningerAggregat = personopplysningTjeneste.hentPersonopplysninger(ref);
+        return personopplysningerAggregat.getSøker().getDødsdato() == null ? Optional.empty() : Optional.of(personopplysningerAggregat.getSøker().getDødsdato());
     }
 
     private Optional<LocalDate> barnsDødsdato(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {

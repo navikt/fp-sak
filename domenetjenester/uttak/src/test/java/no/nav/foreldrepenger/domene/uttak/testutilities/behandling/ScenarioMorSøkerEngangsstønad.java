@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 public class ScenarioMorSøkerEngangsstønad extends AbstractTestScenario<ScenarioMorSøkerEngangsstønad> {
 
     private ScenarioMorSøkerEngangsstønad(AktørId aktørId) {
-        super(FagsakYtelseType.ENGANGSTØNAD, RelasjonsRolleType.MORA, aktørId);
+        super(FagsakYtelseType.ENGANGSTØNAD, RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, aktørId);
     }
 
     public static ScenarioMorSøkerEngangsstønad forFødsel(AktørId aktørId) {

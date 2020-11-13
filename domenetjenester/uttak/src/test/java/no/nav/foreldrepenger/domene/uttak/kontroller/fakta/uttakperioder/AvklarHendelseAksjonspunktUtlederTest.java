@@ -1,33 +1,46 @@
 package no.nav.foreldrepenger.domene.uttak.kontroller.fakta.uttakperioder;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 import java.util.Set;
 
+import javax.persistence.EntityManager;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.UttakRevurderingTestUtil;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
-import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryProviderForTest;
 
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
 public class AvklarHendelseAksjonspunktUtlederTest {
 
-    private final UttakRevurderingTestUtil testUtil = new UttakRevurderingTestUtil(new UttakRepositoryProviderForTest(),
-        mock(InntektArbeidYtelseTjeneste.class));
+    private UttakRevurderingTestUtil testUtil;
 
-    private final AvklarHendelseAksjonspunktUtleder avklarHendelseAksjonspunktUtleder = new AvklarHendelseAksjonspunktUtleder();
+    private AvklarHendelseAksjonspunktUtleder avklarHendelseAksjonspunktUtleder;
+
+    @BeforeEach
+    void setUp(EntityManager entityManager) {
+        var repositoryProvider = new UttakRepositoryProvider(entityManager);
+        testUtil = new UttakRevurderingTestUtil(repositoryProvider, Mockito.mock(InntektArbeidYtelseTjeneste.class));
+        avklarHendelseAksjonspunktUtleder = new AvklarHendelseAksjonspunktUtleder();
+    }
 
     @Test // #1
     public void skal_utlede_aksjonspunkt_for_klage_når_behandling_er_manuelt_opprettet_med_klageårsak() {
         // Arrange
         Behandling revurdering = testUtil.opprettRevurdering(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
-        var input = lagInput(revurdering).medBehandlingManueltOpprettet(true)
+        var input = lagInput(revurdering)
+            .medBehandlingManueltOpprettet(true)
             .medBehandlingÅrsaker(Set.of(BehandlingÅrsakType.RE_KLAGE_UTEN_END_INNTEKT));
 
         // Act
@@ -45,7 +58,8 @@ public class AvklarHendelseAksjonspunktUtlederTest {
     public void skal_utlede_aksjonspunkt_for_død_når_behandling_er_manuelt_opprettet_med_dødsårsak() {
         // Arrange
         Behandling revurdering = testUtil.opprettRevurdering(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
-        var input = lagInput(revurdering).medBehandlingÅrsaker(Set.of(BehandlingÅrsakType.RE_OPPLYSNINGER_OM_DØD))
+        var input = lagInput(revurdering)
+            .medBehandlingÅrsaker(Set.of(BehandlingÅrsakType.RE_OPPLYSNINGER_OM_DØD))
             .medBehandlingManueltOpprettet(true);
 
         // Act
@@ -59,7 +73,8 @@ public class AvklarHendelseAksjonspunktUtlederTest {
     public void skal_utlede_aksjonspunkt_for_død_når_grunnlaget_har_opplysninger_om_død() {
         // Arrange
         Behandling revurdering = testUtil.opprettRevurdering(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
-        var input = lagInput(revurdering).medErOpplysningerOmDødEndret(true);
+        var input = lagInput(revurdering)
+            .medErOpplysningerOmDødEndret(true);
 
         // Act
         var aksjonspunkter = avklarHendelseAksjonspunktUtleder.utledAksjonspunkterFor(input);
@@ -72,7 +87,8 @@ public class AvklarHendelseAksjonspunktUtlederTest {
     public void skal_utlede_aksjonspunkt_for_død_når_behandlingen_har_en_årsak_relatert_til_hendelse_død() {
         // Arrange
         Behandling revurdering = testUtil.opprettRevurdering(BehandlingÅrsakType.RE_HENDELSE_DØD_FORELDER);
-        var input = lagInput(revurdering).medErOpplysningerOmDødEndret(false)
+        var input = lagInput(revurdering)
+            .medErOpplysningerOmDødEndret(false)
             .medBehandlingÅrsaker(Set.of(BehandlingÅrsakType.RE_HENDELSE_DØD_FORELDER));
 
         // Act
@@ -86,7 +102,8 @@ public class AvklarHendelseAksjonspunktUtlederTest {
     public void skal_utlede_aksjonspunkt_for_søknadsfrist_når_behandling_er_manuelt_opprettet_med_søknadsfristårsak() {
         // Arrange
         Behandling revurdering = testUtil.opprettRevurdering(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
-        var input = lagInput(revurdering).medBehandlingManueltOpprettet(true)
+        var input = lagInput(revurdering)
+            .medBehandlingManueltOpprettet(true)
             .medBehandlingÅrsaker(Set.of(BehandlingÅrsakType.RE_OPPLYSNINGER_OM_SØKNAD_FRIST));
 
         // Act

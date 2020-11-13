@@ -6,25 +6,36 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.List;
 
+import javax.persistence.EntityManager;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryProviderForTest;
 
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
 public class AvklarFaktaUttakPerioderTjenesteTest {
 
-    private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryProviderForTest();
-    private final AvklarFaktaUttakPerioderTjeneste tjeneste = new AvklarFaktaUttakPerioderTjeneste(repositoryProvider.getYtelsesFordelingRepository());
+    private UttakRepositoryProvider repositoryProvider;
+    private AvklarFaktaUttakPerioderTjeneste tjeneste;
+
+    @BeforeEach
+    void setUp(EntityManager entityManager) {
+        repositoryProvider = new UttakRepositoryProvider(entityManager);
+        tjeneste = new AvklarFaktaUttakPerioderTjeneste(repositoryProvider.getYtelsesFordelingRepository());
+    }
 
     @Test
     public void skal_hente_kontroller_fakta_perioder_med_bekreftelse() {

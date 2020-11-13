@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
-import no.nav.foreldrepenger.domene.uttak.PersonopplysningerForUttak;
+import no.nav.foreldrepenger.domene.personopplysning.BasisPersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
 import no.nav.foreldrepenger.domene.uttak.input.SvangerskapspengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
@@ -25,15 +25,15 @@ import no.nav.svangerskapspenger.domene.søknad.Ferie;
 class AvklarteDatoerTjeneste {
 
     private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
-    private PersonopplysningerForUttak personopplysninger;
+    private BasisPersonopplysningTjeneste personopplysningTjeneste;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
 
     @Inject
     AvklarteDatoerTjeneste(UttaksperiodegrenseRepository uttaksperiodegrenseRepository,
-                           PersonopplysningerForUttak personopplysninger,
+                           BasisPersonopplysningTjeneste personopplysningTjeneste,
                            InntektsmeldingTjeneste inntektsmeldingTjeneste) {
         this.uttaksperiodegrenseRepository = uttaksperiodegrenseRepository;
-        this.personopplysninger = personopplysninger;
+        this.personopplysningTjeneste = personopplysningTjeneste;
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
     }
 
@@ -50,7 +50,8 @@ class AvklarteDatoerTjeneste {
         var termindato = svpGrunnlag.getFamilieHendelse().getTermindato().orElseThrow(() -> new IllegalStateException("Det skal alltid være termindato på svangerskapspenger søknad."));
         var fødselsdatoOptional = svpGrunnlag.getFamilieHendelse().getFødselsdato();
         var dødsdatoBarnOptional = finnMuligDødsdatoBarn(svpGrunnlag.getFamilieHendelse().getBarna());
-        var dødsdatoBrukerOptional = personopplysninger.søkersDødsdatoGjeldendePåDato(ref, LocalDate.now());
+        var personopplysningerAggregat = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunkt(behandlingId, input.getAktørId(), LocalDate.now());
+        var dødsdatoBrukerOptional = finnMuligDødsdatoBruker(personopplysningerAggregat);
 
         var medlemskapOpphørsdatoOptional = input.getMedlemskapOpphørsdato();
 
@@ -67,6 +68,10 @@ class AvklarteDatoerTjeneste {
         }
 
         return avklarteDatoerBuilder.build();
+    }
+
+    private Optional<LocalDate> finnMuligDødsdatoBruker(PersonopplysningerAggregat personopplysningerAggregat) {
+        return Optional.ofNullable(personopplysningerAggregat.getSøker().getDødsdato());
     }
 
     private Optional<LocalDate> finnMuligDødsdatoBarn(List<Barn> barna) {

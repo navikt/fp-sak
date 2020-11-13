@@ -1,18 +1,37 @@
 package no.nav.foreldrepenger.domene.uttak.testutilities.behandling;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 
+import javax.persistence.EntityManager;
+
 import org.jboss.weld.exceptions.UnsupportedOperationException;
+import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerRepository;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling.Builder;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningVersjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
@@ -23,6 +42,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
@@ -30,6 +50,10 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilde
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
+import no.nav.foreldrepenger.domene.uttak.testutilities.aktør.NavBrukerBuilder;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.personopplysning.PersonInformasjon;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.personopplysning.Personstatus;
+import no.nav.foreldrepenger.domene.uttak.testutilities.fagsak.FagsakBuilder;
 import no.nav.vedtak.felles.testutilities.Whitebox;
 
 /**
@@ -44,38 +68,62 @@ import no.nav.vedtak.felles.testutilities.Whitebox;
  */
 public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
-    private static final AtomicLong SAKSUMMER = new AtomicLong(100999L);
-    private static final AtomicLong BEHANDLING_ID = new AtomicLong(0L);
-
+    private static final AtomicLong FAKE_ID = new AtomicLong(100999L);
+    private final FagsakBuilder fagsakBuilder;
     private InntektArbeidYtelseScenario iayScenario;
     private Behandling behandling;
-    private final Fagsak fagsak;
-    private Behandlingsresultat behandlingsresultat;
 
+    private Behandlingsresultat.Builder behandlingresultatBuilder;
+
+    private Fagsak fagsak;
+
+    private OppgittAnnenPartBuilder oppgittAnnenPartBuilder;
+
+    private VilkårResultatType vilkårResultatType = VilkårResultatType.IKKE_FASTSATT;
     private BehandlingType behandlingType = BehandlingType.FØRSTEGANGSSØKNAD;
     private OppgittRettighetEntitet oppgittRettighet;
     private OppgittDekningsgradEntitet oppgittDekningsgrad;
     private OppgittFordelingEntitet oppgittFordeling;
     private AvklarteUttakDatoerEntitet avklarteUttakDatoer;
 
+    // Registret og overstyrt personinfo
+    private List<PersonInformasjon> personer;
+
     private Behandling originalBehandling;
     private BehandlingÅrsakType behandlingÅrsakType;
     private PerioderUtenOmsorgEntitet perioderUtenOmsorg;
     private PerioderAleneOmsorgEntitet perioderMedAleneomsorg;
+    private no.nav.foreldrepenger.domene.uttak.testutilities.behandling.personopplysning.PersonInformasjon.Builder personInformasjonBuilder;
     private UttakResultatPerioderEntitet uttak;
 
-    protected AbstractTestScenario(FagsakYtelseType fagsakYtelseType, RelasjonsRolleType brukerRolle, AktørId aktørId) {
-        fagsak = Fagsak.opprettNy(fagsakYtelseType, NavBruker.opprettNy(aktørId, Språkkode.NB), brukerRolle,
-            new Saksnummer(nyId() + ""));
-
+    protected AbstractTestScenario(FagsakYtelseType fagsakYtelseType, RelasjonsRolleType brukerRolle,
+                                   NavBrukerKjønn kjønn) {
+        this.fagsakBuilder = FagsakBuilder
+            .nyFagsak(fagsakYtelseType, brukerRolle)
+            .medSaksnummer(new Saksnummer(nyId() + ""))
+            .medBrukerKjønn(kjønn);
     }
 
-    protected AbstractTestScenario(FagsakYtelseType fagsakYtelseType, RelasjonsRolleType brukerRolle) {
-        this(fagsakYtelseType, brukerRolle, AktørId.dummy());
+    protected AbstractTestScenario(FagsakYtelseType fagsakYtelseType,
+                                   RelasjonsRolleType brukerRolle,
+                                   NavBrukerKjønn kjønn, AktørId aktørId) {
+        this.fagsakBuilder = FagsakBuilder
+            .nyFagsak(fagsakYtelseType, brukerRolle)
+            .medSaksnummer(new Saksnummer(nyId() + ""))
+            .medBruker(new NavBrukerBuilder().medAktørId(aktørId).medKjønn(kjønn).build());
+    }
+
+    protected AbstractTestScenario(FagsakYtelseType fagsakYtelseType,
+                                   RelasjonsRolleType brukerRolle,
+                                   NavBruker navBruker) {
+        this.fagsakBuilder = FagsakBuilder
+            .nyFagsak(fagsakYtelseType, brukerRolle)
+            .medSaksnummer(new Saksnummer(nyId() + ""))
+            .medBruker(navBruker);
     }
 
     static long nyId() {
-        return SAKSUMMER.getAndIncrement();
+        return FAKE_ID.getAndIncrement();
     }
 
     @SuppressWarnings("unchecked")
@@ -95,8 +143,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         class LegacyBridgeIay implements LagreInntektArbeidYtelse {
 
             @Override
-            public void lagreInntektArbeidYtelseAggregat(Long behandlingId,
-                                                         InntektArbeidYtelseAggregatBuilder builder) {
+            public void lagreInntektArbeidYtelseAggregat(Long behandlingId, InntektArbeidYtelseAggregatBuilder builder) {
                 throw new UnsupportedOperationException("Get outta here - no longer supporting this");
             }
 
@@ -111,8 +158,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         class LegacyBridgeIay implements LagreInntektArbeidYtelse {
 
             @Override
-            public void lagreInntektArbeidYtelseAggregat(Long behandlingId,
-                                                         InntektArbeidYtelseAggregatBuilder builder) {
+            public void lagreInntektArbeidYtelseAggregat(Long behandlingId, InntektArbeidYtelseAggregatBuilder builder) {
                 lagreIayAggregat.accept(behandlingId, builder);
             }
         }
@@ -125,20 +171,124 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         return behandling;
     }
 
+    private void lagrePersonopplysning(UttakRepositoryProvider repositoryProvider, Behandling behandling) {
+        PersonopplysningRepository personopplysningRepository = new PersonopplysningRepository(repositoryProvider.getEntityManager());
+        Long behandlingId = behandling.getId();
+        if (oppgittAnnenPartBuilder != null) {
+            personopplysningRepository.lagre(behandlingId, oppgittAnnenPartBuilder);
+        }
+
+        if (personer != null && !personer.isEmpty()) {
+            personer.stream().filter(e -> e.getType().equals(PersonopplysningVersjonType.REGISTRERT))
+                .findFirst().ifPresent(e -> lagrePersoninfo(behandling, e, personopplysningRepository));
+
+            personer.stream().filter(a -> a.getType().equals(PersonopplysningVersjonType.OVERSTYRT))
+                .findFirst().ifPresent(b -> {
+                if (personer.stream().noneMatch(c -> c.getType().equals(PersonopplysningVersjonType.REGISTRERT))) {
+                    // Sjekker om overstyring er ok, mao om registeropplysninger finnes
+                    personopplysningRepository.opprettBuilderForOverstyring(behandlingId);
+                }
+                lagrePersoninfo(behandling, b, personopplysningRepository);
+            });
+
+        } else {
+            PersonInformasjon registerInformasjon = PersonInformasjon.builder(PersonopplysningVersjonType.REGISTRERT)
+                .leggTilPersonopplysninger(
+                    no.nav.foreldrepenger.domene.uttak.testutilities.behandling.personopplysning.Personopplysning.builder()
+                        .aktørId(behandling.getAktørId())
+                        .navn("Forelder")
+                        .brukerKjønn(getKjønnFraFagsak())
+                        .fødselsdato(LocalDate.now().minusYears(25))
+                        .sivilstand(SivilstandType.UOPPGITT)
+                        .region(Region.NORDEN))
+                .leggTilPersonstatus(Personstatus.builder()
+                    .personstatus(PersonstatusType.BOSA)
+                    .periode(LocalDate.now().minusYears(1), LocalDate.now().plusYears(1))
+                    .aktørId(behandling.getAktørId()))
+                .build();
+            lagrePersoninfo(behandling, registerInformasjon, personopplysningRepository);
+        }
+    }
+
+    private void lagrePersoninfo(Behandling behandling, PersonInformasjon personInformasjon, PersonopplysningRepository repository) {
+        Objects.requireNonNull(behandling);
+        Objects.requireNonNull(personInformasjon);
+
+        if (personInformasjon.getType().equals(PersonopplysningVersjonType.REGISTRERT)) {
+            lagreRegisterPersoninfo(behandling, personInformasjon, repository);
+        } else {
+            lagreOverstyrtPersoninfo(behandling, personInformasjon, repository);
+        }
+    }
+
+    private void lagreRegisterPersoninfo(Behandling behandling, PersonInformasjon personInformasjon, PersonopplysningRepository repository) {
+        lagrePersoninfo(behandling, repository.opprettBuilderForRegisterdata(behandling.getId()), personInformasjon, repository);
+    }
+
+    private void lagreOverstyrtPersoninfo(Behandling behandling, PersonInformasjon personInformasjon, PersonopplysningRepository repository) {
+        lagrePersoninfo(behandling, repository.opprettBuilderForOverstyring(behandling.getId()), personInformasjon, repository);
+    }
+
+    private void lagrePersoninfo(Behandling behandling, PersonInformasjonBuilder personInformasjonBuilder, PersonInformasjon personInformasjon,
+                                 PersonopplysningRepository repository) {
+        personInformasjon.getPersonopplysninger().forEach(e -> {
+            PersonInformasjonBuilder.PersonopplysningBuilder builder = personInformasjonBuilder.getPersonopplysningBuilder(e.getAktørId());
+            builder.medNavn(e.getNavn())
+                .medFødselsdato(e.getFødselsdato())
+                .medDødsdato(e.getDødsdato())
+                .medKjønn(e.getBrukerKjønn())
+                .medRegion(e.getRegion())
+                .medSivilstand(e.getSivilstand());
+
+            personInformasjonBuilder.leggTil(builder);
+        });
+
+        personInformasjon.getAdresser().forEach(e -> {
+            PersonInformasjonBuilder.AdresseBuilder builder = personInformasjonBuilder.getAdresseBuilder(e.getAktørId(), e.getPeriode(), e.getAdresseType());
+            builder.medAdresselinje1(e.getAdresselinje1())
+                .medLand(e.getLand())
+                .medPostnummer(e.getPostnummer());
+
+            personInformasjonBuilder.leggTil(builder);
+        });
+
+        personInformasjon.getPersonstatuser().forEach(e -> {
+            PersonInformasjonBuilder.PersonstatusBuilder builder = personInformasjonBuilder.getPersonstatusBuilder(e.getAktørId(), e.getPeriode());
+            builder.medPersonstatus(e.getPersonstatus());
+            personInformasjonBuilder.leggTil(builder);
+        });
+
+        personInformasjon.getRelasjoner().forEach(e -> {
+            PersonInformasjonBuilder.RelasjonBuilder builder = personInformasjonBuilder.getRelasjonBuilder(e.getAktørId(), e.getTilAktørId(),
+                e.getRelasjonsrolle());
+            builder.harSammeBosted(e.getHarSammeBosted());
+            personInformasjonBuilder.leggTil(builder);
+        });
+
+        repository.lagre(behandling.getId(), personInformasjonBuilder);
+    }
+
     private void build(UttakRepositoryProvider repositoryProvider, LagreInntektArbeidYtelse lagreIay) {
         if (behandling != null) {
-            throw new IllegalStateException(
-                "build allerede kalt.  Hent Behandling via getBehandling eller opprett nytt scenario.");
+            throw new IllegalStateException("build allerede kalt.  Hent Behandling via getBehandling eller opprett nytt scenario.");
         }
         Builder behandlingBuilder = grunnBuild(repositoryProvider);
 
         this.behandling = behandlingBuilder.build();
-        Whitebox.setInternalState(behandling, "id", BEHANDLING_ID.getAndIncrement());
 
-        lagreBehandlingsresultatOgVilkårResultat(repositoryProvider);
+        BehandlingRepository behandlingRepo = new BehandlingRepository(repositoryProvider.getEntityManager());
+        BehandlingLås lås = behandlingRepo.taSkriveLås(behandling);
+        behandlingRepo.lagre(behandling, lås);
+
+        lagrePersonopplysning(repositoryProvider, behandling);
         lagreInntektArbeidYtelse(lagreIay);
         lagreYtelseFordelingOpplysninger(repositoryProvider, behandling);
+        // opprett og lagre resulater på behandling
+        lagreBehandlingsresultatOgVilkårResultat(repositoryProvider, lås);
         lagreUttak(repositoryProvider.getFpUttakRepository());
+
+        // få med behandlingsresultat etc.
+        behandlingRepo.lagre(behandling, lås);
     }
 
     private void lagreInntektArbeidYtelse(LagreInntektArbeidYtelse lagreIay) {
@@ -187,8 +337,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             behandlingBuilder = Behandling.nyBehandlingFor(fagsak, behandlingType);
         } else {
             behandlingBuilder = Behandling.fraTidligereBehandling(originalBehandling, behandlingType)
-                .medBehandlingÅrsak(
-                    BehandlingÅrsak.builder(behandlingÅrsakType).medOriginalBehandlingId(originalBehandling.getId()));
+                .medBehandlingÅrsak(BehandlingÅrsak.builder(behandlingÅrsakType).medOriginalBehandlingId(originalBehandling.getId()));
         }
 
         return behandlingBuilder;
@@ -196,14 +345,39 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     }
 
     private void lagFagsak(FagsakRepository fagsakRepo) {
+        // opprett og lagre fagsak. Må gjøres før kan opprette behandling
+        if (!Mockito.mockingDetails(fagsakRepo).isMock()) {
+            final EntityManager entityManager = (EntityManager) Whitebox.getInternalState(fagsakRepo, "entityManager");
+            if (entityManager != null) {
+                NavBrukerRepository brukerRepository = new NavBrukerRepository(entityManager);
+                final NavBruker navBruker = brukerRepository.hent(fagsakBuilder.getBrukerBuilder().getAktørId())
+                    .orElseGet(() -> NavBruker.opprettNy(fagsakBuilder.getBrukerBuilder().getAktørId(), Språkkode.NB));
+                fagsakBuilder.medBruker(navBruker);
+            }
+        }
+        fagsak = fagsakBuilder.build();
         Long fagsakId = fagsakRepo.opprettNy(fagsak); // NOSONAR //$NON-NLS-1$
         fagsak.setId(fagsakId);
     }
 
-    private void lagreBehandlingsresultatOgVilkårResultat(UttakRepositoryProvider repoProvider) {
-        if (behandlingsresultat == null) {
-            behandlingsresultat = Behandlingsresultat.builderForInngangsvilkår().build();
-        }
+    private NavBrukerKjønn getKjønnFraFagsak() {
+        return fagsakBuilder.getBrukerBuilder().getKjønn() != null ? fagsakBuilder.getBrukerBuilder().getKjønn()
+            : (RelasjonsRolleType.erMor(fagsakBuilder.getRolle()) || RelasjonsRolleType.erMedmor(fagsakBuilder.getRolle()) ? NavBrukerKjønn.KVINNE
+            : NavBrukerKjønn.MANN);
+    }
+
+    private void lagreBehandlingsresultatOgVilkårResultat(UttakRepositoryProvider repoProvider, BehandlingLås lås) {
+        // opprett og lagre behandlingsresultat med VilkårResultat
+        Behandlingsresultat behandlingsresultat = (behandlingresultatBuilder == null ? Behandlingsresultat.builderForInngangsvilkår()
+            : behandlingresultatBuilder).buildFor(behandling);
+
+        VilkårResultat.Builder inngangsvilkårBuilder = VilkårResultat
+            .builderFraEksisterende(behandlingsresultat.getVilkårResultat())
+            .medVilkårResultatType(vilkårResultatType);
+
+        VilkårResultat vilkårResultat = inngangsvilkårBuilder.buildFor(behandling);
+
+        new BehandlingRepository(repoProvider.getEntityManager()).lagre(vilkårResultat, lås);
         repoProvider.getBehandlingsresultatRepository().lagre(behandling.getId(), behandlingsresultat);
     }
 
@@ -215,13 +389,22 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttak);
     }
 
-    public AktørId getAktørId() {
-        return fagsak.getAktørId();
+    public AktørId getDefaultBrukerAktørId() {
+        return fagsakBuilder.getBrukerBuilder().getAktørId();
+    }
+
+    public OppgittAnnenPartBuilder medSøknadAnnenPart() {
+        if (oppgittAnnenPartBuilder == null) {
+            oppgittAnnenPartBuilder = new OppgittAnnenPartBuilder();
+        }
+        return oppgittAnnenPartBuilder;
     }
 
     @SuppressWarnings("unchecked")
-    public S medBehandlingsresultat(Behandlingsresultat behandlingsresultat) {
-        this.behandlingsresultat = behandlingsresultat;
+    public S medBehandlingsresultat(Behandlingsresultat.Builder builder) {
+        if (behandlingresultatBuilder == null) {
+            behandlingresultatBuilder = builder;
+        }
         return (S) this;
     }
 
@@ -238,9 +421,15 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     }
 
     @SuppressWarnings("unchecked")
+    public S medVilkårResultatType(VilkårResultatType vilkårResultatType) {
+        this.vilkårResultatType = vilkårResultatType;
+        return (S) this;
+    }
+
+    @SuppressWarnings("unchecked")
     public S medUttak(UttakResultatPerioderEntitet uttak) {
-        if (behandlingsresultat == null) {
-            medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår().build());
+        if (behandlingresultatBuilder == null) {
+            medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår());
         }
         this.uttak = uttak;
         return (S) this;
@@ -280,6 +469,26 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     public S medPeriodeMedAleneomsorg(PerioderAleneOmsorgEntitet perioderAleneOmsorg) {
         this.perioderMedAleneomsorg = perioderAleneOmsorg;
         return (S) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public S medRegisterOpplysninger(PersonInformasjon personinfo) {
+        Objects.requireNonNull(personinfo);
+        if (!personinfo.getType().equals(PersonopplysningVersjonType.REGISTRERT)) {
+            throw new IllegalStateException("Feil versjontype, må være PersonopplysningVersjonType.REGISTRERT");
+        }
+        if (this.personer == null) {
+            this.personer = new ArrayList<>();
+            this.personer.add(personinfo);
+        }
+        return (S) this;
+    }
+
+    public PersonInformasjon.Builder opprettBuilderForRegisteropplysninger() {
+        if (personInformasjonBuilder == null) {
+            personInformasjonBuilder = PersonInformasjon.builder(PersonopplysningVersjonType.REGISTRERT);
+        }
+        return personInformasjonBuilder;
     }
 
     @SuppressWarnings("unchecked")

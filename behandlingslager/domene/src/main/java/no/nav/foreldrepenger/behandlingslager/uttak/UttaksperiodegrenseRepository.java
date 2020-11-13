@@ -31,7 +31,7 @@ public class UttaksperiodegrenseRepository {
         this.behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
     }
 
-    public UttaksperiodegrenseRepository() {
+    UttaksperiodegrenseRepository() {
         //CDI
     }
 

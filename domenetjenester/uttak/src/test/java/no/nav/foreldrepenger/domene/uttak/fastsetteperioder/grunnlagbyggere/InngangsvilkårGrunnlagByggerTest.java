@@ -2,32 +2,43 @@ package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import javax.persistence.EntityManager;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryProviderForTest;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Inngangsvilkår;
 
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
 public class InngangsvilkårGrunnlagByggerTest {
 
-    private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryProviderForTest();
+    private UttakRepositoryProvider repositoryProvider;
+    private BehandlingRepository behandlingRepository;
+
+    @BeforeEach
+    void setUp(EntityManager entityManager) {
+        repositoryProvider = new UttakRepositoryProvider(entityManager);
+        behandlingRepository = new BehandlingRepository(entityManager);
+    }
 
     @Test
     public void setterInngangsvilkåreneErOppfylt() {
         InngangsvilkårGrunnlagBygger bygger = new InngangsvilkårGrunnlagBygger(repositoryProvider);
 
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger
-            .forFødsel();
+        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         Behandling behandling = scenario.lagre(repositoryProvider);
 
         VilkårResultat.Builder vilkårBuilder = VilkårResultat.builder();
@@ -50,9 +61,7 @@ public class InngangsvilkårGrunnlagByggerTest {
     }
 
     private void lagreVilkår(Behandling behandling, VilkårResultat.Builder vilkårBuilder) {
-        Behandlingsresultat behandlingsresultat =  Behandlingsresultat.builderForInngangsvilkår().build();
-        behandlingsresultat.medOppdatertVilkårResultat(vilkårBuilder.build());
-        repositoryProvider.getBehandlingsresultatRepository().lagre(behandling.getId(),behandlingsresultat);
+        behandlingRepository.lagre(vilkårBuilder.buildFor(behandling), behandlingRepository.taSkriveLås(behandling.getId()));
     }
 
     private UttakInput input(Behandling behandling) {

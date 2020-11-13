@@ -9,6 +9,7 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 
 /** Inputstruktur for uttak tjenester. */
 public class UttakInput {
@@ -41,6 +42,10 @@ public class UttakInput {
         this.behandlingManueltOpprettet = input.behandlingManueltOpprettet;
         this.opplysningerOmDødEndret = input.opplysningerOmDødEndret;
         this.finnesAndelerMedGraderingUtenBeregningsgrunnlag = input.finnesAndelerMedGraderingUtenBeregningsgrunnlag;
+    }
+
+    public AktørId getAktørId() {
+        return behandlingReferanse.getAktørId();
     }
 
     public BehandlingReferanse getBehandlingReferanse() {
@@ -95,6 +100,10 @@ public class UttakInput {
 
     public boolean finnesAndelerMedGraderingUtenBeregningsgrunnlag() {
         return finnesAndelerMedGraderingUtenBeregningsgrunnlag;
+    }
+
+    public Set<BehandlingÅrsakType> getBehandlingÅrsaker() {
+        return behandlingÅrsaker;
     }
 
     public UttakInput medBeregningsgrunnlagStatuser(Set<BeregningsgrunnlagStatus> statuser) {
