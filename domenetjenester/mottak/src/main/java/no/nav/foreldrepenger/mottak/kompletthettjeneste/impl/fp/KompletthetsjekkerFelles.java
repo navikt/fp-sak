@@ -123,7 +123,7 @@ public class KompletthetsjekkerFelles {
         List<ManglendeVedlegg> manglendeInntektsmeldinger = kompletthetssjekkerInntektsmelding.utledManglendeInntektsmeldingerFraGrunnlag(ref);
         if (!manglendeInntektsmeldinger.isEmpty()) {
             loggManglendeInntektsmeldinger(behandlingId, manglendeInntektsmeldinger);
-            Optional<LocalDateTime> ventefristManglendeIM = vurderSkalInntektsmeldingEtterlyses(ref);
+            Optional<LocalDateTime> ventefristManglendeIM = vurderSkalInntektsmeldingEtterlyses(ref, manglendeInntektsmeldinger);
             return ventefristManglendeIM
                 .map(frist -> KompletthetResultat.ikkeOppfylt(frist, Venteårsak.AVV_DOK))
                 .orElse(KompletthetResultat.oppfylt()); // Konvensjon for å sikre framdrift i prosessen
@@ -131,7 +131,7 @@ public class KompletthetsjekkerFelles {
         return KompletthetResultat.oppfylt();
     }
 
-    private Optional<LocalDateTime> vurderSkalInntektsmeldingEtterlyses(BehandlingReferanse ref) {
+    private Optional<LocalDateTime> vurderSkalInntektsmeldingEtterlyses(BehandlingReferanse ref, List<ManglendeVedlegg> manglendeInntektsmeldinger) {
         Optional<LocalDateTime> ventefristEtterlysning = finnVentefristForEtterlysning(ref);
         if (ventefristEtterlysning.isEmpty())
             return Optional.empty();
@@ -151,14 +151,15 @@ public class KompletthetsjekkerFelles {
             }
             return ventefristEtterlysning;
         } else {
-            return finnVentefristNårFinnesInntektsmelding(ref, ventefristEtterlysning.get(), erSendtBrev, inntektsmeldinger);
+            return finnVentefristNårFinnesInntektsmelding(ref, ventefristEtterlysning.get(), erSendtBrev, inntektsmeldinger, manglendeInntektsmeldinger);
         }
     }
 
-    private Optional<LocalDateTime> finnVentefristNårFinnesInntektsmelding(BehandlingReferanse ref, LocalDateTime frist, boolean erSendtBrev, List<Inntektsmelding> inntektsmeldinger) {
+    private Optional<LocalDateTime> finnVentefristNårFinnesInntektsmelding(BehandlingReferanse ref, LocalDateTime frist, boolean erSendtBrev,
+                                                                           List<Inntektsmelding> inntektsmeldinger, List<ManglendeVedlegg> manglendeInntektsmeldinger) {
         List<ManglendeVedlegg> manglerFraAktiveArbeidsgivere = kompletthetssjekkerInntektsmelding.utledManglendeInntektsmeldingerFraGrunnlagForAutopunkt(ref);
         if (manglerFraAktiveArbeidsgivere.isEmpty()) {
-            LOGGER.info("ETTERLYS mangler ikke IM fra aktive arbeidsforhold behandlingId {}", ref.getBehandlingId());
+            LOGGER.info("ETTERLYS mangler ikke IM fra aktive arbeidsforhold behandlingId {} mottatt {} manglerTotalt {}", ref.getBehandlingId(), inntektsmeldinger.size(), manglendeInntektsmeldinger.size());
             return Optional.empty();
         }
         var baseline = frist.minusWeeks(VENTEFRIST_ETTER_ETTERLYSNING_UKER).minusWeeks(VENTEFRIST_ETTER_MOTATT_DATO_UKER);
@@ -166,7 +167,7 @@ public class KompletthetsjekkerFelles {
             .map(Inntektsmelding::getInnsendingstidspunkt)
             .filter(baseline::isBefore)  // Filtrer ut IM sendt før søknad
             .min(Comparator.naturalOrder()).orElseGet(() -> frist.minusWeeks(VENTEFRIST_ETTER_MOTATT_DATO_UKER));
-        LOGGER.info("ETTERLYS behandlingId {} erSendtBrev {} manglerIm {}", ref.getBehandlingId(), erSendtBrev, manglerFraAktiveArbeidsgivere.size());
+        LOGGER.info("ETTERLYS behandlingId {} erSendtBrev {} manglerIm {} mottattIm {} manglerTot {}", ref.getBehandlingId(), erSendtBrev, manglerFraAktiveArbeidsgivere.size(), inntektsmeldinger.size(), manglendeInntektsmeldinger.size());
 
         // Vent N=3 døgn etter første mottatte IM. Bruk N+1 pga startofday.
         return finnVentefrist(tidligstMottatt.toLocalDate().plusDays(4));

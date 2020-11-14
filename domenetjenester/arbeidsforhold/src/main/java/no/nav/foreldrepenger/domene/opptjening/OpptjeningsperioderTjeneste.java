@@ -344,7 +344,8 @@ public class OpptjeningsperioderTjeneste {
         var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getBekreftetAnnenOpptjening(aktørId));
 
         final Yrkesaktivitet overstyrt = finnTilsvarende(filter, ArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE, egenNæring.getPeriode()).orElse(null);
-        builder.medPeriode(utledPeriode(egenNæring.getPeriode(), overstyrt));
+        builder.medPeriode(utledPeriode(egenNæring.getPeriode(), overstyrt))
+            .medArbeidsgiverUtlandNavn(egenNæring.getVirksomhet().getNavn());
         if (egenNæring.getOrgnr() != null) {
             builder.medOpptjeningsnøkkel(new Opptjeningsnøkkel(null, egenNæring.getOrgnr(), null))
                 .medArbeidsgiver(Arbeidsgiver.virksomhet(egenNæring.getOrgnr()));

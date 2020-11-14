@@ -85,6 +85,11 @@ public final class MapYrkesaktivitetTilOpptjeningsperiodeTjeneste {
         }
     }
 
+    public static String lagReferanseForUtlandskOrganisasjon(String navn) {
+        // Nøkkel som er passe unik med skop en behandling
+        return ("9" + Math.abs(Objects.hash(navn)) + "999999").substring(0,7);
+    }
+
     private static boolean harEndretPåPeriode(DatoIntervallEntitet periode, Yrkesaktivitet overstyrtAktivitet) {
         if (overstyrtAktivitet == null) {
             return false;

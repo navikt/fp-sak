@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningsperiodeForSaksbehandling;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningsperioderTjeneste;
 import no.nav.foreldrepenger.domene.opptjening.VurderingsStatus;
+import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.MapYrkesaktivitetTilOpptjeningsperiodeTjeneste;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 
@@ -93,8 +94,7 @@ public class OpptjeningDtoTjeneste {
         } else if (erKunstig(oap)) {
             lagOpptjeningAktivitetDtoForArbeidsgiver(oap, dto, true, overstyringer);
         } else {
-            dto.setArbeidsgiver(oap.getArbeidsgiverUtlandNavn());
-            dto.setUtlandskArbeidsgiverNavn(oap.getArbeidsgiverUtlandNavn());
+            lagOpptjeningAktivitetDtoForUtlandskOrganisasjon(oap, dto);
         }
         settVurdering(oap, dto);
         leggPåFellesEgenskaper(oap, dto);
@@ -134,6 +134,15 @@ public class OpptjeningDtoTjeneste {
         dto.setOppdragsgiverOrg(oap.getOrgnr());
         dto.setArbeidsgiverIdentifikator(oap.getOrgnr());
         dto.setArbeidsgiverReferanse(oap.getArbeidsgiver().getIdentifikator());
+        dto.setStillingsandel(Optional.ofNullable(oap.getStillingsprosent()).map(Stillingsprosent::getVerdi).orElse(BigDecimal.ZERO));
+    }
+
+    private void lagOpptjeningAktivitetDtoForUtlandskOrganisasjon(OpptjeningsperiodeForSaksbehandling oap, OpptjeningAktivitetDto dto) {
+        dto.setArbeidsgiver(oap.getArbeidsgiverUtlandNavn());
+        dto.setUtlandskArbeidsgiverNavn(oap.getArbeidsgiverUtlandNavn());
+        if (oap.getArbeidsgiverUtlandNavn() != null) {
+            dto.setArbeidsgiverReferanse(MapYrkesaktivitetTilOpptjeningsperiodeTjeneste.lagReferanseForUtlandskOrganisasjon(oap.getArbeidsgiverUtlandNavn()));
+        }
         dto.setStillingsandel(Optional.ofNullable(oap.getStillingsprosent()).map(Stillingsprosent::getVerdi).orElse(BigDecimal.ZERO));
     }
 

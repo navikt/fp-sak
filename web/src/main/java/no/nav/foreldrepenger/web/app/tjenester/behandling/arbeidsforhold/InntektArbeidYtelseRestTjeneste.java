@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -65,9 +66,12 @@ import no.nav.foreldrepenger.domene.iay.modell.Inntekt;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
+import no.nav.foreldrepenger.domene.iay.modell.OppgittArbeidsforhold;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittEgenNæring;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjening;
+import no.nav.foreldrepenger.domene.iay.modell.OppgittUtenlandskVirksomhet;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
+import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.MapYrkesaktivitetTilOpptjeningsperiodeTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
@@ -205,6 +209,7 @@ public class InntektArbeidYtelseRestTjeneste {
         }
 
         Set<Arbeidsgiver> arbeidsgivere = new HashSet<>();
+        Set<ArbeidsgiverOpplysningerDto> utlandskeOrganisasjoner = new HashSet<>();
 
         if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
             ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId())
@@ -235,10 +240,18 @@ public class InntektArbeidYtelseRestTjeneste {
                 .map(ArbeidsforholdOverstyring::getArbeidsgiver).filter(Objects::nonNull).forEach(arbeidsgivere::add);
             iayg.getOppgittOpptjening().map(OppgittOpptjening::getEgenNæring).orElse(Collections.emptyList()).stream()
                 .map(OppgittEgenNæring::getVirksomhetOrgnr).filter(Objects::nonNull).map(Arbeidsgiver::virksomhet).forEach(arbeidsgivere::add);
+            iayg.getOppgittOpptjening().map(OppgittOpptjening::getEgenNæring).orElse(Collections.emptyList()).stream()
+                .map(OppgittEgenNæring::getVirksomhet).map(InntektArbeidYtelseRestTjeneste::mapUtlandskOrganisasjon)
+                .filter(Objects::nonNull).forEach(utlandskeOrganisasjoner::add);
+            iayg.getOppgittOpptjening().map(OppgittOpptjening::getOppgittArbeidsforhold).orElse(Collections.emptyList()).stream()
+                .map(OppgittArbeidsforhold::getUtenlandskVirksomhet).map(InntektArbeidYtelseRestTjeneste::mapUtlandskOrganisasjon)
+                .filter(Objects::nonNull).forEach(utlandskeOrganisasjoner::add);
         });
 
-        Map<String, ArbeidsgiverOpplysningerDto> oversikt = arbeidsgivere.stream()
+        Set<ArbeidsgiverOpplysningerDto> arbeidsgivereDtos = arbeidsgivere.stream()
             .map(this::mapFra)
+            .collect(Collectors.toSet());
+        Map<String, ArbeidsgiverOpplysningerDto> oversikt = Stream.concat(arbeidsgivereDtos.stream(), utlandskeOrganisasjoner.stream())
             .collect(Collectors.toMap(ArbeidsgiverOpplysningerDto::getReferanse, Function.identity()));
         return new ArbeidsgiverOversiktDto(oversikt);
     }
@@ -255,6 +268,14 @@ public class InntektArbeidYtelseRestTjeneste {
         } catch (Exception e) {
             return new ArbeidsgiverOpplysningerDto(arbeidsgiver.getIdentifikator(), "Feil ved oppslag");
         }
+    }
+
+    private static ArbeidsgiverOpplysningerDto mapUtlandskOrganisasjon(OppgittUtenlandskVirksomhet virksomhet) {
+        if (virksomhet == null || virksomhet.getNavn() == null) {
+            return null;
+        }
+        var ref = MapYrkesaktivitetTilOpptjeningsperiodeTjeneste.lagReferanseForUtlandskOrganisasjon(virksomhet.getNavn());
+        return new ArbeidsgiverOpplysningerDto(ref, virksomhet.getNavn());
     }
 
 }
