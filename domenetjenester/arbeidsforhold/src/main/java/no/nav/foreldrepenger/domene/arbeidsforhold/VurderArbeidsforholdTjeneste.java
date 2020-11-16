@@ -216,6 +216,17 @@ public class VurderArbeidsforholdTjeneste {
         return antallArbeidsforIArbeidsgiveren.getElement1() == 0 && antallArbeidsforIArbeidsgiveren.getElement2() == 0;
     }
 
+    /** Finner ut om bruker har oppgitt fiske i søknaden under egne næringer.
+     *
+     * Fiske kan deles i lott eller hyre. Lott skal rapporteres som næringsvirksomhet mens hyre skal beregnes som arbeidstaker.
+     * Disse virksomhetene er ofte unnlatt rapportering i aareg, og det vil derfor ofte komme en inntektsmelding uten arbeidsforhold.
+     * Det kan også hende at arbeidsforholdet tidligere har vært registrert i aareg, men ikke er det ved skjæringstidspunktet.
+     * I tilfeller der vi har en inntektsmelding uten arbeidsforhold vil vi derfor sjekke om bruker har oppgitt fiske i søknaden. Om søker har oppgitt fiske
+     * vil det være mulig å opprette arbeidsforhold basert på denne inntektsmeldingen.
+     *
+     * @param grunnlag Inntekt-arbeid-ytelse grunnlag
+     * @return Har søker oppgitt fiske i søknaden
+     */
     private boolean harOppgittFiske(InntektArbeidYtelseGrunnlag grunnlag) {
         return grunnlag.getOppgittOpptjening().stream().anyMatch(oppgittOpptjening -> oppgittOpptjening.getEgenNæring().stream().anyMatch(en -> en.getVirksomhetType().equals(VirksomhetType.FISKE)));
     }
