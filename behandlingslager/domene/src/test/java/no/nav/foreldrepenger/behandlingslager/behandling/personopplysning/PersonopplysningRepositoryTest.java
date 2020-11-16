@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -89,7 +88,6 @@ public class PersonopplysningRepositoryTest extends EntityManagerAwareTest {
             .medLandkode(Landkoder.NOR)
             .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
             .medPersonIdent(new PersonIdent("12345678901"))
-            .medForetrukketSpråk(Språkkode.NB)
             .build();
     }
 }

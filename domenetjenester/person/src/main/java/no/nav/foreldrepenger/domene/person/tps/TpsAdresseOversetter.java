@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.Adresseinfo;
-import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.AdressePeriode;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Gyldighetsperiode;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Personhistorikkinfo;
@@ -31,14 +30,11 @@ import no.nav.tjeneste.virksomhet.person.v3.informasjon.MidlertidigPostadresse;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.MidlertidigPostadresseNorge;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.MidlertidigPostadresseUtland;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person;
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personstatus;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.PostboksadresseNorsk;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.StedsadresseNorge;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.StrukturertAdresse;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.UstrukturertAdresse;
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonhistorikkResponse;
-import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
 
 @ApplicationScoped
@@ -64,7 +60,7 @@ public class TpsAdresseOversetter {
     List<Adresseinfo> lagListeMedAdresseInfo(Bruker person) {
         Optional<AdresseType> gjeldende = finnGjeldendePostadressetype(person);
         if (gjeldende.isPresent() && Objects.equals(AdresseType.UKJENT_ADRESSE, gjeldende.get())) {
-            return Collections.singletonList(byggUkjentAdresse(person));
+            return Collections.singletonList(byggUkjentAdresse());
         }
 
         List<Adresseinfo> adresseInfoList = new ArrayList<>();
@@ -160,7 +156,7 @@ public class TpsAdresseOversetter {
             } else if (AdresseType.MIDLERTIDIG_POSTADRESSE_UTLAND.equals(gjeldende.get())) {
                 return konverterMidlertidigPostadresseUtland(bruker, gjeldende.get());
             } else if (AdresseType.UKJENT_ADRESSE.equals(gjeldende.get())) {
-                return byggUkjentAdresse(bruker);
+                return byggUkjentAdresse();
             }
         }
         throw TpsOversetterFeilmeldinger.FACTORY.ikkeGjenkjentAdresseType(TpsUtil.getPersonIdent(bruker).getIdent(),
@@ -234,7 +230,7 @@ public class TpsAdresseOversetter {
 
         Adresse adresse = konverterStrukturertAdresse(matrikkeladresse);
 
-        return byggAddresseinfo(bruker, gjeldende, adresse);
+        return byggAddresseinfo(gjeldende, adresse);
     }
 
     private String adresseFraBolignummerOgEiendomsnavn(Matrikkeladresse matrikkeladresse) {
@@ -250,7 +246,7 @@ public class TpsAdresseOversetter {
                                                            Gateadresse gateadresse) {
 
         Adresse adresse = konverterStrukturertAdresse(gateadresse);
-        return byggAddresseinfo(bruker, gjeldende, adresse);
+        return byggAddresseinfo(gjeldende, adresse);
     }
 
     private String adresseFraGateadresse(Gateadresse gateadresse) {
@@ -259,11 +255,8 @@ public class TpsAdresseOversetter {
             hvisfinnes(gateadresse.getHusbokstav());
     }
 
-    Adresseinfo byggUkjentAdresse(Bruker bruker) {
-        return new Adresseinfo.Builder(AdresseType.UKJENT_ADRESSE,
-            TpsUtil.getPersonIdent(bruker),
-            bruker.getPersonnavn().getSammensattNavn(),
-            tilPersonstatusType(bruker.getPersonstatus())).build();
+    Adresseinfo byggUkjentAdresse() {
+        return new Adresseinfo.Builder(AdresseType.UKJENT_ADRESSE).build();
     }
 
     private Adresseinfo konverterStrukturertAdresse(Bruker bruker,
@@ -271,23 +264,18 @@ public class TpsAdresseOversetter {
                                                            StedsadresseNorge stedsadresseNorge) {
 
         Adresse adresse = konverterStrukturertAdresse(stedsadresseNorge);
-        return byggAddresseinfo(bruker, gjeldende, adresse);
+        return byggAddresseinfo(gjeldende, adresse);
     }
 
     private Adresseinfo konverterStrukturertAdresse(Bruker bruker,
                                                            AdresseType gjeldende,
                                                            PostboksadresseNorsk postboksadresseNorsk) {
         Adresse adresse = konverterStrukturertAdresse(postboksadresseNorsk);
-        return byggAddresseinfo(bruker, gjeldende, adresse);
+        return byggAddresseinfo(gjeldende, adresse);
     }
 
-    private Adresseinfo.Builder adresseBuilderForPerson(Bruker bruker,
-                                                               AdresseType gjeldende) {
-        Personstatus personstatus = bruker.getPersonstatus();
-        return new Adresseinfo.Builder(gjeldende,
-            TpsUtil.getPersonIdent(bruker),
-            TpsUtil.getPersonnavn(bruker),
-            personstatus == null ? null : tilPersonstatusType(personstatus));
+    private Adresseinfo.Builder adresseBuilderForPerson(AdresseType gjeldende) {
+        return new Adresseinfo.Builder(gjeldende);
     }
 
     private String postboksadresselinje(PostboksadresseNorsk postboksadresseNorsk) {
@@ -300,11 +288,11 @@ public class TpsAdresseOversetter {
                                                     AdresseType gjeldende) {
 
         Adresse adresse = konverterUstrukturertAdresse(ustrukturertAdresse);
-        return byggAddresseinfo(bruker, gjeldende, adresse);
+        return byggAddresseinfo(gjeldende, adresse);
     }
 
-    private Adresseinfo byggAddresseinfo(Bruker bruker, AdresseType gjeldende, Adresse adresse) {
-        return adresseBuilderForPerson(bruker, gjeldende)
+    private Adresseinfo byggAddresseinfo(AdresseType gjeldende, Adresse adresse) {
+        return adresseBuilderForPerson(gjeldende)
             .medPostNr(adresse.postnummer)
             .medPoststed(adresse.poststed)
             .medLand(adresse.land)
@@ -412,16 +400,6 @@ public class TpsAdresseOversetter {
         return adresse;
     }
 
-    String finnAdresseLandkodeFor(Bruker bruker) {
-        try {
-            Adresseinfo adresseinfo = tilAdresseInfo(bruker);
-            return adresseinfo.getLand();
-        } catch (VLException e) {
-            TpsOversetterFeilmeldinger.FACTORY.manglerLandBrukerNorge(e).log(log);
-            return NORGE;
-        }
-    }
-
     public String finnUtlandsadresseFor(Bruker bruker) {
         MidlertidigPostadresse midlertidigPostadresse = bruker.getMidlertidigPostadresse();
         if (midlertidigPostadresse instanceof MidlertidigPostadresseUtland) {
@@ -431,19 +409,6 @@ public class TpsAdresseOversetter {
                 AdresseType.MIDLERTIDIG_POSTADRESSE_UTLAND));
         }
         return null;
-    }
-
-    String finnAdresseFor(Person person) {
-        if (person instanceof Bruker) {
-            try {
-                Adresseinfo adresseinfo = tilAdresseInfo(person);
-                return byggOppAdresse(adresseinfo);
-            } catch (TekniskException tps) { //NOSONAR
-                //Ukjent adresse eller adresse som ikke kan oversettes.
-                //TODO (HUMLE) logge?
-            }
-        }
-        return "UKJENT ADRESSE";
     }
 
     private String byggOppAdresse(Adresseinfo adresseinfo) {
@@ -473,10 +438,6 @@ public class TpsAdresseOversetter {
 
     private String tilLand(Landkoder landkoder) {
         return null == landkoder ? null : landkoder.getValue();
-    }
-
-    private PersonstatusType tilPersonstatusType(Personstatus personstatus) {
-        return PersonstatusType.fraKode(personstatus.getPersonstatus().getValue());
     }
 
     private String hvisfinnes(Object object) {

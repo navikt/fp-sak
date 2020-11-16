@@ -17,7 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.Familierelasjon;
+import no.nav.foreldrepenger.behandlingslager.aktør.FamilierelasjonVL;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
@@ -41,7 +41,7 @@ public class TpsFamilieTjenesteTest {
 
     @BeforeEach
     public void setUp() {
-        personinfoAdapter = new PersoninfoAdapter(tpsTjeneste, fødselTjeneste, null, null, null);
+        personinfoAdapter = new PersoninfoAdapter(tpsTjeneste, fødselTjeneste, null, null, null, null);
     }
 
     @Test
@@ -58,9 +58,9 @@ public class TpsFamilieTjenesteTest {
         assertThat(fødslerRelatertTilBehandling).hasSize(antallBarn);
     }
 
-    private List<FødtBarnInfo> genererBarn(Set<Familierelasjon> familierelasjoner, LocalDate startdatoIntervall) {
+    private List<FødtBarnInfo> genererBarn(Set<FamilierelasjonVL> familierelasjoner, LocalDate startdatoIntervall) {
         final ArrayList<FødtBarnInfo> barn = new ArrayList<>();
-        for (Familierelasjon familierelasjon : familierelasjoner) {
+        for (FamilierelasjonVL familierelasjon : familierelasjoner) {
             barn.add(new FødtBarnInfo.Builder()
                     .medFødselsdato(genererFødselsdag(startdatoIntervall.minusWeeks(1)))
                     .medIdent(familierelasjon.getPersonIdent())
@@ -80,12 +80,12 @@ public class TpsFamilieTjenesteTest {
         return builder.build();
     }
 
-    private Set<Familierelasjon> genererBarn(int antallBarn, LocalDate startdatoIntervall) {
-        final Set<Familierelasjon> set = new HashSet<>();
+    private Set<FamilierelasjonVL> genererBarn(int antallBarn, LocalDate startdatoIntervall) {
+        final Set<FamilierelasjonVL> set = new HashSet<>();
         LocalDate generertFødselsdag = genererFødselsdag(startdatoIntervall.minusWeeks(1));
         IntStream.range(0, Math.toIntExact(antallBarn))
                 .forEach(barnNr -> set
-                        .add(new Familierelasjon(new PersonIdent("" + barnNr + 10L), RelasjonsRolleType.BARN, generertFødselsdag, "Adr", true)));
+                        .add(new FamilierelasjonVL(new PersonIdent("" + barnNr + 10L), RelasjonsRolleType.BARN, true)));
         return set;
     }
 

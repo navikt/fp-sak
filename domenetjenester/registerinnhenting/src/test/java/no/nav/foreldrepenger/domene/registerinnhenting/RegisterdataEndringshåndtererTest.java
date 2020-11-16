@@ -32,7 +32,7 @@ import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingskontrollEventPu
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingskontrollTjenesteImpl;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
 import no.nav.foreldrepenger.behandlingslager.abakus.logg.AbakusInnhentingGrunnlagLoggRepository;
-import no.nav.foreldrepenger.behandlingslager.aktør.Familierelasjon;
+import no.nav.foreldrepenger.behandlingslager.aktør.FamilierelasjonVL;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
@@ -82,7 +82,6 @@ public class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
     private static final String FNR_FORELDER = "01234567890";
     private static final String FNR_BARN = "12345678910";
     private static final LocalDate FORELDER_FØDSELSDATO = LocalDate.now().minusYears(30);
-    private static final LocalDate BARN_FØDSELSDATO = LocalDate.now().minusDays(2);
 
     @Mock
     private PersoninfoAdapter personinfoAdapter;
@@ -340,8 +339,8 @@ public class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
     }
 
     private Personinfo opprettSøkerinfo() {
-        Familierelasjon familierelasjon = new Familierelasjon(new PersonIdent(FNR_BARN), RelasjonsRolleType.BARN,
-            BARN_FØDSELSDATO, "Veien", true);
+        FamilierelasjonVL familierelasjon = new FamilierelasjonVL(new PersonIdent(FNR_BARN), RelasjonsRolleType.BARN,
+            true);
 
         return new Personinfo.Builder()
             .medAktørId(SØKER_AKTØR_ID)

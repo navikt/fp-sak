@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -13,7 +14,7 @@ import javax.inject.Inject;
 import org.threeten.extra.Interval;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.Adresseinfo;
-import no.nav.foreldrepenger.behandlingslager.aktør.Familierelasjon;
+import no.nav.foreldrepenger.behandlingslager.aktør.FamilierelasjonVL;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
@@ -54,21 +55,13 @@ public class PersonopplysningInnhenter {
 
     public void innhentPersonopplysninger(PersonInformasjonBuilder informasjonBuilder, AktørId søker, Optional<AktørId> annenPart,
                                           Interval opplysningsperiode, List<LocalDateInterval> fødselsIntervaller) {
-        Personinfo søkerInfo = innhentSaksopplysningerForSøker(søker);
+        Personinfo søkerInfo = personinfoAdapter.innhentSaksopplysningerForSøker(søker);
         if (søkerInfo == null) {
             throw new IllegalArgumentException("Finner ikke personinformasjon for aktør " + søker.getId());
         }
-        Optional<Personinfo> medsøkerInfo = annenPart.flatMap(this::innhentSaksopplysningerFor);
+        Optional<Personinfo> medsøkerInfo = annenPart.flatMap(personinfoAdapter::innhentSaksopplysningerForEktefelle);
 
         byggPersonopplysningMedRelasjoner(informasjonBuilder, søkerInfo, medsøkerInfo, opplysningsperiode, fødselsIntervaller);
-    }
-
-    private Personinfo innhentSaksopplysningerForSøker(AktørId søkerAktørId) {
-        return personinfoAdapter.innhentSaksopplysningerForSøker(søkerAktørId);
-    }
-
-    private Optional<Personinfo> innhentSaksopplysningerFor(AktørId aktørId) {
-        return personinfoAdapter.innhentSaksopplysningerForEktefelle(aktørId);
     }
 
     private PersonInformasjonBuilder byggPersonopplysningMedRelasjoner(PersonInformasjonBuilder informasjonBuilder,
@@ -78,6 +71,7 @@ public class PersonopplysningInnhenter {
                                                                        List<LocalDateInterval> fødselsintervall) {
 
         // Historikk for søker
+        List<Personinfo> barna = hentBarnRelatertTil(søkerPersonInfo, fødselsintervall);
         final Personhistorikkinfo personhistorikkinfo = personinfoAdapter.innhentPersonopplysningerHistorikk(søkerPersonInfo.getAktørId(), opplysningsperioden);
         if (personhistorikkinfo != null) {
             mapAdresser(personhistorikkinfo.getAdressehistorikk(), informasjonBuilder, søkerPersonInfo);
@@ -85,12 +79,24 @@ public class PersonopplysningInnhenter {
             mapPersonstatus(personhistorikkinfo.getPersonstatushistorikk(), informasjonBuilder, søkerPersonInfo);
         }
 
-        mapTilPersonopplysning(søkerPersonInfo, informasjonBuilder, true, false, fødselsintervall);
+        mapInfoTilEntitet(søkerPersonInfo, informasjonBuilder, false);
         // Ektefelle
-        leggTilEktefelle(søkerPersonInfo, informasjonBuilder, fødselsintervall);
+        leggTilEktefelle(søkerPersonInfo, informasjonBuilder);
 
         // Medsøker (annen part). kan være samme person som Ektefelle
-        annenPartInfo.ifPresent(annenPart -> leggTilMedsøkerAnnenPart(søkerPersonInfo, annenPart, informasjonBuilder, fødselsintervall));
+        annenPartInfo.ifPresent(annenPart -> mapInfoTilEntitet(annenPart, informasjonBuilder, true));
+
+        Set<PersonIdent> annenPartsBarn = getAnnenPartsBarn(annenPartInfo);
+
+        barna.forEach(barn -> {
+            mapInfoTilEntitet(barn, informasjonBuilder, true);
+            mapRelasjon(søkerPersonInfo, barn, Collections.singletonList(RelasjonsRolleType.BARN), informasjonBuilder);
+            mapRelasjon(barn, søkerPersonInfo, utledRelasjonsrolleTilBarn(søkerPersonInfo, barn), informasjonBuilder);
+            if (annenPartsBarn.contains(barn.getPersonIdent())) {
+                annenPartInfo.ifPresent(a -> mapRelasjon(a, barn, Collections.singletonList(RelasjonsRolleType.BARN), informasjonBuilder));
+                annenPartInfo.ifPresent(a -> mapRelasjon(barn, a, utledRelasjonsrolleTilBarn(a, barn), informasjonBuilder));
+            }
+        });
 
         return informasjonBuilder;
     }
@@ -152,20 +158,6 @@ public class PersonopplysningInnhenter {
         return dato;
     }
 
-    private void mapTilPersonopplysning(Personinfo personinfo, PersonInformasjonBuilder informasjonBuilder, boolean skalHenteBarnRelasjoner,
-                                        boolean erIkkeSøker, List<LocalDateInterval> fødselsintervall) {
-        mapInfoTilEntitet(personinfo, informasjonBuilder, erIkkeSøker);
-
-        if (skalHenteBarnRelasjoner) {
-            List<Personinfo> barna = hentBarnRelatertTil(personinfo, fødselsintervall);
-            barna.forEach(barn -> {
-                mapInfoTilEntitet(barn, informasjonBuilder, true);
-                mapRelasjon(personinfo, barn, Collections.singletonList(RelasjonsRolleType.BARN), informasjonBuilder);
-                mapRelasjon(barn, personinfo, utledRelasjonsrolleTilBarn(personinfo, barn), informasjonBuilder);
-            });
-        }
-    }
-
     private List<RelasjonsRolleType> utledRelasjonsrolleTilBarn(Personinfo personinfo, Personinfo barn) {
         if (barn == null) {
             return Collections.emptyList();
@@ -191,7 +183,7 @@ public class PersonopplysningInnhenter {
         final Optional<Boolean> sammeBosted = personinfo.getFamilierelasjoner().stream()
             .filter(fr -> fr.getRelasjonsrolle().equals(rolle) && fr.getPersonIdent().equals(barn.getPersonIdent()))
             .findAny()
-            .map(Familierelasjon::getHarSammeBosted);
+            .map(FamilierelasjonVL::getHarSammeBosted);
         return sammeBosted.orElse(false);
     }
 
@@ -239,50 +231,30 @@ public class PersonopplysningInnhenter {
         return DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom != null ? tom : Tid.TIDENES_ENDE);
     }
 
-    private void leggTilMedsøkerAnnenPart(Personinfo søkerPersonInfo, Personinfo annenPart, PersonInformasjonBuilder informasjonBuilder,
-                                          List<LocalDateInterval> fødselsintervall) {
-        // Medsøker - kan være samme person som ektefelle
-        List<Personinfo> fellesBarn = finnFellesBarn(annenPart, søkerPersonInfo, fødselsintervall);
-
-        mapTilPersonopplysning(annenPart, informasjonBuilder, false, true, fødselsintervall);
-        for (Personinfo barn : fellesBarn) {
-            final Personinfo til = personinfoAdapter.innhentSaksopplysninger(barn.getPersonIdent()).orElse(null);
-            mapRelasjon(annenPart, til, Collections.singletonList(RelasjonsRolleType.BARN), informasjonBuilder);
-            mapRelasjon(til, annenPart, utledRelasjonsrolleTilBarn(annenPart, til), informasjonBuilder); // NOSONAR
-        }
-    }
-
-    private void leggTilEktefelle(Personinfo søkerPersonInfo, PersonInformasjonBuilder informasjonBuilder, List<LocalDateInterval> fødselsintervall) {
+    private void leggTilEktefelle(Personinfo søkerPersonInfo, PersonInformasjonBuilder informasjonBuilder) {
         // Ektefelle
-        final List<Familierelasjon> familierelasjoner = søkerPersonInfo.getFamilierelasjoner()
+        final List<FamilierelasjonVL> familierelasjoner = søkerPersonInfo.getFamilierelasjoner()
             .stream()
             .filter(f -> f.getRelasjonsrolle().equals(RelasjonsRolleType.EKTE) ||
                 f.getRelasjonsrolle().equals(RelasjonsRolleType.REGISTRERT_PARTNER) ||
                 f.getRelasjonsrolle().equals(RelasjonsRolleType.SAMBOER))
             .collect(Collectors.toList());
-        for (Familierelasjon familierelasjon : familierelasjoner) {
-            Optional<Personinfo> ektefelleInfo = personinfoAdapter.innhentSaksopplysninger(familierelasjon.getPersonIdent());
-            if (ektefelleInfo.isPresent()) {
-                final Personinfo personinfo = ektefelleInfo.get();
-                mapTilPersonopplysning(personinfo, informasjonBuilder, false, true, fødselsintervall);
-                mapRelasjon(søkerPersonInfo, personinfo, Collections.singletonList(familierelasjon.getRelasjonsrolle()), informasjonBuilder);
-                mapRelasjon(personinfo, søkerPersonInfo, Collections.singletonList(familierelasjon.getRelasjonsrolle()), informasjonBuilder);
-            }
+        for (FamilierelasjonVL familierelasjon : familierelasjoner) {
+            personinfoAdapter.innhentSaksopplysningerFor(familierelasjon.getPersonIdent()).ifPresent(e -> {
+                mapInfoTilEntitet(e, informasjonBuilder, true);
+                mapRelasjon(søkerPersonInfo, e, Collections.singletonList(familierelasjon.getRelasjonsrolle()), informasjonBuilder);
+                mapRelasjon(e, søkerPersonInfo, Collections.singletonList(familierelasjon.getRelasjonsrolle()), informasjonBuilder);
+            });
         }
     }
 
     private List<Personinfo> hentBarnRelatertTil(Personinfo personinfo, List<LocalDateInterval> fødselsintervall) {
-        List<Personinfo> relaterteBarn = hentAlleRelaterteBarn(personinfo);
-
-        return relaterteBarn.stream().filter(b -> fødselsintervall.stream().anyMatch(i -> i.encloses(b.getFødselsdato()))).collect(Collectors.toList());
-    }
-
-    private List<Personinfo> hentAlleRelaterteBarn(Personinfo søkerPersonInfo) {
-        return søkerPersonInfo.getFamilierelasjoner()
+        return personinfo.getFamilierelasjoner()
             .stream()
             .filter(r -> r.getRelasjonsrolle().equals(RelasjonsRolleType.BARN))
-            .map(r -> personinfoAdapter.innhentSaksopplysningerForBarn(r.getPersonIdent()).orElse(null))
+            .map(r -> personinfoAdapter.innhentSaksopplysningerFor(r.getPersonIdent()).orElse(null))
             .filter(Objects::nonNull)
+            .filter(b -> fødselsintervall.stream().anyMatch(i -> i.encloses(b.getFødselsdato())))
             .collect(Collectors.toList());
     }
 
@@ -294,17 +266,12 @@ public class PersonopplysningInnhenter {
         return NavBrukerKjønn.KVINNE.equals(kjønn) ? RelasjonsRolleType.MORA : RelasjonsRolleType.FARA;
     }
 
-    private List<Personinfo> finnFellesBarn(Personinfo annenPart, Personinfo førstePart, List<LocalDateInterval> fødselsintervall) {
-        List<PersonIdent> fnrAnnenPartsBarn = annenPart.getFamilierelasjoner().stream()
-            .filter(f -> f.getRelasjonsrolle().equals(RelasjonsRolleType.BARN))
-            .map(Familierelasjon::getPersonIdent)
-            .collect(Collectors.toList());
-
-        final List<Personinfo> barnPersonInfo = hentBarnRelatertTil(førstePart, fødselsintervall);
-
-        return barnPersonInfo.stream()
-            .filter(barn -> fnrAnnenPartsBarn.contains(barn.getPersonIdent()))
-            .collect(Collectors.toList());
+    private Set<PersonIdent> getAnnenPartsBarn(Optional<Personinfo> annenPartInfo) {
+        return annenPartInfo.map(Personinfo::getFamilierelasjoner).orElse(Collections.emptySet()).stream()
+            .filter(f -> RelasjonsRolleType.BARN.equals(f.getRelasjonsrolle()))
+            .map(FamilierelasjonVL::getPersonIdent)
+            .collect(Collectors.toSet());
     }
+
 
 }

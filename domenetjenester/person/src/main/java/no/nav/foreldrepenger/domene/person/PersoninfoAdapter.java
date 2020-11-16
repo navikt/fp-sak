@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.domene.person.dkif.DkifSpråkKlient;
 import no.nav.foreldrepenger.domene.person.pdl.FødselTjeneste;
 import no.nav.foreldrepenger.domene.person.pdl.PersonBasisTjeneste;
+import no.nav.foreldrepenger.domene.person.pdl.PersoninfoTjeneste;
 import no.nav.foreldrepenger.domene.person.pdl.TilknytningTjeneste;
 import no.nav.foreldrepenger.domene.person.tps.TpsAdapter;
 import no.nav.foreldrepenger.domene.person.tps.TpsFeilmeldinger;
@@ -42,6 +43,7 @@ public class PersoninfoAdapter {
     private FødselTjeneste fødselTjeneste;
     private TilknytningTjeneste tilknytningTjeneste;
     private PersonBasisTjeneste basisTjeneste;
+    private PersoninfoTjeneste personinfoTjeneste;
     private DkifSpråkKlient dkifSpråkKlient;
 
     public PersoninfoAdapter() {
@@ -58,11 +60,13 @@ public class PersoninfoAdapter {
                              FødselTjeneste fødselTjeneste,
                              TilknytningTjeneste tilknytningTjeneste,
                              PersonBasisTjeneste basisTjeneste,
+                             PersoninfoTjeneste personinfoTjeneste,
                              DkifSpråkKlient dkifSpråkKlient) {
         this.tpsAdapter = tpsAdapter;
         this.fødselTjeneste = fødselTjeneste;
         this.tilknytningTjeneste = tilknytningTjeneste;
         this.basisTjeneste = basisTjeneste;
+        this.personinfoTjeneste = personinfoTjeneste;
         this.dkifSpråkKlient = dkifSpråkKlient;
     }
 
@@ -74,25 +78,15 @@ public class PersoninfoAdapter {
         return hentKjerneinformasjon(aktørId);
     }
 
-    public Optional<Personinfo> innhentSaksopplysninger(PersonIdent personIdent) {
-        Optional<AktørId> aktørId = tpsAdapter.hentAktørIdForPersonIdent(personIdent);
-        return aktørId.flatMap(a -> hentKjerneinformasjonForBarn(a, personIdent));
-    }
-
     public Personhistorikkinfo innhentPersonopplysningerHistorikk(AktørId aktørId, Interval interval) {
         return tpsAdapter.hentPersonhistorikk(aktørId, interval);
     }
 
-    /** Henter PersonInfo for barn, gitt at det ikke er FDAT nummer (sjekkes på format av PersonIdent, evt. ved feilhåndtering fra TPS). Hvis FDAT nummer returneres {@link Optional#empty()} */
-    public Optional<Personinfo> innhentSaksopplysningerForBarn(PersonIdent personIdent) {
-        if(personIdent.erFdatNummer()) {
+    public Optional<Personinfo> innhentSaksopplysningerFor(PersonIdent personIdent) {
+        if (personIdent.erFdatNummer()) {
             return Optional.empty();
         }
-        Optional<AktørId> optAktørId = tpsAdapter.hentAktørIdForPersonIdent(personIdent);
-        if (optAktørId.isPresent()) {
-            return hentKjerneinformasjonForBarn(optAktørId.get(), personIdent);
-        }
-        return Optional.empty();
+        return tpsAdapter.hentAktørIdForPersonIdent(personIdent).flatMap(a -> hentKjerneinformasjonForBarn(a, personIdent));
     }
 
     public List<AktørId> finnAktørIdForForeldreTil(PersonIdent personIdent) {
@@ -102,12 +96,8 @@ public class PersoninfoAdapter {
     }
 
     private Optional<Personinfo> hentKjerneinformasjonForBarn(AktørId aktørId, PersonIdent personIdent) {
-        if(personIdent.erFdatNummer()) {
-            return Optional.empty();
-        }
         try {
-            return Optional.of(hentKjerneinformasjon(aktørId, personIdent)
-            );
+            return Optional.of(hentKjerneinformasjon(aktørId, personIdent));
             // TODO Lag en skikkelig fiks på dette
             //Her sorterer vi ut dødfødte barn
         } catch (SOAPFaultException e) {
@@ -119,11 +109,13 @@ public class PersoninfoAdapter {
     }
 
     private Optional<Personinfo> hentKjerneinformasjon(AktørId aktørId) {
-        return tpsAdapter.hentIdentForAktørId(aktørId).map(i -> tpsAdapter.hentKjerneinformasjon(i, aktørId));
+        return tpsAdapter.hentIdentForAktørId(aktørId).map(i -> hentKjerneinformasjon(aktørId, i));
     }
 
     private Personinfo hentKjerneinformasjon(AktørId aktørId, PersonIdent personIdent) {
-        return tpsAdapter.hentKjerneinformasjon(personIdent, aktørId);
+        var pi = tpsAdapter.hentKjerneinformasjon(personIdent, aktørId);
+        personinfoTjeneste.hentPersoninfo(aktørId, personIdent, pi);
+        return pi;
     }
 
     public List<FødtBarnInfo> innhentAlleFødteForBehandlingIntervaller(AktørId aktørId, List<LocalDateInterval> intervaller) {

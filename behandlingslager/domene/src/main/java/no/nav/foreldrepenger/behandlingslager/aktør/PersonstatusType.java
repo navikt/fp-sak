@@ -36,15 +36,25 @@ public enum PersonstatusType implements Kodeverdi {
     UTAN("UTAN", "Utgått person annullert tilgang Fnr", false),
     UTPE("UTPE", "Utgått person", false),
     UTVA("UTVA", "Utvandret", true),
-    
     UDEFINERT("-", "Ikke definert", false),
-    
     ;
 
+    private static final Map<String, PersonstatusType> FRA_FREG = Map.ofEntries(
+        Map.entry("inaktiv", ADNR),
+        Map.entry("midlertidig", ADNR),
+        Map.entry("bosatt", PersonstatusType.BOSA),
+        Map.entry("doed", PersonstatusType.DØD),
+        Map.entry("forsvunnet", PersonstatusType.FOSV),
+        Map.entry("foedselsregistrert", PersonstatusType.FØDR),
+        Map.entry("opphoert", PersonstatusType.UTPE),
+        Map.entry("utflyttet", UTVA),
+        Map.entry("ikkeBosatt", UREG)  // TODO avklar hvilke som skal avklares og legg til ikke bosatt status
+    );
+
     private static final Map<String, PersonstatusType> KODER = new LinkedHashMap<>();
-    
+
     public static final String KODEVERK = "PERSONSTATUS_TYPE";
-    
+
     @JsonIgnore
     private String navn;
 
@@ -62,7 +72,7 @@ public enum PersonstatusType implements Kodeverdi {
     public static boolean erDød(PersonstatusType personstatus) {
         return DØD.equals(personstatus) || DØDD.equals(personstatus);
     }
-    
+
 
     @JsonCreator
     public static PersonstatusType fraKode(@JsonProperty("kode") String kode) {
@@ -79,7 +89,7 @@ public enum PersonstatusType implements Kodeverdi {
     public static Map<String, PersonstatusType> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }
-    
+
     @Override
     public String getNavn() {
         return navn;
@@ -88,7 +98,7 @@ public enum PersonstatusType implements Kodeverdi {
     public static void main(String[] args) {
         System.out.println(KODER.keySet());
     }
-    
+
     @JsonProperty
     @Override
     public String getKodeverk() {
@@ -100,12 +110,12 @@ public enum PersonstatusType implements Kodeverdi {
     public String getKode() {
         return kode;
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return getKode();
     }
-    
+
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -113,7 +123,7 @@ public enum PersonstatusType implements Kodeverdi {
             }
         }
     }
-    
+
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<PersonstatusType, String> {
         @Override
@@ -129,6 +139,10 @@ public enum PersonstatusType implements Kodeverdi {
 
     public static Set<PersonstatusType> personstatusTyperFortsattBehandling() {
         return List.of(values()).stream().filter(s -> s.fortsettBehandling).collect(Collectors.toSet());
+    }
+
+    public static PersonstatusType fraFregPersonstatus(String fregStatus) {
+        return fregStatus != null ? FRA_FREG.getOrDefault(fregStatus, UDEFINERT) : UDEFINERT;
     }
 
 }

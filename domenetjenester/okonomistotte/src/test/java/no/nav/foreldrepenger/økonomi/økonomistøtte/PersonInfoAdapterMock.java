@@ -80,17 +80,12 @@ public class PersonInfoAdapterMock extends PersoninfoAdapter {
     }
 
     @Override
-    public Optional<Personinfo> innhentSaksopplysninger(PersonIdent personIdent) {
-        return Optional.empty();
-    }
-
-    @Override
     public Personhistorikkinfo innhentPersonopplysningerHistorikk(AktørId aktørId, Interval interval) {
         return null;
     }
 
     @Override
-    public Optional<Personinfo> innhentSaksopplysningerForBarn(PersonIdent personIdent) {
+    public Optional<Personinfo> innhentSaksopplysningerFor(PersonIdent personIdent) {
         return Optional.empty();
     }
 
