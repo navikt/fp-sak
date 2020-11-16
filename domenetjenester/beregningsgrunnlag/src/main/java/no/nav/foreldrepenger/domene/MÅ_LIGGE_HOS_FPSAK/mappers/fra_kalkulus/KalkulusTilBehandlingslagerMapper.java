@@ -12,6 +12,7 @@ import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningRefu
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagGrunnlagDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagRegelSporingDto;
+import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.FaktaAggregatDto;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BeregningsgrunnlagRegelType;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
@@ -41,7 +42,8 @@ public class KalkulusTilBehandlingslagerMapper {
         return BeregningsgrunnlagTilstand.fraKode(beregningsgrunnlagTilstand.getKode());
     }
 
-    public static BeregningsgrunnlagEntitet mapBeregningsgrunnlag(BeregningsgrunnlagDto beregningsgrunnlagFraKalkulus) {
+    public static BeregningsgrunnlagEntitet mapBeregningsgrunnlag(BeregningsgrunnlagDto beregningsgrunnlagFraKalkulus,
+                                                                  Optional<FaktaAggregatDto> faktaAggregat) {
         BeregningsgrunnlagEntitet.Builder builder = BeregningsgrunnlagEntitet.builder();
 
         //med
@@ -59,7 +61,7 @@ public class KalkulusTilBehandlingslagerMapper {
 
         //lister
         beregningsgrunnlagFraKalkulus.getAktivitetStatuser().forEach(beregningsgrunnlagAktivitetStatus -> builder.leggTilAktivitetStatus(KalkulusTilBGMapper.mapAktivitetStatus(beregningsgrunnlagAktivitetStatus)));
-        beregningsgrunnlagFraKalkulus.getBeregningsgrunnlagPerioder().forEach(beregningsgrunnlagPeriode -> builder.leggTilBeregningsgrunnlagPeriode(KalkulusTilBGMapper.mapBeregningsgrunnlagPeriode(beregningsgrunnlagPeriode)));
+        beregningsgrunnlagFraKalkulus.getBeregningsgrunnlagPerioder().forEach(beregningsgrunnlagPeriode -> builder.leggTilBeregningsgrunnlagPeriode(KalkulusTilBGMapper.mapBeregningsgrunnlagPeriode(beregningsgrunnlagPeriode, faktaAggregat)));
         builder.leggTilFaktaOmBeregningTilfeller(beregningsgrunnlagFraKalkulus.getFaktaOmBeregningTilfeller().stream().map(fakta -> FaktaOmBeregningTilfelle.fraKode(fakta.getKode())).collect(Collectors.toList()));
         beregningsgrunnlagFraKalkulus.getSammenligningsgrunnlagPrStatusListe().forEach(sammenligningsgrunnlagPrStatus -> builder.leggTilSammenligningsgrunnlag(KalkulusTilBGMapper.mapSammenligningsgrunnlagMedStatus(sammenligningsgrunnlagPrStatus)));
 
@@ -87,7 +89,7 @@ public class KalkulusTilBehandlingslagerMapper {
     }
 
     private static BeregningRefusjonPeriodeEntitet mapRefusjonPeriode(BeregningRefusjonPeriodeDto refusjonsperiode) {
-        return new BeregningRefusjonPeriodeEntitet(refusjonsperiode.getArbeidsforholdRef() == null ? null : KalkulusTilIAYMapper.mapArbeidsforholdRed(refusjonsperiode.getArbeidsforholdRef()), refusjonsperiode.getStartdatoRefusjon());
+        return new BeregningRefusjonPeriodeEntitet(refusjonsperiode.getArbeidsforholdRef() == null ? null : KalkulusTilIAYMapper.mapArbeidsforholdRef(refusjonsperiode.getArbeidsforholdRef()), refusjonsperiode.getStartdatoRefusjon());
     }
 
     public static BeregningAktivitetAggregatEntitet mapSaksbehandletAktivitet(BeregningAktivitetAggregatDto saksbehandletAktiviteterFraKalkulus) {
@@ -100,7 +102,7 @@ public class KalkulusTilBehandlingslagerMapper {
     private static Consumer<BeregningAktivitetDto> mapBeregningAktivitet(BeregningAktivitetAggregatEntitet.Builder entitetBuilder) {
         return beregningAktivitet -> {
             BeregningAktivitetEntitet.Builder builder = BeregningAktivitetEntitet.builder();
-            builder.medArbeidsforholdRef(beregningAktivitet.getArbeidsforholdRef() == null ? null : KalkulusTilIAYMapper.mapArbeidsforholdRed(beregningAktivitet.getArbeidsforholdRef()));
+            builder.medArbeidsforholdRef(beregningAktivitet.getArbeidsforholdRef() == null ? null : KalkulusTilIAYMapper.mapArbeidsforholdRef(beregningAktivitet.getArbeidsforholdRef()));
             builder.medArbeidsgiver(beregningAktivitet.getArbeidsgiver() == null ? null : KalkulusTilIAYMapper.mapArbeidsgiver(beregningAktivitet.getArbeidsgiver()));
             builder.medOpptjeningAktivitetType(OpptjeningAktivitetType.fraKode(beregningAktivitet.getOpptjeningAktivitetType().getKode()));
             builder.medPeriode(mapDatoIntervall(beregningAktivitet.getPeriode()));
@@ -112,7 +114,7 @@ public class KalkulusTilBehandlingslagerMapper {
         BeregningAktivitetOverstyringerEntitet.Builder entitetBuilder = BeregningAktivitetOverstyringerEntitet.builder();
         beregningAktivitetOverstyringerFraKalkulus.getOverstyringer().forEach(overstyring -> {
             BeregningAktivitetOverstyringEntitet.Builder builder = BeregningAktivitetOverstyringEntitet.builder();
-            builder.medArbeidsforholdRef(overstyring.getArbeidsforholdRef() == null ? null : KalkulusTilIAYMapper.mapArbeidsforholdRed(overstyring.getArbeidsforholdRef()));
+            builder.medArbeidsforholdRef(overstyring.getArbeidsforholdRef() == null ? null : KalkulusTilIAYMapper.mapArbeidsforholdRef(overstyring.getArbeidsforholdRef()));
             overstyring.getArbeidsgiver().ifPresent(arbeidsgiver -> builder.medArbeidsgiver(KalkulusTilIAYMapper.mapArbeidsgiver(arbeidsgiver)));
             builder.medHandling(overstyring.getHandling() == null ? null : BeregningAktivitetHandlingType.fraKode(overstyring.getHandling().getKode()));
             builder.medOpptjeningAktivitetType(OpptjeningAktivitetType.fraKode(overstyring.getOpptjeningAktivitetType().getKode()));
@@ -129,7 +131,7 @@ public class KalkulusTilBehandlingslagerMapper {
     public static BeregningsgrunnlagGrunnlagEntitet mapGrunnlag(BeregningsgrunnlagGrunnlagDto beregningsgrunnlagFraKalkulus) {
         BeregningsgrunnlagGrunnlagBuilder oppdatere = BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.empty());
 
-        beregningsgrunnlagFraKalkulus.getBeregningsgrunnlag().ifPresent(beregningsgrunnlagDto -> oppdatere.medBeregningsgrunnlag(mapBeregningsgrunnlag(beregningsgrunnlagDto)));
+        beregningsgrunnlagFraKalkulus.getBeregningsgrunnlag().ifPresent(beregningsgrunnlagDto -> oppdatere.medBeregningsgrunnlag(mapBeregningsgrunnlag(beregningsgrunnlagDto, beregningsgrunnlagFraKalkulus.getFaktaAggregat())));
         beregningsgrunnlagFraKalkulus.getOverstyring().ifPresent(beregningAktivitetOverstyringerDto -> oppdatere.medOverstyring(mapAktivitetOverstyring(beregningAktivitetOverstyringerDto)));
         oppdatere.medRegisterAktiviteter(mapRegisterAktiviteter(beregningsgrunnlagFraKalkulus.getRegisterAktiviteter()));
         beregningsgrunnlagFraKalkulus.getSaksbehandletAktiviteter().ifPresent(beregningAktivitetAggregatDto -> oppdatere.medSaksbehandletAktiviteter(mapSaksbehandletAktivitet(beregningAktivitetAggregatDto)));
