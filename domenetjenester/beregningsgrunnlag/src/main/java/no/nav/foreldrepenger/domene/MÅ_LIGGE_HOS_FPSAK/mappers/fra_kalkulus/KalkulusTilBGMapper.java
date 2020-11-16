@@ -141,7 +141,8 @@ public class KalkulusTilBGMapper {
         faktaArbeidsforhold.map(FaktaArbeidsforholdDto::getHarLønnsendringIBeregningsperioden).ifPresent(builder::medLønnsendringIBeregningsperioden);
         faktaArbeidsforhold.map(FaktaArbeidsforholdDto::getErTidsbegrenset).ifPresent(builder::medTidsbegrensetArbeidsforhold);
         builder.medRefusjonskravPrÅr(fraKalkulus.getRefusjonskravPrÅr());
-
+        builder.medSaksbehandletRefusjonPrÅr(fraKalkulus.getSaksbehandletRefusjonPrÅr());
+        builder.medFordeltRefusjonPrÅr(fraKalkulus.getFordeltRefusjonPrÅr());
         fraKalkulus.getArbeidsperiodeTom().ifPresent(builder::medArbeidsperiodeTom);
         fraKalkulus.getNaturalytelseBortfaltPrÅr().ifPresent(builder::medNaturalytelseBortfaltPrÅr);
         fraKalkulus.getNaturalytelseTilkommetPrÅr().ifPresent(builder::medNaturalytelseTilkommetPrÅr);
