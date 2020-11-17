@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.Adresseinfo;
-import no.nav.foreldrepenger.behandlingslager.aktør.Familierelasjon;
+import no.nav.foreldrepenger.behandlingslager.aktør.FamilierelasjonVL;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
@@ -28,7 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Sivils
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Aktoer;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Bruker;
@@ -38,7 +37,6 @@ import no.nav.tjeneste.virksomhet.person.v3.informasjon.Kjoenn;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.PersonIdent;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personstatus;
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Spraak;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Statsborgerskap;
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonhistorikkResponse;
 import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
@@ -79,14 +77,12 @@ public class TpsOversetter {
         String ident = pi.getIdent().getIdent();
         NavBrukerKjønn kjønn = tilBrukerKjønn(bruker.getKjoenn());
         PersonstatusType personstatus = tilPersonstatusType(bruker.getPersonstatus());
-        Set<Familierelasjon> familierelasjoner = bruker.getHarFraRolleI().stream()
+        Set<FamilierelasjonVL> familierelasjoner = bruker.getHarFraRolleI().stream()
             .map(this::tilRelasjon)
             .collect(toSet());
 
         Landkoder landkoder = utledLandkode(bruker.getStatsborgerskap());
         Region region = MapRegionLandkoder.mapLandkode(landkoder.getKode());
-
-        String diskresjonskode = bruker.getDiskresjonskode() == null ? null : bruker.getDiskresjonskode().getValue();
 
         List<Adresseinfo> adresseinfoList = tpsAdresseOversetter.lagListeMedAdresseInfo(bruker);
         SivilstandType sivilstandType = bruker.getSivilstand() == null ? null : SivilstandType.fraKode(bruker.getSivilstand().getSivilstand().getValue());
@@ -101,8 +97,6 @@ public class TpsOversetter {
             .medPersonstatusType(personstatus)
             .medRegion(region)
             .medFamilierelasjon(familierelasjoner)
-            .medForetrukketSpråk(bestemForetrukketSpråk(bruker))
-            .medDiskresjonsKode(diskresjonskode)
             .medAdresseInfoList(adresseinfoList)
             .medSivilstandType(sivilstandType)
             .medLandkode(landkoder)
@@ -203,28 +197,16 @@ public class TpsOversetter {
         return fødselsdato;
     }
 
-    private Språkkode bestemForetrukketSpråk(Bruker person) {
-        Språkkode defaultSpråk = Språkkode.NB;
-        Spraak språk = person.getMaalform();
-        // For å slippe å håndtere foreldet forkortelse "NO" andre steder i løsningen
-        if (språk == null || "NO".equals(språk.getValue())) {
-            return defaultSpråk;
-        }
-        return Språkkode.finnForKodeverkEiersKode(språk.getValue());
-    }
-
-    private Familierelasjon tilRelasjon(no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjon familierelasjon) {
+    private FamilierelasjonVL tilRelasjon(no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjon familierelasjon) {
         String rollekode = familierelasjon.getTilRolle().getValue();
         RelasjonsRolleType relasjonsrolle = RelasjonsRolleType.fraKode(rollekode);
-        String adresse = tpsAdresseOversetter.finnAdresseFor(familierelasjon.getTilPerson());
         PersonIdent personIdent = (PersonIdent) familierelasjon.getTilPerson().getAktoer();
         no.nav.foreldrepenger.domene.typer.PersonIdent ident = no.nav.foreldrepenger.domene.typer.PersonIdent.fra(personIdent.getIdent().getIdent());
         Boolean harSammeBosted = familierelasjon.isHarSammeBosted();
 
         LOG.info("TpsRelasjon rolle {} har samme bosted {}", relasjonsrolle.getKode(), harSammeBosted);
 
-        return new Familierelasjon(ident, relasjonsrolle,
-            tilLocalDate(familierelasjon.getTilPerson().getFoedselsdato()), adresse, harSammeBosted);
+        return new FamilierelasjonVL(ident, relasjonsrolle, harSammeBosted);
     }
 
     private NavBrukerKjønn tilBrukerKjønn(Kjoenn kjoenn) {
@@ -236,13 +218,6 @@ public class TpsOversetter {
 
     private PersonstatusType tilPersonstatusType(Personstatus personstatus) {
         return PersonstatusType.fraKode(personstatus.getPersonstatus().getValue());
-    }
-
-    private LocalDate tilLocalDate(Foedselsdato fødselsdatoJaxb) {
-        if (fødselsdatoJaxb != null) {
-            return DateUtil.convertToLocalDate(fødselsdatoJaxb.getFoedselsdato());
-        }
-        return null;
     }
 
     public Adresseinfo tilAdresseInfo(Person person) {

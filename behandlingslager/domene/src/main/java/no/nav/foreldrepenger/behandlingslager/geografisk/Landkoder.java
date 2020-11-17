@@ -273,6 +273,7 @@ public enum Landkoder implements Kodeverdi {
     VUT("VUT", "VANUATU"),
     WLF("WLF", "WALLIS/FUTUNAØYENE"),
     WSM("WSM", "SAMOA"),
+    XUK("XUK", "UKJENT"),
     XXK("XXK", "KOSOVO"),
     XXX("XXX", "STATSLØS"),
     YEM("YEM", "JEMEN"),

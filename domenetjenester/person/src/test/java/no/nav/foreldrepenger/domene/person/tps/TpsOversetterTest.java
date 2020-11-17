@@ -29,7 +29,6 @@ import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Personhistorikkinfo;
 import no.nav.foreldrepenger.behandlingslager.geografisk.PoststedKodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.AktoerId;
@@ -56,7 +55,6 @@ import no.nav.tjeneste.virksomhet.person.v3.informasjon.Postadresse;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Postadressetyper;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.PostboksadresseNorsk;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Postnummer;
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Spraak;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Statsborgerskap;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.StatsborgerskapPeriode;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.UstrukturertAdresse;
@@ -268,50 +266,6 @@ public class TpsOversetterTest extends EntityManagerAwareTest {
 
         assertThat(adresseinfo).isNotNull();
         assertThat(adresseinfo.getAdresselinje1()).isEqualTo(USTRUKTURERT_GATEADRESSE1);
-    }
-
-    @Test
-    public void skal_ha_med_foretrukket_språk_når_finnes() throws Exception {
-        tpsOversetter = new TpsOversetter(tpsAdresseOversetter);
-
-        Spraak språk = new Spraak();
-        språk.setValue("NN");
-        when(bruker.getMaalform()).thenReturn(språk);
-        Personinfo personinfo = tpsOversetter.tilBrukerInfo(AktørId.dummy(), bruker);
-        assertThat(personinfo.getForetrukketSpråk()).isEqualTo(Språkkode.NN);
-    }
-
-    @Test
-    public void skal_default_til_bokmål_om_foretrukket_språk_ikke_er_satt() throws Exception {
-
-        tpsOversetter = new TpsOversetter(tpsAdresseOversetter);
-
-        when(bruker.getMaalform()).thenReturn(null);
-        Personinfo personinfo = tpsOversetter.tilBrukerInfo(AktørId.dummy(), bruker);
-        assertThat(personinfo.getForetrukketSpråk()).isEqualTo(Språkkode.NB);
-    }
-
-    @Test
-    public void skal_defaulte_til_bokmål_om_foretrukket_språk_ikke_er_støttet() throws Exception {
-
-        tpsOversetter = new TpsOversetter(tpsAdresseOversetter);
-
-        Spraak språk = new Spraak();
-        språk.setValue("SVORSK");
-        when(bruker.getMaalform()).thenReturn(språk);
-        Personinfo personinfo = tpsOversetter.tilBrukerInfo(AktørId.dummy(), bruker);
-        assertThat(personinfo.getForetrukketSpråk()).isEqualTo(Språkkode.NB);
-    }
-
-    @Test
-    public void skal_defaulte_til_bokmål_om_foretrukket_språk_er_NO() throws Exception {
-        tpsOversetter = new TpsOversetter(tpsAdresseOversetter);
-
-        Spraak språk = new Spraak();
-        språk.setValue("NO");
-        when(bruker.getMaalform()).thenReturn(språk);
-        Personinfo personinfo = tpsOversetter.tilBrukerInfo(AktørId.dummy(), bruker);
-        assertThat(personinfo.getForetrukketSpråk()).isEqualTo(Språkkode.NB);
     }
 
     @Test

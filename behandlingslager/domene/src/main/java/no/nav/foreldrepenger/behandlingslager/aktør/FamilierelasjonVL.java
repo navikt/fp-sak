@@ -1,23 +1,19 @@
 package no.nav.foreldrepenger.behandlingslager.aktør;
 
-import java.time.LocalDate;
+import java.util.Objects;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 
-public class Familierelasjon {
+public class FamilierelasjonVL {
     private PersonIdent personIdent;
     private RelasjonsRolleType relasjonsrolle;
-    private LocalDate fødselsdato;
-    private String adresse;
     private Boolean harSammeBosted;
 
-    public Familierelasjon(PersonIdent personIdent,  RelasjonsRolleType relasjonsrolle, LocalDate fødselsdato,
-            String adresse, Boolean harSammeBosted) {
+    public FamilierelasjonVL(PersonIdent personIdent, RelasjonsRolleType relasjonsrolle,
+                             Boolean harSammeBosted) {
         this.personIdent = personIdent;
         this.relasjonsrolle = relasjonsrolle;
-        this.fødselsdato = fødselsdato;
-        this.adresse = adresse;
         this.harSammeBosted = harSammeBosted;
     }
 
@@ -29,10 +25,6 @@ public class Familierelasjon {
         return relasjonsrolle;
     }
 
-    public String getAdresse() {
-        return adresse;
-    }
-
     public Boolean getHarSammeBosted() {
         return harSammeBosted;
     }
@@ -42,7 +34,19 @@ public class Familierelasjon {
         // tar ikke med personIdent i toString så det ikke lekkeri logger etc.
         return getClass().getSimpleName()
                 + "<relasjon=" + relasjonsrolle  //$NON-NLS-1$
-                + ", fødselsdato=" + fødselsdato //$NON-NLS-1$
                 + ">"; //$NON-NLS-1$
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FamilierelasjonVL that = (FamilierelasjonVL) o;
+        return Objects.equals(personIdent, that.personIdent);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(personIdent);
     }
 }

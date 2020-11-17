@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -12,7 +11,6 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.ForenkletPersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoArbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
@@ -65,7 +63,7 @@ public class PersonBasisTjeneste {
                     .navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn())
                     .foedsel(new FoedselResponseProjection().foedselsdato())
                     .doedsfall(new DoedsfallResponseProjection().doedsdato())
-                    .folkeregisterpersonstatus(new FolkeregisterpersonstatusResponseProjection().forenkletStatus())
+                    .folkeregisterpersonstatus(new FolkeregisterpersonstatusResponseProjection().status())
                     .kjoenn(new KjoennResponseProjection().kjoenn())
                     .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
             var person = pdlKlient.hentPerson(query, projection, Tema.FOR);
@@ -77,27 +75,22 @@ public class PersonBasisTjeneste {
                 .map(Doedsfall::getDoedsdato)
                 .filter(Objects::nonNull)
                 .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
+            var pdlStatus = person.getFolkeregisterpersonstatus().stream()
+                .map(Folkeregisterpersonstatus::getStatus)
+                .findFirst().map(PersonstatusType::fraFregPersonstatus).orElse(PersonstatusType.UDEFINERT);
             var fraPDL = new PersoninfoBasis.Builder().medAktørId(aktørId).medPersonIdent(personIdent)
                 .medNavn(person.getNavn().stream().map(PersonBasisTjeneste::mapNavn).filter(Objects::nonNull).findFirst().orElse(null))
                 .medFødselsdato(fødselsdato)
                 .medDødsdato(dødssdato)
                 .medDiskresjonsKode(getDiskresjonskode(person))
                 .medNavBrukerKjønn(mapKjønn(person))
-                .medPersonstatusType(PersonstatusType.UDEFINERT)
+                .medPersonstatusType(pdlStatus)
                 .build();
-            var pdlStatus = person.getFolkeregisterpersonstatus().stream()
-                .map(Folkeregisterpersonstatus::getForenkletStatus)
-                .map(ForenkletPersonstatusType::fraKode)
-                .findFirst().orElse(ForenkletPersonstatusType.UDEFINERT);
-            var tpsStatus = ForenkletPersonstatusType.fraPersonstatusType(fraTPS.getPersonstatus());
 
-            if (Objects.equals(fraPDL, mapFraTPS(fraTPS)) && Objects.equals(pdlStatus, tpsStatus)) {
+            if (Objects.equals(fraPDL, mapFraTPS(fraTPS))) {
                 LOG.info("FPSAK PDL BASIS: like svar");
-            } else if (Objects.equals(fraPDL, mapFraTPS(fraTPS)) && !Objects.equals(pdlStatus, tpsStatus)) {
-                LOG.info("FPSAK PDL BASIS: avvik personstatus TPS {} vs PDL {}", fraTPS.getPersonstatus().getKode(),
-                    person.getFolkeregisterpersonstatus().stream().map(Folkeregisterpersonstatus::toString).collect(Collectors.toList()));
             } else {
-                LOG.info("FPSAK PDL BASIS: avvik {}", finnAvvik(fraTPS, fraPDL, pdlStatus));
+                LOG.info("FPSAK PDL BASIS: avvik {}", finnAvvik(fraTPS, fraPDL));
             }
         } catch (Exception e) {
             LOG.info("FPSAK PDL BASIS error", e);
@@ -180,17 +173,17 @@ public class PersonBasisTjeneste {
             .medDødsdato(tps.getDødsdato())
             .medNavBrukerKjønn(tps.getKjønn())
             .medDiskresjonsKode(diskKode)
-            .medPersonstatusType(PersonstatusType.UDEFINERT)
+            .medPersonstatusType(tps.getPersonstatus())
             .build();
     }
 
-    private String finnAvvik(PersoninfoBasis tps, PersoninfoBasis pdl, ForenkletPersonstatusType pdlStatus) {
+    private String finnAvvik(PersoninfoBasis tps, PersoninfoBasis pdl) {
         String navn = Objects.equals(tps.getNavn(), pdl.getNavn()) ? "" : " navn ";
         String kjonn = Objects.equals(tps.getKjønn(), pdl.getKjønn()) ? "" : " kjønn ";
         String fdato = Objects.equals(tps.getFødselsdato(), pdl.getFødselsdato()) ? "" : " fødsel ";
         String ddato = Objects.equals(tps.getDødsdato(), pdl.getDødsdato()) ? "" : " død ";
         String disk = Objects.equals(tps.getDiskresjonskode(), pdl.getDiskresjonskode()) ? "" : " disk ";
-        String status = Objects.equals(ForenkletPersonstatusType.fraPersonstatusType(tps.getPersonstatus()), pdlStatus) ? "" : " status tps " + tps.getPersonstatus().getKode() + " PDL " + pdlStatus.getKode();
+        String status = Objects.equals(tps.getPersonstatus(), pdl.getPersonstatus()) ? "" : " status tps " + tps.getPersonstatus().getKode() + " PDL " + pdl.getPersonstatus().getKode();
         return "Avvik" + navn + kjonn + fdato + ddato + disk + status;
     }
 

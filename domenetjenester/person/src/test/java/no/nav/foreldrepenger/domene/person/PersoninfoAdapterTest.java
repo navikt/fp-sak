@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
 import no.nav.foreldrepenger.domene.person.pdl.FødselTjeneste;
 import no.nav.foreldrepenger.domene.person.pdl.PersonBasisTjeneste;
+import no.nav.foreldrepenger.domene.person.pdl.PersoninfoTjeneste;
 import no.nav.foreldrepenger.domene.person.pdl.TilknytningTjeneste;
 import no.nav.foreldrepenger.domene.person.tps.TpsAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -32,6 +33,8 @@ public class PersoninfoAdapterTest {
     private TilknytningTjeneste tilknytningTjeneste;
     @Mock
     private PersonBasisTjeneste basisTjeneste;
+    @Mock
+    private PersoninfoTjeneste personinfoTjeneste;
 
     private PersoninfoAdapter adapter; // objektet vi tester
 
@@ -58,7 +61,7 @@ public class PersoninfoAdapterTest {
         mockPersoninfo = mock(Personinfo.class);
         lenient().when(mockPersoninfo.getFødselsdato()).thenReturn(LocalDate.now()); // trenger bare en verdi
 
-        adapter = new PersoninfoAdapter(mockTpsAdapter, fødselTjeneste, tilknytningTjeneste, basisTjeneste, null);
+        adapter = new PersoninfoAdapter(mockTpsAdapter, fødselTjeneste, tilknytningTjeneste, basisTjeneste, personinfoTjeneste, null);
     }
 
     @Test
@@ -76,7 +79,7 @@ public class PersoninfoAdapterTest {
     public void skal_innhente_saksopplysninger_for_barn() {
         lenient().when(mockPersoninfo.getAktørId()).thenReturn(AKTØR_ID_BARN);
 
-        Optional<Personinfo> barn = adapter.innhentSaksopplysningerForBarn(FNR_BARN);
+        Optional<Personinfo> barn = adapter.innhentSaksopplysningerFor(FNR_BARN);
 
         assertThat(barn).isPresent();
         assertThat(barn.get().getAktørId()).isEqualTo(AKTØR_ID_BARN);

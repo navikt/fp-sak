@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.aktør;
 import static java.util.Objects.requireNonNull;
 
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -12,7 +11,6 @@ import java.util.Set;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 
@@ -25,10 +23,8 @@ public class Personinfo {
     private LocalDate dødsdato;
     private PersonstatusType personstatus;
     private NavBrukerKjønn kjønn;
-    private Set<Familierelasjon> familierelasjoner = Collections.emptySet();
+    private Set<FamilierelasjonVL> familierelasjoner = Collections.emptySet();
     private Region region;
-    private String diskresjonskode;
-    private Språkkode foretrukketSpråk;
     private Landkoder landkode;
 
     private List<Adresseinfo> adresseInfoList = new ArrayList<>();
@@ -61,16 +57,8 @@ public class Personinfo {
         return fødselsdato;
     }
 
-    public int getAlder() {
-        return (int) ChronoUnit.YEARS.between(fødselsdato, LocalDate.now());
-    }
-
-    public Set<Familierelasjon> getFamilierelasjoner() {
+    public Set<FamilierelasjonVL> getFamilierelasjoner() {
         return Collections.unmodifiableSet(familierelasjoner);
-    }
-
-    public boolean erKvinne() {
-        return kjønn.equals(NavBrukerKjønn.KVINNE);
     }
 
     public LocalDate getDødsdato() {
@@ -79,14 +67,6 @@ public class Personinfo {
 
     public Region getRegion() {
         return region;
-    }
-
-    public Språkkode getForetrukketSpråk() {
-        return foretrukketSpråk;
-    }
-
-    public String getDiskresjonskode() {
-        return diskresjonskode;
     }
 
     public List<Adresseinfo> getAdresseInfoList() {
@@ -148,23 +128,13 @@ public class Personinfo {
             return this;
         }
 
-        public Builder medFamilierelasjon(Set<Familierelasjon> familierelasjon) {
+        public Builder medFamilierelasjon(Set<FamilierelasjonVL> familierelasjon) {
             personinfoMal.familierelasjoner = familierelasjon;
             return this;
         }
 
         public Builder medRegion(Region region) {
             personinfoMal.region = region;
-            return this;
-        }
-
-        public Builder medDiskresjonsKode(String diskresjonsKode) {
-            personinfoMal.diskresjonskode = diskresjonsKode;
-            return this;
-        }
-
-        public Builder medForetrukketSpråk(Språkkode språk) {
-            personinfoMal.foretrukketSpråk = språk;
             return this;
         }
 

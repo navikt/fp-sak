@@ -47,7 +47,7 @@ public enum SivilstandType implements Kodeverdi {
             }
         }
     }
-    
+
     @JsonIgnore
     private String navn;
     private String kode;
@@ -56,7 +56,7 @@ public enum SivilstandType implements Kodeverdi {
         this.kode = kode;
         this.navn = navn;
     }
-    
+
     @JsonProperty
     @Override
     public String getKode() {
@@ -68,17 +68,17 @@ public enum SivilstandType implements Kodeverdi {
     public String getKodeverk() {
         return KODEVERK;
     }
-    
+
     @Override
     public String getNavn() {
         return navn;
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return getKode();
     }
-    
+
     @JsonCreator
     public static SivilstandType fraKode(@JsonProperty("kode") String kode) {
         if (kode == null) {
@@ -95,7 +95,7 @@ public enum SivilstandType implements Kodeverdi {
         return Collections.unmodifiableMap(KODER);
     }
 
-    
+
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<SivilstandType, String> {
         @Override
