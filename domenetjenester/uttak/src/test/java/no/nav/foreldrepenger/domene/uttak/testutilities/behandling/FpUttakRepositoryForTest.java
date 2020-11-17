@@ -5,8 +5,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.inject.Inject;
-
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.OrgManuellÅrsakEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
@@ -17,9 +15,8 @@ class FpUttakRepositoryForTest extends FpUttakRepository {
     private final Map<Long, UttakResultatPerioderEntitet> opprinnelig = new ConcurrentHashMap<>();
     private final Map<Long, UttakResultatPerioderEntitet> overstyrt = new ConcurrentHashMap<>();
 
-    private BehandlingsresultatRepositoryForTest behandlingsresultatRepository;
+    private final BehandlingsresultatRepositoryForTest behandlingsresultatRepository;
 
-    @Inject
     FpUttakRepositoryForTest(BehandlingsresultatRepositoryForTest behandlingsresultatRepository) {
         this.behandlingsresultatRepository = behandlingsresultatRepository;
     }
