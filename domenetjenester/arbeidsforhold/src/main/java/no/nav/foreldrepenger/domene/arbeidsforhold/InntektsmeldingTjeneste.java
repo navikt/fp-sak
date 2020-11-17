@@ -24,9 +24,11 @@ import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingSomIkkeKommer;
+import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjening;
 import no.nav.foreldrepenger.domene.iay.modell.RefusjonskravDato;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.VirksomhetType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
@@ -51,7 +53,7 @@ public class InntektsmeldingTjeneste {
      * Tar hensyn til inaktive arbeidsforhold, dvs. fjerner de
      * inntektsmeldingene som er koblet til inaktivte arbeidsforhold
      *
-     * @param ref {@link BehandlingReferanse}
+     * @param ref                             {@link BehandlingReferanse}
      * @param skjæringstidspunktForOpptjening datoen arbeidsforhold må inkludere eller starte etter for å bli regnet som aktive
      * @return Liste med inntektsmeldinger {@link Inntektsmelding}
      */
@@ -76,7 +78,7 @@ public class InntektsmeldingTjeneste {
         if (yrkesaktiviteter.isEmpty()) {
             return inntektsmeldinger;
         }
-        return filtrerVekkInntektsmeldingPåInaktiveArbeidsforhold(filter, yrkesaktiviteter, inntektsmeldinger, skjæringstidspunktForOpptjening);
+        return filtrerVekkInntektsmeldingPåInaktiveArbeidsforhold(filter, yrkesaktiviteter, inntektsmeldinger, skjæringstidspunktForOpptjening, iayGrunnlag.getOppgittOpptjening());
     }
 
     /**
@@ -98,41 +100,6 @@ public class InntektsmeldingTjeneste {
                 || !Objects.equals(origIM.get(imRevurderingEntry.getKey()).getJournalpostId(), imRevurderingEntry.getValue().getJournalpostId()))
             .map(Map.Entry::getValue)
             .collect(Collectors.toList());
-    }
-
-    /**
-     * Henter alle inntektsmeldinger
-     * Tar hensyn til inaktive arbeidsforhold, dvs. fjerner de
-     * inntektsmeldingene som er koblet til inaktivte arbeidsforhold
-     * Spesial håndtering i forbindelse med beregning
-     *
-     * @param ref {@link BehandlingReferanse}
-     * @param skjæringstidspunktForOpptjening datoen arbeidsforhold må inkludere eller starte etter for å bli regnet som aktive
-     * @return Liste med inntektsmeldinger {@link Inntektsmelding}
-     */
-    public List<Inntektsmelding> hentInntektsmeldingerBeregning(BehandlingReferanse ref, LocalDate skjæringstidspunktForOpptjening) {
-        AktørId aktørId = ref.getAktørId();
-        Optional<InntektArbeidYtelseGrunnlag> iayGrunnlag = iayTjeneste.finnGrunnlag(ref.getBehandlingId());
-        if (iayGrunnlag.isPresent()) {
-            return hentInntektsmeldingerBeregning(aktørId, skjæringstidspunktForOpptjening, iayGrunnlag.get());
-        }
-        return emptyList();
-    }
-
-    private List<Inntektsmelding> hentInntektsmeldingerBeregning(AktørId aktørId, LocalDate skjæringstidspunktForOpptjening, InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        LocalDate skjæringstidspunktMinusEnDag = skjæringstidspunktForOpptjening.minusDays(1);
-        List<Inntektsmelding> inntektsmeldinger = iayGrunnlag.getInntektsmeldinger().map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
-            .orElse(emptyList());
-
-        var filter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), iayGrunnlag.getAktørArbeidFraRegister(aktørId));
-        Collection<Yrkesaktivitet> yrkesaktiviteter = filter.getYrkesaktiviteter();
-
-
-        // kan ikke filtrere når det ikke finnes yrkesaktiviteter
-        if (yrkesaktiviteter.isEmpty()) {
-            return inntektsmeldinger;
-        }
-        return filtrerVekkInntektsmeldingPåInaktiveArbeidsforhold(filter, yrkesaktiviteter, inntektsmeldinger, skjæringstidspunktMinusEnDag);
     }
 
     public Optional<Inntektsmelding> hentInntektsMeldingFor(Long behandlingId, JournalpostId journalpostId) {
@@ -211,20 +178,6 @@ public class InntektsmeldingTjeneste {
         return List.copyOf(iayTjeneste.finnInntektsmeldingDiff(referanse));
     }
 
-
-    /**
-     * Henter ut alle datoer for refusjon og innsendelse av refusjonskrav koblet til fagsaken, også de på inaktive grunnlag.
-     *
-     * @param saksnummer Saksnummer til fagsak
-     * @return Map med refusjonskravdatoer per arbeidsgiver
-     */
-    public Map<Arbeidsgiver, List<RefusjonskravDato>> hentAlleRefusjonskravdatoerForFagsakInkludertInaktive(Saksnummer saksnummer) {
-        List<RefusjonskravDato> alleRefusjonskravDatoer = hentAlleRefusjonskravDatoerForFagsak(saksnummer);
-
-        return alleRefusjonskravDatoer.stream()
-            .collect(Collectors.groupingBy(RefusjonskravDato::getArbeidsgiver));
-    }
-
     /**
      * Henter ut alle inntektsmeldinger koblet til fagsaken, også de på inaktive grunnlag.
      *
@@ -245,9 +198,11 @@ public class InntektsmeldingTjeneste {
     /**
      * Filtrer vekk inntektsmeldinger som er knyttet til et arbeidsforhold som har en tom dato som slutter før STP.
      */
-    private static List<Inntektsmelding> filtrerVekkInntektsmeldingPåInaktiveArbeidsforhold(YrkesaktivitetFilter filter, Collection<Yrkesaktivitet> yrkesaktiviteter,
-                                                                                     Collection<Inntektsmelding> inntektsmeldinger,
-                                                                                     LocalDate skjæringstidspunktet) {
+    private static List<Inntektsmelding> filtrerVekkInntektsmeldingPåInaktiveArbeidsforhold(YrkesaktivitetFilter filter,
+                                                                                            Collection<Yrkesaktivitet> yrkesaktiviteter,
+                                                                                            Collection<Inntektsmelding> inntektsmeldinger,
+                                                                                            LocalDate skjæringstidspunktet,
+                                                                                            Optional<OppgittOpptjening> oppgittOpptjening) {
         ArrayList<Inntektsmelding> kladd = new ArrayList<>(inntektsmeldinger);
         List<Inntektsmelding> fjernes = new ArrayList<>();
 
@@ -261,12 +216,27 @@ public class InntektsmeldingTjeneste {
                     return gjelderFor && ansettelsesPerioder.stream()
                         .anyMatch(ap -> ap.getPeriode().inkluderer(skjæringstidspunktet) || ap.getPeriode().getTomDato().isAfter(skjæringstidspunktet));
                 });
-            if (skalFjernes && !erAmbasade(im) && arbeidsgiverHarVærtRegistrertIOpplysningsperioden) {
+            if (skalFjernes && !erAmbasade(im) && !harOppgittFiske(oppgittOpptjening) && arbeidsgiverHarVærtRegistrertIOpplysningsperioden) {
                 fjernes.add(im);
             }
         });
         kladd.removeAll(fjernes);
         return List.copyOf(kladd);
+    }
+
+    /** Finner ut om bruker har oppgitt fiske i søknaden under egne næringer.
+     *
+     * Fiske kan deles i lott eller hyre. Lott skal rapporteres som næringsvirksomhet mens hyre skal beregnes som arbeidstaker.
+     * Disse virksomhetene er ofte unnlatt rapportering i aareg, og det vil derfor ofte komme en inntektsmelding uten arbeidsforhold.
+     * Det kan også hende at arbeidsforholdet tidligere har vært registrert i aareg, men ikke er det ved skjæringstidspunktet.
+     * I tilfeller der vi har en inntektsmelding uten arbeidsforhold vil vi derfor sjekke om bruker har oppgitt fiske i søknaden. Om søker har oppgitt fiske
+     * vil det være mulig å opprette arbeidsforhold basert på denne inntektsmeldingen.
+     *
+     * @param oppgittOpptjening Oppgitt opptjening
+     * @return Har bruker oppgitt fikse i søknaden
+     */
+    private static boolean harOppgittFiske(Optional<OppgittOpptjening> oppgittOpptjening) {
+        return oppgittOpptjening.stream().anyMatch(oo -> oo.getEgenNæring().stream().anyMatch(en -> en.getVirksomhetType().equals(VirksomhetType.FISKE)));
     }
 
     private static boolean erAmbasade(Inntektsmelding im) {

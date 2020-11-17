@@ -150,10 +150,17 @@ public class ArbeidsforholdAdministrasjonTjeneste {
                         arbeidsforholdWrapper.setHarAksjonspunkt(true);
                         arbeidsforholdWrapper.setBrukArbeidsforholdet(null);
                         arbeidsforholdWrapper.setFortsettBehandlingUtenInntektsmelding(null);
+                        arbeidsforholdWrapper.setKanOppretteNyttArbforFraIM(harInntektsmeldingUtenArbeid(arbeidsgiverSetEntry));
                     }
                 }
             }
         }
+    }
+
+    private boolean harInntektsmeldingUtenArbeid(Map.Entry<Arbeidsgiver, Set<ArbeidsforholdMedÅrsak>> arbeidsgiverSetEntry) {
+        return arbeidsgiverSetEntry.getValue().stream()
+            .flatMap(arbeidsforholdMedÅrsak -> arbeidsforholdMedÅrsak.getÅrsaker().stream())
+            .anyMatch(årsak -> årsak.equals(AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD));
     }
 
     public void fjernOverstyringerGjortAvSaksbehandler(Long behandlingId, AktørId aktørId) {
