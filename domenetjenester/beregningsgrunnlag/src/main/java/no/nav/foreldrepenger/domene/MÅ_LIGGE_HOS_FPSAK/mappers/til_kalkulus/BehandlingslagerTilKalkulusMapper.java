@@ -180,7 +180,7 @@ public class BehandlingslagerTilKalkulusMapper {
         mapEtterlønnSluttpakke(faktaOmBeregningTilfeller, faktaAktørBuilder);
         mapMottarFLYtelse(andeler, faktaOmBeregningTilfeller, faktaAktørBuilder);
         mapErNyIArbeidslivetSN(andeler, faktaOmBeregningTilfeller, faktaAktørBuilder);
-        mapSkalBesteberegnes(faktaOmBeregningTilfeller, faktaAktørBuilder);
+        mapSkalBesteberegnes(andeler, faktaOmBeregningTilfeller, faktaAktørBuilder);
         mapErNyoppstartetFL(andeler, faktaOmBeregningTilfeller, faktaAktørBuilder);
         return faktaAktørBuilder.erUgyldig() ? Optional.empty() : Optional.of(faktaAktørBuilder.build());
     }
@@ -198,10 +198,10 @@ public class BehandlingslagerTilKalkulusMapper {
         }
     }
 
-    private static void mapSkalBesteberegnes(List<no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller, FaktaAktørDto.Builder faktaAktørBuilder) {
+    private static void mapSkalBesteberegnes(List<BeregningsgrunnlagPrStatusOgAndel> andeler, List<no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller, FaktaAktørDto.Builder faktaAktørBuilder) {
         boolean harVurdertBesteberegning = faktaOmBeregningTilfeller.stream().anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle.VURDER_BESTEBEREGNING));
         if (harVurdertBesteberegning) {
-            boolean harFastsattBesteberegning = faktaOmBeregningTilfeller.stream().anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle.FASTSETT_BESTEBEREGNING_FØDENDE_KVINNE));
+            boolean harFastsattBesteberegning = andeler.stream().anyMatch(a -> a.getBesteberegningPrÅr() != null);
             faktaAktørBuilder.medSkalBesteberegnes(harFastsattBesteberegning);
         }
     }
