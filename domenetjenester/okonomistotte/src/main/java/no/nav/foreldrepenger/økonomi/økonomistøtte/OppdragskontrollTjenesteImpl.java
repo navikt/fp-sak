@@ -9,7 +9,6 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.finn.unleash.Unleash;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -23,7 +22,6 @@ public class OppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste {
     private ØkonomioppdragRepository økonomioppdragRepository;
     private BehandlingRepository behandlingRepository;
     private OppdragskontrollManagerFactoryProvider oppdragskontrollManagerFactoryProvider;
-    private Unleash unleash;
 
     OppdragskontrollTjenesteImpl() {
         // For CDI
@@ -32,11 +30,10 @@ public class OppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste {
     @Inject
     public OppdragskontrollTjenesteImpl(BehandlingRepositoryProvider repositoryProvider,
                                         ØkonomioppdragRepository økonomioppdragRepository,
-                                        OppdragskontrollManagerFactoryProvider oppdragskontrollManagerFactoryProvider, Unleash unleash) {
+                                        OppdragskontrollManagerFactoryProvider oppdragskontrollManagerFactoryProvider) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.oppdragskontrollManagerFactoryProvider = oppdragskontrollManagerFactoryProvider;
         this.økonomioppdragRepository = økonomioppdragRepository;
-        this.unleash = unleash;
     }
 
     @Override

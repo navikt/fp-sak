@@ -12,8 +12,6 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.finn.unleash.FakeUnleash;
-import no.finn.unleash.Unleash;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingEndring;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -76,7 +74,6 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
     private BehandlingVedtak behandlingVedtak;
     private Fagsak fagsak;
     private final PersonIdent personIdent = PersonIdent.fra("12345678901");
-    private final Unleash unleash = new FakeUnleash();
 
     @BeforeEach
     public void setUp() {
@@ -99,8 +96,7 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
         var oppdragskontrollManagerFactory = new OppdragskontrollManagerFactoryKontantytelse(revurderingEndring,
             oppdragskontrollEngangsstønad);
         var providerMock = mock(OppdragskontrollManagerFactoryProvider.class);
-        oppdragskontrollTjeneste = new OppdragskontrollTjenesteImpl(repositoryProvider, økonomioppdragRepository,
-            providerMock, unleash);
+        oppdragskontrollTjeneste = new OppdragskontrollTjenesteImpl(repositoryProvider, økonomioppdragRepository, providerMock);
         when(providerMock.getTjeneste(any(FagsakYtelseType.class))).thenReturn(oppdragskontrollManagerFactory);
         when(tpsTjeneste.hentFnrForAktør(any(AktørId.class))).thenReturn(personIdent);
 
