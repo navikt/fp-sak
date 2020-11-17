@@ -6,8 +6,6 @@ import java.util.Optional;
 
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BGAndelArbeidsforholdDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagAktivitetStatusDto;
-import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagArbeidstakerAndelDto;
-import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagFrilansAndelDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagPeriodeDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagPrStatusOgAndelDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.SammenligningsgrunnlagDto;
@@ -94,24 +92,11 @@ public class BGMapperTilKalkulus {
             .medRedusertBrukersAndelPrÅr(fraFpsak.getRedusertBrukersAndelPrÅr())
             .medMaksimalRefusjonPrÅr(fraFpsak.getMaksimalRefusjonPrÅr())
             .medRedusertRefusjonPrÅr(fraFpsak.getRedusertRefusjonPrÅr())
-            .medNyIArbeidslivet(fraFpsak.getNyIArbeidslivet())
             .medÅrsbeløpFraTilstøtendeYtelse(fraFpsak.getÅrsbeløpFraTilstøtendeYtelse() == null ? null : fraFpsak.getÅrsbeløpFraTilstøtendeYtelse().getVerdi())
             .medInntektskategori(fraFpsak.getInntektskategori() == null ? null : Inntektskategori.fraKode(fraFpsak.getInntektskategori().getKode()))
             .medKilde(AndelKilde.fraKode(fraFpsak.getKilde().getKode()))
             .medOrginalDagsatsFraTilstøtendeYtelse(fraFpsak.getOrginalDagsatsFraTilstøtendeYtelse());
 
-        if (fraFpsak.getAktivitetStatus().erArbeidstaker()) {
-            builder.medBeregningsgrunnlagArbeidstakerAndel(BeregningsgrunnlagArbeidstakerAndelDto.builder()
-                .medMottarYtelse(fraFpsak.mottarYtelse().orElse(null))
-                .build());
-        }
-
-        if (fraFpsak.getAktivitetStatus().erFrilanser() && (fraFpsak.mottarYtelse().isPresent() || fraFpsak.erNyoppstartet().isPresent())) {
-            builder.medBeregningsgrunnlagFrilansAndel(BeregningsgrunnlagFrilansAndelDto.builder()
-                .medMottarYtelse(fraFpsak.mottarYtelse().orElse(null))
-                .medNyoppstartet(fraFpsak.erNyoppstartet().orElse(null))
-                .build());
-        }
 
         if (fraFpsak.getBeregningsperiodeFom() != null) {
             builder.medBeregningsperiode(fraFpsak.getBeregningsperiodeFom(), fraFpsak.getBeregningsperiodeTom());
@@ -155,8 +140,6 @@ public class BGMapperTilKalkulus {
         builder.medArbeidsforholdRef(IAYMapperTilKalkulus.mapArbeidsforholdRef(fraFpsak.getArbeidsforholdRef()));
         builder.medArbeidsgiver(IAYMapperTilKalkulus.mapArbeidsgiver(fraFpsak.getArbeidsgiver()));
         builder.medArbeidsperiodeFom(fraFpsak.getArbeidsperiodeFom());
-        builder.medLønnsendringIBeregningsperioden(fraFpsak.erLønnsendringIBeregningsperioden());
-        builder.medTidsbegrensetArbeidsforhold(fraFpsak.getErTidsbegrensetArbeidsforhold());
         builder.medRefusjonskravPrÅr(fraFpsak.getRefusjonskravPrÅr());
         builder.medSaksbehandletRefusjonPrÅr(fraFpsak.getSaksbehandletRefusjonPrÅr());
         builder.medFordeltRefusjonPrÅr(fraFpsak.getFordeltRefusjonPrÅr());
