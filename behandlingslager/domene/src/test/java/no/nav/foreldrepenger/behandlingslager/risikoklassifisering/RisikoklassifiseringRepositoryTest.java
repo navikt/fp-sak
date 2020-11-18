@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.risikoklassifisering.modell;
+package no.nav.foreldrepenger.behandlingslager.risikoklassifisering;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;

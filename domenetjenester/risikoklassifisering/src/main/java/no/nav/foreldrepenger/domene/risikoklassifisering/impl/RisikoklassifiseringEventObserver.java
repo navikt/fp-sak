@@ -27,7 +27,7 @@ public class RisikoklassifiseringEventObserver {
 
     public void observerRisikoklassifiseringKjøringEvent(@Observes RisikoklassifiseringEvent event) {
         try {
-            risikoklassifisering.opprettProsesstaskForRisikovurdering(event.getBehandling());
+            risikoklassifisering.opprettProsesstaskForRisikovurdering(event.getBehandlingRef());
         } catch (Exception ex) {
             log.warn("Publisering av RisikoklassifiseringsTask feilet", ex);
         }

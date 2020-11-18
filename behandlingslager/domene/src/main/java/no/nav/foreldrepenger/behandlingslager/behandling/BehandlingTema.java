@@ -141,8 +141,16 @@ public enum BehandlingTema implements Kodeverdi {
     }
 
     public static BehandlingTema fraFagsak(Fagsak fagsak, FamilieHendelseEntitet hendelse) {
-        FamilieHendelseType hendelseType = hendelse != null ? hendelse.getType() : FamilieHendelseType.UDEFINERT;
-        return fraFagsakHendelse(fagsak.getYtelseType(), hendelseType);
+        return fraFagsak(fagsak.getYtelseType(), hendelse);
+    }
+
+    public static BehandlingTema fraFagsak(FagsakYtelseType ytelseType, FamilieHendelseType hendelseType) {
+        return fraFagsakHendelse(ytelseType, hendelseType);
+    }
+
+    public static BehandlingTema fraFagsak(FagsakYtelseType ytelseType, FamilieHendelseEntitet hendelse) {
+        var hendelseType = hendelse != null ? hendelse.getType() : FamilieHendelseType.UDEFINERT;
+        return fraFagsakHendelse(ytelseType, hendelseType);
     }
 
     public static BehandlingTema fraFagsakHendelse(FagsakYtelseType ytelseType, FamilieHendelseType hendelseType) {

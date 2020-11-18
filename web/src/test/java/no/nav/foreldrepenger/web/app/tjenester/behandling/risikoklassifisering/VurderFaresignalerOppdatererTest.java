@@ -19,10 +19,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
-import no.nav.foreldrepenger.domene.risikoklassifisering.modell.FaresignalVurdering;
-import no.nav.foreldrepenger.domene.risikoklassifisering.modell.Kontrollresultat;
-import no.nav.foreldrepenger.domene.risikoklassifisering.modell.RisikoklassifiseringEntitet;
-import no.nav.foreldrepenger.domene.risikoklassifisering.modell.RisikoklassifiseringRepository;
+import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.FaresignalVurdering;
+import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.Kontrollresultat;
+import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.RisikoklassifiseringEntitet;
+import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.RisikoklassifiseringRepository;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;

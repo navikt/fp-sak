@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.domene.risikoklassifisering.JsonObjectMapper;
 import no.nav.foreldrepenger.domene.risikoklassifisering.json.KontrollresultatMapper;
-import no.nav.foreldrepenger.domene.risikoklassifisering.modell.Kontrollresultat;
+import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.Kontrollresultat;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.KontrollresultatWrapper;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
