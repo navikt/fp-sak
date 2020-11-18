@@ -23,8 +23,9 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.TempAvledeKode;
 public enum AnkeVurdering implements Kodeverdi {
 
     ANKE_STADFESTE_YTELSESVEDTAK("ANKE_STADFESTE_YTELSESVEDTAK", "Ytelsesvedtaket stadfestes"),
-    ANKE_OPPHEVE_OG_HJEMSENDE("ANKE_OPPHEVE_OG_HJEMSENDE", "Ytelsesvedtaket oppheve og hjemsende"),
-    ANKE_OMGJOER("ANKE_OMGJOER", "Anken omgjør"),
+    ANKE_HJEMSEND_UTEN_OPPHEV("ANKE_HJEMSENDE_UTEN_OPPHEV", "Hjemsende uten å oppheve"),
+    ANKE_OPPHEVE_OG_HJEMSENDE("ANKE_OPPHEVE_OG_HJEMSENDE", "Ytelsesvedtaket oppheves og hjemsendes"),
+    ANKE_OMGJOER("ANKE_OMGJOER", "Anken omgjøres"),
     ANKE_AVVIS("ANKE_AVVIS", "Anken avvises"),
     UDEFINERT("-", "Udefinert"),
     ;

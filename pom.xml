@@ -66,11 +66,11 @@
 
         <svp-uttak.version>2.1-20200310092959-0d007c3</svp-uttak.version>
 
-        <felles.version>2.4.0-20201103095947-cd9cca7</felles.version>
+        <felles.version>2.4.0-20201118082812-1b39e76</felles.version>
         <prosesstask.version>2.4.4-20201105215118-94e3e21</prosesstask.version>
         <ukelonn.felles.version>1.0.0-20200914112449-039464d</ukelonn.felles.version>
 
-        <fp-kontrakter.version>5.1-20200923133920-c1d8fa1</fp-kontrakter.version>
+        <fp-kontrakter.version>5.1-20201118182725-764a023</fp-kontrakter.version>
 
         <kalkulus.version>1.1-2020.11.17.162005-7c20408</kalkulus.version>
         <abakus-kontrakt.version>1.2-2020.09.28.084651-5d745b8</abakus-kontrakt.version>

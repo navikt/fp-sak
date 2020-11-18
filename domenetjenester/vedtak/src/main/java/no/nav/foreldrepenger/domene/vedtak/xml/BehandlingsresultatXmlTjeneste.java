@@ -227,6 +227,8 @@ public class BehandlingsresultatXmlTjeneste {
             return Ankevurdering.ANKE_AVVIS;
         } else if (AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE.equals(ankeVurdering)) {
             return Ankevurdering.ANKE_OPPHEVE_OG_HJEMSENDE;
+        } else if (AnkeVurdering.ANKE_HJEMSEND_UTEN_OPPHEV.equals(ankeVurdering)) {
+            return Ankevurdering.ANKE_HJEMSENDE_UTEN_OPPHEV;
         }
         return null;
     }
