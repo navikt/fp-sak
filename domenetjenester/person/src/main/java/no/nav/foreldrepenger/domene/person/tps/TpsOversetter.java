@@ -204,8 +204,6 @@ public class TpsOversetter {
         no.nav.foreldrepenger.domene.typer.PersonIdent ident = no.nav.foreldrepenger.domene.typer.PersonIdent.fra(personIdent.getIdent().getIdent());
         Boolean harSammeBosted = familierelasjon.isHarSammeBosted();
 
-        LOG.info("TpsRelasjon rolle {} har samme bosted {}", relasjonsrolle.getKode(), harSammeBosted);
-
         return new FamilierelasjonVL(ident, relasjonsrolle, harSammeBosted);
     }
 

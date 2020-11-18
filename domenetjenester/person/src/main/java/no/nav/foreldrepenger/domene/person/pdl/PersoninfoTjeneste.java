@@ -35,8 +35,6 @@ import no.nav.pdl.FoedselResponseProjection;
 import no.nav.pdl.Folkeregisterpersonstatus;
 import no.nav.pdl.FolkeregisterpersonstatusResponseProjection;
 import no.nav.pdl.HentPersonQueryRequest;
-import no.nav.pdl.InnflyttingTilNorge;
-import no.nav.pdl.InnflyttingTilNorgeResponseProjection;
 import no.nav.pdl.Kjoenn;
 import no.nav.pdl.KjoennResponseProjection;
 import no.nav.pdl.KjoennType;
@@ -51,8 +49,6 @@ import no.nav.pdl.SivilstandResponseProjection;
 import no.nav.pdl.Sivilstandstype;
 import no.nav.pdl.Statsborgerskap;
 import no.nav.pdl.StatsborgerskapResponseProjection;
-import no.nav.pdl.UtflyttingFraNorge;
-import no.nav.pdl.UtflyttingFraNorgeResponseProjection;
 import no.nav.vedtak.felles.integrasjon.pdl.PdlKlient;
 import no.nav.vedtak.felles.integrasjon.pdl.Tema;
 
@@ -108,8 +104,6 @@ public class PersoninfoTjeneste {
                     .doedsfall(new DoedsfallResponseProjection().doedsdato())
                     .folkeregisterpersonstatus(new FolkeregisterpersonstatusResponseProjection().forenkletStatus().status())
                     .opphold(new OppholdResponseProjection().type().oppholdFra().oppholdTil())
-                    .innflyttingTilNorge(new InnflyttingTilNorgeResponseProjection().fraflyttingsland())
-                    .utflyttingFraNorge(new UtflyttingFraNorgeResponseProjection().tilflyttingsland())
                     .kjoenn(new KjoennResponseProjection().kjoenn())
                     .sivilstand(new SivilstandResponseProjection().relatertVedSivilstand().type())
                     .statsborgerskap(new StatsborgerskapResponseProjection().land())
@@ -130,8 +124,8 @@ public class PersoninfoTjeneste {
                 .findFirst().map(PersonstatusType::fraFregPersonstatus).orElse(PersonstatusType.UDEFINERT);
             var sivilstand = person.getSivilstand().stream()
                 .map(Sivilstand::getType)
-                .map(st -> SIVSTAND_FRA_FREG.getOrDefault(st, SivilstandType.UOPPGITT))
-                .findFirst().orElse(SivilstandType.UOPPGITT);
+                .findFirst()
+                .map(st -> SIVSTAND_FRA_FREG.getOrDefault(st, SivilstandType.UOPPGITT)).orElse(SivilstandType.UOPPGITT);
             var statsborgerskap = mapStatsborgerskap(person.getStatsborgerskap());
             var familierelasjoner = mapFamilierelasjoner(person.getFamilierelasjoner(), person.getSivilstand());
             var fraPDL = new Personinfo.Builder().medAktørId(aktørId).medPersonIdent(personIdent)
@@ -145,11 +139,10 @@ public class PersoninfoTjeneste {
                 .medRegion(MapRegionLandkoder.mapLandkode(statsborgerskap.getKode()))
                 .medFamilierelasjon(familierelasjoner)
                 .build();
-            logInnUtOpp(person.getInnflyttingTilNorge(), person.getUtflyttingFraNorge(), person.getOpphold());
-            if (erLike(fraPDL, fraTPS)) {
-                LOG.info("FPSAK PDL FULL: like svar");
-            } else {
-                LOG.info("FPSAK PDL FULL: avvik {}", finnAvvik(fraTPS, fraPDL));
+            logInnUtOpp(person.getOpphold());
+            if (!erLike(fraPDL, fraTPS)) {
+                var avvik = finnAvvik(fraTPS, fraPDL);
+                LOG.info("FPSAK PDL FULL: avvik {}", avvik);
             }
         } catch (Exception e) {
             LOG.info("FPSAK PDL FULL error", e);
@@ -189,6 +182,7 @@ public class PersoninfoTjeneste {
             .forEach(relasjoner::add);
         sivilstandliste.stream()
             .filter(rel -> Sivilstandstype.GIFT.equals(rel.getType()) || Sivilstandstype.REGISTRERT_PARTNER.equals(rel.getType()))
+            .filter(rel -> rel.getRelatertVedSivilstand() != null)
             .map(r -> new FamilierelasjonVL(new PersonIdent(r.getRelatertVedSivilstand()), mapRelasjonsrolle(r.getType()), false))
             .forEach(relasjoner::add);
         return relasjoner;
@@ -207,7 +201,7 @@ public class PersoninfoTjeneste {
         if (pdl == null || tps == null || tps.getClass() != pdl.getClass()) return false;
         var likerels = pdl.getFamilierelasjoner().size() == tps.getFamilierelasjoner().size() &&
             pdl.getFamilierelasjoner().containsAll(tps.getFamilierelasjoner());
-        return Objects.equals(pdl.getNavn(), tps.getNavn()) &&
+        return // Objects.equals(pdl.getNavn(), tps.getNavn()) && - avvik skyldes tegnsett
             Objects.equals(pdl.getFødselsdato(), tps.getFødselsdato()) &&
             Objects.equals(pdl.getDødsdato(), tps.getDødsdato()) &&
             pdl.getPersonstatus() == tps.getPersonstatus() &&
@@ -219,7 +213,7 @@ public class PersoninfoTjeneste {
     }
 
     private String finnAvvik(Personinfo tps, Personinfo pdl) {
-        String navn = Objects.equals(tps.getNavn(), pdl.getNavn()) ? "" : " navn ";
+        //String navn = Objects.equals(tps.getNavn(), pdl.getNavn()) ? "" : " navn ";
         String kjonn = Objects.equals(tps.getKjønn(), pdl.getKjønn()) ? "" : " kjønn ";
         String fdato = Objects.equals(tps.getFødselsdato(), pdl.getFødselsdato()) ? "" : " fødsel ";
         String ddato = Objects.equals(tps.getDødsdato(), pdl.getDødsdato()) ? "" : " død ";
@@ -227,19 +221,14 @@ public class PersoninfoTjeneste {
         String sivstand = Objects.equals(tps.getSivilstandType(), pdl.getSivilstandType()) ? "" : " sivilst " + tps.getSivilstandType().getKode() + " PDL " + pdl.getSivilstandType().getKode();
         String land = Objects.equals(tps.getLandkode(), pdl.getLandkode()) ? "" : " land " + tps.getLandkode().getKode() + " PDL " + pdl.getLandkode().getKode();
         String region = Objects.equals(tps.getRegion(), pdl.getRegion()) ? "" : " region " + tps.getRegion().getKode() + " PDL " + pdl.getRegion().getKode();
-        String frel = pdl.getFamilierelasjoner().size() == tps.getFamilierelasjoner().size() &&pdl.getFamilierelasjoner().containsAll(tps.getFamilierelasjoner()) ?
-            "" : " famrel ";
-        return "Avvik" + navn + kjonn + fdato + ddato + status + sivstand + land + region + frel;
+        String frel = pdl.getFamilierelasjoner().size() == tps.getFamilierelasjoner().size() && pdl.getFamilierelasjoner().containsAll(tps.getFamilierelasjoner()) ? ""
+            : " famrel " + tps.getFamilierelasjoner().stream().map(FamilierelasjonVL::getRelasjonsrolle).collect(Collectors.toList()) + " PDL " + pdl.getFamilierelasjoner().stream().map(FamilierelasjonVL::getRelasjonsrolle).collect(Collectors.toList());
+        return "Avvik" + kjonn + fdato + ddato + status + sivstand + land + region + frel;
     }
 
-    private void logInnUtOpp(List<InnflyttingTilNorge> inn, List<UtflyttingFraNorge> ut, List<Opphold> opp) {
-        String inns = inn.stream().map(InnflyttingTilNorge::getFraflyttingsland).collect(Collectors.joining(", "));
-        String uts = ut.stream().map(UtflyttingFraNorge::getTilflyttingsland).collect(Collectors.joining(", "));
+    private void logInnUtOpp(List<Opphold> opp) {
         String opps = opp.stream().map(o -> "OppholdType="+o.getType().toString()+" Fra="+o.getOppholdFra()+" Til="+o.getOppholdTil())
             .collect(Collectors.joining(", "));
-        if (!inn.isEmpty() || ! ut.isEmpty()) {
-            LOG.info("FPSAK PDL FULL inn {} ut {}", inns, uts);
-        }
         if (!opp.isEmpty()) {
             LOG.info("FPSAK PDL FULL opphold {}", opps);
         }

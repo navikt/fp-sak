@@ -55,46 +55,38 @@ public class PersonBasisTjeneste {
         this.pdlKlient = pdlKlient;
     }
 
-    public void hentBasisPersoninfo(AktørId aktørId, PersonIdent personIdent, PersoninfoBasis fraTPS) {
-        try {
-            var query = new HentPersonQueryRequest();
-            query.setIdent(aktørId.getId());
-            var projection = new PersonResponseProjection()
-                    .navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn())
-                    .foedsel(new FoedselResponseProjection().foedselsdato())
-                    .doedsfall(new DoedsfallResponseProjection().doedsdato())
-                    .folkeregisterpersonstatus(new FolkeregisterpersonstatusResponseProjection().status())
-                    .kjoenn(new KjoennResponseProjection().kjoenn())
-                    .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
-            var person = pdlKlient.hentPerson(query, projection, Tema.FOR);
-            var fødselsdato = person.getFoedsel().stream()
-                .map(Foedsel::getFoedselsdato)
-                .filter(Objects::nonNull)
-                .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
-            var dødssdato = person.getDoedsfall().stream()
-                .map(Doedsfall::getDoedsdato)
-                .filter(Objects::nonNull)
-                .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
-            var pdlStatus = person.getFolkeregisterpersonstatus().stream()
-                .map(Folkeregisterpersonstatus::getStatus)
-                .findFirst().map(PersonstatusType::fraFregPersonstatus).orElse(PersonstatusType.UDEFINERT);
-            var fraPDL = new PersoninfoBasis.Builder().medAktørId(aktørId).medPersonIdent(personIdent)
-                .medNavn(person.getNavn().stream().map(PersonBasisTjeneste::mapNavn).filter(Objects::nonNull).findFirst().orElse(null))
-                .medFødselsdato(fødselsdato)
-                .medDødsdato(dødssdato)
-                .medDiskresjonsKode(getDiskresjonskode(person))
-                .medNavBrukerKjønn(mapKjønn(person))
-                .medPersonstatusType(pdlStatus)
-                .build();
+    public PersoninfoBasis hentBasisPersoninfo(AktørId aktørId, PersonIdent personIdent) {
+        var query = new HentPersonQueryRequest();
+        query.setIdent(aktørId.getId());
+        var projection = new PersonResponseProjection()
+            .navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn())
+            .foedsel(new FoedselResponseProjection().foedselsdato())
+            .doedsfall(new DoedsfallResponseProjection().doedsdato())
+            .folkeregisterpersonstatus(new FolkeregisterpersonstatusResponseProjection().status())
+            .kjoenn(new KjoennResponseProjection().kjoenn())
+            .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
 
-            if (Objects.equals(fraPDL, mapFraTPS(fraTPS))) {
-                LOG.info("FPSAK PDL BASIS: like svar");
-            } else {
-                LOG.info("FPSAK PDL BASIS: avvik {}", finnAvvik(fraTPS, fraPDL));
-            }
-        } catch (Exception e) {
-            LOG.info("FPSAK PDL BASIS error", e);
-        }
+        var person = pdlKlient.hentPerson(query, projection, Tema.FOR);
+
+        var fødselsdato = person.getFoedsel().stream()
+            .map(Foedsel::getFoedselsdato)
+            .filter(Objects::nonNull)
+            .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
+        var dødsdato = person.getDoedsfall().stream()
+            .map(Doedsfall::getDoedsdato)
+            .filter(Objects::nonNull)
+            .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
+        var pdlStatus = person.getFolkeregisterpersonstatus().stream()
+            .map(Folkeregisterpersonstatus::getStatus)
+            .findFirst().map(PersonstatusType::fraFregPersonstatus).orElse(PersonstatusType.UDEFINERT);
+        return new PersoninfoBasis.Builder().medAktørId(aktørId).medPersonIdent(personIdent)
+            .medNavn(person.getNavn().stream().map(PersonBasisTjeneste::mapNavn).filter(Objects::nonNull).findFirst().orElse(null))
+            .medFødselsdato(fødselsdato)
+            .medDødsdato(dødsdato)
+            .medDiskresjonsKode(getDiskresjonskode(person))
+            .medNavBrukerKjønn(mapKjønn(person))
+            .medPersonstatusType(pdlStatus)
+            .build();
     }
 
     public Optional<PersoninfoArbeidsgiver> hentArbeidsgiverPersoninfo(AktørId aktørId, PersonIdent personIdent) {
@@ -158,33 +150,6 @@ public class PersonBasisTjeneste {
         if (KjoennType.MANN.equals(kode))
             return NavBrukerKjønn.MANN;
         return KjoennType.KVINNE.equals(kode) ? NavBrukerKjønn.KVINNE : NavBrukerKjønn.UDEFINERT;
-    }
-
-    private static PersoninfoBasis mapFraTPS(PersoninfoBasis tps) {
-        var diskKode = Optional.ofNullable(tps.getDiskresjonskode())
-            .map(Diskresjonskode::finnForKodeverkEiersKode)
-            .filter(k -> Diskresjonskode.KODE6.equals(k) || Diskresjonskode.KODE7.equals(k))
-            .map(Diskresjonskode::getKode).orElse(null);
-        return new PersoninfoBasis.Builder()
-            .medAktørId(tps.getAktørId())
-            .medPersonIdent(tps.getPersonIdent())
-            .medNavn(tps.getNavn())
-            .medFødselsdato(tps.getFødselsdato())
-            .medDødsdato(tps.getDødsdato())
-            .medNavBrukerKjønn(tps.getKjønn())
-            .medDiskresjonsKode(diskKode)
-            .medPersonstatusType(tps.getPersonstatus())
-            .build();
-    }
-
-    private String finnAvvik(PersoninfoBasis tps, PersoninfoBasis pdl) {
-        String navn = Objects.equals(tps.getNavn(), pdl.getNavn()) ? "" : " navn ";
-        String kjonn = Objects.equals(tps.getKjønn(), pdl.getKjønn()) ? "" : " kjønn ";
-        String fdato = Objects.equals(tps.getFødselsdato(), pdl.getFødselsdato()) ? "" : " fødsel ";
-        String ddato = Objects.equals(tps.getDødsdato(), pdl.getDødsdato()) ? "" : " død ";
-        String disk = Objects.equals(tps.getDiskresjonskode(), pdl.getDiskresjonskode()) ? "" : " disk ";
-        String status = Objects.equals(tps.getPersonstatus(), pdl.getPersonstatus()) ? "" : " status tps " + tps.getPersonstatus().getKode() + " PDL " + pdl.getPersonstatus().getKode();
-        return "Avvik" + navn + kjonn + fdato + ddato + disk + status;
     }
 
 }
