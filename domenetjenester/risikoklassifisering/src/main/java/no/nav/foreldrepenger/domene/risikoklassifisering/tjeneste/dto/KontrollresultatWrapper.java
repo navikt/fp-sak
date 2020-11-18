@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto;
 import java.util.Objects;
 import java.util.UUID;
 
-import no.nav.foreldrepenger.domene.risikoklassifisering.modell.Kontrollresultat;
+import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.Kontrollresultat;
 
 public class KontrollresultatWrapper {
 

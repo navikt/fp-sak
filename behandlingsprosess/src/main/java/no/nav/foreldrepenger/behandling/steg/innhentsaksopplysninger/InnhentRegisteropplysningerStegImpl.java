@@ -3,12 +3,12 @@ package no.nav.foreldrepenger.behandling.steg.innhentsaksopplysninger;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -42,13 +42,14 @@ public class InnhentRegisteropplysningerStegImpl implements InnhentRegisteropply
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
-        final long behandlingId = kontekst.getBehandlingId();
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandlingId = kontekst.getBehandlingId();
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
 
         behandlingProsesseringTjeneste.opprettTasksForInitiellRegisterInnhenting(behandling);
 
         if (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) {
-            RisikoklassifiseringEvent risikoklassifiseringEvent = new RisikoklassifiseringEvent(behandling);
+            var ref = BehandlingReferanse.fra(behandling);
+            var risikoklassifiseringEvent = new RisikoklassifiseringEvent(ref);
             eventPubliserer.fireEvent(risikoklassifiseringEvent);
         }
 

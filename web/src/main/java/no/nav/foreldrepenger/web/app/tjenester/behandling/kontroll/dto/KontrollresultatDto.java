@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.kontroll.dto;
 
-import no.nav.foreldrepenger.domene.risikoklassifisering.modell.FaresignalVurdering;
-import no.nav.foreldrepenger.domene.risikoklassifisering.modell.Kontrollresultat;
+import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.FaresignalVurdering;
+import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.Kontrollresultat;
 
 public class KontrollresultatDto {
     private Kontrollresultat kontrollresultat;

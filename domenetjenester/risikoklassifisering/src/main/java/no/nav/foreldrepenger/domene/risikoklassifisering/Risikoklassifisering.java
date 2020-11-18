@@ -12,11 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.extra.Interval;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.domene.risikoklassifisering.task.RisikoklassifiseringUtførTask;
@@ -35,7 +34,7 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 @ApplicationScoped
 public class Risikoklassifisering {
 
-    protected final Logger log = LoggerFactory.getLogger(this.getClass());
+    private static final Logger LOG = LoggerFactory.getLogger(Risikoklassifisering.class);
     private ProsessTaskRepository prosessTaskRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private RisikovurderingTjeneste risikovurderingTjeneste;
@@ -43,14 +42,14 @@ public class Risikoklassifisering {
     private PersonopplysningRepository personopplysningRepository;
     private FamilieHendelseRepository familieHendelseRepository;
 
-    Risikoklassifisering(){
+    Risikoklassifisering() {
         // CDI proxy
     }
 
     @Inject
-    public Risikoklassifisering(ProsessTaskRepository prosessTaskRepository, 
+    public Risikoklassifisering(ProsessTaskRepository prosessTaskRepository,
                                 SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                RisikovurderingTjeneste risikovurderingTjeneste, 
+                                RisikovurderingTjeneste risikovurderingTjeneste,
                                 OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste,
                                 PersonopplysningRepository personopplysningRepository,
                                 FamilieHendelseRepository familieHendelseRepository) {
@@ -62,56 +61,71 @@ public class Risikoklassifisering {
         this.familieHendelseRepository = familieHendelseRepository;
     }
 
-    public void opprettProsesstaskForRisikovurdering(Behandling behandling) {
+    public void opprettProsesstaskForRisikovurdering(BehandlingReferanse ref) {
         try {
-            LocalDate skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).getUtledetSkjæringstidspunkt();
-            Interval interval = opplysningsPeriodeTjeneste.beregn(behandling.getId(),behandling.getFagsakYtelseType());
-            RisikovurderingRequest risikovurderingRequest = RisikovurderingRequest.builder()
-                .medSoekerAktoerId(new AktoerIdDto(behandling.getAktørId().getId()))
-                .medBehandlingstema(hentBehandlingTema(behandling))
-                .medSkjæringstidspunkt(skjæringstidspunkt)
-                .medOpplysningsperiode(leggTilOpplysningsperiode(interval))
-                .medAnnenPart(leggTilAnnenPart(behandling))
-                .medKonsumentId(behandling.getUuid()).build();
-            opprettProsesstask(behandling, risikovurderingRequest);
+            var task = opprettPotensiellTaskProsesstask(ref);
+            task.ifPresent(t -> prosessTaskRepository.lagre(t));
         } catch (Exception ex) {
-            log.warn("Publisering av Risikovurderingstask feilet", ex);
+            LOG.warn("Publisering av Risikovurderingstask feilet", ex);
         }
     }
 
-    private String hentBehandlingTema(Behandling behandling) {
-        Optional<FamilieHendelseGrunnlagEntitet> grunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
-        BehandlingTema behandlingTema = BehandlingTema.fraFagsak(behandling.getFagsak(),
-            grunnlag.map(FamilieHendelseGrunnlagEntitet::getSøknadVersjon).get());
+    Optional<ProsessTaskData> opprettPotensiellTaskProsesstask(BehandlingReferanse ref) throws IOException {
+        var behandlingId = ref.getBehandlingId();
+        if (risikovurderingTjeneste.behandlingHarBlittRisikoklassifisert(behandlingId)) {
+            LOG.info("behandling = {} Har Blitt Risikoklassifisert", behandlingId);
+            return Optional.empty();
+        }
+        var risikovurderingRequest = opprettRequest(ref, behandlingId);
+        return Optional.of(opprettTaskForRequest(ref, behandlingId, risikovurderingRequest));
+    }
+
+    private String hentBehandlingTema(BehandlingReferanse ref) {
+        Optional<FamilieHendelseGrunnlagEntitet> grunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(
+            ref.getBehandlingId());
+        BehandlingTema behandlingTema = BehandlingTema.fraFagsak(ref.getFagsakYtelseType(),
+            grunnlag.map(FamilieHendelseGrunnlagEntitet::getSøknadVersjon).orElseThrow());
         return behandlingTema.getOffisiellKode();
     }
 
-    private void opprettProsesstask(Behandling behandling, RisikovurderingRequest risikovurderingRequest) throws IOException {
-        if (!risikovurderingTjeneste.behandlingHarBlittRisikoklassifisert(behandling.getId())) {
-            ProsessTaskData taskData = new ProsessTaskData(RisikoklassifiseringUtførTask.TASKTYPE);
-            taskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-            taskData.setCallIdFraEksisterende();
-            RequestWrapper requestWrapper = new RequestWrapper(MDCOperations.getCallId(), risikovurderingRequest);
-            taskData.setProperty(RisikoklassifiseringUtførTask.KONSUMENT_ID, risikovurderingRequest.getKonsumentId().toString());
-            taskData.setProperty(RisikoklassifiseringUtførTask.RISIKOKLASSIFISERING_JSON,getJson(requestWrapper));
-            prosessTaskRepository.lagre(taskData);
-        } else {
-            log.info("behandling = {} Har Blitt Risikoklassifisert", behandling.getId());
-        }
+    private ProsessTaskData opprettTaskForRequest(BehandlingReferanse ref,
+                                                  Long behandlingId,
+                                                  RisikovurderingRequest risikovurderingRequest) throws IOException {
+        ProsessTaskData taskData = new ProsessTaskData(RisikoklassifiseringUtførTask.TASKTYPE);
+        taskData.setBehandling(ref.getFagsakId(), behandlingId, ref.getAktørId().getId());
+        taskData.setCallIdFraEksisterende();
+        RequestWrapper requestWrapper = new RequestWrapper(MDCOperations.getCallId(), risikovurderingRequest);
+        taskData.setProperty(RisikoklassifiseringUtførTask.KONSUMENT_ID,
+            risikovurderingRequest.getKonsumentId().toString());
+        taskData.setProperty(RisikoklassifiseringUtførTask.RISIKOKLASSIFISERING_JSON, getJson(requestWrapper));
+        return taskData;
     }
 
-    private AnnenPart leggTilAnnenPart(Behandling behandling) {
-        Optional<OppgittAnnenPartEntitet> oppgittAnnenPart =
-            personopplysningRepository.hentPersonopplysningerHvisEksisterer(behandling.getId())
-                .flatMap(PersonopplysningGrunnlagEntitet::getOppgittAnnenPart);
-        if(oppgittAnnenPart.isPresent()) {
-            String aktoerId = oppgittAnnenPart.get().getAktørId() == null ? null :
-                oppgittAnnenPart.get().getAktørId().getId();
+    private RisikovurderingRequest opprettRequest(BehandlingReferanse ref, Long behandlingId) {
+        LocalDate skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId)
+            .getUtledetSkjæringstidspunkt();
+        Interval interval = opplysningsPeriodeTjeneste.beregn(behandlingId, ref.getFagsakYtelseType());
+        return RisikovurderingRequest.builder()
+            .medSoekerAktoerId(new AktoerIdDto(ref.getAktørId().getId()))
+            .medBehandlingstema(hentBehandlingTema(ref))
+            .medSkjæringstidspunkt(skjæringstidspunkt)
+            .medOpplysningsperiode(leggTilOpplysningsperiode(interval))
+            .medAnnenPart(leggTilAnnenPart(ref))
+            .medKonsumentId(ref.getBehandlingUuid())
+            .build();
+    }
+
+    private AnnenPart leggTilAnnenPart(BehandlingReferanse ref) {
+        var oppgittAnnenPart = personopplysningRepository.hentPersonopplysningerHvisEksisterer(ref.getBehandlingId())
+            .flatMap(PersonopplysningGrunnlagEntitet::getOppgittAnnenPart);
+        if (oppgittAnnenPart.isPresent()) {
+            var aktoerId =
+                oppgittAnnenPart.get().getAktørId() == null ? null : oppgittAnnenPart.get().getAktørId().getId();
             if (aktoerId != null) {
                 return new AnnenPart(new AktoerIdDto(aktoerId));
             }
             String utenlandskFnr = oppgittAnnenPart.get().getUtenlandskPersonident();
-            if(utenlandskFnr != null) {
+            if (utenlandskFnr != null) {
                 return new AnnenPart(utenlandskFnr);
             }
         }
@@ -119,7 +133,8 @@ public class Risikoklassifisering {
     }
 
     private Opplysningsperiode leggTilOpplysningsperiode(Interval interval) {
-        LocalDate tilOgMed = interval.getEnd() == null ? null : LocalDate.ofInstant(interval.getEnd(),ZoneId.systemDefault());
+        LocalDate tilOgMed =
+            interval.getEnd() == null ? null : LocalDate.ofInstant(interval.getEnd(), ZoneId.systemDefault());
         return new Opplysningsperiode(LocalDate.ofInstant(interval.getStart(), ZoneId.systemDefault()), tilOgMed);
     }
 

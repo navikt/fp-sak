@@ -1,16 +1,12 @@
-package no.nav.foreldrepenger.domene.risikoklassifisering.impl;
+package no.nav.foreldrepenger.domene.risikoklassifisering;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -31,33 +27,28 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.HendelseVersjonType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
-import no.nav.foreldrepenger.domene.risikoklassifisering.Risikoklassifisering;
-import no.nav.foreldrepenger.domene.risikoklassifisering.task.RisikoklassifiseringUtførTask;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
-import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 
 @ExtendWith(MockitoExtension.class)
-public class RisikoklassifiseringTest extends EntityManagerAwareTest {
+public class RisikoklassifiseringTest {
 
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
-
-    private ProsessTaskRepository prosessTaskRepository;
 
     @Mock
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
@@ -71,7 +62,11 @@ public class RisikoklassifiseringTest extends EntityManagerAwareTest {
     @Mock
     private FamilieHendelseRepository familieHendelseRepository;
 
-    private BehandlingRepositoryProvider repositoryProvider;
+    @Mock
+    private PersonopplysningRepository personopplysningRepository;
+
+    @Mock
+    private ProsessTaskRepository prosessTaskRepository;
 
     private static final AktørId ANNEN_PART_AKTØR_ID = AktørId.dummy();
 
@@ -88,6 +83,7 @@ public class RisikoklassifiseringTest extends EntityManagerAwareTest {
     private static final String RISIKOKLASSIFISERING_JSON = "risikoklassifisering.request.json";
 
     private static final ObjectMapper OM;
+
     static {
         OM = new ObjectMapper();
         OM.registerModule(new JavaTimeModule());
@@ -101,82 +97,90 @@ public class RisikoklassifiseringTest extends EntityManagerAwareTest {
     }
 
     @BeforeEach
-    void setUp(){
-        var entityManager = getEntityManager();
-        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        prosessTaskRepository = spy(new ProsessTaskRepositoryImpl(entityManager, null, null));
-        risikoklassifisering = new Risikoklassifisering( prosessTaskRepository,  skjæringstidspunktTjeneste,
-             risikovurderingTjeneste,  opplysningsPeriodeTjeneste,
-            repositoryProvider.getPersonopplysningRepository(),  familieHendelseRepository);
+    void setUp() {
+        risikoklassifisering = new Risikoklassifisering(prosessTaskRepository, skjæringstidspunktTjeneste,
+            risikovurderingTjeneste, opplysningsPeriodeTjeneste, personopplysningRepository,
+            familieHendelseRepository);
     }
 
     @Test
     public void skal_opprette_prosess_task_og_request_json_uten_annenpart() throws IOException {
-        Behandling behandling = getBehandling(false);
-        forberedelse(behandling);
-        risikoklassifisering.opprettProsesstaskForRisikovurdering(behandling);
-        ProsessTaskData prosessTaskData = verifyProcessTask();
-        verifyRequestData(prosessTaskData, false);
+        var behandling = getBehandling();
+        var annenPart = false;
+        forberedelse(behandling, annenPart);
+        var task = risikoklassifisering.opprettPotensiellTaskProsesstask(behandling).orElseThrow();
+        verifyProcessTask(task);
+        verifyRequestData(task, annenPart);
     }
 
     @Test
     public void skal_opprette_prosess_task_og_request_json_med_annenpart() throws IOException {
-        Behandling behandling = getBehandling(true);
-        forberedelse(behandling);
-        risikoklassifisering.opprettProsesstaskForRisikovurdering(behandling);
-        ProsessTaskData prosessTaskData = verifyProcessTask();
-        verifyRequestData(prosessTaskData, true);
+        var behandling = getBehandling();
+        var annenPart = true;
+        forberedelse(behandling, annenPart);
+        var task = risikoklassifisering.opprettPotensiellTaskProsesstask(behandling).orElseThrow();
+        verifyProcessTask(task);
+        verifyRequestData(task, annenPart);
     }
 
     @Test
-    public void skal_ikke_opprette_prosess_task_hvis_behandling_allrede_har_klassifisert(){
-        Behandling behandling = getBehandling(true);
-        forberedelse(behandling);
+    public void skal_ikke_opprette_prosess_task_hvis_behandling_allrede_har_klassifisert() throws IOException {
+        var behandling = getBehandling();
         when(risikovurderingTjeneste.behandlingHarBlittRisikoklassifisert(behandling.getId())).thenReturn(true);
-        risikoklassifisering.opprettProsesstaskForRisikovurdering(behandling);
-        List<ProsessTaskData> prosessTaskDataList = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
-        assertThat(prosessTaskDataList).allSatisfy(d -> assertThat(d.getTaskType()).isNotEqualTo(RisikoklassifiseringUtførTask.TASKTYPE));
+        var task = risikoklassifisering.opprettPotensiellTaskProsesstask(behandling);
+        assertThat(task).isEmpty();
     }
 
     private void verifyRequestData(ProsessTaskData prosessTaskData, boolean annenPart) throws IOException {
-        ObjectNode objectNode = OM.readValue(prosessTaskData.getProperties().getProperty(RISIKOKLASSIFISERING_JSON),ObjectNode.class);
+        ObjectNode objectNode = OM.readValue(prosessTaskData.getProperties().getProperty(RISIKOKLASSIFISERING_JSON),
+            ObjectNode.class);
         assertThat(objectNode.get("callId").asText()).isEqualTo("callId");
         JsonNode request = objectNode.get("request");
 
-        assertThat(request.get("konsumentId").asText()).isEqualTo(prosessTaskData.getProperties().getProperty(KONSUMENT_ID));
+        assertThat(request.get("konsumentId").asText()).isEqualTo(
+            prosessTaskData.getProperties().getProperty(KONSUMENT_ID));
         assertThat(request.get("behandlingstema").asText()).isEqualTo("ab0050");
         assertThat(request.get("opplysningsperiode")).isNotNull();
         assertThat(request.get("skjæringstidspunkt").asText()).isEqualTo(LocalDate.now().toString());
-        if(annenPart){
+        if (annenPart) {
             assertThat(request.get("annenPart")).isNotNull();
-        }else{
+        } else {
             assertThat(request.get("annenPart")).isNull();
         }
     }
 
-    private ProsessTaskData verifyProcessTask() {
-        List<ProsessTaskData> prosessTaskDataList = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
-        assertThat(prosessTaskDataList).anySatisfy(d -> assertThat(d.getTaskType()).isEqualTo(RisikoklassifiseringUtførTask.TASKTYPE));
-        ProsessTaskData prosessTaskData = prosessTaskDataList.stream().filter(d -> Objects.equals(d.getTaskType(), RisikoklassifiseringUtførTask.TASKTYPE)).findFirst().orElseThrow();
-
-        verify(prosessTaskRepository).lagre(prosessTaskData);
+    private void verifyProcessTask(ProsessTaskData prosessTaskData) {
         assertThat(prosessTaskData.getTaskType()).isEqualTo(TASKTYPE);
         assertThat(prosessTaskData.getProperties().getProperty(KONSUMENT_ID)).isNotBlank();
         assertThat(prosessTaskData.getProperties().getProperty(RISIKOKLASSIFISERING_JSON)).isNotEmpty();
-        return prosessTaskData;
     }
 
-    private void forberedelse(Behandling behandling) {
-        Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
+    private void forberedelse(BehandlingReferanse behandling, boolean annenPart) {
+        Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder()
+            .medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
+            .build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId())).thenReturn(skjæringstidspunkt);
-        when(opplysningsPeriodeTjeneste.beregn(behandling.getId(),behandling.getFagsakYtelseType())).thenReturn(Interval.of(Instant.now(), Instant.now()));
-        FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = byggFødselGrunnlag(BARN_TERMINDATO.minusDays(15), BARN_FØDSELSDATO.minusDays(10));
-        when(familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())).thenReturn(Optional.of(familieHendelseGrunnlag));
+        when(opplysningsPeriodeTjeneste.beregn(behandling.getId(), behandling.getFagsakYtelseType())).thenReturn(
+            Interval.of(Instant.now(), Instant.now()));
+        FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = byggFødselGrunnlag(BARN_TERMINDATO.minusDays(15),
+            BARN_FØDSELSDATO.minusDays(10));
+        when(familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())).thenReturn(
+            Optional.of(familieHendelseGrunnlag));
+
+        if (annenPart) {
+            var personopplysningGrunnlagEntitet = PersonopplysningGrunnlagBuilder
+                .oppdatere(Optional.empty())
+                .medOppgittAnnenPart(new OppgittAnnenPartBuilder().medAktørId(ANNEN_PART_AKTØR_ID).build())
+                .build();
+            when(personopplysningRepository.hentPersonopplysningerHvisEksisterer(behandling.getBehandlingId()))
+                .thenReturn(Optional.of(personopplysningGrunnlagEntitet));
+        }
         MDC.put("callId", "callId");
     }
 
-    public static final FamilieHendelseGrunnlagEntitet byggFødselGrunnlag(LocalDate termindato, LocalDate fødselsdato) {
-        final FamilieHendelseBuilder hendelseBuilder = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.SØKNAD);
+    public static FamilieHendelseGrunnlagEntitet byggFødselGrunnlag(LocalDate termindato, LocalDate fødselsdato) {
+        final FamilieHendelseBuilder hendelseBuilder = FamilieHendelseBuilder.oppdatere(Optional.empty(),
+            HendelseVersjonType.SØKNAD);
         if (termindato != null) {
             hendelseBuilder.medTerminbekreftelse(hendelseBuilder.getTerminbekreftelseBuilder()
                 .medUtstedtDato(termindato.minusDays(40))
@@ -186,31 +190,31 @@ public class RisikoklassifiseringTest extends EntityManagerAwareTest {
         if (fødselsdato != null) {
             hendelseBuilder.medFødselsDato(fødselsdato);
         }
-        return FamilieHendelseGrunnlagBuilder.oppdatere(Optional.empty())
-            .medSøknadVersjon(hendelseBuilder)
-            .build();
+        return FamilieHendelseGrunnlagBuilder.oppdatere(Optional.empty()).medSøknadVersjon(hendelseBuilder).build();
     }
-    private Behandling getBehandling(boolean annenPart) {
+
+    private BehandlingReferanse getBehandling() {
         LocalDate terminDato = LocalDate.now().minusDays(70);
 
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
             .medSøknadDato(terminDato.minusDays(20));
         scenario.medSøknadHendelse()
-            .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
+            .medTerminbekreftelse(scenario.medSøknadHendelse()
+                .getTerminbekreftelseBuilder()
                 .medNavnPå("Lege Legesen")
                 .medTermindato(terminDato)
                 .medUtstedtDato(terminDato.minusDays(40)))
             .medAntallBarn(1);
 
         scenario.medBekreftetHendelse()
-            .medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
+            .medTerminbekreftelse(scenario.medBekreftetHendelse()
+                .getTerminbekreftelseBuilder()
                 .medNavnPå("Lege Legesen")
                 .medTermindato(terminDato)
                 .medUtstedtDato(terminDato.minusDays(40)))
             .medAntallBarn(1);
-        if(annenPart)
-            scenario.medSøknadAnnenPart().medAktørId(ANNEN_PART_AKTØR_ID);
 
-        return scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagMocked();
+        return BehandlingReferanse.fra(behandling);
     }
 }

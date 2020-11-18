@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.risikoklassifisering.modell;
+package no.nav.foreldrepenger.behandlingslager.risikoklassifisering;
 
 import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentUniktResultat;
 
@@ -30,7 +30,7 @@ public class RisikoklassifiseringRepository {
 
         Optional<RisikoklassifiseringEntitet> gammelEntitetOpt = hentRisikoklassifiseringForBehandling(behandlingId);
 
-        if (!gammelEntitetOpt.isPresent()) {
+        if (gammelEntitetOpt.isEmpty()) {
             throw new IllegalStateException("Finner ikke risikoklassifisering for behandling med id " + behandlingId);
         }
 

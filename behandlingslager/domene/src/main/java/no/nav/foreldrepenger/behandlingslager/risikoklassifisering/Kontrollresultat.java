@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.risikoklassifisering.modell;
+package no.nav.foreldrepenger.behandlingslager.risikoklassifisering;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;

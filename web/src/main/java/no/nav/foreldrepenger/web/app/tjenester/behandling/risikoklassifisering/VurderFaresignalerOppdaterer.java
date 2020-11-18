@@ -13,9 +13,9 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
-import no.nav.foreldrepenger.domene.risikoklassifisering.modell.FaresignalVurdering;
-import no.nav.foreldrepenger.domene.risikoklassifisering.modell.Kontrollresultat;
-import no.nav.foreldrepenger.domene.risikoklassifisering.modell.RisikoklassifiseringEntitet;
+import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.FaresignalVurdering;
+import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.Kontrollresultat;
+import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.RisikoklassifiseringEntitet;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 

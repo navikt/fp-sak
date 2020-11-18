@@ -6,6 +6,6 @@
 	<sequence-generator name="SEQ_RISIKOKLASSIFISERING" allocation-size="50" sequence-name="SEQ_RISIKOKLASSIFISERING" />
 
 	<!-- Risikoklassifisering -->
-	<entity class="no.nav.foreldrepenger.domene.risikoklassifisering.modell.RisikoklassifiseringEntitet" />
+	<entity class="no.nav.foreldrepenger.behandlingslager.risikoklassifisering.RisikoklassifiseringEntitet" />
 
 </entity-mappings>
