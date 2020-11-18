@@ -83,7 +83,7 @@ public class AnkevurderingOppdaterer implements AksjonspunktOppdaterer<AnkeVurde
                 .medErFristIkkeOverholdt(apDto.erFristIkkeOverholdt())
                 .medErIkkeKonkret(apDto.erIkkeKonkret())
                 .medErIkkeSignert(apDto.erIkkeSignert());
-        } else if (Set.of(AnkeVurdering.ANKE_OMGJOER, AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE).contains(apDto.getAnkeVurdering())) {
+        } else if (Set.of(AnkeVurdering.ANKE_OMGJOER, AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE, AnkeVurdering.ANKE_HJEMSEND_UTEN_OPPHEV).contains(apDto.getAnkeVurdering())) {
             builder.medAnkeOmgjørÅrsak(apDto.getAnkeOmgjoerArsak())
                 .medAnkeVurderingOmgjør(apDto.getAnkeVurderingOmgjoer());
         }
@@ -161,6 +161,9 @@ public class AnkevurderingOppdaterer implements AksjonspunktOppdaterer<AnkeVurde
         }
         if (AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE.equals(vurdering)) {
             return HistorikkResultatType.ANKE_OPPHEVE_OG_HJEMSENDE;
+        }
+        if (AnkeVurdering.ANKE_HJEMSEND_UTEN_OPPHEV.equals(vurdering)) {
+            return HistorikkResultatType.ANKE_HJEMSENDE;
         }
         if (AnkeVurdering.ANKE_STADFESTE_YTELSESVEDTAK.equals(vurdering)) {
             return HistorikkResultatType.ANKE_STADFESTET_VEDTAK;

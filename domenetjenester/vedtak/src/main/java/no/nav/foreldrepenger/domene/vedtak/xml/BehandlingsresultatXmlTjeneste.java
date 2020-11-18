@@ -177,13 +177,13 @@ public class BehandlingsresultatXmlTjeneste {
     }
 
     private void leggTilAnkeVerdier(Ankevurderingresultat ankeVurderingResultat, Behandling behandling) {
-        Optional<AnkeVurderingResultatEntitet> optionalGjeldendeAnkevurderingresultat = ankeRepository.hentAnkeVurderingResultat(behandling.getId());
-        if (optionalGjeldendeAnkevurderingresultat.isPresent()) {
-            AnkeVurderingResultatEntitet gjeldendeAnkevurderingresultat = optionalGjeldendeAnkevurderingresultat.get();
-            ankeVurderingResultat.setAnkeAvvistAarsak(hentAnkeAvvistårsak(optionalGjeldendeAnkevurderingresultat.get()));
-            ankeVurderingResultat.setAnkeOmgjoerAarsak(hentAnkeOmgjørårsak(gjeldendeAnkevurderingresultat));
-            ankeVurderingResultat.setAnkeVurdering(hentAnkevurdering(gjeldendeAnkevurderingresultat));
-        }
+        ankeRepository.hentAnkeVurderingResultat(behandling.getId()).ifPresent(avr -> {
+            ankeVurderingResultat.setAnkeAvvistAarsak(hentAnkeAvvistårsak(avr));
+            ankeVurderingResultat.setAnkeOmgjoerAarsak(hentAnkeOmgjørårsak(avr.getAnkeOmgjørÅrsak()));
+            ankeVurderingResultat.setAnkeVurdering(hentAnkevurdering(avr));
+            ankeVurderingResultat.setTrygdrettVurdering(hentTrygderettvurdering(avr));
+            ankeVurderingResultat.setTrygdrettOmgjoerAarsak(hentAnkeOmgjørårsak(avr.getTrygderettOmgjørÅrsak()));
+        });
     }
 
     private AnkeAvvistAarsak hentAnkeAvvistårsak(AnkeVurderingResultatEntitet ankeVurderingResultat) {
@@ -196,8 +196,7 @@ public class BehandlingsresultatXmlTjeneste {
         return null;
     }
 
-    private AnkeOmgjoerAarsak hentAnkeOmgjørårsak(AnkeVurderingResultatEntitet vurderingsresultat) {
-        AnkeOmgjørÅrsak ankeOmgjørÅrsak = vurderingsresultat.getAnkeOmgjørÅrsak();
+    private AnkeOmgjoerAarsak hentAnkeOmgjørårsak(AnkeOmgjørÅrsak ankeOmgjørÅrsak) {
         if (AnkeOmgjørÅrsak.NYE_OPPLYSNINGER.equals(ankeOmgjørÅrsak)) {
             return AnkeOmgjoerAarsak.NYE_OPPLYSNINGER;
         } else if (AnkeOmgjørÅrsak.ULIK_VURDERING.equals(ankeOmgjørÅrsak)) {
@@ -213,6 +212,16 @@ public class BehandlingsresultatXmlTjeneste {
     private Ankevurdering hentAnkevurdering(AnkeVurderingResultatEntitet vurderingsresultat) {
         AnkeVurdering ankeVurdering = vurderingsresultat.getAnkeVurdering();
         AnkeVurderingOmgjør ankeVurderingOmgjør = vurderingsresultat.getAnkeVurderingOmgjør();
+        return getAnkevurdering(ankeVurdering, ankeVurderingOmgjør);
+    }
+
+    private Ankevurdering hentTrygderettvurdering(AnkeVurderingResultatEntitet vurderingsresultat) {
+        AnkeVurdering trettVurdering = vurderingsresultat.getAnkeVurdering();
+        AnkeVurderingOmgjør trettVurderingOmgjør = vurderingsresultat.getAnkeVurderingOmgjør();
+        return getAnkevurdering(trettVurdering, trettVurderingOmgjør);
+    }
+
+    private Ankevurdering getAnkevurdering(AnkeVurdering ankeVurdering, AnkeVurderingOmgjør ankeVurderingOmgjør) {
         if (AnkeVurdering.ANKE_STADFESTE_YTELSESVEDTAK.equals(ankeVurdering)) {
             return Ankevurdering.ANKE_STADFESTE_YTELSESVEDTAK;
         } else if (AnkeVurdering.ANKE_OMGJOER.equals(ankeVurdering)) {
@@ -227,6 +236,8 @@ public class BehandlingsresultatXmlTjeneste {
             return Ankevurdering.ANKE_AVVIS;
         } else if (AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE.equals(ankeVurdering)) {
             return Ankevurdering.ANKE_OPPHEVE_OG_HJEMSENDE;
+        } else if (AnkeVurdering.ANKE_HJEMSEND_UTEN_OPPHEV.equals(ankeVurdering)) {
+            return Ankevurdering.ANKE_HJEMSENDE_UTEN_OPPHEV;
         }
         return null;
     }

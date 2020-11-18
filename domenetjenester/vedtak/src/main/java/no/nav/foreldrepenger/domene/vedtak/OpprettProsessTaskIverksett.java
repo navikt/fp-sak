@@ -112,7 +112,7 @@ public class OpprettProsessTaskIverksett {
         Optional<AnkeVurderingResultatEntitet> vurderingsresultat = ankeRepository.hentAnkeVurderingResultat(behandling.getId());
         if (vurderingsresultat.isPresent()) {
             AnkeVurdering vurdering = vurderingsresultat.get().getAnkeVurdering();
-            if (AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE.equals(vurdering) || AnkeVurdering.ANKE_OMGJOER.equals(vurdering)) {
+            if (AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE.equals(vurdering) || AnkeVurdering.ANKE_OMGJOER.equals(vurdering) || AnkeVurdering.ANKE_HJEMSEND_UTEN_OPPHEV.equals(vurdering)) {
                 Behandling sisteYtelseBeh = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(behandling.getFagsakId()).orElse(behandling);
                 return Optional.of(lagOpprettVurderKonsekvensTask(sisteYtelseBeh, VKY_ANKE_BESKRIVELSE));
             }

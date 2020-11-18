@@ -59,6 +59,7 @@ public class PipRepositoryTest extends EntityManagerAwareTest {
         assertThat(pipBehandlingsData.get()).isNotNull();
         assertThat(pipBehandlingsData.get().getBehandligStatus()).isEqualTo(behandling.getStatus().getKode());
         assertThat(pipBehandlingsData.get().getFagsakStatus()).isEqualTo(behandling.getFagsak().getStatus().getKode());
+        assertThat(pipBehandlingsData.get().getFagsakId()).isEqualTo(behandling.getFagsak().getId());
     }
 
     @Test

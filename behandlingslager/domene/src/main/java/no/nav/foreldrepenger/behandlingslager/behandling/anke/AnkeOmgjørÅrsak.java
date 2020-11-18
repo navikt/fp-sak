@@ -22,10 +22,10 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.TempAvledeKode;
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum AnkeOmgjørÅrsak implements Kodeverdi {
 
-    NYE_OPPLYSNINGER("NYE_OPPLYSNINGER", "Nye opplysninger som oppfyller vilkår"),
+    NYE_OPPLYSNINGER("NYE_OPPLYSNINGER", "Nye opplysninger"),
     ULIK_REGELVERKSTOLKNING("ULIK_REGELVERKSTOLKNING", "Ulik regelverkstolkning"),
-    ULIK_VURDERING("ULIK_VURDERING", "Ulik skjønnsmessig vurdering"),
-    PROSESSUELL_FEIL("PROSESSUELL_FEIL", "Prosessuell feil"),
+    ULIK_VURDERING("ULIK_VURDERING", "Ulik skjønnsvurdering"),
+    PROSESSUELL_FEIL("PROSESSUELL_FEIL", "Saksbehandlingsfeil"),
     UDEFINERT("-", "Udefinert"),
     ;
 
