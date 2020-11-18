@@ -14,7 +14,6 @@ import org.mockito.ArgumentCaptor;
 import contract.sob.dto.BehandlingAvsluttet;
 import contract.sob.dto.BehandlingOpprettet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
@@ -24,7 +23,6 @@ import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.kafka.JsonObject
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.kafka.SakOgBehandlingHendelseProducer;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.task.SakOgBehandlingTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.testutilities.Whitebox;
 
 public class SakOgBehandlingKafkaTaskTest extends EntityManagerAwareTest {
 
@@ -50,7 +48,6 @@ public class SakOgBehandlingKafkaTaskTest extends EntityManagerAwareTest {
 
         final Behandling behandling = scenario.lagre(repositoryProvider);
         Fagsak fagsak = behandling.getFagsak();
-        refreshBehandlingType(scenario);
         var task = new ProsessTaskData(SakOgBehandlingTask.TASKTYPE);
         task.setBehandling(fagsak.getId(), behandling.getId(), fagsak.getAktørId().getId());
 
@@ -59,7 +56,6 @@ public class SakOgBehandlingKafkaTaskTest extends EntityManagerAwareTest {
         observer.doTask(task);
 
         verify(producer).sendJsonMedNøkkel(captorKey.capture(), captorVal.capture());
-        String key = captorKey.getValue();
         String value = captorVal.getValue();
         BehandlingOpprettet roundtrip = JsonObjectMapper.fromJson(value, BehandlingOpprettet.class);
         assertThat(roundtrip.getBehandlingsID()).isEqualToIgnoringCase(Fagsystem.FPSAK.getOffisiellKode() + "_" + behandling.getId());
@@ -74,7 +70,6 @@ public class SakOgBehandlingKafkaTaskTest extends EntityManagerAwareTest {
         behandling.avsluttBehandling();
         repositoryProvider.getBehandlingRepository().lagre(behandling, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
         behandling = repositoryProvider.getBehandlingRepository().hentBehandling(behandling.getId());
-        refreshBehandlingType(scenario);
         Fagsak fagsak =behandling.getFagsak();
         var task = new ProsessTaskData(SakOgBehandlingTask.TASKTYPE);
         task.setBehandling(fagsak.getId(), behandling.getId(), fagsak.getAktørId().getId());
@@ -89,11 +84,6 @@ public class SakOgBehandlingKafkaTaskTest extends EntityManagerAwareTest {
         BehandlingAvsluttet roundtrip = JsonObjectMapper.fromJson(value, BehandlingAvsluttet.class);
         assertThat(roundtrip.getBehandlingsID()).isEqualToIgnoringCase(Fagsystem.FPSAK.getOffisiellKode() + "_" + behandling.getId());
         assertThat(roundtrip.getAvslutningsstatus().getValue()).isEqualTo("ok");
-    }
-
-    private void refreshBehandlingType(ScenarioMorSøkerEngangsstønad scenario) {
-        BehandlingType behandlingType = scenario.getBehandling().getType();
-        Whitebox.setInternalState(scenario.getBehandling(), "behandlingType", behandlingType);
     }
 
 

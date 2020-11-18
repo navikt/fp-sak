@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent.Be
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent.BehandlingOpprettetEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
@@ -27,7 +26,6 @@ import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.observer.Oppdate
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.task.SakOgBehandlingTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.testutilities.Whitebox;
 
 public class OppdaterSakOgBehandlingEventObserverTest extends EntityManagerAwareTest {
 
@@ -52,7 +50,6 @@ public class OppdaterSakOgBehandlingEventObserverTest extends EntityManagerAware
 
         final Behandling behandling = scenario.lagre(repositoryProvider);
         Fagsak fagsak = behandling.getFagsak();
-        refreshBehandlingType(scenario);
 
         BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
                 scenario.taSkriveLåsForBehandling());
@@ -63,7 +60,7 @@ public class OppdaterSakOgBehandlingEventObserverTest extends EntityManagerAware
 
         verify(prosessTaskRepositoryMock).lagre(captor.capture());
         ProsessTaskData prosessTaskData = captor.getValue();
-        verifiserProsessTaskData(scenario, prosessTaskData, BehandlingStatus.OPPRETTET.getKode());
+        verifiserProsessTaskData(scenario, prosessTaskData);
 
     }
 
@@ -73,7 +70,6 @@ public class OppdaterSakOgBehandlingEventObserverTest extends EntityManagerAware
         scenario.medFødselAdopsjonsdato(Collections.singletonList(LocalDate.now().plusDays(1)));
 
         Behandling behandling = scenario.lagre(repositoryProvider);
-        refreshBehandlingType(scenario);
         Fagsak fagsak = behandling.getFagsak();
         BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
                 scenario.taSkriveLåsForBehandling());
@@ -84,16 +80,10 @@ public class OppdaterSakOgBehandlingEventObserverTest extends EntityManagerAware
 
         verify(prosessTaskRepositoryMock).lagre(captor.capture());
         ProsessTaskData prosessTaskData = captor.getValue();
-        verifiserProsessTaskData(scenario, prosessTaskData, BehandlingStatus.AVSLUTTET.getKode());
+        verifiserProsessTaskData(scenario, prosessTaskData);
     }
 
-    private void refreshBehandlingType(ScenarioMorSøkerEngangsstønad scenario) {
-        BehandlingType behandlingType = scenario.getBehandling().getType();
-        Whitebox.setInternalState(scenario.getBehandling(), "behandlingType", behandlingType);
-    }
-
-    private void verifiserProsessTaskData(ScenarioMorSøkerEngangsstønad scenario, ProsessTaskData prosessTaskData,
-            String behandlingStatusKode) {
+    private void verifiserProsessTaskData(ScenarioMorSøkerEngangsstønad scenario, ProsessTaskData prosessTaskData) {
         assertThat(prosessTaskData.getTaskType()).isEqualTo(SakOgBehandlingTask.TASKTYPE);
         assertThat(new AktørId(prosessTaskData.getAktørId()))
                 .isEqualTo(scenario.getFagsak().getNavBruker().getAktørId());
