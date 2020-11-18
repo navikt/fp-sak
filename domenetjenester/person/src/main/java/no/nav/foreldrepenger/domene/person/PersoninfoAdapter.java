@@ -136,9 +136,7 @@ public class PersoninfoAdapter {
 
     public Optional<PersoninfoBasis> hentBrukerBasisForAktør(AktørId aktørId) {
         Optional<PersonIdent> funnetFnr = hentFnr(aktørId);
-        Optional<PersoninfoBasis> pi = funnetFnr.map(fnr -> tpsAdapter.hentKjerneinformasjonBasis(fnr, aktørId));
-        pi.ifPresent(p -> basisTjeneste.hentBasisPersoninfo(aktørId, p.getPersonIdent(), p));
-        return pi;
+        return funnetFnr.map(fnr -> basisTjeneste.hentBasisPersoninfo(aktørId, fnr));
     }
 
     public Optional<PersoninfoArbeidsgiver> hentBrukerArbeidsgiverForAktør(AktørId aktørId) {
