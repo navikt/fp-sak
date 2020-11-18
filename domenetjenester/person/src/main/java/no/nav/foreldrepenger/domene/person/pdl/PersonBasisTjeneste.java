@@ -80,7 +80,7 @@ public class PersonBasisTjeneste {
             .map(Folkeregisterpersonstatus::getStatus)
             .findFirst().map(PersonstatusType::fraFregPersonstatus).orElse(PersonstatusType.UDEFINERT);
         return new PersoninfoBasis.Builder().medAktørId(aktørId).medPersonIdent(personIdent)
-            .medNavn(person.getNavn().stream().map(PersonBasisTjeneste::mapNavn).filter(Objects::nonNull).findFirst().orElse(null))
+            .medNavn(person.getNavn().stream().map(PersonBasisTjeneste::mapNavn).filter(Objects::nonNull).findFirst().orElse("Navnløs i Folkeregister"))
             .medFødselsdato(fødselsdato)
             .medDødsdato(dødsdato)
             .medDiskresjonsKode(getDiskresjonskode(person))
