@@ -42,14 +42,14 @@ public enum BehandlingStegStatus implements Kodeverdi {
     FREMOVERFØRT("FREMOVERFØRT", "Fremoverført"),
     TILBAKEFØRT("TILBAKEFØRT", "Tilbakeført"),
     UDEFINERT("-", "Ikke definert"),
-    
+
     ;
     private static final Set<BehandlingStegStatus> KAN_UTFØRE_STEG = new HashSet<>(Arrays.asList(STARTET, VENTER));
     private static final Set<BehandlingStegStatus> KAN_FORTSETTE_NESTE = new HashSet<>(Arrays.asList(UTFØRT, FREMOVERFØRT));
     private static final Set<BehandlingStegStatus> SLUTT_STATUSER = new HashSet<>(Arrays.asList(AVBRUTT, UTFØRT, TILBAKEFØRT));
 
     private static final Map<String, BehandlingStegStatus> KODER = new LinkedHashMap<>();
-    
+
     public static final String KODEVERK = "BEHANDLING_STEG_STATUS"; //$NON-NLS-1$
 
     @JsonIgnore
@@ -77,14 +77,10 @@ public enum BehandlingStegStatus implements Kodeverdi {
         }
         return ad;
     }
-    
+
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet());
     }
 
     public boolean kanUtføreSteg() {
@@ -110,7 +106,7 @@ public enum BehandlingStegStatus implements Kodeverdi {
     public static Map<String, BehandlingStegStatus> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }
-    
+
     @JsonProperty
     @Override
     public String getKodeverk() {
@@ -122,12 +118,12 @@ public enum BehandlingStegStatus implements Kodeverdi {
     public String getKode() {
         return kode;
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return getKode();
     }
-    
+
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -135,7 +131,7 @@ public enum BehandlingStegStatus implements Kodeverdi {
             }
         }
     }
-    
+
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<BehandlingStegStatus, String> {
         @Override

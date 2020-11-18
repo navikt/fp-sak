@@ -66,10 +66,6 @@ public enum EndringResultatType implements Kodeverdi {
         return navn;
     }
 
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet());
-    }
-
     @JsonProperty
     @Override
     public String getKodeverk() {

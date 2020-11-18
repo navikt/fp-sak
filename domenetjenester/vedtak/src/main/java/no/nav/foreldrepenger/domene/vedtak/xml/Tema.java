@@ -88,10 +88,4 @@ public enum Tema implements Kodeverdi {
     public String getOffisiellKode() {
         return offisiellKode;
     }
-
-
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet());
-    }
-
 }

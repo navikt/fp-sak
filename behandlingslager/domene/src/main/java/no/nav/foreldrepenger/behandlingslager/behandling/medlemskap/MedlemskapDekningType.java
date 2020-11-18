@@ -38,11 +38,11 @@ public enum MedlemskapDekningType implements Kodeverdi {
     IHT_AVTALE("IHT_AVTALE", "I henhold til avtale"),
     OPPHOR("OPPHOR", "Opphør"),
     UNNTATT("UNNTATT", "Unntatt"),
-    
+
     UDEFINERT("-", "Ikke definert"),
     ;
 
-    
+
     public static final List<MedlemskapDekningType> DEKNINGSTYPER = unmodifiableList(asList(
         FTL_2_6,
         FTL_2_7_a,
@@ -77,7 +77,7 @@ public enum MedlemskapDekningType implements Kodeverdi {
         IHT_AVTALE,
         OPPHOR));
 
-    
+
     private static final Map<String, MedlemskapDekningType> KODER = new LinkedHashMap<>();
 
     public static final String KODEVERK = "MEDLEMSKAP_DEKNING";
@@ -136,14 +136,10 @@ public enum MedlemskapDekningType implements Kodeverdi {
     public String getKode() {
         return kode;
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return getKode();
-    }
-
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet());
     }
 
     @Converter(autoApply = true)

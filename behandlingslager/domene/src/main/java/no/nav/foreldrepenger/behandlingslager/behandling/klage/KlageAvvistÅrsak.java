@@ -110,12 +110,6 @@ public enum KlageAvvistÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferanse {
         return getKode();
     }
 
-
-
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet());
-    }
-
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<KlageAvvistÅrsak, String> {
         @Override

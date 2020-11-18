@@ -65,12 +65,12 @@ public enum SkjermlenkeType implements Kodeverdi {
     VEDTAK("VEDTAK", "Vedtak"),
     VURDER_FARESIGNALER("VURDER_FARESIGNALER", "Vurder faresignaler"),
     ;
-    
+
     private static final Map<String, SkjermlenkeType> KODER = new LinkedHashMap<>();
-    
+
     public static final String KODEVERK = "SKJERMLENKE_TYPE"; //$NON-NLS-1$
 
-    
+
 
     static {
         for (var v : values()) {
@@ -82,7 +82,7 @@ public enum SkjermlenkeType implements Kodeverdi {
 
     @JsonIgnore
     private String navn;
-    
+
     private String kode;
 
     private SkjermlenkeType(String kode) {
@@ -105,7 +105,7 @@ public enum SkjermlenkeType implements Kodeverdi {
         }
         return ad;
     }
-    
+
     public static Map<String, SkjermlenkeType> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }
@@ -115,26 +115,23 @@ public enum SkjermlenkeType implements Kodeverdi {
     public String getNavn() {
         return navn;
     }
-    
+
     @JsonProperty
     @Override
     public String getKode() {
         return kode;
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return getKode();
     }
-    
+
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet());
-    }
     /**
      * Returnerer skjermlenketype for eit aksjonspunkt. Inneheld logikk for spesialbehandling av aksjonspunkt som ikkje ligg på aksjonspunktdefinisjonen.
      * @deprecated Brukes kun i totrinnskontroll og foreslå vedtak, bør også fjernes derfra og heller lagres på Aksjonspunktet (ikke definisjonen)
@@ -171,7 +168,7 @@ public enum SkjermlenkeType implements Kodeverdi {
         }
         return SkjermlenkeType.UDEFINERT;
     }
-    
+
 
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<SkjermlenkeType, String> {

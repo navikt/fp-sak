@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.behandling;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
@@ -30,16 +29,16 @@ public enum KonsekvensForYtelsen implements Kodeverdi{
     INGEN_ENDRING("INGEN_ENDRING", "Ingen endring"),
     ENDRING_I_BEREGNING_OG_UTTAK("ENDRING_I_BEREGNING_OG_UTTAK", "Endring i beregning og uttak"),
     UDEFINERT("-", "Udefinert"),
-    
+
     ;
-    
+
     private static final Map<String, KonsekvensForYtelsen> KODER = new LinkedHashMap<>();
-    
+
     public static final String KODEVERK = "KONSEKVENS_FOR_YTELSEN";
 
     @JsonIgnore
     private String navn;
-    
+
     private String kode;
 
     private KonsekvensForYtelsen(String kode, String navn) {
@@ -61,14 +60,10 @@ public enum KonsekvensForYtelsen implements Kodeverdi{
     public static Map<String, KonsekvensForYtelsen> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }
-    
+
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet().stream().map(k -> "\"" + k + "\"").collect(Collectors.toList()));
     }
 
     @JsonProperty
@@ -82,12 +77,12 @@ public enum KonsekvensForYtelsen implements Kodeverdi{
     public String getKode() {
         return kode;
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return getKode();
     }
-    
+
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -95,7 +90,7 @@ public enum KonsekvensForYtelsen implements Kodeverdi{
             }
         }
     }
-    
+
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<KonsekvensForYtelsen, String> {
         @Override

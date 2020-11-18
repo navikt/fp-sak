@@ -86,14 +86,10 @@ public enum OpptjeningAktivitetKlassifisering implements Kodeverdi {
     public String getKode() {
         return kode;
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return getKode();
-    }
-
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet());
     }
 
     @Converter(autoApply = true)

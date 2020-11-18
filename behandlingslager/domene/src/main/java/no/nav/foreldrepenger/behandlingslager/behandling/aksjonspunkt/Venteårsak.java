@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
@@ -108,10 +107,6 @@ public enum Venteårsak implements Kodeverdi {
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet().stream().map(a -> "\"" + a + "\"").collect(Collectors.toList()));
     }
 
     @JsonProperty

@@ -29,16 +29,16 @@ public enum VariantFormat implements Kodeverdi{
     BREVBESTILLING("BREVB", "Brevbestilling data", "BREVBESTILLING"),
     ARKIV("ARKIV", "Arkivformat", "ARKIV"),
     UDEFINERT("-", "Ikke definert", null),
-    
+
     ;
     private static final String KODEVERK = "VARIANT_FORMAT";
-    
+
     private static final Map<String, VariantFormat> KODER = new LinkedHashMap<>();
-    
-    
+
+
     @JsonIgnore
     private String navn;
-    
+
     @JsonIgnore
     private String offisiellKode;
 
@@ -49,7 +49,7 @@ public enum VariantFormat implements Kodeverdi{
         this.navn = navn;
         this.offisiellKode = offisiellKode;
     }
-    
+
 
     @JsonCreator
     public static VariantFormat fraKode(@JsonProperty("kode") String kode) {
@@ -66,16 +66,12 @@ public enum VariantFormat implements Kodeverdi{
     public static Map<String, VariantFormat> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }
-    
+
     @Override
     public String getNavn() {
         return navn;
     }
 
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet());
-    }
-    
     @JsonProperty
     @Override
     public String getKodeverk() {
@@ -87,12 +83,12 @@ public enum VariantFormat implements Kodeverdi{
     public String getKode() {
         return kode;
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return offisiellKode;
     }
-    
+
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -100,7 +96,7 @@ public enum VariantFormat implements Kodeverdi{
             }
         }
     }
-    
+
     public static VariantFormat finnForKodeverkEiersKode(String offisiellDokumentType) {
         return List.of(values()).stream().filter(k -> Objects.equals(k.offisiellKode, offisiellDokumentType)).findFirst().orElse(UDEFINERT);
     }

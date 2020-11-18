@@ -97,10 +97,6 @@ public enum InntektsFilter implements Kodeverdi {
         return Collections.unmodifiableMap(KODER);
     }
 
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet());
-    }
-
     public static Map<InntektsFilter, InntektsFormål> mapInntektsFilterTilFormål() {
         return Collections.unmodifiableMap(INNTEKTSFILTER_TIL_INNTEKTSFORMÅL);
     }

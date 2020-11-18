@@ -6,7 +6,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
@@ -153,10 +152,6 @@ public enum Avslagsårsak implements Kodeverdi, ÅrsakskodeMedLovreferanse{
     @Override
     public String getLovHjemmelData() {
         return lovReferanse;
-    }
-
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet().stream().map(a -> "\"" + a + "\"").collect(Collectors.toList()));
     }
 
     public boolean erAlleredeUtbetaltEngangsstønad() {

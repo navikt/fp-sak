@@ -33,21 +33,21 @@ public enum ArkivFilType implements Kodeverdi {
     XLS ("XLS"),
     XLSX ("XLSX"),
 
-    
+
     UDEFINERT ("-"),
 
     ;
     private static final String KODEVERK = "ARKIV_FILTYPE";
-    
+
     private static final Map<String, ArkivFilType> KODER = new LinkedHashMap<>();
-    
+
     private String kode;
 
 
     private ArkivFilType(String kode) {
         this.kode = kode;
     }
-    
+
     @JsonCreator
     public static ArkivFilType fraKode(@JsonProperty("kode") String kode) {
         if (kode == null) {
@@ -63,16 +63,12 @@ public enum ArkivFilType implements Kodeverdi {
     public static Map<String, ArkivFilType> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }
-    
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet());
-    }
-    
+
     @Override
     public String getNavn() {
         return getKode();
     }
-    
+
     @JsonProperty
     @Override
     public String getKodeverk() {
@@ -84,7 +80,7 @@ public enum ArkivFilType implements Kodeverdi {
     public String getKode() {
         return kode;
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return getKode();
@@ -96,7 +92,7 @@ public enum ArkivFilType implements Kodeverdi {
             }
         }
     }
-   
+
     public static ArkivFilType finnForKodeverkEiersKode(String offisiellDokumentType) {
         return List.of(values()).stream().filter(k -> Objects.equals(k.getOffisiellKode(), offisiellDokumentType)).findFirst().orElse(UDEFINERT);
     }

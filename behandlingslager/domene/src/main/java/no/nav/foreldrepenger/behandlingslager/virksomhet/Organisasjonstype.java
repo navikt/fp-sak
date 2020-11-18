@@ -92,8 +92,4 @@ public enum Organisasjonstype implements Kodeverdi {
     public static boolean erKunstig(String orgNr) {
         return OrgNummer.KUNSTIG_ORG.equals(orgNr);
     }
-
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet());
-    }
 }

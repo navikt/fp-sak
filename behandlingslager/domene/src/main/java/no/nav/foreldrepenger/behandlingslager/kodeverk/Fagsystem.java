@@ -90,10 +90,6 @@ public enum Fagsystem implements Kodeverdi {
         return offisiellKode;
     }
 
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet());
-    }
-
     @JsonProperty
     @Override
     public String getKodeverk() {
