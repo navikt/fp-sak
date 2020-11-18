@@ -62,10 +62,6 @@ public enum DokumentGruppe implements Kodeverdi {
         return navn;
     }
 
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet());
-    }
-
     @JsonProperty
     @Override
     public String getKodeverk() {
@@ -77,7 +73,7 @@ public enum DokumentGruppe implements Kodeverdi {
     public String getKode() {
         return kode;
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return getKode();

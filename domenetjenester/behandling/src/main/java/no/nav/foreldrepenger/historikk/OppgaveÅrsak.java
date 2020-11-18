@@ -68,10 +68,6 @@ public enum OppgaveÅrsak implements Kodeverdi {
         return navn;
     }
 
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet());
-    }
-
     @JsonProperty
     @Override
     public String getKodeverk() {
@@ -88,7 +84,7 @@ public enum OppgaveÅrsak implements Kodeverdi {
     public String getOffisiellKode() {
         return getKode();
     }
-    
+
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {

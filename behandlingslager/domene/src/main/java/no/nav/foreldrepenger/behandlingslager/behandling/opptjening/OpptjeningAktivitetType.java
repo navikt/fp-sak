@@ -202,10 +202,6 @@ public enum OpptjeningAktivitetType implements Kodeverdi {
         return getKode();
     }
 
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet().stream().map(k -> "'" + k + "'").collect(Collectors.toList()));
-    }
-
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<OpptjeningAktivitetType, String> {
         @Override

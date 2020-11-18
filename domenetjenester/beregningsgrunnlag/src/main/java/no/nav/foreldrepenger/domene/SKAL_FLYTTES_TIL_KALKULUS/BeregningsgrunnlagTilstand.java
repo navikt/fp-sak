@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
@@ -88,10 +87,6 @@ public enum BeregningsgrunnlagTilstand implements Kodeverdi {
 
     public static Map<String, BeregningsgrunnlagTilstand> kodeMap() {
         return Collections.unmodifiableMap(KODER);
-    }
-
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet().stream().map(k -> "'" + k + "'").collect(Collectors.toList()));
     }
 
     public boolean erObligatoriskTilstand() {

@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.behandling.vilkår;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
@@ -24,13 +23,13 @@ public enum VilkårResultatType implements Kodeverdi {
      INNVILGET("INNVILGET", "Innvilget"),
      AVSLÅTT("AVSLAATT", "Avslått"),
      IKKE_FASTSATT("IKKE_FASTSATT", "Ikke fastsatt"),
-    
+
      UDEFINERT("-", "Ikke definert"),
 
     ;
-    
+
     private static final Map<String, VilkårResultatType> KODER = new LinkedHashMap<>();
-    
+
     public static final String KODEVERK = "VILKAR_RESULTAT_TYPE";
 
     @JsonIgnore
@@ -58,7 +57,7 @@ public enum VilkårResultatType implements Kodeverdi {
         }
         return ad;
     }
-    
+
     public static Map<String, VilkårResultatType> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }
@@ -68,10 +67,6 @@ public enum VilkårResultatType implements Kodeverdi {
         return navn;
     }
 
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet().stream().map(a -> "\"" + a + "\"").collect(Collectors.toList()));
-    }
-    
     @JsonProperty
     @Override
     public String getKodeverk() {
@@ -83,12 +78,12 @@ public enum VilkårResultatType implements Kodeverdi {
     public String getKode() {
         return kode;
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return getKode();
     }
-    
+
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -96,7 +91,7 @@ public enum VilkårResultatType implements Kodeverdi {
             }
         }
     }
-    
+
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<VilkårResultatType, String> {
         @Override

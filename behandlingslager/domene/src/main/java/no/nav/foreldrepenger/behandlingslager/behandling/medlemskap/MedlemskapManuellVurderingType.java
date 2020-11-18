@@ -74,10 +74,6 @@ public enum MedlemskapManuellVurderingType implements Kodeverdi {
         return navn;
     }
 
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet());
-    }
-
     public boolean visesPåKlient() {
         return visForGui;
     }

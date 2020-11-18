@@ -120,10 +120,6 @@ public enum GraderingAvslagÅrsak implements Kodeverdi {
         return Tid.TIDENES_ENDE;
     }
 
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet());
-    }
-
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<GraderingAvslagÅrsak, String> {
         @Override

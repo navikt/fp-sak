@@ -26,12 +26,12 @@ public enum Vedtaksbrev implements Kodeverdi{
     INGEN("INGEN", "Ingen vedtaksbrev"),
     UDEFINERT("-", "Udefinert"),
     ;
-    
+
     private static final Map<String, Vedtaksbrev> KODER = new LinkedHashMap<>();
-    
-    
+
+
     public static final String KODEVERK = "VEDTAKSBREV";
-    
+
     @JsonIgnore
     private String navn;
 
@@ -41,7 +41,7 @@ public enum Vedtaksbrev implements Kodeverdi{
         this.kode = kode;
         this.navn = navn;
     }
-    
+
     @JsonCreator
     public static Vedtaksbrev fraKode(@JsonProperty("kode") String kode) {
         if (kode == null) {
@@ -57,16 +57,12 @@ public enum Vedtaksbrev implements Kodeverdi{
     public static Map<String, Vedtaksbrev> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }
-    
+
     @Override
     public String getNavn() {
         return navn;
     }
 
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet());
-    }
-    
     @JsonProperty
     @Override
     public String getKodeverk() {
@@ -78,12 +74,12 @@ public enum Vedtaksbrev implements Kodeverdi{
     public String getKode() {
         return kode;
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return getKode();
     }
-    
+
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -91,7 +87,7 @@ public enum Vedtaksbrev implements Kodeverdi{
             }
         }
     }
-    
+
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<Vedtaksbrev, String> {
         @Override

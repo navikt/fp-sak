@@ -90,10 +90,6 @@ public enum Språkkode implements Kodeverdi {
         return KODEVERK;
     }
 
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet());
-    }
-
     @Override
     public String getOffisiellKode() {
         return offisiellKode;

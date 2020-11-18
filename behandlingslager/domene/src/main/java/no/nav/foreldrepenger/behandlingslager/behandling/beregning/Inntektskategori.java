@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.behandling.beregning;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
@@ -93,10 +92,6 @@ public enum Inntektskategori implements Kodeverdi {
     @Override
     public String getOffisiellKode() {
         return getKode();
-    }
-
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet().stream().map(k -> "'" + k + "'").collect(Collectors.toList()));
     }
 
     @Converter(autoApply = true)

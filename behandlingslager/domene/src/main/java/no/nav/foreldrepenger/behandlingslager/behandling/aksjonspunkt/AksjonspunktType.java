@@ -44,7 +44,7 @@ public enum AksjonspunktType implements Kodeverdi {
     private String navn;
 
     private String kode;
-    
+
     @JsonIgnore
     private String offisiellKode;
 
@@ -66,7 +66,7 @@ public enum AksjonspunktType implements Kodeverdi {
         }
         return ad;
     }
-    
+
     @Override
     public String getNavn() {
         return navn;
@@ -82,15 +82,11 @@ public enum AksjonspunktType implements Kodeverdi {
     public String getOffisiellKode() {
         return offisiellKode;
     }
-    
+
     @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
-    }
-
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet());
     }
 
     public static Map<String, AksjonspunktType> kodeMap() {

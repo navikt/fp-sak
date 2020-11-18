@@ -5,7 +5,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
@@ -104,10 +103,6 @@ public enum BehandlingTema implements Kodeverdi {
     @Override
     public String getOffisiellKode() {
         return offisiellKode;
-    }
-
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet().stream().map(k -> "'" + k + "'").collect(Collectors.toList()));
     }
 
     public static BehandlingTema finnForKodeverkEiersKode(String offisiellDokumentType) {

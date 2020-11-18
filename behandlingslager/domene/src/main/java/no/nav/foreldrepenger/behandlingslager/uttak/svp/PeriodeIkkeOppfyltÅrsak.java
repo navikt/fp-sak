@@ -116,10 +116,6 @@ public enum PeriodeIkkeOppfyltÅrsak implements Kodeverdi, ÅrsakskodeMedLovrefe
         return lovHjemmel;
     }
 
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet());
-    }
-
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<PeriodeIkkeOppfyltÅrsak, String> {
         @Override

@@ -29,9 +29,9 @@ public enum VilkårUtfallType implements Kodeverdi {
     UDEFINERT("-", "Ikke definert"),
 
     ;
-    
+
     private static final Map<String, VilkårUtfallType> KODER = new LinkedHashMap<>();
-    
+
     public static final String KODEVERK = "VILKAR_UTFALL_TYPE";
 
     @JsonIgnore
@@ -59,7 +59,7 @@ public enum VilkårUtfallType implements Kodeverdi {
         }
         return ad;
     }
-    
+
     public static Map<String, VilkårUtfallType> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }
@@ -69,11 +69,7 @@ public enum VilkårUtfallType implements Kodeverdi {
         return navn;
     }
 
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet());
-    }
-    
-    
+
     @JsonProperty
     @Override
     public String getKodeverk() {
@@ -85,12 +81,12 @@ public enum VilkårUtfallType implements Kodeverdi {
     public String getKode() {
         return kode;
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return getKode();
     }
-    
+
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -98,7 +94,7 @@ public enum VilkårUtfallType implements Kodeverdi {
             }
         }
     }
-    
+
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<VilkårUtfallType, String> {
         @Override
@@ -111,5 +107,5 @@ public enum VilkårUtfallType implements Kodeverdi {
             return dbData == null ? null : fraKode(dbData);
         }
     }
-    
+
 }

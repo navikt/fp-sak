@@ -97,10 +97,6 @@ public enum FagsakYtelseType implements Kodeverdi {
         return getKode();
     }
 
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet());
-    }
-
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<FagsakYtelseType, String> {
         @Override

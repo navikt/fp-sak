@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
@@ -25,19 +24,19 @@ public enum OmsorgsovertakelseVilkårType implements Kodeverdi {
     OMSORGSVILKÅRET("FP_VK_5", "Omsorgsvilkår §14-17 tredje ledd"),
     FORELDREANSVARSVILKÅRET_2_LEDD("FP_VK_8", "Foreldreansvarsvilkåret §14-17 andre ledd"),
     FORELDREANSVARSVILKÅRET_4_LEDD("FP_VK_33", "Foreldreansvarsvilkåret §14-17 fjerde ledd"),
-    
+
     /* Legger inn udefinert kode. Må gjerne erstattes av noe annet dersom starttilstand er kjent. */
     UDEFINERT("-", "Ikke definert"),
 
     ;
-    
+
     private static final Map<String, OmsorgsovertakelseVilkårType> KODER = new LinkedHashMap<>();
-    
+
     public static final String KODEVERK = "OMSORGSOVERTAKELSE_VILKAR";
 
     @JsonIgnore
     private String navn;
-    
+
     private String kode;
 
     private OmsorgsovertakelseVilkårType(String kode) {
@@ -60,7 +59,7 @@ public enum OmsorgsovertakelseVilkårType implements Kodeverdi {
         }
         return ad;
     }
-    
+
     public static Map<String, OmsorgsovertakelseVilkårType> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }
@@ -68,10 +67,6 @@ public enum OmsorgsovertakelseVilkårType implements Kodeverdi {
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet().stream().map(a -> "\"" + a + "\"").collect(Collectors.toList()));
     }
 
     @JsonProperty
@@ -85,12 +80,12 @@ public enum OmsorgsovertakelseVilkårType implements Kodeverdi {
     public String getKode() {
         return kode;
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return getKode();
     }
-    
+
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -98,7 +93,7 @@ public enum OmsorgsovertakelseVilkårType implements Kodeverdi {
             }
         }
     }
-    
+
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<OmsorgsovertakelseVilkårType, String> {
         @Override

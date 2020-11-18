@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
@@ -101,10 +100,6 @@ public enum AdresseType implements Kodeverdi {
     @Override
     public String getOffisiellKode() {
         return offisiellKode;
-    }
-
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet().stream().map(k -> "'" + k + "'").collect(Collectors.toList()));
     }
 
     @Converter(autoApply = true)

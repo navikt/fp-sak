@@ -102,8 +102,4 @@ public enum HistorikkAvklartSoeknadsperiodeType implements Kodeverdi {
         return getKode();
     }
 
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet());
-    }
-
 }

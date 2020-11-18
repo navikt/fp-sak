@@ -39,7 +39,7 @@ public enum FagsakStatus implements Kodeverdi {
             }
         }
     }
-    
+
     @JsonIgnore
     private String navn;
 
@@ -85,15 +85,11 @@ public enum FagsakStatus implements Kodeverdi {
     public String getOffisiellKode() {
         return getKode();
     }
-    
+
     @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
-    }
-
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet());
     }
 
     @Converter(autoApply = true)

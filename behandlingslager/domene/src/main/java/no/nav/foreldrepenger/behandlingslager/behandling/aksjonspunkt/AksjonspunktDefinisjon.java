@@ -722,12 +722,4 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             return dbData == null ? null : AksjonspunktDefinisjon.fraKode(dbData);
         }
     }
-
-    public static void main(String[] args) {
-        for(var k: values()) {
-            if(k.getAksjonspunktType().equals(AksjonspunktType.AUTOPUNKT)) {
-                System.out.println(k.getKode() + ", ");
-            }
-        }
-    }
 }

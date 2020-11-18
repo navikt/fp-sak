@@ -34,7 +34,7 @@ public enum IverksettingStatus implements Kodeverdi {
 
     @JsonIgnore
     private String navn;
-    
+
     private String kode;
 
     private IverksettingStatus(String kode, String navn) {
@@ -57,16 +57,12 @@ public enum IverksettingStatus implements Kodeverdi {
     public static Map<String, IverksettingStatus> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }
-    
+
     @Override
     public String getNavn() {
         return navn;
     }
 
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet());
-    }
-    
     @JsonProperty
     @Override
     public String getKodeverk() {
@@ -78,12 +74,12 @@ public enum IverksettingStatus implements Kodeverdi {
     public String getKode() {
         return kode;
     }
-    
+
     @Override
     public String getOffisiellKode() {
         return getKode();
     }
-    
+
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -91,7 +87,7 @@ public enum IverksettingStatus implements Kodeverdi {
             }
         }
     }
-    
+
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<IverksettingStatus, String> {
         @Override

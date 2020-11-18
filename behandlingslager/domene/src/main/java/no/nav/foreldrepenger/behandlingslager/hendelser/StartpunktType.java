@@ -166,10 +166,6 @@ public enum StartpunktType implements Kodeverdi {
         return super.toString() + "('" + getKode() + "')";
     }
 
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet());
-    }
-
     public BehandlingStegType getBehandlingSteg() {
         return behandlingSteg;
     }

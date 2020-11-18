@@ -93,10 +93,6 @@ public enum AksjonspunktStatus implements Kodeverdi {
         return navn;
     }
 
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet());
-    }
-
     public boolean erÅpentAksjonspunkt() {
         return ÅPNE_AKSJONSPUNKT_KODER.contains(this);  // NOSONAR
     }

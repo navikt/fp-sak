@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
@@ -117,10 +116,6 @@ public enum RelatertYtelseType implements Kodeverdi {
             throw new IllegalStateException("Støtter ikke fagsakYtelseType" + ytelseType);
         }
         return OPPTJENING_RELATERTYTELSE_FELLES.contains(this) || relatertYtelseTypeSet.contains(this);
-    }
-
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet().stream().map(k -> "'" + k + "'").collect(Collectors.toList()));
     }
 
     @Converter(autoApply = true)

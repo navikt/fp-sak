@@ -99,15 +99,11 @@ public enum HistorikkResultatType implements Kodeverdi {
     public String getOffisiellKode() {
         return getKode();
     }
-    
+
     @JsonProperty
     @Override
     public String getKode() {
         return kode;
-    }
-
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet());
     }
 
     @Converter(autoApply = true)

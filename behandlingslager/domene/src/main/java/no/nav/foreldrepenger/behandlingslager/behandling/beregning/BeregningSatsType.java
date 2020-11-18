@@ -62,10 +62,6 @@ public enum BeregningSatsType implements Kodeverdi {
         return Collections.unmodifiableMap(KODER);
     }
 
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet());
-    }
-
     @Override
     public String getNavn() {
         return navn;

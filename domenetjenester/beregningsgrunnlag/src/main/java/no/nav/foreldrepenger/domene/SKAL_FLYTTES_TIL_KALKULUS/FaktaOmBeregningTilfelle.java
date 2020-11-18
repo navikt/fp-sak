@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
@@ -79,10 +78,6 @@ public enum FaktaOmBeregningTilfelle implements Kodeverdi {
 
     public static Map<String, FaktaOmBeregningTilfelle> kodeMap() {
         return Collections.unmodifiableMap(KODER);
-    }
-
-    public static void main(String[] args) {
-        System.out.println(KODER.keySet().stream().map(k -> "'" + k + "'").collect(Collectors.toList()));
     }
 
     @Override
