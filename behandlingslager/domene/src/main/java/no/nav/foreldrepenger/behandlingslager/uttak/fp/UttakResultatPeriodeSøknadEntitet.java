@@ -49,9 +49,6 @@ public class UttakResultatPeriodeSøknadEntitet extends BaseEntitet {
 
     //TODO palfi TFP-2394 set temp_2 til unused
 
-    @Column(name = "mottatt_dato_3")
-    private LocalDate mottattDatoTemp;
-
     @Column(name = "MORS_AKTIVITET", updatable = false, nullable = false)
     @Convert(converter = MorsAktivitet.KodeverdiConverter.class)
     private MorsAktivitet morsAktivitet = MorsAktivitet.UDEFINERT;
@@ -77,7 +74,7 @@ public class UttakResultatPeriodeSøknadEntitet extends BaseEntitet {
     }
 
     public LocalDate getMottattDato() {
-        return mottattDatoTemp;
+        return mottattDato;
     }
 
     public MorsAktivitet getMorsAktivitet() {
@@ -124,7 +121,6 @@ public class UttakResultatPeriodeSøknadEntitet extends BaseEntitet {
 
         public Builder medMottattDato(LocalDate mottattDato) {
             kladd.mottattDato = mottattDato;
-            kladd.mottattDatoTemp = mottattDato;
             return this;
         }
 

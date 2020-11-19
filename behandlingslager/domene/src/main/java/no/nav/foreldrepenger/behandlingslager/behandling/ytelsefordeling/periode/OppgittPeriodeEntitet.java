@@ -121,9 +121,6 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
     @Column(name = "mottatt_dato")
     private LocalDate mottattDato;
 
-    @Column(name = "mottatt_dato_temp")
-    private LocalDate mottattDatoTemp;
-
     protected OppgittPeriodeEntitet() {
         // Hibernate
     }
@@ -293,12 +290,11 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
     }
 
     public LocalDate getMottattDato() {
-        return mottattDatoTemp;
+        return mottattDato;
     }
 
     public void setMottattDato(LocalDate mottattDato) {
         this.mottattDato = mottattDato;
-        this.mottattDatoTemp = mottattDato;
     }
 
     /**
