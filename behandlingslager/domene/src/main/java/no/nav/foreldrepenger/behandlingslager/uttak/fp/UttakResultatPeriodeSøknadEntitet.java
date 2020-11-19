@@ -47,8 +47,6 @@ public class UttakResultatPeriodeSøknadEntitet extends BaseEntitet {
     @Column(name = "mottatt_dato")
     private LocalDate mottattDato;
 
-    //TODO palfi TFP-2394 set temp_2 til unused
-
     @Column(name = "MORS_AKTIVITET", updatable = false, nullable = false)
     @Convert(converter = MorsAktivitet.KodeverdiConverter.class)
     private MorsAktivitet morsAktivitet = MorsAktivitet.UDEFINERT;
