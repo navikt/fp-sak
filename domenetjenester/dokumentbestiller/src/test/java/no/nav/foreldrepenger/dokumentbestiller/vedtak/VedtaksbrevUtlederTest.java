@@ -59,7 +59,7 @@ public class VedtaksbrevUtlederTest {
     public void skal_velge_negativt_ES() {
         doReturn(VedtakResultatType.AVSLAG).when(behandlingVedtakMock).getVedtakResultatType();
         assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, behandlingsresultatMock, behandlingVedtakMock, klageRepository,
-                ankeRepository)).isEqualTo(DokumentMalType.AVSLAGSVEDTAK_DOK);
+                ankeRepository)).isEqualTo(DokumentMalType.AVSLAG_ENGANGSSTØNAD);
     }
 
     @Test
