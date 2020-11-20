@@ -18,11 +18,11 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.finn.unleash.FakeUnleash;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.økonomi.ny.postcondition.OppdragPostConditionTjeneste;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHendelse;
@@ -46,17 +46,17 @@ public class VurderOgSendØkonomiOppdragTaskTest {
     @Mock
     private OppdragskontrollTjeneste oppdragskontrollTjeneste;
 
-    private VurderOgSendØkonomiOppdragTask task;
+    @Mock
+    private OppdragPostConditionTjeneste oppdragPostConditionTjeneste;
 
-    private final FakeUnleash fakeUnleash = new FakeUnleash();
+    private VurderOgSendØkonomiOppdragTask task;
 
     @BeforeEach
     public void setUp() {
         when(prosessTaskData.getBehandlingId()).thenReturn(BEHANDLING_ID.toString());
         lenient().when(prosessTaskData.getId()).thenReturn(TASK_ID);
         lenient().when(prosessTaskData.getAktørId()).thenReturn(AKTØR_ID);
-        task = new VurderOgSendØkonomiOppdragTask(oppdragskontrollTjeneste, repo,
-            ScenarioMorSøkerForeldrepenger.forFødsel().mockBehandlingRepositoryProvider(), fakeUnleash);
+        task = new VurderOgSendØkonomiOppdragTask(oppdragskontrollTjeneste, repo, ScenarioMorSøkerForeldrepenger.forFødsel().mockBehandlingRepositoryProvider(), oppdragPostConditionTjeneste);
     }
 
     @Test

@@ -1,0 +1,138 @@
+package no.nav.foreldrepenger.økonomi.ny.mapper;
+
+import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad170;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeStatusLinje;
+import no.nav.foreldrepenger.økonomi.ny.domene.Betalingsmottaker;
+import no.nav.foreldrepenger.økonomi.ny.domene.KjedeNøkkel;
+import no.nav.foreldrepenger.økonomi.ny.domene.OppdragKjede;
+import no.nav.foreldrepenger.økonomi.ny.domene.OppdragLinje;
+import no.nav.foreldrepenger.økonomi.ny.domene.Periode;
+import no.nav.foreldrepenger.økonomi.ny.domene.Sats;
+import no.nav.foreldrepenger.økonomi.ny.domene.SatsType;
+import no.nav.foreldrepenger.økonomi.ny.domene.Utbetalingsgrad;
+import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragKvitteringTjeneste;
+
+
+public class EksisterendeOppdragMapper {
+
+    public static Map<KjedeNøkkel, OppdragKjede> tilKjeder(List<Oppdragskontroll> oppdragskontroll) {
+        return oppdragTilKjeder(oppdragskontroll.stream().flatMap(ok -> ok.getOppdrag110Liste().stream()).collect(Collectors.toList()));
+    }
+
+    public static Map<KjedeNøkkel, OppdragKjede> oppdragTilKjeder(List<Oppdrag110> tidligereOppdrag) {
+        List<Oppdrag110> godkjenteOppdrag = sorterOgVelgKunGyldige(tidligereOppdrag);
+        var buildere = lagOppdragskjedeBuildere(godkjenteOppdrag);
+        return build(buildere);
+    }
+
+    private static Map<KjedeNøkkel, OppdragKjede.Builder> lagOppdragskjedeBuildere(List<Oppdrag110> godkjenteOppdrag) {
+        Map<KjedeNøkkel, OppdragKjede.Builder> buildere = new HashMap<>();
+        for (Oppdrag110 oppdrag110 : godkjenteOppdrag) {
+            for (Oppdragslinje150 linje : sortert(oppdrag110.getOppdragslinje150Liste())) {
+                KjedeNøkkel nøkkel = tilNøkkel(linje);
+                OppdragLinje oppdragslinje = tilOppdragslinje(linje);
+                if (!buildere.containsKey(nøkkel)) {
+                    buildere.put(nøkkel, OppdragKjede.builder());
+                }
+                buildere.get(nøkkel).medOppdragslinje(oppdragslinje);
+            }
+        }
+        return buildere;
+    }
+
+    private static Map<KjedeNøkkel, OppdragKjede> build(Map<KjedeNøkkel, OppdragKjede.Builder> buildere) {
+        Map<KjedeNøkkel, OppdragKjede> kjeder = new HashMap<>();
+        for (var entry : buildere.entrySet()) {
+            kjeder.put(entry.getKey(), entry.getValue().build());
+        }
+        return kjeder;
+    }
+
+    private static List<Oppdrag110> sorterOgVelgKunGyldige(List<Oppdrag110> tidligereOppdrag) {
+        return tidligereOppdrag.stream()
+            .filter(ok -> ok.venterKvittering() || OppdragKvitteringTjeneste.harPositivKvittering(ok))
+            .sorted(Comparator.comparing(Oppdrag110::getOpprettetTidspunkt))
+            .collect(Collectors.toList());
+    }
+
+    private static OppdragLinje tilOppdragslinje(Oppdragslinje150 linje) {
+        return OppdragLinje.builder()
+            .medDelytelseId(linje.getDelytelseId())
+            .medRefDelytelseId(linje.getRefDelytelseId())
+            .medPeriode(Periode.of(linje.getDatoVedtakFom(), linje.getDatoVedtakTom()))
+            .medSats(mapSats(linje))
+            .medUtbetalingsgrad(mapUtbetalingsgrad(linje))
+            .medOpphørFomDato(mapOpphørsdato(linje))
+            .build();
+    }
+
+    private static LocalDate mapOpphørsdato(Oppdragslinje150 linje) {
+        if (linje.getDatoStatusFom() == null) {
+            return null;
+        }
+        if (ØkonomiKodeStatusLinje.OPPH.name().equals(linje.getKodeStatusLinje())) {
+            return linje.getDatoStatusFom();
+        }
+        throw new IllegalStateException("Fikk ikke-støttet kodeStatus=" + linje.getKodeStatusLinje());
+    }
+
+    private static Utbetalingsgrad mapUtbetalingsgrad(Oppdragslinje150 linje) {
+        List<Grad170> grad170 = linje.getGrad170Liste();
+        if (grad170.isEmpty()) {
+            return null;
+        }
+        if (grad170.size() == 1) {
+            return new Utbetalingsgrad(grad170.get(0).getGrad());
+        }
+        throw new IllegalArgumentException("Forventer 0 eller 1 Grad170, men fikk " + grad170.size());
+    }
+
+    private static Sats mapSats(Oppdragslinje150 linje) {
+        if (linje.getTypeSats().equals(SatsType.DAG.getKode())) {
+            return Sats.dagsats(linje.getSats());
+        } else if (linje.getTypeSats().equals(SatsType.ENGANG.getKode())) {
+            return Sats.engang(linje.getSats());
+        } else {
+            throw new IllegalArgumentException("Ikke-støttet satstype: " + linje.getTypeSats());
+        }
+    }
+
+    private static KjedeNøkkel tilNøkkel(Oppdragslinje150 linje) {
+        Refusjonsinfo156 refusjonsinfo = linje.getRefusjonsinfo156();
+        Betalingsmottaker mottaker = refusjonsinfo == null
+            ? Betalingsmottaker.BRUKER
+            : Betalingsmottaker.forArbeidsgiver(normaliserOrgnr(refusjonsinfo.getRefunderesId()));
+        Integer feriepengeår = linje.getKodeKlassifikEnum().gjelderFerie()
+            ? linje.getDatoVedtakFom().getYear() - 1
+            : null;
+        return new KjedeNøkkel(linje.getKodeKlassifikEnum(), mottaker, feriepengeår);
+    }
+
+    private static String normaliserOrgnr(String orgnr) {
+        if (orgnr.length() == 11 && orgnr.startsWith("00")) {
+            return orgnr.substring(2);
+        } else if (orgnr.length() == 9) {
+            return orgnr;
+        } else {
+            throw new IllegalArgumentException("orgnr skal være 9 tegn, eller 11 tegn og starte med 00");
+        }
+    }
+
+    private static List<Oppdragslinje150> sortert(List<Oppdragslinje150> oppdragslinje150Liste) {
+        return oppdragslinje150Liste.stream()
+            .sorted(Comparator.comparing(Oppdragslinje150::getDelytelseId))
+            .collect(Collectors.toList());
+    }
+
+}

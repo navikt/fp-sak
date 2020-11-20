@@ -1,0 +1,134 @@
+package no.nav.foreldrepenger.økonomi.ny.domene;
+
+import java.time.LocalDate;
+import java.util.Objects;
+
+public class OppdragLinje {
+
+    private Periode periode;
+    private Sats sats;
+    private Utbetalingsgrad utbetalingsgrad;
+    private DelytelseId delytelseId;
+    private DelytelseId refDelytelseId;
+    private LocalDate opphørFomDato;
+
+    private OppdragLinje(Periode periode, Sats sats, Utbetalingsgrad utbetalingsgrad, DelytelseId delytelseId, DelytelseId refDelytelseId, LocalDate opphørFomDato) {
+        this.periode = periode;
+        this.sats = sats;
+        this.utbetalingsgrad = utbetalingsgrad;
+        this.delytelseId = delytelseId;
+        this.refDelytelseId = refDelytelseId;
+        this.opphørFomDato = opphørFomDato;
+    }
+
+    public Periode getPeriode() {
+        return periode;
+    }
+
+    public Sats getSats() {
+        return sats;
+    }
+
+    public Utbetalingsgrad getUtbetalingsgrad() {
+        return utbetalingsgrad;
+    }
+
+    public DelytelseId getDelytelseId() {
+        return delytelseId;
+    }
+
+    public DelytelseId getRefDelytelseId() {
+        return refDelytelseId;
+    }
+
+    public LocalDate getOpphørFomDato() {
+        return opphørFomDato;
+    }
+
+    public boolean erOpphørslinje() {
+        return opphørFomDato != null;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static OppdragLinje lagOpphørslinje(OppdragLinje opphøres, LocalDate opphørFomDato) {
+        return OppdragLinje.builder()
+            .medDelytelseId(opphøres.getDelytelseId())
+            .medPeriode(opphøres.getPeriode())
+            .medSats(opphøres.getSats())
+            .medUtbetalingsgrad(opphøres.getUtbetalingsgrad())
+            .medOpphørFomDato(opphørFomDato)
+            .build();
+    }
+
+    public static class Builder {
+        private Periode periode;
+        private Sats sats;
+        private Utbetalingsgrad utbetalingsgrad;
+        private DelytelseId delytelseId;
+        private DelytelseId refDelytelseId;
+        private LocalDate opphørFomDato;
+
+        private Builder() {
+        }
+
+        public Builder medYtelsePeriode(YtelsePeriode ytelsePeriode) {
+            this.periode = ytelsePeriode.getPeriode();
+            this.sats = ytelsePeriode.getSats();
+            this.utbetalingsgrad = ytelsePeriode.getUtbetalingsgrad();
+            return this;
+        }
+
+        public Builder medPeriode(Periode periode) {
+            this.periode = periode;
+            return this;
+        }
+
+        public Builder medSats(Sats sats) {
+            this.sats = sats;
+            return this;
+        }
+
+        public Builder medUtbetalingsgrad(Utbetalingsgrad utbetalingsgrad) {
+            this.utbetalingsgrad = utbetalingsgrad;
+            return this;
+        }
+
+        public Builder medDelytelseId(DelytelseId delytelseId) {
+            this.delytelseId = delytelseId;
+            return this;
+        }
+
+        //TODO bruk heller metode som tar inn DelytelseId-objektet
+        public Builder medDelytelseId(Long delytelseId) {
+            this.delytelseId = DelytelseId.parse(Long.toString(delytelseId));
+            return this;
+        }
+
+        public Builder medRefDelytelseId(DelytelseId refDelytelseId) {
+            this.refDelytelseId = refDelytelseId;
+            return this;
+        }
+
+        //TODO bruk heller metode som tar inn DelytelseId-objektet
+        public Builder medRefDelytelseId(Long refDelytelseId) {
+            this.refDelytelseId = DelytelseId.parse(Long.toString(refDelytelseId));
+            return this;
+        }
+
+        public Builder medOpphørFomDato(LocalDate opphørFomDato) {
+            this.opphørFomDato = opphørFomDato;
+            return this;
+        }
+
+        public OppdragLinje build() {
+            Objects.requireNonNull(periode);
+            Objects.requireNonNull(sats);
+            Objects.requireNonNull(delytelseId);
+            return new OppdragLinje(periode, sats, utbetalingsgrad, delytelseId, refDelytelseId, opphørFomDato);
+        }
+    }
+
+}
