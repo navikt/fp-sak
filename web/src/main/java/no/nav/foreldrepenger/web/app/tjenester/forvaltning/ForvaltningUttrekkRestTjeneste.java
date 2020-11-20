@@ -92,7 +92,7 @@ public class ForvaltningUttrekkRestTjeneste {
         if (apDef == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        Query query = entityManager.createNativeQuery("select saksnummer, ap.opprettet_tid, ap.frist_tid " +
+        Query query = entityManager.createNativeQuery("select saksnummer, ytelse_type, ap.opprettet_tid, ap.frist_tid " +
                 " from fpsak.fagsak fs join fpsak.behandling bh on bh.fagsak_id=fs.id " +
                 " join FPSAK.AKSJONSPUNKT ap on ap.behandling_id=bh.id " +
                 " where aksjonspunkt_def=:apdef and aksjonspunkt_status=:status "); //$NON-NLS-1$
@@ -108,14 +108,16 @@ public class ForvaltningUttrekkRestTjeneste {
 
     private OpenAutopunkt mapFraAksjonspunktTilDto(Object[] row) {
         OpenAutopunkt autopunkt = new OpenAutopunkt();
-        autopunkt.aksjonspunktOpprettetDato = ((Timestamp) row[1]).toLocalDateTime().toLocalDate(); // NOSONAR
-        autopunkt.aksjonspunktFristDato = row[2] != null ? ((Timestamp) row[2]).toLocalDateTime().toLocalDate() : null; // NOSONAR
+        autopunkt.aksjonspunktOpprettetDato = ((Timestamp) row[2]).toLocalDateTime().toLocalDate(); // NOSONAR
+        autopunkt.aksjonspunktFristDato = row[3] != null ? ((Timestamp) row[3]).toLocalDateTime().toLocalDate() : null; // NOSONAR
         autopunkt.saksnummer = (String) row[0]; // NOSONAR
+        autopunkt.ytelseType = (String) row[1]; // NOSONAR
         return autopunkt;
     }
 
     public static class OpenAutopunkt {
         public String saksnummer; // NOSONAR
+        public String ytelseType; // NOSONAR
         public LocalDate aksjonspunktOpprettetDato; // NOSONAR
         public LocalDate aksjonspunktFristDato; // NOSONAR
     }

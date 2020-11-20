@@ -38,6 +38,7 @@ import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
 import no.nav.vedtak.felles.integrasjon.pdl.PdlKlient;
 import no.nav.vedtak.felles.integrasjon.pdl.Tema;
+import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
 public class PersonBasisTjeneste {
@@ -45,6 +46,7 @@ public class PersonBasisTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(PersonBasisTjeneste.class);
 
     private PdlKlient pdlKlient;
+    private boolean isProd = Environment.current().isProd();
 
     PersonBasisTjeneste() {
         // CDI
@@ -71,7 +73,7 @@ public class PersonBasisTjeneste {
         var fødselsdato = person.getFoedsel().stream()
             .map(Foedsel::getFoedselsdato)
             .filter(Objects::nonNull)
-            .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
+            .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElseGet(() -> isProd ? null : LocalDate.now().minusDays(1));
         var dødsdato = person.getDoedsfall().stream()
             .map(Doedsfall::getDoedsdato)
             .filter(Objects::nonNull)
@@ -80,7 +82,7 @@ public class PersonBasisTjeneste {
             .map(Folkeregisterpersonstatus::getStatus)
             .findFirst().map(PersonstatusType::fraFregPersonstatus).orElse(PersonstatusType.UDEFINERT);
         return new PersoninfoBasis.Builder().medAktørId(aktørId).medPersonIdent(personIdent)
-            .medNavn(person.getNavn().stream().map(PersonBasisTjeneste::mapNavn).filter(Objects::nonNull).findFirst().orElse("Navnløs i Folkeregister"))
+            .medNavn(person.getNavn().stream().map(PersonBasisTjeneste::mapNavn).filter(Objects::nonNull).findFirst().orElseGet(() -> isProd ? null : "Navnløs i Folkeregister"))
             .medFødselsdato(fødselsdato)
             .medDødsdato(dødsdato)
             .medDiskresjonsKode(getDiskresjonskode(person))

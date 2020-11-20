@@ -186,20 +186,6 @@ public class TpsOversetterTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void testUtlandsadresse() {
-        when(bruker.getMidlertidigPostadresse()).thenReturn(midlertidigPostadresseUtland);
-        String utlandsadresse = tpsAdresseOversetter.finnUtlandsadresseFor(bruker);
-        assertThat(utlandsadresse).isEqualTo("Test utlandsadresse");
-    }
-
-    @Test
-    public void skal_ikke_feile_når_bruker_ikke_har_utlandsadresse() {
-        when(bruker.getMidlertidigPostadresse()).thenReturn(null);
-        String utlandsadresse = tpsAdresseOversetter.finnUtlandsadresseFor(bruker);
-        assertThat(utlandsadresse).isNull();
-    }
-
-    @Test
     public void testPostnummerAdresseMedPostboksanlegg() {
         initMockBostedsadresseMedPostboksAdresseForBruker();
         when(postboksAdresse.getPostboksanlegg()).thenReturn("Etterstad");
@@ -360,20 +346,6 @@ public class TpsOversetterTest extends EntityManagerAwareTest {
         assertThat(personstatushistorikk.get(1).getGyldighetsperiode().getFom()).isEqualTo(tomPeriode1);
         assertThat(personstatushistorikk.get(1).getGyldighetsperiode().getTom()).isEqualTo(Tid.TIDENES_ENDE);
         assertThat(personstatushistorikk.get(1).getPersonstatus().getKode()).isEqualTo(PersonstatusType.UTVA.getKode());
-    }
-
-    private no.nav.tjeneste.virksomhet.person.v3.informasjon.Person fødBarn(String ident, boolean erJente) {
-        Kjoenn kjønn = new Kjoenn();
-        Kjoennstyper kjønnstype = new Kjoennstyper();
-        kjønnstype.setValue(erJente ? "K" : "M");
-        kjønn.setKjoenn(kjønnstype);
-
-        no.nav.tjeneste.virksomhet.person.v3.informasjon.Person barn = new no.nav.tjeneste.virksomhet.person.v3.informasjon.Person();
-        barn.setKjoenn(kjønn);
-        barn.setAktoer(new PersonIdent().withIdent(new NorskIdent().withIdent(ident)));
-        barn.setPersonnavn(new Personnavn().withSammensattNavn("Navi Navesen"));
-
-        return barn;
     }
 
     private void initMockBrukerPersonstatus(PersonstatusType personstatusType) {

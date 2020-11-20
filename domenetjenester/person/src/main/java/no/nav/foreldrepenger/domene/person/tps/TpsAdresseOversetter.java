@@ -26,7 +26,6 @@ import no.nav.tjeneste.virksomhet.person.v3.informasjon.Gateadresse;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Kodeverdi;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Landkoder;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Matrikkeladresse;
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.MidlertidigPostadresse;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.MidlertidigPostadresseNorge;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.MidlertidigPostadresseUtland;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person;
@@ -66,26 +65,26 @@ public class TpsAdresseOversetter {
         List<Adresseinfo> adresseInfoList = new ArrayList<>();
         if (person.getBostedsadresse() != null) {
             StrukturertAdresse adresseStruk = person.getBostedsadresse().getStrukturertAdresse();
-            adresseInfoList.add(konverterStrukturertAdresse(person, adresseStruk, AdresseType.BOSTEDSADRESSE));
+            adresseInfoList.add(konverterStrukturertAdresse(adresseStruk, AdresseType.BOSTEDSADRESSE));
         }
         if (person.getPostadresse() != null) {
             UstrukturertAdresse adresseUstruk = person.getPostadresse().getUstrukturertAdresse();
             // TODO PK-49366 duplikat adding?
-            adresseInfoList.add(konverterUstrukturertAdresse(person, adresseUstruk, AdresseType.POSTADRESSE));
+            adresseInfoList.add(konverterUstrukturertAdresse(adresseUstruk, AdresseType.POSTADRESSE));
             Landkoder landkode = adresseUstruk.getLandkode();
             if (NORGE.equals(landkode.getValue())) {
-                adresseInfoList.add(konverterUstrukturertAdresse(person, adresseUstruk, AdresseType.POSTADRESSE));
+                adresseInfoList.add(konverterUstrukturertAdresse(adresseUstruk, AdresseType.POSTADRESSE));
             } else {
-                adresseInfoList.add(konverterUstrukturertAdresse(person, adresseUstruk, AdresseType.POSTADRESSE_UTLAND));
+                adresseInfoList.add(konverterUstrukturertAdresse(adresseUstruk, AdresseType.POSTADRESSE_UTLAND));
             }
         }
         if (person.getMidlertidigPostadresse() != null) {
             if (person.getMidlertidigPostadresse() instanceof MidlertidigPostadresseNorge) {
                 StrukturertAdresse adresseStruk = ((MidlertidigPostadresseNorge) person.getMidlertidigPostadresse()).getStrukturertAdresse();
-                adresseInfoList.add(konverterStrukturertAdresse(person, adresseStruk, AdresseType.MIDLERTIDIG_POSTADRESSE_NORGE));
+                adresseInfoList.add(konverterStrukturertAdresse(adresseStruk, AdresseType.MIDLERTIDIG_POSTADRESSE_NORGE));
             } else if (person.getMidlertidigPostadresse() instanceof MidlertidigPostadresseUtland) {
                 UstrukturertAdresse adresseUstruk = ((MidlertidigPostadresseUtland) person.getMidlertidigPostadresse()).getUstrukturertAdresse();
-                adresseInfoList.add(konverterUstrukturertAdresse(person, adresseUstruk, AdresseType.MIDLERTIDIG_POSTADRESSE_UTLAND));
+                adresseInfoList.add(konverterUstrukturertAdresse(adresseUstruk, AdresseType.MIDLERTIDIG_POSTADRESSE_UTLAND));
             }
         }
         return adresseInfoList;
@@ -148,9 +147,9 @@ public class TpsAdresseOversetter {
         Optional<AdresseType> gjeldende = finnGjeldendePostadressetype(bruker);
         if (gjeldende.isPresent()) {
             if (AdresseType.BOSTEDSADRESSE.equals(gjeldende.get())) {
-                return konverterStrukturertAdresse(bruker, bruker.getBostedsadresse().getStrukturertAdresse(), gjeldende.get());
+                return konverterStrukturertAdresse(bruker.getBostedsadresse().getStrukturertAdresse(), gjeldende.get());
             } else if (AdresseType.POSTADRESSE.equals(gjeldende.get()) || AdresseType.POSTADRESSE_UTLAND.equals(gjeldende.get())) {
-                return konverterUstrukturertAdresse(bruker, bruker.getPostadresse().getUstrukturertAdresse(), gjeldende.get());
+                return konverterUstrukturertAdresse(bruker.getPostadresse().getUstrukturertAdresse(), gjeldende.get());
             } else if (AdresseType.MIDLERTIDIG_POSTADRESSE_NORGE.equals(gjeldende.get())) {
                 return konverterMidlertidigPostadresseNorge(bruker, gjeldende.get());
             } else if (AdresseType.MIDLERTIDIG_POSTADRESSE_UTLAND.equals(gjeldende.get())) {
@@ -166,31 +165,30 @@ public class TpsAdresseOversetter {
     private Adresseinfo konverterMidlertidigPostadresseNorge(Bruker bruker,
                                                                     AdresseType gjeldende) {
         StrukturertAdresse midlertidigAdresse = ((MidlertidigPostadresseNorge) bruker.getMidlertidigPostadresse()).getStrukturertAdresse();
-        return konverterStrukturertAdresse(bruker, midlertidigAdresse, gjeldende);
+        return konverterStrukturertAdresse(midlertidigAdresse, gjeldende);
     }
 
     private Adresseinfo konverterMidlertidigPostadresseUtland(Bruker bruker,
                                                                      AdresseType gjeldende) {
         UstrukturertAdresse midlertidigAdresse = ((MidlertidigPostadresseUtland) bruker.getMidlertidigPostadresse()).getUstrukturertAdresse();
-        return konverterUstrukturertAdresse(bruker, midlertidigAdresse, gjeldende);
+        return konverterUstrukturertAdresse(midlertidigAdresse, gjeldende);
     }
 
     Optional<AdresseType> finnGjeldendePostadressetype(Bruker bruker) {
         return AdresseType.fraKodeOptional(bruker.getGjeldendePostadressetype().getValue());
     }
 
-    Adresseinfo konverterStrukturertAdresse(Bruker bruker,
-                                                   StrukturertAdresse adresse,
-                                                   AdresseType adresseType) {
+    Adresseinfo konverterStrukturertAdresse(StrukturertAdresse adresse,
+                                            AdresseType adresseType) {
         requireNonNull(adresse);
         if (adresse instanceof Gateadresse) {
-            return konverterStrukturertAdresse(bruker, adresseType, (Gateadresse) adresse);
+            return konverterStrukturertAdresse(adresseType, (Gateadresse) adresse);
         } else if (adresse instanceof Matrikkeladresse) {
-            return konverterStrukturertAdresse(bruker, adresseType, (Matrikkeladresse) adresse);
+            return konverterStrukturertAdresse(adresseType, (Matrikkeladresse) adresse);
         } else if (adresse instanceof PostboksadresseNorsk) {
-            return konverterStrukturertAdresse(bruker, adresseType, (PostboksadresseNorsk) adresse);
+            return konverterStrukturertAdresse(adresseType, (PostboksadresseNorsk) adresse);
         } else if (adresse instanceof StedsadresseNorge) {
-            return konverterStrukturertAdresse(bruker, adresseType, (StedsadresseNorge) adresse);
+            return konverterStrukturertAdresse(adresseType, (StedsadresseNorge) adresse);
         } else {
             throw new IllegalArgumentException("Ikke-støttet klasse for strukturert adresse: " + adresse.getClass());
         }
@@ -224,9 +222,8 @@ public class TpsAdresseOversetter {
         return byggAdressePeriode(adresseType, adresse, gyldighetsperiode);
     }
 
-    private Adresseinfo konverterStrukturertAdresse(Bruker bruker,
-                                                           AdresseType gjeldende,
-                                                           Matrikkeladresse matrikkeladresse) {
+    private Adresseinfo konverterStrukturertAdresse(AdresseType gjeldende,
+                                                    Matrikkeladresse matrikkeladresse) {
 
         Adresse adresse = konverterStrukturertAdresse(matrikkeladresse);
 
@@ -241,9 +238,8 @@ public class TpsAdresseOversetter {
         return "Bolignummer " + matrikkeladresse.getBolignummer() + " " + matrikkeladresse.getEiendomsnavn();
     }
 
-    private Adresseinfo konverterStrukturertAdresse(Bruker bruker,
-                                                           AdresseType gjeldende,
-                                                           Gateadresse gateadresse) {
+    private Adresseinfo konverterStrukturertAdresse(AdresseType gjeldende,
+                                                    Gateadresse gateadresse) {
 
         Adresse adresse = konverterStrukturertAdresse(gateadresse);
         return byggAddresseinfo(gjeldende, adresse);
@@ -259,17 +255,15 @@ public class TpsAdresseOversetter {
         return new Adresseinfo.Builder(AdresseType.UKJENT_ADRESSE).build();
     }
 
-    private Adresseinfo konverterStrukturertAdresse(Bruker bruker,
-                                                           AdresseType gjeldende,
-                                                           StedsadresseNorge stedsadresseNorge) {
+    private Adresseinfo konverterStrukturertAdresse(AdresseType gjeldende,
+                                                    StedsadresseNorge stedsadresseNorge) {
 
         Adresse adresse = konverterStrukturertAdresse(stedsadresseNorge);
         return byggAddresseinfo(gjeldende, adresse);
     }
 
-    private Adresseinfo konverterStrukturertAdresse(Bruker bruker,
-                                                           AdresseType gjeldende,
-                                                           PostboksadresseNorsk postboksadresseNorsk) {
+    private Adresseinfo konverterStrukturertAdresse(AdresseType gjeldende,
+                                                    PostboksadresseNorsk postboksadresseNorsk) {
         Adresse adresse = konverterStrukturertAdresse(postboksadresseNorsk);
         return byggAddresseinfo(gjeldende, adresse);
     }
@@ -283,9 +277,8 @@ public class TpsAdresseOversetter {
             hvisfinnes(postboksadresseNorsk.getPostboksanlegg());
     }
 
-    Adresseinfo konverterUstrukturertAdresse(Bruker bruker,
-                                                    UstrukturertAdresse ustrukturertAdresse,
-                                                    AdresseType gjeldende) {
+    Adresseinfo konverterUstrukturertAdresse(UstrukturertAdresse ustrukturertAdresse,
+                                             AdresseType gjeldende) {
 
         Adresse adresse = konverterUstrukturertAdresse(ustrukturertAdresse);
         return byggAddresseinfo(gjeldende, adresse);
@@ -398,28 +391,6 @@ public class TpsAdresseOversetter {
             adresse.adresselinje4 = linje4;
         }
         return adresse;
-    }
-
-    public String finnUtlandsadresseFor(Bruker bruker) {
-        MidlertidigPostadresse midlertidigPostadresse = bruker.getMidlertidigPostadresse();
-        if (midlertidigPostadresse instanceof MidlertidigPostadresseUtland) {
-            MidlertidigPostadresseUtland postadresseUtland = (MidlertidigPostadresseUtland) midlertidigPostadresse;
-            return byggOppAdresse(konverterUstrukturertAdresse(bruker,
-                postadresseUtland.getUstrukturertAdresse(),
-                AdresseType.MIDLERTIDIG_POSTADRESSE_UTLAND));
-        }
-        return null;
-    }
-
-    private String byggOppAdresse(Adresseinfo adresseinfo) {
-        String linje1 = adresseinfo.getAdresselinje1();
-        String linje2 = Optional.ofNullable(adresseinfo.getAdresselinje2()).map(linje -> "\n" + linje).orElse("");
-        String linje3 = Optional.ofNullable(adresseinfo.getAdresselinje3()).map(linje -> "\n" + linje).orElse("");
-        String linje4 = Optional.ofNullable(adresseinfo.getAdresselinje4()).map(linje -> "\n" + linje).orElse("");
-        String postnr = Optional.ofNullable(adresseinfo.getPostNr()).map(nr -> "\n" + nr).orElse("");
-        String poststed = Optional.ofNullable(adresseinfo.getPoststed()).map(sted -> " " + sted).orElse("");
-        String land = Optional.ofNullable(adresseinfo.getLand()).map(landKode -> "\n" + landKode).orElse("");
-        return linje1 + linje2 + linje3 + linje4 + postnr + poststed + land;
     }
 
     Adresseinfo tilAdresseInfo(Person person) {
