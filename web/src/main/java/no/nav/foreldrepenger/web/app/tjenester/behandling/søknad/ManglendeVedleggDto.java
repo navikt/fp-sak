@@ -5,6 +5,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 public class ManglendeVedleggDto {
     private DokumentTypeId dokumentType;
     private ArbeidsgiverDto arbeidsgiver;
+    private String arbeidsgiverReferanse;
     private boolean brukerHarSagtAtIkkeKommer = false;
 
     public DokumentTypeId getDokumentType() {
@@ -21,6 +22,14 @@ public class ManglendeVedleggDto {
 
     public void setArbeidsgiver(ArbeidsgiverDto arbeidsgiver) {
         this.arbeidsgiver = arbeidsgiver;
+    }
+
+    public String getArbeidsgiverReferanse() {
+        return arbeidsgiverReferanse;
+    }
+
+    public void setArbeidsgiverReferanse(String arbeidsgiverReferanse) {
+        this.arbeidsgiverReferanse = arbeidsgiverReferanse;
     }
 
     public boolean getBrukerHarSagtAtIkkeKommer() {

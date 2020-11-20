@@ -3,15 +3,16 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.arbeidsforhold;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -50,6 +51,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.dto.InntektArbeidYtelseDto;
 import no.nav.foreldrepenger.domene.arbeidsforhold.dto.InntektArbeidYtelseDtoMapper;
@@ -209,7 +211,8 @@ public class InntektArbeidYtelseRestTjeneste {
         }
 
         Set<Arbeidsgiver> arbeidsgivere = new HashSet<>();
-        Set<ArbeidsgiverOpplysningerDto> utlandskeOrganisasjoner = new HashSet<>();
+        Set<ArbeidsgiverOpplysningerDto> alleReferanser = new HashSet<>();
+        List<String> overstyrtNavn = new ArrayList<>();
 
         if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
             ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId())
@@ -238,20 +241,30 @@ public class InntektArbeidYtelseRestTjeneste {
                 .map(ArbeidsforholdReferanse::getArbeidsgiver).filter(Objects::nonNull).forEach(arbeidsgivere::add);
             iayg.getArbeidsforholdOverstyringer().stream()
                 .map(ArbeidsforholdOverstyring::getArbeidsgiver).filter(Objects::nonNull).forEach(arbeidsgivere::add);
+            iayg.getArbeidsforholdOverstyringer().stream()
+                .filter(o -> o.getArbeidsgiver() != null && o.getArbeidsgiverNavn() != null && OrgNummer.KUNSTIG_ORG.equals(o.getArbeidsgiver().getIdentifikator()))
+                .forEach(o -> overstyrtNavn.add(o.getArbeidsgiverNavn()));
             iayg.getOppgittOpptjening().map(OppgittOpptjening::getEgenNæring).orElse(Collections.emptyList()).stream()
                 .map(OppgittEgenNæring::getVirksomhetOrgnr).filter(Objects::nonNull).map(Arbeidsgiver::virksomhet).forEach(arbeidsgivere::add);
             iayg.getOppgittOpptjening().map(OppgittOpptjening::getEgenNæring).orElse(Collections.emptyList()).stream()
                 .map(OppgittEgenNæring::getVirksomhet).map(InntektArbeidYtelseRestTjeneste::mapUtlandskOrganisasjon)
-                .filter(Objects::nonNull).forEach(utlandskeOrganisasjoner::add);
+                .filter(Objects::nonNull).forEach(alleReferanser::add);
             iayg.getOppgittOpptjening().map(OppgittOpptjening::getOppgittArbeidsforhold).orElse(Collections.emptyList()).stream()
                 .map(OppgittArbeidsforhold::getUtenlandskVirksomhet).map(InntektArbeidYtelseRestTjeneste::mapUtlandskOrganisasjon)
-                .filter(Objects::nonNull).forEach(utlandskeOrganisasjoner::add);
+                .filter(Objects::nonNull).forEach(alleReferanser::add);
         });
 
+        if (!overstyrtNavn.isEmpty()) {
+            alleReferanser.add(new ArbeidsgiverOpplysningerDto(OrgNummer.KUNSTIG_ORG, overstyrtNavn.get(0)));
+        } else if (arbeidsgivere.stream().map(Arbeidsgiver::getIdentifikator).anyMatch(OrgNummer.KUNSTIG_ORG::equals)) {
+            alleReferanser.add(new ArbeidsgiverOpplysningerDto(OrgNummer.KUNSTIG_ORG, "Lagt til av saksbehandler"));
+        }
         Set<ArbeidsgiverOpplysningerDto> arbeidsgivereDtos = arbeidsgivere.stream()
+            .filter(a -> !OrgNummer.KUNSTIG_ORG.equals(a.getIdentifikator()))
             .map(this::mapFra)
             .collect(Collectors.toSet());
-        Map<String, ArbeidsgiverOpplysningerDto> oversikt = Stream.concat(arbeidsgivereDtos.stream(), utlandskeOrganisasjoner.stream())
+        alleReferanser.addAll(arbeidsgivereDtos);
+        Map<String, ArbeidsgiverOpplysningerDto> oversikt = alleReferanser.stream()
             .collect(Collectors.toMap(ArbeidsgiverOpplysningerDto::getReferanse, Function.identity()));
         return new ArbeidsgiverOversiktDto(oversikt);
     }

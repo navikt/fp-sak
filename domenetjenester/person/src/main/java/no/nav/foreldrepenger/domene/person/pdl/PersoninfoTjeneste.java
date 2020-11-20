@@ -371,12 +371,15 @@ public class PersoninfoTjeneste {
         if (pdl == null || tps == null || tps.getClass() != pdl.getClass()) return false;
         var likerels = pdl.getFamilierelasjoner().size() == tps.getFamilierelasjoner().size() &&
             pdl.getFamilierelasjoner().containsAll(tps.getFamilierelasjoner());
+        var likeadresser = pdl.getAdresseInfoList().size() == tps.getAdresseInfoList().size() &&
+            pdl.getAdresseInfoList().containsAll(tps.getAdresseInfoList());
         return // Objects.equals(pdl.getNavn(), tps.getNavn()) && - avvik skyldes tegnsett
             Objects.equals(pdl.getFødselsdato(), tps.getFødselsdato()) &&
             Objects.equals(pdl.getDødsdato(), tps.getDødsdato()) &&
             pdl.getPersonstatus() == tps.getPersonstatus() &&
             pdl.getKjønn() == tps.getKjønn() &&
             likerels &&
+            likeadresser &&
             pdl.getRegion() == tps.getRegion() &&
             pdl.getLandkode() == tps.getLandkode() &&
             pdl.getSivilstandType() == tps.getSivilstandType();
