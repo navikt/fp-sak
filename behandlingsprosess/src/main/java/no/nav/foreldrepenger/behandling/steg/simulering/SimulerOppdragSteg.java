@@ -32,6 +32,7 @@ import no.nav.foreldrepenger.økonomi.simulering.tjeneste.SimuleringIntegrasjonT
 import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.SimulerOppdragTjeneste;
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.util.env.Environment;
 
 @BehandlingStegRef(kode = "SIMOPP")
 @BehandlingTypeRef
@@ -51,6 +52,8 @@ public class SimulerOppdragSteg implements BehandlingSteg {
     private TilbakekrevingRepository tilbakekrevingRepository;
     private FpoppdragSystembrukerRestKlient fpoppdragSystembrukerRestKlient;
     private FptilbakeRestKlient fptilbakeRestKlient;
+
+    private boolean isDev = Environment.current().isDev();
 
     SimulerOppdragSteg() {
         // for CDI proxy
@@ -76,6 +79,9 @@ public class SimulerOppdragSteg implements BehandlingSteg {
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        if (isDev) { // TODO: Fjern når oppdrag virker i q1
+            return BehandleStegResultat.utførtUtenAksjonspunkter();
+        }
         try {
             startSimulering(behandling);
             return utledAksjonspunkt(behandling);
