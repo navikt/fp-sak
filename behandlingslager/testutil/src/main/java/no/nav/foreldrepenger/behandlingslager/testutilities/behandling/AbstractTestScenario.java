@@ -1161,7 +1161,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         return oppgittTilknytningBuilder;
     }
 
-    public MedlemskapOppgittTilknytningEntitet.Builder medDefaultOppgittTilknytning() {
+    public S medDefaultOppgittTilknytning() {
         if (oppgittTilknytningBuilder == null) {
             oppgittTilknytningBuilder = new MedlemskapOppgittTilknytningEntitet.Builder();
         }
@@ -1182,7 +1182,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         List<MedlemskapOppgittLandOppholdEntitet> oppholdNorge = List.of(oppholdNorgeNestePeriode, oppholdNorgeSistePeriode);
 
         oppgittTilknytningBuilder.medOpphold(oppholdNorge).medOppholdNå(true).medOppgittDato(LocalDate.now());
-        return oppgittTilknytningBuilder;
+        return (S) this;
     }
 
     @SuppressWarnings("unchecked")

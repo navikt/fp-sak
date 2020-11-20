@@ -43,6 +43,9 @@ public class VurderSøknadsfristTjeneste {
         //Ingen perioder betyr behandling ut ny søknad. Trenger ikke å sjekke søknadsfrist på nytt ettersom uttaksperiodegrense
         // er kopiert fra forrige behandling
         if (oppgittePerioder.isEmpty()) {
+            if (uttaksperiodegrenseRepository.hentHvisEksisterer(behandlingId).isEmpty()) {
+                throw new IllegalStateException("Forventet at uttaksperiodegrense er kopiert fra original behandling");
+            }
             return Optional.empty();
         }
 

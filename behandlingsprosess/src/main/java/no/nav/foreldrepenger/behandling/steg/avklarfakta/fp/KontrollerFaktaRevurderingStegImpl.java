@@ -62,6 +62,7 @@ import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Beregningsgrunnlag
 import no.nav.foreldrepenger.domene.registerinnhenting.BehandlingÅrsakTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktTjeneste;
 import no.nav.foreldrepenger.domene.typer.Beløp;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
@@ -103,6 +104,8 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
 
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
 
+    private ForeldrepengerUttakTjeneste uttakTjeneste;
+
     KontrollerFaktaRevurderingStegImpl() {
         // for CDI proxy
     }
@@ -116,7 +119,8 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
                                        @FagsakYtelseTypeRef("FP") StartpunktTjeneste startpunktTjeneste,
                                        BehandlingÅrsakTjeneste behandlingÅrsakTjeneste,
                                        BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                       MottatteDokumentTjeneste mottatteDokumentTjeneste) {
+                                       MottatteDokumentTjeneste mottatteDokumentTjeneste,
+                                       ForeldrepengerUttakTjeneste uttakTjeneste) {
         this.repositoryProvider = repositoryProvider;
         this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
@@ -129,6 +133,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         this.behandlingÅrsakTjeneste = behandlingÅrsakTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.mottatteDokumentTjeneste = mottatteDokumentTjeneste;
+        this.uttakTjeneste = uttakTjeneste;
     }
 
     @Override
@@ -323,20 +328,37 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     }
 
     private void tilbakestillOppgittFordelingBasertPåBehandlingType(Behandling revurdering) {
-        YtelsesFordelingRepository ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
-        Long behandlingId = revurdering.getId();
-        Optional<YtelseFordelingAggregat> ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId);
-        ytelsesFordelingRepository.tilbakestillFordeling(behandlingId);
-        if (!revurdering.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER) && !mottatteDokumentTjeneste.harMottattDokumentSet(revurdering.getId(), DokumentTypeId.getEndringSøknadTyper())) {
-            boolean erAnnenForelderInformert = false;
-            if (ytelseFordelingAggregat.isPresent() && ytelseFordelingAggregat.get().getOppgittFordeling() != null) {
-                erAnnenForelderInformert = ytelseFordelingAggregat.get().getOppgittFordeling().getErAnnenForelderInformert();
-                if (unntaManuellRevurderingMedAvslåttFørstegangsbehandlingSomOriginalBehandling(revurdering)) {
-                    return;
-                }
+        var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+        ytelsesFordelingRepository.tilbakestillFordeling(revurdering.getId());
+        if (!erEndringssøknad(revurdering)) {
+            var originalBehandling = revurdering.getOriginalBehandlingId().orElseThrow();
+            //Hvis original behandling har vært innom uttak så skal periodene fra uttaket brukes for å lage ny YF
+            //Se FastsettUttaksgrunnlagOgVurderSøknadsfristSteg
+            if (harUttak(originalBehandling)) {
+                var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(revurdering.getId());
+                var erAnnenForelderInformert = hentAnnenForelderErInformert(ytelseFordelingAggregat);
+                var tilbakeStiltFordeling = new OppgittFordelingEntitet(Collections.emptyList(), erAnnenForelderInformert);
+                ytelsesFordelingRepository.lagre(revurdering.getId(), tilbakeStiltFordeling);
             }
-            ytelsesFordelingRepository.lagre(behandlingId, new OppgittFordelingEntitet(Collections.emptyList(), erAnnenForelderInformert));
         }
+    }
+
+    private boolean harUttak(Long behandlingId) {
+        return uttakTjeneste.hentUttakHvisEksisterer(behandlingId).isPresent();
+    }
+
+    private boolean hentAnnenForelderErInformert(Optional<YtelseFordelingAggregat> ytelseFordelingAggregat) {
+        if (ytelseFordelingAggregat.isPresent() && ytelseFordelingAggregat.get().getOppgittFordeling() != null) {
+            return ytelseFordelingAggregat.get().getOppgittFordeling().getErAnnenForelderInformert();
+        }
+        //Default false
+        return false;
+    }
+
+    private boolean erEndringssøknad(Behandling revurdering) {
+        return revurdering.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
+            || mottatteDokumentTjeneste.harMottattDokumentSet(revurdering.getId(),
+            DokumentTypeId.getEndringSøknadTyper());
     }
 
     private boolean unntaManuellRevurderingMedAvslåttFørstegangsbehandlingSomOriginalBehandling(Behandling revurdering) {
