@@ -152,11 +152,6 @@ public enum BehandlingStegType implements Kodeverdi {
         return KODEVERK;
     }
 
-    @Override
-    public String getOffisiellKode() {
-        return getKode();
-    }
-
     @JsonCreator
     public static BehandlingStegType fraKode(@JsonProperty("kode") String kode) {
         if (kode == null) {

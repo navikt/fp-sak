@@ -88,9 +88,4 @@ public enum ForeldreType implements Kodeverdi {
         return kode;
     }
 
-    @Override
-    public String getOffisiellKode() {
-        return getKode();
-    }
-
 }

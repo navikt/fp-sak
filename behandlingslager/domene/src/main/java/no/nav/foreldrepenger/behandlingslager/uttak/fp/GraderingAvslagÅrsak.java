@@ -107,11 +107,6 @@ public enum GraderingAvslagÅrsak implements Kodeverdi {
         return kode;
     }
 
-    @Override
-    public String getOffisiellKode() {
-        return getKode();
-    }
-
     public LocalDate getGyldigFraOgMed() {
         return LocalDate.of(2001, 01, 01);
     }

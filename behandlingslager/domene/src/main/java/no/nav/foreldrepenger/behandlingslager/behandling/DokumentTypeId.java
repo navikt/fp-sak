@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
 
 /*
  * Opprettet fra https://kodeverk-web.nais.adeo.no/kodeverksoversikt/kodeverk/DokumentTypeId-er
@@ -32,7 +33,7 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
-public enum DokumentTypeId implements Kodeverdi {
+public enum DokumentTypeId implements Kodeverdi, MedOffisiellKode {
 
     // Søknader
     SØKNAD_SVANGERSKAPSPENGER("SØKNAD_SVANGERSKAPSPENGER", "I000001", "Søknad om svangerskapspenger"),

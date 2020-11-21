@@ -83,11 +83,6 @@ public enum OppholdÅrsak implements Årsak {
         return kode;
     }
 
-    @Override
-    public String getOffisiellKode() {
-        return this.getKode();
-    }
-
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<OppholdÅrsak, String> {
         @Override

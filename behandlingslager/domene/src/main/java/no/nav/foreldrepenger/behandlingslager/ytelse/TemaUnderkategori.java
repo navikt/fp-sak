@@ -40,7 +40,7 @@ public enum TemaUnderkategori implements Kodeverdi {
     BT("BT", "Stønad til barnetilsyn", "BT"),
     FL("FL", "Tilskudd til flytting", "FL"),
     UT("UT", "Skolepenger", "UT"),
-    
+
     UDEFINERT("-", "Udefinert", null),
     ;
 
@@ -104,11 +104,6 @@ public enum TemaUnderkategori implements Kodeverdi {
     @Override
     public String getKode() {
         return kode;
-    }
-
-    @Override
-    public String getOffisiellKode() {
-        return offisiellKode;
     }
 
 }

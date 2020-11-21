@@ -15,10 +15,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
 
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
-public enum Diskresjonskode implements Kodeverdi {
+public enum Diskresjonskode implements Kodeverdi, MedOffisiellKode {
 
     UDEFINERT("UDEF", "Udefinert", null),
     KODE6("SPSF", "Sperret adresse, strengt fortrolig", "SPSF"),

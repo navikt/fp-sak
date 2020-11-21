@@ -14,10 +14,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
 
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
-public enum InntektPeriodeType implements Kodeverdi {
+public enum InntektPeriodeType implements Kodeverdi, MedOffisiellKode {
 
     DAGLIG("DAGLG", "Daglig", "D", Period.ofDays(1)),
     UKENTLIG("UKNLG", "Ukentlig", "U", Period.ofWeeks(1)),
@@ -93,7 +94,7 @@ public enum InntektPeriodeType implements Kodeverdi {
     public String getKode() {
         return kode;
     }
-    
+
     public Period getPeriode() {
         return periode;
     }

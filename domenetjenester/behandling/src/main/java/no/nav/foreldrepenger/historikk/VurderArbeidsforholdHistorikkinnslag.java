@@ -91,9 +91,4 @@ public enum VurderArbeidsforholdHistorikkinnslag implements Kodeverdi {
         return kode;
     }
 
-    
-    @Override
-    public String getOffisiellKode() {
-        return getKode();
-    }
 }

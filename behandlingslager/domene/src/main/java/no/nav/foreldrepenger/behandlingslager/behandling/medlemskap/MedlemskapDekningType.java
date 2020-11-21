@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.medlemskap;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static java.util.Collections.unmodifiableList;
 
 import java.util.Collections;
@@ -55,27 +54,20 @@ public enum MedlemskapDekningType implements Kodeverdi {
         FULL,
         UNNTATT));
 
-    public static final List<MedlemskapDekningType> DEKNINGSTYPE_ER_FRIVILLIG_MEDLEM = unmodifiableList(asList(
+    public static final List<MedlemskapDekningType> DEKNINGSTYPE_ER_FRIVILLIG_MEDLEM = List.of(
         FTL_2_7_a,
         FTL_2_7_b,
         FTL_2_9_1_a,
         FTL_2_9_1_c,
         FTL_2_9_2_a,
         FTL_2_9_2_c,
-        FULL
-            ));
+        FULL);
 
-    public static final List<MedlemskapDekningType> DEKNINGSTYPE_ER_MEDLEM_UNNTATT = unmodifiableList(singletonList(
-        UNNTATT));
+    public static final List<MedlemskapDekningType> DEKNINGSTYPE_ER_MEDLEM_UNNTATT = List.of(UNNTATT);
 
-    public static final List<MedlemskapDekningType> DEKNINGSTYPE_ER_IKKE_MEDLEM = unmodifiableList(asList(
-        FTL_2_6,
-        FTL_2_9_1_b
-            ));
+    public static final List<MedlemskapDekningType> DEKNINGSTYPE_ER_IKKE_MEDLEM = List.of(FTL_2_6, FTL_2_9_1_b);
 
-    public static final List<MedlemskapDekningType> DEKNINGSTYPE_ER_UAVKLART = unmodifiableList(asList(
-        IHT_AVTALE,
-        OPPHOR));
+    public static final List<MedlemskapDekningType> DEKNINGSTYPE_ER_UAVKLART = List.of(IHT_AVTALE, OPPHOR);
 
 
     private static final Map<String, MedlemskapDekningType> KODER = new LinkedHashMap<>();
@@ -135,11 +127,6 @@ public enum MedlemskapDekningType implements Kodeverdi {
     @Override
     public String getKode() {
         return kode;
-    }
-
-    @Override
-    public String getOffisiellKode() {
-        return getKode();
     }
 
     @Converter(autoApply = true)

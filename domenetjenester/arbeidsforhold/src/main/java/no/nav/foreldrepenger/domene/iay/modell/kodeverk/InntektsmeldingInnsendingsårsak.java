@@ -77,9 +77,4 @@ public enum InntektsmeldingInnsendingsårsak implements Kodeverdi {
     public String getKode() {
         return kode;
     }
-    
-    @Override
-    public String getOffisiellKode() {
-        return getKode();
-    }
 }

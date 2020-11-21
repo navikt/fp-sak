@@ -84,11 +84,6 @@ public enum Organisasjonstype implements Kodeverdi {
         return kode;
     }
 
-    @Override
-    public String getOffisiellKode() {
-        return getKode();
-    }
-
     public static boolean erKunstig(String orgNr) {
         return OrgNummer.KUNSTIG_ORG.equals(orgNr);
     }

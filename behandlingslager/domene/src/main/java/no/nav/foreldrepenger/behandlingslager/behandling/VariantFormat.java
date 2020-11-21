@@ -15,10 +15,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
 
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
-public enum VariantFormat implements Kodeverdi{
+public enum VariantFormat implements Kodeverdi, MedOffisiellKode {
 
     SLADDET("SLADD", "Sladdet format", "SLADDET"),
     SKANNING_META("SKANM", "Skanning metadata", "SKANNING_META"),

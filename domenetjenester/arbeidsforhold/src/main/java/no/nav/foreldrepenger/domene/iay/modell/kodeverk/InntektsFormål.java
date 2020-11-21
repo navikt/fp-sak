@@ -13,10 +13,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
 
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
-public enum InntektsFormål implements Kodeverdi {
+public enum InntektsFormål implements Kodeverdi, MedOffisiellKode {
 
     UDEFINERT("-", "Ikke definert", null),
     FORMAAL_FORELDREPENGER("FORMAAL_FORELDREPENGER", "Formålskode for foreldrepenger", "Foreldrepenger"),

@@ -123,11 +123,6 @@ public enum SkjermlenkeType implements Kodeverdi {
     }
 
     @Override
-    public String getOffisiellKode() {
-        return getKode();
-    }
-
-    @Override
     public String getKodeverk() {
         return KODEVERK;
     }

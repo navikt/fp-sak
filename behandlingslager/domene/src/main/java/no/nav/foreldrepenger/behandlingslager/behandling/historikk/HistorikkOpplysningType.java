@@ -88,11 +88,6 @@ public enum HistorikkOpplysningType implements Kodeverdi {
         return kode;
     }
 
-    @Override
-    public String getOffisiellKode() {
-        return getKode();
-    }
-
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<HistorikkOpplysningType, String> {
         @Override

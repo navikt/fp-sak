@@ -82,8 +82,4 @@ public enum AnkeAvvistÅrsak implements Kodeverdi {
         return kode;
     }
 
-    @Override
-    public String getOffisiellKode() {
-        return getKode();
-    }
 }

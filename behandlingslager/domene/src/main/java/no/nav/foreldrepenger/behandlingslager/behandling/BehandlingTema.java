@@ -19,10 +19,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
 
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
-public enum BehandlingTema implements Kodeverdi {
+public enum BehandlingTema implements Kodeverdi, MedOffisiellKode {
 
     ENGANGSSTØNAD("ENGST", "Engangsstønad", "ab0327"),
     ENGANGSSTØNAD_FØDSEL("ENGST_FODS", "Engangsstønad ved fødsel", "ab0050"),

@@ -111,11 +111,6 @@ public enum RelasjonsRolleType implements Kodeverdi {
         return kode;
     }
 
-    @Override
-    public String getOffisiellKode() {
-        return getKode();
-    }
-
     public static boolean erFar(RelasjonsRolleType relasjon) {
         return FARA.getKode().equals(relasjon.getKode());
     }

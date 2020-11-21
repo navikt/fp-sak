@@ -1,9 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.vilkår;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -84,9 +82,8 @@ public enum Avslagsårsak implements Kodeverdi, ÅrsakskodeMedLovreferanse{
 
     public static final String KODEVERK = "AVSLAGSARSAK"; //$NON-NLS-1$
 
-    private static final Set<Avslagsårsak> ALLEREDE_UTBETALT_ENGANGSSTØNAD_ÅRSAKER = Collections.unmodifiableSet(new LinkedHashSet<>(
-        Arrays.asList(ENGANGSSTØNAD_ALLEREDE_UTBETALT_TIL_MOR, ENGANGSTØNAD_ER_ALLEREDE_UTBETAL_TIL_MOR,
-            ENGANGSSTØNAD_ER_ALLEREDE_UTBETALT_TIL_FAR_MEDMOR)));
+    private static final Set<Avslagsårsak> ALLEREDE_UTBETALT_ENGANGSSTØNAD_ÅRSAKER = Set.of(ENGANGSSTØNAD_ALLEREDE_UTBETALT_TIL_MOR,
+        ENGANGSTØNAD_ER_ALLEREDE_UTBETAL_TIL_MOR, ENGANGSSTØNAD_ER_ALLEREDE_UTBETALT_TIL_FAR_MEDMOR);
 
 
     // TODO endre fra raw json
@@ -135,11 +132,6 @@ public enum Avslagsårsak implements Kodeverdi, ÅrsakskodeMedLovreferanse{
     @Override
     public String getKodeverk() {
         return KODEVERK;
-    }
-
-    @Override
-    public String getOffisiellKode() {
-        return getKode();
     }
 
     /**

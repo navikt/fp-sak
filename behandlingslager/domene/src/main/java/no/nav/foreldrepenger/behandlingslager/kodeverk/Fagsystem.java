@@ -17,7 +17,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
-public enum Fagsystem implements Kodeverdi {
+public enum Fagsystem implements Kodeverdi, MedOffisiellKode {
 
     FPSAK("FPSAK", "Vedtaksløsning Foreldrepenger", "FS36"),
     TPS("TPS", "TPS", "FS03"),

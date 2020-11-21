@@ -21,9 +21,5 @@ public interface Årsak extends Kodeverdi {
             return "-";
         }
 
-        @Override
-        public String getOffisiellKode() {
-            return getKode();
-        }
     };
 }

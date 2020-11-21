@@ -15,6 +15,7 @@ package no.nav.foreldrepenger.behandlingslager.virksomhet;
  * <li></li>
  * </ul>
  */
+
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -34,11 +35,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.TempAvledeKode;
 
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
-public enum ArbeidType implements Kodeverdi {
+public enum ArbeidType implements Kodeverdi, MedOffisiellKode {
 
     ETTERLØNN_SLUTTPAKKE("ETTERLØNN_SLUTTPAKKE", "Etterlønn eller sluttpakke", null, true),
     FORENKLET_OPPGJØRSORDNING("FORENKLET_OPPGJØRSORDNING", "Forenklet oppgjørsordning ", "forenkletOppgjoersordning", false),

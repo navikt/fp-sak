@@ -276,7 +276,7 @@ public class PersoninfoTjeneste {
         String postnummer = Optional.ofNullable(vegadresse.getPostnummer()).orElse(HARDKODET_POSTNR);
         var gateadresse = vegadresse.getAdressenavn() + hvisfinnes(vegadresse.getHusnummer()) + hvisfinnes(vegadresse.getHusbokstav());
         return Adresseinfo.builder(type)
-            .medMatrikkelId(vegadresse.getMatrikkelId())
+            // TODO: enable når sammenligning stabil .medMatrikkelId(vegadresse.getMatrikkelId())
             .medAdresselinje1(vegadresse.getTilleggsnavn() != null ? vegadresse.getTilleggsnavn() : gateadresse)
             .medAdresselinje2(vegadresse.getTilleggsnavn() != null ? gateadresse : null)
             .medPostNr(postnummer)
@@ -290,7 +290,7 @@ public class PersoninfoTjeneste {
             return null;
         String postnummer = Optional.ofNullable(matrikkeladresse.getPostnummer()).orElse(HARDKODET_POSTNR);
         return Adresseinfo.builder(type)
-            .medMatrikkelId(matrikkeladresse.getMatrikkelId())
+            // TODO: enable når sammenligning stabil .medMatrikkelId(matrikkeladresse.getMatrikkelId())
             .medAdresselinje1(matrikkeladresse.getTilleggsnavn() != null ? matrikkeladresse.getTilleggsnavn() : matrikkeladresse.getBruksenhetsnummer())
             .medAdresselinje2(matrikkeladresse.getTilleggsnavn() != null ? matrikkeladresse.getBruksenhetsnummer() : null)
             .medPostNr(postnummer)

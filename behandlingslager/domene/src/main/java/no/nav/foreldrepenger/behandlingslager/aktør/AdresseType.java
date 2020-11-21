@@ -17,10 +17,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
 
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
-public enum AdresseType implements Kodeverdi {
+public enum AdresseType implements Kodeverdi, MedOffisiellKode {
 
     BOSTEDSADRESSE("BOSTEDSADRESSE", "Bostedsadresse", "BOAD"),
     POSTADRESSE("POSTADRESSE", "Postadresse", "POST"),

@@ -51,11 +51,6 @@ public interface PeriodeResultatÅrsak extends ÅrsakskodeMedLovreferanse, Kodev
         public String getLovHjemmelData() {
             return null;
         }
-
-        @Override
-        public String getOffisiellKode() {
-            return getKode();
-        }
     };
 
     @JsonProperty("gyldigFom")

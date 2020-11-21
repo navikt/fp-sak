@@ -86,11 +86,6 @@ public enum MedlemskapType implements Kodeverdi {
         return kode;
     }
 
-    @Override
-    public String getOffisiellKode() {
-        return getKode();
-    }
-
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<MedlemskapType, String> {
         @Override

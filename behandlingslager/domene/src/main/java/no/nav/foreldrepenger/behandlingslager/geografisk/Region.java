@@ -80,11 +80,6 @@ public enum Region implements Kodeverdi {
         return navn;
     }
 
-    @Override
-    public String getOffisiellKode() {
-        return getKode();
-    }
-
     @JsonProperty
     @Override
     public String getKode() {

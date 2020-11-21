@@ -15,10 +15,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
 
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
-public enum InntektsFilter implements Kodeverdi {
+public enum InntektsFilter implements Kodeverdi, MedOffisiellKode {
 
     BEREGNINGSGRUNNLAG("BEREGNINGSGRUNNLAG", "Beregningsgrunnlag", "8-28",
             InntektsKilde.INNTEKT_BEREGNING, InntektsFormål.FORMAAL_FORELDREPENGER),
