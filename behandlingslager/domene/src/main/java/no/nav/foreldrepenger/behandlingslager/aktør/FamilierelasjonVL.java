@@ -47,6 +47,6 @@ public class FamilierelasjonVL {
 
     @Override
     public int hashCode() {
-        return Objects.hash(personIdent);
+        return Objects.hash(personIdent, relasjonsrolle);
     }
 }
