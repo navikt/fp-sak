@@ -40,6 +40,7 @@ import no.nav.pdl.FamilierelasjonResponseProjection;
 import no.nav.pdl.Familierelasjonsrolle;
 import no.nav.pdl.Foedsel;
 import no.nav.pdl.FoedselResponseProjection;
+import no.nav.pdl.FolkeregistermetadataResponseProjection;
 import no.nav.pdl.Folkeregisterpersonstatus;
 import no.nav.pdl.FolkeregisterpersonstatusResponseProjection;
 import no.nav.pdl.HentPersonQueryRequest;
@@ -50,13 +51,16 @@ import no.nav.pdl.Kontaktadresse;
 import no.nav.pdl.KontaktadresseResponseProjection;
 import no.nav.pdl.Matrikkeladresse;
 import no.nav.pdl.MatrikkeladresseResponseProjection;
+import no.nav.pdl.MetadataResponseProjection;
 import no.nav.pdl.Navn;
 import no.nav.pdl.NavnResponseProjection;
 import no.nav.pdl.Opphold;
 import no.nav.pdl.OppholdResponseProjection;
 import no.nav.pdl.Oppholdsadresse;
 import no.nav.pdl.OppholdsadresseResponseProjection;
+import no.nav.pdl.Oppholdstillatelse;
 import no.nav.pdl.Person;
+import no.nav.pdl.PersonOppholdParametrizedInput;
 import no.nav.pdl.PersonResponseProjection;
 import no.nav.pdl.PostadresseIFrittFormat;
 import no.nav.pdl.PostadresseIFrittFormatResponseProjection;
@@ -134,7 +138,7 @@ public class PersoninfoTjeneste {
                     .foedsel(new FoedselResponseProjection().foedselsdato())
                     .doedsfall(new DoedsfallResponseProjection().doedsdato())
                     .folkeregisterpersonstatus(new FolkeregisterpersonstatusResponseProjection().forenkletStatus().status())
-                    .opphold(new OppholdResponseProjection().type().oppholdFra().oppholdTil())
+                    .opphold(new PersonOppholdParametrizedInput().historikk(true), new OppholdResponseProjection().type().oppholdFra().oppholdTil().metadata(new MetadataResponseProjection().historisk()).folkeregistermetadata(new FolkeregistermetadataResponseProjection().ajourholdstidspunkt()))
                     .kjoenn(new KjoennResponseProjection().kjoenn())
                     .sivilstand(new SivilstandResponseProjection().relatertVedSivilstand().type())
                     .statsborgerskap(new StatsborgerskapResponseProjection().land())
@@ -177,7 +181,7 @@ public class PersoninfoTjeneste {
             var familierelasjoner = mapFamilierelasjoner(person.getFamilierelasjoner(), person.getSivilstand());
             var adresser = mapAdresser(person.getBostedsadresse(), person.getKontaktadresse(), person.getOppholdsadresse());
             var fraPDL = new Personinfo.Builder().medAktørId(aktørId).medPersonIdent(personIdent)
-                .medNavn(person.getNavn().stream().map(PersoninfoTjeneste::mapNavn).filter(Objects::nonNull).findFirst().orElse(null))
+                .medNavn(person.getNavn().stream().map(PersoninfoTjeneste::mapNavn).filter(Objects::nonNull).findFirst().orElse("MANGLER NAVN"))
                 .medFødselsdato(fødselsdato)
                 .medDødsdato(dødssdato)
                 .medNavBrukerKjønn(mapKjønn(person))
@@ -371,12 +375,15 @@ public class PersoninfoTjeneste {
         if (pdl == null || tps == null || tps.getClass() != pdl.getClass()) return false;
         var likerels = pdl.getFamilierelasjoner().size() == tps.getFamilierelasjoner().size() &&
             pdl.getFamilierelasjoner().containsAll(tps.getFamilierelasjoner());
+        var likeadresser = pdl.getAdresseInfoList().size() == tps.getAdresseInfoList().size() &&
+            pdl.getAdresseInfoList().containsAll(tps.getAdresseInfoList());
         return // Objects.equals(pdl.getNavn(), tps.getNavn()) && - avvik skyldes tegnsett
             Objects.equals(pdl.getFødselsdato(), tps.getFødselsdato()) &&
             Objects.equals(pdl.getDødsdato(), tps.getDødsdato()) &&
             pdl.getPersonstatus() == tps.getPersonstatus() &&
             pdl.getKjønn() == tps.getKjønn() &&
             likerels &&
+            likeadresser &&
             pdl.getRegion() == tps.getRegion() &&
             pdl.getLandkode() == tps.getLandkode() &&
             pdl.getSivilstandType() == tps.getSivilstandType();
@@ -403,7 +410,10 @@ public class PersoninfoTjeneste {
     }
 
     private void logInnUtOpp(List<Opphold> opp) {
-        String opps = opp.stream().map(o -> "OppholdType="+o.getType().toString()+" Fra="+o.getOppholdFra()+" Til="+o.getOppholdTil())
+        String opps = opp.stream()
+            .filter(o -> !Oppholdstillatelse.OPPLYSNING_MANGLER.equals(o.getType()))
+            .map(o -> "OppholdType="+o.getType().toString()+" historisk "+o.getMetadata().getHistorisk()+
+                " Fra=" + (o.getOppholdFra() == null ? o.getFolkeregistermetadata().getAjourholdstidspunkt().toString() : o.getOppholdFra()) +" Til="+o.getOppholdTil())
             .collect(Collectors.joining(", "));
         if (!opp.isEmpty()) {
             LOG.info("FPSAK PDL FULL opphold {}", opps);

@@ -150,6 +150,7 @@ public class SøknadDtoTjeneste {
         dto.setDokumentType(mv.getDokumentType());
         if (mv.getDokumentType().equals(DokumentTypeId.INNTEKTSMELDING)) {
             dto.setArbeidsgiver(mapTilArbeidsgiverDto(mv.getArbeidsgiver()));
+            dto.setArbeidsgiverReferanse(mv.getArbeidsgiver());
             dto.setBrukerHarSagtAtIkkeKommer(mv.getBrukerHarSagtAtIkkeKommer());
         }
         return dto;
