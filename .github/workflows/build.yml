@@ -116,7 +116,6 @@ jobs:
           client-payload: '{ "trigger": "${{ github.repository }}", "version": "${{ env.TAG }}", "issue-number": "${{ steps.createdeployissue.outputs.number }}" }'
 
       - name: Lukk gamle deployment-issues
-        if: success()
         uses: actions/github-script@v3
         with:
           github-token: ${{ secrets.GH_ACCESS_TOKEN }}
@@ -128,13 +127,11 @@ jobs:
               labels: ['deployment']
             }).then(response => {
               response.data.forEach(issue => {
-                if (issue.number != ${{ steps.createdeployissue.outputs.number }}) {
-                  github.issues.update({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    issue_number: issue.number,
-                    state: 'closed'
-                  });
-                }
+                github.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  state: 'closed'
+                });
               });
-            });
+            });  
