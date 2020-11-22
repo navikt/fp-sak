@@ -88,6 +88,14 @@ jobs:
                 repo: context.issue.repo,
                 labels: ['deployment'],
                 title: 'Deploy av ${{ env.TAG }}'})
+                .then(response => {
+                      const issue = { owner: context.issue.owner,
+                      repo: context.issue.repo,
+                      issue_number: response.data.number }
+                     github.issues.createComment({...issue,
+                            title: 'Deploy av ${{ env.TAG }}',
+                            body: '/promote dev-fss'})
+               });
 
       - name: Trigger autotest for fpsak/fpabakus
         if: success()
