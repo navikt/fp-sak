@@ -44,7 +44,7 @@ jobs:
                             issue_number: ${{ github.event.client_payload.github.payload.issue.number }} }
             github.issues.createComment({...issue,
                                     title: 'Deploy av ${{ env.TAG }}',
-                                    body: 'promote til ${{ github.event.client_payload.slash_command.args }} feilet'})
+                                    body: 'promote til ${{ github.event.client_payload.slash_command.args.unnamed.arg1 }} feilet'})
 
       - name: Oppdater kommentar med deployment status
         if: success()
@@ -56,5 +56,5 @@ jobs:
                             repo: context.issue.repo,
                             issue_number: ${{ github.event.client_payload.github.payload.issue.number }} }
             github.issues.createComment({...issue,
-                                    body: 'promote til ${{ github.event.client_payload.slash_command.args }} utført'})
+                                    body: 'promote til ${{ github.event.client_payload.slash_command.args.unnamed.arg1 }} utført'})
             github.issues.addLabels({...issue, labels: ['deployment','${{ env.CLUSTER }}-${{ env.NAMESPACE }}']})
