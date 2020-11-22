@@ -75,6 +75,27 @@ jobs:
           image_tag: ${{ env.TAG }},latest
           push_git_tag: true
           registry: docker.pkg.github.com
+        
+      - name: Lukk gamle deployment-issues
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{ secrets.GH_ACCESS_TOKEN }}
+          script: |
+            github.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: ['deployment']
+            }).then(response => {
+              response.data.forEach(issue => {
+                github.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  state: 'closed'
+                });
+              });
+            });  
           
           
       - name: Opprett issue
@@ -115,23 +136,4 @@ jobs:
           event-type: fpsak-verdikjede
           client-payload: '{ "trigger": "${{ github.repository }}", "version": "${{ env.TAG }}", "issue-number": "${{ steps.createdeployissue.outputs.number }}" }'
 
-      - name: Lukk gamle deployment-issues
-        uses: actions/github-script@v3
-        with:
-          github-token: ${{ secrets.GH_ACCESS_TOKEN }}
-          script: |
-            github.issues.listForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open',
-              labels: ['deployment']
-            }).then(response => {
-              response.data.forEach(issue => {
-                github.issues.update({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: issue.number,
-                  state: 'closed'
-                });
-              });
-            });  
+     
