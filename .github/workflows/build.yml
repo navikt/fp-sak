@@ -75,17 +75,19 @@ jobs:
           image_tag: ${{ env.TAG }},latest
           push_git_tag: true
           registry: docker.pkg.github.com
-
-      - name: Opprett deployment issue
+          
+          
+      - name: Opprett issue
         if: success()
-        uses: maxkomarychev/oction-create-issue@v0.7.1
-        id: createdeployissue
+        uses: actions/github-script@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          title: Deploy av ${{ env.TAG }}
-          labels: deployment
-          body: |
-            Kommenter med <b>/promote dev-fss</b> eller <b>/promote prod-fss</b>, evt andre gyldige clusternavn.
+          github-token: ${{ secrets.NOTIFICATION }}
+          script: |
+              github.issues.create( {
+                owner: context.issue.owner,
+                repo: context.issue.repo,
+                labels: ['deployment'],
+                title: 'Deploy av ${{ env.TAG }}'});
 
       - name: Trigger autotest for fpsak/fpabakus
         if: success()
