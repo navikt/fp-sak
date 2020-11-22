@@ -20,14 +20,17 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonAdresseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonRelasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonstatusEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.StatsborgerskapEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -135,11 +138,12 @@ public class PersonopplysningDtoTjeneste {
                                                        PersonopplysningerAggregat aggregat,
                                                        Optional<FamilieHendelseGrunnlagEntitet> familieHendelseAggregat) {
 
-        PersonopplysningDto dto = enkelMapping(søker, aggregat);
+        RelasjonsRolleType rolleForSøker = utledRolleForSøker(behandling.getFagsak(), aggregat, søker);
+        PersonopplysningDto dto = enkelMapping(søker, aggregat, rolleForSøker);
 
         dto.setBarn(aggregat.getBarna()
             .stream()
-            .map(e -> enkelMapping(e, aggregat))
+            .map(e -> enkelMapping(e, aggregat, RelasjonsRolleType.BARN))
             .collect(Collectors.toList()));
 
         dto.setBarnSoktFor(Collections.emptyList());
@@ -151,78 +155,97 @@ public class PersonopplysningDtoTjeneste {
                 .collect(Collectors.toList()));
         }
 
-        var annenPart = mapAnnenpart(søker, aggregat, behandling.getFagsak().getSaksnummer());
-        annenPart.ifPresent(dto::setAnnenPart);
+        mapAnnenpart(søker, rolleForSøker, aggregat, behandling.getFagsak().getSaksnummer()).ifPresent(ap -> {
+            ap.setBarn(aggregat.getFellesBarn().stream()
+                .map(e -> enkelMapping(e, aggregat, RelasjonsRolleType.BARN))
+                .collect(Collectors.toList()));
+            dto.setAnnenPart(ap);
+        });
 
-        Optional<PersonopplysningEntitet> ektefelleOpt = aggregat.getEktefelle();
-        if (ektefelleOpt.isPresent() && ektefelleOpt.get().equals(søker)) {
-            throw SøknadDtoFeil.FACTORY.kanIkkeVæreSammePersonSomSøker().toException();
-        }
+        aggregat.getEktefelle().ifPresent(ektefelle -> {
+            if (ektefelle.equals(søker)) {
+                throw SøknadDtoFeil.FACTORY.kanIkkeVæreSammePersonSomSøker().toException();
+            }
+            PersonopplysningDto ektefelleDto = enkelMapping(ektefelle, aggregat, RelasjonsRolleType.EKTE);
+            dto.setEktefelle(ektefelleDto);
+        });
 
-        if (ektefelleOpt.isPresent()) {
-            PersonopplysningDto ektefelle = enkelMapping(ektefelleOpt.get(), aggregat);
-            dto.setEktefelle(ektefelle);
-        }
         dto.setHarVerge(harVerge(behandling.getId()));
         return dto;
     }
 
+    private RelasjonsRolleType utledRolleForSøker(Fagsak fagsak, PersonopplysningerAggregat aggregat, PersonopplysningEntitet person) {
+        if (RelasjonsRolleType.UDEFINERT.equals(fagsak.getRelasjonsRolleType())) {
+            return aggregat.getRelasjoner().stream()
+                .filter(r -> r.getTilAktørId().equals(fagsak.getAktørId()) && RelasjonsRolleType.erRegistrertForeldre(r.getRelasjonsrolle()))
+                .map(PersonRelasjonEntitet::getRelasjonsrolle)
+                .findFirst().orElseGet(() -> NavBrukerKjønn.KVINNE.equals(person.getKjønn()) ? RelasjonsRolleType.MORA : RelasjonsRolleType.FARA);
+        }
+        return fagsak.getRelasjonsRolleType();
+    }
+
+    private RelasjonsRolleType utledRolleForAnnenPart(Fagsak fagsak, RelasjonsRolleType rolleSøker,
+                                                      PersonopplysningerAggregat aggregat, PersonopplysningEntitet annenPart) {
+        var fraFagsak = fagsak != null ? fagsak.getRelasjonsRolleType() : RelasjonsRolleType.UDEFINERT;
+        if (RelasjonsRolleType.erRegistrertForeldre(fraFagsak)) {
+            return fraFagsak;
+        }
+        if (annenPart == null) {
+            return RelasjonsRolleType.erMor(rolleSøker) ? RelasjonsRolleType.FARA : RelasjonsRolleType.MORA;
+        }
+        return aggregat.getRelasjoner().stream()
+            .filter(r -> r.getTilAktørId().equals(annenPart.getAktørId()) && RelasjonsRolleType.erRegistrertForeldre(r.getRelasjonsrolle()))
+            .map(PersonRelasjonEntitet::getRelasjonsrolle)
+            .findFirst().orElseGet(() -> {
+                if (RelasjonsRolleType.erMor(rolleSøker)) {
+                    return NavBrukerKjønn.MANN.equals(annenPart.getKjønn()) ? RelasjonsRolleType.FARA : RelasjonsRolleType.MEDMOR;
+                }
+                return RelasjonsRolleType.MORA;
+            });
+    }
+
     private Optional<PersonopplysningDto> mapAnnenpart(PersonopplysningEntitet søker,
+                                                       RelasjonsRolleType rolleForSøker,
                                                        PersonopplysningerAggregat aggregat,
                                                        Saksnummer saksnummner) {
-        Optional<PersonopplysningDto> annenPart = Optional.empty();
-        var oppgittAnnenPart = aggregat.getOppgittAnnenPart();
-        if (oppgittAnnenPart.isPresent()) {
-            if (søker.getAktørId().equals(oppgittAnnenPart.get().getAktørId())) {
+        var annenPartOpplysning = aggregat.getAnnenPart().orElse(null);
+        var relatertBehandling = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattBehandling(saksnummner);
+        if (relatertBehandling.isPresent()) {
+            var annenPartsRolle = utledRolleForAnnenPart(relatertBehandling.map(Behandling::getFagsak).orElse(null), rolleForSøker,
+                aggregat, annenPartOpplysning);
+            return mapRelatertAnnenpart(aggregat, relatertBehandling.get(), annenPartsRolle);
+        }
+
+        if (annenPartOpplysning != null) {
+            if (søker.getAktørId().equals(annenPartOpplysning.getAktørId())) {
                 throw SøknadDtoFeil.FACTORY.kanIkkeVæreBådeFarOgMorTilEtBarn().toException();
             }
-            annenPart = mapOppgittAnnenPart(aggregat);
+            var annenPartsRolle = utledRolleForAnnenPart(null, rolleForSøker, aggregat, annenPartOpplysning);
+            return Optional.of(enkelMapping(annenPartOpplysning, aggregat, annenPartsRolle));
         }
-        if (annenPart.isEmpty()) {
-            var relatertBehandling = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattBehandling(saksnummner);
-            if (relatertBehandling.isPresent()) {
-                annenPart = mapRelatertAnnenpart(aggregat, relatertBehandling.get());
-            }
+
+        var oppgittAnnenPart = aggregat.getOppgittAnnenPart();
+        if (oppgittAnnenPart.isPresent() && harOppgittLand(oppgittAnnenPart.get().getUtenlandskFnrLand())) {
+            var annenPartsRolle = utledRolleForAnnenPart(null, rolleForSøker, aggregat, null);
+            return Optional.of(enkelUtenlandskAnnenPartMapping(oppgittAnnenPart.get(), annenPartsRolle));
         }
-        return annenPart;
+        return Optional.empty();
     }
 
-    private Optional<PersonopplysningDto> mapRelatertAnnenpart(PersonopplysningerAggregat aggregat, Behandling relatertBehandling) {
-        var personopplysning = aggregat.getPersonopplysning(relatertBehandling.getAktørId());
-        if (personopplysning == null) {
-            return Optional.empty();
-        }
-        return Optional.of(enkelMapping(personopplysning, aggregat));
-    }
-
-    private Optional<PersonopplysningDto> mapOppgittAnnenPart(PersonopplysningerAggregat aggregat) {
-        PersonopplysningDto annenPart = null;
-        Optional<PersonopplysningEntitet> annenPartOpt = aggregat.getAnnenPart();
-
-        Optional<OppgittAnnenPartEntitet> oppgittAnnenPart = aggregat.getOppgittAnnenPart();
-        if (annenPartOpt.isPresent()) {
-            annenPart = enkelMapping(annenPartOpt.get(), aggregat);
-        } else if (oppgittAnnenPart.isPresent() && harOppgittLand(oppgittAnnenPart.get().getUtenlandskFnrLand())) {
-            annenPart = enkelUtenlandskAnnenPartMapping(oppgittAnnenPart.get());
-        }
-
-        if (annenPart != null) {
-            annenPart.setBarn(aggregat.getFellesBarn().stream()
-                .map(e -> enkelMapping(e, aggregat))
-                .collect(Collectors.toList()));
-        }
-        return Optional.ofNullable(annenPart);
+    private Optional<PersonopplysningDto> mapRelatertAnnenpart(PersonopplysningerAggregat aggregat, Behandling relatertBehandling, RelasjonsRolleType rolle) {
+        return Optional.ofNullable(aggregat.getPersonopplysning(relatertBehandling.getAktørId())).map(p -> enkelMapping(p, aggregat, rolle));
     }
 
     private boolean harOppgittLand(Landkoder utenlandskFnrLand) {
         return utenlandskFnrLand != null && !Landkoder.UDEFINERT.equals(utenlandskFnrLand);
     }
 
-    private PersonopplysningDto enkelUtenlandskAnnenPartMapping(OppgittAnnenPartEntitet oppgittAnnenPart) {
+    private PersonopplysningDto enkelUtenlandskAnnenPartMapping(OppgittAnnenPartEntitet oppgittAnnenPart, RelasjonsRolleType rolle) {
         PersonopplysningDto dto = new PersonopplysningDto();
         PersonstatusType ureg = PersonstatusType.UREG;
         dto.setAvklartPersonstatus(new AvklartPersonstatus(ureg, ureg));
         dto.setPersonstatus(ureg);
+        dto.setRelasjonsRolle(rolle);
 
         dto.setNavBrukerKjonn(NavBrukerKjønn.UDEFINERT);
         if (oppgittAnnenPart.getAktørId() != null) {
@@ -244,9 +267,10 @@ public class PersonopplysningDtoTjeneste {
         return dto;
     }
 
-    private PersonopplysningDto enkelMapping(PersonopplysningEntitet personopplysning, PersonopplysningerAggregat aggregat) {
+    private PersonopplysningDto enkelMapping(PersonopplysningEntitet personopplysning, PersonopplysningerAggregat aggregat, RelasjonsRolleType rolle) {
         PersonopplysningDto dto = new PersonopplysningDto();
         dto.setNavBrukerKjonn(personopplysning.getKjønn());
+        dto.setRelasjonsRolle(rolle);
         final Optional<Landkoder> landkoder = aggregat.getStatsborgerskapFor(personopplysning.getAktørId()).stream().findFirst().map(StatsborgerskapEntitet::getStatsborgerskap);
         landkoder.ifPresent(landkoder1 -> dto.setStatsborgerskap(lagLandkoderDto(landkoder1)));
         final PersonstatusType gjeldendePersonstatus = hentPersonstatus(personopplysning, aggregat);
@@ -274,5 +298,103 @@ public class PersonopplysningDtoTjeneste {
             return PersonstatusType.UDEFINERT;
         }
         return personstatus.getPersonstatus();
+    }
+
+    public Optional<PersonopplysningMedlemskapDto> lagPersonopplysningMedlemskapDto(Long behandlingId, LocalDate tidspunkt) {
+        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        Optional<PersonopplysningerAggregat> aggregatOpt = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(behandling.getId(), behandling.getAktørId(), tidspunkt);
+
+        if (aggregatOpt.isPresent()) {
+            PersonopplysningerAggregat aggregat = aggregatOpt.get();
+            return Optional.ofNullable(aggregat.getSøker())
+                .map(søker -> mapPersonopplysningMedlemskapDto(behandling, søker, aggregat));
+        }
+        return Optional.empty();
+    }
+
+    private PersonopplysningMedlemskapDto mapPersonopplysningMedlemskapDto(Behandling behandling,
+                                                                           PersonopplysningEntitet søker,
+                                                                           PersonopplysningerAggregat aggregat) {
+
+        RelasjonsRolleType rolleForSøker = utledRolleForSøker(behandling.getFagsak(), aggregat, søker);
+        PersonopplysningMedlemskapDto dto = enkelMappingMedlemskap(søker, aggregat, rolleForSøker);
+
+        mapAnnenpartMedlemskap(søker, rolleForSøker, aggregat, behandling.getFagsak().getSaksnummer()).ifPresent(dto::setAnnenPart);
+
+        return dto;
+
+    }
+
+    private Optional<PersonopplysningMedlemskapDto> mapAnnenpartMedlemskap(PersonopplysningEntitet søker,
+                                                       RelasjonsRolleType rolleForSøker,
+                                                       PersonopplysningerAggregat aggregat,
+                                                       Saksnummer saksnummner) {
+        var annenPartOpplysning = aggregat.getAnnenPart().orElse(null);
+        var relatertBehandling = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattBehandling(saksnummner);
+        if (relatertBehandling.isPresent()) {
+            var annenPartsRolle = utledRolleForAnnenPart(relatertBehandling.map(Behandling::getFagsak).orElse(null), rolleForSøker,
+                aggregat, annenPartOpplysning);
+            return mapRelatertAnnenpartMedlemskap(aggregat, relatertBehandling.get(), annenPartsRolle);
+        }
+
+        if (annenPartOpplysning != null) {
+            if (søker.getAktørId().equals(annenPartOpplysning.getAktørId())) {
+                throw SøknadDtoFeil.FACTORY.kanIkkeVæreBådeFarOgMorTilEtBarn().toException();
+            }
+            var annenPartsRolle = utledRolleForAnnenPart(null, rolleForSøker, aggregat, annenPartOpplysning);
+            return Optional.of(enkelMappingMedlemskap(annenPartOpplysning, aggregat, annenPartsRolle));
+        }
+
+        var oppgittAnnenPart = aggregat.getOppgittAnnenPart();
+        if (oppgittAnnenPart.isPresent() && harOppgittLand(oppgittAnnenPart.get().getUtenlandskFnrLand())) {
+            var annenPartsRolle = utledRolleForAnnenPart(null, rolleForSøker, aggregat, null);
+            return Optional.of(enkelUtenlandskAnnenPartMappingMedlemskap(oppgittAnnenPart.get(), annenPartsRolle));
+        }
+        return Optional.empty();
+    }
+
+    private Optional<PersonopplysningMedlemskapDto> mapRelatertAnnenpartMedlemskap(PersonopplysningerAggregat aggregat, Behandling relatertBehandling, RelasjonsRolleType rolle) {
+        return Optional.ofNullable(aggregat.getPersonopplysning(relatertBehandling.getAktørId())).map(p -> enkelMappingMedlemskap(p, aggregat, rolle));
+    }
+
+    private PersonopplysningMedlemskapDto enkelUtenlandskAnnenPartMappingMedlemskap(OppgittAnnenPartEntitet oppgittAnnenPart, RelasjonsRolleType rolle) {
+        PersonopplysningMedlemskapDto dto = new PersonopplysningMedlemskapDto();
+        PersonstatusType ureg = PersonstatusType.UREG;
+        dto.setAvklartPersonstatus(new AvklartPersonstatus(ureg, ureg));
+        dto.setPersonstatus(ureg);
+        dto.setRelasjonsRolle(rolle);
+
+        if (oppgittAnnenPart.getAktørId() != null) {
+            dto.setAktoerId(oppgittAnnenPart.getAktørId().getId());
+        }
+        dto.setNavn(oppgittAnnenPart.getNavn());
+        if (oppgittAnnenPart.getUtenlandskFnrLand() != null) {
+            dto.setStatsborgerskap(lagLandkoderDto(oppgittAnnenPart.getUtenlandskFnrLand()));
+        }
+        return dto;
+    }
+
+    private PersonopplysningMedlemskapDto enkelMappingMedlemskap(PersonopplysningEntitet personopplysning, PersonopplysningerAggregat aggregat, RelasjonsRolleType rolle) {
+        PersonopplysningMedlemskapDto dto = new PersonopplysningMedlemskapDto();
+        dto.setRelasjonsRolle(rolle);
+        final Optional<Landkoder> landkoder = aggregat.getStatsborgerskapFor(personopplysning.getAktørId()).stream().findFirst().map(StatsborgerskapEntitet::getStatsborgerskap);
+        landkoder.ifPresent(landkoder1 -> dto.setStatsborgerskap(lagLandkoderDto(landkoder1)));
+        final PersonstatusType gjeldendePersonstatus = hentPersonstatus(personopplysning, aggregat);
+        dto.setPersonstatus(gjeldendePersonstatus);
+        final AvklartPersonstatus avklartPersonstatus = new AvklartPersonstatus(aggregat.getOrginalPersonstatusFor(personopplysning.getAktørId())
+            .map(PersonstatusEntitet::getPersonstatus).orElse(gjeldendePersonstatus),
+            gjeldendePersonstatus);
+        dto.setAvklartPersonstatus(avklartPersonstatus);
+        dto.setSivilstand(personopplysning.getSivilstand());
+
+        dto.setAktoerId(personopplysning.getAktørId().getId());
+        dto.setNavn(formaterMedStoreOgSmåBokstaver(personopplysning.getNavn()));
+        dto.setDodsdato(personopplysning.getDødsdato());
+        dto.setAdresser(lagAddresseDto(personopplysning, aggregat));
+        if (personopplysning.getRegion() != null) {
+            dto.setRegion(personopplysning.getRegion());
+        }
+        dto.setFodselsdato(personopplysning.getFødselsdato());
+        return dto;
     }
 }

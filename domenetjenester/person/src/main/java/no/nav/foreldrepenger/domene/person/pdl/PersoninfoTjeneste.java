@@ -274,10 +274,10 @@ public class PersoninfoTjeneste {
         if (vegadresse == null)
             return null;
         String postnummer = Optional.ofNullable(vegadresse.getPostnummer()).orElse(HARDKODET_POSTNR);
-        var gateadresse = vegadresse.getAdressenavn() + hvisfinnes(vegadresse.getHusnummer()) + hvisfinnes(vegadresse.getHusbokstav());
+        var gateadresse = vegadresse.getAdressenavn().toUpperCase() + hvisfinnes(vegadresse.getHusnummer()) + hvisfinnes(vegadresse.getHusbokstav());
         return Adresseinfo.builder(type)
             // TODO: enable når sammenligning stabil .medMatrikkelId(vegadresse.getMatrikkelId())
-            .medAdresselinje1(vegadresse.getTilleggsnavn() != null ? vegadresse.getTilleggsnavn() : gateadresse)
+            .medAdresselinje1(vegadresse.getTilleggsnavn() != null ? vegadresse.getTilleggsnavn().toUpperCase() : gateadresse)
             .medAdresselinje2(vegadresse.getTilleggsnavn() != null ? gateadresse : null)
             .medPostNr(postnummer)
             .medPoststed(tilPoststed(postnummer))
@@ -291,7 +291,7 @@ public class PersoninfoTjeneste {
         String postnummer = Optional.ofNullable(matrikkeladresse.getPostnummer()).orElse(HARDKODET_POSTNR);
         return Adresseinfo.builder(type)
             // TODO: enable når sammenligning stabil .medMatrikkelId(matrikkeladresse.getMatrikkelId())
-            .medAdresselinje1(matrikkeladresse.getTilleggsnavn() != null ? matrikkeladresse.getTilleggsnavn() : matrikkeladresse.getBruksenhetsnummer())
+            .medAdresselinje1(matrikkeladresse.getTilleggsnavn() != null ? matrikkeladresse.getTilleggsnavn().toUpperCase() : matrikkeladresse.getBruksenhetsnummer())
             .medAdresselinje2(matrikkeladresse.getTilleggsnavn() != null ? matrikkeladresse.getBruksenhetsnummer() : null)
             .medPostNr(postnummer)
             .medPoststed(tilPoststed(postnummer))
@@ -305,7 +305,7 @@ public class PersoninfoTjeneste {
         String postnummer = Optional.ofNullable(postboksadresse.getPostnummer()).orElse(HARDKODET_POSTNR);
         var postboks = "Postboks" + hvisfinnes(postboksadresse.getPostboks());
         return Adresseinfo.builder(type)
-            .medAdresselinje1(postboksadresse.getPostbokseier() != null ? postboksadresse.getPostbokseier() : postboks)
+            .medAdresselinje1(postboksadresse.getPostbokseier() != null ? postboksadresse.getPostbokseier().toUpperCase() : postboks)
             .medAdresselinje2(postboksadresse.getPostbokseier() != null ? postboks : null)
             .medPostNr(postnummer)
             .medPoststed(tilPoststed(postnummer))
@@ -318,9 +318,9 @@ public class PersoninfoTjeneste {
             return null;
         String postnummer = Optional.ofNullable(postadresse.getPostnummer()).orElse(HARDKODET_POSTNR);
         return Adresseinfo.builder(type)
-            .medAdresselinje1(postadresse.getAdresselinje1())
-            .medAdresselinje2(postadresse.getAdresselinje2())
-            .medAdresselinje3(postadresse.getAdresselinje3())
+            .medAdresselinje1(postadresse.getAdresselinje1() != null ? postadresse.getAdresselinje1().toUpperCase() : null)
+            .medAdresselinje2(postadresse.getAdresselinje2() != null ? postadresse.getAdresselinje2().toUpperCase() : null)
+            .medAdresselinje3(postadresse.getAdresselinje3() != null ? postadresse.getAdresselinje3().toUpperCase() : null)
             .medPostNr(postnummer)
             .medPoststed(tilPoststed(postnummer))
             .medLand(Landkoder.NOR.getKode())
@@ -352,15 +352,15 @@ public class PersoninfoTjeneste {
             : (utenlandskAdresse.getAdresselinje2() != null ? utenlandskAdresse.getLandkode() : null);
         return Adresseinfo.builder(type)
             .medAdresselinje1(utenlandskAdresse.getAdresselinje1())
-            .medAdresselinje2(utenlandskAdresse.getAdresselinje2() != null ? utenlandskAdresse.getAdresselinje2() : postlinje)
-            .medAdresselinje3(utenlandskAdresse.getAdresselinje3() != null ? utenlandskAdresse.getAdresselinje3() : (utenlandskAdresse.getAdresselinje2() != null ? postlinje : utenlandskAdresse.getLandkode()))
+            .medAdresselinje2(utenlandskAdresse.getAdresselinje2() != null ? utenlandskAdresse.getAdresselinje2().toUpperCase() : postlinje)
+            .medAdresselinje3(utenlandskAdresse.getAdresselinje3() != null ? utenlandskAdresse.getAdresselinje3().toUpperCase() : (utenlandskAdresse.getAdresselinje2() != null ? postlinje : utenlandskAdresse.getLandkode()))
             .medAdresselinje4(sisteline)
             .medLand(utenlandskAdresse.getLandkode())
             .build();
     }
 
     private static String hvisfinnes(Object object) {
-        return object == null ? "" : " " + object.toString().trim();
+        return object == null ? "" : " " + object.toString().trim().toUpperCase();
     }
 
     private String tilPoststed(String postnummer) {

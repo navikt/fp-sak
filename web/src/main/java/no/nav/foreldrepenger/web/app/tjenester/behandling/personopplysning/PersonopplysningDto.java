@@ -6,12 +6,14 @@ import java.util.List;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 
 public class PersonopplysningDto extends PersonIdentDto {
 
     private Integer nummer;
+    private RelasjonsRolleType relasjonsRolle;
     private NavBrukerKjønn navBrukerKjonn;
     private LandkoderDto statsborgerskap;
     private AvklartPersonstatus avklartPersonstatus;
@@ -36,6 +38,14 @@ public class PersonopplysningDto extends PersonIdentDto {
 
     void setNavBrukerKjonn(NavBrukerKjønn navBrukerKjonn) {
         this.navBrukerKjonn = navBrukerKjonn;
+    }
+
+    public RelasjonsRolleType getRelasjonsRolle() {
+        return relasjonsRolle;
+    }
+
+    public void setRelasjonsRolle(RelasjonsRolleType relasjonsRolle) {
+        this.relasjonsRolle = relasjonsRolle;
     }
 
     public LandkoderDto getStatsborgerskap() {

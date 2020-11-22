@@ -191,8 +191,7 @@ public class PersonopplysningerAggregat {
     }
 
     public Optional<PersonopplysningEntitet> getEktefelle() {
-        List<PersonopplysningEntitet> personer = getTilPersonerFor(søkerAktørId, RelasjonsRolleType.EKTE);
-        return personer.isEmpty() ? Optional.empty() : Optional.of(personer.get(0));
+        return getTilPersonerFor(søkerAktørId, RelasjonsRolleType.EKTE).stream().findFirst();
     }
 
     public List<PersonRelasjonEntitet> getSøkersRelasjoner() {
