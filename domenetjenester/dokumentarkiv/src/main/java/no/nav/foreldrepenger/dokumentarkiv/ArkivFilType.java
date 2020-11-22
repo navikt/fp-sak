@@ -14,10 +14,11 @@ import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
 
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
-public enum ArkivFilType implements Kodeverdi {
+public enum ArkivFilType implements Kodeverdi, MedOffisiellKode {
 
     PDF ("PDF"),
     PDFA ("PDFA"),
@@ -85,6 +86,7 @@ public enum ArkivFilType implements Kodeverdi {
     public String getOffisiellKode() {
         return getKode();
     }
+
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {

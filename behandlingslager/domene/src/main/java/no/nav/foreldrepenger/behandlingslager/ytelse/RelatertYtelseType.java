@@ -105,11 +105,6 @@ public enum RelatertYtelseType implements Kodeverdi {
         return kode;
     }
 
-    @Override
-    public String getOffisiellKode() {
-        return getKode();
-    }
-
     public boolean girOpptjeningsTid(FagsakYtelseType ytelseType) {
         final var relatertYtelseTypeSet = OPPTJENING_RELATERTYTELSE_CONFIG.get(ytelseType);
         if (relatertYtelseTypeSet == null) {

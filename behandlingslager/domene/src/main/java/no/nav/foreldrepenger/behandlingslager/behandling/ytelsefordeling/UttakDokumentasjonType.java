@@ -89,11 +89,6 @@ public enum UttakDokumentasjonType implements Kodeverdi {
         return kode;
     }
 
-    @Override
-    public String getOffisiellKode() {
-        return this.getKode();
-    }
-
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<UttakDokumentasjonType, String> {
         @Override

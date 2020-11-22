@@ -105,11 +105,6 @@ public enum KlageAvvistÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferanse {
         return lovHjemmel;
     }
 
-    @Override
-    public String getOffisiellKode() {
-        return getKode();
-    }
-
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<KlageAvvistÅrsak, String> {
         @Override

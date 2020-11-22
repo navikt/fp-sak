@@ -16,10 +16,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
 
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
-public enum Oppgavetyper implements Kodeverdi {
+public enum Oppgavetyper implements Kodeverdi, MedOffisiellKode {
 
     BEHANDLE_SAK_VL("BEH_SAK_VL", "Behandle sak i VL"),
     REVURDER_VL("RV_VL", "Revurdere i VL"),

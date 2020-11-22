@@ -74,11 +74,6 @@ public enum SivilstandType implements Kodeverdi {
         return navn;
     }
 
-    @Override
-    public String getOffisiellKode() {
-        return getKode();
-    }
-
     @JsonCreator
     public static SivilstandType fraKode(@JsonProperty("kode") String kode) {
         if (kode == null) {

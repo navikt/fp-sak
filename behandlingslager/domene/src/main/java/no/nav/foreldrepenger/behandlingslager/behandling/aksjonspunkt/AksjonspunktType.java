@@ -45,14 +45,10 @@ public enum AksjonspunktType implements Kodeverdi {
 
     private String kode;
 
-    @JsonIgnore
-    private String offisiellKode;
-
     private AksjonspunktType(String kode, String navn) {
         this.kode = kode;
-        this.navn = navn;
         /* merkelig nok har navn blit brukt som offisiell kode bla. mot Pip/ABAC. */
-        this.offisiellKode = navn;
+        this.navn = navn;
     }
 
     @JsonCreator
@@ -76,11 +72,6 @@ public enum AksjonspunktType implements Kodeverdi {
     @Override
     public String getKode() {
         return kode;
-    }
-
-    @Override
-    public String getOffisiellKode() {
-        return offisiellKode;
     }
 
     @JsonProperty

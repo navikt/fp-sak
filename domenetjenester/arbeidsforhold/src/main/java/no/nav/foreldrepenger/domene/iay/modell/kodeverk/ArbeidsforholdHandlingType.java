@@ -98,11 +98,6 @@ public enum ArbeidsforholdHandlingType implements Kodeverdi {
         return kode;
     }
 
-    @Override
-    public String getOffisiellKode() {
-        return getKode();
-    }
-
     public boolean erPeriodeOverstyrt() {
         return MED_OVERSTYRT_PERIODE.contains(this);
     }

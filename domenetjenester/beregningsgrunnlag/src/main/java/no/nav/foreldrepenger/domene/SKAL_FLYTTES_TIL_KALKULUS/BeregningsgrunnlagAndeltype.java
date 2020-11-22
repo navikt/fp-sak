@@ -76,8 +76,4 @@ public enum BeregningsgrunnlagAndeltype implements Kodeverdi {
         return kode;
     }
 
-    @Override
-    public String getOffisiellKode() {
-        return getKode();
-    }
 }

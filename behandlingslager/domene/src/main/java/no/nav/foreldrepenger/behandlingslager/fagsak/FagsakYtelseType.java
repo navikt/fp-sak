@@ -92,11 +92,6 @@ public enum FagsakYtelseType implements Kodeverdi {
         return navn;
     }
 
-    @Override
-    public String getOffisiellKode() {
-        return getKode();
-    }
-
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<FagsakYtelseType, String> {
         @Override

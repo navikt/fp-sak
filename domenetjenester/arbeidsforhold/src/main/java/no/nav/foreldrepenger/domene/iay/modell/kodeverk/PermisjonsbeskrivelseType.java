@@ -14,11 +14,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.TempAvledeKode;
 
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
-public enum PermisjonsbeskrivelseType implements Kodeverdi {
+public enum PermisjonsbeskrivelseType implements Kodeverdi, MedOffisiellKode {
 
     UDEFINERT("-", "Ikke definert", null),
     PERMISJON("PERMISJON", "Permisjon", "permisjon"),

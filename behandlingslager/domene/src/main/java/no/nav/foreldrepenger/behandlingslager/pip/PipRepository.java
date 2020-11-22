@@ -171,13 +171,9 @@ public class PipRepository {
     }
 
     public Set<String> hentAksjonspunktTypeForAksjonspunktKoder(Collection<String> aksjonspunktKoder) {
-        if (aksjonspunktKoder.isEmpty()) {
-            return Collections.emptySet();
-        }
         return aksjonspunktKoder.stream()
-            .map(ak -> AksjonspunktDefinisjon.fraKode(ak).getAksjonspunktType().getOffisiellKode())
-            .distinct().sorted()
-            .collect(Collectors.toCollection(LinkedHashSet::new));
+            .map(ak -> AksjonspunktDefinisjon.fraKode(ak).getAksjonspunktType().getNavn()) // ja, getNavn er riktig her....
+            .collect(Collectors.toSet());
     }
 
     @SuppressWarnings({ "unchecked", "cast" })

@@ -183,11 +183,6 @@ public enum InnvilgetÅrsak implements PeriodeResultatÅrsak {
         return kode;
     }
 
-    @Override
-    public String getOffisiellKode() {
-        return getKode();
-    }
-
     /** Returnerer p.t. Raw json. */
     @Override
     public String getLovHjemmelData() {

@@ -107,11 +107,6 @@ public enum PeriodeIkkeOppfyltÅrsak implements Kodeverdi, ÅrsakskodeMedLovrefe
     }
 
     @Override
-    public String getOffisiellKode() {
-        return getKode();
-    }
-
-    @Override
     public String getLovHjemmelData() {
         return lovHjemmel;
     }

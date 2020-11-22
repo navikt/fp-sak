@@ -75,27 +75,27 @@ public enum HistorikkinnslagType implements Kodeverdi {
 
     // Mal Type 6
     NY_INFO_FRA_TPS("NY_INFO_FRA_TPS", "Ny info fra TPS", HistorikkinnslagMal.MAL_TYPE_6),
-    
+
     // Mal Type 7
     OVERSTYRT("OVERSTYRT", "Overstyrt", HistorikkinnslagMal.MAL_TYPE_7),
-    
+
     // Mal Type 8
     OPPTJENING("OPPTJENING", "Behandlet opptjeningsperiode", HistorikkinnslagMal.MAL_TYPE_8),
-    
+
     // Mal Type 9
     OVST_UTTAK_SPLITT("OVST_UTTAK_SPLITT", "Manuelt overstyring av uttak - splitting av periode", HistorikkinnslagMal.MAL_TYPE_9),
     FASTSATT_UTTAK_SPLITT("FASTSATT_UTTAK_SPLITT", "Manuelt fastsetting av uttak - splitting av periode", HistorikkinnslagMal.MAL_TYPE_9),
-    
+
     // Mal Type 10
     FASTSATT_UTTAK("FASTSATT_UTTAK", "Manuelt fastsetting av uttak", HistorikkinnslagMal.MAL_TYPE_10),
     OVST_UTTAK("OVST_UTTAK", "Manuelt overstyring av uttak", HistorikkinnslagMal.MAL_TYPE_10),
 
     UDEFINERT("-", "Ikke definert", null),
     ;
-    
+
     @Transient
     private String mal;
-    
+
     private static final Map<String, HistorikkinnslagType> KODER = new LinkedHashMap<>();
 
     public static final String KODEVERK = "HISTORIKKINNSLAG_TYPE";
@@ -151,16 +151,11 @@ public enum HistorikkinnslagType implements Kodeverdi {
     public String getKode() {
         return kode;
     }
-    
-    @Override
-    public String getOffisiellKode() {
-        return getKode();
-    }
 
     public String getMal() {
         return mal;
     }
-    
+
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<HistorikkinnslagType, String> {
         @Override

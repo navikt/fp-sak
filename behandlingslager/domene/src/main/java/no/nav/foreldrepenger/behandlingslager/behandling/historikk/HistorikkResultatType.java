@@ -96,11 +96,6 @@ public enum HistorikkResultatType implements Kodeverdi {
         return KODEVERK;
     }
 
-    @Override
-    public String getOffisiellKode() {
-        return getKode();
-    }
-
     @JsonProperty
     @Override
     public String getKode() {

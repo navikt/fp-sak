@@ -649,11 +649,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     }
 
     @Override
-    public String getOffisiellKode() {
-        return getKode();
-    }
-
-    @Override
     public String getNavn() {
         return navn;
     }

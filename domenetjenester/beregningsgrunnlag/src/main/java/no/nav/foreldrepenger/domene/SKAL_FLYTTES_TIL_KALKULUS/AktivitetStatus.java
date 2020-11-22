@@ -122,11 +122,6 @@ public enum AktivitetStatus implements Kodeverdi {
         return kode;
     }
 
-    @Override
-    public String getOffisiellKode() {
-        return getKode();
-    }
-
     public Inntektskategori getInntektskategori() {
         return inntektskategori;
     }
