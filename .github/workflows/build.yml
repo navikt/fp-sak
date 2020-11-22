@@ -87,7 +87,7 @@ jobs:
                 owner: context.issue.owner,
                 repo: context.issue.repo,
                 labels: ['deployment'],
-                title: 'Deploy av ${{ env.TAG }}'});
+                title: 'Deploy av ${{ env.TAG }}'})
 
       - name: Trigger autotest for fpsak/fpabakus
         if: success()
