@@ -80,7 +80,7 @@ public class PersoninfoAdapter {
 
     public Personhistorikkinfo innhentPersonopplysningerHistorikk(AktørId aktørId, Interval interval) {
         var historikk = tpsAdapter.hentPersonhistorikk(aktørId, interval);
-        personinfoTjeneste.hentPersoninfoHistorikk(aktørId, historikk);
+        personinfoTjeneste.hentPersoninfoHistorikk(aktørId, interval, historikk);
         return historikk;
     }
 
