@@ -377,9 +377,6 @@ public class PersoninfoTjeneste {
         kontaktadresser.stream().map(Kontaktadresse::getPostadresseIFrittFormat).map(a -> mapFriAdresseNorsk(AdresseType.POSTADRESSE, a)).filter(Objects::nonNull).forEach(resultat::add);
         kontaktadresser.stream().map(Kontaktadresse::getUtenlandskAdresse).map(a -> mapUtenlandskadresse(AdresseType.POSTADRESSE_UTLAND, a)).filter(Objects::nonNull).forEach(resultat::add);
         kontaktadresser.stream().map(Kontaktadresse::getUtenlandskAdresseIFrittFormat).map(a -> mapFriAdresseUtland(AdresseType.POSTADRESSE_UTLAND, a)).filter(Objects::nonNull).forEach(resultat::add);
-        if (resultat.isEmpty()) {
-            resultat.add(mapUkjentadresse(null));
-        }
         return resultat;
     }
 
@@ -511,9 +508,7 @@ public class PersoninfoTjeneste {
             pdl.getAdressehistorikk().containsAll(tps.getAdressehistorikk());
         var likestb = pdl.getStatsborgerskaphistorikk().size() == tps.getStatsborgerskaphistorikk().size() &&
             pdl.getStatsborgerskaphistorikk().containsAll(tps.getStatsborgerskaphistorikk());
-        return likestb &&
-                likestatus &&
-                likeadresser;
+        return likestb && likestatus && likeadresser;
     }
 
     private String finnAvvik(Personinfo tps, Personinfo pdl) {
@@ -538,9 +533,9 @@ public class PersoninfoTjeneste {
 
     private String finnAvvikHistorikk(Personhistorikkinfo tps, Personhistorikkinfo pdl) {
         String status = pdl.getPersonstatushistorikk().size() == tps.getPersonstatushistorikk().size() && pdl.getPersonstatushistorikk().containsAll(tps.getPersonstatushistorikk())  ? ""
-            : " adresse " + tps.getPersonstatushistorikk().stream().map(PersonstatusPeriode::getPersonstatus).collect(Collectors.toList()) + " PDL " + pdl.getPersonstatushistorikk().stream().map(PersonstatusPeriode::getPersonstatus).collect(Collectors.toList());
+            : " status " + tps.getPersonstatushistorikk() + " PDL " + pdl.getPersonstatushistorikk();
         String stb = pdl.getStatsborgerskaphistorikk().size() == tps.getStatsborgerskaphistorikk().size() && pdl.getStatsborgerskaphistorikk().containsAll(tps.getStatsborgerskaphistorikk())  ? ""
-            : " adresse " + tps.getStatsborgerskaphistorikk().stream().map(a -> a.getStatsborgerskap().getLandkode()).collect(Collectors.toList()) + " PDL " + pdl.getStatsborgerskaphistorikk().stream().map(a -> a.getStatsborgerskap().getLandkode()).collect(Collectors.toList());
+            : " borger " + tps.getStatsborgerskaphistorikk().stream().map(a -> a.getStatsborgerskap().getLandkode()).collect(Collectors.toList()) + " PDL " + pdl.getStatsborgerskaphistorikk().stream().map(a -> a.getStatsborgerskap().getLandkode()).collect(Collectors.toList());
         String adresse = pdl.getAdressehistorikk().size() == tps.getAdressehistorikk().size() && pdl.getAdressehistorikk().containsAll(tps.getAdressehistorikk())  ? ""
             : " adresse " + tps.getAdressehistorikk().stream().map(a -> a.getAdresse().getAdresseType()).collect(Collectors.toList()) + " PDL " + pdl.getAdressehistorikk().stream().map(a -> a.getAdresse().getAdresseType()).collect(Collectors.toList());
         String adresse2 = pdl.getAdressehistorikk().size() == tps.getAdressehistorikk().size() && pdl.getAdressehistorikk().containsAll(tps.getAdressehistorikk())  ? ""
@@ -561,7 +556,7 @@ public class PersoninfoTjeneste {
             })
             .collect(Collectors.joining(", "));
         if (!opp.isEmpty()) {
-            LOG.info("FPSAK PDL FULL opphold {}", opps);
+            LOG.info("FPSAK PDL opphold {}", opps);
         }
     }
 
