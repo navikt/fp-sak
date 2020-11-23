@@ -1,0 +1,127 @@
+package no.nav.foreldrepenger.økonomi.ny.domene;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+
+public class OppdragKjede {
+
+    public static final OppdragKjede EMPTY = OppdragKjede.builder().build();
+
+    private List<OppdragLinje> oppdragslinjer;
+
+    private OppdragKjede(List<OppdragLinje> oppdragslinjer) {
+        this.oppdragslinjer = oppdragslinjer;
+    }
+
+    public List<OppdragLinje> getOppdragslinjer() {
+        return Collections.unmodifiableList(oppdragslinjer);
+    }
+
+    public Ytelse tilYtelse() {
+        Ytelse.Builder builder = Ytelse.builder();
+        for (OppdragLinje linje : oppdragslinjer) {
+            leggTilOppdragLinje(builder, linje);
+        }
+        return builder.build();
+    }
+
+    static void leggTilOppdragLinje(Ytelse.Builder builder, OppdragLinje linje) {
+        if (linje.getOpphørFomDato() == null) {
+            int indeks = builder.indexForPeriode(linje.getPeriode());
+            boolean finnesFraFør = indeks >= 0;
+            if (finnesFraFør) {
+                builder.overskrivPeriode(indeks, new YtelsePeriode(linje.getPeriode(), linje.getSats(), linje.getUtbetalingsgrad()));
+            } else {
+                builder.leggTilPeriode(new YtelsePeriode(linje.getPeriode(), linje.getSats(), linje.getUtbetalingsgrad()));
+            }
+        } else {
+            builder.fjernAltEtter(linje.getOpphørFomDato());
+        }
+    }
+
+    public FagsystemId getFagsystemId() {
+        return oppdragslinjer.get(0).getDelytelseId().getFagsystemId();
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+
+    public OppdragLinje getSisteLinje() {
+        if (oppdragslinjer.isEmpty()) {
+            throw new IllegalArgumentException("Har ingen linjer, kan ikke hente siste");
+        }
+        return oppdragslinjer.get(oppdragslinjer.size() - 1);
+    }
+
+    public boolean harOppdragPåEllerEtter(LocalDate endringsdato) {
+        return oppdragslinjer.stream().anyMatch(ol -> !ol.getPeriode().getTom().isBefore(endringsdato));
+    }
+
+    public boolean erTom() {
+        return oppdragslinjer.isEmpty();
+    }
+
+    public OppdragKjede leggTil(OppdragKjedeFortsettelse fortsettelse) {
+        Builder builder = builder();
+        for (OppdragLinje oppdragLinje : oppdragslinjer) {
+            builder.medOppdragslinje(oppdragLinje);
+        }
+        for (OppdragLinje oppdragLinje : fortsettelse.getOppdragslinjer()) {
+            builder.medOppdragslinje(oppdragLinje);
+        }
+        return builder.build();
+    }
+
+    public static class Builder {
+
+        private Ytelse.Builder ytelseBuilder = Ytelse.builder();
+        private List<OppdragLinje> oppdragslinjer = new ArrayList<>();
+
+        private Builder() {
+        }
+
+        public Builder medOppdragslinje(OppdragLinje linje) {
+            if (oppdragslinjer.isEmpty()) {
+                if (linje.getRefDelytelseId() != null) {
+                    throw new IllegalArgumentException("Første oppdragslinje (delytelseId" + linje.getDelytelseId() + ") kan ikke referere til en annen");
+                }
+            } else {
+                OppdragLinje siste = oppdragslinjer.get(oppdragslinjer.size() - 1);
+                if (linje.getOpphørFomDato() == null) {
+                    validerLinjeUtenOpphør(linje, siste);
+                } else {
+                    validerLinjeMedOpphør(linje, siste);
+                }
+            }
+            oppdragslinjer.add(linje);
+            leggTilOppdragLinje(ytelseBuilder, linje);
+            return this;
+        }
+
+        private void validerLinjeUtenOpphør(OppdragLinje linje, OppdragLinje siste) {
+            if (!ytelseBuilder.erTom() && !siste.getDelytelseId().equals(linje.getRefDelytelseId())) {
+                throw new IllegalArgumentException("Oppdragslinje med delytelseId " + linje.getDelytelseId() + " er ikke først i kjeden, og må referere til forrige oppdragslinje (delytelseId " + siste.getDelytelseId() + ")");
+            }
+
+            boolean overskriverSiste = siste.getPeriode().equals(linje.getPeriode());
+            if (!overskriverSiste && ytelseBuilder.sisteTidspunkt() != null && !ytelseBuilder.sisteTidspunkt().isBefore(linje.getPeriode().getFom())) {
+                throw new IllegalArgumentException("Oppdragslinjer skal legges til kronologisk og ikke overlappe med det som er gjeldende så langt. Oppdragslinje " + linje.getDelytelseId() + " ble forsøkt lagt til i kjede som allerede varer til " + ytelseBuilder.sisteTidspunkt());
+            }
+        }
+
+        private void validerLinjeMedOpphør(OppdragLinje linje, OppdragLinje siste) {
+            if (!siste.getDelytelseId().equals(linje.getDelytelseId())) {
+                throw new IllegalArgumentException("Ved opphør må samme delytelsesid som forrige oppdragslinje gjenbrukes");
+            }
+        }
+
+        public OppdragKjede build() {
+            return new OppdragKjede(oppdragslinjer);
+        }
+    }
+}

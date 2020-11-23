@@ -8,11 +8,11 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.finn.unleash.Unleash;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
+import no.nav.foreldrepenger.økonomi.ny.postcondition.OppdragPostConditionTjeneste;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -30,8 +30,7 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
 
     private OppdragskontrollTjeneste oppdragskontrollTjeneste;
     private ProsessTaskRepository prosessTaskRepository;
-
-    private Unleash unleash;
+    private OppdragPostConditionTjeneste oppdragPostConditionTjeneste;
 
     VurderOgSendØkonomiOppdragTask() {
         // for CDI proxy
@@ -40,11 +39,12 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
     @Inject
     public VurderOgSendØkonomiOppdragTask(OppdragskontrollTjeneste oppdragskontrollTjeneste,
                                           ProsessTaskRepository prosessTaskRepository,
-                                          BehandlingRepositoryProvider repositoryProvider, Unleash unleash) {
+                                          BehandlingRepositoryProvider repositoryProvider,
+                                          OppdragPostConditionTjeneste oppdragPostConditionTjeneste) {
         super(repositoryProvider.getBehandlingLåsRepository());
         this.oppdragskontrollTjeneste = oppdragskontrollTjeneste;
         this.prosessTaskRepository = prosessTaskRepository;
-        this.unleash = unleash;
+        this.oppdragPostConditionTjeneste = oppdragPostConditionTjeneste;
     }
 
     @Override
@@ -56,6 +56,7 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
             return;
         }
         vurderSendingAvOppdrag(prosessTaskData, behandlingId);
+        oppdragPostConditionTjeneste.softPostCondition(behandlingId);
     }
 
     private void vurderSendingAvOppdrag(ProsessTaskData prosessTaskData, Long behandlingId) {

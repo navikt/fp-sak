@@ -66,6 +66,10 @@ public class BeregningsresultatFeriepengerPrÅr extends BaseEntitet {
         return opptjeningsår;
     }
 
+    public int getOpptjeningsåret() {
+        return opptjeningsår.getYear();
+    }
+
     public Beløp getÅrsbeløp() {
         return årsbeløp;
     }
@@ -99,8 +103,18 @@ public class BeregningsresultatFeriepengerPrÅr extends BaseEntitet {
             beregningsresultatFeriepengerPrÅrMal = new BeregningsresultatFeriepengerPrÅr();
         }
 
+        public Builder medOpptjeningsår(int opptjeningsår) {
+            beregningsresultatFeriepengerPrÅrMal.opptjeningsår = LocalDate.of(opptjeningsår, 12, 31);
+            return this;
+        }
+
         public Builder medOpptjeningsår(LocalDate opptjeningsår) {
             beregningsresultatFeriepengerPrÅrMal.opptjeningsår = opptjeningsår;
+            return this;
+        }
+
+        public Builder medÅrsbeløp(int årsbeløp) {
+            beregningsresultatFeriepengerPrÅrMal.årsbeløp = new Beløp(BigDecimal.valueOf(årsbeløp));
             return this;
         }
 
