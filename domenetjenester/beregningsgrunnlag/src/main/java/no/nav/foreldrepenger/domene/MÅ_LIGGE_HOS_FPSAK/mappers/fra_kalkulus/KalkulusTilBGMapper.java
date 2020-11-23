@@ -100,7 +100,7 @@ public class KalkulusTilBGMapper {
             .medMaksimalRefusjonPrÅr(fraKalkulus.getMaksimalRefusjonPrÅr())
             .medRedusertRefusjonPrÅr(fraKalkulus.getRedusertRefusjonPrÅr())
             .medÅrsbeløpFraTilstøtendeYtelse(fraKalkulus.getÅrsbeløpFraTilstøtendeYtelse() == null ? null : fraKalkulus.getÅrsbeløpFraTilstøtendeYtelse().getVerdi())
-            .medNyIArbeidslivet(faktaAktør.map(FaktaAktørDto::getErNyIArbeidslivetSN).orElse(null))
+            .medNyIArbeidslivet(erNyIarbeidslivet(fraKalkulus, faktaAktør))
             .medInntektskategori(fraKalkulus.getInntektskategori() == null ? null : Inntektskategori.fraKode(fraKalkulus.getInntektskategori().getKode()))
             .medKilde(AndelKilde.fraKode(fraKalkulus.getKilde().getKode()))
             .medOrginalDagsatsFraTilstøtendeYtelse(fraKalkulus.getOrginalDagsatsFraTilstøtendeYtelse());
@@ -114,9 +114,23 @@ public class KalkulusTilBGMapper {
         }
 
         fraKalkulus.getBgAndelArbeidsforhold().ifPresent(bgAndelArbeidsforhold -> builder.medBGAndelArbeidsforhold(KalkulusTilBGMapper.magBGAndelArbeidsforhold(bgAndelArbeidsforhold, faktaArbeidsforhold)));
-        faktaAktør.map(FaktaAktørDto::getErNyoppstartetFL).ifPresent(aBoolean -> builder.medNyoppstartet(aBoolean, AktivitetStatus.fraKode(fraKalkulus.getAktivitetStatus().getKode())));
+        erNyoppstartetFL(fraKalkulus, faktaAktør).ifPresent(aBoolean -> builder.medNyoppstartet(aBoolean, AktivitetStatus.fraKode(fraKalkulus.getAktivitetStatus().getKode())));
         builder.medMottarYtelse(mapMottarYtelse(fraKalkulus, faktaAktør, faktaArbeidsforhold), AktivitetStatus.fraKode(fraKalkulus.getAktivitetStatus().getKode()));
         return builder;
+    }
+
+    private static Optional<Boolean> erNyoppstartetFL(BeregningsgrunnlagPrStatusOgAndelDto fraKalkulus, Optional<FaktaAktørDto> faktaAktør) {
+        if (!fraKalkulus.getAktivitetStatus().erFrilanser()) {
+            return Optional.empty();
+        }
+        return faktaAktør.map(FaktaAktørDto::getErNyoppstartetFL);
+    }
+
+    private static Boolean erNyIarbeidslivet(BeregningsgrunnlagPrStatusOgAndelDto fraKalkulus, Optional<FaktaAktørDto> faktaAktør) {
+        if (!fraKalkulus.getAktivitetStatus().erSelvstendigNæringsdrivende()) {
+            return null;
+        }
+        return faktaAktør.map(FaktaAktørDto::getErNyIArbeidslivetSN).orElse(null);
     }
 
     private static boolean skalBesteberegnes(Optional<FaktaAktørDto> faktaAktør) {
