@@ -114,7 +114,7 @@ public class OppdragLinje {
 
         //TODO bruk heller metode som tar inn DelytelseId-objektet
         public Builder medRefDelytelseId(Long refDelytelseId) {
-            this.refDelytelseId = DelytelseId.parse(Long.toString(refDelytelseId));
+            this.refDelytelseId = refDelytelseId != null ? DelytelseId.parse(Long.toString(refDelytelseId)) : null;
             return this;
         }
 
