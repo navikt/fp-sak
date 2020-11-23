@@ -61,6 +61,8 @@ import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Beregningsgrunnlag
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle;
+import no.nav.foreldrepenger.domene.abakus.mapping.IAYTilDtoMapper;
+import no.nav.foreldrepenger.domene.abakus.mapping.KodeverkMapper;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
@@ -161,8 +163,11 @@ public class ForvaltningBeregningRestTjeneste {
     @Operation(description = "Henter iayGrunnlag", tags = "FORVALTNING-beregning")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response hentIAYGrunnlag(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
+        Behandling behandling = behandlingRepository.hentBehandling(dto.getBehandlingId());
         InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(dto.getBehandlingId());
-        return Response.ok(inntektArbeidYtelseGrunnlag).build();
+        no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseGrunnlagDto inntektArbeidYtelseGrunnlagDto = new IAYTilDtoMapper(behandling.getAktørId(), KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()),
+            null, behandling.getUuid()).mapTilDto(inntektArbeidYtelseGrunnlag);
+        return Response.ok(inntektArbeidYtelseGrunnlagDto).build();
     }
 
     @POST
