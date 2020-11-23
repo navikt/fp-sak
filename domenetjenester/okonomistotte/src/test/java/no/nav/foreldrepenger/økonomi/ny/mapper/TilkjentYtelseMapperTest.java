@@ -92,6 +92,31 @@ public class TilkjentYtelseMapperTest {
     }
 
     @Test
+    public void skal_ignore_andel_med_0_dagsats() {
+        BeregningsresultatPeriode periode1 = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(jan1, jan1).build(entitet);
+        lagAndelTilBruker(Inntektskategori.DAGPENGER, 0, periode1);
+        BeregningsresultatPeriode periode2 = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(jan2, jan2).build(entitet);
+        lagAndelTilBruker(Inntektskategori.DAGPENGER, 0, periode2);
+        lagAndelTilBruker(Inntektskategori.FRILANSER, 1, periode2);
+        List<BeregningsresultatPeriode> perioder = Arrays.asList(periode1, periode2);
+
+        Map<KjedeNøkkel, Ytelse> resultat = mapper.fordelPåNøkler(perioder).getYtelsePrNøkkel();
+
+        Assertions.assertThat(resultat).hasSize(1);
+
+        ØkonomiKodeKlassifik kodeklasse = ØkonomiKodeKlassifik.fraKode("FPATFRI");
+        KjedeNøkkel forventetNøkkel = new KjedeNøkkel(kodeklasse, Betalingsmottaker.BRUKER);
+        Assertions.assertThat(resultat.keySet()).contains(forventetNøkkel);
+
+        Ytelse ytelse = resultat.get(forventetNøkkel);
+        Assertions.assertThat(ytelse.getPerioder()).hasSize(1);
+
+        YtelsePeriode ytelsePeriode = ytelse.getPerioder().get(0);
+        Assertions.assertThat(ytelsePeriode.getSats()).isEqualTo(Sats.dagsats(1));
+        Assertions.assertThat(ytelsePeriode.getPeriode()).isEqualTo(Periode.of(jan2, jan2));
+    }
+
+    @Test
     public void skal_mappe_refusjon_inkl_feriepenger() {
         BeregningsresultatFeriepenger brFeriepenger = BeregningsresultatFeriepenger.builder()
             .medFeriepengerPeriodeFom(LocalDate.of(2021, 5, 1))

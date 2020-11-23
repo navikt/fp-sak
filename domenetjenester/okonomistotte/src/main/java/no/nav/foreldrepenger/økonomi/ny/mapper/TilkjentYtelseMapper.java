@@ -54,6 +54,7 @@ public class TilkjentYtelseMapper {
 
         for (BeregningsresultatPeriode tyPeriode : tilkjentYtelsePerioder) {
             Map<KjedeNøkkel, List<YtelsePeriodeMedNøkkel>> andelPrNøkkel = tyPeriode.getBeregningsresultatAndelList().stream()
+                .filter(andel -> andel.getDagsats() != 0)
                 .map(andel -> tilYtelsePeriodeMedNøkkel(tyPeriode, andel))
                 .collect(Collectors.groupingBy(YtelsePeriodeMedNøkkel::getNøkkel));
             for (var entry : andelPrNøkkel.entrySet()) {
