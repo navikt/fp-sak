@@ -14,8 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.finn.unleash.FakeUnleash;
-import no.finn.unleash.Unleash;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -52,7 +50,6 @@ public class SimulerOppdragTjenesteTest extends EntityManagerAwareTest {
     private FamilieHendelseRepository familieHendelseRepository;
 
     private SimulerOppdragTjeneste simulerOppdragTjeneste;
-    private final Unleash unleash = new FakeUnleash();
 
     @Mock
     private PersoninfoAdapter tpsTjeneste;
@@ -74,7 +71,7 @@ public class SimulerOppdragTjenesteTest extends EntityManagerAwareTest {
         OppdragskontrollManagerFactory oppdragskontrollManagerFactory = mockFactoryES();
         OppdragskontrollManagerFactoryProvider providerMock = mock(OppdragskontrollManagerFactoryProvider.class);
         when(providerMock.getTjeneste(any(FagsakYtelseType.class))).thenReturn(oppdragskontrollManagerFactory);
-        return new OppdragskontrollTjenesteImpl(repositoryProvider, økonomioppdragRepository, providerMock, unleash);
+        return new OppdragskontrollTjenesteImpl(repositoryProvider, økonomioppdragRepository, providerMock);
     }
 
     private OppdragskontrollManagerFactory mockFactoryES() {

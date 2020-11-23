@@ -6,20 +6,17 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.finn.unleash.Unleash;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragsmottakerStatus;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollManager;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.Oppdragsmottaker;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OpprettOppdragTjeneste;
@@ -38,34 +35,24 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.oppdragslinje150
 public class OppdragskontrollOpphør implements OppdragskontrollManager {
 
     private BehandlingTilOppdragMapperTjeneste behandlingTilOppdragMapperTjeneste;
-    private Unleash unleash;
 
     OppdragskontrollOpphør() {
         // For CDI
     }
 
     @Inject
-    public OppdragskontrollOpphør(BehandlingTilOppdragMapperTjeneste behandlingTilOppdragMapperTjeneste, Unleash unleash) {
+    public OppdragskontrollOpphør(BehandlingTilOppdragMapperTjeneste behandlingTilOppdragMapperTjeneste) {
         this.behandlingTilOppdragMapperTjeneste = behandlingTilOppdragMapperTjeneste;
-        this.unleash = unleash;
     }
 
     @Override
     public Oppdragskontroll opprettØkonomiOppdrag(Behandling behandling, Oppdragskontroll oppdragskontroll) {
         OppdragInput behandlingInfo = behandlingTilOppdragMapperTjeneste.map(behandling);
         boolean erDetFlereKlassekodeForBruker = OpprettOppdragslinje150Tjeneste.finnesFlereKlassekodeIForrigeOppdrag(behandlingInfo);
-
-        boolean brukFeilrettetVersjon = unleash.isEnabled("fpsak.okonomistotte.tfp-2717");
-        if (brukFeilrettetVersjon){
-            //TODO Team Ukelønn opprettOpphørsoppdragForBrukerMedFlereKlassekode bør renames til opprettOpphørsoppdragForBruker
-            //når feature toggle fjernes
+        if (erDetFlereKlassekodeForBruker) {
             opprettOpphørsoppdragForBrukerMedFlereKlassekode(behandlingInfo, oppdragskontroll);
         } else {
-            if (erDetFlereKlassekodeForBruker) {
-                opprettOpphørsoppdragForBrukerMedFlereKlassekode(behandlingInfo, oppdragskontroll);
-            } else {
-                opprettOpphørsoppdragForBruker(behandlingInfo, oppdragskontroll);
-            }
+            opprettOpphørsoppdragForBruker(behandlingInfo, oppdragskontroll);
         }
         opprettOpphørsoppdragForArbeidsgiver(behandlingInfo, oppdragskontroll);
         return oppdragskontroll;
@@ -118,15 +105,6 @@ public class OppdragskontrollOpphør implements OppdragskontrollManager {
     private Optional<Oppdrag110> opprettOpphørPåSisteOpp150ForBrukerSinYtelse(OppdragInput behandlingInfo, Oppdragsmottaker mottaker,
                                                                               List<Oppdragslinje150> tidligereOppdr150Liste, Oppdrag110.Builder nyOppdrag110Builder,
                                                                               Oppdragskontroll nyOppdragskontroll) {
-        boolean brukFeilrettetVersjon = unleash.isEnabled("fpsak.okonomistotte.tfp-2717");
-        return brukFeilrettetVersjon
-            ? opprettOpphørPåSisteOpp150ForBrukerSinYtelseNy(behandlingInfo, mottaker, tidligereOppdr150Liste, nyOppdrag110Builder, nyOppdragskontroll)
-            : opprettOpphørPåSisteOpp150ForBrukerSinYtelseGammel(behandlingInfo, mottaker, tidligereOppdr150Liste, nyOppdrag110Builder, nyOppdragskontroll);
-    }
-
-    private Optional<Oppdrag110> opprettOpphørPåSisteOpp150ForBrukerSinYtelseGammel(OppdragInput behandlingInfo, Oppdragsmottaker mottaker,
-                                                                              List<Oppdragslinje150> tidligereOppdr150Liste, Oppdrag110.Builder nyOppdrag110Builder,
-                                                                              Oppdragskontroll nyOppdragskontroll) {
 
         Map<String, List<Oppdragslinje150>> opp150ListePerKlassekodeMap = tidligereOppdr150Liste.stream()
             .collect(Collectors.groupingBy(Oppdragslinje150::getKodeKlassifik));
@@ -153,42 +131,6 @@ public class OppdragskontrollOpphør implements OppdragskontrollManager {
             }
         }
         return Optional.ofNullable(nyOppdrag110);
-    }
-
-    private Optional<Oppdrag110> opprettOpphørPåSisteOpp150ForBrukerSinYtelseNy(OppdragInput behandlingInfo, Oppdragsmottaker mottaker,
-                                                                                    List<Oppdragslinje150> tidligereOppdr150Liste, Oppdrag110.Builder nyOppdrag110Builder,
-                                                                                    Oppdragskontroll nyOppdragskontroll) {
-
-        Set<ØkonomiKodeKlassifik> ikkeOpphørteKlassekoder = OpphørUtil.finnKlassekoderSomIkkeErOpphørt(behandlingInfo);
-
-        Map<ØkonomiKodeKlassifik, List<Oppdragslinje150>> opp150ListePerAktivKlassekode = tidligereOppdr150Liste.stream()
-            .filter(linje ->ikkeOpphørteKlassekoder.contains(linje.getKodeKlassifik()))
-            .collect(Collectors.groupingBy(Oppdragslinje150::getKodeKlassifikEnum));
-
-
-        int iter = 0;
-        Oppdrag110 nyOppdrag110 = null;
-        for (var opp150ListePerKlassekode : opp150ListePerAktivKlassekode.entrySet()) {
-            List<Oppdragslinje150> opp150MedSammeKlassekodeListe = opp150ListePerKlassekode.getValue();
-            Optional<Oppdragslinje150> sisteOppdr150BrukerOpt = opp150MedSammeKlassekodeListe
-                .stream()
-                .max(Comparator.comparing(Oppdragslinje150::getDelytelseId));
-            if (sisteOppdr150BrukerOpt.isPresent()) {
-                Oppdragslinje150 sisteOppdr150Bruker = sisteOppdr150BrukerOpt.get();
-                boolean skalSendeOpphør = VurderOpphørForYtelse.vurder(behandlingInfo, sisteOppdr150Bruker, mottaker);
-                if (!skalSendeOpphør) {
-                    continue;
-                }
-                if (iter == 0) {
-                    nyOppdrag110 = nyOppdrag110Builder.medOppdragskontroll(nyOppdragskontroll).build();
-                }
-                LocalDate opphørFom = FinnOpphørFomDato.finnOpphørFom(opp150MedSammeKlassekodeListe, behandlingInfo, mottaker);
-                opprettOppdragslinje150ForStatusOPPH(behandlingInfo, sisteOppdr150Bruker, nyOppdrag110, opphørFom);
-                iter++;
-            }
-        }
-        return Optional.ofNullable(nyOppdrag110);
-
     }
 
     private void opprettOpphørsoppdragForBruker(OppdragInput behandlingInfo, Oppdragskontroll oppdragskontroll) {

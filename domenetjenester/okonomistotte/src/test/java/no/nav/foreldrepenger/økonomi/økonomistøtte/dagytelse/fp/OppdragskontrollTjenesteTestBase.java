@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
-import no.finn.unleash.FakeUnleash;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -113,7 +112,6 @@ public abstract class OppdragskontrollTjenesteTestBase {
     protected FamilieHendelseRepository familieHendelseRepository;
     protected OppdragskontrollTjeneste oppdragskontrollTjeneste;
     protected TilbakekrevingRepository tilbakekrevingRepository;
-    protected FakeUnleash unleash = new FakeUnleash();
 
     Behandling behandling;
     Fagsak fagsak;
@@ -153,8 +151,7 @@ public abstract class OppdragskontrollTjenesteTestBase {
             beregningsresultatRepository, familieHendelseRepository, sjekkOmDetFinnesTilkjentYtelse);
         OppdragskontrollFørstegang oppdragskontrollFørstegangFP = new OppdragskontrollFørstegang(
             behandlingTilOppdragMapperTjenesteFP);
-        OppdragskontrollOpphør oppdragskontrollOpphørFP = new OppdragskontrollOpphør(
-            behandlingTilOppdragMapperTjenesteFP, unleash);
+        OppdragskontrollOpphør oppdragskontrollOpphørFP = new OppdragskontrollOpphør(behandlingTilOppdragMapperTjenesteFP);
         OpprettOpphørIEndringsoppdrag opprettOpphørIEndringsoppdragBruker = new OpprettOpphørIEndringsoppdrag(
             oppdragskontrollOpphørFP);
         OppdragskontrollEndring oppdragskontrollEndringFP = new OppdragskontrollEndring(
@@ -167,8 +164,7 @@ public abstract class OppdragskontrollTjenesteTestBase {
         lenient().when(factoryProviderMock.getTjeneste(any(FagsakYtelseType.class)))
             .thenReturn(oppdragskontrollManagerFactory);
 
-        oppdragskontrollTjeneste = new OppdragskontrollTjenesteImpl(repositoryProvider, økonomioppdragRepository,
-            factoryProviderMock, unleash);
+        oppdragskontrollTjeneste = new OppdragskontrollTjenesteImpl(repositoryProvider, økonomioppdragRepository, factoryProviderMock);
 
         behandling = opprettOgLagreBehandling(FamilieYtelseType.FØDSEL);
 
