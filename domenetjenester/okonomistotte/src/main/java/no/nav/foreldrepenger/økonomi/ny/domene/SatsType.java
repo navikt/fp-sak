@@ -1,16 +1,10 @@
 package no.nav.foreldrepenger.økonomi.ny.domene;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
@@ -25,13 +19,6 @@ public enum SatsType implements Kodeverdi {
     UDEFINERT("-"),
     ;
 
-    public static final String KODEVERK = "SATS_TYPE";
-
-    private static final Map<String, SatsType> KODER = new LinkedHashMap<>();
-
-    @JsonIgnore
-    private String navn;
-
     @JsonValue
     private String kode;
 
@@ -39,7 +26,7 @@ public enum SatsType implements Kodeverdi {
         // Hibernate trenger den
     }
 
-    private SatsType(String kode) {
+    SatsType(String kode) {
         this.kode = kode;
     }
 
@@ -48,51 +35,27 @@ public enum SatsType implements Kodeverdi {
         if (kode == null) {
             return null;
         }
-        var ad = KODER.get(kode);
-        if (ad == null) {
-            throw new IllegalArgumentException("Ukjent SatsType: " + kode);
+        for (SatsType value : values()) {
+            if (value.getKode().equals(kode)) {
+                return value;
+            }
         }
-        return ad;
-    }
-
-    public static SatsType fraKodeDefaultUdefinert(@JsonProperty("kode") String kode) {
-        if (kode == null) {
-            return UDEFINERT;
-        }
-        return KODER.getOrDefault(kode, UDEFINERT);
-    }
-
-    public static Map<String, SatsType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
+        throw new IllegalArgumentException("Ukjent SatsType: " + kode);
     }
 
     @Override
     public String getNavn() {
-        return navn;
-    }
-
-    @Override
-    public String getOffisiellKode() {
-        return kode;
+        return null;
     }
 
     @Override
     public String getKodeverk() {
-        return KODEVERK;
+        return "SATS_TYPE";
     }
-
 
     @Override
     public String getKode() {
         return kode;
-    }
-
-    static {
-        for (var v : values()) {
-            if (KODER.putIfAbsent(v.kode, v) != null) {
-                throw new IllegalArgumentException("Duplikat : " + v.kode);
-            }
-        }
     }
 
 }
