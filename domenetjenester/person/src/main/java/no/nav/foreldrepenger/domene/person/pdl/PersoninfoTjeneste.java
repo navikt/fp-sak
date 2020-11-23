@@ -18,6 +18,7 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.extra.Interval;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.Adresseinfo;
@@ -214,8 +215,10 @@ public class PersoninfoTjeneste {
         }
     }
 
-    public void hentPersoninfoHistorikk(AktørId aktørId, Personhistorikkinfo fraTPS) {
+    public void hentPersoninfoHistorikk(AktørId aktørId, Interval interval, Personhistorikkinfo fraTPS) {
         try {
+            var fom = LocalDateTime.ofInstant(interval.getStart(), ZoneId.systemDefault()).toLocalDate();
+            var tom = LocalDateTime.ofInstant(interval.getEnd(), ZoneId.systemDefault()).toLocalDate();
             var query = new HentPersonQueryRequest();
             query.setIdent(aktørId.getId());
             var projection = new PersonResponseProjection()
@@ -244,11 +247,15 @@ public class PersoninfoTjeneste {
             var fraPDLBuilder = Personhistorikkinfo.builder().medAktørId(aktørId.getId());
             person.getFolkeregisterpersonstatus().stream()
                 .map(PersoninfoTjeneste::mapPersonstatusHistorisk)
+                .filter(p -> p.getGyldighetsperiode().getTom().isAfter(fom) && p.getGyldighetsperiode().getFom().isBefore(tom))
                 .forEach(fraPDLBuilder::leggTil);
             person.getStatsborgerskap().stream()
                 .map(PersoninfoTjeneste::mapStatsborgerskapHistorikk)
+                .filter(p -> p.getGyldighetsperiode().getTom().isAfter(fom) && p.getGyldighetsperiode().getFom().isBefore(tom))
                 .forEach(fraPDLBuilder::leggTil);
-            mapAdresserHistorikk(person.getBostedsadresse(), person.getKontaktadresse(), person.getOppholdsadresse(), fraPDLBuilder);
+            mapAdresserHistorikk(person.getBostedsadresse(), person.getKontaktadresse(), person.getOppholdsadresse()).stream()
+                .filter(p -> p.getGyldighetsperiode().getTom().isAfter(fom) && p.getGyldighetsperiode().getFom().isBefore(tom))
+                .forEach(fraPDLBuilder::leggTil);
             var fraPDL = fraPDLBuilder.build();
 
             logInnUtOpp(person.getOpphold());
@@ -324,28 +331,30 @@ public class PersoninfoTjeneste {
         return ROLLE_FRA_FREG_STAND.getOrDefault(type, RelasjonsRolleType.UDEFINERT);
     }
 
-    void mapAdresserHistorikk(List<Bostedsadresse> bostedsadresser, List<Kontaktadresse> kontaktadresser, List<Oppholdsadresse> oppholdsadresser, Personhistorikkinfo.Builder builder) {
+    private List<AdressePeriode> mapAdresserHistorikk(List<Bostedsadresse> bostedsadresser, List<Kontaktadresse> kontaktadresser, List<Oppholdsadresse> oppholdsadresser) {
+        List<AdressePeriode> adresser = new ArrayList<>();
         bostedsadresser.forEach(b -> {
             var gyldigFra = b.getGyldigFraOgMed() == null ? Tid.TIDENES_BEGYNNELSE :
                 LocalDateTime.ofInstant(b.getGyldigFraOgMed().toInstant(), ZoneId.systemDefault()).toLocalDate();
             var gyldigTil = b.getGyldigTilOgMed() == null ? Tid.TIDENES_ENDE :
                 LocalDateTime.ofInstant(b.getGyldigTilOgMed().toInstant(), ZoneId.systemDefault()).toLocalDate();
-            mapAdresser(List.of(b), List.of(), List.of()).forEach(a -> builder.leggTil(mapAdresseinfoTilAdressePeriode(gyldigFra, gyldigTil, a)));
+            mapAdresser(List.of(b), List.of(), List.of()).forEach(a -> adresser.add(mapAdresseinfoTilAdressePeriode(gyldigFra, gyldigTil, a)));
         });
         kontaktadresser.forEach(k -> {
             var gyldigFra = k.getGyldigFraOgMed() == null ? Tid.TIDENES_BEGYNNELSE :
                 LocalDateTime.ofInstant(k.getGyldigFraOgMed().toInstant(), ZoneId.systemDefault()).toLocalDate();
             var gyldigTil = k.getGyldigTilOgMed() == null ? Tid.TIDENES_ENDE :
                 LocalDateTime.ofInstant(k.getGyldigTilOgMed().toInstant(), ZoneId.systemDefault()).toLocalDate();
-            mapAdresser(List.of(), List.of(k), List.of()).forEach(a -> builder.leggTil(mapAdresseinfoTilAdressePeriode(gyldigFra, gyldigTil, a)));
+            mapAdresser(List.of(), List.of(k), List.of()).forEach(a -> adresser.add(mapAdresseinfoTilAdressePeriode(gyldigFra, gyldigTil, a)));
         });
         oppholdsadresser.forEach(o -> {
             var gyldigFra = o.getGyldigFraOgMed() == null ? Tid.TIDENES_BEGYNNELSE :
                 LocalDateTime.ofInstant(o.getGyldigFraOgMed().toInstant(), ZoneId.systemDefault()).toLocalDate();
             var gyldigTil = o.getGyldigTilOgMed() == null ? Tid.TIDENES_ENDE :
                 LocalDateTime.ofInstant(o.getGyldigTilOgMed().toInstant(), ZoneId.systemDefault()).toLocalDate();
-            mapAdresser(List.of(), List.of(), List.of(o)).forEach(a -> builder.leggTil(mapAdresseinfoTilAdressePeriode(gyldigFra, gyldigTil, a)));
+            mapAdresser(List.of(), List.of(), List.of(o)).forEach(a -> adresser.add(mapAdresseinfoTilAdressePeriode(gyldigFra, gyldigTil, a)));
         });
+        return adresser;
     }
 
     private static AdressePeriode mapAdresseinfoTilAdressePeriode(LocalDate fom, LocalDate tom, Adresseinfo adresseinfo) {
