@@ -69,7 +69,7 @@ public class OppdragPostConditionTjeneste {
         try {
             sammenlignEffektAvOppdragMedTilkjentYtelse(behandling, beregningsresultat);
         } catch (Exception e) {
-            logger.warn("Sammenligning av effekt av oppdrag mot tilkjent ytelse viser avvik for " + behandling.getFagsak().getSaksnummer() + " behandling " + behandling.getId() + ". Dette bør undersøkes og evt. patches", e);
+            logger.warn("Sammenligning av effekt av oppdrag mot tilkjent ytelse viser avvik for " + behandling.getFagsak().getSaksnummer() + " behandling " + behandling.getId() + ". Dette bør undersøkes og evt. patches: " + e.getMessage(), e);
         }
     }
 
