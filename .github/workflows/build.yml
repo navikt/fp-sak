@@ -97,8 +97,17 @@ jobs:
               });
             });  
           
-          
-      
+      - name: Opprett deployment issue
+        if: success()
+        uses: maxkomarychev/oction-create-issue@v0.7.1
+        id: createdeployissue
+        with:
+          token: ${{ secrets.GH_ACCESS_TOKEN }}
+          title: Deploy av ${{ env.TAG }}
+          labels: deployment
+          body: |
+            Kommenter med <b>/promote dev-fss</b> eller <b>/promote prod-fss</b>, evt andre gyldige clusternavn.   
+            
       - name: Trigger autotest for fpsak/fpabakus
         if: success()
         uses: peter-evans/repository-dispatch@v1
@@ -117,23 +126,5 @@ jobs:
           event-type: fpsak-verdikjede
           client-payload: '{ "trigger": "${{ github.repository }}", "version": "${{ env.TAG }}", "issue-number": "${{ steps.createdeployissue.outputs.number }}" }'
 
-      - name: Opprett issue og deploy
-        if: success()
-        uses: actions/github-script@v3
-        with:
-          github-token: ${{ secrets.GH_ACCESS_TOKEN }}
-          script: |
-              github.issues.create( {
-                owner: context.issue.owner,
-                repo: context.issue.repo,
-                labels: ['deployment'],
-                title: 'Deploy av ${{ env.TAG }}'})
-                .then(response => {
-                      const issue = { owner: context.issue.owner,
-                      repo: context.issue.repo,
-                      issue_number: response.data.number }
-                     github.issues.createComment({...issue,
-                            title: 'Deploy av ${{ env.TAG }}',
-                            body: '/promote dev-fss'})
-               });
+      
 
