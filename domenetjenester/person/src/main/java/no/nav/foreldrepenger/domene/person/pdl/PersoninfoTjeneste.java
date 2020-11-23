@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -245,8 +246,10 @@ public class PersoninfoTjeneste {
             var person = pdlKlient.hentPerson(query, projection, Tema.FOR);
 
             var fraPDLBuilder = Personhistorikkinfo.builder().medAktørId(aktørId.getId());
-            person.getFolkeregisterpersonstatus().stream()
+            var personStatusPerioder = person.getFolkeregisterpersonstatus().stream()
                 .map(PersoninfoTjeneste::mapPersonstatusHistorisk)
+                .collect(Collectors.toList());
+            periodiserPersonstatus(personStatusPerioder).stream()
                 .filter(p -> p.getGyldighetsperiode().getTom().isAfter(fom) && p.getGyldighetsperiode().getFom().isBefore(tom))
                 .forEach(fraPDLBuilder::leggTil);
             person.getStatsborgerskap().stream()
@@ -290,6 +293,22 @@ public class PersoninfoTjeneste {
         var gyldigTil = status.getFolkeregistermetadata().getOpphoerstidspunkt() == null ? Tid.TIDENES_ENDE :
             LocalDateTime.ofInstant(status.getFolkeregistermetadata().getOpphoerstidspunkt().toInstant(), ZoneId.systemDefault()).toLocalDate();
         return new PersonstatusPeriode(Gyldighetsperiode.innenfor(gyldigFra, gyldigTil), PersonstatusType.fraFregPersonstatus(status.getStatus()));
+    }
+
+    private static List<PersonstatusPeriode> periodiserPersonstatus(List<PersonstatusPeriode> perioder) {
+        return perioder.stream()
+            .map(p -> new PersonstatusPeriode(Gyldighetsperiode.innenfor(p.getGyldighetsperiode().getFom(),
+                finnTomFraPerioder(perioder, p.getGyldighetsperiode().getFom())), p.getPersonstatus()))
+            .collect(Collectors.toList());
+    }
+
+    private static LocalDate finnTomFraPerioder(List<PersonstatusPeriode> perioder, LocalDate fom) {
+        return perioder.stream()
+            .map(PersonstatusPeriode::getGyldighetsperiode)
+            .map(Gyldighetsperiode::getFom)
+            .filter(d -> !d.isAfter(fom))
+            .min(Comparator.naturalOrder())
+            .map(d -> d.equals(fom) ? d : d.minusDays(1)).orElse(Tid.TIDENES_ENDE);
     }
 
     private static StatsborgerskapPeriode mapStatsborgerskapHistorikk(Statsborgerskap statsborgerskap) {

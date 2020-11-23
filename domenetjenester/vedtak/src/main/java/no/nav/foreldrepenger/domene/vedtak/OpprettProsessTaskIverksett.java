@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.domene.vedtak;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -36,7 +37,10 @@ public class OpprettProsessTaskIverksett {
     public static final String VEDTAK_TIL_DATAVAREHUS_TASK = "iverksetteVedtak.vedtakTilDatavarehus";
 
     private static final String VKY_KLAGE_BESKRIVELSE = "Vedtaket er opphevet eller omgjort. Opprett en ny behandling.";
-    private static final String VKY_ANKE_BESKRIVELSE = "Vedtaket er opphevet og hjemsendt. Opprett en ny behandling.";
+    private static final String VKY_ANKE_BESKRIVELSE = "Vedtaket er omgjort, opphevet eller hjemsendt. Opprett en ny behandling.";
+    private static final String VKY_TRR_UENDRET_BESKRIVELSE = "Vedtaket er stadfestet eller avvist av Trygderetten, dette til informasjon.";
+
+    private static final Set<AnkeVurdering> ANKE_ENDRES = Set.of(AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE, AnkeVurdering.ANKE_OMGJOER, AnkeVurdering.ANKE_HJEMSEND_UTEN_OPPHEV);
 
     private ProsessTaskRepository prosessTaskRepository;
     private OppgaveTjeneste oppgaveTjeneste;
@@ -109,15 +113,16 @@ public class OpprettProsessTaskIverksett {
     }
 
     private Optional<ProsessTaskData> opprettTaskDataForAnke(Behandling behandling) {
-        Optional<AnkeVurderingResultatEntitet> vurderingsresultat = ankeRepository.hentAnkeVurderingResultat(behandling.getId());
-        if (vurderingsresultat.isPresent()) {
-            AnkeVurdering vurdering = vurderingsresultat.get().getAnkeVurdering();
-            if (AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE.equals(vurdering) || AnkeVurdering.ANKE_OMGJOER.equals(vurdering) || AnkeVurdering.ANKE_HJEMSEND_UTEN_OPPHEV.equals(vurdering)) {
-                Behandling sisteYtelseBeh = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(behandling.getFagsakId()).orElse(behandling);
-                return Optional.of(lagOpprettVurderKonsekvensTask(sisteYtelseBeh, VKY_ANKE_BESKRIVELSE));
-            }
+        AnkeVurderingResultatEntitet vurderingsresultat = ankeRepository.hentAnkeVurderingResultat(behandling.getId()).orElse(null);
+        if (vurderingsresultat == null)
+            return Optional.empty();
+        AnkeVurdering vurdering = vurderingsresultat.getAnkeVurdering();
+        AnkeVurdering trygderett = vurderingsresultat.getTrygderettVurdering();
+        Behandling sisteYtelseBeh = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(behandling.getFagsakId()).orElse(behandling);
+        if (ANKE_ENDRES.contains(vurdering) || ANKE_ENDRES.contains(trygderett)) {
+            return Optional.of(lagOpprettVurderKonsekvensTask(sisteYtelseBeh, VKY_ANKE_BESKRIVELSE));
         }
-        return Optional.empty();
+        return AnkeVurdering.UDEFINERT.equals(trygderett) ? Optional.empty() : Optional.of(lagOpprettVurderKonsekvensTask(sisteYtelseBeh, VKY_TRR_UENDRET_BESKRIVELSE));
     }
 
     private Optional<ProsessTaskData> opprettTaskDataForKlage(Behandling behandling) {
