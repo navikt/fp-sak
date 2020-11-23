@@ -79,7 +79,9 @@ public class PersoninfoAdapter {
     }
 
     public Personhistorikkinfo innhentPersonopplysningerHistorikk(AktørId aktørId, Interval interval) {
-        return tpsAdapter.hentPersonhistorikk(aktørId, interval);
+        var historikk = tpsAdapter.hentPersonhistorikk(aktørId, interval);
+        personinfoTjeneste.hentPersoninfoHistorikk(aktørId, historikk);
+        return historikk;
     }
 
     public Optional<Personinfo> innhentSaksopplysningerFor(PersonIdent personIdent) {
