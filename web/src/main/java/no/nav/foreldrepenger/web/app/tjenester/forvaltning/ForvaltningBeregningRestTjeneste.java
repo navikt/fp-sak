@@ -166,7 +166,7 @@ public class ForvaltningBeregningRestTjeneste {
         Behandling behandling = behandlingRepository.hentBehandling(dto.getBehandlingId());
         InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(dto.getBehandlingId());
         no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseGrunnlagDto inntektArbeidYtelseGrunnlagDto = new IAYTilDtoMapper(behandling.getAktørId(), KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()),
-            null, behandling.getUuid()).mapTilDto(inntektArbeidYtelseGrunnlag);
+            inntektArbeidYtelseGrunnlag.getEksternReferanse(), behandling.getUuid()).mapTilDto(inntektArbeidYtelseGrunnlag);
         return Response.ok(inntektArbeidYtelseGrunnlagDto).build();
     }
 
