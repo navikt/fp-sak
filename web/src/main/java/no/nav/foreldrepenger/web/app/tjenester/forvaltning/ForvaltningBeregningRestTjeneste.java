@@ -155,6 +155,17 @@ public class ForvaltningBeregningRestTjeneste {
     }
 
     @POST
+    @Path("/hentIAYGrunnlag")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Henter iayGrunnlag", tags = "FORVALTNING-beregning")
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
+    public Response hentIAYGrunnlag(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
+        InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(dto.getBehandlingId());
+        return Response.ok(inntektArbeidYtelseGrunnlag).build();
+    }
+
+    @POST
     @Path("/hentBeregningsgrunnlagInput")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
