@@ -399,6 +399,7 @@ public class PersoninfoTjeneste {
 
     private static AdressePeriode mapAdresseinfoTilAdressePeriode(Gyldighetsperiode periode, Adresseinfo adresseinfo) {
         return AdressePeriode.builder().medGyldighetsperiode(periode)
+            .medMatrikkelId(adresseinfo.getMatrikkelId())
             .medAdresselinje1(adresseinfo.getAdresselinje1())
             .medAdresselinje2(adresseinfo.getAdresselinje2())
             .medAdresselinje3(adresseinfo.getAdresselinje3())
