@@ -82,14 +82,13 @@ public class BeregningsresultatFeriepengerPrÅr extends BaseEntitet {
             return false;
         }
         BeregningsresultatFeriepengerPrÅr other = (BeregningsresultatFeriepengerPrÅr) obj;
-        return Objects.equals(this.getId(), other.getId())
-            && Objects.equals(this.getOpptjeningsår(), other.getOpptjeningsår())
+        return Objects.equals(this.getOpptjeningsår(), other.getOpptjeningsår())
             && Objects.equals(this.getÅrsbeløp(), other.getÅrsbeløp());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, opptjeningsår, årsbeløp);
+        return Objects.hash(opptjeningsår, årsbeløp);
     }
 
     public static Builder builder() {

@@ -7,6 +7,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepengerPrÅr;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -30,6 +32,8 @@ public class SjekkOmPerioderHarEndringIAndelerTest {
     private SjekkOmPerioderHarEndringIAndeler sjekkOmPerioderHarEndringIAndeler;
     private BeregningsresultatPeriode nyPeriode;
     private BeregningsresultatPeriode gammelPeriode;
+    private BeregningsresultatEntitet bgres = BeregningsresultatEntitet.builder().medRegelInput("").medRegelSporing("").build();
+    private BeregningsresultatFeriepenger beregningsresultatFeriepenger = BeregningsresultatFeriepenger.builder().medFeriepengerRegelInput("").medFeriepengerRegelSporing("").medFeriepengerPeriodeFom(LocalDate.now()).medFeriepengerPeriodeTom(LocalDate.now()).build(bgres);
 
     @BeforeEach
     void setUp() {
@@ -280,6 +284,66 @@ public class SjekkOmPerioderHarEndringIAndelerTest {
             .isInstanceOf(TekniskException.class)
             .hasMessageContaining(String.format("Fant flere korresponderende andeler for andel med id %s", andel.getId()));
     }
+
+    @Test
+    public void skal_gi_forskjell_om_samme_perioder_men_ulike_feriepenger_pr_år() {
+        // Arrange : nyPeriode
+        BeregningsresultatAndel nyAndel = opprettBeregningsresultatAndel(nyPeriode, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER,
+            Inntektskategori.ARBEIDSTAKER, ORGNR1, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 1000, OpptjeningAktivitetType.FORELDREPENGER);
+        opprettFeriepenger(2020, 40000, nyAndel);
+        // Arrange : gammelPeriode
+        BeregningsresultatAndel gammelAndel = opprettBeregningsresultatAndel(gammelPeriode, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER,
+            Inntektskategori.ARBEIDSTAKER, ORGNR1, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 1000, OpptjeningAktivitetType.FORELDREPENGER);
+        opprettFeriepenger(2020, 40001, gammelAndel);
+
+        // Act
+        boolean erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
+
+        // Assert
+        assertThat(erEndring).isTrue();
+    }
+
+    @Test
+    public void skal_gi_forskjell_om_samme_perioder_men_ulike_mengde_pferiepengeandeler() {
+        // Arrange : nyPeriode
+        BeregningsresultatAndel nyAndel = opprettBeregningsresultatAndel(nyPeriode, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER,
+            Inntektskategori.ARBEIDSTAKER, ORGNR1, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 1000, OpptjeningAktivitetType.FORELDREPENGER);
+        opprettFeriepenger(2020, 20000, nyAndel);
+        opprettFeriepenger(2019, 20000, nyAndel);
+        // Arrange : gammelPeriode
+        BeregningsresultatAndel gammelAndel = opprettBeregningsresultatAndel(gammelPeriode, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER,
+            Inntektskategori.ARBEIDSTAKER, ORGNR1, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 1000, OpptjeningAktivitetType.FORELDREPENGER);
+        opprettFeriepenger(2020, 4000, gammelAndel);
+
+        // Act
+        boolean erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
+
+        // Assert
+        assertThat(erEndring).isTrue();
+    }
+
+    @Test
+    public void skal_ikke_gi_forskjell_ved_like_feriepengeandeler() {
+        // Arrange : nyPeriode
+        BeregningsresultatAndel nyAndel = opprettBeregningsresultatAndel(nyPeriode, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER,
+            Inntektskategori.ARBEIDSTAKER, ORGNR1, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 1000, OpptjeningAktivitetType.FORELDREPENGER);
+        opprettFeriepenger(2020, 20000, nyAndel);
+        // Arrange : gammelPeriode
+        BeregningsresultatAndel gammelAndel = opprettBeregningsresultatAndel(gammelPeriode, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER,
+            Inntektskategori.ARBEIDSTAKER, ORGNR1, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 1000, OpptjeningAktivitetType.FORELDREPENGER);
+        opprettFeriepenger(2020, 20000, gammelAndel);
+
+        // Act
+        boolean erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
+
+        // Assert
+        assertThat(erEndring).isFalse();
+    }
+
+    private void opprettFeriepenger(int opptjeningsår, int årsbeløp, BeregningsresultatAndel andel) {
+        BeregningsresultatFeriepengerPrÅr.builder().medOpptjeningsår(opptjeningsår).medÅrsbeløp(årsbeløp).build(beregningsresultatFeriepenger, andel);
+    }
+
 
     private BeregningsresultatPeriode opprettBeregningsresultatPeriode(BeregningsresultatEntitet beregningsresultat, LocalDate fom, LocalDate tom) {
         return BeregningsresultatPeriode.builder()

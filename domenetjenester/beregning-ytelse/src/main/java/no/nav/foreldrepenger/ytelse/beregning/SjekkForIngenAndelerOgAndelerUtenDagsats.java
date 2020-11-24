@@ -21,8 +21,8 @@ public class SjekkForIngenAndelerOgAndelerUtenDagsats {
      * - Return hvis begge periodene ikke har noen dagsas, false ellers.
      * @param nyPeriode Periode fra revurdering
      * @param gammelPeriode Periode fra førstegangsbehandling
-     * @return True hvis det har skjedd en endring
-     *         False hvis det ikke har skjedd en endring
+     * @return True hvis det ikke har skjedd en endring
+     *         False hvis det har skjedd en endring
      */
     public boolean sjekk(BeregningsresultatPeriode nyPeriode, BeregningsresultatPeriode gammelPeriode) {
         if (nyPeriode == null) {
