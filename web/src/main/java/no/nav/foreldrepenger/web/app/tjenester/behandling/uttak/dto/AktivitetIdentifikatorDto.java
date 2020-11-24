@@ -8,11 +8,13 @@ public class AktivitetIdentifikatorDto {
 
     private final UttakArbeidType uttakArbeidType;
     private final ArbeidsgiverDto arbeidsgiver;
+    private String arbeidsgiverReferanse;
     private final String arbeidsforholdId;
 
-    public AktivitetIdentifikatorDto(UttakArbeidType uttakArbeidType, ArbeidsgiverDto arbeidsgiver, String arbeidsforholdId) {
+    public AktivitetIdentifikatorDto(UttakArbeidType uttakArbeidType, ArbeidsgiverDto arbeidsgiver, String arbeidsgiverReferanse, String arbeidsforholdId) {
         this.uttakArbeidType = uttakArbeidType;
         this.arbeidsgiver = arbeidsgiver;
+        this.arbeidsgiverReferanse = arbeidsgiverReferanse;
         this.arbeidsforholdId = arbeidsforholdId;
     }
 
@@ -22,6 +24,10 @@ public class AktivitetIdentifikatorDto {
 
     public ArbeidsgiverDto getArbeidsgiver() {
         return arbeidsgiver;
+    }
+
+    public String getArbeidsgiverReferanse() {
+        return arbeidsgiverReferanse;
     }
 
     public String getArbeidsforholdId() {
@@ -35,12 +41,13 @@ public class AktivitetIdentifikatorDto {
         AktivitetIdentifikatorDto that = (AktivitetIdentifikatorDto) o;
         return Objects.equals(uttakArbeidType, that.uttakArbeidType) &&
             Objects.equals(arbeidsgiver, that.arbeidsgiver) &&
+            Objects.equals(arbeidsgiverReferanse, that.arbeidsgiverReferanse) &&
             Objects.equals(arbeidsforholdId, that.arbeidsforholdId);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(uttakArbeidType, arbeidsgiver, arbeidsforholdId);
+        return Objects.hash(uttakArbeidType, arbeidsgiver, arbeidsgiverReferanse, arbeidsforholdId);
     }
 }

@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -164,12 +165,13 @@ public class UttakPerioderDtoTjeneste {
         var arbeidsgiverOptional = aktivitet.getUttakAktivitet().getArbeidsgiver();
         List<ArbeidsforholdOverstyring> overstyringer = inntektArbeidYtelseGrunnlag.map(InntektArbeidYtelseGrunnlag::getArbeidsforholdOverstyringer).orElse(Collections.emptyList());
         var arbeidsgiverDto = arbeidsgiverOptional.map(arbgiver -> arbeidsgiverDtoTjeneste.mapFra(arbgiver, overstyringer)).orElse(null);
+        String arbeidsgiverReferanse = arbeidsgiverOptional.map(Arbeidsgiver::getIdentifikator).orElse(null);
         var ref = aktivitet.getArbeidsforholdRef();
         if (ref != null && inntektArbeidYtelseGrunnlag.isPresent() && inntektArbeidYtelseGrunnlag.get().getArbeidsforholdInformasjon().isPresent() && arbeidsgiverOptional.isPresent()) {
             var eksternArbeidsforholdId = inntektArbeidYtelseGrunnlag.get().getArbeidsforholdInformasjon().get().finnEkstern(arbeidsgiverOptional.get(), ref);
-            builder.medArbeidsforhold(ref, eksternArbeidsforholdId.getReferanse(), arbeidsgiverDto);
+            builder.medArbeidsforhold(ref, eksternArbeidsforholdId.getReferanse(), arbeidsgiverDto, arbeidsgiverReferanse);
         } else {
-            builder.medArbeidsforhold(null, null, arbeidsgiverDto);
+            builder.medArbeidsforhold(null, null, arbeidsgiverDto, arbeidsgiverReferanse);
         }
     }
 }

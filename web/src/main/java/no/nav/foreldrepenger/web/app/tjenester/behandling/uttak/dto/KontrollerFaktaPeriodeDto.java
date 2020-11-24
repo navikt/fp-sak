@@ -46,6 +46,7 @@ public class KontrollerFaktaPeriodeDto {
     private boolean bekreftet;
 
     private ArbeidsgiverDto arbeidsgiver;
+    private String arbeidsgiverReferanse;
 
     private boolean erArbeidstaker;
     private boolean erFrilanser;
@@ -118,6 +119,10 @@ public class KontrollerFaktaPeriodeDto {
         return arbeidsgiver;
     }
 
+    public String getArbeidsgiverReferanse() {
+        return arbeidsgiverReferanse;
+    }
+
     public boolean getErArbeidstaker() {
         return erArbeidstaker;
     }
@@ -157,14 +162,14 @@ public class KontrollerFaktaPeriodeDto {
         public Builder() {
         }
 
-        public Builder(KontrollerFaktaPeriode periode, ArbeidsgiverDto arbeidsgiver) {
+        public Builder(KontrollerFaktaPeriode periode, ArbeidsgiverDto arbeidsgiver, String arbeidsgiverReferanse) {
             medPeriode(periode.getOppgittPeriode().getFom(), periode.getOppgittPeriode().getTom());
             medUttakPeriodeType(periode.getOppgittPeriode().getPeriodeType());
             medArbeidstidsprosent(periode.getOppgittPeriode().getArbeidsprosent());
             medBegrunnelse(periode.getOppgittPeriode().getBegrunnelse().orElse(null));
             medBekreftet(periode.erBekreftet());
             medUttakPeriodeVurderingType(periode.getVurdering());
-            medArbeidsgiver(arbeidsgiver);
+            medArbeidsgiver(arbeidsgiver, arbeidsgiverReferanse);
             medArbeidstaker(periode.getOppgittPeriode().getErArbeidstaker());
             medFrilans(periode.getOppgittPeriode().getErFrilanser());
             medSelvstendig(periode.getOppgittPeriode().getErSelvstendig());
@@ -239,8 +244,9 @@ public class KontrollerFaktaPeriodeDto {
             return this;
         }
 
-        public Builder medArbeidsgiver(ArbeidsgiverDto arbeidsgiver) {
+        public Builder medArbeidsgiver(ArbeidsgiverDto arbeidsgiver, String arbeidsgiverReferanse) {
             kladd.arbeidsgiver = arbeidsgiver;
+            kladd.arbeidsgiverReferanse = arbeidsgiverReferanse;
             return this;
         }
 

@@ -172,6 +172,7 @@ public class SaldoerDtoTjeneste {
         return new AktivitetIdentifikatorDto(
             UttakEnumMapper.map(aktivitet.getAktivitetType()),
             arbeidsgiverDto.orElse(null),
+            aktivitet.getArbeidsgiverIdentifikator(),
             aktivitet.getArbeidsforholdId());
     }
 
