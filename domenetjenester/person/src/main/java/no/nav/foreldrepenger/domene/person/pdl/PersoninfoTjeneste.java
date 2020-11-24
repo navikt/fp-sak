@@ -224,7 +224,6 @@ public class PersoninfoTjeneste {
             var query = new HentPersonQueryRequest();
             query.setIdent(aktørId.getId());
             var projection = new PersonResponseProjection()
-                .foedsel(new FoedselResponseProjection().foedselsdato())
                 .folkeregisterpersonstatus(new PersonFolkeregisterpersonstatusParametrizedInput().historikk(true), new FolkeregisterpersonstatusResponseProjection().forenkletStatus().status().folkeregistermetadata(new FolkeregistermetadataResponseProjection().gyldighetstidspunkt().opphoerstidspunkt()))
                 .opphold(new PersonOppholdParametrizedInput().historikk(true), new OppholdResponseProjection().type().oppholdFra().oppholdTil().metadata(new MetadataResponseProjection().historisk()).folkeregistermetadata(new FolkeregistermetadataResponseProjection().ajourholdstidspunkt()))
                 .statsborgerskap(new PersonStatsborgerskapParametrizedInput().historikk(true), new StatsborgerskapResponseProjection().land().gyldigFraOgMed().gyldigTilOgMed())
@@ -247,32 +246,19 @@ public class PersoninfoTjeneste {
 
             var person = pdlKlient.hentPerson(query, projection, Tema.FOR);
 
-            var fødselsdato = person.getFoedsel().stream()
-                .map(Foedsel::getFoedselsdato)
-                .filter(Objects::nonNull)
-                .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(fom.minusDays(1));
-
             var fraPDLBuilder = Personhistorikkinfo.builder().medAktørId(aktørId.getId());
             var personStatusPerioder = person.getFolkeregisterpersonstatus().stream()
-                .map(p -> mapPersonstatusHistorisk(p, fødselsdato))
+                .map(PersoninfoTjeneste::mapPersonstatusHistorisk)
                 .collect(Collectors.toList());
-            if (personStatusPerioder.isEmpty() && !person.getFolkeregisterpersonstatus().isEmpty()) {
-                LOG.info("FPSAK PDL HIST: personstatus alt forsvant {}", person.getFolkeregisterpersonstatus());
-            }
-            var personStatusPerioderPeriodisert = periodiserPersonstatus(personStatusPerioder);
-            if (personStatusPerioderPeriodisert.isEmpty() && !personStatusPerioder.isEmpty()) {
-                LOG.info("FPSAK PDL HIST: personstatus periodisering {}", personStatusPerioder);
-            }
-            personStatusPerioderPeriodisert.stream()
+            periodiserPersonstatus(personStatusPerioder).stream()
                 .filter(p -> p.getGyldighetsperiode().getTom().isAfter(fom) && p.getGyldighetsperiode().getFom().isBefore(tom))
                 .forEach(fraPDLBuilder::leggTil);
             person.getStatsborgerskap().stream()
-                .map(p -> mapStatsborgerskapHistorikk(p, fødselsdato))
+                .map(PersoninfoTjeneste::mapStatsborgerskapHistorikk)
                 .filter(p -> p.getGyldighetsperiode().getTom().isAfter(fom) && p.getGyldighetsperiode().getFom().isBefore(tom))
                 .forEach(fraPDLBuilder::leggTil);
-            var adressePerioder = mapAdresserHistorikk(person.getBostedsadresse(), person.getKontaktadresse(), person.getOppholdsadresse(), fødselsdato);
-            var adressePerioderPeriodisert = periodiserAdresse(adressePerioder);
-            adressePerioderPeriodisert.stream()
+            var adressePerioder = mapAdresserHistorikk(person.getBostedsadresse(), person.getKontaktadresse(), person.getOppholdsadresse());
+            periodiserAdresse(adressePerioder).stream()
                 .filter(p -> p.getGyldighetsperiode().getTom().isAfter(fom) && p.getGyldighetsperiode().getFom().isBefore(tom))
                 .forEach(fraPDLBuilder::leggTil);
 
@@ -304,8 +290,8 @@ public class PersoninfoTjeneste {
         return KjoennType.KVINNE.equals(kode) ? NavBrukerKjønn.KVINNE : NavBrukerKjønn.UDEFINERT;
     }
 
-    private static PersonstatusPeriode mapPersonstatusHistorisk(Folkeregisterpersonstatus status, LocalDate fomVedNull) {
-        var periode = periodeFraDates(status.getFolkeregistermetadata().getGyldighetstidspunkt(), status.getFolkeregistermetadata().getOpphoerstidspunkt(), fomVedNull);
+    private static PersonstatusPeriode mapPersonstatusHistorisk(Folkeregisterpersonstatus status) {
+        var periode = periodeFraDates(status.getFolkeregistermetadata().getGyldighetstidspunkt(), status.getFolkeregistermetadata().getOpphoerstidspunkt());
         return new PersonstatusPeriode(periode, PersonstatusType.fraFregPersonstatus(status.getStatus()));
     }
 
@@ -343,10 +329,10 @@ public class PersoninfoTjeneste {
         return Gyldighetsperiode.innenfor(periode.getFom(), tom);
     }
 
-    private static StatsborgerskapPeriode mapStatsborgerskapHistorikk(Statsborgerskap statsborgerskap, LocalDate fomVedNull) {
-        var gyldigTil = statsborgerskap.getGyldigTilOgMed() == null ? Tid.TIDENES_ENDE :
+    private static StatsborgerskapPeriode mapStatsborgerskapHistorikk(Statsborgerskap statsborgerskap) {
+        var gyldigTil = statsborgerskap.getGyldigTilOgMed() == null ? null :
             LocalDate.parse(statsborgerskap.getGyldigTilOgMed(), DateTimeFormatter.ISO_LOCAL_DATE);
-        var gyldigFra = statsborgerskap.getGyldigFraOgMed() == null ? tidligsteDato(fomVedNull, gyldigTil) :
+        var gyldigFra = statsborgerskap.getGyldigFraOgMed() == null ? null :
             LocalDate.parse(statsborgerskap.getGyldigFraOgMed(), DateTimeFormatter.ISO_LOCAL_DATE);
         return new StatsborgerskapPeriode(Gyldighetsperiode.innenfor(gyldigFra, gyldigTil), new no.nav.foreldrepenger.behandlingslager.aktør.Statsborgerskap(statsborgerskap.getLand()));
     }
@@ -382,27 +368,27 @@ public class PersoninfoTjeneste {
         return ROLLE_FRA_FREG_STAND.getOrDefault(type, RelasjonsRolleType.UDEFINERT);
     }
 
-    private List<AdressePeriode> mapAdresserHistorikk(List<Bostedsadresse> bostedsadresser, List<Kontaktadresse> kontaktadresser, List<Oppholdsadresse> oppholdsadresser, LocalDate fomVedNull) {
+    private List<AdressePeriode> mapAdresserHistorikk(List<Bostedsadresse> bostedsadresser, List<Kontaktadresse> kontaktadresser, List<Oppholdsadresse> oppholdsadresser) {
         List<AdressePeriode> adresser = new ArrayList<>();
         bostedsadresser.forEach(b -> {
-            var periode = periodeFraDates(b.getGyldigFraOgMed(), b.getGyldigTilOgMed(), fomVedNull);
+            var periode = periodeFraDates(b.getGyldigFraOgMed(), b.getGyldigTilOgMed());
             mapAdresser(List.of(b), List.of(), List.of()).forEach(a -> adresser.add(mapAdresseinfoTilAdressePeriode(periode, a)));
         });
         kontaktadresser.forEach(k -> {
-            var periode = periodeFraDates(k.getGyldigFraOgMed(), k.getGyldigTilOgMed(), fomVedNull);
+            var periode = periodeFraDates(k.getGyldigFraOgMed(), k.getGyldigTilOgMed());
             mapAdresser(List.of(), List.of(k), List.of()).forEach(a -> adresser.add(mapAdresseinfoTilAdressePeriode(periode, a)));
         });
         oppholdsadresser.forEach(o -> {
-            var periode = periodeFraDates(o.getGyldigFraOgMed(), o.getGyldigTilOgMed(), fomVedNull);
+            var periode = periodeFraDates(o.getGyldigFraOgMed(), o.getGyldigTilOgMed());
             mapAdresser(List.of(), List.of(), List.of(o)).forEach(a -> adresser.add(mapAdresseinfoTilAdressePeriode(periode, a)));
         });
         return adresser;
     }
 
-    private static Gyldighetsperiode periodeFraDates(Date dateFom, Date dateTom, LocalDate fomVedNull) {
-        var gyldigTil = dateTom == null ? Tid.TIDENES_ENDE :
+    private static Gyldighetsperiode periodeFraDates(Date dateFom, Date dateTom) {
+        var gyldigTil = dateTom == null ? null :
             LocalDateTime.ofInstant(dateTom.toInstant(), ZoneId.systemDefault()).toLocalDate();
-        var gyldigFra = dateFom == null ? tidligsteDato(fomVedNull, gyldigTil) :
+        var gyldigFra = dateFom == null ? null :
             LocalDateTime.ofInstant(dateFom.toInstant(), ZoneId.systemDefault()).toLocalDate();
         return Gyldighetsperiode.innenfor(gyldigFra, gyldigTil);
     }
@@ -608,7 +594,7 @@ public class PersoninfoTjeneste {
     }
 
     public static String historiskeAdresserTilString(AdressePeriode adressePeriode) {
-        return "AdressePeriode{" + "gyldighetsperiode=" + adressePeriode.getGyldighetsperiode() +
+        return "AdPer{" + "gyldig=" + adressePeriode.getGyldighetsperiode() +
             ", type=" + adressePeriode.getAdresse().getAdresseType() +
             ", post=" + adressePeriode.getAdresse().getPostnummer() +
             ", land=" + adressePeriode.getAdresse().getLand() +
