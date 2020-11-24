@@ -9,7 +9,7 @@ import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 public interface OppdragValideringFeil extends DeklarerteFeil {
     OppdragValideringFeil FACTORY = FeilFactory.create(OppdragValideringFeil.class);
 
-    @TekniskFeil(feilkode = "FP-767898", feilmelding = "Validering av oppdrag feilet: %s", logLevel = LogLevel.WARN, exceptionClass = OppdragValideringException.class)
+    @TekniskFeil(feilkode = "FP-767898", feilmelding = "Validering av oppdrag feilet: %s", logLevel = LogLevel.WARN)
     Feil valideringsfeil(String detaljer);
 
 }

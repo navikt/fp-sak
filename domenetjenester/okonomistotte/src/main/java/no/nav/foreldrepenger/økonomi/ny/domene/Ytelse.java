@@ -50,6 +50,12 @@ public class Ytelse {
         return new Builder();
     }
 
+    public long summerYtelse() {
+        return perioder.stream()
+            .mapToLong(YtelsePeriode::summerYtelse)
+            .sum();
+    }
+
     public static class Builder {
 
         private ArrayList<YtelsePeriode> perioder = new ArrayList<>();
@@ -100,7 +106,7 @@ public class Ytelse {
             return perioder.get(perioder.size() - 1).getPeriode().getTom();
         }
 
-        public boolean erTom(){
+        public boolean erTom() {
             return perioder.isEmpty();
         }
     }
