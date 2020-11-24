@@ -49,6 +49,7 @@ public class AdressePeriode {
 
     public static class Adresse {
         private AdresseType adresseType;
+        private String matrikkelId;
         private String adresselinje1;
         private String adresselinje2;
         private String adresselinje3;
@@ -62,6 +63,10 @@ public class AdressePeriode {
 
         public AdresseType getAdresseType() {
             return adresseType;
+        }
+
+        public String getMatrikkelId() {
+            return matrikkelId;
         }
 
         public String getAdresselinje1() {
@@ -111,6 +116,7 @@ public class AdressePeriode {
             if (o == null || getClass() != o.getClass()) return false;
             Adresse adresse = (Adresse) o;
             return Objects.equals(adresseType, adresse.adresseType) &&
+                // TODO: enable når slutt sammenligning Objects.equals(matrikkelId, adresse.matrikkelId) &&
                 Objects.equals(adresselinje1, adresse.adresselinje1) &&
                 Objects.equals(adresselinje2, adresse.adresselinje2) &&
                 Objects.equals(adresselinje3, adresse.adresselinje3) &&
@@ -142,6 +148,11 @@ public class AdressePeriode {
 
         public Builder medAdresseType(AdresseType adresseType) {
             adresseKladd.adresseType = adresseType;
+            return this;
+        }
+
+        public Builder medMatrikkelId(String matrikkelId) {
+            adresseKladd.matrikkelId = matrikkelId;
             return this;
         }
 
