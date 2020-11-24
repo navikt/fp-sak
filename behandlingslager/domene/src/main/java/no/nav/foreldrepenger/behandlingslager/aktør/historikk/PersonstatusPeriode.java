@@ -24,8 +24,8 @@ public class PersonstatusPeriode {
 
     @Override
     public String toString() {
-        return "PersonstatusPeriode(gyldighetsperiode=" + this.getGyldighetsperiode()
-            + ", personstatus=" + this.getPersonstatus()
+        return "PersonstatusPeriode(gyldig=" + this.getGyldighetsperiode()
+            + ", status=" + (this.getPersonstatus() != null ? this.getPersonstatus().getKode() : null)
             + ")";
     }
 

@@ -40,8 +40,8 @@ public class StatsborgerskapPeriode {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("StatsborgerskapPeriode{");
-        sb.append("gyldighetsperiode=").append(gyldighetsperiode);
-        sb.append(", statsborgerskap=").append(statsborgerskap);
+        sb.append("gyldig=").append(gyldighetsperiode);
+        sb.append(", land=").append(statsborgerskap != null ? statsborgerskap.getLandkode() : null);
         sb.append('}');
         return sb.toString();
     }
