@@ -7,6 +7,8 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
+
 public class YtelsePeriode {
 
     private Periode periode;
@@ -137,4 +139,14 @@ public class YtelsePeriode {
     }
 
 
+    public long summerYtelse() {
+        switch (verdi.getSats().getSatsType()) {
+            case DAG:
+                return verdi.getSats().getSats() * Virkedager.beregnAntallVirkedager(periode.getFom(), periode.getTom());
+            case ENGANG:
+                return verdi.getSats().getSats();
+            default:
+                throw new IllegalArgumentException("Ikke-støttet sats-type: " + verdi.getSats().getSatsType());
+        }
+    }
 }

@@ -1,8 +1,16 @@
 package no.nav.foreldrepenger.økonomi.ny.postcondition;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -21,6 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.økonomi.ny.domene.Betalingsmottaker;
 import no.nav.foreldrepenger.økonomi.ny.domene.KjedeNøkkel;
 import no.nav.foreldrepenger.økonomi.ny.domene.OppdragKjede;
 import no.nav.foreldrepenger.økonomi.ny.domene.Ytelse;
@@ -30,7 +39,6 @@ import no.nav.foreldrepenger.økonomi.ny.mapper.TilkjentYtelseMapper;
 import no.nav.foreldrepenger.økonomi.ny.tjeneste.EndringsdatoTjeneste;
 import no.nav.foreldrepenger.økonomi.ny.util.SetUtil;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
-import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
 public class OppdragPostConditionTjeneste {
@@ -67,41 +75,152 @@ public class OppdragPostConditionTjeneste {
 
     private void softPostCondition(Behandling behandling, BeregningsresultatEntitet beregningsresultat) {
         try {
-            sammenlignEffektAvOppdragMedTilkjentYtelse(behandling, beregningsresultat);
+            Map<Betalingsmottaker, TilkjentYtelseDifferanse> resultat = sammenlignEffektAvOppdragMedTilkjentYtelse(behandling, beregningsresultat);
+            for (var entry : resultat.entrySet()) {
+                loggEventueltAvvik(behandling, entry.getKey(), entry.getValue());
+            }
         } catch (Exception e) {
-            logger.warn("Sammenligning av effekt av oppdrag mot tilkjent ytelse viser avvik for " + behandling.getFagsak().getSaksnummer() + " behandling " + behandling.getId() + ". Dette bør undersøkes og evt. patches: " + e.getMessage(), e);
+            logger.warn("Teknisk feil ved sammenligning av effekt av oppdrag mot tilkjent ytelse for " + behandling.getFagsak().getSaksnummer() + " behandling " + behandling.getId() + ". Dette bør undersøkes: " + e.getMessage(), e);
         }
     }
 
-    private void sammenlignEffektAvOppdragMedTilkjentYtelse(Behandling behandling, BeregningsresultatEntitet beregningsresultat) {
+    private Map<Betalingsmottaker, TilkjentYtelseDifferanse> sammenlignEffektAvOppdragMedTilkjentYtelse(Behandling behandling, BeregningsresultatEntitet beregningsresultat) {
         Saksnummer saksnummer = behandling.getFagsak().getSaksnummer();
         List<Oppdragskontroll> oppdragene = økonomioppdragRepository.finnAlleOppdragForSak(saksnummer);
         Fagsak sak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElseThrow();
         Map<KjedeNøkkel, OppdragKjede> oppdragskjeder = EksisterendeOppdragMapper.tilKjeder(oppdragene);
         GruppertYtelse målbilde = TilkjentYtelseMapper.lagFor(sak.getYtelseType(), finnFamilieYtelseType(behandling)).fordelPåNøkler(beregningsresultat);
 
-        for (KjedeNøkkel nøkkel : SetUtil.union(oppdragskjeder.keySet(), målbilde.getNøkler())) {
-            OppdragKjede oppdragKjede = oppdragskjeder.getOrDefault(nøkkel, OppdragKjede.EMPTY);
-            Ytelse ytelse = målbilde.getYtelsePrNøkkel().getOrDefault(nøkkel, Ytelse.EMPTY);
-            Ytelse effektAvOppdragskjede = oppdragKjede.tilYtelse();
+        Set<KjedeNøkkel> alleKjedenøkler = SetUtil.union(oppdragskjeder.keySet(), målbilde.getNøkler());
+        Set<Betalingsmottaker> betalingsmottakere = alleKjedenøkler.stream().map(KjedeNøkkel::getBetalingsmottaker).collect(Collectors.toSet());
 
-            validerLikhet(nøkkel, ytelse, effektAvOppdragskjede);
+        HashMap<Betalingsmottaker, TilkjentYtelseDifferanse> resultat = new HashMap<>();
+        for (Betalingsmottaker betalingsmottaker : betalingsmottakere) {
+            List<TilkjentYtelseDifferanse> differanser = new ArrayList<>();
+            for (KjedeNøkkel nøkkel : alleKjedenøkler) {
+                if (nøkkel.getBetalingsmottaker().equals(betalingsmottaker)) {
+                    OppdragKjede oppdragKjede = oppdragskjeder.getOrDefault(nøkkel, OppdragKjede.EMPTY);
+                    Ytelse ytelse = målbilde.getYtelsePrNøkkel().getOrDefault(nøkkel, Ytelse.EMPTY);
+                    Ytelse effektAvOppdragskjede = oppdragKjede.tilYtelse();
+                    finnDifferanse(ytelse, effektAvOppdragskjede).ifPresent(differanser::add);
+                }
+            }
+            LocalDate førsteDatoForDifferanseSats = finnLaveste(differanser, TilkjentYtelseDifferanse::getFørsteDatoForDifferanseSats);
+            LocalDate førsteDatoForDifferanseUtbetalingsgrad = finnLaveste(differanser, TilkjentYtelseDifferanse::getFørsteDatoForDifferanseUtbetalingsgrad);
+            long sumForskjell = differanser.stream().mapToLong(TilkjentYtelseDifferanse::getDifferanseYtelse).sum();
+            resultat.put(betalingsmottaker, new TilkjentYtelseDifferanse(førsteDatoForDifferanseSats, førsteDatoForDifferanseUtbetalingsgrad, sumForskjell));
+        }
+        return resultat;
+    }
+
+
+    private void loggEventueltAvvik(Behandling behandling, Betalingsmottaker betalingsmottaker, TilkjentYtelseDifferanse differanse) {
+        LocalDate datoEndringYtelse = differanse.getFørsteDatoForDifferanseSats();
+        LocalDate datoEndringUtbetalingsgrad = differanse.getFørsteDatoForDifferanseUtbetalingsgrad();
+        long sumForskjell = differanse.getDifferanseYtelse();
+
+        if (datoEndringYtelse == null && datoEndringUtbetalingsgrad == null && sumForskjell == 0) {
+            return;
+        }
+
+        String saksnummer = behandling.getFagsak().getSaksnummer().getVerdi();
+        String message = "Sammenlingning av effekt av oppdrag mot tilkjent ytelse viser avvik for " + saksnummer + ", behandling " + behandling.getId() + " til " + betalingsmottaker + ". Dette bør undersøkes og evt. patches. Det er ";
+        if (Objects.equals(datoEndringYtelse, datoEndringUtbetalingsgrad)) {
+            message += "forskjell i sats og utbetalingsgrad mellom oppdrag og tilkjent ytelse fra " + datoEndringYtelse + ". ";
+        } else {
+            if (datoEndringYtelse != null) {
+                message += "forskjell i sats mellom oppdrag og tilkjent ytelse fra " + datoEndringYtelse + ". ";
+            }
+            if (datoEndringUtbetalingsgrad != null) {
+                message += "forskjell i utbetalingsgrad mellom oppdrag og tilkjent ytelse fra " + datoEndringYtelse + ". ";
+            }
+        }
+        message += " Sum effekt er " + formatForskjell(sumForskjell);
+        OppdragValideringFeil.FACTORY.valideringsfeil(message).log(logger);
+    }
+
+    private String formatForskjell(long forskjell) {
+        long rettsgebyr = 1172;
+        if (forskjell > 4 * rettsgebyr) {
+            return "vesentlig overbetaling";
+        }
+        if (forskjell > 0) {
+            return "overbetaling av " + forskjell;
+        }
+        if (forskjell < -4 * rettsgebyr) {
+            return "vesentlig underbetaling";
+        }
+        if (forskjell < 0) {
+            return "underbetaling av " + forskjell;
+        }
+        return "ingen feilutbetaling";
+    }
+
+    private static <T> LocalDate finnLaveste(List<T> liste, Function<T, LocalDate> datofunksjon) {
+        return liste.stream()
+            .map(datofunksjon)
+            .filter(Objects::nonNull)
+            .min(Comparator.naturalOrder())
+            .orElse(null);
+    }
+
+    static class TilkjentYtelseDifferanse {
+        private LocalDate førsteDatoForDifferanseSats;
+        private LocalDate førsteDatoForDifferanseUtbetalingsgrad;
+        private long differanseYtelse;
+
+        public TilkjentYtelseDifferanse(LocalDate førsteDatoForDifferanseSats, LocalDate førsteDatoForDifferanseUtbetalingsgrad, long differanseYtelse) {
+            this.førsteDatoForDifferanseSats = førsteDatoForDifferanseSats;
+            this.førsteDatoForDifferanseUtbetalingsgrad = førsteDatoForDifferanseUtbetalingsgrad;
+            this.differanseYtelse = differanseYtelse;
+        }
+
+        public LocalDate getFørsteDatoForDifferanseSats() {
+            return førsteDatoForDifferanseSats;
+        }
+
+        public LocalDate getFørsteDatoForDifferanseUtbetalingsgrad() {
+            return førsteDatoForDifferanseUtbetalingsgrad;
+        }
+
+        public long getDifferanseYtelse() {
+            return differanseYtelse;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            TilkjentYtelseDifferanse that = (TilkjentYtelseDifferanse) o;
+            return differanseYtelse == that.differanseYtelse &&
+                Objects.equals(førsteDatoForDifferanseSats, that.førsteDatoForDifferanseSats) &&
+                Objects.equals(førsteDatoForDifferanseUtbetalingsgrad, that.førsteDatoForDifferanseUtbetalingsgrad);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(førsteDatoForDifferanseSats, førsteDatoForDifferanseUtbetalingsgrad, differanseYtelse);
+        }
+
+        @Override
+        public String toString() {
+            return "TilkjentYtelseDifferanse{" +
+                "førsteDatoForDifferanseSats=" + førsteDatoForDifferanseSats +
+                ", førsteDatoForDifferanseUtbetalingsgrad=" + førsteDatoForDifferanseUtbetalingsgrad +
+                ", differanseYtelse=" + differanseYtelse +
+                '}';
         }
     }
 
-    private void validerLikhet(KjedeNøkkel nøkkel, Ytelse ytelse, Ytelse effektAvOppdragskjede) {
-        LocalDate datoForDifferanse = EndringsdatoTjeneste.finnEndringsdato(ytelse, effektAvOppdragskjede);
-        if (datoForDifferanse == null) {
-            return;
+    static Optional<TilkjentYtelseDifferanse> finnDifferanse(Ytelse ytelse, Ytelse effektAvOppdragskjede) {
+        LocalDate datoEndringYtelse = EndringsdatoTjeneste.finnEndringsdatoForEndringSats(ytelse, effektAvOppdragskjede);
+        LocalDate datoEndringUtbetalingsgrad = EndringsdatoTjeneste.finnEndringsdatoForEndringUtbetalingsgrad(ytelse, effektAvOppdragskjede);
+        long differanseYtelse = effektAvOppdragskjede.summerYtelse() - ytelse.summerYtelse();
+
+        if (datoEndringYtelse == null && datoEndringUtbetalingsgrad == null && differanseYtelse == 0) {
+            return Optional.empty();
         }
-        if (Environment.current().isProd()) {
-            throw OppdragValideringFeil.FACTORY.valideringsfeil("Forskjell i ny/gammel implementasjon fra dato " + datoForDifferanse).toException();
-        } else {
-            //nøkkel inneholder org.nr og skal ikke i loggen i prod
-            throw OppdragValideringFeil.FACTORY.valideringsfeil("Forskjell i ny/gammel implementasjon for " + nøkkel + " fra dato " + datoForDifferanse +
-                ". Gammel implementasjon ender med følgende effekt: " + effektAvOppdragskjede +
-                ". Ønsket effekt fra tilkjent ytelse er : " + ytelse).toException();
-        }
+        return Optional.of(new TilkjentYtelseDifferanse(datoEndringYtelse, datoEndringUtbetalingsgrad, differanseYtelse));
     }
 
     private FamilieYtelseType finnFamilieYtelseType(Behandling behandling) {
