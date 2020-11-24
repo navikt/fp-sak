@@ -97,16 +97,21 @@ jobs:
               });
             });  
           
-      - name: Opprett deployment issue
-        if: success()
-        uses: maxkomarychev/oction-create-issue@v0.7.1
-        id: createdeployissue
-        with:
-          token: ${{ secrets.GH_ACCESS_TOKEN }}
-          title: Deploy av ${{ env.TAG }}
-          labels: deployment
-          body: |
-            Kommenter med <b>/promote dev-fss</b> eller <b>/promote prod-fss</b>, evt andre gyldige clusternavn.   
+      -  name: Opprett deployment issue
+         id: createdeployissue
+         if: success()
+         uses: actions/github-script@v3
+         with:
+           github-token: ${{secrets.GH_ACCESS_TOKEN}}
+           script: |
+               github.issues.create( {
+                 owner: context.issue.owner,
+                 repo: context.issue.repo,
+                 labels: ['deployment'],
+                 title: 'Deploy av ${{ env.TAG }}'})
+               .then(response => {
+                       core.setOutput('number', response.data.number);
+                });      
             
       - name: Trigger autotest for fpsak/fpabakus
         if: success()
