@@ -6,6 +6,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -223,6 +224,7 @@ public class PersoninfoTjeneste {
             var query = new HentPersonQueryRequest();
             query.setIdent(aktørId.getId());
             var projection = new PersonResponseProjection()
+                .foedsel(new FoedselResponseProjection().foedselsdato())
                 .folkeregisterpersonstatus(new PersonFolkeregisterpersonstatusParametrizedInput().historikk(true), new FolkeregisterpersonstatusResponseProjection().forenkletStatus().status().folkeregistermetadata(new FolkeregistermetadataResponseProjection().gyldighetstidspunkt().opphoerstidspunkt()))
                 .opphold(new PersonOppholdParametrizedInput().historikk(true), new OppholdResponseProjection().type().oppholdFra().oppholdTil().metadata(new MetadataResponseProjection().historisk()).folkeregistermetadata(new FolkeregistermetadataResponseProjection().ajourholdstidspunkt()))
                 .statsborgerskap(new PersonStatsborgerskapParametrizedInput().historikk(true), new StatsborgerskapResponseProjection().land().gyldigFraOgMed().gyldigTilOgMed())
@@ -245,18 +247,23 @@ public class PersoninfoTjeneste {
 
             var person = pdlKlient.hentPerson(query, projection, Tema.FOR);
 
+            var fødselsdato = person.getFoedsel().stream()
+                .map(Foedsel::getFoedselsdato)
+                .filter(Objects::nonNull)
+                .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(fom.minusDays(1));
+
             var fraPDLBuilder = Personhistorikkinfo.builder().medAktørId(aktørId.getId());
             var personStatusPerioder = person.getFolkeregisterpersonstatus().stream()
-                .map(PersoninfoTjeneste::mapPersonstatusHistorisk)
+                .map(p -> mapPersonstatusHistorisk(p, fødselsdato))
                 .collect(Collectors.toList());
             periodiserPersonstatus(personStatusPerioder).stream()
                 .filter(p -> p.getGyldighetsperiode().getTom().isAfter(fom) && p.getGyldighetsperiode().getFom().isBefore(tom))
                 .forEach(fraPDLBuilder::leggTil);
             person.getStatsborgerskap().stream()
-                .map(PersoninfoTjeneste::mapStatsborgerskapHistorikk)
+                .map(p -> mapStatsborgerskapHistorikk(p, fødselsdato))
                 .filter(p -> p.getGyldighetsperiode().getTom().isAfter(fom) && p.getGyldighetsperiode().getFom().isBefore(tom))
                 .forEach(fraPDLBuilder::leggTil);
-            mapAdresserHistorikk(person.getBostedsadresse(), person.getKontaktadresse(), person.getOppholdsadresse()).stream()
+            mapAdresserHistorikk(person.getBostedsadresse(), person.getKontaktadresse(), person.getOppholdsadresse(), fødselsdato).stream()
                 .filter(p -> p.getGyldighetsperiode().getTom().isAfter(fom) && p.getGyldighetsperiode().getFom().isBefore(tom))
                 .forEach(fraPDLBuilder::leggTil);
             var fraPDL = fraPDLBuilder.build();
@@ -287,12 +294,9 @@ public class PersoninfoTjeneste {
         return KjoennType.KVINNE.equals(kode) ? NavBrukerKjønn.KVINNE : NavBrukerKjønn.UDEFINERT;
     }
 
-    private static PersonstatusPeriode mapPersonstatusHistorisk(Folkeregisterpersonstatus status) {
-        var gyldigFra = status.getFolkeregistermetadata().getGyldighetstidspunkt() == null ? Tid.TIDENES_BEGYNNELSE :
-            LocalDateTime.ofInstant(status.getFolkeregistermetadata().getGyldighetstidspunkt().toInstant(), ZoneId.systemDefault()).toLocalDate();
-        var gyldigTil = status.getFolkeregistermetadata().getOpphoerstidspunkt() == null ? Tid.TIDENES_ENDE :
-            LocalDateTime.ofInstant(status.getFolkeregistermetadata().getOpphoerstidspunkt().toInstant(), ZoneId.systemDefault()).toLocalDate();
-        return new PersonstatusPeriode(Gyldighetsperiode.innenfor(gyldigFra, gyldigTil), PersonstatusType.fraFregPersonstatus(status.getStatus()));
+    private static PersonstatusPeriode mapPersonstatusHistorisk(Folkeregisterpersonstatus status, LocalDate fomVedNull) {
+        var periode = periodeFraDates(status.getFolkeregistermetadata().getGyldighetstidspunkt(), status.getFolkeregistermetadata().getOpphoerstidspunkt(), fomVedNull);
+        return new PersonstatusPeriode(periode, PersonstatusType.fraFregPersonstatus(status.getStatus()));
     }
 
     private static List<PersonstatusPeriode> periodiserPersonstatus(List<PersonstatusPeriode> perioder) {
@@ -311,11 +315,11 @@ public class PersoninfoTjeneste {
             .map(d -> d.equals(fom) ? d : d.minusDays(1)).orElse(Tid.TIDENES_ENDE);
     }
 
-    private static StatsborgerskapPeriode mapStatsborgerskapHistorikk(Statsborgerskap statsborgerskap) {
-        var gyldigFra = statsborgerskap.getGyldigFraOgMed() == null ? Tid.TIDENES_BEGYNNELSE :
-            LocalDate.parse(statsborgerskap.getGyldigFraOgMed(), DateTimeFormatter.ISO_LOCAL_DATE);
+    private static StatsborgerskapPeriode mapStatsborgerskapHistorikk(Statsborgerskap statsborgerskap, LocalDate fomVedNull) {
         var gyldigTil = statsborgerskap.getGyldigTilOgMed() == null ? Tid.TIDENES_ENDE :
             LocalDate.parse(statsborgerskap.getGyldigTilOgMed(), DateTimeFormatter.ISO_LOCAL_DATE);
+        var gyldigFra = statsborgerskap.getGyldigFraOgMed() == null ? tidligsteDato(fomVedNull, gyldigTil) :
+            LocalDate.parse(statsborgerskap.getGyldigFraOgMed(), DateTimeFormatter.ISO_LOCAL_DATE);
         return new StatsborgerskapPeriode(Gyldighetsperiode.innenfor(gyldigFra, gyldigTil), new no.nav.foreldrepenger.behandlingslager.aktør.Statsborgerskap(statsborgerskap.getLand()));
     }
 
@@ -350,34 +354,37 @@ public class PersoninfoTjeneste {
         return ROLLE_FRA_FREG_STAND.getOrDefault(type, RelasjonsRolleType.UDEFINERT);
     }
 
-    private List<AdressePeriode> mapAdresserHistorikk(List<Bostedsadresse> bostedsadresser, List<Kontaktadresse> kontaktadresser, List<Oppholdsadresse> oppholdsadresser) {
+    private List<AdressePeriode> mapAdresserHistorikk(List<Bostedsadresse> bostedsadresser, List<Kontaktadresse> kontaktadresser, List<Oppholdsadresse> oppholdsadresser, LocalDate fomVedNull) {
         List<AdressePeriode> adresser = new ArrayList<>();
         bostedsadresser.forEach(b -> {
-            var gyldigFra = b.getGyldigFraOgMed() == null ? Tid.TIDENES_BEGYNNELSE :
-                LocalDateTime.ofInstant(b.getGyldigFraOgMed().toInstant(), ZoneId.systemDefault()).toLocalDate();
-            var gyldigTil = b.getGyldigTilOgMed() == null ? Tid.TIDENES_ENDE :
-                LocalDateTime.ofInstant(b.getGyldigTilOgMed().toInstant(), ZoneId.systemDefault()).toLocalDate();
-            mapAdresser(List.of(b), List.of(), List.of()).forEach(a -> adresser.add(mapAdresseinfoTilAdressePeriode(gyldigFra, gyldigTil, a)));
+            var periode = periodeFraDates(b.getGyldigFraOgMed(), b.getGyldigTilOgMed(), fomVedNull);
+            mapAdresser(List.of(b), List.of(), List.of()).forEach(a -> adresser.add(mapAdresseinfoTilAdressePeriode(periode, a)));
         });
         kontaktadresser.forEach(k -> {
-            var gyldigFra = k.getGyldigFraOgMed() == null ? Tid.TIDENES_BEGYNNELSE :
-                LocalDateTime.ofInstant(k.getGyldigFraOgMed().toInstant(), ZoneId.systemDefault()).toLocalDate();
-            var gyldigTil = k.getGyldigTilOgMed() == null ? Tid.TIDENES_ENDE :
-                LocalDateTime.ofInstant(k.getGyldigTilOgMed().toInstant(), ZoneId.systemDefault()).toLocalDate();
-            mapAdresser(List.of(), List.of(k), List.of()).forEach(a -> adresser.add(mapAdresseinfoTilAdressePeriode(gyldigFra, gyldigTil, a)));
+            var periode = periodeFraDates(k.getGyldigFraOgMed(), k.getGyldigTilOgMed(), fomVedNull);
+            mapAdresser(List.of(), List.of(k), List.of()).forEach(a -> adresser.add(mapAdresseinfoTilAdressePeriode(periode, a)));
         });
         oppholdsadresser.forEach(o -> {
-            var gyldigFra = o.getGyldigFraOgMed() == null ? Tid.TIDENES_BEGYNNELSE :
-                LocalDateTime.ofInstant(o.getGyldigFraOgMed().toInstant(), ZoneId.systemDefault()).toLocalDate();
-            var gyldigTil = o.getGyldigTilOgMed() == null ? Tid.TIDENES_ENDE :
-                LocalDateTime.ofInstant(o.getGyldigTilOgMed().toInstant(), ZoneId.systemDefault()).toLocalDate();
-            mapAdresser(List.of(), List.of(), List.of(o)).forEach(a -> adresser.add(mapAdresseinfoTilAdressePeriode(gyldigFra, gyldigTil, a)));
+            var periode = periodeFraDates(o.getGyldigFraOgMed(), o.getGyldigTilOgMed(), fomVedNull);
+            mapAdresser(List.of(), List.of(), List.of(o)).forEach(a -> adresser.add(mapAdresseinfoTilAdressePeriode(periode, a)));
         });
         return adresser;
     }
 
-    private static AdressePeriode mapAdresseinfoTilAdressePeriode(LocalDate fom, LocalDate tom, Adresseinfo adresseinfo) {
-        return AdressePeriode.builder().medGyldighetsperiode(Gyldighetsperiode.innenfor(fom, tom))
+    private static Gyldighetsperiode periodeFraDates(Date dateFom, Date dateTom, LocalDate fomVedNull) {
+        var gyldigTil = dateTom == null ? Tid.TIDENES_ENDE :
+            LocalDateTime.ofInstant(dateTom.toInstant(), ZoneId.systemDefault()).toLocalDate();
+        var gyldigFra = dateFom == null ? tidligsteDato(fomVedNull, gyldigTil) :
+            LocalDateTime.ofInstant(dateFom.toInstant(), ZoneId.systemDefault()).toLocalDate();
+        return Gyldighetsperiode.innenfor(gyldigFra, gyldigTil);
+    }
+
+    private static LocalDate tidligsteDato(LocalDate dato1, LocalDate dato2) {
+        return dato1.isBefore(dato2) ? dato1 : dato2;
+    }
+
+    private static AdressePeriode mapAdresseinfoTilAdressePeriode(Gyldighetsperiode periode, Adresseinfo adresseinfo) {
+        return AdressePeriode.builder().medGyldighetsperiode(periode)
             .medAdresselinje1(adresseinfo.getAdresselinje1())
             .medAdresselinje2(adresseinfo.getAdresselinje2())
             .medAdresselinje3(adresseinfo.getAdresselinje3())
@@ -393,7 +400,7 @@ public class PersoninfoTjeneste {
         List<Adresseinfo> resultat = new ArrayList<>();
         bostedsadresser.stream().map(Bostedsadresse::getVegadresse).map(a -> mapVegadresse(AdresseType.BOSTEDSADRESSE, a)).filter(Objects::nonNull).forEach(resultat::add);
         bostedsadresser.stream().map(Bostedsadresse::getMatrikkeladresse).map(a -> mapMatrikkeladresse(AdresseType.BOSTEDSADRESSE, a)).filter(Objects::nonNull).forEach(resultat::add);
-        bostedsadresser.stream().map(Bostedsadresse::getUkjentBosted).filter(Objects::nonNull).map(this::mapUkjentadresse).forEach(resultat::add);
+        bostedsadresser.stream().map(Bostedsadresse::getUkjentBosted).filter(Objects::nonNull).map(PersoninfoTjeneste::mapUkjentadresse).forEach(resultat::add);
         bostedsadresser.stream().map(Bostedsadresse::getUtenlandskAdresse).map(a -> mapUtenlandskadresse(AdresseType.BOSTEDSADRESSE, a)).filter(Objects::nonNull).forEach(resultat::add);
 
         oppholdsadresser.stream().map(Oppholdsadresse::getVegadresse).map(a -> mapVegadresse(AdresseType.MIDLERTIDIG_POSTADRESSE_NORGE, a)).filter(Objects::nonNull).forEach(resultat::add);
@@ -468,11 +475,11 @@ public class PersoninfoTjeneste {
             .build();
     }
 
-    private Adresseinfo mapUkjentadresse(UkjentBosted ukjentBosted) {
+    private static Adresseinfo mapUkjentadresse(UkjentBosted ukjentBosted) {
         return Adresseinfo.builder(AdresseType.UKJENT_ADRESSE).build();
     }
 
-    private Adresseinfo mapUtenlandskadresse(AdresseType type, UtenlandskAdresse utenlandskAdresse) {
+    private static Adresseinfo mapUtenlandskadresse(AdresseType type, UtenlandskAdresse utenlandskAdresse) {
         if (utenlandskAdresse == null)
             return null;
         var linje1 = hvisfinnes(utenlandskAdresse.getAdressenavnNummer()) + hvisfinnes(utenlandskAdresse.getBygningEtasjeLeilighet()) + hvisfinnes(utenlandskAdresse.getPostboksNummerNavn());
@@ -485,7 +492,7 @@ public class PersoninfoTjeneste {
             .build();
     }
 
-    private Adresseinfo mapFriAdresseUtland(AdresseType type, UtenlandskAdresseIFrittFormat utenlandskAdresse) {
+    private static Adresseinfo mapFriAdresseUtland(AdresseType type, UtenlandskAdresseIFrittFormat utenlandskAdresse) {
         if (utenlandskAdresse == null)
             return null;
         var postlinje = hvisfinnes(utenlandskAdresse.getPostkode()) + hvisfinnes(utenlandskAdresse.getByEllerStedsnavn());
@@ -511,7 +518,7 @@ public class PersoninfoTjeneste {
         return poststedKodeverkRepository.finnPoststed(postnummer).map(Poststed::getPoststednavn).orElse(HARDKODET_POSTSTED);
     }
 
-    private boolean erLike(Personinfo pdl, Personinfo tps) {
+    private static boolean erLike(Personinfo pdl, Personinfo tps) {
         if (tps == null && pdl == null) return true;
         if (pdl == null || tps == null || tps.getClass() != pdl.getClass()) return false;
         var likerels = pdl.getFamilierelasjoner().size() == tps.getFamilierelasjoner().size() &&
@@ -530,7 +537,7 @@ public class PersoninfoTjeneste {
             pdl.getSivilstandType() == tps.getSivilstandType();
     }
 
-    private boolean erLikeHistorikk(Personhistorikkinfo pdl, Personhistorikkinfo tps) {
+    private static boolean erLikeHistorikk(Personhistorikkinfo pdl, Personhistorikkinfo tps) {
         if (tps == null && pdl == null) return true;
         if (pdl == null || tps == null || tps.getClass() != pdl.getClass()) return false;
         var likestatus = pdl.getPersonstatushistorikk().size() == tps.getPersonstatushistorikk().size() &&
@@ -542,7 +549,7 @@ public class PersoninfoTjeneste {
         return likestb && likestatus && likeadresser;
     }
 
-    private String finnAvvik(Personinfo tps, Personinfo pdl) {
+    private static String finnAvvik(Personinfo tps, Personinfo pdl) {
         //String navn = Objects.equals(tps.getNavn(), pdl.getNavn()) ? "" : " navn ";
         String kjonn = Objects.equals(tps.getKjønn(), pdl.getKjønn()) ? "" : " kjønn ";
         String fdato = Objects.equals(tps.getFødselsdato(), pdl.getFødselsdato()) ? "" : " fødsel ";
@@ -562,18 +569,22 @@ public class PersoninfoTjeneste {
         return "Avvik" + kjonn + fdato + ddato + status + sivstand + land + region + frel + adresse + adresse2 + adresse3;
     }
 
-    private String finnAvvikHistorikk(Personhistorikkinfo tps, Personhistorikkinfo pdl) {
+    private static String finnAvvikHistorikk(Personhistorikkinfo tps, Personhistorikkinfo pdl) {
         String status = pdl.getPersonstatushistorikk().size() == tps.getPersonstatushistorikk().size() && pdl.getPersonstatushistorikk().containsAll(tps.getPersonstatushistorikk())  ? ""
             : " status " + tps.getPersonstatushistorikk() + " PDL " + pdl.getPersonstatushistorikk();
         String stb = pdl.getStatsborgerskaphistorikk().size() == tps.getStatsborgerskaphistorikk().size() && pdl.getStatsborgerskaphistorikk().containsAll(tps.getStatsborgerskaphistorikk())  ? ""
-            : " borger " + tps.getStatsborgerskaphistorikk().stream().map(a -> a.getStatsborgerskap().getLandkode()).collect(Collectors.toList()) + " PDL " + pdl.getStatsborgerskaphistorikk().stream().map(a -> a.getStatsborgerskap().getLandkode()).collect(Collectors.toList());
+            : " borger " + tps.getStatsborgerskaphistorikk() + " PDL " + pdl.getStatsborgerskaphistorikk();
         String adresse = pdl.getAdressehistorikk().size() == tps.getAdressehistorikk().size() && pdl.getAdressehistorikk().containsAll(tps.getAdressehistorikk())  ? ""
-            : " adresse " + tps.getAdressehistorikk().stream().map(a -> a.getAdresse().getAdresseType()).collect(Collectors.toList()) + " PDL " + pdl.getAdressehistorikk().stream().map(a -> a.getAdresse().getAdresseType()).collect(Collectors.toList());
-        String adresse2 = pdl.getAdressehistorikk().size() == tps.getAdressehistorikk().size() && pdl.getAdressehistorikk().containsAll(tps.getAdressehistorikk())  ? ""
-            : " adresse2 " + tps.getAdressehistorikk().stream().map(a -> a.getAdresse().getPostnummer()).collect(Collectors.toList()) + " PDL " + pdl.getAdressehistorikk().stream().map(a -> a.getAdresse().getPostnummer()).collect(Collectors.toList());
-        String adresse3 = pdl.getAdressehistorikk().size() == tps.getAdressehistorikk().size() && pdl.getAdressehistorikk().containsAll(tps.getAdressehistorikk())  ? ""
-            : " adresse3 " + tps.getAdressehistorikk().stream().map(a -> a.getAdresse().getLand()).collect(Collectors.toList()) + " PDL " + pdl.getAdressehistorikk().stream().map(a -> a.getAdresse().getLand()).collect(Collectors.toList());
-        return "Avvik" + status + stb + adresse + adresse2 + adresse3;
+            : " adresse " + tps.getAdressehistorikk().stream().map(PersoninfoTjeneste::historiskeAdresserTilString).collect(Collectors.toList()) + " PDL " + pdl.getAdressehistorikk().stream().map(PersoninfoTjeneste::historiskeAdresserTilString).collect(Collectors.toList());
+        return "Avvik" + status + stb + adresse;
+    }
+
+    public static String historiskeAdresserTilString(AdressePeriode adressePeriode) {
+        return "AdressePeriode{" + "gyldighetsperiode=" + adressePeriode.getGyldighetsperiode() +
+            ", type=" + adressePeriode.getAdresse().getAdresseType() +
+            ", post=" + adressePeriode.getAdresse().getPostnummer() +
+            ", land=" + adressePeriode.getAdresse().getLand() +
+            '}';
     }
 
     private void logInnUtOpp(List<Opphold> opp) {
