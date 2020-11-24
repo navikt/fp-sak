@@ -317,14 +317,23 @@ public class PersoninfoTjeneste {
     }
 
     private static List<AdressePeriode> periodiserAdresse(List<AdressePeriode> perioder) {
-        var gyldighetsperioder = perioder.stream().map(AdressePeriode::getGyldighetsperiode).collect(Collectors.toList());
+        var adresseTypePerioder = perioder.stream()
+            .collect(Collectors.groupingBy(ap -> forSortering(ap.getAdresse().getAdresseType()), Collectors.mapping(AdressePeriode::getGyldighetsperiode, Collectors.toList())));
         return perioder.stream()
-            .map(p -> new AdressePeriode(finnFraPerioder(gyldighetsperioder, p.getGyldighetsperiode()), p.getAdresse()))
+            .map(p -> new AdressePeriode(finnFraPerioder(adresseTypePerioder.get(forSortering(p.getAdresse().getAdresseType())), p.getGyldighetsperiode()), p.getAdresse()))
             .collect(Collectors.toList());
     }
 
+    private static AdresseType forSortering(AdresseType type) {
+        if (Set.of(AdresseType.BOSTEDSADRESSE, AdresseType.UKJENT_ADRESSE).contains(type))
+            return type;
+        if (Set.of(AdresseType.POSTADRESSE, AdresseType.POSTADRESSE_UTLAND).contains(type))
+            return AdresseType.POSTADRESSE;
+        return AdresseType.MIDLERTIDIG_POSTADRESSE_NORGE;
+    }
+
     private static Gyldighetsperiode finnFraPerioder(List<Gyldighetsperiode> alleperioder, Gyldighetsperiode periode) {
-        if (alleperioder.stream().noneMatch(p -> p.getFom().isBefore(periode.getTom())))
+        if (alleperioder.stream().noneMatch(p -> p.getFom().isAfter(periode.getFom()) && p.getFom().isBefore(periode.getTom())))
             return periode;
         var tom = alleperioder.stream()
             .map(Gyldighetsperiode::getFom)
