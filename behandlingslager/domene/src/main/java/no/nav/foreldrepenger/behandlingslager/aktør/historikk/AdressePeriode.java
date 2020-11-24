@@ -9,7 +9,7 @@ public class AdressePeriode {
     private Gyldighetsperiode gyldighetsperiode;
     private Adresse adresse;
 
-    private AdressePeriode(Gyldighetsperiode gyldighetsperiode, Adresse adresse) {
+    public AdressePeriode(Gyldighetsperiode gyldighetsperiode, Adresse adresse) {
         this.gyldighetsperiode = gyldighetsperiode;
         this.adresse = adresse;
     }

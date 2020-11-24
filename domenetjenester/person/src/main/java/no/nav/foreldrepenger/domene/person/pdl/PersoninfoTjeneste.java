@@ -256,16 +256,26 @@ public class PersoninfoTjeneste {
             var personStatusPerioder = person.getFolkeregisterpersonstatus().stream()
                 .map(p -> mapPersonstatusHistorisk(p, fødselsdato))
                 .collect(Collectors.toList());
-            periodiserPersonstatus(personStatusPerioder).stream()
+            if (personStatusPerioder.isEmpty() && !person.getFolkeregisterpersonstatus().isEmpty()) {
+                LOG.info("FPSAK PDL HIST: personstatus alt forsvant {}", person.getFolkeregisterpersonstatus());
+            }
+            var personStatusPerioderPeriodisert = periodiserPersonstatus(personStatusPerioder);
+            if (personStatusPerioderPeriodisert.isEmpty() && !personStatusPerioder.isEmpty()) {
+                LOG.info("FPSAK PDL HIST: personstatus periodisering {}", personStatusPerioder);
+            }
+            personStatusPerioderPeriodisert.stream()
                 .filter(p -> p.getGyldighetsperiode().getTom().isAfter(fom) && p.getGyldighetsperiode().getFom().isBefore(tom))
                 .forEach(fraPDLBuilder::leggTil);
             person.getStatsborgerskap().stream()
                 .map(p -> mapStatsborgerskapHistorikk(p, fødselsdato))
                 .filter(p -> p.getGyldighetsperiode().getTom().isAfter(fom) && p.getGyldighetsperiode().getFom().isBefore(tom))
                 .forEach(fraPDLBuilder::leggTil);
-            mapAdresserHistorikk(person.getBostedsadresse(), person.getKontaktadresse(), person.getOppholdsadresse(), fødselsdato).stream()
+            var adressePerioder = mapAdresserHistorikk(person.getBostedsadresse(), person.getKontaktadresse(), person.getOppholdsadresse(), fødselsdato);
+            var adressePerioderPeriodisert = periodiserAdresse(adressePerioder);
+            adressePerioderPeriodisert.stream()
                 .filter(p -> p.getGyldighetsperiode().getTom().isAfter(fom) && p.getGyldighetsperiode().getFom().isBefore(tom))
                 .forEach(fraPDLBuilder::leggTil);
+
             var fraPDL = fraPDLBuilder.build();
 
             logInnUtOpp(person.getOpphold());
@@ -300,19 +310,28 @@ public class PersoninfoTjeneste {
     }
 
     private static List<PersonstatusPeriode> periodiserPersonstatus(List<PersonstatusPeriode> perioder) {
+        var gyldighetsperioder = perioder.stream().map(PersonstatusPeriode::getGyldighetsperiode).collect(Collectors.toList());
         return perioder.stream()
-            .map(p -> new PersonstatusPeriode(Gyldighetsperiode.innenfor(p.getGyldighetsperiode().getFom(),
-                finnTomFraPerioder(perioder, p.getGyldighetsperiode().getFom())), p.getPersonstatus()))
+            .map(p -> new PersonstatusPeriode(finnFraPerioder(gyldighetsperioder, p.getGyldighetsperiode()), p.getPersonstatus()))
             .collect(Collectors.toList());
     }
 
-    private static LocalDate finnTomFraPerioder(List<PersonstatusPeriode> perioder, LocalDate fom) {
+    private static List<AdressePeriode> periodiserAdresse(List<AdressePeriode> perioder) {
+        var gyldighetsperioder = perioder.stream().map(AdressePeriode::getGyldighetsperiode).collect(Collectors.toList());
         return perioder.stream()
-            .map(PersonstatusPeriode::getGyldighetsperiode)
+            .map(p -> new AdressePeriode(finnFraPerioder(gyldighetsperioder, p.getGyldighetsperiode()), p.getAdresse()))
+            .collect(Collectors.toList());
+    }
+
+    private static Gyldighetsperiode finnFraPerioder(List<Gyldighetsperiode> alleperioder, Gyldighetsperiode periode) {
+        if (alleperioder.stream().noneMatch(p -> p.getFom().isBefore(periode.getTom())))
+            return periode;
+        var tom = alleperioder.stream()
             .map(Gyldighetsperiode::getFom)
-            .filter(d -> !d.isAfter(fom))
+            .filter(d -> d.isAfter(periode.getFom()))
             .min(Comparator.naturalOrder())
-            .map(d -> d.equals(fom) ? d : d.minusDays(1)).orElse(Tid.TIDENES_ENDE);
+            .map(d -> d.minusDays(1)).orElse(Tid.TIDENES_ENDE);
+        return Gyldighetsperiode.innenfor(periode.getFom(), tom);
     }
 
     private static StatsborgerskapPeriode mapStatsborgerskapHistorikk(Statsborgerskap statsborgerskap, LocalDate fomVedNull) {

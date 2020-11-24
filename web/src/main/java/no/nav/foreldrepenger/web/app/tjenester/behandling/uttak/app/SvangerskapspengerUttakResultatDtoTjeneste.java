@@ -83,7 +83,8 @@ public class SvangerskapspengerUttakResultatDtoTjeneste {
                                                                                                   List<ArbeidsforholdOverstyring> overstyringer) {
         return SvangerskapspengerUttakResultatArbeidsforholdDto.builder()
             .medArbeidsforholdIkkeOppfyltÅrsak(perArbeidsforhold.getArbeidsforholdIkkeOppfyltÅrsak())
-            .medArbeidsgiver(arbeidsgiverDtoTjeneste.mapFra(perArbeidsforhold.getArbeidsgiver(), overstyringer), perArbeidsforhold.getArbeidsgiver().getIdentifikator())
+            .medArbeidsgiver(arbeidsgiverDtoTjeneste.mapFra(perArbeidsforhold.getArbeidsgiver(), overstyringer),
+                perArbeidsforhold.getArbeidsgiver() != null ? perArbeidsforhold.getArbeidsgiver().getIdentifikator() : null)
             .medArbeidType(perArbeidsforhold.getUttakArbeidType())
             .medPerioder(periodeDtoer)
             .build();
