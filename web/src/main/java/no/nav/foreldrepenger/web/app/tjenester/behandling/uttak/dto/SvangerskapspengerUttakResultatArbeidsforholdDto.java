@@ -8,16 +8,10 @@ import no.nav.foreldrepenger.behandlingslager.uttak.svp.ArbeidsforholdIkkeOppfyl
 public class SvangerskapspengerUttakResultatArbeidsforholdDto {
     private ArbeidsforholdIkkeOppfyltÅrsak arbeidsforholdIkkeOppfyltÅrsak;
     private ArbeidsgiverDto arbeidsgiver;
+    private String arbeidsgiverReferanse;
     private UttakArbeidType arbeidType;
 
     private List<SvangerskapspengerUttakResultatPeriodeDto> perioder;
-
-    private SvangerskapspengerUttakResultatArbeidsforholdDto(Builder builder) {
-        arbeidsforholdIkkeOppfyltÅrsak = builder.arbeidsforholdIkkeOppfyltÅrsak;
-        arbeidsgiver = builder.arbeidsgiver;
-        arbeidType = builder.arbeidType;
-        perioder = builder.perioder;
-    }
 
     public static Builder builder() {
         return new Builder();
@@ -31,6 +25,10 @@ public class SvangerskapspengerUttakResultatArbeidsforholdDto {
         return arbeidsgiver;
     }
 
+    public String getArbeidsgiverReferanse() {
+        return arbeidsgiverReferanse;
+    }
+
     public UttakArbeidType getArbeidType() {
         return arbeidType;
     }
@@ -40,36 +38,35 @@ public class SvangerskapspengerUttakResultatArbeidsforholdDto {
     }
 
     public static final class Builder {
-        private ArbeidsforholdIkkeOppfyltÅrsak arbeidsforholdIkkeOppfyltÅrsak;
-        private ArbeidsgiverDto arbeidsgiver;
-        private UttakArbeidType arbeidType;
-        private List<SvangerskapspengerUttakResultatPeriodeDto> perioder;
+        private SvangerskapspengerUttakResultatArbeidsforholdDto kladd;
 
         private Builder() {
+            this.kladd = new SvangerskapspengerUttakResultatArbeidsforholdDto();
         }
 
         public Builder medArbeidsforholdIkkeOppfyltÅrsak(ArbeidsforholdIkkeOppfyltÅrsak arbeidsforholdIkkeOppfyltÅrsak) {
-            this.arbeidsforholdIkkeOppfyltÅrsak = arbeidsforholdIkkeOppfyltÅrsak;
+            this.kladd.arbeidsforholdIkkeOppfyltÅrsak = arbeidsforholdIkkeOppfyltÅrsak;
             return this;
         }
 
-        public Builder medArbeidsgiver(ArbeidsgiverDto arbeidsgiver) {
-            this.arbeidsgiver = arbeidsgiver;
+        public Builder medArbeidsgiver(ArbeidsgiverDto arbeidsgiver, String arbeidsgiverReferanse) {
+            this.kladd.arbeidsgiver = arbeidsgiver;
+            this.kladd.arbeidsgiverReferanse = arbeidsgiverReferanse;
             return this;
         }
 
         public Builder medArbeidType(UttakArbeidType uttakArbeidType) {
-            this.arbeidType = uttakArbeidType;
+            this.kladd.arbeidType = uttakArbeidType;
             return this;
         }
 
         public Builder medPerioder(List<SvangerskapspengerUttakResultatPeriodeDto> perioder) {
-            this.perioder = perioder;
+            this.kladd.perioder = perioder;
             return this;
         }
 
         public SvangerskapspengerUttakResultatArbeidsforholdDto build() {
-            return new SvangerskapspengerUttakResultatArbeidsforholdDto(this);
+            return kladd;
         }
     }
 }

@@ -46,8 +46,13 @@ public class KontrollerFaktaPeriodeTjeneste {
 
     private KontrollerFaktaDataDto mapTilDto(KontrollerFaktaData kontrollerFaktaData) {
         List<KontrollerFaktaPeriodeDto> dtoPerioder = kontrollerFaktaData.getPerioder().stream()
-            .map(periode -> new KontrollerFaktaPeriodeDto.Builder(periode, arbeidsgiverDto(periode)).build()).collect(Collectors.toList());
+            .map(periode -> new KontrollerFaktaPeriodeDto.Builder(periode, arbeidsgiverDto(periode), arbeidsgiverReferanse(periode)).build()).collect(Collectors.toList());
         return new KontrollerFaktaDataDto(dtoPerioder);
+    }
+
+    private String arbeidsgiverReferanse(KontrollerFaktaPeriode periode) {
+        Arbeidsgiver arbeidsgiver = periode.getOppgittPeriode().getArbeidsgiver();
+        return arbeidsgiver == null ?  null : arbeidsgiver.getIdentifikator();
     }
 
     private ArbeidsgiverDto arbeidsgiverDto(KontrollerFaktaPeriode periode) {

@@ -18,6 +18,7 @@ public class UttakResultatPeriodeAktivitetDto {
     private String arbeidsforholdId;
     private String eksternArbeidsforholdId;
     private ArbeidsgiverDto arbeidsgiver;
+    private String arbeidsgiverReferanse;
     private Utbetalingsgrad utbetalingsgrad;
     private UttakArbeidType uttakArbeidType;
     private boolean gradering;
@@ -58,6 +59,10 @@ public class UttakResultatPeriodeAktivitetDto {
         return arbeidsgiver;
     }
 
+    public String getArbeidsgiverReferanse() {
+        return arbeidsgiverReferanse;
+    }
+
     public boolean isGradering() {
         return gradering;
     }
@@ -86,10 +91,11 @@ public class UttakResultatPeriodeAktivitetDto {
             return this;
         }
 
-        public Builder medArbeidsforhold(InternArbeidsforholdRef ref, String eksternArbeidsforholdId, ArbeidsgiverDto arbeidsgiver) {
+        public Builder medArbeidsforhold(InternArbeidsforholdRef ref, String eksternArbeidsforholdId, ArbeidsgiverDto arbeidsgiver, String arbeidsgiverReferanse) {
             kladd.arbeidsforholdId = ref == null ? null : ref.getReferanse();
             kladd.eksternArbeidsforholdId = eksternArbeidsforholdId;
             kladd.arbeidsgiver = arbeidsgiver;
+            kladd.arbeidsgiverReferanse = arbeidsgiverReferanse;
             return this;
         }
 

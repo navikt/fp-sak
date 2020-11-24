@@ -69,11 +69,11 @@ public class FaktaUttakArbeidsforholdTjeneste {
 
     private ArbeidsforholdDto virksomhetArbeidsgiver(Arbeidsgiver arbeidsgiver) {
         ArbeidsgiverOpplysninger opplysninger = arbeidsgiverTjeneste.hent(arbeidsgiver);
-        return ArbeidsforholdDto.ordinært(ArbeidsgiverDto.virksomhet(opplysninger.getIdentifikator(), opplysninger.getNavn()));
+        return ArbeidsforholdDto.ordinært(ArbeidsgiverDto.virksomhet(opplysninger.getIdentifikator(), opplysninger.getNavn()), arbeidsgiver.getIdentifikator());
     }
 
     private ArbeidsforholdDto mapPersonArbeidsgiver(Arbeidsgiver arbeidsgiver) {
         ArbeidsgiverOpplysninger opplysninger = arbeidsgiverTjeneste.hent(arbeidsgiver);
-        return ArbeidsforholdDto.ordinært(ArbeidsgiverDto.person(opplysninger.getNavn(), arbeidsgiver.getAktørId(), opplysninger.getFødselsdato()));
+        return ArbeidsforholdDto.ordinært(ArbeidsgiverDto.person(opplysninger.getNavn(), arbeidsgiver.getAktørId(), opplysninger.getFødselsdato()), arbeidsgiver.getIdentifikator());
     }
 }
