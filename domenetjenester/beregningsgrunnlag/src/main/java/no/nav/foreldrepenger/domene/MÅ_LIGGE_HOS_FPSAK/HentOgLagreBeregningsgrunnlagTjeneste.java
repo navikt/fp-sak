@@ -45,12 +45,6 @@ public class HentOgLagreBeregningsgrunnlagTjeneste {
         return beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(behandlingId);
     }
 
-    public Optional<BeregningsgrunnlagGrunnlagEntitet> hentNestSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(Long behandlingId,
-                                                                                                              Optional<Long> originalBehandlingId,
-                                                                                                              BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
-        return beregningsgrunnlagRepository.hentNestSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(behandlingId, originalBehandlingId, beregningsgrunnlagTilstand);
-    }
-
     public BeregningsgrunnlagEntitet hentBeregningsgrunnlagEntitetAggregatForBehandling(Long behandlingId) {
         return beregningsgrunnlagRepository.hentBeregningsgrunnlagAggregatForBehandling(behandlingId);
     }
@@ -67,11 +61,6 @@ public class HentOgLagreBeregningsgrunnlagTjeneste {
         return beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(behandlingId);
     }
 
-    public Optional<BeregningsgrunnlagGrunnlagEntitet> hentGrunnlagBruktForPreutfylling(Long behandlingId, Optional<Long> originalBehandlingId,
-                                                                                             BeregningsgrunnlagTilstand forrigeTilstand, BeregningsgrunnlagTilstand nesteTilstand) {
-        return beregningsgrunnlagRepository.hentBeregningsgrunnlagForPreutfylling(behandlingId, originalBehandlingId, forrigeTilstand, nesteTilstand);
-    }
-
     public void lagre(Long behandlingId, BeregningsgrunnlagGrunnlagDto fraKalkulus) {
         BeregningsgrunnlagGrunnlagBuilder builder = BeregningsgrunnlagGrunnlagBuilder.oppdatere(beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(behandlingId));
 
@@ -84,7 +73,7 @@ public class HentOgLagreBeregningsgrunnlagTjeneste {
             .ifPresent(builder::medRefusjonOverstyring);
 
         fraKalkulus.getBeregningsgrunnlag()
-            .map(beregningsgrunnlagFraKalkulus -> KalkulusTilBehandlingslagerMapper.mapBeregningsgrunnlag(beregningsgrunnlagFraKalkulus, fraKalkulus.getFaktaAggregat()))
+            .map(beregningsgrunnlagFraKalkulus -> KalkulusTilBehandlingslagerMapper.mapBeregningsgrunnlag(beregningsgrunnlagFraKalkulus, fraKalkulus.getFaktaAggregat(), Optional.empty()))
             .ifPresent(builder::medBeregningsgrunnlag);
 
         fraKalkulus.getOverstyring()

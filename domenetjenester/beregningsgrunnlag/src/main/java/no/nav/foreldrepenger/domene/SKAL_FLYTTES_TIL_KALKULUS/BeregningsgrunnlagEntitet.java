@@ -147,6 +147,11 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
         return regelSporingMap.containsKey(BRUKERS_STATUS) ? regelSporingMap.get(BRUKERS_STATUS).getRegelEvaluering() : null;
     }
 
+
+    public Map<BeregningsgrunnlagRegelType, BeregningsgrunnlagRegelSporing> getRegelSporinger() {
+        return regelSporingMap;
+    }
+
     public Hjemmel getHjemmel() {
         if (aktivitetStatuser.isEmpty()) {
             return Hjemmel.UDEFINERT;
@@ -327,7 +332,7 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
             return this;
         }
 
-        public Builder medRegellogg(String regelInput, String regelEvaluering, BeregningsgrunnlagRegelType regelType) {
+        public Builder medRegelSporing(String regelInput, String regelEvaluering, BeregningsgrunnlagRegelType regelType) {
             verifiserKanModifisere();
             if (regelInput != null) {
                 BeregningsgrunnlagRegelSporing.ny()

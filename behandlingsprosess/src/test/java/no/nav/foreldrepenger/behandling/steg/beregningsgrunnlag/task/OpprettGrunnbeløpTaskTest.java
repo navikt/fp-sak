@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Beregningsgrunnlag
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriodeRegelType;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand;
@@ -116,8 +117,8 @@ public class OpprettGrunnbeløpTaskTest extends EntityManagerAwareTest {
             .medBruttoPrÅr(BigDecimal.valueOf(534343.55))
             .medAvkortetPrÅr(BigDecimal.valueOf(223421.33))
             .medRedusertPrÅr(BigDecimal.valueOf(23412.32))
-            .medRegelEvalueringForeslå("input1", "clob1")
-            .medRegelEvalueringFastsett("input2", "clob2")
+            .medRegelEvaluering("input1", "clob1", BeregningsgrunnlagPeriodeRegelType.FORESLÅ)
+            .medRegelEvaluering("input2", "clob2", BeregningsgrunnlagPeriodeRegelType.FASTSETT)
             .leggTilPeriodeÅrsak(PeriodeÅrsak.UDEFINERT)
             .build(beregningsgrunnlag);
     }

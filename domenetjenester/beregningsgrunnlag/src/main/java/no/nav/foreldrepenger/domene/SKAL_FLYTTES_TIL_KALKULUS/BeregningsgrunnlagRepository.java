@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -23,14 +22,9 @@ import org.hibernate.jpa.QueryHints;
 import no.nav.foreldrepenger.behandlingslager.Kopimaskin;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.sporing.KopierRegelsporing;
 
-/**
- * Henter siste {@link BeregningsgrunnlagGrunnlagEntitet} opprettet i et bestemt steg for revurdering. Ignorerer om grunnlaget er aktivt eller ikke.
- * Om revurderingen ikke har grunnlag opprettet i denne tilstanden returneres grunnlaget fra originalbehandlingen for samme tilstand.
- * @param behandlingId en behandlingId
- * @param beregningsgrunnlagTilstand steget {@link BeregningsgrunnlagGrunnlagEntitet} er opprettet i
- * @return Hvis det finnes et eller fler BeregningsgrunnlagGrunnlagEntitet som har blitt opprettet i {@code stegOpprettet} returneres den som ble opprettet sist
- */
+
 @ApplicationScoped
 public class BeregningsgrunnlagRepository {
     private static final String BEHANDLING_ID = "behandlingId";
@@ -60,14 +54,6 @@ public class BeregningsgrunnlagRepository {
         return sisteBg;
     }
 
-    public Optional<BeregningsgrunnlagGrunnlagEntitet> hentNestSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(Long behandlingId, Optional<Long> originalBehandlingId,
-                                                                                                                     BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
-        Optional<BeregningsgrunnlagGrunnlagEntitet> sisteBg = hentNestSisteBeregningsgrunnlagGrunnlagEntitet(behandlingId, beregningsgrunnlagTilstand);
-        if (!sisteBg.isPresent() && originalBehandlingId.isPresent()) {
-            return hentNestSisteBeregningsgrunnlagGrunnlagEntitet(originalBehandlingId.get(), beregningsgrunnlagTilstand);
-        }
-        return sisteBg;
-    }
 
 
     public BeregningsgrunnlagEntitet hentBeregningsgrunnlagAggregatForBehandling(Long behandlingId) {
@@ -121,24 +107,6 @@ public class BeregningsgrunnlagRepository {
         query.setParameter(BEREGNINGSGRUNNLAG_TILSTAND, beregningsgrunnlagTilstand); //$NON-NLS-1$
         query.setMaxResults(1);
         return query.getResultStream().findFirst();
-    }
-
-    /**
-     * Henter nest siste {@link BeregningsgrunnlagGrunnlagEntitet} opprettet i et bestemt steg. Ignorerer om grunnlaget er aktivt eller ikke.
-     * @param behandlingId en behandlingId
-     * @param beregningsgrunnlagTilstand steget {@link BeregningsgrunnlagGrunnlagEntitet} er opprettet i
-     * @return Hvis det finnes kun ett BeregningsgrunnlagGrunnlagEntitet som har blitt opprettet i {@code stegOpprettet} returneres dette grunnlaget
-     */
-    private Optional<BeregningsgrunnlagGrunnlagEntitet> hentNestSisteBeregningsgrunnlagGrunnlagEntitet(Long behandlingId, BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
-        TypedQuery<BeregningsgrunnlagGrunnlagEntitet> query = entityManager.createQuery(
-            "from BeregningsgrunnlagGrunnlagEntitet " +
-                "where behandlingId=:behandlingId " +
-                "and beregningsgrunnlagTilstand = :beregningsgrunnlagTilstand " +
-                "order by opprettetTidspunkt desc, id desc", BeregningsgrunnlagGrunnlagEntitet.class); //$NON-NLS-1$
-        query.setParameter(BEHANDLING_ID, behandlingId); //$NON-NLS-1$
-        query.setParameter(BEREGNINGSGRUNNLAG_TILSTAND, beregningsgrunnlagTilstand); //$NON-NLS-1$
-        query.setMaxResults(2);
-        return query.getResultStream().min(Comparator.comparing(BeregningsgrunnlagGrunnlagEntitet::getOpprettetTidspunkt));
     }
 
     /**
@@ -269,28 +237,6 @@ public class BeregningsgrunnlagRepository {
         return grunnlagEntitet;
     }
 
-    public BeregningsgrunnlagGrunnlagEntitet lagreUtenAktivt(Long behandlingId, BeregningsgrunnlagGrunnlagBuilder builder, BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
-        Objects.requireNonNull(behandlingId, BEHANDLING_ID);
-        Objects.requireNonNull(builder, BUILDER);
-        Objects.requireNonNull(beregningsgrunnlagTilstand, BEREGNINGSGRUNNLAG_TILSTAND);
-        BeregningsgrunnlagGrunnlagEntitet grunnlagEntitet = builder.build(behandlingId, beregningsgrunnlagTilstand);
-        grunnlagEntitet.setAktiv(false);
-        lagreOgFlushUtenAktivt(grunnlagEntitet);
-        return grunnlagEntitet;
-    }
-
-    public void lagreRegisterAktiviteter(Long behandlingId,
-                                         BeregningAktivitetAggregatEntitet beregningAktivitetAggregat,
-                                         BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
-        Objects.requireNonNull(behandlingId, BEHANDLING_ID);
-        Objects.requireNonNull(beregningAktivitetAggregat, BEREGNING_AKTIVITET_AGGREGAT);
-        Objects.requireNonNull(beregningsgrunnlagTilstand, BEREGNINGSGRUNNLAG_TILSTAND);
-
-        BeregningsgrunnlagGrunnlagBuilder builder = opprettGrunnlagBuilderFor(behandlingId);
-        builder.medRegisterAktiviteter(beregningAktivitetAggregat);
-        lagreOgFlush(behandlingId, builder.build(behandlingId, beregningsgrunnlagTilstand));
-    }
-
     public void lagreSaksbehandledeAktiviteter(Long behandlingId,
                                                BeregningAktivitetAggregatEntitet beregningAktivitetAggregat,
                                                BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
@@ -329,13 +275,16 @@ public class BeregningsgrunnlagRepository {
     private void lagreOgFlush(Long behandlingId, BeregningsgrunnlagGrunnlagEntitet nyttGrunnlag) {
         Objects.requireNonNull(behandlingId, BEHANDLING_ID);
         Optional<BeregningsgrunnlagGrunnlagEntitet> tidligereAggregat = hentBeregningsgrunnlagGrunnlagEntitet(behandlingId);
-        if (tidligereAggregat.isPresent()) {
+        if (tidligereAggregat.isPresent() && tidligereAggregat.get().getBeregningsgrunnlagTilstand().erFør(nyttGrunnlag.getBeregningsgrunnlagTilstand())) {
+            // OBS: Denne endrer på nyttGrunnlag
+            KopierRegelsporing.kopierRegelsporinger(tidligereAggregat, nyttGrunnlag);
             tidligereAggregat.get().setAktiv(false);
             entityManager.persist(tidligereAggregat.get());
         }
         lagreGrunnlag(nyttGrunnlag);
         entityManager.flush();
     }
+
 
     private void lagreGrunnlag(BeregningsgrunnlagGrunnlagEntitet nyttGrunnlag) {
         BeregningAktivitetAggregatEntitet registerAktiviteter = nyttGrunnlag.getRegisterAktiviteter();
@@ -393,13 +342,6 @@ public class BeregningsgrunnlagRepository {
         Optional<BeregningsgrunnlagGrunnlagEntitet> grunnlag = entitetOpt.isPresent() ? Optional.of(entitetOpt.get()) : Optional.empty();
         return BeregningsgrunnlagGrunnlagBuilder.oppdatere(grunnlag);
     }
-
-    private BeregningsgrunnlagGrunnlagBuilder opprettGrunnlagBuilderForEndring(Long behandlingId) {
-        Optional<BeregningsgrunnlagGrunnlagEntitet> entitetOpt = hentBeregningsgrunnlagGrunnlagEntitet(behandlingId);
-        Optional<BeregningsgrunnlagGrunnlagEntitet> grunnlag = entitetOpt.isPresent() ? Optional.of(entitetOpt.get()) : Optional.empty();
-        return BeregningsgrunnlagGrunnlagBuilder.endre(grunnlag);
-    }
-
 
     public void deaktiverBeregningsgrunnlagGrunnlagEntitet(Long behandlingId) {
         Optional<BeregningsgrunnlagGrunnlagEntitet> entitetOpt = hentBeregningsgrunnlagGrunnlagEntitet(behandlingId);

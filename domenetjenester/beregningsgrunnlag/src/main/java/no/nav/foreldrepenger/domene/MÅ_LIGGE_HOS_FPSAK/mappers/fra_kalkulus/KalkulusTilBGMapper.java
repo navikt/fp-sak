@@ -13,13 +13,16 @@ import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.FaktaAktørDt
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.FaktaArbeidsforholdDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.SammenligningsgrunnlagDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.SammenligningsgrunnlagPrStatusDto;
+import no.nav.folketrygdloven.kalkulator.output.RegelSporingPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AndelKilde;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriodeRegelType;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRegelType;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Hjemmel;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Inntektskategori;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.PeriodeÅrsak;
@@ -45,7 +48,7 @@ public class KalkulusTilBGMapper {
         return builder;
     }
 
-    public static BeregningsgrunnlagPeriode.Builder mapBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriodeDto fraKalkulus, Optional<FaktaAggregatDto> faktaAggregat) {
+    public static BeregningsgrunnlagPeriode.Builder mapBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriodeDto fraKalkulus, Optional<FaktaAggregatDto> faktaAggregat, List<RegelSporingPeriode> regelSporingerPeriode) {
         BeregningsgrunnlagPeriode.Builder builder = new BeregningsgrunnlagPeriode.Builder();
 
         //med
@@ -53,11 +56,7 @@ public class KalkulusTilBGMapper {
         builder.medBeregningsgrunnlagPeriode(fraKalkulus.getBeregningsgrunnlagPeriodeFom(), fraKalkulus.getBeregningsgrunnlagPeriodeTom());
         builder.medBruttoPrÅr(fraKalkulus.getBruttoPrÅr());
         builder.medRedusertPrÅr(fraKalkulus.getRedusertPrÅr());
-        builder.medRegelEvalueringFastsett(fraKalkulus.getRegelInputFastsett(), fraKalkulus.getRegelEvalueringFastsett());
-        builder.medRegelEvalueringFinnGrenseverdi(fraKalkulus.getRegelInputFinnGrenseverdi(), fraKalkulus.getRegelEvalueringFinnGrenseverdi());
-        builder.medRegelEvalueringFordel(fraKalkulus.getRegelInputFordel(), fraKalkulus.getRegelEvalueringFordel());
-        builder.medRegelEvalueringForeslå(fraKalkulus.getRegelInput(), fraKalkulus.getRegelEvaluering());
-        builder.medRegelEvalueringVilkårsvurdering(fraKalkulus.getRegelInputVilkårvurdering(), fraKalkulus.getRegelEvalueringVilkårvurdering());
+        regelSporingerPeriode.forEach(rs -> builder.medRegelEvaluering(rs.getRegelInput(), rs.getRegelEvaluering(), BeregningsgrunnlagPeriodeRegelType.fraKode(rs.getRegelType().getKode())));
 
         //legg til
         fraKalkulus.getPeriodeÅrsaker().forEach(periodeÅrsak -> builder.leggTilPeriodeÅrsak(PeriodeÅrsak.fraKode(periodeÅrsak.getKode())));

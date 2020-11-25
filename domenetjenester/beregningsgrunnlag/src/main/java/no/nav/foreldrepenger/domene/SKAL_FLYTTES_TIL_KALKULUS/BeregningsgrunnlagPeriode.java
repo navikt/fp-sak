@@ -259,6 +259,10 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
         return regelSporingMap.containsKey(FINN_GRENSEVERDI) ? regelSporingMap.get(FINN_GRENSEVERDI).getRegelEvaluering() : null;
     }
 
+    public Map<BeregningsgrunnlagPeriodeRegelType, BeregningsgrunnlagPeriodeRegelSporing> getRegelSporinger() {
+        return regelSporingMap;
+    }
+
     public static class Builder {
         private BeregningsgrunnlagPeriode kladd;
         private boolean built;
@@ -304,59 +308,15 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
             return this;
         }
 
-        public Builder medRegelEvalueringForeslå(String regelInput, String regelEvaluering) {
-            verifiserKanModifisere();
-            // Lagrer til begge regel-sporinger til vi har kjørt migrering
-            BeregningsgrunnlagPeriodeRegelSporing.ny()
-                .medRegelInput(regelInput)
-                .medRegelEvaluering(regelEvaluering)
-                .medRegelType(FORESLÅ)
-                .build(kladd);
-            return this;
-        }
-
-        public Builder medRegelEvalueringFordel(String regelInput, String regelEvaluering) {
+        public Builder medRegelEvaluering(String regelInput, String regelEvaluering, BeregningsgrunnlagPeriodeRegelType regelType) {
             verifiserKanModifisere();
             BeregningsgrunnlagPeriodeRegelSporing.ny()
                 .medRegelInput(regelInput)
                 .medRegelEvaluering(regelEvaluering)
-                .medRegelType(FORDEL)
+                .medRegelType(regelType)
                 .build(kladd);
             return this;
         }
-
-        public Builder medRegelEvalueringFastsett(String regelInput, String regelEvaluering) {
-            verifiserKanModifisere();
-            // Lagrer til begge regel-sporinger til vi har kjørt migrering
-            BeregningsgrunnlagPeriodeRegelSporing.ny()
-                .medRegelInput(regelInput)
-                .medRegelEvaluering(regelEvaluering)
-                .medRegelType(FASTSETT)
-                .build(kladd);
-            return this;
-        }
-
-        public Builder medRegelEvalueringVilkårsvurdering(String regelInput, String regelEvaluering) {
-            verifiserKanModifisere();
-            // Lagrer til begge regel-sporinger til vi har kjørt migrering
-            BeregningsgrunnlagPeriodeRegelSporing.ny()
-                .medRegelInput(regelInput)
-                .medRegelEvaluering(regelEvaluering)
-                .medRegelType(VILKÅR_VURDERING)
-                .build(kladd);
-            return this;
-        }
-
-        public Builder medRegelEvalueringFinnGrenseverdi(String regelInput, String regelEvaluering) {
-            verifiserKanModifisere();
-            BeregningsgrunnlagPeriodeRegelSporing.ny()
-                .medRegelInput(regelInput)
-                .medRegelEvaluering(regelEvaluering)
-                .medRegelType(FINN_GRENSEVERDI)
-                .build(kladd);
-            return this;
-        }
-
 
         public Builder leggTilPeriodeÅrsak(PeriodeÅrsak periodeÅrsak) {
             verifiserKanModifisere();
