@@ -6,6 +6,7 @@ import java.util.Objects;
 import javax.enterprise.context.ApplicationScoped;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepengerPrÅr;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 
 @ApplicationScoped
@@ -40,11 +41,19 @@ public class SjekkOmPerioderHarEndringIAndeler {
         long antallAndelerSomKorresponderer = gamleAndeler.stream().filter(gammelAndel ->
             Objects.equals(nyAndel.erBrukerMottaker(), gammelAndel.erBrukerMottaker()) &&
                 Objects.equals(nyAndelNøkkel, gammelAndel.getAktivitetOgArbeidsforholdNøkkel()) &&
-                Objects.equals(nyAndel.getDagsats(), gammelAndel.getDagsats())).count();
+                Objects.equals(nyAndel.getDagsats(), gammelAndel.getDagsats()) &&
+                erLike(nyAndel.getBeregningsresultatFeriepengerPrÅrListe(), gammelAndel.getBeregningsresultatFeriepengerPrÅrListe())).count();
         if (antallAndelerSomKorresponderer > 1) {
             throw FinnEndringsdatoFeil.FACTORY.fantFlereKorresponderendeAndelerFeil(nyAndel.getId()).toException();
         }
         return antallAndelerSomKorresponderer == 1;
+    }
+
+    private boolean erLike(List<BeregningsresultatFeriepengerPrÅr> liste1, List<BeregningsresultatFeriepengerPrÅr> liste2) {
+        if (liste1.size() != liste2.size()) {
+            return false;
+        }
+        return liste2.containsAll(liste1);
     }
 
 }
