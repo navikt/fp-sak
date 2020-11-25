@@ -11,7 +11,7 @@ public class Utbetalingsgrad {
     }
 
     public Utbetalingsgrad(int utbetalingsgrad) {
-        if (utbetalingsgrad <= 0 || utbetalingsgrad > 100) {
+        if (utbetalingsgrad < 0 || utbetalingsgrad > 100) {
             throw new IllegalArgumentException("Utbetalingsgrad er utenfor lovlig intervall [1,100]: " + utbetalingsgrad);
         }
         this.utbetalingsgrad = utbetalingsgrad;
