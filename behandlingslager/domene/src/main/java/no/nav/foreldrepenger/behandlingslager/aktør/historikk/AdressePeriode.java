@@ -35,6 +35,11 @@ public class AdressePeriode {
             Objects.equals(adresse, that.adresse);
     }
 
+    public static boolean fuzzyEquals(AdressePeriode a1, AdressePeriode a2) {
+        return Gyldighetsperiode.fuzzyEquals(a1.gyldighetsperiode, a2.gyldighetsperiode) &&
+            Objects.equals(a1.adresse, a2.adresse);
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(gyldighetsperiode, adresse);

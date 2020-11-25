@@ -208,6 +208,15 @@ public class PersoninfoTjeneste {
                 .medAdresseInfoList(adresser)
                 .build();
 
+            var maxMatrikkelIdSize = adresser.stream()
+                .map(Adresseinfo::getMatrikkelId)
+                .filter(Objects::nonNull)
+                .map(String::length)
+                .max(Comparator.naturalOrder()).orElse(0);
+            if (maxMatrikkelIdSize > 19) {
+                LOG.info("FPSAK PDL matrikkel: size {}", maxMatrikkelIdSize);
+            }
+
             if (!erLike(fraPDL, fraTPS)) {
                 var avvik = finnAvvik(fraTPS, fraPDL);
                 LOG.info("FPSAK PDL FULL: avvik {}", avvik);
@@ -263,6 +272,16 @@ public class PersoninfoTjeneste {
                 .forEach(fraPDLBuilder::leggTil);
 
             var fraPDL = fraPDLBuilder.build();
+
+            var maxMatrikkelIdSize = adressePerioder.stream()
+                .map(AdressePeriode::getAdresse)
+                .map(AdressePeriode.Adresse::getMatrikkelId)
+                .filter(Objects::nonNull)
+                .map(String::length)
+                .max(Comparator.naturalOrder()).orElse(0);
+            if (maxMatrikkelIdSize > 19) {
+                LOG.info("FPSAK PDL matrikkel: size {}", maxMatrikkelIdSize);
+            }
 
             logInnUtOpp(person.getOpphold());
             if (!erLikeHistorikk(fraPDL, fraTPS)) {
@@ -391,10 +410,6 @@ public class PersoninfoTjeneste {
         var gyldigFra = dateFom == null ? null :
             LocalDateTime.ofInstant(dateFom.toInstant(), ZoneId.systemDefault()).toLocalDate();
         return Gyldighetsperiode.innenfor(gyldigFra, gyldigTil);
-    }
-
-    private static LocalDate tidligsteDato(LocalDate dato1, LocalDate dato2) {
-        return dato1.isBefore(dato2) ? dato1 : dato2;
     }
 
     private static AdressePeriode mapAdresseinfoTilAdressePeriode(Gyldighetsperiode periode, Adresseinfo adresseinfo) {
@@ -556,11 +571,11 @@ public class PersoninfoTjeneste {
         if (tps == null && pdl == null) return true;
         if (pdl == null || tps == null || tps.getClass() != pdl.getClass()) return false;
         var likestatus = pdl.getPersonstatushistorikk().size() == tps.getPersonstatushistorikk().size() &&
-            pdl.getPersonstatushistorikk().containsAll(tps.getPersonstatushistorikk());
+            pdl.getPersonstatushistorikk().stream().allMatch(p -> tps.getPersonstatushistorikk().stream().anyMatch(t -> PersonstatusPeriode.fuzzyEquals(p, t)));
         var likeadresser = pdl.getAdressehistorikk().size() == tps.getAdressehistorikk().size() &&
-            pdl.getAdressehistorikk().containsAll(tps.getAdressehistorikk());
+            pdl.getAdressehistorikk().stream().allMatch(p -> tps.getAdressehistorikk().stream().anyMatch(t -> AdressePeriode.fuzzyEquals(p, t)));
         var likestb = pdl.getStatsborgerskaphistorikk().size() == tps.getStatsborgerskaphistorikk().size() &&
-            pdl.getStatsborgerskaphistorikk().containsAll(tps.getStatsborgerskaphistorikk());
+            pdl.getStatsborgerskaphistorikk().stream().allMatch(p -> tps.getStatsborgerskaphistorikk().stream().anyMatch(t -> StatsborgerskapPeriode.fuzzyEquals(p, t)));
         return likestb && likestatus && likeadresser;
     }
 
@@ -585,11 +600,14 @@ public class PersoninfoTjeneste {
     }
 
     private static String finnAvvikHistorikk(Personhistorikkinfo tps, Personhistorikkinfo pdl) {
-        String status = pdl.getPersonstatushistorikk().size() == tps.getPersonstatushistorikk().size() && pdl.getPersonstatushistorikk().containsAll(tps.getPersonstatushistorikk())  ? ""
+        String status = pdl.getPersonstatushistorikk().size() == tps.getPersonstatushistorikk().size() &&
+            pdl.getPersonstatushistorikk().stream().allMatch(p -> tps.getPersonstatushistorikk().stream().anyMatch(t -> PersonstatusPeriode.fuzzyEquals(p, t))) ? ""
             : " status " + tps.getPersonstatushistorikk() + " PDL " + pdl.getPersonstatushistorikk();
-        String stb = pdl.getStatsborgerskaphistorikk().size() == tps.getStatsborgerskaphistorikk().size() && pdl.getStatsborgerskaphistorikk().containsAll(tps.getStatsborgerskaphistorikk())  ? ""
+        String stb = pdl.getStatsborgerskaphistorikk().size() == tps.getStatsborgerskaphistorikk().size() &&
+            pdl.getStatsborgerskaphistorikk().stream().allMatch(p -> tps.getStatsborgerskaphistorikk().stream().anyMatch(t -> StatsborgerskapPeriode.fuzzyEquals(p, t)))  ? ""
             : " borger " + tps.getStatsborgerskaphistorikk() + " PDL " + pdl.getStatsborgerskaphistorikk();
-        String adresse = pdl.getAdressehistorikk().size() == tps.getAdressehistorikk().size() && pdl.getAdressehistorikk().containsAll(tps.getAdressehistorikk())  ? ""
+        String adresse = pdl.getAdressehistorikk().size() == tps.getAdressehistorikk().size() &&
+            pdl.getAdressehistorikk().stream().allMatch(p -> tps.getAdressehistorikk().stream().anyMatch(t -> AdressePeriode.fuzzyEquals(p, t)))  ? ""
             : " adresse " + tps.getAdressehistorikk().stream().map(PersoninfoTjeneste::historiskeAdresserTilString).collect(Collectors.toList()) + " PDL " + pdl.getAdressehistorikk().stream().map(PersoninfoTjeneste::historiskeAdresserTilString).collect(Collectors.toList());
         return "Avvik" + status + stb + adresse;
     }
