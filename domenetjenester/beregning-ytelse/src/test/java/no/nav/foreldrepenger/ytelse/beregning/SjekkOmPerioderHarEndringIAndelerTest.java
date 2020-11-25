@@ -304,7 +304,7 @@ public class SjekkOmPerioderHarEndringIAndelerTest {
     }
 
     @Test
-    public void skal_gi_forskjell_om_samme_perioder_men_ulike_mengde_pferiepengeandeler() {
+    public void skal_gi_forskjell_om_samme_perioder_men_ulike_mengde_feriepengeandeler() {
         // Arrange : nyPeriode
         BeregningsresultatAndel nyAndel = opprettBeregningsresultatAndel(nyPeriode, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER,
             Inntektskategori.ARBEIDSTAKER, ORGNR1, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 1000, OpptjeningAktivitetType.FORELDREPENGER);
