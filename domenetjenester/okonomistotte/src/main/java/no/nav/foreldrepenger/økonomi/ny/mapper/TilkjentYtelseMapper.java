@@ -38,6 +38,9 @@ public class TilkjentYtelseMapper {
     }
 
     public GruppertYtelse fordelPåNøkler(BeregningsresultatEntitet tilkjentYtelse) {
+        if (tilkjentYtelse == null) {
+            return GruppertYtelse.TOM;
+        }
         return fordelPåNøkler(tilkjentYtelse.getBeregningsresultatPerioder());
     }
 
