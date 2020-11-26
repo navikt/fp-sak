@@ -3,6 +3,8 @@ package no.nav.foreldrepenger.behandlingslager.behandling.anke;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
@@ -99,7 +101,7 @@ public enum AnkeVurdering implements Kodeverdi {
 
         @Override
         public AnkeVurdering convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : fraKode(dbData);
+            return Optional.ofNullable(dbData).map(AnkeVurdering::fraKode).orElse(null);
         }
     }
 }

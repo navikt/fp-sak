@@ -122,11 +122,14 @@ public class VedtaksbrevUtleder {
 
         if (KlageVurdering.AVVIS_KLAGE.equals(klagevurdering)) {
             return DokumentMalType.KLAGE_AVVIST;
-        } else if (Arrays.asList(OPPHEVE_YTELSESVEDTAK, HJEMSENDE_UTEN_Å_OPPHEVE).contains(klagevurdering)) {
+        }
+        if (Arrays.asList(OPPHEVE_YTELSESVEDTAK, HJEMSENDE_UTEN_Å_OPPHEVE).contains(klagevurdering)) {
             return DokumentMalType.KLAGE_HJEMSENDT;
-        } else if (MEDHOLD_I_KLAGE.equals(klagevurdering)) {
+        }
+        if (MEDHOLD_I_KLAGE.equals(klagevurdering)) {
             return DokumentMalType.KLAGE_OMGJØRING;
-        } else if (KlageVurdering.STADFESTE_YTELSESVEDTAK.equals(klagevurdering)) {
+        }
+        if (KlageVurdering.STADFESTE_YTELSESVEDTAK.equals(klagevurdering)) {
             return DokumentMalType.KLAGE_STADFESTET;
         }
 
@@ -141,12 +144,13 @@ public class VedtaksbrevUtleder {
 
         AnkeVurdering ankeVurdering = ankeVurderingResultat.getAnkeVurdering();
 
-        if (AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE.equals(ankeVurdering)) {
+        if (AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE.equals(ankeVurdering) || AnkeVurdering.ANKE_HJEMSEND_UTEN_OPPHEV.equals(ankeVurdering)) {
             return DokumentMalType.ANKEBREV_BESLUTNING_OM_OPPHEVING;
         }
-        else if(AnkeVurdering.ANKE_OMGJOER.equals(ankeVurdering)){
+        if (AnkeVurdering.ANKE_OMGJOER.equals(ankeVurdering)){
             return DokumentMalType.VEDTAK_OMGJORING_ANKE_DOK;
         }
+
         return null;
     }
 }

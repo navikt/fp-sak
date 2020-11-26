@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.vedtak.intern;
 
 import java.util.Optional;
+import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -38,6 +39,7 @@ public class SendVedtaksbrev {
     private AnkeRepository ankeRepository;
 
     private BehandlingVedtakRepository behandlingVedtakRepository;
+    private static final Set<AnkeVurdering> SENDE_VEDTAKSBREV_ANKE = Set.of(AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE, AnkeVurdering.ANKE_HJEMSEND_UTEN_OPPHEV, AnkeVurdering.ANKE_OMGJOER);
 
     SendVedtaksbrev() {
         // for CDI proxy
@@ -126,9 +128,7 @@ public class SendVedtaksbrev {
             return false;
         }
 
-        AnkeVurdering ankeVurdering = vurdering.getAnkeVurdering();
-        //utvider med flere ankebrev etterhvert som de kommer på plass
-        return AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE.equals(ankeVurdering) || AnkeVurdering.ANKE_OMGJOER.equals(ankeVurdering);
+        return skalSendeVedtaksbrevAnke(vurdering.getAnkeVurdering());
     }
 
     private boolean skalSendeVedtaksbrevEtterKlage(Behandling behandling) {
@@ -149,5 +149,9 @@ public class SendVedtaksbrev {
 
     private Boolean harSendtVarselOmRevurdering(Long behandlingId) {
         return dokumentBehandlingTjeneste.erDokumentBestilt(behandlingId, DokumentMalType.REVURDERING_DOK);
+    }
+
+    private boolean skalSendeVedtaksbrevAnke(AnkeVurdering vurdering) {
+        return SENDE_VEDTAKSBREV_ANKE.contains(vurdering);
     }
 }
