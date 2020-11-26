@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.aktør.Adresseinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.FamilierelasjonVL;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
-import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Gyldighetsperiode;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Personhistorikkinfo;
@@ -100,31 +99,6 @@ public class TpsOversetter {
             .medAdresseInfoList(adresseinfoList)
             .medSivilstandType(sivilstandType)
             .medLandkode(landkoder)
-            .build();
-    }
-
-    public PersoninfoBasis tilBrukerInfoBasis(AktørId aktørId, Bruker bruker) { // NOSONAR - ingen forbedring å forkorte metoden her
-        String navn = bruker.getPersonnavn().getSammensattNavn();
-
-        LocalDate fødselsdato = finnFødselsdato(bruker);
-        LocalDate dødsdato = finnDødsdato(bruker);
-
-        Aktoer aktoer = bruker.getAktoer();
-        PersonIdent pi = (PersonIdent) aktoer;
-        String ident = pi.getIdent().getIdent();
-        NavBrukerKjønn kjønn = tilBrukerKjønn(bruker.getKjoenn());
-        PersonstatusType personstatus = tilPersonstatusType(bruker.getPersonstatus());
-        String diskresjonskode = bruker.getDiskresjonskode() == null ? null : bruker.getDiskresjonskode().getValue();
-
-        return new PersoninfoBasis.Builder()
-            .medAktørId(aktørId)
-            .medPersonIdent(no.nav.foreldrepenger.domene.typer.PersonIdent.fra(ident))
-            .medNavn(navn)
-            .medFødselsdato(fødselsdato)
-            .medDødsdato(dødsdato)
-            .medNavBrukerKjønn(kjønn)
-            .medPersonstatusType(personstatus)
-            .medDiskresjonsKode(diskresjonskode)
             .build();
     }
 
