@@ -19,7 +19,7 @@
 
     <properties>
         <jaxb2-basics.version>1.11.1</jaxb2-basics.version>
-        <jaxws.version>2.3.3</jaxws.version>
+        <jaxws.version>3.0.0</jaxws.version>
     </properties>
 
     <dependencies>
