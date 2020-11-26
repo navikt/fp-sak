@@ -95,7 +95,7 @@ public class KjedeNøkkel implements Comparable<KjedeNøkkel> {
         int kjedeDel = getKnektKjedeDel() != null ? getKnektKjedeDel() : 0;
         int annenKjedeDel = o.getKnektKjedeDel() != null ? o.getKnektKjedeDel() : 0;
         int kjedeDelSammenligning = Integer.compare(kjedeDel, annenKjedeDel);
-        return kjedeDelSammenligning
+        return kjedeDelSammenligning;
     }
 
     public boolean gjelderFeriepenger() {
