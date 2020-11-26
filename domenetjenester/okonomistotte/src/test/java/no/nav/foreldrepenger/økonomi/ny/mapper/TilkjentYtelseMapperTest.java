@@ -55,7 +55,7 @@ public class TilkjentYtelseMapperTest {
 
         Assertions.assertThat(resultat).hasSize(1);
 
-        KjedeNøkkel forventetNøkkel = new KjedeNøkkel(kodeFrilanser, Betalingsmottaker.BRUKER);
+        KjedeNøkkel forventetNøkkel = KjedeNøkkel.lag(kodeFrilanser, Betalingsmottaker.BRUKER);
         Assertions.assertThat(resultat.keySet()).contains(forventetNøkkel);
 
         Ytelse ytelse = resultat.get(forventetNøkkel);
@@ -79,7 +79,7 @@ public class TilkjentYtelseMapperTest {
         Assertions.assertThat(resultat).hasSize(1);
 
         ØkonomiKodeKlassifik kodeklasse = ØkonomiKodeKlassifik.fraKode("FPATAL");
-        KjedeNøkkel forventetNøkkel = new KjedeNøkkel(kodeklasse, Betalingsmottaker.BRUKER);
+        KjedeNøkkel forventetNøkkel = KjedeNøkkel.lag(kodeklasse, Betalingsmottaker.BRUKER);
         Assertions.assertThat(resultat.keySet()).contains(forventetNøkkel);
 
         Ytelse ytelse = resultat.get(forventetNøkkel);
@@ -105,7 +105,7 @@ public class TilkjentYtelseMapperTest {
         Assertions.assertThat(resultat).hasSize(1);
 
         ØkonomiKodeKlassifik kodeklasse = ØkonomiKodeKlassifik.fraKode("FPATFRI");
-        KjedeNøkkel forventetNøkkel = new KjedeNøkkel(kodeklasse, Betalingsmottaker.BRUKER);
+        KjedeNøkkel forventetNøkkel = KjedeNøkkel.lag(kodeklasse, Betalingsmottaker.BRUKER);
         Assertions.assertThat(resultat.keySet()).contains(forventetNøkkel);
 
         Ytelse ytelse = resultat.get(forventetNøkkel);
@@ -138,8 +138,8 @@ public class TilkjentYtelseMapperTest {
         Map<KjedeNøkkel, Ytelse> resultat = mapper.fordelPåNøkler(perioder).getYtelsePrNøkkel();
 
         //assert
-        KjedeNøkkel forventetNøkkelYtelse = new KjedeNøkkel(ØkonomiKodeKlassifik.FPREFAG_IOP, Betalingsmottaker.forArbeidsgiver("111111111"));
-        KjedeNøkkel forventetNøkkelFeriepenger = new KjedeNøkkel(ØkonomiKodeKlassifik.FPREFAGFER_IOP, Betalingsmottaker.forArbeidsgiver("111111111"), 2020);
+        KjedeNøkkel forventetNøkkelYtelse = KjedeNøkkel.lag(ØkonomiKodeKlassifik.FPREFAG_IOP, Betalingsmottaker.forArbeidsgiver("111111111"));
+        KjedeNøkkel forventetNøkkelFeriepenger = KjedeNøkkel.lag(ØkonomiKodeKlassifik.FPREFAGFER_IOP, Betalingsmottaker.forArbeidsgiver("111111111"), 2020);
         Assertions.assertThat(resultat.keySet()).containsOnly(forventetNøkkelYtelse, forventetNøkkelFeriepenger);
 
         Ytelse ytelse = resultat.get(forventetNøkkelYtelse);

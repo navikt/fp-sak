@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.økonomi.ny.domene;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
@@ -11,17 +9,28 @@ public class KjedeNøkkel implements Comparable<KjedeNøkkel> {
     private ØkonomiKodeKlassifik klassekode;
     private Betalingsmottaker betalingsmottaker;
     private Integer feriepengeÅr;
+    private Integer knektKjedeDel;
 
-    public KjedeNøkkel(ØkonomiKodeKlassifik klassekode, Betalingsmottaker betalingsmottaker) {
-        Objects.requireNonNull(klassekode);
-        Objects.requireNonNull(betalingsmottaker);
-        this.klassekode = klassekode;
-        this.betalingsmottaker = betalingsmottaker;
+    public static KjedeNøkkel lag(ØkonomiKodeKlassifik klassekode, Betalingsmottaker betalingsmottaker) {
+        return KjedeNøkkel.builder()
+            .medKlassekode(klassekode)
+            .medBetalingsmottaker(betalingsmottaker)
+            .build();
     }
 
-    public KjedeNøkkel(ØkonomiKodeKlassifik klassekode, Betalingsmottaker betalingsmottaker, Integer feriepengeÅr) {
-        this(klassekode, betalingsmottaker);
+    public static KjedeNøkkel lag(ØkonomiKodeKlassifik klassekode, Betalingsmottaker betalingsmottaker, int feriepengeÅr) {
+        return KjedeNøkkel.builder()
+            .medKlassekode(klassekode)
+            .medBetalingsmottaker(betalingsmottaker)
+            .medFeriepengeÅr(feriepengeÅr)
+            .build();
+    }
+
+    private KjedeNøkkel(ØkonomiKodeKlassifik klassekode, Betalingsmottaker betalingsmottaker, Integer feriepengeÅr, Integer knektKjedeDel) {
+        this.klassekode = klassekode;
+        this.betalingsmottaker = betalingsmottaker;
         this.feriepengeÅr = feriepengeÅr;
+        this.knektKjedeDel = knektKjedeDel;
     }
 
     public ØkonomiKodeKlassifik getKlassekode() {
@@ -30,6 +39,10 @@ public class KjedeNøkkel implements Comparable<KjedeNøkkel> {
 
     public Betalingsmottaker getBetalingsmottaker() {
         return betalingsmottaker;
+    }
+
+    public Integer getKnektKjedeDel() {
+        return knektKjedeDel;
     }
 
     public Integer getFeriepengeÅr() {
@@ -43,13 +56,14 @@ public class KjedeNøkkel implements Comparable<KjedeNøkkel> {
         KjedeNøkkel that = (KjedeNøkkel) o;
         return Objects.equals(klassekode, that.klassekode) &&
             Objects.equals(betalingsmottaker, that.betalingsmottaker) &&
-            Objects.equals(feriepengeÅr, that.feriepengeÅr)
+            Objects.equals(feriepengeÅr, that.feriepengeÅr) &&
+            Objects.equals(knektKjedeDel, that.knektKjedeDel)
             ;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(klassekode, betalingsmottaker, feriepengeÅr);
+        return Objects.hash(klassekode, betalingsmottaker, feriepengeÅr, knektKjedeDel);
     }
 
     @Override
@@ -58,6 +72,7 @@ public class KjedeNøkkel implements Comparable<KjedeNøkkel> {
             "klassekode=" + klassekode +
             ", betalingsmottaker=" + betalingsmottaker +
             (feriepengeÅr != null ? ", feriepengeår=" + feriepengeÅr : "") +
+            (knektKjedeDel != null ? ", knektKjedeDel=" + knektKjedeDel : "") +
             '}';
     }
 
@@ -73,30 +88,71 @@ public class KjedeNøkkel implements Comparable<KjedeNøkkel> {
         }
         int feriepengeår = getFeriepengeÅr() != null ? getFeriepengeÅr() : 0;
         int annenFeriepengeår = o.getFeriepengeÅr() != null ? o.getFeriepengeÅr() : 0;
-        return Integer.compare(feriepengeår, annenFeriepengeår);
+        int feriepengeSammenligning = Integer.compare(feriepengeår, annenFeriepengeår);
+        if (feriepengeSammenligning != 0) {
+            return feriepengeSammenligning;
+        }
+        int kjedeDel = getKnektKjedeDel() != null ? getKnektKjedeDel() : 0;
+        int annenKjedeDel = o.getKnektKjedeDel() != null ? o.getKnektKjedeDel() : 0;
+        int kjedeDelSammenligning = Integer.compare(kjedeDel, annenKjedeDel);
+        return kjedeDelSammenligning
     }
 
     public boolean gjelderFeriepenger() {
         return klassekode.gjelderFerie();
     }
 
-    public static class ØkonomiKodeKlassifikSortering {
+    public static Builder builder() {
+        return new Builder();
+    }
 
-        private static final List<String> SUFFIX_SORTERING = Arrays.asList(
-            "ATORD", "ATAL", "ATFRI", "ATSJO",
-            "SND-OP", "SNDDM-OP", "SNDJB-OP", "SNDFI",
-            "FRISINN-FRILANS", "FRISINN-SELVST-OP",
-            "REFAG-IOP",
-            "FER", "FER-IOP", "FERPP-IOP"
-        );
+    public static Builder builder(ØkonomiKodeKlassifik klassekode, Betalingsmottaker betalingsmottaker) {
+        return new Builder(klassekode, betalingsmottaker);
+    }
 
-        public static int getSorteringsplassering(ØkonomiKodeKlassifik økonomiKodeKlassifik) {
-            for (int i = 0; i < SUFFIX_SORTERING.size(); i++) {
-                if (økonomiKodeKlassifik.getKodeKlassifik().endsWith(SUFFIX_SORTERING.get(i))) {
-                    return i;
-                }
+    public static class Builder {
+        private ØkonomiKodeKlassifik klassekode;
+        private Betalingsmottaker betalingsmottaker;
+        private Integer feriepengeÅr;
+        private Integer knektKjedeDel;
+
+        private Builder() {
+        }
+
+        private Builder(ØkonomiKodeKlassifik klassekode, Betalingsmottaker betalingsmottaker) {
+            this.klassekode = klassekode;
+            this.betalingsmottaker = betalingsmottaker;
+        }
+
+        public Builder medKlassekode(ØkonomiKodeKlassifik klassekode) {
+            this.klassekode = klassekode;
+            return this;
+        }
+
+        public Builder medBetalingsmottaker(Betalingsmottaker betalingsmottaker) {
+            this.betalingsmottaker = betalingsmottaker;
+            return this;
+        }
+
+        public Builder medFeriepengeÅr(Integer feriepengeÅr) {
+            this.feriepengeÅr = feriepengeÅr;
+            return this;
+        }
+
+        public Builder medKnektKjedeDel(Integer knektKjedeDel) {
+            this.knektKjedeDel = knektKjedeDel;
+            return this;
+        }
+
+        public KjedeNøkkel build() {
+            Objects.requireNonNull(klassekode, "klassekode mangler");
+            Objects.requireNonNull(betalingsmottaker, "betalingsmottaker mangler");
+            if (klassekode.gjelderFerie()) {
+                Objects.requireNonNull(feriepengeÅr, "feriepengeår kreves når klassekode " + klassekode + " gjelder ferie");
+            } else if (feriepengeÅr != null) {
+                throw new IllegalArgumentException("feriepengeår skal ikke benyttes når klassekode " + klassekode + " ikke gjelder ferie");
             }
-            throw new IllegalArgumentException("Ikke-definert sorteringsplassering for " + økonomiKodeKlassifik);
+            return new KjedeNøkkel(klassekode, betalingsmottaker, feriepengeÅr, knektKjedeDel);
         }
     }
 }

@@ -113,10 +113,11 @@ public class EksisterendeOppdragMapper {
         Betalingsmottaker mottaker = refusjonsinfo == null
             ? Betalingsmottaker.BRUKER
             : Betalingsmottaker.forArbeidsgiver(normaliserOrgnr(refusjonsinfo.getRefunderesId()));
-        Integer feriepengeår = linje.getKodeKlassifikEnum().gjelderFerie()
-            ? linje.getDatoVedtakFom().getYear() - 1
-            : null;
-        return new KjedeNøkkel(linje.getKodeKlassifikEnum(), mottaker, feriepengeår);
+        KjedeNøkkel.Builder builder = KjedeNøkkel.builder(linje.getKodeKlassifikEnum(), mottaker);
+        if (linje.getKodeKlassifikEnum().gjelderFerie()) {
+            builder.medFeriepengeÅr(linje.getDatoVedtakFom().getYear() - 1);
+        }
+        return builder.build();
     }
 
     private static String normaliserOrgnr(String orgnr) {

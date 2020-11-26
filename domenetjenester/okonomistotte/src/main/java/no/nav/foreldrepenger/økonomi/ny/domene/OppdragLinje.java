@@ -53,6 +53,36 @@ public class OppdragLinje {
         return new Builder();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        OppdragLinje that = (OppdragLinje) o;
+        return periode.equals(that.periode) &&
+            sats.equals(that.sats) &&
+            Objects.equals(utbetalingsgrad, that.utbetalingsgrad) &&
+            delytelseId.equals(that.delytelseId) &&
+            Objects.equals(refDelytelseId, that.refDelytelseId) &&
+            Objects.equals(opphørFomDato, that.opphørFomDato);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(delytelseId);
+    }
+
+    @Override
+    public String toString() {
+        return "OppdragLinje{" +
+            "delytelseId=" + delytelseId +
+            ", periode=" + periode +
+            ", sats=" + sats +
+            (utbetalingsgrad != null ? ", utbetalingsgrad=" + utbetalingsgrad : "") +
+            (refDelytelseId != null ? ", refDelytelseId=" + refDelytelseId : "") +
+            (opphørFomDato != null ? ", opphørFomDato=" + opphørFomDato : "") +
+            '}';
+    }
+
     public static OppdragLinje lagOpphørslinje(OppdragLinje opphøres, LocalDate opphørFomDato) {
         return OppdragLinje.builder()
             .medDelytelseId(opphøres.getDelytelseId())

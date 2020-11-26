@@ -1,0 +1,134 @@
+package no.nav.foreldrepenger.økonomi.ny.mapper;
+
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Map;
+
+import org.assertj.core.api.Assertions;
+import org.junit.Test;
+
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming115;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.økonomi.ny.domene.Betalingsmottaker;
+import no.nav.foreldrepenger.økonomi.ny.domene.DelytelseId;
+import no.nav.foreldrepenger.økonomi.ny.domene.FagsystemId;
+import no.nav.foreldrepenger.økonomi.ny.domene.KjedeNøkkel;
+import no.nav.foreldrepenger.økonomi.ny.domene.OppdragKjede;
+import no.nav.foreldrepenger.økonomi.ny.domene.OppdragLinje;
+import no.nav.foreldrepenger.økonomi.ny.domene.Periode;
+import no.nav.foreldrepenger.økonomi.ny.domene.Sats;
+
+public class EksisterendeOppdragMapperTest {
+
+    LocalDate nå = LocalDate.now();
+    Periode p1 = Periode.of(nå, nå.plusDays(5));
+    Periode p2 = Periode.of(nå.plusDays(6), nå.plusDays(10));
+    Periode p3 = Periode.of(nå.plusDays(11), nå.plusDays(11));
+
+    Saksnummer saksnummer = new Saksnummer("1");
+
+    String frnBruker = "12345678901";
+
+    DelytelseId delytelseId1 = DelytelseId.parse("1100100");
+    DelytelseId delytelseId2 = delytelseId1.neste();
+    DelytelseId delytelseId3 = delytelseId2.neste();
+    DelytelseId delytelseId4 = delytelseId3.neste();
+    DelytelseId delytelseId5 = delytelseId4.neste();
+
+
+    @Test
+    public void skal_mappe_eksisterende_oppdrag() {
+        Oppdragskontroll oppdragskontroll = lagOppdragskontroll();
+        Oppdrag110 oppdrag110 = lagOppdrag110(oppdragskontroll, FagsystemId.parse(saksnummer.getVerdi() + "100"));
+        lagOrdinærLinje(oppdrag110, delytelseId1, p1, Sats.dagsats(100), null);
+        lagOrdinærLinje(oppdrag110, delytelseId2, p2, Sats.dagsats(150), delytelseId1);
+
+        Map<KjedeNøkkel, OppdragKjede> kjeder = EksisterendeOppdragMapper.tilKjeder(Arrays.asList(oppdragskontroll));
+        KjedeNøkkel kjedeNøkkel = KjedeNøkkel.lag(ØkonomiKodeKlassifik.FPATORD, Betalingsmottaker.BRUKER);
+        Assertions.assertThat(kjeder.keySet()).containsOnly(kjedeNøkkel);
+        OppdragKjede kjede = kjeder.get(kjedeNøkkel);
+        Assertions.assertThat(kjede.getOppdragslinjer()).containsExactly(
+            OppdragLinje.builder().medDelytelseId(delytelseId1).medPeriode(p1).medSats(Sats.dagsats(100)).build(),
+            OppdragLinje.builder().medDelytelseId(delytelseId2).medPeriode(p2).medSats(Sats.dagsats(150)).medRefDelytelseId(delytelseId1).build()
+        );
+    }
+
+    @Test
+    public void skal_mappe_brukket_kjede_til_to_kjeder() {
+        Oppdragskontroll oppdragskontroll = lagOppdragskontroll();
+        Oppdrag110 oppdrag110 = lagOppdrag110(oppdragskontroll, FagsystemId.parse(saksnummer.getVerdi() + "100"));
+        lagOrdinærLinje(oppdrag110, delytelseId1, p1, Sats.dagsats(100), null);
+        lagOrdinærLinje(oppdrag110, delytelseId2, p2, Sats.dagsats(150), null); //denne peker ikke til forrige, slik den egentlig skal
+
+        Map<KjedeNøkkel, OppdragKjede> kjeder = EksisterendeOppdragMapper.tilKjeder(Arrays.asList(oppdragskontroll));
+        KjedeNøkkel kjedeNøkkel = KjedeNøkkel.lag(ØkonomiKodeKlassifik.FPATORD, Betalingsmottaker.BRUKER);
+        KjedeNøkkel kjedeNøkkelKnektKjede = KjedeNøkkel.builder(ØkonomiKodeKlassifik.FPATORD, Betalingsmottaker.BRUKER).medKnektKjedeDel(1).build();
+        Assertions.assertThat(kjeder.keySet()).containsOnly(kjedeNøkkel, kjedeNøkkelKnektKjede);
+        Assertions.assertThat(kjeder.get(kjedeNøkkel).getOppdragslinjer()).containsExactly(
+            OppdragLinje.builder().medDelytelseId(delytelseId1).medPeriode(p1).medSats(Sats.dagsats(100)).build()
+        );
+        Assertions.assertThat(kjeder.get(kjedeNøkkelKnektKjede).getOppdragslinjer()).containsExactly(
+            OppdragLinje.builder().medDelytelseId(delytelseId2).medPeriode(p2).medSats(Sats.dagsats(100)).build()
+        );
+    }
+
+    private Oppdragskontroll lagOppdragskontroll() {
+        return Oppdragskontroll.builder()
+            .medBehandlingId(1L)
+            .medProsessTaskId(1000L)
+            .medSaksnummer(saksnummer)
+            .medVenterKvittering(true)
+            .build();
+    }
+
+    private Oppdragslinje150 lagOpphørslinje(Oppdrag110 oppdrag110, DelytelseId delytelseId, Periode p, Sats sats, LocalDate opphørFomDato) {
+        return lagOppdragslinje150(oppdrag110, delytelseId, p, sats, null, opphørFomDato);
+    }
+
+    private Oppdragslinje150 lagOrdinærLinje(Oppdrag110 oppdrag110, DelytelseId delytelseId, Periode p, Sats sats, DelytelseId refDelytelseId) {
+        return lagOppdragslinje150(oppdrag110, delytelseId, p, sats, refDelytelseId, null);
+    }
+
+    private Oppdragslinje150 lagOppdragslinje150(Oppdrag110 oppdrag110, DelytelseId delytelseId, Periode p, Sats sats, DelytelseId refDelytelseId, LocalDate opphørFomDato) {
+        return Oppdragslinje150.builder()
+            .medOppdrag110(oppdrag110)
+            .medDelytelseId(Long.parseLong(delytelseId.toString()))
+            .medKodeKlassifik("FPATORD")
+            .medVedtakFomOgTom(p.getFom(), p.getTom())
+            .medSats(sats.getSats())
+            .medTypeSats(sats.getSatsType().getKode())
+            .medBrukKjoreplan("N")
+            .medHenvisning(oppdrag110.getOppdragskontroll().getBehandlingId())
+            .medSaksbehId(oppdrag110.getSaksbehId())
+            .medDatoStatusFom(opphørFomDato)
+            .medKodeStatusLinje(opphørFomDato != null ? "OPPH" : null)
+            .medKodeEndringLinje(opphørFomDato != null ? "ENDR" : "NY")
+            .medFradragTillegg("T")
+            .medRefDelytelseId(refDelytelseId != null ? Long.parseLong(refDelytelseId.toString()) : null)
+            .medRefFagsystemId(refDelytelseId != null ? Long.parseLong(refDelytelseId.getFagsystemId().toString()) : null)
+            .build();
+    }
+
+    private Oppdrag110 lagOppdrag110(Oppdragskontroll oppdragskontroll, FagsystemId fagsystemId) {
+        return Oppdrag110.builder()
+            .medKodeAksjon("1")
+            .medKodeEndring("NY")
+            .medKodeFagomrade("FP")
+            .medUtbetFrekvens("MND")
+            .medOppdragGjelderId(frnBruker)
+            .medDatoOppdragGjelderFom(LocalDate.MIN)
+            .medSaksbehId("Z100000")
+            .medOppdragskontroll(oppdragskontroll)
+            .medFagSystemId(Long.parseLong(fagsystemId.toString()))
+            .medAvstemming115(Avstemming115.builder()
+                .medKodekomponent("FP")
+                .medTidspnktMelding("nå")
+                .medNokkelAvstemming("en nøkkel")
+                .build())
+            .build();
+    }
+}
