@@ -72,7 +72,7 @@ public class EksisterendeOppdragMapperTest {
             OppdragLinje.builder().medDelytelseId(delytelseId1).medPeriode(p1).medSats(Sats.dagsats(100)).build()
         );
         Assertions.assertThat(kjeder.get(kjedeNøkkelKnektKjede).getOppdragslinjer()).containsExactly(
-            OppdragLinje.builder().medDelytelseId(delytelseId2).medPeriode(p2).medSats(Sats.dagsats(100)).build()
+            OppdragLinje.builder().medDelytelseId(delytelseId2).medPeriode(p2).medSats(Sats.dagsats(150)).build()
         );
     }
 

@@ -33,6 +33,10 @@ public class KjedeNøkkel implements Comparable<KjedeNøkkel> {
         this.knektKjedeDel = knektKjedeDel;
     }
 
+    public KjedeNøkkel forNesteKnekteKjededel() {
+        return new KjedeNøkkel(klassekode, betalingsmottaker, feriepengeÅr, knektKjedeDel != null ? knektKjedeDel + 1 : 1);
+    }
+
     public ØkonomiKodeKlassifik getKlassekode() {
         return klassekode;
     }
@@ -94,8 +98,7 @@ public class KjedeNøkkel implements Comparable<KjedeNøkkel> {
         }
         int kjedeDel = getKnektKjedeDel() != null ? getKnektKjedeDel() : 0;
         int annenKjedeDel = o.getKnektKjedeDel() != null ? o.getKnektKjedeDel() : 0;
-        int kjedeDelSammenligning = Integer.compare(kjedeDel, annenKjedeDel);
-        return kjedeDelSammenligning;
+        return Integer.compare(kjedeDel, annenKjedeDel);
     }
 
     public boolean gjelderFeriepenger() {

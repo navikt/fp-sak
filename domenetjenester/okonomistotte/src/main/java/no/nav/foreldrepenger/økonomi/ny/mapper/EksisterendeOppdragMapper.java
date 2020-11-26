@@ -5,7 +5,12 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad170;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
@@ -14,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeStatusLinje;
 import no.nav.foreldrepenger.økonomi.ny.domene.Betalingsmottaker;
+import no.nav.foreldrepenger.økonomi.ny.domene.DelytelseId;
 import no.nav.foreldrepenger.økonomi.ny.domene.KjedeNøkkel;
 import no.nav.foreldrepenger.økonomi.ny.domene.OppdragKjede;
 import no.nav.foreldrepenger.økonomi.ny.domene.OppdragLinje;
@@ -22,9 +28,12 @@ import no.nav.foreldrepenger.økonomi.ny.domene.Sats;
 import no.nav.foreldrepenger.økonomi.ny.domene.SatsType;
 import no.nav.foreldrepenger.økonomi.ny.domene.Utbetalingsgrad;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragKvitteringTjeneste;
+import no.nav.vedtak.util.env.Environment;
 
 
 public class EksisterendeOppdragMapper {
+
+    private static final Logger logger = LoggerFactory.getLogger(EksisterendeOppdragMapper.class);
 
     public static Map<KjedeNøkkel, OppdragKjede> tilKjeder(List<Oppdragskontroll> oppdragskontroll) {
         return oppdragTilKjeder(oppdragskontroll.stream().flatMap(ok -> ok.getOppdrag110Liste().stream()).collect(Collectors.toList()));
@@ -37,18 +46,57 @@ public class EksisterendeOppdragMapper {
     }
 
     private static Map<KjedeNøkkel, OppdragKjede.Builder> lagOppdragskjedeBuildere(List<Oppdrag110> godkjenteOppdrag) {
-        Map<KjedeNøkkel, OppdragKjede.Builder> buildere = new HashMap<>();
+        Map<DelytelseId, KjedeNøkkel> nøkkelMap = new HashMap<>();
+        Map<DelytelseId, OppdragKjede.Builder> builderMap = new HashMap<>();
+        Set<DelytelseId> startpunkt = new TreeSet<>();
+
         for (Oppdrag110 oppdrag110 : godkjenteOppdrag) {
             for (Oppdragslinje150 linje : sortert(oppdrag110.getOppdragslinje150Liste())) {
                 KjedeNøkkel nøkkel = tilNøkkel(linje);
                 OppdragLinje oppdragslinje = tilOppdragslinje(linje);
-                if (!buildere.containsKey(nøkkel)) {
-                    buildere.put(nøkkel, OppdragKjede.builder());
+
+                DelytelseId delytelseId = oppdragslinje.getDelytelseId();
+                DelytelseId refDelytelseId = oppdragslinje.getRefDelytelseId();
+
+                OppdragKjede.Builder builder = refDelytelseId == null
+                    ? OppdragKjede.builder()
+                    : builderMap.get(refDelytelseId);
+                validerNøkkelKonsistentGjennomKjeden(nøkkelMap, nøkkel, delytelseId, refDelytelseId);
+                builderMap.put(delytelseId, builder.medOppdragslinje(oppdragslinje));
+                nøkkelMap.put(delytelseId, nøkkel);
+                if (refDelytelseId == null) {
+                    startpunkt.add(delytelseId);
                 }
-                buildere.get(nøkkel).medOppdragslinje(oppdragslinje);
             }
         }
-        return buildere;
+
+        Map<KjedeNøkkel, OppdragKjede.Builder> resultat = new HashMap<>();
+        for (DelytelseId delytelseId : startpunkt) {
+            KjedeNøkkel preferertNøkkel = nøkkelMap.get(delytelseId);
+            KjedeNøkkel ledigNøkkel = finnLedigNøkkel(preferertNøkkel, resultat.keySet());
+            resultat.put(ledigNøkkel, builderMap.get(delytelseId));
+        }
+
+        return resultat;
+    }
+
+    private static KjedeNøkkel finnLedigNøkkel(KjedeNøkkel preferertNøkkel, Set<KjedeNøkkel> brukteNøkler) {
+        KjedeNøkkel nøkkel = preferertNøkkel;
+        while (brukteNøkler.contains(nøkkel)) {
+            nøkkel = nøkkel.forNesteKnekteKjededel();
+        }
+        return nøkkel;
+    }
+
+    private static void validerNøkkelKonsistentGjennomKjeden(Map<DelytelseId, KjedeNøkkel> nøkkelMap, KjedeNøkkel nøkkel, DelytelseId delytelseId, DelytelseId refDelytelseId) {
+        if (refDelytelseId != null && !nøkkel.equals(nøkkelMap.get(refDelytelseId))) {
+            if (Environment.current().isProd()) {
+                //må kunne takle hvis dette finnes (gjør det i k9-oppdrag i hvert fall)
+                logger.warn("Linje med delytelseId {} peker på kjede med en annen nøkkel", delytelseId);
+            } else {
+                throw new IllegalArgumentException("Linje med delytelseId " + delytelseId + " peker på kjede med en annen nøkkel");
+            }
+        }
     }
 
     private static Map<KjedeNøkkel, OppdragKjede> build(Map<KjedeNøkkel, OppdragKjede.Builder> buildere) {
