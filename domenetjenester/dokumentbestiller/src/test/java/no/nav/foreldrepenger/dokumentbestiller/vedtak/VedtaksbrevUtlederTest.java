@@ -1,11 +1,14 @@
 package no.nav.foreldrepenger.dokumentbestiller.vedtak;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.lenient;
 
 import java.util.Optional;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,6 +37,9 @@ public class VedtaksbrevUtlederTest {
     @Mock
     private KlageVurderingResultat klageVurderingResultat;
     @Mock
+    private AnkeVurderingResultatEntitet ankeVurderingResultat;
+
+    @Mock
     private Behandling behandling;
     @Mock
     private KlageRepository klageRepository;
@@ -46,7 +52,6 @@ public class VedtaksbrevUtlederTest {
         lenient().doReturn(false).when(behandlingVedtakMock).isBeslutningsvedtak();
         lenient().doReturn(VedtakResultatType.INNVILGET).when(behandlingVedtakMock).getVedtakResultatType();
         lenient().doReturn(FagsakYtelseType.ENGANGSTØNAD).when(behandling).getFagsakYtelseType();
-        lenient().doReturn(Optional.of(klageVurderingResultat)).when(klageRepository).hentGjeldendeKlageVurderingResultat(behandling);
     }
 
     @Test
@@ -102,6 +107,8 @@ public class VedtaksbrevUtlederTest {
 
     @Test
     public void skal_velge_riktig_klagemal() {
+        doReturn(Optional.of(klageVurderingResultat)).when(klageRepository).hentGjeldendeKlageVurderingResultat(behandling);
+
         doReturn(KlageVurdering.STADFESTE_YTELSESVEDTAK).when(klageVurderingResultat).getKlageVurdering();
         assertThat(VedtaksbrevUtleder.velgKlagemal(behandling, klageRepository)).isEqualTo(DokumentMalType.KLAGE_STADFESTET);
 
@@ -114,5 +121,17 @@ public class VedtaksbrevUtlederTest {
         doReturn(KlageVurdering.MEDHOLD_I_KLAGE).when(klageVurderingResultat).getKlageVurdering();
         assertThat(VedtaksbrevUtleder.velgKlagemal(behandling, klageRepository)).isEqualTo(DokumentMalType.KLAGE_OMGJØRING);
     }
+    @Test
+    public void skal_velge_riktig_ankemal() {
+        doReturn(Optional.of(ankeVurderingResultat)).when(ankeRepository).hentAnkeVurderingResultat(any());
 
+        doReturn(AnkeVurdering.ANKE_HJEMSEND_UTEN_OPPHEV).when(ankeVurderingResultat).getAnkeVurdering();
+        assertThat(VedtaksbrevUtleder.velgAnkemal(behandling, ankeRepository)).isEqualTo(DokumentMalType.ANKEBREV_BESLUTNING_OM_OPPHEVING);
+
+        doReturn(AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE).when(ankeVurderingResultat).getAnkeVurdering();
+        assertThat(VedtaksbrevUtleder.velgAnkemal(behandling, ankeRepository)).isEqualTo(DokumentMalType.ANKEBREV_BESLUTNING_OM_OPPHEVING);
+
+        doReturn(AnkeVurdering.ANKE_OMGJOER).when(ankeVurderingResultat).getAnkeVurdering();
+        assertThat(VedtaksbrevUtleder.velgAnkemal(behandling, ankeRepository)).isEqualTo(DokumentMalType.VEDTAK_OMGJORING_ANKE_DOK);
+    }
 }
