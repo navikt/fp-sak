@@ -11,6 +11,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
@@ -69,6 +70,10 @@ public class TotrinnArbeidsforholdDtoTjeneste {
         String ref = arbeidsforhold.getArbeidsforholdRef().getReferanse();
         ArbeidsforholdHandlingType handling = arbeidsforhold.getHandling();
         Boolean brukPermisjon = skalPermisjonBrukes(arbeidsforhold);
+        if (OrgNummer.erKunstig(arbeidsforhold.getArbeidsgiver().getIdentifikator()) && arbeidsforhold.getArbeidsgiverNavn() != null) {
+            return new TotrinnsArbeidsforholdDto(arbeidsforhold.getArbeidsgiver().getIdentifikator(), arbeidsforhold.getArbeidsgiverNavn(),
+                arbeidsforhold.getArbeidsgiver().getOrgnr(), ref, handling, brukPermisjon);
+        }
         if (arbeidsforhold.getArbeidsgiver().erAktørId()) {
             ArbeidsgiverOpplysninger arbeidsgiverOpplysninger = arbeidsgiverTjeneste.hent(arbeidsforhold.getArbeidsgiver());
             if (arbeidsgiverOpplysninger != null) {
