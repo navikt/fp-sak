@@ -39,8 +39,19 @@ public class BeregningsgrunnlagFaktaOmBeregningTilfelle extends BaseEntitet {
     @Column(name="fakta_beregning_tilfelle", nullable = false)
     private FaktaOmBeregningTilfelle faktaOmBeregningTilfelle = FaktaOmBeregningTilfelle.UDEFINERT;
 
+    public BeregningsgrunnlagFaktaOmBeregningTilfelle(BeregningsgrunnlagFaktaOmBeregningTilfelle beregningsgrunnlagFaktaOmBeregningTilfelle) {
+        this.faktaOmBeregningTilfelle = beregningsgrunnlagFaktaOmBeregningTilfelle.getFaktaOmBeregningTilfelle();
+    }
+
+    protected BeregningsgrunnlagFaktaOmBeregningTilfelle() {
+    }
+
     public FaktaOmBeregningTilfelle getFaktaOmBeregningTilfelle() {
         return faktaOmBeregningTilfelle;
+    }
+
+    void setBeregningsgrunnlag(BeregningsgrunnlagEntitet beregningsgrunnlag) {
+        this.beregningsgrunnlag = beregningsgrunnlag;
     }
 
     @Override
@@ -75,7 +86,7 @@ public class BeregningsgrunnlagFaktaOmBeregningTilfelle extends BaseEntitet {
         }
 
         public BeregningsgrunnlagFaktaOmBeregningTilfelle build(BeregningsgrunnlagEntitet beregningsgrunnlag) {
-            beregningsgrunnlagFaktaOmBeregningTilfelle.beregningsgrunnlag = beregningsgrunnlag;
+            beregningsgrunnlag.leggTilFaktaOmBeregningTilfelle(beregningsgrunnlagFaktaOmBeregningTilfelle);
             return beregningsgrunnlagFaktaOmBeregningTilfelle;
         }
     }

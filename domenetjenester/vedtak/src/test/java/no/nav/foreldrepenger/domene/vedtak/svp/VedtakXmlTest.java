@@ -355,7 +355,7 @@ public class VedtakXmlTest {
     }
 
     private BeregningsgrunnlagPeriode buildBeregningsgrunnlagPeriode(BeregningsgrunnlagEntitet beregningsgrunnlag) {
-        return BeregningsgrunnlagPeriode.builder()
+        return BeregningsgrunnlagPeriode.ny()
                 .medBeregningsgrunnlagPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(15))
                 .medBruttoPrÅr(BigDecimal.valueOf(534343.55))
                 .medAvkortetPrÅr(BigDecimal.valueOf(223421.33))
@@ -367,7 +367,7 @@ public class VedtakXmlTest {
     }
 
     private BeregningsgrunnlagEntitet buildBeregningsgrunnlag() {
-        BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
                 .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
                 .medGrunnbeløp(BigDecimal.valueOf(91425))
                 .medRegelloggSkjæringstidspunkt("input1", "clob1")

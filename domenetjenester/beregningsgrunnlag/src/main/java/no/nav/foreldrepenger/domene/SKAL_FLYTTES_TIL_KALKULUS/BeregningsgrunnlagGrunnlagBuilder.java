@@ -12,11 +12,15 @@ public class BeregningsgrunnlagGrunnlagBuilder {
         this.kladd = kladd;
     }
 
-    static BeregningsgrunnlagGrunnlagBuilder nytt() {
+    public static BeregningsgrunnlagGrunnlagBuilder nytt() {
         return new BeregningsgrunnlagGrunnlagBuilder(new BeregningsgrunnlagGrunnlagEntitet());
     }
 
     public static BeregningsgrunnlagGrunnlagBuilder oppdatere(BeregningsgrunnlagGrunnlagEntitet kladd) {
+        return new BeregningsgrunnlagGrunnlagBuilder(kladd);
+    }
+
+    public static BeregningsgrunnlagGrunnlagBuilder kopi(BeregningsgrunnlagGrunnlagEntitet kladd) {
         return new BeregningsgrunnlagGrunnlagBuilder(new BeregningsgrunnlagGrunnlagEntitet(kladd));
     }
 
@@ -24,11 +28,12 @@ public class BeregningsgrunnlagGrunnlagBuilder {
         return kladd.map(BeregningsgrunnlagGrunnlagBuilder::oppdatere).orElseGet(BeregningsgrunnlagGrunnlagBuilder::nytt);
     }
 
+    public static BeregningsgrunnlagGrunnlagBuilder kopi(Optional<BeregningsgrunnlagGrunnlagEntitet> kladd) {
+        return kladd.map(BeregningsgrunnlagGrunnlagBuilder::kopi).orElseGet(BeregningsgrunnlagGrunnlagBuilder::nytt);
+    }
 
-    @Deprecated
-    // KUN FOR MIGRERING AV FEILSAKER
-    public static BeregningsgrunnlagGrunnlagBuilder endre(Optional<BeregningsgrunnlagGrunnlagEntitet> kladd) {
-        return kladd.map(BeregningsgrunnlagGrunnlagBuilder::new).orElseGet(BeregningsgrunnlagGrunnlagBuilder::nytt);
+    public BeregningsgrunnlagEntitet.Builder getBeregningsgrunnlagBuilder() {
+        return BeregningsgrunnlagEntitet.Builder.oppdater(kladd.getBeregningsgrunnlag());
     }
 
     public BeregningsgrunnlagGrunnlagBuilder medBeregningsgrunnlag(BeregningsgrunnlagEntitet beregningsgrunnlag) {

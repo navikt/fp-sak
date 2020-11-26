@@ -19,7 +19,6 @@ import javax.persistence.TypedQuery;
 
 import org.hibernate.jpa.QueryHints;
 
-import no.nav.foreldrepenger.behandlingslager.Kopimaskin;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.sporing.KopierRegelsporing;
@@ -217,17 +216,6 @@ public class BeregningsgrunnlagRepository {
         return grunnlagEntitet;
     }
 
-    @Deprecated
-    // KUN FOR MIGRERING
-    public BeregningsgrunnlagGrunnlagEntitet lagreForMigrering(Long behandlingId, BeregningsgrunnlagGrunnlagBuilder builder, BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
-        Objects.requireNonNull(behandlingId, BEHANDLING_ID);
-        Objects.requireNonNull(builder, BUILDER);
-        Objects.requireNonNull(beregningsgrunnlagTilstand, BEREGNINGSGRUNNLAG_TILSTAND);
-        BeregningsgrunnlagGrunnlagEntitet grunnlagEntitet = builder.build(behandlingId, beregningsgrunnlagTilstand);
-        lagreOgFlushUtenAktivt(grunnlagEntitet);
-        return grunnlagEntitet;
-    }
-
     public BeregningsgrunnlagGrunnlagEntitet lagre(Long behandlingId, BeregningsgrunnlagGrunnlagBuilder builder, BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
         Objects.requireNonNull(behandlingId, BEHANDLING_ID);
         Objects.requireNonNull(builder, BUILDER);
@@ -267,17 +255,17 @@ public class BeregningsgrunnlagRepository {
         builder.medRefusjonOverstyring(beregningRefusjonOverstyringer);
         lagreOgFlush(behandlingId, builder.build(behandlingId, beregningsgrunnlagTilstand));
     }
-    private void lagreOgFlushUtenAktivt(BeregningsgrunnlagGrunnlagEntitet nyttGrunnlag) {
-        lagreGrunnlag(nyttGrunnlag);
-        entityManager.flush();
-    }
 
     private void lagreOgFlush(Long behandlingId, BeregningsgrunnlagGrunnlagEntitet nyttGrunnlag) {
         Objects.requireNonNull(behandlingId, BEHANDLING_ID);
+        if (erLagret(nyttGrunnlag)) {
+            throw new IllegalStateException("Kan ikke lagre ned et allerede lagret grunnlag.");
+        }
         Optional<BeregningsgrunnlagGrunnlagEntitet> tidligereAggregat = hentBeregningsgrunnlagGrunnlagEntitet(behandlingId);
-        if (tidligereAggregat.isPresent() && tidligereAggregat.get().getBeregningsgrunnlagTilstand().erFør(nyttGrunnlag.getBeregningsgrunnlagTilstand())) {
-            // OBS: Denne endrer på nyttGrunnlag
-            KopierRegelsporing.kopierRegelsporinger(tidligereAggregat, nyttGrunnlag);
+        if (tidligereAggregat.isPresent()) {
+            if (tidligereAggregat.get().getBeregningsgrunnlagTilstand().erFør(nyttGrunnlag.getBeregningsgrunnlagTilstand())) {
+                KopierRegelsporing.kopierRegelsporingerTilGrunnlag(nyttGrunnlag, tidligereAggregat);
+            }
             tidligereAggregat.get().setAktiv(false);
             entityManager.persist(tidligereAggregat.get());
         }
@@ -285,6 +273,9 @@ public class BeregningsgrunnlagRepository {
         entityManager.flush();
     }
 
+    private boolean erLagret(BeregningsgrunnlagGrunnlagEntitet nyttGrunnlag) {
+        return nyttGrunnlag.getId() != null;
+    }
 
     private void lagreGrunnlag(BeregningsgrunnlagGrunnlagEntitet nyttGrunnlag) {
         BeregningAktivitetAggregatEntitet registerAktiviteter = nyttGrunnlag.getRegisterAktiviteter();
@@ -340,7 +331,7 @@ public class BeregningsgrunnlagRepository {
     private BeregningsgrunnlagGrunnlagBuilder opprettGrunnlagBuilderFor(Long behandlingId) {
         Optional<BeregningsgrunnlagGrunnlagEntitet> entitetOpt = hentBeregningsgrunnlagGrunnlagEntitet(behandlingId);
         Optional<BeregningsgrunnlagGrunnlagEntitet> grunnlag = entitetOpt.isPresent() ? Optional.of(entitetOpt.get()) : Optional.empty();
-        return BeregningsgrunnlagGrunnlagBuilder.oppdatere(grunnlag);
+        return BeregningsgrunnlagGrunnlagBuilder.kopi(grunnlag);
     }
 
     public void deaktiverBeregningsgrunnlagGrunnlagEntitet(Long behandlingId) {
@@ -370,7 +361,7 @@ public class BeregningsgrunnlagRepository {
 
     public void kopierGrunnlagFraEksisterendeBehandling(Long gammelBehandlingId, Long nyBehandlingId, BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
         Optional<BeregningsgrunnlagGrunnlagEntitet> beregningsgrunnlag = hentBeregningsgrunnlagGrunnlagEntitet(gammelBehandlingId);
-        beregningsgrunnlag.ifPresent(orig -> lagre(nyBehandlingId, BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.of(Kopimaskin.deepCopy(orig))), beregningsgrunnlagTilstand));
+        beregningsgrunnlag.ifPresent(orig -> lagre(nyBehandlingId, BeregningsgrunnlagGrunnlagBuilder.kopi(orig), beregningsgrunnlagTilstand));
     }
 
     public boolean oppdaterGrunnlagMedGrunnbeløp(Long gammelBehandlingId, Long nyBehandlingId, BeregningsgrunnlagTilstand tilstand) {

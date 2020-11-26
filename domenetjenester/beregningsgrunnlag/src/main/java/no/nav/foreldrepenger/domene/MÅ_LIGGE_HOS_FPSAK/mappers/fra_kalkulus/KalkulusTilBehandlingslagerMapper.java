@@ -48,7 +48,7 @@ public class KalkulusTilBehandlingslagerMapper {
     public static BeregningsgrunnlagEntitet mapBeregningsgrunnlag(BeregningsgrunnlagDto beregningsgrunnlagFraKalkulus,
                                                                   Optional<FaktaAggregatDto> faktaAggregat,
                                                                   Optional<RegelSporingAggregat> regelSporingAggregat) {
-        BeregningsgrunnlagEntitet.Builder builder = BeregningsgrunnlagEntitet.builder();
+        BeregningsgrunnlagEntitet.Builder builder = BeregningsgrunnlagEntitet.ny();
 
         //med
         builder.medGrunnbeløp(new Beløp(beregningsgrunnlagFraKalkulus.getGrunnbeløp().getVerdi()));
@@ -145,7 +145,7 @@ public class KalkulusTilBehandlingslagerMapper {
     }
 
     public static BeregningsgrunnlagGrunnlagEntitet mapGrunnlag(BeregningsgrunnlagGrunnlagDto beregningsgrunnlagFraKalkulus, Optional<RegelSporingAggregat> regelSporingAggregat) {
-        BeregningsgrunnlagGrunnlagBuilder oppdatere = BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.empty());
+        BeregningsgrunnlagGrunnlagBuilder oppdatere = BeregningsgrunnlagGrunnlagBuilder.nytt();
 
         beregningsgrunnlagFraKalkulus.getBeregningsgrunnlag().ifPresent(beregningsgrunnlagDto -> oppdatere.medBeregningsgrunnlag(mapBeregningsgrunnlag(beregningsgrunnlagDto, beregningsgrunnlagFraKalkulus.getFaktaAggregat(), regelSporingAggregat)));
         beregningsgrunnlagFraKalkulus.getOverstyring().ifPresent(beregningAktivitetOverstyringerDto -> oppdatere.medOverstyring(mapAktivitetOverstyring(beregningAktivitetOverstyringerDto)));

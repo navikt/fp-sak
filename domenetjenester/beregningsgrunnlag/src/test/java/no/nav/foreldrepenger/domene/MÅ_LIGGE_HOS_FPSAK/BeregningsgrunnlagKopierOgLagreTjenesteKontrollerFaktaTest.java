@@ -159,7 +159,7 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteKontrollerFaktaTest {
         BeregningsgrunnlagEntitet bgFraFastsattAktiviteter = beregningsgrunnlagRepository
                 .hentSisteBeregningsgrunnlagGrunnlagEntitet(behandlingReferanse.getBehandlingId(), OPPDATERT_MED_ANDELER)
                 .orElseThrow().getBeregningsgrunnlag().orElseThrow();
-        BeregningsgrunnlagEntitet bekreftetBg = bgFraFastsattAktiviteter.dypKopi();
+        BeregningsgrunnlagEntitet bekreftetBg = new BeregningsgrunnlagEntitet(bgFraFastsattAktiviteter);
         BGAndelArbeidsforhold
                 .builder(bekreftetBg.getBeregningsgrunnlagPerioder().get(0).getBeregningsgrunnlagPrStatusOgAndelList().get(0)
                         .getBgAndelArbeidsforhold().get())
@@ -190,12 +190,12 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteKontrollerFaktaTest {
 
     private BeregningsgrunnlagGrunnlagBuilder lagBeregningsgrunnlagMedAndelOgAktiviteter(Arbeidsgiver virksomhet, LocalDate arbeidsperiodeFom,
             LocalDate arbeidsperiodeTom) {
-        BeregningsgrunnlagEntitet bg = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet bg = BeregningsgrunnlagEntitet.ny()
                 .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
                 .medGrunnbeløp(BigDecimal.valueOf(99_000))
                 .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(ARBEIDSTAKER))
                 .build();
-        BeregningsgrunnlagPeriode periode = BeregningsgrunnlagPeriode.builder()
+        BeregningsgrunnlagPeriode periode = BeregningsgrunnlagPeriode.ny()
                 .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null)
                 .build(bg);
         BeregningsgrunnlagPrStatusOgAndel.builder()

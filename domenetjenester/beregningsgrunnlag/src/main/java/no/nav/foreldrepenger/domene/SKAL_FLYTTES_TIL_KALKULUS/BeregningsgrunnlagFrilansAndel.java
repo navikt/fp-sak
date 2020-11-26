@@ -44,6 +44,13 @@ public class BeregningsgrunnlagFrilansAndel extends BaseEntitet {
     @Column(name = "NYOPPSTARTET")
     private Boolean nyoppstartet;
 
+    public BeregningsgrunnlagFrilansAndel(BeregningsgrunnlagFrilansAndel beregningsgrunnlagFrilansAndel) {
+        this.mottarYtelse = beregningsgrunnlagFrilansAndel.mottarYtelse;
+        this.nyoppstartet = beregningsgrunnlagFrilansAndel.nyoppstartet;
+    }
+
+    private BeregningsgrunnlagFrilansAndel() { }
+
     public BeregningsgrunnlagPrStatusOgAndel getBeregningsgrunnlagPrStatusOgAndel() {
         return beregningsgrunnlagPrStatusOgAndel;
     }
@@ -54,6 +61,11 @@ public class BeregningsgrunnlagFrilansAndel extends BaseEntitet {
 
     public Boolean getNyoppstartet() {
         return nyoppstartet;
+    }
+
+
+    void setBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel beregningsgrunnlagPrStatusOgAndel) {
+        this.beregningsgrunnlagPrStatusOgAndel = beregningsgrunnlagPrStatusOgAndel;
     }
 
     @Override
@@ -113,7 +125,7 @@ public class BeregningsgrunnlagFrilansAndel extends BaseEntitet {
         }
 
         public BeregningsgrunnlagFrilansAndel build(BeregningsgrunnlagPrStatusOgAndel beregningsgrunnlagPrStatusOgAndel) {
-            beregningsgrunnlagFrilansAndelMal.beregningsgrunnlagPrStatusOgAndel = beregningsgrunnlagPrStatusOgAndel;
+            beregningsgrunnlagPrStatusOgAndel.setBeregningsgrunnlagFrilansAndel(beregningsgrunnlagFrilansAndelMal);
             verifyStateForBuild(beregningsgrunnlagPrStatusOgAndel);
             return beregningsgrunnlagFrilansAndelMal;
         }

@@ -72,10 +72,12 @@ class BeregningsgrunnlagDiffSjekker {
         return harPeriodeDiff(aktivePerioder, forrigePerioder);
     }
 
-    private static boolean harSammenligningsgrunnlagDiff(Sammenligningsgrunnlag aktivt, Sammenligningsgrunnlag forrige) {
-        if (aktivt == null || forrige == null) {
-            return !Objects.equals(aktivt, forrige);
+    private static boolean harSammenligningsgrunnlagDiff(Optional<Sammenligningsgrunnlag> aktivtOpt, Optional<Sammenligningsgrunnlag> forrigeOpt) {
+        if (aktivtOpt.isEmpty() || forrigeOpt.isEmpty()) {
+            return aktivtOpt.isEmpty() != forrigeOpt.isEmpty();
         }
+        var aktivt = aktivtOpt.get();
+        var forrige = forrigeOpt.get();
         if (!erLike(aktivt.getAvvikPromille(), forrige.getAvvikPromille())) {
             return true;
         }

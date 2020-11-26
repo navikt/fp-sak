@@ -167,11 +167,11 @@ public class ForeslåVedtakRevurderingStegImplTest {
     }
 
     private BeregningsgrunnlagEntitet buildBeregningsgrunnlag(Long bruttoPerÅr) {
-        BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
             .medSkjæringstidspunkt(LocalDate.now())
             .medGrunnbeløp(BigDecimal.valueOf(91425))
             .build();
-        BeregningsgrunnlagPeriode periode = BeregningsgrunnlagPeriode.builder()
+        BeregningsgrunnlagPeriode periode = BeregningsgrunnlagPeriode.ny()
             .medBeregningsgrunnlagPeriode(LocalDate.now().minusDays(1), LocalDate.now().plusDays(1))
             .medBruttoPrÅr(BigDecimal.valueOf(bruttoPerÅr))
             .leggTilBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel.builder()

@@ -125,19 +125,19 @@ public class AutomatiskNæringsdrivendeReguleringBatchTjenesteTest {
         BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, lås);
 
-        BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
                 .medGrunnbeløp(BigDecimal.valueOf(sats))
                 .medSkjæringstidspunkt(uttakFom)
                 .build();
         BeregningsgrunnlagAktivitetStatus.builder()
                 .medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
                 .build(beregningsgrunnlag);
-        BeregningsgrunnlagPeriode periode = BeregningsgrunnlagPeriode.builder()
+        BeregningsgrunnlagPeriode periode = BeregningsgrunnlagPeriode.ny()
                 .medBeregningsgrunnlagPeriode(uttakFom, uttakFom.plusMonths(3))
                 .medBruttoPrÅr(BigDecimal.valueOf(brutto))
                 .medAvkortetPrÅr(BigDecimal.valueOf(brutto))
                 .build(beregningsgrunnlag);
-        BeregningsgrunnlagPeriode.builder(periode)
+        BeregningsgrunnlagPeriode.oppdater(periode)
                 .build(beregningsgrunnlag);
         beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag, BeregningsgrunnlagTilstand.FASTSATT);
 

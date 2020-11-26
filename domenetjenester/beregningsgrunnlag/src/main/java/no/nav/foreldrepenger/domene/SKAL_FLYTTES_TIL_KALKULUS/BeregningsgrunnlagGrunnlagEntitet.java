@@ -68,11 +68,13 @@ public class BeregningsgrunnlagGrunnlagEntitet extends BaseEntitet {
     }
 
     BeregningsgrunnlagGrunnlagEntitet(BeregningsgrunnlagGrunnlagEntitet grunnlag) {
-        grunnlag.getBeregningsgrunnlag().ifPresent(this::setBeregningsgrunnlag);
-        this.setRegisterAktiviteter(grunnlag.getRegisterAktiviteter());
-        grunnlag.getSaksbehandletAktiviteter().ifPresent(this::setSaksbehandletAktiviteter);
-        grunnlag.getOverstyring().ifPresent(this::setOverstyringer);
-        grunnlag.getRefusjonOverstyringer().ifPresent(this::setRefusjonOverstyringer);
+        this.beregningsgrunnlagTilstand = grunnlag.getBeregningsgrunnlagTilstand();
+        this.behandlingId = grunnlag.getBehandlingId();
+        grunnlag.getBeregningsgrunnlag().map(BeregningsgrunnlagEntitet::new).ifPresent(this::setBeregningsgrunnlag);
+        this.setRegisterAktiviteter(grunnlag.getRegisterAktiviteter() == null ? null : new BeregningAktivitetAggregatEntitet(grunnlag.getRegisterAktiviteter()));
+        grunnlag.getSaksbehandletAktiviteter().map(BeregningAktivitetAggregatEntitet::new).ifPresent(this::setSaksbehandletAktiviteter);
+        grunnlag.getOverstyring().map(BeregningAktivitetOverstyringerEntitet::new).ifPresent(this::setOverstyringer);
+        grunnlag.getRefusjonOverstyringer().map(BeregningRefusjonOverstyringerEntitet::new).ifPresent(this::setRefusjonOverstyringer);
     }
 
     public Long getId() {
@@ -92,14 +94,6 @@ public class BeregningsgrunnlagGrunnlagEntitet extends BaseEntitet {
     }
 
     public Optional<BeregningAktivitetAggregatEntitet> getSaksbehandletAktiviteter() {
-        return Optional.ofNullable(saksbehandletAktiviteter);
-    }
-
-    public Optional<BeregningAktivitetAggregatEntitet> getOverstyrteEllerSaksbehandletAktiviteter() {
-        Optional<BeregningAktivitetAggregatEntitet> overstyrteAktiviteter = getOverstyrteAktiviteter();
-        if (overstyrteAktiviteter.isPresent()) {
-            return overstyrteAktiviteter;
-        }
         return Optional.ofNullable(saksbehandletAktiviteter);
     }
 
@@ -131,8 +125,8 @@ public class BeregningsgrunnlagGrunnlagEntitet extends BaseEntitet {
      * i 'overstyringsAktiviteter' (hvis nøklene deres er like). Hvis denne finnes så skal det altså bety at aktiveten
      * har blitt overstyrt, og hvis ikke, så har ikke aktiviteten overstyrt.
      *
-     * @param overstyringsAktiviteter
-     * @param aktivitet
+     * @param overstyringsAktiviteter OverstyringAktiviteter
+     * @param aktivitet Beregningaktivitet
      * @return En 'BeregningAktivitetOverstyringDto' hvis 'BeregningAktivitetDto' er overstyrt.
      */
     private Optional<BeregningAktivitetOverstyringEntitet> hentOverstyrtAktivitet(BeregningAktivitetOverstyringerEntitet overstyringsAktiviteter, BeregningAktivitetEntitet aktivitet) {

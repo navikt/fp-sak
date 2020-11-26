@@ -40,6 +40,13 @@ public class BeregningsgrunnlagArbeidstakerAndel extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
+    public BeregningsgrunnlagArbeidstakerAndel(BeregningsgrunnlagArbeidstakerAndel beregningsgrunnlagArbeidstakerAndel) {
+        this.mottarYtelse = beregningsgrunnlagArbeidstakerAndel.mottarYtelse;
+    }
+
+    public BeregningsgrunnlagArbeidstakerAndel() {
+    }
+
     public static BeregningsgrunnlagArbeidstakerAndel.Builder builder() {
         return new BeregningsgrunnlagArbeidstakerAndel.Builder();
     }
@@ -54,6 +61,10 @@ public class BeregningsgrunnlagArbeidstakerAndel extends BaseEntitet {
 
     public Boolean getMottarYtelse() {
         return mottarYtelse;
+    }
+
+    void setBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel beregningsgrunnlagPrStatusOgAndel) {
+        this.beregningsgrunnlagPrStatusOgAndel = beregningsgrunnlagPrStatusOgAndel;
     }
 
     @Override
@@ -97,7 +108,7 @@ public class BeregningsgrunnlagArbeidstakerAndel extends BaseEntitet {
         }
 
         public BeregningsgrunnlagArbeidstakerAndel build(BeregningsgrunnlagPrStatusOgAndel beregningsgrunnlagPrStatusOgAndel) {
-            beregningsgrunnlagArbeidstakerAndelMal.beregningsgrunnlagPrStatusOgAndel = beregningsgrunnlagPrStatusOgAndel;
+            beregningsgrunnlagPrStatusOgAndel.setBeregningsgrunnlagArbeidstakerAndel(beregningsgrunnlagArbeidstakerAndelMal);
             verifyStateForBuild(beregningsgrunnlagPrStatusOgAndel);
             return beregningsgrunnlagArbeidstakerAndelMal;
         }

@@ -358,10 +358,10 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     private void lagBeregningsgrunnlag(Behandling svp, LocalDate stp, int utbetalingsgrad) {
         var brutto = new BigDecimal(DAGSATS).multiply(new BigDecimal(260));
         var redusert = brutto.multiply(new BigDecimal(utbetalingsgrad)).divide(BigDecimal.TEN.multiply(BigDecimal.TEN), RoundingMode.HALF_UP);
-        BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
             .medSkjæringstidspunkt(stp)
             .medGrunnbeløp(new BigDecimal(100000))
-            .leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode.builder()
+            .leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode.ny()
                 .medBeregningsgrunnlagPeriode(stp, Tid.TIDENES_ENDE)
                 .medRedusertPrÅr(redusert)
                 .leggTilBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel.builder()

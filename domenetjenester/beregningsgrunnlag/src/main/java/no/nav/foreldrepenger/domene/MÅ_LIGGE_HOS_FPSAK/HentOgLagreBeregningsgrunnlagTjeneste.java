@@ -62,7 +62,7 @@ public class HentOgLagreBeregningsgrunnlagTjeneste {
     }
 
     public void lagre(Long behandlingId, BeregningsgrunnlagGrunnlagDto fraKalkulus) {
-        BeregningsgrunnlagGrunnlagBuilder builder = BeregningsgrunnlagGrunnlagBuilder.oppdatere(beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(behandlingId));
+        BeregningsgrunnlagGrunnlagBuilder builder = BeregningsgrunnlagGrunnlagBuilder.kopi(beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(behandlingId));
 
         fraKalkulus.getSaksbehandletAktiviteter()
             .map(KalkulusTilBehandlingslagerMapper::mapSaksbehandletAktivitet)

@@ -585,10 +585,10 @@ public class UttakStegImplTest {
         iayTjeneste.lagreIayAggregat(behandling.getId(), inntektArbeidYtelseAggregatBuilder);
 
         InternArbeidsforholdRef arbId = InternArbeidsforholdRef.nyRef();
-        BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
             .medSkjæringstidspunkt(LocalDate.now())
             .medGrunnbeløp(BigDecimal.TEN)
-            .leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode.builder()
+            .leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode.ny()
                 .medBeregningsgrunnlagPeriode(LocalDate.now(), LocalDate.now())
                 .leggTilBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel.builder()
                     .medBGAndelArbeidsforhold(BGAndelArbeidsforhold.builder()

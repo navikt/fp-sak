@@ -45,6 +45,15 @@ public class BeregningsgrunnlagPeriodeRegelSporing extends BaseEntitet {
     @Column(name="regel_type", nullable = false)
     private BeregningsgrunnlagPeriodeRegelType regelType;
 
+    public BeregningsgrunnlagPeriodeRegelSporing(BeregningsgrunnlagPeriodeRegelSporing beregningsgrunnlagPeriodeRegelSporing) {
+        this.regelEvaluering = beregningsgrunnlagPeriodeRegelSporing.getRegelEvaluering();
+        this.regelInput = beregningsgrunnlagPeriodeRegelSporing.getRegelInput();
+        this.regelType = beregningsgrunnlagPeriodeRegelSporing.getRegelType();
+    }
+
+    private BeregningsgrunnlagPeriodeRegelSporing() {
+    }
+
     public Long getId() {
         return id;
     }
@@ -61,11 +70,15 @@ public class BeregningsgrunnlagPeriodeRegelSporing extends BaseEntitet {
         return regelInput;
     }
 
+    void setBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode beregningsgrunnlagPeriode) {
+        this.beregningsgrunnlagPeriode = beregningsgrunnlagPeriode;
+    }
+
     static Builder ny() {
         return new Builder();
     }
 
-    static class Builder {
+    public static class Builder {
         private BeregningsgrunnlagPeriodeRegelSporing beregningsgrunnlagPeriodeRegelSporingMal;
 
         public Builder() {
@@ -88,7 +101,6 @@ public class BeregningsgrunnlagPeriodeRegelSporing extends BaseEntitet {
         }
 
         BeregningsgrunnlagPeriodeRegelSporing build(BeregningsgrunnlagPeriode beregningsgrunnlagPeriode) {
-            beregningsgrunnlagPeriodeRegelSporingMal.beregningsgrunnlagPeriode = beregningsgrunnlagPeriode;
             beregningsgrunnlagPeriode.leggTilBeregningsgrunnlagPeriodeRegel(beregningsgrunnlagPeriodeRegelSporingMal);
             return beregningsgrunnlagPeriodeRegelSporingMal;
         }

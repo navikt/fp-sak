@@ -266,10 +266,10 @@ public class VedtakXmlTest {
     }
 
     private void lagBeregningsgrunnlag(Behandling behandling) {
-        BeregningsgrunnlagEntitet bg = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet bg = BeregningsgrunnlagEntitet.ny()
                 .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
                 .build();
-        BeregningsgrunnlagPeriode bgPeriode = BeregningsgrunnlagPeriode.builder()
+        BeregningsgrunnlagPeriode bgPeriode = BeregningsgrunnlagPeriode.ny()
                 .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null)
                 .build(bg);
         BeregningsgrunnlagPrStatusOgAndel.builder()

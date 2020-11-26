@@ -150,7 +150,7 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
     private BeregningsgrunnlagEntitet buildOgLagreBeregningsgrunnlag(boolean erFrilans) {
         AbstractTestScenario<?> scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = scenario.lagre(repositoryProvider);
-        BeregningsgrunnlagEntitet.Builder beregningsgrunnlagBuilder = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet.Builder beregningsgrunnlagBuilder = BeregningsgrunnlagEntitet.ny()
             .medGrunnbeløp(GRUNNBELØP)
             .medSkjæringstidspunkt(LocalDate.now().minusDays(5));
 
@@ -161,7 +161,7 @@ public class FastsettBeregningsgrunnlagATFLHistorikkTjenesteTest {
     }
 
     private void leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagEntitet.Builder beregningsgrunnlagBuilder, LocalDate fomDato, boolean erFrilans) {
-        BeregningsgrunnlagPeriode.Builder beregningsgrunnlagPeriodeBuilder = BeregningsgrunnlagPeriode.builder()
+        BeregningsgrunnlagPeriode.Builder beregningsgrunnlagPeriodeBuilder = BeregningsgrunnlagPeriode.ny()
             .medBeregningsgrunnlagPeriode(fomDato, null);
             leggTilBeregningsgrunnlagPrStatusOgAndel(beregningsgrunnlagPeriodeBuilder, virk, erFrilans);
         beregningsgrunnlagBuilder.leggTilBeregningsgrunnlagPeriode(beregningsgrunnlagPeriodeBuilder);

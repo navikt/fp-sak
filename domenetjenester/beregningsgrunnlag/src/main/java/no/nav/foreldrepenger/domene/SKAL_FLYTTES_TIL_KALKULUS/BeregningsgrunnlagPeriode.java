@@ -11,7 +11,6 @@ import static no.nav.vedtak.konfig.Tid.TIDENES_ENDE;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -39,7 +38,6 @@ import javax.persistence.Version;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
-import no.nav.foreldrepenger.behandlingslager.Kopimaskin;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 
 @Entity(name = "BeregningsgrunnlagPeriode")
@@ -87,6 +85,22 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "beregningsgrunnlagPeriode", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<BeregningsgrunnlagPeriodeÅrsak> beregningsgrunnlagPeriodeÅrsaker = new ArrayList<>();
+
+    public BeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode beregningsgrunnlagPeriode) {
+        this.avkortetPrÅr = beregningsgrunnlagPeriode.getAvkortetPrÅr();
+        this.bruttoPrÅr = beregningsgrunnlagPeriode.getBruttoPrÅr();
+        this.dagsats = beregningsgrunnlagPeriode.getDagsats();
+        this.periode = beregningsgrunnlagPeriode.getPeriode();
+        this.redusertPrÅr = beregningsgrunnlagPeriode.getRedusertPrÅr();
+        beregningsgrunnlagPeriode.getRegelSporinger().values().stream().map(BeregningsgrunnlagPeriodeRegelSporing::new)
+            .forEach(this::leggTilBeregningsgrunnlagPeriodeRegel);
+        beregningsgrunnlagPeriode.getBeregningsgrunnlagPeriodeÅrsaker().stream().map(BeregningsgrunnlagPeriodeÅrsak::new)
+            .forEach(this::addBeregningsgrunnlagPeriodeÅrsak);
+        beregningsgrunnlagPeriode.getBeregningsgrunnlagPrStatusOgAndelList().stream().map(BeregningsgrunnlagPrStatusOgAndel::new)
+            .forEach(this::addBeregningsgrunnlagPrStatusOgAndel);
+    }
+
+    private BeregningsgrunnlagPeriode() { }
 
     public Long getId() {
         return id;
@@ -158,6 +172,7 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
     void addBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel bgPrStatusOgAndel) {
         Objects.requireNonNull(bgPrStatusOgAndel, "beregningsgrunnlagPrStatusOgAndel");
         if (!beregningsgrunnlagPrStatusOgAndelList.contains(bgPrStatusOgAndel)) { // NOSONAR Class defines List based fields but uses them like Sets: Ingening å tjene på å bytte til Set ettersom det er små lister
+            bgPrStatusOgAndel.setBeregningsgrunnlagPeriode(this);
             beregningsgrunnlagPrStatusOgAndelList.add(bgPrStatusOgAndel);
         }
     }
@@ -165,13 +180,19 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
     void addBeregningsgrunnlagPeriodeÅrsak(BeregningsgrunnlagPeriodeÅrsak bgPeriodeÅrsak) {
         Objects.requireNonNull(bgPeriodeÅrsak, "beregningsgrunnlagPeriodeÅrsak");
         if (!beregningsgrunnlagPeriodeÅrsaker.contains(bgPeriodeÅrsak)) { // NOSONAR Class defines List based fields but uses them like Sets: Ingening å tjene på å bytte til Set ettersom det er små lister
+            bgPeriodeÅrsak.setBeregningsgrunnlagPeriode(this);
             beregningsgrunnlagPeriodeÅrsaker.add(bgPeriodeÅrsak);
         }
     }
 
     void leggTilBeregningsgrunnlagPeriodeRegel(BeregningsgrunnlagPeriodeRegelSporing beregningsgrunnlagPeriodeRegelSporing) {
         Objects.requireNonNull(beregningsgrunnlagPeriodeRegelSporing, "beregningsgrunnlagPeriodeRegelSporing");
+        beregningsgrunnlagPeriodeRegelSporing.setBeregningsgrunnlagPeriode(this);
         regelSporingMap.put(beregningsgrunnlagPeriodeRegelSporing.getRegelType(), beregningsgrunnlagPeriodeRegelSporing);
+    }
+
+    void setBeregningsgrunnlag(BeregningsgrunnlagEntitet beregningsgrunnlag) {
+        this.beregningsgrunnlag = beregningsgrunnlag;
     }
 
     @Override
@@ -207,12 +228,12 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
                 + ">"; //$NON-NLS-1$
     }
 
-    public static Builder builder() {
+    public static Builder ny() {
         return new Builder();
     }
 
-    public static Builder builder(BeregningsgrunnlagPeriode eksisterendeBeregningsgrunnlagPeriode) {
-        return new Builder(eksisterendeBeregningsgrunnlagPeriode);
+    public static Builder oppdater(BeregningsgrunnlagPeriode eksisterendeBeregningsgrunnlagPeriode) {
+        return new Builder(eksisterendeBeregningsgrunnlagPeriode, true);
     }
 
     public String getRegelEvalueringForeslå() {
@@ -271,11 +292,15 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
             kladd = new BeregningsgrunnlagPeriode();
         }
 
-        public Builder(BeregningsgrunnlagPeriode eksisterendeBeregningsgrunnlagPeriod) {
+        public Builder(BeregningsgrunnlagPeriode eksisterendeBeregningsgrunnlagPeriod, boolean erOppdatering) {
             if (Objects.nonNull(eksisterendeBeregningsgrunnlagPeriod.getId())) {
                 throw new IllegalArgumentException("Kan ikke bygge på et lagret grunnlag");
             }
-            kladd = eksisterendeBeregningsgrunnlagPeriod;
+            if (erOppdatering) {
+                kladd = eksisterendeBeregningsgrunnlagPeriod;
+            } else {
+                kladd = new BeregningsgrunnlagPeriode(eksisterendeBeregningsgrunnlagPeriod);
+            }
         }
 
         public Builder leggTilBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel.Builder prStatusOgAndelBuilder) {
@@ -329,10 +354,8 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
         }
 
         public BeregningsgrunnlagPeriode build(BeregningsgrunnlagEntitet beregningsgrunnlag) {
-            kladd.beregningsgrunnlag = beregningsgrunnlag;
             verifyStateForBuild();
-
-            kladd.beregningsgrunnlag.leggTilBeregningsgrunnlagPeriode(kladd);
+            beregningsgrunnlag.leggTilBeregningsgrunnlagPeriode(kladd);
 
             Long dagsatsSum = kladd.beregningsgrunnlagPrStatusOgAndelList.stream()
                 .filter(bgpsa -> bgpsa.getDagsats() != null)
@@ -351,8 +374,6 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
         }
 
         private void verifyStateForBuild() {
-            Objects.requireNonNull(kladd.beregningsgrunnlag, "beregningsgrunnlag");
-            Objects.requireNonNull(kladd.beregningsgrunnlagPrStatusOgAndelList, "beregningsgrunnlagPrStatusOgAndelList");
             Objects.requireNonNull(kladd.periode, "beregningsgrunnlagPeriodeFom");
         }
     }

@@ -52,8 +52,8 @@ public class BehandlingslagerTilKalkulusMapper {
         leggTilSporingHvisFinnes(beregningsgrunnlagFraFpsak, builder, BeregningsgrunnlagRegelType.BRUKERS_STATUS);
         leggTilSporingHvisFinnes(beregningsgrunnlagFraFpsak, builder, BeregningsgrunnlagRegelType.SKJÆRINGSTIDSPUNKT);
         builder.medSkjæringstidspunkt(beregningsgrunnlagFraFpsak.getSkjæringstidspunkt());
-        if (beregningsgrunnlagFraFpsak.getSammenligningsgrunnlag() != null) {
-            builder.medSammenligningsgrunnlag(BGMapperTilKalkulus.mapSammenligningsgrunnlag(beregningsgrunnlagFraFpsak.getSammenligningsgrunnlag()));
+        if (beregningsgrunnlagFraFpsak.getSammenligningsgrunnlag().isPresent()) {
+            builder.medSammenligningsgrunnlag(BGMapperTilKalkulus.mapSammenligningsgrunnlag(beregningsgrunnlagFraFpsak.getSammenligningsgrunnlag().get()));
         }
 
         //lister

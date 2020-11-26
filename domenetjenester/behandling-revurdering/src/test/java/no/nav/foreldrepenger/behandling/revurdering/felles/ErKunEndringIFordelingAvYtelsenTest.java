@@ -169,7 +169,7 @@ public class ErKunEndringIFordelingAvYtelsenTest {
     private BeregningsgrunnlagEntitet forProdCase(List<LocalDateInterval> perioder,
             List<Integer> dagsatserBR,
             List<Integer> dagsatserAG) {
-        BeregningsgrunnlagEntitet grunnlag = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet grunnlag = BeregningsgrunnlagEntitet.ny()
                 .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_BEREGNING)
                 .medGrunnbeløp(BigDecimal.valueOf(91425L))
                 .build();
@@ -366,7 +366,7 @@ public class ErKunEndringIFordelingAvYtelsenTest {
                 .collect(Collectors.toList())
                 : Collections.nCopies(dagsatser.size(), 0);
 
-        BeregningsgrunnlagEntitet grunnlag = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet grunnlag = BeregningsgrunnlagEntitet.ny()
                 .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_BEREGNING)
                 .medGrunnbeløp(BigDecimal.valueOf(91425L))
                 .build();
@@ -383,11 +383,11 @@ public class ErKunEndringIFordelingAvYtelsenTest {
             LocalDateInterval datoIntervall = perioder.get(i);
             Integer dagsatsBruker = dagsatserBruker.get(i);
             Integer dagsatsArbeidstaker = dagsatserArbeidstaker.get(i);
-            BeregningsgrunnlagPeriode periode = BeregningsgrunnlagPeriode.builder()
+            BeregningsgrunnlagPeriode periode = BeregningsgrunnlagPeriode.ny()
                     .medBeregningsgrunnlagPeriode(datoIntervall.getFomDato(), datoIntervall.getTomDato())
                     .build(grunnlag);
             byggBeregningsgrunnlagAndel(periode, dagsatsBruker, dagsatsArbeidstaker);
-            BeregningsgrunnlagPeriode.builder(periode)
+            BeregningsgrunnlagPeriode.oppdater(periode)
                     .build(grunnlag);
         }
     }
@@ -422,7 +422,7 @@ public class ErKunEndringIFordelingAvYtelsenTest {
             List<ÅpenDatoIntervallEntitet> perioder,
             LagAndelTjeneste lagAndelTjeneste) {
 
-        beregningsgrunnlag = BeregningsgrunnlagEntitet.builder()
+        beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
                 .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_BEREGNING)
                 .medGrunnbeløp(BigDecimal.valueOf(91425L))
                 .build();
@@ -432,7 +432,7 @@ public class ErKunEndringIFordelingAvYtelsenTest {
         for (ÅpenDatoIntervallEntitet datoPeriode : perioder) {
             BeregningsgrunnlagPeriode periode = byggBGPeriode(datoPeriode, medOppjustertDagsat,
                     skalDeleAndelMellomArbeidsgiverOgBruker, lagAndelTjeneste);
-            BeregningsgrunnlagPeriode.builder(periode)
+            BeregningsgrunnlagPeriode.oppdater(periode)
                     .build(beregningsgrunnlag);
         }
         return beregningsgrunnlag;
@@ -442,7 +442,7 @@ public class ErKunEndringIFordelingAvYtelsenTest {
             boolean medOppjustertDagsat,
             boolean skalDeleAndelMellomArbeidsgiverOgBruker,
             LagAndelTjeneste lagAndelTjeneste) {
-        BeregningsgrunnlagPeriode periode = BeregningsgrunnlagPeriode.builder()
+        BeregningsgrunnlagPeriode periode = BeregningsgrunnlagPeriode.ny()
                 .medBeregningsgrunnlagPeriode(datoPeriode.getFomDato(), datoPeriode.getTomDato())
                 .build(beregningsgrunnlag);
         lagAndelTjeneste.lagAndeler(periode, medOppjustertDagsat, skalDeleAndelMellomArbeidsgiverOgBruker);
