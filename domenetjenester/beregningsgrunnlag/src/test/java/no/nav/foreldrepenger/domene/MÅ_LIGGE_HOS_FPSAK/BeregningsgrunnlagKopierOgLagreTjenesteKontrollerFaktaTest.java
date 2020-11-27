@@ -168,7 +168,7 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteKontrollerFaktaTest {
     }
 
     private BeregningsgrunnlagInput lagBeregningsgrunnlagInput(BehandlingReferanse behandlingReferanse, InntektArbeidYtelseGrunnlag iayGr) {
-        return new BeregningsgrunnlagInput(MapBehandlingRef.mapRef(behandlingReferanse), IAYMapperTilKalkulus.mapGrunnlag(iayGr),
+        return new BeregningsgrunnlagInput(MapBehandlingRef.mapRef(behandlingReferanse), IAYMapperTilKalkulus.mapGrunnlag(iayGr, behandlingReferanse.getAktørId()),
                 new OpptjeningAktiviteterDto(
                         List.of(OpptjeningAktiviteterDto.nyPeriode(no.nav.folketrygdloven.kalkulator.modell.opptjening.OpptjeningAktivitetType.ARBEID,
                                 new Periode(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT), ORG_NUMMER, null,

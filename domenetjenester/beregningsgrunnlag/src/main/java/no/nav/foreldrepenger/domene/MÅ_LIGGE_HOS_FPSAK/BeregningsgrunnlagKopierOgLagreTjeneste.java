@@ -10,6 +10,7 @@ import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Beregningsg
 import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand.VURDERT_REFUSJON;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +27,11 @@ import no.nav.folketrygdloven.kalkulator.input.ForeslåBeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.modell.behandling.KoblingReferanse;
 import no.nav.folketrygdloven.kalkulator.output.BeregningAksjonspunktResultat;
 import no.nav.folketrygdloven.kalkulator.output.BeregningResultatAggregat;
+import no.nav.folketrygdloven.kalkulator.output.RegelSporingAggregat;
+import no.nav.folketrygdloven.kalkulator.output.RegelSporingPeriode;
 import no.nav.folketrygdloven.kalkulator.steg.BeregningsgrunnlagTjeneste;
+import no.nav.folketrygdloven.kalkulator.tid.Intervall;
+import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BeregningsgrunnlagPeriodeRegelType;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
@@ -105,7 +110,7 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
 
     public BeregningsgrunnlagVilkårOgAkjonspunktResultat vurderRefusjonBeregningsgrunnlag(BeregningsgrunnlagInput input) {
         Long behandlingId = input.getKoblingReferanse().getKoblingId();
-        BeregningResultatAggregat beregningResultatAggregat =  beregningsgrunnlagTjeneste.vurderRefusjonskravForBeregninggrunnlag(
+        BeregningResultatAggregat beregningResultatAggregat = beregningsgrunnlagTjeneste.vurderRefusjonskravForBeregninggrunnlag(
             kalkulatorStegProsesseringInputTjeneste.lagFortsettInput(
                 behandlingId,
                 input,
@@ -151,11 +156,25 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
     }
 
     private String getRegelEvalueringVilkårvurdering(BeregningResultatAggregat beregningResultatAggregat) {
-        return beregningResultatAggregat.getBeregningsgrunnlag().getBeregningsgrunnlagPerioder().get(0).getRegelEvalueringVilkårvurdering();
+        Optional<RegelSporingPeriode> regelSporing = finnRegelSporingVilkårVurdering(beregningResultatAggregat);
+        return regelSporing.map(RegelSporingPeriode::getRegelEvaluering).orElse(null);
     }
 
     private String getRegelInputVilkårvurdering(BeregningResultatAggregat beregningResultatAggregat) {
-        return beregningResultatAggregat.getBeregningsgrunnlag().getBeregningsgrunnlagPerioder().get(0).getRegelInputVilkårvurdering();
+        Optional<RegelSporingPeriode> regelSporing = finnRegelSporingVilkårVurdering(beregningResultatAggregat);
+        return regelSporing.map(RegelSporingPeriode::getRegelInput).orElse(null);
+    }
+
+    private Optional<RegelSporingPeriode> finnRegelSporingVilkårVurdering(BeregningResultatAggregat beregningResultatAggregat) {
+        List<RegelSporingPeriode> regelSporingPerioder = beregningResultatAggregat.getRegelSporingAggregat()
+            .map(RegelSporingAggregat::getRegelsporingPerioder).orElse(Collections.emptyList());
+        if (regelSporingPerioder.isEmpty()) {
+            return Optional.empty();
+        }
+        Intervall førstePeriode = beregningResultatAggregat.getBeregningsgrunnlag().getBeregningsgrunnlagPerioder().get(0).getPeriode();
+        return regelSporingPerioder.stream()
+            .filter(p -> p.getPeriode().overlapper(førstePeriode) && p.getRegelType().equals(BeregningsgrunnlagPeriodeRegelType.VILKÅR_VURDERING))
+            .findFirst();
     }
 
     public BeregningsgrunnlagVilkårOgAkjonspunktResultat foreslåBeregningsgrunnlag(BeregningsgrunnlagInput input) {

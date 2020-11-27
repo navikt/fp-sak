@@ -94,10 +94,10 @@ public class IAYMapperTilKalkulus {
             Arbeidsgiver.fra(new AktørId(arbeidsgiver.getAktørId().getId()));
     }
 
-    public static InntektArbeidYtelseGrunnlagDto mapGrunnlag(InntektArbeidYtelseGrunnlag iayGrunnlag) {
+    public static InntektArbeidYtelseGrunnlagDto mapGrunnlag(InntektArbeidYtelseGrunnlag iayGrunnlag, no.nav.foreldrepenger.domene.typer.AktørId aktørId) {
         InntektArbeidYtelseGrunnlagDtoBuilder builder = InntektArbeidYtelseGrunnlagDtoBuilder.nytt();
-        iayGrunnlag.getRegisterVersjon().ifPresent(aggregat -> builder.medData(mapAggregat(aggregat, VersjonTypeDto.REGISTER)));
-        iayGrunnlag.getSaksbehandletVersjon().ifPresent(aggregat -> builder.medData(mapAggregat(aggregat, VersjonTypeDto.SAKSBEHANDLET)));
+        iayGrunnlag.getRegisterVersjon().ifPresent(aggregat -> builder.medData(mapAggregat(aggregat, VersjonTypeDto.REGISTER, aktørId)));
+        iayGrunnlag.getSaksbehandletVersjon().ifPresent(aggregat -> builder.medData(mapAggregat(aggregat, VersjonTypeDto.SAKSBEHANDLET, aktørId)));
         iayGrunnlag.getInntektsmeldinger().ifPresent(aggregat -> builder.setInntektsmeldinger(mapInntektsmelding(aggregat, iayGrunnlag.getArbeidsforholdInformasjon())));
         iayGrunnlag.getArbeidsforholdInformasjon().ifPresent(arbeidsforholdInformasjon -> builder.medInformasjon(mapArbeidsforholdInformasjon(arbeidsforholdInformasjon)));
         iayGrunnlag.getOppgittOpptjening().ifPresent(oppgittOpptjening -> builder.medOppgittOpptjening(mapOppgittOpptjening(oppgittOpptjening)));
@@ -238,8 +238,6 @@ public class IAYMapperTilKalkulus {
     private static InntektArbeidYtelseAggregatBuilder.AktørInntektBuilder mapAktørInntekt(AktørInntekt aktørInntekt){
         InntektArbeidYtelseAggregatBuilder.AktørInntektBuilder builder = InntektArbeidYtelseAggregatBuilder.AktørInntektBuilder.oppdatere(Optional.empty());
         aktørInntekt.getInntekt().forEach(inntekt -> builder.leggTilInntekt(mapInntekt(inntekt)));
-        builder.medAktørId(new AktørId(aktørInntekt.getAktørId().getId()));
-
         return builder;
     }
 
@@ -265,15 +263,14 @@ public class IAYMapperTilKalkulus {
     private static InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder mapAktørArbeid(AktørArbeid aktørArbeid) {
         InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder builder = InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder.oppdatere(Optional.empty());
         aktørArbeid.hentAlleYrkesaktiviteter().forEach(yrkesaktivitet -> builder.leggTilYrkesaktivitet(mapYrkesaktivitet(yrkesaktivitet)));
-        builder.medAktørId(new AktørId(aktørArbeid.getAktørId().getId()));
         return builder;
     }
 
-    private static InntektArbeidYtelseAggregatBuilder mapAggregat(InntektArbeidYtelseAggregat aggregat, VersjonTypeDto versjonTypeDto) {
+    private static InntektArbeidYtelseAggregatBuilder mapAggregat(InntektArbeidYtelseAggregat aggregat, VersjonTypeDto versjonTypeDto, no.nav.foreldrepenger.domene.typer.AktørId aktørId) {
         InntektArbeidYtelseAggregatBuilder builder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), versjonTypeDto);
-        aggregat.getAktørArbeid().forEach(aktørArbeid -> builder.leggTilAktørArbeid(mapAktørArbeid(aktørArbeid)));
-        aggregat.getAktørInntekt().forEach(aktørInntekt -> builder.leggTilAktørInntekt(mapAktørInntekt(aktørInntekt)));
-        aggregat.getAktørYtelse().forEach(aktørYtelse -> builder.leggTilAktørYtelse(mapAktørYtelse(aktørYtelse)));
+        aggregat.getAktørArbeid().stream().filter(aa -> aa.getAktørId().equals(aktørId)).findFirst().ifPresent(aktørArbeid -> builder.leggTilAktørArbeid(mapAktørArbeid(aktørArbeid)));
+        aggregat.getAktørInntekt().stream().filter(ai -> ai.getAktørId().equals(aktørId)).findFirst().ifPresent((aktørInntekt -> builder.leggTilAktørInntekt(mapAktørInntekt(aktørInntekt))));
+        aggregat.getAktørYtelse().stream().filter(ay -> ay.getAktørId().equals(aktørId)).findFirst().ifPresent((aktørYtelse -> builder.leggTilAktørYtelse(mapAktørYtelse(aktørYtelse))));
         return builder;
 
     }
@@ -281,7 +278,6 @@ public class IAYMapperTilKalkulus {
     private static InntektArbeidYtelseAggregatBuilder.AktørYtelseBuilder mapAktørYtelse(AktørYtelse aktørYtelse) {
         InntektArbeidYtelseAggregatBuilder.AktørYtelseBuilder builder = InntektArbeidYtelseAggregatBuilder.AktørYtelseBuilder.oppdatere(Optional.empty());
         aktørYtelse.getAlleYtelser().forEach(ytelse -> builder.leggTilYtelse(mapYtelse(ytelse)));
-        builder.medAktørId(new AktørId(aktørYtelse.getAktørId().getId()));
         return builder;
 
     }

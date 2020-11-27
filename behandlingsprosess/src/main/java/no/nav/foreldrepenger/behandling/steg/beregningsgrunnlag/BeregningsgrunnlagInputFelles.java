@@ -103,7 +103,7 @@ public abstract class BeregningsgrunnlagInputFelles {
 
         List<Inntektsmelding> inntektsmeldingDiff = inntektsmeldingTjeneste.hentInntektsmeldingDiffFraOriginalbehandling(ref);
         List<InntektsmeldingDto> inntektsmeldingDiffDto = inntektsmeldingDiff.stream().map(IAYMapperTilKalkulus::mapInntektsmeldingDto).collect(Collectors.toList());
-        InntektArbeidYtelseGrunnlagDto iayGrunnlagUtenIMDiff = IAYMapperTilKalkulus.mapGrunnlag(iayGrunnlag);
+        InntektArbeidYtelseGrunnlagDto iayGrunnlagUtenIMDiff = IAYMapperTilKalkulus.mapGrunnlag(iayGrunnlag, ref.getAktørId());
 
         InntektArbeidYtelseGrunnlagDto iayGrunnlagDto;
         if (!inntektsmeldingDiffDto.isEmpty()) {

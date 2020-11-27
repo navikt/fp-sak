@@ -23,7 +23,6 @@ import no.nav.folketrygdloven.kalkulator.modell.opptjening.OpptjeningAktivitetTy
 import no.nav.folketrygdloven.kalkulator.modell.typer.InternArbeidsforholdRefDto;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BeregningAktivitetHandlingType;
-import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BeregningsgrunnlagRegelType;
 import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.FaktaOmBeregningTilfelle;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningAktivitetAggregatEntitet;
@@ -34,7 +33,6 @@ import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningRefusjonP
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRegelSporing;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 
 public class BehandlingslagerTilKalkulusMapper {
@@ -46,11 +44,6 @@ public class BehandlingslagerTilKalkulusMapper {
         //med
         builder.medGrunnbeløp(beregningsgrunnlagFraFpsak.getGrunnbeløp().getVerdi());
         builder.medOverstyring(beregningsgrunnlagFraFpsak.isOverstyrt());
-        leggTilSporingHvisFinnes(beregningsgrunnlagFraFpsak, builder, BeregningsgrunnlagRegelType.PERIODISERING);
-        leggTilSporingHvisFinnes(beregningsgrunnlagFraFpsak, builder, BeregningsgrunnlagRegelType.PERIODISERING_NATURALYTELSE);
-        leggTilSporingHvisFinnes(beregningsgrunnlagFraFpsak, builder, BeregningsgrunnlagRegelType.PERIODISERING_REFUSJON);
-        leggTilSporingHvisFinnes(beregningsgrunnlagFraFpsak, builder, BeregningsgrunnlagRegelType.BRUKERS_STATUS);
-        leggTilSporingHvisFinnes(beregningsgrunnlagFraFpsak, builder, BeregningsgrunnlagRegelType.SKJÆRINGSTIDSPUNKT);
         builder.medSkjæringstidspunkt(beregningsgrunnlagFraFpsak.getSkjæringstidspunkt());
         if (beregningsgrunnlagFraFpsak.getSammenligningsgrunnlag().isPresent()) {
             builder.medSammenligningsgrunnlag(BGMapperTilKalkulus.mapSammenligningsgrunnlag(beregningsgrunnlagFraFpsak.getSammenligningsgrunnlag().get()));
@@ -63,13 +56,6 @@ public class BehandlingslagerTilKalkulusMapper {
         beregningsgrunnlagFraFpsak.getSammenligningsgrunnlagPrStatusListe().forEach(sammenligningsgrunnlagPrStatus -> builder.leggTilSammenligningsgrunnlag(BGMapperTilKalkulus.mapSammenligningsgrunnlagMedStatus(sammenligningsgrunnlagPrStatus)));
 
         return builder.build();
-    }
-
-    private static void leggTilSporingHvisFinnes(BeregningsgrunnlagEntitet beregningsgrunnlagFraFpsak, BeregningsgrunnlagDto.Builder builder, BeregningsgrunnlagRegelType regelType) {
-        if (beregningsgrunnlagFraFpsak.getRegelsporing(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRegelType.fraKode(regelType.getKode())) != null) {
-            BeregningsgrunnlagRegelSporing regelsporing = beregningsgrunnlagFraFpsak.getRegelsporing(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRegelType.fraKode(regelType.getKode()));
-            builder.medRegellogg(regelsporing.getRegelInput(), regelsporing.getRegelEvaluering(), regelType);
-        }
     }
 
     public static BeregningRefusjonOverstyringerDto mapRefusjonOverstyring(BeregningRefusjonOverstyringerEntitet refusjonOverstyringerFraFpsak) {

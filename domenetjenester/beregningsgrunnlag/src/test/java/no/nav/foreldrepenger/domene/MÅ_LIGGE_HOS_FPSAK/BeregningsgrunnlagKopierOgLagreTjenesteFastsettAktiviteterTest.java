@@ -391,7 +391,7 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteFastsettAktiviteterTest {
 
     private BeregningsgrunnlagInput lagBeregningsgrunnlagInput(BehandlingReferanse behandlingReferanse, InntektArbeidYtelseGrunnlag iayGr,
             OpptjeningAktiviteterDto opptjeningAktiviteter) {
-        InntektArbeidYtelseGrunnlagDto iayGrunnlag = IAYMapperTilKalkulus.mapGrunnlag(iayGr);
+        InntektArbeidYtelseGrunnlagDto iayGrunnlag = IAYMapperTilKalkulus.mapGrunnlag(iayGr, behandlingReferanse.getAktørId());
         no.nav.folketrygdloven.kalkulator.modell.behandling.KoblingReferanse behandlingReferanse1 = MapBehandlingRef.mapRef(behandlingReferanse);
         return new BeregningsgrunnlagInput(behandlingReferanse1, iayGrunnlag,
                 opptjeningAktiviteter,
