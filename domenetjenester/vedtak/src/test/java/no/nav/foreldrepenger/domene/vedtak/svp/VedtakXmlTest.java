@@ -62,6 +62,7 @@ import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BGAndelArbeidsforh
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriodeRegelType;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.PeriodeÅrsak;
@@ -354,19 +355,19 @@ public class VedtakXmlTest {
     }
 
     private BeregningsgrunnlagPeriode buildBeregningsgrunnlagPeriode(BeregningsgrunnlagEntitet beregningsgrunnlag) {
-        return BeregningsgrunnlagPeriode.builder()
+        return BeregningsgrunnlagPeriode.ny()
                 .medBeregningsgrunnlagPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(15))
                 .medBruttoPrÅr(BigDecimal.valueOf(534343.55))
                 .medAvkortetPrÅr(BigDecimal.valueOf(223421.33))
                 .medRedusertPrÅr(BigDecimal.valueOf(23412.32))
-                .medRegelEvalueringForeslå("input1", "clob1")
-                .medRegelEvalueringFastsett("input2", "clob2")
+                .medRegelEvaluering("input1", "clob1", BeregningsgrunnlagPeriodeRegelType.FORESLÅ)
+                .medRegelEvaluering("input2", "clob2", BeregningsgrunnlagPeriodeRegelType.FASTSETT)
                 .leggTilPeriodeÅrsak(PeriodeÅrsak.UDEFINERT)
                 .build(beregningsgrunnlag);
     }
 
     private BeregningsgrunnlagEntitet buildBeregningsgrunnlag() {
-        BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
                 .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
                 .medGrunnbeløp(BigDecimal.valueOf(91425))
                 .medRegelloggSkjæringstidspunkt("input1", "clob1")

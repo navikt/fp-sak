@@ -48,7 +48,6 @@ import no.nav.folketrygdloven.kalkulus.felles.v1.KalkulatorInputDto;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputFelles;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputProvider;
-import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.task.OpprettGrunnbeløpTask;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.task.TilbakerullingBeregningTask;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
@@ -248,30 +247,6 @@ public class ForvaltningBeregningRestTjeneste {
         return Response.ok(liste).build();
     }
 
-    @POST
-    @Path("/opprettGrunnbeløpForBehandling")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Oppretter grunnbeløp for behandling", tags = "FORVALTNING-beregning")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
-    public Response opprettGrunnbeløpForBehandling(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        Behandling behandling = behandlingRepository.hentBehandling(dto.getBehandlingId());
-        opprettTask(behandling, OpprettGrunnbeløpTask.TASKNAME);
-        return Response.ok().build();
-    }
-
-    @POST
-    @Path("/opprettGrunnbeløp")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Oppretter grunnbeløp der det mangler", tags = "FORVALTNING-beregning")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
-    public Response opprettGrunnbeløp() {
-        List<Long> behandlingIdList = beregningsgrunnlagRepository.hentBehandlingIdForGrunnlagUtenGrunnbeløp();
-        behandlingIdList.forEach(id -> {
-            Behandling behandling = behandlingRepository.hentBehandling(id);
-            opprettTask(behandling, OpprettGrunnbeløpTask.TASKNAME);
-        });
-        return Response.ok().build();
-    }
 
     private boolean besteberegningErFastsatt(BeregningsgrunnlagGrunnlagEntitet grunnlag) {
         List<FaktaOmBeregningTilfelle> tilfeller = grunnlag.getBeregningsgrunnlag()

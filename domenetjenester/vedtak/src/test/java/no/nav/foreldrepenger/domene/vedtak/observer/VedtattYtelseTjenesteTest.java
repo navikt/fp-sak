@@ -69,10 +69,10 @@ public class VedtattYtelseTjenesteTest {
     }
 
     private BeregningsgrunnlagEntitet lagBG() {
-        BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
             .medSkjæringstidspunkt(LocalDate.now())
             .medGrunnbeløp(new BigDecimal(100000))
-            .leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode.builder()
+            .leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode.ny()
                 .medBeregningsgrunnlagPeriode(stp, knekk1.minusDays(1))
                 .medRedusertPrÅr(new BigDecimal(120000))
                 .leggTilBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel.builder()
@@ -83,7 +83,7 @@ public class VedtattYtelseTjenesteTest {
                         .medArbeidsforholdRef(InternArbeidsforholdRef.nullRef())
                         .medArbeidsgiver(Arbeidsgiver.virksomhet("999999999")))
                     .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)))
-            .leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode.builder()
+            .leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode.ny()
                 .medBeregningsgrunnlagPeriode(knekk1, knekk2.minusDays(1))
                 .medRedusertPrÅr(new BigDecimal(240000))
                 .leggTilBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel.builder()
@@ -94,7 +94,7 @@ public class VedtattYtelseTjenesteTest {
                         .medArbeidsforholdRef(InternArbeidsforholdRef.nullRef())
                         .medArbeidsgiver(Arbeidsgiver.virksomhet("999999999")))
                     .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)))
-            .leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode.builder()
+            .leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode.ny()
                 .medBeregningsgrunnlagPeriode(knekk2, Tid.TIDENES_ENDE)
                 .medRedusertPrÅr(new BigDecimal(360000))
                 .leggTilBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel.builder()

@@ -52,6 +52,16 @@ public class Sammenligningsgrunnlag extends BaseEntitet {
     @JoinColumn(name = "beregningsgrunnlag_id", nullable = false, updatable = false, unique = true)
     private BeregningsgrunnlagEntitet beregningsgrunnlag;
 
+    public Sammenligningsgrunnlag(Sammenligningsgrunnlag sammenligningsgrunnlag) {
+        this.avvikPromille = sammenligningsgrunnlag.getAvvikPromille();
+        this.rapportertPrÅr = sammenligningsgrunnlag.getRapportertPrÅr();
+        this.sammenligningsperiode = sammenligningsgrunnlag.getSammenligningsperiode();
+    }
+
+    public Sammenligningsgrunnlag() {
+        // NOSONAR
+    }
+
     public Long getId() {
         return id;
     }
@@ -74,6 +84,10 @@ public class Sammenligningsgrunnlag extends BaseEntitet {
 
     public BeregningsgrunnlagEntitet getBeregningsgrunnlag() {
         return beregningsgrunnlag;
+    }
+
+    public DatoIntervallEntitet getSammenligningsperiode() {
+        return sammenligningsperiode;
     }
 
     @Override
@@ -142,7 +156,7 @@ public class Sammenligningsgrunnlag extends BaseEntitet {
         public Sammenligningsgrunnlag build(BeregningsgrunnlagEntitet beregningsgrunnlag) {
             sammenligningsgrunnlagMal.beregningsgrunnlag = beregningsgrunnlag;
             verifyStateForBuild();
-            BeregningsgrunnlagEntitet.builder(beregningsgrunnlag).medSammenligningsgrunnlagOld(sammenligningsgrunnlagMal);
+            beregningsgrunnlag.setSammenligningsgrunnlag(sammenligningsgrunnlagMal);
             return sammenligningsgrunnlagMal;
         }
 

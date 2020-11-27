@@ -143,7 +143,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         var input = lagBeregningsgrunnlagInput(ref, opptjeningAktiviteter, inntektsmeldinger);
         var beregningAktivitetAggregat = fastsettBeregningAktiviteter.fastsettAktiviteter(lagStartInput(input));
         return mapBeregningsgrunnlag(fastsettSkjæringstidspunktOgStatuser.fastsett(input, beregningAktivitetAggregat, input.getIayGrunnlag(),
-            grunnbeløpTjeneste.mapGrunnbeløpSatser()).getBeregningsgrunnlag(), Optional.empty());
+            grunnbeløpTjeneste.mapGrunnbeløpSatser()).getBeregningsgrunnlag(), Optional.empty(), Optional.empty());
     }
 
     private BeregningsgrunnlagInput lagBeregningsgrunnlagInput(BehandlingReferanse ref,
@@ -507,7 +507,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         BeregningAktivitetAggregatEntitet beregningAktivitetAggregat = mapSaksbehandletAktivitet(fastsettBeregningAktiviteter.fastsettAktiviteter(lagStartInput(input)));
 
         BeregningsgrunnlagEntitet BeregningsgrunnlagEntitet = mapBeregningsgrunnlag(fastsettSkjæringstidspunktOgStatuser.fastsett(input,
-            mapSaksbehandletAktivitet(beregningAktivitetAggregat), input.getIayGrunnlag(), grunnbeløpTjeneste.mapGrunnbeløpSatser()).getBeregningsgrunnlag(), Optional.empty());
+            mapSaksbehandletAktivitet(beregningAktivitetAggregat), input.getIayGrunnlag(), grunnbeløpTjeneste.mapGrunnbeløpSatser()).getBeregningsgrunnlag(), Optional.empty(), Optional.empty());
 
         // Assert
         assertThat(BeregningsgrunnlagEntitet.getSkjæringstidspunkt()).isEqualTo(permisjonFom);

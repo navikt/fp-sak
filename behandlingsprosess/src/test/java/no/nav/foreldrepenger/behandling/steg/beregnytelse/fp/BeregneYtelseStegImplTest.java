@@ -164,7 +164,7 @@ public class BeregneYtelseStegImplTest {
     }
 
     private void medBeregningsgrunnlag(Behandling behandling) {
-        var beregningsgrunnlagBuilder = BeregningsgrunnlagEntitet.builder()
+        var beregningsgrunnlagBuilder = BeregningsgrunnlagEntitet.ny()
                 .medSkjæringstidspunkt(LocalDate.now())
                 .medGrunnbeløp(BigDecimal.valueOf(90000));
         BeregningsgrunnlagEntitet beregningsgrunnlag = beregningsgrunnlagBuilder.build();

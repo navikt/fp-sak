@@ -158,6 +158,48 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
     @OneToOne(mappedBy = "beregningsgrunnlagPrStatusOgAndel", cascade = CascadeType.PERSIST)
     private BeregningsgrunnlagArbeidstakerAndel beregningsgrunnlagArbeidstakerAndel;
 
+    public BeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel beregningsgrunnlagPrStatusOgAndel) {
+        this.beregnetPrÅr = beregningsgrunnlagPrStatusOgAndel.getBeregnetPrÅr();
+        this.aktivitetStatus = beregningsgrunnlagPrStatusOgAndel.getAktivitetStatus();
+        this.andelsnr = beregningsgrunnlagPrStatusOgAndel.getAndelsnr();
+        this.arbeidsforholdType = beregningsgrunnlagPrStatusOgAndel.getArbeidsforholdType();
+        this.avkortetBrukersAndelPrÅr = beregningsgrunnlagPrStatusOgAndel.getAvkortetBrukersAndelPrÅr();
+        this.avkortetPrÅr = beregningsgrunnlagPrStatusOgAndel.getAvkortetPrÅr();
+        this.avkortetRefusjonPrÅr = beregningsgrunnlagPrStatusOgAndel.getAvkortetRefusjonPrÅr();
+        this.beregningsperiode = beregningsgrunnlagPrStatusOgAndel.beregningsperiode;
+        this.besteberegningPrÅr = beregningsgrunnlagPrStatusOgAndel.getBesteberegningPrÅr();
+        this.bruttoPrÅr = beregningsgrunnlagPrStatusOgAndel.getBruttoPrÅr();
+        this.dagsatsArbeidsgiver = beregningsgrunnlagPrStatusOgAndel.getDagsatsArbeidsgiver();
+        this.dagsatsBruker = beregningsgrunnlagPrStatusOgAndel.getDagsatsBruker();
+        this.fastsattAvSaksbehandler = beregningsgrunnlagPrStatusOgAndel.getFastsattAvSaksbehandler();
+        this.fordeltPrÅr = beregningsgrunnlagPrStatusOgAndel.getFordeltPrÅr();
+        this.inntektskategori = beregningsgrunnlagPrStatusOgAndel.getInntektskategori();
+        this.kilde = beregningsgrunnlagPrStatusOgAndel.getKilde();
+        this.maksimalRefusjonPrÅr = beregningsgrunnlagPrStatusOgAndel.getMaksimalRefusjonPrÅr();
+        this.nyIArbeidslivet = beregningsgrunnlagPrStatusOgAndel.getNyIArbeidslivet();
+        this.orginalDagsatsFraTilstøtendeYtelse = beregningsgrunnlagPrStatusOgAndel.getOrginalDagsatsFraTilstøtendeYtelse();
+        this.overstyrtPrÅr = beregningsgrunnlagPrStatusOgAndel.getOverstyrtPrÅr();
+        this.pgi1 = beregningsgrunnlagPrStatusOgAndel.getPgi1();
+        this.pgi2 = beregningsgrunnlagPrStatusOgAndel.getPgi2();
+        this.pgi3 = beregningsgrunnlagPrStatusOgAndel.getPgi3();
+        this.pgiSnitt = beregningsgrunnlagPrStatusOgAndel.getPgiSnitt();
+        this.redusertBrukersAndelPrÅr = beregningsgrunnlagPrStatusOgAndel.getRedusertBrukersAndelPrÅr();
+        this.redusertPrÅr = beregningsgrunnlagPrStatusOgAndel.getRedusertPrÅr();
+        this.redusertRefusjonPrÅr = beregningsgrunnlagPrStatusOgAndel.getRedusertRefusjonPrÅr();
+        this.årsbeløpFraTilstøtendeYtelse = beregningsgrunnlagPrStatusOgAndel.getÅrsbeløpFraTilstøtendeYtelse();
+        beregningsgrunnlagPrStatusOgAndel.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::new)
+            .ifPresent(this::setBgAndelArbeidsforhold);
+        beregningsgrunnlagPrStatusOgAndel.getBeregningsgrunnlagArbeidstakerAndel()
+            .map(BeregningsgrunnlagArbeidstakerAndel::new)
+            .ifPresent(this::setBeregningsgrunnlagArbeidstakerAndel);
+        beregningsgrunnlagPrStatusOgAndel.getBeregningsgrunnlagFrilansAndel()
+            .map(BeregningsgrunnlagFrilansAndel::new)
+            .ifPresent(this::setBeregningsgrunnlagFrilansAndel);
+    }
+
+    public BeregningsgrunnlagPrStatusOgAndel() {
+    }
+
     public Long getId() {
         return id;
     }
@@ -359,6 +401,33 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
         return beregningArbeidsforhold.map(BGAndelArbeidsforhold::getArbeidsforholdRef);
     }
 
+    public Optional<BeregningsgrunnlagFrilansAndel> getBeregningsgrunnlagFrilansAndel() {
+        return Optional.ofNullable(beregningsgrunnlagFrilansAndel);
+    }
+
+    public Optional<BeregningsgrunnlagArbeidstakerAndel> getBeregningsgrunnlagArbeidstakerAndel() {
+        return Optional.ofNullable(beregningsgrunnlagArbeidstakerAndel);
+    }
+
+    void setBgAndelArbeidsforhold(BGAndelArbeidsforhold bgAndelArbeidsforhold) {
+        bgAndelArbeidsforhold.setBeregningsgrunnlagPrStatusOgAndel(this);
+        this.bgAndelArbeidsforhold = bgAndelArbeidsforhold;
+    }
+
+    void setBeregningsgrunnlagFrilansAndel(BeregningsgrunnlagFrilansAndel beregningsgrunnlagFrilansAndel) {
+        beregningsgrunnlagFrilansAndel.setBeregningsgrunnlagPrStatusOgAndel(this);
+        this.beregningsgrunnlagFrilansAndel = beregningsgrunnlagFrilansAndel;
+    }
+
+    void setBeregningsgrunnlagArbeidstakerAndel(BeregningsgrunnlagArbeidstakerAndel beregningsgrunnlagArbeidstakerAndel) {
+        beregningsgrunnlagArbeidstakerAndel.setBeregningsgrunnlagPrStatusOgAndel(this);
+        this.beregningsgrunnlagArbeidstakerAndel = beregningsgrunnlagArbeidstakerAndel;
+    }
+
+    void setBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode beregningsgrunnlagPeriode) {
+        this.beregningsgrunnlagPeriode = beregningsgrunnlagPeriode;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == this) {
@@ -428,8 +497,8 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
         }
         return new Builder(eksisterendeBGPrStatusOgAndel);
     }
-
     public static class Builder {
+
         /** Når det er built kan ikke denne builderen brukes til annet enn å returnere samme objekt. */
         private boolean built;
 
@@ -662,7 +731,6 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
             if(built) {
                 return kladd;
             }
-            kladd.beregningsgrunnlagPeriode = beregningsgrunnlagPeriode;
             verifyStateForBuild();
             if (kladd.andelsnr == null) {
                 finnOgSettAndelsnr(beregningsgrunnlagPeriode);
@@ -703,7 +771,6 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
         }
 
         public void verifyStateForBuild() {
-            Objects.requireNonNull(kladd.beregningsgrunnlagPeriode, "beregningsgrunnlagPeriode");
             Objects.requireNonNull(kladd.aktivitetStatus, "aktivitetStatus");
             if (kladd.getAktivitetStatus().equals(AktivitetStatus.ARBEIDSTAKER)
                 && kladd.getArbeidsforholdType().equals(OpptjeningAktivitetType.ARBEID)) {

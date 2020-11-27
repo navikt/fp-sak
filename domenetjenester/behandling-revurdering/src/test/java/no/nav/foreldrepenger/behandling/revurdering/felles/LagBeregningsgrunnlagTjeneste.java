@@ -16,7 +16,7 @@ public class LagBeregningsgrunnlagTjeneste {
                                                                   boolean skalDeleAndelMellomArbeidsgiverOgBruker,
                                                                   List<ÅpenDatoIntervallEntitet> perioder,
                                                                   LagAndelTjeneste lagAndelTjeneste) {
-        BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
             .medSkjæringstidspunkt(skjæringstidspunktBeregning)
             .medGrunnbeløp(BigDecimal.valueOf(91425L))
             .build();
@@ -26,7 +26,7 @@ public class LagBeregningsgrunnlagTjeneste {
         for (ÅpenDatoIntervallEntitet datoPeriode : perioder) {
             BeregningsgrunnlagPeriode periode = byggBGPeriode(beregningsgrunnlag, datoPeriode, medOppjustertDagsat,
                 skalDeleAndelMellomArbeidsgiverOgBruker, lagAndelTjeneste);
-            BeregningsgrunnlagPeriode.builder(periode)
+            BeregningsgrunnlagPeriode.oppdater(periode)
                 .build(beregningsgrunnlag);
         }
         return beregningsgrunnlag;
@@ -37,7 +37,7 @@ public class LagBeregningsgrunnlagTjeneste {
                                                            boolean medOppjustertDagsat,
                                                            boolean skalDeleAndelMellomArbeidsgiverOgBruker,
                                                            LagAndelTjeneste lagAndelTjeneste) {
-        BeregningsgrunnlagPeriode periode = BeregningsgrunnlagPeriode.builder()
+        BeregningsgrunnlagPeriode periode = BeregningsgrunnlagPeriode.ny()
             .medBeregningsgrunnlagPeriode(datoPeriode.getFomDato(), datoPeriode.getTomDato())
             .build(beregningsgrunnlag);
         lagAndelTjeneste.lagAndeler(periode, medOppjustertDagsat, skalDeleAndelMellomArbeidsgiverOgBruker);

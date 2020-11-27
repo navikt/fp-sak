@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.fra_kalkulus;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -11,8 +13,10 @@ import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningRefu
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningRefusjonPeriodeDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagGrunnlagDto;
-import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagRegelSporingDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.FaktaAggregatDto;
+import no.nav.folketrygdloven.kalkulator.output.RegelSporingAggregat;
+import no.nav.folketrygdloven.kalkulator.output.RegelSporingGrunnlag;
+import no.nav.folketrygdloven.kalkulator.output.RegelSporingPeriode;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BeregningsgrunnlagRegelType;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
@@ -34,7 +38,6 @@ import no.nav.foreldrepenger.domene.typer.Beløp;
 
 /**
  * Skal etterhvert benytte seg av kontrakten som skal lages i ft-Kalkulus, benytter foreløping en, en-til-en mapping på klassenivå...
- *
  */
 public class KalkulusTilBehandlingslagerMapper {
 
@@ -43,17 +46,19 @@ public class KalkulusTilBehandlingslagerMapper {
     }
 
     public static BeregningsgrunnlagEntitet mapBeregningsgrunnlag(BeregningsgrunnlagDto beregningsgrunnlagFraKalkulus,
-                                                                  Optional<FaktaAggregatDto> faktaAggregat) {
-        BeregningsgrunnlagEntitet.Builder builder = BeregningsgrunnlagEntitet.builder();
+                                                                  Optional<FaktaAggregatDto> faktaAggregat,
+                                                                  Optional<RegelSporingAggregat> regelSporingAggregat) {
+        BeregningsgrunnlagEntitet.Builder builder = BeregningsgrunnlagEntitet.ny();
 
         //med
         builder.medGrunnbeløp(new Beløp(beregningsgrunnlagFraKalkulus.getGrunnbeløp().getVerdi()));
         builder.medOverstyring(beregningsgrunnlagFraKalkulus.isOverstyrt());
-        leggTilRegelsporing(beregningsgrunnlagFraKalkulus, builder, BeregningsgrunnlagRegelType.PERIODISERING);
-        leggTilRegelsporing(beregningsgrunnlagFraKalkulus, builder, BeregningsgrunnlagRegelType.PERIODISERING_NATURALYTELSE);
-        leggTilRegelsporing(beregningsgrunnlagFraKalkulus, builder, BeregningsgrunnlagRegelType.PERIODISERING_REFUSJON);
-        leggTilRegelsporing(beregningsgrunnlagFraKalkulus, builder, BeregningsgrunnlagRegelType.BRUKERS_STATUS);
-        leggTilRegelsporing(beregningsgrunnlagFraKalkulus, builder, BeregningsgrunnlagRegelType.SKJÆRINGSTIDSPUNKT);
+        List<RegelSporingGrunnlag> regelSporingerGrunnlag = regelSporingAggregat.map(RegelSporingAggregat::getRegelsporingerGrunnlag).orElse(Collections.emptyList());
+        leggTilRegelsporing(regelSporingerGrunnlag, builder, BeregningsgrunnlagRegelType.PERIODISERING);
+        leggTilRegelsporing(regelSporingerGrunnlag, builder, BeregningsgrunnlagRegelType.PERIODISERING_NATURALYTELSE);
+        leggTilRegelsporing(regelSporingerGrunnlag, builder, BeregningsgrunnlagRegelType.PERIODISERING_REFUSJON);
+        leggTilRegelsporing(regelSporingerGrunnlag, builder, BeregningsgrunnlagRegelType.BRUKERS_STATUS);
+        leggTilRegelsporing(regelSporingerGrunnlag, builder, BeregningsgrunnlagRegelType.SKJÆRINGSTIDSPUNKT);
         builder.medSkjæringstidspunkt(beregningsgrunnlagFraKalkulus.getSkjæringstidspunkt());
         if (beregningsgrunnlagFraKalkulus.getSammenligningsgrunnlag() != null) {
             builder.medSammenligningsgrunnlagOld(KalkulusTilBGMapper.mapSammenligningsgrunnlag(beregningsgrunnlagFraKalkulus.getSammenligningsgrunnlag()));
@@ -61,18 +66,29 @@ public class KalkulusTilBehandlingslagerMapper {
 
         //lister
         beregningsgrunnlagFraKalkulus.getAktivitetStatuser().forEach(beregningsgrunnlagAktivitetStatus -> builder.leggTilAktivitetStatus(KalkulusTilBGMapper.mapAktivitetStatus(beregningsgrunnlagAktivitetStatus)));
-        beregningsgrunnlagFraKalkulus.getBeregningsgrunnlagPerioder().forEach(beregningsgrunnlagPeriode -> builder.leggTilBeregningsgrunnlagPeriode(KalkulusTilBGMapper.mapBeregningsgrunnlagPeriode(beregningsgrunnlagPeriode, faktaAggregat)));
+        beregningsgrunnlagFraKalkulus.getBeregningsgrunnlagPerioder().forEach(beregningsgrunnlagPeriode -> builder.leggTilBeregningsgrunnlagPeriode(
+            KalkulusTilBGMapper.mapBeregningsgrunnlagPeriode(
+                beregningsgrunnlagPeriode,
+                faktaAggregat,
+                finnRegelsporingerForPeriode(regelSporingAggregat, beregningsgrunnlagPeriode.getPeriode()))));
         builder.leggTilFaktaOmBeregningTilfeller(beregningsgrunnlagFraKalkulus.getFaktaOmBeregningTilfeller().stream().map(fakta -> FaktaOmBeregningTilfelle.fraKode(fakta.getKode())).collect(Collectors.toList()));
         beregningsgrunnlagFraKalkulus.getSammenligningsgrunnlagPrStatusListe().forEach(sammenligningsgrunnlagPrStatus -> builder.leggTilSammenligningsgrunnlag(KalkulusTilBGMapper.mapSammenligningsgrunnlagMedStatus(sammenligningsgrunnlagPrStatus)));
 
         return builder.build();
     }
 
-    private static void leggTilRegelsporing(BeregningsgrunnlagDto beregningsgrunnlagFraKalkulus, BeregningsgrunnlagEntitet.Builder builder, BeregningsgrunnlagRegelType regelType) {
-        BeregningsgrunnlagRegelSporingDto regelLogg = beregningsgrunnlagFraKalkulus.getRegelLogg(regelType);
-        if (regelLogg != null) {
-            builder.medRegellogg(regelLogg.getRegelInput(), regelLogg.getRegelEvaluering(), no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRegelType.fraKode(regelType.getKode()));
-        }
+    private static List<RegelSporingPeriode> finnRegelsporingerForPeriode(Optional<RegelSporingAggregat> regelSporingAggregat, Intervall periode) {
+        return regelSporingAggregat.stream().flatMap(rs -> rs.getRegelsporingPerioder().stream())
+            .filter(rs -> rs.getPeriode().overlapper(periode))
+            .collect(Collectors.toList());
+    }
+
+    private static void leggTilRegelsporing(List<RegelSporingGrunnlag> regelSporingerGrunnlag, BeregningsgrunnlagEntitet.Builder builder, BeregningsgrunnlagRegelType regelType) {
+        Optional<RegelSporingGrunnlag> regelLogg = regelSporingerGrunnlag.stream().filter(rs -> rs.getRegelType().getKode().equals(regelType.getKode())).findFirst();
+        regelLogg.ifPresent(regelSporingGrunnlag -> builder.medRegelSporing(
+            regelSporingGrunnlag.getRegelInput(),
+            regelSporingGrunnlag.getRegelEvaluering(),
+            no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRegelType.fraKode(regelType.getKode())));
     }
 
     public static BeregningRefusjonOverstyringerEntitet mapRefusjonOverstyring(BeregningRefusjonOverstyringerDto refusjonOverstyringerFraKalkulus) {
@@ -128,10 +144,10 @@ public class KalkulusTilBehandlingslagerMapper {
         return ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(periode.getFomDato(), periode.getTomDato());
     }
 
-    public static BeregningsgrunnlagGrunnlagEntitet mapGrunnlag(BeregningsgrunnlagGrunnlagDto beregningsgrunnlagFraKalkulus) {
-        BeregningsgrunnlagGrunnlagBuilder oppdatere = BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.empty());
+    public static BeregningsgrunnlagGrunnlagEntitet mapGrunnlag(BeregningsgrunnlagGrunnlagDto beregningsgrunnlagFraKalkulus, Optional<RegelSporingAggregat> regelSporingAggregat) {
+        BeregningsgrunnlagGrunnlagBuilder oppdatere = BeregningsgrunnlagGrunnlagBuilder.nytt();
 
-        beregningsgrunnlagFraKalkulus.getBeregningsgrunnlag().ifPresent(beregningsgrunnlagDto -> oppdatere.medBeregningsgrunnlag(mapBeregningsgrunnlag(beregningsgrunnlagDto, beregningsgrunnlagFraKalkulus.getFaktaAggregat())));
+        beregningsgrunnlagFraKalkulus.getBeregningsgrunnlag().ifPresent(beregningsgrunnlagDto -> oppdatere.medBeregningsgrunnlag(mapBeregningsgrunnlag(beregningsgrunnlagDto, beregningsgrunnlagFraKalkulus.getFaktaAggregat(), regelSporingAggregat)));
         beregningsgrunnlagFraKalkulus.getOverstyring().ifPresent(beregningAktivitetOverstyringerDto -> oppdatere.medOverstyring(mapAktivitetOverstyring(beregningAktivitetOverstyringerDto)));
         oppdatere.medRegisterAktiviteter(mapRegisterAktiviteter(beregningsgrunnlagFraKalkulus.getRegisterAktiviteter()));
         beregningsgrunnlagFraKalkulus.getSaksbehandletAktiviteter().ifPresent(beregningAktivitetAggregatDto -> oppdatere.medSaksbehandletAktiviteter(mapSaksbehandletAktivitet(beregningAktivitetAggregatDto)));

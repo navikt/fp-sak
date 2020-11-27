@@ -35,6 +35,12 @@ public class BeregningAktivitetAggregatEntitet extends BaseEntitet {
     @Column(name = "skjaringstidspunkt_opptjening", nullable = false)
     private LocalDate skjæringstidspunktOpptjening;
 
+    public BeregningAktivitetAggregatEntitet(BeregningAktivitetAggregatEntitet beregningAktivitetAggregatEntitet) {
+        this.skjæringstidspunktOpptjening = beregningAktivitetAggregatEntitet.getSkjæringstidspunktOpptjening();
+        beregningAktivitetAggregatEntitet.getBeregningAktiviteter().stream().map(BeregningAktivitetEntitet::new)
+            .forEach(this::leggTilAktivitet);
+    }
+
     public BeregningAktivitetAggregatEntitet() {
         // NOSONAR
     }

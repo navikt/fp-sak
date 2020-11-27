@@ -14,7 +14,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import no.nav.foreldrepenger.behandlingslager.Kopimaskin;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
@@ -39,6 +38,7 @@ import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Beregningsgrunnlag
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriodeRegelType;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriodeÅrsak;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRepository;
@@ -312,7 +312,11 @@ public class BeregningsgrunnlagRepositoryTest {
         // Arrange
         var behandling = opprettBehandling();
         BeregningsgrunnlagEntitet beregningsgrunnlag1 = buildBeregningsgrunnlag();
-        beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag1, STEG_OPPRETTET);
+        BeregningsgrunnlagGrunnlagBuilder grBuilder = BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.empty()).medBeregningsgrunnlag(beregningsgrunnlag1)
+            .medRegisterAktiviteter(BeregningAktivitetAggregatEntitet.builder()
+                .medSkjæringstidspunktOpptjening(LocalDate.now())
+                .build());
+        beregningsgrunnlagRepository.lagre(behandling.getId(), grBuilder, STEG_OPPRETTET);
 
         BeregningsgrunnlagEntitet beregningsgrunnlag2 = buildBeregningsgrunnlag();
         beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag2, STEG_OPPRETTET);
@@ -405,7 +409,7 @@ public class BeregningsgrunnlagRepositoryTest {
         assertThat(bgId).isNotNull();
         Long bgAktivitetStatusId = beregningsgrunnlag.getAktivitetStatuser().get(0).getId();
         assertThat(bgAktivitetStatusId).isNotNull();
-        Long sammenlingningsgrId = beregningsgrunnlag.getSammenligningsgrunnlag().getId();
+        Long sammenlingningsgrId = beregningsgrunnlag.getSammenligningsgrunnlag().get().getId();
         assertThat(sammenlingningsgrId).isNotNull();
         BeregningsgrunnlagPeriode bgPeriodeLagret = beregningsgrunnlag.getBeregningsgrunnlagPerioder().get(0);
         Long bgPeriodeId = bgPeriodeLagret.getId();
@@ -427,7 +431,7 @@ public class BeregningsgrunnlagRepositoryTest {
         assertThat(beregningsgrunnlag.getId()).isNotNull();
         assertThat(beregningsgrunnlagLest.getAktivitetStatuser()).hasSize(1);
         assertThat(bgAktivitetStatusLest).isEqualTo(beregningsgrunnlag.getAktivitetStatuser().get(0));
-        assertThat(sammenligningsgrunnlagLest).isEqualTo(beregningsgrunnlag.getSammenligningsgrunnlag());
+        assertThat(sammenligningsgrunnlagLest).isEqualTo(beregningsgrunnlag.getSammenligningsgrunnlag().get());
         assertThat(beregningsgrunnlagLest.getBeregningsgrunnlagPerioder()).hasSize(1);
         assertThat(beregningsgrunnlagLest.getRegelloggSkjæringstidspunkt()).isEqualTo(beregningsgrunnlag.getRegelloggSkjæringstidspunkt());
         assertThat(beregningsgrunnlagLest.getRegelloggBrukersStatus()).isEqualTo(beregningsgrunnlag.getRegelloggBrukersStatus());
@@ -468,7 +472,7 @@ public class BeregningsgrunnlagRepositoryTest {
         var behandling = opprettBehandling();
         Behandling behandling2 = opprettBehandling();
         BeregningsgrunnlagEntitet beregningsgrunnlag = buildBeregningsgrunnlag();
-        BeregningsgrunnlagEntitet beregningsgrunnlag2 = BeregningsgrunnlagEntitet.builder(Kopimaskin.deepCopy(beregningsgrunnlag))
+        BeregningsgrunnlagEntitet beregningsgrunnlag2 = BeregningsgrunnlagEntitet.builder(beregningsgrunnlag)
                 .medSkjæringstidspunkt(beregningsgrunnlag.getSkjæringstidspunkt().plusDays(1))
                 .build();
 
@@ -501,19 +505,19 @@ public class BeregningsgrunnlagRepositoryTest {
     }
 
     private BeregningsgrunnlagPeriode buildBeregningsgrunnlagPeriode(BeregningsgrunnlagEntitet beregningsgrunnlag) {
-        return BeregningsgrunnlagPeriode.builder()
+        return BeregningsgrunnlagPeriode.ny()
                 .medBeregningsgrunnlagPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(15))
                 .medBruttoPrÅr(BigDecimal.valueOf(534343.55))
                 .medAvkortetPrÅr(BigDecimal.valueOf(223421.33))
                 .medRedusertPrÅr(BigDecimal.valueOf(23412.32))
-                .medRegelEvalueringForeslå("input1", "clob1")
-                .medRegelEvalueringFastsett("input2", "clob2")
+                .medRegelEvaluering("input1", "clob1", BeregningsgrunnlagPeriodeRegelType.FORESLÅ)
+                .medRegelEvaluering("input2", "clob2", BeregningsgrunnlagPeriodeRegelType.FASTSETT)
                 .leggTilPeriodeÅrsak(PeriodeÅrsak.UDEFINERT)
                 .build(beregningsgrunnlag);
     }
 
     private BeregningsgrunnlagEntitet buildBeregningsgrunnlag() {
-        BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
                 .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
                 .medGrunnbeløp(BigDecimal.valueOf(91425))
                 .medRegelloggSkjæringstidspunkt("input1", "clob1")

@@ -32,13 +32,13 @@ public class BeregningsgrunnlagDiffSjekkerTest {
     @Test
     public void skalReturnereTrueOmUlikeGrunnbeløp() {
         // Arrange
-        BeregningsgrunnlagEntitet aktivt = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet aktivt = BeregningsgrunnlagEntitet.ny()
             .medGrunnbeløp(BigDecimal.TEN)
             .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.FRILANSER))
             .medSkjæringstidspunkt(LocalDate.now())
             .build();
 
-        BeregningsgrunnlagEntitet forrige = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet forrige = BeregningsgrunnlagEntitet.ny()
             .medGrunnbeløp(BigDecimal.ONE)
             .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.FRILANSER))
             .medSkjæringstidspunkt(LocalDate.now())
@@ -55,12 +55,12 @@ public class BeregningsgrunnlagDiffSjekkerTest {
     @Test
     public void skalReturnereTrueOmUlikeAktivitetstatuser() {
         // Arrange
-        BeregningsgrunnlagEntitet aktivt = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet aktivt = BeregningsgrunnlagEntitet.ny()
             .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.FRILANSER))
             .medSkjæringstidspunkt(LocalDate.now())
             .build();
 
-        BeregningsgrunnlagEntitet forrige = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet forrige = BeregningsgrunnlagEntitet.ny()
             .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE))
             .medSkjæringstidspunkt(LocalDate.now())
             .build();
@@ -76,25 +76,25 @@ public class BeregningsgrunnlagDiffSjekkerTest {
     @Test
     public void skalReturnereTrueOmUliktAntallPerioder() {
         // Arrange
-        BeregningsgrunnlagEntitet aktivt = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet aktivt = BeregningsgrunnlagEntitet.ny()
             .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER))
             .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
             .build();
 
-        BeregningsgrunnlagPeriode.builder()
+        BeregningsgrunnlagPeriode.ny()
             .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null)
             .build(aktivt);
 
-        BeregningsgrunnlagEntitet forrige = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet forrige = BeregningsgrunnlagEntitet.ny()
             .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER))
             .medSkjæringstidspunkt(LocalDate.now())
             .build();
 
-        BeregningsgrunnlagPeriode.builder()
+        BeregningsgrunnlagPeriode.ny()
             .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusMonths(1))
             .build(forrige);
 
-        BeregningsgrunnlagPeriode.builder()
+        BeregningsgrunnlagPeriode.ny()
             .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT.plusMonths(1).plusDays(1), null)
             .leggTilPeriodeÅrsak(PeriodeÅrsak.NATURALYTELSE_BORTFALT)
             .build(forrige);
@@ -109,13 +109,13 @@ public class BeregningsgrunnlagDiffSjekkerTest {
     @Test
     public void skalReturnereTrueOmUliktAntallAndeler() {
         // Arrange
-        BeregningsgrunnlagEntitet aktivt = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet aktivt = BeregningsgrunnlagEntitet.ny()
             .medGrunnbeløp(BigDecimal.TEN)
             .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE))
             .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
             .build();
 
-        BeregningsgrunnlagPeriode aktivPeriode = BeregningsgrunnlagPeriode.builder()
+        BeregningsgrunnlagPeriode aktivPeriode = BeregningsgrunnlagPeriode.ny()
             .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null)
             .build(aktivt);
 
@@ -124,13 +124,13 @@ public class BeregningsgrunnlagDiffSjekkerTest {
             .medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
             .build(aktivPeriode);
 
-        BeregningsgrunnlagEntitet forrige = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet forrige = BeregningsgrunnlagEntitet.ny()
             .medGrunnbeløp(BigDecimal.TEN)
             .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE))
             .medSkjæringstidspunkt(LocalDate.now())
             .build();
 
-        BeregningsgrunnlagPeriode forrigePeriode = BeregningsgrunnlagPeriode.builder()
+        BeregningsgrunnlagPeriode forrigePeriode = BeregningsgrunnlagPeriode.ny()
             .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null)
             .build(forrige);
 
@@ -154,13 +154,13 @@ public class BeregningsgrunnlagDiffSjekkerTest {
     @Test
     public void skalReturnereTrueOmUlikAktivitetstatusPåAndelMedSammeAndelsnr() {
         // Arrange
-        BeregningsgrunnlagEntitet aktivt = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet aktivt = BeregningsgrunnlagEntitet.ny()
             .medGrunnbeløp(BigDecimal.TEN)
             .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE))
             .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
             .build();
 
-        BeregningsgrunnlagPeriode aktivPeriode = BeregningsgrunnlagPeriode.builder()
+        BeregningsgrunnlagPeriode aktivPeriode = BeregningsgrunnlagPeriode.ny()
             .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null)
             .build(aktivt);
 
@@ -170,13 +170,13 @@ public class BeregningsgrunnlagDiffSjekkerTest {
             .medAndelsnr(1L)
             .build(aktivPeriode);
 
-        BeregningsgrunnlagEntitet forrige = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet forrige = BeregningsgrunnlagEntitet.ny()
             .medGrunnbeløp(BigDecimal.TEN)
             .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE))
             .medSkjæringstidspunkt(LocalDate.now())
             .build();
 
-        BeregningsgrunnlagPeriode forrigePeriode = BeregningsgrunnlagPeriode.builder()
+        BeregningsgrunnlagPeriode forrigePeriode = BeregningsgrunnlagPeriode.ny()
             .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null)
             .build(forrige);
 
@@ -197,13 +197,13 @@ public class BeregningsgrunnlagDiffSjekkerTest {
     @Test
     public void skalReturnereTrueOmUlikArbeidsgiverPåAndelMedSammeAndelsnr() {
         // Arrange
-        BeregningsgrunnlagEntitet aktivt = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet aktivt = BeregningsgrunnlagEntitet.ny()
             .medGrunnbeløp(BigDecimal.TEN)
             .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER))
             .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
             .build();
 
-        BeregningsgrunnlagPeriode aktivPeriode = BeregningsgrunnlagPeriode.builder()
+        BeregningsgrunnlagPeriode aktivPeriode = BeregningsgrunnlagPeriode.ny()
             .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null)
             .build(aktivt);
 
@@ -214,13 +214,13 @@ public class BeregningsgrunnlagDiffSjekkerTest {
             .medAndelsnr(1L)
             .build(aktivPeriode);
 
-        BeregningsgrunnlagEntitet forrige = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet forrige = BeregningsgrunnlagEntitet.ny()
             .medGrunnbeløp(BigDecimal.TEN)
             .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER))
             .medSkjæringstidspunkt(LocalDate.now())
             .build();
 
-        BeregningsgrunnlagPeriode forrigePeriode = BeregningsgrunnlagPeriode.builder()
+        BeregningsgrunnlagPeriode forrigePeriode = BeregningsgrunnlagPeriode.ny()
             .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null)
             .build(forrige);
 
@@ -241,13 +241,13 @@ public class BeregningsgrunnlagDiffSjekkerTest {
     @Test
     public void skalReturnereFalseArbeidstakerIngenDiff() {
         // Arrange
-        BeregningsgrunnlagEntitet aktivt = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet aktivt = BeregningsgrunnlagEntitet.ny()
             .medGrunnbeløp(BigDecimal.TEN)
             .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER))
             .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
             .build();
 
-        BeregningsgrunnlagPeriode aktivPeriode = BeregningsgrunnlagPeriode.builder()
+        BeregningsgrunnlagPeriode aktivPeriode = BeregningsgrunnlagPeriode.ny()
             .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null)
             .build(aktivt);
 
@@ -258,13 +258,13 @@ public class BeregningsgrunnlagDiffSjekkerTest {
             .medAndelsnr(1L)
             .build(aktivPeriode);
 
-        BeregningsgrunnlagEntitet forrige = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet forrige = BeregningsgrunnlagEntitet.ny()
             .medGrunnbeløp(BigDecimal.TEN)
             .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER))
             .medSkjæringstidspunkt(LocalDate.now())
             .build();
 
-        BeregningsgrunnlagPeriode forrigePeriode = BeregningsgrunnlagPeriode.builder()
+        BeregningsgrunnlagPeriode forrigePeriode = BeregningsgrunnlagPeriode.ny()
             .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null)
             .build(forrige);
 
@@ -285,12 +285,12 @@ public class BeregningsgrunnlagDiffSjekkerTest {
     @Test
     public void skalIkkeGiForskjellPåAndelerHvisBeggeManglerArbeidsforhold() {
         // Arrange
-        BeregningsgrunnlagEntitet aktivt = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet aktivt = BeregningsgrunnlagEntitet.ny()
             .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER))
             .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
             .build();
 
-        BeregningsgrunnlagPeriode aktivPeriode = BeregningsgrunnlagPeriode.builder()
+        BeregningsgrunnlagPeriode aktivPeriode = BeregningsgrunnlagPeriode.ny()
             .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null)
             .build(aktivt);
 
@@ -301,12 +301,12 @@ public class BeregningsgrunnlagDiffSjekkerTest {
             .medAndelsnr(1L)
             .build(aktivPeriode);
 
-        BeregningsgrunnlagEntitet forrige = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet forrige = BeregningsgrunnlagEntitet.ny()
             .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER))
             .medSkjæringstidspunkt(LocalDate.now())
             .build();
 
-        BeregningsgrunnlagPeriode forrigePeriode = BeregningsgrunnlagPeriode.builder()
+        BeregningsgrunnlagPeriode forrigePeriode = BeregningsgrunnlagPeriode.ny()
             .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusMonths(1))
             .build(forrige);
 
@@ -327,7 +327,7 @@ public class BeregningsgrunnlagDiffSjekkerTest {
     @Test
     public void skalGiForskjellPåSammenligningsgrunnlagVedForskjelligAvvik() {
         // Arrange
-        BeregningsgrunnlagEntitet aktivt = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet aktivt = BeregningsgrunnlagEntitet.ny()
             .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER))
             .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
             .build();
@@ -341,7 +341,7 @@ public class BeregningsgrunnlagDiffSjekkerTest {
             .medRapportertPrÅr(BigDecimal.valueOf(300_000))
             .build(aktivt);
 
-        BeregningsgrunnlagEntitet forrige = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet forrige = BeregningsgrunnlagEntitet.ny()
             .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER))
             .medSkjæringstidspunkt(LocalDate.now())
             .build();
@@ -362,7 +362,7 @@ public class BeregningsgrunnlagDiffSjekkerTest {
     @Test
     public void skalGiForskjellPåSammenligningsgrunnlagVedForskjelligInntektMenLiktAvvik() {
         // Arrange
-        BeregningsgrunnlagEntitet aktivt = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet aktivt = BeregningsgrunnlagEntitet.ny()
             .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER))
             .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
             .build();
@@ -376,7 +376,7 @@ public class BeregningsgrunnlagDiffSjekkerTest {
             .medRapportertPrÅr(BigDecimal.valueOf(300_001))
             .build(aktivt);
 
-        BeregningsgrunnlagEntitet forrige = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet forrige = BeregningsgrunnlagEntitet.ny()
             .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER))
             .medSkjæringstidspunkt(LocalDate.now())
             .build();
@@ -408,7 +408,7 @@ public class BeregningsgrunnlagDiffSjekkerTest {
         sammenligningsgrunnlagPrStatusFl.medSammenligningsperiode(LocalDate.now().minusYears(1), LocalDate.now());
         sammenligningsgrunnlagPrStatusFl.medSammenligningsgrunnlagType(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.SammenligningsgrunnlagType.SAMMENLIGNING_FL);
 
-        BeregningsgrunnlagEntitet beregningsgrunnlagEntitet = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet beregningsgrunnlagEntitet = BeregningsgrunnlagEntitet.ny()
                 .leggTilSammenligningsgrunnlag(sammenligningsgrunnlagPrStatusAt)
                 .leggTilSammenligningsgrunnlag(sammenligningsgrunnlagPrStatusFl)
                 .medSkjæringstidspunkt(LocalDate.now())
@@ -431,11 +431,11 @@ public class BeregningsgrunnlagDiffSjekkerTest {
         sammenligningsgrunnlagPrStatusFl.medSammenligningsperiode(LocalDate.now().minusYears(1), LocalDate.now());
         sammenligningsgrunnlagPrStatusFl.medSammenligningsgrunnlagType(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.SammenligningsgrunnlagType.SAMMENLIGNING_FL);
 
-        BeregningsgrunnlagEntitet aktivt = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet aktivt = BeregningsgrunnlagEntitet.ny()
                 .leggTilSammenligningsgrunnlag(sammenligningsgrunnlagPrStatusAt)
                 .medSkjæringstidspunkt(LocalDate.now())
                 .build();
-        BeregningsgrunnlagEntitet forrige = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet forrige = BeregningsgrunnlagEntitet.ny()
                 .leggTilSammenligningsgrunnlag(sammenligningsgrunnlagPrStatusFl)
                 .medSkjæringstidspunkt(LocalDate.now())
                 .build();
@@ -471,12 +471,12 @@ public class BeregningsgrunnlagDiffSjekkerTest {
         sammenligningsgrunnlagPrStatusAtForrige.medSammenligningsperiode(LocalDate.now().minusYears(1), LocalDate.now());
         sammenligningsgrunnlagPrStatusAtForrige.medSammenligningsgrunnlagType(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.SammenligningsgrunnlagType.SAMMENLIGNING_AT);
 
-        BeregningsgrunnlagEntitet aktivt = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet aktivt = BeregningsgrunnlagEntitet.ny()
                 .leggTilSammenligningsgrunnlag(sammenligningsgrunnlagPrStatusAtAktivt)
                 .leggTilSammenligningsgrunnlag(sammenligningsgrunnlagPrStatusFlAktivt)
                 .medSkjæringstidspunkt(LocalDate.now())
                 .build();
-        BeregningsgrunnlagEntitet forrige = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet forrige = BeregningsgrunnlagEntitet.ny()
                 .leggTilSammenligningsgrunnlag(sammenligningsgrunnlagPrStatusAtForrige)
                 .leggTilSammenligningsgrunnlag(sammenligningsgrunnlagPrStatusFlForrige)
                 .medSkjæringstidspunkt(LocalDate.now())
@@ -487,7 +487,7 @@ public class BeregningsgrunnlagDiffSjekkerTest {
 
     @Test
     public void skalIkkeGiForskjellNårSammenligningsgrunnlagPrStatusListeIkkeErSattForBeggeBeregningsgrunnlag(){
-        BeregningsgrunnlagEntitet beregningsgrunnlagEntitet = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet beregningsgrunnlagEntitet = BeregningsgrunnlagEntitet.ny()
                 .medSkjæringstidspunkt(LocalDate.now())
                 .build();
         boolean resultat = BeregningsgrunnlagDiffSjekker.harSignifikantDiffIBeregningsgrunnlag(beregningsgrunnlagEntitet, beregningsgrunnlagEntitet);
@@ -502,11 +502,11 @@ public class BeregningsgrunnlagDiffSjekkerTest {
         sammenligningsgrunnlagPrStatusAt.medSammenligningsperiode(LocalDate.now().minusYears(1), LocalDate.now());
         sammenligningsgrunnlagPrStatusAt.medSammenligningsgrunnlagType(SammenligningsgrunnlagType.SAMMENLIGNING_AT);
 
-        BeregningsgrunnlagEntitet aktivt = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet aktivt = BeregningsgrunnlagEntitet.ny()
                 .leggTilSammenligningsgrunnlag(sammenligningsgrunnlagPrStatusAt)
                 .medSkjæringstidspunkt(LocalDate.now())
                 .build();
-        BeregningsgrunnlagEntitet forrige = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet forrige = BeregningsgrunnlagEntitet.ny()
                 .medSkjæringstidspunkt(LocalDate.now())
                 .build();
         boolean resultat = BeregningsgrunnlagDiffSjekker.harSignifikantDiffIBeregningsgrunnlag(aktivt, forrige);

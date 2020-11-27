@@ -49,11 +49,20 @@ public class BeregningsgrunnlagRegelSporing extends BaseEntitet {
     @Column(name="regel_type", nullable = false)
     private BeregningsgrunnlagRegelType regelType;
 
+    public BeregningsgrunnlagRegelSporing(BeregningsgrunnlagRegelSporing beregningsgrunnlagRegelSporing) {
+        this.regelEvaluering = beregningsgrunnlagRegelSporing.getRegelEvaluering();
+        this.regelInput = beregningsgrunnlagRegelSporing.getRegelInput();
+        this.regelType = beregningsgrunnlagRegelSporing.getRegelType();
+    }
+
+    protected BeregningsgrunnlagRegelSporing() {
+    }
+
     public Long getId() {
         return id;
     }
 
-    BeregningsgrunnlagRegelType getRegelType() {
+    public BeregningsgrunnlagRegelType getRegelType() {
         return regelType;
     }
 
@@ -63,6 +72,10 @@ public class BeregningsgrunnlagRegelSporing extends BaseEntitet {
 
     public String getRegelInput() {
         return regelInput;
+    }
+
+    void setBeregningsgrunnlag(BeregningsgrunnlagEntitet beregningsgrunnlag) {
+        this.beregningsgrunnlag = beregningsgrunnlag;
     }
 
     static Builder ny() {

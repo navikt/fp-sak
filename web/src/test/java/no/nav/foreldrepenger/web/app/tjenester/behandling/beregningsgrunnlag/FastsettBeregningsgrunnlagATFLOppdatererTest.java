@@ -78,7 +78,7 @@ public class FastsettBeregningsgrunnlagATFLOppdatererTest {
     public void skal_håndtere_overflødig_fastsett_tidsbegrenset_arbeidsforhold_aksjonspunkt() {
         // Arrange
         when(beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(anyLong()))
-                .thenReturn(BeregningsgrunnlagEntitet.builder().medSkjæringstidspunkt(LocalDate.now()).build());
+                .thenReturn(BeregningsgrunnlagEntitet.ny().medSkjæringstidspunkt(LocalDate.now()).build());
 
         when(behandling.getÅpentAksjonspunktMedDefinisjonOptional(any())).thenReturn(Optional.of(ap));
         when(ap.getAksjonspunktDefinisjon()).thenReturn(AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_TIDSBEGRENSET_ARBEIDSFORHOLD);

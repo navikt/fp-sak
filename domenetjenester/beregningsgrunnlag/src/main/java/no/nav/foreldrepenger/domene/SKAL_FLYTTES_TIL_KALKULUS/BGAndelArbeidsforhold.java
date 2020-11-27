@@ -77,6 +77,22 @@ public class BGAndelArbeidsforhold extends BaseEntitet {
     @Column(name = "arbeidsperiode_tom")
     private LocalDate arbeidsperiodeTom;
 
+    public BGAndelArbeidsforhold(BGAndelArbeidsforhold bgAndelArbeidsforhold) {
+        this.arbeidsforholdRef = bgAndelArbeidsforhold.arbeidsforholdRef;
+        this.arbeidsgiver = bgAndelArbeidsforhold.arbeidsgiver;
+        this.arbeidsperiodeFom = bgAndelArbeidsforhold.arbeidsperiodeFom;
+        this.arbeidsperiodeTom = bgAndelArbeidsforhold.arbeidsperiodeTom;
+        this.erTidsbegrensetArbeidsforhold = bgAndelArbeidsforhold.erTidsbegrensetArbeidsforhold;
+        this.fordeltRefusjonPrÅr = bgAndelArbeidsforhold.fordeltRefusjonPrÅr;
+        this.lønnsendringIBeregningsperioden = bgAndelArbeidsforhold.lønnsendringIBeregningsperioden;
+        this.naturalytelseBortfaltPrÅr = bgAndelArbeidsforhold.naturalytelseBortfaltPrÅr;
+        this.refusjonskravPrÅr = bgAndelArbeidsforhold.refusjonskravPrÅr;
+        this.saksbehandletRefusjonPrÅr = bgAndelArbeidsforhold.saksbehandletRefusjonPrÅr;
+        this.naturalytelseTilkommetPrÅr = bgAndelArbeidsforhold.naturalytelseTilkommetPrÅr;
+    }
+
+    public BGAndelArbeidsforhold() {
+    }
 
     public Long getId() {
         return id;
@@ -135,6 +151,10 @@ public class BGAndelArbeidsforhold extends BaseEntitet {
 
     public BigDecimal getFordeltRefusjonPrÅr() {
         return fordeltRefusjonPrÅr;
+    }
+
+    void setBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel beregningsgrunnlagPrStatusOgAndel) {
+        this.beregningsgrunnlagPrStatusOgAndel = beregningsgrunnlagPrStatusOgAndel;
     }
 
     /**
@@ -264,7 +284,7 @@ public class BGAndelArbeidsforhold extends BaseEntitet {
 
         BGAndelArbeidsforhold build(BeregningsgrunnlagPrStatusOgAndel andel) {
             Objects.requireNonNull(bgAndelArbeidsforhold.arbeidsgiver, "arbeidsgiver");
-            bgAndelArbeidsforhold.beregningsgrunnlagPrStatusOgAndel = andel;
+            andel.setBgAndelArbeidsforhold(bgAndelArbeidsforhold);
             return bgAndelArbeidsforhold;
         }
     }

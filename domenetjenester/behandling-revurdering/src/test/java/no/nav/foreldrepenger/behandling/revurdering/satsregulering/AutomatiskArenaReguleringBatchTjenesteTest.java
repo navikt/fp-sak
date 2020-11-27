@@ -116,16 +116,16 @@ public class AutomatiskArenaReguleringBatchTjenesteTest {
         BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, lås);
 
-        BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
             .medSkjæringstidspunkt(uttakFom)
             .build();
         BeregningsgrunnlagAktivitetStatus.builder()
             .medAktivitetStatus(AktivitetStatus.ARBEIDSAVKLARINGSPENGER)
             .build(beregningsgrunnlag);
-        BeregningsgrunnlagPeriode periode = BeregningsgrunnlagPeriode.builder()
+        BeregningsgrunnlagPeriode periode = BeregningsgrunnlagPeriode.ny()
             .medBeregningsgrunnlagPeriode(uttakFom, uttakFom.plusMonths(3))
             .build(beregningsgrunnlag);
-        BeregningsgrunnlagPeriode.builder(periode)
+        BeregningsgrunnlagPeriode.oppdater(periode)
             .build(beregningsgrunnlag);
         beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag, BeregningsgrunnlagTilstand.FASTSATT);
 

@@ -57,6 +57,16 @@ public class SammenligningsgrunnlagPrStatus extends BaseEntitet {
     @JoinColumn(name = "beregningsgrunnlag_id", nullable = false, updatable = false, unique = true)
     private BeregningsgrunnlagEntitet beregningsgrunnlag;
 
+    public SammenligningsgrunnlagPrStatus(SammenligningsgrunnlagPrStatus sammenligningsgrunnlagPrStatus) {
+        this.avvikPromille = sammenligningsgrunnlagPrStatus.getAvvikPromille();
+        this.rapportertPrÅr = sammenligningsgrunnlagPrStatus.getRapportertPrÅr();
+        this.sammenligningsgrunnlagType = sammenligningsgrunnlagPrStatus.getSammenligningsgrunnlagType();
+        this.sammenligningsperiode = sammenligningsgrunnlagPrStatus.sammenligningsperiode;
+    }
+
+    private SammenligningsgrunnlagPrStatus() {
+    }
+
     public Long getId() {
         return id;
     }
@@ -83,6 +93,10 @@ public class SammenligningsgrunnlagPrStatus extends BaseEntitet {
 
     public BeregningsgrunnlagEntitet getBeregningsgrunnlag() {
         return beregningsgrunnlag;
+    }
+
+    void setBeregningsgrunnlag(BeregningsgrunnlagEntitet beregningsgrunnlag) {
+        this.beregningsgrunnlag = beregningsgrunnlag;
     }
 
     @Override
@@ -150,13 +164,9 @@ public class SammenligningsgrunnlagPrStatus extends BaseEntitet {
             return this;
         }
 
-        Builder medBeregningsgrunnlag(BeregningsgrunnlagEntitet beregningsgrunnlagEntitet) {
-            sammenligningsgrunnlagMal.beregningsgrunnlag = beregningsgrunnlagEntitet;
-            return this;
-        }
-
-        SammenligningsgrunnlagPrStatus build() {
+        SammenligningsgrunnlagPrStatus build(BeregningsgrunnlagEntitet kladd) {
             verifyStateForBuild();
+            kladd.leggTilSammenligningsgrunnlagPrStatus(sammenligningsgrunnlagMal);
             return sammenligningsgrunnlagMal;
         }
 
@@ -167,9 +177,6 @@ public class SammenligningsgrunnlagPrStatus extends BaseEntitet {
             Objects.requireNonNull(sammenligningsgrunnlagMal.sammenligningsperiode.getTomDato(), "sammenligningsperiodeTom");
             Objects.requireNonNull(sammenligningsgrunnlagMal.rapportertPrÅr, "rapportertPrÅr");
             Objects.requireNonNull(sammenligningsgrunnlagMal.avvikPromille, "avvikPromille");
-            if (sammenligningsgrunnlagMal.beregningsgrunnlag.getSammenligningsgrunnlagPrStatusListe().stream().anyMatch(sg -> sg.sammenligningsgrunnlagType.equals(sammenligningsgrunnlagMal.sammenligningsgrunnlagType))) {
-                throw new IllegalArgumentException("Kan ikke legge til sammenligningsgrunnlag for " + sammenligningsgrunnlagMal.sammenligningsgrunnlagType + " fordi det allerede er lagt til.");
-            }
         }
     }
 

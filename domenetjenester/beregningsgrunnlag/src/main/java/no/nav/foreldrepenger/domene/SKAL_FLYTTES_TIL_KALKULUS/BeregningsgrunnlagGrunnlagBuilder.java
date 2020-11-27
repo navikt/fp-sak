@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS;
 import java.util.Objects;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.sporing.RegelSporingAggregatEntitet;
 
 public class BeregningsgrunnlagGrunnlagBuilder {
     private BeregningsgrunnlagGrunnlagEntitet kladd;
@@ -13,11 +12,15 @@ public class BeregningsgrunnlagGrunnlagBuilder {
         this.kladd = kladd;
     }
 
-    static BeregningsgrunnlagGrunnlagBuilder nytt() {
+    public static BeregningsgrunnlagGrunnlagBuilder nytt() {
         return new BeregningsgrunnlagGrunnlagBuilder(new BeregningsgrunnlagGrunnlagEntitet());
     }
 
     public static BeregningsgrunnlagGrunnlagBuilder oppdatere(BeregningsgrunnlagGrunnlagEntitet kladd) {
+        return new BeregningsgrunnlagGrunnlagBuilder(kladd);
+    }
+
+    public static BeregningsgrunnlagGrunnlagBuilder kopi(BeregningsgrunnlagGrunnlagEntitet kladd) {
         return new BeregningsgrunnlagGrunnlagBuilder(new BeregningsgrunnlagGrunnlagEntitet(kladd));
     }
 
@@ -25,11 +28,12 @@ public class BeregningsgrunnlagGrunnlagBuilder {
         return kladd.map(BeregningsgrunnlagGrunnlagBuilder::oppdatere).orElseGet(BeregningsgrunnlagGrunnlagBuilder::nytt);
     }
 
+    public static BeregningsgrunnlagGrunnlagBuilder kopi(Optional<BeregningsgrunnlagGrunnlagEntitet> kladd) {
+        return kladd.map(BeregningsgrunnlagGrunnlagBuilder::kopi).orElseGet(BeregningsgrunnlagGrunnlagBuilder::nytt);
+    }
 
-    @Deprecated
-    // KUN FOR MIGRERING AV FEILSAKER
-    public static BeregningsgrunnlagGrunnlagBuilder endre(Optional<BeregningsgrunnlagGrunnlagEntitet> kladd) {
-        return kladd.map(BeregningsgrunnlagGrunnlagBuilder::new).orElseGet(BeregningsgrunnlagGrunnlagBuilder::nytt);
+    public BeregningsgrunnlagEntitet.Builder getBeregningsgrunnlagBuilder() {
+        return BeregningsgrunnlagEntitet.Builder.oppdater(kladd.getBeregningsgrunnlag());
     }
 
     public BeregningsgrunnlagGrunnlagBuilder medBeregningsgrunnlag(BeregningsgrunnlagEntitet beregningsgrunnlag) {
@@ -53,12 +57,6 @@ public class BeregningsgrunnlagGrunnlagBuilder {
     public BeregningsgrunnlagGrunnlagBuilder medSaksbehandletAktiviteter(BeregningAktivitetAggregatEntitet saksbehandletAktiviteter) {
         verifiserKanModifisere();
         kladd.setSaksbehandletAktiviteter(saksbehandletAktiviteter);
-        return this;
-    }
-
-    public BeregningsgrunnlagGrunnlagBuilder medRegelSporingAggregat(RegelSporingAggregatEntitet regelSporingAggregat) {
-        verifiserKanModifisere();
-        kladd.setRegelSporingAggregat(regelSporingAggregat);
         return this;
     }
 

@@ -162,14 +162,14 @@ public class AutomatiskGrunnbelopReguleringBatchTjenesteTest {
         BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, lås);
 
-        BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
             .medSkjæringstidspunkt(terminDato.minusWeeks(3L)).medGrunnbeløp(BigDecimal.valueOf(sats)).build();
         BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .build(beregningsgrunnlag);
-        BeregningsgrunnlagPeriode periode = BeregningsgrunnlagPeriode.builder()
+        BeregningsgrunnlagPeriode periode = BeregningsgrunnlagPeriode.ny()
             .medBeregningsgrunnlagPeriode(uttakFom, uttakFom.plusMonths(3)).medBruttoPrÅr(BigDecimal.valueOf(avkortet))
             .medAvkortetPrÅr(BigDecimal.valueOf(avkortet)).build(beregningsgrunnlag);
-        BeregningsgrunnlagPeriode.builder(periode).build(beregningsgrunnlag);
+        BeregningsgrunnlagPeriode.oppdater(periode).build(beregningsgrunnlag);
         beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag, BeregningsgrunnlagTilstand.FASTSATT);
 
         BeregningsresultatEntitet brFP = BeregningsresultatEntitet.builder().medRegelInput("clob1")

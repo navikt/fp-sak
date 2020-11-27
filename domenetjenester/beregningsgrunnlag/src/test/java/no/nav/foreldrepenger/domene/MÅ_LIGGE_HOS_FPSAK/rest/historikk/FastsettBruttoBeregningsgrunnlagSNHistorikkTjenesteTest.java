@@ -110,7 +110,7 @@ public class FastsettBruttoBeregningsgrunnlagSNHistorikkTjenesteTest {
     private Behandling buildOgLagreBeregningsgrunnlag() {
         AbstractTestScenario<?> scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var behandling = scenario.lagre(repositoryProvider);
-        BeregningsgrunnlagEntitet.Builder beregningsgrunnlagBuilder = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet.Builder beregningsgrunnlagBuilder = BeregningsgrunnlagEntitet.ny()
             .medGrunnbeløp(BigDecimal.ONE)
             .medSkjæringstidspunkt(LocalDate.now().minusDays(5));
 
@@ -120,7 +120,7 @@ public class FastsettBruttoBeregningsgrunnlagSNHistorikkTjenesteTest {
     }
 
     private void leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagEntitet.Builder beregningsgrunnlagBuilder, LocalDate fomDato) {
-        BeregningsgrunnlagPeriode.Builder beregningsgrunnlagPeriodeBuilder = BeregningsgrunnlagPeriode.builder()
+        BeregningsgrunnlagPeriode.Builder beregningsgrunnlagPeriodeBuilder = BeregningsgrunnlagPeriode.ny()
             .medBeregningsgrunnlagPeriode(fomDato, null);
         leggTilBeregningsgrunnlagPrStatusOgAndel(beregningsgrunnlagPeriodeBuilder);
         beregningsgrunnlagBuilder.leggTilBeregningsgrunnlagPeriode(beregningsgrunnlagPeriodeBuilder);

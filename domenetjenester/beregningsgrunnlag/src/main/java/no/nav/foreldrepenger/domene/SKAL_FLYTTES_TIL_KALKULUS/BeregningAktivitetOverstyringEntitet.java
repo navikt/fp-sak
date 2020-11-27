@@ -59,6 +59,18 @@ public class BeregningAktivitetOverstyringEntitet extends BaseEntitet {
     @JoinColumn(name = "ba_overstyringer_id", nullable = false, updatable = false)
     private BeregningAktivitetOverstyringerEntitet overstyringerEntitet;
 
+    public BeregningAktivitetOverstyringEntitet(BeregningAktivitetOverstyringEntitet beregningAktivitetOverstyringEntitet) {
+        this.arbeidsforholdRef = beregningAktivitetOverstyringEntitet.getArbeidsforholdRef();
+        this.arbeidsgiver = beregningAktivitetOverstyringEntitet.getArbeidsgiver().orElse(null);
+        this.handlingType = beregningAktivitetOverstyringEntitet.getHandling();
+        this.opptjeningAktivitetType = beregningAktivitetOverstyringEntitet.getOpptjeningAktivitetType();
+        this.periode = beregningAktivitetOverstyringEntitet.getPeriode();
+    }
+
+    protected BeregningAktivitetOverstyringEntitet() {
+        // NOSONAR
+    }
+
     public BeregningAktivitetHandlingType getHandling() {
         return handlingType;
     }

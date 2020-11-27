@@ -30,6 +30,14 @@ public class BeregningAktivitetOverstyringerEntitet extends BaseEntitet {
     @OneToMany(mappedBy = "overstyringerEntitet")
     private List<BeregningAktivitetOverstyringEntitet> overstyringer = new ArrayList<>();
 
+    public BeregningAktivitetOverstyringerEntitet(BeregningAktivitetOverstyringerEntitet beregningAktivitetOverstyringerEntitet) {
+        beregningAktivitetOverstyringerEntitet.getOverstyringer().stream().map(BeregningAktivitetOverstyringEntitet::new).forEach(this::leggTilOverstyring);
+    }
+
+    public BeregningAktivitetOverstyringerEntitet() {
+        // NOSONAR
+    }
+
     public Long getId() {
         return id;
     }
@@ -37,6 +45,14 @@ public class BeregningAktivitetOverstyringerEntitet extends BaseEntitet {
     public List<BeregningAktivitetOverstyringEntitet> getOverstyringer() {
         return Collections.unmodifiableList(overstyringer);
     }
+
+    void leggTilOverstyring(BeregningAktivitetOverstyringEntitet beregningAktivitetOverstyringEntitet) {
+        if (!overstyringer.contains(beregningAktivitetOverstyringEntitet)) {
+            beregningAktivitetOverstyringEntitet.setBeregningAktivitetOverstyringer(this);
+            overstyringer.add(beregningAktivitetOverstyringEntitet);
+        }
+    }
+
 
     public static Builder builder() {
         return new Builder();
@@ -50,9 +66,7 @@ public class BeregningAktivitetOverstyringerEntitet extends BaseEntitet {
         }
 
         public Builder leggTilOverstyring(BeregningAktivitetOverstyringEntitet beregningAktivitetOverstyring) {
-            BeregningAktivitetOverstyringEntitet entitet = beregningAktivitetOverstyring;
-            kladd.overstyringer.add(entitet);
-            entitet.setBeregningAktivitetOverstyringer(kladd);
+            kladd.leggTilOverstyring(beregningAktivitetOverstyring);
             return this;
         }
 

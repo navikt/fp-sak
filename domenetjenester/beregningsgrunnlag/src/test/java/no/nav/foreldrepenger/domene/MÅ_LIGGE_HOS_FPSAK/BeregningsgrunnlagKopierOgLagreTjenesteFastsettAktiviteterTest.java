@@ -274,7 +274,7 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteFastsettAktiviteterTest {
     }
 
     private void lagreSaksbehandletFjernArbeidOgDeaktiver(Optional<BeregningsgrunnlagGrunnlagEntitet> bgMedAktiviteter) {
-        BeregningsgrunnlagGrunnlagBuilder saksbehandletGrunnlag = BeregningsgrunnlagGrunnlagBuilder.oppdatere(bgMedAktiviteter)
+        BeregningsgrunnlagGrunnlagBuilder saksbehandletGrunnlag = BeregningsgrunnlagGrunnlagBuilder.kopi(bgMedAktiviteter)
                 .medSaksbehandletAktiviteter(BeregningAktivitetAggregatEntitet.builder()
                         .medSkjæringstidspunktOpptjening(SKJÆRINGSTIDSPUNKT)
                         .leggTilAktivitet(BeregningAktivitetEntitet.builder()
@@ -289,7 +289,7 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteFastsettAktiviteterTest {
     }
 
     private void lagreOverstyrtFjernEttArbeidsforholdOgDeaktiver(Optional<BeregningsgrunnlagGrunnlagEntitet> bgMedAktiviteter) {
-        BeregningsgrunnlagGrunnlagBuilder saksbehandletGrunnlag = BeregningsgrunnlagGrunnlagBuilder.oppdatere(bgMedAktiviteter)
+        BeregningsgrunnlagGrunnlagBuilder saksbehandletGrunnlag = BeregningsgrunnlagGrunnlagBuilder.kopi(bgMedAktiviteter)
                 .medOverstyring(BeregningAktivitetOverstyringerEntitet.builder()
                         .leggTilOverstyring(BeregningAktivitetOverstyringEntitet.builder()
                                 .medArbeidsgiver(VIRKSOMHET)
@@ -307,7 +307,7 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteFastsettAktiviteterTest {
                                 .build())
                         .build());
         beregningsgrunnlagRepository.lagre(behandlingReferanse.getBehandlingId(), saksbehandletGrunnlag,
-                BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER);
+            BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER);
         beregningsgrunnlagRepository.deaktiverBeregningsgrunnlagGrunnlagEntitet(behandlingReferanse.getBehandlingId());
     }
 

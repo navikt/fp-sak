@@ -62,11 +62,11 @@ public class KunYtelseHistorikkTjenesteTest {
         ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste = new ArbeidsgiverHistorikkinnslag(
             arbeidsgiverTjeneste);
         kunYtelseHistorikkTjeneste = new KunYtelseHistorikkTjeneste(arbeidsgiverHistorikkinnslagTjeneste);
-        beregningsgrunnlag = BeregningsgrunnlagEntitet.builder()
+        beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
             .medGrunnbeløp(GRUNNBELØP)
             .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
             .build();
-        BeregningsgrunnlagPeriode periode1 = BeregningsgrunnlagPeriode.builder()
+        BeregningsgrunnlagPeriode periode1 = BeregningsgrunnlagPeriode.ny()
             .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusMonths(2).minusDays(1))
             .build(beregningsgrunnlag);
         BeregningsgrunnlagPrStatusOgAndel.builder()
@@ -114,7 +114,7 @@ public class KunYtelseHistorikkTjenesteTest {
         FaktaBeregningLagreDto dto = new FaktaBeregningLagreDto(
             Collections.singletonList(FaktaOmBeregningTilfelle.FASTSETT_BG_KUN_YTELSE), kunYtelseDto);
 
-        BeregningsgrunnlagEntitet forrigeBg = beregningsgrunnlag.dypKopi();
+        BeregningsgrunnlagEntitet forrigeBg = new BeregningsgrunnlagEntitet(beregningsgrunnlag);
         forrigeBg.getBeregningsgrunnlagPerioder()
             .forEach(periode -> periode.getBeregningsgrunnlagPrStatusOgAndelList()
                 .forEach(andel -> BeregningsgrunnlagPrStatusOgAndel.builder(andel)

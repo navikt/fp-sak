@@ -11,7 +11,7 @@ public class BeregningsgrunnlagScenario implements TestScenarioTillegg {
     private BeregningsgrunnlagEntitet.Builder beregningsgrunnlagBuilder;
 
     BeregningsgrunnlagScenario() {
-        this.beregningsgrunnlagBuilder = BeregningsgrunnlagEntitet.builder();
+        this.beregningsgrunnlagBuilder = BeregningsgrunnlagEntitet.ny();
     }
 
     BeregningsgrunnlagEntitet.Builder getBeregningsgrunnlagBuilder() {

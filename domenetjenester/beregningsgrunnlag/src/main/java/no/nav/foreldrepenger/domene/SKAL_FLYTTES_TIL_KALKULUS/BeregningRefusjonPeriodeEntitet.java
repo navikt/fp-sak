@@ -58,6 +58,11 @@ public class BeregningRefusjonPeriodeEntitet extends BaseEntitet {
         this.startdatoRefusjon = startdatoRefusjon;
     }
 
+    public BeregningRefusjonPeriodeEntitet(BeregningRefusjonPeriodeEntitet beregningRefusjonPeriodeEntitet) {
+        this.arbeidsforholdRef = beregningRefusjonPeriodeEntitet.getArbeidsforholdRef();
+        this.startdatoRefusjon = beregningRefusjonPeriodeEntitet.getStartdatoRefusjon();
+    }
+
     void setRefusjonOverstyringEntitet(BeregningRefusjonOverstyringEntitet refusjonOverstyring) {
         this.refusjonOverstyring = refusjonOverstyring;
     }

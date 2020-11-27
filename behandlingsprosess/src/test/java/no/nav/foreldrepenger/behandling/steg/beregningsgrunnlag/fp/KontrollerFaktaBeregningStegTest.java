@@ -70,7 +70,7 @@ public class KontrollerFaktaBeregningStegTest {
     private void lagreBeregningsgrunnlag(boolean overstyrt,
                                          BeregningsgrunnlagTilstand tilstand,
                                          Behandling behandling) {
-        BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
             .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
             .medOverstyring(overstyrt)
             .build();

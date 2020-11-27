@@ -194,12 +194,12 @@ public class VurderRefusjonHistorikkTjenesteTest {
     }
 
     private BeregningsgrunnlagGrunnlagEntitet lagBeregningsgrunnlagMedOverstyring(LocalDate dato) {
-        BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
             .medGrunnbeløp(GRUNNBELØP)
             .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
             .leggTilFaktaOmBeregningTilfeller(List.of(FaktaOmBeregningTilfelle.VURDER_REFUSJONSKRAV_SOM_HAR_KOMMET_FOR_SENT))
             .build();
-        BeregningsgrunnlagPeriode periode1 = BeregningsgrunnlagPeriode.builder()
+        BeregningsgrunnlagPeriode periode1 = BeregningsgrunnlagPeriode.ny()
             .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusMonths(2).minusDays(1))
             .build(beregningsgrunnlag);
         BeregningsgrunnlagPrStatusOgAndel.builder()
@@ -218,12 +218,12 @@ public class VurderRefusjonHistorikkTjenesteTest {
     }
 
     private BeregningsgrunnlagGrunnlagEntitet lagBeregningsgrunnlag() {
-        BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.builder()
+        BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
             .medGrunnbeløp(GRUNNBELØP)
             .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
             .leggTilFaktaOmBeregningTilfeller(List.of(FaktaOmBeregningTilfelle.VURDER_REFUSJONSKRAV_SOM_HAR_KOMMET_FOR_SENT))
             .build();
-        BeregningsgrunnlagPeriode periode1 = BeregningsgrunnlagPeriode.builder()
+        BeregningsgrunnlagPeriode periode1 = BeregningsgrunnlagPeriode.ny()
             .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusMonths(2).minusDays(1))
             .build(beregningsgrunnlag);
         BeregningsgrunnlagPrStatusOgAndel.builder()
