@@ -66,5 +66,4 @@ public class MottakerOppdragKjedeOversikt {
         }
         return new MottakerOppdragKjedeOversikt(betalingsmottaker, kjeder);
     }
-
 }

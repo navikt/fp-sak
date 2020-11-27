@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.økonomi.ny.domene;
+package no.nav.foreldrepenger.økonomi.ny.util;
 
 import java.util.Arrays;
 import java.util.List;

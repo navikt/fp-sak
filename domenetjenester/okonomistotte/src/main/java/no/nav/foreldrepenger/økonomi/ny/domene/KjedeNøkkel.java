@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.økonomi.ny.domene;
 import java.util.Objects;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
+import no.nav.foreldrepenger.økonomi.ny.util.ØkonomiKodeKlassifikSortering;
 
 public class KjedeNøkkel implements Comparable<KjedeNøkkel> {
 
