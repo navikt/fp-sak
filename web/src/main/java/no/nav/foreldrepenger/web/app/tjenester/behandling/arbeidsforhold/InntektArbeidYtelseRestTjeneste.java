@@ -266,6 +266,9 @@ public class InntektArbeidYtelseRestTjeneste {
         alleReferanser.addAll(arbeidsgivereDtos);
         Map<String, ArbeidsgiverOpplysningerDto> oversikt = alleReferanser.stream()
             .collect(Collectors.toMap(ArbeidsgiverOpplysningerDto::getReferanse, Function.identity()));
+        // Sørg for at kunstig er tilstede i tilfelle det legges til
+        oversikt.putIfAbsent(OrgNummer.KUNSTIG_ORG, new ArbeidsgiverOpplysningerDto(OrgNummer.KUNSTIG_ORG, "Lagt til av saksbehandler"));
+
         return new ArbeidsgiverOversiktDto(oversikt);
     }
 
