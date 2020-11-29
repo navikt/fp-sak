@@ -17,6 +17,8 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
@@ -34,6 +36,8 @@ public class UttakResultatPeriodeAktivitetLagreDto {
 
     @Valid
     private ArbeidsgiverLagreDto arbeidsgiver;
+    @Pattern(regexp = "\\d{9}|\\d{13}")
+    private String arbeidsgiverReferanse;
 
     @Pattern(regexp = InputValideringRegex.FRITEKST)
     @Size(max = 200)
@@ -63,12 +67,21 @@ public class UttakResultatPeriodeAktivitetLagreDto {
 
     public Optional<Arbeidsgiver> getArbeidsgiver() {
         if (arbeidsgiver == null) {
-            return Optional.empty();
+            return arbeidsgiverFraReferanse();
         }
         if (arbeidsgiver.erVirksomhet()) {
             return Optional.of(Arbeidsgiver.virksomhet(arbeidsgiver.getIdentifikator()));
         }
         return Optional.of(Arbeidsgiver.person(arbeidsgiver.getAktørId()));
+    }
+
+    private Optional<Arbeidsgiver> arbeidsgiverFraReferanse() {
+        return Optional.ofNullable(arbeidsgiverReferanse)
+            .map(r -> OrgNummer.erGyldigOrgnr(r) ? Arbeidsgiver.virksomhet(r) : Arbeidsgiver.person(new AktørId(r)));
+    }
+
+    public String getArbeidsgiverReferanse() {
+        return arbeidsgiverReferanse;
     }
 
     public InternArbeidsforholdRef getArbeidsforholdId() {
@@ -114,6 +127,9 @@ public class UttakResultatPeriodeAktivitetLagreDto {
 
         public Builder medArbeidsgiver(ArbeidsgiverLagreDto arbeidsgiver) {
             kladd.arbeidsgiver = arbeidsgiver;
+            if (arbeidsgiver != null) {
+                kladd.arbeidsgiverReferanse = arbeidsgiver.getAktørId() != null ? arbeidsgiver.getAktørId().getId() : arbeidsgiver.getIdentifikator();
+            }
             return this;
         }
 
