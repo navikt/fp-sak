@@ -48,10 +48,9 @@ public class FatteVedtakTjeneste {
     private static final Set<BehandlingResultatType> VEDTAKSTILSTANDER = Set.of(BehandlingResultatType.AVSLÅTT, BehandlingResultatType.INNVILGET);
     private static final Set<BehandlingResultatType> VEDTAKSTILSTANDER_KLAGE = Set.of(BehandlingResultatType.KLAGE_AVVIST, BehandlingResultatType.KLAGE_MEDHOLD,
         BehandlingResultatType.KLAGE_YTELSESVEDTAK_OPPHEVET, BehandlingResultatType.KLAGE_YTELSESVEDTAK_STADFESTET, BehandlingResultatType.KLAGE_TILBAKEKREVING_VEDTAK_STADFESTET,
-        BehandlingResultatType.DELVIS_MEDHOLD_I_KLAGE, BehandlingResultatType.HJEMSENDE_UTEN_OPPHEVE, BehandlingResultatType.UGUNST_MEDHOLD_I_KLAGE);
+        BehandlingResultatType.HJEMSENDE_UTEN_OPPHEVE);
     private static final Set<BehandlingResultatType> VEDTAKSTILSTANDER_ANKE = Set.of(BehandlingResultatType.ANKE_AVVIST, BehandlingResultatType.ANKE_OMGJOER,
-        BehandlingResultatType.ANKE_DELVIS_OMGJOERING_TIL_GUNST, BehandlingResultatType.ANKE_YTELSESVEDTAK_STADFESTET,
-        BehandlingResultatType.ANKE_TIL_UGUNST, BehandlingResultatType.ANKE_OPPHEVE_OG_HJEMSENDE);
+        BehandlingResultatType.ANKE_YTELSESVEDTAK_STADFESTET, BehandlingResultatType.ANKE_OPPHEVE_OG_HJEMSENDE, BehandlingResultatType.ANKE_HJEMSENDE_UTEN_OPPHEV);
     private static final Set<BehandlingResultatType> VEDTAKSTILSTANDER_INNSYN = Set.of(BehandlingResultatType.INNSYN_AVVIST,
         BehandlingResultatType.INNSYN_DELVIS_INNVILGET, BehandlingResultatType.INNSYN_INNVILGET);
 

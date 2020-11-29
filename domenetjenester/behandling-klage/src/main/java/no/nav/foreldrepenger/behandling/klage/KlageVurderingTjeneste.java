@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageFormkravEnti
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
@@ -127,7 +126,7 @@ public class KlageVurderingTjeneste {
             behandlingskontrollTjeneste.erStegPassert(behandling, vurderingsteg);
         klageRepository.lagreVurderingsResultat(behandling.getId(), nyttresultat);
         if (erVurderingOppdaterer || tilbakeføres) {
-            settBehandlingResultatTypeBasertPaaUtfall(behandling, nyttresultat.getKlageVurdering(), nyttresultat.getKlageVurderingOmgjør(), vurdertAv);
+            settBehandlingResultatTypeBasertPaaUtfall(behandling, nyttresultat.getKlageVurdering(), vurdertAv);
         }
         if (tilbakeføres) {
             behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
@@ -141,7 +140,7 @@ public class KlageVurderingTjeneste {
         prosesseringAsynkTjeneste.asynkProsesserBehandling(behandling);
     }
 
-    private void settBehandlingResultatTypeBasertPaaUtfall(Behandling behandling, KlageVurdering klageVurdering, KlageVurderingOmgjør vurderingOmgjør, KlageVurdertAv vurdertAv) {
+    private void settBehandlingResultatTypeBasertPaaUtfall(Behandling behandling, KlageVurdering klageVurdering, KlageVurdertAv vurdertAv) {
         if (KlageVurdertAv.NFP.equals(vurdertAv) && klageVurdering.equals(KlageVurdering.STADFESTE_YTELSESVEDTAK)
             && !Fagsystem.INFOTRYGD.equals(behandling.getMigrertKilde())) {
 
@@ -151,7 +150,7 @@ public class KlageVurderingTjeneste {
         }
         KlageResultatEntitet klageResultatEntitet = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
         boolean erPåklagdEksternBehandling = klageResultatEntitet.getPåKlagdBehandlingId().isEmpty() && klageResultatEntitet.getPåKlagdEksternBehandlingUuid().isPresent();
-        BehandlingResultatType behandlingResultatType = BehandlingResultatType.tolkBehandlingResultatType(klageVurdering, vurderingOmgjør, erPåklagdEksternBehandling);
+        BehandlingResultatType behandlingResultatType = BehandlingResultatType.tolkBehandlingResultatType(klageVurdering, erPåklagdEksternBehandling);
 
         if (behandling.getBehandlingsresultat() != null) {
             Behandlingsresultat.builderEndreEksisterende(behandling.getBehandlingsresultat())
