@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 @JsonFormat(shape = Shape.OBJECT)
@@ -52,6 +53,7 @@ public enum BehandlingResultatType implements Kodeverdi {
     ANKE_AVVIST("ANKE_AVVIST", "Anke er avvist"),
     ANKE_OMGJOER("ANKE_OMGJOER", "Bruker har fått omgjøring i anke"),
     ANKE_OPPHEVE_OG_HJEMSENDE("ANKE_OPPHEVE_OG_HJEMSENDE", "Bruker har fått vedtaket opphevet og hjemsendt i anke"),
+    ANKE_HJEMSENDE_UTEN_OPPHEV("ANKE_HJEMSENDE_UTEN_OPPHEV", "Bruker har fått vedtaket hjemsendt i anke"),
     ANKE_YTELSESVEDTAK_STADFESTET("ANKE_YTELSESVEDTAK_STADFESTET", "Anken er stadfestet/opprettholdt"),
     ANKE_DELVIS_OMGJOERING_TIL_GUNST("ANKE_DELVIS_OMGJOERING_TIL_GUNST", "Anke er delvis omgjøring, til gunst"),
     ANKE_TIL_UGUNST("ANKE_TIL_UGUNST", "Gunst omgjør i anke"),
@@ -67,10 +69,32 @@ public enum BehandlingResultatType implements Kodeverdi {
     private static final Set<BehandlingResultatType> HENLEGGELSESKODER_FOR_SØKNAD = Set.of(HENLAGT_SØKNAD_TRUKKET, HENLAGT_FEILOPPRETTET, HENLAGT_BRUKER_DØD, HENLAGT_SØKNAD_MANGLER, MANGLER_BEREGNINGSREGLER);
     private static final Set<BehandlingResultatType> ALLE_HENLEGGELSESKODER = Set.of(HENLAGT_SØKNAD_TRUKKET, HENLAGT_FEILOPPRETTET, HENLAGT_BRUKER_DØD, HENLAGT_KLAGE_TRUKKET, MERGET_OG_HENLAGT, HENLAGT_SØKNAD_MANGLER, HENLAGT_INNSYN_TRUKKET, MANGLER_BEREGNINGSREGLER);
     private static final Set<BehandlingResultatType> KLAGE_KODER = Set.of(KLAGE_MEDHOLD, KLAGE_YTELSESVEDTAK_STADFESTET, KLAGE_YTELSESVEDTAK_OPPHEVET, KLAGE_AVVIST, DELVIS_MEDHOLD_I_KLAGE, HJEMSENDE_UTEN_OPPHEVE, UGUNST_MEDHOLD_I_KLAGE);
-    private static final Set<BehandlingResultatType> ANKE_KODER = Set.of(ANKE_AVVIST, ANKE_OMGJOER, ANKE_OPPHEVE_OG_HJEMSENDE, ANKE_YTELSESVEDTAK_STADFESTET, ANKE_DELVIS_OMGJOERING_TIL_GUNST, ANKE_TIL_UGUNST);
+    private static final Set<BehandlingResultatType> ANKE_KODER = Set.of(ANKE_AVVIST, ANKE_OMGJOER, ANKE_OPPHEVE_OG_HJEMSENDE, ANKE_HJEMSENDE_UTEN_OPPHEV, ANKE_YTELSESVEDTAK_STADFESTET, ANKE_DELVIS_OMGJOERING_TIL_GUNST, ANKE_TIL_UGUNST);
     private static final Set<BehandlingResultatType> INNSYN_KODER = Set.of(INNSYN_INNVILGET, INNSYN_DELVIS_INNVILGET, INNSYN_AVVIST);
     private static final Set<BehandlingResultatType> INNVILGET_KODER = Set.of(INNVILGET, FORELDREPENGER_ENDRET);
     private static final Set<BehandlingResultatType> ALLE_INNVILGET_KODER = Set.of(INNVILGET, FORELDREPENGER_ENDRET, INGEN_ENDRING);
+
+    private static final Map<AnkeVurdering, BehandlingResultatType> ANKE_RESULTAT = Map.ofEntries(
+        Map.entry(AnkeVurdering.ANKE_AVVIS, BehandlingResultatType.ANKE_AVVIST),
+        Map.entry(AnkeVurdering.ANKE_STADFESTE_YTELSESVEDTAK, BehandlingResultatType.ANKE_YTELSESVEDTAK_STADFESTET),
+        Map.entry(AnkeVurdering.ANKE_OMGJOER, BehandlingResultatType.ANKE_OMGJOER),
+        Map.entry(AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE,  BehandlingResultatType.ANKE_OPPHEVE_OG_HJEMSENDE),
+        Map.entry(AnkeVurdering.ANKE_HJEMSEND_UTEN_OPPHEV, BehandlingResultatType.ANKE_HJEMSENDE_UTEN_OPPHEV)
+    );
+
+    private static final Map<KlageVurdering, BehandlingResultatType> KLAGE_RESULTAT = Map.ofEntries(
+        Map.entry(KlageVurdering.AVVIS_KLAGE, BehandlingResultatType.KLAGE_AVVIST),
+        Map.entry(KlageVurdering.STADFESTE_YTELSESVEDTAK, BehandlingResultatType.KLAGE_YTELSESVEDTAK_STADFESTET),
+        Map.entry(KlageVurdering.MEDHOLD_I_KLAGE, BehandlingResultatType.KLAGE_MEDHOLD),
+        Map.entry(KlageVurdering.OPPHEVE_YTELSESVEDTAK,  BehandlingResultatType.KLAGE_YTELSESVEDTAK_OPPHEVET),
+        Map.entry(KlageVurdering.HJEMSENDE_UTEN_Å_OPPHEVE, BehandlingResultatType.HJEMSENDE_UTEN_OPPHEVE)
+    );
+
+    private static final Map<KlageVurderingOmgjør, BehandlingResultatType> KLAGE_OMGJØR_RESULTAT = Map.ofEntries(
+        Map.entry(KlageVurderingOmgjør.GUNST_MEDHOLD_I_KLAGE, BehandlingResultatType.KLAGE_MEDHOLD),
+        Map.entry(KlageVurderingOmgjør.DELVIS_MEDHOLD_I_KLAGE, BehandlingResultatType.DELVIS_MEDHOLD_I_KLAGE),
+        Map.entry(KlageVurderingOmgjør.UGUNST_MEDHOLD_I_KLAGE, BehandlingResultatType.UGUNST_MEDHOLD_I_KLAGE)
+    );
 
     private static final Map<String, BehandlingResultatType> KODER = new LinkedHashMap<>();
 
@@ -164,40 +188,17 @@ public enum BehandlingResultatType implements Kodeverdi {
     }
 
     public static BehandlingResultatType tolkBehandlingResultatType(AnkeVurdering vurdering) {
-        switch (vurdering.getKode()) {
-            case "ANKE_AVVIS":
-                return BehandlingResultatType.ANKE_AVVIST;
-            case "ANKE_STADFESTE_YTELSESVEDTAK":
-                return BehandlingResultatType.ANKE_YTELSESVEDTAK_STADFESTET;
-            case "ANKE_OMGJOER":
-                return BehandlingResultatType.ANKE_OMGJOER;
-            case "ANKE_OPPHEVE_OG_HJEMSENDE":
-                return BehandlingResultatType.ANKE_OPPHEVE_OG_HJEMSENDE;
-            default:
-                return null;
-        }
+        return ANKE_RESULTAT.get(vurdering);
     }
 
-    public static BehandlingResultatType tolkBehandlingResultatType(KlageVurdering vurdering, boolean erPåklagdEksternBehandling) {
-        switch (vurdering.getKode()) {
-            case "AVVIS_KLAGE":
-                return BehandlingResultatType.KLAGE_AVVIST;
-            case "MEDHOLD_I_KLAGE":
-                return BehandlingResultatType.KLAGE_MEDHOLD;
-            case "OPPHEVE_YTELSESVEDTAK":
-                return BehandlingResultatType.KLAGE_YTELSESVEDTAK_OPPHEVET;
-            case "STADFESTE_YTELSESVEDTAK":
-                return erPåklagdEksternBehandling ? BehandlingResultatType.KLAGE_TILBAKEKREVING_VEDTAK_STADFESTET
-                    : BehandlingResultatType.KLAGE_YTELSESVEDTAK_STADFESTET;
-            case "DELVIS_MEDHOLD_I_KLAGE":
-                return BehandlingResultatType.DELVIS_MEDHOLD_I_KLAGE;
-            case "HJEMSENDE_UTEN_Å_OPPHEVE":
-                return BehandlingResultatType.HJEMSENDE_UTEN_OPPHEVE;
-            case "UGUNST_MEDHOLD_I_KLAGE":
-                return BehandlingResultatType.UGUNST_MEDHOLD_I_KLAGE;
-            default:
-                return null;
+    public static BehandlingResultatType tolkBehandlingResultatType(KlageVurdering vurdering, KlageVurderingOmgjør vurderingOmgjør, boolean erPåklagdEksternBehandling) {
+        if (erPåklagdEksternBehandling && KlageVurdering.STADFESTE_YTELSESVEDTAK.equals(vurdering)) {
+            return KLAGE_TILBAKEKREVING_VEDTAK_STADFESTET;
         }
+        if (KlageVurdering.MEDHOLD_I_KLAGE.equals(vurdering) && !KlageVurderingOmgjør.UDEFINERT.equals(vurderingOmgjør)) {
+            return KLAGE_OMGJØR_RESULTAT.get(vurderingOmgjør);
+        }
+        return KLAGE_RESULTAT.get(vurdering);
     }
 
     @Converter(autoApply = true)

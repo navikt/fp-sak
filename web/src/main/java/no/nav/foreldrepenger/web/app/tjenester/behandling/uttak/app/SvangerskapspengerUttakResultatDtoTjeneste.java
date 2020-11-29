@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -15,9 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakR
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
-import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SvangerskapspengerUttakResultatArbeidsforholdDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SvangerskapspengerUttakResultatDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SvangerskapspengerUttakResultatPeriodeDto;
@@ -25,19 +21,14 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.Svangerskaps
 @ApplicationScoped
 public class SvangerskapspengerUttakResultatDtoTjeneste {
     private SvangerskapspengerUttakResultatRepository svpUttakResultatRepository;
-    private ArbeidsgiverDtoTjeneste arbeidsgiverDtoTjeneste;
-    private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
 
     public SvangerskapspengerUttakResultatDtoTjeneste() {
         //For CDI
     }
 
     @Inject
-    public SvangerskapspengerUttakResultatDtoTjeneste(SvangerskapspengerUttakResultatRepository svpUttakResultatRepository,
-                                                      ArbeidsgiverDtoTjeneste arbeidsgiverDtoTjeneste, InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
+    public SvangerskapspengerUttakResultatDtoTjeneste(SvangerskapspengerUttakResultatRepository svpUttakResultatRepository) {
         this.svpUttakResultatRepository = svpUttakResultatRepository;
-        this.arbeidsgiverDtoTjeneste = arbeidsgiverDtoTjeneste;
-        this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
     }
 
     public Optional<SvangerskapspengerUttakResultatDto> mapFra(Behandling behandling) {
@@ -45,7 +36,6 @@ public class SvangerskapspengerUttakResultatDtoTjeneste {
         if (optionalUttakResultat.isEmpty()) {
             return Optional.empty();
         }
-        List<ArbeidsforholdOverstyring> overstyringer = inntektArbeidYtelseTjeneste.finnGrunnlag(behandling.getId()).map(InntektArbeidYtelseGrunnlag::getArbeidsforholdOverstyringer).orElse(Collections.emptyList());
         SvangerskapspengerUttakResultatEntitet uttakResultat = optionalUttakResultat.get();
 
         List<SvangerskapspengerUttakResultatArbeidsforholdDto> arbeidsforholdDtos = new ArrayList<>();
@@ -55,7 +45,7 @@ public class SvangerskapspengerUttakResultatDtoTjeneste {
                 .map(this::mapSvpUttakResultatPeriodeDto).collect(Collectors.toList());
 
             arbeidsforholdDtos.add(mapSvpUttakResultatArbeidsforholdDto(arbeidsforholdEntitet,
-                sortSvpUttakResultatPeriodeDtoer(uttakResultatPeriodeDtos), overstyringer));
+                sortSvpUttakResultatPeriodeDtoer(uttakResultatPeriodeDtos)));
         }
 
         return Optional.of(new SvangerskapspengerUttakResultatDto(arbeidsforholdDtos));
@@ -79,12 +69,10 @@ public class SvangerskapspengerUttakResultatDtoTjeneste {
     }
 
     private SvangerskapspengerUttakResultatArbeidsforholdDto mapSvpUttakResultatArbeidsforholdDto(SvangerskapspengerUttakResultatArbeidsforholdEntitet perArbeidsforhold,
-                                                                                                  List<SvangerskapspengerUttakResultatPeriodeDto> periodeDtoer,
-                                                                                                  List<ArbeidsforholdOverstyring> overstyringer) {
+                                                                                                  List<SvangerskapspengerUttakResultatPeriodeDto> periodeDtoer) {
         return SvangerskapspengerUttakResultatArbeidsforholdDto.builder()
             .medArbeidsforholdIkkeOppfyltÅrsak(perArbeidsforhold.getArbeidsforholdIkkeOppfyltÅrsak())
-            .medArbeidsgiver(arbeidsgiverDtoTjeneste.mapFra(perArbeidsforhold.getArbeidsgiver(), overstyringer),
-                perArbeidsforhold.getArbeidsgiver() != null ? perArbeidsforhold.getArbeidsgiver().getIdentifikator() : null)
+            .medArbeidsgiver(perArbeidsforhold.getArbeidsgiver() != null ? perArbeidsforhold.getArbeidsgiver().getIdentifikator() : null)
             .medArbeidType(perArbeidsforhold.getUttakArbeidType())
             .medPerioder(periodeDtoer)
             .build();

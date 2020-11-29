@@ -29,7 +29,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRe
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertLøpendeMedlemskapEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedlemskap;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedlemskapPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -37,7 +36,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektspost;
@@ -59,7 +57,6 @@ public class MedlemDtoTjeneste {
         AVKLAR_OPPHOLDSRETT);
 
     private MedlemskapRepository medlemskapRepository;
-    private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private BehandlingRepository behandlingRepository;
@@ -69,7 +66,6 @@ public class MedlemDtoTjeneste {
 
     @Inject
     public MedlemDtoTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
-                             ArbeidsgiverTjeneste arbeidsgiverTjeneste,
                              SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                              InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
                              MedlemTjeneste medlemTjeneste,
@@ -77,7 +73,6 @@ public class MedlemDtoTjeneste {
                              PersonopplysningDtoTjeneste personopplysningDtoTjeneste) {
 
         this.medlemskapRepository = behandlingRepositoryProvider.getMedlemskapRepository();
-        this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
@@ -103,12 +98,11 @@ public class MedlemDtoTjeneste {
         }).collect(Collectors.toList());
     }
 
-    private void mapInntekt(Collection<InntektDto> inntektDto, final String navn, Arbeidsgiver arbeidsgiver, Collection<Inntektspost> inntektsposter) {
+    private void mapInntekt(Collection<InntektDto> inntektDto, Arbeidsgiver arbeidsgiver, Collection<Inntektspost> inntektsposter) {
         String utbetaler = finnUtbetalerVisningstekst(arbeidsgiver);
         inntektsposter
             .forEach(inntektspost -> {
                 InntektDto dto = new InntektDto(); // NOSONAR
-                dto.setNavn(navn);
                 if (utbetaler != null) {
                     dto.setUtbetaler(utbetaler);
                 } else {
@@ -271,21 +265,8 @@ public class MedlemDtoTjeneste {
     }
 
     private void mapAktørInntekt(List<InntektDto> inntektDto, AktørId aktørId, InntektFilter filter, PersonopplysningerAggregat personopplysningerAggregat) {
-        String navn = hentNavnFraTps(aktørId, personopplysningerAggregat);
-        filter.forFilter((inntekt, inntektsposter) -> mapInntekt(inntektDto, navn, inntekt.getArbeidsgiver(), inntektsposter));
+        filter.forFilter((inntekt, inntektsposter) -> mapInntekt(inntektDto, inntekt.getArbeidsgiver(), inntektsposter));
     }
-
-    private String hentNavnFraTps(AktørId aktørId, PersonopplysningerAggregat personopplysningerAggregat) {
-        if (personopplysningerAggregat == null) {
-            return UKJENT_NAVN;
-        }
-        PersonopplysningEntitet personopplysning = personopplysningerAggregat.getAktørPersonopplysningMap().get(aktørId);
-        if (personopplysning == null) {
-            return UKJENT_NAVN;
-        }
-        return personopplysning.getNavn(); //$NON-NLS-1$
-    }
-
 
     //TODO(OJR) Hack!!! kan fjernes hvis man ønsker å utføre en migrerning(kompleks) av gamle medlemskapvurdering i produksjon
     private String hentBegrunnelseFraAksjonspuntk(Set<Aksjonspunkt> aksjonspunkter) {

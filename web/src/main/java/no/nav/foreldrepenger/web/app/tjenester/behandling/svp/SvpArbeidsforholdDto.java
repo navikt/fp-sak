@@ -17,9 +17,6 @@ public class SvpArbeidsforholdDto {
     private LocalDate tilretteleggingBehovFom;
     private List<SvpTilretteleggingDatoDto> tilretteleggingDatoer = new ArrayList<>();
     private String arbeidsgiverReferanse;
-    private String arbeidsgiverNavn;
-    private String arbeidsgiverIdent;
-    private String arbeidsgiverIdentVisning;
     private String opplysningerOmRisiko;
     private String opplysningerOmTilrettelegging;
     private Boolean kopiertFraTidligereBehandling;
@@ -47,22 +44,6 @@ public class SvpArbeidsforholdDto {
 
     public void setTilretteleggingDatoer(List<SvpTilretteleggingDatoDto> tilretteleggingDatoer) {
         this.tilretteleggingDatoer = tilretteleggingDatoer;
-    }
-
-    public String getArbeidsgiverNavn() {
-        return arbeidsgiverNavn;
-    }
-
-    public void setArbeidsgiverNavn(String arbeidsgiverNavn) {
-        this.arbeidsgiverNavn = arbeidsgiverNavn;
-    }
-
-    public String getArbeidsgiverIdent() {
-        return arbeidsgiverIdent;
-    }
-
-    public void setArbeidsgiverIdent(String arbeidsgiverIdent) {
-        this.arbeidsgiverIdent = arbeidsgiverIdent;
     }
 
     public Long getTilretteleggingId() {
@@ -135,14 +116,6 @@ public class SvpArbeidsforholdDto {
 
     public void setEksternArbeidsforholdReferanse(String eksternArbeidsforholdReferanse) {
         this.eksternArbeidsforholdReferanse = eksternArbeidsforholdReferanse;
-    }
-
-    public String getArbeidsgiverIdentVisning() {
-        return arbeidsgiverIdentVisning;
-    }
-
-    public void setArbeidsgiverIdentVisning(String arbeidsgiverIdentVisning) {
-        this.arbeidsgiverIdentVisning = arbeidsgiverIdentVisning;
     }
 
     public List<VelferdspermisjonDto> getVelferdspermisjoner() {

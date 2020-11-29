@@ -2,8 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app;
 
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -35,10 +33,8 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntit
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeSøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjonBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyringBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
@@ -54,15 +50,12 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
 
     private final String orgnr = UUID.randomUUID().toString();
     private ForeldrepengerUttakTjeneste uttakTjeneste;
-    private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
     private AbakusInMemoryInntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
 
     @BeforeEach
     public void setUp() {
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        arbeidsgiverTjeneste = mock(ArbeidsgiverTjeneste.class);
-        when(arbeidsgiverTjeneste.hentVirksomhet(orgnr)).thenReturn(new Virksomhet.Builder().medOrgnr(orgnr).medNavn("navn").build());
         inntektArbeidYtelseTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
         uttakTjeneste = new ForeldrepengerUttakTjeneste(new FpUttakRepository(entityManager));
     }
@@ -121,7 +114,7 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         assertThat(result.get().getPerioderSøker().get(0).getAktiviteter()).hasSize(1);
         assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getArbeidsforholdId()).isEqualTo(periodeAktivitet.getArbeidsforholdRef().getReferanse());
         assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getEksternArbeidsforholdId()).isEqualTo(eksternArbeidsforholdId.getReferanse());
-        assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getArbeidsgiver().getIdentifikator()).isEqualTo(periodeAktivitet.getArbeidsgiver().getIdentifikator());
+        assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getArbeidsgiverReferanse()).isEqualTo(periodeAktivitet.getArbeidsgiver().getIdentifikator());
         assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getStønadskontoType()).isEqualTo(periodeAktivitet.getTrekkonto());
         assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getTrekkdager()).isEqualTo(periodeAktivitet.getTrekkdager().decimalValue());
         assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getProsentArbeid()).isEqualTo(periodeAktivitet.getArbeidsprosent());
@@ -157,7 +150,7 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
 
     private UttakPerioderDtoTjeneste tjeneste() {
         return new UttakPerioderDtoTjeneste(uttakTjeneste, new RelatertBehandlingTjeneste(repositoryProvider),
-            repositoryProvider.getYtelsesFordelingRepository(), new ArbeidsgiverDtoTjeneste(arbeidsgiverTjeneste),
+            repositoryProvider.getYtelsesFordelingRepository(),
             inntektArbeidYtelseTjeneste, repositoryProvider.getBehandlingVedtakRepository());
     }
 
@@ -172,7 +165,6 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         UttakResultatPeriodeEntitet periode2 = periodeBuilder(periode2Fom, periode2Tom).build();
 
         String nyOrgnr = "123";
-        when(arbeidsgiverTjeneste.hentVirksomhet(nyOrgnr)).thenReturn(new Virksomhet.Builder().medOrgnr(nyOrgnr).build());
 
         periode1.leggTilAktivitet(periodeAktivitet(periode1, orgnr));
         periode1.leggTilAktivitet(periodeAktivitet(periode1, nyOrgnr));
@@ -205,36 +197,6 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
             .medArbeidsprosent(BigDecimal.ZERO)
             .medUtbetalingsgrad(new Utbetalingsgrad(100))
             .build();
-    }
-
-
-    @Test
-    public void skalSetteRiktigNavnForVirksomhet() {
-        UttakResultatPerioderEntitet perioder = new UttakResultatPerioderEntitet();
-
-        UttakResultatPeriodeEntitet periode = periodeBuilder(LocalDate.now(), LocalDate.now().plusDays(2))
-            .build();
-
-        UttakAktivitetEntitet uttakAktivitet = new UttakAktivitetEntitet.Builder()
-            .medArbeidsforhold(Arbeidsgiver.virksomhet(orgnr), InternArbeidsforholdRef.nyRef())
-            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
-            .build();
-
-        UttakResultatPeriodeAktivitetEntitet periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitet)
-            .medArbeidsprosent(BigDecimal.ZERO)
-            .build();
-
-        periode.leggTilAktivitet(periodeAktivitet);
-
-        perioder.leggTilPeriode(periode);
-
-        var behandling = morBehandlingMedUttak(perioder);
-
-        UttakPerioderDtoTjeneste tjeneste = tjeneste();
-
-        Optional<UttakResultatPerioderDto> result = tjeneste.mapFra(behandling);
-
-        assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getArbeidsgiver().getNavn()).isNotNull();
     }
 
     @Test

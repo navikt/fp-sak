@@ -17,9 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseF
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.TapteDagerFpffTjeneste;
@@ -38,7 +35,6 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.saldo.SaldoUtregning;
 import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Stønadskontotype;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AktivitetIdentifikatorDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AktivitetSaldoDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.ArbeidsgiverDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.KontoUtvidelser;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SaldoerDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.StønadskontoDto;
@@ -49,7 +45,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResulta
 public class SaldoerDtoTjeneste {
     private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
     private MaksDatoUttakTjeneste maksDatoUttakTjeneste;
-    private ArbeidsgiverDtoTjeneste arbeidsgiverDtoTjeneste;
     private StønadskontoRegelAdapter stønadskontoRegelAdapter;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
@@ -63,14 +58,12 @@ public class SaldoerDtoTjeneste {
     @Inject
     public SaldoerDtoTjeneste(StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste,
                               @FagsakYtelseTypeRef("FP") MaksDatoUttakTjeneste maksDatoUttakTjeneste,
-                              ArbeidsgiverDtoTjeneste arbeidsgiverDtoTjeneste,
                               StønadskontoRegelAdapter stønadskontoRegelAdapter,
                               BehandlingRepositoryProvider repositoryProvider,
                               ForeldrepengerUttakTjeneste uttakTjeneste,
                               TapteDagerFpffTjeneste tapteDagerFpffTjeneste) {
         this.stønadskontoSaldoTjeneste = stønadskontoSaldoTjeneste;
         this.maksDatoUttakTjeneste = maksDatoUttakTjeneste;
-        this.arbeidsgiverDtoTjeneste = arbeidsgiverDtoTjeneste;
         this.stønadskontoRegelAdapter = stønadskontoRegelAdapter;
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
@@ -101,7 +94,7 @@ public class SaldoerDtoTjeneste {
             List<AktivitetSaldoDto> aktivitetSaldoListe = new ArrayList<>();
             for (AktivitetIdentifikator aktivitet : saldoUtregning.aktiviteterForSøker()) {
                 var saldo = saldoUtregning.saldo(stønadskontotype, aktivitet);
-                var aktivitetIdentifikatorDto = mapToDto(aktivitet, input.getIayGrunnlag().getArbeidsforholdOverstyringer());
+                var aktivitetIdentifikatorDto = mapToDto(aktivitet);
                 aktivitetSaldoListe.add(new AktivitetSaldoDto(aktivitetIdentifikatorDto, saldo));
             }
             var saldoValidering = new SaldoValidering(saldoUtregning, annenpart.isPresent(), fpGrunnlag.isTapendeBehandling());
@@ -166,24 +159,11 @@ public class SaldoerDtoTjeneste {
             UttakEnumMapper.map(dto.getUttakArbeidType(), dto.getArbeidsgiver(), dto.getArbeidsforholdId()));
     }
 
-    private AktivitetIdentifikatorDto mapToDto(AktivitetIdentifikator aktivitet, List<ArbeidsforholdOverstyring> overstyringer) {
-        var arbeidsgiverDto = mapToArbeidsgiverDto(aktivitet.getArbeidsgiverType(), aktivitet.getArbeidsgiverIdentifikator(),
-            overstyringer);
+    private AktivitetIdentifikatorDto mapToDto(AktivitetIdentifikator aktivitet) {
         return new AktivitetIdentifikatorDto(
             UttakEnumMapper.map(aktivitet.getAktivitetType()),
-            arbeidsgiverDto.orElse(null),
             aktivitet.getArbeidsgiverIdentifikator(),
             aktivitet.getArbeidsforholdId());
     }
 
-    private Optional<ArbeidsgiverDto> mapToArbeidsgiverDto(AktivitetIdentifikator.ArbeidsgiverType arbeidsgiverType,
-                                                           String arbeidsgiverIdentifikator,
-                                                           List<ArbeidsforholdOverstyring> overstyringer) {
-        if (arbeidsgiverIdentifikator == null) {
-            return Optional.empty();
-        }
-        var arbeidsgiver = arbeidsgiverType.equals(AktivitetIdentifikator.ArbeidsgiverType.PERSON) ?
-            Arbeidsgiver.person(new AktørId(arbeidsgiverIdentifikator)) : Arbeidsgiver.virksomhet(arbeidsgiverIdentifikator);
-        return Optional.ofNullable(arbeidsgiverDtoTjeneste.mapFra(arbeidsgiver, overstyringer));
-    }
 }

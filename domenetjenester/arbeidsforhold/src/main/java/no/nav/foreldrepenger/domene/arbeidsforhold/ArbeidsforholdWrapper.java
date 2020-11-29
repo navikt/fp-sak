@@ -13,9 +13,6 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 public class ArbeidsforholdWrapper {
 
     private String arbeidsgiverReferanse;
-    private String navn;
-    private String arbeidsgiverIdentifikator;
-    private String personArbeidsgiverIdentifikator;
     private String arbeidsforholdId;
     private String eksternArbeidsforholdId;
     private String begrunnelse;
@@ -59,22 +56,6 @@ public class ArbeidsforholdWrapper {
 
     public void setArbeidsgiverReferanse(String arbeidsgiverReferanse) {
         this.arbeidsgiverReferanse = arbeidsgiverReferanse;
-    }
-
-    public String getNavn() {
-        return navn;
-    }
-
-    public void setNavn(String navn) {
-        this.navn = navn;
-    }
-
-    public String getArbeidsgiverIdentifikator() {
-        return arbeidsgiverIdentifikator;
-    }
-
-    public void setArbeidsgiverIdentifikator(String arbeidsgiverIdentifikator) {
-        this.arbeidsgiverIdentifikator = arbeidsgiverIdentifikator;
     }
 
     public LocalDate getFomDato() {
@@ -215,14 +196,6 @@ public class ArbeidsforholdWrapper {
         this.vurderOmSkalErstattes = vurderOmSkalErstattes;
     }
 
-    public String getPersonArbeidsgiverIdentifikator() {
-        return personArbeidsgiverIdentifikator;
-    }
-
-    public void setPersonArbeidsgiverIdentifikator(String personArbeidsgiverIdentifikator) {
-        this.personArbeidsgiverIdentifikator = personArbeidsgiverIdentifikator;
-    }
-
     public ArbeidsforholdHandlingType getHandlingType() {
         return handlingType;
     }
@@ -308,13 +281,13 @@ public class ArbeidsforholdWrapper {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ArbeidsforholdWrapper that = (ArbeidsforholdWrapper) o;
-        return Objects.equals(arbeidsgiverIdentifikator, that.arbeidsgiverIdentifikator) &&
+        return Objects.equals(arbeidsgiverReferanse, that.arbeidsgiverReferanse) &&
             InternArbeidsforholdRef.ref(arbeidsforholdId).gjelderFor(InternArbeidsforholdRef.ref(that.arbeidsforholdId));
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(arbeidsgiverIdentifikator, arbeidsforholdId);
+        return Objects.hash(arbeidsgiverReferanse, arbeidsforholdId);
     }
 
 }

@@ -7,7 +7,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.svp.ArbeidsforholdIkkeOppfyl
 
 public class SvangerskapspengerUttakResultatArbeidsforholdDto {
     private ArbeidsforholdIkkeOppfyltÅrsak arbeidsforholdIkkeOppfyltÅrsak;
-    private ArbeidsgiverDto arbeidsgiver;
     private String arbeidsgiverReferanse;
     private UttakArbeidType arbeidType;
 
@@ -19,10 +18,6 @@ public class SvangerskapspengerUttakResultatArbeidsforholdDto {
 
     public ArbeidsforholdIkkeOppfyltÅrsak getArbeidsforholdIkkeOppfyltÅrsak() {
         return arbeidsforholdIkkeOppfyltÅrsak;
-    }
-
-    public ArbeidsgiverDto getArbeidsgiver() {
-        return arbeidsgiver;
     }
 
     public String getArbeidsgiverReferanse() {
@@ -49,8 +44,7 @@ public class SvangerskapspengerUttakResultatArbeidsforholdDto {
             return this;
         }
 
-        public Builder medArbeidsgiver(ArbeidsgiverDto arbeidsgiver, String arbeidsgiverReferanse) {
-            this.kladd.arbeidsgiver = arbeidsgiver;
+        public Builder medArbeidsgiver(String arbeidsgiverReferanse) {
             this.kladd.arbeidsgiverReferanse = arbeidsgiverReferanse;
             return this;
         }

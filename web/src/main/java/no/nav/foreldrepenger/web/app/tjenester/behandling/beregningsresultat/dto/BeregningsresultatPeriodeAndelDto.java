@@ -8,8 +8,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAk
 
 public class BeregningsresultatPeriodeAndelDto {
     private String arbeidsgiverReferanse;
-    private final String arbeidsgiverNavn;
-    private final String arbeidsgiverOrgnr;
     private final Integer refusjon;
     private final Integer tilSoker;
     private final UttakDto uttak;
@@ -24,8 +22,6 @@ public class BeregningsresultatPeriodeAndelDto {
 
     private BeregningsresultatPeriodeAndelDto(Builder builder) {
         this.arbeidsgiverReferanse = builder.arbeidsgiverReferanse;
-        this.arbeidsgiverNavn = builder.arbeidsgiverNavn;
-        this.arbeidsgiverOrgnr = builder.arbeidsgiverOrgnr;
         this.refusjon = builder.refusjon;
         this.tilSoker = builder.tilSøker;
         this.uttak = builder.uttak;
@@ -41,14 +37,6 @@ public class BeregningsresultatPeriodeAndelDto {
 
     public String getArbeidsgiverReferanse() {
         return arbeidsgiverReferanse;
-    }
-
-    public String getArbeidsgiverNavn() {
-        return arbeidsgiverNavn;
-    }
-
-    public String getArbeidsgiverOrgnr() {
-        return arbeidsgiverOrgnr;
     }
 
     public Integer getRefusjon() {
@@ -101,8 +89,6 @@ public class BeregningsresultatPeriodeAndelDto {
 
     public static class Builder {
         private String arbeidsgiverReferanse;
-        private String arbeidsgiverNavn;
-        private String arbeidsgiverOrgnr;
         private Integer refusjon;
         private Integer tilSøker;
         private BigDecimal utbetalingsgrad;
@@ -122,16 +108,6 @@ public class BeregningsresultatPeriodeAndelDto {
             this.arbeidsgiverReferanse = ref;
             return this;
         }
-        public Builder medArbeidsgiverOrgnr(String arbeidsgiverOrgnr) {
-            this.arbeidsgiverOrgnr = arbeidsgiverOrgnr;
-            return this;
-        }
-
-        public Builder medArbeidsgiverNavn(String arbeidsgiverNavn) {
-            this.arbeidsgiverNavn = arbeidsgiverNavn;
-            return this;
-        }
-
         public Builder medRefusjon(Integer refusjon) {
             this.refusjon = refusjon;
             return this;

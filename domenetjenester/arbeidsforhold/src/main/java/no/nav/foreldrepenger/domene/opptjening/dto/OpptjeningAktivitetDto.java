@@ -12,6 +12,7 @@ public class OpptjeningAktivitetDto {
     private LocalDate originalTom;
     private LocalDate opptjeningFom;
     private LocalDate opptjeningTom;
+    private String arbeidsgiverReferanse;
     private String arbeidsforholdRef;
     private BigDecimal stillingsandel;
     private LocalDate naringRegistreringsdato;
@@ -20,14 +21,6 @@ public class OpptjeningAktivitetDto {
     private Boolean erEndret;
     private String begrunnelse;
     private Boolean erPeriodeEndret;
-    private String arbeidsgiver;  // Et navn
-    private String arbeidsgiverReferanse;
-    private String arbeidsgiverNavn;
-    private String oppdragsgiverOrg;
-    private String arbeidsgiverIdentifikator;
-    private String privatpersonNavn;
-    private LocalDate privatpersonFødselsdato;
-    private String utlandskArbeidsgiverNavn;
 
     public OpptjeningAktivitetDto() {//NOSONAR
         // trengs for deserialisering av JSON
@@ -78,38 +71,6 @@ public class OpptjeningAktivitetDto {
 
     public void setOpptjeningTom(LocalDate opptjeningTom) {
         this.opptjeningTom = opptjeningTom;
-    }
-
-    public String getArbeidsgiver() {
-        return arbeidsgiver;
-    }
-
-    public void setArbeidsgiver(String arbeidsgiver) {
-        this.arbeidsgiver = arbeidsgiver;
-    }
-
-    public String getOppdragsgiverOrg() {
-        return oppdragsgiverOrg;
-    }
-
-    public void setOppdragsgiverOrg(String oppdragsgiverOrg) {
-        this.oppdragsgiverOrg = oppdragsgiverOrg;
-    }
-
-    public String getArbeidsgiverNavn() {
-        return arbeidsgiverNavn;
-    }
-
-    public void setArbeidsgiverNavn(String arbeidsgiverNavn) {
-        this.arbeidsgiverNavn = arbeidsgiverNavn;
-    }
-
-    public String getArbeidsgiverIdentifikator() {
-        return arbeidsgiverIdentifikator;
-    }
-
-    public void setArbeidsgiverIdentifikator(String arbeidsgiverIdentifikator) {
-        this.arbeidsgiverIdentifikator = arbeidsgiverIdentifikator;
     }
 
     public LocalDate getNaringRegistreringsdato() {
@@ -176,22 +137,6 @@ public class OpptjeningAktivitetDto {
         return erPeriodeEndret;
     }
 
-    public String getPrivatpersonNavn() {
-        return privatpersonNavn;
-    }
-
-    public void setPrivatpersonNavn(String privatpersonNavn) {
-        this.privatpersonNavn = privatpersonNavn;
-    }
-
-    public LocalDate getPrivatpersonFødselsdato() {
-        return privatpersonFødselsdato;
-    }
-
-    public void setPrivatpersonFødselsdato(LocalDate privatpersonFødselsdato) {
-        this.privatpersonFødselsdato = privatpersonFødselsdato;
-    }
-
     public String getArbeidsgiverReferanse() {
         return arbeidsgiverReferanse;
     }
@@ -200,11 +145,4 @@ public class OpptjeningAktivitetDto {
         this.arbeidsgiverReferanse = arbeidsgiverReferanse;
     }
 
-    public String getUtlandskArbeidsgiverNavn() {
-        return utlandskArbeidsgiverNavn;
-    }
-
-    public void setUtlandskArbeidsgiverNavn(String utlandskArbeidsgiverNavn) {
-        this.utlandskArbeidsgiverNavn = utlandskArbeidsgiverNavn;
-    }
 }

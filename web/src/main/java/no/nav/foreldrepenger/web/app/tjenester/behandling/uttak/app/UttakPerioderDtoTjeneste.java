@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -16,7 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
@@ -32,7 +30,6 @@ public class UttakPerioderDtoTjeneste {
     private ForeldrepengerUttakTjeneste uttakTjeneste;
     private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
-    private ArbeidsgiverDtoTjeneste arbeidsgiverDtoTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private BehandlingVedtakRepository behandlingVedtakRepository;
 
@@ -40,13 +37,11 @@ public class UttakPerioderDtoTjeneste {
     public UttakPerioderDtoTjeneste(ForeldrepengerUttakTjeneste uttakTjeneste,
                                     RelatertBehandlingTjeneste relatertBehandlingTjeneste,
                                     YtelsesFordelingRepository ytelsesFordelingRepository,
-                                    ArbeidsgiverDtoTjeneste arbeidsgiverDtoTjeneste,
                                     InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
                                     BehandlingVedtakRepository behandlingVedtakRepository) {
         this.uttakTjeneste = uttakTjeneste;
         this.relatertBehandlingTjeneste = relatertBehandlingTjeneste;
         this.ytelsesFordelingRepository = ytelsesFordelingRepository;
-        this.arbeidsgiverDtoTjeneste = arbeidsgiverDtoTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.behandlingVedtakRepository = behandlingVedtakRepository;
     }
@@ -163,15 +158,13 @@ public class UttakPerioderDtoTjeneste {
                                    UttakResultatPeriodeAktivitetDto.Builder builder,
                                    Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag) {
         var arbeidsgiverOptional = aktivitet.getUttakAktivitet().getArbeidsgiver();
-        List<ArbeidsforholdOverstyring> overstyringer = inntektArbeidYtelseGrunnlag.map(InntektArbeidYtelseGrunnlag::getArbeidsforholdOverstyringer).orElse(Collections.emptyList());
-        var arbeidsgiverDto = arbeidsgiverOptional.map(arbgiver -> arbeidsgiverDtoTjeneste.mapFra(arbgiver, overstyringer)).orElse(null);
         String arbeidsgiverReferanse = arbeidsgiverOptional.map(Arbeidsgiver::getIdentifikator).orElse(null);
         var ref = aktivitet.getArbeidsforholdRef();
         if (ref != null && inntektArbeidYtelseGrunnlag.isPresent() && inntektArbeidYtelseGrunnlag.get().getArbeidsforholdInformasjon().isPresent() && arbeidsgiverOptional.isPresent()) {
             var eksternArbeidsforholdId = inntektArbeidYtelseGrunnlag.get().getArbeidsforholdInformasjon().get().finnEkstern(arbeidsgiverOptional.get(), ref);
-            builder.medArbeidsforhold(ref, eksternArbeidsforholdId.getReferanse(), arbeidsgiverDto, arbeidsgiverReferanse);
+            builder.medArbeidsforhold(ref, eksternArbeidsforholdId.getReferanse(), arbeidsgiverReferanse);
         } else {
-            builder.medArbeidsforhold(null, null, arbeidsgiverDto, arbeidsgiverReferanse);
+            builder.medArbeidsforhold(null, null, arbeidsgiverReferanse);
         }
     }
 }

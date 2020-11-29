@@ -110,7 +110,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
                                             SvpArbeidsforholdDto arbeidsforhold) {
         List<Yrkesaktivitet> yrkesaktiviteter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), iayGrunnlag.getAktørArbeidFraRegister(param.getAktørId()))
             .getYrkesaktiviteter().stream()
-            .filter(ya -> ya.getArbeidsgiver() != null && ya.getArbeidsgiver().getIdentifikator().equals(arbeidsforhold.getArbeidsgiverIdent()))
+            .filter(ya -> ya.getArbeidsgiver() != null && ya.getArbeidsgiver().getIdentifikator().equals(arbeidsforhold.getArbeidsgiverReferanse()))
             .filter(ya -> ya.getArbeidsforholdRef().gjelderFor(InternArbeidsforholdRef.ref(arbeidsforhold.getInternArbeidsforholdReferanse())))
             .collect(Collectors.toList());
         yrkesaktiviteter.forEach(yrkesaktivitet -> {

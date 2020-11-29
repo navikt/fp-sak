@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.mottak.kompletthettjeneste.impl.fp;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -170,7 +171,8 @@ public class KompletthetsjekkerFelles {
         LOGGER.info("ETTERLYS behandlingId {} erSendtBrev {} manglerIm {} mottattIm {} manglerTot {}", ref.getBehandlingId(), erSendtBrev, manglerFraAktiveArbeidsgivere.size(), inntektsmeldinger.size(), manglendeInntektsmeldinger.size());
 
         // Vent N=3 døgn etter første mottatte IM. Bruk N+1 pga startofday.
-        return finnVentefrist(tidligstMottatt.toLocalDate().plusDays(4));
+        long venteantalldøgn = tidligstMottatt.toLocalDate().getDayOfWeek().getValue() > DayOfWeek.TUESDAY.getValue() ? 6 : 4;
+        return finnVentefrist(tidligstMottatt.toLocalDate().plusDays(venteantalldøgn));
     }
 
     private Optional<LocalDateTime> finnVentefristTilManglendeInntektsmelding(BehandlingReferanse ref) {

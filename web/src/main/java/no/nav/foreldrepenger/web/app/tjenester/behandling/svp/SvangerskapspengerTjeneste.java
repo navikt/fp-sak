@@ -21,8 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilr
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFilter;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
-import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -35,7 +33,6 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 @ApplicationScoped
 public class SvangerskapspengerTjeneste {
 
-    private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
     private SvangerskapspengerRepository svangerskapspengerRepository;
     private FamilieHendelseRepository familieHendelseRepository;
     private InntektArbeidYtelseTjeneste iayTjeneste;
@@ -46,10 +43,8 @@ public class SvangerskapspengerTjeneste {
 
     @Inject
     public SvangerskapspengerTjeneste(SvangerskapspengerRepository svangerskapspengerRepository,
-                                      ArbeidsgiverTjeneste arbeidsgiverTjeneste,
                                       FamilieHendelseRepository familieHendelseRepository,
                                       InntektArbeidYtelseTjeneste iayTjeneste) {
-        this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
         this.svangerskapspengerRepository = svangerskapspengerRepository;
         this.familieHendelseRepository = familieHendelseRepository;
         this.iayTjeneste = iayTjeneste;
@@ -120,17 +115,10 @@ public class SvangerskapspengerTjeneste {
                 .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Fant ikke forventent arbeidsgiver for tilrettelegging: " + svpTilrettelegging.getId()));
             dto.setEksternArbeidsforholdReferanse(arbeidsforholdInformasjon.finnEkstern(arbeidsgiver, ref).getReferanse());
         });
-        if (svpTilrettelegging.getArbeidsgiver().isPresent()) {
-            var arbeidsgiver = svpTilrettelegging.getArbeidsgiver().get();;
-            dto.setVelferdspermisjoner(mapVelferdspermisjoner(svpTilrettelegging, filter, arbeidsgiver, saksbehandletFilter));
-            ArbeidsgiverOpplysninger arbeidsgiverOpplysninger = arbeidsgiverTjeneste.hent(svpTilrettelegging.getArbeidsgiver().get());
-            dto.setArbeidsgiverReferanse(svpTilrettelegging.getArbeidsgiver().get().getIdentifikator());
-            dto.setArbeidsgiverNavn(arbeidsgiverOpplysninger.getNavn());
-            dto.setArbeidsgiverIdent(arbeidsgiver.getIdentifikator());
-            dto.setArbeidsgiverIdentVisning(arbeidsgiverOpplysninger.getIdentifikator());
-        } else {
-            dto.setArbeidsgiverNavn(svpTilrettelegging.getArbeidType().getNavn());
-        }
+        svpTilrettelegging.getArbeidsgiver().ifPresent(a -> {
+            dto.setVelferdspermisjoner(mapVelferdspermisjoner(svpTilrettelegging, filter, a, saksbehandletFilter));
+            dto.setArbeidsgiverReferanse(a.getIdentifikator());
+        });
         return dto;
     }
 

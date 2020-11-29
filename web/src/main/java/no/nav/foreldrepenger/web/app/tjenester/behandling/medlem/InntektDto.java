@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.medlem;
 import java.time.LocalDate;
 
 public class InntektDto {
-    private String navn;
     private String utbetaler; // Orgnummer eller AktørId
     private LocalDate fom;
     private LocalDate tom;
@@ -12,9 +11,6 @@ public class InntektDto {
 
     public InntektDto() {
         // trengs for deserialisering av JSON
-    }
-    public String getNavn() {
-        return navn;
     }
 
     public String getUtbetaler() {
@@ -35,10 +31,6 @@ public class InntektDto {
 
     public Integer getBelop() {
         return belop;
-    }
-
-    void setNavn(String navn) {
-        this.navn = navn;
     }
 
     void setUtbetaler(String utbetaler) {
