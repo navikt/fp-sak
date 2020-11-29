@@ -12,6 +12,7 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
 
@@ -103,6 +104,9 @@ public class AvklarOpptjeningAktivitetDto {
     }
 
     public String getOppdragsgiverOrg() {
+        if (oppdragsgiverOrg == null && arbeidsgiverReferanse != null && OrgNummer.erGyldigOrgnr(arbeidsgiverReferanse)) {
+            return arbeidsgiverReferanse;
+        }
         return oppdragsgiverOrg;
     }
 

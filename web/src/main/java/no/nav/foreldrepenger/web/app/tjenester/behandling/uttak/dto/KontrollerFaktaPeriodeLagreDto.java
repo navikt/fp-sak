@@ -30,6 +30,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.kontroller.fakta.uttakperioder.KontrollerFaktaPeriode;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
@@ -72,6 +74,8 @@ public class KontrollerFaktaPeriodeLagreDto {
 
     @Valid
     private ArbeidsgiverLagreDto arbeidsgiver;
+    @Pattern(regexp = "\\d{9}|\\d{13}")
+    private String arbeidsgiverReferanse;
 
     private boolean erArbeidstaker;
     private boolean erFrilanser;
@@ -141,7 +145,18 @@ public class KontrollerFaktaPeriodeLagreDto {
     }
 
     public ArbeidsgiverLagreDto getArbeidsgiver() {
+        if (arbeidsgiver == null && arbeidsgiverReferanse != null) {
+            return arbeidsgiverFraReferanse();
+        }
         return arbeidsgiver;
+    }
+
+    private ArbeidsgiverLagreDto arbeidsgiverFraReferanse() {
+        return OrgNummer.erGyldigOrgnr(arbeidsgiverReferanse) ? new ArbeidsgiverLagreDto(arbeidsgiverReferanse, null) : new ArbeidsgiverLagreDto(null, new AktørId(arbeidsgiverReferanse));
+    }
+
+    public String getArbeidsgiverReferanse() {
+        return arbeidsgiverReferanse;
     }
 
     public boolean getErArbeidstaker() {
@@ -276,6 +291,9 @@ public class KontrollerFaktaPeriodeLagreDto {
 
         public Builder medArbeidsgiver(ArbeidsgiverLagreDto arbeidsgiver) {
             kladd.arbeidsgiver = arbeidsgiver;
+            if (arbeidsgiver != null) {
+                kladd.arbeidsgiverReferanse = arbeidsgiver.erVirksomhet() ? arbeidsgiver.getIdentifikator() : arbeidsgiver.getAktørId().getId();
+            }
             return this;
         }
 
