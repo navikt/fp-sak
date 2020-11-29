@@ -13,6 +13,7 @@ public class BekreftOpptjeningPeriodeDto {
     private LocalDate opptjeningTom;
     private String arbeidsgiverNavn;
     private String arbeidsgiverIdentifikator;
+    private String arbeidsgiverReferanse;
     private String arbeidsforholdRef;
     private BigDecimal stillingsandel;
     private LocalDate naringRegistreringsdato;
@@ -81,11 +82,23 @@ public class BekreftOpptjeningPeriodeDto {
     }
 
     public String getArbeidsgiverIdentifikator() {
+        if (arbeidsgiverIdentifikator == null && arbeidsgiverReferanse != null) {
+            return arbeidsgiverReferanse;
+        }
         return arbeidsgiverIdentifikator;
     }
 
     public void setArbeidsgiverIdentifikator(String arbeidsgiverIdentifikator) {
         this.arbeidsgiverIdentifikator = arbeidsgiverIdentifikator;
+        this.arbeidsgiverReferanse = arbeidsgiverIdentifikator;
+    }
+
+    public String getArbeidsgiverReferanse() {
+        return arbeidsgiverReferanse;
+    }
+
+    public void setArbeidsgiverReferanse(String arbeidsgiverReferanse) {
+        this.arbeidsgiverReferanse = arbeidsgiverReferanse;
     }
 
     public BigDecimal getStillingsandel() {
