@@ -11,11 +11,6 @@ public class ArbeidsforholdDto {
 
     //NOSONAR
     private String id;
-    private String navn;
-    // For mottak fra GUI (orgnr for virksomhet, og aktørId for person-arbeidsgiver)
-    private String arbeidsgiverIdentifikator;
-    // For visning i GUI (orgnr for virksomhet, og fødselsdato formatert dd.MM.yyyy for person-arbeidsgiver)
-    private String arbeidsgiverIdentifiktorGUI;
     // For ny visning i GUI (orgnr eller aktørId)
     private String arbeidsgiverReferanse;
     private String arbeidsforholdId;
@@ -56,22 +51,6 @@ public class ArbeidsforholdDto {
 
     public void setArbeidsgiverReferanse(String arbeidsgiverReferanse) {
         this.arbeidsgiverReferanse = arbeidsgiverReferanse;
-    }
-
-    public String getNavn() {
-        return navn;
-    }
-
-    public void setNavn(String navn) {
-        this.navn = navn;
-    }
-
-    public String getArbeidsgiverIdentifikator() {
-        return arbeidsgiverIdentifikator;
-    }
-
-    public void setArbeidsgiverIdentifikator(String arbeidsgiverIdentifikator) {
-        this.arbeidsgiverIdentifikator = arbeidsgiverIdentifikator;
     }
 
     public LocalDate getFomDato() {
@@ -232,14 +211,6 @@ public class ArbeidsforholdDto {
 
     public void setVurderOmSkalErstattes(boolean vurderOmSkalErstattes) {
         this.vurderOmSkalErstattes = vurderOmSkalErstattes;
-    }
-
-    public String getArbeidsgiverIdentifiktorGUI() {
-        return arbeidsgiverIdentifiktorGUI;
-    }
-
-    public void setArbeidsgiverIdentifiktorGUI(String arbeidsgiverIdentififaktorGUI) {
-        this.arbeidsgiverIdentifiktorGUI = arbeidsgiverIdentififaktorGUI;
     }
 
     public ArbeidsforholdHandlingType getHandlingType() {

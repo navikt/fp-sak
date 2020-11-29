@@ -12,14 +12,11 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitet;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrganisasjonsNummerValidator;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Organisasjonstype;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsforhold.impl.FinnNavnForManueltLagtTilArbeidsforholdTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningsperiodeForSaksbehandling;
@@ -60,12 +57,11 @@ public class OpptjeningDtoTjeneste {
                 MergeOverlappendePeriodeHjelp.mergeOverlappenePerioder(opptjeningAktivitet)));
         }
         Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlagOpt = iayTjeneste.finnGrunnlag(behandlingId);
-        List<ArbeidsforholdOverstyring> overstyringer = inntektArbeidYtelseGrunnlagOpt.map(InntektArbeidYtelseGrunnlag::getArbeidsforholdOverstyringer).orElse(Collections.emptyList());
 
         if (fastsattOpptjening.isPresent()) {
             resultat.setOpptjeningAktivitetList(forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(ref, inntektArbeidYtelseGrunnlagOpt)
                 .stream()
-                .map(oap -> lagDtoFraOAPeriode(oap, overstyringer))
+                .map(this::lagDtoFraOAPeriode)
                 .collect(Collectors.toList()));
         } else {
             resultat.setOpptjeningAktivitetList(Collections.emptyList());
@@ -82,7 +78,7 @@ public class OpptjeningDtoTjeneste {
             fastsattOpptjening.getOpptjentPeriode().getDays()) : new OpptjeningPeriodeDto();
     }
 
-    private OpptjeningAktivitetDto lagDtoFraOAPeriode(OpptjeningsperiodeForSaksbehandling oap, List<ArbeidsforholdOverstyring> overstyringer) {
+    private OpptjeningAktivitetDto lagDtoFraOAPeriode(OpptjeningsperiodeForSaksbehandling oap) {
         var dto = new OpptjeningAktivitetDto(oap.getOpptjeningAktivitetType(),
             oap.getPeriode().getFomDato(), oap.getPeriode().getTomDato());
 
@@ -90,9 +86,9 @@ public class OpptjeningDtoTjeneste {
         if (arbeidsgiver != null && arbeidsgiver.erAktørId()) {
             lagOpptjeningAktivitetDtoForPrivatArbeidsgiver(oap, dto);
         } else if (arbeidsgiver != null && OrganisasjonsNummerValidator.erGyldig(arbeidsgiver.getOrgnr())) {
-            lagOpptjeningAktivitetDtoForArbeidsgiver(oap, dto, false, overstyringer);
+            lagOpptjeningAktivitetDtoForArbeidsgiver(oap, dto, false);
         } else if (erKunstig(oap)) {
-            lagOpptjeningAktivitetDtoForArbeidsgiver(oap, dto, true, overstyringer);
+            lagOpptjeningAktivitetDtoForArbeidsgiver(oap, dto, true);
         } else {
             lagOpptjeningAktivitetDtoForUtlandskOrganisasjon(oap, dto);
         }
@@ -120,26 +116,16 @@ public class OpptjeningDtoTjeneste {
             .orElse(null));
     }
 
-    private void lagOpptjeningAktivitetDtoForArbeidsgiver(OpptjeningsperiodeForSaksbehandling oap, OpptjeningAktivitetDto dto, boolean kunstig, List<ArbeidsforholdOverstyring> overstyringer) {
-        if (kunstig) {
-            hentNavnTilManueltArbeidsforhold(overstyringer).ifPresent(a -> dto.setArbeidsgiver(a.getNavn()));
-        } else {
-            Arbeidsgiver arbeidsgiver = oap.getArbeidsgiver();
-            if (arbeidsgiver != null) {
-                var virksomhet = arbeidsgiverTjeneste.hentVirksomhet(arbeidsgiver.getOrgnr());
-                dto.setArbeidsgiver(virksomhet.getNavn());
-                dto.setNaringRegistreringsdato(virksomhet.getRegistrert());
-            }
+    private void lagOpptjeningAktivitetDtoForArbeidsgiver(OpptjeningsperiodeForSaksbehandling oap, OpptjeningAktivitetDto dto, boolean kunstig) {
+        if (!kunstig && oap.getArbeidsgiver() != null && OpptjeningAktivitetType.NÆRING.equals(oap.getOpptjeningAktivitetType())) {
+            var virksomhet = arbeidsgiverTjeneste.hentVirksomhet(oap.getArbeidsgiver().getOrgnr());
+            dto.setNaringRegistreringsdato(virksomhet.getRegistrert());
         }
-        dto.setOppdragsgiverOrg(oap.getOrgnr());
-        dto.setArbeidsgiverIdentifikator(oap.getOrgnr());
-        dto.setArbeidsgiverReferanse(oap.getArbeidsgiver().getIdentifikator());
+        dto.setArbeidsgiverReferanse(oap.getArbeidsgiver() != null ? oap.getArbeidsgiver().getIdentifikator() : null);
         dto.setStillingsandel(Optional.ofNullable(oap.getStillingsprosent()).map(Stillingsprosent::getVerdi).orElse(BigDecimal.ZERO));
     }
 
     private void lagOpptjeningAktivitetDtoForUtlandskOrganisasjon(OpptjeningsperiodeForSaksbehandling oap, OpptjeningAktivitetDto dto) {
-        dto.setArbeidsgiver(oap.getArbeidsgiverUtlandNavn());
-        dto.setUtlandskArbeidsgiverNavn(oap.getArbeidsgiverUtlandNavn());
         if (oap.getArbeidsgiverUtlandNavn() != null) {
             dto.setArbeidsgiverReferanse(MapYrkesaktivitetTilOpptjeningsperiodeTjeneste.lagReferanseForUtlandskOrganisasjon(oap.getArbeidsgiverUtlandNavn()));
         }
@@ -147,28 +133,12 @@ public class OpptjeningDtoTjeneste {
     }
 
     private void lagOpptjeningAktivitetDtoForPrivatArbeidsgiver(OpptjeningsperiodeForSaksbehandling oap, OpptjeningAktivitetDto dto) {
-        ArbeidsgiverOpplysninger arbeidsgiver = arbeidsgiverTjeneste.hent(oap.getArbeidsgiver());
         dto.setArbeidsgiverReferanse(oap.getArbeidsgiver().getIdentifikator());
-        if (arbeidsgiver != null) {
-            dto.setPrivatpersonNavn(arbeidsgiver.getNavn());
-            dto.setPrivatpersonFødselsdato(arbeidsgiver.getFødselsdato());
-            dto.setArbeidsgiver(arbeidsgiver.getNavn());
-        }
-        dto.setOppdragsgiverOrg(oap.getArbeidsgiver().getIdentifikator());
-        dto.setArbeidsgiverIdentifikator(oap.getArbeidsgiver().getIdentifikator());
         dto.setStillingsandel(Optional.ofNullable(oap.getStillingsprosent()).map(Stillingsprosent::getVerdi).orElse(BigDecimal.ZERO));
     }
 
     private boolean erKunstig(OpptjeningsperiodeForSaksbehandling oap) {
-        Arbeidsgiver arbeidsgiver = oap.getArbeidsgiver();
-        if (arbeidsgiver != null && arbeidsgiver.getErVirksomhet()) {
-            return Organisasjonstype.erKunstig(arbeidsgiver.getOrgnr());
-        }
-        return false;
-    }
-
-     private Optional<ArbeidsgiverOpplysninger> hentNavnTilManueltArbeidsforhold(List<ArbeidsforholdOverstyring> overstyringer) {
-         return FinnNavnForManueltLagtTilArbeidsforholdTjeneste.finnNavnTilManueltLagtTilArbeidsforhold(overstyringer);
+        return oap.getArbeidsgiver() != null && oap.getArbeidsgiver().getErVirksomhet() && Organisasjonstype.erKunstig(oap.getArbeidsgiver().getOrgnr());
     }
 
 }

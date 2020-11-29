@@ -45,9 +45,6 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.VurderArbeidsforholdTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste.UtledArbeidsforholdParametere;
-import no.nav.foreldrepenger.domene.arbeidsforhold.person.PersonIdentTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjonBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyringBuilder;
@@ -103,11 +100,6 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
 
         arbeidsgiver = Arbeidsgiver.virksomhet(virksomhet1.getOrgnr());
 
-        PersonIdentTjeneste tpsTjeneste = mock(PersonIdentTjeneste.class);
-        var virksomhetTjeneste = mock(VirksomhetTjeneste.class);
-        when(virksomhetTjeneste.hentOrganisasjon(virksomhet1.getOrgnr())).thenReturn(virksomhet1);
-        when(virksomhetTjeneste.hentOrganisasjon(virksomhet2.getOrgnr())).thenReturn(virksomhet2);
-
         VurderArbeidsforholdTjeneste vurderArbeidsforholdTjeneste = mock(VurderArbeidsforholdTjeneste.class);
 
         Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet(virksomhet2.getOrgnr());
@@ -117,9 +109,7 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         arbeidsgiverSetMap.put(arbeidsgiver, arbeidsforholdRefSet);
         when(vurderArbeidsforholdTjeneste.vurder(any(), any(), any(), Mockito.anyBoolean())).thenReturn(arbeidsgiverSetMap);
 
-        ArbeidsgiverTjeneste arbeidsgiverTjeneste = new ArbeidsgiverTjeneste(tpsTjeneste, virksomhetTjeneste);
-        arbeidsforholdTjeneste = new ArbeidsforholdAdministrasjonTjeneste(vurderArbeidsforholdTjeneste,
-            arbeidsgiverTjeneste, inntektsmeldingTjeneste, iayTjeneste);
+        arbeidsforholdTjeneste = new ArbeidsforholdAdministrasjonTjeneste(vurderArbeidsforholdTjeneste, inntektsmeldingTjeneste, iayTjeneste);
     }
 
     @Test

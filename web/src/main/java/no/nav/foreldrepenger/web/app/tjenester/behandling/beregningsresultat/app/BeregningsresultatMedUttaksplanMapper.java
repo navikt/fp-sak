@@ -27,8 +27,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
-import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -44,7 +42,6 @@ import no.nav.vedtak.util.Tuple;
 @ApplicationScoped
 public class BeregningsresultatMedUttaksplanMapper {
 
-    private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
 
     BeregningsresultatMedUttaksplanMapper() {
@@ -52,8 +49,7 @@ public class BeregningsresultatMedUttaksplanMapper {
     }
 
     @Inject
-    public BeregningsresultatMedUttaksplanMapper(ArbeidsgiverTjeneste arbeidsgiverTjeneste, InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
-        this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
+    public BeregningsresultatMedUttaksplanMapper(InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
     }
 
@@ -156,14 +152,7 @@ public class BeregningsresultatMedUttaksplanMapper {
     }
 
     private void settArbeidsgiverfelter(Arbeidsgiver arb, BeregningsresultatPeriodeAndelDto.Builder dtoBuilder) {
-        ArbeidsgiverOpplysninger opplysninger = arbeidsgiverTjeneste.hent(arb);
-        if (opplysninger != null) {
-            dtoBuilder.medArbeidsgiverReferanse(arb.getIdentifikator());
-            dtoBuilder.medArbeidsgiverNavn(opplysninger.getNavn());
-            dtoBuilder.medArbeidsgiverOrgnr(opplysninger.getIdentifikator());
-        } else {
-            throw new IllegalStateException("Finner ikke arbeidsgivers identifikator");
-        }
+        dtoBuilder.medArbeidsgiverReferanse(arb.getIdentifikator());
     }
 
     private Map<Tuple<AktivitetStatus, Optional<String>>, Optional<LocalDate>> finnSisteUtbetalingdatoForAlleAndeler(List<BeregningsresultatPeriode> beregningsresultatPerioder) {

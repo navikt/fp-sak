@@ -25,10 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopp
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsforhold.person.PersonIdentTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
-import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
@@ -102,10 +98,7 @@ public class MedlemDtoTjenesteTest {
         when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any()))
                 .thenReturn(EndringsresultatPersonopplysningerForMedlemskap.builder().build());
 
-        ArbeidsgiverTjeneste arbeidsgiverTjeneste = mock(ArbeidsgiverTjeneste.class);
-        when(arbeidsgiverTjeneste.hent(any())).thenReturn(new ArbeidsgiverOpplysninger(AktørId.dummy(), null, navn, LocalDate.of(2018, 1, 1)));
-
-        MedlemDtoTjeneste dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, arbeidsgiverTjeneste, skjæringstidspunktTjeneste, iayTjeneste,
+        MedlemDtoTjeneste dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, skjæringstidspunktTjeneste, iayTjeneste,
                 medlemTjenesteMock, personopplysningTjenesteMock, mock(PersonopplysningDtoTjeneste.class));
 
         var medlemDtoOpt = dtoTjeneste.lagMedlemV2Dto(behandling.getId());
@@ -115,7 +108,6 @@ public class MedlemDtoTjenesteTest {
             assertThat(medlemDto.getInntekt()).hasSize(1);
             InntektDto inntektDto = medlemDto.getInntekt().get(0);
             assertThat(inntektDto.getUtbetaler()).isEqualTo(arbeidsgiver.getIdentifikator());
-            assertThat(inntektDto.getNavn()).isEqualTo(navn);
         });
     }
 
@@ -168,10 +160,7 @@ public class MedlemDtoTjenesteTest {
                 .build();
         when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any())).thenReturn(endringsresultatPersonopplysningerForMedlemskap);
 
-        ArbeidsgiverTjeneste arbeidsgiverTjeneste = mock(ArbeidsgiverTjeneste.class);
-        when(arbeidsgiverTjeneste.hent(any())).thenReturn(new ArbeidsgiverOpplysninger(AktørId.dummy(), null, navn, LocalDate.of(2018, 1, 1)));
-
-        MedlemDtoTjeneste dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, arbeidsgiverTjeneste, skjæringstidspunktTjeneste, iayTjeneste,
+        MedlemDtoTjeneste dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, skjæringstidspunktTjeneste, iayTjeneste,
                 medlemTjenesteMock, personopplysningTjenesteMock, mock(PersonopplysningDtoTjeneste.class));
 
         var medlemDtoOpt = dtoTjeneste.lagMedlemV2Dto(behandling.getId());
@@ -229,14 +218,10 @@ public class MedlemDtoTjenesteTest {
 
         PersonopplysningTjeneste personopplysningTjenesteMock = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository());
 
-        PersonIdentTjeneste tpsTjeneste = mock(PersonIdentTjeneste.class);
-        when(tpsTjeneste.hentBrukerForAktør(AktørId.dummy())).thenReturn(Optional.ofNullable(person));
-        ArbeidsgiverTjeneste tjeneste = new ArbeidsgiverTjeneste(tpsTjeneste, mock(VirksomhetTjeneste.class));
-
         MedlemTjeneste medlemTjenesteMock = mock(MedlemTjeneste.class);
         when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any()))
                 .thenReturn(EndringsresultatPersonopplysningerForMedlemskap.builder().build());
-        MedlemDtoTjeneste dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, tjeneste, skjæringstidspunktTjeneste, iayTjeneste,
+        MedlemDtoTjeneste dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, skjæringstidspunktTjeneste, iayTjeneste,
                 medlemTjenesteMock,
                 personopplysningTjenesteMock, mock(PersonopplysningDtoTjeneste.class));
 

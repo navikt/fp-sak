@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -48,9 +46,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktiv
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
-import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
@@ -104,7 +100,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         var maksDatoUttakTjeneste = new MaksDatoUttakTjenesteImpl(fpUttakRepository,
             stønadskontoSaldoTjeneste);
         tjeneste = new SaldoerDtoTjeneste(stønadskontoSaldoTjeneste, maksDatoUttakTjeneste,
-            mock(ArbeidsgiverDtoTjeneste.class), stønadskontoRegelAdapter, repositoryProvider, uttakTjeneste,
+            stønadskontoRegelAdapter, repositoryProvider, uttakTjeneste,
             tapteDagerFpffTjeneste);
         behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
     }
@@ -490,15 +486,8 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         lagreStønadskontoBeregning(behandlingMor, maxDagerFPFF, maxDagerFP, maxDagerFK, maxDagerMK);
 
         // Act
-        ArbeidsgiverTjeneste arbeidsgiverTjeneste = mock(ArbeidsgiverTjeneste.class);
-        when(arbeidsgiverTjeneste.hentVirksomhet(virksomhetForMor1.getOrgnr())).thenReturn(
-            new Virksomhet.Builder().medOrgnr(virksomhetForMor1.getOrgnr()).build());
-        when(arbeidsgiverTjeneste.hentVirksomhet(virksomhetForMor2.getOrgnr())).thenReturn(
-            new Virksomhet.Builder().medOrgnr(virksomhetForMor2.getOrgnr()).build());
-
         SaldoerDtoTjeneste tjeneste = new SaldoerDtoTjeneste(stønadskontoSaldoTjeneste,
             new MaksDatoUttakTjenesteImpl(repositoryProvider.getFpUttakRepository(), stønadskontoSaldoTjeneste),
-            new ArbeidsgiverDtoTjeneste(arbeidsgiverTjeneste),
             stønadskontoRegelAdapter,
             repositoryProvider,
             uttakTjeneste,
@@ -798,8 +787,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         return aktivitetSaldoer.stream().filter(as -> {
             AktivitetIdentifikatorDto aktId = as.getAktivitetIdentifikator();
             return aktId.getUttakArbeidType().equals(aktivitetEntitet.getUttakArbeidType()) &&
-                aktId.getArbeidsgiver()
-                    .getIdentifikator()
+                aktId.getArbeidsgiverReferanse()
                     .equals(aktivitetEntitet.getArbeidsgiver().isPresent() ? aktivitetEntitet.getArbeidsgiver()
                         .get()
                         .getIdentifikator() : null) &&

@@ -94,7 +94,7 @@ public class AvklarArbeidsforholdOppdatererTest {
     void setUp() {
         var arbeidsgiverTjeneste = new ArbeidsgiverTjeneste(personIdentTjeneste, virksomhetTjeneste);
         var arbeidsforholdAdministrasjonTjeneste = new ArbeidsforholdAdministrasjonTjeneste(
-            vurderArbeidsforholdTjeneste, arbeidsgiverTjeneste, inntektsmeldingTjeneste, iayTjeneste);
+            vurderArbeidsforholdTjeneste, inntektsmeldingTjeneste, iayTjeneste);
         var arbeidsgiverHistorikkinnslagTjeneste = new ArbeidsgiverHistorikkinnslag(arbeidsgiverTjeneste);
         var historikkAdapter = new HistorikkTjenesteAdapter(historikkRepository, dokumentArkivTjeneste);
         var arbeidsforholdHistorikkinnslagTjeneste = new ArbeidsforholdHistorikkinnslagTjeneste(historikkAdapter,

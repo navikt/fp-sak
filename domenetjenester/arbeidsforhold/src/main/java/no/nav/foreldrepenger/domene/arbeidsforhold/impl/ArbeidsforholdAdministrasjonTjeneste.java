@@ -23,14 +23,11 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Organisasjonstype;
 import no.nav.foreldrepenger.domene.arbeidsforhold.ArbeidsforholdKilde;
 import no.nav.foreldrepenger.domene.arbeidsforhold.ArbeidsforholdWrapper;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.VurderArbeidsforholdTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
-import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjonBuilder;
@@ -53,7 +50,6 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 public class ArbeidsforholdAdministrasjonTjeneste {
 
     private VurderArbeidsforholdTjeneste vurderArbeidsforholdTjeneste;
-    private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
 
@@ -63,12 +59,10 @@ public class ArbeidsforholdAdministrasjonTjeneste {
 
     @Inject
     public ArbeidsforholdAdministrasjonTjeneste(VurderArbeidsforholdTjeneste vurderArbeidsforholdTjeneste,
-                                                ArbeidsgiverTjeneste arbeidsgiverTjeneste,
                                                 InntektsmeldingTjeneste inntektsmeldingTjeneste,
                                                 InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.vurderArbeidsforholdTjeneste = vurderArbeidsforholdTjeneste;
-        this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
     }
 
@@ -171,11 +165,11 @@ public class ArbeidsforholdAdministrasjonTjeneste {
 
     private boolean erAksjonspunktPå(ArbeidsforholdWrapper arbeidsforholdWrapper, Map.Entry<Arbeidsgiver, Set<ArbeidsforholdMedÅrsak>> entry) {
         if (arbeidsforholdWrapper.getKilde() == INNTEKTSKOMPONENTEN) {
-            return entry.getKey().getIdentifikator().equals(arbeidsforholdWrapper.getArbeidsgiverIdentifikator());
+            return entry.getKey().getIdentifikator().equals(arbeidsforholdWrapper.getArbeidsgiverReferanse());
         }
 
         InternArbeidsforholdRef arbeidsforholdRef = InternArbeidsforholdRef.ref(arbeidsforholdWrapper.getArbeidsforholdId());
-        return entry.getKey().getIdentifikator().equals(arbeidsforholdWrapper.getArbeidsgiverIdentifikator())
+        return entry.getKey().getIdentifikator().equals(arbeidsforholdWrapper.getArbeidsgiverReferanse())
             && entry.getValue().stream().map(ArbeidsforholdMedÅrsak::getRef).anyMatch(arbeidsforholdRef::gjelderFor);
     }
 
@@ -199,7 +193,7 @@ public class ArbeidsforholdAdministrasjonTjeneste {
                                                                Inntektsmelding inntektsmelding,
                                                                Optional<ArbeidsforholdInformasjon> arbeidsforholdInformasjon) {
         ArbeidsforholdWrapper wrapper = new ArbeidsforholdWrapper();
-        mapArbeidsgiver(wrapper, inntektsmelding.getArbeidsgiver(), overstyringer);
+        mapArbeidsgiver(wrapper, inntektsmelding.getArbeidsgiver());
         wrapper.setMottattDatoInntektsmelding(inntektsmelding.getMottattDato());
 
         InternArbeidsforholdRef arbeidsforholdRef = inntektsmelding.getArbeidsforholdRef();
@@ -344,7 +338,7 @@ public class ArbeidsforholdAdministrasjonTjeneste {
                 ? UtledStillingsprosent.utled(filter, yrkesaktiviteter, skjæringstidspunkt)
                 : overstyring.getStillingsprosent().getVerdi());
         }
-        mapArbeidsgiverForOverstyring(wrapper, arbeidsgiver, List.of(overstyring));
+        mapArbeidsgiverForOverstyring(wrapper, arbeidsgiver);
         mapArbeidsforholdHandling(wrapper, overstyring);
         wrapper.setArbeidsforholdId(arbeidsforholdRef.getReferanse());
         wrapper.setBegrunnelse(overstyring.getBegrunnelse());
@@ -448,7 +442,7 @@ public class ArbeidsforholdAdministrasjonTjeneste {
         wrapper.setErEndret(sjekkOmFinnesIOverstyr(overstyringer, arbeidsgiver, yrkesaktivitet.getArbeidsforholdRef()));
         wrapper.setSkjaeringstidspunkt(skjæringstidspunkt);
         wrapper.setPermisjoner(UtledPermisjonSomFørerTilAksjonspunkt.utled(filter, List.of(yrkesaktivitet), skjæringstidspunkt));
-        mapArbeidsgiver(wrapper, arbeidsgiver, overstyringer);
+        mapArbeidsgiver(wrapper, arbeidsgiver);
         arbeidsforholdOverstyringEntitet.ifPresent(ov -> {
             wrapper.setHandlingType(ov.getHandling());
             wrapper.setBegrunnelse(ov.getBegrunnelse());
@@ -465,46 +459,12 @@ public class ArbeidsforholdAdministrasjonTjeneste {
         return wrapper;
     }
 
-    private void mapArbeidsgiver(ArbeidsforholdWrapper wrapper, Arbeidsgiver arbeidsgiver, List<ArbeidsforholdOverstyring> overstyringer) {
+    private void mapArbeidsgiver(ArbeidsforholdWrapper wrapper, Arbeidsgiver arbeidsgiver) {
         wrapper.setArbeidsgiverReferanse(arbeidsgiver.getIdentifikator());
-        ArbeidsgiverOpplysninger opplysninger = arbeidsgiverTjeneste.hent(arbeidsgiver);
-        Optional<String> navnOpt = overstyringer.stream()
-            .filter(o -> o.getArbeidsgiver().equals(arbeidsgiver) && o.getArbeidsgiverNavn() != null)
-            .map(ArbeidsforholdOverstyring::getArbeidsgiverNavn)
-            .findAny();
-        if (opplysninger != null) {
-            wrapper.setNavn(opplysninger.getNavn());
-            navnOpt.ifPresent(wrapper::setNavn);
-            if (arbeidsgiver.erAktørId()) {
-                wrapper.setPersonArbeidsgiverIdentifikator(opplysninger.getIdentifikator());
-            }
-        } else {
-            wrapper.setNavn("N/A");
-        }
-        wrapper.setArbeidsgiverIdentifikator(arbeidsgiver.getIdentifikator());
     }
 
-    private void mapArbeidsgiverForOverstyring(ArbeidsforholdWrapper wrapper, Arbeidsgiver arbeidsgiver, List<ArbeidsforholdOverstyring> overstyringer) {
+    private void mapArbeidsgiverForOverstyring(ArbeidsforholdWrapper wrapper, Arbeidsgiver arbeidsgiver) {
         wrapper.setArbeidsgiverReferanse(arbeidsgiver.getIdentifikator());
-        ArbeidsgiverOpplysninger opplysninger = arbeidsgiverTjeneste.hent(arbeidsgiver);
-        if (opplysninger == null) {
-            wrapper.setNavn("N/A");
-            wrapper.setArbeidsgiverIdentifikator(arbeidsgiver.getIdentifikator());
-        } else {
-            if (Organisasjonstype.erKunstig(opplysninger.getIdentifikator())) {
-                Optional<String> navnOpt = overstyringer.stream()
-                    .filter(o -> o.getArbeidsgiver().equals(arbeidsgiver) && o.getArbeidsgiverNavn() != null)
-                    .map(ArbeidsforholdOverstyring::getArbeidsgiverNavn)
-                    .findAny();
-                navnOpt.ifPresent(wrapper::setNavn);
-            } else {
-                wrapper.setNavn(opplysninger.getNavn());
-            }
-            if (arbeidsgiver.erAktørId()) {
-                wrapper.setPersonArbeidsgiverIdentifikator(opplysninger.getIdentifikator());
-            }
-            wrapper.setArbeidsgiverIdentifikator(arbeidsgiver.getIdentifikator());
-        }
     }
 
     private boolean harTattStillingTil(Yrkesaktivitet yr, List<ArbeidsforholdOverstyring> overstyringer) {

@@ -333,9 +333,8 @@ public class BekreftSvangerskapspengerOppdatererTest extends RepositoryAwareTest
         List<SvpTilretteleggingDatoDto> datoer = new ArrayList<>(Arrays.asList(tilretteleggingDatoer));
 
         arbeidsforholdDto.setTilretteleggingDatoer(datoer);
-        arbeidsforholdDto.setArbeidsgiverIdent(ARBEIDSGIVER_IDENT);
+        arbeidsforholdDto.setArbeidsgiverReferanse(ARBEIDSGIVER_IDENT);
         arbeidsforholdDto.setInternArbeidsforholdReferanse(internArbeidsforholdRef == null ? null : internArbeidsforholdRef.getReferanse());
-        arbeidsforholdDto.setArbeidsgiverNavn("Byggmaker Bob");
         arbeidsforholdDto.setMottattTidspunkt(LocalDateTime.now());
         arbeidsforholdDto.setTilretteleggingId(id);
         arbeidsforholdDto.setSkalBrukes(skalBrukes);

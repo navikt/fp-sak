@@ -45,7 +45,6 @@ public class KontrollerFaktaPeriodeDto {
 
     private boolean bekreftet;
 
-    private ArbeidsgiverDto arbeidsgiver;
     private String arbeidsgiverReferanse;
 
     private boolean erArbeidstaker;
@@ -115,10 +114,6 @@ public class KontrollerFaktaPeriodeDto {
         return PERIODE_OK.equals(resultat) || PERIODE_OK_ENDRET.equals(resultat);
     }
 
-    public ArbeidsgiverDto getArbeidsgiver() {
-        return arbeidsgiver;
-    }
-
     public String getArbeidsgiverReferanse() {
         return arbeidsgiverReferanse;
     }
@@ -162,14 +157,14 @@ public class KontrollerFaktaPeriodeDto {
         public Builder() {
         }
 
-        public Builder(KontrollerFaktaPeriode periode, ArbeidsgiverDto arbeidsgiver, String arbeidsgiverReferanse) {
+        public Builder(KontrollerFaktaPeriode periode, String arbeidsgiverReferanse) {
             medPeriode(periode.getOppgittPeriode().getFom(), periode.getOppgittPeriode().getTom());
             medUttakPeriodeType(periode.getOppgittPeriode().getPeriodeType());
             medArbeidstidsprosent(periode.getOppgittPeriode().getArbeidsprosent());
             medBegrunnelse(periode.getOppgittPeriode().getBegrunnelse().orElse(null));
             medBekreftet(periode.erBekreftet());
             medUttakPeriodeVurderingType(periode.getVurdering());
-            medArbeidsgiver(arbeidsgiver, arbeidsgiverReferanse);
+            medArbeidsgiver(arbeidsgiverReferanse);
             medArbeidstaker(periode.getOppgittPeriode().getErArbeidstaker());
             medFrilans(periode.getOppgittPeriode().getErFrilanser());
             medSelvstendig(periode.getOppgittPeriode().getErSelvstendig());
@@ -244,8 +239,7 @@ public class KontrollerFaktaPeriodeDto {
             return this;
         }
 
-        public Builder medArbeidsgiver(ArbeidsgiverDto arbeidsgiver, String arbeidsgiverReferanse) {
-            kladd.arbeidsgiver = arbeidsgiver;
+        public Builder medArbeidsgiver(String arbeidsgiverReferanse) {
             kladd.arbeidsgiverReferanse = arbeidsgiverReferanse;
             return this;
         }

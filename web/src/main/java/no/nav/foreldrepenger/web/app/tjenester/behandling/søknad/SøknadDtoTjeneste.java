@@ -26,14 +26,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.OrganisasjonsNummerValidator;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Organisasjonstype;
-import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
-import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.familiehendelse.rest.SøknadType;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.kompletthet.KompletthetsjekkerProvider;
@@ -47,7 +41,6 @@ public class SøknadDtoTjeneste {
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private KompletthetsjekkerProvider kompletthetsjekkerProvider;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
-    private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
     private FamilieHendelseRepository familieHendelseRepository;
     private YtelsesFordelingRepository ytelsesfordelingRepository;
     private MedlemTjeneste medlemTjeneste;
@@ -61,7 +54,6 @@ public class SøknadDtoTjeneste {
     public SøknadDtoTjeneste(BehandlingRepositoryProvider repositoryProvider,
                                  SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                  KompletthetsjekkerProvider kompletthetsjekkerProvider,
-                                 ArbeidsgiverTjeneste arbeidsgiverTjeneste,
                                  YtelsesFordelingRepository ytelsesfordelingRepository,
                                  PersonopplysningRepository personopplysningRepository,
                                  MedlemTjeneste medlemTjeneste) {
@@ -72,7 +64,6 @@ public class SøknadDtoTjeneste {
         this.personopplysningRepository = personopplysningRepository;
         this.medlemTjeneste = medlemTjeneste;
         this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
-        this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
     }
 
@@ -149,41 +140,9 @@ public class SøknadDtoTjeneste {
         final ManglendeVedleggDto dto = new ManglendeVedleggDto();
         dto.setDokumentType(mv.getDokumentType());
         if (mv.getDokumentType().equals(DokumentTypeId.INNTEKTSMELDING)) {
-            dto.setArbeidsgiver(mapTilArbeidsgiverDto(mv.getArbeidsgiver()));
             dto.setArbeidsgiverReferanse(mv.getArbeidsgiver());
             dto.setBrukerHarSagtAtIkkeKommer(mv.getBrukerHarSagtAtIkkeKommer());
         }
-        return dto;
-    }
-
-    private ArbeidsgiverDto mapTilArbeidsgiverDto(String arbeidsgiverIdent) {
-        if (OrganisasjonsNummerValidator.erGyldig(arbeidsgiverIdent) || Organisasjonstype.erKunstig(arbeidsgiverIdent)) {
-            return virksomhetArbeidsgiver(arbeidsgiverIdent);
-        } else {
-            return privatpersonArbeidsgiver(arbeidsgiverIdent);
-        }
-    }
-
-    private ArbeidsgiverDto privatpersonArbeidsgiver(String aktørId) {
-        ArbeidsgiverOpplysninger opplysninger = arbeidsgiverTjeneste.hent(Arbeidsgiver.person(new AktørId(aktørId)));
-        ArbeidsgiverDto dto = new ArbeidsgiverDto();
-        dto.setNavn(opplysninger.getNavn());
-        dto.setFødselsdato(opplysninger.getFødselsdato());
-        dto.setAktørId(aktørId);
-        dto.setArbeidsgiverReferanse(aktørId);
-
-        // Dette må gjøres for å ikke knekke frontend, kan fjernes når frontend er rettet.
-        dto.setOrganisasjonsnummer(opplysninger.getIdentifikator());
-
-        return dto;
-    }
-
-    private ArbeidsgiverDto virksomhetArbeidsgiver(String orgnr) {
-        ArbeidsgiverOpplysninger opplysninger = arbeidsgiverTjeneste.hent(Arbeidsgiver.virksomhet(orgnr));
-        ArbeidsgiverDto dto = new ArbeidsgiverDto();
-        dto.setArbeidsgiverReferanse(orgnr);
-        dto.setOrganisasjonsnummer(orgnr);
-        dto.setNavn(opplysninger.getNavn());
         return dto;
     }
 

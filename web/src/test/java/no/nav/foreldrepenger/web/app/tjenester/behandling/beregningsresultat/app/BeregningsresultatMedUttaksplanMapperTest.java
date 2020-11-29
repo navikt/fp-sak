@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.app;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.lenient;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -35,10 +34,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
@@ -62,17 +58,12 @@ public class BeregningsresultatMedUttaksplanMapperTest {
     private static final AktørId AKTØR_ID = AktørId.dummy();
 
     @Mock
-    private VirksomhetTjeneste virksomhetTjeneste;
-    @Mock
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjenesteMock;
-    private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
     private BeregningsresultatMedUttaksplanMapper beregningsresultatMedUttaksplanMapper;
 
     @BeforeEach
     public void before() {
-        arbeidsgiverTjeneste = new ArbeidsgiverTjeneste(null, virksomhetTjeneste);
-        beregningsresultatMedUttaksplanMapper = new BeregningsresultatMedUttaksplanMapper(
-                arbeidsgiverTjeneste, inntektArbeidYtelseTjenesteMock);
+        beregningsresultatMedUttaksplanMapper = new BeregningsresultatMedUttaksplanMapper(inntektArbeidYtelseTjenesteMock);
     }
 
     @Test
@@ -176,18 +167,7 @@ public class BeregningsresultatMedUttaksplanMapperTest {
     }
 
     private Arbeidsgiver arbeidsgiver(String orgnr) {
-        lagVirksomhet(orgnr);
         return Arbeidsgiver.virksomhet(orgnr);
-    }
-
-    private Virksomhet lagVirksomhet(String orgnr) {
-        var virksomhet = new Virksomhet.Builder()
-                .medOrgnr(orgnr)
-                .medNavn("Virknavn " + orgnr)
-                .build();
-        lenient().when(virksomhetTjeneste.hentOrganisasjon(orgnr)).thenReturn(virksomhet);
-
-        return virksomhet;
     }
 
     @Test
@@ -347,13 +327,13 @@ public class BeregningsresultatMedUttaksplanMapperTest {
 
         // Assert
         andeler.stream().flatMap(a -> Arrays.stream(a.getAndeler()))
-                .filter(andel -> andel.getArbeidsgiverOrgnr().equals(virksomhet1.getIdentifikator()))
+                .filter(andel -> andel.getArbeidsgiverReferanse().equals(virksomhet1.getIdentifikator()))
                 .forEach(andel1 -> assertThat(andel1.getSisteUtbetalingsdato()).isEqualTo(P1_TOM));
         andeler.stream().flatMap(a -> Arrays.stream(a.getAndeler()))
-                .filter(andel -> andel.getArbeidsgiverOrgnr().equals(virksomhet2.getIdentifikator()))
+                .filter(andel -> andel.getArbeidsgiverReferanse().equals(virksomhet2.getIdentifikator()))
                 .forEach(andel1 -> assertThat(andel1.getSisteUtbetalingsdato()).isEqualTo(P2_TOM));
         andeler.stream().flatMap(a -> Arrays.stream(a.getAndeler()))
-                .filter(andel -> andel.getArbeidsgiverOrgnr().equals(virksomhet3.getIdentifikator()))
+                .filter(andel -> andel.getArbeidsgiverReferanse().equals(virksomhet3.getIdentifikator()))
                 .forEach(andel1 -> assertThat(andel1.getSisteUtbetalingsdato()).isEqualTo(P2_TOM));
     }
 
@@ -365,14 +345,14 @@ public class BeregningsresultatMedUttaksplanMapperTest {
     private static void assertAndelArbeidsgiver(List<BeregningsresultatPeriodeAndelDto> andeler, String arbeidsgiver, int forventetRefusjon) {
         Optional<BeregningsresultatPeriodeAndelDto> andel = hentAndelForArbeidgiver(andeler, arbeidsgiver);
         assertThat(andel).as("arbeidsgiverAndel").hasValueSatisfying(a -> {
-            assertThat(a.getArbeidsgiverOrgnr()).as("arbeidsgiver").isEqualTo(arbeidsgiver);
+            assertThat(a.getArbeidsgiverReferanse()).as("arbeidsgiver").isEqualTo(arbeidsgiver);
             assertThat(a.getRefusjon()).as("refusjon").isEqualTo(forventetRefusjon);
         });
     }
 
     private static Optional<BeregningsresultatPeriodeAndelDto> hentAndelForArbeidgiver(List<BeregningsresultatPeriodeAndelDto> andeler,
             String arbeidsgiver) {
-        return andeler.stream().filter(a -> a.getArbeidsgiverOrgnr().equals(arbeidsgiver)).findFirst();
+        return andeler.stream().filter(a -> a.getArbeidsgiverReferanse().equals(arbeidsgiver)).findFirst();
     }
 
     private static Behandling lagBehandling() {

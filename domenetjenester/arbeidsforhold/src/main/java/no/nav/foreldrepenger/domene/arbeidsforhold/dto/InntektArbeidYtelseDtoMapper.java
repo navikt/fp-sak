@@ -82,7 +82,6 @@ public class InntektArbeidYtelseDtoMapper {
         arbeidsforholdDto.setId(lagId(wrapper));
         arbeidsforholdDto.setFomDato(wrapper.getFomDato());
         arbeidsforholdDto.setTomDato(wrapper.getTomDato() != null && wrapper.getTomDato().equals(Tid.TIDENES_ENDE) ? null : wrapper.getTomDato());
-        arbeidsforholdDto.setNavn(wrapper.getNavn());
         mapArbeidsgiverIdentifikator(wrapper, arbeidsforholdDto);
         arbeidsforholdDto.setBrukArbeidsforholdet(wrapper.getBrukArbeidsforholdet());
         if (wrapper.getBrukArbeidsforholdet() != null && wrapper.getBrukArbeidsforholdet()) {
@@ -123,21 +122,11 @@ public class InntektArbeidYtelseDtoMapper {
     }
 
     private void mapArbeidsgiverIdentifikator(ArbeidsforholdWrapper wrapper, ArbeidsforholdDto arbeidsforholdDto) {
-        arbeidsforholdDto.setArbeidsgiverIdentifikator(wrapper.getArbeidsgiverIdentifikator());
         arbeidsforholdDto.setArbeidsgiverReferanse(wrapper.getArbeidsgiverReferanse());
-        if (gjelderVirksomhet(wrapper)) {
-            arbeidsforholdDto.setArbeidsgiverIdentifiktorGUI(wrapper.getArbeidsgiverIdentifikator());
-        } else {
-            arbeidsforholdDto.setArbeidsgiverIdentifiktorGUI(wrapper.getPersonArbeidsgiverIdentifikator());
-        }
-    }
-
-    private boolean gjelderVirksomhet(ArbeidsforholdWrapper wrapper) {
-        return wrapper.getPersonArbeidsgiverIdentifikator() == null;
     }
 
     private String lagId(ArbeidsforholdWrapper wrapper) {
-        return wrapper.getArbeidsgiverIdentifikator() + "-" + wrapper.getArbeidsforholdId();
+        return wrapper.getArbeidsgiverReferanse() + "-" + wrapper.getArbeidsforholdId();
     }
 
     private List<InntektsmeldingDto> lagInntektsmeldingDto(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag) {
