@@ -19,6 +19,8 @@ public class ArbeidsforholdDto {
     // AktørId (13-tall) for person-arbeidsgiver, og orgnr (9-tall) for virksomhet
     @Pattern(regexp = "\\d{9}|\\d{13}")
     private String arbeidsgiverIdentifikator;
+    @Pattern(regexp = "\\d{9}|\\d{13}")
+    private String arbeidsgiverReferanse;
 
     /** Kun til bruk i gui for å unikt identifiser en rad. */
     @Size(max = 100)
@@ -66,11 +68,23 @@ public class ArbeidsforholdDto {
     }
 
     public String getArbeidsgiverIdentifikator() {
+        if (arbeidsgiverIdentifikator == null && arbeidsgiverReferanse != null) {
+            return arbeidsgiverReferanse;
+        }
         return arbeidsgiverIdentifikator;
     }
 
     public void setArbeidsgiverIdentifikator(String arbeidsgiverIdentifikator) {
         this.arbeidsgiverIdentifikator = arbeidsgiverIdentifikator;
+        this.arbeidsgiverReferanse = arbeidsgiverIdentifikator;
+    }
+
+    public String getArbeidsgiverReferanse() {
+        return arbeidsgiverReferanse;
+    }
+
+    public void setArbeidsgiverReferanse(String arbeidsgiverReferanse) {
+        this.arbeidsgiverReferanse = arbeidsgiverReferanse;
     }
 
     public String getBegrunnelse() {

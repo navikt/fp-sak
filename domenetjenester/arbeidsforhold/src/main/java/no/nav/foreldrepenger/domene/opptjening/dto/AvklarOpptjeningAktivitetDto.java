@@ -32,6 +32,8 @@ public class AvklarOpptjeningAktivitetDto {
 
     @Pattern(regexp = "\\d{9}|\\d{13}")
     private String oppdragsgiverOrg;
+    @Pattern(regexp = "\\d{9}|\\d{13}")
+    private String arbeidsgiverReferanse;
 
     private String arbeidsgiverIdentifikator;
 
@@ -109,11 +111,22 @@ public class AvklarOpptjeningAktivitetDto {
     }
 
     public String getArbeidsgiverIdentifikator() {
+        if (arbeidsgiverIdentifikator == null && arbeidsgiverReferanse != null) {
+            return arbeidsgiverReferanse;
+        }
         return arbeidsgiverIdentifikator;
     }
 
     public void setArbeidsgiverIdentifikator(String arbeidsgiverIdentifikator) {
         this.arbeidsgiverIdentifikator = arbeidsgiverIdentifikator;
+    }
+
+    public String getArbeidsgiverReferanse() {
+        return arbeidsgiverReferanse;
+    }
+
+    public void setArbeidsgiverReferanse(String arbeidsgiverReferanse) {
+        this.arbeidsgiverReferanse = arbeidsgiverReferanse;
     }
 
     public LocalDate getNaringRegistreringsdato() {
