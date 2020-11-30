@@ -72,7 +72,6 @@ public class UttakRestTjeneste {
     private KontrollerFaktaPeriodeTjeneste kontrollerFaktaPeriodeTjeneste;
     private UttakPerioderDtoTjeneste uttakResultatPerioderDtoTjeneste;
     private UttakPeriodegrenseDtoTjeneste uttakPeriodegrenseDtoTjeneste;
-    private FaktaUttakArbeidsforholdTjeneste faktaUttakArbeidsforholdTjeneste;
     private SvangerskapspengerUttakResultatDtoTjeneste svpUttakResultatDtoTjeneste;
     private UttakInputTjeneste uttakInputTjeneste;
 
@@ -87,7 +86,6 @@ public class UttakRestTjeneste {
             UttakPerioderDtoTjeneste uttakResultatPerioderDtoTjeneste,
             UttakPeriodegrenseDtoTjeneste uttakPeriodegrenseDtoTjeneste,
             SvangerskapspengerUttakResultatDtoTjeneste svpUttakResultatDtoTjeneste,
-            FaktaUttakArbeidsforholdTjeneste faktaUttakArbeidsforholdTjeneste,
             UttakInputTjeneste uttakInputTjeneste) {
         this.uttakPeriodegrenseDtoTjeneste = uttakPeriodegrenseDtoTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
@@ -96,7 +94,6 @@ public class UttakRestTjeneste {
         this.uttakResultatPerioderDtoTjeneste = uttakResultatPerioderDtoTjeneste;
         this.saldoerDtoTjeneste = saldoerDtoTjeneste;
         this.svpUttakResultatDtoTjeneste = svpUttakResultatDtoTjeneste;
-        this.faktaUttakArbeidsforholdTjeneste = faktaUttakArbeidsforholdTjeneste;
     }
 
     @POST
@@ -217,7 +214,7 @@ public class UttakRestTjeneste {
             @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
         Behandling behandling = hentBehandling(behandlingIdDto);
         var input = uttakInputTjeneste.lagInput(behandling);
-        return faktaUttakArbeidsforholdTjeneste.hentArbeidsforhold(input);
+        return FaktaUttakArbeidsforholdTjeneste.hentArbeidsforhold(input);
     }
 
     @GET

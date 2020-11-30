@@ -93,6 +93,9 @@ public class InntektArbeidYtelseRestTjeneste {
     private static final String ARBEIDSGIVERE_OPPLYSNINGER_PART_PATH = "/arbeidsgivere-opplysninger";
     public static final String ARBEIDSGIVERE_OPPLYSNINGER_PATH = BASE_PATH + ARBEIDSGIVERE_OPPLYSNINGER_PART_PATH; // NOSONAR TFP-2234
 
+    private static final String ENKELT_ARBEIDSGIVER_OPPLYSNINGER_PART_PATH = "/arbeidsgivere-enkeltvis";
+    public static final String ENKELT_ARBEIDSGIVER_OPPLYSNINGER_PATH = BASE_PATH + ENKELT_ARBEIDSGIVER_OPPLYSNINGER_PART_PATH; // NOSONAR TFP-2234
+
     private BehandlingRepository behandlingRepository;
     private InntektArbeidYtelseDtoMapper dtoMapper;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
@@ -270,6 +273,20 @@ public class InntektArbeidYtelseRestTjeneste {
         oversikt.putIfAbsent(OrgNummer.KUNSTIG_ORG, new ArbeidsgiverOpplysningerDto(OrgNummer.KUNSTIG_ORG, "Lagt til av saksbehandler"));
 
         return new ArbeidsgiverOversiktDto(oversikt);
+    }
+
+    @GET
+    @Path(ENKELT_ARBEIDSGIVER_OPPLYSNINGER_PART_PATH)
+    @Operation(description = "Hent informasjon om innhentet og avklart inntekter, arbeid og ytelser", summary = ("Returnerer info om innhentet og avklart inntekter/arbeid og ytelser for bruker, inkludert hva bruker har vedlagt søknad."), tags = "inntekt-arbeid-ytelse", responses = {
+        @ApiResponse(responseCode = "200", description = "Returnerer InntektArbeidYtelseDto, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ArbeidsgiverOpplysningerDto.class)))
+    })
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public ArbeidsgiverOpplysningerDto getArbeidsgiverOpplysningerEnkeltvis(
+        @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto,
+        @QueryParam("arbeidsgiverReferanse") @Parameter(description = "arbeidsgiverReferanse") @NotNull @Valid String arbeidsgiverReferanse) {
+        var arbeidsgiver = OrgNummer.erGyldigOrgnr(arbeidsgiverReferanse) ? Arbeidsgiver.virksomhet(arbeidsgiverReferanse) : Arbeidsgiver.person(new AktørId(arbeidsgiverReferanse));
+        return mapFra(arbeidsgiver);
     }
 
 
