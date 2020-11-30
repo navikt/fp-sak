@@ -81,7 +81,7 @@ public class BrevRestTjeneste {
     }
 
     private void oppdaterBehandlingBasertPåManueltBrev(DokumentMalType brevmalkode, Long behandlingId) {
-        if (DokumentMalType.REVURDERING_DOK.equals(brevmalkode)) {
+        if (DokumentMalType.REVURDERING_DOK.equals(brevmalkode) || DokumentMalType.VARSEL_OM_REVURDERING.equals(brevmalkode)) {
             settBehandlingPåVent(Venteårsak.AVV_RESPONS_REVURDERING, behandlingId);
         } else if (DokumentMalType.INNHENT_DOK.equals(brevmalkode) || DokumentMalType.INNHENTE_OPPLYSNINGER.equals(brevmalkode)) {
             settBehandlingPåVent(Venteårsak.AVV_DOK, behandlingId);
@@ -113,6 +113,7 @@ public class BrevRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Boolean harSendtVarselOmRevurdering(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
-        return dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.REVURDERING_DOK); // NOSONAR
+        return dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.REVURDERING_DOK)
+            || dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.VARSEL_OM_REVURDERING); // NOSONAR
     }
 }

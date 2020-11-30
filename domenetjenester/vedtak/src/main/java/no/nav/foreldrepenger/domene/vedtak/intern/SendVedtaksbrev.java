@@ -148,7 +148,8 @@ public class SendVedtaksbrev {
     }
 
     private Boolean harSendtVarselOmRevurdering(Long behandlingId) {
-        return dokumentBehandlingTjeneste.erDokumentBestilt(behandlingId, DokumentMalType.REVURDERING_DOK);
+        return dokumentBehandlingTjeneste.erDokumentBestilt(behandlingId, DokumentMalType.REVURDERING_DOK)
+            || dokumentBehandlingTjeneste.erDokumentBestilt(behandlingId, DokumentMalType.VARSEL_OM_REVURDERING);
     }
 
     private boolean skalSendeVedtaksbrevAnke(AnkeVurdering vurdering) {

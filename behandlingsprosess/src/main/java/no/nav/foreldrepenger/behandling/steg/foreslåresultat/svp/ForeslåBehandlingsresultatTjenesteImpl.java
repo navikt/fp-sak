@@ -117,6 +117,7 @@ class ForeslåBehandlingsresultatTjenesteImpl implements no.nav.foreldrepenger.b
     }
 
     private boolean erVarselOmRevurderingSendt(BehandlingReferanse ref) {
-        return dokumentBehandlingTjeneste.erDokumentBestilt(ref.getBehandlingId(), DokumentMalType.REVURDERING_DOK);
+        return dokumentBehandlingTjeneste.erDokumentBestilt(ref.getBehandlingId(), DokumentMalType.REVURDERING_DOK)
+            || dokumentBehandlingTjeneste.erDokumentBestilt(ref.getBehandlingId(), DokumentMalType.VARSEL_OM_REVURDERING);
     }
 }

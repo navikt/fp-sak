@@ -180,7 +180,7 @@ public class SendVedtaksbrevTest {
     public void senderBrevOmUendretUtfallVedRevurdering() {
         lenient().when(behandlingVedtak.isBeslutningsvedtak()).thenReturn(true);
         lenient().when(dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(),
-            DokumentMalType.REVURDERING_DOK)).thenReturn(true);
+            DokumentMalType.VARSEL_OM_REVURDERING)).thenReturn(true);
 
         sendVedtaksbrev.sendVedtaksbrev(behandling.getId());
 
@@ -191,7 +191,7 @@ public class SendVedtaksbrevTest {
     public void senderIkkeBrevOmUendretUtfallHvisIkkeSendtVarselbrevOmRevurdering() {
         lenient().when(behandlingVedtak.isBeslutningsvedtak()).thenReturn(true);
         lenient().when(dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(),
-            DokumentMalType.REVURDERING_DOK)).thenReturn(false);
+            DokumentMalType.VARSEL_OM_REVURDERING)).thenReturn(false);
 
         sendVedtaksbrev.sendVedtaksbrev(behandling.getId());
 
