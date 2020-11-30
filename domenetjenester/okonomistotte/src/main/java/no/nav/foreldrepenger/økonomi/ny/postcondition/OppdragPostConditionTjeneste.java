@@ -133,7 +133,7 @@ public class OppdragPostConditionTjeneste {
         LocalDate datoEndringUtbetalingsgrad = differanse.getFørsteDatoForDifferanseUtbetalingsgrad();
         long sumForskjell = differanse.getDifferanseYtelse();
 
-        String message = "Sammenlingning av effekt av oppdrag mot tilkjent ytelse viser avvik for " + saksnummer + ", behandling " + behandlingId + " til " + betalingsmottaker + ". Dette bør undersøkes og evt. patches. Det er ";
+        String message = "Sammenligning av effekt av oppdrag mot tilkjent ytelse viser avvik for " + saksnummer + ", behandling " + behandlingId + " til " + betalingsmottaker + ". Dette bør undersøkes og evt. patches. Det er ";
         if (Objects.equals(datoEndringYtelse, datoEndringUtbetalingsgrad)) {
             message += "forskjell i sats og utbetalingsgrad mellom oppdrag og tilkjent ytelse fra " + datoEndringYtelse + ". ";
         } else {
@@ -141,7 +141,7 @@ public class OppdragPostConditionTjeneste {
                 message += "forskjell i sats mellom oppdrag og tilkjent ytelse fra " + datoEndringYtelse + ". ";
             }
             if (datoEndringUtbetalingsgrad != null) {
-                message += "forskjell i utbetalingsgrad mellom oppdrag og tilkjent ytelse fra " + datoEndringYtelse + ". ";
+                message += "forskjell i utbetalingsgrad mellom oppdrag og tilkjent ytelse fra " + datoEndringUtbetalingsgrad + ". ";
             }
         }
         message += " Sum effekt er " + formatForskjell(sumForskjell);
