@@ -113,7 +113,7 @@ public class OppdragPostConditionTjeneste {
                     OppdragKjede oppdragKjede = oppdragskjeder.getOrDefault(nøkkel, OppdragKjede.EMPTY);
                     Ytelse ytelse = målbilde.getYtelsePrNøkkel().getOrDefault(nøkkel, Ytelse.EMPTY);
                     Ytelse effektAvOppdragskjede = oppdragKjede.tilYtelse();
-                    finnDifferanse(ytelse, effektAvOppdragskjede).ifPresent(differanser::add);
+                    finnDifferanse(ytelse, effektAvOppdragskjede, betalingsmottaker).ifPresent(differanser::add);
                 }
             }
             LocalDate førsteDatoForDifferanseSats = finnLaveste(differanser, TilkjentYtelseDifferanse::getFørsteDatoForDifferanseSats);
@@ -225,9 +225,11 @@ public class OppdragPostConditionTjeneste {
         }
     }
 
-    static Optional<TilkjentYtelseDifferanse> finnDifferanse(Ytelse ytelse, Ytelse effektAvOppdragskjede) {
+    static Optional<TilkjentYtelseDifferanse> finnDifferanse(Ytelse ytelse, Ytelse effektAvOppdragskjede, Betalingsmottaker betalingsmottaker) {
         LocalDate datoEndringYtelse = EndringsdatoTjeneste.finnEndringsdatoForEndringSats(ytelse, effektAvOppdragskjede);
-        LocalDate datoEndringUtbetalingsgrad = EndringsdatoTjeneste.finnEndringsdatoForEndringUtbetalingsgrad(ytelse, effektAvOppdragskjede);
+        LocalDate datoEndringUtbetalingsgrad = betalingsmottaker == Betalingsmottaker.BRUKER
+            ? EndringsdatoTjeneste.finnEndringsdatoForEndringUtbetalingsgrad(ytelse, effektAvOppdragskjede)
+            : null; //utbetalingsgrad er ikke relevant for refusjon
         long differanseYtelse = effektAvOppdragskjede.summerYtelse() - ytelse.summerYtelse();
 
         if (datoEndringYtelse == null && datoEndringUtbetalingsgrad == null && differanseYtelse == 0) {
