@@ -49,7 +49,6 @@ public class OppdragKjedeTest {
 
     @Test
     public void skal_konvertere_kjede_med_opphør_inne_i_linje_til_ytelse() {
-
         OppdragKjede kjede = OppdragKjede.builder()
             .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Sats.dagsats(1000)).medDelytelseId(DelytelseId.parse("FOO-1-1")).build())
             .medOppdragslinje(OppdragLinje.builder().medPeriode(p2).medSats(Sats.dagsats(2000)).medDelytelseId(DelytelseId.parse("FOO-1-2")).medRefDelytelseId(DelytelseId.parse("FOO-1-1")).build())
@@ -72,6 +71,21 @@ public class OppdragKjedeTest {
         OppdragKjede kjede = OppdragKjede.builder()
             .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Sats.dagsats(1000)).medDelytelseId(DelytelseId.parse("FOO-1-1")).build())
             .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Sats.dagsats(2000)).medDelytelseId(DelytelseId.parse("FOO-1-2")).medRefDelytelseId(DelytelseId.parse("FOO-1-1")).build())
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Sats.dagsats(1100)).medDelytelseId(DelytelseId.parse("FOO-1-3")).medRefDelytelseId(DelytelseId.parse("FOO-1-2")).build())
+            .build();
+
+        assertThat(kjede.tilYtelse().getPerioder()).containsExactly(
+            new YtelsePeriode(p1, Sats.dagsats(1100))
+        );
+    }
+
+    @Test
+    public void skal_ha_at_oppdragslinjer_implisitt_opphører_det_som_har_senere_periode() {
+        //metoden brukes typisk bare for feriepenger
+
+        OppdragKjede kjede = OppdragKjede.builder()
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p2).medSats(Sats.dagsats(1000)).medDelytelseId(DelytelseId.parse("FOO-1-1")).build())
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p3).medSats(Sats.dagsats(2000)).medDelytelseId(DelytelseId.parse("FOO-1-2")).medRefDelytelseId(DelytelseId.parse("FOO-1-1")).build())
             .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Sats.dagsats(1100)).medDelytelseId(DelytelseId.parse("FOO-1-3")).medRefDelytelseId(DelytelseId.parse("FOO-1-2")).build())
             .build();
 

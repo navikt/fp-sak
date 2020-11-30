@@ -56,6 +56,10 @@ public class Ytelse {
             .sum();
     }
 
+    public LocalDate getFørsteDato() {
+        return perioder.isEmpty() ? null : perioder.get(0).getPeriode().getFom();
+    }
+
     public static class Builder {
 
         private ArrayList<YtelsePeriode> perioder = new ArrayList<>();

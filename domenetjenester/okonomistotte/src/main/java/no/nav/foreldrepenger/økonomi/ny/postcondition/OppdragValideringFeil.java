@@ -12,4 +12,7 @@ public interface OppdragValideringFeil extends DeklarerteFeil {
     @TekniskFeil(feilkode = "FP-767898", feilmelding = "Validering av oppdrag feilet: %s", logLevel = LogLevel.WARN)
     Feil valideringsfeil(String detaljer);
 
+    @TekniskFeil(feilkode = "FP-577348", feilmelding = "Oppdaget mindre forskjell mellom tilkjent ytelse oppdrag: %s", logLevel = LogLevel.INFO)
+    Feil minorValideringsfeil(String detaljer);
+
 }

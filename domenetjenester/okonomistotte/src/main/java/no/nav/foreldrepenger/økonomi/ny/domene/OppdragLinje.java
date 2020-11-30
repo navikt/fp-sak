@@ -4,13 +4,27 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 public class OppdragLinje {
-
     private Periode periode;
+
     private Sats sats;
     private Utbetalingsgrad utbetalingsgrad;
     private DelytelseId delytelseId;
     private DelytelseId refDelytelseId;
     private LocalDate opphørFomDato;
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static OppdragLinje lagOpphørslinje(OppdragLinje opphøres, LocalDate opphørFomDato) {
+        return OppdragLinje.builder()
+            .medDelytelseId(opphøres.getDelytelseId())
+            .medPeriode(opphøres.getPeriode())
+            .medSats(opphøres.getSats())
+            .medUtbetalingsgrad(opphøres.getUtbetalingsgrad())
+            .medOpphørFomDato(opphørFomDato)
+            .build();
+    }
 
     private OppdragLinje(Periode periode, Sats sats, Utbetalingsgrad utbetalingsgrad, DelytelseId delytelseId, DelytelseId refDelytelseId, LocalDate opphørFomDato) {
         this.periode = periode;
@@ -49,21 +63,37 @@ public class OppdragLinje {
         return opphørFomDato != null;
     }
 
-    public static Builder builder() {
-        return new Builder();
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        OppdragLinje that = (OppdragLinje) o;
+        return periode.equals(that.periode) &&
+            sats.equals(that.sats) &&
+            Objects.equals(utbetalingsgrad, that.utbetalingsgrad) &&
+            delytelseId.equals(that.delytelseId) &&
+            Objects.equals(refDelytelseId, that.refDelytelseId) &&
+            Objects.equals(opphørFomDato, that.opphørFomDato);
     }
 
-    public static OppdragLinje lagOpphørslinje(OppdragLinje opphøres, LocalDate opphørFomDato) {
-        return OppdragLinje.builder()
-            .medDelytelseId(opphøres.getDelytelseId())
-            .medPeriode(opphøres.getPeriode())
-            .medSats(opphøres.getSats())
-            .medUtbetalingsgrad(opphøres.getUtbetalingsgrad())
-            .medOpphørFomDato(opphørFomDato)
-            .build();
+    @Override
+    public int hashCode() {
+        return Objects.hash(delytelseId);
     }
 
+    @Override
+    public String toString() {
+        return "OppdragLinje{" +
+            "delytelseId=" + delytelseId +
+            ", periode=" + periode +
+            ", sats=" + sats +
+            (utbetalingsgrad != null ? ", utbetalingsgrad=" + utbetalingsgrad : "") +
+            (refDelytelseId != null ? ", refDelytelseId=" + refDelytelseId : "") +
+            (opphørFomDato != null ? ", opphørFomDato=" + opphørFomDato : "") +
+            '}';
+    }
     public static class Builder {
+
         private Periode periode;
         private Sats sats;
         private Utbetalingsgrad utbetalingsgrad;

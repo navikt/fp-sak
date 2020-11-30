@@ -120,15 +120,15 @@ public class TilkjentYtelseMapper {
     private KjedeNøkkel tilNøkkel(BeregningsresultatAndel andel) {
         boolean tilBruker = andel.skalTilBrukerEllerPrivatperson();
         return tilBruker
-            ? new KjedeNøkkel(KlassekodeUtleder.utled(andel, ytelseType), Betalingsmottaker.BRUKER)
-            : new KjedeNøkkel(KlassekodeUtleder.utled(andel, ytelseType), Betalingsmottaker.forArbeidsgiver(andel.getArbeidsgiver().get().getOrgnr()));
+            ? KjedeNøkkel.lag(KlassekodeUtleder.utled(andel, ytelseType), Betalingsmottaker.BRUKER)
+            : KjedeNøkkel.lag(KlassekodeUtleder.utled(andel, ytelseType), Betalingsmottaker.forArbeidsgiver(andel.getArbeidsgiver().get().getOrgnr()));
     }
 
     private KjedeNøkkel tilNøkkelFeriepenger(BeregningsresultatAndel andel, int opptjeningsår) {
         boolean tilBruker = andel.skalTilBrukerEllerPrivatperson();
         return tilBruker
-            ? new KjedeNøkkel(KlassekodeUtleder.utledForFeriepenger(), Betalingsmottaker.BRUKER, opptjeningsår)
-            : new KjedeNøkkel(KlassekodeUtleder.utledForFeriepengeRefusjon(ytelseType), Betalingsmottaker.forArbeidsgiver(andel.getArbeidsgiver().get().getOrgnr()), opptjeningsår);
+            ? KjedeNøkkel.lag(KlassekodeUtleder.utledForFeriepenger(), Betalingsmottaker.BRUKER, opptjeningsår)
+            : KjedeNøkkel.lag(KlassekodeUtleder.utledForFeriepengeRefusjon(ytelseType), Betalingsmottaker.forArbeidsgiver(andel.getArbeidsgiver().get().getOrgnr()), opptjeningsår);
     }
 
     private Map<KjedeNøkkel, Ytelse> build(Map<KjedeNøkkel, Ytelse.Builder> buildere) {

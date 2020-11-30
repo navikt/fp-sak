@@ -5,9 +5,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public class OppdragKjede {
 
+    private static final Logger logger = LoggerFactory.getLogger(OppdragKjede.class);
     public static final OppdragKjede EMPTY = OppdragKjede.builder().build();
 
     private List<OppdragLinje> oppdragslinjer;
@@ -30,13 +34,8 @@ public class OppdragKjede {
 
     static void leggTilOppdragLinje(Ytelse.Builder builder, OppdragLinje linje) {
         if (linje.getOpphørFomDato() == null) {
-            int indeks = builder.indexForPeriode(linje.getPeriode());
-            boolean finnesFraFør = indeks >= 0;
-            if (finnesFraFør) {
-                builder.overskrivPeriode(indeks, new YtelsePeriode(linje.getPeriode(), linje.getSats(), linje.getUtbetalingsgrad()));
-            } else {
-                builder.leggTilPeriode(new YtelsePeriode(linje.getPeriode(), linje.getSats(), linje.getUtbetalingsgrad()));
-            }
+            builder.fjernAltEtter(linje.getPeriode().getFom());
+            builder.leggTilPeriode(new YtelsePeriode(linje.getPeriode(), linje.getSats(), linje.getUtbetalingsgrad()));
         } else {
             builder.fjernAltEtter(linje.getOpphørFomDato());
         }
@@ -77,6 +76,10 @@ public class OppdragKjede {
         return builder.build();
     }
 
+    public LocalDate getFørsteDato() {
+        return tilYtelse().getFørsteDato();
+    }
+
     public static class Builder {
 
         private Ytelse.Builder ytelseBuilder = Ytelse.builder();
@@ -110,7 +113,7 @@ public class OppdragKjede {
 
             boolean overskriverSiste = siste.getPeriode().equals(linje.getPeriode());
             if (!overskriverSiste && ytelseBuilder.sisteTidspunkt() != null && !ytelseBuilder.sisteTidspunkt().isBefore(linje.getPeriode().getFom())) {
-                throw new IllegalArgumentException("Oppdragslinjer skal legges til kronologisk og ikke overlappe med det som er gjeldende så langt. Oppdragslinje " + linje.getDelytelseId() + " ble forsøkt lagt til i kjede som allerede varer til " + ytelseBuilder.sisteTidspunkt());
+                logger.info("Oppdragslinje med delytelseid {} overlappet med det som er gjeldende så langt. Dette skal vanligvis ikke skje, men kan skje på gamle data", linje.getDelytelseId());
             }
         }
 

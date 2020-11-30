@@ -11,19 +11,19 @@ import no.nav.foreldrepenger.økonomi.ny.domene.OppdragLinje;
 import no.nav.foreldrepenger.økonomi.ny.domene.Ytelse;
 import no.nav.foreldrepenger.økonomi.ny.domene.YtelsePeriode;
 
-public class OppdragskjedeFactory {
+public class OppdragKjedeFactory {
 
     private DelytelseId nesteDelytelseId;
 
-    public static OppdragskjedeFactory lagForEksisterendeMottaker(DelytelseId høyesteEksisterendeDelytelseId) {
-        return new OppdragskjedeFactory(høyesteEksisterendeDelytelseId.neste());
+    public static OppdragKjedeFactory lagForEksisterendeMottaker(DelytelseId høyesteEksisterendeDelytelseId) {
+        return new OppdragKjedeFactory(høyesteEksisterendeDelytelseId.neste());
     }
 
-    public static OppdragskjedeFactory lagForNyMottaker(FagsystemId fagsystemId) {
-        return new OppdragskjedeFactory(DelytelseId.førsteForFagsystemId(fagsystemId));
+    public static OppdragKjedeFactory lagForNyMottaker(FagsystemId fagsystemId) {
+        return new OppdragKjedeFactory(DelytelseId.førsteForFagsystemId(fagsystemId));
     }
 
-    private OppdragskjedeFactory(DelytelseId nesteDelytelseId) {
+    private OppdragKjedeFactory(DelytelseId nesteDelytelseId) {
         this.nesteDelytelseId = nesteDelytelseId;
     }
 
