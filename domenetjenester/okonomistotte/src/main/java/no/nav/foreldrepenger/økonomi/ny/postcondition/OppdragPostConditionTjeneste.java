@@ -17,6 +17,7 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
@@ -89,7 +90,9 @@ public class OppdragPostConditionTjeneste {
             Feil feil = konverterTilFeil(behandling.getFagsak().getSaksnummer(), Long.toString(behandling.getId()), entry.getKey(), entry.getValue());
             if (feil != null) {
                 feil.log(logger);
-                altOk = false;
+                if (feil.getLogLevel() != Level.INFO) {
+                    altOk = false;
+                }
             }
         }
         return altOk;
@@ -145,7 +148,11 @@ public class OppdragPostConditionTjeneste {
             }
         }
         message += " Sum effekt er " + formatForskjell(sumForskjell);
-        return OppdragValideringFeil.FACTORY.valideringsfeil(message);
+        if (sumForskjell == 0) {
+            return OppdragValideringFeil.FACTORY.minorValideringsfeil(message);
+        } else {
+            return OppdragValideringFeil.FACTORY.valideringsfeil(message);
+        }
     }
 
     private String formatForskjell(long forskjell) {
