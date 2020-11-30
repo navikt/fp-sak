@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.økonomi.ny.mapper;
 
+import static no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik.FPATORD;
+
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Map;
@@ -11,7 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming115;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomi.ny.domene.Betalingsmottaker;
 import no.nav.foreldrepenger.økonomi.ny.domene.DelytelseId;
@@ -48,7 +49,7 @@ public class EksisterendeOppdragMapperTest {
         lagOrdinærLinje(oppdrag110, delytelseId2, p2, Sats.dagsats(150), delytelseId1);
 
         Map<KjedeNøkkel, OppdragKjede> kjeder = EksisterendeOppdragMapper.tilKjeder(Arrays.asList(oppdragskontroll));
-        KjedeNøkkel kjedeNøkkel = KjedeNøkkel.lag(ØkonomiKodeKlassifik.FPATORD, Betalingsmottaker.BRUKER);
+        KjedeNøkkel kjedeNøkkel = KjedeNøkkel.lag(FPATORD, Betalingsmottaker.BRUKER);
         Assertions.assertThat(kjeder.keySet()).containsOnly(kjedeNøkkel);
         OppdragKjede kjede = kjeder.get(kjedeNøkkel);
         Assertions.assertThat(kjede.getOppdragslinjer()).containsExactly(
@@ -65,14 +66,35 @@ public class EksisterendeOppdragMapperTest {
         lagOrdinærLinje(oppdrag110, delytelseId2, p2, Sats.dagsats(150), null); //denne peker ikke til forrige, slik den egentlig skal
 
         Map<KjedeNøkkel, OppdragKjede> kjeder = EksisterendeOppdragMapper.tilKjeder(Arrays.asList(oppdragskontroll));
-        KjedeNøkkel kjedeNøkkel = KjedeNøkkel.lag(ØkonomiKodeKlassifik.FPATORD, Betalingsmottaker.BRUKER);
-        KjedeNøkkel kjedeNøkkelKnektKjede = KjedeNøkkel.builder(ØkonomiKodeKlassifik.FPATORD, Betalingsmottaker.BRUKER).medKnektKjedeDel(1).build();
+        KjedeNøkkel kjedeNøkkel = KjedeNøkkel.lag(FPATORD, Betalingsmottaker.BRUKER);
+        KjedeNøkkel kjedeNøkkelKnektKjede = KjedeNøkkel.builder(FPATORD, Betalingsmottaker.BRUKER).medKnektKjedeDel(1).build();
         Assertions.assertThat(kjeder.keySet()).containsOnly(kjedeNøkkel, kjedeNøkkelKnektKjede);
         Assertions.assertThat(kjeder.get(kjedeNøkkel).getOppdragslinjer()).containsExactly(
             OppdragLinje.builder().medDelytelseId(delytelseId1).medPeriode(p1).medSats(Sats.dagsats(100)).build()
         );
         Assertions.assertThat(kjeder.get(kjedeNøkkelKnektKjede).getOppdragslinjer()).containsExactly(
             OppdragLinje.builder().medDelytelseId(delytelseId2).medPeriode(p2).medSats(Sats.dagsats(150)).build()
+        );
+    }
+
+    @Test
+    public void skal_mappe_kjede_med_opphør_og_fortsettelse_etter_opphør() {
+        LocalDate opphørsdato = p1.getFom().plusDays(2);
+
+        Oppdragskontroll oppdragskontroll = lagOppdragskontroll();
+        Oppdrag110 oppdrag110 = lagOppdrag110(oppdragskontroll, FagsystemId.parse(saksnummer.getVerdi() + "100"));
+        Oppdragslinje150 linje1 = lagOrdinærLinje(oppdrag110, delytelseId1, p1, Sats.dagsats(100), null);
+        lagOpphørslinje(oppdrag110, delytelseId1, p1, Sats.dagsats(100), opphørsdato);
+        lagOrdinærLinje(oppdrag110, delytelseId2, p2, Sats.dagsats(100), DelytelseId.parse(Long.toString(linje1.getDelytelseId())));
+
+        Map<KjedeNøkkel, OppdragKjede> kjeder = EksisterendeOppdragMapper.tilKjeder(Arrays.asList(oppdragskontroll));
+        KjedeNøkkel kjedeNøkkel = KjedeNøkkel.lag(FPATORD, Betalingsmottaker.BRUKER);
+        Assertions.assertThat(kjeder.keySet()).containsOnly(kjedeNøkkel);
+        OppdragKjede kjede = kjeder.get(kjedeNøkkel);
+        Assertions.assertThat(kjede.getOppdragslinjer()).containsExactly(
+            OppdragLinje.builder().medDelytelseId(delytelseId1).medPeriode(p1).medSats(Sats.dagsats(100)).build(),
+            OppdragLinje.builder().medDelytelseId(delytelseId1).medPeriode(p1).medSats(Sats.dagsats(100)).medOpphørFomDato(opphørsdato).build(),
+            OppdragLinje.builder().medDelytelseId(delytelseId2).medPeriode(p2).medSats(Sats.dagsats(100)).medRefDelytelseId(linje1.getDelytelseId()).build()
         );
     }
 

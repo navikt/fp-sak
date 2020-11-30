@@ -58,9 +58,14 @@ public class EksisterendeOppdragMapper {
                 DelytelseId delytelseId = oppdragslinje.getDelytelseId();
                 DelytelseId refDelytelseId = oppdragslinje.getRefDelytelseId();
 
-                OppdragKjede.Builder builder = refDelytelseId == null
-                    ? OppdragKjede.builder()
-                    : builderMap.get(refDelytelseId);
+                OppdragKjede.Builder builder;
+                if (refDelytelseId != null) {
+                    builder = builderMap.get(refDelytelseId);
+                } else if (oppdragslinje.erOpphørslinje()) {
+                    builder = builderMap.get(delytelseId);
+                } else {
+                    builder = OppdragKjede.builder();
+                }
                 validerNøkkelKonsistentGjennomKjeden(nøkkelMap, nøkkel, delytelseId, refDelytelseId);
                 builderMap.put(delytelseId, builder.medOppdragslinje(oppdragslinje));
                 nøkkelMap.put(delytelseId, nøkkel);
