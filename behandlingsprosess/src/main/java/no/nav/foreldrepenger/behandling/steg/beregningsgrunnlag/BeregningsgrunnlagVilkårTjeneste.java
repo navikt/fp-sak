@@ -45,7 +45,7 @@ class BeregningsgrunnlagVilkårTjeneste {
     void lagreVilkårresultat(BehandlingskontrollKontekst kontekst, BeregningsgrunnlagVilkårOgAkjonspunktResultat beregningsgrunnlagResultat) {
         boolean vilkårOppfylt = beregningsgrunnlagResultat.getVilkårOppfylt();
         String regelEvaluering = beregningsgrunnlagResultat.getRegelEvalueringVilkårVurdering();
-        String regelInput = beregningsgrunnlagResultat.getRegelEvalueringVilkårVurdering();
+        String regelInput = beregningsgrunnlagResultat.getRegelInputVilkårVurdering();
         VilkårResultat.Builder vilkårResultatBuilder = opprettVilkårsResultat(kontekst.getBehandlingId(), regelEvaluering, regelInput, vilkårOppfylt);
         if (!vilkårOppfylt) {
             Behandlingsresultat behandlingsresultat = getBehandlingsresultat(kontekst.getBehandlingId());

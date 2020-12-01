@@ -42,7 +42,6 @@ import no.nav.folketrygdloven.kalkulator.modell.iay.InntektArbeidYtelseGrunnlagD
 import no.nav.folketrygdloven.kalkulator.modell.iay.YtelseAnvistDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.YtelseDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.YtelseFilterDto;
-import no.nav.folketrygdloven.kalkulator.modell.typer.AktørId;
 import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.FagsakYtelseType;
 import no.nav.folketrygdloven.kalkulus.felles.v1.KalkulatorInputDto;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
@@ -179,7 +178,7 @@ public class ForvaltningBeregningRestTjeneste {
         Behandling behandling = behandlingRepository.hentBehandling(dto.getBehandlingId());
         BeregningsgrunnlagInputFelles inputTjeneste = beregningsgrunnlagInputProvider.getTjeneste(behandling.getFagsakYtelseType());
         BeregningsgrunnlagInput beregningsgrunnlagInput = inputTjeneste.lagInput(behandling.getId());
-        KalkulatorInputDto kalkulatorInputDto = MapTilKalkulatorInput.map(beregningsgrunnlagInput, behandling.getAktørId());
+        KalkulatorInputDto kalkulatorInputDto = MapTilKalkulatorInput.map(beregningsgrunnlagInput);
         if (kalkulatorInputDto == null) {
             return Response.noContent().build();
 
@@ -214,9 +213,8 @@ public class ForvaltningBeregningRestTjeneste {
             LocalDate skjæringstidspunkt = grunnlagEntitet.getBeregningsgrunnlag().map(BeregningsgrunnlagEntitet::getSkjæringstidspunkt)
                     .orElseThrow();
             InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId());
-            InntektArbeidYtelseGrunnlagDto kalkGrunlag = IAYMapperTilKalkulus.mapGrunnlag(inntektArbeidYtelseGrunnlag);
-            AktørId aktørId = new AktørId(behandling.getAktørId().getId());
-            YtelseFilterDto ytelseFilter = new YtelseFilterDto(kalkGrunlag.getAktørYtelseFraRegister(aktørId)).før(skjæringstidspunkt);
+            InntektArbeidYtelseGrunnlagDto kalkGrunlag = IAYMapperTilKalkulus.mapGrunnlag(inntektArbeidYtelseGrunnlag, behandling.getAktørId());
+            YtelseFilterDto ytelseFilter = new YtelseFilterDto(kalkGrunlag.getAktørYtelseFraRegister()).før(skjæringstidspunkt);
             Set<FagsakYtelseType> ytelseTyper = Set.of(FagsakYtelseType.DAGPENGER, FagsakYtelseType.ARBEIDSAVKLARINGSPENGER);
             Optional<YtelseDto> ytelseDto = BeregningUtils.sisteVedtakFørStpForType(ytelseFilter, skjæringstidspunkt, ytelseTyper);
 

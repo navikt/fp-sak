@@ -151,7 +151,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
                                                                Collection<Inntektsmelding> inntektsmeldinger) {
         var iayGrunnlag = InntektArbeidYtelseGrunnlagBuilder.oppdatere(iayTjeneste.finnGrunnlag(ref.getBehandlingId()))
             .medInntektsmeldinger(inntektsmeldinger).build();
-        return new BeregningsgrunnlagInput(MapBehandlingRef.mapRef(ref), IAYMapperTilKalkulus.mapGrunnlag(iayGrunnlag),
+        return new BeregningsgrunnlagInput(MapBehandlingRef.mapRef(ref), IAYMapperTilKalkulus.mapGrunnlag(iayGrunnlag, ref.getAktørId()),
             OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(opptjeningAktiviteter),
             AktivitetGradering.INGEN_GRADERING, List.of(), null);
     }

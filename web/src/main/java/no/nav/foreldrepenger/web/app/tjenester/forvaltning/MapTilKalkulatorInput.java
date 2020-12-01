@@ -76,12 +76,12 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
  */
 class MapTilKalkulatorInput {
 
-    public static KalkulatorInputDto map(BeregningsgrunnlagInput beregningsgrunnlagInput, AktørId aktørId) {
+    public static KalkulatorInputDto map(BeregningsgrunnlagInput beregningsgrunnlagInput) {
         if (beregningsgrunnlagInput == null) {
             return null;
         }
         KalkulatorInputDto kalkulatorInputDto = new KalkulatorInputDto(
-            mapIayGrunnlag(beregningsgrunnlagInput, aktørId),
+            mapIayGrunnlag(beregningsgrunnlagInput),
             mapOpptjeningAktiviteter(beregningsgrunnlagInput.getOpptjeningAktiviteterForBeregning()),
             beregningsgrunnlagInput.getSkjæringstidspunktOpptjening()
         );
@@ -202,19 +202,18 @@ class MapTilKalkulatorInput {
         return arbeidsgiverOrgNummer == null ? new AktørIdPersonident(arbeidsgiverAktørId) : new Organisasjon(arbeidsgiverOrgNummer);
     }
 
-    private static InntektArbeidYtelseGrunnlagDto mapIayGrunnlag(BeregningsgrunnlagInput beregningsgrunnlagInput, AktørId aktørId) {
+    private static InntektArbeidYtelseGrunnlagDto mapIayGrunnlag(BeregningsgrunnlagInput beregningsgrunnlagInput) {
         if (beregningsgrunnlagInput.getIayGrunnlag() == null) {
             return null;
         }
         no.nav.folketrygdloven.kalkulator.modell.iay.InntektArbeidYtelseGrunnlagDto iayGrunnlag = beregningsgrunnlagInput.getIayGrunnlag();
         InntektArbeidYtelseGrunnlagDto inntektArbeidYtelseGrunnlagDto = new InntektArbeidYtelseGrunnlagDto();
-        no.nav.folketrygdloven.kalkulator.modell.typer.AktørId mappedAktørId = new no.nav.folketrygdloven.kalkulator.modell.typer.AktørId(aktørId.getId());
-        inntektArbeidYtelseGrunnlagDto.medArbeidDto(mapArbeidDto(iayGrunnlag.getAktørArbeidFraRegister(mappedAktørId)));
+        inntektArbeidYtelseGrunnlagDto.medArbeidDto(mapArbeidDto(iayGrunnlag.getAktørArbeidFraRegister()));
         inntektArbeidYtelseGrunnlagDto.medArbeidsforholdInformasjonDto(mapArbeidsforholdInformasjon(iayGrunnlag.getArbeidsforholdInformasjon()));
-        inntektArbeidYtelseGrunnlagDto.medInntekterDto(mapInntekter(iayGrunnlag.getAktørInntektFraRegister(mappedAktørId)));
+        inntektArbeidYtelseGrunnlagDto.medInntekterDto(mapInntekter(iayGrunnlag.getAktørInntektFraRegister()));
         inntektArbeidYtelseGrunnlagDto.medInntektsmeldingerDto(mapInntektsmeldingerDto(iayGrunnlag.getInntektsmeldinger()));
         inntektArbeidYtelseGrunnlagDto.medOppgittOpptjeningDto(mapOppgittOpptjening(iayGrunnlag.getOppgittOpptjening()));
-        inntektArbeidYtelseGrunnlagDto.medYtelserDto(mapYtelserDto(iayGrunnlag.getAktørYtelseFraRegister(mappedAktørId)));
+        inntektArbeidYtelseGrunnlagDto.medYtelserDto(mapYtelserDto(iayGrunnlag.getAktørYtelseFraRegister()));
         return inntektArbeidYtelseGrunnlagDto;
     }
 

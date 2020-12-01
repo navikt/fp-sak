@@ -93,7 +93,7 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
         List<RefusjonskravDato> refusjonskravDatoer = inntektsmeldingTjeneste.hentAlleRefusjonskravDatoerForFagsak(ref.getSaksnummer());
         List<Inntektsmelding> inntektsmeldingDiff = inntektsmeldingTjeneste.hentInntektsmeldingDiffFraOriginalbehandling(ref);
         List<InntektsmeldingDto> inntektsmeldingDiffDto = inntektsmeldingDiff.stream().map(IAYMapperTilKalkulus::mapInntektsmeldingDto).collect(Collectors.toList());
-        InntektArbeidYtelseGrunnlagDto iayGrunnlagDtoUtenIMDiff = IAYMapperTilKalkulus.mapGrunnlag(iayGrunnlag);
+        InntektArbeidYtelseGrunnlagDto iayGrunnlagDtoUtenIMDiff = IAYMapperTilKalkulus.mapGrunnlag(iayGrunnlag, ref.getAktørId());
 
         var ytelseGrunnlag = getYtelsespesifiktGrunnlag(ref);
 
