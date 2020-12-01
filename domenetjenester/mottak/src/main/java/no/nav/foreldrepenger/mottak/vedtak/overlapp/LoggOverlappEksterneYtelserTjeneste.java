@@ -224,7 +224,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
 
     public void vurderOmOverlappOMS(AktørId aktørId, LocalDate førsteUttaksDatoFP, LocalDateTimeline<BigDecimal> perioderFp, List<OverlappVedtak.Builder> overlappene) {
         try {
-            abakusTjeneste.hentVedtakForAktørId(new AktørDatoRequest(new AktørIdPersonident(aktørId.getId()), førsteUttaksDatoFP.minusYears(1))).stream()
+            abakusTjeneste.hentVedtakForAktørId(new AktørDatoRequest(new AktørIdPersonident(aktørId.getId()), førsteUttaksDatoFP.minusYears(1), YtelseType.FORELDREPENGER)).stream()
                 .map(y -> (YtelseV1)y)
                 .filter(y -> Fagsystem.K9SAK.equals(y.getFagsystem()))
                 .forEach(y -> {
