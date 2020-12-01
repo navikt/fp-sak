@@ -109,6 +109,7 @@ public class SvangerskapspengerTjeneste {
         dto.setKopiertFraTidligereBehandling(svpTilrettelegging.getKopiertFraTidligereBehandling());
         dto.setMottattTidspunkt(svpTilrettelegging.getMottattTidspunkt());
         dto.setSkalBrukes(svpTilrettelegging.getSkalBrukes());
+        dto.setArbeidType(svpTilrettelegging.getArbeidType());
         svpTilrettelegging.getInternArbeidsforholdRef().ifPresent(ref -> {
             dto.setInternArbeidsforholdReferanse(ref.getReferanse());
             var arbeidsgiver = svpTilrettelegging.getArbeidsgiver()

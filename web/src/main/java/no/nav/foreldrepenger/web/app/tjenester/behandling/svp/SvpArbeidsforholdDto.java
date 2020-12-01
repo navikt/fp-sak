@@ -8,6 +8,7 @@ import java.util.List;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
+import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.vedtak.util.InputValideringRegex;
 
 
@@ -16,6 +17,7 @@ public class SvpArbeidsforholdDto {
     private Long tilretteleggingId;
     private LocalDate tilretteleggingBehovFom;
     private List<SvpTilretteleggingDatoDto> tilretteleggingDatoer = new ArrayList<>();
+    private ArbeidType arbeidType;
     private String arbeidsgiverReferanse;
     private String opplysningerOmRisiko;
     private String opplysningerOmTilrettelegging;
@@ -132,5 +134,13 @@ public class SvpArbeidsforholdDto {
 
     public void setArbeidsgiverReferanse(String arbeidsgiverReferanse) {
         this.arbeidsgiverReferanse = arbeidsgiverReferanse;
+    }
+
+    public ArbeidType getArbeidType() {
+        return arbeidType;
+    }
+
+    public void setArbeidType(ArbeidType arbeidType) {
+        this.arbeidType = arbeidType;
     }
 }
