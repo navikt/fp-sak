@@ -72,7 +72,7 @@ public class InntektsmeldingRegisterTjeneste {
 
         Skjæringstidspunkt skjæringstidspunkt = referanse.getSkjæringstidspunkt();
         LocalDate dato = skjæringstidspunkt.getUtledetSkjæringstidspunkt();
-        Map<Arbeidsgiver, Set<EksternArbeidsforholdRef>> påkrevdeInntektsmeldinger = abakusArbeidsforholdTjeneste.finnArbeidsforholdForIdentPåDag(referanse.getAktørId(), dato);
+        Map<Arbeidsgiver, Set<EksternArbeidsforholdRef>> påkrevdeInntektsmeldinger = abakusArbeidsforholdTjeneste.finnArbeidsforholdForIdentPåDag(referanse.getAktørId(), dato, referanse.getFagsakYtelseType());
 
         if (påkrevdeInntektsmeldinger.isEmpty()) {
             return Collections.emptyMap();
