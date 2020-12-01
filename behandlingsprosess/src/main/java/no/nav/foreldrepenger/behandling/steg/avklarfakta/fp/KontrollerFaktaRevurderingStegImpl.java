@@ -165,8 +165,17 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     }
 
     private List<AksjonspunktResultat> kopierOverstyringerTilHøyreForStartpunkt(Behandling behandling, BehandlingReferanse ref, StartpunktType startpunkt) {
+        var original = behandling.getOriginalBehandlingId().map(behandlingRepository::hentBehandling).orElse(null);
+        List<Aksjonspunkt> resultater = new ArrayList<>();
+        if (original == null || behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
+            return Collections.emptyList();
+        } else if (original.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
+            resultater.addAll(behandling.getOriginalBehandlingId().map(behandlingRepository::hentBehandling).map(Behandling::getAksjonspunkter).orElse(Collections.emptySet()));
+        } else {
+            resultater.addAll(original.getAksjonspunkter());
+        }
         // Manuelle til høyre for startpunkt
-        return behandling.getOriginalBehandlingId().map(behandlingRepository::hentBehandling).map(Behandling::getAksjonspunkter).orElse(Collections.emptySet()).stream()
+        return resultater.stream()
             .filter(Aksjonspunkt::erUtført)
             .map(Aksjonspunkt::getAksjonspunktDefinisjon)
             .filter(AKSJONSPUNKT_SKAL_KOPIERES::contains)
@@ -181,7 +190,6 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
             // Automatisk revurdering skal hoppe til utledet startpunkt. Unntaket er revurdering av avslåtte behandlinger
             if (revurdering.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
                 startpunkt = StartpunktType.UTTAKSVILKÅR;
-                LOGGER.info("KOFAKREV Berørt behandling {} med  startpunkt {} ", revurdering.getId(), startpunkt.getKode());// NOSONAR //$NON-NLS-1$
                 return startpunkt;
             } else {
                 var orgBehandlingsresultat = getBehandlingsresultat(ref.getOriginalBehandlingId().get());

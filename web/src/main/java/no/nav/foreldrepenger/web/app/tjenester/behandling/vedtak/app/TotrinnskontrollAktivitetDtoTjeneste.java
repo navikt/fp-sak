@@ -73,10 +73,7 @@ public class TotrinnskontrollAktivitetDtoTjeneste {
         dto.setErEndring(periode.getErPeriodeEndret());
         dto.setGodkjent(erPeriodeGodkjent(periode));
 
-        Arbeidsgiver arbeidsgiver = periode.getArbeidsgiver();
-        if (arbeidsgiver != null) {
-            mapArbeidsgiverOpplysninger(dto, arbeidsgiver);
-        }
+        Optional.ofNullable(periode.getArbeidsgiver()).ifPresent(a -> mapArbeidsgiverOpplysninger(dto, a));
         return dto;
     }
 

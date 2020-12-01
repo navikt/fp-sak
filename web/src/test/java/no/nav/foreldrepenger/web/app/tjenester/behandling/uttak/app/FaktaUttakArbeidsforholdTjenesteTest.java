@@ -10,8 +10,6 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -23,8 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
-import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
-import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.input.BeregningsgrunnlagStatus;
@@ -36,9 +32,6 @@ public class FaktaUttakArbeidsforholdTjenesteTest extends EntityManagerAwareTest
 
     private static final String NAVN = "Person Navn";
     private static final LocalDate FØDSEL = LocalDate.of(2000, 1, 1);
-
-    @Mock
-    private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
 
     @Test
     public void skalReturnereArbeidsforhold() {
@@ -55,10 +48,6 @@ public class FaktaUttakArbeidsforholdTjenesteTest extends EntityManagerAwareTest
         Arbeidsgiver virksomhet456 = Arbeidsgiver.virksomhet(virksomhetOrgnr2);
         Arbeidsgiver person = Arbeidsgiver.person(aktørId);
 
-        Mockito.when(arbeidsgiverTjeneste.hent(person)).thenReturn(new ArbeidsgiverOpplysninger(aktørId, aktørId.getId(), NAVN, FØDSEL));
-        Mockito.when(arbeidsgiverTjeneste.hent(virksomhet123)).thenReturn(new ArbeidsgiverOpplysninger(virksomhet123.getOrgnr(), virksomhet1.getNavn()));
-        Mockito.when(arbeidsgiverTjeneste.hent(virksomhet456)).thenReturn(new ArbeidsgiverOpplysninger(virksomhet456.getOrgnr(), virksomhet2.getNavn()));
-
         var input = new UttakInput(lagReferanse(behandling), null, null)
                 .medBeregningsgrunnlagStatuser(Set.of(
                     new BeregningsgrunnlagStatus(AktivitetStatus.ARBEIDSTAKER, virksomhet123, InternArbeidsforholdRef.nyRef()),
@@ -69,21 +58,17 @@ public class FaktaUttakArbeidsforholdTjenesteTest extends EntityManagerAwareTest
                     new BeregningsgrunnlagStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
                 ));
 
-        FaktaUttakArbeidsforholdTjeneste tjeneste = tjeneste();
-
-        List<ArbeidsforholdDto> arbeidsforhold = tjeneste.hentArbeidsforhold(input);
+        List<ArbeidsforholdDto> arbeidsforhold = FaktaUttakArbeidsforholdTjeneste.hentArbeidsforhold(input);
 
         assertThat(arbeidsforhold).hasSize(5);
         var dtoForVirksomhet123 = finnDtoFor(arbeidsforhold, UttakArbeidType.ORDINÆRT_ARBEID, virksomhet123);
-        assertThat(dtoForVirksomhet123.getArbeidsgiver().getNavn()).isEqualTo(virksomhet1.getNavn());
+        assertThat(dtoForVirksomhet123.getArbeidsgiverReferanse()).isEqualTo(virksomhetOrgnr1);
 
         var dtoForVirksomhet456 = finnDtoFor(arbeidsforhold, UttakArbeidType.ORDINÆRT_ARBEID, virksomhet456);
-        assertThat(dtoForVirksomhet456.getArbeidsgiver().getNavn()).isEqualTo(virksomhet2.getNavn());
+        assertThat(dtoForVirksomhet456.getArbeidsgiverReferanse()).isEqualTo(virksomhetOrgnr2);
 
         var dtoForPerson = finnDtoFor(arbeidsforhold, UttakArbeidType.ORDINÆRT_ARBEID, person);
-        assertThat(dtoForPerson.getArbeidsgiver().getIdentifikator()).isNull();
-        assertThat(dtoForPerson.getArbeidsgiver().getNavn()).isEqualTo(NAVN);
-        assertThat(dtoForPerson.getArbeidsgiver().getAktørId()).isEqualTo(aktørId);
+        assertThat(dtoForPerson.getArbeidsgiverReferanse()).isEqualTo(aktørId.getId());
 
         var dtoForFrilans = finnDtoFor(arbeidsforhold, UttakArbeidType.FRILANS, null);
         assertThat(dtoForFrilans).isNotNull();
@@ -95,17 +80,9 @@ public class FaktaUttakArbeidsforholdTjenesteTest extends EntityManagerAwareTest
     private ArbeidsforholdDto finnDtoFor(List<ArbeidsforholdDto> arbeidsforhold, UttakArbeidType arbeidType, Arbeidsgiver arbeidsgiver) {
         var dtoSet = arbeidsforhold.stream().filter(a -> a.getArbeidType().equals(arbeidType)).collect(Collectors.toSet());
         if (arbeidsgiver != null) {
-            if (arbeidsgiver.getErVirksomhet()) {
-                dtoSet = dtoSet.stream()
-                    .filter(a -> a.getArbeidsgiver().isVirksomhet())
-                    .filter(a -> a.getArbeidsgiver().getIdentifikator().equals(arbeidsgiver.getIdentifikator()))
-                    .collect(Collectors.toSet());
-            } else {
-                dtoSet = dtoSet.stream()
-                    .filter(a -> !a.getArbeidsgiver().isVirksomhet())
-                    .filter(a -> a.getArbeidsgiver().getAktørId().equals(arbeidsgiver.getAktørId()))
-                    .collect(Collectors.toSet());
-            }
+            dtoSet = dtoSet.stream()
+                .filter(a -> a.getArbeidsgiverReferanse().equals(arbeidsgiver.getIdentifikator()))
+                .collect(Collectors.toSet());
         }
         if (dtoSet.size() != 1) {
             throw new IllegalStateException("Fint ikke akkurat 1");
@@ -118,11 +95,10 @@ public class FaktaUttakArbeidsforholdTjenesteTest extends EntityManagerAwareTest
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         Behandling behandling = scenario.lagre(new BehandlingRepositoryProvider(getEntityManager()));
 
-        FaktaUttakArbeidsforholdTjeneste tjeneste = tjeneste();
 
         var input = new UttakInput(lagReferanse(behandling), null, null)
                 .medBeregningsgrunnlagStatuser(Set.of(new BeregningsgrunnlagStatus(AktivitetStatus.DAGPENGER)));
-        List<ArbeidsforholdDto> arbeidsforhold = tjeneste.hentArbeidsforhold(input);
+        List<ArbeidsforholdDto> arbeidsforhold = FaktaUttakArbeidsforholdTjeneste.hentArbeidsforhold(input);
 
         assertThat(arbeidsforhold).isEmpty();
     }
@@ -139,7 +115,7 @@ public class FaktaUttakArbeidsforholdTjenesteTest extends EntityManagerAwareTest
     }
 
     private FaktaUttakArbeidsforholdTjeneste tjeneste() {
-        return new FaktaUttakArbeidsforholdTjeneste(arbeidsgiverTjeneste);
+        return new FaktaUttakArbeidsforholdTjeneste();
     }
 
 }
