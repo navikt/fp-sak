@@ -370,10 +370,10 @@ public class BeregningsgrunnlagRepository {
             if (beregningsgrunnlag.get().getBeregningsgrunnlag().isPresent()) {
                 BeregningsgrunnlagEntitet bg = beregningsgrunnlag.get().getBeregningsgrunnlag().orElseThrow(() -> new IllegalStateException("Skal ha BG"));
                 BeregningSats beregningSats = finnEksaktSats(BeregningSatsType.GRUNNBELØP, bg.getSkjæringstidspunkt());
-                lagre(nyBehandlingId, BeregningsgrunnlagGrunnlagBuilder.oppdatere(beregningsgrunnlag.get())
+                lagre(nyBehandlingId, BeregningsgrunnlagGrunnlagBuilder.kopi(beregningsgrunnlag.get())
                     .medBeregningsgrunnlag(BeregningsgrunnlagEntitet.builder(bg).medGrunnbeløp(BigDecimal.valueOf(beregningSats.getVerdi())).build()), tilstand);
             } else {
-                lagre(nyBehandlingId, BeregningsgrunnlagGrunnlagBuilder.oppdatere(beregningsgrunnlag), tilstand);
+                lagre(nyBehandlingId, BeregningsgrunnlagGrunnlagBuilder.kopi(beregningsgrunnlag), tilstand);
             }
             return true;
         }
