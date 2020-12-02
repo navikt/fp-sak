@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandling.revurdering.etterkontroll.tjeneste;
 
-
 import static no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType.FØDSEL;
 import static no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType.TERMIN;
 
@@ -26,7 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamiliehendelseEvent;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
@@ -40,30 +38,27 @@ public class EtterkontrollEventObserver {
 
     private EtterkontrollRepository etterkontrollRepository;
     private FamilieHendelseRepository familieHendelseRepository;
-    private BehandlingRepository behandlingRepository;
     private Period etterkontrollTidTilbake;
 
     public EtterkontrollEventObserver() {
-        //Cool Devices Installed
+        // Cool Devices Installed
     }
 
     /**
-     * @param etterkontrollTidTilbake - Tid etter innvilgelsesdato før en fagsak vurderes for etterkontroll
+     * @param etterkontrollTidTilbake - Tid etter innvilgelsesdato før en fagsak
+     *                                vurderes for etterkontroll
      */
     @Inject
     public EtterkontrollEventObserver(EtterkontrollRepository etterkontrollRepository,
-                                      FamilieHendelseRepository familieHendelseRepository,
-                                      BehandlingRepository behandlingRepository,
-                                      @KonfigVerdi(value = "etterkontroll.tid.tilbake", defaultVerdi = "P60D") Period etterkontrollTidTilbake) {
+            FamilieHendelseRepository familieHendelseRepository,
+            @KonfigVerdi(value = "etterkontroll.tid.tilbake", defaultVerdi = "P60D") Period etterkontrollTidTilbake) {
         this.etterkontrollRepository = etterkontrollRepository;
         this.familieHendelseRepository = familieHendelseRepository;
-        this.behandlingRepository = behandlingRepository;
         this.etterkontrollTidTilbake = etterkontrollTidTilbake;
     }
 
-
     public void observerFamiliehendelseEvent(@Observes FamiliehendelseEvent event) {
-        log.debug("Mottatt familehendelseEvent for behandling {} ", event.getBehandlingId());//NOSONAR
+        log.debug("Mottatt familehendelseEvent for behandling {} ", event.getBehandlingId());// NOSONAR
         if (FamiliehendelseEvent.EventType.TERMIN_TIL_FØDSEL.equals(event.getEventType())) {
             etterkontrollRepository.avflaggDersomEksisterer(event.getFagsakId(), KontrollType.MANGLENDE_FØDSEL);
         }
@@ -75,11 +70,12 @@ public class EtterkontrollEventObserver {
             return;
         }
 
-        log.debug("Markerer behandling {} for etterkontroll på bakgrunn av opprettet vedtak {} om ytelse knyttet til termin", event.getBehandlingId(), event.getVedtak().getId());//NOSONAR
+        log.debug("Markerer behandling {} for etterkontroll på bakgrunn av opprettet vedtak {} om ytelse knyttet til termin", event.getBehandlingId(),
+                event.getVedtak().getId());// NOSONAR
         final Optional<FamilieHendelseGrunnlagEntitet> grunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
         if (grunnlag.isPresent()) {
             final FamilieHendelseType hendelseType = grunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-                .map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT);
+                    .map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT);
             if (Set.of(TERMIN, FØDSEL).contains(hendelseType)) {
                 markerForEtterkontroll(behandling, grunnlag.get());
             }
@@ -95,10 +91,10 @@ public class EtterkontrollEventObserver {
             List<Etterkontroll> ekListe = etterkontrollRepository.finnEtterkontrollForFagsak(behandling.getFagsakId(), KontrollType.MANGLENDE_FØDSEL);
             if (ekListe.isEmpty()) {
                 Etterkontroll etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId())
-                    .medKontrollType(KontrollType.MANGLENDE_FØDSEL)
-                    .medErBehandlet(false)
-                    .medKontrollTidspunkt(ekTid)
-                    .build();
+                        .medKontrollType(KontrollType.MANGLENDE_FØDSEL)
+                        .medErBehandlet(false)
+                        .medKontrollTidspunkt(ekTid)
+                        .build();
                 etterkontrollRepository.lagre(etterkontroll);
             } else {
                 ekListe.forEach(ek -> {
@@ -110,13 +106,14 @@ public class EtterkontrollEventObserver {
         });
     }
 
-
     private Optional<LocalDate> skalEtterkontrolleresMedDato(Behandling behandling, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
-        // Markerer for etterkontroll alle som mangler register-data, bekreftet. Etterkontroll-batch håndterer logikk for overstyring og ES vs FP
+        // Markerer for etterkontroll alle som mangler register-data, bekreftet.
+        // Etterkontroll-batch håndterer logikk for overstyring og ES vs FP
         if (!Set.of(FagsakYtelseType.FORELDREPENGER, FagsakYtelseType.ENGANGSTØNAD).contains(behandling.getFagsak().getYtelseType())) {
             return Optional.empty();
         }
-        if (familieHendelseGrunnlag.getBekreftetVersjon().map(FamilieHendelseEntitet::getType).map(FamilieHendelseType.FØDSEL::equals).orElse(false)) {
+        if (familieHendelseGrunnlag.getBekreftetVersjon().map(FamilieHendelseEntitet::getType).map(FamilieHendelseType.FØDSEL::equals)
+                .orElse(false)) {
             return Optional.empty();
         }
         return Optional.of(familieHendelseGrunnlag.finnGjeldendeFødselsdato());

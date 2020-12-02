@@ -48,7 +48,6 @@ import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Sammenligningsgrun
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
 @ExtendWith(FPsakEntityManagerAwareExtension.class)
 public class BeregningsgrunnlagRepositoryTest {
@@ -62,8 +61,11 @@ public class BeregningsgrunnlagRepositoryTest {
     private BehandlingRepository behandlingRepository;
     private FagsakBehandlingBuilder behandlingBuilder;
 
+    private EntityManager em;
+
     @BeforeEach
     public void setup(EntityManager entityManager) {
+        this.em = entityManager;
         beregningsgrunnlagRepository = new BeregningsgrunnlagRepository(entityManager);
         behandlingRepository = new BehandlingRepository(entityManager);
         behandlingBuilder = new FagsakBehandlingBuilder(entityManager);
@@ -312,10 +314,11 @@ public class BeregningsgrunnlagRepositoryTest {
         // Arrange
         var behandling = opprettBehandling();
         BeregningsgrunnlagEntitet beregningsgrunnlag1 = buildBeregningsgrunnlag();
-        BeregningsgrunnlagGrunnlagBuilder grBuilder = BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.empty()).medBeregningsgrunnlag(beregningsgrunnlag1)
-            .medRegisterAktiviteter(BeregningAktivitetAggregatEntitet.builder()
-                .medSkjæringstidspunktOpptjening(LocalDate.now())
-                .build());
+        BeregningsgrunnlagGrunnlagBuilder grBuilder = BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.empty())
+                .medBeregningsgrunnlag(beregningsgrunnlag1)
+                .medRegisterAktiviteter(BeregningAktivitetAggregatEntitet.builder()
+                        .medSkjæringstidspunktOpptjening(LocalDate.now())
+                        .build());
         beregningsgrunnlagRepository.lagre(behandling.getId(), grBuilder, STEG_OPPRETTET);
 
         BeregningsgrunnlagEntitet beregningsgrunnlag2 = buildBeregningsgrunnlag();
@@ -419,14 +422,14 @@ public class BeregningsgrunnlagRepositoryTest {
         Long bgPeriodeÅrsakId = bgPeriodeLagret.getBeregningsgrunnlagPeriodeÅrsaker().get(0).getId();
         assertThat(bgPeriodeÅrsakId).isNotNull();
 
-        var repository = new Repository(em);
-        repository.flushAndClear();
-        BeregningsgrunnlagEntitet beregningsgrunnlagLest = repository.hent(BeregningsgrunnlagEntitet.class, bgId);
-        BeregningsgrunnlagAktivitetStatus bgAktivitetStatusLest = repository.hent(BeregningsgrunnlagAktivitetStatus.class, bgAktivitetStatusId);
-        Sammenligningsgrunnlag sammenligningsgrunnlagLest = repository.hent(Sammenligningsgrunnlag.class, sammenlingningsgrId);
-        BeregningsgrunnlagPeriode bgPeriodeLest = repository.hent(BeregningsgrunnlagPeriode.class, bgPeriodeId);
-        BeregningsgrunnlagPrStatusOgAndel bgPrStatusOgAndelLest = repository.hent(BeregningsgrunnlagPrStatusOgAndel.class, bgPrStatusOgAndelId);
-        BeregningsgrunnlagPeriodeÅrsak bgPeriodeÅrsakLest = repository.hent(BeregningsgrunnlagPeriodeÅrsak.class, bgPeriodeÅrsakId);
+        em.flush();
+        em.clear();
+        BeregningsgrunnlagEntitet beregningsgrunnlagLest = em.find(BeregningsgrunnlagEntitet.class, bgId);
+        BeregningsgrunnlagAktivitetStatus bgAktivitetStatusLest = em.find(BeregningsgrunnlagAktivitetStatus.class, bgAktivitetStatusId);
+        Sammenligningsgrunnlag sammenligningsgrunnlagLest = em.find(Sammenligningsgrunnlag.class, sammenlingningsgrId);
+        BeregningsgrunnlagPeriode bgPeriodeLest = em.find(BeregningsgrunnlagPeriode.class, bgPeriodeId);
+        BeregningsgrunnlagPrStatusOgAndel bgPrStatusOgAndelLest = em.find(BeregningsgrunnlagPrStatusOgAndel.class, bgPrStatusOgAndelId);
+        BeregningsgrunnlagPeriodeÅrsak bgPeriodeÅrsakLest = em.find(BeregningsgrunnlagPeriodeÅrsak.class, bgPeriodeÅrsakId);
 
         assertThat(beregningsgrunnlag.getId()).isNotNull();
         assertThat(beregningsgrunnlagLest.getAktivitetStatuser()).hasSize(1);
