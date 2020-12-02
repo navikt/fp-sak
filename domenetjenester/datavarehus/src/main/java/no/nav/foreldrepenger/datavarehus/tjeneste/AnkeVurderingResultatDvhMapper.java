@@ -1,5 +1,8 @@
 package no.nav.foreldrepenger.datavarehus.tjeneste;
 
+import java.time.LocalDate;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
 import no.nav.foreldrepenger.datavarehus.domene.AnkeVurderingResultatDvh;
 
@@ -19,6 +22,14 @@ public class AnkeVurderingResultatDvhMapper {
             .medErIkkeSignert(ankevurderingresultat.erIkkeSignert())
             .medErSubsidiartRealitetsbehandles(ankevurderingresultat.erSubsidiartRealitetsbehandles())
             .medOpprettetTidspunkt(ankevurderingresultat.getOpprettetTidspunkt())
+            .medTrygderettVurdering(ankevurderingresultat.getTrygderettVurdering().getKode())
+            .medTrygderettOmgjørÅrsak(ankevurderingresultat.getTrygderettOmgjørÅrsak().getKode())
+            .medTrygderettVurderingOmgjør(ankevurderingresultat.getTrygderettVurderingOmgjør().getKode())
+            .medTrygderettKjennelseDato(getKjennelseDato(ankevurderingresultat))
             .build();
+    }
+
+    private static LocalDate getKjennelseDato(AnkeVurderingResultatEntitet avr) {
+        return AnkeVurdering.UDEFINERT.equals(avr.getTrygderettVurdering()) ? null : LocalDate.now();
     }
 }

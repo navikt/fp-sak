@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.datavarehus.domene;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -29,17 +28,11 @@ public class KlageVurderingResultatDvh extends DvhBaseEntitet {
     @Column(name = "klagevurdering")
     private String klageVurdering;
 
-    @Column(name = "klage_avvist_aarsak")
-    private String klageAvvistÅrsak;
-
     @Column(name = "klage_medhold_aarsak")
     private String klageMedholdÅrsak;
 
     @Column(name = "klage_vurdering_omgjoer")
     private String klageVurderingOmgjør;
-
-    @Column(name = "vedtaksdato_paklagd_behandling")
-    private LocalDate vedtaksdatoPåklagdBehandling;
 
     @Column(name = "opprettet_tid", nullable = false, updatable = false)
     private LocalDateTime opprettetTidspunkt;
@@ -63,20 +56,12 @@ public class KlageVurderingResultatDvh extends DvhBaseEntitet {
         return klageVurdering;
     }
 
-    public String getKlageAvvistÅrsak() {
-        return klageAvvistÅrsak;
-    }
-
     public String getKlageMedholdÅrsak() {
         return klageMedholdÅrsak;
     }
 
     public String getKlageVurderingOmgjør() {
         return klageVurderingOmgjør;
-    }
-
-    public LocalDate getVedtaksdatoPåklagdBehandling() {
-        return vedtaksdatoPåklagdBehandling;
     }
 
     public LocalDateTime getOpprettetTidspunkt() {
@@ -92,16 +77,14 @@ public class KlageVurderingResultatDvh extends DvhBaseEntitet {
         return Objects.equals(klageBehandlingId, that.klageBehandlingId) &&
             Objects.equals(klageVurdertAv, that.klageVurdertAv) &&
             Objects.equals(klageVurdering, that.klageVurdering) &&
-            Objects.equals(klageAvvistÅrsak, that.klageAvvistÅrsak) &&
             Objects.equals(klageMedholdÅrsak, that.klageMedholdÅrsak) &&
             Objects.equals(klageVurderingOmgjør, that.klageVurderingOmgjør) &&
-            Objects.equals(vedtaksdatoPåklagdBehandling, that.vedtaksdatoPåklagdBehandling) &&
             Objects.equals(opprettetTidspunkt, that.opprettetTidspunkt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), klageBehandlingId, klageVurdertAv, klageVurdering, klageAvvistÅrsak, klageMedholdÅrsak, klageVurderingOmgjør, vedtaksdatoPåklagdBehandling, opprettetTidspunkt);
+        return Objects.hash(super.hashCode(), klageBehandlingId, klageVurdertAv, klageVurdering, klageMedholdÅrsak, klageVurderingOmgjør, opprettetTidspunkt);
     }
 
     public static Builder builder() {
@@ -126,11 +109,6 @@ public class KlageVurderingResultatDvh extends DvhBaseEntitet {
             return this;
         }
 
-        public Builder medKlageAvvistÅrsak(String klageAvvistÅrsak) {
-            klageVurderingResultatDvh.klageAvvistÅrsak = klageAvvistÅrsak;
-            return this;
-        }
-
         public Builder medKlageMedholdÅrsak(String klageMedholdÅrsak) {
             klageVurderingResultatDvh.klageMedholdÅrsak = klageMedholdÅrsak;
             return this;
@@ -138,11 +116,6 @@ public class KlageVurderingResultatDvh extends DvhBaseEntitet {
 
         public Builder medKlageVurderingOmgjør(String klageVurderingOmgjør) {
             klageVurderingResultatDvh.klageVurderingOmgjør = klageVurderingOmgjør;
-            return this;
-        }
-
-        public Builder medVedtaksdatoPåklagdBehandling(LocalDate vedtaksdatoPåklagdBehandling) {
-            klageVurderingResultatDvh.vedtaksdatoPåklagdBehandling = vedtaksdatoPåklagdBehandling;
             return this;
         }
 
