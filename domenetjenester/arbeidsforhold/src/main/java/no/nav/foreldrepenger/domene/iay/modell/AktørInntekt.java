@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.iay.modell;
 
-
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -24,7 +23,7 @@ public class AktørInntekt extends BaseEntitet implements IndexKey {
     private Set<Inntekt> inntekt = new LinkedHashSet<>();
 
     public AktørInntekt() {
-        //hibernate
+        // hibernate
     }
 
     /**
@@ -47,6 +46,7 @@ public class AktørInntekt extends BaseEntitet implements IndexKey {
 
     /**
      * Aktøren inntekten er relevant for
+     *
      * @return aktørid
      */
     public AktørId getAktørId() {
@@ -63,15 +63,16 @@ public class AktørInntekt extends BaseEntitet implements IndexKey {
     }
 
     public boolean hasValues() {
-        return aktørId != null || inntekt != null;
+        return (aktørId != null) || (inntekt != null);
     }
 
     InntektBuilder getInntektBuilder(InntektsKilde inntektsKilde, Opptjeningsnøkkel nøkkel) {
         Optional<Inntekt> inntektOptional = getInntekt()
-            .stream()
-            .filter(i -> inntektsKilde.equals(i.getInntektsKilde()))
-            .filter(i -> i.getArbeidsgiver() != null && new Opptjeningsnøkkel(i.getArbeidsgiver()).matcher(nøkkel)
-                || inntektsKilde.equals(InntektsKilde.SIGRUN)).findFirst();
+                .stream()
+                .filter(i -> inntektsKilde.equals(i.getInntektsKilde()))
+                .filter(i -> ((i.getArbeidsgiver() != null) && new Opptjeningsnøkkel(i.getArbeidsgiver()).matcher(nøkkel))
+                        || inntektsKilde.equals(InntektsKilde.SIGRUN))
+                .findFirst();
         InntektBuilder oppdatere = InntektBuilder.oppdatere(inntektOptional);
         if (!oppdatere.getErOppdatering()) {
             oppdatere.medInntektsKilde(inntektsKilde);
@@ -81,12 +82,12 @@ public class AktørInntekt extends BaseEntitet implements IndexKey {
 
     public InntektBuilder getInntektBuilderForYtelser(InntektsKilde inntektsKilde) {
         Optional<Inntekt> inntektOptional = getInntekt()
-            .stream()
-            .filter(i -> i.getArbeidsgiver() == null)
-            .filter(i -> inntektsKilde.equals(i.getInntektsKilde()))
-            .filter(i -> i.getAlleInntektsposter().stream()
-                .anyMatch(post -> post.getInntektspostType().equals(InntektspostType.YTELSE)))
-            .findFirst();
+                .stream()
+                .filter(i -> i.getArbeidsgiver() == null)
+                .filter(i -> inntektsKilde.equals(i.getInntektsKilde()))
+                .filter(i -> i.getAlleInntektsposter().stream()
+                        .anyMatch(post -> post.getInntektspostType().equals(InntektspostType.YTELSE)))
+                .findFirst();
         InntektBuilder oppdatere = InntektBuilder.oppdatere(inntektOptional);
         if (!oppdatere.getErOppdatering()) {
             oppdatere.medInntektsKilde(inntektsKilde);
@@ -122,9 +123,9 @@ public class AktørInntekt extends BaseEntitet implements IndexKey {
     @Override
     public String toString() {
         return getClass().getSimpleName() + "<" +
-            "aktørId=" + aktørId +
-            ", inntekt=" + inntekt +
-            '>';
+                "aktørId=" + aktørId +
+                ", inntekt=" + inntekt +
+                '>';
     }
 
 }

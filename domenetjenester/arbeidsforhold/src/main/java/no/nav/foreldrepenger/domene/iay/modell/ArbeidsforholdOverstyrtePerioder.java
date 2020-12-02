@@ -42,8 +42,12 @@ public class ArbeidsforholdOverstyrtePerioder extends BaseEntitet implements Ind
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || !(o instanceof ArbeidsforholdOverstyrtePerioder)) return false;
+        if (this == o) {
+            return true;
+        }
+        if ((o == null) || !(o instanceof ArbeidsforholdOverstyrtePerioder)) {
+            return false;
+        }
         ArbeidsforholdOverstyrtePerioder that = (ArbeidsforholdOverstyrtePerioder) o;
         return Objects.equals(periode, that.periode) && Objects.equals(arbeidsforholdOverstyring, that.arbeidsforholdOverstyring);
     }
@@ -56,9 +60,9 @@ public class ArbeidsforholdOverstyrtePerioder extends BaseEntitet implements Ind
     @Override
     public String toString() {
         return "ArbeidsforholdInformasjonEntitet{" +
-            "periode=" + periode +
-            ", arbeidsforholdOverstyring=" + arbeidsforholdOverstyring +
-            '}';
+                "periode=" + periode +
+                ", arbeidsforholdOverstyring=" + arbeidsforholdOverstyring +
+                '}';
     }
 
     public DatoIntervallEntitet getOverstyrtePeriode() {

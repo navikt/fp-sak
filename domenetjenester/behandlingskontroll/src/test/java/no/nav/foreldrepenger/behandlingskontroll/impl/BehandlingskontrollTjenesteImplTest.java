@@ -67,7 +67,7 @@ public class BehandlingskontrollTjenesteImplTest {
     @Test
     public void skal_rykke_tilbake_til_inngang_vurderingspunkt_av_steg() {
         var behandling = TestScenario.forEngangsstønad()
-            .lagre(serviceProvider);
+                .lagre(serviceProvider);
         forceOppdaterBehandlingSteg(behandling, steg3);
         var kontekst = mock(BehandlingskontrollKontekst.class);
         when(kontekst.getBehandlingId()).thenReturn(behandling.getId());
@@ -85,16 +85,16 @@ public class BehandlingskontrollTjenesteImplTest {
         assertThat(behandling.getBehandlingStegTilstandHistorikk()).hasSize(2);
 
         sjekkBehandlingStegTilstandHistorikk(behandling, steg3,
-            BehandlingStegStatus.TILBAKEFØRT);
+                BehandlingStegStatus.TILBAKEFØRT);
         sjekkBehandlingStegTilstandHistorikk(behandling, steg2,
-            BehandlingStegStatus.INNGANG);
+                BehandlingStegStatus.INNGANG);
 
     }
 
     @Test
     public void skal_rykke_tilbake_til_utgang_vurderingspunkt_av_steg() {
         var behandling = TestScenario.forEngangsstønad()
-            .lagre(serviceProvider);
+                .lagre(serviceProvider);
         forceOppdaterBehandlingSteg(behandling, steg3);
         var kontekst = mock(BehandlingskontrollKontekst.class);
         when(kontekst.getBehandlingId()).thenReturn(behandling.getId());
@@ -111,16 +111,16 @@ public class BehandlingskontrollTjenesteImplTest {
         assertThat(behandling.getBehandlingStegTilstandHistorikk()).hasSize(2);
 
         sjekkBehandlingStegTilstandHistorikk(behandling, steg3,
-            BehandlingStegStatus.TILBAKEFØRT);
+                BehandlingStegStatus.TILBAKEFØRT);
         sjekkBehandlingStegTilstandHistorikk(behandling, steg2,
-            BehandlingStegStatus.UTGANG);
+                BehandlingStegStatus.UTGANG);
 
     }
 
     @Test
     public void skal_rykke_tilbake_til_start_av_tidligere_steg_ved_tilbakeføring() {
         var behandling = TestScenario.forEngangsstønad()
-            .lagre(serviceProvider);
+                .lagre(serviceProvider);
         forceOppdaterBehandlingSteg(behandling, steg3);
         var kontekst = mock(BehandlingskontrollKontekst.class);
         when(kontekst.getBehandlingId()).thenReturn(behandling.getId());
@@ -137,16 +137,16 @@ public class BehandlingskontrollTjenesteImplTest {
         assertThat(behandling.getBehandlingStegTilstandHistorikk()).hasSize(2);
 
         sjekkBehandlingStegTilstandHistorikk(behandling, steg3,
-            BehandlingStegStatus.TILBAKEFØRT);
+                BehandlingStegStatus.TILBAKEFØRT);
         sjekkBehandlingStegTilstandHistorikk(behandling, steg2,
-            BehandlingStegStatus.INNGANG);
+                BehandlingStegStatus.INNGANG);
 
     }
 
     @Test
     public void skal_tolerere_tilbakehopp_til_senere_steg_enn_inneværende() {
         var behandling = TestScenario.forEngangsstønad()
-            .lagre(serviceProvider);
+                .lagre(serviceProvider);
         forceOppdaterBehandlingSteg(behandling, steg3);
         var kontekst = mock(BehandlingskontrollKontekst.class);
         when(kontekst.getBehandlingId()).thenReturn(behandling.getId());
@@ -167,7 +167,7 @@ public class BehandlingskontrollTjenesteImplTest {
     @Test
     public void skal_flytte_til__inngang_av_senere_steg_ved_framføring() {
         var behandling = TestScenario.forEngangsstønad()
-            .lagre(serviceProvider);
+                .lagre(serviceProvider);
         forceOppdaterBehandlingSteg(behandling, steg3);
         var kontekst = mock(BehandlingskontrollKontekst.class);
         when(kontekst.getBehandlingId()).thenReturn(behandling.getId());
@@ -184,35 +184,35 @@ public class BehandlingskontrollTjenesteImplTest {
         assertThat(behandling.getBehandlingStegTilstandHistorikk()).hasSize(2);
 
         sjekkBehandlingStegTilstandHistorikk(behandling, steg3,
-            BehandlingStegStatus.AVBRUTT);
+                BehandlingStegStatus.AVBRUTT);
 
         // NB: skipper STEP_4
         sjekkBehandlingStegTilstandHistorikk(behandling, steg4);
 
         sjekkBehandlingStegTilstandHistorikk(behandling, steg5,
-            BehandlingStegStatus.INNGANG);
+                BehandlingStegStatus.INNGANG);
 
     }
 
     @Test
     public void skal_kaste_exception_dersom_tilbakeføring_til_senere_steg() {
         var behandling = TestScenario.forEngangsstønad()
-            .lagre(serviceProvider);
+                .lagre(serviceProvider);
         forceOppdaterBehandlingSteg(behandling, steg3);
         var kontekst = mock(BehandlingskontrollKontekst.class);
         when(kontekst.getBehandlingId()).thenReturn(behandling.getId());
         when(kontekst.getFagsakId()).thenReturn(behandling.getFagsakId());
 
         assertThatThrownBy(() -> kontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, steg4))
-            .isInstanceOf(IllegalStateException.class)
-            .hasMessageContaining("Kan ikke angi steg ")
-            .hasMessageContaining("som er etter");
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Kan ikke angi steg ")
+                .hasMessageContaining("som er etter");
     }
 
     @Test
     public void skal_kaste_exception_dersom_ugyldig_tilbakeføring_fra_iverks() {
         var behandling = TestScenario.forEngangsstønad()
-            .lagre(serviceProvider);
+                .lagre(serviceProvider);
         forceOppdaterBehandlingSteg(behandling, steg3);
         var kontekst = mock(BehandlingskontrollKontekst.class);
         when(kontekst.getBehandlingId()).thenReturn(behandling.getId());
@@ -225,14 +225,14 @@ public class BehandlingskontrollTjenesteImplTest {
 
         // Act
         assertThatThrownBy(() -> kontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, forrigeSteg))
-            .isInstanceOf(IllegalStateException.class)
-            .hasMessageContaining("Kan ikke tilbakeføre fra");
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Kan ikke tilbakeføre fra");
     }
 
     @Test
     public void skal_rykke_tilbake_til_inngang_vurderingspunkt_av_samme_steg() {
         var behandling = TestScenario.forEngangsstønad()
-            .lagre(serviceProvider);
+                .lagre(serviceProvider);
         forceOppdaterBehandlingSteg(behandling, steg3);
         var kontekst = mock(BehandlingskontrollKontekst.class);
         when(kontekst.getBehandlingId()).thenReturn(behandling.getId());
@@ -268,75 +268,74 @@ public class BehandlingskontrollTjenesteImplTest {
         this.kontrollTjeneste = new BehandlingskontrollTjenesteImpl(serviceProvider) {
             @Override
             protected BehandlingStegUtfall doProsesserBehandling(BehandlingskontrollKontekst kontekst, BehandlingModell modell,
-                                                                 BehandlingModellVisitor visitor) {
+                    BehandlingModellVisitor visitor) {
                 kontrollTjeneste.prosesserBehandling(kontekst);
                 return null;
             }
         };
 
         var behandling = TestScenario.forEngangsstønad()
-            .lagre(serviceProvider);
+                .lagre(serviceProvider);
         forceOppdaterBehandlingSteg(behandling, steg3);
         var kontekst = mock(BehandlingskontrollKontekst.class);
         when(kontekst.getBehandlingId()).thenReturn(behandling.getId());
         when(kontekst.getFagsakId()).thenReturn(behandling.getFagsakId());
 
         assertThatThrownBy(() -> this.kontrollTjeneste.prosesserBehandling(kontekst))
-            .isInstanceOf(IllegalStateException.class)
-            .hasMessageContaining("Støtter ikke nøstet prosessering");
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Støtter ikke nøstet prosessering");
     }
 
     @Test
     public void skal_returnere_true_når_aksjonspunktet_skal_løses_etter_angitt_steg() {
         var behandling = TestScenario.forEngangsstønad()
-            .lagre(serviceProvider);
+                .lagre(serviceProvider);
         forceOppdaterBehandlingSteg(behandling, steg3);
         var kontekst = mock(BehandlingskontrollKontekst.class);
         when(kontekst.getBehandlingId()).thenReturn(behandling.getId());
         when(kontekst.getFagsakId()).thenReturn(behandling.getFagsakId());
         assertThat(kontrollTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(behandling.getFagsakYtelseType(),
-            behandling.getType(), steg3, AksjonspunktDefinisjon.AVKLAR_OM_ER_BOSATT)).isTrue();
+                behandling.getType(), steg3, AksjonspunktDefinisjon.AVKLAR_OM_ER_BOSATT)).isTrue();
     }
 
     @Test
     public void skal_returnere_true_når_aksjonspunktet_skal_løses_i_angitt_steg() {
         var behandling = TestScenario.forEngangsstønad()
-            .lagre(serviceProvider);
+                .lagre(serviceProvider);
         forceOppdaterBehandlingSteg(behandling, steg3);
         var kontekst = mock(BehandlingskontrollKontekst.class);
         when(kontekst.getBehandlingId()).thenReturn(behandling.getId());
         when(kontekst.getFagsakId()).thenReturn(behandling.getFagsakId());
         assertThat(kontrollTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(behandling.getFagsakYtelseType(),
-            behandling.getType(), steg2, AksjonspunktDefinisjon.AVKLAR_TILLEGGSOPPLYSNINGER))
-            .isTrue();
+                behandling.getType(), steg2, AksjonspunktDefinisjon.AVKLAR_TILLEGGSOPPLYSNINGER))
+                        .isTrue();
     }
 
     @Test
     public void skal_returnere_false_når_aksjonspunktet_skal_løses_før_angitt_steg() {
         var behandling = TestScenario.forEngangsstønad()
-            .lagre(serviceProvider);
+                .lagre(serviceProvider);
         forceOppdaterBehandlingSteg(behandling, steg3);
         var kontekst = mock(BehandlingskontrollKontekst.class);
         when(kontekst.getBehandlingId()).thenReturn(behandling.getId());
         when(kontekst.getFagsakId()).thenReturn(behandling.getFagsakId());
         assertThat(kontrollTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(behandling.getFagsakYtelseType(),
-            behandling.getType(), steg4, AksjonspunktDefinisjon.AVKLAR_FAKTA_FOR_PERSONSTATUS))
-            .isFalse();
+                behandling.getType(), steg4, AksjonspunktDefinisjon.AVKLAR_FAKTA_FOR_PERSONSTATUS))
+                        .isFalse();
     }
 
     private void sjekkBehandlingStegTilstandHistorikk(Behandling behandling, BehandlingStegType stegType,
-                                                      BehandlingStegStatus... stegStatuser) {
+            BehandlingStegStatus... stegStatuser) {
         assertThat(
-            behandling.getBehandlingStegTilstandHistorikk()
-                .filter(bst -> stegType == null || Objects.equals(bst.getBehandlingSteg(), stegType))
-                .map(bst -> bst.getBehandlingStegStatus()))
-            .containsExactly(stegStatuser);
+                behandling.getBehandlingStegTilstandHistorikk()
+                        .filter(bst -> (stegType == null) || Objects.equals(bst.getBehandlingSteg(), stegType))
+                        .map(bst -> bst.getBehandlingStegStatus()))
+                                .containsExactly(stegStatuser);
     }
 
     private void initBehandlingskontrollTjeneste() {
         this.kontrollTjeneste = new BehandlingskontrollTjenesteImpl(serviceProvider);
     }
-
 
     private static final class BehandlingskontrollEventPublisererForTest extends BehandlingskontrollEventPubliserer {
         private List<BehandlingEvent> events = new ArrayList<>();

@@ -10,7 +10,6 @@ import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
-
 public class OppgittFrilans extends BaseEntitet {
 
     private OppgittOpptjening oppgittOpptjening;
@@ -27,7 +26,6 @@ public class OppgittFrilans extends BaseEntitet {
     @ChangeTracked
     private List<OppgittFrilansoppdrag> frilansoppdrag;
 
-
     public OppgittFrilans() {
     }
 
@@ -39,14 +37,18 @@ public class OppgittFrilans extends BaseEntitet {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || !(o instanceof OppgittFrilans)) return false;
+        if (this == o) {
+            return true;
+        }
+        if ((o == null) || !(o instanceof OppgittFrilans)) {
+            return false;
+        }
         OppgittFrilans that = (OppgittFrilans) o;
-        return harInntektFraFosterhjem == that.harInntektFraFosterhjem &&
-            erNyoppstartet == that.erNyoppstartet &&
-            harNærRelasjon == that.harNærRelasjon &&
-            Objects.equals(oppgittOpptjening, that.oppgittOpptjening) &&
-            Objects.equals(frilansoppdrag, that.frilansoppdrag);
+        return (harInntektFraFosterhjem == that.harInntektFraFosterhjem) &&
+                (erNyoppstartet == that.erNyoppstartet) &&
+                (harNærRelasjon == that.harNærRelasjon) &&
+                Objects.equals(oppgittOpptjening, that.oppgittOpptjening) &&
+                Objects.equals(frilansoppdrag, that.frilansoppdrag);
     }
 
     @Override
@@ -57,12 +59,12 @@ public class OppgittFrilans extends BaseEntitet {
     @Override
     public String toString() {
         return "FrilansEntitet{" +
-            "oppgittOpptjening=" + oppgittOpptjening +
-            ", harInntektFraFosterhjem=" + harInntektFraFosterhjem +
-            ", erNyoppstartet=" + erNyoppstartet +
-            ", harNærRelasjon=" + harNærRelasjon +
-            ", frilansoppdrag=" + frilansoppdrag +
-            '}';
+                "oppgittOpptjening=" + oppgittOpptjening +
+                ", harInntektFraFosterhjem=" + harInntektFraFosterhjem +
+                ", erNyoppstartet=" + erNyoppstartet +
+                ", harNærRelasjon=" + harNærRelasjon +
+                ", frilansoppdrag=" + frilansoppdrag +
+                '}';
     }
 
     void setOppgittOpptjening(OppgittOpptjening oppgittOpptjening) {

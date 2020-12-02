@@ -18,11 +18,11 @@ public class BekreftetPermisjon {
     BekreftetPermisjon() {
     }
 
-    public BekreftetPermisjon(BekreftetPermisjonStatus status){
+    public BekreftetPermisjon(BekreftetPermisjonStatus status) {
         this.status = status;
     }
 
-    public BekreftetPermisjon(LocalDate permisjonFom, LocalDate permisjonTom, BekreftetPermisjonStatus status){
+    public BekreftetPermisjon(LocalDate permisjonFom, LocalDate permisjonTom, BekreftetPermisjonStatus status) {
         this.periode = DatoIntervallEntitet.fraOgMedTilOgMed(permisjonFom, permisjonTom);
         this.status = status;
     }
@@ -42,13 +42,15 @@ public class BekreftetPermisjon {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || !(o instanceof BekreftetPermisjon))
+        }
+        if ((o == null) || !(o instanceof BekreftetPermisjon)) {
             return false;
+        }
         BekreftetPermisjon that = (BekreftetPermisjon) o;
         return Objects.equals(periode, that.periode)
-            && Objects.equals(status, that.status);
+                && Objects.equals(status, that.status);
     }
 
     @Override
@@ -59,9 +61,9 @@ public class BekreftetPermisjon {
     @Override
     public String toString() {
         return "BekreftetPermisjon<" +
-            "periode=" + periode +
-            ", status=" + status +
-            '>';
+                "periode=" + periode +
+                ", status=" + status +
+                '>';
     }
 
 }

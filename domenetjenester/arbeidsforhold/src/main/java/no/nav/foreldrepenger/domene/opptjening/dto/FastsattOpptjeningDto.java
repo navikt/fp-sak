@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.opptjening.dto;
 
-
 import java.time.LocalDate;
 import java.util.List;
 
@@ -16,7 +15,7 @@ public class FastsattOpptjeningDto {
     }
 
     FastsattOpptjeningDto(LocalDate fom, LocalDate tom, OpptjeningPeriodeDto opptjeningperiode,
-                          List<FastsattOpptjeningAktivitetDto> fastsattOpptjeningAktivitetList) {
+            List<FastsattOpptjeningAktivitetDto> fastsattOpptjeningAktivitetList) {
         this.opptjeningFom = fom;
         this.opptjeningTom = tom;
         this.opptjeningperiode = opptjeningperiode;

@@ -19,9 +19,9 @@ public class HistorikkStreamKafkaProperties {
 
     @Inject
     HistorikkStreamKafkaProperties(@KonfigVerdi("bootstrap.servers") String bootstrapServers,
-                                   @KonfigVerdi("systembruker.username") String username,
-                                   @KonfigVerdi("systembruker.password") String password,
-                                   @KonfigVerdi("kafka.historikkinnslag.topic") String topic) {
+            @KonfigVerdi("systembruker.username") String username,
+            @KonfigVerdi("systembruker.password") String password,
+            @KonfigVerdi("kafka.historikkinnslag.topic") String topic) {
         this.topic = topic;
         this.bootstrapServers = bootstrapServers;
         this.username = username;
@@ -47,7 +47,7 @@ public class HistorikkStreamKafkaProperties {
     }
 
     boolean harSattBrukernavn() {
-        return username != null && !username.isEmpty();
+        return (username != null) && !username.isEmpty();
     }
 
     String getClientId() {

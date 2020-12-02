@@ -7,7 +7,8 @@ import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceP
 /**
  * Tekniske oppsett ved kjøring av et steg:<br>
  * <ul>
- * <li>Setter savepoint slik at dersom steg feiler så beholdes tidligere resultater.</li>
+ * <li>Setter savepoint slik at dersom steg feiler så beholdes tidligere
+ * resultater.</li>
  * <li>Setter LOG_CONTEXT slik at ytterligere detaljer blir med i logging.</li>
  * </ul>
  */
@@ -16,10 +17,9 @@ public class TekniskBehandlingStegVenterVisitor extends TekniskBehandlingStegVis
     private boolean gjenoppta = true;
 
     public TekniskBehandlingStegVenterVisitor(BehandlingskontrollServiceProvider repositoryProvider,
-                                              BehandlingskontrollKontekst kontekst) {
+            BehandlingskontrollKontekst kontekst) {
         super(repositoryProvider, kontekst);
     }
-
 
     @Override
     protected StegProsesseringResultat prosesserSteg(BehandlingStegVisitor stegVisitor) {

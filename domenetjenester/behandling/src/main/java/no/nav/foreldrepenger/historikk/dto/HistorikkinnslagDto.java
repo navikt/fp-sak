@@ -8,7 +8,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 
-public class HistorikkinnslagDto implements  Comparable<HistorikkinnslagDto> {
+public class HistorikkinnslagDto implements Comparable<HistorikkinnslagDto> {
     private Long behandlingId;
     private HistorikkinnslagType type;
     private HistorikkAktør aktoer;
@@ -85,7 +85,7 @@ public class HistorikkinnslagDto implements  Comparable<HistorikkinnslagDto> {
     @Override
     public int compareTo(HistorikkinnslagDto that) {
         int comparatorValue = that.getOpprettetTidspunkt().compareTo(this.getOpprettetTidspunkt());
-        if(comparatorValue == 0 && that.getType().equals(HistorikkinnslagType.REVURD_OPPR)) {
+        if ((comparatorValue == 0) && that.getType().equals(HistorikkinnslagType.REVURD_OPPR)) {
             return -1;
         }
         return comparatorValue;
@@ -101,12 +101,12 @@ public class HistorikkinnslagDto implements  Comparable<HistorikkinnslagDto> {
         }
         HistorikkinnslagDto that = (HistorikkinnslagDto) o;
         return Objects.equals(getBehandlingId(), that.getBehandlingId()) &&
-            Objects.equals(getType(), that.getType()) &&
-            Objects.equals(getAktoer(), that.getAktoer()) &&
-            Objects.equals(getKjoenn(), that.getKjoenn()) &&
-            Objects.equals(getOpprettetAv(), that.getOpprettetAv()) &&
-            Objects.equals(getOpprettetTidspunkt(), that.getOpprettetTidspunkt()) &&
-            Objects.equals(getDokumentLinks(), that.getDokumentLinks());
+                Objects.equals(getType(), that.getType()) &&
+                Objects.equals(getAktoer(), that.getAktoer()) &&
+                Objects.equals(getKjoenn(), that.getKjoenn()) &&
+                Objects.equals(getOpprettetAv(), that.getOpprettetAv()) &&
+                Objects.equals(getOpprettetTidspunkt(), that.getOpprettetTidspunkt()) &&
+                Objects.equals(getDokumentLinks(), that.getDokumentLinks());
     }
 
     @Override

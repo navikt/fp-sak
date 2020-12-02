@@ -49,11 +49,11 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
 
     @Inject
     public RevurderingTjenesteImpl(BehandlingRepositoryProvider repositoryProvider,
-                                   BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                   InntektArbeidYtelseTjeneste iayTjeneste,
-                                   @FagsakYtelseTypeRef("SVP") RevurderingEndring revurderingEndring,
-                                   RevurderingTjenesteFelles revurderingTjenesteFelles,
-                                   VergeRepository vergeRepository) {
+            BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+            InntektArbeidYtelseTjeneste iayTjeneste,
+            @FagsakYtelseTypeRef("SVP") RevurderingEndring revurderingEndring,
+            RevurderingTjenesteFelles revurderingTjenesteFelles,
+            VergeRepository vergeRepository) {
         this.iayTjeneste = iayTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
@@ -80,7 +80,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
 
     private Behandling opprettRevurdering(Fagsak fagsak, BehandlingÅrsakType revurderingsÅrsak, boolean manueltOpprettet, OrganisasjonsEnhet enhet) {
         Behandling origBehandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())
-            .orElseThrow(() -> RevurderingFeil.FACTORY.tjenesteFinnerIkkeBehandlingForRevurdering(fagsak.getId()).toException());
+                .orElseThrow(() -> RevurderingFeil.FACTORY.tjenesteFinnerIkkeBehandlingForRevurdering(fagsak.getId()).toException());
 
         // lås original behandling først
         behandlingskontrollTjeneste.initBehandlingskontroll(origBehandling);
@@ -112,7 +112,8 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         } else {
             // Kopierer kun oppgitt for ny 1gang. Bør kanskje kopiere alt?
             ytelsesFordelingRepository.hentAggregatHvisEksisterer(originalBehandlingId).ifPresent(yfa -> {
-                ytelsesFordelingRepository.lagre(nyBehandlingId, revurderingTjenesteFelles.kopierOppgittFordelingFraForrigeBehandling(yfa.getOppgittFordeling()));
+                ytelsesFordelingRepository.lagre(nyBehandlingId,
+                        revurderingTjenesteFelles.kopierOppgittFordelingFraForrigeBehandling(yfa.getOppgittFordeling()));
                 ytelsesFordelingRepository.lagre(nyBehandlingId, yfa.getOppgittRettighet());
                 ytelsesFordelingRepository.lagre(nyBehandlingId, yfa.getOppgittDekningsgrad());
             });

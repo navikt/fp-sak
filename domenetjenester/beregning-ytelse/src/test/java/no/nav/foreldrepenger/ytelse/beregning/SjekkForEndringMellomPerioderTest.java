@@ -19,36 +19,34 @@ public class SjekkForEndringMellomPerioderTest {
     private SjekkForEndringMellomPerioder sjekkForEndringMellomPerioder;
     private BeregningsresultatEntitet brFørstegangsbehandling;
     private BeregningsresultatEntitet brRevurdering;
-    private final SjekkForIngenAndelerOgAndelerUtenDagsats sjekkForIngenAndelerOgAndelerUtenDagsats =
-        mock(SjekkForIngenAndelerOgAndelerUtenDagsats.class);
-    private final SjekkOmPerioderHarEndringIAndeler sjekkOmPerioderHarEndringIAndeler =
-        mock(SjekkOmPerioderHarEndringIAndeler.class);
+    private final SjekkForIngenAndelerOgAndelerUtenDagsats sjekkForIngenAndelerOgAndelerUtenDagsats = mock(
+            SjekkForIngenAndelerOgAndelerUtenDagsats.class);
+    private final SjekkOmPerioderHarEndringIAndeler sjekkOmPerioderHarEndringIAndeler = mock(SjekkOmPerioderHarEndringIAndeler.class);
 
     @BeforeEach
-    void oppsett(){
+    void oppsett() {
         brRevurdering = BeregningsresultatEntitet.builder()
-            .medRegelInput("clob1")
-            .medRegelSporing("clob2")
-            .build();
+                .medRegelInput("clob1")
+                .medRegelSporing("clob2")
+                .build();
         brFørstegangsbehandling = BeregningsresultatEntitet.builder()
-            .medRegelInput("clob1")
-            .medRegelSporing("clob2")
-            .build();
+                .medRegelInput("clob1")
+                .medRegelSporing("clob2")
+                .build();
         sjekkForEndringMellomPerioder = new SjekkForEndringMellomPerioder(
-            sjekkForIngenAndelerOgAndelerUtenDagsats,
-            sjekkOmPerioderHarEndringIAndeler
-        );
+                sjekkForIngenAndelerOgAndelerUtenDagsats,
+                sjekkOmPerioderHarEndringIAndeler);
     }
 
     @Test
-    public void skal_kaste_exception_når_både_ny_og_gammel_periode_er_lik_null(){
+    public void skal_kaste_exception_når_både_ny_og_gammel_periode_er_lik_null() {
         assertThatThrownBy(() -> sjekkForEndringMellomPerioder.sjekk(null, null))
-            .isInstanceOf(IllegalStateException.class)
-            .hasMessageContaining("Utviklerfeil: Både ny og gammel periode kan ikke være null");
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Utviklerfeil: Både ny og gammel periode kan ikke være null");
     }
 
     @Test
-    public void ingen_endring_med_ingen_andel_eller_andel_uten_dagsats_og_gammelPeriode_og_ingen_nyPeriode(){
+    public void ingen_endring_med_ingen_andel_eller_andel_uten_dagsats_og_gammelPeriode_og_ingen_nyPeriode() {
         // Arrange
         BeregningsresultatPeriode gammel = opprettPeriode(brFørstegangsbehandling, LocalDate.now());
         when(sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(any(), any())).thenReturn(true);
@@ -60,7 +58,7 @@ public class SjekkForEndringMellomPerioderTest {
     }
 
     @Test
-    public void endring_med_andel_eller_andel_med_dagsats_og_gammelPeriode_og_ingen_nyPeriode(){
+    public void endring_med_andel_eller_andel_med_dagsats_og_gammelPeriode_og_ingen_nyPeriode() {
         // Arrange
         BeregningsresultatPeriode gammel = opprettPeriode(brFørstegangsbehandling, LocalDate.now());
         when(sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(any(), any())).thenReturn(false);
@@ -72,7 +70,7 @@ public class SjekkForEndringMellomPerioderTest {
     }
 
     @Test
-    public void ingen_endring_med_ingen_andel_eller_andel_uten_dagsats_og_nyPeriode_og_ingen_gammelPeriode(){
+    public void ingen_endring_med_ingen_andel_eller_andel_uten_dagsats_og_nyPeriode_og_ingen_gammelPeriode() {
         // Arrange
         BeregningsresultatPeriode ny = opprettPeriode(brRevurdering, LocalDate.now());
         when(sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(any(), any())).thenReturn(true);
@@ -84,7 +82,7 @@ public class SjekkForEndringMellomPerioderTest {
     }
 
     @Test
-    public void endring_med_andel_eller_andel_med_dagsats_og_nyPeriode_og_ingen_gammelPeriode(){
+    public void endring_med_andel_eller_andel_med_dagsats_og_nyPeriode_og_ingen_gammelPeriode() {
         // Arrange
         BeregningsresultatPeriode ny = opprettPeriode(brRevurdering, LocalDate.now());
         when(sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(any(), any())).thenReturn(false);
@@ -96,7 +94,7 @@ public class SjekkForEndringMellomPerioderTest {
     }
 
     @Test
-    public void ingen_endring_med_ingen_andel_eller_andel_uten_dagsats_med_ny_og_gammel_periode_med_lik_fom_og_andeler(){
+    public void ingen_endring_med_ingen_andel_eller_andel_uten_dagsats_med_ny_og_gammel_periode_med_lik_fom_og_andeler() {
         // Arrange
         BeregningsresultatPeriode ny = opprettPeriode(brRevurdering, LocalDate.now());
         BeregningsresultatPeriode gammel = opprettPeriode(brRevurdering, LocalDate.now());
@@ -109,7 +107,7 @@ public class SjekkForEndringMellomPerioderTest {
     }
 
     @Test
-    public void ingen_endring_med_andel_eller_andel_med_dagsats_med_ny_og_gammel_periode_med_lik_fom_og_andeler(){
+    public void ingen_endring_med_andel_eller_andel_med_dagsats_med_ny_og_gammel_periode_med_lik_fom_og_andeler() {
         // Arrange
         BeregningsresultatPeriode ny = opprettPeriode(brRevurdering, LocalDate.now());
         BeregningsresultatPeriode gammel = opprettPeriode(brRevurdering, LocalDate.now());
@@ -122,7 +120,7 @@ public class SjekkForEndringMellomPerioderTest {
     }
 
     @Test
-    public void ingen_endring_med_ingen_andel_eller_andel_uten_dagsats_med_ny_og_gammel_periode_med_ulik_fom_og_andeler(){
+    public void ingen_endring_med_ingen_andel_eller_andel_uten_dagsats_med_ny_og_gammel_periode_med_ulik_fom_og_andeler() {
         // Arrange
         BeregningsresultatPeriode ny = opprettPeriode(brRevurdering, LocalDate.now());
         BeregningsresultatPeriode gammel = opprettPeriode(brRevurdering, LocalDate.now().plusDays(1));
@@ -135,7 +133,7 @@ public class SjekkForEndringMellomPerioderTest {
     }
 
     @Test
-    public void endring_med_andel_eller_andel_med_dagsats_med_ny_og_gammel_periode_med_ulik_fom_og_andeler(){
+    public void endring_med_andel_eller_andel_med_dagsats_med_ny_og_gammel_periode_med_ulik_fom_og_andeler() {
         // Arrange
         BeregningsresultatPeriode ny = opprettPeriode(brRevurdering, LocalDate.now());
         BeregningsresultatPeriode gammel = opprettPeriode(brRevurdering, LocalDate.now().plusDays(1));
@@ -147,10 +145,10 @@ public class SjekkForEndringMellomPerioderTest {
         assertThat(erEndring).isTrue();
     }
 
-    private BeregningsresultatPeriode opprettPeriode(BeregningsresultatEntitet beregningsresultat, LocalDate fom){
+    private BeregningsresultatPeriode opprettPeriode(BeregningsresultatEntitet beregningsresultat, LocalDate fom) {
         return BeregningsresultatPeriode.builder()
-            .medBeregningsresultatPeriodeFomOgTom(fom, LocalDate.now().plusMonths(1))
-            .build(beregningsresultat);
+                .medBeregningsresultatPeriodeFomOgTom(fom, LocalDate.now().plusMonths(1))
+                .build(beregningsresultat);
     }
 
 }

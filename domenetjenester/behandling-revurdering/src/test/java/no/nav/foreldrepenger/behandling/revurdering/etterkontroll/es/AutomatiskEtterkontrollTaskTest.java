@@ -133,7 +133,7 @@ public class AutomatiskEtterkontrollTaskTest {
     }
 
     private void createTask() {
-        Period etterkontrollTpsRegistreringPeriode = Period.parse("P11W");
+        Period.parse("P11W");
         task = new AutomatiskEtterkontrollTask(repositoryProvider, etterkontrollRepository, historikkRepository,
                 familieHendelseTjeneste, tpsFamilieTjenesteMock,
                 prosessTaskRepositoryMock, behandlendeEnhetTjeneste);

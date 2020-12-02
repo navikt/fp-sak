@@ -34,7 +34,7 @@ public class IAYDiffsjekker {
         this.diffEntity = new DiffEntity(traverseGraph);
     }
 
-    public  <T extends Comparable<? super T>> boolean erForskjellPå(List<T> list1, List<T> list2) {
+    public <T extends Comparable<? super T>> boolean erForskjellPå(List<T> list1, List<T> list2) {
         Map<Node, Pair> leafDifferences = finnForskjellerPåLister(list1, list2);
         return leafDifferences.size() > 0;
     }

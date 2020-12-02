@@ -71,11 +71,11 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
 
     @Inject
     public AvklarAktivitetsPerioderOppdaterer(OpptjeningRepository opptjeningRepository,
-                                              InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
-                                              AksjonspunktutlederForVurderOppgittOpptjening vurderOppgittOpptjening,
-                                              HistorikkTjenesteAdapter historikkAdapter,
-                                              VirksomhetTjeneste virksomhetTjeneste,
-                                              PersonIdentTjeneste tpsTjeneste) {
+            InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
+            AksjonspunktutlederForVurderOppgittOpptjening vurderOppgittOpptjening,
+            HistorikkTjenesteAdapter historikkAdapter,
+            VirksomhetTjeneste virksomhetTjeneste,
+            PersonIdentTjeneste tpsTjeneste) {
         this.opptjeningRepository = opptjeningRepository;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.vurderOppgittOpptjening = vurderOppgittOpptjening;
@@ -90,13 +90,14 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
         if (dto.getOpptjeningAktivitetList().stream().anyMatch(oa -> oa.getErGodkjent() == null)) {
             throw new IllegalStateException("AvklarAktivitetsPerioder: Uavklarte aktiviteter til oppdaterer");
         }
-        List<ArbeidsforholdOverstyring> overstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId).getArbeidsforholdInformasjon().map(ArbeidsforholdInformasjon::getOverstyringer).orElse(Collections.emptyList());
+        List<ArbeidsforholdOverstyring> overstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId).getArbeidsforholdInformasjon()
+                .map(ArbeidsforholdInformasjon::getOverstyringer).orElse(Collections.emptyList());
         List<BekreftOpptjeningPeriodeDto> bekreftOpptjeningPerioder = map(dto.getOpptjeningAktivitetList(), behandlingId, overstyringer);
         Skjæringstidspunkt skjæringstidspunkt = param.getSkjæringstidspunkt();
 
         AktørId aktørId = param.getAktørId();
         new BekreftOpptjeningPeriodeAksjonspunkt(inntektArbeidYtelseTjeneste, vurderOppgittOpptjening)
-            .oppdater(behandlingId, aktørId, bekreftOpptjeningPerioder, skjæringstidspunkt);
+                .oppdater(behandlingId, aktørId, bekreftOpptjeningPerioder, skjæringstidspunkt);
 
         boolean erEndret = erDetGjortEndringer(dto, behandlingId, overstyringer);
 
@@ -110,7 +111,7 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
             if (!oaDto.getErGodkjent()) {
                 lagUtfallHistorikk(oaDto, behandlingId, tilVerdi, IKKE_GODKJENT_FOR_PERIODEN, overstyringer);
                 erEndret = true;
-            } else if (oaDto.getErGodkjent() && oaDto.getErEndret() != null && oaDto.getErEndret()) {
+            } else if (oaDto.getErGodkjent() && (oaDto.getErEndret() != null) && oaDto.getErEndret()) {
                 lagUtfallHistorikk(oaDto, behandlingId, tilVerdi, GODKJENT_FOR_PERIODEN, overstyringer);
                 erEndret = true;
             }
@@ -118,30 +119,32 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
         return erEndret;
     }
 
-    private void lagUtfallHistorikk(AvklarOpptjeningAktivitetDto oaDto, Long behandlingId, LocalDateInterval tilVerdi, String godkjentForPerioden, List<ArbeidsforholdOverstyring> overstyringer) {
+    private void lagUtfallHistorikk(AvklarOpptjeningAktivitetDto oaDto, Long behandlingId, LocalDateInterval tilVerdi, String godkjentForPerioden,
+            List<ArbeidsforholdOverstyring> overstyringer) {
         Optional<Opptjening> opptjeningOptional = opptjeningRepository.finnOpptjening(behandlingId);
         if (opptjeningOptional.isPresent()) {
             LocalDateInterval opptjentPeriode = new LocalDateInterval(opptjeningOptional.get().getFom(), opptjeningOptional.get().getTom());
             if (tilVerdi.contains(opptjentPeriode)) {
                 byggHistorikkinnslag(behandlingId, oaDto, null, godkjentForPerioden + formaterPeriode(opptjentPeriode),
-                    HistorikkinnslagType.FAKTA_ENDRET, HistorikkEndretFeltType.AKTIVITET, overstyringer);
+                        HistorikkinnslagType.FAKTA_ENDRET, HistorikkEndretFeltType.AKTIVITET, overstyringer);
             } else {
                 byggHistorikkinnslag(behandlingId, oaDto, null, godkjentForPerioden + formaterPeriode(tilVerdi),
-                    HistorikkinnslagType.FAKTA_ENDRET, HistorikkEndretFeltType.AKTIVITET, overstyringer);
+                        HistorikkinnslagType.FAKTA_ENDRET, HistorikkEndretFeltType.AKTIVITET, overstyringer);
             }
             lagEndretHistorikk(behandlingId, oaDto, opptjentPeriode, overstyringer);
         } else {
             byggHistorikkinnslag(behandlingId, oaDto, null, godkjentForPerioden + formaterPeriode(tilVerdi),
-                HistorikkinnslagType.FAKTA_ENDRET, HistorikkEndretFeltType.AKTIVITET, overstyringer);
+                    HistorikkinnslagType.FAKTA_ENDRET, HistorikkEndretFeltType.AKTIVITET, overstyringer);
         }
     }
 
-    private void lagEndretHistorikk(Long behandlingId, AvklarOpptjeningAktivitetDto oaDto, LocalDateInterval opptjentPeriode, List<ArbeidsforholdOverstyring> overstyringer) {
+    private void lagEndretHistorikk(Long behandlingId, AvklarOpptjeningAktivitetDto oaDto, LocalDateInterval opptjentPeriode,
+            List<ArbeidsforholdOverstyring> overstyringer) {
         if (erAktivitetEndretForOpptjening(oaDto, opptjentPeriode)) {
             LocalDateInterval fraInterval = new LocalDateInterval(oaDto.getOriginalFom(), oaDto.getOriginalTom());
             LocalDateInterval tilInterval = hentTilInterval(oaDto, opptjentPeriode);
             byggHistorikkinnslag(behandlingId, oaDto, formaterPeriode(fraInterval), formaterPeriode(tilInterval),
-                HistorikkinnslagType.FAKTA_ENDRET, HistorikkEndretFeltType.AKTIVITET_PERIODE, overstyringer);
+                    HistorikkinnslagType.FAKTA_ENDRET, HistorikkEndretFeltType.AKTIVITET_PERIODE, overstyringer);
         }
     }
 
@@ -149,8 +152,9 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
         LocalDate fom;
         LocalDate tom;
 
-        if (opptjentPeriode.getTomDato() != null && oaDto.getOpptjeningTom() != null && oaDto.getOpptjeningTom().isEqual(opptjentPeriode.getTomDato())) {
-            if (oaDto.getOriginalTom() != null && oaDto.getOriginalTom().isAfter(opptjentPeriode.getTomDato())) {
+        if ((opptjentPeriode.getTomDato() != null) && (oaDto.getOpptjeningTom() != null)
+                && oaDto.getOpptjeningTom().isEqual(opptjentPeriode.getTomDato())) {
+            if ((oaDto.getOriginalTom() != null) && oaDto.getOriginalTom().isAfter(opptjentPeriode.getTomDato())) {
                 tom = oaDto.getOriginalTom();
             } else {
                 tom = oaDto.getOpptjeningTom();
@@ -159,8 +163,9 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
             tom = oaDto.getOpptjeningTom();
         }
 
-        if (opptjentPeriode.getFomDato() != null && oaDto.getOpptjeningFom() != null && oaDto.getOpptjeningFom().isEqual(opptjentPeriode.getFomDato())) {
-            if (oaDto.getOriginalFom() != null && oaDto.getOriginalFom().isBefore(opptjentPeriode.getFomDato())) {
+        if ((opptjentPeriode.getFomDato() != null) && (oaDto.getOpptjeningFom() != null)
+                && oaDto.getOpptjeningFom().isEqual(opptjentPeriode.getFomDato())) {
+            if ((oaDto.getOriginalFom() != null) && oaDto.getOriginalFom().isBefore(opptjentPeriode.getFomDato())) {
                 fom = oaDto.getOriginalFom();
             } else {
                 fom = oaDto.getOpptjeningFom();
@@ -173,9 +178,10 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
     }
 
     private void byggHistorikkinnslag(Long behandlingId, AvklarOpptjeningAktivitetDto oaDto, String fraVerdi, String tilVerdi,
-                                      HistorikkinnslagType histType, HistorikkEndretFeltType feltType, List<ArbeidsforholdOverstyring> overstyringer) {
+            HistorikkinnslagType histType, HistorikkEndretFeltType feltType, List<ArbeidsforholdOverstyring> overstyringer) {
         if (OpptjeningAktivitetType.ARBEID.equals(oaDto.getAktivitetType())) {
-            lagHistorikkinnslagDel(behandlingId, byggArbeidTekst(oaDto, overstyringer), fraVerdi, tilVerdi, oaDto.getBegrunnelse(), histType, feltType);
+            lagHistorikkinnslagDel(behandlingId, byggArbeidTekst(oaDto, overstyringer), fraVerdi, tilVerdi, oaDto.getBegrunnelse(), histType,
+                    feltType);
         } else {
             lagHistorikkinnslagDel(behandlingId, byggAnnenAktivitetTekst(oaDto), fraVerdi, tilVerdi, oaDto.getBegrunnelse(), histType, feltType);
         }
@@ -185,12 +191,12 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
         String arbeidsgiverIdentifikator = oaDto.getOppdragsgiverOrg() != null ? oaDto.getOppdragsgiverOrg() : oaDto.getArbeidsgiverIdentifikator();
         if (OrganisasjonsNummerValidator.erGyldig(arbeidsgiverIdentifikator)) {
             Virksomhet virksomhet = virksomhetTjeneste.finnOrganisasjon(arbeidsgiverIdentifikator)
-                .orElseThrow(IllegalArgumentException::new); // Utvikler feil hvis exception
+                    .orElseThrow(IllegalArgumentException::new); // Utvikler feil hvis exception
             String arbeidTypeNavn = oaDto.getAktivitetType().getNavn();
             return String.format("%s for %s (%s)", arbeidTypeNavn, virksomhet.getNavn(), arbeidsgiverIdentifikator);
         } else if (Organisasjonstype.erKunstig(arbeidsgiverIdentifikator)) {
             return hentNavnTilManueltArbeidsforhold(overstyringer);
-        } else if (arbeidsgiverIdentifikator != null && AKTØRID_VALIDATOR.matcher(arbeidsgiverIdentifikator).matches()) {
+        } else if ((arbeidsgiverIdentifikator != null) && AKTØRID_VALIDATOR.matcher(arbeidsgiverIdentifikator).matches()) {
             final Optional<PersoninfoArbeidsgiver> personinfo = hentInformasjonFraTps(new AktørId(arbeidsgiverIdentifikator));
             return OpptjeningAktivitetType.ARBEID.getNavn() + " for " + personinfo.map(PersoninfoArbeidsgiver::getNavn).orElse("N/A");
         } else {
@@ -203,13 +209,13 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
     }
 
     private void lagHistorikkinnslagDel(Long behandlingId, String navnVerdi, String fraVerdi, String tilVerdi,
-                                        String begrunnelse, HistorikkinnslagType type, HistorikkEndretFeltType feltType) {
+            String begrunnelse, HistorikkinnslagType type, HistorikkEndretFeltType feltType) {
         HistorikkInnslagTekstBuilder historikkInnslagTekstBuilder = historikkAdapter.tekstBuilder();
         historikkInnslagTekstBuilder
-            .medEndretFelt(feltType, navnVerdi,
-                fraVerdi, tilVerdi)
-            .medSkjermlenke(SkjermlenkeType.FAKTA_OM_OPPTJENING)
-            .medBegrunnelse(begrunnelse);
+                .medEndretFelt(feltType, navnVerdi,
+                        fraVerdi, tilVerdi)
+                .medSkjermlenke(SkjermlenkeType.FAKTA_OM_OPPTJENING)
+                .medBegrunnelse(begrunnelse);
 
         historikkAdapter.opprettHistorikkInnslag(behandlingId, type);
     }
@@ -229,7 +235,7 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
         boolean aktivitetEndret = false;
 
         if (erLocalDateGyldigOgEndret(opptjentPeriode.getTomDato(), oaDto.getOriginalTom(), oaDto.getOpptjeningTom())
-            || erLocalDateGyldigOgEndret(opptjentPeriode.getFomDato(), oaDto.getOriginalFom(), oaDto.getOpptjeningFom())) {
+                || erLocalDateGyldigOgEndret(opptjentPeriode.getFomDato(), oaDto.getOriginalFom(), oaDto.getOpptjeningFom())) {
             if (!oaDto.getOriginalFom().equals(oaDto.getOpptjeningFom()) || !oaDto.getOriginalTom().equals(oaDto.getOpptjeningTom())) {
                 aktivitetEndret = true;
             }
@@ -239,13 +245,14 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
     }
 
     private boolean erLocalDateGyldigOgEndret(LocalDate opptjentPeriode, LocalDate dtoOriginal, LocalDate dtoOpptjening) {
-        return opptjentPeriode != null && dtoOriginal != null && dtoOpptjening != null && !dtoOpptjening.isEqual(opptjentPeriode);
+        return (opptjentPeriode != null) && (dtoOriginal != null) && (dtoOpptjening != null) && !dtoOpptjening.isEqual(opptjentPeriode);
     }
 
-    private List<BekreftOpptjeningPeriodeDto> map(List<AvklarOpptjeningAktivitetDto> opptjeningAktiviteter, Long behandlingId, List<ArbeidsforholdOverstyring> overstyringer) {
+    private List<BekreftOpptjeningPeriodeDto> map(List<AvklarOpptjeningAktivitetDto> opptjeningAktiviteter, Long behandlingId,
+            List<ArbeidsforholdOverstyring> overstyringer) {
         List<BekreftOpptjeningPeriodeDto> list = new ArrayList<>();
         Opptjening opptjening = opptjeningRepository.finnOpptjening(behandlingId)
-            .orElseThrow(IllegalArgumentException::new);
+                .orElseThrow(IllegalArgumentException::new);
         opptjeningAktiviteter.forEach(aktivitet -> {
             BekreftOpptjeningPeriodeDto adapter = new BekreftOpptjeningPeriodeDto();
             adapter.setAktivitetType(aktivitet.getAktivitetType());
@@ -255,16 +262,19 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
             if (OpptjeningAktivitetType.ARBEID.equals(aktivitet.getAktivitetType())) {
                 mapOpptjeningAktivitetTypeARBEID(aktivitet, adapter, overstyringer);
             }
-            String arbeidsgiverIdentifikator = aktivitet.getOppdragsgiverOrg() != null ? aktivitet.getOppdragsgiverOrg() : aktivitet.getArbeidsgiverIdentifikator();
+            String arbeidsgiverIdentifikator = aktivitet.getOppdragsgiverOrg() != null ? aktivitet.getOppdragsgiverOrg()
+                    : aktivitet.getArbeidsgiverIdentifikator();
             adapter.setArbeidsgiverIdentifikator(arbeidsgiverIdentifikator);
             adapter.setStillingsandel(aktivitet.getStillingsandel());
             adapter.setNaringRegistreringsdato(aktivitet.getNaringRegistreringsdato());
             adapter.setErManueltOpprettet(aktivitet.getErManueltOpprettet());
             adapter.setErGodkjent(aktivitet.getErGodkjent());
             boolean erEndret = erEndret(
-                DatoIntervallEntitet.fraOgMedTilOgMed(opptjening.getFom(), opptjening.getTom()),
-                DatoIntervallEntitet.fraOgMedTilOgMed(aktivitet.getOpptjeningFom(), aktivitet.getOpptjeningTom()), aktivitet.getOriginalFom() != null
-                    ? DatoIntervallEntitet.fraOgMedTilOgMed(aktivitet.getOriginalFom(), aktivitet.getOriginalTom()) : null);
+                    DatoIntervallEntitet.fraOgMedTilOgMed(opptjening.getFom(), opptjening.getTom()),
+                    DatoIntervallEntitet.fraOgMedTilOgMed(aktivitet.getOpptjeningFom(), aktivitet.getOpptjeningTom()),
+                    aktivitet.getOriginalFom() != null
+                            ? DatoIntervallEntitet.fraOgMedTilOgMed(aktivitet.getOriginalFom(), aktivitet.getOriginalTom())
+                            : null);
             settPeriode(opptjening, aktivitet, adapter, erEndret);
             adapter.setErEndret(erEndret);
 
@@ -275,17 +285,18 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
         return list;
     }
 
-    private void mapOpptjeningAktivitetTypeARBEID(AvklarOpptjeningAktivitetDto l, BekreftOpptjeningPeriodeDto adapter, List<ArbeidsforholdOverstyring> overstyringer) {
+    private void mapOpptjeningAktivitetTypeARBEID(AvklarOpptjeningAktivitetDto l, BekreftOpptjeningPeriodeDto adapter,
+            List<ArbeidsforholdOverstyring> overstyringer) {
         String arbeidsgiverIdentifikator = l.getOppdragsgiverOrg() != null ? l.getOppdragsgiverOrg() : l.getArbeidsgiverIdentifikator();
         if (OrganisasjonsNummerValidator.erGyldig(arbeidsgiverIdentifikator)) {
             Virksomhet virksomhet = virksomhetTjeneste.finnOrganisasjon(arbeidsgiverIdentifikator)
-                .orElseThrow(IllegalArgumentException::new); // Utvikler feil hvis exception
+                    .orElseThrow(IllegalArgumentException::new); // Utvikler feil hvis exception
             if (virksomhet.getNavn() != null) {
                 adapter.setArbeidsgiverNavn(virksomhet.getNavn());
             }
         } else if (Organisasjonstype.erKunstig(arbeidsgiverIdentifikator)) {
             adapter.setArbeidsgiverNavn(hentNavnTilManueltArbeidsforhold(overstyringer));
-        } else if (arbeidsgiverIdentifikator != null && AKTØRID_VALIDATOR.matcher(arbeidsgiverIdentifikator).matches()) {
+        } else if ((arbeidsgiverIdentifikator != null) && AKTØRID_VALIDATOR.matcher(arbeidsgiverIdentifikator).matches()) {
             final Optional<PersoninfoArbeidsgiver> personinfo = hentInformasjonFraTps(new AktørId(arbeidsgiverIdentifikator));
             adapter.setArbeidsgiverNavn(personinfo.map(PersoninfoArbeidsgiver::getNavn).orElse("N/A"));
         } else {
@@ -305,7 +316,7 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
 
     private void oppdaterTom(Opptjening opptjening, AvklarOpptjeningAktivitetDto aktivitet, BekreftOpptjeningPeriodeDto adapter) {
         if (aktivitet.getOpptjeningTom().equals(opptjening.getTom())) {
-            if (aktivitet.getOriginalTom() != null && aktivitet.getOriginalTom().isAfter(aktivitet.getOpptjeningTom())) {
+            if ((aktivitet.getOriginalTom() != null) && aktivitet.getOriginalTom().isAfter(aktivitet.getOpptjeningTom())) {
                 adapter.setOpptjeningTom(aktivitet.getOriginalTom() != null ? aktivitet.getOriginalTom() : aktivitet.getOpptjeningTom());
             } else {
                 adapter.setOpptjeningTom(aktivitet.getOpptjeningTom());
@@ -317,7 +328,7 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
 
     private void oppdaterFom(Opptjening opptjening, AvklarOpptjeningAktivitetDto aktivitet, BekreftOpptjeningPeriodeDto adapter) {
         if (aktivitet.getOpptjeningFom().equals(opptjening.getFom())) {
-            if (aktivitet.getOriginalFom() != null && aktivitet.getOriginalFom().isBefore(aktivitet.getOpptjeningFom())) {
+            if ((aktivitet.getOriginalFom() != null) && aktivitet.getOriginalFom().isBefore(aktivitet.getOpptjeningFom())) {
                 adapter.setOpptjeningFom(aktivitet.getOriginalFom() != null ? aktivitet.getOriginalFom() : aktivitet.getOpptjeningFom());
             } else {
                 adapter.setOpptjeningFom(aktivitet.getOpptjeningFom());
@@ -343,8 +354,8 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
 
     private String hentNavnTilManueltArbeidsforhold(List<ArbeidsforholdOverstyring> overstyringer) {
         return FinnNavnForManueltLagtTilArbeidsforholdTjeneste.finnNavnTilManueltLagtTilArbeidsforhold(overstyringer)
-            .map(ArbeidsgiverOpplysninger::getNavn)
-            .orElseThrow(() -> new IllegalStateException("Fant ikke forventet informasjon om manuelt arbeidsforhold"));
+                .map(ArbeidsgiverOpplysninger::getNavn)
+                .orElseThrow(() -> new IllegalStateException("Fant ikke forventet informasjon om manuelt arbeidsforhold"));
     }
 
     private Optional<PersoninfoArbeidsgiver> hentInformasjonFraTps(AktørId aktørId) {

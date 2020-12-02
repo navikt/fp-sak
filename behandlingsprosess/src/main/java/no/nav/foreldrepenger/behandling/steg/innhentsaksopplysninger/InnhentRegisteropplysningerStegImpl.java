@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesser
 import no.nav.foreldrepenger.domene.risikoklassifisering.produsent.RisikoklassifiseringEventPubliserer;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.RisikoklassifiseringEvent;
 
-
 @BehandlingStegRef(kode = "INREG")
 @BehandlingTypeRef
 @FagsakYtelseTypeRef("*")
@@ -33,8 +32,8 @@ public class InnhentRegisteropplysningerStegImpl implements InnhentRegisteropply
 
     @Inject
     public InnhentRegisteropplysningerStegImpl(BehandlingRepositoryProvider repositoryProvider,
-                                               BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
-                                               RisikoklassifiseringEventPubliserer eventPubliserer) {
+            BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
+            RisikoklassifiseringEventPubliserer eventPubliserer) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.eventPubliserer = eventPubliserer;

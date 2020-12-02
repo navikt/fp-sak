@@ -20,7 +20,6 @@ public class AutomatiskArenaReguleringBatchArguments extends BatchArguments {
     @BatchArgument(beskrivelse = "Mandag etter ny sats i Arena '" + DATE_PATTERN + "'")
     private LocalDate satsDato;
 
-
     AutomatiskArenaReguleringBatchArguments(Map<String, String> arguments) {
         super(arguments);
     }
@@ -32,7 +31,7 @@ public class AutomatiskArenaReguleringBatchArguments extends BatchArguments {
             return true;
         } else if (SATS_DATO_KEY.equals(key)) {
             this.satsDato = value == null ? null : LocalDate.parse(value, ofPattern(DATE_PATTERN));
-            return satsDato != null && validerDatoer(satsDato);
+            return (satsDato != null) && validerDatoer(satsDato);
         }
         return false;
     }

@@ -17,7 +17,7 @@ public class BehandlingsfristUtløptTjeneste {
     BehandlingsfristUtløptTjeneste() {
         // for CDI proxy
     }
-    
+
     @Inject
     public BehandlingsfristUtløptTjeneste(ProsessTaskRepository prosessTaskRepository) {
         this.prosessTaskRepository = prosessTaskRepository;

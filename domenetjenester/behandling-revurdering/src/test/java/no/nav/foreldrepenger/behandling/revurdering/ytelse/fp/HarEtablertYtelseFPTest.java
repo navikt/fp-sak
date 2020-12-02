@@ -54,21 +54,21 @@ public class HarEtablertYtelseFPTest {
     @BeforeEach
     void setUp() {
         harEtablertYtelse = new HarEtablertYtelseFP(stønadskontoSaldoTjeneste, uttakInputTjeneste,
-            relatertBehandlingTjeneste,
-            new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()),
-            repositoryProvider.getBehandlingVedtakRepository());
+                relatertBehandlingTjeneste,
+                new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()),
+                repositoryProvider.getBehandlingVedtakRepository());
     }
 
     private Behandling opprettBehandling() {
         var fødselsdato = LocalDate.of(2017, 10, 10);
         var førstegangsScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk100())
-            .medDefaultOppgittFordeling(fødselsdato);
+                .medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk100())
+                .medDefaultOppgittFordeling(fødselsdato);
         førstegangsScenario.medSøknadHendelse().medFødselsDato(fødselsdato);
         var originalBehandling = førstegangsScenario
-            .lagre(repositoryProvider);
+                .lagre(repositoryProvider);
         var scenarioRevurdering = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
+                .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
         var behandling = scenarioRevurdering.lagre(repositoryProvider);
         new BeregningRevurderingTestUtil(repositoryProvider).avsluttBehandling(behandling);
         return behandling;
@@ -81,10 +81,9 @@ public class HarEtablertYtelseFPTest {
 
         var behandling = opprettBehandling();
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandling,
-            List.of(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.plusDays(10))),
-            List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true),
-            List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER)
-        );
+                List.of(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.plusDays(10))),
+                List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true),
+                List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
         // Act
         boolean etablertYtelse = vurder(uttakResultatOriginal, true, Optional.empty(), false, behandling);
@@ -94,44 +93,44 @@ public class HarEtablertYtelseFPTest {
     }
 
     private boolean vurder(UttakResultatEntitet uttakResultatOriginal,
-                           boolean finnesInnvilgetIkkeOpphørtVedtak,
-                           Optional<UttakResultatEntitet> uttakAnnenpart,
-                           boolean sluttPåTrekkdager,
-                           Behandling behandling) {
+            boolean finnesInnvilgetIkkeOpphørtVedtak,
+            Optional<UttakResultatEntitet> uttakAnnenpart,
+            boolean sluttPåTrekkdager,
+            Behandling behandling) {
         lenient().when(stønadskontoSaldoTjeneste.erSluttPåStønadsdager(any())).thenReturn(sluttPåTrekkdager);
         uttakAnnenpart.ifPresent(uttak -> {
             var scenarioAnnenpart = ScenarioFarSøkerForeldrepenger.forFødsel();
             scenarioAnnenpart.medBehandlingVedtak()
-                .medVedtakResultatType(VedtakResultatType.INNVILGET)
-                .medVedtakstidspunkt(LocalDateTime.now())
-                .medAnsvarligSaksbehandler(" ");
+                    .medVedtakResultatType(VedtakResultatType.INNVILGET)
+                    .medVedtakstidspunkt(LocalDateTime.now())
+                    .medAnsvarligSaksbehandler(" ");
             var behandlingAnnenpart = scenarioAnnenpart
-                .lagre(repositoryProvider);
+                    .lagre(repositoryProvider);
             repositoryProvider.getFagsakRepository()
-                .oppdaterFagsakStatus(behandlingAnnenpart.getFagsakId(), FagsakStatus.LØPENDE);
+                    .oppdaterFagsakStatus(behandlingAnnenpart.getFagsakId(), FagsakStatus.LØPENDE);
             var originalBehandling = finnOriginalBehandling(behandling);
             repositoryProvider.getFagsakRelasjonRepository()
-                .kobleFagsaker(originalBehandling.getFagsak(), behandlingAnnenpart.getFagsak(), originalBehandling);
+                    .kobleFagsaker(originalBehandling.getFagsak(), behandlingAnnenpart.getFagsak(), originalBehandling);
             repositoryProvider.getFpUttakRepository()
-                .lagreOpprinneligUttakResultatPerioder(behandlingAnnenpart.getId(),
-                    uttakAnnenpart.get().getOpprinneligPerioder());
+                    .lagreOpprinneligUttakResultatPerioder(behandlingAnnenpart.getId(),
+                            uttakAnnenpart.get().getOpprinneligPerioder());
             behandlingAnnenpart.avsluttBehandling();
             repositoryProvider.getBehandlingRepository()
-                .lagre(behandlingAnnenpart,
-                    repositoryProvider.getBehandlingLåsRepository().taLås(behandlingAnnenpart.getId()));
+                    .lagre(behandlingAnnenpart,
+                            repositoryProvider.getBehandlingLåsRepository().taLås(behandlingAnnenpart.getId()));
         });
 
         var behandlingsresultat = uttakResultatOriginal.getBehandlingsresultat();
         var behandlingVedtak = repositoryProvider.getBehandlingVedtakRepository()
-            .hentForBehandlingHvisEksisterer(behandlingsresultat.getBehandlingId());
+                .hentForBehandlingHvisEksisterer(behandlingsresultat.getBehandlingId());
         return harEtablertYtelse.vurder(behandling, finnesInnvilgetIkkeOpphørtVedtak,
-            new UttakResultatHolderFP(Optional.of(ForeldrepengerUttakTjeneste.map(uttakResultatOriginal)),
-                behandlingVedtak.orElse(null)));
+                new UttakResultatHolderFP(Optional.of(ForeldrepengerUttakTjeneste.map(uttakResultatOriginal)),
+                        behandlingVedtak.orElse(null)));
     }
 
     private Behandling finnOriginalBehandling(Behandling behandling) {
         return repositoryProvider.getBehandlingRepository().hentBehandling(
-            behandling.getOriginalBehandlingId().orElseThrow());
+                behandling.getOriginalBehandlingId().orElseThrow());
     }
 
     @Test
@@ -141,14 +140,13 @@ public class HarEtablertYtelseFPTest {
 
         var behandling = opprettBehandling();
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandling,
-            List.of(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.plusDays(10))),
-            List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true),
-            List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER)
-        );
+                List.of(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.plusDays(10))),
+                List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true),
+                List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
         boolean finnesInnvilgetIkkeOpphørtVedtak = false;
         // Act
         boolean etablertYtelse = vurder(uttakResultatOriginal, finnesInnvilgetIkkeOpphørtVedtak, Optional.empty(),
-            false, behandling);
+                false, behandling);
 
         // Assert
         assertThat(etablertYtelse).isFalse();
@@ -161,10 +159,9 @@ public class HarEtablertYtelseFPTest {
 
         var behandling = opprettBehandling();
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandling,
-            List.of(new LocalDateInterval(dagensDato.minusDays(10), dagensDato)),
-            List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true),
-            List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER)
-        );
+                List.of(new LocalDateInterval(dagensDato.minusDays(10), dagensDato)),
+                List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true),
+                List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
         // Act
         boolean etablertYtelse = vurder(uttakResultatOriginal, true, Optional.empty(), false, behandling);
 
@@ -179,11 +176,10 @@ public class HarEtablertYtelseFPTest {
 
         var behandling = opprettBehandling();
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandling,
-            List.of(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.plusDays(5))),
-            List.of(false), List.of(PeriodeResultatType.AVSLÅTT), List.of(PeriodeResultatÅrsak.UKJENT),
-            List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(12)),
-            List.of(StønadskontoType.FORELDREPENGER)
-        );
+                List.of(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.plusDays(5))),
+                List.of(false), List.of(PeriodeResultatType.AVSLÅTT), List.of(PeriodeResultatÅrsak.UKJENT),
+                List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(12)),
+                List.of(StønadskontoType.FORELDREPENGER));
         // Act
         boolean etablertYtelse = vurder(uttakResultatOriginal, true, Optional.empty(), true, behandling);
 
@@ -198,11 +194,10 @@ public class HarEtablertYtelseFPTest {
 
         var behandling = opprettBehandling();
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandling,
-            List.of(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.minusDays(5))),
-            List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT),
-            List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(12)),
-            List.of(StønadskontoType.FORELDREPENGER)
-        );
+                List.of(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.minusDays(5))),
+                List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT),
+                List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(12)),
+                List.of(StønadskontoType.FORELDREPENGER));
         // Act
         boolean etablertYtelse = vurder(uttakResultatOriginal, true, Optional.empty(), true, behandling);
 
@@ -217,11 +212,10 @@ public class HarEtablertYtelseFPTest {
 
         var behandling = opprettBehandling();
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandling,
-            List.of(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.minusDays(5))),
-            List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT),
-            List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(12)),
-            List.of(StønadskontoType.FORELDREPENGER)
-        );
+                List.of(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.minusDays(5))),
+                List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT),
+                List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(12)),
+                List.of(StønadskontoType.FORELDREPENGER));
         // Act
         boolean etablertYtelse = vurder(uttakResultatOriginal, true, Optional.empty(), false, behandling);
 
@@ -236,40 +230,38 @@ public class HarEtablertYtelseFPTest {
 
         var behandling = opprettBehandling();
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandling,
-            List.of(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.minusDays(5))),
-            List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true),
-            List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER)
-        );
+                List.of(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.minusDays(5))),
+                List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true),
+                List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
         UttakResultatEntitet uttakResultatAnnenPart = lagUttakResultatPlanForBehandling(behandling,
-            List.of(new LocalDateInterval(dagensDato.minusDays(4), dagensDato.plusDays(10))),
-            List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true),
-            List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER)
-        );
+                List.of(new LocalDateInterval(dagensDato.minusDays(4), dagensDato.plusDays(10))),
+                List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true),
+                List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
         // Act
         boolean etablertYtelse = vurder(uttakResultatOriginal, true, Optional.of(uttakResultatAnnenPart), true,
-            behandling);
+                behandling);
 
         // Assert
         assertThat(etablertYtelse).isTrue();
     }
 
     private UttakResultatEntitet lagUttakResultatPlanForBehandling(Behandling behandling,
-                                                                   List<LocalDateInterval> perioder,
-                                                                   List<Boolean> samtidigUttak,
-                                                                   List<PeriodeResultatType> periodeResultatTyper,
-                                                                   List<PeriodeResultatÅrsak> periodeResultatÅrsak,
-                                                                   List<Boolean> graderingInnvilget,
-                                                                   List<Integer> andelIArbeid,
-                                                                   List<Integer> utbetalingsgrad,
-                                                                   List<Trekkdager> trekkdager,
-                                                                   List<StønadskontoType> stønadskontoTyper) {
+            List<LocalDateInterval> perioder,
+            List<Boolean> samtidigUttak,
+            List<PeriodeResultatType> periodeResultatTyper,
+            List<PeriodeResultatÅrsak> periodeResultatÅrsak,
+            List<Boolean> graderingInnvilget,
+            List<Integer> andelIArbeid,
+            List<Integer> utbetalingsgrad,
+            List<Trekkdager> trekkdager,
+            List<StønadskontoType> stønadskontoTyper) {
         UttakResultatEntitet uttakresultat = LagUttakResultatPlanTjeneste.lagUttakResultatPlanTjeneste(behandling,
-            perioder, samtidigUttak, periodeResultatTyper, periodeResultatÅrsak, graderingInnvilget, andelIArbeid,
-            utbetalingsgrad, trekkdager, stønadskontoTyper);
+                perioder, samtidigUttak, periodeResultatTyper, periodeResultatÅrsak, graderingInnvilget, andelIArbeid,
+                utbetalingsgrad, trekkdager, stønadskontoTyper);
         repositoryProvider.getFpUttakRepository()
-            .lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttakresultat.getGjeldendePerioder());
+                .lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttakresultat.getGjeldendePerioder());
         return uttakresultat;
 
     }

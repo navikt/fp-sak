@@ -12,8 +12,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 /**
- * Event publiseres av {@link BehandlingskontrollTjeneste} når en {@link Behandling} endrer steg.
- * Kan brukes til å lytte på flyt i en Behandling og utføre logikk når det skjer.
+ * Event publiseres av {@link BehandlingskontrollTjeneste} når en
+ * {@link Behandling} endrer steg. Kan brukes til å lytte på flyt i en
+ * Behandling og utføre logikk når det skjer.
  */
 public class BehandlingStegOvergangEvent implements BehandlingEvent {
 
@@ -22,7 +23,7 @@ public class BehandlingStegOvergangEvent implements BehandlingEvent {
     private BehandlingStegTilstandSnapshot tilTilstand;
 
     public BehandlingStegOvergangEvent(BehandlingskontrollKontekst kontekst, BehandlingStegTilstandSnapshot forrigeTilstand,
-                                       BehandlingStegTilstandSnapshot nyTilstand) {
+            BehandlingStegTilstandSnapshot nyTilstand) {
         super();
         this.kontekst = kontekst;
         this.fraTilstand = forrigeTilstand;
@@ -30,7 +31,7 @@ public class BehandlingStegOvergangEvent implements BehandlingEvent {
     }
 
     public static BehandlingStegOvergangEvent nyEvent(BehandlingskontrollKontekst kontekst,
-                                                      BehandlingStegTilstandSnapshot forrigeTilstand, BehandlingStegTilstandSnapshot nyTilstand, int relativForflytning) {
+            BehandlingStegTilstandSnapshot forrigeTilstand, BehandlingStegTilstandSnapshot nyTilstand, int relativForflytning) {
         if (relativForflytning == 1) {
             // normal forover
             return new BehandlingStegOvergangEvent(kontekst, forrigeTilstand, nyTilstand);
@@ -74,9 +75,9 @@ public class BehandlingStegOvergangEvent implements BehandlingEvent {
     @Override
     public String toString() {
         return getClass().getSimpleName() + "<" + kontekst + //$NON-NLS-1$
-            ", fraTilstand=" + fraTilstand + //$NON-NLS-1$
-            ", tilTilstand=" + tilTilstand + //$NON-NLS-1$
-            ">"; //$NON-NLS-1$
+                ", fraTilstand=" + fraTilstand + //$NON-NLS-1$
+                ", tilTilstand=" + tilTilstand + //$NON-NLS-1$
+                ">"; //$NON-NLS-1$
     }
 
     public BehandlingStegType getTilStegType() {
@@ -111,7 +112,7 @@ public class BehandlingStegOvergangEvent implements BehandlingEvent {
     public static class BehandlingStegTilbakeføringEvent extends BehandlingStegOvergangEvent {
 
         public BehandlingStegTilbakeføringEvent(BehandlingskontrollKontekst kontekst, BehandlingStegTilstandSnapshot forrigeTilstand,
-                                                BehandlingStegTilstandSnapshot nyTilstand) {
+                BehandlingStegTilstandSnapshot nyTilstand) {
             super(kontekst, forrigeTilstand, nyTilstand);
 
         }
@@ -140,13 +141,14 @@ public class BehandlingStegOvergangEvent implements BehandlingEvent {
             return getTilTilstand().map(BehandlingStegTilstandSnapshot::getStatus);
         }
     }
+
     /**
      * Event som fyres dersom vi gjør overhopp (hopper framover i stegene)
      */
     public static class BehandlingStegOverhoppEvent extends BehandlingStegOvergangEvent {
 
         public BehandlingStegOverhoppEvent(BehandlingskontrollKontekst kontekst, BehandlingStegTilstandSnapshot forrigeTilstand,
-                                           BehandlingStegTilstandSnapshot nyTilstand) {
+                BehandlingStegTilstandSnapshot nyTilstand) {
             super(kontekst, forrigeTilstand, nyTilstand);
         }
     }

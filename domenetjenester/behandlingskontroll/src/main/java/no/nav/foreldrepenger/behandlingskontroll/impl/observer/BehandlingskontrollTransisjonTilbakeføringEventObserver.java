@@ -27,7 +27,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKontrollRepository;
 
 /**
- * Håndtere opprydding i Aksjonspunkt og Vilkår ved overhopp framover eller tilbakeføring.
+ * Håndtere opprydding i Aksjonspunkt og Vilkår ved overhopp framover eller
+ * tilbakeføring.
  */
 @ApplicationScoped
 public class BehandlingskontrollTransisjonTilbakeføringEventObserver {
@@ -62,18 +63,19 @@ public class BehandlingskontrollTransisjonTilbakeføringEventObserver {
 
         Set<String> aksjonspunktDefinisjonerEtterFra = modell.finnAksjonspunktDefinisjonerFraOgMed(førsteSteg, medInngangFørsteSteg);
 
-        List<Aksjonspunkt> endredeAksjonspunkter = håndterAksjonspunkter(behandling, aksjonspunktDefinisjonerEtterFra, event, førsteSteg, modell, medInngangFørsteSteg);
+        List<Aksjonspunkt> endredeAksjonspunkter = håndterAksjonspunkter(behandling, aksjonspunktDefinisjonerEtterFra, event, førsteSteg, modell,
+                medInngangFørsteSteg);
 
         modell.hvertStegFraOgMedTil(førsteSteg, sisteSteg, true)
-            .collect(Collectors.toCollection(ArrayDeque::new))
-            .descendingIterator() // stepper bakover
-            .forEachRemaining(s -> hoppBakover(s, event, førsteSteg, sisteSteg));
+                .collect(Collectors.toCollection(ArrayDeque::new))
+                .descendingIterator() // stepper bakover
+                .forEachRemaining(s -> hoppBakover(s, event, førsteSteg, sisteSteg));
 
         aksjonspunkterTilbakeført(event.getKontekst(), endredeAksjonspunkter, event.getFraStegType());
     }
 
     protected void hoppBakover(BehandlingStegModell s, BehandlingStegTilbakeføringEvent event, BehandlingStegType førsteSteg,
-                               BehandlingStegType sisteSteg) {
+            BehandlingStegType sisteSteg) {
         s.getSteg().vedTransisjon(event.getKontekst(), s, BehandlingSteg.TransisjonType.HOPP_OVER_BAKOVER, førsteSteg, sisteSteg);
     }
 
@@ -82,12 +84,12 @@ public class BehandlingskontrollTransisjonTilbakeføringEventObserver {
     }
 
     private List<Aksjonspunkt> håndterAksjonspunkter(Behandling behandling, Set<String> mellomliggendeAksjonspunkt,
-                                                     BehandlingStegTilbakeføringEvent event, BehandlingStegType førsteSteg, BehandlingModell modell,
-                                                     boolean tilInngangFørsteSteg) {
+            BehandlingStegTilbakeføringEvent event, BehandlingStegType førsteSteg, BehandlingModell modell,
+            boolean tilInngangFørsteSteg) {
         List<Aksjonspunkt> endredeAksjonspunkter = behandling.getAksjonspunkter().stream()
-            .filter(a -> !a.erAutopunkt()) // Autopunkt skal ikke håndteres; skal alltid være lukket ved tilbakehopp
-            .filter(a -> mellomliggendeAksjonspunkt.contains(a.getAksjonspunktDefinisjon().getKode()))
-            .collect(Collectors.toList());
+                .filter(a -> !a.erAutopunkt()) // Autopunkt skal ikke håndteres; skal alltid være lukket ved tilbakehopp
+                .filter(a -> mellomliggendeAksjonspunkt.contains(a.getAksjonspunktDefinisjon().getKode()))
+                .collect(Collectors.toList());
 
         List<Aksjonspunkt> oppdaterteAksjonspunkt = new ArrayList<>();
         endredeAksjonspunkter.forEach(a -> håndterEndretAksjonspunkt(a, førsteSteg, modell, oppdaterteAksjonspunkt, tilInngangFørsteSteg));
@@ -98,24 +100,26 @@ public class BehandlingskontrollTransisjonTilbakeføringEventObserver {
 
     private void guardIngenÅpneAutopunkter(Behandling behandling) {
         Optional<Aksjonspunkt> autopunkt = behandling.getAksjonspunkter().stream()
-            .filter(Aksjonspunkt::erAutopunkt)
-            .filter(Aksjonspunkt::erÅpentAksjonspunkt)
-            .findFirst();
+                .filter(Aksjonspunkt::erAutopunkt)
+                .filter(Aksjonspunkt::erÅpentAksjonspunkt)
+                .findFirst();
 
         if (autopunkt.isPresent()) {
             throw new IllegalStateException(
-                "Utvikler-feil: Tilbakehopp ikke tillatt for autopunkt '" + //$NON-NLS-1$
-                    autopunkt.get().getAksjonspunktDefinisjon().getNavn() + "'"); //$NON-NLS-1$
+                    "Utvikler-feil: Tilbakehopp ikke tillatt for autopunkt '" + //$NON-NLS-1$
+                            autopunkt.get().getAksjonspunktDefinisjon().getNavn() + "'"); //$NON-NLS-1$
         }
     }
 
-    private void aksjonspunkterTilbakeført(BehandlingskontrollKontekst kontekst, List<Aksjonspunkt> aksjonspunkter, BehandlingStegType behandlingStegType) {
+    private void aksjonspunkterTilbakeført(BehandlingskontrollKontekst kontekst, List<Aksjonspunkt> aksjonspunkter,
+            BehandlingStegType behandlingStegType) {
         if (!aksjonspunkter.isEmpty()) {
             eventPubliserer.fireEvent(new AksjonspunktStatusEvent(kontekst, aksjonspunkter, behandlingStegType));
         }
     }
 
-    private void håndterEndretAksjonspunkt(Aksjonspunkt a, BehandlingStegType førsteSteg, BehandlingModell modell, List<Aksjonspunkt> oppdaterteAksjonspunkt, boolean tilInngangFørsteSteg) {
+    private void håndterEndretAksjonspunkt(Aksjonspunkt a, BehandlingStegType førsteSteg, BehandlingModell modell,
+            List<Aksjonspunkt> oppdaterteAksjonspunkt, boolean tilInngangFørsteSteg) {
         if (skalAvbryte(a, førsteSteg, modell, tilInngangFørsteSteg)) {
             aksjonspunktKontrollRepository.setTilAvbrutt(a);
             oppdaterteAksjonspunkt.add(a);
@@ -126,19 +130,20 @@ public class BehandlingskontrollTransisjonTilbakeføringEventObserver {
     }
 
     /**
-     * Ved tilbakeføring skal følgende reåpnes:
-     * - Påfølgende aksjonspunkt som er OVERSTYRING
+     * Ved tilbakeføring skal følgende reåpnes: - Påfølgende aksjonspunkt som er
+     * OVERSTYRING
      */
     private boolean skalReåpne(Aksjonspunkt a, BehandlingStegType førsteSteg, BehandlingModell modell) {
         BehandlingStegType måTidligstLøsesISteg = modell.finnTidligsteStegFor(a.getAksjonspunktDefinisjon())
-            .getBehandlingStegType();
+                .getBehandlingStegType();
         boolean måLøsesIEllerEtterFørsteSteg = !modell.erStegAFørStegB(måTidligstLøsesISteg, førsteSteg);
-        return  a.erManueltOpprettet() && måLøsesIEllerEtterFørsteSteg;
+        return a.erManueltOpprettet() && måLøsesIEllerEtterFørsteSteg;
     }
 
     /**
-     * Ved tilbakeføring skal alle påfølgende åpne aksjonspunkt (som IKKE ER OVERSTYRING) som identifiseres i eller
-     * senere steg Avbrytes. De som er UTFØRT bilr stående og må evt reutledes - obs en del avklarte AP reutledes ikke.
+     * Ved tilbakeføring skal alle påfølgende åpne aksjonspunkt (som IKKE ER
+     * OVERSTYRING) som identifiseres i eller senere steg Avbrytes. De som er UTFØRT
+     * bilr stående og må evt reutledes - obs en del avklarte AP reutledes ikke.
      */
     private boolean skalAvbryte(Aksjonspunkt a, BehandlingStegType førsteSteg, BehandlingModell modell, boolean tilInngangFørsteSteg) {
         boolean erFunnetIFørsteStegEllerSenere = !modell.erStegAFørStegB(a.getBehandlingStegFunnet(), førsteSteg);

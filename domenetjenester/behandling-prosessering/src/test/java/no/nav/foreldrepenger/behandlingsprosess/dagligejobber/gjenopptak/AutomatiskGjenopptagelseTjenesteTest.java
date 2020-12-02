@@ -90,8 +90,7 @@ public class AutomatiskGjenopptagelseTjenesteTest {
 
         // Act
 
-        @SuppressWarnings("unused")
-        final String faktiskGruppe = tjeneste.gjenopptaBehandlinger();
+        tjeneste.gjenopptaBehandlinger();
 
         // Assert
 
@@ -147,8 +146,7 @@ public class AutomatiskGjenopptagelseTjenesteTest {
 
         // Act
 
-        @SuppressWarnings("unused")
-        final String faktiskGruppe = tjeneste.gjenopplivBehandlinger();
+        tjeneste.gjenopplivBehandlinger();
 
         // Assert
 
@@ -221,8 +219,7 @@ public class AutomatiskGjenopptagelseTjenesteTest {
 
         // Act
 
-        @SuppressWarnings("unused")
-        final String faktiskGruppe = tjeneste.oppdaterBehandlingerFraOppgaveFrist();
+        tjeneste.oppdaterBehandlingerFraOppgaveFrist();
 
         // Assert
 

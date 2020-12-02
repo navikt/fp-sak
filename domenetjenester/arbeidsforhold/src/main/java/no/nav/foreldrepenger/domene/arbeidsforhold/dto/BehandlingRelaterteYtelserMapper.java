@@ -16,35 +16,34 @@ import no.nav.vedtak.konfig.Tid;
 public class BehandlingRelaterteYtelserMapper {
 
     private static final Map<FagsakYtelseType, RelatertYtelseType> YTELSE_TYPE_MAP = Map.of(
-        FagsakYtelseType.ENGANGSTØNAD, RelatertYtelseType.ENGANGSSTØNAD,
-        FagsakYtelseType.FORELDREPENGER, RelatertYtelseType.FORELDREPENGER,
-        FagsakYtelseType.SVANGERSKAPSPENGER, RelatertYtelseType.SVANGERSKAPSPENGER
-    );
+            FagsakYtelseType.ENGANGSTØNAD, RelatertYtelseType.ENGANGSSTØNAD,
+            FagsakYtelseType.FORELDREPENGER, RelatertYtelseType.FORELDREPENGER,
+            FagsakYtelseType.SVANGERSKAPSPENGER, RelatertYtelseType.SVANGERSKAPSPENGER);
 
     public static final List<RelatertYtelseType> RELATERT_YTELSE_TYPER_FOR_SØKER = List.of(
-        RelatertYtelseType.FORELDREPENGER,
-        RelatertYtelseType.ENGANGSSTØNAD,
-        RelatertYtelseType.SYKEPENGER,
-        RelatertYtelseType.DAGPENGER,
-        RelatertYtelseType.ARBEIDSAVKLARINGSPENGER,
-        RelatertYtelseType.SVANGERSKAPSPENGER,
-        RelatertYtelseType.OMSORGSPENGER,
-        RelatertYtelseType.OPPLÆRINGSPENGER,
-        RelatertYtelseType.PLEIEPENGER_SYKT_BARN,
-        RelatertYtelseType.PLEIEPENGER_NÆRSTÅENDE,
-        RelatertYtelseType.FRISINN);
+            RelatertYtelseType.FORELDREPENGER,
+            RelatertYtelseType.ENGANGSSTØNAD,
+            RelatertYtelseType.SYKEPENGER,
+            RelatertYtelseType.DAGPENGER,
+            RelatertYtelseType.ARBEIDSAVKLARINGSPENGER,
+            RelatertYtelseType.SVANGERSKAPSPENGER,
+            RelatertYtelseType.OMSORGSPENGER,
+            RelatertYtelseType.OPPLÆRINGSPENGER,
+            RelatertYtelseType.PLEIEPENGER_SYKT_BARN,
+            RelatertYtelseType.PLEIEPENGER_NÆRSTÅENDE,
+            RelatertYtelseType.FRISINN);
 
     public static final List<RelatertYtelseType> RELATERT_YTELSE_TYPER_FOR_ANNEN_FORELDER = List.of(
-        RelatertYtelseType.FORELDREPENGER,
-        RelatertYtelseType.ENGANGSSTØNAD);
+            RelatertYtelseType.FORELDREPENGER,
+            RelatertYtelseType.ENGANGSSTØNAD);
 
     private BehandlingRelaterteYtelserMapper() {
     }
 
     public static List<TilgrensendeYtelserDto> mapFraBehandlingRelaterteYtelser(Collection<Ytelse> ytelser) {
         return ytelser.stream()
-            .map(BehandlingRelaterteYtelserMapper::lagTilgrensendeYtelse)
-            .collect(Collectors.toList());
+                .map(BehandlingRelaterteYtelserMapper::lagTilgrensendeYtelse)
+                .collect(Collectors.toList());
     }
 
     public static RelatertYtelseType mapFraFagsakYtelseTypeTilRelatertYtelseType(FagsakYtelseType type) {
@@ -79,17 +78,19 @@ public class BehandlingRelaterteYtelserMapper {
         return tomDato;
     }
 
-    public static List<RelaterteYtelserDto> samleYtelserBasertPåYtelseType(List<TilgrensendeYtelserDto> tilgrensendeYtelser, List<RelatertYtelseType> ytelsesTyper) {
+    public static List<RelaterteYtelserDto> samleYtelserBasertPåYtelseType(List<TilgrensendeYtelserDto> tilgrensendeYtelser,
+            List<RelatertYtelseType> ytelsesTyper) {
         List<RelaterteYtelserDto> relaterteYtelserDtos = new LinkedList<>();
         for (RelatertYtelseType relatertYtelseType : ytelsesTyper) {
-            relaterteYtelserDtos.add(new RelaterteYtelserDto(relatertYtelseType.getKode(), sortTilgrensendeYtelser(tilgrensendeYtelser, relatertYtelseType.getKode())));
+            relaterteYtelserDtos.add(new RelaterteYtelserDto(relatertYtelseType.getKode(),
+                    sortTilgrensendeYtelser(tilgrensendeYtelser, relatertYtelseType.getKode())));
         }
         return relaterteYtelserDtos;
     }
 
     private static List<TilgrensendeYtelserDto> sortTilgrensendeYtelser(List<TilgrensendeYtelserDto> relatertYtelser, String relatertYtelseType) {
         return relatertYtelser.stream().filter(tilgrensendeYtelserDto -> (relatertYtelseType.equals(tilgrensendeYtelserDto.getRelatertYtelseType())))
-            .sorted()
-            .collect(Collectors.toList());
+                .sorted()
+                .collect(Collectors.toList());
     }
 }

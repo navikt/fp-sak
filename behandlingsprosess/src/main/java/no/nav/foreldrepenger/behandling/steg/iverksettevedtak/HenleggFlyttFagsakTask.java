@@ -10,7 +10,6 @@ import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
-
 @ApplicationScoped
 @ProsessTask(HenleggFlyttFagsakTask.TASKTYPE)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
@@ -22,14 +21,13 @@ public class HenleggFlyttFagsakTask extends BehandlingProsessTask {
 
     private HenleggBehandlingTjeneste henleggBehandlingTjeneste;
 
-
     HenleggFlyttFagsakTask() {
         // for CDI proxy
     }
 
     @Inject
     public HenleggFlyttFagsakTask(BehandlingRepositoryProvider repositoryProvider,
-                                  HenleggBehandlingTjeneste henleggBehandlingTjeneste) {
+            HenleggBehandlingTjeneste henleggBehandlingTjeneste) {
         super(repositoryProvider.getBehandlingLåsRepository());
         this.henleggBehandlingTjeneste = henleggBehandlingTjeneste;
 

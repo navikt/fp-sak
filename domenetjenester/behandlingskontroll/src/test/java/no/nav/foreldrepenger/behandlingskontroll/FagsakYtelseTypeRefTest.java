@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 
-
 /**
  * Demonstrerer lookup med repeatble annotations.
  */
@@ -20,8 +19,8 @@ public class FagsakYtelseTypeRefTest {
     @Test
     public void skal_få_duplikat_instans_av_cdi_bean() {
         assertThatThrownBy(
-            () -> FagsakYtelseTypeRef.Lookup.find(Bokstav.class, FagsakYtelseType.FORELDREPENGER)).isInstanceOf(
-            IllegalStateException.class).hasMessageContaining("Har flere matchende instanser");
+                () -> FagsakYtelseTypeRef.Lookup.find(Bokstav.class, FagsakYtelseType.FORELDREPENGER)).isInstanceOf(
+                        IllegalStateException.class).hasMessageContaining("Har flere matchende instanser");
     }
 
     @Test

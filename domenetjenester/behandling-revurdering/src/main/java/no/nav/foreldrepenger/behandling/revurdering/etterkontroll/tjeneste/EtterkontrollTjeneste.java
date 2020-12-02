@@ -11,7 +11,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 
 public interface EtterkontrollTjeneste {
 
-    Optional<BehandlingÅrsakType> utledRevurderingÅrsak(Behandling behandling, FamilieHendelseGrunnlagEntitet grunnlag, List<FødtBarnInfo> barnFraRegister);
+    Optional<BehandlingÅrsakType> utledRevurderingÅrsak(Behandling behandling, FamilieHendelseGrunnlagEntitet grunnlag,
+            List<FødtBarnInfo> barnFraRegister);
 
     void opprettRevurdering(Behandling behandling, BehandlingÅrsakType årsak, OrganisasjonsEnhet enhetForRevurdering);
 

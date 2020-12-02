@@ -40,8 +40,8 @@ public class VurderTilbaketrekkSteg implements BehandlingSteg {
 
     @Inject
     public VurderTilbaketrekkSteg(AksjonspunktutlederTilbaketrekk aksjonspunktutlederTilbaketrekk,
-                                  BehandlingRepository behandlingRepository,
-                                  SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+            BehandlingRepository behandlingRepository,
+            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.aksjonspunktutlederTilbaketrekk = aksjonspunktutlederTilbaketrekk;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingRepository = behandlingRepository;
@@ -62,5 +62,5 @@ public class VurderTilbaketrekkSteg implements BehandlingSteg {
         BehandlingReferanse ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
         List<AksjonspunktResultat> aksjonspunkter = aksjonspunktutlederTilbaketrekk.utledAksjonspunkterFor(new AksjonspunktUtlederInput(ref));
         return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
-        }
+    }
 }

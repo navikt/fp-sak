@@ -28,19 +28,21 @@ public class BeregningsgrunnlagGUIInputTjeneste extends BeregningsgrunnlagGUIInp
     private BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste;
 
     protected BeregningsgrunnlagGUIInputTjeneste() {
-        //CDI proxy
+        // CDI proxy
     }
 
     @Inject
     public BeregningsgrunnlagGUIInputTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
-                                               InntektArbeidYtelseTjeneste iayTjeneste,
-                                               SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                               AndelGraderingTjeneste andelGraderingTjeneste,
-                                               BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste,
-                                               InntektsmeldingTjeneste inntektsmeldingTjeneste,
-                                               ArbeidsgiverTjeneste arbeidsgiverTjeneste) {
-        super(behandlingRepositoryProvider.getBehandlingRepository(), iayTjeneste, skjæringstidspunktTjeneste, andelGraderingTjeneste, inntektsmeldingTjeneste, arbeidsgiverTjeneste);
-        this.fagsakRelasjonRepository = Objects.requireNonNull(behandlingRepositoryProvider.getFagsakRelasjonRepository(), "fagsakRelasjonRepository");
+            InntektArbeidYtelseTjeneste iayTjeneste,
+            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+            AndelGraderingTjeneste andelGraderingTjeneste,
+            BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste,
+            InntektsmeldingTjeneste inntektsmeldingTjeneste,
+            ArbeidsgiverTjeneste arbeidsgiverTjeneste) {
+        super(behandlingRepositoryProvider.getBehandlingRepository(), iayTjeneste, skjæringstidspunktTjeneste, andelGraderingTjeneste,
+                inntektsmeldingTjeneste, arbeidsgiverTjeneste);
+        this.fagsakRelasjonRepository = Objects.requireNonNull(behandlingRepositoryProvider.getFagsakRelasjonRepository(),
+                "fagsakRelasjonRepository");
         this.besteberegningFødendeKvinneTjeneste = besteberegningFødendeKvinneTjeneste;
     }
 
@@ -48,7 +50,8 @@ public class BeregningsgrunnlagGUIInputTjeneste extends BeregningsgrunnlagGUIInp
     public YtelsespesifiktGrunnlag getYtelsespesifiktGrunnlag(BehandlingReferanse ref) {
         var saksnummer = ref.getSaksnummer();
         var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonHvisEksisterer(saksnummer);
-        var dekningsgrad = fagsakRelasjon.map(FagsakRelasjon::getGjeldendeDekningsgrad).orElseThrow(() -> new IllegalStateException("Mangler FagsakRelasjon#dekningsgrad for behandling: " + ref));
+        var dekningsgrad = fagsakRelasjon.map(FagsakRelasjon::getGjeldendeDekningsgrad)
+                .orElseThrow(() -> new IllegalStateException("Mangler FagsakRelasjon#dekningsgrad for behandling: " + ref));
         boolean kvalifisererTilBesteberegning = besteberegningFødendeKvinneTjeneste.brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(ref);
         return new ForeldrepengerGrunnlag(dekningsgrad.getVerdi(), kvalifisererTilBesteberegning);
     }

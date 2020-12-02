@@ -39,7 +39,6 @@ public final class PersonRelasjon implements HarAktørId {
         return new Builder();
     }
 
-
     public static final class Builder {
         private AktørId fraAktørId;
         private AktørId tilAktørId;

@@ -21,7 +21,7 @@ public class MerkOpptjeningUtlandOppdaterer implements AksjonspunktOppdaterer<Me
     }
 
     MerkOpptjeningUtlandOppdaterer() {
-        //CDI
+        // CDI
     }
 
     @Override

@@ -41,8 +41,8 @@ public class AksjonspunktUtlederForVurderArbeidsforhold implements AksjonspunktU
 
     @Inject
     public AksjonspunktUtlederForVurderArbeidsforhold(BehandlingRepository behandlingRepository,
-                                                      InntektArbeidYtelseTjeneste iayTjeneste,
-                                                      VurderArbeidsforholdTjeneste vurderArbeidsforholdTjeneste) {
+            InntektArbeidYtelseTjeneste iayTjeneste,
+            VurderArbeidsforholdTjeneste vurderArbeidsforholdTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.iayTjeneste = iayTjeneste;
         this.vurderArbeidsforholdTjeneste = vurderArbeidsforholdTjeneste;
@@ -71,7 +71,7 @@ public class AksjonspunktUtlederForVurderArbeidsforhold implements AksjonspunktU
     }
 
     private Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> hentArbeidsforholdTilVurdering(AksjonspunktUtlederInput param,
-                                                                                           InntektArbeidYtelseGrunnlag iayGrunnlag) {
+            InntektArbeidYtelseGrunnlag iayGrunnlag) {
         Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> vurder;
         boolean taStillingTilEndringerIArbeidsforhold = skalTaStillingTilEndringerIArbeidsforhold(param.getRef());
         var sakInntektsmeldinger = taStillingTilEndringerIArbeidsforhold ? iayTjeneste.hentInntektsmeldinger(param.getSaksnummer()) : null;

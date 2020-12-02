@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.opptjening.aksjonspunkt;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.persistence.EntityManager;

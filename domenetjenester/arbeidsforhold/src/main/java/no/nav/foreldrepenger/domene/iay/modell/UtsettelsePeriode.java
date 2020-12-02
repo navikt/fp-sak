@@ -13,8 +13,6 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 public class UtsettelsePeriode extends BaseEntitet implements IndexKey {
 
-
-
     @ChangeTracked
     private DatoIntervallEntitet periode;
 
@@ -64,6 +62,7 @@ public class UtsettelsePeriode extends BaseEntitet implements IndexKey {
 
     /**
      * Perioden som utsettes
+     *
      * @return perioden
      */
     public DatoIntervallEntitet getPeriode() {
@@ -72,6 +71,7 @@ public class UtsettelsePeriode extends BaseEntitet implements IndexKey {
 
     /**
      * Årsaken til utsettelsen
+     *
      * @return utsettelseårsaken
      */
     public UtsettelseÅrsak getÅrsak() {
@@ -80,11 +80,15 @@ public class UtsettelsePeriode extends BaseEntitet implements IndexKey {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || !(o instanceof UtsettelsePeriode)) return false;
+        if (this == o) {
+            return true;
+        }
+        if ((o == null) || !(o instanceof UtsettelsePeriode)) {
+            return false;
+        }
         UtsettelsePeriode that = (UtsettelsePeriode) o;
         return Objects.equals(periode, that.periode) &&
-            Objects.equals(årsak, that.årsak);
+                Objects.equals(årsak, that.årsak);
     }
 
     @Override
@@ -95,8 +99,8 @@ public class UtsettelsePeriode extends BaseEntitet implements IndexKey {
     @Override
     public String toString() {
         return "UtsettelsePeriodeEntitet{" +
-            "periode=" + periode +
-            ", årsak=" + årsak +
-            '}';
+                "periode=" + periode +
+                ", årsak=" + årsak +
+                '}';
     }
 }

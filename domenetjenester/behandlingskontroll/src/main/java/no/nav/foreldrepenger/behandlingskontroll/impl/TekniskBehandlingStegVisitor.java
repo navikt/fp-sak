@@ -13,7 +13,8 @@ import no.nav.vedtak.log.mdc.MdcExtendedLogContext;
 /**
  * Tekniske oppsett ved kjøring av et steg:<br>
  * <ul>
- * <li>Setter savepoint slik at dersom steg feiler så beholdes tidligere resultater.</li>
+ * <li>Setter savepoint slik at dersom steg feiler så beholdes tidligere
+ * resultater.</li>
  * <li>Setter LOG_CONTEXT slik at ytterligere detaljer blir med i logging.</li>
  * </ul>
  */
@@ -26,11 +27,10 @@ public class TekniskBehandlingStegVisitor implements BehandlingModellVisitor {
     private BehandlingskontrollServiceProvider serviceProvider;
 
     public TekniskBehandlingStegVisitor(BehandlingskontrollServiceProvider serviceProvider,
-                                        BehandlingskontrollKontekst kontekst) {
+            BehandlingskontrollKontekst kontekst) {
         this.serviceProvider = serviceProvider;
         this.kontekst = kontekst;
     }
-
 
     @Override
     public StegProsesseringResultat prosesser(BehandlingStegModell steg) {
@@ -49,11 +49,13 @@ public class TekniskBehandlingStegVisitor implements BehandlingModellVisitor {
         StegProsesseringResultat resultat = prosesserStegISavepoint(behandling, stegVisitor);
 
         /*
-         * NB: nullstiller her og ikke i finally block, siden det da fjernes før vi får logget det.
-         * Hele settet fjernes så i MDCFilter eller tilsvarende uansett. Steg er del av koden så fanges uansett i
-         * stacktrace men trengs her for å kunne ta med i log eks. på DEBUG/INFO/WARN nivå.
+         * NB: nullstiller her og ikke i finally block, siden det da fjernes før vi får
+         * logget det. Hele settet fjernes så i MDCFilter eller tilsvarende uansett.
+         * Steg er del av koden så fanges uansett i stacktrace men trengs her for å
+         * kunne ta med i log eks. på DEBUG/INFO/WARN nivå.
          *
-         * behandling og fagsak kan være satt utenfor, så nullstiller ikke de i log context her
+         * behandling og fagsak kan være satt utenfor, så nullstiller ikke de i log
+         * context her
          */
         LOG_CONTEXT.remove("steg"); // NOSONAR //$NON-NLS-1$
 

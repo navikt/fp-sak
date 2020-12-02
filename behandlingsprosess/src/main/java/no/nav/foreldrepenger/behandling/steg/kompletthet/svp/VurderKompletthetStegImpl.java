@@ -33,11 +33,12 @@ public class VurderKompletthetStegImpl implements VurderKompletthetSteg {
     private VurderKompletthetStegFelles vurderKompletthetStegFelles;
 
     public VurderKompletthetStegImpl() {
-        //CDI
+        // CDI
     }
 
     @Inject
-    public VurderKompletthetStegImpl(@FagsakYtelseTypeRef("SVP") Kompletthetsjekker kompletthetsjekker, BehandlingRepository behandlingRepository, SkjæringstidspunktTjeneste skjæringstidspunktTjeneste, VurderKompletthetStegFelles vurderKompletthetStegFelles) {
+    public VurderKompletthetStegImpl(@FagsakYtelseTypeRef("SVP") Kompletthetsjekker kompletthetsjekker, BehandlingRepository behandlingRepository,
+            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste, VurderKompletthetStegFelles vurderKompletthetStegFelles) {
         this.kompletthetsjekker = kompletthetsjekker;
         this.behandlingRepository = behandlingRepository;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;

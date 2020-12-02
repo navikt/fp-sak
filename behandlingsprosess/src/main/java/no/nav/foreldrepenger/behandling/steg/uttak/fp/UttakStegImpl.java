@@ -55,11 +55,11 @@ public class UttakStegImpl implements UttakSteg {
 
     @Inject
     public UttakStegImpl(BehandlingRepositoryProvider repositoryProvider,
-                         FastsettePerioderTjeneste fastsettePerioderTjeneste,
-                         FastsettUttakManueltAksjonspunktUtleder fastsettUttakManueltAksjonspunktUtleder,
-                         UttakInputTjeneste uttakInputTjeneste,
-                         UttakStegBeregnStønadskontoTjeneste beregnStønadskontoTjeneste,
-                         BehandlingRepository behandlingRepository) {
+            FastsettePerioderTjeneste fastsettePerioderTjeneste,
+            FastsettUttakManueltAksjonspunktUtleder fastsettUttakManueltAksjonspunktUtleder,
+            UttakInputTjeneste uttakInputTjeneste,
+            UttakStegBeregnStønadskontoTjeneste beregnStønadskontoTjeneste,
+            BehandlingRepository behandlingRepository) {
         this.fastsettUttakManueltAksjonspunktUtleder = fastsettUttakManueltAksjonspunktUtleder;
         this.fastsettePerioderTjeneste = fastsettePerioderTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
@@ -87,7 +87,7 @@ public class UttakStegImpl implements UttakSteg {
 
     @Override
     public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType førsteSteg,
-                                   BehandlingStegType sisteSteg) {
+            BehandlingStegType sisteSteg) {
         if (!Objects.equals(BehandlingStegType.VURDER_UTTAK, førsteSteg)) {
             ryddUttak(kontekst.getBehandlingId());
             ryddStønadskontoberegning(kontekst.getBehandlingId(), kontekst.getFagsakId());
@@ -96,9 +96,9 @@ public class UttakStegImpl implements UttakSteg {
 
     @Override
     public void vedHoppOverFramover(BehandlingskontrollKontekst kontekst,
-                                    BehandlingStegModell modell,
-                                    BehandlingStegType førsteSteg,
-                                    BehandlingStegType sisteSteg) {
+            BehandlingStegModell modell,
+            BehandlingStegType førsteSteg,
+            BehandlingStegType sisteSteg) {
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         var behandlingsårsaker = behandlingsårsaker(behandling);
         if (SkalKopiereUttaksstegTjeneste.skalKopiereStegResultat(behandlingsårsaker)) {
@@ -115,9 +115,9 @@ public class UttakStegImpl implements UttakSteg {
 
     private List<BehandlingÅrsakType> behandlingsårsaker(Behandling behandling) {
         return behandling.getBehandlingÅrsaker()
-            .stream()
-            .map(behandlingÅrsak -> behandlingÅrsak.getBehandlingÅrsakType())
-            .collect(Collectors.toList());
+                .stream()
+                .map(behandlingÅrsak -> behandlingÅrsak.getBehandlingÅrsakType())
+                .collect(Collectors.toList());
     }
 
     private void kopierUttak(Long behandlingId, UttakResultatEntitet uttak) {

@@ -32,12 +32,12 @@ public class KlageNkSteg implements BehandlingSteg {
     private BehandlingRepository behandlingRepository;
     private KlageRepository klageRepository;
 
-    public KlageNkSteg(){
+    public KlageNkSteg() {
         // For CDI proxy
     }
 
     @Inject
-    public KlageNkSteg(BehandlingRepository behandlingRepository, KlageRepository klageRepository){
+    public KlageNkSteg(BehandlingRepository behandlingRepository, KlageRepository klageRepository) {
         this.behandlingRepository = behandlingRepository;
         this.klageRepository = klageRepository;
     }
@@ -47,7 +47,7 @@ public class KlageNkSteg implements BehandlingSteg {
         Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
 
         KlageVurderingResultat klageVurderingNFP = klageRepository.hentKlageVurderingResultat(behandling.getId(), KlageVurdertAv.NFP)
-            .orElseThrow(() -> new IllegalStateException("Skal ha NFPs klagevurdering opprettet før dette steget"));
+                .orElseThrow(() -> new IllegalStateException("Skal ha NFPs klagevurdering opprettet før dette steget"));
 
         if (KlageVurdering.STADFESTE_YTELSESVEDTAK.equals(klageVurderingNFP.getKlageVurdering())) {
             List<AksjonspunktDefinisjon> aksjonspunktDefinisjons = singletonList(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NK);
@@ -58,7 +58,7 @@ public class KlageNkSteg implements BehandlingSteg {
 
     @Override
     public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType førsteSteg,
-                                   BehandlingStegType sisteSteg) {
+            BehandlingStegType sisteSteg) {
         klageRepository.settKlageGodkjentHosMedunderskriver(kontekst.getBehandlingId(), KlageVurdertAv.NK, false);
     }
 

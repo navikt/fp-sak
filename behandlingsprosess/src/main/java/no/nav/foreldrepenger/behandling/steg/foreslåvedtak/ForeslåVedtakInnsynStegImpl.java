@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 
 @BehandlingStegRef(kode = "FORVEDSTEG")
-@BehandlingTypeRef("BT-006") //Innsyn
+@BehandlingTypeRef("BT-006") // Innsyn
 @FagsakYtelseTypeRef()
 @ApplicationScoped
 public class ForeslåVedtakInnsynStegImpl implements ForeslåVedtakSteg {
@@ -25,6 +25,5 @@ public class ForeslåVedtakInnsynStegImpl implements ForeslåVedtakSteg {
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         return BehandleStegResultat.utførtMedAksjonspunkter(Collections.singletonList(AksjonspunktDefinisjon.FORESLÅ_VEDTAK));
     }
-
 
 }

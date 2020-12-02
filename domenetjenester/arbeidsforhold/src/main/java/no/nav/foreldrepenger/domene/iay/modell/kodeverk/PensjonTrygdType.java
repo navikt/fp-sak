@@ -42,10 +42,8 @@ public enum PensjonTrygdType implements Kodeverdi, MedOffisiellKode, YtelseType 
     KRIGSPENSJON("KRIGSPENSJON", "Krigspensjon", "krigspensjon"),
     KVALIFISERINGSSTØNAD("KVALIFISERINGSSTØNAD", "Kvalifiseringsstønad", "kvalifiseringstoenad"),
     NY_AFP("NY_AFP", "Ny avtalefestet pensjon privat sektor", "nyAvtalefestetPensjonPrivatSektor"),
-    NYE_LIVRENTER("NYE_LIVRENTER", "Nye livrenter i arbeidsforhold og livrenter fortsettelsesforsikringer",
-            "nyeLivrenterIArbeidsforholdOgLivrenterFortsettelsesforsikringer"),
-    OVERGANGSSTØNAD_ENSLIG("OVERGANGSSTØNAD_ENSLIG", "Overgangsstønad til enslig mor eller far",
-            "overgangsstoenadTilEnsligMorEllerFarSomBegynteAaLoepe31Mars2014EllerTidligere"),
+    NYE_LIVRENTER("NYE_LIVRENTER", "Nye livrenter i arbeidsforhold og livrenter fortsettelsesforsikringer", "nyeLivrenterIArbeidsforholdOgLivrenterFortsettelsesforsikringer"),
+    OVERGANGSSTØNAD_ENSLIG("OVERGANGSSTØNAD_ENSLIG", "Overgangsstønad til enslig mor eller far", "overgangsstoenadTilEnsligMorEllerFarSomBegynteAaLoepe31Mars2014EllerTidligere"),
     OVERGANGSSTØNAD_EKTEFELLE("OVERGANGSSTØNAD_EKTEFELLE", "Overgangsstønad til gjenlevende ektefelle", "overgangsstoenadTilGjenlevendeEktefelle"),
     PENSJON_DØDSMÅNED("PENSJON_DØDSMÅNED", "Pensjon i dødsmåned", "pensjonIDoedsmaaneden"),
     LIVRENTER("LIVRENTER", "Pensjon og livrenter i arbeidsforhold", "pensjonOgLivrenterIArbeidsforhold"),
@@ -53,8 +51,7 @@ public enum PensjonTrygdType implements Kodeverdi, MedOffisiellKode, YtelseType 
     SUPPLERENDE_STØNAD("SUPPLERENDE_STØNAD", "Supplerende stønad til person med kort botid i Norge", "supplerendeStoenadTilPersonKortBotidNorge"),
     UFØREPENSJON("UFØREPENSJON", "Uførepensjon", "ufoerepensjon"),
     UFØREPENSJON_ANDRE("UFØREPENSJON_ANDRE", "Uførepensjon fra andre enn folketrygden", "ufoerepensjonFraAndreEnnFolketrygden"),
-    UFØREPENSJON_ANDRE_ETTEROPPGJØR("UFØREPENSJON_ANDRE_ETTEROPPGJØR", "Uførepensjon etteroppgjør fra andre enn folketrygden",
-            "ufoereytelseEtteroppgjoerFraAndreEnnFolketrygden"),
+    UFØREPENSJON_ANDRE_ETTEROPPGJØR("UFØREPENSJON_ANDRE_ETTEROPPGJØR", "Uførepensjon etteroppgjør fra andre enn folketrygden", "ufoereytelseEtteroppgjoerFraAndreEnnFolketrygden"),
     UNDERHOLDNINGSBIDRAG("UNDERHOLDNINGSBIDRAG", "Underholdningsbidrag tidligere ektefelle", "underholdsbidragTilTidligereEktefelle"),
     ;
 

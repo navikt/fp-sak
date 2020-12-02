@@ -46,7 +46,7 @@ public class VurderLøpendeMedlemskapSteg implements BehandlingSteg {
 
     @Inject
     public VurderLøpendeMedlemskapSteg(VurderLøpendeMedlemskap vurderLøpendeMedlemskap,
-                                       BehandlingRepositoryProvider provider) {
+            BehandlingRepositoryProvider provider) {
         this.vurderLøpendeMedlemskap = vurderLøpendeMedlemskap;
         this.medlemskapVilkårPeriodeRepository = provider.getMedlemskapVilkårPeriodeRepository();
         this.behandlingRepository = provider.getBehandlingRepository();
@@ -54,7 +54,7 @@ public class VurderLøpendeMedlemskapSteg implements BehandlingSteg {
     }
 
     VurderLøpendeMedlemskapSteg() {
-        //CDI
+        // CDI
     }
 
     @Override
@@ -79,12 +79,14 @@ public class VurderLøpendeMedlemskapSteg implements BehandlingSteg {
                 medlemskapVilkårPeriodeRepository.lagreMedlemskapsvilkår(behandling, builder);
 
                 Tuple<VilkårUtfallType, VilkårUtfallMerknad> resultat = medlemskapVilkårPeriodeRepository.utledeVilkårStatus(behandling);
-                VilkårResultat.Builder vilkårBuilder = VilkårResultat.builderFraEksisterende(getBehandlingsresultat(behandlingId).getVilkårResultat());
+                VilkårResultat.Builder vilkårBuilder = VilkårResultat
+                        .builderFraEksisterende(getBehandlingsresultat(behandlingId).getVilkårResultat());
                 Avslagsårsak avslagsårsak = null;
                 if (VilkårUtfallType.IKKE_OPPFYLT.equals(resultat.getElement1())) {
                     avslagsårsak = Avslagsårsak.fraKode(resultat.getElement2().getKode());
                 }
-                vilkårBuilder.leggTilVilkårResultat(VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE, resultat.getElement1(), resultat.getElement2(), null, avslagsårsak, false, false, null, null);
+                vilkårBuilder.leggTilVilkårResultat(VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE, resultat.getElement1(), resultat.getElement2(), null,
+                        avslagsårsak, false, false, null, null);
 
                 BehandlingLås lås = kontekst.getSkriveLås();
                 behandlingRepository.lagre(vilkårBuilder.buildFor(behandling), lås);
@@ -96,8 +98,9 @@ public class VurderLøpendeMedlemskapSteg implements BehandlingSteg {
     private boolean skalVurdereLøpendeMedlemskap(Long behandlingId) {
         Optional<Behandlingsresultat> behandlingsresultat = Optional.ofNullable(getBehandlingsresultat(behandlingId));
         return behandlingsresultat.map(b -> b.getVilkårResultat().getVilkårene()).orElse(Collections.emptyList())
-            .stream()
-            .anyMatch(v -> v.getVilkårType().equals(VilkårType.MEDLEMSKAPSVILKÅRET) && v.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.OPPFYLT));
+                .stream()
+                .anyMatch(v -> v.getVilkårType().equals(VilkårType.MEDLEMSKAPSVILKÅRET)
+                        && v.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.OPPFYLT));
     }
 
     private Behandlingsresultat getBehandlingsresultat(Long behandlingId) {

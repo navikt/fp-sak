@@ -35,14 +35,18 @@ public class ArbeidsforholdTjeneste {
         this.abakusTjeneste = abakusTjeneste;
     }
 
-    public Map<Arbeidsgiver, Set<EksternArbeidsforholdRef>> finnArbeidsforholdForIdentPåDag(AktørId ident, LocalDate dato, FagsakYtelseType ytelseType) {
-        var ytelse = FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelseType)  ? YtelseType.SVANGERSKAPSPENGER : YtelseType.FORELDREPENGER;
+    public Map<Arbeidsgiver, Set<EksternArbeidsforholdRef>> finnArbeidsforholdForIdentPåDag(AktørId ident, LocalDate dato,
+            FagsakYtelseType ytelseType) {
+        var ytelse = FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelseType) ? YtelseType.SVANGERSKAPSPENGER : YtelseType.FORELDREPENGER;
         final var request = new AktørDatoRequest(new AktørIdPersonident(ident.getId()), new Periode(dato, dato), ytelse);
 
         return abakusTjeneste.hentArbeidsforholdIPerioden(request)
-            .stream()
-            .collect(Collectors.groupingBy(this::mapTilArbeidsgiver,
-                flatMapping(im -> Stream.of(EksternArbeidsforholdRef.ref(im.getArbeidsforholdId() != null ? im.getArbeidsforholdId().getEksternReferanse() : null)), Collectors.toSet())));
+                .stream()
+                .collect(Collectors.groupingBy(this::mapTilArbeidsgiver,
+                        flatMapping(
+                                im -> Stream.of(EksternArbeidsforholdRef
+                                        .ref(im.getArbeidsforholdId() != null ? im.getArbeidsforholdId().getEksternReferanse() : null)),
+                                Collectors.toSet())));
     }
 
     private Arbeidsgiver mapTilArbeidsgiver(ArbeidsforholdDto arbeidsforhold) {

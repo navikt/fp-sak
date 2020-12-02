@@ -43,7 +43,8 @@ public class ArbeidsforholdOverstyring extends BaseEntitet implements IndexKey {
 
     private BekreftetPermisjon bekreftetPermisjon = new BekreftetPermisjon();
 
-    ArbeidsforholdOverstyring() {}
+    ArbeidsforholdOverstyring() {
+    }
 
     ArbeidsforholdOverstyring(ArbeidsforholdOverstyring arbeidsforholdOverstyringEntitet) {
         this.arbeidsgiver = arbeidsforholdOverstyringEntitet.getArbeidsgiver();
@@ -113,7 +114,9 @@ public class ArbeidsforholdOverstyring extends BaseEntitet implements IndexKey {
     }
 
     void setNyArbeidsforholdRef(InternArbeidsforholdRef nyArbeidsforholdRef) {
-        this.nyArbeidsforholdRef = nyArbeidsforholdRef != null && !InternArbeidsforholdRef.nullRef().equals(nyArbeidsforholdRef) ? nyArbeidsforholdRef : null;
+        this.nyArbeidsforholdRef = (nyArbeidsforholdRef != null) && !InternArbeidsforholdRef.nullRef().equals(nyArbeidsforholdRef)
+                ? nyArbeidsforholdRef
+                : null;
     }
 
     public Optional<BekreftetPermisjon> getBekreftetPermisjon() {
@@ -127,15 +130,15 @@ public class ArbeidsforholdOverstyring extends BaseEntitet implements IndexKey {
         this.bekreftetPermisjon = bekreftetPermisjon;
     }
 
-    public boolean erOverstyrt(){
+    public boolean erOverstyrt() {
         return !Objects.equals(ArbeidsforholdHandlingType.BRUK, handling)
-            || ( Objects.equals(ArbeidsforholdHandlingType.BRUK, handling) &&
-            !Objects.equals(bekreftetPermisjon.getStatus(), BekreftetPermisjonStatus.UDEFINERT) );
+                || (Objects.equals(ArbeidsforholdHandlingType.BRUK, handling) &&
+                        !Objects.equals(bekreftetPermisjon.getStatus(), BekreftetPermisjonStatus.UDEFINERT));
     }
 
     public boolean kreverIkkeInntektsmelding() {
         return Set.of(LAGT_TIL_AV_SAKSBEHANDLER, BRUK_UTEN_INNTEKTSMELDING,
-            BRUK_MED_OVERSTYRT_PERIODE, INNTEKT_IKKE_MED_I_BG).contains(handling);
+                BRUK_MED_OVERSTYRT_PERIODE, INNTEKT_IKKE_MED_I_BG).contains(handling);
     }
 
     @Override
@@ -145,11 +148,15 @@ public class ArbeidsforholdOverstyring extends BaseEntitet implements IndexKey {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || !(o instanceof ArbeidsforholdOverstyring)) return false;
+        if (this == o) {
+            return true;
+        }
+        if ((o == null) || !(o instanceof ArbeidsforholdOverstyring)) {
+            return false;
+        }
         ArbeidsforholdOverstyring that = (ArbeidsforholdOverstyring) o;
         return Objects.equals(arbeidsgiver, that.arbeidsgiver) &&
-            Objects.equals(arbeidsforholdRef, that.arbeidsforholdRef);
+                Objects.equals(arbeidsforholdRef, that.arbeidsforholdRef);
     }
 
     @Override
@@ -160,10 +167,10 @@ public class ArbeidsforholdOverstyring extends BaseEntitet implements IndexKey {
     @Override
     public String toString() {
         return "ArbeidsforholdOverstyringEntitet{" +
-            "arbeidsgiver=" + arbeidsgiver +
-            ", arbeidsforholdRef=" + arbeidsforholdRef +
-            ", handling=" + handling +
-            '}';
+                "arbeidsgiver=" + arbeidsgiver +
+                ", arbeidsforholdRef=" + arbeidsforholdRef +
+                ", handling=" + handling +
+                '}';
     }
 
     public Stillingsprosent getStillingsprosent() {

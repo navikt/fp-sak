@@ -13,8 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 
 public class OppgittOpptjening extends BaseEntitet {
 
-
-
     private UUID uuid;
 
     @ChangeTracked
@@ -37,7 +35,8 @@ public class OppgittOpptjening extends BaseEntitet {
     public OppgittOpptjening(UUID eksternReferanse) {
         Objects.requireNonNull(eksternReferanse, "eksternReferanse");
         this.uuid = eksternReferanse;
-        // setter tidspunkt til nå slik at dette også er satt for nybakte objekter uten å lagring
+        // setter tidspunkt til nå slik at dette også er satt for nybakte objekter uten
+        // å lagring
         setOpprettetTidspunkt(LocalDateTime.now());
     }
 
@@ -47,7 +46,10 @@ public class OppgittOpptjening extends BaseEntitet {
         super.setOpprettetTidspunkt(opprettetTidspunktOriginalt);
     }
 
-    /** Identifisere en immutable instans av grunnlaget unikt og er egnet for utveksling (eks. til abakus eller andre systemer) */
+    /**
+     * Identifisere en immutable instans av grunnlaget unikt og er egnet for
+     * utveksling (eks. til abakus eller andre systemer)
+     */
     public UUID getEksternReferanse() {
         return uuid;
     }
@@ -115,14 +117,16 @@ public class OppgittOpptjening extends BaseEntitet {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || !(o instanceof OppgittOpptjening))
+        }
+        if ((o == null) || !(o instanceof OppgittOpptjening)) {
             return false;
+        }
         OppgittOpptjening that = (OppgittOpptjening) o;
         return Objects.equals(oppgittArbeidsforhold, that.oppgittArbeidsforhold) &&
-            Objects.equals(egenNæring, that.egenNæring) &&
-            Objects.equals(annenAktivitet, that.annenAktivitet);
+                Objects.equals(egenNæring, that.egenNæring) &&
+                Objects.equals(annenAktivitet, that.annenAktivitet);
     }
 
     @Override
@@ -133,16 +137,18 @@ public class OppgittOpptjening extends BaseEntitet {
     @Override
     public String toString() {
         return "OppgittOpptjeningEntitet{" +
-            "oppgittArbeidsforhold=" + oppgittArbeidsforhold +
-            ", egenNæring=" + egenNæring +
-            ", annenAktivitet=" + annenAktivitet +
-            '}';
+                "oppgittArbeidsforhold=" + oppgittArbeidsforhold +
+                ", egenNæring=" + egenNæring +
+                ", annenAktivitet=" + annenAktivitet +
+                '}';
     }
 
     /**
-     * Brukes til å filtrere bort tomme oppgitt opptjening elementer ved migrering. Bør ikke være nødvendig til annet.
+     * Brukes til å filtrere bort tomme oppgitt opptjening elementer ved migrering.
+     * Bør ikke være nødvendig til annet.
      *
-     * har minst noe av oppgitt arbeidsforhold, egen næring, annen aktivitet eller frilans.
+     * har minst noe av oppgitt arbeidsforhold, egen næring, annen aktivitet eller
+     * frilans.
      */
     public boolean harOpptjening() {
         return !getOppgittArbeidsforhold().isEmpty() || !getEgenNæring().isEmpty() || !getAnnenAktivitet().isEmpty() || !getFrilans().isEmpty();

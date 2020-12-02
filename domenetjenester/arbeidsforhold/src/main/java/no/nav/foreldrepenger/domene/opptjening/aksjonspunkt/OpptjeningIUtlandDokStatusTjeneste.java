@@ -9,7 +9,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.utlanddok.Op
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.utlanddok.OpptjeningIUtlandDokStatusEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.utlanddok.OpptjeningIUtlandDokStatusRepository;
 
-
 @ApplicationScoped
 public class OpptjeningIUtlandDokStatusTjeneste {
 
@@ -21,7 +20,7 @@ public class OpptjeningIUtlandDokStatusTjeneste {
     }
 
     OpptjeningIUtlandDokStatusTjeneste() {
-        //CDI
+        // CDI
     }
 
     public void lagreStatus(Long behandlingId, OpptjeningIUtlandDokStatus status) {

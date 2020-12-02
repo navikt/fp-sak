@@ -23,8 +23,6 @@ import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
  */
 public class OppgittArbeidsforhold extends BaseEntitet implements IndexKey {
 
-
-
     @ChangeTracked
     private DatoIntervallEntitet periode;
 
@@ -72,15 +70,18 @@ public class OppgittArbeidsforhold extends BaseEntitet implements IndexKey {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || !(o instanceof OppgittArbeidsforhold)) return false;
+        if (this == o) {
+            return true;
+        }
+        if ((o == null) || !(o instanceof OppgittArbeidsforhold)) {
+            return false;
+        }
 
         OppgittArbeidsforhold that = (OppgittArbeidsforhold) o;
 
-        return
-            Objects.equals(periode, that.periode) &&
-            Objects.equals(arbeidType, that.arbeidType) &&
-            Objects.equals(utenlandskVirksomhet, that.utenlandskVirksomhet);
+        return Objects.equals(periode, that.periode) &&
+                Objects.equals(arbeidType, that.arbeidType) &&
+                Objects.equals(utenlandskVirksomhet, that.utenlandskVirksomhet);
     }
 
     @Override
@@ -91,11 +92,11 @@ public class OppgittArbeidsforhold extends BaseEntitet implements IndexKey {
     @Override
     public String toString() {
         return "OppgittArbeidsforholdImpl{" +
-            "periode=" + periode +
-            ", erUtenlandskInntekt=" + erUtenlandskInntekt +
-            ", arbeidType=" + arbeidType +
-            ", utenlandskVirksomhet=" + utenlandskVirksomhet +
-            '}';
+                "periode=" + periode +
+                ", erUtenlandskInntekt=" + erUtenlandskInntekt +
+                ", arbeidType=" + arbeidType +
+                ", utenlandskVirksomhet=" + utenlandskVirksomhet +
+                '}';
     }
 
     void setPeriode(DatoIntervallEntitet periode) {

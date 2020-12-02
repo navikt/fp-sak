@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.uttak.fp;
 
-
 import static no.nav.foreldrepenger.behandling.steg.uttak.fp.UttakStegImplTest.avsluttMedVedtak;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -45,7 +44,6 @@ import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 
-
 public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
@@ -56,11 +54,12 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         var uttakRepositoryProvider = new UttakRepositoryProvider(getEntityManager());
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(uttakRepositoryProvider.getFagsakRelasjonRepository(),
-            null, uttakRepositoryProvider.getFagsakRepository());
+                null, uttakRepositoryProvider.getFagsakRepository());
         var uttakTjeneste = new ForeldrepengerUttakTjeneste(uttakRepositoryProvider.getFpUttakRepository());
         var beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(uttakRepositoryProvider, fagsakRelasjonTjeneste, uttakTjeneste);
         var dekningsgradTjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste, uttakRepositoryProvider.getBehandlingsresultatRepository());
-        tjeneste = new UttakStegBeregnStønadskontoTjeneste(uttakRepositoryProvider, beregnStønadskontoerTjeneste, dekningsgradTjeneste, uttakTjeneste);
+        tjeneste = new UttakStegBeregnStønadskontoTjeneste(uttakRepositoryProvider, beregnStønadskontoerTjeneste, dekningsgradTjeneste,
+                uttakTjeneste);
     }
 
     @Test
@@ -71,8 +70,8 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
         avsluttMedVedtak(førsteBehandling, repositoryProvider);
 
         var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medOriginalBehandling(førsteBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
-            .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
+                .medOriginalBehandling(førsteBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
+                .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
         revurderingScenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
         Behandling revurdering = revurderingScenario.lagre(repositoryProvider);
 
@@ -92,8 +91,8 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
         avsluttMedVedtak(førsteBehandling, repositoryProvider);
 
         var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medOriginalBehandling(førsteBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
-            .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
+                .medOriginalBehandling(førsteBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
+                .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
         revurderingScenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
         Behandling revurdering = revurderingScenario.lagre(repositoryProvider);
 
@@ -111,27 +110,28 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
         opprettStønadskontoer(førsteBehandling);
         var uttak = avslåttUttak();
         UttakResultatPeriodeEntitet periode = new UttakResultatPeriodeEntitet.Builder(uttak.getPerioder().get(0).getFom().minusWeeks(1),
-            uttak.getPerioder().get(0).getFom().minusDays(1))
-            .medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
-            .build();
-        new UttakResultatPeriodeAktivitetEntitet.Builder(periode, new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build())
-            .medTrekkonto(StønadskontoType.FELLESPERIODE)
-            .medTrekkdager(new Trekkdager(5))
-            .medUtbetalingsgrad(Utbetalingsgrad.TEN)
-            .medArbeidsprosent(BigDecimal.ZERO)
-            .build();
+                uttak.getPerioder().get(0).getFom().minusDays(1))
+                        .medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+                        .build();
+        new UttakResultatPeriodeAktivitetEntitet.Builder(periode,
+                new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build())
+                        .medTrekkonto(StønadskontoType.FELLESPERIODE)
+                        .medTrekkdager(new Trekkdager(5))
+                        .medUtbetalingsgrad(Utbetalingsgrad.TEN)
+                        .medArbeidsprosent(BigDecimal.ZERO)
+                        .build();
         uttak.leggTilPeriode(periode);
         lagreUttak(førsteBehandling, uttak);
         avsluttMedVedtak(førsteBehandling, repositoryProvider);
 
         var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medOriginalBehandling(førsteBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
-            .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
+                .medOriginalBehandling(førsteBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
+                .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
         revurderingScenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
         Behandling revurdering = revurderingScenario.lagre(repositoryProvider);
 
         ForeldrepengerGrunnlag ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1))
-            .medAnnenpart(new Annenpart(false, førsteBehandling.getId()));
+                .medAnnenpart(new Annenpart(false, førsteBehandling.getId()));
         UttakInput input = new UttakInput(BehandlingReferanse.fra(revurdering), null, ytelsespesifiktGrunnlag);
         var resultat = tjeneste.beregnStønadskontoer(input);
 
@@ -148,13 +148,13 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
         avsluttMedVedtak(morBehandling, repositoryProvider);
 
         var farScenario = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
+                .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
         farScenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
         Behandling farBehandling = farScenario.lagre(repositoryProvider);
         repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak(), morBehandling);
 
         ForeldrepengerGrunnlag ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1))
-            .medAnnenpart(new Annenpart(false, morBehandling.getId()));
+                .medAnnenpart(new Annenpart(false, morBehandling.getId()));
         UttakInput input = new UttakInput(BehandlingReferanse.fra(farBehandling), null, ytelsespesifiktGrunnlag);
         var resultat = tjeneste.beregnStønadskontoer(input);
 
@@ -174,7 +174,7 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
         avsluttMedVedtak(morBehandling, repositoryProvider);
 
         var farScenario = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
+                .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
         farScenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
         Behandling farBehandling = farScenario.lagre(repositoryProvider);
         repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak(), morBehandling);
@@ -195,7 +195,7 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
         avsluttMedVedtak(morBehandling, repositoryProvider);
 
         var farScenario = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
+                .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
         farScenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
         Behandling farBehandling = farScenario.lagre(repositoryProvider);
         repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak(), morBehandling);
@@ -214,15 +214,16 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
     private UttakResultatPerioderEntitet innvilgetUttak() {
         var uttak = new UttakResultatPerioderEntitet();
         UttakResultatPeriodeEntitet periode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(),
-            LocalDate.now().plusWeeks(1))
-            .medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
-            .build();
-        new UttakResultatPeriodeAktivitetEntitet.Builder(periode, new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build())
-            .medTrekkonto(StønadskontoType.FELLESPERIODE)
-            .medTrekkdager(new Trekkdager(5))
-            .medUtbetalingsgrad(Utbetalingsgrad.TEN)
-            .medArbeidsprosent(BigDecimal.ZERO)
-            .build();
+                LocalDate.now().plusWeeks(1))
+                        .medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+                        .build();
+        new UttakResultatPeriodeAktivitetEntitet.Builder(periode,
+                new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build())
+                        .medTrekkonto(StønadskontoType.FELLESPERIODE)
+                        .medTrekkdager(new Trekkdager(5))
+                        .medUtbetalingsgrad(Utbetalingsgrad.TEN)
+                        .medArbeidsprosent(BigDecimal.ZERO)
+                        .build();
         uttak.leggTilPeriode(periode);
         return uttak;
     }
@@ -230,14 +231,15 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
     private UttakResultatPerioderEntitet avslåttUttak() {
         var uttak = new UttakResultatPerioderEntitet();
         UttakResultatPeriodeEntitet periode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(), LocalDate.now().plusWeeks(1))
-            .medResultatType(PeriodeResultatType.AVSLÅTT, IkkeOppfyltÅrsak.BARNET_ER_DØD)
-            .build();
-        new UttakResultatPeriodeAktivitetEntitet.Builder(periode, new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build())
-            .medTrekkonto(StønadskontoType.FELLESPERIODE)
-            .medTrekkdager(Trekkdager.ZERO)
-            .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
-            .medArbeidsprosent(BigDecimal.ZERO)
-            .build();
+                .medResultatType(PeriodeResultatType.AVSLÅTT, IkkeOppfyltÅrsak.BARNET_ER_DØD)
+                .build();
+        new UttakResultatPeriodeAktivitetEntitet.Builder(periode,
+                new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build())
+                        .medTrekkonto(StønadskontoType.FELLESPERIODE)
+                        .medTrekkdager(Trekkdager.ZERO)
+                        .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
+                        .medArbeidsprosent(BigDecimal.ZERO)
+                        .build();
         uttak.leggTilPeriode(periode);
         return uttak;
     }
@@ -245,9 +247,9 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
     private void opprettStønadskontoer(Behandling førsteBehandling) {
         repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(førsteBehandling.getFagsak(), Dekningsgrad._100);
         repositoryProvider.getFagsakRelasjonRepository().lagre(førsteBehandling.getFagsak(), førsteBehandling.getId(), Stønadskontoberegning.builder()
-            .medStønadskonto(new Stønadskonto.Builder().medMaxDager(10).medStønadskontoType(StønadskontoType.FELLESPERIODE).build())
-            .medRegelEvaluering(" ")
-            .medRegelInput(" ")
-            .build());
+                .medStønadskonto(new Stønadskonto.Builder().medMaxDager(10).medStønadskontoType(StønadskontoType.FELLESPERIODE).build())
+                .medRegelEvaluering(" ")
+                .medRegelInput(" ")
+                .build());
     }
 }

@@ -19,7 +19,8 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 
 /**
- * Provider for å enklere å kunne hente ut ulike repository uten for mange injection points.
+ * Provider for å enklere å kunne hente ut ulike repository uten for mange
+ * injection points.
  */
 @ApplicationScoped
 public class BehandlingskontrollServiceProvider {
@@ -35,7 +36,8 @@ public class BehandlingskontrollServiceProvider {
     private BehandlingskontrollEventPubliserer eventPubliserer;
 
     @Inject
-    public BehandlingskontrollServiceProvider( EntityManager entityManager, BehandlingModellRepository behandlingModellRepository, BehandlingskontrollEventPubliserer eventPubliserer) {
+    public BehandlingskontrollServiceProvider(EntityManager entityManager, BehandlingModellRepository behandlingModellRepository,
+            BehandlingskontrollEventPubliserer eventPubliserer) {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
         this.entityManager = entityManager;
 
@@ -52,11 +54,11 @@ public class BehandlingskontrollServiceProvider {
     }
 
     public BehandlingskontrollServiceProvider(FagsakRepository fagsakRepository,
-                                              BehandlingRepository behandlingRepository,
-                                              FagsakLåsRepository fagsakLåsRepository,
-                                              BehandlingLåsRepository behandlingLåsRepository,
-                                              BehandlingModellRepository behandlingModellRepository,
-                                              AksjonspunktKontrollRepository aksjonspunktKontrollRepository) {
+            BehandlingRepository behandlingRepository,
+            FagsakLåsRepository fagsakLåsRepository,
+            BehandlingLåsRepository behandlingLåsRepository,
+            BehandlingModellRepository behandlingModellRepository,
+            AksjonspunktKontrollRepository aksjonspunktKontrollRepository) {
         this.fagsakRepository = fagsakRepository;
         this.behandlingRepository = behandlingRepository;
         this.fagsakLåsRepository = fagsakLåsRepository;

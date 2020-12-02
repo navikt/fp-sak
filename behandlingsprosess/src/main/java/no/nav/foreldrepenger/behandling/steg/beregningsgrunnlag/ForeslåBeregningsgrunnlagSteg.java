@@ -45,9 +45,9 @@ public class ForeslåBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
 
     @Inject
     public ForeslåBeregningsgrunnlagSteg(BehandlingRepository behandlingRepository,
-                                         FamilieHendelseRepository familieHendelseRepository,
-                                         BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
-                                         BeregningsgrunnlagInputProvider inputTjenesteProvider) {
+            FamilieHendelseRepository familieHendelseRepository,
+            BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
+            BeregningsgrunnlagInputProvider inputTjenesteProvider) {
         this.behandlingRepository = behandlingRepository;
         this.familieHendelseRepository = familieHendelseRepository;
         this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
@@ -61,18 +61,20 @@ public class ForeslåBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
         var input = getInputTjeneste(ref.getFagsakYtelseType()).lagInput(ref.getBehandlingId());
         BeregningsgrunnlagVilkårOgAkjonspunktResultat resultat = beregningsgrunnlagKopierOgLagreTjeneste.foreslåBeregningsgrunnlag(input);
 
-        List<AksjonspunktResultat> aksjonspunkter = resultat.getAksjonspunkter().stream().map(BeregningResultatMapper::map).collect(Collectors.toList());
+        List<AksjonspunktResultat> aksjonspunkter = resultat.getAksjonspunkter().stream().map(BeregningResultatMapper::map)
+                .collect(Collectors.toList());
 
         if (behandling.getFagsakYtelseType().equals(FagsakYtelseType.FORELDREPENGER)) {
             VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(aksjonspunkter,
-                input.getYtelsespesifiktGrunnlag().getDekningsgrad(),
-                getBarn(ref.getBehandlingId()));
+                    input.getYtelsespesifiktGrunnlag().getDekningsgrad(),
+                    getBarn(ref.getBehandlingId()));
         }
         return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
     }
 
     @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg, BehandlingStegType fraSteg) {
+    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
+            BehandlingStegType fraSteg) {
         if (tilSteg.equals(BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG)) {
             beregningsgrunnlagKopierOgLagreTjeneste.getRyddBeregningsgrunnlag(kontekst).ryddForeslåBeregningsgrunnlagVedTilbakeføring();
         }
@@ -85,8 +87,8 @@ public class ForeslåBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
     private List<UidentifisertBarn> getBarn(Long behandlingId) {
         Objects.requireNonNull(familieHendelseRepository, "familieHendelseRepository");
         Optional<FamilieHendelseEntitet> familiehendelse = familieHendelseRepository
-            .hentAggregatHvisEksisterer(behandlingId)
-            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon);
+                .hentAggregatHvisEksisterer(behandlingId)
+                .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon);
         return familiehendelse.orElseThrow().getBarna();
     }
 }

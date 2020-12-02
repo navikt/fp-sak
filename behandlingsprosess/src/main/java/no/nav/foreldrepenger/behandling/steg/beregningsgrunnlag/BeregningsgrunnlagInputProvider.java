@@ -14,13 +14,13 @@ public class BeregningsgrunnlagInputProvider {
     private Instance<BeregningsgrunnlagInputFelles> beregningsgrunnlagInputTjeneste;
     private Instance<BeregningsgrunnlagGUIInputFelles> beregningsgrunnlagRestInputTjeneste;
 
-
     public BeregningsgrunnlagInputProvider() {
-        //CDI proxy
+        // CDI proxy
     }
 
     @Inject
-    public BeregningsgrunnlagInputProvider(@Any Instance<BeregningsgrunnlagInputFelles> beregningsgrunnlagInputTjeneste, @Any Instance<BeregningsgrunnlagGUIInputFelles> beregningsgrunnlagRestInputTjeneste) {
+    public BeregningsgrunnlagInputProvider(@Any Instance<BeregningsgrunnlagInputFelles> beregningsgrunnlagInputTjeneste,
+            @Any Instance<BeregningsgrunnlagGUIInputFelles> beregningsgrunnlagRestInputTjeneste) {
         this.beregningsgrunnlagInputTjeneste = beregningsgrunnlagInputTjeneste;
         this.beregningsgrunnlagRestInputTjeneste = beregningsgrunnlagRestInputTjeneste;
     }

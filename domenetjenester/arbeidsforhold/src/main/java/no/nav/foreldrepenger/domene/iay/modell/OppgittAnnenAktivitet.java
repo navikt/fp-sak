@@ -10,7 +10,6 @@ import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
-
 public class OppgittAnnenAktivitet extends BaseEntitet implements IndexKey {
 
     @ChangeTracked
@@ -44,8 +43,12 @@ public class OppgittAnnenAktivitet extends BaseEntitet implements IndexKey {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || !(o instanceof OppgittAnnenAktivitet)) return false;
+        if (this == o) {
+            return true;
+        }
+        if ((o == null) || !(o instanceof OppgittAnnenAktivitet)) {
+            return false;
+        }
         OppgittAnnenAktivitet that = (OppgittAnnenAktivitet) o;
         return Objects.equals(periode, that.periode) &&
                 Objects.equals(arbeidType, that.arbeidType);

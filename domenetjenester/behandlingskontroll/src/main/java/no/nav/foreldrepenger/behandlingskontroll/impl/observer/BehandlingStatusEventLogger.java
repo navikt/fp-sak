@@ -22,7 +22,7 @@ public class BehandlingStatusEventLogger {
         Long fagsakId = event.getKontekst().getFagsakId();
 
         BehandlingStatus nyStatus = event.getNyStatus();
-        String kode = nyStatus==null?null:nyStatus.getKode();
+        String kode = nyStatus == null ? null : nyStatus.getKode();
         log.info("Behandling status oppdatert; behandlingId [{}]; fagsakId [{}]; status [{}]]", behandlingId, fagsakId, kode);
     }
 }

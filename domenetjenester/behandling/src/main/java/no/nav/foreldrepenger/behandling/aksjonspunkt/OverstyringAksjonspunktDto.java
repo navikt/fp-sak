@@ -15,7 +15,7 @@ import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.util.InputValideringRegex;
 
-@JsonAutoDetect(getterVisibility=Visibility.NONE, setterVisibility=Visibility.NONE, fieldVisibility=Visibility.ANY)
+@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
 public abstract class OverstyringAksjonspunktDto implements AksjonspunktKode, AbacDto, OverstyringAksjonspunkt {
@@ -26,7 +26,7 @@ public abstract class OverstyringAksjonspunktDto implements AksjonspunktKode, Ab
     private String begrunnelse;
 
     protected OverstyringAksjonspunktDto() { // NOSONAR
-        //For Jackson
+        // For Jackson
     }
 
     protected OverstyringAksjonspunktDto(String begrunnelse) { // NOSONAR
@@ -41,7 +41,7 @@ public abstract class OverstyringAksjonspunktDto implements AksjonspunktKode, Ab
     @Override
     public AbacDataAttributter abacAttributter() {
         return AbacDataAttributter.opprett()
-            .leggTil(AppAbacAttributtType.AKSJONSPUNKT_KODE, getKode());
+                .leggTil(AppAbacAttributtType.AKSJONSPUNKT_KODE, getKode());
     }
 
     @Override
@@ -49,6 +49,6 @@ public abstract class OverstyringAksjonspunktDto implements AksjonspunktKode, Ab
         if (this.getClass().isAnnotationPresent(JsonTypeName.class)) {
             return this.getClass().getDeclaredAnnotation(JsonTypeName.class).value();
         }
-        throw new IllegalStateException("Utvikler-feil:" +this.getClass().getSimpleName() +" er uten JsonTypeName annotation.");
+        throw new IllegalStateException("Utvikler-feil:" + this.getClass().getSimpleName() + " er uten JsonTypeName annotation.");
     }
 }

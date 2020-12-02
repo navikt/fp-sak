@@ -15,13 +15,13 @@ class SøknadsfristRegelOversetter {
 
     static SøknadsfristGrunnlag tilGrunnlag(SøknadEntitet søknad, List<OppgittPeriodeEntitet> oppgittePerioder) {
         var førsteUttaksdato = oppgittePerioder.stream()
-            .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
-            .map(o -> o.getFom())
-            .findFirst().orElseThrow(() -> new IllegalStateException("Prøver å kjøre søknadsfristregel uten oppgitte perioder"));
+                .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
+                .map(o -> o.getFom())
+                .findFirst().orElseThrow(() -> new IllegalStateException("Prøver å kjøre søknadsfristregel uten oppgitte perioder"));
 
         return SøknadsfristGrunnlag.builder()
-            .medSøknadMottattDato(søknad.getMottattDato())
-            .medFørsteUttaksdato(førsteUttaksdato)
-            .build();
+                .medSøknadMottattDato(søknad.getMottattDato())
+                .medFørsteUttaksdato(førsteUttaksdato)
+                .build();
     }
 }

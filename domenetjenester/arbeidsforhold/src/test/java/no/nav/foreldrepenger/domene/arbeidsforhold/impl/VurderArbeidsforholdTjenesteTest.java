@@ -109,8 +109,7 @@ public class VurderArbeidsforholdTjenesteTest {
 
         avsluttBehandlingOgFagsak(behandling);
 
-        @SuppressWarnings("unused")
-        var revurdering = opprettRevurderingsbehandling(behandling);
+        opprettRevurderingsbehandling(behandling);
 
         sendInnInntektsmelding(behandling, virksomhet, null, nåTid.plusSeconds(1));
 
@@ -154,8 +153,7 @@ public class VurderArbeidsforholdTjenesteTest {
 
         avsluttBehandlingOgFagsak(behandling);
 
-        @SuppressWarnings("unused")
-        var revurdering = opprettRevurderingsbehandling(behandling);
+        opprettRevurderingsbehandling(behandling);
 
         sendInnInntektsmelding(behandling, virksomhet, ref, nåTid);
 

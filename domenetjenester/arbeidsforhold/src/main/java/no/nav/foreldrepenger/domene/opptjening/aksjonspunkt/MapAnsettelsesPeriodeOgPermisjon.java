@@ -35,7 +35,8 @@ class MapAnsettelsesPeriodeOgPermisjon {
         return ansettelsesPerioder;
     }
 
-    private static Collection<AktivitetsAvtale> utledPerioder(YrkesaktivitetFilter filter, Yrkesaktivitet yrkesaktivitet, BekreftetPermisjon bekreftetPermisjon) {
+    private static Collection<AktivitetsAvtale> utledPerioder(YrkesaktivitetFilter filter, Yrkesaktivitet yrkesaktivitet,
+            BekreftetPermisjon bekreftetPermisjon) {
         DatoIntervallEntitet permisjonPeriode = bekreftetPermisjon.getPeriode();
         List<AktivitetsAvtale> justerteAnsettesesPerioder = new ArrayList<>();
         filter.getAnsettelsesPerioder(yrkesaktivitet).forEach(ap -> {
@@ -43,25 +44,23 @@ class MapAnsettelsesPeriodeOgPermisjon {
                 if (ap.getPeriode().getFomDato().isBefore(permisjonPeriode.getFomDato())) {
                     // legg til periode før permisjonen
                     DatoIntervallEntitet nyPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(
-                        ap.getPeriode().getFomDato(),
-                        permisjonPeriode.getFomDato().minusDays(1)
-                    );
+                            ap.getPeriode().getFomDato(),
+                            permisjonPeriode.getFomDato().minusDays(1));
                     AktivitetsAvtale nyAp = AktivitetsAvtaleBuilder.ny()
-                        .medBeskrivelse(ap.getBeskrivelse())
-                        .medPeriode(nyPeriode)
-                        .build();
+                            .medBeskrivelse(ap.getBeskrivelse())
+                            .medPeriode(nyPeriode)
+                            .build();
                     justerteAnsettesesPerioder.add(nyAp);
                 }
                 if (ap.getPeriode().getTomDato().isAfter(permisjonPeriode.getTomDato())) {
                     // legg til periode etter permisjonen
                     DatoIntervallEntitet nyPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(
-                        permisjonPeriode.getTomDato().plusDays(1),
-                        ap.getPeriode().getTomDato()
-                    );
+                            permisjonPeriode.getTomDato().plusDays(1),
+                            ap.getPeriode().getTomDato());
                     AktivitetsAvtale nyAp = AktivitetsAvtaleBuilder.ny()
-                        .medBeskrivelse(ap.getBeskrivelse())
-                        .medPeriode(nyPeriode)
-                        .build();
+                            .medBeskrivelse(ap.getBeskrivelse())
+                            .medPeriode(nyPeriode)
+                            .build();
                     justerteAnsettesesPerioder.add(nyAp);
                 }
             } else {

@@ -25,8 +25,6 @@ import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 public class Inntektsmelding extends BaseEntitet implements IndexKey {
 
-
-
     @ChangeTracked
     private List<Gradering> graderinger = new ArrayList<>();
 
@@ -213,7 +211,6 @@ public class Inntektsmelding extends BaseEntitet implements IndexKey {
         return Collections.unmodifiableList(naturalYtelser);
     }
 
-
     /**
      * Liste over utsettelse perioder
      *
@@ -229,7 +226,8 @@ public class Inntektsmelding extends BaseEntitet implements IndexKey {
      * @return {@link ArbeidsforholdRef}
      */
     public InternArbeidsforholdRef getArbeidsforholdRef() {
-        // Returnere NULL OBJECT slik at vi alltid har en ref (selv om den inneholder null).
+        // Returnere NULL OBJECT slik at vi alltid har en ref (selv om den inneholder
+        // null).
         // gjør enkelte sammenligninger (eks. gjelderFor) enklere.
         return arbeidsforholdRef != null ? arbeidsforholdRef : InternArbeidsforholdRef.nullRef();
     }
@@ -240,13 +238,13 @@ public class Inntektsmelding extends BaseEntitet implements IndexKey {
      * @return {@link Boolean}
      */
     public boolean gjelderForEtSpesifiktArbeidsforhold() {
-        return getArbeidsforholdRef() != null && getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold();
+        return (getArbeidsforholdRef() != null) && getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold();
     }
 
     public boolean gjelderSammeArbeidsforhold(Inntektsmelding annen) {
         return getArbeidsgiver().equals(annen.getArbeidsgiver())
-            && (getArbeidsforholdRef() == null || annen.getArbeidsforholdRef() == null
-                || (getArbeidsforholdRef() != null && getArbeidsforholdRef().gjelderFor(annen.getArbeidsforholdRef())));
+                && ((getArbeidsforholdRef() == null) || (annen.getArbeidsforholdRef() == null)
+                        || ((getArbeidsforholdRef() != null) && getArbeidsforholdRef().gjelderFor(annen.getArbeidsforholdRef())));
     }
 
     /**
@@ -255,7 +253,8 @@ public class Inntektsmelding extends BaseEntitet implements IndexKey {
      * @param arbeidsforholdRef Intern arbeidsforhold id
      */
     void setArbeidsforholdId(InternArbeidsforholdRef arbeidsforholdRef) {
-        this.arbeidsforholdRef = arbeidsforholdRef != null && !InternArbeidsforholdRef.nullRef().equals(arbeidsforholdRef) ? arbeidsforholdRef : null;
+        this.arbeidsforholdRef = (arbeidsforholdRef != null) && !InternArbeidsforholdRef.nullRef().equals(arbeidsforholdRef) ? arbeidsforholdRef
+                : null;
     }
 
     /**
@@ -311,7 +310,8 @@ public class Inntektsmelding extends BaseEntitet implements IndexKey {
     }
 
     /**
-     * Dersom refusjonen opphører i stønadsperioden angis siste dag det søkes om refusjon for.
+     * Dersom refusjonen opphører i stønadsperioden angis siste dag det søkes om
+     * refusjon for.
      *
      * @return {@link LocalDate}
      */
@@ -350,15 +350,16 @@ public class Inntektsmelding extends BaseEntitet implements IndexKey {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || !(o instanceof Inntektsmelding)) {
+        }
+        if ((o == null) || !(o instanceof Inntektsmelding)) {
             return false;
         }
         Inntektsmelding entitet = (Inntektsmelding) o;
         return Objects.equals(getArbeidsgiver(), entitet.getArbeidsgiver())
-            && Objects.equals(getArbeidsforholdRef(), entitet.getArbeidsforholdRef())
-            && Objects.equals(getJournalpostId(), entitet.getJournalpostId());
+                && Objects.equals(getArbeidsforholdRef(), entitet.getArbeidsforholdRef())
+                && Objects.equals(getJournalpostId(), entitet.getJournalpostId());
     }
 
     @Override
@@ -369,18 +370,18 @@ public class Inntektsmelding extends BaseEntitet implements IndexKey {
     @Override
     public String toString() {
         return "InntektsmeldingEntitet{" +
-            "virksomhet=" + arbeidsgiver +
-            ", arbeidsforholdId='" + arbeidsforholdRef + '\'' +
-            ", startDatoPermisjon=" + startDatoPermisjon +
-            ", nærRelasjon=" + nærRelasjon +
-            ", journalpostId=" + journalpostId +
-            ", inntektBeløp=" + inntektBeløp +
-            ", refusjonBeløpPerMnd=" + refusjonBeløpPerMnd +
-            ", refusjonOpphører=" + refusjonOpphører +
-            ", innsendingsårsak= " + innsendingsårsak +
-            ", innsendingstidspunkt= " + innsendingstidspunkt +
-            ", mottattDato = " + mottattDato +
-            '}';
+                "virksomhet=" + arbeidsgiver +
+                ", arbeidsforholdId='" + arbeidsforholdRef + '\'' +
+                ", startDatoPermisjon=" + startDatoPermisjon +
+                ", nærRelasjon=" + nærRelasjon +
+                ", journalpostId=" + journalpostId +
+                ", inntektBeløp=" + inntektBeløp +
+                ", refusjonBeløpPerMnd=" + refusjonBeløpPerMnd +
+                ", refusjonOpphører=" + refusjonOpphører +
+                ", innsendingsårsak= " + innsendingsårsak +
+                ", innsendingstidspunkt= " + innsendingstidspunkt +
+                ", mottattDato = " + mottattDato +
+                '}';
     }
 
     public FagsakYtelseType getFagsakYtelseType() {

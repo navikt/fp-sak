@@ -27,7 +27,7 @@ public class VirksomhetTjenesteTest {
     @Test
     public void skal_kalle_consumer_og_oversette_response(EntityManager entityManager) {
         // Arrange
-        IAYScenarioBuilder  scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.ENGANGSTØNAD);
+        IAYScenarioBuilder scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.ENGANGSTØNAD);
         scenario.lagre(new IAYRepositoryProvider(entityManager));
 
         var organisasjonConsumer = mock(OrganisasjonRestKlient.class);

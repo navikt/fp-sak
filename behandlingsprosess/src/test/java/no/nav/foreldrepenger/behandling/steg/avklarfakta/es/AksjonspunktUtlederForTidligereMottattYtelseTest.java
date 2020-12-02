@@ -52,9 +52,9 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         utleder = new AksjonspunktUtlederForTidligereMottattYtelse(
-            iayTjeneste,
-            new YtelserKonsolidertTjeneste(repositoryProvider),
-            new PersonopplysningRepository(getEntityManager()));
+                iayTjeneste,
+                new YtelserKonsolidertTjeneste(repositoryProvider),
+                new PersonopplysningRepository(getEntityManager()));
     }
 
     @Test
@@ -85,7 +85,8 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         Behandling behandling = byggBehandling(scenario, aktørId, annenAktørId);
 
-        leggTilYtelseForAktør(behandling, behandling.getAktørId(), RelatertYtelseType.FORELDREPENGER, LocalDate.now().minusMonths(15), LocalDate.now().minusMonths(5));
+        leggTilYtelseForAktør(behandling, behandling.getAktørId(), RelatertYtelseType.FORELDREPENGER, LocalDate.now().minusMonths(15),
+                LocalDate.now().minusMonths(5));
 
         // Act
         List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
@@ -103,7 +104,8 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         Behandling behandling = byggBehandling(scenario, aktørId, annenAktørId);
 
-        leggTilYtelseForAktør(behandling, behandling.getAktørId(), RelatertYtelseType.FORELDREPENGER, LocalDate.now().minusMonths(9), LocalDate.now().minusMonths(0));
+        leggTilYtelseForAktør(behandling, behandling.getAktørId(), RelatertYtelseType.FORELDREPENGER, LocalDate.now().minusMonths(9),
+                LocalDate.now().minusMonths(0));
 
         // Act
         List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
@@ -111,7 +113,7 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
         // Assert
         assertThat(aksjonspunktResultater).hasSize(1);
         assertThat(aksjonspunktResultater.get(0).getAksjonspunktDefinisjon())
-            .isEqualTo(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
+                .isEqualTo(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
     }
 
     @Test
@@ -126,7 +128,8 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         Behandling behandling = byggBehandling(scenario, aktørId, annenAktørId);
 
-        leggTilYtelseForAktør(behandling, behandling.getAktørId(), RelatertYtelseType.SYKEPENGER, LocalDate.now().minusMonths(5), LocalDate.now().minusMonths(4)); // For å
+        leggTilYtelseForAktør(behandling, behandling.getAktørId(), RelatertYtelseType.SYKEPENGER, LocalDate.now().minusMonths(5),
+                LocalDate.now().minusMonths(4)); // For å
 
         // Act
         List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
@@ -134,7 +137,7 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
         // Assert
         assertThat(aksjonspunktResultater).hasSize(1);
         assertThat(aksjonspunktResultater.get(0).getAksjonspunktDefinisjon())
-            .isEqualTo(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
+                .isEqualTo(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
     }
 
     @Test
@@ -146,7 +149,8 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         Behandling behandling = byggBehandling(scenario, aktørId, annenAktørId);
 
-        leggTilYtelseForAktør(behandling, behandling.getAktørId(), RelatertYtelseType.FORELDREPENGER, LocalDate.now().plusMonths(4), LocalDate.now().plusMonths(7));
+        leggTilYtelseForAktør(behandling, behandling.getAktørId(), RelatertYtelseType.FORELDREPENGER, LocalDate.now().plusMonths(4),
+                LocalDate.now().plusMonths(7));
 
         // Act
         List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
@@ -154,7 +158,7 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
         // Assert
         assertThat(aksjonspunktResultater).hasSize(1);
         assertThat(aksjonspunktResultater.get(0).getAksjonspunktDefinisjon())
-            .isEqualTo(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
+                .isEqualTo(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
     }
 
     @Test
@@ -168,7 +172,8 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
         scenario.medSøknadDato(LocalDate.now());
         Behandling behandling = byggBehandling(scenario, aktørId, annenAktørId);
 
-        leggTilYtelseForAktør(behandling, behandling.getAktørId(), RelatertYtelseType.ENGANGSSTØNAD, fødselsdato.plusWeeks(3), fødselsdato.plusWeeks(3));
+        leggTilYtelseForAktør(behandling, behandling.getAktørId(), RelatertYtelseType.ENGANGSSTØNAD, fødselsdato.plusWeeks(3),
+                fødselsdato.plusWeeks(3));
 
         // Act
         List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
@@ -176,7 +181,7 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
         // Assert
         assertThat(aksjonspunktResultater).hasSize(1);
         assertThat(aksjonspunktResultater.get(0).getAksjonspunktDefinisjon())
-            .isEqualTo(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
+                .isEqualTo(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
     }
 
     @Test
@@ -196,7 +201,7 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
         // Assert
         assertThat(aksjonspunktResultater).hasSize(1);
         assertThat(aksjonspunktResultater.get(0).getAksjonspunktDefinisjon())
-            .isEqualTo(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
+                .isEqualTo(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
     }
 
     @Test
@@ -226,7 +231,8 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         Behandling behandling = byggBehandling(scenario, aktørId, annenAktørId);
 
-        leggTilYtelseForAktør(behandling, annenAktørId, RelatertYtelseType.ENGANGSSTØNAD, LocalDate.now().minusMonths(2), LocalDate.now().minusMonths(2));
+        leggTilYtelseForAktør(behandling, annenAktørId, RelatertYtelseType.ENGANGSSTØNAD, LocalDate.now().minusMonths(2),
+                LocalDate.now().minusMonths(2));
 
         // Act
         List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
@@ -234,7 +240,7 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
         // Assert
         assertThat(aksjonspunktResultater).hasSize(1);
         assertThat(aksjonspunktResultater.get(0).getAksjonspunktDefinisjon())
-            .isEqualTo(AksjonspunktDefinisjon.AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE);
+                .isEqualTo(AksjonspunktDefinisjon.AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE);
     }
 
     @Test
@@ -243,11 +249,11 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
         AktørId aktørId = AktørId.dummy();
         AktørId annenAktørId = AktørId.dummy();
         var scenarioFar = ScenarioFarSøkerForeldrepenger.forFødsel();
-        @SuppressWarnings("unused")
-        Behandling behandlingFar = byggBehandling(scenarioFar, annenAktørId, aktørId);
+        byggBehandling(scenarioFar, annenAktørId, aktørId);
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         Behandling behandling = byggBehandling(scenario, aktørId, annenAktørId);
-        leggTilYtelseForAktør(behandling, behandling.getAktørId(), RelatertYtelseType.ENGANGSSTØNAD, LocalDate.now().minusYears(2), LocalDate.now().minusYears(2));
+        leggTilYtelseForAktør(behandling, behandling.getAktørId(), RelatertYtelseType.ENGANGSSTØNAD, LocalDate.now().minusYears(2),
+                LocalDate.now().minusYears(2));
 
         // Act
         List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
@@ -255,42 +261,42 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
         // Assert
         assertThat(aksjonspunktResultater).hasSize(1);
         assertThat(aksjonspunktResultater.get(0).getAksjonspunktDefinisjon())
-            .isEqualTo(AksjonspunktDefinisjon.AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE);
+                .isEqualTo(AksjonspunktDefinisjon.AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE);
     }
 
     private Behandling byggBehandling(AbstractTestScenario<?> scenario, AktørId aktørId, AktørId annenAktørId) {
         scenario.medBruker(aktørId)
-            .medSøknad().medMottattDato(LocalDate.now().minusWeeks(2));
+                .medSøknad().medMottattDato(LocalDate.now().minusWeeks(2));
         scenario.medSøknadAnnenPart().medAktørId(annenAktørId);
         return scenario.lagre(repositoryProvider);
     }
 
     private void leggTilYtelseForAktør(Behandling behandling,
-                                       AktørId aktørId,
-                                       RelatertYtelseType relatertYtelseType, LocalDate fom, LocalDate tom) {
+            AktørId aktørId,
+            RelatertYtelseType relatertYtelseType, LocalDate fom, LocalDate tom) {
 
         var aggregatBuilder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
         aggregatBuilder.leggTilAktørYtelse(AktørYtelseBuilder.oppdatere(Optional.empty()).medAktørId(aktørId)
-            .leggTilYtelse(YtelseBuilder.oppdatere(Optional.empty())
-                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom))
-                .medStatus(RelatertYtelseTilstand.AVSLUTTET)
-                .medYtelseType(relatertYtelseType)));
+                .leggTilYtelse(YtelseBuilder.oppdatere(Optional.empty())
+                        .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom))
+                        .medStatus(RelatertYtelseTilstand.AVSLUTTET)
+                        .medYtelseType(relatertYtelseType)));
         iayTjeneste.lagreIayAggregat(behandling.getId(), aggregatBuilder);
 
     }
 
     private void leggTilYtelseInntektForAktør(Long behandlingId,
-                                              AktørId aktørId, LocalDate tom) {
+            AktørId aktørId, LocalDate tom) {
 
         var iayAggregatBuilder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
         var aktørInntektBuilder = iayAggregatBuilder.getAktørInntektBuilder(aktørId);
         var inntektBuilder = aktørInntektBuilder
-            .getInntektBuilder(InntektsKilde.INNTEKT_OPPTJENING, new Opptjeningsnøkkel(null, null, aktørId.getId()));
+                .getInntektBuilder(InntektsKilde.INNTEKT_OPPTJENING, new Opptjeningsnøkkel(null, null, aktørId.getId()));
         var inntektspost = inntektBuilder.getInntektspostBuilder()
-            .medBeløp(BigDecimal.TEN)
-            .medPeriode(tom.minusMonths(1), tom)
-            .medInntektspostType(InntektspostType.YTELSE)
-            .medYtelse(OffentligYtelseType.FORELDREPENGER);
+                .medBeløp(BigDecimal.TEN)
+                .medPeriode(tom.minusMonths(1), tom)
+                .medInntektspostType(InntektspostType.YTELSE)
+                .medYtelse(OffentligYtelseType.FORELDREPENGER);
 
         inntektBuilder.leggTilInntektspost(inntektspost);
         aktørInntektBuilder.leggTilInntekt(inntektBuilder);

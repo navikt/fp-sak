@@ -29,7 +29,7 @@ public class RevurderingHistorikk {
         this.historikkRepository = historikkRepository;
     }
 
-    public void opprettHistorikkinnslagOmRevurdering(Behandling behandling,BehandlingÅrsakType revurderingÅrsak, boolean manueltOpprettet) {
+    public void opprettHistorikkinnslagOmRevurdering(Behandling behandling, BehandlingÅrsakType revurderingÅrsak, boolean manueltOpprettet) {
         if (BehandlingÅrsakType.BERØRT_BEHANDLING.equals(revurderingÅrsak)) {
             return;
         }
@@ -41,8 +41,8 @@ public class RevurderingHistorikk {
         revurderingsInnslag.setType(HistorikkinnslagType.REVURD_OPPR);
         revurderingsInnslag.setAktør(historikkAktør);
         HistorikkInnslagTekstBuilder historiebygger = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.REVURD_OPPR)
-            .medBegrunnelse(revurderingÅrsak);
+                .medHendelse(HistorikkinnslagType.REVURD_OPPR)
+                .medBegrunnelse(revurderingÅrsak);
         historiebygger.build(revurderingsInnslag);
 
         historikkRepository.lagre(revurderingsInnslag);
@@ -58,26 +58,25 @@ public class RevurderingHistorikk {
         String fødselsdatoVerdi;
         if (barnFødtIPeriode.size() > 1) {
             SortedSet<LocalDate> fødselsdatoer = new TreeSet<>(
-                barnFødtIPeriode.stream().map(FødtBarnInfo::getFødselsdato).collect(Collectors.toSet()));
+                    barnFødtIPeriode.stream().map(FødtBarnInfo::getFødselsdato).collect(Collectors.toSet()));
             fødselsdatoVerdi = fødselsdatoer.stream().map(dateFormat::format).collect(Collectors.joining(", "));
         } else {
             fødselsdatoVerdi = dateFormat.format(barnFødtIPeriode.get(0).getFødselsdato());
         }
         HistorikkInnslagTekstBuilder historieBuilder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.NY_INFO_FRA_TPS)
-            .medOpplysning(HistorikkOpplysningType.FODSELSDATO, fødselsdatoVerdi)
-            .medOpplysning(HistorikkOpplysningType.TPS_ANTALL_BARN, barnFødtIPeriode.size());
+                .medHendelse(HistorikkinnslagType.NY_INFO_FRA_TPS)
+                .medOpplysning(HistorikkOpplysningType.FODSELSDATO, fødselsdatoVerdi)
+                .medOpplysning(HistorikkOpplysningType.TPS_ANTALL_BARN, barnFødtIPeriode.size());
         historieBuilder.build(fødselInnslag);
         historikkRepository.lagre(fødselInnslag);
 
     }
 
-
     public void opprettHistorikkinnslagForVenteFristRelaterteInnslag(Long behandlingId,
-                                                                      Long fagsakId,
-                                                                      HistorikkinnslagType historikkinnslagType,
-                                                                      LocalDateTime fristTid,
-                                                                      Venteårsak venteårsak) {
+            Long fagsakId,
+            HistorikkinnslagType historikkinnslagType,
+            LocalDateTime fristTid,
+            Venteårsak venteårsak) {
         HistorikkInnslagTekstBuilder builder = new HistorikkInnslagTekstBuilder();
         if (fristTid != null) {
             builder.medHendelse(historikkinnslagType, fristTid.toLocalDate());

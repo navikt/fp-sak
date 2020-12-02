@@ -47,7 +47,8 @@ public class VarselRevurderingStegImpl implements VarselRevurderingSteg {
         Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
 
         if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
-            TransisjonIdentifikator transisjon = TransisjonIdentifikator.forId(FellesTransisjoner.SPOLFREM_PREFIX + BehandlingStegType.KONTROLLER_FAKTA.getKode());
+            TransisjonIdentifikator transisjon = TransisjonIdentifikator
+                    .forId(FellesTransisjoner.SPOLFREM_PREFIX + BehandlingStegType.KONTROLLER_FAKTA.getKode());
             return BehandleStegResultat.fremoverførtMedAksjonspunktResultater(transisjon, Collections.emptyList());
         }
 
@@ -60,14 +61,15 @@ public class VarselRevurderingStegImpl implements VarselRevurderingSteg {
         }
 
         if (behandling.harBehandlingÅrsak(RE_AVVIK_ANTALL_BARN) || behandling.harBehandlingÅrsak(RE_MANGLER_FØDSEL_I_PERIODE)) {
-            // Svært få tilfelle. Slipper videre til SJEKK MANGLENDE FØDSEL så kan man sjekke ettersendt dokumentasjon før man sender brev
+            // Svært få tilfelle. Slipper videre til SJEKK MANGLENDE FØDSEL så kan man
+            // sjekke ettersendt dokumentasjon før man sender brev
             // Det skal ikke sendes automatisk brev i disse tilfellene
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
 
         if (behandling.harBehandlingÅrsak(RE_MANGLER_FØDSEL)) {
             var resultat = AksjonspunktResultat.opprettForAksjonspunktMedFrist(AUTO_SATT_PÅ_VENT_REVURDERING, Venteårsak.AVV_DOK,
-                LocalDateTime.now().plus(AUTO_SATT_PÅ_VENT_REVURDERING.getFristPeriod()));
+                    LocalDateTime.now().plus(AUTO_SATT_PÅ_VENT_REVURDERING.getFristPeriod()));
             return BehandleStegResultat.utførtMedAksjonspunktResultater(Collections.singletonList(resultat));
         }
 

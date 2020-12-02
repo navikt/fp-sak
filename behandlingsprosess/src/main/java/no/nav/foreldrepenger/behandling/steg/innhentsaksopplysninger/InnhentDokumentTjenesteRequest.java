@@ -18,8 +18,8 @@ public class InnhentDokumentTjenesteRequest {
     private Clob payloadXml;
 
     InnhentDokumentTjenesteRequest(Long fagsakId, JournalpostId journalpostId, BehandlingTema behandlingTema,
-                                   DokumentTypeId dokumentTypeId, LocalDate forsendelseMottatt,
-                                   Boolean elektroniskSøknad, Clob payloadXml) {
+            DokumentTypeId dokumentTypeId, LocalDate forsendelseMottatt,
+            Boolean elektroniskSøknad, Clob payloadXml) {
 
         Objects.requireNonNull(forsendelseMottatt, "forsendelseMottatt");
         Objects.requireNonNull(behandlingTema, "behandlingTema");
@@ -110,7 +110,8 @@ public class InnhentDokumentTjenesteRequest {
         }
 
         public InnhentDokumentTjenesteRequest build() {
-            return new InnhentDokumentTjenesteRequest(fagsakId, journalpostId, behandlingTema, dokumentTypeId, forsendelseMottatt, elektroniskSøknad, payloadXml);
+            return new InnhentDokumentTjenesteRequest(fagsakId, journalpostId, behandlingTema, dokumentTypeId, forsendelseMottatt, elektroniskSøknad,
+                    payloadXml);
         }
     }
 }

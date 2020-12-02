@@ -31,7 +31,7 @@ public abstract class KontrollerFaktaTjenesteInngangsVilkår implements Kontroll
     }
 
     protected KontrollerFaktaTjenesteInngangsVilkår(KontrollerFaktaUtledere utlederTjeneste,
-                                                    BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
+            BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
         this.utlederTjeneste = utlederTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
     }
@@ -50,30 +50,32 @@ public abstract class KontrollerFaktaTjenesteInngangsVilkår implements Kontroll
     @Override
     public List<AksjonspunktResultat> utledAksjonspunkterFomSteg(BehandlingReferanse ref, BehandlingStegType steg) {
         return utledAksjonspunkter(ref).stream()
-            .filter(ap -> skalBeholdeAksjonspunkt(ref, steg, ap.getAksjonspunktDefinisjon()))
-            .collect(Collectors.toList());
+                .filter(ap -> skalBeholdeAksjonspunkt(ref, steg, ap.getAksjonspunktDefinisjon()))
+                .collect(Collectors.toList());
     }
 
     @Override
     public boolean skalOverstyringLøsesTilHøyreForStartpunkt(BehandlingReferanse ref, StartpunktType startpunktType, AksjonspunktDefinisjon apDef) {
         return behandlingskontrollTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(
-            ref.getFagsakYtelseType(), ref.getBehandlingType(), startpunktType.getBehandlingSteg(), apDef);
+                ref.getFagsakYtelseType(), ref.getBehandlingType(), startpunktType.getBehandlingSteg(), apDef);
     }
 
-    private List<AksjonspunktResultat> filtrerAksjonspunkterTilVenstreForStartpunkt(BehandlingReferanse referanse, List<AksjonspunktResultat> aksjonspunktResultat,
-                                                                                    StartpunktType startpunkt) {
-        // Fjerner aksjonspunkter som ikke skal løses i eller etter steget som følger av startpunktet:
+    private List<AksjonspunktResultat> filtrerAksjonspunkterTilVenstreForStartpunkt(BehandlingReferanse referanse,
+            List<AksjonspunktResultat> aksjonspunktResultat,
+            StartpunktType startpunkt) {
+        // Fjerner aksjonspunkter som ikke skal løses i eller etter steget som følger av
+        // startpunktet:
         return aksjonspunktResultat.stream()
-            .filter(ap -> skalBeholdeAksjonspunkt(referanse, startpunkt.getBehandlingSteg(), ap.getAksjonspunktDefinisjon()))
-            .collect(Collectors.toList());
+                .filter(ap -> skalBeholdeAksjonspunkt(referanse, startpunkt.getBehandlingSteg(), ap.getAksjonspunktDefinisjon()))
+                .collect(Collectors.toList());
     }
 
     private boolean skalBeholdeAksjonspunkt(BehandlingReferanse ref, BehandlingStegType steg, AksjonspunktDefinisjon apDef) {
         boolean skalBeholde = behandlingskontrollTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(
-            ref.getFagsakYtelseType(), ref.getBehandlingType(), steg, apDef);
+                ref.getFagsakYtelseType(), ref.getBehandlingType(), steg, apDef);
         if (!skalBeholde) {
             logger.debug("Fjerner aksjonspunkt {} da det skal løses før startsteg {}.",
-                apDef.getKode(), steg.getKode()); // NOSONAR
+                    apDef.getKode(), steg.getKode()); // NOSONAR
         }
         return skalBeholde;
     }
@@ -85,7 +87,7 @@ public abstract class KontrollerFaktaTjenesteInngangsVilkår implements Kontroll
             aksjonspunktResultater.addAll(aksjonspunktUtleder.utledAksjonspunkterFor(new AksjonspunktUtlederInput(ref)));
         }
         return aksjonspunktResultater.stream()
-            .distinct() // Unngå samme aksjonspunkt flere multipliser
-            .collect(toList());
+                .distinct() // Unngå samme aksjonspunkt flere multipliser
+                .collect(toList());
     }
 }

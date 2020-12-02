@@ -55,7 +55,8 @@ public class BehandlingskontrollEventObserver {
         }
     }
 
-    // Lytter på AksjonspunkterFunnetEvent, filtrer ut når behandling er satt manuelt på vent og legger melding på kafka
+    // Lytter på AksjonspunkterFunnetEvent, filtrer ut når behandling er satt
+    // manuelt på vent og legger melding på kafka
     public void observerAksjonspunkterFunnetEvent(@Observes AksjonspunktStatusEvent event) {
         if (event.getAksjonspunkter().stream().anyMatch(e -> e.erOpprettet() && AUTO_MANUELT_SATT_PÅ_VENT.equals(e.getAksjonspunktDefinisjon()))) {
             try {
@@ -110,22 +111,23 @@ public class BehandlingskontrollEventObserver {
     private BehandlingProsessEventDto getProduksjonstyringEventDto(EventHendelse eventHendelse, Behandling behandling) {
         Map<String, String> aksjonspunktKoderMedStatusListe = new HashMap<>();
 
-        behandling.getAksjonspunkter().forEach(aksjonspunkt -> aksjonspunktKoderMedStatusListe.put(aksjonspunkt.getAksjonspunktDefinisjon().getKode(), aksjonspunkt.getStatus().getKode()));
+        behandling.getAksjonspunkter().forEach(aksjonspunkt -> aksjonspunktKoderMedStatusListe.put(aksjonspunkt.getAksjonspunktDefinisjon().getKode(),
+                aksjonspunkt.getStatus().getKode()));
 
         return BehandlingProsessEventDto.builder()
-            .medFagsystem("FPSAK")
-            .medBehandlingId(behandling.getId())
-            .medSaksnummer(behandling.getFagsak().getSaksnummer().getVerdi())
-            .medAktørId(behandling.getAktørId().getId())
-            .medEventHendelse(eventHendelse)
-            .medBehandlinStatus(behandling.getStatus().getKode())
-            .medBehandlingSteg(behandling.getAktivtBehandlingSteg() == null ? null : behandling.getAktivtBehandlingSteg().getKode())
-            .medBehandlendeEnhet(behandling.getBehandlendeEnhet())
-            .medYtelseTypeKode(behandling.getFagsakYtelseType().getKode())
-            .medBehandlingTypeKode(behandling.getType().getKode())
-            .medOpprettetBehandling(behandling.getOpprettetDato())
-            .medAksjonspunktKoderMedStatusListe(aksjonspunktKoderMedStatusListe)
-            .medEksternId(behandling.getUuid())
-            .build();
+                .medFagsystem("FPSAK")
+                .medBehandlingId(behandling.getId())
+                .medSaksnummer(behandling.getFagsak().getSaksnummer().getVerdi())
+                .medAktørId(behandling.getAktørId().getId())
+                .medEventHendelse(eventHendelse)
+                .medBehandlinStatus(behandling.getStatus().getKode())
+                .medBehandlingSteg(behandling.getAktivtBehandlingSteg() == null ? null : behandling.getAktivtBehandlingSteg().getKode())
+                .medBehandlendeEnhet(behandling.getBehandlendeEnhet())
+                .medYtelseTypeKode(behandling.getFagsakYtelseType().getKode())
+                .medBehandlingTypeKode(behandling.getType().getKode())
+                .medOpprettetBehandling(behandling.getOpprettetDato())
+                .medAksjonspunktKoderMedStatusListe(aksjonspunktKoderMedStatusListe)
+                .medEksternId(behandling.getUuid())
+                .build();
     }
 }

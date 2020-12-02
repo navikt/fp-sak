@@ -9,7 +9,6 @@ public class BehandlingEnhetEvent implements BehandlingEvent {
     private Long behandlingId;
     private AktørId aktørId;
 
-
     public BehandlingEnhetEvent(Behandling behandling) {
         this.fagsakId = behandling.getFagsakId();
         this.behandlingId = behandling.getId();

@@ -25,7 +25,7 @@ public abstract class RevurderingEndringBasertPåKonsekvenserForYtelsen implemen
         Behandlingsresultat behandlingsresultat = behandling.getBehandlingsresultat();
         List<KonsekvensForYtelsen> konsekvenserForYtelsen = behandlingsresultat.getKonsekvenserForYtelsen();
         boolean ingenKonsekvensForYtelsen = konsekvenserForYtelsen.contains(KonsekvensForYtelsen.INGEN_ENDRING);
-        if (ingenKonsekvensForYtelsen && konsekvenserForYtelsen.size() > 1) {
+        if (ingenKonsekvensForYtelsen && (konsekvenserForYtelsen.size() > 1)) {
             throw new IllegalStateException(UTVIKLERFEIL_INGEN_ENDRING_SAMMEN + behandling.getId());
         }
         return ingenKonsekvensForYtelsen;

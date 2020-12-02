@@ -21,12 +21,12 @@ class RyddFaktaUttakTjenesteFørstegangsbehandling {
     }
 
     RyddFaktaUttakTjenesteFørstegangsbehandling() {
-        //CDI
+        // CDI
     }
 
     void ryddVedHoppOverBakover(BehandlingskontrollKontekst kontekst) {
         yfBuilder(kontekst.getBehandlingId(), ytelsesFordelingRepository).ifPresent(builder -> {
-            //Om annen forelder har rett avklares bare i førstegangsbehandling
+            // Om annen forelder har rett avklares bare i førstegangsbehandling
             builder.medPerioderAnnenforelderHarRett(null);
             lagre(kontekst, builder);
         });
@@ -35,17 +35,18 @@ class RyddFaktaUttakTjenesteFørstegangsbehandling {
     private void lagre(BehandlingskontrollKontekst kontekst, YtelseFordelingAggregat.Builder builder) {
         ytelsesFordelingRepository.lagre(kontekst.getBehandlingId(), builder.build());
     }
+
     static Optional<YtelseFordelingAggregat.Builder> yfBuilder(Long behandlingId, YtelsesFordelingRepository ytelsesFordelingRepository) {
         var opprinnelig = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId);
         if (opprinnelig.isEmpty()) {
             return Optional.empty();
         }
         return Optional.of(YtelseFordelingAggregat.Builder.oppdatere(opprinnelig)
-            .medPerioderUttakDokumentasjon(null)
-            .medOverstyrtFordeling(null)
-            .medAvklarteDatoer(new AvklarteUttakDatoerEntitet.Builder(opprinnelig.get().getAvklarteDatoer())
-                .medJustertEndringsdato(null)
-                .build()));
+                .medPerioderUttakDokumentasjon(null)
+                .medOverstyrtFordeling(null)
+                .medAvklarteDatoer(new AvklarteUttakDatoerEntitet.Builder(opprinnelig.get().getAvklarteDatoer())
+                        .medJustertEndringsdato(null)
+                        .build()));
     }
 
 }

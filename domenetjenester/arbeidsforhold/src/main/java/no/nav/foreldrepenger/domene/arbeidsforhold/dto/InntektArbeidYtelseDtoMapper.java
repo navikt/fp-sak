@@ -44,9 +44,9 @@ public class InntektArbeidYtelseDtoMapper {
 
     @Inject
     public InntektArbeidYtelseDtoMapper(ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste,
-                                        YtelserKonsolidertTjeneste ytelseTjeneste,
-                                        InntektsmeldingTjeneste inntektsmeldingTjeneste,
-                                        VirksomhetTjeneste virksomhetTjeneste) {
+            YtelserKonsolidertTjeneste ytelseTjeneste,
+            InntektsmeldingTjeneste inntektsmeldingTjeneste,
+            VirksomhetTjeneste virksomhetTjeneste) {
 
         this.arbeidsforholdAdministrasjonTjeneste = arbeidsforholdAdministrasjonTjeneste;
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
@@ -54,7 +54,8 @@ public class InntektArbeidYtelseDtoMapper {
         this.ytelseTjeneste = ytelseTjeneste;
     }
 
-    public InntektArbeidYtelseDto mapFra(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag, SakInntektsmeldinger sakInntektsmeldinger, Optional<AktørId> aktørIdAnnenPart, UtledArbeidsforholdParametere param) {
+    public InntektArbeidYtelseDto mapFra(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag, SakInntektsmeldinger sakInntektsmeldinger,
+            Optional<AktørId> aktørIdAnnenPart, UtledArbeidsforholdParametere param) {
         InntektArbeidYtelseDto dto = new InntektArbeidYtelseDto();
         mapRelaterteYtelser(dto, ref, iayGrunnlag, aktørIdAnnenPart);
 
@@ -66,8 +67,10 @@ public class InntektArbeidYtelseDtoMapper {
         return dto;
     }
 
-    private void mapArbeidsforhold(InntektArbeidYtelseDto dto, BehandlingReferanse ref, UtledArbeidsforholdParametere param, InntektArbeidYtelseGrunnlag iayGrunnlag, SakInntektsmeldinger sakInntektsmeldinger) {
-        Set<ArbeidsforholdWrapper> arbeidsforholdSet = arbeidsforholdAdministrasjonTjeneste.hentArbeidsforholdFerdigUtledet(ref, iayGrunnlag, sakInntektsmeldinger, param);
+    private void mapArbeidsforhold(InntektArbeidYtelseDto dto, BehandlingReferanse ref, UtledArbeidsforholdParametere param,
+            InntektArbeidYtelseGrunnlag iayGrunnlag, SakInntektsmeldinger sakInntektsmeldinger) {
+        Set<ArbeidsforholdWrapper> arbeidsforholdSet = arbeidsforholdAdministrasjonTjeneste.hentArbeidsforholdFerdigUtledet(ref, iayGrunnlag,
+                sakInntektsmeldinger, param);
         dto.setSkalKunneLeggeTilNyeArbeidsforhold(skalKunneLeggeTilNyeArbeidsforhold(arbeidsforholdSet));
         dto.setSkalKunneLageArbeidsforholdBasrtPåInntektsmelding(skalKunneLageArbeidsforholdFraInntektsmelding(arbeidsforholdSet));
         dto.setArbeidsforhold(arbeidsforholdSet.stream().map(this::mapArbeidsforhold).collect(Collectors.toList()));
@@ -81,10 +84,10 @@ public class InntektArbeidYtelseDtoMapper {
         ArbeidsforholdDto arbeidsforholdDto = new ArbeidsforholdDto();
         arbeidsforholdDto.setId(lagId(wrapper));
         arbeidsforholdDto.setFomDato(wrapper.getFomDato());
-        arbeidsforholdDto.setTomDato(wrapper.getTomDato() != null && wrapper.getTomDato().equals(Tid.TIDENES_ENDE) ? null : wrapper.getTomDato());
+        arbeidsforholdDto.setTomDato((wrapper.getTomDato() != null) && wrapper.getTomDato().equals(Tid.TIDENES_ENDE) ? null : wrapper.getTomDato());
         mapArbeidsgiverIdentifikator(wrapper, arbeidsforholdDto);
         arbeidsforholdDto.setBrukArbeidsforholdet(wrapper.getBrukArbeidsforholdet());
-        if (wrapper.getBrukArbeidsforholdet() != null && wrapper.getBrukArbeidsforholdet()) {
+        if ((wrapper.getBrukArbeidsforholdet() != null) && wrapper.getBrukArbeidsforholdet()) {
             arbeidsforholdDto.setErNyttArbeidsforhold(wrapper.getErNyttArbeidsforhold());
             arbeidsforholdDto.setFortsettBehandlingUtenInntektsmelding(wrapper.getFortsettBehandlingUtenInntektsmelding());
         }
@@ -118,7 +121,8 @@ public class InntektArbeidYtelseDtoMapper {
         if (arbeidsforholdSet.isEmpty()) {
             return true;
         }
-        return arbeidsforholdSet.stream().anyMatch(wrapper -> Objects.equals(wrapper.getHandlingType(), ArbeidsforholdHandlingType.LAGT_TIL_AV_SAKSBEHANDLER));
+        return arbeidsforholdSet.stream()
+                .anyMatch(wrapper -> Objects.equals(wrapper.getHandlingType(), ArbeidsforholdHandlingType.LAGT_TIL_AV_SAKSBEHANDLER));
     }
 
     private void mapArbeidsgiverIdentifikator(ArbeidsforholdWrapper wrapper, ArbeidsforholdDto arbeidsforholdDto) {
@@ -133,20 +137,22 @@ public class InntektArbeidYtelseDtoMapper {
         LocalDate dato = ref.getUtledetSkjæringstidspunkt();
         List<Inntektsmelding> inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(ref.getAktørId(), dato, iayGrunnlag);
         return inntektsmeldinger.stream()
-            .map(inntektsmelding -> {
-                Optional<Virksomhet> virksomhet = virksomhetTjeneste.finnOrganisasjon(inntektsmelding.getArbeidsgiver().getOrgnr());
-                return new InntektsmeldingDto(inntektsmelding, virksomhet);
-            })
-            .collect(Collectors.toList());
+                .map(inntektsmelding -> {
+                    Optional<Virksomhet> virksomhet = virksomhetTjeneste.finnOrganisasjon(inntektsmelding.getArbeidsgiver().getOrgnr());
+                    return new InntektsmeldingDto(inntektsmelding, virksomhet);
+                })
+                .collect(Collectors.toList());
     }
 
-    private void mapRelaterteYtelser(InntektArbeidYtelseDto dto, BehandlingReferanse ref, InntektArbeidYtelseGrunnlag grunnlag, Optional<AktørId> aktørIdAnnenPart) {
+    private void mapRelaterteYtelser(InntektArbeidYtelseDto dto, BehandlingReferanse ref, InntektArbeidYtelseGrunnlag grunnlag,
+            Optional<AktørId> aktørIdAnnenPart) {
         dto.setRelatertTilgrensendeYtelserForSoker(mapTilDtoSøker(hentRelaterteYtelser(grunnlag, ref.getAktørId())));
         aktørIdAnnenPart.ifPresent(annenPartAktørId -> {
             List<TilgrensendeYtelserDto> hentRelaterteYtelser = hentRelaterteYtelserAnnenPart(grunnlag, annenPartAktørId);
             List<RelaterteYtelserDto> relaterteYtelser = mapTilDtoAnnenPart(hentRelaterteYtelser);
             dto.setRelatertTilgrensendeYtelserForAnnenForelder(relaterteYtelser);
-            // TODO Termitt. Trengs denne måten å skille på? For å evt. få til dette må det filtreres her etter at det hentes.(bare innvilget)
+            // TODO Termitt. Trengs denne måten å skille på? For å evt. få til dette må det
+            // filtreres her etter at det hentes.(bare innvilget)
             dto.setInnvilgetRelatertTilgrensendeYtelserForAnnenForelder(relaterteYtelser);
         });
     }

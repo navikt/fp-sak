@@ -30,7 +30,7 @@ public final class SerialiseringUtil {
             throw HistorikkFeil.FACTORY.klarteIkkeDeserialisere(klassetype.getName(), e).toException();
         }
     }
-    
+
     private SerialiseringUtil() {
         // util class
     }

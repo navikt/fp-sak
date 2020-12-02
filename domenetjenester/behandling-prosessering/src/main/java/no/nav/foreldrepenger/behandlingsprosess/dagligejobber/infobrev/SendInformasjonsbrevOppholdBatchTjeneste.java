@@ -28,7 +28,8 @@ public class SendInformasjonsbrevOppholdBatchTjeneste implements BatchTjeneste {
     private ProsessTaskRepository prosessTaskRepository;
 
     @Inject
-    public SendInformasjonsbrevOppholdBatchTjeneste(InformasjonssakRepository informasjonssakRepository, ProsessTaskRepository prosessTaskRepository) {
+    public SendInformasjonsbrevOppholdBatchTjeneste(InformasjonssakRepository informasjonssakRepository,
+            ProsessTaskRepository prosessTaskRepository) {
         this.informasjonssakRepository = informasjonssakRepository;
         this.prosessTaskRepository = prosessTaskRepository;
     }
@@ -41,7 +42,8 @@ public class SendInformasjonsbrevOppholdBatchTjeneste implements BatchTjeneste {
     @Override
     public String launch(BatchArguments arguments) {
         SendInformasjonsbrevBatchArguments batchArguments = (SendInformasjonsbrevBatchArguments) arguments; // NOSONAR
-        List<InformasjonssakData> saker = informasjonssakRepository.finnSakerMedMinsteInnvilgetOppholdperiodeInnenIntervall(batchArguments.getFom(), batchArguments.getTom());
+        List<InformasjonssakData> saker = informasjonssakRepository.finnSakerMedMinsteInnvilgetOppholdperiodeInnenIntervall(batchArguments.getFom(),
+                batchArguments.getTom());
         LocalTime baseline = LocalTime.now();
         saker.forEach(sak -> {
             log.info("Oppretter informasjonssak-task for {}", sak.getAktørId().getId());

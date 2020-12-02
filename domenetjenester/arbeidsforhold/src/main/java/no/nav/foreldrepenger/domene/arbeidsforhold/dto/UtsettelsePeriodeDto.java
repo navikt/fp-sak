@@ -9,15 +9,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.domene.iay.modell.UtsettelsePeriode;
 
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility=Visibility.ANY)
+@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public class UtsettelsePeriodeDto {
-    
+
     @JsonProperty("fom")
     private LocalDate fom;
-    
+
     @JsonProperty("tom")
     private LocalDate tom;
-    
+
     @JsonProperty("utsettelseArsak")
     private UtsettelseÅrsak utsettelseÅrsak;
 

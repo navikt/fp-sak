@@ -12,8 +12,8 @@ public class InntektsmeldingSomIkkeKommer {
     private InternArbeidsforholdRef internRef;
 
     public InntektsmeldingSomIkkeKommer(Arbeidsgiver arbeidsgiver,
-                                        InternArbeidsforholdRef internRef,
-                                        @SuppressWarnings("unused") EksternArbeidsforholdRef eksternRef // NOSONAR
+            InternArbeidsforholdRef internRef,
+            @SuppressWarnings("unused") EksternArbeidsforholdRef eksternRef // NOSONAR
     ) {
         this.arbeidsgiver = arbeidsgiver;
         this.internRef = internRef;
@@ -29,13 +29,15 @@ public class InntektsmeldingSomIkkeKommer {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if ((o == null) || (getClass() != o.getClass())) {
             return false;
+        }
         InntektsmeldingSomIkkeKommer that = (InntektsmeldingSomIkkeKommer) o;
         return Objects.equals(arbeidsgiver, that.arbeidsgiver)
-            && Objects.equals(internRef, that.internRef);
+                && Objects.equals(internRef, that.internRef);
     }
 
     @Override
@@ -46,8 +48,8 @@ public class InntektsmeldingSomIkkeKommer {
     @Override
     public String toString() {
         return "InntektsmeldingSomIkkeKommer{" +
-            "arbeidsgiver=" + arbeidsgiver +
-            ", internRef=" + internRef +
-            '}';
+                "arbeidsgiver=" + arbeidsgiver +
+                ", internRef=" + internRef +
+                '}';
     }
 }

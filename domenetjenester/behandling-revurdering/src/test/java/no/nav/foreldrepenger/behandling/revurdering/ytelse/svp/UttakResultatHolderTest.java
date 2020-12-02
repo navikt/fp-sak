@@ -35,17 +35,17 @@ public class UttakResultatHolderTest {
     public void skal_returnere_true_når_alle_arbeidsforholdene_er_avslått() {
         // Arrange
         SvangerskapspengerUttakResultatArbeidsforholdEntitet arbeidsforhold1 = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder()
-            .medArbeidsforholdIkkeOppfyltÅrsak(ArbeidsforholdIkkeOppfyltÅrsak.UTTAK_KUN_PÅ_HELG)
-            .build();
+                .medArbeidsforholdIkkeOppfyltÅrsak(ArbeidsforholdIkkeOppfyltÅrsak.UTTAK_KUN_PÅ_HELG)
+                .build();
         SvangerskapspengerUttakResultatArbeidsforholdEntitet arbeidsforhold2 = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder()
-            .medArbeidsforholdIkkeOppfyltÅrsak(ArbeidsforholdIkkeOppfyltÅrsak.ARBEIDSGIVER_KAN_TILRETTELEGGE)
-            .build();
+                .medArbeidsforholdIkkeOppfyltÅrsak(ArbeidsforholdIkkeOppfyltÅrsak.ARBEIDSGIVER_KAN_TILRETTELEGGE)
+                .build();
 
         SvangerskapspengerUttakResultatEntitet uttakResultat = new SvangerskapspengerUttakResultatEntitet.Builder(
-            mock(Behandlingsresultat.class))
-            .medUttakResultatArbeidsforhold(arbeidsforhold1)
-            .medUttakResultatArbeidsforhold(arbeidsforhold2)
-            .build();
+                mock(Behandlingsresultat.class))
+                        .medUttakResultatArbeidsforhold(arbeidsforhold1)
+                        .medUttakResultatArbeidsforhold(arbeidsforhold2)
+                        .build();
         UttakResultatHolderSVP uttakResultatHolder = new UttakResultatHolderSVP(Optional.of(uttakResultat), null);
 
         // Act
@@ -59,25 +59,25 @@ public class UttakResultatHolderTest {
     public void skal_sjekke_siste_periode_pr_arbeidsforhold_for_spesifikke_avslagsårsaker_og_gi_true_ved_funn() {
         // Arrange
         SvangerskapspengerUttakResultatArbeidsforholdEntitet arbeidsforhold1 = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder()
-            .medArbeidsforholdIkkeOppfyltÅrsak(ArbeidsforholdIkkeOppfyltÅrsak.INGEN)
-            .medPeriode(opprettPeriode(LocalDate.now().minusDays(10), LocalDate.now().minusDays(5),
-                PeriodeIkkeOppfyltÅrsak._8304)) // Er ikke siste
-            .medPeriode(opprettPeriode(LocalDate.now().minusDays(4), LocalDate.now().minusDays(1),
-                PeriodeIkkeOppfyltÅrsak.INGEN))
-            .build();
+                .medArbeidsforholdIkkeOppfyltÅrsak(ArbeidsforholdIkkeOppfyltÅrsak.INGEN)
+                .medPeriode(opprettPeriode(LocalDate.now().minusDays(10), LocalDate.now().minusDays(5),
+                        PeriodeIkkeOppfyltÅrsak._8304)) // Er ikke siste
+                .medPeriode(opprettPeriode(LocalDate.now().minusDays(4), LocalDate.now().minusDays(1),
+                        PeriodeIkkeOppfyltÅrsak.INGEN))
+                .build();
         SvangerskapspengerUttakResultatArbeidsforholdEntitet arbeidsforhold2 = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder()
-            .medArbeidsforholdIkkeOppfyltÅrsak(ArbeidsforholdIkkeOppfyltÅrsak.ARBEIDSGIVER_KAN_TILRETTELEGGE)
-            .medPeriode(opprettPeriode(LocalDate.now().minusDays(10), LocalDate.now().minusDays(5),
-                PeriodeIkkeOppfyltÅrsak.INGEN))
-            .medPeriode(opprettPeriode(LocalDate.now().minusDays(4), LocalDate.now().minusDays(1),
-                PeriodeIkkeOppfyltÅrsak._8306)) // Skal gi true
-            .build();
+                .medArbeidsforholdIkkeOppfyltÅrsak(ArbeidsforholdIkkeOppfyltÅrsak.ARBEIDSGIVER_KAN_TILRETTELEGGE)
+                .medPeriode(opprettPeriode(LocalDate.now().minusDays(10), LocalDate.now().minusDays(5),
+                        PeriodeIkkeOppfyltÅrsak.INGEN))
+                .medPeriode(opprettPeriode(LocalDate.now().minusDays(4), LocalDate.now().minusDays(1),
+                        PeriodeIkkeOppfyltÅrsak._8306)) // Skal gi true
+                .build();
 
         SvangerskapspengerUttakResultatEntitet uttakResultat = new SvangerskapspengerUttakResultatEntitet.Builder(
-            mock(Behandlingsresultat.class))
-            .medUttakResultatArbeidsforhold(arbeidsforhold1)
-            .medUttakResultatArbeidsforhold(arbeidsforhold2)
-            .build();
+                mock(Behandlingsresultat.class))
+                        .medUttakResultatArbeidsforhold(arbeidsforhold1)
+                        .medUttakResultatArbeidsforhold(arbeidsforhold2)
+                        .build();
         UttakResultatHolderSVP uttakResultatHolder = new UttakResultatHolderSVP(Optional.of(uttakResultat), null);
 
         // Act
@@ -91,25 +91,25 @@ public class UttakResultatHolderTest {
     public void skal_sjekke_siste_periode_pr_arbeidsforhold_for_spesifikke_avslagsårsaker_og_gi_false_når_siste_ikke_er_på_lista() {
         // Arrange
         SvangerskapspengerUttakResultatArbeidsforholdEntitet arbeidsforhold1 = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder()
-            .medArbeidsforholdIkkeOppfyltÅrsak(ArbeidsforholdIkkeOppfyltÅrsak.INGEN)
-            .medPeriode(opprettPeriode(LocalDate.now().minusDays(10), LocalDate.now().minusDays(5),
-                PeriodeIkkeOppfyltÅrsak._8304)) // Er ikke siste
-            .medPeriode(opprettPeriode(LocalDate.now().minusDays(4), LocalDate.now().minusDays(1),
-                PeriodeIkkeOppfyltÅrsak.INGEN))
-            .build();
+                .medArbeidsforholdIkkeOppfyltÅrsak(ArbeidsforholdIkkeOppfyltÅrsak.INGEN)
+                .medPeriode(opprettPeriode(LocalDate.now().minusDays(10), LocalDate.now().minusDays(5),
+                        PeriodeIkkeOppfyltÅrsak._8304)) // Er ikke siste
+                .medPeriode(opprettPeriode(LocalDate.now().minusDays(4), LocalDate.now().minusDays(1),
+                        PeriodeIkkeOppfyltÅrsak.INGEN))
+                .build();
         SvangerskapspengerUttakResultatArbeidsforholdEntitet arbeidsforhold2 = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder()
-            .medArbeidsforholdIkkeOppfyltÅrsak(ArbeidsforholdIkkeOppfyltÅrsak.ARBEIDSGIVER_KAN_TILRETTELEGGE)
-            .medPeriode(opprettPeriode(LocalDate.now().minusDays(10), LocalDate.now().minusDays(5),
-                PeriodeIkkeOppfyltÅrsak.INGEN))
-            .medPeriode(opprettPeriode(LocalDate.now().minusDays(4), LocalDate.now().minusDays(1),
-                PeriodeIkkeOppfyltÅrsak._8311)) // Er ikke på lista
-            .build();
+                .medArbeidsforholdIkkeOppfyltÅrsak(ArbeidsforholdIkkeOppfyltÅrsak.ARBEIDSGIVER_KAN_TILRETTELEGGE)
+                .medPeriode(opprettPeriode(LocalDate.now().minusDays(10), LocalDate.now().minusDays(5),
+                        PeriodeIkkeOppfyltÅrsak.INGEN))
+                .medPeriode(opprettPeriode(LocalDate.now().minusDays(4), LocalDate.now().minusDays(1),
+                        PeriodeIkkeOppfyltÅrsak._8311)) // Er ikke på lista
+                .build();
 
         SvangerskapspengerUttakResultatEntitet uttakResultat = new SvangerskapspengerUttakResultatEntitet.Builder(
-            mock(Behandlingsresultat.class))
-            .medUttakResultatArbeidsforhold(arbeidsforhold1)
-            .medUttakResultatArbeidsforhold(arbeidsforhold2)
-            .build();
+                mock(Behandlingsresultat.class))
+                        .medUttakResultatArbeidsforhold(arbeidsforhold1)
+                        .medUttakResultatArbeidsforhold(arbeidsforhold2)
+                        .build();
         UttakResultatHolderSVP uttakResultatHolder = new UttakResultatHolderSVP(Optional.of(uttakResultat), null);
 
         // Act
@@ -120,15 +120,14 @@ public class UttakResultatHolderTest {
     }
 
     private SvangerskapspengerUttakResultatPeriodeEntitet opprettPeriode(LocalDate fom,
-                                                                         LocalDate tom,
-                                                                         PeriodeIkkeOppfyltÅrsak årsak) {
-        return new SvangerskapspengerUttakResultatPeriodeEntitet
-            .Builder(fom, tom)
-            .medRegelInput("{}")
-            .medRegelEvaluering("{}")
-            .medUtbetalingsgrad(BigDecimal.valueOf(100L))
-            .medPeriodeIkkeOppfyltÅrsak(årsak)
-            .medPeriodeResultatType(PeriodeResultatType.AVSLÅTT)
-            .build();
+            LocalDate tom,
+            PeriodeIkkeOppfyltÅrsak årsak) {
+        return new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(fom, tom)
+                .medRegelInput("{}")
+                .medRegelEvaluering("{}")
+                .medUtbetalingsgrad(BigDecimal.valueOf(100L))
+                .medPeriodeIkkeOppfyltÅrsak(årsak)
+                .medPeriodeResultatType(PeriodeResultatType.AVSLÅTT)
+                .build();
     }
 }

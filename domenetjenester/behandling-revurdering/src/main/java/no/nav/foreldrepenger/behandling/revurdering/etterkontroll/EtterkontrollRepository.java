@@ -14,6 +14,7 @@ import javax.persistence.TypedQuery;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+
 /**
  * Oppdatering av tilstand for etterkontroll av behandling.
  */
@@ -28,23 +29,23 @@ public class EtterkontrollRepository {
     }
 
     @Inject
-    public EtterkontrollRepository( EntityManager entityManager) {
+    public EtterkontrollRepository(EntityManager entityManager) {
         this.entityManager = entityManager;
         this.behandlingRepository = new BehandlingRepository(entityManager);
     }
 
-    public List<Etterkontroll> finnEtterkontrollForFagsak(long fagsakId,KontrollType kontrollType ) {
+    public List<Etterkontroll> finnEtterkontrollForFagsak(long fagsakId, KontrollType kontrollType) {
         return entityManager.createQuery(
-            "from Etterkontroll " +
-                "where fagsakId = :fagsakId and kontrollType = :kontrollType", Etterkontroll.class)//$NON-NLS-1$
-            .setParameter("fagsakId", fagsakId)
-            .setParameter("kontrollType",kontrollType)
-            .getResultList();
+                "from Etterkontroll " +
+                        "where fagsakId = :fagsakId and kontrollType = :kontrollType", //$NON-NLS-1$
+                Etterkontroll.class)
+                .setParameter("fagsakId", fagsakId)
+                .setParameter("kontrollType", kontrollType)
+                .getResultList();
     }
 
-
     /**
-     * Lagrer etterkontroll  på en fagsak
+     * Lagrer etterkontroll på en fagsak
      *
      * @return id for {@link Etterkontroll} opprettet
      */
@@ -55,11 +56,12 @@ public class EtterkontrollRepository {
     }
 
     /**
-     * Setter sak til behandlet=Y i etterkontroll slik at batch ikke plukker saken opp for revurdering
+     * Setter sak til behandlet=Y i etterkontroll slik at batch ikke plukker saken
+     * opp for revurdering
      *
      * @param fagsakId id i databasen
      */
-    public void avflaggDersomEksisterer(Long fagsakId,KontrollType kontrollType){
+    public void avflaggDersomEksisterer(Long fagsakId, KontrollType kontrollType) {
         finnEtterkontrollForFagsak(fagsakId, kontrollType).forEach(ek -> {
             ek.setErBehandlet(true);
             lagre(ek);
@@ -71,15 +73,15 @@ public class EtterkontrollRepository {
         LocalDateTime datoTidTilbake = LocalDate.now().atStartOfDay().plusHours(1);
 
         TypedQuery<Fagsak> query = entityManager.createQuery(
-            "select f from Fagsak f inner join Etterkontroll k on f.id = k.fagsakId " +
-                "where k.erBehandlet = false and k.kontrollTidspunkt <= :periodeTilbake",
-            Fagsak.class);
+                "select f from Fagsak f inner join Etterkontroll k on f.id = k.fagsakId " +
+                        "where k.erBehandlet = false and k.kontrollTidspunkt <= :periodeTilbake",
+                Fagsak.class);
         query.setParameter("periodeTilbake", datoTidTilbake);
 
         return query.getResultList().stream()
-            .map(Fagsak::getId)
-            .map(behandlingRepository::finnSisteAvsluttedeIkkeHenlagteBehandling)
-            .flatMap(Optional::stream)
-            .collect(Collectors.toList());
+                .map(Fagsak::getId)
+                .map(behandlingRepository::finnSisteAvsluttedeIkkeHenlagteBehandling)
+                .flatMap(Optional::stream)
+                .collect(Collectors.toList());
     }
 }

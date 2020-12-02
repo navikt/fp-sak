@@ -22,14 +22,16 @@ import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.vedtak.util.Tuple;
 
 /**
- * Sjekk at alle konfigurasjoner fungerer og har definerte steg implementasjoner.
+ * Sjekk at alle konfigurasjoner fungerer og har definerte steg
+ * implementasjoner.
  */
 @CdiDbAwareTest
 public class BehandlingModellTest {
 
     @ParameterizedTest
     @MethodSource("parameters")
-    public void skal_sjekke_alle_definerte_behandlingsteg_konfigurasjoner_har_matchende_steg_implementasjoner(Tuple<BehandlingType, FagsakYtelseType> tuple) {
+    public void skal_sjekke_alle_definerte_behandlingsteg_konfigurasjoner_har_matchende_steg_implementasjoner(
+            Tuple<BehandlingType, FagsakYtelseType> tuple) {
         var behandlingType = tuple.getElement1();
         var ytelseType = tuple.getElement2();
         BehandlingModellRepository behandlingModellRepository = new BehandlingModellRepository();
@@ -37,13 +39,14 @@ public class BehandlingModellTest {
         for (BehandlingStegType stegType : modell.getAlleBehandlingStegTyper()) {
             BehandlingStegModell steg = modell.finnSteg(stegType);
             String description = String.format("Feilet for %s, %s, %s", ytelseType.getKode(), behandlingType.getKode(),
-                stegType.getKode());
+                    stegType.getKode());
             assertThat(steg).as(description).isNotNull();
             BehandlingSteg behandlingSteg = steg.getSteg();
             assertThat(behandlingSteg).as(description).isNotNull();
 
-            @SuppressWarnings("rawtypes") Class targetClass = ((org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy) behandlingSteg)
-                .weld_getTargetClass();
+            @SuppressWarnings("rawtypes")
+            Class targetClass = ((org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy) behandlingSteg)
+                    .weld_getTargetClass();
             assertThat(targetClass).as(description).hasAnnotation(ApplicationScoped.class);
         }
     }
@@ -51,9 +54,9 @@ public class BehandlingModellTest {
     public static Collection<Tuple<BehandlingType, FagsakYtelseType>> parameters() {
         List<Tuple<BehandlingType, FagsakYtelseType>> params = new ArrayList<>();
         List<FagsakYtelseType> ytelseTyper = List.of(FagsakYtelseType.ENGANGSTØNAD, FagsakYtelseType.FORELDREPENGER,
-            FagsakYtelseType.SVANGERSKAPSPENGER);
+                FagsakYtelseType.SVANGERSKAPSPENGER);
         List<BehandlingType> behandlingTyper = List.of(BehandlingType.FØRSTEGANGSSØKNAD, BehandlingType.REVURDERING,
-            BehandlingType.KLAGE, BehandlingType.INNSYN, BehandlingType.ANKE);
+                BehandlingType.KLAGE, BehandlingType.INNSYN, BehandlingType.ANKE);
         for (FagsakYtelseType a : ytelseTyper) {
             for (BehandlingType b : behandlingTyper) {
                 params.add(new Tuple<>(b, a));

@@ -8,7 +8,8 @@ public interface RevurderingEndring {
     boolean erRevurderingMedUendretUtfall(Behandling behandling, BehandlingResultatType nyResultatType);
 
     /**
-     * Tjeneste som vurderer om revurderingen har endret utrfall i forhold til original behandling
+     * Tjeneste som vurderer om revurderingen har endret utrfall i forhold til
+     * original behandling
      *
      * @param behandling
      * @return

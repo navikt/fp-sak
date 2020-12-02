@@ -42,7 +42,8 @@ public class FortsettBehandlingTask implements ProsessTaskHandler {
     @Override
     public void doTask(ProsessTaskData data) {
 
-        // dynamisk lookup, så slipper vi å validere bean ved oppstart i test av moduler etc. før det faktisk brukes
+        // dynamisk lookup, så slipper vi å validere bean ved oppstart i test av moduler
+        // etc. før det faktisk brukes
         CDI<Object> cdi = CDI.current();
         BehandlingskontrollTjeneste behandlingskontrollTjeneste = cdi.select(BehandlingskontrollTjeneste.class).get();
 
@@ -51,12 +52,12 @@ public class FortsettBehandlingTask implements ProsessTaskHandler {
             BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
             Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
             Boolean manuellFortsettelse = Optional.ofNullable(data.getPropertyValue(FortsettBehandlingTaskProperties.MANUELL_FORTSETTELSE))
-                .map(Boolean::valueOf)
-                .orElse(Boolean.FALSE);
+                    .map(Boolean::valueOf)
+                    .orElse(Boolean.FALSE);
             String gjenoppta = data.getPropertyValue(FortsettBehandlingTaskProperties.GJENOPPTA_STEG);
 
             BehandlingStegType stegtype = getBehandlingStegType(gjenoppta);
-            if (gjenoppta != null || manuellFortsettelse) {
+            if ((gjenoppta != null) || manuellFortsettelse) {
                 if (behandling.isBehandlingPåVent()) { // Autopunkt
                     behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
                 }
@@ -70,10 +71,11 @@ public class FortsettBehandlingTask implements ProsessTaskHandler {
             // Ingen åpne autopunkt her, takk
             validerBehandlingIkkeErSattPåVent(behandling);
 
-            // Sjekke om kan prosesserere, samt feilhåndtering vs savepoint: Ved retry av feilet task som har passert gjenopptak må man fortsette.
+            // Sjekke om kan prosesserere, samt feilhåndtering vs savepoint: Ved retry av
+            // feilet task som har passert gjenopptak må man fortsette.
             Optional<BehandlingStegTilstand> tilstand = behandling.getBehandlingStegTilstand();
-            if (gjenoppta != null && tilstand.isPresent() && tilstand.get().getBehandlingSteg().equals(stegtype)
-                && BehandlingStegStatus.VENTER.equals(tilstand.get().getBehandlingStegStatus())) {
+            if ((gjenoppta != null) && tilstand.isPresent() && tilstand.get().getBehandlingSteg().equals(stegtype)
+                    && BehandlingStegStatus.VENTER.equals(tilstand.get().getBehandlingStegStatus())) {
                 behandlingskontrollTjeneste.prosesserBehandlingGjenopptaHvisStegVenter(kontekst, stegtype);
             } else if (!behandling.erAvsluttet()) {
                 behandlingskontrollTjeneste.prosesserBehandling(kontekst);

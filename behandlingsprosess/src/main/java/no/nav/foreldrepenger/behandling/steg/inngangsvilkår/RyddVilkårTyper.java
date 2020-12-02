@@ -41,16 +41,23 @@ class RyddVilkårTyper {
     private FamilieHendelseRepository familieGrunnlagRepository;
     private MedlemskapRepository medlemskapRepository;
 
-
     static {
-        OPPRYDDER_FOR_AVKLARTE_DATA.put(FØDSELSVILKÅRET_MOR, r -> r.familieGrunnlagRepository.slettAvklarteData(r.behandling.getId(), r.kontekst.getSkriveLås()));
-        OPPRYDDER_FOR_AVKLARTE_DATA.put(FØDSELSVILKÅRET_FAR_MEDMOR, r -> r.familieGrunnlagRepository.slettAvklarteData(r.behandling.getId(), r.kontekst.getSkriveLås()));
-        OPPRYDDER_FOR_AVKLARTE_DATA.put(ADOPSJONSVILKÅRET_ENGANGSSTØNAD, r -> r.familieGrunnlagRepository.slettAvklarteData(r.behandling.getId(), r.kontekst.getSkriveLås()));
-        OPPRYDDER_FOR_AVKLARTE_DATA.put(ADOPSJONSVILKARET_FORELDREPENGER, r -> r.familieGrunnlagRepository.slettAvklarteData(r.behandling.getId(), r.kontekst.getSkriveLås()));
-        OPPRYDDER_FOR_AVKLARTE_DATA.put(OMSORGSVILKÅRET, r -> r.familieGrunnlagRepository.slettAvklarteData(r.behandling.getId(), r.kontekst.getSkriveLås()));
-        OPPRYDDER_FOR_AVKLARTE_DATA.put(FORELDREANSVARSVILKÅRET_2_LEDD, r -> r.familieGrunnlagRepository.slettAvklarteData(r.behandling.getId(), r.kontekst.getSkriveLås()));
-        OPPRYDDER_FOR_AVKLARTE_DATA.put(FORELDREANSVARSVILKÅRET_4_LEDD, r -> r.familieGrunnlagRepository.slettAvklarteData(r.behandling.getId(), r.kontekst.getSkriveLås()));
-        OPPRYDDER_FOR_AVKLARTE_DATA.put(MEDLEMSKAPSVILKÅRET, r -> r.medlemskapRepository.slettAvklarteMedlemskapsdata(r.behandling.getId(), r.kontekst.getSkriveLås()));
+        OPPRYDDER_FOR_AVKLARTE_DATA.put(FØDSELSVILKÅRET_MOR,
+                r -> r.familieGrunnlagRepository.slettAvklarteData(r.behandling.getId(), r.kontekst.getSkriveLås()));
+        OPPRYDDER_FOR_AVKLARTE_DATA.put(FØDSELSVILKÅRET_FAR_MEDMOR,
+                r -> r.familieGrunnlagRepository.slettAvklarteData(r.behandling.getId(), r.kontekst.getSkriveLås()));
+        OPPRYDDER_FOR_AVKLARTE_DATA.put(ADOPSJONSVILKÅRET_ENGANGSSTØNAD,
+                r -> r.familieGrunnlagRepository.slettAvklarteData(r.behandling.getId(), r.kontekst.getSkriveLås()));
+        OPPRYDDER_FOR_AVKLARTE_DATA.put(ADOPSJONSVILKARET_FORELDREPENGER,
+                r -> r.familieGrunnlagRepository.slettAvklarteData(r.behandling.getId(), r.kontekst.getSkriveLås()));
+        OPPRYDDER_FOR_AVKLARTE_DATA.put(OMSORGSVILKÅRET,
+                r -> r.familieGrunnlagRepository.slettAvklarteData(r.behandling.getId(), r.kontekst.getSkriveLås()));
+        OPPRYDDER_FOR_AVKLARTE_DATA.put(FORELDREANSVARSVILKÅRET_2_LEDD,
+                r -> r.familieGrunnlagRepository.slettAvklarteData(r.behandling.getId(), r.kontekst.getSkriveLås()));
+        OPPRYDDER_FOR_AVKLARTE_DATA.put(FORELDREANSVARSVILKÅRET_4_LEDD,
+                r -> r.familieGrunnlagRepository.slettAvklarteData(r.behandling.getId(), r.kontekst.getSkriveLås()));
+        OPPRYDDER_FOR_AVKLARTE_DATA.put(MEDLEMSKAPSVILKÅRET,
+                r -> r.medlemskapRepository.slettAvklarteMedlemskapsdata(r.behandling.getId(), r.kontekst.getSkriveLås()));
     }
 
     RyddVilkårTyper(BehandlingRepositoryProvider repositoryProvider, Behandling behandling, BehandlingskontrollKontekst kontekst) {
@@ -74,12 +81,13 @@ class RyddVilkårTyper {
 
     private void nullstillVedtaksresultat() {
         Behandlingsresultat behandlingsresultat = getBehandlingsresultat(behandling);
-        if (behandlingsresultat == null ||
-            Objects.equals(behandlingsresultat.getBehandlingResultatType(), BehandlingResultatType.IKKE_FASTSATT)) {
+        if ((behandlingsresultat == null) ||
+                Objects.equals(behandlingsresultat.getBehandlingResultatType(), BehandlingResultatType.IKKE_FASTSATT)) {
             return;
         }
 
-        Behandlingsresultat.builderEndreEksisterende(getBehandlingsresultat(behandling)).medBehandlingResultatType(BehandlingResultatType.IKKE_FASTSATT);
+        Behandlingsresultat.builderEndreEksisterende(getBehandlingsresultat(behandling))
+                .medBehandlingResultatType(BehandlingResultatType.IKKE_FASTSATT);
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
     }
 
@@ -98,8 +106,8 @@ class RyddVilkårTyper {
 
     private void nullstillInngangsvilkår() {
         Optional<VilkårResultat> vilkårResultatOpt = Optional.ofNullable(getBehandlingsresultat(behandling))
-            .map(Behandlingsresultat::getVilkårResultat)
-            .filter(inng -> !inng.erOverstyrt());
+                .map(Behandlingsresultat::getVilkårResultat)
+                .filter(inng -> !inng.erOverstyrt());
         if (!vilkårResultatOpt.isPresent()) {
             return;
         }
@@ -114,23 +122,24 @@ class RyddVilkårTyper {
 
     private void nullstillVilkår(List<VilkårType> vilkårTyper, boolean nullstillOverstyring) {
         Optional<VilkårResultat> vilkårResultatOpt = Optional.ofNullable(getBehandlingsresultat(behandling))
-            .map(Behandlingsresultat::getVilkårResultat);
+                .map(Behandlingsresultat::getVilkårResultat);
         if (!vilkårResultatOpt.isPresent()) {
             return;
         }
         VilkårResultat vilkårResultat = vilkårResultatOpt.get();
 
         List<Vilkår> vilkårSomSkalNullstilles = vilkårResultat.getVilkårene().stream()
-            .filter(v -> vilkårTyper.contains(v.getVilkårType()))
-            .collect(toList());
+                .filter(v -> vilkårTyper.contains(v.getVilkårType()))
+                .collect(toList());
         if (vilkårSomSkalNullstilles.isEmpty()) {
             return;
         }
 
         VilkårResultat.Builder builder = VilkårResultat.builderFraEksisterende(vilkårResultat);
         vilkårSomSkalNullstilles.stream()
-            .filter(it -> !it.erOverstyrt() || nullstillOverstyring)
-            .forEach(vilkår -> builder.nullstillVilkår(vilkår.getVilkårType(), !nullstillOverstyring ? vilkår.getVilkårUtfallOverstyrt() : VilkårUtfallType.UDEFINERT));
+                .filter(it -> !it.erOverstyrt() || nullstillOverstyring)
+                .forEach(vilkår -> builder.nullstillVilkår(vilkår.getVilkårType(),
+                        !nullstillOverstyring ? vilkår.getVilkårUtfallOverstyrt() : VilkårUtfallType.UDEFINERT));
         builder.buildFor(behandling);
     }
 

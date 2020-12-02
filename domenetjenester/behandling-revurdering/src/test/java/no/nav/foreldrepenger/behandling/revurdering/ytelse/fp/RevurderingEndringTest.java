@@ -43,9 +43,9 @@ public class RevurderingEndringTest {
         var originalBehandling = opprettOriginalBehandling();
         var revurdering = opprettRevurdering(originalBehandling);
         Behandlingsresultat.builder()
-            .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
-            .leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.INGEN_ENDRING)
-            .buildFor(revurdering);
+                .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
+                .leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.INGEN_ENDRING)
+                .buildFor(revurdering);
 
         var lås = behandlingRepository.taSkriveLås(revurdering);
         behandlingRepository.lagre(revurdering, lås);
@@ -56,8 +56,9 @@ public class RevurderingEndringTest {
 
     private Behandling opprettRevurdering(Behandling originalBehandling) {
         var revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL)
-                .medOriginalBehandlingId(originalBehandling.getId())).build();
+                .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL)
+                        .medOriginalBehandlingId(originalBehandling.getId()))
+                .build();
         BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
         behandlingRepository.lagre(revurdering, lås);
         return revurdering;
@@ -69,10 +70,10 @@ public class RevurderingEndringTest {
         var originalBehandling = opprettOriginalBehandling();
         var revurdering = opprettRevurdering(originalBehandling);
         Behandlingsresultat.builder()
-            .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
-            .leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.INGEN_ENDRING)
-            .leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER)
-            .buildFor(revurdering);
+                .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
+                .leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.INGEN_ENDRING)
+                .leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER)
+                .buildFor(revurdering);
 
         // Act
         BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
@@ -80,11 +81,11 @@ public class RevurderingEndringTest {
 
         // Assert
         assertThatThrownBy(() -> revurderingEndring.erRevurderingMedUendretUtfall(revurdering))
-            .isInstanceOf(IllegalStateException.class)
-            .hasMessageContaining(RevurderingEndringBasertPåKonsekvenserForYtelsen.UTVIKLERFEIL_INGEN_ENDRING_SAMMEN);
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining(RevurderingEndringBasertPåKonsekvenserForYtelsen.UTVIKLERFEIL_INGEN_ENDRING_SAMMEN);
         assertThatThrownBy(() -> revurderingEndring.erRevurderingMedUendretUtfall(revurdering, null))
-            .isInstanceOf(IllegalStateException.class)
-            .hasMessageContaining(RevurderingEndringBasertPåKonsekvenserForYtelsen.UTVIKLERFEIL_INGEN_ENDRING_SAMMEN);
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining(RevurderingEndringBasertPåKonsekvenserForYtelsen.UTVIKLERFEIL_INGEN_ENDRING_SAMMEN);
     }
 
     @Test
@@ -92,10 +93,10 @@ public class RevurderingEndringTest {
         var originalBehandling = opprettOriginalBehandling();
         var revurdering = opprettRevurdering(originalBehandling);
         Behandlingsresultat.builder()
-            .medBehandlingResultatType(BehandlingResultatType.FORELDREPENGER_ENDRET)
-            .leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.ENDRING_I_BEREGNING)
-            .leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.ENDRING_I_UTTAK)
-            .buildFor(revurdering);
+                .medBehandlingResultatType(BehandlingResultatType.FORELDREPENGER_ENDRET)
+                .leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.ENDRING_I_BEREGNING)
+                .leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.ENDRING_I_UTTAK)
+                .buildFor(revurdering);
 
         BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
         behandlingRepository.lagre(revurdering, lås);
@@ -108,9 +109,9 @@ public class RevurderingEndringTest {
         var originalBehandling = opprettOriginalBehandling();
         var revurdering = opprettRevurdering(originalBehandling);
         Behandlingsresultat.builder()
-            .medBehandlingResultatType(BehandlingResultatType.OPPHØR)
-            .leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER)
-            .buildFor(revurdering);
+                .medBehandlingResultatType(BehandlingResultatType.OPPHØR)
+                .leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER)
+                .buildFor(revurdering);
 
         BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
         behandlingRepository.lagre(revurdering, lås);
@@ -126,8 +127,8 @@ public class RevurderingEndringTest {
 
     private Behandling opprettOriginalBehandling() {
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger
-            .forFødsel()
-            .medDefaultBekreftetTerminbekreftelse();
+                .forFødsel()
+                .medDefaultBekreftetTerminbekreftelse();
         Behandling originalBehandling = scenario.lagre(repositoryProvider);
         BehandlingLås behandlingLås = behandlingRepository.taSkriveLås(originalBehandling);
         behandlingRepository.lagre(originalBehandling, behandlingLås);

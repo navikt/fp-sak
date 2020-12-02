@@ -37,10 +37,10 @@ public class AksjonspunktKafkaProducer {
 
     @Inject
     public AksjonspunktKafkaProducer(@KonfigVerdi("kafka.aksjonspunkthendelse.topic") String topicName,
-                                       @KonfigVerdi("bootstrap.servers") String bootstrapServers,
-                                       @KonfigVerdi("schema.registry.url") String schemaRegistryUrl,
-                                       @KonfigVerdi("systembruker.username") String username,
-                                       @KonfigVerdi("systembruker.password") String password) {
+            @KonfigVerdi("bootstrap.servers") String bootstrapServers,
+            @KonfigVerdi("schema.registry.url") String schemaRegistryUrl,
+            @KonfigVerdi("systembruker.username") String username,
+            @KonfigVerdi("systembruker.password") String password) {
         Properties properties = new Properties();
 
         properties.setProperty("bootstrap.servers", bootstrapServers);
@@ -62,7 +62,7 @@ public class AksjonspunktKafkaProducer {
     void runProducerWithSingleJson(ProducerRecord<String, String> record) {
         try {
             producer.send(record)
-                .get();
+                    .get();
         } catch (InterruptedException e) {
             log.warn("Uventet feil ved sending til Kafka, topic:" + topic, e);
             Thread.currentThread().interrupt(); // reinterrupt
@@ -78,7 +78,7 @@ public class AksjonspunktKafkaProducer {
     }
 
     void setUsernameAndPassword(String username, String password, Properties properties) {
-        if ((username != null && !username.isEmpty()) && (password != null && !password.isEmpty())) {
+        if (((username != null) && !username.isEmpty()) && ((password != null) && !password.isEmpty())) {
             String jaasTemplate = "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"%s\" password=\"%s\";";
             String jaasCfg = String.format(jaasTemplate, username, password);
             properties.setProperty("sasl.jaas.config", jaasCfg);
@@ -92,7 +92,7 @@ public class AksjonspunktKafkaProducer {
     }
 
     void setSecurity(String username, Properties properties) {
-        if (username != null && !username.isEmpty()) {
+        if ((username != null) && !username.isEmpty()) {
             properties.setProperty("security.protocol", "SASL_SSL");
             properties.setProperty("sasl.mechanism", "PLAIN");
         }

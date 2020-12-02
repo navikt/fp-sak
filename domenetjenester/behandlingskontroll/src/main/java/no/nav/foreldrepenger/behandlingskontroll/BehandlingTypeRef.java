@@ -27,10 +27,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
 /**
- * Marker type som implementerer interface {@link BehandlingSteg} for å skille ulike implementasjoner av samme steg for ulike
- * behandlingtyper.<br>
+ * Marker type som implementerer interface {@link BehandlingSteg} for å skille
+ * ulike implementasjoner av samme steg for ulike behandlingtyper.<br>
  *
- * NB: Settes kun dersom det er flere implementasjoner av med samme {@link BehandlingStegRef}.
+ * NB: Settes kun dersom det er flere implementasjoner av med samme
+ * {@link BehandlingStegRef}.
  */
 @Repeatable(ContainerOfBehandlingTypeRef.class)
 @Qualifier
@@ -44,7 +45,8 @@ public @interface BehandlingTypeRef {
     /**
      * Kode-verdi som skiller ulike implementasjoner for ulike behandling typer.
      * <p>
-     * Må matche ett innslag i <code>BEHANDling_TYPE</code> tabell for å kunne kjøres.
+     * Må matche ett innslag i <code>BEHANDling_TYPE</code> tabell for å kunne
+     * kjøres.
      *
      * @see no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType
      */
@@ -62,7 +64,7 @@ public @interface BehandlingTypeRef {
         public BehandlingTypeRefLiteral(String navn) {
             this.navn = navn;
         }
-        
+
         public BehandlingTypeRefLiteral(BehandlingType ytelseType) {
             this.navn = (ytelseType == null ? "*" : ytelseType.getKode());
         }
@@ -75,10 +77,10 @@ public @interface BehandlingTypeRef {
 
     @SuppressWarnings("unchecked")
     public static final class Lookup {
-        
+
         private Lookup() {
         }
-        
+
         public static <I> Optional<I> find(Class<I> cls, String ytelseTypeKode, String behandlingType) {
             return find(cls, (CDI<I>) CDI.current(), ytelseTypeKode, behandlingType);
         }
@@ -89,60 +91,60 @@ public @interface BehandlingTypeRef {
 
         public static <I> Optional<I> find(Class<I> cls, Instance<I> instances, FagsakYtelseType ytelseTypeKode, BehandlingType behandlingType) {
             return find(cls, instances,
-                ytelseTypeKode == null ? null : ytelseTypeKode.getKode(),
-                behandlingType == null ? null : behandlingType.getKode());
+                    ytelseTypeKode == null ? null : ytelseTypeKode.getKode(),
+                    behandlingType == null ? null : behandlingType.getKode());
         }
 
         public static <I> Optional<I> find(Class<I> cls, Instance<I> instances, String fagsakYtelseType, String behandlingType) { // NOSONAR
             Objects.requireNonNull(instances, "instances");
-            
 
-            for(var fagsakLiteral : coalesce(fagsakYtelseType, "*")) {
+            for (var fagsakLiteral : coalesce(fagsakYtelseType, "*")) {
                 var inst = select(cls, instances, new FagsakYtelseTypeRefLiteral(fagsakLiteral));
-                
-                if(inst.isUnsatisfied()) {
+
+                if (inst.isUnsatisfied()) {
                     continue;
                 } else {
-                    for(var behandlingLiteral : coalesce(behandlingType, "*")) {
+                    for (var behandlingLiteral : coalesce(behandlingType, "*")) {
                         var binst = select(cls, inst, new BehandlingTypeRefLiteral(behandlingLiteral));
-                        if(binst.isResolvable()) {
+                        if (binst.isResolvable()) {
                             return Optional.of(getInstance(binst));
                         } else {
-                            if(binst.isAmbiguous()) {
-                                throw new IllegalStateException("Har flere matchende instanser for klasse : " + cls.getName() + ", fagsakType=" + fagsakLiteral + ", behandlingType=" + behandlingLiteral);
+                            if (binst.isAmbiguous()) {
+                                throw new IllegalStateException("Har flere matchende instanser for klasse : " + cls.getName() + ", fagsakType="
+                                        + fagsakLiteral + ", behandlingType=" + behandlingLiteral);
                             }
                         }
                     }
                 }
-                
+
             }
             return Optional.empty();
         }
-        
 
         private static <I> I getInstance(Instance<I> inst) {
             var i = inst.get();
             if (i.getClass().isAnnotationPresent(Dependent.class)) {
-                throw new IllegalStateException("Kan ikke ha @Dependent scope bean ved Instance lookup dersom en ikke også håndtere lifecycle selv: " + i.getClass());
+                throw new IllegalStateException(
+                        "Kan ikke ha @Dependent scope bean ved Instance lookup dersom en ikke også håndtere lifecycle selv: " + i.getClass());
             }
             return i;
         }
 
         private static List<String> coalesce(String... vals) {
-            return Arrays.asList(vals).stream().filter(v -> v!=null).distinct().collect(Collectors.toList());
+            return Arrays.asList(vals).stream().filter(v -> v != null).distinct().collect(Collectors.toList());
         }
-        
+
         private static <I> Instance<I> select(Class<I> cls, Instance<I> instances, Annotation anno) {
             return cls != null
-                ? instances.select(cls, anno)
-                : instances.select(anno);
+                    ? instances.select(cls, anno)
+                    : instances.select(anno);
         }
 
     }
-    
+
     /**
      * container for repeatable annotations.
-     * 
+     *
      * @see https://docs.oracle.com/javase/tutorial/java/annotations/repeating.html
      */
     @Inherited

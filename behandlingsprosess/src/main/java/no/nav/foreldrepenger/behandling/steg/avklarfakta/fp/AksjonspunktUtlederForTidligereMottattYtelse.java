@@ -61,17 +61,20 @@ class AksjonspunktUtlederForTidligereMottattYtelse implements AksjonspunktUtlede
             return opprettListeForAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
         }
 
-        // TODO: Vurder behov for inntektssjekk for å dekke flyttetilfelle. Gjort for ES i Fundamentet og her
+        // TODO: Vurder behov for inntektssjekk for å dekke flyttetilfelle. Gjort for ES
+        // i Fundamentet og her
         return INGEN_AKSJONSPUNKTER;
     }
 
-    private Utfall harMottattStønadSiste10Mnd(Saksnummer saksnummer, AktørId aktørId, InntektArbeidYtelseGrunnlag grunnlag, LocalDate skjæringstidspunkt) {
+    private Utfall harMottattStønadSiste10Mnd(Saksnummer saksnummer, AktørId aktørId, InntektArbeidYtelseGrunnlag grunnlag,
+            LocalDate skjæringstidspunkt) {
         LocalDate vedtakEtterDato = skjæringstidspunkt.minusMonths(ANTALL_MÅNEDER);
-        List<TilgrensendeYtelserDto> ytelser = ytelseTjeneste.utledYtelserRelatertTilBehandling(aktørId, grunnlag, Optional.of(RELEVANTE_YTELSE_TYPER));
+        List<TilgrensendeYtelserDto> ytelser = ytelseTjeneste.utledYtelserRelatertTilBehandling(aktørId, grunnlag,
+                Optional.of(RELEVANTE_YTELSE_TYPER));
         Boolean senerevedtak = ytelser.stream()
-            .filter(y -> y.getSaksNummer() == null || !saksnummer.getVerdi().equals(y.getSaksNummer()))
-            .map(TilgrensendeYtelserDto::getPeriodeFraDato)
-            .anyMatch(vedtakEtterDato::isBefore);
+                .filter(y -> (y.getSaksNummer() == null) || !saksnummer.getVerdi().equals(y.getSaksNummer()))
+                .map(TilgrensendeYtelserDto::getPeriodeFraDato)
+                .anyMatch(vedtakEtterDato::isBefore);
         return senerevedtak ? JA : NEI;
     }
 }

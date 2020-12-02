@@ -13,8 +13,6 @@ import no.nav.foreldrepenger.domene.typer.Beløp;
 
 public class NaturalYtelse extends BaseEntitet implements IndexKey {
 
-
-
     @ChangeTracked
     private DatoIntervallEntitet periode;
 
@@ -63,13 +61,15 @@ public class NaturalYtelse extends BaseEntitet implements IndexKey {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || !(o instanceof NaturalYtelse))
+        }
+        if ((o == null) || !(o instanceof NaturalYtelse)) {
             return false;
+        }
         NaturalYtelse that = (NaturalYtelse) o;
         return Objects.equals(periode, that.periode) &&
-            Objects.equals(type, that.type);
+                Objects.equals(type, that.type);
     }
 
     @Override
@@ -80,9 +80,9 @@ public class NaturalYtelse extends BaseEntitet implements IndexKey {
     @Override
     public String toString() {
         return "NaturalYtelseEntitet{" +
-            "periode=" + periode +
-            ", beloepPerMnd=" + beloepPerMnd +
-            ", type=" + type +
-            '}';
+                "periode=" + periode +
+                ", beloepPerMnd=" + beloepPerMnd +
+                ", type=" + type +
+                '}';
     }
 }

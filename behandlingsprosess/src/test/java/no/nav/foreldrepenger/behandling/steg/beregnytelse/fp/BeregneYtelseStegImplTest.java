@@ -11,8 +11,8 @@ import javax.inject.Inject;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.steg.beregnytelse.BeregneYtelseStegImpl;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
@@ -106,7 +106,7 @@ public class BeregneYtelseStegImplTest {
     public void skalUtførStegForFørstegangsbehandling() {
         // Arrange
 
-        when(beregnYtelseTjeneste.beregnYtelse(Mockito.any())).thenReturn(opprettBeregningsresultat());
+        when(beregnYtelseTjeneste.beregnYtelse(ArgumentMatchers.any())).thenReturn(opprettBeregningsresultat());
 
         Tuple<Behandling, BehandlingskontrollKontekst> behandlingKontekst = byggGrunnlag(true, true);
         Behandling behandling = behandlingKontekst.getElement1();

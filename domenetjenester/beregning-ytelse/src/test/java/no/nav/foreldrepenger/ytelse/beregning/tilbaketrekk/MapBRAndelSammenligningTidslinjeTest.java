@@ -101,7 +101,8 @@ public class MapBRAndelSammenligningTidslinjeTest {
 
         // Act
         LocalDateTimeline<BRAndelSammenligning> tidslinje = MapBRAndelSammenligningTidslinje
-                .opprettTidslinjeTest(Arrays.asList(gammelPeriode, gammelPeriode2, gammelPeriode3), Arrays.asList(nyPeriode, nyPeriode2, nyPeriode3), dagensdato);
+                .opprettTidslinjeTest(Arrays.asList(gammelPeriode, gammelPeriode2, gammelPeriode3), Arrays.asList(nyPeriode, nyPeriode2, nyPeriode3),
+                        dagensdato);
 
         // Assert
         assertThat(tidslinje.toSegments()).hasSize(4);
@@ -148,6 +149,5 @@ public class MapBRAndelSammenligningTidslinjeTest {
                 .medBeregningsresultatPeriodeFomOgTom(fom, tom)
                 .build(resultat);
     }
-
 
 }

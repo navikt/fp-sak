@@ -18,9 +18,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 
 /**
- * Modellerer ett behandlingssteg, inklusiv hvilke aksjonspunkter må løses før/etter steget.
- * Dersom det ved kjøring oppdages aksjonspunkter som ikke er registrert må disse løses før utgang av et
- * behandlingssteg.
+ * Modellerer ett behandlingssteg, inklusiv hvilke aksjonspunkter må løses
+ * før/etter steget. Dersom det ved kjøring oppdages aksjonspunkter som ikke er
+ * registrert må disse løses før utgang av et behandlingssteg.
  */
 class BehandlingStegModellImpl implements BehandlingStegModell {
     private Instance<BehandlingSteg> stegInstances;
@@ -37,15 +37,19 @@ class BehandlingStegModellImpl implements BehandlingStegModell {
      */
     private final Set<String> utgangAksjonpunktKoder = new LinkedHashSet<>();
 
-    /** Hver steg modell må tilhøre en BehandlingModell som beskriver hvordan de henger sammen. */
+    /**
+     * Hver steg modell må tilhøre en BehandlingModell som beskriver hvordan de
+     * henger sammen.
+     */
     private BehandlingModellImpl behandlingModell;
 
     /**
-     * Holder for å referere til en konkret, men lazy-initialisert CDI implementasjon av et {@link BehandlingSteg}.
+     * Holder for å referere til en konkret, men lazy-initialisert CDI
+     * implementasjon av et {@link BehandlingSteg}.
      */
-    BehandlingStegModellImpl(BehandlingModellImpl behandlingModell, 
-        @Any Instance<BehandlingSteg> bean, 
-        BehandlingStegType stegType) {
+    BehandlingStegModellImpl(BehandlingModellImpl behandlingModell,
+            @Any Instance<BehandlingSteg> bean,
+            BehandlingStegType stegType) {
         Objects.requireNonNull(behandlingModell, "behandlingModell"); //$NON-NLS-1$
         Objects.requireNonNull(bean, "bean"); //$NON-NLS-1$
         Objects.requireNonNull(stegType, "stegType"); //$NON-NLS-1$
@@ -80,13 +84,13 @@ class BehandlingStegModellImpl implements BehandlingStegModell {
     protected void initSteg() {
         if (steg == null) {
             steg = BehandlingTypeRef.Lookup
-                .find(BehandlingSteg.class, stegInstances, behandlingModell.getFagsakYtelseType(), behandlingModell.getBehandlingType())
-                .orElseThrow(() -> {
-                    return new IllegalStateException(
-                        "Mangler steg definert for stegKode=" + behandlingStegType + " [behandlingType=" //$NON-NLS-1$ //$NON-NLS-2$
-                            + behandlingModell.getBehandlingType() + ", fagsakYtelseType=" + behandlingModell.getFagsakYtelseType() //$NON-NLS-1$ //$NON-NLS-2$
-                            + "]");
-                });
+                    .find(BehandlingSteg.class, stegInstances, behandlingModell.getFagsakYtelseType(), behandlingModell.getBehandlingType())
+                    .orElseThrow(() -> {
+                        return new IllegalStateException(
+                                "Mangler steg definert for stegKode=" + behandlingStegType + " [behandlingType=" //$NON-NLS-1$ //$NON-NLS-2$
+                                        + behandlingModell.getBehandlingType() + ", fagsakYtelseType=" + behandlingModell.getFagsakYtelseType() //$NON-NLS-1$
+                                        + "]");
+                    });
         }
     }
 
@@ -101,7 +105,7 @@ class BehandlingStegModellImpl implements BehandlingStegModell {
     }
 
     void destroy() {
-        if (stegInstances != null && steg != null) {
+        if ((stegInstances != null) && (steg != null)) {
             stegInstances.destroy(steg);
         }
     }
@@ -132,8 +136,8 @@ class BehandlingStegModellImpl implements BehandlingStegModell {
     }
 
     /**
-     * Avleder status behandlingsteg bør settes i gitt et sett med aksjonpunkter. Tar kun hensyn til aksjonpunkter
-     * som gjelder dette steget.
+     * Avleder status behandlingsteg bør settes i gitt et sett med aksjonpunkter.
+     * Tar kun hensyn til aksjonpunkter som gjelder dette steget.
      */
     Optional<BehandlingStegStatus> avledStatus(Collection<String> aksjonspunkter) {
 
@@ -149,9 +153,9 @@ class BehandlingStegModellImpl implements BehandlingStegModell {
     @Override
     public String toString() {
         return getClass().getSimpleName() + "<" + behandlingStegType.getKode() + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "inngangAksjonspunkter=" + inngangAksjonpunktKoder + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "utgangAksjonspunkter=" + utgangAksjonpunktKoder + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "impl=" + steg //$NON-NLS-1$
-            + ">"; //$NON-NLS-1$
+                + "inngangAksjonspunkter=" + inngangAksjonpunktKoder + ", " //$NON-NLS-1$ //$NON-NLS-2$
+                + "utgangAksjonspunkter=" + utgangAksjonpunktKoder + ", " //$NON-NLS-1$ //$NON-NLS-2$
+                + "impl=" + steg //$NON-NLS-1$
+                + ">"; //$NON-NLS-1$
     }
 }

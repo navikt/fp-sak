@@ -27,7 +27,7 @@ public class SjekkMotEksisterendeOppgaverTjeneste {
     private OppgaveTjeneste oppgaveTjeneste;
 
     SjekkMotEksisterendeOppgaverTjeneste() {
-        //CDI proxy
+        // CDI proxy
     }
 
     @Inject
@@ -58,27 +58,27 @@ public class SjekkMotEksisterendeOppgaverTjeneste {
 
     private boolean sjekkMotEksisterendeGsakOppgaverUtført(Behandling behandling) {
         return behandling.getAksjonspunkter().stream()
-            .anyMatch(ap ->
-                (ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VURDERE_ANNEN_YTELSE_FØR_VEDTAK) && ap.erUtført())
-                    || (ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VURDERE_DOKUMENT_FØR_VEDTAK) && ap.erUtført()));
+                .anyMatch(ap -> (ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VURDERE_ANNEN_YTELSE_FØR_VEDTAK) && ap.erUtført())
+                        || (ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VURDERE_DOKUMENT_FØR_VEDTAK) && ap.erUtført()));
     }
 
-    private void opprettHistorikkinnslagOmVurderingFørVedtak(Behandling behandling, OppgaveÅrsak begrunnelse, List<Historikkinnslag> historikkInnslagFraRepo) {
+    private void opprettHistorikkinnslagOmVurderingFørVedtak(Behandling behandling, OppgaveÅrsak begrunnelse,
+            List<Historikkinnslag> historikkInnslagFraRepo) {
         // finne historikkinnslag hvor vi har en begrunnelse?
         List<Historikkinnslag> eksisterendeVurderHistInnslag = historikkInnslagFraRepo.stream()
-            .filter(historikkinnslag -> {
-                List<HistorikkinnslagDel> historikkinnslagDeler = historikkinnslag.getHistorikkinnslagDeler();
-                return historikkinnslagDeler.stream().anyMatch(del -> del.getBegrunnelse().isPresent());
-            })
-            .collect(Collectors.toList());
+                .filter(historikkinnslag -> {
+                    List<HistorikkinnslagDel> historikkinnslagDeler = historikkinnslag.getHistorikkinnslagDeler();
+                    return historikkinnslagDeler.stream().anyMatch(del -> del.getBegrunnelse().isPresent());
+                })
+                .collect(Collectors.toList());
 
         if (eksisterendeVurderHistInnslag.isEmpty()) {
             Historikkinnslag vurderFørVedtakInnslag = new Historikkinnslag();
             vurderFørVedtakInnslag.setType(HistorikkinnslagType.BEH_AVBRUTT_VUR);
             vurderFørVedtakInnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
             HistorikkInnslagTekstBuilder historikkInnslagTekstBuilder = new HistorikkInnslagTekstBuilder()
-                .medHendelse(HistorikkinnslagType.BEH_AVBRUTT_VUR)
-                .medBegrunnelse(begrunnelse);
+                    .medHendelse(HistorikkinnslagType.BEH_AVBRUTT_VUR)
+                    .medBegrunnelse(begrunnelse);
             historikkInnslagTekstBuilder.build(vurderFørVedtakInnslag);
             vurderFørVedtakInnslag.setBehandling(behandling);
             historikkRepository.lagre(vurderFørVedtakInnslag);

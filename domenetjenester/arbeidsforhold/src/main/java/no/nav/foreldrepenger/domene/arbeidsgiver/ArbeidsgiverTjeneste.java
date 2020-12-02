@@ -61,11 +61,14 @@ public class ArbeidsgiverTjeneste {
             if (personinfo.isPresent()) {
                 PersoninfoArbeidsgiver info = personinfo.get();
                 String fødselsdato = info.getFødselsdato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-                ArbeidsgiverOpplysninger nyOpplysninger = new ArbeidsgiverOpplysninger(arbeidsgiver.getAktørId(), fødselsdato, info.getNavn(), info.getFødselsdato());
+                ArbeidsgiverOpplysninger nyOpplysninger = new ArbeidsgiverOpplysninger(arbeidsgiver.getAktørId(), fødselsdato, info.getNavn(),
+                        info.getFødselsdato());
                 cache.put(arbeidsgiver.getIdentifikator(), nyOpplysninger);
                 return nyOpplysninger;
             } else {
-                // Putter bevist ikke denne i cache da denne aktøren ikke er kjent, men legger denne i en backoff cache som benyttes for at vi ikke skal hamre på tps ved sikkerhetsbegrensning
+                // Putter bevist ikke denne i cache da denne aktøren ikke er kjent, men legger
+                // denne i en backoff cache som benyttes for at vi ikke skal hamre på tps ved
+                // sikkerhetsbegrensning
                 ArbeidsgiverOpplysninger opplysninger = new ArbeidsgiverOpplysninger(arbeidsgiver.getIdentifikator(), "N/A");
                 failBackoffCache.put(arbeidsgiver.getIdentifikator(), opplysninger);
                 return opplysninger;
@@ -75,7 +78,8 @@ public class ArbeidsgiverTjeneste {
     }
 
     public Virksomhet hentVirksomhet(String orgNummer) {
-        return virksomhetTjeneste.finnOrganisasjon(orgNummer).orElseThrow(() -> new IllegalArgumentException("Kunne ikke hente virksomhet for orgNummer: " + orgNummer));
+        return virksomhetTjeneste.finnOrganisasjon(orgNummer)
+                .orElseThrow(() -> new IllegalArgumentException("Kunne ikke hente virksomhet for orgNummer: " + orgNummer));
     }
 
     private Optional<PersoninfoArbeidsgiver> hentInformasjonFraTps(Arbeidsgiver arbeidsgiver) {

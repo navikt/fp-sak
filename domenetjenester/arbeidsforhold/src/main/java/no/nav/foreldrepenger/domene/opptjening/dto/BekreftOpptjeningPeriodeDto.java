@@ -82,7 +82,7 @@ public class BekreftOpptjeningPeriodeDto {
     }
 
     public String getArbeidsgiverIdentifikator() {
-        if (arbeidsgiverIdentifikator == null && arbeidsgiverReferanse != null) {
+        if ((arbeidsgiverIdentifikator == null) && (arbeidsgiverReferanse != null)) {
             return arbeidsgiverReferanse;
         }
         return arbeidsgiverIdentifikator;

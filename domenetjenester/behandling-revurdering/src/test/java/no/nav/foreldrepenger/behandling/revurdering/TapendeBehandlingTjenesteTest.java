@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandling.revurdering;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
@@ -78,7 +77,7 @@ public class TapendeBehandlingTjenesteTest {
         var morBehandling = morFørstegangsbehandling(søknaderMottattDato);
         var endringMor = opprettBehandlingAvEndringssøknadMor(morBehandling, søknaderMottattDato);
 
-        //Bruker opprettet tidspunkt på søknad-entiteten
+        // Bruker opprettet tidspunkt på søknad-entiteten
         Thread.sleep(10);
         var farBehandling = farFørstegangsbehandling(søknaderMottattDato, morBehandling);
         var erFarTapende = tjeneste.erTapendeBehandling(farBehandling);
@@ -101,7 +100,7 @@ public class TapendeBehandlingTjenesteTest {
 
         opprettBehandlingAvEndringssøknadMor(morBehandling, farSøknadMottattDato.plusWeeks(1));
         var manuellRevurderingFar = opprettManuellRevurderingFar(farBehandling,
-            BehandlingÅrsakType.RE_OPPLYSNINGER_OM_FORDELING);
+                BehandlingÅrsakType.RE_OPPLYSNINGER_OM_FORDELING);
 
         var tapende = tjeneste.erTapendeBehandling(manuellRevurderingFar);
         assertThat(tapende).isFalse();
@@ -118,7 +117,7 @@ public class TapendeBehandlingTjenesteTest {
 
         opprettBehandlingAvEndringssøknadMor(morBehandling, farSøknadMottattDato.plusWeeks(1));
         var manuellRevurderingFar = opprettManuellRevurderingFar(farBehandling,
-            BehandlingÅrsakType.RE_OPPLYSNINGER_OM_INNTEKT);
+                BehandlingÅrsakType.RE_OPPLYSNINGER_OM_INNTEKT);
 
         var tapende = tjeneste.erTapendeBehandling(manuellRevurderingFar);
         assertThat(tapende).isTrue();
@@ -191,8 +190,8 @@ public class TapendeBehandlingTjenesteTest {
         var endringssøknadMorBehandling = morEndringssøknadScenario.lagre(repositoryProvider);
         endringssøknadMorBehandling.avsluttBehandling();
         repositoryProvider.getBehandlingRepository()
-            .lagre(endringssøknadMorBehandling,
-                repositoryProvider.getBehandlingLåsRepository().taLås(endringssøknadMorBehandling.getId()));
+                .lagre(endringssøknadMorBehandling,
+                        repositoryProvider.getBehandlingLåsRepository().taLås(endringssøknadMorBehandling.getId()));
 
         var tapende = tjeneste.erTapendeBehandling(farBehandling);
         assertThat(tapende).isFalse();
@@ -207,7 +206,7 @@ public class TapendeBehandlingTjenesteTest {
     private Behandling farFørstegangsbehandling(LocalDate søknadMottattDato, Behandling morBehandling) {
         Behandling farBehandling = farFørstegangsbehandling(søknadMottattDato);
         repositoryProvider.getFagsakRelasjonRepository()
-            .kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak(), morBehandling);
+                .kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak(), morBehandling);
         return farBehandling;
     }
 
@@ -226,7 +225,7 @@ public class TapendeBehandlingTjenesteTest {
     }
 
     private Behandling opprettBehandlingAvEndringssøknadMor(Behandling originalBehandling,
-                                                            LocalDate søknadMottattDato) {
+            LocalDate søknadMottattDato) {
         ScenarioMorSøkerForeldrepenger endringBehandlingMor = ScenarioMorSøkerForeldrepenger.forFødsel();
         endringBehandlingMor.medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
         endringBehandlingMor.medSøknad().medMottattDato(søknadMottattDato);
@@ -238,7 +237,7 @@ public class TapendeBehandlingTjenesteTest {
         manuellRevurdering.medOriginalBehandling(originalBehandling, årsak);
         var behandling = avsluttMedVedtak(manuellRevurdering);
         repositoryProvider.getSøknadRepository()
-            .lagreOgFlush(behandling, repositoryProvider.getSøknadRepository().hentSøknad(originalBehandling.getId()));
+                .lagreOgFlush(behandling, repositoryProvider.getSøknadRepository().hentSøknad(originalBehandling.getId()));
         return behandling;
     }
 
@@ -249,19 +248,19 @@ public class TapendeBehandlingTjenesteTest {
 
     private Behandling avsluttMedUttak(Behandling behandling) {
         var uttaksperiode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(),
-            LocalDate.now().plusWeeks(6)).medResultatType(PeriodeResultatType.INNVILGET,
-            InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE).build();
+                LocalDate.now().plusWeeks(6)).medResultatType(PeriodeResultatType.INNVILGET,
+                        InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE).build();
         var uttak = new UttakResultatPerioderEntitet();
         repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttak);
         uttak.leggTilPeriode(uttaksperiode);
         behandling.avsluttBehandling();
         var lås = repositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId());
         var vedtak = BehandlingVedtak.builder()
-            .medVedtakResultatType(VedtakResultatType.INNVILGET)
-            .medVedtakstidspunkt(LocalDateTime.now())
-            .medAnsvarligSaksbehandler(" ")
-            .medBehandlingsresultat(repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId()))
-            .build();
+                .medVedtakResultatType(VedtakResultatType.INNVILGET)
+                .medVedtakstidspunkt(LocalDateTime.now())
+                .medAnsvarligSaksbehandler(" ")
+                .medBehandlingsresultat(repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId()))
+                .build();
         repositoryProvider.getBehandlingVedtakRepository().lagre(vedtak, lås);
         repositoryProvider.getBehandlingRepository().lagre(behandling, lås);
         return behandling;
@@ -269,7 +268,7 @@ public class TapendeBehandlingTjenesteTest {
 
     private TapendeBehandlingTjeneste tjeneste() {
         return new TapendeBehandlingTjeneste(repositoryProvider.getSøknadRepository(),
-            new RelatertBehandlingTjeneste(repositoryProvider),
-            new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()));
+                new RelatertBehandlingTjeneste(repositoryProvider),
+                new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()));
     }
 }

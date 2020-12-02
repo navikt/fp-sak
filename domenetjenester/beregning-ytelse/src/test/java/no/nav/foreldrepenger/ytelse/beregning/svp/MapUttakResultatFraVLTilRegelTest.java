@@ -50,8 +50,10 @@ public class MapUttakResultatFraVLTilRegelTest {
             protected BigDecimal finnStillingsprosent(UttakInput input, SvangerskapspengerUttakResultatArbeidsforholdEntitet uttakAktivitet) {
                 return BigDecimal.valueOf(STILLING_70);
             }
+
             @Override
-            protected BigDecimal finnTotalStillingsprosentHosAG(UttakInput input, SvangerskapspengerUttakResultatArbeidsforholdEntitet uttakAktivitet) {
+            protected BigDecimal finnTotalStillingsprosentHosAG(UttakInput input,
+                    SvangerskapspengerUttakResultatArbeidsforholdEntitet uttakAktivitet) {
                 return BigDecimal.valueOf(STILLING_70);
             }
         };
@@ -59,7 +61,7 @@ public class MapUttakResultatFraVLTilRegelTest {
 
     @Test
     public void skalMappeUttakResultatPlanMedEnkeltArbeidsforholdOgEnkelPeriode() {
-        //Arrange
+        // Arrange
         var fom = LocalDate.of(2019, Month.JANUARY, 1);
         var tom = LocalDate.of(2019, Month.MARCH, 31);
         var uttakPeriode = lagUttaksperiode(fom, tom, BigDecimal.valueOf(66));
@@ -85,7 +87,7 @@ public class MapUttakResultatFraVLTilRegelTest {
 
     @Test
     public void skalMappeUttakResultatPlanMedSNOgEnkelPeriode() {
-        //Arrange
+        // Arrange
         var fom = LocalDate.of(2019, Month.JANUARY, 1);
         var tom = LocalDate.of(2019, Month.MARCH, 31);
         var uttakPeriode = lagUttaksperiode(fom, tom, BigDecimal.valueOf(66));
@@ -109,7 +111,7 @@ public class MapUttakResultatFraVLTilRegelTest {
 
     @Test
     public void skalMappeUttakResultatPlanMedEnkeltArbeidsforholdOgFlerePerioder() {
-        //Arrange
+        // Arrange
         var fom = LocalDate.of(2019, Month.JANUARY, 1);
         var tom = LocalDate.of(2019, Month.MARCH, 31);
         var uttakPeriode = lagUttaksperiode(fom, tom, BigDecimal.valueOf(66));
@@ -142,9 +144,9 @@ public class MapUttakResultatFraVLTilRegelTest {
 
     @Test
     public void skalMappeUttakResultatPlanMedFlereArbeidsforholdOgOverlappendePerioder() {
-        //Arrange
+        // Arrange
 
-        //Arbeidsforhold 1
+        // Arbeidsforhold 1
         var fom = LocalDate.of(2019, Month.JANUARY, 1);
         var tom = LocalDate.of(2019, Month.MARCH, 31);
         var fom2 = tom.plusDays(1);
@@ -152,7 +154,7 @@ public class MapUttakResultatFraVLTilRegelTest {
         var uttakPeriode = lagUttaksperiode(fom, tom, BigDecimal.valueOf(66));
         var uttakPeriode2 = lagUttaksperiode(fom2, tom2, BigDecimal.valueOf(66));
         var uttakArbeidsforhold = lagArbeidsforhold(ORGNR, ARB_ID, uttakPeriode, uttakPeriode2);
-        //Arbeidsforhold 2
+        // Arbeidsforhold 2
         var fom3 = LocalDate.of(2019, Month.FEBRUARY, 1);
         var tom3 = LocalDate.of(2019, Month.APRIL, 15);
         var fom4 = tom3.plusDays(1);
@@ -170,20 +172,20 @@ public class MapUttakResultatFraVLTilRegelTest {
         assertThat(regelPlan).isNotNull();
         List<UttakResultatPeriode> perioder = regelPlan.getUttakResultatPerioder();
         assertThat(perioder).hasSize(5);
-        assertThat(perioder.get(0).getFom()).isEqualTo(fom);//01.01
-        assertThat(perioder.get(0).getTom()).isEqualTo(fom3.minusDays(1));//31.01
+        assertThat(perioder.get(0).getFom()).isEqualTo(fom);// 01.01
+        assertThat(perioder.get(0).getTom()).isEqualTo(fom3.minusDays(1));// 31.01
         assertThat(perioder.get(0).getUttakAktiviteter()).hasSize(1);
-        assertThat(perioder.get(1).getFom()).isEqualTo(fom3);//01.02
-        assertThat(perioder.get(1).getTom()).isEqualTo(tom);//31.03
+        assertThat(perioder.get(1).getFom()).isEqualTo(fom3);// 01.02
+        assertThat(perioder.get(1).getTom()).isEqualTo(tom);// 31.03
         assertThat(perioder.get(1).getUttakAktiviteter()).hasSize(2);
-        assertThat(perioder.get(2).getFom()).isEqualTo(fom2);//01.04
-        assertThat(perioder.get(2).getTom()).isEqualTo(tom3);//15.04
+        assertThat(perioder.get(2).getFom()).isEqualTo(fom2);// 01.04
+        assertThat(perioder.get(2).getTom()).isEqualTo(tom3);// 15.04
         assertThat(perioder.get(2).getUttakAktiviteter()).hasSize(2);
-        assertThat(perioder.get(3).getFom()).isEqualTo(fom4);//16.04
-        assertThat(perioder.get(3).getTom()).isEqualTo(tom2);//30.4
+        assertThat(perioder.get(3).getFom()).isEqualTo(fom4);// 16.04
+        assertThat(perioder.get(3).getTom()).isEqualTo(tom2);// 30.4
         assertThat(perioder.get(3).getUttakAktiviteter()).hasSize(2);
-        assertThat(perioder.get(4).getFom()).isEqualTo(tom2.plusDays(1));//01.05
-        assertThat(perioder.get(4).getTom()).isEqualTo(tom4);//15.05
+        assertThat(perioder.get(4).getFom()).isEqualTo(tom2.plusDays(1));// 01.05
+        assertThat(perioder.get(4).getTom()).isEqualTo(tom4);// 15.05
         assertThat(perioder.get(4).getUttakAktiviteter()).hasSize(1);
     }
 
@@ -194,17 +196,17 @@ public class MapUttakResultatFraVLTilRegelTest {
     }
 
     private SvangerskapspengerUttakResultatArbeidsforholdEntitet lagArbeidsforhold(String orgnr,
-                                                                                   InternArbeidsforholdRef arbId,
-                                                                                   SvangerskapspengerUttakResultatPeriodeEntitet... uttakPeriode) {
+            InternArbeidsforholdRef arbId,
+            SvangerskapspengerUttakResultatPeriodeEntitet... uttakPeriode) {
         return lagUttakResultatArbeidsforhold(UttakArbeidType.ORDINÆRT_ARBEID, orgnr, arbId, uttakPeriode);
     }
 
     private SvangerskapspengerUttakResultatArbeidsforholdEntitet lagUttakResultatArbeidsforhold(UttakArbeidType uttakArbeidType,
-                                                                                                String orgnr,
-                                                                                                InternArbeidsforholdRef arbId,
-                                                                                                SvangerskapspengerUttakResultatPeriodeEntitet... uttakPeriode) {
+            String orgnr,
+            InternArbeidsforholdRef arbId,
+            SvangerskapspengerUttakResultatPeriodeEntitet... uttakPeriode) {
         var builder = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder()
-            .medUttakArbeidType(uttakArbeidType);
+                .medUttakArbeidType(uttakArbeidType);
         if (orgnr != null) {
             builder.medArbeidsforhold(Arbeidsgiver.virksomhet(orgnr), arbId);
         }
@@ -214,12 +216,12 @@ public class MapUttakResultatFraVLTilRegelTest {
 
     private SvangerskapspengerUttakResultatPeriodeEntitet lagUttaksperiode(LocalDate fom, LocalDate tom, BigDecimal utbetalingsgrad) {
         return new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medRegelInput("{}")
-            .medRegelEvaluering("{}")
-            .medUtbetalingsgrad(utbetalingsgrad)
-            .medPeriodeIkkeOppfyltÅrsak(PeriodeIkkeOppfyltÅrsak.INGEN)
-            .medPeriodeResultatType(PeriodeResultatType.INNVILGET)
-            .build();
+                .medRegelInput("{}")
+                .medRegelEvaluering("{}")
+                .medUtbetalingsgrad(utbetalingsgrad)
+                .medPeriodeIkkeOppfyltÅrsak(PeriodeIkkeOppfyltÅrsak.INGEN)
+                .medPeriodeResultatType(PeriodeResultatType.INNVILGET)
+                .build();
     }
 
 }

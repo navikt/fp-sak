@@ -95,5 +95,4 @@ public class YtelseBuilder {
         return YtelseGrunnlagBuilder.ny();
     }
 
-
 }

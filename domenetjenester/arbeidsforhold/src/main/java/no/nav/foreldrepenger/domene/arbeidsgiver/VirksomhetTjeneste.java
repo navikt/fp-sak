@@ -22,12 +22,12 @@ public class VirksomhetTjeneste {
     private static final long CACHE_ELEMENT_LIVE_TIME_MS = TimeUnit.MILLISECONDS.convert(24, TimeUnit.HOURS);
 
     private static final Virksomhet KUNSTIG_VIRKSOMHET = new Virksomhet.Builder()
-        .medNavn("Kunstig virksomhet")
-        .medOrganisasjonstype(Organisasjonstype.KUNSTIG)
-        .medOrgnr(OrgNummer.KUNSTIG_ORG)
-        .medRegistrert(LocalDate.of(1978, 01, 01))
-        .medOppstart(LocalDate.of(1978, 01, 01))
-        .build();
+            .medNavn("Kunstig virksomhet")
+            .medOrganisasjonstype(Organisasjonstype.KUNSTIG)
+            .medOrgnr(OrgNummer.KUNSTIG_ORG)
+            .medRegistrert(LocalDate.of(1978, 01, 01))
+            .medOppstart(LocalDate.of(1978, 01, 01))
+            .build();
 
     private LRUCache<String, Virksomhet> cache = new LRUCache<>(2000, CACHE_ELEMENT_LIVE_TIME_MS);
 
@@ -43,19 +43,22 @@ public class VirksomhetTjeneste {
     }
 
     /**
-     * Henter informasjon fra Enhetsregisteret hvis applikasjonen ikke kjenner til orgnr eller har data som er eldre enn 24 timer.
+     * Henter informasjon fra Enhetsregisteret hvis applikasjonen ikke kjenner til
+     * orgnr eller har data som er eldre enn 24 timer.
      *
      * @param orgNummer orgnummeret
      * @return relevant informasjon om virksomheten.
-     * @throws IllegalArgumentException ved forespørsel om orgnr som ikke finnes i enhetsreg
+     * @throws IllegalArgumentException ved forespørsel om orgnr som ikke finnes i
+     *                                  enhetsreg
      */
     public Virksomhet hentOrganisasjon(String orgNummer) {
         return hent(orgNummer);
     }
 
     public Optional<Virksomhet> finnOrganisasjon(String orgNummer) {
-        if (orgNummer == null)
+        if (orgNummer == null) {
             return Optional.empty();
+        }
         if (OrgNummer.erKunstig(orgNummer)) {
             return Optional.of(hent(orgNummer));
         }
@@ -75,13 +78,13 @@ public class VirksomhetTjeneste {
         Objects.requireNonNull(orgNummer, "orgNummer"); // NOSONAR
         var org = eregRestKlient.hentOrganisasjon(orgNummer);
         var builder = Virksomhet.getBuilder()
-            .medNavn(org.getNavn())
-            .medRegistrert(org.getRegistreringsdato())
-            .medOrgnr(org.getOrganisasjonsnummer());
+                .medNavn(org.getNavn())
+                .medRegistrert(org.getRegistreringsdato())
+                .medOrgnr(org.getOrganisasjonsnummer());
         if (OrganisasjonstypeEReg.VIRKSOMHET.equals(org.getType())) {
             builder.medOrganisasjonstype(Organisasjonstype.VIRKSOMHET)
-                .medOppstart(org.getOppstartsdato())
-                .medAvsluttet(org.getNedleggelsesdato());
+                    .medOppstart(org.getOppstartsdato())
+                    .medAvsluttet(org.getNedleggelsesdato());
         } else if (OrganisasjonstypeEReg.JURIDISK_ENHET.equals(org.getType())) {
             builder.medOrganisasjonstype(Organisasjonstype.JURIDISK_ENHET);
         } else if (OrganisasjonstypeEReg.ORGLEDD.equals(org.getType())) {

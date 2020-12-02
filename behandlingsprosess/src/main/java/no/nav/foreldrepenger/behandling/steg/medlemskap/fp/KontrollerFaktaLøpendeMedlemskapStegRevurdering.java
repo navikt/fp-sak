@@ -46,8 +46,8 @@ import no.nav.foreldrepenger.domene.uttak.SkalKopiereUttaksstegTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @BehandlingStegRef(kode = "KOFAK_LOP_MEDL")
-@BehandlingTypeRef("BT-004") //Revurdering
-@FagsakYtelseTypeRef("FP")  //Foreldrepenger
+@BehandlingTypeRef("BT-004") // Revurdering
+@FagsakYtelseTypeRef("FP") // Foreldrepenger
 @ApplicationScoped
 public class KontrollerFaktaLøpendeMedlemskapStegRevurdering implements KontrollerFaktaLøpendeMedlemskapSteg {
 
@@ -64,10 +64,10 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurdering implements Kontrol
 
     @Inject
     public KontrollerFaktaLøpendeMedlemskapStegRevurdering(UtledVurderingsdatoerForMedlemskapTjeneste vurderingsdatoer,
-                                                           BehandlingRepositoryProvider provider,
-                                                           VurderMedlemskapTjeneste vurderMedlemskapTjeneste,
-                                                           SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                                           BehandlingFlytkontroll flytkontroll) {
+            BehandlingRepositoryProvider provider,
+            VurderMedlemskapTjeneste vurderMedlemskapTjeneste,
+            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+            BehandlingFlytkontroll flytkontroll) {
         this.tjeneste = vurderingsdatoer;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingRepository = provider.getBehandlingRepository();
@@ -77,7 +77,7 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurdering implements Kontrol
     }
 
     KontrollerFaktaLøpendeMedlemskapStegRevurdering() {
-        //CDI
+        // CDI
     }
 
     @Override
@@ -114,15 +114,16 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurdering implements Kontrol
 
     private List<BehandlingÅrsakType> behandlingsårsaker(Behandling behandling) {
         return behandling.getBehandlingÅrsaker()
-            .stream()
-            .map(behandlingÅrsak -> behandlingÅrsak.getBehandlingÅrsakType())
-            .collect(Collectors.toList());
+                .stream()
+                .map(behandlingÅrsak -> behandlingÅrsak.getBehandlingÅrsakType())
+                .collect(Collectors.toList());
     }
 
     private boolean skalVurdereLøpendeMedlemskap(Long behandlingId) {
         Optional<Behandlingsresultat> behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
         return behandlingsresultat.map(b -> b.getVilkårResultat().getVilkårene()).orElse(Collections.emptyList())
-            .stream()
-            .anyMatch(v -> v.getVilkårType().equals(VilkårType.MEDLEMSKAPSVILKÅRET) && v.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.OPPFYLT));
+                .stream()
+                .anyMatch(v -> v.getVilkårType().equals(VilkårType.MEDLEMSKAPSVILKÅRET)
+                        && v.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.OPPFYLT));
     }
 }

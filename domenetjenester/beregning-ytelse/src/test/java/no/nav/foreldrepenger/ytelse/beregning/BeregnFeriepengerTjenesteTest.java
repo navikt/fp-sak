@@ -59,7 +59,7 @@ public class BeregnFeriepengerTjenesteTest {
         beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
         tjeneste = new BeregnFeriepenger(repositoryProvider, 60);
         fagsakRelasjonRepository = new FagsakRelasjonRepository(entityManager, new YtelsesFordelingRepository(entityManager),
-            new FagsakLåsRepository(entityManager));
+                new FagsakLåsRepository(entityManager));
     }
 
     @Test
@@ -70,7 +70,8 @@ public class BeregnFeriepengerTjenesteTest {
         Behandling morsBehandling = scenario.lagre(repositoryProvider);
         fagsakRelasjonRepository.opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
         fagsakRelasjonRepository.kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
-        BeregningsresultatEntitet morsBeregningsresultatFP = lagBeregningsresultatFP(SKJÆRINGSTIDSPUNKT_MOR, SKJÆRINGSTIDSPUNKT_FAR, Inntektskategori.ARBEIDSTAKER);
+        BeregningsresultatEntitet morsBeregningsresultatFP = lagBeregningsresultatFP(SKJÆRINGSTIDSPUNKT_MOR, SKJÆRINGSTIDSPUNKT_FAR,
+                Inntektskategori.ARBEIDSTAKER);
 
         // Act
         tjeneste.beregnFeriepenger(morsBehandling, morsBeregningsresultatFP);
@@ -85,12 +86,13 @@ public class BeregnFeriepengerTjenesteTest {
         scenario.medDefaultOppgittDekningsgrad();
         Behandling morsBehandling = scenario.lagre(repositoryProvider);
         fagsakRelasjonRepository.opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
-        BeregningsresultatEntitet morsBeregningsresultatFP = lagBeregningsresultatFP(SKJÆRINGSTIDSPUNKT_MOR, SKJÆRINGSTIDSPUNKT_MOR.plusMonths(6), Inntektskategori.ARBEIDSTAKER_UTEN_FERIEPENGER);
+        BeregningsresultatEntitet morsBeregningsresultatFP = lagBeregningsresultatFP(SKJÆRINGSTIDSPUNKT_MOR, SKJÆRINGSTIDSPUNKT_MOR.plusMonths(6),
+                Inntektskategori.ARBEIDSTAKER_UTEN_FERIEPENGER);
 
         // Act
         tjeneste.beregnFeriepenger(morsBehandling, morsBeregningsresultatFP);
 
-        //Assert
+        // Assert
         assertThat(morsBeregningsresultatFP.getBeregningsresultatFeriepenger()).hasValueSatisfying(resultat -> {
             assertThat(resultat.getBeregningsresultatFeriepengerPrÅrListe()).isEmpty();
             assertThat(resultat.getFeriepengerPeriodeFom()).isNull();
@@ -121,10 +123,10 @@ public class BeregnFeriepengerTjenesteTest {
 
     private Behandling lagBehandlingFar() {
         ScenarioFarSøkerForeldrepenger scenarioAnnenPart = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medVilkårResultatType(VilkårResultatType.INNVILGET);
+                .medVilkårResultatType(VilkårResultatType.INNVILGET);
         scenarioAnnenPart.medBehandlingVedtak()
-            .medVedtakstidspunkt(LocalDateTime.now())
-            .medVedtakResultatType(VedtakResultatType.INNVILGET);
+                .medVedtakstidspunkt(LocalDateTime.now())
+                .medVedtakResultatType(VedtakResultatType.INNVILGET);
         Behandling farsBehandling = scenarioAnnenPart.lagre(repositoryProvider);
         Behandlingsresultat behandlingsresultat = repositoryProvider.getBehandlingsresultatRepository().hent(farsBehandling.getId());
         Behandlingsresultat.builderEndreEksisterende(behandlingsresultat).medBehandlingResultatType(BehandlingResultatType.INNVILGET);
@@ -132,7 +134,8 @@ public class BeregnFeriepengerTjenesteTest {
         farsBehandling.avsluttBehandling();
         repository.lagre(farsBehandling);
 
-        BeregningsresultatEntitet farsBeregningsresultatFP = lagBeregningsresultatFP(SKJÆRINGSTIDSPUNKT_FAR, SISTE_DAG_FAR, Inntektskategori.ARBEIDSTAKER);
+        BeregningsresultatEntitet farsBeregningsresultatFP = lagBeregningsresultatFP(SKJÆRINGSTIDSPUNKT_FAR, SISTE_DAG_FAR,
+                Inntektskategori.ARBEIDSTAKER);
 
         beregningsresultatRepository.lagre(farsBehandling, farsBeregningsresultatFP);
         return farsBehandling;
@@ -141,17 +144,17 @@ public class BeregnFeriepengerTjenesteTest {
     private BeregningsresultatEntitet lagBeregningsresultatFP(LocalDate periodeFom, LocalDate periodeTom, Inntektskategori inntektskategori) {
         BeregningsresultatEntitet beregningsresultat = BeregningsresultatEntitet.builder().medRegelInput("input").medRegelSporing("sporing").build();
         BeregningsresultatPeriode beregningsresultatPeriode = BeregningsresultatPeriode.builder()
-            .medBeregningsresultatPeriodeFomOgTom(periodeFom, periodeTom)
-            .build(beregningsresultat);
+                .medBeregningsresultatPeriodeFomOgTom(periodeFom, periodeTom)
+                .build(beregningsresultat);
         BeregningsresultatAndel.builder()
-            .medInntektskategori(inntektskategori)
-            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
-            .medDagsats(DAGSATS)
-            .medDagsatsFraBg(DAGSATS)
-            .medBrukerErMottaker(true)
-            .medUtbetalingsgrad(BigDecimal.valueOf(100))
-            .medStillingsprosent(BigDecimal.valueOf(100))
-            .build(beregningsresultatPeriode);
+                .medInntektskategori(inntektskategori)
+                .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+                .medDagsats(DAGSATS)
+                .medDagsatsFraBg(DAGSATS)
+                .medBrukerErMottaker(true)
+                .medUtbetalingsgrad(BigDecimal.valueOf(100))
+                .medStillingsprosent(BigDecimal.valueOf(100))
+                .build(beregningsresultatPeriode);
         return beregningsresultat;
     }
 }

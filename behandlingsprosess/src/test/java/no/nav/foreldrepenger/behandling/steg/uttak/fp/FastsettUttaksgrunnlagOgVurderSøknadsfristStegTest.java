@@ -78,27 +78,27 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest extends EntityM
         ytelsesFordelingRepository = new YtelsesFordelingRepository(entityManager);
         var beregningsgrunnlagTjeneste = new HentOgLagreBeregningsgrunnlagTjeneste(entityManager);
         var skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(behandlingRepositoryProvider,
-            new YtelseMaksdatoTjeneste(behandlingRepositoryProvider, new RelatertBehandlingTjeneste(behandlingRepositoryProvider)),
-            new SkjæringstidspunktUtils());
+                new YtelseMaksdatoTjeneste(behandlingRepositoryProvider, new RelatertBehandlingTjeneste(behandlingRepositoryProvider)),
+                new SkjæringstidspunktUtils());
         var uttakTjeneste = new ForeldrepengerUttakTjeneste(new FpUttakRepository(entityManager));
         var andelGraderingTjeneste = new AndelGraderingTjeneste(uttakTjeneste, ytelsesFordelingRepository);
         var iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
         var uttakInputTjeneste = new UttakInputTjeneste(behandlingRepositoryProvider, beregningsgrunnlagTjeneste,
-            iayTjeneste, skjæringstidspunktTjeneste, mock(MedlemTjeneste.class), andelGraderingTjeneste);
+                iayTjeneste, skjæringstidspunktTjeneste, mock(MedlemTjeneste.class), andelGraderingTjeneste);
         var vurderSøknadsfristTjeneste = new VurderSøknadsfristTjeneste(behandlingRepositoryProvider);
         var uttakRepositoryProvider = new UttakRepositoryProvider(entityManager);
         var fagsakRepository = new FagsakRepository(entityManager);
         var fagsakLåsRepository = new FagsakLåsRepository(entityManager);
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(new FagsakRelasjonRepository(entityManager,
-            ytelsesFordelingRepository, fagsakLåsRepository), null, fagsakRepository);
+                ytelsesFordelingRepository, fagsakLåsRepository), null, fagsakRepository);
         var behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
         var dekningsgradTjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste, behandlingsresultatRepository);
         var endringsdatoFørstegangsbehandlingUtleder = new EndringsdatoFørstegangsbehandlingUtleder(ytelsesFordelingRepository);
         var endringsdatoRevurderingUtleder = new EndringsdatoRevurderingUtlederImpl(uttakRepositoryProvider, dekningsgradTjeneste);
         var fastsettUttaksgrunnlagTjeneste = new FastsettUttaksgrunnlagTjeneste(uttakRepositoryProvider, endringsdatoFørstegangsbehandlingUtleder,
-            endringsdatoRevurderingUtleder);
+                endringsdatoRevurderingUtleder);
         fastsettUttaksgrunnlagOgVurderSøknadsfristSteg = new FastsettUttaksgrunnlagOgVurderSøknadsfristSteg(
-            uttakInputTjeneste, ytelsesFordelingRepository, vurderSøknadsfristTjeneste, fastsettUttaksgrunnlagTjeneste, behandlingRepository);
+                uttakInputTjeneste, ytelsesFordelingRepository, vurderSøknadsfristTjeneste, fastsettUttaksgrunnlagTjeneste, behandlingRepository);
         familieHendelseRepository = new FamilieHendelseRepository(entityManager);
     }
 
@@ -127,16 +127,16 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest extends EntityM
     public void skalOppretteAksjonspunktForÅVurdereSøknadsfristHvisSøktePerioderUtenforSøknadsfrist() {
         var behandling = opprettBehandling();
         LocalDate mottattDato = LocalDate.now();
-        LocalDate førsteUttaksdato = mottattDato.with(DAY_OF_MONTH, 1).minusMonths(3).minusDays(1); //En dag forbi søknadsfrist
+        LocalDate førsteUttaksdato = mottattDato.with(DAY_OF_MONTH, 1).minusMonths(3).minusDays(1); // En dag forbi søknadsfrist
         OppgittPeriodeEntitet periode1 = OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
-            .medPeriode(førsteUttaksdato, førsteUttaksdato.plusWeeks(6))
-            .build();
+                .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+                .medPeriode(førsteUttaksdato, førsteUttaksdato.plusWeeks(6))
+                .build();
 
         OppgittPeriodeEntitet periode2 = OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
-            .medPeriode(førsteUttaksdato.plusWeeks(6).plusDays(1), førsteUttaksdato.plusWeeks(10))
-            .build();
+                .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
+                .medPeriode(førsteUttaksdato.plusWeeks(6).plusDays(1), førsteUttaksdato.plusWeeks(10))
+                .build();
 
         OppgittDekningsgradEntitet dekningsgrad = OppgittDekningsgradEntitet.bruk100();
         Long behandlingId = behandling.getId();
@@ -149,7 +149,8 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest extends EntityM
         behandlingRepositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
         Fagsak fagsak = behandling.getFagsak();
         // Act
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), behandlingRepository.taSkriveLås(behandling));
+        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
+                behandlingRepository.taSkriveLås(behandling));
         BehandleStegResultat behandleStegResultat = fastsettUttaksgrunnlagOgVurderSøknadsfristSteg.utførSteg(kontekst);
 
         // Assert
@@ -170,14 +171,14 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest extends EntityM
         LocalDate førsteUttaksdato = LocalDate.now().with(DAY_OF_MONTH, 1).minusMonths(3);
         LocalDate mottattDato = LocalDate.now();
         OppgittPeriodeEntitet periode1 = OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
-            .medPeriode(førsteUttaksdato, førsteUttaksdato.plusWeeks(6))
-            .build();
+                .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+                .medPeriode(førsteUttaksdato, førsteUttaksdato.plusWeeks(6))
+                .build();
 
         OppgittPeriodeEntitet periode2 = OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
-            .medPeriode(førsteUttaksdato.plusWeeks(6).plusDays(1), førsteUttaksdato.plusWeeks(10))
-            .build();
+                .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
+                .medPeriode(førsteUttaksdato.plusWeeks(6).plusDays(1), førsteUttaksdato.plusWeeks(10))
+                .build();
 
         OppgittDekningsgradEntitet dekningsgrad = OppgittDekningsgradEntitet.bruk100();
         Long behandlingId = behandling.getId();
@@ -191,7 +192,8 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest extends EntityM
 
         Fagsak fagsak = behandling.getFagsak();
         // Act
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), behandlingRepository.taSkriveLås(behandling));
+        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
+                behandlingRepository.taSkriveLås(behandling));
         BehandleStegResultat behandleStegResultat = fastsettUttaksgrunnlagOgVurderSøknadsfristSteg.utførSteg(kontekst);
 
         // Assert
@@ -207,16 +209,15 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest extends EntityM
 
     private SøknadEntitet opprettSøknad(LocalDate fødselsdato, LocalDate mottattDato, Behandling behandling) {
         final FamilieHendelseBuilder søknadHendelse = familieHendelseRepository.opprettBuilderFor(behandling)
-            .medAntallBarn(1)
-            .medFødselsDato(fødselsdato);
+                .medAntallBarn(1)
+                .medFødselsDato(fødselsdato);
         familieHendelseRepository.lagre(behandling, søknadHendelse);
 
         return new SøknadEntitet.Builder()
-            .medSøknadsdato(LocalDate.now())
-            .medMottattDato(mottattDato)
-            .medElektroniskRegistrert(true)
-            .build();
+                .medSøknadsdato(LocalDate.now())
+                .medMottattDato(mottattDato)
+                .medElektroniskRegistrert(true)
+                .build();
     }
-
 
 }

@@ -40,8 +40,8 @@ class DummySteg implements BehandlingSteg {
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         if (tilbakefør) {
             BehandleStegResultat tilbakeført = BehandleStegResultat
-                .tilbakeførtMedAksjonspunkter(aksjonspunkter.stream()
-                    .map(AksjonspunktResultat::getAksjonspunktDefinisjon).collect(Collectors.toList()));
+                    .tilbakeførtMedAksjonspunkter(aksjonspunkter.stream()
+                            .map(AksjonspunktResultat::getAksjonspunktDefinisjon).collect(Collectors.toList()));
             sisteUtførStegResultat.set(tilbakeført);
             return tilbakeført;
         }

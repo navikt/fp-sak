@@ -16,6 +16,7 @@ public class AktørYtelseEndring {
     public boolean erEksklusiveYtelserEndret() {
         return eksklusiveYtelserEndret;
     }
+
     public boolean erAndreYtelserEndret() {
         return andreytelserEndret;
     }

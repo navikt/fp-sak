@@ -32,7 +32,7 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
     }
 
     UttakGrunnlagTjeneste() {
-        //CDI
+        // CDI
     }
 
     @Override
@@ -42,10 +42,9 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
             return Optional.empty();
         }
         SvangerskapspengerGrunnlag grunnlag = new SvangerskapspengerGrunnlag()
-            .medFamilieHendelse(familieHendelse.get())
-            .medSvpGrunnlagEntitet(svpGrunnEntitet(ref).orElse(null));
-        return Optional.of(grunnlag
-        );
+                .medFamilieHendelse(familieHendelse.get())
+                .medSvpGrunnlagEntitet(svpGrunnEntitet(ref).orElse(null));
+        return Optional.of(grunnlag);
     }
 
     private Optional<SvpGrunnlagEntitet> svpGrunnEntitet(BehandlingReferanse ref) {
@@ -53,7 +52,8 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
     }
 
     private Optional<FamilieHendelse> familieHendelse(BehandlingReferanse ref) {
-        var gjeldendeFamiliehendelseOpt = familieHendelseRepository.hentAggregatHvisEksisterer(ref.getBehandlingId()).map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon);
+        var gjeldendeFamiliehendelseOpt = familieHendelseRepository.hentAggregatHvisEksisterer(ref.getBehandlingId())
+                .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon);
         if (gjeldendeFamiliehendelseOpt.isEmpty()) {
             return Optional.empty();
         }

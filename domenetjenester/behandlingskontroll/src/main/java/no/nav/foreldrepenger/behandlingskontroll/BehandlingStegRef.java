@@ -43,7 +43,8 @@ public @interface BehandlingStegRef {
     /**
      * Kode-verdi som identifiserer behandlingsteget.
      * <p>
-     * Må matche ett innslag i <code>BEHANDLING_STEG_TYPE</code> tabell for å kunne kjøres.
+     * Må matche ett innslag i <code>BEHANDLING_STEG_TYPE</code> tabell for å kunne
+     * kjøres.
      *
      * @see no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType
      */
@@ -53,7 +54,8 @@ public @interface BehandlingStegRef {
      * AnnotationLiteral som kan brukes i CDI søk.
      * <p>
      * Eks. for bruk i:<br>
-     * {@link CDI#current#select(javax.enterprise.util.TypeLiteral, java.lang.annotation.Annotation...)}.
+     * {@link CDI#current#select(javax.enterprise.util.TypeLiteral,
+     * java.lang.annotation.Annotation...)}.
      */
     public static class BehandlingStegRefLiteral extends AnnotationLiteral<BehandlingStegRef> implements BehandlingStegRef {
 
@@ -80,7 +82,7 @@ public @interface BehandlingStegRef {
 
     @SuppressWarnings("unchecked")
     public final static class Lookup {
-        
+
         private Lookup() {
         }
 
@@ -88,19 +90,21 @@ public @interface BehandlingStegRef {
             return find(cls, (CDI<I>) CDI.current(), ytelseTypeKode, behandlingType, behandlingStegRef);
         }
 
-        public static <I> Optional<I> find(Class<I> cls, FagsakYtelseType ytelseTypeKode, BehandlingType behandlingType, BehandlingStegType behandlingStegRef) {
+        public static <I> Optional<I> find(Class<I> cls, FagsakYtelseType ytelseTypeKode, BehandlingType behandlingType,
+                BehandlingStegType behandlingStegRef) {
             return find(cls, (CDI<I>) CDI.current(), ytelseTypeKode, behandlingType, behandlingStegRef);
         }
 
         public static <I> Optional<I> find(Class<I> cls, Instance<I> instances, FagsakYtelseType ytelseTypeKode, BehandlingType behandlingType,
-                                           BehandlingStegType behandlingStegRef) {
+                BehandlingStegType behandlingStegRef) {
             return find(cls, instances,
-                ytelseTypeKode == null ? null : ytelseTypeKode.getKode(),
-                behandlingType == null ? null : behandlingType.getKode(),
-                behandlingStegRef == null ? null : behandlingStegRef.getKode());
+                    ytelseTypeKode == null ? null : ytelseTypeKode.getKode(),
+                    behandlingType == null ? null : behandlingType.getKode(),
+                    behandlingStegRef == null ? null : behandlingStegRef.getKode());
         }
 
-        public static <I> Optional<I> find(Class<I> cls, Instance<I> instances, String fagsakYtelseType, String behandlingType, String behandlingStegRef) { // NOSONAR
+        public static <I> Optional<I> find(Class<I> cls, Instance<I> instances, String fagsakYtelseType, String behandlingType,
+                String behandlingStegRef) { // NOSONAR
             Objects.requireNonNull(instances, "instances");
 
             for (var fagsakLiteral : coalesce(fagsakYtelseType, "*")) {
@@ -120,7 +124,7 @@ public @interface BehandlingStegRef {
                             } else {
                                 if (cinst.isAmbiguous()) {
                                     throw new IllegalStateException("Har flere matchende instanser for klasse : " + cls.getName() + ", fagsakType="
-                                        + fagsakLiteral + ", behandlingType=" + behandlingLiteral + ", behandlingStegRef=" + stegRef);
+                                            + fagsakLiteral + ", behandlingType=" + behandlingLiteral + ", behandlingStegRef=" + stegRef);
                                 }
                             }
                         }
@@ -133,15 +137,15 @@ public @interface BehandlingStegRef {
 
         private static <I> Instance<I> select(Class<I> cls, Instance<I> instances, Annotation anno) {
             return cls != null
-                ? instances.select(cls, anno)
-                : instances.select(anno);
+                    ? instances.select(cls, anno)
+                    : instances.select(anno);
         }
-        
+
         private static <I> I getInstance(Instance<I> inst) {
             var i = inst.get();
             if (i.getClass().isAnnotationPresent(Dependent.class)) {
                 throw new IllegalStateException(
-                    "Kan ikke ha @Dependent scope bean ved Instance lookup dersom en ikke også håndtere lifecycle selv: " + i.getClass());
+                        "Kan ikke ha @Dependent scope bean ved Instance lookup dersom en ikke også håndtere lifecycle selv: " + i.getClass());
             }
             return i;
         }
@@ -151,10 +155,10 @@ public @interface BehandlingStegRef {
         }
 
     }
-    
+
     /**
      * container for repeatable annotations.
-     * 
+     *
      * @see https://docs.oracle.com/javase/tutorial/java/annotations/repeating.html
      */
     @Inherited

@@ -70,12 +70,12 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
 
     @Inject
     public OpprettInformasjonsFagsakTask(BehandlingRepositoryProvider repositoryProvider,
-                                         BehandlingOpprettingTjeneste behandlingOpprettingTjeneste,
-                                         PersoninfoAdapter personinfoAdapter,
-                                         NavBrukerTjeneste brukerTjeneste,
-                                         FagsakTjeneste fagsakTjeneste,
-                                         OpprettGSakTjeneste opprettGSakTjeneste,
-                                         FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
+            BehandlingOpprettingTjeneste behandlingOpprettingTjeneste,
+            PersoninfoAdapter personinfoAdapter,
+            NavBrukerTjeneste brukerTjeneste,
+            FagsakTjeneste fagsakTjeneste,
+            OpprettGSakTjeneste opprettGSakTjeneste,
+            FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         this.behandlingOpprettingTjeneste = behandlingOpprettingTjeneste;
         this.personinfoAdapter = personinfoAdapter;
         this.brukerTjeneste = brukerTjeneste;
@@ -90,7 +90,8 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
         AktørId aktørId = new AktørId(prosessTaskData.getAktørId());
-        // Sjekk at ikke finnes relaterte saker: Saker opprettet etter mors søknad, minus saker andre barn.
+        // Sjekk at ikke finnes relaterte saker: Saker opprettet etter mors søknad,
+        // minus saker andre barn.
         LocalDate morsFHDato = LocalDate.parse(prosessTaskData.getPropertyValue(FH_DATO_KEY));
         LocalDate morsOpprettetDato = LocalDate.parse(prosessTaskData.getPropertyValue(OPPRETTET_DATO_KEY));
         BehandlingÅrsakType behandlingÅrsakType = BehandlingÅrsakType.fraKode(prosessTaskData.getPropertyValue(BEHANDLING_AARSAK));
@@ -100,7 +101,8 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
             return;
         }
 
-        OrganisasjonsEnhet enhet = new OrganisasjonsEnhet(prosessTaskData.getPropertyValue(BEH_ENHET_ID_KEY), prosessTaskData.getPropertyValue(BEH_ENHET_NAVN_KEY));
+        OrganisasjonsEnhet enhet = new OrganisasjonsEnhet(prosessTaskData.getPropertyValue(BEH_ENHET_ID_KEY),
+                prosessTaskData.getPropertyValue(BEH_ENHET_NAVN_KEY));
         PersoninfoBasis bruker = hentPersonInfo(aktørId);
         if (bruker.getDødsdato() != null) {
             return; // Unngå brev til død annen part
@@ -109,7 +111,7 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
         kobleNyFagsakTilMors(Long.parseLong(prosessTaskData.getPropertyValue(FAGSAK_ID_MOR_KEY)), fagsak);
         Behandling behandling = opprettFørstegangsbehandlingInformasjonssak(fagsak, enhet, behandlingÅrsakType);
         behandlingOpprettingTjeneste.asynkStartBehandlingsprosess(behandling);
-        log.info("Opprettet fagsak/informasjon {} med behandling {}", fagsak.getSaksnummer().getVerdi(), behandling.getId()); //NOSONAR
+        log.info("Opprettet fagsak/informasjon {} med behandling {}", fagsak.getSaksnummer().getVerdi(), behandling.getId()); // NOSONAR
     }
 
     private Fagsak opprettNyFagsak(AktørId aktørId) {
@@ -123,7 +125,8 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
     }
 
     private void kobleNyFagsakTilMors(Long fagsakIdMor, Fagsak fagsak) {
-        // Fagsakene må kobles da infobrevet på ny fagsak trenger informasjon fra uttaket på eksisterende fagsak
+        // Fagsakene må kobles da infobrevet på ny fagsak trenger informasjon fra
+        // uttaket på eksisterende fagsak
         Fagsak fagsakMor = fagsakRepository.finnEksaktFagsak(fagsakIdMor);
         Optional<Behandling> vedtakMor = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakIdMor);
         vedtakMor.ifPresent(behandling -> fagsakRelasjonTjeneste.kobleFagsaker(fagsakMor, fagsak, behandling));
@@ -135,11 +138,11 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
 
     private List<Fagsak> hentBrukersRelevanteSaker(AktørId aktørId, LocalDate opprettetEtter, LocalDate familieHendelse) {
         return fagsakRepository.hentForBruker(aktørId).stream()
-            .filter(sak -> FagsakYtelseType.FORELDREPENGER.equals(sak.getYtelseType()))
-            .filter(sak -> sak.getOpprettetTidspunkt().toLocalDate().isAfter(opprettetEtter.minusDays(1)))
-            .filter(Fagsak::erÅpen)
-            .filter(sak -> erRelevantFagsak(sak, familieHendelse))
-            .collect(Collectors.toList());
+                .filter(sak -> FagsakYtelseType.FORELDREPENGER.equals(sak.getYtelseType()))
+                .filter(sak -> sak.getOpprettetTidspunkt().toLocalDate().isAfter(opprettetEtter.minusDays(1)))
+                .filter(Fagsak::erÅpen)
+                .filter(sak -> erRelevantFagsak(sak, familieHendelse))
+                .collect(Collectors.toList());
     }
 
     private boolean erRelevantFagsak(Fagsak fagsak, LocalDate fhDato) {
@@ -157,7 +160,8 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
 
     private Optional<LocalDate> finnSakensFHDato(Fagsak fagsak) {
         Optional<Behandling> siste = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId());
-        return siste.flatMap(behandling -> familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId()).map(FamilieHendelseGrunnlagEntitet::finnGjeldendeFødselsdato));
+        return siste.flatMap(behandling -> familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
+                .map(FamilieHendelseGrunnlagEntitet::finnGjeldendeFødselsdato));
     }
 
     private boolean erSammeFH(LocalDate fhDato, LocalDate fagsakFhDato) {
@@ -166,7 +170,7 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
 
     private PersoninfoBasis hentPersonInfo(AktørId aktørId) {
         return personinfoAdapter.hentBrukerBasisForAktør(aktørId)
-            .orElseThrow(() -> OppgaveFeilmeldinger.FACTORY.identIkkeFunnet(aktørId).toException());
+                .orElseThrow(() -> OppgaveFeilmeldinger.FACTORY.identIkkeFunnet(aktørId).toException());
     }
 
 }

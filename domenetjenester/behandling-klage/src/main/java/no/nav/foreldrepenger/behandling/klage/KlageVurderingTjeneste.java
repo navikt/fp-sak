@@ -44,10 +44,10 @@ public class KlageVurderingTjeneste {
 
     @Inject
     public KlageVurderingTjeneste(DokumentBestillerTjeneste dokumentBestillerTjeneste,
-                                  ProsesseringAsynkTjeneste prosesseringAsynkTjeneste,
-                                  BehandlingRepository behandlingRepository,
-                                  KlageRepository klageRepository,
-                                  BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
+            ProsesseringAsynkTjeneste prosesseringAsynkTjeneste,
+            BehandlingRepository behandlingRepository,
+            KlageRepository klageRepository,
+            BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
         this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
         this.prosesseringAsynkTjeneste = prosesseringAsynkTjeneste;
         this.klageRepository = klageRepository;
@@ -72,14 +72,13 @@ public class KlageVurderingTjeneste {
         klageRepository.settPåklagdBehandlingId(klageBehandlingId, påklagetBehandlingId);
     }
 
-    public void oppdaterKlageMedPåklagetEksternBehandlingUuid(Long klageBehandlingId, UUID påklagetEksternBehandlingUuid){
+    public void oppdaterKlageMedPåklagetEksternBehandlingUuid(Long klageBehandlingId, UUID påklagetEksternBehandlingUuid) {
         klageRepository.settPåklagdEksternBehandlingUuid(klageBehandlingId, påklagetEksternBehandlingUuid);
     }
 
     public void lagreFormkrav(Behandling behandling, KlageFormkravEntitet.Builder builder) {
         klageRepository.lagreFormkrav(behandling, builder);
     }
-
 
     public Optional<KlageVurderingResultat> hentKlageVurderingResultat(Behandling behandling, KlageVurdertAv vurdertAv) {
         return klageRepository.hentKlageVurderingResultat(behandling.getId(), vurdertAv);
@@ -102,16 +101,18 @@ public class KlageVurderingTjeneste {
         lagreKlageVurderingResultat(behandling, builder, vurdertAv, false);
     }
 
-    private void lagreKlageVurderingResultat(Behandling behandling, KlageVurderingResultat.Builder builder, KlageVurdertAv vurdertAv, boolean erVurderingOppdaterer) {
-        var aksjonspunkt = KlageVurdertAv.NK.equals(vurdertAv) ? AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NK : AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP;
+    private void lagreKlageVurderingResultat(Behandling behandling, KlageVurderingResultat.Builder builder, KlageVurdertAv vurdertAv,
+            boolean erVurderingOppdaterer) {
+        var aksjonspunkt = KlageVurdertAv.NK.equals(vurdertAv) ? AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NK
+                : AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP;
         var vurderingsteg = KlageVurdertAv.NK.equals(vurdertAv) ? BehandlingStegType.KLAGE_NK : BehandlingStegType.KLAGE_NFP;
 
         var klageResultat = hentEvtOpprettKlageResultat(behandling);
         var nyttresultat = builder.medKlageResultat(klageResultat).medKlageVurdertAv(vurdertAv).build();
         var eksisterende = hentKlageVurderingResultat(behandling, vurdertAv).orElse(null);
 
-        var uendret = eksisterende != null && eksisterende.harLikVurdering(nyttresultat);
-        var endretBeslutterStatus = eksisterende != null && eksisterende.isGodkjentAvMedunderskriver() && !uendret;
+        var uendret = (eksisterende != null) && eksisterende.harLikVurdering(nyttresultat);
+        var endretBeslutterStatus = (eksisterende != null) && eksisterende.isGodkjentAvMedunderskriver() && !uendret;
 
         if (eksisterende == null) {
             nyttresultat.setGodkjentAvMedunderskriver(false);
@@ -122,8 +123,8 @@ public class KlageVurderingTjeneste {
             }
         }
         var tilbakeføres = endretBeslutterStatus &&
-            !behandling.harÅpentAksjonspunktMedType(aksjonspunkt) &&
-            behandlingskontrollTjeneste.erStegPassert(behandling, vurderingsteg);
+                !behandling.harÅpentAksjonspunktMedType(aksjonspunkt) &&
+                behandlingskontrollTjeneste.erStegPassert(behandling, vurderingsteg);
         klageRepository.lagreVurderingsResultat(behandling.getId(), nyttresultat);
         if (erVurderingOppdaterer || tilbakeføres) {
             settBehandlingResultatTypeBasertPaaUtfall(behandling, nyttresultat.getKlageVurdering(), vurdertAv);
@@ -142,23 +143,24 @@ public class KlageVurderingTjeneste {
 
     private void settBehandlingResultatTypeBasertPaaUtfall(Behandling behandling, KlageVurdering klageVurdering, KlageVurdertAv vurdertAv) {
         if (KlageVurdertAv.NFP.equals(vurdertAv) && klageVurdering.equals(KlageVurdering.STADFESTE_YTELSESVEDTAK)
-            && !Fagsystem.INFOTRYGD.equals(behandling.getMigrertKilde())) {
+                && !Fagsystem.INFOTRYGD.equals(behandling.getMigrertKilde())) {
 
             BestillBrevDto bestillBrevDto = new BestillBrevDto(behandling.getId(), DokumentMalType.KLAGE_OVERSENDT_KLAGEINSTANS);
             dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.SAKSBEHANDLER, false);
             oppdaterBehandlingMedNyFrist(behandling);
         }
         KlageResultatEntitet klageResultatEntitet = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
-        boolean erPåklagdEksternBehandling = klageResultatEntitet.getPåKlagdBehandlingId().isEmpty() && klageResultatEntitet.getPåKlagdEksternBehandlingUuid().isPresent();
+        boolean erPåklagdEksternBehandling = klageResultatEntitet.getPåKlagdBehandlingId().isEmpty()
+                && klageResultatEntitet.getPåKlagdEksternBehandlingUuid().isPresent();
         BehandlingResultatType behandlingResultatType = BehandlingResultatType.tolkBehandlingResultatType(klageVurdering, erPåklagdEksternBehandling);
 
         if (behandling.getBehandlingsresultat() != null) {
             Behandlingsresultat.builderEndreEksisterende(behandling.getBehandlingsresultat())
-                .medBehandlingResultatType(behandlingResultatType);
+                    .medBehandlingResultatType(behandlingResultatType);
         } else {
             Behandlingsresultat.builder()
-                .medBehandlingResultatType(behandlingResultatType)
-                .buildFor(behandling);
+                    .medBehandlingResultatType(behandlingResultatType)
+                    .buildFor(behandling);
         }
     }
 

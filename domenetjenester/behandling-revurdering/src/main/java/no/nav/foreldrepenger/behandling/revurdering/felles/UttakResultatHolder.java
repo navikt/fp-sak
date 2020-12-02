@@ -10,6 +10,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 public interface UttakResultatHolder {
 
     LocalDate getSisteDagAvSistePeriode();
+
     LocalDate getFørsteDagAvFørstePeriode();
 
     boolean eksistererUttakResultat();

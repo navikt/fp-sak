@@ -16,12 +16,15 @@ final class UtledAnsettelsesperiode {
         // Skjul default constructor
     }
 
-    static Optional<DatoIntervallEntitet> utled(YrkesaktivitetFilter filter, Yrkesaktivitet yrkesaktivitet, LocalDate skjæringstidspunkt, boolean medOverstyrtPeriode){
+    static Optional<DatoIntervallEntitet> utled(YrkesaktivitetFilter filter, Yrkesaktivitet yrkesaktivitet, LocalDate skjæringstidspunkt,
+            boolean medOverstyrtPeriode) {
         return utled(filter, List.of(yrkesaktivitet), skjæringstidspunkt, medOverstyrtPeriode);
     }
 
-    static Optional<DatoIntervallEntitet> utled(YrkesaktivitetFilter filter, Collection<Yrkesaktivitet> yrkesaktiviteter, LocalDate skjæringstidspunkt, boolean medOverstyrtPeriode){
-        Optional<DatoIntervallEntitet> anssettelsesperiode = finnSenesteAnsettelsesperiodeSomOverlapperStp(filter, yrkesaktiviteter, skjæringstidspunkt, medOverstyrtPeriode);
+    static Optional<DatoIntervallEntitet> utled(YrkesaktivitetFilter filter, Collection<Yrkesaktivitet> yrkesaktiviteter,
+            LocalDate skjæringstidspunkt, boolean medOverstyrtPeriode) {
+        Optional<DatoIntervallEntitet> anssettelsesperiode = finnSenesteAnsettelsesperiodeSomOverlapperStp(filter, yrkesaktiviteter,
+                skjæringstidspunkt, medOverstyrtPeriode);
         if (!medOverstyrtPeriode && !anssettelsesperiode.isPresent()) {
             anssettelsesperiode = finnTidligsteAnsettelsesperiodeSomStarterEtterStp(filter, yrkesaktiviteter, skjæringstidspunkt);
         }
@@ -29,24 +32,25 @@ final class UtledAnsettelsesperiode {
     }
 
     private static Optional<DatoIntervallEntitet> finnSenesteAnsettelsesperiodeSomOverlapperStp(YrkesaktivitetFilter filter,
-                                                                                                Collection<Yrkesaktivitet> yrkesaktiviteter,
-                                                                                                LocalDate skjæringstidspunkt,
-                                                                                                boolean medOverstyrtPeriode) {
+            Collection<Yrkesaktivitet> yrkesaktiviteter,
+            LocalDate skjæringstidspunkt,
+            boolean medOverstyrtPeriode) {
         return filter.getAnsettelsesPerioder(yrkesaktiviteter).stream()
-            .filter(aa -> medOverstyrtPeriode
-                ? aa.erOverstyrtPeriode() || aa.getPeriode().inkluderer(skjæringstidspunkt)
-                : aa.getPeriodeUtenOverstyring().inkluderer(skjæringstidspunkt))
-            .map(aa -> medOverstyrtPeriode
-                ? aa.getPeriode()
-                : aa.getPeriodeUtenOverstyring())
-            .max(DatoIntervallEntitet::compareTo);
+                .filter(aa -> medOverstyrtPeriode
+                        ? aa.erOverstyrtPeriode() || aa.getPeriode().inkluderer(skjæringstidspunkt)
+                        : aa.getPeriodeUtenOverstyring().inkluderer(skjæringstidspunkt))
+                .map(aa -> medOverstyrtPeriode
+                        ? aa.getPeriode()
+                        : aa.getPeriodeUtenOverstyring())
+                .max(DatoIntervallEntitet::compareTo);
     }
 
-    private static Optional<DatoIntervallEntitet> finnTidligsteAnsettelsesperiodeSomStarterEtterStp(YrkesaktivitetFilter filter, Collection<Yrkesaktivitet> yrkesaktiviteter, LocalDate skjæringstidspunkt) {
+    private static Optional<DatoIntervallEntitet> finnTidligsteAnsettelsesperiodeSomStarterEtterStp(YrkesaktivitetFilter filter,
+            Collection<Yrkesaktivitet> yrkesaktiviteter, LocalDate skjæringstidspunkt) {
         return filter.getAnsettelsesPerioder(yrkesaktiviteter).stream()
-            .filter(aa -> aa.getPeriode().getFomDato().isAfter(skjæringstidspunkt))
-            .map(AktivitetsAvtale::getPeriode)
-            .min(DatoIntervallEntitet::compareTo);
+                .filter(aa -> aa.getPeriode().getFomDato().isAfter(skjæringstidspunkt))
+                .map(AktivitetsAvtale::getPeriode)
+                .min(DatoIntervallEntitet::compareTo);
     }
 
 }

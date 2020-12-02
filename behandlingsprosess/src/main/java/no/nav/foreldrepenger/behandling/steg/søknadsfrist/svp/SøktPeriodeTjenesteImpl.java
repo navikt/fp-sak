@@ -22,7 +22,7 @@ public class SøktPeriodeTjenesteImpl implements SøktPeriodeTjeneste {
     private UttaksperioderTjeneste uttaksperioderTjeneste = new UttaksperioderTjeneste();
 
     public SøktPeriodeTjenesteImpl() {
-        //For CDI
+        // For CDI
     }
 
     @Inject
@@ -43,6 +43,5 @@ public class SøktPeriodeTjenesteImpl implements SøktPeriodeTjeneste {
         }
         return Optional.empty();
     }
-
 
 }

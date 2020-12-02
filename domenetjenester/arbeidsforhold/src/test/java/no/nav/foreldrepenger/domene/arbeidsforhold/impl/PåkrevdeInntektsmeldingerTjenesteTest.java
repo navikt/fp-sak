@@ -40,14 +40,15 @@ public class PåkrevdeInntektsmeldingerTjenesteTest {
     private Map<Arbeidsgiver, Set<ArbeidsforholdMedÅrsak>> result;
 
     @BeforeEach
-    void setUp(EntityManager entityManager){
+    void setUp(EntityManager entityManager) {
         repositoryProvider = new IAYRepositoryProvider(entityManager);
-        påkrevdeInntektsmeldingerTjeneste = new PåkrevdeInntektsmeldingerTjeneste(inntektsmeldingArkivTjeneste, repositoryProvider.getSøknadRepository());
+        påkrevdeInntektsmeldingerTjeneste = new PåkrevdeInntektsmeldingerTjeneste(inntektsmeldingArkivTjeneste,
+                repositoryProvider.getSøknadRepository());
         result = new HashMap<>();
     }
 
     @Test
-    public void skal_returne_tomt_result_hvis_endringssøknad(){
+    public void skal_returne_tomt_result_hvis_endringssøknad() {
 
         // Arrange
         IAYScenarioBuilder scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
@@ -69,7 +70,7 @@ public class PåkrevdeInntektsmeldingerTjenesteTest {
     }
 
     @Test
-    public void skal_legge_til_arbeidsforhold_for_virksomhet(){
+    public void skal_legge_til_arbeidsforhold_for_virksomhet() {
 
         // Arrange
         IAYScenarioBuilder scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
@@ -92,7 +93,7 @@ public class PåkrevdeInntektsmeldingerTjenesteTest {
     }
 
     @Test
-    public void skal_legge_til_arbeidsforhold_for_personlig_foretak(){
+    public void skal_legge_til_arbeidsforhold_for_personlig_foretak() {
 
         // Arrange
         IAYScenarioBuilder scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
@@ -117,21 +118,21 @@ public class PåkrevdeInntektsmeldingerTjenesteTest {
     private void lagreSøknad(Behandling behandling, boolean erEndringssøknad) {
         byggFamilieHendelse(behandling);
         SøknadEntitet søknad = new SøknadEntitet.Builder()
-            .medElektroniskRegistrert(true)
-            .medSøknadsdato(LocalDate.now())
-            .medMottattDato(LocalDate.now())
-            .medErEndringssøknad(erEndringssøknad)
-            .build();
+                .medElektroniskRegistrert(true)
+                .medSøknadsdato(LocalDate.now())
+                .medMottattDato(LocalDate.now())
+                .medErEndringssøknad(erEndringssøknad)
+                .build();
         repositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
     }
 
     private FamilieHendelseEntitet byggFamilieHendelse(Behandling behandling) {
         FamilieHendelseBuilder søknadHendelse = repositoryProvider.getFamilieHendelseRepository()
-            .opprettBuilderFor(behandling)
-            .medAntallBarn(1);
+                .opprettBuilderFor(behandling)
+                .medAntallBarn(1);
         søknadHendelse.medTerminbekreftelse(søknadHendelse.getTerminbekreftelseBuilder()
-            .medTermindato(LocalDate.now())
-            .medUtstedtDato(LocalDate.now()));
+                .medTermindato(LocalDate.now())
+                .medUtstedtDato(LocalDate.now()));
         repositoryProvider.getFamilieHendelseRepository().lagre(behandling, søknadHendelse);
         return repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId()).getSøknadVersjon();
     }

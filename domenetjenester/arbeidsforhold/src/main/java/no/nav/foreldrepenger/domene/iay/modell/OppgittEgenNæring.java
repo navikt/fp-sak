@@ -16,8 +16,6 @@ import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 public class OppgittEgenNæring extends BaseEntitet implements IndexKey {
 
-
-
     @ChangeTracked
     private DatoIntervallEntitet periode;
 
@@ -77,7 +75,7 @@ public class OppgittEgenNæring extends BaseEntitet implements IndexKey {
         this.virksomhetType = virksomhetType;
     }
 
-    /** Samme som {@link #getVirksomhetOrgnr()} men returnerer string.*/
+    /** Samme som {@link #getVirksomhetOrgnr()} men returnerer string. */
     public String getOrgnr() {
         return virksomhetOrgnr == null ? null : virksomhetOrgnr.getId();
     }
@@ -176,42 +174,44 @@ public class OppgittEgenNæring extends BaseEntitet implements IndexKey {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || !(o instanceof OppgittEgenNæring))
+        }
+        if ((o == null) || !(o instanceof OppgittEgenNæring)) {
             return false;
+        }
         OppgittEgenNæring that = (OppgittEgenNæring) o;
         return Objects.equals(periode, that.periode) &&
-            Objects.equals(virksomhetOrgnr, that.virksomhetOrgnr) &&
-            Objects.equals(nyoppstartet, that.nyoppstartet) &&
-            Objects.equals(virksomhetType, that.virksomhetType) &&
-            Objects.equals(regnskapsførerNavn, that.regnskapsførerNavn) &&
-            Objects.equals(regnskapsførerTlf, that.regnskapsførerTlf) &&
-            Objects.equals(endringDato, that.endringDato) &&
-            Objects.equals(begrunnelse, that.begrunnelse) &&
-            Objects.equals(bruttoInntekt, that.bruttoInntekt) &&
-            Objects.equals(utenlandskVirksomhet, that.utenlandskVirksomhet);
+                Objects.equals(virksomhetOrgnr, that.virksomhetOrgnr) &&
+                Objects.equals(nyoppstartet, that.nyoppstartet) &&
+                Objects.equals(virksomhetType, that.virksomhetType) &&
+                Objects.equals(regnskapsførerNavn, that.regnskapsførerNavn) &&
+                Objects.equals(regnskapsførerTlf, that.regnskapsførerTlf) &&
+                Objects.equals(endringDato, that.endringDato) &&
+                Objects.equals(begrunnelse, that.begrunnelse) &&
+                Objects.equals(bruttoInntekt, that.bruttoInntekt) &&
+                Objects.equals(utenlandskVirksomhet, that.utenlandskVirksomhet);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(periode, virksomhetOrgnr, virksomhetType, nyoppstartet, regnskapsførerNavn, regnskapsførerTlf, endringDato, begrunnelse,
-            bruttoInntekt, utenlandskVirksomhet);
+                bruttoInntekt, utenlandskVirksomhet);
     }
 
     @Override
     public String toString() {
         return "EgenNæringEntitet{" +
-            "periode=" + periode +
-            ", virksomhet=" + virksomhetOrgnr +
-            ", nyoppstartet=" + nyoppstartet +
-            ", virksomhetType=" + virksomhetType +
-            ", regnskapsførerNavn='" + regnskapsførerNavn + '\'' +
-            ", regnskapsførerTlf='" + regnskapsførerTlf + '\'' +
-            ", endringDato=" + endringDato +
-            ", begrunnelse='" + begrunnelse + '\'' +
-            ", bruttoInntekt=" + bruttoInntekt +
-            ", utenlandskVirksomhet=" + utenlandskVirksomhet +
-            '}';
+                "periode=" + periode +
+                ", virksomhet=" + virksomhetOrgnr +
+                ", nyoppstartet=" + nyoppstartet +
+                ", virksomhetType=" + virksomhetType +
+                ", regnskapsførerNavn='" + regnskapsførerNavn + '\'' +
+                ", regnskapsførerTlf='" + regnskapsførerTlf + '\'' +
+                ", endringDato=" + endringDato +
+                ", begrunnelse='" + begrunnelse + '\'' +
+                ", bruttoInntekt=" + bruttoInntekt +
+                ", utenlandskVirksomhet=" + utenlandskVirksomhet +
+                '}';
     }
 }

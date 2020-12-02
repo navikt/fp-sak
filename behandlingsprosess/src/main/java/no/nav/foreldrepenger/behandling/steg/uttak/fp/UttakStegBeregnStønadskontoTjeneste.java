@@ -32,9 +32,9 @@ public class UttakStegBeregnStønadskontoTjeneste {
 
     @Inject
     public UttakStegBeregnStønadskontoTjeneste(UttakRepositoryProvider repositoryProvider,
-                                               BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste,
-                                               DekningsgradTjeneste dekningsgradTjeneste,
-                                               ForeldrepengerUttakTjeneste uttakTjeneste) {
+            BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste,
+            DekningsgradTjeneste dekningsgradTjeneste,
+            ForeldrepengerUttakTjeneste uttakTjeneste) {
         this.beregnStønadskontoerTjeneste = beregnStønadskontoerTjeneste;
         this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
         this.uttakTjeneste = uttakTjeneste;
@@ -42,7 +42,7 @@ public class UttakStegBeregnStønadskontoTjeneste {
     }
 
     UttakStegBeregnStønadskontoTjeneste() {
-        //CDI
+        // CDI
     }
 
     /**
@@ -53,16 +53,17 @@ public class UttakStegBeregnStønadskontoTjeneste {
         var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonFor(ref.getSaksnummer());
         ForeldrepengerGrunnlag fpGrunnlag = input.getYtelsespesifiktGrunnlag();
 
-        //Trenger ikke behandlingslås siden stønadskontoer lagres på fagsakrelasjon.
+        // Trenger ikke behandlingslås siden stønadskontoer lagres på fagsakrelasjon.
         if (fagsakRelasjon.getStønadskontoberegning().isEmpty() || !finnesLøpendeInnvilgetFP(fpGrunnlag)) {
             beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
             return BeregningingAvStønadskontoResultat.BEREGNET;
-        } else if (dekningsgradTjeneste.behandlingHarEndretDekningsgrad(ref) || oppfyllerPrematurUker(fpGrunnlag)){
+        } else if (dekningsgradTjeneste.behandlingHarEndretDekningsgrad(ref) || oppfyllerPrematurUker(fpGrunnlag)) {
             beregnStønadskontoerTjeneste.overstyrStønadskontoberegning(input);
             return BeregningingAvStønadskontoResultat.OVERSTYRT;
         }
 
-        //Mulig hver behandling skal regne ut stønadskontoer på nytt. Logger her for å samle data på hvor mye endringer det fører til
+        // Mulig hver behandling skal regne ut stønadskontoer på nytt. Logger her for å
+        // samle data på hvor mye endringer det fører til
         logEvtEndring(input, fagsakRelasjon);
 
         return BeregningingAvStønadskontoResultat.INGEN_BEREGNING;
@@ -103,17 +104,19 @@ public class UttakStegBeregnStønadskontoTjeneste {
             return false;
         }
         return uttak.get().getGjeldendePerioder()
-            .stream()
-            .anyMatch(this::harTrekkdagerEllerUtbetaling);
+                .stream()
+                .anyMatch(this::harTrekkdagerEllerUtbetaling);
     }
 
     private boolean harTrekkdagerEllerUtbetaling(ForeldrepengerUttakPeriode periode) {
         return periode.getAktiviteter()
-            .stream()
-            .anyMatch(aktivitet -> aktivitet.getTrekkdager().merEnn0() || aktivitet.getUtbetalingsgrad().harUtbetaling());
+                .stream()
+                .anyMatch(aktivitet -> aktivitet.getTrekkdager().merEnn0() || aktivitet.getUtbetalingsgrad().harUtbetaling());
     }
 
-    enum  BeregningingAvStønadskontoResultat {
-        BEREGNET, OVERSTYRT, INGEN_BEREGNING
+    enum BeregningingAvStønadskontoResultat {
+        BEREGNET,
+        OVERSTYRT,
+        INGEN_BEREGNING
     }
 }

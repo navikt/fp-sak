@@ -22,12 +22,12 @@ public class OpptjeningAktivitetDto {
     private String begrunnelse;
     private Boolean erPeriodeEndret;
 
-    public OpptjeningAktivitetDto() {//NOSONAR
+    public OpptjeningAktivitetDto() {// NOSONAR
         // trengs for deserialisering av JSON
     }
 
     OpptjeningAktivitetDto(OpptjeningAktivitetType aktivitetType, LocalDate opptjeningFom,
-                           LocalDate opptjeningTom) {
+            LocalDate opptjeningTom) {
         this.aktivitetType = aktivitetType;
         this.opptjeningFom = opptjeningFom;
         this.opptjeningTom = opptjeningTom;

@@ -27,10 +27,10 @@ public class HarEtablertYtelseFP {
 
     @Inject
     public HarEtablertYtelseFP(StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste,
-                                 UttakInputTjeneste uttakInputTjeneste,
-                                 RelatertBehandlingTjeneste relatertBehandlingTjeneste,
-                                 ForeldrepengerUttakTjeneste uttakTjeneste,
-                                 BehandlingVedtakRepository behandlingVedtakRepository) {
+            UttakInputTjeneste uttakInputTjeneste,
+            RelatertBehandlingTjeneste relatertBehandlingTjeneste,
+            ForeldrepengerUttakTjeneste uttakTjeneste,
+            BehandlingVedtakRepository behandlingVedtakRepository) {
         this.stønadskontoSaldoTjeneste = stønadskontoSaldoTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.relatertBehandlingTjeneste = relatertBehandlingTjeneste;
@@ -39,12 +39,12 @@ public class HarEtablertYtelseFP {
     }
 
     HarEtablertYtelseFP() {
-        //CDI
+        // CDI
     }
 
     public boolean vurder(Behandling revurdering,
-                          boolean finnesInnvilgetIkkeOpphørtVedtak,
-                          UttakResultatHolder uttakResultatHolder) {
+            boolean finnesInnvilgetIkkeOpphørtVedtak,
+            UttakResultatHolder uttakResultatHolder) {
         var annenpartUttak = getAnnenPartUttak(revurdering.getFagsak().getSaksnummer());
         if (erDagensDatoEtterSistePeriodeIUttak(uttakResultatHolder, annenpartUttak)) {
             var uttakInputOriginalBehandling = uttakInputTjeneste.lagInput(revurdering.getOriginalBehandlingId().orElseThrow());
@@ -69,7 +69,7 @@ public class HarEtablertYtelseFP {
     }
 
     private boolean erDagensDatoEtterSistePeriodeIUttak(UttakResultatHolder uttakResultatHolder,
-                                                        UttakResultatHolder uttakResultatHolderAnnenPart) {
+            UttakResultatHolder uttakResultatHolderAnnenPart) {
         LocalDate dagensDato = LocalDate.now();
         LocalDate sisteDagISøkersUttak = uttakResultatHolder.getSisteDagAvSistePeriode();
         LocalDate sisteDagIAnnenPartsUttak = uttakResultatHolderAnnenPart.getSisteDagAvSistePeriode();

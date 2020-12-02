@@ -167,7 +167,8 @@ public class VurderLøpendeMedlemskapStegTest {
         assertThat(ikkeOppfylt).hasSize(1);
         Behandlingsresultat behandlingsresultat1 = behandlingsresultatRepository.hent(revudering.getId());
         assertThat(behandlingsresultat1.getVilkårResultat().getVilkårene().stream()
-                .filter(p -> p.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT) && p.getAvslagsårsak() != null).count()).isEqualTo(1);
+                .filter(p -> p.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT) && (p.getAvslagsårsak() != null)).count())
+                        .isEqualTo(1);
     }
 
     private Behandling opprettRevudering(Behandling behandling) {

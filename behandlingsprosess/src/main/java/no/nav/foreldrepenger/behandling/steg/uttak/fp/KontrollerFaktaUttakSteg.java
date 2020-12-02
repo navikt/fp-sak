@@ -29,8 +29,8 @@ public class KontrollerFaktaUttakSteg implements UttakSteg {
 
     @Inject
     public KontrollerFaktaUttakSteg(UttakInputTjeneste uttakInputTjeneste,
-                                    KontrollerFaktaUttakTjeneste kontrollerFaktaUttakTjeneste,
-                                    RyddFaktaUttakTjenesteFørstegangsbehandling ryddFaktaUttakTjeneste) {
+            KontrollerFaktaUttakTjeneste kontrollerFaktaUttakTjeneste,
+            RyddFaktaUttakTjenesteFørstegangsbehandling ryddFaktaUttakTjeneste) {
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.kontrollerFaktaUttakTjeneste = kontrollerFaktaUttakTjeneste;
         this.ryddFaktaUttakTjeneste = ryddFaktaUttakTjeneste;
@@ -46,13 +46,14 @@ public class KontrollerFaktaUttakSteg implements UttakSteg {
         kontrollerFaktaUttakTjeneste.avklarOmAnnenForelderHarRett(input.getBehandlingReferanse());
         var aksjonspunktDefinisjonList = kontrollerFaktaUttakTjeneste.utledAksjonspunkter(input);
         var resultater = aksjonspunktDefinisjonList.stream()
-            .map(def -> AksjonspunktResultat.opprettForAksjonspunkt(def))
-            .collect(Collectors.toList());
+                .map(def -> AksjonspunktResultat.opprettForAksjonspunkt(def))
+                .collect(Collectors.toList());
         return BehandleStegResultat.utførtMedAksjonspunktResultater(resultater);
     }
 
     @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType førsteSteg, BehandlingStegType sisteSteg) {
-       ryddFaktaUttakTjeneste.ryddVedHoppOverBakover(kontekst);
+    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType førsteSteg,
+            BehandlingStegType sisteSteg) {
+        ryddFaktaUttakTjeneste.ryddVedHoppOverBakover(kontekst);
     }
 }

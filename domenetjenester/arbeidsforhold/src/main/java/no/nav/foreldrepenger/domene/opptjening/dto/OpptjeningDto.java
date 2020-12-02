@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.opptjening.dto;
 
-
 import java.util.List;
 
 public class OpptjeningDto {

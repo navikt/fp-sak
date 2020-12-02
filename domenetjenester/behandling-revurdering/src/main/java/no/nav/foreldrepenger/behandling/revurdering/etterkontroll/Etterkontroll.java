@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandling.revurdering.etterkontroll;
 
-
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -34,8 +33,8 @@ public class Etterkontroll extends BaseEntitet {
     private LocalDateTime kontrollTidspunkt; // NOSONAR
 
     @Convert(converter = KontrollType.KodeverdiConverter.class)
-    @Column(name="kontroll_type", nullable = false)
-    private KontrollType kontrollType ;
+    @Column(name = "kontroll_type", nullable = false)
+    private KontrollType kontrollType;
 
     @Convert(converter = BooleanToStringConverter.class)
     @Column(name = "behandlet", nullable = false)
@@ -44,16 +43,16 @@ public class Etterkontroll extends BaseEntitet {
     Etterkontroll() {
         // hibernarium
     }
+
     public Long getId() {
         return id;
     }
-
 
     public void setErBehandlet(boolean erBehandlet) {
         this.erBehandlet = erBehandlet;
     }
 
-    public boolean isBehandlet(){
+    public boolean isBehandlet() {
         return erBehandlet;
     }
 
@@ -63,7 +62,6 @@ public class Etterkontroll extends BaseEntitet {
 
     public static class Builder {
         private Etterkontroll etterkontrollKladd;
-
 
         public Builder(Long fagsakId) {
             Objects.requireNonNull(fagsakId, "fagsakId");
@@ -76,18 +74,17 @@ public class Etterkontroll extends BaseEntitet {
             return etterkontrollKladd;
         }
 
-        public Builder medKontrollType(KontrollType kontrollType){
+        public Builder medKontrollType(KontrollType kontrollType) {
             this.etterkontrollKladd.kontrollType = kontrollType;
             return this;
         }
 
-     public Builder medErBehandlet(boolean erBehandlet){
-         this.etterkontrollKladd.erBehandlet = erBehandlet;
-         return this;
-     }
+        public Builder medErBehandlet(boolean erBehandlet) {
+            this.etterkontrollKladd.erBehandlet = erBehandlet;
+            return this;
+        }
 
-
-        public Builder medKontrollTidspunkt(LocalDateTime kontrollTidspunkt){
+        public Builder medKontrollTidspunkt(LocalDateTime kontrollTidspunkt) {
             this.etterkontrollKladd.kontrollTidspunkt = kontrollTidspunkt;
             return this;
         }
@@ -103,15 +100,13 @@ public class Etterkontroll extends BaseEntitet {
             return false;
         }
         Etterkontroll that = (Etterkontroll) o;
-        return Objects.equals(fagsakId, that.fagsakId)&&
-            Objects.equals(kontrollType, that.kontrollType);
-
-
+        return Objects.equals(fagsakId, that.fagsakId) &&
+                Objects.equals(kontrollType, that.kontrollType);
 
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(fagsakId,kontrollType);
+        return Objects.hash(fagsakId, kontrollType);
     }
 }

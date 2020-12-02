@@ -14,8 +14,8 @@ public class BehandlingStegTilstandEndringEvent implements BehandlingEvent {
 
     private BehandlingskontrollKontekst kontekst;
 
-
-    public BehandlingStegTilstandEndringEvent(BehandlingskontrollKontekst kontekst, BehandlingStegTilstandSnapshot fraTilstand, BehandlingStegTilstandSnapshot tilTilstand){
+    public BehandlingStegTilstandEndringEvent(BehandlingskontrollKontekst kontekst, BehandlingStegTilstandSnapshot fraTilstand,
+            BehandlingStegTilstandSnapshot tilTilstand) {
         super();
         this.kontekst = kontekst;
         this.fraTilstand = fraTilstand;

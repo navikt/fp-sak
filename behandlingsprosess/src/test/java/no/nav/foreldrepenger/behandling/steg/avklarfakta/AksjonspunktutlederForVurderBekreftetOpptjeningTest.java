@@ -47,7 +47,6 @@ public class AksjonspunktutlederForVurderBekreftetOpptjeningTest extends EntityM
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private AksjonspunktutlederForVurderBekreftetOpptjening utleder;
 
-
     @BeforeEach
     void setUp() {
         var entityManager = getEntityManager();
@@ -75,7 +74,8 @@ public class AksjonspunktutlederForVurderBekreftetOpptjeningTest extends EntityM
     }
 
     private AksjonspunktUtlederInput lagInput(Behandling behandling) {
-        BehandlingReferanse ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build());
+        BehandlingReferanse ref = BehandlingReferanse.fra(behandling,
+                Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build());
         return new AksjonspunktUtlederInput(ref);
     }
 
@@ -94,24 +94,24 @@ public class AksjonspunktutlederForVurderBekreftetOpptjeningTest extends EntityM
         var builder = InntektArbeidYtelseAggregatBuilder.oppdatere(empty(), VersjonType.REGISTER);
         var aktørArbeid = builder.getAktørArbeidBuilder(aktørId1);
         aktørArbeid.leggTilYrkesaktivitet(
-            YrkesaktivitetBuilder.oppdatere(empty())
-                .medArbeidType(ArbeidType.FRILANSER_OPPDRAGSTAKER_MED_MER)
-                .medArbeidsforholdId(arbeidsforholdId)
-                .medArbeidsgiver(arbeidsgiver)
-                .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
-                    .medProsentsats(BigDecimal.ONE)
-                    .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fraOgMed.plusDays(5), fraOgMed.plusDays(6))))
-                .build());
+                YrkesaktivitetBuilder.oppdatere(empty())
+                        .medArbeidType(ArbeidType.FRILANSER_OPPDRAGSTAKER_MED_MER)
+                        .medArbeidsforholdId(arbeidsforholdId)
+                        .medArbeidsgiver(arbeidsgiver)
+                        .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
+                                .medProsentsats(BigDecimal.ONE)
+                                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fraOgMed.plusDays(5), fraOgMed.plusDays(6))))
+                        .build());
         builder.leggTilAktørArbeid(aktørArbeid);
 
         var aktørInntekt = builder.getAktørInntektBuilder(aktørId1);
         aktørInntekt.leggTilInntekt(InntektBuilder.oppdatere(empty())
-            .medArbeidsgiver(arbeidsgiver)
-            .medInntektsKilde(InntektsKilde.INNTEKT_OPPTJENING)
-            .leggTilInntektspost(InntektspostBuilder.ny()
-                .medBeløp(BigDecimal.TEN)
-                .medInntektspostType(InntektspostType.LØNN)
-                .medPeriode(fraOgMed.plusDays(5), fraOgMed.plusDays(6))));
+                .medArbeidsgiver(arbeidsgiver)
+                .medInntektsKilde(InntektsKilde.INNTEKT_OPPTJENING)
+                .leggTilInntektspost(InntektspostBuilder.ny()
+                        .medBeløp(BigDecimal.TEN)
+                        .medInntektspostType(InntektspostType.LØNN)
+                        .medPeriode(fraOgMed.plusDays(5), fraOgMed.plusDays(6))));
         builder.leggTilAktørInntekt(aktørInntekt);
 
         iayTjeneste.lagreIayAggregat(behandling.getId(), builder);
@@ -165,15 +165,15 @@ public class AksjonspunktutlederForVurderBekreftetOpptjeningTest extends EntityM
     private YrkesaktivitetBuilder byggYrkesaktivitet(LocalDate tilOgMed, ArbeidType arbeidType, BigDecimal stillingsprosent) {
         DatoIntervallEntitet periode = DatoIntervallEntitet.fraOgMed(tilOgMed.minusMonths(10));
         return YrkesaktivitetBuilder.oppdatere(empty())
-            .medArbeidType(arbeidType)
-            .medArbeidsgiver(Arbeidsgiver.virksomhet(NAV_ORGNR))
-            .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
-                .medProsentsats(BigDecimal.ZERO)
-                .medPeriode(periode)
-                .medSisteLønnsendringsdato(periode.getFomDato()))
-            .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
-                .medProsentsats(stillingsprosent)
-                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(tilOgMed.minusMonths(10), tilOgMed)));
+                .medArbeidType(arbeidType)
+                .medArbeidsgiver(Arbeidsgiver.virksomhet(NAV_ORGNR))
+                .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
+                        .medProsentsats(BigDecimal.ZERO)
+                        .medPeriode(periode)
+                        .medSisteLønnsendringsdato(periode.getFomDato()))
+                .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
+                        .medProsentsats(stillingsprosent)
+                        .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(tilOgMed.minusMonths(10), tilOgMed)));
     }
 
     @Test

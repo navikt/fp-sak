@@ -29,11 +29,13 @@ class TilbakeføringTransisjon implements StegTransisjon {
 
     @Override
     public BehandlingStegModell nesteSteg(BehandlingStegModell nåværendeSteg) {
-        if (målsteg == null)
+        if (målsteg == null) {
             throw new IllegalArgumentException("Utvikler-feil: skal ikke kalle nesteSteg på " + getId());
+        }
         var tilModell = nåværendeSteg.getBehandlingModell().finnSteg(målsteg);
-        if (tilModell == null || nåværendeSteg.getBehandlingModell().erStegAFørStegB(nåværendeSteg.getBehandlingStegType(), målsteg))
+        if ((tilModell == null) || nåværendeSteg.getBehandlingModell().erStegAFørStegB(nåværendeSteg.getBehandlingStegType(), målsteg)) {
             throw new IllegalArgumentException("Finnes ikke noe steg av type " + målsteg + " før " + nåværendeSteg);
+        }
         return tilModell;
     }
 
@@ -50,7 +52,7 @@ class TilbakeføringTransisjon implements StegTransisjon {
     @Override
     public String toString() {
         return "TilbakeføringTransisjon{" +
-            "id='" + id + '\'' +
-            '}';
+                "id='" + id + '\'' +
+                '}';
     }
 }

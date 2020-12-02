@@ -17,12 +17,13 @@ class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt {
     private OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt() {
     }
 
-    //TODO(OJR) burde kanskje innfører en egenskap som tilsier at MEDLEMSKAPSVILKÅRET_LØPENDE ikke er et inngangsvilkår?
+    // TODO(OJR) burde kanskje innfører en egenskap som tilsier at
+    // MEDLEMSKAPSVILKÅRET_LØPENDE ikke er et inngangsvilkår?
     public static boolean vurder(Behandlingsresultat revurdering) {
         return revurdering.isVilkårAvslått() || revurdering.getVilkårResultat().getVilkårene().stream()
-            .filter(v -> !MEDLEMSKAPSVILKÅRET_LØPENDE.equals(v.getVilkårType()))
-            .map(Vilkår::getGjeldendeVilkårUtfall)
-            .anyMatch(VilkårUtfallType.IKKE_OPPFYLT::equals);
+                .filter(v -> !MEDLEMSKAPSVILKÅRET_LØPENDE.equals(v.getVilkårType()))
+                .map(Vilkår::getGjeldendeVilkårUtfall)
+                .anyMatch(VilkårUtfallType.IKKE_OPPFYLT::equals);
     }
 
     public static Behandlingsresultat fastsett(Behandling revurdering, Behandlingsresultat behandlingsresultat) {
@@ -33,8 +34,8 @@ class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt {
     private static boolean harIngenBeregningsreglerILøsningen(Behandlingsresultat behandlingsresultat) {
         List<Vilkår> vilkårene = behandlingsresultat.getVilkårResultat().getVilkårene();
         return vilkårene.stream()
-            .anyMatch(vilkår -> VilkårType.BEREGNINGSGRUNNLAGVILKÅR.equals(vilkår.getVilkårType())
-                && Avslagsårsak.INGEN_BEREGNINGSREGLER_TILGJENGELIG_I_LØSNINGEN.equals(vilkår.getAvslagsårsak())
-                && VilkårUtfallType.IKKE_OPPFYLT.equals(vilkår.getGjeldendeVilkårUtfall()));
+                .anyMatch(vilkår -> VilkårType.BEREGNINGSGRUNNLAGVILKÅR.equals(vilkår.getVilkårType())
+                        && Avslagsårsak.INGEN_BEREGNINGSREGLER_TILGJENGELIG_I_LØSNINGEN.equals(vilkår.getAvslagsårsak())
+                        && VilkårUtfallType.IKKE_OPPFYLT.equals(vilkår.getGjeldendeVilkårUtfall()));
     }
 }

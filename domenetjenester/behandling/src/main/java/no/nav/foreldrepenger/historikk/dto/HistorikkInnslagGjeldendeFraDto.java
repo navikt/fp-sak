@@ -16,7 +16,6 @@ public class HistorikkInnslagGjeldendeFraDto {
         this.verdi = verdi;
     }
 
-
     public String getFra() {
         return fra;
     }

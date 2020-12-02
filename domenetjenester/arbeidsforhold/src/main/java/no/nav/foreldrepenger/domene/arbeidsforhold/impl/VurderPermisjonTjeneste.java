@@ -30,16 +30,17 @@ public final class VurderPermisjonTjeneste {
      * Legger til arbeidsforhold i resultatet hvor permisjonen er relevant
      *
      * @param behandlingReferanse Referanse til behandlingen
-     * @param result Map av arbeidsgivere med et set av referanser til arbeidsforhold, arbeidsforhold blir lagt til her
-     * @param grunnlag Inntekt, arbeids, og ytelse grunnlaget
+     * @param result              Map av arbeidsgivere med et set av referanser til
+     *                            arbeidsforhold, arbeidsforhold blir lagt til her
+     * @param grunnlag            Inntekt, arbeids, og ytelse grunnlaget
      */
     public static void leggTilArbeidsforholdMedRelevantPermisjon(BehandlingReferanse behandlingReferanse,
-                                                          Map<Arbeidsgiver, Set<ArbeidsforholdMedÅrsak>> result,
-                                                          InntektArbeidYtelseGrunnlag grunnlag) {
+            Map<Arbeidsgiver, Set<ArbeidsforholdMedÅrsak>> result,
+            InntektArbeidYtelseGrunnlag grunnlag) {
         LocalDate stp = behandlingReferanse.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
         AktørId aktørId = behandlingReferanse.getAktørId();
 
-        var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(aktørId)) .før(stp);
+        var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(aktørId)).før(stp);
 
         for (Yrkesaktivitet ya : filter.getYrkesaktiviteter()) {
             Collection<PermisjonDto> utledetPermisjoner = UtledPermisjonSomFørerTilAksjonspunkt.utled(filter, ya, stp);
@@ -54,8 +55,8 @@ public final class VurderPermisjonTjeneste {
     }
 
     private static boolean harAlleredeTattStillingTilPermisjon(InntektArbeidYtelseGrunnlag grunnlag,
-                                                               Yrkesaktivitet ya,
-                                                               Collection<PermisjonDto> utledetPermisjoner) {
+            Yrkesaktivitet ya,
+            Collection<PermisjonDto> utledetPermisjoner) {
         return grunnlag.getArbeidsforholdOverstyringer().stream()
                 .filter(ov -> gjelderSammeArbeidsforhold(ya, ov))
                 .anyMatch(ov -> harFortsattUgyldigePerioder(ov, utledetPermisjoner) || harSammePermisjonsperiode(ya, ov));
@@ -66,7 +67,7 @@ public final class VurderPermisjonTjeneste {
         if (bekreftetPermisjonOpt.isPresent()) {
             BekreftetPermisjon bekreftetPermisjon = bekreftetPermisjonOpt.get();
             return Objects.equals(bekreftetPermisjon.getStatus(), BekreftetPermisjonStatus.UGYLDIGE_PERIODER)
-                && utledetPermisjoner.size() > 1;
+                    && (utledetPermisjoner.size() > 1);
         }
         return false;
     }
@@ -82,9 +83,9 @@ public final class VurderPermisjonTjeneste {
 
     private static boolean harSammeFomOgTom(BekreftetPermisjon bekreftetPermisjon, Permisjon permisjon) {
         DatoIntervallEntitet bekreftetPermisjonPeriode = bekreftetPermisjon.getPeriode();
-        return bekreftetPermisjonPeriode != null
-            && Objects.equals(permisjon.getFraOgMed(), bekreftetPermisjonPeriode.getFomDato())
-            && Objects.equals(permisjon.getTilOgMed(), bekreftetPermisjonPeriode.getTomDato());
+        return (bekreftetPermisjonPeriode != null)
+                && Objects.equals(permisjon.getFraOgMed(), bekreftetPermisjonPeriode.getFomDato())
+                && Objects.equals(permisjon.getTilOgMed(), bekreftetPermisjonPeriode.getTomDato());
     }
 
     private static boolean gjelderSammeArbeidsforhold(Yrkesaktivitet ya, ArbeidsforholdOverstyring ov) {

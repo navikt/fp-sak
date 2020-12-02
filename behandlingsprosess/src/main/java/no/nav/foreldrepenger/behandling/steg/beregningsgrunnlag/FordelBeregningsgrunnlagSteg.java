@@ -47,9 +47,9 @@ public class FordelBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
 
     @Inject
     public FordelBeregningsgrunnlagSteg(BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
-                                        BehandlingRepository behandlingRepository,
-                                        BeregningsgrunnlagInputProvider inputTjenesteProvider,
-                                        BeregningsgrunnlagVilkårTjeneste beregningsgrunnlagVilkårTjeneste) {
+            BehandlingRepository behandlingRepository,
+            BeregningsgrunnlagInputProvider inputTjenesteProvider,
+            BeregningsgrunnlagVilkårTjeneste beregningsgrunnlagVilkårTjeneste) {
         this.beregningsgrunnlagInputProvider = Objects.requireNonNull(inputTjenesteProvider, "inputTjenesteProvider");
         this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
         this.behandlingRepository = behandlingRepository;
@@ -61,13 +61,16 @@ public class FordelBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
         Long behandlingId = kontekst.getBehandlingId();
         Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         var input = getInputTjeneste(behandling.getFagsakYtelseType()).lagInput(behandlingId);
-        // TODO Når alle saker som står i ap 5059 er kjørt videre eller stilt tilbake kan innholdet i else fjernes,
-        //  vi har flyttet vilkårsvurdering og periodisiering et steg tilbake i prosessen.
-        //  Altså når erBGVilkårVurdert(behandling) alltid gir true
+        // TODO Når alle saker som står i ap 5059 er kjørt videre eller stilt tilbake
+        // kan innholdet i else fjernes,
+        // vi har flyttet vilkårsvurdering og periodisiering et steg tilbake i
+        // prosessen.
+        // Altså når erBGVilkårVurdert(behandling) alltid gir true
         if (erBGVilkårVurdert(behandling)) {
             var beregningsgrunnlagResultat = beregningsgrunnlagKopierOgLagreTjeneste.fordelBeregningsgrunnlagUtenVilkårOgPeriodisering(input);
             List<BeregningAksjonspunktResultat> aksjonspunkter = beregningsgrunnlagResultat.getAksjonspunkter();
-            return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter.stream().map(BeregningResultatMapper::map).collect(Collectors.toList()));
+            return BehandleStegResultat
+                    .utførtMedAksjonspunktResultater(aksjonspunkter.stream().map(BeregningResultatMapper::map).collect(Collectors.toList()));
         } else {
             var beregningsgrunnlagResultat = beregningsgrunnlagKopierOgLagreTjeneste.fordelBeregningsgrunnlag(input);
             beregningsgrunnlagVilkårTjeneste.lagreVilkårresultat(kontekst, beregningsgrunnlagResultat);
@@ -75,7 +78,8 @@ public class FordelBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
                 return BehandleStegResultat.fremoverført(FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT);
             } else {
                 List<BeregningAksjonspunktResultat> aksjonspunkter = beregningsgrunnlagResultat.getAksjonspunkter();
-                return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter.stream().map(BeregningResultatMapper::map).collect(Collectors.toList()));
+                return BehandleStegResultat
+                        .utførtMedAksjonspunktResultater(aksjonspunkter.stream().map(BeregningResultatMapper::map).collect(Collectors.toList()));
             }
         }
     }
@@ -92,13 +96,15 @@ public class FordelBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
     }
 
     @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg, BehandlingStegType fraSteg) {
+    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
+            BehandlingStegType fraSteg) {
         if (tilSteg.equals(BehandlingStegType.FORDEL_BEREGNINGSGRUNNLAG)) {
             Set<Aksjonspunkt> aps = behandlingRepository.hentBehandling(kontekst.getBehandlingId()).getAksjonspunkter();
             boolean harAksjonspunktSomErUtførtIUtgang = tilSteg.getAksjonspunktDefinisjonerUtgang().stream()
-                .anyMatch(ap -> aps.stream().filter(a -> a.getAksjonspunktDefinisjon().equals(ap))
-                    .anyMatch(a -> !a.erAvbrutt()));
-            beregningsgrunnlagKopierOgLagreTjeneste.getRyddBeregningsgrunnlag(kontekst).ryddFordelBeregningsgrunnlagVedTilbakeføring(harAksjonspunktSomErUtførtIUtgang);
+                    .anyMatch(ap -> aps.stream().filter(a -> a.getAksjonspunktDefinisjon().equals(ap))
+                            .anyMatch(a -> !a.erAvbrutt()));
+            beregningsgrunnlagKopierOgLagreTjeneste.getRyddBeregningsgrunnlag(kontekst)
+                    .ryddFordelBeregningsgrunnlagVedTilbakeføring(harAksjonspunktSomErUtførtIUtgang);
         }
     }
 

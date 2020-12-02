@@ -85,28 +85,28 @@ public class VurderTilbaketrekkOppdatererTest {
 
     private void buildBeregningsresultatAndel(BeregningsresultatPeriode beregningsresultatPeriode) {
         BeregningsresultatAndel.builder()
-            .medBrukerErMottaker(true)
-            .medArbeidsforholdType(OpptjeningAktivitetType.ARBEID)
-            .medArbeidsgiver(Arbeidsgiver.person(AktørId.dummy()))
-            .medDagsats(2160)
-            .medDagsatsFraBg(2160)
-            .medUtbetalingsgrad(BigDecimal.valueOf(100))
-            .medStillingsprosent(BigDecimal.valueOf(100))
-            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
-            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-            .build(beregningsresultatPeriode);
+                .medBrukerErMottaker(true)
+                .medArbeidsforholdType(OpptjeningAktivitetType.ARBEID)
+                .medArbeidsgiver(Arbeidsgiver.person(AktørId.dummy()))
+                .medDagsats(2160)
+                .medDagsatsFraBg(2160)
+                .medUtbetalingsgrad(BigDecimal.valueOf(100))
+                .medStillingsprosent(BigDecimal.valueOf(100))
+                .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+                .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+                .build(beregningsresultatPeriode);
     }
 
     private BeregningsresultatPeriode buildBeregningsresultatPeriode(BeregningsresultatEntitet beregningsresultat) {
         return BeregningsresultatPeriode.builder()
-            .medBeregningsresultatPeriodeFomOgTom(LocalDate.now().minusDays(20), LocalDate.now().minusDays(15))
-            .build(beregningsresultat);
+                .medBeregningsresultatPeriodeFomOgTom(LocalDate.now().minusDays(20), LocalDate.now().minusDays(15))
+                .build(beregningsresultat);
     }
 
     private void opprettBehandlingsresultat(Behandling behandling) {
         BeregningsresultatEntitet.Builder builder = BeregningsresultatEntitet.builder()
-            .medRegelInput("clob1")
-            .medRegelSporing("clob2");
+                .medRegelInput("clob1")
+                .medRegelSporing("clob2");
         BeregningsresultatEntitet beregningsresultat = builder.build();
         BeregningsresultatPeriode brPeriode = buildBeregningsresultatPeriode(beregningsresultat);
         buildBeregningsresultatAndel(brPeriode);

@@ -13,7 +13,6 @@ import no.nav.vedtak.util.InputValideringRegex;
 @JsonTypeName(AksjonspunktKodeDefinisjon.VURDER_OPPTJENINGSVILKÅRET_KODE)
 public class AvklarOpptjeningsvilkåretDto extends BekreftetAksjonspunktDto {
 
-
     @JsonProperty("avslagskode")
     @Size(min = 4, max = 4)
     @Pattern(regexp = InputValideringRegex.KODEVERK)
@@ -28,12 +27,12 @@ public class AvklarOpptjeningsvilkåretDto extends BekreftetAksjonspunktDto {
         // For Jackson
     }
 
-    public AvklarOpptjeningsvilkåretDto(String begrunnelse, @Size(min = 4, max = 4) @Pattern(regexp = InputValideringRegex.KODEVERK) String avslagskode, boolean erVilkarOk) {
+    public AvklarOpptjeningsvilkåretDto(String begrunnelse,
+            @Size(min = 4, max = 4) @Pattern(regexp = InputValideringRegex.KODEVERK) String avslagskode, boolean erVilkarOk) {
         super(begrunnelse);
         this.avslagskode = avslagskode;
         this.erVilkarOk = erVilkarOk;
     }
-
 
     public String getAvslagskode() {
         return avslagskode;

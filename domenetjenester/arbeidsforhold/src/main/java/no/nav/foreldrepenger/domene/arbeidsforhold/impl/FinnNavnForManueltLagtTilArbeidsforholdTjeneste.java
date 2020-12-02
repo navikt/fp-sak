@@ -12,15 +12,18 @@ public class FinnNavnForManueltLagtTilArbeidsforholdTjeneste {
         // Skjul konstruktør
     }
 
-    /** Henter informasjon om manuelt lagt til arbeidsforhold (får tildelt kunstig orgnummer)
+    /**
+     * Henter informasjon om manuelt lagt til arbeidsforhold (får tildelt kunstig
+     * orgnummer)
      *
      * @param overstyringer Arbeidsforholdoverstyringer
      * @return ArbeidsgiverOpplysninger
      */
     public static Optional<ArbeidsgiverOpplysninger> finnNavnTilManueltLagtTilArbeidsforhold(List<ArbeidsforholdOverstyring> overstyringer) {
         return overstyringer
-            .stream()
-            .findFirst()
-            .map(arbeidsforhold -> new ArbeidsgiverOpplysninger(arbeidsforhold.getArbeidsgiver().getOrgnr(), arbeidsforhold.getArbeidsgiverNavn()));
+                .stream()
+                .findFirst()
+                .map(arbeidsforhold -> new ArbeidsgiverOpplysninger(arbeidsforhold.getArbeidsgiver().getOrgnr(),
+                        arbeidsforhold.getArbeidsgiverNavn()));
     }
 }

@@ -5,8 +5,9 @@ import no.nav.foreldrepenger.behandlingskontroll.transisjoner.TransisjonIdentifi
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 
 /**
- * Brukes for intern håndtering av flyt på et steg. Inneholder kode for stegets nye status. Hvis status er fremoverføring,
- * er også steget det skal fremoverføres til inkludert.
+ * Brukes for intern håndtering av flyt på et steg. Inneholder kode for stegets
+ * nye status. Hvis status er fremoverføring, er også steget det skal
+ * fremoverføres til inkludert.
  */
 public class StegProsesseringResultat {
     private final BehandlingStegStatus nyStegStatus;

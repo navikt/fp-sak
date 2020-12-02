@@ -49,7 +49,7 @@ class AksjonspunktUtlederForTidligereMottattYtelse implements AksjonspunktUtlede
 
     @Inject
     AksjonspunktUtlederForTidligereMottattYtelse(InntektArbeidYtelseTjeneste iayTjeneste, YtelserKonsolidertTjeneste ytelseTjeneste,
-                                                               PersonopplysningRepository personopplysningRepository) {
+            PersonopplysningRepository personopplysningRepository) {
         this.iayTjeneste = iayTjeneste;
         this.personopplysningRepository = personopplysningRepository;
         this.ytelseTjeneste = ytelseTjeneste;
@@ -72,7 +72,8 @@ class AksjonspunktUtlederForTidligereMottattYtelse implements AksjonspunktUtlede
             return opprettListeForAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
         }
 
-        // TODO: Fjerne når det ikke lenger finnes mange saker i INFOTRYGD. Denne dekker flytteproblemet og usynlige saker
+        // TODO: Fjerne når det ikke lenger finnes mange saker i INFOTRYGD. Denne dekker
+        // flytteproblemet og usynlige saker
         var filter = new InntektFilter(grunnlag.getAktørInntektFraRegister(aktørId)).før(vurderingsTidspunkt);
         if (!filter.isEmpty()) {
             if (harInntekterForeldrepengerSiste10Mnd(filter, skjæringstidspunkt) == JA) {
@@ -90,32 +91,36 @@ class AksjonspunktUtlederForTidligereMottattYtelse implements AksjonspunktUtlede
         return INGEN_AKSJONSPUNKTER;
     }
 
-    private Utfall harMottattStønadSiste10Mnd(Saksnummer saksnummer, AktørId aktørId, InntektArbeidYtelseGrunnlag grunnlag, LocalDate skjæringstidspunkt) {
+    private Utfall harMottattStønadSiste10Mnd(Saksnummer saksnummer, AktørId aktørId, InntektArbeidYtelseGrunnlag grunnlag,
+            LocalDate skjæringstidspunkt) {
         LocalDate vedtakEtterDato = skjæringstidspunkt.minusMonths(ANTALL_MÅNEDER);
-        List<TilgrensendeYtelserDto> ytelser = ytelseTjeneste.utledYtelserRelatertTilBehandling(aktørId, grunnlag, Optional.of(RELEVANTE_YTELSE_TYPER));
+        List<TilgrensendeYtelserDto> ytelser = ytelseTjeneste.utledYtelserRelatertTilBehandling(aktørId, grunnlag,
+                Optional.of(RELEVANTE_YTELSE_TYPER));
         boolean senerevedtak = ytelser.stream()
-            .filter(y -> y.getSaksNummer() == null || !saksnummer.getVerdi().equals(y.getSaksNummer()))
-            .map(TilgrensendeYtelserDto::getPeriodeFraDato)
-            .anyMatch(vedtakEtterDato::isBefore);
+                .filter(y -> (y.getSaksNummer() == null) || !saksnummer.getVerdi().equals(y.getSaksNummer()))
+                .map(TilgrensendeYtelserDto::getPeriodeFraDato)
+                .anyMatch(vedtakEtterDato::isBefore);
         return senerevedtak ? JA : NEI;
     }
 
-    private Utfall harAnnenPartMottattStønadSiste10Mnd(@SuppressWarnings("unused") Saksnummer saksnummer, AktørId aktørId, InntektArbeidYtelseGrunnlag grunnlag, LocalDate skjæringstidspunkt) {
+    private Utfall harAnnenPartMottattStønadSiste10Mnd(@SuppressWarnings("unused") Saksnummer saksnummer, AktørId aktørId,
+            InntektArbeidYtelseGrunnlag grunnlag, LocalDate skjæringstidspunkt) {
         LocalDate vedtakEtterDato = skjæringstidspunkt.minusMonths(ANTALL_MÅNEDER);
-        List<TilgrensendeYtelserDto> ytelser = ytelseTjeneste.utledAnnenPartsYtelserRelatertTilBehandling(aktørId, grunnlag, Optional.of(RELEVANTE_YTELSE_TYPER));
+        List<TilgrensendeYtelserDto> ytelser = ytelseTjeneste.utledAnnenPartsYtelserRelatertTilBehandling(aktørId, grunnlag,
+                Optional.of(RELEVANTE_YTELSE_TYPER));
         boolean senerevedtak = ytelser.stream()
-            .map(y -> y.getPeriodeTilDato() != null ? y.getPeriodeTilDato() : y.getPeriodeFraDato())
-            .anyMatch(vedtakEtterDato::isBefore);
+                .map(y -> y.getPeriodeTilDato() != null ? y.getPeriodeTilDato() : y.getPeriodeFraDato())
+                .anyMatch(vedtakEtterDato::isBefore);
         return senerevedtak ? JA : NEI;
     }
 
     private Utfall harInntekterForeldrepengerSiste10Mnd(InntektFilter filter, LocalDate skjæringstidspunkt) {
         LocalDate utbetalingEtterDato = skjæringstidspunkt.minusMonths(ANTALL_MÅNEDER);
         boolean utbetalinger = filter
-            .filterPensjonsgivende()
-            .filter(InntektspostType.YTELSE)
-            .filter(OffentligYtelseType.FORELDREPENGER)
-            .getFiltrertInntektsposter().stream().map(ip -> ip.getPeriode().getFomDato()).anyMatch(utbetalingEtterDato::isBefore);
+                .filterPensjonsgivende()
+                .filter(InntektspostType.YTELSE)
+                .filter(OffentligYtelseType.FORELDREPENGER)
+                .getFiltrertInntektsposter().stream().map(ip -> ip.getPeriode().getFomDato()).anyMatch(utbetalingEtterDato::isBefore);
         return utbetalinger ? JA : NEI;
     }
 

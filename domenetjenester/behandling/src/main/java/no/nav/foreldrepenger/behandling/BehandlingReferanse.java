@@ -38,7 +38,8 @@ public class BehandlingReferanse {
     private BehandlingType behandlingType;
 
     /**
-     * Original behandling id (i tilfelle dette f.eks er en revurdering av en annen behandling.
+     * Original behandling id (i tilfelle dette f.eks er en revurdering av en annen
+     * behandling.
      */
     private Optional<Long> originalBehandlingId;
 
@@ -56,8 +57,8 @@ public class BehandlingReferanse {
     }
 
     private BehandlingReferanse(FagsakYtelseType fagsakYtelseType, BehandlingType behandlingType, RelasjonsRolleType relasjonRolle, AktørId aktørId, // NOSONAR
-                                Saksnummer saksnummer, Long fagsakId, Long behandlingId, UUID behandlingUuid, Optional<Long> originalBehandlingId,
-                                BehandlingStatus behandlingStatus, Skjæringstidspunkt skjæringstidspunkt) {
+            Saksnummer saksnummer, Long fagsakId, Long behandlingId, UUID behandlingUuid, Optional<Long> originalBehandlingId,
+            BehandlingStatus behandlingStatus, Skjæringstidspunkt skjæringstidspunkt) {
         this.fagsakYtelseType = fagsakYtelseType;
         this.behandlingType = behandlingType;
         this.relasjonRolle = relasjonRolle;
@@ -83,48 +84,49 @@ public class BehandlingReferanse {
      */
     public static BehandlingReferanse fra(Behandling behandling, LocalDate utledetSkjæringstidspunkt) {
         return new BehandlingReferanse(behandling.getFagsakYtelseType(),
-            behandling.getType(),
-            behandling.getRelasjonsRolleType(),
-            behandling.getAktørId(),
-            behandling.getFagsak().getSaksnummer(),
-            behandling.getFagsakId(),
-            behandling.getId(),
-            behandling.getUuid(),
-            behandling.getOriginalBehandlingId(),
-            behandling.getStatus(),
-            Skjæringstidspunkt.builder()
-                .medUtledetSkjæringstidspunkt(utledetSkjæringstidspunkt)
-                .build());
+                behandling.getType(),
+                behandling.getRelasjonsRolleType(),
+                behandling.getAktørId(),
+                behandling.getFagsak().getSaksnummer(),
+                behandling.getFagsakId(),
+                behandling.getId(),
+                behandling.getUuid(),
+                behandling.getOriginalBehandlingId(),
+                behandling.getStatus(),
+                Skjæringstidspunkt.builder()
+                        .medUtledetSkjæringstidspunkt(utledetSkjæringstidspunkt)
+                        .build());
     }
 
     public static BehandlingReferanse fra(Behandling behandling, Skjæringstidspunkt skjæringstidspunkt) {
         return new BehandlingReferanse(behandling.getFagsakYtelseType(),
-            behandling.getType(),
-            behandling.getRelasjonsRolleType(),
-            behandling.getAktørId(),
-            behandling.getFagsak().getSaksnummer(),
-            behandling.getFagsakId(),
-            behandling.getId(),
-            behandling.getUuid(),
-            behandling.getOriginalBehandlingId(),
-            behandling.getStatus(),
-            skjæringstidspunkt);
+                behandling.getType(),
+                behandling.getRelasjonsRolleType(),
+                behandling.getAktørId(),
+                behandling.getFagsak().getSaksnummer(),
+                behandling.getFagsakId(),
+                behandling.getId(),
+                behandling.getUuid(),
+                behandling.getOriginalBehandlingId(),
+                behandling.getStatus(),
+                skjæringstidspunkt);
     }
 
-    public static BehandlingReferanse fra(FagsakYtelseType fagsakYtelseType, BehandlingType behandlingType, RelasjonsRolleType relasjonRolle, AktørId aktørId, // NOSONAR
-                                          Saksnummer saksnummer, Long fagsakId, Long behandlingId, UUID behandlingUuid, Optional<Long> originalBehandlingId,
-                                          BehandlingStatus behandlingStatus, Skjæringstidspunkt skjæringstidspunkt) {
+    public static BehandlingReferanse fra(FagsakYtelseType fagsakYtelseType, BehandlingType behandlingType, RelasjonsRolleType relasjonRolle,
+            AktørId aktørId, // NOSONAR
+            Saksnummer saksnummer, Long fagsakId, Long behandlingId, UUID behandlingUuid, Optional<Long> originalBehandlingId,
+            BehandlingStatus behandlingStatus, Skjæringstidspunkt skjæringstidspunkt) {
         return new BehandlingReferanse(fagsakYtelseType,
-            behandlingType,
-            relasjonRolle,
-            aktørId,
-            saksnummer,
-            fagsakId,
-            behandlingId,
-            behandlingUuid,
-            originalBehandlingId,
-            behandlingStatus,
-            skjæringstidspunkt);
+                behandlingType,
+                relasjonRolle,
+                aktørId,
+                saksnummer,
+                fagsakId,
+                behandlingId,
+                behandlingUuid,
+                originalBehandlingId,
+                behandlingStatus,
+                skjæringstidspunkt);
     }
 
     public Saksnummer getSaksnummer() {
@@ -210,17 +212,17 @@ public class BehandlingReferanse {
         if (obj == this) {
             return true;
         }
-        if (obj == null || !getClass().equals(obj.getClass())) {
+        if ((obj == null) || !getClass().equals(obj.getClass())) {
             return false;
         }
         BehandlingReferanse other = (BehandlingReferanse) obj;
         return Objects.equals(behandlingId, other.behandlingId)
-            && Objects.equals(saksnummer, other.saksnummer)
-            && Objects.equals(aktørId, other.aktørId)
-            && Objects.equals(fagsakYtelseType, other.fagsakYtelseType)
-            && Objects.equals(behandlingType, other.behandlingType)
-            && Objects.equals(relasjonRolle, other.relasjonRolle)
-            && Objects.equals(originalBehandlingId, other.originalBehandlingId)
+                && Objects.equals(saksnummer, other.saksnummer)
+                && Objects.equals(aktørId, other.aktørId)
+                && Objects.equals(fagsakYtelseType, other.fagsakYtelseType)
+                && Objects.equals(behandlingType, other.behandlingType)
+                && Objects.equals(relasjonRolle, other.relasjonRolle)
+                && Objects.equals(originalBehandlingId, other.originalBehandlingId)
         // tar ikke med status eller skjæringstidspunkt i equals siden de kan endre seg
         ;
     }
@@ -230,14 +232,15 @@ public class BehandlingReferanse {
      */
     private void sjekkSkjæringstidspunkt() {
         Objects.requireNonNull(skjæringstidspunkt,
-            "Utvikler-feil: skjæringstidspunkt er ikke satt på BehandlingReferanse. Sørg for at det er satt ifht. anvendelse");
+                "Utvikler-feil: skjæringstidspunkt er ikke satt på BehandlingReferanse. Sørg for at det er satt ifht. anvendelse");
     }
 
     @Override
     public String toString() {
         return getClass().getSimpleName() + String.format(
-            "<saksnummer=%s, behandlingId=%s, fagsakType=%s, behandlingType=%s, rolle=%s, aktørId=%s, status=%s, skjæringstidspunjkt=%s, originalBehandlingId=%s>",
-            saksnummer, behandlingId, fagsakYtelseType, behandlingType, relasjonRolle, aktørId, behandlingStatus, skjæringstidspunkt, originalBehandlingId);
+                "<saksnummer=%s, behandlingId=%s, fagsakType=%s, behandlingType=%s, rolle=%s, aktørId=%s, status=%s, skjæringstidspunjkt=%s, originalBehandlingId=%s>",
+                saksnummer, behandlingId, fagsakYtelseType, behandlingType, relasjonRolle, aktørId, behandlingStatus, skjæringstidspunkt,
+                originalBehandlingId);
     }
 
     /**
@@ -245,35 +248,36 @@ public class BehandlingReferanse {
      */
     public BehandlingReferanse medSkjæringstidspunkt(LocalDate utledetSkjæringstidspunkt) {
         return new BehandlingReferanse(getFagsakYtelseType(),
-            getBehandlingType(),
-            getRelasjonsRolleType(),
-            getAktørId(),
-            getSaksnummer(),
-            getFagsakId(),
-            getId(),
-            getBehandlingUuid(),
-            getOriginalBehandlingId(),
-            getBehandlingStatus(),
-            Skjæringstidspunkt.builder()
-                .medUtledetSkjæringstidspunkt(utledetSkjæringstidspunkt)
-                .build());
+                getBehandlingType(),
+                getRelasjonsRolleType(),
+                getAktørId(),
+                getSaksnummer(),
+                getFagsakId(),
+                getId(),
+                getBehandlingUuid(),
+                getOriginalBehandlingId(),
+                getBehandlingStatus(),
+                Skjæringstidspunkt.builder()
+                        .medUtledetSkjæringstidspunkt(utledetSkjæringstidspunkt)
+                        .build());
     }
 
     /**
-     * Lag immutable copy av referanse med mulighet til å legge til skjæringstidspunkt av flere typer
+     * Lag immutable copy av referanse med mulighet til å legge til
+     * skjæringstidspunkt av flere typer
      */
     public BehandlingReferanse medSkjæringstidspunkt(Skjæringstidspunkt skjæringstidspunkt) {
         return new BehandlingReferanse(getFagsakYtelseType(),
-            getBehandlingType(),
-            getRelasjonsRolleType(),
-            getAktørId(),
-            getSaksnummer(),
-            getFagsakId(),
-            getId(),
-            getBehandlingUuid(),
-            getOriginalBehandlingId(),
-            getBehandlingStatus(),
-            skjæringstidspunkt);
+                getBehandlingType(),
+                getRelasjonsRolleType(),
+                getAktørId(),
+                getSaksnummer(),
+                getFagsakId(),
+                getId(),
+                getBehandlingUuid(),
+                getOriginalBehandlingId(),
+                getBehandlingStatus(),
+                skjæringstidspunkt);
     }
 
     public BehandlingStatus getBehandlingStatus() {

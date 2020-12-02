@@ -52,7 +52,7 @@ public class InntektspostBuilder {
     }
 
     public InntektspostBuilder medInntektspostType(String kode) {
-       return medInntektspostType(InntektspostType.fraKode(kode));
+        return medInntektspostType(InntektspostType.fraKode(kode));
     }
 
     public InntektspostBuilder medSkatteOgAvgiftsregelType(String kode) {

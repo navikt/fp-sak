@@ -25,7 +25,7 @@ public class SøktPeriodeTjenesteImpl implements SøktPeriodeTjeneste {
     private YtelsesFordelingRepository ytelsesFordelingRepository;
 
     public SøktPeriodeTjenesteImpl() {
-        //For CDI
+        // For CDI
     }
 
     @Inject
@@ -33,17 +33,17 @@ public class SøktPeriodeTjenesteImpl implements SøktPeriodeTjeneste {
         this.ytelsesFordelingRepository = behandlingRepositoryProvider.getYtelsesFordelingRepository();
     }
 
-
     @Override
     public Optional<LocalDateInterval> finnSøktPeriode(UttakInput input) {
         var ref = input.getBehandlingReferanse();
         var behandlingId = ref.getBehandlingId();
-        var oppgittFordeling = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId).map(YtelseFordelingAggregat::getOppgittFordeling).orElse(null);
+        var oppgittFordeling = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId).map(YtelseFordelingAggregat::getOppgittFordeling)
+                .orElse(null);
         if (oppgittFordeling != null) {
             List<OppgittPeriodeEntitet> perioder = oppgittFordeling.getOppgittePerioder().stream()
-                .filter(periode -> UttakPeriodeType.STØNADSPERIODETYPER.contains(periode.getPeriodeType()))
-                .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
-                .collect(Collectors.toList());
+                    .filter(periode -> UttakPeriodeType.STØNADSPERIODETYPER.contains(periode.getPeriodeType()))
+                    .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
+                    .collect(Collectors.toList());
 
             if (!perioder.isEmpty()) {
                 return Optional.of(new LocalDateInterval(perioder.get(0).getFom(), perioder.get(perioder.size() - 1).getTom()));

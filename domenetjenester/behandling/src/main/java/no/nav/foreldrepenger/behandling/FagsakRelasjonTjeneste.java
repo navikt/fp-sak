@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandling;
 
-
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -27,8 +26,8 @@ public class FagsakRelasjonTjeneste {
 
     @Inject
     public FagsakRelasjonTjeneste(FagsakRelasjonRepository fagsakRelasjonRepository,
-                                  FagsakRelasjonEventPubliserer fagsakRelasjonEventPubliserer,
-                                  FagsakRepository fagsakRepository) {
+            FagsakRelasjonEventPubliserer fagsakRelasjonEventPubliserer,
+            FagsakRepository fagsakRepository) {
 
         this.fagsakRelasjonEventPubliserer = fagsakRelasjonEventPubliserer;
         this.fagsakRepository = fagsakRepository;
@@ -45,7 +44,6 @@ public class FagsakRelasjonTjeneste {
     FagsakRelasjonTjeneste() {
         // for CDI proxy
     }
-
 
     public FagsakRelasjon finnRelasjonFor(Fagsak fagsak) {
         return fagsakRelasjonRepository.finnRelasjonFor(fagsak);
@@ -111,7 +109,6 @@ public class FagsakRelasjonTjeneste {
         fagsakRelasjonEventPubliserer.fireEvent(fr);
     }
 
-
     public void overstyrStønadskontoberegning(long fagsakId, Long behandlingId, Stønadskontoberegning stønadskontoberegning) {
         var fagsak = finnFagsak(fagsakId);
         fagsakRelasjonRepository.overstyrStønadskontoberegning(fagsak, behandlingId, stønadskontoberegning);
@@ -121,8 +118,10 @@ public class FagsakRelasjonTjeneste {
         return fagsakRepository.finnEksaktFagsak(fagsakId);
     }
 
-    public void oppdaterMedAvsluttningsdato(FagsakRelasjon relasjon, LocalDate avsluttningsdato, FagsakRelasjonLås lås, Optional<FagsakLås> fagsak1Lås, Optional<FagsakLås> fagsak2Lås) {
-        Optional<FagsakRelasjon> fagsakRelasjonOpt = fagsakRelasjonRepository.oppdaterMedAvsluttningsdato(relasjon, avsluttningsdato, lås, fagsak1Lås, fagsak2Lås);
+    public void oppdaterMedAvsluttningsdato(FagsakRelasjon relasjon, LocalDate avsluttningsdato, FagsakRelasjonLås lås,
+            Optional<FagsakLås> fagsak1Lås, Optional<FagsakLås> fagsak2Lås) {
+        Optional<FagsakRelasjon> fagsakRelasjonOpt = fagsakRelasjonRepository.oppdaterMedAvsluttningsdato(relasjon, avsluttningsdato, lås, fagsak1Lås,
+                fagsak2Lås);
         if (fagsakRelasjonOpt.isPresent()) {
             fagsakRelasjonEventPubliserer.fireEvent(fagsakRelasjonOpt.get());
         }

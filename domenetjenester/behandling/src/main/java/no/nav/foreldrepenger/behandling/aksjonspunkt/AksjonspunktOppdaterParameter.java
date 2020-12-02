@@ -20,7 +20,8 @@ public final class AksjonspunktOppdaterParameter {
     private BehandlingReferanse ref;
     private final boolean erBegrunnelseEndret;
 
-    private AksjonspunktOppdaterParameter(Behandling behandling, Optional<Aksjonspunkt> aksjonspunkt, Skjæringstidspunkt skjæringstidspunkt, Builder vilkårBuilder, String begrunnelse) {
+    private AksjonspunktOppdaterParameter(Behandling behandling, Optional<Aksjonspunkt> aksjonspunkt, Skjæringstidspunkt skjæringstidspunkt,
+            Builder vilkårBuilder, String begrunnelse) {
         Objects.requireNonNull(behandling, "behandling");
         Objects.requireNonNull(aksjonspunkt, "Optional<Aksjonspunkt> kan ikke selv være null");
         Objects.requireNonNull(vilkårBuilder, "vilkårBuilder");
@@ -29,10 +30,13 @@ public final class AksjonspunktOppdaterParameter {
         this.aksjonspunkt = aksjonspunkt;
         this.skjæringstidspunkt = skjæringstidspunkt; // tillater null foreløpig pga tester som ikke har satt
         this.ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
-        this.erBegrunnelseEndret = begrunnelse != null ? aksjonspunkt.map(ap -> !Objects.equals(ap.getBegrunnelse(), begrunnelse)).orElse(Boolean.FALSE) : Boolean.FALSE;
+        this.erBegrunnelseEndret = begrunnelse != null
+                ? aksjonspunkt.map(ap -> !Objects.equals(ap.getBegrunnelse(), begrunnelse)).orElse(Boolean.FALSE)
+                : Boolean.FALSE;
     }
 
-    public AksjonspunktOppdaterParameter(Behandling behandling, Optional<Aksjonspunkt> aksjonspunkt, Skjæringstidspunkt skjæringstidspunkt, Builder vilkårBuilder, BekreftetAksjonspunktDto dto) {
+    public AksjonspunktOppdaterParameter(Behandling behandling, Optional<Aksjonspunkt> aksjonspunkt, Skjæringstidspunkt skjæringstidspunkt,
+            Builder vilkårBuilder, BekreftetAksjonspunktDto dto) {
         this(behandling, aksjonspunkt, skjæringstidspunkt, vilkårBuilder, dto.getBegrunnelse());
     }
 
@@ -48,7 +52,8 @@ public final class AksjonspunktOppdaterParameter {
     }
 
     // Test-only
-    public AksjonspunktOppdaterParameter(Behandling behandling, Aksjonspunkt aksjonspunkt, Skjæringstidspunkt skjæringstidspunkt, String begrunnelse) {
+    public AksjonspunktOppdaterParameter(Behandling behandling, Aksjonspunkt aksjonspunkt, Skjæringstidspunkt skjæringstidspunkt,
+            String begrunnelse) {
         this(behandling, Optional.ofNullable(aksjonspunkt), skjæringstidspunkt, VilkårResultat.builder(), begrunnelse);
     }
 

@@ -14,27 +14,28 @@ public class OpptjeningAktivitetVurderingAksjonspunkt implements OpptjeningAktiv
     private AksjonspunktutlederForVurderOppgittOpptjening vurderOppgittOpptjening;
     private AksjonspunktutlederForVurderBekreftetOpptjening vurderBekreftetOpptjening;
 
-    public OpptjeningAktivitetVurderingAksjonspunkt(AksjonspunktutlederForVurderOppgittOpptjening vurderOppgittOpptjening, AksjonspunktutlederForVurderBekreftetOpptjening vurderBekreftetOpptjening) {
+    public OpptjeningAktivitetVurderingAksjonspunkt(AksjonspunktutlederForVurderOppgittOpptjening vurderOppgittOpptjening,
+            AksjonspunktutlederForVurderBekreftetOpptjening vurderBekreftetOpptjening) {
         this.vurderOppgittOpptjening = vurderOppgittOpptjening;
         this.vurderBekreftetOpptjening = vurderBekreftetOpptjening;
     }
 
     @Override
     public VurderingsStatus vurderStatus(OpptjeningAktivitetType type,
-                                         BehandlingReferanse behandlingReferanse,
-                                         Yrkesaktivitet overstyrtAktivitet,
-                                         InntektArbeidYtelseGrunnlag iayGrunnlag,
-                                         boolean harVærtSaksbehandlet) {
+            BehandlingReferanse behandlingReferanse,
+            Yrkesaktivitet overstyrtAktivitet,
+            InntektArbeidYtelseGrunnlag iayGrunnlag,
+            boolean harVærtSaksbehandlet) {
         return vurderStatus(type, behandlingReferanse, null, overstyrtAktivitet, iayGrunnlag, harVærtSaksbehandlet);
     }
 
     @Override
     public VurderingsStatus vurderStatus(OpptjeningAktivitetType type,
-                                         BehandlingReferanse behandlingReferanse,
-                                         Yrkesaktivitet registerAktivitet,
-                                         Yrkesaktivitet overstyrtAktivitet,
-                                         InntektArbeidYtelseGrunnlag iayGrunnlag,
-                                         boolean harVærtSaksbehandlet) {
+            BehandlingReferanse behandlingReferanse,
+            Yrkesaktivitet registerAktivitet,
+            Yrkesaktivitet overstyrtAktivitet,
+            InntektArbeidYtelseGrunnlag iayGrunnlag,
+            boolean harVærtSaksbehandlet) {
 
         var filter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), (Yrkesaktivitet) null);
         if (OpptjeningAktivitetType.ANNEN_OPPTJENING.contains(type)) {
@@ -55,8 +56,10 @@ public class OpptjeningAktivitetVurderingAksjonspunkt implements OpptjeningAktiv
      * @param behandlingReferanse
      * @return vurderingsstatus
      */
-    private VurderingsStatus vurderArbeid(YrkesaktivitetFilter filter, Yrkesaktivitet registerAktivitet, Yrkesaktivitet overstyrtAktivitet, boolean harVærtSaksbehandlet, BehandlingReferanse behandlingReferanse) {
-        if (vurderBekreftetOpptjening.girAksjonspunktForArbeidsforhold(filter, behandlingReferanse.getBehandlingId(), registerAktivitet, overstyrtAktivitet)) {
+    private VurderingsStatus vurderArbeid(YrkesaktivitetFilter filter, Yrkesaktivitet registerAktivitet, Yrkesaktivitet overstyrtAktivitet,
+            boolean harVærtSaksbehandlet, BehandlingReferanse behandlingReferanse) {
+        if (vurderBekreftetOpptjening.girAksjonspunktForArbeidsforhold(filter, behandlingReferanse.getBehandlingId(), registerAktivitet,
+                overstyrtAktivitet)) {
             if (overstyrtAktivitet != null) {
                 return VurderingsStatus.GODKJENT;
             }
@@ -89,8 +92,10 @@ public class OpptjeningAktivitetVurderingAksjonspunkt implements OpptjeningAktiv
      * @param harVærtSaksbehandlet har saksbehandler tatt stilling til dette
      * @return vurderingsstatus
      */
-    private VurderingsStatus vurderNæring(BehandlingReferanse behandlingReferanse, Yrkesaktivitet overstyrtAktivitet, InntektArbeidYtelseGrunnlag iayGrunnlag, Skjæringstidspunkt skjæringstidspunkt, boolean harVærtSaksbehandlet) {
-        if (vurderOppgittOpptjening.girAksjonspunktForOppgittNæring(behandlingReferanse.getBehandlingId(), behandlingReferanse.getAktørId(), iayGrunnlag, skjæringstidspunkt)) {
+    private VurderingsStatus vurderNæring(BehandlingReferanse behandlingReferanse, Yrkesaktivitet overstyrtAktivitet,
+            InntektArbeidYtelseGrunnlag iayGrunnlag, Skjæringstidspunkt skjæringstidspunkt, boolean harVærtSaksbehandlet) {
+        if (vurderOppgittOpptjening.girAksjonspunktForOppgittNæring(behandlingReferanse.getBehandlingId(), behandlingReferanse.getAktørId(),
+                iayGrunnlag, skjæringstidspunkt)) {
             if (overstyrtAktivitet != null) {
                 return VurderingsStatus.GODKJENT;
             }

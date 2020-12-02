@@ -32,12 +32,14 @@ public class BeregningsgrunnlagInputTjeneste extends BeregningsgrunnlagInputFell
 
     @Inject
     public BeregningsgrunnlagInputTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
-                                           InntektArbeidYtelseTjeneste iayTjeneste,
-                                           SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                           AndelGraderingTjeneste andelGraderingTjeneste,
-                                           OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste,
-                                           BeregnTilrettleggingsperioderTjeneste tilrettleggingsperioderTjeneste, InntektsmeldingTjeneste inntektsmeldingTjeneste, KalkulusKonfigInjecter kalkulusKonfigInjecter) {
-        super(behandlingRepositoryProvider.getBehandlingRepository(), iayTjeneste, skjæringstidspunktTjeneste, andelGraderingTjeneste, opptjeningForBeregningTjeneste, inntektsmeldingTjeneste, kalkulusKonfigInjecter);
+            InntektArbeidYtelseTjeneste iayTjeneste,
+            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+            AndelGraderingTjeneste andelGraderingTjeneste,
+            OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste,
+            BeregnTilrettleggingsperioderTjeneste tilrettleggingsperioderTjeneste, InntektsmeldingTjeneste inntektsmeldingTjeneste,
+            KalkulusKonfigInjecter kalkulusKonfigInjecter) {
+        super(behandlingRepositoryProvider.getBehandlingRepository(), iayTjeneste, skjæringstidspunktTjeneste, andelGraderingTjeneste,
+                opptjeningForBeregningTjeneste, inntektsmeldingTjeneste, kalkulusKonfigInjecter);
         this.tilrettleggingsperioderTjeneste = Objects.requireNonNull(tilrettleggingsperioderTjeneste, "tilrettleggingsperioderTjeneste");
     }
 
@@ -46,9 +48,7 @@ public class BeregningsgrunnlagInputTjeneste extends BeregningsgrunnlagInputFell
         var tilretteleggingMedUtbelingsgrad = tilrettleggingsperioderTjeneste.beregnPerioder(ref);
 
         return new SvangerskapspengerGrunnlag(
-            TilretteleggingMapperTilKalkulus.mapTilretteleggingerMedUtbetalingsgrad(tilretteleggingMedUtbelingsgrad)
-        );
+                TilretteleggingMapperTilKalkulus.mapTilretteleggingerMedUtbetalingsgrad(tilretteleggingMedUtbelingsgrad));
     }
 
 }
-

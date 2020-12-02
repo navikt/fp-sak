@@ -58,7 +58,7 @@ public class IverksetteVedtakStegFellesTest extends EntityManagerAwareTest {
         opprettProsessTaskIverksett = mock(OpprettProsessTaskIverksett.class);
         vurderBehandlingerUnderIverksettelse = mock(VurderBehandlingerUnderIverksettelse.class);
         iverksetteVedtakSteg = new IverksetteVedtakStegFelles(repositoryProvider, opprettProsessTaskIverksett,
-            vurderBehandlingerUnderIverksettelse);
+                vurderBehandlingerUnderIverksettelse);
     }
 
     @Test
@@ -78,8 +78,7 @@ public class IverksetteVedtakStegFellesTest extends EntityManagerAwareTest {
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår());
         var behandling = opprettBehandling();
-        @SuppressWarnings("unused")
-        var vedtak = opprettBehandlingVedtak(VedtakResultatType.AVSLAG, IverksettingStatus.IKKE_IVERKSATT, behandling.getId());
+        opprettBehandlingVedtak(VedtakResultatType.AVSLAG, IverksettingStatus.IKKE_IVERKSATT, behandling.getId());
         when(vurderBehandlingerUnderIverksettelse.vurder(any())).thenReturn(true);
 
         // Act
@@ -116,9 +115,8 @@ public class IverksetteVedtakStegFellesTest extends EntityManagerAwareTest {
         assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.SETT_PÅ_VENT);
         assertThat(resultat.getAksjonspunktListe()).isEmpty();
         Optional<BehandlingVedtak> behandlingVedtakOpt = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId());
-        assertThat(behandlingVedtakOpt).hasValueSatisfying(behandlingVedtak ->
-            assertThat(behandlingVedtak.getIverksettingStatus()).isEqualTo(IverksettingStatus.IKKE_IVERKSATT)
-        );
+        assertThat(behandlingVedtakOpt).hasValueSatisfying(
+                behandlingVedtak -> assertThat(behandlingVedtak.getIverksettingStatus()).isEqualTo(IverksettingStatus.IKKE_IVERKSATT));
     }
 
     @Test
@@ -172,17 +170,17 @@ public class IverksetteVedtakStegFellesTest extends EntityManagerAwareTest {
     }
 
     private BehandlingVedtak opprettBehandlingVedtak(VedtakResultatType resultatType,
-                                                     IverksettingStatus iverksettingStatus,
-                                                     Long behandlingId) {
+            IverksettingStatus iverksettingStatus,
+            Long behandlingId) {
         BehandlingLås lås = behandlingRepository.taSkriveLås(behandlingId);
         Behandlingsresultat behandlingsresultat = getBehandlingsresultat(behandlingId);
         BehandlingVedtak behandlingVedtak = BehandlingVedtak.builder()
-            .medVedtakstidspunkt(LocalDateTime.now().minusDays(3))
-            .medAnsvarligSaksbehandler("E123")
-            .medVedtakResultatType(resultatType)
-            .medIverksettingStatus(iverksettingStatus)
-            .medBehandlingsresultat(behandlingsresultat)
-            .build();
+                .medVedtakstidspunkt(LocalDateTime.now().minusDays(3))
+                .medAnsvarligSaksbehandler("E123")
+                .medVedtakResultatType(resultatType)
+                .medIverksettingStatus(iverksettingStatus)
+                .medBehandlingsresultat(behandlingsresultat)
+                .build();
         behandlingVedtakRepository.lagre(behandlingVedtak, lås);
         return behandlingVedtak;
     }

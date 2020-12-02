@@ -501,9 +501,7 @@ public class OpptjeningsperioderTjenesteTest {
 
         iayTjeneste.lagreArbeidsforhold(behandling.getId(), AKTØRID, arbeidsforholdInformasjonBuilder);
 
-        // Act
-        @SuppressWarnings("unused")
-        List<OpptjeningsperiodeForSaksbehandling> perioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(ref);
+        forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(ref);
 
     }
 

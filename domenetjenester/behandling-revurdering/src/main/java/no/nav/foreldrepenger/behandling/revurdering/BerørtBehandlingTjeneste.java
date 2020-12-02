@@ -36,14 +36,14 @@ public class BerørtBehandlingTjeneste {
     private UttakInputTjeneste uttakInputTjeneste;
 
     BerørtBehandlingTjeneste() {
-        //CDI
+        // CDI
     }
 
     @Inject
     public BerørtBehandlingTjeneste(StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste,
-                                    BehandlingRepositoryProvider repositoryProvider,
-                                    UttakInputTjeneste uttakInputTjeneste,
-                                    ForeldrepengerUttakTjeneste uttakTjeneste) {
+            BehandlingRepositoryProvider repositoryProvider,
+            UttakInputTjeneste uttakInputTjeneste,
+            ForeldrepengerUttakTjeneste uttakTjeneste) {
         this.stønadskontoSaldoTjeneste = stønadskontoSaldoTjeneste;
         this.historikkRepository = repositoryProvider.getHistorikkRepository();
         this.uttakTjeneste = uttakTjeneste;
@@ -59,8 +59,8 @@ public class BerørtBehandlingTjeneste {
      * @return true dersom berørt behandling skal opprettes, ellers false.
      */
     public boolean skalBerørtBehandlingOpprettes(Optional<Behandlingsresultat> optionalBehandlingsresultat,
-                                                 Optional<ForeldrepengerUttak> brukersUttaksPerioder,
-                                                 Optional<ForeldrepengerUttak> medforeldersUttaksPerioder) {
+            Optional<ForeldrepengerUttak> brukersUttaksPerioder,
+            Optional<ForeldrepengerUttak> medforeldersUttaksPerioder) {
         if (optionalBehandlingsresultat.isEmpty()) {
             return false;
         }
@@ -73,19 +73,20 @@ public class BerørtBehandlingTjeneste {
      * Finner ut om det skal opprettes en berørt behandling på med forelders sak.
      *
      * @param brukersGjeldendeBehandlingsresultat brukers behandlingsresultat
-     * @param behandlingId                       brukers siste vedtatte behandling
-     * @param behandlingIdAnnenPart                    medforelders siste vedtatte behandling.
+     * @param behandlingId                        brukers siste vedtatte behandling
+     * @param behandlingIdAnnenPart               medforelders siste vedtatte
+     *                                            behandling.
      * @return true dersom berørt behandling skal opprettes, ellers false.
      */
     public boolean skalBerørtBehandlingOpprettes(Optional<Behandlingsresultat> brukersGjeldendeBehandlingsresultat,
-                                                 Long behandlingId,
-                                                 Long behandlingIdAnnenPart) {
-        if (brukersGjeldendeBehandlingsresultat.isEmpty() || behandlingId == null) {
+            Long behandlingId,
+            Long behandlingIdAnnenPart) {
+        if (brukersGjeldendeBehandlingsresultat.isEmpty() || (behandlingId == null)) {
             return false;
         }
         var uttakInput = uttakInputTjeneste.lagInput(brukersGjeldendeBehandlingsresultat.get().getBehandlingId());
         ForeldrepengerGrunnlag foreldrepengerGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
-        if (foreldrepengerGrunnlag == null || foreldrepengerGrunnlag.isTapendeBehandling()) {
+        if ((foreldrepengerGrunnlag == null) || foreldrepengerGrunnlag.isTapendeBehandling()) {
             return false;
         }
         var brukersUttaksPerioder = finnGjeldendeUttaksPerioder(behandlingId);
@@ -99,16 +100,17 @@ public class BerørtBehandlingTjeneste {
     }
 
     private boolean skalRevurderingFøreTilBerørtBehandling(Behandlingsresultat behandlingsresultat,
-                                                           Optional<ForeldrepengerUttak> brukersUttaksPerioder,
-                                                           Optional<ForeldrepengerUttak> medforeldersUttaksPerioder,
-                                                           UttakInput uttakInput) {
-        if (behandlingsresultat.isBehandlingsresultatOpphørt() && harMedforelderPerioderEtterBrukersOpphør(brukersUttaksPerioder, medforeldersUttaksPerioder)) {
+            Optional<ForeldrepengerUttak> brukersUttaksPerioder,
+            Optional<ForeldrepengerUttak> medforeldersUttaksPerioder,
+            UttakInput uttakInput) {
+        if (behandlingsresultat.isBehandlingsresultatOpphørt()
+                && harMedforelderPerioderEtterBrukersOpphør(brukersUttaksPerioder, medforeldersUttaksPerioder)) {
             return harKonsekvens(behandlingsresultat, KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER);
         }
         if (behandlingsresultat.isBehandlingsresultatForeldrepengerEndret()
-            || behandlingsresultat.isBehandlingsresultatInnvilget()) {
+                || behandlingsresultat.isBehandlingsresultatInnvilget()) {
             if (harKonsekvens(behandlingsresultat, KonsekvensForYtelsen.ENDRING_I_BEREGNING)
-                || harKonsekvens(behandlingsresultat, KonsekvensForYtelsen.ENDRING_I_UTTAK)) {
+                    || harKonsekvens(behandlingsresultat, KonsekvensForYtelsen.ENDRING_I_UTTAK)) {
                 if (behandlingsresultat.isEndretStønadskonto()) {
                     return true;
                 }
@@ -121,7 +123,8 @@ public class BerørtBehandlingTjeneste {
         return false;
     }
 
-    private boolean harMedforelderPerioderEtterBrukersOpphør(Optional<ForeldrepengerUttak> brukersUttaksplan, Optional<ForeldrepengerUttak> motpartsUttaksplan) {
+    private boolean harMedforelderPerioderEtterBrukersOpphør(Optional<ForeldrepengerUttak> brukersUttaksplan,
+            Optional<ForeldrepengerUttak> motpartsUttaksplan) {
         if (brukersUttaksplan.isPresent() && motpartsUttaksplan.isPresent()) {
             if (harBrukerFørsteUttak(brukersUttaksplan.get(), motpartsUttaksplan.get())) {
                 return true;
@@ -137,14 +140,14 @@ public class BerørtBehandlingTjeneste {
 
     private boolean harBrukerFørsteUttak(ForeldrepengerUttak brukersUttaksplan, ForeldrepengerUttak motpartsUttaksplan) {
         return brukersUttaksplan.getGjeldendePerioder().stream().map(p -> p.getFom()).min(LocalDate::compareTo).get()
-            .isBefore(motpartsUttaksplan.getGjeldendePerioder().stream().map(p -> p.getFom()).min(LocalDate::compareTo).get());
+                .isBefore(motpartsUttaksplan.getGjeldendePerioder().stream().map(p -> p.getFom()).min(LocalDate::compareTo).get());
     }
 
     private boolean harOverlappendePerioder(Optional<ForeldrepengerUttak> brukersUttaksplan, Optional<ForeldrepengerUttak> motpartsUttaksplan) {
         if (brukersUttaksplan.isPresent() && motpartsUttaksplan.isPresent()) {
             LocalDate førsteForeldrersSisteDag = førsteForeldrersSisteDag(brukersUttaksplan.get(), motpartsUttaksplan.get());
             LocalDate andreForeldrersFørsteDag = andreForeldrersFørsteDag(brukersUttaksplan.get(), motpartsUttaksplan.get());
-            if (førsteForeldrersSisteDag != null && andreForeldrersFørsteDag != null) {
+            if ((førsteForeldrersSisteDag != null) && (andreForeldrersFørsteDag != null)) {
                 return !andreForeldrersFørsteDag.isAfter(førsteForeldrersSisteDag);
             }
         }
@@ -153,26 +156,29 @@ public class BerørtBehandlingTjeneste {
 
     private LocalDate førsteForeldrersSisteDag(ForeldrepengerUttak brukersUttaksplan, ForeldrepengerUttak motpartsUttaksplan) {
         Optional<LocalDate> førsteForeldrersSisteDag = brukersUttaksplan.finnFørsteUttaksdato().isAfter(motpartsUttaksplan.finnFørsteUttaksdato())
-            ? sisteUttaksdato(motpartsUttaksplan) : sisteUttaksdato(brukersUttaksplan);
+                ? sisteUttaksdato(motpartsUttaksplan)
+                : sisteUttaksdato(brukersUttaksplan);
         return førsteForeldrersSisteDag.orElse(null);
     }
 
     private LocalDate andreForeldrersFørsteDag(ForeldrepengerUttak brukersUttaksplan, ForeldrepengerUttak motpartsUttaksplan) {
         Optional<LocalDate> andreForeldrersFørsteDag = brukersUttaksplan.finnFørsteUttaksdato().isAfter(motpartsUttaksplan.finnFørsteUttaksdato())
-            ? førsteUttaksdatoUtenAvslåttePerioder(brukersUttaksplan) : førsteUttaksdatoUtenAvslåttePerioder(motpartsUttaksplan);
+                ? førsteUttaksdatoUtenAvslåttePerioder(brukersUttaksplan)
+                : førsteUttaksdatoUtenAvslåttePerioder(motpartsUttaksplan);
         return andreForeldrersFørsteDag.orElse(null);
     }
 
     private Optional<LocalDate> førsteUttaksdatoUtenAvslåttePerioder(ForeldrepengerUttak uttaksplan) {
         return uttaksplan.getGjeldendePerioder().stream()
-            .filter(u -> !PeriodeResultatType.AVSLÅTT.equals(u.getResultatType())).map(p -> p.getFom()).min(LocalDate::compareTo);
+                .filter(u -> !PeriodeResultatType.AVSLÅTT.equals(u.getResultatType())).map(p -> p.getFom()).min(LocalDate::compareTo);
     }
 
     private Optional<LocalDate> sisteUttaksdato(ForeldrepengerUttak uttaksplan) {
         return uttaksplan.getGjeldendePerioder().stream()
-            .filter(periode -> PeriodeResultatType.INNVILGET.equals(periode.getResultatType()) || periode.getAktiviteter().stream().anyMatch(a -> a.getTrekkdager().merEnn0()))
-            .map(p -> p.getTidsperiode().getTomDato())
-            .max(LocalDate::compareTo);
+                .filter(periode -> PeriodeResultatType.INNVILGET.equals(periode.getResultatType())
+                        || periode.getAktiviteter().stream().anyMatch(a -> a.getTrekkdager().merEnn0()))
+                .map(p -> p.getTidsperiode().getTomDato())
+                .max(LocalDate::compareTo);
     }
 
     public boolean harKonsekvens(Behandlingsresultat behandlingsresultat, KonsekvensForYtelsen konsekvens) {
@@ -180,13 +186,13 @@ public class BerørtBehandlingTjeneste {
     }
 
     public void opprettHistorikkinnslagOmRevurdering(Behandling behandling, BehandlingÅrsakType revurderingÅrsak,
-                                                     HistorikkBegrunnelseType historikkBegrunnelseType, HistorikkinnslagType historikkinnslagType) {
+            HistorikkBegrunnelseType historikkBegrunnelseType, HistorikkinnslagType historikkinnslagType) {
         Historikkinnslag revurderingsInnslag = new Historikkinnslag();
         revurderingsInnslag.setBehandling(behandling);
         revurderingsInnslag.setType(historikkinnslagType);
         revurderingsInnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
         HistorikkInnslagTekstBuilder historiebygger = new HistorikkInnslagTekstBuilder()
-            .medHendelse(historikkinnslagType);
+                .medHendelse(historikkinnslagType);
         if (revurderingÅrsak != null) {
             historiebygger.medBegrunnelse(revurderingÅrsak);
         } else {
@@ -197,7 +203,8 @@ public class BerørtBehandlingTjeneste {
         historikkRepository.lagre(revurderingsInnslag);
     }
 
-    public void opprettHistorikkinnslagForVenteFristRelaterteInnslag(Behandling behandling, HistorikkinnslagType historikkinnslagType, LocalDateTime frist, Venteårsak venteårsak) {
+    public void opprettHistorikkinnslagForVenteFristRelaterteInnslag(Behandling behandling, HistorikkinnslagType historikkinnslagType,
+            LocalDateTime frist, Venteårsak venteårsak) {
         HistorikkInnslagTekstBuilder builder = new HistorikkInnslagTekstBuilder();
         if (frist != null) {
             builder.medHendelse(historikkinnslagType, frist.toLocalDate());

@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
-
 @BehandlingStegRef(kode = "KOARB")
 @BehandlingTypeRef
 @FagsakYtelseTypeRef("SVP")
@@ -37,8 +36,8 @@ public class KontrollerArbeidsforholdStegImpl implements KontrollerArbeidsforhol
 
     @Inject
     public KontrollerArbeidsforholdStegImpl(BehandlingRepository behandlingRepository,
-                                            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                            AksjonspunktUtlederForVurderArbeidsforhold utleder) {
+            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+            AksjonspunktUtlederForVurderArbeidsforhold utleder) {
         this.behandlingRepository = behandlingRepository;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.utleder = utleder;

@@ -18,8 +18,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKontrollRepository;
 
 /**
- * Håndterer aksjonspunktresultat og oppretter/reaktiverer aksjonspunkt
- * Brukes fra StegVisitor og Behandlingskontroll for lik håndtering
+ * Håndterer aksjonspunktresultat og oppretter/reaktiverer aksjonspunkt Brukes
+ * fra StegVisitor og Behandlingskontroll for lik håndtering
  */
 class AksjonspunktResultatOppretter {
 
@@ -29,16 +29,15 @@ class AksjonspunktResultatOppretter {
 
     private Map<AksjonspunktDefinisjon, Aksjonspunkt> eksisterende = new LinkedHashMap<>();
 
-
     AksjonspunktResultatOppretter(AksjonspunktKontrollRepository aksjonspunktKontrollRepository, Behandling behandling) {
         this.behandling = Objects.requireNonNull(behandling, "behandling");
         this.aksjonspunktKontrollRepository = aksjonspunktKontrollRepository;
         behandling.getAksjonspunkter().forEach(ap -> this.eksisterende.putIfAbsent(ap.getAksjonspunktDefinisjon(), ap));
     }
 
-
     /**
-     * Lagrer nye aksjonspunkt, og gjenåpner dem hvis de alleerede står til avbrutt/utført
+     * Lagrer nye aksjonspunkt, og gjenåpner dem hvis de alleerede står til
+     * avbrutt/utført
      */
     List<Aksjonspunkt> opprettAksjonspunkter(List<AksjonspunktResultat> apResultater, BehandlingStegType behandlingStegType) {
 
@@ -54,21 +53,22 @@ class AksjonspunktResultatOppretter {
 
     private List<Aksjonspunkt> fjernGjensidigEkskluderendeAksjonspunkter(List<AksjonspunktResultat> nyeApResultater) {
         List<Aksjonspunkt> avbrutteAksjonspunkter = new ArrayList<>();
-        Set<String> nyeApDef = nyeApResultater.stream().map(AksjonspunktResultat::getAksjonspunktDefinisjon).map(AksjonspunktDefinisjon::getKode).collect(toSet());
+        Set<String> nyeApDef = nyeApResultater.stream().map(AksjonspunktResultat::getAksjonspunktDefinisjon).map(AksjonspunktDefinisjon::getKode)
+                .collect(toSet());
         eksisterende.values().stream()
-            .filter(Aksjonspunkt::erÅpentAksjonspunkt)
-            .filter(ap -> ap.getAksjonspunktDefinisjon().getUtelukkendeApdef().stream().anyMatch(nyeApDef::contains))
-            .forEach(ap -> {
-                aksjonspunktKontrollRepository.setTilAvbrutt(ap);
-                avbrutteAksjonspunkter.add(ap);
-            });
+                .filter(Aksjonspunkt::erÅpentAksjonspunkt)
+                .filter(ap -> ap.getAksjonspunktDefinisjon().getUtelukkendeApdef().stream().anyMatch(nyeApDef::contains))
+                .forEach(ap -> {
+                    aksjonspunktKontrollRepository.setTilAvbrutt(ap);
+                    avbrutteAksjonspunkter.add(ap);
+                });
         return avbrutteAksjonspunkter;
     }
 
     private List<Aksjonspunkt> leggTilResultatPåBehandling(BehandlingStegType behandlingStegType, List<AksjonspunktResultat> resultat) {
         return resultat.stream()
-            .map(ar -> oppdaterAksjonspunktMedResultat(behandlingStegType, ar))
-            .collect(Collectors.toList());
+                .map(ar -> oppdaterAksjonspunktMedResultat(behandlingStegType, ar))
+                .collect(Collectors.toList());
     }
 
     private Aksjonspunkt oppdaterAksjonspunktMedResultat(BehandlingStegType behandlingStegType, AksjonspunktResultat resultat) {

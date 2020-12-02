@@ -9,7 +9,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import no.nav.folketrygdloven.kalkulator.tid.Intervall;
+import no.nav.folketrygdloven.kalkulus.felles.tid.AbstractIntervall;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatRegelmodell;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakAktivitet;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakResultat;
@@ -35,7 +35,7 @@ public class BeregningsresultatInputVerifisererTest {
         lagBGPeriode(LocalDate.of(2020, 8, 3), LocalDate.of(2020, 8, 31), arbfor1);
         lagBGPeriode(LocalDate.of(2020, 9, 1), LocalDate.of(2020, 9, 11), arbfor1, arbfor2);
         lagBGPeriode(LocalDate.of(2020, 9, 12), LocalDate.of(2020, 10, 21), arbfor1, arbfor2);
-        lagBGPeriode(LocalDate.of(2020, 10, 22), Intervall.TIDENES_ENDE, arbfor1, arbfor2);
+        lagBGPeriode(LocalDate.of(2020, 10, 22), AbstractIntervall.TIDENES_ENDE, arbfor1, arbfor2);
         UttakAktivitet uttakAktivitet = lagUttakAktivitet("999999999", null, false);
         UttakAktivitet uttakAktivitet2 = lagUttakAktivitet("999999998", null, false);
         lagUttakPeriode(LocalDate.of(2020, 8, 3), LocalDate.of(2020, 10, 21), uttakAktivitet);

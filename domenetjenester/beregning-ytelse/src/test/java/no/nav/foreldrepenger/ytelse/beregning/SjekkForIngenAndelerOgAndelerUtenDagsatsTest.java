@@ -29,29 +29,29 @@ public class SjekkForIngenAndelerOgAndelerUtenDagsatsTest {
     private LocalDate tom;
 
     @BeforeEach
-    void setUp(){
+    void setUp() {
         sjekkForIngenAndelerOgAndelerUtenDagsats = new SjekkForIngenAndelerOgAndelerUtenDagsats();
         beregningsresultatFørstegangsbehandling = BeregningsresultatEntitet.builder()
-            .medRegelInput("clob1")
-            .medRegelSporing("clob2")
-            .build();
+                .medRegelInput("clob1")
+                .medRegelSporing("clob2")
+                .build();
         beregningsresultatRevurdering = BeregningsresultatEntitet.builder()
-            .medRegelInput("clob1")
-            .medRegelSporing("clob2")
-            .build();
+                .medRegelInput("clob1")
+                .medRegelSporing("clob2")
+                .build();
         fom = LocalDate.now();
         tom = LocalDate.now().plusWeeks(1);
     }
 
     @Test
-    public void endring_nyPeriode_uten_andel_uten_dagsats_hvor_gammelPeriode_er_null(){
+    public void endring_nyPeriode_uten_andel_uten_dagsats_hvor_gammelPeriode_er_null() {
         BeregningsresultatPeriode nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
         boolean endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(nyPeriode, null);
         assertThat(endring).isTrue();
     }
 
     @Test
-    public void endring_nyPeriode_med_andel_uten_dagsats_hvor_gammelPeriode_er_null(){
+    public void endring_nyPeriode_med_andel_uten_dagsats_hvor_gammelPeriode_er_null() {
         BeregningsresultatPeriode nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
         opprettBeregningsresultatAndel(nyPeriode, 0);
         boolean endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(nyPeriode, null);
@@ -59,7 +59,7 @@ public class SjekkForIngenAndelerOgAndelerUtenDagsatsTest {
     }
 
     @Test
-    public void ingen_endring_nyPeriode_med_andel_med_dagsats_hvor_gammelPeriode_er_null(){
+    public void ingen_endring_nyPeriode_med_andel_med_dagsats_hvor_gammelPeriode_er_null() {
         BeregningsresultatPeriode nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
         opprettBeregningsresultatAndel(nyPeriode, 1000);
         boolean endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(nyPeriode, null);
@@ -67,14 +67,14 @@ public class SjekkForIngenAndelerOgAndelerUtenDagsatsTest {
     }
 
     @Test
-    public void endring_gammelPeriode_uten_andel_uten_dagsats_hvor_gammelPeriode_er_null(){
+    public void endring_gammelPeriode_uten_andel_uten_dagsats_hvor_gammelPeriode_er_null() {
         BeregningsresultatPeriode gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
         boolean endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(null, gammelPeriode);
         assertThat(endring).isTrue();
     }
 
     @Test
-    public void endring_gammelPeriode_med_andel_uten_dagsats_hvor_gammelPeriode_er_null(){
+    public void endring_gammelPeriode_med_andel_uten_dagsats_hvor_gammelPeriode_er_null() {
         BeregningsresultatPeriode gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
         opprettBeregningsresultatAndel(gammelPeriode, 0);
         boolean endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(null, gammelPeriode);
@@ -82,7 +82,7 @@ public class SjekkForIngenAndelerOgAndelerUtenDagsatsTest {
     }
 
     @Test
-    public void ingen_endring_gammelPeriode_med_andel_med_dagsats_hvor_gammelPeriode_er_null(){
+    public void ingen_endring_gammelPeriode_med_andel_med_dagsats_hvor_gammelPeriode_er_null() {
         BeregningsresultatPeriode gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
         opprettBeregningsresultatAndel(gammelPeriode, 1000);
         boolean endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(null, gammelPeriode);
@@ -90,7 +90,7 @@ public class SjekkForIngenAndelerOgAndelerUtenDagsatsTest {
     }
 
     @Test
-    public void endring_nyPeriode_uten_andel_uten_dagsats_og_gammelPeriode_uten_andel_uten_dagsats(){
+    public void endring_nyPeriode_uten_andel_uten_dagsats_og_gammelPeriode_uten_andel_uten_dagsats() {
         BeregningsresultatPeriode nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
         BeregningsresultatPeriode gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
         boolean endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(nyPeriode, gammelPeriode);
@@ -98,7 +98,7 @@ public class SjekkForIngenAndelerOgAndelerUtenDagsatsTest {
     }
 
     @Test
-    public void endring_nyPeriode_med_andel_uten_dagsats_og_gammelPeriode_uten_andel_uten_dagsats(){
+    public void endring_nyPeriode_med_andel_uten_dagsats_og_gammelPeriode_uten_andel_uten_dagsats() {
         BeregningsresultatPeriode nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
         opprettBeregningsresultatAndel(nyPeriode, 0);
         BeregningsresultatPeriode gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
@@ -107,7 +107,7 @@ public class SjekkForIngenAndelerOgAndelerUtenDagsatsTest {
     }
 
     @Test
-    public void ingen_endring_nyPeriode_med_andel_med_dagsats_og_gammelPeriode_uten_andel_uten_dagsats(){
+    public void ingen_endring_nyPeriode_med_andel_med_dagsats_og_gammelPeriode_uten_andel_uten_dagsats() {
         BeregningsresultatPeriode nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
         opprettBeregningsresultatAndel(nyPeriode, 1000);
         BeregningsresultatPeriode gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
@@ -116,7 +116,7 @@ public class SjekkForIngenAndelerOgAndelerUtenDagsatsTest {
     }
 
     @Test
-    public void endring_nyPeriode_uten_andel_uten_dagsats_og_gammelPeriode_med_andel_uten_dagsats(){
+    public void endring_nyPeriode_uten_andel_uten_dagsats_og_gammelPeriode_med_andel_uten_dagsats() {
         BeregningsresultatPeriode nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
         BeregningsresultatPeriode gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
         opprettBeregningsresultatAndel(gammelPeriode, 0);
@@ -125,7 +125,7 @@ public class SjekkForIngenAndelerOgAndelerUtenDagsatsTest {
     }
 
     @Test
-    public void ingen_endring_nyPeriode_uten_andel_uten_dagsats_og_gammelPeriode_med_andel_med_dagsats(){
+    public void ingen_endring_nyPeriode_uten_andel_uten_dagsats_og_gammelPeriode_med_andel_med_dagsats() {
         BeregningsresultatPeriode nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
         BeregningsresultatPeriode gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
         opprettBeregningsresultatAndel(gammelPeriode, 1000);
@@ -134,7 +134,7 @@ public class SjekkForIngenAndelerOgAndelerUtenDagsatsTest {
     }
 
     @Test
-    public void endring_nyPeriode_med_andel_uten_dagsats_og_gammelPeriode_med_andel_uten_dagsats(){
+    public void endring_nyPeriode_med_andel_uten_dagsats_og_gammelPeriode_med_andel_uten_dagsats() {
         BeregningsresultatPeriode nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
         opprettBeregningsresultatAndel(nyPeriode, 0);
         BeregningsresultatPeriode gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
@@ -144,7 +144,7 @@ public class SjekkForIngenAndelerOgAndelerUtenDagsatsTest {
     }
 
     @Test
-    public void ingen_endring_nyPeriode_med_andel_med_dagsats_og_gammelPeriode_med_andel_uten_dagsats(){
+    public void ingen_endring_nyPeriode_med_andel_med_dagsats_og_gammelPeriode_med_andel_uten_dagsats() {
         BeregningsresultatPeriode nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
         opprettBeregningsresultatAndel(nyPeriode, 1000);
         BeregningsresultatPeriode gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
@@ -154,7 +154,7 @@ public class SjekkForIngenAndelerOgAndelerUtenDagsatsTest {
     }
 
     @Test
-    public void ingen_endring_nyPeriode_med_andel_uten_dagsats_og_gammelPeriode_med_andel_med_dagsats(){
+    public void ingen_endring_nyPeriode_med_andel_uten_dagsats_og_gammelPeriode_med_andel_med_dagsats() {
         BeregningsresultatPeriode nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
         opprettBeregningsresultatAndel(nyPeriode, 0);
         BeregningsresultatPeriode gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
@@ -164,7 +164,7 @@ public class SjekkForIngenAndelerOgAndelerUtenDagsatsTest {
     }
 
     @Test
-    public void ingen_endring_nyPeriode_med_andel_med_dagsats_og_gammelPeriode_med_andel_med_dagsats(){
+    public void ingen_endring_nyPeriode_med_andel_med_dagsats_og_gammelPeriode_med_andel_med_dagsats() {
         BeregningsresultatPeriode nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
         opprettBeregningsresultatAndel(nyPeriode, 1000);
         BeregningsresultatPeriode gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
@@ -173,25 +173,25 @@ public class SjekkForIngenAndelerOgAndelerUtenDagsatsTest {
         assertThat(endring).isFalse();
     }
 
-    private BeregningsresultatPeriode opprettBeregningsresultatPeriode(BeregningsresultatEntitet beregningsresultat, LocalDate fom, LocalDate tom){
+    private BeregningsresultatPeriode opprettBeregningsresultatPeriode(BeregningsresultatEntitet beregningsresultat, LocalDate fom, LocalDate tom) {
         return BeregningsresultatPeriode.builder()
-            .medBeregningsresultatPeriodeFomOgTom(fom, tom)
-            .build(beregningsresultat);
+                .medBeregningsresultatPeriodeFomOgTom(fom, tom)
+                .build(beregningsresultat);
     }
 
     private void opprettBeregningsresultatAndel(BeregningsresultatPeriode beregningsresultatPeriode, int dagsats) {
         Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet(ORGNR);
         BeregningsresultatAndel.builder()
-            .medBrukerErMottaker(false)
-            .medArbeidsgiver(arbeidsgiver)
-            .medArbeidsforholdRef(ARBEIDSFORHOLD_ID)
-            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
-            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-            .medStillingsprosent(BigDecimal.valueOf(100))
-            .medUtbetalingsgrad(BigDecimal.valueOf(100))
-            .medDagsats(dagsats)
-            .medDagsatsFraBg(dagsats)
-            .build(beregningsresultatPeriode);
+                .medBrukerErMottaker(false)
+                .medArbeidsgiver(arbeidsgiver)
+                .medArbeidsforholdRef(ARBEIDSFORHOLD_ID)
+                .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+                .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+                .medStillingsprosent(BigDecimal.valueOf(100))
+                .medUtbetalingsgrad(BigDecimal.valueOf(100))
+                .medDagsats(dagsats)
+                .medDagsatsFraBg(dagsats)
+                .build(beregningsresultatPeriode);
     }
 
 }

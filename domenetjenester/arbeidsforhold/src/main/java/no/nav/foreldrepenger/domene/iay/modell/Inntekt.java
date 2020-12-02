@@ -21,7 +21,10 @@ public class Inntekt extends BaseEntitet implements IndexKey {
 
     private InntektsKilde inntektsKilde;
 
-    /* TODO: Bør InntektspostEntitet splittes? inneholder litt forskjellig felter avhengig av kilde. */
+    /*
+     * TODO: Bør InntektspostEntitet splittes? inneholder litt forskjellig felter
+     * avhengig av kilde.
+     */
     @ChangeTracked
     private Set<Inntektspost> inntektspost = new LinkedHashSet<>();
 
@@ -51,12 +54,12 @@ public class Inntekt extends BaseEntitet implements IndexKey {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (obj == null || !(obj instanceof Inntekt)) {
+        } else if ((obj == null) || !(obj instanceof Inntekt)) {
             return false;
         }
         Inntekt other = (Inntekt) obj;
         return Objects.equals(this.getInntektsKilde(), other.getInntektsKilde())
-            && Objects.equals(this.getArbeidsgiver(), other.getArbeidsgiver());
+                && Objects.equals(this.getArbeidsgiver(), other.getArbeidsgiver());
     }
 
     @Override
@@ -76,7 +79,6 @@ public class Inntekt extends BaseEntitet implements IndexKey {
     void setInntektsKilde(InntektsKilde inntektsKilde) {
         this.inntektsKilde = inntektsKilde;
     }
-
 
     /**
      * Utbetaler
@@ -116,7 +118,7 @@ public class Inntekt extends BaseEntitet implements IndexKey {
     }
 
     public boolean hasValues() {
-        return arbeidsgiver != null || inntektsKilde != null || inntektspost != null;
+        return (arbeidsgiver != null) || (inntektsKilde != null) || (inntektspost != null);
     }
 
 }

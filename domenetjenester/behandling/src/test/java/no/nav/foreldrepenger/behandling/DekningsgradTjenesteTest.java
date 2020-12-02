@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandling;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
@@ -29,7 +28,7 @@ public class DekningsgradTjenesteTest {
     void setUp(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(),
-            null, repositoryProvider.getFagsakRepository());
+                null, repositoryProvider.getFagsakRepository());
     }
 
     @Test
@@ -78,7 +77,8 @@ public class DekningsgradTjenesteTest {
     private Behandling behandling(boolean endretDekningsgrad) {
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår().medEndretDekningsgrad(endretDekningsgrad));
-        scenario.medBehandlingVedtak().medAnsvarligSaksbehandler("sdaw").medVedtakstidspunkt(LocalDateTime.now()).medVedtakResultatType(VedtakResultatType.UDEFINERT);
+        scenario.medBehandlingVedtak().medAnsvarligSaksbehandler("sdaw").medVedtakstidspunkt(LocalDateTime.now())
+                .medVedtakResultatType(VedtakResultatType.UDEFINERT);
         return scenario.lagre(repositoryProvider);
     }
 

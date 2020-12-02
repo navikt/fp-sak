@@ -43,24 +43,28 @@ public class FatteVedtakTjeneste {
 
     private static final AksjonspunktDefinisjon VENT_MERKNADER = AksjonspunktDefinisjon.AUTO_VENT_ANKE_MERKNADER_FRA_BRUKER;
 
-    private static final Set<BehandlingResultatType> VEDTAKSTILSTANDER_REVURDERING = Set.of(BehandlingResultatType.AVSLÅTT, BehandlingResultatType.INNVILGET,
-        BehandlingResultatType.OPPHØR, BehandlingResultatType.FORELDREPENGER_ENDRET, BehandlingResultatType.INGEN_ENDRING);
+    private static final Set<BehandlingResultatType> VEDTAKSTILSTANDER_REVURDERING = Set.of(BehandlingResultatType.AVSLÅTT,
+            BehandlingResultatType.INNVILGET,
+            BehandlingResultatType.OPPHØR, BehandlingResultatType.FORELDREPENGER_ENDRET, BehandlingResultatType.INGEN_ENDRING);
     private static final Set<BehandlingResultatType> VEDTAKSTILSTANDER = Set.of(BehandlingResultatType.AVSLÅTT, BehandlingResultatType.INNVILGET);
-    private static final Set<BehandlingResultatType> VEDTAKSTILSTANDER_KLAGE = Set.of(BehandlingResultatType.KLAGE_AVVIST, BehandlingResultatType.KLAGE_MEDHOLD,
-        BehandlingResultatType.KLAGE_YTELSESVEDTAK_OPPHEVET, BehandlingResultatType.KLAGE_YTELSESVEDTAK_STADFESTET, BehandlingResultatType.KLAGE_TILBAKEKREVING_VEDTAK_STADFESTET,
-        BehandlingResultatType.HJEMSENDE_UTEN_OPPHEVE);
-    private static final Set<BehandlingResultatType> VEDTAKSTILSTANDER_ANKE = Set.of(BehandlingResultatType.ANKE_AVVIST, BehandlingResultatType.ANKE_OMGJOER,
-        BehandlingResultatType.ANKE_YTELSESVEDTAK_STADFESTET, BehandlingResultatType.ANKE_OPPHEVE_OG_HJEMSENDE, BehandlingResultatType.ANKE_HJEMSENDE_UTEN_OPPHEV);
+    private static final Set<BehandlingResultatType> VEDTAKSTILSTANDER_KLAGE = Set.of(BehandlingResultatType.KLAGE_AVVIST,
+            BehandlingResultatType.KLAGE_MEDHOLD,
+            BehandlingResultatType.KLAGE_YTELSESVEDTAK_OPPHEVET, BehandlingResultatType.KLAGE_YTELSESVEDTAK_STADFESTET,
+            BehandlingResultatType.KLAGE_TILBAKEKREVING_VEDTAK_STADFESTET,
+            BehandlingResultatType.HJEMSENDE_UTEN_OPPHEVE);
+    private static final Set<BehandlingResultatType> VEDTAKSTILSTANDER_ANKE = Set.of(BehandlingResultatType.ANKE_AVVIST,
+            BehandlingResultatType.ANKE_OMGJOER,
+            BehandlingResultatType.ANKE_YTELSESVEDTAK_STADFESTET, BehandlingResultatType.ANKE_OPPHEVE_OG_HJEMSENDE,
+            BehandlingResultatType.ANKE_HJEMSENDE_UTEN_OPPHEV);
     private static final Set<BehandlingResultatType> VEDTAKSTILSTANDER_INNSYN = Set.of(BehandlingResultatType.INNSYN_AVVIST,
-        BehandlingResultatType.INNSYN_DELVIS_INNVILGET, BehandlingResultatType.INNSYN_INNVILGET);
+            BehandlingResultatType.INNSYN_DELVIS_INNVILGET, BehandlingResultatType.INNSYN_INNVILGET);
 
     private static final Map<BehandlingType, Set<BehandlingResultatType>> LOVLIGE_RESULTAT = Map.ofEntries(
-        Map.entry(BehandlingType.ANKE, VEDTAKSTILSTANDER_ANKE),
-        Map.entry(BehandlingType.KLAGE, VEDTAKSTILSTANDER_KLAGE),
-        Map.entry(BehandlingType.INNSYN, VEDTAKSTILSTANDER_INNSYN),
-        Map.entry(BehandlingType.FØRSTEGANGSSØKNAD, VEDTAKSTILSTANDER),
-        Map.entry(BehandlingType.REVURDERING, VEDTAKSTILSTANDER_REVURDERING)
-    );
+            Map.entry(BehandlingType.ANKE, VEDTAKSTILSTANDER_ANKE),
+            Map.entry(BehandlingType.KLAGE, VEDTAKSTILSTANDER_KLAGE),
+            Map.entry(BehandlingType.INNSYN, VEDTAKSTILSTANDER_INNSYN),
+            Map.entry(BehandlingType.FØRSTEGANGSSØKNAD, VEDTAKSTILSTANDER),
+            Map.entry(BehandlingType.REVURDERING, VEDTAKSTILSTANDER_REVURDERING));
 
     private LagretVedtakRepository lagretVedtakRepository;
     private FatteVedtakXmlTjeneste vedtakXmlTjeneste;
@@ -76,12 +80,12 @@ public class FatteVedtakTjeneste {
 
     @Inject
     public FatteVedtakTjeneste(LagretVedtakRepository vedtakRepository,
-                               KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste,
-                        FatteVedtakXmlTjeneste vedtakXmlTjeneste,
-                        VedtakTjeneste vedtakTjeneste,
-                        OppgaveTjeneste oppgaveTjeneste,
-                        TotrinnTjeneste totrinnTjeneste,
-                        BehandlingVedtakTjeneste behandlingVedtakTjeneste) {
+            KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste,
+            FatteVedtakXmlTjeneste vedtakXmlTjeneste,
+            VedtakTjeneste vedtakTjeneste,
+            OppgaveTjeneste oppgaveTjeneste,
+            TotrinnTjeneste totrinnTjeneste,
+            BehandlingVedtakTjeneste behandlingVedtakTjeneste) {
         this.lagretVedtakRepository = vedtakRepository;
         this.klageAnkeVedtakTjeneste = klageAnkeVedtakTjeneste;
         this.vedtakXmlTjeneste = vedtakXmlTjeneste;
@@ -97,20 +101,24 @@ public class FatteVedtakTjeneste {
         if (behandling.isToTrinnsBehandling()) {
             Collection<Totrinnsvurdering> totrinnaksjonspunktvurderinger = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling);
             if (sendesTilbakeTilSaksbehandler(totrinnaksjonspunktvurderinger)) {
-                oppgaveTjeneste.avsluttOppgaveOgStartTask(behandling, OppgaveÅrsak.GODKJENNE_VEDTAK, OpprettOppgaveForBehandlingSendtTilbakeTask.TASKTYPE);
+                oppgaveTjeneste.avsluttOppgaveOgStartTask(behandling, OppgaveÅrsak.GODKJENNE_VEDTAK,
+                        OpprettOppgaveForBehandlingSendtTilbakeTask.TASKTYPE);
                 List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner = totrinnaksjonspunktvurderinger.stream()
-                    .filter(a -> !TRUE.equals(a.isGodkjent()))
-                    .map(Totrinnsvurdering::getAksjonspunktDefinisjon).collect(Collectors.toList());
+                        .filter(a -> !TRUE.equals(a.isGodkjent()))
+                        .map(Totrinnsvurdering::getAksjonspunktDefinisjon).collect(Collectors.toList());
 
                 return BehandleStegResultat.tilbakeførtMedAksjonspunkter(aksjonspunktDefinisjoner);
             } else {
                 // Dette er spesialbehandling av Klage og Anke hos KA.
-                // Hvis KAs medunderskriver(belsutter) godkjenner behandlingen må den fremdeles tilbake til saksbehandler
-                // så han/hun kan ferdigstille behandlingen derfor tilbakeføres behandlingen med entrinn så vi ikke kommer hit igjen.
+                // Hvis KAs medunderskriver(belsutter) godkjenner behandlingen må den fremdeles
+                // tilbake til saksbehandler
+                // så han/hun kan ferdigstille behandlingen derfor tilbakeføres behandlingen med
+                // entrinn så vi ikke kommer hit igjen.
                 if (klageAnkeVedtakTjeneste.erVurdertVedKlageinstans(behandling)
-                    && skalTilbakeTilForeslåVedtakForKlageinstans(behandling)) {
+                        && skalTilbakeTilForeslåVedtakForKlageinstans(behandling)) {
                     behandling.nullstillToTrinnsBehandling();
-                    // Spesialbehandling for KA også i FORVEDSTEG - hvis medunderskriver har sagt OK gir den V_U_2trinn
+                    // Spesialbehandling for KA også i FORVEDSTEG - hvis medunderskriver har sagt OK
+                    // gir den V_U_2trinn
                     return BehandleStegResultat.tilbakeførtForeslåVedtak();
                 }
                 oppgaveTjeneste.opprettTaskAvsluttOppgave(behandling);
@@ -125,7 +133,7 @@ public class FatteVedtakTjeneste {
 
         if (klageAnkeVedtakTjeneste.skalOversendesTrygdretten(behandling) && !behandling.harAksjonspunktMedType(VENT_MERKNADER)) {
             var apVent = AksjonspunktResultat.opprettForAksjonspunktMedFrist(VENT_MERKNADER, Venteårsak.ANKE_VENTER_PAA_MERKNADER_FRA_BRUKER,
-                LocalDateTime.now().plus(Objects.requireNonNull(VENT_MERKNADER.getFristPeriod())));
+                    LocalDateTime.now().plus(Objects.requireNonNull(VENT_MERKNADER.getFristPeriod())));
             return BehandleStegResultat.utførtMedAksjonspunktResultater(List.of(apVent));
         }
 
@@ -136,21 +144,23 @@ public class FatteVedtakTjeneste {
     private boolean skalTilbakeTilForeslåVedtakForKlageinstans(Behandling behandling) {
         Aksjonspunkt apForeslåMedTT = behandling.getAksjonspunktFor(AksjonspunktDefinisjon.FORESLÅ_VEDTAK.getKode()).orElse(null);
         Aksjonspunkt apForeslåUtenTT = behandling.getAksjonspunktFor(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL.getKode()).orElse(null);
-        if (apForeslåMedTT == null || apForeslåMedTT.getEndretTidspunkt() == null)
-            return  false;
-        if (apForeslåUtenTT == null || apForeslåUtenTT.getEndretTidspunkt() == null)
+        if ((apForeslåMedTT == null) || (apForeslåMedTT.getEndretTidspunkt() == null)) {
+            return false;
+        }
+        if ((apForeslåUtenTT == null) || (apForeslåUtenTT.getEndretTidspunkt() == null)) {
             return true;
+        }
         return apForeslåMedTT.getEndretTidspunkt().isAfter(apForeslåUtenTT.getEndretTidspunkt());
     }
 
     private boolean sendesTilbakeTilSaksbehandler(Collection<Totrinnsvurdering> medTotrinnskontroll) {
         return medTotrinnskontroll.stream()
-            .anyMatch(a -> !TRUE.equals(a.isGodkjent()));
+                .anyMatch(a -> !TRUE.equals(a.isGodkjent()));
     }
 
     private void verifiserBehandlingsresultat(Behandling behandling) { // NOSONAR dette er bare enkel verifisering og har ikke høy complexity
         Behandlingsresultat behandlingsresultat = behandlingVedtakTjeneste.getBehandlingsresultat(behandling.getId());
-        if (behandlingsresultat == null || !LOVLIGE_RESULTAT.get(behandling.getType()).contains(behandlingsresultat.getBehandlingResultatType())) {
+        if ((behandlingsresultat == null) || !LOVLIGE_RESULTAT.get(behandling.getType()).contains(behandlingsresultat.getBehandlingResultatType())) {
             var exString = UTVIKLER_FEIL_VEDTAK + (behandlingsresultat == null ? "null" : behandlingsresultat.getBehandlingResultatType().getNavn());
             throw new IllegalStateException(exString);
         }
@@ -162,18 +172,19 @@ public class FatteVedtakTjeneste {
         }
         if (!erKlarForVedtak(behandling)) {
             throw VedtakXmlFeil.FACTORY.behandlingErIFeilTilstand(behandling.getId(), behandling.getStatus().getKode())
-                .toException();
+                    .toException();
         }
         LagretVedtak lagretVedtak = LagretVedtak.builder()
-            .medBehandlingId(behandling.getId())
-            .medFagsakId(behandling.getFagsakId())
-            .medXmlClob(vedtakXmlTjeneste.opprettVedtakXml(behandling.getId()))
-            .build();
+                .medBehandlingId(behandling.getId())
+                .medFagsakId(behandling.getFagsakId())
+                .medXmlClob(vedtakXmlTjeneste.opprettVedtakXml(behandling.getId()))
+                .build();
         lagretVedtakRepository.lagre(lagretVedtak);
     }
 
     private boolean erKlarForVedtak(Behandling behandling) {
-        return BehandlingType.KLAGE.equals(behandling.getType()) || BehandlingType.ANKE.equals(behandling.getType()) || BehandlingStatus.FATTER_VEDTAK.equals(behandling.getStatus());
+        return BehandlingType.KLAGE.equals(behandling.getType()) || BehandlingType.ANKE.equals(behandling.getType())
+                || BehandlingStatus.FATTER_VEDTAK.equals(behandling.getStatus());
     }
 
 }

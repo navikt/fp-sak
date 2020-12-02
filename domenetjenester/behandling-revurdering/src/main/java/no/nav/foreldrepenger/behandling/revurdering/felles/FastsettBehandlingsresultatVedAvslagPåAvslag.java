@@ -15,7 +15,8 @@ class FastsettBehandlingsresultatVedAvslagPåAvslag {
     private FastsettBehandlingsresultatVedAvslagPåAvslag() {
     }
 
-    public static boolean vurder(Optional<Behandlingsresultat> resRevurdering, Optional<Behandlingsresultat> resOriginal, BehandlingType originalType) {
+    public static boolean vurder(Optional<Behandlingsresultat> resRevurdering, Optional<Behandlingsresultat> resOriginal,
+            BehandlingType originalType) {
         if (resOriginal.isPresent() && resRevurdering.isPresent()) {
             if (BehandlingType.FØRSTEGANGSSØKNAD.equals(originalType)) {
                 return erAvslagPåAvslag(resRevurdering.get(), resOriginal.get());
@@ -25,8 +26,9 @@ class FastsettBehandlingsresultatVedAvslagPåAvslag {
     }
 
     public static Behandlingsresultat fastsett(Behandling revurdering, Behandlingsresultat behandlingsresultat) {
-        return RevurderingBehandlingsresultatutlederFelles.buildBehandlingsresultat(revurdering, behandlingsresultat, BehandlingResultatType.INGEN_ENDRING,
-            List.of(KonsekvensForYtelsen.INGEN_ENDRING), Vedtaksbrev.INGEN);
+        return RevurderingBehandlingsresultatutlederFelles.buildBehandlingsresultat(revurdering, behandlingsresultat,
+                BehandlingResultatType.INGEN_ENDRING,
+                List.of(KonsekvensForYtelsen.INGEN_ENDRING), Vedtaksbrev.INGEN);
     }
 
     private static boolean erAvslagPåAvslag(Behandlingsresultat resRevurdering, Behandlingsresultat resOriginal) {

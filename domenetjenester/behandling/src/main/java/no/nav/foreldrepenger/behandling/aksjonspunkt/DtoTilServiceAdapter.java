@@ -17,7 +17,8 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter.Contai
 /**
  * Marker type definerer adapter for å transformere en Dto til et tjenestekall.
  * <p>
- * Beans bør være @ApplicationScoped eller @RequestScoped slik at de ikke trenger å destroyes etter oppslag.
+ * Beans bør være @ApplicationScoped eller @RequestScoped slik at de ikke
+ * trenger å destroyes etter oppslag.
  */
 @Repeatable(ContainerOfDtoTilServiceAdapter.class)
 @Qualifier
@@ -64,7 +65,7 @@ public @interface DtoTilServiceAdapter {
 
     /**
      * container for repeatable annotations.
-     * 
+     *
      * @see https://docs.oracle.com/javase/tutorial/java/annotations/repeating.html
      */
     @Inherited

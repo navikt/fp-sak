@@ -31,7 +31,7 @@ public class YtelseAnvistBuilder {
         return this;
     }
 
-    public YtelseAnvistBuilder medAnvistPeriode(DatoIntervallEntitet intervallEntitet){
+    public YtelseAnvistBuilder medAnvistPeriode(DatoIntervallEntitet intervallEntitet) {
         this.ytelseAnvist.setAnvistPeriode(intervallEntitet);
         return this;
     }

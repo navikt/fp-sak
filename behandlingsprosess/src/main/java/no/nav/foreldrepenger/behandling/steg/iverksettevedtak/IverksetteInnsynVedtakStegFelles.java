@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 
 @BehandlingStegRef(kode = "IVEDSTEG")
-@BehandlingTypeRef("BT-006") //Innsyn
+@BehandlingTypeRef("BT-006") // Innsyn
 @FagsakYtelseTypeRef()
 @ApplicationScoped
 public class IverksetteInnsynVedtakStegFelles implements IverksetteVedtakSteg {

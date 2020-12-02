@@ -51,7 +51,7 @@ public class HistorikkFraDtoMapper {
     private FagsakRepository fagsakRepository;
 
     public HistorikkFraDtoMapper() {
-        //CDI
+        // CDI
     }
 
     @Inject
@@ -64,15 +64,15 @@ public class HistorikkFraDtoMapper {
         Behandling behandling = behandlingRepository.hentBehandling(jsonHistorikk.getBehandlingUuid());
         Fagsak fagsak = hentFagsak(jsonHistorikk, behandling);
         Historikkinnslag nyttHistorikkInnslag = new Historikkinnslag.Builder()
-            .medAktør(mapAktør(jsonHistorikk))
-            .medBehandlingId(behandling.getId())
-            .medUuid(jsonHistorikk.getHistorikkUuid())
-            .medFagsakId(fagsak.getId())
-            .medKjoenn(mapKjønn(jsonHistorikk))
-            .medType(HistorikkinnslagType.fraKode(jsonHistorikk.getHistorikkInnslagType()))
-            .medHistorikkTid(jsonHistorikk.getOpprettetTidspunkt())
-            .medOpprettetISystem(jsonHistorikk.getAvsender())
-            .build();
+                .medAktør(mapAktør(jsonHistorikk))
+                .medBehandlingId(behandling.getId())
+                .medUuid(jsonHistorikk.getHistorikkUuid())
+                .medFagsakId(fagsak.getId())
+                .medKjoenn(mapKjønn(jsonHistorikk))
+                .medType(HistorikkinnslagType.fraKode(jsonHistorikk.getHistorikkInnslagType()))
+                .medHistorikkTid(jsonHistorikk.getOpprettetTidspunkt())
+                .medOpprettetISystem(jsonHistorikk.getAvsender())
+                .build();
 
         List<HistorikkinnslagDokumentLink> dokumentLenker = mapDokumentlenker(jsonHistorikk.getDokumentLinker(), nyttHistorikkInnslag);
         byggHistorikkDeler(jsonHistorikk.getHistorikkInnslagDeler(), nyttHistorikkInnslag);
@@ -91,9 +91,10 @@ public class HistorikkFraDtoMapper {
     }
 
     private Fagsak hentFagsak(HistorikkInnslagV1 jsonHistorikk, Behandling behandling) {
-        return jsonHistorikk.getSaksnummer() != null ?
-            fagsakRepository.hentSakGittSaksnummer(new Saksnummer(jsonHistorikk.getSaksnummer().getVerdi())).orElseThrow(IllegalStateException::new)
-            : behandling.getFagsak();
+        return jsonHistorikk.getSaksnummer() != null
+                ? fagsakRepository.hentSakGittSaksnummer(new Saksnummer(jsonHistorikk.getSaksnummer().getVerdi()))
+                        .orElseThrow(IllegalStateException::new)
+                : behandling.getFagsak();
     }
 
     private void byggHistorikkDeler(List<HistorikkInnslagDel> historikkinnslagDeler, Historikkinnslag nyttHistorikkInnslag) {
@@ -102,42 +103,46 @@ public class HistorikkFraDtoMapper {
             return;
         }
         if (!historikkinnslagDeler.isEmpty()) {
-            throw new UnsupportedOperationException("Historikkinnslagdeler er kun implementert for sendte brev"); //Ikke triviell å implentere - vi har ikke behov for denne med det første
+            throw new UnsupportedOperationException("Historikkinnslagdeler er kun implementert for sendte brev"); // Ikke triviell å implentere - vi
+                                                                                                                  // har ikke behov for denne med det
+                                                                                                                  // første
         }
     }
 
     private void mapBrevSendtDel(List<HistorikkInnslagDel> historikkinnslagDeler, Historikkinnslag nyttHistorikkInnslag) {
         String begrunnelse = historikkinnslagDeler.stream()
-            .map(HistorikkInnslagDel::getHistorikkinnslagFelt)
-            .flatMap(Collection::stream)
-            .filter(felt -> HistorikkInnslagFeltTypeEnum.BEGRUNNELSE.equals(felt.getFeltType()))
-            .map(HistorikkInnslagFelt::getTilVerdi)
-            .findFirst().orElse("");
+                .map(HistorikkInnslagDel::getHistorikkinnslagFelt)
+                .flatMap(Collection::stream)
+                .filter(felt -> HistorikkInnslagFeltTypeEnum.BEGRUNNELSE.equals(felt.getFeltType()))
+                .map(HistorikkInnslagFelt::getTilVerdi)
+                .findFirst().orElse("");
         new HistorikkInnslagTekstBuilder()
-            .medHendelse(nyttHistorikkInnslag.getType())
-            .medBegrunnelse(begrunnelse)
-            .build(nyttHistorikkInnslag);
+                .medHendelse(nyttHistorikkInnslag.getType())
+                .medBegrunnelse(begrunnelse)
+                .build(nyttHistorikkInnslag);
     }
 
-    private List<HistorikkinnslagDokumentLink> mapDokumentlenker(List<HistorikkInnslagDokumentLink> dokumentLinker, Historikkinnslag historikkinnslag) {
+    private List<HistorikkinnslagDokumentLink> mapDokumentlenker(List<HistorikkInnslagDokumentLink> dokumentLinker,
+            Historikkinnslag historikkinnslag) {
         return dokumentLinker.stream().map(link -> mapDokumentlink(link, historikkinnslag)).collect(Collectors.toList());
     }
 
     private HistorikkinnslagDokumentLink mapDokumentlink(HistorikkInnslagDokumentLink dtoLink, Historikkinnslag historikkinnslag) {
         HistorikkinnslagDokumentLink.Builder builder = new HistorikkinnslagDokumentLink.Builder()
-            .medLinkTekst(utledLinkTekst(dtoLink.getLinkTekst()))
-            .medHistorikkinnslag(historikkinnslag)
-            .medDokumentId(dtoLink.getDokumentId());
-        if (dtoLink.getJournalpostId() != null && JournalpostId.erGyldig(dtoLink.getJournalpostId().getVerdi())) {
+                .medLinkTekst(utledLinkTekst(dtoLink.getLinkTekst()))
+                .medHistorikkinnslag(historikkinnslag)
+                .medDokumentId(dtoLink.getDokumentId());
+        if ((dtoLink.getJournalpostId() != null) && JournalpostId.erGyldig(dtoLink.getJournalpostId().getVerdi())) {
             builder.medJournalpostId(new JournalpostId(dtoLink.getJournalpostId().getVerdi()));
         } else {
-            throw HistorikkFeil.FACTORY.ugyldigJournalpost(dtoLink.getJournalpostId() == null ? null : dtoLink.getJournalpostId().getVerdi()).toException();//Burde aldri skje
+            throw HistorikkFeil.FACTORY.ugyldigJournalpost(dtoLink.getJournalpostId() == null ? null : dtoLink.getJournalpostId().getVerdi())
+                    .toException();// Burde aldri skje
         }
         return builder.build();
     }
 
     private static String utledLinkTekst(String tekst) {
-        if (tekst == null || tekst.isEmpty() || tekst.isBlank()) {
+        if ((tekst == null) || tekst.isEmpty() || tekst.isBlank()) {
             return "Ukjent brev";
         }
         return tekst;

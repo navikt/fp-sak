@@ -23,9 +23,9 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.util.Tuple;
 
 /**
- *  Batchservice som finner alle behandlinger som skal gjenopptas, og lager en ditto prosess task for hver.
- *  Kriterier for gjenopptagelse: Behandlingen har et åpent aksjonspunkt som er et autopunkt og
- *  har en frist som er passert.
+ * Batchservice som finner alle behandlinger som skal gjenopptas, og lager en
+ * ditto prosess task for hver. Kriterier for gjenopptagelse: Behandlingen har
+ * et åpent aksjonspunkt som er et autopunkt og har en frist som er passert.
  */
 @ApplicationScoped
 public class AutomatiskArenaReguleringBatchTjeneste implements BatchTjeneste {
@@ -38,7 +38,7 @@ public class AutomatiskArenaReguleringBatchTjeneste implements BatchTjeneste {
 
     @Inject
     public AutomatiskArenaReguleringBatchTjeneste(BehandlingRepositoryProvider repositoryProvider,
-                                                  ProsessTaskRepository prosessTaskRepository) {
+            ProsessTaskRepository prosessTaskRepository) {
         this.prosessTaskRepository = prosessTaskRepository;
         this.behandlingRevurderingRepository = repositoryProvider.getBehandlingRevurderingRepository();
     }
@@ -50,7 +50,7 @@ public class AutomatiskArenaReguleringBatchTjeneste implements BatchTjeneste {
 
     @Override
     public String launch(BatchArguments arguments) {
-        AutomatiskArenaReguleringBatchArguments batchArguments = (AutomatiskArenaReguleringBatchArguments)arguments;
+        AutomatiskArenaReguleringBatchArguments batchArguments = (AutomatiskArenaReguleringBatchArguments) arguments;
         String executionId = BATCHNAME + EXECUTION_ID_SEPARATOR;
 
         List<Tuple<Long, AktørId>> tilVurdering = hentKandidater(batchArguments);

@@ -17,7 +17,7 @@ final class UtledKoderForHistorikkinnslagdelerForArbeidsforholdUtenInnteksmeldin
         if (Boolean.TRUE.equals(arbeidsforholdDto.getLagtTilAvSaksbehandler())) {
             return Optional.of(VurderArbeidsforholdHistorikkinnslag.LAGT_TIL_AV_SAKSBEHANDLER);
         }
-        if (Boolean.FALSE.equals(arbeidsforholdDto.getInntektMedTilBeregningsgrunnlag())){
+        if (Boolean.FALSE.equals(arbeidsforholdDto.getInntektMedTilBeregningsgrunnlag())) {
             return Optional.of(VurderArbeidsforholdHistorikkinnslag.INNTEKT_IKKE_MED_I_BG);
         }
         if (Boolean.FALSE.equals(arbeidsforholdDto.getFortsettBehandlingUtenInntektsmelding())) {

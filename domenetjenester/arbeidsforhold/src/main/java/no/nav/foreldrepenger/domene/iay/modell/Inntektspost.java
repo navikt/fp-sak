@@ -34,7 +34,10 @@ public class Inntektspost extends BaseEntitet implements IndexKey {
 
     private Inntekt inntekt;
 
-    /** Brukes kun til FK validering. Default OffentligYtelseType. Må settes sammen med {@link #ytelse} */
+    /**
+     * Brukes kun til FK validering. Default OffentligYtelseType. Må settes sammen
+     * med {@link #ytelse}
+     */
     private String ytelseType = OffentligYtelseType.KODEVERK;
 
     private String ytelse = OffentligYtelseType.UDEFINERT.getKode();
@@ -62,7 +65,8 @@ public class Inntektspost extends BaseEntitet implements IndexKey {
 
     @Override
     public String getIndexKey() {
-        return IndexKey.createKey(getInntektspostType(), getYtelseType().getKodeverk(), getYtelseType().getKode(), getSkatteOgAvgiftsregelType(), periode);
+        return IndexKey.createKey(getInntektspostType(), getYtelseType().getKodeverk(), getYtelseType().getKode(), getSkatteOgAvgiftsregelType(),
+                periode);
     }
 
     /**
@@ -86,8 +90,8 @@ public class Inntektspost extends BaseEntitet implements IndexKey {
     }
 
     /**
-     * En kodeverksverdi som angir særskilt beskatningsregel.
-     * Den er ikke alltid satt, og kommer fra inntektskomponenten
+     * En kodeverksverdi som angir særskilt beskatningsregel. Den er ikke alltid
+     * satt, og kommer fra inntektskomponenten
      *
      * @return {@link SkatteOgAvgiftsregelType}
      */
@@ -142,36 +146,37 @@ public class Inntektspost extends BaseEntitet implements IndexKey {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (obj == null || !(obj instanceof Inntektspost)) {
+        } else if ((obj == null) || !(obj instanceof Inntektspost)) {
             return false;
         }
         Inntektspost other = (Inntektspost) obj;
         return Objects.equals(this.getInntektspostType(), other.getInntektspostType())
-            && Objects.equals(this.getYtelseType(), other.getYtelseType())
-            && Objects.equals(this.getSkatteOgAvgiftsregelType(), other.getSkatteOgAvgiftsregelType())
-            && Objects.equals(this.getPeriode().getFomDato(), other.getPeriode().getFomDato())
-            && Objects.equals(this.getPeriode().getTomDato(), other.getPeriode().getTomDato());
+                && Objects.equals(this.getYtelseType(), other.getYtelseType())
+                && Objects.equals(this.getSkatteOgAvgiftsregelType(), other.getSkatteOgAvgiftsregelType())
+                && Objects.equals(this.getPeriode().getFomDato(), other.getPeriode().getFomDato())
+                && Objects.equals(this.getPeriode().getTomDato(), other.getPeriode().getTomDato());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getInntektspostType(), getYtelseType(), getSkatteOgAvgiftsregelType(), getPeriode().getFomDato(), getPeriode().getTomDato());
+        return Objects.hash(getInntektspostType(), getYtelseType(), getSkatteOgAvgiftsregelType(), getPeriode().getFomDato(),
+                getPeriode().getTomDato());
     }
 
     @Override
     public String toString() {
         return getClass().getSimpleName() + "<" +
-            "ytelseType=" + ytelseType +
-            "inntektspostType=" + inntektspostType +
-            "skatteOgAvgiftsregelType=" + skatteOgAvgiftsregelType +
-            ", fraOgMed=" + periode.getFomDato() +
-            ", tilOgMed=" + periode.getTomDato() +
-            ", beløp=" + beløp +
-            '>';
+                "ytelseType=" + ytelseType +
+                "inntektspostType=" + inntektspostType +
+                "skatteOgAvgiftsregelType=" + skatteOgAvgiftsregelType +
+                ", fraOgMed=" + periode.getFomDato() +
+                ", tilOgMed=" + periode.getTomDato() +
+                ", beløp=" + beløp +
+                '>';
     }
 
     public boolean hasValues() {
-        return inntektspostType != null || periode.getFomDato() != null || periode.getTomDato() != null || beløp != null;
+        return (inntektspostType != null) || (periode.getFomDato() != null) || (periode.getTomDato() != null) || (beløp != null);
     }
 
 }

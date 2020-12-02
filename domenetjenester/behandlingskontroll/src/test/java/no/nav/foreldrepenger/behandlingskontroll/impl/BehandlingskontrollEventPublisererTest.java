@@ -69,10 +69,11 @@ public class BehandlingskontrollEventPublisererTest {
 
         BehandlingStegType stegType = BehandlingStegType.SØKERS_RELASJON_TIL_BARN;
 
-        Aksjonspunkt aksjonspunkt = serviceProvider.getAksjonspunktKontrollRepository().leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT, stegType);
+        Aksjonspunkt aksjonspunkt = serviceProvider.getAksjonspunktKontrollRepository().leggTilAksjonspunkt(behandling,
+                AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT, stegType);
         kontrollTjeneste.aksjonspunkterEndretStatus(kontekst, stegType, List.of(aksjonspunkt));
 
-        AksjonspunktDefinisjon[] ads = {AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT};
+        AksjonspunktDefinisjon[] ads = { AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT };
         TestEventObserver.containsExactly(ads);
     }
 
@@ -111,23 +112,23 @@ public class BehandlingskontrollEventPublisererTest {
         // Assert
 
         BehandlingStegStatusEvent steg1StatusEvent0 = new BehandlingStegStatusEvent(kontekst, STEG_1, null,
-            BehandlingStegStatus.STARTET);
+                BehandlingStegStatus.STARTET);
         BehandlingStegStatusEvent steg1StatusEvent1 = new BehandlingStegStatusEvent(kontekst, STEG_1, BehandlingStegStatus.STARTET,
-            BehandlingStegStatus.UTFØRT);
+                BehandlingStegStatus.UTFØRT);
         BehandlingStegStatusEvent steg2StatusEvent0 = new BehandlingStegStatusEvent(kontekst, STEG_2, null,
-            BehandlingStegStatus.STARTET);
+                BehandlingStegStatus.STARTET);
         BehandlingStegStatusEvent steg2StatusEvent = new BehandlingStegStatusEvent(kontekst, STEG_2, BehandlingStegStatus.STARTET,
-            BehandlingStegStatus.UTFØRT);
+                BehandlingStegStatus.UTFØRT);
         BehandlingStegStatusEvent steg3StatusEvent0 = new BehandlingStegStatusEvent(kontekst, STEG_2, null,
-            BehandlingStegStatus.STARTET);
+                BehandlingStegStatus.STARTET);
         BehandlingStegStatusEvent steg3StatusEvent = new BehandlingStegStatusEvent(kontekst, STEG_3, BehandlingStegStatus.STARTET,
-            BehandlingStegStatus.UTFØRT);
+                BehandlingStegStatus.UTFØRT);
         BehandlingStegStatusEvent steg4StatusEvent = new BehandlingStegStatusEvent(kontekst, STEG_4, null,
-            BehandlingStegStatus.INNGANG);
+                BehandlingStegStatus.INNGANG);
         TestEventObserver.containsExactly(steg1StatusEvent0, steg1StatusEvent1 //
-            , steg2StatusEvent0, steg2StatusEvent//
-            , steg3StatusEvent0, steg3StatusEvent//
-            , steg4StatusEvent//
+                , steg2StatusEvent0, steg2StatusEvent//
+                , steg3StatusEvent0, steg3StatusEvent//
+                , steg4StatusEvent//
         );
     }
 
@@ -145,7 +146,8 @@ public class BehandlingskontrollEventPublisererTest {
         kontrollTjeneste.prosesserBehandling(kontekst);
 
         // Assert
-        // TODO (essv): Vanskelig å overstyre SUT til å gjøre tilbakehopp i riktig retning, her gjøres det fremover.
+        // TODO (essv): Vanskelig å overstyre SUT til å gjøre tilbakehopp i riktig
+        // retning, her gjøres det fremover.
         // Den trenger et åpent aksjonspunkt som ligger før startsteget
         BehandlingStegOvergangEvent tilbakeføring3_4 = nyOvergangEvent(kontekst, STEG_3, BehandlingStegStatus.UTFØRT, STEG_4, null);
         TestEventObserver.containsExactly(tilbakeføring3_4);
@@ -178,13 +180,13 @@ public class BehandlingskontrollEventPublisererTest {
     }
 
     private BehandlingStegOvergangEvent nyOvergangEvent(BehandlingskontrollKontekst kontekst,
-                                                        BehandlingStegType steg1, BehandlingStegStatus steg1Status, BehandlingStegType steg2, BehandlingStegStatus steg2Status) {
+            BehandlingStegType steg1, BehandlingStegStatus steg1Status, BehandlingStegType steg2, BehandlingStegStatus steg2Status) {
         return new BehandlingStegOvergangEvent(kontekst, lagTilstand(steg1, steg1Status),
-            lagTilstand(steg2, steg2Status));
+                lagTilstand(steg2, steg2Status));
     }
 
     private BehandlingStegTilstandSnapshot lagTilstand(BehandlingStegType stegType,
-                                                       BehandlingStegStatus stegStatus) {
+            BehandlingStegStatus stegStatus) {
         return new BehandlingStegTilstandSnapshot(1L, stegType, stegStatus);
     }
 
@@ -203,11 +205,10 @@ public class BehandlingskontrollEventPublisererTest {
         DummySteg steg2 = new DummySteg();
 
         List<TestStegKonfig> modellData = List.of(
-            new TestStegKonfig(STEG_1, behandlingType, fagsakYtelseType, steg, ap(), ap()),
-            new TestStegKonfig(STEG_2, behandlingType, fagsakYtelseType, steg0, ap(a0_0), ap(a0_1)),
-            new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, steg1, ap(a1_0), ap(a1_1)),
-            new TestStegKonfig(STEG_4, behandlingType, fagsakYtelseType, steg2, ap(a2_0), ap(a2_1))
-        );
+                new TestStegKonfig(STEG_1, behandlingType, fagsakYtelseType, steg, ap(), ap()),
+                new TestStegKonfig(STEG_2, behandlingType, fagsakYtelseType, steg0, ap(a0_0), ap(a0_1)),
+                new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, steg1, ap(a1_0), ap(a1_1)),
+                new TestStegKonfig(STEG_4, behandlingType, fagsakYtelseType, steg2, ap(a2_0), ap(a2_1)));
 
         return ModifiserbarBehandlingModell.setupModell(behandlingType, fagsakYtelseType, modellData);
     }

@@ -79,13 +79,17 @@ public class YtelseAnvist extends BaseEntitet implements IndexKey {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || !(o instanceof YtelseAnvist)) return false;
+        if (this == o) {
+            return true;
+        }
+        if ((o == null) || !(o instanceof YtelseAnvist)) {
+            return false;
+        }
         YtelseAnvist that = (YtelseAnvist) o;
         return Objects.equals(anvistPeriode, that.anvistPeriode) &&
-            Objects.equals(beløp, that.beløp) &&
-            Objects.equals(dagsats, that.dagsats) &&
-            Objects.equals(utbetalingsgradProsent, that.utbetalingsgradProsent);
+                Objects.equals(beløp, that.beløp) &&
+                Objects.equals(dagsats, that.dagsats) &&
+                Objects.equals(utbetalingsgradProsent, that.utbetalingsgradProsent);
     }
 
     @Override
@@ -96,10 +100,10 @@ public class YtelseAnvist extends BaseEntitet implements IndexKey {
     @Override
     public String toString() {
         return "YtelseAnvistEntitet{" +
-            "periode=" + anvistPeriode +
-            ", beløp=" + beløp +
-            ", dagsats=" + dagsats +
-            ", utbetalingsgradProsent=" + utbetalingsgradProsent +
-            '}';
+                "periode=" + anvistPeriode +
+                ", beløp=" + beløp +
+                ", dagsats=" + dagsats +
+                ", utbetalingsgradProsent=" + utbetalingsgradProsent +
+                '}';
     }
 }

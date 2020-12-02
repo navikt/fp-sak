@@ -18,12 +18,12 @@ public class DekningsgradTjeneste {
     private BehandlingsresultatRepository behandlingsresultatRepository;
 
     DekningsgradTjeneste() {
-        //CDI
+        // CDI
     }
 
     @Inject
     public DekningsgradTjeneste(FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
-                                BehandlingsresultatRepository behandlingsresultatRepository) {
+            BehandlingsresultatRepository behandlingsresultatRepository) {
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
     }

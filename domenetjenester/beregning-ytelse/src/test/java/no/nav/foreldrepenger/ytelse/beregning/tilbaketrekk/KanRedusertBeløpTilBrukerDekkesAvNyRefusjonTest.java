@@ -17,14 +17,12 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
     }
-
 
     @Test
     public void skal_gi_nei_hvis_inntekt_lik_dagsats_for_bruker_lik_og_ingen_refusjon_i_original_og_revurdering() {
@@ -37,14 +35,12 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
     }
-
 
     @Test
     public void skal_gi_nei_hvis_inntekt_lik_refusjon_lik_ingen_dagsats_til_bruker_i_original_og_revurdering() {
@@ -57,14 +53,12 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
     }
-
 
     @Test
     public void skal_gi_ja_hvis_inntekt_lik_refusjon_økt_og_dagsats_for_bruker_redusert() {
@@ -77,14 +71,12 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isTrue();
     }
-
 
     @Test
     public void skal_gi_nei_hvis_inntekt_lik_refusjon_redusert_og_dagsats_for_bruker_økt() {
@@ -97,14 +89,12 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
     }
-
 
     @Test
     public void skal_gi_nei_hvis_inntekt_økt_refusjon_lik_og_dagsats_for_bruker_økt() {
@@ -117,14 +107,12 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
     }
-
 
     @Test
     public void skal_gi_nei_hvis_inntekt_økt_dagsats_for_bruker_økt_finnes_ingen_refusjon_i_original_og_revurdering() {
@@ -137,14 +125,12 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
     }
-
 
     @Test
     public void skal_gi_nei_hvis_inntekt_økt_refusjon_økt_og_ingen_endring_til_bruker() {
@@ -157,9 +143,8 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -176,14 +161,12 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
     }
-
 
     @Test
     public void skal_gi_nei_hvis_inntekt_økt_refusjon_økt_og_dagsats_for_bruker_økt() {
@@ -196,14 +179,12 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
     }
-
 
     @Test
     public void skal_gi_nei_hvis_inntekt_økt_refusjon_økt_fra_null_og_dagsats_for_bruker_økt() {
@@ -216,14 +197,12 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
     }
-
 
     @Test
     public void skal_gi_nei_hvis_inntekt_økt_dagsats_for_bruker_økt_fra_null_og_refusjon_økt() {
@@ -236,14 +215,12 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
     }
-
 
     @Test
     public void skal_gi_ja_hvis_inntekt_økt_refusjon_økt_og_dagsats_for_bruker_redusert() {
@@ -256,14 +233,12 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isTrue();
     }
-
 
     @Test
     public void skal_gi_ja_hvis_inntekt_økt_refusjon_økt_fra_null_og_dagsats_for_bruker_redusert() {
@@ -276,14 +251,12 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isTrue();
     }
-
 
     @Test
     public void skal_gi_ja_hvis_inntekt_økt_dagsats_for_bruker_opphørt_og_refusjon_økt() {
@@ -296,14 +269,12 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isTrue();
     }
-
 
     @Test
     public void skal_gi_nei_hvis_inntekt_økt_refusjon_redusert_og_dagsats_for_bruker_økt() {
@@ -316,14 +287,12 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
     }
-
 
     @Test
     public void skal_gi_nei_hvis_inntekt_økt_refusjon_opphørt_og_dagsats_for_bruker_økt() {
@@ -336,14 +305,12 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
     }
-
 
     @Test
     public void skal_gi_nei_hvis_inntekt_økt_refusjon_redusert_og_dagsats_for_bruker_økt_fra_null() {
@@ -356,14 +323,12 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
     }
-
 
     @Test
     public void skal_gi_nei_hvis_inntekt_redusert_ingen_refusjon_i_original_og_revurdering_og_dagsats_for_bruker_redusert() {
@@ -376,14 +341,12 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
     }
-
 
     @Test
     public void skal_gi_nei_hvis_dagsats_for_bruker_opphører_og_refusjon_finnes_ikke_i_forrige_og_revurdering() {
@@ -396,14 +359,12 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
     }
-
 
     @Test
     public void skal_gi_nei_hvis_inntekt_redusert_refusjon_lik_og_dagsats_for_bruker_redusert() {
@@ -416,14 +377,12 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isTrue();
     }
-
 
     @Test
     public void skal_gi_nei_hvis_inntekt_redusert_refusjon_lik_dagsats_for_bruker_redusert_mer_enn_ny_refusjon() {
@@ -436,14 +395,12 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
     }
-
 
     @Test
     public void skal_gi_nei_hvis_inntekt_redusert_refusjon_lik_og_dagsats_for_bruker_opphører() {
@@ -456,14 +413,12 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
     }
-
 
     @Test
     public void skal_gi_nei_hvis_inntekt_redusert_refusjon_redusert_og_dagsats_for_bruker_er_lik() {
@@ -476,14 +431,12 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
     }
-
 
     @Test
     public void skal_gi_nei_hvis_inntekt_redusert_dagsats_for_bruker_lik_og_refusjon_opphører() {
@@ -496,14 +449,12 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
     }
-
 
     @Test
     public void skal_gi_ja_hvis_inntekt_redusert_refusjon_redusert_og_dagsats_for_bruker_redusert() {
@@ -516,14 +467,12 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isTrue();
     }
-
 
     @Test
     public void skal_gi_ja_hvis_inntekt_redusert_refusjon_redusert_og_dagsats_for_bruker_redusert_like_mye() {
@@ -536,14 +485,12 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isTrue();
     }
-
 
     @Test
     public void skal_gi_nei_hvis_inntekt_redusert_refusjon_redusert_og_dagsats_for_bruker_redusert_mer_enn_refusjon() {
@@ -556,14 +503,12 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
     }
-
 
     @Test
     public void skal_gi_ja_hvis_inntekt_redusert_refusjon_redusert_og_dagsats_for_bruker_opphørt() {
@@ -576,14 +521,12 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
     }
-
 
     @Test
     public void skal_gi_nei_hvis_inntekt_redusert_refusjon_redusert_og_dagsats_for_bruker_økt() {
@@ -596,14 +539,12 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
     }
-
 
     @Test
     public void skal_gi_nei_hvis_inntekt_redusert_refusjon_opphørt_og_dagsats_for_bruker_økt() {
@@ -616,14 +557,12 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
     }
-
 
     @Test
     public void skal_gi_nei_hvis_inntekt_redusert_refusjon_redusert_og_dagsats_for_bruker_økt_fra_null() {
@@ -636,14 +575,12 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
     }
-
 
     @Test
     public void skal_gi_ja_hvis_inntekt_redusert_refusjon_økt_og_dagsats_for_bruker_redusert() {
@@ -656,14 +593,12 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isTrue();
     }
-
 
     @Test
     public void skal_gi_ja_hvis_inntekt_redusert_refusjon_økt_dagsats_for_bruker_redusert_mer_enn_ny_refusjon() {
@@ -676,14 +611,12 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
     }
-
 
     @Test
     public void skal_gi_ja_hvis_inntekt_redusert_refusjon_økt_dagsats_for_bruker_opphørt() {
@@ -696,14 +629,12 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isTrue();
     }
-
 
     @Test
     public void skal_gi_ja_hvis_inntekt_redusert_refusjon_økt_dagsats_for_bruker_redusert_til_null_hvor_endring_er_mer_enn_ny_refusjon() {
@@ -716,14 +647,12 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
     }
-
 
     @Test
     public void skal_gi_nei_hvis_inntekt_redusert_refusjon_økt_fra_null_og_dagsats_for_bruker_redusert_mer_enn_ny_refusjon() {
@@ -736,14 +665,12 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();
     }
-
 
     @Test
     public void skal_gi_nei_hvis_inntekt_redusert_refusjon_økt_fra_null_dagsats_for_bruker_redusert_hvor_endring_er_mer_enn_ny_refusjon() {
@@ -756,9 +683,8 @@ public class KanRedusertBeløpTilBrukerDekkesAvNyRefusjonTest {
 
         // Act
         boolean resultat = KanRedusertBeløpTilBrukerDekkesAvNyRefusjon.vurder(
-            endringIDagsatsBruker,
-            revurderingRefusjon
-        );
+                endringIDagsatsBruker,
+                revurderingRefusjon);
 
         // Assert
         assertThat(resultat).isFalse();

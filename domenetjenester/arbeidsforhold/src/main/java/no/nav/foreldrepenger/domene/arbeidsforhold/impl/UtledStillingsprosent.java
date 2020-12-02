@@ -19,16 +19,16 @@ final class UtledStillingsprosent {
         return utled(filter, Collections.singletonList(yrkesaktivitet), skjæringstidspunkt);
     }
 
-    static BigDecimal utled(YrkesaktivitetFilter filter, List<Yrkesaktivitet> yrkesaktiviteter, LocalDate skjæringstidspunkt){
+    static BigDecimal utled(YrkesaktivitetFilter filter, List<Yrkesaktivitet> yrkesaktiviteter, LocalDate skjæringstidspunkt) {
         if (yrkesaktiviteter.isEmpty()) {
             return Stillingsprosent.HUNDRED.getVerdi();
         }
         final List<Yrkesaktivitet> relevanteyrkesaktiviteter = UtledRelevanteYrkesaktiviteterForStillingsprosent.utled(filter,
-            yrkesaktiviteter, skjæringstidspunkt);
+                yrkesaktiviteter, skjæringstidspunkt);
         final LocalDate oppstartsdatoNærmestStp = UtledOppstartsdatoNærmestStpFraRelevanteYrkesaktiviteter.utled(filter,
-            relevanteyrkesaktiviteter, skjæringstidspunkt);
+                relevanteyrkesaktiviteter, skjæringstidspunkt);
         return UtledStillingsprosentFraYrkesaktivitetMedOppstartsdatoNærmestStp.utled(filter,
-            relevanteyrkesaktiviteter, skjæringstidspunkt, oppstartsdatoNærmestStp);
+                relevanteyrkesaktiviteter, skjæringstidspunkt, oppstartsdatoNærmestStp);
     }
 
 }

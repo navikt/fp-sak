@@ -19,17 +19,18 @@ import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseFilter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-
 public final class ArbeidsforholdUtenRelevantOppgittOpptjening {
 
     private ArbeidsforholdUtenRelevantOppgittOpptjening() {
         // Skjuler default
     }
 
-    public static boolean erUtenRelevantOppgittOpptjening(AksjonspunktUtlederInput param, Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlagOpt){
+    public static boolean erUtenRelevantOppgittOpptjening(AksjonspunktUtlederInput param,
+            Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlagOpt) {
         if (inntektArbeidYtelseGrunnlagOpt.isPresent()) {
             InntektArbeidYtelseGrunnlag grunnlag = inntektArbeidYtelseGrunnlagOpt.get();
-            if (finnesIkkeArbeidsforhold(grunnlag, param.getAktørId(), param.getSkjæringstidspunkt()) && !finnesYtelseAAPEllerDP(grunnlag, param.getAktørId())) {
+            if (finnesIkkeArbeidsforhold(grunnlag, param.getAktørId(), param.getSkjæringstidspunkt())
+                    && !finnesYtelseAAPEllerDP(grunnlag, param.getAktørId())) {
                 return sjekkForUtenOppgittOpptjening(grunnlag);
             }
             return false;
@@ -43,7 +44,7 @@ public final class ArbeidsforholdUtenRelevantOppgittOpptjening {
     }
 
     private static boolean erDPEllerAAP(RelatertYtelseType relatertYtelseType) {
-        return RelatertYtelseType.ARBEIDSAVKLARINGSPENGER.equals(relatertYtelseType) ||  RelatertYtelseType.DAGPENGER.equals(relatertYtelseType);
+        return RelatertYtelseType.ARBEIDSAVKLARINGSPENGER.equals(relatertYtelseType) || RelatertYtelseType.DAGPENGER.equals(relatertYtelseType);
     }
 
     private static boolean sjekkForUtenOppgittOpptjening(InntektArbeidYtelseGrunnlag grunnlag) {
@@ -74,22 +75,21 @@ public final class ArbeidsforholdUtenRelevantOppgittOpptjening {
 
     private static boolean harIkkeRelevantArbeidsforhold(YrkesaktivitetFilter yaFilter, Skjæringstidspunkt skjæringstidspunkt) {
         return yaFilter.getYrkesaktiviteter().stream()
-            .noneMatch(akt -> erRelevant(akt, skjæringstidspunkt));
+                .noneMatch(akt -> erRelevant(akt, skjæringstidspunkt));
     }
 
     private static boolean erRelevant(Yrkesaktivitet yrkesaktivitet, Skjæringstidspunkt skjæringstidspunkt) {
         return yrkesaktivitet.getAlleAktivitetsAvtaler().stream()
-            .filter(AktivitetsAvtale::erAnsettelsesPeriode)
-            .anyMatch(a -> a.getPeriode().inkluderer(skjæringstidspunkt.getUtledetSkjæringstidspunkt()));
+                .filter(AktivitetsAvtale::erAnsettelsesPeriode)
+                .anyMatch(a -> a.getPeriode().inkluderer(skjæringstidspunkt.getUtledetSkjæringstidspunkt()));
     }
 
     private static List<OppgittAnnenAktivitet> finnRelevanteAnnenAktiviteter(OppgittOpptjening oppgittOpptjening) {
         return oppgittOpptjening.getAnnenAktivitet().stream()
-            .filter(annenAktivitet ->
-                annenAktivitet.getArbeidType().equals(ArbeidType.MILITÆR_ELLER_SIVILTJENESTE) ||
-                annenAktivitet.getArbeidType().equals(ArbeidType.VENTELØNN_VARTPENGER) ||
-                annenAktivitet.getArbeidType().equals(ArbeidType.ETTERLØNN_SLUTTPAKKE))
-            .collect(Collectors.toList());
+                .filter(annenAktivitet -> annenAktivitet.getArbeidType().equals(ArbeidType.MILITÆR_ELLER_SIVILTJENESTE) ||
+                        annenAktivitet.getArbeidType().equals(ArbeidType.VENTELØNN_VARTPENGER) ||
+                        annenAktivitet.getArbeidType().equals(ArbeidType.ETTERLØNN_SLUTTPAKKE))
+                .collect(Collectors.toList());
     }
 
 }

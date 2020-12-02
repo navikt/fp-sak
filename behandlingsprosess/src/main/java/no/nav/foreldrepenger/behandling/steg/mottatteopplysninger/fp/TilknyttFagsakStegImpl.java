@@ -54,10 +54,10 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
 
     @Inject
     public TilknyttFagsakStegImpl(BehandlingRepositoryProvider provider, // NOSONAR
-                                KobleSakerTjeneste kobleSakTjeneste,
-                                BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
-                                OppgaveTjeneste oppgaveTjeneste,
-                                InntektArbeidYtelseTjeneste iayTjeneste) {// NOSONAR
+            KobleSakerTjeneste kobleSakTjeneste,
+            BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
+            OppgaveTjeneste oppgaveTjeneste,
+            InntektArbeidYtelseTjeneste iayTjeneste) {// NOSONAR
         this.iayTjeneste = iayTjeneste;
         this.behandlingRepository = provider.getBehandlingRepository();
         this.ytelsesFordelingRepository = provider.getYtelsesFordelingRepository();
@@ -77,11 +77,13 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
         // Vurder automatisk merking av opptjening utland
         List<AksjonspunktResultat> aksjonspunkter = new ArrayList<>();
 
-        if (!behandling.harAksjonspunktMedType(MANUELL_MARKERING_AV_UTLAND_SAKSTYPE) && !behandling.erRevurdering() && harOppgittUtenlandskInntekt(kontekst.getBehandlingId())) {
+        if (!behandling.harAksjonspunktMedType(MANUELL_MARKERING_AV_UTLAND_SAKSTYPE) && !behandling.erRevurdering()
+                && harOppgittUtenlandskInntekt(kontekst.getBehandlingId())) {
             aksjonspunkter.add(AksjonspunktResultat.opprettForAksjonspunkt(AUTOMATISK_MARKERING_AV_UTENLANDSSAK));
         }
 
-        return aksjonspunkter.isEmpty() ? BehandleStegResultat.utførtUtenAksjonspunkter() : BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
+        return aksjonspunkter.isEmpty() ? BehandleStegResultat.utførtUtenAksjonspunkter()
+                : BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
     }
 
     private void avsluttTidligereRegistreringsoppgave(Behandling behandling) {
@@ -90,14 +92,15 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
 
     private boolean harOppgittUtenlandskInntekt(Long behandlingId) {
         Optional<OppgittOpptjening> oppgittOpptening = iayTjeneste.finnGrunnlag(behandlingId)
-            .flatMap(InntektArbeidYtelseGrunnlag::getOppgittOpptjening);
+                .flatMap(InntektArbeidYtelseGrunnlag::getOppgittOpptjening);
         return oppgittOpptening.map(oppgittOpptjening -> oppgittOpptjening.getOppgittArbeidsforhold().stream()
-            .anyMatch(OppgittArbeidsforhold::erUtenlandskInntekt)).orElse(false);
+                .anyMatch(OppgittArbeidsforhold::erUtenlandskInntekt)).orElse(false);
     }
 
     private void kobleSakerOppdaterEnhetVedBehov(Behandling behandling) {
         if (kobleSakTjeneste.finnFagsakRelasjonDersomOpprettet(behandling).flatMap(FagsakRelasjon::getFagsakNrTo).isPresent()) {
-            // Allerede koblet. Da er vi på gjenvisitt og vi ser heller ikke på annen part fra søknad.
+            // Allerede koblet. Da er vi på gjenvisitt og vi ser heller ikke på annen part
+            // fra søknad.
             return;
         }
 
@@ -105,17 +108,19 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
         var kobling = kobleSakTjeneste.finnFagsakRelasjonDersomOpprettet(behandling);
 
         if (kobling.isEmpty() || kobling.flatMap(FagsakRelasjon::getFagsakNrTo).isEmpty()) {
-            // Opprett eller oppdater relasjon hvis førstegangsbehandling. Ellers arves dekningsgrad fra koblet sak.
+            // Opprett eller oppdater relasjon hvis førstegangsbehandling. Ellers arves
+            // dekningsgrad fra koblet sak.
             if (!behandling.erRevurdering()) {
                 int dekningsgradVerdi = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandling.getId())
-                    .map(YtelseFordelingAggregat::getOppgittDekningsgrad)
-                    .map(OppgittDekningsgradEntitet::getDekningsgrad).orElse(Dekningsgrad._100.getVerdi());
+                        .map(YtelseFordelingAggregat::getOppgittDekningsgrad)
+                        .map(OppgittDekningsgradEntitet::getDekningsgrad).orElse(Dekningsgrad._100.getVerdi());
                 kobleSakTjeneste.oppdaterFagsakRelasjonMedDekningsgrad(behandling.getFagsak(), kobling, Dekningsgrad.grad(dekningsgradVerdi));
             }
             // Ingen kobling foretatt
             return;
         }
-        behandlendeEnhetTjeneste.endretBehandlendeEnhetEtterFagsakKobling(behandling, kobling.get()).ifPresent(organisasjonsEnhet -> behandlendeEnhetTjeneste
-            .oppdaterBehandlendeEnhet(behandling, organisasjonsEnhet, HistorikkAktør.VEDTAKSLØSNINGEN, "Koblet sak"));
+        behandlendeEnhetTjeneste.endretBehandlendeEnhetEtterFagsakKobling(behandling, kobling.get())
+                .ifPresent(organisasjonsEnhet -> behandlendeEnhetTjeneste
+                        .oppdaterBehandlendeEnhet(behandling, organisasjonsEnhet, HistorikkAktør.VEDTAKSLØSNINGEN, "Koblet sak"));
     }
 }

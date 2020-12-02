@@ -47,7 +47,8 @@ class BehandlingStegVisitor {
     private final BehandlingRepository behandlingRepository;
     private final BehandlingskontrollKontekst kontekst;
     private final BehandlingModell behandlingModell;
-    private final BehandlingStegKonfigurasjon behandlingStegKonfigurasjon = new BehandlingStegKonfigurasjon(EnumSet.allOf(BehandlingStegStatus.class));
+    private final BehandlingStegKonfigurasjon behandlingStegKonfigurasjon = new BehandlingStegKonfigurasjon(
+            EnumSet.allOf(BehandlingStegStatus.class));
 
     private final BehandlingskontrollEventPubliserer eventPubliserer;
 
@@ -58,7 +59,7 @@ class BehandlingStegVisitor {
     private final BehandlingStegModell stegModell;
 
     BehandlingStegVisitor(BehandlingskontrollServiceProvider serviceProvider, Behandling behandling,
-                          BehandlingStegModell stegModell, BehandlingskontrollKontekst kontekst) {
+            BehandlingStegModell stegModell, BehandlingskontrollKontekst kontekst) {
 
         this.stegModell = Objects.requireNonNull(stegModell, "BehandlingStegModell");
         this.behandling = Objects.requireNonNull(behandling, "behandling");
@@ -109,7 +110,8 @@ class BehandlingStegVisitor {
         List<Aksjonspunkt> funnetAksjonspunkter = new ArrayList<>();
         if (erIkkePåVent(behandling) && førsteStegStatus.kanUtføreSteg()) {
             BehandleStegResultat resultat;
-            // Her kan man sjekke om tilstand venter og evt la gjenoppta-modus kalle vanlig utfør
+            // Her kan man sjekke om tilstand venter og evt la gjenoppta-modus kalle vanlig
+            // utfør
             if (gjenoppta) {
                 resultat = steg.gjenopptaSteg(kontekst);
             } else {
@@ -131,14 +133,17 @@ class BehandlingStegVisitor {
         return stegResultat;
     }
 
-    private void avsluttSteg(BehandlingStegType stegType, BehandlingStatus førStatus, BehandlingStegStatus førsteStegStatus, StegProsesseringResultat stegResultat,
-                             List<Aksjonspunkt> funnetAksjonspunkter) {
+    private void avsluttSteg(BehandlingStegType stegType, BehandlingStatus førStatus, BehandlingStegStatus førsteStegStatus,
+            StegProsesseringResultat stegResultat,
+            List<Aksjonspunkt> funnetAksjonspunkter) {
 
-        log.info("Avslutter steg={}, transisjon={} og funnet aksjonspunkter={}", stegType, stegResultat, funnetAksjonspunkter.stream().map(Aksjonspunkt::getAksjonspunktDefinisjon).collect(Collectors.toList()));
+        log.info("Avslutter steg={}, transisjon={} og funnet aksjonspunkter={}", stegType, stegResultat,
+                funnetAksjonspunkter.stream().map(Aksjonspunkt::getAksjonspunktDefinisjon).collect(Collectors.toList()));
 
         Optional<BehandlingStegTilstand> stegTilstandFør = behandling.getSisteBehandlingStegTilstand();
 
-        // Sett riktig status for steget etter at det er utført. Lagre eventuelle endringer fra steg på behandling
+        // Sett riktig status for steget etter at det er utført. Lagre eventuelle
+        // endringer fra steg på behandling
         guardAlleÅpneAksjonspunkterHarDefinertVurderingspunkt();
         oppdaterBehandlingStegStatus(behandling, stegType, førsteStegStatus, stegResultat.getNyStegStatus());
 
@@ -154,7 +159,8 @@ class BehandlingStegVisitor {
         // Publiser event om endring i stegets tilstand
         BehandlingStegTilstandSnapshot fraTilstand = BehandlingModellImpl.tilBehandlingsStegSnapshot(stegTilstandFør);
         BehandlingStegTilstandSnapshot tilTilstand = BehandlingModellImpl.tilBehandlingsStegSnapshot(behandling.getBehandlingStegTilstand());
-        BehandlingStegTilstandEndringEvent behandlingStegTilstandEndringEvent = BehandlingModellImpl.nyBehandlingStegTilstandEndring(kontekst, fraTilstand, tilTilstand);
+        BehandlingStegTilstandEndringEvent behandlingStegTilstandEndringEvent = BehandlingModellImpl.nyBehandlingStegTilstandEndring(kontekst,
+                fraTilstand, tilTilstand);
         eventPubliserer.fireEvent(behandlingStegTilstandEndringEvent);
 
         // Publiser de funnede aksjonspunktene
@@ -163,9 +169,11 @@ class BehandlingStegVisitor {
         }
     }
 
-    private BehandlingTransisjonEvent opprettEvent(StegProsesseringResultat stegResultat, StegTransisjon transisjon, BehandlingStegTilstand fraTilstand, BehandlingStegType tilSteg) {
+    private BehandlingTransisjonEvent opprettEvent(StegProsesseringResultat stegResultat, StegTransisjon transisjon,
+            BehandlingStegTilstand fraTilstand, BehandlingStegType tilSteg) {
 
-        return new BehandlingTransisjonEvent(kontekst, stegResultat.getTransisjon(), fraTilstand, tilSteg, transisjon.getMålstegHvisHopp().isPresent());
+        return new BehandlingTransisjonEvent(kontekst, stegResultat.getTransisjon(), fraTilstand, tilSteg,
+                transisjon.getMålstegHvisHopp().isPresent());
     }
 
     private BehandlingStegType finnFremoverhoppSteg(BehandlingStegType stegType, StegTransisjon transisjon) {
@@ -194,22 +202,23 @@ class BehandlingStegVisitor {
 
     private void fyrEventBehandlingStegOvergang(BehandlingStegTilstandSnapshot forrigeTilstand, BehandlingStegTilstandSnapshot nyTilstand) {
         BehandlingStegOvergangEvent event = BehandlingModellImpl.nyBehandlingStegOvergangEvent(behandlingModell, forrigeTilstand,
-            nyTilstand, kontekst);
+                nyTilstand, kontekst);
 
         eventPubliserer.fireEvent(event);
     }
 
     private void fyrEventBehandlingStegTilbakeføring(Optional<BehandlingStegTilstand> forrige, Optional<BehandlingStegTilstand> ny) {
         BehandlingStegOvergangEvent event = BehandlingModellImpl.nyBehandlingStegOvergangEvent(
-            behandlingModell, BehandlingModellImpl.tilBehandlingsStegSnapshot(forrige), BehandlingModellImpl.tilBehandlingsStegSnapshot(ny), kontekst);
+                behandlingModell, BehandlingModellImpl.tilBehandlingsStegSnapshot(forrige), BehandlingModellImpl.tilBehandlingsStegSnapshot(ny),
+                kontekst);
 
         eventPubliserer.fireEvent(event);
     }
 
     private void oppdaterBehandlingStegStatus(Behandling behandling,
-                                              BehandlingStegType stegType,
-                                              BehandlingStegStatus førsteStegStatus,
-                                              BehandlingStegStatus nyStegStatus) {
+            BehandlingStegType stegType,
+            BehandlingStegStatus førsteStegStatus,
+            BehandlingStegStatus nyStegStatus) {
         Optional<BehandlingStegTilstand> behandlingStegTilstand = behandling.getBehandlingStegTilstand(stegType);
         if (behandlingStegTilstand.isPresent()) {
             if (erForskjellig(førsteStegStatus, nyStegStatus)) {
@@ -227,24 +236,27 @@ class BehandlingStegVisitor {
         BehandlingStegType stegType = stegModell.getBehandlingStegType();
 
         if (erForbiInngang(nåBehandlingStegStatus)) {
-            // Hvis vi har kommet forbi INNGANG, så gå direkte videre til det gjeldende statusen
+            // Hvis vi har kommet forbi INNGANG, så gå direkte videre til det gjeldende
+            // statusen
             return nåBehandlingStegStatus;
         } else {
-            boolean måHåndereAksjonspunktHer = behandling.getÅpneAksjonspunkter().stream().anyMatch(ap -> skalHåndteresHer(stegType, ap, VurderingspunktType.INN));
+            boolean måHåndereAksjonspunktHer = behandling.getÅpneAksjonspunkter().stream()
+                    .anyMatch(ap -> skalHåndteresHer(stegType, ap, VurderingspunktType.INN));
 
             BehandlingStegStatus nyStatus = måHåndereAksjonspunktHer ? behandlingStegKonfigurasjon.getInngang()
-                : behandlingStegKonfigurasjon.getStartet();
+                    : behandlingStegKonfigurasjon.getStartet();
 
             return nyStatus;
         }
     }
 
     private boolean skalHåndteresHer(BehandlingStegType stegType, Aksjonspunkt ap, VurderingspunktType vurderingspunktType) {
-        return ap.getAksjonspunktDefinisjon().getBehandlingSteg().equals(stegType) && ap.getAksjonspunktDefinisjon().getVurderingspunktType().equals(vurderingspunktType);
+        return ap.getAksjonspunktDefinisjon().getBehandlingSteg().equals(stegType)
+                && ap.getAksjonspunktDefinisjon().getVurderingspunktType().equals(vurderingspunktType);
     }
 
     private boolean erForbiInngang(BehandlingStegStatus nåBehandlingStegStatus) {
-        return nåBehandlingStegStatus != null && !Objects.equals(behandlingStegKonfigurasjon.getInngang(), nåBehandlingStegStatus);
+        return (nåBehandlingStegStatus != null) && !Objects.equals(behandlingStegKonfigurasjon.getInngang(), nåBehandlingStegStatus);
     }
 
     /**
@@ -297,8 +309,8 @@ class BehandlingStegVisitor {
 
     private boolean harÅpneAksjonspunkter(Behandling behandling, BehandlingStegType behandlingStegType) {
         boolean måHåndereAksjonspunktHer = behandling.getÅpneAksjonspunkter()
-            .stream()
-            .anyMatch(ap -> skalHåndteresHer(behandlingStegType, ap, VurderingspunktType.UT));
+                .stream()
+                .anyMatch(ap -> skalHåndteresHer(behandlingStegType, ap, VurderingspunktType.UT));
 
         return måHåndereAksjonspunktHer;
     }
@@ -311,7 +323,8 @@ class BehandlingStegVisitor {
         if (!åpneAksjonspunkter.isEmpty()) {
             List<String> aksjonspunkter = åpneAksjonspunkter.stream().map(a -> a.getAksjonspunktDefinisjon().getKode()).collect(Collectors.toList());
             BehandlingStegModell nesteBehandlingStegModell = behandlingModell.finnTidligsteStegForAksjonspunktDefinisjon(aksjonspunkter);
-            Optional<BehandlingStegStatus> nesteStegStatus = behandlingModell.finnStegStatusFor(nesteBehandlingStegModell.getBehandlingStegType(), aksjonspunkter);
+            Optional<BehandlingStegStatus> nesteStegStatus = behandlingModell.finnStegStatusFor(nesteBehandlingStegModell.getBehandlingStegType(),
+                    aksjonspunkter);
 
             // oppdater inneværende steg
             oppdaterBehandlingStegStatus(behandling, inneværendeBehandlingStegType, inneværendeBehandlingStegStatus, tilbakeførtStegStatus);
@@ -323,8 +336,8 @@ class BehandlingStegVisitor {
         return tilbakeførtStegStatus;
     }
 
-
-    private void oppdaterBehandlingStegType(BehandlingStegType nesteStegType, BehandlingStegStatus nesteStegStatus, BehandlingStegStatus sluttStegStatusVedOvergang) {
+    private void oppdaterBehandlingStegType(BehandlingStegType nesteStegType, BehandlingStegStatus nesteStegStatus,
+            BehandlingStegStatus sluttStegStatusVedOvergang) {
         Objects.requireNonNull(behandlingRepository, "behandlingRepository");
 
         BehandlingStegType siste = behandling.getSisteBehandlingStegTilstand().map(BehandlingStegTilstand::getBehandlingSteg).orElse(null);
@@ -349,10 +362,12 @@ class BehandlingStegVisitor {
     }
 
     /**
-     * TODO (FC: Trengs denne lenger? Aksjonspunkt har en not-null relasjon til Vurderingspunkt.
+     * TODO (FC: Trengs denne lenger? Aksjonspunkt har en not-null relasjon til
+     * Vurderingspunkt.
      * <p>
-     * Verifiser at alle åpne aksjonspunkter har et definert vurderingspunkt i gjenværende steg hvor de må behandles.
-     * Sikrer at ikke abstraktpunkt identifiseres ETTER at de skal være håndtert.
+     * Verifiser at alle åpne aksjonspunkter har et definert vurderingspunkt i
+     * gjenværende steg hvor de må behandles. Sikrer at ikke abstraktpunkt
+     * identifiseres ETTER at de skal være håndtert.
      */
     private void guardAlleÅpneAksjonspunkterHarDefinertVurderingspunkt() {
         BehandlingStegType aktivtBehandlingSteg = behandling.getAktivtBehandlingSteg();
@@ -361,22 +376,22 @@ class BehandlingStegVisitor {
 
         // TODO (FC): Denne bør håndteres med event ved overgang
         behandlingModell.hvertStegFraOgMed(aktivtBehandlingSteg)
-            .forEach(bsm -> {
-                filterVekkAksjonspunktHåndtertAvFremtidigVurderingspunkt(bsm, gjenværendeÅpneAksjonspunkt);
-            });
+                .forEach(bsm -> {
+                    filterVekkAksjonspunktHåndtertAvFremtidigVurderingspunkt(bsm, gjenværendeÅpneAksjonspunkt);
+                });
 
         if (!gjenværendeÅpneAksjonspunkt.isEmpty()) {
             /*
-             * TODO (FC): Lagre og sett behandling på vent i stedet for å kaste exception? Exception mest nyttig i test
-             * og
-             * utvikling, men i prod bør heller sette behandling til side hvis det skulle være så galt at
-             * vurderingspunkt ikke er definert for et identifisert abstraktpunkt.
+             * TODO (FC): Lagre og sett behandling på vent i stedet for å kaste exception?
+             * Exception mest nyttig i test og utvikling, men i prod bør heller sette
+             * behandling til side hvis det skulle være så galt at vurderingspunkt ikke er
+             * definert for et identifisert abstraktpunkt.
              */
             throw new IllegalStateException(
-                "Utvikler-feil: Det er definert aksjonspunkt [" + //$NON-NLS-1$
-                    Aksjonspunkt.getKoder(gjenværendeÅpneAksjonspunkt)
-                    + "] som ikke er håndtert av noe steg" //$NON-NLS-1$
-                    + (aktivtBehandlingSteg == null ? " i sekvensen " : " fra og med: " + aktivtBehandlingSteg)); //$NON-NLS-1$
+                    "Utvikler-feil: Det er definert aksjonspunkt [" + //$NON-NLS-1$
+                            Aksjonspunkt.getKoder(gjenværendeÅpneAksjonspunkt)
+                            + "] som ikke er håndtert av noe steg" //$NON-NLS-1$
+                            + (aktivtBehandlingSteg == null ? " i sekvensen " : " fra og med: " + aktivtBehandlingSteg)); //$NON-NLS-1$
         }
     }
 

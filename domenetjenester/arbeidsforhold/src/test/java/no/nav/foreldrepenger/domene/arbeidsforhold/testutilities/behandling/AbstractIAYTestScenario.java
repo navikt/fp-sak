@@ -18,6 +18,7 @@ import javax.persistence.EntityManager;
 
 import org.jboss.weld.exceptions.UnsupportedOperationException;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 
@@ -263,7 +264,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
                 if (aggregat.isPresent()) {
                     if (aggregat.get().getHarOverstyrteData()) {
                         return HendelseVersjonType.OVERSTYRT;
-                    } else if (aggregat.get().getHarBekreftedeData() || aggregat.get().getSøknadVersjon() != null) {
+                    } else if (aggregat.get().getHarBekreftedeData() || (aggregat.get().getSøknadVersjon() != null)) {
                         return HendelseVersjonType.BEKREFTET;
                     } else if (aggregat.get().getSøknadVersjon() == null) {
                         return HendelseVersjonType.SØKNAD;
@@ -291,18 +292,18 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
         repositoryProvider = mock(IAYRepositoryProvider.class);
         BehandlingRepository behandlingRepository = lagBasicMockBehandlingRepository(repositoryProvider);
 
-        when(behandlingRepository.hentBehandling(Mockito.any(Long.class))).thenAnswer(a -> {
+        when(behandlingRepository.hentBehandling(ArgumentMatchers.any(Long.class))).thenAnswer(a -> {
             Long id = a.getArgument(0);
             return behandlingMap.getOrDefault(id, null);
         });
-        when(behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(Mockito.any())).thenAnswer(a -> {
+        when(behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(ArgumentMatchers.any())).thenAnswer(a -> {
             return List.copyOf(behandlingMap.values());
         });
-        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(Mockito.any()))
+        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(ArgumentMatchers.any()))
                 .thenAnswer(a -> {
                     Long id = a.getArgument(0);
                     return behandlingMap.values().stream()
-                            .filter(b -> b.getFagsakId().equals(id) && b.getBehandlingsresultat() != null
+                            .filter(b -> b.getFagsakId().equals(id) && (b.getBehandlingsresultat() != null)
                                     && !b.getBehandlingsresultat().isBehandlingHenlagt())
                             .sorted()
                             .findFirst();
@@ -315,7 +316,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
             };
         });
 
-        when(behandlingRepository.lagre(behandlingCaptor.capture(), Mockito.any()))
+        when(behandlingRepository.lagre(behandlingCaptor.capture(), ArgumentMatchers.any()))
                 .thenAnswer((Answer<Long>) invocation -> {
                     Behandling beh = invocation.getArgument(0);
                     Long id = beh.getId();
@@ -347,7 +348,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
 
     public FagsakRepository mockFagsakRepository() {
         FagsakRepository fagsakRepository = mock(FagsakRepository.class);
-        when(fagsakRepository.hentForBruker(Mockito.any(AktørId.class))).thenAnswer(a -> singletonList(fagsak));
+        when(fagsakRepository.hentForBruker(ArgumentMatchers.any(AktørId.class))).thenAnswer(a -> singletonList(fagsak));
 
         ArgumentCaptor<Fagsak> fagsakCaptor = ArgumentCaptor.forClass(Fagsak.class);
         when(fagsakRepository.opprettNy(fagsakCaptor.capture())).thenAnswer(invocation -> {
@@ -368,7 +369,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
             // Whitebox.setInternalState(fagsak, "fagsakStatus", status);
             return null;
         }).when(fagsakRepository)
-                .oppdaterFagsakStatus(eq(fagsakId), Mockito.any(FagsakStatus.class));
+                .oppdaterFagsakStatus(eq(fagsakId), ArgumentMatchers.any(FagsakStatus.class));
 
         return fagsakRepository;
     }
@@ -379,14 +380,14 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
     }
 
     BehandlingRepository lagMockedRepositoryForOpprettingAvBehandlingInternt() {
-        if (mockBehandlingRepository != null && behandling != null) {
+        if ((mockBehandlingRepository != null) && (behandling != null)) {
             return mockBehandlingRepository;
         }
         validerTilstandVedMocking();
 
         mockBehandlingRepository = mockBehandlingRepository();
 
-        lagre(repositoryProvider); // NOSONAR //$NON-NLS-1$
+        lagre(repositoryProvider); // NOSONAR
         return mockBehandlingRepository;
     }
 
@@ -579,7 +580,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
 
         @Override
         public PersonopplysningGrunnlagEntitet hentPersonopplysninger(Long behandlingId) {
-            if (personopplysningMap.isEmpty() || personopplysningMap.get(behandlingId) == null || !personopplysningMap.containsKey(behandlingId)) {
+            if (personopplysningMap.isEmpty() || (personopplysningMap.get(behandlingId) == null) || !personopplysningMap.containsKey(behandlingId)) {
                 throw new IllegalStateException("Fant ingen personopplysninger for angitt behandling");
             }
 

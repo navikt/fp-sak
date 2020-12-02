@@ -34,14 +34,14 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristSteg implements Behandli
     private UttakInputTjeneste uttakInputTjeneste;
 
     public FastsettUttaksgrunnlagOgVurderSøknadsfristSteg() {
-        //For CDI
+        // For CDI
     }
 
     @Inject
     public FastsettUttaksgrunnlagOgVurderSøknadsfristSteg(BehandlingRepositoryProvider behandlingRepositoryProvider,
-                                                          UttakInputTjeneste uttakInputTjeneste,
-                                                          @FagsakYtelseTypeRef("SVP") SøktPeriodeTjeneste søktPeriodeTjeneste,
-                                                          FørsteLovligeUttaksdatoTjeneste førsteLovligeUttaksdatoTjeneste) {
+            UttakInputTjeneste uttakInputTjeneste,
+            @FagsakYtelseTypeRef("SVP") SøktPeriodeTjeneste søktPeriodeTjeneste,
+            FørsteLovligeUttaksdatoTjeneste førsteLovligeUttaksdatoTjeneste) {
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.søktPeriodeTjeneste = søktPeriodeTjeneste;
         this.førsteLovligeUttaksdatoTjeneste = førsteLovligeUttaksdatoTjeneste;
@@ -54,7 +54,7 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristSteg implements Behandli
         var uttaksgrenserOptional = søktPeriodeTjeneste.finnSøktPeriode(input);
         if (uttaksgrenserOptional.isPresent()) {
             var søknadsfristResultat = førsteLovligeUttaksdatoTjeneste.utledFørsteLovligeUttaksdato(input, uttaksgrenserOptional.get());
-            //Opprett aksjonspunkt dersom regel ikke er oppfylt.
+            // Opprett aksjonspunkt dersom regel ikke er oppfylt.
             var årsakKodeIkkeVurdert = søknadsfristResultat.getÅrsakKodeIkkeVurdert();
             if (!søknadsfristResultat.isRegelOppfylt() && årsakKodeIkkeVurdert.isPresent()) {
                 var aksjonspunktDefinisjon = AksjonspunktDefinisjon.fraKode(årsakKodeIkkeVurdert.get());
@@ -65,7 +65,8 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristSteg implements Behandli
     }
 
     @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType førsteSteg, BehandlingStegType sisteSteg) {
+    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType førsteSteg,
+            BehandlingStegType sisteSteg) {
         if (!Objects.equals(BehandlingStegType.SØKNADSFRIST_FORELDREPENGER, førsteSteg)) {
             uttaksperiodegrenseRepository.ryddUttaksperiodegrense(kontekst.getBehandlingId());
         }

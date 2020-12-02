@@ -7,7 +7,6 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-
 public final class Statsborgerskap {
 
     private AktørId aktørId;
@@ -27,7 +26,9 @@ public final class Statsborgerskap {
         return statsborgerskap;
     }
 
-    public Region getRegion(){ return region;}
+    public Region getRegion() {
+        return region;
+    }
 
     private Statsborgerskap(Builder builder) {
         this.aktørId = builder.aktørId;
@@ -68,7 +69,7 @@ public final class Statsborgerskap {
             return this;
         }
 
-        public Builder region(Region region){
+        public Builder region(Region region) {
             this.region = region;
             return this;
         }

@@ -29,7 +29,6 @@ import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.RefusjonskravDato;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
-
 public abstract class BeregningsgrunnlagInputFelles {
 
     private BehandlingRepository behandlingRepository;
@@ -40,15 +39,14 @@ public abstract class BeregningsgrunnlagInputFelles {
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     private KalkulusKonfigInjecter kalkulusKonfigInjecter;
 
-
     @Inject
     public BeregningsgrunnlagInputFelles(BehandlingRepository behandlingRepository,
-                                         InntektArbeidYtelseTjeneste iayTjeneste,
-                                         SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                         AndelGraderingTjeneste andelGraderingTjeneste,
-                                         OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste,
-                                         InntektsmeldingTjeneste inntektsmeldingTjeneste,
-                                         KalkulusKonfigInjecter kalkulusKonfigInjecter) {
+            InntektArbeidYtelseTjeneste iayTjeneste,
+            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+            AndelGraderingTjeneste andelGraderingTjeneste,
+            OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste,
+            InntektsmeldingTjeneste inntektsmeldingTjeneste,
+            KalkulusKonfigInjecter kalkulusKonfigInjecter) {
         this.behandlingRepository = Objects.requireNonNull(behandlingRepository, "behandlingRepository");
         this.iayTjeneste = Objects.requireNonNull(iayTjeneste, "iayTjeneste");
         this.skjæringstidspunktTjeneste = Objects.requireNonNull(skjæringstidspunktTjeneste, "skjæringstidspunktTjeneste");
@@ -102,7 +100,8 @@ public abstract class BeregningsgrunnlagInputFelles {
         List<RefusjonskravDato> refusjonskravDatoer = inntektsmeldingTjeneste.hentAlleRefusjonskravDatoerForFagsak(ref.getSaksnummer());
 
         List<Inntektsmelding> inntektsmeldingDiff = inntektsmeldingTjeneste.hentInntektsmeldingDiffFraOriginalbehandling(ref);
-        List<InntektsmeldingDto> inntektsmeldingDiffDto = inntektsmeldingDiff.stream().map(IAYMapperTilKalkulus::mapInntektsmeldingDto).collect(Collectors.toList());
+        List<InntektsmeldingDto> inntektsmeldingDiffDto = inntektsmeldingDiff.stream().map(IAYMapperTilKalkulus::mapInntektsmeldingDto)
+                .collect(Collectors.toList());
         InntektArbeidYtelseGrunnlagDto iayGrunnlagUtenIMDiff = IAYMapperTilKalkulus.mapGrunnlag(iayGrunnlag, ref.getAktørId());
 
         InntektArbeidYtelseGrunnlagDto iayGrunnlagDto;
@@ -124,12 +123,13 @@ public abstract class BeregningsgrunnlagInputFelles {
         return beregningsgrunnlagInput;
     }
 
-    private InntektArbeidYtelseGrunnlagDto settInntektsmeldingDiffPåIAYGrunnlag(InntektArbeidYtelseGrunnlagDto iayGrunnlagDto, List<InntektsmeldingDto> inntektsmeldingDiffDto) {
+    private InntektArbeidYtelseGrunnlagDto settInntektsmeldingDiffPåIAYGrunnlag(InntektArbeidYtelseGrunnlagDto iayGrunnlagDto,
+            List<InntektsmeldingDto> inntektsmeldingDiffDto) {
         List<InntektsmeldingDto> inntektsmeldingDtos = iayGrunnlagDto.getInntektsmeldinger()
-            .map(InntektsmeldingAggregatDto::getAlleInntektsmeldinger)
-            .orElse(Collections.emptyList());
+                .map(InntektsmeldingAggregatDto::getAlleInntektsmeldinger)
+                .orElse(Collections.emptyList());
         InntektArbeidYtelseGrunnlagDtoBuilder builder = InntektArbeidYtelseGrunnlagDtoBuilder.oppdatere(iayGrunnlagDto)
-            .medInntektsmeldinger(inntektsmeldingDtos, inntektsmeldingDiffDto);
+                .medInntektsmeldinger(inntektsmeldingDtos, inntektsmeldingDiffDto);
         return builder.build();
     }
 

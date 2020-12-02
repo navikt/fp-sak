@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.behandling.steg.foreslåresultat.es;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
@@ -48,9 +48,9 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         foreslåVedtaTjenesteES = new ForeslåBehandlingsresultatTjenesteImpl(
-            repositoryProvider.getBehandlingsresultatRepository(),
-            repositoryProvider.getBehandlingRepository(),
-            avslagsårsakTjeneste,revurderingEndring);
+                repositoryProvider.getBehandlingsresultatRepository(),
+                repositoryProvider.getBehandlingRepository(),
+                avslagsårsakTjeneste, revurderingEndring);
     }
 
     @Test
@@ -69,9 +69,9 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
 
     private void foreslåBehandlingsresultat(Behandling behandling) {
         var ref = BehandlingReferanse.fra(behandling,
-            Skjæringstidspunkt.builder()
-            .medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
-            .build());
+                Skjæringstidspunkt.builder()
+                        .medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
+                        .build());
         foreslåVedtaTjenesteES.foreslåBehandlingsresultat(ref);
     }
 
@@ -103,7 +103,6 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
         assertThat(konsekvenserForYtelsen.get(0)).isEqualTo(KonsekvensForYtelsen.INGEN_ENDRING);
     }
 
-
     @Test
     public void setter_ikke_konsekvens_for_ytelse() {
         Behandling behandling = vilkårOppsett(VilkårUtfallType.OPPFYLT, VilkårResultatType.INNVILGET);
@@ -117,10 +116,10 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
         Behandling behandling = scenario.lagre(repositoryProvider);
 
         VilkårResultat vilkårResultat = VilkårResultat.builder()
-            .leggTilVilkår(VilkårType.SØKNADSFRISTVILKÅRET, vilkårUtfallType)
-            .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT)
-            .medVilkårResultatType(resultatType)
-            .buildFor(behandling);
+                .leggTilVilkår(VilkårType.SØKNADSFRISTVILKÅRET, vilkårUtfallType)
+                .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT)
+                .medVilkårResultatType(resultatType)
+                .buildFor(behandling);
         behandlingRepository.lagre(vilkårResultat, behandlingRepository.taSkriveLås(behandling));
         return behandling;
     }

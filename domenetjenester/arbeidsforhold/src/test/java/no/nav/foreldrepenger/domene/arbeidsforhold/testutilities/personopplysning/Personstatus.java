@@ -34,7 +34,6 @@ public final class Personstatus {
         return new Builder();
     }
 
-
     public static final class Builder {
         private AktørId aktørId;
         private DatoIntervallEntitet periode;

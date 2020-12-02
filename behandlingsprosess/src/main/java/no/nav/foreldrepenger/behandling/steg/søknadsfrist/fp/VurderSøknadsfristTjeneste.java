@@ -34,13 +34,14 @@ public class VurderSøknadsfristTjeneste {
     }
 
     VurderSøknadsfristTjeneste() {
-        //For CDI
+        // For CDI
     }
 
     public Optional<AksjonspunktDefinisjon> vurder(Long behandlingId) {
         var fordelingAggregat = ytelsesFordelingRepository.hentAggregat(behandlingId);
         var oppgittePerioder = fordelingAggregat.getGjeldendeSøknadsperioder().getOppgittePerioder();
-        //Ingen perioder betyr behandling ut ny søknad. Trenger ikke å sjekke søknadsfrist på nytt ettersom uttaksperiodegrense
+        // Ingen perioder betyr behandling ut ny søknad. Trenger ikke å sjekke
+        // søknadsfrist på nytt ettersom uttaksperiodegrense
         // er kopiert fra forrige behandling
         if (oppgittePerioder.isEmpty()) {
             if (uttaksperiodegrenseRepository.hentHvisEksisterer(behandlingId).isEmpty()) {
@@ -60,11 +61,11 @@ public class VurderSøknadsfristTjeneste {
     private void lagreResultat(Long behandlingId, SøknadsfristResultat resultat, LocalDate mottattDato) {
         var behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
         var uttaksperiodegrense = new Uttaksperiodegrense.Builder(behandlingsresultat)
-            .medFørsteLovligeUttaksdag(resultat.getTidligsteLovligeUttak())
-            .medMottattDato(mottattDato)
-            .medSporingInput(resultat.getInnsendtGrunnlag())
-            .medSporingRegel(resultat.getEvalueringResultat())
-            .build();
+                .medFørsteLovligeUttaksdag(resultat.getTidligsteLovligeUttak())
+                .medMottattDato(mottattDato)
+                .medSporingInput(resultat.getInnsendtGrunnlag())
+                .medSporingRegel(resultat.getEvalueringResultat())
+                .build();
         uttaksperiodegrenseRepository.lagre(behandlingId, uttaksperiodegrense);
     }
 

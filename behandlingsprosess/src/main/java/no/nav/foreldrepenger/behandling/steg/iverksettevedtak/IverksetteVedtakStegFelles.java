@@ -51,8 +51,8 @@ public class IverksetteVedtakStegFelles implements IverksetteVedtakSteg {
 
     @Inject
     public IverksetteVedtakStegFelles(BehandlingRepositoryProvider repositoryProvider,
-                                      OpprettProsessTaskIverksett opprettProsessTaskIverksett,
-                                      VurderBehandlingerUnderIverksettelse tidligereBehandlingUnderIverksettelse) {
+            OpprettProsessTaskIverksett opprettProsessTaskIverksett,
+            VurderBehandlingerUnderIverksettelse tidligereBehandlingUnderIverksettelse) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
@@ -67,7 +67,8 @@ public class IverksetteVedtakStegFelles implements IverksetteVedtakSteg {
         Behandlingsresultat behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
         Optional<BehandlingVedtak> fantVedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId);
         if (behandlingsresultat.isBehandlingHenlagt() && fantVedtak.isEmpty()) {
-            // Gå til avslutning. Dersom alle henlagte skal innom her så bør man sjekke behov for Berørt og andre IVED.VENTER
+            // Gå til avslutning. Dersom alle henlagte skal innom her så bør man sjekke
+            // behov for Berørt og andre IVED.VENTER
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
         if (fantVedtak.isEmpty()) {
@@ -83,8 +84,10 @@ public class IverksetteVedtakStegFelles implements IverksetteVedtakSteg {
         Optional<Venteårsak> venteårsakOpt = kanBegynneIverksetting(behandling);
         if (venteårsakOpt.filter(Venteårsak.VENT_TIDLIGERE_BEHANDLING::equals).isPresent()) {
             log.info("Behandling {}: Iverksetting venter på annen behandling", behandlingId);
-            // Bruker transisjon startet for "prøv utførSteg senere". Stegstatus VENTER betyr "under arbeid" (suspendert).
-            // Behandlingsprosessen stopper og denne behandlingen blir plukket opp av avsluttBehandling.
+            // Bruker transisjon startet for "prøv utførSteg senere". Stegstatus VENTER
+            // betyr "under arbeid" (suspendert).
+            // Behandlingsprosessen stopper og denne behandlingen blir plukket opp av
+            // avsluttBehandling.
             return BehandleStegResultat.startet();
         }
         log.info("Behandling {}: Iverksetter vedtak", behandlingId);

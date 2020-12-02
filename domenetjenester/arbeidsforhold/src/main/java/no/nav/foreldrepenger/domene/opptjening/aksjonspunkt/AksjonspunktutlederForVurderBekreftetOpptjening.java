@@ -51,7 +51,7 @@ public class AksjonspunktutlederForVurderBekreftetOpptjening implements Aksjonsp
 
     @Inject
     public AksjonspunktutlederForVurderBekreftetOpptjening(OpptjeningRepository opptjeningRepository,
-                                                           InntektArbeidYtelseTjeneste iayTjeneste) {
+            InntektArbeidYtelseTjeneste iayTjeneste) {
         this.iayTjeneste = iayTjeneste;
         this.opptjeningRepository = opptjeningRepository;
     }
@@ -66,10 +66,11 @@ public class AksjonspunktutlederForVurderBekreftetOpptjening implements Aksjonsp
         }
         InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag = inntektArbeidYtelseGrunnlagOptional.get();
         DatoIntervallEntitet opptjeningPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(fastsattOpptjeningOptional.get().getFom(),
-            fastsattOpptjeningOptional.get().getTom());
+                fastsattOpptjeningOptional.get().getTom());
 
         LocalDate skjæringstidspunkt = param.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
-        if (finnesDetArbeidsforholdMedStillingsprosentLik0(param.getAktørId(), inntektArbeidYtelseGrunnlag, opptjeningPeriode, skjæringstidspunkt) == JA) {
+        if (finnesDetArbeidsforholdMedStillingsprosentLik0(param.getAktørId(), inntektArbeidYtelseGrunnlag, opptjeningPeriode,
+                skjæringstidspunkt) == JA) {
             logger.info("Utleder AP 5051 fra stillingsprosent 0: behandlingId={}", behandlingId);
             return opprettListeForAksjonspunkt(VURDER_PERIODER_MED_OPPTJENING);
         }
@@ -88,33 +89,35 @@ public class AksjonspunktutlederForVurderBekreftetOpptjening implements Aksjonsp
     }
 
     private Utfall finnesDetArbeidsforholdLagtTilAvSaksbehandler(BehandlingReferanse referanse, InntektArbeidYtelseGrunnlag grunnlag,
-                                                                 LocalDate skjæringstidspunkt) {
+            LocalDate skjæringstidspunkt) {
         AktørId aktørId = referanse.getAktørId();
-        var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(aktørId)).før(skjæringstidspunkt);
+        var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(aktørId))
+                .før(skjæringstidspunkt);
 
         var yrkesaktiviteter = filter.getYrkesaktiviteter();
         if (!yrkesaktiviteter.isEmpty()) {
             return yrkesaktiviteter
-                .stream()
-                .anyMatch(ya -> {
-                    var arbeidsgiver = ya.getArbeidsgiver();
-                    return arbeidsgiver.getErVirksomhet() && Organisasjonstype.erKunstig(arbeidsgiver.getOrgnr());
-                })
-                    ? JA
-                    : NEI;
+                    .stream()
+                    .anyMatch(ya -> {
+                        var arbeidsgiver = ya.getArbeidsgiver();
+                        return arbeidsgiver.getErVirksomhet() && Organisasjonstype.erKunstig(arbeidsgiver.getOrgnr());
+                    })
+                            ? JA
+                            : NEI;
         }
         return NEI;
     }
 
     private Utfall finnesDetArbeidsforholdMedStillingsprosentLik0(AktørId aktørId, InntektArbeidYtelseGrunnlag grunnlag,
-                                                                  DatoIntervallEntitet opptjeningPeriode, LocalDate skjæringstidspunkt) {
+            DatoIntervallEntitet opptjeningPeriode, LocalDate skjæringstidspunkt) {
 
-        var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(aktørId)).før(skjæringstidspunkt);
+        var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(aktørId))
+                .før(skjæringstidspunkt);
 
         var yrkesaktiviteter = filter.getYrkesaktiviteter();
         if (!yrkesaktiviteter.isEmpty()) {
             for (Yrkesaktivitet yrkesaktivitet : yrkesaktiviteter.stream()
-                .filter(it -> ArbeidType.AA_REGISTER_TYPER.contains(it.getArbeidType())).collect(Collectors.toList())) {
+                    .filter(it -> ArbeidType.AA_REGISTER_TYPER.contains(it.getArbeidType())).collect(Collectors.toList())) {
                 if (girAksjonspunkt(filter, opptjeningPeriode, yrkesaktivitet)) {
                     return JA;
                 }
@@ -129,8 +132,8 @@ public class AksjonspunktutlederForVurderBekreftetOpptjening implements Aksjonsp
         }
         var avtaler = filter.getAktivitetsAvtalerForArbeid(yrkesaktivitet);
         for (var aktivitetsAvtale : avtaler) {
-            if ((aktivitetsAvtale.getProsentsats() == null || aktivitetsAvtale.getProsentsats().getVerdi().compareTo(BigDecimal.ZERO) == 0)
-                && opptjeningPeriode.overlapper(aktivitetsAvtale.getPeriode())) {
+            if (((aktivitetsAvtale.getProsentsats() == null) || (aktivitetsAvtale.getProsentsats().getVerdi().compareTo(BigDecimal.ZERO) == 0))
+                    && opptjeningPeriode.overlapper(aktivitetsAvtale.getPeriode())) {
                 return true;
             }
         }
@@ -138,14 +141,16 @@ public class AksjonspunktutlederForVurderBekreftetOpptjening implements Aksjonsp
     }
 
     private Utfall finnesDetBekreftetFrilans(AktørId aktørId, InntektArbeidYtelseGrunnlag grunnlag, DatoIntervallEntitet opptjeningPeriode,
-                                             LocalDate skjæringstidspunkt) {
+            LocalDate skjæringstidspunkt) {
 
-        var filterInntekt = grunnlag.getAktørInntektFraRegister(aktørId).map(ai -> new InntektFilter(ai).før(skjæringstidspunkt).filterPensjonsgivende()).orElse(InntektFilter.EMPTY);
+        var filterInntekt = grunnlag.getAktørInntektFraRegister(aktørId)
+                .map(ai -> new InntektFilter(ai).før(skjæringstidspunkt).filterPensjonsgivende()).orElse(InntektFilter.EMPTY);
 
-        var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(aktørId)).før(skjæringstidspunkt);
+        var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(aktørId))
+                .før(skjæringstidspunkt);
         for (Yrkesaktivitet yrkesaktivitet : filter.getFrilansOppdrag()) {
             if (harFrilansavtaleForPeriode(yrkesaktivitet, opptjeningPeriode)
-                && harInntektFraVirksomhetForPeriode(filterInntekt, yrkesaktivitet, opptjeningPeriode)) {
+                    && harInntektFraVirksomhetForPeriode(filterInntekt, yrkesaktivitet, opptjeningPeriode)) {
                 return JA;
             }
         }
@@ -154,26 +159,29 @@ public class AksjonspunktutlederForVurderBekreftetOpptjening implements Aksjonsp
 
     private boolean harFrilansavtaleForPeriode(Yrkesaktivitet frilans, DatoIntervallEntitet opptjeningsPeriode) {
         return new YrkesaktivitetFilter(null, List.of(frilans)).getAktivitetsAvtalerForArbeid().stream()
-            .anyMatch(aa -> opptjeningsPeriode.overlapper(aa.getPeriode()));
+                .anyMatch(aa -> opptjeningsPeriode.overlapper(aa.getPeriode()));
     }
 
-    private boolean harInntektFraVirksomhetForPeriode(InntektFilter filterInntekt, Yrkesaktivitet yrkesaktivitet, DatoIntervallEntitet opptjeningsPeriode) {
+    private boolean harInntektFraVirksomhetForPeriode(InntektFilter filterInntekt, Yrkesaktivitet yrkesaktivitet,
+            DatoIntervallEntitet opptjeningsPeriode) {
         return filterInntekt.filterPensjonsgivende()
-            .filter(yrkesaktivitet.getArbeidsgiver())
-            .getFiltrertInntektsposter().stream()
-            .anyMatch(i -> harInntektpostForPeriode(i, opptjeningsPeriode));
+                .filter(yrkesaktivitet.getArbeidsgiver())
+                .getFiltrertInntektsposter().stream()
+                .anyMatch(i -> harInntektpostForPeriode(i, opptjeningsPeriode));
     }
 
     private boolean harInntektpostForPeriode(Inntektspost ip, DatoIntervallEntitet opptjeningsPeriode) {
         return opptjeningsPeriode.overlapper(DatoIntervallEntitet.fraOgMedTilOgMed(ip.getPeriode().getFomDato(), ip.getPeriode().getTomDato()));
     }
 
-    boolean girAksjonspunktForArbeidsforhold(YrkesaktivitetFilter filter, Long behandlingId, Yrkesaktivitet registerAktivitet, Yrkesaktivitet overstyrtAktivitet) {
-        if (overstyrtAktivitet != null && overstyrtAktivitet.getArbeidsgiver() != null && OrgNummer.erKunstig(overstyrtAktivitet.getArbeidsgiver().getOrgnr())) {
+    boolean girAksjonspunktForArbeidsforhold(YrkesaktivitetFilter filter, Long behandlingId, Yrkesaktivitet registerAktivitet,
+            Yrkesaktivitet overstyrtAktivitet) {
+        if ((overstyrtAktivitet != null) && (overstyrtAktivitet.getArbeidsgiver() != null)
+                && OrgNummer.erKunstig(overstyrtAktivitet.getArbeidsgiver().getOrgnr())) {
             return true;
         }
         final Optional<Opptjening> opptjening = opptjeningRepository.finnOpptjening(behandlingId);
-        if (opptjening.isEmpty() || registerAktivitet == null) {
+        if (opptjening.isEmpty() || (registerAktivitet == null)) {
             return false;
         }
         final DatoIntervallEntitet opptjeningPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(opptjening.get().getFom(), opptjening.get().getTom());

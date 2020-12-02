@@ -7,7 +7,6 @@ import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
-
 public class OppgittFrilansoppdrag extends BaseEntitet implements IndexKey {
 
     private OppgittFrilans frilans;
@@ -17,7 +16,6 @@ public class OppgittFrilansoppdrag extends BaseEntitet implements IndexKey {
 
     @ChangeTracked
     private DatoIntervallEntitet periode;
-
 
     OppgittFrilansoppdrag() {
     }
@@ -42,12 +40,16 @@ public class OppgittFrilansoppdrag extends BaseEntitet implements IndexKey {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || !(o instanceof OppgittFrilansoppdrag)) return false;
+        if (this == o) {
+            return true;
+        }
+        if ((o == null) || !(o instanceof OppgittFrilansoppdrag)) {
+            return false;
+        }
         OppgittFrilansoppdrag that = (OppgittFrilansoppdrag) o;
         return Objects.equals(frilans, that.frilans) &&
-            Objects.equals(oppdragsgiver, that.oppdragsgiver) &&
-            Objects.equals(periode, that.periode);
+                Objects.equals(oppdragsgiver, that.oppdragsgiver) &&
+                Objects.equals(periode, that.periode);
     }
 
     @Override
@@ -58,10 +60,10 @@ public class OppgittFrilansoppdrag extends BaseEntitet implements IndexKey {
     @Override
     public String toString() {
         return "FrilansoppdragEntitet{" +
-            "frilans=" + frilans +
-            ", oppdragsgiver='" + oppdragsgiver + '\'' +
-            ", periode=" + periode +
-            '}';
+                "frilans=" + frilans +
+                ", oppdragsgiver='" + oppdragsgiver + '\'' +
+                ", periode=" + periode +
+                '}';
     }
 
     public DatoIntervallEntitet getPeriode() {

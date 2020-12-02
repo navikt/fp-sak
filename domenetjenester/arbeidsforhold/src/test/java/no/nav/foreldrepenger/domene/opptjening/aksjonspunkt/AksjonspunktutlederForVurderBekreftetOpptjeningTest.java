@@ -61,13 +61,13 @@ public class AksjonspunktutlederForVurderBekreftetOpptjeningTest {
         Behandling behandling = opprettBehandling();
         DatoIntervallEntitet periode = DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunkt.minusMonths(3), skjæringstidspunkt);
         iayTjeneste.lagreArbeidsforhold(behandling.getId(), AKTØRID, ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty())
-            .leggTil(ArbeidsforholdOverstyringBuilder
-                .oppdatere(Optional.empty())
-                .leggTilOverstyrtPeriode(periode.getFomDato(), periode.getTomDato())
-                .medAngittStillingsprosent(new Stillingsprosent(100))
-                .medArbeidsforholdRef(InternArbeidsforholdRef.nullRef())
-                .medArbeidsgiver(Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG))
-                .medAngittArbeidsgiverNavn("Ambassade")));
+                .leggTil(ArbeidsforholdOverstyringBuilder
+                        .oppdatere(Optional.empty())
+                        .leggTilOverstyrtPeriode(periode.getFomDato(), periode.getTomDato())
+                        .medAngittStillingsprosent(new Stillingsprosent(100))
+                        .medArbeidsforholdRef(InternArbeidsforholdRef.nullRef())
+                        .medArbeidsgiver(Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG))
+                        .medAngittArbeidsgiverNavn("Ambassade")));
         InntektArbeidYtelseGrunnlag iayGrunnlag = iayTjeneste.finnGrunnlag(behandling.getId()).get();
         var filter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), (Yrkesaktivitet) null);
         Yrkesaktivitet overstyrt = filter.getYrkesaktiviteter().iterator().next();

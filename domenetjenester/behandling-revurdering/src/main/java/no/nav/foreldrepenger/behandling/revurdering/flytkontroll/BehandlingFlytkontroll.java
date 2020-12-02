@@ -35,46 +35,50 @@ public class BehandlingFlytkontroll {
 
     @Inject
     public BehandlingFlytkontroll(BehandlingRevurderingRepository behandlingRevurderingRepository,
-                                  BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                  BehandlingRepository behandlingRepository) {
+            BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+            BehandlingRepository behandlingRepository) {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingRevurderingRepository = behandlingRevurderingRepository;
         this.behandlingRepository = behandlingRepository;
     }
 
-
-    // Vente = true hvis egen sak har åpen berørt eller 2 part har åpen berørt eller behandling som er i Uttak
+    // Vente = true hvis egen sak har åpen berørt eller 2 part har åpen berørt eller
+    // behandling som er i Uttak
     public boolean uttaksProsessenSkalVente(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var annenpartFagsak = behandlingRevurderingRepository.finnFagsakPåMedforelder(behandling.getFagsak()).orElse(null);
-        if (annenpartFagsak == null)
+        if (annenpartFagsak == null) {
             return false;
+        }
         var finnesBerørt = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(behandling.getFagsak().getId()).stream()
-            .anyMatch(b -> !b.getId().equals(behandling.getId()) && b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING));
+                .anyMatch(b -> !b.getId().equals(behandling.getId()) && b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING));
         var annenpartÅpneBehandlinger = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(annenpartFagsak.getId());
         var annenPartHarBerørt = annenpartÅpneBehandlinger.stream()
-            .anyMatch(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING));
+                .anyMatch(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING));
         var annenPartAktivUttak = annenpartÅpneBehandlinger.stream()
-            .anyMatch(b ->  behandlingskontrollTjeneste.erStegPassert(b, SYNK_STEG));
+                .anyMatch(b -> behandlingskontrollTjeneste.erStegPassert(b, SYNK_STEG));
         // TODO avklare om aktivUttak skal ekskludere behandling.isBehandlingPåVent();
         return finnesBerørt || annenPartHarBerørt || annenPartAktivUttak;
     }
 
-    // Vente = true hvis egen sak har åpen berørt eller 2 part har åpen revurdering (inkl berørt) eller førstegang som er i Uttak
+    // Vente = true hvis egen sak har åpen berørt eller 2 part har åpen revurdering
+    // (inkl berørt) eller førstegang som er i Uttak
     public boolean nyRevurderingSkalVente(Fagsak fagsak) {
         var annenpartFagsak = behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak).orElse(null);
-        if (annenpartFagsak == null)
+        if (annenpartFagsak == null) {
             return false;
+        }
         var finnesBerørt = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsak.getId()).stream()
-            .anyMatch(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING));
+                .anyMatch(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING));
         var annenPartRevurderingEllerAktivUttak = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(annenpartFagsak.getId()).stream()
-            .anyMatch(b ->  b.erRevurdering() || behandlingskontrollTjeneste.erStegPassert(b, SYNK_STEG));
+                .anyMatch(b -> b.erRevurdering() || behandlingskontrollTjeneste.erStegPassert(b, SYNK_STEG));
         // TODO avklare om aktivUttak skal ekskludere behandling.isBehandlingPåVent();
         return finnesBerørt || annenPartRevurderingEllerAktivUttak;
     }
 
     public void settNyRevurderingPåVent(Behandling behandling) {
-        behandlingskontrollTjeneste.settBehandlingPåVent(behandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING, null, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
+        behandlingskontrollTjeneste.settBehandlingPåVent(behandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING, null, null,
+                Venteårsak.VENT_ÅPEN_BEHANDLING);
     }
 
 }

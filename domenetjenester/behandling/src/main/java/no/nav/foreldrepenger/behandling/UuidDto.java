@@ -17,7 +17,8 @@ public class UuidDto implements AbacDto {
     public static final String DESC = "behandlingUUID";
 
     /**
-     * Behandling UUID (nytt alternativ til intern behandlingId. Bør brukes av eksterne systemer).
+     * Behandling UUID (nytt alternativ til intern behandlingId. Bør brukes av
+     * eksterne systemer).
      */
     @Valid
     private UUID behandlingUuid;

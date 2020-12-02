@@ -15,9 +15,9 @@ public class LeggTilResultat {
     }
 
     public static void leggTil(Map<Arbeidsgiver, Set<ArbeidsforholdMedÅrsak>> result,
-                        AksjonspunktÅrsak årsak,
-                        Arbeidsgiver arbeidsgiver,
-                        Set<InternArbeidsforholdRef> arbeidsforholdRefs) {
+            AksjonspunktÅrsak årsak,
+            Arbeidsgiver arbeidsgiver,
+            Set<InternArbeidsforholdRef> arbeidsforholdRefs) {
         final Set<ArbeidsforholdMedÅrsak> arbeidsgiverSet = result.getOrDefault(arbeidsgiver, new HashSet<>());
         arbeidsforholdRefs.forEach(ref -> {
             Optional<ArbeidsforholdMedÅrsak> arbeidsforhold = finnArbeidsforholdMedMatchendeReferanse(arbeidsgiverSet, ref);
@@ -30,11 +30,11 @@ public class LeggTilResultat {
         result.put(arbeidsgiver, arbeidsgiverSet);
     }
 
-    private static Optional<ArbeidsforholdMedÅrsak> finnArbeidsforholdMedMatchendeReferanse(Set<ArbeidsforholdMedÅrsak> arbeidsgiverSet, InternArbeidsforholdRef ref) {
+    private static Optional<ArbeidsforholdMedÅrsak> finnArbeidsforholdMedMatchendeReferanse(Set<ArbeidsforholdMedÅrsak> arbeidsgiverSet,
+            InternArbeidsforholdRef ref) {
         return arbeidsgiverSet.stream()
-            .filter(it -> it.getRef().equals(ref))
-            .findFirst();
+                .filter(it -> it.getRef().equals(ref))
+                .findFirst();
     }
-
 
 }

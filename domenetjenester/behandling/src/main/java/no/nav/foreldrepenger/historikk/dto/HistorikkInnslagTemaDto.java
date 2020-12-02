@@ -32,7 +32,6 @@ class HistorikkInnslagTemaDto {
         this.klNavn = klNavn;
     }
 
-
     static HistorikkInnslagTemaDto mapFra(HistorikkinnslagFelt felt) {
         HistorikkInnslagTemaDto dto = new HistorikkInnslagTemaDto();
         HistorikkEndretFeltType endretFeltNavn = HistorikkEndretFeltType.fraKode(felt.getNavn());

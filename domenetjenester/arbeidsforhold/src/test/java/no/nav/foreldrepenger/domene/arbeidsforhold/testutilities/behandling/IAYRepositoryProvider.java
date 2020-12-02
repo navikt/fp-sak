@@ -35,7 +35,7 @@ public class IAYRepositoryProvider {
     private BeregningsresultatRepository beregningsresultatRepository;
 
     @Inject
-    public IAYRepositoryProvider( EntityManager entityManager) {
+    public IAYRepositoryProvider(EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
         this.entityManager = entityManager;
 
@@ -66,7 +66,6 @@ public class IAYRepositoryProvider {
     public BehandlingsresultatRepository getBehandlingsresultatRepository() {
         return behandlingsresultatRepository;
     }
-
 
     public FagsakRepository getFagsakRepository() {
         // bridge metode før sammenkobling medBehandling

@@ -35,7 +35,6 @@ public class VarselRevurderingStegImpl implements VarselRevurderingSteg {
 
     private BehandlingRepository behandlingRepository;
 
-
     @Inject
     public VarselRevurderingStegImpl(BehandlingRepository behandlingRepository) {
         this.behandlingRepository = behandlingRepository;
@@ -55,7 +54,8 @@ public class VarselRevurderingStegImpl implements VarselRevurderingSteg {
         }
 
         if (behandling.harBehandlingÅrsak(RE_AVVIK_ANTALL_BARN) || behandling.harBehandlingÅrsak(RE_MANGLER_FØDSEL_I_PERIODE)) {
-            // Svært få tilfelle. Slipper videre til SJEKK MANGLENDE FØDSEL så kan man sjekke ettersendt dokumentasjon før man sender brev
+            // Svært få tilfelle. Slipper videre til SJEKK MANGLENDE FØDSEL så kan man
+            // sjekke ettersendt dokumentasjon før man sender brev
             // Det skal ikke sendes automatisk brev i disse tilfellene
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
@@ -63,7 +63,7 @@ public class VarselRevurderingStegImpl implements VarselRevurderingSteg {
         if (behandling.harBehandlingÅrsak(RE_MANGLER_FØDSEL)) {
             // Se autopunktobserver for brev
             var resultat = AksjonspunktResultat.opprettForAksjonspunktMedFrist(AUTO_SATT_PÅ_VENT_REVURDERING, Venteårsak.AVV_DOK,
-                LocalDateTime.now().plus(AUTO_SATT_PÅ_VENT_REVURDERING.getFristPeriod()));
+                    LocalDateTime.now().plus(AUTO_SATT_PÅ_VENT_REVURDERING.getFristPeriod()));
             return BehandleStegResultat.utførtMedAksjonspunktResultater(Collections.singletonList(resultat));
         }
 

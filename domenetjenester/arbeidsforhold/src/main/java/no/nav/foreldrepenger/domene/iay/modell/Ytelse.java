@@ -39,7 +39,7 @@ public class Ytelse extends BaseEntitet implements IndexKey {
     private Saksnummer saksnummer;
 
     @ChangeTracked
-    @Convert(converter=Fagsystem.KodeverdiConverter.class)
+    @Convert(converter = Fagsystem.KodeverdiConverter.class)
     private Fagsystem kilde;
 
     @ChangeTracked
@@ -147,15 +147,17 @@ public class Ytelse extends BaseEntitet implements IndexKey {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || !(o instanceof Ytelse))
+        }
+        if ((o == null) || !(o instanceof Ytelse)) {
             return false;
+        }
         Ytelse that = (Ytelse) o;
         return Objects.equals(relatertYtelseType, that.relatertYtelseType) &&
-            Objects.equals(temaUnderkategori, that.temaUnderkategori) &&
-            Objects.equals(periode, that.periode) &&
-            Objects.equals(saksnummer, that.saksnummer);
+                Objects.equals(temaUnderkategori, that.temaUnderkategori) &&
+                Objects.equals(periode, that.periode) &&
+                Objects.equals(saksnummer, that.saksnummer);
     }
 
     @Override
@@ -166,12 +168,12 @@ public class Ytelse extends BaseEntitet implements IndexKey {
     @Override
     public String toString() {
         return "YtelseEntitet{" + //$NON-NLS-1$
-            "relatertYtelseType=" + relatertYtelseType + //$NON-NLS-1$
-            ", typeUnderkategori=" + temaUnderkategori + //$NON-NLS-1$
-            ", periode=" + periode + //$NON-NLS-1$
-            ", relatertYtelseStatus=" + status + //$NON-NLS-1$
-            ", saksNummer='" + saksnummer + '\'' + //$NON-NLS-1$
-            '}';
+                "relatertYtelseType=" + relatertYtelseType + //$NON-NLS-1$
+                ", typeUnderkategori=" + temaUnderkategori + //$NON-NLS-1$
+                ", periode=" + periode + //$NON-NLS-1$
+                ", relatertYtelseStatus=" + status + //$NON-NLS-1$
+                ", saksNummer='" + saksnummer + '\'' + //$NON-NLS-1$
+                '}';
     }
 
 }

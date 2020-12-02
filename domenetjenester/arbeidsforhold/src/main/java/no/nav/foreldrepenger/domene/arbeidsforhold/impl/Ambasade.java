@@ -3,11 +3,13 @@ package no.nav.foreldrepenger.domene.arbeidsforhold.impl;
 import java.util.ArrayList;
 
 /**
- * https://jira.adeo.no/browse/TFP-2367
- * Liste over orgnr til ambasader som ligger innunder utenriksredartementet.
- * Hentet fra denne liste, https://w2.brreg.no/enhet/sok/underenh.jsp?orgnr=972417920
- * Det ble valgt å lagre som enums så man slipper å gjøre oppslag mot brreg for hver gang man trengte å sjekke om arbeidsgiver er en ambasade
- * Brukes fordi saksbehandler skal kunne opprette arbeidsforhold fra inntektsmelding dersom der er fra en av disse organisasjonene
+ * https://jira.adeo.no/browse/TFP-2367 Liste over orgnr til ambasader som
+ * ligger innunder utenriksredartementet. Hentet fra denne liste,
+ * https://w2.brreg.no/enhet/sok/underenh.jsp?orgnr=972417920 Det ble valgt å
+ * lagre som enums så man slipper å gjøre oppslag mot brreg for hver gang man
+ * trengte å sjekke om arbeidsgiver er en ambasade Brukes fordi saksbehandler
+ * skal kunne opprette arbeidsforhold fra inntektsmelding dersom der er fra en
+ * av disse organisasjonene
  */
 public enum Ambasade {
     AMBASSADEN_I_PARIS("874625922"),

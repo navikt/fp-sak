@@ -25,10 +25,12 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef.ContainerOf
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
 /**
- * Marker type som implementerer interface {@link BehandlingSteg} for å skille ulike implementasjoner av samme steg for ulike ytelser (eks.
- * Foreldrepenger vs. Engangsstønad).<br>
+ * Marker type som implementerer interface {@link BehandlingSteg} for å skille
+ * ulike implementasjoner av samme steg for ulike ytelser (eks. Foreldrepenger
+ * vs. Engangsstønad).<br>
  *
- * NB: Settes kun dersom det er flere implementasjoner med samme {@link BehandlingStegRef}.
+ * NB: Settes kun dersom det er flere implementasjoner med samme
+ * {@link BehandlingStegRef}.
  */
 @Repeatable(ContainerOfFagsakYtelseTypeRef.class)
 @Qualifier
@@ -42,7 +44,8 @@ public @interface FagsakYtelseTypeRef {
     /**
      * Kode-verdi som skiller ulike implementasjoner for ulike behandling typer.
      * <p>
-     * Må matche ett innslag i <code>FAGSAK_YTELSE_TYPE</code> tabell for å kunne kjøres.
+     * Må matche ett innslag i <code>FAGSAK_YTELSE_TYPE</code> tabell for å kunne
+     * kjøres.
      *
      * @see no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType
      */
@@ -91,8 +94,9 @@ public @interface FagsakYtelseTypeRef {
         }
 
         /**
-         * Kan brukes til å finne instanser blant angitte som matcher følgende kode, eller default '*' implementasjon. Merk at Instance bør være
-         * injected med riktig forventet klassetype og @Any qualifier.
+         * Kan brukes til å finne instanser blant angitte som matcher følgende kode,
+         * eller default '*' implementasjon. Merk at Instance bør være injected med
+         * riktig forventet klassetype og @Any qualifier.
          */
         public static <I> Optional<I> find(Instance<I> instances, FagsakYtelseType ytelseTypeKode) {
             return find(null, instances, ytelseTypeKode.getKode());
@@ -107,7 +111,8 @@ public @interface FagsakYtelseTypeRef {
                     return Optional.of(getInstance(inst));
                 } else {
                     if (inst.isAmbiguous()) {
-                        throw new IllegalStateException("Har flere matchende instanser for klasse : " + cls.getName() + ", fagsakType=" + fagsakLiteral);
+                        throw new IllegalStateException(
+                                "Har flere matchende instanser for klasse : " + cls.getName() + ", fagsakType=" + fagsakLiteral);
                     }
                 }
             }
@@ -117,15 +122,15 @@ public @interface FagsakYtelseTypeRef {
 
         private static <I> Instance<I> select(Class<I> cls, Instance<I> instances, Annotation anno) {
             return cls != null
-                ? instances.select(cls, anno)
-                : instances.select(anno);
+                    ? instances.select(cls, anno)
+                    : instances.select(anno);
         }
 
         private static <I> I getInstance(Instance<I> inst) {
             var i = inst.get();
             if (i.getClass().isAnnotationPresent(Dependent.class)) {
                 throw new IllegalStateException(
-                    "Kan ikke ha @Dependent scope bean ved Instance lookup dersom en ikke også håndtere lifecycle selv: " + i.getClass());
+                        "Kan ikke ha @Dependent scope bean ved Instance lookup dersom en ikke også håndtere lifecycle selv: " + i.getClass());
             }
             return i;
         }
@@ -137,7 +142,7 @@ public @interface FagsakYtelseTypeRef {
 
     /**
      * container for repeatable annotations.
-     * 
+     *
      * @see https://docs.oracle.com/javase/tutorial/java/annotations/repeating.html
      */
     @Inherited

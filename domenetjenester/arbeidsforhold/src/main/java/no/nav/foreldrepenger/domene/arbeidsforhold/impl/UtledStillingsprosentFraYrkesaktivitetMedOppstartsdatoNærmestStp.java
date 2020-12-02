@@ -18,39 +18,42 @@ final class UtledStillingsprosentFraYrkesaktivitetMedOppstartsdatoNærmestStp {
         // Skjul default constructor
     }
 
-    static BigDecimal utled(YrkesaktivitetFilter filter, List<Yrkesaktivitet> yrkesaktiviteter, LocalDate skjæringstidspunkt, LocalDate oppstartsdatoNærmestStp){
-        Optional<BigDecimal> stillingsprosent = finnStillingsprosentFraYrkesaktiviteterSomOverlapperStp(filter, yrkesaktiviteter, skjæringstidspunkt, oppstartsdatoNærmestStp);
+    static BigDecimal utled(YrkesaktivitetFilter filter, List<Yrkesaktivitet> yrkesaktiviteter, LocalDate skjæringstidspunkt,
+            LocalDate oppstartsdatoNærmestStp) {
+        Optional<BigDecimal> stillingsprosent = finnStillingsprosentFraYrkesaktiviteterSomOverlapperStp(filter, yrkesaktiviteter, skjæringstidspunkt,
+                oppstartsdatoNærmestStp);
         if (stillingsprosent.isEmpty()) {
-            stillingsprosent = finnStillingsprosentFraYrkesaktivteterSomTilkommerEtterStp(filter, yrkesaktiviteter, skjæringstidspunkt, oppstartsdatoNærmestStp);
+            stillingsprosent = finnStillingsprosentFraYrkesaktivteterSomTilkommerEtterStp(filter, yrkesaktiviteter, skjæringstidspunkt,
+                    oppstartsdatoNærmestStp);
         }
         return stillingsprosent.orElse(BigDecimal.ZERO);
     }
 
-    private static Optional<BigDecimal> finnStillingsprosentFraYrkesaktiviteterSomOverlapperStp(YrkesaktivitetFilter filter, 
-                                                                                                Collection<Yrkesaktivitet> yrkesaktiviteter,
-                                                                                               LocalDate skjæringstidspunkt,
-                                                                                               LocalDate oppstartsdatoNærmestStp) {
-        
+    private static Optional<BigDecimal> finnStillingsprosentFraYrkesaktiviteterSomOverlapperStp(YrkesaktivitetFilter filter,
+            Collection<Yrkesaktivitet> yrkesaktiviteter,
+            LocalDate skjæringstidspunkt,
+            LocalDate oppstartsdatoNærmestStp) {
+
         return filter.getAktivitetsAvtalerForArbeid(yrkesaktiviteter).stream()
-            .filter(aa -> aa.getPeriode().inkluderer(skjæringstidspunkt))
-            .filter(aa -> !aa.getPeriode().getFomDato().isBefore(oppstartsdatoNærmestStp))
-            .map(AktivitetsAvtale::getProsentsats)
-            .filter(Objects::nonNull)
-            .map(Stillingsprosent::getVerdi)
-            .max(BigDecimal::compareTo);
+                .filter(aa -> aa.getPeriode().inkluderer(skjæringstidspunkt))
+                .filter(aa -> !aa.getPeriode().getFomDato().isBefore(oppstartsdatoNærmestStp))
+                .map(AktivitetsAvtale::getProsentsats)
+                .filter(Objects::nonNull)
+                .map(Stillingsprosent::getVerdi)
+                .max(BigDecimal::compareTo);
     }
 
-    private static Optional<BigDecimal> finnStillingsprosentFraYrkesaktivteterSomTilkommerEtterStp(YrkesaktivitetFilter filter, List<Yrkesaktivitet> yrkesaktiviteter,
-                                                                                                   LocalDate skjæringstidspunkt,
-                                                                                                   LocalDate oppstartsdatoNærmestStp) {
+    private static Optional<BigDecimal> finnStillingsprosentFraYrkesaktivteterSomTilkommerEtterStp(YrkesaktivitetFilter filter,
+            List<Yrkesaktivitet> yrkesaktiviteter,
+            LocalDate skjæringstidspunkt,
+            LocalDate oppstartsdatoNærmestStp) {
         return filter.getAktivitetsAvtalerForArbeid(yrkesaktiviteter).stream()
-            .filter(aa -> aa.getPeriode().getFomDato().isAfter(skjæringstidspunkt))
-            .filter(aa -> !aa.getPeriode().getFomDato().isAfter(oppstartsdatoNærmestStp))
-            .map(AktivitetsAvtale::getProsentsats)
-            .filter(Objects::nonNull)
-            .map(Stillingsprosent::getVerdi)
-            .max(BigDecimal::compareTo);
+                .filter(aa -> aa.getPeriode().getFomDato().isAfter(skjæringstidspunkt))
+                .filter(aa -> !aa.getPeriode().getFomDato().isAfter(oppstartsdatoNærmestStp))
+                .map(AktivitetsAvtale::getProsentsats)
+                .filter(Objects::nonNull)
+                .map(Stillingsprosent::getVerdi)
+                .max(BigDecimal::compareTo);
     }
-
 
 }

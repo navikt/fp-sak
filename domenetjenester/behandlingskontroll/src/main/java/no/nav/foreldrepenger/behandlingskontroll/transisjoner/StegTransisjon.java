@@ -16,6 +16,6 @@ public interface StegTransisjon {
     }
 
     default BehandlingStegResultat getRetningForHopp() {
-        throw new IllegalArgumentException("Utviklerfeil: skal ikke kalles for transisjon "+ getId());
+        throw new IllegalArgumentException("Utviklerfeil: skal ikke kalles for transisjon " + getId());
     }
 }

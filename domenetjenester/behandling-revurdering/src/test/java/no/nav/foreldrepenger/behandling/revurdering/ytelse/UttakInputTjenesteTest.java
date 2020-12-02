@@ -42,22 +42,23 @@ public class UttakInputTjenesteTest {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         var ytelsesFordelingRepository = new YtelsesFordelingRepository(entityManager);
         var andelGraderingTjeneste = new AndelGraderingTjeneste(
-            new ForeldrepengerUttakTjeneste(new FpUttakRepository(entityManager)), ytelsesFordelingRepository);
+                new ForeldrepengerUttakTjeneste(new FpUttakRepository(entityManager)), ytelsesFordelingRepository);
         tjeneste = new UttakInputTjeneste(repositoryProvider, new HentOgLagreBeregningsgrunnlagTjeneste(entityManager),
-            new AbakusInMemoryInntektArbeidYtelseTjeneste(), new SkjæringstidspunktTjenesteImpl(repositoryProvider,
-            new YtelseMaksdatoTjeneste(repositoryProvider, new RelatertBehandlingTjeneste(repositoryProvider)),
-            new SkjæringstidspunktUtils()), mock(MedlemTjeneste.class), andelGraderingTjeneste);
+                new AbakusInMemoryInntektArbeidYtelseTjeneste(), new SkjæringstidspunktTjenesteImpl(repositoryProvider,
+                        new YtelseMaksdatoTjeneste(repositoryProvider, new RelatertBehandlingTjeneste(repositoryProvider)),
+                        new SkjæringstidspunktUtils()),
+                mock(MedlemTjeneste.class), andelGraderingTjeneste);
     }
 
     @Test
     public void skal_hente_behandlingsårsaker_fra_behandling() {
         var originalBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medDefaultSøknadTerminbekreftelse()
-            .lagre(repositoryProvider);
+                .lagre(repositoryProvider);
         var årsak = BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER;
         var revurdering = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medOriginalBehandling(originalBehandling, årsak, false)
-            .medDefaultOppgittFordeling(LocalDate.of(2019, 11, 6)).medDefaultSøknadTerminbekreftelse()
-            .lagre(repositoryProvider);
+                .medOriginalBehandling(originalBehandling, årsak, false)
+                .medDefaultOppgittFordeling(LocalDate.of(2019, 11, 6)).medDefaultSøknadTerminbekreftelse()
+                .lagre(repositoryProvider);
 
         var resultat = tjeneste.lagInput(revurdering);
 
@@ -68,11 +69,11 @@ public class UttakInputTjenesteTest {
     @Test
     public void skal_sette_om_behandling_er_manuelt_behandlet() {
         var originalBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medDefaultSøknadTerminbekreftelse()
-            .lagre(repositoryProvider);
+                .lagre(repositoryProvider);
         var revurdering = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_OPPLYSNINGER_OM_INNTEKT, true)
-            .medDefaultOppgittFordeling(LocalDate.of(2019, 11, 6)).medDefaultSøknadTerminbekreftelse()
-            .lagre(repositoryProvider);
+                .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_OPPLYSNINGER_OM_INNTEKT, true)
+                .medDefaultOppgittFordeling(LocalDate.of(2019, 11, 6)).medDefaultSøknadTerminbekreftelse()
+                .lagre(repositoryProvider);
 
         var resultat = tjeneste.lagInput(revurdering);
 
@@ -82,15 +83,15 @@ public class UttakInputTjenesteTest {
     @Test
     public void skal_sette_om_opplysninger_om_død_er_endret_hvis_det_er_endringer() {
         var behandlingMedEndretOpplysningerOmDød = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medDefaultSøknadTerminbekreftelse().medDefaultOppgittFordeling(LocalDate.of(2019, 1, 1))
-            .lagre(repositoryProvider);
+                .medDefaultSøknadTerminbekreftelse().medDefaultOppgittFordeling(LocalDate.of(2019, 1, 1))
+                .lagre(repositoryProvider);
         var personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
         Optional<PersonInformasjonEntitet> registerVersjon = personopplysningRepository
-            .hentPersonopplysninger(behandlingMedEndretOpplysningerOmDød.getId()).getRegisterVersjon();
+                .hentPersonopplysninger(behandlingMedEndretOpplysningerOmDød.getId()).getRegisterVersjon();
         PersonInformasjonBuilder builder = PersonInformasjonBuilder
-            .oppdater(registerVersjon, PersonopplysningVersjonType.REGISTRERT);
+                .oppdater(registerVersjon, PersonopplysningVersjonType.REGISTRERT);
         builder.leggTil(builder.getPersonopplysningBuilder(behandlingMedEndretOpplysningerOmDød.getAktørId())
-            .medDødsdato(LocalDate.now()));
+                .medDødsdato(LocalDate.now()));
         personopplysningRepository.lagre(behandlingMedEndretOpplysningerOmDød.getId(), builder);
 
         var resultat = tjeneste.lagInput(behandlingMedEndretOpplysningerOmDød.getId());
@@ -101,8 +102,8 @@ public class UttakInputTjenesteTest {
     @Test
     public void skal_sette_om_opplysninger_om_død_er_endret_hvis_det_er_ingen_endringer() {
         var behandlingUtenEndringIOpplysninger = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medDefaultSøknadTerminbekreftelse().medDefaultOppgittFordeling(LocalDate.of(2019, 1, 1))
-            .lagre(repositoryProvider);
+                .medDefaultSøknadTerminbekreftelse().medDefaultOppgittFordeling(LocalDate.of(2019, 1, 1))
+                .lagre(repositoryProvider);
 
         var resultat = tjeneste.lagInput(behandlingUtenEndringIOpplysninger.getId());
 

@@ -61,8 +61,8 @@ public class IAYGrunnlagDiff {
         } else {
             var eksisterendeFilter = new YrkesaktivitetFilter(null, eksisterendeAktørArbeid).før(skjæringstidspunkt);
             var nyFilter = new YrkesaktivitetFilter(null, nyAktørArbeid).før(skjæringstidspunkt);
-            if (eksisterendeFilter.getYrkesaktiviteter().size() != nyFilter.getYrkesaktiviteter().size()
-                || eksisterendeFilter.getAnsettelsesPerioder().size() != nyFilter.getAnsettelsesPerioder().size()) {
+            if ((eksisterendeFilter.getYrkesaktiviteter().size() != nyFilter.getYrkesaktiviteter().size())
+                    || (eksisterendeFilter.getAnsettelsesPerioder().size() != nyFilter.getAnsettelsesPerioder().size())) {
                 return true;
             }
         }
@@ -85,7 +85,8 @@ public class IAYGrunnlagDiff {
         } else {
             var eksisterendeInntektFilter = new InntektFilter(eksisterende).før(skjæringstidspunkt);
             var nyeInntektFilter = new InntektFilter(nye).før(skjæringstidspunkt);
-            // TODO - raffinere med tanke på Startpunkt BEREGNING. Kan sjekke på diff pensjonsgivende, beregning og Sigrun
+            // TODO - raffinere med tanke på Startpunkt BEREGNING. Kan sjekke på diff
+            // pensjonsgivende, beregning og Sigrun
             if (eksisterendeInntektFilter.getFiltrertInntektsposter().size() != nyeInntektFilter.getFiltrertInntektsposter().size()) {
                 return true;
             }
@@ -97,10 +98,11 @@ public class IAYGrunnlagDiff {
 
     public AktørYtelseEndring endringPåAktørYtelseForAktør(Saksnummer egetSaksnummer, LocalDate skjæringstidspunkt, AktørId aktørId) {
         Predicate<Ytelse> predikatEksklusiveTyper = ytelse -> EKSLUSIVE_TYPER.contains(ytelse.getRelatertYtelseType())
-            && (ytelse.getSaksnummer() == null || !ytelse.getSaksnummer().equals(egetSaksnummer));
+                && ((ytelse.getSaksnummer() == null) || !ytelse.getSaksnummer().equals(egetSaksnummer));
         Predicate<Ytelse> predikatAndreYtelseTyper = ytelse -> !EKSLUSIVE_TYPER.contains(ytelse.getRelatertYtelseType())
-            && (ytelse.getSaksnummer() == null || !ytelse.getSaksnummer().equals(egetSaksnummer));
-        // Setter fris for å få med nye "parallelle" søknader, men unngår overlapp med neste barn. Kan tunes. Annen søknad får AP når denne vedtatt
+                && ((ytelse.getSaksnummer() == null) || !ytelse.getSaksnummer().equals(egetSaksnummer));
+        // Setter fris for å få med nye "parallelle" søknader, men unngår overlapp med
+        // neste barn. Kan tunes. Annen søknad får AP når denne vedtatt
         LocalDate datoForEksklusiveTyper = LocalDate.now().isAfter(skjæringstidspunkt) ? skjæringstidspunkt.plusMonths(3L) : skjæringstidspunkt;
 
         List<Ytelse> førYtelserFpsak = hentYtelserForAktør(grunnlag1, datoForEksklusiveTyper, aktørId, predikatEksklusiveTyper);
@@ -115,10 +117,10 @@ public class IAYGrunnlagDiff {
     }
 
     private List<Ytelse> hentYtelserForAktør(InntektArbeidYtelseGrunnlag grunnlag, LocalDate skjæringstidspunkt, AktørId aktørId,
-                                             Predicate<Ytelse> predikatYtelseskilde) {
+            Predicate<Ytelse> predikatYtelseskilde) {
         var filter = new YtelseFilter(grunnlag.getAktørYtelseFraRegister(aktørId)).før(skjæringstidspunkt);
         return filter.getFiltrertYtelser().stream()
-            .filter(predikatYtelseskilde)
-            .collect(Collectors.toList());
+                .filter(predikatYtelseskilde)
+                .collect(Collectors.toList());
     }
 }

@@ -15,7 +15,8 @@ public class BehandlingskontrollKontekst {
     private Long fagsakId;
 
     /**
-     * NB: Foretrekk {@link BehandlingskontrollTjeneste#initBehandlingskontroll} i stedet for å opprette her direkte.
+     * NB: Foretrekk {@link BehandlingskontrollTjeneste#initBehandlingskontroll} i
+     * stedet for å opprette her direkte.
      */
     public BehandlingskontrollKontekst(Long fagsakId, AktørId aktørId, BehandlingLås behandlingLås) {
         Objects.requireNonNull(behandlingLås, "behandlingLås"); //$NON-NLS-1$

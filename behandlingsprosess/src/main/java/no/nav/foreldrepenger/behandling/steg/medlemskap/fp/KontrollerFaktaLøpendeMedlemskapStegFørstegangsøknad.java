@@ -21,8 +21,8 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 
 @BehandlingStegRef(kode = "KOFAK_LOP_MEDL")
-@BehandlingTypeRef("BT-002") //Førstegangssøknad
-@FagsakYtelseTypeRef("FP")  //Foreldrepenger
+@BehandlingTypeRef("BT-002") // Førstegangssøknad
+@FagsakYtelseTypeRef("FP") // Foreldrepenger
 @ApplicationScoped
 public class KontrollerFaktaLøpendeMedlemskapStegFørstegangsøknad implements KontrollerFaktaLøpendeMedlemskapSteg {
 
@@ -31,7 +31,7 @@ public class KontrollerFaktaLøpendeMedlemskapStegFørstegangsøknad implements 
     private BehandlingFlytkontroll flytkontroll;
 
     KontrollerFaktaLøpendeMedlemskapStegFørstegangsøknad() {
-        //CDI
+        // CDI
     }
 
     @Inject
@@ -46,8 +46,8 @@ public class KontrollerFaktaLøpendeMedlemskapStegFørstegangsøknad implements 
             var køAutopunkt = AksjonspunktResultat.opprettForAksjonspunktMedFrist(AUTO_KØET_BEHANDLING, Venteårsak.VENT_ÅPEN_BEHANDLING, null);
             return BehandleStegResultat.utførtMedAksjonspunktResultater(List.of(køAutopunkt));
         }
-        //kan utvides ved behov for sjekk av løpende medlemskap.
-        //er tomt nå fordi startpunktutlederen peker på KOFAK_LOP_MEDL for uttak.
+        // kan utvides ved behov for sjekk av løpende medlemskap.
+        // er tomt nå fordi startpunktutlederen peker på KOFAK_LOP_MEDL for uttak.
         return BehandleStegResultat.utførtUtenAksjonspunkter();
     }
 }

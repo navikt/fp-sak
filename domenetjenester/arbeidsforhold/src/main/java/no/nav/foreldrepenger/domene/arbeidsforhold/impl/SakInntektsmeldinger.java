@@ -27,19 +27,21 @@ public class SakInntektsmeldinger {
     }
 
     public void leggTil(Long behandlingId, UUID grunnlagEksternReferanse, LocalDateTime grunnlagOpprettetTidspunkt, Inntektsmelding inntektsmelding) {
-        data.computeIfAbsent(new Key(behandlingId, grunnlagEksternReferanse, grunnlagOpprettetTidspunkt), k -> new LinkedHashSet<>()).add(inntektsmelding);
+        data.computeIfAbsent(new Key(behandlingId, grunnlagEksternReferanse, grunnlagOpprettetTidspunkt), k -> new LinkedHashSet<>())
+                .add(inntektsmelding);
     }
 
-    public void leggTil(Long behandlingId, UUID grunnlagEksternReferanse, LocalDateTime grunnlagOpprettetTidspunkt, InntektArbeidYtelseGrunnlag grunnlag) {
+    public void leggTil(Long behandlingId, UUID grunnlagEksternReferanse, LocalDateTime grunnlagOpprettetTidspunkt,
+            InntektArbeidYtelseGrunnlag grunnlag) {
         this.grunnlag.put(new Key(behandlingId, grunnlagEksternReferanse, grunnlagOpprettetTidspunkt), grunnlag);
     }
 
     public Optional<UUID> getSisteGrunnlagReferanseDerInntektsmeldingerForskjelligFraNyeste(Long behandlingId) {
         List<Key> grunnlagDesc = data.keySet().stream()
-            .sorted(Comparator.comparing(Key::getOpprettetTidspunkt, Comparator.nullsLast(Comparator.reverseOrder())))
-            .distinct()
-            .filter(k -> Objects.equals(k.behandlingId, behandlingId))
-            .collect(Collectors.toList());
+                .sorted(Comparator.comparing(Key::getOpprettetTidspunkt, Comparator.nullsLast(Comparator.reverseOrder())))
+                .distinct()
+                .filter(k -> Objects.equals(k.behandlingId, behandlingId))
+                .collect(Collectors.toList());
 
         if (grunnlagDesc.size() >= 2) {
             Key første = grunnlagDesc.get(0);
@@ -57,10 +59,10 @@ public class SakInntektsmeldinger {
     public Optional<InntektArbeidYtelseGrunnlag> finnGrunnlag(Long behandlingId, UUID grunnlagRef) {
         Objects.requireNonNull(grunnlagRef, "grunnlagRef");
         List<Key> grunnlagDesc = grunnlag.keySet().stream()
-            .distinct()
-            .filter(k -> Objects.equals(k.behandlingId, behandlingId))
-            .filter(k -> Objects.equals(k.grunnlagEksternReferanse, grunnlagRef))
-            .collect(Collectors.toList());
+                .distinct()
+                .filter(k -> Objects.equals(k.behandlingId, behandlingId))
+                .filter(k -> Objects.equals(k.grunnlagEksternReferanse, grunnlagRef))
+                .collect(Collectors.toList());
 
         if (grunnlagDesc.size() == 1) {
             return Optional.of(grunnlag.get(grunnlagDesc.get(0)));
@@ -75,7 +77,8 @@ public class SakInntektsmeldinger {
     }
 
     /**
-     * Get alle inntektsmelinger for saksnummer. Returneres i rekkefølge innsendingstidspunkt (eldste først).
+     * Get alle inntektsmelinger for saksnummer. Returneres i rekkefølge
+     * innsendingstidspunkt (eldste først).
      */
     public Set<Inntektsmelding> getAlleInntektsmeldinger() {
 
@@ -84,8 +87,8 @@ public class SakInntektsmeldinger {
             inntektsmeldinger.addAll(entry.getValue());
         }
         var sorted = inntektsmeldinger.stream()
-            .sorted(Comparator.comparing(Inntektsmelding::getInnsendingstidspunkt, Comparator.nullsLast(Comparator.naturalOrder())))
-            .collect(Collectors.toSet());
+                .sorted(Comparator.comparing(Inntektsmelding::getInnsendingstidspunkt, Comparator.nullsLast(Comparator.naturalOrder())))
+                .collect(Collectors.toSet());
         return sorted;
     }
 
@@ -106,12 +109,16 @@ public class SakInntektsmeldinger {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if ((o == null) || (getClass() != o.getClass())) {
+                return false;
+            }
             Key key = (Key) o;
             return Objects.equals(behandlingId, key.behandlingId) &&
-                Objects.equals(grunnlagEksternReferanse, key.grunnlagEksternReferanse) &&
-                Objects.equals(opprettetTidspunkt, key.opprettetTidspunkt);
+                    Objects.equals(grunnlagEksternReferanse, key.grunnlagEksternReferanse) &&
+                    Objects.equals(opprettetTidspunkt, key.opprettetTidspunkt);
         }
 
         @Override

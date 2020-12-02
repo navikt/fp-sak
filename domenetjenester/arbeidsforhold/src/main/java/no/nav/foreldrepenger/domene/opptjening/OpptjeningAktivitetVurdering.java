@@ -8,15 +8,15 @@ import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 public interface OpptjeningAktivitetVurdering {
 
     VurderingsStatus vurderStatus(OpptjeningAktivitetType type,
-                                  BehandlingReferanse behandlingReferanse,
-                                  Yrkesaktivitet overstyrtAktivitet,
-                                  InntektArbeidYtelseGrunnlag iayGrunnlag,
-                                  boolean harVærtSaksbehandlet);
+            BehandlingReferanse behandlingReferanse,
+            Yrkesaktivitet overstyrtAktivitet,
+            InntektArbeidYtelseGrunnlag iayGrunnlag,
+            boolean harVærtSaksbehandlet);
 
     VurderingsStatus vurderStatus(OpptjeningAktivitetType type,
-                                  BehandlingReferanse behandlingReferanse,
-                                  Yrkesaktivitet registerAktivitet,
-                                  Yrkesaktivitet overstyrtAktivitet,
-                                  InntektArbeidYtelseGrunnlag iayGrunnlag,
-                                  boolean harVærtSaksbehandlet);
+            BehandlingReferanse behandlingReferanse,
+            Yrkesaktivitet registerAktivitet,
+            Yrkesaktivitet overstyrtAktivitet,
+            InntektArbeidYtelseGrunnlag iayGrunnlag,
+            boolean harVærtSaksbehandlet);
 }

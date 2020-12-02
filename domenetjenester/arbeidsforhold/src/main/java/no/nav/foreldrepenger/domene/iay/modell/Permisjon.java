@@ -94,8 +94,8 @@ public class Permisjon extends BaseEntitet implements IndexKey {
         }
         Permisjon other = (Permisjon) obj;
         return Objects.equals(this.getPermisjonsbeskrivelseType(), other.getPermisjonsbeskrivelseType())
-            && Objects.equals(this.getFraOgMed(), other.getFraOgMed())
-            && Objects.equals(this.getTilOgMed(), other.getTilOgMed());
+                && Objects.equals(this.getFraOgMed(), other.getFraOgMed())
+                && Objects.equals(this.getTilOgMed(), other.getTilOgMed());
     }
 
     @Override
@@ -106,11 +106,11 @@ public class Permisjon extends BaseEntitet implements IndexKey {
     @Override
     public String toString() {
         return "Adopsjon{" + //$NON-NLS-1$
-            "permisjonsbeskrivelseType=" + permisjonsbeskrivelseType + //$NON-NLS-1$
-            ", fraOgMed=" + periode.getFomDato() + //$NON-NLS-1$
-            ", tilOgMed=" + periode.getTomDato() + //$NON-NLS-1$
-            ", v=" + prosentsats + //$NON-NLS-1$
-            '}';
+                "permisjonsbeskrivelseType=" + permisjonsbeskrivelseType + //$NON-NLS-1$
+                ", fraOgMed=" + periode.getFomDato() + //$NON-NLS-1$
+                ", tilOgMed=" + periode.getTomDato() + //$NON-NLS-1$
+                ", v=" + prosentsats + //$NON-NLS-1$
+                '}';
     }
 
     public Yrkesaktivitet getYrkesaktivitet() {
@@ -122,6 +122,6 @@ public class Permisjon extends BaseEntitet implements IndexKey {
     }
 
     boolean hasValues() {
-        return permisjonsbeskrivelseType != null || periode.getFomDato() != null || prosentsats != null;
+        return (permisjonsbeskrivelseType != null) || (periode.getFomDato() != null) || (prosentsats != null);
     }
 }
