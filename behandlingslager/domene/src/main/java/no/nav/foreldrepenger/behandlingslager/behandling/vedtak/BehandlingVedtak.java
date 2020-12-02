@@ -39,7 +39,7 @@ public class BehandlingVedtak extends BaseEntitet {
     private String ansvarligSaksbehandler;
 
     @Convert(converter = VedtakResultatType.KodeverdiConverter.class)
-    @Column(name="vedtak_resultat_type", nullable = false)
+    @Column(name = "vedtak_resultat_type", nullable = false)
     private VedtakResultatType vedtakResultatType = VedtakResultatType.UDEFINERT;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
@@ -47,7 +47,8 @@ public class BehandlingVedtak extends BaseEntitet {
     private Behandlingsresultat behandlingsresultat;
 
     /**
-     * Hvorvidt vedtaket er et "beslutningsvedtak". Et beslutningsvedtak er et vedtak med samme utfall som forrige vedtak.
+     * Hvorvidt vedtaket er et "beslutningsvedtak". Et beslutningsvedtak er et
+     * vedtak med samme utfall som forrige vedtak.
      *
      * @see https://jira.adeo.no/browse/BEGREP-2012
      */
@@ -55,8 +56,8 @@ public class BehandlingVedtak extends BaseEntitet {
     @Column(name = "BESLUTNING", nullable = false)
     private boolean beslutningsvedtak;
 
-    @Convert(converter=IverksettingStatus.KodeverdiConverter.class)
-    @Column(name="iverksetting_status", nullable = false)
+    @Convert(converter = IverksettingStatus.KodeverdiConverter.class)
+    @Column(name = "iverksetting_status", nullable = false)
     private IverksettingStatus iverksettingStatus = IverksettingStatus.UDEFINERT;
 
     private BehandlingVedtak() {
@@ -100,8 +101,8 @@ public class BehandlingVedtak extends BaseEntitet {
         }
         BehandlingVedtak vedtak = (BehandlingVedtak) object;
         return Objects.equals(vedtakstidspunkt, vedtak.getVedtakstidspunkt())
-            && Objects.equals(ansvarligSaksbehandler, vedtak.getAnsvarligSaksbehandler())
-            && Objects.equals(getVedtakResultatType(), vedtak.getVedtakResultatType());
+                && Objects.equals(ansvarligSaksbehandler, vedtak.getAnsvarligSaksbehandler())
+                && Objects.equals(getVedtakResultatType(), vedtak.getVedtakResultatType());
     }
 
     @Override
@@ -176,6 +177,11 @@ public class BehandlingVedtak extends BaseEntitet {
             Objects.requireNonNull(ansvarligSaksbehandler, "ansvarligSaksbehandler");
             Objects.requireNonNull(vedtakResultatType, "vedtakResultatType");
         }
+    }
+
+    public void setId(long vedtakId) {
+        this.id = vedtakId;
+
     }
 
 }

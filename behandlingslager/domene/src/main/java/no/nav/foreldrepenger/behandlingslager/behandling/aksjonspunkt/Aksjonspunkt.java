@@ -51,7 +51,7 @@ public class Aksjonspunkt extends BaseEntitet {
     private AksjonspunktStatus status;
 
     @Convert(converter = Venteårsak.KodeverdiConverter.class)
-    @Column(name="vent_aarsak", nullable = false)
+    @Column(name = "vent_aarsak", nullable = false)
     private Venteårsak venteårsak = Venteårsak.UDEFINERT;
 
     @Version
@@ -59,7 +59,8 @@ public class Aksjonspunkt extends BaseEntitet {
     private Long versjon;
 
     /**
-     * Saksbehandler begrunnelse som settes ifm at et aksjonspunkt settes til utført.
+     * Saksbehandler begrunnelse som settes ifm at et aksjonspunkt settes til
+     * utført.
      */
     @Column(name = "begrunnelse")
     private String begrunnelse;
@@ -95,8 +96,8 @@ public class Aksjonspunkt extends BaseEntitet {
     /**
      * Hvorvidt et Aksjonspunkt er av typen Autopunkt.
      * <p>
-     * NB: Ikke bruk dette til å styre på vent eller lignende. Bruk
-     * egenskapene til Aksjonspunktet i stedet (eks. hvorvidt det har en frist).
+     * NB: Ikke bruk dette til å styre på vent eller lignende. Bruk egenskapene til
+     * Aksjonspunktet i stedet (eks. hvorvidt det har en frist).
      */
     public boolean erAutopunkt() {
         return getAksjonspunktDefinisjon() != null && getAksjonspunktDefinisjon().erAutopunkt();
@@ -124,12 +125,12 @@ public class Aksjonspunkt extends BaseEntitet {
     }
 
     /**
-     * Sett til utført med gitt begrunnelse. Returner true dersom ble endret, false dersom allerede var utfør og hadde
-     * samme begrunnelse.
+     * Sett til utført med gitt begrunnelse. Returner true dersom ble endret, false
+     * dersom allerede var utfør og hadde samme begrunnelse.
      *
      * @return true hvis status eller begrunnelse er endret.
      */
-    boolean setStatus(AksjonspunktStatus nyStatus, String begrunnelse) {
+    public boolean setStatus(AksjonspunktStatus nyStatus, String begrunnelse) {
         boolean statusEndret = !Objects.equals(getStatus(), nyStatus);
 
         if (statusEndret) {
@@ -189,9 +190,9 @@ public class Aksjonspunkt extends BaseEntitet {
         }
         Aksjonspunkt kontrollpunkt = (Aksjonspunkt) object;
         return Objects.equals(getAksjonspunktDefinisjon(), kontrollpunkt.getAksjonspunktDefinisjon())
-            && Objects.equals(behandling, kontrollpunkt.behandling)
-            && Objects.equals(getStatus(), kontrollpunkt.getStatus())
-            && Objects.equals(getFristTid(), kontrollpunkt.getFristTid());
+                && Objects.equals(behandling, kontrollpunkt.behandling)
+                && Objects.equals(getStatus(), kontrollpunkt.getStatus())
+                && Objects.equals(getFristTid(), kontrollpunkt.getFristTid());
     }
 
     @Override
@@ -223,7 +224,8 @@ public class Aksjonspunkt extends BaseEntitet {
 
     private void validerIkkeUtførtAvbruttAllerede() {
         if (erUtført() || erAvbrutt()) {
-            // TODO (FC): håndteres av låsing allerede? Kaster exception nå for å se om GUI kan være ute av synk.
+            // TODO (FC): håndteres av låsing allerede? Kaster exception nå for å se om GUI
+            // kan være ute av synk.
             throw new IllegalStateException("Forsøkte å bekrefte et allerede lukket aksjonspunkt:" + this); //$NON-NLS-1$
         }
     }
@@ -243,7 +245,8 @@ public class Aksjonspunkt extends BaseEntitet {
     }
 
     /**
-     * Intern Builder. Bruk Repository-klasser til å legge til og endre {@link Aksjonspunkt}.
+     * Intern Builder. Bruk Repository-klasser til å legge til og endre
+     * {@link Aksjonspunkt}.
      */
     static class Builder {
         private Aksjonspunkt aksjonspunkt;
@@ -301,22 +304,26 @@ public class Aksjonspunkt extends BaseEntitet {
     @Override
     public String toString() {
         return "Aksjonspunkt{" +
-            "id=" + id +
-            ", aksjonspunktDefinisjon=" + getAksjonspunktDefinisjon() +
-            ", status=" + status +
-            ", behandlingStegFunnet=" + getBehandlingStegFunnet() +
-            ", versjon=" + versjon +
-            ", toTrinnsBehandling=" + isToTrinnsBehandling() +
-            ", fristTid=" + getFristTid() +
-            '}';
+                "id=" + id +
+                ", aksjonspunktDefinisjon=" + getAksjonspunktDefinisjon() +
+                ", status=" + status +
+                ", behandlingStegFunnet=" + getBehandlingStegFunnet() +
+                ", versjon=" + versjon +
+                ", toTrinnsBehandling=" + isToTrinnsBehandling() +
+                ", fristTid=" + getFristTid() +
+                '}';
     }
 
     void setBehandlingSteg(BehandlingStegType stegType) {
         this.behandlingSteg = stegType;
     }
 
-    private void setToTrinnsBehandling(boolean toTrinnsBehandling) {
+    public void setToTrinnsBehandling(boolean toTrinnsBehandling) {
         this.toTrinnsBehandling = toTrinnsBehandling;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
 }

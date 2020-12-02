@@ -61,17 +61,16 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.personopplysnin
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.vedtak.felles.testutilities.Whitebox;
 
 /**
  * Default test scenario builder for å definere opp testdata med enkle defaults.
  * <p>
- * Oppretter en default behandling, inkludert default grunnlag med søknad + tomt innangsvilkårresultat.
+ * Oppretter en default behandling, inkludert default grunnlag med søknad + tomt
+ * innangsvilkårresultat.
  * <p>
  * Kan bruke settere (evt. legge til) for å tilpasse utgangspunktet.
  * <p>
- * Mer avansert bruk er ikke gitt at kan bruke denne
- * klassen.
+ * Mer avansert bruk er ikke gitt at kan bruke denne klassen.
  */
 abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
 
@@ -105,19 +104,19 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
     private PersonInformasjon.Builder personInformasjonBuilder;
 
     protected AbstractIAYTestScenario(FagsakYtelseType fagsakYtelseType, RelasjonsRolleType brukerRolle,
-                                      NavBrukerKjønn kjønn) {
+            NavBrukerKjønn kjønn) {
         this.fagsakBuilder = FagsakBuilder
-            .nyFagsak(fagsakYtelseType, brukerRolle)
-            .medSaksnummer(new Saksnummer(nyId() + ""))
-            .medBrukerKjønn(kjønn);
+                .nyFagsak(fagsakYtelseType, brukerRolle)
+                .medSaksnummer(new Saksnummer(nyId() + ""))
+                .medBrukerKjønn(kjønn);
     }
 
     protected AbstractIAYTestScenario(FagsakYtelseType fagsakYtelseType, RelasjonsRolleType brukerRolle,
-                                      NavBruker navBruker) {
+            NavBruker navBruker) {
         this.fagsakBuilder = FagsakBuilder
-            .nyFagsak(fagsakYtelseType, brukerRolle)
-            .medSaksnummer(new Saksnummer(nyId() + ""))
-            .medBruker(navBruker);
+                .nyFagsak(fagsakYtelseType, brukerRolle)
+                .medSaksnummer(new Saksnummer(nyId() + ""))
+                .medBruker(navBruker);
     }
 
     static long nyId() {
@@ -135,7 +134,8 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
         MottatteDokumentRepository mottatteDokumentRepository = mockMottatteDokumentRepository();
         OpptjeningRepository opptjeningRepository = Mockito.mock(OpptjeningRepository.class);
         FamilieHendelseRepository familieHendelseRepository = mockFamilieHendelseGrunnlagRepository();
-        // ikke ideelt å la mocks returnere mocks, men forenkler enormt mye test kode, forhindrer feil oppsett, så det
+        // ikke ideelt å la mocks returnere mocks, men forenkler enormt mye test kode,
+        // forhindrer feil oppsett, så det
         // blir enklere å refactorere
 
         when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
@@ -192,11 +192,12 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
             @Override
             public Optional<FamilieHendelseGrunnlagEntitet> hentAggregatHvisEksisterer(Long behandlingId) {
                 return familieHendelseAggregatMap.entrySet().stream().filter(e -> Objects.equals(behandlingId, e.getKey())).map(e -> e.getValue())
-                    .findFirst();
+                        .findFirst();
             }
 
             @Override
-            public DiffResult diffResultat(FamilieHendelseGrunnlagEntitet grunnlag1, FamilieHendelseGrunnlagEntitet grunnlag2, boolean kunSporedeEndringer) {
+            public DiffResult diffResultat(FamilieHendelseGrunnlagEntitet grunnlag1, FamilieHendelseGrunnlagEntitet grunnlag2,
+                    boolean kunSporedeEndringer) {
                 return null;
             }
 
@@ -298,12 +299,14 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
             return List.copyOf(behandlingMap.values());
         });
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(Mockito.any()))
-            .thenAnswer(a -> {
-                Long id = a.getArgument(0);
-                return behandlingMap.values().stream()
-                    .filter(b -> b.getFagsakId().equals(id) && b.getBehandlingsresultat() != null && !b.getBehandlingsresultat().isBehandlingHenlagt()).sorted()
-                    .findFirst();
-            });
+                .thenAnswer(a -> {
+                    Long id = a.getArgument(0);
+                    return behandlingMap.values().stream()
+                            .filter(b -> b.getFagsakId().equals(id) && b.getBehandlingsresultat() != null
+                                    && !b.getBehandlingsresultat().isBehandlingHenlagt())
+                            .sorted()
+                            .findFirst();
+                });
 
         ArgumentCaptor<Behandling> behandlingCaptor = ArgumentCaptor.forClass(Behandling.class);
         when(behandlingRepository.taSkriveLås(behandlingCaptor.capture())).thenAnswer((Answer<BehandlingLås>) invocation -> {
@@ -313,18 +316,19 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
         });
 
         when(behandlingRepository.lagre(behandlingCaptor.capture(), Mockito.any()))
-            .thenAnswer((Answer<Long>) invocation -> {
-                Behandling beh = invocation.getArgument(0);
-                Long id = beh.getId();
-                if (id == null) {
-                    id = nyId();
-                    Whitebox.setInternalState(beh, "id", id);
-                }
+                .thenAnswer((Answer<Long>) invocation -> {
+                    Behandling beh = invocation.getArgument(0);
+                    Long id = beh.getId();
+                    if (id == null) {
+                        id = nyId();
+                        beh.setId(id);
+                        // Whitebox.setInternalState(beh, "id", id);
+                    }
 
-                beh.getAksjonspunkter().forEach(punkt -> Whitebox.setInternalState(punkt, "id", nyId()));
-                behandlingMap.put(id, beh);
-                return id;
-            });
+                    beh.getAksjonspunkter().forEach(punkt -> punkt.setId(nyId()));
+                    behandlingMap.put(id, beh);
+                    return id;
+                });
 
         mockBehandlingRepository = behandlingRepository;
         return behandlingRepository;
@@ -351,7 +355,8 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
             Long id = fagsak.getId();
             if (id == null) {
                 id = fagsakId;
-                Whitebox.setInternalState(fagsak, "id", id);
+                fagsak.setId(id);
+                // Whitebox.setInternalState(fagsak, "id", id);
             }
             return id;
         });
@@ -359,10 +364,11 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
         // oppdater fagsakstatus
         Mockito.doAnswer(invocation -> {
             FagsakStatus status = invocation.getArgument(1);
-            Whitebox.setInternalState(fagsak, "fagsakStatus", status);
+            fagsak.setStatus(status);
+            // Whitebox.setInternalState(fagsak, "fagsakStatus", status);
             return null;
         }).when(fagsakRepository)
-            .oppdaterFagsakStatus(eq(fagsakId), Mockito.any(FagsakStatus.class));
+                .oppdaterFagsakStatus(eq(fagsakId), Mockito.any(FagsakStatus.class));
 
         return fagsakRepository;
     }
@@ -401,7 +407,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
     private void validerTilstandVedMocking() {
         if (startSteg != null) {
             throw new IllegalArgumentException(
-                "Kan ikke sette startSteg ved mocking siden dette krever Kodeverk.  Bruk ManipulerInternBehandling til å justere etterpå.");
+                    "Kan ikke sette startSteg ved mocking siden dette krever Kodeverk.  Bruk ManipulerInternBehandling til å justere etterpå.");
         }
     }
 
@@ -458,7 +464,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
             behandlingBuilder = Behandling.nyBehandlingFor(fagsak, behandlingType);
         } else {
             behandlingBuilder = Behandling.fraTidligereBehandling(originalBehandling, behandlingType)
-                .medBehandlingÅrsak(BehandlingÅrsak.builder(behandlingÅrsakType).medOriginalBehandlingId(originalBehandling.getId()));
+                    .medBehandlingÅrsak(BehandlingÅrsak.builder(behandlingÅrsakType).medOriginalBehandlingId(originalBehandling.getId()));
         }
 
         if (behandlendeEnhet != null) {
@@ -472,11 +478,11 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
     private void lagFagsak(FagsakRepository fagsakRepo) {
         // opprett og lagre fagsak. Må gjøres før kan opprette behandling
         if (!Mockito.mockingDetails(fagsakRepo).isMock()) {
-            final EntityManager entityManager = (EntityManager) Whitebox.getInternalState(fagsakRepo, "entityManager");
+            final EntityManager entityManager = fagsakRepo.getEntityManager();
             if (entityManager != null) {
                 NavBrukerRepository brukerRepository = new NavBrukerRepository(entityManager);
                 final NavBruker navBruker = brukerRepository.hent(fagsakBuilder.getBrukerBuilder().getAktørId())
-                    .orElseGet(() -> NavBruker.opprettNy(fagsakBuilder.getBrukerBuilder().getAktørId(), Språkkode.NB));
+                        .orElseGet(() -> NavBruker.opprettNy(fagsakBuilder.getBrukerBuilder().getAktørId(), Språkkode.NB));
                 fagsakBuilder.medBruker(navBruker);
             }
         }
@@ -487,14 +493,14 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
 
     private NavBrukerKjønn getKjønnFraFagsak() {
         return fagsakBuilder.getBrukerBuilder().getKjønn() != null ? fagsakBuilder.getBrukerBuilder().getKjønn()
-            : (RelasjonsRolleType.erMor(fagsakBuilder.getRolle()) || RelasjonsRolleType.erMedmor(fagsakBuilder.getRolle()) ? NavBrukerKjønn.KVINNE
-                : NavBrukerKjønn.MANN);
+                : (RelasjonsRolleType.erMor(fagsakBuilder.getRolle()) || RelasjonsRolleType.erMedmor(fagsakBuilder.getRolle()) ? NavBrukerKjønn.KVINNE
+                        : NavBrukerKjønn.MANN);
     }
 
     private void lagreBehandlingsresultatOgVilkårResultat(IAYRepositoryProvider repoProvider, BehandlingLås lås) {
         // opprett og lagre behandlingsresultat med VilkårResultat og BehandlingVedtak
         Behandlingsresultat behandlingsresultat = (behandlingresultatBuilder == null ? Behandlingsresultat.builderForInngangsvilkår()
-            : behandlingresultatBuilder).buildFor(behandling);
+                : behandlingresultatBuilder).buildFor(behandling);
 
         repoProvider.getBehandlingRepository().lagre(behandlingsresultat.getVilkårResultat(), lås);
 
@@ -534,7 +540,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
     @SuppressWarnings("unchecked")
     public S medBruker(AktørId aktørId) {
         fagsakBuilder
-            .medBrukerAktørId(aktørId);
+                .medBrukerAktørId(aktørId);
         return (S) this;
     }
 
@@ -567,7 +573,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
         @Override
         public void kopierGrunnlagFraEksisterendeBehandlingForRevurdering(Long eksisterendeBehandlingId, Long nyBehandlingId) {
             final PersonopplysningGrunnlagBuilder oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(
-                Optional.ofNullable(personopplysningMap.getOrDefault(eksisterendeBehandlingId, null)));
+                    Optional.ofNullable(personopplysningMap.getOrDefault(eksisterendeBehandlingId, null)));
 
             personopplysningMap.put(nyBehandlingId, oppdatere.build());
         }
@@ -587,14 +593,15 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
         }
 
         @Override
-        public DiffResult diffResultat(PersonopplysningGrunnlagEntitet grunnlag1, PersonopplysningGrunnlagEntitet grunnlag2, boolean kunSporedeEndringer) {
+        public DiffResult diffResultat(PersonopplysningGrunnlagEntitet grunnlag1, PersonopplysningGrunnlagEntitet grunnlag2,
+                boolean kunSporedeEndringer) {
             return null;
         }
 
         @Override
         public void lagre(Long behandlingId, PersonInformasjonBuilder builder) {
             final PersonopplysningGrunnlagBuilder oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(
-                Optional.ofNullable(personopplysningMap.getOrDefault(behandlingId, null)));
+                    Optional.ofNullable(personopplysningMap.getOrDefault(behandlingId, null)));
             if (builder.getType().equals(PersonopplysningVersjonType.REGISTRERT)) {
                 oppdatere.medRegistrertVersjon(builder);
             }
@@ -607,7 +614,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
         @Override
         public void lagre(Long behandlingId, OppgittAnnenPartBuilder oppgittAnnenPart) {
             final PersonopplysningGrunnlagBuilder oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(
-                Optional.ofNullable(personopplysningMap.getOrDefault(behandlingId, null)));
+                    Optional.ofNullable(personopplysningMap.getOrDefault(behandlingId, null)));
             oppdatere.medOppgittAnnenPart(oppgittAnnenPart.build());
             personopplysningMap.put(behandlingId, oppdatere.build());
         }
@@ -616,20 +623,20 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
         public PersonInformasjonBuilder opprettBuilderForOverstyring(Long behandlingId) {
             final Optional<PersonopplysningGrunnlagEntitet> grunnlag = Optional.ofNullable(personopplysningMap.getOrDefault(behandlingId, null));
             return PersonInformasjonBuilder.oppdater(grunnlag.flatMap(PersonopplysningGrunnlagEntitet::getOverstyrtVersjon),
-                PersonopplysningVersjonType.OVERSTYRT);
+                    PersonopplysningVersjonType.OVERSTYRT);
         }
 
         @Override
         public PersonInformasjonBuilder opprettBuilderForRegisterdata(Long behandlingId) {
             final Optional<PersonopplysningGrunnlagEntitet> grunnlag = Optional.ofNullable(personopplysningMap.getOrDefault(behandlingId, null));
             return PersonInformasjonBuilder.oppdater(grunnlag.flatMap(PersonopplysningGrunnlagEntitet::getRegisterVersjon),
-                PersonopplysningVersjonType.REGISTRERT);
+                    PersonopplysningVersjonType.REGISTRERT);
         }
 
         @Override
         public void kopierGrunnlagFraEksisterendeBehandling(Long gammelBehandlingId, Long nyBehandlingId) {
             final PersonopplysningGrunnlagBuilder oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(
-                Optional.ofNullable(personopplysningMap.getOrDefault(gammelBehandlingId, null)));
+                    Optional.ofNullable(personopplysningMap.getOrDefault(gammelBehandlingId, null)));
 
             personopplysningMap.put(nyBehandlingId, oppdatere.build());
         }

@@ -57,7 +57,7 @@ public class BehandlingStegTilstand extends BaseEntitet implements IndexKey {
     public Long getId() {
         return id;
     }
-    
+
     @Override
     public String getIndexKey() {
         return IndexKey.createKey(behandlingSteg, behandlingStegStatus);
@@ -66,7 +66,7 @@ public class BehandlingStegTilstand extends BaseEntitet implements IndexKey {
     public Behandling getBehandling() {
         return behandling;
     }
-    
+
     public Long getBehandlingId() {
         return behandling.getId();
     }
@@ -98,7 +98,7 @@ public class BehandlingStegTilstand extends BaseEntitet implements IndexKey {
         }
         BehandlingStegTilstand that = (BehandlingStegTilstand) o;
         return Objects.equals(getBehandlingSteg(), that.getBehandlingSteg()) &&
-            Objects.equals(getBehandlingStegStatus(), that.getBehandlingStegStatus());
+                Objects.equals(getBehandlingStegStatus(), that.getBehandlingStegStatus());
     }
 
     @Override
@@ -109,8 +109,12 @@ public class BehandlingStegTilstand extends BaseEntitet implements IndexKey {
     @Override
     public String toString() {
         return getClass().getSimpleName() + "<behandlingId=" + behandling.getId()
-            + ", steg=" + getBehandlingSteg()
-            + ", stegStatus=" + getBehandlingStegStatus()
-            + ">";
+                + ", steg=" + getBehandlingSteg()
+                + ", stegStatus=" + getBehandlingStegStatus()
+                + ">";
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 }

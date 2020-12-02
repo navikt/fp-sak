@@ -26,6 +26,14 @@ import no.nav.vedtak.util.Tuple;
 @ApplicationScoped
 public class FagsakRepository {
 
+    public EntityManager getEntityManager() {
+        return entityManager;
+    }
+
+    public void setEntityManager(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
+
     private EntityManager entityManager;
 
     public FagsakRepository() {
@@ -57,14 +65,16 @@ public class FagsakRepository {
     }
 
     public List<Fagsak> hentForBruker(AktørId aktørId) {
-        TypedQuery<Fagsak> query = entityManager.createQuery("from Fagsak where navBruker.aktørId=:aktørId and skalTilInfotrygd=:ikkestengt", Fagsak.class);
+        TypedQuery<Fagsak> query = entityManager.createQuery("from Fagsak where navBruker.aktørId=:aktørId and skalTilInfotrygd=:ikkestengt",
+                Fagsak.class);
         query.setParameter("aktørId", aktørId); // NOSONAR
         query.setParameter("ikkestengt", false); // NOSONAR
         return query.getResultList();
     }
 
     public List<Fagsak> hentForBrukerMulti(Set<AktørId> aktørId) {
-        TypedQuery<Fagsak> query = entityManager.createQuery("from Fagsak where navBruker.aktørId in (:aktørId) and skalTilInfotrygd=:ikkestengt", Fagsak.class);
+        TypedQuery<Fagsak> query = entityManager.createQuery("from Fagsak where navBruker.aktørId in (:aktørId) and skalTilInfotrygd=:ikkestengt",
+                Fagsak.class);
         query.setParameter("aktørId", aktørId); // NOSONAR
         query.setParameter("ikkestengt", false); // NOSONAR
         return query.getResultList();
@@ -72,7 +82,7 @@ public class FagsakRepository {
 
     public Optional<Journalpost> hentJournalpost(JournalpostId journalpostId) {
         TypedQuery<Journalpost> query = entityManager.createQuery("from Journalpost where journalpostId=:journalpost",
-            Journalpost.class);
+                Journalpost.class);
         query.setParameter("journalpost", journalpostId); // NOSONAR
         List<Journalpost> journalposter = query.getResultList();
         return journalposter.isEmpty() ? Optional.empty() : Optional.ofNullable(journalposter.get(0));
@@ -92,18 +102,20 @@ public class FagsakRepository {
 
     public List<Tuple<Long, AktørId>> hentIkkeAvsluttedeFagsakerIPeriodeNaticve(LocalDate fom, LocalDate tom) {
         Query query = entityManager.createNativeQuery(
-            "select f.id, bu.aktoer_id from fpsak.fagsak f join fpsak.bruker bu on f.bruker_id=bu.id join fpsak.fagsak_relasjon fr on f.id =fagsak_en_id\n" +
-                "where fagsak_status<>'AVSLU' and aktiv='J' " +
-                "and fr.AVSLUTTNINGSDATO >= :fom " +
-                "and fr.AVSLUTTNINGSDATO < :tom " +
-                "and nvl(fr.endret_tid, fr.opprettet_tid) < :cutoff " +
-                "and f.id not in (select fagsak_id from fpsak.behandling where behandling_type in ('BT-002', 'BT-004') and behandling_status not in ('IVED', 'AVSLU'))" ); //$NON-NLS-1$
+                "select f.id, bu.aktoer_id from fpsak.fagsak f join fpsak.bruker bu on f.bruker_id=bu.id join fpsak.fagsak_relasjon fr on f.id =fagsak_en_id\n"
+                        +
+                        "where fagsak_status<>'AVSLU' and aktiv='J' " +
+                        "and fr.AVSLUTTNINGSDATO >= :fom " +
+                        "and fr.AVSLUTTNINGSDATO < :tom " +
+                        "and nvl(fr.endret_tid, fr.opprettet_tid) < :cutoff " +
+                        "and f.id not in (select fagsak_id from fpsak.behandling where behandling_type in ('BT-002', 'BT-004') and behandling_status not in ('IVED', 'AVSLU'))"); //$NON-NLS-1$
         query.setParameter("fom", fom); //$NON-NLS-1$
         query.setParameter("tom", tom); //$NON-NLS-1$
-        query.setParameter("cutoff", LocalDate.of(2020,9,1)); //$NON-NLS-1$
+        query.setParameter("cutoff", LocalDate.of(2020, 9, 1)); //$NON-NLS-1$
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new Tuple<>(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList()); // NOSONAR
+        return resultatList.stream().map(row -> new Tuple<>(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1])))
+                .collect(Collectors.toList()); // NOSONAR
     }
 
     public Long opprettNy(Fagsak fagsak) {
@@ -170,7 +182,7 @@ public class FagsakRepository {
      * Oppderer status på fagsak.
      *
      * @param fagsakId - id på fagsak
-     * @param status - ny status
+     * @param status   - ny status
      */
     public void oppdaterFagsakStatus(Long fagsakId, FagsakStatus status) {
         Fagsak fagsak = finnEksaktFagsak(fagsakId);
@@ -180,7 +192,8 @@ public class FagsakRepository {
     }
 
     public List<Fagsak> hentForStatus(FagsakStatus fagsakStatus) {
-        TypedQuery<Fagsak> query = entityManager.createQuery("select fagsak from Fagsak fagsak where fagsak.fagsakStatus=:fagsakStatus", Fagsak.class);
+        TypedQuery<Fagsak> query = entityManager.createQuery("select fagsak from Fagsak fagsak where fagsak.fagsakStatus=:fagsakStatus",
+                Fagsak.class);
         query.setParameter("fagsakStatus", fagsakStatus); // NOSONAR
 
         return query.getResultList();
@@ -188,7 +201,7 @@ public class FagsakRepository {
 
     public List<Saksnummer> hentÅpneFagsakerUtenBehandling() {
         Query query = entityManager.createNativeQuery(
-            "select f.saksnummer from FAGSAK f where f.FAGSAK_STATUS<>'AVSLU' and not exists (select * from BEHANDLING b where b.FAGSAK_ID = f.ID)");
+                "select f.saksnummer from FAGSAK f where f.FAGSAK_STATUS<>'AVSLU' and not exists (select * from BEHANDLING b where b.FAGSAK_ID = f.ID)");
         @SuppressWarnings("unchecked")
         List<String> saksnumre = query.getResultList();
         return saksnumre.stream().filter(Objects::nonNull).map(Saksnummer::new).collect(Collectors.toList());

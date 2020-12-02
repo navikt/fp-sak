@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.endring.Oppdrags
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.førstegangsoppdrag.OppdragskontrollFørstegang;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.opphør.OppdragskontrollOpphør;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.opphør.OpprettOpphørIEndringsoppdrag;
-import no.nav.vedtak.felles.testutilities.Whitebox;
 
 public class OppdragskontrollManagerFactoryTest {
 
@@ -43,17 +42,17 @@ public class OppdragskontrollManagerFactoryTest {
         opprettOpphørIEndringsoppdragBruker = new OpprettOpphørIEndringsoppdrag(oppdragskontrollOpphørFP);
         oppdragskontrollEndringFP = new OppdragskontrollEndring(behandlingTilOppdragMapperTjenesteFP, opprettOpphørIEndringsoppdragBruker);
         oppdragskontrollManagerFactory = new OppdragskontrollManagerFactoryDagYtelse(
-            oppdragskontrollFørstegangFP,
-            oppdragskontrollEndringFP,
-            oppdragskontrollOpphørFP,
-            sjekkOmDetFinnesTilkjentYtelseMock);
+                oppdragskontrollFørstegangFP,
+                oppdragskontrollEndringFP,
+                oppdragskontrollOpphørFP,
+                sjekkOmDetFinnesTilkjentYtelseMock);
         originalBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
         revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(
-                BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
-                    .medOriginalBehandlingId(originalBehandling.getId()))
-            .build();
-        Whitebox.setInternalState(revurdering, "id", 256L);
+                .medBehandlingÅrsak(
+                        BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
+                                .medOriginalBehandlingId(originalBehandling.getId()))
+                .build();
+        revurdering.setId(256L);
     }
 
     /**
@@ -64,14 +63,14 @@ public class OppdragskontrollManagerFactoryTest {
     public void skal_sende_endring_når_finnes_TY_i_denne_og_forrige() {
         // Arrange
         when(sjekkOmDetFinnesTilkjentYtelseMock.tilkjentYtelseDiffMotForrige(revurdering))
-            .thenReturn(SjekkOmDetFinnesTilkjentYtelse.TilkjentYtelseDiff.ANNEN_ENDRING);
+                .thenReturn(SjekkOmDetFinnesTilkjentYtelse.TilkjentYtelseDiff.ANNEN_ENDRING);
 
         // Act
         Optional<OppdragskontrollManager> resultatOpt = oppdragskontrollManagerFactory.getManager(revurdering, true);
 
         // Assert
         assertThat(resultatOpt)
-            .hasValueSatisfying(oppdragskontrollManager -> assertThat(oppdragskontrollManager).isSameAs(oppdragskontrollEndringFP));
+                .hasValueSatisfying(oppdragskontrollManager -> assertThat(oppdragskontrollManager).isSameAs(oppdragskontrollEndringFP));
     }
 
     /**
@@ -81,14 +80,14 @@ public class OppdragskontrollManagerFactoryTest {
     public void skal_sende_endring_når_finnes_TY_i_denne_og_oppdrag_fra_før() {
         // Arrange
         when(sjekkOmDetFinnesTilkjentYtelseMock.tilkjentYtelseDiffMotForrige(revurdering))
-            .thenReturn(SjekkOmDetFinnesTilkjentYtelse.TilkjentYtelseDiff.ANNEN_ENDRING);
+                .thenReturn(SjekkOmDetFinnesTilkjentYtelse.TilkjentYtelseDiff.ANNEN_ENDRING);
 
         // Act
         Optional<OppdragskontrollManager> resultatOpt = oppdragskontrollManagerFactory.getManager(revurdering, true);
 
         // Assert
         assertThat(resultatOpt)
-            .hasValueSatisfying(oppdragskontrollManager -> assertThat(oppdragskontrollManager).isSameAs(oppdragskontrollEndringFP));
+                .hasValueSatisfying(oppdragskontrollManager -> assertThat(oppdragskontrollManager).isSameAs(oppdragskontrollEndringFP));
     }
 
     /**
@@ -98,14 +97,14 @@ public class OppdragskontrollManagerFactoryTest {
     public void skal_sende_førstegang_når_finnes_TY_i_denne_og_ikke_fra_før() {
         // Arrange
         when(sjekkOmDetFinnesTilkjentYtelseMock.tilkjentYtelseDiffMotForrige(originalBehandling))
-            .thenReturn(SjekkOmDetFinnesTilkjentYtelse.TilkjentYtelseDiff.ENDRET_FRA_TOM);
+                .thenReturn(SjekkOmDetFinnesTilkjentYtelse.TilkjentYtelseDiff.ENDRET_FRA_TOM);
 
         // Act
         Optional<OppdragskontrollManager> resultatOpt = oppdragskontrollManagerFactory.getManager(originalBehandling, false);
 
         // Assert
         assertThat(resultatOpt)
-            .hasValueSatisfying(oppdragskontrollManager -> assertThat(oppdragskontrollManager).isSameAs(oppdragskontrollFørstegangFP));
+                .hasValueSatisfying(oppdragskontrollManager -> assertThat(oppdragskontrollManager).isSameAs(oppdragskontrollFørstegangFP));
     }
 
     /**
@@ -115,7 +114,7 @@ public class OppdragskontrollManagerFactoryTest {
     public void skal_sende_opphør_når_ingen_TY_i_denne_og_forrige_har_TY() {
         // Arrange
         when(sjekkOmDetFinnesTilkjentYtelseMock.tilkjentYtelseDiffMotForrige(revurdering))
-            .thenReturn(SjekkOmDetFinnesTilkjentYtelse.TilkjentYtelseDiff.ENDRET_TIL_TOM);
+                .thenReturn(SjekkOmDetFinnesTilkjentYtelse.TilkjentYtelseDiff.ENDRET_TIL_TOM);
 
         // Assert
         Optional<OppdragskontrollManager> resultatOpt = oppdragskontrollManagerFactory.getManager(revurdering, true);
@@ -131,7 +130,7 @@ public class OppdragskontrollManagerFactoryTest {
     public void skal_ikke_sende_når_ingen_TY_i_denne_forrige_eller_tidligere() {
         // Arrange
         when(sjekkOmDetFinnesTilkjentYtelseMock.tilkjentYtelseDiffMotForrige(revurdering))
-            .thenReturn(SjekkOmDetFinnesTilkjentYtelse.TilkjentYtelseDiff.INGEN_ENDRING);
+                .thenReturn(SjekkOmDetFinnesTilkjentYtelse.TilkjentYtelseDiff.INGEN_ENDRING);
 
         // Act
         Optional<OppdragskontrollManager> resultatRevurdering = oppdragskontrollManagerFactory.getManager(revurdering, false);
@@ -147,7 +146,7 @@ public class OppdragskontrollManagerFactoryTest {
     public void skal_ikke_sende_når_ingen_TY_i_denne_eller_forrige_men_finnes_oppdrag_fra_før() {
         // Arrange
         when(sjekkOmDetFinnesTilkjentYtelseMock.tilkjentYtelseDiffMotForrige(revurdering))
-            .thenReturn(SjekkOmDetFinnesTilkjentYtelse.TilkjentYtelseDiff.INGEN_ENDRING);
+                .thenReturn(SjekkOmDetFinnesTilkjentYtelse.TilkjentYtelseDiff.INGEN_ENDRING);
 
         // Act
         Optional<OppdragskontrollManager> resultat = oppdragskontrollManagerFactory.getManager(revurdering, true);

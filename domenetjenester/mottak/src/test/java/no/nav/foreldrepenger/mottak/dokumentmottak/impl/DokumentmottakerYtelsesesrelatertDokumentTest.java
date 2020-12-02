@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 
 import static java.time.LocalDate.now;
-import static no.nav.vedtak.felles.testutilities.Whitebox.setInternalState;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
@@ -124,8 +123,7 @@ public class DokumentmottakerYtelsesesrelatertDokumentTest {
         Behandling nyBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.FØRSTEGANGSSØKNAD).build();
         // Hack, men det blir feil å lagre Behandlingen før Act da det påvirker
         // scenarioet, og mock(Behandling) er heller ikke pent...
-        setInternalState(nyBehandling, "id", 9999L);
-
+        nyBehandling.setId(9999L);
         // Act
         dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
 

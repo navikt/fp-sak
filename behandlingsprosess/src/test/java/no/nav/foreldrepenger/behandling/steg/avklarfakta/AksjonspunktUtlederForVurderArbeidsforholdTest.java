@@ -66,7 +66,7 @@ public class AksjonspunktUtlederForVurderArbeidsforholdTest extends EntityManage
         iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
         inntektsmeldingTjeneste = new InntektsmeldingTjeneste(iayTjeneste);
         var inntektsmeldingArkivTjeneste = new InntektsmeldingRegisterTjeneste(iayTjeneste, inntektsmeldingTjeneste,
-            null, new UnitTestLookupInstanceImpl<>(new InntektsmeldingFilterYtelseImpl()));
+                null, new UnitTestLookupInstanceImpl<>(new InntektsmeldingFilterYtelseImpl()));
         var behandlingRepository = new BehandlingRepository(entityManager);
         var søknadRepository = new SøknadRepository(entityManager, behandlingRepository);
         var påkrevdeInntektsmeldingerTjeneste = new PåkrevdeInntektsmeldingerTjeneste(inntektsmeldingArkivTjeneste, søknadRepository);
@@ -270,44 +270,44 @@ public class AksjonspunktUtlederForVurderArbeidsforholdTest extends EntityManage
     }
 
     private void leggTilArbeidsforholdPåBehandling(Behandling behandling, String virksomhetOrgnr, InternArbeidsforholdRef ref,
-                                                   InntektArbeidYtelseAggregatBuilder builder) {
+            InntektArbeidYtelseAggregatBuilder builder) {
         final Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet(virksomhetOrgnr);
         final InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder arbeidBuilder = builder.getAktørArbeidBuilder(behandling.getAktørId());
         final Opptjeningsnøkkel nøkkel = Opptjeningsnøkkel.forArbeidsforholdIdMedArbeidgiver(ref, arbeidsgiver);
         final YrkesaktivitetBuilder yrkesaktivitetBuilderForType = arbeidBuilder.getYrkesaktivitetBuilderForNøkkelAvType(nøkkel,
-            ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
+                ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
         yrkesaktivitetBuilderForType
-            .medArbeidsgiver(arbeidsgiver)
-            .medArbeidsforholdId(ref)
-            .leggTilAktivitetsAvtale(yrkesaktivitetBuilderForType
-                .getAktivitetsAvtaleBuilder(DatoIntervallEntitet.fraOgMed(LocalDate.now().minusMonths(3)), false)
-                .medSisteLønnsendringsdato(LocalDate.now().minusMonths(3))
-                .medProsentsats(BigDecimal.valueOf(100)))
-            .leggTilAktivitetsAvtale(yrkesaktivitetBuilderForType
-                .getAktivitetsAvtaleBuilder(DatoIntervallEntitet.fraOgMed(LocalDate.now().minusMonths(3)), true));
+                .medArbeidsgiver(arbeidsgiver)
+                .medArbeidsforholdId(ref)
+                .leggTilAktivitetsAvtale(yrkesaktivitetBuilderForType
+                        .getAktivitetsAvtaleBuilder(DatoIntervallEntitet.fraOgMed(LocalDate.now().minusMonths(3)), false)
+                        .medSisteLønnsendringsdato(LocalDate.now().minusMonths(3))
+                        .medProsentsats(BigDecimal.valueOf(100)))
+                .leggTilAktivitetsAvtale(yrkesaktivitetBuilderForType
+                        .getAktivitetsAvtaleBuilder(DatoIntervallEntitet.fraOgMed(LocalDate.now().minusMonths(3)), true));
         arbeidBuilder.leggTilYrkesaktivitet(yrkesaktivitetBuilderForType);
         builder.leggTilAktørArbeid(arbeidBuilder);
     }
 
     private void sendInnInntektsmeldingPå(Behandling behandling, String virksomhetOrgnr, InternArbeidsforholdRef arbeidsforholdId) {
         MottattDokument mottattDokument = new MottattDokument.Builder()
-            .medDokumentType(DokumentTypeId.INNTEKTSMELDING)
-            .medFagsakId(behandling.getFagsakId())
-            .medMottattDato(LocalDate.now())
-            .medBehandlingId(behandling.getId())
-            .medElektroniskRegistrert(true)
-            .medJournalPostId(new JournalpostId("2"))
-            .build();
+                .medDokumentType(DokumentTypeId.INNTEKTSMELDING)
+                .medFagsakId(behandling.getFagsakId())
+                .medMottattDato(LocalDate.now())
+                .medBehandlingId(behandling.getId())
+                .medElektroniskRegistrert(true)
+                .medJournalPostId(new JournalpostId("2"))
+                .build();
         new MottatteDokumentRepository(getEntityManager()).lagre(mottattDokument);
         final InntektsmeldingBuilder inntektsmeldingBuilder = InntektsmeldingBuilder.builder()
-            .medArbeidsgiver(Arbeidsgiver.virksomhet(virksomhetOrgnr))
-            .medInnsendingstidspunkt(LocalDateTime.now())
-            .medArbeidsforholdId(arbeidsforholdId)
-            .medJournalpostId(mottattDokument.getJournalpostId())
-            .medBeløp(BigDecimal.TEN)
-            .medStartDatoPermisjon(LocalDate.now())
-            .medNærRelasjon(false)
-            .medInntektsmeldingaarsak(InntektsmeldingInnsendingsårsak.NY);
+                .medArbeidsgiver(Arbeidsgiver.virksomhet(virksomhetOrgnr))
+                .medInnsendingstidspunkt(LocalDateTime.now())
+                .medArbeidsforholdId(arbeidsforholdId)
+                .medJournalpostId(mottattDokument.getJournalpostId())
+                .medBeløp(BigDecimal.TEN)
+                .medStartDatoPermisjon(LocalDate.now())
+                .medNærRelasjon(false)
+                .medInntektsmeldingaarsak(InntektsmeldingInnsendingsårsak.NY);
         inntektsmeldingTjeneste.lagreInntektsmelding(behandling.getFagsak().getSaksnummer(), behandling.getId(), inntektsmeldingBuilder);
     }
 
@@ -321,16 +321,16 @@ public class AksjonspunktUtlederForVurderArbeidsforholdTest extends EntityManage
         InntektspostBuilder inntektspostBuilder = tilInntektspost.getInntektspostBuilder();
 
         InntektspostBuilder inntektspost = inntektspostBuilder
-            .medBeløp(BigDecimal.TEN)
-            .medPeriode(LocalDate.now().minusMonths(1), LocalDate.now())
-            .medInntektspostType(InntektspostType.LØNN);
+                .medBeløp(BigDecimal.TEN)
+                .medPeriode(LocalDate.now().minusMonths(1), LocalDate.now())
+                .medInntektspostType(InntektspostType.LØNN);
 
         tilInntektspost
-            .leggTilInntektspost(inntektspost)
-            .medInntektsKilde(InntektsKilde.INNTEKT_OPPTJENING);
+                .leggTilInntektspost(inntektspost)
+                .medInntektsKilde(InntektsKilde.INNTEKT_OPPTJENING);
 
         InntektArbeidYtelseAggregatBuilder.AktørInntektBuilder aktørInntekt = inntektBuilder
-            .leggTilInntekt(tilInntektspost);
+                .leggTilInntekt(tilInntektspost);
 
         builder.leggTilAktørInntekt(aktørInntekt);
 

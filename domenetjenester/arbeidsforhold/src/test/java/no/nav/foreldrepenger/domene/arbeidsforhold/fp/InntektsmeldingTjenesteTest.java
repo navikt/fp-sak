@@ -124,7 +124,6 @@ public class InntektsmeldingTjenesteTest {
         arbeidsgiverSetMap.put(arbeidsgiver2, arbeidsforholdRefSet);
         when(vurderArbeidsforholdTjeneste.vurder(any(), any(), any(), Mockito.anyBoolean())).thenReturn(arbeidsgiverSetMap);
         var foreldrepengerFilter = new InntektsmeldingFilterYtelseImpl();
-
         this.inntektsmeldingArkivTjeneste = new InntektsmeldingRegisterTjeneste(iayTjeneste,
                 inntektsmeldingTjeneste, arbeidsforholdTjenesteMock.getMock(), new UnitTestLookupInstanceImpl<>(foreldrepengerFilter));
     }

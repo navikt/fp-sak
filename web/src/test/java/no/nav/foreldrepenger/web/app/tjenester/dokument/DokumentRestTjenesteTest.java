@@ -42,7 +42,6 @@ import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.tjenester.dokument.dto.DokumentDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
-import no.nav.vedtak.felles.testutilities.Whitebox;
 
 @ExtendWith(MockitoExtension.class)
 public class DokumentRestTjenesteTest {
@@ -86,7 +85,8 @@ public class DokumentRestTjenesteTest {
                 .medBruker(navBruker)
                 .medSaksnummer(new Saksnummer("123456"))
                 .build();
-        Whitebox.setInternalState(fagsak, "id", fagsakId);
+        fagsak.setId(fagsakId);
+        // Whitebox.setInternalState(fagsak, "id", fagsakId);
         when(fagsakRepository.hentSakGittSaksnummer(any())).thenReturn(Optional.of(fagsak));
 
         ArkivDokument søknad = new ArkivDokument();

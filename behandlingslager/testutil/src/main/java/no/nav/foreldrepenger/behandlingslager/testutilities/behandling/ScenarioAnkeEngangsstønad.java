@@ -29,20 +29,18 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.vedtak.felles.testutilities.Whitebox;
 
 /**
- * Default test scenario builder for Anke Engangssøknad. Kan opprettes for gitt standard Scenario Engangssøknad
+ * Default test scenario builder for Anke Engangssøknad. Kan opprettes for gitt
+ * standard Scenario Engangssøknad
  * <p>
  * Oppretter en avsluttet behandling ved hjelp av Scenario Builder.
  * <p>
  * Kan bruke settere (evt. legge til) for å tilpasse utgangspunktet.
  * <p>
- * Mer avansert bruk er ikke gitt at kan bruke denne
- * klassen.
+ * Mer avansert bruk er ikke gitt at kan bruke denne klassen.
  */
 public class ScenarioAnkeEngangsstønad {
-
 
     private Map<AksjonspunktDefinisjon, BehandlingStegType> opprettedeAksjonspunktDefinisjoner = new HashMap<>();
     private Map<AksjonspunktDefinisjon, BehandlingStegType> utførteAksjonspunktDefinisjoner = new HashMap<>();
@@ -81,10 +79,11 @@ public class ScenarioAnkeEngangsstønad {
         return setup(abstractTestScenario, ANKE, MANUELL_VURDERING_AV_ANKE);
     }
 
-    private ScenarioAnkeEngangsstønad setup(AbstractTestScenario<?> abstractTestScenario, BehandlingStegType stegType, AksjonspunktDefinisjon aksjonspunktDefinisjon) {
+    private ScenarioAnkeEngangsstønad setup(AbstractTestScenario<?> abstractTestScenario, BehandlingStegType stegType,
+            AksjonspunktDefinisjon aksjonspunktDefinisjon) {
         this.abstractTestScenario = abstractTestScenario;
 
-        //default steg (kan bli overskrevet av andre setup metoder som kaller denne)
+        // default steg (kan bli overskrevet av andre setup metoder som kaller denne)
         this.startSteg = stegType;
 
         this.opprettedeAksjonspunktDefinisjoner.put(aksjonspunktDefinisjon, stegType);
@@ -98,7 +97,7 @@ public class ScenarioAnkeEngangsstønad {
         this.opprettedeAksjonspunktDefinisjoner.remove(MANUELL_VURDERING_AV_ANKE);
         this.utførteAksjonspunktDefinisjoner.put(MANUELL_VURDERING_AV_ANKE, ANKE);
 
-        //default steg (kan bli overskrevet av andre setup metoder som kaller denne)
+        // default steg (kan bli overskrevet av andre setup metoder som kaller denne)
         if (ankeVurdering.equals(AnkeVurdering.ANKE_STADFESTE_YTELSESVEDTAK)) {
             this.startSteg = ANKE;
             this.opprettedeAksjonspunktDefinisjoner.put(MANUELL_VURDERING_AV_ANKE, ANKE);
@@ -124,7 +123,6 @@ public class ScenarioAnkeEngangsstønad {
         // oppprett og lagre behandling
         Behandling.Builder builder = Behandling.forAnke(fagsak);
 
-
         if (behandlendeEnhet != null) {
             builder.medBehandlendeEnhet(new OrganisasjonsEnhet(behandlendeEnhet, null));
         }
@@ -134,22 +132,18 @@ public class ScenarioAnkeEngangsstønad {
         behandlingRepository.lagre(ankeBehandling, lås);
         if (ankeVurdering != null) {
             Behandlingsresultat.builder().medBehandlingResultatType(
-                BehandlingResultatType.tolkBehandlingResultatType(ankeVurdering))
-                .buildFor(ankeBehandling);
+                    BehandlingResultatType.tolkBehandlingResultatType(ankeVurdering))
+                    .buildFor(ankeBehandling);
         } else {
             Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.IKKE_FASTSATT)
-                .buildFor(ankeBehandling);
+                    .buildFor(ankeBehandling);
         }
 
-        utførteAksjonspunktDefinisjoner.forEach((apDef, stegType) ->
-            AksjonspunktTestSupport.leggTilAksjonspunkt(ankeBehandling, apDef, stegType)
-        );
+        utførteAksjonspunktDefinisjoner.forEach((apDef, stegType) -> AksjonspunktTestSupport.leggTilAksjonspunkt(ankeBehandling, apDef, stegType));
 
         ankeBehandling.getAksjonspunkter().forEach(punkt -> AksjonspunktTestSupport.setTilUtført(punkt, "Test"));
 
-        opprettedeAksjonspunktDefinisjoner.forEach((apDef, stegType) ->
-            AksjonspunktTestSupport.leggTilAksjonspunkt(ankeBehandling, apDef, stegType)
-        );
+        opprettedeAksjonspunktDefinisjoner.forEach((apDef, stegType) -> AksjonspunktTestSupport.leggTilAksjonspunkt(ankeBehandling, apDef, stegType));
 
         if (startSteg != null) {
             InternalManipulerBehandling.forceOppdaterBehandlingSteg(ankeBehandling, startSteg);
@@ -190,14 +184,14 @@ public class ScenarioAnkeEngangsstønad {
     }
 
     public Behandling lagMocked() {
-        //pga det ikke går ann å flytte steg hvis mocket så settes startsteg til null
+        // pga det ikke går ann å flytte steg hvis mocket så settes startsteg til null
         startSteg = null;
         BehandlingRepositoryProvider repositoryProvider = abstractTestScenario.mockBehandlingRepositoryProvider();
         lagre(repositoryProvider);
-        Whitebox.setInternalState(ankeBehandling, "id", AbstractTestScenario.nyId());
+        ankeBehandling.setId(AbstractTestScenario.nyId());
+        // Whitebox.setInternalState(ankeBehandling, "id", AbstractTestScenario.nyId());
         return ankeBehandling;
     }
-
 
     public Fagsak getFagsak() {
         return abstractTestScenario.getFagsak();

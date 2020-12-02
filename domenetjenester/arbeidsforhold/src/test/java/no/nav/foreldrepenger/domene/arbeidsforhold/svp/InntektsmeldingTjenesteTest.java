@@ -83,7 +83,6 @@ public class InntektsmeldingTjenesteTest {
     private static final LocalDate ARBEIDSFORHOLD_TIL = I_DAG.plusMonths(2);
     private static final BigDecimal LØNNSPOST = BigDecimal.TEN;
 
-
     private BehandlingRepository behandlingRepository;
     private FagsakRepository fagsakRepository;
     private final InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
@@ -152,10 +151,12 @@ public class InntektsmeldingTjenesteTest {
 
         final Behandling behandling = opprettBehandling();
         opprettOppgittOpptjening(behandling);
-        opprettInntektArbeidYtelseAggregatForYrkesaktivitet(behandling, AKTØRID, DatoIntervallEntitet.fraOgMedTilOgMed(ARBEIDSFORHOLD_FRA, ARBEIDSFORHOLD_TIL),
-            arbId1Intern, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN);
-        opprettInntektArbeidYtelseAggregatForYrkesaktivitet(behandling, AKTØRID, DatoIntervallEntitet.fraOgMedTilOgMed(ARBEIDSFORHOLD_FRA, ARBEIDSFORHOLD_TIL),
-            arbId2Intern, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN);
+        opprettInntektArbeidYtelseAggregatForYrkesaktivitet(behandling, AKTØRID,
+                DatoIntervallEntitet.fraOgMedTilOgMed(ARBEIDSFORHOLD_FRA, ARBEIDSFORHOLD_TIL),
+                arbId1Intern, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN);
+        opprettInntektArbeidYtelseAggregatForYrkesaktivitet(behandling, AKTØRID,
+                DatoIntervallEntitet.fraOgMedTilOgMed(ARBEIDSFORHOLD_FRA, ARBEIDSFORHOLD_TIL),
+                arbId2Intern, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN);
 
         BehandlingReferanse behandlingReferanse = lagReferanse(behandling);
 
@@ -166,7 +167,7 @@ public class InntektsmeldingTjenesteTest {
         var svpengerFilter = new InntektsmeldingFilterYtelseImpl(svangerskapspengerRepositoryMock);
 
         var inntektsmeldingArkivTjenesteSvp = new InntektsmeldingRegisterTjeneste(iayTjeneste,
-            inntektsmeldingTjeneste, arbeidsforholdTjenesteMock.getMock(), new UnitTestLookupInstanceImpl<>(svpengerFilter));
+                inntektsmeldingTjeneste, arbeidsforholdTjenesteMock.getMock(), new UnitTestLookupInstanceImpl<>(svpengerFilter));
         // Act+Assert
         assertThat(inntektsmeldingArkivTjenesteSvp.utledManglendeInntektsmeldingerFraAAreg(behandlingReferanse, false)).isNotEmpty();
 
@@ -178,36 +179,38 @@ public class InntektsmeldingTjenesteTest {
 
     private SvpGrunnlagEntitet byggSvpGrunnlag(Behandling behandling, String arbeidsgiverOrgnr) {
         SvpTilretteleggingEntitet tilrettelegging = new SvpTilretteleggingEntitet.Builder()
-            .medBehovForTilretteleggingFom(LocalDate.now())
-            .medIngenTilrettelegging(LocalDate.now())
-            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .medArbeidsgiver(Arbeidsgiver.virksomhet(arbeidsgiverOrgnr))
-            .medMottattTidspunkt(LocalDateTime.now())
-            .medKopiertFraTidligereBehandling(false)
-            .build();
+                .medBehovForTilretteleggingFom(LocalDate.now())
+                .medIngenTilrettelegging(LocalDate.now())
+                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+                .medArbeidsgiver(Arbeidsgiver.virksomhet(arbeidsgiverOrgnr))
+                .medMottattTidspunkt(LocalDateTime.now())
+                .medKopiertFraTidligereBehandling(false)
+                .build();
         SvpGrunnlagEntitet svpGrunnlag = new SvpGrunnlagEntitet.Builder()
-            .medBehandlingId(behandling.getId())
-            .medOpprinneligeTilrettelegginger(List.of(tilrettelegging))
-            .build();
+                .medBehandlingId(behandling.getId())
+                .medOpprinneligeTilrettelegginger(List.of(tilrettelegging))
+                .build();
         return svpGrunnlag;
     }
 
-    private void lagreInntektsmelding(LocalDate mottattDato, Behandling behandling, InternArbeidsforholdRef arbeidsforholdIdIntern, EksternArbeidsforholdRef arbeidsforholdId) {
+    private void lagreInntektsmelding(LocalDate mottattDato, Behandling behandling, InternArbeidsforholdRef arbeidsforholdIdIntern,
+            EksternArbeidsforholdRef arbeidsforholdId) {
         lagreInntektsmelding(mottattDato, behandling, arbeidsforholdIdIntern, arbeidsforholdId, BigDecimal.TEN);
     }
 
-    private void lagreInntektsmelding(LocalDate mottattDato, Behandling behandling, InternArbeidsforholdRef arbeidsforholdIdIntern, EksternArbeidsforholdRef arbeidsforholdId, BigDecimal beløp) {
+    private void lagreInntektsmelding(LocalDate mottattDato, Behandling behandling, InternArbeidsforholdRef arbeidsforholdIdIntern,
+            EksternArbeidsforholdRef arbeidsforholdId, BigDecimal beløp) {
         JournalpostId journalPostId = new JournalpostId(journalpostIdInc.getAndIncrement());
 
         var inntektsmelding = InntektsmeldingBuilder.builder()
-            .medStartDatoPermisjon(I_DAG)
-            .medArbeidsgiver(arbeidsgiver)
-            .medBeløp(beløp)
-            .medNærRelasjon(false)
-            .medArbeidsforholdId(arbeidsforholdId)
-            .medArbeidsforholdId(arbeidsforholdIdIntern)
-            .medInnsendingstidspunkt(LocalDateTime.of(mottattDato, LocalTime.MIN))
-            .medJournalpostId(journalPostId);
+                .medStartDatoPermisjon(I_DAG)
+                .medArbeidsgiver(arbeidsgiver)
+                .medBeløp(beløp)
+                .medNærRelasjon(false)
+                .medArbeidsforholdId(arbeidsforholdId)
+                .medArbeidsforholdId(arbeidsforholdIdIntern)
+                .medInnsendingstidspunkt(LocalDateTime.of(mottattDato, LocalTime.MIN))
+                .medJournalpostId(journalPostId);
 
         inntektsmeldingTjeneste.lagreInntektsmelding(behandling.getFagsak().getSaksnummer(), behandling.getId(), inntektsmelding);
 
@@ -221,12 +224,12 @@ public class InntektsmeldingTjenesteTest {
     }
 
     private void opprettInntektArbeidYtelseAggregatForYrkesaktivitet(Behandling behandling, AktørId aktørId,
-                                                                     DatoIntervallEntitet periode,
-                                                                     InternArbeidsforholdRef arbeidsforhold,
-                                                                     ArbeidType type, BigDecimal prosentsats) {
+            DatoIntervallEntitet periode,
+            InternArbeidsforholdRef arbeidsforhold,
+            ArbeidType type, BigDecimal prosentsats) {
 
         InntektArbeidYtelseAggregatBuilder builder = InntektArbeidYtelseAggregatBuilder
-            .oppdatere(Optional.empty(), VersjonType.REGISTER);
+                .oppdatere(Optional.empty(), VersjonType.REGISTER);
 
         InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = builder.getAktørArbeidBuilder(aktørId);
 
@@ -238,78 +241,79 @@ public class InntektsmeldingTjenesteTest {
         iayTjeneste.lagreIayAggregat(behandling.getId(), builder);
     }
 
-    private InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder leggTilYrekesaktivitet(InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder builder,
-                                                                                         InternArbeidsforholdRef ref, ArbeidType type, BigDecimal prosentsats,
-                                                                                         DatoIntervallEntitet periodeYA, DatoIntervallEntitet periodeAA) {
+    private InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder leggTilYrekesaktivitet(
+            InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder builder,
+            InternArbeidsforholdRef ref, ArbeidType type, BigDecimal prosentsats,
+            DatoIntervallEntitet periodeYA, DatoIntervallEntitet periodeAA) {
         YrkesaktivitetBuilder yrkesaktivitetBuilder = builder.getYrkesaktivitetBuilderForNøkkelAvType(
-            new Opptjeningsnøkkel(ref, arbeidsgiver.getIdentifikator(), null),
-            ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
+                new Opptjeningsnøkkel(ref, arbeidsgiver.getIdentifikator(), null),
+                ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
         AktivitetsAvtaleBuilder aktivitetsAvtaleBuilder = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder(periodeAA, false);
         PermisjonBuilder permisjonBuilder = yrkesaktivitetBuilder.getPermisjonBuilder();
 
         AktivitetsAvtaleBuilder aktivitetsAvtale = aktivitetsAvtaleBuilder
-            .medPeriode(periodeAA)
-            .medProsentsats(prosentsats)
-            .medBeskrivelse("Ser greit ut");
+                .medPeriode(periodeAA)
+                .medProsentsats(prosentsats)
+                .medBeskrivelse("Ser greit ut");
         AktivitetsAvtaleBuilder ansettelsesPeriode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder(periodeYA, true);
 
         Permisjon permisjon = permisjonBuilder
-            .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.UTDANNINGSPERMISJON)
-            .medPeriode(periodeYA.getFomDato(), periodeYA.getTomDato())
-            .medProsentsats(BigDecimal.valueOf(100))
-            .build();
+                .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.UTDANNINGSPERMISJON)
+                .medPeriode(periodeYA.getFomDato(), periodeYA.getTomDato())
+                .medProsentsats(BigDecimal.valueOf(100))
+                .build();
 
         yrkesaktivitetBuilder
-            .medArbeidType(type)
-            .medArbeidsgiver(arbeidsgiver)
-            .medArbeidsforholdId(ARBEIDSFORHOLD_ID)
-            .leggTilPermisjon(permisjon)
-            .leggTilAktivitetsAvtale(aktivitetsAvtale)
-            .leggTilAktivitetsAvtale(ansettelsesPeriode);
+                .medArbeidType(type)
+                .medArbeidsgiver(arbeidsgiver)
+                .medArbeidsforholdId(ARBEIDSFORHOLD_ID)
+                .leggTilPermisjon(permisjon)
+                .leggTilAktivitetsAvtale(aktivitetsAvtale)
+                .leggTilAktivitetsAvtale(ansettelsesPeriode);
 
         InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeid = builder
-            .leggTilYrkesaktivitet(yrkesaktivitetBuilder);
+                .leggTilYrkesaktivitet(yrkesaktivitetBuilder);
 
         return aktørArbeid;
     }
 
     private InntektArbeidYtelseAggregatBuilder.AktørInntektBuilder leggTilInntekt(InntektArbeidYtelseAggregatBuilder.AktørInntektBuilder builder,
-                                                                                  DatoIntervallEntitet periodeInntekt) {
+            DatoIntervallEntitet periodeInntekt) {
         InntektBuilder inntektBuilder = builder.getInntektBuilder(InntektsKilde.INNTEKT_OPPTJENING,
-            new Opptjeningsnøkkel(InternArbeidsforholdRef.nullRef(), arbeidsgiver.getIdentifikator(), null));
+                new Opptjeningsnøkkel(InternArbeidsforholdRef.nullRef(), arbeidsgiver.getIdentifikator(), null));
 
         InntektspostBuilder inntektspostBuilder = inntektBuilder.getInntektspostBuilder()
-            .medInntektspostType(InntektspostType.LØNN)
-            .medBeløp(LØNNSPOST)
-            .medSkatteOgAvgiftsregelType(SkatteOgAvgiftsregelType.UDEFINERT)
-            .medPeriode(periodeInntekt.getFomDato(), periodeInntekt.getTomDato());
+                .medInntektspostType(InntektspostType.LØNN)
+                .medBeløp(LØNNSPOST)
+                .medSkatteOgAvgiftsregelType(SkatteOgAvgiftsregelType.UDEFINERT)
+                .medPeriode(periodeInntekt.getFomDato(), periodeInntekt.getTomDato());
 
         inntektBuilder
-            .medArbeidsgiver(arbeidsgiver)
-            .leggTilInntektspost(inntektspostBuilder);
+                .medArbeidsgiver(arbeidsgiver)
+                .leggTilInntektspost(inntektspostBuilder);
 
         InntektArbeidYtelseAggregatBuilder.AktørInntektBuilder aktørInntekt = builder
-            .leggTilInntekt(inntektBuilder);
+                .leggTilInntekt(inntektBuilder);
 
         return aktørInntekt;
     }
 
     private Virksomhet lagVirksomhet() {
         return new Virksomhet.Builder()
-            .medOrgnr(KUNSTIG_ORG)
-            .medNavn("Virksomheten")
-            .medRegistrert(I_DAG.minusYears(2L))
-            .medOppstart(I_DAG.minusYears(1L))
-            .build();
+                .medOrgnr(KUNSTIG_ORG)
+                .medNavn("Virksomheten")
+                .medRegistrert(I_DAG.minusYears(2L))
+                .medOppstart(I_DAG.minusYears(1L))
+                .build();
     }
 
     private Virksomhet lagAndreVirksomhet() {
         return new Virksomhet.Builder()
-            .medOrgnr("52")
-            .medNavn("OrgA")
-            .medRegistrert(I_DAG.minusYears(2L))
-            .medOppstart(I_DAG.minusYears(1L))
-            .build();
+                .medOrgnr("52")
+                .medNavn("OrgA")
+                .medRegistrert(I_DAG.minusYears(2L))
+                .medOppstart(I_DAG.minusYears(1L))
+                .build();
     }
 
     private Behandling opprettBehandling() {
@@ -324,7 +328,8 @@ public class InntektsmeldingTjenesteTest {
     }
 
     private Fagsak opprettFagsak() {
-        final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AKTØRID), RelasjonsRolleType.MORA, new Saksnummer("123"));
+        final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AKTØRID), RelasjonsRolleType.MORA,
+                new Saksnummer("123"));
         fagsakRepository.opprettNy(fagsak);
         return fagsak;
     }

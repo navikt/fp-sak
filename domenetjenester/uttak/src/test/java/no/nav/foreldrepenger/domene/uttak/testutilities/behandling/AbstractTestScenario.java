@@ -30,17 +30,16 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilde
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
-import no.nav.vedtak.felles.testutilities.Whitebox;
 
 /**
  * Default test scenario builder for å definere opp testdata med enkle defaults.
  * <p>
- * Oppretter en default behandling, inkludert default grunnlag med søknad + tomt innangsvilkårresultat.
+ * Oppretter en default behandling, inkludert default grunnlag med søknad + tomt
+ * innangsvilkårresultat.
  * <p>
  * Kan bruke settere (evt. legge til) for å tilpasse utgangspunktet.
  * <p>
- * Mer avansert bruk er ikke gitt at kan bruke denne
- * klassen.
+ * Mer avansert bruk er ikke gitt at kan bruke denne klassen.
  */
 public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
@@ -66,7 +65,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
     protected AbstractTestScenario(FagsakYtelseType fagsakYtelseType, RelasjonsRolleType brukerRolle, AktørId aktørId) {
         fagsak = Fagsak.opprettNy(fagsakYtelseType, NavBruker.opprettNy(aktørId, Språkkode.NB), brukerRolle,
-            new Saksnummer(nyId() + ""));
+                new Saksnummer(nyId() + ""));
 
     }
 
@@ -96,7 +95,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
             @Override
             public void lagreInntektArbeidYtelseAggregat(Long behandlingId,
-                                                         InntektArbeidYtelseAggregatBuilder builder) {
+                    InntektArbeidYtelseAggregatBuilder builder) {
                 throw new UnsupportedOperationException("Get outta here - no longer supporting this");
             }
 
@@ -106,13 +105,13 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     }
 
     public Behandling lagre(UttakRepositoryProvider repositoryProvider,
-                            BiConsumer<Long, InntektArbeidYtelseAggregatBuilder> lagreIayAggregat) {
+            BiConsumer<Long, InntektArbeidYtelseAggregatBuilder> lagreIayAggregat) {
 
         class LegacyBridgeIay implements LagreInntektArbeidYtelse {
 
             @Override
             public void lagreInntektArbeidYtelseAggregat(Long behandlingId,
-                                                         InntektArbeidYtelseAggregatBuilder builder) {
+                    InntektArbeidYtelseAggregatBuilder builder) {
                 lagreIayAggregat.accept(behandlingId, builder);
             }
         }
@@ -128,12 +127,12 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private void build(UttakRepositoryProvider repositoryProvider, LagreInntektArbeidYtelse lagreIay) {
         if (behandling != null) {
             throw new IllegalStateException(
-                "build allerede kalt.  Hent Behandling via getBehandling eller opprett nytt scenario.");
+                    "build allerede kalt.  Hent Behandling via getBehandling eller opprett nytt scenario.");
         }
         Builder behandlingBuilder = grunnBuild(repositoryProvider);
 
         this.behandling = behandlingBuilder.build();
-        Whitebox.setInternalState(behandling, "id", BEHANDLING_ID.getAndIncrement());
+        behandling.setId(BEHANDLING_ID.getAndIncrement());
 
         lagreBehandlingsresultatOgVilkårResultat(repositoryProvider);
         lagreInntektArbeidYtelse(lagreIay);
@@ -187,8 +186,8 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             behandlingBuilder = Behandling.nyBehandlingFor(fagsak, behandlingType);
         } else {
             behandlingBuilder = Behandling.fraTidligereBehandling(originalBehandling, behandlingType)
-                .medBehandlingÅrsak(
-                    BehandlingÅrsak.builder(behandlingÅrsakType).medOriginalBehandlingId(originalBehandling.getId()));
+                    .medBehandlingÅrsak(
+                            BehandlingÅrsak.builder(behandlingÅrsakType).medOriginalBehandlingId(originalBehandling.getId()));
         }
 
         return behandlingBuilder;

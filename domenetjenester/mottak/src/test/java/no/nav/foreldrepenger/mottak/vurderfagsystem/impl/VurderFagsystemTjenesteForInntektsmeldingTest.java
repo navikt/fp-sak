@@ -77,16 +77,19 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
         MottatteDokumentTjeneste mottatteDokumentTjenesteMock = Mockito.mock(MottatteDokumentTjeneste.class);
 
         var skjæringsTidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
-        lenient().when(skjæringsTidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdato(LocalDate.now()).medUtledetSkjæringstidspunkt(LocalDate.now()).build());
+        lenient().when(skjæringsTidspunktTjeneste.getSkjæringstidspunkter(any()))
+                .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdato(LocalDate.now()).medUtledetSkjæringstidspunkt(LocalDate.now()).build());
         var familieTjeneste = new FamilieHendelseTjeneste(null, grunnlagRepository);
-        var fellesUtil = new VurderFagsystemFellesUtils(repositoryProvider, familieTjeneste, mottatteDokumentTjenesteMock, inntektsmeldingTjeneste, skjæringsTidspunktTjeneste);
+        var fellesUtil = new VurderFagsystemFellesUtils(repositoryProvider, familieTjeneste, mottatteDokumentTjenesteMock, inntektsmeldingTjeneste,
+                skjæringsTidspunktTjeneste);
         var tjenesteFP = new VurderFagsystemTjenesteImpl(fellesUtil, repositoryProvider);
         vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjenesteMock, fellesUtil, new UnitTestLookupInstanceImpl<>(tjenesteFP));
     }
 
     @Test
     public void skalReturnereVedtaksløsningMedSaksnummerNårEnSakFinnesOgÅrsakInnsendingErEndring() {
-        VurderFagsystem fagsystem = byggVurderFagsystemForInntektsmelding(VurderFagsystem.ÅRSAK_ENDRING, BehandlingTema.FORELDREPENGER, LocalDateTime.now(), AktørId.dummy(), JOURNALPOST_ID, ARBEIDSFORHOLDSID, VIRKSOMHETSNUMMER);
+        VurderFagsystem fagsystem = byggVurderFagsystemForInntektsmelding(VurderFagsystem.ÅRSAK_ENDRING, BehandlingTema.FORELDREPENGER,
+                LocalDateTime.now(), AktørId.dummy(), JOURNALPOST_ID, ARBEIDSFORHOLDSID, VIRKSOMHETSNUMMER);
         fagsystem.setStartDatoForeldrepengerInntektsmelding(LocalDate.now());
 
         when(fagsakTjenesteMock.finnFagsakerForAktør(any())).thenReturn(Collections.singletonList(buildFagsakMedUdefinertRelasjon(123L, false)));
@@ -103,7 +106,8 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
 
     @Test
     public void skalReturnereInfotrygdNårBrukerIkkeHarSakIVL() {
-        VurderFagsystem fagsystem = byggVurderFagsystemForInntektsmelding(VurderFagsystem.ÅRSAK_NY, BehandlingTema.FORELDREPENGER, LocalDateTime.now(), AktørId.dummy(), JOURNALPOST_ID, ARBEIDSFORHOLDSID, VIRKSOMHETSNUMMER);
+        VurderFagsystem fagsystem = byggVurderFagsystemForInntektsmelding(VurderFagsystem.ÅRSAK_NY, BehandlingTema.FORELDREPENGER,
+                LocalDateTime.now(), AktørId.dummy(), JOURNALPOST_ID, ARBEIDSFORHOLDSID, VIRKSOMHETSNUMMER);
         fagsystem.setStartDatoForeldrepengerInntektsmelding(LocalDate.now());
 
         lenient().when(fagsakRepositoryMock.hentJournalpost(any())).thenReturn(Optional.empty());
@@ -119,8 +123,9 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
     public void skalFinneArbeidsforholdForArbeidsgiverSomErPrivatperson() {
         AktørId arbeidsgiverAktørId = AktørId.dummy();
 
-        VurderFagsystem fagsystem = byggVurderFagsystemForInntektsmelding(VurderFagsystem.ÅRSAK_ENDRING, BehandlingTema.FORELDREPENGER, LocalDateTime.now(),
-            AktørId.dummy(), JOURNALPOST_ID, ARBEIDSFORHOLDSID, null);
+        VurderFagsystem fagsystem = byggVurderFagsystemForInntektsmelding(VurderFagsystem.ÅRSAK_ENDRING, BehandlingTema.FORELDREPENGER,
+                LocalDateTime.now(),
+                AktørId.dummy(), JOURNALPOST_ID, ARBEIDSFORHOLDSID, null);
         fagsystem.setArbeidsgiverAktørId(arbeidsgiverAktørId);
         fagsystem.setStartDatoForeldrepengerInntektsmelding(LocalDate.now());
 

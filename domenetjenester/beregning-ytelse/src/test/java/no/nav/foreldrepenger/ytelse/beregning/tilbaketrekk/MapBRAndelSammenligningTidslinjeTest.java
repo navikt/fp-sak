@@ -21,12 +21,12 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
-import no.nav.vedtak.util.FPDateUtil;
 
 public class MapBRAndelSammenligningTidslinjeTest {
-    private static final String FUNKSJONELT_TIDSOFFSET = FPDateUtil.SystemConfiguredClockProvider.PROPERTY_KEY_OFFSET_PERIODE;
+    // private static final String FUNKSJONELT_TIDSOFFSET =
+    // FPDateUtil.SystemConfiguredClockProvider.PROPERTY_KEY_OFFSET_PERIODE;
 
-    private static final LocalDate STP = LocalDate.of(2019,9,1);
+    private static final LocalDate STP = LocalDate.of(2019, 9, 1);
     private static final Arbeidsgiver AG1 = Arbeidsgiver.virksomhet("999999999");
     private static final Arbeidsgiver AG2 = Arbeidsgiver.virksomhet("888888888");
     private static final InternArbeidsforholdRef REF1 = InternArbeidsforholdRef.nyRef();
@@ -35,7 +35,7 @@ public class MapBRAndelSammenligningTidslinjeTest {
     @AfterEach
     public void teardown() {
         settSimulertNåtidTil(LocalDate.now());
-        FPDateUtil.init();
+        // FPDateUtil.init();
     }
 
     @Test
@@ -50,7 +50,8 @@ public class MapBRAndelSammenligningTidslinjeTest {
         lagAndelForPeriode(periode3, AG1, REF1);
 
         // Act
-        LocalDateTimeline<BRAndelSammenligning> tidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinje(Arrays.asList(periode, periode2, periode3), Arrays.asList(periode, periode2, periode3));
+        LocalDateTimeline<BRAndelSammenligning> tidslinje = MapBRAndelSammenligningTidslinje
+                .opprettTidslinje(Arrays.asList(periode, periode2, periode3), Arrays.asList(periode, periode2, periode3));
 
         // Assert
         assertThat(tidslinje.toSegments()).hasSize(3);
@@ -73,7 +74,8 @@ public class MapBRAndelSammenligningTidslinjeTest {
         lagAndelForPeriode(periode3, AG1, REF1);
 
         // Act
-        LocalDateTimeline<BRAndelSammenligning> tidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinje(Arrays.asList(periode, periode2, periode3), Arrays.asList(periode, periode2, periode3));
+        LocalDateTimeline<BRAndelSammenligning> tidslinje = MapBRAndelSammenligningTidslinje
+                .opprettTidslinje(Arrays.asList(periode, periode2, periode3), Arrays.asList(periode, periode2, periode3));
 
         // Assert
         assertThat(tidslinje.toSegments()).hasSize(4);
@@ -107,9 +109,9 @@ public class MapBRAndelSammenligningTidslinjeTest {
         BeregningsresultatAndel nyAndel2 = lagAndelForPeriode(nyPeriode2, AG2, REF2);
         lagAndelForPeriode(nyPeriode3, AG1, REF1);
 
-
         // Act
-        LocalDateTimeline<BRAndelSammenligning> tidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinje(Arrays.asList(gammelPeriode, gammelPeriode2, gammelPeriode3), Arrays.asList(nyPeriode, nyPeriode2, nyPeriode3));
+        LocalDateTimeline<BRAndelSammenligning> tidslinje = MapBRAndelSammenligningTidslinje
+                .opprettTidslinje(Arrays.asList(gammelPeriode, gammelPeriode2, gammelPeriode3), Arrays.asList(nyPeriode, nyPeriode2, nyPeriode3));
 
         // Assert
         assertThat(tidslinje.toSegments()).hasSize(4);
@@ -117,11 +119,13 @@ public class MapBRAndelSammenligningTidslinjeTest {
 
         assertSegment(segmenter.get(0), STP, STP.plusDays(15), Collections.singletonList(nyAndel), Collections.singletonList(gammelAndel));
         assertSegment(segmenter.get(1), STP.plusDays(16), STP.plusDays(25), Arrays.asList(nyAndel, nyAndel2), Collections.singletonList(gammelAndel));
-        assertSegment(segmenter.get(2), STP.plusDays(26), STP.plusDays(29), Collections.singletonList(nyAndel), Collections.singletonList(gammelAndel));
+        assertSegment(segmenter.get(2), STP.plusDays(26), STP.plusDays(29), Collections.singletonList(nyAndel),
+                Collections.singletonList(gammelAndel));
         assertSegment(segmenter.get(3), STP.plusDays(30), STP.plusDays(40), Collections.singletonList(nyAndel), Collections.emptyList());
     }
 
-    private void assertSegment(LocalDateSegment<BRAndelSammenligning> segment, LocalDate fom, LocalDate tom, List<BeregningsresultatAndel> nyeForventedeAndeler, List<BeregningsresultatAndel> forrigeForventedeAndeler) {
+    private void assertSegment(LocalDateSegment<BRAndelSammenligning> segment, LocalDate fom, LocalDate tom,
+            List<BeregningsresultatAndel> nyeForventedeAndeler, List<BeregningsresultatAndel> forrigeForventedeAndeler) {
         assertThat(segment.getFom()).isEqualTo(fom);
         assertThat(segment.getTom()).isEqualTo(tom);
 
@@ -137,29 +141,28 @@ public class MapBRAndelSammenligningTidslinjeTest {
 
     private BeregningsresultatAndel lagAndelForPeriode(BeregningsresultatPeriode periode, Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef ref) {
         return BeregningsresultatAndel.builder()
-            .medBrukerErMottaker(false)
-            .medStillingsprosent(BigDecimal.valueOf(100))
-            .medUtbetalingsgrad(BigDecimal.valueOf(100))
-            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-            .medDagsats(900)
-            .medDagsatsFraBg(900)
-            .medArbeidsgiver(arbeidsgiver)
-            .medArbeidsforholdRef(ref)
-            .build(periode);
+                .medBrukerErMottaker(false)
+                .medStillingsprosent(BigDecimal.valueOf(100))
+                .medUtbetalingsgrad(BigDecimal.valueOf(100))
+                .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+                .medDagsats(900)
+                .medDagsatsFraBg(900)
+                .medArbeidsgiver(arbeidsgiver)
+                .medArbeidsforholdRef(ref)
+                .build(periode);
     }
 
     private BeregningsresultatPeriode lagResultatMedPeriode(LocalDate fom, LocalDate tom) {
         BeregningsresultatEntitet resultat = BeregningsresultatEntitet.builder().medRegelInput("test").medRegelSporing("test").build();
         return BeregningsresultatPeriode.builder()
-            .medBeregningsresultatPeriodeFomOgTom(fom, tom)
-            .build(resultat);
+                .medBeregningsresultatPeriodeFomOgTom(fom, tom)
+                .build(resultat);
     }
 
     private void settSimulertNåtidTil(LocalDate dato) {
         Period periode = Period.between(LocalDate.now(), dato);
-        System.setProperty(FUNKSJONELT_TIDSOFFSET, periode.toString());
-        FPDateUtil.init();
+        System.setProperty("funksjonelt.tidsoffset.offset", periode.toString());
+        // FPDateUtil.init();
     }
-
 
 }

@@ -50,7 +50,6 @@ import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
 import no.nav.foreldrepenger.mottak.kompletthettjeneste.KompletthetssjekkerInntektsmelding;
 import no.nav.foreldrepenger.mottak.kompletthettjeneste.impl.KompletthetssjekkerTestUtil;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.vedtak.felles.testutilities.Whitebox;
 
 @ExtendWith(MockitoExtension.class)
 public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
@@ -78,27 +77,27 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
 
     private KompletthetsjekkerImpl kompletthetsjekkerImpl;
     private final Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder()
-        .medUtledetSkjæringstidspunkt(STARTDATO_PERMISJON)
-        .build();
+            .medUtledetSkjæringstidspunkt(STARTDATO_PERMISJON)
+            .build();
 
     @BeforeEach
     public void before() {
         lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(Mockito.anyLong())).thenReturn(skjæringstidspunkt);
         lenient().when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraAAreg(any(), anyBoolean())).thenReturn(
-            new HashMap<>());
+                new HashMap<>());
         lenient().when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(any(), anyBoolean())).thenReturn(
-            new HashMap<>());
+                new HashMap<>());
 
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         KompletthetssjekkerSøknadImpl kompletthetssjekkerSøknadImpl = new KompletthetssjekkerSøknadFørstegangsbehandlingImpl(
-            dokumentArkivTjeneste, repositoryProvider, Period.parse("P4W"));
+                dokumentArkivTjeneste, repositoryProvider, Period.parse("P4W"));
         KompletthetssjekkerInntektsmelding kompletthetssjekkerInntektsmelding = new KompletthetssjekkerInntektsmelding(
-            inntektsmeldingArkivTjeneste);
+                inntektsmeldingArkivTjeneste);
         KompletthetsjekkerFelles kompletthetsjekkerFelles = new KompletthetsjekkerFelles(repositoryProvider,
-            dokumentBestillerTjenesteMock, dokumentBehandlingTjenesteMock, kompletthetssjekkerInntektsmelding, inntektsmeldingTjeneste);
+                dokumentBestillerTjenesteMock, dokumentBehandlingTjenesteMock, kompletthetssjekkerInntektsmelding, inntektsmeldingTjeneste);
         søknadRepository = repositoryProvider.getSøknadRepository();
         kompletthetsjekkerImpl = new KompletthetsjekkerImpl(kompletthetssjekkerSøknadImpl,
-            kompletthetssjekkerInntektsmelding, kompletthetsjekkerFelles);
+                kompletthetssjekkerInntektsmelding, kompletthetsjekkerFelles);
         testUtil = new KompletthetssjekkerTestUtil(repositoryProvider);
     }
 
@@ -121,7 +120,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         Behandling behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         mockManglendeInntektsmelding();
         testUtil.byggOgLagreSøknadMedNyOppgittFordeling(behandling, false);
-        Whitebox.setInternalState(behandling, "status", BehandlingStatus.UTREDES);
+        behandling.setStatus(BehandlingStatus.UTREDES);
 
         // Act
         KompletthetResultat kompletthetResultat = kompletthetsjekkerImpl.vurderForsendelseKomplett(lagRef(behandling));
@@ -129,7 +128,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
         assertThat(kompletthetResultat.getVentefrist().toLocalDate()).isEqualTo(
-            søknadRepository.hentSøknad(behandling.getId()).getMottattDato().plusWeeks(1));
+                søknadRepository.hentSøknad(behandling.getId()).getMottattDato().plusWeeks(1));
     }
 
     @Test
@@ -138,13 +137,13 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         Behandling behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         mockManglendeInntektsmeldingKompletthet();
         testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusWeeks(2),
-            STARTDATO_PERMISJON);
+                STARTDATO_PERMISJON);
         lenient().when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(
-            List.of(InntektsmeldingBuilder.builder().build()));
+                List.of(InntektsmeldingBuilder.builder().build()));
 
         // Act
         KompletthetResultat kompletthetResultat = kompletthetsjekkerImpl.vurderEtterlysningInntektsmelding(
-            lagRef(behandling, STARTDATO_PERMISJON));
+                lagRef(behandling, STARTDATO_PERMISJON));
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isTrue();
@@ -159,11 +158,11 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         mockManglendeInntektsmeldingKompletthet();
         testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusWeeks(3), LocalDate.now());
         lenient().when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(
-            List.of(InntektsmeldingBuilder.builder().build()));
+                List.of(InntektsmeldingBuilder.builder().build()));
 
         // Act
         KompletthetResultat kompletthetResultat = kompletthetsjekkerImpl.vurderEtterlysningInntektsmelding(
-            lagRef(behandling, LocalDate.now()));
+                lagRef(behandling, LocalDate.now()));
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isTrue();
@@ -177,12 +176,12 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         Behandling behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         mockManglendeInntektsmeldingKompletthet();
         testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusWeeks(4),
-            STARTDATO_PERMISJON);
+                STARTDATO_PERMISJON);
         when(dokumentBehandlingTjenesteMock.erDokumentBestilt(any(), any())).thenReturn(true);
 
         // Act
         KompletthetResultat kompletthetResultat = kompletthetsjekkerImpl.vurderEtterlysningInntektsmelding(
-            lagRef(behandling, STARTDATO_PERMISJON));
+                lagRef(behandling, STARTDATO_PERMISJON));
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
@@ -201,7 +200,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
 
         // Act
         KompletthetResultat kompletthetResultat = kompletthetsjekkerImpl.vurderEtterlysningInntektsmelding(
-            lagRef(behandling, stp));
+                lagRef(behandling, stp));
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
@@ -211,7 +210,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         // Act 2
         stp = LocalDate.now().plusWeeks(3);
         KompletthetResultat kompletthetResultat2 = kompletthetsjekkerImpl.vurderEtterlysningInntektsmelding(
-            lagRef(behandling, stp));
+                lagRef(behandling, stp));
 
         // Assert
         assertThat(kompletthetResultat2.erOppfylt()).isFalse();
@@ -225,12 +224,12 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         Behandling behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         mockManglendeInntektsmeldingKompletthet();
         testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusWeeks(1),
-            STARTDATO_PERMISJON);
+                STARTDATO_PERMISJON);
         when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(Collections.emptyList());
 
         // Act
         KompletthetResultat kompletthetResultat = kompletthetsjekkerImpl.vurderEtterlysningInntektsmelding(
-            lagRef(behandling, STARTDATO_PERMISJON));
+                lagRef(behandling, STARTDATO_PERMISJON));
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
@@ -243,14 +242,14 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         // Arrange
         Behandling behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         opprettSøknadMedPåkrevdVedlegg(behandling);
-        Whitebox.setInternalState(behandling, "status", BehandlingStatus.UTREDES);
+        behandling.setStatus(BehandlingStatus.UTREDES);
         // Act
         KompletthetResultat kompletthetResultat = kompletthetsjekkerImpl.vurderForsendelseKomplett(lagRef(behandling));
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
         assertThat(kompletthetResultat.getVentefrist().toLocalDate()).isEqualTo(
-            søknadRepository.hentSøknad(behandling.getId()).getMottattDato().plusWeeks(3));
+                søknadRepository.hentSøknad(behandling.getId()).getMottattDato().plusWeeks(3));
     }
 
     @Test
@@ -287,22 +286,24 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
 
         // Act
         List<ManglendeVedlegg> manglendeVedlegg = kompletthetsjekkerImpl.utledAlleManglendeVedleggForForsendelse(
-            lagRef(behandling));
+                lagRef(behandling));
 
         // Assert
         assertThat(manglendeVedlegg).hasSize(2);
         List<DokumentTypeId> koder = manglendeVedlegg.stream()
-            .map(ManglendeVedlegg::getDokumentType)
-            .collect(Collectors.toList());
+                .map(ManglendeVedlegg::getDokumentType)
+                .collect(Collectors.toList());
         assertThat(koder).containsExactlyInAnyOrder(DokumentTypeId.DOK_INNLEGGELSE, DokumentTypeId.INNTEKTSMELDING);
     }
 
     private void opprettSøknadMedPåkrevdVedlegg(Behandling behandling) {
         testUtil.byggOgLagreSøknadMedNyOppgittFordeling(behandling, false);
         SøknadEntitet søknad = new SøknadEntitet.Builder(søknadRepository.hentSøknad(behandling.getId()),
-            false).leggTilVedlegg(new SøknadVedleggEntitet.Builder().medSkjemanummer(KODE_INNLEGGELSE)
-            .medErPåkrevdISøknadsdialog(true)
-            .build()).build();
+                false).leggTilVedlegg(
+                        new SøknadVedleggEntitet.Builder().medSkjemanummer(KODE_INNLEGGELSE)
+                                .medErPåkrevdISøknadsdialog(true)
+                                .build())
+                        .build();
         søknadRepository.lagreOgFlush(behandling, søknad);
     }
 
@@ -310,13 +311,13 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         HashMap<Arbeidsgiver, Set<EksternArbeidsforholdRef>> manglendeInntektsmeldinger = new HashMap<>();
         manglendeInntektsmeldinger.put(Arbeidsgiver.virksomhet("1"), new HashSet<>());
         when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraAAreg(any(), anyBoolean())).thenReturn(
-            manglendeInntektsmeldinger);
+                manglendeInntektsmeldinger);
     }
 
     private void mockManglendeInntektsmeldingKompletthet() {
         HashMap<Arbeidsgiver, Set<InternArbeidsforholdRef>> manglendeInntektsmeldinger = new HashMap<>();
         manglendeInntektsmeldinger.put(Arbeidsgiver.virksomhet("1"), new HashSet<>());
         when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(any(), anyBoolean())).thenReturn(
-            manglendeInntektsmeldinger);
+                manglendeInntektsmeldinger);
     }
 }

@@ -40,7 +40,6 @@ import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhet
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
-import no.nav.vedtak.felles.testutilities.Whitebox;
 
 @ExtendWith(FPsakEntityManagerAwareExtension.class)
 public class AutomatiskGrunnbelopReguleringTaskTest {
@@ -76,25 +75,25 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
 
     private void assertRevurdering(Behandling behandling, BehandlingÅrsakType behandlingÅrsakType) {
         Optional<Behandling> revurdering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(
-            behandling.getFagsakId(), BehandlingType.REVURDERING);
+                behandling.getFagsakId(), BehandlingType.REVURDERING);
         assertThat(revurdering).as("Ingen revurdering").isPresent();
         List<BehandlingÅrsak> behandlingÅrsaker = revurdering.get().getBehandlingÅrsaker();
         assertThat(behandlingÅrsaker).isNotEmpty();
         List<BehandlingÅrsakType> årsaker = behandlingÅrsaker.stream()
-            .map(bå -> bå.getBehandlingÅrsakType())
-            .collect(Collectors.toList());
+                .map(bå -> bå.getBehandlingÅrsakType())
+                .collect(Collectors.toList());
         assertThat(årsaker).contains(behandlingÅrsakType);
     }
 
     private void assertIngenRevurdering(Fagsak fagsak) {
         Optional<Behandling> revurdering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(
-            fagsak.getId(), BehandlingType.REVURDERING);
+                fagsak.getId(), BehandlingType.REVURDERING);
         assertThat(revurdering).as("Har revurdering: " + fagsak.getId()).isNotPresent();
     }
 
     private AutomatiskGrunnbelopReguleringTask createTask() {
         return new AutomatiskGrunnbelopReguleringTask(repositoryProvider,
-            prosessTaskRepository, enhetsTjeneste, flytkontroll);
+                prosessTaskRepository, enhetsTjeneste, flytkontroll);
 
     }
 
@@ -127,7 +126,7 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
         task.doTask(prosessTaskData);
 
         Optional<Behandling> regulering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(
-            behandling.getFagsakId(), BehandlingType.REVURDERING);
+                behandling.getFagsakId(), BehandlingType.REVURDERING);
         assertThat(regulering.filter(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.RE_SATS_REGULERING))).isPresent();
         verify(flytkontroll).settNyRevurderingPåVent(regulering.get());
     }
@@ -136,43 +135,43 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
         LocalDate terminDato = LocalDate.now().plusDays(10);
 
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medSøknadDato(terminDato.minusDays(20));
+                .medSøknadDato(terminDato.minusDays(20));
 
         scenario.medSøknadHendelse()
-            .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
-                .medNavnPå("Lege Legesen")
-                .medTermindato(terminDato)
-                .medUtstedtDato(terminDato.minusDays(40)))
-            .medAntallBarn(1);
+                .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
+                        .medNavnPå("Lege Legesen")
+                        .medTermindato(terminDato)
+                        .medUtstedtDato(terminDato.minusDays(40)))
+                .medAntallBarn(1);
 
         scenario.medBekreftetHendelse()
-            .medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
-                .medNavnPå("Lege Legesen")
-                .medTermindato(terminDato)
-                .medUtstedtDato(terminDato.minusDays(40)))
-            .medAntallBarn(1);
+                .medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
+                        .medNavnPå("Lege Legesen")
+                        .medTermindato(terminDato)
+                        .medUtstedtDato(terminDato.minusDays(40)))
+                .medAntallBarn(1);
 
         scenario.leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT);
         scenario.medVilkårResultatType(VilkårResultatType.INNVILGET);
 
         scenario.medBehandlingVedtak()
-            .medVedtakResultatType(VedtakResultatType.INNVILGET)
-            .medVedtakstidspunkt(terminDato.minusWeeks(2).atStartOfDay())
-            .medAnsvarligSaksbehandler("Severin Saksbehandler")
-            .build();
+                .medVedtakResultatType(VedtakResultatType.INNVILGET)
+                .medVedtakstidspunkt(terminDato.minusWeeks(2).atStartOfDay())
+                .medAnsvarligSaksbehandler("Severin Saksbehandler")
+                .build();
 
         scenario.medBehandlingsresultat(
-            Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
+                Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
 
         Behandling behandling = scenario.lagre(repositoryProvider);
-
-        Whitebox.setInternalState(behandling, "status", status);
+        behandling.setStatus(status);
+        // Whitebox.setInternalState(behandling, "status", status);
 
         BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, lås);
 
         repositoryProvider.getOpptjeningRepository()
-            .lagreOpptjeningsperiode(behandling, LocalDate.now().minusYears(1), LocalDate.now(), false);
+                .lagreOpptjeningsperiode(behandling, LocalDate.now().minusYears(1), LocalDate.now(), false);
 
         return behandlingRepository.hentBehandling(behandling.getId());
     }

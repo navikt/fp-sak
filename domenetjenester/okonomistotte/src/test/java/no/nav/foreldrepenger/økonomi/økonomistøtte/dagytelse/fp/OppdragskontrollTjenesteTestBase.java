@@ -77,6 +77,7 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollManagerFac
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollTjenesteImpl;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OpprettBehandlingForOppdrag;
+import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.OppdragskontrollManagerFactoryDagYtelse;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.SjekkOmDetFinnesTilkjentYtelse;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.adapter.BehandlingTilOppdragMapperTjeneste;
@@ -85,7 +86,6 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.endring.Oppdrags
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.førstegangsoppdrag.OppdragskontrollFørstegang;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.opphør.OppdragskontrollOpphør;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.opphør.OpprettOpphørIEndringsoppdrag;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
 @CdiDbAwareTest

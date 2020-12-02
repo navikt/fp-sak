@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystem;
-import no.nav.vedtak.felles.testutilities.Whitebox;
 
 public class VurderFagsystemTestUtils {
 
@@ -37,7 +36,7 @@ public class VurderFagsystemTestUtils {
     public static Optional<Behandling> byggBehandlingMedEndretDato(Fagsak fagsak, int dagerSidenSisteBehandling) {
 
         Behandling.Builder behandlingBuilder = Behandling.forFørstegangssøknad(fagsak)
-            .medOpprettetDato(LocalDateTime.now().minusDays(dagerSidenSisteBehandling));
+                .medOpprettetDato(LocalDateTime.now().minusDays(dagerSidenSisteBehandling));
         Behandling behandling = behandlingBuilder.build();
         return Optional.of(behandling);
     }
@@ -51,7 +50,6 @@ public class VurderFagsystemTestUtils {
         vfData.setBarnTermindato(terminDatdato);
         return vfData;
     }
-
 
     public static Fagsak fagsakFødselMedId(Long forventetFagsakId) {
 
@@ -69,8 +67,9 @@ public class VurderFagsystemTestUtils {
         return vfData;
     }
 
-    public static VurderFagsystem byggVurderFagsystemForInntektsmelding(String årsakInnsending, BehandlingTema behandlingTema, LocalDateTime forsendelseMottatt,
-                                                                        AktørId aktørId, JournalpostId journalpostId, String arbeidsforholdsid, String setArbeidsgiverIdentifikator) {
+    public static VurderFagsystem byggVurderFagsystemForInntektsmelding(String årsakInnsending, BehandlingTema behandlingTema,
+            LocalDateTime forsendelseMottatt,
+            AktørId aktørId, JournalpostId journalpostId, String arbeidsforholdsid, String setArbeidsgiverIdentifikator) {
         VurderFagsystem fagsystem = new VurderFagsystem();
         fagsystem.setAktørId(aktørId);
         fagsystem.setJournalpostId(journalpostId);
@@ -87,8 +86,9 @@ public class VurderFagsystemTestUtils {
         return behandlingBuilder.build();
     }
 
-    public static VurderFagsystem byggVurderFagsystemMedAnnenPart(BehandlingTema behandlingTema, AktørId annenPartId, Saksnummer saksnr, AktørId aktørId,
-                                                                  JournalpostId journalpostId, LocalDate barnTermindato, LocalDate barnFødselsdato) {
+    public static VurderFagsystem byggVurderFagsystemMedAnnenPart(BehandlingTema behandlingTema, AktørId annenPartId, Saksnummer saksnr,
+            AktørId aktørId,
+            JournalpostId journalpostId, LocalDate barnTermindato, LocalDate barnFødselsdato) {
         VurderFagsystem fagsystem = new VurderFagsystem();
         fagsystem.setAnnenPart(annenPartId);
         fagsystem.setSaksnummer(saksnr);
@@ -104,11 +104,11 @@ public class VurderFagsystemTestUtils {
     public static Fagsak buildFagsakMedUdefinertRelasjon(Long fagsakid, boolean erAvsluttet) {
         NavBruker navBruker = BehandlingslagerTestUtil.lagNavBruker();
         Fagsak fagsak = FagsakBuilder.nyForeldrepengesak(RelasjonsRolleType.MORA)
-            .medBruker(navBruker)
-            .medSaksnummer(new Saksnummer(fagsakid + ""))
-            .build();
+                .medBruker(navBruker)
+                .medSaksnummer(new Saksnummer(fagsakid + ""))
+                .build();
         fagsak.setId(fagsakid);
-        Whitebox.setInternalState(fagsak,"opprettetTidspunkt", LocalDateTime.now().minusDays(1));
+        fagsak.setOpprettetTidspunkt(LocalDateTime.now().minusDays(1));
         if (erAvsluttet) {
             fagsak.setAvsluttet();
         }

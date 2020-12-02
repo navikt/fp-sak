@@ -44,7 +44,6 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto.BeregningsresultatMedUttaksplanDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto.BeregningsresultatPeriodeAndelDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto.BeregningsresultatPeriodeDto;
-import no.nav.vedtak.felles.testutilities.Whitebox;
 
 @ExtendWith(MockitoExtension.class)
 public class BeregningsresultatMedUttaksplanMapperTest {
@@ -360,7 +359,8 @@ public class BeregningsresultatMedUttaksplanMapperTest {
         Fagsak fagsak = FagsakBuilder.nyForeldrepengerForMor().medBruker(søker).build();
         var behandling = Behandling.forFørstegangssøknad(fagsak)
                 .build();
-        Whitebox.setInternalState(behandling, "id", 1L);
+        behandling.setId(1L);
+        // Whitebox.setInternalState(behandling, "id", 1L);
         return behandling;
     }
 

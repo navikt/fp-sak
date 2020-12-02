@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming115;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
@@ -40,7 +40,6 @@ public class EksisterendeOppdragMapperTest {
     DelytelseId delytelseId4 = delytelseId3.neste();
     DelytelseId delytelseId5 = delytelseId4.neste();
 
-
     @Test
     public void skal_mappe_eksisterende_oppdrag() {
         Oppdragskontroll oppdragskontroll = lagOppdragskontroll();
@@ -53,9 +52,9 @@ public class EksisterendeOppdragMapperTest {
         Assertions.assertThat(kjeder.keySet()).containsOnly(kjedeNøkkel);
         OppdragKjede kjede = kjeder.get(kjedeNøkkel);
         Assertions.assertThat(kjede.getOppdragslinjer()).containsExactly(
-            OppdragLinje.builder().medDelytelseId(delytelseId1).medPeriode(p1).medSats(Sats.dagsats(100)).build(),
-            OppdragLinje.builder().medDelytelseId(delytelseId2).medPeriode(p2).medSats(Sats.dagsats(150)).medRefDelytelseId(delytelseId1).build()
-        );
+                OppdragLinje.builder().medDelytelseId(delytelseId1).medPeriode(p1).medSats(Sats.dagsats(100)).build(),
+                OppdragLinje.builder().medDelytelseId(delytelseId2).medPeriode(p2).medSats(Sats.dagsats(150)).medRefDelytelseId(delytelseId1)
+                        .build());
     }
 
     @Test
@@ -63,18 +62,16 @@ public class EksisterendeOppdragMapperTest {
         Oppdragskontroll oppdragskontroll = lagOppdragskontroll();
         Oppdrag110 oppdrag110 = lagOppdrag110(oppdragskontroll, FagsystemId.parse(saksnummer.getVerdi() + "100"));
         lagOrdinærLinje(oppdrag110, delytelseId1, p1, Sats.dagsats(100), null);
-        lagOrdinærLinje(oppdrag110, delytelseId2, p2, Sats.dagsats(150), null); //denne peker ikke til forrige, slik den egentlig skal
+        lagOrdinærLinje(oppdrag110, delytelseId2, p2, Sats.dagsats(150), null); // denne peker ikke til forrige, slik den egentlig skal
 
         Map<KjedeNøkkel, OppdragKjede> kjeder = EksisterendeOppdragMapper.tilKjeder(Arrays.asList(oppdragskontroll));
         KjedeNøkkel kjedeNøkkel = KjedeNøkkel.lag(FPATORD, Betalingsmottaker.BRUKER);
         KjedeNøkkel kjedeNøkkelKnektKjede = KjedeNøkkel.builder(FPATORD, Betalingsmottaker.BRUKER).medKnektKjedeDel(1).build();
         Assertions.assertThat(kjeder.keySet()).containsOnly(kjedeNøkkel, kjedeNøkkelKnektKjede);
         Assertions.assertThat(kjeder.get(kjedeNøkkel).getOppdragslinjer()).containsExactly(
-            OppdragLinje.builder().medDelytelseId(delytelseId1).medPeriode(p1).medSats(Sats.dagsats(100)).build()
-        );
+                OppdragLinje.builder().medDelytelseId(delytelseId1).medPeriode(p1).medSats(Sats.dagsats(100)).build());
         Assertions.assertThat(kjeder.get(kjedeNøkkelKnektKjede).getOppdragslinjer()).containsExactly(
-            OppdragLinje.builder().medDelytelseId(delytelseId2).medPeriode(p2).medSats(Sats.dagsats(150)).build()
-        );
+                OppdragLinje.builder().medDelytelseId(delytelseId2).medPeriode(p2).medSats(Sats.dagsats(150)).build());
     }
 
     @Test
@@ -92,19 +89,19 @@ public class EksisterendeOppdragMapperTest {
         Assertions.assertThat(kjeder.keySet()).containsOnly(kjedeNøkkel);
         OppdragKjede kjede = kjeder.get(kjedeNøkkel);
         Assertions.assertThat(kjede.getOppdragslinjer()).containsExactly(
-            OppdragLinje.builder().medDelytelseId(delytelseId1).medPeriode(p1).medSats(Sats.dagsats(100)).build(),
-            OppdragLinje.builder().medDelytelseId(delytelseId1).medPeriode(p1).medSats(Sats.dagsats(100)).medOpphørFomDato(opphørsdato).build(),
-            OppdragLinje.builder().medDelytelseId(delytelseId2).medPeriode(p2).medSats(Sats.dagsats(100)).medRefDelytelseId(linje1.getDelytelseId()).build()
-        );
+                OppdragLinje.builder().medDelytelseId(delytelseId1).medPeriode(p1).medSats(Sats.dagsats(100)).build(),
+                OppdragLinje.builder().medDelytelseId(delytelseId1).medPeriode(p1).medSats(Sats.dagsats(100)).medOpphørFomDato(opphørsdato).build(),
+                OppdragLinje.builder().medDelytelseId(delytelseId2).medPeriode(p2).medSats(Sats.dagsats(100))
+                        .medRefDelytelseId(linje1.getDelytelseId()).build());
     }
 
     private Oppdragskontroll lagOppdragskontroll() {
         return Oppdragskontroll.builder()
-            .medBehandlingId(1L)
-            .medProsessTaskId(1000L)
-            .medSaksnummer(saksnummer)
-            .medVenterKvittering(true)
-            .build();
+                .medBehandlingId(1L)
+                .medProsessTaskId(1000L)
+                .medSaksnummer(saksnummer)
+                .medVenterKvittering(true)
+                .build();
     }
 
     private Oppdragslinje150 lagOpphørslinje(Oppdrag110 oppdrag110, DelytelseId delytelseId, Periode p, Sats sats, LocalDate opphørFomDato) {
@@ -115,42 +112,43 @@ public class EksisterendeOppdragMapperTest {
         return lagOppdragslinje150(oppdrag110, delytelseId, p, sats, refDelytelseId, null);
     }
 
-    private Oppdragslinje150 lagOppdragslinje150(Oppdrag110 oppdrag110, DelytelseId delytelseId, Periode p, Sats sats, DelytelseId refDelytelseId, LocalDate opphørFomDato) {
+    private Oppdragslinje150 lagOppdragslinje150(Oppdrag110 oppdrag110, DelytelseId delytelseId, Periode p, Sats sats, DelytelseId refDelytelseId,
+            LocalDate opphørFomDato) {
         return Oppdragslinje150.builder()
-            .medOppdrag110(oppdrag110)
-            .medDelytelseId(Long.parseLong(delytelseId.toString()))
-            .medKodeKlassifik("FPATORD")
-            .medVedtakFomOgTom(p.getFom(), p.getTom())
-            .medSats(sats.getSats())
-            .medTypeSats(sats.getSatsType().getKode())
-            .medBrukKjoreplan("N")
-            .medHenvisning(oppdrag110.getOppdragskontroll().getBehandlingId())
-            .medSaksbehId(oppdrag110.getSaksbehId())
-            .medDatoStatusFom(opphørFomDato)
-            .medKodeStatusLinje(opphørFomDato != null ? "OPPH" : null)
-            .medKodeEndringLinje(opphørFomDato != null ? "ENDR" : "NY")
-            .medFradragTillegg("T")
-            .medRefDelytelseId(refDelytelseId != null ? Long.parseLong(refDelytelseId.toString()) : null)
-            .medRefFagsystemId(refDelytelseId != null ? Long.parseLong(refDelytelseId.getFagsystemId().toString()) : null)
-            .build();
+                .medOppdrag110(oppdrag110)
+                .medDelytelseId(Long.parseLong(delytelseId.toString()))
+                .medKodeKlassifik("FPATORD")
+                .medVedtakFomOgTom(p.getFom(), p.getTom())
+                .medSats(sats.getSats())
+                .medTypeSats(sats.getSatsType().getKode())
+                .medBrukKjoreplan("N")
+                .medHenvisning(oppdrag110.getOppdragskontroll().getBehandlingId())
+                .medSaksbehId(oppdrag110.getSaksbehId())
+                .medDatoStatusFom(opphørFomDato)
+                .medKodeStatusLinje(opphørFomDato != null ? "OPPH" : null)
+                .medKodeEndringLinje(opphørFomDato != null ? "ENDR" : "NY")
+                .medFradragTillegg("T")
+                .medRefDelytelseId(refDelytelseId != null ? Long.parseLong(refDelytelseId.toString()) : null)
+                .medRefFagsystemId(refDelytelseId != null ? Long.parseLong(refDelytelseId.getFagsystemId().toString()) : null)
+                .build();
     }
 
     private Oppdrag110 lagOppdrag110(Oppdragskontroll oppdragskontroll, FagsystemId fagsystemId) {
         return Oppdrag110.builder()
-            .medKodeAksjon("1")
-            .medKodeEndring("NY")
-            .medKodeFagomrade("FP")
-            .medUtbetFrekvens("MND")
-            .medOppdragGjelderId(frnBruker)
-            .medDatoOppdragGjelderFom(LocalDate.MIN)
-            .medSaksbehId("Z100000")
-            .medOppdragskontroll(oppdragskontroll)
-            .medFagSystemId(Long.parseLong(fagsystemId.toString()))
-            .medAvstemming115(Avstemming115.builder()
-                .medKodekomponent("FP")
-                .medTidspnktMelding("nå")
-                .medNokkelAvstemming("en nøkkel")
-                .build())
-            .build();
+                .medKodeAksjon("1")
+                .medKodeEndring("NY")
+                .medKodeFagomrade("FP")
+                .medUtbetFrekvens("MND")
+                .medOppdragGjelderId(frnBruker)
+                .medDatoOppdragGjelderFom(LocalDate.MIN)
+                .medSaksbehId("Z100000")
+                .medOppdragskontroll(oppdragskontroll)
+                .medFagSystemId(Long.parseLong(fagsystemId.toString()))
+                .medAvstemming115(Avstemming115.builder()
+                        .medKodekomponent("FP")
+                        .medTidspnktMelding("nå")
+                        .medNokkelAvstemming("en nøkkel")
+                        .build())
+                .build();
     }
 }

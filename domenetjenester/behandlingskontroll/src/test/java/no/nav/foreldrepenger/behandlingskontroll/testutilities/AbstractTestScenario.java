@@ -28,17 +28,16 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.vedtak.felles.testutilities.Whitebox;
 
 /**
  * Default test scenario builder for å definere opp testdata med enkle defaults.
  * <p>
- * Oppretter en default behandling, inkludert default grunnlag med søknad + tomt innangsvilkårresultat.
+ * Oppretter en default behandling, inkludert default grunnlag med søknad + tomt
+ * innangsvilkårresultat.
  * <p>
  * Kan bruke settere (evt. legge til) for å tilpasse utgangspunktet.
  * <p>
- * Mer avansert bruk er ikke gitt at kan bruke denne
- * klassen.
+ * Mer avansert bruk er ikke gitt at kan bruke denne klassen.
  */
 public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private static final AtomicLong FAKE_ID = new AtomicLong(100999L);
@@ -52,10 +51,10 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private BehandlingType behandlingType = BehandlingType.FØRSTEGANGSSØKNAD;
 
     protected AbstractTestScenario(FagsakYtelseType fagsakYtelseType, RelasjonsRolleType brukerRolle,
-                                   NavBrukerKjønn kjønn) {
+            NavBrukerKjønn kjønn) {
         this.fagsakBuilder = FagsakBuilder
-            .nyFagsak(fagsakYtelseType, brukerRolle)
-            .medBrukerKjønn(kjønn);
+                .nyFagsak(fagsakYtelseType, brukerRolle)
+                .medBrukerKjønn(kjønn);
     }
 
     public Behandling lagre(BehandlingskontrollServiceProvider repositoryProvider) {
@@ -113,12 +112,13 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private void lagFagsak(FagsakRepository fagsakRepo) {
         // opprett og lagre fagsak. Må gjøres før kan opprette behandling
         if (!Mockito.mockingDetails(fagsakRepo).isMock()) {
-            final EntityManager entityManager = (EntityManager) Whitebox.getInternalState(fagsakRepo, "entityManager");
+            final EntityManager entityManager = fagsakRepo.getEntityManager();
             if (entityManager != null) {
                 NavBrukerRepository brukerRepository = new NavBrukerRepository(entityManager);
                 final NavBruker navBruker = brukerRepository.hent(fagsakBuilder.getBrukerBuilder().getAktørId())
-                    .orElseGet(() -> NavBruker.opprettNy(fagsakBuilder.getBrukerBuilder().getAktørId(),
-                        fagsakBuilder.getBrukerBuilder().getSpråkkode() != null ? fagsakBuilder.getBrukerBuilder().getSpråkkode() : Språkkode.NB));
+                        .orElseGet(() -> NavBruker.opprettNy(fagsakBuilder.getBrukerBuilder().getAktørId(),
+                                fagsakBuilder.getBrukerBuilder().getSpråkkode() != null ? fagsakBuilder.getBrukerBuilder().getSpråkkode()
+                                        : Språkkode.NB));
                 fagsakBuilder.medBruker(navBruker);
             }
         }
@@ -129,13 +129,13 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
     private void leggTilAksjonspunkter(Behandling behandling) {
         aksjonspunktDefinisjoner.forEach(
-            (apDef, stegType) -> {
-                if (stegType != null) {
-                    AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, apDef, stegType);
-                } else {
-                    AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, apDef);
-                }
-            });
+                (apDef, stegType) -> {
+                    if (stegType != null) {
+                        AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, apDef, stegType);
+                    } else {
+                        AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, apDef);
+                    }
+                });
     }
 
     public static class NavBrukerBuilder {
