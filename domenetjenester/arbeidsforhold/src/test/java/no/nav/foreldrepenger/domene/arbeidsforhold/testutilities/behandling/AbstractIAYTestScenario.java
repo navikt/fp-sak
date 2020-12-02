@@ -487,14 +487,8 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
             }
         }
         fagsak = fagsakBuilder.build();
-        Long fagsakId = fagsakRepo.opprettNy(fagsak); // NOSONAR //$NON-NLS-1$
+        Long fagsakId = fagsakRepo.opprettNy(fagsak);
         fagsak.setId(fagsakId);
-    }
-
-    private NavBrukerKjønn getKjønnFraFagsak() {
-        return fagsakBuilder.getBrukerBuilder().getKjønn() != null ? fagsakBuilder.getBrukerBuilder().getKjønn()
-                : (RelasjonsRolleType.erMor(fagsakBuilder.getRolle()) || RelasjonsRolleType.erMedmor(fagsakBuilder.getRolle()) ? NavBrukerKjønn.KVINNE
-                        : NavBrukerKjønn.MANN);
     }
 
     private void lagreBehandlingsresultatOgVilkårResultat(IAYRepositoryProvider repoProvider, BehandlingLås lås) {

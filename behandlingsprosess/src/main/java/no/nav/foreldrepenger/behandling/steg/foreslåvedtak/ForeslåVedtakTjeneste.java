@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -37,14 +36,14 @@ class ForeslåVedtakTjeneste {
 
     @Inject
     ForeslåVedtakTjeneste(FagsakRepository fagsakRepository,
-                          KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste,
-                          SjekkMotEksisterendeOppgaverTjeneste sjekkMotEksisterendeOppgaverTjeneste) {
+            KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste,
+            SjekkMotEksisterendeOppgaverTjeneste sjekkMotEksisterendeOppgaverTjeneste) {
         this.sjekkMotEksisterendeOppgaverTjeneste = sjekkMotEksisterendeOppgaverTjeneste;
         this.fagsakRepository = fagsakRepository;
         this.klageAnkeVedtakTjeneste = klageAnkeVedtakTjeneste;
     }
 
-    public BehandleStegResultat foreslåVedtak(Behandling behandling, BehandlingskontrollKontekst kontekst) {
+    public BehandleStegResultat foreslåVedtak(Behandling behandling) {
         long fagsakId = behandling.getFagsakId();
         Fagsak fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
         if (fagsak.getSkalTilInfotrygd()) {
@@ -53,17 +52,18 @@ class ForeslåVedtakTjeneste {
 
         List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner = new ArrayList<>();
         if (!BehandlingType.KLAGE.equals(behandling.getType()) && !BehandlingType.ANKE.equals(behandling.getType())) {
-            aksjonspunktDefinisjoner.addAll(sjekkMotEksisterendeOppgaverTjeneste.sjekkMotEksisterendeGsakOppgaver(behandling.getAktørId(), behandling));
+            aksjonspunktDefinisjoner
+                    .addAll(sjekkMotEksisterendeOppgaverTjeneste.sjekkMotEksisterendeGsakOppgaver(behandling.getAktørId(), behandling));
         } else if (klageAnkeVedtakTjeneste.erKlageResultatHjemsendt(behandling)) {
             behandling.nullstillToTrinnsBehandling();
             return BehandleStegResultat.utførtUtenAksjonspunkter();
-        }  else if (klageAnkeVedtakTjeneste.erGodkjentHosMedunderskriver(behandling)) {
+        } else if (klageAnkeVedtakTjeneste.erGodkjentHosMedunderskriver(behandling)) {
             behandling.nullstillToTrinnsBehandling();
             return BehandleStegResultat.utførtMedAksjonspunkter(List.of(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL));
         }
 
         Optional<Aksjonspunkt> vedtakUtenTotrinnskontroll = behandling
-            .getÅpentAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL);
+                .getÅpentAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL);
         if (vedtakUtenTotrinnskontroll.isPresent()) {
             behandling.nullstillToTrinnsBehandling();
             return BehandleStegResultat.utførtMedAksjonspunkter(aksjonspunktDefinisjoner);
@@ -72,7 +72,7 @@ class ForeslåVedtakTjeneste {
         håndterToTrinn(behandling, aksjonspunktDefinisjoner);
 
         return aksjonspunktDefinisjoner.isEmpty() ? BehandleStegResultat.utførtUtenAksjonspunkter()
-            : BehandleStegResultat.utførtMedAksjonspunkter(aksjonspunktDefinisjoner);
+                : BehandleStegResultat.utførtMedAksjonspunkter(aksjonspunktDefinisjoner);
     }
 
     private void håndterToTrinn(Behandling behandling, List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner) {
@@ -93,16 +93,16 @@ class ForeslåVedtakTjeneste {
 
     private boolean skalOppretteForeslåVedtakManuelt(Behandling behandling) {
         return BehandlingType.REVURDERING.equals(behandling.getType()) &&
-            !erRevurderingEtterFødselHendelseES(behandling) && behandling.erManueltOpprettet();
+                !erRevurderingEtterFødselHendelseES(behandling) && behandling.erManueltOpprettet();
     }
 
     private boolean skalUtføreTotrinnsbehandling(Behandling behandling) {
         return !behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL) &&
-            behandling.harAksjonspunktMedTotrinnskontroll();
+                behandling.harAksjonspunktMedTotrinnskontroll();
     }
 
     private boolean erRevurderingEtterFødselHendelseES(Behandling behandling) {
         return FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType()) &&
-            behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
+                behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
     }
 }

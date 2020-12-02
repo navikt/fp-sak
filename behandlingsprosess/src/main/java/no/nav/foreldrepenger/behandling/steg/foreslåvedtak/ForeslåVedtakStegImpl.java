@@ -33,6 +33,6 @@ public class ForeslåVedtakStegImpl implements ForeslåVedtakSteg {
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-        return foreslåVedtakTjeneste.foreslåVedtak(behandling, kontekst);
+        return foreslåVedtakTjeneste.foreslåVedtak(behandling);
     }
 }

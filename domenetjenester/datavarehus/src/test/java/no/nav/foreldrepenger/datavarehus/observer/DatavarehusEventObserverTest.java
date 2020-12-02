@@ -51,7 +51,7 @@ public class DatavarehusEventObserverTest {
         datavarehusEventObserver = new DatavarehusEventObserver(datavarehusTjeneste);
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Test
     public void observerAksjonspunktUtførtEvent() throws Exception {
         Behandling behandling = byggBehandling();
@@ -69,7 +69,7 @@ public class DatavarehusEventObserverTest {
         assertThat(resultList.get(1)).isEqualTo(aksjonspunktListe.get(1));
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Test
     public void observerAksjonspunkterFunnetEvent() throws Exception {
         Behandling behandling = byggBehandling();
@@ -87,7 +87,7 @@ public class DatavarehusEventObserverTest {
         assertThat(resultList.get(1)).isEqualTo(aksjonspunktListe.get(1));
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Test
     public void observerAksjonspunkterAvbruttEvent() throws Exception {
         Behandling behandling = byggBehandling();
@@ -104,7 +104,6 @@ public class DatavarehusEventObserverTest {
         assertThat(resultList.get(0)).isEqualTo(aksjonspunktListe.get(0));
         assertThat(resultList.get(1)).isEqualTo(aksjonspunktListe.get(1));
     }
-
 
     @Test
     public void observerFagsakStatus() throws Exception {
@@ -123,11 +122,13 @@ public class DatavarehusEventObserverTest {
         Behandling behandling = byggBehandling();
 
         BehandlingskontrollKontekst kontekst = byggKontekst(behandling);
-        BehandlingStegTilstandSnapshot fraTilstand = new BehandlingStegTilstandSnapshot(1L, BehandlingStegType.BEREGN_YTELSE, BehandlingStegStatus.UTFØRT);
-        BehandlingStegTilstandSnapshot tilTilstand = new BehandlingStegTilstandSnapshot(2L, BehandlingStegType.FATTE_VEDTAK, BehandlingStegStatus.INNGANG);
+        BehandlingStegTilstandSnapshot fraTilstand = new BehandlingStegTilstandSnapshot(1L, BehandlingStegType.BEREGN_YTELSE,
+                BehandlingStegStatus.UTFØRT);
+        BehandlingStegTilstandSnapshot tilTilstand = new BehandlingStegTilstandSnapshot(2L, BehandlingStegType.FATTE_VEDTAK,
+                BehandlingStegStatus.INNGANG);
         BehandlingStegTilstandEndringEvent event = new BehandlingStegTilstandEndringEvent(kontekst,
-            fraTilstand,
-            tilTilstand);
+                fraTilstand,
+                tilTilstand);
         datavarehusEventObserver.observerBehandlingStegTilstandEndringEvent(event);
 
         ArgumentCaptor<BehandlingStegTilstandSnapshot> captor = ArgumentCaptor.forClass(BehandlingStegTilstandSnapshot.class);
@@ -143,11 +144,13 @@ public class DatavarehusEventObserverTest {
         Behandling behandling = byggBehandling();
 
         BehandlingskontrollKontekst kontekst = byggKontekst(behandling);
-        BehandlingStegTilstandSnapshot fraTilstand = new BehandlingStegTilstandSnapshot(1L, BehandlingStegType.REGISTRER_SØKNAD, BehandlingStegStatus.UTFØRT);
-        BehandlingStegTilstandSnapshot tilTilstand = new BehandlingStegTilstandSnapshot(2L, BehandlingStegType.INNHENT_SØKNADOPP, BehandlingStegStatus.INNGANG);
+        BehandlingStegTilstandSnapshot fraTilstand = new BehandlingStegTilstandSnapshot(1L, BehandlingStegType.REGISTRER_SØKNAD,
+                BehandlingStegStatus.UTFØRT);
+        BehandlingStegTilstandSnapshot tilTilstand = new BehandlingStegTilstandSnapshot(2L, BehandlingStegType.INNHENT_SØKNADOPP,
+                BehandlingStegStatus.INNGANG);
         BehandlingStegTilstandEndringEvent event = new BehandlingStegTilstandEndringEvent(kontekst,
-            fraTilstand,
-            tilTilstand);
+                fraTilstand,
+                tilTilstand);
         datavarehusEventObserver.observerBehandlingStegTilstandEndringEvent(event);
 
         ArgumentCaptor<BehandlingStegTilstandSnapshot> captor = ArgumentCaptor.forClass(BehandlingStegTilstandSnapshot.class);
@@ -188,11 +191,11 @@ public class DatavarehusEventObserverTest {
 
     private BehandlingVedtak byggVedtak() {
         return BehandlingVedtak.builder()
-            .medAnsvarligSaksbehandler("s142443")
-            .medIverksettingStatus(IverksettingStatus.IVERKSATT)
-            .medVedtakstidspunkt(LocalDateTime.now())
-            .medVedtakResultatType(VedtakResultatType.INNVILGET)
-            .build();
+                .medAnsvarligSaksbehandler("s142443")
+                .medIverksettingStatus(IverksettingStatus.IVERKSATT)
+                .medVedtakstidspunkt(LocalDateTime.now())
+                .medVedtakResultatType(VedtakResultatType.INNVILGET)
+                .build();
     }
 
     private BehandlingskontrollKontekst byggKontekst(Behandling behandling) {

@@ -36,7 +36,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakR
  * @depecated Ikke bruk denne monstertklassen som indireksjon for å få tak i
  *            repositories, bruk de enkelte direkte.
  */
-@Deprecated(since = "4.0.x")
 public class BehandlingRepositoryProvider {
 
     private EntityManager entityManager;

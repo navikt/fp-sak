@@ -31,6 +31,6 @@ public class ForeslåVedtakStegImplTest {
         steg.utførSteg(kontekst);
 
         // Assert
-        verify(foreslåVedtakTjeneste).foreslåVedtak(eq(behandling), eq(kontekst));
+        verify(foreslåVedtakTjeneste).foreslåVedtak(eq(behandling));
     }
 }

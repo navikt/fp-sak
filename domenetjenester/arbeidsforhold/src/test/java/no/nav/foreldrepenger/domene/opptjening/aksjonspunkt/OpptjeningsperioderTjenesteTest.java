@@ -90,16 +90,16 @@ public class OpptjeningsperioderTjenesteTest {
         fagsakRepository = new FagsakRepository(entityManager);
         opptjeningRepository = new OpptjeningRepository(entityManager, behandlingRepository);
         var aksjonspunktutlederForVurderOpptjening = new AksjonspunktutlederForVurderOppgittOpptjening(opptjeningRepository,
-            iayTjeneste, virksomhetTjeneste);
+                iayTjeneste, virksomhetTjeneste);
         var apbOpptjening = new AksjonspunktutlederForVurderBekreftetOpptjening(opptjeningRepository, iayTjeneste);
         forSaksbehandlingTjeneste = new OpptjeningsperioderTjeneste(iayTjeneste, opptjeningRepository, aksjonspunktutlederForVurderOpptjening,
-            apbOpptjening);
+                apbOpptjening);
     }
 
     @Test
     public void skal_utlede_opptjening_aktivitet_periode_uten_overstyrt() {
         // Arrange
-        final Behandling behandling = opprettBehandling(skjæringstidspunkt);
+        final Behandling behandling = opprettBehandling();
 
         DatoIntervallEntitet periode1 = DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunkt.minusMonths(3), skjæringstidspunkt.minusMonths(2));
         DatoIntervallEntitet periode2 = DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunkt.minusMonths(2), skjæringstidspunkt.minusMonths(1));
@@ -110,44 +110,50 @@ public class OpptjeningsperioderTjenesteTest {
 
         final Arbeidsgiver virksomhet = Arbeidsgiver.virksomhet(ORG_NUMMER);
         InntektArbeidYtelseAggregatBuilder bekreftet = opprettInntektArbeidYtelseAggregatForYrkesaktivitet(AKTØRID, ARBEIDSFORHOLD_ID, periode1,
-            ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN, virksomhet);
+                ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN, virksomhet);
         iayTjeneste.lagreIayAggregat(behandling.getId(), bekreftet);
 
         InntektArbeidYtelseAggregatBuilder saksbehandlet = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.of(bekreftet.build()),
-            VersjonType.SAKSBEHANDLET);
+                VersjonType.SAKSBEHANDLET);
 
         iayTjeneste.lagreIayAggregat(behandling.getId(), saksbehandlet);
 
         // Act
         BehandlingReferanse behandlingRef = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
         InntektArbeidYtelseGrunnlag iayGrunnlag = iayTjeneste.hentGrunnlag(behandling.getId());
-        List<OpptjeningsperiodeForSaksbehandling> perioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(behandlingRef, Optional.of(iayGrunnlag));
+        List<OpptjeningsperiodeForSaksbehandling> perioder = forSaksbehandlingTjeneste
+                .hentRelevanteOpptjeningAktiveterForSaksbehandling(behandlingRef, Optional.of(iayGrunnlag));
 
         // Assert
         assertThat(perioder).hasSize(2);
         OpptjeningsperiodeForSaksbehandling saksbehandletPeriode = perioder.stream().filter(p -> p.getOpptjeningsnøkkel()
-            .getArbeidsforholdRef().map(r -> r.gjelderFor(ARBEIDSFORHOLD_ID)).orElse(false)).findFirst().get();
+                .getArbeidsforholdRef().map(r -> r.gjelderFor(ARBEIDSFORHOLD_ID)).orElse(false)).findFirst().get();
         assertThat(saksbehandletPeriode.getPeriode()).isEqualTo(periode1);
     }
 
     @Test
     public void ytelse_skal_lage_sammehengende_liste() {
         // Arrange
-        final Behandling behandling = opprettBehandling(skjæringstidspunkt);
+        final Behandling behandling = opprettBehandling();
 
         DatoIntervallEntitet periode = DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunkt.minusMonths(3), skjæringstidspunkt);
 
         final Arbeidsgiver virksomhet = Arbeidsgiver.virksomhet(ORG_NUMMER);
         InntektArbeidYtelseAggregatBuilder bekreftet = opprettInntektArbeidYtelseAggregatForYrkesaktivitet(AKTØRID, ARBEIDSFORHOLD_ID, periode,
-            ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN, virksomhet);
-        bekreftet.leggTilAktørYtelse(leggTilYtelseMedAnvist(bekreftet.getAktørYtelseBuilder(AKTØRID), VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusDays(10)),
-            VirkedagUtil.tomSøndag(skjæringstidspunkt.minusDays(2)), RelatertYtelseTilstand.LØPENDE, "12342234", RelatertYtelseType.SYKEPENGER));
-        bekreftet.leggTilAktørYtelse(leggTilYtelseMedAnvist(bekreftet.getAktørYtelseBuilder(AKTØRID), VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusDays(25)),
-            VirkedagUtil.tomSøndag(skjæringstidspunkt.minusDays(5)), RelatertYtelseTilstand.AVSLUTTET, "1222433", RelatertYtelseType.SYKEPENGER));
-        bekreftet.leggTilAktørYtelse(leggTilYtelseMedAnvist(bekreftet.getAktørYtelseBuilder(AKTØRID), VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusDays(30)) ,
-            VirkedagUtil.tomSøndag(skjæringstidspunkt.minusDays(21)), RelatertYtelseTilstand.AVSLUTTET, "124234", RelatertYtelseType.SYKEPENGER));
-        bekreftet.leggTilAktørYtelse(leggTilYtelseMedAnvist(bekreftet.getAktørYtelseBuilder(AKTØRID), VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusDays(50)),
-            VirkedagUtil.tomSøndag(skjæringstidspunkt.minusDays(40)), RelatertYtelseTilstand.AVSLUTTET, "123253254", RelatertYtelseType.SYKEPENGER));
+                ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN, virksomhet);
+        bekreftet.leggTilAktørYtelse(leggTilYtelseMedAnvist(bekreftet.getAktørYtelseBuilder(AKTØRID),
+                VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusDays(10)),
+                VirkedagUtil.tomSøndag(skjæringstidspunkt.minusDays(2)), RelatertYtelseTilstand.LØPENDE, "12342234", RelatertYtelseType.SYKEPENGER));
+        bekreftet.leggTilAktørYtelse(leggTilYtelseMedAnvist(bekreftet.getAktørYtelseBuilder(AKTØRID),
+                VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusDays(25)),
+                VirkedagUtil.tomSøndag(skjæringstidspunkt.minusDays(5)), RelatertYtelseTilstand.AVSLUTTET, "1222433", RelatertYtelseType.SYKEPENGER));
+        bekreftet.leggTilAktørYtelse(leggTilYtelseMedAnvist(bekreftet.getAktørYtelseBuilder(AKTØRID),
+                VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusDays(30)),
+                VirkedagUtil.tomSøndag(skjæringstidspunkt.minusDays(21)), RelatertYtelseTilstand.AVSLUTTET, "124234", RelatertYtelseType.SYKEPENGER));
+        bekreftet.leggTilAktørYtelse(
+                leggTilYtelseMedAnvist(bekreftet.getAktørYtelseBuilder(AKTØRID), VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusDays(50)),
+                        VirkedagUtil.tomSøndag(skjæringstidspunkt.minusDays(40)), RelatertYtelseTilstand.AVSLUTTET, "123253254",
+                        RelatertYtelseType.SYKEPENGER));
 
         iayTjeneste.lagreIayAggregat(behandling.getId(), bekreftet);
 
@@ -156,13 +162,14 @@ public class OpptjeningsperioderTjenesteTest {
         // Act
         BehandlingReferanse behandlingRef = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
         InntektArbeidYtelseGrunnlag iayGrunnlag = iayTjeneste.hentGrunnlag(behandling.getId());
-        List<OpptjeningsperiodeForSaksbehandling> perioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(behandlingRef, Optional.of(iayGrunnlag));
+        List<OpptjeningsperiodeForSaksbehandling> perioder = forSaksbehandlingTjeneste
+                .hentRelevanteOpptjeningAktiveterForSaksbehandling(behandlingRef, Optional.of(iayGrunnlag));
 
         // Assert
         assertThat(perioder).hasSize(3);
         var ytelser = perioder.stream()
-            .filter(p -> OpptjeningAktivitetType.SYKEPENGER.equals(p.getOpptjeningAktivitetType()))
-            .collect(Collectors.toList());
+                .filter(p -> OpptjeningAktivitetType.SYKEPENGER.equals(p.getOpptjeningAktivitetType()))
+                .collect(Collectors.toList());
         assertThat(ytelser.get(0).getPeriode().getFomDato()).isEqualTo(VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusDays(50)));
         assertThat(ytelser.get(1).getPeriode().getFomDato()).isEqualTo(VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusDays(30)));
         assertThat(ytelser.get(1).getPeriode().getTomDato()).isEqualTo(VirkedagUtil.tomSøndag(skjæringstidspunkt.minusDays(2)));
@@ -172,19 +179,23 @@ public class OpptjeningsperioderTjenesteTest {
     @Test
     public void ytelse_skal_ikke_ta_med_ytelser_etter_stp() {
         // Arrange
-        final Behandling behandling = opprettBehandling(skjæringstidspunkt);
+        final Behandling behandling = opprettBehandling();
 
         DatoIntervallEntitet periode = DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunkt.minusMonths(3), skjæringstidspunkt);
 
         final Arbeidsgiver virksomhet = Arbeidsgiver.virksomhet(ORG_NUMMER);
         InntektArbeidYtelseAggregatBuilder bekreftet = opprettInntektArbeidYtelseAggregatForYrkesaktivitet(AKTØRID, ARBEIDSFORHOLD_ID, periode,
-            ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN, virksomhet);
-        bekreftet.leggTilAktørYtelse(leggTilYtelseMedAnvist(bekreftet.getAktørYtelseBuilder(AKTØRID), VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusDays(15)),
-            VirkedagUtil.tomSøndag(skjæringstidspunkt.minusDays(2)), RelatertYtelseTilstand.LØPENDE, "12342234", RelatertYtelseType.SYKEPENGER));
-        bekreftet.leggTilAktørYtelse(leggTilYtelseMedAnvist(bekreftet.getAktørYtelseBuilder(AKTØRID), VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusDays(30)),
-            VirkedagUtil.tomSøndag(skjæringstidspunkt.minusDays(15)), RelatertYtelseTilstand.AVSLUTTET, "1222433", RelatertYtelseType.OMSORGSPENGER));
-        bekreftet.leggTilAktørYtelse(leggTilYtelseMedAnvist(bekreftet.getAktørYtelseBuilder(AKTØRID), VirkedagUtil.fomVirkedag(skjæringstidspunkt.plusDays(10)) ,
-            VirkedagUtil.tomSøndag(skjæringstidspunkt.plusDays(21)), RelatertYtelseTilstand.AVSLUTTET, "124234", RelatertYtelseType.SYKEPENGER));
+                ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN, virksomhet);
+        bekreftet.leggTilAktørYtelse(leggTilYtelseMedAnvist(bekreftet.getAktørYtelseBuilder(AKTØRID),
+                VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusDays(15)),
+                VirkedagUtil.tomSøndag(skjæringstidspunkt.minusDays(2)), RelatertYtelseTilstand.LØPENDE, "12342234", RelatertYtelseType.SYKEPENGER));
+        bekreftet.leggTilAktørYtelse(
+                leggTilYtelseMedAnvist(bekreftet.getAktørYtelseBuilder(AKTØRID), VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusDays(30)),
+                        VirkedagUtil.tomSøndag(skjæringstidspunkt.minusDays(15)), RelatertYtelseTilstand.AVSLUTTET, "1222433",
+                        RelatertYtelseType.OMSORGSPENGER));
+        bekreftet.leggTilAktørYtelse(leggTilYtelseMedAnvist(bekreftet.getAktørYtelseBuilder(AKTØRID),
+                VirkedagUtil.fomVirkedag(skjæringstidspunkt.plusDays(10)),
+                VirkedagUtil.tomSøndag(skjæringstidspunkt.plusDays(21)), RelatertYtelseTilstand.AVSLUTTET, "124234", RelatertYtelseType.SYKEPENGER));
 
         iayTjeneste.lagreIayAggregat(behandling.getId(), bekreftet);
 
@@ -193,23 +204,25 @@ public class OpptjeningsperioderTjenesteTest {
         // Act
         BehandlingReferanse behandlingRef = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
         InntektArbeidYtelseGrunnlag iayGrunnlag = iayTjeneste.hentGrunnlag(behandling.getId());
-        List<OpptjeningsperiodeForSaksbehandling> perioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(behandlingRef, Optional.of(iayGrunnlag));
+        List<OpptjeningsperiodeForSaksbehandling> perioder = forSaksbehandlingTjeneste
+                .hentRelevanteOpptjeningAktiveterForSaksbehandling(behandlingRef, Optional.of(iayGrunnlag));
 
         // Assert
         assertThat(perioder).hasSize(3);
         var ytelserSP = perioder.stream()
-            .filter(p -> OpptjeningAktivitetType.SYKEPENGER.equals(p.getOpptjeningAktivitetType()))
-            .collect(Collectors.toList());
+                .filter(p -> OpptjeningAktivitetType.SYKEPENGER.equals(p.getOpptjeningAktivitetType()))
+                .collect(Collectors.toList());
         assertThat(ytelserSP).hasSize(1);
         assertThat(ytelserSP.get(0).getPeriode().getFomDato()).isEqualTo(VirkedagUtil.fomVirkedag(skjæringstidspunkt.minusDays(15)));
-        assertThat(perioder.stream().map(OpptjeningsperiodeForSaksbehandling::getOpptjeningAktivitetType).filter(OpptjeningAktivitetType.OMSORGSPENGER::equals).count()).isEqualTo(1);
+        assertThat(perioder.stream().map(OpptjeningsperiodeForSaksbehandling::getOpptjeningAktivitetType)
+                .filter(OpptjeningAktivitetType.OMSORGSPENGER::equals).count()).isEqualTo(1);
 
     }
 
     @Test
     public void skal_sammenstille_grunnlag_og_overstyrt_deretter_utlede_opptjening_aktivitet_periode() {
         // Arrange
-        final Behandling behandling = opprettBehandling(skjæringstidspunkt);
+        final Behandling behandling = opprettBehandling();
 
         DatoIntervallEntitet periode1 = DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunkt.minusMonths(3), skjæringstidspunkt.minusMonths(2));
         DatoIntervallEntitet periode2 = DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunkt.minusMonths(2), skjæringstidspunkt.minusMonths(1));
@@ -221,36 +234,38 @@ public class OpptjeningsperioderTjenesteTest {
 
         final Arbeidsgiver virksomhet = Arbeidsgiver.virksomhet(ORG_NUMMER);
         InntektArbeidYtelseAggregatBuilder bekreftet = opprettInntektArbeidYtelseAggregatForYrkesaktivitet(AKTØRID, ARBEIDSFORHOLD_ID, periode1,
-            ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN, virksomhet);
+                ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN, virksomhet);
         iayTjeneste.lagreIayAggregat(behandling.getId(), bekreftet);
 
         InntektArbeidYtelseAggregatBuilder saksbehandlet = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.of(bekreftet.build()),
-            VersjonType.SAKSBEHANDLET);
+                VersjonType.SAKSBEHANDLET);
         var ref = saksbehandlet.medNyInternArbeidsforholdRef(virksomhet, EksternArbeidsforholdRef.ref("1"));
 
         YrkesaktivitetBuilder yrkesaktivitetBuilder = saksbehandlet.getAktørArbeidBuilder(AKTØRID)
-            .getYrkesaktivitetBuilderForNøkkelAvType(new Opptjeningsnøkkel(ref, null, null),
-                ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
+                .getYrkesaktivitetBuilderForNøkkelAvType(new Opptjeningsnøkkel(ref, null, null),
+                        ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
         yrkesaktivitetBuilder
-            .leggTilAktivitetsAvtale(yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
-                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(periode3.getFomDato(), periode3.getTomDato()))
-                .medProsentsats(BigDecimal.TEN));
+                .leggTilAktivitetsAvtale(yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
+                        .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(periode3.getFomDato(), periode3.getTomDato()))
+                        .medProsentsats(BigDecimal.TEN));
 
         iayTjeneste.lagreIayAggregat(behandling.getId(), saksbehandlet);
 
         // Act
         BehandlingReferanse behandlingRef = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
-        List<OpptjeningsperiodeForSaksbehandling> perioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(behandlingRef);
+        List<OpptjeningsperiodeForSaksbehandling> perioder = forSaksbehandlingTjeneste
+                .hentRelevanteOpptjeningAktiveterForSaksbehandling(behandlingRef);
 
         // Assert
         assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.GODKJENT)).collect(Collectors.toList())).hasSize(1);
-        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.UNDERKJENT)).collect(Collectors.toList())).hasSize(1);
+        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.UNDERKJENT)).collect(Collectors.toList()))
+                .hasSize(1);
     }
 
     @Test
     public void skal_sammenstille_grunnlag_og_utlede_opptjening_aktivitet_periode() {
         // Arrange
-        Behandling behandling = opprettBehandling(skjæringstidspunkt);
+        Behandling behandling = opprettBehandling();
 
         DatoIntervallEntitet periode1 = DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunkt.minusMonths(3), skjæringstidspunkt.minusMonths(2));
         DatoIntervallEntitet periode2 = DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunkt.minusMonths(2), skjæringstidspunkt.minusMonths(1));
@@ -259,17 +274,17 @@ public class OpptjeningsperioderTjenesteTest {
 
         OppgittOpptjeningBuilder.EgenNæringBuilder egenNæringBuilder = OppgittOpptjeningBuilder.EgenNæringBuilder.ny();
         egenNæringBuilder
-            .medRegnskapsførerNavn("Larsen")
-            .medRegnskapsførerTlf("TELEFON")
-            .medVirksomhet(ORG_NUMMER)
-            .medPeriode(periode2);
+                .medRegnskapsførerNavn("Larsen")
+                .medRegnskapsførerTlf("TELEFON")
+                .medVirksomhet(ORG_NUMMER)
+                .medPeriode(periode2);
 
         oppgitt.leggTilAnnenAktivitet(new OppgittAnnenAktivitet(periode2, ArbeidType.MILITÆR_ELLER_SIVILTJENESTE));
         oppgitt.leggTilEgneNæringer(List.of(egenNæringBuilder));
         iayTjeneste.lagreOppgittOpptjening(behandling.getId(), oppgitt);
 
         InntektArbeidYtelseAggregatBuilder bekreftet = opprettInntektArbeidYtelseAggregatForYrkesaktivitet(AKTØRID, ARBEIDSFORHOLD_ID, periode1,
-            ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN, Arbeidsgiver.virksomhet(ORG_NUMMER));
+                ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN, Arbeidsgiver.virksomhet(ORG_NUMMER));
         iayTjeneste.lagreIayAggregat(behandling.getId(), bekreftet);
 
         BehandlingReferanse ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
@@ -278,7 +293,8 @@ public class OpptjeningsperioderTjenesteTest {
 
         // Assert
         assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.GODKJENT)).collect(Collectors.toList())).hasSize(2);
-        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.TIL_VURDERING)).collect(Collectors.toList())).hasSize(1);
+        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.TIL_VURDERING)).collect(Collectors.toList()))
+                .hasSize(1);
         assertThat(perioder.stream().filter(OpptjeningsperiodeForSaksbehandling::getErManueltRegistrert).collect(Collectors.toList())).isEmpty();
         assertThat(perioder.stream().filter(o -> !o.getErManueltRegistrert()).collect(Collectors.toList())).hasSize(3);
     }
@@ -286,7 +302,7 @@ public class OpptjeningsperioderTjenesteTest {
     @Test
     public void skal_utlede_om_en_periode_er_blitt_endret() {
         // Arrange
-        final Behandling behandling = opprettBehandling(skjæringstidspunkt);
+        final Behandling behandling = opprettBehandling();
 
         DatoIntervallEntitet periode1 = DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunkt.minusMonths(3), skjæringstidspunkt.minusMonths(2));
         DatoIntervallEntitet periode2 = DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunkt.minusMonths(2), skjæringstidspunkt.minusMonths(1));
@@ -296,13 +312,14 @@ public class OpptjeningsperioderTjenesteTest {
         iayTjeneste.lagreOppgittOpptjening(behandling.getId(), oppgitt);
 
         InntektArbeidYtelseAggregatBuilder saksbehandlet = opprettOverstyrtOppgittOpptjening(periode1,
-            ArbeidType.MILITÆR_ELLER_SIVILTJENESTE, AKTØRID, VersjonType.SAKSBEHANDLET);
+                ArbeidType.MILITÆR_ELLER_SIVILTJENESTE, AKTØRID, VersjonType.SAKSBEHANDLET);
         iayTjeneste.lagreIayAggregat(behandling.getId(), saksbehandlet);
         BehandlingReferanse ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
         // Act
         // Assert
         List<OpptjeningsperiodeForSaksbehandling> perioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(ref)
-            .stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.MILITÆR_ELLER_SIVILTJENESTE)).collect(Collectors.toList());
+                .stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.MILITÆR_ELLER_SIVILTJENESTE))
+                .collect(Collectors.toList());
 
         assertThat(perioder).hasSize(1);
         assertThat(perioder.get(0).getErPeriodeEndret()).isTrue();
@@ -312,7 +329,7 @@ public class OpptjeningsperioderTjenesteTest {
     @Test
     public void skal_returnere_oat_frilans_ved_bekreftet_frilans() {
         // Arrange
-        final Behandling behandling = opprettBehandling(skjæringstidspunkt);
+        final Behandling behandling = opprettBehandling();
 
         final Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet(ORG_NUMMER);
 
@@ -321,7 +338,7 @@ public class OpptjeningsperioderTjenesteTest {
         DatoIntervallEntitet periode1 = DatoIntervallEntitet.fraOgMedTilOgMed(fraOgMed, tilOgMed);
 
         InntektArbeidYtelseAggregatBuilder bekreftet = opprettInntektArbeidYtelseAggregatForYrkesaktivitet(AKTØRID, ARBEIDSFORHOLD_ID, periode1,
-            ArbeidType.FRILANSER_OPPDRAGSTAKER_MED_MER, BigDecimal.TEN, arbeidsgiver);
+                ArbeidType.FRILANSER_OPPDRAGSTAKER_MED_MER, BigDecimal.TEN, arbeidsgiver);
         opprettInntektForFrilanser(bekreftet, AKTØRID, ARBEIDSFORHOLD_ID, periode1, arbeidsgiver);
         iayTjeneste.lagreIayAggregat(behandling.getId(), bekreftet);
 
@@ -333,28 +350,30 @@ public class OpptjeningsperioderTjenesteTest {
 
         // Assert
         assertThat(perioder.stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.FRILANS)).collect(Collectors.toList()))
-            .hasSize(1);
-        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.TIL_VURDERING)).collect(Collectors.toList())).hasSize(1);
+                .hasSize(1);
+        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.TIL_VURDERING)).collect(Collectors.toList()))
+                .hasSize(1);
         assertThat(perioder.stream().filter(OpptjeningsperiodeForSaksbehandling::getErManueltRegistrert).collect(Collectors.toList())).isEmpty();
         assertThat(perioder.stream().filter(o -> !o.getErManueltRegistrert()).collect(Collectors.toList())).hasSize(1);
 
         // Act 2
         InntektArbeidYtelseAggregatBuilder saksbehandlet = opprettOverstyrtOppgittOpptjening(periode1,
-            ArbeidType.MILITÆR_ELLER_SIVILTJENESTE, AKTØRID, VersjonType.SAKSBEHANDLET);
+                ArbeidType.MILITÆR_ELLER_SIVILTJENESTE, AKTØRID, VersjonType.SAKSBEHANDLET);
         iayTjeneste.lagreIayAggregat(behandling.getId(), saksbehandlet);
         perioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(ref);
 
         // Assert
         assertThat(perioder.stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.FRILANS)).collect(Collectors.toList()))
-            .hasSize(1);
-        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.UNDERKJENT)).collect(Collectors.toList())).hasSize(1);
+                .hasSize(1);
+        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.UNDERKJENT)).collect(Collectors.toList()))
+                .hasSize(1);
         assertThat(perioder.stream().filter(OpptjeningsperiodeForSaksbehandling::getErManueltRegistrert).collect(Collectors.toList())).hasSize(1);
     }
 
     @Test
     public void skal_sette_manuelt_behandlet_ved_underkjent_frilans() {
         // Arrange
-        final Behandling behandling = opprettBehandling(skjæringstidspunkt);
+        final Behandling behandling = opprettBehandling();
 
         final Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet(ORG_NUMMER);
 
@@ -363,7 +382,7 @@ public class OpptjeningsperioderTjenesteTest {
         DatoIntervallEntitet periode1 = DatoIntervallEntitet.fraOgMedTilOgMed(fraOgMed, tilOgMed);
 
         InntektArbeidYtelseAggregatBuilder bekreftet = opprettInntektArbeidYtelseAggregatForYrkesaktivitet(AKTØRID, ARBEIDSFORHOLD_ID, periode1,
-            ArbeidType.FRILANSER_OPPDRAGSTAKER_MED_MER, BigDecimal.TEN, arbeidsgiver);
+                ArbeidType.FRILANSER_OPPDRAGSTAKER_MED_MER, BigDecimal.TEN, arbeidsgiver);
         opprettInntektForFrilanser(bekreftet, AKTØRID, ARBEIDSFORHOLD_ID, periode1, arbeidsgiver);
         iayTjeneste.lagreIayAggregat(behandling.getId(), bekreftet);
 
@@ -371,7 +390,6 @@ public class OpptjeningsperioderTjenesteTest {
         oppgitt.leggTilAnnenAktivitet(new OppgittAnnenAktivitet(periode1, ArbeidType.FRILANSER));
         iayTjeneste.lagreOppgittOpptjening(behandling.getId(), oppgitt);
 
-
         BehandlingReferanse ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
         opptjeningRepository.lagreOpptjeningsperiode(behandling, LocalDate.now().minusMonths(10), LocalDate.now().minusDays(1), false);
 
@@ -380,30 +398,32 @@ public class OpptjeningsperioderTjenesteTest {
 
         // Assert
         assertThat(perioder.stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.FRILANS)).collect(Collectors.toList()))
-            .hasSize(1);
-        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.TIL_VURDERING)).collect(Collectors.toList())).hasSize(1);
+                .hasSize(1);
+        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.TIL_VURDERING)).collect(Collectors.toList()))
+                .hasSize(1);
         assertThat(perioder.stream().filter(OpptjeningsperiodeForSaksbehandling::getErManueltRegistrert).collect(Collectors.toList())).isEmpty();
         assertThat(perioder.stream().filter(o -> !o.getErManueltRegistrert()).collect(Collectors.toList())).hasSize(1);
 
         // Act 2
         InntektArbeidYtelseAggregatBuilder saksbehandlet = InntektArbeidYtelseAggregatBuilder
-            .oppdatere(Optional.empty(), VersjonType.SAKSBEHANDLET);
+                .oppdatere(Optional.empty(), VersjonType.SAKSBEHANDLET);
         iayTjeneste.lagreIayAggregat(behandling.getId(), saksbehandlet);
         perioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(ref);
 
         // Assert
         assertThat(perioder.stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.FRILANS)).collect(Collectors.toList()))
-            .hasSize(1);
-        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.UNDERKJENT)).collect(Collectors.toList())).hasSize(1);
-        OpptjeningsperiodeForSaksbehandling frilansPeriode = perioder.stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.FRILANS)).findFirst().get();
+                .hasSize(1);
+        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.UNDERKJENT)).collect(Collectors.toList()))
+                .hasSize(1);
+        OpptjeningsperiodeForSaksbehandling frilansPeriode = perioder.stream()
+                .filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.FRILANS)).findFirst().get();
         assertThat(frilansPeriode.erManueltBehandlet()).isTrue();
     }
-
 
     @Test
     public void skal_returnere_oat_frilans_ved_bekreftet_frilans_for_vilkår() {
         // Arrange
-        final Behandling behandling = opprettBehandling(skjæringstidspunkt);
+        final Behandling behandling = opprettBehandling();
 
         final Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet(ORG_NUMMER);
 
@@ -412,7 +432,7 @@ public class OpptjeningsperioderTjenesteTest {
         DatoIntervallEntitet periode1 = DatoIntervallEntitet.fraOgMedTilOgMed(fraOgMed, tilOgMed);
 
         InntektArbeidYtelseAggregatBuilder bekreftet = opprettInntektArbeidYtelseAggregatForYrkesaktivitet(AKTØRID, ARBEIDSFORHOLD_ID, periode1,
-            ArbeidType.FRILANSER_OPPDRAGSTAKER_MED_MER, BigDecimal.TEN, arbeidsgiver);
+                ArbeidType.FRILANSER_OPPDRAGSTAKER_MED_MER, BigDecimal.TEN, arbeidsgiver);
         opprettInntektForFrilanser(bekreftet, AKTØRID, ARBEIDSFORHOLD_ID, periode1, arbeidsgiver);
         iayTjeneste.lagreIayAggregat(behandling.getId(), bekreftet);
 
@@ -424,27 +444,29 @@ public class OpptjeningsperioderTjenesteTest {
 
         // Assert
         assertThat(perioder.stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.FRILANS)).collect(Collectors.toList()))
-            .hasSize(1);
-        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.FERDIG_VURDERT_UNDERKJENT)).collect(Collectors.toList()))
-            .hasSize(1);
+                .hasSize(1);
+        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.FERDIG_VURDERT_UNDERKJENT))
+                .collect(Collectors.toList()))
+                        .hasSize(1);
 
         // Act 2
         InntektArbeidYtelseAggregatBuilder saksbehandlet = opprettOverstyrtOppgittOpptjening(periode1, ArbeidType.FRILANSER, AKTØRID,
-            VersjonType.SAKSBEHANDLET);
+                VersjonType.SAKSBEHANDLET);
         iayTjeneste.lagreIayAggregat(behandling.getId(), saksbehandlet);
         perioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForVilkårVurdering(ref);
 
         // Assert
         assertThat(perioder.stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.FRILANS)).collect(Collectors.toList()))
-            .hasSize(1);
-        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.FERDIG_VURDERT_GODKJENT)).collect(Collectors.toList()))
-            .hasSize(1);
+                .hasSize(1);
+        assertThat(
+                perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.FERDIG_VURDERT_GODKJENT)).collect(Collectors.toList()))
+                        .hasSize(1);
     }
 
     @Test
     public void skal_returnere_en_periode_med_fiktivt_bekreftet_arbeidsforhold() {
         // Arrange
-        final Behandling behandling = opprettBehandling(skjæringstidspunkt);
+        final Behandling behandling = opprettBehandling();
         BehandlingReferanse ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
         LocalDate fraOgMed = LocalDate.of(2015, 1, 4);
         LocalDate tilOgMed = skjæringstidspunkt.plusMonths(2);
@@ -463,21 +485,21 @@ public class OpptjeningsperioderTjenesteTest {
 
     @Test
     public void skal_kunne_bygge_opptjeninsperiode_basert_på_arbeidsforhold_lagt_til_avsaksbehandler() {
-        final Behandling behandling = opprettBehandling(skjæringstidspunkt);
+        final Behandling behandling = opprettBehandling();
         BehandlingReferanse ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
         LocalDate start = LocalDate.now().minusMonths(5);
 
         ArbeidsforholdInformasjonBuilder arbeidsforholdInformasjonBuilder = ArbeidsforholdInformasjonBuilder.builder(Optional.empty());
         Arbeidsgiver virksomhet = Arbeidsgiver.virksomhet("999999999");
 
-        ArbeidsforholdOverstyringBuilder arbeidsforholdOverstyringBuilder = arbeidsforholdInformasjonBuilder.getOverstyringBuilderFor(virksomhet, null);
+        ArbeidsforholdOverstyringBuilder arbeidsforholdOverstyringBuilder = arbeidsforholdInformasjonBuilder.getOverstyringBuilderFor(virksomhet,
+                null);
         arbeidsforholdOverstyringBuilder.medHandling(ArbeidsforholdHandlingType.BASERT_PÅ_INNTEKTSMELDING);
         arbeidsforholdOverstyringBuilder.leggTilOverstyrtPeriode(start, LocalDate.MAX);
         arbeidsforholdOverstyringBuilder.medAngittStillingsprosent(Stillingsprosent.ZERO);
         arbeidsforholdInformasjonBuilder.leggTil(arbeidsforholdOverstyringBuilder);
 
         iayTjeneste.lagreArbeidsforhold(behandling.getId(), AKTØRID, arbeidsforholdInformasjonBuilder);
-
 
         // Act
         @SuppressWarnings("unused")
@@ -489,10 +511,10 @@ public class OpptjeningsperioderTjenesteTest {
         Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet(KUNSTIG_ORG);
         return ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty())
                 .leggTil(ArbeidsforholdOverstyringBuilder.oppdatere(Optional.empty())
-                    .medArbeidsgiver(arbeidsgiver)
-                    .medHandling(ArbeidsforholdHandlingType.LAGT_TIL_AV_SAKSBEHANDLER)
-                    .leggTilOverstyrtPeriode(fraOgMed, tilOgMed)
-                    .medAngittStillingsprosent(new Stillingsprosent(BigDecimal.valueOf(100))));
+                        .medArbeidsgiver(arbeidsgiver)
+                        .medHandling(ArbeidsforholdHandlingType.LAGT_TIL_AV_SAKSBEHANDLER)
+                        .leggTilOverstyrtPeriode(fraOgMed, tilOgMed)
+                        .medAngittStillingsprosent(new Stillingsprosent(BigDecimal.valueOf(100))));
     }
 
     private InntektArbeidYtelseAggregatBuilder lagFiktivtArbeidsforholdSaksbehandlet(DatoIntervallEntitet periode) {
@@ -500,31 +522,30 @@ public class OpptjeningsperioderTjenesteTest {
         InntektArbeidYtelseAggregatBuilder builder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.SAKSBEHANDLET);
         InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = builder.getAktørArbeidBuilder(AKTØRID);
         YrkesaktivitetBuilder yrkesaktivitetBuilder = aktørArbeidBuilder.getYrkesaktivitetBuilderForNøkkelAvType(
-            new Opptjeningsnøkkel(null, KUNSTIG_ORG, null), ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
+                new Opptjeningsnøkkel(null, KUNSTIG_ORG, null), ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
         AktivitetsAvtaleBuilder aktivitetsAvtaleBuilder = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder();
         AktivitetsAvtaleBuilder aktivitetsAvtale = aktivitetsAvtaleBuilder
-            .medPeriode(periode)
-            .medProsentsats(BigDecimal.valueOf(100))
-            .medBeskrivelse("Ser greit ut");
+                .medPeriode(periode)
+                .medProsentsats(BigDecimal.valueOf(100))
+                .medBeskrivelse("Ser greit ut");
         AktivitetsAvtaleBuilder ansettelsesperiode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
-            .medPeriode(periode);
+                .medPeriode(periode);
         yrkesaktivitetBuilder
-            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .medArbeidsgiver(arbeidsgiver)
-            .medArbeidsforholdId(null)
-            .leggTilAktivitetsAvtale(aktivitetsAvtale)
-            .leggTilAktivitetsAvtale(ansettelsesperiode);
+                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+                .medArbeidsgiver(arbeidsgiver)
+                .medArbeidsforholdId(null)
+                .leggTilAktivitetsAvtale(aktivitetsAvtale)
+                .leggTilAktivitetsAvtale(ansettelsesperiode);
         InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeid = aktørArbeidBuilder
-            .leggTilYrkesaktivitet(yrkesaktivitetBuilder);
+                .leggTilYrkesaktivitet(yrkesaktivitetBuilder);
         builder.leggTilAktørArbeid(aktørArbeid);
         return builder;
     }
 
-
     private InntektArbeidYtelseAggregatBuilder opprettOverstyrtOppgittOpptjening(DatoIntervallEntitet periode, ArbeidType type, AktørId aktørId,
-                                                                                 VersjonType register) {
+            VersjonType register) {
         InntektArbeidYtelseAggregatBuilder builder = InntektArbeidYtelseAggregatBuilder
-            .oppdatere(Optional.empty(), register);
+                .oppdatere(Optional.empty(), register);
 
         InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = builder.getAktørArbeidBuilder(aktørId);
         YrkesaktivitetBuilder yrkesaktivitetBuilder = aktørArbeidBuilder.getYrkesaktivitetBuilderForType(type);
@@ -532,21 +553,21 @@ public class OpptjeningsperioderTjenesteTest {
         AktivitetsAvtaleBuilder aktivitetsAvtaleBuilder = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder();
 
         AktivitetsAvtaleBuilder aktivitetsAvtale = aktivitetsAvtaleBuilder
-            .medPeriode(periode)
-            .medBeskrivelse("Ser greit ut");
+                .medPeriode(periode)
+                .medBeskrivelse("Ser greit ut");
 
         yrkesaktivitetBuilder
-            .medArbeidType(type)
-            .leggTilAktivitetsAvtale(aktivitetsAvtale);
+                .medArbeidType(type)
+                .leggTilAktivitetsAvtale(aktivitetsAvtale);
         InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeid = aktørArbeidBuilder
-            .leggTilYrkesaktivitet(yrkesaktivitetBuilder);
+                .leggTilYrkesaktivitet(yrkesaktivitetBuilder);
 
         builder.leggTilAktørArbeid(aktørArbeid);
 
         return builder;
     }
 
-    private Behandling opprettBehandling(LocalDate skjæringstidspunkt) {
+    private Behandling opprettBehandling() {
         final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AKTØRID));
         Long fagsakId = fagsakRepository.opprettNy(fagsak);
         fagsakRepository.oppdaterRelasjonsRolle(fagsakId, RelasjonsRolleType.MORA);
@@ -560,54 +581,55 @@ public class OpptjeningsperioderTjenesteTest {
     }
 
     private InntektArbeidYtelseAggregatBuilder opprettInntektArbeidYtelseAggregatForYrkesaktivitet(AktørId aktørId, InternArbeidsforholdRef ref,
-                                                                                                   DatoIntervallEntitet periode, ArbeidType type,
-                                                                                                   BigDecimal prosentsats, Arbeidsgiver virksomhet1) {
+            DatoIntervallEntitet periode, ArbeidType type,
+            BigDecimal prosentsats, Arbeidsgiver virksomhet1) {
         InntektArbeidYtelseAggregatBuilder builder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
 
         InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = builder.getAktørArbeidBuilder(aktørId);
         YrkesaktivitetBuilder yrkesaktivitetBuilder = aktørArbeidBuilder.getYrkesaktivitetBuilderForNøkkelAvType(
-            new Opptjeningsnøkkel(ref, virksomhet1.getIdentifikator(), null), type);
+                new Opptjeningsnøkkel(ref, virksomhet1.getIdentifikator(), null), type);
 
         AktivitetsAvtaleBuilder aktivitetsAvtaleBuilder = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder();
         PermisjonBuilder permisjonBuilder = yrkesaktivitetBuilder.getPermisjonBuilder();
 
         AktivitetsAvtaleBuilder aktivitetsAvtale = aktivitetsAvtaleBuilder
-            .medPeriode(periode)
-            .medProsentsats(prosentsats)
-            .medBeskrivelse("Ser greit ut");
+                .medPeriode(periode)
+                .medProsentsats(prosentsats)
+                .medBeskrivelse("Ser greit ut");
         AktivitetsAvtaleBuilder ansettelsesperiode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
-            .medPeriode(periode);
+                .medPeriode(periode);
 
         Permisjon permisjon = permisjonBuilder
-            .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.UTDANNINGSPERMISJON)
-            .medPeriode(periode.getFomDato(), periode.getTomDato())
-            .medProsentsats(BigDecimal.valueOf(100))
-            .build();
+                .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.UTDANNINGSPERMISJON)
+                .medPeriode(periode.getFomDato(), periode.getTomDato())
+                .medProsentsats(BigDecimal.valueOf(100))
+                .build();
 
         yrkesaktivitetBuilder
-            .medArbeidType(type)
-            .medArbeidsgiver(virksomhet1)
-            .medArbeidsforholdId(ARBEIDSFORHOLD_ID)
-            .leggTilPermisjon(permisjon)
-            .leggTilAktivitetsAvtale(aktivitetsAvtale)
-            .leggTilAktivitetsAvtale(ansettelsesperiode);
+                .medArbeidType(type)
+                .medArbeidsgiver(virksomhet1)
+                .medArbeidsforholdId(ARBEIDSFORHOLD_ID)
+                .leggTilPermisjon(permisjon)
+                .leggTilAktivitetsAvtale(aktivitetsAvtale)
+                .leggTilAktivitetsAvtale(ansettelsesperiode);
 
         InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeid = aktørArbeidBuilder
-            .leggTilYrkesaktivitet(yrkesaktivitetBuilder);
+                .leggTilYrkesaktivitet(yrkesaktivitetBuilder);
 
         builder.leggTilAktørArbeid(aktørArbeid);
 
         return builder;
     }
 
-    private void opprettInntektForFrilanser(InntektArbeidYtelseAggregatBuilder bekreftet, AktørId aktørId, InternArbeidsforholdRef ref, DatoIntervallEntitet periode,
-                                            Arbeidsgiver virksomhet1) {
+    private void opprettInntektForFrilanser(InntektArbeidYtelseAggregatBuilder bekreftet, AktørId aktørId, InternArbeidsforholdRef ref,
+            DatoIntervallEntitet periode,
+            Arbeidsgiver virksomhet1) {
         InntektArbeidYtelseAggregatBuilder.AktørInntektBuilder ainntektBuilder = bekreftet.getAktørInntektBuilder(aktørId);
         InntektBuilder inntektBuilder = ainntektBuilder.getInntektBuilder(InntektsKilde.INNTEKT_OPPTJENING,
-            new Opptjeningsnøkkel(ref, virksomhet1.getIdentifikator(), null));
+                new Opptjeningsnøkkel(ref, virksomhet1.getIdentifikator(), null));
         inntektBuilder.medArbeidsgiver(virksomhet1);
         inntektBuilder.leggTilInntektspost(InntektspostBuilder.ny().medInntektspostType(InntektspostType.LØNN)
-            .medPeriode(periode.getFomDato(), periode.getTomDato()).medBeløp(BigDecimal.TEN));
+                .medPeriode(periode.getFomDato(), periode.getTomDato()).medBeløp(BigDecimal.TEN));
         ainntektBuilder.leggTilInntekt(inntektBuilder);
         bekreftet.leggTilAktørInntekt(ainntektBuilder);
     }

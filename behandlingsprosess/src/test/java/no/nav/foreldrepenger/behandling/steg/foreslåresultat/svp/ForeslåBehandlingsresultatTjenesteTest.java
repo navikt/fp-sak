@@ -58,7 +58,6 @@ import no.nav.foreldrepenger.domene.uttak.fastsettuttaksgrunnlag.svp.Endringsdat
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.util.Tuple;
 
-
 public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
 
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
@@ -87,16 +86,15 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
         behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         beregningsgrunnlagTjeneste = new HentOgLagreBeregningsgrunnlagTjeneste(entityManager);
         revurderingBehandlingsresultatutleder = spy(new RevurderingBehandlingsresultatutleder(repositoryProvider,
-            beregningsgrunnlagTjeneste,
-            endringsdatoRevurderingUtlederImpl,
-            opphørUttakTjeneste,
+                beregningsgrunnlagTjeneste,
+                opphørUttakTjeneste,
                 skjæringstidspunktTjeneste,
-            medlemTjeneste));
+                medlemTjeneste));
 
         tjeneste = new ForeslåBehandlingsresultatTjenesteImpl(repositoryProvider,
-            avslagsårsakTjeneste,
-            dokumentBehandlingTjeneste,
-            revurderingBehandlingsresultatutleder);
+                avslagsårsakTjeneste,
+                dokumentBehandlingTjeneste,
+                revurderingBehandlingsresultatutleder);
     }
 
     @Test
@@ -228,23 +226,23 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
 
     private Behandlingsresultat foreslåBehandlingresultat(Behandling behandling) {
         var ref = BehandlingReferanse.fra(behandling,
-            Skjæringstidspunkt.builder()
-                .medSkjæringstidspunktOpptjening(SKJÆRINGSTIDSPUNKT)
-                .medSkjæringstidspunktBeregning(SKJÆRINGSTIDSPUNKT)
-                .medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
-                .medFørsteUttaksdato(SKJÆRINGSTIDSPUNKT.plusDays(1))
-                .build());
+                Skjæringstidspunkt.builder()
+                        .medSkjæringstidspunktOpptjening(SKJÆRINGSTIDSPUNKT)
+                        .medSkjæringstidspunktBeregning(SKJÆRINGSTIDSPUNKT)
+                        .medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
+                        .medFørsteUttaksdato(SKJÆRINGSTIDSPUNKT.plusDays(1))
+                        .build());
         return tjeneste.foreslåBehandlingsresultat(ref);
     }
 
     private Behandling lagRevurdering(Behandling originalBehandling) {
         Behandling revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-            .medKopiAvForrigeBehandlingsresultat()
-            .medBehandlingÅrsak(
-                BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
-                    .medManueltOpprettet(true)
-                    .medOriginalBehandlingId(originalBehandling.getId()))
-            .build();
+                .medKopiAvForrigeBehandlingsresultat()
+                .medBehandlingÅrsak(
+                        BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
+                                .medManueltOpprettet(true)
+                                .medOriginalBehandlingId(originalBehandling.getId()))
+                .build();
         behandlingRepository.lagre(revurdering, behandlingRepository.taSkriveLås(revurdering));
         return revurdering;
     }
@@ -258,8 +256,8 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
             vilkårsresultatBuilder.leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, vilkårUtfallType);
         } else {
             vilkårsresultatBuilder.leggTilVilkårResultatManueltIkkeOppfylt(
-                VilkårType.OPPTJENINGSVILKÅRET,
-                Avslagsårsak.IKKE_TILSTREKKELIG_OPPTJENING);
+                    VilkårType.OPPTJENINGSVILKÅRET,
+                    Avslagsårsak.IKKE_TILSTREKKELIG_OPPTJENING);
         }
         behandlingRepository.lagre(vilkårsresultatBuilder.buildFor(behandling), lås);
         behandlingRepository.lagre(behandling, lås);
@@ -270,9 +268,11 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
 
     private void lagBehandlingsresultat(Behandling behandling) {
         Behandlingsresultat behandlingsresultat = Behandlingsresultat.builderEndreEksisterende(getBehandlingsresultat(behandling))
-            .medBehandlingResultatType(BehandlingResultatType.AVSLÅTT).leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.INGEN_ENDRING).buildFor(behandling);
-        BehandlingVedtak behandlingVedtak = BehandlingVedtak.builder().medVedtakstidspunkt(LocalDateTime.now()).medBehandlingsresultat(behandlingsresultat)
-            .medVedtakResultatType(VedtakResultatType.AVSLAG).medAnsvarligSaksbehandler("asdf").build();
+                .medBehandlingResultatType(BehandlingResultatType.AVSLÅTT).leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.INGEN_ENDRING)
+                .buildFor(behandling);
+        BehandlingVedtak behandlingVedtak = BehandlingVedtak.builder().medVedtakstidspunkt(LocalDateTime.now())
+                .medBehandlingsresultat(behandlingsresultat)
+                .medVedtakResultatType(VedtakResultatType.AVSLAG).medAnsvarligSaksbehandler("asdf").build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         behandlingVedtakRepository.lagre(behandlingVedtak, behandlingRepository.taSkriveLås(behandling));
 
@@ -284,28 +284,27 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
         return behandling.getBehandlingsresultat();
     }
 
-
     public void lagreUttak(Behandling behandling) {
 
         var fom = LocalDate.of(2019, Month.JANUARY, 1);
         var tom = LocalDate.of(2019, Month.MARCH, 31);
 
         var uttakPeriode = new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medRegelInput("{}")
-            .medRegelEvaluering("{}")
-            .medUtbetalingsgrad(BigDecimal.valueOf(100L))
-            .medPeriodeIkkeOppfyltÅrsak(PeriodeIkkeOppfyltÅrsak.INGEN)
-            .medPeriodeResultatType(PeriodeResultatType.INNVILGET)
-            .build();
+                .medRegelInput("{}")
+                .medRegelEvaluering("{}")
+                .medUtbetalingsgrad(BigDecimal.valueOf(100L))
+                .medPeriodeIkkeOppfyltÅrsak(PeriodeIkkeOppfyltÅrsak.INGEN)
+                .medPeriodeResultatType(PeriodeResultatType.INNVILGET)
+                .build();
 
         var uttakArbeidsforhold = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder()
-            .medArbeidsforhold(Arbeidsgiver.person(AktørId.dummy()), null)
-            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
-            .medPeriode(uttakPeriode)
-            .build();
-        var uttakResultat= new SvangerskapspengerUttakResultatEntitet.Builder(behandling.getBehandlingsresultat()).medUttakResultatArbeidsforhold(uttakArbeidsforhold).build();
+                .medArbeidsforhold(Arbeidsgiver.person(AktørId.dummy()), null)
+                .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+                .medPeriode(uttakPeriode)
+                .build();
+        var uttakResultat = new SvangerskapspengerUttakResultatEntitet.Builder(behandling.getBehandlingsresultat())
+                .medUttakResultatArbeidsforhold(uttakArbeidsforhold).build();
         repositoryProvider.getSvangerskapspengerUttakResultatRepository().lagre(behandling.getId(), uttakResultat);
     }
 
 }
-

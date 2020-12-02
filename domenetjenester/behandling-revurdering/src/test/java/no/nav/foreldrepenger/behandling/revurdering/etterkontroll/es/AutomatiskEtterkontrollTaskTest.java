@@ -50,7 +50,6 @@ import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(FPsakEntityManagerAwareExtension.class)
@@ -79,21 +78,21 @@ public class AutomatiskEtterkontrollTaskTest {
     @Mock
     private HistorikkRepository historikkRepository;
 
-    private Repository repo;
+    private EntityManager em;
 
     @BeforeEach
     public void setUp(EntityManager entityManager) {
-        repo = new Repository(entityManager);
+        em = entityManager;
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         legacyESBeregningRepository = new LegacyESBeregningRepository(entityManager);
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         etterkontrollRepository = new EtterkontrollRepository(entityManager);
         familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
         task = new AutomatiskEtterkontrollTask(repositoryProvider, etterkontrollRepository, historikkRepository,
-            familieHendelseTjeneste, tpsFamilieTjenesteMock,
-            prosessTaskRepositoryMock, behandlendeEnhetTjeneste);
+                familieHendelseTjeneste, tpsFamilieTjenesteMock,
+                prosessTaskRepositoryMock, behandlendeEnhetTjeneste);
         lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class)))
-            .thenReturn(new OrganisasjonsEnhet("1234", "Testlokasjon"));
+                .thenReturn(new OrganisasjonsEnhet("1234", "Testlokasjon"));
     }
 
     @Test
@@ -101,7 +100,7 @@ public class AutomatiskEtterkontrollTaskTest {
 
         Behandling behandling = opprettRevurderingsKandidat(4, 1, true, false, true);
         when(tpsFamilieTjenesteMock.innhentAlleFødteForBehandlingIntervaller(any(), any())).thenReturn(
-            Collections.emptyList());
+                Collections.emptyList());
 
         ProsessTaskData prosessTaskData = new ProsessTaskData(AutomatiskEtterkontrollTask.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
@@ -115,29 +114,29 @@ public class AutomatiskEtterkontrollTaskTest {
 
     private void assertRevurdering(Behandling behandling, BehandlingÅrsakType behandlingÅrsakType) {
         Optional<Behandling> revurdering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(
-            behandling.getFagsakId(),
-            BehandlingType.REVURDERING);
+                behandling.getFagsakId(),
+                BehandlingType.REVURDERING);
         assertThat(revurdering).as("Ingen revurdering").isPresent();
         List<BehandlingÅrsak> behandlingÅrsaker = revurdering.get().getBehandlingÅrsaker();
         assertThat(behandlingÅrsaker).isNotEmpty();
         List<BehandlingÅrsakType> årsaker = behandlingÅrsaker.stream()
-            .map(bå -> bå.getBehandlingÅrsakType())
-            .collect(Collectors.toList());
+                .map(bå -> bå.getBehandlingÅrsakType())
+                .collect(Collectors.toList());
         assertThat(årsaker).contains(behandlingÅrsakType);
     }
 
     private void assertIngenRevurdering(Behandling behandling) {
         Optional<Behandling> revurdering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(
-            behandling.getFagsakId(),
-            BehandlingType.REVURDERING);
+                behandling.getFagsakId(),
+                BehandlingType.REVURDERING);
         assertThat(revurdering).as("Har revurdering: " + behandling).isNotPresent();
     }
 
     private void createTask() {
         Period etterkontrollTpsRegistreringPeriode = Period.parse("P11W");
         task = new AutomatiskEtterkontrollTask(repositoryProvider, etterkontrollRepository, historikkRepository,
-            familieHendelseTjeneste, tpsFamilieTjenesteMock,
-            prosessTaskRepositoryMock, behandlendeEnhetTjeneste);
+                familieHendelseTjeneste, tpsFamilieTjenesteMock,
+                prosessTaskRepositoryMock, behandlendeEnhetTjeneste);
     }
 
     @Test
@@ -145,7 +144,7 @@ public class AutomatiskEtterkontrollTaskTest {
 
         Behandling behandling = opprettRevurderingsKandidat(12, 1, true, false, true);
         when(tpsFamilieTjenesteMock.innhentAlleFødteForBehandlingIntervaller(any(), any())).thenReturn(
-            Collections.emptyList());
+                Collections.emptyList());
 
         ProsessTaskData prosessTaskData = new ProsessTaskData(AutomatiskEtterkontrollTask.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
@@ -238,35 +237,35 @@ public class AutomatiskEtterkontrollTaskTest {
     }
 
     private Behandling opprettRevurderingsKandidat(int fødselUkerFørTermin,
-                                                   int antallBarn,
-                                                   boolean avsluttet,
-                                                   boolean medBekreftet,
-                                                   boolean medOverstyrt) {
+            int antallBarn,
+            boolean avsluttet,
+            boolean medBekreftet,
+            boolean medOverstyrt) {
         LocalDate terminDato = LocalDate.now().minusDays(70);
 
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
-            .medSøknadDato(terminDato.minusDays(20));
+                .medSøknadDato(terminDato.minusDays(20));
         scenario.medSøknadHendelse()
-            .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
-                .medNavnPå("Lege Legesen")
-                .medTermindato(terminDato)
-                .medUtstedtDato(terminDato.minusDays(40)))
-            .medAntallBarn(antallBarn);
+                .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
+                        .medNavnPå("Lege Legesen")
+                        .medTermindato(terminDato)
+                        .medUtstedtDato(terminDato.minusDays(40)))
+                .medAntallBarn(antallBarn);
 
         if (medBekreftet) {
             scenario.medBekreftetHendelse()
-                .medFødselsDato(terminDato)
-                .erFødsel()
-                .medAntallBarn(antallBarn);
+                    .medFødselsDato(terminDato)
+                    .erFødsel()
+                    .medAntallBarn(antallBarn);
         }
 
         if (medOverstyrt) {
             scenario.medOverstyrtHendelse()
-                .medTerminbekreftelse(scenario.medOverstyrtHendelse().getTerminbekreftelseBuilder()
-                    .medNavnPå("Lege Legesen")
-                    .medTermindato(terminDato)
-                    .medUtstedtDato(terminDato.minusDays(40)))
-                .medAntallBarn(antallBarn);
+                    .medTerminbekreftelse(scenario.medOverstyrtHendelse().getTerminbekreftelseBuilder()
+                            .medNavnPå("Lege Legesen")
+                            .medTermindato(terminDato)
+                            .medUtstedtDato(terminDato.minusDays(40)))
+                    .medAntallBarn(antallBarn);
         }
 
         Behandling behandling = scenario.lagre(repositoryProvider);
@@ -283,31 +282,31 @@ public class AutomatiskEtterkontrollTaskTest {
         behandlingRepository.lagre(behandling, lås);
 
         BehandlingVedtak vedtak = BehandlingVedtak.builder()
-            .medVedtakResultatType(VedtakResultatType.INNVILGET)
-            .medVedtakstidspunkt(terminDato.minusWeeks(fødselUkerFørTermin).atStartOfDay())
-            .medBehandlingsresultat(behandling.getBehandlingsresultat())
-            .medAnsvarligSaksbehandler("Severin Saksbehandler")
-            .build();
+                .medVedtakResultatType(VedtakResultatType.INNVILGET)
+                .medVedtakstidspunkt(terminDato.minusWeeks(fødselUkerFørTermin).atStartOfDay())
+                .medBehandlingsresultat(behandling.getBehandlingsresultat())
+                .medAnsvarligSaksbehandler("Severin Saksbehandler")
+                .build();
 
         repositoryProvider.getBehandlingVedtakRepository().lagre(vedtak, lås);
 
         var sats = legacyESBeregningRepository.finnEksaktSats(BeregningSatsType.ENGANG, LocalDate.now()).getVerdi();
         LegacyESBeregning beregning = new LegacyESBeregning(sats, antallBarn, antallBarn * sats, LocalDateTime.now());
         LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder()
-            .medBeregning(beregning)
-            .buildFor(behandling, behandling.getBehandlingsresultat());
+                .medBeregning(beregning)
+                .buildFor(behandling, behandling.getBehandlingsresultat());
         legacyESBeregningRepository.lagre(beregningResultat, lås);
-
-        repo.flushAndClear();
+        em.flush();
+        em.clear();
 
         return behandlingRepository.hentBehandling(behandling.getId());
     }
 
     private FødtBarnInfo byggBaby(LocalDate fødselsdato) {
         return new FødtBarnInfo.Builder()
-            .medFødselsdato(fødselsdato)
-            .medIdent(PersonIdent.fra("12345678901"))
-            .build();
+                .medFødselsdato(fødselsdato)
+                .medIdent(PersonIdent.fra("12345678901"))
+                .build();
     }
 
 }

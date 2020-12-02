@@ -9,9 +9,6 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.tjeneste.EtterkontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
@@ -34,7 +31,6 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 @FagsakYtelseTypeRef("ES")
 public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EtterkontrollTjenesteImpl.class);
     private Period tpsRegistreringsTidsrom;
     private RevurderingTjeneste revurderingTjeneste;
 
@@ -42,17 +38,15 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
     private LegacyESBeregningRepository esBeregningRepository;
     private ProsessTaskRepository prosessTaskRepository;
 
-
     EtterkontrollTjenesteImpl() {
-        // for CDI proxy
     }
 
     @Inject
     public EtterkontrollTjenesteImpl(BehandlingVedtakRepository vedtakRepository,
-                                     LegacyESBeregningRepository esBeregningRepository,
-                                     ProsessTaskRepository prosessTaskRepository,
-                                     @FagsakYtelseTypeRef("ES") RevurderingTjeneste revurderingTjeneste,
-                                     @KonfigVerdi(value = "etterkontroll.tpsregistrering.periode", defaultVerdi = "P11W") Period tpsRegistreringsTidsrom) {
+            LegacyESBeregningRepository esBeregningRepository,
+            ProsessTaskRepository prosessTaskRepository,
+            @FagsakYtelseTypeRef("ES") RevurderingTjeneste revurderingTjeneste,
+            @KonfigVerdi(value = "etterkontroll.tpsregistrering.periode", defaultVerdi = "P11W") Period tpsRegistreringsTidsrom) {
         this.tpsRegistreringsTidsrom = tpsRegistreringsTidsrom;
         this.behandlingVedtakRepository = vedtakRepository;
         this.revurderingTjeneste = revurderingTjeneste;
@@ -61,7 +55,8 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
     }
 
     @Override
-    public Optional<BehandlingÅrsakType> utledRevurderingÅrsak(Behandling behandling, FamilieHendelseGrunnlagEntitet grunnlag, List<FødtBarnInfo> barnFraRegister) {
+    public Optional<BehandlingÅrsakType> utledRevurderingÅrsak(Behandling behandling, FamilieHendelseGrunnlagEntitet grunnlag,
+            List<FødtBarnInfo> barnFraRegister) {
         if (grunnlag == null)
             return Optional.of(BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN);
 
@@ -78,7 +73,8 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
         opprettTaskForProsesserBehandling(revurdering);
     }
 
-    private Optional<BehandlingÅrsakType> utledRevurderingsÅrsak(Behandling behandling, FamilieHendelseGrunnlagEntitet grunnlag, int antallBarnRegister) {
+    private Optional<BehandlingÅrsakType> utledRevurderingsÅrsak(Behandling behandling, FamilieHendelseGrunnlagEntitet grunnlag,
+            int antallBarnRegister) {
         int antallBarnSakBekreftet = finnAntallBekreftet(grunnlag);
 
         if (antallBarnRegister == 0 && finnAntallOverstyrtManglendeFødsel(grunnlag) > 0) {
@@ -115,7 +111,8 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
     }
 
     private int finnAntallOverstyrtManglendeFødsel(FamilieHendelseGrunnlagEntitet grunnlag) {
-        return grunnlag.getOverstyrtVersjon().filter(fh -> FamilieHendelseType.FØDSEL.equals(fh.getType())).map(FamilieHendelseEntitet::getAntallBarn).orElse(0);
+        return grunnlag.getOverstyrtVersjon().filter(fh -> FamilieHendelseType.FØDSEL.equals(fh.getType())).map(FamilieHendelseEntitet::getAntallBarn)
+                .orElse(0);
     }
 
     private void opprettTaskForProsesserBehandling(Behandling behandling) {
