@@ -6,13 +6,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
-import java.time.Period;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
@@ -22,12 +18,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.ytelse.beregning.FPDateUtil;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 
-@Disabled
 public class VurderBehovForÅHindreTilbaketrekkTest {
-    private static final String FUNKSJONELT_TIDSOFFSET = FPDateUtil.SystemConfiguredClockProvider.PROPERTY_KEY_OFFSET_PERIODE;
 
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.of(2019, Month.JANUARY, 20);
     private static final LocalDate ANDRE_PERIODE_FOM = SKJÆRINGSTIDSPUNKT.plusMonths(5);
@@ -40,16 +33,7 @@ public class VurderBehovForÅHindreTilbaketrekkTest {
     private static final InternArbeidsforholdRef REF2 = InternArbeidsforholdRef.nyRef();
     private static final InternArbeidsforholdRef REF3 = InternArbeidsforholdRef.nyRef();
 
-    @BeforeAll
-    public static void beforeClass() {
-        settSimulertNåtidTil(LocalDate.of(2019, Month.FEBRUARY, 4));
-    }
-
-    @AfterAll
-    public static void teardown() {
-        settSimulertNåtidTil(LocalDate.now());
-        FPDateUtil.init();
-    }
+    private static final LocalDate DAGENS_DATO = LocalDate.of(2019, Month.FEBRUARY, 4);
 
     @Test
     public void ingenEndringSkalGiEmpty() {
@@ -59,9 +43,9 @@ public class VurderBehovForÅHindreTilbaketrekkTest {
         BeregningsresultatEntitet denneTY = lagBeregningsresultatFP(0, inntektBeløp);
         List<BeregningsresultatPeriode> forrigeTYPerioder = forrigeTY.getBeregningsresultatPerioder();
         List<BeregningsresultatPeriode> denneTYPerioder = denneTY.getBeregningsresultatPerioder();
-        LocalDateTimeline<BRAndelSammenligning> brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinje(
+        LocalDateTimeline<BRAndelSammenligning> brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
                 forrigeTYPerioder,
-                denneTYPerioder);
+                denneTYPerioder, DAGENS_DATO);
 
         // Act
         boolean resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(brAndelTidslinje, List.of(), SKJÆRINGSTIDSPUNKT);
@@ -79,9 +63,9 @@ public class VurderBehovForÅHindreTilbaketrekkTest {
         List<BeregningsresultatPeriode> denneTYPerioder = denneTY.getBeregningsresultatPerioder();
 
         // Act
-        boolean resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(MapBRAndelSammenligningTidslinje.opprettTidslinje(
+        boolean resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
                 forrigeTYPerioder,
-                denneTYPerioder), List.of(), SKJÆRINGSTIDSPUNKT);
+                denneTYPerioder, DAGENS_DATO), List.of(), SKJÆRINGSTIDSPUNKT);
 
         // Assert
         assertThat(resultat).isTrue();
@@ -94,9 +78,9 @@ public class VurderBehovForÅHindreTilbaketrekkTest {
         BeregningsresultatEntitet denneTY = lagBeregningsresultatFP(0, 1000);
         List<BeregningsresultatPeriode> forrigeTYPerioder = forrigeTY.getBeregningsresultatPerioder();
         List<BeregningsresultatPeriode> denneTYPerioder = denneTY.getBeregningsresultatPerioder();
-        LocalDateTimeline<BRAndelSammenligning> brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinje(
+        LocalDateTimeline<BRAndelSammenligning> brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
                 forrigeTYPerioder,
-                denneTYPerioder);
+                denneTYPerioder, DAGENS_DATO);
 
         // Act
         boolean resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(brAndelTidslinje, List.of(), SKJÆRINGSTIDSPUNKT);
@@ -111,9 +95,9 @@ public class VurderBehovForÅHindreTilbaketrekkTest {
         BeregningsresultatEntitet forrigeTY = lagBeregningsresultatFP(0, 1000);
         List<BeregningsresultatPeriode> forrigeTYPerioder = forrigeTY.getBeregningsresultatPerioder();
         List<BeregningsresultatPeriode> denneTYPerioder = Collections.emptyList();
-        LocalDateTimeline<BRAndelSammenligning> brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinje(
+        LocalDateTimeline<BRAndelSammenligning> brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
                 forrigeTYPerioder,
-                denneTYPerioder);
+                denneTYPerioder, DAGENS_DATO);
 
         // Act
         boolean resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(brAndelTidslinje, List.of(), SKJÆRINGSTIDSPUNKT);
@@ -129,9 +113,9 @@ public class VurderBehovForÅHindreTilbaketrekkTest {
         BeregningsresultatEntitet denneTY = lagBeregningsresultatFP(200, 800);
         List<BeregningsresultatPeriode> forrigeTYPerioder = forrigeTY.getBeregningsresultatPerioder();
         List<BeregningsresultatPeriode> denneTYPerioder = denneTY.getBeregningsresultatPerioder();
-        LocalDateTimeline<BRAndelSammenligning> brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinje(
+        LocalDateTimeline<BRAndelSammenligning> brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
                 forrigeTYPerioder,
-                denneTYPerioder);
+                denneTYPerioder, DAGENS_DATO);
 
         // Act
         boolean resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(brAndelTidslinje, List.of(), SKJÆRINGSTIDSPUNKT);
@@ -164,9 +148,9 @@ public class VurderBehovForÅHindreTilbaketrekkTest {
 
         List<BeregningsresultatPeriode> forrigeTYPerioder = forrigeTY.getBeregningsresultatPerioder();
         List<BeregningsresultatPeriode> denneTYPerioder = denneTY.getBeregningsresultatPerioder();
-        LocalDateTimeline<BRAndelSammenligning> brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinje(
+        LocalDateTimeline<BRAndelSammenligning> brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
                 forrigeTYPerioder,
-                denneTYPerioder);
+                denneTYPerioder, DAGENS_DATO);
 
         // Act
         boolean resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(brAndelTidslinje, List.of(), SKJÆRINGSTIDSPUNKT);
@@ -212,9 +196,9 @@ public class VurderBehovForÅHindreTilbaketrekkTest {
 
         List<BeregningsresultatPeriode> forrigeTYPerioder = originalBR.getBeregningsresultatPerioder();
         List<BeregningsresultatPeriode> denneTYPerioder = revurderingBR.getBeregningsresultatPerioder();
-        LocalDateTimeline<BRAndelSammenligning> brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinje(
+        LocalDateTimeline<BRAndelSammenligning> brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
                 forrigeTYPerioder,
-                denneTYPerioder);
+                denneTYPerioder, DAGENS_DATO);
 
         // Act
         boolean resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(brAndelTidslinje, List.of(), SKJÆRINGSTIDSPUNKT);
@@ -262,9 +246,9 @@ public class VurderBehovForÅHindreTilbaketrekkTest {
 
         List<BeregningsresultatPeriode> forrigeTYPerioder = originalBR.getBeregningsresultatPerioder();
         List<BeregningsresultatPeriode> denneTYPerioder = revurderingBR.getBeregningsresultatPerioder();
-        LocalDateTimeline<BRAndelSammenligning> brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinje(
+        LocalDateTimeline<BRAndelSammenligning> brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
                 forrigeTYPerioder,
-                denneTYPerioder);
+                denneTYPerioder, DAGENS_DATO);
 
         // Act
         boolean resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(brAndelTidslinje, List.of(), SKJÆRINGSTIDSPUNKT);
@@ -320,9 +304,9 @@ public class VurderBehovForÅHindreTilbaketrekkTest {
 
         List<BeregningsresultatPeriode> forrigeTYPerioder = originalBR.getBeregningsresultatPerioder();
         List<BeregningsresultatPeriode> denneTYPerioder = revurderingBR.getBeregningsresultatPerioder();
-        LocalDateTimeline<BRAndelSammenligning> brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinje(
+        LocalDateTimeline<BRAndelSammenligning> brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
                 forrigeTYPerioder,
-                denneTYPerioder);
+                denneTYPerioder, DAGENS_DATO);
 
         // Act
         boolean resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(brAndelTidslinje, List.of(), SKJÆRINGSTIDSPUNKT);
@@ -376,9 +360,4 @@ public class VurderBehovForÅHindreTilbaketrekkTest {
                 .build(brp);
     }
 
-    private static void settSimulertNåtidTil(LocalDate dato) {
-        Period periode = Period.between(LocalDate.now(), dato);
-        System.setProperty(FUNKSJONELT_TIDSOFFSET, periode.toString());
-        FPDateUtil.init();
-    }
 }

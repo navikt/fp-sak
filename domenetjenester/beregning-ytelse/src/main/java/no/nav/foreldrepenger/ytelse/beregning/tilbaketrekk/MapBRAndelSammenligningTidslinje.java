@@ -21,20 +21,28 @@ class MapBRAndelSammenligningTidslinje {
 
     static LocalDateTimeline<BRAndelSammenligning> opprettTidslinje(List<BeregningsresultatPeriode> originalTYPerioder,
             List<BeregningsresultatPeriode> revurderingTYPerioder) {
-        LocalDateTimeline<List<BeregningsresultatAndel>> alleredeUtbetalt = lagAlleredeUtbetaltTidslinje(originalTYPerioder);
+        LocalDateTimeline<List<BeregningsresultatAndel>> alleredeUtbetalt = lagAlleredeUtbetaltTidslinje(LocalDate.now(), originalTYPerioder);
         LocalDateTimeline<List<BeregningsresultatAndel>> bgTidslinje = lagTidslinje(revurderingTYPerioder);
         return bgTidslinje.combine(alleredeUtbetalt, MapBRAndelSammenligningTidslinje::combine, LocalDateTimeline.JoinStyle.LEFT_JOIN);
     }
 
-    private static LocalDateTimeline<List<BeregningsresultatAndel>> lagAlleredeUtbetaltTidslinje(
+    static LocalDateTimeline<BRAndelSammenligning> opprettTidslinjeTest(List<BeregningsresultatPeriode> originalTYPerioder,
+                                                                    List<BeregningsresultatPeriode> revurderingTYPerioder,
+                                                                        LocalDate dagensDato) {
+        LocalDateTimeline<List<BeregningsresultatAndel>> alleredeUtbetalt = lagAlleredeUtbetaltTidslinje(dagensDato, originalTYPerioder);
+        LocalDateTimeline<List<BeregningsresultatAndel>> bgTidslinje = lagTidslinje(revurderingTYPerioder);
+        return bgTidslinje.combine(alleredeUtbetalt, MapBRAndelSammenligningTidslinje::combine, LocalDateTimeline.JoinStyle.LEFT_JOIN);
+    }
+
+    private static LocalDateTimeline<List<BeregningsresultatAndel>> lagAlleredeUtbetaltTidslinje(LocalDate dagensDato,
             List<BeregningsresultatPeriode> beregningsresultatPerioder) {
         LocalDateTimeline<List<BeregningsresultatAndel>> forrigeTYTidslinje = lagTidslinje(beregningsresultatPerioder);
-        LocalDateTimeline<List<BeregningsresultatAndel>> alleredeUtbetalt = identifiserUtbetaltPeriode();
+        LocalDateTimeline<List<BeregningsresultatAndel>> alleredeUtbetalt = identifiserUtbetaltPeriode(dagensDato);
         return forrigeTYTidslinje.intersection(alleredeUtbetalt);
     }
 
-    private static LocalDateTimeline<List<BeregningsresultatAndel>> identifiserUtbetaltPeriode() {
-        LocalDate alleredeUtbetaltTom = FinnAlleredeUtbetaltTom.finn(LocalDate.now());
+    private static LocalDateTimeline<List<BeregningsresultatAndel>> identifiserUtbetaltPeriode(LocalDate dagensDato) {
+        LocalDate alleredeUtbetaltTom = FinnAlleredeUtbetaltTom.finn(dagensDato);
         return new LocalDateTimeline<>(
                 Tid.TIDENES_BEGYNNELSE,
                 alleredeUtbetaltTom,

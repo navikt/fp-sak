@@ -3,8 +3,6 @@ package no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk;
 import java.time.LocalDate;
 import java.util.Collection;
 
-import javax.enterprise.context.ApplicationScoped;
-
 import no.nav.folketrygdloven.beregningsgrunnlag.regelmodell.resultat.Beregningsgrunnlag;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
@@ -12,7 +10,6 @@ import no.nav.foreldrepenger.ytelse.beregning.regelmodell.Beregningsresultat;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 
-@ApplicationScoped
 public class HindreTilbaketrekkNårAlleredeUtbetalt {
 
 
@@ -25,7 +22,7 @@ public class HindreTilbaketrekkNårAlleredeUtbetalt {
      * @param skjæringstidspunkt
      * @return {@link Beregningsresultat}et vi ønsker å utbetale
      */
-    public BeregningsresultatEntitet reberegn(BeregningsresultatEntitet beregningsgrunnlagTY, LocalDateTimeline<BRAndelSammenligning> tidslinje, Collection<Yrkesaktivitet> yrkesaktiviteter, LocalDate skjæringstidspunkt) {
+    public static BeregningsresultatEntitet reberegn(BeregningsresultatEntitet beregningsgrunnlagTY, LocalDateTimeline<BRAndelSammenligning> tidslinje, Collection<Yrkesaktivitet> yrkesaktiviteter, LocalDate skjæringstidspunkt) {
         // Map til regelmodell
 
         BeregningsresultatEntitet utbetaltTY = BeregningsresultatEntitet.builder()

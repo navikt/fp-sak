@@ -44,7 +44,6 @@ public class HindreTilbaketrekkSteg implements BehandlingSteg {
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    private HindreTilbaketrekkNårAlleredeUtbetalt hindreTilbaketrekkNårAlleredeUtbetalt;
     private BeregningsresultatTidslinjetjeneste beregningsresultatTidslinjetjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private Instance<FinnEndringsdatoBeregningsresultatTjeneste> finnEndringsdatoBeregningsresultatTjenesteInstances;
@@ -56,13 +55,11 @@ public class HindreTilbaketrekkSteg implements BehandlingSteg {
     @Inject
     public HindreTilbaketrekkSteg(BehandlingRepositoryProvider repositoryProvider,
                                   SkjæringstidspunktTjeneste skjæringstidspunktTjeneste, @Any Instance<FinnEndringsdatoBeregningsresultatTjeneste> finnEndringsdatoBeregningsresultatTjenesteInstances,
-                                  HindreTilbaketrekkNårAlleredeUtbetalt hindreTilbaketrekkNårAlleredeUtbetalt,
                                   BeregningsresultatTidslinjetjeneste beregningsresultatTidslinjetjeneste,
                                   InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
-        this.hindreTilbaketrekkNårAlleredeUtbetalt = hindreTilbaketrekkNårAlleredeUtbetalt;
         this.beregningsresultatTidslinjetjeneste = beregningsresultatTidslinjetjeneste;
         this.finnEndringsdatoBeregningsresultatTjenesteInstances = finnEndringsdatoBeregningsresultatTjenesteInstances;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
@@ -81,7 +78,7 @@ public class HindreTilbaketrekkSteg implements BehandlingSteg {
             BehandlingReferanse behandlingReferanse = BehandlingReferanse.fra(behandling);
             LocalDateTimeline<BRAndelSammenligning> brAndelTidslinje = beregningsresultatTidslinjetjeneste.lagTidslinjeForRevurdering(behandlingReferanse);
             LocalDate utledetSkjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId).getUtledetSkjæringstidspunkt();
-            BeregningsresultatEntitet utbetBR = hindreTilbaketrekkNårAlleredeUtbetalt.reberegn(revurderingTY, brAndelTidslinje, finnYrkesaktiviteter(behandlingReferanse), utledetSkjæringstidspunkt);
+            BeregningsresultatEntitet utbetBR = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(revurderingTY, brAndelTidslinje, finnYrkesaktiviteter(behandlingReferanse), utledetSkjæringstidspunkt);
 
             KopierFeriepenger.kopier(behandlingId, revurderingTY, utbetBR);
 

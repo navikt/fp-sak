@@ -5,13 +5,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
-import java.time.Period;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
@@ -26,14 +23,11 @@ import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.ytelse.beregning.FPDateUtil;
 
-@Disabled
 public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
 
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.of(2019, Month.JANUARY, 20);
     private static final LocalDate SISTE_UTTAKSDAG = LocalDate.of(2019, Month.APRIL, 4);
-    private static final String FUNKSJONELT_TIDSOFFSET = FPDateUtil.SystemConfiguredClockProvider.PROPERTY_KEY_OFFSET_PERIODE;
     private static final Arbeidsgiver ARBEIDSGIVER1 = Arbeidsgiver.virksomhet("900050001");
     private static final Arbeidsgiver ARBEIDSGIVER2 = Arbeidsgiver.virksomhet("900050002");
     private static final Arbeidsgiver ARBEIDSGIVER3 = Arbeidsgiver.virksomhet("900050003");
@@ -45,12 +39,6 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
     @BeforeEach
     public void setup() {
         tjeneste = new HindreTilbaketrekkNårAlleredeUtbetalt();
-    }
-
-    @AfterEach
-    public void teardown() {
-        settSimulertNåtidTil(LocalDate.now());
-        FPDateUtil.init();
     }
 
     @Test
@@ -98,10 +86,9 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
                 .medArbeidsgiver(TILKOMMET2).build();
 
         // Act
-        BeregningsresultatEntitet utbetTY = tjeneste.reberegn(beregningsgrunnlagTY, MapBRAndelSammenligningTidslinje.opprettTidslinje(
-                forrigeTY.getBeregningsresultatPerioder(),
-                beregningsgrunnlagTY.getBeregningsresultatPerioder()), List.of(tilkommet_arbeid1, gammelt_arbeid, tilkommet_arbeid2),
-                SKJÆRINGSTIDSPUNKT);
+        BeregningsresultatEntitet utbetTY = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(beregningsgrunnlagTY,
+            MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(forrigeTY.getBeregningsresultatPerioder(), beregningsgrunnlagTY.getBeregningsresultatPerioder(), LocalDate.now()),
+            List.of(tilkommet_arbeid1, gammelt_arbeid, tilkommet_arbeid2), SKJÆRINGSTIDSPUNKT);
 
         // Assert
         List<BeregningsresultatPeriode> beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();
@@ -135,7 +122,7 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
     @Test
     public void omfordel_til_bruker_når_det_krever_refusjon_tilbake_i_tid_for_tilkommet_arbeidsforhold() {
         // Arrange
-        settSimulertNåtidTil(LocalDate.of(2019, Month.FEBRUARY, 4));
+        var dagensDato = LocalDate.of(2019, Month.FEBRUARY, 4);
         BeregningsresultatPeriode forrigeBrp = lagBeregningsresultatPeriode(SKJÆRINGSTIDSPUNKT, SISTE_UTTAKSDAG);
         lagAndel(forrigeBrp, ARBEIDSGIVER1, true, 1500, UTEN_INTERNREFERANSE);
         lagAndel(forrigeBrp, ARBEIDSGIVER1, false, 0, UTEN_INTERNREFERANSE);
@@ -160,9 +147,9 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
                 .medArbeidsgiver(ARBEIDSGIVER2).build();
 
         // Act
-        BeregningsresultatEntitet utbetTY = tjeneste.reberegn(beregningsgrunnlagTY, MapBRAndelSammenligningTidslinje.opprettTidslinje(
+        BeregningsresultatEntitet utbetTY = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(beregningsgrunnlagTY, MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
                 forrigeTY.getBeregningsresultatPerioder(),
-                beregningsgrunnlagTY.getBeregningsresultatPerioder()), List.of(yrkesaktivitet1, yrkesaktivitet2), SKJÆRINGSTIDSPUNKT);
+                beregningsgrunnlagTY.getBeregningsresultatPerioder(), dagensDato), List.of(yrkesaktivitet1, yrkesaktivitet2), SKJÆRINGSTIDSPUNKT);
 
         // Assert
         List<BeregningsresultatPeriode> beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();
@@ -202,15 +189,15 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
     @Test
     public void omfordel_til_bruker_når_det_krever_refusjon_tilbake_i_tid() {
         // Arrange
-        settSimulertNåtidTil(LocalDate.of(2019, Month.FEBRUARY, 4));
+        LocalDate dagensDato = LocalDate.of(2019, Month.FEBRUARY, 4);
         int forventetDagsats = 1000;
         BeregningsresultatEntitet forrigeTY = lagBeregningsresultatFP(true, forventetDagsats);
         BeregningsresultatEntitet beregningsgrunnlagTY = lagBeregningsresultatFP(false, forventetDagsats);
 
         // Act
-        BeregningsresultatEntitet utbetTY = tjeneste.reberegn(beregningsgrunnlagTY, MapBRAndelSammenligningTidslinje.opprettTidslinje(
-                forrigeTY.getBeregningsresultatPerioder(),
-                beregningsgrunnlagTY.getBeregningsresultatPerioder()), List.of(), SKJÆRINGSTIDSPUNKT);
+        BeregningsresultatEntitet utbetTY = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(beregningsgrunnlagTY,
+            MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(forrigeTY.getBeregningsresultatPerioder(),
+                beregningsgrunnlagTY.getBeregningsresultatPerioder(), dagensDato), List.of(), SKJÆRINGSTIDSPUNKT);
 
         // Assert
         List<BeregningsresultatPeriode> beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();
@@ -258,7 +245,7 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
     @Test
     public void skal_avkorte_men_ikke_omfordele_fra_bruker() {
         // Arrange
-        settSimulertNåtidTil(LocalDate.of(2019, Month.FEBRUARY, 4));
+        LocalDate dagensDato = LocalDate.of(2019, Month.FEBRUARY, 4);
         BeregningsresultatPeriode forrigeBrp = lagBeregningsresultatPeriode(SKJÆRINGSTIDSPUNKT, SISTE_UTTAKSDAG);
         lagAndel(forrigeBrp, ARBEIDSGIVER1, true, 0, UTEN_INTERNREFERANSE);
         lagAndel(forrigeBrp, ARBEIDSGIVER1, false, 1500, UTEN_INTERNREFERANSE);
@@ -273,9 +260,9 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         BeregningsresultatEntitet beregningsgrunnlagTY = beregningsgrunnlagBrp.getBeregningsresultat();
 
         // Act
-        BeregningsresultatEntitet utbetTY = tjeneste.reberegn(beregningsgrunnlagTY, MapBRAndelSammenligningTidslinje.opprettTidslinje(
+        BeregningsresultatEntitet utbetTY = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(beregningsgrunnlagTY, MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
                 forrigeTY.getBeregningsresultatPerioder(),
-                beregningsgrunnlagTY.getBeregningsresultatPerioder()), List.of(), SKJÆRINGSTIDSPUNKT);
+                beregningsgrunnlagTY.getBeregningsresultatPerioder(), dagensDato), List.of(), SKJÆRINGSTIDSPUNKT);
 
         // Assert
         List<BeregningsresultatPeriode> beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();
@@ -353,7 +340,7 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
     @Test
     public void skal_fordele_refusjon_til_to_nye_arbeidsgivere() {
         // Arrange
-        settSimulertNåtidTil(LocalDate.of(2019, Month.FEBRUARY, 4));
+        var dagensDato = LocalDate.of(2019, Month.FEBRUARY, 4);
         BeregningsresultatPeriode forrigeBrp = lagBeregningsresultatPeriode(SKJÆRINGSTIDSPUNKT, SISTE_UTTAKSDAG);
         lagAndel(forrigeBrp, ARBEIDSGIVER1, true, 0, UTEN_INTERNREFERANSE);
         lagAndel(forrigeBrp, ARBEIDSGIVER1, false, 1500, UTEN_INTERNREFERANSE);
@@ -371,9 +358,9 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         BeregningsresultatEntitet beregningsgrunnlagTY = beregningsgrunnlagBrp.getBeregningsresultat();
 
         // Act
-        BeregningsresultatEntitet utbetTY = tjeneste.reberegn(beregningsgrunnlagTY, MapBRAndelSammenligningTidslinje.opprettTidslinje(
+        BeregningsresultatEntitet utbetTY = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(beregningsgrunnlagTY, MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
                 forrigeTY.getBeregningsresultatPerioder(),
-                beregningsgrunnlagTY.getBeregningsresultatPerioder()), List.of(), SKJÆRINGSTIDSPUNKT);
+                beregningsgrunnlagTY.getBeregningsresultatPerioder(), dagensDato), List.of(), SKJÆRINGSTIDSPUNKT);
 
         // Assert
         List<BeregningsresultatPeriode> beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();
@@ -454,7 +441,7 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
     @Test
     public void skalIkkeOmfordeleTilTilkommetArbeidsforholdISammeOrganisasjonNårEndring() {
         // Arrange
-        settSimulertNåtidTil(SISTE_UTTAKSDAG.plusMonths(2));
+        var dagensDato = SISTE_UTTAKSDAG.plusMonths(2);
         BeregningsresultatPeriode forrigeBrp = lagBeregningsresultatPeriode(SKJÆRINGSTIDSPUNKT, SISTE_UTTAKSDAG);
 
         lagAndel(forrigeBrp, ARBEIDSGIVER1, false, 834, MED_INTERNREFERANSE);
@@ -482,9 +469,9 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
                 .medArbeidsgiver(ARBEIDSGIVER1).build();
 
         // Act
-        BeregningsresultatEntitet utbetTY = tjeneste.reberegn(beregningsgrunnlagTY, MapBRAndelSammenligningTidslinje.opprettTidslinje(
+        BeregningsresultatEntitet utbetTY = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(beregningsgrunnlagTY, MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
                 forrigeTY.getBeregningsresultatPerioder(),
-                beregningsgrunnlagTY.getBeregningsresultatPerioder()), List.of(eksisterendeAktivitet, tilkommetAktivitet), SKJÆRINGSTIDSPUNKT);
+                beregningsgrunnlagTY.getBeregningsresultatPerioder(), dagensDato), List.of(eksisterendeAktivitet, tilkommetAktivitet), SKJÆRINGSTIDSPUNKT);
 
         // Assert
         List<BeregningsresultatPeriode> beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();
@@ -556,9 +543,4 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
                 .build(brp);
     }
 
-    private void settSimulertNåtidTil(LocalDate dato) {
-        Period periode = Period.between(LocalDate.now(), dato);
-        System.setProperty(FUNKSJONELT_TIDSOFFSET, periode.toString());
-        FPDateUtil.init();
-    }
 }
