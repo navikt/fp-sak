@@ -50,11 +50,11 @@ public class UttakInputTjeneste {
 
     @Inject
     public UttakInputTjeneste(BehandlingRepositoryProvider repositoryProvider,
-                              HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
-                              InntektArbeidYtelseTjeneste iayTjeneste,
-                              SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                              MedlemTjeneste medlemTjeneste,
-                              AndelGraderingTjeneste andelGraderingTjeneste) {
+            HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
+            InntektArbeidYtelseTjeneste iayTjeneste,
+            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+            MedlemTjeneste medlemTjeneste,
+            AndelGraderingTjeneste andelGraderingTjeneste) {
         this.iayTjeneste = Objects.requireNonNull(iayTjeneste, "iayTjeneste");
         this.skjæringstidspunktTjeneste = Objects.requireNonNull(skjæringstidspunktTjeneste, "skjæringstidspunktTjeneste");
         this.medlemTjeneste = Objects.requireNonNull(medlemTjeneste, "medlemTjeneste");
@@ -87,25 +87,25 @@ public class UttakInputTjeneste {
         var ytelsespesifiktGrunnlag = lagYtelsesspesifiktGrunnlag(ref);
         var årsaker = finnÅrsaker(ref);
         var input = new UttakInput(ref, iayGrunnlag, ytelsespesifiktGrunnlag)
-            .medMedlemskapOpphørsdato(medlemskapOpphørsdato)
-            .medSøknadMottattDato(mottattDato)
-            .medBehandlingÅrsaker(map(årsaker))
-            .medBehandlingManueltOpprettet(erManueltOpprettet(årsaker))
-            .medErOpplysningerOmDødEndret(erOpplysningerOmDødEndret(ref));
+                .medMedlemskapOpphørsdato(medlemskapOpphørsdato)
+                .medSøknadMottattDato(mottattDato)
+                .medBehandlingÅrsaker(map(årsaker))
+                .medBehandlingManueltOpprettet(erManueltOpprettet(årsaker))
+                .medErOpplysningerOmDødEndret(erOpplysningerOmDødEndret(ref));
         var beregningsgrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(ref.getBehandlingId());
         if (beregningsgrunnlag.isPresent()) {
             var bgStatuser = lagBeregningsgrunnlagStatuser(beregningsgrunnlag.get());
-            var finnesAndelerMedGraderingUtenBeregningsgrunnlag = finnesAndelerMedGraderingUtenBeregningsgrunnlag(ref, beregningsgrunnlag.get(), iayGrunnlag);
+            var finnesAndelerMedGraderingUtenBeregningsgrunnlag = finnesAndelerMedGraderingUtenBeregningsgrunnlag(ref, beregningsgrunnlag.get());
             input = input.medBeregningsgrunnlagStatuser(bgStatuser)
-                .medFinnesAndelerMedGraderingUtenBeregningsgrunnlag(finnesAndelerMedGraderingUtenBeregningsgrunnlag);
+                    .medFinnesAndelerMedGraderingUtenBeregningsgrunnlag(finnesAndelerMedGraderingUtenBeregningsgrunnlag);
         }
         return input;
     }
 
-    private boolean finnesAndelerMedGraderingUtenBeregningsgrunnlag(BehandlingReferanse ref, BeregningsgrunnlagEntitet beregningsgrunnlag, InntektArbeidYtelseGrunnlag iayGrunnlag) {
+    private boolean finnesAndelerMedGraderingUtenBeregningsgrunnlag(BehandlingReferanse ref, BeregningsgrunnlagEntitet beregningsgrunnlag) {
         var aktivitetGradering = andelGraderingTjeneste.utled(ref);
-        var andelerMedGraderingUtenBG = GraderingUtenBeregningsgrunnlagTjeneste.finnAndelerMedGraderingUtenBG(BehandlingslagerTilKalkulusMapper.mapBeregningsgrunnlag(beregningsgrunnlag
-        ), aktivitetGradering);
+        var andelerMedGraderingUtenBG = GraderingUtenBeregningsgrunnlagTjeneste
+                .finnAndelerMedGraderingUtenBG(BehandlingslagerTilKalkulusMapper.mapBeregningsgrunnlag(beregningsgrunnlag), aktivitetGradering);
 
         return !andelerMedGraderingUtenBG.isEmpty();
     }
@@ -130,9 +130,9 @@ public class UttakInputTjeneste {
 
     private Set<BeregningsgrunnlagStatus> lagBeregningsgrunnlagStatuser(BeregningsgrunnlagEntitet beregningsgrunnlag) {
         return beregningsgrunnlag.getBeregningsgrunnlagPerioder().stream()
-            .flatMap(beregningsgrunnlagPeriode -> beregningsgrunnlagPeriode.getBeregningsgrunnlagPrStatusOgAndelList().stream())
-            .map(this::mapAndel)
-            .collect(Collectors.toSet());
+                .flatMap(beregningsgrunnlagPeriode -> beregningsgrunnlagPeriode.getBeregningsgrunnlagPrStatusOgAndelList().stream())
+                .map(this::mapAndel)
+                .collect(Collectors.toSet());
     }
 
     private BeregningsgrunnlagStatus mapAndel(BeregningsgrunnlagPrStatusOgAndel andel) {
@@ -149,7 +149,8 @@ public class UttakInputTjeneste {
         var ytelseType = ref.getFagsakYtelseType();
 
         var yfGrunnlagTjeneste = FagsakYtelseTypeRef.Lookup.find(YtelsesesspesifiktGrunnlagTjeneste.class, ref.getFagsakYtelseType())
-            .orElseThrow(() -> new IllegalStateException("Finner ikke tjeneste for å lage ytelsesspesifikt grunnlag for ytelsetype " + ytelseType));
+                .orElseThrow(
+                        () -> new IllegalStateException("Finner ikke tjeneste for å lage ytelsesspesifikt grunnlag for ytelsetype " + ytelseType));
 
         return yfGrunnlagTjeneste.grunnlag(ref).orElse(null);
     }

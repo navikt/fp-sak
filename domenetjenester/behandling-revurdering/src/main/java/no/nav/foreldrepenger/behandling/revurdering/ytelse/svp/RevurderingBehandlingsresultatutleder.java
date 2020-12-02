@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakR
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.uttak.OpphørUttakTjeneste;
-import no.nav.foreldrepenger.domene.uttak.fastsettuttaksgrunnlag.EndringsdatoRevurderingUtleder;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @Dependent
@@ -29,17 +28,15 @@ public class RevurderingBehandlingsresultatutleder extends RevurderingBehandling
 
     @Inject
     public RevurderingBehandlingsresultatutleder(BehandlingRepositoryProvider repositoryProvider, // NOSONAR
-                                                 HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
-                                                 @FagsakYtelseTypeRef("SVP") EndringsdatoRevurderingUtleder endringsdatoRevurderingUtleder,
-                                                 OpphørUttakTjeneste opphørUttakTjeneste,
-                                                 @FagsakYtelseTypeRef("SVP") SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                                 MedlemTjeneste medlemTjeneste) {
+            HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
+            OpphørUttakTjeneste opphørUttakTjeneste,
+            @FagsakYtelseTypeRef("SVP") SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+            MedlemTjeneste medlemTjeneste) {
         super(repositoryProvider,
-            beregningsgrunnlagTjeneste,
-            medlemTjeneste,
-            opphørUttakTjeneste,
-            skjæringstidspunktTjeneste
-        );
+                beregningsgrunnlagTjeneste,
+                medlemTjeneste,
+                opphørUttakTjeneste,
+                skjæringstidspunktTjeneste);
         this.uttakRepository = repositoryProvider.getSvangerskapspengerUttakResultatRepository();
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
     }
@@ -52,7 +49,7 @@ public class RevurderingBehandlingsresultatutleder extends RevurderingBehandling
 
     @Override
     protected boolean harEtablertYtelse(Behandling revurdering, boolean finnesInnvilgetIkkeOpphørtVedtak,
-                                                  UttakResultatHolder uttakresultatOriginal) {
+            UttakResultatHolder uttakresultatOriginal) {
         if (LocalDate.now().isAfter(uttakresultatOriginal.getSisteDagAvSistePeriode())) {
             return false;
         }

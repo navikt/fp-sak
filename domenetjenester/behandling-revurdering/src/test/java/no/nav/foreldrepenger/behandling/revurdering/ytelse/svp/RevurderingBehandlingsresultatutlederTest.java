@@ -138,7 +138,6 @@ public class RevurderingBehandlingsresultatutlederTest {
 
         revurderingBehandlingsresultatutleder = new RevurderingBehandlingsresultatutleder(repositoryProvider,
                 hentBeregningsgrunnlagTjeneste,
-                endringsdatoRevurderingUtlederImpl,
                 opphørUttakTjeneste,
                 skjæringstidspunktTjeneste,
                 medlemTjeneste);
