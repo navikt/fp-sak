@@ -98,7 +98,7 @@ public class ForeslåVedtakTjenesteTest {
         leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_ER_BOSATT, true);
 
         // Act
-        BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(behandling, kontekst);
+        BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
         assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
@@ -112,7 +112,7 @@ public class ForeslåVedtakTjenesteTest {
         leggTilAksjonspunkt(AksjonspunktDefinisjon.OVERSTYRING_AV_MEDLEMSKAPSVILKÅRET, false);
 
         // Act
-        tjeneste.foreslåVedtak(behandling, kontekst);
+        tjeneste.foreslåVedtak(behandling);
 
         // Assert
         assertThat(behandling.isToTrinnsBehandling()).isTrue();
@@ -124,7 +124,7 @@ public class ForeslåVedtakTjenesteTest {
         AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL);
 
         // Act
-        BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(behandling, kontekst);
+        BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
         assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
@@ -137,7 +137,7 @@ public class ForeslåVedtakTjenesteTest {
         AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL);
 
         // Act
-        tjeneste.foreslåVedtak(behandling, kontekst);
+        tjeneste.foreslåVedtak(behandling);
 
         // Assert
         assertThat(behandling.isToTrinnsBehandling()).isFalse();
@@ -146,7 +146,7 @@ public class ForeslåVedtakTjenesteTest {
     @Test
     public void setterStegTilUtførtUtenAksjonspunktDersomIkkeTotorinnskontroll() {
         // Act
-        BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(behandling, kontekst);
+        BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
         assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
@@ -156,7 +156,7 @@ public class ForeslåVedtakTjenesteTest {
     @Test
     public void setterIkkeTotrinnskontrollPaBehandlingHvisDetIkkeErTotrinnskontroll() {
         // Act
-        BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(behandling, kontekst);
+        BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
         assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
@@ -169,7 +169,7 @@ public class ForeslåVedtakTjenesteTest {
         when(oppgaveTjeneste.harÅpneOppgaverAvType(any(AktørId.class), any())).thenReturn(Boolean.TRUE);
 
         // Act
-        BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(behandling, kontekst);
+        BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
         assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
@@ -185,7 +185,7 @@ public class ForeslåVedtakTjenesteTest {
         lenient().when(oppgaveTjeneste.harÅpneOppgaverAvType(any(AktørId.class), any())).thenReturn(Boolean.TRUE);
 
         // Act
-        BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(behandling, kontekst);
+        BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
         assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
@@ -198,7 +198,7 @@ public class ForeslåVedtakTjenesteTest {
         Behandling behandling = ScenarioMorSøkerEngangsstønad.forFødsel().medBehandlingType(BehandlingType.REVURDERING).lagre(repositoryProvider);
 
         // Act
-        BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(behandling, kontekst);
+        BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
         assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
@@ -218,7 +218,7 @@ public class ForeslåVedtakTjenesteTest {
         behandlingRepository.lagre(revurdering, lås);
 
         // Act
-        BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(revurdering, kontekst);
+        BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(revurdering);
 
         // Assert
         assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
@@ -233,7 +233,7 @@ public class ForeslåVedtakTjenesteTest {
         behandling.setToTrinnsBehandling();
 
         // Act
-        BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(behandling, kontekst);
+        BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
         assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
@@ -254,7 +254,7 @@ public class ForeslåVedtakTjenesteTest {
         behandlingRepository.lagre(revurdering, lås);
 
         // Act
-        BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(revurdering, kontekst);
+        BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(revurdering);
 
         // Assert
         assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
@@ -269,7 +269,7 @@ public class ForeslåVedtakTjenesteTest {
         leggTilAksjonspunkt(AksjonspunktDefinisjon.OVERSTYRING_AV_ADOPSJONSVILKÅRET, true);
 
         // Act
-        BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(behandling, kontekst);
+        BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
         assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
@@ -285,7 +285,7 @@ public class ForeslåVedtakTjenesteTest {
         leggTilAksjonspunkt(AksjonspunktDefinisjon.FORESLÅ_VEDTAK, true);
 
         // Act
-        BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(behandling, kontekst);
+        BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
         assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);

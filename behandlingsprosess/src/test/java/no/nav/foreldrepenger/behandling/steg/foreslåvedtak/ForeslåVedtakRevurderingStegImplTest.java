@@ -73,9 +73,9 @@ public class ForeslåVedtakRevurderingStegImplTest {
         orginalBehandling = ScenarioMorSøkerEngangsstønad.forFødsel().lagMocked();
         orginalBehandling.avsluttBehandling();
         revurdering = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.REVURDERING)
-            .medOriginalBehandling(orginalBehandling, BehandlingÅrsakType.BERØRT_BEHANDLING)
-            .lagMocked();
+                .medBehandlingType(BehandlingType.REVURDERING)
+                .medOriginalBehandling(orginalBehandling, BehandlingÅrsakType.BERØRT_BEHANDLING)
+                .lagMocked();
 
         behandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.IKKE_FASTSATT).buildFor(revurdering);
         lenient().when(behandlingsresultatRepository.hent(revurdering.getId())).thenReturn(behandlingsresultat);
@@ -86,19 +86,22 @@ public class ForeslåVedtakRevurderingStegImplTest {
         lenient().when(kontekstRevurdering.getSkriveLås()).thenReturn(behandlingLås);
         lenient().when(behandlingRepository.hentBehandling(kontekstRevurdering.getBehandlingId())).thenReturn(revurdering);
 
-        foreslåVedtakRevurderingStegForeldrepenger =
-            new ForeslåVedtakRevurderingStegImpl(foreslåVedtakTjeneste, beregningsgrunnlagTjeneste, repositoryProvider);
-        lenient().when(foreslåVedtakTjeneste.foreslåVedtak(revurdering, kontekstRevurdering)).thenReturn(behandleStegResultat);
+        foreslåVedtakRevurderingStegForeldrepenger = new ForeslåVedtakRevurderingStegImpl(foreslåVedtakTjeneste, beregningsgrunnlagTjeneste,
+                repositoryProvider);
+        lenient().when(foreslåVedtakTjeneste.foreslåVedtak(revurdering)).thenReturn(behandleStegResultat);
         lenient().when(behandleStegResultat.getAksjonspunktResultater()).thenReturn(Collections.emptyList());
     }
 
     @Test
     public void skal_ikke_opprette_aksjonspunkt_når_samme_beregningsgrunnlag() {
         // Arrange
-        orginalBehandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET).buildFor(orginalBehandling);
+        orginalBehandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET)
+                .buildFor(orginalBehandling);
         when(behandlingsresultatRepository.hent(orginalBehandling.getId())).thenReturn(orginalBehandlingsresultat);
-        when(beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(orginalBehandling.getId())).thenReturn(Optional.of(buildBeregningsgrunnlag(1000L)));
-        when(beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(revurdering.getId())).thenReturn(Optional.of(buildBeregningsgrunnlag(1000L)));
+        when(beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(orginalBehandling.getId()))
+                .thenReturn(Optional.of(buildBeregningsgrunnlag(1000L)));
+        when(beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(revurdering.getId()))
+                .thenReturn(Optional.of(buildBeregningsgrunnlag(1000L)));
         when(behandlingRepository.hentBehandling(orginalBehandling.getId())).thenReturn(orginalBehandling);
 
         // Act
@@ -111,25 +114,31 @@ public class ForeslåVedtakRevurderingStegImplTest {
     @Test
     public void skal_opprette_aksjonspunkt_når_revurdering_har_mindre_beregningsgrunnlag() {
         // Arrange
-        orginalBehandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET).buildFor(orginalBehandling);
+        orginalBehandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET)
+                .buildFor(orginalBehandling);
         when(behandlingsresultatRepository.hent(orginalBehandling.getId())).thenReturn(orginalBehandlingsresultat);
-        when(beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(orginalBehandling.getId())).thenReturn(Optional.of(buildBeregningsgrunnlag(1000L)));
-        when(beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(revurdering.getId())).thenReturn(Optional.of(buildBeregningsgrunnlag(900L)));
+        when(beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(orginalBehandling.getId()))
+                .thenReturn(Optional.of(buildBeregningsgrunnlag(1000L)));
+        when(beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(revurdering.getId()))
+                .thenReturn(Optional.of(buildBeregningsgrunnlag(900L)));
         when(behandlingRepository.hentBehandling(orginalBehandling.getId())).thenReturn(orginalBehandling);
 
         // Act
         BehandleStegResultat behandleStegResultat = foreslåVedtakRevurderingStegForeldrepenger.utførSteg(kontekstRevurdering);
 
         // Assert
-        assertThat(behandleStegResultat.getAksjonspunktListe().get(0)).isEqualTo(AksjonspunktDefinisjon.KONTROLLER_REVURDERINGSBEHANDLING_VARSEL_VED_UGUNST);
+        assertThat(behandleStegResultat.getAksjonspunktListe().get(0))
+                .isEqualTo(AksjonspunktDefinisjon.KONTROLLER_REVURDERINGSBEHANDLING_VARSEL_VED_UGUNST);
     }
 
     @Test
     public void skal_ikke_opprette_aksjonspunkt_når_original_behandling_har_resultat_avslått() {
         // Arrange
-        orginalBehandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT).buildFor(orginalBehandling);
+        orginalBehandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT)
+                .buildFor(orginalBehandling);
         when(behandlingsresultatRepository.hent(orginalBehandling.getId())).thenReturn(orginalBehandlingsresultat);
-        when(beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(revurdering.getId())).thenReturn(Optional.of(buildBeregningsgrunnlag(900L)));
+        when(beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(revurdering.getId()))
+                .thenReturn(Optional.of(buildBeregningsgrunnlag(900L)));
         when(behandlingRepository.hentBehandling(orginalBehandling.getId())).thenReturn(orginalBehandling);
 
         // Act
@@ -142,9 +151,11 @@ public class ForeslåVedtakRevurderingStegImplTest {
     @Test
     public void skal_ikke_opprette_aksjonspunkt_når_original_behandling_har_resultat_opphør() {
         // Arrange
-        orginalBehandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.OPPHØR).buildFor(orginalBehandling);
+        orginalBehandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.OPPHØR)
+                .buildFor(orginalBehandling);
         when(behandlingsresultatRepository.hent(orginalBehandling.getId())).thenReturn(orginalBehandlingsresultat);
-        when(beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(revurdering.getId())).thenReturn(Optional.of(buildBeregningsgrunnlag(900L)));
+        when(beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(revurdering.getId()))
+                .thenReturn(Optional.of(buildBeregningsgrunnlag(900L)));
         when(behandlingRepository.hentBehandling(orginalBehandling.getId())).thenReturn(orginalBehandling);
 
         // Act
@@ -168,16 +179,16 @@ public class ForeslåVedtakRevurderingStegImplTest {
 
     private BeregningsgrunnlagEntitet buildBeregningsgrunnlag(Long bruttoPerÅr) {
         BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
-            .medSkjæringstidspunkt(LocalDate.now())
-            .medGrunnbeløp(BigDecimal.valueOf(91425))
-            .build();
+                .medSkjæringstidspunkt(LocalDate.now())
+                .medGrunnbeløp(BigDecimal.valueOf(91425))
+                .build();
         BeregningsgrunnlagPeriode periode = BeregningsgrunnlagPeriode.ny()
-            .medBeregningsgrunnlagPeriode(LocalDate.now().minusDays(1), LocalDate.now().plusDays(1))
-            .medBruttoPrÅr(BigDecimal.valueOf(bruttoPerÅr))
-            .leggTilBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel.builder()
-                .medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
-                .medRedusertRefusjonPrÅr(BigDecimal.valueOf(bruttoPerÅr)))
-            .build(beregningsgrunnlag);
+                .medBeregningsgrunnlagPeriode(LocalDate.now().minusDays(1), LocalDate.now().plusDays(1))
+                .medBruttoPrÅr(BigDecimal.valueOf(bruttoPerÅr))
+                .leggTilBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel.builder()
+                        .medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
+                        .medRedusertRefusjonPrÅr(BigDecimal.valueOf(bruttoPerÅr)))
+                .build(beregningsgrunnlag);
         return beregningsgrunnlag;
     }
 
