@@ -108,7 +108,7 @@ public class AksjonspunktutlederForVurderOppgittOpptjening implements Aksjonspun
     private List<ArbeidType> finnRelevanteKoder() {
         return List.of(ArbeidType.values())
             .stream()
-            .filter(ArbeidType::erAnnenOpptjening)
+            .filter(a -> a.erAnnenOpptjening() && !ArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE.equals(a))
             .collect(Collectors.toList());
     }
 
