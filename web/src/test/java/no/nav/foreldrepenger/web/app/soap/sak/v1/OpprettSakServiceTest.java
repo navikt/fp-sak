@@ -299,7 +299,7 @@ public class OpprettSakServiceTest {
         lenient().when(fagsak.getId()).thenReturn(fagsakId);
         fagsak.setSaksnummer(null);
         // Whitebox.setInternalState(fagsak, "saksnummer", null);
-        lenient().when(fagsak.getSaksnummer()).thenReturn(fagsak.getSaksnummer());
+        lenient().when(fagsak.getSaksnummer()).thenReturn(null);
         return fagsak;
     }
 
