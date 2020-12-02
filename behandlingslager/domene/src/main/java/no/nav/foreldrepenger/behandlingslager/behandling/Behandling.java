@@ -975,6 +975,9 @@ public class Behandling extends BaseEntitet {
         }
     }
 
+    /*
+     * FØLGENDE ER KUN TIL TESTFORMÅL !!!
+     */
     public void setStatus(BehandlingStatus status) {
         this.status = status;
     }

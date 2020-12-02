@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -46,7 +45,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @ExtendWith(MockitoExtension.class)
-@Disabled
 public class AvsluttBehandlingTest {
 
     @Mock
@@ -276,6 +274,7 @@ public class AvsluttBehandlingTest {
                 .medIverksettingStatus(IverksettingStatus.IKKE_IVERKSATT)
                 .medVedtakstidspunkt(vedtaksdato)
                 .build());
+        vedtak.setOpprettetTidspunkt(opprettet);
         behandling.setOpprettetTidspunkt(opprettet);
         return vedtak;
     }
