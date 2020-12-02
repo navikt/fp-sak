@@ -114,7 +114,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
 /**
  * Default test scenario builder for å definere opp testdata med enkle defaults.
@@ -126,7 +125,7 @@ import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
  * <p>
  * Mer avansert bruk er ikke gitt at kan bruke denne klassen.
  */
-public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> extends EntityManagerAwareTest {
+public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
     public static final String ADOPSJON = "adopsjon";
     public static final String FØDSEL = "fødsel";
@@ -1009,7 +1008,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> ex
     protected void lagFagsak(FagsakRepository fagsakRepo) {
         // opprett og lagre fagsak. Må gjøres før kan opprette behandling
         if (!Mockito.mockingDetails(fagsakRepo).isMock()) {
-            final EntityManager entityManager = getEntityManager();
+            final EntityManager entityManager = fagsakRepo.getEntityManager();
             if (entityManager != null) {
                 NavBrukerRepository brukerRepository = new NavBrukerRepository(entityManager);
                 final NavBruker navBruker = brukerRepository.hent(fagsakBuilder.getBrukerBuilder().getAktørId())
