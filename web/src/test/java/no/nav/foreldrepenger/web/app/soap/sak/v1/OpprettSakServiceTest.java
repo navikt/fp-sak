@@ -44,7 +44,6 @@ import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.meldinger.OpprettS
 import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.meldinger.OpprettSakResponse;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.testutilities.Whitebox;
 
 @ExtendWith(MockitoExtension.class)
 public class OpprettSakServiceTest {
@@ -287,7 +286,8 @@ public class OpprettSakServiceTest {
 
     private void mockOppdaterFagsakMedGsakId(Fagsak fagsak, Saksnummer sakId) {
         doAnswer(invocationOnMock -> {
-            Whitebox.setInternalState(fagsak, "saksnummer", sakId);
+            fagsak.setSaksnummer(sakId);
+            // Whitebox.setInternalState(fagsak, "saksnummer", sakId);
             return null;
         })
                 .when(opprettSakTjeneste).oppdaterFagsakMedGsakSaksnummer(anyLong(), any(Saksnummer.class));
@@ -297,8 +297,9 @@ public class OpprettSakServiceTest {
     private Fagsak mockFagsak(Long fagsakId) {
         Fagsak fagsak = mock(Fagsak.class);
         lenient().when(fagsak.getId()).thenReturn(fagsakId);
-        Whitebox.setInternalState(fagsak, "saksnummer", null);
-        lenient().when(fagsak.getSaksnummer()).thenReturn((Saksnummer) Whitebox.getInternalState(fagsak, "saksnummer"));
+        fagsak.setSaksnummer(null);
+        // Whitebox.setInternalState(fagsak, "saksnummer", null);
+        lenient().when(fagsak.getSaksnummer()).thenReturn(null);
         return fagsak;
     }
 

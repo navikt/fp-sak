@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioI
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
-import no.nav.vedtak.felles.testutilities.Whitebox;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
 public class VurderBehandlingerUnderIverksettelseTest extends EntityManagerAwareTest {
@@ -113,7 +112,7 @@ public class VurderBehandlingerUnderIverksettelseTest extends EntityManagerAware
         ScenarioInnsynEngangsstønad scenarioInnsyn = ScenarioInnsynEngangsstønad.innsyn(førstegangScenario);
         Behandling innsyn = scenarioInnsyn.lagre(repositoryProvider);
         Behandling originalBehandling = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(
-            innsyn.getFagsakId(), BehandlingType.FØRSTEGANGSSØKNAD).get();
+                innsyn.getFagsakId(), BehandlingType.FØRSTEGANGSSØKNAD).get();
         lagreBehandlingVedtak(originalBehandling, IverksettingStatus.IKKE_IVERKSATT);
 
         // Act
@@ -125,7 +124,7 @@ public class VurderBehandlingerUnderIverksettelseTest extends EntityManagerAware
 
     private Behandling lagreRevurdering(Behandling førstegangBehandling) {
         Behandling revurdering = Behandling.fraTidligereBehandling(førstegangBehandling, BehandlingType.REVURDERING)
-            .build();
+                .build();
         BehandlingLås lås = new BehandlingLås(revurdering.getId());
         behandlingRepository.lagre(revurdering, lås);
         Behandlingsresultat behandlingsresultat = Behandlingsresultat.builderForInngangsvilkår().buildFor(revurdering);
@@ -138,18 +137,18 @@ public class VurderBehandlingerUnderIverksettelseTest extends EntityManagerAware
         BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
         Behandlingsresultat behandlingsresultat = getBehandlingsresultat(behandling);
         BehandlingVedtak behandlingVedtak = BehandlingVedtak.builder()
-            .medVedtakstidspunkt(LocalDateTime.now().minusDays(3))
-            .medAnsvarligSaksbehandler("E2354345")
-            .medVedtakResultatType(VedtakResultatType.INNVILGET)
-            .medIverksettingStatus(iverksettingStatus)
-            .medBehandlingsresultat(behandlingsresultat)
-            .build();
+                .medVedtakstidspunkt(LocalDateTime.now().minusDays(3))
+                .medAnsvarligSaksbehandler("E2354345")
+                .medVedtakResultatType(VedtakResultatType.INNVILGET)
+                .medIverksettingStatus(iverksettingStatus)
+                .medBehandlingsresultat(behandlingsresultat)
+                .build();
         LocalDateTime opprettetTidspunkt = behandling.erRevurdering() ? LocalDateTime.now()
-            .plusSeconds(1) : LocalDateTime.now();
-        Whitebox.setInternalState(behandlingVedtak, "opprettetTidspunkt", opprettetTidspunkt);
+                .plusSeconds(1) : LocalDateTime.now();
+        behandling.setOpprettetTidspunkt(opprettetTidspunkt);
         behandlingVedtakRepository.lagre(behandlingVedtak, lås);
         if (IverksettingStatus.IKKE_IVERKSATT.equals(iverksettingStatus)) {
-            Whitebox.setInternalState(behandling, "status", BehandlingStatus.IVERKSETTER_VEDTAK);
+            behandling.setStatus(BehandlingStatus.IVERKSETTER_VEDTAK);
         }
         return behandlingVedtak;
     }

@@ -4,8 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
@@ -17,10 +20,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class BarnBorteEndringIdentifisererTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class BarnBorteEndringIdentifisererTest {
     private final AktørId AKTØRID_SØKER = AktørId.dummy();
     private final AktørId AKTØRID_BARN = AktørId.dummy();
 
@@ -30,11 +34,10 @@ public class BarnBorteEndringIdentifisererTest extends EntityManagerAwareTest {
     private BehandlingRepositoryProvider repositoryProvider;
 
     @BeforeEach
-    public void setup() {
-        var entityManager = getEntityManager();
-        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+    public void setup(EntityManager em) {
+        repositoryProvider = new BehandlingRepositoryProvider(em);
         endringIdentifiserer = new BarnBorteEndringIdentifiserer(repositoryProvider);
-        personopplysningRepository = new PersonopplysningRepository(entityManager);
+        personopplysningRepository = new PersonopplysningRepository(em);
     }
 
     @Test
@@ -51,17 +54,17 @@ public class BarnBorteEndringIdentifisererTest extends EntityManagerAwareTest {
 
     private Behandling revurdering(Behandling behandlingOrig) {
         return ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medOriginalBehandling(behandlingOrig, BehandlingÅrsakType.RE_ANNET)
-            .medBruker(AKTØRID_SØKER, NavBrukerKjønn.KVINNE)
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
-            .lagre(repositoryProvider);
+                .medOriginalBehandling(behandlingOrig, BehandlingÅrsakType.RE_ANNET)
+                .medBruker(AKTØRID_SØKER, NavBrukerKjønn.KVINNE)
+                .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
+                .lagre(repositoryProvider);
     }
 
     private Behandling førstegangsbehandling() {
         return ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBruker(AKTØRID_SØKER, NavBrukerKjønn.KVINNE)
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
-            .lagre(repositoryProvider);
+                .medBruker(AKTØRID_SØKER, NavBrukerKjønn.KVINNE)
+                .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
+                .lagre(repositoryProvider);
     }
 
     BehandlingReferanse lagReferanse(Behandling behandling) {
@@ -94,9 +97,9 @@ public class BarnBorteEndringIdentifisererTest extends EntityManagerAwareTest {
 
     private Behandling førstegangsbehandling(ScenarioMorSøkerForeldrepenger scenarioMorSøkerForeldrepenger) {
         return scenarioMorSøkerForeldrepenger
-            .medBruker(AKTØRID_SØKER, NavBrukerKjønn.KVINNE)
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
-            .lagre(repositoryProvider);
+                .medBruker(AKTØRID_SØKER, NavBrukerKjønn.KVINNE)
+                .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
+                .lagre(repositoryProvider);
     }
 
     private void opprettPersonopplysningGrunnlag(Behandling behandling, boolean registrerMedBarn) {

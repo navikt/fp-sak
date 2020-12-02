@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.familiehendelse;
 
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursResourceAttributt.FAGSAK;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -22,6 +21,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -59,8 +59,8 @@ public class FamiliehendelseRestTjeneste {
 
     @Inject
     public FamiliehendelseRestTjeneste(BehandlingRepository behandlingRepository,
-                                       BehandlingVedtakRepository behandlingVedtakRepository,
-                                       FamilieHendelseRepository familieHendelseRepository) {
+            BehandlingVedtakRepository behandlingVedtakRepository,
+            FamilieHendelseRepository familieHendelseRepository) {
         this.behandlingRepository = behandlingRepository;
         this.behandlingVedtakRepository = behandlingVedtakRepository;
         this.familieHendelseRepository = familieHendelseRepository;
@@ -71,16 +71,17 @@ public class FamiliehendelseRestTjeneste {
     @Operation(description = "Hent informasjon om familiehendelse til grunn for ytelse", tags = "familiehendelse", responses = {
             @ApiResponse(responseCode = "200", description = "Returnerer info om familiehendelse, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = "application/json", schema = @Schema(implementation = FamiliehendelseDto.class)))
     })
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public FamiliehendelseDto getAvklartFamiliehendelseDto(
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var input = new BehandlingIdDto(uuidDto);
         Long behandlingId = input.getBehandlingId();
         Behandling behandling = behandlingId != null
-            ? behandlingRepository.hentBehandling(behandlingId)
-            : behandlingRepository.hentBehandling(input.getBehandlingUuid());
+                ? behandlingRepository.hentBehandling(behandlingId)
+                : behandlingRepository.hentBehandling(input.getBehandlingUuid());
         Optional<FamilieHendelseGrunnlagEntitet> grunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
-        Optional<LocalDate> vedtaksdato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId()).map(BehandlingVedtak::getVedtaksdato);
+        Optional<LocalDate> vedtaksdato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
+                .map(BehandlingVedtak::getVedtaksdato);
         Optional<FamiliehendelseDto> dtoOpt = FamiliehendelseDataDtoTjeneste.mapFra(behandling, grunnlag, vedtaksdato);
         return dtoOpt.orElse(null);
     }
@@ -90,16 +91,17 @@ public class FamiliehendelseRestTjeneste {
     @Operation(description = "Hent informasjon om familiehendelse til grunn for ytelse", tags = "familiehendelse", responses = {
             @ApiResponse(responseCode = "200", description = "Returnerer hele FamilieHendelse grunnlaget", content = @Content(mediaType = "application/json", schema = @Schema(implementation = FamilieHendelseGrunnlagDto.class)))
     })
-    @BeskyttetRessurs(action = READ, ressurs = FAGSAK)
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public FamilieHendelseGrunnlagDto getFamiliehendelseGrunnlagDto(
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var input = new BehandlingIdDto(uuidDto);
         Long behandlingId = input.getBehandlingId();
         Behandling behandling = behandlingId != null
-            ? behandlingRepository.hentBehandling(behandlingId)
-            : behandlingRepository.hentBehandling(input.getBehandlingUuid());
+                ? behandlingRepository.hentBehandling(behandlingId)
+                : behandlingRepository.hentBehandling(input.getBehandlingUuid());
         Optional<FamilieHendelseGrunnlagEntitet> grunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
-        Optional<LocalDate> vedtaksdato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId()).map(BehandlingVedtak::getVedtaksdato);
+        Optional<LocalDate> vedtaksdato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
+                .map(BehandlingVedtak::getVedtaksdato);
         return FamiliehendelseDataDtoTjeneste.mapGrunnlagFra(behandling, grunnlag, vedtaksdato);
     }
 }

@@ -38,7 +38,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
-import no.nav.vedtak.felles.testutilities.Whitebox;
 
 @ExtendWith(MockitoExtension.class)
 public class FagsakTjenesteTest {
@@ -85,7 +84,8 @@ public class FagsakTjenesteTest {
         when(personinfoAdapter.hentAktørForFnr(new PersonIdent(FNR))).thenReturn(Optional.of(AKTØR_ID));
 
         Fagsak fagsak = FagsakBuilder.nyEngangstønad(RelasjonsRolleType.MORA).medBruker(navBruker).medSaksnummer(SAKSNUMMER).build();
-        Whitebox.setInternalState(fagsak, "id", -1L);
+        // Whitebox.setInternalState(fagsak, "id", -1L);
+        fagsak.setId(-1L);
         when(fagsakRepository.hentForBruker(AKTØR_ID)).thenReturn(Collections.singletonList(fagsak));
 
         LocalDate fødselsdato = LocalDate.of(2017, JANUARY, 1);
@@ -110,7 +110,8 @@ public class FagsakTjenesteTest {
     public void skal_hente_saker_på_saksreferanse() {
         NavBruker navBruker = new NavBrukerBuilder().medAktørId(AKTØR_ID).build();
         Fagsak fagsak = FagsakBuilder.nyEngangstønad(RelasjonsRolleType.MORA).medBruker(navBruker).medSaksnummer(SAKSNUMMER).build();
-        Whitebox.setInternalState(fagsak, "id", -1L);
+        // Whitebox.setInternalState(fagsak, "id", -1L);
+        fagsak.setId(-1L);
         when(fagsakRepository.hentSakGittSaksnummer(SAKSNUMMER)).thenReturn(Optional.of(fagsak));
 
         final LocalDate fødselsdato = LocalDate.of(2017, JANUARY, 1);
@@ -135,7 +136,8 @@ public class FagsakTjenesteTest {
         // Arrange
         NavBruker navBruker = new NavBrukerBuilder().medAktørId(AKTØR_ID).build();
         Fagsak fagsak = FagsakBuilder.nyEngangstønad(RelasjonsRolleType.MORA).medBruker(navBruker).medSaksnummer(SAKSNUMMER).build();
-        Whitebox.setInternalState(fagsak, "id", -1L);
+        // Whitebox.setInternalState(fagsak, "id", -1L);
+        fagsak.setId(-1L);
         FagsakSamlingForBruker view = tjeneste.hentSaker(valueOf(SAKSNUMMER));
 
         assertThat(view.isEmpty()).isTrue();

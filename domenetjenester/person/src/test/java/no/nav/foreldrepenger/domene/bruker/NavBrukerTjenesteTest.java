@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.felles.testutilities.Whitebox;
 
 @ExtendWith(MockitoExtension.class)
 public class NavBrukerTjenesteTest extends EntityManagerAwareTest {
@@ -34,7 +33,6 @@ public class NavBrukerTjenesteTest extends EntityManagerAwareTest {
         navBrukerRepository = new NavBrukerRepository(getEntityManager());
         brukerTjeneste = new NavBrukerTjeneste(navBrukerRepository, personinfoAdapter);
     }
-
 
     @Test
     public void test_hent_forvent_tomt_svar() {
@@ -66,7 +64,9 @@ public class NavBrukerTjenesteTest extends EntityManagerAwareTest {
 
         assertThat(navBruker.getSpråkkode()).isEqualTo(Språkkode.NB);
         navBrukerRepository.lagre(navBruker);
-        Whitebox.setInternalState(navBruker, "opprettetTidspunkt", LocalDateTime.now().minusYears(1));
+        navBruker.setOpprettetTidspunkt(LocalDateTime.now().minusYears(1));
+        // Whitebox.setInternalState(navBruker, "opprettetTidspunkt",
+        // LocalDateTime.now().minusYears(1));
         navBrukerRepository.lagre(navBruker);
 
         when(personinfoAdapter.hentForetrukketSpråk(aktør)).thenReturn(new PersoninfoSpråk(aktør, Språkkode.NN));

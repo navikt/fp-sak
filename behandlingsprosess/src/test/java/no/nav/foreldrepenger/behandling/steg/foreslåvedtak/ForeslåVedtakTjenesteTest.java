@@ -43,7 +43,6 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.vedtak.impl.KlageAnkeVedtakTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
-import no.nav.vedtak.felles.testutilities.Whitebox;
 
 @CdiDbAwareTest
 public class ForeslåVedtakTjenesteTest {
@@ -295,8 +294,11 @@ public class ForeslåVedtakTjenesteTest {
 
     private void leggTilAksjonspunkt(AksjonspunktDefinisjon aksjonspunktDefinisjon, boolean totrinnsbehandling) {
         Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, aksjonspunktDefinisjon);
-        Whitebox.setInternalState(aksjonspunkt, "status", AksjonspunktStatus.UTFØRT);
-        Whitebox.setInternalState(aksjonspunkt, "toTrinnsBehandling", totrinnsbehandling);
+        aksjonspunkt.setStatus(AksjonspunktStatus.UTFØRT, "");
+        aksjonspunkt.setToTrinnsBehandling(totrinnsbehandling);
+        // Whitebox.setInternalState(aksjonspunkt, "status", AksjonspunktStatus.UTFØRT);
+        // Whitebox.setInternalState(aksjonspunkt, "toTrinnsBehandling",
+        // totrinnsbehandling);
     }
 
 }

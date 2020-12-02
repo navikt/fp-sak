@@ -114,7 +114,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.vedtak.felles.testutilities.Whitebox;
 
 /**
  * Default test scenario builder for å definere opp testdata med enkle defaults.
@@ -595,10 +594,10 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
                     Long id = beh.getId();
                     if (id == null) {
                         id = nyId();
-                        Whitebox.setInternalState(beh, "id", id);
+                        beh.setId(id);
                     }
 
-                    beh.getAksjonspunkter().forEach(punkt -> Whitebox.setInternalState(punkt, "id", nyId()));
+                    beh.getAksjonspunkter().forEach(punkt -> punkt.setId((nyId())));
                     behandlingMap.put(id, beh);
                     return id;
                 });
@@ -675,7 +674,8 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             Long id = fagsak.getId();
             if (id == null) {
                 id = fagsakId;
-                Whitebox.setInternalState(fagsak, "id", id);
+                fagsak.setId(id);
+                // Whitebox.setInternalState(fagsak, "id", id);
             }
             return id;
         });
@@ -683,7 +683,8 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         // oppdater fagsakstatus
         Mockito.lenient().doAnswer(invocation -> {
             FagsakStatus status = invocation.getArgument(1);
-            Whitebox.setInternalState(fagsak, "fagsakStatus", status);
+            fagsak.setStatus(status);
+            // Whitebox.setInternalState(fagsak, "fagsakStatus", status);
             return null;
         }).when(fagsakRepository)
                 .oppdaterFagsakStatus(eq(fagsakId), Mockito.any(FagsakStatus.class));
@@ -727,7 +728,8 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         behandlingRepo.lagre(behandling, lås);
 
         lagrePersonopplysning(repositoryProvider, behandling);
-        Whitebox.setInternalState(behandling, "status", BehandlingStatus.AVSLUTTET);
+        behandling.setStatus(BehandlingStatus.AVSLUTTET);
+        // Whitebox.setInternalState(behandling, "status", BehandlingStatus.AVSLUTTET);
 
         Behandlingsresultat.Builder builder = Behandlingsresultat.builder();
 
@@ -1006,11 +1008,11 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     protected void lagFagsak(FagsakRepository fagsakRepo) {
         // opprett og lagre fagsak. Må gjøres før kan opprette behandling
         if (!Mockito.mockingDetails(fagsakRepo).isMock()) {
-            final EntityManager entityManager = (EntityManager) Whitebox.getInternalState(fagsakRepo, "entityManager");
+            final EntityManager entityManager = fagsakRepo.getEntityManager();
             if (entityManager != null) {
                 NavBrukerRepository brukerRepository = new NavBrukerRepository(entityManager);
                 final NavBruker navBruker = brukerRepository.hent(fagsakBuilder.getBrukerBuilder().getAktørId())
-                    .orElseGet(() -> NavBruker.opprettNy(fagsakBuilder.getBrukerBuilder().getAktørId(), Språkkode.NB));
+                        .orElseGet(() -> NavBruker.opprettNy(fagsakBuilder.getBrukerBuilder().getAktørId(), Språkkode.NB));
                 fagsakBuilder.medBruker(navBruker);
             }
         }

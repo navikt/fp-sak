@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveBehandlingKobling;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveBehandlingKoblingRepository;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
-import no.nav.vedtak.felles.testutilities.Whitebox;
 import no.nav.vedtak.sikkerhet.ContextPathHolder;
 
 @SuppressWarnings({ "deprecation", "resource" })
@@ -68,7 +67,8 @@ public class OppgaveRedirectTjenesteTest {
         fagsak.setId(2L);
 
         Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
-        Whitebox.setInternalState(behandling, "id", behandlingId);
+        // Whitebox.setInternalState(behandling, "id", behandlingId);
+        behandling.setId(behandlingId);
         OppgaveBehandlingKobling kobling = new OppgaveBehandlingKobling(OppgaveÅrsak.BEHANDLE_SAK, "1", saksnummer, behandlingId);
         when(oppgaveRepo.hentOppgaveBehandlingKobling("1")).thenReturn(Optional.of(kobling));
         when(fagsakRepo.finnEksaktFagsak(2)).thenReturn(fagsak);
@@ -97,7 +97,8 @@ public class OppgaveRedirectTjenesteTest {
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null, null, saksnummer);
         fagsak.setId(5l);
         Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
-        Whitebox.setInternalState(behandling, "id", behandlingId);
+        // Whitebox.setInternalState(behandling, "id", behandlingId);
+        behandling.setId(behandlingId);
         OppgaveBehandlingKobling kobling = new OppgaveBehandlingKobling(OppgaveÅrsak.BEHANDLE_SAK, "1", saksnummer, behandlingId);
         when(fagsakRepo.hentSakGittSaksnummer(saksnummer)).thenReturn(Optional.of(fagsak));
         when(fagsakRepo.finnEksaktFagsak(5)).thenReturn(fagsak);

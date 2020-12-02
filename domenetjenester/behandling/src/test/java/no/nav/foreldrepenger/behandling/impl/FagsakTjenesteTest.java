@@ -35,7 +35,6 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.felles.testutilities.Whitebox;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(FPsakEntityManagerAwareExtension.class)
@@ -109,7 +108,9 @@ public class FagsakTjenesteTest {
                                 .getRelasjonBuilder(barnAktørId, forelderAktørId, RelasjonsRolleType.FARA)
                                 .harSammeBosted(true));
 
-        Whitebox.setInternalState(fagsak, "fagsakStatus", FagsakStatus.LØPENDE); // dirty, men eksponerer ikke status nå
+        // Whitebox.setInternalState(fagsak, "fagsakStatus", FagsakStatus.LØPENDE); //
+        // dirty, men eksponerer ikke status nå
+        fagsak.setStatus(FagsakStatus.LØPENDE);
         personopplysningRepository.lagre(behandlingId, medBarnOgOppdatertKjønn);
         final PersonopplysningGrunnlagEntitet personopplysningGrunnlag = personopplysningRepository.hentPersonopplysninger(behandlingId);
 
@@ -129,7 +130,10 @@ public class FagsakTjenesteTest {
     public void opprettFlereFagsakerSammeBruker() {
         // Opprett en fagsak i systemet
         fagsak = lagNyFagsak();
-        Whitebox.setInternalState(fagsak, "fagsakStatus", FagsakStatus.LØPENDE); // dirty, men eksponerer ikke status nå
+        fagsak.setStatus(FagsakStatus.LØPENDE);
+
+        // Whitebox.setInternalState(fagsak, "fagsakStatus", FagsakStatus.LØPENDE); //
+        // dirty, men eksponerer ikke status nå
 
         // Ifølgeregler i mottak skal vi opprette en nyTerminbekreftelse sak hvis vi
         // ikke har sak nyere enn 10 mnd:

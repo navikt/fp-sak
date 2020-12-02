@@ -36,7 +36,6 @@ import jdk.javadoc.doclet.DocletEnvironment;
 import jdk.javadoc.doclet.Reporter;
 import no.nav.fpsak.nare.doc.doclet.RegelmodellDoclet;
 import no.nav.vedtak.feil.doc.FeilmeldingDoclet;
-import no.nav.vedtak.felles.db.doc.JdbcDoclet;
 import no.nav.vedtak.felles.integrasjon.felles.ws.doc.WebServiceDoclet;
 import no.nav.vedtak.konfig.doc.KonfigverdiDoclet;
 
@@ -56,11 +55,10 @@ public class Sysdoclet implements jdk.javadoc.doclet.Doclet {
     }
 
     private List<Doclet> doclets = Arrays.asList(
-        new FeilmeldingDoclet(),
-        new JdbcDoclet(),
-        new WebServiceDoclet(),
-        new KonfigverdiDoclet(),
-        new RegelmodellDoclet());
+            new FeilmeldingDoclet(),
+            new WebServiceDoclet(),
+            new KonfigverdiDoclet(),
+            new RegelmodellDoclet());
 
     @Override
     public void init(Locale locale, Reporter reporter) {
@@ -130,8 +128,9 @@ public class Sysdoclet implements jdk.javadoc.doclet.Doclet {
                 fm.list(StandardLocation.CLASS_PATH, pkg, EnumSet.of(Kind.SOURCE), true).forEach(fileObjects::add);
             }
 
-            DocumentationTask task = documentationTool.getTask(null, null, null, Sysdoclet.class, Arrays.asList("-Xmaxerrs", "1000", "-Xmaxwarns", "1000"),
-                fileObjects);
+            DocumentationTask task = documentationTool.getTask(null, null, null, Sysdoclet.class,
+                    Arrays.asList("-Xmaxerrs", "1000", "-Xmaxwarns", "1000"),
+                    fileObjects);
             task.call();
         }
 
@@ -146,7 +145,7 @@ public class Sysdoclet implements jdk.javadoc.doclet.Doclet {
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
                 boolean hiddenDir = dir.getFileName().startsWith(".") && !dir.getFileName().endsWith(".");
                 if (dir.endsWith("target") || dir.endsWith("test") || dir.endsWith("testutil") || dir.endsWith(".git") || hiddenDir
-                    || dir.endsWith("node_modules")) {
+                        || dir.endsWith("node_modules")) {
                     return FileVisitResult.SKIP_SUBTREE;
                 } else if (dir.endsWith("./web/server/")) {
                     // gammel web server modul

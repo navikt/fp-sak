@@ -8,13 +8,12 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.vedtak.felles.testutilities.Whitebox;
 
 public class CommonDvhMapperTest {
 
     private static final String OPPRETTET_AV = "OpprettetAv";
     private static final LocalDateTime OPPRETTET_TIDSPUNKT = LocalDateTime.now().minusDays(1);
-    private static final Object ENDRET_AV = "EndretAv";
+    private static final String ENDRET_AV = "EndretAv";
     private static final LocalDateTime ENDRET_TIDSPUNKT = LocalDateTime.now();
 
     @Test
@@ -27,18 +26,17 @@ public class CommonDvhMapperTest {
         assertThat(CommonDvhMapper.finnEndretAvEllerOpprettetAv(byggOppdatertBehandling())).isEqualTo(ENDRET_AV);
     }
 
-
     private Behandling byggNyBehandling() {
         Behandling behandling = ScenarioMorSøkerEngangsstønad.forFødsel().lagMocked();
-        Whitebox.setInternalState(behandling, "opprettetAv", OPPRETTET_AV);
-        Whitebox.setInternalState(behandling, "opprettetTidspunkt", OPPRETTET_TIDSPUNKT);
+        behandling.setOpprettetAv(OPPRETTET_AV);
+        behandling.setOpprettetTidspunkt(OPPRETTET_TIDSPUNKT);
         return behandling;
     }
 
     private Behandling byggOppdatertBehandling() {
         Behandling behandling = byggNyBehandling();
-        Whitebox.setInternalState(behandling, "endretAv", ENDRET_AV);
-        Whitebox.setInternalState(behandling, "endretTidspunkt", ENDRET_TIDSPUNKT);
+        behandling.setEndretAv(ENDRET_AV);
+        behandling.setEndretTidspunkt(ENDRET_TIDSPUNKT);
         return behandling;
     }
 }

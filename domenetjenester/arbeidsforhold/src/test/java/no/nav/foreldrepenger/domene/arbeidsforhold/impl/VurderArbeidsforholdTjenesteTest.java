@@ -64,8 +64,8 @@ public class VurderArbeidsforholdTjenesteTest {
     private final InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
     private final InntektsmeldingTjeneste inntektsmeldingTjeneste = new InntektsmeldingTjeneste(iayTjeneste);
     private final InntektsmeldingFilterYtelse inntektsmeldingFilterYtelse = new InntektsmeldingFilterYtelseImpl();
-    private final InntektsmeldingRegisterTjeneste inntektsmeldingArkivTjeneste =
-        new InntektsmeldingRegisterTjeneste(iayTjeneste, inntektsmeldingTjeneste, null,
+    private final InntektsmeldingRegisterTjeneste inntektsmeldingArkivTjeneste = new InntektsmeldingRegisterTjeneste(iayTjeneste,
+            inntektsmeldingTjeneste, null,
             new UnitTestLookupInstanceImpl<>(inntektsmeldingFilterYtelse));
     private VurderArbeidsforholdTjeneste tjeneste;
 
@@ -75,7 +75,7 @@ public class VurderArbeidsforholdTjenesteTest {
     void setUp(EntityManager entityManager) {
         repositoryProvider = new IAYRepositoryProvider(entityManager);
         var påkrevdeInntektsmeldingerTjeneste = new PåkrevdeInntektsmeldingerTjeneste(inntektsmeldingArkivTjeneste,
-            repositoryProvider.getSøknadRepository());
+                repositoryProvider.getSøknadRepository());
         tjeneste = new VurderArbeidsforholdTjeneste(påkrevdeInntektsmeldingerTjeneste);
     }
 
@@ -257,9 +257,9 @@ public class VurderArbeidsforholdTjenesteTest {
     }
 
     private void sendNyInntektsmelding(Behandling behandling,
-                                       Arbeidsgiver arbeidsgiver,
-                                       EksternArbeidsforholdRef ref,
-                                       LocalDateTime innsendingstidspunkt) {
+            Arbeidsgiver arbeidsgiver,
+            EksternArbeidsforholdRef ref,
+            LocalDateTime innsendingstidspunkt) {
         MottattDokument mottattDokument = new MottattDokument.Builder()
                 .medFagsakId(behandling.getFagsakId())
                 .medBehandlingId(behandling.getId())
@@ -276,12 +276,13 @@ public class VurderArbeidsforholdTjenesteTest {
                 .medStartDatoPermisjon(skjæringstidspunkt)
                 .medInntektsmeldingaarsak(InntektsmeldingInnsendingsårsak.NY)
                 .medInnsendingstidspunkt(innsendingstidspunkt)
-            .medJournalpostId(mottattDokument.getJournalpostId());
+                .medJournalpostId(mottattDokument.getJournalpostId());
 
         inntektsmeldingTjeneste.lagreInntektsmelding(behandling.getFagsak().getSaksnummer(), behandling.getId(), inntektsmeldingBuilder);
     }
 
-    private void sendInnInntektsmelding(Behandling behandling, Arbeidsgiver arbeidsgiver, EksternArbeidsforholdRef ref, LocalDateTime innsendingstidspunkt) {
+    private void sendInnInntektsmelding(Behandling behandling, Arbeidsgiver arbeidsgiver, EksternArbeidsforholdRef ref,
+            LocalDateTime innsendingstidspunkt) {
         var inntektsmeldingBuilder = InntektsmeldingBuilder.builder()
                 .medArbeidsgiver(arbeidsgiver)
                 .medArbeidsforholdId(ref)
@@ -289,7 +290,7 @@ public class VurderArbeidsforholdTjenesteTest {
                 .medStartDatoPermisjon(skjæringstidspunkt)
                 .medInntektsmeldingaarsak(InntektsmeldingInnsendingsårsak.ENDRING)
                 .medInnsendingstidspunkt(innsendingstidspunkt)
-            .medJournalpostId(new JournalpostId("123"));
+                .medJournalpostId(new JournalpostId("123"));
 
         inntektsmeldingTjeneste.lagreInntektsmelding(behandling.getFagsak().getSaksnummer(), behandling.getId(), inntektsmeldingBuilder);
     }

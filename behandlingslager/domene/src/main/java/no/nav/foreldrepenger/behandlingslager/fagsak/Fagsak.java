@@ -51,7 +51,7 @@ public class Fagsak extends BaseEntitet {
     private RelasjonsRolleType brukerRolle = RelasjonsRolleType.UDEFINERT;
 
     @Convert(converter = FagsakStatus.KodeverdiConverter.class)
-    @Column(name="fagsak_status", nullable = false)
+    @Column(name = "fagsak_status", nullable = false)
     private FagsakStatus fagsakStatus = FagsakStatus.DEFAULT;
 
     /**
@@ -117,7 +117,7 @@ public class Fagsak extends BaseEntitet {
         return saksnummer;
     }
 
-    void setSaksnummer(Saksnummer saksnummer) {
+    public void setSaksnummer(Saksnummer saksnummer) {
         this.saksnummer = saksnummer;
     }
 
@@ -152,6 +152,10 @@ public class Fagsak extends BaseEntitet {
         return getFagsakStatus();
     }
 
+    public void setStatus(FagsakStatus status) {
+        this.fagsakStatus = status;
+    }
+
     public void setAvsluttet() {
         oppdaterStatus(FagsakStatus.AVSLUTTET);
     }
@@ -174,17 +178,17 @@ public class Fagsak extends BaseEntitet {
         }
         Fagsak fagsak = (Fagsak) object;
         return Objects.equals(saksnummer, fagsak.saksnummer)
-            && Objects.equals(ytelseType, fagsak.ytelseType)
-            && Objects.equals(navBruker, fagsak.navBruker)
-            && Objects.equals(getYtelseType(), fagsak.getYtelseType());
+                && Objects.equals(ytelseType, fagsak.ytelseType)
+                && Objects.equals(navBruker, fagsak.navBruker)
+                && Objects.equals(getYtelseType(), fagsak.getYtelseType());
     }
 
     @Override
     public String toString() {
         return getClass().getSimpleName() + "<" //$NON-NLS-1$
-            + (id == null ? "" : "id=" + id + ",") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            + " bruker=" + navBruker //$NON-NLS-1$
-            + ">"; //$NON-NLS-1$
+                + (id == null ? "" : "id=" + id + ",") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                + " bruker=" + navBruker //$NON-NLS-1$
+                + ">"; //$NON-NLS-1$
     }
 
     @Override

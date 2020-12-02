@@ -43,7 +43,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAk
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
-
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus.IAYMapperTilKalkulus;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus.MapBehandlingRef;
@@ -117,11 +116,12 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
 
         // Arrange
         var behandling = opprettBehandling();
-        lagArbeidOgOpptjening(ORG_NUMMER, SKJÆRINGSTIDSPUNKT_OPPTJENING.minusYears(2), SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(13), arbId1, behandling);
+        lagArbeidOgOpptjening(ORG_NUMMER, SKJÆRINGSTIDSPUNKT_OPPTJENING.minusYears(2), SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(13), arbId1,
+                behandling);
 
         // Act
         assertThatThrownBy(() -> act(behandling)).isInstanceOf(IllegalStateException.class)
-            .hasMessageContaining(INGEN_AKTIVITET_MELDING);
+                .hasMessageContaining(INGEN_AKTIVITET_MELDING);
     }
 
     private BehandlingReferanse opprettBehandling() {
@@ -137,32 +137,32 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
     }
 
     private BeregningsgrunnlagEntitet act(OpptjeningAktiviteter opptjeningAktiviteter,
-                                          Collection<Inntektsmelding> inntektsmeldinger,
-                                          BehandlingReferanse behandling) {
+            Collection<Inntektsmelding> inntektsmeldinger,
+            BehandlingReferanse behandling) {
         var ref = lagReferanseMedStp(behandling);
         var input = lagBeregningsgrunnlagInput(ref, opptjeningAktiviteter, inntektsmeldinger);
         var beregningAktivitetAggregat = fastsettBeregningAktiviteter.fastsettAktiviteter(lagStartInput(input));
         return mapBeregningsgrunnlag(fastsettSkjæringstidspunktOgStatuser.fastsett(input, beregningAktivitetAggregat, input.getIayGrunnlag(),
-            grunnbeløpTjeneste.mapGrunnbeløpSatser()).getBeregningsgrunnlag(), Optional.empty(), Optional.empty());
+                grunnbeløpTjeneste.mapGrunnbeløpSatser()).getBeregningsgrunnlag(), Optional.empty(), Optional.empty());
     }
 
     private BeregningsgrunnlagInput lagBeregningsgrunnlagInput(BehandlingReferanse ref,
-                                                               OpptjeningAktiviteter opptjeningAktiviteter,
-                                                               Collection<Inntektsmelding> inntektsmeldinger) {
+            OpptjeningAktiviteter opptjeningAktiviteter,
+            Collection<Inntektsmelding> inntektsmeldinger) {
         var iayGrunnlag = InntektArbeidYtelseGrunnlagBuilder.oppdatere(iayTjeneste.finnGrunnlag(ref.getBehandlingId()))
-            .medInntektsmeldinger(inntektsmeldinger).build();
+                .medInntektsmeldinger(inntektsmeldinger).build();
         return new BeregningsgrunnlagInput(MapBehandlingRef.mapRef(ref), IAYMapperTilKalkulus.mapGrunnlag(iayGrunnlag, ref.getAktørId()),
-            OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(opptjeningAktiviteter),
-            AktivitetGradering.INGEN_GRADERING, List.of(), null);
+                OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(opptjeningAktiviteter),
+                AktivitetGradering.INGEN_GRADERING, List.of(), null);
     }
 
     private BehandlingReferanse lagReferanseMedStp(BehandlingReferanse behandling) {
         return behandling
-            .medSkjæringstidspunkt(Skjæringstidspunkt.builder()
-                .medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_OPPTJENING)
-                .medFørsteUttaksdato(FØRSTE_UTTAKSDAG)
-                .medSkjæringstidspunktOpptjening(SKJÆRINGSTIDSPUNKT_OPPTJENING)
-                .build());
+                .medSkjæringstidspunkt(Skjæringstidspunkt.builder()
+                        .medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_OPPTJENING)
+                        .medFørsteUttaksdato(FØRSTE_UTTAKSDAG)
+                        .medSkjæringstidspunktOpptjening(SKJÆRINGSTIDSPUNKT_OPPTJENING)
+                        .build());
     }
 
     @Test
@@ -172,7 +172,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         // Arrange
         var behandling = opprettBehandling();
         var opptj1 = lagArbeidOgOpptjening(ORG_NUMMER, SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(10),
-            DAGEN_FØR_SFO, arbId1, behandling);
+                DAGEN_FØR_SFO, arbId1, behandling);
 
         // Act
         BeregningsgrunnlagEntitet grunnlag = act(new OpptjeningAktiviteter(opptj1), behandling);
@@ -191,7 +191,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         // Arrange
         var behandling = opprettBehandling();
         var opptj1 = lagArbeidOgOpptjening(ORG_NUMMER, SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(10),
-            SKJÆRINGSTIDSPUNKT_OPPTJENING.minusWeeks(3), arbId1, behandling);
+                SKJÆRINGSTIDSPUNKT_OPPTJENING.minusWeeks(3), arbId1, behandling);
 
         // Act
         BeregningsgrunnlagEntitet grunnlag = act(new OpptjeningAktiviteter(opptj1), behandling);
@@ -210,9 +210,9 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         // Arrange
         var behandling = opprettBehandling();
         var opptj1 = lagAnnenAktivitetMedOpptjening(ArbeidType.MILITÆR_ELLER_SIVILTJENESTE,
-            SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(10), SKJÆRINGSTIDSPUNKT_OPPTJENING.minusWeeks(2));
+                SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(10), SKJÆRINGSTIDSPUNKT_OPPTJENING.minusWeeks(2));
         var opptj2 = lagArbeidOgOpptjening(ORG_NUMMER, SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(10),
-            SKJÆRINGSTIDSPUNKT_OPPTJENING.minusWeeks(3), arbId1, behandling);
+                SKJÆRINGSTIDSPUNKT_OPPTJENING.minusWeeks(3), arbId1, behandling);
 
         iayTestUtil.lagreOppgittOpptjening(behandling);
 
@@ -234,9 +234,9 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         // Arrange
         var behandling = opprettBehandling();
         var opptj1 = lagAnnenAktivitetMedOpptjening(ArbeidType.MILITÆR_ELLER_SIVILTJENESTE,
-            SKJÆRINGSTIDSPUNKT_OPPTJENING.minusWeeks(4), SKJÆRINGSTIDSPUNKT_OPPTJENING.minusWeeks(2));
+                SKJÆRINGSTIDSPUNKT_OPPTJENING.minusWeeks(4), SKJÆRINGSTIDSPUNKT_OPPTJENING.minusWeeks(2));
         var opptj2 = lagArbeidOgOpptjening(ORG_NUMMER, SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(10),
-            SKJÆRINGSTIDSPUNKT_OPPTJENING.minusWeeks(5), arbId1, behandling);
+                SKJÆRINGSTIDSPUNKT_OPPTJENING.minusWeeks(5), arbId1, behandling);
         iayTestUtil.lagreOppgittOpptjening(behandling);
 
         // Act
@@ -255,10 +255,10 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         // Arrange
         var behandling = opprettBehandling();
         var opptj1 = lagArbeidOgOpptjening(ORG_NUMMER, SKJÆRINGSTIDSPUNKT_OPPTJENING.minusWeeks(4),
-            SKJÆRINGSTIDSPUNKT_OPPTJENING.minusWeeks(2), arbId1, behandling);
+                SKJÆRINGSTIDSPUNKT_OPPTJENING.minusWeeks(2), arbId1, behandling);
         var opptj2 = lagAnnenAktivitetMedOpptjening(ArbeidType.MILITÆR_ELLER_SIVILTJENESTE,
-            SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(10),
-            SKJÆRINGSTIDSPUNKT_OPPTJENING.minusWeeks(2));
+                SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(10),
+                SKJÆRINGSTIDSPUNKT_OPPTJENING.minusWeeks(2));
         iayTestUtil.lagreOppgittOpptjening(behandling);
 
         // Act
@@ -277,12 +277,12 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         // Arrange
         var behandling = opprettBehandling();
         var opptj1 = lagArbeidOgOpptjening(ORG_NUMMER, SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(4),
-            SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(2), arbId1, behandling);
+                SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(2), arbId1, behandling);
         var opptj2 = lagAnnenAktivitetMedOpptjening(ArbeidType.MILITÆR_ELLER_SIVILTJENESTE,
-            SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(10), DAGEN_FØR_SFO);
+                SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(10), DAGEN_FØR_SFO);
         var opptj3 = lagYtelseMedOpptjening(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(2),
-            SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(1).plusDays(1), RelatertYtelseType.ARBEIDSAVKLARINGSPENGER, null,
-            behandling);
+                SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(1).plusDays(1), RelatertYtelseType.ARBEIDSAVKLARINGSPENGER, null,
+                behandling);
         iayTestUtil.lagreOppgittOpptjening(behandling);
 
         // Act
@@ -298,7 +298,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
     public void testSkjæringstidspunktForMilitærUtenAndreAktiviteter() {
         // Arrange
         var opptj1 = lagAnnenAktivitetMedOpptjening(ArbeidType.MILITÆR_ELLER_SIVILTJENESTE,
-            SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(10), SKJÆRINGSTIDSPUNKT_OPPTJENING);
+                SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(10), SKJÆRINGSTIDSPUNKT_OPPTJENING);
 
         var behandling = opprettBehandling();
         iayTestUtil.lagreOppgittOpptjening(behandling);
@@ -319,7 +319,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         // Arrange
         var behandling = opprettBehandling();
         var opptj1 = lagArbeidOgOpptjening(ORG_NUMMER, SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(10), DAGEN_FØR_SFO,
-            arbId1, behandling);
+                arbId1, behandling);
         var opptj2 = lagFrilansOgOpptjening(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(4), DAGEN_FØR_SFO);
         iayTestUtil.lagreOppgittOpptjening(behandling);
 
@@ -355,9 +355,9 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         // Arrange
         var behandling = opprettBehandling();
         var opptj1 = lagArbeidOgOpptjening(ORG_NUMMER, SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(4),
-            DAGEN_FØR_SFO, arbId1, behandling);
+                DAGEN_FØR_SFO, arbId1, behandling);
         var opptj2 = lagArbeidOgOpptjening(ORG_NUMMER2, SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(6),
-            DAGEN_FØR_SFO, arbId2, behandling);
+                DAGEN_FØR_SFO, arbId2, behandling);
 
         // Act
         BeregningsgrunnlagEntitet grunnlag = act(new OpptjeningAktiviteter(opptj1, opptj2), behandling);
@@ -376,11 +376,12 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         var arbId2 = InternArbeidsforholdRef.nyRef();
         var arbId3 = InternArbeidsforholdRef.nyRef();
 
-        no.nav.abakus.iaygrunnlag.Periode periode = new no.nav.abakus.iaygrunnlag.Periode(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(4), DAGEN_FØR_SFO);
+        no.nav.abakus.iaygrunnlag.Periode periode = new no.nav.abakus.iaygrunnlag.Periode(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(4),
+                DAGEN_FØR_SFO);
         var opptjeningAktiviteter = new OpptjeningAktiviteter(
-            OpptjeningAktiviteter.nyPeriodeOrgnr(OpptjeningAktivitetType.ARBEID, periode, orgnr, arbId1),
-            OpptjeningAktiviteter.nyPeriodeOrgnr(OpptjeningAktivitetType.ARBEID, periode, orgnr, arbId2),
-            OpptjeningAktiviteter.nyPeriodeOrgnr(OpptjeningAktivitetType.ARBEID, periode, orgnr, arbId3));
+                OpptjeningAktiviteter.nyPeriodeOrgnr(OpptjeningAktivitetType.ARBEID, periode, orgnr, arbId1),
+                OpptjeningAktiviteter.nyPeriodeOrgnr(OpptjeningAktivitetType.ARBEID, periode, orgnr, arbId2),
+                OpptjeningAktiviteter.nyPeriodeOrgnr(OpptjeningAktivitetType.ARBEID, periode, orgnr, arbId3));
 
         var inntektsmeldinger = opprettInntektsmelding(Arbeidsgiver.virksomhet(orgnr), arbId1, arbId2, arbId3);
 
@@ -400,7 +401,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         // Arrange
         var behandling = opprettBehandling();
         var opptj1 = lagArbeidOgOpptjening(ORG_NUMMER, SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(10),
-            SKJÆRINGSTIDSPUNKT_OPPTJENING.plusMonths(2), arbId1, behandling);
+                SKJÆRINGSTIDSPUNKT_OPPTJENING.plusMonths(2), arbId1, behandling);
         var opptj2 = lagNæringOgOpptjening(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(4), DAGEN_FØR_SFO);
         iayTestUtil.lagreOppgittOpptjening(behandling);
 
@@ -418,20 +419,20 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         // Arrange
         var ytelseStørrelse1 = lagYtelseStørrelse(ORG_NUMMER);
         var ytelseStørrelse2 = YtelseStørrelseBuilder.ny()
-            .medBeløp(BigDecimal.TEN)
-            .medHyppighet(InntektPeriodeType.MÅNEDLIG)
-            .build();
+                .medBeløp(BigDecimal.TEN)
+                .medHyppighet(InntektPeriodeType.MÅNEDLIG)
+                .build();
 
         var behandling = opprettBehandling();
         leggTilAktørytelse(behandling, SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(10), SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(2),
-            RelatertYtelseTilstand.LØPENDE, behandling.getSaksnummer().getVerdi(), RelatertYtelseType.SYKEPENGER,
-            Collections.singletonList(ytelseStørrelse1), Arbeidskategori.ARBEIDSTAKER, false);
+                RelatertYtelseTilstand.LØPENDE, behandling.getSaksnummer().getVerdi(), RelatertYtelseType.SYKEPENGER,
+                Collections.singletonList(ytelseStørrelse1), Arbeidskategori.ARBEIDSTAKER, false);
         leggTilAktørytelse(behandling, SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(2).plusDays(1), DAGEN_FØR_SFO,
-            RelatertYtelseTilstand.LØPENDE, behandling.getSaksnummer().getVerdi(), RelatertYtelseType.SYKEPENGER,
-            Collections.singletonList(ytelseStørrelse2), Arbeidskategori.ARBEIDSTAKER, false);
+                RelatertYtelseTilstand.LØPENDE, behandling.getSaksnummer().getVerdi(), RelatertYtelseType.SYKEPENGER,
+                Collections.singletonList(ytelseStørrelse2), Arbeidskategori.ARBEIDSTAKER, false);
 
         var opptj1 = OpptjeningAktiviteter.nyPeriodeOrgnr(OpptjeningAktivitetType.ARBEID,
-            new no.nav.abakus.iaygrunnlag.Periode(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusYears(5), null), ORG_NUMMER2);
+                new no.nav.abakus.iaygrunnlag.Periode(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusYears(5), null), ORG_NUMMER2);
 
         // Act
         var grunnlag = act(new OpptjeningAktiviteter(opptj1), behandling);
@@ -447,9 +448,9 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         // Arrange
         var behandling = opprettBehandling();
         var opptj1 = lagYtelseMedOpptjening(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(10),
-            SKJÆRINGSTIDSPUNKT_OPPTJENING.plusMonths(2), RelatertYtelseType.DAGPENGER, null, behandling);
+                SKJÆRINGSTIDSPUNKT_OPPTJENING.plusMonths(2), RelatertYtelseType.DAGPENGER, null, behandling);
         var opptj2 = lagYtelseMedOpptjening(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(2),
-            DAGEN_FØR_SFO, RelatertYtelseType.SYKEPENGER, ORG_NUMMER, behandling);
+                DAGEN_FØR_SFO, RelatertYtelseType.SYKEPENGER, ORG_NUMMER, behandling);
 
         // Act
         BeregningsgrunnlagEntitet grunnlag = act(new OpptjeningAktiviteter(opptj1, opptj2), behandling);
@@ -465,9 +466,9 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         // Arrange
         var behandling = opprettBehandling();
         var opptj1 = lagYtelseMedOpptjening(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(10),
-            SKJÆRINGSTIDSPUNKT_OPPTJENING.plusMonths(2), RelatertYtelseType.ARBEIDSAVKLARINGSPENGER, null, behandling);
+                SKJÆRINGSTIDSPUNKT_OPPTJENING.plusMonths(2), RelatertYtelseType.ARBEIDSAVKLARINGSPENGER, null, behandling);
         var opptj2 = lagYtelseMedOpptjening(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(2),
-            DAGEN_FØR_SFO, RelatertYtelseType.SYKEPENGER, ORG_NUMMER, behandling);
+                DAGEN_FØR_SFO, RelatertYtelseType.SYKEPENGER, ORG_NUMMER, behandling);
 
         // Act
         BeregningsgrunnlagEntitet grunnlag = act(new OpptjeningAktiviteter(opptj1, opptj2), behandling);
@@ -485,17 +486,17 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet(ORG_NUMMER);
         InternArbeidsforholdRef arbeidsforholdRef = InternArbeidsforholdRef.nyRef();
         YrkesaktivitetBuilder yrkesaktivitetBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .medArbeidsgiver(arbeidsgiver)
-            .medArbeidsforholdId(arbeidsforholdRef);
+                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+                .medArbeidsgiver(arbeidsgiver)
+                .medArbeidsforholdId(arbeidsforholdRef);
 
         LocalDate permisjonFom = SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(1);
         LocalDate permisjonTom = SKJÆRINGSTIDSPUNKT_OPPTJENING.plusMonths(1);
         Permisjon permisjon = yrkesaktivitetBuilder.getPermisjonBuilder()
-            .medPeriode(permisjonFom, permisjonTom)
-            .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.PERMITTERING)
-            .medProsentsats(BigDecimal.valueOf(100))
-            .build();
+                .medPeriode(permisjonFom, permisjonTom)
+                .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.PERMITTERING)
+                .medProsentsats(BigDecimal.valueOf(100))
+                .build();
         yrkesaktivitetBuilder.leggTilPermisjon(permisjon);
 
         Periode opptjeningPeriode = new Periode(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusYears(1), permisjonFom.minusDays(1));
@@ -504,10 +505,12 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         // Act
         BehandlingReferanse ref = lagReferanseMedStp(opprettBehandling());
         var input = lagBeregningsgrunnlagInput(ref, opptjeningAktiviteter, List.of());
-        BeregningAktivitetAggregatEntitet beregningAktivitetAggregat = mapSaksbehandletAktivitet(fastsettBeregningAktiviteter.fastsettAktiviteter(lagStartInput(input)));
+        BeregningAktivitetAggregatEntitet beregningAktivitetAggregat = mapSaksbehandletAktivitet(
+                fastsettBeregningAktiviteter.fastsettAktiviteter(lagStartInput(input)));
 
         BeregningsgrunnlagEntitet BeregningsgrunnlagEntitet = mapBeregningsgrunnlag(fastsettSkjæringstidspunktOgStatuser.fastsett(input,
-            mapSaksbehandletAktivitet(beregningAktivitetAggregat), input.getIayGrunnlag(), grunnbeløpTjeneste.mapGrunnbeløpSatser()).getBeregningsgrunnlag(), Optional.empty(), Optional.empty());
+                mapSaksbehandletAktivitet(beregningAktivitetAggregat), input.getIayGrunnlag(), grunnbeløpTjeneste.mapGrunnbeløpSatser())
+                .getBeregningsgrunnlag(), Optional.empty(), Optional.empty());
 
         // Assert
         assertThat(BeregningsgrunnlagEntitet.getSkjæringstidspunkt()).isEqualTo(permisjonFom);
@@ -524,17 +527,17 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         // Arrange
         var behandling = opprettBehandling();
         var opptj0 = lagArbeidOgOpptjening(ORG_NUMMER, SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(10),
-            SKJÆRINGSTIDSPUNKT_OPPTJENING.plusMonths(2), arbId1, behandling);
+                SKJÆRINGSTIDSPUNKT_OPPTJENING.plusMonths(2), arbId1, behandling);
         var opptj1 = lagYtelseMedOpptjening(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(2),
-            DAGEN_FØR_SFO, RelatertYtelseType.DAGPENGER, null, behandling);
+                DAGEN_FØR_SFO, RelatertYtelseType.DAGPENGER, null, behandling);
         var opptj2 = lagFrilansOgOpptjening(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(2), DAGEN_FØR_SFO);
         var opptj3 = lagAnnenAktivitetMedOpptjening(ArbeidType.MILITÆR_ELLER_SIVILTJENESTE,
-            SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(2), DAGEN_FØR_SFO);
+                SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(2), DAGEN_FØR_SFO);
         var opptj4 = lagNæringOgOpptjening(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(2), DAGEN_FØR_SFO);
         var opptj5 = lagAnnenAktivitetMedOpptjening(ArbeidType.VENTELØNN_VARTPENGER,
-            SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(2), DAGEN_FØR_SFO);
+                SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(2), DAGEN_FØR_SFO);
         var opptj6 = lagAnnenAktivitetMedOpptjening(ArbeidType.ETTERLØNN_SLUTTPAKKE,
-            SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(2), DAGEN_FØR_SFO);
+                SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(2), DAGEN_FØR_SFO);
         iayTestUtil.lagreOppgittOpptjening(behandling);
 
         var opptjeningAktiviteter = new OpptjeningAktiviteter(List.of(opptj0, opptj1, opptj2, opptj3, opptj4, opptj5, opptj6));
@@ -547,8 +550,8 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         verifiserAktivitetStatuser(grunnlag, AktivitetStatus.KOMBINERT_AT_FL_SN, AktivitetStatus.DAGPENGER);
 
         verifiserBeregningsgrunnlagPerioder(grunnlag, AktivitetStatus.ARBEIDSTAKER, AktivitetStatus.FRILANSER,
-            AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE, AktivitetStatus.DAGPENGER, AktivitetStatus.ARBEIDSTAKER,
-            AktivitetStatus.ARBEIDSTAKER);
+                AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE, AktivitetStatus.DAGPENGER, AktivitetStatus.ARBEIDSTAKER,
+                AktivitetStatus.ARBEIDSTAKER);
     }
 
     @Test
@@ -556,9 +559,9 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         // Arrange
         var behandling = opprettBehandling();
         var opptj1 = lagYtelseMedOpptjening(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(10),
-            SKJÆRINGSTIDSPUNKT_OPPTJENING.plusMonths(2), RelatertYtelseType.DAGPENGER, null, behandling);
+                SKJÆRINGSTIDSPUNKT_OPPTJENING.plusMonths(2), RelatertYtelseType.DAGPENGER, null, behandling);
         var opptj2 = lagYtelseMedOpptjening(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(2),
-            DAGEN_FØR_SFO, RelatertYtelseType.SYKEPENGER, ORG_NUMMER, behandling);
+                DAGEN_FØR_SFO, RelatertYtelseType.SYKEPENGER, ORG_NUMMER, behandling);
 
         // Act
         BeregningsgrunnlagEntitet grunnlag = act(new OpptjeningAktiviteter(opptj1, opptj2), behandling);
@@ -574,11 +577,11 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         List<Inntektsmelding> inntektsmeldinger = new ArrayList<>();
         for (var arbId : arbIdListe) {
             var im = InntektsmeldingBuilder.builder()
-                .medArbeidsgiver(arbeidsgiver)
-                .medInnsendingstidspunkt(LocalDateTime.now())
-                .medArbeidsforholdId(arbId)
-                .medBeløp(BigDecimal.valueOf(100000)).medJournalpostId(new JournalpostId(journalpostIdInc.incrementAndGet()))
-                .medStartDatoPermisjon(LocalDate.now());
+                    .medArbeidsgiver(arbeidsgiver)
+                    .medInnsendingstidspunkt(LocalDateTime.now())
+                    .medArbeidsforholdId(arbId)
+                    .medBeløp(BigDecimal.valueOf(100000)).medJournalpostId(new JournalpostId(journalpostIdInc.incrementAndGet()))
+                    .medStartDatoPermisjon(LocalDate.now());
 
             inntektsmeldinger.add(im.build());
         }
@@ -599,17 +602,17 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         assertThat(grunnlag.getBeregningsgrunnlagPerioder()).hasSize(1);
         BeregningsgrunnlagPeriode bgPeriode = grunnlag.getBeregningsgrunnlagPerioder().get(0);
         List<AktivitetStatus> actualList = bgPeriode.getBeregningsgrunnlagPrStatusOgAndelList().stream()
-            .map(BeregningsgrunnlagPrStatusOgAndel::getAktivitetStatus).collect(Collectors.toList());
+                .map(BeregningsgrunnlagPrStatusOgAndel::getAktivitetStatus).collect(Collectors.toList());
         assertThat(actualList).containsOnly(expectedArray);
         bgPeriode.getBeregningsgrunnlagPrStatusOgAndelList().stream()
-            .filter(this::erArbeidstakerEllerFrilans)
-            .forEach(this::verifiserBeregningsperiode);
+                .filter(this::erArbeidstakerEllerFrilans)
+                .forEach(this::verifiserBeregningsperiode);
         assertThat(actualList).hasSameSizeAs(expectedArray);
     }
 
     private boolean erArbeidstakerEllerFrilans(BeregningsgrunnlagPrStatusOgAndel bgpsa) {
         return (AktivitetStatus.ARBEIDSTAKER.equals(bgpsa.getAktivitetStatus()))
-            || (AktivitetStatus.FRILANSER.equals(bgpsa.getAktivitetStatus()));
+                || (AktivitetStatus.FRILANSER.equals(bgpsa.getAktivitetStatus()));
     }
 
     private void verifiserBeregningsperiode(BeregningsgrunnlagPrStatusOgAndel bgpsa) {
@@ -619,37 +622,37 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
 
     private void verifiserAktivitetStatuser(BeregningsgrunnlagEntitet grunnlag, AktivitetStatus... expectedArray) {
         List<AktivitetStatus> actualList = grunnlag.getAktivitetStatuser().stream()
-            .map(BeregningsgrunnlagAktivitetStatus::getAktivitetStatus).collect(Collectors.toList());
+                .map(BeregningsgrunnlagAktivitetStatus::getAktivitetStatus).collect(Collectors.toList());
         assertThat(actualList).containsOnly(expectedArray);
     }
 
     private YtelseStørrelse lagYtelseStørrelse(String orgnummer) {
         return YtelseStørrelseBuilder.ny()
-            .medBeløp(BigDecimal.TEN)
-            .medHyppighet(InntektPeriodeType.MÅNEDLIG)
-            .medVirksomhet(orgnummer).build();
+                .medBeløp(BigDecimal.TEN)
+                .medHyppighet(InntektPeriodeType.MÅNEDLIG)
+                .medVirksomhet(orgnummer).build();
     }
 
     private OpptjeningAktiviteter.OpptjeningPeriode lagArbeidOgOpptjening(String orgNummer,
-                                                                          LocalDate fom,
-                                                                          LocalDate tom,
-                                                                          InternArbeidsforholdRef arbId,
-                                                                          BehandlingReferanse behandling) {
+            LocalDate fom,
+            LocalDate tom,
+            InternArbeidsforholdRef arbId,
+            BehandlingReferanse behandling) {
         iayTestUtil.byggArbeidForBehandling(behandling, SKJÆRINGSTIDSPUNKT_OPPTJENING,
-            fom, tom, arbId, Arbeidsgiver.virksomhet(orgNummer));
+                fom, tom, arbId, Arbeidsgiver.virksomhet(orgNummer));
         return OpptjeningAktiviteter.nyPeriodeOrgnr(OpptjeningAktivitetType.ARBEID, new Periode(fom, tom), orgNummer);
     }
 
     private OpptjeningAktiviteter.OpptjeningPeriode lagFrilansOgOpptjening(LocalDate fom, LocalDate tom) {
         iayTestUtil.byggPåOppgittOpptjeningForFL(false,
-            Collections.singletonList(no.nav.folketrygdloven.beregningsgrunnlag.regelmodell.Periode.of(fom, tom)));
+                Collections.singletonList(no.nav.folketrygdloven.beregningsgrunnlag.regelmodell.Periode.of(fom, tom)));
 
         return OpptjeningAktiviteter.nyPeriode(OpptjeningAktivitetType.FRILANS, new Periode(fom, tom));
     }
 
     private OpptjeningAktiviteter.OpptjeningPeriode lagNæringOgOpptjening(LocalDate fom, LocalDate tom) {
         iayTestUtil.byggPåOppgittOpptjeningForSN(SKJÆRINGSTIDSPUNKT_OPPTJENING, false, VirksomhetType.ANNEN,
-            Collections.singleton(no.nav.folketrygdloven.beregningsgrunnlag.regelmodell.Periode.of(fom, tom)));
+                Collections.singleton(no.nav.folketrygdloven.beregningsgrunnlag.regelmodell.Periode.of(fom, tom)));
         return OpptjeningAktiviteter.nyPeriodeOrgnr(OpptjeningAktivitetType.NÆRING, new Periode(fom, tom), null);
     }
 
@@ -659,39 +662,41 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
     }
 
     private OpptjeningAktiviteter.OpptjeningPeriode lagYtelseMedOpptjening(LocalDate fom,
-                                                                           LocalDate tom,
-                                                                           RelatertYtelseType relatertYtelseType,
-                                                                           String orgnr,
-                                                                           BehandlingReferanse behandling) {
+            LocalDate tom,
+            RelatertYtelseType relatertYtelseType,
+            String orgnr,
+            BehandlingReferanse behandling) {
         leggTilAktørytelse(behandling, fom, tom, RelatertYtelseTilstand.LØPENDE, behandling.getSaksnummer().getVerdi(),
-            relatertYtelseType, Collections.singletonList(lagYtelseStørrelse(orgnr)),
-            orgnr == null ? Arbeidskategori.ARBEIDSTAKER : Arbeidskategori.INAKTIV, true);
+                relatertYtelseType, Collections.singletonList(lagYtelseStørrelse(orgnr)),
+                orgnr == null ? Arbeidskategori.ARBEIDSTAKER : Arbeidskategori.INAKTIV, true);
 
         return OpptjeningAktiviteter.nyPeriodeOrgnr(utledOpptjeningAktivitetType(relatertYtelseType), new Periode(fom, tom), orgnr);
     }
 
     private OpptjeningAktivitetType utledOpptjeningAktivitetType(ArbeidType arbeidType) {
         return OpptjeningAktivitetType.hentFraArbeidTypeRelasjoner()
-            .get(arbeidType).stream()
-            .findFirst()
-            .orElse(OpptjeningAktivitetType.UDEFINERT);
+                .get(arbeidType).stream()
+                .findFirst()
+                .orElse(OpptjeningAktivitetType.UDEFINERT);
     }
 
     private OpptjeningAktivitetType utledOpptjeningAktivitetType(RelatertYtelseType ytelseType) {
         return OpptjeningAktivitetType.hentFraRelatertYtelseTyper()
-            .get(ytelseType).stream()
-            .findFirst()
-            .orElse(OpptjeningAktivitetType.UDEFINERT);
+                .get(ytelseType).stream()
+                .findFirst()
+                .orElse(OpptjeningAktivitetType.UDEFINERT);
     }
 
     private void leggTilAktørytelse(BehandlingReferanse behandlingReferanse, LocalDate fom, LocalDate tom, // NOSONAR - brukes bare til test
-                                    RelatertYtelseTilstand relatertYtelseTilstand, String saksnummer, RelatertYtelseType ytelseType,
-                                    List<YtelseStørrelse> ytelseStørrelseList, Arbeidskategori arbeidskategori, boolean medYtelseAnvist) {
+            RelatertYtelseTilstand relatertYtelseTilstand, String saksnummer, RelatertYtelseType ytelseType,
+            List<YtelseStørrelse> ytelseStørrelseList, Arbeidskategori arbeidskategori, boolean medYtelseAnvist) {
         if (medYtelseAnvist) {
-            iayTestUtil.leggTilAktørytelse(behandlingReferanse, fom, tom, relatertYtelseTilstand, saksnummer, ytelseType, ytelseStørrelseList, arbeidskategori,
-                no.nav.folketrygdloven.beregningsgrunnlag.regelmodell.Periode.of(fom, tom));
+            iayTestUtil.leggTilAktørytelse(behandlingReferanse, fom, tom, relatertYtelseTilstand, saksnummer, ytelseType, ytelseStørrelseList,
+                    arbeidskategori,
+                    no.nav.folketrygdloven.beregningsgrunnlag.regelmodell.Periode.of(fom, tom));
         } else {
-            iayTestUtil.leggTilAktørytelse(behandlingReferanse, fom, tom, relatertYtelseTilstand, saksnummer, ytelseType, ytelseStørrelseList, arbeidskategori);
+            iayTestUtil.leggTilAktørytelse(behandlingReferanse, fom, tom, relatertYtelseTilstand, saksnummer, ytelseType, ytelseStørrelseList,
+                    arbeidskategori);
         }
     }
 

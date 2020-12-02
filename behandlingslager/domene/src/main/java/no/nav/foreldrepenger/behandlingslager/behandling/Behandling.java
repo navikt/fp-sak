@@ -85,31 +85,32 @@ import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 @Table(name = "BEHANDLING")
 public class Behandling extends BaseEntitet {
 
-    private static final Set<BehandlingÅrsakType> DØDSHENDELSER = Collections.unmodifiableSet(EnumSet.of(BehandlingÅrsakType.RE_HENDELSE_DØD_BARN, BehandlingÅrsakType.RE_HENDELSE_DØDFØDSEL));
+    private static final Set<BehandlingÅrsakType> DØDSHENDELSER = Collections
+            .unmodifiableSet(EnumSet.of(BehandlingÅrsakType.RE_HENDELSE_DØD_BARN, BehandlingÅrsakType.RE_HENDELSE_DØDFØDSEL));
 
     // Null safe
     private static final Comparator<? extends BaseEntitet> COMPARATOR_OPPRETTET_TID = Comparator
-        .comparing(BaseEntitet::getOpprettetTidspunkt, (a, b) -> {
-            if (a != null && b != null) {
-                return a.compareTo(b);
-            } else if (a == null && b == null) {
-                return 0;
-            } else {
-                return a == null ? -1 : 1;
-            }
-        });
+            .comparing(BaseEntitet::getOpprettetTidspunkt, (a, b) -> {
+                if (a != null && b != null) {
+                    return a.compareTo(b);
+                } else if (a == null && b == null) {
+                    return 0;
+                } else {
+                    return a == null ? -1 : 1;
+                }
+            });
 
     // Null safe
     private static final Comparator<? extends BaseEntitet> COMPARATOR_ENDRET_TID = Comparator
-        .comparing(BaseEntitet::getEndretTidspunkt, (a, b) -> {
-            if (a != null && b != null) {
-                return a.compareTo(b);
-            } else if (a == null && b == null) {
-                return 0;
-            } else {
-                return a == null ? -1 : 1;
-            }
-        });
+            .comparing(BaseEntitet::getEndretTidspunkt, (a, b) -> {
+                if (a != null && b != null) {
+                    return a.compareTo(b);
+                } else if (a == null && b == null) {
+                    return 0;
+                } else {
+                    return a == null ? -1 : 1;
+                }
+            });
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_BEHANDLING")
@@ -135,12 +136,14 @@ public class Behandling extends BaseEntitet {
     private BehandlingType behandlingType = BehandlingType.UDEFINERT;
 
     /**
-     * Er egentlig OneToOne, men må mappes slik da JPA/Hibernate ikke støtter OneToOne på annet enn shared PK.
+     * Er egentlig OneToOne, men må mappes slik da JPA/Hibernate ikke støtter
+     * OneToOne på annet enn shared PK.
      */
     @OneToMany(mappedBy = "behandling")
     private Set<Behandlingsresultat> behandlingsresultat = new HashSet<>(1);
 
-    // CascadeType.ALL + orphanRemoval=true må til for at aksjonspunkter skal bli slettet fra databasen ved fjerning fra HashSet
+    // CascadeType.ALL + orphanRemoval=true må til for at aksjonspunkter skal bli
+    // slettet fra databasen ved fjerning fra HashSet
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "behandling", orphanRemoval = true, cascade = CascadeType.ALL, targetEntity = Aksjonspunkt.class)
     private Set<Aksjonspunkt> aksjonspunkter = new HashSet<>();
 
@@ -156,10 +159,9 @@ public class Behandling extends BaseEntitet {
     private StartpunktType startpunkt = StartpunktType.UDEFINERT;
 
     /**
-     * --------------------------------------------------------------
-     * FIXME: Produksjonstyringsinformasjon bør flyttes ut av Behandling klassen.
-     * Gjelder feltene under
-     * --------------------------------------------------------------
+     * -------------------------------------------------------------- FIXME:
+     * Produksjonstyringsinformasjon bør flyttes ut av Behandling klassen. Gjelder
+     * feltene under --------------------------------------------------------------
      */
     @Column(name = "opprettet_dato", nullable = false, updatable = false)
     private LocalDateTime opprettetDato;
@@ -194,8 +196,8 @@ public class Behandling extends BaseEntitet {
     private boolean åpnetForEndring = false;
 
     @ChangeTracked
-    @Convert(converter=Fagsystem.KodeverdiConverter.class)
-    @Column(name="migrert_kilde", nullable = false)
+    @Convert(converter = Fagsystem.KodeverdiConverter.class)
+    @Column(name = "migrert_kilde", nullable = false)
     private Fagsystem migrertKilde = Fagsystem.UDEFINERT;
 
     Behandling() {
@@ -214,16 +216,17 @@ public class Behandling extends BaseEntitet {
     }
 
     /**
-     * Skal kun brukes av BehandlingskontrollTjeneste for prod kode slik at events fyres.
+     * Skal kun brukes av BehandlingskontrollTjeneste for prod kode slik at events
+     * fyres.
      * <p>
      * Denne oppretter en Builder for å bygge en {@link Behandling}.
      *
      * <h4>NB! BRUKES VED FØRSTE FØRSTEGANGSBEHANDLING</h4>
-     * <h4>NB2! FOR TESTER - FORTREKK (ScenarioMorSøkerEngangsstønad) eller (ScenarioFarSøkerEngangsstønad). De
-     * forenkler
-     * test oppsett</h4>
+     * <h4>NB2! FOR TESTER - FORTREKK (ScenarioMorSøkerEngangsstønad) eller
+     * (ScenarioFarSøkerEngangsstønad). De forenkler test oppsett</h4>
      * <p>
-     * Ved senere behandlinger på samme Fagsak, bruk {@link #fraTidligereBehandling(Behandling, BehandlingType)}.
+     * Ved senere behandlinger på samme Fagsak, bruk
+     * {@link #fraTidligereBehandling(Behandling, BehandlingType)}.
      */
     public static Behandling.Builder forFørstegangssøknad(Fagsak fagsak) {
         return nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD);
@@ -246,7 +249,8 @@ public class Behandling extends BaseEntitet {
     }
 
     /**
-     * Skal kun brukes av BehandlingskontrollTjeneste for prod kode slik at events fyres.
+     * Skal kun brukes av BehandlingskontrollTjeneste for prod kode slik at events
+     * fyres.
      *
      * @see #forFørstegangssøknad(Fagsak)
      */
@@ -255,14 +259,17 @@ public class Behandling extends BaseEntitet {
     }
 
     /**
-     * Skal kun brukes av BehandlingskontrollTjeneste for prod kode slik at events fyres.
+     * Skal kun brukes av BehandlingskontrollTjeneste for prod kode slik at events
+     * fyres.
      * <p>
-     * Denne oppretter en Builder for å bygge en {@link Behandling} basert på et eksisterende behandling.
+     * Denne oppretter en Builder for å bygge en {@link Behandling} basert på et
+     * eksisterende behandling.
      * <p>
      * Ved Endringssøknad eller REVURD_OPPR er det normalt DENNE som skal brukes.
      * <p>
-     * NB! FOR TESTER - FORTREKK (ScenarioMorSøkerEngangsstønad) eller (ScenarioFarSøkerEngangsstønad). De forenkler
-     * test oppsett basert på vanlige defaults.
+     * NB! FOR TESTER - FORTREKK (ScenarioMorSøkerEngangsstønad) eller
+     * (ScenarioFarSøkerEngangsstønad). De forenkler test oppsett basert på vanlige
+     * defaults.
      */
     public static Behandling.Builder fraTidligereBehandling(Behandling forrigeBehandling, BehandlingType behandlingType) {
         return new Builder(forrigeBehandling, behandlingType);
@@ -279,10 +286,12 @@ public class Behandling extends BaseEntitet {
     }
 
     /**
-     * @deprecated FIXME PFP-1131 Fjern direkte kobling Behandling->Behandlingsresultat fra entiteter/jpa modell
+     * @deprecated FIXME PFP-1131 Fjern direkte kobling
+     *             Behandling->Behandlingsresultat fra entiteter/jpa modell
      */
     @Deprecated
-    // (FC) støtter bare ett Behandlingsresultat for en Behandling - JPA har ikke støtte for OneToOne på non-PK
+    // (FC) støtter bare ett Behandlingsresultat for en Behandling - JPA har ikke
+    // støtte for OneToOne på non-PK
     // kolonne, så emuleres her ved å tømme listen.
     public Behandlingsresultat getBehandlingsresultat() {
         if (this.behandlingsresultat.size() > 1) {
@@ -307,22 +316,22 @@ public class Behandling extends BaseEntitet {
 
     public boolean harBehandlingÅrsak(BehandlingÅrsakType behandlingÅrsak) {
         return getBehandlingÅrsaker().stream()
-            .map(BehandlingÅrsak::getBehandlingÅrsakType)
-            .anyMatch(behandlingÅrsak::equals);
+                .map(BehandlingÅrsak::getBehandlingÅrsakType)
+                .anyMatch(behandlingÅrsak::equals);
     }
 
     public Optional<Long> getOriginalBehandlingId() {
         return getBehandlingÅrsaker().stream()
-            .map(BehandlingÅrsak::getOriginalBehandlingId)
-            .filter(Objects::nonNull)
-            .findFirst();
+                .map(BehandlingÅrsak::getOriginalBehandlingId)
+                .filter(Objects::nonNull)
+                .findFirst();
     }
 
     public boolean erManueltOpprettet() {
         return getBehandlingÅrsaker().stream()
-            .map(BehandlingÅrsak::erManueltOpprettet)
-            .collect(Collectors.toList())
-            .contains(true);
+                .map(BehandlingÅrsak::erManueltOpprettet)
+                .collect(Collectors.toList())
+                .contains(true);
     }
 
     public boolean erManueltOpprettetOgHarÅrsak(BehandlingÅrsakType behandlingÅrsak) {
@@ -331,6 +340,10 @@ public class Behandling extends BaseEntitet {
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public UUID getUuid() {
@@ -352,8 +365,8 @@ public class Behandling extends BaseEntitet {
     /**
      * Oppdater behandlingssteg og tilhørende status.
      * <p>
-     * NB::NB::NB Dette skal normalt kun gjøres fra Behandlingskontroll slik at bokføring og events blir riktig.
-     * Er ikke en del av offentlig API.
+     * NB::NB::NB Dette skal normalt kun gjøres fra Behandlingskontroll slik at
+     * bokføring og events blir riktig. Er ikke en del av offentlig API.
      *
      * @param stegTilstand - tilstand for steg behandlingen er i
      */
@@ -377,8 +390,8 @@ public class Behandling extends BaseEntitet {
 
     private void lukkBehandlingStegStatuser(Collection<BehandlingStegTilstand> stegTilstander, BehandlingStegStatus sluttStatusForSteg) {
         stegTilstander.stream()
-            .filter(t -> !BehandlingStegStatus.erSluttStatus(t.getBehandlingStegStatus()))
-            .forEach(t -> t.setBehandlingStegStatus(sluttStatusForSteg));
+                .filter(t -> !BehandlingStegStatus.erSluttStatus(t.getBehandlingStegStatus()))
+                .forEach(t -> t.setBehandlingStegStatus(sluttStatusForSteg));
     }
 
     public BehandlingType getType() {
@@ -404,8 +417,8 @@ public class Behandling extends BaseEntitet {
 
     public Optional<BehandlingStegTilstand> getBehandlingStegTilstand() {
         List<BehandlingStegTilstand> tilstander = behandlingStegTilstander.stream()
-            .filter(t -> !BehandlingStegStatus.erSluttStatus(t.getBehandlingStegStatus()))
-            .collect(Collectors.toList());
+                .filter(t -> !BehandlingStegStatus.erSluttStatus(t.getBehandlingStegStatus()))
+                .collect(Collectors.toList());
         if (tilstander.size() > 1) {
             throw new IllegalStateException("Utvikler-feil: Kan ikke ha flere steg samtidig åpne: " + tilstander); //$NON-NLS-1$
         }
@@ -423,7 +436,8 @@ public class Behandling extends BaseEntitet {
 
         Comparator<BehandlingStegTilstand> comparatorOpprettet = compareOpprettetTid();
         Comparator<BehandlingStegTilstand> comparatorEndret = compareEndretTid();
-        Comparator<BehandlingStegTilstand> comparator = comparatorOpprettet.reversed().thenComparing(Comparator.nullsLast(comparatorEndret).reversed());
+        Comparator<BehandlingStegTilstand> comparator = comparatorOpprettet.reversed()
+                .thenComparing(Comparator.nullsLast(comparatorEndret).reversed());
 
         // tar nyeste.
         return behandlingStegTilstander.stream().sorted(comparator).findFirst();
@@ -431,20 +445,21 @@ public class Behandling extends BaseEntitet {
 
     public Optional<BehandlingStegTilstand> getBehandlingStegTilstand(BehandlingStegType stegType) {
         List<BehandlingStegTilstand> tilstander = behandlingStegTilstander.stream()
-            .filter(t -> !BehandlingStegStatus.erSluttStatus(t.getBehandlingStegStatus())
-                && Objects.equals(stegType, t.getBehandlingSteg()))
-            .collect(Collectors.toList());
+                .filter(t -> !BehandlingStegStatus.erSluttStatus(t.getBehandlingStegStatus())
+                        && Objects.equals(stegType, t.getBehandlingSteg()))
+                .collect(Collectors.toList());
         if (tilstander.size() > 1) {
             throw new IllegalStateException(
-                "Utvikler-feil: Kan ikke ha flere steg samtidig åpne for stegType[" + stegType + "]: " + tilstander); //$NON-NLS-1$ //$NON-NLS-2$
+                    "Utvikler-feil: Kan ikke ha flere steg samtidig åpne for stegType[" + stegType + "]: " + tilstander); //$NON-NLS-1$ //$NON-NLS-2$
         }
 
         return tilstander.isEmpty() ? Optional.empty() : Optional.of(tilstander.get(0));
     }
 
     /**
-     * @deprecated bygg fortrinnsvis logikk rundt eksistens av stegresultater (fx vedtaksdato). Slik at man evt kan dekoble tabeller (evt behold
-     *             en current her)
+     * @deprecated bygg fortrinnsvis logikk rundt eksistens av stegresultater (fx
+     *             vedtaksdato). Slik at man evt kan dekoble tabeller (evt behold en
+     *             current her)
      */
     @Deprecated
     public Stream<BehandlingStegTilstand> getBehandlingStegTilstandHistorikk() {
@@ -458,11 +473,13 @@ public class Behandling extends BaseEntitet {
     }
 
     /**
-     * @deprecated FIXME skal ikke ha public settere, og heller ikke setter for behandlingsresultat her. Bør gå via repository.
+     * @deprecated FIXME skal ikke ha public settere, og heller ikke setter for
+     *             behandlingsresultat her. Bør gå via repository.
      */
     @Deprecated
     public void setBehandlingresultat(Behandlingsresultat behandlingsresultat) {
-        // (FC) støtter bare ett Behandlingsresultat for en Behandling - JPA har ikke støtte for OneToOne på non-PK
+        // (FC) støtter bare ett Behandlingsresultat for en Behandling - JPA har ikke
+        // støtte for OneToOne på non-PK
         // kolonne, så emuleres her ved å tømme listen.
 
         this.behandlingsresultat.clear();
@@ -481,8 +498,8 @@ public class Behandling extends BaseEntitet {
         }
         Behandling other = (Behandling) object;
         return Objects.equals(getFagsak(), other.getFagsak())
-            && Objects.equals(getType(), other.getType())
-            && Objects.equals(getOpprettetTidspunkt(), other.getOpprettetTidspunkt());
+                && Objects.equals(getType(), other.getType())
+                && Objects.equals(getOpprettetTidspunkt(), other.getOpprettetTidspunkt());
     }
 
     @Override
@@ -493,13 +510,13 @@ public class Behandling extends BaseEntitet {
     @Override
     public String toString() {
         return getClass().getSimpleName() + "<" //$NON-NLS-1$
-            + (id != null ? "id=" + id + ", " : "") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            + "fagsak=" + fagsak + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "status=" + status + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "type=" + behandlingType + "," //$NON-NLS-1$ //$NON-NLS-2$
-            + "steg=" + (getBehandlingStegTilstand().orElse(null)) + "," //$NON-NLS-1$ //$NON-NLS-2$
-            + "opprettetTs=" + getOpprettetTidspunkt() //$NON-NLS-1$
-            + ">"; //$NON-NLS-1$
+                + (id != null ? "id=" + id + ", " : "") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                + "fagsak=" + fagsak + ", " //$NON-NLS-1$ //$NON-NLS-2$
+                + "status=" + status + ", " //$NON-NLS-1$ //$NON-NLS-2$
+                + "type=" + behandlingType + "," //$NON-NLS-1$ //$NON-NLS-2$
+                + "steg=" + (getBehandlingStegTilstand().orElse(null)) + "," //$NON-NLS-1$ //$NON-NLS-2$
+                + "opprettetTs=" + getOpprettetTidspunkt() //$NON-NLS-1$
+                + ">"; //$NON-NLS-1$
     }
 
     public NavBruker getNavBruker() {
@@ -550,76 +567,76 @@ public class Behandling extends BaseEntitet {
 
     public Optional<Aksjonspunkt> getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon definisjon) {
         return getAksjonspunkterStream()
-            .filter(a -> a.getAksjonspunktDefinisjon().equals(definisjon))
-            .findFirst();
+                .filter(a -> a.getAksjonspunktDefinisjon().equals(definisjon))
+                .findFirst();
     }
 
     public Optional<Aksjonspunkt> getÅpentAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon definisjon) {
         return getÅpneAksjonspunkterStream()
-            .filter(a -> a.getAksjonspunktDefinisjon().equals(definisjon))
-            .findFirst();
+                .filter(a -> a.getAksjonspunktDefinisjon().equals(definisjon))
+                .findFirst();
     }
 
     public Aksjonspunkt getAksjonspunktFor(AksjonspunktDefinisjon definisjon) {
         return getAksjonspunkterStream()
-            .filter(a -> a.getAksjonspunktDefinisjon().equals(definisjon))
-            .findFirst()
-            .orElseThrow(() -> FeilFactory.create(BehandlingFeil.class).aksjonspunktIkkeFunnet(definisjon.getKode()).toException());
+                .filter(a -> a.getAksjonspunktDefinisjon().equals(definisjon))
+                .findFirst()
+                .orElseThrow(() -> FeilFactory.create(BehandlingFeil.class).aksjonspunktIkkeFunnet(definisjon.getKode()).toException());
     }
 
     public Optional<Aksjonspunkt> getAksjonspunktFor(String aksjonspunktDefinisjonKode) {
         return getAksjonspunkterStream()
-            .filter(a -> a.getAksjonspunktDefinisjon().getKode().equals(aksjonspunktDefinisjonKode))
-            .findFirst();
+                .filter(a -> a.getAksjonspunktDefinisjon().getKode().equals(aksjonspunktDefinisjonKode))
+                .findFirst();
     }
 
     public List<Aksjonspunkt> getÅpneAksjonspunkter() {
         return getÅpneAksjonspunkterStream()
-            .collect(Collectors.toList());
+                .collect(Collectors.toList());
     }
 
     public List<Aksjonspunkt> getBehandledeAksjonspunkter() {
         return getAksjonspunkterStream()
-            .filter(Aksjonspunkt::erUtført)
-            .collect(Collectors.toList());
+                .filter(Aksjonspunkt::erUtført)
+                .collect(Collectors.toList());
     }
 
     public List<Aksjonspunkt> getÅpneAksjonspunkter(AksjonspunktType aksjonspunktType) {
         return getÅpneAksjonspunkterStream()
-            .filter(ad -> Objects.equals(aksjonspunktType, ad.getAksjonspunktDefinisjon().getAksjonspunktType()))
-            .collect(Collectors.toList());
+                .filter(ad -> Objects.equals(aksjonspunktType, ad.getAksjonspunktDefinisjon().getAksjonspunktType()))
+                .collect(Collectors.toList());
     }
 
     public List<Aksjonspunkt> getÅpneAksjonspunkter(Collection<AksjonspunktDefinisjon> matchKriterier) {
         return getÅpneAksjonspunkterStream()
-            .filter(a -> matchKriterier.contains(a.getAksjonspunktDefinisjon()))
-            .collect(Collectors.toList());
+                .filter(a -> matchKriterier.contains(a.getAksjonspunktDefinisjon()))
+                .collect(Collectors.toList());
     }
 
     public List<Aksjonspunkt> getAksjonspunkterMedTotrinnskontroll() {
         return getAksjonspunkterStream()
-            .filter(a -> !a.erAvbrutt() && a.isToTrinnsBehandling())
-            .collect(Collectors.toList());
+                .filter(a -> !a.erAvbrutt() && a.isToTrinnsBehandling())
+                .collect(Collectors.toList());
     }
 
     public boolean harAksjonspunktMedType(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
         return getAksjonspunkterStream()
-            .anyMatch(ap -> aksjonspunktDefinisjon.equals(ap.getAksjonspunktDefinisjon()));
+                .anyMatch(ap -> aksjonspunktDefinisjon.equals(ap.getAksjonspunktDefinisjon()));
     }
 
     public boolean harÅpentAksjonspunktMedType(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
         return getÅpneAksjonspunkterStream().map(Aksjonspunkt::getAksjonspunktDefinisjon)
-            .anyMatch(aksjonspunktDefinisjon::equals);
+                .anyMatch(aksjonspunktDefinisjon::equals);
     }
 
     public boolean harAksjonspunktMedTotrinnskontroll() {
         return getAksjonspunkterStream()
-            .anyMatch(a -> !a.erAvbrutt() && a.isToTrinnsBehandling());
+                .anyMatch(a -> !a.erAvbrutt() && a.isToTrinnsBehandling());
     }
 
     private Optional<Aksjonspunkt> getFørsteÅpneAutopunkt() {
         return getÅpneAksjonspunkter(AksjonspunktType.AUTOPUNKT).stream()
-            .findFirst();
+                .findFirst();
     }
 
     public boolean isBehandlingPåVent() {
@@ -628,7 +645,7 @@ public class Behandling extends BaseEntitet {
 
     public boolean erKøet() {
         return this.getÅpneAksjonspunkterStream()
-            .anyMatch(ap -> AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING.equals(ap.getAksjonspunktDefinisjon()));
+                .anyMatch(ap -> AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING.equals(ap.getAksjonspunktDefinisjon()));
     }
 
     private Stream<Aksjonspunkt> getAksjonspunkterStream() {
@@ -637,7 +654,7 @@ public class Behandling extends BaseEntitet {
 
     private Stream<Aksjonspunkt> getÅpneAksjonspunkterStream() {
         return getAksjonspunkterStream()
-            .filter(Aksjonspunkt::erÅpentAksjonspunkt);
+                .filter(Aksjonspunkt::erÅpentAksjonspunkt);
     }
 
     public Long getVersjon() {
@@ -715,7 +732,8 @@ public class Behandling extends BaseEntitet {
     }
 
     /**
-     * @deprecated - fjernes når alle behandlinger har UUID og denne er satt NOT NULL i db. Inntil da sikrer denne lagring av UUID
+     * @deprecated - fjernes når alle behandlinger har UUID og denne er satt NOT
+     *             NULL i db. Inntil da sikrer denne lagring av UUID
      */
     @Deprecated
     @PreUpdate
@@ -766,13 +784,13 @@ public class Behandling extends BaseEntitet {
             return Optional.empty();
         }
         List<VilkårType> vilkårTyper = asList(VilkårType.FØDSELSVILKÅRET_MOR, VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR,
-            VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD, VilkårType.ADOPSJONSVILKARET_FORELDREPENGER,
-            VilkårType.OMSORGSVILKÅRET, VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD);
+                VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD, VilkårType.ADOPSJONSVILKARET_FORELDREPENGER,
+                VilkårType.OMSORGSVILKÅRET, VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD);
 
         return vilkårResultat.getVilkårene().stream()
-            .filter(v -> vilkårTyper.contains(v.getVilkårType()))
-            .findFirst()
-            .map(Vilkår::getVilkårType);
+                .filter(v -> vilkårTyper.contains(v.getVilkårType()))
+                .findFirst()
+                .map(Vilkår::getVilkårType);
     }
 
     public boolean harSattStartpunkt() {
@@ -907,8 +925,8 @@ public class Behandling extends BaseEntitet {
          * <p>
          * Husk: Har du brukt riktig Factory metode for å lage en Builder? :
          * <ul>
-         * <li>{@link Behandling#fraTidligereBehandling(Behandling, BehandlingType)} (&lt;- BRUK DENNE HVIS DET ER
-         * TIDLIGERE BEHANDLINGER PÅ SAMME FAGSAK)</li>
+         * <li>{@link Behandling#fraTidligereBehandling(Behandling, BehandlingType)}
+         * (&lt;- BRUK DENNE HVIS DET ER TIDLIGERE BEHANDLINGER PÅ SAMME FAGSAK)</li>
          * <li>{@link Behandling#forFørstegangssøknad(Fagsak)}</li>
          * </ul>
          */
@@ -955,6 +973,23 @@ public class Behandling extends BaseEntitet {
 
             return behandling;
         }
+    }
+
+    /*
+     * FØLGENDE ER KUN TIL TESTFORMÅL !!!
+     */
+    public void setStatus(BehandlingStatus status) {
+        this.status = status;
+    }
+
+    public void setBehandlingStegTilstander(List<BehandlingStegTilstand> tilstander) {
+        this.behandlingStegTilstander = tilstander;
+
+    }
+
+    public void setAvsluttetDato(LocalDateTime dato) {
+        this.avsluttetDato = dato;
+
     }
 
 }

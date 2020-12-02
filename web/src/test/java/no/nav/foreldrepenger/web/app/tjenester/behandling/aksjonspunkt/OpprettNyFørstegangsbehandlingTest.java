@@ -46,7 +46,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEventPubliserer;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
-import no.nav.vedtak.felles.testutilities.Whitebox;
 
 @CdiDbAwareTest
 public class OpprettNyFørstegangsbehandlingTest {
@@ -135,16 +134,23 @@ public class OpprettNyFørstegangsbehandlingTest {
         lenient().when(mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(behandling.getFagsakId())).thenAnswer(invocation -> {
             List<MottattDokument> mottatteDokumentList = new ArrayList<>();
             MottattDokument md1d = md1.medFagsakId(behandling.getFagsakId()).medBehandlingId(behandling.getId()).build();
-            Whitebox.setInternalState(md1d, "opprettetTidspunkt", LocalDateTime.now().minusSeconds(1L));
+            // Whitebox.setInternalState(md1d, "opprettetTidspunkt",
+            // LocalDateTime.now().minusSeconds(1L));
+            md1d.setOpprettetTidspunkt(LocalDateTime.now().minusSeconds(1L));
             mottatteDokumentList.add(md1d);
             MottattDokument md2d = md2.medFagsakId(behandling.getFagsakId()).medBehandlingId(behandling.getId()).build();
-            Whitebox.setInternalState(md2d, "opprettetTidspunkt", LocalDateTime.now().minusSeconds(1L));
+            md2d.setOpprettetTidspunkt(LocalDateTime.now().minusSeconds(1L));
+            // Whitebox.setInternalState(md2d, "opprettetTidspunkt",
+            // LocalDateTime.now().minusSeconds(1L));
             mottatteDokumentList.add(md2d);
             MottattDokument md3d = md3.medFagsakId(behandling.getFagsakId()).medBehandlingId(behandling.getId()).build();
-            Whitebox.setInternalState(md3d, "opprettetTidspunkt", LocalDateTime.now());
+            // Whitebox.setInternalState(md3d, "opprettetTidspunkt", LocalDateTime.now());
+            md3d.setOpprettetTidspunkt(LocalDateTime.now());
             mottatteDokumentList.add(md3d);
             MottattDokument md4d = md4.medFagsakId(behandling.getFagsakId()).medBehandlingId(behandling.getId()).build();
-            Whitebox.setInternalState(md4d, "opprettetTidspunkt", LocalDateTime.now().plusSeconds(1L));
+            // Whitebox.setInternalState(md4d, "opprettetTidspunkt",
+            // LocalDateTime.now().plusSeconds(1L));
+            md4d.setOpprettetTidspunkt(LocalDateTime.now().plusSeconds(1L));
             mottatteDokumentList.add(md4d);
             return mottatteDokumentList;
         });
@@ -157,10 +163,14 @@ public class OpprettNyFørstegangsbehandlingTest {
         when(mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(behandling.getFagsakId())).thenAnswer(invocation -> {
             List<MottattDokument> mottatteDokumentList = new ArrayList<>();
             MottattDokument md1d = md1.medFagsakId(behandling.getFagsakId()).medBehandlingId(behandling.getId()).build();
-            Whitebox.setInternalState(md1d, "opprettetTidspunkt", LocalDateTime.now().minusSeconds(1L));
+            md1d.setOpprettetTidspunkt(LocalDateTime.now().minusSeconds(1L));
+            // Whitebox.setInternalState(md1d, "opprettetTidspunkt",
+            // LocalDateTime.now().minusSeconds(1L));
             mottatteDokumentList.add(md1d);
             MottattDokument md2d = md2.medFagsakId(behandling.getFagsakId()).medBehandlingId(behandling.getId()).build();
-            Whitebox.setInternalState(md2d, "opprettetTidspunkt", LocalDateTime.now().minusSeconds(1L));
+            // Whitebox.setInternalState(md2d, "opprettetTidspunkt",
+            // LocalDateTime.now().minusSeconds(1L));
+            md2d.setOpprettetTidspunkt(LocalDateTime.now().minusSeconds(1L));
             mottatteDokumentList.add(md2d);
             return mottatteDokumentList;
         });
@@ -173,7 +183,9 @@ public class OpprettNyFørstegangsbehandlingTest {
         when(mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(behandling.getFagsakId())).thenAnswer(invocation -> {
             List<MottattDokument> mottatteDokumentList = new ArrayList<>();
             MottattDokument md1d = md1.medFagsakId(behandling.getFagsakId()).build();
-            Whitebox.setInternalState(md1d, "opprettetTidspunkt", LocalDateTime.now().minusSeconds(1L));
+            md1d.setOpprettetTidspunkt(LocalDateTime.now().minusSeconds(1L));
+            // Whitebox.setInternalState(md1d, "opprettetTidspunkt",
+            // LocalDateTime.now().minusSeconds(1L));
             mottatteDokumentList.add(md1d);
             return mottatteDokumentList;
         });
@@ -186,7 +198,10 @@ public class OpprettNyFørstegangsbehandlingTest {
         when(mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(behandling.getFagsakId())).thenAnswer(invocation -> {
             List<MottattDokument> mottatteDokumentList = new ArrayList<>();
             MottattDokument md5d = md5.medFagsakId(behandling.getFagsakId()).medBehandlingId(behandling.getId()).build();
-            Whitebox.setInternalState(md5d, "opprettetTidspunkt", LocalDateTime.now().minusSeconds(1L));
+            md5d.setOpprettetTidspunkt(LocalDateTime.now().minusSeconds(1L));
+
+            // Whitebox.setInternalState(md5d, "opprettetTidspunkt",
+            // LocalDateTime.now().minusSeconds(1L));
             mottatteDokumentList.add(md5d);
             return mottatteDokumentList;
         });
@@ -199,7 +214,9 @@ public class OpprettNyFørstegangsbehandlingTest {
         when(mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(behandling.getFagsakId())).thenAnswer(invocation -> {
             List<MottattDokument> mottatteDokumentList = new ArrayList<>();
             MottattDokument md2d = md2.medFagsakId(behandling.getFagsakId()).medBehandlingId(behandling.getId()).build();
-            Whitebox.setInternalState(md2d, "opprettetTidspunkt", LocalDateTime.now().minusSeconds(1L));
+            md2d.setOpprettetTidspunkt(LocalDateTime.now().minusSeconds(1L));
+            // Whitebox.setInternalState(md2d, "opprettetTidspunkt",
+            // LocalDateTime.now().minusSeconds(1L));
             mottatteDokumentList.add(md2d);
             return mottatteDokumentList;
         });

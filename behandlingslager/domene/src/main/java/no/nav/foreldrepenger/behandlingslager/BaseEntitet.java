@@ -54,6 +54,14 @@ public abstract class BaseEntitet implements Serializable {
         return opprettetAv;
     }
 
+    public void setOpprettetAv(String opprettetAv) {
+        this.opprettetAv = opprettetAv;
+    }
+
+    public void setEndretAv(String endretAv) {
+        this.endretAv = endretAv;
+    }
+
     public LocalDateTime getOpprettetTidspunkt() {
         return opprettetTidspunkt;
     }
@@ -66,6 +74,10 @@ public abstract class BaseEntitet implements Serializable {
         return endretTidspunkt;
     }
 
+    public void setEndretTidspunkt(LocalDateTime endretTidspunkt) {
+        this.endretTidspunkt = endretTidspunkt;
+    }
+
     private static String finnBrukernavn() {
         String brukerident = SubjectHandler.getSubjectHandler().getUid();
         return brukerident != null ? brukerident : BRUKERNAVN_NÅR_SIKKERHETSKONTEKST_IKKE_FINNES;
@@ -76,7 +88,7 @@ public abstract class BaseEntitet implements Serializable {
      * av data fra et annet system. Ivaretar da opprinnelig tidspunkt istdf å sette
      * likt now().
      */
-    protected void setOpprettetTidspunkt(LocalDateTime opprettetTidspunkt) {
+    public void setOpprettetTidspunkt(LocalDateTime opprettetTidspunkt) {
         this.opprettetTidspunkt = opprettetTidspunkt;
     }
 }

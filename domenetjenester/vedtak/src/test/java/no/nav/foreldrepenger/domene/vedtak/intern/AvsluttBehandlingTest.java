@@ -43,7 +43,6 @@ import no.nav.foreldrepenger.domene.vedtak.impl.BehandlingVedtakEventPubliserer;
 import no.nav.foreldrepenger.domene.vedtak.impl.VurderBehandlingerUnderIverksettelse;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.testutilities.Whitebox;
 
 @ExtendWith(MockitoExtension.class)
 public class AvsluttBehandlingTest {
@@ -71,10 +70,10 @@ public class AvsluttBehandlingTest {
         fagsak = behandling.getFagsak();
 
         VurderBehandlingerUnderIverksettelse vurderBehandlingerUnderIverksettelse = new VurderBehandlingerUnderIverksettelse(
-            repositoryProvider);
+                repositoryProvider);
 
         avsluttBehandling = new AvsluttBehandling(repositoryProvider, behandlingskontrollTjeneste,
-            behandlingVedtakEventPubliserer, vurderBehandlingerUnderIverksettelse, prosessTaskRepository);
+                behandlingVedtakEventPubliserer, vurderBehandlingerUnderIverksettelse, prosessTaskRepository);
 
         when(behandlingskontrollTjeneste.initBehandlingskontroll(Mockito.anyLong())).thenAnswer(invocation -> {
             Long behId = invocation.getArgument(0);
@@ -83,19 +82,19 @@ public class AvsluttBehandlingTest {
             return new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
         });
         when(behandlingskontrollTjeneste.initBehandlingskontroll(Mockito.any(Behandling.class))).thenAnswer(
-            invocation -> {
-                Behandling beh = invocation.getArgument(0);
-                BehandlingLås lås = new BehandlingLås(beh.getId()) {
-                };
-                return new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
-            });
+                invocation -> {
+                    Behandling beh = invocation.getArgument(0);
+                    BehandlingLås lås = new BehandlingLås(beh.getId()) {
+                    };
+                    return new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
+                });
     }
 
     @Test
     public void testAvsluttBehandlingUtenAndreBehandlingerISaken() {
         // Arrange
         when(behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId())).thenReturn(
-            Collections.singletonList(behandling));
+                Collections.singletonList(behandling));
 
         // Act
         avsluttBehandling.avsluttBehandling(behandling.getId());
@@ -107,7 +106,7 @@ public class AvsluttBehandlingTest {
 
     private void verifiserIverksatt(Behandling behandling) {
         BehandlingVedtak vedtak = repositoryProvider.getBehandlingVedtakRepository()
-            .hentForBehandling(behandling.getId());
+                .hentForBehandling(behandling.getId());
         verify(vedtak).setIverksettingStatus(IverksettingStatus.IVERKSATT);
         verify(repositoryProvider.getBehandlingVedtakRepository()).lagre(Mockito.eq(vedtak), any(BehandlingLås.class));
     }
@@ -117,7 +116,7 @@ public class AvsluttBehandlingTest {
         // Arrange
         Behandling behandling2 = ScenarioMorSøkerEngangsstønad.forAdopsjon().lagMocked();
         when(behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId())).thenReturn(
-            List.of(behandling, behandling2));
+                List.of(behandling, behandling2));
 
         // Act
         avsluttBehandling.avsluttBehandling(behandling.getId());
@@ -132,11 +131,11 @@ public class AvsluttBehandlingTest {
         // Arrange
         Behandling annenBehandling = lagBehandling(LocalDateTime.now().minusDays(1), LocalDateTime.now());
         BehandlingStegTilstand tilstand = new BehandlingStegTilstand(annenBehandling,
-            BehandlingStegType.IVERKSETT_VEDTAK, BehandlingStegStatus.STARTET);
-        Whitebox.setInternalState(annenBehandling, "status", BehandlingStatus.IVERKSETTER_VEDTAK);
-        Whitebox.setInternalState(annenBehandling, "behandlingStegTilstander", List.of(tilstand));
+                BehandlingStegType.IVERKSETT_VEDTAK, BehandlingStegStatus.STARTET);
+        annenBehandling.setStatus(BehandlingStatus.IVERKSETTER_VEDTAK);
+        annenBehandling.setBehandlingStegTilstander(List.of(tilstand));
         when(behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId())).thenReturn(
-            List.of(behandling, annenBehandling));
+                List.of(behandling, annenBehandling));
         when(behandlingRepository.hentBehandling(behandling.getId())).thenReturn(behandling);
         when(behandlingRepository.hentBehandling(annenBehandling.getId())).thenReturn(annenBehandling);
         // Act
@@ -152,11 +151,11 @@ public class AvsluttBehandlingTest {
         // Arrange
         Behandling annenBehandling = lagBehandling(LocalDateTime.now().minusDays(1), LocalDateTime.now());
         BehandlingStegTilstand tilstand = new BehandlingStegTilstand(annenBehandling,
-            BehandlingStegType.IVERKSETT_VEDTAK, BehandlingStegStatus.VENTER);
-        Whitebox.setInternalState(annenBehandling, "status", BehandlingStatus.IVERKSETTER_VEDTAK);
-        Whitebox.setInternalState(annenBehandling, "behandlingStegTilstander", List.of(tilstand));
+                BehandlingStegType.IVERKSETT_VEDTAK, BehandlingStegStatus.VENTER);
+        annenBehandling.setStatus(BehandlingStatus.IVERKSETTER_VEDTAK);
+        annenBehandling.setBehandlingStegTilstander(List.of(tilstand));
         when(behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId())).thenReturn(
-            List.of(behandling, annenBehandling));
+                List.of(behandling, annenBehandling));
 
         // Act
         avsluttBehandling.avsluttBehandling(behandling.getId());
@@ -173,7 +172,7 @@ public class AvsluttBehandlingTest {
         Behandling annenBehandling = lagBehandling(now.minusDays(2), now);
         Behandling tredjeBehandling = lagBehandling(now, now);
         when(behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId())).thenReturn(
-            List.of(behandling, annenBehandling, tredjeBehandling));
+                List.of(behandling, annenBehandling, tredjeBehandling));
         when(behandlingRepository.hentBehandling(behandling.getId())).thenReturn(behandling);
         when(behandlingRepository.hentBehandling(annenBehandling.getId())).thenReturn(annenBehandling);
 
@@ -189,7 +188,7 @@ public class AvsluttBehandlingTest {
     private void verifiserKallTilProsesserBehandling(Behandling behandling) {
         BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         verify(behandlingskontrollTjeneste).prosesserBehandlingGjenopptaHvisStegVenter(kontekst,
-            BehandlingStegType.IVERKSETT_VEDTAK);
+                BehandlingStegType.IVERKSETT_VEDTAK);
     }
 
     private void verifiserKallTilFortsettBehandling(Behandling behandling) {
@@ -209,11 +208,12 @@ public class AvsluttBehandlingTest {
     }
 
     private boolean inneholderFortsettBehandlingTaskForBehandling(List<ProsessTaskData> arguments,
-                                                                  Behandling behandling) {
+            Behandling behandling) {
         return arguments.stream()
-            .anyMatch(argument -> argument.getTaskType()
-                .equals(FortsettBehandlingTaskProperties.TASKTYPE) && argument.getBehandlingId()
-                .equals(behandling.getId().toString()));
+                .anyMatch(argument -> argument.getTaskType()
+                        .equals(FortsettBehandlingTaskProperties.TASKTYPE)
+                        && argument.getBehandlingId()
+                                .equals(behandling.getId().toString()));
     }
 
     @Test
@@ -223,7 +223,7 @@ public class AvsluttBehandlingTest {
         Behandling annenBehandling = lagBehandling(now, now);
         Behandling tredjeBehandling = lagBehandling(now.minusDays(1), now);
         when(behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId())).thenReturn(
-            List.of(behandling, annenBehandling, tredjeBehandling));
+                List.of(behandling, annenBehandling, tredjeBehandling));
         when(behandlingRepository.hentBehandling(behandling.getId())).thenReturn(behandling);
         when(behandlingRepository.hentBehandling(tredjeBehandling.getId())).thenReturn(tredjeBehandling);
 
@@ -253,28 +253,29 @@ public class AvsluttBehandlingTest {
         if (vedtaksdato != null) {
             BehandlingVedtak vedtak = lagMockedBehandlingVedtak(opprettet, vedtaksdato, behandling);
             lenient().when(repositoryProvider.getBehandlingVedtakRepository().hentForBehandlingHvisEksisterer(behandling.getId()))
-                .thenReturn(Optional.of(vedtak));
+                    .thenReturn(Optional.of(vedtak));
             lenient().when(repositoryProvider.getBehandlingVedtakRepository().hentForBehandling(behandling.getId())).thenReturn(
-                vedtak);
-            Whitebox.setInternalState(behandling, "avsluttetDato", vedtaksdato);
+                    vedtak);
+            behandling.setAvsluttetDato(vedtaksdato);
         }
-        Whitebox.setInternalState(behandling, "status", BehandlingStatus.IVERKSETTER_VEDTAK);
-        Whitebox.setInternalState(behandling, "behandlingStegTilstander", List.of(
-            new BehandlingStegTilstand(behandling, BehandlingStegType.IVERKSETT_VEDTAK, BehandlingStegStatus.STARTET)));
+        behandling.setStatus(BehandlingStatus.IVERKSETTER_VEDTAK);
+        behandling.setBehandlingStegTilstander(List.of(
+                new BehandlingStegTilstand(behandling, BehandlingStegType.IVERKSETT_VEDTAK, BehandlingStegStatus.STARTET)));
         return behandling;
     }
 
     private BehandlingVedtak lagMockedBehandlingVedtak(LocalDateTime opprettet,
-                                                       LocalDateTime vedtaksdato,
-                                                       Behandling behandling) {
+            LocalDateTime vedtaksdato,
+            Behandling behandling) {
         BehandlingVedtak vedtak = Mockito.spy(BehandlingVedtak.builder()
-            .medVedtakResultatType(VedtakResultatType.INNVILGET)
-            .medBehandlingsresultat(behandling.getBehandlingsresultat())
-            .medAnsvarligSaksbehandler("Severin Saksbehandler")
-            .medIverksettingStatus(IverksettingStatus.IKKE_IVERKSATT)
-            .medVedtakstidspunkt(vedtaksdato)
-            .build());
-        Whitebox.setInternalState(vedtak, "opprettetTidspunkt", opprettet);
+                .medVedtakResultatType(VedtakResultatType.INNVILGET)
+                .medBehandlingsresultat(behandling.getBehandlingsresultat())
+                .medAnsvarligSaksbehandler("Severin Saksbehandler")
+                .medIverksettingStatus(IverksettingStatus.IKKE_IVERKSATT)
+                .medVedtakstidspunkt(vedtaksdato)
+                .build());
+        vedtak.setOpprettetTidspunkt(opprettet);
+        behandling.setOpprettetTidspunkt(opprettet);
         return vedtak;
     }
 

@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
-import no.nav.vedtak.felles.testutilities.Whitebox;
 
 public class VarselRevurderingStegImplTest {
 
@@ -49,7 +48,8 @@ public class VarselRevurderingStegImplTest {
     @Test
     public void utførerUtenAksjonspunktVedAvvikIAntallBarn() {
         Behandling behandling = behandlingBuilder.medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN)).build();
-        Whitebox.setInternalState(behandling, "id", behandlingId);
+        // Whitebox.setInternalState(behandling, "id", behandlingId);
+        behandling.setId(behandlingId);
         when(behandlingRepository.hentBehandling(behandlingId)).thenReturn(behandling);
 
         BehandleStegResultat behandleStegResultat = steg.utførSteg(kontekst);
@@ -62,7 +62,9 @@ public class VarselRevurderingStegImplTest {
     public void utførerUtenAksjonspunktVedVedtakMellomUke26Og29() {
         Behandling behandling = behandlingBuilder.medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL_I_PERIODE))
                 .build();
-        Whitebox.setInternalState(behandling, "id", behandlingId);
+        // Whitebox.setInternalState(behandling, "id", behandlingId);
+        behandling.setId(behandlingId);
+
         when(behandlingRepository.hentBehandling(behandlingId)).thenReturn(behandling);
 
         BehandleStegResultat behandleStegResultat = steg.utførSteg(kontekst);
@@ -74,7 +76,9 @@ public class VarselRevurderingStegImplTest {
     @Test
     public void varslerAutomatiskOgSetterBehandlingPåVentNårIngenBarnITps() {
         Behandling behandling = behandlingBuilder.medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL)).build();
-        Whitebox.setInternalState(behandling, "id", behandlingId);
+        // Whitebox.setInternalState(behandling, "id", behandlingId);
+        behandling.setId(behandlingId);
+
         when(behandlingRepository.hentBehandling(behandlingId)).thenReturn(behandling);
 
         BehandleStegResultat behandleStegResultat = steg.utførSteg(kontekst);
@@ -90,7 +94,8 @@ public class VarselRevurderingStegImplTest {
     @Test
     public void utførerMedAksjonspunktVedManueltOpprettetRevurdering() {
         Behandling behandling = behandlingBuilder.medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_FEIL_I_LOVANDVENDELSE)).build();
-        Whitebox.setInternalState(behandling, "id", behandlingId);
+        behandling.setId(behandlingId);
+        // Whitebox.setInternalState(behandling, "id", behandlingId);
         when(behandlingRepository.hentBehandling(behandlingId)).thenReturn(behandling);
 
         BehandleStegResultat behandleStegResultat = steg.utførSteg(kontekst);

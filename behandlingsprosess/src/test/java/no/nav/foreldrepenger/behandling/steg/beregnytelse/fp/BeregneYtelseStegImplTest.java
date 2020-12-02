@@ -65,7 +65,7 @@ public class BeregneYtelseStegImplTest {
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
     @Inject
-    private BeregningsresultatRepository beregningsresultatRepository ;
+    private BeregningsresultatRepository beregningsresultatRepository;
     @Inject
     private FpUttakRepository fpUttakRepository;
     @Inject
@@ -85,17 +85,17 @@ public class BeregneYtelseStegImplTest {
     @BeforeEach
     void setup() {
         steg = new BeregneYtelseStegImpl(behandlingRepository,
-            beregningsresultatRepository,
-            new UnitTestLookupInstanceImpl<>(beregnFeriepengerTjeneste),
-            new UnitTestLookupInstanceImpl<>(finnEndringsdatoBeregningsresultatTjeneste),
-            beregnYtelseTjeneste);
+                beregningsresultatRepository,
+                new UnitTestLookupInstanceImpl<>(beregnFeriepengerTjeneste),
+                new UnitTestLookupInstanceImpl<>(finnEndringsdatoBeregningsresultatTjeneste),
+                beregnYtelseTjeneste);
     }
 
     private BeregningsresultatEntitet opprettBeregningsresultat() {
         return BeregningsresultatEntitet.builder()
-            .medRegelInput("regelInput")
-            .medRegelSporing("regelSporing")
-            .build();
+                .medRegelInput("regelInput")
+                .medRegelSporing("regelSporing")
+                .build();
     }
 
     private Behandling lagre(AbstractTestScenario<?> scenario) {
@@ -147,7 +147,7 @@ public class BeregneYtelseStegImplTest {
         scenario.medBruker(AKTØR_ID, NavBrukerKjønn.KVINNE);
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
         scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now()).build())
-            .medDefaultOppgittFordeling(LocalDate.now());
+                .medDefaultOppgittFordeling(LocalDate.now());
 
         var behandling = lagre(scenario);
 
@@ -173,19 +173,19 @@ public class BeregneYtelseStegImplTest {
 
     private void byggUttakPlanResultat(Behandling behandling) {
         var periode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now().minusDays(3), LocalDate.now().minusDays(1))
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
-            .build();
+                .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
+                .build();
 
         var uttakAktivitet = new UttakAktivitetEntitet.Builder()
-            .medArbeidsforhold(Arbeidsgiver.virksomhet(ORGNR), InternArbeidsforholdRef.nyRef())
-            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
-            .build();
+                .medArbeidsforhold(Arbeidsgiver.virksomhet(ORGNR), InternArbeidsforholdRef.nyRef())
+                .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+                .build();
         var periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitet)
-            .medTrekkonto(StønadskontoType.FORELDREPENGER_FØR_FØDSEL)
-            .medTrekkdager(new Trekkdager(15))
-            .medArbeidsprosent(BigDecimal.ZERO)
-            .medUtbetalingsgrad(new Utbetalingsgrad(100))
-            .build();
+                .medTrekkonto(StønadskontoType.FORELDREPENGER_FØR_FØDSEL)
+                .medTrekkdager(new Trekkdager(15))
+                .medArbeidsprosent(BigDecimal.ZERO)
+                .medUtbetalingsgrad(new Utbetalingsgrad(100))
+                .build();
 
         periode.leggTilAktivitet(periodeAktivitet);
 

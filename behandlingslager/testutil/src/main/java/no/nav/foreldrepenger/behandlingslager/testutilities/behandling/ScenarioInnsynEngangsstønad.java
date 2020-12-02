@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingL�
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.vedtak.felles.testutilities.Whitebox;
 
 public class ScenarioInnsynEngangsstønad {
 
@@ -70,7 +69,7 @@ public class ScenarioInnsynEngangsstønad {
         opprettedeAksjonspunktDefinisjoner.forEach(
                 (apDef, stegType) -> AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, apDef, stegType));
 
-        behandling.getAksjonspunkter().forEach(punkt -> Whitebox.setInternalState(punkt, "id", AbstractTestScenario.nyId()));
+        behandling.getAksjonspunkter().forEach(punkt -> punkt.setId(AbstractTestScenario.nyId()));
 
         if (startSteg != null) {
             InternalManipulerBehandling.forceOppdaterBehandlingSteg(behandling, startSteg);
@@ -94,7 +93,8 @@ public class ScenarioInnsynEngangsstønad {
         // pga det ikke går ann å flytte steg hvis mocket så settes startsteg til null
         startSteg = null;
         lagre(abstractTestScenario.mockBehandlingRepositoryProvider());
-        Whitebox.setInternalState(behandling, "id", AbstractTestScenario.nyId());
+        behandling.setId(AbstractTestScenario.nyId());
+        // Whitebox.setInternalState(behandling, "id", AbstractTestScenario.nyId());
         return behandling;
     }
 

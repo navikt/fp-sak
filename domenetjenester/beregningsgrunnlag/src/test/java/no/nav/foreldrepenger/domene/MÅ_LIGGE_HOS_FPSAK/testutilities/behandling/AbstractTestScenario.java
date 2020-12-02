@@ -37,17 +37,16 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilde
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.vedtak.felles.testutilities.Whitebox;
 
 /**
  * Default test scenario builder for å definere opp testdata med enkle defaults.
  * <p>
- * Oppretter en default behandling, inkludert default grunnlag med søknad + tomt innangsvilkårresultat.
+ * Oppretter en default behandling, inkludert default grunnlag med søknad + tomt
+ * innangsvilkårresultat.
  * <p>
  * Kan bruke settere (evt. legge til) for å tilpasse utgangspunktet.
  * <p>
- * Mer avansert bruk er ikke gitt at kan bruke denne
- * klassen.
+ * Mer avansert bruk er ikke gitt at kan bruke denne klassen.
  */
 public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
@@ -73,11 +72,11 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private RepositoryProvider repositoryProvider;
 
     protected AbstractTestScenario(FagsakYtelseType fagsakYtelseType, RelasjonsRolleType brukerRolle,
-                                   NavBrukerKjønn kjønn) {
+            NavBrukerKjønn kjønn) {
         this.fagsakBuilder = FagsakBuilder
-            .nyFagsak(fagsakYtelseType, brukerRolle)
-            .medSaksnummer(new Saksnummer(nyId() + ""))
-            .medBrukerKjønn(kjønn);
+                .nyFagsak(fagsakYtelseType, brukerRolle)
+                .medSaksnummer(new Saksnummer(nyId() + ""))
+                .medBrukerKjønn(kjønn);
     }
 
     public AktørId getSøkerAktørId() {
@@ -92,7 +91,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         lagMockedRepositoryForOpprettingAvBehandlingInternt();
         return BehandlingReferanse.fra(behandling);
     }
-
 
     public BehandlingReferanse lagre(RepositoryProvider repositoryProvider) {
         class LegacyBridgeIay implements LagreInntektArbeidYtelse {
@@ -112,8 +110,8 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     }
 
     public BehandlingReferanse lagre(RepositoryProvider repositoryProvider,
-                            BiConsumer<Long, InntektArbeidYtelseAggregatBuilder> lagreIayAggregat,
-                            BiConsumer<Long, OppgittOpptjeningBuilder> lagreOppgittOpptjening) {
+            BiConsumer<Long, InntektArbeidYtelseAggregatBuilder> lagreIayAggregat,
+            BiConsumer<Long, OppgittOpptjeningBuilder> lagreOppgittOpptjening) {
 
         class LegacyBridgeIay implements LagreInntektArbeidYtelse {
             @Override
@@ -184,18 +182,19 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         });
 
         when(behandlingRepository.lagre(behandlingCaptor.capture(), Mockito.any()))
-            .thenAnswer((Answer<Long>) invocation -> {
-                Behandling beh = invocation.getArgument(0);
-                Long id = beh.getId();
-                if (id == null) {
-                    id = nyId();
-                    Whitebox.setInternalState(beh, "id", id);
-                }
+                .thenAnswer((Answer<Long>) invocation -> {
+                    Behandling beh = invocation.getArgument(0);
+                    Long id = beh.getId();
+                    if (id == null) {
+                        id = nyId();
+                        beh.setId(id);
+                        // Whitebox.setInternalState(beh, "id", id);
+                    }
 
-                beh.getAksjonspunkter().forEach(punkt -> Whitebox.setInternalState(punkt, "id", nyId()));
-                behandlingMap.put(id, beh);
-                return id;
-            });
+                    beh.getAksjonspunkter().forEach(punkt -> punkt.setId(nyId()));
+                    behandlingMap.put(id, beh);
+                    return id;
+                });
 
         mockBehandlingRepository = behandlingRepository;
         return behandlingRepository;
@@ -215,7 +214,8 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             Long id = fagsak.getId();
             if (id == null) {
                 id = fagsakId;
-                Whitebox.setInternalState(fagsak, "id", id);
+                fagsak.setId(id);
+                // Whitebox.setInternalState(fagsak, "id", id);
             }
             return id;
         });
@@ -268,9 +268,9 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
     private void leggTilAksjonspunkter(Behandling behandling) {
         aksjonspunktDefinisjoner.forEach(
-            (apDef, stegType) -> {
-                AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, apDef, stegType);
-            });
+                (apDef, stegType) -> {
+                    AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, apDef, stegType);
+                });
     }
 
     private Builder grunnBuild(RepositoryProvider repositoryProvider) {
@@ -294,11 +294,11 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private void lagreBehandlingsresultatOgVilkårResultat(RepositoryProvider repoProvider, BehandlingLås lås) {
         // opprett og lagre behandlingsresultat med VilkårResultat og BehandlingVedtak
         Behandlingsresultat behandlingsresultat = (behandlingresultatBuilder == null ? Behandlingsresultat.builderForInngangsvilkår()
-            : behandlingresultatBuilder).buildFor(behandling);
+                : behandlingresultatBuilder).buildFor(behandling);
 
         VilkårResultat.Builder inngangsvilkårBuilder = VilkårResultat
-            .builderFraEksisterende(behandlingsresultat.getVilkårResultat())
-            .medVilkårResultatType(vilkårResultatType);
+                .builderFraEksisterende(behandlingsresultat.getVilkårResultat())
+                .medVilkårResultatType(vilkårResultatType);
 
         VilkårResultat vilkårResultat = inngangsvilkårBuilder.buildFor(behandling);
 
