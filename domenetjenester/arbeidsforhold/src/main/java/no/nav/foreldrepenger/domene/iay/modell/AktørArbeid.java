@@ -90,7 +90,7 @@ public class AktørArbeid extends BaseEntitet implements IndexKey {
     void fjernYrkesaktivitetForBuilder(YrkesaktivitetBuilder builder) {
         Yrkesaktivitet yrkesaktivitetKladd = builder.getKladd();
         ArbeidType arbeidType = yrkesaktivitetKladd.getArbeidType();
-        if (arbeidType.erAnnenOpptjening()) {
+        if (arbeidType.erAnnenOpptjening() || ArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE.equals(arbeidType)) {
             yrkesaktiviter.removeIf(ya -> ya.getArbeidType().equals(arbeidType));
         } else {
             Opptjeningsnøkkel nøkkel = new Opptjeningsnøkkel(yrkesaktivitetKladd);
