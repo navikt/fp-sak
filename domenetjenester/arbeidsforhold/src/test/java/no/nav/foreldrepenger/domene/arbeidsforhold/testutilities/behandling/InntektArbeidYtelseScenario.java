@@ -14,19 +14,12 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.behandlingslager.ytelse.TemaUnderkategori;
-import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.InntektBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.InntektspostBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
-import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
-import no.nav.foreldrepenger.domene.iay.modell.PermisjonBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
-import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
@@ -47,39 +40,40 @@ public class InntektArbeidYtelseScenario {
     public InntektArbeidYtelseScenarioTestBuilder getInntektArbeidYtelseScenarioTestBuilder() {
         if (inntektArbeidYtelseScenarioTestBuilder == null) {
             inntektArbeidYtelseScenarioTestBuilder = getInntektArbeidYtelseScenarioTestBuilder(
-                InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER));
+                    InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER));
         }
         return inntektArbeidYtelseScenarioTestBuilder;
     }
 
-    public InntektArbeidYtelseScenarioTestBuilder getInntektArbeidYtelseScenarioTestBuilder(InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder) {
+    public InntektArbeidYtelseScenarioTestBuilder getInntektArbeidYtelseScenarioTestBuilder(
+            InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder) {
         return InntektArbeidYtelseScenarioTestBuilder.ny(inntektArbeidYtelseAggregatBuilder);
     }
 
     void lagreVirksomhet() {
-        InntektArbeidYtelseAggregatBuilder kladd = getInntektArbeidYtelseScenarioTestBuilder().getKladd();
+        var kladd = getInntektArbeidYtelseScenarioTestBuilder().getKladd();
         if (kladd != null) {
-            InntektArbeidYtelseAggregat build = kladd.build();
+            var build = kladd.build();
             build.getAktørArbeid().stream()
-                .map(AktørArbeid::hentAlleYrkesaktiviteter)
-                .flatMap(java.util.Collection::stream)
-                .forEach(yr -> {
-                    if (yr.getArbeidsgiver().getErVirksomhet()) {
-                        String orgnr = yr.getArbeidsgiver().getOrgnr();
-                        try {
-                            Method m = Yrkesaktivitet.class.getDeclaredMethod("setArbeidsgiver", Arbeidsgiver.class);
-                            m.setAccessible(true);
-                            m.invoke(yr, Arbeidsgiver.virksomhet(orgnr));
-                        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                            throw new IllegalArgumentException("Utvikler feil");
+                    .map(AktørArbeid::hentAlleYrkesaktiviteter)
+                    .flatMap(java.util.Collection::stream)
+                    .forEach(yr -> {
+                        if (yr.getArbeidsgiver().getErVirksomhet()) {
+                            String orgnr = yr.getArbeidsgiver().getOrgnr();
+                            try {
+                                Method m = Yrkesaktivitet.class.getDeclaredMethod("setArbeidsgiver", Arbeidsgiver.class);
+                                m.setAccessible(true);
+                                m.invoke(yr, Arbeidsgiver.virksomhet(orgnr));
+                            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                                throw new IllegalArgumentException("Utvikler feil");
+                            }
                         }
-                    }
-                });
+                    });
         }
     }
 
     void lagreOpptjening(IAYRepositoryProvider repositoryProvider, Behandling behandling) {
-        InntektArbeidYtelseAggregatBuilder kladd = getInntektArbeidYtelseScenarioTestBuilder().getKladd();
+        var kladd = getInntektArbeidYtelseScenarioTestBuilder().getKladd();
         if (kladd != null) {
             repositoryProvider.getInntektArbeidYtelseTjeneste().lagreIayAggregat(behandling.getId(), kladd);
         }
@@ -99,38 +93,29 @@ public class InntektArbeidYtelseScenario {
     public static class InntektArbeidYtelseScenarioTestBuilder {
         private InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder;
 
-        // Permisjon
         private LocalDate permisjonFom = LocalDate.now().minusWeeks(9L);
         private LocalDate permisjonTom = LocalDate.now().minusWeeks(2L);
         private BigDecimal permisjonsprosent = BigDecimal.valueOf(100);
         private PermisjonsbeskrivelseType permisjonsbeskrivelseType = PermisjonsbeskrivelseType.UDEFINERT;
 
-        // AktivitetsAvtale
         private LocalDate aktivitetsAvtaleFom = LocalDate.now().minusYears(3L);
         private LocalDate aktivitetsAvtaleTom = LocalDate.now();
         private BigDecimal aktivitetsAvtaleProsentsats = BigDecimal.TEN;
-        private BigDecimal aktivitetsAvtaleAntallTimer = BigDecimal.valueOf(20.4d);
-        private BigDecimal aktivitetsAvtaleAntallTimerFulltid = BigDecimal.valueOf(10.2d);
 
-        // Virksomhet
         private String orgNr = KUNSTIG_ORG;
         private AktørId aktørId = AktørId.dummy();
 
-        // Yrkesaktivitet
         private ArbeidType yrkesaktivitetArbeidType = ArbeidType.ORDINÆRT_ARBEIDSFORHOLD;
         private InternArbeidsforholdRef yrkesaktivitetArbeidsforholdId = InternArbeidsforholdRef.nyRef();
 
-        // Inntekt
         private InntektsKilde inntektsKilde = null;
 
-        // Inntektspost
         private InntektspostType inntektspostType = InntektspostType.UDEFINERT;
         private BigDecimal inntektspostBeløp = BigDecimal.TEN;
         private LocalDate inntektspostFom = LocalDate.now().minusYears(3L);
         private LocalDate inntektspostTom = LocalDate.now();
         private YtelseType inntektspostYtelseType = OffentligYtelseType.UDEFINERT;
 
-        // RelaterteYtelser
         private RelatertYtelseType ytelseType = null;
         private LocalDate iverksettelsesDato = LocalDate.now().minusYears(5L);
         private RelatertYtelseTilstand relatertYtelseTilstand = RelatertYtelseTilstand.AVSLUTTET;
@@ -152,7 +137,6 @@ public class InntektArbeidYtelseScenario {
             return this;
         }
 
-        // Permisjon
         public InntektArbeidYtelseScenarioTestBuilder medPermisjonFom(LocalDate permisjonFom) {
             this.permisjonFom = permisjonFom;
             return this;
@@ -173,7 +157,6 @@ public class InntektArbeidYtelseScenario {
             return this;
         }
 
-        // AktivitetsAvtale
         public InntektArbeidYtelseScenarioTestBuilder medAktivitetsAvtaleFom(LocalDate aktivitetsAvtaleFom) {
             this.aktivitetsAvtaleFom = aktivitetsAvtaleFom;
             return this;
@@ -189,29 +172,16 @@ public class InntektArbeidYtelseScenario {
             return this;
         }
 
-        public InntektArbeidYtelseScenarioTestBuilder medAktivitetsAvtaleAntallTimer(BigDecimal aktivitetsAvtaleAntallTimer) {
-            this.aktivitetsAvtaleAntallTimer = aktivitetsAvtaleAntallTimer;
-            return this;
-        }
-
-        public InntektArbeidYtelseScenarioTestBuilder medAktivitetsAvtaleAntallTimerFulltid(BigDecimal aktivitetsAvtaleAntallTimerFulltid) {
-            this.aktivitetsAvtaleAntallTimerFulltid = aktivitetsAvtaleAntallTimerFulltid;
-            return this;
-        }
-
-        // Virksomhet
         public InntektArbeidYtelseScenarioTestBuilder medOrgNr(String orgNr) {
             this.orgNr = orgNr;
             return this;
         }
 
-        // Yrkesaktivitet
         public InntektArbeidYtelseScenarioTestBuilder medYrkesaktivitetArbeidType(ArbeidType yrkesaktivitetArbeidType) {
             this.yrkesaktivitetArbeidType = yrkesaktivitetArbeidType;
             return this;
         }
 
-        // Inntektspost
         public InntektArbeidYtelseScenarioTestBuilder medInntektspostType(InntektspostType inntektspostType) {
             this.inntektspostType = inntektspostType;
             return this;
@@ -237,7 +207,6 @@ public class InntektArbeidYtelseScenario {
             return this;
         }
 
-        // Inntekt
         public InntektArbeidYtelseScenarioTestBuilder medInntektsKilde(InntektsKilde inntektsKilde) {
             this.inntektsKilde = inntektsKilde;
             return this;
@@ -266,34 +235,35 @@ public class InntektArbeidYtelseScenario {
 
         public YtelseBuilder buildRelaterteYtelserGrunnlag(RelatertYtelseType ytelseType) {
             return YtelseBuilder.oppdatere(Optional.empty())
-                .medKilde(ytelseKilde)
-                .medSaksnummer(saksnummer)
-                .medPeriode(
-                    tomDato != null ? DatoIntervallEntitet.fraOgMedTilOgMed(iverksettelsesDato, tomDato) : DatoIntervallEntitet.fraOgMed(iverksettelsesDato))
-                .medStatus(relatertYtelseTilstand)
-                .medYtelseType(ytelseType)
-                .medBehandlingsTema(ytelseBehandlingstema);
+                    .medKilde(ytelseKilde)
+                    .medSaksnummer(saksnummer)
+                    .medPeriode(
+                            tomDato != null ? DatoIntervallEntitet.fraOgMedTilOgMed(iverksettelsesDato, tomDato)
+                                    : DatoIntervallEntitet.fraOgMed(iverksettelsesDato))
+                    .medStatus(relatertYtelseTilstand)
+                    .medYtelseType(ytelseType)
+                    .medBehandlingsTema(ytelseBehandlingstema);
         }
 
         public InntektArbeidYtelseAggregatBuilder buildInntektGrunnlag() {
 
-            InntektArbeidYtelseAggregatBuilder.AktørInntektBuilder aktørInntektBuilder = inntektArbeidYtelseAggregatBuilder.getAktørInntektBuilder(aktørId);
+            var aktørInntektBuilder = inntektArbeidYtelseAggregatBuilder
+                    .getAktørInntektBuilder(aktørId);
             final Opptjeningsnøkkel opptjeningsnøkkel = new Opptjeningsnøkkel(yrkesaktivitetArbeidsforholdId, orgNr, aktørId.getId());
-            InntektBuilder inntektBuilder = aktørInntektBuilder.getInntektBuilder(InntektsKilde.INNTEKT_OPPTJENING, opptjeningsnøkkel);
-            InntektspostBuilder inntektspostBuilder = inntektBuilder.getInntektspostBuilder();
+            var inntektBuilder = aktørInntektBuilder.getInntektBuilder(InntektsKilde.INNTEKT_OPPTJENING, opptjeningsnøkkel);
+            var inntektspostBuilder = inntektBuilder.getInntektspostBuilder();
             if (inntektsKilde != null) {
-                InntektspostBuilder inntektspost = inntektspostBuilder
-                    .medBeløp(inntektspostBeløp)
-                    .medPeriode(inntektspostFom, inntektspostTom)
-                    .medYtelse(inntektspostYtelseType)
-                    .medInntektspostType(inntektspostType);
+                var inntektspost = inntektspostBuilder
+                        .medBeløp(inntektspostBeløp)
+                        .medPeriode(inntektspostFom, inntektspostTom)
+                        .medYtelse(inntektspostYtelseType)
+                        .medInntektspostType(inntektspostType);
 
                 inntektBuilder
-                    .leggTilInntektspost(inntektspost)
-                    .medInntektsKilde(inntektsKilde);
+                        .leggTilInntektspost(inntektspost)
+                        .medInntektsKilde(inntektsKilde);
 
-                InntektArbeidYtelseAggregatBuilder.AktørInntektBuilder aktørInntekt = aktørInntektBuilder
-                    .leggTilInntekt(inntektBuilder);
+                var aktørInntekt = aktørInntektBuilder.leggTilInntekt(inntektBuilder);
 
                 inntektArbeidYtelseAggregatBuilder.leggTilAktørInntekt(aktørInntekt);
             }
@@ -301,61 +271,64 @@ public class InntektArbeidYtelseScenario {
         }
 
         public InntektArbeidYtelseAggregatBuilder build() {
-            InntektArbeidYtelseAggregatBuilder.AktørInntektBuilder aktørInntektBuilder = inntektArbeidYtelseAggregatBuilder.getAktørInntektBuilder(aktørId);
-            final Opptjeningsnøkkel opptjeningsnøkkel = new Opptjeningsnøkkel(yrkesaktivitetArbeidsforholdId, orgNr, aktørId.getId());
-            InntektBuilder inntektBuilder = aktørInntektBuilder.getInntektBuilder(InntektsKilde.INNTEKT_OPPTJENING, opptjeningsnøkkel);
-            InntektspostBuilder inntektspostBuilder = inntektBuilder.getInntektspostBuilder();
+            var aktørInntektBuilder = inntektArbeidYtelseAggregatBuilder
+                    .getAktørInntektBuilder(aktørId);
+            final var opptjeningsnøkkel = new Opptjeningsnøkkel(yrkesaktivitetArbeidsforholdId, orgNr, aktørId.getId());
+            var inntektBuilder = aktørInntektBuilder.getInntektBuilder(InntektsKilde.INNTEKT_OPPTJENING, opptjeningsnøkkel);
+            var inntektspostBuilder = inntektBuilder.getInntektspostBuilder();
 
-            InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = inntektArbeidYtelseAggregatBuilder.getAktørArbeidBuilder(aktørId);
-            YrkesaktivitetBuilder yrkesaktivitetBuilder = aktørArbeidBuilder.getYrkesaktivitetBuilderForNøkkelAvType(opptjeningsnøkkel,
-                ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
-            AktivitetsAvtaleBuilder aktivitetsAvtaleBuilder = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder();
-            PermisjonBuilder permisjonBuilder = yrkesaktivitetBuilder.getPermisjonBuilder();
+            var aktørArbeidBuilder = inntektArbeidYtelseAggregatBuilder
+                    .getAktørArbeidBuilder(aktørId);
+            var yrkesaktivitetBuilder = aktørArbeidBuilder.getYrkesaktivitetBuilderForNøkkelAvType(opptjeningsnøkkel,
+                    ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
+            var aktivitetsAvtaleBuilder = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder();
+            var permisjonBuilder = yrkesaktivitetBuilder.getPermisjonBuilder();
 
-            InntektArbeidYtelseAggregatBuilder.AktørYtelseBuilder aktørYtelseBuilder = inntektArbeidYtelseAggregatBuilder.getAktørYtelseBuilder(aktørId);
+            var aktørYtelseBuilder = inntektArbeidYtelseAggregatBuilder
+                    .getAktørYtelseBuilder(aktørId);
 
-            Permisjon permisjon = permisjonBuilder
-                .medProsentsats(permisjonsprosent)
-                .medPeriode(permisjonFom, permisjonTom)
-                .medPermisjonsbeskrivelseType(permisjonsbeskrivelseType)
-                .build();
+            var permisjon = permisjonBuilder
+                    .medProsentsats(permisjonsprosent)
+                    .medPeriode(permisjonFom, permisjonTom)
+                    .medPermisjonsbeskrivelseType(permisjonsbeskrivelseType)
+                    .build();
 
-            AktivitetsAvtaleBuilder aktivitetsAvtale = aktivitetsAvtaleBuilder
-                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(aktivitetsAvtaleFom, aktivitetsAvtaleTom))
-                .medProsentsats(aktivitetsAvtaleProsentsats)
-                .medSisteLønnsendringsdato(aktivitetsAvtaleFom);
+            var aktivitetsAvtale = aktivitetsAvtaleBuilder
+                    .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(aktivitetsAvtaleFom, aktivitetsAvtaleTom))
+                    .medProsentsats(aktivitetsAvtaleProsentsats)
+                    .medSisteLønnsendringsdato(aktivitetsAvtaleFom);
 
-            AktivitetsAvtaleBuilder ansettelsesperiode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
-                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(aktivitetsAvtaleFom, aktivitetsAvtaleTom));
+            var ansettelsesperiode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
+                    .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(aktivitetsAvtaleFom, aktivitetsAvtaleTom));
 
-            Yrkesaktivitet yrkesaktivitet = yrkesaktivitetBuilder
-                .medArbeidType(yrkesaktivitetArbeidType)
-                .medArbeidsgiver(Arbeidsgiver.virksomhet(orgNr))
-                .medArbeidsforholdId(yrkesaktivitetArbeidsforholdId)
-                .tilbakestillAvtaler()
-                .leggTilAktivitetsAvtale(aktivitetsAvtale)
-                .leggTilAktivitetsAvtale(ansettelsesperiode)
-                .tilbakestillPermisjon()
-                .leggTilPermisjon(permisjon)
-                .build();
+            var yrkesaktivitet = yrkesaktivitetBuilder
+                    .medArbeidType(yrkesaktivitetArbeidType)
+                    .medArbeidsgiver(Arbeidsgiver.virksomhet(orgNr))
+                    .medArbeidsforholdId(yrkesaktivitetArbeidsforholdId)
+                    .tilbakestillAvtaler()
+                    .leggTilAktivitetsAvtale(aktivitetsAvtale)
+                    .leggTilAktivitetsAvtale(ansettelsesperiode)
+                    .tilbakestillPermisjon()
+                    .leggTilPermisjon(permisjon)
+                    .build();
 
-            InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeid = aktørArbeidBuilder
-                .leggTilYrkesaktivitet(yrkesaktivitetBuilder);
+            var aktørArbeid = aktørArbeidBuilder
+                    .leggTilYrkesaktivitet(yrkesaktivitetBuilder);
 
             if (inntektsKilde != null) {
-                InntektspostBuilder inntektspost = inntektspostBuilder
-                    .medBeløp(inntektspostBeløp)
-                    .medPeriode(inntektspostFom, inntektspostTom)
-                    .medYtelse(inntektspostYtelseType)
-                    .medInntektspostType(inntektspostType);
+                var inntektspost = inntektspostBuilder
+                        .medBeløp(inntektspostBeløp)
+                        .medPeriode(inntektspostFom, inntektspostTom)
+                        .medYtelse(inntektspostYtelseType)
+                        .medInntektspostType(inntektspostType);
 
                 inntektBuilder
-                    .leggTilInntektspost(inntektspost)
-                    .medArbeidsgiver(yrkesaktivitet.getArbeidsgiver())
-                    .medInntektsKilde(inntektsKilde);
+                        .leggTilInntektspost(inntektspost)
+                        .medArbeidsgiver(yrkesaktivitet.getArbeidsgiver())
+                        .medInntektsKilde(inntektsKilde);
 
-                InntektArbeidYtelseAggregatBuilder.AktørInntektBuilder aktørInntekt = aktørInntektBuilder
-                    .leggTilInntekt(inntektBuilder);
+                var aktørInntekt = aktørInntektBuilder
+                        .leggTilInntekt(inntektBuilder);
 
                 inntektArbeidYtelseAggregatBuilder.leggTilAktørInntekt(aktørInntekt);
             }
@@ -370,7 +343,8 @@ public class InntektArbeidYtelseScenario {
         }
 
         /**
-         * Gir den rå buildern for å videre manipulere testdata. på samme måte som entitene bygges på.
+         * Gir den rå buildern for å videre manipulere testdata. på samme måte som
+         * entitene bygges på.
          *
          * @return buildern
          */
