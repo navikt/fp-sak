@@ -1,6 +1,8 @@
 package no.nav.foreldrepenger.ytelse.beregning;
 
+import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -31,12 +33,20 @@ public final class BeregningsresultatInputVerifiserer {
         bGAndeler.forEach(bgAndel -> verifiserAtAndelerMatcher(bgAndel, uttakAndeler));
     }
 
+    private static LocalDate finnSisteUttaksdato(BeregningsresultatRegelmodell input) {
+        return input.getUttakResultat().getUttakResultatPerioder().stream().max(Comparator.comparing(UttakResultatPeriode::getTom)).map(UttakResultatPeriode::getTom).orElseThrow();
+    }
+
     private static List<UttakAktivitet> hentUttakAndeler(BeregningsresultatRegelmodell input) {
         return input.getUttakResultat().getUttakResultatPerioder().stream().map(UttakResultatPeriode::getUttakAktiviteter).flatMap(Collection::stream).collect(Collectors.toList());
     }
 
     private static List<BeregningsgrunnlagPrStatus> hentBGAndeler(BeregningsresultatRegelmodell input) {
-        return input.getBeregningsgrunnlag().getBeregningsgrunnlagPerioder().stream().map(BeregningsgrunnlagPeriode::getBeregningsgrunnlagPrStatus).flatMap(Collection::stream).collect(Collectors.toList());
+        // Trenger kun å se på perioder som overlapper med beregning
+        LocalDate sisteUttaksdato = finnSisteUttaksdato(input);
+        return input.getBeregningsgrunnlag().getBeregningsgrunnlagPerioder().stream()
+            .filter(bgp -> !bgp.getBeregningsgrunnlagPeriode().getTom().isAfter(sisteUttaksdato))
+            .map(BeregningsgrunnlagPeriode::getBeregningsgrunnlagPrStatus).flatMap(Collection::stream).collect(Collectors.toList());
     }
 
     private static void verifiserUttak(UttakAktivitet uttakAndel, List<BeregningsgrunnlagPrStatus> bGAndeler) {
