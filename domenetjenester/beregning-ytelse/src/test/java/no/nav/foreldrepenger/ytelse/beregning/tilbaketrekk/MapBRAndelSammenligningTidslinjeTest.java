@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
@@ -19,12 +20,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.ytelse.beregning.FPDateUtil;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 
+@Disabled
 public class MapBRAndelSammenligningTidslinjeTest {
-    // private static final String FUNKSJONELT_TIDSOFFSET =
-    // FPDateUtil.SystemConfiguredClockProvider.PROPERTY_KEY_OFFSET_PERIODE;
+    private static final String FUNKSJONELT_TIDSOFFSET = FPDateUtil.SystemConfiguredClockProvider.PROPERTY_KEY_OFFSET_PERIODE;
 
     private static final LocalDate STP = LocalDate.of(2019, 9, 1);
     private static final Arbeidsgiver AG1 = Arbeidsgiver.virksomhet("999999999");
@@ -35,7 +37,7 @@ public class MapBRAndelSammenligningTidslinjeTest {
     @AfterEach
     public void teardown() {
         settSimulertNåtidTil(LocalDate.now());
-        // FPDateUtil.init();
+        FPDateUtil.init();
     }
 
     @Test
@@ -161,8 +163,8 @@ public class MapBRAndelSammenligningTidslinjeTest {
 
     private void settSimulertNåtidTil(LocalDate dato) {
         Period periode = Period.between(LocalDate.now(), dato);
-        System.setProperty("funksjonelt.tidsoffset.offset", periode.toString());
-        // FPDateUtil.init();
+        System.setProperty(FUNKSJONELT_TIDSOFFSET, periode.toString());
+        FPDateUtil.init();
     }
 
 }

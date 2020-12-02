@@ -11,6 +11,7 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
@@ -25,13 +26,14 @@ import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.ytelse.beregning.FPDateUtil;
 
+@Disabled
 public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
 
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.of(2019, Month.JANUARY, 20);
     private static final LocalDate SISTE_UTTAKSDAG = LocalDate.of(2019, Month.APRIL, 4);
-    // private static final String FUNKSJONELT_TIDSOFFSET =
-    // FPDateUtil.SystemConfiguredClockProvider.PROPERTY_KEY_OFFSET_PERIODE;
+    private static final String FUNKSJONELT_TIDSOFFSET = FPDateUtil.SystemConfiguredClockProvider.PROPERTY_KEY_OFFSET_PERIODE;
     private static final Arbeidsgiver ARBEIDSGIVER1 = Arbeidsgiver.virksomhet("900050001");
     private static final Arbeidsgiver ARBEIDSGIVER2 = Arbeidsgiver.virksomhet("900050002");
     private static final Arbeidsgiver ARBEIDSGIVER3 = Arbeidsgiver.virksomhet("900050003");
@@ -48,7 +50,7 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
     @AfterEach
     public void teardown() {
         settSimulertNåtidTil(LocalDate.now());
-        // FPDateUtil.init();
+        FPDateUtil.init();
     }
 
     @Test
@@ -556,7 +558,7 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
 
     private void settSimulertNåtidTil(LocalDate dato) {
         Period periode = Period.between(LocalDate.now(), dato);
-        System.setProperty("funksjonelt.tidsoffset.offset", periode.toString());
-        // FPDateUtil.init();
+        System.setProperty(FUNKSJONELT_TIDSOFFSET, periode.toString());
+        FPDateUtil.init();
     }
 }
