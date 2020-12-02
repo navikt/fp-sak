@@ -31,9 +31,8 @@ public enum PermisjonsbeskrivelseType implements Kodeverdi, MedOffisiellKode {
     ;
 
     private static final Set<PermisjonsbeskrivelseType> PERMISJON_IKKE_RELEVANT_FOR_AVKLAR_ARBEIDSFORHOLD = Set.of(
-        PermisjonsbeskrivelseType.UTDANNINGSPERMISJON,
-        PermisjonsbeskrivelseType.PERMISJON_MED_FORELDREPENGER
-    );
+            PermisjonsbeskrivelseType.UTDANNINGSPERMISJON,
+            PermisjonsbeskrivelseType.PERMISJON_MED_FORELDREPENGER);
 
     private static final Map<String, PermisjonsbeskrivelseType> KODER = new LinkedHashMap<>();
 

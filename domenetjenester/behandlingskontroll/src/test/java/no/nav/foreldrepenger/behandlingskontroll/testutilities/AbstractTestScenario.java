@@ -96,10 +96,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         behandlingRepo.lagre(behandling, lås);
     }
 
-    private NavBrukerKjønn getKjønnFraFagsak() {
-        return fagsakBuilder.getBrukerBuilder().getKjønn();
-    }
-
     private Builder grunnBuild(BehandlingskontrollServiceProvider repositoryProvider) {
         FagsakRepository fagsakRepo = repositoryProvider.getFagsakRepository();
 
@@ -123,7 +119,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             }
         }
         fagsak = fagsakBuilder.build();
-        Long fagsakId = fagsakRepo.opprettNy(fagsak); // NOSONAR //$NON-NLS-1$
+        Long fagsakId = fagsakRepo.opprettNy(fagsak); // NOSONAR
         fagsak.setId(fagsakId);
     }
 

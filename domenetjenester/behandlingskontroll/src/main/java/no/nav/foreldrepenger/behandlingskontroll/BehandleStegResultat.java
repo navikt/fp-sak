@@ -33,15 +33,16 @@ public class BehandleStegResultat {
     }
 
     /**
-     * Factory-metode basert på liste av {@link AksjonspunktResultat}, støtter callback for å modifisere
-     * {@link Aksjonspunkt}
+     * Factory-metode basert på liste av {@link AksjonspunktResultat}, støtter
+     * callback for å modifisere {@link Aksjonspunkt}
      */
     public static BehandleStegResultat utførtMedAksjonspunktResultater(List<AksjonspunktResultat> aksjonspunktResultater) {
         return new BehandleStegResultat(FellesTransisjoner.UTFØRT, aksjonspunktResultater);
     }
 
     /**
-     * Factory-metode for liste av {@link AksjonspunktDefinisjon}. Ingen callback for consumer.
+     * Factory-metode for liste av {@link AksjonspunktDefinisjon}. Ingen callback
+     * for consumer.
      */
     public static BehandleStegResultat utførtMedAksjonspunkter(List<AksjonspunktDefinisjon> aksjonspunktListe) {
         List<AksjonspunktResultat> aksjonspunktResultater = konverterTilAksjonspunktResultat(aksjonspunktListe);
@@ -66,13 +67,13 @@ public class BehandleStegResultat {
     }
 
     public static BehandleStegResultat fremoverførtMedAksjonspunkter(TransisjonIdentifikator transisjon,
-                                                                     List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner) {
+            List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner) {
         List<AksjonspunktResultat> aksjonspunktResultater = konverterTilAksjonspunktResultat(aksjonspunktDefinisjoner);
         return new BehandleStegResultat(transisjon, aksjonspunktResultater);
     }
 
     public static BehandleStegResultat fremoverførtMedAksjonspunktResultater(TransisjonIdentifikator transisjon,
-                                                                             List<AksjonspunktResultat> aksjonspunktResultater) {
+            List<AksjonspunktResultat> aksjonspunktResultater) {
         return new BehandleStegResultat(transisjon, aksjonspunktResultater);
     }
 
@@ -82,8 +83,8 @@ public class BehandleStegResultat {
 
     private static List<AksjonspunktResultat> konverterTilAksjonspunktResultat(List<AksjonspunktDefinisjon> aksjonspunktListe) {
         return aksjonspunktListe.stream()
-            .map(AksjonspunktResultat::opprettForAksjonspunkt)
-            .collect(toList());
+                .map(AksjonspunktResultat::opprettForAksjonspunkt)
+                .collect(toList());
     }
 
     public static BehandleStegResultat startet() {
@@ -99,7 +100,8 @@ public class BehandleStegResultat {
         return new BehandleStegResultat(this.transisjon, liste);
     }
 
-    // Må selv lage historikkinnslag i steget + ingen støtte for kø-håndtering (ikke relevant før INSØK.UT).
+    // Må selv lage historikkinnslag i steget + ingen støtte for kø-håndtering (ikke
+    // relevant før INSØK.UT).
     public static BehandleStegResultat henlagtBehandling() {
         return new BehandleStegResultat(FellesTransisjoner.HENLAGT, Collections.emptyList());
     }

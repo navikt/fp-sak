@@ -31,21 +31,22 @@ public class InntektsmeldingFilterYtelseImpl implements InntektsmeldingFilterYte
     }
 
     public InntektsmeldingFilterYtelseImpl() {
-        //Jepp...
+        // Jepp...
     }
 
     @Override
     public <V> Map<Arbeidsgiver, Set<V>> filtrerInntektsmeldingerForYtelse(BehandlingReferanse referanse,
-                                                                           Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
-                                                                           Map<Arbeidsgiver, Set<V>> påkrevde) {
+            Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
+            Map<Arbeidsgiver, Set<V>> påkrevde) {
         Map<Arbeidsgiver, Set<V>> filtrert = new HashMap<>();
 
         List<SvpTilretteleggingEntitet> arbeidsforholdFraSøknad = svangerskapspengerRepository.hentGrunnlag(referanse.getBehandlingId())
-            .map(svpGrunnlagEntitet -> new TilretteleggingFilter(svpGrunnlagEntitet).getAktuelleTilretteleggingerUfiltrert())
-            .orElse(Collections.emptyList());
+                .map(svpGrunnlagEntitet -> new TilretteleggingFilter(svpGrunnlagEntitet).getAktuelleTilretteleggingerUfiltrert())
+                .orElse(Collections.emptyList());
 
         påkrevde.forEach((key, value) -> {
-            if (arbeidsforholdFraSøknad.stream().anyMatch(trlg -> trlg.getArbeidsgiver().map(arbeidsgiver -> arbeidsgiver.equals(key)).orElse(false))) {
+            if (arbeidsforholdFraSøknad.stream()
+                    .anyMatch(trlg -> trlg.getArbeidsgiver().map(arbeidsgiver -> arbeidsgiver.equals(key)).orElse(false))) {
                 filtrert.put(key, value);
             }
         });
@@ -53,15 +54,16 @@ public class InntektsmeldingFilterYtelseImpl implements InntektsmeldingFilterYte
     }
 
     @Override
-    public <V> Map<Arbeidsgiver, Set<V>> filtrerInntektsmeldingerForYtelseUtvidet(BehandlingReferanse referanse, Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
-                                                                                  Map<Arbeidsgiver, Set<V>> påkrevde) {
+    public <V> Map<Arbeidsgiver, Set<V>> filtrerInntektsmeldingerForYtelseUtvidet(BehandlingReferanse referanse,
+            Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
+            Map<Arbeidsgiver, Set<V>> påkrevde) {
         return påkrevde;
     }
 
     @Override
     public <V> Map<Arbeidsgiver, Set<V>> filtrerInntektsmeldingerForKompletthetAktive(BehandlingReferanse referanse,
-                                                                                      Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
-                                                                                      Map<Arbeidsgiver, Set<V>> påkrevde) {
+            Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
+            Map<Arbeidsgiver, Set<V>> påkrevde) {
         return filtrerInntektsmeldingerForYtelse(referanse, inntektArbeidYtelseGrunnlag, påkrevde);
     }
 }

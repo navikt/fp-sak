@@ -30,16 +30,16 @@ public class PåkrevdeInntektsmeldingerTjeneste {
 
     @Inject
     public PåkrevdeInntektsmeldingerTjeneste(InntektsmeldingRegisterTjeneste inntektsmeldingArkivTjeneste,
-                                             SøknadRepository søknadRepository) {
+            SøknadRepository søknadRepository) {
         this.inntektsmeldingArkivTjeneste = inntektsmeldingArkivTjeneste;
         this.søknadRepository = søknadRepository;
     }
 
     public void leggTilArbeidsforholdHvorPåkrevdeInntektsmeldingMangler(BehandlingReferanse behandlingReferanse,
-                                                                 Map<Arbeidsgiver, Set<ArbeidsforholdMedÅrsak>> result) {
+            Map<Arbeidsgiver, Set<ArbeidsforholdMedÅrsak>> result) {
         Boolean erEndringssøknad = erEndringssøknad(behandlingReferanse);
         final Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> manglendeInntektsmeldinger = inntektsmeldingArkivTjeneste
-            .utledManglendeInntektsmeldingerFraGrunnlagForVurdering(behandlingReferanse, erEndringssøknad);
+                .utledManglendeInntektsmeldingerFraGrunnlagForVurdering(behandlingReferanse, erEndringssøknad);
         if (!erEndringssøknad) {
             for (Map.Entry<Arbeidsgiver, Set<InternArbeidsforholdRef>> entry : manglendeInntektsmeldinger.entrySet()) {
                 LeggTilResultat.leggTil(result, AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING, entry.getKey(), entry.getValue());
@@ -50,8 +50,8 @@ public class PåkrevdeInntektsmeldingerTjeneste {
 
     private Boolean erEndringssøknad(BehandlingReferanse referanse) {
         return søknadRepository.hentSøknadHvisEksisterer(referanse.getBehandlingId())
-            .map(SøknadEntitet::erEndringssøknad)
-            .orElse(false);
+                .map(SøknadEntitet::erEndringssøknad)
+                .orElse(false);
     }
 
 }

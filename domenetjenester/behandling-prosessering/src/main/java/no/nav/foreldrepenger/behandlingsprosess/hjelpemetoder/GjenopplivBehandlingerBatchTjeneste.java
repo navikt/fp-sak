@@ -13,8 +13,10 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.api.TaskStatus;
 
 /**
- *  Batchservice som finner alle behandlinger som ikke er aktive og lager en ditto prosess task for hver.
- *  Kriterier for gjenoppliving: Behandlingen er ikke avsluttet/iverksatt og det finnes ikke åpne aksjonspunkt eller autopunkt.
+ * Batchservice som finner alle behandlinger som ikke er aktive og lager en
+ * ditto prosess task for hver. Kriterier for gjenoppliving: Behandlingen er
+ * ikke avsluttet/iverksatt og det finnes ikke åpne aksjonspunkt eller
+ * autopunkt.
  */
 @ApplicationScoped
 public class GjenopplivBehandlingerBatchTjeneste implements BatchTjeneste {

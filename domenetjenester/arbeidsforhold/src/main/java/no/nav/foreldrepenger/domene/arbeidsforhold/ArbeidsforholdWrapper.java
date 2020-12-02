@@ -278,11 +278,15 @@ public class ArbeidsforholdWrapper {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if ((o == null) || (getClass() != o.getClass())) {
+            return false;
+        }
         ArbeidsforholdWrapper that = (ArbeidsforholdWrapper) o;
         return Objects.equals(arbeidsgiverReferanse, that.arbeidsgiverReferanse) &&
-            InternArbeidsforholdRef.ref(arbeidsforholdId).gjelderFor(InternArbeidsforholdRef.ref(that.arbeidsforholdId));
+                InternArbeidsforholdRef.ref(arbeidsforholdId).gjelderFor(InternArbeidsforholdRef.ref(that.arbeidsforholdId));
     }
 
     @Override

@@ -57,8 +57,9 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
     @Override
     public Optional<BehandlingÅrsakType> utledRevurderingÅrsak(Behandling behandling, FamilieHendelseGrunnlagEntitet grunnlag,
             List<FødtBarnInfo> barnFraRegister) {
-        if (grunnlag == null)
+        if (grunnlag == null) {
             return Optional.of(BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN);
+        }
 
         Optional<BehandlingÅrsakType> utledetÅrsak = utledRevurderingsÅrsak(behandling, grunnlag, barnFraRegister.size());
         if (utledetÅrsak.isEmpty() && skalReberegneES(behandling, barnFraRegister)) {
@@ -77,10 +78,10 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
             int antallBarnRegister) {
         int antallBarnSakBekreftet = finnAntallBekreftet(grunnlag);
 
-        if (antallBarnRegister == 0 && finnAntallOverstyrtManglendeFødsel(grunnlag) > 0) {
+        if ((antallBarnRegister == 0) && (finnAntallOverstyrtManglendeFødsel(grunnlag) > 0)) {
             return Optional.empty();
         }
-        if (antallBarnSakBekreftet > 0 && antallBarnSakBekreftet == antallBarnRegister) {
+        if ((antallBarnSakBekreftet > 0) && (antallBarnSakBekreftet == antallBarnRegister)) {
             return Optional.empty();
         }
 
@@ -103,7 +104,7 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
 
     private boolean skalReberegneES(Behandling behandling, List<FødtBarnInfo> fødteBarn) {
         var fødselsdato = fødteBarn.stream().map(FødtBarnInfo::getFødselsdato).max(Comparator.naturalOrder()).orElse(null);
-        return fødselsdato != null && esBeregningRepository.skalReberegne(behandling.getId(), fødselsdato);
+        return (fødselsdato != null) && esBeregningRepository.skalReberegne(behandling.getId(), fødselsdato);
     }
 
     private int finnAntallBekreftet(FamilieHendelseGrunnlagEntitet grunnlag) {

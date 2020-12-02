@@ -10,7 +10,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 
 /**
- * Knytter {@link AksjonspunktDefinisjon} med en callback for å modifisere aksjonpunktet som blir opprettet.
+ * Knytter {@link AksjonspunktDefinisjon} med en callback for å modifisere
+ * aksjonpunktet som blir opprettet.
  */
 public class AksjonspunktResultat {
 
@@ -18,37 +19,40 @@ public class AksjonspunktResultat {
     private Venteårsak venteårsak;
     private LocalDateTime frist;
 
-
     private AksjonspunktResultat(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
         this.aksjonspunktDefinisjon = aksjonspunktDefinisjon;
     }
 
     private AksjonspunktResultat(AksjonspunktDefinisjon aksjonspunktDefinisjon,
-                                 Venteårsak venteårsak,
-                                 LocalDateTime ventefrist) {
+            Venteårsak venteårsak,
+            LocalDateTime ventefrist) {
         this.aksjonspunktDefinisjon = aksjonspunktDefinisjon;
         this.venteårsak = venteårsak;
         this.frist = ventefrist;
     }
 
     /**
-     * Factory-metode direkte basert på {@link AksjonspunktDefinisjon}. Ingen frist eller årsak.
+     * Factory-metode direkte basert på {@link AksjonspunktDefinisjon}. Ingen frist
+     * eller årsak.
      */
     public static AksjonspunktResultat opprettForAksjonspunkt(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
         return new AksjonspunktResultat(aksjonspunktDefinisjon);
     }
 
     /**
-     * Factory-metode direkte basert på {@link AksjonspunktDefinisjon}, returnerer liste. Ingen frist og årsak.
+     * Factory-metode direkte basert på {@link AksjonspunktDefinisjon}, returnerer
+     * liste. Ingen frist og årsak.
      */
     public static List<AksjonspunktResultat> opprettListeForAksjonspunkt(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
         return singletonList(new AksjonspunktResultat(aksjonspunktDefinisjon));
     }
 
     /**
-     * Factory-metode som linker {@link AksjonspunktDefinisjon} sammen med ventefrist og årsak.
+     * Factory-metode som linker {@link AksjonspunktDefinisjon} sammen med
+     * ventefrist og årsak.
      */
-    public static AksjonspunktResultat opprettForAksjonspunktMedFrist(AksjonspunktDefinisjon aksjonspunktDefinisjon, Venteårsak venteårsak, LocalDateTime ventefrist) {
+    public static AksjonspunktResultat opprettForAksjonspunktMedFrist(AksjonspunktDefinisjon aksjonspunktDefinisjon, Venteårsak venteårsak,
+            LocalDateTime ventefrist) {
         return new AksjonspunktResultat(aksjonspunktDefinisjon, venteårsak, ventefrist);
     }
 
@@ -67,15 +71,17 @@ public class AksjonspunktResultat {
     @Override
     public String toString() {
         return getClass().getSimpleName() + "<" + aksjonspunktDefinisjon.getKode() + ":" + aksjonspunktDefinisjon.getNavn()
-            + ", frist=" + getFrist() + ", venteårsak=" + getVenteårsak() + ">";
+                + ", frist=" + getFrist() + ", venteårsak=" + getVenteårsak() + ">";
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof AksjonspunktResultat))
+        }
+        if (!(o instanceof AksjonspunktResultat)) {
             return false;
+        }
 
         AksjonspunktResultat that = (AksjonspunktResultat) o;
 

@@ -31,13 +31,14 @@ public class BeregningsgrunnlagGUIInputTjeneste extends BeregningsgrunnlagGUIInp
 
     @Inject
     public BeregningsgrunnlagGUIInputTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
-                                               InntektArbeidYtelseTjeneste iayTjeneste,
-                                               SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                               AndelGraderingTjeneste andelGraderingTjeneste,
-                                               BeregnTilrettleggingsperioderTjeneste tilrettleggingsperioderTjeneste,
-                                               InntektsmeldingTjeneste inntektsmeldingTjeneste,
-                                               ArbeidsgiverTjeneste arbeidsgiverTjeneste) {
-        super(behandlingRepositoryProvider.getBehandlingRepository(), iayTjeneste, skjæringstidspunktTjeneste, andelGraderingTjeneste, inntektsmeldingTjeneste, arbeidsgiverTjeneste);
+            InntektArbeidYtelseTjeneste iayTjeneste,
+            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+            AndelGraderingTjeneste andelGraderingTjeneste,
+            BeregnTilrettleggingsperioderTjeneste tilrettleggingsperioderTjeneste,
+            InntektsmeldingTjeneste inntektsmeldingTjeneste,
+            ArbeidsgiverTjeneste arbeidsgiverTjeneste) {
+        super(behandlingRepositoryProvider.getBehandlingRepository(), iayTjeneste, skjæringstidspunktTjeneste, andelGraderingTjeneste,
+                inntektsmeldingTjeneste, arbeidsgiverTjeneste);
         this.tilrettleggingsperioderTjeneste = Objects.requireNonNull(tilrettleggingsperioderTjeneste, "tilrettleggingsperioderTjeneste");
     }
 
@@ -46,9 +47,7 @@ public class BeregningsgrunnlagGUIInputTjeneste extends BeregningsgrunnlagGUIInp
         var tilretteleggingMedUtbelingsgrad = tilrettleggingsperioderTjeneste.beregnPerioder(ref);
 
         return new SvangerskapspengerGrunnlag(
-            TilretteleggingMapperTilKalkulus.mapTilretteleggingerMedUtbetalingsgrad(tilretteleggingMedUtbelingsgrad)
-        );
+                TilretteleggingMapperTilKalkulus.mapTilretteleggingerMedUtbetalingsgrad(tilretteleggingMedUtbelingsgrad));
     }
 
 }
-

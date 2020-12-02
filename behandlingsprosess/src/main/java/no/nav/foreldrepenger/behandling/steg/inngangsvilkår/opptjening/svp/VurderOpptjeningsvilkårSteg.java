@@ -26,10 +26,10 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Opptjeningsv
 public class VurderOpptjeningsvilkårSteg extends VurderOpptjeningsvilkårStegFelles {
 
     @Inject
-    public VurderOpptjeningsvilkårSteg(BehandlingRepositoryProvider repositoryProvider, OpptjeningRepository opptjeningRepository, InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste) {
+    public VurderOpptjeningsvilkårSteg(BehandlingRepositoryProvider repositoryProvider, OpptjeningRepository opptjeningRepository,
+            InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste) {
         super(repositoryProvider, opptjeningRepository, inngangsvilkårFellesTjeneste, BehandlingStegType.VURDER_OPPTJENINGSVILKÅR);
     }
-
 
     @Override
     protected List<OpptjeningAktivitet> mapTilOpptjeningsaktiviteter(MapTilOpptjeningAktiviteter mapper, OpptjeningsvilkårResultat oppResultat) {

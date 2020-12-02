@@ -43,7 +43,7 @@ public class HistorikkinnslagDelDto {
         historikkinnslagDel.getAarsakFelt().ifPresent(aarsak -> dto.setAarsak(finnÅrsakKodeListe(aarsak).orElse(null)));
         historikkinnslagDel.getTema().ifPresent(felt -> dto.setTema(HistorikkInnslagTemaDto.mapFra(felt)));
         historikkinnslagDel.getGjeldendeFraFelt().ifPresent(felt -> {
-            if (felt.getNavn() != null && felt.getNavnVerdi() != null && felt.getTilVerdi() != null) {
+            if ((felt.getNavn() != null) && (felt.getNavnVerdi() != null) && (felt.getTilVerdi() != null)) {
                 dto.setGjeldendeFra(felt.getTilVerdi(), felt.getNavn(), felt.getNavnVerdi());
             } else if (felt.getTilVerdi() != null) {
                 dto.setGjeldendeFra(felt.getTilVerdi());

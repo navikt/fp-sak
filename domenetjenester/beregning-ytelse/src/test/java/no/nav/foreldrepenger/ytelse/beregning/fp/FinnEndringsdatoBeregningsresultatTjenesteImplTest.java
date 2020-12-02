@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.ytelse.beregning.fp;
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -56,9 +56,12 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
         revurdering = opprettRevurdering(førstegangsbehandling);
         SjekkForIngenAndelerOgAndelerUtenDagsats sjekkForIngenAndelerOgAndelerUtenDagsats = new SjekkForIngenAndelerOgAndelerUtenDagsats();
         SjekkOmPerioderHarEndringIAndeler SjekkOmPerioderHarEndringIAndeler = new SjekkOmPerioderHarEndringIAndeler();
-        SjekkForEndringMellomPerioder sjekkForEndringMellomPerioder = new SjekkForEndringMellomPerioder(sjekkForIngenAndelerOgAndelerUtenDagsats, SjekkOmPerioderHarEndringIAndeler);
-        FinnEndringsdatoMellomPeriodeLister finnEndringsdatoMellomPeriodeLister = new FinnEndringsdatoMellomPeriodeLister(sjekkForEndringMellomPerioder);
-        finnEndringsdatoBeregningsresultatTjeneste = new FinnEndringsdatoBeregningsresultatTjenesteImpl(beregningsresultatRepository, finnEndringsdatoMellomPeriodeLister);
+        SjekkForEndringMellomPerioder sjekkForEndringMellomPerioder = new SjekkForEndringMellomPerioder(sjekkForIngenAndelerOgAndelerUtenDagsats,
+                SjekkOmPerioderHarEndringIAndeler);
+        FinnEndringsdatoMellomPeriodeLister finnEndringsdatoMellomPeriodeLister = new FinnEndringsdatoMellomPeriodeLister(
+                sjekkForEndringMellomPerioder);
+        finnEndringsdatoBeregningsresultatTjeneste = new FinnEndringsdatoBeregningsresultatTjenesteImpl(beregningsresultatRepository,
+                finnEndringsdatoMellomPeriodeLister);
         brFørstegangsbehandling = BeregningsresultatEntitet.builder().medRegelInput("clob1").medRegelSporing("clob2").build();
         brRevurdering = BeregningsresultatEntitet.builder().medRegelInput("clob1").medRegelSporing("clob2").build();
 
@@ -68,8 +71,8 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
     @Test
     public void skal_feile_hvis_behandling_ikke_er_en_revurdering() {
         assertThatThrownBy(() -> finnEndringsdatoBeregningsresultatTjeneste.finnEndringsdato(førstegangsbehandling, brFørstegangsbehandling))
-            .isInstanceOf(TekniskException.class)
-            .hasMessageContaining(String.format("Behandlingen med id %s er ikke en revurdering", førstegangsbehandling.getId()));
+                .isInstanceOf(TekniskException.class)
+                .hasMessageContaining(String.format("Behandlingen med id %s er ikke en revurdering", førstegangsbehandling.getId()));
     }
 
     @Test
@@ -80,8 +83,8 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
         Behandling revurdering = scenario.lagMocked();
         // Act
         assertThatThrownBy(() -> finnEndringsdatoBeregningsresultatTjeneste.finnEndringsdato(revurdering, brRevurdering))
-            .isInstanceOf(TekniskException.class)
-            .hasMessageContaining(String.format("Fant ikke en original behandling for revurdering med id %s", revurdering.getId()));
+                .isInstanceOf(TekniskException.class)
+                .hasMessageContaining(String.format("Fant ikke en original behandling for revurdering med id %s", revurdering.getId()));
     }
 
     @Test
@@ -93,8 +96,8 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
         beregningsresultatRepository.lagre(revurdering, brRevurdering);
         // Act
         assertThatThrownBy(() -> finnEndringsdatoBeregningsresultatTjeneste.finnEndringsdato(revurdering, brRevurdering))
-            .isInstanceOf(TekniskException.class)
-            .hasMessageContaining(String.format("Fant ikke beregningsresultatperiode for beregningsresultat med id %s", brRevurdering.getId()));
+                .isInstanceOf(TekniskException.class)
+                .hasMessageContaining(String.format("Fant ikke beregningsresultatperiode for beregningsresultat med id %s", brRevurdering.getId()));
     }
 
     @Test
@@ -112,18 +115,19 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
         // Arrange : Førstegangsbehandling
         BeregningsresultatPeriode p1_førstegangsbehandling = opprettPeriode(brFørstegangsbehandling, FØRSTE_AUGUST, FØRSTE_AUGUST.plusDays(4));
         opprettAndel(p1_førstegangsbehandling, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
-        BeregningsresultatPeriode p2_førstegangsbehandling = opprettPeriode(brFørstegangsbehandling, FØRSTE_AUGUST.plusDays(5), FØRSTE_AUGUST.plusDays(7));
+                ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+        BeregningsresultatPeriode p2_førstegangsbehandling = opprettPeriode(brFørstegangsbehandling, FØRSTE_AUGUST.plusDays(5),
+                FØRSTE_AUGUST.plusDays(7));
         opprettAndel(p2_førstegangsbehandling, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         beregningsresultatRepository.lagre(førstegangsbehandling, brFørstegangsbehandling);
         // Arrange : Revurdering
         BeregningsresultatPeriode p3_revurdering = opprettPeriode(brRevurdering, FØRSTE_AUGUST, FØRSTE_AUGUST.plusDays(4));
         opprettAndel(p3_revurdering, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         BeregningsresultatPeriode p4_revurdering = opprettPeriode(brRevurdering, FØRSTE_AUGUST.plusDays(5), FØRSTE_AUGUST.plusDays(7));
         opprettAndel(p4_revurdering, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         beregningsresultatRepository.lagre(revurdering, brRevurdering);
         // Act
         Optional<LocalDate> endringsdato = finnEndringsdatoBeregningsresultatTjeneste.finnEndringsdato(revurdering, brRevurdering);
@@ -135,35 +139,35 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
     public void skal_finne_tom_endringsdato_hvor_revurderingen_har_blitt_forlenget_med_en_periode_med_ingen_dagsats_hvor_det_er_ingen_korresponderende_periode() {
         // Arrange : Førstegangsbehandling
         BeregningsresultatPeriode periode1 = opprettPeriode(brFørstegangsbehandling, LocalDate.of(2018, 10, 1),
-            LocalDate.of(2018, 12, 15));
+                LocalDate.of(2018, 12, 15));
         opprettAndel(periode1, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1322, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1322, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         BeregningsresultatPeriode periode2 = opprettPeriode(brFørstegangsbehandling, LocalDate.of(2018, 12, 16),
-            LocalDate.of(2019, 2, 17));
+                LocalDate.of(2019, 2, 17));
         opprettAndel(periode2, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 0, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 0, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         BeregningsresultatPeriode periode3 = opprettPeriode(brFørstegangsbehandling, LocalDate.of(2019, 2, 18),
-            LocalDate.of(2019, 3, 17));
+                LocalDate.of(2019, 3, 17));
         opprettAndel(periode3, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1322, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1322, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         beregningsresultatRepository.lagre(førstegangsbehandling, brFørstegangsbehandling);
         // Arrange : Revurdering
         BeregningsresultatPeriode periode4 = opprettPeriode(brRevurdering, LocalDate.of(2018, 10, 1),
-            LocalDate.of(2018, 12, 15));
+                LocalDate.of(2018, 12, 15));
         opprettAndel(periode4, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1322, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1322, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         BeregningsresultatPeriode periode5 = opprettPeriode(brRevurdering, LocalDate.of(2018, 12, 16),
-            LocalDate.of(2019, 2, 17));
+                LocalDate.of(2019, 2, 17));
         opprettAndel(periode5, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 0, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 0, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         BeregningsresultatPeriode periode6 = opprettPeriode(brRevurdering, LocalDate.of(2019, 2, 18),
-            LocalDate.of(2019, 3, 17));
+                LocalDate.of(2019, 3, 17));
         opprettAndel(periode6, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1322, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1322, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         BeregningsresultatPeriode periode7 = opprettPeriode(brRevurdering, LocalDate.of(2019, 3, 18),
-            LocalDate.of(2019, 5, 4));
+                LocalDate.of(2019, 5, 4));
         opprettAndel(periode7, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 0, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 0, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         beregningsresultatRepository.lagre(revurdering, brRevurdering);
         // Act
         Optional<LocalDate> endringsdato = finnEndringsdatoBeregningsresultatTjeneste.finnEndringsdato(revurdering, brRevurdering);
@@ -175,29 +179,29 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
     public void skal_finne_tom_endringsdato_hvor_periode_med_ingen_dagsats_i_førstegangsbehandling_blir_oppholdsperiode_i_revurdering() {
         // Arrange : Førstegangsbehandling
         BeregningsresultatPeriode periode1 = opprettPeriode(brFørstegangsbehandling, LocalDate.of(2018, 10, 1),
-            LocalDate.of(2018, 12, 15));
+                LocalDate.of(2018, 12, 15));
         opprettAndel(periode1, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1322, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1322, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         BeregningsresultatPeriode periode2 = opprettPeriode(brFørstegangsbehandling, LocalDate.of(2018, 12, 16),
-            LocalDate.of(2019, 2, 17));
+                LocalDate.of(2019, 2, 17));
         opprettAndel(periode2, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 0, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 0, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         BeregningsresultatPeriode periode3 = opprettPeriode(brFørstegangsbehandling, LocalDate.of(2019, 2, 18),
-            LocalDate.of(2019, 3, 17));
+                LocalDate.of(2019, 3, 17));
         opprettAndel(periode3, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1322, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1322, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         beregningsresultatRepository.lagre(førstegangsbehandling, brFørstegangsbehandling);
         // Arrange : Revurdering
         BeregningsresultatPeriode periode4 = opprettPeriode(brRevurdering, LocalDate.of(2018, 10, 1),
-            LocalDate.of(2018, 12, 15));
+                LocalDate.of(2018, 12, 15));
         opprettAndel(periode4, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1322, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1322, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         opprettPeriode(brRevurdering, LocalDate.of(2018, 12, 16),
-            LocalDate.of(2019, 2, 17));
+                LocalDate.of(2019, 2, 17));
         BeregningsresultatPeriode periode6 = opprettPeriode(brRevurdering, LocalDate.of(2019, 2, 18),
-            LocalDate.of(2019, 3, 17));
+                LocalDate.of(2019, 3, 17));
         opprettAndel(periode6, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1322, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1322, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         beregningsresultatRepository.lagre(revurdering, brRevurdering);
         // Act
         Optional<LocalDate> endringsdato = finnEndringsdatoBeregningsresultatTjeneste.finnEndringsdato(revurdering, brRevurdering);
@@ -209,35 +213,35 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
     public void skal_finne_endringsdato_hvor_den_midterste_perioden_er_delt_i_to_i_revurderingen_hvor_dagsatsen_er_endret() {
         // Arrange : Førstegangsbehandling
         BeregningsresultatPeriode periode1 = opprettPeriode(brFørstegangsbehandling, LocalDate.of(2018, 10, 1),
-            LocalDate.of(2018, 12, 15));
+                LocalDate.of(2018, 12, 15));
         opprettAndel(periode1, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1322, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1322, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         BeregningsresultatPeriode periode2 = opprettPeriode(brFørstegangsbehandling, LocalDate.of(2018, 12, 16),
-            LocalDate.of(2019, 2, 17));
+                LocalDate.of(2019, 2, 17));
         opprettAndel(periode2, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 0, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 0, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         BeregningsresultatPeriode periode3 = opprettPeriode(brFørstegangsbehandling, LocalDate.of(2019, 2, 18),
-            LocalDate.of(2019, 3, 17));
+                LocalDate.of(2019, 3, 17));
         opprettAndel(periode3, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1322, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1322, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         beregningsresultatRepository.lagre(førstegangsbehandling, brFørstegangsbehandling);
         // Arrange : Revurdering
         BeregningsresultatPeriode periode4 = opprettPeriode(brRevurdering, LocalDate.of(2018, 10, 1),
-            LocalDate.of(2018, 12, 15));
+                LocalDate.of(2018, 12, 15));
         opprettAndel(periode4, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1322, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1322, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         BeregningsresultatPeriode periode5 = opprettPeriode(brRevurdering, LocalDate.of(2018, 12, 16),
-            LocalDate.of(2019, 2, 1));
+                LocalDate.of(2019, 2, 1));
         opprettAndel(periode5, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 0, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 0, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         BeregningsresultatPeriode periode6 = opprettPeriode(brRevurdering, LocalDate.of(2019, 2, 2),
-            LocalDate.of(2019, 2, 17));
+                LocalDate.of(2019, 2, 17));
         opprettAndel(periode6, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1022, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1022, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         BeregningsresultatPeriode periode7 = opprettPeriode(brRevurdering, LocalDate.of(2019, 2, 18),
-            LocalDate.of(2019, 3, 17));
+                LocalDate.of(2019, 3, 17));
         opprettAndel(periode7, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1322, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1322, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         beregningsresultatRepository.lagre(revurdering, brRevurdering);
         // Act
         Optional<LocalDate> endringsdato = finnEndringsdatoBeregningsresultatTjeneste.finnEndringsdato(revurdering, brRevurdering);
@@ -249,35 +253,35 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
     public void skal_finne_endringsdato_hvor_inntektskategorien_blir_endret_i_siste_periode_uten_å_reagere_på_perioden_i_midten_som_er_delt_i_to_i_revurderingen_med_ingen_dagsats() {
         // Arrange : Førstegangsbehandling
         BeregningsresultatPeriode periode1 = opprettPeriode(brFørstegangsbehandling, LocalDate.of(2018, 10, 1),
-            LocalDate.of(2018, 12, 15));
+                LocalDate.of(2018, 12, 15));
         opprettAndel(periode1, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1322, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1322, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         BeregningsresultatPeriode periode2 = opprettPeriode(brFørstegangsbehandling, LocalDate.of(2018, 12, 16),
-            LocalDate.of(2019, 2, 17));
+                LocalDate.of(2019, 2, 17));
         opprettAndel(periode2, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 0, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 0, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         BeregningsresultatPeriode periode3 = opprettPeriode(brFørstegangsbehandling, LocalDate.of(2019, 2, 18),
-            LocalDate.of(2019, 3, 17));
+                LocalDate.of(2019, 3, 17));
         opprettAndel(periode3, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1322, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1322, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         beregningsresultatRepository.lagre(førstegangsbehandling, brFørstegangsbehandling);
         // Arrange : Revurdering
         BeregningsresultatPeriode periode4 = opprettPeriode(brRevurdering, LocalDate.of(2018, 10, 1),
-            LocalDate.of(2018, 12, 15));
+                LocalDate.of(2018, 12, 15));
         opprettAndel(periode4, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1322, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1322, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         BeregningsresultatPeriode periode5 = opprettPeriode(brRevurdering, LocalDate.of(2018, 12, 16),
-            LocalDate.of(2019, 2, 1));
+                LocalDate.of(2019, 2, 1));
         opprettAndel(periode5, false, ARBEIDSFORHOLD_ID, AktivitetStatus.FRILANSER, Inntektskategori.FRILANSER,
-            ORGNR, 0, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 0, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         BeregningsresultatPeriode periode6 = opprettPeriode(brRevurdering, LocalDate.of(2019, 2, 2),
-            LocalDate.of(2019, 2, 17));
+                LocalDate.of(2019, 2, 17));
         opprettAndel(periode6, false, ARBEIDSFORHOLD_ID, AktivitetStatus.FRILANSER, Inntektskategori.FRILANSER,
-            ORGNR, 0, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 0, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         BeregningsresultatPeriode periode7 = opprettPeriode(brRevurdering, LocalDate.of(2019, 2, 18),
-            LocalDate.of(2019, 3, 17));
+                LocalDate.of(2019, 3, 17));
         opprettAndel(periode7, false, ARBEIDSFORHOLD_ID, AktivitetStatus.FRILANSER, Inntektskategori.FRILANSER,
-            ORGNR, 1322, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1322, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         beregningsresultatRepository.lagre(revurdering, brRevurdering);
         // Act
         Optional<LocalDate> endringsdato = finnEndringsdatoBeregningsresultatTjeneste.finnEndringsdato(revurdering, brRevurdering);
@@ -289,27 +293,27 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
     public void skal_finne_tom_endringsdato_hvor_siste_periode_i_revurdering_er_delt_i_to_med_ingen_dagsats() {
         // Arrange : Førstegangsbehandling
         BeregningsresultatPeriode periode1 = opprettPeriode(brFørstegangsbehandling, LocalDate.of(2018, 10, 1),
-            LocalDate.of(2018, 12, 15));
+                LocalDate.of(2018, 12, 15));
         opprettAndel(periode1, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1322, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1322, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         BeregningsresultatPeriode periode2 = opprettPeriode(brFørstegangsbehandling, LocalDate.of(2018, 12, 16),
-            LocalDate.of(2019, 2, 17));
+                LocalDate.of(2019, 2, 17));
         opprettAndel(periode2, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 0, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 0, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         beregningsresultatRepository.lagre(førstegangsbehandling, brFørstegangsbehandling);
         // Arrange : Revurdering
         BeregningsresultatPeriode periode3 = opprettPeriode(brRevurdering, LocalDate.of(2018, 10, 1),
-            LocalDate.of(2018, 12, 15));
+                LocalDate.of(2018, 12, 15));
         opprettAndel(periode3, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1322, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1322, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         BeregningsresultatPeriode periode4 = opprettPeriode(brRevurdering, LocalDate.of(2018, 12, 16),
-            LocalDate.of(2019, 2, 1));
+                LocalDate.of(2019, 2, 1));
         opprettAndel(periode4, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 0, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 0, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         BeregningsresultatPeriode periode5 = opprettPeriode(brRevurdering, LocalDate.of(2019, 2, 2),
-            LocalDate.of(2019, 3, 2));
+                LocalDate.of(2019, 3, 2));
         opprettAndel(periode5, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 0, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 0, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         beregningsresultatRepository.lagre(revurdering, brRevurdering);
         // Act
         Optional<LocalDate> endringsdato = finnEndringsdatoBeregningsresultatTjeneste.finnEndringsdato(revurdering, brRevurdering);
@@ -322,21 +326,21 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
         // Arrange : Førstegangsbehandling
         BeregningsresultatPeriode originalPeriode1 = opprettPeriode(brFørstegangsbehandling, FØRSTE_AUGUST, FØRSTE_AUGUST.plusDays(6));
         opprettAndel(originalPeriode1, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER, ORGNR,
-            1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         BeregningsresultatPeriode originalPeriode2 = opprettPeriode(brFørstegangsbehandling, FØRSTE_AUGUST.plusDays(7), FØRSTE_AUGUST.plusDays(13));
         opprettAndel(originalPeriode2, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER, ORGNR,
-            1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         beregningsresultatRepository.lagre(førstegangsbehandling, brFørstegangsbehandling);
         // Arrange : Revurdering
         BeregningsresultatPeriode revurderingPeriode1 = opprettPeriode(brRevurdering, FØRSTE_AUGUST, FØRSTE_AUGUST.plusDays(6));
         opprettAndel(revurderingPeriode1, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER, ORGNR,
-            1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         BeregningsresultatPeriode revurderingPeriode2 = opprettPeriode(brRevurdering, FØRSTE_AUGUST.plusDays(7), FØRSTE_AUGUST.plusDays(9));
         opprettAndel(revurderingPeriode2, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER, ORGNR,
-            1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         BeregningsresultatPeriode revurderingPeriode3 = opprettPeriode(brRevurdering, FØRSTE_AUGUST.plusDays(10), FØRSTE_AUGUST.plusDays(13));
         opprettAndel(revurderingPeriode3, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER, ORGNR,
-            1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         beregningsresultatRepository.lagre(revurdering, brRevurdering);
         // Act
         Optional<LocalDate> endringsdato = finnEndringsdatoBeregningsresultatTjeneste.finnEndringsdato(revurdering, brRevurdering);
@@ -349,15 +353,15 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
         // Arrange : Førstegangsbehandling
         BeregningsresultatPeriode originalPeriode1 = opprettPeriode(brFørstegangsbehandling, FØRSTE_AUGUST, FØRSTE_AUGUST.plusDays(6));
         opprettAndel(originalPeriode1, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         beregningsresultatRepository.lagre(førstegangsbehandling, brFørstegangsbehandling);
         // Arrange : Revurdering
         BeregningsresultatPeriode revurderingPeriode1 = opprettPeriode(brRevurdering, FØRSTE_AUGUST, FØRSTE_AUGUST.plusDays(6));
         opprettAndel(revurderingPeriode1, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         BeregningsresultatPeriode revurderingPeriode2 = opprettPeriode(brRevurdering, FØRSTE_AUGUST.plusDays(7), FØRSTE_AUGUST.plusDays(13));
         opprettAndel(revurderingPeriode2, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         beregningsresultatRepository.lagre(revurdering, brRevurdering);
         // Act
         Optional<LocalDate> endringsdato = finnEndringsdatoBeregningsresultatTjeneste.finnEndringsdato(revurdering, brRevurdering);
@@ -370,15 +374,15 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
         // Arrange : Førstegangsbehandling
         BeregningsresultatPeriode originalPeriode1 = opprettPeriode(brFørstegangsbehandling, FØRSTE_AUGUST, FØRSTE_AUGUST.plusDays(6));
         opprettAndel(originalPeriode1, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         BeregningsresultatPeriode originalPeriode2 = opprettPeriode(brFørstegangsbehandling, FØRSTE_AUGUST.plusDays(7), FØRSTE_AUGUST.plusDays(13));
         opprettAndel(originalPeriode2, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         beregningsresultatRepository.lagre(førstegangsbehandling, brFørstegangsbehandling);
         // Arrange : Revurdering
         BeregningsresultatPeriode revurderingPeriode1 = opprettPeriode(brRevurdering, FØRSTE_AUGUST.plusDays(7), FØRSTE_AUGUST.plusDays(13));
         opprettAndel(revurderingPeriode1, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         beregningsresultatRepository.lagre(revurdering, brRevurdering);
         // Act
         Optional<LocalDate> endringsdato = finnEndringsdatoBeregningsresultatTjeneste.finnEndringsdato(revurdering, brRevurdering);
@@ -391,20 +395,20 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
         // Arrange : Førstegangsbehandling
         BeregningsresultatPeriode originalPeriode1 = opprettPeriode(brFørstegangsbehandling, FØRSTE_AUGUST, FØRSTE_AUGUST.plusDays(6));
         opprettAndel(originalPeriode1, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         BeregningsresultatPeriode originalPeriode2 = opprettPeriode(brFørstegangsbehandling, FØRSTE_AUGUST.plusDays(7), FØRSTE_AUGUST.plusDays(14));
         opprettAndel(originalPeriode2, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         beregningsresultatRepository.lagre(førstegangsbehandling, brFørstegangsbehandling);
         // Arrange : Revurdering
         BeregningsresultatPeriode revurderingPeriode1 = opprettPeriode(brRevurdering, FØRSTE_AUGUST, FØRSTE_AUGUST.plusDays(6));
         opprettAndel(revurderingPeriode1, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         BeregningsresultatPeriode revurderingPeriode2 = opprettPeriode(brRevurdering, FØRSTE_AUGUST.plusDays(7), FØRSTE_AUGUST.plusDays(14));
         opprettAndel(revurderingPeriode2, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         opprettAndel(revurderingPeriode2, true, InternArbeidsforholdRef.nyRef(), AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            "2", 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                "2", 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         beregningsresultatRepository.lagre(revurdering, brRevurdering);
         // Act
         Optional<LocalDate> endringsdato = finnEndringsdatoBeregningsresultatTjeneste.finnEndringsdato(revurdering, brRevurdering);
@@ -417,18 +421,18 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
         // Arrange : Førstegangsbehandling
         BeregningsresultatPeriode originalPeriode1 = opprettPeriode(brFørstegangsbehandling, FØRSTE_AUGUST, FØRSTE_AUGUST.plusDays(6));
         opprettAndel(originalPeriode1, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         BeregningsresultatPeriode originalPeriode2 = opprettPeriode(brFørstegangsbehandling, FØRSTE_AUGUST.plusDays(7), FØRSTE_AUGUST.plusDays(13));
         opprettAndel(originalPeriode2, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         beregningsresultatRepository.lagre(førstegangsbehandling, brFørstegangsbehandling);
         // Arrange : Revurdering
         BeregningsresultatPeriode revurderingPeriode1 = opprettPeriode(brRevurdering, FØRSTE_AUGUST, FØRSTE_AUGUST.plusDays(6));
         opprettAndel(revurderingPeriode1, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         BeregningsresultatPeriode revurderingPeriode2 = opprettPeriode(brRevurdering, FØRSTE_AUGUST.plusDays(7), FØRSTE_AUGUST.plusDays(13));
         opprettAndel(revurderingPeriode2, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 2000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 2000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         beregningsresultatRepository.lagre(revurdering, brRevurdering);
         // Act
         Optional<LocalDate> endringsdato = finnEndringsdatoBeregningsresultatTjeneste.finnEndringsdato(revurdering, brRevurdering);
@@ -441,18 +445,18 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
         // Arrange : Førstegangsbehandling
         BeregningsresultatPeriode originalPeriode1 = opprettPeriode(brFørstegangsbehandling, FØRSTE_AUGUST, FØRSTE_AUGUST.plusDays(6));
         opprettAndel(originalPeriode1, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         BeregningsresultatPeriode originalPeriode2 = opprettPeriode(brFørstegangsbehandling, FØRSTE_AUGUST.plusDays(7), FØRSTE_AUGUST.plusDays(13));
         opprettAndel(originalPeriode2, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         beregningsresultatRepository.lagre(førstegangsbehandling, brFørstegangsbehandling);
         // Arrange : Revurdering
         BeregningsresultatPeriode revurderingPeriode1 = opprettPeriode(brRevurdering, FØRSTE_AUGUST, FØRSTE_AUGUST.plusDays(6));
         opprettAndel(revurderingPeriode1, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         BeregningsresultatPeriode revurderingPeriode2 = opprettPeriode(brRevurdering, FØRSTE_AUGUST.plusDays(7), FØRSTE_AUGUST.plusDays(10));
         opprettAndel(revurderingPeriode2, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         beregningsresultatRepository.lagre(revurdering, brRevurdering);
         // Act
         Optional<LocalDate> endringsdato = finnEndringsdatoBeregningsresultatTjeneste.finnEndringsdato(revurdering, brRevurdering);
@@ -465,18 +469,18 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
         // Arrange : Førstegangsbehandling
         BeregningsresultatPeriode originalPeriode1 = opprettPeriode(brFørstegangsbehandling, FØRSTE_AUGUST, FØRSTE_AUGUST.plusDays(6));
         opprettAndel(originalPeriode1, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         BeregningsresultatPeriode originalPeriode2 = opprettPeriode(brFørstegangsbehandling, FØRSTE_AUGUST.plusDays(7), FØRSTE_AUGUST.plusDays(13));
         opprettAndel(originalPeriode2, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         beregningsresultatRepository.lagre(førstegangsbehandling, brFørstegangsbehandling);
         // Arrange : Revurdering
         BeregningsresultatPeriode revurderingPeriode1 = opprettPeriode(brRevurdering, FØRSTE_AUGUST, FØRSTE_AUGUST.plusDays(9));
         opprettAndel(revurderingPeriode1, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         BeregningsresultatPeriode revurderingPeriode2 = opprettPeriode(brRevurdering, FØRSTE_AUGUST.plusDays(10), FØRSTE_AUGUST.plusDays(16));
         opprettAndel(revurderingPeriode2, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
-            ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
+                ORGNR, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100));
         beregningsresultatRepository.lagre(revurdering, brRevurdering);
         // Act
         Optional<LocalDate> endringsdato = finnEndringsdatoBeregningsresultatTjeneste.finnEndringsdato(revurdering, brRevurdering);
@@ -486,32 +490,32 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
 
     private Behandling opprettRevurdering(Behandling førstegangsbehandling) {
         return Behandling.fraTidligereBehandling(førstegangsbehandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL)
-                .medOriginalBehandlingId(førstegangsbehandling.getId()))
-            .build();
+                .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL)
+                        .medOriginalBehandlingId(førstegangsbehandling.getId()))
+                .build();
     }
 
     private BeregningsresultatPeriode opprettPeriode(BeregningsresultatEntitet beregningsresultat, LocalDate fom, LocalDate tom) {
         return BeregningsresultatPeriode.builder()
-            .medBeregningsresultatPeriodeFomOgTom(fom, tom)
-            .build(beregningsresultat);
+                .medBeregningsresultatPeriodeFomOgTom(fom, tom)
+                .build(beregningsresultat);
     }
 
     private void opprettAndel(BeregningsresultatPeriode beregningsresultatPeriode, boolean erBrukerMottaker,
-                              InternArbeidsforholdRef arbeidsforholdId, AktivitetStatus aktivitetStatus,
-                              Inntektskategori inntektskategori, String orgNr, int dagsats,
-                              BigDecimal stillingsprosent, BigDecimal utbetalingsgrad) {
+            InternArbeidsforholdRef arbeidsforholdId, AktivitetStatus aktivitetStatus,
+            Inntektskategori inntektskategori, String orgNr, int dagsats,
+            BigDecimal stillingsprosent, BigDecimal utbetalingsgrad) {
         BeregningsresultatAndel.builder()
-            .medBrukerErMottaker(erBrukerMottaker)
-            .medArbeidsgiver(Arbeidsgiver.virksomhet(orgNr))
-            .medArbeidsforholdRef(arbeidsforholdId)
-            .medAktivitetStatus(aktivitetStatus)
-            .medInntektskategori(inntektskategori)
-            .medStillingsprosent(stillingsprosent)
-            .medUtbetalingsgrad(utbetalingsgrad)
-            .medDagsats(dagsats)
-            .medDagsatsFraBg(dagsats)
-            .build(beregningsresultatPeriode);
+                .medBrukerErMottaker(erBrukerMottaker)
+                .medArbeidsgiver(Arbeidsgiver.virksomhet(orgNr))
+                .medArbeidsforholdRef(arbeidsforholdId)
+                .medAktivitetStatus(aktivitetStatus)
+                .medInntektskategori(inntektskategori)
+                .medStillingsprosent(stillingsprosent)
+                .medUtbetalingsgrad(utbetalingsgrad)
+                .medDagsats(dagsats)
+                .medDagsatsFraBg(dagsats)
+                .build(beregningsresultatPeriode);
     }
 
 }

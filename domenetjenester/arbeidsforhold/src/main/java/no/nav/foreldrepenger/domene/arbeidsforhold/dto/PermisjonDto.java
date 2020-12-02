@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.dto;
 
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -15,7 +14,7 @@ public class PermisjonDto {
     @ValidKodeverk
     private PermisjonsbeskrivelseType type;
 
-    PermisjonDto(){
+    PermisjonDto() {
         // Skjul private constructor
     }
 

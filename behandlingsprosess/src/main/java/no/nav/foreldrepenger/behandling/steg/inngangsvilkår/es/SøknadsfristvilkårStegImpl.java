@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 
-
 @BehandlingStegRef(kode = "VURDERSFV")
 @BehandlingTypeRef
 @FagsakYtelseTypeRef("ES")
@@ -24,8 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 public class SøknadsfristvilkårStegImpl extends InngangsvilkårStegImpl {
 
     private static List<VilkårType> STØTTEDE_VILKÅR = singletonList(
-        VilkårType.SØKNADSFRISTVILKÅRET
-    );
+            VilkårType.SØKNADSFRISTVILKÅRET);
 
     @Inject
     public SøknadsfristvilkårStegImpl(BehandlingRepositoryProvider repositoryProvider, InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste) {

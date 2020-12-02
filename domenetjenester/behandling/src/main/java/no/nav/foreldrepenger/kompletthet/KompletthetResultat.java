@@ -41,6 +41,6 @@ public class KompletthetResultat {
     }
 
     public boolean erFristUtløpt() {
-        return !erOppfylt && ventefrist == null;
+        return !erOppfylt && (ventefrist == null);
     }
 }

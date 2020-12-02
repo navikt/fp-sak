@@ -41,9 +41,9 @@ public class AutomatiskGrunnbelopReguleringTask extends FagsakProsessTask {
 
     @Inject
     public AutomatiskGrunnbelopReguleringTask(BehandlingRepositoryProvider repositoryProvider,
-                                              ProsessTaskRepository prosessTaskRepository,
-                                              BehandlendeEnhetTjeneste enhetTjeneste,
-                                              BehandlingFlytkontroll flytkontroll) {
+            ProsessTaskRepository prosessTaskRepository,
+            BehandlendeEnhetTjeneste enhetTjeneste,
+            BehandlingFlytkontroll flytkontroll) {
         super(repositoryProvider.getFagsakLåsRepository(), repositoryProvider.getBehandlingLåsRepository());
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.prosessTaskRepository = prosessTaskRepository;
@@ -54,7 +54,8 @@ public class AutomatiskGrunnbelopReguleringTask extends FagsakProsessTask {
 
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
-        // Implisitt precondition fra utvalget i batches: Ingen ytelsesbehandlinger utenom evt berørt behandling.
+        // Implisitt precondition fra utvalget i batches: Ingen ytelsesbehandlinger
+        // utenom evt berørt behandling.
         boolean åpneYtelsesBehandlinger = behandlingRepository.harÅpenOrdinærYtelseBehandlingerForFagsakId(fagsakId);
         if (åpneYtelsesBehandlinger) {
             log.info("GrunnbeløpRegulering finnes allerede åpen revurdering på fagsakId = {}", fagsakId);

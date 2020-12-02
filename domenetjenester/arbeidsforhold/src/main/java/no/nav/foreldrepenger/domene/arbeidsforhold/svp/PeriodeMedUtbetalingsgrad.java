@@ -21,4 +21,3 @@ public class PeriodeMedUtbetalingsgrad {
         return utbetalingsgrad;
     }
 }
-

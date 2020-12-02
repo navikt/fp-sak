@@ -34,19 +34,19 @@ class UtledTilretteleggingerMedArbeidsgiverTjeneste {
 
     @Inject
     UtledTilretteleggingerMedArbeidsgiverTjeneste(InntektArbeidYtelseTjeneste iayTjeneste,
-                                                  InntektsmeldingTjeneste inntektsmeldingTjeneste) {
+            InntektsmeldingTjeneste inntektsmeldingTjeneste) {
         this.iayTjeneste = iayTjeneste;
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
     }
 
     public ArrayList<SvpTilretteleggingEntitet> utled(Behandling behandling,
-                                                      Skjæringstidspunkt skjæringstidspunkt,
-                                                      List<SvpTilretteleggingEntitet> opprinneligeTilrettelegginger) {
+            Skjæringstidspunkt skjæringstidspunkt,
+            List<SvpTilretteleggingEntitet> opprinneligeTilrettelegginger) {
 
         var nyeTilrettelegginger = new ArrayList<SvpTilretteleggingEntitet>();
         var tilretteleggingerMedArbeidsgiver = opprinneligeTilrettelegginger.stream()
-            .filter(tilrettelegging -> tilrettelegging.getArbeidsgiver().isPresent())
-            .collect(Collectors.toList());
+                .filter(tilrettelegging -> tilrettelegging.getArbeidsgiver().isPresent())
+                .collect(Collectors.toList());
 
         if (tilretteleggingerMedArbeidsgiver.isEmpty()) {
             return nyeTilrettelegginger;
@@ -59,20 +59,21 @@ class UtledTilretteleggingerMedArbeidsgiverTjeneste {
         var aktørArbeidFraRegisterOpt = iayGrunnlag.getAktørArbeidFraRegister(behandling.getAktørId());
 
         var relevanteYrkesaktiviteter = new YrkesaktivitetFilter(arbeidsforholdInformasjonOpt, aktørArbeidFraRegisterOpt)
-            .getYrkesaktiviteter()
-            .stream()
-            .filter(yrkesaktivitet -> AA_REGISTER_TYPER.contains(yrkesaktivitet.getArbeidType()))
-            .filter(yrkesaktivitet -> harAnsettelsesperiodeSomInkludererEllerTilkommerEtterStp(stp, yrkesaktivitet))
-            .collect(Collectors.toList());
+                .getYrkesaktiviteter()
+                .stream()
+                .filter(yrkesaktivitet -> AA_REGISTER_TYPER.contains(yrkesaktivitet.getArbeidType()))
+                .filter(yrkesaktivitet -> harAnsettelsesperiodeSomInkludererEllerTilkommerEtterStp(stp, yrkesaktivitet))
+                .collect(Collectors.toList());
 
         for (var tilrettelegging : tilretteleggingerMedArbeidsgiver) {
 
             var arbeidsgiver = tilrettelegging.getArbeidsgiver().orElseThrow(() -> new IllegalStateException(
-                "Utviklerfeil: Skal ikke kunne være her med en tilrettelegging uten arbeidsgiver for tilrettelegging: " + tilrettelegging.getId()));
+                    "Utviklerfeil: Skal ikke kunne være her med en tilrettelegging uten arbeidsgiver for tilrettelegging: "
+                            + tilrettelegging.getId()));
 
             var inntektsmeldingerForArbeidsgiver = inntektsmeldinger.stream()
-                .filter(im -> arbeidsgiver.equals(im.getArbeidsgiver()))
-                .collect(Collectors.toList());
+                    .filter(im -> arbeidsgiver.equals(im.getArbeidsgiver()))
+                    .collect(Collectors.toList());
 
             if (skalKunOppretteEnTilretteleggingForArbeidsgiver(inntektsmeldingerForArbeidsgiver)) {
                 nyeTilrettelegginger.add(new SvpTilretteleggingEntitet.Builder(tilrettelegging).build());
@@ -95,22 +96,22 @@ class UtledTilretteleggingerMedArbeidsgiverTjeneste {
     }
 
     private List<SvpTilretteleggingEntitet> opprettTilretteleggingForHverYrkesaktivitet(List<Yrkesaktivitet> yrkesaktiviteter,
-                                                                                        SvpTilretteleggingEntitet tilrettelegging,
-                                                                                        Arbeidsgiver arbeidsgiver) {
+            SvpTilretteleggingEntitet tilrettelegging,
+            Arbeidsgiver arbeidsgiver) {
         return yrkesaktiviteter.stream()
-            .filter(yrkesaktivitet -> arbeidsgiver.equals(yrkesaktivitet.getArbeidsgiver()))
-            .map(yrkesaktivitet -> new SvpTilretteleggingEntitet.Builder(tilrettelegging)
-                .medInternArbeidsforholdRef(yrkesaktivitet.getArbeidsforholdRef())
-                .build())
-            .collect(Collectors.toList());
+                .filter(yrkesaktivitet -> arbeidsgiver.equals(yrkesaktivitet.getArbeidsgiver()))
+                .map(yrkesaktivitet -> new SvpTilretteleggingEntitet.Builder(tilrettelegging)
+                        .medInternArbeidsforholdRef(yrkesaktivitet.getArbeidsforholdRef())
+                        .build())
+                .collect(Collectors.toList());
     }
 
     private boolean harAnsettelsesperiodeSomInkludererEllerTilkommerEtterStp(LocalDate stp, Yrkesaktivitet yrkesaktivitet) {
         return new YrkesaktivitetFilter(yrkesaktivitet)
-            .getAnsettelsesPerioder(yrkesaktivitet)
-            .stream()
-            .anyMatch(aktivitetsavtale -> aktivitetsavtale.getPeriode().inkluderer(stp) ||
-                aktivitetsavtale.getPeriode().getFomDato().isAfter(stp));
+                .getAnsettelsesPerioder(yrkesaktivitet)
+                .stream()
+                .anyMatch(aktivitetsavtale -> aktivitetsavtale.getPeriode().inkluderer(stp) ||
+                        aktivitetsavtale.getPeriode().getFomDato().isAfter(stp));
     }
 
 }

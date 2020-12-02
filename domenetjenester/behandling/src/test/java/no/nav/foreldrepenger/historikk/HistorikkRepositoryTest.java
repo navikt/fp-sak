@@ -51,8 +51,8 @@ public class HistorikkRepositoryTest {
         historikkinnslag.setBehandling(behandling);
         historikkinnslag.setType(HistorikkinnslagType.VEDTAK_FATTET);
         HistorikkInnslagTekstBuilder builder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.VEDTAK_FATTET)
-            .medSkjermlenke(SkjermlenkeType.VEDTAK);
+                .medHendelse(HistorikkinnslagType.VEDTAK_FATTET)
+                .medSkjermlenke(SkjermlenkeType.VEDTAK);
         builder.build(historikkinnslag);
 
         historikkRepository.lagre(historikkinnslag);
@@ -86,8 +86,8 @@ public class HistorikkRepositoryTest {
         vedtakFattet.setBehandling(behandling);
         vedtakFattet.setType(HistorikkinnslagType.VEDTAK_FATTET);
         HistorikkInnslagTekstBuilder vedtakFattetBuilder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.VEDTAK_FATTET)
-            .medSkjermlenke(SkjermlenkeType.VEDTAK);
+                .medHendelse(HistorikkinnslagType.VEDTAK_FATTET)
+                .medSkjermlenke(SkjermlenkeType.VEDTAK);
         vedtakFattetBuilder.build(vedtakFattet);
         historikkRepository.lagre(vedtakFattet);
 
@@ -96,7 +96,7 @@ public class HistorikkRepositoryTest {
         brevSent.setType(HistorikkinnslagType.BREV_SENT);
         brevSent.setAktør(HistorikkAktør.SØKER);
         HistorikkInnslagTekstBuilder mottattDokBuilder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.BREV_SENT);
+                .medHendelse(HistorikkinnslagType.BREV_SENT);
         mottattDokBuilder.build(brevSent);
         historikkRepository.lagre(brevSent);
 

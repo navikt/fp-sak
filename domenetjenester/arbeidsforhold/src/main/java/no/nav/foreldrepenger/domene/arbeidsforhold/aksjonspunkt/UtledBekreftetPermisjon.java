@@ -11,7 +11,7 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus
 
 final class UtledBekreftetPermisjon {
 
-    private UtledBekreftetPermisjon(){
+    private UtledBekreftetPermisjon() {
         // Skjul empty constructor
     }
 
@@ -34,6 +34,5 @@ final class UtledBekreftetPermisjon {
         return new BekreftetPermisjon(permisjonFom, permisjonTom, permisjonStatus);
 
     }
-
 
 }

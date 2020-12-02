@@ -12,9 +12,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.api.TaskStatus;
 
 /**
- *  Batchservice som finner alle behandlinger som skal gjenopptas, og lager en ditto prosess task for hver.
- *  Kriterier for gjenopptagelse: Behandlingen har et åpent aksjonspunkt som er et autopunkt og
- *  har en frist som er passert.
+ * Batchservice som finner alle behandlinger som skal gjenopptas, og lager en
+ * ditto prosess task for hver. Kriterier for gjenopptagelse: Behandlingen har
+ * et åpent aksjonspunkt som er et autopunkt og har en frist som er passert.
  */
 @ApplicationScoped
 public class AutomatiskRegisterOppdateringBatchTjeneste implements BatchTjeneste {

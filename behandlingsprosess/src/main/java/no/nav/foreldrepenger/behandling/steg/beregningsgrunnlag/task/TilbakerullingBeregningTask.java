@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.task;
 
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -39,9 +38,9 @@ public class TilbakerullingBeregningTask extends GenerellProsessTask {
 
     @Inject
     public TilbakerullingBeregningTask(BehandlingRepository behandlingRepository,
-                                       HistorikkRepository historikkRepository,
-                                       ProsesseringAsynkTjeneste prosesseringAsynkTjeneste,
-                                       BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
+            HistorikkRepository historikkRepository,
+            ProsesseringAsynkTjeneste prosesseringAsynkTjeneste,
+            BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
         super();
         this.behandlingRepository = behandlingRepository;
         this.historikkRepository = historikkRepository;
@@ -52,7 +51,8 @@ public class TilbakerullingBeregningTask extends GenerellProsessTask {
     @Override
     public void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        if(!erBehandlingBerørt(behandling) && !behandling.erSaksbehandlingAvsluttet() && behandlingskontrollTjeneste.erStegPassert(behandling, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG)){
+        if (!erBehandlingBerørt(behandling) && !behandling.erSaksbehandlingAvsluttet()
+                && behandlingskontrollTjeneste.erStegPassert(behandling, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG)) {
             hoppTilbake(behandling, BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD);
         }
     }
@@ -73,7 +73,7 @@ public class TilbakerullingBeregningTask extends GenerellProsessTask {
         behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, tilSteg);
     }
 
-    private boolean erBehandlingBerørt(Behandling behandling){
+    private boolean erBehandlingBerørt(Behandling behandling) {
         return behandling.getBehandlingÅrsaker().stream().anyMatch(b -> BehandlingÅrsakType.BERØRT_BEHANDLING.equals(b.getBehandlingÅrsakType()));
     }
 
@@ -85,8 +85,8 @@ public class TilbakerullingBeregningTask extends GenerellProsessTask {
 
         String fraStegNavn = behandling.getAktivtBehandlingSteg() != null ? behandling.getAktivtBehandlingSteg().getNavn() : null;
         HistorikkInnslagTekstBuilder historieBuilder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.SPOLT_TILBAKE)
-            .medBegrunnelse("Behandlingen er flyttet fra " + fraStegNavn + " tilbake til " + tilStegNavn);
+                .medHendelse(HistorikkinnslagType.SPOLT_TILBAKE)
+                .medBegrunnelse("Behandlingen er flyttet fra " + fraStegNavn + " tilbake til " + tilStegNavn);
         historieBuilder.build(nyeRegisteropplysningerInnslag);
         historikkRepository.lagre(nyeRegisteropplysningerInnslag);
     }

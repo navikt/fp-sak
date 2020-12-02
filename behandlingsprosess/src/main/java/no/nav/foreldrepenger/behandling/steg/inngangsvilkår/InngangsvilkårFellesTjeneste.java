@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.inngangsvilkaar.RegelResultat;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
-public class InngangsvilkårFellesTjeneste  {
+public class InngangsvilkårFellesTjeneste {
     private RegelOrkestrerer regelOrkestrerer;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 

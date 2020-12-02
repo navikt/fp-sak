@@ -12,12 +12,11 @@ import no.nav.vedtak.konfig.Tid;
 
 final class UtledOppstartsdatoNærmestStpFraRelevanteYrkesaktiviteter {
 
-
     private UtledOppstartsdatoNærmestStpFraRelevanteYrkesaktiviteter() {
         // Skjul default constructor
     }
 
-    static LocalDate utled(YrkesaktivitetFilter filter, List<Yrkesaktivitet> yrkesaktiviteter, LocalDate skjæringstidspunkt){
+    static LocalDate utled(YrkesaktivitetFilter filter, List<Yrkesaktivitet> yrkesaktiviteter, LocalDate skjæringstidspunkt) {
         Optional<LocalDate> fomDato = finnOppstartsdatoNærmestStpForYrkesaktiviteterSomInkludererStp(filter, yrkesaktiviteter, skjæringstidspunkt);
         if (fomDato.isEmpty()) {
             fomDato = finnOppstartsdatoNærmestStpForYrkesaktiviteterSomTilkommerEtterStp(filter, yrkesaktiviteter, skjæringstidspunkt);
@@ -26,23 +25,23 @@ final class UtledOppstartsdatoNærmestStpFraRelevanteYrkesaktiviteter {
     }
 
     private static Optional<LocalDate> finnOppstartsdatoNærmestStpForYrkesaktiviteterSomInkludererStp(YrkesaktivitetFilter filter,
-                                                                                                      List<Yrkesaktivitet> yrkesaktiviteter,
-                                                                                                      LocalDate skjæringstidspunkt) {
+            List<Yrkesaktivitet> yrkesaktiviteter,
+            LocalDate skjæringstidspunkt) {
         return filter.getAktivitetsAvtalerForArbeid(yrkesaktiviteter).stream()
-            .map(AktivitetsAvtale::getPeriode)
-            .filter(periode -> periode.inkluderer(skjæringstidspunkt))
-            .map(DatoIntervallEntitet::getFomDato)
-            .max(LocalDate::compareTo);
+                .map(AktivitetsAvtale::getPeriode)
+                .filter(periode -> periode.inkluderer(skjæringstidspunkt))
+                .map(DatoIntervallEntitet::getFomDato)
+                .max(LocalDate::compareTo);
     }
 
     private static Optional<LocalDate> finnOppstartsdatoNærmestStpForYrkesaktiviteterSomTilkommerEtterStp(YrkesaktivitetFilter filter,
-                                                                                                          List<Yrkesaktivitet> yrkesaktiviteter,
-                                                                                                          LocalDate skjæringstidspunkt) {
+            List<Yrkesaktivitet> yrkesaktiviteter,
+            LocalDate skjæringstidspunkt) {
         return filter.getAktivitetsAvtalerForArbeid(yrkesaktiviteter).stream()
-            .map(AktivitetsAvtale::getPeriode)
-            .filter(datoIntervallEntitet -> datoIntervallEntitet.getFomDato().isAfter(skjæringstidspunkt))
-            .map(DatoIntervallEntitet::getFomDato)
-            .min(LocalDate::compareTo);
+                .map(AktivitetsAvtale::getPeriode)
+                .filter(datoIntervallEntitet -> datoIntervallEntitet.getFomDato().isAfter(skjæringstidspunkt))
+                .map(DatoIntervallEntitet::getFomDato)
+                .min(LocalDate::compareTo);
     }
 
 }

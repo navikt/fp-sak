@@ -30,9 +30,10 @@ public class AksjonspunktUtlederHolder {
             throw AksjonspunktUtlederFeil.FACTORY.fantIkkeAksjonspunktUtleder(aksjonspunktUtlederClass.getSimpleName()).toException();
         }
         AksjonspunktUtleder minInstans = instance.get();
-        
+
         if (minInstans.getClass().isAnnotationPresent(Dependent.class)) {
-            throw new IllegalStateException("Kan ikke ha @Dependent scope bean ved Instance lookup dersom en ikke også håndtere lifecycle selv: " + minInstans.getClass());
+            throw new IllegalStateException(
+                    "Kan ikke ha @Dependent scope bean ved Instance lookup dersom en ikke også håndtere lifecycle selv: " + minInstans.getClass());
         }
         return minInstans;
     }

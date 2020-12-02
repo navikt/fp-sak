@@ -22,16 +22,16 @@ public class Personas {
         if (this.aktørId == null) {
             this.aktørId = aktørId;
             this.persInfoBuilder = Personopplysning.builder();
-            this.fødselsdato = LocalDate.now().minusYears(30);  // VOKSEN
+            this.fødselsdato = LocalDate.now().minusYears(30); // VOKSEN
         } else {
             throw new IllegalArgumentException("En Personas har kun en aktørId, allerede satt til " + this.aktørId + ", angitt=" + aktørId);
         }
         builder.leggTilPersonopplysninger(persInfoBuilder
-            .aktørId(aktørId)
-            .brukerKjønn(kjønn)
-            .fødselsdato(fødselsdato)
-            .sivilstand(st)
-            .region(region));
+                .aktørId(aktørId)
+                .brukerKjønn(kjønn)
+                .fødselsdato(fødselsdato)
+                .sivilstand(st)
+                .region(region));
         return this;
     }
 

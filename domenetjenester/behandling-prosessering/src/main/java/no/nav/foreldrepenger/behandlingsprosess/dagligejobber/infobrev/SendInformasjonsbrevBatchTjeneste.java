@@ -41,7 +41,8 @@ public class SendInformasjonsbrevBatchTjeneste implements BatchTjeneste {
     @Override
     public String launch(BatchArguments arguments) {
         SendInformasjonsbrevBatchArguments batchArguments = (SendInformasjonsbrevBatchArguments) arguments; // NOSONAR
-        List<InformasjonssakData> saker = informasjonssakRepository.finnSakerMedInnvilgetMaksdatoInnenIntervall(batchArguments.getFom(), batchArguments.getTom());
+        List<InformasjonssakData> saker = informasjonssakRepository.finnSakerMedInnvilgetMaksdatoInnenIntervall(batchArguments.getFom(),
+                batchArguments.getTom());
         LocalTime baseline = LocalTime.now();
         saker.forEach(sak -> {
             log.info("Oppretter informasjonssak-task for {}", sak.getAktørId().getId());

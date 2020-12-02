@@ -54,9 +54,10 @@ public class HindreTilbaketrekkSteg implements BehandlingSteg {
 
     @Inject
     public HindreTilbaketrekkSteg(BehandlingRepositoryProvider repositoryProvider,
-                                  SkjæringstidspunktTjeneste skjæringstidspunktTjeneste, @Any Instance<FinnEndringsdatoBeregningsresultatTjeneste> finnEndringsdatoBeregningsresultatTjenesteInstances,
-                                  BeregningsresultatTidslinjetjeneste beregningsresultatTidslinjetjeneste,
-                                  InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
+            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+            @Any Instance<FinnEndringsdatoBeregningsresultatTjeneste> finnEndringsdatoBeregningsresultatTjenesteInstances,
+            BeregningsresultatTidslinjetjeneste beregningsresultatTidslinjetjeneste,
+            InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
@@ -71,19 +72,23 @@ public class HindreTilbaketrekkSteg implements BehandlingSteg {
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
 
         BehandlingBeregningsresultatEntitet aggregatTY = beregningsresultatRepository.hentBeregningsresultatAggregat(behandlingId)
-            .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Mangler beregningsresultat for behandling " + behandlingId));
+                .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Mangler beregningsresultat for behandling " + behandlingId));
 
         if (aggregatTY.skalHindreTilbaketrekk().orElse(false)) {
             BeregningsresultatEntitet revurderingTY = aggregatTY.getBgBeregningsresultatFP();
             BehandlingReferanse behandlingReferanse = BehandlingReferanse.fra(behandling);
-            LocalDateTimeline<BRAndelSammenligning> brAndelTidslinje = beregningsresultatTidslinjetjeneste.lagTidslinjeForRevurdering(behandlingReferanse);
+            LocalDateTimeline<BRAndelSammenligning> brAndelTidslinje = beregningsresultatTidslinjetjeneste
+                    .lagTidslinjeForRevurdering(behandlingReferanse);
             LocalDate utledetSkjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId).getUtledetSkjæringstidspunkt();
-            BeregningsresultatEntitet utbetBR = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(revurderingTY, brAndelTidslinje, finnYrkesaktiviteter(behandlingReferanse), utledetSkjæringstidspunkt);
+            BeregningsresultatEntitet utbetBR = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(revurderingTY, brAndelTidslinje,
+                    finnYrkesaktiviteter(behandlingReferanse), utledetSkjæringstidspunkt);
 
             KopierFeriepenger.kopier(behandlingId, revurderingTY, utbetBR);
 
-            FinnEndringsdatoBeregningsresultatTjeneste finnEndringsdatoBeregningsresultatTjeneste = FagsakYtelseTypeRef.Lookup.find(finnEndringsdatoBeregningsresultatTjenesteInstances, behandling.getFagsakYtelseType())
-                .orElseThrow(() -> new IllegalStateException("Finner ikke implementasjon for FinnEndringsdatoBeregningsresultatTjeneste for behandling " + behandling.getId()));
+            FinnEndringsdatoBeregningsresultatTjeneste finnEndringsdatoBeregningsresultatTjeneste = FagsakYtelseTypeRef.Lookup
+                    .find(finnEndringsdatoBeregningsresultatTjenesteInstances, behandling.getFagsakYtelseType())
+                    .orElseThrow(() -> new IllegalStateException(
+                            "Finner ikke implementasjon for FinnEndringsdatoBeregningsresultatTjeneste for behandling " + behandling.getId()));
 
             Optional<LocalDate> endringsDato = finnEndringsdatoBeregningsresultatTjeneste.finnEndringsdato(behandling, utbetBR);
             endringsDato.ifPresent(endringsdato -> BeregningsresultatEntitet.builder(utbetBR).medEndringsdato(endringsdato));
@@ -94,10 +99,11 @@ public class HindreTilbaketrekkSteg implements BehandlingSteg {
     }
 
     private Collection<Yrkesaktivitet> finnYrkesaktiviteter(BehandlingReferanse behandlingReferanse) {
-        Optional<AktørArbeid> aktørArbeidFraRegister = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.getBehandlingId()).getAktørArbeidFraRegister(behandlingReferanse.getAktørId());
+        Optional<AktørArbeid> aktørArbeidFraRegister = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.getBehandlingId())
+                .getAktørArbeidFraRegister(behandlingReferanse.getAktørId());
         return aktørArbeidFraRegister
-            .map(AktørArbeid::hentAlleYrkesaktiviteter)
-            .orElse(Collections.emptyList());
+                .map(AktørArbeid::hentAlleYrkesaktiviteter)
+                .orElse(Collections.emptyList());
     }
 
 }

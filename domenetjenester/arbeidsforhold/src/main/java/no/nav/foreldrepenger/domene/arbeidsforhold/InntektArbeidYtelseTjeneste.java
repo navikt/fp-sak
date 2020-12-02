@@ -56,58 +56,73 @@ public interface InntektArbeidYtelseTjeneste {
     /**
      *
      * @param behandlingId
-     * @return Register inntekt og arbeid (Opprett for å endre eller legge til registeropplysning)
+     * @return Register inntekt og arbeid (Opprett for å endre eller legge til
+     *         registeropplysning)
      */
     InntektArbeidYtelseAggregatBuilder opprettBuilderForRegister(Long behandlingId);
 
     /**
-    *
-    * @param behandlingUuid
-    * @return Register inntekt og arbeid (Opprett for å endre eller legge til registeropplysning)
-    */
-   InntektArbeidYtelseAggregatBuilder opprettBuilderForRegister(UUID behandlingUuid, UUID angittReferanse, LocalDateTime angittOpprettetTidspunkt);
+     *
+     * @param behandlingUuid
+     * @return Register inntekt og arbeid (Opprett for å endre eller legge til
+     *         registeropplysning)
+     */
+    InntektArbeidYtelseAggregatBuilder opprettBuilderForRegister(UUID behandlingUuid, UUID angittReferanse, LocalDateTime angittOpprettetTidspunkt);
 
     /**
      * @param behandlingId
-     * @return Saksbehanldet inntekt og arbeid (Opprett for å endre eller legge til saksbehanldet)
+     * @return Saksbehanldet inntekt og arbeid (Opprett for å endre eller legge til
+     *         saksbehanldet)
      */
     InntektArbeidYtelseAggregatBuilder opprettBuilderForSaksbehandlet(Long behandlingId);
 
     /**
      * @param behandlingUuid
-     * @return Saksbehanldet inntekt og arbeid (Opprett for å endre eller legge til saksbehanldet)
+     * @return Saksbehanldet inntekt og arbeid (Opprett for å endre eller legge til
+     *         saksbehanldet)
      */
-    InntektArbeidYtelseAggregatBuilder opprettBuilderForSaksbehandlet(UUID behandlingUuid, UUID angittReferanse, LocalDateTime angittOpprettetTidspunkt);
+    InntektArbeidYtelseAggregatBuilder opprettBuilderForSaksbehandlet(UUID behandlingUuid, UUID angittReferanse,
+            LocalDateTime angittOpprettetTidspunkt);
 
     /**
-     * Lagre nytt grunnlag (gitt builder for å generere). Builder bør ikke gjenbrukes etter å ha kalt her.
+     * Lagre nytt grunnlag (gitt builder for å generere). Builder bør ikke
+     * gjenbrukes etter å ha kalt her.
      *
      * @param behandlingId
-     * @param inntektArbeidYtelseAggregatBuilder lagrer ned aggregat (builder bestemmer hvilke del av treet som blir lagret)
+     * @param inntektArbeidYtelseAggregatBuilder lagrer ned aggregat (builder
+     *                                           bestemmer hvilke del av treet som
+     *                                           blir lagret)
      */
     void lagreIayAggregat(Long behandlingId, InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder);
 
     /**
-     * @deprecated Denne blir lett misbrukt, siden man antagelig ønsker å gjøre mer enn kun fjerne saksbehandlet versjon. Bruk derfor heller {@link #lagreIayAggregat(Long, InntektArbeidYtelseAggregatBuilder)} etter du er ferdig med alle endringer du trenger å gjøre
+     * @deprecated Denne blir lett misbrukt, siden man antagelig ønsker å gjøre mer
+     *             enn kun fjerne saksbehandlet versjon. Bruk derfor heller
+     *             {@link #lagreIayAggregat(Long, InntektArbeidYtelseAggregatBuilder)}
+     *             etter du er ferdig med alle endringer du trenger å gjøre
      */
     @Deprecated
     void fjernSaksbehandletVersjon(Long behandlingId);
 
     /**
-     * Lagre nytt grunnlag for Oppgitt Opptjening.  Builder bør ikke gjenbrukes etter kall her.
+     * Lagre nytt grunnlag for Oppgitt Opptjening. Builder bør ikke gjenbrukes etter
+     * kall her.
      */
     void lagreOppgittOpptjening(Long behandlingId, OppgittOpptjeningBuilder oppgittOpptjeningBuilder);
 
     /**
-     * Lagre nytt grunnlag for ArbeidsforholdInformasjon.  Builder bør ikke gjenbrukes etter kall her.
+     * Lagre nytt grunnlag for ArbeidsforholdInformasjon. Builder bør ikke
+     * gjenbrukes etter kall her.
+     *
      * @param behandlingId - Behandling Id
-     * @param aktørId - Aktør Id
-     * @param builder - {@link ArbeidsforholdInformasjonBuilder}
+     * @param aktørId      - Aktør Id
+     * @param builder      - {@link ArbeidsforholdInformasjonBuilder}
      */
     void lagreArbeidsforhold(Long behandlingId, AktørId aktørId, ArbeidsforholdInformasjonBuilder builder);
 
     /**
      * Kopier IAY grunnlag fra en behandling til en annen.
+     *
      * @param fraBehandlingId - Kilde behandling
      * @param tilBehandlingId - Ny behandling
      */
@@ -118,21 +133,25 @@ public interface InntektArbeidYtelseTjeneste {
     List<RefusjonskravDato> hentRefusjonskravDatoerForSak(Saksnummer saksnummer);
 
     /**
-     * Hent alle inntektsmeldinger registrert på saksnummer, indeksert på behandling, grunnlag.
+     * Hent alle inntektsmeldinger registrert på saksnummer, indeksert på
+     * behandling, grunnlag.
+     *
      * @param saksnummer - Saksnummer
      */
     SakInntektsmeldinger hentInntektsmeldinger(Saksnummer saksnummer);
 
     /**
      * Lagre en eller flere inntektsmeldinger på en behandling for en sak.
-     * @param saksnummer - Saksnummer
+     *
+     * @param saksnummer   - Saksnummer
      * @param behandlingId - Behandling Id
-     * @param builders - Collection med {@link InntektsmeldingBuilder}
+     * @param builders     - Collection med {@link InntektsmeldingBuilder}
      */
     void lagreInntektsmeldinger(Saksnummer saksnummer, Long behandlingId, Collection<InntektsmeldingBuilder> builders);
 
     /**
      * Lagre en eller flere inntektsmeldinger på en behandling for en sak.
+     *
      * @param referanse - behandlingreferanse
      */
     List<Inntektsmelding> finnInntektsmeldingDiff(BehandlingReferanse referanse);
@@ -142,7 +161,7 @@ public interface InntektArbeidYtelseTjeneste {
      *
      * Sletter alle inntektsmeldingere for en behandling
      *
-     * @param behandlingId - Behandling Id
+     * @param behandlingId      - Behandling Id
      * @param inntektsmeldinger - Set med {@link JournalpostId}er som skal fjernes.
      * @deprecated NB! Denne fungerer ikke etter at abakus har tatt over
      */

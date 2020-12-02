@@ -19,7 +19,7 @@ public final class IntervallUtil {
         }
         LocalDateTime døgnstart = TIDENES_ENDE.equals(tomDato) ? tomDato.atStartOfDay() : tomDato.atStartOfDay().plusDays(1);
         return Interval.of(
-            fomDato.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant(),
-            døgnstart.atZone(ZoneId.systemDefault()).toInstant());
+                fomDato.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant(),
+                døgnstart.atZone(ZoneId.systemDefault()).toInstant());
     }
 }

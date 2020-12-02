@@ -51,20 +51,18 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
     private EtterkontrollRepository etterkontrollRepository;
     private RevurderingHistorikk revurderingHistorikk;
 
-
-
     AutomatiskEtterkontrollTask() {
         // for CDI proxy
     }
 
     @Inject
-    public AutomatiskEtterkontrollTask(BehandlingRepositoryProvider repositoryProvider,// NOSONAR
-                                       EtterkontrollRepository etterkontrollRepository,
-                                       HistorikkRepository historikkRepository,
-                                       FamilieHendelseTjeneste familieHendelseTjeneste,
-                                       PersoninfoAdapter personinfoAdapter,
-                                       ProsessTaskRepository prosessTaskRepository,
-                                       BehandlendeEnhetTjeneste behandlendeEnhetTjeneste) {
+    public AutomatiskEtterkontrollTask(BehandlingRepositoryProvider repositoryProvider, // NOSONAR
+            EtterkontrollRepository etterkontrollRepository,
+            HistorikkRepository historikkRepository,
+            FamilieHendelseTjeneste familieHendelseTjeneste,
+            PersoninfoAdapter personinfoAdapter,
+            ProsessTaskRepository prosessTaskRepository,
+            BehandlendeEnhetTjeneste behandlendeEnhetTjeneste) {
         super(repositoryProvider.getFagsakLåsRepository(), repositoryProvider.getBehandlingLåsRepository());
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.personinfoAdapter = personinfoAdapter;
@@ -98,8 +96,10 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
             }
         }
 
-        EtterkontrollTjeneste automatiskEtterkontrollTjeneste = FagsakYtelseTypeRef.Lookup.find(EtterkontrollTjeneste.class, behandling.getFagsak().getYtelseType()).orElseThrow();
-        Optional<BehandlingÅrsakType> revurderingsÅrsak = automatiskEtterkontrollTjeneste.utledRevurderingÅrsak(behandling, familieHendelseGrunnlag, barnFødtIPeriode);
+        EtterkontrollTjeneste automatiskEtterkontrollTjeneste = FagsakYtelseTypeRef.Lookup
+                .find(EtterkontrollTjeneste.class, behandling.getFagsak().getYtelseType()).orElseThrow();
+        Optional<BehandlingÅrsakType> revurderingsÅrsak = automatiskEtterkontrollTjeneste.utledRevurderingÅrsak(behandling, familieHendelseGrunnlag,
+                barnFødtIPeriode);
 
         revurderingsÅrsak.ifPresent(årsak -> {
             OrganisasjonsEnhet enhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(behandling.getFagsak());

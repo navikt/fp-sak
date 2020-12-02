@@ -53,9 +53,9 @@ public class BehandlingModellTest {
     private final DummySteg nullSteg = new DummySteg();
     private final DummyVenterSteg nullVenterSteg = new DummyVenterSteg();
     private final DummySteg aksjonspunktSteg = new DummySteg(
-        opprettForAksjonspunkt(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL));
+            opprettForAksjonspunkt(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL));
     private final DummySteg aksjonspunktModifisererSteg = new DummySteg(
-        opprettForAksjonspunktMedFrist(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, Venteårsak.AVV_DOK, FRIST_TID));
+            opprettForAksjonspunktMedFrist(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, Venteårsak.AVV_DOK, FRIST_TID));
 
     @BeforeEach
     void setUp(EntityManager entityManager) {
@@ -79,10 +79,10 @@ public class BehandlingModellTest {
         DummySteg steg2 = new DummySteg();
 
         List<TestStegKonfig> modellData = List.of(
-            new TestStegKonfig(STEG_1, behandlingType, fagsakYtelseType, steg, ap(), ap()),
-            new TestStegKonfig(STEG_2, behandlingType, fagsakYtelseType, steg0, ap(a0_0), ap(a0_1)),
-            new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, steg1, ap(a1_0), ap(a1_1)),
-            new TestStegKonfig(STEG_4, behandlingType, fagsakYtelseType, steg2, ap(a2_0), ap(a2_1)));
+                new TestStegKonfig(STEG_1, behandlingType, fagsakYtelseType, steg, ap(), ap()),
+                new TestStegKonfig(STEG_2, behandlingType, fagsakYtelseType, steg0, ap(a0_0), ap(a0_1)),
+                new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, steg1, ap(a1_0), ap(a1_1)),
+                new TestStegKonfig(STEG_4, behandlingType, fagsakYtelseType, steg2, ap(a2_0), ap(a2_1)));
 
         BehandlingModellImpl modell = setupModell(modellData);
 
@@ -92,43 +92,47 @@ public class BehandlingModellTest {
 
         assertThat(ads).
 
-            containsOnly(a0_0.getKode(), a0_1.
+                containsOnly(a0_0.getKode(), a0_1.
 
-                getKode(), a1_0.
+                        getKode(), a1_0.
 
-                getKode(), a1_1.
+                                getKode(),
+                        a1_1.
 
-                getKode(), a2_0.
+                                getKode(),
+                        a2_0.
 
-                getKode(), a2_1.
+                                getKode(),
+                        a2_1.
 
-                getKode());
+                                getKode());
 
         ads = modell.finnAksjonspunktDefinisjonerEtter(STEG_2);
 
         assertThat(ads).
 
-            containsOnly(a1_0.getKode(), a1_1.
+                containsOnly(a1_0.getKode(), a1_1.
 
-                getKode(), a2_0.
+                        getKode(), a2_0.
 
-                getKode(), a2_1.
+                                getKode(),
+                        a2_1.
 
-                getKode());
+                                getKode());
 
         ads = modell.finnAksjonspunktDefinisjonerEtter(STEG_3);
 
         assertThat(ads).
 
-            containsOnly(a2_0.getKode(), a2_1.
+                containsOnly(a2_0.getKode(), a2_1.
 
-                getKode());
+                        getKode());
 
         ads = modell.finnAksjonspunktDefinisjonerEtter(STEG_4);
 
         assertThat(ads).
 
-            isEmpty();
+                isEmpty();
 
     }
 
@@ -145,9 +149,9 @@ public class BehandlingModellTest {
         DummySteg steg1 = new DummySteg();
 
         List<TestStegKonfig> modellData = List.of(
-            new TestStegKonfig(STEG_1, behandlingType, fagsakYtelseType, steg, ap(), ap()),
-            new TestStegKonfig(STEG_2, behandlingType, fagsakYtelseType, steg0, ap(a0_0), ap(a0_1)),
-            new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, steg1, ap(a1_0), ap(a1_1)));
+                new TestStegKonfig(STEG_1, behandlingType, fagsakYtelseType, steg, ap(), ap()),
+                new TestStegKonfig(STEG_2, behandlingType, fagsakYtelseType, steg0, ap(a0_0), ap(a0_1)),
+                new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, steg1, ap(a1_0), ap(a1_1)));
 
         BehandlingModellImpl modell = setupModell(modellData);
 
@@ -168,11 +172,11 @@ public class BehandlingModellTest {
     public void skal_stoppe_på_steg_2_når_får_aksjonspunkt() throws Exception {
         // Arrange
         List<TestStegKonfig> modellData = List.of(
-            new TestStegKonfig(STEG_1, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()),
-            new TestStegKonfig(STEG_2, behandlingType, fagsakYtelseType, aksjonspunktSteg, ap(), ap()),
-            new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, nullSteg,
-                ap(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL), ap()),
-            new TestStegKonfig(STEG_4, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()));
+                new TestStegKonfig(STEG_1, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()),
+                new TestStegKonfig(STEG_2, behandlingType, fagsakYtelseType, aksjonspunktSteg, ap(), ap()),
+                new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, nullSteg,
+                        ap(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL), ap()),
+                new TestStegKonfig(STEG_4, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()));
         BehandlingModellImpl modell = setupModell(modellData);
 
         TestScenario scenario = TestScenario.forEngangsstønad();
@@ -192,9 +196,9 @@ public class BehandlingModellTest {
     public void skal_kjøre_til_siste_når_ingen_gir_aksjonspunkt() throws Exception {
         // Arrange
         List<TestStegKonfig> modellData = List.of(
-            new TestStegKonfig(STEG_1, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()),
-            new TestStegKonfig(STEG_2, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()),
-            new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()));
+                new TestStegKonfig(STEG_1, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()),
+                new TestStegKonfig(STEG_2, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()),
+                new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()));
         BehandlingModellImpl modell = setupModell(modellData);
 
         TestScenario scenario = TestScenario.forEngangsstønad();
@@ -210,9 +214,9 @@ public class BehandlingModellTest {
     public void skal_stoppe_når_settes_på_vent_deretter_fortsette() {
         // Arrange
         List<TestStegKonfig> modellData = List.of(
-            new TestStegKonfig(STEG_1, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()),
-            new TestStegKonfig(STEG_2, behandlingType, fagsakYtelseType, nullVenterSteg, ap(), ap()),
-            new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()));
+                new TestStegKonfig(STEG_1, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()),
+                new TestStegKonfig(STEG_2, behandlingType, fagsakYtelseType, nullVenterSteg, ap(), ap()),
+                new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()));
         BehandlingModellImpl modell = setupModell(modellData);
 
         TestScenario scenario = TestScenario.forEngangsstønad();
@@ -258,9 +262,9 @@ public class BehandlingModellTest {
     public void skal_feile_ved_gjenopptak_vanlig_steg() {
         // Arrange
         List<TestStegKonfig> modellData = List.of(
-            new TestStegKonfig(STEG_1, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()),
-            new TestStegKonfig(STEG_2, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()),
-            new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()));
+                new TestStegKonfig(STEG_1, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()),
+                new TestStegKonfig(STEG_2, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()),
+                new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()));
         BehandlingModellImpl modell = setupModell(modellData);
 
         TestScenario scenario = TestScenario.forEngangsstønad();
@@ -277,10 +281,10 @@ public class BehandlingModellTest {
         DummySteg tilbakeføringssteg = new DummySteg(true, opprettForAksjonspunkt(aksjonspunktDefinisjon));
         // Arrange
         List<TestStegKonfig> modellData = List.of(
-            new TestStegKonfig(STEG_1, behandlingType, fagsakYtelseType, nullSteg, ap(aksjonspunktDefinisjon), ap()),
-            new TestStegKonfig(STEG_2, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()),
-            new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, tilbakeføringssteg, ap(), ap()),
-            new TestStegKonfig(STEG_4, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()));
+                new TestStegKonfig(STEG_1, behandlingType, fagsakYtelseType, nullSteg, ap(aksjonspunktDefinisjon), ap()),
+                new TestStegKonfig(STEG_2, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()),
+                new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, tilbakeføringssteg, ap(), ap()),
+                new TestStegKonfig(STEG_4, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()));
         BehandlingModellImpl modell = setupModell(modellData);
 
         TestScenario scenario = TestScenario.forEngangsstønad();
@@ -288,7 +292,7 @@ public class BehandlingModellTest {
         BehandlingStegVisitorUtenLagring visitor = lagVisitor(behandling);
 
         Aksjonspunkt aksjonspunkt = serviceProvider.getAksjonspunktKontrollRepository()
-            .leggTilAksjonspunkt(behandling, aksjonspunktDefinisjon, STEG_1);
+                .leggTilAksjonspunkt(behandling, aksjonspunktDefinisjon, STEG_1);
         serviceProvider.getAksjonspunktKontrollRepository().setReåpnet(aksjonspunkt);
 
         BehandlingStegUtfall siste = modell.prosesserFra(STEG_3, visitor);
@@ -302,8 +306,8 @@ public class BehandlingModellTest {
     public void finner_tidligste_steg_for_aksjonspunkter() {
         AksjonspunktDefinisjon aksjonspunktDefinisjon = STEG_2.getAksjonspunktDefinisjonerInngang().get(0);
         List<TestStegKonfig> modellData = List.of(
-            new TestStegKonfig(STEG_2, behandlingType, fagsakYtelseType, nullSteg, ap(aksjonspunktDefinisjon), ap()),
-            new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()));
+                new TestStegKonfig(STEG_2, behandlingType, fagsakYtelseType, nullSteg, ap(aksjonspunktDefinisjon), ap()),
+                new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()));
 
         BehandlingModellImpl modell = setupModell(modellData);
         Set<AksjonspunktDefinisjon> aksjonspunktDefinisjoner = new HashSet<>();
@@ -316,10 +320,10 @@ public class BehandlingModellTest {
     public void skal_modifisere_aksjonspunktet_ved_å_kalle_funksjon_som_legger_til_frist() throws Exception {
         // Arrange
         List<TestStegKonfig> modellData = List.of(
-            new TestStegKonfig(STEG_1, behandlingType, fagsakYtelseType, aksjonspunktModifisererSteg, ap(), ap()),
-            new TestStegKonfig(STEG_2, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()),
-            new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, nullSteg,
-                ap(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL), ap()));
+                new TestStegKonfig(STEG_1, behandlingType, fagsakYtelseType, aksjonspunktModifisererSteg, ap(), ap()),
+                new TestStegKonfig(STEG_2, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()),
+                new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, nullSteg,
+                        ap(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL), ap()));
         BehandlingModellImpl modell = setupModell(modellData);
         TestScenario scenario = TestScenario.forEngangsstønad();
         Behandling behandling = scenario.lagre(serviceProvider);
@@ -345,29 +349,28 @@ public class BehandlingModellTest {
     private BehandlingStegVisitorUtenLagring lagVisitor(Behandling behandling) {
         BehandlingskontrollKontekst kontekst = kontrollTjeneste.initBehandlingskontroll(behandling);
         var lokalServiceProvider = new BehandlingskontrollServiceProvider(serviceProvider.getEntityManager(),
-            serviceProvider.getBehandlingModellRepository(), null);
+                serviceProvider.getBehandlingModellRepository(), null);
         return new BehandlingStegVisitorUtenLagring(lokalServiceProvider, kontekst);
     }
 
     private BehandlingStegVisitorVenterUtenLagring lagVisitorVenter(Behandling behandling) {
         BehandlingskontrollKontekst kontekst = kontrollTjeneste.initBehandlingskontroll(behandling);
         var lokalServiceProvider = new BehandlingskontrollServiceProvider(serviceProvider.getEntityManager(),
-            serviceProvider.getBehandlingModellRepository(), null);
+                serviceProvider.getBehandlingModellRepository(), null);
         return new BehandlingStegVisitorVenterUtenLagring(lokalServiceProvider, kontekst);
     }
-
 
     static class BehandlingStegVisitorUtenLagring extends TekniskBehandlingStegVisitor {
         List<BehandlingStegType> kjørteSteg = new ArrayList<>();
 
         BehandlingStegVisitorUtenLagring(BehandlingskontrollServiceProvider repositoryProvider,
-                                         BehandlingskontrollKontekst kontekst) {
+                BehandlingskontrollKontekst kontekst) {
             super(repositoryProvider, kontekst);
         }
 
         @Override
         protected StegProsesseringResultat prosesserStegISavepoint(Behandling behandling,
-                                                                   BehandlingStegVisitor stegVisitor) {
+                BehandlingStegVisitor stegVisitor) {
             // bypass savepoint
             this.kjørteSteg.add(stegVisitor.getStegModell().getBehandlingStegType());
             return super.prosesserSteg(stegVisitor);
@@ -378,13 +381,13 @@ public class BehandlingModellTest {
         List<BehandlingStegType> kjørteSteg = new ArrayList<>();
 
         BehandlingStegVisitorVenterUtenLagring(BehandlingskontrollServiceProvider repositoryProvider,
-                                               BehandlingskontrollKontekst kontekst) {
+                BehandlingskontrollKontekst kontekst) {
             super(repositoryProvider, kontekst);
         }
 
         @Override
         protected StegProsesseringResultat prosesserStegISavepoint(Behandling behandling,
-                                                                   BehandlingStegVisitor stegVisitor) {
+                BehandlingStegVisitor stegVisitor) {
             // bypass savepoint
             this.kjørteSteg.add(stegVisitor.getStegModell().getBehandlingStegType());
             return super.prosesserSteg(stegVisitor);

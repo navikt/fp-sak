@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 
-
 @BehandlingStegRef(kode = "VURDERSRB")
 @BehandlingTypeRef
 @FagsakYtelseTypeRef
@@ -22,20 +21,21 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 public class VurderSøkersRelasjonTilBarnStegImpl extends InngangsvilkårStegImpl {
 
     static List<VilkårType> STØTTEDE_VILKÅR = asList(
-        VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD,
-        VilkårType.ADOPSJONSVILKARET_FORELDREPENGER,
-        VilkårType.FØDSELSVILKÅRET_MOR,
-        VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR,
-        VilkårType.OMSORGSVILKÅRET,
-        VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD,
-        VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD);
+            VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD,
+            VilkårType.ADOPSJONSVILKARET_FORELDREPENGER,
+            VilkårType.FØDSELSVILKÅRET_MOR,
+            VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR,
+            VilkårType.OMSORGSVILKÅRET,
+            VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD,
+            VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD);
 
     VurderSøkersRelasjonTilBarnStegImpl() {
         // for CDI proxy
     }
 
     @Inject
-    public VurderSøkersRelasjonTilBarnStegImpl(BehandlingRepositoryProvider repositoryProvider, InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste) {
+    public VurderSøkersRelasjonTilBarnStegImpl(BehandlingRepositoryProvider repositoryProvider,
+            InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste) {
         super(repositoryProvider, inngangsvilkårFellesTjeneste, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
     }
 

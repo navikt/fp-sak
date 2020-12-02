@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.opptjening.dto;
 
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -59,7 +58,7 @@ public class AvklarOpptjeningAktivitetDto {
     @Pattern(regexp = InputValideringRegex.FRITEKST)
     private String begrunnelse;
 
-    public AvklarOpptjeningAktivitetDto() {//NOSONAR
+    public AvklarOpptjeningAktivitetDto() {// NOSONAR
         // trengs for deserialisering av JSON
     }
 
@@ -104,7 +103,7 @@ public class AvklarOpptjeningAktivitetDto {
     }
 
     public String getOppdragsgiverOrg() {
-        if (oppdragsgiverOrg == null && arbeidsgiverReferanse != null && OrgNummer.erGyldigOrgnr(arbeidsgiverReferanse)) {
+        if ((oppdragsgiverOrg == null) && (arbeidsgiverReferanse != null) && OrgNummer.erGyldigOrgnr(arbeidsgiverReferanse)) {
             return arbeidsgiverReferanse;
         }
         return oppdragsgiverOrg;
@@ -115,7 +114,7 @@ public class AvklarOpptjeningAktivitetDto {
     }
 
     public String getArbeidsgiverIdentifikator() {
-        if (arbeidsgiverIdentifikator == null && arbeidsgiverReferanse != null) {
+        if ((arbeidsgiverIdentifikator == null) && (arbeidsgiverReferanse != null)) {
             return arbeidsgiverReferanse;
         }
         return arbeidsgiverIdentifikator;

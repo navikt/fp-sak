@@ -19,12 +19,13 @@ class ErKunEndringIFordelingAvYtelsen {
     private ErKunEndringIFordelingAvYtelsen() {
     }
 
-    public static boolean vurder(boolean erEndringIBeregning, boolean erEndringIUttakFraEndringsdato, Optional<BeregningsgrunnlagEntitet> revurderingsGrunnlagOpt,
-                                 Optional<BeregningsgrunnlagEntitet> originalGrunnlagOpt, boolean erEndringISkalHindreTilbaketrekk) {
+    public static boolean vurder(boolean erEndringIBeregning, boolean erEndringIUttakFraEndringsdato,
+            Optional<BeregningsgrunnlagEntitet> revurderingsGrunnlagOpt,
+            Optional<BeregningsgrunnlagEntitet> originalGrunnlagOpt, boolean erEndringISkalHindreTilbaketrekk) {
         return !erEndringIBeregning
-            && !erEndringIUttakFraEndringsdato
-            && (kontrollerEndringIFordelingAvYtelsen(revurderingsGrunnlagOpt, originalGrunnlagOpt)
-            || erEndringISkalHindreTilbaketrekk);
+                && !erEndringIUttakFraEndringsdato
+                && (kontrollerEndringIFordelingAvYtelsen(revurderingsGrunnlagOpt, originalGrunnlagOpt)
+                        || erEndringISkalHindreTilbaketrekk);
     }
 
     public static Behandlingsresultat fastsett(Behandling revurdering, Behandlingsresultat behandlingsresultat, boolean erVarselOmRevurderingSendt) {
@@ -37,7 +38,8 @@ class ErKunEndringIFordelingAvYtelsen {
         return behandlingsresultatBuilder.buildFor(revurdering);
     }
 
-    private static boolean kontrollerEndringIFordelingAvYtelsen(Optional<BeregningsgrunnlagEntitet> revurderingsGrunnlagOpt, Optional<BeregningsgrunnlagEntitet> originalGrunnlagOpt) {
+    private static boolean kontrollerEndringIFordelingAvYtelsen(Optional<BeregningsgrunnlagEntitet> revurderingsGrunnlagOpt,
+            Optional<BeregningsgrunnlagEntitet> originalGrunnlagOpt) {
 
         if (!revurderingsGrunnlagOpt.isPresent() && !originalGrunnlagOpt.isPresent()) {
             return false;
@@ -50,7 +52,6 @@ class ErKunEndringIFordelingAvYtelsen {
 
         List<BeregningsgrunnlagPeriode> revurderingPerioder = revurderingsGrunnlag.getBeregningsgrunnlagPerioder();
         List<BeregningsgrunnlagPeriode> originalePerioder = originalgGrunnlag.getBeregningsgrunnlagPerioder();
-
 
         for (BeregningsgrunnlagPeriode periode : revurderingPerioder) {
             if (erUlikKorresponderendePeriode(originalePerioder, periode)) {
@@ -67,19 +68,21 @@ class ErKunEndringIFordelingAvYtelsen {
         return false;
     }
 
-    private static boolean erUlikKorresponderendePeriode(List<BeregningsgrunnlagPeriode> sammenlignPerioder, BeregningsgrunnlagPeriode periodeÅSammenligne) {
+    private static boolean erUlikKorresponderendePeriode(List<BeregningsgrunnlagPeriode> sammenlignPerioder,
+            BeregningsgrunnlagPeriode periodeÅSammenligne) {
         LocalDate fom = periodeÅSammenligne.getBeregningsgrunnlagPeriodeFom();
 
-        Optional<BeregningsgrunnlagPeriode> førsteKronologiskePeriode = sammenlignPerioder.stream().min(Comparator.comparing(BeregningsgrunnlagPeriode::getBeregningsgrunnlagPeriodeFom));
+        Optional<BeregningsgrunnlagPeriode> førsteKronologiskePeriode = sammenlignPerioder.stream()
+                .min(Comparator.comparing(BeregningsgrunnlagPeriode::getBeregningsgrunnlagPeriodeFom));
         if (førsteKronologiskePeriode.isPresent()) {
             if (fom.isBefore(førsteKronologiskePeriode.get().getBeregningsgrunnlagPeriodeFom())) {
                 return harPerioderUlikeAndeler(periodeÅSammenligne, førsteKronologiskePeriode.get());
             }
         }
 
-        BeregningsgrunnlagPeriode korresponderendePeriode = sammenlignPerioder.stream().filter(originalPeriode ->
-            periodeInneholderDato(originalPeriode, fom)).findFirst()
-            .orElseThrow(() -> new IllegalStateException("Fant ingen overlapp for beregningsgrunnlagperiode"));
+        BeregningsgrunnlagPeriode korresponderendePeriode = sammenlignPerioder.stream()
+                .filter(originalPeriode -> periodeInneholderDato(originalPeriode, fom)).findFirst()
+                .orElseThrow(() -> new IllegalStateException("Fant ingen overlapp for beregningsgrunnlagperiode"));
 
         return harPerioderUlikeAndeler(periodeÅSammenligne, korresponderendePeriode);
     }
@@ -89,9 +92,8 @@ class ErKunEndringIFordelingAvYtelsen {
             return !dato.isBefore(periode.getBeregningsgrunnlagPeriodeFom());
         }
         return !dato.isBefore(periode.getBeregningsgrunnlagPeriodeFom())
-            && !dato.isAfter(periode.getBeregningsgrunnlagPeriodeTom());
+                && !dato.isAfter(periode.getBeregningsgrunnlagPeriodeTom());
     }
-
 
     private static boolean harPerioderUlikeAndeler(BeregningsgrunnlagPeriode revuderingPeriode, BeregningsgrunnlagPeriode originalPeriode) {
         List<BeregningsgrunnlagPrStatusOgAndel> revuderingAndeler = revuderingPeriode.getBeregningsgrunnlagPrStatusOgAndelList();
@@ -105,13 +107,14 @@ class ErKunEndringIFordelingAvYtelsen {
         return false;
     }
 
-    private static Optional<BeregningsgrunnlagPrStatusOgAndel> finnMatchendeAndel(BeregningsgrunnlagPrStatusOgAndel andel, List<BeregningsgrunnlagPrStatusOgAndel> originaleAndeler) {
+    private static Optional<BeregningsgrunnlagPrStatusOgAndel> finnMatchendeAndel(BeregningsgrunnlagPrStatusOgAndel andel,
+            List<BeregningsgrunnlagPrStatusOgAndel> originaleAndeler) {
         return originaleAndeler.stream().filter(orginalAndel -> orginalAndel.equals(andel)).findFirst();
     }
 
     private static boolean erAndelerLike(BeregningsgrunnlagPrStatusOgAndel revurderingAndel, BeregningsgrunnlagPrStatusOgAndel originalAndel) {
         return (revurderingAndel.getDagsatsArbeidsgiver().equals(originalAndel.getDagsatsArbeidsgiver()))
-            && (revurderingAndel.getDagsatsBruker().equals(originalAndel.getDagsatsBruker()));
+                && (revurderingAndel.getDagsatsBruker().equals(originalAndel.getDagsatsBruker()));
     }
 
     // https://confluence.adeo.no/display/PK/PK-50504+-+02+-+Kravbeskrivelser

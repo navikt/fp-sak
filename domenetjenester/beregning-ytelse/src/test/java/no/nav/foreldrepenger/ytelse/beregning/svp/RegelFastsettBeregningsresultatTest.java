@@ -38,9 +38,12 @@ public class RegelFastsettBeregningsresultatTest {
     private static final LocalDateInterval PERIODE_1 = new LocalDateInterval(START, MIDT_1);
     private static final LocalDateInterval PERIODE_2 = new LocalDateInterval(MIDT_1.plusDays(1), MIDT_2);
     private static final LocalDateInterval PERIODE_3 = new LocalDateInterval(MIDT_2.plusDays(1), SLUTT);
-    private static final Arbeidsforhold ARBEIDSFORHOLD_1 = Arbeidsforhold.nyttArbeidsforholdHosVirksomhet("111", InternArbeidsforholdRef.nyRef().getReferanse());
-    private static final Arbeidsforhold ARBEIDSFORHOLD_2 = Arbeidsforhold.nyttArbeidsforholdHosVirksomhet("222", InternArbeidsforholdRef.nyRef().getReferanse());
-    private static final Arbeidsforhold ARBEIDSFORHOLD_3 = Arbeidsforhold.nyttArbeidsforholdHosVirksomhet("333", InternArbeidsforholdRef.nyRef().getReferanse());
+    private static final Arbeidsforhold ARBEIDSFORHOLD_1 = Arbeidsforhold.nyttArbeidsforholdHosVirksomhet("111",
+            InternArbeidsforholdRef.nyRef().getReferanse());
+    private static final Arbeidsforhold ARBEIDSFORHOLD_2 = Arbeidsforhold.nyttArbeidsforholdHosVirksomhet("222",
+            InternArbeidsforholdRef.nyRef().getReferanse());
+    private static final Arbeidsforhold ARBEIDSFORHOLD_3 = Arbeidsforhold.nyttArbeidsforholdHosVirksomhet("333",
+            InternArbeidsforholdRef.nyRef().getReferanse());
 
     private RegelFastsettBeregningsresultat regel;
 
@@ -53,10 +56,9 @@ public class RegelFastsettBeregningsresultatTest {
     public void skalTesteSVPUttaksperioderMedForskjelligeAntallAktiviteter() {
         // Arrange
         Map<LocalDateInterval, List<Arbeidsforhold>> periodeMap = Map.of(
-            PERIODE_1, List.of(ARBEIDSFORHOLD_1),
-            PERIODE_2, List.of(ARBEIDSFORHOLD_1, ARBEIDSFORHOLD_2),
-            PERIODE_3, List.of(ARBEIDSFORHOLD_1, ARBEIDSFORHOLD_2, ARBEIDSFORHOLD_3)
-        );
+                PERIODE_1, List.of(ARBEIDSFORHOLD_1),
+                PERIODE_2, List.of(ARBEIDSFORHOLD_1, ARBEIDSFORHOLD_2),
+                PERIODE_3, List.of(ARBEIDSFORHOLD_1, ARBEIDSFORHOLD_2, ARBEIDSFORHOLD_3));
         BeregningsresultatRegelmodell modell = opprettRegelmodell(periodeMap);
         Beregningsresultat output = new Beregningsresultat();
 
@@ -72,13 +74,12 @@ public class RegelFastsettBeregningsresultatTest {
 
     }
 
-
     private BeregningsresultatRegelmodell opprettRegelmodell(Map<LocalDateInterval, List<Arbeidsforhold>> periodeMap) {
         List<BeregningsgrunnlagPrArbeidsforhold> arbeidsforhold = periodeMap.entrySet().stream()
-            .flatMap(entry -> entry.getValue().stream())
-            .distinct()
-            .map(arb -> lagPrArbeidsforhold(1000, 500, arb))
-            .collect(Collectors.toList());
+                .flatMap(entry -> entry.getValue().stream())
+                .distinct()
+                .map(arb -> lagPrArbeidsforhold(1000, 500, arb))
+                .collect(Collectors.toList());
         Beregningsgrunnlag beregningsgrunnlag = opprettBeregningsgrunnlag(arbeidsforhold);
         UttakResultat uttakResultat = opprettUttak(periodeMap);
         return new BeregningsresultatRegelmodell(beregningsgrunnlag, uttakResultat);
@@ -86,30 +87,29 @@ public class RegelFastsettBeregningsresultatTest {
 
     private BeregningsgrunnlagPrArbeidsforhold lagPrArbeidsforhold(double dagsatsBruker, double dagsatsArbeidsgiver, Arbeidsforhold arbeidsforhold) {
         return BeregningsgrunnlagPrArbeidsforhold.builder()
-            .medArbeidsforhold(arbeidsforhold)
-            .medRedusertRefusjonPrÅr(BigDecimal.valueOf(260 * dagsatsArbeidsgiver))
-            .medRedusertBrukersAndelPrÅr(BigDecimal.valueOf(260 * dagsatsBruker))
-            .build();
+                .medArbeidsforhold(arbeidsforhold)
+                .medRedusertRefusjonPrÅr(BigDecimal.valueOf(260 * dagsatsArbeidsgiver))
+                .medRedusertBrukersAndelPrÅr(BigDecimal.valueOf(260 * dagsatsBruker))
+                .build();
     }
 
     private Beregningsgrunnlag opprettBeregningsgrunnlag(List<BeregningsgrunnlagPrArbeidsforhold> ekstraArbeidsforhold) {
         BeregningsgrunnlagPrStatus.Builder prStatusBuilder = BeregningsgrunnlagPrStatus.builder()
-            .medAktivitetStatus(AktivitetStatus.ATFL);
+                .medAktivitetStatus(AktivitetStatus.ATFL);
         for (BeregningsgrunnlagPrArbeidsforhold arbeidsforhold : ekstraArbeidsforhold) {
             prStatusBuilder.medArbeidsforhold(arbeidsforhold);
         }
         BeregningsgrunnlagPrStatus prStatus = prStatusBuilder.build();
         BeregningsgrunnlagPeriode periode = BeregningsgrunnlagPeriode.builder()
-            .medPeriode(Periode.of(START, LocalDate.MAX))
-            .medBeregningsgrunnlagPrStatus(prStatus)
-            .build();
+                .medPeriode(Periode.of(START, LocalDate.MAX))
+                .medBeregningsgrunnlagPrStatus(prStatus)
+                .build();
         return Beregningsgrunnlag.builder()
-            .medAktivitetStatuser(Collections.singletonList(AktivitetStatus.ATFL))
-            .medSkjæringstidspunkt(LocalDate.now())
-            .medBeregningsgrunnlagPeriode(periode)
-            .build();
+                .medAktivitetStatuser(Collections.singletonList(AktivitetStatus.ATFL))
+                .medSkjæringstidspunkt(LocalDate.now())
+                .medBeregningsgrunnlagPeriode(periode)
+                .build();
     }
-
 
     private UttakResultat opprettUttak(Map<LocalDateInterval, List<Arbeidsforhold>> arbeidsforholdPerioder) {
         List<UttakResultatPeriode> periodeListe = new ArrayList<>();
@@ -124,7 +124,7 @@ public class RegelFastsettBeregningsresultatTest {
 
     private List<UttakAktivitet> lagUttakAktiviteter(BigDecimal stillingsgrad, BigDecimal utbetalingsgrad, List<Arbeidsforhold> arbeidsforholdList) {
         return arbeidsforholdList.stream()
-            .map(arb -> new UttakAktivitet(stillingsgrad, null, utbetalingsgrad, arb, AktivitetStatus.ATFL, false, stillingsgrad))
-            .collect(Collectors.toList());
+                .map(arb -> new UttakAktivitet(stillingsgrad, null, utbetalingsgrad, arb, AktivitetStatus.ATFL, false, stillingsgrad))
+                .collect(Collectors.toList());
     }
 }

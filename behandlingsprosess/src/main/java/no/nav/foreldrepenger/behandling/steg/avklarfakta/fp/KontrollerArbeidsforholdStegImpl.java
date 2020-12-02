@@ -36,8 +36,8 @@ class KontrollerArbeidsforholdStegImpl implements KontrollerArbeidsforholdSteg {
 
     @Inject
     KontrollerArbeidsforholdStegImpl(BehandlingRepository behandlingRepository,
-                                     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                     AksjonspunktUtlederForVurderArbeidsforhold utleder) {
+            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+            AksjonspunktUtlederForVurderArbeidsforhold utleder) {
         this.behandlingRepository = behandlingRepository;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.utleder = utleder;

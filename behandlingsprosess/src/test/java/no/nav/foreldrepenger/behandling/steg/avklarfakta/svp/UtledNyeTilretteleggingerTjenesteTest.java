@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
@@ -21,12 +22,11 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 
 public class UtledNyeTilretteleggingerTjenesteTest {
 
-    private final SvangerskapspengerRepository svangerskapspengerRepository =
-        Mockito.mock(SvangerskapspengerRepository.class);
-    private final UtledTilretteleggingerMedArbeidsgiverTjeneste utledTilretteleggingerMedArbeidsgiverTjeneste =
-        Mockito.mock(UtledTilretteleggingerMedArbeidsgiverTjeneste.class);
-    private final UtledNyeTilretteleggingerTjeneste utledNyeTilretteleggingerTjeneste =
-        new UtledNyeTilretteleggingerTjeneste(svangerskapspengerRepository, utledTilretteleggingerMedArbeidsgiverTjeneste);
+    private final SvangerskapspengerRepository svangerskapspengerRepository = Mockito.mock(SvangerskapspengerRepository.class);
+    private final UtledTilretteleggingerMedArbeidsgiverTjeneste utledTilretteleggingerMedArbeidsgiverTjeneste = Mockito
+            .mock(UtledTilretteleggingerMedArbeidsgiverTjeneste.class);
+    private final UtledNyeTilretteleggingerTjeneste utledNyeTilretteleggingerTjeneste = new UtledNyeTilretteleggingerTjeneste(
+            svangerskapspengerRepository, utledTilretteleggingerMedArbeidsgiverTjeneste);
 
     @Test
     public void skal_utlede_tilrettelegginger_med_og_uten_arbeidsgiver() {
@@ -37,12 +37,13 @@ public class UtledNyeTilretteleggingerTjenesteTest {
 
         var tilretteleggingEntiteter = new ArrayList<SvpTilretteleggingEntitet>();
         tilretteleggingEntiteter.add(new SvpTilretteleggingEntitet.Builder().medArbeidsgiver(Arbeidsgiver.virksomhet("123")).build());
-        when(utledTilretteleggingerMedArbeidsgiverTjeneste.utled(Mockito.any(), Mockito.any(), Mockito.anyList())).thenReturn(tilretteleggingEntiteter);
+        when(utledTilretteleggingerMedArbeidsgiverTjeneste.utled(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.anyList()))
+                .thenReturn(tilretteleggingEntiteter);
 
         var grunnlagEntitet = new SvpGrunnlagEntitet.Builder()
-            .medOpprinneligeTilrettelegginger(List.of(new SvpTilretteleggingEntitet.Builder().build()))
-            .medBehandlingId(behandling.getId())
-            .build();
+                .medOpprinneligeTilrettelegginger(List.of(new SvpTilretteleggingEntitet.Builder().build()))
+                .medBehandlingId(behandling.getId())
+                .build();
         when(svangerskapspengerRepository.hentGrunnlag(any())).thenReturn(Optional.of(grunnlagEntitet));
 
         // Act

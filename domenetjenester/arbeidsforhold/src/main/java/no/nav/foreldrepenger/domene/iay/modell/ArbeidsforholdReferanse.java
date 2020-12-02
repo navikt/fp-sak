@@ -31,7 +31,8 @@ public class ArbeidsforholdReferanse extends BaseEntitet implements IndexKey, Tr
     }
 
     ArbeidsforholdReferanse(ArbeidsforholdReferanse arbeidsforholdInformasjonEntitet) {
-        this(arbeidsforholdInformasjonEntitet.arbeidsgiver, arbeidsforholdInformasjonEntitet.internReferanse, arbeidsforholdInformasjonEntitet.eksternReferanse);
+        this(arbeidsforholdInformasjonEntitet.arbeidsgiver, arbeidsforholdInformasjonEntitet.internReferanse,
+                arbeidsforholdInformasjonEntitet.eksternReferanse);
     }
 
     @Override
@@ -53,14 +54,16 @@ public class ArbeidsforholdReferanse extends BaseEntitet implements IndexKey, Tr
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || !(o instanceof ArbeidsforholdReferanse))
+        }
+        if ((o == null) || !(o instanceof ArbeidsforholdReferanse)) {
             return false;
+        }
         ArbeidsforholdReferanse that = (ArbeidsforholdReferanse) o;
         return Objects.equals(arbeidsgiver, that.arbeidsgiver) &&
-            Objects.equals(internReferanse, that.internReferanse) &&
-            Objects.equals(eksternReferanse, that.eksternReferanse);
+                Objects.equals(internReferanse, that.internReferanse) &&
+                Objects.equals(eksternReferanse, that.eksternReferanse);
     }
 
     @Override
@@ -71,9 +74,9 @@ public class ArbeidsforholdReferanse extends BaseEntitet implements IndexKey, Tr
     @Override
     public String toString() {
         return "ArbeidsforholdReferanseEntitet{" +
-            "arbeidsgiver=" + arbeidsgiver +
-            ", internReferanse=" + internReferanse +
-            ", eksternReferanse=" + eksternReferanse +
-            '}';
+                "arbeidsgiver=" + arbeidsgiver +
+                ", internReferanse=" + internReferanse +
+                ", eksternReferanse=" + eksternReferanse +
+                '}';
     }
 }

@@ -8,21 +8,17 @@ import javax.inject.Inject;
 
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.HåndterBeregningsgrunnlagInput;
-import no.nav.folketrygdloven.kalkulus.kodeverk.HåndteringKode;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus.BehandlingslagerTilKalkulusMapper;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRepository;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand;
 
 @ApplicationScoped
 public class KalkulatorHåndteringInputTjeneste {
 
-
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private BehandlingRepository behandlingRepository;
     private BeregningTilInputTjeneste beregningTilInputTjeneste;
-
 
     public KalkulatorHåndteringInputTjeneste() {
         // CDI
@@ -30,8 +26,8 @@ public class KalkulatorHåndteringInputTjeneste {
 
     @Inject
     public KalkulatorHåndteringInputTjeneste(BeregningsgrunnlagRepository beregningsgrunnlagRepository,
-                                             BehandlingRepository behandlingRepository,
-                                             BeregningTilInputTjeneste beregningTilInputTjeneste) {
+            BehandlingRepository behandlingRepository,
+            BeregningTilInputTjeneste beregningTilInputTjeneste) {
         this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
         this.behandlingRepository = behandlingRepository;
         this.beregningTilInputTjeneste = beregningTilInputTjeneste;
@@ -39,20 +35,24 @@ public class KalkulatorHåndteringInputTjeneste {
 
     public HåndterBeregningsgrunnlagInput lagInput(Long behandlingId, BeregningsgrunnlagInput input, String aksjonspunktKode) {
         Objects.requireNonNull(behandlingId, "behandlingId");
-        Optional<BeregningsgrunnlagGrunnlagEntitet> grunnlagFraForrigeOppdatering = beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(
-            behandlingId,
-            behandlingRepository.hentBehandling(behandlingId).getOriginalBehandlingId(),
-            MapHåndteringskodeTilTilstand.map(aksjonspunktKode));
+        Optional<BeregningsgrunnlagGrunnlagEntitet> grunnlagFraForrigeOppdatering = beregningsgrunnlagRepository
+                .hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(
+                        behandlingId,
+                        behandlingRepository.hentBehandling(behandlingId).getOriginalBehandlingId(),
+                        MapHåndteringskodeTilTilstand.map(aksjonspunktKode));
         return lagHåndteringBeregningsgrunnlagInput(input, aksjonspunktKode, grunnlagFraForrigeOppdatering);
 
     }
 
     private HåndterBeregningsgrunnlagInput lagHåndteringBeregningsgrunnlagInput(BeregningsgrunnlagInput input,
-                                                                                String håndteringKode,
-                                                                                Optional<BeregningsgrunnlagGrunnlagEntitet> grunnlagFraHåndteringTilstand) {
+            String håndteringKode,
+            Optional<BeregningsgrunnlagGrunnlagEntitet> grunnlagFraHåndteringTilstand) {
         BeregningsgrunnlagInput inputMedBG = beregningTilInputTjeneste.lagInputMedVerdierFraBeregning(input);
-        return new HåndterBeregningsgrunnlagInput(inputMedBG, no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BeregningsgrunnlagTilstand.fraKode(MapHåndteringskodeTilTilstand.map(håndteringKode).getKode()))
-            .medForrigeGrunnlagFraHåndtering(grunnlagFraHåndteringTilstand.map(BehandlingslagerTilKalkulusMapper::mapGrunnlag).orElse(null));
+        return new HåndterBeregningsgrunnlagInput(inputMedBG,
+                no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BeregningsgrunnlagTilstand
+                        .fraKode(MapHåndteringskodeTilTilstand.map(håndteringKode).getKode()))
+                                .medForrigeGrunnlagFraHåndtering(
+                                        grunnlagFraHåndteringTilstand.map(BehandlingslagerTilKalkulusMapper::mapGrunnlag).orElse(null));
     }
 
 }

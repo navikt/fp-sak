@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandling.revurdering.satsregulering;
 
-
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static no.nav.foreldrepenger.behandling.revurdering.satsregulering.AutomatiskArenaReguleringBatchArguments.DATE_PATTERN;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -63,11 +62,11 @@ public class AutomatiskArenaReguleringBatchTjenesteTest {
         var nySatsDato = cutoff.plusWeeks(3).plusDays(2);
         var prosessTaskRepositoryMock = mock(ProsessTaskRepository.class);
         tjeneste = new AutomatiskArenaReguleringBatchTjeneste(repositoryProvider,
-            prosessTaskRepositoryMock);
+                prosessTaskRepositoryMock);
         Map<String, String> arguments = new HashMap<>();
         arguments.put(AutomatiskArenaReguleringBatchArguments.REVURDER_KEY, "True");
         arguments.put(AutomatiskArenaReguleringBatchArguments.SATS_DATO_KEY,
-            nySatsDato.format(ofPattern(DATE_PATTERN)));
+                nySatsDato.format(ofPattern(DATE_PATTERN)));
         batchArgs = new AutomatiskArenaReguleringBatchArguments(arguments);
     }
 
@@ -76,9 +75,9 @@ public class AutomatiskArenaReguleringBatchTjenesteTest {
         var revurdering1 = opprettRevurderingsKandidat(BehandlingStatus.UTREDES, cutoff.minusDays(5));
         var revurdering2 = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, arenaDato.minusDays(5));
         var kandidater = tjeneste.hentKandidater(batchArgs)
-            .stream()
-            .map(longAktørIdTuple -> longAktørIdTuple.getElement1())
-            .collect(Collectors.toSet());
+                .stream()
+                .map(longAktørIdTuple -> longAktørIdTuple.getElement1())
+                .collect(Collectors.toSet());
         assertThat(kandidater).doesNotContain(revurdering1.getFagsakId(), revurdering2.getFagsakId());
     }
 
@@ -89,8 +88,8 @@ public class AutomatiskArenaReguleringBatchTjenesteTest {
         var kandidat3 = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusMonths(2));
         var kandidat4 = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, arenaDato.minusDays(5));
         var kandidater = tjeneste.hentKandidater(batchArgs).stream()
-            .map(fagsakAktørIdTuple -> fagsakAktørIdTuple.getElement1())
-            .collect(Collectors.toSet());
+                .map(fagsakAktørIdTuple -> fagsakAktørIdTuple.getElement1())
+                .collect(Collectors.toSet());
         assertThat(kandidater).contains(kandidat1.getFagsakId(), kandidat2.getFagsakId(), kandidat3.getFagsakId());
         assertThat(kandidater).doesNotContain(kandidat4.getFagsakId());
     }
@@ -99,14 +98,14 @@ public class AutomatiskArenaReguleringBatchTjenesteTest {
         LocalDate terminDato = uttakFom.plusWeeks(3);
 
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medSøknadDato(terminDato.minusDays(40));
+                .medSøknadDato(terminDato.minusDays(40));
 
         scenario.medBekreftetHendelse()
-            .medFødselsDato(terminDato)
-            .medAntallBarn(1);
+                .medFødselsDato(terminDato)
+                .medAntallBarn(1);
 
         scenario.medBehandlingsresultat(
-            Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
+                Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         Behandling behandling = scenario.lagre(repositoryProvider);
 
         if (BehandlingStatus.AVSLUTTET.equals(status)) {
@@ -117,34 +116,34 @@ public class AutomatiskArenaReguleringBatchTjenesteTest {
         behandlingRepository.lagre(behandling, lås);
 
         BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
-            .medSkjæringstidspunkt(uttakFom)
-            .build();
+                .medSkjæringstidspunkt(uttakFom)
+                .build();
         BeregningsgrunnlagAktivitetStatus.builder()
-            .medAktivitetStatus(AktivitetStatus.ARBEIDSAVKLARINGSPENGER)
-            .build(beregningsgrunnlag);
+                .medAktivitetStatus(AktivitetStatus.ARBEIDSAVKLARINGSPENGER)
+                .build(beregningsgrunnlag);
         BeregningsgrunnlagPeriode periode = BeregningsgrunnlagPeriode.ny()
-            .medBeregningsgrunnlagPeriode(uttakFom, uttakFom.plusMonths(3))
-            .build(beregningsgrunnlag);
+                .medBeregningsgrunnlagPeriode(uttakFom, uttakFom.plusMonths(3))
+                .build(beregningsgrunnlag);
         BeregningsgrunnlagPeriode.oppdater(periode)
-            .build(beregningsgrunnlag);
+                .build(beregningsgrunnlag);
         beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag, BeregningsgrunnlagTilstand.FASTSATT);
 
         BeregningsresultatEntitet brFP = BeregningsresultatEntitet.builder()
-            .medRegelInput("clob1")
-            .medRegelSporing("clob2")
-            .build();
+                .medRegelInput("clob1")
+                .medRegelSporing("clob2")
+                .build();
         BeregningsresultatPeriode brFPper = BeregningsresultatPeriode.builder()
-            .medBeregningsresultatPeriodeFomOgTom(uttakFom, uttakFom.plusMonths(3))
-            .medBeregningsresultatAndeler(Collections.emptyList())
-            .build(brFP);
+                .medBeregningsresultatPeriodeFomOgTom(uttakFom, uttakFom.plusMonths(3))
+                .medBeregningsresultatAndeler(Collections.emptyList())
+                .build(brFP);
         BeregningsresultatAndel.builder()
-            .medDagsats(1000)
-            .medDagsatsFraBg(1000)
-            .medBrukerErMottaker(true)
-            .medStillingsprosent(new BigDecimal(100))
-            .medInntektskategori(Inntektskategori.ARBEIDSAVKLARINGSPENGER)
-            .medUtbetalingsgrad(new BigDecimal(100))
-            .build(brFPper);
+                .medDagsats(1000)
+                .medDagsatsFraBg(1000)
+                .medBrukerErMottaker(true)
+                .medStillingsprosent(new BigDecimal(100))
+                .medInntektskategori(Inntektskategori.ARBEIDSAVKLARINGSPENGER)
+                .medUtbetalingsgrad(new BigDecimal(100))
+                .build(brFPper);
         repositoryProvider.getBeregningsresultatRepository().lagre(behandling, brFP);
         return behandlingRepository.hentBehandling(behandling.getId());
     }

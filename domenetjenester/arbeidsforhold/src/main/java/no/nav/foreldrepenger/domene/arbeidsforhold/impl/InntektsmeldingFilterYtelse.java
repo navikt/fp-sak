@@ -10,15 +10,20 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 
 public interface InntektsmeldingFilterYtelse {
 
-    /** Returnerer påkrevde inntektsmeldinger etter ytelsesspesifikke vurdering og filtrering */
-    <V> Map<Arbeidsgiver, Set<V>> filtrerInntektsmeldingerForYtelse(BehandlingReferanse referanse, Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
-                                                                    Map<Arbeidsgiver, Set<V>> påkrevde);
+    /**
+     * Returnerer påkrevde inntektsmeldinger etter ytelsesspesifikke vurdering og
+     * filtrering
+     */
+    <V> Map<Arbeidsgiver, Set<V>> filtrerInntektsmeldingerForYtelse(BehandlingReferanse referanse,
+            Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
+            Map<Arbeidsgiver, Set<V>> påkrevde);
 
-    <V> Map<Arbeidsgiver, Set<V>> filtrerInntektsmeldingerForYtelseUtvidet(BehandlingReferanse referanse, Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
-                                                                        Map<Arbeidsgiver, Set<V>> påkrevde);
+    <V> Map<Arbeidsgiver, Set<V>> filtrerInntektsmeldingerForYtelseUtvidet(BehandlingReferanse referanse,
+            Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
+            Map<Arbeidsgiver, Set<V>> påkrevde);
 
     /** Returnerer påkrevde IM etter vurdering av aktive arbeidsforhold. */
     <V> Map<Arbeidsgiver, Set<V>> filtrerInntektsmeldingerForKompletthetAktive(BehandlingReferanse referanse,
-                                                                               Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
-                                                                               Map<Arbeidsgiver, Set<V>> påkrevde);
+            Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
+            Map<Arbeidsgiver, Set<V>> påkrevde);
 }

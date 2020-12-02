@@ -33,7 +33,7 @@ public class RevurderingEndringImpl implements RevurderingEndring {
 
     @Inject
     public RevurderingEndringImpl(BehandlingRepository behandlingRepository,
-                                  LegacyESBeregningRepository beregningRepository) {
+            LegacyESBeregningRepository beregningRepository) {
         this.beregningRepository = beregningRepository;
         this.behandlingRepository = behandlingRepository;
     }
@@ -44,7 +44,7 @@ public class RevurderingEndringImpl implements RevurderingEndring {
             return false;
         }
         Long originalBehandlingId = behandling.getOriginalBehandlingId()
-            .orElseThrow(() -> FeilFactory.create(RevurderingFeil.class).revurderingManglerOriginalBehandling(behandling.getId()).toException());
+                .orElseThrow(() -> FeilFactory.create(RevurderingFeil.class).revurderingManglerOriginalBehandling(behandling.getId()).toException());
         var originalBehandling = behandlingRepository.hentBehandling(originalBehandlingId);
         BehandlingResultatType originalResultatType = getBehandlingsresultat(originalBehandling).getBehandlingResultatType();
 
@@ -61,8 +61,8 @@ public class RevurderingEndringImpl implements RevurderingEndring {
                 return harSammeBeregnetYtelse(nyBeregning.get(), originalBeregning.get());
             } else {
                 throw FeilFactory.create(RevurderingFeil.class)
-                    .behandlingManglerBeregning(originalBeregning.isPresent() ? behandling.getId() : originalBehandlingId)
-                    .toException();
+                        .behandlingManglerBeregning(originalBeregning.isPresent() ? behandling.getId() : originalBehandlingId)
+                        .toException();
             }
         }
         // Begge har utfall AVSLÅTT
@@ -72,7 +72,6 @@ public class RevurderingEndringImpl implements RevurderingEndring {
     private Behandlingsresultat getBehandlingsresultat(Behandling behandling) {
         return behandling.getBehandlingsresultat();
     }
-
 
     @Override
     public boolean erRevurderingMedUendretUtfall(Behandling behandling) {

@@ -13,7 +13,8 @@ public final class TilretteleggingArbeidsforhold {
     private InternArbeidsforholdRef internArbeidsforholdRef;
     private UttakArbeidType uttakArbeidType;
 
-    public TilretteleggingArbeidsforhold(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef internArbeidsforholdRef, UttakArbeidType uttakArbeidType) {
+    public TilretteleggingArbeidsforhold(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef internArbeidsforholdRef,
+            UttakArbeidType uttakArbeidType) {
         this.arbeidsgiver = arbeidsgiver;
         this.internArbeidsforholdRef = Objects.requireNonNull(internArbeidsforholdRef, "internArbeidsforholdRef");
         this.uttakArbeidType = uttakArbeidType;
@@ -33,12 +34,16 @@ public final class TilretteleggingArbeidsforhold {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if ((o == null) || (getClass() != o.getClass())) {
+            return false;
+        }
         TilretteleggingArbeidsforhold that = (TilretteleggingArbeidsforhold) o;
         return Objects.equals(arbeidsgiver, that.arbeidsgiver) &&
-            Objects.equals(internArbeidsforholdRef, that.internArbeidsforholdRef) &&
-            Objects.equals(uttakArbeidType, that.uttakArbeidType);
+                Objects.equals(internArbeidsforholdRef, that.internArbeidsforholdRef) &&
+                Objects.equals(uttakArbeidType, that.uttakArbeidType);
     }
 
     @Override

@@ -18,13 +18,14 @@ public class OppgittUtenlandskVirksomhet implements IndexKey, Serializable {
     private String utenlandskVirksomhetNavn;
 
     public OppgittUtenlandskVirksomhet() {
-        //hibernate
+        // hibernate
     }
 
     public OppgittUtenlandskVirksomhet(Landkoder landkode, String utenlandskVirksomhetNavn) {
-        this.landkode = landkode == null? Landkoder.NOR : landkode;
+        this.landkode = landkode == null ? Landkoder.NOR : landkode;
         this.utenlandskVirksomhetNavn = utenlandskVirksomhetNavn;
     }
+
     @Override
     public String getIndexKey() {
         return IndexKey.createKey(utenlandskVirksomhetNavn, landkode);

@@ -30,11 +30,12 @@ public class AksjonspunktutlederTilbaketrekk implements AksjonspunktUtleder {
 
     @Inject
     public AksjonspunktutlederTilbaketrekk(BeregningsresultatTidslinjetjeneste beregningsresultatTidslinjetjeneste,
-                                           InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
+            InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
         this.beregningsresultatTidslinjetjeneste = beregningsresultatTidslinjetjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
     }
 
+    @Override
     public List<AksjonspunktResultat> utledAksjonspunkterFor(AksjonspunktUtlederInput param) {
         List<AksjonspunktResultat> aksjonspunktResultater = new ArrayList<>();
 
@@ -47,15 +48,15 @@ public class AksjonspunktutlederTilbaketrekk implements AksjonspunktUtleder {
     }
 
     private boolean skalVurdereTilbaketrekk(BehandlingReferanse ref, Collection<Yrkesaktivitet> yrkesaktiviteter) {
-        LocalDateTimeline<BRAndelSammenligning> brAndelTidslinje =  beregningsresultatTidslinjetjeneste.lagTidslinjeForRevurdering(ref);
+        LocalDateTimeline<BRAndelSammenligning> brAndelTidslinje = beregningsresultatTidslinjetjeneste.lagTidslinjeForRevurdering(ref);
         return VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(brAndelTidslinje, yrkesaktiviteter, ref.getUtledetSkjæringstidspunkt());
     }
 
-
     private Collection<Yrkesaktivitet> finnYrkesaktiviteter(AksjonspunktUtlederInput param) {
-        Optional<AktørArbeid> aktørArbeidFraRegister = inntektArbeidYtelseTjeneste.hentGrunnlag(param.getBehandlingId()).getAktørArbeidFraRegister(param.getAktørId());
+        Optional<AktørArbeid> aktørArbeidFraRegister = inntektArbeidYtelseTjeneste.hentGrunnlag(param.getBehandlingId())
+                .getAktørArbeidFraRegister(param.getAktørId());
         return aktørArbeidFraRegister
-            .map(AktørArbeid::hentAlleYrkesaktiviteter)
-            .orElse(Collections.emptyList());
+                .map(AktørArbeid::hentAlleYrkesaktiviteter)
+                .orElse(Collections.emptyList());
     }
 }

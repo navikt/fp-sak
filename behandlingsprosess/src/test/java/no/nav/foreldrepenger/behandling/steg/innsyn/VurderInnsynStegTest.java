@@ -35,9 +35,9 @@ public class VurderInnsynStegTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_liste_ut_aksjonspunktet_for_vurder_innsyn(){
+    public void skal_liste_ut_aksjonspunktet_for_vurder_innsyn() {
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
-            .medBruker(AKTØR_ID_MOR, NavBrukerKjønn.KVINNE);
+                .medBruker(AKTØR_ID_MOR, NavBrukerKjønn.KVINNE);
 
         scenario.medSøknad();
         Behandling behandling = scenario.lagre(repositoryProvider);
@@ -45,7 +45,7 @@ public class VurderInnsynStegTest extends EntityManagerAwareTest {
         // Act
         BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
         Fagsak fagsak = behandling.getFagsak();
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(),fagsak.getAktørId(), lås);
+        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
         BehandleStegResultat resultat = steg.utførSteg(kontekst);
         assertThat(resultat.getAksjonspunktListe()).containsOnly(AksjonspunktDefinisjon.VURDER_INNSYN);
     }

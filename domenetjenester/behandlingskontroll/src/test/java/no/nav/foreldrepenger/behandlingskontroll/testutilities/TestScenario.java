@@ -12,7 +12,7 @@ public class TestScenario extends AbstractTestScenario<TestScenario> {
     private TestScenario(FagsakYtelseType ytelseType) {
         super(ytelseType, RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE);
     }
-    
+
     public static TestScenario forYtelseType(FagsakYtelseType ytelseType) {
         return new TestScenario(ytelseType);
     }

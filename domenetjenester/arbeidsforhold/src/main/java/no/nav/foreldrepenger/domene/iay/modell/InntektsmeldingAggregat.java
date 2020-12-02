@@ -42,9 +42,11 @@ public class InntektsmeldingAggregat extends BaseEntitet {
 
     /**
      * Alle gjeldende inntektsmeldinger i behandlingen (de som skal brukes)
+     *
      * @return Liste med {@link Inntektsmelding}
      *
-     *Merk denne filtrerer inntektsmeldinger ifht hva som skal brukes. */
+     *         Merk denne filtrerer inntektsmeldinger ifht hva som skal brukes.
+     */
     public List<Inntektsmelding> getInntektsmeldingerSomSkalBrukes() {
         return inntektsmeldinger.stream().filter(this::skalBrukes).collect(Collectors.toUnmodifiableList());
     }
@@ -55,21 +57,22 @@ public class InntektsmeldingAggregat extends BaseEntitet {
     }
 
     private boolean skalBrukes(Inntektsmelding im) {
-        return arbeidsforholdInformasjon == null || arbeidsforholdInformasjon.getOverstyringer()
-            .stream()
-            .noneMatch(ov -> erFjernet(im, ov));
+        return (arbeidsforholdInformasjon == null) || arbeidsforholdInformasjon.getOverstyringer()
+                .stream()
+                .noneMatch(ov -> erFjernet(im, ov));
     }
 
     private boolean erFjernet(Inntektsmelding im, ArbeidsforholdOverstyring ov) {
         return (ov.getArbeidsforholdRef().equals(im.getArbeidsforholdRef()))
-            && ov.getArbeidsgiver().equals(im.getArbeidsgiver())
-            && (Objects.equals(IKKE_BRUK, ov.getHandling())
-            || Objects.equals(SLÅTT_SAMMEN_MED_ANNET, ov.getHandling())
-            || ov.kreverIkkeInntektsmelding());
+                && ov.getArbeidsgiver().equals(im.getArbeidsgiver())
+                && (Objects.equals(IKKE_BRUK, ov.getHandling())
+                        || Objects.equals(SLÅTT_SAMMEN_MED_ANNET, ov.getHandling())
+                        || ov.kreverIkkeInntektsmelding());
     }
 
     /**
      * Alle gjeldende inntektsmeldinger for en virksomhet i behandlingen.
+     *
      * @return Liste med {@link Inntektsmelding}
      */
     public List<Inntektsmelding> getInntektsmeldingerFor(Arbeidsgiver arbeidsgiver) {
@@ -89,8 +92,9 @@ public class InntektsmeldingAggregat extends BaseEntitet {
             inntektsmeldinger.add(entitet);
         }
 
-        inntektsmeldinger.stream().filter(it -> it.gjelderSammeArbeidsforhold(inntektsmelding) && !fjernet).findFirst().ifPresent(e ->
-            logger.info("Persistert inntektsmelding med journalpostid {} er nyere enn den mottatte med journalpostid {}. Ignoreres", e.getJournalpostId(), inntektsmelding.getJournalpostId()));
+        inntektsmeldinger.stream().filter(it -> it.gjelderSammeArbeidsforhold(inntektsmelding) && !fjernet).findFirst().ifPresent(
+                e -> logger.info("Persistert inntektsmelding med journalpostid {} er nyere enn den mottatte med journalpostid {}. Ignoreres",
+                        e.getJournalpostId(), inntektsmelding.getJournalpostId()));
     }
 
     public void fjern(Inntektsmelding inntektsmelding) {
@@ -100,8 +104,8 @@ public class InntektsmeldingAggregat extends BaseEntitet {
     private boolean skalFjerneInntektsmelding(Inntektsmelding gammel, Inntektsmelding ny) {
         if (gammel.gjelderSammeArbeidsforhold(ny)) {
             if (ALTINN_SYSTEM_NAVN.equals(gammel.getKildesystem()) || ALTINN_SYSTEM_NAVN.equals(ny.getKildesystem())) {
-                // WTF?  Hvorfor trengs ALTINN å spesialbehandles?
-                if (gammel.getKanalreferanse() != null && ny.getKanalreferanse() != null) {
+                // WTF? Hvorfor trengs ALTINN å spesialbehandles?
+                if ((gammel.getKanalreferanse() != null) && (ny.getKanalreferanse() != null)) {
                     // skummelt å stole på stigende arkivreferanser fra Altinn. :-(
                     return ny.getKanalreferanse().compareTo(gammel.getKanalreferanse()) > 0;
                 }
@@ -109,7 +113,7 @@ public class InntektsmeldingAggregat extends BaseEntitet {
             if (gammel.getInnsendingstidspunkt().isBefore(ny.getInnsendingstidspunkt())) {
                 return true;
             }
-            if (gammel.getInnsendingstidspunkt().equals(ny.getInnsendingstidspunkt()) && ny.getKanalreferanse() != null) {
+            if (gammel.getInnsendingstidspunkt().equals(ny.getInnsendingstidspunkt()) && (ny.getKanalreferanse() != null)) {
                 if (gammel.getKanalreferanse() != null) {
                     // skummelt å stole på stigende arkivreferanser fra Altinn. :-(
                     return ny.getKanalreferanse().compareTo(gammel.getKanalreferanse()) > 0;
@@ -126,8 +130,12 @@ public class InntektsmeldingAggregat extends BaseEntitet {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || !(o instanceof InntektsmeldingAggregat)) return false;
+        if (this == o) {
+            return true;
+        }
+        if ((o == null) || !(o instanceof InntektsmeldingAggregat)) {
+            return false;
+        }
         InntektsmeldingAggregat that = (InntektsmeldingAggregat) o;
         return Objects.equals(inntektsmeldinger, that.inntektsmeldinger);
     }

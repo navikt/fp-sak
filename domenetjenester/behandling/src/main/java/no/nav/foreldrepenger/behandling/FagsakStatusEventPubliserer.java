@@ -29,11 +29,11 @@ public class FagsakStatusEventPubliserer {
     }
 
     public void fireEvent(Fagsak fagsak, Behandling behandling, FagsakStatus gammelStatusIn, FagsakStatus nyStatusIn) {
-        if ((gammelStatusIn == null && nyStatusIn == null) // NOSONAR
-            || Objects.equals(gammelStatusIn, nyStatusIn)) { // NOSONAR
+        if (((gammelStatusIn == null) && (nyStatusIn == null)) // NOSONAR
+                || Objects.equals(gammelStatusIn, nyStatusIn)) { // NOSONAR
             // gjør ingenting
             return;
-        } else if (gammelStatusIn == null && nyStatusIn != null) {// NOSONAR
+        } else if ((gammelStatusIn == null) && (nyStatusIn != null)) {// NOSONAR
             log.info("Fagsak status opprettet: id [{}]; type [{}];", fagsak.getId(), fagsak.getYtelseType());
         } else {
             Long fagsakId = fagsak.getId();
@@ -42,7 +42,7 @@ public class FagsakStatusEventPubliserer {
 
             if (behandling != null) {
                 log.info("Fagsak status oppdatert: {} -> {}; fagsakId [{}] behandlingId [{}]", gammelStatus, nyStatus, fagsakId, //$NON-NLS-1$
-                    behandling.getId());
+                        behandling.getId());
             } else {
                 log.info("Fagsak status oppdatert: {} -> {}; fagsakId [{}]", gammelStatus, nyStatus, fagsakId); //$NON-NLS-1$
             }

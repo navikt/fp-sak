@@ -21,8 +21,7 @@ public enum Arbeidskategori implements Kodeverdi {
     FISKER("FISKER", "Selvstendig næringsdrivende - Fisker"),
     ARBEIDSTAKER("ARBEIDSTAKER", "Arbeidstaker"),
     SELVSTENDIG_NÆRINGSDRIVENDE("SELVSTENDIG_NÆRINGSDRIVENDE", "Selvstendig næringsdrivende"),
-    KOMBINASJON_ARBEIDSTAKER_OG_SELVSTENDIG_NÆRINGSDRIVENDE("KOMBINASJON_ARBEIDSTAKER_OG_SELVSTENDIG_NÆRINGSDRIVENDE",
-            "Kombinasjon arbeidstaker og selvstendig næringsdrivende"),
+    KOMBINASJON_ARBEIDSTAKER_OG_SELVSTENDIG_NÆRINGSDRIVENDE("KOMBINASJON_ARBEIDSTAKER_OG_SELVSTENDIG_NÆRINGSDRIVENDE", "Kombinasjon arbeidstaker og selvstendig næringsdrivende"),
     SJØMANN("SJØMANN", "Arbeidstaker - sjømann"),
     JORDBRUKER("JORDBRUKER", "Selvstendig næringsdrivende - Jordbruker"),
     DAGPENGER("DAGPENGER", "Tilstøtende ytelse - dagpenger"),
@@ -95,6 +94,5 @@ public enum Arbeidskategori implements Kodeverdi {
     public String getKode() {
         return kode;
     }
-
 
 }

@@ -24,7 +24,10 @@ import no.nav.foreldrepenger.ytelse.beregning.BeregnFeriepengerTjeneste;
 import no.nav.foreldrepenger.ytelse.beregning.BeregnYtelseTjeneste;
 import no.nav.foreldrepenger.ytelse.beregning.FinnEndringsdatoBeregningsresultatTjeneste;
 
-/** Felles steg for å beregne tilkjent ytelse for foreldrepenger og svangerskapspenger (ikke engangsstønad) */
+/**
+ * Felles steg for å beregne tilkjent ytelse for foreldrepenger og
+ * svangerskapspenger (ikke engangsstønad)
+ */
 
 @BehandlingStegRef(kode = "BERYT")
 @BehandlingTypeRef
@@ -45,10 +48,10 @@ public class BeregneYtelseStegImpl implements BeregneYtelseSteg {
 
     @Inject
     public BeregneYtelseStegImpl(BehandlingRepository behandlingRepository,
-                                 BeregningsresultatRepository beregningsresultatRepository,
-                                 @Any Instance<BeregnFeriepengerTjeneste> beregnFeriepengerTjeneste,
-                                 @Any Instance<FinnEndringsdatoBeregningsresultatTjeneste> finnEndringsdatoBeregningsresultatTjeneste,
-                                 BeregnYtelseTjeneste beregnYtelseTjeneste) {
+            BeregningsresultatRepository beregningsresultatRepository,
+            @Any Instance<BeregnFeriepengerTjeneste> beregnFeriepengerTjeneste,
+            @Any Instance<FinnEndringsdatoBeregningsresultatTjeneste> finnEndringsdatoBeregningsresultatTjeneste,
+            BeregnYtelseTjeneste beregnYtelseTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.beregningsresultatRepository = beregningsresultatRepository;
         this.finnEndringsdatoBeregningsresultatTjeneste = finnEndringsdatoBeregningsresultatTjeneste;
@@ -71,8 +74,9 @@ public class BeregneYtelseStegImpl implements BeregneYtelseSteg {
 
         // Sett endringsdato
         if (behandling.erRevurdering()) {
-            var endringsdatoBeregningsresultatTjeneste = FagsakYtelseTypeRef.Lookup.find(finnEndringsdatoBeregningsresultatTjeneste, ref.getFagsakYtelseType())
-                .orElseThrow();
+            var endringsdatoBeregningsresultatTjeneste = FagsakYtelseTypeRef.Lookup
+                    .find(finnEndringsdatoBeregningsresultatTjeneste, ref.getFagsakYtelseType())
+                    .orElseThrow();
             Optional<LocalDate> endringsDato = endringsdatoBeregningsresultatTjeneste.finnEndringsdato(behandling, beregningsresultat);
             endringsDato.ifPresent(endringsdato -> BeregningsresultatEntitet.builder(beregningsresultat).medEndringsdato(endringsdato));
         }
@@ -84,7 +88,8 @@ public class BeregneYtelseStegImpl implements BeregneYtelseSteg {
     }
 
     @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg, BehandlingStegType fraSteg) {
+    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
+            BehandlingStegType fraSteg) {
         Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         beregningsresultatRepository.deaktiverBeregningsresultat(behandling.getId(), kontekst.getSkriveLås());
     }

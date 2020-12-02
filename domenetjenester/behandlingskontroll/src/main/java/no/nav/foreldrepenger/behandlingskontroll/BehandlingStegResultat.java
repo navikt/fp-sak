@@ -16,8 +16,9 @@ public enum BehandlingStegResultat {
     STARTET,
 
     /**
-     * Signaliser at steget settes på vent. Ingenting pågår mens det står på vent, og det må 'vekkes' opp igjen ved en
-     * handling (Saksbehandler), en melding mottas, elleren prosesstask.
+     * Signaliser at steget settes på vent. Ingenting pågår mens det står på vent,
+     * og det må 'vekkes' opp igjen ved en handling (Saksbehandler), en melding
+     * mottas, elleren prosesstask.
      */
     SETT_PÅ_VENT,
 
@@ -27,7 +28,8 @@ public enum BehandlingStegResultat {
     UTFØRT,
 
     /**
-     * Signaliser at steget er avbrutt og tidligere behandlingssteg skal kjøres på nytt
+     * Signaliser at steget er avbrutt og tidligere behandlingssteg skal kjøres på
+     * nytt
      */
     TILBAKEFØRT,
 
@@ -37,16 +39,15 @@ public enum BehandlingStegResultat {
     FREMOVERFØRT;
 
     private static final Map<BehandlingStegResultat, BehandlingStegStatus> MAP_HANDLING_STATUS = Map.ofEntries(
-        Map.entry(BehandlingStegResultat.STARTET, BehandlingStegStatus.STARTET),
-        Map.entry(BehandlingStegResultat.SETT_PÅ_VENT, BehandlingStegStatus.VENTER),
-        Map.entry(BehandlingStegResultat.UTFØRT, BehandlingStegStatus.UTFØRT),
-        Map.entry(BehandlingStegResultat.FREMOVERFØRT, BehandlingStegStatus.FREMOVERFØRT),
-        Map.entry(BehandlingStegResultat.TILBAKEFØRT, BehandlingStegStatus.TILBAKEFØRT)
-    );
+            Map.entry(BehandlingStegResultat.STARTET, BehandlingStegStatus.STARTET),
+            Map.entry(BehandlingStegResultat.SETT_PÅ_VENT, BehandlingStegStatus.VENTER),
+            Map.entry(BehandlingStegResultat.UTFØRT, BehandlingStegStatus.UTFØRT),
+            Map.entry(BehandlingStegResultat.FREMOVERFØRT, BehandlingStegStatus.FREMOVERFØRT),
+            Map.entry(BehandlingStegResultat.TILBAKEFØRT, BehandlingStegStatus.TILBAKEFØRT));
 
     static BehandlingStegStatus mapTilStatus(BehandlingStegResultat behandleStegHandling) {
-        return Optional.ofNullable(MAP_HANDLING_STATUS.get(behandleStegHandling)).orElseThrow(() ->
-            new IllegalArgumentException("Utvikler-feil: ukjent mapping fra " + BehandlingStegResultat.class.getSimpleName() + "." + behandleStegHandling));
+        return Optional.ofNullable(MAP_HANDLING_STATUS.get(behandleStegHandling)).orElseThrow(() -> new IllegalArgumentException(
+                "Utvikler-feil: ukjent mapping fra " + BehandlingStegResultat.class.getSimpleName() + "." + behandleStegHandling));
 
     }
 }

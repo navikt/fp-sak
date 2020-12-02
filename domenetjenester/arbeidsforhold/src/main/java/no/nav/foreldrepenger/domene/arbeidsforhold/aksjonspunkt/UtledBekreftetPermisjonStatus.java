@@ -4,13 +4,13 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus
 
 final class UtledBekreftetPermisjonStatus {
 
-    private UtledBekreftetPermisjonStatus(){
+    private UtledBekreftetPermisjonStatus() {
         // Skjul empty constructor
     }
 
     static BekreftetPermisjonStatus utled(ArbeidsforholdDto arbeidsforholdDto) {
         BekreftetPermisjonStatus status = BekreftetPermisjonStatus.UDEFINERT;
-        if (arbeidsforholdDto.getPermisjoner().size() > 1){
+        if (arbeidsforholdDto.getPermisjoner().size() > 1) {
             return BekreftetPermisjonStatus.UGYLDIGE_PERIODER;
         }
         if (Boolean.TRUE.equals(arbeidsforholdDto.getBrukPermisjon())) {

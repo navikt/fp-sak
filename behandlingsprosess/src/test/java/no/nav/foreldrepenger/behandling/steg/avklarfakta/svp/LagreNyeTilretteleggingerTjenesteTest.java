@@ -33,26 +33,26 @@ public class LagreNyeTilretteleggingerTjenesteTest extends EntityManagerAwareTes
     }
 
     @Test
-    public void skal_lagre_nye_tilrettelegginger_og_beholde_de_opprinnelige_unleash_enabled(){
+    public void skal_lagre_nye_tilrettelegginger_og_beholde_de_opprinnelige_unleash_enabled() {
 
         // Arrange
         var behandling = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger().lagre(repositoryProvider);
 
         var gammeltGrunnlag = new SvpGrunnlagEntitet.Builder()
-            .medOpprinneligeTilrettelegginger(List.of(new SvpTilretteleggingEntitet.Builder()
-                .medBehovForTilretteleggingFom(LocalDate.of(2019,8,1))
-                .medMottattTidspunkt(LocalDateTime.of(LocalDate.of(2019, 4, 1), LocalTime.MIDNIGHT))
-                .medKopiertFraTidligereBehandling(false)
-                .build()))
-            .medOverstyrteTilrettelegginger(List.of())
-            .medBehandlingId(behandling.getId()).build();
+                .medOpprinneligeTilrettelegginger(List.of(new SvpTilretteleggingEntitet.Builder()
+                        .medBehovForTilretteleggingFom(LocalDate.of(2019, 8, 1))
+                        .medMottattTidspunkt(LocalDateTime.of(LocalDate.of(2019, 4, 1), LocalTime.MIDNIGHT))
+                        .medKopiertFraTidligereBehandling(false)
+                        .build()))
+                .medOverstyrteTilrettelegginger(List.of())
+                .medBehandlingId(behandling.getId()).build();
         svangerskapspengerRepository.lagreOgFlush(gammeltGrunnlag);
 
         var overstyrtTilrettelegging = new SvpTilretteleggingEntitet.Builder()
-            .medBehovForTilretteleggingFom(LocalDate.of(2019,8,1))
-            .medMottattTidspunkt(LocalDateTime.of(LocalDate.of(2019, 4, 1), LocalTime.MIDNIGHT))
-            .medKopiertFraTidligereBehandling(false)
-            .build();
+                .medBehovForTilretteleggingFom(LocalDate.of(2019, 8, 1))
+                .medMottattTidspunkt(LocalDateTime.of(LocalDate.of(2019, 4, 1), LocalTime.MIDNIGHT))
+                .medKopiertFraTidligereBehandling(false)
+                .build();
 
         // Act
         lagreNyeTilretteleggingerTjeneste.lagre(behandling, List.of(overstyrtTilrettelegging));

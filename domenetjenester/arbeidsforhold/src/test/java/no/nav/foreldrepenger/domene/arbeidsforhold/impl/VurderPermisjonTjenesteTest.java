@@ -50,7 +50,7 @@ public class VurderPermisjonTjenesteTest {
     private IAYRepositoryProvider repositoryProvider;
 
     @BeforeEach
-    void setUp(EntityManager entityManager){
+    void setUp(EntityManager entityManager) {
         repositoryProvider = new IAYRepositoryProvider(entityManager);
     }
 
@@ -71,10 +71,10 @@ public class VurderPermisjonTjenesteTest {
         Permisjon permisjon_2 = byggPermisjon(yaBuilder, SKJÆRINGSTIDSPUNKT.minusDays(1), SKJÆRINGSTIDSPUNKT);
         Permisjon permisjon_3 = byggPermisjon(yaBuilder, SKJÆRINGSTIDSPUNKT.plusDays(1), TIDENES_ENDE);
         YrkesaktivitetBuilder yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder, aa,
-            arbeidsgiver, ref, List.of(permisjon_1, permisjon_2, permisjon_3));
+                arbeidsgiver, ref, List.of(permisjon_1, permisjon_2, permisjon_3));
 
         InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
-            List.of(yrkesaktivitet_1));
+                List.of(yrkesaktivitet_1));
 
         ArbeidsforholdInformasjonBuilder informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
         ArbeidsforholdOverstyringBuilder overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, ref);
@@ -111,14 +111,14 @@ public class VurderPermisjonTjenesteTest {
         AktivitetsAvtaleBuilder aa = lagAktivitetsAvtaleBuilder(yaBuilder, fom, tom);
         Permisjon permisjon = byggPermisjon(yaBuilder, fom, tom);
         YrkesaktivitetBuilder ya = lagYrkesaktivitetBuilder(yaBuilder, aa,
-            arbeidsgiver, ref, List.of(permisjon));
+                arbeidsgiver, ref, List.of(permisjon));
 
         InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
-            List.of(ya));
+                List.of(ya));
 
         ArbeidsforholdInformasjonBuilder informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
         ArbeidsforholdOverstyringBuilder overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, ref)
-            .medBekreftetPermisjon(new BekreftetPermisjon(fom, tom, BekreftetPermisjonStatus.BRUK_PERMISJON));
+                .medBekreftetPermisjon(new BekreftetPermisjon(fom, tom, BekreftetPermisjonStatus.BRUK_PERMISJON));
         informasjonBuilder.leggTil(overstyringBuilder);
 
         InntektArbeidYtelseGrunnlag grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
@@ -148,14 +148,14 @@ public class VurderPermisjonTjenesteTest {
         YrkesaktivitetBuilder yaBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
         AktivitetsAvtaleBuilder aa = lagAktivitetsAvtaleBuilder(yaBuilder, fom, tom);
         YrkesaktivitetBuilder ya = lagYrkesaktivitetBuilder(yaBuilder, aa,
-            arbeidsgiver, ref, List.of());
+                arbeidsgiver, ref, List.of());
 
         InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
-            List.of(ya));
+                List.of(ya));
 
         ArbeidsforholdInformasjonBuilder informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
         ArbeidsforholdOverstyringBuilder overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, ref)
-            .medBekreftetPermisjon(new BekreftetPermisjon(fom, tom, BekreftetPermisjonStatus.BRUK_PERMISJON));
+                .medBekreftetPermisjon(new BekreftetPermisjon(fom, tom, BekreftetPermisjonStatus.BRUK_PERMISJON));
         informasjonBuilder.leggTil(overstyringBuilder);
 
         InntektArbeidYtelseGrunnlag grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
@@ -187,14 +187,14 @@ public class VurderPermisjonTjenesteTest {
         Permisjon permisjon_1 = byggPermisjon(yaBuilder, fom, tom);
         Permisjon permisjon_2 = byggPermisjon(yaBuilder, fom.minusDays(1), tom.plusDays(1));
         YrkesaktivitetBuilder yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder, aa,
-            arbeidsgiver, ref, List.of(permisjon_1, permisjon_2));
+                arbeidsgiver, ref, List.of(permisjon_1, permisjon_2));
 
         InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
-            List.of(yrkesaktivitet_1));
+                List.of(yrkesaktivitet_1));
 
         ArbeidsforholdInformasjonBuilder informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
         ArbeidsforholdOverstyringBuilder overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, ref)
-            .medBekreftetPermisjon(new BekreftetPermisjon(BekreftetPermisjonStatus.UGYLDIGE_PERIODER));
+                .medBekreftetPermisjon(new BekreftetPermisjon(BekreftetPermisjonStatus.UGYLDIGE_PERIODER));
         informasjonBuilder.leggTil(overstyringBuilder);
 
         InntektArbeidYtelseGrunnlag grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
@@ -225,14 +225,14 @@ public class VurderPermisjonTjenesteTest {
         Permisjon permisjon_2 = byggPermisjon(yaBuilder, SKJÆRINGSTIDSPUNKT.minusDays(1), SKJÆRINGSTIDSPUNKT);
         Permisjon permisjon_3 = byggPermisjon(yaBuilder, SKJÆRINGSTIDSPUNKT.plusDays(1), TIDENES_ENDE);
         YrkesaktivitetBuilder yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder, aa,
-            arbeidsgiver, ref, List.of(permisjon_1, permisjon_2, permisjon_3));
+                arbeidsgiver, ref, List.of(permisjon_1, permisjon_2, permisjon_3));
 
         InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
-            List.of(yrkesaktivitet_1));
+                List.of(yrkesaktivitet_1));
 
         ArbeidsforholdInformasjonBuilder informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
         ArbeidsforholdOverstyringBuilder overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, ref)
-            .medBekreftetPermisjon(new BekreftetPermisjon(BekreftetPermisjonStatus.UGYLDIGE_PERIODER));
+                .medBekreftetPermisjon(new BekreftetPermisjon(BekreftetPermisjonStatus.UGYLDIGE_PERIODER));
         informasjonBuilder.leggTil(overstyringBuilder);
 
         InntektArbeidYtelseGrunnlag grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
@@ -266,14 +266,14 @@ public class VurderPermisjonTjenesteTest {
         AktivitetsAvtaleBuilder aa = lagAktivitetsAvtaleBuilder(yaBuilder, fom, tom);
         Permisjon permisjon_1 = byggPermisjon(yaBuilder, fom, tom);
         YrkesaktivitetBuilder yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder, aa,
-            arbeidsgiver, ref, List.of(permisjon_1));
+                arbeidsgiver, ref, List.of(permisjon_1));
 
         InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
-            List.of(yrkesaktivitet_1));
+                List.of(yrkesaktivitet_1));
 
         ArbeidsforholdInformasjonBuilder informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
         ArbeidsforholdOverstyringBuilder overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, ref)
-            .medBekreftetPermisjon(new BekreftetPermisjon(fom, tom, BekreftetPermisjonStatus.BRUK_PERMISJON));
+                .medBekreftetPermisjon(new BekreftetPermisjon(fom, tom, BekreftetPermisjonStatus.BRUK_PERMISJON));
         informasjonBuilder.leggTil(overstyringBuilder);
 
         InntektArbeidYtelseGrunnlag grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
@@ -304,14 +304,14 @@ public class VurderPermisjonTjenesteTest {
         AktivitetsAvtaleBuilder aa = lagAktivitetsAvtaleBuilder(yaBuilder, fom, tom);
         Permisjon permisjon_1 = byggPermisjon(yaBuilder, fom, tom);
         YrkesaktivitetBuilder yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder, aa,
-            arbeidsgiver, ref, List.of(permisjon_1));
+                arbeidsgiver, ref, List.of(permisjon_1));
 
         InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
-            List.of(yrkesaktivitet_1));
+                List.of(yrkesaktivitet_1));
 
         ArbeidsforholdInformasjonBuilder informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
         ArbeidsforholdOverstyringBuilder overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, ref)
-            .medBekreftetPermisjon(new BekreftetPermisjon(fom.minusDays(1), tom, BekreftetPermisjonStatus.BRUK_PERMISJON));
+                .medBekreftetPermisjon(new BekreftetPermisjon(fom.minusDays(1), tom, BekreftetPermisjonStatus.BRUK_PERMISJON));
         informasjonBuilder.leggTil(overstyringBuilder);
 
         InntektArbeidYtelseGrunnlag grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
@@ -345,14 +345,14 @@ public class VurderPermisjonTjenesteTest {
         AktivitetsAvtaleBuilder aa = lagAktivitetsAvtaleBuilder(yaBuilder, fom, tom);
         Permisjon permisjon_1 = byggPermisjon(yaBuilder, fom, tom);
         YrkesaktivitetBuilder yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder, aa,
-            arbeidsgiver, ref, List.of(permisjon_1));
+                arbeidsgiver, ref, List.of(permisjon_1));
 
         InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
-            List.of(yrkesaktivitet_1));
+                List.of(yrkesaktivitet_1));
 
         ArbeidsforholdInformasjonBuilder informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
         ArbeidsforholdOverstyringBuilder overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, ref)
-            .medBekreftetPermisjon(new BekreftetPermisjon(fom, tom.plusDays(1), BekreftetPermisjonStatus.BRUK_PERMISJON));
+                .medBekreftetPermisjon(new BekreftetPermisjon(fom, tom.plusDays(1), BekreftetPermisjonStatus.BRUK_PERMISJON));
         informasjonBuilder.leggTil(overstyringBuilder);
 
         InntektArbeidYtelseGrunnlag grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
@@ -386,7 +386,7 @@ public class VurderPermisjonTjenesteTest {
         AktivitetsAvtaleBuilder aa_1 = lagAktivitetsAvtaleBuilder(yaBuilder_1, fom, tom);
         Permisjon permisjon_1 = byggPermisjon(yaBuilder_1, fom, tom);
         YrkesaktivitetBuilder yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder_1, aa_1,
-            arbeidsgiver_1, ref_1, List.of(permisjon_1));
+                arbeidsgiver_1, ref_1, List.of(permisjon_1));
 
         Arbeidsgiver arbeidsgiver_2 = Arbeidsgiver.virksomhet("2");
         InternArbeidsforholdRef ref_2 = InternArbeidsforholdRef.nyRef();
@@ -394,14 +394,14 @@ public class VurderPermisjonTjenesteTest {
         AktivitetsAvtaleBuilder aa_2 = lagAktivitetsAvtaleBuilder(yaBuilder_2, fom, tom);
         Permisjon permisjon_2 = byggPermisjon(yaBuilder_2, fom, tom);
         YrkesaktivitetBuilder yrkesaktivitet_2 = lagYrkesaktivitetBuilder(yaBuilder_2, aa_2,
-            arbeidsgiver_2, ref_2, List.of(permisjon_2));
+                arbeidsgiver_2, ref_2, List.of(permisjon_2));
 
         InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
-            List.of(yrkesaktivitet_1, yrkesaktivitet_2));
+                List.of(yrkesaktivitet_1, yrkesaktivitet_2));
 
         ArbeidsforholdInformasjonBuilder informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
         ArbeidsforholdOverstyringBuilder overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver_2, ref_2)
-            .medBekreftetPermisjon(new BekreftetPermisjon(fom, tom.plusDays(1), BekreftetPermisjonStatus.BRUK_PERMISJON));
+                .medBekreftetPermisjon(new BekreftetPermisjon(fom, tom.plusDays(1), BekreftetPermisjonStatus.BRUK_PERMISJON));
         informasjonBuilder.leggTil(overstyringBuilder);
 
         InntektArbeidYtelseGrunnlag grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
@@ -438,7 +438,7 @@ public class VurderPermisjonTjenesteTest {
         AktivitetsAvtaleBuilder aa_1 = lagAktivitetsAvtaleBuilder(yaBuilder_1, fom, tom);
         Permisjon permisjon_1 = byggPermisjon(yaBuilder_1, fom, tom);
         YrkesaktivitetBuilder yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder_1, aa_1,
-            arbeidsgiver_1, ref_1, List.of(permisjon_1));
+                arbeidsgiver_1, ref_1, List.of(permisjon_1));
 
         Arbeidsgiver arbeidsgiver_2 = Arbeidsgiver.virksomhet("2");
         InternArbeidsforholdRef ref_2 = InternArbeidsforholdRef.nyRef();
@@ -447,14 +447,14 @@ public class VurderPermisjonTjenesteTest {
         Permisjon permisjon_2 = byggPermisjon(yaBuilder_2, fom, tom);
         Permisjon permisjon_3 = byggPermisjon(yaBuilder_2, fom.minusDays(1), tom.plusDays(1));
         YrkesaktivitetBuilder yrkesaktivitet_2 = lagYrkesaktivitetBuilder(yaBuilder_2, aa_2,
-            arbeidsgiver_2, ref_2, List.of(permisjon_2, permisjon_3));
+                arbeidsgiver_2, ref_2, List.of(permisjon_2, permisjon_3));
 
         InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
-            List.of(yrkesaktivitet_1, yrkesaktivitet_2));
+                List.of(yrkesaktivitet_1, yrkesaktivitet_2));
 
         ArbeidsforholdInformasjonBuilder informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
         ArbeidsforholdOverstyringBuilder overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver_2, ref_2)
-            .medBekreftetPermisjon(new BekreftetPermisjon(BekreftetPermisjonStatus.UGYLDIGE_PERIODER));
+                .medBekreftetPermisjon(new BekreftetPermisjon(BekreftetPermisjonStatus.UGYLDIGE_PERIODER));
         informasjonBuilder.leggTil(overstyringBuilder);
 
         InntektArbeidYtelseGrunnlag grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
@@ -471,54 +471,55 @@ public class VurderPermisjonTjenesteTest {
 
     }
 
-    private InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder lagAktørArbeidBuilder(Behandling behandling, List<YrkesaktivitetBuilder> yrkesaktiviteter) {
+    private InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder lagAktørArbeidBuilder(Behandling behandling,
+            List<YrkesaktivitetBuilder> yrkesaktiviteter) {
         InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder
-            .oppdatere(Optional.empty()).medAktørId(behandling.getAktørId());
+                .oppdatere(Optional.empty()).medAktørId(behandling.getAktørId());
         yrkesaktiviteter.forEach(aktørArbeidBuilder::leggTilYrkesaktivitet);
         return aktørArbeidBuilder;
     }
 
     private InntektArbeidYtelseGrunnlag lagGrunnlag(InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder,
-                                                    Optional<ArbeidsforholdInformasjon> arbeidsforholdInformasjonOpt) {
+            Optional<ArbeidsforholdInformasjon> arbeidsforholdInformasjonOpt) {
         InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder = InntektArbeidYtelseAggregatBuilder
-            .oppdatere(Optional.empty(), VersjonType.REGISTER)
-            .leggTilAktørArbeid(aktørArbeidBuilder);
+                .oppdatere(Optional.empty(), VersjonType.REGISTER)
+                .leggTilAktørArbeid(aktørArbeidBuilder);
         InntektArbeidYtelseGrunnlagBuilder inntektArbeidYtelseGrunnlagBuilder = InntektArbeidYtelseGrunnlagBuilder.nytt()
-            .medData(inntektArbeidYtelseAggregatBuilder);
+                .medData(inntektArbeidYtelseAggregatBuilder);
         arbeidsforholdInformasjonOpt.ifPresent(inntektArbeidYtelseGrunnlagBuilder::medInformasjon);
         return inntektArbeidYtelseGrunnlagBuilder.build();
     }
 
     private YrkesaktivitetBuilder lagYrkesaktivitetBuilder(YrkesaktivitetBuilder yrkesaktivitetBuilder, AktivitetsAvtaleBuilder aktivitetsAvtale,
-                                                           Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef ref, List<Permisjon> permisjoner) {
+            Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef ref, List<Permisjon> permisjoner) {
         yrkesaktivitetBuilder
-            .medArbeidsforholdId(ref)
-            .medArbeidsgiver(arbeidsgiver)
-            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .leggTilAktivitetsAvtale(aktivitetsAvtale);
+                .medArbeidsforholdId(ref)
+                .medArbeidsgiver(arbeidsgiver)
+                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+                .leggTilAktivitetsAvtale(aktivitetsAvtale);
         permisjoner.forEach(yrkesaktivitetBuilder::leggTilPermisjon);
         return yrkesaktivitetBuilder;
     }
 
     private Permisjon byggPermisjon(YrkesaktivitetBuilder yrkesaktivitetBuilder, LocalDate fom, LocalDate tom) {
         return yrkesaktivitetBuilder.getPermisjonBuilder()
-            .medProsentsats(BigDecimal.valueOf(100))
-            .medPeriode(fom, tom)
-            .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.PERMITTERING)
-            .build();
+                .medProsentsats(BigDecimal.valueOf(100))
+                .medPeriode(fom, tom)
+                .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.PERMITTERING)
+                .build();
     }
 
     private AktivitetsAvtaleBuilder lagAktivitetsAvtaleBuilder(YrkesaktivitetBuilder yrkesaktivitetBuilder, LocalDate fom, LocalDate tom) {
         return yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
     }
 
     private BehandlingReferanse lagReferanse(Behandling behandling) {
         return BehandlingReferanse.fra(behandling,
-            Skjæringstidspunkt.builder()
-                .medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
-                .medSkjæringstidspunktOpptjening(SKJÆRINGSTIDSPUNKT)
-                .build());
+                Skjæringstidspunkt.builder()
+                        .medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
+                        .medSkjæringstidspunktOpptjening(SKJÆRINGSTIDSPUNKT)
+                        .build());
     }
 
 }

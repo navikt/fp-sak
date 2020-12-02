@@ -32,7 +32,6 @@ import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 
 public class RegistrerSøknadStegTest extends EntityManagerAwareTest {
 
-
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
 
     private BehandlingRepository behandlingRepository;
@@ -42,10 +41,11 @@ public class RegistrerSøknadStegTest extends EntityManagerAwareTest {
 
     @BeforeEach
     public void setUp() {
-        behandlingRepository = new BehandlingRepository(getEntityManager());;
+        behandlingRepository = new BehandlingRepository(getEntityManager());
         fagsakRepository = new FagsakRepository(getEntityManager());
         mottatteDokumentRepository = new MottatteDokumentRepository(getEntityManager());
-        mottatteDokumentTjeneste = new MottatteDokumentTjeneste(Period.ofWeeks(6), null, mottatteDokumentRepository, new BehandlingRepositoryProvider(getEntityManager()));
+        mottatteDokumentTjeneste = new MottatteDokumentTjeneste(Period.ofWeeks(6), null, mottatteDokumentRepository,
+                new BehandlingRepositoryProvider(getEntityManager()));
         steg = new RegistrerSøknadSteg(behandlingRepository, mottatteDokumentTjeneste, null);
     }
 
@@ -54,23 +54,24 @@ public class RegistrerSøknadStegTest extends EntityManagerAwareTest {
 
         AktørId aktørId = AktørId.dummy();
         Long fagsakId = fagsakRepository
-            .opprettNy(new Fagsak(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(aktørId), RelasjonsRolleType.MORA, new Saksnummer("123")));
+                .opprettNy(
+                        new Fagsak(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(aktørId), RelasjonsRolleType.MORA, new Saksnummer("123")));
 
         Fagsak fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
         Behandling forrigeBehandling = Behandling.forFørstegangssøknad(fagsak)
-            .build();
+                .build();
 
         Behandling revurdering = Behandling.fraTidligereBehandling(forrigeBehandling, BehandlingType.REVURDERING).build();
         BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering.getId());
         behandlingRepository.lagre(revurdering, lås);
 
         MottattDokument mottattDokument = new MottattDokument.Builder()
-            .medFagsakId(revurdering.getFagsakId())
-            .medBehandlingId(revurdering.getId())
-            .medDokumentType(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL)
-            .medMottattDato(LocalDate.now())
-            .medDokumentKategori(DokumentKategori.SØKNAD)
-            .build();
+                .medFagsakId(revurdering.getFagsakId())
+                .medBehandlingId(revurdering.getId())
+                .medDokumentType(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL)
+                .medMottattDato(LocalDate.now())
+                .medDokumentKategori(DokumentKategori.SØKNAD)
+                .build();
         mottatteDokumentRepository.lagre(mottattDokument);
 
         BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsakId, aktørId, lås);
@@ -84,23 +85,24 @@ public class RegistrerSøknadStegTest extends EntityManagerAwareTest {
 
         var aktørId = AktørId.dummy();
         Long fagsakId = fagsakRepository
-            .opprettNy(new Fagsak(FagsakYtelseType.SVANGERSKAPSPENGER, NavBruker.opprettNyNB(aktørId), RelasjonsRolleType.MORA, new Saksnummer("124")));
+                .opprettNy(new Fagsak(FagsakYtelseType.SVANGERSKAPSPENGER, NavBruker.opprettNyNB(aktørId), RelasjonsRolleType.MORA,
+                        new Saksnummer("124")));
 
         Fagsak fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
         Behandling forrigeBehandling = Behandling.forFørstegangssøknad(fagsak)
-            .build();
+                .build();
 
         Behandling revurdering = Behandling.fraTidligereBehandling(forrigeBehandling, BehandlingType.REVURDERING).build();
         BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering.getId());
         behandlingRepository.lagre(revurdering, lås);
 
         MottattDokument mottattDokument = new MottattDokument.Builder()
-            .medFagsakId(revurdering.getFagsakId())
-            .medBehandlingId(revurdering.getId())
-            .medDokumentType(DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER)
-            .medMottattDato(LocalDate.now())
-            .medDokumentKategori(DokumentKategori.SØKNAD)
-            .build();
+                .medFagsakId(revurdering.getFagsakId())
+                .medBehandlingId(revurdering.getId())
+                .medDokumentType(DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER)
+                .medMottattDato(LocalDate.now())
+                .medDokumentKategori(DokumentKategori.SØKNAD)
+                .build();
         mottatteDokumentRepository.lagre(mottattDokument);
 
         BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsakId, aktørId, lås);
@@ -108,7 +110,5 @@ public class RegistrerSøknadStegTest extends EntityManagerAwareTest {
 
         assertThat(resultat.getAksjonspunktListe()).containsExactly(AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_SVANGERSKAPSPENGER);
     }
-
-
 
 }

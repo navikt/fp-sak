@@ -9,7 +9,6 @@ public class RefusjonskravDatoerAggregat {
 
     private List<RefusjonskravDato> refusjonskravDatoer = new ArrayList<>();
 
-
     public RefusjonskravDatoerAggregat() {
     }
 

@@ -26,10 +26,10 @@ class LagreNyeTilretteleggingerTjeneste {
 
     public void lagre(Behandling behandling, List<SvpTilretteleggingEntitet> nyeTilrettelegginger) {
         var svpGrunnlag = svangerskapspengerRepository.hentGrunnlag(behandling.getId()).orElseThrow(
-            () -> new IllegalStateException("Fant ikke forventet grunnlag for behandling " + behandling.getId()));
+                () -> new IllegalStateException("Fant ikke forventet grunnlag for behandling " + behandling.getId()));
         var nyttSvpGrunnlag = new SvpGrunnlagEntitet.Builder(svpGrunnlag)
-            .medOverstyrteTilrettelegginger(nyeTilrettelegginger)
-            .build();
+                .medOverstyrteTilrettelegginger(nyeTilrettelegginger)
+                .build();
         svangerskapspengerRepository.lagreOgFlush(nyttSvpGrunnlag);
     }
 

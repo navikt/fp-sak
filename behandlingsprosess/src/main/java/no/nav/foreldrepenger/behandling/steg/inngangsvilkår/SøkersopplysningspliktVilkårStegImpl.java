@@ -21,11 +21,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 public class SøkersopplysningspliktVilkårStegImpl extends InngangsvilkårStegImpl {
 
     private static List<VilkårType> STØTTEDE_VILKÅR = singletonList(
-        VilkårType.SØKERSOPPLYSNINGSPLIKT
-    );
+            VilkårType.SØKERSOPPLYSNINGSPLIKT);
 
     @Inject
-    public SøkersopplysningspliktVilkårStegImpl(BehandlingRepositoryProvider repositoryProvider, InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste) {
+    public SøkersopplysningspliktVilkårStegImpl(BehandlingRepositoryProvider repositoryProvider,
+            InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste) {
         super(repositoryProvider, inngangsvilkårFellesTjeneste, BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT);
     }
 

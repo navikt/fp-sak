@@ -25,8 +25,8 @@ public class BehandlingModellRepository implements AutoCloseable {
      * Finn modell for angitt behandling type.
      * <p>
      * Når modellen ikke lenger er i bruk må {@link BehandlingModellImpl#close()}
-     * kalles slik at den ikke fortsetter å holde på referanser til objekter. (DETTE KAN DROPPES OM VI FÅR CACHET
-     * MODELLENE!)
+     * kalles slik at den ikke fortsetter å holde på referanser til objekter. (DETTE
+     * KAN DROPPES OM VI FÅR CACHET MODELLENE!)
      */
     public BehandlingModell getModell(BehandlingType behandlingType, FagsakYtelseType fagsakYtelseType) {
         Object key = cacheKey(behandlingType, fagsakYtelseType);
@@ -41,7 +41,8 @@ public class BehandlingModellRepository implements AutoCloseable {
 
     protected BehandlingModell byggModell(BehandlingType behandlingType, FagsakYtelseType ytelseType) {
         return BehandlingTypeRef.Lookup.find(BehandlingModell.class, ytelseType, behandlingType)
-            .orElseThrow(() -> new IllegalStateException("Har ikke BehandlingModell for BehandlingType:" + behandlingType + ", ytelseType:" + ytelseType));
+                .orElseThrow(() -> new IllegalStateException(
+                        "Har ikke BehandlingModell for BehandlingType:" + behandlingType + ", ytelseType:" + ytelseType));
     }
 
     @Override

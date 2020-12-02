@@ -40,10 +40,10 @@ public class ManglendeVedlegg {
     @Override
     public String toString() {
         return getClass().getSimpleName() + "<"
-            + "arbeidsgiver=" + arbeidsgiver +
-            ", dokumentType=" + dokumentType +
-            ", kommerIkke=" + brukerHarSagtAtIkkeKommer
-            + ">";
+                + "arbeidsgiver=" + arbeidsgiver +
+                ", dokumentType=" + dokumentType +
+                ", kommerIkke=" + brukerHarSagtAtIkkeKommer
+                + ">";
 
     }
 
@@ -51,12 +51,12 @@ public class ManglendeVedlegg {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (obj == null || !(obj.getClass().equals(this.getClass()))) {
+        } else if ((obj == null) || !(obj.getClass().equals(this.getClass()))) {
             return false;
         }
         ManglendeVedlegg other = (ManglendeVedlegg) obj;
         return Objects.equals(arbeidsgiver, other.arbeidsgiver)
-            && Objects.equals(dokumentType, other.dokumentType);
+                && Objects.equals(dokumentType, other.dokumentType);
 
     }
 

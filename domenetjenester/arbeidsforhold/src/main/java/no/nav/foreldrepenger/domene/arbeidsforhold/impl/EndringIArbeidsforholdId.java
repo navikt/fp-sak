@@ -23,10 +23,10 @@ public class EndringIArbeidsforholdId {
     }
 
     public static void vurderMedÅrsak(Map<Arbeidsgiver, Set<ArbeidsforholdMedÅrsak>> result,
-                       Map.Entry<Arbeidsgiver, Set<InternArbeidsforholdRef>> nyInntektsmelding,
-                       Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> eksisterendeIM,
-                       InntektArbeidYtelseGrunnlag grunnlag,
-                       Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> yrkesaktiviteterPerArbeidsgiver) {
+            Map.Entry<Arbeidsgiver, Set<InternArbeidsforholdRef>> nyInntektsmelding,
+            Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> eksisterendeIM,
+            InntektArbeidYtelseGrunnlag grunnlag,
+            Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> yrkesaktiviteterPerArbeidsgiver) {
         final Arbeidsgiver arbeidsgiver = nyInntektsmelding.getKey();
         Set<InternArbeidsforholdRef> påkrevdRefSet = yrkesaktiviteterPerArbeidsgiver.getOrDefault(arbeidsgiver, Collections.emptySet());
         final Set<InternArbeidsforholdRef> nyRefSet = nyInntektsmelding.getValue();
@@ -34,24 +34,25 @@ public class EndringIArbeidsforholdId {
 
         if (!påkrevdRefSet.equals(nyRefSet) && !endretTilIkkeSpesifiktArbeidsforhold(nyRefSet)) {
             Set<InternArbeidsforholdRef> manglerIM = påkrevdRefSet.stream()
-                .filter(ref -> !nyRefSet.contains(ref))
-                .filter(it -> IkkeTattStillingTil.vurder(arbeidsgiver, it, grunnlag))
-                .collect(Collectors.toSet());
+                    .filter(ref -> !nyRefSet.contains(ref))
+                    .filter(it -> IkkeTattStillingTil.vurder(arbeidsgiver, it, grunnlag))
+                    .collect(Collectors.toSet());
             Set<InternArbeidsforholdRef> uventetIM = nyRefSet.stream()
-                .filter(ref -> !påkrevdRefSet.contains(ref))
-                .collect(Collectors.toSet());
+                    .filter(ref -> !påkrevdRefSet.contains(ref))
+                    .collect(Collectors.toSet());
 
             Set<InternArbeidsforholdRef> vurderIM = new HashSet<>(manglerIM);
             vurderIM.addAll(uventetIM);
 
             if (!vurderIM.isEmpty()) {
                 LeggTilResultat.leggTil(result, ENDRING_I_ARBEIDSFORHOLDS_ID, arbeidsgiver, vurderIM);
-                logger.info("Endring i arbeidsforholdsId: arbeidsgiver={}, fra arbeidsforholdRef={} til arbeidsforholdRef={}", arbeidsgiver, eksisterendeRefSet, nyRefSet);
+                logger.info("Endring i arbeidsforholdsId: arbeidsgiver={}, fra arbeidsforholdRef={} til arbeidsforholdRef={}", arbeidsgiver,
+                        eksisterendeRefSet, nyRefSet);
             }
         }
     }
 
     private static boolean endretTilIkkeSpesifiktArbeidsforhold(Set<InternArbeidsforholdRef> nyRefSet) {
-        return nyRefSet.size() == 1 && !nyRefSet.iterator().next().gjelderForSpesifiktArbeidsforhold();
+        return (nyRefSet.size() == 1) && !nyRefSet.iterator().next().gjelderForSpesifiktArbeidsforhold();
     }
 }

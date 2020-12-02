@@ -15,7 +15,7 @@ import java.time.Month;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.mockito.ArgumentMatchers;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
@@ -139,7 +139,7 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
         foreslåBehandlingresultat(revurdering);
 
         // Assert
-        verify(revurderingBehandlingsresultatutleder).bestemBehandlingsresultatForRevurdering(Mockito.any(), anyBoolean());
+        verify(revurderingBehandlingsresultatutleder).bestemBehandlingsresultatForRevurdering(ArgumentMatchers.any(), anyBoolean());
     }
 
     @Test
@@ -168,7 +168,7 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
         foreslåBehandlingresultat(revurdering);
 
         // Assert
-        verify(revurderingBehandlingsresultatutleder).bestemBehandlingsresultatForRevurdering(Mockito.any(), anyBoolean());
+        verify(revurderingBehandlingsresultatutleder).bestemBehandlingsresultatForRevurdering(ArgumentMatchers.any(), anyBoolean());
     }
 
     @Test
@@ -200,7 +200,7 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
         foreslåBehandlingresultat(revurdering);
 
         // Assert
-        verify(revurderingBehandlingsresultatutleder).bestemBehandlingsresultatForRevurdering(Mockito.any(), anyBoolean());
+        verify(revurderingBehandlingsresultatutleder).bestemBehandlingsresultatForRevurdering(ArgumentMatchers.any(), anyBoolean());
     }
 
     @Test
@@ -218,7 +218,7 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
         Behandlingsresultat behandlingsresultat = foreslåBehandlingresultat(revurdering);
 
         // Assert
-        verify(revurderingBehandlingsresultatutleder).bestemBehandlingsresultatForRevurdering(Mockito.any(), anyBoolean());
+        verify(revurderingBehandlingsresultatutleder).bestemBehandlingsresultatForRevurdering(ArgumentMatchers.any(), anyBoolean());
 
         assertThat(behandlingsresultat.getBehandlingResultatType()).isEqualTo(BehandlingResultatType.INGEN_ENDRING);
         assertThat(behandlingsresultat.getVedtaksbrev()).isEqualTo(Vedtaksbrev.INGEN);

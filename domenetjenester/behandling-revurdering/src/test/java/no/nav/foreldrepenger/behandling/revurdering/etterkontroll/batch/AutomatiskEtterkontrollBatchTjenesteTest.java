@@ -31,9 +31,9 @@ public class AutomatiskEtterkontrollBatchTjenesteTest {
     @Test
     public void skal_returnere_status_ok_ved_fullført() throws Exception {
         final List<TaskStatus> statuses = Collections.singletonList(
-            new TaskStatus(ProsessTaskStatus.FERDIG, BigDecimal.ONE));
+                new TaskStatus(ProsessTaskStatus.FERDIG, BigDecimal.ONE));
         when(prosessTaskRepository.finnStatusForTaskIGruppe(AutomatiskEtterkontrollTask.TASKTYPE, "1234")).thenReturn(
-            statuses);
+                statuses);
 
         final BatchStatus status = tjeneste.status("1234");
 
@@ -43,9 +43,9 @@ public class AutomatiskEtterkontrollBatchTjenesteTest {
     @Test
     public void skal_returnere_status_warning_ved_fullført_med_feilet() throws Exception {
         final List<TaskStatus> statuses = List.of(new TaskStatus(ProsessTaskStatus.FERDIG, BigDecimal.ONE),
-            new TaskStatus(ProsessTaskStatus.FEILET, BigDecimal.ONE));
+                new TaskStatus(ProsessTaskStatus.FEILET, BigDecimal.ONE));
         when(prosessTaskRepository.finnStatusForTaskIGruppe(AutomatiskEtterkontrollTask.TASKTYPE, "1234")).thenReturn(
-            statuses);
+                statuses);
 
         final BatchStatus status = tjeneste.status("1234");
 
@@ -55,10 +55,10 @@ public class AutomatiskEtterkontrollBatchTjenesteTest {
     @Test
     public void skal_returnere_status_running_ved_ikke_fullført() throws Exception {
         final List<TaskStatus> statuses = List.of(new TaskStatus(ProsessTaskStatus.FERDIG, BigDecimal.ONE),
-            new TaskStatus(ProsessTaskStatus.FEILET, BigDecimal.ONE),
-            new TaskStatus(ProsessTaskStatus.KLAR, BigDecimal.TEN));
+                new TaskStatus(ProsessTaskStatus.FEILET, BigDecimal.ONE),
+                new TaskStatus(ProsessTaskStatus.KLAR, BigDecimal.TEN));
         when(prosessTaskRepository.finnStatusForTaskIGruppe(AutomatiskEtterkontrollTask.TASKTYPE, "1234")).thenReturn(
-            statuses);
+                statuses);
 
         final BatchStatus status = tjeneste.status("1234");
 

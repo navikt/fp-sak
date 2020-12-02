@@ -65,7 +65,7 @@ public class BarnFinnerTest {
         LocalDate fødselsdato15År = overtakelseDato.minusYears(15);
 
         ScenarioMorSøkerEngangsstønad scenario = byggBehandlingsgrunnlagForAdopsjon(
-            asList(fødselsdato14År363Dager, fødselsdato14År364Dager, fødselsdato15År), overtakelseDato);
+                asList(fødselsdato14År363Dager, fødselsdato14År364Dager, fødselsdato15År), overtakelseDato);
         Behandling behandling = scenario.lagMocked();
 
         // Act
@@ -112,11 +112,11 @@ public class BarnFinnerTest {
     private ScenarioMorSøkerEngangsstønad byggBehandlingsgrunnlagForTermin(int antallBarn) {
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         final FamilieHendelseBuilder familieHendelseBuilder = scenario.medBekreftetHendelse()
-            .medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
-                .medTermindato(LocalDate.now())
-                .medNavnPå("LEGEN MIN")
-                .medUtstedtDato(LocalDate.now()))
-            .medAntallBarn(antallBarn);
+                .medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
+                        .medTermindato(LocalDate.now())
+                        .medNavnPå("LEGEN MIN")
+                        .medUtstedtDato(LocalDate.now()))
+                .medAntallBarn(antallBarn);
         scenario.medBekreftetHendelse(familieHendelseBuilder);
 
         return scenario;
@@ -130,10 +130,10 @@ public class BarnFinnerTest {
         }
 
         PersonInformasjon søker = scenario.opprettBuilderForRegisteropplysninger()
-            .medPersonas()
-            .kvinne(scenario.getDefaultBrukerAktørId(), SivilstandType.GIFT, Region.NORDEN)
-            .statsborgerskap(Landkoder.NOR)
-            .build();
+                .medPersonas()
+                .kvinne(scenario.getDefaultBrukerAktørId(), SivilstandType.GIFT, Region.NORDEN)
+                .statsborgerskap(Landkoder.NOR)
+                .build();
         scenario.medRegisterOpplysninger(søker);
 
         scenario.medSøknad().medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);
@@ -146,7 +146,7 @@ public class BarnFinnerTest {
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forAdopsjon();
         final FamilieHendelseBuilder hendelseBuilder = scenario.medBekreftetHendelse().medAntallBarn(adopsjonsdatoer.size());
         hendelseBuilder.medAdopsjon(scenario.medBekreftetHendelse().getAdopsjonBuilder()
-            .medOmsorgsovertakelseDato(overtakelseDato));
+                .medOmsorgsovertakelseDato(overtakelseDato));
 
         for (int nr = 1; nr <= adopsjonsdatoer.size(); nr++) {
             hendelseBuilder.leggTilBarn(adopsjonsdatoer.get(nr - 1));

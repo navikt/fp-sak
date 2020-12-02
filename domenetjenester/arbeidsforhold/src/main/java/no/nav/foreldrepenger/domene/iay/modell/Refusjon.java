@@ -45,11 +45,15 @@ public class Refusjon extends BaseEntitet implements IndexKey {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || !(o instanceof Refusjon)) return false;
+        if (this == o) {
+            return true;
+        }
+        if ((o == null) || !(o instanceof Refusjon)) {
+            return false;
+        }
         Refusjon that = (Refusjon) o;
         return Objects.equals(refusjonsbeløpMnd, that.refusjonsbeløpMnd) &&
-            Objects.equals(fom, that.fom);
+                Objects.equals(fom, that.fom);
     }
 
     @Override

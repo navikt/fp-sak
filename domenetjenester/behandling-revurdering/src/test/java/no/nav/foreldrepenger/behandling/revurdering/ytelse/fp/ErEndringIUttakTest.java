@@ -75,7 +75,7 @@ public class ErEndringIUttakTest {
     private BeregningsresultatRepository beregningsresultatRepository;
     private FpUttakRepository fpUttakRepository;
     private final EndringsdatoRevurderingUtlederImpl datoRevurderingUtlederImpl = mock(
-        EndringsdatoRevurderingUtlederImpl.class);
+            EndringsdatoRevurderingUtlederImpl.class);
     private BehandlingRepositoryProvider repositoryProvider;
 
     @BeforeEach
@@ -92,27 +92,27 @@ public class ErEndringIUttakTest {
 
     private Behandling opprettRevurdering(Behandling behandlingSomSkalRevurderes) {
         BehandlingskontrollTjenesteImpl behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(
-            serviceProvider);
+                serviceProvider);
         RevurderingTjenesteFelles revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider);
         RevurderingTjeneste revurderingTjeneste = new RevurderingTjenesteImpl(repositoryProvider,
-            behandlingskontrollTjeneste, iayTjeneste, revurderingEndring, revurderingTjenesteFelles, vergeRepository);
+                behandlingskontrollTjeneste, iayTjeneste, revurderingEndring, revurderingTjenesteFelles, vergeRepository);
         LocalDate dato = LocalDate.now().minusMonths(3);
         when(datoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(dato);
         return revurderingTjeneste.opprettAutomatiskRevurdering(behandlingSomSkalRevurderes.getFagsak(),
-            BehandlingÅrsakType.RE_HENDELSE_FØDSEL, new OrganisasjonsEnhet("1234", "Test"));
+                BehandlingÅrsakType.RE_HENDELSE_FØDSEL, new OrganisasjonsEnhet("1234", "Test"));
     }
 
     private Behandling opprettFørstegangsbehandling() {
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medBehandlingVedtak()
-            .medVedtakstidspunkt(LocalDateTime.now())
-            .medVedtakResultatType(VedtakResultatType.INNVILGET);
+                .medVedtakstidspunkt(LocalDateTime.now())
+                .medVedtakResultatType(VedtakResultatType.INNVILGET);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE,
-            BehandlingStegType.KONTROLLER_FAKTA);
+                BehandlingStegType.KONTROLLER_FAKTA);
         var behandlingSomSkalRevurderes = scenario.lagre(repositoryProvider);
         repositoryProvider.getOpptjeningRepository()
-            .lagreOpptjeningsperiode(behandlingSomSkalRevurderes, LocalDate.now().minusYears(1), LocalDate.now(),
-                false);
+                .lagreOpptjeningsperiode(behandlingSomSkalRevurderes, LocalDate.now().minusYears(1), LocalDate.now(),
+                        false);
         revurderingTestUtil.avsluttBehandling(behandlingSomSkalRevurderes);
         return behandlingSomSkalRevurderes;
     }
@@ -126,11 +126,12 @@ public class ErEndringIUttakTest {
         lagBeregningsresultatperiodeMedEndringstidspunkt(dato, førstegangsbehandling, revurdering);
 
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(førstegangsbehandling,
-            List.of(new LocalDateInterval(dato, dato.plusDays(10))), StønadskontoType.FORELDREPENGER);
+                List.of(new LocalDateInterval(dato, dato.plusDays(10))), StønadskontoType.FORELDREPENGER);
 
         UttakResultatEntitet uttakResultatRevurdering = lagUttakResultatPlanForBehandling(revurdering,
-            List.of(new LocalDateInterval(dato, dato.plusDays(10)),
-                new LocalDateInterval(dato.plusDays(11), dato.plusDays(20))), StønadskontoType.FEDREKVOTE);
+                List.of(new LocalDateInterval(dato, dato.plusDays(10)),
+                        new LocalDateInterval(dato.plusDays(11), dato.plusDays(20))),
+                StønadskontoType.FEDREKVOTE);
 
         // Act
         var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
@@ -150,15 +151,15 @@ public class ErEndringIUttakTest {
         lagBeregningsresultatperiodeMedEndringstidspunkt(dato, førstegangsbehandling, revurdering);
 
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(førstegangsbehandling,
-            List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
-            List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
+                List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
+                List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
         UttakResultatEntitet uttakResultatRevurdering = lagUttakResultatPlanForBehandling(revurdering,
-            List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true),
-            Collections.nCopies(2, 100), Collections.nCopies(2, 100), List.of(new Trekkdager(2), new Trekkdager(10)),
-            Collections.nCopies(2, StønadskontoType.FORELDREPENGER));
+                List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
+                List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true),
+                Collections.nCopies(2, 100), Collections.nCopies(2, 100), List.of(new Trekkdager(2), new Trekkdager(10)),
+                Collections.nCopies(2, StønadskontoType.FORELDREPENGER));
 
         // Act
         var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
@@ -178,14 +179,14 @@ public class ErEndringIUttakTest {
         lagBeregningsresultatperiodeMedEndringstidspunkt(dato, førstegangsbehandling, revurdering);
 
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(førstegangsbehandling,
-            List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
-            List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
+                List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
+                List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
         UttakResultatEntitet uttakResultatRevurdering = lagUttakResultatPlanForBehandling(revurdering,
-            List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
-            List.of(100), List.of(new Trekkdager(10)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
+                List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
+                List.of(100), List.of(new Trekkdager(10)), List.of(StønadskontoType.FORELDREPENGER));
 
         // Act
         var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
@@ -205,14 +206,14 @@ public class ErEndringIUttakTest {
         lagBeregningsresultatperiodeMedEndringstidspunkt(dato, førstegangsbehandling, revurdering);
 
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(førstegangsbehandling,
-            List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(false), List.of(100),
-            List.of(100), List.of(Trekkdager.ZERO), List.of(StønadskontoType.UDEFINERT));
+                List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
+                List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(false), List.of(100),
+                List.of(100), List.of(Trekkdager.ZERO), List.of(StønadskontoType.UDEFINERT));
 
         UttakResultatEntitet uttakResultatRevurdering = lagUttakResultatPlanForBehandling(revurdering,
-            List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(false), List.of(100),
-            List.of(100), List.of(Trekkdager.ZERO), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
+                List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(false), List.of(100),
+                List.of(100), List.of(Trekkdager.ZERO), List.of(StønadskontoType.FORELDREPENGER));
 
         // Act
         var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
@@ -222,7 +223,6 @@ public class ErEndringIUttakTest {
         // Assert
         assertThat(endringIUttak).isFalse();
     }
-
 
     @Test
     public void case_fra_prod_bør_gi_ingen_endring() {
@@ -240,33 +240,34 @@ public class ErEndringIUttakTest {
         lagBeregningsresultatperiodeMedEndringstidspunkt(dato, førstegangsbehandling, revurdering);
 
         UttakResultatEntitet.Builder uttakResultatPlanBuilderOrig = new UttakResultatEntitet.Builder(
-            førstegangsbehandling.getBehandlingsresultat());
+                førstegangsbehandling.getBehandlingsresultat());
         lagUttakResultatPlanForBehandlingLogging(List.of(orig1, orig2), List.of(false, false), List.of(false, false),
-            List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.INNVILGET),
-            List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.UKJENT), List.of(false, false), List.of(100, 0),
-            List.of(0, 100), List.of(Trekkdager.ZERO, new Trekkdager(95)),
-            List.of(StønadskontoType.UDEFINERT, StønadskontoType.FEDREKVOTE),
-            List.of(OppholdÅrsak.UDEFINERT, OppholdÅrsak.UDEFINERT), false, uttakResultatPlanBuilderOrig);
+                List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.INNVILGET),
+                List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.UKJENT), List.of(false, false), List.of(100, 0),
+                List.of(0, 100), List.of(Trekkdager.ZERO, new Trekkdager(95)),
+                List.of(StønadskontoType.UDEFINERT, StønadskontoType.FEDREKVOTE),
+                List.of(OppholdÅrsak.UDEFINERT, OppholdÅrsak.UDEFINERT), false, uttakResultatPlanBuilderOrig);
         UttakResultatEntitet uttakResultatOriginal = uttakResultatPlanBuilderOrig.build();
         fpUttakRepository.lagreOpprinneligUttakResultatPerioder(førstegangsbehandling.getId(),
-            uttakResultatOriginal.getGjeldendePerioder());
+                uttakResultatOriginal.getGjeldendePerioder());
 
         UttakResultatEntitet.Builder uttakResultatPlanBuilderRev = new UttakResultatEntitet.Builder(
-            revurdering.getBehandlingsresultat());
+                revurdering.getBehandlingsresultat());
         lagUttakResultatPlanForBehandlingLogging(List.of(ny1a, ny1b, ny2a, ny2b), List.of(false, false, false, false),
-            List.of(false, false, false, false),
-            List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.INNVILGET, PeriodeResultatType.INNVILGET,
-                PeriodeResultatType.INNVILGET),
-            List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.UKJENT,
-                PeriodeResultatÅrsak.UKJENT), List.of(false, false, false, false), List.of(100, 100, 0, 0),
-            List.of(0, 0, 100, 100), List.of(Trekkdager.ZERO, Trekkdager.ZERO, new Trekkdager(93), new Trekkdager(2)),
-            List.of(StønadskontoType.UDEFINERT, StønadskontoType.FEDREKVOTE, StønadskontoType.FEDREKVOTE,
-                StønadskontoType.FEDREKVOTE),
-            List.of(OppholdÅrsak.UDEFINERT, OppholdÅrsak.UDEFINERT, OppholdÅrsak.UDEFINERT, OppholdÅrsak.UDEFINERT),
-            false, uttakResultatPlanBuilderRev);
+                List.of(false, false, false, false),
+                List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.INNVILGET, PeriodeResultatType.INNVILGET,
+                        PeriodeResultatType.INNVILGET),
+                List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.UKJENT,
+                        PeriodeResultatÅrsak.UKJENT),
+                List.of(false, false, false, false), List.of(100, 100, 0, 0),
+                List.of(0, 0, 100, 100), List.of(Trekkdager.ZERO, Trekkdager.ZERO, new Trekkdager(93), new Trekkdager(2)),
+                List.of(StønadskontoType.UDEFINERT, StønadskontoType.FEDREKVOTE, StønadskontoType.FEDREKVOTE,
+                        StønadskontoType.FEDREKVOTE),
+                List.of(OppholdÅrsak.UDEFINERT, OppholdÅrsak.UDEFINERT, OppholdÅrsak.UDEFINERT, OppholdÅrsak.UDEFINERT),
+                false, uttakResultatPlanBuilderRev);
         UttakResultatEntitet uttakResultatRevurdering = uttakResultatPlanBuilderRev.build();
         fpUttakRepository.lagreOpprinneligUttakResultatPerioder(revurdering.getId(),
-            uttakResultatRevurdering.getGjeldendePerioder());
+                uttakResultatRevurdering.getGjeldendePerioder());
 
         // Act
         var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
@@ -295,48 +296,52 @@ public class ErEndringIUttakTest {
         lagBeregningsresultatperiodeMedEndringstidspunkt(dato, førstegangsbehandling, revurdering);
 
         UttakResultatEntitet.Builder uttakResultatPlanBuilderOrig = new UttakResultatEntitet.Builder(
-            førstegangsbehandling.getBehandlingsresultat());
+                førstegangsbehandling.getBehandlingsresultat());
         lagUttakResultatPlanForBehandlingLogging(List.of(orig1, orig2, orig3), List.of(false, false, false),
-            List.of(false, false, false),
-            List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.INNVILGET, PeriodeResultatType.INNVILGET),
-            List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.UKJENT),
-            List.of(false, false, false), List.of(0, 0, 0), List.of(0, 0), List.of(Trekkdager.ZERO, Trekkdager.ZERO),
-            List.of(StønadskontoType.UDEFINERT, StønadskontoType.UDEFINERT),
-            List.of(OppholdÅrsak.UDEFINERT, OppholdÅrsak.UDEFINERT, OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER), false,
-            uttakResultatPlanBuilderOrig);
+                List.of(false, false, false),
+                List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.INNVILGET, PeriodeResultatType.INNVILGET),
+                List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.UKJENT),
+                List.of(false, false, false), List.of(0, 0, 0), List.of(0, 0), List.of(Trekkdager.ZERO, Trekkdager.ZERO),
+                List.of(StønadskontoType.UDEFINERT, StønadskontoType.UDEFINERT),
+                List.of(OppholdÅrsak.UDEFINERT, OppholdÅrsak.UDEFINERT, OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER), false,
+                uttakResultatPlanBuilderOrig);
         UttakResultatEntitet uttakResultatOriginal = uttakResultatPlanBuilderOrig.build();
         fpUttakRepository.lagreOpprinneligUttakResultatPerioder(førstegangsbehandling.getId(),
-            uttakResultatOriginal.getGjeldendePerioder());
+                uttakResultatOriginal.getGjeldendePerioder());
 
         UttakResultatEntitet.Builder uttakResultatPlanBuilderRev = new UttakResultatEntitet.Builder(
-            revurdering.getBehandlingsresultat());
+                revurdering.getBehandlingsresultat());
         lagUttakResultatPlanForBehandlingLogging(List.of(ny1, ny2, ny3, ny4, ny5),
-            List.of(false, false, false, false, false), List.of(false, false, false, false, false),
-            List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.INNVILGET, PeriodeResultatType.INNVILGET,
-                PeriodeResultatType.INNVILGET, PeriodeResultatType.INNVILGET),
-            List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.UKJENT,
-                PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.UKJENT), List.of(false, false, false, false, false),
-            List.of(0, 0, 0), List.of(0, 0, 0), List.of(Trekkdager.ZERO, Trekkdager.ZERO, Trekkdager.ZERO),
-            List.of(StønadskontoType.FELLESPERIODE, StønadskontoType.FELLESPERIODE, StønadskontoType.FELLESPERIODE),
-            List.of(OppholdÅrsak.UDEFINERT, OppholdÅrsak.UDEFINERT, OppholdÅrsak.UDEFINERT,
-                OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER, OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER), false,
-            uttakResultatPlanBuilderRev);
+                List.of(false, false, false, false, false), List.of(false, false, false, false, false),
+                List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.INNVILGET, PeriodeResultatType.INNVILGET,
+                        PeriodeResultatType.INNVILGET, PeriodeResultatType.INNVILGET),
+                List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.UKJENT,
+                        PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.UKJENT),
+                List.of(false, false, false, false, false),
+                List.of(0, 0, 0), List.of(0, 0, 0), List.of(Trekkdager.ZERO, Trekkdager.ZERO, Trekkdager.ZERO),
+                List.of(StønadskontoType.FELLESPERIODE, StønadskontoType.FELLESPERIODE, StønadskontoType.FELLESPERIODE),
+                List.of(OppholdÅrsak.UDEFINERT, OppholdÅrsak.UDEFINERT, OppholdÅrsak.UDEFINERT,
+                        OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER, OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER),
+                false,
+                uttakResultatPlanBuilderRev);
         lagUttakResultatPlanForBehandlingLogging(List.of(ny1, ny2, ny3, ny4, ny5),
-            List.of(false, false, false, false, false), List.of(false, false, false, false, false),
-            List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.AVSLÅTT, PeriodeResultatType.AVSLÅTT,
-                PeriodeResultatType.INNVILGET, PeriodeResultatType.INNVILGET),
-            List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.UKJENT,
-                PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.UKJENT), List.of(false, false, false, false, false),
-            List.of(0, 0, 0), List.of(0, 0, 0), List.of(Trekkdager.ZERO, Trekkdager.ZERO, Trekkdager.ZERO),
-            List.of(StønadskontoType.FELLESPERIODE, StønadskontoType.FELLESPERIODE, StønadskontoType.FELLESPERIODE),
-            List.of(OppholdÅrsak.UDEFINERT, OppholdÅrsak.UDEFINERT, OppholdÅrsak.UDEFINERT,
-                OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER, OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER), true,
-            uttakResultatPlanBuilderRev);
+                List.of(false, false, false, false, false), List.of(false, false, false, false, false),
+                List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.AVSLÅTT, PeriodeResultatType.AVSLÅTT,
+                        PeriodeResultatType.INNVILGET, PeriodeResultatType.INNVILGET),
+                List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.UKJENT,
+                        PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.UKJENT),
+                List.of(false, false, false, false, false),
+                List.of(0, 0, 0), List.of(0, 0, 0), List.of(Trekkdager.ZERO, Trekkdager.ZERO, Trekkdager.ZERO),
+                List.of(StønadskontoType.FELLESPERIODE, StønadskontoType.FELLESPERIODE, StønadskontoType.FELLESPERIODE),
+                List.of(OppholdÅrsak.UDEFINERT, OppholdÅrsak.UDEFINERT, OppholdÅrsak.UDEFINERT,
+                        OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER, OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER),
+                true,
+                uttakResultatPlanBuilderRev);
         UttakResultatEntitet uttakResultatRevurdering = uttakResultatPlanBuilderRev.build();
         fpUttakRepository.lagreOpprinneligUttakResultatPerioder(revurdering.getId(),
-            uttakResultatRevurdering.getOpprinneligPerioder());
+                uttakResultatRevurdering.getOpprinneligPerioder());
         fpUttakRepository.lagreOverstyrtUttakResultatPerioder(revurdering.getId(),
-            uttakResultatRevurdering.getOverstyrtPerioder());
+                uttakResultatRevurdering.getOverstyrtPerioder());
 
         // Act
         var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
@@ -356,14 +361,14 @@ public class ErEndringIUttakTest {
         lagBeregningsresultatperiodeMedEndringstidspunkt(dato, førstegangsbehandling, revurdering);
 
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(førstegangsbehandling,
-            List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
-            List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
+                List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
+                List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
         UttakResultatEntitet uttakResultatRevurdering = lagUttakResultatPlanForBehandling(revurdering,
-            List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(50),
-            List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
+                List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(50),
+                List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
         // Act
         var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
@@ -383,14 +388,14 @@ public class ErEndringIUttakTest {
         lagBeregningsresultatperiodeMedEndringstidspunkt(dato, førstegangsbehandling, revurdering);
 
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(førstegangsbehandling,
-            List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
-            List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
+                List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
+                List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
         UttakResultatEntitet uttakResultatRevurdering = lagUttakResultatPlanForBehandling(revurdering,
-            List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
-            List.of(50), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
+                List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
+                List.of(50), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
         // Act
         var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
@@ -410,10 +415,10 @@ public class ErEndringIUttakTest {
         lagBeregningsresultatperiodeMedEndringstidspunkt(dato, førstegangsbehandling, revurdering);
 
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(førstegangsbehandling,
-            List.of(new LocalDateInterval(dato, dato.plusDays(10))), StønadskontoType.FORELDREPENGER);
+                List.of(new LocalDateInterval(dato, dato.plusDays(10))), StønadskontoType.FORELDREPENGER);
 
         UttakResultatEntitet uttakResultatRevurdering = lagUttakResultatPlanForBehandling(revurdering,
-            List.of(new LocalDateInterval(dato, dato.plusDays(10))), StønadskontoType.FEDREKVOTE);
+                List.of(new LocalDateInterval(dato, dato.plusDays(10))), StønadskontoType.FEDREKVOTE);
 
         // Act
         var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
@@ -433,10 +438,10 @@ public class ErEndringIUttakTest {
         lagBeregningsresultatperiodeMedEndringstidspunkt(dato, førstegangsbehandling, revurdering);
 
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(førstegangsbehandling,
-            List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(PeriodeResultatType.AVSLÅTT));
+                List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(PeriodeResultatType.AVSLÅTT));
 
         UttakResultatEntitet uttakResultatRevurdering = lagUttakResultatPlanForBehandling(revurdering,
-            List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(PeriodeResultatType.INNVILGET));
+                List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(PeriodeResultatType.INNVILGET));
 
         // Act
         var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
@@ -456,10 +461,10 @@ public class ErEndringIUttakTest {
         lagBeregningsresultatperiodeMedEndringstidspunkt(dato, førstegangsbehandling, revurdering);
 
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(førstegangsbehandling,
-            List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), StønadskontoType.FORELDREPENGER);
+                List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), StønadskontoType.FORELDREPENGER);
 
         UttakResultatEntitet uttakResultatRevurdering = lagUttakResultatPlanForBehandling(revurdering,
-            List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(true), StønadskontoType.FORELDREPENGER);
+                List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(true), StønadskontoType.FORELDREPENGER);
 
         // Act
         var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
@@ -479,14 +484,14 @@ public class ErEndringIUttakTest {
         lagBeregningsresultatperiodeMedEndringstidspunkt(dato, førstegangsbehandling, revurdering);
 
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(førstegangsbehandling,
-            List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
-            List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
+                List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
+                List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
         UttakResultatEntitet uttakResultatRevurdering = lagUttakResultatPlanForBehandling(revurdering,
-            List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(false), List.of(100),
-            List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
+                List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(false), List.of(100),
+                List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
         // Act
         var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
@@ -501,12 +506,11 @@ public class ErEndringIUttakTest {
     public void skal_gi_ingen_endring_dersom_begge_uttak_mangler() {
         // Act
         boolean endringIUttak = new UttakResultatHolderFP(Optional.empty(), null).harUlikUttaksplan(
-            new UttakResultatHolderFP(Optional.empty(), null));
+                new UttakResultatHolderFP(Optional.empty(), null));
 
         // Assert
         assertThat(endringIUttak).isFalse();
     }
-
 
     @Test
     public void skal_gi_endring_i_uttak_dersom_uttakene_har_forskjellig_antall_aktiviteter() {
@@ -515,16 +519,16 @@ public class ErEndringIUttakTest {
 
         var førstegangsbehandling = opprettFørstegangsbehandling();
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(førstegangsbehandling,
-            List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
-            List.of(100), List.of(new Trekkdager(12)), Collections.emptyList());
+                List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
+                List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
+                List.of(100), List.of(new Trekkdager(12)), Collections.emptyList());
 
         var revurdering = opprettRevurdering(førstegangsbehandling);
         UttakResultatEntitet uttakResultatRevurdering = lagUttakResultatPlanForBehandling(revurdering,
-            List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true),
-            Collections.nCopies(2, 100), Collections.nCopies(2, 100), List.of(new Trekkdager(2), new Trekkdager(10)),
-            Collections.nCopies(2, StønadskontoType.FORELDREPENGER));
+                List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
+                List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true),
+                Collections.nCopies(2, 100), Collections.nCopies(2, 100), List.of(new Trekkdager(2), new Trekkdager(10)),
+                Collections.nCopies(2, StønadskontoType.FORELDREPENGER));
 
         // Act
         var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
@@ -542,16 +546,15 @@ public class ErEndringIUttakTest {
 
         var førstegangsbehandling = opprettFørstegangsbehandling();
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(førstegangsbehandling,
-            List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
-            List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
-
+                List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
+                List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
+                List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
         var revurdering = opprettRevurdering(førstegangsbehandling);
         UttakResultatEntitet uttakResultatRevurdering = lagUttakResultatPlanForBehandling(revurdering,
-            List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
-            List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FELLESPERIODE));
+                List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
+                List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
+                List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FELLESPERIODE));
         // Act
         var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
         var originalBehandlingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatOriginal)), null);
@@ -568,16 +571,15 @@ public class ErEndringIUttakTest {
 
         var førstegangsbehandling = opprettFørstegangsbehandling();
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(førstegangsbehandling,
-            List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
-            List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FELLESPERIODE));
-
+                List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
+                List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
+                List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FELLESPERIODE));
 
         var revurdering = opprettRevurdering(førstegangsbehandling);
         UttakResultatEntitet uttakResultatRevurdering = lagUttakResultatPlanForBehandling(revurdering,
-            List.of(new LocalDateInterval(dato.plusDays(1), dato.plusDays(11))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
-            List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FELLESPERIODE));
+                List.of(new LocalDateInterval(dato.plusDays(1), dato.plusDays(11))), List.of(false), List.of(false),
+                List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
+                List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FELLESPERIODE));
         // Act
         var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
         var originalBehandlingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatOriginal)), null);
@@ -594,16 +596,15 @@ public class ErEndringIUttakTest {
 
         var førstegangsbehandling = opprettFørstegangsbehandling();
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(førstegangsbehandling,
-            List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(true),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
-            List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
-
+                List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(true),
+                List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
+                List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
         var revurdering = opprettRevurdering(førstegangsbehandling);
         UttakResultatEntitet uttakResultatRevurdering = lagUttakResultatPlanForBehandling(revurdering,
-            List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
-            List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
+                List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
+                List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
         // Act
         var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
         var originalBehandlingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatOriginal)), null);
@@ -612,7 +613,6 @@ public class ErEndringIUttakTest {
         // Assert
         assertThat(endringIUttak).isTrue();
     }
-
 
     @Test
     public void skal_ikkje_gi_endring_i_uttak_om_det_ikkje_er_avvik() {
@@ -623,14 +623,14 @@ public class ErEndringIUttakTest {
         lagBeregningsresultatperiodeMedEndringstidspunkt(dato, førstegangsbehandling, revurdering);
 
         UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(førstegangsbehandling,
-            List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
-            List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
+                List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
+                List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
         UttakResultatEntitet uttakResultatRevurdering = lagUttakResultatPlanForBehandling(revurdering,
-            List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
-            List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
+                List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
+                List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100),
+                List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
         // Act
         var revurderingHolder = new UttakResultatHolderFP(Optional.of(map(uttakResultatRevurdering)), null);
@@ -642,108 +642,107 @@ public class ErEndringIUttakTest {
     }
 
     private void lagUttakPeriodeMedPeriodeAktivitet(UttakResultatPerioderEntitet uttakResultatPerioder,
-                                                    LocalDateInterval periode,
-                                                    boolean samtidigUttak,
-                                                    PeriodeResultatType periodeResultatType,
-                                                    PeriodeResultatÅrsak periodeResultatÅrsak,
-                                                    boolean graderingInnvilget,
-                                                    boolean erFlerbarnsdager,
-                                                    List<Integer> andelIArbeid,
-                                                    List<Integer> utbetalingsgrad,
-                                                    List<Trekkdager> trekkdager,
-                                                    List<StønadskontoType> stønadskontoTyper) {
+            LocalDateInterval periode,
+            boolean samtidigUttak,
+            PeriodeResultatType periodeResultatType,
+            PeriodeResultatÅrsak periodeResultatÅrsak,
+            boolean graderingInnvilget,
+            boolean erFlerbarnsdager,
+            List<Integer> andelIArbeid,
+            List<Integer> utbetalingsgrad,
+            List<Trekkdager> trekkdager,
+            List<StønadskontoType> stønadskontoTyper) {
         UttakResultatPeriodeEntitet uttakResultatPeriode = byggPeriode(periode.getFomDato(), periode.getTomDato(),
-            samtidigUttak, periodeResultatType, periodeResultatÅrsak, graderingInnvilget, erFlerbarnsdager);
+                samtidigUttak, periodeResultatType, periodeResultatÅrsak, graderingInnvilget, erFlerbarnsdager);
 
         int antallAktiviteter = stønadskontoTyper.size();
         for (int i = 0; i < antallAktiviteter; i++) {
             UttakResultatPeriodeAktivitetEntitet periodeAktivitet = lagPeriodeAktivitet(stønadskontoTyper.get(i),
-                uttakResultatPeriode, trekkdager.get(i), andelIArbeid.get(i), utbetalingsgrad.get(i));
+                    uttakResultatPeriode, trekkdager.get(i), andelIArbeid.get(i), utbetalingsgrad.get(i));
             uttakResultatPeriode.leggTilAktivitet(periodeAktivitet);
         }
         uttakResultatPerioder.leggTilPeriode(uttakResultatPeriode);
     }
 
     private void lagUttakPeriodeUtenPeriodeAktivitet(UttakResultatPerioderEntitet uttakResultatPerioder,
-                                                     LocalDateInterval periode,
-                                                     boolean samtidigUttak,
-                                                     PeriodeResultatType periodeResultatType,
-                                                     PeriodeResultatÅrsak periodeResultatÅrsak,
-                                                     boolean graderingInnvilget,
-                                                     boolean erFlerbarnsdager,
-                                                     OppholdÅrsak oppholdÅrsak) {
+            LocalDateInterval periode,
+            boolean samtidigUttak,
+            PeriodeResultatType periodeResultatType,
+            PeriodeResultatÅrsak periodeResultatÅrsak,
+            boolean graderingInnvilget,
+            boolean erFlerbarnsdager,
+            OppholdÅrsak oppholdÅrsak) {
         UttakResultatPeriodeEntitet uttakResultatPeriode = new UttakResultatPeriodeEntitet.Builder(periode.getFomDato(),
-            periode.getTomDato()).medSamtidigUttak(samtidigUttak)
-            .medResultatType(periodeResultatType, periodeResultatÅrsak)
-            .medGraderingInnvilget(graderingInnvilget)
-            .medFlerbarnsdager(erFlerbarnsdager)
-            .medOppholdÅrsak(oppholdÅrsak)
-            .build();
+                periode.getTomDato()).medSamtidigUttak(samtidigUttak)
+                        .medResultatType(periodeResultatType, periodeResultatÅrsak)
+                        .medGraderingInnvilget(graderingInnvilget)
+                        .medFlerbarnsdager(erFlerbarnsdager)
+                        .medOppholdÅrsak(oppholdÅrsak)
+                        .build();
         uttakResultatPerioder.leggTilPeriode(uttakResultatPeriode);
     }
 
     private UttakResultatPeriodeAktivitetEntitet lagPeriodeAktivitet(StønadskontoType stønadskontoType,
-                                                                     UttakResultatPeriodeEntitet uttakResultatPeriode,
-                                                                     Trekkdager trekkdager,
-                                                                     int andelIArbeid,
-                                                                     int utbetalingsgrad) {
+            UttakResultatPeriodeEntitet uttakResultatPeriode,
+            Trekkdager trekkdager,
+            int andelIArbeid,
+            int utbetalingsgrad) {
         UttakAktivitetEntitet uttakAktivitet = new UttakAktivitetEntitet.Builder().medArbeidsforhold(
-            Arbeidsgiver.virksomhet(ORGNR), ARBEIDSFORHOLD_ID)
-            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
-            .build();
+                Arbeidsgiver.virksomhet(ORGNR), ARBEIDSFORHOLD_ID)
+                .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+                .build();
         return UttakResultatPeriodeAktivitetEntitet.builder(uttakResultatPeriode, uttakAktivitet)
-            .medTrekkonto(stønadskontoType)
-            .medTrekkdager(trekkdager)
-            .medArbeidsprosent(BigDecimal.valueOf(andelIArbeid))
-            .medUtbetalingsgrad(new Utbetalingsgrad(utbetalingsgrad))
-            .build();
+                .medTrekkonto(stønadskontoType)
+                .medTrekkdager(trekkdager)
+                .medArbeidsprosent(BigDecimal.valueOf(andelIArbeid))
+                .medUtbetalingsgrad(new Utbetalingsgrad(utbetalingsgrad))
+                .build();
     }
 
     private UttakResultatEntitet lagUttakResultatPlanForBehandling(Behandling behandling,
-                                                                   List<LocalDateInterval> perioder,
-                                                                   List<PeriodeResultatType> periodeResultatTyper) {
+            List<LocalDateInterval> perioder,
+            List<PeriodeResultatType> periodeResultatTyper) {
         return lagUttakResultatPlanForBehandling(behandling, perioder, Collections.nCopies(perioder.size(), false),
-            Collections.nCopies(perioder.size(), false), periodeResultatTyper, List.of(PeriodeResultatÅrsak.UKJENT),
-            List.of(true), List.of(100), List.of(100), List.of(Trekkdager.ZERO),
-            List.of(StønadskontoType.FORELDREPENGER));
+                Collections.nCopies(perioder.size(), false), periodeResultatTyper, List.of(PeriodeResultatÅrsak.UKJENT),
+                List.of(true), List.of(100), List.of(100), List.of(Trekkdager.ZERO),
+                List.of(StønadskontoType.FORELDREPENGER));
     }
 
-
     private UttakResultatEntitet lagUttakResultatPlanForBehandling(Behandling behandling,
-                                                                   List<LocalDateInterval> perioder,
-                                                                   StønadskontoType stønadskontoType) {
+            List<LocalDateInterval> perioder,
+            StønadskontoType stønadskontoType) {
         return lagUttakResultatPlanForBehandling(behandling, perioder, Collections.nCopies(perioder.size(), false),
-            Collections.nCopies(perioder.size(), false),
-            Collections.nCopies(perioder.size(), PeriodeResultatType.INNVILGET),
-            Collections.nCopies(perioder.size(), PeriodeResultatÅrsak.UKJENT),
-            Collections.nCopies(perioder.size(), true), List.of(100), List.of(100), List.of(new Trekkdager(1)),
-            List.of(stønadskontoType));
+                Collections.nCopies(perioder.size(), false),
+                Collections.nCopies(perioder.size(), PeriodeResultatType.INNVILGET),
+                Collections.nCopies(perioder.size(), PeriodeResultatÅrsak.UKJENT),
+                Collections.nCopies(perioder.size(), true), List.of(100), List.of(100), List.of(new Trekkdager(1)),
+                List.of(stønadskontoType));
     }
 
     private UttakResultatEntitet lagUttakResultatPlanForBehandling(Behandling behandling,
-                                                                   List<LocalDateInterval> perioder,
-                                                                   List<Boolean> samtidigUttak,
-                                                                   StønadskontoType stønadskontoType) {
+            List<LocalDateInterval> perioder,
+            List<Boolean> samtidigUttak,
+            StønadskontoType stønadskontoType) {
         return lagUttakResultatPlanForBehandling(behandling, perioder, samtidigUttak,
-            Collections.nCopies(perioder.size(), false),
-            Collections.nCopies(perioder.size(), PeriodeResultatType.INNVILGET),
-            Collections.nCopies(perioder.size(), PeriodeResultatÅrsak.UKJENT), samtidigUttak, List.of(100),
-            List.of(100), List.of(Trekkdager.ZERO), List.of(stønadskontoType));
+                Collections.nCopies(perioder.size(), false),
+                Collections.nCopies(perioder.size(), PeriodeResultatType.INNVILGET),
+                Collections.nCopies(perioder.size(), PeriodeResultatÅrsak.UKJENT), samtidigUttak, List.of(100),
+                List.of(100), List.of(Trekkdager.ZERO), List.of(stønadskontoType));
     }
 
     private UttakResultatEntitet lagUttakResultatPlanForBehandling(Behandling behandling,
-                                                                   List<LocalDateInterval> perioder,
-                                                                   List<Boolean> samtidigUttak,
-                                                                   List<Boolean> erFlerbarnsdager,
-                                                                   List<PeriodeResultatType> periodeResultatTyper,
-                                                                   List<PeriodeResultatÅrsak> periodeResultatÅrsak,
-                                                                   List<Boolean> graderingInnvilget,
-                                                                   List<Integer> andelIArbeid,
-                                                                   List<Integer> utbetalingsgrad,
-                                                                   List<Trekkdager> trekkdager,
-                                                                   List<StønadskontoType> stønadskontoTyper) {
+            List<LocalDateInterval> perioder,
+            List<Boolean> samtidigUttak,
+            List<Boolean> erFlerbarnsdager,
+            List<PeriodeResultatType> periodeResultatTyper,
+            List<PeriodeResultatÅrsak> periodeResultatÅrsak,
+            List<Boolean> graderingInnvilget,
+            List<Integer> andelIArbeid,
+            List<Integer> utbetalingsgrad,
+            List<Trekkdager> trekkdager,
+            List<StønadskontoType> stønadskontoTyper) {
         UttakResultatEntitet.Builder uttakResultatPlanBuilder = new UttakResultatEntitet.Builder(
-            behandling.getBehandlingsresultat());
+                behandling.getBehandlingsresultat());
         UttakResultatPerioderEntitet uttakResultatPerioder = new UttakResultatPerioderEntitet();
         assertThat(perioder).hasSize(samtidigUttak.size());
         assertThat(perioder).hasSize(periodeResultatTyper.size());
@@ -752,30 +751,30 @@ public class ErEndringIUttakTest {
         int antallPerioder = perioder.size();
         for (int i = 0; i < antallPerioder; i++) {
             lagUttakPeriodeMedPeriodeAktivitet(uttakResultatPerioder, perioder.get(i), samtidigUttak.get(i),
-                periodeResultatTyper.get(i), periodeResultatÅrsak.get(i), graderingInnvilget.get(i),
-                erFlerbarnsdager.get(i), andelIArbeid, utbetalingsgrad, trekkdager, stønadskontoTyper);
+                    periodeResultatTyper.get(i), periodeResultatÅrsak.get(i), graderingInnvilget.get(i),
+                    erFlerbarnsdager.get(i), andelIArbeid, utbetalingsgrad, trekkdager, stønadskontoTyper);
         }
         UttakResultatEntitet uttakResultat = uttakResultatPlanBuilder.medOpprinneligPerioder(uttakResultatPerioder)
-            .build();
+                .build();
         fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(),
-            uttakResultat.getGjeldendePerioder());
+                uttakResultat.getGjeldendePerioder());
         return uttakResultat;
 
     }
 
     private void lagUttakResultatPlanForBehandlingLogging(List<LocalDateInterval> perioder,
-                                                          List<Boolean> samtidigUttak,
-                                                          List<Boolean> erFlerbarnsdager,
-                                                          List<PeriodeResultatType> periodeResultatTyper,
-                                                          List<PeriodeResultatÅrsak> periodeResultatÅrsak,
-                                                          List<Boolean> graderingInnvilget,
-                                                          List<Integer> andelIArbeid,
-                                                          List<Integer> utbetalingsgrad,
-                                                          List<Trekkdager> trekkdager,
-                                                          List<StønadskontoType> stønadskontoTyper,
-                                                          List<OppholdÅrsak> oppholdÅrsaker,
-                                                          boolean overstyrt,
-                                                          UttakResultatEntitet.Builder uttakResultatPlanBuilder) {
+            List<Boolean> samtidigUttak,
+            List<Boolean> erFlerbarnsdager,
+            List<PeriodeResultatType> periodeResultatTyper,
+            List<PeriodeResultatÅrsak> periodeResultatÅrsak,
+            List<Boolean> graderingInnvilget,
+            List<Integer> andelIArbeid,
+            List<Integer> utbetalingsgrad,
+            List<Trekkdager> trekkdager,
+            List<StønadskontoType> stønadskontoTyper,
+            List<OppholdÅrsak> oppholdÅrsaker,
+            boolean overstyrt,
+            UttakResultatEntitet.Builder uttakResultatPlanBuilder) {
         UttakResultatPerioderEntitet uttakResultatPerioder = new UttakResultatPerioderEntitet();
         assertThat(perioder).hasSize(samtidigUttak.size());
         assertThat(perioder).hasSize(periodeResultatTyper.size());
@@ -785,42 +784,44 @@ public class ErEndringIUttakTest {
         for (int i = 0; i < antallPerioder; i++) {
             if (oppholdÅrsaker.get(i) != OppholdÅrsak.UDEFINERT) {
                 lagUttakPeriodeUtenPeriodeAktivitet(uttakResultatPerioder, perioder.get(i), samtidigUttak.get(i),
-                    periodeResultatTyper.get(i), periodeResultatÅrsak.get(i), graderingInnvilget.get(i),
-                    erFlerbarnsdager.get(i), oppholdÅrsaker.get(i));
+                        periodeResultatTyper.get(i), periodeResultatÅrsak.get(i), graderingInnvilget.get(i),
+                        erFlerbarnsdager.get(i), oppholdÅrsaker.get(i));
             } else {
                 lagUttakPeriodeMedPeriodeAktivitet(uttakResultatPerioder, perioder.get(i), samtidigUttak.get(i),
-                    periodeResultatTyper.get(i), periodeResultatÅrsak.get(i), graderingInnvilget.get(i),
-                    erFlerbarnsdager.get(i), List.of(andelIArbeid.get(i)), List.of(utbetalingsgrad.get(i)),
-                    List.of(trekkdager.get(i)), List.of(stønadskontoTyper.get(i)));
+                        periodeResultatTyper.get(i), periodeResultatÅrsak.get(i), graderingInnvilget.get(i),
+                        erFlerbarnsdager.get(i), List.of(andelIArbeid.get(i)), List.of(utbetalingsgrad.get(i)),
+                        List.of(trekkdager.get(i)), List.of(stønadskontoTyper.get(i)));
             }
         }
-        if (!overstyrt) uttakResultatPlanBuilder.medOpprinneligPerioder(uttakResultatPerioder);
-        else uttakResultatPlanBuilder.medOverstyrtPerioder(uttakResultatPerioder);
+        if (!overstyrt) {
+            uttakResultatPlanBuilder.medOpprinneligPerioder(uttakResultatPerioder);
+        } else {
+            uttakResultatPlanBuilder.medOverstyrtPerioder(uttakResultatPerioder);
+        }
     }
 
     private UttakResultatPeriodeEntitet byggPeriode(LocalDate fom,
-                                                    LocalDate tom,
-                                                    boolean samtidigUttak,
-                                                    PeriodeResultatType periodeResultatType,
-                                                    PeriodeResultatÅrsak periodeResultatÅrsak,
-                                                    boolean graderingInnvilget,
-                                                    boolean erFlerbarnsdager) {
+            LocalDate tom,
+            boolean samtidigUttak,
+            PeriodeResultatType periodeResultatType,
+            PeriodeResultatÅrsak periodeResultatÅrsak,
+            boolean graderingInnvilget,
+            boolean erFlerbarnsdager) {
         return new UttakResultatPeriodeEntitet.Builder(fom, tom).medSamtidigUttak(samtidigUttak)
-            .medResultatType(periodeResultatType, periodeResultatÅrsak)
-            .medGraderingInnvilget(graderingInnvilget)
-            .medFlerbarnsdager(erFlerbarnsdager)
-            .build();
+                .medResultatType(periodeResultatType, periodeResultatÅrsak)
+                .medGraderingInnvilget(graderingInnvilget)
+                .medFlerbarnsdager(erFlerbarnsdager)
+                .build();
     }
 
     private void lagBeregningsresultatperiodeMedEndringstidspunkt(LocalDate dato,
-                                                                  Behandling førstegangsbehandling,
-                                                                  Behandling revurdering) {
+            Behandling førstegangsbehandling,
+            Behandling revurdering) {
         BeregningsresultatEntitet originaltresultat = LagBeregningsresultatTjeneste.lagBeregningsresultatperiodeMedEndringstidspunkt(
-            dato, true, ORGNR);
+                dato, true, ORGNR);
         BeregningsresultatEntitet revurderingsresultat = LagBeregningsresultatTjeneste.lagBeregningsresultatperiodeMedEndringstidspunkt(
-            dato, false, ORGNR);
+                dato, false, ORGNR);
         beregningsresultatRepository.lagre(revurdering, revurderingsresultat);
         beregningsresultatRepository.lagre(førstegangsbehandling, originaltresultat);
     }
 }
-

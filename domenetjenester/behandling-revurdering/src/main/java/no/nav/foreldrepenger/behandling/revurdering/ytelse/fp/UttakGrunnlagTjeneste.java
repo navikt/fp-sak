@@ -44,12 +44,12 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
 
     @Inject
     public UttakGrunnlagTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
-                                 TapendeBehandlingTjeneste tapendeBehandlingTjeneste,
-                                 RelatertBehandlingTjeneste relatertBehandlingTjeneste,
-                                 FamilieHendelseTjeneste familieHendelseTjeneste) {
+            TapendeBehandlingTjeneste tapendeBehandlingTjeneste,
+            RelatertBehandlingTjeneste relatertBehandlingTjeneste,
+            FamilieHendelseTjeneste familieHendelseTjeneste) {
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.fagsakRelasjonRepository = behandlingRepositoryProvider.getFagsakRelasjonRepository();
-        this.behandlingVedtakRepository  = behandlingRepositoryProvider.getBehandlingVedtakRepository();
+        this.behandlingVedtakRepository = behandlingRepositoryProvider.getBehandlingVedtakRepository();
         this.tapendeBehandlingTjeneste = tapendeBehandlingTjeneste;
         this.relatertBehandlingTjeneste = relatertBehandlingTjeneste;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
@@ -75,9 +75,9 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
         var erTapendeBehandling = tapendeBehandlingTjeneste.erTapendeBehandling(behandling);
         var originalBehandling = originalBehandling(behandling);
         var grunnlag = new ForeldrepengerGrunnlag()
-            .medErTapendeBehandling(erTapendeBehandling)
-            .medFamilieHendelser(familiehendelser)
-            .medOriginalBehandling(originalBehandling.orElse(null));
+                .medErTapendeBehandling(erTapendeBehandling)
+                .medFamilieHendelser(familiehendelser)
+                .medOriginalBehandling(originalBehandling.orElse(null));
         if (fagsakRelasjon.isPresent()) {
             var annenpart = annenpart(fagsakRelasjon.get(), familiehendelser, behandling);
             grunnlag = grunnlag.medAnnenpart(annenpart.orElse(null));
@@ -97,7 +97,8 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
                 annenPartBehandling = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattBehandling(behandling.getFagsak().getSaksnummer());
             }
             if (annenPartBehandling.isPresent()) {
-                return Optional.of(new Annenpart(annenpartHarInnvilgetES(familiehendelser, relatertFagsak.get().getAktørId()), annenPartBehandling.get().getId()));
+                return Optional.of(new Annenpart(annenpartHarInnvilgetES(familiehendelser, relatertFagsak.get().getAktørId()),
+                        annenPartBehandling.get().getId()));
             }
         }
         return Optional.empty();
@@ -105,16 +106,18 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
 
     private Optional<OriginalBehandling> originalBehandling(Behandling behandling) {
         return behandling.getOriginalBehandlingId()
-            .map(obid -> new OriginalBehandling(obid, familieHendelser(familieHendelseTjeneste.hentAggregat(obid))));
+                .map(obid -> new OriginalBehandling(obid, familieHendelser(familieHendelseTjeneste.hentAggregat(obid))));
     }
 
     private FamilieHendelser familieHendelser(FamilieHendelseGrunnlagEntitet familieHendelseAggregat) {
         var gjelderFødsel = FamilieHendelseType.gjelderFødsel(familieHendelseAggregat.getGjeldendeVersjon().getType());
         var søknadFamilieHendelse = map(familieHendelseAggregat.getSøknadVersjon(), gjelderFødsel);
-        var bekreftetFamilieHendelse = familieHendelseAggregat.getBekreftetVersjon().isPresent() ? map(familieHendelseAggregat.getBekreftetVersjon().get(), gjelderFødsel) : null;
+        var bekreftetFamilieHendelse = familieHendelseAggregat.getBekreftetVersjon().isPresent()
+                ? map(familieHendelseAggregat.getBekreftetVersjon().get(), gjelderFødsel)
+                : null;
         var familieHendelser = new FamilieHendelser()
-            .medSøknadHendelse(søknadFamilieHendelse)
-            .medBekreftetHendelse(bekreftetFamilieHendelse);
+                .medSøknadHendelse(søknadFamilieHendelse)
+                .medBekreftetHendelse(bekreftetFamilieHendelse);
         var overstyrtVersjon = familieHendelseAggregat.getOverstyrtVersjon();
 //        Må sjekke om saksbehandler har dokumentert pga at overstyrt versjon av familiehendelse ikke inneholder fødselsdato hvis saksbehandler velger at fødsel ikke er dokumentert
 //        Dette skaper problemer i en revurdering etter avslag pga fødselsvilkåret, der vi trenger gjeldende fødselsdato fra forrige behandling
@@ -127,7 +130,8 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
     }
 
     private boolean saksbehandlerHarValgAtFødselErDokumentert(FamilieHendelseEntitet familieHendelseAggregat) {
-        //Antall barn settes til 0 hvis saksbehandler saksbehandler velger ikke dokumentert fødsel
+        // Antall barn settes til 0 hvis saksbehandler saksbehandler velger ikke
+        // dokumentert fødsel
         return familieHendelseAggregat.getAntallBarn() > 0;
     }
 
@@ -158,7 +162,8 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
 
     private boolean annenpartHarInnvilgetES(FamilieHendelser familieHendelser, AktørId annenpartAktørId) {
         return relatertBehandlingTjeneste.hentAnnenPartsInnvilgeteFagsakerMedYtelseType(annenpartAktørId, FagsakYtelseType.ENGANGSTØNAD).stream()
-            .flatMap(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()).stream())
-            .anyMatch(b -> familieHendelseTjeneste.harBehandlingFamilieHendelseDato(familieHendelser.getGjeldendeFamilieHendelse().getFamilieHendelseDato(), b.getId()));
+                .flatMap(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()).stream())
+                .anyMatch(b -> familieHendelseTjeneste
+                        .harBehandlingFamilieHendelseDato(familieHendelser.getGjeldendeFamilieHendelse().getFamilieHendelseDato(), b.getId()));
     }
 }

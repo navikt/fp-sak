@@ -19,6 +19,7 @@ import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
@@ -69,9 +70,9 @@ public class BekreftOpptjeningPeriodeAksjonspunktTest {
         VirksomhetTjeneste tjeneste = mock(VirksomhetTjeneste.class);
         Virksomhet.Builder builder = new Virksomhet.Builder();
         Virksomhet børreAs = builder.medOrgnr(KUNSTIG_ORG)
-            .medNavn("Børre AS")
-            .build();
-        Mockito.when(tjeneste.finnOrganisasjon(Mockito.any())).thenReturn(Optional.of(børreAs));
+                .medNavn("Børre AS")
+                .build();
+        Mockito.when(tjeneste.finnOrganisasjon(ArgumentMatchers.any())).thenReturn(Optional.of(børreAs));
         bekreftOpptjeningPeriodeAksjonspunkt = new BekreftOpptjeningPeriodeAksjonspunkt(iayTjeneste, vurderOpptjening);
     }
 
@@ -83,13 +84,13 @@ public class BekreftOpptjeningPeriodeAksjonspunktTest {
         DatoIntervallEntitet periode1 = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.minusMonths(3), iDag.minusMonths(2));
 
         iayTjeneste.lagreArbeidsforhold(behandling.getId(), AKTØRID, ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty())
-        .leggTil(ArbeidsforholdOverstyringBuilder
-            .oppdatere(Optional.empty())
-            .leggTilOverstyrtPeriode(periode1.getFomDato(), periode1.getTomDato())
-            .medAngittStillingsprosent(new Stillingsprosent(100))
-            .medArbeidsforholdRef(InternArbeidsforholdRef.nullRef())
-            .medArbeidsgiver(Arbeidsgiver.virksomhet(KUNSTIG_ORG))
-            .medAngittArbeidsgiverNavn("Ambassade")));
+                .leggTil(ArbeidsforholdOverstyringBuilder
+                        .oppdatere(Optional.empty())
+                        .leggTilOverstyrtPeriode(periode1.getFomDato(), periode1.getTomDato())
+                        .medAngittStillingsprosent(new Stillingsprosent(100))
+                        .medArbeidsforholdRef(InternArbeidsforholdRef.nullRef())
+                        .medArbeidsgiver(Arbeidsgiver.virksomhet(KUNSTIG_ORG))
+                        .medAngittArbeidsgiverNavn("Ambassade")));
 
         // simulerer svar fra GUI
         BekreftOpptjeningPeriodeDto dto = new BekreftOpptjeningPeriodeDto();
@@ -105,11 +106,11 @@ public class BekreftOpptjeningPeriodeAksjonspunktTest {
         dto.setErEndret(false);
         dto.setBegrunnelse("Ser greit ut");
 
-
         Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(iDag).build();
 
-        //Act
-        bekreftOpptjeningPeriodeAksjonspunkt.oppdater(behandling.getId(), behandling.getAktørId(), Collections.singletonList(dto), skjæringstidspunkt);
+        // Act
+        bekreftOpptjeningPeriodeAksjonspunkt.oppdater(behandling.getId(), behandling.getAktørId(), Collections.singletonList(dto),
+                skjæringstidspunkt);
 
         InntektArbeidYtelseGrunnlag grunnlag = hentGrunnlag(behandling);
         assertThat(grunnlag.getBekreftetAnnenOpptjening(behandling.getAktørId())).isPresent();
@@ -118,10 +119,10 @@ public class BekreftOpptjeningPeriodeAksjonspunktTest {
         Collection<Yrkesaktivitet> yrkesaktiviteter = filter.getYrkesaktiviteter();
 
         assertThat(yrkesaktiviteter).hasSize(1);
-        final List<DatoIntervallEntitet> perioder = filter.getAktivitetsAvtalerForArbeid().stream().map(AktivitetsAvtale::getPeriode).collect(Collectors.toList());
+        final List<DatoIntervallEntitet> perioder = filter.getAktivitetsAvtalerForArbeid().stream().map(AktivitetsAvtale::getPeriode)
+                .collect(Collectors.toList());
         assertThat(perioder).contains(periode1);
     }
-
 
     @Test
     public void skal_lagre_ned_bekreftet_aksjonspunkt() {
@@ -169,7 +170,7 @@ public class BekreftOpptjeningPeriodeAksjonspunktTest {
 
         Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(iDag).build();
 
-        //Act
+        // Act
         bekreftOpptjeningPeriodeAksjonspunkt.oppdater(behandling.getId(), behandling.getAktørId(), asList(dto, dto2, dto3), skjæringstidspunkt);
 
         InntektArbeidYtelseGrunnlag grunnlag = hentGrunnlag(behandling);
@@ -179,7 +180,8 @@ public class BekreftOpptjeningPeriodeAksjonspunktTest {
         Collection<Yrkesaktivitet> yrkesaktiviteter = filter.getYrkesaktiviteter();
 
         assertThat(yrkesaktiviteter).hasSize(1);
-        final List<DatoIntervallEntitet> perioder = filter.getAktivitetsAvtalerForArbeid().stream().map(AktivitetsAvtale::getPeriode).collect(Collectors.toList());
+        final List<DatoIntervallEntitet> perioder = filter.getAktivitetsAvtalerForArbeid().stream().map(AktivitetsAvtale::getPeriode)
+                .collect(Collectors.toList());
         assertThat(perioder).contains(periode1, periode2);
     }
 
@@ -194,7 +196,7 @@ public class BekreftOpptjeningPeriodeAksjonspunktTest {
 
         OppgittOpptjeningBuilder oppgitt = OppgittOpptjeningBuilder.ny();
         oppgitt.leggTilEgneNæringer(asList(OppgittOpptjeningBuilder.EgenNæringBuilder.ny()
-            .medPeriode(periode1)));
+                .medPeriode(periode1)));
         iayTjeneste.lagreOppgittOpptjening(behandling.getId(), oppgitt);
 
         BekreftOpptjeningPeriodeDto dto = new BekreftOpptjeningPeriodeDto();
@@ -209,7 +211,7 @@ public class BekreftOpptjeningPeriodeAksjonspunktTest {
 
         Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(iDag).build();
 
-        //Act
+        // Act
         bekreftOpptjeningPeriodeAksjonspunkt.oppdater(behandling.getId(), behandling.getAktørId(), asList(dto), skjæringstidspunkt);
         InntektArbeidYtelseGrunnlag grunnlag = hentGrunnlag(behandling);
         assertThat(grunnlag.getBekreftetAnnenOpptjening(behandling.getAktørId())).isPresent();
@@ -219,7 +221,8 @@ public class BekreftOpptjeningPeriodeAksjonspunktTest {
 
         assertThat(yrkesaktiviteter).hasSize(1);
         AktivitetsAvtale aktivitetsAvtale = filter.getAktivitetsAvtalerForArbeid().iterator().next();
-        assertThat(DatoIntervallEntitet.fraOgMedTilOgMed(aktivitetsAvtale.getPeriode().getFomDato(), aktivitetsAvtale.getPeriode().getTomDato())).isEqualTo(periode1_2);
+        assertThat(DatoIntervallEntitet.fraOgMedTilOgMed(aktivitetsAvtale.getPeriode().getFomDato(), aktivitetsAvtale.getPeriode().getTomDato()))
+                .isEqualTo(periode1_2);
     }
 
     private InntektArbeidYtelseGrunnlag hentGrunnlag(final Behandling behandling) {

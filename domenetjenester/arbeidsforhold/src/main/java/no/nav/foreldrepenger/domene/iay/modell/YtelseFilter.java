@@ -14,8 +14,9 @@ import java.util.stream.Collectors;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 /**
- * Filter for å hente ytelser fra grunnlag. Tilbyr håndtering av skjæringstidspunkt og filtereing på ytelser slik
- * at en ikke trenger å implementere selv navigering av modellen.
+ * Filter for å hente ytelser fra grunnlag. Tilbyr håndtering av
+ * skjæringstidspunkt og filtereing på ytelser slik at en ikke trenger å
+ * implementere selv navigering av modellen.
  */
 public class YtelseFilter {
     public static final YtelseFilter EMPTY = new YtelseFilter(Collections.emptyList());
@@ -74,10 +75,10 @@ public class YtelseFilter {
     @Override
     public String toString() {
         return getClass().getSimpleName()
-            + "<ytelser(" + ytelser.size() + ")"
-            + (skjæringstidspunkt == null ? "" : ", skjæringstidspunkt=" + skjæringstidspunkt)
-            + (venstreSideASkjæringstidspunkt == null ? "" : ", venstreSideASkjæringstidspunkt=" + venstreSideASkjæringstidspunkt)
-            + ">";
+                + "<ytelser(" + ytelser.size() + ")"
+                + (skjæringstidspunkt == null ? "" : ", skjæringstidspunkt=" + skjæringstidspunkt)
+                + (venstreSideASkjæringstidspunkt == null ? "" : ", venstreSideASkjæringstidspunkt=" + venstreSideASkjæringstidspunkt)
+                + ">";
     }
 
     /**
@@ -85,8 +86,8 @@ public class YtelseFilter {
      */
     private Collection<Ytelse> getFiltrertYtelser(Collection<Ytelse> ytelser) {
         Collection<Ytelse> resultat = ytelser.stream()
-            .filter(yt -> (this.ytelseFilter == null || this.ytelseFilter.test(yt)) && skalMedEtterSkjæringstidspunktVurdering(yt))
-            .collect(Collectors.toList());
+                .filter(yt -> ((this.ytelseFilter == null) || this.ytelseFilter.test(yt)) && skalMedEtterSkjæringstidspunktVurdering(yt))
+                .collect(Collectors.toList());
         return Collections.unmodifiableCollection(resultat);
     }
 
@@ -97,7 +98,7 @@ public class YtelseFilter {
                 return periode.getFomDato().isBefore(skjæringstidspunkt.plusDays(1));
             } else {
                 return periode.getFomDato().isAfter(skjæringstidspunkt) ||
-                    periode.getFomDato().isBefore(skjæringstidspunkt.plusDays(1)) && periode.getTomDato().isAfter(skjæringstidspunkt);
+                        (periode.getFomDato().isBefore(skjæringstidspunkt.plusDays(1)) && periode.getTomDato().isAfter(skjæringstidspunkt));
             }
         }
         return true;
@@ -111,7 +112,8 @@ public class YtelseFilter {
     }
 
     public YtelseFilter filter(Predicate<Ytelse> filterFunc) {
-        var copy = copyWith(getFiltrertYtelser().stream().filter(filterFunc).collect(Collectors.toList()), skjæringstidspunkt, venstreSideASkjæringstidspunkt);
+        var copy = copyWith(getFiltrertYtelser().stream().filter(filterFunc).collect(Collectors.toList()), skjæringstidspunkt,
+                venstreSideASkjæringstidspunkt);
         if (copy.ytelseFilter == null) {
             copy.ytelseFilter = filterFunc;
         } else {

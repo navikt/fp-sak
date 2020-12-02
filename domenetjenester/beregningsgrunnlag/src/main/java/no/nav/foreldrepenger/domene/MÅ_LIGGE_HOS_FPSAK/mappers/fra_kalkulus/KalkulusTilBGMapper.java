@@ -22,14 +22,12 @@ import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Beregningsgrunnlag
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriodeRegelType;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRegelType;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Hjemmel;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Inntektskategori;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.PeriodeÅrsak;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Sammenligningsgrunnlag;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.SammenligningsgrunnlagPrStatus;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.SammenligningsgrunnlagType;
-
 
 public class KalkulusTilBGMapper {
     public static Sammenligningsgrunnlag mapSammenligningsgrunnlag(SammenligningsgrunnlagDto fraKalkulus) {
@@ -48,19 +46,22 @@ public class KalkulusTilBGMapper {
         return builder;
     }
 
-    public static BeregningsgrunnlagPeriode.Builder mapBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriodeDto fraKalkulus, Optional<FaktaAggregatDto> faktaAggregat, List<RegelSporingPeriode> regelSporingerPeriode) {
+    public static BeregningsgrunnlagPeriode.Builder mapBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriodeDto fraKalkulus,
+            Optional<FaktaAggregatDto> faktaAggregat, List<RegelSporingPeriode> regelSporingerPeriode) {
         BeregningsgrunnlagPeriode.Builder builder = new BeregningsgrunnlagPeriode.Builder();
 
-        //med
+        // med
         builder.medAvkortetPrÅr(fraKalkulus.getAvkortetPrÅr());
         builder.medBeregningsgrunnlagPeriode(fraKalkulus.getBeregningsgrunnlagPeriodeFom(), fraKalkulus.getBeregningsgrunnlagPeriodeTom());
         builder.medBruttoPrÅr(fraKalkulus.getBruttoPrÅr());
         builder.medRedusertPrÅr(fraKalkulus.getRedusertPrÅr());
-        regelSporingerPeriode.forEach(rs -> builder.medRegelEvaluering(rs.getRegelInput(), rs.getRegelEvaluering(), BeregningsgrunnlagPeriodeRegelType.fraKode(rs.getRegelType().getKode())));
+        regelSporingerPeriode.forEach(rs -> builder.medRegelEvaluering(rs.getRegelInput(), rs.getRegelEvaluering(),
+                BeregningsgrunnlagPeriodeRegelType.fraKode(rs.getRegelType().getKode())));
 
-        //legg til
+        // legg til
         fraKalkulus.getPeriodeÅrsaker().forEach(periodeÅrsak -> builder.leggTilPeriodeÅrsak(PeriodeÅrsak.fraKode(periodeÅrsak.getKode())));
-        fraKalkulus.getBeregningsgrunnlagPrStatusOgAndelList().forEach( statusOgAndel -> builder.leggTilBeregningsgrunnlagPrStatusOgAndel(mapStatusOgAndel(statusOgAndel, faktaAggregat)));
+        fraKalkulus.getBeregningsgrunnlagPrStatusOgAndelList()
+                .forEach(statusOgAndel -> builder.leggTilBeregningsgrunnlagPrStatusOgAndel(mapStatusOgAndel(statusOgAndel, faktaAggregat)));
 
         return builder;
     }
@@ -75,34 +76,38 @@ public class KalkulusTilBGMapper {
         return builder;
     }
 
-    private static BeregningsgrunnlagPrStatusOgAndel.Builder mapStatusOgAndel(BeregningsgrunnlagPrStatusOgAndelDto fraKalkulus, Optional<FaktaAggregatDto> faktaAggregat) {
+    private static BeregningsgrunnlagPrStatusOgAndel.Builder mapStatusOgAndel(BeregningsgrunnlagPrStatusOgAndelDto fraKalkulus,
+            Optional<FaktaAggregatDto> faktaAggregat) {
         Optional<FaktaAktørDto> faktaAktør = faktaAggregat.flatMap(FaktaAggregatDto::getFaktaAktør);
-        Optional<FaktaArbeidsforholdDto> faktaArbeidsforhold = fraKalkulus.getBgAndelArbeidsforhold().flatMap(arbeidsforhold -> faktaAggregat.map(FaktaAggregatDto::getFaktaArbeidsforhold).orElse(Collections.emptyList())
-            .stream().filter(fa -> fa.gjelderFor(arbeidsforhold.getArbeidsgiver(), arbeidsforhold.getArbeidsforholdRef()))
-            .findFirst());
-
+        Optional<FaktaArbeidsforholdDto> faktaArbeidsforhold = fraKalkulus.getBgAndelArbeidsforhold()
+                .flatMap(arbeidsforhold -> faktaAggregat.map(FaktaAggregatDto::getFaktaArbeidsforhold).orElse(Collections.emptyList())
+                        .stream().filter(fa -> fa.gjelderFor(arbeidsforhold.getArbeidsgiver(), arbeidsforhold.getArbeidsforholdRef()))
+                        .findFirst());
 
         BeregningsgrunnlagPrStatusOgAndel.Builder builder = BeregningsgrunnlagPrStatusOgAndel.builder()
-            .medAktivitetStatus(AktivitetStatus.fraKode(fraKalkulus.getAktivitetStatus().getKode()))
-            .medAndelsnr(fraKalkulus.getAndelsnr())
-            .medArbforholdType(fraKalkulus.getArbeidsforholdType() == null ? null : OpptjeningAktivitetType.fraKode(fraKalkulus.getArbeidsforholdType().getKode()))
-            .medAvkortetBrukersAndelPrÅr(fraKalkulus.getAvkortetBrukersAndelPrÅr())
-            .medAvkortetPrÅr(fraKalkulus.getAvkortetPrÅr())
-            .medAvkortetRefusjonPrÅr(fraKalkulus.getAvkortetRefusjonPrÅr())
-            .medBeregnetPrÅr(fraKalkulus.getBeregnetPrÅr())
-            .medBesteberegningPrÅr(skalBesteberegnes(faktaAktør) ? fraKalkulus.getBeregnetPrÅr() : null)
-            .medFastsattAvSaksbehandler(fraKalkulus.getFastsattAvSaksbehandler())
-            .medOverstyrtPrÅr(fraKalkulus.getOverstyrtPrÅr())
-            .medFordeltPrÅr(fraKalkulus.getFordeltPrÅr())
-            .medRedusertPrÅr(fraKalkulus.getRedusertPrÅr())
-            .medRedusertBrukersAndelPrÅr(fraKalkulus.getRedusertBrukersAndelPrÅr())
-            .medMaksimalRefusjonPrÅr(fraKalkulus.getMaksimalRefusjonPrÅr())
-            .medRedusertRefusjonPrÅr(fraKalkulus.getRedusertRefusjonPrÅr())
-            .medÅrsbeløpFraTilstøtendeYtelse(fraKalkulus.getÅrsbeløpFraTilstøtendeYtelse() == null ? null : fraKalkulus.getÅrsbeløpFraTilstøtendeYtelse().getVerdi())
-            .medNyIArbeidslivet(erNyIarbeidslivet(fraKalkulus, faktaAktør))
-            .medInntektskategori(fraKalkulus.getInntektskategori() == null ? null : Inntektskategori.fraKode(fraKalkulus.getInntektskategori().getKode()))
-            .medKilde(AndelKilde.fraKode(fraKalkulus.getKilde().getKode()))
-            .medOrginalDagsatsFraTilstøtendeYtelse(fraKalkulus.getOrginalDagsatsFraTilstøtendeYtelse());
+                .medAktivitetStatus(AktivitetStatus.fraKode(fraKalkulus.getAktivitetStatus().getKode()))
+                .medAndelsnr(fraKalkulus.getAndelsnr())
+                .medArbforholdType(fraKalkulus.getArbeidsforholdType() == null ? null
+                        : OpptjeningAktivitetType.fraKode(fraKalkulus.getArbeidsforholdType().getKode()))
+                .medAvkortetBrukersAndelPrÅr(fraKalkulus.getAvkortetBrukersAndelPrÅr())
+                .medAvkortetPrÅr(fraKalkulus.getAvkortetPrÅr())
+                .medAvkortetRefusjonPrÅr(fraKalkulus.getAvkortetRefusjonPrÅr())
+                .medBeregnetPrÅr(fraKalkulus.getBeregnetPrÅr())
+                .medBesteberegningPrÅr(skalBesteberegnes(faktaAktør) ? fraKalkulus.getBeregnetPrÅr() : null)
+                .medFastsattAvSaksbehandler(fraKalkulus.getFastsattAvSaksbehandler())
+                .medOverstyrtPrÅr(fraKalkulus.getOverstyrtPrÅr())
+                .medFordeltPrÅr(fraKalkulus.getFordeltPrÅr())
+                .medRedusertPrÅr(fraKalkulus.getRedusertPrÅr())
+                .medRedusertBrukersAndelPrÅr(fraKalkulus.getRedusertBrukersAndelPrÅr())
+                .medMaksimalRefusjonPrÅr(fraKalkulus.getMaksimalRefusjonPrÅr())
+                .medRedusertRefusjonPrÅr(fraKalkulus.getRedusertRefusjonPrÅr())
+                .medÅrsbeløpFraTilstøtendeYtelse(
+                        fraKalkulus.getÅrsbeløpFraTilstøtendeYtelse() == null ? null : fraKalkulus.getÅrsbeløpFraTilstøtendeYtelse().getVerdi())
+                .medNyIArbeidslivet(erNyIarbeidslivet(fraKalkulus, faktaAktør))
+                .medInntektskategori(
+                        fraKalkulus.getInntektskategori() == null ? null : Inntektskategori.fraKode(fraKalkulus.getInntektskategori().getKode()))
+                .medKilde(AndelKilde.fraKode(fraKalkulus.getKilde().getKode()))
+                .medOrginalDagsatsFraTilstøtendeYtelse(fraKalkulus.getOrginalDagsatsFraTilstøtendeYtelse());
 
         if (fraKalkulus.getBeregningsperiodeFom() != null) {
             builder.medBeregningsperiode(fraKalkulus.getBeregningsperiodeFom(), fraKalkulus.getBeregningsperiodeTom());
@@ -112,9 +117,12 @@ public class KalkulusTilBGMapper {
             builder.medPgi(fraKalkulus.getPgiSnitt(), List.of(fraKalkulus.getPgi1(), fraKalkulus.getPgi2(), fraKalkulus.getPgi3()));
         }
 
-        fraKalkulus.getBgAndelArbeidsforhold().ifPresent(bgAndelArbeidsforhold -> builder.medBGAndelArbeidsforhold(KalkulusTilBGMapper.magBGAndelArbeidsforhold(bgAndelArbeidsforhold, faktaArbeidsforhold)));
-        erNyoppstartetFL(fraKalkulus, faktaAktør).ifPresent(aBoolean -> builder.medNyoppstartet(aBoolean, AktivitetStatus.fraKode(fraKalkulus.getAktivitetStatus().getKode())));
-        builder.medMottarYtelse(mapMottarYtelse(fraKalkulus, faktaAktør, faktaArbeidsforhold), AktivitetStatus.fraKode(fraKalkulus.getAktivitetStatus().getKode()));
+        fraKalkulus.getBgAndelArbeidsforhold().ifPresent(bgAndelArbeidsforhold -> builder
+                .medBGAndelArbeidsforhold(KalkulusTilBGMapper.magBGAndelArbeidsforhold(bgAndelArbeidsforhold, faktaArbeidsforhold)));
+        erNyoppstartetFL(fraKalkulus, faktaAktør)
+                .ifPresent(aBoolean -> builder.medNyoppstartet(aBoolean, AktivitetStatus.fraKode(fraKalkulus.getAktivitetStatus().getKode())));
+        builder.medMottarYtelse(mapMottarYtelse(fraKalkulus, faktaAktør, faktaArbeidsforhold),
+                AktivitetStatus.fraKode(fraKalkulus.getAktivitetStatus().getKode()));
         return builder;
     }
 
@@ -136,7 +144,8 @@ public class KalkulusTilBGMapper {
         return faktaAktør.map(fa -> fa.getSkalBesteberegnes() != null && fa.getSkalBesteberegnes().equals(true)).orElse(false);
     }
 
-    private static Boolean mapMottarYtelse(BeregningsgrunnlagPrStatusOgAndelDto fraKalkulus, Optional<FaktaAktørDto> faktaAktør, Optional<FaktaArbeidsforholdDto> faktaArbeidsforhold) {
+    private static Boolean mapMottarYtelse(BeregningsgrunnlagPrStatusOgAndelDto fraKalkulus, Optional<FaktaAktørDto> faktaAktør,
+            Optional<FaktaArbeidsforholdDto> faktaArbeidsforhold) {
         if (fraKalkulus.getAktivitetStatus().erFrilanser()) {
             return faktaAktør.map(FaktaAktørDto::getHarFLMottattYtelse).orElse(null);
         } else if (fraKalkulus.getAktivitetStatus().erArbeidstaker() && faktaArbeidsforhold.isPresent()) {
@@ -146,7 +155,7 @@ public class KalkulusTilBGMapper {
     }
 
     private static BGAndelArbeidsforhold.Builder magBGAndelArbeidsforhold(BGAndelArbeidsforholdDto fraKalkulus,
-                                                                          Optional<FaktaArbeidsforholdDto> faktaArbeidsforhold) {
+            Optional<FaktaArbeidsforholdDto> faktaArbeidsforhold) {
         BGAndelArbeidsforhold.Builder builder = BGAndelArbeidsforhold.builder();
         builder.medArbeidsforholdRef(KalkulusTilIAYMapper.mapArbeidsforholdRef(fraKalkulus.getArbeidsforholdRef()));
         builder.medArbeidsgiver(KalkulusTilIAYMapper.mapArbeidsgiver(fraKalkulus.getArbeidsgiver()));

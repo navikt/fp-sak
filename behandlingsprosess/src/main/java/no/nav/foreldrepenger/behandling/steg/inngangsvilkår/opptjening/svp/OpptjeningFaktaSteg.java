@@ -24,10 +24,10 @@ public class OpptjeningFaktaSteg extends OpptjeningFaktaStegFelles {
 
     @Inject
     public OpptjeningFaktaSteg(BehandlingRepositoryProvider repositoryProvider,
-                                  AksjonspunktutlederForVurderBekreftetOpptjening aksjonspunktutlederBekreftet,
-                                  AksjonspunktutlederForVurderOppgittOpptjening aksjonspunktutlederOppgitt,
-                                  @FagsakYtelseTypeRef("SVP") OpptjeningsVilkårTjeneste opptjeningsVilkårTjeneste,
-                                  SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+            AksjonspunktutlederForVurderBekreftetOpptjening aksjonspunktutlederBekreftet,
+            AksjonspunktutlederForVurderOppgittOpptjening aksjonspunktutlederOppgitt,
+            @FagsakYtelseTypeRef("SVP") OpptjeningsVilkårTjeneste opptjeningsVilkårTjeneste,
+            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         super(repositoryProvider, aksjonspunktutlederBekreftet, aksjonspunktutlederOppgitt, opptjeningsVilkårTjeneste, skjæringstidspunktTjeneste);
     }
 }

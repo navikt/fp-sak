@@ -36,39 +36,45 @@ class UtbetalingsgradBeregner {
     private static final BigDecimal HUNDRE_PROSENT = BigDecimal.valueOf(100);
     private static final BigDecimal TUSEN = BigDecimal.valueOf(1000);
 
-    static TilretteleggingMedUtbelingsgrad beregn(Collection<AktivitetsAvtale> avtalerAAreg, SvpTilretteleggingEntitet svpTilrettelegging, LocalDate termindato, Collection<Permisjon> velferdspermisjoner) {
+    static TilretteleggingMedUtbelingsgrad beregn(Collection<AktivitetsAvtale> avtalerAAreg, SvpTilretteleggingEntitet svpTilrettelegging,
+            LocalDate termindato, Collection<Permisjon> velferdspermisjoner) {
         var termindatoMinus3UkerOg1Dag = termindato.minusWeeks(3).minusDays(1);
 
-        var tidsserienForSøknad = byggTidsserienForSøknad(svpTilrettelegging.getTilretteleggingFOMListe(), svpTilrettelegging.getBehovForTilretteleggingFom(), termindatoMinus3UkerOg1Dag);
-        var ferdigBeregnet = byggTidsserienForAareg(avtalerAAreg, svpTilrettelegging.getBehovForTilretteleggingFom(), termindatoMinus3UkerOg1Dag, velferdspermisjoner)
-            .combine(tidsserienForSøknad, UtbetalingsgradBeregner::regnUtUtbetalingsgrad, LocalDateTimeline.JoinStyle.CROSS_JOIN);
+        var tidsserienForSøknad = byggTidsserienForSøknad(svpTilrettelegging.getTilretteleggingFOMListe(),
+                svpTilrettelegging.getBehovForTilretteleggingFom(), termindatoMinus3UkerOg1Dag);
+        var ferdigBeregnet = byggTidsserienForAareg(avtalerAAreg, svpTilrettelegging.getBehovForTilretteleggingFom(), termindatoMinus3UkerOg1Dag,
+                velferdspermisjoner)
+                        .combine(tidsserienForSøknad, UtbetalingsgradBeregner::regnUtUtbetalingsgrad, LocalDateTimeline.JoinStyle.CROSS_JOIN);
         return kappOgBehold(svpTilrettelegging, termindatoMinus3UkerOg1Dag, ferdigBeregnet);
     }
 
     static TilretteleggingMedUtbelingsgrad beregnUtenAAreg(SvpTilretteleggingEntitet svpTilrettelegging, LocalDate termindato) {
         var termindatoMinus3UkerOg1Dag = termindato.minusWeeks(3).minusDays(1);
         var hundreProsentHelePerioden = new LocalDateTimeline<>(List.of(new LocalDateSegment<>(svpTilrettelegging.getBehovForTilretteleggingFom(),
-            termindatoMinus3UkerOg1Dag, HUNDRE_PROSENT)));
+                termindatoMinus3UkerOg1Dag, HUNDRE_PROSENT)));
 
-        var tidsserienForSøknad = byggTidsserienForSøknad(svpTilrettelegging.getTilretteleggingFOMListe(), svpTilrettelegging.getBehovForTilretteleggingFom(), termindatoMinus3UkerOg1Dag);
+        var tidsserienForSøknad = byggTidsserienForSøknad(svpTilrettelegging.getTilretteleggingFOMListe(),
+                svpTilrettelegging.getBehovForTilretteleggingFom(), termindatoMinus3UkerOg1Dag);
         var hundreProsentKombinertMedSøknad = hundreProsentHelePerioden
-            .combine(tidsserienForSøknad, UtbetalingsgradBeregner::regnUtUtbetalingsgrad, LocalDateTimeline.JoinStyle.CROSS_JOIN);
+                .combine(tidsserienForSøknad, UtbetalingsgradBeregner::regnUtUtbetalingsgrad, LocalDateTimeline.JoinStyle.CROSS_JOIN);
 
         return kappOgBehold(svpTilrettelegging, termindatoMinus3UkerOg1Dag, hundreProsentKombinertMedSøknad);
     }
 
-    private static TilretteleggingMedUtbelingsgrad kappOgBehold(SvpTilretteleggingEntitet svpTilrettelegging, LocalDate termindatoMinus3UkerOg1Dag, LocalDateTimeline<BigDecimal> aaregKombinertMedSøknad) {
-        LocalDateTimeline<BigDecimal> ferdigKappet = aaregKombinertMedSøknad.intersection(new LocalDateInterval(svpTilrettelegging.getBehovForTilretteleggingFom(), termindatoMinus3UkerOg1Dag));
+    private static TilretteleggingMedUtbelingsgrad kappOgBehold(SvpTilretteleggingEntitet svpTilrettelegging, LocalDate termindatoMinus3UkerOg1Dag,
+            LocalDateTimeline<BigDecimal> aaregKombinertMedSøknad) {
+        LocalDateTimeline<BigDecimal> ferdigKappet = aaregKombinertMedSøknad
+                .intersection(new LocalDateInterval(svpTilrettelegging.getBehovForTilretteleggingFom(), termindatoMinus3UkerOg1Dag));
 
         List<PeriodeMedUtbetalingsgrad> periodeMedUtbetalingsgrad = beholdUtbetalingsgradSelvOmArbeidFrafaller(ferdigKappet).toSegments()
-            .stream()
-            .map(s -> new PeriodeMedUtbetalingsgrad(DatoIntervallEntitet.fraOgMedTilOgMed(s.getFom(), s.getTom()), s.getValue()))
-            .collect(Collectors.toList());
+                .stream()
+                .map(s -> new PeriodeMedUtbetalingsgrad(DatoIntervallEntitet.fraOgMedTilOgMed(s.getFom(), s.getTom()), s.getValue()))
+                .collect(Collectors.toList());
 
         var tilretteleggingArbeidsforhold = new TilretteleggingArbeidsforhold(
-            svpTilrettelegging.getArbeidsgiver().orElse(null),
-            svpTilrettelegging.getInternArbeidsforholdRef().orElse(InternArbeidsforholdRef.nullRef()),
-            finnUttakArbeidType(svpTilrettelegging.getArbeidType()));
+                svpTilrettelegging.getArbeidsgiver().orElse(null),
+                svpTilrettelegging.getInternArbeidsforholdRef().orElse(InternArbeidsforholdRef.nullRef()),
+                finnUttakArbeidType(svpTilrettelegging.getArbeidType()));
 
         return new TilretteleggingMedUtbelingsgrad(tilretteleggingArbeidsforhold, periodeMedUtbetalingsgrad);
     }
@@ -84,12 +90,14 @@ class UtbetalingsgradBeregner {
         return UttakArbeidType.ANNET;
     }
 
-    private static LocalDateTimeline<BigDecimal> byggTidsserienForAareg(Collection<AktivitetsAvtale> avtalerAAreg, LocalDate jordmorsdato, LocalDate termindato, Collection<Permisjon> velferdspermisjoner) {
+    private static LocalDateTimeline<BigDecimal> byggTidsserienForAareg(Collection<AktivitetsAvtale> avtalerAAreg, LocalDate jordmorsdato,
+            LocalDate termindato, Collection<Permisjon> velferdspermisjoner) {
         List<AktivitetsAvtale> aktiviteter = finnAktivitetsavtalerSomSkalBrukes(avtalerAAreg, jordmorsdato, termindato);
         BigDecimal summertStillingsprosent = finnSummertStillingsprosent(aktiviteter);
         LocalDate startDato;
         if (aktiviteter.stream().noneMatch(a -> a.getPeriode().inkluderer(jordmorsdato.minusDays(1)))) {
-            startDato = aktiviteter.stream().map(AktivitetsAvtale::getPeriode).map(DatoIntervallEntitet::getFomDato).min(Comparator.naturalOrder()).orElse(jordmorsdato);
+            startDato = aktiviteter.stream().map(AktivitetsAvtale::getPeriode).map(DatoIntervallEntitet::getFomDato).min(Comparator.naturalOrder())
+                    .orElse(jordmorsdato);
         } else {
             startDato = jordmorsdato;
         }
@@ -100,43 +108,45 @@ class UtbetalingsgradBeregner {
 
     }
 
-    private static BigDecimal finnStillingsprosentFraAareg(Collection<Permisjon> velferdspermisjoner, BigDecimal summertStillingsprosent, LocalDate startDato) {
+    private static BigDecimal finnStillingsprosentFraAareg(Collection<Permisjon> velferdspermisjoner, BigDecimal summertStillingsprosent,
+            LocalDate startDato) {
         BigDecimal summertVelferdspermisjon = velferdspermisjoner.stream().filter(p -> p.getPeriode().inkluderer(startDato))
-            .map(Permisjon::getProsentsats)
-            .map(Stillingsprosent::getVerdi)
-            .reduce(BigDecimal::add)
-            .orElse(BigDecimal.ZERO);
+                .map(Permisjon::getProsentsats)
+                .map(Stillingsprosent::getVerdi)
+                .reduce(BigDecimal::add)
+                .orElse(BigDecimal.ZERO);
         BigDecimal stillingsprosentFraAktivitetsavtaler = nullBlirTilHundre(ikkeHøyereEnn100(summertStillingsprosent));
         return stillingsprosentFraAktivitetsavtaler.subtract(summertVelferdspermisjon).max(BigDecimal.ZERO);
     }
 
     private static BigDecimal finnSummertStillingsprosent(List<AktivitetsAvtale> aktiviteter) {
         // Stillingsprosent kan vere null her
-        return aktiviteter.size() == 1 ?
-            nullBlirTilHundre(aktiviteter.get(0).getProsentsats() == null ? null : aktiviteter.get(0).getProsentsats().getVerdi()) :
-            aktiviteter.stream()
-                .map(AktivitetsAvtale::getProsentsats)
-                .reduce(UtbetalingsgradBeregner::summerStillingsprosent)
-                .map(Stillingsprosent::getVerdi)
-                .orElse(NULL_PROSENT);
+        return aktiviteter.size() == 1
+                ? nullBlirTilHundre(aktiviteter.get(0).getProsentsats() == null ? null : aktiviteter.get(0).getProsentsats().getVerdi())
+                : aktiviteter.stream()
+                        .map(AktivitetsAvtale::getProsentsats)
+                        .reduce(UtbetalingsgradBeregner::summerStillingsprosent)
+                        .map(Stillingsprosent::getVerdi)
+                        .orElse(NULL_PROSENT);
     }
 
     private static LocalDateSegment<BigDecimal> regnUtUtbetalingsgrad(LocalDateInterval di,
-                                                                      LocalDateSegment<BigDecimal> aareg,
-                                                                      LocalDateSegment<UtbetalingsgradBeregningProsent> tilrettelegging) {
-        if (tilrettelegging != null && tilrettelegging.getValue().overstyrtUtbetalingsgrad != null) {
+            LocalDateSegment<BigDecimal> aareg,
+            LocalDateSegment<UtbetalingsgradBeregningProsent> tilrettelegging) {
+        if ((tilrettelegging != null) && (tilrettelegging.getValue().overstyrtUtbetalingsgrad != null)) {
             return new LocalDateSegment<>(di, tilrettelegging.getValue().overstyrtUtbetalingsgrad);
         }
-        if (aareg != null && tilrettelegging != null) {
+        if ((aareg != null) && (tilrettelegging != null)) {
             BigDecimal opprinnelig = aareg.getValue();
             BigDecimal ny = tilrettelegging.getValue().stillingsprosent;
-            BigDecimal sum = opprinnelig.compareTo(NULL_PROSENT) == 0 ? NULL_PROSENT :
-                opprinnelig
-                    .subtract(ny)
-                    .divide(opprinnelig, 2, RoundingMode.HALF_UP)
-                    .multiply(HUNDRE_PROSENT);
+            BigDecimal sum = opprinnelig.compareTo(NULL_PROSENT) == 0 ? NULL_PROSENT
+                    : opprinnelig
+                            .subtract(ny)
+                            .divide(opprinnelig, 2, RoundingMode.HALF_UP)
+                            .multiply(HUNDRE_PROSENT);
 
-            // negativ sum blir satt til 0 utbetalingsgrad (Betaler ikke ut hvis man jobber mer...)
+            // negativ sum blir satt til 0 utbetalingsgrad (Betaler ikke ut hvis man jobber
+            // mer...)
             if (sum.compareTo(BigDecimal.ZERO) < 0) {
                 sum = BigDecimal.ZERO;
             }
@@ -149,13 +159,13 @@ class UtbetalingsgradBeregner {
 
     private static Stillingsprosent summerStillingsprosent(Stillingsprosent førsteVersjon, Stillingsprosent sisteVersjon) {
 
-        if (førsteVersjon != null && førsteVersjon.getVerdi() != null && sisteVersjon != null && sisteVersjon.getVerdi() != null) {
+        if ((førsteVersjon != null) && (førsteVersjon.getVerdi() != null) && (sisteVersjon != null) && (sisteVersjon.getVerdi() != null)) {
             return new Stillingsprosent(nullBlirTilHundre(ikkeHøyereEnn100(førsteVersjon.getVerdi().add(sisteVersjon.getVerdi()))));
         }
-        if (førsteVersjon != null && førsteVersjon.getVerdi() != null) {
+        if ((førsteVersjon != null) && (førsteVersjon.getVerdi() != null)) {
             return new Stillingsprosent(nullBlirTilHundre(ikkeHøyereEnn100(førsteVersjon.getVerdi())));
         }
-        if (sisteVersjon != null && sisteVersjon.getVerdi() != null) {
+        if ((sisteVersjon != null) && (sisteVersjon.getVerdi() != null)) {
             return new Stillingsprosent(nullBlirTilHundre(ikkeHøyereEnn100(sisteVersjon.getVerdi())));
         }
         return new Stillingsprosent(HUNDRE_PROSENT);
@@ -169,19 +179,20 @@ class UtbetalingsgradBeregner {
     }
 
     private static BigDecimal nullBlirTilHundre(BigDecimal verdi) {
-        return verdi == null || verdi.compareTo(NULL_PROSENT) == 0 ? HUNDRE_PROSENT : verdi;
+        return (verdi == null) || (verdi.compareTo(NULL_PROSENT) == 0) ? HUNDRE_PROSENT : verdi;
     }
 
     private static LocalDateTimeline<UtbetalingsgradBeregningProsent> byggTidsserienForSøknad(List<TilretteleggingFOM> tilretteleggingFOMListe,
-                                                                                              LocalDate jordmorsdato,
-                                                                                              LocalDate termindato) {
-        List<TilretteleggingFOM> sortert = tilretteleggingFOMListe.stream().sorted(Comparator.comparing(TilretteleggingFOM::getFomDato)).collect(Collectors.toList());
+            LocalDate jordmorsdato,
+            LocalDate termindato) {
+        List<TilretteleggingFOM> sortert = tilretteleggingFOMListe.stream().sorted(Comparator.comparing(TilretteleggingFOM::getFomDato))
+                .collect(Collectors.toList());
         List<LocalDateSegment<UtbetalingsgradBeregningProsent>> segmenter = new ArrayList<>();
 
         for (int i = 0; i < sortert.size(); i++) {
-            if (i == 0 && sortert.get(i).getFomDato().isAfter(jordmorsdato)) {
+            if ((i == 0) && sortert.get(i).getFomDato().isAfter(jordmorsdato)) {
                 segmenter.add(new LocalDateSegment<>(jordmorsdato, sortert.get(i).getFomDato().minusDays(1),
-                    new UtbetalingsgradBeregningProsent(NULL_PROSENT, null)));
+                        new UtbetalingsgradBeregningProsent(NULL_PROSENT, null)));
             }
             segmenter.add(new LocalDateSegment<>(sortert.get(i).getFomDato(), finnSluttdato(i, sortert, termindato), finnProsent(sortert.get(i))));
         }
@@ -216,7 +227,7 @@ class UtbetalingsgradBeregner {
         BigDecimal forrigeVerdi = null;
         while (iterator.hasNext()) {
             LocalDateSegment<BigDecimal> next = iterator.next();
-            if (TUSEN.equals(next.getValue()) && forrigeVerdi == null) {
+            if (TUSEN.equals(next.getValue()) && (forrigeVerdi == null)) {
                 segmenter.add(new LocalDateSegment<>(next.getLocalDateInterval(), NULL_PROSENT));
             } else if (TUSEN.equals(next.getValue())) {
                 segmenter.add(new LocalDateSegment<>(next.getLocalDateInterval(), forrigeVerdi));

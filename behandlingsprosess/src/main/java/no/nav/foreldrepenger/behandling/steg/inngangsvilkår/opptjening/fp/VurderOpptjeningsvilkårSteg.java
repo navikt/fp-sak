@@ -38,8 +38,8 @@ public class VurderOpptjeningsvilkårSteg extends VurderOpptjeningsvilkårStegFe
 
     @Inject
     public VurderOpptjeningsvilkårSteg(BehandlingRepositoryProvider repositoryProvider,
-                                       OpptjeningRepository opptjeningRepository,
-                                       InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste) {
+            OpptjeningRepository opptjeningRepository,
+            InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste) {
         super(repositoryProvider, opptjeningRepository, inngangsvilkårFellesTjeneste, BehandlingStegType.VURDER_OPPTJENINGSVILKÅR);
     }
 
@@ -54,7 +54,8 @@ public class VurderOpptjeningsvilkårSteg extends VurderOpptjeningsvilkårStegFe
     }
 
     /**
-     * Overstyr stegresultat og sett en frist dersom vi må vente på opptjeningsopplysninger.
+     * Overstyr stegresultat og sett en frist dersom vi må vente på
+     * opptjeningsopplysninger.
      */
     @Override
     protected BehandleStegResultat stegResultat(RegelResultat regelResultat) {
@@ -64,7 +65,7 @@ public class VurderOpptjeningsvilkårSteg extends VurderOpptjeningsvilkårStegFe
         if (regelResultat.getAksjonspunktDefinisjoner().contains(apDef)) {
             LocalDateTime frist = getVentPåOpptjeningsopplysningerFrist(regelResultat);
             return stegResultat.medAksjonspunktResultat(
-                AksjonspunktResultat.opprettForAksjonspunktMedFrist(apDef, Venteårsak.VENT_OPPTJENING_OPPLYSNINGER, frist));
+                    AksjonspunktResultat.opprettForAksjonspunktMedFrist(apDef, Venteårsak.VENT_OPPTJENING_OPPLYSNINGER, frist));
         }
         return stegResultat;
     }

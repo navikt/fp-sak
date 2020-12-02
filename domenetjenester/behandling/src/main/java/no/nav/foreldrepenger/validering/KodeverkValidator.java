@@ -37,7 +37,7 @@ public abstract class KodeverkValidator<T> implements ConstraintValidator<ValidK
     }
 
     boolean gyldigLengde(String str, int min, int max) {
-        return (str.length() >= min && str.length() <= max);
+        return ((str.length() >= min) && (str.length() <= max));
     }
 
 }

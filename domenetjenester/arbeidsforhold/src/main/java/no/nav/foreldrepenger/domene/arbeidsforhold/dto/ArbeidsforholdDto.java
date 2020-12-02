@@ -9,7 +9,7 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingTy
 
 public class ArbeidsforholdDto {
 
-    //NOSONAR
+    // NOSONAR
     private String id;
     // For ny visning i GUI (orgnr eller aktørId)
     private String arbeidsgiverReferanse;

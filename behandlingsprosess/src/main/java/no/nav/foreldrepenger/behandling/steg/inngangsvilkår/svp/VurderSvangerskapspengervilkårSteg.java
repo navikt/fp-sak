@@ -23,11 +23,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 public class VurderSvangerskapspengervilkårSteg extends InngangsvilkårStegImpl {
 
     private static List<VilkårType> STØTTEDE_VILKÅR = singletonList(
-        VilkårType.SVANGERSKAPSPENGERVILKÅR
-    );
+            VilkårType.SVANGERSKAPSPENGERVILKÅR);
 
     @Inject
-    public VurderSvangerskapspengervilkårSteg(BehandlingRepositoryProvider repositoryProvider, InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste) {
+    public VurderSvangerskapspengervilkårSteg(BehandlingRepositoryProvider repositoryProvider,
+            InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste) {
         super(repositoryProvider, inngangsvilkårFellesTjeneste, BehandlingStegType.VURDER_SVANGERSKAPSPENGERVILKÅR);
     }
 

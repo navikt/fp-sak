@@ -22,17 +22,21 @@ class FileRef {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if ((o == null) || (getClass() != o.getClass())) {
+            return false;
+        }
         FileRef fileRef = (FileRef) o;
         return Arrays.equals(bytes, fileRef.bytes) &&
-            Objects.equals(utfall, fileRef.utfall);
+                Objects.equals(utfall, fileRef.utfall);
     }
 
     @Override
     public int hashCode() {
         int result = Objects.hash(utfall);
-        result = 31 * result + Arrays.hashCode(bytes);
+        result = (31 * result) + Arrays.hashCode(bytes);
         return result;
     }
 }

@@ -148,7 +148,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
     public void behandlingTilbakeføringTilTidligsteAksjonspunkt(BehandlingskontrollKontekst kontekst,
             Collection<String> oppdaterteAksjonspunkter) {
 
-        if (oppdaterteAksjonspunkter == null || oppdaterteAksjonspunkter.isEmpty()) {
+        if ((oppdaterteAksjonspunkter == null) || oppdaterteAksjonspunkter.isEmpty()) {
             return;
         }
 
@@ -622,7 +622,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
             throw new IllegalStateException(
                     "Kan ikke angi steg [" + tidligereStegType + "] som er etter [" + stegType + "]" + "for behandlingId " + behandling.getId()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
         }
-        if (tidligereStegType.equals(stegType) && behandling.getBehandlingStegStatus() != null
+        if (tidligereStegType.equals(stegType) && (behandling.getBehandlingStegStatus() != null)
                 && behandling.getBehandlingStegStatus().erVedInngang()) {
             // Her står man allerede på steget man skal tilbakeføres, på inngang -> ingen
             // tilbakeføring gjennomføres.

@@ -42,7 +42,7 @@ public class BarnInfo implements UidentifisertBarn {
         }
         BarnInfo barnInfo = (BarnInfo) o;
         return Objects.equals(barnNummer, barnInfo.barnNummer) &&
-            Objects.equals(fødselsdato, barnInfo.fødselsdato);
+                Objects.equals(fødselsdato, barnInfo.fødselsdato);
     }
 
     @Override

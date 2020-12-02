@@ -66,57 +66,57 @@ public class BerørtBehandlingTjenesteTest {
         when(repositoryProvider.getHistorikkRepository()).thenReturn(historikkRepository);
         when(repositoryProvider.getFpUttakRepository()).thenReturn(fpUttakRepository);
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER,
-            new NavBrukerBuilder().medAktørId(AktørId.dummy()).build());
+                new NavBrukerBuilder().medAktørId(AktørId.dummy()).build());
         var førsteBehandling = Behandling.forFørstegangssøknad(fagsak).build();
         revurdering = Behandling.fraTidligereBehandling(førsteBehandling, BehandlingType.REVURDERING).build();
         berørtBehandlingTjeneste = new BerørtBehandlingTjeneste(stønadskontoSaldoTjeneste, repositoryProvider,
-            uttakInputTjeneste,
-            new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()));
+                uttakInputTjeneste,
+                new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()));
     }
 
-    //Scenarie 1 - Opphør
+    // Scenarie 1 - Opphør
     @Test
     public void skal_opprette_berørt_behandling_dersom_behandlingsresultater_er_opphør() {
         var behandlingsresultat = lagBehandlingsresultat(BehandlingResultatType.OPPHØR,
-            KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER, false);
+                KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER, false);
         var uttakInput = new UttakInput(BehandlingReferanse.fra(revurdering), null, new ForeldrepengerGrunnlag());
         when(uttakInputTjeneste.lagInput(revurdering.getId())).thenReturn(uttakInput);
 
         assertThat(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(behandlingsresultat,
-            lagUttakResultatPerioder(LocalDate.now().minusDays(5), LocalDate.now().plusDays(5), false, false),
-            lagUttakResultatPerioder(LocalDate.now().plusDays(6), LocalDate.now().plusDays(12), false,
-                false))).isTrue();
+                lagUttakResultatPerioder(LocalDate.now().minusDays(5), LocalDate.now().plusDays(5), false, false),
+                lagUttakResultatPerioder(LocalDate.now().plusDays(6), LocalDate.now().plusDays(12), false,
+                        false))).isTrue();
     }
 
-    //Scenarie 2a - endring i beregning
+    // Scenarie 2a - endring i beregning
     @Test
     public void skal_opprette_berørt_behandling_dersom_revudering_er_innvilget_med_endring_i_stønadskonto() {
         var behandlingsresultat = lagBehandlingsresultat(BehandlingResultatType.INNVILGET,
-            KonsekvensForYtelsen.ENDRING_I_BEREGNING, true);
+                KonsekvensForYtelsen.ENDRING_I_BEREGNING, true);
         var uttakInput = new UttakInput(BehandlingReferanse.fra(revurdering), null, new ForeldrepengerGrunnlag());
         when(uttakInputTjeneste.lagInput(revurdering.getId())).thenReturn(uttakInput);
 
         assertThat(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(behandlingsresultat, Optional.empty(),
-            Optional.empty())).isTrue();
+                Optional.empty())).isTrue();
     }
 
-    //Scenarie 2b - endring i uttak
+    // Scenarie 2b - endring i uttak
     @Test
     public void skal_opprette_berørt_behandling_dersom_revudering_er_innvilget_med_endring_i_uttak() {
         var behandlingsresultat = lagBehandlingsresultat(BehandlingResultatType.INNVILGET,
-            KonsekvensForYtelsen.ENDRING_I_UTTAK, true);
+                KonsekvensForYtelsen.ENDRING_I_UTTAK, true);
         var uttakInput = new UttakInput(BehandlingReferanse.fra(revurdering), null, new ForeldrepengerGrunnlag());
         when(uttakInputTjeneste.lagInput(revurdering.getId())).thenReturn(uttakInput);
 
         assertThat(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(behandlingsresultat, Optional.empty(),
-            Optional.empty())).isTrue();
+                Optional.empty())).isTrue();
     }
 
-    //Scenarie 4a - foreldrepenger er endret og uttak har overlappende perioder
+    // Scenarie 4a - foreldrepenger er endret og uttak har overlappende perioder
     @Test
     public void skal_opprette_berørt_behandling_dersom_revudering_er_endring_i_foreldrepenger_med_endring_i_uttak_overlappende_perioder() {
         var behandlingsresultat = lagBehandlingsresultat(BehandlingResultatType.FORELDREPENGER_ENDRET,
-            KonsekvensForYtelsen.ENDRING_I_UTTAK, false);
+                KonsekvensForYtelsen.ENDRING_I_UTTAK, false);
 
         var behandling = revurdering;
         var uttakInput = new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag());
@@ -124,16 +124,16 @@ public class BerørtBehandlingTjenesteTest {
         when(uttakInputTjeneste.lagInput(behandling.getId())).thenReturn(uttakInput);
 
         assertThat(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(behandlingsresultat,
-            lagUttakResultatPerioder(LocalDate.now().minusDays(5), LocalDate.now().plusDays(5), false, false),
-            lagUttakResultatPerioder(LocalDate.now().minusDays(12), LocalDate.now().plusDays(2), false,
-                false))).isTrue();
+                lagUttakResultatPerioder(LocalDate.now().minusDays(5), LocalDate.now().plusDays(5), false, false),
+                lagUttakResultatPerioder(LocalDate.now().minusDays(12), LocalDate.now().plusDays(2), false,
+                        false))).isTrue();
     }
 
-    //foreldrepenger er endret og uttak har ikke overlappende perioder
+    // foreldrepenger er endret og uttak har ikke overlappende perioder
     @Test
     public void skal_ikke_opprette_berørt_behandling_dersom_revudering_er_endring_i_foreldrepenger_med_endring_i_uttak_og_ikke_overlappende_perioder() {
         var behandlingsresultat = lagBehandlingsresultat(BehandlingResultatType.FORELDREPENGER_ENDRET,
-            KonsekvensForYtelsen.ENDRING_I_UTTAK, false);
+                KonsekvensForYtelsen.ENDRING_I_UTTAK, false);
 
         var behandling = revurdering;
         var uttakInput = new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag());
@@ -141,16 +141,16 @@ public class BerørtBehandlingTjenesteTest {
         when(uttakInputTjeneste.lagInput(behandling.getId())).thenReturn(uttakInput);
 
         assertThat(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(behandlingsresultat,
-            lagUttakResultatPerioder(LocalDate.now().minusDays(12), LocalDate.now().plusDays(2), true, false),
-            lagUttakResultatPerioder(LocalDate.now().plusDays(3), LocalDate.now().plusDays(5), false,
-                false))).isFalse();
+                lagUttakResultatPerioder(LocalDate.now().minusDays(12), LocalDate.now().plusDays(2), true, false),
+                lagUttakResultatPerioder(LocalDate.now().plusDays(3), LocalDate.now().plusDays(5), false,
+                        false))).isFalse();
     }
 
-    //foreldrepenger er endret og uttak har overlappende avslått periode
+    // foreldrepenger er endret og uttak har overlappende avslått periode
     @Test
     public void skal_ikke_opprette_berørt_behandling_dersom_revudering_er_endring_i_foreldrepenger_med_endring_i_uttak_og_overlappende_avslått_perioder() {
         var behandlingsresultat = lagBehandlingsresultat(BehandlingResultatType.FORELDREPENGER_ENDRET,
-            KonsekvensForYtelsen.ENDRING_I_UTTAK, false);
+                KonsekvensForYtelsen.ENDRING_I_UTTAK, false);
 
         var behandling = revurdering;
         var uttakInput = new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag());
@@ -158,16 +158,17 @@ public class BerørtBehandlingTjenesteTest {
         when(stønadskontoSaldoTjeneste.erNegativSaldoPåNoenKonto(uttakInput)).thenReturn(false);
 
         assertThat(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(behandlingsresultat,
-            lagUttakResultatPerioder(LocalDate.now().minusDays(12), LocalDate.now().plusDays(2), false, true),
-            lagUttakResultatPerioder(LocalDate.now().plusDays(3), LocalDate.now().plusDays(5), false,
-                false))).isFalse();
+                lagUttakResultatPerioder(LocalDate.now().minusDays(12), LocalDate.now().plusDays(2), false, true),
+                lagUttakResultatPerioder(LocalDate.now().plusDays(3), LocalDate.now().plusDays(5), false,
+                        false))).isFalse();
     }
 
-    //foreldrepenger er endret og uttak har overlappende avslått periode med trekkdager
+    // foreldrepenger er endret og uttak har overlappende avslått periode med
+    // trekkdager
     @Test
     public void skal_opprette_berørt_behandling_dersom_revudering_er_endring_i_foreldrepenger_med_endring_i_uttak_og_overlappende_avslått_perioder_med_trekkdager() {
         var behandlingsresultat = lagBehandlingsresultat(BehandlingResultatType.FORELDREPENGER_ENDRET,
-            KonsekvensForYtelsen.ENDRING_I_UTTAK, false);
+                KonsekvensForYtelsen.ENDRING_I_UTTAK, false);
 
         var behandling = revurdering;
         var uttakInput = new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag());
@@ -175,52 +176,52 @@ public class BerørtBehandlingTjenesteTest {
         when(stønadskontoSaldoTjeneste.erNegativSaldoPåNoenKonto(uttakInput)).thenReturn(false);
 
         var brukersPeriode = new ForeldrepengerUttakPeriode.Builder()
-            .medTidsperiode(LocalDate.of(2020, 1, 1), LocalDate.of(2020, 1, 1).plusWeeks(1))
-            .medResultatType(PeriodeResultatType.INNVILGET)
-            .build();
+                .medTidsperiode(LocalDate.of(2020, 1, 1), LocalDate.of(2020, 1, 1).plusWeeks(1))
+                .medResultatType(PeriodeResultatType.INNVILGET)
+                .build();
         List<ForeldrepengerUttakPeriode> brukersPerioder = List.of(brukersPeriode);
         var brukersUttak = new ForeldrepengerUttak(brukersPerioder);
         var annenpartInnvilgetPeriode = new ForeldrepengerUttakPeriode.Builder()
-            .medTidsperiode(brukersPeriode.getFom().minusWeeks(1), brukersPeriode.getFom().minusDays(1))
-            .medResultatType(PeriodeResultatType.INNVILGET)
-            .build();
+                .medTidsperiode(brukersPeriode.getFom().minusWeeks(1), brukersPeriode.getFom().minusDays(1))
+                .medResultatType(PeriodeResultatType.INNVILGET)
+                .build();
         var aktivitetMedTrekkdager = new ForeldrepengerUttakPeriodeAktivitet.Builder()
-            .medTrekkdager(new Trekkdager(10))
-            .medArbeidsprosent(BigDecimal.ZERO)
-            .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.FRILANS))
-            .build();
+                .medTrekkdager(new Trekkdager(10))
+                .medArbeidsprosent(BigDecimal.ZERO)
+                .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.FRILANS))
+                .build();
         var annenpartOverlappendeAvslåttMedTrekkdager = new ForeldrepengerUttakPeriode.Builder()
-            .medTidsperiode(brukersPeriode.getFom(), brukersPeriode.getTom())
-            .medResultatType(PeriodeResultatType.AVSLÅTT)
-            .medAktiviteter(List.of(aktivitetMedTrekkdager))
-            .build();
+                .medTidsperiode(brukersPeriode.getFom(), brukersPeriode.getTom())
+                .medResultatType(PeriodeResultatType.AVSLÅTT)
+                .medAktiviteter(List.of(aktivitetMedTrekkdager))
+                .build();
         List<ForeldrepengerUttakPeriode> annenpartPerioder = List.of(annenpartInnvilgetPeriode,
-            annenpartOverlappendeAvslåttMedTrekkdager);
+                annenpartOverlappendeAvslåttMedTrekkdager);
         var annenpartUttak = new ForeldrepengerUttak(annenpartPerioder);
         var skalOpprettes = berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(behandlingsresultat,
-            Optional.of(brukersUttak), Optional.of(annenpartUttak));
+                Optional.of(brukersUttak), Optional.of(annenpartUttak));
         assertThat(skalOpprettes).isTrue();
     }
 
-    //Scenarie 4b - foreldrepenger er innvilget og uttak har negativ saldo
+    // Scenarie 4b - foreldrepenger er innvilget og uttak har negativ saldo
     @Test
     public void skal_opprette_berørt_behandling_dersom_revudering_er_innvilget_med_endring_i_uttak_negativ_saldo() {
         var behandlingsresultat = lagBehandlingsresultat(BehandlingResultatType.INNVILGET,
-            KonsekvensForYtelsen.ENDRING_I_UTTAK, false);
+                KonsekvensForYtelsen.ENDRING_I_UTTAK, false);
         var uttakInput = new UttakInput(BehandlingReferanse.fra(revurdering), null, new ForeldrepengerGrunnlag());
         when(uttakInputTjeneste.lagInput(revurdering.getId())).thenReturn(uttakInput);
 
         when(stønadskontoSaldoTjeneste.erNegativSaldoPåNoenKonto(uttakInput)).thenReturn(true);
         assertThat(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(behandlingsresultat, Optional.empty(),
-            Optional.empty())).isTrue();
+                Optional.empty())).isTrue();
     }
 
     @Test
     public void skal_ikke_opprette_berørt_behandling_dersom_revudering_er_berørt_behandling() {
         revurdering.getBehandlingÅrsaker()
-            .add(BehandlingÅrsak.builder(BehandlingÅrsakType.BERØRT_BEHANDLING).buildFor(revurdering).get(0));
+                .add(BehandlingÅrsak.builder(BehandlingÅrsakType.BERØRT_BEHANDLING).buildFor(revurdering).get(0));
         var behandlingsresultat = lagBehandlingsresultat(BehandlingResultatType.FORELDREPENGER_ENDRET,
-            KonsekvensForYtelsen.ENDRING_I_UTTAK, false);
+                KonsekvensForYtelsen.ENDRING_I_UTTAK, false);
 
         var behandling = revurdering;
         var uttakInput = new UttakInput(BehandlingReferanse.fra(behandling), null, new ForeldrepengerGrunnlag());
@@ -228,43 +229,43 @@ public class BerørtBehandlingTjenesteTest {
         when(uttakInputTjeneste.lagInput(behandling.getId())).thenReturn(uttakInput);
 
         assertThat(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(behandlingsresultat,
-            lagUttakResultatPerioder(LocalDate.now().minusDays(12), LocalDate.now().plusDays(2), true, false),
-            lagUttakResultatPerioder(LocalDate.now().plusDays(3), LocalDate.now().plusDays(5), false,
-                false))).isFalse();
+                lagUttakResultatPerioder(LocalDate.now().minusDays(12), LocalDate.now().plusDays(2), true, false),
+                lagUttakResultatPerioder(LocalDate.now().plusDays(3), LocalDate.now().plusDays(5), false,
+                        false))).isFalse();
     }
 
     private Optional<Behandlingsresultat> lagBehandlingsresultat(BehandlingResultatType behandlingResultatType,
-                                                                 KonsekvensForYtelsen konsekvensForYtelsen,
-                                                                 boolean harEndretStønadskonto) {
+            KonsekvensForYtelsen konsekvensForYtelsen,
+            boolean harEndretStønadskonto) {
         return Optional.of(Behandlingsresultat.builder()
-            .medBehandlingResultatType(behandlingResultatType)
-            .leggTilKonsekvensForYtelsen(konsekvensForYtelsen)
-            .medEndretStønadskonto(harEndretStønadskonto)
-            .buildFor(revurdering));
+                .medBehandlingResultatType(behandlingResultatType)
+                .leggTilKonsekvensForYtelsen(konsekvensForYtelsen)
+                .medEndretStønadskonto(harEndretStønadskonto)
+                .buildFor(revurdering));
     }
 
     private Optional<ForeldrepengerUttak> lagUttakResultatPerioder(LocalDate fom,
-                                                                   LocalDate tom,
-                                                                   boolean medPeriodeForan,
-                                                                   boolean medAvslåttPeriode) {
+            LocalDate tom,
+            boolean medPeriodeForan,
+            boolean medAvslåttPeriode) {
         List<ForeldrepengerUttakPeriode> perioder = new ArrayList<>();
         if (medPeriodeForan) {
             var periode = new ForeldrepengerUttakPeriode.Builder()
-                .medTidsperiode(fom.minusWeeks(3), fom.minusDays(1))
-                .medResultatType(PeriodeResultatType.INNVILGET)
-                .build();
+                    .medTidsperiode(fom.minusWeeks(3), fom.minusDays(1))
+                    .medResultatType(PeriodeResultatType.INNVILGET)
+                    .build();
             perioder.add(periode);
         }
         var periode = new ForeldrepengerUttakPeriode.Builder()
-            .medTidsperiode(fom, tom)
-            .medResultatType(PeriodeResultatType.INNVILGET)
-            .build();
+                .medTidsperiode(fom, tom)
+                .medResultatType(PeriodeResultatType.INNVILGET)
+                .build();
         perioder.add(periode);
         if (medAvslåttPeriode) {
             var avslåttPeriode = new ForeldrepengerUttakPeriode.Builder()
-                .medTidsperiode(tom.plusDays(1), tom.plusDays(7))
-                .medResultatType(PeriodeResultatType.AVSLÅTT)
-                .build();
+                    .medTidsperiode(tom.plusDays(1), tom.plusDays(7))
+                    .medResultatType(PeriodeResultatType.AVSLÅTT)
+                    .build();
             perioder.add(avslåttPeriode);
         }
         return Optional.of(new ForeldrepengerUttak(perioder, List.of()));

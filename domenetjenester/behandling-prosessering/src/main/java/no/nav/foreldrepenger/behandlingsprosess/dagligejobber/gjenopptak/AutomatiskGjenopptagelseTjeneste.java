@@ -37,9 +37,9 @@ public class AutomatiskGjenopptagelseTjeneste {
 
     @Inject
     public AutomatiskGjenopptagelseTjeneste(BehandlingKandidaterRepository behandlingKandidaterRepository,
-                                            OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository,
-                                            BehandlingRepository behandlingRepository,
-                                            ProsessTaskRepository prosessTaskRepository) {
+            OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository,
+            BehandlingRepository behandlingRepository,
+            ProsessTaskRepository prosessTaskRepository) {
         this.behandlingKandidaterRepository = behandlingKandidaterRepository;
         this.oppgaveBehandlingKoblingRepository = oppgaveBehandlingKoblingRepository;
         this.behandlingRepository = behandlingRepository;
@@ -61,7 +61,8 @@ public class AutomatiskGjenopptagelseTjeneste {
             opprettProsessTask(behandling, nyCallId, baseline, 1439);
         }
 
-        //TODO(OJR) må endres i forbindelsen med at løsningen ser på task_grupper på en annet måte nå, hvis en prosess feiler i en gruppe stopper alt opp..
+        // TODO(OJR) må endres i forbindelsen med at løsningen ser på task_grupper på en
+        // annet måte nå, hvis en prosess feiler i en gruppe stopper alt opp..
         return "-";
     }
 
@@ -73,7 +74,7 @@ public class AutomatiskGjenopptagelseTjeneste {
         prosessTaskData.setPrioritet(100);
         prosessTaskData.setNesteKjøringEtter(LocalDateTime.of(LocalDate.now(), baseline.plusSeconds(LocalDateTime.now().getNano() % spread)));
 
-        // unik per task da det gjelder  ulike behandlinger, gjenbruker derfor ikke
+        // unik per task da det gjelder ulike behandlinger, gjenbruker derfor ikke
         prosessTaskData.setCallId(callId);
 
         prosessTaskRepository.lagre(prosessTaskData);
@@ -87,7 +88,8 @@ public class AutomatiskGjenopptagelseTjeneste {
     public String oppdaterBehandlingerFraOppgaveFrist() {
         LocalDate tom = LocalDate.now().minusDays(1);
         LocalDate fom = DayOfWeek.MONDAY.equals(tom.getDayOfWeek()) ? tom.minusDays(2) : tom;
-        List<OppgaveBehandlingKobling> oppgaveListe = oppgaveBehandlingKoblingRepository.hentUferdigeOppgaverOpprettetTidsrom(fom, tom, OPPGAVE_TYPER);
+        List<OppgaveBehandlingKobling> oppgaveListe = oppgaveBehandlingKoblingRepository.hentUferdigeOppgaverOpprettetTidsrom(fom, tom,
+                OPPGAVE_TYPER);
         String callId = MDCOperations.getCallId();
         callId = (callId == null ? MDCOperations.generateCallId() : callId) + "_";
         LocalTime baseline = LocalTime.now();
@@ -100,7 +102,8 @@ public class AutomatiskGjenopptagelseTjeneste {
             }
         }
 
-        //TODO(OJR) må endres i forbindelsen med at løsningen ser på task_grupper på en annet måte nå, hvis en prosess feiler i en gruppe stopper alt opp..
+        // TODO(OJR) må endres i forbindelsen med at løsningen ser på task_grupper på en
+        // annet måte nå, hvis en prosess feiler i en gruppe stopper alt opp..
         return "-";
     }
 
@@ -115,7 +118,8 @@ public class AutomatiskGjenopptagelseTjeneste {
             opprettProsessTask(behandling, nyCallId, baseline, 101);
         }
 
-        //TODO(OJR) må endres i forbindelsen med at løsningen ser på task_grupper på en annet måte nå, hvis en prosess feiler i en gruppe stopper alt opp..
+        // TODO(OJR) må endres i forbindelsen med at løsningen ser på task_grupper på en
+        // annet måte nå, hvis en prosess feiler i en gruppe stopper alt opp..
         return "-";
     }
 }

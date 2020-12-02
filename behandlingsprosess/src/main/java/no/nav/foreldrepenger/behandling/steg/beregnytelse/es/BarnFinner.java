@@ -32,10 +32,10 @@ class BarnFinner {
     }
 
     private int finnAntallBarn(int maksStønadsalderAdopsjon, final FamilieHendelseGrunnlagEntitet grunnlag,
-                               List<BarnInfo> barnSøktFor) {
+            List<BarnInfo> barnSøktFor) {
         List<BarnInfo> barnKvalifisertForYtelse = Objects.equals(FamilieHendelseType.ADOPSJON, grunnlag.getGjeldendeVersjon().getType())
-            ? barnKvalifisertForAdopsjon(maksStønadsalderAdopsjon, grunnlag, barnSøktFor)
-            : barnSøktFor;
+                ? barnKvalifisertForAdopsjon(maksStønadsalderAdopsjon, grunnlag, barnSøktFor)
+                : barnSøktFor;
 
         if (barnKvalifisertForYtelse.isEmpty()) {
             throw BeregneYtelseFeil.FACTORY.beregningsstegIkkeStøttetForBehandling().toException();
@@ -43,10 +43,12 @@ class BarnFinner {
         return barnKvalifisertForYtelse.size();
     }
 
-    private List<BarnInfo> barnKvalifisertForAdopsjon(int maksStønadsalderAdopsjon, final FamilieHendelseGrunnlagEntitet grunnlag, List<BarnInfo> barnSøktFor) {
+    private List<BarnInfo> barnKvalifisertForAdopsjon(int maksStønadsalderAdopsjon, final FamilieHendelseGrunnlagEntitet grunnlag,
+            List<BarnInfo> barnSøktFor) {
         Optional<AdopsjonEntitet> gjeldendeAdopsjon = grunnlag.getGjeldendeAdopsjon();
         if (gjeldendeAdopsjon.isEmpty()) {
-            // skal aldri kunne skje, men logikken for å sjekke ifPresent er basert på negativ testing hvilket kan være ustabilt.
+            // skal aldri kunne skje, men logikken for å sjekke ifPresent er basert på
+            // negativ testing hvilket kan være ustabilt.
             // legger derfor på her
             throw new IllegalStateException("Mangler grunnlag#getGjeldendeAdopsjon i " + grunnlag);
         }
@@ -55,11 +57,11 @@ class BarnFinner {
         LocalDate eldsteFristForOmsorgsovertakelse = adopsjon.getOmsorgsovertakelseDato().minusYears(maksStønadsalderAdopsjon);
 
         return barnSøktFor.stream()
-            .filter(barn -> {
-                LocalDate fødselsdato = barn.getFødselsdato();
-                return fødselsdato.isAfter(eldsteFristForOmsorgsovertakelse);
-            })
-            .collect(Collectors.toList());
+                .filter(barn -> {
+                    LocalDate fødselsdato = barn.getFødselsdato();
+                    return fødselsdato.isAfter(eldsteFristForOmsorgsovertakelse);
+                })
+                .collect(Collectors.toList());
     }
 
     private List<BarnInfo> getBarnInfoer(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
@@ -81,8 +83,8 @@ class BarnFinner {
 
         if (FamilieHendelseType.FØDSEL.equals(gjeldendeVersjon.getType()) && !gjeldendeBarn.isEmpty()) {
             return gjeldendeBarn.stream()
-                .map(it -> new BarnInfo(it.getBarnNummer(), it.getFødselsdato(), null))
-                .collect(Collectors.toList());
+                    .map(it -> new BarnInfo(it.getBarnNummer(), it.getFødselsdato(), null))
+                    .collect(Collectors.toList());
         } else {
             Optional<TerminbekreftelseEntitet> gjeldendeTerminbekreftelse = familieHendelseGrunnlag.getGjeldendeTerminbekreftelse();
             if (gjeldendeTerminbekreftelse.isPresent()) {
@@ -101,7 +103,7 @@ class BarnFinner {
 
     private List<BarnInfo> adopsjonsvilkårTilBarnInfoer(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
         return familieHendelseGrunnlag.getGjeldendeBarna().stream()
-            .map(adopsjonBarn -> new BarnInfo(adopsjonBarn.getBarnNummer(), adopsjonBarn.getFødselsdato(), null))
-            .collect(Collectors.toList());
+                .map(adopsjonBarn -> new BarnInfo(adopsjonBarn.getBarnNummer(), adopsjonBarn.getFødselsdato(), null))
+                .collect(Collectors.toList());
     }
 }

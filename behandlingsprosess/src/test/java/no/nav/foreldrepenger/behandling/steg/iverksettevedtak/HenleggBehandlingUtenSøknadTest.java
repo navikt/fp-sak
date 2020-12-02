@@ -35,7 +35,7 @@ public class HenleggBehandlingUtenSøknadTest extends EntityManagerAwareTest {
         var serviceProvider = new BehandlingskontrollServiceProvider(getEntityManager(), new BehandlingModellRepository(), null);
         var behandlingskontrollTjenesteImpl = new BehandlingskontrollTjenesteImpl(serviceProvider);
         henleggBehandlingTjeneste = new HenleggBehandlingTjeneste(repositoryProvider, behandlingskontrollTjenesteImpl,
-            mock(DokumentBestillerTjeneste.class), mock(ProsessTaskRepository.class));
+                mock(DokumentBestillerTjeneste.class), mock(ProsessTaskRepository.class));
     }
 
     @Test

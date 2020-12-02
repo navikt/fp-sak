@@ -10,8 +10,9 @@ import static no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHan
 import static no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType.NYTT_ARBEIDSFORHOLD;
 import static no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType.SLÅTT_SAMMEN_MED_ANNET;
 
+import org.apache.commons.lang3.StringUtils;
+
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
-import no.nav.vedtak.util.StringUtils;
 
 class ArbeidsforholdHandlingTypeUtleder {
 
@@ -42,38 +43,38 @@ class ArbeidsforholdHandlingTypeUtleder {
     }
 
     private static boolean skalOverstyrePerioder(ArbeidsforholdDto arbeidsforholdDto) {
-        return arbeidsforholdDto.getOverstyrtTom() != null
-            && brukArbeidsforholdet(arbeidsforholdDto);
+        return (arbeidsforholdDto.getOverstyrtTom() != null)
+                && brukArbeidsforholdet(arbeidsforholdDto);
     }
 
     private static boolean inntektSkalIkkeMedTilBeregningsgrunnlaget(ArbeidsforholdDto arbeidsforholdDto) {
         return Boolean.FALSE.equals(arbeidsforholdDto.getInntektMedTilBeregningsgrunnlag())
-            && brukArbeidsforholdet(arbeidsforholdDto);
+                && brukArbeidsforholdet(arbeidsforholdDto);
     }
 
     private static boolean skalBrukeUtenInnteksmelding(ArbeidsforholdDto arbeidsforholdDto) {
         return Boolean.TRUE.equals(arbeidsforholdDto.getFortsettBehandlingUtenInntektsmelding())
-            && brukArbeidsforholdet(arbeidsforholdDto);
+                && brukArbeidsforholdet(arbeidsforholdDto);
     }
 
     private static boolean skalLeggeTilNyttArbeidsforhold(ArbeidsforholdDto arbeidsforholdDto) {
         return Boolean.TRUE.equals(arbeidsforholdDto.getLagtTilAvSaksbehandler())
-            && brukArbeidsforholdet(arbeidsforholdDto);
+                && brukArbeidsforholdet(arbeidsforholdDto);
     }
 
     private static boolean skalLeggeTilNyttArbeidsforholdBasertPåInntektsmelding(ArbeidsforholdDto arbeidsforholdDto) {
         return Boolean.TRUE.equals(arbeidsforholdDto.getBasertPaInntektsmelding())
-            && brukArbeidsforholdet(arbeidsforholdDto);
+                && brukArbeidsforholdet(arbeidsforholdDto);
     }
 
     static boolean skalErstatteAnnenInntektsmelding(ArbeidsforholdDto arbeidsforholdDto) {
-        return !StringUtils.nullOrEmpty(arbeidsforholdDto.getErstatterArbeidsforholdId())
-            && brukArbeidsforholdet(arbeidsforholdDto);
+        return !StringUtils.isEmpty(arbeidsforholdDto.getErstatterArbeidsforholdId())
+                && brukArbeidsforholdet(arbeidsforholdDto);
     }
 
     private static Boolean erNyttArbeidsforhold(ArbeidsforholdDto arbeidsforholdDto) {
         return Boolean.TRUE.equals(arbeidsforholdDto.getErNyttArbeidsforhold())
-            && brukArbeidsforholdet(arbeidsforholdDto);
+                && brukArbeidsforholdet(arbeidsforholdDto);
     }
 
     private static boolean brukArbeidsforholdet(ArbeidsforholdDto arbeidsforholdDto) {

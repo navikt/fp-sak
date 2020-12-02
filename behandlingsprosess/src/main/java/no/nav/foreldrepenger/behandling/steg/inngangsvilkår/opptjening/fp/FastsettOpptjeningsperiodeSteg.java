@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 
-
 @BehandlingStegRef(kode = "VURDER_OPPTJ_PERIODE")
 @BehandlingTypeRef
 @FagsakYtelseTypeRef("FP")
@@ -27,7 +26,8 @@ public class FastsettOpptjeningsperiodeSteg extends FastsettOpptjeningsperiodeSt
     private BehandlingRepository behandlingRepository;
 
     @Inject
-    public FastsettOpptjeningsperiodeSteg(BehandlingRepositoryProvider repositoryProvider, OpptjeningRepository opptjeningRepository, InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste) {
+    public FastsettOpptjeningsperiodeSteg(BehandlingRepositoryProvider repositoryProvider, OpptjeningRepository opptjeningRepository,
+            InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste) {
         super(repositoryProvider, inngangsvilkårFellesTjeneste, BehandlingStegType.FASTSETT_OPPTJENINGSPERIODE);
         this.opptjeningRepository = opptjeningRepository;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
@@ -35,7 +35,7 @@ public class FastsettOpptjeningsperiodeSteg extends FastsettOpptjeningsperiodeSt
 
     @Override
     public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType førsteSteg,
-                                   BehandlingStegType sisteSteg) {
+            BehandlingStegType sisteSteg) {
         if (!erVilkårOverstyrt(kontekst.getBehandlingId())) {
             super.vedHoppOverBakover(kontekst, modell, førsteSteg, sisteSteg);
             new RyddOpptjening(behandlingRepository, opptjeningRepository, kontekst).ryddOpp();
@@ -44,7 +44,7 @@ public class FastsettOpptjeningsperiodeSteg extends FastsettOpptjeningsperiodeSt
 
     @Override
     public void vedHoppOverFramover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType førsteSteg,
-                                    BehandlingStegType sisteSteg) {
+            BehandlingStegType sisteSteg) {
         if (!behandlingRepository.hentBehandling(kontekst.getBehandlingId()).erRevurdering()) {
             if (!erVilkårOverstyrt(kontekst.getBehandlingId())) {
                 super.vedHoppOverFramover(kontekst, modell, førsteSteg, sisteSteg);

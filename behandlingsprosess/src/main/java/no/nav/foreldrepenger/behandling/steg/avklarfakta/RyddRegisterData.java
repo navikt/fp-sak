@@ -34,7 +34,8 @@ public class RyddRegisterData {
 
     private void nullstillRegisterdata(Behandling behandling) {
 
-        // Sletter avklarte data, men ikke Fødsel/Adopsjon/Omsorg, da dette må ivaretas hvis registerdata re-innhentes
+        // Sletter avklarte data, men ikke Fødsel/Adopsjon/Omsorg, da dette må ivaretas
+        // hvis registerdata re-innhentes
         medlemskapRepository.slettAvklarteMedlemskapsdata(behandling.getId(), kontekst.getSkriveLås());
         behandling.nullstillToTrinnsBehandling();
     }

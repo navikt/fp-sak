@@ -55,9 +55,9 @@ public class EtterkontrollRepositoryTest {
         Behandling behandling = opprettRevurderingsKandidat(revurderingDagerTilbake + 2);
 
         Etterkontroll etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId()).medErBehandlet(false)
-            .medKontrollTidspunkt(LocalDate.now().atStartOfDay().minusDays(revurderingDagerTilbake))
-            .medKontrollType(KontrollType.MANGLENDE_FØDSEL)
-            .build();
+                .medKontrollTidspunkt(LocalDate.now().atStartOfDay().minusDays(revurderingDagerTilbake))
+                .medKontrollType(KontrollType.MANGLENDE_FØDSEL)
+                .build();
         etterkontrollRepository.lagre(etterkontroll);
 
         final List<Behandling> behandlings = etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll();
@@ -72,9 +72,9 @@ public class EtterkontrollRepositoryTest {
         behandlingRepository.lagre(klage, behandlingRepository.taSkriveLås(klage));
 
         Etterkontroll etterkontroll = new Etterkontroll.Builder(klage.getFagsakId()).medErBehandlet(false)
-            .medKontrollTidspunkt(LocalDate.now().atStartOfDay().minusDays(revurderingDagerTilbake))
-            .medKontrollType(KontrollType.MANGLENDE_FØDSEL)
-            .build();
+                .medKontrollTidspunkt(LocalDate.now().atStartOfDay().minusDays(revurderingDagerTilbake))
+                .medKontrollType(KontrollType.MANGLENDE_FØDSEL)
+                .build();
         etterkontrollRepository.lagre(etterkontroll);
 
         final List<Behandling> behandlings = etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll();
@@ -82,15 +82,14 @@ public class EtterkontrollRepositoryTest {
         assertThat(behandlings.stream().map(b -> b.getId())).isNotEqualTo(klage.getId());
     }
 
-
     @Test
     public void behandling_som_har_vært_etterkontrollert_skal_ikke_være_kandidat_til_revurdering() {
         Behandling behandling = opprettRevurderingsKandidat(revurderingDagerTilbake + 2);
 
         Etterkontroll etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId()).medErBehandlet(false)
-            .medKontrollTidspunkt(LocalDate.now().atStartOfDay().minusDays(revurderingDagerTilbake))
-            .medKontrollType(KontrollType.MANGLENDE_FØDSEL)
-            .build();
+                .medKontrollTidspunkt(LocalDate.now().atStartOfDay().minusDays(revurderingDagerTilbake))
+                .medKontrollType(KontrollType.MANGLENDE_FØDSEL)
+                .build();
         etterkontrollRepository.lagre(etterkontroll);
 
         etterkontrollRepository.avflaggDersomEksisterer(behandling.getFagsakId(), KontrollType.MANGLENDE_FØDSEL);
@@ -105,21 +104,21 @@ public class EtterkontrollRepositoryTest {
         Behandling behandling = opprettRevurderingsKandidat(revurderingDagerTilbake);
 
         Behandlingsresultat innvilget = new Behandlingsresultat.Builder().medBehandlingResultatType(
-            BehandlingResultatType.INNVILGET).buildFor(behandling);
+                BehandlingResultatType.INNVILGET).buildFor(behandling);
         behandling.setBehandlingresultat(innvilget);
         behandling.avsluttBehandling();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
         Etterkontroll etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId()).medErBehandlet(false)
-            .medKontrollTidspunkt(LocalDate.now().atStartOfDay().minusDays(revurderingDagerTilbake))
-            .medKontrollType(KontrollType.MANGLENDE_FØDSEL)
-            .build();
+                .medKontrollTidspunkt(LocalDate.now().atStartOfDay().minusDays(revurderingDagerTilbake))
+                .medKontrollType(KontrollType.MANGLENDE_FØDSEL)
+                .build();
         etterkontrollRepository.lagre(etterkontroll);
 
         Behandling henlagtBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.FØRSTEGANGSSØKNAD)
-            .build();
+                .build();
         Behandlingsresultat henlagt = new Behandlingsresultat.Builder().medBehandlingResultatType(
-            BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET).buildFor(henlagtBehandling);
+                BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET).buildFor(henlagtBehandling);
         henlagtBehandling.setBehandlingresultat(henlagt);
         henlagtBehandling.avsluttBehandling();
         behandlingRepository.lagre(henlagtBehandling, behandlingRepository.taSkriveLås(henlagtBehandling));
@@ -134,14 +133,14 @@ public class EtterkontrollRepositoryTest {
         Behandling behandling = opprettRevurderingsKandidat(revurderingDagerTilbake + 2);
 
         Etterkontroll etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId()).medErBehandlet(false)
-            .medKontrollTidspunkt(LocalDate.now().atStartOfDay().minusDays(revurderingDagerTilbake))
-            .medKontrollType(KontrollType.MANGLENDE_FØDSEL)
-            .build();
+                .medKontrollTidspunkt(LocalDate.now().atStartOfDay().minusDays(revurderingDagerTilbake))
+                .medKontrollType(KontrollType.MANGLENDE_FØDSEL)
+                .build();
         etterkontrollRepository.lagre(etterkontroll);
 
         Behandling revurderingsBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN))
-            .build();
+                .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN))
+                .build();
 
         behandlingRepository.lagre(revurderingsBehandling, behandlingRepository.taSkriveLås(revurderingsBehandling));
 
@@ -160,34 +159,34 @@ public class EtterkontrollRepositoryTest {
         LocalDate terminDato = LocalDate.now().minusDays(revurderingDagerTilbake + 2);
 
         Behandling.Builder revurderingBuilder = Behandling.fraTidligereBehandling(behandling,
-            BehandlingType.REVURDERING).medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ANNET));
+                BehandlingType.REVURDERING).medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ANNET));
         Behandling revurderingsBehandling = revurderingBuilder.build();
 
         Behandlingsresultat behandlingsresultat = Behandlingsresultat.builder()
-            .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
-            .buildFor(revurderingsBehandling);
+                .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
+                .buildFor(revurderingsBehandling);
         final BehandlingVedtak behandlingVedtak = BehandlingVedtak.builder()
-            .medVedtakstidspunkt(LocalDateTime.now())
-            .medBehandlingsresultat(behandlingsresultat)
-            .medVedtakResultatType(VedtakResultatType.INNVILGET)
-            .medAnsvarligSaksbehandler("asdf")
-            .build();
+                .medVedtakstidspunkt(LocalDateTime.now())
+                .medBehandlingsresultat(behandlingsresultat)
+                .medVedtakResultatType(VedtakResultatType.INNVILGET)
+                .medAnsvarligSaksbehandler("asdf")
+                .build();
         revurderingsBehandling.avsluttBehandling();
         behandlingRepository.lagre(revurderingsBehandling, behandlingRepository.taSkriveLås(revurderingsBehandling));
         grunnlagRepository.kopierGrunnlagFraEksisterendeBehandling(behandling.getId(), revurderingsBehandling.getId());
         final FamilieHendelseBuilder oppdatere = grunnlagRepository.opprettBuilderFor(revurderingsBehandling);
         oppdatere.medTerminbekreftelse(oppdatere.getTerminbekreftelseBuilder()
-            .medTermindato(terminDato)
-            .medNavnPå("Lege Legsen")
-            .medUtstedtDato(terminDato.minusDays(40))).medAntallBarn(1);
+                .medTermindato(terminDato)
+                .medNavnPå("Lege Legsen")
+                .medUtstedtDato(terminDato.minusDays(40))).medAntallBarn(1);
         grunnlagRepository.lagre(revurderingsBehandling, oppdatere);
         behandlingVedtakRepository.lagre(behandlingVedtak, behandlingRepository.taSkriveLås(revurderingsBehandling));
 
         Etterkontroll etterkontroll = new Etterkontroll.Builder(revurderingsBehandling.getFagsakId()).medErBehandlet(
-            false)
-            .medKontrollTidspunkt(LocalDate.now().atStartOfDay().minusDays(revurderingDagerTilbake))
-            .medKontrollType(KontrollType.MANGLENDE_FØDSEL)
-            .build();
+                false)
+                .medKontrollTidspunkt(LocalDate.now().atStartOfDay().minusDays(revurderingDagerTilbake))
+                .medKontrollType(KontrollType.MANGLENDE_FØDSEL)
+                .build();
         etterkontrollRepository.lagre(etterkontroll);
 
         List<Behandling> fagsakList = etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll();
@@ -201,9 +200,9 @@ public class EtterkontrollRepositoryTest {
         Behandling behandling = opprettRevurderingsKandidat(0);
 
         Etterkontroll etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId()).medErBehandlet(false)
-            .medKontrollTidspunkt(LocalDate.now().plusDays(revurderingDagerTilbake).atStartOfDay())
-            .medKontrollType(KontrollType.MANGLENDE_FØDSEL)
-            .build();
+                .medKontrollTidspunkt(LocalDate.now().plusDays(revurderingDagerTilbake).atStartOfDay())
+                .medKontrollType(KontrollType.MANGLENDE_FØDSEL)
+                .build();
         etterkontrollRepository.lagre(etterkontroll);
 
         List<Behandling> fagsakList = etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll();
@@ -215,30 +214,30 @@ public class EtterkontrollRepositoryTest {
         LocalDate terminDato = LocalDate.now().minusDays(dagerTilbake);
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse()
-            .medTerminbekreftelse(scenario.medSøknadHendelse()
-                .getTerminbekreftelseBuilder()
-                .medTermindato(terminDato)
-                .medUtstedtDato(LocalDate.now())
-                .medNavnPå("Lege Legesen"))
-            .medAntallBarn(1);
+                .medTerminbekreftelse(scenario.medSøknadHendelse()
+                        .getTerminbekreftelseBuilder()
+                        .medTermindato(terminDato)
+                        .medUtstedtDato(LocalDate.now())
+                        .medNavnPå("Lege Legesen"))
+                .medAntallBarn(1);
         scenario.medBekreftetHendelse()
-            .medTerminbekreftelse(scenario.medBekreftetHendelse()
-                .getTerminbekreftelseBuilder()
-                .medTermindato(terminDato)
-                .medNavnPå("LEGEN MIN")
-                .medUtstedtDato(terminDato.minusDays(40)))
-            .medAntallBarn(1);
+                .medTerminbekreftelse(scenario.medBekreftetHendelse()
+                        .getTerminbekreftelseBuilder()
+                        .medTermindato(terminDato)
+                        .medNavnPå("LEGEN MIN")
+                        .medUtstedtDato(terminDato.minusDays(40)))
+                .medAntallBarn(1);
 
         var behandling = scenario.lagre(repositoryProvider);
         Behandlingsresultat behandlingsresultat = Behandlingsresultat.builder()
-            .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
-            .buildFor(behandling);
+                .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
+                .buildFor(behandling);
         final BehandlingVedtak behandlingVedtak = BehandlingVedtak.builder()
-            .medVedtakstidspunkt(LocalDateTime.now().minusDays(1))
-            .medBehandlingsresultat(behandlingsresultat)
-            .medVedtakResultatType(VedtakResultatType.INNVILGET)
-            .medAnsvarligSaksbehandler("asdf")
-            .build();
+                .medVedtakstidspunkt(LocalDateTime.now().minusDays(1))
+                .medBehandlingsresultat(behandlingsresultat)
+                .medVedtakResultatType(VedtakResultatType.INNVILGET)
+                .medAnsvarligSaksbehandler("asdf")
+                .build();
 
         behandling.avsluttBehandling();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
@@ -252,23 +251,23 @@ public class EtterkontrollRepositoryTest {
         Behandling behandling = opprettRevurderingsKandidat(revurderingDagerTilbake + 2);
 
         Behandlingsresultat innvilget = new Behandlingsresultat.Builder().medBehandlingResultatType(
-            BehandlingResultatType.INNVILGET).buildFor(behandling);
+                BehandlingResultatType.INNVILGET).buildFor(behandling);
         behandling.setBehandlingresultat(innvilget);
         behandling.avsluttBehandling();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
         Behandling henlagtBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.FØRSTEGANGSSØKNAD)
-            .build();
+                .build();
         Behandlingsresultat henlagt = new Behandlingsresultat.Builder().medBehandlingResultatType(
-            BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET).buildFor(henlagtBehandling);
+                BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET).buildFor(henlagtBehandling);
         henlagtBehandling.setBehandlingresultat(henlagt);
         henlagtBehandling.avsluttBehandling();
         behandlingRepository.lagre(henlagtBehandling, behandlingRepository.taSkriveLås(henlagtBehandling));
 
         Optional<Behandling> resultatOpt = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(
-            behandling.getFagsak().getId());
+                behandling.getFagsak().getId());
         assertThat(resultatOpt).hasValueSatisfying(
-            resultat -> assertThat(resultat.getId()).isEqualTo(behandling.getId()));
+                resultat -> assertThat(resultat.getId()).isEqualTo(behandling.getId()));
     }
 
 }

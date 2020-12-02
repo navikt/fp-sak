@@ -25,26 +25,27 @@ class UtledNyeTilretteleggingerTjeneste {
 
     @Inject
     UtledNyeTilretteleggingerTjeneste(SvangerskapspengerRepository svangerskapspengerRepository,
-                                             UtledTilretteleggingerMedArbeidsgiverTjeneste utledTilretteleggingerMedArbeidsgiverTjeneste) {
+            UtledTilretteleggingerMedArbeidsgiverTjeneste utledTilretteleggingerMedArbeidsgiverTjeneste) {
         this.svangerskapspengerRepository = svangerskapspengerRepository;
         this.utledTilretteleggingerMedArbeidsgiverTjeneste = utledTilretteleggingerMedArbeidsgiverTjeneste;
     }
 
     public List<SvpTilretteleggingEntitet> utled(Behandling behandling, Skjæringstidspunkt skjæringstidspunkt) {
         var svpGrunnlag = svangerskapspengerRepository.hentGrunnlag(behandling.getId()).orElseThrow(
-            () -> new IllegalStateException("Fant ikke forventet grunnlag for behandling " + behandling.getId()));
+                () -> new IllegalStateException("Fant ikke forventet grunnlag for behandling " + behandling.getId()));
         var opprinneligeTilrettelegginger = svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe();
         var tilretteleggingerUtenArbeidsgiver = utled(opprinneligeTilrettelegginger);
-        var tilretteleggingerMedArbeidsgiver = utledTilretteleggingerMedArbeidsgiverTjeneste.utled(behandling, skjæringstidspunkt, opprinneligeTilrettelegginger);
+        var tilretteleggingerMedArbeidsgiver = utledTilretteleggingerMedArbeidsgiverTjeneste.utled(behandling, skjæringstidspunkt,
+                opprinneligeTilrettelegginger);
         return Stream.of(tilretteleggingerUtenArbeidsgiver, tilretteleggingerMedArbeidsgiver)
-            .flatMap(Collection::stream)
-            .collect(Collectors.toList());
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
     }
 
     static List<SvpTilretteleggingEntitet> utled(List<SvpTilretteleggingEntitet> opprinneligeTilrettelegginger) {
         return opprinneligeTilrettelegginger.stream()
-            .filter(tlr -> tlr.getArbeidsgiver().isEmpty())
-            .collect(Collectors.toList());
+                .filter(tlr -> tlr.getArbeidsgiver().isEmpty())
+                .collect(Collectors.toList());
     }
 
 }

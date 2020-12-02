@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandling;
 
-
 import java.util.Objects;
 import java.util.UUID;
 
@@ -16,8 +15,8 @@ import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 
 /**
- * Referanse til en behandling.
- * Enten {@link #behandlingId} eller {@link #behandlingUuid} vil være satt.
+ * Referanse til en behandling. Enten {@link #behandlingId} eller
+ * {@link #behandlingUuid} vil være satt.
  */
 @JsonInclude(Include.NON_NULL)
 public class BehandlingIdDto implements AbacDto {
@@ -31,7 +30,8 @@ public class BehandlingIdDto implements AbacDto {
     private Long behandlingId;
 
     /**
-     * Behandling UUID (nytt alternativ til intern behandlingId. Bør brukes av eksterne systemer).
+     * Behandling UUID (nytt alternativ til intern behandlingId. Bør brukes av
+     * eksterne systemer).
      */
     @Valid
     private UUID behandlingUuid;
@@ -67,7 +67,8 @@ public class BehandlingIdDto implements AbacDto {
     }
 
     /**
-     * Denne er kun intern nøkkel, bør ikke eksponeres ut men foreløpig støttes både Long id og UUID id for behandling på grensesnittene.
+     * Denne er kun intern nøkkel, bør ikke eksponeres ut men foreløpig støttes både
+     * Long id og UUID id for behandling på grensesnittene.
      */
     public Long getBehandlingId() {
         return behandlingId;
@@ -98,10 +99,10 @@ public class BehandlingIdDto implements AbacDto {
     @Override
     public String toString() {
         return getClass().getSimpleName() + '<' +
-            (saksnummer == null ? "" : "saksnummer=" + saksnummer + ", ") +
-            (behandlingId != null ? "behandlingId=" + behandlingId : "") +
-            (behandlingId != null && behandlingUuid != null ? ", " : "") +
-            (behandlingUuid != null ? "behandlingUuid=" + behandlingUuid : "") +
-            '>';
+                (saksnummer == null ? "" : "saksnummer=" + saksnummer + ", ") +
+                (behandlingId != null ? "behandlingId=" + behandlingId : "") +
+                ((behandlingId != null) && (behandlingUuid != null) ? ", " : "") +
+                (behandlingUuid != null ? "behandlingUuid=" + behandlingUuid : "") +
+                '>';
     }
 }

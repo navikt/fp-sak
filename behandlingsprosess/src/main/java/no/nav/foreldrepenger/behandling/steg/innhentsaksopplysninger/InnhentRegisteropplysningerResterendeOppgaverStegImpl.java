@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.innhentsaksopplysninger;
 
-
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static no.nav.foreldrepenger.behandling.steg.kompletthet.VurderKompletthetStegFelles.autopunktAlleredeUtført;
@@ -39,7 +38,6 @@ import no.nav.foreldrepenger.mottak.kompletthettjeneste.KompletthetModell;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
-
 @BehandlingStegRef(kode = "INREG_AVSL")
 @BehandlingTypeRef
 @FagsakYtelseTypeRef
@@ -60,12 +58,12 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
 
     @Inject
     public InnhentRegisteropplysningerResterendeOppgaverStegImpl(BehandlingRepositoryProvider repositoryProvider,
-                                                                   FagsakTjeneste fagsakTjeneste,
-                                                                   PersonopplysningTjeneste personopplysningTjeneste,
-                                                                   FamilieHendelseTjeneste familieHendelseTjeneste,
-                                                                   BehandlendeEnhetTjeneste enhetTjeneste,
-                                                                   KompletthetModell kompletthetModell,
-                                                                   SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+            FagsakTjeneste fagsakTjeneste,
+            PersonopplysningTjeneste personopplysningTjeneste,
+            FamilieHendelseTjeneste familieHendelseTjeneste,
+            BehandlendeEnhetTjeneste enhetTjeneste,
+            KompletthetModell kompletthetModell,
+            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
 
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.fagsakTjeneste = fagsakTjeneste;
@@ -85,9 +83,12 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
 
         KompletthetResultat etterlysIM = kompletthetModell.vurderKompletthet(ref, List.of(AUTO_VENT_ETTERLYST_INNTEKTSMELDING));
         if (!etterlysIM.erOppfylt()) {
-            // Dette autopunktet har tilbakehopp/gjenopptak. Går ut av steget hvis auto utført før frist (manuelt av vent). Utført på/etter frist antas automatisk gjenopptak.
+            // Dette autopunktet har tilbakehopp/gjenopptak. Går ut av steget hvis auto
+            // utført før frist (manuelt av vent). Utført på/etter frist antas automatisk
+            // gjenopptak.
             if (!etterlysIM.erFristUtløpt() && !autopunktAlleredeUtført(AUTO_VENT_ETTERLYST_INNTEKTSMELDING, behandling)) {
-                return BehandleStegResultat.utførtMedAksjonspunktResultater(singletonList(opprettForAksjonspunkt(AUTO_VENT_ETTERLYST_INNTEKTSMELDING)));
+                return BehandleStegResultat
+                        .utførtMedAksjonspunktResultater(singletonList(opprettForAksjonspunkt(AUTO_VENT_ETTERLYST_INNTEKTSMELDING)));
             }
         }
 
@@ -97,7 +98,7 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
         fagsakTjeneste.oppdaterFagsak(behandling, personopplysninger, barnSøktStønadFor);
 
         enhetTjeneste.sjekkEnhetEtterEndring(behandling)
-            .ifPresent(e -> enhetTjeneste.oppdaterBehandlendeEnhet(behandling, e, HistorikkAktør.VEDTAKSLØSNINGEN, "Personopplysning"));
+                .ifPresent(e -> enhetTjeneste.oppdaterBehandlendeEnhet(behandling, e, HistorikkAktør.VEDTAKSLØSNINGEN, "Personopplysning"));
 
         return BehandleStegResultat.utførtMedAksjonspunkter(sjekkPersonstatus(ref));
 
@@ -105,7 +106,8 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
 
     // TODO(OJR) flytte denne til egen utleder?
     private List<AksjonspunktDefinisjon> sjekkPersonstatus(BehandlingReferanse ref) {
-        List<PersonstatusType> liste = asList(PersonstatusType.BOSA, PersonstatusType.DØD, PersonstatusType.DØDD, PersonstatusType.UTVA, PersonstatusType.ADNR);
+        List<PersonstatusType> liste = asList(PersonstatusType.BOSA, PersonstatusType.DØD, PersonstatusType.DØDD, PersonstatusType.UTVA,
+                PersonstatusType.ADNR);
 
         PersonopplysningerAggregat personopplysninger = personopplysningTjeneste.hentPersonopplysninger(ref);
 
@@ -130,4 +132,3 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
     }
 
 }
-

@@ -47,10 +47,10 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
 
     @Inject
     public RevurderingTjenesteImpl(BehandlingRepositoryProvider repositoryProvider,
-                                   BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                   @FagsakYtelseTypeRef("ES") RevurderingEndring revurderingEndring,
-                                   RevurderingTjenesteFelles revurderingTjenesteFelles,
-                                   VergeRepository vergeRepository) {
+            BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+            @FagsakYtelseTypeRef("ES") RevurderingEndring revurderingEndring,
+            RevurderingTjenesteFelles revurderingTjenesteFelles,
+            VergeRepository vergeRepository) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
@@ -73,7 +73,8 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         return opprettRevurdering(fagsak, revurderingsÅrsak, false, enhet);
     }
 
-    private Behandling opprettRevurdering(Fagsak fagsak, BehandlingÅrsakType revurderingÅrsakType, boolean manueltOpprettet, OrganisasjonsEnhet enhet) {
+    private Behandling opprettRevurdering(Fagsak fagsak, BehandlingÅrsakType revurderingÅrsakType, boolean manueltOpprettet,
+            OrganisasjonsEnhet enhet) {
         Optional<Behandling> opprinneligBehandlingOptional = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId());
         if (!opprinneligBehandlingOptional.isPresent()) {
             throw RevurderingFeil.FACTORY.tjenesteFinnerIkkeBehandlingForRevurdering(fagsak.getId()).toException();
@@ -83,7 +84,8 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         behandlingskontrollTjeneste.initBehandlingskontroll(opprinneligBehandling);
 
         // deretter opprett kontekst for revurdering og opprett
-        Behandling revurderingBehandling = revurderingTjenesteFelles.opprettRevurderingsbehandling(revurderingÅrsakType, opprinneligBehandling, manueltOpprettet, enhet);
+        Behandling revurderingBehandling = revurderingTjenesteFelles.opprettRevurderingsbehandling(revurderingÅrsakType, opprinneligBehandling,
+                manueltOpprettet, enhet);
         BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(revurderingBehandling);
         behandlingskontrollTjeneste.opprettBehandling(kontekst, revurderingBehandling);
 

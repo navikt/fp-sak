@@ -27,15 +27,14 @@ class FagsakRevurdering {
         return behandling.filter(this::kanVilkårRevurderes).isPresent();
     }
 
-
     private boolean kanVilkårRevurderes(Behandling behandling) {
         return behandling.getBehandlingsresultat().getVilkårResultat().getVilkårene()
-            .stream().noneMatch(this::erAvslagPåManglendeDokumentasjon);
+                .stream().noneMatch(this::erAvslagPåManglendeDokumentasjon);
     }
 
     private boolean erAvslagPåManglendeDokumentasjon(Vilkår vilkår) {
         return vilkår.getVilkårType().equals(VilkårType.SØKERSOPPLYSNINGSPLIKT)
-            && vilkår.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT);
+                && vilkår.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT);
     }
 
     private Optional<Behandling> hentBehandlingMedVedtak(Fagsak fagsak) {
@@ -49,9 +48,9 @@ class FagsakRevurdering {
     static class BehandlingAvsluttetDatoComparator implements Comparator<Behandling>, Serializable {
         @Override
         public int compare(Behandling behandling, Behandling otherBehandling) {
-            return otherBehandling.getAvsluttetDato() != null && behandling.getAvsluttetDato() != null ?
-                otherBehandling.getAvsluttetDato().compareTo(behandling.getAvsluttetDato())
-                : otherBehandling.getOpprettetDato().compareTo(behandling.getOpprettetDato());
+            return (otherBehandling.getAvsluttetDato() != null) && (behandling.getAvsluttetDato() != null)
+                    ? otherBehandling.getAvsluttetDato().compareTo(behandling.getAvsluttetDato())
+                    : otherBehandling.getOpprettetDato().compareTo(behandling.getOpprettetDato());
         }
     }
 }

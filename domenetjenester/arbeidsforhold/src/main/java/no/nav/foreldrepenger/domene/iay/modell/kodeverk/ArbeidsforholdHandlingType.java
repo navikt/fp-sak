@@ -37,7 +37,8 @@ public enum ArbeidsforholdHandlingType implements Kodeverdi {
     INNTEKT_IKKE_MED_I_BG("INNTEKT_IKKE_MED_I_BG", "Inntekten til arbeidsforholdet skal ikke være med i beregningsgrunnlaget"),
     ;
 
-    private static final Set<ArbeidsforholdHandlingType> MED_OVERSTYRT_PERIODE = Set.of(BRUK_MED_OVERSTYRT_PERIODE, BASERT_PÅ_INNTEKTSMELDING, LAGT_TIL_AV_SAKSBEHANDLER);
+    private static final Set<ArbeidsforholdHandlingType> MED_OVERSTYRT_PERIODE = Set.of(BRUK_MED_OVERSTYRT_PERIODE, BASERT_PÅ_INNTEKTSMELDING,
+            LAGT_TIL_AV_SAKSBEHANDLER);
 
     private static final Map<String, ArbeidsforholdHandlingType> KODER = new LinkedHashMap<>();
 

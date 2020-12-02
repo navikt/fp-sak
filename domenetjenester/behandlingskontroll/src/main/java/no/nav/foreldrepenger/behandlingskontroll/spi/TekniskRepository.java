@@ -12,9 +12,9 @@ public class TekniskRepository {
     public TekniskRepository(EntityManager em) {
         this.entityManager = em;
     }
-    
+
     public <V> V doWorkInSavepoint(Work<V> work) {
         RunWithSavepoint setJdbcSavepoint = new RunWithSavepoint(entityManager);
         return setJdbcSavepoint.doWork(work);
     }
- }
+}

@@ -20,7 +20,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -105,7 +104,6 @@ import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.vedtak.fp.DvhPersonopplysningXmlTjenesteImpl;
 import no.nav.foreldrepenger.domene.vedtak.fp.OppdragXmlTjenesteImpl;
@@ -124,7 +122,6 @@ import no.nav.vedtak.felles.testutilities.db.Repository;
 public class DvhVedtakXmlTjenesteForeldrepengerTest {
 
     private static final AktørId BRUKER_AKTØR_ID = AktørId.dummy();
-    private static final PersonIdent FNR_MOR = new PersonIdent("12345678901");
     private static final Saksnummer SAKSNUMMER = new Saksnummer("12345");
     private static final AktørId ANNEN_PART_AKTØR_ID = AktørId.dummy();
     private static final IverksettingStatus IVERKSETTING_STATUS = IverksettingStatus.IKKE_IVERKSATT;
@@ -514,10 +511,6 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
         inntektArbeidYtelseAggregatBuilder.leggTilAktørYtelse(ytelserBuilder);
         iayTjeneste.lagreIayAggregat(behandling.getId(), inntektArbeidYtelseAggregatBuilder);
 
-    }
-
-    private static BehandlingReferanse lagReferanse(Behandling behandling) {
-        return BehandlingReferanse.fra(behandling, SKJÆRINGSTIDSPUNKT);
     }
 
     class YtelseHjelperTester {

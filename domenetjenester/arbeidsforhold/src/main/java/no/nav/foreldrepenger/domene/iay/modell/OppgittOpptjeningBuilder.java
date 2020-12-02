@@ -30,11 +30,11 @@ public class OppgittOpptjeningBuilder {
     }
 
     public static OppgittOpptjeningBuilder ny(UUID eksternReferanse, OffsetDateTime opprettetTidspunktOriginalt) {
-        return new OppgittOpptjeningBuilder(new OppgittOpptjening(eksternReferanse, opprettetTidspunktOriginalt.atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime()));
+        return new OppgittOpptjeningBuilder(
+                new OppgittOpptjening(eksternReferanse, opprettetTidspunktOriginalt.atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime()));
     }
 
-
-    public OppgittOpptjeningBuilder leggTilAnnenAktivitet(OppgittAnnenAktivitet annenAktivitet){
+    public OppgittOpptjeningBuilder leggTilAnnenAktivitet(OppgittAnnenAktivitet annenAktivitet) {
         this.kladd.leggTilAnnenAktivitet(annenAktivitet);
         return this;
     }
@@ -53,7 +53,6 @@ public class OppgittOpptjeningBuilder {
         this.kladd.leggTilOppgittArbeidsforhold(builder.build());
         return this;
     }
-
 
     public OppgittOpptjening build() {
         return kladd;

@@ -67,14 +67,15 @@ public class TilbakehoppTest {
         observer = new BehandlingskontrollTransisjonTilbakeføringEventObserver(serviceProvider) {
             @Override
             protected void hoppBakover(BehandlingStegModell s,
-                                       no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegOvergangEvent.BehandlingStegTilbakeføringEvent event,
-                                       BehandlingStegType førsteSteg, BehandlingStegType sisteSteg) {
+                    no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegOvergangEvent.BehandlingStegTilbakeføringEvent event,
+                    BehandlingStegType førsteSteg, BehandlingStegType sisteSteg) {
                 transisjoner.add(new StegTransisjon(TransisjonType.HOPP_OVER_BAKOVER, s.getBehandlingStegType()));
             }
         };
         steg1 = BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT;
 
-        // siden konfig er statisk definert p.t. må vi lete fram noen passende steg til å hoppe mellom
+        // siden konfig er statisk definert p.t. må vi lete fram noen passende steg til
+        // å hoppe mellom
         steg2 = modell.finnNesteSteg(steg1).getBehandlingStegType();
         steg3 = modell.finnNesteSteg(steg2).getBehandlingStegType();
         steg4 = modell.finnNesteSteg(steg3).getBehandlingStegType();
@@ -131,7 +132,7 @@ public class TilbakehoppTest {
     @Test
     public void skal_ikke_gjøre_noe_med_aksjonspunkt_som_oppsto_før_steget_det_hoppes_til_og_som_løses_etter_punktet_det_hoppes_fra() {
         assertAPUendretVedTilbakehopp(fra(steg3, INN), til(steg2),
-            medAP(identifisertI(steg1), løsesI(steg3, UT), medStatus(AksjonspunktStatus.OPPRETTET)));
+                medAP(identifisertI(steg1), løsesI(steg3, UT), medStatus(AksjonspunktStatus.OPPRETTET)));
     }
 
     @Test
@@ -146,18 +147,18 @@ public class TilbakehoppTest {
     @Test
     public void skal_kalle_transisjoner_på_steg_det_hoppes_over() {
         assertThat(transisjonerVedTilbakehopp(fra(steg3, INN), til(steg1))).containsOnly(StegTransisjon.hoppTilbakeOver(steg1),
-            StegTransisjon.hoppTilbakeOver(steg2), StegTransisjon.hoppTilbakeOver(steg3));
+                StegTransisjon.hoppTilbakeOver(steg2), StegTransisjon.hoppTilbakeOver(steg3));
         assertThat(transisjonerVedTilbakehopp(fra(steg3, INN), til(steg2))).containsOnly(StegTransisjon.hoppTilbakeOver(steg2),
-            StegTransisjon.hoppTilbakeOver(steg3));
+                StegTransisjon.hoppTilbakeOver(steg3));
         assertThat(transisjonerVedTilbakehopp(fra(steg2, UT), til(steg2))).containsOnly(StegTransisjon.hoppTilbakeOver(steg2));
     }
 
     @Test
     public void skal_ta_med_transisjon_på_steg_det_hoppes_fra_for_overstyring() {
         assertThat(transisjonerVedOverstyrTilbakehopp(fra(steg3, INN), til(steg1))).containsOnly(StegTransisjon.hoppTilbakeOver(steg1),
-            StegTransisjon.hoppTilbakeOver(steg2), StegTransisjon.hoppTilbakeOver(steg3));
+                StegTransisjon.hoppTilbakeOver(steg2), StegTransisjon.hoppTilbakeOver(steg3));
         assertThat(transisjonerVedOverstyrTilbakehopp(fra(steg3, INN), til(steg2))).containsOnly(StegTransisjon.hoppTilbakeOver(steg2),
-            StegTransisjon.hoppTilbakeOver(steg3));
+                StegTransisjon.hoppTilbakeOver(steg3));
         assertThat(transisjonerVedOverstyrTilbakehopp(fra(steg2, UT), til(steg2))).containsOnly(StegTransisjon.hoppTilbakeOver(steg2));
     }
 
@@ -203,8 +204,9 @@ public class TilbakehoppTest {
         BehandlingStegTilstandSnapshot tilTilstand = new BehandlingStegTilstandSnapshot(2L, til.getSteg(), getBehandlingStegStatus(til));
         Fagsak fagsak = behandling.getFagsak();
         BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), behandlingLås);
-        BehandlingStegOvergangEvent.BehandlingStegTilbakeføringEvent event = new BehandlingStegOvergangEvent.BehandlingStegTilbakeføringEvent(kontekst,
-            fraTilstand, tilTilstand);
+        BehandlingStegOvergangEvent.BehandlingStegTilbakeføringEvent event = new BehandlingStegOvergangEvent.BehandlingStegTilbakeføringEvent(
+                kontekst,
+                fraTilstand, tilTilstand);
 
         // act
         observer.observerBehandlingSteg(event);
@@ -218,8 +220,9 @@ public class TilbakehoppTest {
 
         Fagsak fagsak = behandling.getFagsak();
         BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), behandlingLås);
-        BehandlingStegOvergangEvent.BehandlingStegTilbakeføringEvent event = new BehandlingStegOvergangEvent.BehandlingStegTilbakeføringEvent(kontekst,
-            fraTilstand, tilTilstand);
+        BehandlingStegOvergangEvent.BehandlingStegTilbakeføringEvent event = new BehandlingStegOvergangEvent.BehandlingStegTilbakeføringEvent(
+                kontekst,
+                fraTilstand, tilTilstand);
 
         // act
         observer.observerBehandlingSteg(event);
@@ -279,8 +282,8 @@ public class TilbakehoppTest {
     private AksjonspunktDefinisjon finnAksjonspunkt(StegPort port, boolean manueltOpprettet) {
         var defs = AksjonspunktDefinisjon.finnAksjonspunktDefinisjoner(port.getSteg(), port.getPort());
         var filtered = defs.stream()
-            .filter(ad -> !manueltOpprettet || ad.getAksjonspunktType().erOverstyringpunkt())
-            .findFirst();
+                .filter(ad -> !manueltOpprettet || ad.getAksjonspunktType().erOverstyringpunkt())
+                .findFirst();
         return filtered.orElse(null);
     }
 
@@ -295,7 +298,6 @@ public class TilbakehoppTest {
     private StegPort til(BehandlingStegType steg, VurderingspunktType port) {
         return new StegPort(steg, port);
     }
-
 
     private StegPort fra(BehandlingStegType steg, VurderingspunktType port) {
         return new StegPort(steg, port);

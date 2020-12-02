@@ -23,8 +23,6 @@ import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 
 public class Yrkesaktivitet extends BaseEntitet implements IndexKey {
 
-
-
     @ChangeTracked
     private Set<AktivitetsAvtale> aktivitetsAvtale = new LinkedHashSet<>();
 
@@ -35,7 +33,8 @@ public class Yrkesaktivitet extends BaseEntitet implements IndexKey {
     private String navnArbeidsgiverUtland;
 
     /**
-     * Kan være privat eller virksomhet som arbeidsgiver. Dersom {@link #arbeidType} = 'NÆRING', er denne null.
+     * Kan være privat eller virksomhet som arbeidsgiver. Dersom {@link #arbeidType}
+     * = 'NÆRING', er denne null.
      */
     @ChangeTracked
     private Arbeidsgiver arbeidsgiver;
@@ -76,7 +75,8 @@ public class Yrkesaktivitet extends BaseEntitet implements IndexKey {
     }
 
     /**
-     * Kategorisering av aktivitet som er enten pensjonsgivende inntekt eller likestilt med pensjonsgivende inntekt
+     * Kategorisering av aktivitet som er enten pensjonsgivende inntekt eller
+     * likestilt med pensjonsgivende inntekt
      * <p>
      * Fra aa-reg
      * <ul>
@@ -103,7 +103,8 @@ public class Yrkesaktivitet extends BaseEntitet implements IndexKey {
     }
 
     /**
-     * Unik identifikator for arbeidsforholdet til aktøren i bedriften. Selve nøkkelen er ikke unik, men er unik for arbeidstaker hos arbeidsgiver.
+     * Unik identifikator for arbeidsforholdet til aktøren i bedriften. Selve
+     * nøkkelen er ikke unik, men er unik for arbeidstaker hos arbeidsgiver.
      * <p>
      * NB! Vil kun forekomme i aktiviteter som er hentet inn fra aa-reg
      *
@@ -114,13 +115,14 @@ public class Yrkesaktivitet extends BaseEntitet implements IndexKey {
     }
 
     void setArbeidsforholdId(InternArbeidsforholdRef arbeidsforholdId) {
-        this.arbeidsforholdRef = arbeidsforholdId != null && !InternArbeidsforholdRef.nullRef().equals(arbeidsforholdId) ? arbeidsforholdId : null;
+        this.arbeidsforholdRef = (arbeidsforholdId != null) && !InternArbeidsforholdRef.nullRef().equals(arbeidsforholdId) ? arbeidsforholdId : null;
     }
 
     /**
-     * Identifiser om yrkesaktiviteten gjelder for arbeidsgiver og arbeidsforholdRef.
+     * Identifiser om yrkesaktiviteten gjelder for arbeidsgiver og
+     * arbeidsforholdRef.
      *
-     * @param arbeidsgiver en {@link Arbeidsgiver}
+     * @param arbeidsgiver      en {@link Arbeidsgiver}
      * @param arbeidsforholdRef et {@link InternArbeidsforholdRef}
      * @return true hvis arbeidsgiver og arbeidsforholdRef macther
      */
@@ -152,17 +154,18 @@ public class Yrkesaktivitet extends BaseEntitet implements IndexKey {
     }
 
     /**
-     * Gir stillingsprosent hvis det finnes for den gitte dagen
-     * Kaster feil hvis det blir gitt overlappene stillingsprosent
+     * Gir stillingsprosent hvis det finnes for den gitte dagen Kaster feil hvis det
+     * blir gitt overlappene stillingsprosent
+     *
      * @param dato {@link LocalDate}
      * @return Stillingsprosent {@link Stillingsprosent}
      */
     public Optional<Stillingsprosent> getStillingsprosentFor(LocalDate dato) {
         List<AktivitetsAvtale> avtaler = getAlleAktivitetsAvtaler()
-            .stream()
-            .filter(a -> !a.erAnsettelsesPeriode())
-            .filter(a -> a.getPeriode().inkluderer(dato))
-            .collect(Collectors.toList());
+                .stream()
+                .filter(a -> !a.erAnsettelsesPeriode())
+                .filter(a -> a.getPeriode().inkluderer(dato))
+                .collect(Collectors.toList());
 
         if (avtaler.isEmpty()) {
             return Optional.empty();
@@ -179,9 +182,9 @@ public class Yrkesaktivitet extends BaseEntitet implements IndexKey {
 
     boolean erArbeidsforholdAktivt(LocalDate dato) {
         return this.getAlleAktivitetsAvtaler()
-            .stream()
-            .filter(AktivitetsAvtale::erAnsettelsesPeriode)
-            .anyMatch(aa -> aa.getPeriode().inkluderer(dato));
+                .stream()
+                .filter(AktivitetsAvtale::erAnsettelsesPeriode)
+                .anyMatch(aa -> aa.getPeriode().inkluderer(dato));
     }
 
     /**
@@ -233,9 +236,9 @@ public class Yrkesaktivitet extends BaseEntitet implements IndexKey {
         }
         Yrkesaktivitet other = (Yrkesaktivitet) obj;
         return Objects.equals(this.getArbeidsforholdRef(), other.getArbeidsforholdRef()) &&
-            Objects.equals(this.getNavnArbeidsgiverUtland(), other.getNavnArbeidsgiverUtland()) &&
-            Objects.equals(this.getArbeidType(), other.getArbeidType()) &&
-            Objects.equals(this.getArbeidsgiver(), other.getArbeidsgiver());
+                Objects.equals(this.getNavnArbeidsgiverUtland(), other.getNavnArbeidsgiverUtland()) &&
+                Objects.equals(this.getArbeidType(), other.getArbeidType()) &&
+                Objects.equals(this.getArbeidsgiver(), other.getArbeidsgiver());
     }
 
     @Override
@@ -246,10 +249,10 @@ public class Yrkesaktivitet extends BaseEntitet implements IndexKey {
     @Override
     public String toString() {
         return "YrkesaktivitetEntitet{" +
-            "arbeidsgiver=" + arbeidsgiver +
-            ", arbeidsforholdRef=" + arbeidsforholdRef +
-            ", arbeidType=" + arbeidType +
-            '}';
+                "arbeidsgiver=" + arbeidsgiver +
+                ", arbeidsforholdRef=" + arbeidsforholdRef +
+                ", arbeidType=" + arbeidType +
+                '}';
     }
 
     void fjernPeriode(DatoIntervallEntitet aktivitetsPeriode) {

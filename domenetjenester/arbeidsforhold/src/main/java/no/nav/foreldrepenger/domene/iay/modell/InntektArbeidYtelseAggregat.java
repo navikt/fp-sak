@@ -34,7 +34,10 @@ public class InntektArbeidYtelseAggregat extends BaseEntitet {
         uuid = angittEksternReferanse;
     }
 
-    /** copy constructor men med angitt referanse og tidspunkt. Hvis unikt kan denne instansen brukes til lagring. */
+    /**
+     * copy constructor men med angitt referanse og tidspunkt. Hvis unikt kan denne
+     * instansen brukes til lagring.
+     */
     InntektArbeidYtelseAggregat(UUID eksternReferanse, LocalDateTime opprettetTidspunkt, InntektArbeidYtelseAggregat kopierFra) {
         this.setAktørInntekt(kopierFra.getAktørInntekt().stream().map(ai -> {
             AktørInntekt aktørInntekt = new AktørInntekt(ai);
@@ -57,14 +60,17 @@ public class InntektArbeidYtelseAggregat extends BaseEntitet {
     }
 
     /**
-     * Copy constructor - inklusiv angitt referanse og opprettet tid. Brukes for immutable copy internt i minne. Hvis lagres vil gi unik
-     * constraint exception.
+     * Copy constructor - inklusiv angitt referanse og opprettet tid. Brukes for
+     * immutable copy internt i minne. Hvis lagres vil gi unik constraint exception.
      */
     InntektArbeidYtelseAggregat(InntektArbeidYtelseAggregat kopierFra) {
         this(kopierFra.getEksternReferanse(), kopierFra.getOpprettetTidspunkt(), kopierFra);
     }
 
-    /** Identifisere en immutable instans av grunnlaget unikt og er egnet for utveksling (eks. til abakus eller andre systemer) */
+    /**
+     * Identifisere en immutable instans av grunnlaget unikt og er egnet for
+     * utveksling (eks. til abakus eller andre systemer)
+     */
     public UUID getEksternReferanse() {
         return uuid;
     }
@@ -114,8 +120,8 @@ public class InntektArbeidYtelseAggregat extends BaseEntitet {
         }
         InntektArbeidYtelseAggregat other = (InntektArbeidYtelseAggregat) obj;
         return Objects.equals(this.getAktørInntekt(), other.getAktørInntekt())
-            && Objects.equals(this.getAktørArbeid(), other.getAktørArbeid())
-            && Objects.equals(this.getAktørYtelse(), other.getAktørYtelse());
+                && Objects.equals(this.getAktørArbeid(), other.getAktørArbeid())
+                && Objects.equals(this.getAktørYtelse(), other.getAktørYtelse());
     }
 
     @Override
@@ -126,10 +132,10 @@ public class InntektArbeidYtelseAggregat extends BaseEntitet {
     @Override
     public String toString() {
         return getClass().getSimpleName() + "<" +
-            "aktørInntekt=" + aktørInntekt +
-            ", aktørArbeid=" + aktørArbeid +
-            ", aktørYtelse=" + aktørYtelse +
-            '>';
+                "aktørInntekt=" + aktørInntekt +
+                ", aktørArbeid=" + aktørArbeid +
+                ", aktørYtelse=" + aktørYtelse +
+                '>';
     }
 
 }

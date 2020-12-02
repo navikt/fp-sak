@@ -10,8 +10,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 /**
- * Event publiseres av {@link BehandlingskontrollTjeneste} når en {@link Behandling} endrer steg.
- * Kan brukes til å lytte på flyt i en Behandling og utføre logikk når det skjer.
+ * Event publiseres av {@link BehandlingskontrollTjeneste} når en
+ * {@link Behandling} endrer steg. Kan brukes til å lytte på flyt i en
+ * Behandling og utføre logikk når det skjer.
  */
 public class BehandlingStatusEvent implements BehandlingEvent {
 
@@ -56,8 +57,8 @@ public class BehandlingStatusEvent implements BehandlingEvent {
     @Override
     public String toString() {
         return getClass().getSimpleName() + "<" + kontekst + //$NON-NLS-1$
-            ", nyStatus=" + nyStatus + //$NON-NLS-1$
-            ">"; //$NON-NLS-1$
+                ", nyStatus=" + nyStatus + //$NON-NLS-1$
+                ">"; //$NON-NLS-1$
     }
 
     public static class BehandlingAvsluttetEvent extends BehandlingStatusEvent {

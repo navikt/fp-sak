@@ -7,7 +7,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Sivils
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-
 public final class Personopplysning {
 
     private AktørId aktørId;
@@ -65,12 +64,12 @@ public final class Personopplysning {
      */
     public static Builder builderMedDefaultVerdier(AktørId aktørId) {
         return Personopplysning.builder()
-            .brukerKjønn(NavBrukerKjønn.KVINNE)
-            .fødselsdato(LocalDate.now().minusYears(25))
-            .navn("Foreldre")
-            .aktørId(aktørId)
-            .sivilstand(SivilstandType.UOPPGITT)
-            .region(Region.NORDEN);
+                .brukerKjønn(NavBrukerKjønn.KVINNE)
+                .fødselsdato(LocalDate.now().minusYears(25))
+                .navn("Foreldre")
+                .aktørId(aktørId)
+                .sivilstand(SivilstandType.UOPPGITT)
+                .region(Region.NORDEN);
     }
 
     public static final class Builder {

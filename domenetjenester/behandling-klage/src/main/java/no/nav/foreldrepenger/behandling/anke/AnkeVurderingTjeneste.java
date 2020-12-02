@@ -36,10 +36,10 @@ public class AnkeVurderingTjeneste {
 
     @Inject
     public AnkeVurderingTjeneste(ProsesseringAsynkTjeneste prosesseringAsynkTjeneste,
-                                 BehandlingRepository behandlingRepository,
-                                 BehandlingsresultatRepository behandlingsresultatRepository,
-                                 AnkeRepository ankeRepository,
-                                 BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
+            BehandlingRepository behandlingRepository,
+            BehandlingsresultatRepository behandlingsresultatRepository,
+            AnkeRepository ankeRepository,
+            BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
         this.prosesseringAsynkTjeneste = prosesseringAsynkTjeneste;
         this.ankeRepository = ankeRepository;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
@@ -60,25 +60,27 @@ public class AnkeVurderingTjeneste {
         return eksisterende.map(AnkeVurderingResultatEntitet::builder).orElse(AnkeVurderingResultatEntitet.builder());
     }
 
-    public void oppdaterBekreftetVurderingAksjonspunkt(Behandling behandling, AnkeVurderingResultatEntitet.Builder builder, Long påanketBehandlingId) {
+    public void oppdaterBekreftetVurderingAksjonspunkt(Behandling behandling, AnkeVurderingResultatEntitet.Builder builder,
+            Long påanketBehandlingId) {
         ankeRepository.settPåAnketBehandling(behandling.getId(), påanketBehandlingId);
         lagreAnkeVurderingResultat(behandling, builder, true);
     }
 
     public void oppdaterBekreftetMerknaderAksjonspunkt(Behandling behandling, boolean erMerknaderMottatt, String merknadKommentar,
-                                                       AnkeVurdering trVurdering, AnkeVurderingOmgjør trVurderOmgjør, AnkeOmgjørÅrsak trOmgjørÅrsak) {
+            AnkeVurdering trVurdering, AnkeVurderingOmgjør trVurderOmgjør, AnkeOmgjørÅrsak trOmgjørÅrsak) {
         var builder = hentAnkeVurderingResultatBuilder(behandling)
-            .medErMerknaderMottatt(erMerknaderMottatt)
-            .medMerknaderFraBruker(merknadKommentar)
-            .medTrygderettVurdering(trVurdering)
-            .medTrygderettVurderingOmgjør(trVurderOmgjør)
-            .medTrygderettOmgjørÅrsak(trOmgjørÅrsak);
+                .medErMerknaderMottatt(erMerknaderMottatt)
+                .medMerknaderFraBruker(merknadKommentar)
+                .medTrygderettVurdering(trVurdering)
+                .medTrygderettVurderingOmgjør(trVurderOmgjør)
+                .medTrygderettOmgjørÅrsak(trOmgjørÅrsak);
         ankeRepository.lagreVurderingsResultat(behandling.getId(), builder.build());
     }
 
     public void lagreAnkeVurderingResultat(Behandling behandling, AnkeVurderingResultatEntitet.Builder builder, Long påanketBehandlingId) {
-        if (!behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE))
+        if (!behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE)) {
             throw new IllegalArgumentException("Utviklerfeil: Skal ikke kalle denne når aksjonspunkt er utført");
+        }
         ankeRepository.settPåAnketBehandling(behandling.getId(), påanketBehandlingId);
         lagreAnkeVurderingResultat(behandling, builder, false);
     }
@@ -100,8 +102,8 @@ public class AnkeVurderingTjeneste {
             nyttresultat.setGodkjentAvMedunderskriver(eksisterende.godkjentAvMedunderskriver() && uendret);
         }
         var tilbakeføres = endretBeslutterStatus &&
-            !behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE) &&
-            behandlingskontrollTjeneste.erStegPassert(behandling, BehandlingStegType.ANKE);
+                !behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE) &&
+                behandlingskontrollTjeneste.erStegPassert(behandling, BehandlingStegType.ANKE);
         ankeRepository.lagreVurderingsResultat(behandling.getId(), nyttresultat);
         if (erVurderingOppdaterer || tilbakeføres) {
             settBehandlingResultatTypeBasertPaaUtfall(behandling, nyttresultat.getAnkeVurdering());
@@ -123,11 +125,11 @@ public class AnkeVurderingTjeneste {
         BehandlingResultatType behandlingResultatType = BehandlingResultatType.tolkBehandlingResultatType(ankeVurdering);
         if (behandlingsresultat != null) {
             Behandlingsresultat.builderEndreEksisterende(behandlingsresultat)
-                .medBehandlingResultatType(behandlingResultatType);
+                    .medBehandlingResultatType(behandlingResultatType);
         } else {
             Behandlingsresultat.builder()
-                .medBehandlingResultatType(behandlingResultatType)
-                .buildFor(behandling);
+                    .medBehandlingResultatType(behandlingResultatType)
+                    .buildFor(behandling);
         }
     }
 }

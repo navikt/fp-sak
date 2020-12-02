@@ -32,13 +32,11 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 @DtoTilServiceAdapter(dto = AvklarOpptjeningsvilkåretDto.class, adapter = AksjonspunktOppdaterer.class)
 public class AvklarOpptjeningsvilkåretOppdaterer implements AksjonspunktOppdaterer<AvklarOpptjeningsvilkåretDto> {
 
-
     private OpptjeningRepository opptjeningRepository;
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private HistorikkTjenesteAdapter historikkAdapter;
-
 
     AvklarOpptjeningsvilkåretOppdaterer() {
         // for CDI proxy
@@ -46,10 +44,10 @@ public class AvklarOpptjeningsvilkåretOppdaterer implements AksjonspunktOppdate
 
     @Inject
     public AvklarOpptjeningsvilkåretOppdaterer(OpptjeningRepository opptjeningRepository,
-                                               BehandlingRepository behandlingRepository,
-                                               BehandlingsresultatRepository behandlingsresultatRepository,
-                                               BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                               HistorikkTjenesteAdapter historikkAdapter) {
+            BehandlingRepository behandlingRepository,
+            BehandlingsresultatRepository behandlingsresultatRepository,
+            BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+            HistorikkTjenesteAdapter historikkAdapter) {
 
         this.opptjeningRepository = opptjeningRepository;
         this.behandlingRepository = behandlingRepository;
@@ -94,7 +92,7 @@ public class AvklarOpptjeningsvilkåretOppdaterer implements AksjonspunktOppdate
         final Optional<Opptjening> opptjening = opptjeningRepository.finnOpptjening(behandlingId);
         if (opptjening.isPresent()) {
             final long antall = opptjening.get().getOpptjeningAktivitet().stream()
-                .filter(oa -> !oa.getAktivitetType().equals(OpptjeningAktivitetType.UTENLANDSK_ARBEIDSFORHOLD)).count();
+                    .filter(oa -> !oa.getAktivitetType().equals(OpptjeningAktivitetType.UTENLANDSK_ARBEIDSFORHOLD)).count();
             if (antall > 0) {
                 return;
             }
@@ -104,11 +102,11 @@ public class AvklarOpptjeningsvilkåretOppdaterer implements AksjonspunktOppdate
 
     private void lagHistorikkInnslag(AksjonspunktOppdaterParameter param, VilkårUtfallType nyVerdi, String begrunnelse) {
         historikkAdapter.tekstBuilder()
-            .medEndretFelt(HistorikkEndretFeltType.OPPTJENINGSVILKARET, null, nyVerdi);
+                .medEndretFelt(HistorikkEndretFeltType.OPPTJENINGSVILKARET, null, nyVerdi);
 
         boolean erBegrunnelseForAksjonspunktEndret = param.erBegrunnelseEndret();
         historikkAdapter.tekstBuilder()
-            .medBegrunnelse(begrunnelse, erBegrunnelseForAksjonspunktEndret)
-            .medSkjermlenke(SkjermlenkeType.PUNKT_FOR_OPPTJENING);
+                .medBegrunnelse(begrunnelse, erBegrunnelseForAksjonspunktEndret)
+                .medSkjermlenke(SkjermlenkeType.PUNKT_FOR_OPPTJENING);
     }
 }

@@ -12,7 +12,6 @@ public class InformasjonssakData {
     private String enhet;
     private String enhetNavn;
 
-
     InformasjonssakData(Long sak) {
         this.kildeFagsakId = sak;
     }
@@ -40,7 +39,6 @@ public class InformasjonssakData {
     public String getEnhetNavn() {
         return enhetNavn;
     }
-
 
     public static class InformasjonssakDataBuilder {
         private final InformasjonssakData data;

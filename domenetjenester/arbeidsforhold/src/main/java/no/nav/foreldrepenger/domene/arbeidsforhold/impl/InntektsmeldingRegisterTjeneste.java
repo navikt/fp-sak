@@ -43,7 +43,7 @@ public class InntektsmeldingRegisterTjeneste {
 
     private static final String VALID_REF = "behandlingReferanse";
     private static final Set<ArbeidType> AA_REG_TYPER = Set.of(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, ArbeidType.MARITIMT_ARBEIDSFORHOLD,
-        ArbeidType.FORENKLET_OPPGJØRSORDNING);
+            ArbeidType.FORENKLET_OPPGJØRSORDNING);
     private static final Logger LOGGER = LoggerFactory.getLogger(InntektsmeldingRegisterTjeneste.class);
 
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
@@ -51,28 +51,29 @@ public class InntektsmeldingRegisterTjeneste {
     private ArbeidsforholdTjeneste abakusArbeidsforholdTjeneste;
     private Instance<InntektsmeldingFilterYtelse> inntektsmeldingFiltere;
 
-
     InntektsmeldingRegisterTjeneste() {
         // CDI-runner
     }
 
     @Inject
     public InntektsmeldingRegisterTjeneste(InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
-                                           InntektsmeldingTjeneste inntektsmeldingTjeneste,
-                                           ArbeidsforholdTjeneste abakusArbeidsforholdTjeneste,
-                                           @Any Instance<InntektsmeldingFilterYtelse> inntektsmeldingFiltere) {
+            InntektsmeldingTjeneste inntektsmeldingTjeneste,
+            ArbeidsforholdTjeneste abakusArbeidsforholdTjeneste,
+            @Any Instance<InntektsmeldingFilterYtelse> inntektsmeldingFiltere) {
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.abakusArbeidsforholdTjeneste = abakusArbeidsforholdTjeneste;
         this.inntektsmeldingFiltere = inntektsmeldingFiltere;
     }
 
-    public Map<Arbeidsgiver, Set<EksternArbeidsforholdRef>> utledManglendeInntektsmeldingerFraAAreg(BehandlingReferanse referanse, boolean erEndringssøknad) {
+    public Map<Arbeidsgiver, Set<EksternArbeidsforholdRef>> utledManglendeInntektsmeldingerFraAAreg(BehandlingReferanse referanse,
+            boolean erEndringssøknad) {
         Objects.requireNonNull(referanse, VALID_REF);
 
         Skjæringstidspunkt skjæringstidspunkt = referanse.getSkjæringstidspunkt();
         LocalDate dato = skjæringstidspunkt.getUtledetSkjæringstidspunkt();
-        Map<Arbeidsgiver, Set<EksternArbeidsforholdRef>> påkrevdeInntektsmeldinger = abakusArbeidsforholdTjeneste.finnArbeidsforholdForIdentPåDag(referanse.getAktørId(), dato, referanse.getFagsakYtelseType());
+        Map<Arbeidsgiver, Set<EksternArbeidsforholdRef>> påkrevdeInntektsmeldinger = abakusArbeidsforholdTjeneste
+                .finnArbeidsforholdForIdentPåDag(referanse.getAktørId(), dato, referanse.getFagsakYtelseType());
 
         if (påkrevdeInntektsmeldinger.isEmpty()) {
             return Collections.emptyMap();
@@ -83,8 +84,8 @@ public class InntektsmeldingRegisterTjeneste {
     }
 
     private Map<Arbeidsgiver, Set<EksternArbeidsforholdRef>> utledManglendeInntektsmeldinger(BehandlingReferanse referanse,
-                                                                                             Map<Arbeidsgiver, Set<EksternArbeidsforholdRef>> påkrevdeInntektsmeldinger,
-                                                                                             boolean erEndringssøknad) {
+            Map<Arbeidsgiver, Set<EksternArbeidsforholdRef>> påkrevdeInntektsmeldinger,
+            boolean erEndringssøknad) {
         class FinnEksternReferanse implements BiFunction<Arbeidsgiver, InternArbeidsforholdRef, EksternArbeidsforholdRef> {
             ArbeidsforholdInformasjon arbInfo;
 
@@ -93,19 +94,20 @@ public class InntektsmeldingRegisterTjeneste {
                 if (arbInfo == null) {
                     var grunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(referanse.getBehandlingId());
                     arbInfo = grunnlag.getArbeidsforholdInformasjon().orElseThrow(
-                        () -> new IllegalStateException("Utvikler-feil: mangler IAYG.ArbeidsforholdInformasjon, kan ikke slå opp ekstern referanse"));
+                            () -> new IllegalStateException(
+                                    "Utvikler-feil: mangler IAYG.ArbeidsforholdInformasjon, kan ikke slå opp ekstern referanse"));
                 }
                 return arbInfo.finnEkstern(arbeidsgiver, internReferanse);
             }
         }
-
 
         filtrerUtMottatteInntektsmeldinger(referanse, påkrevdeInntektsmeldinger, erEndringssøknad, new FinnEksternReferanse());
 
         return filtrerInntektsmeldingerForYtelse(referanse, Optional.empty(), påkrevdeInntektsmeldinger);
     }
 
-    private void logInntektsmeldinger(BehandlingReferanse referanse, Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger, String filtrert) {
+    private void logInntektsmeldinger(BehandlingReferanse referanse, Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger,
+            String filtrert) {
         if (påkrevdeInntektsmeldinger.isEmpty()) {
             LOGGER.info("{} påkrevdeInntektsmeldinger[{}]: TOM LISTE", filtrert, referanse.getBehandlingId());
             return;
@@ -113,36 +115,44 @@ public class InntektsmeldingRegisterTjeneste {
 
         påkrevdeInntektsmeldinger.forEach((key, value) -> {
             String arbeidsforholdReferanser = value.stream().map(InternArbeidsforholdRef::toString).collect(Collectors.joining(","));
-            LOGGER.info("{} påkrevdeInntektsmeldinger[{}]: identifikator: {}, arbeidsforholdRef: {}", filtrert, referanse.getBehandlingId(), key.getIdentifikator(),
-                arbeidsforholdReferanser);
+            LOGGER.info("{} påkrevdeInntektsmeldinger[{}]: identifikator: {}, arbeidsforholdRef: {}", filtrert, referanse.getBehandlingId(),
+                    key.getIdentifikator(),
+                    arbeidsforholdReferanser);
         });
     }
 
     /**
-     * Liste av arbeidsforhold per arbeidsgiver (ident) som må sende inntektsmelding. Filtrert ut åpenbart passive arbeidsforhold
+     * Liste av arbeidsforhold per arbeidsgiver (ident) som må sende
+     * inntektsmelding. Filtrert ut åpenbart passive arbeidsforhold
      */
-    public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> utledManglendeInntektsmeldingerFraGrunnlag(BehandlingReferanse referanse, boolean erEndringssøknad) {
+    public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> utledManglendeInntektsmeldingerFraGrunnlag(BehandlingReferanse referanse,
+            boolean erEndringssøknad) {
         Objects.requireNonNull(referanse, VALID_REF);
         final Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(
-            referanse.getBehandlingId());
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger = utledPåkrevdeInntektsmeldingerFraGrunnlag(referanse, inntektArbeidYtelseGrunnlag);
+                referanse.getBehandlingId());
+        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger = utledPåkrevdeInntektsmeldingerFraGrunnlag(referanse,
+                inntektArbeidYtelseGrunnlag);
         logInntektsmeldinger(referanse, påkrevdeInntektsmeldinger, "UFILTRERT");
 
         filtrerUtMottatteInntektsmeldinger(referanse, påkrevdeInntektsmeldinger, erEndringssøknad, (a, i) -> i);
         logInntektsmeldinger(referanse, påkrevdeInntektsmeldinger, "FILTRERT");
 
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> filtrert = filtrerInntektsmeldingerForYtelse(referanse, inntektArbeidYtelseGrunnlag, påkrevdeInntektsmeldinger);
+        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> filtrert = filtrerInntektsmeldingerForYtelse(referanse, inntektArbeidYtelseGrunnlag,
+                påkrevdeInntektsmeldinger);
         return filtrerInntektsmeldingerForYtelseUtvidet(referanse, inntektArbeidYtelseGrunnlag, filtrert);
     }
 
     /**
-     * Liste av arbeidsforhold per arbeidsgiver (ident) som må sende inntektsmelding. Filtrert ut annet enn åpenbart aktive arbeidsforhold
+     * Liste av arbeidsforhold per arbeidsgiver (ident) som må sende
+     * inntektsmelding. Filtrert ut annet enn åpenbart aktive arbeidsforhold
      */
-    public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> utledManglendeInntektsmeldingerFraGrunnlagForAutopunkt(BehandlingReferanse referanse, boolean erEndringssøknad) {
+    public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> utledManglendeInntektsmeldingerFraGrunnlagForAutopunkt(BehandlingReferanse referanse,
+            boolean erEndringssøknad) {
         Objects.requireNonNull(referanse, VALID_REF);
         final Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(
-            referanse.getBehandlingId());
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger = utledPåkrevdeInntektsmeldingerFraGrunnlag(referanse, inntektArbeidYtelseGrunnlag);
+                referanse.getBehandlingId());
+        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger = utledPåkrevdeInntektsmeldingerFraGrunnlag(referanse,
+                inntektArbeidYtelseGrunnlag);
         logInntektsmeldinger(referanse, påkrevdeInntektsmeldinger, "UFILTRERT");
 
         filtrerUtMottatteInntektsmeldinger(referanse, påkrevdeInntektsmeldinger, erEndringssøknad, (a, i) -> i);
@@ -154,13 +164,16 @@ public class InntektsmeldingRegisterTjeneste {
     //
 
     /**
-     * Liste av arbeidsforhold per arbeidsgiver (ident) som må sende inntektsmelding for.
+     * Liste av arbeidsforhold per arbeidsgiver (ident) som må sende inntektsmelding
+     * for.
      */
-    protected Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> utledManglendeInntektsmeldingerFraGrunnlagForVurdering(BehandlingReferanse referanse, boolean erEndringssøknad) {
+    protected Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> utledManglendeInntektsmeldingerFraGrunnlagForVurdering(BehandlingReferanse referanse,
+            boolean erEndringssøknad) {
         Objects.requireNonNull(referanse, VALID_REF);
         final Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(
-            referanse.getBehandlingId());
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger = utledPåkrevdeInntektsmeldingerFraGrunnlag(referanse, inntektArbeidYtelseGrunnlag);
+                referanse.getBehandlingId());
+        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger = utledPåkrevdeInntektsmeldingerFraGrunnlag(referanse,
+                inntektArbeidYtelseGrunnlag);
         logInntektsmeldinger(referanse, påkrevdeInntektsmeldinger, "UFILTRERT");
 
         filtrerUtMottatteInntektsmeldinger(referanse, påkrevdeInntektsmeldinger, erEndringssøknad, (a, i) -> i);
@@ -169,10 +182,9 @@ public class InntektsmeldingRegisterTjeneste {
         return filtrerInntektsmeldingerForYtelse(referanse, inntektArbeidYtelseGrunnlag, påkrevdeInntektsmeldinger);
     }
 
-
     private <V> void filtrerUtMottatteInntektsmeldinger(BehandlingReferanse referanse, Map<Arbeidsgiver, Set<V>> påkrevdeInntektsmeldinger,
-                                                        boolean erEndringssøknad,
-                                                        BiFunction<Arbeidsgiver, InternArbeidsforholdRef, V> tilnternArbeidsforhold) {
+            boolean erEndringssøknad,
+            BiFunction<Arbeidsgiver, InternArbeidsforholdRef, V> tilnternArbeidsforhold) {
         // modder påkrevdeInntektsmeldinger for hvert kall
         if (!påkrevdeInntektsmeldinger.isEmpty()) {
             inntektsmeldingerSomHarKommet(referanse, påkrevdeInntektsmeldinger, erEndringssøknad, tilnternArbeidsforhold);
@@ -183,22 +195,23 @@ public class InntektsmeldingRegisterTjeneste {
     }
 
     private <V> void fjernInntektsmeldingerSomAltErAvklart(BehandlingReferanse ref, Map<Arbeidsgiver, Set<V>> påkrevdeInntektsmeldinger,
-                                                           BiFunction<Arbeidsgiver, InternArbeidsforholdRef, V> tilnternArbeidsforhold) {
+            BiFunction<Arbeidsgiver, InternArbeidsforholdRef, V> tilnternArbeidsforhold) {
         final Optional<ArbeidsforholdInformasjon> arbeidsforholdInformasjon = inntektArbeidYtelseTjeneste.finnGrunnlag(ref.getBehandlingId())
-            .flatMap(InntektArbeidYtelseGrunnlag::getArbeidsforholdInformasjon);
+                .flatMap(InntektArbeidYtelseGrunnlag::getArbeidsforholdInformasjon);
         if (arbeidsforholdInformasjon.isPresent()) {
             final ArbeidsforholdInformasjon informasjon = arbeidsforholdInformasjon.get();
             final List<ArbeidsforholdOverstyring> inntektsmeldingSomIkkeKommer = informasjon.getOverstyringer()
-                .stream()
-                .filter(ArbeidsforholdOverstyring::kreverIkkeInntektsmelding)
-                .collect(Collectors.toList());
+                    .stream()
+                    .filter(ArbeidsforholdOverstyring::kreverIkkeInntektsmelding)
+                    .collect(Collectors.toList());
 
             fjernInntektsmeldinger(påkrevdeInntektsmeldinger, inntektsmeldingSomIkkeKommer, tilnternArbeidsforhold);
         }
     }
 
-    private <V> void fjernInntektsmeldinger(Map<Arbeidsgiver, Set<V>> påkrevdeInntektsmeldinger, List<ArbeidsforholdOverstyring> inntektsmeldingSomIkkeKommer,
-                                            BiFunction<Arbeidsgiver, InternArbeidsforholdRef, V> tilnternArbeidsforhold) {
+    private <V> void fjernInntektsmeldinger(Map<Arbeidsgiver, Set<V>> påkrevdeInntektsmeldinger,
+            List<ArbeidsforholdOverstyring> inntektsmeldingSomIkkeKommer,
+            BiFunction<Arbeidsgiver, InternArbeidsforholdRef, V> tilnternArbeidsforhold) {
         for (ArbeidsforholdOverstyring im : inntektsmeldingSomIkkeKommer) {
             if (påkrevdeInntektsmeldinger.containsKey(im.getArbeidsgiver())) {
                 final Set<V> arbeidsforhold = påkrevdeInntektsmeldinger.get(im.getArbeidsgiver());
@@ -216,9 +229,9 @@ public class InntektsmeldingRegisterTjeneste {
     }
 
     private <V> void inntektsmeldingerSomHarKommet(BehandlingReferanse referanse,
-                                                   Map<Arbeidsgiver, Set<V>> påkrevdeInntektsmeldinger,
-                                                   boolean erEndringssøknad,
-                                                   BiFunction<Arbeidsgiver, InternArbeidsforholdRef, V> tilnternArbeidsforhold) {
+            Map<Arbeidsgiver, Set<V>> påkrevdeInntektsmeldinger,
+            boolean erEndringssøknad,
+            BiFunction<Arbeidsgiver, InternArbeidsforholdRef, V> tilnternArbeidsforhold) {
         if (påkrevdeInntektsmeldinger.isEmpty()) {
             return; // quick exit
         }
@@ -249,30 +262,31 @@ public class InntektsmeldingRegisterTjeneste {
     }
 
     private Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> utledPåkrevdeInntektsmeldingerFraGrunnlag(BehandlingReferanse referanse,
-                                                                                                      Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag) {
+            Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag) {
         Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger = new HashMap<>();
 
         inntektArbeidYtelseGrunnlag.ifPresent(grunnlag -> {
 
             Skjæringstidspunkt skjæringstidspunkt = referanse.getSkjæringstidspunkt();
-            var filterFør = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(referanse.getAktørId()))
-                .før(skjæringstidspunkt.getUtledetSkjæringstidspunkt());
+            var filterFør = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(),
+                    grunnlag.getAktørArbeidFraRegister(referanse.getAktørId()))
+                            .før(skjæringstidspunkt.getUtledetSkjæringstidspunkt());
 
             filterFør.getYrkesaktiviteter().stream()
-                .filter(ya -> AA_REG_TYPER.contains(ya.getArbeidType()))
-                .filter(ya -> harRelevantAnsettelsesperiodeSomDekkerAngittDato(filterFør, ya, skjæringstidspunkt.getUtledetSkjæringstidspunkt()))
-                .forEach(relevantYrkesaktivitet -> {
-                    var identifikator = relevantYrkesaktivitet.getArbeidsgiver();
-                    var arbeidsforholdRef = InternArbeidsforholdRef.ref(relevantYrkesaktivitet.getArbeidsforholdRef().getReferanse());
+                    .filter(ya -> AA_REG_TYPER.contains(ya.getArbeidType()))
+                    .filter(ya -> harRelevantAnsettelsesperiodeSomDekkerAngittDato(filterFør, ya, skjæringstidspunkt.getUtledetSkjæringstidspunkt()))
+                    .forEach(relevantYrkesaktivitet -> {
+                        var identifikator = relevantYrkesaktivitet.getArbeidsgiver();
+                        var arbeidsforholdRef = InternArbeidsforholdRef.ref(relevantYrkesaktivitet.getArbeidsforholdRef().getReferanse());
 
-                    if (påkrevdeInntektsmeldinger.containsKey(identifikator)) {
-                        påkrevdeInntektsmeldinger.get(identifikator).add(arbeidsforholdRef);
-                    } else {
-                        final Set<InternArbeidsforholdRef> arbeidsforholdSet = new LinkedHashSet<>();
-                        arbeidsforholdSet.add(arbeidsforholdRef);
-                        påkrevdeInntektsmeldinger.put(identifikator, arbeidsforholdSet);
-                    }
-                });
+                        if (påkrevdeInntektsmeldinger.containsKey(identifikator)) {
+                            påkrevdeInntektsmeldinger.get(identifikator).add(arbeidsforholdRef);
+                        } else {
+                            final Set<InternArbeidsforholdRef> arbeidsforholdSet = new LinkedHashSet<>();
+                            arbeidsforholdSet.add(arbeidsforholdRef);
+                            påkrevdeInntektsmeldinger.put(identifikator, arbeidsforholdSet);
+                        }
+                    });
         });
         return påkrevdeInntektsmeldinger;
     }
@@ -286,31 +300,38 @@ public class InntektsmeldingRegisterTjeneste {
     }
 
     /**
-     * Utleder påkrevde inntektsmeldinger fra grunnlaget basert på informasjonen som har blitt innhentet fra aa-reg
-     * (under INNREG-steget)
+     * Utleder påkrevde inntektsmeldinger fra grunnlaget basert på informasjonen som
+     * har blitt innhentet fra aa-reg (under INNREG-steget)
      * <p>
-     * Sjekker opp mot mottatt dato, og melder påkrevde på de som har gjeldende(bruker var ansatt) på mottatt-dato.
+     * Sjekker opp mot mottatt dato, og melder påkrevde på de som har
+     * gjeldende(bruker var ansatt) på mottatt-dato.
      * <p>
-     * Skal ikke benytte sjekk mot arkivet slik som gjøres i utledManglendeInntektsmeldingerFraAAreg da
-     * disse verdiene skal ikke påvirkes av endringer i arkivet.
+     * Skal ikke benytte sjekk mot arkivet slik som gjøres i
+     * utledManglendeInntektsmeldingerFraAAreg da disse verdiene skal ikke påvirkes
+     * av endringer i arkivet.
      */
-    private <V> Map<Arbeidsgiver, Set<V>> filtrerInntektsmeldingerForYtelse(BehandlingReferanse referanse, Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag, Map<Arbeidsgiver, Set<V>> påkrevdeInntektsmeldinger) {
+    private <V> Map<Arbeidsgiver, Set<V>> filtrerInntektsmeldingerForYtelse(BehandlingReferanse referanse,
+            Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag, Map<Arbeidsgiver, Set<V>> påkrevdeInntektsmeldinger) {
         InntektsmeldingFilterYtelse filter = FagsakYtelseTypeRef.Lookup.find(inntektsmeldingFiltere, referanse.getFagsakYtelseType())
-            .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + referanse.getFagsakYtelseType().getKode()));
+                .orElseThrow(
+                        () -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + referanse.getFagsakYtelseType().getKode()));
         return filter.filtrerInntektsmeldingerForYtelse(referanse, inntektArbeidYtelseGrunnlag, påkrevdeInntektsmeldinger);
     }
 
-    private <V> Map<Arbeidsgiver, Set<V>> filtrerInntektsmeldingerForYtelseUtvidet(BehandlingReferanse referanse, Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag, Map<Arbeidsgiver, Set<V>> påkrevdeInntektsmeldinger) {
+    private <V> Map<Arbeidsgiver, Set<V>> filtrerInntektsmeldingerForYtelseUtvidet(BehandlingReferanse referanse,
+            Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag, Map<Arbeidsgiver, Set<V>> påkrevdeInntektsmeldinger) {
         InntektsmeldingFilterYtelse filter = FagsakYtelseTypeRef.Lookup.find(inntektsmeldingFiltere, referanse.getFagsakYtelseType())
-            .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + referanse.getFagsakYtelseType().getKode()));
+                .orElseThrow(
+                        () -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + referanse.getFagsakYtelseType().getKode()));
         return filter.filtrerInntektsmeldingerForYtelseUtvidet(referanse, inntektArbeidYtelseGrunnlag, påkrevdeInntektsmeldinger);
     }
 
-    private <V> Map<Arbeidsgiver, Set<V>> filtrerInntektsmeldingerForKompletthetAktive(BehandlingReferanse referanse, Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag, Map<Arbeidsgiver, Set<V>> påkrevdeInntektsmeldinger) {
+    private <V> Map<Arbeidsgiver, Set<V>> filtrerInntektsmeldingerForKompletthetAktive(BehandlingReferanse referanse,
+            Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag, Map<Arbeidsgiver, Set<V>> påkrevdeInntektsmeldinger) {
         InntektsmeldingFilterYtelse filter = FagsakYtelseTypeRef.Lookup.find(inntektsmeldingFiltere, referanse.getFagsakYtelseType())
-            .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + referanse.getFagsakYtelseType().getKode()));
+                .orElseThrow(
+                        () -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + referanse.getFagsakYtelseType().getKode()));
         return filter.filtrerInntektsmeldingerForKompletthetAktive(referanse, inntektArbeidYtelseGrunnlag, påkrevdeInntektsmeldinger);
     }
-
 
 }

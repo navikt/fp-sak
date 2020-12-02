@@ -21,15 +21,11 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum InntektsFilter implements Kodeverdi, MedOffisiellKode {
 
-    BEREGNINGSGRUNNLAG("BEREGNINGSGRUNNLAG", "Beregningsgrunnlag", "8-28",
-            InntektsKilde.INNTEKT_BEREGNING, InntektsFormål.FORMAAL_FORELDREPENGER),
-    OPPTJENINGSGRUNNLAG("OPPTJENINGSGRUNNLAG", "Pensjonsgivende inntekt", "PensjonsgivendeA-Inntekt",
-            InntektsKilde.INNTEKT_OPPTJENING, InntektsFormål.FORMAAL_PGI),
-    SAMMENLIGNINGSGRUNNLAG("SAMMENLIGNINGSGRUNNLAG", "Sammenligningsgrunnlag", "8-30",
-            InntektsKilde.INNTEKT_SAMMENLIGNING, InntektsFormål.FORMAAL_FORELDREPENGER),
-    UDEFINERT("-", "Ikke definert", null,
-            InntektsKilde.UDEFINERT, InntektsFormål.UDEFINERT),
-            ;
+    BEREGNINGSGRUNNLAG("BEREGNINGSGRUNNLAG", "Beregningsgrunnlag", "8-28", InntektsKilde.INNTEKT_BEREGNING, InntektsFormål.FORMAAL_FORELDREPENGER),
+    OPPTJENINGSGRUNNLAG("OPPTJENINGSGRUNNLAG", "Pensjonsgivende inntekt", "PensjonsgivendeA-Inntekt", InntektsKilde.INNTEKT_OPPTJENING, InntektsFormål.FORMAAL_PGI),
+    SAMMENLIGNINGSGRUNNLAG("SAMMENLIGNINGSGRUNNLAG", "Sammenligningsgrunnlag", "8-30", InntektsKilde.INNTEKT_SAMMENLIGNING, InntektsFormål.FORMAAL_FORELDREPENGER),
+    UDEFINERT("-", "Ikke definert", null, InntektsKilde.UDEFINERT, InntektsFormål.UDEFINERT),
+    ;
 
     private static final Map<InntektsFilter, InntektsFormål> INNTEKTSFILTER_TIL_INNTEKTSFORMÅL = new LinkedHashMap<>();
     private static final Map<InntektsKilde, InntektsFilter> INNTEKTSKILDE_TIL_INNTEKTSFILTER = new LinkedHashMap<>();
@@ -46,10 +42,10 @@ public enum InntektsFilter implements Kodeverdi, MedOffisiellKode {
         }
 
         List.of(values()).stream()
-            .forEach(v -> INNTEKTSKILDE_TIL_INNTEKTSFILTER.putIfAbsent(v.getInntektsKilde(), v));
+                .forEach(v -> INNTEKTSKILDE_TIL_INNTEKTSFILTER.putIfAbsent(v.getInntektsKilde(), v));
 
         List.of(values()).stream()
-            .forEach(v -> INNTEKTSFILTER_TIL_INNTEKTSFORMÅL.putIfAbsent(v, v.getInntektsFormål()));
+                .forEach(v -> INNTEKTSFILTER_TIL_INNTEKTSFORMÅL.putIfAbsent(v, v.getInntektsFormål()));
 
     }
 

@@ -13,7 +13,7 @@ import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 
 public interface BehandlingskontrollFeil extends DeklarerteFeil {
 
-    public static final BehandlingskontrollFeil FACTORY = FeilFactory.create(BehandlingskontrollFeil.class);
+    BehandlingskontrollFeil FACTORY = FeilFactory.create(BehandlingskontrollFeil.class);
 
     @TekniskFeil(feilkode = "FP-143308", feilmelding = "BehandlingId %s er allerede avsluttet, kan ikke henlegges", logLevel = ERROR)
     Feil kanIkkeHenleggeAvsluttetBehandling(Long behandlingId);

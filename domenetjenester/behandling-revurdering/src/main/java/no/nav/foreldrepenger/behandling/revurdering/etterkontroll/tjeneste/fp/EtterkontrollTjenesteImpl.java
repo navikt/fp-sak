@@ -46,19 +46,17 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
 
     private BehandlingRevurderingRepository behandlingRevurderingRepository;
 
-
-
     EtterkontrollTjenesteImpl() {
         // for CDI proxy
     }
 
     @Inject
     public EtterkontrollTjenesteImpl(HistorikkRepository historikkRepository,
-                                     BehandlingRevurderingRepository behandlingRevurderingRepository,
-                                     ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
-                                     BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                     @FagsakYtelseTypeRef("FP") RevurderingTjeneste revurderingTjeneste,
-                                     ProsessTaskRepository prosessTaskRepository) {
+            BehandlingRevurderingRepository behandlingRevurderingRepository,
+            ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
+            BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+            @FagsakYtelseTypeRef("FP") RevurderingTjeneste revurderingTjeneste,
+            ProsessTaskRepository prosessTaskRepository) {
         this.prosessTaskRepository = prosessTaskRepository;
         this.revurderingHistorikk = new RevurderingHistorikk(historikkRepository);
         this.revurderingTjeneste = revurderingTjeneste;
@@ -68,9 +66,11 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
     }
 
     @Override
-    public Optional<BehandlingÅrsakType>  utledRevurderingÅrsak(Behandling behandling, FamilieHendelseGrunnlagEntitet grunnlag, List<FødtBarnInfo> barnFraRegister) {
-        if (grunnlag == null)
+    public Optional<BehandlingÅrsakType> utledRevurderingÅrsak(Behandling behandling, FamilieHendelseGrunnlagEntitet grunnlag,
+            List<FødtBarnInfo> barnFraRegister) {
+        if (grunnlag == null) {
             return Optional.of(BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN);
+        }
 
         return utledRevurderingsÅrsak(grunnlag, barnFraRegister.size());
     }
@@ -80,18 +80,21 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
         var fagsak = behandling.getFagsak();
         var revurdering = revurderingTjeneste.opprettAutomatiskRevurdering(fagsak, årsak, enhetForRevurdering);
 
-        Optional<Behandling> behandlingMedforelder = behandlingRevurderingRepository.finnSisteInnvilgetBehandlingForMedforelder(behandling.getFagsak());
+        Optional<Behandling> behandlingMedforelder = behandlingRevurderingRepository
+                .finnSisteInnvilgetBehandlingForMedforelder(behandling.getFagsak());
 
         if (behandlingMedforelder.isPresent()) {
             // For dette tilfellet vil begge sakene etterkontrolleres samtidig.
-            LOG.info("Etterkontroll har funnet fagsak (id={}) på medforelder for fagsak med fagsakId={}", behandlingMedforelder.get().getFagsakId(), fagsak.getId());
+            LOG.info("Etterkontroll har funnet fagsak (id={}) på medforelder for fagsak med fagsakId={}", behandlingMedforelder.get().getFagsakId(),
+                    fagsak.getId());
             boolean denneStarterUttakFørst = denneForelderHarTidligstUttak(behandling, behandlingMedforelder.get());
 
             if (denneStarterUttakFørst) {
                 opprettTaskForProsesserBehandling(revurdering);
             } else {
                 enkøBehandling(revurdering);
-                revurderingHistorikk.opprettHistorikkinnslagForVenteFristRelaterteInnslag(revurdering.getId(), fagsak.getId(), HistorikkinnslagType.BEH_KØET, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
+                revurderingHistorikk.opprettHistorikkinnslagForVenteFristRelaterteInnslag(revurdering.getId(), fagsak.getId(),
+                        HistorikkinnslagType.BEH_KØET, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
             }
         } else {
             opprettTaskForProsesserBehandling(revurdering);
@@ -101,17 +104,18 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
     private Optional<BehandlingÅrsakType> utledRevurderingsÅrsak(FamilieHendelseGrunnlagEntitet grunnlag, int antallBarnRegister) {
         int antallBarnSakBekreftet = finnAntallBekreftet(grunnlag);
 
-        if (antallBarnRegister == 0 && finnAntallOverstyrtManglendeFødsel(grunnlag) > 0) {
+        if ((antallBarnRegister == 0) && (finnAntallOverstyrtManglendeFødsel(grunnlag) > 0)) {
             return Optional.empty();
         }
-        if (antallBarnSakBekreftet > 0 && antallBarnSakBekreftet == antallBarnRegister) {
+        if ((antallBarnSakBekreftet > 0) && (antallBarnSakBekreftet == antallBarnRegister)) {
             return Optional.empty();
         }
 
         if (antallBarnRegister == 0) {
             return Optional.of(BehandlingÅrsakType.RE_MANGLER_FØDSEL);
         }
-        return antallBarnSakBekreftet == 0 ? Optional.of(BehandlingÅrsakType.RE_HENDELSE_FØDSEL) : Optional.of(BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN);
+        return antallBarnSakBekreftet == 0 ? Optional.of(BehandlingÅrsakType.RE_HENDELSE_FØDSEL)
+                : Optional.of(BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN);
     }
 
     private int finnAntallBekreftet(FamilieHendelseGrunnlagEntitet grunnlag) {
@@ -123,7 +127,8 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
     }
 
     private int finnAntallOverstyrtManglendeFødsel(FamilieHendelseGrunnlagEntitet grunnlag) {
-        return grunnlag.getOverstyrtVersjon().filter(fh -> FamilieHendelseType.FØDSEL.equals(fh.getType())).map(FamilieHendelseEntitet::getAntallBarn).orElse(0);
+        return grunnlag.getOverstyrtVersjon().filter(fh -> FamilieHendelseType.FØDSEL.equals(fh.getType())).map(FamilieHendelseEntitet::getAntallBarn)
+                .orElse(0);
     }
 
     private boolean denneForelderHarTidligstUttak(Behandling behandling, Behandling annenForelder) {
@@ -148,7 +153,8 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
     }
 
     public void enkøBehandling(Behandling behandling) {
-        behandlingskontrollTjeneste.settBehandlingPåVent(behandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING, null, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
+        behandlingskontrollTjeneste.settBehandlingPåVent(behandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING, null, null,
+                Venteårsak.VENT_ÅPEN_BEHANDLING);
     }
 
 }

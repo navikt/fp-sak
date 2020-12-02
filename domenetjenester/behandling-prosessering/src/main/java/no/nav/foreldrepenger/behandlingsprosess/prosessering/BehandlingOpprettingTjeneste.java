@@ -30,10 +30,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 public class BehandlingOpprettingTjeneste {
 
     private static final Map<BehandlingType, HistorikkinnslagType> BEHANDLING_HISTORIKK = Map.ofEntries(
-        Map.entry(BehandlingType.ANKE, HistorikkinnslagType.ANKEBEH_STARTET),
-        Map.entry(BehandlingType.INNSYN, HistorikkinnslagType.INNSYN_OPPR),
-        Map.entry(BehandlingType.KLAGE, HistorikkinnslagType.KLAGEBEH_STARTET)
-    );
+            Map.entry(BehandlingType.ANKE, HistorikkinnslagType.ANKEBEH_STARTET),
+            Map.entry(BehandlingType.INNSYN, HistorikkinnslagType.INNSYN_OPPR),
+            Map.entry(BehandlingType.KLAGE, HistorikkinnslagType.KLAGEBEH_STARTET));
 
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private BehandlendeEnhetTjeneste enhetTjeneste;
@@ -42,9 +41,9 @@ public class BehandlingOpprettingTjeneste {
 
     @Inject
     public BehandlingOpprettingTjeneste(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                        BehandlendeEnhetTjeneste enhetTjeneste,
-                                        HistorikkRepository historikkRepository,
-                                        ProsessTaskRepository prosessTaskRepository) {
+            BehandlendeEnhetTjeneste enhetTjeneste,
+            HistorikkRepository historikkRepository,
+            ProsessTaskRepository prosessTaskRepository) {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.enhetTjeneste = enhetTjeneste;
         this.historikkRepository = historikkRepository;
@@ -85,6 +84,7 @@ public class BehandlingOpprettingTjeneste {
 
     /**
      * Kjør prosess asynkront (i egen prosess task) videre.
+     *
      * @return gruppe assignet til prosess task
      */
     public String asynkStartBehandlingsprosess(Behandling behandling) {
@@ -94,24 +94,27 @@ public class BehandlingOpprettingTjeneste {
         return prosessTaskRepository.lagre(taskData);
     }
 
-    private Behandling opprettBehandling(Fagsak fagsak, BehandlingType behandlingType, OrganisasjonsEnhet enhet, BehandlingÅrsakType årsak, boolean historikk) {
+    private Behandling opprettBehandling(Fagsak fagsak, BehandlingType behandlingType, OrganisasjonsEnhet enhet, BehandlingÅrsakType årsak,
+            boolean historikk) {
         Behandling behandling = behandlingskontrollTjeneste.opprettNyBehandling(fagsak, behandlingType,
-            (beh) -> {
-                if (!BehandlingÅrsakType.UDEFINERT.equals(årsak)) {
-                    BehandlingÅrsak.builder(årsak).buildFor(beh);
-                }
-                beh.setBehandlingstidFrist(LocalDate.now().plusWeeks(behandlingType.getBehandlingstidFristUker()));
-                beh.setBehandlendeEnhet(enhet);
-            });
-        if (historikk)
+                (beh) -> {
+                    if (!BehandlingÅrsakType.UDEFINERT.equals(årsak)) {
+                        BehandlingÅrsak.builder(årsak).buildFor(beh);
+                    }
+                    beh.setBehandlingstidFrist(LocalDate.now().plusWeeks(behandlingType.getBehandlingstidFristUker()));
+                    beh.setBehandlendeEnhet(enhet);
+                });
+        if (historikk) {
             opprettHistorikkinnslag(behandling, behandlingType);
+        }
         return behandling;
     }
 
     private void opprettHistorikkinnslag(Behandling behandling, BehandlingType behandlingType) {
         var type = BEHANDLING_HISTORIKK.get(behandlingType);
-        if (type == null)
+        if (type == null) {
             return;
+        }
         Historikkinnslag historikkinnslag = new Historikkinnslag();
         historikkinnslag.setAktør(HistorikkAktør.SØKER);
         historikkinnslag.setType(type);
@@ -119,8 +122,8 @@ public class BehandlingOpprettingTjeneste {
         historikkinnslag.setFagsakId(behandling.getFagsakId());
 
         new HistorikkInnslagTekstBuilder().medHendelse(type)
-            .medBegrunnelse(type.getNavn())
-            .build(historikkinnslag);
+                .medBegrunnelse(type.getNavn())
+                .build(historikkinnslag);
 
         historikkRepository.lagre(historikkinnslag);
     }

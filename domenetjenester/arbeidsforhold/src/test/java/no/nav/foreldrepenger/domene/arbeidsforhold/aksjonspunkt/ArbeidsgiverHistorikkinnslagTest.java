@@ -34,7 +34,7 @@ public class ArbeidsgiverHistorikkinnslagTest {
     private static final Virksomhet VIRKSOMHET = lagVirksomhet(ORGNR);
     private static final LocalDate FØDSELSDATO = LocalDate.of(2000, 1, 1);
     private static final InternArbeidsforholdRef ARBEIDSFORHOLD_REF = InternArbeidsforholdRef.namedRef("TEST-REF");
-    private static final String SUFFIX = ARBEIDSFORHOLD_REF.getReferanse().substring(ARBEIDSFORHOLD_REF.getReferanse().length()-4);
+    private static final String SUFFIX = ARBEIDSFORHOLD_REF.getReferanse().substring(ARBEIDSFORHOLD_REF.getReferanse().length() - 4);
 
     private ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslag;
 
@@ -51,11 +51,11 @@ public class ArbeidsgiverHistorikkinnslagTest {
 
     private PersoninfoArbeidsgiver lagPersoninfo() {
         return new PersoninfoArbeidsgiver.Builder()
-            .medAktørId(AKTØR_ID)
-            .medPersonIdent(new PersonIdent("123"))
-            .medFødselsdato(FØDSELSDATO)
-            .medNavn(PRIVATPERSON_NAVN)
-            .build();
+                .medAktørId(AKTØR_ID)
+                .medPersonIdent(new PersonIdent("123"))
+                .medFødselsdato(FØDSELSDATO)
+                .medNavn(PRIVATPERSON_NAVN)
+                .build();
     }
 
     @Test
@@ -71,7 +71,7 @@ public class ArbeidsgiverHistorikkinnslagTest {
     public void skal_lage_tekst_for_arbeidsgiver_privatperson_med_arbref() {
         // Act
         String arbeidsgiverNavn = arbeidsgiverHistorikkinnslag.lagArbeidsgiverHistorikkinnslagTekst(
-            Arbeidsgiver.person(AKTØR_ID), ARBEIDSFORHOLD_REF, List.of());
+                Arbeidsgiver.person(AKTØR_ID), ARBEIDSFORHOLD_REF, List.of());
 
         // Assert
         assertThat(arbeidsgiverNavn).isEqualTo("Mikke Mus (01.01.2000) ..." + SUFFIX);
@@ -90,7 +90,7 @@ public class ArbeidsgiverHistorikkinnslagTest {
     public void skal_lage_tekst_for_arbeidsgiver_virksomhet_med_arbref() {
         // Act
         String arbeidsgiverNavn = arbeidsgiverHistorikkinnslag.lagArbeidsgiverHistorikkinnslagTekst(
-            Arbeidsgiver.virksomhet(ORGNR), ARBEIDSFORHOLD_REF, List.of());
+                Arbeidsgiver.virksomhet(ORGNR), ARBEIDSFORHOLD_REF, List.of());
 
         // Assert
         assertThat(arbeidsgiverNavn).isEqualTo("Andeby Bank (" + ORGNR + ") ..." + SUFFIX);
@@ -100,7 +100,7 @@ public class ArbeidsgiverHistorikkinnslagTest {
     public void skal_lage_tekst_for_arbeidsgiver_virksomhet_med_arbref_null() {
         // Act
         String arbeidsgiverNavn = arbeidsgiverHistorikkinnslag.lagArbeidsgiverHistorikkinnslagTekst(Arbeidsgiver.virksomhet(ORGNR),
-            InternArbeidsforholdRef.nullRef(), List.of());
+                InternArbeidsforholdRef.nullRef(), List.of());
 
         // Assert
         assertThat(arbeidsgiverNavn).isEqualTo("Andeby Bank (" + ORGNR + ")");

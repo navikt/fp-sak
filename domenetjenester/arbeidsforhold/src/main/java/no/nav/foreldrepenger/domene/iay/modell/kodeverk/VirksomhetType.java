@@ -14,7 +14,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum VirksomhetType implements Kodeverdi {
@@ -26,6 +25,7 @@ public enum VirksomhetType implements Kodeverdi {
     ANNEN("ANNEN", "Annen næringsvirksomhet", Inntektskategori.UDEFINERT),
     UDEFINERT("-", "Ikke definert", Inntektskategori.UDEFINERT),
     ;
+
     private static final Map<String, VirksomhetType> KODER = new LinkedHashMap<>();
 
     public static final String KODEVERK = "VIRKSOMHET_TYPE";
@@ -61,6 +61,7 @@ public enum VirksomhetType implements Kodeverdi {
         }
         return ad;
     }
+
     public static Map<String, VirksomhetType> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }

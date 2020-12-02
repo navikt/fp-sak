@@ -35,20 +35,21 @@ public class ForeslåBehandlingsresultatStegRevurdering extends ForeslåBehandli
 
     @Inject
     public ForeslåBehandlingsresultatStegRevurdering(BehandlingRepositoryProvider repositoryProvider,
-                                                     @Any Instance<ForeslåBehandlingsresultatTjeneste> foreslåBehandlingsresultatTjeneste,
-                                                     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+            @Any Instance<ForeslåBehandlingsresultatTjeneste> foreslåBehandlingsresultatTjeneste,
+            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         super(repositoryProvider, foreslåBehandlingsresultatTjeneste, skjæringstidspunktTjeneste);
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
     }
 
     @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg, BehandlingStegType fraSteg) {
+    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
+            BehandlingStegType fraSteg) {
         Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         Optional<Behandlingsresultat> behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
         behandlingsresultat.ifPresent(behandlingsresultat1 -> Behandlingsresultat.builderEndreEksisterende(behandlingsresultat1)
-            .fjernKonsekvenserForYtelsen()
-            .buildFor(behandling));
+                .fjernKonsekvenserForYtelsen()
+                .buildFor(behandling));
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
     }
 }

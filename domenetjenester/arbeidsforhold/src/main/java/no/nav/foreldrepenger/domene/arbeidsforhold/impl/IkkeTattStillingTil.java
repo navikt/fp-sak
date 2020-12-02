@@ -17,10 +17,10 @@ public class IkkeTattStillingTil {
         if (informasjon.isPresent()) {
             final ArbeidsforholdInformasjon arbeidsforholdInformasjon = informasjon.get();
             return arbeidsforholdInformasjon.getOverstyringer()
-                .stream()
-                .noneMatch(ov -> ov.getArbeidsgiver().equals(arbeidsgiver)
-                    && ov.getArbeidsforholdRef().gjelderFor(arbeidsforholdRef));
+                    .stream()
+                    .noneMatch(ov -> ov.getArbeidsgiver().equals(arbeidsgiver)
+                            && ov.getArbeidsforholdRef().gjelderFor(arbeidsforholdRef));
         }
-        return arbeidsforholdRef!=null && arbeidsforholdRef.gjelderForSpesifiktArbeidsforhold();
+        return (arbeidsforholdRef != null) && arbeidsforholdRef.gjelderForSpesifiktArbeidsforhold();
     }
 }

@@ -37,17 +37,17 @@ class SvpHelper {
 
     void lagreIngenTilrettelegging(Behandling behandling, LocalDate jordmorsdato) {
         var tilrettelegging = new SvpTilretteleggingEntitet.Builder()
-            .medBehovForTilretteleggingFom(jordmorsdato)
-            .medIngenTilrettelegging(jordmorsdato)
-            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .medArbeidsgiver(Arbeidsgiver.person(AktørId.dummy()))
-            .medMottattTidspunkt(LocalDateTime.now())
-            .medKopiertFraTidligereBehandling(false)
-            .build();
+                .medBehovForTilretteleggingFom(jordmorsdato)
+                .medIngenTilrettelegging(jordmorsdato)
+                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+                .medArbeidsgiver(Arbeidsgiver.person(AktørId.dummy()))
+                .medMottattTidspunkt(LocalDateTime.now())
+                .medKopiertFraTidligereBehandling(false)
+                .build();
         var svpGrunnlag = new SvpGrunnlagEntitet.Builder()
-            .medBehandlingId(behandling.getId())
-            .medOpprinneligeTilrettelegginger(List.of(tilrettelegging))
-            .build();
+                .medBehandlingId(behandling.getId())
+                .medOpprinneligeTilrettelegginger(List.of(tilrettelegging))
+                .build();
         behandlingRepositoryProvider.getSvangerskapspengerRepository().lagreOgFlush(svpGrunnlag);
     }
 

@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandling.revurdering.satsregulering;
 
-
 import static no.nav.foreldrepenger.behandling.revurdering.satsregulering.AutomatiskGrunnbelopReguleringTask.TASKTYPE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -64,45 +63,45 @@ public class AutomatiskGrunnbelopReguleringBatchTjenesteTest {
         behandlingRepository = new BehandlingRepository(entityManager);
         beregningsgrunnlagRepository = new BeregningsgrunnlagRepository(entityManager);
         prosessTaskRepository = new ProsessTaskRepositoryImpl(entityManager, () -> "test",
-            mock(ProsessTaskEventPubliserer.class));
+                mock(ProsessTaskEventPubliserer.class));
         beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
         var ytelsesFordelingRepository = new YtelsesFordelingRepository(entityManager);
         var fagsakLåsRepository = new FagsakLåsRepository(entityManager);
         var fagsakRelasjonRepository = new FagsakRelasjonRepository(entityManager, ytelsesFordelingRepository,
-            fagsakLåsRepository);
+                fagsakLåsRepository);
         var søknadRepository = new SøknadRepository(entityManager, behandlingRepository);
         var behandlingLåsRepository = new BehandlingLåsRepository(entityManager);
         var behandlingRevurderingRepository = new BehandlingRevurderingRepository(
-            entityManager, behandlingRepository, fagsakRelasjonRepository, søknadRepository, behandlingLåsRepository);
+                entityManager, behandlingRepository, fagsakRelasjonRepository, søknadRepository, behandlingLåsRepository);
         tjeneste = new AutomatiskGrunnbelopReguleringBatchTjeneste(behandlingRevurderingRepository,
-            beregningsresultatRepository, prosessTaskRepository);
+                beregningsresultatRepository, prosessTaskRepository);
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
     }
 
     @Test
     public void skal_finne_en_sak_å_revurdere() {
         var cutoff = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now())
-            .getPeriode().getFomDato();
+                .getPeriode().getFomDato();
         var gammelSats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoff.minusDays(1))
-            .getVerdi();
+                .getVerdi();
         opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, gammelSats, 6 * gammelSats, cutoff.plusDays(5));
         Map<String, String> arguments = new HashMap<>();
         arguments.put(AutomatiskGrunnbelopReguleringBatchArguments.REVURDER_KEY, "True");
         AutomatiskGrunnbelopReguleringBatchArguments batchArgs = new AutomatiskGrunnbelopReguleringBatchArguments(
-            arguments);
+                arguments);
         String svar = tjeneste.launch(batchArgs);
         assertThat(svar).isEqualTo(AutomatiskGrunnbelopReguleringBatchTjeneste.BATCHNAME + "-1");
         assertThat(
-            prosessTaskRepository.finnIkkeStartet().stream().anyMatch(task -> task.getTaskType().equals(TASKTYPE)))
-            .isTrue();
+                prosessTaskRepository.finnIkkeStartet().stream().anyMatch(task -> task.getTaskType().equals(TASKTYPE)))
+                        .isTrue();
     }
 
     @Test
     public void skal_ikke_finne_saker_til_revurdering() {
         var cutoff = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now())
-            .getPeriode().getFomDato();
+                .getPeriode().getFomDato();
         var gammelSats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoff.minusDays(1))
-            .getVerdi();
+                .getVerdi();
         opprettRevurderingsKandidat(BehandlingStatus.UTREDES, gammelSats, 6 * gammelSats, cutoff.plusDays(5));
         String svar = tjeneste.launch(null);
         assertThat(svar).isEqualTo(AutomatiskGrunnbelopReguleringBatchTjeneste.BATCHNAME + "-0");
@@ -111,48 +110,48 @@ public class AutomatiskGrunnbelopReguleringBatchTjenesteTest {
     @Test
     public void skal_finne_to_saker_å_revurdere() {
         var nySats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now())
-            .getVerdi();
+                .getVerdi();
         var cutoff = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now())
-            .getPeriode().getFomDato();
+                .getPeriode().getFomDato();
         var gammelSats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoff.minusDays(1))
-            .getVerdi();
+                .getVerdi();
         opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, gammelSats, 6 * gammelSats, cutoff.plusDays(5));
         opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, gammelSats, 6 * gammelSats, cutoff.plusDays(5),
-            0); // Ikke uttak, bare utsettelse
+                0); // Ikke uttak, bare utsettelse
         opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, gammelSats, 6 * gammelSats,
-            cutoff.minusDays(5));  // FØR
+                cutoff.minusDays(5)); // FØR
         opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, gammelSats, 6 * gammelSats, cutoff.plusDays(5));
         opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, gammelSats, 4 * gammelSats,
-            cutoff.plusDays(5)); // Ikke avkortet
+                cutoff.plusDays(5)); // Ikke avkortet
         opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, nySats, 6 * nySats, cutoff.plusDays(5)); // Ny sats
         String svar = tjeneste.launch(null);
         assertThat(svar).isEqualTo(AutomatiskGrunnbelopReguleringBatchTjeneste.BATCHNAME + "-2");
         assertThat(
-            prosessTaskRepository.finnIkkeStartet().stream().anyMatch(task -> task.getTaskType().equals(TASKTYPE)))
-            .isFalse();
+                prosessTaskRepository.finnIkkeStartet().stream().anyMatch(task -> task.getTaskType().equals(TASKTYPE)))
+                        .isFalse();
     }
 
     private Behandling opprettRevurderingsKandidat(BehandlingStatus status,
-                                                   long sats,
-                                                   long avkortet,
-                                                   LocalDate uttakFom) {
+            long sats,
+            long avkortet,
+            LocalDate uttakFom) {
         return opprettRevurderingsKandidat(status, sats, avkortet, uttakFom, 2300);
     }
 
     private Behandling opprettRevurderingsKandidat(BehandlingStatus status,
-                                                   long sats,
-                                                   long avkortet,
-                                                   LocalDate uttakFom,
-                                                   int dagsatsUtbet) {
+            long sats,
+            long avkortet,
+            LocalDate uttakFom,
+            int dagsatsUtbet) {
         LocalDate terminDato = uttakFom.plusWeeks(3);
 
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medSøknadDato(terminDato.minusDays(40));
+                .medSøknadDato(terminDato.minusDays(40));
 
         scenario.medBekreftetHendelse().medFødselsDato(LocalDate.now()).medAntallBarn(1);
 
         scenario.medBehandlingsresultat(
-            Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
+                Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         Behandling behandling = scenario.lagre(repositoryProvider);
 
         if (BehandlingStatus.AVSLUTTET.equals(status)) {
@@ -163,23 +162,23 @@ public class AutomatiskGrunnbelopReguleringBatchTjenesteTest {
         behandlingRepository.lagre(behandling, lås);
 
         BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
-            .medSkjæringstidspunkt(terminDato.minusWeeks(3L)).medGrunnbeløp(BigDecimal.valueOf(sats)).build();
+                .medSkjæringstidspunkt(terminDato.minusWeeks(3L)).medGrunnbeløp(BigDecimal.valueOf(sats)).build();
         BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
-            .build(beregningsgrunnlag);
+                .build(beregningsgrunnlag);
         BeregningsgrunnlagPeriode periode = BeregningsgrunnlagPeriode.ny()
-            .medBeregningsgrunnlagPeriode(uttakFom, uttakFom.plusMonths(3)).medBruttoPrÅr(BigDecimal.valueOf(avkortet))
-            .medAvkortetPrÅr(BigDecimal.valueOf(avkortet)).build(beregningsgrunnlag);
+                .medBeregningsgrunnlagPeriode(uttakFom, uttakFom.plusMonths(3)).medBruttoPrÅr(BigDecimal.valueOf(avkortet))
+                .medAvkortetPrÅr(BigDecimal.valueOf(avkortet)).build(beregningsgrunnlag);
         BeregningsgrunnlagPeriode.oppdater(periode).build(beregningsgrunnlag);
         beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag, BeregningsgrunnlagTilstand.FASTSATT);
 
         BeregningsresultatEntitet brFP = BeregningsresultatEntitet.builder().medRegelInput("clob1")
-            .medRegelSporing("clob2").build();
+                .medRegelSporing("clob2").build();
         BeregningsresultatPeriode brFPper = BeregningsresultatPeriode.builder()
-            .medBeregningsresultatPeriodeFomOgTom(uttakFom, uttakFom.plusMonths(3))
-            .medBeregningsresultatAndeler(Collections.emptyList()).build(brFP);
+                .medBeregningsresultatPeriodeFomOgTom(uttakFom, uttakFom.plusMonths(3))
+                .medBeregningsresultatAndeler(Collections.emptyList()).build(brFP);
         BeregningsresultatAndel.builder().medDagsats(dagsatsUtbet).medDagsatsFraBg(1000).medBrukerErMottaker(true)
-            .medStillingsprosent(new BigDecimal(100)).medInntektskategori(Inntektskategori.ARBEIDSTAKER)
-            .medUtbetalingsgrad(new BigDecimal(100)).build(brFPper);
+                .medStillingsprosent(new BigDecimal(100)).medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+                .medUtbetalingsgrad(new BigDecimal(100)).build(brFPper);
         beregningsresultatRepository.lagre(behandling, brFP);
         return behandlingRepository.hentBehandling(behandling.getId());
     }

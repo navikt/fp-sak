@@ -22,7 +22,8 @@ public class OppdateringResultat {
     private TransisjonIdentifikator transisjonId;
     private List<Tuple<AksjonspunktResultat, AksjonspunktStatus>> ekstraAksjonspunktResultat = new ArrayList<>();
 
-    private OppdateringResultat(BehandlingStegType nesteSteg, OverhoppKontroll overhoppKontroll, TransisjonIdentifikator transisjonId, boolean totrinn) {
+    private OppdateringResultat(BehandlingStegType nesteSteg, OverhoppKontroll overhoppKontroll, TransisjonIdentifikator transisjonId,
+            boolean totrinn) {
         this.overhoppKontroll = overhoppKontroll;
         this.nesteSteg = nesteSteg;
         this.transisjonId = transisjonId;
@@ -41,7 +42,8 @@ public class OppdateringResultat {
     }
 
     /**
-     * Klassisk resultat - uten spesiell håndtering annet enn å sette Aksjonspunkt til UTFO
+     * Klassisk resultat - uten spesiell håndtering annet enn å sette Aksjonspunkt
+     * til UTFO
      */
     public static OppdateringResultat utenOveropp() {
         return new OppdateringResultat(OverhoppKontroll.UTEN_OVERHOPP);
@@ -62,14 +64,16 @@ public class OppdateringResultat {
     }
 
     /**
-     * Brukes typisk ved avslag på Vilår for å hoppe fram til uttak/vedtak men setter totrinnskontroll
+     * Brukes typisk ved avslag på Vilår for å hoppe fram til uttak/vedtak men
+     * setter totrinnskontroll
      */
     public static OppdateringResultat medFremoverHoppTotrinn(TransisjonIdentifikator transisjonId) {
         return new OppdateringResultat(null, OverhoppKontroll.FREMOVERHOPP, transisjonId, true);
     }
 
     /**
-     * Vil avbryte alle åpne aksjonspunkt hoppe til iverksetting og avslutte uten vedtak
+     * Vil avbryte alle åpne aksjonspunkt hoppe til iverksetting og avslutte uten
+     * vedtak
      */
     public static OppdateringResultat medHenleggelse(BehandlingResultatType henleggelseResultat, String henleggingsbegrunnelse) {
         return new OppdateringResultat(OverhoppKontroll.HENLEGGELSE, henleggelseResultat, henleggingsbegrunnelse);
@@ -115,7 +119,7 @@ public class OppdateringResultat {
         }
 
         /*
-         * Lar aksjonspunkt bli stående i  OPPRETTET etter oppdatering
+         * Lar aksjonspunkt bli stående i OPPRETTET etter oppdatering
          */
         public Builder medBeholdAksjonspunktÅpent() {
             resultat.beholdAksjonspunktÅpent = true;
@@ -123,7 +127,8 @@ public class OppdateringResultat {
         }
 
         /*
-         * Brukes KUN ved behov for oppdatering av registerdata, fx dersom kjernedato for registerinnhenting flyttes mer enn 12M
+         * Brukes KUN ved behov for oppdatering av registerdata, fx dersom kjernedato
+         * for registerinnhenting flyttes mer enn 12M
          */
         public Builder medOppdaterGrunnlag() {
             resultat.overhoppKontroll = OverhoppKontroll.OPPDATER;
@@ -156,8 +161,9 @@ public class OppdateringResultat {
         }
 
         /*
-         * Brukes dersom man absolutt må endre status på andre aksjonspunkt enn det aktuelle for oppdatering/overstyring.
-         * NB: Vil legge til dersom ikke finnes fra før. Bruk helst andre mekanismer.
+         * Brukes dersom man absolutt må endre status på andre aksjonspunkt enn det
+         * aktuelle for oppdatering/overstyring. NB: Vil legge til dersom ikke finnes
+         * fra før. Bruk helst andre mekanismer.
          */
         public Builder medEkstraAksjonspunktResultat(AksjonspunktDefinisjon aksjonspunktDefinisjon, AksjonspunktStatus nyStatus) {
             resultat.ekstraAksjonspunktResultat.add(new Tuple<>(AksjonspunktResultat.opprettForAksjonspunkt(aksjonspunktDefinisjon), nyStatus));
@@ -165,8 +171,8 @@ public class OppdateringResultat {
         }
 
         /*
-         * Brukes dersom man absolutt må sette på vent.
-         * NB: Vil legge til dersom ikke finnes fra før. Bruk helst andre mekanismer.
+         * Brukes dersom man absolutt må sette på vent. NB: Vil legge til dersom ikke
+         * finnes fra før. Bruk helst andre mekanismer.
          */
         public Builder medEkstraAksjonspunktResultat(AksjonspunktResultat aksjonspunktResultat, AksjonspunktStatus nyStatus) {
             resultat.ekstraAksjonspunktResultat.add(new Tuple<>(aksjonspunktResultat, nyStatus));
@@ -181,11 +187,11 @@ public class OppdateringResultat {
     @Override
     public String toString() {
         return "OppdateringResultat{" +
-            "nesteSteg=" + nesteSteg +
-            ", transisjonId=" + transisjonId +
-            ", overhoppKontroll=" + overhoppKontroll +
-            ", henleggelseResultat=" + henleggelseResultat +
-            ", henleggingsbegrunnelse='" + henleggingsbegrunnelse + '\'' +
-            '}';
+                "nesteSteg=" + nesteSteg +
+                ", transisjonId=" + transisjonId +
+                ", overhoppKontroll=" + overhoppKontroll +
+                ", henleggelseResultat=" + henleggelseResultat +
+                ", henleggingsbegrunnelse='" + henleggingsbegrunnelse + '\'' +
+                '}';
     }
 }

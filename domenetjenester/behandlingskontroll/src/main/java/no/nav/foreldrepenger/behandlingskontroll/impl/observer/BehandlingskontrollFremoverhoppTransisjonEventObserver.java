@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Consumer;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -63,12 +62,12 @@ public class BehandlingskontrollFremoverhoppTransisjonEventObserver {
 
         List<Aksjonspunkt> avbrutte = new ArrayList<>();
         behandling.getAksjonspunkter().stream()
-            .filter(a -> mellomliggende.contains(a.getAksjonspunktDefinisjon().getKode()))
-            .filter(Aksjonspunkt::erÅpentAksjonspunkt)
-            .forEach(a -> {
-                avbrytAksjonspunkt(a);
-                avbrutte.add(a);
-            });
+                .filter(a -> mellomliggende.contains(a.getAksjonspunktDefinisjon().getKode()))
+                .filter(Aksjonspunkt::erÅpentAksjonspunkt)
+                .forEach(a -> {
+                    avbrytAksjonspunkt(a);
+                    avbrutte.add(a);
+                });
 
         if (skalBesøkeStegene(transisjonEvent.getTransisjonIdentifikator())) {
             if (!medInngangFørsteSteg) {
@@ -78,12 +77,13 @@ public class BehandlingskontrollFremoverhoppTransisjonEventObserver {
 
             final BehandlingStegType finalFørsteSteg = førsteSteg;
             modell.hvertStegFraOgMedTil(førsteSteg, sisteSteg, false)
-                .forEach(s -> hoppFramover(s, transisjonEvent, sisteSteg, finalFørsteSteg));
+                    .forEach(s -> hoppFramover(s, transisjonEvent, sisteSteg, finalFørsteSteg));
 
         }
-        // Lagre oppdateringer; eventhåndteringen skal være autonom og selv ferdigstille oppdateringer på behandlingen
+        // Lagre oppdateringer; eventhåndteringen skal være autonom og selv ferdigstille
+        // oppdateringer på behandlingen
         lagre(transisjonEvent, behandling);
-        if (!avbrutte.isEmpty() && serviceProvider.getEventPubliserer() != null) {
+        if (!avbrutte.isEmpty() && (serviceProvider.getEventPubliserer() != null)) {
             serviceProvider.getEventPubliserer().fireEvent(new AksjonspunktStatusEvent(transisjonEvent.getKontekst(), avbrutte, førsteSteg));
         }
 
@@ -98,7 +98,7 @@ public class BehandlingskontrollFremoverhoppTransisjonEventObserver {
     }
 
     protected void hoppFramover(BehandlingStegModell stegModell, BehandlingTransisjonEvent transisjonEvent, BehandlingStegType sisteSteg,
-                              final BehandlingStegType finalFørsteSteg) {
+            final BehandlingStegType finalFørsteSteg) {
         stegModell.getSteg().vedTransisjon(transisjonEvent.getKontekst(), stegModell, TransisjonType.HOPP_OVER_FRAMOVER, finalFørsteSteg, sisteSteg);
     }
 
@@ -108,11 +108,6 @@ public class BehandlingskontrollFremoverhoppTransisjonEventObserver {
 
     private boolean skalBesøkeStegene(TransisjonIdentifikator transisjon) {
         return !FellesTransisjoner.erSpolfremTransisjon(transisjon);
-    }
-
-    private void håndterAksjonspunkter(Behandling behandling, Set<String> mellomliggendeAksjonspunkt,
-                                       Consumer<Aksjonspunkt> action) {
-
     }
 
 }

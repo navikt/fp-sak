@@ -34,14 +34,14 @@ public class KlageNfpSteg implements BehandlingSteg {
     private KlageRepository klageRepository;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
 
-    public KlageNfpSteg(){
+    public KlageNfpSteg() {
         // For CDI proxy
     }
 
     @Inject
     public KlageNfpSteg(BehandlingRepository behandlingRepository,
-                        KlageRepository klageRepository,
-                        BehandlendeEnhetTjeneste behandlendeEnhetTjeneste) {
+            KlageRepository klageRepository,
+            BehandlendeEnhetTjeneste behandlendeEnhetTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.klageRepository = klageRepository;
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
@@ -56,7 +56,7 @@ public class KlageNfpSteg implements BehandlingSteg {
 
     @Override
     public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType førsteSteg,
-                                   BehandlingStegType sisteSteg) {
+            BehandlingStegType sisteSteg) {
         klageRepository.settKlageGodkjentHosMedunderskriver(kontekst.getBehandlingId(), KlageVurdertAv.NFP, false);
         endreAnsvarligEnhetTilNFPVedTilbakeføringOgLagreHistorikkinnslag(kontekst);
     }
@@ -64,7 +64,8 @@ public class KlageNfpSteg implements BehandlingSteg {
     private void endreAnsvarligEnhetTilNFPVedTilbakeføringOgLagreHistorikkinnslag(BehandlingskontrollKontekst kontekst) {
 
         Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-        if (behandling.getBehandlendeEnhet() != null && !behandlendeEnhetTjeneste.getKlageInstans().getEnhetId().equals(behandling.getBehandlendeEnhet())) {
+        if ((behandling.getBehandlendeEnhet() != null)
+                && !behandlendeEnhetTjeneste.getKlageInstans().getEnhetId().equals(behandling.getBehandlendeEnhet())) {
             return;
         }
         OrganisasjonsEnhet tilEnhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(behandling.getFagsak());

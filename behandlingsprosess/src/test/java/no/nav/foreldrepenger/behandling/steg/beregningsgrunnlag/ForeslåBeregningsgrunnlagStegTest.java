@@ -69,11 +69,12 @@ public class ForeslåBeregningsgrunnlagStegTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = scenario.lagMocked();
         var stp = Skjæringstidspunkt.builder()
-            .medFørsteUttaksdato(LocalDate.now())
-            .medSkjæringstidspunktOpptjening(LocalDate.now());
+                .medFørsteUttaksdato(LocalDate.now())
+                .medSkjæringstidspunktOpptjening(LocalDate.now());
         var ref = BehandlingReferanse.fra(behandling, stp.build());
         ForeldrepengerGrunnlag foreldrepengerGrunnlag = new ForeldrepengerGrunnlag(100, false);
-        var input = new BeregningsgrunnlagInput(MapBehandlingRef.mapRef(ref), null, null, AktivitetGradering.INGEN_GRADERING, List.of(), foreldrepengerGrunnlag);
+        var input = new BeregningsgrunnlagInput(MapBehandlingRef.mapRef(ref), null, null, AktivitetGradering.INGEN_GRADERING, List.of(),
+                foreldrepengerGrunnlag);
         var inputTjeneste = mock(BeregningsgrunnlagInputTjeneste.class);
         when(behandlingRepository.hentBehandling(behandling.getId())).thenReturn(behandling);
         when(inputTjeneste.lagInput(behandling.getId())).thenReturn(input);
@@ -89,7 +90,8 @@ public class ForeslåBeregningsgrunnlagStegTest {
         when(familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())).thenReturn(Optional.of(mockFamilieHendelseGrunnlagEntitet));
 
         when(inputProvider.getTjeneste(FagsakYtelseType.FORELDREPENGER)).thenReturn(inputTjeneste);
-        steg = new ForeslåBeregningsgrunnlagSteg(behandlingRepository, familieHendelseRepository, beregningsgrunnlagKopierOgLagreTjeneste, inputProvider);
+        steg = new ForeslåBeregningsgrunnlagSteg(behandlingRepository, familieHendelseRepository, beregningsgrunnlagKopierOgLagreTjeneste,
+                inputProvider);
 
         iayTjeneste.lagreInntektsmeldinger(behandling.getFagsak().getSaksnummer(), behandling.getId(), List.of());
     }
@@ -111,7 +113,8 @@ public class ForeslåBeregningsgrunnlagStegTest {
     public void stegUtførtNårRegelResultatInneholderAutopunkt() {
         // Arrange
         opprettVilkårResultatForBehandling(VilkårResultatType.INNVILGET);
-        BeregningAksjonspunktResultat aksjonspunktResultat = BeregningAksjonspunktResultat.opprettFor(BeregningAksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS);
+        BeregningAksjonspunktResultat aksjonspunktResultat = BeregningAksjonspunktResultat
+                .opprettFor(BeregningAksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS);
         when(beregningsgrunnlagRegelResultat.getAksjonspunkter()).thenReturn(Collections.singletonList(aksjonspunktResultat));
 
         // Act
@@ -125,7 +128,7 @@ public class ForeslåBeregningsgrunnlagStegTest {
 
     private void opprettVilkårResultatForBehandling(VilkårResultatType resultatType) {
         VilkårResultat vilkårResultat = VilkårResultat.builder().medVilkårResultatType(resultatType)
-            .buildFor(behandling);
+                .buildFor(behandling);
         Behandlingsresultat behandlingsresultat = Behandlingsresultat.opprettFor(behandling);
         behandlingsresultat.medOppdatertVilkårResultat(vilkårResultat);
     }

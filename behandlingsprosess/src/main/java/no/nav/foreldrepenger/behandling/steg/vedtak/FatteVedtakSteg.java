@@ -30,13 +30,12 @@ public class FatteVedtakSteg implements BehandlingSteg {
 
     @Inject
     public FatteVedtakSteg(BehandlingRepositoryProvider repositoryProvider,
-                    FatteVedtakTjeneste fatteVedtakTjeneste,
-                    SimulerInntrekkSjekkeTjeneste simulerInntrekkSjekkeTjeneste) {
+            FatteVedtakTjeneste fatteVedtakTjeneste,
+            SimulerInntrekkSjekkeTjeneste simulerInntrekkSjekkeTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.fatteVedtakTjeneste = fatteVedtakTjeneste;
         this.simulerInntrekkSjekkeTjeneste = simulerInntrekkSjekkeTjeneste;
     }
-
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {

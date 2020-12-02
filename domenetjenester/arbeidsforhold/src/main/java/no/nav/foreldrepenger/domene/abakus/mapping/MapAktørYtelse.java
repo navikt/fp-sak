@@ -40,7 +40,8 @@ public class MapAktørYtelse {
     private static final Comparator<YtelseDto> COMP_YTELSE = Comparator
             .comparing((YtelseDto dto) -> dto.getSaksnummer(), Comparator.nullsLast(Comparator.naturalOrder()))
             .thenComparing(dto -> dto.getYtelseType() == null ? null : dto.getYtelseType().getKode(), Comparator.nullsLast(Comparator.naturalOrder()))
-            .thenComparing(dto -> dto.getTemaUnderkategori() == null ? null : dto.getTemaUnderkategori().getKode(), Comparator.nullsLast(Comparator.naturalOrder()))
+            .thenComparing(dto -> dto.getTemaUnderkategori() == null ? null : dto.getTemaUnderkategori().getKode(),
+                    Comparator.nullsLast(Comparator.naturalOrder()))
             .thenComparing(dto -> dto.getPeriode().getFom(), Comparator.nullsFirst(Comparator.naturalOrder()))
             .thenComparing(dto -> dto.getPeriode().getTom(), Comparator.nullsLast(Comparator.naturalOrder()));
 
@@ -51,16 +52,12 @@ public class MapAktørYtelse {
     static class MapFraDto {
         private InntektArbeidYtelseAggregatBuilder aggregatBuilder;
 
-        @SuppressWarnings("unused")
-        private AktørId søkerAktørId;
-
         MapFraDto(AktørId søkerAktørId, InntektArbeidYtelseAggregatBuilder aggregatBuilder) {
-            this.søkerAktørId = søkerAktørId;
             this.aggregatBuilder = aggregatBuilder;
         }
 
         List<AktørYtelseBuilder> map(Collection<YtelserDto> dtos) {
-            if (dtos == null || dtos.isEmpty()) {
+            if ((dtos == null) || dtos.isEmpty()) {
                 return Collections.emptyList();
             }
             return dtos.stream().map(this::mapAktørYtelse).collect(Collectors.toUnmodifiableList());
@@ -72,7 +69,10 @@ public class MapAktørYtelse {
             return builder;
         }
 
-        /** Returnerer person sin aktørId. Denne trenger ikke være samme som søkers aktørid men kan f.eks. være annen part i en sak. */
+        /**
+         * Returnerer person sin aktørId. Denne trenger ikke være samme som søkers
+         * aktørid men kan f.eks. være annen part i en sak.
+         */
         private AktørId tilAktørId(PersonIdent person) {
             if (!(person instanceof AktørIdPersonident)) {
                 throw new IllegalArgumentException("Støtter kun " + AktørIdPersonident.class.getSimpleName() + " her");
@@ -88,41 +88,43 @@ public class MapAktørYtelse {
             var ytelseBuilder = YtelseBuilder.oppdatere(Optional.empty());
             var behandlingsTema = KodeverkMapper.getTemaUnderkategori(ytelseDto.getTemaUnderkategori());
             ytelseBuilder
-                .medYtelseGrunnlag(mapYtelseGrunnlag(ytelseDto.getGrunnlag(), ytelseBuilder.getGrunnlagBuilder()))
-                .medYtelseType(KodeverkMapper.mapYtelseTypeFraDto(ytelseDto.getYtelseType()))
-                .medBehandlingsTema(behandlingsTema)
-                .medKilde(KodeverkMapper.mapFagsystemFraDto(ytelseDto.getFagsystemDto()))
-                .medPeriode(mapPeriode(ytelseDto.getPeriode()))
-                .medSaksnummer(ytelseDto.getSaksnummer() == null ? null : new Saksnummer(ytelseDto.getSaksnummer()))
-                .medStatus(KodeverkMapper.getFpsakRelatertYtelseTilstandForAbakusYtelseStatus(ytelseDto.getStatus()));
+                    .medYtelseGrunnlag(mapYtelseGrunnlag(ytelseDto.getGrunnlag(), ytelseBuilder.getGrunnlagBuilder()))
+                    .medYtelseType(KodeverkMapper.mapYtelseTypeFraDto(ytelseDto.getYtelseType()))
+                    .medBehandlingsTema(behandlingsTema)
+                    .medKilde(KodeverkMapper.mapFagsystemFraDto(ytelseDto.getFagsystemDto()))
+                    .medPeriode(mapPeriode(ytelseDto.getPeriode()))
+                    .medSaksnummer(ytelseDto.getSaksnummer() == null ? null : new Saksnummer(ytelseDto.getSaksnummer()))
+                    .medStatus(KodeverkMapper.getFpsakRelatertYtelseTilstandForAbakusYtelseStatus(ytelseDto.getStatus()));
             ytelseDto.getAnvisninger()
-                .forEach(anvisning -> ytelseBuilder.medYtelseAnvist(mapYtelseAnvist(anvisning, ytelseBuilder.getAnvistBuilder())));
+                    .forEach(anvisning -> ytelseBuilder.medYtelseAnvist(mapYtelseAnvist(anvisning, ytelseBuilder.getAnvistBuilder())));
             return ytelseBuilder;
         }
 
         private YtelseAnvist mapYtelseAnvist(AnvisningDto anvisning, YtelseAnvistBuilder anvistBuilder) {
-            if (anvisning == null)
+            if (anvisning == null) {
                 return null;
+            }
             return anvistBuilder
-                .medAnvistPeriode(mapPeriode(anvisning.getPeriode()))
-                .medBeløp(anvisning.getBeløp())
-                .medDagsats(anvisning.getDagsats())
-                .medUtbetalingsgradProsent(anvisning.getUtbetalingsgrad())
-                .build();
+                    .medAnvistPeriode(mapPeriode(anvisning.getPeriode()))
+                    .medBeløp(anvisning.getBeløp())
+                    .medDagsats(anvisning.getDagsats())
+                    .medUtbetalingsgradProsent(anvisning.getUtbetalingsgrad())
+                    .build();
         }
 
         private YtelseGrunnlag mapYtelseGrunnlag(YtelseGrunnlagDto grunnlag, YtelseGrunnlagBuilder grunnlagBuilder) {
-            if (grunnlag == null)
+            if (grunnlag == null) {
                 return null;
+            }
             grunnlagBuilder
-                .medArbeidskategori(KodeverkMapper.mapArbeidskategoriFraDto(grunnlag.getArbeidskategoriDto()))
-                .medDekningsgradProsent(grunnlag.getDekningsgradProsent())
-                .medGraderingProsent(grunnlag.getGraderingProsent())
-                .medInntektsgrunnlagProsent(grunnlag.getInntektsgrunnlagProsent())
-                .medVedtaksDagsats(grunnlag.getVedtaksDagsats())
-                .medOpprinneligIdentdato(grunnlag.getOpprinneligIdentDato());
+                    .medArbeidskategori(KodeverkMapper.mapArbeidskategoriFraDto(grunnlag.getArbeidskategoriDto()))
+                    .medDekningsgradProsent(grunnlag.getDekningsgradProsent())
+                    .medGraderingProsent(grunnlag.getGraderingProsent())
+                    .medInntektsgrunnlagProsent(grunnlag.getInntektsgrunnlagProsent())
+                    .medVedtaksDagsats(grunnlag.getVedtaksDagsats())
+                    .medOpprinneligIdentdato(grunnlag.getOpprinneligIdentDato());
             grunnlag.getFordeling()
-                .forEach(fordeling -> grunnlagBuilder.medYtelseStørrelse(mapYtelseStørrelse(fordeling)));
+                    .forEach(fordeling -> grunnlagBuilder.medYtelseStørrelse(mapYtelseStørrelse(fordeling)));
             return grunnlagBuilder.build();
         }
 
@@ -132,10 +134,10 @@ public class MapAktørYtelse {
             }
             var arbeidsgiver = fordeling.getArbeidsgiver();
             return YtelseStørrelseBuilder.ny()
-                .medBeløp(fordeling.getBeløp())
-                .medHyppighet(KodeverkMapper.mapInntektPeriodeTypeFraDto(fordeling.getHyppighet()))
-                .medVirksomhet(arbeidsgiver == null ? null : new OrgNummer(arbeidsgiver.getIdent()))
-                .build();
+                    .medBeløp(fordeling.getBeløp())
+                    .medHyppighet(KodeverkMapper.mapInntektPeriodeTypeFraDto(fordeling.getHyppighet()))
+                    .medVirksomhet(arbeidsgiver == null ? null : new OrgNummer(arbeidsgiver.getIdent()))
+                    .build();
         }
 
     }
@@ -149,7 +151,7 @@ public class MapAktørYtelse {
         private YtelserDto mapTilYtelser(AktørYtelse ay) {
             AktørIdPersonident person = new AktørIdPersonident(ay.getAktørId().getId());
             return new YtelserDto(person)
-                .medYtelser(mapTilYtelser(ay.getAlleYtelser()));
+                    .medYtelser(mapTilYtelser(ay.getAlleYtelser()));
         }
 
         private List<YtelseDto> mapTilYtelser(Collection<Ytelse> ytelser) {
@@ -183,14 +185,14 @@ public class MapAktørYtelse {
             var ytelseStatus = KodeverkMapper.getAbakusYtelseStatusForFpsakRelatertYtelseTilstand(ytelse.getStatus());
             var temaUnderkategori = KodeverkMapper.getBehandlingsTemaUnderkategori(ytelse.getBehandlingsTema());
             var dto = new YtelseDto(fagsystem, ytelseType, periode, ytelseStatus)
-                .medSaksnummer(ytelse.getSaksnummer() == null ? null : ytelse.getSaksnummer().getVerdi())
-                .medTemaUnderkategori(temaUnderkategori);
+                    .medSaksnummer(ytelse.getSaksnummer() == null ? null : ytelse.getSaksnummer().getVerdi())
+                    .medTemaUnderkategori(temaUnderkategori);
 
             ytelse.getYtelseGrunnlag().map(this::mapYtelseGrunnlag).ifPresent(gr -> dto.setGrunnlag(gr));
 
             Comparator<AnvisningDto> compAnvisning = Comparator
-                .comparing((AnvisningDto anv) -> anv.getPeriode().getFom() , Comparator.nullsFirst(Comparator.naturalOrder()))
-                .thenComparing(anv -> anv.getPeriode().getTom(), Comparator.nullsLast(Comparator.naturalOrder()));
+                    .comparing((AnvisningDto anv) -> anv.getPeriode().getFom(), Comparator.nullsFirst(Comparator.naturalOrder()))
+                    .thenComparing(anv -> anv.getPeriode().getTom(), Comparator.nullsLast(Comparator.naturalOrder()));
 
             var anvisninger = ytelse.getYtelseAnvist().stream().map(this::map).sorted(compAnvisning).collect(Collectors.toList());
             dto.setAnvisninger(anvisninger);
@@ -208,21 +210,23 @@ public class MapAktørYtelse {
         }
 
         List<YtelserDto> map(Collection<AktørYtelse> aktørYtelser) {
-            if (aktørYtelser == null || aktørYtelser.isEmpty()) {
+            if ((aktørYtelser == null) || aktørYtelser.isEmpty()) {
                 return Collections.emptyList();
             }
             return aktørYtelser.stream().map(this::mapTilYtelser).collect(Collectors.toList());
         }
 
         /**
-         * enkelte gamle innslag fra Arena meldekort har dårlige fom/tom (tom > fom), da dette nå må avledes basert på meldekort, vedtattdato, krav
-         * mottatt dato denne metoden korrigerer for gamle dårlige innslag ved å sette dem i riktig rekkefølge. Blir ikke 100% korrekt ifht ny
-         * utregning av fom/tom basert på crazy Arena meldekort men disse sakene er avsluttet, og vi slipper å håndtere dette fremover (kan fjerne
-         * denne metoden når migrering er ferdig overstått).
+         * enkelte gamle innslag fra Arena meldekort har dårlige fom/tom (tom > fom), da
+         * dette nå må avledes basert på meldekort, vedtattdato, krav mottatt dato denne
+         * metoden korrigerer for gamle dårlige innslag ved å sette dem i riktig
+         * rekkefølge. Blir ikke 100% korrekt ifht ny utregning av fom/tom basert på
+         * crazy Arena meldekort men disse sakene er avsluttet, og vi slipper å håndtere
+         * dette fremover (kan fjerne denne metoden når migrering er ferdig overstått).
          * <br>
-         * De dataene er som er dårlig kan finnes vha <code>select * from IAY_RELATERT_YTELSE where TOM < FOM</code>
-         * Sakene avdekkes gjennom:
-         * <code>
+         * De dataene er som er dårlig kan finnes vha
+         * <code>select * from IAY_RELATERT_YTELSE where TOM < FOM</code> Sakene
+         * avdekkes gjennom: <code>
             select iyt.*, gr.*, f.* from iay_aktoer_ytelse iyt
             inner join gr_arbeid_inntekt gr on gr.register_id = iyt.inntekt_arbeid_ytelser_id
             inner join behandling b on b.id = gr.behandling_id

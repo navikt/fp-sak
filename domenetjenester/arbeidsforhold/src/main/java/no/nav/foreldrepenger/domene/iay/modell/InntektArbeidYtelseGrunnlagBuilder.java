@@ -24,7 +24,10 @@ public class InntektArbeidYtelseGrunnlagBuilder {
         return ny(UUID.randomUUID(), LocalDateTime.now());
     }
 
-    /** Opprett ny versjon av grunnlag med angitt assignet grunnlagReferanse og opprettetTidspunkt. */
+    /**
+     * Opprett ny versjon av grunnlag med angitt assignet grunnlagReferanse og
+     * opprettetTidspunkt.
+     */
     public static InntektArbeidYtelseGrunnlagBuilder ny(UUID grunnlagReferanse, LocalDateTime opprettetTidspunkt) {
         return new InntektArbeidYtelseGrunnlagBuilder(new InntektArbeidYtelseGrunnlag(grunnlagReferanse, opprettetTidspunkt));
     }
@@ -91,7 +94,8 @@ public class InntektArbeidYtelseGrunnlagBuilder {
         if (kladd.getArbeidsforholdInformasjon().isPresent()) {
             k.taHensynTilBetraktninger();
         }
-        kladd = null; // må ikke finne på å gjenbruke buildere her, tar heller straffen i en NPE ved første feilkall
+        kladd = null; // må ikke finne på å gjenbruke buildere her, tar heller straffen i en NPE ved
+                      // første feilkall
         return k;
     }
 
@@ -107,14 +111,15 @@ public class InntektArbeidYtelseGrunnlagBuilder {
     }
 
     public void ryddOppErstattedeArbeidsforhold(AktørId søker,
-                                         List<Tuple<Arbeidsgiver, Tuple<InternArbeidsforholdRef, InternArbeidsforholdRef>>> erstattArbeidsforhold) {
+            List<Tuple<Arbeidsgiver, Tuple<InternArbeidsforholdRef, InternArbeidsforholdRef>>> erstattArbeidsforhold) {
         final Optional<InntektArbeidYtelseAggregat> registerFørVersjon = kladd.getRegisterVersjon();
         for (Tuple<Arbeidsgiver, Tuple<InternArbeidsforholdRef, InternArbeidsforholdRef>> tuple : erstattArbeidsforhold) {
             if (registerFørVersjon.isPresent()) {
                 // TODO: Vurder konsekvensen av dette.
-                final InntektArbeidYtelseAggregatBuilder builder = InntektArbeidYtelseAggregatBuilder.oppdatere(registerFørVersjon, VersjonType.REGISTER);
+                final InntektArbeidYtelseAggregatBuilder builder = InntektArbeidYtelseAggregatBuilder.oppdatere(registerFørVersjon,
+                        VersjonType.REGISTER);
                 builder.oppdaterArbeidsforholdReferanseEtterErstatting(søker, tuple.getElement1(), tuple.getElement2().getElement1(),
-                    tuple.getElement2().getElement2());
+                        tuple.getElement2().getElement2());
                 medData(builder);
             }
         }

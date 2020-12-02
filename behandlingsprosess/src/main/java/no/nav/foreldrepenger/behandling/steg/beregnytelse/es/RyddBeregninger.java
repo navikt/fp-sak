@@ -25,14 +25,14 @@ class RyddBeregninger {
 
         if (behandlingsresultat.getBeregningResultat().getBeregninger() != null) {
             LegacyESBeregningsresultat.builderFraEksisterende(behandlingsresultat.getBeregningResultat())
-                .nullstillBeregninger()
-                .buildFor(behandling, behandlingsresultat);
+                    .nullstillBeregninger()
+                    .buildFor(behandling, behandlingsresultat);
             behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         }
     }
 
     public void ryddBeregningerHvisIkkeOverstyrt(Behandling behandling, Behandlingsresultat behandlingsresultat) {
-        if (behandlingsresultat.getBeregningResultat() != null && !behandlingsresultat.getBeregningResultat().isOverstyrt()) {
+        if ((behandlingsresultat.getBeregningResultat() != null) && !behandlingsresultat.getBeregningResultat().isOverstyrt()) {
             ryddBeregninger(behandling, behandlingsresultat);
         }
     }

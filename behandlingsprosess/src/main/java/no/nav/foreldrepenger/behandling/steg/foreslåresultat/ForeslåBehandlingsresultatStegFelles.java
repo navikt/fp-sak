@@ -29,8 +29,8 @@ public abstract class ForeslåBehandlingsresultatStegFelles implements ForeslåB
     }
 
     public ForeslåBehandlingsresultatStegFelles(BehandlingRepositoryProvider repositoryProvider,
-                                                @Any Instance<ForeslåBehandlingsresultatTjeneste> foreslåBehandlingsresultatTjeneste,
-                                                SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+            @Any Instance<ForeslåBehandlingsresultatTjeneste> foreslåBehandlingsresultatTjeneste,
+            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.foreslåBehandlingsresultatTjeneste = foreslåBehandlingsresultatTjeneste;
@@ -42,13 +42,13 @@ public abstract class ForeslåBehandlingsresultatStegFelles implements ForeslåB
         var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(kontekst.getBehandlingId());
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
         logger.info("Foreslår behandlingsresultat for behandling {}", ref);
-        
+
         var tjeneste = FagsakYtelseTypeRef.Lookup.find(foreslåBehandlingsresultatTjeneste, ref.getFagsakYtelseType()).orElseThrow();
         tjeneste.foreslåBehandlingsresultat(ref);
-        
+
         // TODO (Safir/OSS): Lagre Behandlingsresultat gjennom eget repository
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
-        
+
         // Dette steget genererer ingen aksjonspunkter
         return BehandleStegResultat.utførtUtenAksjonspunkter();
     }

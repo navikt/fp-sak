@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 @JsonTypeName(AksjonspunktKodeDefinisjon.VURDER_ARBEIDSFORHOLD_KODE)
 public class AvklarArbeidsforholdDto extends BekreftetAksjonspunktDto {
 
-
     @Valid
     @Size(max = 1000)
     private List<ArbeidsforholdDto> arbeidsforhold;
@@ -21,7 +20,7 @@ public class AvklarArbeidsforholdDto extends BekreftetAksjonspunktDto {
     @SuppressWarnings("unused") // NOSONAR
     private AvklarArbeidsforholdDto() {
         super();
-        //For Jackson
+        // For Jackson
     }
 
     AvklarArbeidsforholdDto(String begrunnelse, List<ArbeidsforholdDto> arbeidsforhold) {
@@ -32,6 +31,5 @@ public class AvklarArbeidsforholdDto extends BekreftetAksjonspunktDto {
     public List<ArbeidsforholdDto> getArbeidsforhold() {
         return arbeidsforhold;
     }
-
 
 }

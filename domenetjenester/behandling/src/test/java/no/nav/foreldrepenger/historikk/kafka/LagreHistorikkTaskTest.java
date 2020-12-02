@@ -33,11 +33,11 @@ public class LagreHistorikkTaskTest {
         scenario.lagre(new BehandlingRepositoryProvider(entityManager));
         Behandling behandling = scenario.getBehandling();
         String melding = new String(
-            Files.readAllBytes(Paths.get(ClassLoader.getSystemResource("historikkinnslagmelding.json").toURI())))
-            .replace("PLACEHOLDER-UUID", behandling.getUuid().toString());
+                Files.readAllBytes(Paths.get(ClassLoader.getSystemResource("historikkinnslagmelding.json").toURI())))
+                        .replace("PLACEHOLDER-UUID", behandling.getUuid().toString());
         HistorikkRepository historikkRepository = new HistorikkRepository(entityManager);
         HistorikkFraDtoMapper historikkFraDtoMapper = new HistorikkFraDtoMapper(
-            new BehandlingRepository(entityManager), new FagsakRepository(entityManager));
+                new BehandlingRepository(entityManager), new FagsakRepository(entityManager));
         LagreHistorikkTask task = new LagreHistorikkTask(historikkRepository, historikkFraDtoMapper);
 
         ProsessTaskData data = new ProsessTaskData(LagreHistorikkTask.TASKTYPE);
@@ -55,4 +55,3 @@ public class LagreHistorikkTaskTest {
     }
 
 }
-

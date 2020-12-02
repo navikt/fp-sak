@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.aksjonspunkt;
 
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -55,7 +54,7 @@ public class ArbeidsforholdDto {
     private LocalDate mottattDatoInntektsmelding;
     private List<PermisjonDto> permisjoner;
 
-    public ArbeidsforholdDto() {//NOSONAR
+    public ArbeidsforholdDto() {// NOSONAR
         // trengs for deserialisering av JSON
     }
 
@@ -68,7 +67,7 @@ public class ArbeidsforholdDto {
     }
 
     public String getArbeidsgiverIdentifikator() {
-        if (arbeidsgiverIdentifikator == null && arbeidsgiverReferanse != null) {
+        if ((arbeidsgiverIdentifikator == null) && (arbeidsgiverReferanse != null)) {
             return arbeidsgiverReferanse;
         }
         return arbeidsgiverIdentifikator;

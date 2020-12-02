@@ -33,10 +33,10 @@ public class InntektsmeldingDto {
         this.arbeidsgiverReferanse = inntektsmelding.getArbeidsgiver().getIdentifikator();
         Arbeidsgiver arb = inntektsmelding.getArbeidsgiver();
         this.arbeidsgiver = arb.getErVirksomhet()
-            ? virksomhet.orElseThrow(() -> {
-                return new IllegalArgumentException("Kunne ikke hente virksomhet for orgNummer: " + arb.getOrgnr());
-            }).getNavn()
-            : "Privatperson"; //TODO skal navn på privatperson som arbeidsgiver hentes fra et register?
+                ? virksomhet.orElseThrow(() -> {
+                    return new IllegalArgumentException("Kunne ikke hente virksomhet for orgNummer: " + arb.getOrgnr());
+                }).getNavn()
+                : "Privatperson"; // TODO skal navn på privatperson som arbeidsgiver hentes fra et register?
         this.arbeidsgiverOrgnr = arb.getIdentifikator();
         this.arbeidsgiverStartdato = inntektsmelding.getStartDatoPermisjon().orElse(null);
         this.innsendingstidspunkt = inntektsmelding.getInnsendingstidspunkt();
@@ -44,17 +44,17 @@ public class InntektsmeldingDto {
         List<UtsettelsePeriode> utsettelser = inntektsmelding.getUtsettelsePerioder();
         if (utsettelser != null) {
             this.utsettelsePerioder.addAll(utsettelser
-                .stream()
-                .map(UtsettelsePeriodeDto::new)
-                .collect(Collectors.toList()));
+                    .stream()
+                    .map(UtsettelsePeriodeDto::new)
+                    .collect(Collectors.toList()));
         }
 
         List<Gradering> graderinger = inntektsmelding.getGraderinger();
         if (graderinger != null) {
             this.graderingPerioder.addAll(graderinger
-                .stream()
-                .map(GraderingPeriodeDto::new)
-                .collect(Collectors.toList()));
+                    .stream()
+                    .map(GraderingPeriodeDto::new)
+                    .collect(Collectors.toList()));
         }
 
         getRefusjonBeløpPerMnd = inntektsmelding.getRefusjonBeløpPerMnd();

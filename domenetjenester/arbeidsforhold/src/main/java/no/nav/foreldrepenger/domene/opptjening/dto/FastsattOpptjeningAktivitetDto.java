@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.opptjening.dto;
 
-
 import java.time.LocalDate;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetKlassifisering;

@@ -19,7 +19,7 @@ public class AksjonspunktUtlederInput {
         this.ref = ref;
     }
 
-    public Long getBehandlingId( ) {
+    public Long getBehandlingId() {
         return ref.getBehandlingId();
     }
 

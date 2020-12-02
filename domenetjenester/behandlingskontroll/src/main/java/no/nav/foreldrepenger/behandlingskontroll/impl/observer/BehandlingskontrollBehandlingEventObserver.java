@@ -38,9 +38,8 @@ public class BehandlingskontrollBehandlingEventObserver {
     /**
      * Intern event propagering i Behandlingskontroll.
      * <p>
-     * Observer {@link BehandlingStegOvergangEvent} og propagerer events for {@link BehandlingStegStatusEvent} og
-     * {@link BehandlingStatusEvent}
-     * endringer
+     * Observer {@link BehandlingStegOvergangEvent} og propagerer events for
+     * {@link BehandlingStegStatusEvent} og {@link BehandlingStatusEvent} endringer
      */
     public void propagerBehandlingStatusEventVedStegOvergang(@Observes BehandlingStegOvergangEvent event) {
 
@@ -53,7 +52,7 @@ public class BehandlingskontrollBehandlingEventObserver {
         Optional<BehandlingStegTilstandSnapshot> tilTilstand = event.getTilTilstand();
 
         if ((fraTilstand.isEmpty() && tilTilstand.isEmpty())
-            || (fraTilstand.isPresent() && tilTilstand.isPresent() && Objects.equals(fraTilstand.get(), tilTilstand.get()))) {
+                || (fraTilstand.isPresent() && tilTilstand.isPresent() && Objects.equals(fraTilstand.get(), tilTilstand.get()))) {
             // gjør ingenting - ingen endring i steg
             return;
         }

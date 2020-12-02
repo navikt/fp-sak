@@ -94,13 +94,13 @@ public class AvklarArbeidsforholdOppdatererTest {
     void setUp() {
         var arbeidsgiverTjeneste = new ArbeidsgiverTjeneste(personIdentTjeneste, virksomhetTjeneste);
         var arbeidsforholdAdministrasjonTjeneste = new ArbeidsforholdAdministrasjonTjeneste(
-            vurderArbeidsforholdTjeneste, inntektsmeldingTjeneste, iayTjeneste);
+                vurderArbeidsforholdTjeneste, inntektsmeldingTjeneste, iayTjeneste);
         var arbeidsgiverHistorikkinnslagTjeneste = new ArbeidsgiverHistorikkinnslag(arbeidsgiverTjeneste);
         var historikkAdapter = new HistorikkTjenesteAdapter(historikkRepository, dokumentArkivTjeneste);
         var arbeidsforholdHistorikkinnslagTjeneste = new ArbeidsforholdHistorikkinnslagTjeneste(historikkAdapter,
-            arbeidsgiverHistorikkinnslagTjeneste);
+                arbeidsgiverHistorikkinnslagTjeneste);
         oppdaterer = new AvklarArbeidsforholdOppdaterer(arbeidsforholdAdministrasjonTjeneste, iayTjeneste,
-            arbeidsforholdHistorikkinnslagTjeneste);
+                arbeidsforholdHistorikkinnslagTjeneste);
     }
 
     @Test
@@ -112,18 +112,18 @@ public class AvklarArbeidsforholdOppdatererTest {
         opprettIAYAggregat(behandling, false, LocalDate.of(2018, 1, 1));
 
         Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling,
-            AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
+                AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
 
         AvklarArbeidsforholdDto avklarArbeidsforholdDto = new AvklarArbeidsforholdDto("Har tatt stilling til dette",
-            List.of());
+                List.of());
         Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder()
-            .medUtledetSkjæringstidspunkt(LocalDate.of(2019, 1, 1))
-            .build();
+                .medUtledetSkjæringstidspunkt(LocalDate.of(2019, 1, 1))
+                .build();
 
         // Act
         OppdateringResultat resultat = oppdaterer.oppdater(avklarArbeidsforholdDto,
-            new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, skjæringstidspunkt,
-                avklarArbeidsforholdDto.getBegrunnelse()));
+                new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, skjæringstidspunkt,
+                        avklarArbeidsforholdDto.getBegrunnelse()));
 
         // Assert
         BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
@@ -140,9 +140,9 @@ public class AvklarArbeidsforholdOppdatererTest {
         Behandling behandling = scenario.lagre(repositoryProvider);
         opprettTomtIAYAggregat(behandling);
 
-        //simulere at 5080 har oppstått
+        // simulere at 5080 har oppstått
         Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling,
-            AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
+                AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
 
         LocalDate stp = LocalDate.of(2019, 1, 1);
 
@@ -158,17 +158,17 @@ public class AvklarArbeidsforholdOppdatererTest {
 
         List<ArbeidsforholdDto> nyeArbeidsforhold = List.of(nyttArbeidsforhod);
         AvklarArbeidsforholdDto avklarArbeidsforholdDto = new AvklarArbeidsforholdDto(
-            "Har lagt til et nytt arbeidsforhold", nyeArbeidsforhold);
+                "Har lagt til et nytt arbeidsforhold", nyeArbeidsforhold);
 
-        //Act
+        // Act
         oppdaterer.oppdater(avklarArbeidsforholdDto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt,
-            Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).build(),
-            avklarArbeidsforholdDto.getBegrunnelse()));
+                Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).build(),
+                avklarArbeidsforholdDto.getBegrunnelse()));
 
         // Assert
         List<ArbeidsforholdOverstyring> overstyring = hentGrunnlag(behandling).getArbeidsforholdInformasjon()
-            .map(ArbeidsforholdInformasjon::getOverstyringer)
-            .orElse(Collections.emptyList());
+                .map(ArbeidsforholdInformasjon::getOverstyringer)
+                .orElse(Collections.emptyList());
 
         assertThat(overstyring).hasSize(1);
         ArbeidsforholdOverstyring overstyrtArbeidsforhold = overstyring.get(0);
@@ -176,15 +176,15 @@ public class AvklarArbeidsforholdOppdatererTest {
         assertThat(overstyrtArbeidsforhold.getArbeidsgiverNavn()).isEqualTo(navn);
         assertThat(overstyrtArbeidsforhold.getArbeidsforholdOverstyrtePerioder()).hasSize(1);
         assertThat(overstyrtArbeidsforhold.getArbeidsforholdOverstyrtePerioder()
-            .get(0)
-            .getOverstyrtePeriode()).isEqualByComparingTo(DatoIntervallEntitet.fraOgMed(fomDato));
+                .get(0)
+                .getOverstyrtePeriode()).isEqualByComparingTo(DatoIntervallEntitet.fraOgMed(fomDato));
 
         AktørId aktørId = behandling.getAktørId();
 
         // Henter opp yrkesaktivitet med overstyring
         InntektArbeidYtelseGrunnlag grunnlag = hentGrunnlag(behandling);
         var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(),
-            grunnlag.getAktørArbeidFraRegister(aktørId)).før(stp);
+                grunnlag.getAktørArbeidFraRegister(aktørId)).før(stp);
         Collection<Yrkesaktivitet> yrkesaktiviteter = filter.getYrkesaktiviteter();
         Yrkesaktivitet yrkesaktivitet = yrkesaktiviteter.iterator().next();
         List<AktivitetsAvtale> ansettelsesPerioder = filter.getAnsettelsesPerioder(yrkesaktivitet);
@@ -193,7 +193,7 @@ public class AvklarArbeidsforholdOppdatererTest {
         Collection<AktivitetsAvtale> aktivitetsAvtaler = filter.getAktivitetsAvtalerForArbeid();
         assertThat(aktivitetsAvtaler).hasSize(1);
         assertThat(aktivitetsAvtaler.iterator().next().getProsentsats().getVerdi()).isEqualByComparingTo(
-            stillingsprosent);
+                stillingsprosent);
     }
 
     @Test
@@ -203,9 +203,9 @@ public class AvklarArbeidsforholdOppdatererTest {
         Behandling behandling = scenario.lagre(repositoryProvider);
         opprettTomtIAYAggregat(behandling);
 
-        //simulere at 5080 har oppstått
+        // simulere at 5080 har oppstått
         Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling,
-            AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
+                AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
 
         LocalDate stp = LocalDate.of(2019, 1, 1);
 
@@ -223,17 +223,17 @@ public class AvklarArbeidsforholdOppdatererTest {
 
         List<ArbeidsforholdDto> nyeArbeidsforhold = List.of(nyttArbeidsforhod);
         AvklarArbeidsforholdDto avklarArbeidsforholdDto = new AvklarArbeidsforholdDto(
-            "Har lagt til et nytt arbeidsforhold", nyeArbeidsforhold);
+                "Har lagt til et nytt arbeidsforhold", nyeArbeidsforhold);
 
-        //Act
+        // Act
         oppdaterer.oppdater(avklarArbeidsforholdDto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt,
-            Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).build(),
-            avklarArbeidsforholdDto.getBegrunnelse()));
+                Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).build(),
+                avklarArbeidsforholdDto.getBegrunnelse()));
 
         // Assert
         List<ArbeidsforholdOverstyring> overstyring = hentGrunnlag(behandling).getArbeidsforholdInformasjon()
-            .map(ArbeidsforholdInformasjon::getOverstyringer)
-            .orElse(Collections.emptyList());
+                .map(ArbeidsforholdInformasjon::getOverstyringer)
+                .orElse(Collections.emptyList());
 
         assertThat(overstyring).hasSize(1);
         ArbeidsforholdOverstyring overstyrtArbeidsforhold = overstyring.get(0);
@@ -241,15 +241,15 @@ public class AvklarArbeidsforholdOppdatererTest {
         assertThat(overstyrtArbeidsforhold.getArbeidsgiverNavn()).isEqualTo(navn);
         assertThat(overstyrtArbeidsforhold.getArbeidsforholdOverstyrtePerioder()).hasSize(1);
         assertThat(overstyrtArbeidsforhold.getArbeidsforholdOverstyrtePerioder()
-            .get(0)
-            .getOverstyrtePeriode()).isEqualByComparingTo(DatoIntervallEntitet.fraOgMed(fomDato));
+                .get(0)
+                .getOverstyrtePeriode()).isEqualByComparingTo(DatoIntervallEntitet.fraOgMed(fomDato));
 
         AktørId aktørId = behandling.getAktørId();
 
         // Henter opp yrkesaktivitet med overstyring
         InntektArbeidYtelseGrunnlag grunnlag = hentGrunnlag(behandling);
         var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(),
-            grunnlag.getAktørArbeidFraRegister(aktørId)).før(stp);
+                grunnlag.getAktørArbeidFraRegister(aktørId)).før(stp);
         Collection<Yrkesaktivitet> yrkesaktiviteter = filter.getYrkesaktiviteter();
         Yrkesaktivitet yrkesaktivitet = yrkesaktiviteter.iterator().next();
         List<AktivitetsAvtale> ansettelsesPerioder = filter.getAnsettelsesPerioder(yrkesaktivitet);
@@ -258,7 +258,7 @@ public class AvklarArbeidsforholdOppdatererTest {
         Collection<AktivitetsAvtale> aktivitetsAvtaler = filter.getAktivitetsAvtalerForArbeid();
         assertThat(aktivitetsAvtaler).hasSize(1);
         assertThat(aktivitetsAvtaler.iterator().next().getProsentsats().getVerdi()).isEqualByComparingTo(
-            stillingsprosent);
+                stillingsprosent);
     }
 
     @Test
@@ -277,7 +277,7 @@ public class AvklarArbeidsforholdOppdatererTest {
         opprettIAYAggregat(behandling, false, fomDato);
 
         Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling,
-            AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
+                AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
 
         ArbeidsforholdDto arbeidsforhold = new ArbeidsforholdDto();
         arbeidsforhold.setNavn(navn);
@@ -292,23 +292,23 @@ public class AvklarArbeidsforholdOppdatererTest {
 
         List<ArbeidsforholdDto> nyeArbeidsforhold = List.of(arbeidsforhold);
         AvklarArbeidsforholdDto avklarArbeidsforholdDto = new AvklarArbeidsforholdDto("periode overstyrt",
-            nyeArbeidsforhold);
+                nyeArbeidsforhold);
 
         Skjæringstidspunkt stp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stpDato).build();
 
-        //Act
+        // Act
         oppdaterer.oppdater(avklarArbeidsforholdDto,
-            new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, stp, avklarArbeidsforholdDto.getBegrunnelse()));
+                new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, stp, avklarArbeidsforholdDto.getBegrunnelse()));
 
         // Assert
         List<ArbeidsforholdOverstyring> overstyringer = hentGrunnlag(behandling).getArbeidsforholdInformasjon()
-            .map(ArbeidsforholdInformasjon::getOverstyringer)
-            .orElse(Collections.emptyList());
+                .map(ArbeidsforholdInformasjon::getOverstyringer)
+                .orElse(Collections.emptyList());
 
         assertThat(overstyringer).as("overstyringer").hasSize(1);
         ArbeidsforholdOverstyring overstyrtArbeidsforhold = overstyringer.get(0);
         assertThat(overstyrtArbeidsforhold.getHandling()).isEqualTo(
-            ArbeidsforholdHandlingType.BRUK_MED_OVERSTYRT_PERIODE);
+                ArbeidsforholdHandlingType.BRUK_MED_OVERSTYRT_PERIODE);
         List<ArbeidsforholdOverstyrtePerioder> overstyrtePerioder = overstyrtArbeidsforhold.getArbeidsforholdOverstyrtePerioder();
         assertThat(overstyrtePerioder).as("overstyrtePerioder").hasSize(1);
         assertThat(overstyrtePerioder.get(0).getOverstyrtePeriode().getTomDato()).isEqualTo(overstyrtTomDato);
@@ -321,18 +321,18 @@ public class AvklarArbeidsforholdOppdatererTest {
         Behandling behandling = scenario.lagre(repositoryProvider);
         opprettIAYAggregatProdCase(behandling, false, LocalDate.now().minusYears(1));
 
-        //simulere at 5080 har oppstått
+        // simulere at 5080 har oppstått
         Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling,
-            AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
+                AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
 
         LocalDate stp = LocalDate.now();
         LocalDate fomDato = stp.minusYears(1);
         final String navikt = "990983666";
         final String annetforetak = "973861778";
         when(virksomhetTjeneste.hentOrganisasjon(annetforetak)).thenReturn(
-            Virksomhet.getBuilder().medNavn("Annet foretak").medOrgnr(annetforetak).build());
+                Virksomhet.getBuilder().medNavn("Annet foretak").medOrgnr(annetforetak).build());
         when(virksomhetTjeneste.hentOrganisasjon(NAV_ORGNR)).thenReturn(
-            Virksomhet.getBuilder().medNavn("NAV").medOrgnr(NAV_ORGNR).build());
+                Virksomhet.getBuilder().medNavn("NAV").medOrgnr(NAV_ORGNR).build());
 
         ArbeidsforholdDto nyttArbeidsforholdFraIM = new ArbeidsforholdDto();
         nyttArbeidsforholdFraIM.setNavn("NAV IKT");
@@ -365,44 +365,43 @@ public class AvklarArbeidsforholdOppdatererTest {
         normaltArbeidsforhold.setArbeidsgiverIdentifikator(NAV_ORGNR);
 
         List<ArbeidsforholdDto> nyeArbeidsforhold = List.of(normaltArbeidsforhold, arbeidsforholdZeroProsent,
-            nyttArbeidsforholdFraIM);
-
+                nyttArbeidsforholdFraIM);
 
         AvklarArbeidsforholdDto avklarArbeidsforholdDto = new AvklarArbeidsforholdDto(
-            "Har lagt til et nytt arbeidsforhold", nyeArbeidsforhold);
+                "Har lagt til et nytt arbeidsforhold", nyeArbeidsforhold);
 
-        //Act
+        // Act
         oppdaterer.oppdater(avklarArbeidsforholdDto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt,
-            Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).build(),
-            avklarArbeidsforholdDto.getBegrunnelse()));
+                Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).build(),
+                avklarArbeidsforholdDto.getBegrunnelse()));
 
         // Assert
         InntektArbeidYtelseGrunnlag grunnlag = hentGrunnlag(behandling);
         List<ArbeidsforholdOverstyring> overstyring = grunnlag.getArbeidsforholdInformasjon()
-            .map(ArbeidsforholdInformasjon::getOverstyringer)
-            .orElse(Collections.emptyList());
+                .map(ArbeidsforholdInformasjon::getOverstyringer)
+                .orElse(Collections.emptyList());
 
         assertThat(overstyring).hasSize(3);
 
         var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(),
-            grunnlag.getAktørArbeidFraRegister(behandling.getAktørId())).før(stp);
+                grunnlag.getAktørArbeidFraRegister(behandling.getAktørId())).før(stp);
         Collection<Yrkesaktivitet> yrkesaktiviteter = filter.getYrkesaktiviteter();
         assertThat(yrkesaktiviteter).hasSize(3);
         assertThat(
-            yrkesaktiviteter.stream().filter(y -> y.getArbeidsgiver().getOrgnr().equals(NAV_ORGNR)).count()).isEqualTo(
-            1);
+                yrkesaktiviteter.stream().filter(y -> y.getArbeidsgiver().getOrgnr().equals(NAV_ORGNR)).count()).isEqualTo(
+                        1);
         assertThat(
-            yrkesaktiviteter.stream().filter(y -> y.getArbeidsgiver().getOrgnr().equals(navikt)).count()).isEqualTo(1);
+                yrkesaktiviteter.stream().filter(y -> y.getArbeidsgiver().getOrgnr().equals(navikt)).count()).isEqualTo(1);
         var annet = yrkesaktiviteter.stream()
-            .filter(y -> y.getArbeidsgiver().getOrgnr().equals(annetforetak))
-            .findFirst()
-            .orElse(null);
+                .filter(y -> y.getArbeidsgiver().getOrgnr().equals(annetforetak))
+                .findFirst()
+                .orElse(null);
         var ansattTil = filter.getAnsettelsesPerioder(annet)
-            .stream()
-            .findFirst()
-            .map(AktivitetsAvtale::getPeriode)
-            .map(DatoIntervallEntitet::getTomDato)
-            .orElse(null);
+                .stream()
+                .findFirst()
+                .map(AktivitetsAvtale::getPeriode)
+                .map(DatoIntervallEntitet::getTomDato)
+                .orElse(null);
         assertThat(ansattTil).isEqualTo(stp.minusMonths(2));
     }
 
@@ -422,7 +421,7 @@ public class AvklarArbeidsforholdOppdatererTest {
         opprettIAYAggregat(behandling, true, LocalDate.of(2018, 1, 1));
 
         Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling,
-            AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
+                AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
         String erstatterArbeidsforholdId = ARBEIDSFORHOLD_REF.getReferanse();
 
         ArbeidsforholdDto arbeidsforhold = new ArbeidsforholdDto();
@@ -448,18 +447,18 @@ public class AvklarArbeidsforholdOppdatererTest {
 
         List<ArbeidsforholdDto> nyeArbeidsforhold = List.of(arbeidsforhold, arbeidsforhold2);
         AvklarArbeidsforholdDto avklarArbeidsforholdDto = new AvklarArbeidsforholdDto(
-            "Har lagt til et nytt arbeidsforhold", nyeArbeidsforhold);
+                "Har lagt til et nytt arbeidsforhold", nyeArbeidsforhold);
 
         Skjæringstidspunkt stp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stpDato).build();
 
-        //Act
+        // Act
         oppdaterer.oppdater(avklarArbeidsforholdDto,
-            new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, stp, avklarArbeidsforholdDto.getBegrunnelse()));
+                new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, stp, avklarArbeidsforholdDto.getBegrunnelse()));
 
         // Assert
         List<ArbeidsforholdOverstyring> overstyringer = hentGrunnlag(behandling).getArbeidsforholdInformasjon()
-            .map(ArbeidsforholdInformasjon::getOverstyringer)
-            .orElse(Collections.emptyList());
+                .map(ArbeidsforholdInformasjon::getOverstyringer)
+                .orElse(Collections.emptyList());
 
         assertThat(overstyringer).hasSize(2);
         assertThat(overstyringer).anySatisfy(overstyring -> {
@@ -491,7 +490,7 @@ public class AvklarArbeidsforholdOppdatererTest {
         opprettIAYAggregat(behandling, false, LocalDate.of(2018, 1, 1));
 
         Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling,
-            AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
+                AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
 
         ArbeidsforholdDto arbeidsforhold = new ArbeidsforholdDto();
         arbeidsforhold.setNavn(navn);
@@ -505,20 +504,20 @@ public class AvklarArbeidsforholdOppdatererTest {
 
         List<ArbeidsforholdDto> nyeArbeidsforhold = List.of(arbeidsforhold);
         AvklarArbeidsforholdDto avklarArbeidsforholdDto = new AvklarArbeidsforholdDto("inntekt ikke med til bg",
-            nyeArbeidsforhold);
+                nyeArbeidsforhold);
 
         Skjæringstidspunkt stp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stpDato).build();
 
         AksjonspunktOppdaterParameter params = new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, stp,
-            avklarArbeidsforholdDto.getBegrunnelse());
+                avklarArbeidsforholdDto.getBegrunnelse());
 
-        //Act
+        // Act
         oppdaterer.oppdater(avklarArbeidsforholdDto, params);
 
         // Assert
         List<ArbeidsforholdOverstyring> overstyring = hentGrunnlag(behandling).getArbeidsforholdInformasjon()
-            .map(ArbeidsforholdInformasjon::getOverstyringer)
-            .orElse(Collections.emptyList());
+                .map(ArbeidsforholdInformasjon::getOverstyringer)
+                .orElse(Collections.emptyList());
 
         assertThat(overstyring).hasSize(1);
         ArbeidsforholdOverstyring overstyrtArbeidsforhold = overstyring.get(0);
@@ -540,7 +539,7 @@ public class AvklarArbeidsforholdOppdatererTest {
         opprettIAYAggregat(behandling, false, LocalDate.of(2018, 1, 1));
 
         Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling,
-            AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
+                AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
 
         ArbeidsforholdDto arbeidsforhold = new ArbeidsforholdDto();
         arbeidsforhold.setNavn(navn);
@@ -553,25 +552,25 @@ public class AvklarArbeidsforholdOppdatererTest {
 
         List<ArbeidsforholdDto> nyeArbeidsforhold = List.of(arbeidsforhold);
         AvklarArbeidsforholdDto avklarArbeidsforholdDto = new AvklarArbeidsforholdDto(
-            "Har lagt til et nytt arbeidsforhold", nyeArbeidsforhold);
+                "Har lagt til et nytt arbeidsforhold", nyeArbeidsforhold);
 
         Skjæringstidspunkt stp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stpDato).build();
 
         AksjonspunktOppdaterParameter params = new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, stp,
-            avklarArbeidsforholdDto.getBegrunnelse());
+                avklarArbeidsforholdDto.getBegrunnelse());
 
-        //Act
+        // Act
         oppdaterer.oppdater(avklarArbeidsforholdDto, params);
 
         // Assert
         List<ArbeidsforholdOverstyring> overstyring = hentGrunnlag(behandling).getArbeidsforholdInformasjon()
-            .map(ArbeidsforholdInformasjon::getOverstyringer)
-            .orElse(Collections.emptyList());
+                .map(ArbeidsforholdInformasjon::getOverstyringer)
+                .orElse(Collections.emptyList());
 
         assertThat(overstyring).hasSize(1);
         ArbeidsforholdOverstyring overstyrtArbeidsforhold = overstyring.get(0);
         assertThat(overstyrtArbeidsforhold.getHandling()).isEqualTo(
-            ArbeidsforholdHandlingType.LAGT_TIL_AV_SAKSBEHANDLER);
+                ArbeidsforholdHandlingType.LAGT_TIL_AV_SAKSBEHANDLER);
     }
 
     private InntektArbeidYtelseGrunnlag hentGrunnlag(Behandling behandling) {
@@ -583,18 +582,18 @@ public class AvklarArbeidsforholdOppdatererTest {
         YrkesaktivitetBuilder yrkesaktivitetBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
         AktivitetsAvtaleBuilder aktivitetsAvtaleBuilder = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder();
         AktivitetsAvtaleBuilder aktivitetsAvtale = aktivitetsAvtaleBuilder.medPeriode(
-            DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom)).medProsentsats(BigDecimal.valueOf(100));
+                DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom)).medProsentsats(BigDecimal.valueOf(100));
         AktivitetsAvtaleBuilder ansettelsesperiode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
         yrkesaktivitetBuilder.medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .medArbeidsgiver(Arbeidsgiver.virksomhet(NAV_ORGNR))
-            .medArbeidsforholdId(medArbeidsforholdRef ? ARBEIDSFORHOLD_REF : null)
-            .leggTilAktivitetsAvtale(aktivitetsAvtale)
-            .leggTilAktivitetsAvtale(ansettelsesperiode);
+                .medArbeidsgiver(Arbeidsgiver.virksomhet(NAV_ORGNR))
+                .medArbeidsforholdId(medArbeidsforholdRef ? ARBEIDSFORHOLD_REF : null)
+                .leggTilAktivitetsAvtale(aktivitetsAvtale)
+                .leggTilAktivitetsAvtale(ansettelsesperiode);
         InntektArbeidYtelseAggregatBuilder builder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(),
-            VersjonType.REGISTER);
+                VersjonType.REGISTER);
         InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = builder.getAktørArbeidBuilder(
-            behandling.getAktørId());
+                behandling.getAktørId());
         aktørArbeidBuilder.leggTilYrkesaktivitet(yrkesaktivitetBuilder);
         builder.leggTilAktørArbeid(aktørArbeidBuilder);
         iayTjeneste.lagreIayAggregat(behandling.getId(), builder);
@@ -602,9 +601,9 @@ public class AvklarArbeidsforholdOppdatererTest {
 
     private void opprettTomtIAYAggregat(Behandling behandling) {
         InntektArbeidYtelseAggregatBuilder builder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(),
-            VersjonType.REGISTER);
+                VersjonType.REGISTER);
         InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = builder.getAktørArbeidBuilder(
-            behandling.getAktørId());
+                behandling.getAktørId());
         builder.leggTilAktørArbeid(aktørArbeidBuilder);
         iayTjeneste.lagreIayAggregat(behandling.getId(), builder);
     }
@@ -613,31 +612,31 @@ public class AvklarArbeidsforholdOppdatererTest {
         LocalDate tom = AbstractLocalDateInterval.TIDENES_ENDE;
         YrkesaktivitetBuilder yrkesaktivitetBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
         AktivitetsAvtaleBuilder aktivitetsAvtaleBuilder = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom))
-            .medProsentsats(BigDecimal.valueOf(100));
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom))
+                .medProsentsats(BigDecimal.valueOf(100));
         AktivitetsAvtaleBuilder ansettelsesperiode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
         yrkesaktivitetBuilder.medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .medArbeidsgiver(Arbeidsgiver.virksomhet(NAV_ORGNR))
-            .medArbeidsforholdId(medArbeidsforholdRef ? ARBEIDSFORHOLD_REF : null)
-            .leggTilAktivitetsAvtale(aktivitetsAvtaleBuilder)
-            .leggTilAktivitetsAvtale(ansettelsesperiode);
+                .medArbeidsgiver(Arbeidsgiver.virksomhet(NAV_ORGNR))
+                .medArbeidsforholdId(medArbeidsforholdRef ? ARBEIDSFORHOLD_REF : null)
+                .leggTilAktivitetsAvtale(aktivitetsAvtaleBuilder)
+                .leggTilAktivitetsAvtale(ansettelsesperiode);
         YrkesaktivitetBuilder yrkesaktivitetBuilder2 = YrkesaktivitetBuilder.oppdatere(Optional.empty());
         AktivitetsAvtaleBuilder aktivitetsAvtaleBuilder2 = yrkesaktivitetBuilder2.getAktivitetsAvtaleBuilder()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom))
-            .medProsentsats(BigDecimal.ZERO)
-            .medSisteLønnsendringsdato(fom.minusMonths(1));
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom))
+                .medProsentsats(BigDecimal.ZERO)
+                .medSisteLønnsendringsdato(fom.minusMonths(1));
         AktivitetsAvtaleBuilder ansettelsesperiode2 = yrkesaktivitetBuilder2.getAktivitetsAvtaleBuilder()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
         yrkesaktivitetBuilder2.medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .medArbeidsgiver(Arbeidsgiver.virksomhet("973861778"))
-            .medArbeidsforholdId(medArbeidsforholdRef ? ARBEIDSFORHOLD_REF : null)
-            .leggTilAktivitetsAvtale(aktivitetsAvtaleBuilder2)
-            .leggTilAktivitetsAvtale(ansettelsesperiode2);
+                .medArbeidsgiver(Arbeidsgiver.virksomhet("973861778"))
+                .medArbeidsforholdId(medArbeidsforholdRef ? ARBEIDSFORHOLD_REF : null)
+                .leggTilAktivitetsAvtale(aktivitetsAvtaleBuilder2)
+                .leggTilAktivitetsAvtale(ansettelsesperiode2);
         InntektArbeidYtelseAggregatBuilder builder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(),
-            VersjonType.REGISTER);
+                VersjonType.REGISTER);
         InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = builder.getAktørArbeidBuilder(
-            behandling.getAktørId());
+                behandling.getAktørId());
         aktørArbeidBuilder.leggTilYrkesaktivitet(yrkesaktivitetBuilder);
         aktørArbeidBuilder.leggTilYrkesaktivitet(yrkesaktivitetBuilder2);
         builder.leggTilAktørArbeid(aktørArbeidBuilder);

@@ -35,15 +35,15 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 public class VurderMedlemskapvilkårStegImpl extends InngangsvilkårStegImpl {
 
     private static List<VilkårType> STØTTEDE_VILKÅR = singletonList(
-        VilkårType.MEDLEMSKAPSVILKÅRET
-    );
+            VilkårType.MEDLEMSKAPSVILKÅRET);
 
     private MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository;
 
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     @Inject
-    public VurderMedlemskapvilkårStegImpl(BehandlingRepositoryProvider repositoryProvider, InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste, SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+    public VurderMedlemskapvilkårStegImpl(BehandlingRepositoryProvider repositoryProvider, InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste,
+            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         super(repositoryProvider, inngangsvilkårFellesTjeneste, BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR);
         this.medlemskapVilkårPeriodeRepository = repositoryProvider.getMedlemskapVilkårPeriodeRepository();
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
@@ -59,11 +59,12 @@ public class VurderMedlemskapvilkårStegImpl extends InngangsvilkårStegImpl {
         LocalDate skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).getUtledetSkjæringstidspunkt();
 
         Optional<Vilkår> medlemskapsvilkåret = behandling.getBehandlingsresultat().getVilkårResultat().getVilkårene()
-            .stream()
-            .filter(v -> VilkårType.MEDLEMSKAPSVILKÅRET.equals(v.getVilkårType()))
-            .findFirst();
+                .stream()
+                .filter(v -> VilkårType.MEDLEMSKAPSVILKÅRET.equals(v.getVilkårType()))
+                .findFirst();
 
-        VilkårUtfallType utfall = medlemskapsvilkåret.orElseThrow(() -> new IllegalStateException("Finner ikke medlemskapsvikåret.")).getGjeldendeVilkårUtfall();
+        VilkårUtfallType utfall = medlemskapsvilkåret.orElseThrow(() -> new IllegalStateException("Finner ikke medlemskapsvikåret."))
+                .getGjeldendeVilkårUtfall();
 
         MedlemskapVilkårPeriodeGrunnlagEntitet.Builder grBuilder = medlemskapVilkårPeriodeRepository.hentBuilderFor(behandling);
         MedlemskapsvilkårPeriodeEntitet.Builder builder = grBuilder.getPeriodeBuilder();

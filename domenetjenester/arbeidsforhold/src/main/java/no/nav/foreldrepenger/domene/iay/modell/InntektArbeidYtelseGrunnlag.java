@@ -51,7 +51,8 @@ public class InntektArbeidYtelseGrunnlag extends BaseEntitet {
     public InntektArbeidYtelseGrunnlag(InntektArbeidYtelseGrunnlag grunnlag) {
         this(UUID.randomUUID(), LocalDateTime.now());
 
-        // NB! skal ikke lage ny versjon av oppgitt opptjening eller andre underlag! Lenker bare inn på ferskt grunnlag
+        // NB! skal ikke lage ny versjon av oppgitt opptjening eller andre underlag!
+        // Lenker bare inn på ferskt grunnlag
         grunnlag.getOppgittOpptjening().ifPresent(opp -> this.setOppgittOpptjening(opp));
         grunnlag.getRegisterVersjon().ifPresent(ver -> this.setRegister(ver));
         grunnlag.getSaksbehandletVersjon().ifPresent(ver -> this.setSaksbehandlet(ver));
@@ -70,14 +71,19 @@ public class InntektArbeidYtelseGrunnlag extends BaseEntitet {
         setOpprettetTidspunkt(opprettetTidspunkt);
     }
 
-    /** Identifisere en immutable instans av grunnlaget unikt og er egnet for utveksling (eks. til abakus eller andre systemer) */
+    /**
+     * Identifisere en immutable instans av grunnlaget unikt og er egnet for
+     * utveksling (eks. til abakus eller andre systemer)
+     */
     public UUID getEksternReferanse() {
         return uuid;
     }
 
     /**
-     * Returnerer en overstyrt versjon av aggregat. Hvis saksbehandler har løst et aksjonspunkt i forbindele med
-     * opptjening vil det finnes et overstyrt aggregat, gjelder for FØR første dag i permisjonsuttaket (skjæringstidspunktet)
+     * Returnerer en overstyrt versjon av aggregat. Hvis saksbehandler har løst et
+     * aksjonspunkt i forbindele med opptjening vil det finnes et overstyrt
+     * aggregat, gjelder for FØR første dag i permisjonsuttaket
+     * (skjæringstidspunktet)
      */
     public Optional<InntektArbeidYtelseAggregat> getSaksbehandletVersjon() {
         return Optional.ofNullable(saksbehandlet);
@@ -88,8 +94,8 @@ public class InntektArbeidYtelseGrunnlag extends BaseEntitet {
     }
 
     /**
-     * Returnerer innhentede registeropplysninger som aggregat. Tar ikke hensyn til saksbehandlers overstyringer (se
-     * {@link #getSaksbehandletVersjon()}.
+     * Returnerer innhentede registeropplysninger som aggregat. Tar ikke hensyn til
+     * saksbehandlers overstyringer (se {@link #getSaksbehandletVersjon()}.
      */
     public Optional<InntektArbeidYtelseAggregat> getRegisterVersjon() {
         return Optional.ofNullable(register);
@@ -103,7 +109,8 @@ public class InntektArbeidYtelseGrunnlag extends BaseEntitet {
     }
 
     /**
-     * Returnerer aggregat som holder alle inntektsmeldingene som benyttes i behandlingen.
+     * Returnerer aggregat som holder alle inntektsmeldingene som benyttes i
+     * behandlingen.
      */
     public Optional<InntektsmeldingAggregat> getInntektsmeldinger() {
         return Optional.ofNullable(inntektsmeldinger);
@@ -114,20 +121,22 @@ public class InntektArbeidYtelseGrunnlag extends BaseEntitet {
     }
 
     /**
-     * sjekkom bekreftet annen opptjening. Oppgi aktørId for matchende behandling (dvs.normalt søker).
+     * sjekkom bekreftet annen opptjening. Oppgi aktørId for matchende behandling
+     * (dvs.normalt søker).
      */
     public Optional<AktørArbeid> getBekreftetAnnenOpptjening(AktørId aktørId) {
         return getSaksbehandletVersjon()
-            .map(InntektArbeidYtelseAggregat::getAktørArbeid)
-            .flatMap(it -> it.stream().filter(aa -> aa.getAktørId().equals(aktørId))
-                .findFirst());
+                .map(InntektArbeidYtelseAggregat::getAktørArbeid)
+                .flatMap(it -> it.stream().filter(aa -> aa.getAktørId().equals(aktørId))
+                        .findFirst());
     }
 
     public Optional<AktørArbeid> getAktørArbeidFraRegister(AktørId aktørId) {
         if (register != null) {
             var aktørArbeid = register.getAktørArbeid().stream().filter(aa -> Objects.equals(aa.getAktørId(), aktørId)).collect(Collectors.toList());
             if (aktørArbeid.size() > 1) {
-                throw new IllegalStateException("Kan kun ha ett innslag av AktørArbeid for aktørId:" + aktørId + " i  grunnlag " + this.getEksternReferanse());
+                throw new IllegalStateException(
+                        "Kan kun ha ett innslag av AktørArbeid for aktørId:" + aktørId + " i  grunnlag " + this.getEksternReferanse());
             }
             return aktørArbeid.stream().findFirst();
         }
@@ -138,7 +147,8 @@ public class InntektArbeidYtelseGrunnlag extends BaseEntitet {
         if (register != null) {
             var aktørYtelse = register.getAktørYtelse().stream().filter(aa -> Objects.equals(aa.getAktørId(), aktørId)).collect(Collectors.toList());
             if (aktørYtelse.size() > 1) {
-                throw new IllegalStateException("Kan kun ha ett innslag av AktørYtelse for aktørId:" + aktørId + " i  grunnlag " + this.getEksternReferanse());
+                throw new IllegalStateException(
+                        "Kan kun ha ett innslag av AktørYtelse for aktørId:" + aktørId + " i  grunnlag " + this.getEksternReferanse());
             }
             return aktørYtelse.stream().findFirst();
         }
@@ -147,9 +157,11 @@ public class InntektArbeidYtelseGrunnlag extends BaseEntitet {
 
     public Optional<AktørInntekt> getAktørInntektFraRegister(AktørId aktørId) {
         if (register != null) {
-            var aktørInntekt = register.getAktørInntekt().stream().filter(aa -> Objects.equals(aa.getAktørId(), aktørId)).collect(Collectors.toList());
+            var aktørInntekt = register.getAktørInntekt().stream().filter(aa -> Objects.equals(aa.getAktørId(), aktørId))
+                    .collect(Collectors.toList());
             if (aktørInntekt.size() > 1) {
-                throw new IllegalStateException("Kan kun ha ett innslag av AktørInntekt for aktørId:" + aktørId + " i  grunnlag " + this.getEksternReferanse());
+                throw new IllegalStateException(
+                        "Kan kun ha ett innslag av AktørInntekt for aktørId:" + aktørId + " i  grunnlag " + this.getEksternReferanse());
             }
             return aktørInntekt.stream().findFirst();
         }
@@ -161,7 +173,8 @@ public class InntektArbeidYtelseGrunnlag extends BaseEntitet {
     }
 
     /**
-     * Returnerer oppgitt opptjening hvis det finnes. (Inneholder opplysninger søker opplyser om i søknaden)
+     * Returnerer oppgitt opptjening hvis det finnes. (Inneholder opplysninger søker
+     * opplyser om i søknaden)
      */
     public Optional<OppgittOpptjening> getOppgittOpptjening() {
         return Optional.ofNullable(oppgittOpptjening);
@@ -177,14 +190,15 @@ public class InntektArbeidYtelseGrunnlag extends BaseEntitet {
         } else {
             var overstyringer = arbeidsforholdInformasjon.getOverstyringer();
             return overstyringer.stream()
-                .filter(ov -> ov.kreverIkkeInntektsmelding())
-                .map(ov -> {
-                    // TODO (FC): fiks/fjern eksternRef herfra
-                    EksternArbeidsforholdRef eksternRef = null; // arbeidsforholdInformasjon.finnEkstern(ov.getArbeidsgiver(), ov.getArbeidsforholdRef()); //
-                                                                // NOSONAR
-                    return new InntektsmeldingSomIkkeKommer(ov.getArbeidsgiver(), ov.getArbeidsforholdRef(), eksternRef);
-                }) // NOSONAR
-                .collect(Collectors.toList());
+                    .filter(ov -> ov.kreverIkkeInntektsmelding())
+                    .map(ov -> {
+                        // TODO (FC): fiks/fjern eksternRef herfra
+                        EksternArbeidsforholdRef eksternRef = null; // arbeidsforholdInformasjon.finnEkstern(ov.getArbeidsgiver(),
+                                                                    // ov.getArbeidsforholdRef()); //
+                                                                    // NOSONAR
+                        return new InntektsmeldingSomIkkeKommer(ov.getArbeidsgiver(), ov.getArbeidsforholdRef(), eksternRef);
+                    }) // NOSONAR
+                    .collect(Collectors.toList());
         }
     }
 
@@ -234,14 +248,16 @@ public class InntektArbeidYtelseGrunnlag extends BaseEntitet {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || !(o instanceof InntektArbeidYtelseGrunnlag))
+        }
+        if ((o == null) || !(o instanceof InntektArbeidYtelseGrunnlag)) {
             return false;
+        }
         InntektArbeidYtelseGrunnlag that = (InntektArbeidYtelseGrunnlag) o;
-        return aktiv == that.aktiv &&
-            Objects.equals(register, that.register) &&
-            Objects.equals(saksbehandlet, that.saksbehandlet);
+        return (aktiv == that.aktiv) &&
+                Objects.equals(register, that.register) &&
+                Objects.equals(saksbehandlet, that.saksbehandlet);
     }
 
     @Override

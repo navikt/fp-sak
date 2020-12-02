@@ -24,8 +24,9 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.util.Tuple;
 
 /**
- *  Batchservice som finner alle behandlinger som skal gjenopptas, og lager en ditto prosess task for hver.
- *  Kriterier for gjenopptagelse: Behandling for Selvstendig Næringsdrivende, evt i kombinasjon med arbeid el frilans
+ * Batchservice som finner alle behandlinger som skal gjenopptas, og lager en
+ * ditto prosess task for hver. Kriterier for gjenopptagelse: Behandling for
+ * Selvstendig Næringsdrivende, evt i kombinasjon med arbeid el frilans
  */
 @ApplicationScoped
 public class AutomatiskNæringsdrivendeReguleringBatchTjeneste implements BatchTjeneste {
@@ -39,8 +40,8 @@ public class AutomatiskNæringsdrivendeReguleringBatchTjeneste implements BatchT
 
     @Inject
     public AutomatiskNæringsdrivendeReguleringBatchTjeneste(BehandlingRevurderingRepository behandlingRevurderingRepository,
-                                                            BeregningsresultatRepository beregningsresultatRepository,
-                                                            ProsessTaskRepository prosessTaskRepository) {
+            BeregningsresultatRepository beregningsresultatRepository,
+            ProsessTaskRepository prosessTaskRepository) {
         this.behandlingRevurderingRepository = behandlingRevurderingRepository;
         this.beregningsresultatRepository = beregningsresultatRepository;
         this.prosessTaskRepository = prosessTaskRepository;
@@ -53,16 +54,18 @@ public class AutomatiskNæringsdrivendeReguleringBatchTjeneste implements BatchT
 
     @Override
     public String launch(BatchArguments arguments) {
-        AutomatiskGrunnbelopReguleringBatchArguments opprettRevurdering = (AutomatiskGrunnbelopReguleringBatchArguments)arguments;
+        AutomatiskGrunnbelopReguleringBatchArguments opprettRevurdering = (AutomatiskGrunnbelopReguleringBatchArguments) arguments;
         String executionId = BATCHNAME + EXECUTION_ID_SEPARATOR;
         final String callId = (MDCOperations.getCallId() == null ? MDCOperations.generateCallId() : MDCOperations.getCallId()) + "_";
         BeregningSats gjeldende = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now());
-        BeregningSats forrige = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, gjeldende.getPeriode().getFomDato().minusDays(1));
+        BeregningSats forrige = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP,
+                gjeldende.getPeriode().getFomDato().minusDays(1));
         if (gjeldende.getVerdi() == forrige.getVerdi()) {
             throw new IllegalArgumentException("Samme sats i periodene: gammel {} ny {}" + forrige + " ny " + gjeldende);
         }
-        List<Tuple<Long, AktørId>> tilVurdering = behandlingRevurderingRepository.finnSakerMedBehovForNæringsdrivendeRegulering(forrige.getVerdi(), gjeldende.getPeriode().getFomDato());
-        if (opprettRevurdering != null && opprettRevurdering.getSkalRevurdere()) {
+        List<Tuple<Long, AktørId>> tilVurdering = behandlingRevurderingRepository.finnSakerMedBehovForNæringsdrivendeRegulering(forrige.getVerdi(),
+                gjeldende.getPeriode().getFomDato());
+        if ((opprettRevurdering != null) && opprettRevurdering.getSkalRevurdere()) {
             tilVurdering.forEach(sak -> opprettReguleringTask(sak.getElement1(), sak.getElement2(), callId));
         } else {
             tilVurdering.forEach(sak -> log.info("Skal revurdere sak {}", sak.getElement1()));

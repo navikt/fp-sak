@@ -23,7 +23,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 
 /**
- * Håndterer fyring av events via CDI når det skjer en overgang i Behandlingskontroll mellom steg, eller statuser
+ * Håndterer fyring av events via CDI når det skjer en overgang i
+ * Behandlingskontroll mellom steg, eller statuser
  */
 @ApplicationScoped
 public class BehandlingskontrollEventPubliserer {
@@ -53,7 +54,7 @@ public class BehandlingskontrollEventPubliserer {
         doFireEvent(event);
     }
 
-    public void fireEvent(BehandlingTransisjonEvent event){
+    public void fireEvent(BehandlingTransisjonEvent event) {
         doFireEvent(event);
     }
 
@@ -82,7 +83,10 @@ public class BehandlingskontrollEventPubliserer {
         doFireEvent(event);
     }
 
-    /** Fyrer event via BeanManager slik at håndtering av events som subklasser andre events blir korrekt. */
+    /**
+     * Fyrer event via BeanManager slik at håndtering av events som subklasser andre
+     * events blir korrekt.
+     */
     protected void doFireEvent(BehandlingEvent event) {
         if (beanManager == null) {
             return;

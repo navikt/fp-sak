@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 @ApplicationScoped
 public class InnhentPersonopplysningStegImpl implements InnhentRegisteropplysningerSteg {
 
-
     InnhentPersonopplysningStegImpl() {
         // for CDI proxy
     }

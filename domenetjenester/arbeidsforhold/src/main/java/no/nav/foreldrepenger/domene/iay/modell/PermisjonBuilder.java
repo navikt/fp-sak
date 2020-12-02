@@ -23,7 +23,7 @@ public class PermisjonBuilder {
     }
 
     public PermisjonBuilder medProsentsats(BigDecimal prosentsats) {
-        this.permisjon.setProsentsats(prosentsats == null ? null: new Stillingsprosent(prosentsats));
+        this.permisjon.setProsentsats(prosentsats == null ? null : new Stillingsprosent(prosentsats));
         return this;
     }
 

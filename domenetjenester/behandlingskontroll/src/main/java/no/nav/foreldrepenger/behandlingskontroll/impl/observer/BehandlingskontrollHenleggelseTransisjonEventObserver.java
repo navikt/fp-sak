@@ -15,7 +15,7 @@ class BehandlingskontrollHenleggelseTransisjonEventObserver {
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
 
     BehandlingskontrollHenleggelseTransisjonEventObserver() {
-        //for CDI proxy
+        // for CDI proxy
     }
 
     @Inject
@@ -31,6 +31,3 @@ class BehandlingskontrollHenleggelseTransisjonEventObserver {
         }
     }
 }
-
-
-

@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 @JsonTypeName(AksjonspunktKodeDefinisjon.VURDER_PERIODER_MED_OPPTJENING_KODE)
 public class AvklarAktivitetsPerioderDto extends BekreftetAksjonspunktDto {
 
-
     @Valid
     @Size(max = 1000)
     private List<AvklarOpptjeningAktivitetDto> opptjeningAktivitetList;
@@ -28,7 +27,6 @@ public class AvklarAktivitetsPerioderDto extends BekreftetAksjonspunktDto {
         super(begrunnelse);
         this.opptjeningAktivitetList = opptjeningAktivitetList;
     }
-
 
     public List<AvklarOpptjeningAktivitetDto> getOpptjeningAktivitetList() {
         return opptjeningAktivitetList;

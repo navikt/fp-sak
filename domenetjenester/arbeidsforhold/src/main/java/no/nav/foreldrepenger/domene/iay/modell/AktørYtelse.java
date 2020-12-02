@@ -48,6 +48,7 @@ public class AktørYtelse extends BaseEntitet implements IndexKey {
 
     /**
      * Aktøren tilstøtende ytelser gjelder for
+     *
      * @return aktørId
      */
     public AktørId getAktørId() {
@@ -66,31 +67,33 @@ public class AktørYtelse extends BaseEntitet implements IndexKey {
     }
 
     boolean hasValues() {
-        return aktørId != null || ytelser != null && !ytelser.isEmpty();
+        return (aktørId != null) || ((ytelser != null) && !ytelser.isEmpty());
     }
 
     YtelseBuilder getYtelseBuilderForType(Fagsystem fagsystem, RelatertYtelseType type, Saksnummer saksnummer) {
         Optional<Ytelse> ytelse = getAlleYtelser().stream()
-            .filter(ya -> ya.getKilde().equals(fagsystem) && ya.getRelatertYtelseType().equals(type) && (saksnummer.equals(ya.getSaksnummer())))
-            .findFirst();
+                .filter(ya -> ya.getKilde().equals(fagsystem) && ya.getRelatertYtelseType().equals(type) && (saksnummer.equals(ya.getSaksnummer())))
+                .findFirst();
         return YtelseBuilder.oppdatere(ytelse).medYtelseType(type).medKilde(fagsystem).medSaksnummer(saksnummer);
     }
 
-    YtelseBuilder getYtelseBuilderForType(Fagsystem fagsystem, RelatertYtelseType type, Saksnummer saksnummer, DatoIntervallEntitet periode, Optional<LocalDate> tidligsteAnvistFom) {
+    YtelseBuilder getYtelseBuilderForType(Fagsystem fagsystem, RelatertYtelseType type, Saksnummer saksnummer, DatoIntervallEntitet periode,
+            Optional<LocalDate> tidligsteAnvistFom) {
         // OBS kan være flere med samme Saksnummer+FOM: Konvensjon ifm satsjustering
         List<Ytelse> aktuelleYtelser = getAlleYtelser().stream()
-            .filter(ya -> ya.getKilde().equals(fagsystem) && ya.getRelatertYtelseType().equals(type) && (saksnummer.equals(ya.getSaksnummer())
-                && periode.getFomDato().equals(ya.getPeriode().getFomDato())))
-            .collect(Collectors.toList());
+                .filter(ya -> ya.getKilde().equals(fagsystem) && ya.getRelatertYtelseType().equals(type) && (saksnummer.equals(ya.getSaksnummer())
+                        && periode.getFomDato().equals(ya.getPeriode().getFomDato())))
+                .collect(Collectors.toList());
         Optional<Ytelse> ytelse = aktuelleYtelser.stream()
-            .filter(ya -> periode.equals(ya.getPeriode()))
-            .findFirst();
+                .filter(ya -> periode.equals(ya.getPeriode()))
+                .findFirst();
         if (ytelse.isEmpty() && !aktuelleYtelser.isEmpty()) {
-            // Håndtere endret TOM-dato som regel ifm at ytelsen er opphørt. Hvis flere med samme FOM-dato sjekk anvist-fom
+            // Håndtere endret TOM-dato som regel ifm at ytelsen er opphørt. Hvis flere med
+            // samme FOM-dato sjekk anvist-fom
             if (tidligsteAnvistFom.isPresent()) {
                 ytelse = aktuelleYtelser.stream()
-                    .filter(yt -> yt.getYtelseAnvist().stream().anyMatch(ya -> tidligsteAnvistFom.get().equals(ya.getAnvistFOM())))
-                    .findFirst();
+                        .filter(yt -> yt.getYtelseAnvist().stream().anyMatch(ya -> tidligsteAnvistFom.get().equals(ya.getAnvistFOM())))
+                        .findFirst();
             }
             if (ytelse.isEmpty()) {
                 ytelse = aktuelleYtelser.stream().filter(yt -> yt.getYtelseAnvist().isEmpty()).findFirst();
@@ -99,11 +102,12 @@ public class AktørYtelse extends BaseEntitet implements IndexKey {
         return YtelseBuilder.oppdatere(ytelse).medYtelseType(type).medKilde(fagsystem).medSaksnummer(saksnummer);
     }
 
-    YtelseBuilder getYtelseBuilderForType(Fagsystem fagsystem, RelatertYtelseType type, TemaUnderkategori typeKategori, DatoIntervallEntitet periode) {
+    YtelseBuilder getYtelseBuilderForType(Fagsystem fagsystem, RelatertYtelseType type, TemaUnderkategori typeKategori,
+            DatoIntervallEntitet periode) {
         Optional<Ytelse> ytelse = getAlleYtelser().stream()
-            .filter(ya -> ya.getKilde().equals(fagsystem) && ya.getRelatertYtelseType().equals(type)
-                && ya.getBehandlingsTema().equals(typeKategori) && (periode.getFomDato().equals(ya.getPeriode().getFomDato())))
-            .findFirst();
+                .filter(ya -> ya.getKilde().equals(fagsystem) && ya.getRelatertYtelseType().equals(type)
+                        && ya.getBehandlingsTema().equals(typeKategori) && (periode.getFomDato().equals(ya.getPeriode().getFomDato())))
+                .findFirst();
         return YtelseBuilder.oppdatere(ytelse).medYtelseType(type).medKilde(fagsystem).medPeriode(periode);
     }
 
@@ -134,8 +138,8 @@ public class AktørYtelse extends BaseEntitet implements IndexKey {
     @Override
     public String toString() {
         return getClass().getSimpleName() + "<" +
-            "aktørId=" + aktørId +
-            ", ytelser=" + ytelser +
-            '>';
+                "aktørId=" + aktørId +
+                ", ytelser=" + ytelser +
+                '>';
     }
 }

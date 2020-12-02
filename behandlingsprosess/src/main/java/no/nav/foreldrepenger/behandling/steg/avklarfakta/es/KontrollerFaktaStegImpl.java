@@ -57,8 +57,8 @@ class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
 
     @Inject
     public KontrollerFaktaStegImpl(BehandlingRepositoryProvider repositoryProvider,
-                                   SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                   @FagsakYtelseTypeRef("ES") KontrollerFaktaTjeneste tjeneste) {
+            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+            @FagsakYtelseTypeRef("ES") KontrollerFaktaTjeneste tjeneste) {
         this.repositoryProvider = repositoryProvider;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
@@ -82,29 +82,31 @@ class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
     private void utledVilkår(BehandlingskontrollKontekst kontekst) {
         Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         final Optional<FamilieHendelseType> hendelseType = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.getId())
-            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-            .map(FamilieHendelseEntitet::getType);
+                .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+                .map(FamilieHendelseEntitet::getType);
         UtledeteVilkår utledeteVilkår = new EngangsstønadVilkårUtleder().utledVilkår(behandling, hendelseType);
         opprettVilkår(utledeteVilkår, behandling, kontekst.getSkriveLås());
     }
 
     @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg, BehandlingStegType fraSteg) {
+    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
+            BehandlingStegType fraSteg) {
         if (!BehandlingStegType.KONTROLLER_FAKTA.equals(fraSteg)
-            || (BehandlingStegType.KONTROLLER_FAKTA.equals(fraSteg) && BehandlingStegType.KONTROLLER_FAKTA.equals(tilSteg))) {
+                || (BehandlingStegType.KONTROLLER_FAKTA.equals(fraSteg) && BehandlingStegType.KONTROLLER_FAKTA.equals(tilSteg))) {
             RyddRegisterData rydder = new RyddRegisterData(repositoryProvider, kontekst);
             rydder.ryddRegisterdataLegacyEngangsstønad();
         }
     }
 
     private void opprettVilkår(UtledeteVilkår utledeteVilkår, Behandling behandling, BehandlingLås skriveLås) {
-        // Opprett Vilkårsresultat med vilkårne som som skal vurderes, og sett dem som ikke vurdert
+        // Opprett Vilkårsresultat med vilkårne som som skal vurderes, og sett dem som
+        // ikke vurdert
         Behandlingsresultat behandlingsresultat = getBehandlingsresultat(behandling);
         VilkårResultat.Builder vilkårBuilder = behandlingsresultat != null
-            ? VilkårResultat.builderFraEksisterende(behandlingsresultat.getVilkårResultat())
-            : VilkårResultat.builder();
+                ? VilkårResultat.builderFraEksisterende(behandlingsresultat.getVilkårResultat())
+                : VilkårResultat.builder();
         utledeteVilkår.getAlleAvklarte()
-            .forEach(vilkårType -> vilkårBuilder.leggTilVilkår(vilkårType, VilkårUtfallType.IKKE_VURDERT));
+                .forEach(vilkårType -> vilkårBuilder.leggTilVilkår(vilkårType, VilkårUtfallType.IKKE_VURDERT));
         VilkårResultat vilkårResultat = vilkårBuilder.buildFor(behandling);
         behandlingRepository.lagre(vilkårResultat, skriveLås);
     }

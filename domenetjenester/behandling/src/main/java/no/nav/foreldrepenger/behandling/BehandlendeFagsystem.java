@@ -14,12 +14,12 @@ public class BehandlendeFagsystem {
         this.behandlendeSystem = behandlendeSystem;
     }
 
-    public BehandlendeFagsystem medSaksnummer(Saksnummer saksnummer){
+    public BehandlendeFagsystem medSaksnummer(Saksnummer saksnummer) {
         this.saksnummer = saksnummer;
         return this;
     }
 
-    public BehandlendeFagsystem medPrøvIgjenTidspunkt(LocalDateTime prøvIgjenTidspunkt){
+    public BehandlendeFagsystem medPrøvIgjenTidspunkt(LocalDateTime prøvIgjenTidspunkt) {
         this.prøvIgjenTidspunkt = prøvIgjenTidspunkt;
         return this;
     }

@@ -27,8 +27,9 @@ class ArbeidsgiverHistorikkinnslag {
         this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
     }
 
-    String lagArbeidsgiverHistorikkinnslagTekst(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef, List<ArbeidsforholdOverstyring> overstyringer) {
-        if (arbeidsgiver != null && arbeidsforholdRef != null && arbeidsforholdRef.gjelderForSpesifiktArbeidsforhold()) {
+    String lagArbeidsgiverHistorikkinnslagTekst(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef,
+            List<ArbeidsforholdOverstyring> overstyringer) {
+        if ((arbeidsgiver != null) && (arbeidsforholdRef != null) && arbeidsforholdRef.gjelderForSpesifiktArbeidsforhold()) {
             return lagTekstMedArbeidsgiverOgArbeidforholdRef(arbeidsgiver, arbeidsforholdRef, overstyringer);
         } else if (arbeidsgiver != null) {
             return lagTekstMedArbeidsgiver(arbeidsgiver, overstyringer);
@@ -45,7 +46,8 @@ class ArbeidsgiverHistorikkinnslag {
         return lagTekstForArbeidsgiver(arbeidsgiver, overstyringer);
     }
 
-    private String lagTekstMedArbeidsgiverOgArbeidforholdRef(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef, List<ArbeidsforholdOverstyring> overstyringer) {
+    private String lagTekstMedArbeidsgiverOgArbeidforholdRef(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef,
+            List<ArbeidsforholdOverstyring> overstyringer) {
         StringBuilder sb = new StringBuilder();
         sb.append(lagTekstMedArbeidsgiver(arbeidsgiver, overstyringer));
         sb.append(lagTekstMedArbeidsforholdref(arbeidsforholdRef));
@@ -57,7 +59,7 @@ class ArbeidsgiverHistorikkinnslag {
         String sisteFireTegnIRef = referanse.substring(referanse.length() - 4);
         StringBuilder sb = new StringBuilder();
         sb.append(" ...")
-            .append(sisteFireTegnIRef);
+                .append(sisteFireTegnIRef);
         return sb.toString();
 
     }
@@ -70,15 +72,15 @@ class ArbeidsgiverHistorikkinnslag {
             arbeidsgiverNavn = hentNavnTilManueltArbeidsforhold(overstyringer);
         }
         sb.append(arbeidsgiverNavn)
-            .append(" (")
-            .append(opplysninger.getIdentifikator())
-            .append(")");
+                .append(" (")
+                .append(opplysninger.getIdentifikator())
+                .append(")");
         return sb.toString();
     }
 
     private String hentNavnTilManueltArbeidsforhold(List<ArbeidsforholdOverstyring> overstyringer) {
         return FinnNavnForManueltLagtTilArbeidsforholdTjeneste.finnNavnTilManueltLagtTilArbeidsforhold(overstyringer)
-            .map(ArbeidsgiverOpplysninger::getNavn)
-            .orElseThrow(() -> new IllegalStateException("Fant ikke forventet informasjon om manuelt arbeidsforhold"));
+                .map(ArbeidsgiverOpplysninger::getNavn)
+                .orElseThrow(() -> new IllegalStateException("Fant ikke forventet informasjon om manuelt arbeidsforhold"));
     }
 }

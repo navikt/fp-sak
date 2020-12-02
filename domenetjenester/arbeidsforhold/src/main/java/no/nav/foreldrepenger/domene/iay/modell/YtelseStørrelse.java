@@ -75,14 +75,16 @@ public class YtelseStørrelse extends BaseEntitet implements IndexKey {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || !(o instanceof YtelseStørrelse))
+        }
+        if ((o == null) || !(o instanceof YtelseStørrelse)) {
             return false;
+        }
         YtelseStørrelse that = (YtelseStørrelse) o;
         return Objects.equals(virksomhetOrgnr, that.virksomhetOrgnr) &&
-            Objects.equals(beløp, that.beløp) &&
-            Objects.equals(hyppighet, that.hyppighet);
+                Objects.equals(beløp, that.beløp) &&
+                Objects.equals(hyppighet, that.hyppighet);
     }
 
     @Override
@@ -94,13 +96,13 @@ public class YtelseStørrelse extends BaseEntitet implements IndexKey {
     @Override
     public String toString() {
         return "YtelseStørrelseEntitet{" +
-            "virksomhet=" + virksomhetOrgnr +
-            ", beløp=" + beløp +
-            ", hyppighet=" + hyppighet +
-            '}';
+                "virksomhet=" + virksomhetOrgnr +
+                ", beløp=" + beløp +
+                ", hyppighet=" + hyppighet +
+                '}';
     }
 
     boolean hasValues() {
-        return beløp != null || hyppighet != null || virksomhetOrgnr != null;
+        return (beløp != null) || (hyppighet != null) || (virksomhetOrgnr != null);
     }
 }

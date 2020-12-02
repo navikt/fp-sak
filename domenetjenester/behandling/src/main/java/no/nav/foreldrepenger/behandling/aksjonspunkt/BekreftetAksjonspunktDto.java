@@ -38,7 +38,7 @@ public abstract class BekreftetAksjonspunktDto implements AksjonspunktKode, Abac
     @Override
     public AbacDataAttributter abacAttributter() {
         return AbacDataAttributter.opprett()
-            .leggTil(AppAbacAttributtType.AKSJONSPUNKT_KODE, getKode());
+                .leggTil(AppAbacAttributtType.AKSJONSPUNKT_KODE, getKode());
     }
 
     @Override
@@ -46,6 +46,6 @@ public abstract class BekreftetAksjonspunktDto implements AksjonspunktKode, Abac
         if (this.getClass().isAnnotationPresent(JsonTypeName.class)) {
             return this.getClass().getDeclaredAnnotation(JsonTypeName.class).value();
         }
-        throw new IllegalStateException("Utvikler-feil:" +this.getClass().getSimpleName() +" er uten JsonTypeName annotation.");
+        throw new IllegalStateException("Utvikler-feil:" + this.getClass().getSimpleName() + " er uten JsonTypeName annotation.");
     }
 }

@@ -25,8 +25,9 @@ public interface BehandlingModell {
     Set<String> finnAksjonspunktDefinisjonerEtter(BehandlingStegType steg);
 
     /**
-     * Gjelder kun steg ETTER angitt steg (inklusiv angitt steg). Dersom medInngangOgså tas også aksjonspunt som skal
-     * være løst også ved Inngang med, ellers kun ved Utgang av steget
+     * Gjelder kun steg ETTER angitt steg (inklusiv angitt steg). Dersom
+     * medInngangOgså tas også aksjonspunt som skal være løst også ved Inngang med,
+     * ellers kun ved Utgang av steget
      */
     Set<String> finnAksjonspunktDefinisjonerFraOgMed(BehandlingStegType steg, boolean medInngangOgså);
 
@@ -76,12 +77,15 @@ public interface BehandlingModell {
      *
      * @param stegFørType
      * @param stegEtterType
-     * @return 1 (normalt fremover), mindre enn 0 (tilbakeføring), større enn 1 (overhopp/framføring)
+     * @return 1 (normalt fremover), mindre enn 0 (tilbakeføring), større enn 1
+     *         (overhopp/framføring)
      */
     int relativStegForflytning(BehandlingStegType stegFørType, BehandlingStegType stegEtterType);
 
     /**
-     * Kjør behandling fra angitt steg, med angitt visitor. Stopper når visitor ikke kan kjøre lenger.
+     * Kjør behandling fra angitt steg, med angitt visitor. Stopper når visitor ikke
+     * kan kjøre lenger.
+     *
      * @param startFraBehandlingStegType
      * @param visitor
      *

@@ -26,46 +26,47 @@ import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 
 public final class MapYrkesaktivitetTilOpptjeningsperiodeTjeneste {
 
-
     private MapYrkesaktivitetTilOpptjeningsperiodeTjeneste() {
     }
 
     public static List<OpptjeningsperiodeForSaksbehandling> mapYrkesaktivitet(BehandlingReferanse behandlingReferanse,
-                                                                       Yrkesaktivitet registerAktivitet,
-                                                                       InntektArbeidYtelseGrunnlag grunnlag,
-                                                                       OpptjeningAktivitetVurdering vurderForSaksbehandling,
-                                                                       Map<ArbeidType, Set<OpptjeningAktivitetType>> mapArbeidOpptjening,
-                                                                       Yrkesaktivitet overstyrtAktivitet) {
+            Yrkesaktivitet registerAktivitet,
+            InntektArbeidYtelseGrunnlag grunnlag,
+            OpptjeningAktivitetVurdering vurderForSaksbehandling,
+            Map<ArbeidType, Set<OpptjeningAktivitetType>> mapArbeidOpptjening,
+            Yrkesaktivitet overstyrtAktivitet) {
         final OpptjeningAktivitetType type = utledOpptjeningType(mapArbeidOpptjening, registerAktivitet.getArbeidType());
         return new ArrayList<>(mapAktivitetsavtaler(behandlingReferanse, registerAktivitet, grunnlag,
-            vurderForSaksbehandling, type, overstyrtAktivitet));
+                vurderForSaksbehandling, type, overstyrtAktivitet));
     }
 
-    private static OpptjeningAktivitetType utledOpptjeningType(Map<ArbeidType, Set<OpptjeningAktivitetType>> mapArbeidOpptjening, ArbeidType arbeidType) {
+    private static OpptjeningAktivitetType utledOpptjeningType(Map<ArbeidType, Set<OpptjeningAktivitetType>> mapArbeidOpptjening,
+            ArbeidType arbeidType) {
         return mapArbeidOpptjening.get(arbeidType)
-            .stream()
-            .findFirst()
-            .orElse(OpptjeningAktivitetType.UDEFINERT);
+                .stream()
+                .findFirst()
+                .orElse(OpptjeningAktivitetType.UDEFINERT);
     }
 
     private static List<OpptjeningsperiodeForSaksbehandling> mapAktivitetsavtaler(BehandlingReferanse behandlingReferanse,
-                                                                                  Yrkesaktivitet registerAktivitet,
-                                                                                  InntektArbeidYtelseGrunnlag grunnlag,
-                                                                                  OpptjeningAktivitetVurdering vurderForSaksbehandling,
-                                                                                  OpptjeningAktivitetType type,
-                                                                                  Yrkesaktivitet overstyrtAktivitet) {
+            Yrkesaktivitet registerAktivitet,
+            InntektArbeidYtelseGrunnlag grunnlag,
+            OpptjeningAktivitetVurdering vurderForSaksbehandling,
+            OpptjeningAktivitetType type,
+            Yrkesaktivitet overstyrtAktivitet) {
         List<OpptjeningsperiodeForSaksbehandling> perioderForAktivitetsavtaler = new ArrayList<>();
         LocalDate skjæringstidspunkt = behandlingReferanse.getUtledetSkjæringstidspunkt();
         for (AktivitetsAvtale avtale : gjeldendeAvtaler(grunnlag, skjæringstidspunkt, registerAktivitet, overstyrtAktivitet)) {
             var builder = OpptjeningsperiodeForSaksbehandling.Builder.ny()
-                .medOpptjeningAktivitetType(type)
-                .medPeriode(avtale.getPeriode())
-                .medBegrunnelse(avtale.getBeskrivelse())
-                .medStillingsandel(finnStillingsprosent(registerAktivitet));
+                    .medOpptjeningAktivitetType(type)
+                    .medPeriode(avtale.getPeriode())
+                    .medBegrunnelse(avtale.getBeskrivelse())
+                    .medStillingsandel(finnStillingsprosent(registerAktivitet));
             harSaksbehandlerVurdert(builder, type, behandlingReferanse, registerAktivitet, vurderForSaksbehandling, grunnlag);
             settArbeidsgiverInformasjon(gjeldendeAktivitet(registerAktivitet, overstyrtAktivitet), builder);
             builder.medVurderingsStatus(
-                vurderForSaksbehandling.vurderStatus(type, behandlingReferanse, registerAktivitet, overstyrtAktivitet, grunnlag, grunnlag.harBlittSaksbehandlet()));
+                    vurderForSaksbehandling.vurderStatus(type, behandlingReferanse, registerAktivitet, overstyrtAktivitet, grunnlag,
+                            grunnlag.harBlittSaksbehandlet()));
             if (harEndretPåPeriode(avtale.getPeriode(), overstyrtAktivitet)) {
                 builder.medErPeriodenEndret();
             }
@@ -87,7 +88,7 @@ public final class MapYrkesaktivitetTilOpptjeningsperiodeTjeneste {
 
     public static String lagReferanseForUtlandskOrganisasjon(String navn) {
         // Nøkkel som er passe unik med skop en behandling
-        return ("9" + Math.abs(Objects.hash(navn)) + "999999").substring(0,7);
+        return ("9" + Math.abs(Objects.hash(navn)) + "999999").substring(0, 7);
     }
 
     private static boolean harEndretPåPeriode(DatoIntervallEntitet periode, Yrkesaktivitet overstyrtAktivitet) {
@@ -95,7 +96,8 @@ public final class MapYrkesaktivitetTilOpptjeningsperiodeTjeneste {
             return false;
         }
 
-        return new YrkesaktivitetFilter(null, List.of(overstyrtAktivitet)).getAktivitetsAvtalerForArbeid().stream().map(AktivitetsAvtale::getPeriode).noneMatch(p -> p.equals(periode));
+        return new YrkesaktivitetFilter(null, List.of(overstyrtAktivitet)).getAktivitetsAvtalerForArbeid().stream().map(AktivitetsAvtale::getPeriode)
+                .noneMatch(p -> p.equals(periode));
     }
 
     private static Stillingsprosent finnStillingsprosent(Yrkesaktivitet registerAktivitet) {
@@ -103,25 +105,26 @@ public final class MapYrkesaktivitetTilOpptjeningsperiodeTjeneste {
         if (registerAktivitet.erArbeidsforhold()) {
             var filter = new YrkesaktivitetFilter(null, List.of(registerAktivitet));
             return filter.getAktivitetsAvtalerForArbeid()
-                .stream()
-                .filter(aa -> aa.getProsentsats() != null)
-                .map(AktivitetsAvtale::getProsentsats)
-                .filter(Objects::nonNull)
-                .max(Comparator.comparing(Stillingsprosent::getVerdi))
-                .orElse(defaultStillingsprosent);
+                    .stream()
+                    .filter(aa -> aa.getProsentsats() != null)
+                    .map(AktivitetsAvtale::getProsentsats)
+                    .filter(Objects::nonNull)
+                    .max(Comparator.comparing(Stillingsprosent::getVerdi))
+                    .orElse(defaultStillingsprosent);
         }
         return defaultStillingsprosent;
     }
 
     private static Collection<AktivitetsAvtale> gjeldendeAvtaler(InntektArbeidYtelseGrunnlag grunnlag,
-                                                                 LocalDate skjæringstidspunktForOpptjening,
-                                                                 Yrkesaktivitet registerAktivitet,
-                                                                 Yrkesaktivitet overstyrtAktivitet) {
+            LocalDate skjæringstidspunktForOpptjening,
+            Yrkesaktivitet registerAktivitet,
+            Yrkesaktivitet overstyrtAktivitet) {
         Yrkesaktivitet gjeldendeAktivitet = gjeldendeAktivitet(registerAktivitet, overstyrtAktivitet);
         if (registerAktivitet.erArbeidsforhold()) {
             return MapAnsettelsesPeriodeOgPermisjon.beregn(grunnlag, gjeldendeAktivitet);
         }
-        return new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon().orElse(null), gjeldendeAktivitet).før(skjæringstidspunktForOpptjening).getAktivitetsAvtalerForArbeid();
+        return new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon().orElse(null), gjeldendeAktivitet).før(skjæringstidspunktForOpptjening)
+                .getAktivitetsAvtalerForArbeid();
     }
 
     private static Yrkesaktivitet gjeldendeAktivitet(Yrkesaktivitet registerAktivitet, Yrkesaktivitet overstyrtAktivitet) {
@@ -129,9 +132,10 @@ public final class MapYrkesaktivitetTilOpptjeningsperiodeTjeneste {
     }
 
     private static void harSaksbehandlerVurdert(OpptjeningsperiodeForSaksbehandling.Builder builder, OpptjeningAktivitetType type,
-                                                BehandlingReferanse behandlingReferanse, Yrkesaktivitet registerAktivitet,
-                                                OpptjeningAktivitetVurdering vurderForSaksbehandling, InntektArbeidYtelseGrunnlag grunnlag) {
-        if (vurderForSaksbehandling.vurderStatus(type, behandlingReferanse, registerAktivitet, grunnlag, false).equals(VurderingsStatus.TIL_VURDERING)) {
+            BehandlingReferanse behandlingReferanse, Yrkesaktivitet registerAktivitet,
+            OpptjeningAktivitetVurdering vurderForSaksbehandling, InntektArbeidYtelseGrunnlag grunnlag) {
+        if (vurderForSaksbehandling.vurderStatus(type, behandlingReferanse, registerAktivitet, grunnlag, false)
+                .equals(VurderingsStatus.TIL_VURDERING)) {
             builder.medErManueltBehandlet();
         }
     }

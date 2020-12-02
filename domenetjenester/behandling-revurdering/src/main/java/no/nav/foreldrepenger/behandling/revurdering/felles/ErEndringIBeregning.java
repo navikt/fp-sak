@@ -37,27 +37,32 @@ public class ErEndringIBeregning {
         return false;
     }
 
-    public static boolean vurderUgunst(Optional<BeregningsgrunnlagEntitet> revurderingsGrunnlag, Optional<BeregningsgrunnlagEntitet> originaltGrunnlag) {
+    public static boolean vurderUgunst(Optional<BeregningsgrunnlagEntitet> revurderingsGrunnlag,
+            Optional<BeregningsgrunnlagEntitet> originaltGrunnlag) {
         if (revurderingsGrunnlag.isEmpty()) {
             return originaltGrunnlag.isPresent();
         }
 
-        List<BeregningsgrunnlagPeriode> originalePerioder = originaltGrunnlag.map(BeregningsgrunnlagEntitet::getBeregningsgrunnlagPerioder).orElse(Collections.emptyList());
-        List<BeregningsgrunnlagPeriode> revurderingsPerioder = revurderingsGrunnlag.map(BeregningsgrunnlagEntitet::getBeregningsgrunnlagPerioder).orElse(Collections.emptyList());
+        List<BeregningsgrunnlagPeriode> originalePerioder = originaltGrunnlag.map(BeregningsgrunnlagEntitet::getBeregningsgrunnlagPerioder)
+                .orElse(Collections.emptyList());
+        List<BeregningsgrunnlagPeriode> revurderingsPerioder = revurderingsGrunnlag.map(BeregningsgrunnlagEntitet::getBeregningsgrunnlagPerioder)
+                .orElse(Collections.emptyList());
 
         Set<LocalDate> allePeriodeDatoer = finnAllePeriodersStartdatoer(revurderingsPerioder, originalePerioder);
 
         for (LocalDate dato : allePeriodeDatoer) {
             Long dagsatsRevurderingsgrunnlag = finnGjeldendeDagsatsForDenneDatoen(dato, revurderingsPerioder);
             Long dagsatsOriginaltGrunnlag = finnGjeldendeDagsatsForDenneDatoen(dato, originalePerioder);
-            if (dagsatsOriginaltGrunnlag != null && (dagsatsRevurderingsgrunnlag == null || dagsatsRevurderingsgrunnlag < dagsatsOriginaltGrunnlag)) {
+            if ((dagsatsOriginaltGrunnlag != null)
+                    && ((dagsatsRevurderingsgrunnlag == null) || (dagsatsRevurderingsgrunnlag < dagsatsOriginaltGrunnlag))) {
                 return true;
             }
         }
         return false;
     }
 
-    private static Set<LocalDate> finnAllePeriodersStartdatoer(List<BeregningsgrunnlagPeriode> revurderingsPerioder, List<BeregningsgrunnlagPeriode> originalePerioder) {
+    private static Set<LocalDate> finnAllePeriodersStartdatoer(List<BeregningsgrunnlagPeriode> revurderingsPerioder,
+            List<BeregningsgrunnlagPeriode> originalePerioder) {
         Set<LocalDate> startDatoer = new HashSet<>();
         revurderingsPerioder.stream().map(BeregningsgrunnlagPeriode::getBeregningsgrunnlagPeriodeFom).forEach(startDatoer::add);
         originalePerioder.stream().map(BeregningsgrunnlagPeriode::getBeregningsgrunnlagPeriodeFom).forEach(startDatoer::add);
@@ -65,9 +70,10 @@ public class ErEndringIBeregning {
     }
 
     private static Long finnGjeldendeDagsatsForDenneDatoen(LocalDate dato, List<BeregningsgrunnlagPeriode> perioder) {
-        // Hvis dato er før starten på den første perioden bruker vi første periodes dagsats
+        // Hvis dato er før starten på den første perioden bruker vi første periodes
+        // dagsats
         Optional<BeregningsgrunnlagPeriode> førsteKronologiskePeriode = perioder.stream()
-            .min(Comparator.comparing(BeregningsgrunnlagPeriode::getBeregningsgrunnlagPeriodeFom));
+                .min(Comparator.comparing(BeregningsgrunnlagPeriode::getBeregningsgrunnlagPeriodeFom));
         if (førsteKronologiskePeriode.filter(periode -> dato.isBefore(periode.getBeregningsgrunnlagPeriodeFom())).isPresent()) {
             return førsteKronologiskePeriode.get().getDagsats();
         }

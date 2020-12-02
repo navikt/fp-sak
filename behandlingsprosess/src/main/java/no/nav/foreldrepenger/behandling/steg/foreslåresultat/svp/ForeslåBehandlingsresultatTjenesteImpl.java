@@ -40,23 +40,24 @@ class ForeslåBehandlingsresultatTjenesteImpl implements no.nav.foreldrepenger.b
 
     @Inject
     ForeslåBehandlingsresultatTjenesteImpl(BehandlingRepositoryProvider repositoryProvider,
-                                          AvslagsårsakTjeneste avslagsårsakTjeneste,
-                                          DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
-                                          @FagsakYtelseTypeRef("SVP") RevurderingBehandlingsresultatutlederFelles revurderingBehandlingsresultatutlederFelles) {
+            AvslagsårsakTjeneste avslagsårsakTjeneste,
+            DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
+            @FagsakYtelseTypeRef("SVP") RevurderingBehandlingsresultatutlederFelles revurderingBehandlingsresultatutlederFelles) {
         this.svangerskapspengerUttakResultatRepository = repositoryProvider.getSvangerskapspengerUttakResultatRepository();
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
-        this.avslagsårsakTjeneste =avslagsårsakTjeneste;
-        this.revurderingBehandlingsresultatutlederFelles =revurderingBehandlingsresultatutlederFelles;
-        this.dokumentBehandlingTjeneste =dokumentBehandlingTjeneste;
-        this.behandlingsresultatRepository =repositoryProvider.getBehandlingsresultatRepository();
+        this.avslagsårsakTjeneste = avslagsårsakTjeneste;
+        this.revurderingBehandlingsresultatutlederFelles = revurderingBehandlingsresultatutlederFelles;
+        this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
+        this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
 
     }
 
-
     protected boolean minstEnGyldigUttaksPeriode(Behandlingsresultat behandlingsresultat) {
-        Optional<SvangerskapspengerUttakResultatEntitet> uttakResultat = svangerskapspengerUttakResultatRepository.hentHvisEksisterer(behandlingsresultat.getBehandlingId());
-        if(!uttakResultat.isPresent())
+        Optional<SvangerskapspengerUttakResultatEntitet> uttakResultat = svangerskapspengerUttakResultatRepository
+                .hentHvisEksisterer(behandlingsresultat.getBehandlingId());
+        if (!uttakResultat.isPresent()) {
             return false;
+        }
         for (var arbeidsforhold : uttakResultat.get().getUttaksResultatArbeidsforhold()) {
             for (var periode : arbeidsforhold.getPerioder()) {
                 if (periode.isInnvilget()) {
@@ -67,7 +68,6 @@ class ForeslåBehandlingsresultatTjenesteImpl implements no.nav.foreldrepenger.b
         return false;
     }
 
-
     @Override
     public Behandlingsresultat foreslåBehandlingsresultat(BehandlingReferanse ref) {
         Optional<Behandlingsresultat> behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(ref.getBehandlingId());
@@ -76,8 +76,10 @@ class ForeslåBehandlingsresultatTjenesteImpl implements no.nav.foreldrepenger.b
                 vilkårAvslått(ref, behandlingsresultat.get());
             } else {
                 Behandlingsresultat.builderEndreEksisterende(behandlingsresultat.get()).medBehandlingResultatType(BehandlingResultatType.INNVILGET);
-                // Må nullstille avslagårsak (for symmetri med setting avslagsårsak ovenfor, hvor avslagårsak kopieres fra et vilkår)
-                Optional.ofNullable(behandlingsresultat.get().getAvslagsårsak()).ifPresent(ufjernetÅrsak -> behandlingsresultat.get().setAvslagsårsak(Avslagsårsak.UDEFINERT));
+                // Må nullstille avslagårsak (for symmetri med setting avslagsårsak ovenfor,
+                // hvor avslagårsak kopieres fra et vilkår)
+                Optional.ofNullable(behandlingsresultat.get().getAvslagsårsak())
+                        .ifPresent(ufjernetÅrsak -> behandlingsresultat.get().setAvslagsårsak(Avslagsårsak.UDEFINERT));
                 if (ref.erRevurdering()) {
                     boolean erVarselOmRevurderingSendt = erVarselOmRevurderingSendt(ref);
                     return revurderingBehandlingsresultatutlederFelles.bestemBehandlingsresultatForRevurdering(ref, erVarselOmRevurderingSendt);
@@ -91,7 +93,6 @@ class ForeslåBehandlingsresultatTjenesteImpl implements no.nav.foreldrepenger.b
         return behandlingsresultat.isVilkårAvslått() || !minstEnGyldigUttaksPeriode(behandlingsresultat);
     }
 
-
     private void vilkårAvslått(BehandlingReferanse ref, Behandlingsresultat behandlingsresultat) {
         Optional<Vilkår> ikkeOppfyltVilkår = behandlingsresultat.getVilkårResultat().hentIkkeOppfyltVilkår();
         ikkeOppfyltVilkår.ifPresent(vilkår -> {
@@ -103,7 +104,7 @@ class ForeslåBehandlingsresultatTjenesteImpl implements no.nav.foreldrepenger.b
             revurderingBehandlingsresultatutlederFelles.bestemBehandlingsresultatForRevurdering(ref, erVarselOmRevurderingSendt);
         } else {
             Behandlingsresultat.Builder resultatBuilder = Behandlingsresultat.builderEndreEksisterende(behandlingsresultat)
-                .medBehandlingResultatType(BehandlingResultatType.AVSLÅTT);
+                    .medBehandlingResultatType(BehandlingResultatType.AVSLÅTT);
             if (skalTilInfoTrygd(ref)) {
                 resultatBuilder.medVedtaksbrev(Vedtaksbrev.INGEN);
             }
@@ -114,7 +115,6 @@ class ForeslåBehandlingsresultatTjenesteImpl implements no.nav.foreldrepenger.b
         var fagsak = fagsakRepository.hentSakGittSaksnummer(ref.getSaksnummer()).orElseThrow();
         return fagsak.getSkalTilInfotrygd();
     }
-
 
     private boolean erVarselOmRevurderingSendt(BehandlingReferanse ref) {
         return dokumentBehandlingTjeneste.erDokumentBestilt(ref.getBehandlingId(), DokumentMalType.REVURDERING_DOK);

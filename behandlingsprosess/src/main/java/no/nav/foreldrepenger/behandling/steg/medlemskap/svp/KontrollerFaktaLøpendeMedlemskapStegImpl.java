@@ -16,13 +16,13 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 public class KontrollerFaktaLøpendeMedlemskapStegImpl implements KontrollerFaktaLøpendeMedlemskapSteg {
 
     KontrollerFaktaLøpendeMedlemskapStegImpl() {
-        //CDI
+        // CDI
     }
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
-        //kan utvides ved behov for sjekk av løpende medlemskap.
-        //er tomt nå fordi startpunktutlederen peker på KOFAK_LOP_MEDL for uttak.
+        // kan utvides ved behov for sjekk av løpende medlemskap.
+        // er tomt nå fordi startpunktutlederen peker på KOFAK_LOP_MEDL for uttak.
         return BehandleStegResultat.utførtUtenAksjonspunkter();
     }
 }

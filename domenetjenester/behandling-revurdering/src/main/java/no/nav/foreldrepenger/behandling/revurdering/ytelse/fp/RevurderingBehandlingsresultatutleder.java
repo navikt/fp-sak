@@ -26,19 +26,18 @@ public class RevurderingBehandlingsresultatutleder extends RevurderingBehandling
     private BehandlingVedtakRepository behandlingVedtakRepository;
 
     @Inject
-    public RevurderingBehandlingsresultatutleder(BehandlingRepositoryProvider repositoryProvider,  // NOSONAR
-                                                 HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
-                                                 OpphørUttakTjeneste opphørUttakTjeneste,
-                                                 HarEtablertYtelseFP harEtablertYtelse,
-                                                 @FagsakYtelseTypeRef("FP") SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                                 MedlemTjeneste medlemTjeneste,
-                                                 ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste) {
+    public RevurderingBehandlingsresultatutleder(BehandlingRepositoryProvider repositoryProvider, // NOSONAR
+            HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
+            OpphørUttakTjeneste opphørUttakTjeneste,
+            HarEtablertYtelseFP harEtablertYtelse,
+            @FagsakYtelseTypeRef("FP") SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+            MedlemTjeneste medlemTjeneste,
+            ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste) {
         super(repositoryProvider,
-            beregningsgrunnlagTjeneste,
-            medlemTjeneste,
-            opphørUttakTjeneste,
-            skjæringstidspunktTjeneste
-        );
+                beregningsgrunnlagTjeneste,
+                medlemTjeneste,
+                opphørUttakTjeneste,
+                skjæringstidspunktTjeneste);
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
         this.harEtablertYtelse = harEtablertYtelse;
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
@@ -52,7 +51,7 @@ public class RevurderingBehandlingsresultatutleder extends RevurderingBehandling
 
     @Override
     protected boolean harEtablertYtelse(Behandling revurdering, boolean finnesInnvilgetIkkeOpphørtVedtak,
-                                                  UttakResultatHolder uttakresultatOriginal) {
+            UttakResultatHolder uttakresultatOriginal) {
         return harEtablertYtelse.vurder(revurdering, finnesInnvilgetIkkeOpphørtVedtak, uttakresultatOriginal);
     }
 }

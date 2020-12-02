@@ -48,7 +48,7 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
         utleder = new AksjonspunktUtlederForTidligereMottattYtelse(
-            iayTjeneste, new YtelserKonsolidertTjeneste(repositoryProvider));
+                iayTjeneste, new YtelserKonsolidertTjeneste(repositoryProvider));
     }
 
     @Test
@@ -100,7 +100,7 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
         // Assert
         assertThat(aksjonspunktResultater).hasSize(1);
         assertThat(aksjonspunktResultater.get(0).getAksjonspunktDefinisjon())
-            .isEqualTo(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
+                .isEqualTo(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
     }
 
     @Test
@@ -122,7 +122,7 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
         // Assert
         assertThat(aksjonspunktResultater).hasSize(1);
         assertThat(aksjonspunktResultater.get(0).getAksjonspunktDefinisjon())
-            .isEqualTo(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
+                .isEqualTo(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
     }
 
     @Test
@@ -141,7 +141,7 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
         // Assert
         assertThat(aksjonspunktResultater).hasSize(1);
         assertThat(aksjonspunktResultater.get(0).getAksjonspunktDefinisjon())
-            .isEqualTo(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
+                .isEqualTo(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
     }
 
     @Test
@@ -162,7 +162,7 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
         // Assert
         assertThat(aksjonspunktResultater).hasSize(1);
         assertThat(aksjonspunktResultater.get(0).getAksjonspunktDefinisjon())
-            .isEqualTo(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
+                .isEqualTo(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
     }
 
     @Test
@@ -202,7 +202,7 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
 
     private Behandling byggBehandling(AbstractTestScenario<?> scenario, AktørId aktørId) {
         scenario.medBruker(aktørId)
-            .medSøknad().medMottattDato(LocalDate.now().minusWeeks(2));
+                .medSøknad().medMottattDato(LocalDate.now().minusWeeks(2));
         return lagre(scenario);
     }
 
@@ -212,10 +212,10 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
 
         var aggregatBuilder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
         aggregatBuilder.leggTilAktørYtelse(AktørYtelseBuilder.oppdatere(Optional.empty()).medAktørId(aktørId)
-            .leggTilYtelse(YtelseBuilder.oppdatere(Optional.empty())
-                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom))
-                .medStatus(RelatertYtelseTilstand.AVSLUTTET)
-                .medYtelseType(relatertYtelseType)));
+                .leggTilYtelse(YtelseBuilder.oppdatere(Optional.empty())
+                        .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom))
+                        .medStatus(RelatertYtelseTilstand.AVSLUTTET)
+                        .medYtelseType(relatertYtelseType)));
         iayTjeneste.lagreIayAggregat(behandling.getId(), aggregatBuilder);
     }
 

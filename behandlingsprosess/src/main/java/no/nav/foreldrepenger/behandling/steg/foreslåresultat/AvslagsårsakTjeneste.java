@@ -28,7 +28,7 @@ public class AvslagsårsakTjeneste {
                 Set<Avslagsårsak> avslagsårsaker = vilkår.getVilkårType().getAvslagsårsaker();
                 if (avslagsårsaker.size() != 1) {
                     throw AvslagsårsakFeil.FEILFACTORY
-                        .kanIkkeUtledeAvslagsårsakUtfallMerknadMangler(vilkår.getVilkårType().getKode()).toException();
+                            .kanIkkeUtledeAvslagsårsakUtfallMerknadMangler(vilkår.getVilkårType().getKode()).toException();
                 } else {
                     return avslagsårsaker.iterator().next();
                 }
@@ -36,8 +36,8 @@ public class AvslagsårsakTjeneste {
             avslagsårsak = Avslagsårsak.fraKode(vilkår.getVilkårUtfallMerknad().getKode());
             if (avslagsårsak == null) {
                 throw AvslagsårsakFeil.FEILFACTORY
-                    .kanIkkeUtledeAvslagsårsakFraUtfallMerknad(vilkår.getVilkårUtfallMerknad().getKode())
-                    .toException();
+                        .kanIkkeUtledeAvslagsårsakFraUtfallMerknad(vilkår.getVilkårUtfallMerknad().getKode())
+                        .toException();
             }
         }
         return avslagsårsak;

@@ -23,7 +23,7 @@ import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
+import org.mockito.ArgumentMatchers;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
@@ -112,7 +112,7 @@ public class InntektsmeldingTjenesteTest {
         arbeidsforholdRefSet.add(ARBEIDSFORHOLD_ID);
         Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbeidsgiverSetMap = new HashMap<>();
         arbeidsgiverSetMap.put(arbeidsgiver2, arbeidsforholdRefSet);
-        when(vurderArbeidsforholdTjeneste.vurder(any(), any(), any(), Mockito.anyBoolean())).thenReturn(arbeidsgiverSetMap);
+        when(vurderArbeidsforholdTjeneste.vurder(any(), any(), any(), ArgumentMatchers.anyBoolean())).thenReturn(arbeidsgiverSetMap);
 
     }
 
@@ -147,7 +147,7 @@ public class InntektsmeldingTjenesteTest {
         Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbeidsgiverSetMap = new HashMap<>();
         arbeidsgiverSetMap.put(arbeidsgiver2, arbeidsforholdRefSet);
         arbeidsgiverSetMap.put(arbeidsgiver, arbeidsforholdRefSet2);
-        when(vurderArbeidsforholdTjeneste.vurder(any(), any(), any(), Mockito.anyBoolean())).thenReturn(arbeidsgiverSetMap);
+        when(vurderArbeidsforholdTjeneste.vurder(any(), any(), any(), ArgumentMatchers.anyBoolean())).thenReturn(arbeidsgiverSetMap);
 
         final Behandling behandling = opprettBehandling();
         opprettOppgittOpptjening(behandling);

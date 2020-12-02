@@ -79,14 +79,18 @@ public class OpptjeningsperiodeForSaksbehandling {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if ((o == null) || (getClass() != o.getClass())) {
+            return false;
+        }
         OpptjeningsperiodeForSaksbehandling other = (OpptjeningsperiodeForSaksbehandling) o;
         return Objects.equals(opptjeningAktivitetType, other.opptjeningAktivitetType) &&
-            Objects.equals(grupperingNøkkel, other.grupperingNøkkel) &&
-            Objects.equals(erPeriodeEndret, other.erPeriodeEndret) &&
-            Objects.equals(erManueltRegistrert, other.erManueltRegistrert) &&
-            Objects.equals(begrunnelse, other.begrunnelse);
+                Objects.equals(grupperingNøkkel, other.grupperingNøkkel) &&
+                Objects.equals(erPeriodeEndret, other.erPeriodeEndret) &&
+                Objects.equals(erManueltRegistrert, other.erManueltRegistrert) &&
+                Objects.equals(begrunnelse, other.begrunnelse);
     }
 
     @Override
@@ -98,18 +102,18 @@ public class OpptjeningsperiodeForSaksbehandling {
     @Override
     public String toString() {
         return "OpptjeningsperiodeForSaksbehandling{" +
-            "opptjeningAktivitetType=" + opptjeningAktivitetType +
-            ", grupperingNøkkel=" + grupperingNøkkel +
-            ", arbeidsgiver=" + arbeidsgiver +
-            ", stillingsprosent=" + stillingsprosent +
-            ", periode=" + periode +
-            ", vurderingsStatus=" + vurderingsStatus +
-            ", erPeriodeEndret=" + erPeriodeEndret +
-            ", erManueltRegistrert=" + erManueltRegistrert +
-            ", begrunnelse='" + begrunnelse + '\'' +
-            ", manueltBehandlet=" + manueltBehandlet +
-            ", arbeidsgiverUtlandNavn='" + arbeidsgiverUtlandNavn + '\'' +
-            '}';
+                "opptjeningAktivitetType=" + opptjeningAktivitetType +
+                ", grupperingNøkkel=" + grupperingNøkkel +
+                ", arbeidsgiver=" + arbeidsgiver +
+                ", stillingsprosent=" + stillingsprosent +
+                ", periode=" + periode +
+                ", vurderingsStatus=" + vurderingsStatus +
+                ", erPeriodeEndret=" + erPeriodeEndret +
+                ", erManueltRegistrert=" + erManueltRegistrert +
+                ", begrunnelse='" + begrunnelse + '\'' +
+                ", manueltBehandlet=" + manueltBehandlet +
+                ", arbeidsgiverUtlandNavn='" + arbeidsgiverUtlandNavn + '\'' +
+                '}';
     }
 
     public static class Builder {
@@ -186,9 +190,9 @@ public class OpptjeningsperiodeForSaksbehandling {
 
         private void valider() {
             // Opptjeningsperiode av typen arbeid krever alltid arbeidsgiver
-            if (kladd.opptjeningAktivitetType == OpptjeningAktivitetType.ARBEID && kladd.arbeidsgiver == null
-                && (kladd.grupperingNøkkel == null || kladd.grupperingNøkkel.getArbeidsgiverType() == null)) {
-                throw   new IllegalStateException("Informasjon om arbeidsgiver mangler for " + kladd.toString());
+            if ((kladd.opptjeningAktivitetType == OpptjeningAktivitetType.ARBEID) && (kladd.arbeidsgiver == null)
+                    && ((kladd.grupperingNøkkel == null) || (kladd.grupperingNøkkel.getArbeidsgiverType() == null))) {
+                throw new IllegalStateException("Informasjon om arbeidsgiver mangler for " + kladd.toString());
             }
         }
     }

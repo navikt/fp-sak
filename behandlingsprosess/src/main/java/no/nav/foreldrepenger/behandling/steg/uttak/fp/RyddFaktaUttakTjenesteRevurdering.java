@@ -1,4 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.uttak.fp;
+
 import static no.nav.foreldrepenger.behandling.steg.uttak.fp.RyddFaktaUttakTjenesteFørstegangsbehandling.yfBuilder;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -19,7 +20,7 @@ class RyddFaktaUttakTjenesteRevurdering {
     }
 
     RyddFaktaUttakTjenesteRevurdering() {
-        //CDI
+        // CDI
     }
 
     void ryddVedHoppOverBakover(BehandlingskontrollKontekst kontekst) {

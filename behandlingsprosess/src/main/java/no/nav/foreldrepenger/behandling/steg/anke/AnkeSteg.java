@@ -41,7 +41,8 @@ public class AnkeSteg implements BehandlingSteg {
     }
 
     @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType førsteSteg, BehandlingStegType sisteSteg) {
+    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType førsteSteg,
+            BehandlingStegType sisteSteg) {
         ankeRepository.settAnkeGodkjentHosMedunderskriver(kontekst.getBehandlingId(), false);
     }
 }

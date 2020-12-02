@@ -32,7 +32,8 @@ public abstract class FastsettOpptjeningsperiodeStegFelles extends Inngangsvilk�
         // CDI
     }
 
-    protected FastsettOpptjeningsperiodeStegFelles(BehandlingRepositoryProvider repositoryProvider, InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste, BehandlingStegType behandlingStegType) {
+    protected FastsettOpptjeningsperiodeStegFelles(BehandlingRepositoryProvider repositoryProvider,
+            InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste, BehandlingStegType behandlingStegType) {
         super(repositoryProvider, inngangsvilkårFellesTjeneste, behandlingStegType);
         this.opptjeningRepository = repositoryProvider.getOpptjeningRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
@@ -43,12 +44,13 @@ public abstract class FastsettOpptjeningsperiodeStegFelles extends Inngangsvilk�
         OpptjeningsPeriode op = (OpptjeningsPeriode) regelResultat.getEkstraResultater().get(VilkårType.OPPTJENINGSPERIODEVILKÅR);
         if (op == null) {
             throw new IllegalArgumentException(
-                "Utvikler-feil: finner ikke resultat etter evaluering av Inngangsvilkår/Opptjening:" + behandling.getId());
+                    "Utvikler-feil: finner ikke resultat etter evaluering av Inngangsvilkår/Opptjening:" + behandling.getId());
         }
-        Opptjening opptjening = opptjeningRepository.lagreOpptjeningsperiode(behandling, op.getOpptjeningsperiodeFom(), op.getOpptjeningsperiodeTom(), erVilkårOverstyrt(behandling.getId()));
+        Opptjening opptjening = opptjeningRepository.lagreOpptjeningsperiode(behandling, op.getOpptjeningsperiodeFom(), op.getOpptjeningsperiodeTom(),
+                erVilkårOverstyrt(behandling.getId()));
         if (opptjening == null) {
             throw new IllegalArgumentException(
-                "Utvikler-feil: får ikke persistert ny opptjeningsperiode:" + behandling.getId());
+                    "Utvikler-feil: får ikke persistert ny opptjeningsperiode:" + behandling.getId());
         }
     }
 
@@ -69,7 +71,8 @@ public abstract class FastsettOpptjeningsperiodeStegFelles extends Inngangsvilk�
         Optional<VilkårResultat> resultatOpt = behandlingsresultat.map(Behandlingsresultat::getVilkårResultat);
         if (resultatOpt.isPresent()) {
             VilkårResultat vilkårResultat = resultatOpt.get();
-            return vilkårResultat.getVilkårene().stream().filter(vilkår -> vilkår.getVilkårType().equals(VilkårType.OPPTJENINGSVILKÅRET)).anyMatch(Vilkår::erOverstyrt);
+            return vilkårResultat.getVilkårene().stream().filter(vilkår -> vilkår.getVilkårType().equals(VilkårType.OPPTJENINGSVILKÅRET))
+                    .anyMatch(Vilkår::erOverstyrt);
         }
         return false;
     }

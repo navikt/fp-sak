@@ -38,9 +38,9 @@ public class VurderKompletthetRevurderingStegImpl implements VurderKompletthetSt
 
     @Inject
     public VurderKompletthetRevurderingStegImpl(@FagsakYtelseTypeRef("FP") @BehandlingTypeRef("BT-004") Kompletthetsjekker kompletthetsjekker,
-                                                  BehandlingRepositoryProvider provider,
-                                                  VurderKompletthetStegFelles vurderKompletthetStegFelles,
-                                                  SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+            BehandlingRepositoryProvider provider,
+            VurderKompletthetStegFelles vurderKompletthetStegFelles,
+            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.kompletthetsjekker = kompletthetsjekker;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingRepository = provider.getBehandlingRepository();

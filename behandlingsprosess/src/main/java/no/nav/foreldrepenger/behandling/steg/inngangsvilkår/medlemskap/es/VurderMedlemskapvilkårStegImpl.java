@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 
-
 @BehandlingStegRef(kode = "VURDERMV")
 @BehandlingTypeRef
 @FagsakYtelseTypeRef("ES")
@@ -24,11 +23,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 public class VurderMedlemskapvilkårStegImpl extends InngangsvilkårStegImpl {
 
     private static List<VilkårType> STØTTEDE_VILKÅR = singletonList(
-        VilkårType.MEDLEMSKAPSVILKÅRET
-    );
+            VilkårType.MEDLEMSKAPSVILKÅRET);
 
     @Inject
-    public VurderMedlemskapvilkårStegImpl(BehandlingRepositoryProvider repositoryProvider, InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste) {
+    public VurderMedlemskapvilkårStegImpl(BehandlingRepositoryProvider repositoryProvider,
+            InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste) {
         super(repositoryProvider, inngangsvilkårFellesTjeneste, BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR);
     }
 

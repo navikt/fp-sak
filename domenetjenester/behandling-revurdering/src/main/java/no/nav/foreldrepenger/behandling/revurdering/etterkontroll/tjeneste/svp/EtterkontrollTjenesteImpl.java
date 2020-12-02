@@ -17,12 +17,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 @FagsakYtelseTypeRef("SVP")
 public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
 
-
     public EtterkontrollTjenesteImpl() {
     }
 
     @Override
-    public Optional<BehandlingÅrsakType>  utledRevurderingÅrsak(Behandling behandling, FamilieHendelseGrunnlagEntitet grunnlag, List<FødtBarnInfo> barnFraRegister) {
+    public Optional<BehandlingÅrsakType> utledRevurderingÅrsak(Behandling behandling, FamilieHendelseGrunnlagEntitet grunnlag,
+            List<FødtBarnInfo> barnFraRegister) {
         throw new IllegalStateException("Utviklerfeil: Det er ikke meningen at denne skal bli kalt");
     }
 

@@ -18,7 +18,8 @@ import no.nav.foreldrepenger.historikk.dto.HistorikkInnslagKonverter;
 import no.nav.foreldrepenger.historikk.dto.HistorikkinnslagDto;
 
 /**
- * RequestScoped fordi HistorikkInnslagTekstBuilder inneholder state og denne deles på tvers av AksjonspunktOppdaterere.
+ * RequestScoped fordi HistorikkInnslagTekstBuilder inneholder state og denne
+ * deles på tvers av AksjonspunktOppdaterere.
  */
 @RequestScoped
 public class HistorikkTjenesteAdapter {
@@ -32,7 +33,7 @@ public class HistorikkTjenesteAdapter {
 
     @Inject
     public HistorikkTjenesteAdapter(HistorikkRepository historikkRepository,
-                                    DokumentArkivTjeneste dokumentArkivTjeneste) {
+            DokumentArkivTjeneste dokumentArkivTjeneste) {
         this.historikkRepository = historikkRepository;
         this.dokumentArkivTjeneste = dokumentArkivTjeneste;
         this.builder = new HistorikkInnslagTekstBuilder();
@@ -41,17 +42,17 @@ public class HistorikkTjenesteAdapter {
     public List<HistorikkinnslagDto> hentAlleHistorikkInnslagForSak(Saksnummer saksnummer) {
         List<Historikkinnslag> historikkinnslagList = historikkRepository.hentHistorikkForSaksnummer(saksnummer);
         List<JournalpostId> journalPosterForSak = dokumentArkivTjeneste.hentAlleJournalposterForSak(saksnummer).stream()
-            .map(ArkivJournalPost::getJournalpostId)
-            .collect(Collectors.toList());
+                .map(ArkivJournalPost::getJournalpostId)
+                .collect(Collectors.toList());
         return historikkinnslagList.stream()
-            .map(historikkinnslag -> HistorikkInnslagKonverter.mapFra(historikkinnslag, journalPosterForSak))
-            .sorted()
-            .collect(Collectors.toList());
+                .map(historikkinnslag -> HistorikkInnslagKonverter.mapFra(historikkinnslag, journalPosterForSak))
+                .sorted()
+                .collect(Collectors.toList());
     }
 
     /**
-     * IKKE BRUK DENNE.
-     * Kall på tekstBuilder() for å få HistorikkInnslagTekstBuilder.  Deretter opprettHistorikkInslag når ferdig
+     * IKKE BRUK DENNE. Kall på tekstBuilder() for å få
+     * HistorikkInnslagTekstBuilder. Deretter opprettHistorikkInslag når ferdig
      *
      * @param historikkinnslag
      */
@@ -64,14 +65,13 @@ public class HistorikkTjenesteAdapter {
         return builder;
     }
 
-
     public void opprettHistorikkInnslag(Long behandlingId, HistorikkinnslagType hisType) {
         opprettHistorikkInnslag(behandlingId, hisType, HistorikkAktør.SAKSBEHANDLER);
     }
 
     public void opprettHistorikkInnslag(Long behandlingId, HistorikkinnslagType hisType, HistorikkAktør historikkAktør) {
-        if (!builder.getHistorikkinnslagDeler().isEmpty() || builder.antallEndredeFelter() > 0 ||
-            builder.getErBegrunnelseEndret() || builder.getErGjeldendeFraSatt()) {
+        if (!builder.getHistorikkinnslagDeler().isEmpty() || (builder.antallEndredeFelter() > 0) ||
+                builder.getErBegrunnelseEndret() || builder.getErGjeldendeFraSatt()) {
 
             Historikkinnslag innslag = new Historikkinnslag();
 

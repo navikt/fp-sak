@@ -75,8 +75,9 @@ public class UttakResultatHolderFP implements UttakResultatHolder {
         var uttakresultatSammenligneMed = (UttakResultatHolderFP) other;
         LocalDateTimeline<WrapUttakPeriode> uttaksTL = lagTidslinjeFraUttaksPerioder(uttakresultatSammenligneMed.getGjeldendePerioder());
         LocalDateTimeline<WrapUttakPeriode> originalTL = lagTidslinjeFraUttaksPerioder(getGjeldendePerioder());
-        if (uttaksTL.getDatoIntervaller().size() != originalTL.getDatoIntervaller().size())
+        if (uttaksTL.getDatoIntervaller().size() != originalTL.getDatoIntervaller().size()) {
             return true;
+        }
         LocalDateTimeline<WrapUttakPeriode> kombinert = uttaksTL.combine(originalTL, this::fjernLikePerioder, LocalDateTimeline.JoinStyle.CROSS_JOIN);
         return !kombinert.filterValue(Objects::nonNull).getDatoIntervaller().isEmpty();
     }
@@ -96,25 +97,31 @@ public class UttakResultatHolderFP implements UttakResultatHolder {
 
     private LocalDateSegment<WrapUttakPeriode> kombinerLikeNaboer(LocalDateInterval i, LocalDateSegment<WrapUttakPeriode> lhs,
             LocalDateSegment<WrapUttakPeriode> rhs) {
-        if (lhs == null)
+        if (lhs == null) {
             return rhs;
-        if (rhs == null)
+        }
+        if (rhs == null) {
             return lhs;
+        }
         return new LocalDateSegment<>(i, new WrapUttakPeriode(i, lhs.getValue(), rhs.getValue()));
     }
 
     private LocalDateSegment<WrapUttakPeriode> fjernLikePerioder(LocalDateInterval i, LocalDateSegment<WrapUttakPeriode> lhs,
             LocalDateSegment<WrapUttakPeriode> rhs) {
-        if (lhs == null)
+        if (lhs == null) {
             return rhs;
-        if (rhs == null)
+        }
+        if (rhs == null) {
             return lhs;
+        }
         // Kan ikke sammenligne splittede intervaller pga trekkdager - må være like for
         // å eliminere
-        if (!Objects.equals(lhs.getValue().getI(), rhs.getValue().getI()))
+        if (!Objects.equals(lhs.getValue().getI(), rhs.getValue().getI())) {
             return lhs;
-        if (lhs.getValue().erLikePerioderTrekkdager(rhs.getValue()))
+        }
+        if (lhs.getValue().erLikePerioderTrekkdager(rhs.getValue())) {
             return null;
+        }
         return lhs;
     }
 
@@ -152,19 +159,23 @@ public class UttakResultatHolderFP implements UttakResultatHolder {
         }
 
         public boolean erLikeNaboer(Object o) {
-            if (this == o)
+            if (this == o) {
                 return true;
-            if (o == null || getClass() != o.getClass())
+            }
+            if ((o == null) || (getClass() != o.getClass())) {
                 return false;
+            }
             WrapUttakPeriode wrapUP = (WrapUttakPeriode) o;
             return p.erLikBortsettFraPeriode(wrapUP.getP());
         }
 
         public boolean erLikePerioderTrekkdager(Object o) {
-            if (this == o)
+            if (this == o) {
                 return true;
-            if (o == null || getClass() != o.getClass())
+            }
+            if ((o == null) || (getClass() != o.getClass())) {
                 return false;
+            }
             WrapUttakPeriode wrapUP = (WrapUttakPeriode) o;
             return p.erLikBortsettFraPeriode(wrapUP.getP()) &&
                     Objects.equals(t, wrapUP.t);

@@ -11,7 +11,11 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilde
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-/** Merk denne mapper alltid hele aggregat tilbake til nye instanser av IAY Aggregat. (i motsetning til tilsvarende implementasjon i ABakus som mapper til eksisterende instans). */
+/**
+ * Merk denne mapper alltid hele aggregat tilbake til nye instanser av IAY
+ * Aggregat. (i motsetning til tilsvarende implementasjon i ABakus som mapper
+ * til eksisterende instans).
+ */
 public class IAYFraDtoMapper {
 
     private AktørId aktørId;
@@ -21,18 +25,23 @@ public class IAYFraDtoMapper {
     }
 
     /**
-     * Til bruk for migrering (sender inn registerdata, istdf. å hente fra registerne.).  Merk tar ikke hensyn til eksisterende grunnlag lagret (mapper kun input).
+     * Til bruk for migrering (sender inn registerdata, istdf. å hente fra
+     * registerne.). Merk tar ikke hensyn til eksisterende grunnlag lagret (mapper
+     * kun input).
      */
     public InntektArbeidYtelseGrunnlag mapTilGrunnlagInklusivRegisterdata(InntektArbeidYtelseGrunnlagDto dto, boolean erAktivtGrunnlag) {
-        var builder = InntektArbeidYtelseGrunnlagBuilder.ny(UUID.fromString(dto.getGrunnlagReferanse()), dto.getGrunnlagTidspunkt().atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime());
+        var builder = InntektArbeidYtelseGrunnlagBuilder.ny(UUID.fromString(dto.getGrunnlagReferanse()),
+                dto.getGrunnlagTidspunkt().atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime());
         builder.medErAktivtGrunnlag(erAktivtGrunnlag);
         return mapTilGrunnlagInklusivRegisterdata(dto, builder);
     }
 
     /**
-     * @see #mapTilGrunnlagInklusivRegisterdata(InntektArbeidYtelseGrunnlagDto, boolean)
+     * @see #mapTilGrunnlagInklusivRegisterdata(InntektArbeidYtelseGrunnlagDto,
+     *      boolean)
      */
-    public InntektArbeidYtelseGrunnlag mapTilGrunnlagInklusivRegisterdata(InntektArbeidYtelseGrunnlagDto dto, InntektArbeidYtelseGrunnlagBuilder builder) {
+    public InntektArbeidYtelseGrunnlag mapTilGrunnlagInklusivRegisterdata(InntektArbeidYtelseGrunnlagDto dto,
+            InntektArbeidYtelseGrunnlagBuilder builder) {
         mapSaksbehandlerDataTilBuilder(dto, builder);
         mapTilGrunnlagBuilder(dto, builder);
 
@@ -45,11 +54,14 @@ public class IAYFraDtoMapper {
     // brukes kun til migrering av data (dytter inn IAYG)
     private void mapRegisterDataTilMigrering(InntektArbeidYtelseGrunnlagDto dto, InntektArbeidYtelseGrunnlagBuilder builder) {
         var register = dto.getRegister();
-        if(register==null) return;
+        if (register == null) {
+            return;
+        }
 
         var tidspunkt = register.getOpprettetTidspunkt().atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
 
-        var registerBuilder = InntektArbeidYtelseAggregatBuilder.builderFor(Optional.empty(), register.getEksternReferanse(), tidspunkt, VersjonType.REGISTER);
+        var registerBuilder = InntektArbeidYtelseAggregatBuilder.builderFor(Optional.empty(), register.getEksternReferanse(), tidspunkt,
+                VersjonType.REGISTER);
 
         var aktørArbeid = new MapAktørArbeid.MapFraDto(aktørId, registerBuilder).map(register.getArbeid());
         var aktørInntekt = new MapAktørInntekt.MapFraDto(aktørId, registerBuilder).map(register.getInntekt());
@@ -79,7 +91,8 @@ public class IAYFraDtoMapper {
         var overstyrt = dto.getOverstyrt();
         if (overstyrt != null) {
             var tidspunkt = overstyrt.getOpprettetTidspunkt().atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
-            var saksbehandlerOverstyringer = InntektArbeidYtelseAggregatBuilder.builderFor(Optional.empty(), overstyrt.getEksternReferanse(), tidspunkt, VersjonType.SAKSBEHANDLET);
+            var saksbehandlerOverstyringer = InntektArbeidYtelseAggregatBuilder.builderFor(Optional.empty(), overstyrt.getEksternReferanse(),
+                    tidspunkt, VersjonType.SAKSBEHANDLET);
             var overstyrtAktørArbeid = new MapAktørArbeid.MapFraDto(aktørId, saksbehandlerOverstyringer).map(overstyrt.getArbeid());
             overstyrtAktørArbeid.forEach(saksbehandlerOverstyringer::leggTilAktørArbeid);
             builder.medData(saksbehandlerOverstyringer);

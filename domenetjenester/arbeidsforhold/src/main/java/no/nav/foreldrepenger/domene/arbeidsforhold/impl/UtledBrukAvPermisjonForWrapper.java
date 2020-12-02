@@ -11,7 +11,7 @@ final class UtledBrukAvPermisjonForWrapper {
         // Skjuler default public constructor
     }
 
-    static Boolean utled(Optional<BekreftetPermisjon> bekreftetPermisjonOpt){
+    static Boolean utled(Optional<BekreftetPermisjon> bekreftetPermisjonOpt) {
         if (bekreftetPermisjonOpt.isPresent() && !BekreftetPermisjonStatus.UDEFINERT.equals(bekreftetPermisjonOpt.get().getStatus())) {
             return BekreftetPermisjonStatus.BRUK_PERMISJON.equals(bekreftetPermisjonOpt.get().getStatus());
         }

@@ -54,7 +54,7 @@ public class FremoverhoppTest {
 
     private BehandlingskontrollServiceProvider serviceProvider;
 
-    private BehandlingStegType steg1 ;
+    private BehandlingStegType steg1;
     private BehandlingStegType steg2;
     private BehandlingStegType steg3;
     private BehandlingskontrollFremoverhoppTransisjonEventObserver observer;
@@ -69,9 +69,9 @@ public class FremoverhoppTest {
         observer = new BehandlingskontrollFremoverhoppTransisjonEventObserver(serviceProvider) {
             @Override
             protected void hoppFramover(BehandlingStegModell stegModell, BehandlingTransisjonEvent transisjonEvent, BehandlingStegType sisteSteg,
-                                        BehandlingStegType finalFørsteSteg) {
+                    BehandlingStegType finalFørsteSteg) {
                 transisjoner.add(new StegTransisjon(TransisjonType.HOPP_OVER_FRAMOVER,
-                    stegModell.getBehandlingStegType()));
+                        stegModell.getBehandlingStegType()));
             }
         };
 
@@ -114,12 +114,12 @@ public class FremoverhoppTest {
     @Test
     public void skal_kalle_transisjoner_på_steg_det_hoppes_over() throws Exception {
         assertThat(transisjonerVedFremoverhopp(fra(steg1, INN), til(steg3))).contains(
-            StegTransisjon.hoppFremoverOver(steg1),
-            StegTransisjon.hoppFremoverOver(steg2));
+                StegTransisjon.hoppFremoverOver(steg1),
+                StegTransisjon.hoppFremoverOver(steg2));
         assertThat(transisjonerVedFremoverhopp(fra(steg1, UT), til(steg3)))
-            .contains(StegTransisjon.hoppFremoverOver(steg2));
+                .contains(StegTransisjon.hoppFremoverOver(steg2));
         assertThat(transisjonerVedFremoverhopp(fra(steg2, INN), til(steg3)))
-            .contains(StegTransisjon.hoppFremoverOver(steg2));
+                .contains(StegTransisjon.hoppFremoverOver(steg2));
         assertThat(transisjonerVedFremoverhopp(fra(steg2, UT), til(steg3))).isEmpty();
     }
 
@@ -159,15 +159,17 @@ public class FremoverhoppTest {
         }
 
         BehandlingStegTilstand fraTilstand = new BehandlingStegTilstand(behandling, fra.getSteg(), fraStatus);
-        // BehandlingStegTilstand tilTilstand = new BehandlingStegTilstand(behandling, til, BehandlingStegStatus.VENTER);
+        // BehandlingStegTilstand tilTilstand = new BehandlingStegTilstand(behandling,
+        // til, BehandlingStegStatus.VENTER);
         Fagsak fagsak = behandling.getFagsak();
         BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), behandlingLås);
         /*
-         * BehandlingStegOvergangEvent.BehandlingStegOverhoppEvent behandlingEvent =
-         * new BehandlingStegOvergangEvent.BehandlingStegOverhoppEvent(kontekst, Optional.of(fraTilstand), Optional.of(tilTilstand));
+         * BehandlingStegOvergangEvent.BehandlingStegOverhoppEvent behandlingEvent = new
+         * BehandlingStegOvergangEvent.BehandlingStegOverhoppEvent(kontekst,
+         * Optional.of(fraTilstand), Optional.of(tilTilstand));
          */
         BehandlingTransisjonEvent transisjonEvent = new BehandlingTransisjonEvent(kontekst, FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT, fraTilstand,
-            til, true);
+                til, true);
 
         // act
         observer.observerBehandlingSteg(transisjonEvent);
@@ -217,7 +219,7 @@ public class FremoverhoppTest {
 
         @Override
         public void vedHoppOverFramover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType fraSteg,
-                                        BehandlingStegType tilSteg) {
+                BehandlingStegType tilSteg) {
             transisjoner.add(new StegTransisjon(TransisjonType.HOPP_OVER_FRAMOVER, behandlingStegType));
         }
 

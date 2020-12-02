@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandling.revurdering.ytelse.fp;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
@@ -39,11 +38,11 @@ public class UttakGrunnlagTjenesteTest {
         var foreldrepengerUttakTjeneste = new ForeldrepengerUttakTjeneste(new FpUttakRepository(entityManager));
         var behandlingRepository = new BehandlingRepository(entityManager);
         var tapendeBehandlingTjeneste = new TapendeBehandlingTjeneste(new SøknadRepository(entityManager,
-            behandlingRepository), relatertBehandlingTjeneste, foreldrepengerUttakTjeneste);
+                behandlingRepository), relatertBehandlingTjeneste, foreldrepengerUttakTjeneste);
         var familieHendelseRepository = new FamilieHendelseRepository(entityManager);
         var familieHendelseTjeneste = new FamilieHendelseTjeneste(null, familieHendelseRepository);
         tjeneste = new UttakGrunnlagTjeneste(repositoryProvider, tapendeBehandlingTjeneste, relatertBehandlingTjeneste,
-            familieHendelseTjeneste);
+                familieHendelseTjeneste);
     }
 
     @Test
@@ -55,7 +54,7 @@ public class UttakGrunnlagTjenesteTest {
         var behandling = førstegangsScenario.lagre(repositoryProvider);
 
         var revurderingScenario = ScenarioMorSøkerEngangsstønad.forFødsel()
-            .medOriginalBehandling(behandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
+                .medOriginalBehandling(behandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
         revurderingScenario.medBekreftetHendelse().medAntallBarn(1).medFødselsDato(fødselsDato).erFødsel();
         var revurdering = revurderingScenario.lagre(repositoryProvider);
 
@@ -63,21 +62,21 @@ public class UttakGrunnlagTjenesteTest {
         var grunnlagFørstegangsBehandling = tjeneste.grunnlag(BehandlingReferanse.fra(behandling));
 
         assertThat(grunnlagRevurdering.orElseThrow()
-            .getOriginalBehandling()
-            .orElseThrow()
-            .getFamilieHendelser()
-            .getOverstyrtFamilieHendelse()).isEmpty();
+                .getOriginalBehandling()
+                .orElseThrow()
+                .getFamilieHendelser()
+                .getOverstyrtFamilieHendelse()).isEmpty();
         assertThat(grunnlagRevurdering.orElseThrow()
-            .getOriginalBehandling()
-            .orElseThrow()
-            .getFamilieHendelser()
-            .getGjeldendeFamilieHendelse()
-            .getFamilieHendelseDato()).isEqualTo(fødselsDato);
+                .getOriginalBehandling()
+                .orElseThrow()
+                .getFamilieHendelser()
+                .getGjeldendeFamilieHendelse()
+                .getFamilieHendelseDato()).isEqualTo(fødselsDato);
         assertThat(
-            grunnlagFørstegangsBehandling.orElseThrow().getFamilieHendelser().getOverstyrtFamilieHendelse()).isEmpty();
+                grunnlagFørstegangsBehandling.orElseThrow().getFamilieHendelser().getOverstyrtFamilieHendelse()).isEmpty();
         assertThat(grunnlagFørstegangsBehandling.orElseThrow()
-            .getFamilieHendelser()
-            .getGjeldendeFamilieHendelse()
-            .getFamilieHendelseDato()).isEqualTo(fødselsDato);
+                .getFamilieHendelser()
+                .getGjeldendeFamilieHendelse()
+                .getFamilieHendelseDato()).isEqualTo(fødselsDato);
     }
 }

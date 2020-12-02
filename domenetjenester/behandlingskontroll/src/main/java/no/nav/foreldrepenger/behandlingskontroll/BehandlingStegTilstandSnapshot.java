@@ -31,11 +31,15 @@ public class BehandlingStegTilstandSnapshot {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if ((o == null) || (getClass() != o.getClass())) {
+            return false;
+        }
         BehandlingStegTilstandSnapshot that = (BehandlingStegTilstandSnapshot) o;
         return Objects.equals(steg, that.steg) &&
-            Objects.equals(status, that.status);
+                Objects.equals(status, that.status);
     }
 
     @Override
@@ -46,9 +50,9 @@ public class BehandlingStegTilstandSnapshot {
     @Override
     public String toString() {
         return "BehandlingStegTilstandSnapshot{" +
-            "id=" + id +
-            ", steg=" + steg +
-            ", status=" + status +
-            '}';
+                "id=" + id +
+                ", steg=" + steg +
+                ", status=" + status +
+                '}';
     }
 }

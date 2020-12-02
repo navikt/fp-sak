@@ -29,7 +29,6 @@ public class KontrollerFaktaBeregningSteg implements BeregningsgrunnlagSteg {
 
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
     private BehandlingRepository behandlingRepository;
-    private HentOgLagreBeregningsgrunnlagTjeneste hentBeregningsgrunnlagTjeneste;
     private BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider;
 
     protected KontrollerFaktaBeregningSteg() {
@@ -38,12 +37,11 @@ public class KontrollerFaktaBeregningSteg implements BeregningsgrunnlagSteg {
 
     @Inject
     public KontrollerFaktaBeregningSteg(BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
-                                        BehandlingRepository behandlingRepository,
-                                        HentOgLagreBeregningsgrunnlagTjeneste hentBeregningsgrunnlagTjeneste,
-                                        BeregningsgrunnlagInputProvider inputTjenesteProvider) {
+            BehandlingRepository behandlingRepository,
+            HentOgLagreBeregningsgrunnlagTjeneste hentBeregningsgrunnlagTjeneste,
+            BeregningsgrunnlagInputProvider inputTjenesteProvider) {
         this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
         this.behandlingRepository = behandlingRepository;
-        this.hentBeregningsgrunnlagTjeneste = hentBeregningsgrunnlagTjeneste;
         this.beregningsgrunnlagInputProvider = Objects.requireNonNull(inputTjenesteProvider, "inputTjenesteProvider");
     }
 
@@ -53,11 +51,13 @@ public class KontrollerFaktaBeregningSteg implements BeregningsgrunnlagSteg {
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         var input = getInputTjeneste(behandling.getFagsakYtelseType()).lagInput(behandling);
         List<BeregningAksjonspunktResultat> aksjonspunkter = beregningsgrunnlagKopierOgLagreTjeneste.kontrollerFaktaBeregningsgrunnlag(input);
-        return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter.stream().map(BeregningResultatMapper::map).collect(Collectors.toList()));
+        return BehandleStegResultat
+                .utførtMedAksjonspunktResultater(aksjonspunkter.stream().map(BeregningResultatMapper::map).collect(Collectors.toList()));
     }
 
     @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg, BehandlingStegType fraSteg) {
+    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
+            BehandlingStegType fraSteg) {
         if (BehandlingStegType.KONTROLLER_FAKTA_BEREGNING.equals(tilSteg)) {
             beregningsgrunnlagKopierOgLagreTjeneste.getRyddBeregningsgrunnlag(kontekst).gjenopprettOppdatertBeregningsgrunnlag();
         }

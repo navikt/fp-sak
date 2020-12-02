@@ -87,8 +87,9 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
 
         // Act
         BeregningsresultatEntitet utbetTY = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(beregningsgrunnlagTY,
-            MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(forrigeTY.getBeregningsresultatPerioder(), beregningsgrunnlagTY.getBeregningsresultatPerioder(), LocalDate.now()),
-            List.of(tilkommet_arbeid1, gammelt_arbeid, tilkommet_arbeid2), SKJÆRINGSTIDSPUNKT);
+                MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(forrigeTY.getBeregningsresultatPerioder(),
+                        beregningsgrunnlagTY.getBeregningsresultatPerioder(), LocalDate.now()),
+                List.of(tilkommet_arbeid1, gammelt_arbeid, tilkommet_arbeid2), SKJÆRINGSTIDSPUNKT);
 
         // Assert
         List<BeregningsresultatPeriode> beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();
@@ -147,9 +148,11 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
                 .medArbeidsgiver(ARBEIDSGIVER2).build();
 
         // Act
-        BeregningsresultatEntitet utbetTY = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(beregningsgrunnlagTY, MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
-                forrigeTY.getBeregningsresultatPerioder(),
-                beregningsgrunnlagTY.getBeregningsresultatPerioder(), dagensDato), List.of(yrkesaktivitet1, yrkesaktivitet2), SKJÆRINGSTIDSPUNKT);
+        BeregningsresultatEntitet utbetTY = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(beregningsgrunnlagTY,
+                MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
+                        forrigeTY.getBeregningsresultatPerioder(),
+                        beregningsgrunnlagTY.getBeregningsresultatPerioder(), dagensDato),
+                List.of(yrkesaktivitet1, yrkesaktivitet2), SKJÆRINGSTIDSPUNKT);
 
         // Assert
         List<BeregningsresultatPeriode> beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();
@@ -196,8 +199,9 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
 
         // Act
         BeregningsresultatEntitet utbetTY = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(beregningsgrunnlagTY,
-            MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(forrigeTY.getBeregningsresultatPerioder(),
-                beregningsgrunnlagTY.getBeregningsresultatPerioder(), dagensDato), List.of(), SKJÆRINGSTIDSPUNKT);
+                MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(forrigeTY.getBeregningsresultatPerioder(),
+                        beregningsgrunnlagTY.getBeregningsresultatPerioder(), dagensDato),
+                List.of(), SKJÆRINGSTIDSPUNKT);
 
         // Assert
         List<BeregningsresultatPeriode> beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();
@@ -260,9 +264,11 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         BeregningsresultatEntitet beregningsgrunnlagTY = beregningsgrunnlagBrp.getBeregningsresultat();
 
         // Act
-        BeregningsresultatEntitet utbetTY = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(beregningsgrunnlagTY, MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
-                forrigeTY.getBeregningsresultatPerioder(),
-                beregningsgrunnlagTY.getBeregningsresultatPerioder(), dagensDato), List.of(), SKJÆRINGSTIDSPUNKT);
+        BeregningsresultatEntitet utbetTY = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(beregningsgrunnlagTY,
+                MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
+                        forrigeTY.getBeregningsresultatPerioder(),
+                        beregningsgrunnlagTY.getBeregningsresultatPerioder(), dagensDato),
+                List.of(), SKJÆRINGSTIDSPUNKT);
 
         // Assert
         List<BeregningsresultatPeriode> beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();
@@ -358,9 +364,11 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         BeregningsresultatEntitet beregningsgrunnlagTY = beregningsgrunnlagBrp.getBeregningsresultat();
 
         // Act
-        BeregningsresultatEntitet utbetTY = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(beregningsgrunnlagTY, MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
-                forrigeTY.getBeregningsresultatPerioder(),
-                beregningsgrunnlagTY.getBeregningsresultatPerioder(), dagensDato), List.of(), SKJÆRINGSTIDSPUNKT);
+        BeregningsresultatEntitet utbetTY = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(beregningsgrunnlagTY,
+                MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
+                        forrigeTY.getBeregningsresultatPerioder(),
+                        beregningsgrunnlagTY.getBeregningsresultatPerioder(), dagensDato),
+                List.of(), SKJÆRINGSTIDSPUNKT);
 
         // Assert
         List<BeregningsresultatPeriode> beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();
@@ -469,9 +477,11 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
                 .medArbeidsgiver(ARBEIDSGIVER1).build();
 
         // Act
-        BeregningsresultatEntitet utbetTY = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(beregningsgrunnlagTY, MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
-                forrigeTY.getBeregningsresultatPerioder(),
-                beregningsgrunnlagTY.getBeregningsresultatPerioder(), dagensDato), List.of(eksisterendeAktivitet, tilkommetAktivitet), SKJÆRINGSTIDSPUNKT);
+        BeregningsresultatEntitet utbetTY = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(beregningsgrunnlagTY,
+                MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
+                        forrigeTY.getBeregningsresultatPerioder(),
+                        beregningsgrunnlagTY.getBeregningsresultatPerioder(), dagensDato),
+                List.of(eksisterendeAktivitet, tilkommetAktivitet), SKJÆRINGSTIDSPUNKT);
 
         // Assert
         List<BeregningsresultatPeriode> beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();

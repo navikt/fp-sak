@@ -12,8 +12,6 @@ import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 
 public class Gradering extends BaseEntitet implements IndexKey, Comparable<Gradering> {
 
-
-
     @ChangeTracked
     private DatoIntervallEntitet periode;
 
@@ -24,7 +22,7 @@ public class Gradering extends BaseEntitet implements IndexKey, Comparable<Grade
     }
 
     public Gradering(DatoIntervallEntitet periode, BigDecimal arbeidstidProsent) {
-        this.arbeidstidProsent = new Stillingsprosent(Objects.requireNonNull(arbeidstidProsent,  "arbeidstidProsent"));
+        this.arbeidstidProsent = new Stillingsprosent(Objects.requireNonNull(arbeidstidProsent, "arbeidstidProsent"));
         this.periode = periode;
     }
 
@@ -34,7 +32,8 @@ public class Gradering extends BaseEntitet implements IndexKey, Comparable<Grade
     }
 
     public Gradering(LocalDate fom, LocalDate tom, BigDecimal arbeidstidProsent) {
-        this(tom == null ? DatoIntervallEntitet.fraOgMed(fom) : DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom), new Stillingsprosent(Objects.requireNonNull(arbeidstidProsent,  "arbeidstidProsent")));
+        this(tom == null ? DatoIntervallEntitet.fraOgMed(fom) : DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom),
+                new Stillingsprosent(Objects.requireNonNull(arbeidstidProsent, "arbeidstidProsent")));
     }
 
     Gradering(Gradering gradering) {
@@ -53,16 +52,16 @@ public class Gradering extends BaseEntitet implements IndexKey, Comparable<Grade
     /**
      * En arbeidstaker kan kombinere foreldrepenger med deltidsarbeid.
      *
-     * Når arbeidstakeren jobber deltid, utgjør foreldrepengene differansen mellom deltidsarbeidet og en 100 prosent stilling.
-     * Det er ingen nedre eller øvre grense for hvor mye eller lite arbeidstakeren kan arbeide.
+     * Når arbeidstakeren jobber deltid, utgjør foreldrepengene differansen mellom
+     * deltidsarbeidet og en 100 prosent stilling. Det er ingen nedre eller øvre
+     * grense for hvor mye eller lite arbeidstakeren kan arbeide.
      *
-     * Eksempel
-     * Arbeidstaker A har en 100 % stilling og arbeider fem dager i uken. Arbeidstakeren ønsker å arbeide to dager i uken i
-     * foreldrepengeperioden.
+     * Eksempel Arbeidstaker A har en 100 % stilling og arbeider fem dager i uken.
+     * Arbeidstakeren ønsker å arbeide to dager i uken i foreldrepengeperioden.
      * Arbeidstids- prosenten blir da 40 %.
      *
-     * Arbeidstaker B har en 80 % stilling og arbeider fire dager i uken. Arbeidstakeren ønsker å arbeide to dager i uken i
-     * foreldrepengeperioden.
+     * Arbeidstaker B har en 80 % stilling og arbeider fire dager i uken.
+     * Arbeidstakeren ønsker å arbeide to dager i uken i foreldrepengeperioden.
      * Arbeidstidprosenten blir også her 40 %.
      *
      * @return prosentsats
@@ -74,9 +73,9 @@ public class Gradering extends BaseEntitet implements IndexKey, Comparable<Grade
     @Override
     public String toString() {
         return "GraderingEntitet{" +
-            "periode=" + periode +
-            ", arbeidstidProsent=" + arbeidstidProsent +
-            '}';
+                "periode=" + periode +
+                ", arbeidstidProsent=" + arbeidstidProsent +
+                '}';
     }
 
     @Override
@@ -86,8 +85,12 @@ public class Gradering extends BaseEntitet implements IndexKey, Comparable<Grade
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || !(o instanceof Gradering)) return false;
+        if (this == o) {
+            return true;
+        }
+        if ((o == null) || !(o instanceof Gradering)) {
+            return false;
+        }
         Gradering that = (Gradering) o;
         return Objects.equals(periode, that.periode);
     }

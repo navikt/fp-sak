@@ -43,16 +43,18 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 public class MapAktørArbeid {
 
     private static final Comparator<YrkesaktivitetDto> COMP_YRKESAKTIVITET = Comparator
-        .comparing((YrkesaktivitetDto dto) -> dto.getArbeidsgiver().map(Aktør::getIdent).orElse(null), Comparator.nullsFirst(Comparator.naturalOrder()))
-        .thenComparing(dto -> dto.getArbeidsforholdId() == null ? null : dto.getArbeidsforholdId().getAbakusReferanse(), Comparator.nullsFirst(Comparator.naturalOrder()));
+            .comparing((YrkesaktivitetDto dto) -> dto.getArbeidsgiver().map(Aktør::getIdent).orElse(null),
+                    Comparator.nullsFirst(Comparator.naturalOrder()))
+            .thenComparing(dto -> dto.getArbeidsforholdId() == null ? null : dto.getArbeidsforholdId().getAbakusReferanse(),
+                    Comparator.nullsFirst(Comparator.naturalOrder()));
 
     private static final Comparator<AktivitetsAvtaleDto> COMP_AKTIVITETSAVTALE = Comparator
-        .comparing((AktivitetsAvtaleDto dto) -> dto.getPeriode().getFom(), Comparator.nullsFirst(Comparator.naturalOrder()))
-        .thenComparing(dto -> dto.getPeriode().getTom(), Comparator.nullsLast(Comparator.naturalOrder()));
+            .comparing((AktivitetsAvtaleDto dto) -> dto.getPeriode().getFom(), Comparator.nullsFirst(Comparator.naturalOrder()))
+            .thenComparing(dto -> dto.getPeriode().getTom(), Comparator.nullsLast(Comparator.naturalOrder()));
 
     private static final Comparator<PermisjonDto> COMP_PERMISJON = Comparator
-        .comparing((PermisjonDto dto) -> dto.getPeriode().getFom(), Comparator.nullsFirst(Comparator.naturalOrder()))
-        .thenComparing(dto -> dto.getPeriode().getTom(), Comparator.nullsLast(Comparator.naturalOrder()));
+            .comparing((PermisjonDto dto) -> dto.getPeriode().getFom(), Comparator.nullsFirst(Comparator.naturalOrder()))
+            .thenComparing(dto -> dto.getPeriode().getTom(), Comparator.nullsLast(Comparator.naturalOrder()));
 
     private MapAktørArbeid() {
         // skjul public constructor
@@ -60,18 +62,14 @@ public class MapAktørArbeid {
 
     public static class MapFraDto {
 
-        @SuppressWarnings("unused")
-        private AktørId søkerAktørId;
-
         private InntektArbeidYtelseAggregatBuilder registerData;
 
         MapFraDto(AktørId søkerAktørId, InntektArbeidYtelseAggregatBuilder registerData) {
             this.registerData = registerData;
-            this.søkerAktørId = søkerAktørId;
         }
 
         List<AktørArbeidBuilder> map(Collection<ArbeidDto> dtos) {
-            if (dtos == null || dtos.isEmpty()) {
+            if ((dtos == null) || dtos.isEmpty()) {
                 return Collections.emptyList();
             }
             return dtos.stream().map(this::mapAktørArbeid).collect(Collectors.toUnmodifiableList());
@@ -84,7 +82,8 @@ public class MapAktørArbeid {
         }
 
         /**
-         * Returnerer person sin aktørId. Denne trenger ikke være samme som søkers aktørid men kan f.eks. være annen part i en sak.
+         * Returnerer person sin aktørId. Denne trenger ikke være samme som søkers
+         * aktørid men kan f.eks. være annen part i en sak.
          */
         private AktørId tilAktørId(PersonIdent person) {
             if (!(person instanceof AktørIdPersonident)) {
@@ -98,34 +97,35 @@ public class MapAktørArbeid {
             var internArbeidsforholdRef = arbeidsgiver == null ? null : mapArbeidsforholdRef(arbeidsgiver, dto.getArbeidsforholdId());
 
             YrkesaktivitetBuilder yrkesaktivitetBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-                .medArbeidsforholdId(internArbeidsforholdRef)
-                .medArbeidsgiver(arbeidsgiver)
-                .medArbeidsgiverNavn(dto.getNavnArbeidsgiverUtland())
-                .medArbeidType(KodeverkMapper.mapArbeidType(dto.getType()));
+                    .medArbeidsforholdId(internArbeidsforholdRef)
+                    .medArbeidsgiver(arbeidsgiver)
+                    .medArbeidsgiverNavn(dto.getNavnArbeidsgiverUtland())
+                    .medArbeidType(KodeverkMapper.mapArbeidType(dto.getType()));
 
             dto.getAktivitetsAvtaler()
-                .forEach(aktivitetsAvtaleDto -> yrkesaktivitetBuilder.leggTilAktivitetsAvtale(mapAktivitetsAvtale(aktivitetsAvtaleDto)));
+                    .forEach(aktivitetsAvtaleDto -> yrkesaktivitetBuilder.leggTilAktivitetsAvtale(mapAktivitetsAvtale(aktivitetsAvtaleDto)));
 
             dto.getPermisjoner()
-                .forEach(permisjonDto -> yrkesaktivitetBuilder.leggTilPermisjon(mapPermisjon(permisjonDto, yrkesaktivitetBuilder.getPermisjonBuilder())));
+                    .forEach(permisjonDto -> yrkesaktivitetBuilder
+                            .leggTilPermisjon(mapPermisjon(permisjonDto, yrkesaktivitetBuilder.getPermisjonBuilder())));
 
             return yrkesaktivitetBuilder;
         }
 
         private Permisjon mapPermisjon(PermisjonDto dto, PermisjonBuilder permisjonBuilder) {
             return permisjonBuilder
-                .medPeriode(dto.getPeriode().getFom(), dto.getPeriode().getTom())
-                .medPermisjonsbeskrivelseType(KodeverkMapper.mapPermisjonbeskrivelseTypeFraDto(dto.getType()))
-                .medProsentsats(dto.getProsentsats())
-                .build();
+                    .medPeriode(dto.getPeriode().getFom(), dto.getPeriode().getTom())
+                    .medPermisjonsbeskrivelseType(KodeverkMapper.mapPermisjonbeskrivelseTypeFraDto(dto.getType()))
+                    .medProsentsats(dto.getProsentsats())
+                    .build();
         }
 
         private AktivitetsAvtaleBuilder mapAktivitetsAvtale(AktivitetsAvtaleDto dto) {
             return AktivitetsAvtaleBuilder.ny()
-                .medBeskrivelse(dto.getBeskrivelse())
-                .medPeriode(mapPeriode(dto.getPeriode()))
-                .medProsentsats(dto.getStillingsprosent())
-                .medSisteLønnsendringsdato(dto.getSistLønnsendring());
+                    .medBeskrivelse(dto.getBeskrivelse())
+                    .medPeriode(mapPeriode(dto.getPeriode()))
+                    .medProsentsats(dto.getStillingsprosent())
+                    .medSisteLønnsendringsdato(dto.getSistLønnsendring());
         }
 
         private DatoIntervallEntitet mapPeriode(Periode periode) {
@@ -165,17 +165,17 @@ public class MapAktørArbeid {
             if (val == null) {
                 return val;
             }
-            if (min != null && val.compareTo(min) < 0) {
+            if ((min != null) && (val.compareTo(min) < 0)) {
                 return min;
             }
-            if (max != null && val.compareTo(max) > 0) {
+            if ((max != null) && (val.compareTo(max) > 0)) {
                 return max;
             }
             return val;
         }
 
         List<ArbeidDto> map(Collection<AktørArbeid> aktørArbeid) {
-            if (aktørArbeid == null || aktørArbeid.isEmpty()) {
+            if ((aktørArbeid == null) || aktørArbeid.isEmpty()) {
                 return Collections.emptyList();
             }
             return aktørArbeid.stream().map(this::map).collect(Collectors.toList());
@@ -187,7 +187,7 @@ public class MapAktørArbeid {
             var aktiviteter = yrkesaktiviteter.stream().filter(this::erGyldigYrkesaktivitet).sorted(COMP_YRKESAKTIVITET).collect(Collectors.toList());
 
             var dto = new ArbeidDto(new AktørIdPersonident(arb.getAktørId().getId()))
-                .medYrkesaktiviteter(aktiviteter);
+                    .medYrkesaktiviteter(aktiviteter);
             return dto;
         }
 
@@ -203,18 +203,20 @@ public class MapAktørArbeid {
             LocalDate fomDato = aa.getPeriodeUtenOverstyring().getFomDato();
             LocalDate tomDato = aa.getPeriodeUtenOverstyring().getTomDato();
             AktivitetsAvtaleDto avtale = new AktivitetsAvtaleDto(fomDato, tomDato)
-                .medBeskrivelse(aa.getBeskrivelse())
-                .medSistLønnsendring(aa.getSisteLønnsendringsdato())
-                .medStillingsprosent(aa.getProsentsats() == null ? null : aa.getProsentsats().getVerdi());
+                    .medBeskrivelse(aa.getBeskrivelse())
+                    .medSistLønnsendring(aa.getSisteLønnsendringsdato())
+                    .medStillingsprosent(aa.getProsentsats() == null ? null : aa.getProsentsats().getVerdi());
             return avtale;
         }
 
         private PermisjonDto map(Permisjon p) {
             var permisjonsbeskrivelseType = KodeverkMapper.mapPermisjonbeskrivelseTypeTilDto(p.getPermisjonsbeskrivelseType());
-            BigDecimal maxPermisjonProsentsats = new BigDecimal(100);  // enig med Cecilie H. om å transformere dårlige data (eks. 800% permisjon). Bare første 100% som gir utslag.
+            BigDecimal maxPermisjonProsentsats = new BigDecimal(100); // enig med Cecilie H. om å transformere dårlige data (eks. 800% permisjon).
+                                                                      // Bare første 100% som gir utslag.
 
             var permisjon = new PermisjonDto(new Periode(p.getFraOgMed(), p.getTilOgMed()), permisjonsbeskrivelseType)
-                .medProsentsats(minMax(p.getProsentsats() != null ? p.getProsentsats().getVerdi() : null, BigDecimal.ZERO, maxPermisjonProsentsats));
+                    .medProsentsats(
+                            minMax(p.getProsentsats() != null ? p.getProsentsats().getVerdi() : null, BigDecimal.ZERO, maxPermisjonProsentsats));
             return permisjon;
         }
 
@@ -226,18 +228,18 @@ public class MapAktørArbeid {
 
             var arbeidType = KodeverkMapper.mapArbeidTypeTilDto(a.getArbeidType());
             var dto = new YrkesaktivitetDto(arbeidType)
-                .medArbeidsgiver(mapAktør(a.getArbeidsgiver()))
-                .medAktivitetsAvtaler(aktivitetsAvtaler)
-                .medPermisjoner(permisjoner)
-                .medArbeidsforholdId(arbeidsforholdId)
-                .medNavnArbeidsgiverUtland(a.getNavnArbeidsgiverUtland());
+                    .medArbeidsgiver(mapAktør(a.getArbeidsgiver()))
+                    .medAktivitetsAvtaler(aktivitetsAvtaler)
+                    .medPermisjoner(permisjoner)
+                    .medArbeidsforholdId(arbeidsforholdId)
+                    .medNavnArbeidsgiverUtland(a.getNavnArbeidsgiverUtland());
 
             return dto;
         }
 
         private ArbeidsforholdRefDto mapArbeidsforholdsId(Arbeidsgiver arbeidsgiver, Yrkesaktivitet yrkesaktivitet) {
             var internRef = yrkesaktivitet.getArbeidsforholdRef();
-            if (internRef == null || internRef.getReferanse() == null) {
+            if ((internRef == null) || (internRef.getReferanse() == null)) {
                 return null;
             }
             EksternArbeidsforholdRef eksternRef;
@@ -252,13 +254,13 @@ public class MapAktørArbeid {
                 }
             }
 
-            if (eksternRef == null || eksternRef.getReferanse() == null) {
+            if ((eksternRef == null) || (eksternRef.getReferanse() == null)) {
                 log.warn("Mangler eksternReferanse for internReferanse={}, forkaster internReferanse. Antar feilmapping", internRef);
                 return null;
             }
 
             return new ArbeidsforholdRefDto(internRef.getReferanse(), eksternRef.getReferanse(),
-                no.nav.abakus.iaygrunnlag.kodeverk.Fagsystem.AAREGISTERET);
+                    no.nav.abakus.iaygrunnlag.kodeverk.Fagsystem.AAREGISTERET);
         }
 
         private Aktør mapAktør(Arbeidsgiver arbeidsgiver) {
@@ -266,8 +268,8 @@ public class MapAktørArbeid {
                 return null; // arbeidType='NÆRING' har null arbeidsgiver
             }
             return arbeidsgiver.erAktørId()
-                ? new AktørIdPersonident(arbeidsgiver.getAktørId().getId())
-                : new Organisasjon(arbeidsgiver.getOrgnr());
+                    ? new AktørIdPersonident(arbeidsgiver.getAktørId().getId())
+                    : new Organisasjon(arbeidsgiver.getOrgnr());
         }
 
     }

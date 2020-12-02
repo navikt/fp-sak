@@ -39,26 +39,26 @@ public class RevurderingTjenesteImplTest {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         behandlingRepository = new BehandlingRepository(entityManager);
         var serviceProvider = new BehandlingskontrollServiceProvider(entityManager,
-            new BehandlingModellRepository(), null);
+                new BehandlingModellRepository(), null);
         var revurderingEndringES = new RevurderingEndringImpl(behandlingRepository,
-            new LegacyESBeregningRepository(entityManager));
+                new LegacyESBeregningRepository(entityManager));
         var vergeRepository = new VergeRepository(entityManager, new BehandlingLåsRepository(entityManager));
         var revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider);
         revurderingTjeneste = new RevurderingTjenesteImpl(repositoryProvider,
-            new BehandlingskontrollTjenesteImpl(serviceProvider), revurderingEndringES, revurderingTjenesteFelles,
-            vergeRepository);
+                new BehandlingskontrollTjenesteImpl(serviceProvider), revurderingEndringES, revurderingTjenesteFelles,
+                vergeRepository);
     }
 
     @Test
     public void skal_opprette_automatisk_revurdering_basert_på_siste_innvilgede_behandling() {
         var behandlingSomSkalRevurderes = opprettRevurderingsKandidat();
         final Behandling revurdering = revurderingTjeneste
-            .opprettAutomatiskRevurdering(behandlingSomSkalRevurderes.getFagsak(),
-                BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN, new OrganisasjonsEnhet("1234", "Test"));
+                .opprettAutomatiskRevurdering(behandlingSomSkalRevurderes.getFagsak(),
+                        BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN, new OrganisasjonsEnhet("1234", "Test"));
 
         assertThat(revurdering.getFagsak()).isEqualTo(behandlingSomSkalRevurderes.getFagsak());
         assertThat(revurdering.getBehandlingÅrsaker().get(0).getBehandlingÅrsakType())
-            .isEqualTo(BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN);
+                .isEqualTo(BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN);
     }
 
     @Test
@@ -66,12 +66,12 @@ public class RevurderingTjenesteImplTest {
         var behandlingSomSkalRevurderes = opprettRevurderingsKandidat();
         OrganisasjonsEnhet enhet = new OrganisasjonsEnhet("4806", "Nye Nav FP");
         final Behandling revurdering = revurderingTjeneste
-            .opprettManuellRevurdering(behandlingSomSkalRevurderes.getFagsak(),
-                BehandlingÅrsakType.RE_MANGLER_FØDSEL_I_PERIODE, enhet);
+                .opprettManuellRevurdering(behandlingSomSkalRevurderes.getFagsak(),
+                        BehandlingÅrsakType.RE_MANGLER_FØDSEL_I_PERIODE, enhet);
 
         assertThat(revurdering.getFagsak()).isEqualTo(behandlingSomSkalRevurderes.getFagsak());
         assertThat(revurdering.getBehandlingÅrsaker().get(0).getBehandlingÅrsakType())
-            .isEqualTo(BehandlingÅrsakType.RE_MANGLER_FØDSEL_I_PERIODE);
+                .isEqualTo(BehandlingÅrsakType.RE_MANGLER_FØDSEL_I_PERIODE);
         assertThat(revurdering.getBehandlendeOrganisasjonsEnhet().getEnhetId()).isEqualTo(enhet.getEnhetId());
     }
 
@@ -79,7 +79,7 @@ public class RevurderingTjenesteImplTest {
 
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now())
-            .medVedtakResultatType(VedtakResultatType.INNVILGET);
+                .medVedtakResultatType(VedtakResultatType.INNVILGET);
         scenario.buildAvsluttet(behandlingRepository, repositoryProvider);
         return scenario.getBehandling();
     }

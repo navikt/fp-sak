@@ -31,7 +31,7 @@ public class AnkeMerknaderSteg implements BehandlingSteg {
 
     @Inject
     public AnkeMerknaderSteg(BehandlingRepository behandlingRepository,
-                             KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste) {
+            KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste) {
         this.klageAnkeVedtakTjeneste = klageAnkeVedtakTjeneste;
         this.behandlingRepository = behandlingRepository;
     }

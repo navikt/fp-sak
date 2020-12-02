@@ -57,8 +57,8 @@ public class RegistrerSøknadSteg implements BehandlingSteg {
 
     @Inject
     public RegistrerSøknadSteg(BehandlingRepository behandlingRepository,
-                               MottatteDokumentTjeneste mottatteDokumentTjeneste,
-                               HenleggBehandlingTjeneste henleggBehandlingTjeneste) {
+            MottatteDokumentTjeneste mottatteDokumentTjeneste,
+            HenleggBehandlingTjeneste henleggBehandlingTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.mottatteDokumentTjeneste = mottatteDokumentTjeneste;
         this.henleggBehandlingTjeneste = henleggBehandlingTjeneste;
@@ -71,26 +71,31 @@ public class RegistrerSøknadSteg implements BehandlingSteg {
         Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
 
         if (alleDokumentSak.isEmpty()) {
-            // Behandlingen er startet uten noe dokument, f.eks. gjennom en forretningshendselse eller behov for utgående brev
+            // Behandlingen er startet uten noe dokument, f.eks. gjennom en
+            // forretningshendselse eller behov for utgående brev
             return resultatVedIngenMottatteDokument(behandling);
         }
 
         BehandlingReferanse ref = BehandlingReferanse.fra(behandling);
 
-        Kompletthetsjekker kompletthetsjekker = BehandlingTypeRef.Lookup.find(Kompletthetsjekker.class, behandling.getFagsakYtelseType(), behandling.getType()).orElseThrow();
+        Kompletthetsjekker kompletthetsjekker = BehandlingTypeRef.Lookup
+                .find(Kompletthetsjekker.class, behandling.getFagsakYtelseType(), behandling.getType()).orElseThrow();
         KompletthetResultat søknadMottatt = kompletthetsjekker.vurderSøknadMottatt(ref);
         if (!søknadMottatt.erOppfylt()) {
             return evaluerSøknadMottattUoppfylt(behandling, søknadMottatt, VENT_PÅ_SØKNAD);
         }
 
-        // OBS Dokumentmottak kan kopierere vedlegg fra tidligere behandlinger og disse er "nyere" enn søknad som trigger ny 1gang/revurdering
+        // OBS Dokumentmottak kan kopierere vedlegg fra tidligere behandlinger og disse
+        // er "nyere" enn søknad som trigger ny 1gang/revurdering
         MottattDokument nyesteSøknad = nyesteSøknad(mottatteDokumenterBehandling);
-        if (nyesteSøknad == null && BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) {
-            // Må dekke tilfellet der det tidligere papirsøknad er avslått på opplysningsplikt og det kommer ikke-søknad
+        if ((nyesteSøknad == null) && BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) {
+            // Må dekke tilfellet der det tidligere papirsøknad er avslått på
+            // opplysningsplikt og det kommer ikke-søknad
             nyesteSøknad = nyesteSøknad(alleDokumentSak);
         }
         if (nyesteSøknad == null) {
-            // Behandlingen er startet uten noe dokument, f.eks. gjennom en forretningshendselse
+            // Behandlingen er startet uten noe dokument, f.eks. gjennom en
+            // forretningshendselse
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
 
@@ -111,7 +116,8 @@ public class RegistrerSøknadSteg implements BehandlingSteg {
         }
 
         if (FagsakYtelseType.FORELDREPENGER.equals(ytelseType) && erUstrukturertForeldrepengerSøknad(nyesteSøknad)) {
-            //Hvis vi mottar en førstegangssøknad på papir etter første vedtak, så skal det tolkes som en endringssøknad
+            // Hvis vi mottar en førstegangssøknad på papir etter første vedtak, så skal det
+            // tolkes som en endringssøknad
             if (behandling.erRevurdering()) {
                 return BehandleStegResultat.utførtMedAksjonspunkter(singletonList(REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER));
             }
@@ -127,14 +133,16 @@ public class RegistrerSøknadSteg implements BehandlingSteg {
 
     private MottattDokument nyesteSøknad(List<MottattDokument> mottatteDokumenter) {
         return mottatteDokumenter.stream()
-            .filter(MottattDokument::erSøknadsDokument)
-            .max(Comparator.comparing(MottattDokument::getOpprettetTidspunkt)) // Sist mottatte dokument
-            .orElse(null);
+                .filter(MottattDokument::erSøknadsDokument)
+                .max(Comparator.comparing(MottattDokument::getOpprettetTidspunkt)) // Sist mottatte dokument
+                .orElse(null);
     }
 
     private BehandleStegResultat resultatVedIngenMottatteDokument(Behandling behandling) {
-        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.INFOBREV_BEHANDLING) || behandling.harBehandlingÅrsak(BehandlingÅrsakType.INFOBREV_OPPHOLD)) {
-            KompletthetResultat kResultat = KompletthetResultat.ikkeOppfylt(LocalDate.now().plus(VENT_PÅ_SØKNAD_PERIODE).atStartOfDay(), Venteårsak.VENT_SØKNAD_SENDT_INFORMASJONSBREV);
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.INFOBREV_BEHANDLING)
+                || behandling.harBehandlingÅrsak(BehandlingÅrsakType.INFOBREV_OPPHOLD)) {
+            KompletthetResultat kResultat = KompletthetResultat.ikkeOppfylt(LocalDate.now().plus(VENT_PÅ_SØKNAD_PERIODE).atStartOfDay(),
+                    Venteårsak.VENT_SØKNAD_SENDT_INFORMASJONSBREV);
             return evaluerSøknadMottattUoppfylt(behandling, kResultat, VENT_PÅ_SØKNAD);
         }
         return BehandleStegResultat.utførtUtenAksjonspunkter();
@@ -142,40 +150,46 @@ public class RegistrerSøknadSteg implements BehandlingSteg {
 
     private boolean erUstrukturertEndringSøknad(MottattDokument dokument) {
         DokumentTypeId dokumentTypeId = dokument.getDokumentType();
-        return dokument.getPayloadXml() == null && dokumentTypeId != null && dokumentTypeId.erEndringsSøknadType();
+        return (dokument.getPayloadXml() == null) && (dokumentTypeId != null) && dokumentTypeId.erEndringsSøknadType();
     }
 
     private boolean erUstrukturertEngangsstønadSøknad(MottattDokument dokument) {
         DokumentTypeId dokumentTypeId = dokument.getDokumentType();
-        return dokument.getPayloadXml() == null && (DokumentTypeId.SØKNAD_ENGANGSSTØNAD_ADOPSJON.equals(dokumentTypeId)
-            || DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL.equals(dokumentTypeId) || DokumentKategori.SØKNAD.equals(dokument.getDokumentKategori()));
+        return (dokument.getPayloadXml() == null) && (DokumentTypeId.SØKNAD_ENGANGSSTØNAD_ADOPSJON.equals(dokumentTypeId)
+                || DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL.equals(dokumentTypeId)
+                || DokumentKategori.SØKNAD.equals(dokument.getDokumentKategori()));
     }
 
     private boolean erUstrukturertForeldrepengerSøknad(MottattDokument dokument) {
         DokumentTypeId dokumentTypeId = dokument.getDokumentType();
-        return dokument.getPayloadXml() == null &&
-            (DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON.equals(dokumentTypeId)
-                || DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL.equals(dokumentTypeId) || DokumentKategori.SØKNAD.equals(dokument.getDokumentKategori()));
+        return (dokument.getPayloadXml() == null) &&
+                (DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON.equals(dokumentTypeId)
+                        || DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL.equals(dokumentTypeId)
+                        || DokumentKategori.SØKNAD.equals(dokument.getDokumentKategori()));
     }
 
     private boolean erUstrukturertSvangerskapspengerSøknad(MottattDokument dokument) {
         DokumentTypeId dokumentTypeId = dokument.getDokumentType();
-        return dokument.getPayloadXml() == null &&
-            (DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER.equals(dokumentTypeId) || DokumentKategori.SØKNAD.equals(dokument.getDokumentKategori()));
+        return (dokument.getPayloadXml() == null) &&
+                (DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER.equals(dokumentTypeId) || DokumentKategori.SØKNAD.equals(dokument.getDokumentKategori()));
     }
 
     private boolean henleggBehandling(Behandling behandling) {
-        return behandling.getAksjonspunkter().stream().anyMatch(a -> a.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD) && a.getFristTid().isBefore(LocalDateTime.now()));
+        return behandling.getAksjonspunkter().stream().anyMatch(
+                a -> a.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD) && a.getFristTid().isBefore(LocalDateTime.now()));
     }
 
-    private BehandleStegResultat evaluerSøknadMottattUoppfylt(Behandling behandling, KompletthetResultat kompletthetResultat, AksjonspunktDefinisjon apDef) {
+    private BehandleStegResultat evaluerSøknadMottattUoppfylt(Behandling behandling, KompletthetResultat kompletthetResultat,
+            AksjonspunktDefinisjon apDef) {
         if (henleggBehandling(behandling)) {
-            henleggBehandlingTjeneste.lagHistorikkInnslagForHenleggelseFraSteg(behandling.getId(), BehandlingResultatType.HENLAGT_SØKNAD_MANGLER, null);
+            henleggBehandlingTjeneste.lagHistorikkInnslagForHenleggelseFraSteg(behandling.getId(), BehandlingResultatType.HENLAGT_SØKNAD_MANGLER,
+                    null);
             return BehandleStegResultat.henlagtBehandling();
         }
         // TODO: Bestill brev (Venter på PK-50295)
         Venteårsak venteårsak = kompletthetResultat.getVenteårsak() != null ? kompletthetResultat.getVenteårsak() : Venteårsak.AVV_DOK;
 
-        return BehandleStegResultat.utførtMedAksjonspunktResultater(Collections.singletonList(AksjonspunktResultat.opprettForAksjonspunktMedFrist(apDef, venteårsak, kompletthetResultat.getVentefrist())));
+        return BehandleStegResultat.utførtMedAksjonspunktResultater(Collections
+                .singletonList(AksjonspunktResultat.opprettForAksjonspunktMedFrist(apDef, venteårsak, kompletthetResultat.getVentefrist())));
     }
 }

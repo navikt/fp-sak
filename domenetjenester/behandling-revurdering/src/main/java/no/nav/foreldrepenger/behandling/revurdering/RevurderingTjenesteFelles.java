@@ -59,29 +59,32 @@ public class RevurderingTjenesteFelles {
         this.revurderingHistorikk = new RevurderingHistorikk(repositoryProvider.getHistorikkRepository());
     }
 
-    public Behandling opprettRevurderingsbehandling(BehandlingÅrsakType revurderingÅrsakType, Behandling opprinneligBehandling, boolean manueltOpprettet,
-                                                    OrganisasjonsEnhet enhet) {
+    public Behandling opprettRevurderingsbehandling(BehandlingÅrsakType revurderingÅrsakType, Behandling opprinneligBehandling,
+            boolean manueltOpprettet,
+            OrganisasjonsEnhet enhet) {
         BehandlingType behandlingType = BehandlingType.REVURDERING;
         BehandlingÅrsak.Builder revurderingÅrsak = BehandlingÅrsak.builder(revurderingÅrsakType)
-            .medOriginalBehandlingId(opprinneligBehandling.getId())
-            .medManueltOpprettet(manueltOpprettet);
+                .medOriginalBehandlingId(opprinneligBehandling.getId())
+                .medManueltOpprettet(manueltOpprettet);
         if (revurderingÅrsakType.equals(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
             var basis = behandlingRevurderingRepository.finnSisteVedtatteIkkeHenlagteBehandlingForMedforelder(opprinneligBehandling.getFagsak())
-                .orElseThrow(() -> new IllegalStateException("Berørt behandling må ha en tilhørende avlsuttet behandling for medforelder - skal ikke skje")); // NOSONAR
-            LOG.info("Revurderingtjeneste oppretter berørt pga id {} med resultat {}", basis.getId(), basis.getBehandlingsresultat().getBehandlingResultatType().getKode());
+                    .orElseThrow(() -> new IllegalStateException(
+                            "Berørt behandling må ha en tilhørende avlsuttet behandling for medforelder - skal ikke skje")); // NOSONAR
+            LOG.info("Revurderingtjeneste oppretter berørt pga id {} med resultat {}", basis.getId(),
+                    basis.getBehandlingsresultat().getBehandlingResultatType().getKode());
         }
         Behandling revurdering = Behandling.fraTidligereBehandling(opprinneligBehandling, behandlingType)
-            .medBehandlendeEnhet(enhet)
-            .medBehandlingstidFrist(LocalDate.now().plusWeeks(behandlingType.getBehandlingstidFristUker()))
-            .medBehandlingÅrsak(revurderingÅrsak).build();
+                .medBehandlendeEnhet(enhet)
+                .medBehandlingstidFrist(LocalDate.now().plusWeeks(behandlingType.getBehandlingstidFristUker()))
+                .medBehandlingÅrsak(revurderingÅrsak).build();
         revurderingHistorikk.opprettHistorikkinnslagOmRevurdering(revurdering, revurderingÅrsakType, manueltOpprettet);
         return revurdering;
     }
 
     public OppgittFordelingEntitet kopierOppgittFordelingFraForrigeBehandling(OppgittFordelingEntitet forrigeBehandlingFordeling) {
         List<OppgittPeriodeEntitet> kopiertFordeling = forrigeBehandlingFordeling.getOppgittePerioder().stream()
-            .map(periode -> OppgittPeriodeBuilder.fraEksisterende(periode).build())
-            .collect(Collectors.toList());
+                .map(periode -> OppgittPeriodeBuilder.fraEksisterende(periode).build())
+                .collect(Collectors.toList());
         return new OppgittFordelingEntitet(kopiertFordeling, forrigeBehandlingFordeling.getErAnnenForelderInformert());
     }
 
@@ -95,12 +98,13 @@ public class RevurderingTjenesteFelles {
 
         VilkårResultat.Builder vilkårBuilder = VilkårResultat.builder();
         origVilkårResultat.getVilkårene().stream()
-            .forEach(vilkår -> vilkårBuilder
-                .medUtfallManuelt(vilkår.getVilkårUtfallManuelt())
-                .medUtfallOverstyrt(vilkår.getVilkårUtfallOverstyrt())
-                .leggTilVilkårResultat(vilkår.getVilkårType(), VilkårUtfallType.IKKE_VURDERT, vilkår.getVilkårUtfallMerknad(),
-                    vilkår.getMerknadParametere(), vilkår.getAvslagsårsak(), vilkår.erManueltVurdert(), vilkår.erOverstyrt(), vilkår.getRegelEvaluering(),
-                    vilkår.getRegelInput()));
+                .forEach(vilkår -> vilkårBuilder
+                        .medUtfallManuelt(vilkår.getVilkårUtfallManuelt())
+                        .medUtfallOverstyrt(vilkår.getVilkårUtfallOverstyrt())
+                        .leggTilVilkårResultat(vilkår.getVilkårType(), VilkårUtfallType.IKKE_VURDERT, vilkår.getVilkårUtfallMerknad(),
+                                vilkår.getMerknadParametere(), vilkår.getAvslagsårsak(), vilkår.erManueltVurdert(), vilkår.erOverstyrt(),
+                                vilkår.getRegelEvaluering(),
+                                vilkår.getRegelInput()));
         vilkårBuilder.medVilkårResultatType(VilkårResultatType.IKKE_FASTSATT);
         VilkårResultat vilkårResultat = vilkårBuilder.buildFor(revurdering);
         behandlingRepository.lagre(vilkårResultat, kontekst.getSkriveLås());
@@ -109,7 +113,8 @@ public class RevurderingTjenesteFelles {
         // MedlemskapsvilkårPerioder er tilknyttet vilkårresultat, ikke behandling
         medlemskapVilkårPeriodeRepository.kopierGrunnlagFraEksisterendeBehandling(origBehandling, revurdering);
 
-        // Kan være at førstegangsbehandling ble avslått før den har kommet til opptjening.
+        // Kan være at førstegangsbehandling ble avslått før den har kommet til
+        // opptjening.
         if (opptjeningRepository.finnOpptjening(origBehandling.getId()).isPresent()) {
             opptjeningRepository.kopierGrunnlagFraEksisterendeBehandling(origBehandling, revurdering);
         }

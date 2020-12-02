@@ -57,7 +57,7 @@ public class TilgrensendeYtelserDto implements Comparable<TilgrensendeYtelserDto
     }
 
     public void setSaksNummer(Saksnummer saksNummer) {
-        if(saksNummer != null) {
+        if (saksNummer != null) {
             this.saksNummer = saksNummer.getVerdi();
         }
     }
@@ -77,10 +77,10 @@ public class TilgrensendeYtelserDto implements Comparable<TilgrensendeYtelserDto
         }
         TilgrensendeYtelserDto that = (TilgrensendeYtelserDto) o;
         return Objects.equals(relatertYtelseType, that.relatertYtelseType) &&
-            Objects.equals(periodeFraDato, that.periodeFraDato) &&
-            Objects.equals(periodeTilDato, that.periodeTilDato) &&
-            Objects.equals(status, that.status) &&
-            Objects.equals(saksNummer, that.saksNummer);
+                Objects.equals(periodeFraDato, that.periodeFraDato) &&
+                Objects.equals(periodeTilDato, that.periodeTilDato) &&
+                Objects.equals(status, that.status) &&
+                Objects.equals(saksNummer, that.saksNummer);
     }
 
     @Override

@@ -24,10 +24,12 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 /**
  * Builder for å håndtere en gitt versjon {@link VersjonType} av grunnlaget.
  * <p>
- * Holder styr på om det er en oppdatering av eksisterende informasjon, om det gjelder før eller etter skjæringstidspunktet
- * og om det er registerdata eller saksbehandlers beslutninger.
+ * Holder styr på om det er en oppdatering av eksisterende informasjon, om det
+ * gjelder før eller etter skjæringstidspunktet og om det er registerdata eller
+ * saksbehandlers beslutninger.
  * <p>
- * NB! Viktig at denne builderen hentes fra repository for å sikre at den er rett tilstand ved oppdatering. Hvis ikke kan data gå tapt.
+ * NB! Viktig at denne builderen hentes fra repository for å sikre at den er
+ * rett tilstand ved oppdatering. Hvis ikke kan data gå tapt.
  */
 public class InntektArbeidYtelseAggregatBuilder {
 
@@ -45,59 +47,67 @@ public class InntektArbeidYtelseAggregatBuilder {
     }
 
     public static InntektArbeidYtelseAggregatBuilder builderFor(Optional<InntektArbeidYtelseAggregat> kopierDataFra,
-                                                                UUID angittReferanse, LocalDateTime angittTidspunkt, VersjonType versjon) {
+            UUID angittReferanse, LocalDateTime angittTidspunkt, VersjonType versjon) {
         return kopierDataFra
-            .map(kopier -> new InntektArbeidYtelseAggregatBuilder(new InntektArbeidYtelseAggregat(angittReferanse, angittTidspunkt, kopier), versjon))
-            .orElseGet(() -> new InntektArbeidYtelseAggregatBuilder(new InntektArbeidYtelseAggregat(angittReferanse, angittTidspunkt), versjon));
+                .map(kopier -> new InntektArbeidYtelseAggregatBuilder(new InntektArbeidYtelseAggregat(angittReferanse, angittTidspunkt, kopier),
+                        versjon))
+                .orElseGet(() -> new InntektArbeidYtelseAggregatBuilder(new InntektArbeidYtelseAggregat(angittReferanse, angittTidspunkt), versjon));
     }
 
     /**
-     * Legger til inntekter for en gitt aktør hvis det ikke er en oppdatering av eksisterende.
-     * Ved oppdatering eksisterer koblingen for denne aktøren allerede så en kopi av forrige innslag manipuleres før lagring.
+     * Legger til inntekter for en gitt aktør hvis det ikke er en oppdatering av
+     * eksisterende. Ved oppdatering eksisterer koblingen for denne aktøren allerede
+     * så en kopi av forrige innslag manipuleres før lagring.
      *
      * @param aktørInntekt {@link AktørInntektBuilder}
      * @return this
      */
     public InntektArbeidYtelseAggregatBuilder leggTilAktørInntekt(AktørInntektBuilder aktørInntekt) {
         if (!aktørInntekt.getErOppdatering()) {
-            // Hvis ny så skal den legges til, hvis ikke ligger den allerede der og blir manipulert.
+            // Hvis ny så skal den legges til, hvis ikke ligger den allerede der og blir
+            // manipulert.
             this.kladd.leggTilAktørInntekt(aktørInntekt.build());
         }
         return this;
     }
 
     /**
-     * Legger til aktiviteter for en gitt aktør hvis det ikke er en oppdatering av eksisterende.
-     * Ved oppdatering eksisterer koblingen for denne aktøren allerede så en kopi av forrige innslag manipuleres før lagring.
+     * Legger til aktiviteter for en gitt aktør hvis det ikke er en oppdatering av
+     * eksisterende. Ved oppdatering eksisterer koblingen for denne aktøren allerede
+     * så en kopi av forrige innslag manipuleres før lagring.
      *
      * @param aktørArbeid {@link AktørArbeidBuilder}
      * @return this
      */
     public InntektArbeidYtelseAggregatBuilder leggTilAktørArbeid(AktørArbeidBuilder aktørArbeid) {
         if (!aktørArbeid.getErOppdatering()) {
-            // Hvis ny så skal den legges til, hvis ikke ligger den allerede der og blir manipulert.
+            // Hvis ny så skal den legges til, hvis ikke ligger den allerede der og blir
+            // manipulert.
             this.kladd.leggTilAktørArbeid(aktørArbeid.build());
         }
         return this;
     }
 
     /**
-     * Legger til tilstøtende ytelser for en gitt aktør hvis det ikke er en oppdatering av eksisterende.
-     * Ved oppdatering eksisterer koblingen for denne aktøren allerede så en kopi av forrige innslag manipuleres før lagring.
+     * Legger til tilstøtende ytelser for en gitt aktør hvis det ikke er en
+     * oppdatering av eksisterende. Ved oppdatering eksisterer koblingen for denne
+     * aktøren allerede så en kopi av forrige innslag manipuleres før lagring.
      *
      * @param aktørYtelse {@link AktørYtelseBuilder}
      * @return this
      */
     public InntektArbeidYtelseAggregatBuilder leggTilAktørYtelse(AktørYtelseBuilder aktørYtelse) {
         if (!aktørYtelse.getErOppdatering() && aktørYtelse.harVerdi()) {
-            // Hvis ny så skal den legges til, hvis ikke ligger den allerede der og blir manipulert.
+            // Hvis ny så skal den legges til, hvis ikke ligger den allerede der og blir
+            // manipulert.
             this.kladd.leggTilAktørYtelse(aktørYtelse.build());
         }
         return this;
     }
 
     /**
-     * Oppretter builder for aktiviteter for en gitt aktør. Baserer seg på en kopi av forrige innslag for aktøren hvis det eksisterer.
+     * Oppretter builder for aktiviteter for en gitt aktør. Baserer seg på en kopi
+     * av forrige innslag for aktøren hvis det eksisterer.
      *
      * @param aktørId aktøren
      * @return builder {@link AktørArbeidBuilder}
@@ -108,7 +118,8 @@ public class InntektArbeidYtelseAggregatBuilder {
     }
 
     /**
-     * Oppretter builder for inntekter for en gitt aktør. Baserer seg på en kopi av forrige innslag for aktøren hvis det eksisterer.
+     * Oppretter builder for inntekter for en gitt aktør. Baserer seg på en kopi av
+     * forrige innslag for aktøren hvis det eksisterer.
      *
      * @param aktørId aktøren
      * @return builder {@link AktørInntektBuilder}
@@ -121,7 +132,8 @@ public class InntektArbeidYtelseAggregatBuilder {
     }
 
     /**
-     * Oppretter builder for tilstøtende ytelser for en gitt aktør. Baserer seg på en kopi av forrige innslag for aktøren hvis det eksisterer.
+     * Oppretter builder for tilstøtende ytelser for en gitt aktør. Baserer seg på
+     * en kopi av forrige innslag for aktøren hvis det eksisterer.
      *
      * @param aktørId aktøren
      * @return builder {@link AktørYtelseBuilder}
@@ -140,13 +152,13 @@ public class InntektArbeidYtelseAggregatBuilder {
     }
 
     void oppdaterArbeidsforholdReferanseEtterErstatting(AktørId søker, Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef gammelRef,
-                                                        InternArbeidsforholdRef nyRef) {
+            InternArbeidsforholdRef nyRef) {
         final AktørArbeidBuilder builder = getAktørArbeidBuilder(søker);
         if (builder.getErOppdatering()) {
             if (eksistererIkkeFraFør(arbeidsgiver, gammelRef, builder)) {
                 final YrkesaktivitetBuilder yrkesaktivitetBuilder = builder.getYrkesaktivitetBuilderForNøkkelAvType(
-                    Opptjeningsnøkkel.forArbeidsforholdIdMedArbeidgiver(gammelRef, arbeidsgiver),
-                    ArbeidType.AA_REGISTER_TYPER);
+                        Opptjeningsnøkkel.forArbeidsforholdIdMedArbeidgiver(gammelRef, arbeidsgiver),
+                        ArbeidType.AA_REGISTER_TYPER);
                 if (yrkesaktivitetBuilder.getErOppdatering()) {
                     yrkesaktivitetBuilder.medArbeidsforholdId(nyRef);
                     builder.leggTilYrkesaktivitet(yrkesaktivitetBuilder);
@@ -158,7 +170,7 @@ public class InntektArbeidYtelseAggregatBuilder {
 
     private boolean eksistererIkkeFraFør(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef gammelRef, AktørArbeidBuilder builder) {
         return !builder.getYrkesaktivitetBuilderForNøkkelAvType(Opptjeningsnøkkel.forArbeidsforholdIdMedArbeidgiver(gammelRef, arbeidsgiver),
-            ArbeidType.AA_REGISTER_TYPER).getErOppdatering();
+                ArbeidType.AA_REGISTER_TYPER).getErOppdatering();
     }
 
     public void tilbakestillYrkesaktiviteter() {
@@ -170,7 +182,7 @@ public class InntektArbeidYtelseAggregatBuilder {
     }
 
     public InternArbeidsforholdRef medNyInternArbeidsforholdRef(Arbeidsgiver arbeidsgiver, EksternArbeidsforholdRef eksternReferanse) {
-        if (eksternReferanse == null || eksternReferanse.getReferanse() == null) {
+        if ((eksternReferanse == null) || (eksternReferanse.getReferanse() == null)) {
             return InternArbeidsforholdRef.nullRef();
         }
         InternArbeidsforholdRef nyRef = InternArbeidsforholdRef.nyRef();
@@ -345,18 +357,18 @@ public class InntektArbeidYtelseAggregatBuilder {
         }
 
         public YtelseBuilder getYtelselseBuilderForType(Fagsystem fagsystem, RelatertYtelseType type, Saksnummer sakId, DatoIntervallEntitet periode,
-                                                        Optional<LocalDate> tidligsteAnvistFom) {
+                Optional<LocalDate> tidligsteAnvistFom) {
             return kladd.getYtelseBuilderForType(fagsystem, type, sakId, periode, tidligsteAnvistFom);
         }
 
         public YtelseBuilder getYtelselseBuilderForType(Fagsystem fagsystem, RelatertYtelseType type, TemaUnderkategori typeKategori,
-                                                        DatoIntervallEntitet periode) {
+                DatoIntervallEntitet periode) {
             return kladd.getYtelseBuilderForType(fagsystem, type, typeKategori, periode);
         }
 
         public void tilbakestillYtelserFraKildeBeholdAvsluttede(Fagsystem kilde) {
             this.kladd.getAlleYtelser()
-                .removeIf(yt -> kilde.equals(yt.getKilde()) && !RelatertYtelseTilstand.AVSLUTTET.equals(yt.getStatus()));
+                    .removeIf(yt -> kilde.equals(yt.getKilde()) && !RelatertYtelseTilstand.AVSLUTTET.equals(yt.getStatus()));
         }
 
         public AktørYtelseBuilder leggTilYtelse(YtelseBuilder builder) {

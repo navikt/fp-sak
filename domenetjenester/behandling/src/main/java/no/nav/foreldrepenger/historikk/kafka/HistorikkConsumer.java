@@ -34,7 +34,7 @@ public class HistorikkConsumer implements AppServiceHandler, KafkaIntegration {
 
     @Inject
     public HistorikkConsumer(HistorikkStreamKafkaProperties streamProperties,
-                             HistorikkMeldingsHåndterer meldingsHåndterer) {
+            HistorikkMeldingsHåndterer meldingsHåndterer) {
         this.topic = streamProperties.getTopic();
 
         Properties props = setupProperties(streamProperties);
@@ -43,7 +43,7 @@ public class HistorikkConsumer implements AppServiceHandler, KafkaIntegration {
 
         Consumed<String, String> stringStringConsumed = Consumed.with(Topology.AutoOffsetReset.EARLIEST);
         builder.stream(this.topic, stringStringConsumed)
-            .foreach(meldingsHåndterer::lagreMelding);
+                .foreach(meldingsHåndterer::lagreMelding);
 
         final Topology topology = builder.build();
         stream = new KafkaStreams(topology, props);
@@ -62,7 +62,8 @@ public class HistorikkConsumer implements AppServiceHandler, KafkaIntegration {
             props.setProperty(SaslConfigs.SASL_MECHANISM, "PLAIN");
             props.setProperty(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_SSL");
             String jaasTemplate = "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"%s\" password=\"%s\";";
-            props.setProperty(SaslConfigs.SASL_JAAS_CONFIG, String.format(jaasTemplate, streamProperties.getUsername(), streamProperties.getPassword()));
+            props.setProperty(SaslConfigs.SASL_JAAS_CONFIG,
+                    String.format(jaasTemplate, streamProperties.getUsername(), streamProperties.getPassword()));
         }
 
         // Serde
@@ -93,7 +94,7 @@ public class HistorikkConsumer implements AppServiceHandler, KafkaIntegration {
 
     @Override
     public boolean isAlive() {
-        return stream != null && stream.state().isRunningOrRebalancing();
+        return (stream != null) && stream.state().isRunningOrRebalancing();
     }
 
     public KafkaStreams.State getTilstand() {

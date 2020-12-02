@@ -43,6 +43,7 @@ public class AktørArbeid extends BaseEntitet implements IndexKey {
 
     /**
      * Aktøren som avtalene gjelder for
+     *
      * @return aktørId
      */
     public AktørId getAktørId() {
@@ -59,13 +60,13 @@ public class AktørArbeid extends BaseEntitet implements IndexKey {
     }
 
     boolean hasValues() {
-        return aktørId != null || yrkesaktiviter != null;
+        return (aktørId != null) || (yrkesaktiviter != null);
     }
 
     YrkesaktivitetBuilder getYrkesaktivitetBuilderForNøkkel(Opptjeningsnøkkel identifikator, ArbeidType arbeidType) {
         Optional<Yrkesaktivitet> yrkesaktivitet = yrkesaktiviter.stream()
-            .filter(ya -> ya.getArbeidType().equals(arbeidType) && new Opptjeningsnøkkel(ya).equals(identifikator))
-            .findFirst();
+                .filter(ya -> ya.getArbeidType().equals(arbeidType) && new Opptjeningsnøkkel(ya).equals(identifikator))
+                .findFirst();
         final YrkesaktivitetBuilder oppdatere = YrkesaktivitetBuilder.oppdatere(yrkesaktivitet);
         oppdatere.medArbeidType(arbeidType);
         return oppdatere;
@@ -73,8 +74,8 @@ public class AktørArbeid extends BaseEntitet implements IndexKey {
 
     YrkesaktivitetBuilder getYrkesaktivitetBuilderForNøkkel(Opptjeningsnøkkel identifikator, Set<ArbeidType> arbeidTyper) {
         Optional<Yrkesaktivitet> yrkesaktivitet = yrkesaktiviter.stream()
-            .filter(ya -> arbeidTyper.contains(ya.getArbeidType()) && new Opptjeningsnøkkel(ya).equals(identifikator))
-            .findFirst();
+                .filter(ya -> arbeidTyper.contains(ya.getArbeidType()) && new Opptjeningsnøkkel(ya).equals(identifikator))
+                .findFirst();
         final YrkesaktivitetBuilder oppdatere = YrkesaktivitetBuilder.oppdatere(yrkesaktivitet);
         if (!oppdatere.getErOppdatering()) {
             // Defaulter til ordinert arbeidsforhold hvis saksbehandler har lagt til fra GUI
@@ -95,14 +96,14 @@ public class AktørArbeid extends BaseEntitet implements IndexKey {
         } else {
             Opptjeningsnøkkel nøkkel = new Opptjeningsnøkkel(yrkesaktivitetKladd);
             yrkesaktiviter.removeIf(ya -> ya.getArbeidType().equals(arbeidType)
-                && new Opptjeningsnøkkel(ya).matcher(nøkkel));
+                    && new Opptjeningsnøkkel(ya).matcher(nøkkel));
         }
     }
 
     YrkesaktivitetBuilder getYrkesaktivitetBuilderForType(ArbeidType type) {
         Optional<Yrkesaktivitet> yrkesaktivitet = yrkesaktiviter.stream()
-            .filter(ya -> ya.getArbeidType().equals(type))
-            .findFirst();
+                .filter(ya -> ya.getArbeidType().equals(type))
+                .findFirst();
         final YrkesaktivitetBuilder oppdatere = YrkesaktivitetBuilder.oppdatere(yrkesaktivitet);
         oppdatere.medArbeidType(type);
         return oppdatere;
@@ -131,9 +132,9 @@ public class AktørArbeid extends BaseEntitet implements IndexKey {
     @Override
     public String toString() {
         return getClass().getSimpleName() + "<" +
-            "aktørId=" + aktørId +
-            ", yrkesaktiviteter=" + yrkesaktiviter +
-            '>';
+                "aktørId=" + aktørId +
+                ", yrkesaktiviteter=" + yrkesaktiviter +
+                '>';
     }
 
 }

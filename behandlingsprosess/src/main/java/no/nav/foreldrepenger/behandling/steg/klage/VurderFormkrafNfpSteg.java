@@ -20,11 +20,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 @ApplicationScoped
 public class VurderFormkrafNfpSteg implements BehandlingSteg {
 
-
-    public VurderFormkrafNfpSteg(){
+    public VurderFormkrafNfpSteg() {
         // For CDI proxy
     }
-
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {

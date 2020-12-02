@@ -14,7 +14,9 @@ class DummyVenterSteg extends DummySteg {
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         BehandleStegResultat settPåVent = andreGang == 1 ? BehandleStegResultat.settPåVent() : BehandleStegResultat.startet();
-        if (andreGang == 0) andreGang = 1;
+        if (andreGang == 0) {
+            andreGang = 1;
+        }
         sisteUtførStegResultat.set(settPåVent);
         return settPåVent;
     }

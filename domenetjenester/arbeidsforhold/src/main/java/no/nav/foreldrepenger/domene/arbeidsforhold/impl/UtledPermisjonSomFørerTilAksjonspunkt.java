@@ -20,29 +20,28 @@ final class UtledPermisjonSomFørerTilAksjonspunkt {
     private static final int PERMISJON_PROSENTSATS_NØDVENDIG_FOR_Å_UTLØSTE_AKSJONSPUNKT = 100;
 
     private static final Set<PermisjonsbeskrivelseType> PERMISJONTYPER_SOM_ER_URELEVANT_FOR_5080 = Set.of(
-        PermisjonsbeskrivelseType.UTDANNINGSPERMISJON,
-        PermisjonsbeskrivelseType.PERMISJON_MED_FORELDREPENGER
-    );
+            PermisjonsbeskrivelseType.UTDANNINGSPERMISJON,
+            PermisjonsbeskrivelseType.PERMISJON_MED_FORELDREPENGER);
 
-    private UtledPermisjonSomFørerTilAksjonspunkt(){
+    private UtledPermisjonSomFørerTilAksjonspunkt() {
         // Skjul default constructor
     }
 
-    static List<PermisjonDto> utled(YrkesaktivitetFilter filter, Yrkesaktivitet yrkesaktiviteter, LocalDate stp){
+    static List<PermisjonDto> utled(YrkesaktivitetFilter filter, Yrkesaktivitet yrkesaktiviteter, LocalDate stp) {
         return utled(filter, List.of(yrkesaktiviteter), stp);
     }
 
-    static List<PermisjonDto> utled(YrkesaktivitetFilter filter, Collection<Yrkesaktivitet> yrkesaktiviteter, LocalDate stp){
+    static List<PermisjonDto> utled(YrkesaktivitetFilter filter, Collection<Yrkesaktivitet> yrkesaktiviteter, LocalDate stp) {
         return yrkesaktiviteter.stream()
-            .filter(ya -> AA_REGISTER_TYPER.contains(ya.getArbeidType()))
-            .filter(ya -> harAnsettelsesPerioderSomInkludererStp(filter, stp, ya))
-            .map(Yrkesaktivitet::getPermisjon)
-            .flatMap(Collection::stream)
-            .filter(UtledPermisjonSomFørerTilAksjonspunkt::har100ProsentPermisjonEllerMer)
-            .filter(p -> fomErFørStp(stp, p) && tomErLikEllerEtterStp(stp, p))
-            .filter(p -> !PERMISJONTYPER_SOM_ER_URELEVANT_FOR_5080.contains(p.getPermisjonsbeskrivelseType()))
-            .map(UtledPermisjonSomFørerTilAksjonspunkt::byggPermisjonDto)
-            .collect(Collectors.toList());
+                .filter(ya -> AA_REGISTER_TYPER.contains(ya.getArbeidType()))
+                .filter(ya -> harAnsettelsesPerioderSomInkludererStp(filter, stp, ya))
+                .map(Yrkesaktivitet::getPermisjon)
+                .flatMap(Collection::stream)
+                .filter(UtledPermisjonSomFørerTilAksjonspunkt::har100ProsentPermisjonEllerMer)
+                .filter(p -> fomErFørStp(stp, p) && tomErLikEllerEtterStp(stp, p))
+                .filter(p -> !PERMISJONTYPER_SOM_ER_URELEVANT_FOR_5080.contains(p.getPermisjonsbeskrivelseType()))
+                .map(UtledPermisjonSomFørerTilAksjonspunkt::byggPermisjonDto)
+                .collect(Collectors.toList());
     }
 
     private static boolean fomErFørStp(LocalDate stp, Permisjon p) {
@@ -50,7 +49,7 @@ final class UtledPermisjonSomFørerTilAksjonspunkt {
     }
 
     private static boolean tomErLikEllerEtterStp(LocalDate stp, Permisjon p) {
-        return p.getTilOgMed() == null || p.getTilOgMed().isAfter(stp) || p.getTilOgMed().isEqual(stp);
+        return (p.getTilOgMed() == null) || p.getTilOgMed().isAfter(stp) || p.getTilOgMed().isEqual(stp);
     }
 
     private static boolean har100ProsentPermisjonEllerMer(Permisjon p) {
@@ -63,10 +62,9 @@ final class UtledPermisjonSomFørerTilAksjonspunkt {
 
     private static PermisjonDto byggPermisjonDto(Permisjon permisjon) {
         return new PermisjonDto(
-            permisjon.getFraOgMed(),
-            permisjon.getTilOgMed() == null || TIDENES_ENDE.equals(permisjon.getTilOgMed()) ? null : permisjon.getTilOgMed(),
-            permisjon.getProsentsats().getVerdi(),
-            permisjon.getPermisjonsbeskrivelseType()
-        );
+                permisjon.getFraOgMed(),
+                (permisjon.getTilOgMed() == null) || TIDENES_ENDE.equals(permisjon.getTilOgMed()) ? null : permisjon.getTilOgMed(),
+                permisjon.getProsentsats().getVerdi(),
+                permisjon.getPermisjonsbeskrivelseType());
     }
 }

@@ -24,7 +24,9 @@ public class AktivitetsAvtale extends BaseEntitet implements IndexKey {
     private LocalDate sisteLønnsendringsdato;
 
     /**
-     * Setter en periode brukt til overstyring av angitt periode (avledet fra saksbehandlers vurderinger). Benyttes kun transient (ved filtrering av modellen)
+     * Setter en periode brukt til overstyring av angitt periode (avledet fra
+     * saksbehandlers vurderinger). Benyttes kun transient (ved filtrering av
+     * modellen)
      */
     private DatoIntervallEntitet overstyrtPeriode;
 
@@ -67,8 +69,7 @@ public class AktivitetsAvtale extends BaseEntitet implements IndexKey {
     }
 
     /**
-     * Perioden til aktivitetsavtalen.
-     * Tar hensyn til overstyring gjort i 5080.
+     * Perioden til aktivitetsavtalen. Tar hensyn til overstyring gjort i 5080.
      *
      * @return Hele perioden, tar hensyn til overstyringer.
      */
@@ -77,8 +78,9 @@ public class AktivitetsAvtale extends BaseEntitet implements IndexKey {
     }
 
     /**
-     * Henter kun den originale perioden, ikke den overstyrte perioden.
-     * Bruk heller {@link #getPeriode} i de fleste tilfeller
+     * Henter kun den originale perioden, ikke den overstyrte perioden. Bruk heller
+     * {@link #getPeriode} i de fleste tilfeller
+     *
      * @return Hele den originale perioden, uten overstyringer.
      */
 
@@ -98,11 +100,9 @@ public class AktivitetsAvtale extends BaseEntitet implements IndexKey {
         return overstyrtPeriode != null;
     }
 
-
     public LocalDate getSisteLønnsendringsdato() {
         return sisteLønnsendringsdato;
     }
-
 
     public boolean matcherPeriode(DatoIntervallEntitet aktivitetsAvtale) {
         return getPeriode().equals(aktivitetsAvtale);
@@ -116,7 +116,6 @@ public class AktivitetsAvtale extends BaseEntitet implements IndexKey {
     public boolean getErLøpende() {
         return Tid.TIDENES_ENDE.equals(getPeriode().getTomDato());
     }
-
 
     public String getBeskrivelse() {
         return beskrivelse;
@@ -132,13 +131,17 @@ public class AktivitetsAvtale extends BaseEntitet implements IndexKey {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || !(o instanceof AktivitetsAvtale)) return false;
+        if (this == o) {
+            return true;
+        }
+        if ((o == null) || !(o instanceof AktivitetsAvtale)) {
+            return false;
+        }
         AktivitetsAvtale that = (AktivitetsAvtale) o;
         return Objects.equals(beskrivelse, that.beskrivelse) &&
-            Objects.equals(prosentsats, that.prosentsats) &&
-            Objects.equals(periode, that.periode) &&
-            Objects.equals(sisteLønnsendringsdato, that.sisteLønnsendringsdato);
+                Objects.equals(prosentsats, that.prosentsats) &&
+                Objects.equals(periode, that.periode) &&
+                Objects.equals(sisteLønnsendringsdato, that.sisteLønnsendringsdato);
     }
 
     @Override
@@ -149,20 +152,20 @@ public class AktivitetsAvtale extends BaseEntitet implements IndexKey {
     @Override
     public String toString() {
         return getClass().getSimpleName() + "<" + //$NON-NLS-1$
-            "periode=" + periode + //$NON-NLS-1$
-            ", overstyrtPeriode=" + overstyrtPeriode + //$NON-NLS-1$
-            ", prosentsats=" + prosentsats + //$NON-NLS-1$
-            ", beskrivelse=" + beskrivelse + //$NON-NLS-1$
-            ", sisteLønnsendringsdato="+sisteLønnsendringsdato + //$NON-NLS-1$
-            '>';
+                "periode=" + periode + //$NON-NLS-1$
+                ", overstyrtPeriode=" + overstyrtPeriode + //$NON-NLS-1$
+                ", prosentsats=" + prosentsats + //$NON-NLS-1$
+                ", beskrivelse=" + beskrivelse + //$NON-NLS-1$
+                ", sisteLønnsendringsdato=" + sisteLønnsendringsdato + //$NON-NLS-1$
+                '>';
     }
 
     boolean hasValues() {
-        return sisteLønnsendringsdato != null || prosentsats != null || periode != null;
+        return (sisteLønnsendringsdato != null) || (prosentsats != null) || (periode != null);
     }
 
     public boolean erAnsettelsesPeriode() {
-        return (prosentsats == null || prosentsats.erNulltall())
-            && sisteLønnsendringsdato == null;
+        return ((prosentsats == null) || prosentsats.erNulltall())
+                && (sisteLønnsendringsdato == null);
     }
 }

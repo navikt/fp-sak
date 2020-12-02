@@ -31,7 +31,8 @@ public final class HistorikkInnslagKonverter {
         return dto;
     }
 
-    private static List<HistorikkInnslagDokumentLinkDto> mapLenker(List<HistorikkinnslagDokumentLink> lenker, List<JournalpostId> journalPosterForSak) {
+    private static List<HistorikkInnslagDokumentLinkDto> mapLenker(List<HistorikkinnslagDokumentLink> lenker,
+            List<JournalpostId> journalPosterForSak) {
         return lenker.stream().map(lenke -> map(lenke, journalPosterForSak)).collect(Collectors.toList());
     }
 

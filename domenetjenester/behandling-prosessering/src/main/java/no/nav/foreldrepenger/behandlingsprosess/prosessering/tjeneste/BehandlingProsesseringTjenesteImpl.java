@@ -32,12 +32,15 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 /**
- * Grensesnitt for å kjøre behandlingsprosess, herunder gjenopptak, registeroppdatering, koordinering av sakskompleks mv.
- * Alle kall til utføringsmetode i behandlingskontroll bør gå gjennom tasks opprettet her.
- * Merk Dem:
- * - ta av vent og grunnlagsoppdatering kan føre til reposisjonering av behandling til annet steg
- * - grunnlag endres ved ankomst av dokument, ved registerinnhenting og ved senere overstyring ("bekreft AP" eller egne overstyringAP)
- * - Hendelser: Ny behandling (Manuell, dokument, mv), Gjenopptak (Manuell/Frist), Interaktiv (Oppdater/Fortsett), Dokument, Datahendelse, Vedtak, KØ-hendelser
+ * Grensesnitt for å kjøre behandlingsprosess, herunder gjenopptak,
+ * registeroppdatering, koordinering av sakskompleks mv. Alle kall til
+ * utføringsmetode i behandlingskontroll bør gå gjennom tasks opprettet her.
+ * Merk Dem: - ta av vent og grunnlagsoppdatering kan føre til reposisjonering
+ * av behandling til annet steg - grunnlag endres ved ankomst av dokument, ved
+ * registerinnhenting og ved senere overstyring ("bekreft AP" eller egne
+ * overstyringAP) - Hendelser: Ny behandling (Manuell, dokument, mv), Gjenopptak
+ * (Manuell/Frist), Interaktiv (Oppdater/Fortsett), Dokument, Datahendelse,
+ * Vedtak, KØ-hendelser
  **/
 @ApplicationScoped
 public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesseringTjeneste {
@@ -49,9 +52,9 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
 
     @Inject
     public BehandlingProsesseringTjenesteImpl(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                              RegisterdataEndringshåndterer registerdataEndringshåndterer,
-                                              EndringsresultatSjekker endringsresultatSjekker,
-                                              ProsessTaskRepository prosessTaskRepository) {
+            RegisterdataEndringshåndterer registerdataEndringshåndterer,
+            EndringsresultatSjekker endringsresultatSjekker,
+            ProsessTaskRepository prosessTaskRepository) {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.registerdataEndringshåndterer = registerdataEndringshåndterer;
         this.endringsresultatSjekker = endringsresultatSjekker;
@@ -95,7 +98,8 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
         return endringsresultatSjekker.opprettEndringsresultatPåBehandlingsgrunnlagSnapshot(behandling.getId());
     }
 
-    // Returnerer snapshot av grunnlag før registerinnhentingen. Forutsetter at behandling ikke er på vent.
+    // Returnerer snapshot av grunnlag før registerinnhentingen. Forutsetter at
+    // behandling ikke er på vent.
     @Override
     public EndringsresultatSnapshot oppdaterRegisterdata(Behandling behandling) {
         return null; // TODO: trengs denne?
@@ -170,7 +174,8 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
     }
 
     @Override
-    public String opprettTasksForFortsettBehandlingGjenopptaStegNesteKjøring(Behandling behandling, BehandlingStegType behandlingStegType, LocalDateTime nesteKjøringEtter) {
+    public String opprettTasksForFortsettBehandlingGjenopptaStegNesteKjøring(Behandling behandling, BehandlingStegType behandlingStegType,
+            LocalDateTime nesteKjøringEtter) {
         ProsessTaskData taskData = new ProsessTaskData(FortsettBehandlingTaskProperties.TASKTYPE);
         taskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         taskData.setProperty(FortsettBehandlingTaskProperties.GJENOPPTA_STEG, behandlingStegType.getKode());
@@ -196,7 +201,8 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
         return lagreMedCallId(taskData);
     }
 
-    // Robust task til bruk ved gjenopptak fra vent (eller annen tilstand) (Hendelse: Manuell input, Frist utløpt, mv)
+    // Robust task til bruk ved gjenopptak fra vent (eller annen tilstand)
+    // (Hendelse: Manuell input, Frist utløpt, mv)
     @Override
     public String opprettTasksForGjenopptaOppdaterFortsett(Behandling behandling) {
         ProsessTaskData taskData = new ProsessTaskData(GjenopptaBehandlingTask.TASKTYPE);

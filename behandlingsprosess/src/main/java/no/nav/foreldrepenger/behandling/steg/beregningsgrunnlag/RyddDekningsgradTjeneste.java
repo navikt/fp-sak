@@ -19,14 +19,14 @@ public class RyddDekningsgradTjeneste {
     private BehandlingsresultatRepository behandlingsresultatRepository;
 
     RyddDekningsgradTjeneste() {
-        //CDI
+        // CDI
     }
 
     @Inject
     public RyddDekningsgradTjeneste(BehandlingLåsRepository behandlingLåsRepository,
-                                    BehandlingRepository behandlingRepository,
-                                    FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
-                                    BehandlingsresultatRepository behandlingsresultatRepository) {
+            BehandlingRepository behandlingRepository,
+            FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
+            BehandlingsresultatRepository behandlingsresultatRepository) {
         this.behandlingLåsRepository = behandlingLåsRepository;
         this.behandlingRepository = behandlingRepository;
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;

@@ -47,10 +47,10 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristSteg implements Behandli
 
     @Inject
     public FastsettUttaksgrunnlagOgVurderSøknadsfristSteg(UttakInputTjeneste uttakInputTjeneste,
-                                                          YtelsesFordelingRepository ytelsesFordelingRepository,
-                                                          @FagsakYtelseTypeRef("FP") VurderSøknadsfristTjeneste vurderSøknadsfristTjeneste,
-                                                          FastsettUttaksgrunnlagTjeneste fastsettUttaksgrunnlagTjeneste,
-                                                          BehandlingRepository behandlingRepository) {
+            YtelsesFordelingRepository ytelsesFordelingRepository,
+            @FagsakYtelseTypeRef("FP") VurderSøknadsfristTjeneste vurderSøknadsfristTjeneste,
+            FastsettUttaksgrunnlagTjeneste fastsettUttaksgrunnlagTjeneste,
+            BehandlingRepository behandlingRepository) {
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.ytelsesFordelingRepository = ytelsesFordelingRepository;
         this.vurderSøknadsfristTjeneste = vurderSøknadsfristTjeneste;
@@ -62,14 +62,14 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristSteg implements Behandli
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var behandlingId = kontekst.getBehandlingId();
 
-        //Sjekk søknadsfrist for søknadsperioder
+        // Sjekk søknadsfrist for søknadsperioder
         var søknadfristAksjonspunktDefinisjon = vurderSøknadsfristTjeneste.vurder(kontekst.getBehandlingId());
 
-        //Fastsett uttaksgrunnlag
+        // Fastsett uttaksgrunnlag
         var input = uttakInputTjeneste.lagInput(behandlingId);
         fastsettUttaksgrunnlagTjeneste.fastsettUttaksgrunnlag(input);
 
-        //Returner eventuelt aksjonspunkt ifm søknadsfrist
+        // Returner eventuelt aksjonspunkt ifm søknadsfrist
         if (søknadfristAksjonspunktDefinisjon.isPresent()) {
             return BehandleStegResultat.utførtMedAksjonspunkter(singletonList(søknadfristAksjonspunktDefinisjon.get()));
         }
@@ -77,7 +77,8 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristSteg implements Behandli
     }
 
     @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType førsteSteg, BehandlingStegType sisteSteg) {
+    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType førsteSteg,
+            BehandlingStegType sisteSteg) {
         if (!Objects.equals(BehandlingStegType.SØKNADSFRIST_FORELDREPENGER, førsteSteg)) {
             Optional<YtelseFordelingAggregat> opprinnelig = ytelsesFordelingRepository.hentAggregatHvisEksisterer(kontekst.getBehandlingId());
             if (opprinnelig.isPresent()) {
@@ -88,9 +89,9 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristSteg implements Behandli
 
     @Override
     public void vedHoppOverFramover(BehandlingskontrollKontekst kontekst,
-                                    BehandlingStegModell modell,
-                                    BehandlingStegType førsteSteg,
-                                    BehandlingStegType sisteSteg) {
+            BehandlingStegModell modell,
+            BehandlingStegType førsteSteg,
+            BehandlingStegType sisteSteg) {
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         if (SkalKopiereUttaksstegTjeneste.skalKopiereStegResultat(behandlingsårsaker(behandling))) {
             var originalBehandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId()).getOriginalBehandlingId().orElseThrow();
@@ -101,19 +102,19 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristSteg implements Behandli
 
     private List<BehandlingÅrsakType> behandlingsårsaker(Behandling behandling) {
         return behandling.getBehandlingÅrsaker()
-            .stream()
-            .map(behandlingÅrsak -> behandlingÅrsak.getBehandlingÅrsakType())
-            .collect(Collectors.toList());
+                .stream()
+                .map(behandlingÅrsak -> behandlingÅrsak.getBehandlingÅrsakType())
+                .collect(Collectors.toList());
     }
 
     private void rydd(Long behandlingId, YtelseFordelingAggregat ytelseFordelingAggregat) {
         YtelseFordelingAggregat.Builder builder = YtelseFordelingAggregat.Builder.oppdatere(Optional.of(ytelseFordelingAggregat));
         YtelseFordelingAggregat ytelseFordeling = builder
-            .medJustertFordeling(null)
-            .medAvklarteDatoer(new AvklarteUttakDatoerEntitet.Builder(ytelseFordelingAggregat.getAvklarteDatoer())
-                .medOpprinneligEndringsdato(null)
-                .build())
-            .build();
+                .medJustertFordeling(null)
+                .medAvklarteDatoer(new AvklarteUttakDatoerEntitet.Builder(ytelseFordelingAggregat.getAvklarteDatoer())
+                        .medOpprinneligEndringsdato(null)
+                        .build())
+                .build();
         ytelsesFordelingRepository.lagre(behandlingId, ytelseFordeling);
     }
 }

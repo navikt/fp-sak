@@ -21,7 +21,8 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
 /**
- * Observerer Aksjonspunkt*Events og registrerer HistorikkInnslag for enkelte hendelser (eks. gjenoppta og behandling på vent)
+ * Observerer Aksjonspunkt*Events og registrerer HistorikkInnslag for enkelte
+ * hendelser (eks. gjenoppta og behandling på vent)
  */
 @ApplicationScoped
 public class HistorikkInnslagForAksjonspunktEventObserver {
@@ -31,11 +32,11 @@ public class HistorikkInnslagForAksjonspunktEventObserver {
 
     @Inject
     public HistorikkInnslagForAksjonspunktEventObserver(HistorikkRepository historikkRepository,
-        /*
-         * FIXME property vil være satt i produksjon, men ikke i tester. Uansett er løsningen ikke er god. Kan
-         * heller bruker IdentType når det fikses.
-         */
-                                                        @KonfigVerdi(value = "systembruker.username", required = false) String systembruker) {
+            /*
+             * FIXME property vil være satt i produksjon, men ikke i tester. Uansett er
+             * løsningen ikke er god. Kan heller bruker IdentType når det fikses.
+             */
+            @KonfigVerdi(value = "systembruker.username", required = false) String systembruker) {
         this.historikkRepository = historikkRepository;
         this.systembruker = systembruker;
     }
@@ -48,21 +49,21 @@ public class HistorikkInnslagForAksjonspunktEventObserver {
         for (Aksjonspunkt aksjonspunkt : aksjonspunkterFunnetEvent.getAksjonspunkter()) {
             if (aksjonspunkt.erOpprettet() && AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING.equals(aksjonspunkt.getAksjonspunktDefinisjon())) {
                 opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(),
-                    HistorikkinnslagType.BEH_KØET, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
-            } else if (aksjonspunkt.erOpprettet() && aksjonspunkt.getFristTid() != null) {
+                        HistorikkinnslagType.BEH_KØET, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
+            } else if (aksjonspunkt.erOpprettet() && (aksjonspunkt.getFristTid() != null)) {
                 LocalDateTime frist = aksjonspunkt.getFristTid();
                 Venteårsak venteårsak = aksjonspunkt.getVenteårsak();
                 opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(),
-                    HistorikkinnslagType.BEH_VENT, frist, venteårsak);
+                        HistorikkinnslagType.BEH_VENT, frist, venteårsak);
             }
         }
     }
 
     private void opprettHistorikkinnslagForVenteFristRelaterteInnslag(Long behandlingId,
-                                                                      Long fagsakId,
-                                                                      HistorikkinnslagType historikkinnslagType,
-                                                                      LocalDateTime fristTid,
-                                                                      Venteårsak venteårsak) {
+            Long fagsakId,
+            HistorikkinnslagType historikkinnslagType,
+            LocalDateTime fristTid,
+            Venteårsak venteårsak) {
         HistorikkInnslagTekstBuilder builder = new HistorikkInnslagTekstBuilder();
         if (fristTid != null) {
             builder.medHendelse(historikkinnslagType, fristTid.toLocalDate());
@@ -86,9 +87,11 @@ public class HistorikkInnslagForAksjonspunktEventObserver {
         for (Aksjonspunkt aksjonspunkt : aksjonspunkterFunnetEvent.getAksjonspunkter()) {
             BehandlingskontrollKontekst ktx = aksjonspunkterFunnetEvent.getKontekst();
             if (aksjonspunkt.erUtført() && AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING.equals(aksjonspunkt.getAksjonspunktDefinisjon())) {
-                opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(), HistorikkinnslagType.KØET_BEH_GJEN, null, null);
-            } else if (aksjonspunkt.erUtført() && aksjonspunkt.getFristTid() != null) {
-                opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(), HistorikkinnslagType.BEH_GJEN, null, null);
+                opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(), HistorikkinnslagType.KØET_BEH_GJEN,
+                        null, null);
+            } else if (aksjonspunkt.erUtført() && (aksjonspunkt.getFristTid() != null)) {
+                opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(), HistorikkinnslagType.BEH_GJEN, null,
+                        null);
             }
         }
     }

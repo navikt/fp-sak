@@ -27,5 +27,4 @@ public class PersonIdentTjeneste {
         return personinfoAdapter.hentBrukerArbeidsgiverForAktør(aktørId);
     }
 
-
 }

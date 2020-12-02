@@ -33,15 +33,14 @@ public class ForeslåBehandlingsresultatTjenesteImpl implements ForeslåBehandli
 
     @Inject
     public ForeslåBehandlingsresultatTjenesteImpl(BehandlingsresultatRepository behandlingsresultatRepository,
-                                                BehandlingRepository behandlingRepository,
-                                                AvslagsårsakTjeneste avslagsårsakTjeneste,
-                                                @FagsakYtelseTypeRef("ES") RevurderingEndring revurderingEndring) {
+            BehandlingRepository behandlingRepository,
+            AvslagsårsakTjeneste avslagsårsakTjeneste,
+            @FagsakYtelseTypeRef("ES") RevurderingEndring revurderingEndring) {
         this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.behandlingRepository = behandlingRepository;
         this.avslagsårsakTjeneste = avslagsårsakTjeneste;
         this.revurderingEndring = revurderingEndring;
     }
-
 
     @Override
     public Behandlingsresultat foreslåBehandlingsresultat(BehandlingReferanse ref) {
@@ -59,7 +58,8 @@ public class ForeslåBehandlingsresultatTjenesteImpl implements ForeslåBehandli
                 behandlingsresultat.setAvslagsårsak(avslagsårsak);
             });
         } else {
-            // Må nullstille avslagårsak (for symmetri med setting avslagsårsak ovenfor, hvor avslagårsak kopieres fra et vilkår)
+            // Må nullstille avslagårsak (for symmetri med setting avslagsårsak ovenfor,
+            // hvor avslagårsak kopieres fra et vilkår)
             Optional<Avslagsårsak> avslagsårsakOpt = Optional.ofNullable(behandlingsresultat.getAvslagsårsak());
             avslagsårsakOpt.ifPresent(ufjernetÅrsak -> behandlingsresultat.setAvslagsårsak(Avslagsårsak.UDEFINERT));
         }
@@ -67,7 +67,7 @@ public class ForeslåBehandlingsresultatTjenesteImpl implements ForeslåBehandli
     }
 
     private BehandlingResultatType utledBehandlingsresultatType(Behandlingsresultat behandlingsresultat) {
-        Objects.requireNonNull(behandlingsresultat, "behandlingsresultat"); //NOSONAR
+        Objects.requireNonNull(behandlingsresultat, "behandlingsresultat"); // NOSONAR
         return behandlingsresultat.isVilkårAvslått() ? BehandlingResultatType.AVSLÅTT : BehandlingResultatType.INNVILGET;
     }
 

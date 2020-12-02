@@ -17,7 +17,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 public class LagreHistorikkTask implements ProsessTaskHandler {
     private static final Logger LOG = LoggerFactory.getLogger(LagreHistorikkTask.class);
 
-
     public static final String TASKTYPE = "historikk.kafka.opprettHistorikkinnslag";
 
     private HistorikkRepository historikkRepository;
@@ -28,7 +27,7 @@ public class LagreHistorikkTask implements ProsessTaskHandler {
 
     @Inject
     public LagreHistorikkTask(HistorikkRepository historikkRepository,
-                              HistorikkFraDtoMapper historikkFraDtoMapper) {
+            HistorikkFraDtoMapper historikkFraDtoMapper) {
         this.historikkRepository = historikkRepository;
         this.historikkFraDtoMapper = historikkFraDtoMapper;
     }
@@ -48,6 +47,5 @@ public class LagreHistorikkTask implements ProsessTaskHandler {
         }
         historikkRepository.lagre(nyttHistorikkInnslag);
     }
-
 
 }

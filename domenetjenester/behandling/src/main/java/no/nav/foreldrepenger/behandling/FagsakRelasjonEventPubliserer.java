@@ -22,11 +22,11 @@ public class FagsakRelasjonEventPubliserer {
 
     public void fireEvent(FagsakRelasjon fagsakRelasjon) {
 
-        if (fagsakRelasjonEvent == null)
+        if (fagsakRelasjonEvent == null) {
             return;
+        }
 
         FagsakRelasjonEvent event = new FagsakRelasjonEvent(fagsakRelasjon);
         fagsakRelasjonEvent.fire(event);
     }
 }
-

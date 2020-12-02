@@ -39,7 +39,8 @@ import no.nav.vedtak.exception.TekniskException;
 @ApplicationScoped
 public class SimulerOppdragSteg implements BehandlingSteg {
 
-    public static final long DUMMY_TASK_ID = -1L; //TODO (Team Tonic) simulerOppdrag-tjenesten krever en task-id som input, uten at den skal være i bruk
+    public static final long DUMMY_TASK_ID = -1L; // TODO (Team Tonic) simulerOppdrag-tjenesten krever en task-id som input, uten
+                                                  // at den skal være i bruk
 
     private static final int ÅPNINGSTID = 7;
     private static final int STENGETID = 21;
@@ -58,12 +59,12 @@ public class SimulerOppdragSteg implements BehandlingSteg {
 
     @Inject
     public SimulerOppdragSteg(BehandlingRepositoryProvider repositoryProvider,
-                              BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
-                              SimulerOppdragTjeneste simulerOppdragTjeneste,
-                              SimuleringIntegrasjonTjeneste simuleringIntegrasjonTjeneste,
-                              TilbakekrevingRepository tilbakekrevingRepository,
-                              FpoppdragSystembrukerRestKlient fpoppdragSystembrukerRestKlient,
-                              FptilbakeRestKlient fptilbakeRestKlient) {
+            BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
+            SimulerOppdragTjeneste simulerOppdragTjeneste,
+            SimuleringIntegrasjonTjeneste simuleringIntegrasjonTjeneste,
+            TilbakekrevingRepository tilbakekrevingRepository,
+            FpoppdragSystembrukerRestKlient fpoppdragSystembrukerRestKlient,
+            FptilbakeRestKlient fptilbakeRestKlient) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.simulerOppdragTjeneste = simulerOppdragTjeneste;
@@ -93,7 +94,8 @@ public class SimulerOppdragSteg implements BehandlingSteg {
     }
 
     @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg, BehandlingStegType fraSteg) {
+    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
+            BehandlingStegType fraSteg) {
         if (!BehandlingStegType.SIMULER_OPPDRAG.equals(tilSteg)) {
             Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
             fpoppdragSystembrukerRestKlient.kansellerSimulering(kontekst.getBehandlingId());
@@ -110,7 +112,7 @@ public class SimulerOppdragSteg implements BehandlingSteg {
     private void opprettFortsettBehandlingTask(Behandling behandling) {
         LocalDateTime nesteKjøringEtter = utledNesteKjøring();
         behandlingProsesseringTjeneste.opprettTasksForFortsettBehandlingGjenopptaStegNesteKjøring(behandling,
-            BehandlingStegType.SIMULER_OPPDRAG, nesteKjøringEtter);
+                BehandlingStegType.SIMULER_OPPDRAG, nesteKjøringEtter);
     }
 
     private BehandleStegResultat utledAksjonspunkt(Behandling behandling) {
@@ -118,10 +120,12 @@ public class SimulerOppdragSteg implements BehandlingSteg {
         if (simuleringResultatDto.isPresent()) {
             SimuleringResultatDto resultatDto = simuleringResultatDto.get();
 
-            //TODO dette har ingenting med utledning av aksjonspunkt å gjøre, og bør flyttes til alternativ metode
+            // TODO dette har ingenting med utledning av aksjonspunkt å gjøre, og bør
+            // flyttes til alternativ metode
             tilbakekrevingRepository.lagre(behandling, resultatDto.isSlåttAvInntrekk());
 
-            if (kanOppdatereEksisterendeTilbakekrevingsbehandling(behandling, resultatDto)) { // vi sender TILBAKEKREVING_OPPDATER når det finnes et simulering resultat
+            if (kanOppdatereEksisterendeTilbakekrevingsbehandling(behandling, resultatDto)) { // vi sender TILBAKEKREVING_OPPDATER når det finnes et
+                                                                                              // simulering resultat
                 lagreTilbakekrevingValg(behandling, TilbakekrevingValg.medOppdaterTilbakekrevingsbehandling());
                 return BehandleStegResultat.utførtUtenAksjonspunkter();
             }
@@ -141,7 +145,7 @@ public class SimulerOppdragSteg implements BehandlingSteg {
         LocalDateTime currentTime = LocalDateTime.now();
         if (DayOfWeek.SATURDAY.equals(currentTime.getDayOfWeek()) || DayOfWeek.SUNDAY.equals(currentTime.getDayOfWeek())) {
             return kommendeMandag(currentTime);
-        } else if (DayOfWeek.FRIDAY.equals(currentTime.getDayOfWeek()) && currentTime.getHour() > STENGETID) {
+        } else if (DayOfWeek.FRIDAY.equals(currentTime.getDayOfWeek()) && (currentTime.getHour() > STENGETID)) {
             return kommendeMandag(currentTime);
         } else if (currentTime.getHour() < ÅPNINGSTID) {
             return currentTime.withHour(ÅPNINGSTID).withMinute(15);
@@ -156,9 +160,8 @@ public class SimulerOppdragSteg implements BehandlingSteg {
     }
 
     private boolean kanOppdatereEksisterendeTilbakekrevingsbehandling(Behandling behandling, SimuleringResultatDto simuleringResultatDto) {
-        return harÅpenTilbakekreving(behandling) && simuleringResultatDto.getSumFeilutbetaling() != 0;
+        return harÅpenTilbakekreving(behandling) && (simuleringResultatDto.getSumFeilutbetaling() != 0);
     }
-
 
     private boolean harÅpenTilbakekreving(Behandling behandling) {
         return fptilbakeRestKlient.harÅpenTilbakekrevingsbehandling(behandling.getFagsak().getSaksnummer());

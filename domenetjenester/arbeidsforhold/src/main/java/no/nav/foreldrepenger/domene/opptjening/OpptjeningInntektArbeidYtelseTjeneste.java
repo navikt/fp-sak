@@ -32,8 +32,8 @@ public class OpptjeningInntektArbeidYtelseTjeneste {
 
     @Inject
     public OpptjeningInntektArbeidYtelseTjeneste(InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
-                                                     OpptjeningRepository opptjeningRepository,
-                                                     OpptjeningsperioderTjeneste opptjeningsperioderTjeneste) {
+            OpptjeningRepository opptjeningRepository,
+            OpptjeningsperioderTjeneste opptjeningsperioderTjeneste) {
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.opptjeningRepository = opptjeningRepository;
         this.opptjeningsperioderTjeneste = opptjeningsperioderTjeneste;
@@ -42,11 +42,12 @@ public class OpptjeningInntektArbeidYtelseTjeneste {
     public Opptjening hentOpptjening(Long behandlingId) {
         Optional<Opptjening> optional = opptjeningRepository.finnOpptjening(behandlingId);
         return optional
-            .orElseThrow(() -> new IllegalStateException("Utvikler-feil: Mangler Opptjening for Behandling: " + behandlingId));
+                .orElseThrow(() -> new IllegalStateException("Utvikler-feil: Mangler Opptjening for Behandling: " + behandlingId));
     }
 
-    /** Hent alle inntekter for søker der det finnes arbeidsgiver*/
-    public List<OpptjeningInntektPeriode> hentRelevanteOpptjeningInntekterForVilkårVurdering(Long behandlingId, AktørId aktørId, LocalDate skjæringstidspunkt) {
+    /** Hent alle inntekter for søker der det finnes arbeidsgiver */
+    public List<OpptjeningInntektPeriode> hentRelevanteOpptjeningInntekterForVilkårVurdering(Long behandlingId, AktørId aktørId,
+            LocalDate skjæringstidspunkt) {
         Optional<InntektArbeidYtelseGrunnlag> grunnlagOpt = inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingId);
 
         if (grunnlagOpt.isPresent()) {
@@ -54,10 +55,10 @@ public class OpptjeningInntektArbeidYtelseTjeneste {
             var filter = new InntektFilter(grunnlag.getAktørInntektFraRegister(aktørId)).før(skjæringstidspunkt).filterPensjonsgivende();
 
             var result = filter.filter((inntekt, inntektspost) -> inntekt.getArbeidsgiver() != null)
-                .mapInntektspost((inntekt, inntektspost) -> {
-                    Opptjeningsnøkkel opptjeningsnøkkel = new Opptjeningsnøkkel(null, inntekt.getArbeidsgiver());
-                    return new OpptjeningInntektPeriode(inntektspost, opptjeningsnøkkel);
-                });
+                    .mapInntektspost((inntekt, inntektspost) -> {
+                        Opptjeningsnøkkel opptjeningsnøkkel = new Opptjeningsnøkkel(null, inntekt.getArbeidsgiver());
+                        return new OpptjeningInntektPeriode(inntektspost, opptjeningsnøkkel);
+                    });
             return List.copyOf(result);
         }
         return Collections.emptyList();
@@ -65,7 +66,7 @@ public class OpptjeningInntektArbeidYtelseTjeneste {
 
     public List<OpptjeningAktivitetPeriode> hentRelevanteOpptjeningAktiveterForVilkårVurdering(BehandlingReferanse behandlingReferanse) {
         final List<OpptjeningsperiodeForSaksbehandling> perioder = opptjeningsperioderTjeneste
-            .hentRelevanteOpptjeningAktiveterForVilkårVurdering(behandlingReferanse);
+                .hentRelevanteOpptjeningAktiveterForVilkårVurdering(behandlingReferanse);
 
         return perioder.stream().map(this::mapTilPerioder).collect(Collectors.toList());
     }
@@ -73,12 +74,12 @@ public class OpptjeningInntektArbeidYtelseTjeneste {
     private OpptjeningAktivitetPeriode mapTilPerioder(OpptjeningsperiodeForSaksbehandling periode) {
         final OpptjeningAktivitetPeriode.Builder builder = OpptjeningAktivitetPeriode.Builder.ny();
         builder.medPeriode(periode.getPeriode())
-            .medOpptjeningAktivitetType(periode.getOpptjeningAktivitetType())
-            .medOrgnr(periode.getOrgnr())
-            .medOpptjeningsnøkkel(periode.getOpptjeningsnøkkel())
-            .medStillingsandel(periode.getStillingsprosent())
-            .medVurderingsStatus(periode.getVurderingsStatus())
-            .medBegrunnelse(periode.getBegrunnelse());
+                .medOpptjeningAktivitetType(periode.getOpptjeningAktivitetType())
+                .medOrgnr(periode.getOrgnr())
+                .medOpptjeningsnøkkel(periode.getOpptjeningsnøkkel())
+                .medStillingsandel(periode.getStillingsprosent())
+                .medVurderingsStatus(periode.getVurderingsStatus())
+                .medBegrunnelse(periode.getBegrunnelse());
         return builder.build();
     }
 

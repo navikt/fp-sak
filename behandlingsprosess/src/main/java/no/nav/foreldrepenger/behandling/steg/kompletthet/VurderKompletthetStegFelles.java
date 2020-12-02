@@ -14,9 +14,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 
 /**
- * Fellesklasse for gjenbrukte metode av subklasser for {@link VurderKompletthetSteg}.
+ * Fellesklasse for gjenbrukte metode av subklasser for
+ * {@link VurderKompletthetSteg}.
  * <p>
- *     Favor composition over inheritance
+ * Favor composition over inheritance
  */
 @Dependent
 public class VurderKompletthetStegFelles {
@@ -39,7 +40,7 @@ public class VurderKompletthetStegFelles {
 
     public static boolean autopunktAlleredeUtført(AksjonspunktDefinisjon apDef, Behandling behandling) {
         return behandling.getAksjonspunktMedDefinisjonOptional(apDef)
-            .map(Aksjonspunkt::erUtført)
-            .orElse(Boolean.FALSE);
+                .map(Aksjonspunkt::erUtført)
+                .orElse(Boolean.FALSE);
     }
 }

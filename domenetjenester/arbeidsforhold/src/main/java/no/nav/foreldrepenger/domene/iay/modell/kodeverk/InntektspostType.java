@@ -25,7 +25,7 @@ public enum InntektspostType implements Kodeverdi, MedOffisiellKode {
     VANLIG("VANLIG", "Vanlig", "VANLIG"),
     SELVSTENDIG_NÆRINGSDRIVENDE("SELVSTENDIG_NÆRINGSDRIVENDE", "Selvstendig næringsdrivende", "-"),
     NÆRING_FISKE_FANGST_FAMBARNEHAGE("NÆRING_FISKE_FANGST_FAMBARNEHAGE", "Jordbruk/Skogbruk/Fiske/FamilieBarnehage", "personinntektFiskeFangstFamilebarnehage"),
-            ;
+    ;
 
     private static final Map<String, InntektspostType> KODER = new LinkedHashMap<>();
 

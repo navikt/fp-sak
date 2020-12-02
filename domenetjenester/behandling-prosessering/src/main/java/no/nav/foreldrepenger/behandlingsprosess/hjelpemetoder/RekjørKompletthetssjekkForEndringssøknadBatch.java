@@ -17,7 +17,8 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
 /**
- * Midlertidig batch for å rekjøre kompletthetssjekk for endringssøknader som venter på IM
+ * Midlertidig batch for å rekjøre kompletthetssjekk for endringssøknader som
+ * venter på IM
  *
  * Skal kjøre en gang
  *
@@ -33,7 +34,7 @@ class RekjørKompletthetssjekkForEndringssøknadBatch implements BatchTjeneste {
 
     @Inject
     public RekjørKompletthetssjekkForEndringssøknadBatch(BehandlingKandidaterRepository behandlingKandidaterRepository,
-                                                         ProsessTaskRepository prosessTaskRepository) {
+            ProsessTaskRepository prosessTaskRepository) {
         this.behandlingKandidaterRepository = behandlingKandidaterRepository;
         this.prosessTaskRepository = prosessTaskRepository;
     }

@@ -43,9 +43,9 @@ public class HenleggBehandlingTjeneste {
 
     @Inject
     public HenleggBehandlingTjeneste(BehandlingRepositoryProvider repositoryProvider,
-                                     BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                     DokumentBestillerTjeneste dokumentBestillerTjeneste,
-                                     ProsessTaskRepository prosessTaskRepository) {
+            BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+            DokumentBestillerTjeneste dokumentBestillerTjeneste,
+            ProsessTaskRepository prosessTaskRepository) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
@@ -60,7 +60,7 @@ public class HenleggBehandlingTjeneste {
     }
 
     private void doHenleggBehandling(Long behandlingId, BehandlingResultatType årsakKode, String begrunnelse, boolean avbrytVentendeAutopunkt) {
-        BehandlingskontrollKontekst kontekst =  behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
+        BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         if (avbrytVentendeAutopunkt && behandling.isBehandlingPåVent()) {
             behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtførtForHenleggelse(behandling, kontekst);
@@ -102,7 +102,8 @@ public class HenleggBehandlingTjeneste {
     private void håndterHenleggelseUtenOppgitteSøknadsopplysninger(Behandling behandling, BehandlingskontrollKontekst kontekst) {
         SøknadEntitet søknad = søknadRepository.hentSøknad(behandling.getId());
         if (søknad == null) {
-            // Må ta behandling av vent for å tillate henleggelse (krav i Behandlingskontroll)
+            // Må ta behandling av vent for å tillate henleggelse (krav i
+            // Behandlingskontroll)
             behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtførtForHenleggelse(behandling, kontekst);
         }
     }
@@ -120,16 +121,16 @@ public class HenleggBehandlingTjeneste {
     }
 
     private void lagHistorikkinnslagForHenleggelse(Long behandlingsId, BehandlingResultatType aarsak, String begrunnelse, HistorikkAktør aktør) {
-            HistorikkInnslagTekstBuilder builder = new HistorikkInnslagTekstBuilder()
+        HistorikkInnslagTekstBuilder builder = new HistorikkInnslagTekstBuilder()
                 .medHendelse(HistorikkinnslagType.AVBRUTT_BEH)
                 .medÅrsak(aarsak)
                 .medBegrunnelse(begrunnelse);
-            Historikkinnslag historikkinnslag = new Historikkinnslag();
-            historikkinnslag.setType(HistorikkinnslagType.AVBRUTT_BEH);
-            historikkinnslag.setBehandlingId(behandlingsId);
-            builder.build(historikkinnslag);
+        Historikkinnslag historikkinnslag = new Historikkinnslag();
+        historikkinnslag.setType(HistorikkinnslagType.AVBRUTT_BEH);
+        historikkinnslag.setBehandlingId(behandlingsId);
+        builder.build(historikkinnslag);
 
-            historikkinnslag.setAktør(aktør);
-            historikkRepository.lagre(historikkinnslag);
+        historikkinnslag.setAktør(aktør);
+        historikkRepository.lagre(historikkinnslag);
     }
 }

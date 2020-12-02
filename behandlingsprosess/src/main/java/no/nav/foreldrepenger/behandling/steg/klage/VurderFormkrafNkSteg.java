@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 
-
 @BehandlingStegRef(kode = "VURDER_FK_OI")
 @BehandlingTypeRef
 @FagsakYtelseTypeRef
@@ -26,26 +25,23 @@ public class VurderFormkrafNkSteg implements BehandlingSteg {
 
     private KlageRepository klageRepository;
 
-    public VurderFormkrafNkSteg(){
+    public VurderFormkrafNkSteg() {
         // For CDI proxy
     }
 
     @Inject
-    public VurderFormkrafNkSteg(KlageRepository klageRepository){
+    public VurderFormkrafNkSteg(KlageRepository klageRepository) {
         this.klageRepository = klageRepository;
     }
-
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         KlageVurdering klageVurderingResultat = klageRepository.hentKlageVurderingResultat(kontekst.getBehandlingId(), KlageVurdertAv.NFP)
-            .map(KlageVurderingResultat::getKlageVurdering)
-            .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Skal alltid ha klagevurdering fra NFP "));
+                .map(KlageVurderingResultat::getKlageVurdering)
+                .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Skal alltid ha klagevurdering fra NFP "));
         if (klageVurderingResultat.equals(KlageVurdering.STADFESTE_YTELSESVEDTAK)) {
             return BehandleStegResultat.utførtMedAksjonspunkter(singletonList(AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_KA));
         }
         return BehandleStegResultat.utførtUtenAksjonspunkter();
     }
 }
-
-

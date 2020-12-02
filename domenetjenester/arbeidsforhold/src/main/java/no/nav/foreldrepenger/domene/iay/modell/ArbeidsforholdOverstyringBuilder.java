@@ -65,12 +65,12 @@ public class ArbeidsforholdOverstyringBuilder {
         return this;
     }
 
-    public ArbeidsforholdOverstyringBuilder leggTilOverstyrtPeriode(LocalDate fom, LocalDate tom){
+    public ArbeidsforholdOverstyringBuilder leggTilOverstyrtPeriode(LocalDate fom, LocalDate tom) {
         kladd.leggTilOverstyrtPeriode(fom, tom);
         return this;
     }
 
-    public ArbeidsforholdOverstyringBuilder medBekreftetPermisjon(BekreftetPermisjon bekreftetPermisjon){
+    public ArbeidsforholdOverstyringBuilder medBekreftetPermisjon(BekreftetPermisjon bekreftetPermisjon) {
         kladd.setBekreftetPermisjon(bekreftetPermisjon);
         return this;
     }

@@ -29,7 +29,7 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
 
     @Inject
     public TilknyttFagsakStegImpl(FagsakRepository fagsakRepository, // NOSONAR
-                                  FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {// NOSONAR
+            FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {// NOSONAR
         this.fagsakRepository = fagsakRepository;
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
     }

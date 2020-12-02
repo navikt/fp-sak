@@ -1,4 +1,5 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -35,10 +36,10 @@ public class RegisterdataCallback {
     @Override
     public String toString() {
         return "RegisterdataCallback{" +
-            "behandlingId=" + behandlingId +
-            ", eksisterendeGrunnlagRef=" + eksisterendeGrunnlagRef +
-            ", oppdatertGrunnlagRef=" + oppdatertGrunnlagRef +
-            ", oppdatertTidspunkt=" + oppdatertTidspunkt +
-            '}';
+                "behandlingId=" + behandlingId +
+                ", eksisterendeGrunnlagRef=" + eksisterendeGrunnlagRef +
+                ", oppdatertGrunnlagRef=" + oppdatertGrunnlagRef +
+                ", oppdatertTidspunkt=" + oppdatertTidspunkt +
+                '}';
     }
 }

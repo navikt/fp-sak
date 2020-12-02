@@ -49,14 +49,16 @@ public class OpptjeningAktivitetPeriode {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if ((o == null) || (getClass() != o.getClass())) {
             return false;
+        }
         OpptjeningAktivitetPeriode other = (OpptjeningAktivitetPeriode) o;
         return Objects.equals(opptjeningAktivitetType, other.opptjeningAktivitetType) &&
-            Objects.equals(grupperingNøkkel, other.grupperingNøkkel) &&
-            Objects.equals(begrunnelse, other.begrunnelse);
+                Objects.equals(grupperingNøkkel, other.grupperingNøkkel) &&
+                Objects.equals(begrunnelse, other.begrunnelse);
     }
 
     @Override
@@ -67,12 +69,12 @@ public class OpptjeningAktivitetPeriode {
     @Override
     public String toString() {
         return getClass().getSimpleName() + "<"
-            + "opptjeningAktivitetType=" + opptjeningAktivitetType
-            + ", periode=" + periode
-            + (orgnr == null ? "" : ", orgnr=" + orgnr)
-            + (grupperingNøkkel == null ? "" : ", grupperingNøkkel=" + grupperingNøkkel)
-            + (vurderingsStatus == null ? "" : ", vurderingsStatus=" + vurderingsStatus)
-            + ">";
+                + "opptjeningAktivitetType=" + opptjeningAktivitetType
+                + ", periode=" + periode
+                + (orgnr == null ? "" : ", orgnr=" + orgnr)
+                + (grupperingNøkkel == null ? "" : ", grupperingNøkkel=" + grupperingNøkkel)
+                + (vurderingsStatus == null ? "" : ", vurderingsStatus=" + vurderingsStatus)
+                + ">";
     }
 
     public static class Builder {
@@ -88,14 +90,14 @@ public class OpptjeningAktivitetPeriode {
 
         public static Builder lagNyBasertPå(OpptjeningAktivitetPeriode kladd) {
             OpptjeningAktivitetPeriode periode = ny()
-                .medPeriode(kladd.getPeriode())
-                .medOpptjeningAktivitetType(kladd.getOpptjeningAktivitetType())
-                .medVurderingsStatus(kladd.getVurderingsStatus())
-                .medOpptjeningsnøkkel(kladd.getOpptjeningsnøkkel())
-                .medBegrunnelse(kladd.getBegrunnelse())
-                .medOrgnr(kladd.getOrgnr())
-                .medStillingsandel(kladd.getStillingsprosent())
-                .build();
+                    .medPeriode(kladd.getPeriode())
+                    .medOpptjeningAktivitetType(kladd.getOpptjeningAktivitetType())
+                    .medVurderingsStatus(kladd.getVurderingsStatus())
+                    .medOpptjeningsnøkkel(kladd.getOpptjeningsnøkkel())
+                    .medBegrunnelse(kladd.getBegrunnelse())
+                    .medOrgnr(kladd.getOrgnr())
+                    .medStillingsandel(kladd.getStillingsprosent())
+                    .build();
             return new Builder(periode);
         }
 
@@ -142,8 +144,8 @@ public class OpptjeningAktivitetPeriode {
 
         private void valider() {
             // Opptjeningsperiode av typen arbeid krever alltid arbeidsgiver
-            if (kladd.opptjeningAktivitetType == OpptjeningAktivitetType.ARBEID &&
-                (kladd.grupperingNøkkel == null || kladd.grupperingNøkkel.getArbeidsgiverType() == null)) {
+            if ((kladd.opptjeningAktivitetType == OpptjeningAktivitetType.ARBEID) &&
+                    ((kladd.grupperingNøkkel == null) || (kladd.grupperingNøkkel.getArbeidsgiverType() == null))) {
                 throw new IllegalStateException("Validering feilet for" + kladd.toString());
             }
         }

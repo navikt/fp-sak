@@ -29,11 +29,9 @@ public enum Oppgavetyper implements Kodeverdi, MedOffisiellKode {
     VURDER_KONSEKVENS_YTELSE("VUR_KONS_YTE", "Vurder konsekvens for ytelse"),
     VURDER_DOKUMENT_VL("VUR_VL", "Vurder dokument i VL"),
     FEILUTBETALING("FEILUTBET", "Feilutbetalingsvedtak"),
-    INNHENT_DOK("INNH_DOK",  "Innhent dokumentasjon"),
+    INNHENT_DOK("INNH_DOK", "Innhent dokumentasjon"),
     SETTVENT("SETTVENT", "Sett utbetaling på vent"),
-    BEHANDLE_SAK_IT("BEH_SAK", "Behandle sak")
-    ;
-
+    BEHANDLE_SAK_IT("BEH_SAK", "Behandle sak");
 
     public static final String KODEVERK = "OPPGAVETYPER";
 

@@ -30,11 +30,11 @@ public class SendInformasjonsbrevBatchArguments extends BatchArguments {
 
     SendInformasjonsbrevBatchArguments(Map<String, String> arguments) {
         super(arguments);
-        if (antallDager != null && tom == null && fom == null) { // NOSONAR
+        if ((antallDager != null) && (tom == null) && (fom == null)) { // NOSONAR
             beregneFomOgTomDato();
             harGenerertDatoer = true;
 
-        } else if (antallDager == null && tom == null && fom == null) {
+        } else if ((antallDager == null) && (tom == null) && (fom == null)) {
             antallDager = 1;
             beregneFomOgTomDato();
             harGenerertDatoer = true;
@@ -82,7 +82,7 @@ public class SendInformasjonsbrevBatchArguments extends BatchArguments {
     }
 
     private boolean hasSetDates() {
-        return fom != null && tom != null;
+        return (fom != null) && (tom != null);
     }
 
     private boolean isValidDateRange() {
@@ -96,9 +96,9 @@ public class SendInformasjonsbrevBatchArguments extends BatchArguments {
     @Override
     public String toString() {
         return "SendInformasjonsbrevBatchArguments{" +
-            "antallDager=" + antallDager +
-            ", fom=" + fom +
-            ", tom=" + tom +
-            '}';
+                "antallDager=" + antallDager +
+                ", fom=" + fom +
+                ", tom=" + tom +
+                '}';
     }
 }

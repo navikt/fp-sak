@@ -18,7 +18,8 @@ public class BehandlingTransisjonEvent implements BehandlingEvent {
     private BehandlingStegType tilStegType;
     private boolean erOverhopp;
 
-    public BehandlingTransisjonEvent(BehandlingskontrollKontekst kontekst, TransisjonIdentifikator transisjonIdentifikator, BehandlingStegTilstand fraTilstand, BehandlingStegType tilStegType, boolean erOverhopp) {
+    public BehandlingTransisjonEvent(BehandlingskontrollKontekst kontekst, TransisjonIdentifikator transisjonIdentifikator,
+            BehandlingStegTilstand fraTilstand, BehandlingStegType tilStegType, boolean erOverhopp) {
         this.kontekst = kontekst;
         this.transisjonIdentifikator = transisjonIdentifikator;
         this.fraTilstand = fraTilstand;

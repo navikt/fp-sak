@@ -30,7 +30,7 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
 
     @Inject
     public TilknyttFagsakStegImpl(BehandlingRepositoryProvider provider,
-                                    OppgaveTjeneste oppgaveTjeneste) {
+            OppgaveTjeneste oppgaveTjeneste) {
         this.behandlingRepository = provider.getBehandlingRepository();
         this.oppgaveTjeneste = oppgaveTjeneste;
     }

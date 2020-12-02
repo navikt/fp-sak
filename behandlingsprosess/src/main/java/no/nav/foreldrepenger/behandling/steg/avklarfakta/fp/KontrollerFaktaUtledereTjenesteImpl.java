@@ -37,7 +37,8 @@ class KontrollerFaktaUtledereTjenesteImpl implements KontrollerFaktaUtledere {
         this.familieHendelseRepository = familieHendelseRepository;
     }
 
-    // Legg til aksjonspunktutledere som er felles for Førstegangsbehandling og Revurdering
+    // Legg til aksjonspunktutledere som er felles for Førstegangsbehandling og
+    // Revurdering
     protected List<AksjonspunktUtleder> leggTilFellesutledere(BehandlingReferanse ref) {
         final AksjonspunktUtlederHolder utlederHolder = new AksjonspunktUtlederHolder();
 
@@ -48,8 +49,8 @@ class KontrollerFaktaUtledereTjenesteImpl implements KontrollerFaktaUtledere {
         }
 
         FamilieHendelseType familieHendelseType = hendelseGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-            .map(FamilieHendelseEntitet::getType)
-            .orElseThrow(() -> new IllegalStateException("Utvikler feil: Hendelse uten type"));
+                .map(FamilieHendelseEntitet::getType)
+                .orElseThrow(() -> new IllegalStateException("Utvikler feil: Hendelse uten type"));
 
         // Legger til utledere som alltid skal kjøres
         leggTilStandardUtledere(utlederHolder);
@@ -76,8 +77,8 @@ class KontrollerFaktaUtledereTjenesteImpl implements KontrollerFaktaUtledere {
 
     private void leggTilStandardUtledere(AksjonspunktUtlederHolder utlederHolder) {
         utlederHolder.leggTil(AksjonspunktutlederForMedlemskapSkjæringstidspunkt.class)
-            .leggTil(AksjonspunktUtlederForTilleggsopplysninger.class)
-            .leggTil(AksjonspunktutlederForAvklarStartdatoForForeldrepengeperioden.class)
-            .leggTil(AksjonspunktUtlederForTidligereMottattYtelse.class);
+                .leggTil(AksjonspunktUtlederForTilleggsopplysninger.class)
+                .leggTil(AksjonspunktutlederForAvklarStartdatoForForeldrepengeperioden.class)
+                .leggTil(AksjonspunktUtlederForTidligereMottattYtelse.class);
     }
 }
