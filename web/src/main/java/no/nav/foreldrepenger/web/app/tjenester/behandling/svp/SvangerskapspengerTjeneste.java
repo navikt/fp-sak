@@ -4,6 +4,7 @@ import static no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval.TIDENES
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -19,6 +20,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.Svanger
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFilter;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
@@ -32,6 +35,12 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 @ApplicationScoped
 public class SvangerskapspengerTjeneste {
+
+    private static final Map<ArbeidType, UttakArbeidType> ARBTYPE_MAP = Map.ofEntries(
+        Map.entry(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, UttakArbeidType.ORDINÆRT_ARBEID),
+        Map.entry(ArbeidType.FRILANSER, UttakArbeidType.FRILANS),
+        Map.entry(ArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE, UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE)
+    );
 
     private SvangerskapspengerRepository svangerskapspengerRepository;
     private FamilieHendelseRepository familieHendelseRepository;
@@ -109,7 +118,7 @@ public class SvangerskapspengerTjeneste {
         dto.setKopiertFraTidligereBehandling(svpTilrettelegging.getKopiertFraTidligereBehandling());
         dto.setMottattTidspunkt(svpTilrettelegging.getMottattTidspunkt());
         dto.setSkalBrukes(svpTilrettelegging.getSkalBrukes());
-        dto.setArbeidType(svpTilrettelegging.getArbeidType());
+        dto.setUttakArbeidType(ARBTYPE_MAP.getOrDefault(svpTilrettelegging.getArbeidType(), UttakArbeidType.ANNET));
         svpTilrettelegging.getInternArbeidsforholdRef().ifPresent(ref -> {
             dto.setInternArbeidsforholdReferanse(ref.getReferanse());
             var arbeidsgiver = svpTilrettelegging.getArbeidsgiver()
