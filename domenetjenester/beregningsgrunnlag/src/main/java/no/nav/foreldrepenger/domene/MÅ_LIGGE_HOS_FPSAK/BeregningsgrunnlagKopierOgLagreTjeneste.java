@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK;
 
+import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand.BESTEBEREGNET;
 import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand.FASTSATT;
 import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand.FASTSATT_INN;
 import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand.FORESLÅTT;
@@ -24,6 +25,7 @@ import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.FaktaOmBeregningInput;
 import no.nav.folketrygdloven.kalkulator.input.FordelBeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.ForeslåBeregningsgrunnlagInput;
+import no.nav.folketrygdloven.kalkulator.input.ForeslåBesteberegningInput;
 import no.nav.folketrygdloven.kalkulator.modell.behandling.KoblingReferanse;
 import no.nav.folketrygdloven.kalkulator.output.BeregningAksjonspunktResultat;
 import no.nav.folketrygdloven.kalkulator.output.BeregningResultatAggregat;
@@ -160,6 +162,22 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
             .filter(p -> p.getPeriode().overlapper(førstePeriode) && p.getRegelType().equals(BeregningsgrunnlagPeriodeRegelType.VILKÅR_VURDERING))
             .findFirst();
     }
+
+    public BeregningsgrunnlagVilkårOgAkjonspunktResultat foreslåBesteberegning(BeregningsgrunnlagInput input) {
+        Long behandlingId = input.getKoblingReferanse().getKoblingId();
+        ForeslåBesteberegningInput foreslåBeregningsgrunnlagInput = (ForeslåBesteberegningInput) kalkulatorStegProsesseringInputTjeneste.lagFortsettInput(
+            behandlingId,
+            input,
+            BehandlingStegType.FORESLÅ_BESTEBEREGNING);
+        BeregningResultatAggregat beregningResultatAggregat = beregningsgrunnlagTjeneste.foreslåBesteberegning(foreslåBeregningsgrunnlagInput);
+        BeregningsgrunnlagEntitet nyttBg = KalkulusTilBehandlingslagerMapper.mapBeregningsgrunnlag(
+            beregningResultatAggregat.getBeregningsgrunnlag(),
+            beregningResultatAggregat.getBeregningsgrunnlagGrunnlag().getFaktaAggregat(),
+            beregningResultatAggregat.getRegelSporingAggregat());
+        beregningsgrunnlagRepository.lagre(behandlingId, nyttBg, BESTEBEREGNET);
+        return new BeregningsgrunnlagVilkårOgAkjonspunktResultat(beregningResultatAggregat.getBeregningAksjonspunktResultater());
+    }
+
 
     public BeregningsgrunnlagVilkårOgAkjonspunktResultat foreslåBeregningsgrunnlag(BeregningsgrunnlagInput input) {
         Long behandlingId = input.getKoblingReferanse().getKoblingId();

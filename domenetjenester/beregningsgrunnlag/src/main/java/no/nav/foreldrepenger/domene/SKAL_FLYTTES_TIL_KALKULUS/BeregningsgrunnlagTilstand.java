@@ -26,6 +26,7 @@ public enum BeregningsgrunnlagTilstand implements Kodeverdi {
     FASTSATT_BEREGNINGSAKTIVITETER("FASTSATT_BEREGNINGSAKTIVITETER", "Fastsatt beregningsaktiviteter", false),
     OPPDATERT_MED_ANDELER("OPPDATERT_MED_ANDELER", "Oppdatert med andeler", true),
     KOFAKBER_UT("KOFAKBER_UT", "Kontroller fakta beregningsgrunnlag - Ut", false),
+    BESTEBEREGNET("BESTEBEREGNET", "Besteberegnet", false),
     FORESLÅTT("FORESLÅTT", "Foreslått", true),
     FORESLÅTT_UT("FORESLÅTT_UT", "Foreslått ut", false),
     VURDERT_REFUSJON("VURDERT_REFUSJON", "Vurder refusjonskrav beregning", true),

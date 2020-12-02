@@ -23,6 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.RepositoryProvider;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.opptjening.OpptjeningAktiviteter;
@@ -31,6 +32,10 @@ import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.testutilities.behandling
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
+import no.nav.foreldrepenger.domene.iay.modell.YtelseBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.YtelseGrunnlagBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.Arbeidskategori;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 
 @CdiDbAwareTest
@@ -52,6 +57,7 @@ public class BesteberegningFødendeKvinneTjenesteTest {
 
     private BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste;
     private Behandling behandling;
+    private AbakusInMemoryInntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
 
     public BesteberegningFødendeKvinneTjenesteTest(EntityManager em) {
         repositoryProvider = new RepositoryProvider(em);
@@ -63,7 +69,7 @@ public class BesteberegningFødendeKvinneTjenesteTest {
         ScenarioForeldrepenger scenario = ScenarioForeldrepenger.nyttScenario();
         behandlingReferanse = scenario.lagre(repositoryProvider);
         behandling = behandlingRepository.hentBehandling(behandlingReferanse.getBehandlingId());
-        AbakusInMemoryInntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
+        inntektArbeidYtelseTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
         inntektArbeidYtelseTjeneste.lagreIayAggregat(behandlingReferanse.getBehandlingId(),
                 InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER));
         besteberegningFødendeKvinneTjeneste = new BesteberegningFødendeKvinneTjeneste(familieHendelseRepository,
@@ -98,11 +104,11 @@ public class BesteberegningFødendeKvinneTjenesteTest {
     }
 
     @Test
-    public void skalGiBesteberegningNårDagpengerIOpptjeningsperioden() {
+    public void skalGiBesteberegningNårDagpengerPåStp() {
         BehandlingReferanse ref = lagBehandlingReferanseMedStp(behandlingReferanse);
         lagreFamilihendelseFødsel();
         OpptjeningAktiviteter opptjeningAktiviteter = OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER,
-                new no.nav.abakus.iaygrunnlag.Periode(OPPTJENINGSPERIODE.getFomDato(), OPPTJENINGSPERIODE.getTomDato()));
+                new no.nav.abakus.iaygrunnlag.Periode(OPPTJENINGSPERIODE.getFomDato(), SKJÆRINGSTIDSPUNKT.plusDays(1)));
         when(opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(any(), any()))
                 .thenReturn(Optional.of(opptjeningAktiviteter));
 
@@ -114,10 +120,38 @@ public class BesteberegningFødendeKvinneTjenesteTest {
     }
 
     @Test
-    public void skalIkkeGiBesteberegningIkkeDagpengerIOpptjeningsperioden() {
+    public void skalGiBesteberegningNårSykepengerMedOvergangFraDagpenger() {
+        BehandlingReferanse ref = lagBehandlingReferanseMedStp(behandlingReferanse);
         lagreFamilihendelseFødsel();
         OpptjeningAktiviteter opptjeningAktiviteter = OpptjeningAktiviteter.fraOrgnr(OpptjeningAktivitetType.ARBEID,
-                new no.nav.abakus.iaygrunnlag.Periode(OPPTJENINGSPERIODE.getFomDato(), OPPTJENINGSPERIODE.getTomDato()), ORGNR);
+            new no.nav.abakus.iaygrunnlag.Periode(OPPTJENINGSPERIODE.getFomDato(), OPPTJENINGSPERIODE.getTomDato()), ORGNR);
+        when(opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(any(), any()))
+            .thenReturn(Optional.of(opptjeningAktiviteter));
+
+        InntektArbeidYtelseAggregatBuilder oppdatere = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
+        InntektArbeidYtelseAggregatBuilder.AktørYtelseBuilder aktørYtelseBuilder = oppdatere.getAktørYtelseBuilder(behandlingReferanse.getAktørId());
+        YtelseBuilder ytelseBuilder = YtelseBuilder.oppdatere(Optional.empty())
+            .medPeriode(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10)))
+            .medYtelseType(RelatertYtelseType.SYKEPENGER);
+        YtelseGrunnlagBuilder grunnlagBuilder = ytelseBuilder.getGrunnlagBuilder();
+        grunnlagBuilder.medArbeidskategori(Arbeidskategori.KOMBINASJON_ARBEIDSTAKER_OG_DAGPENGER);
+        ytelseBuilder.medYtelseGrunnlag(grunnlagBuilder.build());
+        aktørYtelseBuilder.leggTilYtelse(ytelseBuilder);
+        oppdatere.leggTilAktørYtelse(aktørYtelseBuilder);
+        inntektArbeidYtelseTjeneste.lagreIayAggregat(behandlingReferanse.getBehandlingId(), oppdatere);
+
+        // Act
+        boolean resultat = besteberegningFødendeKvinneTjeneste.brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(ref);
+
+        // Assert
+        assertThat(resultat).isTrue();
+    }
+
+    @Test
+    public void skalIkkeGiBesteberegningIkkeDagpengerPåStp() {
+        lagreFamilihendelseFødsel();
+        OpptjeningAktiviteter opptjeningAktiviteter = OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER,
+            new no.nav.abakus.iaygrunnlag.Periode(OPPTJENINGSPERIODE.getFomDato(), SKJÆRINGSTIDSPUNKT.minusDays(1)));
         when(opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(any(), any()))
                 .thenReturn(Optional.of(opptjeningAktiviteter));
         BehandlingReferanse ref = lagBehandlingReferanseMedStp(behandlingReferanse);
