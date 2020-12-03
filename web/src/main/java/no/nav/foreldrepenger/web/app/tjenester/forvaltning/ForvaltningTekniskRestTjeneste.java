@@ -28,13 +28,18 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
+import no.nav.foreldrepenger.behandling.anke.AnkeVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeOmgjørÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
+import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -42,6 +47,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.geografisk.PoststedKodeverkRepository;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
+import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
 import no.nav.foreldrepenger.poststed.PostnummerSynkroniseringTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.BehandlingAksjonspunktDto;
@@ -67,6 +73,8 @@ public class ForvaltningTekniskRestTjeneste {
     private OppgaveTjeneste oppgaveTjeneste;
     private PoststedKodeverkRepository postnummerKodeverkRepository;
     private PostnummerSynkroniseringTjeneste postnummerTjeneste;
+    private DatavarehusTjeneste datavarehusTjeneste;
+    private AnkeVurderingTjeneste ankeVurderingTjeneste;
 
     public ForvaltningTekniskRestTjeneste() {
         // For CDI
@@ -77,6 +85,8 @@ public class ForvaltningTekniskRestTjeneste {
             OppgaveTjeneste oppgaveTjeneste,
             PoststedKodeverkRepository postnummerKodeverkRepository,
             PostnummerSynkroniseringTjeneste postnummerTjeneste,
+            DatavarehusTjeneste datavarehusTjeneste,
+            AnkeVurderingTjeneste ankeVurderingTjeneste,
             BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.søknadRepository = repositoryProvider.getSøknadRepository();
@@ -84,6 +94,8 @@ public class ForvaltningTekniskRestTjeneste {
         this.oppgaveTjeneste = oppgaveTjeneste;
         this.postnummerKodeverkRepository = postnummerKodeverkRepository;
         this.postnummerTjeneste = postnummerTjeneste;
+        this.datavarehusTjeneste = datavarehusTjeneste;
+        this.ankeVurderingTjeneste = ankeVurderingTjeneste;
     }
 
     @POST
@@ -297,6 +309,26 @@ public class ForvaltningTekniskRestTjeneste {
         public AbacDataAttributter apply(Object obj) {
             return AbacDataAttributter.opprett();
         }
+    }
+
+    @POST
+    @Path("/populer-anke-tr-dvh")
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    @Operation(description = "Hente og lagre kodeverk Postnummer", tags = "FORVALTNING-teknisk")
+    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
+    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    public Response runOncePopulerAnkeDvhMedTR(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
+        var b = behandlingRepository.hentBehandling(dto.getBehandlingId());
+        if (BehandlingType.ANKE.equals(b.getType()) && b.erSaksbehandlingAvsluttet()) {
+            datavarehusTjeneste.oppdaterHvisKlageEllerAnke(b.getId(), b.getAksjonspunkter());
+        } else if (BehandlingType.ANKE.equals(b.getType()) && !b.erSaksbehandlingAvsluttet()) {
+            var avr = ankeVurderingTjeneste.hentAnkeVurderingResultat(b).orElseThrow();
+            ankeVurderingTjeneste.oppdaterBekreftetMerknaderAksjonspunkt(b, avr.getErMerknaderMottatt(), avr.getMerknaderFraBruker(),
+                AnkeVurdering.UDEFINERT, AnkeVurderingOmgjør.UDEFINERT, AnkeOmgjørÅrsak.UDEFINERT);
+        }
+        postnummerTjeneste.synkroniserPostnummer();
+        return Response.ok().build();
     }
 
 

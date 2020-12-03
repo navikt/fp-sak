@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResul
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.vedtak.ekstern.SettUtbetalingPåVentPrivatArbeidsgiverTask;
@@ -37,9 +38,9 @@ public class OpprettProsessTaskIverksett {
     public static final String VEDTAK_TIL_DATAVAREHUS_TASK = "iverksetteVedtak.vedtakTilDatavarehus";
 
     private static final String VKY_KLAGE_BESKRIVELSE = "Vedtaket er opphevet eller omgjort. Opprett en ny behandling.";
-    private static final String VKY_KLAGE_UENDRET_BESKRIVELSE = "Vedtaket er stadfestet av NAV Klageinstans, dette til informasjon.";
+    private static final String VKY_KLAGE_UENDRET_BESKRIVELSE = "Vedtaket er stadfestet eller klagen avvist av NAV Klageinstans, dette til informasjon.";
     private static final String VKY_ANKE_BESKRIVELSE = "Vedtaket er omgjort, opphevet eller hjemsendt. Opprett en ny behandling.";
-    private static final String VKY_TRR_UENDRET_BESKRIVELSE = "Vedtaket er stadfestet eller avvist av Trygderetten, dette til informasjon.";
+    private static final String VKY_TRR_UENDRET_BESKRIVELSE = "Vedtaket er stadfestet eller anken avvist av Trygderetten, dette til informasjon.";
 
     private static final Set<AnkeVurdering> ANKE_ENDRES = Set.of(AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE, AnkeVurdering.ANKE_OMGJOER, AnkeVurdering.ANKE_HJEMSEND_UTEN_OPPHEV);
     private static final Set<KlageVurdering> KLAGE_ENDRES = Set.of(KlageVurdering.MEDHOLD_I_KLAGE, KlageVurdering.OPPHEVE_YTELSESVEDTAK, KlageVurdering.HJEMSENDE_UTEN_Å_OPPHEVE);
@@ -136,7 +137,8 @@ public class OpprettProsessTaskIverksett {
         if (KLAGE_ENDRES.contains(vurdering)) {
             return Optional.of(lagOpprettVurderKonsekvensTask(sisteYtelseBeh, VKY_KLAGE_BESKRIVELSE));
         }
-        return KlageVurdering.STADFESTE_YTELSESVEDTAK.equals(vurdering) ? Optional.of(lagOpprettVurderKonsekvensTask(sisteYtelseBeh, VKY_KLAGE_UENDRET_BESKRIVELSE)) : Optional.empty();
+        return (KlageVurdering.STADFESTE_YTELSESVEDTAK.equals(vurdering) || (KlageVurdering.AVVIS_KLAGE.equals(vurdering) && KlageVurdertAv.NK.equals(vurderingResultat.getKlageVurdertAv())))
+            ? Optional.of(lagOpprettVurderKonsekvensTask(sisteYtelseBeh, VKY_KLAGE_UENDRET_BESKRIVELSE)) : Optional.empty();
     }
 
     private ProsessTaskData lagOpprettVurderKonsekvensTask(Behandling behandling, String beskrivelse) {
