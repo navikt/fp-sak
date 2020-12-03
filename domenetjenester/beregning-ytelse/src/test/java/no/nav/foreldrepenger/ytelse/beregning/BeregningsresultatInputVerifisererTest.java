@@ -47,6 +47,33 @@ public class BeregningsresultatInputVerifisererTest {
         BeregningsresultatInputVerifiserer.verifiserAndelerIUttakLiggerIBeregning(input);
     }
 
+    @Test
+    public void skal_ikke_validere_andeler_som_ligger_i_perioder_med_fom_etter_siste_uttaksdag() {
+        BeregningsgrunnlagPrArbeidsforhold arbfor1 = lagBGArbeidsforhold("999999999", null, false);
+        BeregningsgrunnlagPrArbeidsforhold arbfor2 = lagBGArbeidsforhold("999999998", null, false);
+        lagBGPeriode(LocalDate.of(2020, 8, 3), LocalDate.of(2020, 8, 31), arbfor1);
+        lagBGPeriode(LocalDate.of(2020, 9, 1), LocalDate.of(9999, 12, 31), arbfor1, arbfor2);
+        UttakAktivitet uttakAktivitet = lagUttakAktivitet("999999999", null, false);
+        lagUttakPeriode(LocalDate.of(2020, 8, 3), LocalDate.of(2020, 8, 31), uttakAktivitet);
+
+        UttakResultat uttakResultat = new UttakResultat(uttakPerioder);
+        BeregningsresultatRegelmodell input = new BeregningsresultatRegelmodell(bgBuilder.build(), uttakResultat);
+        BeregningsresultatInputVerifiserer.verifiserAlleAndelerIBeregningErIUttak(input);
+    }
+
+    @Test
+    public void en_periode_skal_matches_med_uttak() {
+        BeregningsgrunnlagPrArbeidsforhold arbfor1 = lagBGArbeidsforhold("999999999", null, false);
+        lagBGPeriode(LocalDate.of(2020, 8, 3), LocalDate.of(9999, 12, 31), arbfor1);
+        UttakAktivitet uttakAktivitet = lagUttakAktivitet("999999999", null, false);
+        lagUttakPeriode(LocalDate.of(2020, 8, 3), LocalDate.of(2020, 8, 31), uttakAktivitet);
+
+        UttakResultat uttakResultat = new UttakResultat(uttakPerioder);
+        BeregningsresultatRegelmodell input = new BeregningsresultatRegelmodell(bgBuilder.build(), uttakResultat);
+        BeregningsresultatInputVerifiserer.verifiserAlleAndelerIBeregningErIUttak(input);
+    }
+
+
     private BeregningsgrunnlagPrArbeidsforhold lagBGArbeidsforhold(String orgnr, String referanse, boolean erFrilans) {
         Arbeidsforhold arbeidsforhold = erFrilans ? Arbeidsforhold.frilansArbeidsforhold()
                 : Arbeidsforhold.nyttArbeidsforholdHosVirksomhet(orgnr, referanse);
