@@ -45,7 +45,7 @@ public final class BeregningsresultatInputVerifiserer {
         // Trenger kun å se på perioder som overlapper med beregning
         LocalDate sisteUttaksdato = finnSisteUttaksdato(input);
         return input.getBeregningsgrunnlag().getBeregningsgrunnlagPerioder().stream()
-            .filter(bgp -> !bgp.getBeregningsgrunnlagPeriode().getTom().isAfter(sisteUttaksdato))
+            .filter(bgp -> !bgp.getBeregningsgrunnlagPeriode().getFom().isAfter(sisteUttaksdato))
             .map(BeregningsgrunnlagPeriode::getBeregningsgrunnlagPrStatus).flatMap(Collection::stream).collect(Collectors.toList());
     }
 
