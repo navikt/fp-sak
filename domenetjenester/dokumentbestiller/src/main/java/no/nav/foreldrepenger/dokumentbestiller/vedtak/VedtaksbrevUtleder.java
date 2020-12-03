@@ -100,16 +100,10 @@ public class VedtaksbrevUtleder {
 
     public static DokumentMalType velgPositivtVedtaksmal(Behandling behandling) {
         FagsakYtelseType ytelse = behandling.getFagsakYtelseType();
-        DokumentMalType dokumentMalTypeES;
-        if (FagsakYtelseType.ENGANGSTØNAD.equals(ytelse) && !ENV.isProd()) {
-            dokumentMalTypeES = DokumentMalType.INNVILGELSE_ENGANGSSTØNAD;
-        } else {
-            dokumentMalTypeES = DokumentMalType.POSITIVT_VEDTAK_DOK;
-        }
 
         return FagsakYtelseType.FORELDREPENGER.equals(ytelse) ?
             DokumentMalType.INNVILGELSE_FORELDREPENGER_DOK : FagsakYtelseType.ENGANGSTØNAD.equals(ytelse) ?
-            dokumentMalTypeES : FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelse) ?
+            DokumentMalType.INNVILGELSE_ENGANGSSTØNAD : FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelse) ?
             DokumentMalType.INNVILGELSE_SVANGERSKAPSPENGER_DOK : null;
     }
 
