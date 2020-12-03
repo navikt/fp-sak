@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.datavarehus.domene;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -65,6 +66,18 @@ public class AnkeVurderingResultatDvh extends DvhBaseEntitet {
     @Column(name = "opprettet_tid", nullable = false, updatable = false)
     private LocalDateTime opprettetTidspunkt;
 
+    @Column(name="tr_vurdering")
+    private String trygderettVurdering;
+
+    @Column(name="tr_omgjoer_aarsak")
+    private String trygderettOmgjørÅrsak;
+
+    @Column(name="tr_vurdering_omgjoer")
+    private String trygderettVurderingOmgjør;
+
+    @Column(name = "tr_kjennelse_dato")
+    private LocalDate trygderettKjennelseDato;
+
     private AnkeVurderingResultatDvh() {
     }
 
@@ -120,6 +133,22 @@ public class AnkeVurderingResultatDvh extends DvhBaseEntitet {
         return erSubsidiartRealitetsbehandles;
     }
 
+    public String getTrygderettVurdering() {
+        return trygderettVurdering;
+    }
+
+    public String getTrygderettOmgjørÅrsak() {
+        return trygderettOmgjørÅrsak;
+    }
+
+    public String getTrygderettVurderingOmgjør() {
+        return trygderettVurderingOmgjør;
+    }
+
+    public LocalDate getTrygderettKjennelseDato() {
+        return trygderettKjennelseDato;
+    }
+
     public LocalDateTime getOpprettetTidspunkt() {
         return opprettetTidspunkt;
     }
@@ -130,24 +159,30 @@ public class AnkeVurderingResultatDvh extends DvhBaseEntitet {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         AnkeVurderingResultatDvh that = (AnkeVurderingResultatDvh) o;
-        return Objects.equals(ankeBehandlingId, that.ankeBehandlingId) &&
+        return gjelderVedtak == that.gjelderVedtak &&
+            erMerknaderMottatt == that.erMerknaderMottatt &&
+            erAnkerIkkePart == that.erAnkerIkkePart &&
+            erFristIkkeOverholdt == that.erFristIkkeOverholdt &&
+            erIkkeKonkret == that.erIkkeKonkret &&
+            erIkkeSignert == that.erIkkeSignert &&
+            erSubsidiartRealitetsbehandles == that.erSubsidiartRealitetsbehandles &&
+            Objects.equals(id, that.id) &&
+            Objects.equals(ankeBehandlingId, that.ankeBehandlingId) &&
             Objects.equals(ankeVurdering, that.ankeVurdering) &&
             Objects.equals(ankeOmgjørÅrsak, that.ankeOmgjørÅrsak) &&
             Objects.equals(ankeVurderingOmgjør, that.ankeVurderingOmgjør) &&
-            Objects.equals(erMerknaderMottatt, that.erMerknaderMottatt) &&
-            Objects.equals(gjelderVedtak, that.gjelderVedtak) &&
-            Objects.equals(erSubsidiartRealitetsbehandles, that.erSubsidiartRealitetsbehandles) &&
-            Objects.equals(erAnkerIkkePart, that.erAnkerIkkePart) &&
-            Objects.equals(erFristIkkeOverholdt, that.erFristIkkeOverholdt) &&
-            Objects.equals(erIkkeKonkret, that.erIkkeKonkret) &&
-            Objects.equals(erIkkeSignert, that.erIkkeSignert) &&
-            Objects.equals(opprettetTidspunkt, that.opprettetTidspunkt);
+            Objects.equals(opprettetTidspunkt, that.opprettetTidspunkt) &&
+            Objects.equals(trygderettVurdering, that.trygderettVurdering) &&
+            Objects.equals(trygderettOmgjørÅrsak, that.trygderettOmgjørÅrsak) &&
+            Objects.equals(trygderettVurderingOmgjør, that.trygderettVurderingOmgjør) &&
+            Objects.equals(trygderettKjennelseDato, that.trygderettKjennelseDato);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), ankeBehandlingId, ankeVurdering, ankeOmgjørÅrsak, ankeVurderingOmgjør, erMerknaderMottatt,
-            gjelderVedtak, erSubsidiartRealitetsbehandles, erAnkerIkkePart, erFristIkkeOverholdt, erIkkeKonkret, erIkkeSignert, opprettetTidspunkt);
+        return Objects.hash(super.hashCode(), id, ankeBehandlingId, gjelderVedtak, ankeVurdering, ankeOmgjørÅrsak, ankeVurderingOmgjør, erMerknaderMottatt,
+            erAnkerIkkePart, erFristIkkeOverholdt, erIkkeKonkret, erIkkeSignert, erSubsidiartRealitetsbehandles, opprettetTidspunkt,
+            trygderettVurdering, trygderettOmgjørÅrsak, trygderettVurderingOmgjør, trygderettKjennelseDato);
     }
 
     public static class Builder {
@@ -210,6 +245,26 @@ public class AnkeVurderingResultatDvh extends DvhBaseEntitet {
 
         public Builder medOpprettetTidspunkt(LocalDateTime opprettetTidspunkt) {
             ankeVurderingResultatDvh.opprettetTidspunkt = opprettetTidspunkt;
+            return this;
+        }
+
+        public Builder medTrygderettVurdering(String ankeVurdering) {
+            ankeVurderingResultatDvh.trygderettVurdering = ankeVurdering;
+            return this;
+        }
+
+        public Builder medTrygderettOmgjørÅrsak(String ankeOmgjørÅrsak) {
+            ankeVurderingResultatDvh.trygderettOmgjørÅrsak = ankeOmgjørÅrsak;
+            return this;
+        }
+
+        public Builder medTrygderettVurderingOmgjør(String ankeVurderingOmgjør) {
+            ankeVurderingResultatDvh.trygderettVurderingOmgjør = ankeVurderingOmgjør;
+            return this;
+        }
+
+        public Builder medTrygderettKjennelseDato(LocalDate kjennelseDato) {
+            ankeVurderingResultatDvh.trygderettKjennelseDato = kjennelseDato;
             return this;
         }
 

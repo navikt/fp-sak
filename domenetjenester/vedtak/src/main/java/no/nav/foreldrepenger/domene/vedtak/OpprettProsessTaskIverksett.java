@@ -37,10 +37,12 @@ public class OpprettProsessTaskIverksett {
     public static final String VEDTAK_TIL_DATAVAREHUS_TASK = "iverksetteVedtak.vedtakTilDatavarehus";
 
     private static final String VKY_KLAGE_BESKRIVELSE = "Vedtaket er opphevet eller omgjort. Opprett en ny behandling.";
+    private static final String VKY_KLAGE_UENDRET_BESKRIVELSE = "Vedtaket er stadfestet av NAV Klageinstans, dette til informasjon.";
     private static final String VKY_ANKE_BESKRIVELSE = "Vedtaket er omgjort, opphevet eller hjemsendt. Opprett en ny behandling.";
     private static final String VKY_TRR_UENDRET_BESKRIVELSE = "Vedtaket er stadfestet eller avvist av Trygderetten, dette til informasjon.";
 
     private static final Set<AnkeVurdering> ANKE_ENDRES = Set.of(AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE, AnkeVurdering.ANKE_OMGJOER, AnkeVurdering.ANKE_HJEMSEND_UTEN_OPPHEV);
+    private static final Set<KlageVurdering> KLAGE_ENDRES = Set.of(KlageVurdering.MEDHOLD_I_KLAGE, KlageVurdering.OPPHEVE_YTELSESVEDTAK, KlageVurdering.HJEMSENDE_UTEN_Å_OPPHEVE);
 
     private ProsessTaskRepository prosessTaskRepository;
     private OppgaveTjeneste oppgaveTjeneste;
@@ -126,16 +128,15 @@ public class OpprettProsessTaskIverksett {
     }
 
     private Optional<ProsessTaskData> opprettTaskDataForKlage(Behandling behandling) {
-        Optional<KlageVurderingResultat> vurderingsresultat = klageRepository.hentGjeldendeKlageVurderingResultat(behandling);
-        if (vurderingsresultat.isPresent()) {
-            KlageVurdering vurdering = vurderingsresultat.get().getKlageVurdering();
-            if (KlageVurdering.MEDHOLD_I_KLAGE.equals(vurdering) || KlageVurdering.OPPHEVE_YTELSESVEDTAK.equals(vurdering)
-                || KlageVurdering.HJEMSENDE_UTEN_Å_OPPHEVE.equals(vurdering)) {
-                Behandling sisteYtelseBeh = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(behandling.getFagsakId()).orElse(behandling);
-                return Optional.of(lagOpprettVurderKonsekvensTask(sisteYtelseBeh, VKY_KLAGE_BESKRIVELSE));
-            }
+        KlageVurderingResultat vurderingResultat = klageRepository.hentGjeldendeKlageVurderingResultat(behandling).orElse(null);
+        if (vurderingResultat == null)
+            return Optional.empty();
+        var vurdering = vurderingResultat.getKlageVurdering();
+        Behandling sisteYtelseBeh = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(behandling.getFagsakId()).orElse(behandling);
+        if (KLAGE_ENDRES.contains(vurdering)) {
+            return Optional.of(lagOpprettVurderKonsekvensTask(sisteYtelseBeh, VKY_KLAGE_BESKRIVELSE));
         }
-        return Optional.empty();
+        return KlageVurdering.STADFESTE_YTELSESVEDTAK.equals(vurdering) ? Optional.of(lagOpprettVurderKonsekvensTask(sisteYtelseBeh, VKY_KLAGE_UENDRET_BESKRIVELSE)) : Optional.empty();
     }
 
     private ProsessTaskData lagOpprettVurderKonsekvensTask(Behandling behandling, String beskrivelse) {
