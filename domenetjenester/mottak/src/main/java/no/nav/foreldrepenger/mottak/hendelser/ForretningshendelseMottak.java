@@ -41,6 +41,7 @@ import no.nav.foreldrepenger.mottak.hendelser.håndterer.ForretningshendelseHån
 import no.nav.foreldrepenger.mottak.hendelser.saksvelger.ForretningshendelseSaksvelgerProvider;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
 public class ForretningshendelseMottak {
@@ -63,6 +64,7 @@ public class ForretningshendelseMottak {
     private BehandlingRevurderingRepository revurderingRepository;
     private ProsessTaskRepository prosessTaskRepository;
     private KøKontroller køKontroller;
+    private boolean isProd;
 
     ForretningshendelseMottak() {
         //for CDI proxy
@@ -81,6 +83,7 @@ public class ForretningshendelseMottak {
         this.revurderingRepository = repositoryProvider.getBehandlingRevurderingRepository();
         this.prosessTaskRepository = prosessTaskRepository;
         this.køKontroller = køKontroller;
+        this.isProd = Environment.current().isProd();
     }
 
     /**
@@ -151,7 +154,7 @@ public class ForretningshendelseMottak {
         taskData.setProperty(MottaHendelseFagsakTask.PROPERTY_ÅRSAK_TYPE, behandlingÅrsakType.getKode());
         taskData.setFagsakId(fagsak.getId());
         taskData.setCallIdFraEksisterende();
-        if (LocalTime.now().isBefore(OPPDRAG_VÅKNER)) {
+        if (isProd && LocalTime.now().isBefore(OPPDRAG_VÅKNER)) {
             // Porsjoner utover neste 7 min
             taskData.setNesteKjøringEtter(LocalDateTime.of(LocalDate.now(), OPPDRAG_VÅKNER.plusSeconds(LocalDateTime.now().getNano() % 1739)));
         }

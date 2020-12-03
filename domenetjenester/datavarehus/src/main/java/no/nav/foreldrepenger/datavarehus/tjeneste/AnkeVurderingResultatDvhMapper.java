@@ -30,6 +30,8 @@ public class AnkeVurderingResultatDvhMapper {
     }
 
     private static LocalDate getKjennelseDato(AnkeVurderingResultatEntitet avr) {
-        return AnkeVurdering.UDEFINERT.equals(avr.getTrygderettVurdering()) ? null : LocalDate.now();
+        if (AnkeVurdering.UDEFINERT.equals(avr.getTrygderettVurdering()))
+            return null;
+        return avr.getOpprettetTidspunkt() != null ? avr.getOpprettetTidspunkt().toLocalDate() : LocalDate.now();
     }
 }

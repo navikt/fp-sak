@@ -256,6 +256,7 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
         AnkeVurderingResultatDvh ankeVurderingResultatDvh = AnkeVurderingResultatDvhMapper.map(ankeVurderingResultat);
         datavarehusRepository.lagre(ankeVurderingResultatDvh);
     }
+
     @Override
     public void oppdaterHvisKlageEllerAnke(Long behandlingId, Collection<Aksjonspunkt> aksjonspunkter) {
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
