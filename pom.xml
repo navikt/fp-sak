@@ -67,11 +67,11 @@
         <svp-uttak.version>2.1-20200310092959-0d007c3</svp-uttak.version>
 
         <felles.version>2.5.0-20201202101058-9865681</felles.version>
-        <prosesstask.version>2.4.4-20201105215118-94e3e21</prosesstask.version>
+        <prosesstask.version>2.5.10</prosesstask.version>
         <ukelonn.felles.version>1.0.0-20200914112449-039464d</ukelonn.felles.version>
 
         <fp-kontrakter.version>5.1-20201118182725-764a023</fp-kontrakter.version>
-
+        <tidsserie.version>2.5.5</tidsserie.version>
         <kalkulus.version>1.1-2020.11.27.115943-65447d4</kalkulus.version>
         <abakus-kontrakt.version>1.2-2020.11.30.143424-850e2f9</abakus-kontrakt.version>
 
@@ -84,7 +84,7 @@
     </prerequisites>
 
 
-    <!-- NB: Unngå å put scope (test, provided) i dependency management. Det har uheldige virkninger ved bruk av import og
+    <!-- NB: Unngå å put scope (test, provided) i dependency management. Det har uheldige virkninger ved bruk av import og 
         dependency (bruk composition over arv) da de overstyrer andre scope definisjoner. Sett det heller der det brukes. -->
     <dependencyManagement>
         <dependencies>
@@ -411,7 +411,7 @@
             <dependency>
                 <groupId>no.nav.fpsak.tidsserie</groupId>
                 <artifactId>fpsak-tidsserie</artifactId>
-                <version>2.3-20200608173530-61c51da</version>
+                <version>${tidsserie.version}</version>
             </dependency>
             <dependency>
                 <groupId>no.nav.fpsak.nare</groupId>
