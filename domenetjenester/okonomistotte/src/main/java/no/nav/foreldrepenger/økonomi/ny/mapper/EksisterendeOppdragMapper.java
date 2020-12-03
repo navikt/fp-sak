@@ -69,7 +69,7 @@ public class EksisterendeOppdragMapper {
                 validerNøkkelKonsistentGjennomKjeden(nøkkelMap, nøkkel, delytelseId, refDelytelseId);
                 builderMap.put(delytelseId, builder.medOppdragslinje(oppdragslinje));
                 nøkkelMap.put(delytelseId, nøkkel);
-                if (refDelytelseId == null) {
+                if (refDelytelseId == null && !oppdragslinje.erOpphørslinje()) {
                     startpunkt.add(delytelseId);
                 }
             }
