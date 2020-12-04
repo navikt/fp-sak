@@ -16,19 +16,6 @@
         <url>https://github.com/navikt/fp-sak</url>
         <tag>HEAD</tag>
     </scm>
-
-    <distributionManagement>
-        <repository>
-            <id>repo.adeo.no-releases</id>
-            <url>https://repo.adeo.no/repository/maven-releases</url>
-        </repository>
-        <snapshotRepository>
-            <id>repo.adeo.no-snapshots</id>
-            <url>https://repo.adeo.no/repository/maven-snapshots</url>
-            <uniqueVersion>false</uniqueVersion>
-        </snapshotRepository>
-    </distributionManagement>
-
     <modules>
         <module>migreringer</module>
         <module>integrasjoner</module>
@@ -47,8 +34,7 @@
     </modules>
 
     <properties>
-        <java.version>11</java.version> <!--Brukes av jenkins -->
-
+        <java.version>11</java.version> 
         <!-- default argLine for surefire-plugin -->
         <argLine>-Xms256m -Dlog.level.no.nav=WARN -Dfile.encoding=${project.build.sourceEncoding}</argLine>
         <jacoco.skip>true</jacoco.skip> <!-- default skip coverage -->
@@ -56,16 +42,11 @@
         <revision>4.0.0</revision>
         <sha1 />
         <changelist>-SNAPSHOT</changelist>
-
         <jupiter.version>5.7.0</jupiter.version>
-
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-
         <fp-uttak.version>4.0-20201109142532-7e4a2e5</fp-uttak.version>
-
         <svp-uttak.version>2.1-20200310092959-0d007c3</svp-uttak.version>
-
         <felles.version>2.5.3</felles.version>
         <prosesstask.version>2.5.10</prosesstask.version>
         <ukelonn.felles.version>1.0.0-20200914112449-039464d</ukelonn.felles.version>
