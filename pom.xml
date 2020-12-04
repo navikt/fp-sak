@@ -45,11 +45,11 @@
         <jupiter.version>5.7.0</jupiter.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <fp-uttak.version>4.0-20201109142532-7e4a2e5</fp-uttak.version>
-        <svp-uttak.version>2.1-20200310092959-0d007c3</svp-uttak.version>
+        <fp-uttak.version>4.0.1</fp-uttak.version>
+        <svp-uttak.version>2.1.1</svp-uttak.version>
         <felles.version>2.5.3</felles.version>
         <prosesstask.version>2.5.10</prosesstask.version>
-        <ukelonn.felles.version>1.0.0-20200914112449-039464d</ukelonn.felles.version>
+        <ukelonn.felles.version>1.0.8</ukelonn.felles.version>
 
         <fp-kontrakter.version>5.1-20201118182725-764a023</fp-kontrakter.version>
         <tidsserie.version>2.5.5</tidsserie.version>
@@ -623,14 +623,12 @@
                 <version>2.1.4</version>  <!-- ikke oppgrader denne uten å sjekke at WS virker fra Gosys -->
             </dependency>
 
-            <!-- bean validation -->
             <dependency>
                 <groupId>org.glassfish</groupId>
                 <artifactId>javax.el</artifactId>
                 <version>3.0.1-b12</version>
             </dependency>
 
-            <!-- Database -->
             <dependency>
                 <groupId>com.oracle.ojdbc</groupId>
                 <artifactId>ojdbc8</artifactId>
