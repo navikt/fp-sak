@@ -16,10 +16,10 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
+import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.folketrygdloven.beregningsgrunnlag.regelmodell.Periode;
 import no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.ForeldrepengerGrunnlag;
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.modell.gradering.AktivitetGradering;
@@ -171,7 +171,7 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteKontrollerFaktaTest {
         return new BeregningsgrunnlagInput(MapBehandlingRef.mapRef(behandlingReferanse), IAYMapperTilKalkulus.mapGrunnlag(iayGr, behandlingReferanse.getAktørId()),
                 new OpptjeningAktiviteterDto(
                         List.of(OpptjeningAktiviteterDto.nyPeriode(no.nav.folketrygdloven.kalkulator.modell.opptjening.OpptjeningAktivitetType.ARBEID,
-                                new Periode(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT), ORG_NUMMER, null,
+                                Intervall.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT), ORG_NUMMER, null,
                                 InternArbeidsforholdRefDto.nullRef()))),
                 AktivitetGradering.INGEN_GRADERING,
                 List.of(),

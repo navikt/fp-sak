@@ -189,7 +189,7 @@ class MapTilKalkulatorInput {
     private static OpptjeningPeriodeDto mapOpptjeningPeriode(no.nav.folketrygdloven.kalkulator.modell.opptjening.OpptjeningAktiviteterDto.OpptjeningPeriodeDto opptjeningPeriodeDto) {
         return new OpptjeningPeriodeDto(
             new OpptjeningAktivitetType(opptjeningPeriodeDto.getOpptjeningAktivitetType().getKode()),
-            new Periode(opptjeningPeriodeDto.getPeriode().getFom(), opptjeningPeriodeDto.getPeriode().getTom()),
+            new Periode(opptjeningPeriodeDto.getPeriode().getFomDato(), opptjeningPeriodeDto.getPeriode().getTomDato()),
             mapArbeidsgiver(opptjeningPeriodeDto.getArbeidsgiverOrgNummer(), opptjeningPeriodeDto.getArbeidsgiverAktørId()),
             mapAbakusReferanse(opptjeningPeriodeDto.getArbeidsforholdId())
         );
