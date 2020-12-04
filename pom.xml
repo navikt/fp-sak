@@ -66,7 +66,7 @@
 
         <svp-uttak.version>2.1-20200310092959-0d007c3</svp-uttak.version>
 
-        <felles.version>2.5.0-20201202101058-9865681</felles.version>
+        <felles.version>2.5.3</felles.version>
         <prosesstask.version>2.5.10</prosesstask.version>
         <ukelonn.felles.version>1.0.0-20200914112449-039464d</ukelonn.felles.version>
 
