@@ -158,16 +158,16 @@ public class PersoninfoTjeneste {
                     .sivilstand(new SivilstandResponseProjection().relatertVedSivilstand().type())
                     .statsborgerskap(new StatsborgerskapResponseProjection().land())
                     .familierelasjoner(new FamilierelasjonResponseProjection().relatertPersonsRolle().relatertPersonsIdent().minRolleForPerson())
-                    .bostedsadresse(new BostedsadresseResponseProjection()
+                    .bostedsadresse(new BostedsadresseResponseProjection().gyldigFraOgMed().angittFlyttedato()
                         .vegadresse(new VegadresseResponseProjection().matrikkelId().adressenavn().husnummer().husbokstav().tilleggsnavn().postnummer())
                         .matrikkeladresse(new MatrikkeladresseResponseProjection().matrikkelId().bruksenhetsnummer().tilleggsnavn().postnummer())
                         .ukjentBosted(new UkjentBostedResponseProjection().bostedskommune())
                         .utenlandskAdresse(new UtenlandskAdresseResponseProjection().adressenavnNummer().bygningEtasjeLeilighet().postboksNummerNavn().bySted().regionDistriktOmraade().postkode().landkode()))
-                    .oppholdsadresse(new OppholdsadresseResponseProjection()
+                    .oppholdsadresse(new OppholdsadresseResponseProjection().gyldigFraOgMed()
                         .vegadresse(new VegadresseResponseProjection().matrikkelId().adressenavn().husnummer().husbokstav().tilleggsnavn().postnummer())
                         .matrikkeladresse(new MatrikkeladresseResponseProjection().matrikkelId().bruksenhetsnummer().tilleggsnavn().postnummer())
                         .utenlandskAdresse(new UtenlandskAdresseResponseProjection().adressenavnNummer().bygningEtasjeLeilighet().postboksNummerNavn().bySted().regionDistriktOmraade().postkode().landkode()))
-                    .kontaktadresse(new KontaktadresseResponseProjection().type()
+                    .kontaktadresse(new KontaktadresseResponseProjection().type().gyldigFraOgMed()
                         .vegadresse(new VegadresseResponseProjection().matrikkelId().adressenavn().husnummer().husbokstav().tilleggsnavn().postnummer())
                         .postboksadresse(new PostboksadresseResponseProjection().postboks().postbokseier().postnummer())
                         .postadresseIFrittFormat(new PostadresseIFrittFormatResponseProjection().adresselinje1().adresselinje2().adresselinje3().postnummer())
@@ -213,7 +213,7 @@ public class PersoninfoTjeneste {
                 .filter(Objects::nonNull)
                 .map(String::length)
                 .max(Comparator.naturalOrder()).orElse(0);
-            if (maxMatrikkelIdSize > 19) {
+            if (maxMatrikkelIdSize > 9) {
                 LOG.info("FPSAK PDL matrikkel: size {}", maxMatrikkelIdSize);
             }
 
@@ -233,7 +233,8 @@ public class PersoninfoTjeneste {
             var query = new HentPersonQueryRequest();
             query.setIdent(aktørId.getId());
             var projection = new PersonResponseProjection()
-                .folkeregisterpersonstatus(new PersonFolkeregisterpersonstatusParametrizedInput().historikk(true), new FolkeregisterpersonstatusResponseProjection().forenkletStatus().status().folkeregistermetadata(new FolkeregistermetadataResponseProjection().gyldighetstidspunkt().opphoerstidspunkt()))
+                .folkeregisterpersonstatus(new PersonFolkeregisterpersonstatusParametrizedInput().historikk(true), new FolkeregisterpersonstatusResponseProjection()
+                    .forenkletStatus().status().folkeregistermetadata(new FolkeregistermetadataResponseProjection().ajourholdstidspunkt().gyldighetstidspunkt().opphoerstidspunkt()))
                 .opphold(new PersonOppholdParametrizedInput().historikk(true), new OppholdResponseProjection().type().oppholdFra().oppholdTil().metadata(new MetadataResponseProjection().historisk()).folkeregistermetadata(new FolkeregistermetadataResponseProjection().ajourholdstidspunkt()))
                 .statsborgerskap(new PersonStatsborgerskapParametrizedInput().historikk(true), new StatsborgerskapResponseProjection().land().gyldigFraOgMed().gyldigTilOgMed())
                 .bostedsadresse(new PersonBostedsadresseParametrizedInput().historikk(true), new BostedsadresseResponseProjection().angittFlyttedato().gyldigFraOgMed().gyldigTilOgMed()
@@ -279,7 +280,7 @@ public class PersoninfoTjeneste {
                 .filter(Objects::nonNull)
                 .map(String::length)
                 .max(Comparator.naturalOrder()).orElse(0);
-            if (maxMatrikkelIdSize > 19) {
+            if (maxMatrikkelIdSize > 9) {
                 LOG.info("FPSAK PDL matrikkel: size {}", maxMatrikkelIdSize);
             }
 
@@ -310,7 +311,15 @@ public class PersoninfoTjeneste {
     }
 
     private static PersonstatusPeriode mapPersonstatusHistorisk(Folkeregisterpersonstatus status) {
-        var periode = periodeFraDates(status.getFolkeregistermetadata().getGyldighetstidspunkt(), status.getFolkeregistermetadata().getOpphoerstidspunkt());
+        var ajourFom = status.getFolkeregistermetadata().getAjourholdstidspunkt(); // TODO evaluer
+        var gyldigFom = status.getFolkeregistermetadata().getGyldighetstidspunkt();
+        Date brukFom;
+        if (ajourFom != null && gyldigFom != null) {
+            brukFom = ajourFom.before(gyldigFom) ? ajourFom : gyldigFom;
+        } else {
+            brukFom = gyldigFom != null ? gyldigFom : ajourFom;
+        }
+        var periode = periodeFraDates(brukFom, status.getFolkeregistermetadata().getOpphoerstidspunkt());
         return new PersonstatusPeriode(periode, PersonstatusType.fraFregPersonstatus(status.getStatus()));
     }
 
@@ -391,7 +400,9 @@ public class PersoninfoTjeneste {
         List<AdressePeriode> adresser = new ArrayList<>();
         bostedsadresser.forEach(b -> {
             var periode = periodeFraDates(b.getGyldigFraOgMed(), b.getGyldigTilOgMed());
-            mapAdresser(List.of(b), List.of(), List.of()).forEach(a -> adresser.add(mapAdresseinfoTilAdressePeriode(periode, a)));
+            var flyttedato = b.getAngittFlyttedato() != null ? LocalDate.parse(b.getAngittFlyttedato(), DateTimeFormatter.ISO_LOCAL_DATE) : periode.getFom();
+            var periode2 = flyttedato.isBefore(periode.getFom()) ? Gyldighetsperiode.innenfor(flyttedato, periode.getTom()) : periode;
+            mapAdresser(List.of(b), List.of(), List.of()).forEach(a -> adresser.add(mapAdresseinfoTilAdressePeriode(periode2, a)));
         });
         kontaktadresser.forEach(k -> {
             var periode = periodeFraDates(k.getGyldigFraOgMed(), k.getGyldigTilOgMed());
