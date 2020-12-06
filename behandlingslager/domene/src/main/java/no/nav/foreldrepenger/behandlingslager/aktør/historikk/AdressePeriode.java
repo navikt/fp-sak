@@ -37,7 +37,7 @@ public class AdressePeriode {
 
     public static boolean fuzzyEquals(AdressePeriode a1, AdressePeriode a2) {
         return Gyldighetsperiode.fuzzyEquals(a1.gyldighetsperiode, a2.gyldighetsperiode) &&
-            Objects.equals(a1.adresse, a2.adresse);
+            Adresse.passeLik(a1.adresse, a2.adresse);
     }
 
     @Override
@@ -129,6 +129,16 @@ public class AdressePeriode {
                 Objects.equals(postnummer, adresse.postnummer) &&
                 Objects.equals(poststed, adresse.poststed) &&
                 Objects.equals(land, adresse.land);
+        }
+
+        public static boolean passeLik(Adresse a, Adresse adresse) {
+            if (a == null && adresse == null) return true;
+            if (a == null || adresse == null) return false;
+            if (a == adresse) return true;
+            return Objects.equals(a.adresseType, adresse.adresseType) &&
+                // TODO: enable når slutt sammenligning Objects.equals(matrikkelId, adresse.matrikkelId) &&
+                Objects.equals(a.postnummer, adresse.postnummer) &&
+                (Objects.equals(a.land, adresse.land) || a.land == null || adresse.land == null);
         }
 
         @Override
