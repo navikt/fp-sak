@@ -47,6 +47,7 @@ public enum DokumentMalType implements Kodeverdi {
     INNHENTE_OPPLYSNINGER ("INNOPP", "Innhente opplysninger"),
     AVSLAG_ENGANGSSTØNAD("AVSLES", "Avslag engangsstønad"),
     VARSEL_OM_REVURDERING("VARREV", "Varsel om revurdering"),
+    INFO_OM_HENLEGGELSE("IOHENL", "Behandling henlagt"),
 
     // Disse brevene er utgåtte, men beholdes her grunnet historisk bruk i databasen:
     @Deprecated

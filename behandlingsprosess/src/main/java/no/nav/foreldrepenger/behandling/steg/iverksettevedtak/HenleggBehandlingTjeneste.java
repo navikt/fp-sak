@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.mottak.vedtak.StartBerørtBehandlingTask;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveSendTilInfotrygdTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
 public class HenleggBehandlingTjeneste {
@@ -36,6 +37,7 @@ public class HenleggBehandlingTjeneste {
     private SøknadRepository søknadRepository;
     private FagsakRepository fagsakRepository;
     private HistorikkRepository historikkRepository;
+
 
     public HenleggBehandlingTjeneste() {
         // for CDI proxy
@@ -116,7 +118,7 @@ public class HenleggBehandlingTjeneste {
     }
 
     private void sendHenleggelsesbrev(long behandlingId, HistorikkAktør aktør) {
-        BestillBrevDto bestillBrevDto = new BestillBrevDto(behandlingId, DokumentMalType.HENLEGG_BEHANDLING_DOK);
+        BestillBrevDto bestillBrevDto = new BestillBrevDto(behandlingId, Environment.current().isProd()? DokumentMalType.HENLEGG_BEHANDLING_DOK : DokumentMalType.INFO_OM_HENLEGGELSE);
         dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, aktør, false);
     }
 
