@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.økonomi.ny.mapper;
 
+import static no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik.FPATFER;
 import static no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik.FPATORD;
 
 import java.time.LocalDate;
@@ -13,6 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming115;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomi.ny.domene.Betalingsmottaker;
 import no.nav.foreldrepenger.økonomi.ny.domene.DelytelseId;
@@ -97,6 +99,31 @@ public class EksisterendeOppdragMapperTest {
         );
     }
 
+    @Test
+    void skal_mappe_feriepenger_som_er_opphørt_og_så_gjeninnført() {
+        Periode mai = Periode.of(LocalDate.of(2020, 5, 1), LocalDate.of(2020, 5, 31));
+
+        Oppdragskontroll oppdragskontroll = lagOppdragskontroll();
+        Oppdrag110 oppdrag110 = lagOppdrag110(oppdragskontroll, FagsystemId.parse(saksnummer.getVerdi() + "100"));
+        lagOppdragslinje150(oppdrag110, delytelseId1, mai, Sats.engang(1000), null, null, FPATFER);
+        lagOppdragslinje150(oppdrag110, delytelseId1, mai, Sats.engang(1000), null, mai.getFom(), FPATFER);
+        lagOppdragslinje150(oppdrag110, delytelseId2, mai, Sats.engang(1000), null, null, FPATFER);
+
+        Map<KjedeNøkkel, OppdragKjede> kjeder = EksisterendeOppdragMapper.tilKjeder(Arrays.asList(oppdragskontroll));
+        KjedeNøkkel kjedeNøkkel = KjedeNøkkel.lag(FPATFER, Betalingsmottaker.BRUKER, 2019);
+        KjedeNøkkel kjedeNøkkel2 = kjedeNøkkel.forNesteKnekteKjededel();
+        Assertions.assertThat(kjeder.keySet()).containsOnly(kjedeNøkkel, kjedeNøkkel2);
+        OppdragKjede aktivKjede = kjeder.get(kjedeNøkkel);
+        Assertions.assertThat(aktivKjede.getOppdragslinjer()).containsExactly(
+            OppdragLinje.builder().medDelytelseId(delytelseId2).medPeriode(mai).medSats(Sats.engang(1000)).build()
+        );
+        OppdragKjede opphørtKjede = kjeder.get(kjedeNøkkel2);
+        Assertions.assertThat(opphørtKjede.getOppdragslinjer()).containsExactly(
+            OppdragLinje.builder().medDelytelseId(delytelseId1).medPeriode(mai).medSats(Sats.engang(1000)).build(),
+            OppdragLinje.builder().medDelytelseId(delytelseId1).medPeriode(mai).medSats(Sats.engang(1000)).medOpphørFomDato(mai.getFom()).build()
+        );
+    }
+
     private Oppdragskontroll lagOppdragskontroll() {
         return Oppdragskontroll.builder()
             .medBehandlingId(1L)
@@ -107,19 +134,19 @@ public class EksisterendeOppdragMapperTest {
     }
 
     private Oppdragslinje150 lagOpphørslinje(Oppdrag110 oppdrag110, DelytelseId delytelseId, Periode p, Sats sats, LocalDate opphørFomDato) {
-        return lagOppdragslinje150(oppdrag110, delytelseId, p, sats, null, opphørFomDato);
+        return lagOppdragslinje150(oppdrag110, delytelseId, p, sats, null, opphørFomDato, FPATORD);
     }
 
     private Oppdragslinje150 lagOrdinærLinje(Oppdrag110 oppdrag110, DelytelseId delytelseId, Periode p, Sats sats, DelytelseId refDelytelseId) {
-        return lagOppdragslinje150(oppdrag110, delytelseId, p, sats, refDelytelseId, null);
+        return lagOppdragslinje150(oppdrag110, delytelseId, p, sats, refDelytelseId, null, FPATORD);
     }
 
     private Oppdragslinje150 lagOppdragslinje150(Oppdrag110 oppdrag110, DelytelseId delytelseId, Periode p, Sats sats, DelytelseId refDelytelseId,
-                                                 LocalDate opphørFomDato) {
+                                                 LocalDate opphørFomDato, ØkonomiKodeKlassifik økonomiKodeKlassifik) {
         return Oppdragslinje150.builder()
             .medOppdrag110(oppdrag110)
             .medDelytelseId(Long.parseLong(delytelseId.toString()))
-            .medKodeKlassifik("FPATORD")
+            .medKodeKlassifik(økonomiKodeKlassifik.getKodeKlassifik())
             .medVedtakFomOgTom(p.getFom(), p.getTom())
             .medSats(sats.getSats())
             .medTypeSats(sats.getSatsType().getKode())

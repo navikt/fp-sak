@@ -126,5 +126,9 @@ public class OppdragKjede {
         public OppdragKjede build() {
             return new OppdragKjede(oppdragslinjer);
         }
+
+        public boolean erEffektivtTom() {
+                return ytelseBuilder.erTom();
+        }
     }
 }

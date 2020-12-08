@@ -79,7 +79,14 @@ public class EksisterendeOppdragMapper {
         for (DelytelseId delytelseId : startpunkt) {
             KjedeNøkkel preferertNøkkel = nøkkelMap.get(delytelseId);
             KjedeNøkkel ledigNøkkel = finnLedigNøkkel(preferertNøkkel, resultat.keySet());
-            resultat.put(ledigNøkkel, builderMap.get(delytelseId));
+            boolean harEksisterendeOpphørtKjede = resultat.containsKey(preferertNøkkel) && resultat.get(preferertNøkkel).erEffektivtTom();
+            OppdragKjede.Builder kjedeBuilder = builderMap.get(delytelseId);
+            if (harEksisterendeOpphørtKjede) {
+                resultat.put(ledigNøkkel, resultat.get(preferertNøkkel));
+                resultat.put(preferertNøkkel, kjedeBuilder);
+            } else {
+                resultat.put(ledigNøkkel, kjedeBuilder);
+            }
         }
 
         return resultat;
