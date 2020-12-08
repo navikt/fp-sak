@@ -151,6 +151,9 @@ public class OppdragskontrollOpphør implements OppdragskontrollManager {
         Map<String, List<Oppdragslinje150>> groupedByOrgnr = TidligereOppdragTjeneste.grupperOppdragslinje150MedOrgnr(sisteLinjeKjedeForArbeidsgivereListe);
 
         for (Map.Entry<String, List<Oppdragslinje150>> entryOpp150 : groupedByOrgnr.entrySet()) {
+            if (OpphørUtil.erArbeidsgiverAllredeFullstendigOpphørt(behandlingInfo, entryOpp150.getKey())) {
+                continue;
+            }
             List<Oppdragslinje150> sisteOppdr150ForDenneArbgvrenListe = entryOpp150.getValue();
             Oppdragslinje150 sisteOppdr150 = Oppdragslinje150Util.getOpp150MedMaxDelytelseId(sisteOppdr150ForDenneArbgvrenListe);
             LocalDate opphørStatusFom = FinnOpphørFomDato.finnOpphørFomForArbeidsgiver(sisteOppdr150ForDenneArbgvrenListe, behandlingInfo);
