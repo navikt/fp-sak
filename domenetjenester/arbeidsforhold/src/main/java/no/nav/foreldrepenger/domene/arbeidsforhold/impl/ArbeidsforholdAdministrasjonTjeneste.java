@@ -20,6 +20,9 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -52,6 +55,7 @@ public class ArbeidsforholdAdministrasjonTjeneste {
     private VurderArbeidsforholdTjeneste vurderArbeidsforholdTjeneste;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
+    private static final Logger logger = LoggerFactory.getLogger(ArbeidsforholdAdministrasjonTjeneste.class);
 
     ArbeidsforholdAdministrasjonTjeneste() {
         // CDI
@@ -302,14 +306,15 @@ public class ArbeidsforholdAdministrasjonTjeneste {
                 .filter(ArbeidsforholdOverstyring::erOverstyrt)
                 .filter(a -> !Objects.equals(ArbeidsforholdHandlingType.IKKE_BRUK, a.getHandling()))
                 .map(a -> mapOverstyringTilWrapper(filter, a, alleYrkesaktiviteter, alleInntektsmeldinger, skjæringstidspunkt))
+                .flatMap(Optional::stream)
                 .collect(Collectors.toList());
     }
 
-    private ArbeidsforholdWrapper mapOverstyringTilWrapper(YrkesaktivitetFilter filter,
-            ArbeidsforholdOverstyring overstyring,
-            Collection<Yrkesaktivitet> alleYrkesaktiviteter,
-            List<Inntektsmelding> alleInntektsmeldinger,
-            LocalDate skjæringstidspunkt) {
+    private Optional<ArbeidsforholdWrapper> mapOverstyringTilWrapper(YrkesaktivitetFilter filter,
+                                                      ArbeidsforholdOverstyring overstyring,
+                                                      Collection<Yrkesaktivitet> alleYrkesaktiviteter,
+                                                      List<Inntektsmelding> alleInntektsmeldinger,
+                                                      LocalDate skjæringstidspunkt) {
         final Arbeidsgiver arbeidsgiver = overstyring.getArbeidsgiver();
         final InternArbeidsforholdRef arbeidsforholdRef = overstyring.getArbeidsforholdRef();
         final List<Yrkesaktivitet> yrkesaktiviteter = finnYrkesAktiviteter(alleYrkesaktiviteter, arbeidsgiver, arbeidsforholdRef);
@@ -336,8 +341,8 @@ public class ArbeidsforholdAdministrasjonTjeneste {
                 throw new IllegalStateException("Forventer kun ett innslag i listen");
             }
             if (arbeidsforholdOverstyrtePerioder.isEmpty()) {
-                throw new IllegalArgumentException(
-                        "Finner ikke overstyrte perioder for " + arbeidsgiver.getIdentifikator() + "med ref=" + arbeidsforholdRef.getReferanse());
+               logger.info("Finner ingen match mot overstyrte perioder for dette arbeidsforholdet:"+ arbeidsgiver.getIdentifikator() + "med denne refen:"+ arbeidsforholdRef.getReferanse());
+               return Optional.empty();
             }
             wrapper.setFomDato(arbeidsforholdOverstyrtePerioder.get(0).getOverstyrtePeriode().getFomDato());
             wrapper.setTomDato(arbeidsforholdOverstyrtePerioder.get(0).getOverstyrtePeriode().getTomDato());
@@ -356,7 +361,7 @@ public class ArbeidsforholdAdministrasjonTjeneste {
         wrapper.setBrukMedJustertPeriode(Objects.equals(ArbeidsforholdHandlingType.BRUK_MED_OVERSTYRT_PERIODE, overstyring.getHandling()));
         wrapper.setPermisjoner(UtledPermisjonSomFørerTilAksjonspunkt.utled(filter, yrkesaktiviteter, skjæringstidspunkt));
         wrapper.setBrukPermisjon(UtledBrukAvPermisjonForWrapper.utled(overstyring.getBekreftetPermisjon()));
-        return wrapper;
+        return Optional.of(wrapper);
     }
 
     private void mapArbeidsforholdHandling(ArbeidsforholdWrapper wrapper, ArbeidsforholdOverstyring overstyring) {
