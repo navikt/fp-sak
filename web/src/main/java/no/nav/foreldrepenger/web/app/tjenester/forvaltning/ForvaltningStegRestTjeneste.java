@@ -111,6 +111,20 @@ public class ForvaltningStegRestTjeneste {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "Fjern aktiviteter lagt til i opptjening", tags = "FORVALTNING-steg-hopp")
+    @Path("/fjern-opptjening-extra-aktivitet")
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
+    public Response fjerneAlleNyeAktiviteterFraOpptjening(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
+        Long behandlingId = dto.getBehandlingId();
+        var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
+
+        arbeidsforholdAdministrasjonTjeneste.fjernOverstyringerGjortAvSaksbehandlerOpptjening(behandling.getId(), behandling.getAktørId());
+
+        return Response.ok().build();
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Hopp tilbake til 5080 og fjern OPPTJENINGSVILKÅRET", tags = "FORVALTNING-steg-hopp")
     @Path("/fjern-opptjeningsvilkåret")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
