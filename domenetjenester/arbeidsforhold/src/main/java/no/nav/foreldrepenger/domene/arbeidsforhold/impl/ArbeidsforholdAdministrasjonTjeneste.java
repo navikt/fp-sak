@@ -36,6 +36,7 @@ import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjonBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyrtePerioder;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
@@ -167,6 +168,16 @@ public class ArbeidsforholdAdministrasjonTjeneste {
         ArbeidsforholdInformasjonBuilder builder = opprettBuilderFor(behandlingId);
         builder.fjernAlleOverstyringer();
         inntektArbeidYtelseTjeneste.lagreArbeidsforhold(behandlingId, aktørId, builder);
+    }
+
+    public void fjernOverstyringerGjortAvSaksbehandlerOpptjening(Long behandlingId, AktørId aktørId) {
+        if (inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingId).flatMap(InntektArbeidYtelseGrunnlag::getSaksbehandletVersjon).isPresent()) {
+            InntektArbeidYtelseAggregatBuilder builder = inntektArbeidYtelseTjeneste.opprettBuilderForSaksbehandlet(behandlingId);
+            var aabuilder = builder.getAktørArbeidBuilder(aktørId);
+            aabuilder.tilbakestillYrkesaktiviteter();
+            builder.leggTilAktørArbeid(aabuilder);
+            inntektArbeidYtelseTjeneste.lagreIayAggregat(behandlingId, builder);
+        }
     }
 
     private boolean erAksjonspunktPå(ArbeidsforholdWrapper arbeidsforholdWrapper, Map.Entry<Arbeidsgiver, Set<ArbeidsforholdMedÅrsak>> entry) {

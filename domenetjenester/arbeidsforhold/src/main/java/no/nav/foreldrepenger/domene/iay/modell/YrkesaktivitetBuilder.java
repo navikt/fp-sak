@@ -123,6 +123,10 @@ public class YrkesaktivitetBuilder {
         kladd.fjernPeriode(aktivitetsPeriode);
     }
 
+    public boolean harArbeidsgiver() {
+        return kladd.getArbeidsgiver().getIdentifikator() != null;
+    }
+
     public YrkesaktivitetBuilder medArbeidType(String kode) {
         return medArbeidType(ArbeidType.fraKode(kode));
     }
