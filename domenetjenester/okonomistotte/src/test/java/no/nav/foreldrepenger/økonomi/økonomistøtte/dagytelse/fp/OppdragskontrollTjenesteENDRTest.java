@@ -2309,6 +2309,57 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
 
     }
 
+    /**
+     * Prodscenario med omfordeling fra delvis ref til kun direkte utbetaling og så opphør
+     */
+    @Test
+    public void skalSendeOppdragMedOpphørNårAllInnvilgetYtelseBortfallerArbeidsgiverErOpphørtTidligere() {
+        // Arrange
+        LocalDate bminfom = LocalDate.of(I_ÅR, 3, 23);
+        LocalDate bmaxtom = LocalDate.of(I_ÅR, 7, 3);
+
+        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatBrukerFP(null, List.of(897),  List.of(1265), bminfom, bmaxtom);
+        beregningsresultatRepository.lagre(behandling, beregningsresultat);
+        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+
+        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
+
+        BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatBrukerFP(bminfom, List.of(2162), List.of(0), bminfom, bmaxtom);
+        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+
+        // Act
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+
+        //Assert -- opphør av ag
+        List<Oppdragslinje150> opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste().stream()
+            .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
+            .filter(l -> l.getUtbetalesTilId() == null)
+            .collect(Collectors.toList());
+
+        assertThat(opp150RevurderingListe).hasSize(2); // AG + FP
+        assertThat(opp150RevurderingListe).allSatisfy(linje -> assertThat(linje.gjelderOpphør()).isTrue());
+
+        // Arrange 2 -- opphør deler av AG
+
+        Behandling revurdering2 = opprettOgLagreRevurdering(revurdering, VedtakResultatType.INNVILGET, false, true);
+        BeregningsresultatEntitet beregningsresultatRevurderingFP2 = buildBeregningsresultatBrukerFP(bminfom, List.of(0), List.of(0), bminfom, bmaxtom);
+        beregningsresultatRepository.lagre(revurdering2, beregningsresultatRevurderingFP2);
+
+        // Act 2
+        Oppdragskontroll oppdragRevurdering2 = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering2);
+
+
+        //Assert 2 -- alt opphøres
+        List<Oppdragslinje150> opp150RevurderingListe5 = oppdragRevurdering2.getOppdrag110Liste().stream()
+            .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
+            .filter(l -> l.getUtbetalesTilId() != null)
+            .collect(Collectors.toList());
+
+        assertThat(opp150RevurderingListe5).hasSize(2); // AG +  FP
+        assertThat(opp150RevurderingListe5).allSatisfy(l -> assertThat(l.gjelderOpphør()).isTrue());
+
+    }
+
 
     private List<Oppdragslinje150> sortOppdragslinj150Liste(List<Oppdragslinje150> opp150OpphForDPListe) {
         return opp150OpphForDPListe.stream().sorted(Comparator.comparing(Oppdragslinje150::getDelytelseId)).collect(Collectors.toList());
