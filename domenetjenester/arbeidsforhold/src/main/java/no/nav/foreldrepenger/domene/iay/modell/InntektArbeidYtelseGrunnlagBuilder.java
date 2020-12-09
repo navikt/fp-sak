@@ -129,7 +129,7 @@ public class InntektArbeidYtelseGrunnlagBuilder {
         return kladd.getArbeidsforholdInformasjon();
     }
 
-    protected void fjernSaksbehandlet() {
+    public void fjernSaksbehandlet() {
         kladd.fjernSaksbehandlet();
     }
 

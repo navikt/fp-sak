@@ -170,14 +170,8 @@ public class ArbeidsforholdAdministrasjonTjeneste {
         inntektArbeidYtelseTjeneste.lagreArbeidsforhold(behandlingId, aktørId, builder);
     }
 
-    public void fjernOverstyringerGjortAvSaksbehandlerOpptjening(Long behandlingId, AktørId aktørId) {
-        if (inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingId).flatMap(InntektArbeidYtelseGrunnlag::getSaksbehandletVersjon).isPresent()) {
-            InntektArbeidYtelseAggregatBuilder builder = inntektArbeidYtelseTjeneste.opprettBuilderForSaksbehandlet(behandlingId);
-            var aabuilder = builder.getAktørArbeidBuilder(aktørId);
-            aabuilder.tilbakestillYrkesaktiviteter();
-            builder.leggTilAktørArbeid(aabuilder);
-            inntektArbeidYtelseTjeneste.lagreIayAggregat(behandlingId, builder);
-        }
+    public void fjernOverstyringerGjortAvSaksbehandlerOpptjening(Long behandlingId) {
+        inntektArbeidYtelseTjeneste.fjernSaksbehandletVersjon(behandlingId);
     }
 
     private boolean erAksjonspunktPå(ArbeidsforholdWrapper arbeidsforholdWrapper, Map.Entry<Arbeidsgiver, Set<ArbeidsforholdMedÅrsak>> entry) {
