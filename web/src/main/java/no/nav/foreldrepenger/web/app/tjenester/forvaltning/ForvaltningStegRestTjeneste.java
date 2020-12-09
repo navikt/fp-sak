@@ -116,9 +116,8 @@ public class ForvaltningStegRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response fjerneAlleNyeAktiviteterFraOpptjening(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         Long behandlingId = dto.getBehandlingId();
-        var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
 
-        arbeidsforholdAdministrasjonTjeneste.fjernOverstyringerGjortAvSaksbehandlerOpptjening(behandling.getId(), behandling.getAktørId());
+        arbeidsforholdAdministrasjonTjeneste.fjernOverstyringerGjortAvSaksbehandlerOpptjening(behandlingId);
 
         return Response.ok().build();
     }
