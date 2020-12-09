@@ -57,10 +57,6 @@ public class OppdragKjede {
         return oppdragslinjer.get(oppdragslinjer.size() - 1);
     }
 
-    public boolean harOppdragPåEllerEtter(LocalDate endringsdato) {
-        return oppdragslinjer.stream().anyMatch(ol -> !ol.getPeriode().getTom().isBefore(endringsdato));
-    }
-
     public boolean erTom() {
         return oppdragslinjer.isEmpty();
     }
