@@ -60,6 +60,11 @@ public class Ytelse {
         return perioder.isEmpty() ? null : perioder.get(0).getPeriode().getFom();
     }
 
+    public boolean harVerdiPåEllerEtter(LocalDate dato) {
+        return perioder.stream()
+            .anyMatch(p -> !p.getPeriode().getTom().isBefore(dato));
+    }
+
     public static class Builder {
 
         private ArrayList<YtelsePeriode> perioder = new ArrayList<>();

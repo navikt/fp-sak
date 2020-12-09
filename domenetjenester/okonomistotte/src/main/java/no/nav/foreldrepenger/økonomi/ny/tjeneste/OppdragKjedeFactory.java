@@ -53,8 +53,9 @@ public class OppdragKjedeFactory {
 
         //for feriepenger sendes opphør kun når feriepengene skal tas bort.
         boolean erYtelseEllerOpphørAvFeriepenger = !gjelderFeriepenger || vedtak.getPerioder().isEmpty();
-        if (erYtelseEllerOpphørAvFeriepenger && endringsdato != null && tidligereOppdrag.harOppdragPåEllerEtter(endringsdato)) {
-            builder.medOppdragslinje(OppdragLinje.lagOpphørslinje(tidligereOppdrag.getSisteLinje(), endringsdato));
+        if (erYtelseEllerOpphørAvFeriepenger && endringsdato != null && tidligereOppdrag.tilYtelse().harVerdiPåEllerEtter(endringsdato)) {
+            LocalDate opphørsdato = tidligereOppdrag.getFørsteDato().isAfter(endringsdato) ? tidligereOppdrag.getFørsteDato() : endringsdato;
+            builder.medOppdragslinje(OppdragLinje.lagOpphørslinje(tidligereOppdrag.getSisteLinje(), opphørsdato));
         }
         DelytelseId ref = !tidligereOppdrag.erTom() ? tidligereOppdrag.getSisteLinje().getDelytelseId() : null;
         for (YtelsePeriode ytelsePeriode : vedtak.getPerioderFraOgMed(endringsdato)) {
