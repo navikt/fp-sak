@@ -51,6 +51,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.Tilbakek
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.KontrollerAktivitetskravAvklaring;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeVurderingType;
@@ -161,12 +162,12 @@ public class HentKodeverkTjeneste {
         map.put(UttakPeriodeVurderingType.class.getSimpleName(), UttakPeriodeVurderingType.kodeMap().values());
         map.put(MorsAktivitet.class.getSimpleName(), MorsAktivitet.kodeMap().values());
         map.put(ManuellBehandlingÅrsak.class.getSimpleName(), ManuellBehandlingÅrsak.kodeMap().values());
+        map.put(KontrollerAktivitetskravAvklaring.class.getSimpleName(), KontrollerAktivitetskravAvklaring.kodeMap().values());
 
         Map<String, Collection<? extends Kodeverdi>> mapFiltered = new LinkedHashMap<>();
 
-        map.entrySet().forEach(e -> {
-            mapFiltered.put(e.getKey(), e.getValue().stream().filter(f -> !"-".equals(f.getKode())).collect(Collectors.toSet()));
-        });
+        map.forEach((key, value) -> mapFiltered.put(key,
+            value.stream().filter(f -> !"-".equals(f.getKode())).collect(Collectors.toSet())));
 
         KODEVERDIER_SOM_BRUKES_PÅ_KLIENT = Collections.unmodifiableMap(mapFiltered);
 

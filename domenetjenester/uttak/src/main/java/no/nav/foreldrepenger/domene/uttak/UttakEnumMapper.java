@@ -11,7 +11,9 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.
 import java.util.Objects;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.KontrollerAktivitetskravAvklaring;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
@@ -34,6 +36,7 @@ import no.nav.foreldrepenger.regler.uttak.beregnkontoer.grunnlag.Dekningsgrad;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Trekkdager;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetType;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeMedAvklartMorsAktivitet;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeVurderingType;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Perioderesultattype;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.utfall.GraderingIkkeInnvilgetÅrsak;
@@ -47,6 +50,7 @@ public final class UttakEnumMapper {
     private static final KodeMapper<UtsettelseÅrsak, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UtsettelseÅrsak> UTSETTELSE_ÅRSAK_MAPPER = initUtsettelseÅrsakMapper();
     private static final KodeMapper<UttakPeriodeVurderingType, PeriodeVurderingType> VURDERING_TYPE_MAPPER = initVurderingTypeMapper();
     private static final KodeMapper<OverføringÅrsak, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OverføringÅrsak> OVERFØRING_ÅRSAK_MAPPER = initOverføringÅrsakMapper();
+    private static final KodeMapper<MorsAktivitet, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.MorsAktivitet> MORS_AKTIVITET_MAPPER = initMorsAktivitetMapper();
     private static final KodeMapper<UttakUtsettelseType, UtsettelseÅrsak> UTTAK_TIL_OPPGITT_UTSETTELSE_MAPPER = initUttakTilOppgittUtsettelseMapper();
     private static final KodeMapper<StønadskontoType, UttakPeriodeType> PERIODE_TYPE_MAPPER = initPeriodeTypeMapper();
 
@@ -226,12 +230,35 @@ public final class UttakEnumMapper {
             .orElseThrow(() -> new UnsupportedOperationException("Ikke støttet årsak " + overføringÅrsak.getKode()));
     }
 
+    public static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.MorsAktivitet map(MorsAktivitet morsAktivitet) {
+        //Ikke relevant for regler
+        if (MorsAktivitet.UDEFINERT.equals(morsAktivitet) || MorsAktivitet.SAMTIDIGUTTAK.equals(morsAktivitet)) {
+            return null;
+        }
+        return MORS_AKTIVITET_MAPPER
+            .map(morsAktivitet)
+            .orElseThrow(() -> new UnsupportedOperationException("Ikke støttet mors aktivitet " + morsAktivitet.getKode()));
+    }
+
     private static KodeMapper<OverføringÅrsak, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OverføringÅrsak> initOverføringÅrsakMapper() {
         return KodeMapper
             .medMapping(OverføringÅrsak.INSTITUSJONSOPPHOLD_ANNEN_FORELDER, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OverføringÅrsak.INNLEGGELSE)
             .medMapping(OverføringÅrsak.SYKDOM_ANNEN_FORELDER, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OverføringÅrsak.SYKDOM_ELLER_SKADE)
             .medMapping(OverføringÅrsak.IKKE_RETT_ANNEN_FORELDER, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OverføringÅrsak.ANNEN_FORELDER_IKKE_RETT)
             .medMapping(OverføringÅrsak.ALENEOMSORG, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OverføringÅrsak.ALENEOMSORG)
+            .build();
+    }
+
+    private static KodeMapper<MorsAktivitet, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.MorsAktivitet> initMorsAktivitetMapper() {
+        return KodeMapper
+            .medMapping(MorsAktivitet.ARBEID, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.MorsAktivitet.ARBEID)
+            .medMapping(MorsAktivitet.ARBEID_OG_UTDANNING, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.MorsAktivitet.ARBEID_OG_UTDANNING)
+            .medMapping(MorsAktivitet.UTDANNING, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.MorsAktivitet.UTDANNING)
+            .medMapping(MorsAktivitet.UFØRE, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.MorsAktivitet.UFØRE)
+            .medMapping(MorsAktivitet.INNLAGT, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.MorsAktivitet.INNLAGT)
+            .medMapping(MorsAktivitet.TRENGER_HJELP, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.MorsAktivitet.SYK)
+            .medMapping(MorsAktivitet.INTROPROG, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.MorsAktivitet.INTROPROG)
+            .medMapping(MorsAktivitet.KVALPROG, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.MorsAktivitet.KVALPROG)
             .build();
     }
 
@@ -351,5 +378,21 @@ public final class UttakEnumMapper {
 
     public static Optional<UtsettelseÅrsak> mapTilYf(UttakUtsettelseType utsettelseType) {
         return UTTAK_TIL_OPPGITT_UTSETTELSE_MAPPER.map(utsettelseType);
+    }
+
+    public static PeriodeMedAvklartMorsAktivitet.Resultat map(KontrollerAktivitetskravAvklaring avklaring) {
+        if (avklaring == null) {
+            return null;
+        }
+        switch (avklaring) {
+            case I_AKTIVITET:
+                return PeriodeMedAvklartMorsAktivitet.Resultat.I_AKTIVITET;
+            case IKKE_I_AKTIVITET_DOKUMENTERT:
+                return PeriodeMedAvklartMorsAktivitet.Resultat.IKKE_I_AKTIVITET_DOKUMENTERT;
+            case IKKE_I_AKTIVITET_IKKE_DOKUMENTERT:
+                return PeriodeMedAvklartMorsAktivitet.Resultat.IKKE_I_AKTIVITET_IKKE_DOKUMENTERT;
+            default:
+                throw new IllegalStateException("Ukjent type " + avklaring);
+        }
     }
 }

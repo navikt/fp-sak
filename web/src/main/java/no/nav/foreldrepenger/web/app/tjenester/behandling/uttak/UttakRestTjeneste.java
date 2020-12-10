@@ -27,10 +27,10 @@ import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.FaktaUttakArbeidsforholdTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.KontrollerAktivitetskravDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.KontrollerFaktaPeriodeTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.SaldoerDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.SvangerskapspengerUttakResultatDtoTjeneste;
@@ -38,6 +38,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.UttakPeriode
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.UttakPerioderDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.ArbeidsforholdDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BehandlingMedUttaksperioderDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.KontrollerAktivitetskravPeriodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.KontrollerFaktaDataDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SaldoerDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SvangerskapspengerUttakResultatDto;
@@ -62,6 +63,8 @@ public class UttakRestTjeneste {
     public static final String RESULTAT_PERIODER_PATH = BASE_PATH + RESULTAT_PERIODER_PART_PATH;
     private static final String KONTROLLER_FAKTA_PERIODER_PART_PATH = "/kontroller-fakta-perioder";
     public static final String KONTROLLER_FAKTA_PERIODER_PATH = BASE_PATH + KONTROLLER_FAKTA_PERIODER_PART_PATH;
+    private static final String KONTROLLER_AKTIVTETSKRAV_PART_PATH = "/kontroller-aktivitetskrav";
+    public static final String  KONTROLLER_AKTIVTETSKRAV_PATH = BASE_PATH + KONTROLLER_AKTIVTETSKRAV_PART_PATH;
     private static final String STONADSKONTOER_GITT_UTTAKSPERIODER_PART_PATH = "/stonadskontoerGittUttaksperioder";
     public static final String STONADSKONTOER_GITT_UTTAKSPERIODER_PATH = BASE_PATH + STONADSKONTOER_GITT_UTTAKSPERIODER_PART_PATH;
     private static final String STONADSKONTOER_PART_PATH = "/stonadskontoer";
@@ -74,26 +77,29 @@ public class UttakRestTjeneste {
     private UttakPeriodegrenseDtoTjeneste uttakPeriodegrenseDtoTjeneste;
     private SvangerskapspengerUttakResultatDtoTjeneste svpUttakResultatDtoTjeneste;
     private UttakInputTjeneste uttakInputTjeneste;
+    private KontrollerAktivitetskravDtoTjeneste kontrollerAktivitetskravDtoTjeneste;
 
     public UttakRestTjeneste() {
         // for CDI proxy
     }
 
     @Inject
-    public UttakRestTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
-            SaldoerDtoTjeneste saldoerDtoTjeneste,
-            KontrollerFaktaPeriodeTjeneste kontrollerFaktaPeriodeTjeneste,
-            UttakPerioderDtoTjeneste uttakResultatPerioderDtoTjeneste,
-            UttakPeriodegrenseDtoTjeneste uttakPeriodegrenseDtoTjeneste,
-            SvangerskapspengerUttakResultatDtoTjeneste svpUttakResultatDtoTjeneste,
-            UttakInputTjeneste uttakInputTjeneste) {
+    public UttakRestTjeneste(BehandlingRepository behandlingRepository,
+                             SaldoerDtoTjeneste saldoerDtoTjeneste,
+                             KontrollerFaktaPeriodeTjeneste kontrollerFaktaPeriodeTjeneste,
+                             UttakPerioderDtoTjeneste uttakResultatPerioderDtoTjeneste,
+                             UttakPeriodegrenseDtoTjeneste uttakPeriodegrenseDtoTjeneste,
+                             SvangerskapspengerUttakResultatDtoTjeneste svpUttakResultatDtoTjeneste,
+                             UttakInputTjeneste uttakInputTjeneste,
+                             KontrollerAktivitetskravDtoTjeneste kontrollerAktivitetskravDtoTjeneste) {
         this.uttakPeriodegrenseDtoTjeneste = uttakPeriodegrenseDtoTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
-        this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
+        this.behandlingRepository = behandlingRepository;
         this.kontrollerFaktaPeriodeTjeneste = kontrollerFaktaPeriodeTjeneste;
         this.uttakResultatPerioderDtoTjeneste = uttakResultatPerioderDtoTjeneste;
         this.saldoerDtoTjeneste = saldoerDtoTjeneste;
         this.svpUttakResultatDtoTjeneste = svpUttakResultatDtoTjeneste;
+        this.kontrollerAktivitetskravDtoTjeneste = kontrollerAktivitetskravDtoTjeneste;
     }
 
     @POST
@@ -153,11 +159,20 @@ public class UttakRestTjeneste {
     }
 
     @GET
+    @Path(KONTROLLER_AKTIVTETSKRAV_PART_PATH)
+    @Operation(description = "Hent perioder for å kontrollere aktivtetskrav", tags = "uttak")
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public List<KontrollerAktivitetskravPeriodeDto> hentKontrollerAktivitetskrav(
+            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        return kontrollerAktivitetskravDtoTjeneste.lagDtos(uuidDto);
+    }
+
+    @GET
     @Path(KONTROLLER_FAKTA_PERIODER_PART_PATH)
     @Operation(description = "Hent perioder for å kontrollere fakta ifbm uttak", tags = "uttak")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public KontrollerFaktaDataDto hentKontrollerFaktaPerioder(
-            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         return hentKontrollerFaktaPerioder(new BehandlingIdDto(uuidDto));
     }
 

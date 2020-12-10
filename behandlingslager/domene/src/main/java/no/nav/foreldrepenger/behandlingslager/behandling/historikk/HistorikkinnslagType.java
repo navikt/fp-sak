@@ -22,6 +22,8 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum HistorikkinnslagType implements Kodeverdi {
 
+    //12.10.2020 Maltypen brukes ikke i frontend, kanskje i usynk
+
     // Mal Type 1
     BREV_SENT("BREV_SENT", "Brev sendt", HistorikkinnslagMal.MAL_TYPE_1),
     BREV_BESTILT("BREV_BESTILT", "Brev bestilt", HistorikkinnslagMal.MAL_TYPE_1),
@@ -91,6 +93,9 @@ public enum HistorikkinnslagType implements Kodeverdi {
     OVST_UTTAK("OVST_UTTAK", "Manuelt overstyring av uttak", HistorikkinnslagMal.MAL_TYPE_10),
 
     UDEFINERT("-", "Ikke definert", null),
+
+    //Mal Type 11
+    AVKLART_AKTIVITETSKRAV("AVKLART_AKTIVITETSKRAV", "Avklart aktivitetskrav", HistorikkinnslagMal.MAL_TYPE_11),
     ;
 
     @Transient

@@ -77,6 +77,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.svp.Svangerskapspenger
 import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.SøknadRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.tilbakekreving.TilbakekrevingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.UttakRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.KontrollerAktivitetskravDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BehandlingMedUttaksperioderDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.TotrinnskontrollRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.VergeRestTjeneste;
@@ -111,6 +112,7 @@ public class BehandlingDtoTjeneste {
     private BehandlingDokumentRepository behandlingDokumentRepository;
     private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
     private String fpoppdragOverrideProxyUrl;
+    private KontrollerAktivitetskravDtoTjeneste kontrollerAktivitetskravDtoTjeneste;
 
     BehandlingDtoTjeneste() {
         // for CDI proxy
@@ -125,7 +127,8 @@ public class BehandlingDtoTjeneste {
                                  BehandlingDokumentRepository behandlingDokumentRepository,
                                  RelatertBehandlingTjeneste relatertBehandlingTjeneste,
                                  ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
-                                 @KonfigVerdi(value="fpoppdrag.override.proxy.url", required=false) String fpoppdragOverrideProxyUrl) {
+                                 @KonfigVerdi(value = "fpoppdrag.override.proxy.url", required = false) String fpoppdragOverrideProxyUrl,
+                                 KontrollerAktivitetskravDtoTjeneste kontrollerAktivitetskravDtoTjeneste) {
 
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
@@ -141,6 +144,7 @@ public class BehandlingDtoTjeneste {
         this.behandlingDokumentRepository = behandlingDokumentRepository;
         this.relatertBehandlingTjeneste = relatertBehandlingTjeneste;
         this.fpoppdragOverrideProxyUrl = fpoppdragOverrideProxyUrl;
+        this.kontrollerAktivitetskravDtoTjeneste = kontrollerAktivitetskravDtoTjeneste;
     }
 
     private static BehandlingDto lagBehandlingDto(Behandling behandling,
@@ -385,6 +389,9 @@ public class BehandlingDtoTjeneste {
                     dto.leggTil(get(BeregningsresultatRestTjeneste.FORELDREPENGER_PATH, "beregningsresultat-foreldrepenger", uuidDto));
                 }
             } else {
+                if (!kontrollerAktivitetskravDtoTjeneste.lagDtos(uuidDto).isEmpty()) {
+                    dto.leggTil(get(UttakRestTjeneste.KONTROLLER_AKTIVTETSKRAV_PATH, "uttak-kontroller-aktivitetskrav", uuidDto));
+                }
                 var uttakResultat = foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandling.getId());
                 Optional<Stønadskontoberegning> stønadskontoberegning = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak())
                     .flatMap(FagsakRelasjon::getGjeldendeStønadskontoberegning);

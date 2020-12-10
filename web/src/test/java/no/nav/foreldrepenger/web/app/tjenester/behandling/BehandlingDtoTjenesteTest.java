@@ -41,6 +41,7 @@ import no.nav.foreldrepenger.web.app.rest.ResourceLink;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.UtvidetBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.tilbakekreving.TilbakekrevingRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.KontrollerAktivitetskravDtoTjeneste;
 import no.nav.foreldrepenger.web.app.util.RestUtils;
 
 @CdiDbAwareTest
@@ -70,6 +71,9 @@ public class BehandlingDtoTjenesteTest {
     @Inject
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
 
+    @Inject
+    private KontrollerAktivitetskravDtoTjeneste kontrollerAktivitetskravDtoTjeneste;
+
     private BehandlingDtoTjeneste tjeneste;
 
     private LocalDate now = LocalDate.now();
@@ -80,7 +84,8 @@ public class BehandlingDtoTjenesteTest {
     public void setUp() {
         existingRoutes = RestUtils.getRoutes();
         tjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningsgrunnlagTjeneste, tilbakekrevingRepository, skjæringstidspunktTjeneste,
-                opptjeningIUtlandDokStatusTjeneste, behandlingDokumentRepository, relatertBehandlingTjeneste, foreldrepengerUttakTjeneste, null);
+                opptjeningIUtlandDokStatusTjeneste, behandlingDokumentRepository, relatertBehandlingTjeneste, foreldrepengerUttakTjeneste, null,
+                kontrollerAktivitetskravDtoTjeneste);
     }
 
     @Test

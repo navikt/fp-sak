@@ -140,8 +140,8 @@ public enum HistorikkEndretFeltType implements Kodeverdi {
     DELVIS_REFUSJON_FØR_STARTDATO("DELVIS_REFUSJON_FØR_STARTDATO", "Delvis refusjon som utbetales før startdato for full refusjon"),
     ORGANISASJONSNUMMER("ORGANISASJONSNUMMER", "Organisasjonsnummer"),
     ARBEIDSFORHOLD_BEKREFTET_TOM_DATO("ARBEIDSFORHOLD_BEKREFTET_TOM_DATO", "Til og med dato fastsatt av saksbehandler"),
-    ANKE_AVVIST_ÅRSAK("ANKE_AVVIST_ÅRSAK", "Årsak til avvist anke")
-    ;
+    ANKE_AVVIST_ÅRSAK("ANKE_AVVIST_ÅRSAK", "Årsak til avvist anke"),
+    AKTIVITETSKRAV_AVKLARING("AKTIVITETSKRAV_AVKLARING", "Avklaring om mor er i aktivitet");
 
     private static final Map<String, HistorikkEndretFeltType> KODER = new LinkedHashMap<>();
 

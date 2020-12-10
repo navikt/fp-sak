@@ -17,6 +17,8 @@ public class YtelseFordelingAggregat {
     private PerioderUttakDokumentasjonEntitet perioderUttakDokumentasjon;
     private AvklarteUttakDatoerEntitet avklarteDatoer;
     private PerioderAnnenforelderHarRettEntitet perioderAnnenforelderHarRett;
+    private AktivitetskravPerioderEntitet opprinneligeAktivitetskravPerioder;
+    private AktivitetskravPerioderEntitet saksbehandledeAktivitetskravPerioder;
 
     protected YtelseFordelingAggregat() {
     }
@@ -50,6 +52,19 @@ public class YtelseFordelingAggregat {
         return Optional.ofNullable(perioderAnnenforelderHarRett);
     }
 
+    public Optional<AktivitetskravPerioderEntitet> getOpprinneligeAktivitetskravPerioder() {
+        return Optional.ofNullable(opprinneligeAktivitetskravPerioder);
+    }
+
+    public Optional<AktivitetskravPerioderEntitet> getSaksbehandledeAktivitetskravPerioder() {
+        return Optional.ofNullable(saksbehandledeAktivitetskravPerioder);
+    }
+
+    public Optional<AktivitetskravPerioderEntitet> getGjeldendeAktivitetskravPerioder() {
+        return getSaksbehandledeAktivitetskravPerioder().isPresent() ? getSaksbehandledeAktivitetskravPerioder()
+            : getOpprinneligeAktivitetskravPerioder();
+    }
+
     public Optional<Boolean> getAnnenForelderRettAvklaring() {
         var perioder = getPerioderAnnenforelderHarRett();
         if (perioder.isEmpty()) {
@@ -75,10 +90,10 @@ public class YtelseFordelingAggregat {
     public Optional<AvklarteUttakDatoerEntitet> getAvklarteDatoer() {
         return Optional.ofNullable(avklarteDatoer);
     }
-
     public Optional<OppgittFordelingEntitet> getOverstyrtFordeling() {
         return Optional.ofNullable(overstyrtFordeling);
     }
+
     public Optional<PerioderUttakDokumentasjonEntitet> getPerioderUttakDokumentasjon() {
         return Optional.ofNullable(perioderUttakDokumentasjon);
     }
@@ -151,6 +166,16 @@ public class YtelseFordelingAggregat {
 
         public Builder medPerioderAleneOmsorg(PerioderAleneOmsorgEntitet perioderAleneOmsorg) {
             kladd.perioderAleneOmsorg = perioderAleneOmsorg;
+            return this;
+        }
+
+        public Builder medOpprinneligeAktivitetskravPerioder(AktivitetskravPerioderEntitet aktivitetskravPerioder) {
+            kladd.opprinneligeAktivitetskravPerioder = aktivitetskravPerioder;
+            return this;
+        }
+
+        public Builder medSaksbehandledeAktivitetskravPerioder(AktivitetskravPerioderEntitet aktivitetskravPerioder) {
+            kladd.saksbehandledeAktivitetskravPerioder = aktivitetskravPerioder;
             return this;
         }
 

@@ -63,6 +63,8 @@ public class YtelsesFordelingRepository {
                 .medPerioderUttakDokumentasjon(ytelseFordelingGrunnlagEntitet.getPerioderUttakDokumentasjon())
                 .medAvklarteDatoer(ytelseFordelingGrunnlagEntitet.getAvklarteUttakDatoer())
                 .medPerioderAnnenforelderHarRett(ytelseFordelingGrunnlagEntitet.getPerioderAnnenforelderHarRettEntitet())
+                .medOpprinneligeAktivitetskravPerioder(ytelseFordelingGrunnlagEntitet.getOpprinneligeAktivitetskravPerioder())
+                .medSaksbehandledeAktivitetskravPerioder(ytelseFordelingGrunnlagEntitet.getSaksbehandledeAktivitetskravPerioder())
                 .build();
     }
 
@@ -127,6 +129,22 @@ public class YtelsesFordelingRepository {
         Objects.requireNonNull(perioderUtenOmsorg, "perioderUtenOmsorg");
         final YtelseFordelingAggregat.Builder aggregatBuilder = opprettAggregatBuilderFor(behandlingId);
         aggregatBuilder.medPerioderUtenOmsorg(perioderUtenOmsorg);
+        lagreOgFlush(behandlingId, aggregatBuilder.build());
+    }
+
+    public void lagreOpprinnelige(Long behandlingId, AktivitetskravPerioderEntitet aktivitetskravPerioderEntitet) {
+        Objects.requireNonNull(behandlingId, "behandlingId");
+        Objects.requireNonNull(aktivitetskravPerioderEntitet, "aktivitetskravPerioderEntitet");
+        final YtelseFordelingAggregat.Builder aggregatBuilder = opprettAggregatBuilderFor(behandlingId);
+        aggregatBuilder.medOpprinneligeAktivitetskravPerioder(aktivitetskravPerioderEntitet);
+        lagreOgFlush(behandlingId, aggregatBuilder.build());
+    }
+
+    public void lagreSaksbehandlede(Long behandlingId, AktivitetskravPerioderEntitet aktivitetskravPerioderEntitet) {
+        Objects.requireNonNull(behandlingId, "behandlingId");
+        Objects.requireNonNull(aktivitetskravPerioderEntitet, "aktivitetskravPerioderEntitet");
+        final YtelseFordelingAggregat.Builder aggregatBuilder = opprettAggregatBuilderFor(behandlingId);
+        aggregatBuilder.medSaksbehandledeAktivitetskravPerioder(aktivitetskravPerioderEntitet);
         lagreOgFlush(behandlingId, aggregatBuilder.build());
     }
 
@@ -207,6 +225,8 @@ public class YtelsesFordelingRepository {
         lagrePerioderUtenOmsorg(grunnlag);
         lagrePerioderUttakDokumentasjon(grunnlag);
         lagrePerioderAnnenforelderHarRett(grunnlag);
+        lagrePerioderAktivitetskrav(grunnlag.getOpprinneligeAktivitetskravPerioder());
+        lagrePerioderAktivitetskrav(grunnlag.getSaksbehandledeAktivitetskravPerioder());
 
         entityManager.persist(grunnlag);
     }
@@ -224,6 +244,8 @@ public class YtelsesFordelingRepository {
         aggregat.getJustertFordeling().ifPresent(grunnlag::setJustertFordeling);
         aggregat.getAvklarteDatoer().ifPresent(grunnlag::setAvklarteUttakDatoerEntitet);
         aggregat.getPerioderAnnenforelderHarRett().ifPresent(grunnlag::setPerioderAnnenforelderHarRettEntitet);
+        aggregat.getOpprinneligeAktivitetskravPerioder().ifPresent(grunnlag::setOpprinneligeAktivitetskravPerioder);
+        aggregat.getSaksbehandledeAktivitetskravPerioder().ifPresent(grunnlag::setSaksbehandledeAktivitetskravPerioder);
         return grunnlag;
     }
 
@@ -263,6 +285,15 @@ public class YtelsesFordelingRepository {
         }
     }
 
+    private void lagrePerioderAktivitetskrav(AktivitetskravPerioderEntitet perioder) {
+        if (perioder != null) {
+            entityManager.persist(perioder);
+            for (AktivitetskravPeriodeEntitet periode : perioder.getPerioder()) {
+                entityManager.persist(periode);
+            }
+        }
+    }
+
     private void lagrePeriode(List<OppgittPeriodeEntitet> perioder) {
         for (OppgittPeriodeEntitet oppgittPeriode : perioder) {
             entityManager.persist(oppgittPeriode);
@@ -280,7 +311,9 @@ public class YtelsesFordelingRepository {
      */
     public void kopierGrunnlagFraEksisterendeBehandling(Long gammelBehandlingId, Long nyBehandlingId) {
         Optional<YtelseFordelingAggregat> origAggregat = hentAggregatHvisEksisterer(gammelBehandlingId);
-        origAggregat.ifPresent(ytelseFordelingAggregat -> lagreOgFlush(nyBehandlingId, ytelseFordelingAggregat));
+        origAggregat.ifPresent(ytelseFordelingAggregat -> {
+            lagreOgFlush(nyBehandlingId, ytelseFordelingAggregat);
+        });
     }
 
     public Optional<Long> hentIdPåAktivYtelsesFordeling(Long behandlingId) {
@@ -299,6 +332,13 @@ public class YtelsesFordelingRepository {
                 .medOverstyrtFordeling(null)
                 .build();
         lagreOgFlush(behandlingId, ytelseFordeling);
+    }
+
+    public void tilbakestillSaksbehandledeAktivitetskravPerioder(Long behandlingId) {
+        var yf = opprettAggregatBuilderFor(behandlingId)
+            .medSaksbehandledeAktivitetskravPerioder(null)
+            .build();
+        lagreOgFlush(behandlingId, yf);
     }
 
     public void lagre(Long behandlingId, YtelseFordelingAggregat aggregat) {

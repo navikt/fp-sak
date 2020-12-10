@@ -75,6 +75,16 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
     private PerioderAnnenforelderHarRettEntitet perioderAnnenforelderHarRettEntitet;
 
     @ManyToOne
+    @JoinColumn(name = "opprinnelige_aktkrav_per_id", updatable = false, unique = true)
+    @ChangeTracked
+    private AktivitetskravPerioderEntitet opprinneligeAktivitetskravPerioder;
+
+    @ManyToOne
+    @JoinColumn(name = "saksbehandlede_aktkrav_per_id", updatable = false, unique = true)
+    @ChangeTracked
+    private AktivitetskravPerioderEntitet saksbehandledeAktivitetskravPerioder;
+
+    @ManyToOne
     @JoinColumn(name = "yf_AVKLART_DATO_id", updatable = false, unique = true)
     @ChangeTracked
     private AvklarteUttakDatoerEntitet avklarteUttakDatoerEntitet;
@@ -134,6 +144,7 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
         this.behandlingId = behandlingId;
     }
 
+
     void setAktiv(boolean aktiv) {
         this.aktiv = aktiv;
     }
@@ -144,6 +155,22 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
 
     void setPerioderUtenOmsorg(PerioderUtenOmsorgEntitet perioder) {
         this.perioderUtenOmsorgEntitet = perioder;
+    }
+
+    public AktivitetskravPerioderEntitet getOpprinneligeAktivitetskravPerioder() {
+        return opprinneligeAktivitetskravPerioder;
+    }
+
+    public void setOpprinneligeAktivitetskravPerioder(AktivitetskravPerioderEntitet opprinneligAktivitetskravPerioder) {
+        this.opprinneligeAktivitetskravPerioder = opprinneligAktivitetskravPerioder;
+    }
+
+    public AktivitetskravPerioderEntitet getSaksbehandledeAktivitetskravPerioder() {
+        return saksbehandledeAktivitetskravPerioder;
+    }
+
+    public void setSaksbehandledeAktivitetskravPerioder(AktivitetskravPerioderEntitet saksbehandletAktivitetskravPerioder) {
+        this.saksbehandledeAktivitetskravPerioder = saksbehandletAktivitetskravPerioder;
     }
 
     PerioderAleneOmsorgEntitet getPerioderAleneOmsorgEntitet() {
@@ -183,6 +210,7 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
         return id;
     }
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -198,6 +226,7 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
 
     @Override
     public int hashCode() {
-        return Objects.hash(oppgittFordeling, oppgittRettighet, oppgittDekningsgrad, perioderUtenOmsorgEntitet, perioderAleneOmsorgEntitet, aktiv);
+        return Objects.hash(oppgittFordeling, oppgittRettighet, oppgittDekningsgrad, perioderUtenOmsorgEntitet,
+            perioderAleneOmsorgEntitet, aktiv);
     }
 }

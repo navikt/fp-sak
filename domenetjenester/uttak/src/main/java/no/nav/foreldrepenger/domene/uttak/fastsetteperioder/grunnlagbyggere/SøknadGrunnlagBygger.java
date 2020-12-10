@@ -13,6 +13,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUtenOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUttakDokumentasjonEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AktivitetskravPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.UttakDokumentasjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
@@ -32,6 +33,7 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetTyp
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Dokumentasjon;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.GyldigGrunnPeriode;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OppgittPeriode;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeMedAvklartMorsAktivitet;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeMedBarnInnlagt;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeMedHV;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeMedInnleggelse;
@@ -105,7 +107,7 @@ public class SøknadGrunnlagBygger {
         }
         return OppgittPeriode.forVanligPeriode(stønadskontotype, oppgittPeriode.getFom(), oppgittPeriode.getTom(),
             samtidigUttaksprosent(oppgittPeriode), oppgittPeriode.isFlerbarnsdager(), map(oppgittPeriode.getPeriodeVurderingType()),
-            oppgittPeriode.getMottattDato());
+            oppgittPeriode.getMottattDato(), map(oppgittPeriode.getMorsAktivitet()));
     }
 
     private static SamtidigUttaksprosent samtidigUttaksprosent(OppgittPeriodeEntitet oppgittPeriode) {
@@ -130,7 +132,7 @@ public class SøknadGrunnlagBygger {
 
         return OppgittPeriode.forGradering(stønadskontotype, oppgittPeriode.getFom(), oppgittPeriode.getTom(),
             oppgittPeriode.getArbeidsprosent(), samtidigUttaksprosent(oppgittPeriode), oppgittPeriode.isFlerbarnsdager(),
-            gradertAktivitet, periodeVurderingType, oppgittPeriode.getMottattDato());
+            gradertAktivitet, periodeVurderingType, oppgittPeriode.getMottattDato(), map(oppgittPeriode.getMorsAktivitet()));
     }
 
     private static Set<AktivitetIdentifikator> finnGraderteAktiviteter(OppgittPeriodeEntitet oppgittPeriode, Set<AktivitetIdentifikator> aktiviter) {
@@ -162,7 +164,7 @@ public class SøknadGrunnlagBygger {
         var periodeVurderingType = map(oppgittPeriode.getPeriodeVurderingType());
 
         return OppgittPeriode.forUtsettelse(oppgittPeriode.getFom(), oppgittPeriode.getTom(),
-            periodeVurderingType, utsettelseÅrsak, oppgittPeriode.getMottattDato());
+            periodeVurderingType, utsettelseÅrsak, oppgittPeriode.getMottattDato(), map(oppgittPeriode.getMorsAktivitet()));
     }
 
     private static OppgittPeriode byggTilOppholdPeriode(OppgittPeriodeEntitet oppgittPeriode) {
@@ -211,6 +213,11 @@ public class SøknadGrunnlagBygger {
         if (ytelseFordelingAggregat.getPerioderUtenOmsorg().isPresent()) {
             leggTilDokumentasjon(ytelseFordelingAggregat, builder);
         }
+        ytelseFordelingAggregat.getGjeldendeAktivitetskravPerioder()
+            .map(AktivitetskravPerioderEntitet::getPerioder).orElse(List.of()).stream()
+            .map(p -> new PeriodeMedAvklartMorsAktivitet(p.getTidsperiode().getFomDato(), p.getTidsperiode().getTomDato(),
+                map(p.getAvklaring())))
+            .forEach(builder::leggTilPeriodeMedAvklartMorsAktivitet);
 
         return builder;
     }
