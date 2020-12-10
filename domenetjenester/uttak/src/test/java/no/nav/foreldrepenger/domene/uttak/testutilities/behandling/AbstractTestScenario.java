@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.uttak.testutilities.behandling;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 
@@ -13,6 +14,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AktivitetskravPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AktivitetskravPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
@@ -62,6 +65,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private PerioderUtenOmsorgEntitet perioderUtenOmsorg;
     private PerioderAleneOmsorgEntitet perioderMedAleneomsorg;
     private UttakResultatPerioderEntitet uttak;
+    private AktivitetskravPerioderEntitet aktivitetskravPerioder;
 
     protected AbstractTestScenario(FagsakYtelseType fagsakYtelseType, RelasjonsRolleType brukerRolle, AktørId aktørId) {
         fagsak = Fagsak.opprettNy(fagsakYtelseType, NavBruker.opprettNy(aktørId, Språkkode.NB), brukerRolle,
@@ -166,6 +170,9 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         }
         if (perioderMedAleneomsorg != null) {
             ytelsesFordelingRepository.lagre(behandlingId, perioderMedAleneomsorg);
+        }
+        if (aktivitetskravPerioder != null) {
+            ytelsesFordelingRepository.lagreOpprinnelige(behandlingId, aktivitetskravPerioder);
         }
     }
 
@@ -290,6 +297,14 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
     public InntektArbeidYtelseScenario.InntektArbeidYtelseScenarioTestBuilder getInntektArbeidYtelseScenarioTestBuilder() {
         return getIayScenario().getInntektArbeidYtelseScenarioTestBuilder();
+    }
+
+    public S medAktivitetskravPerioder(List<AktivitetskravPeriodeEntitet> perioder) {
+        this.aktivitetskravPerioder = new AktivitetskravPerioderEntitet();
+        for (var p : perioder) {
+            this.aktivitetskravPerioder.leggTil(p);
+        }
+        return (S) this;
     }
 
     interface LagreInntektArbeidYtelse {

@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -10,6 +11,8 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.YtelseMaksdatoTjeneste;
+import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
+import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.AndelGraderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -21,13 +24,17 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Avklart
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
+import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.OpptjeningIUtlandDokStatusTjeneste;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
+import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktTjenesteImpl;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktUtils;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingÅrsakDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.UtvidetBehandlingDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.KontrollerAktivitetskravDtoTjeneste;
 
 public class BehandlingÅrsakDtoTest extends EntityManagerAwareTest {
 
@@ -41,20 +48,28 @@ public class BehandlingÅrsakDtoTest extends EntityManagerAwareTest {
         var repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         var ytelseMaksdatoTjeneste = new YtelseMaksdatoTjeneste(repositoryProvider,
             new RelatertBehandlingTjeneste(repositoryProvider));
-        var skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
-            ytelseMaksdatoTjeneste, stputil);
+        var skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste,
+            stputil);
         var beregningsgrunnlagTjeneste = new HentOgLagreBeregningsgrunnlagTjeneste(entityManager);
         var opptjeningIUtlandDokStatusTjeneste = new OpptjeningIUtlandDokStatusTjeneste(
             new OpptjeningIUtlandDokStatusRepository(entityManager));
         var tilbakekrevingRepository = new TilbakekrevingRepository(entityManager);
         var behandlingDokumentRepository = new BehandlingDokumentRepository(entityManager);
         var relatertBehandlingTjeneste = new RelatertBehandlingTjeneste(repositoryProvider);
+        var ytelseFordelingTjeneste = new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository());
+        var foreldrepengerUttakTjeneste = new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository());
+        var uttakInputTjeneste = new UttakInputTjeneste(repositoryProvider, mock(HentOgLagreBeregningsgrunnlagTjeneste.class),
+            new AbakusInMemoryInntektArbeidYtelseTjeneste(), skjæringstidspunktTjeneste, mock(MedlemTjeneste.class),
+            new AndelGraderingTjeneste(foreldrepengerUttakTjeneste, repositoryProvider.getYtelsesFordelingRepository()));
         behandlingDtoTjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningsgrunnlagTjeneste,
             tilbakekrevingRepository, skjæringstidspunktTjeneste, opptjeningIUtlandDokStatusTjeneste,
             behandlingDokumentRepository, relatertBehandlingTjeneste,
-            new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()), null);
+            foreldrepengerUttakTjeneste, null,
+            new KontrollerAktivitetskravDtoTjeneste(repositoryProvider.getBehandlingRepository(),
+                ytelseFordelingTjeneste, uttakInputTjeneste, foreldrepengerUttakTjeneste));
 
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medDefaultOppgittFordeling(LocalDate.now());
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
         var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now())
             .medOpprinneligEndringsdato(LocalDate.now())

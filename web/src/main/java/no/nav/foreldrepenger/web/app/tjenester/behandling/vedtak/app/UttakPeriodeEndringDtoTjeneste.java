@@ -10,8 +10,8 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettePerioderEndringTjeneste;
-import no.nav.foreldrepenger.domene.uttak.kontroller.fakta.uttakperioder.AvklarFaktaUttakPerioderTjeneste;
-import no.nav.foreldrepenger.domene.uttak.kontroller.fakta.uttakperioder.UttakPeriodeEndringDto;
+import no.nav.foreldrepenger.domene.uttak.fakta.uttakperioder.AvklarFaktaUttakPerioderTjeneste;
+import no.nav.foreldrepenger.domene.uttak.fakta.uttakperioder.UttakPeriodeEndringDto;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.Totrinnresultatgrunnlag;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.Totrinnsvurdering;
 

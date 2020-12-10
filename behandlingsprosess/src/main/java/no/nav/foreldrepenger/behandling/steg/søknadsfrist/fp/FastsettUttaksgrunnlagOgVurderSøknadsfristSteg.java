@@ -29,7 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Avklart
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.domene.uttak.SkalKopiereUttaksstegTjeneste;
-import no.nav.foreldrepenger.domene.uttak.fastsettuttaksgrunnlag.fp.FastsettUttaksgrunnlagTjeneste;
+import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.FastsettUttaksgrunnlagTjeneste;
 
 @BehandlingStegRef(kode = "SØKNADSFRIST_FP")
 @BehandlingTypeRef

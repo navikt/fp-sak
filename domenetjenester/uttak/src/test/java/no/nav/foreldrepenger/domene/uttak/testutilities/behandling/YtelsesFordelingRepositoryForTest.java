@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AktivitetskravPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
@@ -148,5 +149,21 @@ class YtelsesFordelingRepositoryForTest extends YtelsesFordelingRepository {
     @Override
     public DiffResult diffResultat(Long grunnlagId1, Long grunnlagId2, boolean onlyCheckTrackedFields) {
         throw new IkkeImplementertForTestException();
+    }
+
+    @Override
+    public void lagreOpprinnelige(Long behandlingId, AktivitetskravPerioderEntitet aktivitetskravPerioderEntitet) {
+        var ny = YtelseFordelingAggregat.oppdatere(hentAggregatHvisEksisterer(behandlingId))
+            .medOpprinneligeAktivitetskravPerioder(aktivitetskravPerioderEntitet)
+            .build();
+        lagre(behandlingId, ny);
+    }
+
+    @Override
+    public void lagreSaksbehandlede(Long behandlingId, AktivitetskravPerioderEntitet aktivitetskravPerioderEntitet) {
+        var ny = YtelseFordelingAggregat.oppdatere(hentAggregatHvisEksisterer(behandlingId))
+            .medSaksbehandledeAktivitetskravPerioder(aktivitetskravPerioderEntitet)
+            .build();
+        lagre(behandlingId, ny);
     }
 }

@@ -40,6 +40,7 @@ public enum ManuellBehandlingÅrsak implements Kodeverdi {
     OPPHOLD_STØRRE_ENN_TILGJENGELIGE_DAGER("5024", "Opphold større enn tilgjengelige dager"),
     IKKE_HELTIDSARBEID("5025", "Søker er ikke registrert med en heltidsstilling i Aa-registeret. Avklar om søker jobber 100 % og dermed har rett til utsettelse"),
     DØDSFALL("5026", "Vurder uttak med hensyn på dødsfall"),
+    MOR_UFØR("5027", "Vurder fars/medmors rett til uttak på grunn av mors uføretrygd"),
     ;
 
     private static final Map<String, ManuellBehandlingÅrsak> KODER = new LinkedHashMap<>();

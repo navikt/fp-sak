@@ -34,6 +34,7 @@ public enum UttakDokumentasjonType implements Kodeverdi {
     ALENEOMSORG_OVERFØRING("ALENEOMSORG_OVERFØRING", "Annen forelder har ikke omsorg for barnet"),
     HV_OVELSE("HV_OVELSE", "Søker er i tjeneste eller øvelse i heimevernet"),
     NAV_TILTAK("NAV_TILTAK", "Søker er i tiltak i regi av NAV"),
+    MOR_AKTIVITET("MOR_AKTIVITET", "Mor er i aktivitet"),
     ;
     private static final Map<String, UttakDokumentasjonType> KODER = new LinkedHashMap<>();
 

@@ -18,12 +18,14 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.FastsettePeriodeResul
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.FastsettePerioderRegelOrkestrering;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.RegelGrunnlag;
 import no.nav.foreldrepenger.regler.uttak.konfig.FeatureToggles;
+import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
 public class FastsettePerioderRegelAdapter {
 
     private static final Logger LOG = LoggerFactory.getLogger(FastsettePerioderRegelAdapter.class);
     private static final FastsettePerioderRegelOrkestrering REGEL = new FastsettePerioderRegelOrkestrering();
+    private static final Environment ENV = Environment.current();
 
     private final JacksonJsonConfig jackson = new JacksonJsonConfig();
 
@@ -45,7 +47,7 @@ public class FastsettePerioderRegelAdapter {
         var grunnlag = regelGrunnlagBygger.byggGrunnlag(input);
         List<FastsettePeriodeResultat> resultat;
         try {
-            resultat = REGEL.fastsettePerioder(grunnlag, new FeatureTogglesImpl());
+            resultat = REGEL.fastsettePerioder(grunnlag, new FeatureTogglesImpl(!ENV.isProd()));
         } catch (Exception e) {
             log(grunnlag);
             throw new RuntimeException("Automatisk fastsetting av uttak feilet", e);
@@ -62,6 +64,17 @@ public class FastsettePerioderRegelAdapter {
     }
 
     private static class FeatureTogglesImpl implements FeatureToggles {
+
+        private final boolean automatisertAktivitetskrav;
+
+        private FeatureTogglesImpl(boolean automatisertAktivitetskrav) {
+            this.automatisertAktivitetskrav = automatisertAktivitetskrav;
+        }
+
+        @Override
+        public boolean automatisertAktivitetskrav() {
+            return automatisertAktivitetskrav;
+        }
     }
 }
 

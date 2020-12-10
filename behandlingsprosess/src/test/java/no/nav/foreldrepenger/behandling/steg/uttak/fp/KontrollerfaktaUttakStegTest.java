@@ -38,7 +38,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopp
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.uttak.kontroller.fakta.KontrollerFaktaUttakTjeneste;
+import no.nav.foreldrepenger.domene.uttak.fakta.KontrollerFaktaUttakTjeneste;
 
 @CdiDbAwareTest
 public class KontrollerfaktaUttakStegTest {

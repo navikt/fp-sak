@@ -82,8 +82,8 @@ public enum BehandlingStegType implements Kodeverdi {
     VURDER_REF_BERGRUNN("VURDER_REF_BERGRUNN", "Vurder refusjon for beregningsgrunnlaget", UTREDES),
     VULOMED("VULOMED", "Vurder løpende medlemskap", UTREDES),
     INREG_AVSL("INREG_AVSL", "Innhent registeropplysninger - resterende oppgaver", UTREDES),
-    VURDER_OPPTJENING_FAKTA("VURDER_OPPTJ_FAKTA", "Vurder opptjeningfakta", UTREDES)
-    ;
+    VURDER_OPPTJENING_FAKTA("VURDER_OPPTJ_FAKTA", "Vurder opptjeningfakta", UTREDES),
+    KONTROLLER_AKTIVITETSKRAV("KONTROLLER_AKTIVITETSKRAV", "Kontroller aktivitetskrav", UTREDES);
 
 
     static final String KODEVERK = "BEHANDLING_STEG_TYPE";

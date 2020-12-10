@@ -1,0 +1,324 @@
+package no.nav.foreldrepenger.domene.uttak.fakta.aktkrav;
+
+
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.KONTROLLER_AKTIVITETSKRAV;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FELLESPERIODE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FORELDREPENGER;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AktivitetskravPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.KontrollerAktivitetskravAvklaring;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
+import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
+import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
+import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
+import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.AbstractTestScenario;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryProviderForTest;
+import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
+
+public class KontrollerAktivitetskravAksjonspunktUtlederTest {
+
+    private final UttakRepositoryProviderForTest repositoryProvider = new UttakRepositoryProviderForTest();
+    private final YtelseFordelingTjeneste ytelseFordelingTjeneste = new YtelseFordelingTjeneste(
+        repositoryProvider.getYtelsesFordelingRepository());
+    private final KontrollerAktivitetskravAksjonspunktUtleder utleder = new KontrollerAktivitetskravAksjonspunktUtleder(
+        ytelseFordelingTjeneste, new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()));
+
+    @Test
+    public void utledeAPForFarSomHarSøktFellesperiode() {
+        var fødselsdato = LocalDate.of(2020, 1, 1);
+        var søknadsperiode = fellesperiode(fødselsdato);
+        var behandlingReferanse = farBehandling(søknadsperiode);
+        var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
+        var uttakInput = uttakInput(behandlingReferanse, familieHendelse);
+        var ap = utleder.utledFor(uttakInput);
+
+        assertThat(ap).containsOnly(KONTROLLER_AKTIVITETSKRAV);
+    }
+
+    @Test
+    public void ikkeUtledeAPForFarSomHarSøktFellesperiodeMedFlerbarnsdager() {
+        var fødselsdato = LocalDate.of(2020, 1, 1);
+        var søknadsperiode = OppgittPeriodeBuilder.ny()
+            .medMorsAktivitet(MorsAktivitet.ARBEID)
+            .medPeriodeType(FELLESPERIODE)
+            .medPeriode(fødselsdato, fødselsdato.plusWeeks(10))
+            .medFlerbarnsdager(true)
+            .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+            .build();
+        var behandlingReferanse = farBehandling(søknadsperiode);
+        var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
+        var uttakInput = uttakInput(behandlingReferanse, familieHendelse);
+        var ap = utleder.utledFor(uttakInput);
+
+        assertThat(ap).isEmpty();
+    }
+
+    @Test
+    public void ikkeUtledeAPForFarSomHarSøktFellesperiodeMenUfør() {
+        var fødselsdato = LocalDate.of(2020, 1, 1);
+        var søknadsperiode = OppgittPeriodeBuilder.ny()
+            .medPeriode(fødselsdato.plusWeeks(10), fødselsdato.plusWeeks(15))
+            .medPeriodeType(FELLESPERIODE)
+            .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+            .medMorsAktivitet(MorsAktivitet.UFØRE)
+            .build();
+        var behandlingReferanse = farBehandling(søknadsperiode);
+        var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
+        var uttakInput = uttakInput(behandlingReferanse, familieHendelse);
+        var ap = utleder.utledFor(uttakInput);
+
+        assertThat(ap).isEmpty();
+    }
+
+    @Test
+    public void utledeAPForFarSomHarSøktForeldrepenger() {
+        var fødselsdato = LocalDate.of(2020, 1, 1);
+        var søknadsperiode = foreldrepenger(fødselsdato, fødselsdato.plusWeeks(10));
+        var behandlingReferanse = farBehandling(søknadsperiode);
+        var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
+        var uttakInput = uttakInput(behandlingReferanse, familieHendelse);
+        var ap = utleder.utledFor(uttakInput);
+
+        assertThat(ap).containsOnly(KONTROLLER_AKTIVITETSKRAV);
+    }
+
+    @Test
+    public void ikkeUtledeAPForFarSomHarSøktUtsettelseHvisBeggeRett() {
+        var fødselsdato = LocalDate.of(2020, 1, 1);
+        var søknadsperiode = OppgittPeriodeBuilder.ny()
+            .medÅrsak(UtsettelseÅrsak.ARBEID)
+            .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+            .medPeriode(fødselsdato, fødselsdato.plusWeeks(10))
+            .build();
+        var behandlingReferanse = farBehandling(søknadsperiode);
+        var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
+        var uttakInput = uttakInput(behandlingReferanse, familieHendelse);
+        var ap = utleder.utledFor(uttakInput);
+
+        assertThat(ap).isEmpty();
+    }
+
+    @Test
+    public void utledeAPForFarSomHarSøktUtsettelseOgBareFarRett() {
+        var fødselsdato = LocalDate.of(2020, 1, 1);
+        var søknadsperiode = OppgittPeriodeBuilder.ny()
+            .medÅrsak(UtsettelseÅrsak.ARBEID)
+            .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+            .medPeriode(fødselsdato, fødselsdato.plusWeeks(10))
+            .build();
+        var behandling = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medOppgittRettighet(new OppgittRettighetEntitet(false, true, false))
+            .medFordeling(new OppgittFordelingEntitet(List.of(søknadsperiode), true))
+            .lagre(repositoryProvider);
+        var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
+        var uttakInput = uttakInput(BehandlingReferanse.fra(behandling), familieHendelse);
+        var ap = utleder.utledFor(uttakInput);
+
+        assertThat(ap).containsOnly(KONTROLLER_AKTIVITETSKRAV);
+    }
+
+    @Test
+    public void ikkeUtledeAPForMorSomHarSøktFellesperiode() {
+        var fødselsdato = LocalDate.of(2020, 1, 1);
+        var søknadsperiode = fellesperiode(fødselsdato);
+        var behandlingReferanse = morBehandling(søknadsperiode);
+        var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
+        var uttakInput = uttakInput(behandlingReferanse, familieHendelse);
+        var ap = utleder.utledFor(uttakInput);
+
+        assertThat(ap).isEmpty();
+    }
+
+    @Test
+    public void ikkeUtledeAPForAleneomsorgFarSomHarSøktFellesperiode() {
+        var fødselsdato = LocalDate.of(2020, 1, 1);
+        var søknadsperiode = fellesperiode(fødselsdato);
+        var behandling = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medOppgittRettighet(aleneomsorg())
+            .medFordeling(new OppgittFordelingEntitet(List.of(søknadsperiode), true))
+            .lagre(repositoryProvider);
+        var behandlingReferanse = BehandlingReferanse.fra(behandling);
+        var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
+        var uttakInput = uttakInput(behandlingReferanse, familieHendelse);
+        var ap = utleder.utledFor(uttakInput);
+
+        assertThat(ap).isEmpty();
+    }
+
+    @Test
+    public void ikkeUtledeAPForStebarnsadopsjon() {
+        var omsorgsovertakelse = LocalDate.of(2020, 1, 1);
+        var søknadsperiode = fellesperiode(omsorgsovertakelse);
+        var behandlingReferanse = farBehandling(søknadsperiode);
+        var familieHendelse = FamilieHendelse.forAdopsjonOmsorgsovertakelse(omsorgsovertakelse, List.of(), 1,
+            omsorgsovertakelse, true);
+        var uttakInput = uttakInput(behandlingReferanse, familieHendelse);
+        var ap = utleder.utledFor(uttakInput);
+
+        assertThat(ap).isEmpty();
+    }
+
+    @Test
+    public void ikkeUtledeAPForFarSomHarSøktFellesperiodeHvisAvklartAvSaksbehandler() {
+        var fødselsdato = LocalDate.of(2020, 1, 1);
+        var søknadsperiode = fellesperiode(fødselsdato);
+        var avklartPeriode = new AktivitetskravPeriodeEntitet(søknadsperiode.getFom(), søknadsperiode.getTom(),
+            KontrollerAktivitetskravAvklaring.I_AKTIVITET, "begrunnelse");;
+        var behandlingReferanse = farBehandling(søknadsperiode, avklartPeriode);
+        var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
+        var uttakInput = uttakInput(behandlingReferanse, familieHendelse);
+        var ap = utleder.utledFor(uttakInput);
+
+        assertThat(ap).isEmpty();
+    }
+
+    @Test
+    public void ignorererHelg() {
+        //Mandag
+        var fødselsdato = LocalDate.of(2020, 11, 30);
+        //Slutter søndag
+        var søknadsperiode = fellesperiode(fødselsdato, LocalDate.of(2020, 12, 13));
+        //Dokumentert fom fredag (altså før søknadsperiode sluttdato)
+        var avklartPeriode = new AktivitetskravPeriodeEntitet(søknadsperiode.getFom(), LocalDate.of(2020, 12, 11),
+            KontrollerAktivitetskravAvklaring.I_AKTIVITET, "begrunnelse");
+        var behandlingReferanse = farBehandling(søknadsperiode, avklartPeriode);
+        var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
+        var uttakInput = uttakInput(behandlingReferanse, familieHendelse);
+        var ap = utleder.utledFor(uttakInput);
+
+        assertThat(ap).isEmpty();
+    }
+
+    @Test
+    public void utledeAPForFarSomHarSøktFellesperiodeHvisBareDelvisAvklartAvSaksbehandler() {
+        var fødselsdato = LocalDate.of(2020, 1, 1);
+        var søknadsperiode = fellesperiode(fødselsdato);
+        var avklartPeriode = new AktivitetskravPeriodeEntitet(søknadsperiode.getFom(),
+            søknadsperiode.getTom().minusWeeks(2), KontrollerAktivitetskravAvklaring.I_AKTIVITET, "begrunnelse");
+        var behandlingReferanse = farBehandling(søknadsperiode, avklartPeriode);
+        var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
+        var uttakInput = uttakInput(behandlingReferanse, familieHendelse);
+        var ap = utleder.utledFor(uttakInput);
+
+        assertThat(ap).containsOnly(KONTROLLER_AKTIVITETSKRAV);
+    }
+
+    @Test
+    public void ikkeUtledeAPForFarSomHarSøktFellesperiodeHvisAvklartPeriodeOmslutterSøknadsperiode() {
+        var fødselsdato = LocalDate.of(2020, 1, 1);
+        var søknadsperiode = fellesperiode(fødselsdato);
+        var avklartPeriode = new AktivitetskravPeriodeEntitet(søknadsperiode.getFom().minusWeeks(2),
+            søknadsperiode.getTom().plusWeeks(2), KontrollerAktivitetskravAvklaring.I_AKTIVITET, "begrunnelse");
+        var behandlingReferanse = farBehandling(søknadsperiode, avklartPeriode);
+        var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
+        var uttakInput = uttakInput(behandlingReferanse, familieHendelse);
+        var ap = utleder.utledFor(uttakInput);
+
+        assertThat(ap).isEmpty();
+    }
+
+    @Test
+    public void ikkeUtledeAPForFarSomHarSøktFellesperiodeHvisAvklartPeriodeOmslutterToSøknadsperioder() {
+        var fødselsdato = LocalDate.of(2020, 1, 1);
+        var søknadsperiode1 = fellesperiode(fødselsdato, fødselsdato.plusWeeks(10));
+        var søknadsperiode2 = fellesperiode(søknadsperiode1.getTom().plusDays(1), søknadsperiode1.getTom().plusWeeks(5));
+        var avklartPeriode = new AktivitetskravPeriodeEntitet(søknadsperiode1.getFom(), søknadsperiode2.getTom(),
+            KontrollerAktivitetskravAvklaring.IKKE_I_AKTIVITET_IKKE_DOKUMENTERT, "begrunnelse");
+        var behandlingReferanse = farBehandling(List.of(søknadsperiode1, søknadsperiode2), avklartPeriode);
+        var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
+        var uttakInput = uttakInput(behandlingReferanse, familieHendelse);
+        var ap = utleder.utledFor(uttakInput);
+
+        assertThat(ap).isEmpty();
+    }
+
+    @Test
+    public void ikkeUtledeAPForFarSomHarSøktFellesperiodeHvisFlereAvklartePerioderDekkerSøknadsperioden() {
+        var fødselsdato = LocalDate.of(2020, 1, 1);
+        var søknadsperiode = fellesperiode(fødselsdato);
+        var avklartPeriode1 = new AktivitetskravPeriodeEntitet(søknadsperiode.getFom().minusWeeks(1),
+            søknadsperiode.getFom().plusWeeks(2), KontrollerAktivitetskravAvklaring.I_AKTIVITET, "ok.");
+        var avklartPeriode2 = new AktivitetskravPeriodeEntitet(avklartPeriode1.getTidsperiode().getTomDato().plusDays(1),
+            søknadsperiode.getTom(), KontrollerAktivitetskravAvklaring.IKKE_I_AKTIVITET_IKKE_DOKUMENTERT, "Ikke i aktivitet siste del av periode");
+        var behandlingReferanse = farBehandling(søknadsperiode, avklartPeriode1, avklartPeriode2);
+        var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
+        var uttakInput = uttakInput(behandlingReferanse, familieHendelse);
+        var ap = utleder.utledFor(uttakInput);
+
+        assertThat(ap).isEmpty();
+    }
+
+    private OppgittPeriodeEntitet fellesperiode(LocalDate fom, LocalDate tom) {
+        return OppgittPeriodeBuilder.ny()
+            .medPeriode(fom, tom)
+            .medPeriodeType(FELLESPERIODE)
+            .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+            .medMorsAktivitet(MorsAktivitet.ARBEID)
+            .build();
+    }
+
+    private OppgittPeriodeEntitet foreldrepenger(LocalDate fom, LocalDate tom) {
+        return OppgittPeriodeBuilder.ny()
+            .medPeriode(fom, tom)
+            .medPeriodeType(FORELDREPENGER)
+            .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+            .medMorsAktivitet(MorsAktivitet.ARBEID)
+            .build();
+    }
+
+    private OppgittPeriodeEntitet fellesperiode(LocalDate fødselsdato) {
+        return fellesperiode(fødselsdato, fødselsdato.plusWeeks(10));
+    }
+
+    private OppgittRettighetEntitet aleneomsorg() {
+        return new OppgittRettighetEntitet(false, true, true);
+    }
+
+    private UttakInput uttakInput(BehandlingReferanse behandlingReferanse, FamilieHendelse familieHendelse) {
+        var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
+            new FamilieHendelser().medSøknadHendelse(familieHendelse));
+        return new UttakInput(behandlingReferanse, null, ytelsespesifiktGrunnlag);
+    }
+
+    private BehandlingReferanse morBehandling(OppgittPeriodeEntitet søknadsperiode,
+                                              AktivitetskravPeriodeEntitet... aktivitetskravPerioder) {
+        return behandling(List.of(søknadsperiode), ScenarioMorSøkerForeldrepenger.forFødsel(), aktivitetskravPerioder);
+    }
+
+    private BehandlingReferanse farBehandling(OppgittPeriodeEntitet søknadsperiode,
+                                              AktivitetskravPeriodeEntitet... aktivitetskravPerioder) {
+        return behandling(List.of(søknadsperiode), ScenarioFarSøkerForeldrepenger.forFødsel(), aktivitetskravPerioder);
+    }
+
+    private BehandlingReferanse farBehandling(List<OppgittPeriodeEntitet> søknadsperioder,
+                                              AktivitetskravPeriodeEntitet... aktivitetskravPerioder) {
+        return behandling(søknadsperioder, ScenarioFarSøkerForeldrepenger.forFødsel(), aktivitetskravPerioder);
+    }
+
+    private BehandlingReferanse behandling(List<OppgittPeriodeEntitet> søknadsperioder,
+                                           AbstractTestScenario scenario,
+                                           AktivitetskravPeriodeEntitet... aktivitetskravPerioder) {
+        var behandling = scenario.medFordeling(new OppgittFordelingEntitet(søknadsperioder, true))
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false))
+            .medAktivitetskravPerioder(List.of(aktivitetskravPerioder))
+            .lagre(repositoryProvider);
+        return BehandlingReferanse.fra(behandling);
+    }
+}

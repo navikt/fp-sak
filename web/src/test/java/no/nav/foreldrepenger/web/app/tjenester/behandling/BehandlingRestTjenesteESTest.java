@@ -55,7 +55,6 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 public class BehandlingRestTjenesteESTest extends RepositoryAwareTest {
 
     private BehandlingRestTjeneste behandlingRestTjeneste;
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     @Mock
     private BehandlingsutredningTjeneste behandlingsutredningTjeneste;
@@ -77,12 +76,12 @@ public class BehandlingRestTjenesteESTest extends RepositoryAwareTest {
         var beregningsgrunnlagTjeneste = new HentOgLagreBeregningsgrunnlagTjeneste(getEntityManager());
         var fagsakTjeneste = new FagsakTjeneste(fagsakRepository, søknadRepository, null);
         var relatertBehandlingTjeneste = new RelatertBehandlingTjeneste(repositoryProvider);
-        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
-                new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
+        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
+            new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
         var behandlingDtoTjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningsgrunnlagTjeneste,
                 tilbakekrevingRepository, skjæringstidspunktTjeneste, opptjeningIUtlandDokStatusTjeneste, behandlingDokumentRepository,
                 relatertBehandlingTjeneste,
-                new ForeldrepengerUttakTjeneste(fpUttakRepository), null);
+                new ForeldrepengerUttakTjeneste(fpUttakRepository), null, null);
 
         behandlingRestTjeneste = new BehandlingRestTjeneste(behandlingsutredningTjeneste,
                 behandlingsoppretterTjeneste,

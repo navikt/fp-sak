@@ -149,15 +149,8 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
         var adopsjon = familieHendelseEntitet.getAdopsjon().get();
         var omsorgsovertakelse = adopsjon.getOmsorgsovertakelseDato();
         var ankomstNorge = adopsjon.getAnkomstNorgeDato();
-        boolean erStebarnsadopsjon = erDetStebarnsadopsjon(adopsjon);
+        var erStebarnsadopsjon = adopsjon.isStebarnsadopsjon();
         return FamilieHendelse.forAdopsjonOmsorgsovertakelse(omsorgsovertakelse, barna, antallBarn, ankomstNorge, erStebarnsadopsjon);
-    }
-
-    private boolean erDetStebarnsadopsjon(no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet adopsjon) {
-        if (adopsjon.getErEktefellesBarn() != null) {
-            return adopsjon.getErEktefellesBarn();
-        }
-        return false;
     }
 
     private boolean annenpartHarInnvilgetES(FamilieHendelser familieHendelser, AktørId annenpartAktørId) {

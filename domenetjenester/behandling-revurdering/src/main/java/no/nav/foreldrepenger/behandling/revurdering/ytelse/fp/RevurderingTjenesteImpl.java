@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandling.revurdering.ytelse.fp;
 
 import java.util.List;
-import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -25,7 +24,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 
@@ -111,16 +113,33 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         familieHendelseRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
         personopplysningRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
         medlemskapRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
+
+        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(originalBehandlingId);
         if (BehandlingType.REVURDERING.equals(ny.getType())) {
             ytelsesFordelingRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
+            if (ytelseFordelingAggregat.isPresent()) {
+                ytelseFordelingAggregat.get().getGjeldendeAktivitetskravPerioder().ifPresent(entitet -> {
+                    ytelsesFordelingRepository.lagreOpprinnelige(nyBehandlingId, entitet);
+                    ytelsesFordelingRepository.tilbakestillSaksbehandledeAktivitetskravPerioder(nyBehandlingId);
+                });
+            }
         } else {
             // Kopierer kun oppgitt for ny 1gang. Bør kanskje kopiere alt?
-            ytelsesFordelingRepository.hentAggregatHvisEksisterer(originalBehandlingId).ifPresent(yfa -> {
-                Optional.ofNullable(yfa.getOppgittFordeling()).ifPresent(
-                        entitet -> ytelsesFordelingRepository.lagre(nyBehandlingId,
-                                revurderingTjenesteFelles.kopierOppgittFordelingFraForrigeBehandling(entitet)));
-                Optional.ofNullable(yfa.getOppgittRettighet()).ifPresent(entitet -> ytelsesFordelingRepository.lagre(nyBehandlingId, entitet));
-                Optional.ofNullable(yfa.getOppgittDekningsgrad()).ifPresent(entitet -> ytelsesFordelingRepository.lagre(nyBehandlingId, entitet));
+            ytelseFordelingAggregat.ifPresent(yfa -> {
+                OppgittFordelingEntitet oppgittFordeling = yfa.getOppgittFordeling();
+                if (oppgittFordeling != null) {
+                    var kopi = revurderingTjenesteFelles.kopierOppgittFordelingFraForrigeBehandling(
+                        oppgittFordeling);
+                    ytelsesFordelingRepository.lagre(nyBehandlingId, kopi);
+                }
+                OppgittRettighetEntitet oppgittRettighet = yfa.getOppgittRettighet();
+                if (oppgittRettighet != null) {
+                    ytelsesFordelingRepository.lagre(nyBehandlingId, oppgittRettighet);
+                }
+                OppgittDekningsgradEntitet entitet = yfa.getOppgittDekningsgrad();
+                if (entitet != null) {
+                    ytelsesFordelingRepository.lagre(nyBehandlingId, entitet);
+                }
             });
         }
         vergeRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);

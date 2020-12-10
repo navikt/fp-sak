@@ -69,7 +69,7 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.uttak.OpphørUttakTjeneste;
-import no.nav.foreldrepenger.domene.uttak.fastsettuttaksgrunnlag.svp.EndringsdatoRevurderingUtlederImpl;
+import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.svp.EndringsdatoRevurderingUtlederImpl;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 

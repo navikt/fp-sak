@@ -45,7 +45,6 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 public class BehandlingRestTjenesteTest extends RepositoryAwareTest {
 
     private BehandlingRestTjeneste behandlingRestTjeneste;
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     @Mock
     private BehandlingsutredningTjeneste behandlingsutredningTjeneste;
@@ -69,10 +68,11 @@ public class BehandlingRestTjenesteTest extends RepositoryAwareTest {
         var relatertBehandlingTjeneste = new RelatertBehandlingTjeneste(repositoryProvider);
         var stputil = new SkjæringstidspunktUtils();
         var ytelseMaksdatoTjeneste = new YtelseMaksdatoTjeneste(repositoryProvider, new RelatertBehandlingTjeneste(repositoryProvider));
-        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste, stputil);
+        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
+            ytelseMaksdatoTjeneste, stputil);
         var behandlingDtoTjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningsgrunnlagTjeneste, tilbakekrevingRepository,
-                skjæringstidspunktTjeneste, opptjeningIUtlandDokStatusTjeneste, behandlingDokumentRepository, relatertBehandlingTjeneste,
-                new ForeldrepengerUttakTjeneste(fpUttakRepository), null);
+            skjæringstidspunktTjeneste, opptjeningIUtlandDokStatusTjeneste, behandlingDokumentRepository, relatertBehandlingTjeneste,
+                new ForeldrepengerUttakTjeneste(fpUttakRepository), null, null);
 
         behandlingRestTjeneste = new BehandlingRestTjeneste(behandlingsutredningTjeneste,
             behandlingsoppretterTjeneste,
