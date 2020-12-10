@@ -8,6 +8,9 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 
+import no.nav.foreldrepenger.ytelse.beregning.endringsdato.SjekkForEndringMellomPerioder;
+import no.nav.foreldrepenger.ytelse.beregning.endringsdato.SjekkForIngenAndelerOgAndelerUtenDagsats;
+import no.nav.foreldrepenger.ytelse.beregning.endringsdato.SjekkOmPerioderHarEndringIAndeler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

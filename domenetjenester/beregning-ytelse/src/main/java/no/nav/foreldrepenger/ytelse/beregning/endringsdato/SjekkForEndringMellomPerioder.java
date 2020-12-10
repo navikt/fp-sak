@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.ytelse.beregning;
+package no.nav.foreldrepenger.ytelse.beregning.endringsdato;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;

@@ -8,6 +8,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.ytelse.beregning.endringsdato.FinnEndringsdatoMellomPeriodeLister;
+import no.nav.foreldrepenger.ytelse.beregning.endringsdato.SjekkForEndringMellomPerioder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

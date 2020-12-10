@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.ytelse.beregning;
+package no.nav.foreldrepenger.ytelse.beregning.endringsdato;
 
 import java.time.LocalDate;
 import java.util.Optional;

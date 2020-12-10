@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.ytelse.beregning;
+package no.nav.foreldrepenger.ytelse.beregning.endringsdato;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 

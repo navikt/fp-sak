@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.ytelse.beregning;
+package no.nav.foreldrepenger.ytelse.beregning.endringsdato;
 
 import static no.nav.vedtak.feil.LogLevel.ERROR;
 
