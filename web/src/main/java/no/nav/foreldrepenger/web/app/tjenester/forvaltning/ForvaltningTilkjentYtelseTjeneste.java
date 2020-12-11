@@ -34,6 +34,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.BeregningSatsDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.foreldrepenger.ytelse.beregning.endringsdato.MapBeregningsresultatTilEndringsmodell;
+import no.nav.foreldrepenger.ytelse.beregning.endringsdato.regelmodell.BeregningsresultatEndringModell;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 @Path("/forvaltningTilkjentYtelse")
@@ -59,7 +60,7 @@ public class ForvaltningTilkjentYtelseTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Hent gjeldende beregningsresultat for behandling", tags = "FORVALTNING-TilkjentYtelse", responses = {
-        @ApiResponse(responseCode = "200", description = "Gjeldende tilkjent ytelse", content = @Content(schema = @Schema(implementation = BeregningsresultatEntitet.class)))
+        @ApiResponse(responseCode = "200", description = "Gjeldende tilkjent ytelse", content = @Content(schema = @Schema(implementation = BeregningsresultatEndringModell.class)))
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     public Response hentTilkjentYtelse(@NotNull @QueryParam("behandlingId") @Valid ForvaltningBehandlingIdDto behandlingIdDto) {
