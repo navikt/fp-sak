@@ -17,8 +17,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFilter;
-import no.nav.foreldrepenger.ytelse.beregning.endringsdato.*;
-import no.nav.foreldrepenger.ytelse.beregning.endringsdato.regelmodell.BeregningsresultatEndringModell;
+import no.nav.foreldrepenger.ytelse.beregning.FinnEndringsdatoBeregningsresultatTjeneste;
+import no.nav.foreldrepenger.ytelse.beregning.FinnEndringsdatoFeil;
+import no.nav.foreldrepenger.ytelse.beregning.FinnEndringsdatoMellomPeriodeLister;
 
 @FagsakYtelseTypeRef("SVP")
 @ApplicationScoped
@@ -26,7 +27,7 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImpl implements FinnEndri
 
     private BeregningsresultatRepository beregningsresultatRepository;
     private SvangerskapspengerRepository svangerskapspengerRepository;
-    private FinnEndringsdatoForBeregningsresultat finnEndringsdatoFraBeregningsresultat;
+    private FinnEndringsdatoMellomPeriodeLister finnEndringsdatoMellomPeriodeLister;
 
     FinnEndringsdatoBeregningsresultatTjenesteImpl() {
         // NOSONAR
@@ -34,10 +35,10 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImpl implements FinnEndri
 
     @Inject
     public FinnEndringsdatoBeregningsresultatTjenesteImpl(BehandlingRepositoryProvider repositoryProvider,
-                                                          FinnEndringsdatoForBeregningsresultat finnEndringsdatoMellomPeriodeLister) {
+                                                             FinnEndringsdatoMellomPeriodeLister finnEndringsdatoMellomPeriodeLister) {
         this.beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
         this.svangerskapspengerRepository = repositoryProvider.getSvangerskapspengerRepository();
-        this.finnEndringsdatoFraBeregningsresultat = finnEndringsdatoFraBeregningsresultat;
+        this.finnEndringsdatoMellomPeriodeLister = finnEndringsdatoMellomPeriodeLister;
     }
 
     @Override
@@ -76,9 +77,7 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImpl implements FinnEndri
                 return new TilretteleggingFilter(grunnlagOpt.get()).getFørsteTilretteleggingsbehovdatoFiltrert();
             }
         }
-        BeregningsresultatEndringModell originalRegelmodell = new MapBeregningsresultatTilEndringsmodell(originalBeregningsresultat).map();
-        BeregningsresultatEndringModell revurderingRegelmodell = new MapBeregningsresultatTilEndringsmodell(revurderingBeregningsresultat).map();
-        return finnEndringsdatoFraBeregningsresultat.utledEndringsdato(originalRegelmodell, revurderingRegelmodell);
+        return finnEndringsdatoMellomPeriodeLister.finnEndringsdato(revurderingPerioder, originalePerioder);
     }
 
 }
