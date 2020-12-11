@@ -1,8 +1,8 @@
-package no.nav.foreldrepenger.ytelse.beregning.endringsdato;
+package no.nav.foreldrepenger.ytelse.beregning;
 
 import javax.enterprise.context.ApplicationScoped;
 
-import no.nav.foreldrepenger.ytelse.beregning.endringsdato.regelmodell.BeregningsresultatPeriodeEndringModell;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 
 @ApplicationScoped
 public class SjekkForIngenAndelerOgAndelerUtenDagsats {
@@ -24,7 +24,7 @@ public class SjekkForIngenAndelerOgAndelerUtenDagsats {
      * @return True hvis det ikke har skjedd en endring
      *         False hvis det har skjedd en endring
      */
-    public boolean sjekk(BeregningsresultatPeriodeEndringModell nyPeriode, BeregningsresultatPeriodeEndringModell gammelPeriode) {
+    public boolean sjekk(BeregningsresultatPeriode nyPeriode, BeregningsresultatPeriode gammelPeriode) {
         if (nyPeriode == null) {
             return erIngenAndelerEllerAndelerUtenDagsats(gammelPeriode);
         }
@@ -34,8 +34,8 @@ public class SjekkForIngenAndelerOgAndelerUtenDagsats {
         return erIngenAndelerEllerAndelerUtenDagsats(nyPeriode) && erIngenAndelerEllerAndelerUtenDagsats(gammelPeriode);
     }
 
-    private boolean erIngenAndelerEllerAndelerUtenDagsats(BeregningsresultatPeriodeEndringModell periode){
-        return periode.getAndeler().stream()
+    private boolean erIngenAndelerEllerAndelerUtenDagsats(BeregningsresultatPeriode periode){
+        return periode.getBeregningsresultatAndelList().stream()
             .allMatch(andel -> andel.getDagsats() == 0);
     }
 

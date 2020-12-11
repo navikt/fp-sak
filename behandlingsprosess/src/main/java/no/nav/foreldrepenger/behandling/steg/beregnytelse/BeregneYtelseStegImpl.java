@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.ytelse.beregning.BeregnFeriepengerTjeneste;
 import no.nav.foreldrepenger.ytelse.beregning.BeregnYtelseTjeneste;
-import no.nav.foreldrepenger.ytelse.beregning.endringsdato.FinnEndringsdatoBeregningsresultatTjeneste;
+import no.nav.foreldrepenger.ytelse.beregning.FinnEndringsdatoBeregningsresultatTjeneste;
 
 /**
  * Felles steg for å beregne tilkjent ytelse for foreldrepenger og
