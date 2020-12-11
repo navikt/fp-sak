@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.ytelse.beregning.endringsdato;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.ytelse.beregning.endringsdato.regelmodell.BeregningsresultatEndringModell;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -26,14 +25,12 @@ public class FinnEndringsdatoForBeregningsresultat {
      * Utleder endringsdato fra originalt beregningsresultat og revurdert beregningsresultat.
      * Hvis det finnes en endringsdato i tilkjent ytelse (beregningsresultatperioder) skal denne brukes.
      * Om denne ikke finnes sjekker vi om det finnes en endringsdato for feriepengene og bruker isåfall denne
-     * @param originalBeregningsresultatEntitet beregningsresultat fra forrige behandling
-     * @param revurderingBeregningsresultatEntitet nytt beregningsresultat
+     * @param originaltBeregningsresultat beregningsresultat fra forrige behandling
+     * @param revurderingBeregningsresultat nytt beregningsresultat
      * @return endringsdato om den finnes
      */
-    public Optional<LocalDate> utledEndringsdato(BeregningsresultatEntitet originalBeregningsresultatEntitet,
-                                                 BeregningsresultatEntitet revurderingBeregningsresultatEntitet) {
-        BeregningsresultatEndringModell originaltBeregningsresultat = new MapBeregningsresultatTilEndringsmodell(originalBeregningsresultatEntitet).map();
-        BeregningsresultatEndringModell revurderingBeregningsresultat = new MapBeregningsresultatTilEndringsmodell(revurderingBeregningsresultatEntitet).map();
+    public Optional<LocalDate> utledEndringsdato(BeregningsresultatEndringModell originaltBeregningsresultat,
+                                                 BeregningsresultatEndringModell revurderingBeregningsresultat) {
         Optional<LocalDate> endringsdatoTilkjentYtelse = finnEndringsdatoMellomPeriodeLister.finnEndringsdato(revurderingBeregningsresultat.getBeregningsresultatperioder(),
             originaltBeregningsresultat.getBeregningsresultatperioder());
         if (endringsdatoTilkjentYtelse.isPresent()) {

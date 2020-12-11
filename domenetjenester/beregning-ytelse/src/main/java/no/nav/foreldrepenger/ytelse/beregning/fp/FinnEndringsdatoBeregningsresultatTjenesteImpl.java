@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.ytelse.beregning.endringsdato.*;
+import no.nav.foreldrepenger.ytelse.beregning.endringsdato.regelmodell.BeregningsresultatEndringModell;
 
 @FagsakYtelseTypeRef("FP")
 @ApplicationScoped
@@ -65,7 +66,9 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImpl implements FinnEndri
             Long id = revurderingBeregningsresultat.getId();
             throw FinnEndringsdatoFeil.FACTORY.manglendeBeregningsresultatPeriode(id).toException();
         }
-        return finnEndringsdatoFraBeregningsresultat.utledEndringsdato(originalBeregningsresultat, revurderingBeregningsresultat);
+        BeregningsresultatEndringModell originalRegelmodell = new MapBeregningsresultatTilEndringsmodell(originalBeregningsresultat).map();
+        BeregningsresultatEndringModell revurderingRegelmodell = new MapBeregningsresultatTilEndringsmodell(revurderingBeregningsresultat).map();
+        return finnEndringsdatoFraBeregningsresultat.utledEndringsdato(originalRegelmodell, revurderingRegelmodell);
     }
 
 }

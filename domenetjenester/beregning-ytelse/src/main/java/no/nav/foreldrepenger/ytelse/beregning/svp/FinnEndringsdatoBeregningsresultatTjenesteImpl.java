@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFilter;
 import no.nav.foreldrepenger.ytelse.beregning.endringsdato.*;
+import no.nav.foreldrepenger.ytelse.beregning.endringsdato.regelmodell.BeregningsresultatEndringModell;
 
 @FagsakYtelseTypeRef("SVP")
 @ApplicationScoped
@@ -75,7 +76,9 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImpl implements FinnEndri
                 return new TilretteleggingFilter(grunnlagOpt.get()).getFørsteTilretteleggingsbehovdatoFiltrert();
             }
         }
-        return finnEndringsdatoFraBeregningsresultat.utledEndringsdato(originalBeregningsresultat, revurderingBeregningsresultat);
+        BeregningsresultatEndringModell originalRegelmodell = new MapBeregningsresultatTilEndringsmodell(originalBeregningsresultat).map();
+        BeregningsresultatEndringModell revurderingRegelmodell = new MapBeregningsresultatTilEndringsmodell(revurderingBeregningsresultat).map();
+        return finnEndringsdatoFraBeregningsresultat.utledEndringsdato(originalRegelmodell, revurderingRegelmodell);
     }
 
 }
