@@ -11,6 +11,7 @@ import no.nav.foreldrepenger.ytelse.beregning.endringsdato.regelmodell.Beregning
 import no.nav.foreldrepenger.ytelse.beregning.endringsdato.regelmodell.BeregningsresultatFeriepengerPrÅrEndringModell;
 import no.nav.foreldrepenger.ytelse.beregning.endringsdato.regelmodell.BeregningsresultatPeriodeEndringModell;
 
+import java.time.Year;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -43,7 +44,7 @@ public class MapBeregningsresultatTilEndringsmodell {
     }
 
     private BeregningsresultatFeriepengerPrÅrEndringModell mapPrÅr(BeregningsresultatFeriepengerPrÅr prÅr) {
-        return new BeregningsresultatFeriepengerPrÅrEndringModell(prÅr.getÅrsbeløp(), prÅr.getOpptjeningsåret());
+        return new BeregningsresultatFeriepengerPrÅrEndringModell(prÅr.getÅrsbeløp(), Year.of(prÅr.getOpptjeningsåret()));
     }
 
     private BeregningsresultatPeriodeEndringModell mapPeriode(BeregningsresultatPeriode periodeEntitet) {

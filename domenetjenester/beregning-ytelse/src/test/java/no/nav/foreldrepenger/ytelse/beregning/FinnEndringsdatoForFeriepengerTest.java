@@ -7,6 +7,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.ytelse.beregning.endringsdato.FinnEndringsdatoForFeriepenger;
+import no.nav.foreldrepenger.ytelse.beregning.endringsdato.MapBeregningsresultatTilEndringsmodell;
+import no.nav.foreldrepenger.ytelse.beregning.endringsdato.regelmodell.BeregningsresultatEndringModell;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -77,7 +79,8 @@ public class FinnEndringsdatoForFeriepengerTest {
     @Test
     public void kun_originalt_aggregat_gir_endring_fra_første_utbetaling() {
         originalAndel(2020, 50000);
-        Optional<LocalDate> endringsdato = FinnEndringsdatoForFeriepenger.finnEndringsdato(Optional.of(originaleFeriepenger), Optional.empty());
+        BeregningsresultatEndringModell originalModell = new MapBeregningsresultatTilEndringsmodell(originaltAggregat).map();
+        Optional<LocalDate> endringsdato = FinnEndringsdatoForFeriepenger.finnEndringsdato(originalModell.getFeriepenger(), Optional.empty());
 
         assertThat(endringsdato).isPresent();
         assertThat(endringsdato.get()).isEqualTo(førsteMai(2021));
@@ -86,7 +89,8 @@ public class FinnEndringsdatoForFeriepengerTest {
     @Test
     public void kun_revurdert_aggregat_gir_endring_fra_første_utbetaling() {
         revurderingAndel(2020, 50000);
-        Optional<LocalDate> endringsdato = FinnEndringsdatoForFeriepenger.finnEndringsdato(Optional.empty(), Optional.of(revurderingFeriepenger));
+        BeregningsresultatEndringModell revurdertModell = new MapBeregningsresultatTilEndringsmodell(revurderingAggregat).map();
+        Optional<LocalDate> endringsdato = FinnEndringsdatoForFeriepenger.finnEndringsdato(Optional.empty(), revurdertModell.getFeriepenger());
 
         assertThat(endringsdato).isPresent();
         assertThat(endringsdato.get()).isEqualTo(førsteMai(2021));
@@ -138,7 +142,9 @@ public class FinnEndringsdatoForFeriepengerTest {
 
 
     private Optional<LocalDate> kjørUtleder() {
-        return FinnEndringsdatoForFeriepenger.finnEndringsdato(Optional.of(originaleFeriepenger), Optional.of(revurderingFeriepenger));
+        BeregningsresultatEndringModell originalModell = new MapBeregningsresultatTilEndringsmodell(originaltAggregat).map();
+        BeregningsresultatEndringModell revurdertModell = new MapBeregningsresultatTilEndringsmodell(revurderingAggregat).map();
+        return FinnEndringsdatoForFeriepenger.finnEndringsdato(originalModell.getFeriepenger(), revurdertModell.getFeriepenger());
     }
 
     private void revurderingAndel(int år, int beløp) {

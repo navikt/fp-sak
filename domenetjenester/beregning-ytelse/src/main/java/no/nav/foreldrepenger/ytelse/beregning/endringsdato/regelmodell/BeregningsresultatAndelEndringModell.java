@@ -51,7 +51,7 @@ public class BeregningsresultatAndelEndringModell {
         return arbeidsgiver;
     }
 
-    public boolean isBrukerErMottaker() {
+    public boolean erBrukerMottaker() {
         return brukerErMottaker;
     }
 
@@ -61,5 +61,17 @@ public class BeregningsresultatAndelEndringModell {
 
     public InternArbeidsforholdRef getArbeidsforholdReferanse() {
         return arbeidsforholdReferanse;
+    }
+
+    @Override
+    public String toString() {
+        return "BeregningsresultatAndelEndringModell{" +
+            "aktivitetStatus=" + aktivitetStatus +
+            ", inntektskategori=" + inntektskategori +
+            ", arbeidsgiver=" + arbeidsgiver +
+            ", arbeidsforholdReferanse=" + arbeidsforholdReferanse +
+            ", brukerErMottaker=" + brukerErMottaker +
+            ", dagsats=" + dagsats +
+            '}';
     }
 }

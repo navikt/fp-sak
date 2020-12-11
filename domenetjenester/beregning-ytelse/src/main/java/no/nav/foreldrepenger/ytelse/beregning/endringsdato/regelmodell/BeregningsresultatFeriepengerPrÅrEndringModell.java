@@ -2,12 +2,14 @@ package no.nav.foreldrepenger.ytelse.beregning.endringsdato.regelmodell;
 
 import no.nav.foreldrepenger.domene.typer.Beløp;
 
+import java.time.Year;
+
 public class BeregningsresultatFeriepengerPrÅrEndringModell {
     private final Beløp årsbeløp;
-    private final int opptjeningsår;
+    private final Year opptjeningsår;
 
     public BeregningsresultatFeriepengerPrÅrEndringModell(Beløp årsbeløp,
-                                                          int opptjeningsår) {
+                                                          Year opptjeningsår) {
         this.årsbeløp = årsbeløp;
         this.opptjeningsår = opptjeningsår;
     }
@@ -16,7 +18,7 @@ public class BeregningsresultatFeriepengerPrÅrEndringModell {
         return årsbeløp;
     }
 
-    public int getOpptjeningsår() {
+    public Year getOpptjeningsår() {
         return opptjeningsår;
     }
 }

@@ -39,7 +39,7 @@ public class FinnEndringsdatoForBeregningsresultat {
         if (endringsdatoTilkjentYtelse.isPresent()) {
             return endringsdatoTilkjentYtelse;
         }
-        return FinnEndringsdatoForFeriepenger.finnEndringsdato(originalBeregningsresultatEntitet.getBeregningsresultatFeriepenger(),
-            revurderingBeregningsresultatEntitet.getBeregningsresultatFeriepenger());
+        return FinnEndringsdatoForFeriepenger.finnEndringsdato(originaltBeregningsresultat.getFeriepenger(),
+            revurderingBeregningsresultat.getFeriepenger());
     }
 }

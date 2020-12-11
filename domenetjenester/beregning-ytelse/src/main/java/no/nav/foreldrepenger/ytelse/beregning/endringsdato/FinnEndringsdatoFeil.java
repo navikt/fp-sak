@@ -20,7 +20,7 @@ public interface FinnEndringsdatoFeil extends DeklarerteFeil {
     @TekniskFeil(feilkode = "FP-655542", feilmelding = "Fant ikke beregningsresultatperiode for beregningsresultat med id %s", logLevel = ERROR)
     Feil manglendeBeregningsresultatPeriode(Long beregningsresultatId);
 
-    @TekniskFeil(feilkode = "FP-655546", feilmelding = "Fant flere korresponderende andeler for andel med id %s", logLevel = ERROR)
-    Feil fantFlereKorresponderendeAndelerFeil(Long beregningsresultatAndelId);
+    @TekniskFeil(feilkode = "FP-655546", feilmelding = "Fant flere korresponderende andeler for andel %s", logLevel = ERROR)
+    Feil fantFlereKorresponderendeAndelerFeil(String andel);
 
 }

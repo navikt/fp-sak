@@ -1,10 +1,12 @@
 package no.nav.foreldrepenger.ytelse.beregning.endringsdato;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepengerPrÅr;
 import no.nav.foreldrepenger.domene.typer.Beløp;
+import no.nav.foreldrepenger.ytelse.beregning.endringsdato.regelmodell.BeregningsresultatFeriepengerEndringModell;
+import no.nav.foreldrepenger.ytelse.beregning.endringsdato.regelmodell.BeregningsresultatFeriepengerPrÅrEndringModell;
 
 import java.time.LocalDate;
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -28,8 +30,8 @@ public final class FinnEndringsdatoForFeriepenger {
      * @return En Optional av type LocalDate hvis endring er funnet
      *         En Optional som er tom hvis ingen endring er funnet.
      */
-    public static Optional<LocalDate> finnEndringsdato(Optional<BeregningsresultatFeriepenger> originaltResultat,
-                                                       Optional<BeregningsresultatFeriepenger> revurderingResultat) {
+    public static Optional<LocalDate> finnEndringsdato(Optional<BeregningsresultatFeriepengerEndringModell> originaltResultat,
+                                                       Optional<BeregningsresultatFeriepengerEndringModell> revurderingResultat) {
         if (originaltResultat.isPresent() && revurderingResultat.isPresent()) {
             return utledEndringsdato(originaltResultat.get(), revurderingResultat.get());
         }
@@ -41,31 +43,31 @@ public final class FinnEndringsdatoForFeriepenger {
             : finnFørsteUtbetalingsår(revurderingResultat.get());
     }
 
-    private static Optional<LocalDate> utledEndringsdato(BeregningsresultatFeriepenger originaleFeriepenger,
-                                                         BeregningsresultatFeriepenger revurderingFeriepenger) {
-        Set<LocalDate> alleOpptjeningsår = new HashSet<>();
-        originaleFeriepenger.getBeregningsresultatFeriepengerPrÅrListe().forEach(andel -> alleOpptjeningsår.add(andel.getOpptjeningsår()));
-        revurderingFeriepenger.getBeregningsresultatFeriepengerPrÅrListe().forEach(andel -> alleOpptjeningsår.add(andel.getOpptjeningsår()));
+    private static Optional<LocalDate> utledEndringsdato(BeregningsresultatFeriepengerEndringModell originaleFeriepenger,
+                                                         BeregningsresultatFeriepengerEndringModell revurderingFeriepenger) {
+        Set<Year> alleOpptjeningsår = new HashSet<>();
+        originaleFeriepenger.getFeriepengerPrÅrListe().forEach(andel -> alleOpptjeningsår.add(andel.getOpptjeningsår()));
+        revurderingFeriepenger.getFeriepengerPrÅrListe().forEach(andel -> alleOpptjeningsår.add(andel.getOpptjeningsår()));
 
-        Iterator<LocalDate> iterator = alleOpptjeningsår.iterator();
-        List<LocalDate> opptjeningsårMedDiff = new ArrayList<>();
+        Iterator<Year> iterator = alleOpptjeningsår.iterator();
+        List<Year> opptjeningsårMedDiff = new ArrayList<>();
         while (iterator.hasNext()) {
-            LocalDate opptjeningsår = iterator.next();
-            Beløp originaltGrunnlag = finnGrunnlagForÅr(opptjeningsår, originaleFeriepenger.getBeregningsresultatFeriepengerPrÅrListe());
-            Beløp revurderingGrunnlag = finnGrunnlagForÅr(opptjeningsår, revurderingFeriepenger.getBeregningsresultatFeriepengerPrÅrListe());
+            Year opptjeningsår = iterator.next();
+            Beløp originaltGrunnlag = finnGrunnlagForÅr(opptjeningsår, originaleFeriepenger.getFeriepengerPrÅrListe());
+            Beløp revurderingGrunnlag = finnGrunnlagForÅr(opptjeningsår, revurderingFeriepenger.getFeriepengerPrÅrListe());
             if (originaltGrunnlag.compareTo(revurderingGrunnlag) != 0) {
                 opptjeningsårMedDiff.add(opptjeningsår);
             }
         }
-        Optional<LocalDate> førsteÅrMedDiff = opptjeningsårMedDiff.stream().min(Comparator.naturalOrder());
-        return førsteÅrMedDiff.flatMap(localDate -> lagEndringsdatoForOpptjeningsår(localDate.getYear()));
+        Optional<Year> førsteÅrMedDiff = opptjeningsårMedDiff.stream().min(Comparator.naturalOrder());
+        return førsteÅrMedDiff.flatMap(år -> lagEndringsdatoForOpptjeningsår(år.getValue()));
     }
 
-    private static Beløp finnGrunnlagForÅr(LocalDate opptjeningsår,
-                                           List<BeregningsresultatFeriepengerPrÅr> andeler) {
+    private static Beløp finnGrunnlagForÅr(Year opptjeningsår,
+                                           List<BeregningsresultatFeriepengerPrÅrEndringModell> andeler) {
         return andeler.stream()
-            .filter(andel -> andel.getOpptjeningsår().getYear() == opptjeningsår.getYear())
-            .map(BeregningsresultatFeriepengerPrÅr::getÅrsbeløp)
+            .filter(andel -> andel.getOpptjeningsår().equals(opptjeningsår))
+            .map(BeregningsresultatFeriepengerPrÅrEndringModell::getÅrsbeløp)
             .filter(beløp -> !beløp.erNulltall())
             .reduce(Beløp::adder)
             .orElse(Beløp.ZERO);
@@ -79,14 +81,14 @@ public final class FinnEndringsdatoForFeriepenger {
             .orElse(Beløp.ZERO);
     }
 
-    private static Optional<LocalDate> finnFørsteUtbetalingsår(BeregningsresultatFeriepenger feriepenger) {
-        Optional<LocalDate> tidligsteOpptjeningsår = feriepenger.getBeregningsresultatFeriepengerPrÅrListe().stream()
-            .min(Comparator.comparing(BeregningsresultatFeriepengerPrÅr::getOpptjeningsår))
-            .map(BeregningsresultatFeriepengerPrÅr::getOpptjeningsår);
+    private static Optional<LocalDate> finnFørsteUtbetalingsår(BeregningsresultatFeriepengerEndringModell feriepenger) {
+        Optional<Year> tidligsteOpptjeningsår = feriepenger.getFeriepengerPrÅrListe().stream()
+            .min(Comparator.comparing(BeregningsresultatFeriepengerPrÅrEndringModell::getOpptjeningsår))
+            .map(BeregningsresultatFeriepengerPrÅrEndringModell::getOpptjeningsår);
         if (tidligsteOpptjeningsår.isEmpty()) {
             return Optional.empty();
         }
-        int opptjeningsår = tidligsteOpptjeningsår.get().getYear();
+        int opptjeningsår = tidligsteOpptjeningsår.get().getValue();
         return lagEndringsdatoForOpptjeningsår(opptjeningsår);
     }
 

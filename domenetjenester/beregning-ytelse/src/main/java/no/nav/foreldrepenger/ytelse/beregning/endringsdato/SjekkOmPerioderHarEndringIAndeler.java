@@ -5,9 +5,8 @@ import java.util.Objects;
 
 import javax.enterprise.context.ApplicationScoped;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
-import no.nav.foreldrepenger.ytelse.beregning.endringsdato.FinnEndringsdatoFeil;
+import no.nav.foreldrepenger.ytelse.beregning.endringsdato.regelmodell.BeregningsresultatAndelEndringModell;
+import no.nav.foreldrepenger.ytelse.beregning.endringsdato.regelmodell.BeregningsresultatPeriodeEndringModell;
 
 @ApplicationScoped
 public class SjekkOmPerioderHarEndringIAndeler {
@@ -27,23 +26,25 @@ public class SjekkOmPerioderHarEndringIAndeler {
      * @return True hvis det har skjedd en endring
      *         False hvis det ikke har skjedd en endring
      */
-    public boolean sjekk(BeregningsresultatPeriode nyPeriode, BeregningsresultatPeriode gammelPeriode) {
-        List<BeregningsresultatAndel> nyeAndeler = nyPeriode.getBeregningsresultatAndelList();
-        List<BeregningsresultatAndel> gamleAndeler = gammelPeriode.getBeregningsresultatAndelList();
+    public boolean sjekk(BeregningsresultatPeriodeEndringModell nyPeriode, BeregningsresultatPeriodeEndringModell gammelPeriode) {
+        List<BeregningsresultatAndelEndringModell> nyeAndeler = nyPeriode.getAndeler();
+        List<BeregningsresultatAndelEndringModell> gamleAndeler = gammelPeriode.getAndeler();
         if (nyeAndeler.size() != gamleAndeler.size()) {
             return true;
         }
         return !nyeAndeler.stream().allMatch(nyAndel -> finnKorresponderendeAndel(nyAndel, gamleAndeler));
     }
 
-    private boolean finnKorresponderendeAndel(BeregningsresultatAndel nyAndel, List<BeregningsresultatAndel> gamleAndeler) {
-        var nyAndelNøkkel = nyAndel.getAktivitetOgArbeidsforholdNøkkel();
+    private boolean finnKorresponderendeAndel(BeregningsresultatAndelEndringModell nyAndel, List<BeregningsresultatAndelEndringModell> gamleAndeler) {
         long antallAndelerSomKorresponderer = gamleAndeler.stream().filter(gammelAndel ->
             Objects.equals(nyAndel.erBrukerMottaker(), gammelAndel.erBrukerMottaker()) &&
-                Objects.equals(nyAndelNøkkel, gammelAndel.getAktivitetOgArbeidsforholdNøkkel()) &&
+                Objects.equals(nyAndel.getInntektskategori(), gammelAndel.getInntektskategori()) &&
+                Objects.equals(nyAndel.getArbeidsgiver(), gammelAndel.getArbeidsgiver()) &&
+                Objects.equals(nyAndel.getAktivitetStatus(), gammelAndel.getAktivitetStatus()) &&
+                Objects.equals(nyAndel.getArbeidsforholdReferanse(), gammelAndel.getArbeidsforholdReferanse()) &&
                 Objects.equals(nyAndel.getDagsats(), gammelAndel.getDagsats())).count();
         if (antallAndelerSomKorresponderer > 1) {
-            throw FinnEndringsdatoFeil.FACTORY.fantFlereKorresponderendeAndelerFeil(nyAndel.getId()).toException();
+            throw FinnEndringsdatoFeil.FACTORY.fantFlereKorresponderendeAndelerFeil(nyAndel.toString()).toException();
         }
         return antallAndelerSomKorresponderer == 1;
     }
