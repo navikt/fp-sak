@@ -14,6 +14,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.ytelse.beregning.endringsdato.FinnEndringsdatoMellomPeriodeLister;
+import no.nav.foreldrepenger.ytelse.beregning.endringsdato.MapBeregningsresultatTilEndringsmodell;
+import no.nav.foreldrepenger.ytelse.beregning.endringsdato.SjekkForEndringMellomPerioder;
+import no.nav.foreldrepenger.ytelse.beregning.endringsdato.SjekkForIngenAndelerOgAndelerUtenDagsats;
+import no.nav.foreldrepenger.ytelse.beregning.endringsdato.SjekkOmPerioderHarEndringIAndeler;
 
 public class FinnEndringsdatoMellomPeriodeListerTest_NoMock {
 
@@ -25,15 +30,18 @@ public class FinnEndringsdatoMellomPeriodeListerTest_NoMock {
     @Test
     public void splittet_perioder_uten_endring_i_andeler_skal_ikke_gi_endringsdato() {
 
-        BeregningsresultatEntitet originalEntitet = lagEntitet();
-        BeregningsresultatEntitet revurderingEntitet = lagEntitet();
+        var originalEntitet = lagEntitet();
+        var revurderingEntitet = lagEntitet();
 
         byggPeriodeOgAndel(originalEntitet, LocalDate.now(), LocalDate.now().plusMonths(2), 100);
         byggPeriodeOgAndel(revurderingEntitet, LocalDate.now(), LocalDate.now().plusMonths(1).minusDays(1), 100);
         byggPeriodeOgAndel(revurderingEntitet, LocalDate.now().plusMonths(1), LocalDate.now().plusMonths(2), 100);
 
-        Optional<LocalDate> endringsdato = finnEndringsdatoMellomPeriodeLister.finnEndringsdato(revurderingEntitet.getBeregningsresultatPerioder(),
-                originalEntitet.getBeregningsresultatPerioder());
+        var revurderingModell = new MapBeregningsresultatTilEndringsmodell(revurderingEntitet).map();
+        var originalModell = new MapBeregningsresultatTilEndringsmodell(originalEntitet).map();
+
+        Optional<LocalDate> endringsdato = finnEndringsdatoMellomPeriodeLister.finnEndringsdato(revurderingModell.getBeregningsresultatperioder(),
+            originalModell.getBeregningsresultatperioder());
 
         assertThat(endringsdato).isEmpty();
     }
@@ -41,15 +49,18 @@ public class FinnEndringsdatoMellomPeriodeListerTest_NoMock {
     @Test
     public void splittet_perioder_med_endring_i_andeler_skal_gi_endringsdato() {
 
-        BeregningsresultatEntitet originalEntitet = lagEntitet();
-        BeregningsresultatEntitet revurderingEntitet = lagEntitet();
+        var originalEntitet = lagEntitet();
+        var revurderingEntitet = lagEntitet();
 
         byggPeriodeOgAndel(originalEntitet, LocalDate.now(), LocalDate.now().plusMonths(2), 100);
         byggPeriodeOgAndel(revurderingEntitet, LocalDate.now(), LocalDate.now().plusMonths(1).minusDays(1), 100);
         byggPeriodeOgAndel(revurderingEntitet, LocalDate.now().plusMonths(1), LocalDate.now().plusMonths(2), 50);
 
-        Optional<LocalDate> endringsdato = finnEndringsdatoMellomPeriodeLister.finnEndringsdato(revurderingEntitet.getBeregningsresultatPerioder(),
-                originalEntitet.getBeregningsresultatPerioder());
+        var revurderingModell = new MapBeregningsresultatTilEndringsmodell(revurderingEntitet).map();
+        var originalModell = new MapBeregningsresultatTilEndringsmodell(originalEntitet).map();
+
+        Optional<LocalDate> endringsdato = finnEndringsdatoMellomPeriodeLister.finnEndringsdato(revurderingModell.getBeregningsresultatperioder(),
+            originalModell.getBeregningsresultatperioder());
 
         assertThat(endringsdato.get()).isEqualTo(LocalDate.now().plusMonths(1));
     }
@@ -57,14 +68,17 @@ public class FinnEndringsdatoMellomPeriodeListerTest_NoMock {
     @Test
     public void perioder_med_ulik_fom_uten_endring_i_andeler_skal_gi_endringsdato() {
 
-        BeregningsresultatEntitet originalEntitet = lagEntitet();
-        BeregningsresultatEntitet revurderingEntitet = lagEntitet();
+        var originalEntitet = lagEntitet();
+        var revurderingEntitet = lagEntitet();
 
         byggPeriodeOgAndel(originalEntitet, LocalDate.now(), LocalDate.now().plusMonths(2), 100);
         byggPeriodeOgAndel(revurderingEntitet, LocalDate.now().minusDays(1), LocalDate.now().plusMonths(2), 100);
 
-        Optional<LocalDate> endringsdato = finnEndringsdatoMellomPeriodeLister.finnEndringsdato(revurderingEntitet.getBeregningsresultatPerioder(),
-                originalEntitet.getBeregningsresultatPerioder());
+        var revurderingModell = new MapBeregningsresultatTilEndringsmodell(revurderingEntitet).map();
+        var originalModell = new MapBeregningsresultatTilEndringsmodell(originalEntitet).map();
+
+        Optional<LocalDate> endringsdato = finnEndringsdatoMellomPeriodeLister.finnEndringsdato(revurderingModell.getBeregningsresultatperioder(),
+            originalModell.getBeregningsresultatperioder());
 
         assertThat(endringsdato.get()).isEqualTo(LocalDate.now().minusDays(1));
     }

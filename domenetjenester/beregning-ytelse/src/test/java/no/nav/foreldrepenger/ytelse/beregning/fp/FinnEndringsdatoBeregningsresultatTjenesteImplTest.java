@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.ytelse.beregning.endringsdato.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -27,11 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskateg
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.ytelse.beregning.FinnEndringsdatoBeregningsresultatTjeneste;
-import no.nav.foreldrepenger.ytelse.beregning.FinnEndringsdatoMellomPeriodeLister;
-import no.nav.foreldrepenger.ytelse.beregning.SjekkForEndringMellomPerioder;
-import no.nav.foreldrepenger.ytelse.beregning.SjekkForIngenAndelerOgAndelerUtenDagsats;
-import no.nav.foreldrepenger.ytelse.beregning.SjekkOmPerioderHarEndringIAndeler;
 import no.nav.vedtak.exception.TekniskException;
 
 public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
@@ -60,8 +56,9 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImplTest {
                 SjekkOmPerioderHarEndringIAndeler);
         FinnEndringsdatoMellomPeriodeLister finnEndringsdatoMellomPeriodeLister = new FinnEndringsdatoMellomPeriodeLister(
                 sjekkForEndringMellomPerioder);
+        FinnEndringsdatoForBeregningsresultat finnEndringsdatoForBeregningsresultat = new FinnEndringsdatoForBeregningsresultat(finnEndringsdatoMellomPeriodeLister);
         finnEndringsdatoBeregningsresultatTjeneste = new FinnEndringsdatoBeregningsresultatTjenesteImpl(beregningsresultatRepository,
-                finnEndringsdatoMellomPeriodeLister);
+            finnEndringsdatoForBeregningsresultat);
         brFørstegangsbehandling = BeregningsresultatEntitet.builder().medRegelInput("clob1").medRegelSporing("clob2").build();
         brRevurdering = BeregningsresultatEntitet.builder().medRegelInput("clob1").medRegelSporing("clob2").build();
 

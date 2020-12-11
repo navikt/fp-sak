@@ -1,9 +1,9 @@
-package no.nav.foreldrepenger.ytelse.beregning;
+package no.nav.foreldrepenger.ytelse.beregning.endringsdato;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
+import no.nav.foreldrepenger.ytelse.beregning.endringsdato.regelmodell.BeregningsresultatPeriodeEndringModell;
 
 @ApplicationScoped
 public class SjekkForEndringMellomPerioder {
@@ -36,7 +36,7 @@ public class SjekkForEndringMellomPerioder {
      * @return True hvis det har skjedd en endring.
      *         False hvis ingen endring har skjedd.
      */
-    public boolean sjekk(BeregningsresultatPeriode nyPeriode, BeregningsresultatPeriode gammelPeriode) {
+    public boolean sjekk(BeregningsresultatPeriodeEndringModell nyPeriode, BeregningsresultatPeriodeEndringModell gammelPeriode) {
         if (nyPeriode == null && gammelPeriode == null) {
             throw new IllegalStateException("Utviklerfeil: Både ny og gammel periode kan ikke være null");
         }
