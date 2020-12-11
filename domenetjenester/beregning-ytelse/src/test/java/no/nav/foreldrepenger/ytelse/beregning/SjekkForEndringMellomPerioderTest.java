@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import no.nav.foreldrepenger.ytelse.beregning.endringsdato.SjekkForEndringMellomPerioder;
 import no.nav.foreldrepenger.ytelse.beregning.endringsdato.SjekkForIngenAndelerOgAndelerUtenDagsats;
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
+import no.nav.foreldrepenger.ytelse.beregning.endringsdato.regelmodell.BeregningsresultatPeriodeEndringModell;
 
 public class SjekkForEndringMellomPerioderTest {
 
@@ -51,7 +53,7 @@ public class SjekkForEndringMellomPerioderTest {
     @Test
     public void ingen_endring_med_ingen_andel_eller_andel_uten_dagsats_og_gammelPeriode_og_ingen_nyPeriode() {
         // Arrange
-        BeregningsresultatPeriode gammel = opprettPeriode(brFørstegangsbehandling, LocalDate.now());
+        var gammel = opprettPeriode(LocalDate.now());
         when(sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(any(), any())).thenReturn(true);
         when(sjekkOmPerioderHarEndringIAndeler.sjekk(any(), any())).thenReturn(true);
         // Act
@@ -63,7 +65,7 @@ public class SjekkForEndringMellomPerioderTest {
     @Test
     public void endring_med_andel_eller_andel_med_dagsats_og_gammelPeriode_og_ingen_nyPeriode() {
         // Arrange
-        BeregningsresultatPeriode gammel = opprettPeriode(brFørstegangsbehandling, LocalDate.now());
+        var gammel = opprettPeriode(LocalDate.now());
         when(sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(any(), any())).thenReturn(false);
         when(sjekkOmPerioderHarEndringIAndeler.sjekk(any(), any())).thenReturn(true);
         // Act
@@ -75,7 +77,7 @@ public class SjekkForEndringMellomPerioderTest {
     @Test
     public void ingen_endring_med_ingen_andel_eller_andel_uten_dagsats_og_nyPeriode_og_ingen_gammelPeriode() {
         // Arrange
-        BeregningsresultatPeriode ny = opprettPeriode(brRevurdering, LocalDate.now());
+        var ny = opprettPeriode(LocalDate.now());
         when(sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(any(), any())).thenReturn(true);
         when(sjekkOmPerioderHarEndringIAndeler.sjekk(any(), any())).thenReturn(true);
         // Act
@@ -87,7 +89,7 @@ public class SjekkForEndringMellomPerioderTest {
     @Test
     public void endring_med_andel_eller_andel_med_dagsats_og_nyPeriode_og_ingen_gammelPeriode() {
         // Arrange
-        BeregningsresultatPeriode ny = opprettPeriode(brRevurdering, LocalDate.now());
+        var ny = opprettPeriode(LocalDate.now());
         when(sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(any(), any())).thenReturn(false);
         when(sjekkOmPerioderHarEndringIAndeler.sjekk(any(), any())).thenReturn(true);
         // Act
@@ -99,8 +101,8 @@ public class SjekkForEndringMellomPerioderTest {
     @Test
     public void ingen_endring_med_ingen_andel_eller_andel_uten_dagsats_med_ny_og_gammel_periode_med_lik_fom_og_andeler() {
         // Arrange
-        BeregningsresultatPeriode ny = opprettPeriode(brRevurdering, LocalDate.now());
-        BeregningsresultatPeriode gammel = opprettPeriode(brRevurdering, LocalDate.now());
+        var ny = opprettPeriode(LocalDate.now());
+        var gammel = opprettPeriode(LocalDate.now());
         when(sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(any(), any())).thenReturn(true);
         when(sjekkOmPerioderHarEndringIAndeler.sjekk(any(), any())).thenReturn(false);
         // Act
@@ -112,8 +114,8 @@ public class SjekkForEndringMellomPerioderTest {
     @Test
     public void ingen_endring_med_andel_eller_andel_med_dagsats_med_ny_og_gammel_periode_med_lik_fom_og_andeler() {
         // Arrange
-        BeregningsresultatPeriode ny = opprettPeriode(brRevurdering, LocalDate.now());
-        BeregningsresultatPeriode gammel = opprettPeriode(brRevurdering, LocalDate.now());
+        var ny = opprettPeriode(LocalDate.now());
+        var gammel = opprettPeriode(LocalDate.now());
         when(sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(any(), any())).thenReturn(false);
         when(sjekkOmPerioderHarEndringIAndeler.sjekk(any(), any())).thenReturn(false);
         // Act
@@ -125,8 +127,8 @@ public class SjekkForEndringMellomPerioderTest {
     @Test
     public void ingen_endring_med_ingen_andel_eller_andel_uten_dagsats_med_ny_og_gammel_periode_med_ulik_fom_og_andeler() {
         // Arrange
-        BeregningsresultatPeriode ny = opprettPeriode(brRevurdering, LocalDate.now());
-        BeregningsresultatPeriode gammel = opprettPeriode(brRevurdering, LocalDate.now().plusDays(1));
+        var ny = opprettPeriode(LocalDate.now());
+        var gammel = opprettPeriode(LocalDate.now().plusDays(1));
         when(sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(any(), any())).thenReturn(true);
         when(sjekkOmPerioderHarEndringIAndeler.sjekk(any(), any())).thenReturn(true);
         // Act
@@ -138,8 +140,8 @@ public class SjekkForEndringMellomPerioderTest {
     @Test
     public void endring_med_andel_eller_andel_med_dagsats_med_ny_og_gammel_periode_med_ulik_fom_og_andeler() {
         // Arrange
-        BeregningsresultatPeriode ny = opprettPeriode(brRevurdering, LocalDate.now());
-        BeregningsresultatPeriode gammel = opprettPeriode(brRevurdering, LocalDate.now().plusDays(1));
+        var ny = opprettPeriode(LocalDate.now());
+        var gammel = opprettPeriode(LocalDate.now().plusDays(1));
         when(sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(any(), any())).thenReturn(false);
         when(sjekkOmPerioderHarEndringIAndeler.sjekk(any(), any())).thenReturn(true);
         // Act
@@ -148,10 +150,8 @@ public class SjekkForEndringMellomPerioderTest {
         assertThat(erEndring).isTrue();
     }
 
-    private BeregningsresultatPeriode opprettPeriode(BeregningsresultatEntitet beregningsresultat, LocalDate fom) {
-        return BeregningsresultatPeriode.builder()
-                .medBeregningsresultatPeriodeFomOgTom(fom, LocalDate.now().plusMonths(1))
-                .build(beregningsresultat);
+    private BeregningsresultatPeriodeEndringModell opprettPeriode(LocalDate fom) {
+        return new BeregningsresultatPeriodeEndringModell(fom, LocalDate.now().plusMonths(1), List.of());
     }
 
 }

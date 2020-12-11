@@ -46,7 +46,8 @@ public class SjekkForEndringMellomPerioder {
         if (nyPeriode == null || gammelPeriode == null) {
             return true;
         }
-        return sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
+        return false;
+//        return sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
     }
 
 }
