@@ -1,22 +1,23 @@
 package no.nav.foreldrepenger.ytelse.beregning.endringsdato;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
+import no.nav.foreldrepenger.ytelse.beregning.endringsdato.regelmodell.BeregningsresultatPeriodeEndringModell;
 
 class TidslinjePeriodeWrapper {
 
-    private BeregningsresultatPeriode revurderingPeriode;
-    private BeregningsresultatPeriode originalPeriode;
+    private final BeregningsresultatPeriodeEndringModell revurderingPeriode;
+    private final BeregningsresultatPeriodeEndringModell originalPeriode;
 
-    TidslinjePeriodeWrapper(BeregningsresultatPeriode revurderingPeriode, BeregningsresultatPeriode originalPeriode){
+    TidslinjePeriodeWrapper(BeregningsresultatPeriodeEndringModell revurderingPeriode,
+                            BeregningsresultatPeriodeEndringModell originalPeriode){
         this.revurderingPeriode = revurderingPeriode;
         this.originalPeriode = originalPeriode;
     }
 
-    BeregningsresultatPeriode getRevurderingPeriode() {
+    BeregningsresultatPeriodeEndringModell getRevurderingPeriode() {
         return revurderingPeriode;
     }
 
-    BeregningsresultatPeriode getOriginalPeriode() {
+    BeregningsresultatPeriodeEndringModell getOriginalPeriode() {
         return originalPeriode;
     }
 
