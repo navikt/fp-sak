@@ -5,6 +5,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepengerPrÅr;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.ytelse.beregning.endringsdato.regelmodell.BeregningsresultatAndelEndringModell;
 import no.nav.foreldrepenger.ytelse.beregning.endringsdato.regelmodell.BeregningsresultatEndringModell;
 import no.nav.foreldrepenger.ytelse.beregning.endringsdato.regelmodell.BeregningsresultatFeriepengerEndringModell;
@@ -60,6 +61,8 @@ public class MapBeregningsresultatTilEndringsmodell {
         if (andel.getArbeidsgiver().isEmpty()) {
             return new BeregningsresultatAndelEndringModell(andel.getAktivitetStatus(),
                 andel.getInntektskategori(),
+                null,
+                InternArbeidsforholdRef.nullRef(),
                 andel.erBrukerMottaker(),
                 andel.getDagsats());
         }
