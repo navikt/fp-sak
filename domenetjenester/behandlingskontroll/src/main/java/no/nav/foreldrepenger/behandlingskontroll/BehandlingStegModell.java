@@ -14,11 +14,6 @@ public interface BehandlingStegModell {
      */
     BehandlingSteg getSteg();
 
-    /**
-     * Forventet status når behandling er i steget.
-     */
-    String getForventetStatus();
-
     BehandlingModell getBehandlingModell();
 
 }

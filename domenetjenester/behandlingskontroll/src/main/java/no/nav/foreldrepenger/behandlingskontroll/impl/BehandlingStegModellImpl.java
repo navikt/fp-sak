@@ -119,14 +119,6 @@ class BehandlingStegModellImpl implements BehandlingStegModell {
     }
 
     /**
-     * Forventet status når behandling er i steget.
-     */
-    @Override
-    public String getForventetStatus() {
-        return behandlingStegType.getDefinertBehandlingStatus().getKode();
-    }
-
-    /**
      * Implementasjon av et gitt steg i behandlingen.
      */
     @Override

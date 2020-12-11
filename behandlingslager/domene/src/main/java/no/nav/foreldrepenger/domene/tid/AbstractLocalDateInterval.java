@@ -11,9 +11,6 @@ import java.time.ZoneId;
 import java.time.chrono.ChronoLocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -100,10 +97,6 @@ public abstract class AbstractLocalDateInterval implements Comparable<AbstractLo
 
     public boolean inkluderer(ChronoLocalDate dato) {
         return erEtterEllerLikPeriodestart(dato) && erFørEllerLikPeriodeslutt(dato);
-    }
-
-    public boolean inkludererArbeidsdag(LocalDate dato) {
-        return erEtterEllerLikPeriodestart(nesteArbeidsdag(dato)) && erFørEllerLikPeriodeslutt(forrigeArbeidsdag(dato));
     }
 
     public static LocalDate forrigeArbeidsdag(LocalDate dato) {
@@ -206,67 +199,12 @@ public abstract class AbstractLocalDateInterval implements Comparable<AbstractLo
         return perioder;
     }
 
-    public double finnMånedeskvantum() {
-        Collection<AbstractLocalDateInterval> perioder = splittVedMånedsgrenser();
-
-        double kvantum = 0d;
-        for (AbstractLocalDateInterval periode : perioder) {
-            int antallArbeidsdager = periode.antallArbeidsdager();
-            if (antallArbeidsdager != 0) {
-                int diff = periode.maksAntallArbeidsdager() - antallArbeidsdager;
-                kvantum += diff == 0 ? 1 : (double) diff / (double) periode.maksAntallArbeidsdager();
-            }
-        }
-
-        return kvantum;
-    }
-
-    public List<AbstractLocalDateInterval> splittPeriodePåDatoer(LocalDate... datoer) {
-        List<LocalDate> datoListe = Arrays.asList(datoer);
-        Collections.sort(datoListe);
-        List<AbstractLocalDateInterval> perioder = new ArrayList<>();
-        AbstractLocalDateInterval periode = this;
-        for (LocalDate dato : datoListe) {
-            if (periode.inkluderer(dato) && dato.isAfter(periode.getFomDato())) {
-                perioder.add(lagNyPeriode(periode.getFomDato(), dato.minusDays(1)));
-                periode = lagNyPeriode(dato, periode.getTomDato());
-            }
-        }
-
-        perioder.add(periode);
-
-        return perioder;
-    }
-
-    public List<AbstractLocalDateInterval> splittPeriodePåDatoerAvgrensTilArbeidsdager(LocalDate... datoer) {
-        List<LocalDate> datoListe = Arrays.asList(datoer);
-        Collections.sort(datoListe);
-        List<AbstractLocalDateInterval> perioder = new ArrayList<>();
-        AbstractLocalDateInterval periode = this.avgrensTilArbeidsdager();
-        for (LocalDate dato : datoListe) {
-            if (periode.inkluderer(dato) && dato.isAfter(periode.getFomDato())) {
-                perioder.add(lagNyPeriode(periode.getFomDato(), dato.minusDays(1)).avgrensTilArbeidsdager());
-                periode = lagNyPeriode(dato, periode.getTomDato()).avgrensTilArbeidsdager();
-            }
-        }
-
-        perioder.add(periode);
-
-        return perioder;
-    }
-
     public AbstractLocalDateInterval avgrensTilArbeidsdager() {
         LocalDate nyFomDato = nesteArbeidsdag(getFomDato());
         LocalDate nyTomDato = forrigeArbeidsdag(getTomDato());
         if (nyFomDato.equals(getFomDato()) && nyTomDato.equals(getTomDato())) {
             return this;
         }
-        return lagNyPeriode(nyFomDato, nyTomDato);
-    }
-
-    public AbstractLocalDateInterval kuttPeriodePåGrenseneTil(AbstractLocalDateInterval periode) {
-        LocalDate nyFomDato = getFomDato().isBefore(periode.getFomDato()) ? periode.getFomDato() : getFomDato();
-        LocalDate nyTomDato = getTomDato().isAfter(periode.getTomDato()) ? periode.getTomDato() : getTomDato();
         return lagNyPeriode(nyFomDato, nyTomDato);
     }
 
