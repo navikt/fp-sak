@@ -32,17 +32,6 @@ public class BeregningsresultatAndelEndringModell {
         this.arbeidsforholdReferanse = arbeidsforholdReferanse;
     }
 
-    public BeregningsresultatAndelEndringModell(AktivitetStatus aktivitetStatus,
-                                                Inntektskategori inntektskategori,
-                                                boolean brukerErMottaker,
-                                                int dagsats) {
-        this.aktivitetStatus = aktivitetStatus;
-        this.inntektskategori = inntektskategori;
-        this.brukerErMottaker = brukerErMottaker;
-        this.dagsats = dagsats;
-    }
-
-
     public AktivitetStatus getAktivitetStatus() {
         return aktivitetStatus;
     }
