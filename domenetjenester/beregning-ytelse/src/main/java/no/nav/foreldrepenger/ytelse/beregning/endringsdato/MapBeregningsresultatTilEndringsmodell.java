@@ -39,7 +39,7 @@ public class MapBeregningsresultatTilEndringsmodell {
             .map(this::mapPrÅr)
             .collect(Collectors.toList());
         return new BeregningsresultatFeriepengerEndringModell(fp.getFeriepengerPeriodeFom(),
-            fp.getFeriepengerPeriodeFom(),
+            fp.getFeriepengerPeriodeTom(),
             prÅrListe);
     }
 
