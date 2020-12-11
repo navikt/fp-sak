@@ -5,9 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BeregningsresultatPeriodeEndringModell {
-    private final LocalDate fom;
-    private final LocalDate tom;
+    private LocalDate fom;
+    private LocalDate tom;
     private List<BeregningsresultatAndelEndringModell> andeler = new ArrayList<>();
+
+    public BeregningsresultatPeriodeEndringModell() {
+        // For JSON-deserialisering i feilsøking
+    }
 
     public BeregningsresultatPeriodeEndringModell(LocalDate fom,
                                                   LocalDate tom,

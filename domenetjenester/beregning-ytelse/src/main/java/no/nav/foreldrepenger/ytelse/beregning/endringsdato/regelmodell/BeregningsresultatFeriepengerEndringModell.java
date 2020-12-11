@@ -5,9 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BeregningsresultatFeriepengerEndringModell {
-    private final LocalDate feriepengeperiodeFom;
-    private final LocalDate feriepengerperiodeTom;
+    private LocalDate feriepengeperiodeFom;
+    private LocalDate feriepengerperiodeTom;
     private List<BeregningsresultatFeriepengerPrÅrEndringModell> feriepengerPrÅrListe = new ArrayList<>();
+
+    public BeregningsresultatFeriepengerEndringModell() {
+        // For JSON-deserialisering i feilsøking
+    }
 
     public BeregningsresultatFeriepengerEndringModell(LocalDate feriepengeperiodeFom,
                                                       LocalDate feriepengerperiodeTom,

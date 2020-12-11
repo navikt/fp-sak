@@ -7,12 +7,16 @@ import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdReferanse;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 public class BeregningsresultatAndelEndringModell {
-    private final AktivitetStatus aktivitetStatus;
-    private final Inntektskategori inntektskategori;
+    private AktivitetStatus aktivitetStatus;
+    private Inntektskategori inntektskategori;
     private Arbeidsgiver arbeidsgiver;
     private InternArbeidsforholdRef arbeidsforholdReferanse;
-    private final boolean brukerErMottaker;
-    private final int dagsats;
+    private boolean brukerErMottaker;
+    private int dagsats;
+
+    public BeregningsresultatAndelEndringModell() {
+        // For JSON-deserialisering i feilsøking
+    }
 
     public BeregningsresultatAndelEndringModell(AktivitetStatus aktivitetStatus,
                                                 Inntektskategori inntektskategori,

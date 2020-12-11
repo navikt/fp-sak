@@ -5,8 +5,12 @@ import no.nav.foreldrepenger.domene.typer.Beløp;
 import java.time.Year;
 
 public class BeregningsresultatFeriepengerPrÅrEndringModell {
-    private final Beløp årsbeløp;
-    private final Year opptjeningsår;
+    private Beløp årsbeløp;
+    private Year opptjeningsår;
+
+    public BeregningsresultatFeriepengerPrÅrEndringModell() {
+        // For JSON-Deserialisering i feilsøking
+    }
 
     public BeregningsresultatFeriepengerPrÅrEndringModell(Beløp årsbeløp,
                                                           Year opptjeningsår) {

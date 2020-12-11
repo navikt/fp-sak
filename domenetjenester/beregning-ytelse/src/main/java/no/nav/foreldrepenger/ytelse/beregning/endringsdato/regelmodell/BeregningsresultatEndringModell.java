@@ -5,8 +5,12 @@ import java.util.List;
 import java.util.Optional;
 
 public class BeregningsresultatEndringModell {
-    private final BeregningsresultatFeriepengerEndringModell feriepenger;
+    private BeregningsresultatFeriepengerEndringModell feriepenger;
     private List<BeregningsresultatPeriodeEndringModell> beregningsresultatperioder = new ArrayList<>();
+
+    public BeregningsresultatEndringModell() {
+        // For JSON Deserialisering i feilsøking
+    }
 
     public BeregningsresultatEndringModell(BeregningsresultatFeriepengerEndringModell feriepenger,
                                            List<BeregningsresultatPeriodeEndringModell> beregningsresultatperioder) {
