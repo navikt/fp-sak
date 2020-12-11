@@ -52,7 +52,7 @@ public class MapBeregningsresultatTilEndringsmodell {
             .map(this::mapAndel)
             .collect(Collectors.toList());
         return new BeregningsresultatPeriodeEndringModell(periodeEntitet.getBeregningsresultatPeriodeFom(),
-            periodeEntitet.getBeregningsresultatPeriodeFom(),
+            periodeEntitet.getBeregningsresultatPeriodeTom(),
             andeler);
     }
 
