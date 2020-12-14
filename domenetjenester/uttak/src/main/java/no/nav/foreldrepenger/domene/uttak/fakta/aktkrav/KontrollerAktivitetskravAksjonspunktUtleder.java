@@ -60,9 +60,6 @@ public class KontrollerAktivitetskravAksjonspunktUtleder {
                                                                                      YtelseFordelingAggregat ytelseFordelingAggregat,
                                                                                      FamilieHendelse familieHendelse,
                                                                                      boolean annenForelderHarRett) {
-        if (ENV.isProd()) {
-            return new SkalKontrollereAktiviteskravResultat(false, Set.of());
-        }
         if (erMor(behandlingReferanse) || UttakOmsorgUtil.harAleneomsorg(ytelseFordelingAggregat)
             || familieHendelse.erStebarnsadopsjon() || MorsAktivitet.UFØRE.equals(periode.getMorsAktivitet())) {
             return new SkalKontrollereAktiviteskravResultat(false, Set.of());

@@ -47,7 +47,7 @@ public class FastsettePerioderRegelAdapter {
         var grunnlag = regelGrunnlagBygger.byggGrunnlag(input);
         List<FastsettePeriodeResultat> resultat;
         try {
-            resultat = REGEL.fastsettePerioder(grunnlag, new FeatureTogglesImpl(!ENV.isProd()));
+            resultat = REGEL.fastsettePerioder(grunnlag, new FeatureTogglesImpl());
         } catch (Exception e) {
             log(grunnlag);
             throw new RuntimeException("Automatisk fastsetting av uttak feilet", e);
@@ -65,15 +65,9 @@ public class FastsettePerioderRegelAdapter {
 
     private static class FeatureTogglesImpl implements FeatureToggles {
 
-        private final boolean automatisertAktivitetskrav;
-
-        private FeatureTogglesImpl(boolean automatisertAktivitetskrav) {
-            this.automatisertAktivitetskrav = automatisertAktivitetskrav;
-        }
-
         @Override
         public boolean automatisertAktivitetskrav() {
-            return automatisertAktivitetskrav;
+            return true;
         }
     }
 }
