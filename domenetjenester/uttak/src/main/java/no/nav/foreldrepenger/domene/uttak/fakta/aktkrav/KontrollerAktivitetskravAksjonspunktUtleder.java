@@ -26,12 +26,10 @@ import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
-import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
 public class KontrollerAktivitetskravAksjonspunktUtleder {
 
-    private static final Environment ENV = Environment.current();
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
 

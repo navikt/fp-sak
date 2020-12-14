@@ -25,7 +25,6 @@ public class FastsettePerioderRegelAdapter {
 
     private static final Logger LOG = LoggerFactory.getLogger(FastsettePerioderRegelAdapter.class);
     private static final FastsettePerioderRegelOrkestrering REGEL = new FastsettePerioderRegelOrkestrering();
-    private static final Environment ENV = Environment.current();
 
     private final JacksonJsonConfig jackson = new JacksonJsonConfig();
 
