@@ -233,9 +233,9 @@ public class OppdragPostConditionTjeneste {
     }
 
     static Optional<TilkjentYtelseDifferanse> finnDifferanse(Ytelse ytelse, Ytelse effektAvOppdragskjede, Betalingsmottaker betalingsmottaker) {
-        LocalDate datoEndringYtelse = EndringsdatoTjeneste.finnEndringsdatoForEndringSats(ytelse, effektAvOppdragskjede);
+        LocalDate datoEndringYtelse = EndringsdatoTjeneste.ignorerDagsatsIHelg().finnEndringsdatoForEndringSats(ytelse, effektAvOppdragskjede);
         LocalDate datoEndringUtbetalingsgrad = betalingsmottaker == Betalingsmottaker.BRUKER
-            ? EndringsdatoTjeneste.finnEndringsdatoForEndringUtbetalingsgrad(ytelse, effektAvOppdragskjede)
+            ? EndringsdatoTjeneste.ignorerDagsatsIHelg().finnEndringsdatoForEndringUtbetalingsgrad(ytelse, effektAvOppdragskjede)
             : null; //utbetalingsgrad er ikke relevant for refusjon
         long differanseYtelse = effektAvOppdragskjede.summerYtelse() - ytelse.summerYtelse();
 

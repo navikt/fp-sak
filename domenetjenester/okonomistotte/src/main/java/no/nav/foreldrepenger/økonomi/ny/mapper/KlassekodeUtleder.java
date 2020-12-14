@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.økonomi.ny.mapper;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.InntektskategoriKlassekodeMapper;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
@@ -11,10 +12,12 @@ public class KlassekodeUtleder {
     }
 
     public static ØkonomiKodeKlassifik utled(BeregningsresultatAndel andel, FamilieYtelseType familieYtelseType) {
-        if (andel.skalTilBrukerEllerPrivatperson()) {
-            String kode = InntektskategoriKlassekodeMapper.mapTilKlassekode(andel.getInntektskategori(), familieYtelseType);
-            return ØkonomiKodeKlassifik.fraKode(kode);
-        } else {
+        boolean erRefusjonTilArbeidsgiver = !andel.skalTilBrukerEllerPrivatperson();
+        return utled(andel.getInntektskategori(), familieYtelseType, erRefusjonTilArbeidsgiver);
+    }
+
+    public static ØkonomiKodeKlassifik utled(Inntektskategori inntektskategori, FamilieYtelseType familieYtelseType, boolean refusjonArbeidsgiver) {
+        if (refusjonArbeidsgiver) {
             switch (familieYtelseType) {
                 case FØDSEL:
                     return ØkonomiKodeKlassifik.FPREFAG_IOP;
@@ -25,6 +28,9 @@ public class KlassekodeUtleder {
                 default:
                     throw new IllegalArgumentException("Utvikler feil: Opdrag andel har ikke-støttet familie ytelse type: " + familieYtelseType);
             }
+        } else {
+            String kode = InntektskategoriKlassekodeMapper.mapTilKlassekode(inntektskategori, familieYtelseType);
+            return ØkonomiKodeKlassifik.fraKode(kode);
         }
     }
 
