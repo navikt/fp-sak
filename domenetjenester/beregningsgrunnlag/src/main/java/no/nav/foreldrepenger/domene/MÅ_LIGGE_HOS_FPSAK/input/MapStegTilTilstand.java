@@ -37,19 +37,19 @@ public class MapStegTilTilstand {
     }
 
 
-    public static no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BeregningsgrunnlagTilstand mapTilKalkulatorStegTilstand(BehandlingStegType kode) {
+    public static no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand mapTilKalkulatorStegTilstand(BehandlingStegType kode) {
         if (mapStegTilstand.containsKey(kode)) {
             return mapTilKalkulatorTilstand(mapStegTilstand.get(kode));
         }
         throw new IllegalStateException("Finner ikke tilstand for steg " + kode.getKode());
     }
 
-    public static Optional<no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BeregningsgrunnlagTilstand> mapTilKalkulatorStegUtTilstand(BehandlingStegType kode) {
+    public static Optional<no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand> mapTilKalkulatorStegUtTilstand(BehandlingStegType kode) {
         return Optional.ofNullable(mapTilKalkulatorTilstand(mapStegUtTilstand.get(kode)));
     }
 
-    private static no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BeregningsgrunnlagTilstand mapTilKalkulatorTilstand(BeregningsgrunnlagTilstand tilstand) {
-        return tilstand == null ? null : no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BeregningsgrunnlagTilstand.fraKode(tilstand.getKode());
+    private static no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand mapTilKalkulatorTilstand(BeregningsgrunnlagTilstand tilstand) {
+        return tilstand == null ? null : no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand.fraKode(tilstand.getKode());
     }
 
 

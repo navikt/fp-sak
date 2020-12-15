@@ -170,7 +170,7 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteKontrollerFaktaTest {
     private BeregningsgrunnlagInput lagBeregningsgrunnlagInput(BehandlingReferanse behandlingReferanse, InntektArbeidYtelseGrunnlag iayGr) {
         return new BeregningsgrunnlagInput(MapBehandlingRef.mapRef(behandlingReferanse), IAYMapperTilKalkulus.mapGrunnlag(iayGr, behandlingReferanse.getAktørId()),
                 new OpptjeningAktiviteterDto(
-                        List.of(OpptjeningAktiviteterDto.nyPeriode(no.nav.folketrygdloven.kalkulator.modell.opptjening.OpptjeningAktivitetType.ARBEID,
+                        List.of(OpptjeningAktiviteterDto.nyPeriode(no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType.ARBEID,
                                 Intervall.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT), ORG_NUMMER, null,
                                 InternArbeidsforholdRefDto.nullRef()))),
                 AktivitetGradering.INGEN_GRADERING,

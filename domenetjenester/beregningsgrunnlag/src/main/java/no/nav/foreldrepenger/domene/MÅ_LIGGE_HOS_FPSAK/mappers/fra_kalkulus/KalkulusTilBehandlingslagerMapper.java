@@ -18,7 +18,7 @@ import no.nav.folketrygdloven.kalkulator.output.RegelSporingAggregat;
 import no.nav.folketrygdloven.kalkulator.output.RegelSporingGrunnlag;
 import no.nav.folketrygdloven.kalkulator.output.RegelSporingPeriode;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
-import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BeregningsgrunnlagRegelType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagRegelType;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningAktivitetAggregatEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningAktivitetEntitet;
@@ -41,7 +41,7 @@ import no.nav.foreldrepenger.domene.typer.Beløp;
  */
 public class KalkulusTilBehandlingslagerMapper {
 
-    public static BeregningsgrunnlagTilstand mapTilstand(no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
+    public static BeregningsgrunnlagTilstand mapTilstand(no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
         return BeregningsgrunnlagTilstand.fraKode(beregningsgrunnlagTilstand.getKode());
     }
 

@@ -11,10 +11,10 @@ import no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.
 import no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.dto.RefusjonskravPrArbeidsgiverVurderingDto;
 import no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.dto.VurderMilitærDto;
 import no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.aksjonspunkt.dto.VurderteArbeidsforholdDto;
-import no.nav.folketrygdloven.kalkulator.modell.opptjening.OpptjeningAktivitetType;
-import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.AktivitetStatus;
-import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.AndelKilde;
-import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.Inntektskategori;
+import no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus;
+import no.nav.folketrygdloven.kalkulus.kodeverk.AndelKilde;
+import no.nav.folketrygdloven.kalkulus.kodeverk.Inntektskategori;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.AvklarteAktiviteterDto;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.BeregningsaktivitetLagreDto;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.FaktaBeregningLagreDto;
@@ -278,8 +278,8 @@ public class OppdatererDtoMapper {
             besteberegningFødendeKvinneAndelDto.getLagtTilAvSaksbehandler());
     }
 
-    private static List<no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.FaktaOmBeregningTilfelle> mapFaktaOmBeregningTilfeller(List<FaktaOmBeregningTilfelle> tilfeller) {
-        return tilfeller.stream().map(FaktaOmBeregningTilfelle::getKode).map(no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.FaktaOmBeregningTilfelle::fraKode).collect(Collectors.toList());
+    private static List<no.nav.folketrygdloven.kalkulus.kodeverk.FaktaOmBeregningTilfelle> mapFaktaOmBeregningTilfeller(List<FaktaOmBeregningTilfelle> tilfeller) {
+        return tilfeller.stream().map(FaktaOmBeregningTilfelle::getKode).map(no.nav.folketrygdloven.kalkulus.kodeverk.FaktaOmBeregningTilfelle::fraKode).collect(Collectors.toList());
     }
 
 

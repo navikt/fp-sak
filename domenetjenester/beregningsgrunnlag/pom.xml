@@ -43,11 +43,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>no.nav.folketrygdloven.kalkulus</groupId>
-            <artifactId>felles</artifactId>
-        </dependency>
-
 
 
         <!-- Test avhengigheter -->

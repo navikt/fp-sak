@@ -61,11 +61,8 @@ public class BeregningsgrunnlagRepositoryTest {
     private BehandlingRepository behandlingRepository;
     private FagsakBehandlingBuilder behandlingBuilder;
 
-    private EntityManager em;
-
     @BeforeEach
     public void setup(EntityManager entityManager) {
-        this.em = entityManager;
         beregningsgrunnlagRepository = new BeregningsgrunnlagRepository(entityManager);
         behandlingRepository = new BehandlingRepository(entityManager);
         behandlingBuilder = new FagsakBehandlingBuilder(entityManager);

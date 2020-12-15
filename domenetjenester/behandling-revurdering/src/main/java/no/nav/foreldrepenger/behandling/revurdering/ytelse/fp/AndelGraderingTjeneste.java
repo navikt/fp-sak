@@ -18,7 +18,7 @@ import javax.inject.Inject;
 
 import no.nav.folketrygdloven.kalkulator.modell.gradering.AktivitetGradering;
 import no.nav.folketrygdloven.kalkulator.modell.gradering.AndelGradering;
-import no.nav.folketrygdloven.kalkulator.modell.virksomhet.Arbeidsgiver;
+import no.nav.folketrygdloven.kalkulator.modell.typer.Arbeidsgiver;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
@@ -76,7 +76,7 @@ public class AndelGraderingTjeneste {
         perioderMedGradering.forEach(periodeMedGradering -> {
             AktivitetStatus aktivitetStatus = periodeMedGradering.aktivitetStatus;
             AndelGradering.Builder nyBuilder = AndelGradering.builder()
-                    .medStatus(no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.AktivitetStatus.fraKode(aktivitetStatus.getKode()));
+                    .medStatus(no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus.fraKode(aktivitetStatus.getKode()));
             if (AktivitetStatus.ARBEIDSTAKER.equals(aktivitetStatus)) {
                 Arbeidsgiver arbeidsgiver = periodeMedGradering.arbeidsgiver;
                 Objects.requireNonNull(arbeidsgiver, "arbeidsgiver");

@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.ytelse.beregning.adapter;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.folketrygdloven.kalkulator.adapter.util.BeregningsgrunnlagUtil;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -37,8 +36,8 @@ public class MapBeregningsresultatFraRegelTilVL {
     }
 
     private BeregningsresultatAndel mapFraAndel(no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatAndel bra, no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode brp) {
-        int dagsats = BeregningsgrunnlagUtil.nullSafeLong(bra.getDagsats()).intValue();
-        int dagsatsFraBg = BeregningsgrunnlagUtil.nullSafeLong(bra.getDagsatsFraBg()).intValue();
+        int dagsats = nullSafeLong(bra.getDagsats()).intValue();
+        int dagsatsFraBg = nullSafeLong(bra.getDagsatsFraBg()).intValue();
         return BeregningsresultatAndel.builder()
             .medArbeidsgiver(finnArbeidsgiver(bra))
             .medBrukerErMottaker(bra.erBrukerMottaker())
@@ -66,5 +65,12 @@ public class MapBeregningsresultatFraRegelTilVL {
             }
         }
         return null;
+    }
+
+    private static Long nullSafeLong(Long input) {
+        if (input != null) {
+            return input;
+        }
+        return 0L;
     }
 }

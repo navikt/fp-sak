@@ -72,10 +72,10 @@ public class KalkulatorStegProsesseringInputTjeneste {
         Optional<BeregningsgrunnlagGrunnlagEntitet> grunnlagFraSteg = beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(behandlingId, originalBehandlingId, BeregningsgrunnlagTilstand.OPPRETTET);
         kalkulusKonfigInjecter.leggTilKonfigverdier(input);
         kalkulusKonfigInjecter.leggTilFeatureToggles(input);
-        StegProsesseringInput stegProsesseringInput = new StegProsesseringInput(input, no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BeregningsgrunnlagTilstand.OPPRETTET)
+        StegProsesseringInput stegProsesseringInput = new StegProsesseringInput(input, no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand.OPPRETTET)
             .medForrigeGrunnlagFraStegUt(grunnlagFraStegUt.map(BehandlingslagerTilKalkulusMapper::mapGrunnlag).orElse(null))
             .medForrigeGrunnlagFraSteg(grunnlagFraSteg.map(BehandlingslagerTilKalkulusMapper::mapGrunnlag).orElse(null))
-            .medStegUtTilstand(no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER);
+            .medStegUtTilstand(no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER);
         return new FastsettBeregningsaktiviteterInput(stegProsesseringInput).medGrunnbeløpsatser(finnSatser());
     }
 

@@ -418,12 +418,12 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteFastsettAktiviteterTest {
     }
 
     private OpptjeningAktiviteterDto.OpptjeningPeriodeDto lagOpptjeningAktivitetArbeid(String orgNummer) {
-        return OpptjeningAktiviteterDto.nyPeriode(no.nav.folketrygdloven.kalkulator.modell.opptjening.OpptjeningAktivitetType.ARBEID,
+        return OpptjeningAktiviteterDto.nyPeriode(no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType.ARBEID,
                 Intervall.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT), orgNummer, null, InternArbeidsforholdRefDto.nyRef());
     }
 
     private OpptjeningAktiviteterDto.OpptjeningPeriodeDto lagOpptjeningAktivitetVentelønnVartpenger() {
-        return OpptjeningAktiviteterDto.nyPeriode(no.nav.folketrygdloven.kalkulator.modell.opptjening.OpptjeningAktivitetType.VENTELØNN_VARTPENGER,
+        return OpptjeningAktiviteterDto.nyPeriode(no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType.VENTELØNN_VARTPENGER,
                 Intervall.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT));
     }
 
