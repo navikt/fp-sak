@@ -50,7 +50,7 @@ public class AktørId implements Serializable, Comparable<AktørId>, IndexKey {
         }
         return aktørId;
     }
-    
+
     @Override
     public String getIndexKey() {
         return aktørId;
@@ -86,10 +86,13 @@ public class AktørId implements Serializable, Comparable<AktørId>, IndexKey {
         // TODO: Burde ikke finnes
         return aktørId.compareTo(o.aktørId);
     }
-    
-    
+
+    public static boolean erGyldigAktørId(String aktørId) {
+        return aktørId != null && VALID.matcher(aktørId).matches();
+    }
+
     private static AtomicLong DUMMY_AKTØRID = new AtomicLong(1000000000000L);
-    
+
     /** Genererer dummy aktørid unikt for test. */
     public static AktørId dummy( ) {
         return new AktørId(DUMMY_AKTØRID.getAndIncrement());
