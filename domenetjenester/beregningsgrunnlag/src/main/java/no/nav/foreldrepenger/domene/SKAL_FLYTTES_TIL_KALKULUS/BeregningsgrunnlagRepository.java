@@ -53,6 +53,17 @@ public class BeregningsgrunnlagRepository {
         return sisteBg;
     }
 
+    public Optional<BeregningsgrunnlagGrunnlagEntitet> hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlingerEtterTidspunkt(Long behandlingId, Optional<Long> originalBehandlingId,
+                                                                                                                 LocalDateTime opprettetEtter,
+                                                                                                                 BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
+        Optional<BeregningsgrunnlagGrunnlagEntitet> sisteBg = hentSisteBeregningsgrunnlagGrunnlagEntitetOpprettetEtter(behandlingId, opprettetEtter, beregningsgrunnlagTilstand);
+        if (!sisteBg.isPresent() && originalBehandlingId.isPresent()) {
+            return hentSisteBeregningsgrunnlagGrunnlagEntitetOpprettetEtter(originalBehandlingId.get(), opprettetEtter, beregningsgrunnlagTilstand);
+        }
+        return sisteBg;
+    }
+
+
 
 
     public BeregningsgrunnlagEntitet hentBeregningsgrunnlagAggregatForBehandling(Long behandlingId) {
@@ -109,35 +120,26 @@ public class BeregningsgrunnlagRepository {
     }
 
     /**
-     * FORVALTNINGSTJENESTE: Henter grunnlag uten grunnbeløp
-     * @return List med grunnlag uten grunnbeløp
+     * Henter siste {@link BeregningsgrunnlagGrunnlagEntitet} opprettet i et bestemt steg etter et gitt tidspunkt. Ignorerer om grunnlaget er aktivt eller ikke.
+     * @param behandlingId en behandlingId
+     * @param opprettetEtter tidligeste tidspunkt for oppprettelse
+     * @param beregningsgrunnlagTilstand steget {@link BeregningsgrunnlagGrunnlagEntitet} er opprettet i
+     * @return Hvis det finnes et eller fler BeregningsgrunnlagGrunnlagEntitet som har blitt opprettet i {@code stegOpprettet} returneres den som ble opprettet sist
      */
-    public List<Long> hentBehandlingIdForGrunnlagUtenGrunnbeløp() {
-        TypedQuery<Long> query = entityManager.createQuery(
-            "select distinct behandlingId from BeregningsgrunnlagGrunnlagEntitet " +
-                "where beregningsgrunnlag.grunnbeløp is null " +
-                "and beregningsgrunnlagTilstand = :beregningsgrunnlagTilstand", Long.class); //$NON-NLS-1$
-        query.setParameter(BEREGNINGSGRUNNLAG_TILSTAND, BeregningsgrunnlagTilstand.OPPRETTET); //$NON-NLS-1$
-        return query.getResultList();
-    }
-
-    /**
-     * FORVALTNINGSTJENESTE: Henter grunnlag uten grunnbeløp
-     * @return List med grunnlag uten grunnbeløp
-     */
-    public Optional<BeregningsgrunnlagGrunnlagEntitet> hentGrunnlagUtenGrunnbeløp(Long behandlingId) {
+    public Optional<BeregningsgrunnlagGrunnlagEntitet> hentSisteBeregningsgrunnlagGrunnlagEntitetOpprettetEtter(Long behandlingId, LocalDateTime opprettetEtter,
+                                                                                                                BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
         TypedQuery<BeregningsgrunnlagGrunnlagEntitet> query = entityManager.createQuery(
             "from BeregningsgrunnlagGrunnlagEntitet " +
                 "where behandlingId=:behandlingId " +
-                "and beregningsgrunnlag.grunnbeløp is null " +
                 "and beregningsgrunnlagTilstand = :beregningsgrunnlagTilstand " +
+                "and opprettetTidspunkt > :opprettetTidspunktMin " +
                 "order by opprettetTidspunkt desc, id desc", BeregningsgrunnlagGrunnlagEntitet.class); //$NON-NLS-1$
         query.setParameter(BEHANDLING_ID, behandlingId); //$NON-NLS-1$
-        query.setParameter(BEREGNINGSGRUNNLAG_TILSTAND, BeregningsgrunnlagTilstand.OPPRETTET); //$NON-NLS-1$
+        query.setParameter(BEREGNINGSGRUNNLAG_TILSTAND, beregningsgrunnlagTilstand); //$NON-NLS-1$
+        query.setParameter("opprettetTidspunktMin", opprettetEtter); //$NON-NLS-1$
         query.setMaxResults(1);
         return query.getResultStream().findFirst();
     }
-
 
     /**
      *
