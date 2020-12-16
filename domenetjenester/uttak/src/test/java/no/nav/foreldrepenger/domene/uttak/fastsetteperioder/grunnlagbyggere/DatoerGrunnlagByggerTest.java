@@ -85,7 +85,7 @@ public class DatoerGrunnlagByggerTest {
             List.of(new Barn(barnsDødsdato)), 1);
         Datoer grunnlag = byggGrunnlag(lagInput(behandling, familieHendelse));
         assertThat(grunnlag.getDødsdatoer().getBarnsDødsdato()).isEqualTo(barnsDødsdato);
-        assertThat(grunnlag.getDødsdatoer().erAlleBarnDøde()).isEqualTo(true);
+        assertThat(grunnlag.getDødsdatoer().erAlleBarnDøde()).isTrue();
     }
 
     @Test
@@ -99,7 +99,7 @@ public class DatoerGrunnlagByggerTest {
             List.of(new Barn(barnsDødsdato), new Barn()), 1);
         Datoer grunnlag = byggGrunnlag(lagInput(behandling, familieHendelse));
         assertThat(grunnlag.getDødsdatoer().getBarnsDødsdato()).isEqualTo(barnsDødsdato);
-        assertThat(grunnlag.getDødsdatoer().erAlleBarnDøde()).isEqualTo(false);
+        assertThat(grunnlag.getDødsdatoer().erAlleBarnDøde()).isFalse();
     }
 
     private UttakInput lagInput(Behandling behandling, FamilieHendelse bekreftetFamilieHendelse) {

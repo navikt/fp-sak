@@ -29,7 +29,7 @@ class OppgittPeriodeUtil {
         List<OppgittPeriodeEntitet> sortertePerioder = sorterEtterFom(oppgittePerioder);
         List<OppgittPeriodeEntitet> perioderMedUttak = sortertePerioder
             .stream()
-            .filter(p -> Årsak.UKJENT.equals(p.getÅrsak()) || !p.erOpphold())
+            .filter(p -> Årsak.UKJENT.equals(p.getÅrsak()) || !p.isOpphold())
             .collect(Collectors.toList());
 
         if(perioderMedUttak.size() > 0) {

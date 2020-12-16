@@ -153,26 +153,26 @@ public class VedtaksperioderHelperTest {
         assertThat(oppgittPeriode1.getPeriodeType()).isEqualTo(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL);
         assertThat(oppgittPeriode1.getFom()).isEqualTo(fødselsdato.minusWeeks(3));
         assertThat(oppgittPeriode1.getTom()).isEqualTo(fødselsdato.minusDays(1));
-        assertThat(oppgittPeriode1.erVedtaksperiode()).isTrue();
+        assertThat(oppgittPeriode1.isVedtaksperiode()).isTrue();
 
         OppgittPeriodeEntitet oppgittPeriode2 = perioder.get(1);
         assertThat(oppgittPeriode2.getPeriodeType()).isEqualTo(UttakPeriodeType.MØDREKVOTE);
         assertThat(oppgittPeriode2.getFom()).isEqualTo(fødselsdato);
         assertThat(oppgittPeriode2.getTom()).isEqualTo(fødselsdato.plusWeeks(6).minusDays(1));
-        assertThat(oppgittPeriode2.erVedtaksperiode()).isTrue();
+        assertThat(oppgittPeriode2.isVedtaksperiode()).isTrue();
 
         OppgittPeriodeEntitet oppgittPeriode3 = perioder.get(2);
         assertThat(oppgittPeriode3.getPeriodeType()).isEqualTo(UttakPeriodeType.FELLESPERIODE);
         assertThat(oppgittPeriode3.getÅrsak()).isEqualTo(UtsettelseÅrsak.FERIE);
         assertThat(oppgittPeriode3.getFom()).isEqualTo(fødselsdato.plusWeeks(6));
         assertThat(oppgittPeriode3.getTom()).isEqualTo(fødselsdato.plusWeeks(10).minusDays(1));
-        assertThat(oppgittPeriode3.erVedtaksperiode()).isFalse();
+        assertThat(oppgittPeriode3.isVedtaksperiode()).isFalse();
 
         OppgittPeriodeEntitet oppgittPeriode4 = perioder.get(3);
         assertThat(oppgittPeriode4.getPeriodeType()).isEqualTo(UttakPeriodeType.FELLESPERIODE);
         assertThat(oppgittPeriode4.getFom()).isEqualTo(fødselsdato.plusWeeks(10));
         assertThat(oppgittPeriode4.getTom()).isEqualTo(fødselsdato.plusWeeks(20).minusDays(1));
-        assertThat(oppgittPeriode4.erVedtaksperiode()).isFalse();
+        assertThat(oppgittPeriode4.isVedtaksperiode()).isFalse();
     }
 
 
@@ -203,7 +203,7 @@ public class VedtaksperioderHelperTest {
         assertThat(oppgittPeriode1.getPeriodeType()).isEqualTo(UttakPeriodeType.FELLESPERIODE);
         assertThat(oppgittPeriode1.getFom()).isEqualTo(fødselsdato.plusWeeks(10));
         assertThat(oppgittPeriode1.getTom()).isEqualTo(fødselsdato.plusWeeks(20).minusDays(1));
-        assertThat(oppgittPeriode1.erVedtaksperiode()).isFalse();
+        assertThat(oppgittPeriode1.isVedtaksperiode()).isFalse();
 
     }
 
@@ -235,13 +235,13 @@ public class VedtaksperioderHelperTest {
         assertThat(vedtaksperiodeFraUke10.getPeriodeType()).isEqualTo(UttakPeriodeType.FELLESPERIODE);
         assertThat(vedtaksperiodeFraUke10.getFom()).isEqualTo(fødselsdato.plusWeeks(10));
         assertThat(vedtaksperiodeFraUke10.getTom()).isEqualTo(fødselsdato.plusWeeks(12).minusDays(1));
-        assertThat(vedtaksperiodeFraUke10.erVedtaksperiode()).isTrue();
+        assertThat(vedtaksperiodeFraUke10.isVedtaksperiode()).isTrue();
 
         OppgittPeriodeEntitet mødrekvoteFraUke12 = perioder.get(1);
         assertThat(mødrekvoteFraUke12.getPeriodeType()).isEqualTo(UttakPeriodeType.MØDREKVOTE);
         assertThat(mødrekvoteFraUke12.getFom()).isEqualTo(fødselsdato.plusWeeks(12));
         assertThat(mødrekvoteFraUke12.getTom()).isEqualTo(fødselsdato.plusWeeks(16).minusDays(1));
-        assertThat(mødrekvoteFraUke12.erVedtaksperiode()).isFalse();
+        assertThat(mødrekvoteFraUke12.isVedtaksperiode()).isFalse();
     }
 
     @Test
@@ -270,13 +270,13 @@ public class VedtaksperioderHelperTest {
         assertThat(overlappendeMK.getPeriodeType()).isEqualTo(UttakPeriodeType.MØDREKVOTE);
         assertThat(overlappendeMK.getFom()).isEqualTo(fødselsdato);
         assertThat(overlappendeMK.getTom()).isEqualTo(fødselsdato.plusWeeks(3).minusDays(2));
-        assertThat(overlappendeMK.erVedtaksperiode()).isTrue();
+        assertThat(overlappendeMK.isVedtaksperiode()).isTrue();
 
         OppgittPeriodeEntitet fellesperioderFraEndring = perioder.get(1);
         assertThat(fellesperioderFraEndring.getPeriodeType()).isEqualTo(UttakPeriodeType.FELLESPERIODE);
         assertThat(fellesperioderFraEndring.getFom()).isEqualTo(fødselsdato.plusWeeks(3).minusDays(1));
         assertThat(fellesperioderFraEndring.getTom()).isEqualTo(fødselsdato.plusWeeks(10).minusDays(1));
-        assertThat(fellesperioderFraEndring.erVedtaksperiode()).isFalse();
+        assertThat(fellesperioderFraEndring.isVedtaksperiode()).isFalse();
     }
 
     @Test
@@ -318,7 +318,7 @@ public class VedtaksperioderHelperTest {
         assertThat(oppgittPeriode.getPeriodeType()).isEqualTo(UttakPeriodeType.FELLESPERIODE);
         assertThat(oppgittPeriode.getFom()).isEqualTo(fødselsdato.plusWeeks(6));
         assertThat(oppgittPeriode.getTom()).isEqualTo(fødselsdato.plusWeeks(12).minusDays(1));
-        assertThat(oppgittPeriode.erVedtaksperiode()).isTrue();
+        assertThat(oppgittPeriode.isVedtaksperiode()).isTrue();
     }
 
     @Test
@@ -360,7 +360,7 @@ public class VedtaksperioderHelperTest {
         assertThat(oppgittPeriode.getPeriodeType()).isEqualTo(UttakPeriodeType.FELLESPERIODE);
         assertThat(oppgittPeriode.getFom()).isEqualTo(fødselsdato.plusWeeks(6));
         assertThat(oppgittPeriode.getTom()).isEqualTo(fødselsdato.plusWeeks(12).minusDays(1));
-        assertThat(oppgittPeriode.erVedtaksperiode()).isTrue();
+        assertThat(oppgittPeriode.isVedtaksperiode()).isTrue();
     }
 
     @Test
@@ -445,7 +445,7 @@ public class VedtaksperioderHelperTest {
         assertThat(konvertetPeriode.getPeriodeType()).isEqualTo(UttakPeriodeType.FEDREKVOTE);
         assertThat(konvertetPeriode.getÅrsak()).isEqualTo(Årsak.UKJENT);
         assertThat(konvertetPeriode.getArbeidsprosent()).isEqualTo(arbeidstidsprosent);
-        assertThat(konvertetPeriode.getErArbeidstaker()).isTrue();
+        assertThat(konvertetPeriode.isArbeidstaker()).isTrue();
         assertThat(konvertetPeriode.getArbeidsgiver().getIdentifikator()).isEqualTo("orgnr1");
     }
 
@@ -485,7 +485,7 @@ public class VedtaksperioderHelperTest {
         assertThat(konvertetPeriode.getPeriodeType()).isEqualTo(UttakPeriodeType.FEDREKVOTE);
         assertThat(konvertetPeriode.getÅrsak()).isEqualTo(Årsak.UKJENT);
         assertThat(konvertetPeriode.getArbeidsprosent()).isEqualTo(arbeidstidsprosent);
-        assertThat(konvertetPeriode.getErArbeidstaker()).isTrue();
+        assertThat(konvertetPeriode.isArbeidstaker()).isTrue();
         assertThat(konvertetPeriode.getArbeidsgiver().getIdentifikator()).isEqualTo("orgnr1");
     }
 
@@ -525,7 +525,7 @@ public class VedtaksperioderHelperTest {
         assertThat(konvertetPeriode.getPeriodeType()).isEqualTo(UttakPeriodeType.FEDREKVOTE);
         assertThat(konvertetPeriode.getÅrsak()).isEqualTo(Årsak.UKJENT);
         assertThat(konvertetPeriode.getArbeidsprosent()).isEqualTo(arbeidstidsprosent);
-        assertThat(konvertetPeriode.getErArbeidstaker()).isTrue();
+        assertThat(konvertetPeriode.isArbeidstaker()).isTrue();
         assertThat(konvertetPeriode.getArbeidsgiver().getIdentifikator()).isEqualTo("orgnr1");
     }
 
@@ -559,8 +559,8 @@ public class VedtaksperioderHelperTest {
         OppgittPeriodeEntitet konvertertPeriode = vedtaksperioderHelper.konverter(periodeEntitet);
         assertThat(konvertertPeriode.getPeriodeType()).isEqualTo(UttakPeriodeType.FEDREKVOTE);
         assertThat(konvertertPeriode.getÅrsak()).isEqualTo(Årsak.UKJENT);
-        assertThat(konvertertPeriode.isSamtidigUttak()).isEqualTo(true);
-        assertThat(konvertertPeriode.isFlerbarnsdager()).isEqualTo(true);
+        assertThat(konvertertPeriode.isSamtidigUttak()).isTrue();
+        assertThat(konvertertPeriode.isFlerbarnsdager()).isTrue();
     }
 
     @Test
@@ -598,7 +598,7 @@ public class VedtaksperioderHelperTest {
         assertThat(konvertetPeriode.getPeriodeType()).isEqualTo(UttakPeriodeType.FORELDREPENGER);
         assertThat(konvertetPeriode.getÅrsak()).isEqualTo(Årsak.UKJENT);
         assertThat(konvertetPeriode.getArbeidsprosent()).isEqualTo(BigDecimal.valueOf(50));
-        assertThat(konvertetPeriode.getErArbeidstaker()).isFalse();
+        assertThat(konvertetPeriode.isArbeidstaker()).isFalse();
         assertThat(konvertetPeriode.getArbeidsgiver()).isNull();
     }
 

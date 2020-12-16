@@ -90,7 +90,7 @@ class StartpunktUtlederYtelseFordeling implements StartpunktUtleder {
             throw new IllegalStateException("Utviklerfeil: forventer at behandling har oppgitte perioder");
         }
         return perioder.stream()
-            .filter(OppgittPeriodeEntitet::erGradert)
+            .filter(OppgittPeriodeEntitet::isGradert)
             .collect(toList());
     }
 

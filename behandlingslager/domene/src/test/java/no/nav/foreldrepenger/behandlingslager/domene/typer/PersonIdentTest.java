@@ -12,7 +12,7 @@ public class PersonIdentTest {
     public void gyldigFoedselsnummer_Fnr() {
         String nasjoaltTestFnr = "10108000398";
         boolean gyldig = PersonIdent.erGyldigFnr(nasjoaltTestFnr);
-        assertThat(gyldig).isEqualTo(true);
+        assertThat(gyldig).isTrue();
 
         assertThat(new PersonIdent(nasjoaltTestFnr).erDnr()).isFalse();
     }
@@ -21,7 +21,7 @@ public class PersonIdentTest {
     public void gyldigFoedselsnummer_Dnr() {
         String dnr = "65038300827";
         boolean gyldig = PersonIdent.erGyldigFnr(dnr);
-        assertThat(gyldig).isEqualTo(true);
+        assertThat(gyldig).isTrue();
 
         assertThat(new PersonIdent(dnr).erDnr()).isTrue();
     }
@@ -30,10 +30,10 @@ public class PersonIdentTest {
     public void ugyldigFoedselsnummer() {
         String foedselsnummer = "10108000388";
         boolean gyldig = PersonIdent.erGyldigFnr(foedselsnummer);
-        assertThat(gyldig).isEqualTo(false);
+        assertThat(gyldig).isFalse();
 
         foedselsnummer = "9999999999";
         gyldig = PersonIdent.erGyldigFnr(foedselsnummer);
-        assertThat(gyldig).isEqualTo(false);
+        assertThat(gyldig).isFalse();
     }
 }

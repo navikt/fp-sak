@@ -72,14 +72,14 @@ class JusterFordelingTjeneste {
 
     private boolean erLikBortsettFraTidsperiode(OppgittPeriodeEntitet periode1, OppgittPeriodeEntitet periode2) {
         //begrunnelse ikke viktig å se på
-        return Objects.equals(periode1.getErArbeidstaker(), periode2.getErArbeidstaker()) &&
-            Objects.equals(periode1.getErFrilanser(), periode2.getErFrilanser()) &&
-            Objects.equals(periode1.getErSelvstendig(), periode2.getErSelvstendig()) &&
+        return Objects.equals(periode1.isArbeidstaker(), periode2.isArbeidstaker()) &&
+            Objects.equals(periode1.isFrilanser(), periode2.isFrilanser()) &&
+            Objects.equals(periode1.isSelvstendig(), periode2.isSelvstendig()) &&
             Objects.equals(periode1.isFlerbarnsdager(), periode2.isFlerbarnsdager()) &&
             Objects.equals(periode1.isSamtidigUttak(), periode2.isSamtidigUttak()) &&
             Objects.equals(periode1.getArbeidsgiver(), periode2.getArbeidsgiver()) &&
             Objects.equals(periode1.getMorsAktivitet(), periode2.getMorsAktivitet()) &&
-            Objects.equals(periode1.erVedtaksperiode(), periode2.erVedtaksperiode()) &&
+            Objects.equals(periode1.isVedtaksperiode(), periode2.isVedtaksperiode()) &&
             Objects.equals(periode1.getPeriodeType(), periode2.getPeriodeType()) &&
             Objects.equals(periode1.getPeriodeVurderingType(), periode2.getPeriodeVurderingType()) &&
             Objects.equals(periode1.getSamtidigUttaksprosent(), periode2.getSamtidigUttaksprosent()) &&
@@ -473,11 +473,11 @@ class JusterFordelingTjeneste {
      * @return true dersom perioden kan flyttes, ellers false.
      */
     private boolean erPeriodeFlyttbar(OppgittPeriodeEntitet periode) {
-        if (periode.erUtsettelse() || periode.erOpphold()) {
+        if (periode.isUtsettelse() || periode.isOpphold()) {
             return false;
         }
 
-        return !periode.erGradert() && !(periode instanceof JusterPeriodeHull) && !periode.isSamtidigUttak();
+        return !periode.isGradert() && !(periode instanceof JusterPeriodeHull) && !periode.isSamtidigUttak();
     }
 
 

@@ -28,7 +28,9 @@ public class OppgittPeriodeMottattDatoTjenesteTest extends EntityManagerAwareTes
     @BeforeEach
     public void before() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        tjeneste = new OppgittPeriodeMottattDatoTjeneste(new YtelseFordelingTjeneste(new YtelsesFordelingRepository(getEntityManager())));
+        var ytelseFordelingTjeneste = new YtelseFordelingTjeneste(new YtelsesFordelingRepository(getEntityManager()));
+        tjeneste = new OppgittPeriodeMottattDatoTjeneste(
+            ytelseFordelingTjeneste);
     }
 
     @Test

@@ -78,16 +78,16 @@ final class SøknadsperiodeDokumentasjonKontrollerer {
             throw KontrollerFaktaUttakFeil.FACTORY.dokumentertUtenBegrunnelse().toException();
         }
 
-        if (søknadsperiode.erUtsettelse()) {
+        if (søknadsperiode.isUtsettelse()) {
             return kontrollerUtsettelse(søknadsperiode);
         }
-        if (søknadsperiode.erOverføring()) {
+        if (søknadsperiode.isOverføring()) {
             return kontrollerOverføring(søknadsperiode);
         }
         if (erGyldigGrunnForTidligOppstart(søknadsperiode)) {
             return KontrollerFaktaPeriode.ubekreftetTidligOppstart(søknadsperiode);
         }
-        if (søknadsperiode.erGradert()) {
+        if (søknadsperiode.isGradert()) {
             validerSøknadsperiodeGraderingOrdinærtArbeidsforhold(søknadsperiode);
         }
         return KontrollerFaktaPeriode.automatiskBekreftet(søknadsperiode, PERIODE_OK);
@@ -111,7 +111,7 @@ final class SøknadsperiodeDokumentasjonKontrollerer {
     }
 
     private void validerSøknadsperiodeGraderingOrdinærtArbeidsforhold(OppgittPeriodeEntitet søknadsperiode) {
-        if (søknadsperiode.getArbeidsgiver() == null && søknadsperiode.getErArbeidstaker()) {
+        if (søknadsperiode.getArbeidsgiver() == null && søknadsperiode.isArbeidstaker()) {
             throw FeilFactory.create(KontrollerFaktaUttakFeil.class).søktGraderingUtenArbeidsgiver(søknadsperiode.getPeriodeType().getKode(),
                 søknadsperiode.getFom(), søknadsperiode.getTom()).toException();
         }

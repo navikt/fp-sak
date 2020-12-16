@@ -101,7 +101,7 @@ public class AndelGraderingTjeneste {
 
     private List<PeriodeMedGradering> fraSøknad(List<OppgittPeriodeEntitet> oppgittePerioder) {
         return oppgittePerioder.stream()
-                .filter(oppgittPeriode -> oppgittPeriode.erGradert())
+                .filter(oppgittPeriode -> oppgittPeriode.isGradert())
                 .map(this::map)
                 .collect(Collectors.toList());
     }
@@ -174,11 +174,11 @@ public class AndelGraderingTjeneste {
     }
 
     private static AktivitetStatus mapAktivitetStatus(OppgittPeriodeEntitet oppgittPeriode) {
-        if (oppgittPeriode.getErArbeidstaker()) {
+        if (oppgittPeriode.isArbeidstaker()) {
             return AktivitetStatus.ARBEIDSTAKER;
-        } else if (oppgittPeriode.getErFrilanser()) {
+        } else if (oppgittPeriode.isFrilanser()) {
             return AktivitetStatus.FRILANSER;
-        } else if (oppgittPeriode.getErSelvstendig()) {
+        } else if (oppgittPeriode.isSelvstendig()) {
             return AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE;
         } else {
             throw new IllegalStateException("Mangelfull søknad: Mangler informasjon om det er FL eller SN som graderes");

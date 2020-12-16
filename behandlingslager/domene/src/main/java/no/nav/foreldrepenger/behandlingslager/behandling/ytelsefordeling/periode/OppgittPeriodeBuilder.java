@@ -30,9 +30,9 @@ public class OppgittPeriodeBuilder {
                 .medSamtidigUttaksprosent(oppgittPeriode.getSamtidigUttaksprosent())
                 .medFlerbarnsdager(oppgittPeriode.isFlerbarnsdager())
                 .medArbeidsgiver(oppgittPeriode.getArbeidsgiver())
-                .medErArbeidstaker(oppgittPeriode.getErArbeidstaker())
-                .medErFrilanser(oppgittPeriode.getErFrilanser())
-                .medErSelvstendig(oppgittPeriode.getErSelvstendig())
+                .medErArbeidstaker(oppgittPeriode.isArbeidstaker())
+                .medErFrilanser(oppgittPeriode.isFrilanser())
+                .medErSelvstendig(oppgittPeriode.isSelvstendig())
                 .medVurdering(oppgittPeriode.getPeriodeVurderingType())
                 .medMottattDato(oppgittPeriode.getMottattDato())
                 .medPeriodeKilde(oppgittPeriode.getPeriodeKilde());
@@ -83,17 +83,17 @@ public class OppgittPeriodeBuilder {
     }
 
     public OppgittPeriodeBuilder medErArbeidstaker(boolean erArbeidstaker) {
-        kladd.setErArbeidstaker(erArbeidstaker);
+        kladd.setArbeidstaker(erArbeidstaker);
         return this;
     }
 
     public OppgittPeriodeBuilder medErFrilanser(boolean erFrilanser) {
-        kladd.setErFrilanser(erFrilanser);
+        kladd.setFrilanser(erFrilanser);
         return this;
     }
 
     public OppgittPeriodeBuilder medErSelvstendig(boolean erSelvstendig) {
-        kladd.setErSelvstendig(erSelvstendig);
+        kladd.setSelvstendig(erSelvstendig);
         return this;
     }
 

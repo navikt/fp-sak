@@ -85,13 +85,13 @@ public class FinnEndringerIResultatForTilkommetArbeidsforholdTest {
         assertThat(endringer).hasSize(2);
         assertThat(endringer).anySatisfy(endring -> {
             assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER1);
-            assertThat(endring.erBrukerMottaker()).isEqualTo(true);
+            assertThat(endring.erBrukerMottaker()).isTrue();
             assertThat(endring.getDagsats()).isEqualTo(DAGSATS);
             assertThat(endring.getDagsatsFraBg()).isEqualTo(0);
         });
         assertThat(endringer).anySatisfy(endring -> {
             assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER2);
-            assertThat(endring.erBrukerMottaker()).isEqualTo(false);
+            assertThat(endring.erBrukerMottaker()).isFalse();
             assertThat(endring.getDagsats()).isEqualTo(0);
             assertThat(endring.getDagsatsFraBg()).isEqualTo(DAGSATS);
         });
@@ -125,14 +125,14 @@ public class FinnEndringerIResultatForTilkommetArbeidsforholdTest {
         assertThat(endringer).anySatisfy(endring -> {
             // Det er tilfeldig kva for ein andel som får hindret tilbaketrekk her, kan vere
             // enten ARBEIDSGIVER1 eller ARBEIDSGIVER3
-            assertThat(endring.getArbeidsgiver().equals(ARBEIDSGIVER1) || endring.getArbeidsgiver().equals(ARBEIDSGIVER3)).isEqualTo(true);
-            assertThat(endring.erBrukerMottaker()).isEqualTo(true);
+            assertThat(endring.getArbeidsgiver().equals(ARBEIDSGIVER1) || endring.getArbeidsgiver().equals(ARBEIDSGIVER3)).isTrue();
+            assertThat(endring.erBrukerMottaker()).isTrue();
             assertThat(endring.getDagsats()).isEqualTo(DAGSATS);
             assertThat(endring.getDagsatsFraBg()).isEqualTo(0);
         });
         assertThat(endringer).anySatisfy(endring -> {
             assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER2);
-            assertThat(endring.erBrukerMottaker()).isEqualTo(false);
+            assertThat(endring.erBrukerMottaker()).isFalse();
             assertThat(endring.getDagsats()).isEqualTo(0);
             assertThat(endring.getDagsatsFraBg()).isEqualTo(DAGSATS);
         });
@@ -171,25 +171,25 @@ public class FinnEndringerIResultatForTilkommetArbeidsforholdTest {
         assertThat(endringer).hasSize(4);
         assertThat(endringer).anySatisfy(endring -> {
             assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER1);
-            assertThat(endring.erBrukerMottaker()).isEqualTo(true);
+            assertThat(endring.erBrukerMottaker()).isTrue();
             assertThat(endring.getDagsats()).isEqualTo(DAGSATS);
             assertThat(endring.getDagsatsFraBg()).isEqualTo(0);
         });
         assertThat(endringer).anySatisfy(endring -> {
             assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER3);
-            assertThat(endring.erBrukerMottaker()).isEqualTo(true);
+            assertThat(endring.erBrukerMottaker()).isTrue();
             assertThat(endring.getDagsats()).isEqualTo(DAGSATS);
             assertThat(endring.getDagsatsFraBg()).isEqualTo(0);
         });
         assertThat(endringer).anySatisfy(endring -> {
             assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER4);
-            assertThat(endring.erBrukerMottaker()).isEqualTo(true);
+            assertThat(endring.erBrukerMottaker()).isTrue();
             assertThat(endring.getDagsats()).isEqualTo(DAGSATS / 2);
             assertThat(endring.getDagsatsFraBg()).isEqualTo(0);
         });
         assertThat(endringer).anySatisfy(endring -> {
             assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER2);
-            assertThat(endring.erBrukerMottaker()).isEqualTo(false);
+            assertThat(endring.erBrukerMottaker()).isFalse();
             assertThat(endring.getDagsats()).isEqualTo(DAGSATS / 2);
             assertThat(endring.getDagsatsFraBg()).isEqualTo(3 * DAGSATS);
         });
@@ -233,31 +233,31 @@ public class FinnEndringerIResultatForTilkommetArbeidsforholdTest {
         assertThat(endringer).hasSize(5);
         assertThat(endringer).anySatisfy(endring -> {
             assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER1);
-            assertThat(endring.erBrukerMottaker()).isEqualTo(true);
+            assertThat(endring.erBrukerMottaker()).isTrue();
             assertThat(endring.getDagsats()).isEqualTo(50);
             assertThat(endring.getDagsatsFraBg()).isEqualTo(0);
         });
         assertThat(endringer).anySatisfy(endring -> {
             assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER3);
-            assertThat(endring.erBrukerMottaker()).isEqualTo(true);
+            assertThat(endring.erBrukerMottaker()).isTrue();
             assertThat(endring.getDagsats()).isEqualTo(30);
             assertThat(endring.getDagsatsFraBg()).isEqualTo(0);
         });
         assertThat(endringer).anySatisfy(endring -> {
             assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER4);
-            assertThat(endring.erBrukerMottaker()).isEqualTo(true);
+            assertThat(endring.erBrukerMottaker()).isTrue();
             assertThat(endring.getDagsats()).isEqualTo(100);
             assertThat(endring.getDagsatsFraBg()).isEqualTo(0);
         });
         assertThat(endringer).anySatisfy(endring -> {
             assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER5);
-            assertThat(endring.erBrukerMottaker()).isEqualTo(false);
+            assertThat(endring.erBrukerMottaker()).isFalse();
             assertThat(endring.getDagsats()).isEqualTo(0);
             assertThat(endring.getDagsatsFraBg()).isEqualTo(60);
         });
         assertThat(endringer).anySatisfy(endring -> {
             assertThat(endring.getArbeidsgiver()).isEqualTo(ARBEIDSGIVER6);
-            assertThat(endring.erBrukerMottaker()).isEqualTo(false);
+            assertThat(endring.erBrukerMottaker()).isFalse();
             assertThat(endring.getDagsats()).isEqualTo(0);
             assertThat(endring.getDagsatsFraBg()).isEqualTo(120);
         });
