@@ -18,7 +18,7 @@ import org.mockito.Mockito;
 
 import no.nav.folketrygdloven.kalkulator.modell.gradering.AndelGradering;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
-import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.AktivitetStatus;
+import no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;

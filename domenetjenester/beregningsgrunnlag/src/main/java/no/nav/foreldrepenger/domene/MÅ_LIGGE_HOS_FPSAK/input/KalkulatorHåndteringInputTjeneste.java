@@ -49,7 +49,7 @@ public class KalkulatorHåndteringInputTjeneste {
             Optional<BeregningsgrunnlagGrunnlagEntitet> grunnlagFraHåndteringTilstand) {
         BeregningsgrunnlagInput inputMedBG = beregningTilInputTjeneste.lagInputMedVerdierFraBeregning(input);
         return new HåndterBeregningsgrunnlagInput(inputMedBG,
-                no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BeregningsgrunnlagTilstand
+            no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand
                         .fraKode(MapHåndteringskodeTilTilstand.map(håndteringKode).getKode()))
                                 .medForrigeGrunnlagFraHåndtering(
                                         grunnlagFraHåndteringTilstand.map(BehandlingslagerTilKalkulusMapper::mapGrunnlag).orElse(null));

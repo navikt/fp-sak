@@ -19,11 +19,12 @@ import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.Beregningsgru
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.FaktaAggregatDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.FaktaAktørDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.FaktaArbeidsforholdDto;
-import no.nav.folketrygdloven.kalkulator.modell.opptjening.OpptjeningAktivitetType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType;
 import no.nav.folketrygdloven.kalkulator.modell.typer.InternArbeidsforholdRefDto;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
-import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BeregningAktivitetHandlingType;
-import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.FaktaOmBeregningTilfelle;
+import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningAktivitetHandlingType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand;
+import no.nav.folketrygdloven.kalkulus.kodeverk.FaktaOmBeregningTilfelle;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningAktivitetAggregatEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningAktivitetEntitet;
@@ -124,7 +125,7 @@ public class BehandlingslagerTilKalkulusMapper {
         beregningsgrunnlagFraFpsak.getSaksbehandletAktiviteter().ifPresent(beregningAktivitetAggregatDto -> oppdatere.medSaksbehandletAktiviteter(mapSaksbehandletAktivitet(beregningAktivitetAggregatDto)));
         beregningsgrunnlagFraFpsak.getRefusjonOverstyringer().ifPresent(beregningRefusjonOverstyringerDto -> oppdatere.medRefusjonOverstyring(mapRefusjonOverstyring(beregningRefusjonOverstyringerDto)));
         beregningsgrunnlagFraFpsak.getBeregningsgrunnlag().flatMap(BehandlingslagerTilKalkulusMapper::mapFaktaAggregat).ifPresent(oppdatere::medFaktaAggregat);
-        return oppdatere.build(no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BeregningsgrunnlagTilstand.fraKode(beregningsgrunnlagFraFpsak.getBeregningsgrunnlagTilstand().getKode()));
+        return oppdatere.build(BeregningsgrunnlagTilstand.fraKode(beregningsgrunnlagFraFpsak.getBeregningsgrunnlagTilstand().getKode()));
     }
 
     private static BeregningAktivitetAggregatDto mapRegisterAktiviteter(BeregningAktivitetAggregatEntitet registerAktiviteter) {

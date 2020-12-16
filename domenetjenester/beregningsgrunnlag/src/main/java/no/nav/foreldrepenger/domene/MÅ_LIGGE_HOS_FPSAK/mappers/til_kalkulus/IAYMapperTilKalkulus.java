@@ -34,23 +34,23 @@ import no.nav.folketrygdloven.kalkulator.modell.iay.YrkesaktivitetDtoBuilder;
 import no.nav.folketrygdloven.kalkulator.modell.iay.YtelseAnvistDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.YtelseAnvistDtoBuilder;
 import no.nav.folketrygdloven.kalkulator.modell.iay.YtelseDtoBuilder;
-import no.nav.folketrygdloven.kalkulator.modell.typer.AktørId;
+import no.nav.folketrygdloven.kalkulus.typer.AktørId;
 import no.nav.folketrygdloven.kalkulator.modell.typer.EksternArbeidsforholdRef;
 import no.nav.folketrygdloven.kalkulator.modell.typer.InternArbeidsforholdRefDto;
 import no.nav.folketrygdloven.kalkulator.modell.typer.Stillingsprosent;
-import no.nav.folketrygdloven.kalkulator.modell.virksomhet.Arbeidsgiver;
-import no.nav.folketrygdloven.kalkulator.modell.ytelse.TemaUnderkategori;
+import no.nav.folketrygdloven.kalkulator.modell.typer.Arbeidsgiver;
+import no.nav.folketrygdloven.kalkulus.kodeverk.TemaUnderkategori;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
-import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.ArbeidType;
-import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.ArbeidsforholdHandlingType;
-import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BekreftetPermisjonStatus;
-import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.FagsakYtelseType;
-import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.InntektsKilde;
-import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.NaturalYtelseType;
-import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.NæringsinntektType;
-import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.OffentligYtelseType;
-import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.PensjonTrygdType;
-import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.VirksomhetType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.ArbeidType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.ArbeidsforholdHandlingType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.BekreftetPermisjonStatus;
+import no.nav.folketrygdloven.kalkulus.kodeverk.FagsakYtelseType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.InntektskildeType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.NaturalYtelseType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.NæringsinntektType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.OffentligYtelseType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.PensjonTrygdType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.VirksomhetType;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
@@ -149,10 +149,7 @@ public class IAYMapperTilKalkulus {
             .medVirksomhetType(VirksomhetType.fraKode(oppgittEgenNæring.getVirksomhetType().getKode()))
             .medVarigEndring(oppgittEgenNæring.getVarigEndring())
             .medBegrunnelse(oppgittEgenNæring.getBegrunnelse())
-            .medRegnskapsførerNavn(oppgittEgenNæring.getRegnskapsførerNavn())
-            .medNærRelasjon(oppgittEgenNæring.getNærRelasjon())
-            .medNyoppstartet(oppgittEgenNæring.getNyoppstartet())
-            .medRegnskapsførerTlf(oppgittEgenNæring.getRegnskapsførerTlf());
+            .medNyoppstartet(oppgittEgenNæring.getNyoppstartet());
         if (oppgittEgenNæring.getOrgnr() != null) {
             egenNæringBuilder.medVirksomhet(oppgittEgenNæring.getOrgnr());
         }
@@ -245,7 +242,7 @@ public class IAYMapperTilKalkulus {
         InntektDtoBuilder builder = InntektDtoBuilder.oppdatere(Optional.empty());
         inntekt.getAlleInntektsposter().forEach(inntektspost -> builder.leggTilInntektspost(mapInntektspost(inntektspost)));
         builder.medArbeidsgiver(inntekt.getArbeidsgiver() == null ? null : mapArbeidsgiver(inntekt.getArbeidsgiver()));
-        builder.medInntektsKilde(InntektsKilde.fraKode(inntekt.getInntektsKilde().getKode()));
+        builder.medInntektsKilde(InntektskildeType.fraKode(inntekt.getInntektsKilde().getKode()));
         return builder;
     }
 
@@ -301,7 +298,7 @@ public class IAYMapperTilKalkulus {
         return builder.build();
     }
 
-    static no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.YtelseType mapUtbetaltYtelseTypeTilGrunnlag(YtelseType type) {
+    static no.nav.folketrygdloven.kalkulus.kodeverk.YtelseType mapUtbetaltYtelseTypeTilGrunnlag(YtelseType type) {
         if (type == null)
             return OffentligYtelseType.UDEFINERT;
         String kodeverk = type.getKodeverk();

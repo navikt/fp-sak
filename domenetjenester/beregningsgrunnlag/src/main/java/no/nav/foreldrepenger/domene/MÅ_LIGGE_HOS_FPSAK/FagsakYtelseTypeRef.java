@@ -21,7 +21,7 @@ import javax.enterprise.inject.spi.CDI;
 import javax.enterprise.util.AnnotationLiteral;
 import javax.inject.Qualifier;
 
-import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.FagsakYtelseType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 

@@ -1,11 +1,9 @@
 package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK;
 
-import static no.nav.folketrygdloven.kalkulator.adapter.vltilregelmodell.MapBeregningAktiviteterFraVLTilRegel.INGEN_AKTIVITET_MELDING;
 import static no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.fra_kalkulus.KalkulusTilBehandlingslagerMapper.mapBeregningsgrunnlag;
 import static no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.fra_kalkulus.KalkulusTilBehandlingslagerMapper.mapSaksbehandletAktivitet;
 import static no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus.BehandlingslagerTilKalkulusMapper.mapSaksbehandletAktivitet;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -35,7 +33,7 @@ import no.nav.folketrygdloven.kalkulator.input.StegProsesseringInput;
 import no.nav.folketrygdloven.kalkulator.modell.gradering.AktivitetGradering;
 import no.nav.folketrygdloven.kalkulator.steg.fastsettskjæringstidspunkt.FastsettBeregningAktiviteter;
 import no.nav.folketrygdloven.kalkulator.steg.fastsettskjæringstidspunkt.FastsettSkjæringstidspunktOgStatuser;
-import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BeregningsgrunnlagTilstand;
+import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
@@ -110,26 +108,8 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         repositoryProvider = new RepositoryProvider(entityManager);
     }
 
-    @Test
-    public void testForIngenOpptjeningsaktiviteter_exception() {
-        var arbId1 = InternArbeidsforholdRef.nyRef();
-
-        // Arrange
-        var behandling = opprettBehandling();
-        lagArbeidOgOpptjening(ORG_NUMMER, SKJÆRINGSTIDSPUNKT_OPPTJENING.minusYears(2), SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(13), arbId1,
-                behandling);
-
-        // Act
-        assertThatThrownBy(() -> act(behandling)).isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining(INGEN_AKTIVITET_MELDING);
-    }
-
     private BehandlingReferanse opprettBehandling() {
         return ScenarioForeldrepenger.nyttScenario().lagre(repositoryProvider);
-    }
-
-    private BeregningsgrunnlagEntitet act(BehandlingReferanse behandling) {
-        return act(new OpptjeningAktiviteter(), behandling);
     }
 
     private BeregningsgrunnlagEntitet act(OpptjeningAktiviteter opptjeningAktiviteter, BehandlingReferanse behandling) {
