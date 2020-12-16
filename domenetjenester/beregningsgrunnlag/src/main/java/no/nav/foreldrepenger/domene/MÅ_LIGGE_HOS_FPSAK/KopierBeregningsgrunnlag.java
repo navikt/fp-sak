@@ -52,8 +52,7 @@ class KopierBeregningsgrunnlag {
             nyttBg,
             forrigeBeregningsgrunnlag);
         if (kanKopiereFraBekreftet) {
-            return forrigeBekreftetBeregningsgrunnlag.isPresent() && forrigeBeregningsgrunnlag.isPresent()
-                && forrigeBekreftetBeregningsgrunnlag.get().getOpprettetTidspunkt().isAfter(forrigeBeregningsgrunnlag.get().getOpprettetTidspunkt());
+            return forrigeBekreftetBeregningsgrunnlag.isPresent();
         } else {
             return false;
         }
