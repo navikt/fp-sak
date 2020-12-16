@@ -993,6 +993,32 @@ public class JusterFordelingTjenesteTest {
         assertThat(justertePerioder.get(3).getTom()).isEqualTo(fpMedSamtidigUttak.getTom());
     }
 
+    @Test
+    public void skal_tillate_overlapp_hvis_lik_fødselsdato() {
+        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, fødselsdato.minusWeeks(3), fødselsdato.minusDays(1));
+        var mk = lagPeriode(MØDREKVOTE, fødselsdato, fødselsdato.plusWeeks(15));
+        //overlapper 1 dag med mødrekvote
+        var fp = lagPeriode(FELLESPERIODE, fødselsdato.plusWeeks(15), fødselsdato.plusWeeks(31).minusDays(1));
+        var oppgittePerioder = List.of(fpff, mk, fp);
+
+        var justertePerioder = justerFordelingTjeneste.juster(oppgittePerioder, fødselsdato, fødselsdato);
+
+        assertThat(likePerioder(oppgittePerioder, justertePerioder)).isTrue();
+    }
+
+    @Test
+    public void skal_tillate_overlapp_hvis_ulik_fødselsdato() {
+        var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, fødselsdato.minusWeeks(3), fødselsdato.minusDays(1));
+        var mk = lagPeriode(MØDREKVOTE, fødselsdato, fødselsdato.plusWeeks(15));
+        //overlapper 1 dag med mødrekvote
+        var fp = lagPeriode(FELLESPERIODE, fødselsdato.plusWeeks(15), fødselsdato.plusWeeks(31).minusDays(1));
+        var oppgittePerioder = List.of(fpff, mk, fp);
+
+        var justertePerioder = justerFordelingTjeneste.juster(oppgittePerioder, fødselsdato, fødselsdato.plusWeeks(1));
+
+        assertThat(likePerioder(oppgittePerioder, justertePerioder)).isTrue();
+    }
+
     private OppgittPeriodeEntitet lagPeriode(UttakPeriodeType uttakPeriodeType, LocalDate fom, LocalDate tom) {
         return OppgittPeriodeBuilder.ny().medPeriode(fom, tom).medPeriodeType(uttakPeriodeType).build();
     }
