@@ -974,6 +974,23 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
+    public void skal_justere_mødrekvote_med_samtidig_uttak() {
+        var mk = OppgittPeriodeBuilder.ny()
+            .medPeriode(fødselsdato.plusWeeks(15), fødselsdato.plusWeeks(20))
+            .medPeriodeType(MØDREKVOTE)
+            .medSamtidigUttaksprosent(SamtidigUttaksprosent.TEN)
+            .medSamtidigUttak(true)
+            .build();
+        var oppgittePerioder = List.of(mk);
+
+        var justertePerioder = justerFordelingTjeneste.juster(oppgittePerioder, fødselsdato, fødselsdato.plusWeeks(1));
+
+        assertThat(justertePerioder).hasSize(2);
+        assertThat(justertePerioder.get(1).getFom()).isEqualTo(mk.getFom().plusWeeks(1));
+        assertThat(justertePerioder.get(1).getTom()).isEqualTo(mk.getTom());
+    }
+
+    @Test //Unntak: Skal justere mødrekvote
     public void ikke_justere_perioder_med_samtidig_uttak() {
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, fødselsdato.minusWeeks(3), fødselsdato.minusDays(1));
         var mk = lagPeriode(MØDREKVOTE, fødselsdato, fødselsdato.plusWeeks(15).minusDays(1));
