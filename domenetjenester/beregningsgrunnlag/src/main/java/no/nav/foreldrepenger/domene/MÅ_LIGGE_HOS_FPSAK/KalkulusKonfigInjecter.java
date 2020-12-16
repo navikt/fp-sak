@@ -1,14 +1,11 @@
 package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.finn.unleash.Unleash;
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
@@ -19,13 +16,12 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 public class KalkulusKonfigInjecter {
 
     private static final String INNTEKT_RAPPORTERING_FRIST_DATO = "inntekt.rapportering.frist.dato";
-    private static List<String> TOGGLES = new ArrayList<>();
+    private static final Map<String, Boolean> TOGGLES = new HashMap<>();
     private int inntektRapporteringFristDagIMåneden;
 
-    private Unleash unleash;
-
     static {
-        TOGGLES.add("fpsak.splitteSammenligningATFL");
+        TOGGLES.put("fpsak.splitteSammenligningATFL", false);
+        TOGGLES.put("automatisk-besteberegning", false);
     }
 
     public KalkulusKonfigInjecter() {
@@ -33,9 +29,8 @@ public class KalkulusKonfigInjecter {
     }
 
     @Inject
-    public KalkulusKonfigInjecter(@KonfigVerdi(value = INNTEKT_RAPPORTERING_FRIST_DATO, defaultVerdi = "5") int inntektRapporteringFristDagIMåneden, Unleash unleash) {
+    public KalkulusKonfigInjecter(@KonfigVerdi(value = INNTEKT_RAPPORTERING_FRIST_DATO, defaultVerdi = "5") int inntektRapporteringFristDagIMåneden) {
         this.inntektRapporteringFristDagIMåneden = inntektRapporteringFristDagIMåneden;
-        this.unleash = unleash;
     }
 
     public void leggTilKonfigverdier(BeregningsgrunnlagInput input) {
@@ -43,9 +38,7 @@ public class KalkulusKonfigInjecter {
     }
 
     public void leggTilFeatureToggles(BeregningsgrunnlagInput input) {
-        Map<String, Boolean> toggleMap = new HashMap<>();
-        TOGGLES.forEach(toggle -> toggleMap.put(toggle, unleash.isEnabled(toggle)));
-        input.setToggles(toggleMap);
+        input.setToggles(TOGGLES);
     }
 
 }

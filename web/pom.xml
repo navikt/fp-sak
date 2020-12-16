@@ -20,6 +20,18 @@
     </properties>
     <dependencies>
 
+        <!-- UNLEASH: DENNE SKAL FJERNES -->
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+            <artifactId>unleash-klient</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
         <!-- Database håndtering -->
         <dependency>
             <groupId>com.zaxxer</groupId>

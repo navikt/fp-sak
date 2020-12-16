@@ -11,11 +11,9 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
-import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.finn.unleash.FakeUnleash;
 import no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.ForeldrepengerGrunnlag;
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.modell.gradering.AktivitetGradering;
@@ -24,6 +22,7 @@ import no.nav.folketrygdloven.kalkulator.modell.opptjening.OpptjeningAktiviteter
 import no.nav.folketrygdloven.kalkulator.modell.typer.InternArbeidsforholdRefDto;
 import no.nav.folketrygdloven.kalkulator.output.BeregningAksjonspunktResultat;
 import no.nav.folketrygdloven.kalkulator.steg.BeregningsgrunnlagTjeneste;
+import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
@@ -69,7 +68,6 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteFastsettAktiviteterTest {
 
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
     private final RepositoryProvider repositoryProvider;
-    private final FakeUnleash unleash = new FakeUnleash();
     private final BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private final BehandlingRepository behandlingRepository;
 
@@ -87,7 +85,7 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteFastsettAktiviteterTest {
 
     @BeforeEach
     public void setUp() {
-        KalkulusKonfigInjecter kalkulusKonfigInjecter = new KalkulusKonfigInjecter(5, unleash);
+        KalkulusKonfigInjecter kalkulusKonfigInjecter = new KalkulusKonfigInjecter(5);
         BeregningTilInputTjeneste beregningTilInputTjeneste = new BeregningTilInputTjeneste(beregningsgrunnlagRepository, kalkulusKonfigInjecter);
         KalkulatorStegProsesseringInputTjeneste kalkulatorStegProsesseringInputTjeneste = new KalkulatorStegProsesseringInputTjeneste(
                 beregningsgrunnlagRepository, behandlingRepository, beregningTilInputTjeneste, new GrunnbeløpTjeneste(beregningsgrunnlagRepository),
