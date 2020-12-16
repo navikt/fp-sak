@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
@@ -67,8 +68,8 @@ public class ForeslåBesteberegningSteg implements BeregningsgrunnlagSteg {
         Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(kontekst.getBehandlingId());
         BehandlingReferanse ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
-        if (besteberegningFødendeKvinneTjeneste.brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(ref) && skalBehandlesAutomatisk(ref)) {
-            var input = getInputTjeneste(ref.getFagsakYtelseType()).lagInput(ref.getBehandlingId());
+        var input = getInputTjeneste(ref.getFagsakYtelseType()).lagInput(ref.getBehandlingId());
+        if (besteberegningFødendeKvinneTjeneste.brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(ref) && skalBehandlesAutomatisk(ref, input)) {
             BeregningsgrunnlagVilkårOgAkjonspunktResultat resultat = beregningsgrunnlagKopierOgLagreTjeneste.foreslåBesteberegning(input);
             List<AksjonspunktResultat> aksjonspunkter = resultat.getAksjonspunkter().stream().map(BeregningResultatMapper::map).collect(Collectors.toList());
             return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
@@ -77,11 +78,13 @@ public class ForeslåBesteberegningSteg implements BeregningsgrunnlagSteg {
         return BehandleStegResultat.utførtMedAksjonspunktResultater(Collections.emptyList());
     }
 
-    private boolean skalBehandlesAutomatisk(BehandlingReferanse ref) {
+    private boolean skalBehandlesAutomatisk(BehandlingReferanse ref, BeregningsgrunnlagInput input) {
+
         Optional<Opptjening> opptjening = opptjeningRepository.finnOpptjening(ref.getBehandlingId());
         List<OpptjeningAktivitet> opptjeningAktiviteter = opptjening.map(Opptjening::getOpptjeningAktivitet).orElse(Collections.emptyList());
-        return opptjeningAktiviteter.stream()
-            .allMatch(a -> a.getAktivitetType().equals(OpptjeningAktivitetType.DAGPENGER) || a.getAktivitetType().equals(OpptjeningAktivitetType.ARBEID));
+        boolean harKunDpEllerArbeidIOpptjeningsperioden = opptjeningAktiviteter.stream().allMatch(a -> a.getAktivitetType().equals(OpptjeningAktivitetType.DAGPENGER) || a.getAktivitetType().equals(OpptjeningAktivitetType.ARBEID));
+        return input.isEnabled("automatisk-besteberegning", false) &&
+            harKunDpEllerArbeidIOpptjeningsperioden;
     }
 
     @Override

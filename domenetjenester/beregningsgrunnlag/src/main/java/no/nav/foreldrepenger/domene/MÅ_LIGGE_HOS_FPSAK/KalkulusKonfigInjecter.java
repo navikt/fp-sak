@@ -8,6 +8,7 @@ import javax.inject.Inject;
 
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.vedtak.konfig.KonfigVerdi;
+import no.nav.vedtak.util.env.Environment;
 
 /**
  * Midlertidig konfiginjecter for kalkulus
@@ -21,7 +22,7 @@ public class KalkulusKonfigInjecter {
 
     static {
         TOGGLES.put("fpsak.splitteSammenligningATFL", false);
-        TOGGLES.put("automatisk-besteberegning", false);
+        TOGGLES.put("automatisk-besteberegning", !Environment.current().isProd());
     }
 
     public KalkulusKonfigInjecter() {

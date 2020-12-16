@@ -76,7 +76,7 @@ public class FremoverhoppTest {
         };
 
         var modell = behandlingModellRepository.getModell(BehandlingType.FØRSTEGANGSSØKNAD, FagsakYtelseType.FORELDREPENGER);
-        steg1 = BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG;
+        steg1 = BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING;
         steg2 = modell.finnNesteSteg(steg1).getBehandlingStegType();
         steg3 = modell.finnNesteSteg(steg2).getBehandlingStegType();
     }

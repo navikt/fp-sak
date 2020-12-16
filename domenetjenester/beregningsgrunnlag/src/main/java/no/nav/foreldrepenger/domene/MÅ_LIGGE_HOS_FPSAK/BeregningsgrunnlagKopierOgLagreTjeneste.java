@@ -32,6 +32,7 @@ import no.nav.folketrygdloven.kalkulator.output.BeregningResultatAggregat;
 import no.nav.folketrygdloven.kalkulator.output.RegelSporingAggregat;
 import no.nav.folketrygdloven.kalkulator.output.RegelSporingPeriode;
 import no.nav.folketrygdloven.kalkulator.steg.BeregningsgrunnlagTjeneste;
+import no.nav.folketrygdloven.kalkulator.steg.besteberegning.BesteberegningResultat;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagPeriodeRegelType;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
@@ -39,6 +40,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.input.KalkulatorStegProsesseringInputTjeneste;
+import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.fra_kalkulus.BesteberegningMapper;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.fra_kalkulus.KalkulusTilBehandlingslagerMapper;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
@@ -169,11 +171,12 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
             behandlingId,
             input,
             BehandlingStegType.FORESLÅ_BESTEBEREGNING);
-        BeregningResultatAggregat beregningResultatAggregat = beregningsgrunnlagTjeneste.foreslåBesteberegning(foreslåBeregningsgrunnlagInput);
-        BeregningsgrunnlagEntitet nyttBg = KalkulusTilBehandlingslagerMapper.mapBeregningsgrunnlag(
+        BesteberegningResultat beregningResultatAggregat = beregningsgrunnlagTjeneste.foreslåBesteberegning(foreslåBeregningsgrunnlagInput);
+        BeregningsgrunnlagEntitet nyttBg = BesteberegningMapper.mapBeregningsgrunnlagMedBesteberegning(
             beregningResultatAggregat.getBeregningsgrunnlag(),
             beregningResultatAggregat.getBeregningsgrunnlagGrunnlag().getFaktaAggregat(),
-            beregningResultatAggregat.getRegelSporingAggregat());
+            beregningResultatAggregat.getRegelSporingAggregat(),
+            beregningResultatAggregat.getBesteberegningVurderingGrunnlag());
         beregningsgrunnlagRepository.lagre(behandlingId, nyttBg, BESTEBEREGNET);
         return new BeregningsgrunnlagVilkårOgAkjonspunktResultat(beregningResultatAggregat.getBeregningAksjonspunktResultater());
     }

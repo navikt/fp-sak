@@ -9,12 +9,13 @@ import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Beregningsgrunnlag
 
 public class MapStegTilTilstand {
 
-    private static Map<BehandlingStegType, BeregningsgrunnlagTilstand> mapStegTilstand = new HashMap<>();
-    private static Map<BehandlingStegType, BeregningsgrunnlagTilstand> mapStegUtTilstand = new HashMap<>();
+    private static final Map<BehandlingStegType, BeregningsgrunnlagTilstand> mapStegTilstand = new HashMap<>();
+    private static final Map<BehandlingStegType, BeregningsgrunnlagTilstand> mapStegUtTilstand = new HashMap<>();
 
     static {
         mapStegTilstand.put(BehandlingStegType.KONTROLLER_FAKTA_BEREGNING, BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER);
         mapStegTilstand.put(BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG, BeregningsgrunnlagTilstand.FORESLÅTT);
+        mapStegTilstand.put(BehandlingStegType.FORESLÅ_BESTEBEREGNING, BeregningsgrunnlagTilstand.BESTEBEREGNET);
         mapStegTilstand.put(BehandlingStegType.VURDER_REF_BERGRUNN, BeregningsgrunnlagTilstand.VURDERT_REFUSJON);
         mapStegTilstand.put(BehandlingStegType.FORDEL_BEREGNINGSGRUNNLAG, BeregningsgrunnlagTilstand.OPPDATERT_MED_REFUSJON_OG_GRADERING);
         mapStegTilstand.put(BehandlingStegType.FASTSETT_BEREGNINGSGRUNNLAG, BeregningsgrunnlagTilstand.FASTSATT);
