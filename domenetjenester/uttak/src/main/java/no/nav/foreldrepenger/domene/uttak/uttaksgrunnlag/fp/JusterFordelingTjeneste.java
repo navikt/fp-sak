@@ -14,6 +14,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
@@ -22,21 +25,27 @@ import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
 
 class JusterFordelingTjeneste {
 
+    private static final Logger LOG = LoggerFactory.getLogger(JusterFordelingTjeneste.class);
+
     /**
      * Skyver perioder basert på antall virkedager i mellom familiehendelsene.
      * Gradering, utsettelse, opphold og hull mellom perioder flyttes ikke.
      */
     List<OppgittPeriodeEntitet> juster(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate gammelFamiliehendelse, LocalDate nyFamiliehendelse) {
         List<OppgittPeriodeEntitet> justert = sorterEtterFom(oppgittePerioder);
-        if (gammelFamiliehendelse != null && nyFamiliehendelse != null) {
+        if (finnesOverlapp(oppgittePerioder)) {
+            LOG.warn("Finnes overlapp i oppgitte perioder fra søknad. Sannsynligvis feil i søknadsdialogen. "
+                + "Hvis periodene ikke kan slås sammen faller behandlingen ut til manuell behandling");
+            //Justering støtter ikke overlapp
+        } else if (gammelFamiliehendelse != null && nyFamiliehendelse != null) {
             //flytter til mandag
             gammelFamiliehendelse = flyttFraHelgTilMandag(gammelFamiliehendelse);
             nyFamiliehendelse = flyttFraHelgTilMandag(nyFamiliehendelse);
             if (!gammelFamiliehendelse.equals(nyFamiliehendelse)) {
                 justert = justerVedEndringAvFamilieHendelse(oppgittePerioder, gammelFamiliehendelse, nyFamiliehendelse);
             }
+            exceptionHvisOverlapp(justert);
         }
-        exceptionHvisOverlapp(justert);
         return slåSammenLikePerioder(justert);
     }
 
@@ -481,14 +490,21 @@ class JusterFordelingTjeneste {
     }
 
 
-    private void exceptionHvisOverlapp(List<OppgittPeriodeEntitet> oppgittPerioder) {
+    private void exceptionHvisOverlapp(List<OppgittPeriodeEntitet> perioder) {
+        if (finnesOverlapp(perioder)) {
+            throw new IllegalStateException("Utviklerfeil: Overlappende perioder etter justering " + perioder);
+        }
+    }
+
+    private boolean finnesOverlapp(List<OppgittPeriodeEntitet> oppgittPerioder) {
         for (int i = 0; i < oppgittPerioder.size(); i++) {
             for (int j = i + 1; j < oppgittPerioder.size(); j++) {
                 if (overlapper(oppgittPerioder.get(i), oppgittPerioder.get(j))) {
-                    throw new IllegalStateException("Utviklerfeil: Overlappende perioder etter justering " + oppgittPerioder.get(i) + " - " + oppgittPerioder.get(j));
+                    return true;
                 }
             }
         }
+        return false;
     }
 
     private boolean overlapper(OppgittPeriodeEntitet periode, LocalDate dato) {
