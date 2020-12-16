@@ -262,7 +262,9 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
         );
         beregningsgrunnlagRepository.lagre(behandlingId, nyttBg, tilstand);
         if (kanKopiereBekreftet) {
-            forrigeBekreftetBeregningsgrunnlag.map(BeregningsgrunnlagEntitet::new).ifPresent(bg -> beregningsgrunnlagRepository.lagre(behandlingId, bg, bekreftetTilstand));
+            forrigeBekreftetBeregningsgrunnlag
+                .filter(bg -> bg.getBeregningsgrunnlagPerioder().size() == nyttBg.getBeregningsgrunnlagPerioder().size()) // For håndtering av TFP-3963
+                .map(BeregningsgrunnlagEntitet::new).ifPresent(bg -> beregningsgrunnlagRepository.lagre(behandlingId, bg, bekreftetTilstand));
         }
     }
 
