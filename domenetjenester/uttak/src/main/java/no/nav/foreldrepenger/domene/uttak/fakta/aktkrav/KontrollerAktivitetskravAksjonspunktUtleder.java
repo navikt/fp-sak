@@ -76,9 +76,11 @@ public class KontrollerAktivitetskravAksjonspunktUtleder {
 
     private static boolean bareFarHarRettOgSøkerUtsettelse(OppgittPeriodeEntitet periode,
                                                            boolean annenForelderHarRett) {
-        //Bare arbeid og ferie nå, må kanskje utvides med alle utsettelser
+        //Reglene sjekker ikke aktivitetskrav hvis tiltak nav eller hv
         return !annenForelderHarRett && (UtsettelseÅrsak.ARBEID.equals(periode.getÅrsak())
-            || UtsettelseÅrsak.FERIE.equals(periode.getÅrsak()));
+            || UtsettelseÅrsak.FERIE.equals(periode.getÅrsak()) || UtsettelseÅrsak.SYKDOM.equals(periode.getÅrsak())
+            || UtsettelseÅrsak.INSTITUSJON_BARN.equals(periode.getÅrsak()) || UtsettelseÅrsak.INSTITUSJON_SØKER.equals(
+            periode.getÅrsak()));
     }
 
     private static Set<AktivitetskravPeriodeEntitet> finnAvklartePerioderSomDekkerSøknadsperiode(OppgittPeriodeEntitet periode,

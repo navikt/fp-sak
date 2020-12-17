@@ -116,10 +116,65 @@ public class KontrollerAktivitetskravAksjonspunktUtlederTest {
     }
 
     @Test
-    public void utledeAPForFarSomHarSøktUtsettelseOgBareFarRett() {
+    public void utledeAPForFarSomHarSøktUtsettelseFerieOgBareFarRett() {
+        var uttakInput = bareFarRettMedSøktUtsettelse(UtsettelseÅrsak.FERIE);
+        var ap = utleder.utledFor(uttakInput);
+
+        assertThat(ap).containsOnly(KONTROLLER_AKTIVITETSKRAV);
+    }
+
+    @Test
+    public void utledeAPForFarSomHarSøktUtsettelseArbeidOgBareFarRett() {
+        var uttakInput = bareFarRettMedSøktUtsettelse(UtsettelseÅrsak.ARBEID);
+        var ap = utleder.utledFor(uttakInput);
+
+        assertThat(ap).containsOnly(KONTROLLER_AKTIVITETSKRAV);
+    }
+
+    @Test
+    public void utledeAPForFarSomHarSøktUtsettelseSykdomOgBareFarRett() {
+        var uttakInput = bareFarRettMedSøktUtsettelse(UtsettelseÅrsak.SYKDOM);
+        var ap = utleder.utledFor(uttakInput);
+
+        assertThat(ap).containsOnly(KONTROLLER_AKTIVITETSKRAV);
+    }
+
+    @Test
+    public void utledeAPForFarSomHarSøktUtsettelseInnleggelseOgBareFarRett() {
+        var uttakInput = bareFarRettMedSøktUtsettelse(UtsettelseÅrsak.INSTITUSJON_SØKER);
+        var ap = utleder.utledFor(uttakInput);
+
+        assertThat(ap).containsOnly(KONTROLLER_AKTIVITETSKRAV);
+    }
+
+    @Test
+    public void utledeAPForFarSomHarSøktUtsettelseInnleggelseBarnOgBareFarRett() {
+        var uttakInput = bareFarRettMedSøktUtsettelse(UtsettelseÅrsak.INSTITUSJON_BARN);
+        var ap = utleder.utledFor(uttakInput);
+
+        assertThat(ap).containsOnly(KONTROLLER_AKTIVITETSKRAV);
+    }
+
+    @Test
+    public void ikkeUtledeAPForFarSomHarSøktUtsettelseHvOgBareFarRett() {
+        var uttakInput = bareFarRettMedSøktUtsettelse(UtsettelseÅrsak.HV_OVELSE);
+        var ap = utleder.utledFor(uttakInput);
+
+        assertThat(ap).isEmpty();
+    }
+
+    @Test
+    public void ikkeUtledeAPForFarSomHarSøktUtsettelseNavTiltakOgBareFarRett() {
+        var uttakInput = bareFarRettMedSøktUtsettelse(UtsettelseÅrsak.NAV_TILTAK);
+        var ap = utleder.utledFor(uttakInput);
+
+        assertThat(ap).isEmpty();
+    }
+
+    private UttakInput bareFarRettMedSøktUtsettelse(UtsettelseÅrsak utsettelseÅrsak) {
         var fødselsdato = LocalDate.of(2020, 1, 1);
         var søknadsperiode = OppgittPeriodeBuilder.ny()
-            .medÅrsak(UtsettelseÅrsak.ARBEID)
+            .medÅrsak(utsettelseÅrsak)
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .medPeriode(fødselsdato, fødselsdato.plusWeeks(10))
             .build();
@@ -128,10 +183,7 @@ public class KontrollerAktivitetskravAksjonspunktUtlederTest {
             .medFordeling(new OppgittFordelingEntitet(List.of(søknadsperiode), true))
             .lagre(repositoryProvider);
         var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
-        var uttakInput = uttakInput(BehandlingReferanse.fra(behandling), familieHendelse);
-        var ap = utleder.utledFor(uttakInput);
-
-        assertThat(ap).containsOnly(KONTROLLER_AKTIVITETSKRAV);
+        return uttakInput(BehandlingReferanse.fra(behandling), familieHendelse);
     }
 
     @Test
