@@ -482,13 +482,19 @@ class JusterFordelingTjeneste {
      * @return true dersom perioden kan flyttes, ellers false.
      */
     private boolean erPeriodeFlyttbar(OppgittPeriodeEntitet periode) {
-        if (periode.isUtsettelse() || periode.isOpphold()) {
+        //Perioder opprettet i interlogikk
+        if (periode instanceof JusterPeriodeHull) {
             return false;
         }
-
-        return !periode.isGradert() && !(periode instanceof JusterPeriodeHull) && !periode.isSamtidigUttak();
+        if (periode.isUtsettelse() || periode.isOpphold() || periode.isGradert()) {
+            return false;
+        }
+        if (periode.isSamtidigUttak()) {
+            //Mødrekvote med samtidig uttak skal flyttes
+            return UttakPeriodeType.MØDREKVOTE.equals(periode.getPeriodeType());
+        }
+        return true;
     }
-
 
     private void exceptionHvisOverlapp(List<OppgittPeriodeEntitet> perioder) {
         if (finnesOverlapp(perioder)) {
