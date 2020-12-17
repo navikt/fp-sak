@@ -19,6 +19,7 @@ public class Input {
     private String ansvarligSaksbehandler;
     private LocalDate vedtaksdato;
     private boolean brukInntrekk;
+    private Long prosessTaskId;
 
     private Input() {
     }
@@ -61,6 +62,10 @@ public class Input {
 
     public boolean brukInntrekk() {
         return brukInntrekk;
+    }
+
+    public Long getProsessTaskId() {
+        return prosessTaskId;
     }
 
     public static class Builder {
@@ -135,6 +140,11 @@ public class Input {
 
         public Builder medBrukInntrekk(boolean brukInntrekk) {
             kladd.brukInntrekk = brukInntrekk;
+            return this;
+        }
+
+        public Builder medProsessTaskId(Long prosessTaskId) {
+            kladd.prosessTaskId = prosessTaskId;
             return this;
         }
 

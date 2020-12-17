@@ -13,6 +13,8 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølg
 import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.økonomi.ny.postcondition.OppdragPostConditionTjeneste;
+import no.nav.foreldrepenger.økonomi.ny.tjeneste.NyOppdragskontrollTjeneste;
+import no.nav.foreldrepenger.økonomi.ny.toggle.OppdragKjerneimplementasjonToggle;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -29,8 +31,10 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
     public static final String TASKTYPE = "iverksetteVedtak.oppdragTilØkonomi";
 
     private OppdragskontrollTjeneste oppdragskontrollTjeneste;
+    private NyOppdragskontrollTjeneste nyOppdragskontrollTjeneste;
     private ProsessTaskRepository prosessTaskRepository;
     private OppdragPostConditionTjeneste oppdragPostConditionTjeneste;
+    private OppdragKjerneimplementasjonToggle toggle;
 
     VurderOgSendØkonomiOppdragTask() {
         // for CDI proxy
@@ -40,11 +44,13 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
     public VurderOgSendØkonomiOppdragTask(OppdragskontrollTjeneste oppdragskontrollTjeneste,
                                           ProsessTaskRepository prosessTaskRepository,
                                           BehandlingRepositoryProvider repositoryProvider,
-                                          OppdragPostConditionTjeneste oppdragPostConditionTjeneste) {
+                                          NyOppdragskontrollTjeneste nyOppdragskontrollTjeneste, OppdragPostConditionTjeneste oppdragPostConditionTjeneste, OppdragKjerneimplementasjonToggle toggle) {
         super(repositoryProvider.getBehandlingLåsRepository());
         this.oppdragskontrollTjeneste = oppdragskontrollTjeneste;
         this.prosessTaskRepository = prosessTaskRepository;
+        this.nyOppdragskontrollTjeneste = nyOppdragskontrollTjeneste;
         this.oppdragPostConditionTjeneste = oppdragPostConditionTjeneste;
+        this.toggle = toggle;
     }
 
     @Override
@@ -60,7 +66,15 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
     }
 
     private void vurderSendingAvOppdrag(ProsessTaskData prosessTaskData, Long behandlingId) {
-        Optional<Oppdragskontroll> oppdragskontrollOpt = oppdragskontrollTjeneste.opprettOppdrag(behandlingId, prosessTaskData.getId());
+        boolean brukNyImplementasjon = toggle.brukNyImpl(behandlingId);
+        Optional<Oppdragskontroll> oppdragskontrollOpt;
+        if (brukNyImplementasjon) {
+            log.info("Bruker ny implementasjon av kjernen i modulen fpsak.okonomistotte for behandlingId={}", behandlingId);
+            oppdragskontrollOpt = nyOppdragskontrollTjeneste.opprettOppdrag(behandlingId, prosessTaskData.getId());
+        } else {
+            oppdragskontrollOpt = oppdragskontrollTjeneste.opprettOppdrag(behandlingId, prosessTaskData.getId());
+        }
+
         if (oppdragskontrollOpt.isPresent()) {
             log.info("Klargjør økonomioppdrag for behandling: {}", behandlingId); //$NON-NLS-1$
             Oppdragskontroll oppdragskontroll = oppdragskontrollOpt.get();

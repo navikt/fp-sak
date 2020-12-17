@@ -24,15 +24,17 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.foreldrepenger.økonomi.ny.tjeneste.NyOppdragskontrollTjeneste;
+import no.nav.foreldrepenger.økonomi.ny.toggle.OppdragKjerneimplementasjonToggle;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.FinnNyesteOppdragForSak;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollManagerFactory;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollManagerFactoryProvider;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollTjenesteImpl;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.SimulerOppdragTjeneste;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.kontantytelse.es.OppdragskontrollEngangsstønad;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.kontantytelse.es.adapter.MapBehandlingInfoES;
+import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
 import no.nav.vedtak.felles.testutilities.db.Repository;
 
 @ExtendWith(MockitoExtension.class)
@@ -53,6 +55,10 @@ public class SimulerOppdragTjenesteTest extends EntityManagerAwareTest {
 
     @Mock
     private PersoninfoAdapter tpsTjeneste;
+    @Mock
+    private NyOppdragskontrollTjeneste nyOppdragskontrollTjeneste;
+    @Mock
+    private OppdragKjerneimplementasjonToggle toggle;
 
     @BeforeEach
     public void setup() {
@@ -64,7 +70,8 @@ public class SimulerOppdragTjenesteTest extends EntityManagerAwareTest {
         behandlingVedtakRepository = new BehandlingVedtakRepository(entityManager);
         familieHendelseRepository = new FamilieHendelseRepository(entityManager);
         when(tpsTjeneste.hentFnrForAktør(any())).thenReturn(PERSON_IDENT);
-        simulerOppdragTjeneste = new SimulerOppdragTjeneste(mockTjeneste());
+
+        simulerOppdragTjeneste = new SimulerOppdragTjeneste(mockTjeneste(), nyOppdragskontrollTjeneste, toggle);
     }
 
     private OppdragskontrollTjeneste mockTjeneste() {

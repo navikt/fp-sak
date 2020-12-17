@@ -24,6 +24,7 @@ class LagOppdragskontrollTjeneste {
             .medSaksnummer(saksnummer)
             .medBehandlingId(behandlingId)
             .medVenterKvittering(Boolean.TRUE)
+            .medProsessTaskId(input.getProsessTaskId())
             .build();
     }
 }

@@ -6,12 +6,12 @@ import java.util.Optional;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
-class FastsettOppdragskontroll {
+public class FastsettOppdragskontroll {
     private FastsettOppdragskontroll() {
         // skjul default constructor
     }
 
-    static Oppdragskontroll finnEllerOpprett(List<Oppdragskontroll> tidligereOppdragListe, Long behandlingId,
+    public static Oppdragskontroll finnEllerOpprett(List<Oppdragskontroll> tidligereOppdragListe, Long behandlingId,
                                              Long prosessTaskId, Saksnummer saksnummer) {
         Optional<Oppdragskontroll> oppdragskontrollForBehandlingOpt = tidligereOppdragListe.stream()
             .filter(oppdragskontroll -> behandlingId.equals(oppdragskontroll.getBehandlingId()))
