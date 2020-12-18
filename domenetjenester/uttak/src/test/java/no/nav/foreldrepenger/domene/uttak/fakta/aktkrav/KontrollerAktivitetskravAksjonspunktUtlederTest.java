@@ -317,6 +317,18 @@ public class KontrollerAktivitetskravAksjonspunktUtlederTest {
         assertThat(ap).isEmpty();
     }
 
+    @Test
+    public void ikkeUtledeHvisPeriodeUtenVirkedager() {
+        var fødselsdato = LocalDate.of(2020, 12, 19);
+        var søknadsperiode = fellesperiode(fødselsdato, fødselsdato);
+        var behandlingReferanse = farBehandling(søknadsperiode);
+        var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
+        var uttakInput = uttakInput(behandlingReferanse, familieHendelse);
+        var ap = utleder.utledFor(uttakInput);
+
+        assertThat(ap).isEmpty();
+    }
+
     private OppgittPeriodeEntitet fellesperiode(LocalDate fom, LocalDate tom) {
         return OppgittPeriodeBuilder.ny()
             .medPeriode(fom, tom)

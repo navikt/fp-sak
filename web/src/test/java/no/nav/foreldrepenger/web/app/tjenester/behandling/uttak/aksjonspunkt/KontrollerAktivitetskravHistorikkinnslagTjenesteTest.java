@@ -64,4 +64,28 @@ class KontrollerAktivitetskravHistorikkinnslagTjenesteTest {
         assertThat(historikk).hasSize(1);
         assertThat(historikk.get(0).getHistorikkinnslagDeler()).hasSize(2);
     }
+
+    @Test
+    public void ikkeOppretterHistorikkinnslagHvisIngenEndring(EntityManager entityManager) {
+        var repository = new HistorikkRepository(entityManager);
+        var adapter = new HistorikkTjenesteAdapter(repository, null);
+        var tjeneste = new KontrollerAktivitetskravHistorikkinnslagTjeneste(adapter);
+        var behandling = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .lagre(new BehandlingRepositoryProvider(entityManager));
+
+        var periode1 = new KontrollerAktivitetskravPeriodeDto();
+        periode1.setBegrunnelse("begrunnelse1");
+        periode1.setAvklaring(I_AKTIVITET);
+        periode1.setFom(LocalDate.now());
+        periode1.setTom(LocalDate.now().plusDays(1));
+
+        var dto = new KontrollerAktivitetskravDto();
+        dto.setAvklartePerioder(List.of(periode1));
+        var eksisterendePeriode1 = new AktivitetskravPeriodeEntitet(periode1.getFom(), periode1.getTom(), periode1.getAvklaring(),
+            periode1.getBegrunnelse());
+        tjeneste.opprettHistorikkinnslag(behandling.getId(), dto, List.of(eksisterendePeriode1));
+
+        var historikk = repository.hentHistorikk(behandling.getId());
+        assertThat(historikk).isEmpty();
+    }
 }
