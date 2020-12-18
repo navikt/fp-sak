@@ -26,6 +26,7 @@ import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
+import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
 
 @ApplicationScoped
 public class KontrollerAktivitetskravAksjonspunktUtleder {
@@ -58,20 +59,31 @@ public class KontrollerAktivitetskravAksjonspunktUtleder {
                                                                                      YtelseFordelingAggregat ytelseFordelingAggregat,
                                                                                      FamilieHendelse familieHendelse,
                                                                                      boolean annenForelderHarRett) {
+        if (helePeriodenErHelg(periode)) {
+            return ikkeKontrollerer();
+        }
         if (erMor(behandlingReferanse) || UttakOmsorgUtil.harAleneomsorg(ytelseFordelingAggregat)
             || familieHendelse.erStebarnsadopsjon() || MorsAktivitet.UFØRE.equals(periode.getMorsAktivitet())) {
-            return new SkalKontrollereAktiviteskravResultat(false, Set.of());
+            return ikkeKontrollerer();
         }
         var periodeType = periode.getPeriodeType();
         var harKravTilAktivitet =
             !periode.isFlerbarnsdager() && (periodeType.equals(UttakPeriodeType.FELLESPERIODE) || periodeType.equals(
                 UttakPeriodeType.FORELDREPENGER) || bareFarHarRettOgSøkerUtsettelse(periode, annenForelderHarRett));
         if (!harKravTilAktivitet) {
-            return new SkalKontrollereAktiviteskravResultat(false, Set.of());
+            return ikkeKontrollerer();
         }
 
         var avklaring = finnAvklartePerioderSomDekkerSøknadsperiode(periode, ytelseFordelingAggregat);
         return new SkalKontrollereAktiviteskravResultat(true, avklaring);
+    }
+
+    private static boolean helePeriodenErHelg(OppgittPeriodeEntitet periode) {
+        return Virkedager.beregnAntallVirkedager(periode.getFom(), periode.getTom()) == 0;
+    }
+
+    private static SkalKontrollereAktiviteskravResultat ikkeKontrollerer() {
+        return new SkalKontrollereAktiviteskravResultat(false, Set.of());
     }
 
     private static boolean bareFarHarRettOgSøkerUtsettelse(OppgittPeriodeEntitet periode,
