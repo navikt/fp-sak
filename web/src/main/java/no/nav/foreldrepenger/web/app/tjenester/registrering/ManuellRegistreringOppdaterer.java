@@ -27,6 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -78,11 +79,10 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
             final ManuellRegistreringAksjonspunktDto adapter = new ManuellRegistreringAksjonspunktDto(!dto.getUfullstendigSoeknad());
             dokumentRegistrererTjeneste.aksjonspunktManuellRegistrering(behandling, adapter)
                 .ifPresent(ad -> resultatBuilder.medEkstraAksjonspunktResultat(ad, AksjonspunktStatus.OPPRETTET));
-
-            param.getVilkårResultatBuilder().leggTilVilkårResultatManueltIkkeVurdert(VilkårType.SØKERSOPPLYSNINGSPLIKT);
-
             lagHistorikkInnslag(behandlingId, HistorikkinnslagType.MANGELFULL_SØKNAD, null);
-            return resultatBuilder.medFremoverHopp(FellesTransisjoner.FREMHOPP_TIL_KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT).build();
+            return resultatBuilder
+                .leggTilVilkårResultat(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.IKKE_VURDERT)
+                .medFremoverHopp(FellesTransisjoner.FREMHOPP_TIL_KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT).build();
         }
 
         ManuellRegistreringValidator.validerOpplysninger(dto);

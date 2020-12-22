@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat.Builder;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.Foreldreansvarsvilkår1AksjonspunktDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.Foreldreansvarsvilkår2AksjonspunktDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.OmsorgsvilkårAksjonspunktDto;
@@ -57,13 +58,11 @@ public abstract class OmsorgsvilkårAksjonspunktOppdaterer implements Aksjonspun
         // Rydd opp gjenopprettede aksjonspunkt på andre omsorgsvilkår ved eventuelt tilbakehopp
         omsorghendelseTjeneste.aksjonspunktOmsorgsvilkår(behandling, aksjonspunktDefinisjon, resultatBuilder);
 
-        Builder vilkårBuilder = param.getVilkårResultatBuilder();
         if (dto.getErVilkarOk()) {
-            vilkårBuilder.leggTilVilkårResultatManueltOppfylt(vilkårType);
+            resultatBuilder.leggTilVilkårResultat(vilkårType, VilkårUtfallType.OPPFYLT);
             return resultatBuilder.medTotrinn().build();
         } else {
-            vilkårBuilder.leggTilVilkårResultatManueltIkkeOppfylt(vilkårType, Avslagsårsak.fraKode(dto.getAvslagskode()));
-            vilkårBuilder.medVilkårResultatType(VilkårResultatType.AVSLÅTT);
+            resultatBuilder.leggTilAvslåttVilkårResultat(vilkårType, Avslagsårsak.fraKode(dto.getAvslagskode()));
 
             return resultatBuilder.medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR).build();
         }
