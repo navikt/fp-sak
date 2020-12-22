@@ -36,7 +36,7 @@ public class ArbeidsforholdDto {
     private String begrunnelse;
 
     @Min(0)
-    @Max(150)
+    @Max(500)
     @Digits(integer = 3, fraction = 2)
     private BigDecimal stillingsprosent;
 
