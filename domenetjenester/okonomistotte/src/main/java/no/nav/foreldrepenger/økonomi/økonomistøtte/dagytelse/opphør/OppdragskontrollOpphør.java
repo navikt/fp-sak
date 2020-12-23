@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragsmottakerStatus;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollManager;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.Oppdragsmottaker;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OpprettOppdragTjeneste;
@@ -112,6 +113,8 @@ public class OppdragskontrollOpphør implements OppdragskontrollManager {
         int iter = 0;
         Oppdrag110 nyOppdrag110 = null;
         for (Map.Entry<String, List<Oppdragslinje150>> opp150ListePerKlassekode : opp150ListePerKlassekodeMap.entrySet()) {
+            if (OpphørUtil.erBrukerAllredeFullstendigOpphørtForKlassekode(behandlingInfo, ØkonomiKodeKlassifik.fraKode(opp150ListePerKlassekode.getKey())))
+                continue;
             List<Oppdragslinje150> opp150MedSammeKlassekodeListe = opp150ListePerKlassekode.getValue();
             Optional<Oppdragslinje150> sisteOppdr150BrukerOpt = opp150MedSammeKlassekodeListe
                 .stream()
