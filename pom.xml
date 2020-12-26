@@ -56,7 +56,7 @@
         <kalkulus.version>1.1-2020.12.16.133538-0054ecc</kalkulus.version>
         <abakus-kontrakt.version>1.2-2020.11.30.143424-850e2f9</abakus-kontrakt.version>
 
-        <swaggercore.version>2.1.5</swaggercore.version>
+        <swaggercore.version>2.1.6</swaggercore.version>
     </properties>
 
     <prerequisites>
