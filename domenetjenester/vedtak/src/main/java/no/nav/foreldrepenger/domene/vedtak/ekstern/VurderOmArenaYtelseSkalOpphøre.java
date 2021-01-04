@@ -29,6 +29,8 @@ import no.nav.foreldrepenger.domene.iay.modell.YtelseFilter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
+import no.nav.fpsak.tidsserie.LocalDateSegment;
+import no.nav.fpsak.tidsserie.LocalDateTimeline;
 
 @ApplicationScoped
 public class VurderOmArenaYtelseSkalOpphøre {
@@ -86,6 +88,16 @@ public class VurderOmArenaYtelseSkalOpphøre {
         LocalDate senesteInputDato = vedtaksDato.isAfter(førsteAnvistDatoFP) ? vedtaksDato : førsteAnvistDatoFP;
         var arenaYtelser = hentArenaYtelser(behandlingId, aktørId, senesteInputDato);
 
+        var arenaTimeline = new LocalDateTimeline<>(arenaYtelser.stream()
+            .map(Ytelse::getPeriode)
+            .map(p -> new LocalDateSegment<>(p.getFomDato(), p.getTomDato(), Boolean.TRUE))
+            .collect(Collectors.toList()));
+        var overlapp = lagTidslinjeFP(behandlingId).intersection(arenaTimeline).compress();
+
+        // Ingen overlapp VL / Arena
+        if (overlapp.getLocalDateIntervals().isEmpty())
+            return false;
+
         // Ser både på løpende og avsluttede vedtak som overlapper første anvist dato
         if (!finnesYtelseVedtakPåEtterStartdato(arenaYtelser, førsteAnvistDatoFP)) {
             return false;
@@ -111,6 +123,15 @@ public class VurderOmArenaYtelseSkalOpphøre {
         return ytelseFilter
             .filter(y -> Fagsystem.ARENA.equals(y.getKilde()))
             .getFiltrertYtelser();
+    }
+
+    private LocalDateTimeline<Boolean> lagTidslinjeFP(Long behandlingId) {
+        var segmenter = beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId)
+            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
+            .filter(brp -> brp.getDagsats() > 0)
+            .map(brp -> new LocalDateSegment<>(brp.getBeregningsresultatPeriodeFom(), brp.getBeregningsresultatPeriodeTom(), Boolean.TRUE))
+            .collect(Collectors.toList());
+        return new LocalDateTimeline<>(segmenter);
     }
 
     private Optional<LocalDate> finnFørsteAnvistDatoFP(Long behandlingId) {
@@ -149,9 +170,9 @@ public class VurderOmArenaYtelseSkalOpphøre {
             return Optional.of(sisteAnvisteDatoArena.plus(MELDEKORT_PERIODE));
         }
         nesteAnvistDato = ytelser.stream()
-            .filter(y -> y.getPeriode().getFomDato().isAfter(vedtaksdato))
             .map(Ytelse::getPeriode)
             .map(DatoIntervallEntitet::getFomDato)
+            .filter(fom -> fom.isAfter(vedtaksdato))
             .min(Comparator.naturalOrder());
         return nesteAnvistDato;
     }
