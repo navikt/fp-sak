@@ -50,7 +50,6 @@ public class OppdragPostConditionTjeneste {
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
     private ØkonomioppdragRepository økonomioppdragRepository;
-    private FagsakRepository fagsakRepository;
     private FamilieHendelseRepository familieHendelseRepository;
 
     OppdragPostConditionTjeneste() {
@@ -58,11 +57,10 @@ public class OppdragPostConditionTjeneste {
     }
 
     @Inject
-    public OppdragPostConditionTjeneste(BehandlingRepository behandlingRepository, BeregningsresultatRepository beregningsresultatRepository, ØkonomioppdragRepository økonomioppdragRepository, FagsakRepository fagsakRepository, FamilieHendelseRepository familieHendelseRepository) {
+    public OppdragPostConditionTjeneste(BehandlingRepository behandlingRepository, BeregningsresultatRepository beregningsresultatRepository, ØkonomioppdragRepository økonomioppdragRepository, FamilieHendelseRepository familieHendelseRepository) {
         this.behandlingRepository = behandlingRepository;
         this.beregningsresultatRepository = beregningsresultatRepository;
         this.økonomioppdragRepository = økonomioppdragRepository;
-        this.fagsakRepository = fagsakRepository;
         this.familieHendelseRepository = familieHendelseRepository;
     }
 
@@ -101,9 +99,8 @@ public class OppdragPostConditionTjeneste {
     private Map<Betalingsmottaker, TilkjentYtelseDifferanse> sammenlignEffektAvOppdragMedTilkjentYtelse(Behandling behandling, BeregningsresultatEntitet beregningsresultat) {
         Saksnummer saksnummer = behandling.getFagsak().getSaksnummer();
         List<Oppdragskontroll> oppdragene = økonomioppdragRepository.finnAlleOppdragForSak(saksnummer);
-        Fagsak sak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElseThrow();
         Map<KjedeNøkkel, OppdragKjede> oppdragskjeder = EksisterendeOppdragMapper.tilKjeder(oppdragene);
-        GruppertYtelse målbilde = TilkjentYtelseMapper.lagFor(sak.getYtelseType(), finnFamilieYtelseType(behandling)).fordelPåNøkler(beregningsresultat);
+        GruppertYtelse målbilde = TilkjentYtelseMapper.lagFor(behandling.getFagsak().getYtelseType(), finnFamilieYtelseType(behandling)).fordelPåNøkler(beregningsresultat);
 
         Set<KjedeNøkkel> alleKjedenøkler = SetUtil.union(oppdragskjeder.keySet(), målbilde.getNøkler());
         Set<Betalingsmottaker> betalingsmottakere = alleKjedenøkler.stream().map(KjedeNøkkel::getBetalingsmottaker).collect(Collectors.toSet());
