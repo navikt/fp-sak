@@ -12,8 +12,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndr
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ApplicationScoped
@@ -35,15 +35,18 @@ public class BekreftSvangerskapspengervilkårOppdaterer implements AksjonspunktO
     public OppdateringResultat oppdater(BekreftSvangerskapspengervilkårDto dto, AksjonspunktOppdaterParameter param) {
         boolean vilkårOppfylt = dto.getAvslagskode() == null;
         lagHistorikkinnslag(dto.getBegrunnelse(), vilkårOppfylt);
-        VilkårResultat.Builder vilkårBuilder = param.getVilkårResultatBuilder();
         if (vilkårOppfylt) {
             //TODO ikke gå til totrinn når innvilgesbrev fungerer
-            vilkårBuilder.leggTilVilkårResultatManueltOppfylt(VilkårType.SVANGERSKAPSPENGERVILKÅR);
-            return OppdateringResultat.utenTransisjon().medTotrinn().build();
+            return OppdateringResultat.utenTransisjon()
+                .leggTilVilkårResultat(VilkårType.SVANGERSKAPSPENGERVILKÅR, VilkårUtfallType.OPPFYLT)
+                .medTotrinn().build();
         } else {
             Avslagsårsak avslagsårsak = Avslagsårsak.fraKode(dto.getAvslagskode());
-            vilkårBuilder.leggTilVilkårResultatManueltIkkeOppfylt(VilkårType.SVANGERSKAPSPENGERVILKÅR, avslagsårsak);
-            return OppdateringResultat.medFremoverHoppTotrinn(FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT);
+            return new OppdateringResultat.Builder()
+                .medFremoverHopp(FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT)
+                .medTotrinn()
+                .leggTilAvslåttVilkårResultat(VilkårType.SVANGERSKAPSPENGERVILKÅR, avslagsårsak)
+                .build();
         }
     }
 

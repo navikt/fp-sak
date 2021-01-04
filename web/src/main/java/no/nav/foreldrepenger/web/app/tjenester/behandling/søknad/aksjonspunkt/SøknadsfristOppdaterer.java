@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.aksjonspunkt;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.SØKNADSFRISTVILKÅRET;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad.VM_5007;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -14,9 +15,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndr
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat.Builder;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ApplicationScoped
@@ -39,16 +39,16 @@ public class SøknadsfristOppdaterer implements AksjonspunktOppdaterer<Soknadsfr
                 .medBegrunnelse(dto.getBegrunnelse(), param.erBegrunnelseEndret())
                 .medSkjermlenke(SkjermlenkeType.SOEKNADSFRIST);
 
-        Builder vilkårBuilder = param.getVilkårResultatBuilder();
         if (dto.getErVilkarOk()) {
-            vilkårBuilder.leggTilVilkårResultatManueltOppfylt(VilkårType.SØKNADSFRISTVILKÅRET);
-
-            return OppdateringResultat.utenOveropp();
+            return new OppdateringResultat.Builder()
+                .leggTilVilkårResultat(SØKNADSFRISTVILKÅRET, VilkårUtfallType.OPPFYLT)
+                .build();
         } else {
-            vilkårBuilder.leggTilVilkårResultatManueltIkkeOppfylt(VilkårType.SØKNADSFRISTVILKÅRET, VM_5007, Avslagsårsak.SØKT_FOR_SENT);
-            vilkårBuilder.medVilkårResultatType(VilkårResultatType.AVSLÅTT);
-
-            return OppdateringResultat.medFremoverHopp(FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT);
+            return OppdateringResultat.utenTransisjon()
+                .medFremoverHopp(FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT)
+                .leggTilAvslåttVilkårResultat(SØKNADSFRISTVILKÅRET,  Avslagsårsak.SØKT_FOR_SENT, VM_5007)
+                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
+                .build();
         }
     }
 }

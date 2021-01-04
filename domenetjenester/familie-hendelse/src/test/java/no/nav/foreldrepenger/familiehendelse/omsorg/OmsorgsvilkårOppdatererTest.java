@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFelt;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.OmsorgsvilkårAksjonspunktOppdaterer;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.OmsorgsvilkårAksjonspunktDto;
@@ -62,7 +61,7 @@ public class OmsorgsvilkårOppdatererTest {
         boolean oppdatertOmsorgsvilkårOk = true;
         OmsorgsvilkårAksjonspunktDto dto = new OmsorgsvilkårAksjonspunktDto("begrunnelse", oppdatertOmsorgsvilkårOk, "avslagkode");
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
-        omsorgsvilkarOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, null, VilkårResultat.builder(), dto));
+        omsorgsvilkarOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, null, dto));
         Historikkinnslag historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
         List<HistorikkinnslagDel> historikkInnslag = tekstBuilder.build(historikkinnslag);

@@ -18,9 +18,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat.Builder;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.VurdereYtelseSammeBarnAnnenForelderAksjonspunktDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.VurdereYtelseSammeBarnSøkerAksjonspunktDto;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
@@ -48,19 +47,15 @@ public abstract class VurdereYtelseSammeBarnOppdaterer implements AksjonspunktOp
         if (relevantVilkår.isPresent()) {
             Vilkår vilkår = relevantVilkår.get();
             boolean totrinn = endringsHåndtering(behandling, vilkår, dto, finnTekstForFelt(vilkår), param);
-            Builder vilkårBuilder = param.getVilkårResultatBuilder();
             if (dto.getErVilkarOk()) {
-                vilkårBuilder.leggTilVilkårResultatManueltOppfylt(vilkår.getVilkårType());
-
-                return OppdateringResultat.utenTransisjon().medTotrinnHvis(totrinn).build();
+                var resultatBuilder = OppdateringResultat.utenTransisjon();
+                resultatBuilder.leggTilVilkårResultat(vilkår.getVilkårType(), VilkårUtfallType.OPPFYLT);
+                return resultatBuilder.medTotrinnHvis(totrinn).build();
             } else {
-                Avslagsårsak avslagsårsak = dto.getAvslagskode() == null ? null
-                        : Avslagsårsak.fraKode(dto.getAvslagskode());
-                vilkårBuilder.leggTilVilkårResultatManueltIkkeOppfylt(vilkår.getVilkårType(), avslagsårsak);
-
-                vilkårBuilder.medVilkårResultatType(VilkårResultatType.AVSLÅTT);
-
-                return OppdateringResultat.medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR);
+                var resultatBuilder = OppdateringResultat.utenTransisjon();
+                var avslagsårsak = dto.getAvslagskode() == null ? null : Avslagsårsak.fraKode(dto.getAvslagskode());
+                resultatBuilder.leggTilAvslåttVilkårResultat(vilkår.getVilkårType(), avslagsårsak);
+                return resultatBuilder.medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR).build();
             }
         }
         return OppdateringResultat.utenOveropp();

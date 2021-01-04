@@ -126,7 +126,7 @@ public class KontrollerAktivitetskravOppdatererTest {
     }
 
     private OppdateringResultat kjørOppdaterer(KontrollerAktivitetskravDto dto, Behandling behandling) {
-        var param = new AksjonspunktOppdaterParameter(behandling, null, null, null);
+        var param = new AksjonspunktOppdaterParameter(behandling, null, null, "");
         return oppdaterer.oppdater(dto, param);
     }
 }

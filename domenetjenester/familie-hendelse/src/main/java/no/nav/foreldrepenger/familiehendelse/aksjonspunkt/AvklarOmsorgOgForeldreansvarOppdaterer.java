@@ -122,18 +122,18 @@ public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppda
         // Vilkår
         VilkårType vilkårType = VilkårType.fraKode(dto.getVilkårType().getKode());
 
-        Builder vilkårBuilder = param.getVilkårResultatBuilder();
-        vilkårBuilder.leggTilVilkår(vilkårType, VilkårUtfallType.IKKE_VURDERT);
+        builder.leggTilVilkårResultat(vilkårType, VilkårUtfallType.IKKE_VURDERT);
 
         Behandling behandling = param.getBehandling();
         // Rydd opp i eventuelle omsorgsvilkår som er tidligere lagt til
         var behandlingResultat = getBehandlingsresultat(param.getBehandlingId());
+
         if (behandlingResultat != null) {
             behandlingResultat.getVilkårResultat().getVilkårene().stream()
                 .filter(vilkår -> OmsorgsvilkårKonfigurasjon.getOmsorgsovertakelseVilkår().contains(vilkår.getVilkårType()))
                 // Men uten å fjerne seg selv
                 .filter(vilkår -> !vilkår.getVilkårType().getKode().equals(omsorgsovertakelseVilkårType.getKode()))
-                .forEach(fjernet -> vilkårBuilder.fjernVilkår(fjernet.getVilkårType()));
+                .forEach(fjernet -> builder.fjernVilkårType(fjernet.getVilkårType()));
         }
         AksjonspunktDefinisjon aksjonspunktDefinisjon = AksjonspunktDefinisjon.fraKode(dto.getKode());
         behandling.getAksjonspunkter().stream()

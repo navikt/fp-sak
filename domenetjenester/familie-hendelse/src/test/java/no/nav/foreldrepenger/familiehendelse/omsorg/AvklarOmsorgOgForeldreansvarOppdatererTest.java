@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -200,8 +201,26 @@ public class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwa
 
     private OppdateringResultat avklarOmsorgOgForeldreansvar(Behandling behandling, AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto dto) {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
-        return new AvklarOmsorgOgForeldreansvarOppdaterer(repositoryProvider, skjæringstidspunktTjeneste, omsorghendelseTjeneste, lagMockHistory())
-            .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, null, vilkårBuilder, dto));
+        OppdateringResultat resultat = new AvklarOmsorgOgForeldreansvarOppdaterer(repositoryProvider, skjæringstidspunktTjeneste, omsorghendelseTjeneste, lagMockHistory())
+            .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, null, dto));
+        byggVilkårResultat(vilkårBuilder, resultat);
+        return resultat;
+    }
+
+    private void byggVilkårResultat(VilkårResultat.Builder vilkårBuilder, OppdateringResultat delresultat) {
+        delresultat.getVilkårResultatSomSkalLeggesTil().forEach(v -> vilkårBuilder.leggTilVilkårResultat(
+            v.getVilkårType(),
+            v.getVilkårUtfallType(),
+            v.getVilkårUtfallMerknad(),
+            new Properties(),
+            v.getAvslagsårsak(),
+            true,
+            false,
+            null, null));
+        delresultat.getVilkårTyperSomSkalFjernes().forEach(vilkårBuilder::fjernVilkår); // TODO: Vilkår burde ryddes på ein annen måte enn dette
+        if (delresultat.getVilkårResultatType() != null) {
+            vilkårBuilder.medVilkårResultatType(delresultat.getVilkårResultatType());
+        }
     }
 
     @Test

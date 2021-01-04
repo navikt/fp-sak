@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -364,9 +365,10 @@ public class AksjonspunktTjeneste {
             .orElseThrow(() -> new IllegalStateException("Utvikler-feil: Har ikke aksjonspunkt av type: " + dto.getKode()));
 
         AksjonspunktOppdaterer<BekreftetAksjonspunktDto> oppdaterer = finnAksjonspunktOppdaterer(dto.getClass(), dto.getKode());
-        AksjonspunktOppdaterParameter param = new AksjonspunktOppdaterParameter(behandling, Optional.of(aksjonspunkt), skjæringstidspunkter, vilkårBuilder, dto);
+        AksjonspunktOppdaterParameter param = new AksjonspunktOppdaterParameter(behandling, Optional.of(aksjonspunkt), skjæringstidspunkter, dto);
         OppdateringResultat delresultat = oppdaterer.oppdater(dto, param);
         overhoppResultat.leggTil(delresultat);
+        byggVilkårResultat(vilkårBuilder, delresultat);
 
         if (delresultat.kreverTotrinnsKontroll()) {
             aksjonspunktRepository.setToTrinnsBehandlingKreves(aksjonspunkt);
@@ -374,6 +376,29 @@ public class AksjonspunktTjeneste {
 
         if (!aksjonspunkt.erAvbrutt() && delresultat.skalUtføreAksjonspunkt()) {
             behandlingskontrollTjeneste.lagreAksjonspunkterUtført(kontekst, behandling.getAktivtBehandlingSteg(), aksjonspunkt, dto.getBegrunnelse());
+        }
+    }
+
+    private void byggVilkårResultat(Builder vilkårBuilder, OppdateringResultat delresultat) {
+        delresultat.getVilkårResultatSomSkalLeggesTil().forEach(v -> {
+            boolean erManueltVurdert = true;
+            boolean erOverstyrt = false;
+            String regelEvaluering = null;
+            String regelInput = null;
+            vilkårBuilder.leggTilVilkårResultat(
+                v.getVilkårType(),
+                v.getVilkårUtfallType(),
+                v.getVilkårUtfallMerknad(),
+                new Properties(),
+                v.getAvslagsårsak(),
+                erManueltVurdert,
+                erOverstyrt,
+                regelEvaluering,
+                regelInput);
+        });
+        delresultat.getVilkårTyperSomSkalFjernes().forEach(vilkårBuilder::fjernVilkår); // TODO: Vilkår burde ryddes på ein annen måte enn dette
+        if (delresultat.getVilkårResultatType() != null) {
+            vilkårBuilder.medVilkårResultatType(delresultat.getVilkårResultatType());
         }
     }
 
