@@ -128,7 +128,8 @@ public class AutomatiskEtterkontrollTaskTest {
     private void assertIngenRevurdering(Behandling behandling) {
         Optional<Behandling> revurdering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(
                 behandling.getFagsakId(),
-                BehandlingType.REVURDERING);
+                BehandlingType.REVURDERING)
+            .filter(b -> !b.harBehandlingÅrsak(BehandlingÅrsakType.RE_SATS_REGULERING));
         assertThat(revurdering).as("Har revurdering: " + behandling).isNotPresent();
     }
 
