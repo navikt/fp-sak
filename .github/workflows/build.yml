@@ -37,7 +37,7 @@ jobs:
         id: oracle
         shell: bash
         run: |
-          echo  $GITHUB_TOKEN | docker login --username "x-access-token" --password-stdin https://docker.pkg.github.com
+          echo  $GITHUB_TOKEN | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
           echo "Henter og starter Oracle image"
           cd oracle
           docker-compose up --quiet-pull > nohup.out 2>&1 &
@@ -65,17 +65,12 @@ jobs:
           docker stop oracle
           docker system prune -f
 
-      - name: Bygg og push docker-image for distribuering
-        if: success()
-        uses: whoan/docker-build-with-cache-action@v5.8.0
-        with:
-          username: x-access-token
-          password: ${{ secrets.GH_ACCESS_TOKEN }}
-          image_name: ${{ github.repository }}/fpsak
-          image_tag: ${{ env.TAG }},latest
-          push_git_tag: true
-          registry: docker.pkg.github.com
-        
+      - name: Bygg, tag og push Docker image
+        run: |
+          docker build --pull --tag ${IMAGE_BASE}:${TAG} --tag ${IMAGE_BASE}:latest .
+          echo  $GITHUB_TOKEN | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
+          docker push ${IMAGE_BASE}
+
       - name: Lukk gamle deployment-issues
         uses: actions/github-script@v3
         with:
@@ -95,8 +90,8 @@ jobs:
                   state: 'closed'
                 });
               });
-            });  
-          
+            });
+
       -  name: Opprett deployment issue
          id: createdeployissue
          if: success()
@@ -111,9 +106,9 @@ jobs:
                  title: 'Deploy av ${{ env.TAG }}'})
                .then(response => {
                        core.setOutput('number', response.data.number);
-                });      
-            
-      - name: Trigger autotest for fpsak/fpabakus
+                });
+
+      - name: Trigger autotest for fpsak
         if: success()
         uses: peter-evans/repository-dispatch@v1
         with:
@@ -131,5 +126,5 @@ jobs:
           event-type: fpsak-verdikjede
           client-payload: '{ "trigger": "${{ github.repository }}", "version": "${{ env.TAG }}", "issue-number": "${{ steps.createdeployissue.outputs.number }}" }'
 
-      
+
 
