@@ -2209,6 +2209,184 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
     }
     
     /**
+     * Prodscenario der ytelse omfordeles fra 1 ag til bruker, deretter omfordeles den andre ag til bruker. Oppretter ikke 110 for siste revurdering.
+     */
+    @Test
+    public void skalSendeOmfordeleFlereArbeidsgivereSerielt() {
+        // Arrange
+        LocalDate b10fom = LocalDate.of(I_ÅR-1, 11, 2);
+        LocalDate b10tom = LocalDate.of(I_ÅR-1, 11, 19);
+        LocalDate b20fom = LocalDate.of(I_ÅR-1, 11, 20);
+        LocalDate b20tom = LocalDate.of(I_ÅR-1, 11, 30);
+        LocalDate b21fom = LocalDate.of(I_ÅR-1, 12, 1);
+        LocalDate b21tom = LocalDate.of(I_ÅR-1, 12, 31);
+        LocalDate b30fom = LocalDate.of(I_ÅR, 1, 1);
+        LocalDate b30tom = LocalDate.of(I_ÅR, 3, 4);
+        LocalDate b40fom = LocalDate.of(I_ÅR, 3, 5);
+        LocalDate b40tom = LocalDate.of(I_ÅR, 5, 28);
+
+        BeregningsresultatEntitet beregningsresultat = BeregningsresultatEntitet.builder()
+            .medRegelInput("clob1")
+            .medRegelSporing("clob2")
+            .build();
+        BeregningsresultatPeriode brPeriode1 = buildBeregningsresultatPeriode(beregningsresultat, b10fom, b10tom.plusDays(1));
+        buildBeregningsresultatAndel(brPeriode1, false, 789, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brPeriode1, false, 154, BigDecimal.valueOf(100), virksomhet2);
+        buildBeregningsresultatAndel(brPeriode1, true, 0, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brPeriode1, true, 0, BigDecimal.valueOf(100), virksomhet2);
+        BeregningsresultatPeriode brPeriode2 = buildBeregningsresultatPeriode(beregningsresultat, b20fom.plusDays(3), b21tom.plusDays(2));
+        buildBeregningsresultatAndel(brPeriode2, false, 789, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brPeriode2, false, 154, BigDecimal.valueOf(100), virksomhet2);
+        buildBeregningsresultatAndel(brPeriode2, true, 0, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brPeriode2, true, 0, BigDecimal.valueOf(100), virksomhet2);
+        BeregningsresultatPeriode brPeriode3 = buildBeregningsresultatPeriode(beregningsresultat, b30fom.plusDays(2), b30tom.plusDays(1));
+        buildBeregningsresultatAndel(brPeriode3, false, 789, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brPeriode3, false, 154, BigDecimal.valueOf(100), virksomhet2);
+        buildBeregningsresultatAndel(brPeriode3, true, 0, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brPeriode3, true, 0, BigDecimal.valueOf(100), virksomhet2);
+        BeregningsresultatPeriode brPeriode4 = buildBeregningsresultatPeriode(beregningsresultat, b40fom.plusDays(3), b40tom);
+        buildBeregningsresultatAndel(brPeriode4, false, 789, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brPeriode4, false, 154, BigDecimal.valueOf(100), virksomhet2);
+        buildBeregningsresultatAndel(brPeriode4, true, 0, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brPeriode4, true, 0, BigDecimal.valueOf(100), virksomhet2);
+
+        beregningsresultatRepository.lagre(behandling, beregningsresultat);
+        Oppdragskontroll oppdragskontroll = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+
+        // Arrange 1 - mindre revurdering
+
+        Behandling revurdering0 = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
+
+        BeregningsresultatEntitet brrevurdering0 = BeregningsresultatEntitet.builder()
+            .medRegelInput("clob1")
+            .medRegelSporing("clob2")
+            .medEndringsdato(b20fom.plusDays(1))
+            .build();
+        BeregningsresultatPeriode brR0Periode1 = buildBeregningsresultatPeriode(brrevurdering0, b10fom, b10tom);
+        buildBeregningsresultatAndel(brR0Periode1, false, 789, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brR0Periode1, false, 154, BigDecimal.valueOf(100), virksomhet2);
+        buildBeregningsresultatAndel(brR0Periode1, true, 0, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brR0Periode1, true, 0, BigDecimal.valueOf(100), virksomhet2);
+        BeregningsresultatPeriode brR0Periode2 = buildBeregningsresultatPeriode(brrevurdering0, b20fom, b21tom);
+        buildBeregningsresultatAndel(brR0Periode2, false, 789, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brR0Periode2, false, 154, BigDecimal.valueOf(100), virksomhet2);
+        buildBeregningsresultatAndel(brR0Periode2, true, 0, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brR0Periode2, true, 0, BigDecimal.valueOf(100), virksomhet2);
+        BeregningsresultatPeriode brR0Periode3 = buildBeregningsresultatPeriode(brrevurdering0, b30fom, b30tom);
+        buildBeregningsresultatAndel(brR0Periode3, false, 789, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brR0Periode3, false, 154, BigDecimal.valueOf(100), virksomhet2);
+        buildBeregningsresultatAndel(brR0Periode3, true, 0, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brR0Periode3, true, 0, BigDecimal.valueOf(100), virksomhet2);
+        BeregningsresultatPeriode brR0Periode4 = buildBeregningsresultatPeriode(brrevurdering0, b40fom, b40tom);
+        buildBeregningsresultatAndel(brR0Periode4, false, 789, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brR0Periode4, false, 154, BigDecimal.valueOf(100), virksomhet2);
+        buildBeregningsresultatAndel(brR0Periode4, true, 0, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brR0Periode4, true, 0, BigDecimal.valueOf(100), virksomhet2);
+
+        beregningsresultatRepository.lagre(revurdering0, brrevurdering0);
+
+        // Act
+        Oppdragskontroll oppdragRevurdering0 = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering0, 472L);
+
+        //Assert -- opphør av bruker
+        List<Oppdragslinje150> opp150RevurderingListe0 = oppdragRevurdering0.getOppdrag110Liste().stream()
+            .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
+            .collect(Collectors.toList());
+
+
+
+        // Arrange 2 - første revurdering med omfordeling av 1 ag til bruker
+
+        Behandling revurdering = opprettOgLagreRevurdering(revurdering0, VedtakResultatType.INNVILGET, false, true);
+
+        BeregningsresultatEntitet brrevurdering = BeregningsresultatEntitet.builder()
+            .medRegelInput("clob1")
+            .medRegelSporing("clob2")
+            .medEndringsdato(b20fom)
+            .build();
+        BeregningsresultatPeriode brRPeriode1 = buildBeregningsresultatPeriode(brrevurdering, b10fom, b10tom);
+        buildBeregningsresultatAndel(brRPeriode1, false, 789, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brRPeriode1, false, 154, BigDecimal.valueOf(100), virksomhet2);
+        buildBeregningsresultatAndel(brRPeriode1, true, 0, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brRPeriode1, true, 0, BigDecimal.valueOf(100), virksomhet2);
+        BeregningsresultatPeriode brRPeriode2a = buildBeregningsresultatPeriode(brrevurdering, b20fom, b20tom);
+        buildBeregningsresultatAndel(brRPeriode2a, false, 789, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brRPeriode2a, false, 154, BigDecimal.valueOf(100), virksomhet2);
+        buildBeregningsresultatAndel(brRPeriode2a, true, 0, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brRPeriode2a, true, 0, BigDecimal.valueOf(100), virksomhet2);
+        BeregningsresultatPeriode brRPeriode2b = buildBeregningsresultatPeriode(brrevurdering, b21fom, b21tom);
+        buildBeregningsresultatAndel(brRPeriode2b, false, 789, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brRPeriode2b, true, 154, BigDecimal.valueOf(100), virksomhet2);
+        buildBeregningsresultatAndel(brRPeriode2b, true, 0, BigDecimal.valueOf(100), virksomhet);
+        BeregningsresultatPeriode brRPeriode3 = buildBeregningsresultatPeriode(brrevurdering, b30fom, b30tom);
+        buildBeregningsresultatAndel(brRPeriode3, false, 789, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brRPeriode3, true, 0, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brRPeriode3, true, 154, BigDecimal.valueOf(100), virksomhet2);
+        BeregningsresultatPeriode brRPeriode4 = buildBeregningsresultatPeriode(brrevurdering, b40fom, b40tom);
+        buildBeregningsresultatAndel(brRPeriode4, false, 789, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brRPeriode4, true, 0, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brRPeriode4, true, 154, BigDecimal.valueOf(100), virksomhet2);
+
+        beregningsresultatRepository.lagre(revurdering, brrevurdering);
+
+        // Act
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering, 473L);
+
+        //Assert -- opphør av bruker
+        List<Oppdragslinje150> opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste().stream()
+            .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
+            .collect(Collectors.toList());
+
+        //assertThat(opp150RevurderingListe).hasSize(2); // Bruker + FP
+        //assertThat(opp150RevurderingListe).allSatisfy(linje -> assertThat(linje.gjelderOpphør()).isTrue());
+
+        // Arrange 3 - andre revurdering med omfordeling av andre ag til bruker
+
+        Behandling revurdering2 = opprettOgLagreRevurdering(revurdering, VedtakResultatType.INNVILGET, false, true);
+        BeregningsresultatEntitet brrevurdering2 = BeregningsresultatEntitet.builder()
+            .medRegelInput("clob1")
+            .medRegelSporing("clob2")
+            .medEndringsdato(b21fom)
+            .build();
+        BeregningsresultatPeriode brR2Periode1 = buildBeregningsresultatPeriode(brrevurdering2, b10fom, b10tom);
+        buildBeregningsresultatAndel(brR2Periode1, false, 789, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brR2Periode1, false, 154, BigDecimal.valueOf(100), virksomhet2);
+        buildBeregningsresultatAndel(brR2Periode1, true, 0, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brR2Periode1, true, 0, BigDecimal.valueOf(100), virksomhet2);
+        BeregningsresultatPeriode brR2Periode2a = buildBeregningsresultatPeriode(brrevurdering2, b20fom, b20tom);
+        buildBeregningsresultatAndel(brR2Periode2a, false, 789, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brR2Periode2a, false, 154, BigDecimal.valueOf(100), virksomhet2);
+        buildBeregningsresultatAndel(brR2Periode2a, true, 0, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brR2Periode2a, true, 0, BigDecimal.valueOf(100), virksomhet2);
+        BeregningsresultatPeriode brR2Periode2b = buildBeregningsresultatPeriode(brrevurdering2, b21fom, b21tom);
+        buildBeregningsresultatAndel(brR2Periode2b, true, 789, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brR2Periode2b, true, 154, BigDecimal.valueOf(100), virksomhet2);
+        BeregningsresultatPeriode brR2Periode3 = buildBeregningsresultatPeriode(brrevurdering2, b30fom, b30tom);
+        buildBeregningsresultatAndel(brR2Periode3, true, 789, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brR2Periode3, true, 154, BigDecimal.valueOf(100), virksomhet2);
+        BeregningsresultatPeriode brR2Periode4 = buildBeregningsresultatPeriode(brrevurdering2, b40fom, b40tom);
+        buildBeregningsresultatAndel(brR2Periode4, true, 789, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brR2Periode4, true, 154, BigDecimal.valueOf(100), virksomhet2);
+
+
+        beregningsresultatRepository.lagre(revurdering2, brrevurdering2);
+
+        // Act 3
+        Oppdragskontroll oppdragRevurdering2 = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering2,474L);
+
+        //Assert 3 -- alt opphøres
+        List<Oppdragslinje150> opp150RevurderingListe2 = oppdragRevurdering2.getOppdrag110Liste().stream()
+            .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
+            .collect(Collectors.toList());
+
+        assertThat(opp150RevurderingListe2).hasSize(2); // AG +  FP
+        assertThat(opp150RevurderingListe2).allSatisfy(l -> assertThat(l.gjelderOpphør()).isTrue());
+
+    }
+
+
+
+    /**
      * Prodscenario der bruker suksessivt mister ytelse. Til man til slutt står uten og det skal sendes opphørsoppdrag
      */
     @Test
