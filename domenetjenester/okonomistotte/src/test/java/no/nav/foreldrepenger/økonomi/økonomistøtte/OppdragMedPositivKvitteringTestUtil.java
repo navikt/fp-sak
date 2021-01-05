@@ -10,4 +10,11 @@ public class OppdragMedPositivKvitteringTestUtil {
         OppdragKvitteringTestUtil.lagPositiveKvitteringer(oppdragskontroll);
         return oppdragskontroll;
     }
+
+    public static Oppdragskontroll opprett(OppdragskontrollTjeneste oppdragskontrollTjeneste, Behandling behandling, Long ptid) {
+        Oppdragskontroll oppdragskontroll = oppdragskontrollTjeneste.opprettOppdrag(behandling.getId(), ptid).get();
+        oppdragskontrollTjeneste.lagre(oppdragskontroll);
+        OppdragKvitteringTestUtil.lagPositiveKvitteringer(oppdragskontroll);
+        return oppdragskontroll;
+    }
 }
