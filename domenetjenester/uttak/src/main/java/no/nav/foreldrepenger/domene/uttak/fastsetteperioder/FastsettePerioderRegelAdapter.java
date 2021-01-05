@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.FastsettePeriodeResul
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.FastsettePerioderRegelOrkestrering;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.RegelGrunnlag;
 import no.nav.foreldrepenger.regler.uttak.konfig.FeatureToggles;
-import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
 public class FastsettePerioderRegelAdapter {
@@ -63,11 +62,6 @@ public class FastsettePerioderRegelAdapter {
     }
 
     private static class FeatureTogglesImpl implements FeatureToggles {
-
-        @Override
-        public boolean automatisertAktivitetskrav() {
-            return true;
-        }
     }
 }
 
