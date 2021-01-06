@@ -31,6 +31,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
+import no.nav.fpsak.tidsserie.StandardCombinators;
 
 @ApplicationScoped
 public class VurderOmArenaYtelseSkalOpphøre {
@@ -91,7 +92,7 @@ public class VurderOmArenaYtelseSkalOpphøre {
         var arenaTimeline = new LocalDateTimeline<>(arenaYtelser.stream()
             .map(Ytelse::getPeriode)
             .map(p -> new LocalDateSegment<>(p.getFomDato(), p.getTomDato(), Boolean.TRUE))
-            .collect(Collectors.toList()));
+            .collect(Collectors.toList()), StandardCombinators::alwaysTrueForMatch);
         var overlapp = lagTidslinjeFP(behandlingId).intersection(arenaTimeline).compress();
 
         // Ingen overlapp VL / Arena
@@ -131,7 +132,7 @@ public class VurderOmArenaYtelseSkalOpphøre {
             .filter(brp -> brp.getDagsats() > 0)
             .map(brp -> new LocalDateSegment<>(brp.getBeregningsresultatPeriodeFom(), brp.getBeregningsresultatPeriodeTom(), Boolean.TRUE))
             .collect(Collectors.toList());
-        return new LocalDateTimeline<>(segmenter);
+        return new LocalDateTimeline<>(segmenter, StandardCombinators::alwaysTrueForMatch);
     }
 
     private Optional<LocalDate> finnFørsteAnvistDatoFP(Long behandlingId) {
