@@ -3,7 +3,7 @@ name: Bygg pull request
 on: [pull_request]
 
 env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
   TZ: "Europe/Oslo"
 
 jobs:
@@ -33,7 +33,7 @@ jobs:
         id: oracle
         shell: bash
         run: |
-          echo  $GITHUB_TOKEN | docker login --username "x-access-token" --password-stdin https://docker.pkg.github.com
+          echo  $GH_ACCESS_TOKEN | docker login --username "x-access-token" --password-stdin https://docker.pkg.github.com
           echo "Henter og starter Oracle image"
           cd oracle
           docker-compose up --quiet-pull > nohup.out 2>&1 &
