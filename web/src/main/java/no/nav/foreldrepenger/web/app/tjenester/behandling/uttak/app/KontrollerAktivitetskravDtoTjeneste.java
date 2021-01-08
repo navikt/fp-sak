@@ -1,8 +1,10 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -20,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakOmsorgUtil;
 import no.nav.foreldrepenger.domene.uttak.fakta.aktkrav.KontrollerAktivitetskravAksjonspunktUtleder;
+import no.nav.foreldrepenger.domene.uttak.input.Annenpart;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.KontrollerAktivitetskravPeriodeDto;
@@ -80,8 +83,8 @@ public class KontrollerAktivitetskravDtoTjeneste {
                         var dto = new KontrollerAktivitetskravPeriodeDto();
                         dto.setAvklaring(avklartPeriode.getAvklaring());
                         dto.setBegrunnelse(avklartPeriode.getBegrunnelse());
-                        dto.setFom(avklartPeriode.getTidsperiode().getFomDato());
-                        dto.setTom(avklartPeriode.getTidsperiode().getTomDato());
+                        dto.setFom(max(avklartPeriode.getTidsperiode().getFomDato(), søknadsperiode.getFom()));
+                        dto.setTom(min(avklartPeriode.getTidsperiode().getTomDato(), søknadsperiode.getTom()));
                         dto.setEndret(erEndretDenneBehandling(avklartPeriode, ytelseFordelingAggregat));
                         dto.setMorsAktivitet(søknadsperiode.getMorsAktivitet());
                         result.add(dto);
@@ -117,9 +120,18 @@ public class KontrollerAktivitetskravDtoTjeneste {
 
     private boolean harAnnenForelderRett(YtelseFordelingAggregat ytelseFordelingAggregat,
                                          ForeldrepengerGrunnlag ytelsespesifiktGrunnlag) {
-        var annenpart = ytelsespesifiktGrunnlag.getAnnenpart();
-        return UttakOmsorgUtil.harAnnenForelderRett(ytelseFordelingAggregat,
-            annenpart.isEmpty() ? Optional.empty() : foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(
-                annenpart.get().getGjeldendeVedtakBehandlingId()));
+        var annenpartUttak = ytelsespesifiktGrunnlag.getAnnenpart()
+            .map(Annenpart::getGjeldendeVedtakBehandlingId)
+            .flatMap(foreldrepengerUttakTjeneste::hentUttakHvisEksisterer);
+        return UttakOmsorgUtil.harAnnenForelderRett(ytelseFordelingAggregat, annenpartUttak);
+    }
+
+
+    private static LocalDate min(LocalDate a, LocalDate b) {
+        return a.isBefore(b) ? a : b;
+    }
+
+    private static LocalDate max(LocalDate a, LocalDate b) {
+        return a.isAfter(b) ? a : b;
     }
 }
