@@ -53,7 +53,7 @@
 
         <fp-kontrakter.version>5.1-20201118182725-764a023</fp-kontrakter.version>
         <tidsserie.version>2.5.5</tidsserie.version>
-        <kalkulus.version>1.1-2021.01.05.071710-48474c8</kalkulus.version>
+        <kalkulus.version>1.1-2021.01.08.135421-192be73</kalkulus.version>
         <abakus-kontrakt.version>1.2-2020.11.30.143424-850e2f9</abakus-kontrakt.version>
 
         <swaggercore.version>2.1.6</swaggercore.version>
