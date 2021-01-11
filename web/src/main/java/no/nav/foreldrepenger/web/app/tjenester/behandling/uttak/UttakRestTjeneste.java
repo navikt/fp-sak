@@ -160,7 +160,7 @@ public class UttakRestTjeneste {
 
     @GET
     @Path(KONTROLLER_AKTIVTETSKRAV_PART_PATH)
-    @Operation(description = "Hent perioder for å kontrollere aktivtetskrav", tags = "uttak")
+    @Operation(description = "Hent perioder for å kontrollere aktivitetskrav", tags = "uttak")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public List<KontrollerAktivitetskravPeriodeDto> hentKontrollerAktivitetskrav(
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
