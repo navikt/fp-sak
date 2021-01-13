@@ -45,6 +45,7 @@ import static org.mockito.Mockito.mock;
 @ExtendWith(FPsakEntityManagerAwareExtension.class)
 class KontrollerAktivitetskravDtoTjenesteTest {
 
+    private static final LocalDate DATO = LocalDate.of(2021, 1, 11);
     private BehandlingRepositoryProvider repositoryProvider;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private KontrollerAktivitetskravDtoTjeneste tjeneste;
@@ -53,11 +54,11 @@ class KontrollerAktivitetskravDtoTjenesteTest {
     void setUp(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         ytelsesFordelingRepository = new YtelsesFordelingRepository(entityManager);
-        YtelseFordelingTjeneste ytelseFordelingTjeneste = new YtelseFordelingTjeneste(ytelsesFordelingRepository);
+        var ytelseFordelingTjeneste = new YtelseFordelingTjeneste(ytelsesFordelingRepository);
         var foreldrepengerUttakTjeneste = new ForeldrepengerUttakTjeneste(new FpUttakRepository(entityManager));
         var andelGraderingTjeneste = new AndelGraderingTjeneste(
             foreldrepengerUttakTjeneste, ytelsesFordelingRepository);
-        UttakInputTjeneste uttakInputTjeneste = new UttakInputTjeneste(repositoryProvider, new HentOgLagreBeregningsgrunnlagTjeneste(entityManager),
+        var uttakInputTjeneste = new UttakInputTjeneste(repositoryProvider, new HentOgLagreBeregningsgrunnlagTjeneste(entityManager),
             new AbakusInMemoryInntektArbeidYtelseTjeneste(), new SkjæringstidspunktTjenesteImpl(repositoryProvider,
             new YtelseMaksdatoTjeneste(repositoryProvider, new RelatertBehandlingTjeneste(repositoryProvider)),
             new SkjæringstidspunktUtils()),
@@ -69,8 +70,8 @@ class KontrollerAktivitetskravDtoTjenesteTest {
     @Test
     public void skal_avgrense_avklart_periode_til_søknadsperiode() {
         var behandling = behandlingFraScenario();
-        var søknadFom = LocalDate.now().minusDays(10);
-        var søknadTom = LocalDate.now().plusDays(5);
+        var søknadFom = DATO.minusDays(10);
+        var søknadTom = DATO.plusDays(5);
         var søknadPeriode = søknadsperiode(søknadFom, søknadTom);
 
         lagreOpprinneligAktivitetskrav(behandling, søknadFom.minusDays(5), søknadTom.plusDays(5));
@@ -87,8 +88,8 @@ class KontrollerAktivitetskravDtoTjenesteTest {
     @Test
     public void skal_dele_opp_en_avklart_periode_som_dekker_flere_søknadsperioder() {
         var behandling = behandlingFraScenario();
-        var førsteSøknadsperiodeFom = LocalDate.now().minusDays(10);
-        var førsteSøknadsperiodeTom = LocalDate.now();
+        var førsteSøknadsperiodeFom = DATO.minusDays(10);
+        var førsteSøknadsperiodeTom = DATO;
         var andreSøknadsperiodeFom = førsteSøknadsperiodeTom.plusDays(1);
         var andreSøknadsperiodeTom = andreSøknadsperiodeFom.plusDays(10);
         var førsteSøknadsperiode = søknadsperiode(førsteSøknadsperiodeFom, førsteSøknadsperiodeTom);
@@ -110,8 +111,8 @@ class KontrollerAktivitetskravDtoTjenesteTest {
     @Test
     public void skal_avklare_hele_perioden_når_eksisterende_avklaring_ikke_dekker_hele_søknadsperioden() {
         var behandling = behandlingFraScenario();
-        var søknadFom = LocalDate.now().minusDays(10);
-        var søknadTom = LocalDate.now().plusDays(5);
+        var søknadFom = DATO.minusDays(10);
+        var søknadTom = DATO.plusDays(5);
         var søknadPeriode = søknadsperiode(søknadFom, søknadTom);
         lagreOpprinneligAktivitetskrav(behandling, søknadFom.plusDays(1), søknadTom.plusDays(1));
         lagreOppgittFordeling(behandling, søknadPeriode);
@@ -124,7 +125,7 @@ class KontrollerAktivitetskravDtoTjenesteTest {
 
     private Behandling behandlingFraScenario() {
         ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(AktørId.dummy());
-        scenario.medSøknadHendelse().medFødselsDato(LocalDate.now().minusDays(60)).medAntallBarn(1);
+        scenario.medSøknadHendelse().medFødselsDato(DATO.minusDays(60)).medAntallBarn(1);
         scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, false, false));
         scenario.lagre(repositoryProvider);
         return scenario.getBehandling();

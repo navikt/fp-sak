@@ -129,7 +129,11 @@ public class BerørtBehandlingTjeneste {
                 log("NEGATIV_KONTO");
                 return true;
             }
-            return harOverlappendePerioder(brukersUttaksPerioder, medforeldersUttaksPerioder);
+            var harOverlappendePerioder = harOverlappendePerioder(brukersUttaksPerioder, medforeldersUttaksPerioder);
+            if (harOverlappendePerioder) {
+                log("OVERLAPP_UTTAK");
+            }
+            return harOverlappendePerioder;
         }
         return false;
     }
@@ -142,17 +146,12 @@ public class BerørtBehandlingTjeneste {
             Optional<ForeldrepengerUttak> motpartsUttaksplan) {
         if (brukersUttaksplan.isPresent() && motpartsUttaksplan.isPresent()) {
             if (harBrukerFørsteUttak(brukersUttaksplan.get(), motpartsUttaksplan.get())) {
-                log("UTTAK_FØRSTE_UTTAK_1");
                 return true;
             }
             Optional<LocalDate> medforeldrersSisteDag = sisteUttaksdato(motpartsUttaksplan.get());
             Optional<LocalDate> brukersFørsteDag = førsteUttaksdatoUtenAvslåttePerioder(brukersUttaksplan.get());
             if (medforeldrersSisteDag.isPresent() && brukersFørsteDag.isPresent()) {
-                var brukerHarUttakFørst = !brukersFørsteDag.get().isAfter(medforeldrersSisteDag.get());
-                if (brukerHarUttakFørst) {
-                    log("UTTAK_FØRSTE_UTTAK_2");
-                }
-                return brukerHarUttakFørst;
+                return !brukersFørsteDag.get().isAfter(medforeldrersSisteDag.get());
             }
         }
         return false;
