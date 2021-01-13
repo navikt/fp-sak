@@ -7,6 +7,9 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -29,6 +32,8 @@ import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 
 @ApplicationScoped
 public class BerørtBehandlingTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(BerørtBehandlingTjeneste.class);
 
     private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
     private HistorikkRepository historikkRepository;
@@ -105,17 +110,23 @@ public class BerørtBehandlingTjeneste {
             UttakInput uttakInput) {
         if (behandlingsresultat.isBehandlingsresultatOpphørt()
                 && harMedforelderPerioderEtterBrukersOpphør(brukersUttaksPerioder, medforeldersUttaksPerioder)) {
-            return harKonsekvens(behandlingsresultat, KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER);
+            var harKonsekvens = harKonsekvens(behandlingsresultat, KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER);
+            if (harKonsekvens) {
+                log("OPPHØR");
+            }
+            return harKonsekvens;
         }
         if (behandlingsresultat.isBehandlingsresultatForeldrepengerEndret()
                 || behandlingsresultat.isBehandlingsresultatInnvilget()) {
             if (harKonsekvens(behandlingsresultat, KonsekvensForYtelsen.ENDRING_I_BEREGNING)
                     || harKonsekvens(behandlingsresultat, KonsekvensForYtelsen.ENDRING_I_UTTAK)) {
                 if (behandlingsresultat.isEndretStønadskonto()) {
+                    log("ENDRET_KONTO");
                     return true;
                 }
             }
             if (stønadskontoSaldoTjeneste.erNegativSaldoPåNoenKonto(uttakInput)) {
+                log("NEGATIV_KONTO");
                 return true;
             }
             return harOverlappendePerioder(brukersUttaksPerioder, medforeldersUttaksPerioder);
@@ -123,16 +134,25 @@ public class BerørtBehandlingTjeneste {
         return false;
     }
 
+    private void log(String årsak) {
+        LOG.info("Berørt behandling opprettes pga {}", årsak);
+    }
+
     private boolean harMedforelderPerioderEtterBrukersOpphør(Optional<ForeldrepengerUttak> brukersUttaksplan,
             Optional<ForeldrepengerUttak> motpartsUttaksplan) {
         if (brukersUttaksplan.isPresent() && motpartsUttaksplan.isPresent()) {
             if (harBrukerFørsteUttak(brukersUttaksplan.get(), motpartsUttaksplan.get())) {
+                log("UTTAK_FØRSTE_UTTAK_1");
                 return true;
             }
             Optional<LocalDate> medforeldrersSisteDag = sisteUttaksdato(motpartsUttaksplan.get());
             Optional<LocalDate> brukersFørsteDag = førsteUttaksdatoUtenAvslåttePerioder(brukersUttaksplan.get());
             if (medforeldrersSisteDag.isPresent() && brukersFørsteDag.isPresent()) {
-                return !brukersFørsteDag.get().isAfter(medforeldrersSisteDag.get());
+                var brukerHarUttakFørst = !brukersFørsteDag.get().isAfter(medforeldrersSisteDag.get());
+                if (brukerHarUttakFørst) {
+                    log("UTTAK_FØRSTE_UTTAK_2");
+                }
+                return brukerHarUttakFørst;
             }
         }
         return false;
