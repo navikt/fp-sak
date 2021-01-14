@@ -75,7 +75,7 @@ public class LagOppdragTjeneste {
     }
 
     private static GruppertYtelse mapTilkjentYtelse(Input input) {
-        TilkjentYtelseMapper tilkjentYtelseMapper = TilkjentYtelseMapper.lagFor(input.getYtelseType(), input.getFamilieYtelseType());
+        TilkjentYtelseMapper tilkjentYtelseMapper = TilkjentYtelseMapper.lagFor(input.getFamilieYtelseType());
         return tilkjentYtelseMapper.fordelPåNøkler(input.getTilkjentYtelse());
     }
 

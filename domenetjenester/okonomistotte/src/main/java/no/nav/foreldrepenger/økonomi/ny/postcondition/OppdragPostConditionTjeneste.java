@@ -103,7 +103,7 @@ public class OppdragPostConditionTjeneste {
         List<Oppdragskontroll> oppdragene = økonomioppdragRepository.finnAlleOppdragForSak(saksnummer);
         Fagsak sak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElseThrow();
         Map<KjedeNøkkel, OppdragKjede> oppdragskjeder = EksisterendeOppdragMapper.tilKjeder(oppdragene);
-        GruppertYtelse målbilde = TilkjentYtelseMapper.lagFor(sak.getYtelseType(), finnFamilieYtelseType(behandling)).fordelPåNøkler(beregningsresultat);
+        GruppertYtelse målbilde = TilkjentYtelseMapper.lagFor(finnFamilieYtelseType(behandling)).fordelPåNøkler(beregningsresultat);
 
         Set<KjedeNøkkel> alleKjedenøkler = SetUtil.union(oppdragskjeder.keySet(), målbilde.getNøkler());
         Set<Betalingsmottaker> betalingsmottakere = alleKjedenøkler.stream().map(KjedeNøkkel::getBetalingsmottaker).collect(Collectors.toSet());
