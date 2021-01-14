@@ -47,7 +47,7 @@ public class SendBrevForAutopunkt {
     }
 
     public void sendBrevForSøknadIkkeMottatt(Behandling behandling, Aksjonspunkt ap) {
-        var dokumentMalType = DokumentMalType.INNTEKTSMELDING_FOR_TIDLIG_DOK;
+        var dokumentMalType = Environment.current().isProd() ? DokumentMalType.INNTEKTSMELDING_FOR_TIDLIG_DOK : DokumentMalType.IKKE_SØKT;
         if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.INFOBREV_BEHANDLING) || behandling.harBehandlingÅrsak(INFOBREV_OPPHOLD)) {
             dokumentMalType = DokumentMalType.INFO_TIL_ANNEN_FORELDER_DOK;
         }
