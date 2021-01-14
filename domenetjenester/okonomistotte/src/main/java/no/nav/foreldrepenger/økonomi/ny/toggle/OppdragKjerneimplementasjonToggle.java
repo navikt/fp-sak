@@ -7,6 +7,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.util.env.Environment;
 
@@ -32,6 +33,7 @@ public class OppdragKjerneimplementasjonToggle {
     public boolean brukNyImpl(Long behandlingId) {
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         Saksnummer saksnummer = behandling.getFagsak().getSaksnummer();
-        return !Environment.current().isProd() || LANSERT_I_PROD.contains(saksnummer);
+        return (!Environment.current().isProd() || LANSERT_I_PROD.contains(saksnummer))
+            && !behandling.getFagsak().getYtelseType().equals(FagsakYtelseType.ENGANGSTØNAD);
     }
 }

@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.økonomi.ny.mapper;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +53,7 @@ public class TilkjentYtelseMapper {
     public Map<KjedeNøkkel, Ytelse> fordelYtelsePåNøkler(List<BeregningsresultatPeriode> tilkjentYtelsePerioder) {
         Map<KjedeNøkkel, Ytelse.Builder> buildere = new HashMap<>();
 
-        for (BeregningsresultatPeriode tyPeriode : tilkjentYtelsePerioder) {
+        for (BeregningsresultatPeriode tyPeriode : sortert(tilkjentYtelsePerioder)) {
             Map<KjedeNøkkel, List<YtelsePeriodeMedNøkkel>> andelPrNøkkel = tyPeriode.getBeregningsresultatAndelList().stream()
                 .filter(andel -> andel.getDagsats() != 0)
                 .map(andel -> tilYtelsePeriodeMedNøkkel(tyPeriode, andel))
@@ -72,7 +73,7 @@ public class TilkjentYtelseMapper {
 
     public Map<KjedeNøkkel, Ytelse> fordelFeriepengerPåNøkler(Collection<BeregningsresultatPeriode> tilkjentYtelsePerioder) {
         List<YtelsePeriodeMedNøkkel> alleFeriepenger = new ArrayList<>();
-        for (BeregningsresultatPeriode periode : tilkjentYtelsePerioder) {
+        for (BeregningsresultatPeriode periode : sortert(tilkjentYtelsePerioder)) {
             for (BeregningsresultatAndel andel : periode.getBeregningsresultatAndelList()) {
                 for (BeregningsresultatFeriepengerPrÅr feriepenger : andel.getBeregningsresultatFeriepengerPrÅrListe()) {
                     KjedeNøkkel nøkkel = tilNøkkelFeriepenger(andel, feriepenger.getOpptjeningsåret());
@@ -134,6 +135,12 @@ public class TilkjentYtelseMapper {
             kjeder.put(entry.getKey(), entry.getValue().build());
         }
         return kjeder;
+    }
+
+    private static List<BeregningsresultatPeriode> sortert(Collection<BeregningsresultatPeriode> usortert) {
+        return usortert.stream()
+            .sorted(Comparator.comparing(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom))
+            .collect(Collectors.toList());
     }
 
 }
