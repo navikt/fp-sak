@@ -12,6 +12,7 @@ import javax.validation.constraints.Size;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
 
@@ -32,7 +33,7 @@ public class AvklarOpptjeningAktivitetDto {
 
     @Pattern(regexp = "\\d{9}|\\d{13}")
     private String oppdragsgiverOrg;
-    @Pattern(regexp = "\\d{9}|\\d{13}")
+    @Pattern(regexp = "\\d{7}|\\d{9}|\\d{13}")
     private String arbeidsgiverReferanse;
 
     private String arbeidsgiverIdentifikator;
@@ -104,7 +105,7 @@ public class AvklarOpptjeningAktivitetDto {
 
     public String getOppdragsgiverOrg() {
         if ((oppdragsgiverOrg == null) && (arbeidsgiverReferanse != null) && OrgNummer.erGyldigOrgnr(arbeidsgiverReferanse)) {
-            return arbeidsgiverReferanse;
+            return OrgNummer.erGyldigOrgnr(arbeidsgiverReferanse) ? arbeidsgiverReferanse : null;
         }
         return oppdragsgiverOrg;
     }
@@ -115,7 +116,7 @@ public class AvklarOpptjeningAktivitetDto {
 
     public String getArbeidsgiverIdentifikator() {
         if ((arbeidsgiverIdentifikator == null) && (arbeidsgiverReferanse != null)) {
-            return arbeidsgiverReferanse;
+            return OrgNummer.erGyldigOrgnr(arbeidsgiverReferanse) || AktørId.erGyldigAktørId(arbeidsgiverReferanse) ? arbeidsgiverReferanse : null;
         }
         return arbeidsgiverIdentifikator;
     }

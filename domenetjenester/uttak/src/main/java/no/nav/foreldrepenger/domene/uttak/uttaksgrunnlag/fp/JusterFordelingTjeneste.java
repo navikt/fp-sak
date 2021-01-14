@@ -14,6 +14,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
@@ -22,21 +25,27 @@ import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
 
 class JusterFordelingTjeneste {
 
+    private static final Logger LOG = LoggerFactory.getLogger(JusterFordelingTjeneste.class);
+
     /**
      * Skyver perioder basert på antall virkedager i mellom familiehendelsene.
      * Gradering, utsettelse, opphold og hull mellom perioder flyttes ikke.
      */
     List<OppgittPeriodeEntitet> juster(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate gammelFamiliehendelse, LocalDate nyFamiliehendelse) {
         List<OppgittPeriodeEntitet> justert = sorterEtterFom(oppgittePerioder);
-        if (gammelFamiliehendelse != null && nyFamiliehendelse != null) {
+        if (finnesOverlapp(oppgittePerioder)) {
+            LOG.warn("Finnes overlapp i oppgitte perioder fra søknad. Sannsynligvis feil i søknadsdialogen. "
+                + "Hvis periodene ikke kan slås sammen faller behandlingen ut til manuell behandling");
+            //Justering støtter ikke overlapp
+        } else if (gammelFamiliehendelse != null && nyFamiliehendelse != null) {
             //flytter til mandag
             gammelFamiliehendelse = flyttFraHelgTilMandag(gammelFamiliehendelse);
             nyFamiliehendelse = flyttFraHelgTilMandag(nyFamiliehendelse);
             if (!gammelFamiliehendelse.equals(nyFamiliehendelse)) {
                 justert = justerVedEndringAvFamilieHendelse(oppgittePerioder, gammelFamiliehendelse, nyFamiliehendelse);
             }
+            exceptionHvisOverlapp(justert);
         }
-        exceptionHvisOverlapp(justert);
         return slåSammenLikePerioder(justert);
     }
 
@@ -72,14 +81,14 @@ class JusterFordelingTjeneste {
 
     private boolean erLikBortsettFraTidsperiode(OppgittPeriodeEntitet periode1, OppgittPeriodeEntitet periode2) {
         //begrunnelse ikke viktig å se på
-        return Objects.equals(periode1.getErArbeidstaker(), periode2.getErArbeidstaker()) &&
-            Objects.equals(periode1.getErFrilanser(), periode2.getErFrilanser()) &&
-            Objects.equals(periode1.getErSelvstendig(), periode2.getErSelvstendig()) &&
+        return Objects.equals(periode1.isArbeidstaker(), periode2.isArbeidstaker()) &&
+            Objects.equals(periode1.isFrilanser(), periode2.isFrilanser()) &&
+            Objects.equals(periode1.isSelvstendig(), periode2.isSelvstendig()) &&
             Objects.equals(periode1.isFlerbarnsdager(), periode2.isFlerbarnsdager()) &&
             Objects.equals(periode1.isSamtidigUttak(), periode2.isSamtidigUttak()) &&
             Objects.equals(periode1.getArbeidsgiver(), periode2.getArbeidsgiver()) &&
             Objects.equals(periode1.getMorsAktivitet(), periode2.getMorsAktivitet()) &&
-            Objects.equals(periode1.erVedtaksperiode(), periode2.erVedtaksperiode()) &&
+            Objects.equals(periode1.isVedtaksperiode(), periode2.isVedtaksperiode()) &&
             Objects.equals(periode1.getPeriodeType(), periode2.getPeriodeType()) &&
             Objects.equals(periode1.getPeriodeVurderingType(), periode2.getPeriodeVurderingType()) &&
             Objects.equals(periode1.getSamtidigUttaksprosent(), periode2.getSamtidigUttaksprosent()) &&
@@ -473,22 +482,35 @@ class JusterFordelingTjeneste {
      * @return true dersom perioden kan flyttes, ellers false.
      */
     private boolean erPeriodeFlyttbar(OppgittPeriodeEntitet periode) {
-        if (periode.erUtsettelse() || periode.erOpphold()) {
+        //Perioder opprettet i interlogikk
+        if (periode instanceof JusterPeriodeHull) {
             return false;
         }
-
-        return !periode.erGradert() && !(periode instanceof JusterPeriodeHull) && !periode.isSamtidigUttak();
+        if (periode.isUtsettelse() || periode.isOpphold() || periode.isGradert()) {
+            return false;
+        }
+        if (periode.isSamtidigUttak()) {
+            //Mødrekvote med samtidig uttak skal flyttes
+            return UttakPeriodeType.MØDREKVOTE.equals(periode.getPeriodeType());
+        }
+        return true;
     }
 
+    private void exceptionHvisOverlapp(List<OppgittPeriodeEntitet> perioder) {
+        if (finnesOverlapp(perioder)) {
+            throw new IllegalStateException("Utviklerfeil: Overlappende perioder etter justering " + perioder);
+        }
+    }
 
-    private void exceptionHvisOverlapp(List<OppgittPeriodeEntitet> oppgittPerioder) {
+    private boolean finnesOverlapp(List<OppgittPeriodeEntitet> oppgittPerioder) {
         for (int i = 0; i < oppgittPerioder.size(); i++) {
             for (int j = i + 1; j < oppgittPerioder.size(); j++) {
                 if (overlapper(oppgittPerioder.get(i), oppgittPerioder.get(j))) {
-                    throw new IllegalStateException("Utviklerfeil: Overlappende perioder etter justering " + oppgittPerioder.get(i) + " - " + oppgittPerioder.get(j));
+                    return true;
                 }
             }
         }
+        return false;
     }
 
     private boolean overlapper(OppgittPeriodeEntitet periode, LocalDate dato) {

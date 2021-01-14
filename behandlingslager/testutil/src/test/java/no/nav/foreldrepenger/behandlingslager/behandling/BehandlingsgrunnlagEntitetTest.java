@@ -155,8 +155,8 @@ public class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         assertThat(optionalAdopsjon).isPresent();
         final AdopsjonEntitet adopsjon = optionalAdopsjon.get();
         assertThat(adopsjon.getOmsorgsovertakelseDato()).isEqualTo(omsorgsovertakelseDato);
-        assertThat(adopsjon.getErEktefellesBarn()).isEqualTo(false);
-        assertThat(adopsjon.getAdoptererAlene()).isEqualTo(true);
+        assertThat(adopsjon.getErEktefellesBarn()).isFalse();
+        assertThat(adopsjon.getAdoptererAlene()).isTrue();
         assertThat(grunnlag.getGjeldendeVersjon().getBarna().iterator().next().getFødselsdato()).isEqualTo(fødselAdopsjonsdato);
     }
 

@@ -3,10 +3,13 @@ package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
+import java.util.Properties;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -92,9 +95,26 @@ public class VurdereYtelseSammeBarnAnnenForelderOppdatererTest {
         HistorikkTjenesteAdapter mockHistory = lagMockHistory();
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
         // Act
-        new VurdereYtelseSammeBarnOppdaterer.VurdereYtelseSammeBarnAnnenForelderOppdaterer(mockHistory)
-            .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, null, vilkårBuilder, dto));
+        OppdateringResultat resultat = new VurdereYtelseSammeBarnOppdaterer.VurdereYtelseSammeBarnAnnenForelderOppdaterer(mockHistory)
+            .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, null, dto));
+        byggVilkårResultat(vilkårBuilder, resultat);
         vilkårBuilder.buildFor(behandling);
+    }
+
+    private void byggVilkårResultat(VilkårResultat.Builder vilkårBuilder, OppdateringResultat delresultat) {
+        delresultat.getVilkårResultatSomSkalLeggesTil().forEach(v -> vilkårBuilder.leggTilVilkårResultat(
+            v.getVilkårType(),
+            v.getVilkårUtfallType(),
+            v.getVilkårUtfallMerknad(),
+            new Properties(),
+            v.getAvslagsårsak(),
+            true,
+            false,
+            null, null));
+        delresultat.getVilkårTyperSomSkalFjernes().forEach(vilkårBuilder::fjernVilkår); // TODO: Vilkår burde ryddes på ein annen måte enn dette
+        if (delresultat.getVilkårResultatType() != null) {
+            vilkårBuilder.medVilkårResultatType(delresultat.getVilkårResultatType());
+        }
     }
 
 }

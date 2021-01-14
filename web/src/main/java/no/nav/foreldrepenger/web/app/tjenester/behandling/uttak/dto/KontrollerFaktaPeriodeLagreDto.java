@@ -220,9 +220,9 @@ public class KontrollerFaktaPeriodeLagreDto {
             medBegrunnelse(periode.getOppgittPeriode().getBegrunnelse().orElse(null));
             medUttakPeriodeVurderingType(periode.getVurdering());
             medArbeidsgiver(arbeidsgiver);
-            medArbeidstaker(periode.getOppgittPeriode().getErArbeidstaker());
-            medFrilans(periode.getOppgittPeriode().getErFrilanser());
-            medSelvstendig(periode.getOppgittPeriode().getErSelvstendig());
+            medArbeidstaker(periode.getOppgittPeriode().isArbeidstaker());
+            medFrilans(periode.getOppgittPeriode().isFrilanser());
+            medSelvstendig(periode.getOppgittPeriode().isSelvstendig());
             medSamtidigUttak(periode.getOppgittPeriode().isSamtidigUttak());
             medSamtidigUttaksprosent(periode.getOppgittPeriode().getSamtidigUttaksprosent());
             medMorsaktivitet(periode.getOppgittPeriode().getMorsAktivitet());
@@ -230,11 +230,11 @@ public class KontrollerFaktaPeriodeLagreDto {
             medPeriodeKilde(periode.getOppgittPeriode().getPeriodeKilde());
             medMottattDato(periode.getOppgittPeriode().getMottattDato());
 
-            if (periode.getOppgittPeriode().erUtsettelse()) {
+            if (periode.getOppgittPeriode().isUtsettelse()) {
                 medUtsettelseÅrsak((UtsettelseÅrsak) periode.getOppgittPeriode().getÅrsak()); //NOSONAR
-            } else if (periode.getOppgittPeriode().erOverføring()) {
+            } else if (periode.getOppgittPeriode().isOverføring()) {
                 medOverføringÅrsak((OverføringÅrsak) periode.getOppgittPeriode().getÅrsak()); //NOSONAR
-            } else if (periode.getOppgittPeriode().erOpphold()) {
+            } else if (periode.getOppgittPeriode().isOpphold()) {
                 medOppholdÅrsak((OppholdÅrsak) periode.getOppgittPeriode().getÅrsak()); //NOSONAR
             }
 

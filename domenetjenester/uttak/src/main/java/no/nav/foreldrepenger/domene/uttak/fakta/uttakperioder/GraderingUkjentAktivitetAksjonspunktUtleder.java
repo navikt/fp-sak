@@ -49,18 +49,18 @@ public class GraderingUkjentAktivitetAksjonspunktUtleder implements FaktaUttakAk
         }
         var beregningsgrunnlagStatuser = input.getBeregningsgrunnlagStatuser();
         return yf.get().getGjeldendeSøknadsperioder().getOppgittePerioder().stream()
-            .filter(periode -> periode.erGradert())
+            .filter(periode -> periode.isGradert())
             .anyMatch(periode -> gradererUkjentAktivitet(periode, beregningsgrunnlagStatuser));
     }
 
     private boolean gradererUkjentAktivitet(OppgittPeriodeEntitet søknadsperiode, Set<BeregningsgrunnlagStatus> beregningsgrunnlagStatuser) {
-        if (søknadsperiode.getErArbeidstaker() && !beregningHarArbeidsgiver(søknadsperiode.getArbeidsgiver(), beregningsgrunnlagStatuser)) {
+        if (søknadsperiode.isArbeidstaker() && !beregningHarArbeidsgiver(søknadsperiode.getArbeidsgiver(), beregningsgrunnlagStatuser)) {
             return true;
         }
-        if (søknadsperiode.getErFrilanser() && !beregningHarFrilanser(beregningsgrunnlagStatuser)) {
+        if (søknadsperiode.isFrilanser() && !beregningHarFrilanser(beregningsgrunnlagStatuser)) {
             return true;
         }
-        return søknadsperiode.getErSelvstendig() && !beregningHarSelvstendigNæringsdrivende(beregningsgrunnlagStatuser);
+        return søknadsperiode.isSelvstendig() && !beregningHarSelvstendigNæringsdrivende(beregningsgrunnlagStatuser);
     }
 
     private boolean beregningHarSelvstendigNæringsdrivende(Set<BeregningsgrunnlagStatus> beregningsgrunnlagStatuser) {

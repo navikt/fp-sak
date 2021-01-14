@@ -57,16 +57,20 @@ public class OppgittPeriodeMottattDatoTjeneste {
     }
 
     private boolean lik(OppgittPeriodeEntitet periode1, OppgittPeriodeEntitet periode2) {
-        var like = periode1.erOmsluttetAv(periode2)
+        var like = erOmsluttetAv(periode1, periode2)
             && Objects.equals(periode1.getÅrsak(), periode2.getÅrsak())
             && Objects.equals(periode1.getPeriodeType(), periode2.getPeriodeType())
             && Objects.equals(periode1.getSamtidigUttaksprosent(), periode2.getSamtidigUttaksprosent());
-        if (like && periode1.erGradert()) {
-            return periode2.erGradert() &&
-                periode1.getErArbeidstaker() == periode2.getErArbeidstaker() &&
+        if (like && periode1.isGradert()) {
+            return periode2.isGradert() &&
+                periode1.isArbeidstaker() == periode2.isArbeidstaker() &&
                 Objects.equals(periode1.getArbeidsprosent(), periode2.getArbeidsprosent()) &&
                 Objects.equals(periode1.getArbeidsgiver(), periode2.getArbeidsgiver());
         }
         return like;
+    }
+
+    public boolean erOmsluttetAv(OppgittPeriodeEntitet periode1, OppgittPeriodeEntitet periode2) {
+        return !periode2.getFom().isAfter(periode1.getFom()) && !periode2.getTom().isBefore(periode1.getTom());
     }
 }

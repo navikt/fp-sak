@@ -33,7 +33,7 @@ public class MapRefusjonskravDatoerTest {
         assertThat(refusjonskravDatoer.get(0).getArbeidsgiver()).isEqualTo(Arbeidsgiver.virksomhet(orgnr));
         assertThat(refusjonskravDatoer.get(0).getFørsteDagMedRefusjonskrav().get()).isEqualTo(førsteDagMedRefusjonskrav);
         assertThat(refusjonskravDatoer.get(0).getFørsteInnsendingAvRefusjonskrav()).isEqualTo(førsteInnsendingAvRefusjonskrav);
-        assertThat(refusjonskravDatoer.get(0).harRefusjonFraStart()).isEqualTo(true);
+        assertThat(refusjonskravDatoer.get(0).harRefusjonFraStart()).isTrue();
 
     }
 }

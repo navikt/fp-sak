@@ -42,7 +42,8 @@ public class VurderInnsynOppdaterer implements AksjonspunktOppdaterer<VurderInns
 
     @Override
     public OppdateringResultat oppdater(VurderInnsynDto dto, AksjonspunktOppdaterParameter param) {
-        param.getVilkårResultatBuilder().medVilkårResultatType(VilkårResultatType.UDEFINERT);
+        var resultatBuilder = new OppdateringResultat.Builder();
+        resultatBuilder.medVilkårResultatType(VilkårResultatType.UDEFINERT); // Kvifor settes denne her?
         Behandling behandling = param.getBehandling();
         var builder = InnsynEntitet.InnsynBuilder.builder();
         builder

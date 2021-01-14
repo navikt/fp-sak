@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.util.Optional;
+import java.util.Properties;
 
 import org.junit.jupiter.api.Test;
 
@@ -13,6 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
@@ -64,9 +66,13 @@ public class BekreftSvangerskapspengervilkårOppdatererTest extends RepositoryAw
                 BehandlingStegType.VURDER_SVANGERSKAPSPENGERVILKÅR);
         Behandling behandling = scenario.lagre(repositoryProvider);
         AksjonspunktOppdaterParameter param = new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto);
-        oppdaterer.oppdater(dto, param);
+        OppdateringResultat resultat = oppdaterer.oppdater(dto, param);
 
-        assertThat(param.getVilkårResultatBuilder().buildFor(behandling).getVilkårene().get(0).getGjeldendeVilkårUtfall())
+        VilkårResultat.Builder builder = VilkårResultat.builder();
+        resultat.getVilkårResultatSomSkalLeggesTil().forEach(v -> builder.leggTilVilkårResultat(v.getVilkårType(), v.getVilkårUtfallType(), v.getVilkårUtfallMerknad(),
+            new Properties(), v.getAvslagsårsak(), true, false, null, null));
+
+        assertThat(builder.buildFor(behandling).getVilkårene().get(0).getGjeldendeVilkårUtfall())
                 .isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
     }
 
@@ -80,9 +86,14 @@ public class BekreftSvangerskapspengervilkårOppdatererTest extends RepositoryAw
                 BehandlingStegType.VURDER_SVANGERSKAPSPENGERVILKÅR);
         Behandling behandling = scenario.lagre(repositoryProvider);
         AksjonspunktOppdaterParameter param = new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto);
-        oppdaterer.oppdater(dto, param);
+        OppdateringResultat resultat = oppdaterer.oppdater(dto, param);
 
-        assertThat(param.getVilkårResultatBuilder().buildFor(behandling).getVilkårene().get(0).getGjeldendeVilkårUtfall())
+        VilkårResultat.Builder builder = VilkårResultat.builder();
+        resultat.getVilkårResultatSomSkalLeggesTil().forEach(v -> builder.leggTilVilkårResultat(v.getVilkårType(), v.getVilkårUtfallType(), v.getVilkårUtfallMerknad(),
+            new Properties(), v.getAvslagsårsak(), true, false, null, null));
+
+
+        assertThat(builder.buildFor(behandling).getVilkårene().get(0).getGjeldendeVilkårUtfall())
                 .isEqualTo(VilkårUtfallType.OPPFYLT);
     }
 

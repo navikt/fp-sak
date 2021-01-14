@@ -18,7 +18,7 @@ import javax.inject.Inject;
 
 import no.nav.folketrygdloven.kalkulator.modell.gradering.AktivitetGradering;
 import no.nav.folketrygdloven.kalkulator.modell.gradering.AndelGradering;
-import no.nav.folketrygdloven.kalkulator.modell.virksomhet.Arbeidsgiver;
+import no.nav.folketrygdloven.kalkulator.modell.typer.Arbeidsgiver;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
@@ -76,7 +76,7 @@ public class AndelGraderingTjeneste {
         perioderMedGradering.forEach(periodeMedGradering -> {
             AktivitetStatus aktivitetStatus = periodeMedGradering.aktivitetStatus;
             AndelGradering.Builder nyBuilder = AndelGradering.builder()
-                    .medStatus(no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.AktivitetStatus.fraKode(aktivitetStatus.getKode()));
+                    .medStatus(no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus.fraKode(aktivitetStatus.getKode()));
             if (AktivitetStatus.ARBEIDSTAKER.equals(aktivitetStatus)) {
                 Arbeidsgiver arbeidsgiver = periodeMedGradering.arbeidsgiver;
                 Objects.requireNonNull(arbeidsgiver, "arbeidsgiver");
@@ -101,7 +101,7 @@ public class AndelGraderingTjeneste {
 
     private List<PeriodeMedGradering> fraSøknad(List<OppgittPeriodeEntitet> oppgittePerioder) {
         return oppgittePerioder.stream()
-                .filter(oppgittPeriode -> oppgittPeriode.erGradert())
+                .filter(oppgittPeriode -> oppgittPeriode.isGradert())
                 .map(this::map)
                 .collect(Collectors.toList());
     }
@@ -174,11 +174,11 @@ public class AndelGraderingTjeneste {
     }
 
     private static AktivitetStatus mapAktivitetStatus(OppgittPeriodeEntitet oppgittPeriode) {
-        if (oppgittPeriode.getErArbeidstaker()) {
+        if (oppgittPeriode.isArbeidstaker()) {
             return AktivitetStatus.ARBEIDSTAKER;
-        } else if (oppgittPeriode.getErFrilanser()) {
+        } else if (oppgittPeriode.isFrilanser()) {
             return AktivitetStatus.FRILANSER;
-        } else if (oppgittPeriode.getErSelvstendig()) {
+        } else if (oppgittPeriode.isSelvstendig()) {
             return AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE;
         } else {
             throw new IllegalStateException("Mangelfull søknad: Mangler informasjon om det er FL eller SN som graderes");

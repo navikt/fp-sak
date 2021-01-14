@@ -63,6 +63,6 @@ public class BrevRestTjenesteTest {
 
         // Assert
         verify(dokumentBehandlingTjenesteMock).erDokumentBestilt(any(), any());
-        assertThat(harSendt).isEqualTo(true);
+        assertThat(harSendt).isTrue();
     }
 }

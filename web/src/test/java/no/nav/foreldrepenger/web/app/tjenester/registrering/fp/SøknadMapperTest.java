@@ -185,7 +185,7 @@ public class SøknadMapperTest extends RepositoryAwareTest {
         assertThat(utsettelsesperiode.getFom()).isEqualTo(fraDato);
         assertThat(utsettelsesperiode.getTom()).isEqualTo(tomDato);
         assertThat(utsettelsesperiode.getUtsettelseAv().getKode()).isEqualTo(FELLESPERIODE.getKode());
-        assertThat(utsettelsesperiode.isErArbeidstaker()).isEqualTo(true);
+        assertThat(utsettelsesperiode.isErArbeidstaker()).isTrue();
     }
 
     @Test
@@ -237,7 +237,7 @@ public class SøknadMapperTest extends RepositoryAwareTest {
         assertThat(gradering.getTom()).isEqualTo(tomDato);
         assertThat(gradering.getType().getKode()).isEqualTo(FEDREKVOTE.getKode());
         assertThat(gradering.getArbeidtidProsent()).isEqualTo(prosentAndel.doubleValue());
-        assertThat(gradering.isErArbeidstaker()).isEqualTo(true);
+        assertThat(gradering.isErArbeidstaker()).isTrue();
         assertThat(gradering.getArbeidsgiver().getIdentifikator()).isEqualTo(orgNr);
     }
 
@@ -254,7 +254,7 @@ public class SøknadMapperTest extends RepositoryAwareTest {
         assertThat(gradering.getTom()).isEqualTo(tomDato);
         assertThat(gradering.getType().getKode()).isEqualTo(FEDREKVOTE.getKode());
         assertThat(gradering.getArbeidtidProsent()).isEqualTo(prosentAndel.doubleValue());
-        assertThat(gradering.isErArbeidstaker()).isEqualTo(true);
+        assertThat(gradering.isErArbeidstaker()).isTrue();
         assertThat(gradering.getArbeidsgiver().getIdentifikator()).isEqualTo(orgNr);
     }
 
@@ -497,7 +497,7 @@ public class SøknadMapperTest extends RepositoryAwareTest {
         assertThat(ytelseFordeling.getOppgittFordeling().getOppgittePerioder())
                 .anySatisfy(periode -> assertThat(periode.getPeriodeType()).isEqualTo(MØDREKVOTE));
         assertThat(ytelseFordeling.getOppgittFordeling().getOppgittePerioder())
-                .anySatisfy(periode -> assertThat(periode.getErArbeidstaker()).isEqualTo(Boolean.TRUE));
+                .anySatisfy(periode -> assertThat(periode.isArbeidstaker()).isEqualTo(Boolean.TRUE));
     }
 
     @Test

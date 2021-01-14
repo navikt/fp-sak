@@ -49,7 +49,7 @@ public class VedtakJsonFeedRestTjenesteTest {
 
         FeedDto feed = tjeneste.fpVedtakHendelser(sisteLestSekvensIdParam, maxAntallParam, hendelseTypeParam, aktørParam);
         assertThat(feed.getTittel()).isEqualTo("ForeldrepengerVedtak_v1");
-        assertThat(feed.getInneholderFlereElementer()).isEqualTo(true);
+        assertThat(feed.getInneholderFlereElementer()).isTrue();
         assertThat(feed.getElementer()).isEqualTo(new ArrayList<>());
     }
 
@@ -63,7 +63,7 @@ public class VedtakJsonFeedRestTjenesteTest {
 
         FeedDto feed = tjeneste.svpVedtakHendelser(sisteLestSekvensIdParam, maxAntallParam, hendelseTypeParam, aktørParam);
         assertThat(feed.getTittel()).isEqualTo("SVPVedtak_v1");
-        assertThat(feed.getInneholderFlereElementer()).isEqualTo(true);
+        assertThat(feed.getInneholderFlereElementer()).isTrue();
         assertThat(feed.getElementer()).isEqualTo(new ArrayList<>());
     }
 
@@ -79,7 +79,7 @@ public class VedtakJsonFeedRestTjenesteTest {
 
         FeedDto feed = tjeneste.fpVedtakHendelser(sisteLestSekvensIdParam, maxAntallParam, hendelseTypeParam, aktørParam);
         assertThat(feed.getTittel()).isEqualTo("ForeldrepengerVedtak_v1");
-        assertThat(feed.getInneholderFlereElementer()).isEqualTo(true);
+        assertThat(feed.getInneholderFlereElementer()).isTrue();
         assertThat(feed.getElementer()).isEqualTo(new ArrayList<>());
     }
 
@@ -95,7 +95,7 @@ public class VedtakJsonFeedRestTjenesteTest {
 
         FeedDto feed = tjeneste.svpVedtakHendelser(sisteLestSekvensIdParam, maxAntallParam, hendelseTypeParam, aktørParam);
         assertThat(feed.getTittel()).isEqualTo("SVPVedtak_v1");
-        assertThat(feed.getInneholderFlereElementer()).isEqualTo(true);
+        assertThat(feed.getInneholderFlereElementer()).isTrue();
         assertThat(feed.getElementer()).isEqualTo(new ArrayList<>());
     }
 }

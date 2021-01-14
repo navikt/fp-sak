@@ -24,7 +24,7 @@ public class BehandlingDvhEntityTest {
         assertThat(behandlingDvh.getOpprettetDato()).isEqualTo(DatavarehusTestUtils.OPPRETTET_DATE);
         assertThat(behandlingDvh.getUtlandstilsnitt()).isEqualTo(DatavarehusTestUtils.UTLANDSTILSNITT);
         assertThat(behandlingDvh.getVedtakId()).isEqualTo(DatavarehusTestUtils.VEDTAK_ID);
-        assertThat(behandlingDvh.isToTrinnsBehandling()).isEqualTo(true);
+        assertThat(behandlingDvh.isToTrinnsBehandling()).isTrue();
         assertThat(behandlingDvh.getSoeknadFamilieHendelse()).isEqualTo(DatavarehusTestUtils.SOEKNAD_FAMILIE_HENDELSE);
         assertThat(behandlingDvh.getBekreftetFamilieHendelse()).isEqualTo(DatavarehusTestUtils.BEKREFTET_FAMILIE_HENDELSE);
         assertThat(behandlingDvh.getOverstyrtFamilieHendelse()).isEqualTo(DatavarehusTestUtils.OVERSTYRT_FAMILIE_HENDELSE);

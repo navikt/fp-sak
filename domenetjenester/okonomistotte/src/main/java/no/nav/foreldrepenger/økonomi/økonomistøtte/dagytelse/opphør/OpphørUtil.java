@@ -73,6 +73,16 @@ public class OpphørUtil {
         return førsteAktiveDatoPrKodeKlassifik(oppdragForBruker, true, null).isEmpty();
     }
 
+    static boolean erBrukerAllredeFullstendigOpphørtForKlassekode(OppdragInput behandlingInfo, ØkonomiKodeKlassifik klassekode) {
+        List<Oppdrag110> oppdragForBruker = behandlingInfo.getAlleTidligereOppdrag110().stream()
+            .filter(OpphørUtil::gjelderBruker)
+            .filter(o -> o.venterKvittering() || OppdragKvitteringTjeneste.harPositivKvittering(o))
+            .collect(Collectors.toList());
+
+        var brukersKlassekoder = førsteAktiveDatoPrKodeKlassifik(oppdragForBruker, true, null);
+        return brukersKlassekoder.get(klassekode) == null;
+    }
+
     static boolean erArbeidsgiverAllredeFullstendigOpphørt(OppdragInput behandlingInfo, String refunderesId) {
         List<Oppdrag110> oppdragForAG = behandlingInfo.getAlleTidligereOppdrag110().stream()
             .filter(o -> gjelderArbeidsgiver(o, refunderesId))

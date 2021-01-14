@@ -83,9 +83,9 @@ public class SøknadGrunnlagBygger {
 
         final OppgittPeriode periode;
         if (UttakPeriodeType.STØNADSPERIODETYPER.contains(oppgittPeriodeType)) {
-            if (oppgittPeriode.erUtsettelse()) {
+            if (oppgittPeriode.isUtsettelse()) {
                 periode = byggUtsettelseperiode(oppgittPeriode);
-            } else if (oppgittPeriode.erOverføring()) {
+            } else if (oppgittPeriode.isOverføring()) {
                 periode = byggOverføringPeriode(oppgittPeriode, stønadskontotype);
             } else {
                 periode = byggStønadsperiode(oppgittPeriode, stønadskontotype, aktiviteter);
@@ -102,7 +102,7 @@ public class SøknadGrunnlagBygger {
                                                      Stønadskontotype stønadskontotype,
                                                      Set<AktivitetIdentifikator> aktiviter) {
 
-        if (oppgittPeriode.erGradert()) {
+        if (oppgittPeriode.isGradert()) {
             return byggGradertPeriode(oppgittPeriode, stønadskontotype, aktiviter);
         }
         return OppgittPeriode.forVanligPeriode(stønadskontotype, oppgittPeriode.getFom(), oppgittPeriode.getTom(),
@@ -136,9 +136,9 @@ public class SøknadGrunnlagBygger {
     }
 
     private static Set<AktivitetIdentifikator> finnGraderteAktiviteter(OppgittPeriodeEntitet oppgittPeriode, Set<AktivitetIdentifikator> aktiviter) {
-        if (oppgittPeriode.getErFrilanser()) {
+        if (oppgittPeriode.isFrilanser()) {
             return aktivieterMedType(aktiviter, AktivitetType.FRILANS);
-        } else if (oppgittPeriode.getErSelvstendig()) {
+        } else if (oppgittPeriode.isSelvstendig()) {
             return aktivieterMedType(aktiviter, AktivitetType.SELVSTENDIG_NÆRINGSDRIVENDE);
         }
         return aktivieterMedType(aktiviter, AktivitetType.ARBEID).stream()
@@ -168,7 +168,7 @@ public class SøknadGrunnlagBygger {
     }
 
     private static OppgittPeriode byggTilOppholdPeriode(OppgittPeriodeEntitet oppgittPeriode) {
-        if (oppgittPeriode.erOpphold()) {
+        if (oppgittPeriode.isOpphold()) {
             var årsak = oppgittPeriode.getÅrsak();
             var oppholdÅrsak = (OppholdÅrsak) årsak;
             var mappedÅrsak = map(oppholdÅrsak);

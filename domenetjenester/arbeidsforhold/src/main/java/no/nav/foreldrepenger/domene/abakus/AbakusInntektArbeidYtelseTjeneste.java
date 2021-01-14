@@ -335,7 +335,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
 
             if (iayGrunnlag.getSaksbehandletVersjon().isPresent()) {
                 iayGrunnlag.fjernSaksbehandlet();
-                konverterOgLagre(behandlingId, iayGrunnlag);
+                lagreGrunnlag(iayGrunnlag, behandlingId);
             }
         }
     }

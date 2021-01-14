@@ -22,10 +22,10 @@ import no.nav.folketrygdloven.kalkulator.modell.iay.NaturalYtelseDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.RefusjonDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.YrkesaktivitetDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.YtelseAnvistDto;
+import no.nav.folketrygdloven.kalkulator.modell.typer.Arbeidsgiver;
 import no.nav.folketrygdloven.kalkulator.modell.typer.Beløp;
 import no.nav.folketrygdloven.kalkulator.modell.typer.InternArbeidsforholdRefDto;
 import no.nav.folketrygdloven.kalkulator.modell.typer.Stillingsprosent;
-import no.nav.folketrygdloven.kalkulator.modell.virksomhet.Arbeidsgiver;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import no.nav.folketrygdloven.kalkulus.beregning.v1.AktivitetGraderingDto;
 import no.nav.folketrygdloven.kalkulus.beregning.v1.AndelGraderingDto;
@@ -69,7 +69,6 @@ import no.nav.folketrygdloven.kalkulus.opptjening.v1.OppgittFrilansDto;
 import no.nav.folketrygdloven.kalkulus.opptjening.v1.OppgittOpptjeningDto;
 import no.nav.folketrygdloven.kalkulus.opptjening.v1.OpptjeningAktiviteterDto;
 import no.nav.folketrygdloven.kalkulus.opptjening.v1.OpptjeningPeriodeDto;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 
 /**
  * Mapper beregningsgrunnlagInput til KalkulatorInput for bruk til feilsøking av saker
@@ -83,8 +82,7 @@ class MapTilKalkulatorInput {
         KalkulatorInputDto kalkulatorInputDto = new KalkulatorInputDto(
             mapIayGrunnlag(beregningsgrunnlagInput),
             mapOpptjeningAktiviteter(beregningsgrunnlagInput.getOpptjeningAktiviteterForBeregning()),
-            beregningsgrunnlagInput.getSkjæringstidspunktOpptjening()
-        );
+            beregningsgrunnlagInput.getSkjæringstidspunktOpptjening());
         kalkulatorInputDto.medYtelsespesifiktGrunnlag(mapYtelsesSpesifiktGrunnlag(beregningsgrunnlagInput.getYtelsespesifiktGrunnlag()));
         kalkulatorInputDto.medRefusjonskravDatoer(mapRefusjonskravDatoer(beregningsgrunnlagInput.getRefusjonskravDatoer()));
         kalkulatorInputDto.medAktivitetGradering(mapAktivitetGradering(beregningsgrunnlagInput.getAktivitetGradering()));
@@ -104,12 +102,12 @@ class MapTilKalkulatorInput {
     }
 
     private static AndelGraderingDto mapAndelGradering(AndelGradering andelGradering) {
-        return andelGradering == null ? null : new AndelGraderingDto(
-            andelGradering.getAktivitetStatus() == null ? null : new AktivitetStatus(andelGradering.getAktivitetStatus().getKode()),
-            mapArbeidsgiver(andelGradering.getArbeidsgiver()),
-            mapAbakusReferanse(andelGradering.getArbeidsforholdRef()),
-            mapGraderinger(andelGradering.getGraderinger())
-        );
+        return andelGradering == null ? null
+            : new AndelGraderingDto(
+                andelGradering.getAktivitetStatus() == null ? null : AktivitetStatus.fraKode(andelGradering.getAktivitetStatus().getKode()),
+                mapArbeidsgiver(andelGradering.getArbeidsgiver()),
+                mapAbakusReferanse(andelGradering.getArbeidsforholdRef()),
+                mapGraderinger(andelGradering.getGraderinger()));
     }
 
     private static List<GraderingDto> mapGraderinger(List<AndelGradering.Gradering> graderinger) {
@@ -125,12 +123,12 @@ class MapTilKalkulatorInput {
     }
 
     private static RefusjonskravDatoDto mapRefusjonskravDato(no.nav.folketrygdloven.kalkulator.modell.iay.RefusjonskravDatoDto refusjonskravDatoDto) {
-        return refusjonskravDatoDto == null ? null : new RefusjonskravDatoDto(
-            mapArbeidsgiver(refusjonskravDatoDto.getArbeidsgiver()),
-            refusjonskravDatoDto.getFørsteDagMedRefusjonskrav().orElse(null),
-            refusjonskravDatoDto.getFørsteInnsendingAvRefusjonskrav(),
-            refusjonskravDatoDto.harRefusjonFraStart()
-        );
+        return refusjonskravDatoDto == null ? null
+            : new RefusjonskravDatoDto(
+                mapArbeidsgiver(refusjonskravDatoDto.getArbeidsgiver()),
+                refusjonskravDatoDto.getFørsteDagMedRefusjonskrav().orElse(null),
+                refusjonskravDatoDto.getFørsteInnsendingAvRefusjonskrav(),
+                refusjonskravDatoDto.harRefusjonFraStart());
     }
 
     private static YtelsespesifiktGrunnlagDto mapYtelsesSpesifiktGrunnlag(YtelsespesifiktGrunnlag ytelsespesifiktGrunnlag) {
@@ -151,10 +149,10 @@ class MapTilKalkulatorInput {
     }
 
     private static UtbetalingsgradPrAktivitetDto mapUtbetalingsgradForAktivitet(no.nav.folketrygdloven.kalkulator.modell.svp.UtbetalingsgradPrAktivitetDto utbetalingsgradPrAktivitetDto) {
-        return utbetalingsgradPrAktivitetDto == null ? null : new UtbetalingsgradPrAktivitetDto(
-            mapArbeidsforholdDto(utbetalingsgradPrAktivitetDto.getUtbetalingsgradArbeidsforhold()),
-            mapPerioderMedUtbetalingsgrad(utbetalingsgradPrAktivitetDto.getPeriodeMedUtbetalingsgrad())
-        );
+        return utbetalingsgradPrAktivitetDto == null ? null
+            : new UtbetalingsgradPrAktivitetDto(
+                mapArbeidsforholdDto(utbetalingsgradPrAktivitetDto.getUtbetalingsgradArbeidsforhold()),
+                mapPerioderMedUtbetalingsgrad(utbetalingsgradPrAktivitetDto.getPeriodeMedUtbetalingsgrad()));
     }
 
     private static List<PeriodeMedUtbetalingsgradDto> mapPerioderMedUtbetalingsgrad(List<no.nav.folketrygdloven.kalkulator.modell.svp.PeriodeMedUtbetalingsgradDto> periodeMedUtbetalingsgrad) {
@@ -162,20 +160,18 @@ class MapTilKalkulatorInput {
     }
 
     private static PeriodeMedUtbetalingsgradDto mapPeriodeMedUtbetalingsgrad(no.nav.folketrygdloven.kalkulator.modell.svp.PeriodeMedUtbetalingsgradDto periodeMedUtbetalingsgradDto) {
-        return periodeMedUtbetalingsgradDto == null ? null :
-            new PeriodeMedUtbetalingsgradDto(
+        return periodeMedUtbetalingsgradDto == null ? null
+            : new PeriodeMedUtbetalingsgradDto(
                 mapPeriode(periodeMedUtbetalingsgradDto.getPeriode()),
-                periodeMedUtbetalingsgradDto.getUtbetalingsgrad()
-            );
+                periodeMedUtbetalingsgradDto.getUtbetalingsgrad());
     }
 
     private static UtbetalingsgradArbeidsforholdDto mapArbeidsforholdDto(no.nav.folketrygdloven.kalkulator.modell.svp.UtbetalingsgradArbeidsforholdDto utbetalingsgradArbeidsforhold) {
-        return utbetalingsgradArbeidsforhold == null ? null :
-            new UtbetalingsgradArbeidsforholdDto(
+        return utbetalingsgradArbeidsforhold == null ? null
+            : new UtbetalingsgradArbeidsforholdDto(
                 utbetalingsgradArbeidsforhold.getArbeidsgiver().map(MapTilKalkulatorInput::mapArbeidsgiver).orElse(null),
                 mapAbakusReferanse(utbetalingsgradArbeidsforhold.getInternArbeidsforholdRef()),
-                utbetalingsgradArbeidsforhold.getUttakArbeidType() == null ? null : new UttakArbeidType(utbetalingsgradArbeidsforhold.getUttakArbeidType().getKode())
-            );
+                utbetalingsgradArbeidsforhold.getUttakArbeidType() == null ? null : new UttakArbeidType(utbetalingsgradArbeidsforhold.getUttakArbeidType().getKode()));
     }
 
     private static OpptjeningAktiviteterDto mapOpptjeningAktiviteter(Collection<no.nav.folketrygdloven.kalkulator.modell.opptjening.OpptjeningAktiviteterDto.OpptjeningPeriodeDto> opptjeningAktiviteterForBeregning) {
@@ -188,11 +184,10 @@ class MapTilKalkulatorInput {
 
     private static OpptjeningPeriodeDto mapOpptjeningPeriode(no.nav.folketrygdloven.kalkulator.modell.opptjening.OpptjeningAktiviteterDto.OpptjeningPeriodeDto opptjeningPeriodeDto) {
         return new OpptjeningPeriodeDto(
-            new OpptjeningAktivitetType(opptjeningPeriodeDto.getOpptjeningAktivitetType().getKode()),
+            OpptjeningAktivitetType.fraKode(opptjeningPeriodeDto.getOpptjeningAktivitetType().getKode()),
             new Periode(opptjeningPeriodeDto.getPeriode().getFomDato(), opptjeningPeriodeDto.getPeriode().getTomDato()),
             mapArbeidsgiver(opptjeningPeriodeDto.getArbeidsgiverOrgNummer(), opptjeningPeriodeDto.getArbeidsgiverAktørId()),
-            mapAbakusReferanse(opptjeningPeriodeDto.getArbeidsforholdId())
-        );
+            mapAbakusReferanse(opptjeningPeriodeDto.getArbeidsforholdId()));
     }
 
     private static Aktør mapArbeidsgiver(String arbeidsgiverOrgNummer, String arbeidsgiverAktørId) {
@@ -226,15 +221,15 @@ class MapTilKalkulatorInput {
     }
 
     private static YtelseDto mapYtelse(no.nav.folketrygdloven.kalkulator.modell.iay.YtelseDto ytelseDto) {
-        return ytelseDto == null ? null : new YtelseDto(
-            ytelseDto.getVedtaksDagsats().map(Beløp::getVerdi).map(BeløpDto::new).orElse(null),
-            mapYtelseAnvistSet(ytelseDto.getYtelseAnvist()),
-            ytelseDto.getRelatertYtelseType() == null ? null : new RelatertYtelseType(ytelseDto.getRelatertYtelseType().getKode()),
-            mapPeriode(ytelseDto.getPeriode()),
-            ytelseDto.getBehandlingsTema() == null ||
-                ytelseDto.getBehandlingsTema().equals(no.nav.folketrygdloven.kalkulator.modell.ytelse.TemaUnderkategori.UDEFINERT) ?
-                null : new TemaUnderkategori(ytelseDto.getBehandlingsTema().getKode())
-        );
+        return ytelseDto == null ? null
+            : new YtelseDto(
+                ytelseDto.getVedtaksDagsats().map(Beløp::getVerdi).map(BeløpDto::new).orElse(null),
+                mapYtelseAnvistSet(ytelseDto.getYtelseAnvist()),
+                ytelseDto.getRelatertYtelseType() == null ? null : new RelatertYtelseType(ytelseDto.getRelatertYtelseType().getKode()),
+                mapPeriode(ytelseDto.getPeriode()),
+                ytelseDto.getBehandlingsTema() == null ||
+                    ytelseDto.getBehandlingsTema().equals(no.nav.folketrygdloven.kalkulus.kodeverk.TemaUnderkategori.UDEFINERT) ? null
+                        : TemaUnderkategori.fraKode(ytelseDto.getBehandlingsTema().getKode()));
     }
 
     private static Set<no.nav.folketrygdloven.kalkulus.iay.ytelse.v1.YtelseAnvistDto> mapYtelseAnvistSet(Collection<YtelseAnvistDto> ytelseAnvist) {
@@ -242,20 +237,19 @@ class MapTilKalkulatorInput {
     }
 
     private static no.nav.folketrygdloven.kalkulus.iay.ytelse.v1.YtelseAnvistDto mapYtelseAnvist(YtelseAnvistDto ytelseAnvistDto) {
-        return ytelseAnvistDto == null ? null : new no.nav.folketrygdloven.kalkulus.iay.ytelse.v1.YtelseAnvistDto(
-            new Periode(ytelseAnvistDto.getAnvistFOM(), ytelseAnvistDto.getAnvistTOM()),
-            ytelseAnvistDto.getBeløp().map(Beløp::getVerdi).map(BeløpDto::new).orElse(null),
-            ytelseAnvistDto.getDagsats().map(Beløp::getVerdi).map(BeløpDto::new).orElse(null),
-            ytelseAnvistDto.getUtbetalingsgradProsent().map(Stillingsprosent::getVerdi).orElse(null)
-        );
+        return ytelseAnvistDto == null ? null
+            : new no.nav.folketrygdloven.kalkulus.iay.ytelse.v1.YtelseAnvistDto(
+                new Periode(ytelseAnvistDto.getAnvistFOM(), ytelseAnvistDto.getAnvistTOM()),
+                ytelseAnvistDto.getBeløp().map(Beløp::getVerdi).map(BeløpDto::new).orElse(null),
+                ytelseAnvistDto.getDagsats().map(Beløp::getVerdi).map(BeløpDto::new).orElse(null),
+                ytelseAnvistDto.getUtbetalingsgradProsent().map(Stillingsprosent::getVerdi).orElse(null));
     }
 
     private static OppgittOpptjeningDto mapOppgittOpptjening(Optional<no.nav.folketrygdloven.kalkulator.modell.iay.OppgittOpptjeningDto> oppgittOpptjening) {
         return oppgittOpptjening.map(oppgittOpptjeningDto -> new OppgittOpptjeningDto(
             mapFrilans(oppgittOpptjeningDto.getFrilans()),
             mapNæringer(oppgittOpptjeningDto.getEgenNæring()),
-            null
-        )).orElse(null);
+            null)).orElse(null);
     }
 
     private static List<OppgittEgenNæringDto> mapNæringer(List<no.nav.folketrygdloven.kalkulator.modell.iay.OppgittEgenNæringDto> egenNæring) {
@@ -263,17 +257,16 @@ class MapTilKalkulatorInput {
     }
 
     private static OppgittEgenNæringDto mapNæring(no.nav.folketrygdloven.kalkulator.modell.iay.OppgittEgenNæringDto oppgittEgenNæringDto) {
-        return oppgittEgenNæringDto == null ? null : new OppgittEgenNæringDto(
-            mapPeriode(oppgittEgenNæringDto.getPeriode()),
-            oppgittEgenNæringDto.getOrgnr() == null ? null : new Organisasjon(oppgittEgenNæringDto.getOrgnr()),
-            oppgittEgenNæringDto.getVirksomhetType() == null ? null : new VirksomhetType(oppgittEgenNæringDto.getVirksomhetType().getKode()),
-            oppgittEgenNæringDto.getNyoppstartet(),
-            oppgittEgenNæringDto.getVarigEndring(),
-            oppgittEgenNæringDto.getEndringDato(),
-            oppgittEgenNæringDto.getNærRelasjon(),
-            oppgittEgenNæringDto.getNyIArbeidslivet(),
-            oppgittEgenNæringDto.getBruttoInntekt()
-        );
+        return oppgittEgenNæringDto == null ? null
+            : new OppgittEgenNæringDto(
+                mapPeriode(oppgittEgenNæringDto.getPeriode()),
+                oppgittEgenNæringDto.getOrgnr() == null ? null : new Organisasjon(oppgittEgenNæringDto.getOrgnr()),
+                oppgittEgenNæringDto.getVirksomhetType() == null ? null : VirksomhetType.fraKode(oppgittEgenNæringDto.getVirksomhetType().getKode()),
+                oppgittEgenNæringDto.getNyoppstartet(),
+                oppgittEgenNæringDto.getVarigEndring(),
+                oppgittEgenNæringDto.getEndringDato(),
+                oppgittEgenNæringDto.getNyIArbeidslivet(),
+                oppgittEgenNæringDto.getBruttoInntekt());
     }
 
     private static OppgittFrilansDto mapFrilans(Optional<no.nav.folketrygdloven.kalkulator.modell.iay.OppgittFrilansDto> frilans) {
@@ -291,16 +284,18 @@ class MapTilKalkulatorInput {
     }
 
     private static InntektsmeldingDto mapInntektsmelding(no.nav.folketrygdloven.kalkulator.modell.iay.InntektsmeldingDto inntektsmeldingDto) {
-        return inntektsmeldingDto == null ? null : new InntektsmeldingDto(
-            mapArbeidsgiver(inntektsmeldingDto.getArbeidsgiver()),
-            mapBeløp(inntektsmeldingDto.getInntektBeløp()),
-            mapNaturalYtelser(inntektsmeldingDto.getNaturalYtelser()),
-            mapRefusjonEndringer(inntektsmeldingDto.getEndringerRefusjon()),
-            mapAbakusReferanse(inntektsmeldingDto.getArbeidsforholdRef()),
-            inntektsmeldingDto.getStartDatoPermisjon().orElse(null),
-            inntektsmeldingDto.getRefusjonOpphører(),
-            mapBeløp(inntektsmeldingDto.getRefusjonBeløpPerMnd())
-        );
+        return inntektsmeldingDto == null ? null
+            : new InntektsmeldingDto(
+                mapArbeidsgiver(inntektsmeldingDto.getArbeidsgiver()),
+                mapBeløp(inntektsmeldingDto.getInntektBeløp()),
+                mapNaturalYtelser(inntektsmeldingDto.getNaturalYtelser()),
+                mapRefusjonEndringer(inntektsmeldingDto.getEndringerRefusjon()),
+                mapAbakusReferanse(inntektsmeldingDto.getArbeidsforholdRef()),
+                inntektsmeldingDto.getStartDatoPermisjon().orElse(null),
+                inntektsmeldingDto.getRefusjonOpphører(),
+                mapBeløp(inntektsmeldingDto.getRefusjonBeløpPerMnd()),
+                inntektsmeldingDto.getJournalpostId(),
+                inntektsmeldingDto.getKanalreferanse());
     }
 
     private static BeløpDto mapBeløp(Beløp beløp) {
@@ -312,10 +307,10 @@ class MapTilKalkulatorInput {
     }
 
     private static no.nav.folketrygdloven.kalkulus.iay.inntekt.v1.RefusjonDto mapRefusjonEndring(RefusjonDto refusjonDto) {
-        return refusjonDto == null ? null : new no.nav.folketrygdloven.kalkulus.iay.inntekt.v1.RefusjonDto(
-            mapBeløp(refusjonDto.getRefusjonsbeløp()),
-            refusjonDto.getFom()
-        );
+        return refusjonDto == null ? null
+            : new no.nav.folketrygdloven.kalkulus.iay.inntekt.v1.RefusjonDto(
+                mapBeløp(refusjonDto.getRefusjonsbeløp()),
+                refusjonDto.getFom());
     }
 
     private static List<no.nav.folketrygdloven.kalkulus.iay.inntekt.v1.NaturalYtelseDto> mapNaturalYtelser(List<NaturalYtelseDto> naturalYtelser) {
@@ -323,11 +318,11 @@ class MapTilKalkulatorInput {
     }
 
     private static no.nav.folketrygdloven.kalkulus.iay.inntekt.v1.NaturalYtelseDto mapNaturalYtelse(NaturalYtelseDto naturalYtelseDto) {
-        return naturalYtelseDto == null ? null : new no.nav.folketrygdloven.kalkulus.iay.inntekt.v1.NaturalYtelseDto(
-            mapPeriode(naturalYtelseDto.getPeriode()),
-            mapBeløp(naturalYtelseDto.getBeloepPerMnd()),
-            naturalYtelseDto.getType() == null ? null : new NaturalYtelseType(naturalYtelseDto.getType().getKode())
-        );
+        return naturalYtelseDto == null ? null
+            : new no.nav.folketrygdloven.kalkulus.iay.inntekt.v1.NaturalYtelseDto(
+                mapPeriode(naturalYtelseDto.getPeriode()),
+                mapBeløp(naturalYtelseDto.getBeloepPerMnd()),
+                naturalYtelseDto.getType() == null ? null : NaturalYtelseType.fraKode(naturalYtelseDto.getType().getKode()));
     }
 
     private static InntekterDto mapInntekter(Optional<AktørInntektDto> aktørInntektFraRegister) {
@@ -343,9 +338,8 @@ class MapTilKalkulatorInput {
             return null;
         }
         UtbetalingDto utbetalingDto = new UtbetalingDto(
-            inntektDto.getInntektsKilde() == null ? null : new InntektskildeType(inntektDto.getInntektsKilde().getKode()),
-            mapPoster(inntektDto.getAlleInntektsposter())
-        );
+            inntektDto.getInntektsKilde() == null ? null : InntektskildeType.fraKode(inntektDto.getInntektsKilde().getKode()),
+            mapPoster(inntektDto.getAlleInntektsposter()));
         utbetalingDto.setArbeidsgiver(mapArbeidsgiver(inntektDto.getArbeidsgiver()));
         return utbetalingDto;
     }
@@ -355,13 +349,13 @@ class MapTilKalkulatorInput {
     }
 
     private static UtbetalingsPostDto mapPost(InntektspostDto inntektspostDto) {
-        return inntektspostDto == null ? null : new UtbetalingsPostDto(
-            mapPeriode(inntektspostDto.getPeriode()),
-            inntektspostDto.getInntektspostType() == null ?
-                new InntektspostType(no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType.UDEFINERT.getKode()) :
-                new InntektspostType(inntektspostDto.getInntektspostType().getKode()),
-            inntektspostDto.getBeløp() == null ? null : inntektspostDto.getBeløp().getVerdi()
-        );
+        return inntektspostDto == null ? null
+            : new UtbetalingsPostDto(
+                mapPeriode(inntektspostDto.getPeriode()),
+                inntektspostDto.getInntektspostType() == null
+                    ? InntektspostType.fraKode(no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType.UDEFINERT.getKode())
+                    : InntektspostType.fraKode(inntektspostDto.getInntektspostType().getKode()),
+                inntektspostDto.getBeløp() == null ? null : inntektspostDto.getBeløp().getVerdi());
     }
 
     private static Periode mapPeriode(Intervall periode) {
@@ -369,9 +363,8 @@ class MapTilKalkulatorInput {
     }
 
     private static ArbeidsforholdInformasjonDto mapArbeidsforholdInformasjon(Optional<no.nav.folketrygdloven.kalkulator.modell.iay.ArbeidsforholdInformasjonDto> arbeidsforholdInformasjon) {
-        ArbeidsforholdInformasjonDto arbeidsforholdInformasjonDtoMapped = arbeidsforholdInformasjon.map(arbeidsforholdInformasjonDto ->
-            new ArbeidsforholdInformasjonDto(mapOverstyringer(arbeidsforholdInformasjonDto.getOverstyringer()))
-        ).orElse(null);
+        ArbeidsforholdInformasjonDto arbeidsforholdInformasjonDtoMapped = arbeidsforholdInformasjon
+            .map(arbeidsforholdInformasjonDto -> new ArbeidsforholdInformasjonDto(mapOverstyringer(arbeidsforholdInformasjonDto.getOverstyringer()))).orElse(null);
         if (arbeidsforholdInformasjonDtoMapped == null || arbeidsforholdInformasjonDtoMapped.getOverstyringer() == null || arbeidsforholdInformasjonDtoMapped.getOverstyringer().isEmpty()) {
             return null;
         }
@@ -383,11 +376,11 @@ class MapTilKalkulatorInput {
     }
 
     private static ArbeidsforholdOverstyringDto mapOverstyring(no.nav.folketrygdloven.kalkulator.modell.iay.ArbeidsforholdOverstyringDto arbeidsforholdOverstyringDto) {
-        return arbeidsforholdOverstyringDto == null ? null : new ArbeidsforholdOverstyringDto(
-            mapArbeidsgiver(arbeidsforholdOverstyringDto.getArbeidsgiver()),
-            mapAbakusReferanse(arbeidsforholdOverstyringDto.getArbeidsforholdRef()),
-            arbeidsforholdOverstyringDto.getHandling() == null ? null : new ArbeidsforholdHandlingType(arbeidsforholdOverstyringDto.getHandling().getKode())
-        );
+        return arbeidsforholdOverstyringDto == null ? null
+            : new ArbeidsforholdOverstyringDto(
+                mapArbeidsgiver(arbeidsforholdOverstyringDto.getArbeidsgiver()),
+                mapAbakusReferanse(arbeidsforholdOverstyringDto.getArbeidsforholdRef()),
+                arbeidsforholdOverstyringDto.getHandling() == null ? null : ArbeidsforholdHandlingType.fraKode(arbeidsforholdOverstyringDto.getHandling().getKode()));
     }
 
     private static ArbeidDto mapArbeidDto(Optional<AktørArbeidDto> aktørArbeidFraRegister) {
@@ -397,12 +390,12 @@ class MapTilKalkulatorInput {
     }
 
     private static no.nav.folketrygdloven.kalkulus.iay.arbeid.v1.YrkesaktivitetDto mapYrkesaktivitet(YrkesaktivitetDto yrkesaktivitetDto) {
-        return yrkesaktivitetDto == null ? null : new no.nav.folketrygdloven.kalkulus.iay.arbeid.v1.YrkesaktivitetDto(
-            mapArbeidsgiver(yrkesaktivitetDto.getArbeidsgiver()),
-            mapAbakusReferanse(yrkesaktivitetDto.getArbeidsforholdRef()),
-            yrkesaktivitetDto.getArbeidType() == null ? null : new no.nav.folketrygdloven.kalkulus.kodeverk.ArbeidType(yrkesaktivitetDto.getArbeidType().getKode()),
-            mapAktivitetsAvtaler(yrkesaktivitetDto.getAlleAktivitetsAvtaler())
-        );
+        return yrkesaktivitetDto == null ? null
+            : new no.nav.folketrygdloven.kalkulus.iay.arbeid.v1.YrkesaktivitetDto(
+                mapArbeidsgiver(yrkesaktivitetDto.getArbeidsgiver()),
+                mapAbakusReferanse(yrkesaktivitetDto.getArbeidsforholdRef()),
+                yrkesaktivitetDto.getArbeidType() == null ? null : no.nav.folketrygdloven.kalkulus.kodeverk.ArbeidType.fraKode(yrkesaktivitetDto.getArbeidType().getKode()),
+                mapAktivitetsAvtaler(yrkesaktivitetDto.getAlleAktivitetsAvtaler()));
     }
 
     private static List<AktivitetsAvtaleDto> mapAktivitetsAvtaler(Collection<no.nav.folketrygdloven.kalkulator.modell.iay.AktivitetsAvtaleDto> alleAktivitetsAvtaler) {
@@ -410,11 +403,11 @@ class MapTilKalkulatorInput {
     }
 
     private static AktivitetsAvtaleDto mapAktivitetsAvtale(no.nav.folketrygdloven.kalkulator.modell.iay.AktivitetsAvtaleDto aktivitetsAvtaleDto) {
-        return aktivitetsAvtaleDto == null ? null : new AktivitetsAvtaleDto(
-            mapPeriode(aktivitetsAvtaleDto.getPeriode()),
-            aktivitetsAvtaleDto.getSisteLønnsendringsdato(),
-            aktivitetsAvtaleDto.erAnsettelsesPeriode() ? null : BigDecimal.valueOf(100)
-        );
+        return aktivitetsAvtaleDto == null ? null
+            : new AktivitetsAvtaleDto(
+                mapPeriode(aktivitetsAvtaleDto.getPeriode()),
+                aktivitetsAvtaleDto.getSisteLønnsendringsdato(),
+                aktivitetsAvtaleDto.erAnsettelsesPeriode() ? null : BigDecimal.valueOf(100));
     }
 
     private static no.nav.folketrygdloven.kalkulus.felles.v1.InternArbeidsforholdRefDto mapAbakusReferanse(InternArbeidsforholdRefDto arbeidsforholdRef) {

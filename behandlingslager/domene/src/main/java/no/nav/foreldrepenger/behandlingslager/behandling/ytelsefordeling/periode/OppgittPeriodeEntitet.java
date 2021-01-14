@@ -201,27 +201,27 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
         this.begrunnelse = begrunnelse;
     }
 
-    public boolean getErArbeidstaker() {
+    public boolean isArbeidstaker() {
         return erArbeidstaker;
     }
 
-    void setErArbeidstaker(boolean erArbeidstaker) {
+    void setArbeidstaker(boolean erArbeidstaker) {
         this.erArbeidstaker = erArbeidstaker;
     }
 
-    public boolean getErFrilanser() {
+    public boolean isFrilanser() {
         return erFrilanser;
     }
 
-    void setErFrilanser(boolean erFrilanser) {
+    void setFrilanser(boolean erFrilanser) {
         this.erFrilanser = erFrilanser;
     }
 
-    public boolean getErSelvstendig() {
+    public boolean isSelvstendig() {
         return erSelvstendig;
     }
 
-    void setErSelvstendig(boolean erSelvstendig) {
+    void setSelvstendig(boolean erSelvstendig) {
         this.erSelvstendig = erSelvstendig;
     }
 
@@ -273,19 +273,19 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
         this.periodeKilde = periodeKilde;
     }
 
-    public boolean erGradert() {
+    public boolean isGradert() {
         return getArbeidsprosent() != null && getArbeidsprosent().compareTo(BigDecimal.ZERO) > 0;
     }
 
-    public boolean erOpphold() {
+    public boolean isOpphold() {
         return getÅrsak() instanceof OppholdÅrsak;
     }
 
-    public boolean erOverføring() {
+    public boolean isOverføring() {
         return getÅrsak() instanceof OverføringÅrsak;
     }
 
-    public boolean erUtsettelse() {
+    public boolean isUtsettelse() {
         return getÅrsak() instanceof UtsettelseÅrsak;
     }
 
@@ -300,12 +300,8 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
     /**
      * Kommer denne perioden fra uttaksresultatet til et tidligere vedtak
      */
-    public boolean erVedtaksperiode() {
+    public boolean isVedtaksperiode() {
         return getPeriodeKilde().equals(FordelingPeriodeKilde.TIDLIGERE_VEDTAK);
-    }
-
-    public boolean erOmsluttetAv(OppgittPeriodeEntitet periode2) {
-        return !periode2.getFom().isAfter(getFom()) && !periode2.getTom().isBefore(getTom());
     }
 
     @Override

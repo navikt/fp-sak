@@ -20,7 +20,7 @@ public class AksjonspunktDvhEntityTest {
         assertThat(aksjonspunktDvh.getBehandlingStegId()).isEqualTo(DatavarehusTestUtils.BEHANDLING_STEG_ID);
         assertThat(aksjonspunktDvh.getEndretAv()).isEqualTo(DatavarehusTestUtils.ENDRET_AV);
         assertThat(aksjonspunktDvh.getFunksjonellTid()).isEqualTo(DatavarehusTestUtils.FUNKSJONELL_TID);
-        assertThat(aksjonspunktDvh.isToTrinnsBehandling()).isEqualTo(true);
-        assertThat(aksjonspunktDvh.getToTrinnsBehandlingGodkjent()).isEqualTo(true);
+        assertThat(aksjonspunktDvh.isToTrinnsBehandling()).isTrue();
+        assertThat(aksjonspunktDvh.getToTrinnsBehandlingGodkjent()).isTrue();
     }
 }

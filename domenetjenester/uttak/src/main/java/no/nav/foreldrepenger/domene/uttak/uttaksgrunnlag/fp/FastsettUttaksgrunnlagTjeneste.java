@@ -93,7 +93,7 @@ public class FastsettUttaksgrunnlagTjeneste {
             .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
             .collect(Collectors.toList());
 
-        while (!sortertePerioder.isEmpty() && sortertePerioder.get(sortertePerioder.size() - 1).erOpphold()) {
+        while (!sortertePerioder.isEmpty() && sortertePerioder.get(sortertePerioder.size() - 1).isOpphold()) {
             sortertePerioder.remove(sortertePerioder.size() - 1);
         }
         if (sortertePerioder.isEmpty()) {

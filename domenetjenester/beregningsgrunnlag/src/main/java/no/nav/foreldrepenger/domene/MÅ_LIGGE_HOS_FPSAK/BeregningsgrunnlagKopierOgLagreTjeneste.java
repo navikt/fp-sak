@@ -31,7 +31,7 @@ import no.nav.folketrygdloven.kalkulator.output.RegelSporingAggregat;
 import no.nav.folketrygdloven.kalkulator.output.RegelSporingPeriode;
 import no.nav.folketrygdloven.kalkulator.steg.BeregningsgrunnlagTjeneste;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
-import no.nav.folketrygdloven.kalkulus.felles.kodeverk.domene.BeregningsgrunnlagPeriodeRegelType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagPeriodeRegelType;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
@@ -262,7 +262,8 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
         );
         beregningsgrunnlagRepository.lagre(behandlingId, nyttBg, tilstand);
         if (kanKopiereBekreftet) {
-            forrigeBekreftetBeregningsgrunnlag.map(BeregningsgrunnlagEntitet::new).ifPresent(bg -> beregningsgrunnlagRepository.lagre(behandlingId, bg, bekreftetTilstand));
+            forrigeBekreftetBeregningsgrunnlag
+                .map(BeregningsgrunnlagEntitet::new).ifPresent(bg -> beregningsgrunnlagRepository.lagre(behandlingId, bg, bekreftetTilstand));
         }
     }
 

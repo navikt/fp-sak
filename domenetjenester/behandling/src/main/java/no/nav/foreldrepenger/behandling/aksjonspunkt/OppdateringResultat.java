@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.behandling.aksjonspunkt;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.TransisjonIdentifikator;
@@ -9,11 +10,19 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.vedtak.util.Tuple;
 
 public class OppdateringResultat {
 
     private BehandlingStegType nesteSteg;
+    private final List<VilkårOppdateringResultat> vilkårResultatSomSkalLeggesTil = new ArrayList<>();
+    private final List<VilkårType> vilkårTyperSomSkalFjernes = new ArrayList<>(); // Eksisterer for å håndtere vilkåropprydding for Omsorg
+    private VilkårResultatType vilkårResultatType;
     private OverhoppKontroll overhoppKontroll;
     private BehandlingResultatType henleggelseResultat;
     private String henleggingsbegrunnelse;
@@ -111,10 +120,22 @@ public class OppdateringResultat {
         return ekstraAksjonspunktResultat;
     }
 
+    public List<VilkårOppdateringResultat> getVilkårResultatSomSkalLeggesTil() {
+        return vilkårResultatSomSkalLeggesTil;
+    }
+
+    public List<VilkårType> getVilkårTyperSomSkalFjernes() {
+        return vilkårTyperSomSkalFjernes;
+    }
+
+    public VilkårResultatType getVilkårResultatType() {
+        return vilkårResultatType;
+    }
+
     public static class Builder {
         private OppdateringResultat resultat;
 
-        Builder() {
+        public Builder() {
             resultat = new OppdateringResultat(OverhoppKontroll.UTEN_OVERHOPP);
         }
 
@@ -123,6 +144,50 @@ public class OppdateringResultat {
          */
         public Builder medBeholdAksjonspunktÅpent() {
             resultat.beholdAksjonspunktÅpent = true;
+            return this;
+        }
+
+        public Builder medVilkårResultatType(VilkårResultatType vilkårResultatType) {
+            resultat.vilkårResultatType = vilkårResultatType;
+            return this;
+        }
+
+        public Builder leggTilVilkårResultat(VilkårType vilkårType, VilkårUtfallType vilkårUtfallType) {
+            Objects.requireNonNull(vilkårType);
+            Objects.requireNonNull(vilkårUtfallType);
+            if (resultat.vilkårTyperSomSkalFjernes.stream().anyMatch(type -> type.equals(vilkårType))) {
+                throw new IllegalStateException("Kan ikke fjerne vilkårtype med resultat som er lagt til i samme transisjon");
+            }
+            resultat.vilkårResultatSomSkalLeggesTil.add(new VilkårOppdateringResultat(vilkårType, vilkårUtfallType));
+            return this;
+        }
+
+        public Builder leggTilAvslåttVilkårResultat(VilkårType vilkårType, Avslagsårsak avslagsårsak) {
+            Objects.requireNonNull(vilkårType);
+            if (resultat.vilkårTyperSomSkalFjernes.stream().anyMatch(type -> type.equals(vilkårType))) {
+                throw new IllegalStateException("Kan ikke fjerne vilkårtype med resultat som er lagt til i samme transisjon");
+            }
+            resultat.vilkårResultatSomSkalLeggesTil.add(new VilkårOppdateringResultat(vilkårType, avslagsårsak));
+            return this;
+        }
+
+        public Builder leggTilAvslåttVilkårResultat(VilkårType vilkårType, Avslagsårsak avslagsårsak, VilkårUtfallMerknad merknad) {
+            Objects.requireNonNull(vilkårType);
+            if (resultat.vilkårTyperSomSkalFjernes.stream().anyMatch(type -> type.equals(vilkårType))) {
+                throw new IllegalStateException("Kan ikke fjerne vilkårtype med resultat som er lagt til i samme transisjon");
+            }
+            resultat.vilkårResultatSomSkalLeggesTil.add(new VilkårOppdateringResultat(vilkårType, avslagsårsak, merknad));
+            return this;
+        }
+
+
+
+        public Builder fjernVilkårType(VilkårType vilkårType) {
+            Objects.requireNonNull(vilkårType);
+            if (resultat.vilkårResultatSomSkalLeggesTil.stream().anyMatch(v -> v.getVilkårType().equals(vilkårType))) {
+                throw new IllegalStateException("Kan ikke fjerne vilkårtype med resultat som er lagt til i samme transisjon");
+            }
+            resultat.vilkårTyperSomSkalFjernes.add(vilkårType);
             return this;
         }
 
@@ -180,6 +245,9 @@ public class OppdateringResultat {
         }
 
         public OppdateringResultat build() {
+            if (resultat.vilkårResultatSomSkalLeggesTil.stream().map(VilkårOppdateringResultat::getVilkårUtfallType).anyMatch(VilkårUtfallType.IKKE_OPPFYLT::equals)) {
+                resultat.vilkårResultatType = VilkårResultatType.AVSLÅTT;
+            }
             return resultat;
         }
     }
