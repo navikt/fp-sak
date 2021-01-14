@@ -119,7 +119,7 @@ public class SendBrevForAutopunktTest {
         Behandling behandling = scenarioMorSøkerForeldrepenger.lagMocked();
         Aksjonspunkt autopunkt = behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD).get();
         AksjonspunktTestSupport.setFrist(autopunkt, LocalDate.now().plusWeeks(3).atStartOfDay(), Venteårsak.AVV_DOK);
-        doReturn(true).when(dokumentBehandlingTjeneste).erDokumentBestilt(behandling.getId(), DokumentMalType.INNTEKTSMELDING_FOR_TIDLIG_DOK);
+        doReturn(true).when(dokumentBehandlingTjeneste).erDokumentBestilt(behandling.getId(), DokumentMalType.IKKE_SØKT);
         sendBrevForAutopunkt.sendBrevForSøknadIkkeMottatt(behandling, autopunkt);
         Mockito.verify(dokumentBestillerTjeneste, times(0)).bestillDokument(Mockito.any(), Mockito.eq(HistorikkAktør.VEDTAKSLØSNINGEN),
                 Mockito.anyBoolean());
