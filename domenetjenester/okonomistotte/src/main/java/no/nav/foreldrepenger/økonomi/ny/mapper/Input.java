@@ -17,7 +17,6 @@ public class Input {
     private FagsakYtelseType fagsakYtelseType;
     private FamilieYtelseType familieYtelseType;
     private String ansvarligSaksbehandler;
-    private LocalDate vedtaksdato;
     private boolean brukInntrekk;
     private Long prosessTaskId;
 
@@ -54,10 +53,6 @@ public class Input {
 
     public String getAnsvarligSaksbehandler() {
         return ansvarligSaksbehandler;
-    }
-
-    public LocalDate getVedtaksdato() {
-        return vedtaksdato;
     }
 
     public boolean brukInntrekk() {
@@ -129,11 +124,6 @@ public class Input {
 
         public Builder medAnsvarligSaksbehandler(String ansvarligSaksbehandler) {
             kladd.ansvarligSaksbehandler = ansvarligSaksbehandler;
-            return this;
-        }
-
-        public Builder medVedtaksdato(LocalDate vedtaksdato) {
-            kladd.vedtaksdato = vedtaksdato;
             return this;
         }
 
