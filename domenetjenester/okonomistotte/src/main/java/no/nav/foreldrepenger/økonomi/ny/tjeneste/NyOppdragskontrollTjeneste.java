@@ -65,7 +65,7 @@ public class NyOppdragskontrollTjeneste {
 
     public Optional<Oppdragskontroll> opprettOppdrag(Long behandlingId, Long prosessTaskId, boolean brukFellesEndringstidspunkt) {
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        BehandlingVedtak vedtak = behandlingVedtakRepository.hentForBehandling(behandlingId);
+        //BehandlingVedtak vedtak = behandlingVedtakRepository.hentForBehandling(behandlingId);
         BeregningsresultatEntitet tilkjentYtelse = hentTilkjentYtelse(behandlingId);
         boolean brukInntrekk = hentBrukInntrekk(behandlingId);
 
@@ -79,7 +79,7 @@ public class NyOppdragskontrollTjeneste {
             .medBruker(behandling.getAktørId())
             .medSaksnummer(saksnummer)
             .medBehandlingId(behandlingId)
-            .medVedtaksdato(vedtak.getVedtaksdato())
+          //  .medVedtaksdato(vedtak.getVedtaksdato())
             .medAnsvarligSaksbehandler(behandling.getAnsvarligBeslutter())
             .medProsessTaskId(prosessTaskId)
             .build();
