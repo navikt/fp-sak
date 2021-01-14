@@ -53,7 +53,12 @@ public class OppdragskontrollEndring implements OppdragskontrollManager {
             throw new IllegalStateException("Fant ikke forrige oppdrag");
         }
 
-        List<TilkjentYtelseAndel> andelerOriginal = finnAndelerIForrigeBehandling(nyOppdragskontroll, behandlingInfo);
+        List<TilkjentYtelseAndel> andelerOriginal = finnAndelerIForrigeBehandling(behandlingInfo);
+
+        if (!andelerOriginal.isEmpty()) {
+            opprettOpphørIEndringsoppdragFP.lagOppdragForMottakereSomSkalOpphøre(behandlingInfo, nyOppdragskontroll, andelerOriginal);
+        }
+
         Map<Oppdragsmottaker, List<TilkjentYtelseAndel>> andelPrMottakerMap = OpprettMottakereMapEndringsoppdrag.finnMottakereMedDeresAndelForEndringsoppdrag(behandlingInfo, andelerOriginal);
 
         if (andelPrMottakerMap.isEmpty()) {
@@ -255,12 +260,8 @@ public class OppdragskontrollEndring implements OppdragskontrollManager {
             .orElseThrow(() -> new IllegalStateException("Utvikler feil: Forrige oppdrag mangler fagsystemId"));
     }
 
-    private List<TilkjentYtelseAndel> finnAndelerIForrigeBehandling(Oppdragskontroll oppdragskontroll, OppdragInput behandlingInfo) {
-        List<TilkjentYtelseAndel> forrigeTilkjentYtelseAndeler = OpprettOppdragslinje150Tjeneste.hentForrigeTilkjentYtelseAndeler(behandlingInfo);
-        if (!forrigeTilkjentYtelseAndeler.isEmpty()) {
-            opprettOpphørIEndringsoppdragFP.lagOppdragForMottakereSomSkalOpphøre(behandlingInfo, oppdragskontroll, forrigeTilkjentYtelseAndeler);
-        }
-        return forrigeTilkjentYtelseAndeler;
+    private List<TilkjentYtelseAndel> finnAndelerIForrigeBehandling(OppdragInput oppdragInput) {
+        return OpprettOppdragslinje150Tjeneste.hentForrigeTilkjentYtelseAndeler(oppdragInput);
     }
 
     /**
