@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDate;
@@ -38,7 +37,6 @@ import java.util.List;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.KontrollerAktivitetskravAvklaring.I_AKTIVITET;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 
 @ExtendWith(FPsakEntityManagerAwareExtension.class)
@@ -119,7 +117,24 @@ class KontrollerAktivitetskravDtoTjenesteTest {
         assertThat(dto).hasSize(1);
         assertThat(dto.get(0).getFom()).isEqualTo(søknadFom);
         assertThat(dto.get(0).getTom()).isEqualTo(søknadTom);
-        assertNull(dto.get(0).getAvklaring());
+        assertThat(dto.get(0).getAvklaring()).isNull();
+    }
+
+    @Test
+    public void tidsperiode_på_dto_skal_følge_avklaring_hvis_søknadsperiode_har_fom_tom_i_helg() {
+        var behandling = behandlingFraScenario();
+        var søknadFom = LocalDate.of(2021, 1, 3); // søndag
+        var avklaringFom = LocalDate.of(2021,1, 4); // mandag
+        var avklaringTom = LocalDate.of(2021, 1, 8); // fredag
+        var søknadTom = LocalDate.of(2021, 1, 10); // søndag
+        var søknadPeriode = søknadsperiode(søknadFom, søknadTom);
+        lagreOpprinneligAktivitetskrav(behandling, avklaringFom, avklaringTom);
+        lagreOppgittFordeling(behandling, søknadPeriode);
+        var dto = tjeneste.lagDtos(new UuidDto(behandling.getUuid()));
+        assertThat(dto).hasSize(1);
+        assertThat(dto.get(0).getFom()).isEqualTo(avklaringFom);
+        assertThat(dto.get(0).getTom()).isEqualTo(avklaringTom);
+        assertThat(dto.get(0).getAvklaring()).isNotNull();
     }
 
     private Behandling behandlingFraScenario() {
