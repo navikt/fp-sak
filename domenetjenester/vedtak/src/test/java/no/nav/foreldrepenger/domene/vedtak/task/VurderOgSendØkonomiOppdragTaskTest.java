@@ -23,6 +23,8 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomi.ny.postcondition.OppdragPostConditionTjeneste;
+import no.nav.foreldrepenger.økonomi.ny.tjeneste.NyOppdragskontrollTjeneste;
+import no.nav.foreldrepenger.økonomi.ny.toggle.OppdragKjerneimplementasjonToggle;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHendelse;
@@ -47,7 +49,13 @@ public class VurderOgSendØkonomiOppdragTaskTest {
     private OppdragskontrollTjeneste oppdragskontrollTjeneste;
 
     @Mock
+    private NyOppdragskontrollTjeneste nyOppdragskontrollTjeneste;
+
+    @Mock
     private OppdragPostConditionTjeneste oppdragPostConditionTjeneste;
+
+    @Mock
+    private OppdragKjerneimplementasjonToggle toggle;
 
     private VurderOgSendØkonomiOppdragTask task;
 
@@ -56,7 +64,7 @@ public class VurderOgSendØkonomiOppdragTaskTest {
         when(prosessTaskData.getBehandlingId()).thenReturn(BEHANDLING_ID.toString());
         lenient().when(prosessTaskData.getId()).thenReturn(TASK_ID);
         lenient().when(prosessTaskData.getAktørId()).thenReturn(AKTØR_ID);
-        task = new VurderOgSendØkonomiOppdragTask(oppdragskontrollTjeneste, repo, ScenarioMorSøkerForeldrepenger.forFødsel().mockBehandlingRepositoryProvider(), oppdragPostConditionTjeneste);
+        task = new VurderOgSendØkonomiOppdragTask(oppdragskontrollTjeneste, repo, ScenarioMorSøkerForeldrepenger.forFødsel().mockBehandlingRepositoryProvider(), nyOppdragskontrollTjeneste, oppdragPostConditionTjeneste, toggle);
     }
 
     @Test

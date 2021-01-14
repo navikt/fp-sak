@@ -48,155 +48,155 @@ public class OppdragskontrollEndring implements OppdragskontrollManager {
 
     @Override
     public Oppdragskontroll opprettØkonomiOppdrag(Behandling behandling, Oppdragskontroll nyOppdragskontroll) {
-        OppdragInput behandlingInfo = behandlingTilOppdragMapperTjenesteFP.map(behandling);
-        if (behandlingInfo.getAlleTidligereOppdrag110().isEmpty()) {
+        OppdragInput oppdragInput = behandlingTilOppdragMapperTjenesteFP.map(behandling);
+        if (oppdragInput.getAlleTidligereOppdrag110().isEmpty()) {
             throw new IllegalStateException("Fant ikke forrige oppdrag");
         }
 
-        List<TilkjentYtelseAndel> andelerOriginal = finnAndelerIForrigeBehandling(nyOppdragskontroll, behandlingInfo);
-        Map<Oppdragsmottaker, List<TilkjentYtelseAndel>> andelPrMottakerMap = OpprettMottakereMapEndringsoppdrag.finnMottakereMedDeresAndelForEndringsoppdrag(behandlingInfo, andelerOriginal);
+        List<TilkjentYtelseAndel> andelerOriginal = finnAndelerIForrigeBehandling(nyOppdragskontroll, oppdragInput);
+        Map<Oppdragsmottaker, List<TilkjentYtelseAndel>> andelPrMottakerMap = OpprettMottakereMapEndringsoppdrag.finnMottakereMedDeresAndelForEndringsoppdrag(oppdragInput, andelerOriginal);
 
         if (andelPrMottakerMap.isEmpty()) {
-            throw new IllegalStateException("Finnes ingen oppdragsmottakere i behandling " + behandlingInfo.getBehandlingId());
+            throw new IllegalStateException("Finnes ingen oppdragsmottakere i behandling " + oppdragInput.getBehandlingId());
         }
-        opprettEndringsoppdrag(behandlingInfo, andelPrMottakerMap, nyOppdragskontroll);
+        opprettEndringsoppdrag(oppdragInput, andelPrMottakerMap, nyOppdragskontroll);
         return nyOppdragskontroll;
     }
 
-    private void opprettEndringsoppdrag(OppdragInput behandlingInfo,
+    private void opprettEndringsoppdrag(OppdragInput oppdragInput,
                                         Map<Oppdragsmottaker, List<TilkjentYtelseAndel>> andelPrMottakerMap, Oppdragskontroll nyOppdragskontroll) {
 
-        long løpVerdiForFørstegangsoppdrag = finnInitialLøpenummerVerdi(behandlingInfo);
+        long løpVerdiForFørstegangsoppdrag = finnInitialLøpenummerVerdi(oppdragInput);
 
         for (Map.Entry<Oppdragsmottaker, List<TilkjentYtelseAndel>> entry : andelPrMottakerMap.entrySet()) {
             Oppdragsmottaker mottaker = entry.getKey();
             if (mottaker.getStatus() != null && mottaker.erStatusNy()) {
-                opprettOppdragForNyeMottakere(behandlingInfo, nyOppdragskontroll, entry, løpVerdiForFørstegangsoppdrag);
+                opprettOppdragForNyeMottakere(oppdragInput, nyOppdragskontroll, entry, løpVerdiForFørstegangsoppdrag);
                 løpVerdiForFørstegangsoppdrag++;
             }
             if (mottaker.getStatus() != null && erMottakerIBådeForrigeOgNyTilkjentYtelse(mottaker)) {
                 if (mottaker.erBruker()) {
-                    opprettEndringsoppdragForBruker(behandlingInfo, nyOppdragskontroll, entry);
+                    opprettEndringsoppdragForBruker(oppdragInput, nyOppdragskontroll, entry);
                 } else {
-                    opprettEndringsoppdragForArbeidsgiver(behandlingInfo, nyOppdragskontroll, entry);
+                    opprettEndringsoppdragForArbeidsgiver(oppdragInput, nyOppdragskontroll, entry);
                 }
             }
         }
     }
 
-    private void opprettOppdragForNyeMottakere(OppdragInput behandlingInfo, Oppdragskontroll oppdragskontroll,
+    private void opprettOppdragForNyeMottakere(OppdragInput oppdragInput, Oppdragskontroll oppdragskontroll,
                                                Map.Entry<Oppdragsmottaker, List<TilkjentYtelseAndel>> entry, long løpVerdiForFørstegangsoppdr) {
 
-        long fagsystemId = OpprettOppdrag110Tjeneste.settFagsystemId(behandlingInfo.getSaksnummer(), løpVerdiForFørstegangsoppdr, true);
-        Oppdrag110 oppdrag110 = OpprettOppdrag110Tjeneste.opprettNyOppdrag110(behandlingInfo, oppdragskontroll, entry.getKey(), fagsystemId);
+        long fagsystemId = OpprettOppdrag110Tjeneste.settFagsystemId(oppdragInput.getSaksnummer(), løpVerdiForFørstegangsoppdr, true);
+        Oppdrag110 oppdrag110 = OpprettOppdrag110Tjeneste.opprettNyOppdrag110(oppdragInput, oppdragskontroll, entry.getKey(), fagsystemId);
         Oppdragsmottaker mottaker = entry.getKey();
         List<TilkjentYtelseAndel> andelListe = entry.getValue();
-        List<Oppdragslinje150> oppdragslinje150List = OpprettOppdragslinje150Tjeneste.opprettOppdragslinje150(behandlingInfo, oppdrag110, andelListe, mottaker);
-        OpprettOppdragsmeldingerRelatertTil150.opprettAttestant180(oppdragslinje150List, behandlingInfo.getAnsvarligSaksbehandler());
+        List<Oppdragslinje150> oppdragslinje150List = OpprettOppdragslinje150Tjeneste.opprettOppdragslinje150(oppdragInput, oppdrag110, andelListe, mottaker);
+        OpprettOppdragsmeldingerRelatertTil150.opprettAttestant180(oppdragslinje150List, oppdragInput.getAnsvarligSaksbehandler());
     }
 
-    private void opprettEndringsoppdragForBruker(OppdragInput behandlingInfo, Oppdragskontroll nyOppdragskontroll,
+    private void opprettEndringsoppdragForBruker(OppdragInput oppdragInput, Oppdragskontroll nyOppdragskontroll,
                                                  Map.Entry<Oppdragsmottaker, List<TilkjentYtelseAndel>> entry) {
 
-        boolean erDetFlereKlassekodeIForrigeOppdrag = OpprettOppdragslinje150Tjeneste.finnesFlereKlassekodeIForrigeOppdrag(behandlingInfo);
+        boolean erDetFlereKlassekodeIForrigeOppdrag = OpprettOppdragslinje150Tjeneste.finnesFlereKlassekodeIForrigeOppdrag(oppdragInput);
         boolean erDetFlereKlassekodeINyOppdrag = KlassekodeUtleder.getKlassekodeListe(entry.getValue()).size() > 1;
         if (!erDetFlereKlassekodeINyOppdrag && !erDetFlereKlassekodeIForrigeOppdrag) {
-            opprettEndringsoppdragForBrukerMedEnKlassekode(behandlingInfo, nyOppdragskontroll, entry);
+            opprettEndringsoppdragForBrukerMedEnKlassekode(oppdragInput, nyOppdragskontroll, entry);
         } else {
-            opprettEndringsoppdragForBrukerMedFlereKlassekode(behandlingInfo, nyOppdragskontroll, entry);
+            opprettEndringsoppdragForBrukerMedFlereKlassekode(oppdragInput, nyOppdragskontroll, entry);
         }
     }
 
-    private void opprettEndringsoppdragForBrukerMedEnKlassekode(OppdragInput behandlingInfo, Oppdragskontroll nyOppdragskontroll,
+    private void opprettEndringsoppdragForBrukerMedEnKlassekode(OppdragInput oppdragInput, Oppdragskontroll nyOppdragskontroll,
                                                                 Map.Entry<Oppdragsmottaker, List<TilkjentYtelseAndel>> entry) {
 
-        Optional<Oppdragslinje150> sisteOppdr150BrukerOpt = TidligereOppdragTjeneste.finnSisteLinjeIKjedeForBruker(behandlingInfo);
+        Optional<Oppdragslinje150> sisteOppdr150BrukerOpt = TidligereOppdragTjeneste.finnSisteLinjeIKjedeForBruker(oppdragInput);
         if (sisteOppdr150BrukerOpt.isPresent()) {
             Oppdragsmottaker mottaker = entry.getKey();
             List<TilkjentYtelseAndel> andelListe = entry.getValue();
             Oppdragslinje150 sisteOppdr150Bruker = sisteOppdr150BrukerOpt.get();
-            Optional<Oppdrag110> nyOppdrag110Opt = opprettOpphørIEndringsoppdragFP.opprettOpphørIEndringsoppdragBruker(behandlingInfo, nyOppdragskontroll,
+            Optional<Oppdrag110> nyOppdrag110Opt = opprettOpphørIEndringsoppdragFP.opprettOpphørIEndringsoppdragBruker(oppdragInput, nyOppdragskontroll,
                 mottaker, true);
             if (ingenAndelSkalOpphøresEllerEndres(andelListe, nyOppdrag110Opt)) {
                 return;
             }
-            Oppdrag110 nyOppdrag110 = OpprettOppdrag110Tjeneste.fastsettOppdrag110(behandlingInfo, nyOppdragskontroll, nyOppdrag110Opt, sisteOppdr150Bruker, mottaker);
+            Oppdrag110 nyOppdrag110 = OpprettOppdrag110Tjeneste.fastsettOppdrag110(oppdragInput, nyOppdragskontroll, nyOppdrag110Opt, sisteOppdr150Bruker, mottaker);
             if (mottaker.erStatusUendret()) {
                 return;
             }
-            List<Oppdragslinje150> oppdragslinje150List = OpprettOppdragslinje150Tjeneste.opprettOppdragslinje150(behandlingInfo, nyOppdrag110,
+            List<Oppdragslinje150> oppdragslinje150List = OpprettOppdragslinje150Tjeneste.opprettOppdragslinje150(oppdragInput, nyOppdrag110,
                 andelListe, mottaker, sisteOppdr150Bruker);
-            OpprettOppdragsmeldingerRelatertTil150.opprettAttestant180(oppdragslinje150List, behandlingInfo.getAnsvarligSaksbehandler());
+            OpprettOppdragsmeldingerRelatertTil150.opprettAttestant180(oppdragslinje150List, oppdragInput.getAnsvarligSaksbehandler());
         }
     }
 
-    private void opprettEndringsoppdragForBrukerMedFlereKlassekode(OppdragInput behandlingInfo, Oppdragskontroll nyOppdragskontroll,
+    private void opprettEndringsoppdragForBrukerMedFlereKlassekode(OppdragInput oppdragInput, Oppdragskontroll nyOppdragskontroll,
                                                                    Map.Entry<Oppdragsmottaker, List<TilkjentYtelseAndel>> entry) {
 
         Oppdragsmottaker mottaker = entry.getKey();
-        boolean erDetFlereKlassekodeIForrigeOppdrag = OpprettOppdragslinje150Tjeneste.finnesFlereKlassekodeIForrigeOppdrag(behandlingInfo);
+        boolean erDetFlereKlassekodeIForrigeOppdrag = OpprettOppdragslinje150Tjeneste.finnesFlereKlassekodeIForrigeOppdrag(oppdragInput);
         boolean erDetFlereKlassekodeINyOppdrag = KlassekodeUtleder.getKlassekodeListe(entry.getValue()).size() > 1;
         List<TilkjentYtelseAndel> andelListe = entry.getValue();
         if (!erDetFlereKlassekodeIForrigeOppdrag && erDetFlereKlassekodeINyOppdrag) {
-            opprettOppdragForBrukerMedFlereKlassekodeIRevurdering(behandlingInfo, nyOppdragskontroll, mottaker, andelListe);
+            opprettOppdragForBrukerMedFlereKlassekodeIRevurdering(oppdragInput, nyOppdragskontroll, mottaker, andelListe);
         } else if (erDetFlereKlassekodeIForrigeOppdrag && !erDetFlereKlassekodeINyOppdrag) {
-            opprettOppdragForBrukerMedFlereKlassekodeIForrigeBehandling(behandlingInfo, nyOppdragskontroll, mottaker, andelListe);
+            opprettOppdragForBrukerMedFlereKlassekodeIForrigeBehandling(oppdragInput, nyOppdragskontroll, mottaker, andelListe);
         } else {
-            opprettOppdragForBrukerMedFlereKlassekodeIBådeForrigeOgNyBehandling(behandlingInfo, nyOppdragskontroll, mottaker, andelListe);
+            opprettOppdragForBrukerMedFlereKlassekodeIBådeForrigeOgNyBehandling(oppdragInput, nyOppdragskontroll, mottaker, andelListe);
         }
     }
 
-    private void opprettEndringsoppdragForArbeidsgiver(OppdragInput behandlingInfo, Oppdragskontroll nyOppdragskontroll,
+    private void opprettEndringsoppdragForArbeidsgiver(OppdragInput oppdragInput, Oppdragskontroll nyOppdragskontroll,
                                                        Map.Entry<Oppdragsmottaker, List<TilkjentYtelseAndel>> entry) {
 
         Oppdragsmottaker mottaker = entry.getKey();
         List<TilkjentYtelseAndel> andelListe = entry.getValue();
-        List<Oppdragslinje150> sisteLinjeKjedeForAlleArbeidsgivereListe = TidligereOppdragTjeneste.finnSisteLinjeKjedeForAlleArbeidsgivere(behandlingInfo);
+        List<Oppdragslinje150> sisteLinjeKjedeForAlleArbeidsgivereListe = TidligereOppdragTjeneste.finnSisteLinjeKjedeForAlleArbeidsgivere(oppdragInput);
 
         List<Oppdragslinje150> sisteLinjeKjedeForDenneArbeidsgiveren = sisteLinjeKjedeForAlleArbeidsgivereListe.stream()
             .filter(opp150 -> opp150.getRefusjonsinfo156().getRefunderesId().equals(Oppdragslinje150Util.endreTilElleveSiffer(mottaker.getOrgnr())))
             .collect(Collectors.toList());
 
         Oppdragslinje150 sisteOppdr150ForDenneArbeidsgiveren = Oppdragslinje150Util.getOpp150MedMaxDelytelseId(sisteLinjeKjedeForDenneArbeidsgiveren);
-        Optional<Oppdrag110> nyOppdrag110Opt = opprettOpphørIEndringsoppdragFP.opprettOpphørIEndringsoppdragArbeidsgiver(behandlingInfo, nyOppdragskontroll,
+        Optional<Oppdrag110> nyOppdrag110Opt = opprettOpphørIEndringsoppdragFP.opprettOpphørIEndringsoppdragArbeidsgiver(oppdragInput, nyOppdragskontroll,
             sisteLinjeKjedeForDenneArbeidsgiveren, mottaker, true);
         if (ingenAndelSkalOpphøresEllerEndres(andelListe, nyOppdrag110Opt)) {
             return;
         }
-        Oppdrag110 nyOppdrag110 = OpprettOppdrag110Tjeneste.fastsettOppdrag110(behandlingInfo, nyOppdragskontroll, nyOppdrag110Opt, sisteOppdr150ForDenneArbeidsgiveren, mottaker);
+        Oppdrag110 nyOppdrag110 = OpprettOppdrag110Tjeneste.fastsettOppdrag110(oppdragInput, nyOppdragskontroll, nyOppdrag110Opt, sisteOppdr150ForDenneArbeidsgiveren, mottaker);
         if (mottaker.erStatusUendret()) {
             return;
         }
-        List<Oppdragslinje150> oppdragslinje150List = OpprettOppdragslinje150Tjeneste.opprettOppdragslinje150(behandlingInfo, nyOppdrag110,
+        List<Oppdragslinje150> oppdragslinje150List = OpprettOppdragslinje150Tjeneste.opprettOppdragslinje150(oppdragInput, nyOppdrag110,
             andelListe, mottaker, sisteOppdr150ForDenneArbeidsgiveren);
-        OpprettOppdragsmeldingerRelatertTil150.opprettAttestant180(oppdragslinje150List, behandlingInfo.getAnsvarligSaksbehandler());
+        OpprettOppdragsmeldingerRelatertTil150.opprettAttestant180(oppdragslinje150List, oppdragInput.getAnsvarligSaksbehandler());
     }
 
-    private void opprettOppdragForBrukerMedFlereKlassekodeIRevurdering(OppdragInput behandlingInfo,
+    private void opprettOppdragForBrukerMedFlereKlassekodeIRevurdering(OppdragInput oppdragInput,
                                                                        Oppdragskontroll nyOppdragskontroll,
                                                                        Oppdragsmottaker mottaker, List<TilkjentYtelseAndel> andelListe) {
 
-        Optional<Oppdragslinje150> sisteOppdr150BrukerOpt = TidligereOppdragTjeneste.finnSisteLinjeIKjedeForBruker(behandlingInfo);
+        Optional<Oppdragslinje150> sisteOppdr150BrukerOpt = TidligereOppdragTjeneste.finnSisteLinjeIKjedeForBruker(oppdragInput);
         if (sisteOppdr150BrukerOpt.isPresent()) {
             Oppdragslinje150 sisteOppdr150Bruker = sisteOppdr150BrukerOpt.get();
-            Optional<Oppdrag110> nyOppdrag110Opt = opprettOpphørIEndringsoppdragFP.opprettOpphørIEndringsoppdragBruker(behandlingInfo, nyOppdragskontroll,
+            Optional<Oppdrag110> nyOppdrag110Opt = opprettOpphørIEndringsoppdragFP.opprettOpphørIEndringsoppdragBruker(oppdragInput, nyOppdragskontroll,
                 mottaker, true);
-            Oppdrag110 nyOppdrag110 = OpprettOppdrag110Tjeneste.fastsettOppdrag110(behandlingInfo, nyOppdragskontroll, nyOppdrag110Opt, sisteOppdr150Bruker, mottaker);
+            Oppdrag110 nyOppdrag110 = OpprettOppdrag110Tjeneste.fastsettOppdrag110(oppdragInput, nyOppdragskontroll, nyOppdrag110Opt, sisteOppdr150Bruker, mottaker);
             List<List<TilkjentYtelseAndel>> andelerGruppertMedKlassekode = OpprettOppdragslinje150Tjeneste.gruppereAndelerMedKlassekode(andelListe);
-            List<Oppdragslinje150> oppdragslinje150List = OpprettOppdragslinje150Tjeneste.opprettOppdr150ForBrukerMedFlereKlassekode(behandlingInfo, nyOppdrag110,
+            List<Oppdragslinje150> oppdragslinje150List = OpprettOppdragslinje150Tjeneste.opprettOppdr150ForBrukerMedFlereKlassekode(oppdragInput, nyOppdrag110,
                 andelerGruppertMedKlassekode, mottaker, Collections.singletonList(sisteOppdr150Bruker));
-            OpprettOppdragsmeldingerRelatertTil150.opprettAttestant180(oppdragslinje150List, behandlingInfo.getAnsvarligSaksbehandler());
+            OpprettOppdragsmeldingerRelatertTil150.opprettAttestant180(oppdragslinje150List, oppdragInput.getAnsvarligSaksbehandler());
         }
     }
 
-    private void opprettOppdragForBrukerMedFlereKlassekodeIForrigeBehandling(OppdragInput behandlingInfo,
+    private void opprettOppdragForBrukerMedFlereKlassekodeIForrigeBehandling(OppdragInput oppdragInput,
                                                                              Oppdragskontroll nyOppdragskontroll,
                                                                              Oppdragsmottaker mottaker,
                                                                              List<TilkjentYtelseAndel> andelListe) {
 
-        Optional<Oppdrag110> nyOppdrag110Opt = opprettOpphørIEndringsoppdragFP.opprettOpphørsoppdragForBrukerMedFlereKlassekode(behandlingInfo,
+        Optional<Oppdrag110> nyOppdrag110Opt = opprettOpphørIEndringsoppdragFP.opprettOpphørsoppdragForBrukerMedFlereKlassekode(oppdragInput,
             nyOppdragskontroll, mottaker, true);
-        List<Oppdragslinje150> tidligereOppdr150Liste = TidligereOppdragTjeneste.hentTidligereGjeldendeOppdragslinje150(behandlingInfo,
+        List<Oppdragslinje150> tidligereOppdr150Liste = TidligereOppdragTjeneste.hentTidligereGjeldendeOppdragslinje150(oppdragInput,
             false);
         Oppdragslinje150 oppdr150MedMaxDelytelseId = tidligereOppdr150Liste.stream()
             .max(Comparator.comparing(Oppdragslinje150::getDelytelseId))
@@ -204,7 +204,7 @@ public class OppdragskontrollEndring implements OppdragskontrollManager {
         if (ingenAndelSkalOpphøresEllerEndres(andelListe, nyOppdrag110Opt)) {
             return;
         }
-        Oppdrag110 nyOppdrag110 = OpprettOppdrag110Tjeneste.fastsettOppdrag110(behandlingInfo, nyOppdragskontroll, nyOppdrag110Opt, oppdr150MedMaxDelytelseId, mottaker);
+        Oppdrag110 nyOppdrag110 = OpprettOppdrag110Tjeneste.fastsettOppdrag110(oppdragInput, nyOppdragskontroll, nyOppdrag110Opt, oppdr150MedMaxDelytelseId, mottaker);
         if (mottaker.erStatusUendret()) {
             return;
         }
@@ -216,20 +216,20 @@ public class OppdragskontrollEndring implements OppdragskontrollManager {
             .filter(oppdr150 -> oppdr150.getKodeKlassifik().equals(kodeKlassifik))
             .max(Comparator.comparing(Oppdragslinje150::getDelytelseId))
             .orElse(oppdr150MedMaxDelytelseId);
-        List<Oppdragslinje150> oppdragslinje150List = OpprettOppdragslinje150Tjeneste.opprettOppdragslinje150(behandlingInfo, nyOppdrag110,
+        List<Oppdragslinje150> oppdragslinje150List = OpprettOppdragslinje150Tjeneste.opprettOppdragslinje150(oppdragInput, nyOppdrag110,
             andelListe, mottaker, sisteOppdr150Bruker);
-        OpprettOppdragsmeldingerRelatertTil150.opprettAttestant180(oppdragslinje150List, behandlingInfo.getAnsvarligSaksbehandler());
+        OpprettOppdragsmeldingerRelatertTil150.opprettAttestant180(oppdragslinje150List, oppdragInput.getAnsvarligSaksbehandler());
     }
 
-    private void opprettOppdragForBrukerMedFlereKlassekodeIBådeForrigeOgNyBehandling(OppdragInput behandlingInfo, Oppdragskontroll oppdragskontroll,
+    private void opprettOppdragForBrukerMedFlereKlassekodeIBådeForrigeOgNyBehandling(OppdragInput oppdragInput, Oppdragskontroll oppdragskontroll,
                                                                                      Oppdragsmottaker mottaker, List<TilkjentYtelseAndel> andelListe) {
 
-        Optional<Oppdrag110> nyOppdrag110Opt = opprettOpphørIEndringsoppdragFP.opprettOpphørsoppdragForBrukerMedFlereKlassekode(behandlingInfo, oppdragskontroll, mottaker,
+        Optional<Oppdrag110> nyOppdrag110Opt = opprettOpphørIEndringsoppdragFP.opprettOpphørsoppdragForBrukerMedFlereKlassekode(oppdragInput, oppdragskontroll, mottaker,
             true);
-        List<Oppdragslinje150> tidligereOpp150ListeForBruker = TidligereOppdragTjeneste.hentTidligereGjeldendeOppdragslinje150(behandlingInfo, false);
+        List<Oppdragslinje150> tidligereOpp150ListeForBruker = TidligereOppdragTjeneste.hentTidligereGjeldendeOppdragslinje150(oppdragInput, false);
         Oppdragslinje150 tidligereOppdr150Bruker = tidligereOpp150ListeForBruker.stream().findFirst()
             .orElseThrow(() -> new IllegalStateException("Utvikler feil: Mangler tidligere oppdragslinje for bruker"));
-        Oppdrag110 nyOppdrag110 = OpprettOppdrag110Tjeneste.fastsettOppdrag110(behandlingInfo, oppdragskontroll, nyOppdrag110Opt, tidligereOppdr150Bruker, mottaker);
+        Oppdrag110 nyOppdrag110 = OpprettOppdrag110Tjeneste.fastsettOppdrag110(oppdragInput, oppdragskontroll, nyOppdrag110Opt, tidligereOppdr150Bruker, mottaker);
         List<Oppdragslinje150> opphørtOppdragslinje150Liste = new ArrayList<>();
         for (Oppdragslinje150 nyOpp150 : nyOppdrag110.getOppdragslinje150Liste()) {
             tidligereOpp150ListeForBruker.stream()
@@ -239,26 +239,26 @@ public class OppdragskontrollEndring implements OppdragskontrollManager {
         }
         List<Oppdragslinje150> tidligereOpp150ListForKjeding = !opphørtOppdragslinje150Liste.isEmpty() ? opphørtOppdragslinje150Liste : tidligereOpp150ListeForBruker;
         List<List<TilkjentYtelseAndel>> andelerGruppertMedKlassekode = OpprettOppdragslinje150Tjeneste.gruppereAndelerMedKlassekode(andelListe);
-        List<Oppdragslinje150> oppdragslinje150List = OpprettOppdragslinje150Tjeneste.opprettOppdr150ForBrukerMedFlereKlassekode(behandlingInfo, nyOppdrag110,
+        List<Oppdragslinje150> oppdragslinje150List = OpprettOppdragslinje150Tjeneste.opprettOppdr150ForBrukerMedFlereKlassekode(oppdragInput, nyOppdrag110,
             andelerGruppertMedKlassekode, mottaker, tidligereOpp150ListForKjeding);
-        OpprettOppdragsmeldingerRelatertTil150.opprettAttestant180(oppdragslinje150List, behandlingInfo.getAnsvarligSaksbehandler());
+        OpprettOppdragsmeldingerRelatertTil150.opprettAttestant180(oppdragslinje150List, oppdragInput.getAnsvarligSaksbehandler());
     }
 
     private boolean erMottakerIBådeForrigeOgNyTilkjentYtelse(Oppdragsmottaker mottaker) {
         return mottaker.erStatusEndret() || mottaker.erStatusUendret();
     }
 
-    private long finnInitialLøpenummerVerdi(OppdragInput behandlingInfoFP) {
-        return behandlingInfoFP.getAlleTidligereOppdrag110().stream()
+    private long finnInitialLøpenummerVerdi(OppdragInput oppdragInput) {
+        return oppdragInput.getAlleTidligereOppdrag110().stream()
             .map(Oppdrag110::getFagsystemId)
             .max(Comparator.comparing(Function.identity()))
             .orElseThrow(() -> new IllegalStateException("Utvikler feil: Forrige oppdrag mangler fagsystemId"));
     }
 
-    private List<TilkjentYtelseAndel> finnAndelerIForrigeBehandling(Oppdragskontroll oppdragskontroll, OppdragInput behandlingInfo) {
-        List<TilkjentYtelseAndel> forrigeTilkjentYtelseAndeler = OpprettOppdragslinje150Tjeneste.hentForrigeTilkjentYtelseAndeler(behandlingInfo);
+    private List<TilkjentYtelseAndel> finnAndelerIForrigeBehandling(Oppdragskontroll oppdragskontroll, OppdragInput oppdragInput) {
+        List<TilkjentYtelseAndel> forrigeTilkjentYtelseAndeler = OpprettOppdragslinje150Tjeneste.hentForrigeTilkjentYtelseAndeler(oppdragInput);
         if (!forrigeTilkjentYtelseAndeler.isEmpty()) {
-            opprettOpphørIEndringsoppdragFP.lagOppdragForMottakereSomSkalOpphøre(behandlingInfo, oppdragskontroll, forrigeTilkjentYtelseAndeler);
+            opprettOpphørIEndringsoppdragFP.lagOppdragForMottakereSomSkalOpphøre(oppdragInput, oppdragskontroll, forrigeTilkjentYtelseAndeler);
         }
         return forrigeTilkjentYtelseAndeler;
     }
@@ -270,6 +270,6 @@ public class OppdragskontrollEndring implements OppdragskontrollManager {
      * @return true hvis det ikke skal opprettes oppdrag for mottakeren
      */
     private boolean ingenAndelSkalOpphøresEllerEndres(List<TilkjentYtelseAndel> andelListe, Optional<Oppdrag110> nyOppdrag110Opt) {
-        return !nyOppdrag110Opt.isPresent() && andelListe.isEmpty();
+        return nyOppdrag110Opt.isEmpty() && andelListe.isEmpty();
     }
 }

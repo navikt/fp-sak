@@ -6,9 +6,6 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -18,7 +15,6 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 @ApplicationScoped
 public class OppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste {
 
-    private static final Logger logger = LoggerFactory.getLogger(OppdragskontrollTjenesteImpl.class);
     private ØkonomioppdragRepository økonomioppdragRepository;
     private BehandlingRepository behandlingRepository;
     private OppdragskontrollManagerFactoryProvider oppdragskontrollManagerFactoryProvider;
@@ -58,14 +54,14 @@ public class OppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste {
         }
     }
 
-    @Override
-    public final void lagre(Oppdragskontroll oppdragskontroll) {
-        økonomioppdragRepository.lagre(oppdragskontroll);
-    }
-
     private boolean finnesOppdragForTidligereBehandlingISammeFagsak(Behandling behandling, List<Oppdragskontroll> alleOppdragForFagsak) {
         return alleOppdragForFagsak.stream()
             .map(ok -> behandlingRepository.hentBehandling(ok.getBehandlingId()))
             .anyMatch(beh -> behandling.getOpprettetTidspunkt().isAfter(beh.getOpprettetTidspunkt()));
+    }
+
+    @Override
+    public void lagre(Oppdragskontroll oppdragskontroll) {
+        økonomioppdragRepository.lagre(oppdragskontroll);
     }
 }

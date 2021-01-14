@@ -100,8 +100,7 @@ public class OppdragPostConditionTjeneste {
         Saksnummer saksnummer = behandling.getFagsak().getSaksnummer();
         List<Oppdragskontroll> oppdragene = økonomioppdragRepository.finnAlleOppdragForSak(saksnummer);
         Map<KjedeNøkkel, OppdragKjede> oppdragskjeder = EksisterendeOppdragMapper.tilKjeder(oppdragene);
-        GruppertYtelse målbilde = TilkjentYtelseMapper.lagFor(behandling.getFagsak().getYtelseType(), finnFamilieYtelseType(behandling)).fordelPåNøkler(beregningsresultat);
-
+        GruppertYtelse målbilde = TilkjentYtelseMapper.lagFor(finnFamilieYtelseType(behandling)).fordelPåNøkler(beregningsresultat);
         Set<KjedeNøkkel> alleKjedenøkler = SetUtil.union(oppdragskjeder.keySet(), målbilde.getNøkler());
         Set<Betalingsmottaker> betalingsmottakere = alleKjedenøkler.stream().map(KjedeNøkkel::getBetalingsmottaker).collect(Collectors.toSet());
 
@@ -230,9 +229,9 @@ public class OppdragPostConditionTjeneste {
     }
 
     static Optional<TilkjentYtelseDifferanse> finnDifferanse(Ytelse ytelse, Ytelse effektAvOppdragskjede, Betalingsmottaker betalingsmottaker) {
-        LocalDate datoEndringYtelse = EndringsdatoTjeneste.finnEndringsdatoForEndringSats(ytelse, effektAvOppdragskjede);
+        LocalDate datoEndringYtelse = EndringsdatoTjeneste.ignorerDagsatsIHelg().finnEndringsdatoForEndringSats(ytelse, effektAvOppdragskjede);
         LocalDate datoEndringUtbetalingsgrad = betalingsmottaker == Betalingsmottaker.BRUKER
-            ? EndringsdatoTjeneste.finnEndringsdatoForEndringUtbetalingsgrad(ytelse, effektAvOppdragskjede)
+            ? EndringsdatoTjeneste.ignorerDagsatsIHelg().finnEndringsdatoForEndringUtbetalingsgrad(ytelse, effektAvOppdragskjede)
             : null; //utbetalingsgrad er ikke relevant for refusjon
         long differanseYtelse = effektAvOppdragskjede.summerYtelse() - ytelse.summerYtelse();
 

@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepengerPrÅr;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
 import no.nav.foreldrepenger.økonomi.ny.domene.Betalingsmottaker;
 import no.nav.foreldrepenger.økonomi.ny.domene.KjedeNøkkel;
@@ -25,16 +24,14 @@ import no.nav.foreldrepenger.økonomi.ny.domene.samlinger.GruppertYtelse;
 
 public class TilkjentYtelseMapper {
 
-    private FagsakYtelseType fagsakYtelseType;
     private FamilieYtelseType ytelseType;
 
-    public TilkjentYtelseMapper(FagsakYtelseType fagsakYtelseType, FamilieYtelseType ytelseType) {
-        this.fagsakYtelseType = fagsakYtelseType;
+    public TilkjentYtelseMapper(FamilieYtelseType ytelseType) {
         this.ytelseType = ytelseType;
     }
 
-    public static TilkjentYtelseMapper lagFor(FagsakYtelseType fagsakYtelseType, FamilieYtelseType familieYtelseType) {
-        return new TilkjentYtelseMapper(fagsakYtelseType, familieYtelseType);
+    public static TilkjentYtelseMapper lagFor(FamilieYtelseType familieYtelseType) {
+        return new TilkjentYtelseMapper(familieYtelseType);
     }
 
     public GruppertYtelse fordelPåNøkler(BeregningsresultatEntitet tilkjentYtelse) {

@@ -3,14 +3,24 @@ package no.nav.foreldrepenger.økonomi.ny.tjeneste;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.Map;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
+import no.nav.foreldrepenger.økonomi.ny.domene.Betalingsmottaker;
+import no.nav.foreldrepenger.økonomi.ny.domene.DelytelseId;
+import no.nav.foreldrepenger.økonomi.ny.domene.KjedeNøkkel;
+import no.nav.foreldrepenger.økonomi.ny.domene.OppdragKjede;
+import no.nav.foreldrepenger.økonomi.ny.domene.OppdragLinje;
 import no.nav.foreldrepenger.økonomi.ny.domene.Periode;
 import no.nav.foreldrepenger.økonomi.ny.domene.Sats;
 import no.nav.foreldrepenger.økonomi.ny.domene.Ytelse;
 import no.nav.foreldrepenger.økonomi.ny.domene.YtelsePeriode;
+import no.nav.foreldrepenger.økonomi.ny.domene.samlinger.GruppertYtelse;
+import no.nav.foreldrepenger.økonomi.ny.domene.samlinger.OverordnetOppdragKjedeOversikt;
 
 public class EndringsdatoTjenesteTest {
 
@@ -21,8 +31,6 @@ public class EndringsdatoTjenesteTest {
 
     Periode p2Start = Periode.of(p2.getFom(), p2.getTom().minusDays(2));
     Periode p2Slutt = Periode.of(p2Start.getTom().plusDays(1), p2.getTom());
-
-    EndringsdatoTjeneste tjeneste = new EndringsdatoTjeneste();
 
     @Test
     public void skal_ikke_finne_endringsdato_ved_likhet() {
@@ -39,11 +47,11 @@ public class EndringsdatoTjenesteTest {
             .leggTilPeriode(new YtelsePeriode(p3, Sats.dagsats(1200)))
             .build();
 
-        Assertions.assertThat(tjeneste.finnEndringsdato(y0, y0)).isNull();
-        Assertions.assertThat(tjeneste.finnEndringsdato(y1, y1)).isNull();
-        Assertions.assertThat(tjeneste.finnEndringsdato(y2, y2)).isNull();
-        Assertions.assertThat(tjeneste.finnEndringsdato(y1, y2)).isNull();
-        Assertions.assertThat(tjeneste.finnEndringsdato(y2, y1)).isNull();
+        Assertions.assertThat(EndringsdatoTjeneste.normal().finnEndringsdato(y0, y0)).isNull();
+        Assertions.assertThat(EndringsdatoTjeneste.normal().finnEndringsdato(y1, y1)).isNull();
+        Assertions.assertThat(EndringsdatoTjeneste.normal().finnEndringsdato(y2, y2)).isNull();
+        Assertions.assertThat(EndringsdatoTjeneste.normal().finnEndringsdato(y1, y2)).isNull();
+        Assertions.assertThat(EndringsdatoTjeneste.normal().finnEndringsdato(y2, y1)).isNull();
     }
 
     @Test
@@ -59,8 +67,8 @@ public class EndringsdatoTjenesteTest {
             .leggTilPeriode(new YtelsePeriode(p3, Sats.dagsats(1300)))
             .build();
 
-        Assertions.assertThat(tjeneste.finnEndringsdato(y1, y2)).isEqualTo(p3.getFom());
-        Assertions.assertThat(tjeneste.finnEndringsdato(y2, y1)).isEqualTo(p3.getFom());
+        Assertions.assertThat(EndringsdatoTjeneste.normal().finnEndringsdato(y1, y2)).isEqualTo(p3.getFom());
+        Assertions.assertThat(EndringsdatoTjeneste.normal().finnEndringsdato(y2, y1)).isEqualTo(p3.getFom());
     }
 
     @Test
@@ -75,8 +83,8 @@ public class EndringsdatoTjenesteTest {
             .leggTilPeriode(new YtelsePeriode(p3, Sats.dagsats(1300)))
             .build();
 
-        Assertions.assertThat(tjeneste.finnEndringsdato(y1, y2)).isEqualTo(p1.getFom());
-        Assertions.assertThat(tjeneste.finnEndringsdato(y2, y1)).isEqualTo(p1.getFom());
+        Assertions.assertThat(EndringsdatoTjeneste.normal().finnEndringsdato(y1, y2)).isEqualTo(p1.getFom());
+        Assertions.assertThat(EndringsdatoTjeneste.normal().finnEndringsdato(y2, y1)).isEqualTo(p1.getFom());
     }
 
     @Test
@@ -92,8 +100,8 @@ public class EndringsdatoTjenesteTest {
             .leggTilPeriode(new YtelsePeriode(p3, Sats.dagsats(1300)))
             .build();
 
-        Assertions.assertThat(tjeneste.finnEndringsdato(y1, y2)).isEqualTo(p2Start.getTom().plusDays(1));
-        Assertions.assertThat(tjeneste.finnEndringsdato(y2, y1)).isEqualTo(p2Start.getTom().plusDays(1));
+        Assertions.assertThat(EndringsdatoTjeneste.normal().finnEndringsdato(y1, y2)).isEqualTo(p2Start.getTom().plusDays(1));
+        Assertions.assertThat(EndringsdatoTjeneste.normal().finnEndringsdato(y2, y1)).isEqualTo(p2Start.getTom().plusDays(1));
     }
 
     @Test
@@ -110,8 +118,8 @@ public class EndringsdatoTjenesteTest {
         Ytelse ytelseSplittet = Ytelse.builder().leggTilPeriode(
             new YtelsePeriode(Periode.of(mandag, nesteMandag), Sats.dagsats(100)))
             .build();
-        assertThat(EndringsdatoTjeneste.finnEndringsdato(ytelseKontinuerlig, ytelseSplittet)).isNull();
-        assertThat(EndringsdatoTjeneste.finnEndringsdato(ytelseSplittet, ytelseKontinuerlig)).isNull();
+        assertThat(EndringsdatoTjeneste.ignorerDagsatsIHelg().finnEndringsdato(ytelseKontinuerlig, ytelseSplittet)).isNull();
+        assertThat(EndringsdatoTjeneste.ignorerDagsatsIHelg().finnEndringsdato(ytelseSplittet, ytelseKontinuerlig)).isNull();
     }
 
     @Test
@@ -124,18 +132,73 @@ public class EndringsdatoTjenesteTest {
 
         Ytelse ytelse1 = Ytelse.builder().leggTilPeriode(new YtelsePeriode(Periode.of(mandag, mandag), Sats.dagsats(100))).build();
 
-        assertThat(EndringsdatoTjeneste.finnEndringsdato(Ytelse.EMPTY, ytelse1)).isEqualTo(mandag);
-        assertThat(EndringsdatoTjeneste.finnEndringsdato(ytelse1, Ytelse.EMPTY)).isEqualTo(mandag);
+        assertThat(EndringsdatoTjeneste.ignorerDagsatsIHelg().finnEndringsdato(Ytelse.EMPTY, ytelse1)).isEqualTo(mandag);
+        assertThat(EndringsdatoTjeneste.ignorerDagsatsIHelg().finnEndringsdato(ytelse1, Ytelse.EMPTY)).isEqualTo(mandag);
 
         Ytelse ytelse1SøndagSøndag = Ytelse.builder().leggTilPeriode(new YtelsePeriode(Periode.of(forrigeSøndag, søndag), Sats.dagsats(100))).build();
         Ytelse ytelse2SøndagSøndag = Ytelse.builder().leggTilPeriode(new YtelsePeriode(Periode.of(forrigeSøndag, søndag), Sats.dagsats(200))).build();
-        assertThat(EndringsdatoTjeneste.finnEndringsdato(ytelse1SøndagSøndag, ytelse2SøndagSøndag)).isEqualTo(mandag);
-        assertThat(EndringsdatoTjeneste.finnEndringsdato(ytelse2SøndagSøndag, ytelse1SøndagSøndag)).isEqualTo(mandag);
+        assertThat(EndringsdatoTjeneste.ignorerDagsatsIHelg().finnEndringsdato(ytelse1SøndagSøndag, ytelse2SøndagSøndag)).isEqualTo(mandag);
+        assertThat(EndringsdatoTjeneste.ignorerDagsatsIHelg().finnEndringsdato(ytelse2SøndagSøndag, ytelse1SøndagSøndag)).isEqualTo(mandag);
 
         Ytelse ytelseUke1 = Ytelse.builder().leggTilPeriode(new YtelsePeriode(Periode.of(mandag, lørdag), Sats.dagsats(100))).build();
         Ytelse ytelseUke1OgNesteMandag = Ytelse.builder().leggTilPeriode(new YtelsePeriode(Periode.of(mandag, nesteMandag), Sats.dagsats(100))).build();
 
-        assertThat(EndringsdatoTjeneste.finnEndringsdato(ytelseUke1, ytelseUke1OgNesteMandag)).isEqualTo(nesteMandag);
-        assertThat(EndringsdatoTjeneste.finnEndringsdato(ytelseUke1OgNesteMandag, ytelseUke1)).isEqualTo(nesteMandag);
+        assertThat(EndringsdatoTjeneste.ignorerDagsatsIHelg().finnEndringsdato(ytelseUke1, ytelseUke1OgNesteMandag)).isEqualTo(nesteMandag);
+        assertThat(EndringsdatoTjeneste.ignorerDagsatsIHelg().finnEndringsdato(ytelseUke1OgNesteMandag, ytelseUke1)).isEqualTo(nesteMandag);
+    }
+
+    @Test
+    public void skal_ikke_finne_noen_endringsdato_når_det_ikke_er_noen_endringer() {
+        OverordnetOppdragKjedeOversikt tidligereOppdrag = new OverordnetOppdragKjedeOversikt(Collections.emptyMap());
+        GruppertYtelse målbilde = GruppertYtelse.TOM;
+        LocalDate tidligsteEndringsdato = EndringsdatoTjeneste.normal().finnTidligsteEndringsdato(målbilde, tidligereOppdrag);
+        Assertions.assertThat(tidligsteEndringsdato).isNull();
+    }
+
+    @Test
+    public void skal_finne_tidligste_endringsdato_på_tvers_av_oppdrag() {
+        KjedeNøkkel nøkkelBruker = KjedeNøkkel.lag(ØkonomiKodeKlassifik.FPATORD, Betalingsmottaker.BRUKER);
+        KjedeNøkkel nøkkelArbeidsgiver = KjedeNøkkel.lag(ØkonomiKodeKlassifik.FPREFAG_IOP, Betalingsmottaker.forArbeidsgiver("000000000"));
+
+        OverordnetOppdragKjedeOversikt tidligereOppdrag = new OverordnetOppdragKjedeOversikt(Collections.emptyMap());
+
+        GruppertYtelse målbilde = GruppertYtelse.builder()
+            .leggTilKjede(nøkkelBruker, Ytelse.builder()
+                .leggTilPeriode(new YtelsePeriode(p1, Sats.dag7(100)))
+                .build())
+            .leggTilKjede(nøkkelArbeidsgiver, Ytelse.builder()
+                .leggTilPeriode(new YtelsePeriode(p2, Sats.dag7(100)))
+                .leggTilPeriode(new YtelsePeriode(p3, Sats.dag7(100)))
+                .build())
+            .build();
+
+        LocalDate tidligsteEndringsdato = EndringsdatoTjeneste.normal().finnTidligsteEndringsdato(målbilde, tidligereOppdrag);
+
+        Assertions.assertThat(tidligsteEndringsdato).isEqualTo(p1.getFom());
+    }
+
+    @Test
+    public void skal_finne_tidligste_endringsdato_på_tvers_av_oppdrag_for_revurdering() {
+        KjedeNøkkel nøkkelBruker = KjedeNøkkel.lag(ØkonomiKodeKlassifik.FPATORD, Betalingsmottaker.BRUKER);
+        KjedeNøkkel nøkkelArbeidsgiver = KjedeNøkkel.lag(ØkonomiKodeKlassifik.FPREFAG_IOP, Betalingsmottaker.forArbeidsgiver("000000000"));
+
+        OverordnetOppdragKjedeOversikt tidligereOppdrag = new OverordnetOppdragKjedeOversikt(Map.of(
+            nøkkelBruker, OppdragKjede.builder()
+                .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Sats.dag7(100)).medDelytelseId(DelytelseId.parse("FooBAR-1-1")).build())
+                .build()));
+
+        GruppertYtelse målbilde = GruppertYtelse.builder()
+            .leggTilKjede(nøkkelBruker, Ytelse.builder()
+                .leggTilPeriode(new YtelsePeriode(p1, Sats.dag7(100)))
+                .build())
+            .leggTilKjede(nøkkelArbeidsgiver, Ytelse.builder()
+                .leggTilPeriode(new YtelsePeriode(p2, Sats.dag7(100)))
+                .leggTilPeriode(new YtelsePeriode(p3, Sats.dag7(100)))
+                .build())
+            .build();
+
+        LocalDate tidligsteEndringsdato = EndringsdatoTjeneste.normal().finnTidligsteEndringsdato(målbilde, tidligereOppdrag);
+
+        Assertions.assertThat(tidligsteEndringsdato).isEqualTo(p2.getFom());
     }
 }

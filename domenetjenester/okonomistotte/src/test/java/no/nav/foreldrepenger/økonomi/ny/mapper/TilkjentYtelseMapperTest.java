@@ -38,7 +38,7 @@ public class TilkjentYtelseMapperTest {
     LocalDate nesteMai1 = LocalDate.of(2021, 5, 1);
     LocalDate nesteMai31 = LocalDate.of(2021, 5, 31);
 
-    TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FagsakYtelseType.FORELDREPENGER, FamilieYtelseType.FØDSEL);
+    TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
     ØkonomiKodeKlassifik kodeFrilanser = ØkonomiKodeKlassifik.FPATFRI;
 
     Arbeidsgiver arbeidsgiver1 = Arbeidsgiver.virksomhet("111111111");

@@ -40,8 +40,24 @@ public class OppdragKjedeFactory {
         Objects.requireNonNull(vedtak);
         Ytelse iverksattYtelse = tidligereOppdrag.tilYtelse();
         boolean erNy = iverksattYtelse.getPerioder().isEmpty();
-        LocalDate endringsdato = EndringsdatoTjeneste.finnEndringsdato(iverksattYtelse, vedtak);
+        LocalDate endringsdato = EndringsdatoTjeneste.normal().finnEndringsdato(iverksattYtelse, vedtak);
         return endringsdato == null ? null : lagOppdragskjede(erNy, endringsdato, tidligereOppdrag, vedtak, gjelderFeriepenger);
+    }
+
+    public OppdragKjedeFortsettelse lagOppdragskjedeFraFellesEndringsdato(OppdragKjede tidligereOppdrag, Ytelse vedtak, boolean gjelderFeriepenger, LocalDate tidligsteEndringsdato) {
+        Objects.requireNonNull(tidligereOppdrag);
+        Objects.requireNonNull(vedtak);
+        Objects.requireNonNull(tidligsteEndringsdato);
+        Ytelse iverksattYtelse = tidligereOppdrag.tilYtelse();
+        boolean erNy = iverksattYtelse.getPerioder().isEmpty();
+        LocalDate endringsdato = EndringsdatoTjeneste.normal().finnEndringsdato(iverksattYtelse, vedtak);
+        if (endringsdato != null && endringsdato.isBefore(tidligsteEndringsdato)) {
+            throw new IllegalArgumentException("Endringsdato for kjeden er før felles endringsdato");
+        }
+        if (vedtak.getPerioderFraOgMed(tidligsteEndringsdato).isEmpty() && !tidligereOppdrag.tilYtelse().harVerdiPåEllerEtter(tidligsteEndringsdato)) {
+            return null;
+        }
+        return lagOppdragskjede(erNy, tidligsteEndringsdato, tidligereOppdrag, vedtak, gjelderFeriepenger);
     }
 
     private OppdragKjedeFortsettelse lagOppdragskjede(boolean erNy, LocalDate endringsdato, OppdragKjede tidligereOppdrag, Ytelse vedtak, boolean gjelderFeriepenger) {

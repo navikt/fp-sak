@@ -11,26 +11,46 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.function.Function;
 
+import no.nav.foreldrepenger.økonomi.ny.domene.KjedeNøkkel;
+import no.nav.foreldrepenger.økonomi.ny.domene.OppdragKjede;
 import no.nav.foreldrepenger.økonomi.ny.domene.Periode;
 import no.nav.foreldrepenger.økonomi.ny.domene.SatsType;
 import no.nav.foreldrepenger.økonomi.ny.domene.Ytelse;
 import no.nav.foreldrepenger.økonomi.ny.domene.YtelsePeriode;
 import no.nav.foreldrepenger.økonomi.ny.domene.YtelseVerdi;
+import no.nav.foreldrepenger.økonomi.ny.domene.samlinger.GruppertYtelse;
+import no.nav.foreldrepenger.økonomi.ny.domene.samlinger.OverordnetOppdragKjedeOversikt;
+import no.nav.foreldrepenger.økonomi.ny.util.SetUtil;
 
 public class EndringsdatoTjeneste {
-    public static LocalDate finnEndringsdato(Ytelse y1, Ytelse y2) {
+
+    private boolean ignorerDagsatsIHelg;
+
+    public static EndringsdatoTjeneste ignorerDagsatsIHelg() {
+        return new EndringsdatoTjeneste(true);
+    }
+
+    public static EndringsdatoTjeneste normal() {
+        return new EndringsdatoTjeneste(false);
+    }
+
+    private EndringsdatoTjeneste(boolean ignorerDagsatsIHelg) {
+        this.ignorerDagsatsIHelg = ignorerDagsatsIHelg;
+    }
+
+    public LocalDate finnEndringsdato(Ytelse y1, Ytelse y2) {
         return finnEndringsdato(y1, y2, Function.identity());
     }
 
-    public static LocalDate finnEndringsdatoForEndringSats(Ytelse y1, Ytelse y2) {
+    public LocalDate finnEndringsdatoForEndringSats(Ytelse y1, Ytelse y2) {
         return finnEndringsdato(y1, y2, YtelseVerdi::getSats);
     }
 
-    public static LocalDate finnEndringsdatoForEndringUtbetalingsgrad(Ytelse y1, Ytelse y2) {
+    public LocalDate finnEndringsdatoForEndringUtbetalingsgrad(Ytelse y1, Ytelse y2) {
         return finnEndringsdato(y1, y2, YtelseVerdi::getUtbetalingsgrad);
     }
 
-    private static <T> LocalDate finnEndringsdato(Ytelse y1, Ytelse y2, Function<YtelseVerdi, T> valueFunction) {
+    private <T> LocalDate finnEndringsdato(Ytelse y1, Ytelse y2, Function<YtelseVerdi, T> valueFunction) {
         SortedSet<LocalDate> knekkpunkter = finnKnekkpunkter(y1, y2);
         for (LocalDate knekkpunkt : knekkpunkter) {
             YtelseVerdi v1 = filtrer(y1.finnVerdiFor(knekkpunkt), knekkpunkt);
@@ -45,14 +65,28 @@ public class EndringsdatoTjeneste {
         return null;
     }
 
-    private static YtelseVerdi filtrer(YtelseVerdi verdi, LocalDate dato) {
-        if (verdi == null || verdi.getSats().getSatsType() == SatsType.DAG && (dato.getDayOfWeek() == DayOfWeek.SUNDAY || dato.getDayOfWeek() == DayOfWeek.SATURDAY)) {
+    public LocalDate finnTidligsteEndringsdato(GruppertYtelse målbilde, OverordnetOppdragKjedeOversikt tidligereOppdrag) {
+        SortedSet<KjedeNøkkel> nøkler = SetUtil.sortertUnionOfKeys(målbilde.getYtelsePrNøkkel(), tidligereOppdrag.getKjeder());
+        LocalDate tidligsteEndringsdato = null;
+        for (KjedeNøkkel nøkkel : nøkler) {
+            Ytelse ytelse = målbilde.getYtelsePrNøkkel().getOrDefault(nøkkel, Ytelse.EMPTY);
+            OppdragKjede oppdragskjede = tidligereOppdrag.getKjeder().getOrDefault(nøkkel, OppdragKjede.EMPTY);
+            LocalDate endringsdato = finnEndringsdato(ytelse, oppdragskjede.tilYtelse());
+            if (endringsdato != null && (tidligsteEndringsdato == null || endringsdato.isBefore(tidligsteEndringsdato))) {
+                tidligsteEndringsdato = endringsdato;
+            }
+        }
+        return tidligsteEndringsdato;
+    }
+
+    private YtelseVerdi filtrer(YtelseVerdi verdi, LocalDate dato) {
+        if (ignorerDagsatsIHelg && (verdi == null || verdi.getSats().getSatsType() == SatsType.DAG && (dato.getDayOfWeek() == DayOfWeek.SUNDAY || dato.getDayOfWeek() == DayOfWeek.SATURDAY))) {
             return null;
         }
         return verdi;
     }
 
-    private static SortedSet<LocalDate> finnKnekkpunkter(Ytelse y1, Ytelse y2) {
+    private SortedSet<LocalDate> finnKnekkpunkter(Ytelse y1, Ytelse y2) {
         Objects.requireNonNull(y1);
         Objects.requireNonNull(y2);
         SortedSet<LocalDate> knekkpunkt = new TreeSet<>();
@@ -62,7 +96,7 @@ public class EndringsdatoTjeneste {
     }
 
 
-    private static Collection<LocalDate> finnKnekkpunkter(Ytelse ytelse) {
+    private Collection<LocalDate> finnKnekkpunkter(Ytelse ytelse) {
         Set<LocalDate> knekkpunkt = new TreeSet<>();
         for (YtelsePeriode ytelsePeriode : ytelse.getPerioder()) {
             knekkpunkt.addAll(lagKnekkpunkterFraPeriode(ytelsePeriode.getPeriode()));
@@ -70,7 +104,7 @@ public class EndringsdatoTjeneste {
         return knekkpunkt;
     }
 
-    private static List<LocalDate> lagKnekkpunkterFraPeriode(Periode periode) {
+    private List<LocalDate> lagKnekkpunkterFraPeriode(Periode periode) {
         List<LocalDate> knekkpunkter = new ArrayList<>();
         LocalDate fom = periode.getFom();
         LocalDate tom = periode.getTom();
@@ -79,15 +113,17 @@ public class EndringsdatoTjeneste {
         knekkpunkter.add(fom);
         knekkpunkter.add(dagenEtter);
 
-        if (fom.getDayOfWeek() == DayOfWeek.SATURDAY) {
-            knekkpunkter.add(fom.plusDays(2));
-        } else if (fom.getDayOfWeek() == DayOfWeek.SUNDAY) {
-            knekkpunkter.add(fom.plusDays(1));
-        }
-        if (dagenEtter.getDayOfWeek() == DayOfWeek.SATURDAY) {
-            knekkpunkter.add(dagenEtter.plusDays(2));
-        } else if (dagenEtter.getDayOfWeek() == DayOfWeek.SUNDAY) {
-            knekkpunkter.add(dagenEtter.plusDays(1));
+        if (ignorerDagsatsIHelg) {
+            if (fom.getDayOfWeek() == DayOfWeek.SATURDAY) {
+                knekkpunkter.add(fom.plusDays(2));
+            } else if (fom.getDayOfWeek() == DayOfWeek.SUNDAY) {
+                knekkpunkter.add(fom.plusDays(1));
+            }
+            if (dagenEtter.getDayOfWeek() == DayOfWeek.SATURDAY) {
+                knekkpunkter.add(dagenEtter.plusDays(2));
+            } else if (dagenEtter.getDayOfWeek() == DayOfWeek.SUNDAY) {
+                knekkpunkter.add(dagenEtter.plusDays(1));
+            }
         }
         return knekkpunkter;
     }

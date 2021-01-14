@@ -303,6 +303,37 @@ public class OppdragKjedeFactoryTest {
         assertThat(linjer.get(1).getRefDelytelseId()).isEqualTo(DelytelseId.parse("FOO-1-1"));
     }
 
+    @Test
+    public void skal_håndtere_at_første_dato_i_kjeden_ikke_er_i_første_linje() {
+        OppdragKjede kjede = OppdragKjede.builder()
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p("02.03.2020-05.03.2020")).medSats(Sats.dag7(1)).medDelytelseId(DelytelseId.parse("x-1-100")).build())
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p("06.03.2020-06.03.2020")).medSats(Sats.dag7(1)).medDelytelseId(DelytelseId.parse("x-1-101")).medRefDelytelseId(DelytelseId.parse("x-1-100")).build())
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p("06.03.2020-06.03.2020")).medSats(Sats.dag7(1)).medDelytelseId(DelytelseId.parse("x-1-101")).medOpphørFomDato(LocalDate.of(2020, 3, 2)).build())
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p("01.03.2020-01.03.2020")).medSats(Sats.dag7(1)).medDelytelseId(DelytelseId.parse("x-1-103")).medRefDelytelseId(DelytelseId.parse("x-1-101")).build())
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p("02.03.2020-02.03.2020")).medSats(Sats.dag7(1)).medDelytelseId(DelytelseId.parse("x-1-104")).medRefDelytelseId(DelytelseId.parse("x-1-103")).build())
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p("05.03.2020-06.03.2020")).medSats(Sats.dag7(1)).medDelytelseId(DelytelseId.parse("x-1-105")).medRefDelytelseId(DelytelseId.parse("x-1-104")).build())
+            .build();
+
+        Ytelse nyYtelse = Ytelse.builder()
+            .leggTilPeriode(new YtelsePeriode(p("01.03.2020-01.03.2020"), Sats.dag7(2)))
+            .leggTilPeriode(new YtelsePeriode(p("02.03.2020-05.03.2020"), Sats.dag7(2)))
+            .leggTilPeriode(new YtelsePeriode(p("06.03.2020-06.03.2020"), Sats.dag7(2)))
+            .build();
+
+
+        OppdragKjedeFactory factory = OppdragKjedeFactory.lagForEksisterendeMottaker(DelytelseId.parse("x-1-105"));
+        OppdragKjedeFortsettelse resultat = factory.lagOppdragskjedeFraFellesEndringsdato(kjede, nyYtelse, false, LocalDate.of(2020, 3, 1));
+
+        OppdragKjede endelig = kjede.leggTil(resultat);
+        assertThat(endelig.tilYtelse().getPerioder()).containsExactly(
+            new YtelsePeriode(p("01.03.2020-01.03.2020"), Sats.dag7(2)),
+            new YtelsePeriode(p("02.03.2020-05.03.2020"), Sats.dag7(2)),
+            new YtelsePeriode(p("06.03.2020-06.03.2020"), Sats.dag7(2))
+        );
+
+        //TODO lag test som sjekker oppdragslinjene direkte
+    }
+
     private static Periode p(String tekst) {
         String[] deler = tekst.split("-");
         DateTimeFormatter pattern = DateTimeFormatter.ofPattern("dd.MM.yyyy");
