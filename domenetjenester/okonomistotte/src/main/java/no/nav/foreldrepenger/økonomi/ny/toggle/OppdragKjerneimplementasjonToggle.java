@@ -14,7 +14,9 @@ import no.nav.vedtak.util.env.Environment;
 public class OppdragKjerneimplementasjonToggle {
 
     //TODO legg inn saksnumre i denne lista for å lansere ny impl for utvalgte saker
-    public static final Set<Saksnummer> LANSERT_I_PROD = Set.of();
+    public static final Set<Saksnummer> LANSERT_I_PROD = Set.of(
+        new Saksnummer("147260073")
+    );
 
     private BehandlingRepository behandlingRepository;
 
