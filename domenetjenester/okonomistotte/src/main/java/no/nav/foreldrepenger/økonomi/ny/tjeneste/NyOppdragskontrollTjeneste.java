@@ -100,6 +100,9 @@ public class NyOppdragskontrollTjeneste {
     }
 
     BeregningsresultatEntitet hentTilkjentYtelse(Long behandlingId) {
+        BeregningsresultatEntitet beregningsresultat = beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId)
+            .orElseThrow(() -> new IllegalStateException("Mangler Beregningsresultat for behandling " + behandlingId));
+
         BehandlingBeregningsresultatEntitet beregningsresultatAggregat = beregningsresultatRepository.hentBeregningsresultatAggregat(behandlingId).orElse(null);
         if (beregningsresultatAggregat == null) {
             return null;

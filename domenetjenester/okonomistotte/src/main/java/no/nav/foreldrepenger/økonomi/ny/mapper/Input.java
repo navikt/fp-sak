@@ -77,7 +77,6 @@ public class Input {
             Objects.requireNonNull(kladd.saksnummer);
             Objects.requireNonNull(kladd.behandlingId);
             Objects.requireNonNull(kladd.fagsakYtelseType);
-            Objects.requireNonNull(kladd.vedtaksdato);
             if (kladd.fagsakYtelseType == FagsakYtelseType.FORELDREPENGER) {
                 if (kladd.familieYtelseType != FamilieYtelseType.FØDSEL && kladd.familieYtelseType != FamilieYtelseType.ADOPSJON) {
                     throw ugyldigKombinasjon(kladd.fagsakYtelseType, kladd.familieYtelseType);
