@@ -7,6 +7,7 @@ import javax.servlet.annotation.WebListener;
 
 import no.nav.foreldrepenger.domene.risikoklassifisering.konsument.RisikoklassifiseringConsumer;
 import no.nav.foreldrepenger.historikk.kafka.HistorikkConsumer;
+import no.nav.foreldrepenger.mottak.lonnskomp.kafka.LonnskompConsumer;
 import no.nav.foreldrepenger.mottak.vedtak.kafka.VedtaksHendelseConsumer;
 
 /**
@@ -21,6 +22,8 @@ public class KafkaConsumerStarter implements ServletContextListener {
     private RisikoklassifiseringConsumer risikoklassifiseringConsumer; //NOSONAR
     @Inject //NOSONAR
     private VedtaksHendelseConsumer vedtaksHendelseConsumer; //NOSONAR
+    @Inject //NOSONAR
+    private LonnskompConsumer lønnskompensasjonConsumer; //NOSONAR
 
     public KafkaConsumerStarter() { //NOSONAR
         // For CDI
@@ -31,6 +34,7 @@ public class KafkaConsumerStarter implements ServletContextListener {
         historikkConsumer.start();
         risikoklassifiseringConsumer.start();
         vedtaksHendelseConsumer.start();
+        lønnskompensasjonConsumer.start();
     }
 
     @Override
@@ -38,5 +42,6 @@ public class KafkaConsumerStarter implements ServletContextListener {
         historikkConsumer.stop();
         risikoklassifiseringConsumer.stop();
         vedtaksHendelseConsumer.stop();
+        lønnskompensasjonConsumer.stop();
     }
 }

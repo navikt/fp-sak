@@ -115,6 +115,10 @@ public class FagsakTjeneste {
         return fagsakRepository.hentForBruker(aktørId);
     }
 
+    public boolean finnesFagsakerForAktør(AktørId aktørId) {
+        return !fagsakRepository.hentForBruker(aktørId).isEmpty();
+    }
+
     public Fagsak finnEksaktFagsak(long fagsakId) {
         return fagsakRepository.finnEksaktFagsak(fagsakId);
     }
