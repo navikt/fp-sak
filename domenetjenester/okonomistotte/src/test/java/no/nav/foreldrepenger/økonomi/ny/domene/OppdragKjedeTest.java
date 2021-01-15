@@ -18,9 +18,9 @@ public class OppdragKjedeTest {
     @Test
     public void skal_konvertere_enkel_kjede_til_ytelse() {
         OppdragKjede kjede = OppdragKjede.builder()
-            .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Sats.dagsats(1000)).medDelytelseId(DelytelseId.parse("FOO-1-1")).build())
-            .medOppdragslinje(OppdragLinje.builder().medPeriode(p2).medSats(Sats.dagsats(2000)).medDelytelseId(DelytelseId.parse("FOO-1-2")).medRefDelytelseId(DelytelseId.parse("FOO-1-1")).build())
-            .medOppdragslinje(OppdragLinje.builder().medPeriode(p3).medSats(Sats.dagsats(1100)).medDelytelseId(DelytelseId.parse("FOO-1-3")).medRefDelytelseId(DelytelseId.parse("FOO-1-2")).build())
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Sats.dagsats(1000)).medDelytelseId(DelytelseId.parse("FOO001001")).build())
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p2).medSats(Sats.dagsats(2000)).medDelytelseId(DelytelseId.parse("FOO001002")).medRefDelytelseId(DelytelseId.parse("FOO001001")).build())
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p3).medSats(Sats.dagsats(1100)).medDelytelseId(DelytelseId.parse("FOO001003")).medRefDelytelseId(DelytelseId.parse("FOO001002")).build())
             .build();
 
         assertThat(kjede.tilYtelse().getPerioder()).containsExactly(
@@ -34,12 +34,12 @@ public class OppdragKjedeTest {
     public void skal_konvertere_kjede_med_opphør_til_ytelse() {
 
         OppdragKjede kjede = OppdragKjede.builder()
-            .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Sats.dagsats(1000)).medDelytelseId(DelytelseId.parse("FOO-1-1")).build())
-            .medOppdragslinje(OppdragLinje.builder().medPeriode(p2).medSats(Sats.dagsats(2000)).medDelytelseId(DelytelseId.parse("FOO-1-2")).medRefDelytelseId(DelytelseId.parse("FOO-1-1")).build())
-            .medOppdragslinje(OppdragLinje.builder().medPeriode(p3).medSats(Sats.dagsats(1100)).medDelytelseId(DelytelseId.parse("FOO-1-3")).medRefDelytelseId(DelytelseId.parse("FOO-1-2")).build())
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Sats.dagsats(1000)).medDelytelseId(DelytelseId.parse("FOO001001")).build())
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p2).medSats(Sats.dagsats(2000)).medDelytelseId(DelytelseId.parse("FOO001002")).medRefDelytelseId(DelytelseId.parse("FOO001001")).build())
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p3).medSats(Sats.dagsats(1100)).medDelytelseId(DelytelseId.parse("FOO001003")).medRefDelytelseId(DelytelseId.parse("FOO001002")).build())
 
             //opphør fra start av periode 2
-            .medOppdragslinje(OppdragLinje.builder().medPeriode(p3).medSats(Sats.dagsats(1100)).medDelytelseId(DelytelseId.parse("FOO-1-3")).medOpphørFomDato(p2.getFom()).build())
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p3).medSats(Sats.dagsats(1100)).medDelytelseId(DelytelseId.parse("FOO001003")).medOpphørFomDato(p2.getFom()).build())
             .build();
 
         assertThat(kjede.tilYtelse().getPerioder()).containsExactly(
@@ -50,12 +50,12 @@ public class OppdragKjedeTest {
     @Test
     public void skal_konvertere_kjede_med_opphør_inne_i_linje_til_ytelse() {
         OppdragKjede kjede = OppdragKjede.builder()
-            .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Sats.dagsats(1000)).medDelytelseId(DelytelseId.parse("FOO-1-1")).build())
-            .medOppdragslinje(OppdragLinje.builder().medPeriode(p2).medSats(Sats.dagsats(2000)).medDelytelseId(DelytelseId.parse("FOO-1-2")).medRefDelytelseId(DelytelseId.parse("FOO-1-1")).build())
-            .medOppdragslinje(OppdragLinje.builder().medPeriode(p3).medSats(Sats.dagsats(1100)).medDelytelseId(DelytelseId.parse("FOO-1-3")).medRefDelytelseId(DelytelseId.parse("FOO-1-2")).build())
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Sats.dagsats(1000)).medDelytelseId(DelytelseId.parse("FOO001001")).build())
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p2).medSats(Sats.dagsats(2000)).medDelytelseId(DelytelseId.parse("FOO001002")).medRefDelytelseId(DelytelseId.parse("FOO001001")).build())
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p3).medSats(Sats.dagsats(1100)).medDelytelseId(DelytelseId.parse("FOO001003")).medRefDelytelseId(DelytelseId.parse("FOO001002")).build())
 
             //opphør fra inne i periode 2
-            .medOppdragslinje(OppdragLinje.builder().medPeriode(p3).medSats(Sats.dagsats(1100)).medDelytelseId(DelytelseId.parse("FOO-1-3")).medOpphørFomDato(p2.getFom().plusDays(3)).build())
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p3).medSats(Sats.dagsats(1100)).medDelytelseId(DelytelseId.parse("FOO001003")).medOpphørFomDato(p2.getFom().plusDays(3)).build())
             .build();
 
         assertThat(kjede.tilYtelse().getPerioder()).containsExactly(
@@ -69,9 +69,9 @@ public class OppdragKjedeTest {
         //metoden brukes typisk bare for feriepenger
 
         OppdragKjede kjede = OppdragKjede.builder()
-            .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Sats.dagsats(1000)).medDelytelseId(DelytelseId.parse("FOO-1-1")).build())
-            .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Sats.dagsats(2000)).medDelytelseId(DelytelseId.parse("FOO-1-2")).medRefDelytelseId(DelytelseId.parse("FOO-1-1")).build())
-            .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Sats.dagsats(1100)).medDelytelseId(DelytelseId.parse("FOO-1-3")).medRefDelytelseId(DelytelseId.parse("FOO-1-2")).build())
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Sats.dagsats(1000)).medDelytelseId(DelytelseId.parse("FOO001001")).build())
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Sats.dagsats(2000)).medDelytelseId(DelytelseId.parse("FOO001002")).medRefDelytelseId(DelytelseId.parse("FOO001001")).build())
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Sats.dagsats(1100)).medDelytelseId(DelytelseId.parse("FOO001003")).medRefDelytelseId(DelytelseId.parse("FOO001002")).build())
             .build();
 
         assertThat(kjede.tilYtelse().getPerioder()).containsExactly(
@@ -84,9 +84,9 @@ public class OppdragKjedeTest {
         //metoden brukes typisk bare for feriepenger
 
         OppdragKjede kjede = OppdragKjede.builder()
-            .medOppdragslinje(OppdragLinje.builder().medPeriode(p2).medSats(Sats.dagsats(1000)).medDelytelseId(DelytelseId.parse("FOO-1-1")).build())
-            .medOppdragslinje(OppdragLinje.builder().medPeriode(p3).medSats(Sats.dagsats(2000)).medDelytelseId(DelytelseId.parse("FOO-1-2")).medRefDelytelseId(DelytelseId.parse("FOO-1-1")).build())
-            .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Sats.dagsats(1100)).medDelytelseId(DelytelseId.parse("FOO-1-3")).medRefDelytelseId(DelytelseId.parse("FOO-1-2")).build())
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p2).medSats(Sats.dagsats(1000)).medDelytelseId(DelytelseId.parse("FOO001001")).build())
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p3).medSats(Sats.dagsats(2000)).medDelytelseId(DelytelseId.parse("FOO001002")).medRefDelytelseId(DelytelseId.parse("FOO001001")).build())
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Sats.dagsats(1100)).medDelytelseId(DelytelseId.parse("FOO001003")).medRefDelytelseId(DelytelseId.parse("FOO001002")).build())
             .build();
 
         assertThat(kjede.tilYtelse().getPerioder()).containsExactly(
@@ -97,19 +97,19 @@ public class OppdragKjedeTest {
     @Test
     public void skal_kreve_at_oppdragslinjer_i_kjeden_peker_på_hverandre() {
         IllegalArgumentException exception = org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> OppdragKjede.builder()
-            .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Sats.dagsats(1000)).medDelytelseId(DelytelseId.parse("FOO-1-1")).build())
-            .medOppdragslinje(OppdragLinje.builder().medPeriode(p2).medSats(Sats.dagsats(2000)).medDelytelseId(DelytelseId.parse("FOO-1-2")).build())
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Sats.dagsats(1000)).medDelytelseId(DelytelseId.parse("FOO001001")).build())
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p2).medSats(Sats.dagsats(2000)).medDelytelseId(DelytelseId.parse("FOO001002")).build())
             .build());
 
-        assertThat(exception.getMessage()).isEqualTo("Oppdragslinje med delytelseId FOO-1-2 er ikke først i kjeden, og må referere til forrige oppdragslinje (delytelseId FOO-1-1)");
+        assertThat(exception.getMessage()).isEqualTo("Oppdragslinje med delytelseId FOO001002 er ikke først i kjeden, og må referere til forrige oppdragslinje (delytelseId FOO001001)");
     }
 
     @Test
     public void skal_ikke_kreve_at_oppdragslinje_peker_på_forrige_når_alt_tidligere_er_opphørt() {
         OppdragKjede kjede = OppdragKjede.builder()
-            .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Sats.dagsats(1000)).medDelytelseId(DelytelseId.parse("FOO-1-1")).build())
-            .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Sats.dagsats(1000)).medDelytelseId(DelytelseId.parse("FOO-1-1")).medOpphørFomDato(p1.getFom()).build())
-            .medOppdragslinje(OppdragLinje.builder().medPeriode(p2).medSats(Sats.dagsats(2000)).medDelytelseId(DelytelseId.parse("FOO-1-2")).build())
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Sats.dagsats(1000)).medDelytelseId(DelytelseId.parse("FOO001001")).build())
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Sats.dagsats(1000)).medDelytelseId(DelytelseId.parse("FOO001001")).medOpphørFomDato(p1.getFom()).build())
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p2).medSats(Sats.dagsats(2000)).medDelytelseId(DelytelseId.parse("FOO001002")).build())
             .build();
 
         List<YtelsePeriode> perioder = kjede.tilYtelse().getPerioder();
