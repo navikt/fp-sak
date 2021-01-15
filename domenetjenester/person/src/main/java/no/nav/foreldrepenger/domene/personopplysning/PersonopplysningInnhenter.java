@@ -236,8 +236,7 @@ public class PersonopplysningInnhenter {
         final List<FamilierelasjonVL> familierelasjoner = søkerPersonInfo.getFamilierelasjoner()
             .stream()
             .filter(f -> f.getRelasjonsrolle().equals(RelasjonsRolleType.EKTE) ||
-                f.getRelasjonsrolle().equals(RelasjonsRolleType.REGISTRERT_PARTNER) ||
-                f.getRelasjonsrolle().equals(RelasjonsRolleType.SAMBOER))
+                f.getRelasjonsrolle().equals(RelasjonsRolleType.REGISTRERT_PARTNER))
             .collect(Collectors.toList());
         for (FamilierelasjonVL familierelasjon : familierelasjoner) {
             personinfoAdapter.innhentSaksopplysningerFor(familierelasjon.getPersonIdent()).ifPresent(e -> {
