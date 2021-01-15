@@ -2207,7 +2207,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         assertThat(opp150RevurderingListe2).hasSize(4); // AG + Bruker + 2 * FP
         assertThat(opp150RevurderingListe2).noneSatisfy(linje -> assertThat(linje.gjelderOpphør()).isTrue());
     }
-    
+
     /**
      * Prodscenario der bruker suksessivt mister ytelse. Til man til slutt står uten og det skal sendes opphørsoppdrag
      */

@@ -55,7 +55,7 @@ public class LagOppdragTjeneste {
             return null;
         }
         Oppdragskontroll oppdragskontroll = LagOppdragskontrollTjeneste.lagOppdragskontroll(input, tidligereOppdragskontroll);
-        OppdragMapper oppdragMapper = new OppdragMapper(fnrBruker, tidligereOppdrag, oppdragene, input);
+        OppdragMapper oppdragMapper = new OppdragMapper(fnrBruker, tidligereOppdrag, input);
         for (Oppdrag oppdrag : oppdragene) {
             oppdragMapper.mapTilOppdrag110(oppdrag, oppdragskontroll);
         }

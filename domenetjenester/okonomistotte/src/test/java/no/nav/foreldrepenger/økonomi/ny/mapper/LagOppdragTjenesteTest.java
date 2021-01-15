@@ -127,6 +127,7 @@ public class LagOppdragTjenesteTest {
             .medBehandlingId(enBehandlingId)
             .medBruker(brukerAktørId)
             .medBrukInntrekk(vanligInntrekkbeslutning)
+            .medVedtaksdato(vedtaksdato)
             .build();
     }
 

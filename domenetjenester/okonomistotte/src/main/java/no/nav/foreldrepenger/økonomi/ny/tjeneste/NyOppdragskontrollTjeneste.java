@@ -1,11 +1,14 @@
 package no.nav.foreldrepenger.økonomi.ny.tjeneste;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.impl.FinnAnsvarligSaksbehandler;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BehandlingBeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
@@ -65,6 +68,7 @@ public class NyOppdragskontrollTjeneste {
 
     public Optional<Oppdragskontroll> opprettOppdrag(Long behandlingId, Long prosessTaskId, boolean brukFellesEndringstidspunkt) {
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        LocalDate vedtaksdato = hentVedtaksdato(behandlingId);
         BeregningsresultatEntitet tilkjentYtelse = hentTilkjentYtelse(behandlingId);
         boolean brukInntrekk = hentBrukInntrekk(behandlingId);
 
@@ -78,6 +82,7 @@ public class NyOppdragskontrollTjeneste {
             .medBruker(behandling.getAktørId())
             .medSaksnummer(saksnummer)
             .medBehandlingId(behandlingId)
+            .medVedtaksdato(vedtaksdato)
             .medAnsvarligSaksbehandler(behandling.getAnsvarligBeslutter())
             .medProsessTaskId(prosessTaskId)
             .build();
@@ -88,6 +93,13 @@ public class NyOppdragskontrollTjeneste {
             return Optional.of(oppdragskontroll);
         }
         return Optional.empty();
+    }
+
+    private LocalDate hentVedtaksdato(Long behandlingId) {
+        Optional<BehandlingVedtak> behandlingVedtakOpt = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId);
+
+        return behandlingVedtakOpt.map(BehandlingVedtak::getVedtaksdato)
+            .orElseGet(LocalDate::now);
     }
 
     private boolean hentBrukInntrekk(Long behandlingId) {

@@ -83,9 +83,10 @@ public class FagsystemId implements Comparable<FagsystemId> {
 
     @Override
     public String toString() {
-        return gammeltFormat
+        return String.format("%s%03d", saksnummer, løpenummer);
+        /*return gammeltFormat
             ? String.format("%s%03d", saksnummer, løpenummer)
-            : String.format("%s-%d", saksnummer, løpenummer);
+            : String.format("%s-%d", saksnummer, løpenummer);*/
     }
 
     @Override
