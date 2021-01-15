@@ -39,8 +39,6 @@ public class OppdragMapper {
     private String fnrBruker;
     private String ansvarligSaksbehandler;
     private OverordnetOppdragKjedeOversikt tidligereOppdrag;
-    private LocalDate vedtaksdato;
-    private boolean brukInntrekk;
 
     public OppdragMapper(String fnrBruker, OverordnetOppdragKjedeOversikt tidligereOppdrag, Input input) {
         this.fnrBruker = fnrBruker;
@@ -65,7 +63,7 @@ public class OppdragMapper {
             .medAvstemming115(opprettAvstemming115());
 
         if (oppdrag.getBetalingsmottaker() == Betalingsmottaker.BRUKER && !oppdrag.erNytt() && !erOpphørForMottaker(oppdrag)) {
-            opprettOmpostering116(oppdrag.getEndringsdato()).ifPresent(builder::medOmpostering116);
+            opprettOmpostering116(oppdrag.getEndringsdato(), input.brukInntrekk()).ifPresent(builder::medOmpostering116);
         }
 
         Oppdrag110 oppdrag110 = builder.build();
@@ -75,7 +73,7 @@ public class OppdragMapper {
 
         for (Map.Entry<KjedeNøkkel, OppdragKjedeFortsettelse> entry : oppdrag.getKjeder().entrySet()) {
             for (OppdragLinje oppdragLinje : entry.getValue().getOppdragslinjer()) {
-                mapTilOppdragslinje(oppdrag110, entry.getKey(), oppdragLinje, maxdatoRefusjon);
+                mapTilOppdragslinje150(oppdrag110, entry.getKey(), oppdragLinje, maxdatoRefusjon, input.getVedtaksdato());
             }
         }
     }
@@ -92,7 +90,7 @@ public class OppdragMapper {
         return ØkonomiKodeEndring.UEND;
     }
 
-    public Oppdragslinje150 mapTilOppdragslinje(Oppdrag110 oppdrag110, KjedeNøkkel kjedeNøkkel, OppdragLinje linje, LocalDate maxdatoRefusjon) {
+    public Oppdragslinje150 mapTilOppdragslinje150(Oppdrag110 oppdrag110, KjedeNøkkel kjedeNøkkel, OppdragLinje linje, LocalDate maxdatoRefusjon, LocalDate vedtaksdato) {
         Oppdragslinje150.Builder builder = Oppdragslinje150.builder()
             .medOppdrag110(oppdrag110)
             .medDelytelseId(Long.valueOf(linje.getDelytelseId().toString()))
@@ -163,7 +161,7 @@ public class OppdragMapper {
             .build();
     }
 
-    private Optional<Ompostering116> opprettOmpostering116(LocalDate endringsdatoBruker) {
+    private Optional<Ompostering116> opprettOmpostering116(LocalDate endringsdatoBruker, boolean brukInntrekk) {
         boolean erAvslåttInntrekk = !brukInntrekk;
         Ompostering116.Builder ompostering116Builder = new Ompostering116.Builder()
             .medSaksbehId(ansvarligSaksbehandler)
