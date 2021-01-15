@@ -102,9 +102,10 @@ public class DelytelseId implements Comparable<DelytelseId> {
 
     @Override
     public String toString() {
-        return gammeltFormat
+       /* return gammeltFormat
             ? String.format("%s%03d", fagsystemId, løpenummer)
-            : String.format("%s-%d", fagsystemId, løpenummer);
+            : String.format("%s-%d", fagsystemId, løpenummer);*/
+        return String.format("%s%03d", fagsystemId, løpenummer);
     }
 
     @Override

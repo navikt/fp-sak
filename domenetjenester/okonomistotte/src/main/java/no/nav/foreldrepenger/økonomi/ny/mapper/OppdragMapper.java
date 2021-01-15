@@ -73,7 +73,7 @@ public class OppdragMapper {
 
         for (Map.Entry<KjedeNøkkel, OppdragKjedeFortsettelse> entry : oppdrag.getKjeder().entrySet()) {
             for (OppdragLinje oppdragLinje : entry.getValue().getOppdragslinjer()) {
-                mapTilOppdragslinje150(oppdrag110, entry.getKey(), oppdragLinje, maxdatoRefusjon, input.getVedtaksdato());
+                mapTilOppdragslinje150(oppdrag110, entry.getKey(), oppdragLinje, maxdatoRefusjon, input.getVedtaksdato(), input.getBehandlingId());
             }
         }
     }
@@ -90,7 +90,7 @@ public class OppdragMapper {
         return ØkonomiKodeEndring.UEND;
     }
 
-    public Oppdragslinje150 mapTilOppdragslinje150(Oppdrag110 oppdrag110, KjedeNøkkel kjedeNøkkel, OppdragLinje linje, LocalDate maxdatoRefusjon, LocalDate vedtaksdato) {
+    public Oppdragslinje150 mapTilOppdragslinje150(Oppdrag110 oppdrag110, KjedeNøkkel kjedeNøkkel, OppdragLinje linje, LocalDate maxdatoRefusjon, LocalDate vedtaksdato, Long behandlingId) {
         Oppdragslinje150.Builder builder = Oppdragslinje150.builder()
             .medOppdrag110(oppdrag110)
             .medDelytelseId(Long.valueOf(linje.getDelytelseId().toString()))
@@ -101,6 +101,7 @@ public class OppdragMapper {
             .medVedtakId(vedtaksdato.toString())
             .medFradragTillegg(OppdragskontrollConstants.FRADRAG_TILLEGG)
             .medBrukKjoreplan("N")
+            .medHenvisning(behandlingId)
             .medSaksbehId(ansvarligSaksbehandler);
 
         if (linje.erOpphørslinje()) {
