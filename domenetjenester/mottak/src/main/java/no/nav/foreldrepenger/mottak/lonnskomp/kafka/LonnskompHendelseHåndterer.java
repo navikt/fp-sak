@@ -19,15 +19,14 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.behandlingslager.ytelse.LønnskompensasjonVedtak;
-import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Beløp;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.mottak.json.JacksonJsonConfig;
 import no.nav.foreldrepenger.mottak.lonnskomp.domene.LønnskompensasjonRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @ApplicationScoped
@@ -39,8 +38,6 @@ public class LonnskompHendelseHåndterer {
     private final static ObjectMapper OBJECT_MAPPER = JacksonJsonConfig.getMapper();
     private LønnskompensasjonRepository repository;
     private ProsessTaskRepository prosessTaskRepository;
-    private FagsakTjeneste fagsakTjeneste;
-    private PersoninfoAdapter personinfoAdapter;
 
 
     public LonnskompHendelseHåndterer() {
@@ -48,13 +45,9 @@ public class LonnskompHendelseHåndterer {
 
     @Inject
     public LonnskompHendelseHåndterer(LønnskompensasjonRepository repository,
-                                      ProsessTaskRepository taskRepository,
-                                      FagsakTjeneste fagsakTjeneste,
-                                      PersoninfoAdapter personinfoAdapter) {
+                                      ProsessTaskRepository taskRepository) {
         this.repository = repository;
         this.prosessTaskRepository = taskRepository;
-        this.fagsakTjeneste = fagsakTjeneste;
-        this.personinfoAdapter = personinfoAdapter;
     }
 
     public void handleMessage(String key, String payload) {
@@ -72,26 +65,33 @@ public class LonnskompHendelseHåndterer {
         } catch (IOException e) {
             throw LønnskompensasjonFeil.FACTORY.parsingFeil(key, payload, e).toException();
         }
-        if (mottattVedtak != null) {
+        if (mottattVedtak != null && mottattVedtak.getTotalKompensasjon().compareTo(BigDecimal.ZERO) > 0) {
             var sakId = mottattVedtak.getSakId() != null ? mottattVedtak.getSakId() : mottattVedtak.getId();
+            var eksisterende = repository.hentSak(sakId, mottattVedtak.getFnr());
+            var harAktørId = eksisterende.map(LønnskompensasjonVedtak::getAktørId);
 
-            var vedtak = extractFrom(mottattVedtak, sakId);
-            if (vedtak != null && fagsakTjeneste.finnesFagsakerForAktør(vedtak.getAktørId())) {
-                var eksisterende = repository.hentSak(sakId, vedtak.getAktørId());
-                if (repository.skalLagreVedtak(eksisterende.orElse(null), vedtak)) {
-                    log.info("Lønnskomp lagrer sakId {}", sakId);
-                    repository.lagre(vedtak);
+            var vedtak = extractFrom(mottattVedtak, sakId, harAktørId.orElse(null));
+            if (repository.skalLagreVedtak(eksisterende.orElse(null), vedtak)) {
+                log.info("Lønnskomp lagrer sakId {}", sakId);
+                repository.lagre(vedtak);
+
+                if (harAktørId.isEmpty()) {
+                    ProsessTaskData data = new ProsessTaskData(LagreLønnskompensasjonTask.TASKTYPE);
+                    data.setProperty(LagreLønnskompensasjonTask.SAK, sakId);
+                    prosessTaskRepository.lagre(data);
                 }
+            } else if (eksisterende.isPresent() && harAktørId.isEmpty()) {
+                ProsessTaskData data = new ProsessTaskData(LagreLønnskompensasjonTask.TASKTYPE);
+                data.setProperty(LagreLønnskompensasjonTask.SAK, sakId);
+                prosessTaskRepository.lagre(data);
             }
         }
     }
 
-    private LønnskompensasjonVedtak extractFrom(LønnskompensasjonVedtakMelding melding, String sakId) {
-        if (melding.getTotalKompensasjon().compareTo(BigDecimal.ZERO) <= 0)
-            return null;
+    private LønnskompensasjonVedtak extractFrom(LønnskompensasjonVedtakMelding melding, String sakId, AktørId aktørId) {
         var vedtak = new LønnskompensasjonVedtak();
-        vedtak.setAktørId(personinfoAdapter.hentAktørForFnr(new PersonIdent(melding.getFnr())).orElseThrow());
-        //vedtak.setFnr(melding.getFnr());
+        vedtak.setFnr(melding.getFnr());
+        vedtak.setAktørId(aktørId);
         vedtak.setSakId(sakId);
         vedtak.setOrgNummer(new OrgNummer(melding.getBedriftNr()));
         vedtak.setPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(melding.getFom(), melding.getTom()));

@@ -38,7 +38,7 @@ public class LønnskompensasjonRepository {
     }
 
     public void lagre(LønnskompensasjonVedtak vedtak) {
-        LønnskompensasjonVedtak eksisterende = hentSak(vedtak.getSakId(), vedtak.getAktørId()).orElse(null);
+        LønnskompensasjonVedtak eksisterende = hentSak(vedtak.getSakId(), vedtak.getFnr()).orElse(null);
         if (eksisterende != null) {
             // Deaktiver eksisterende innslag
             eksisterende.setAktiv(false);
@@ -59,13 +59,13 @@ public class LønnskompensasjonRepository {
         return new ArrayList<>(query.getResultList());
     }
 
-    public Optional<LønnskompensasjonVedtak> hentSak(String sakId, AktørId aktørId) {
+    public Optional<LønnskompensasjonVedtak> hentSak(String sakId, String fnr) {
         Objects.requireNonNull(sakId, "sakId");
 
         TypedQuery<LønnskompensasjonVedtak> query = entityManager.createQuery("SELECT v FROM LonnskompVedtakEntitet v " +
-            "WHERE v.aktiv = true AND v.sakId = :sakId and v.aktørId = :fnr", LønnskompensasjonVedtak.class);
+            "WHERE v.aktiv = true AND v.sakId = :sakId and v.fnr = :fnr", LønnskompensasjonVedtak.class);
         query.setParameter("sakId", sakId);
-        query.setParameter("fnr", aktørId);
+        query.setParameter("fnr", fnr);
 
         return HibernateVerktøy.hentUniktResultat(query);
     }

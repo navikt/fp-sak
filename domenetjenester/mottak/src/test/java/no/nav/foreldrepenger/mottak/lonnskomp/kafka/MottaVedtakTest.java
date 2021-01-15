@@ -9,15 +9,11 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.ytelse.LønnskompensasjonVedtak;
-import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.mottak.lonnskomp.domene.LønnskompensasjonRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
@@ -28,9 +24,7 @@ public class MottaVedtakTest {
 
     private LønnskompensasjonRepository repository = mock(LønnskompensasjonRepository.class);
     private ProsessTaskRepository taskRepository = mock(ProsessTaskRepository.class);
-    private FagsakTjeneste fagsakTjeneste = mock(FagsakTjeneste.class);
-    private PersoninfoAdapter personinfoAdapter = mock(PersoninfoAdapter.class);
-    private LonnskompHendelseHåndterer håndterer = new LonnskompHendelseHåndterer(repository, taskRepository, fagsakTjeneste, personinfoAdapter);
+    private LonnskompHendelseHåndterer håndterer = new LonnskompHendelseHåndterer(repository, taskRepository);
 
     @Test
     public void skal_motta_uten_anvist() {
@@ -47,8 +41,6 @@ public class MottaVedtakTest {
             "}\n" +
             "";
         when(repository.skalLagreVedtak(any(), any())).thenReturn(true);
-        when(fagsakTjeneste.finnesFagsakerForAktør(any())).thenReturn(true);
-        when(personinfoAdapter.hentAktørForFnr(any())).thenReturn(Optional.of(new AktørId(AKTØR)));
         ArgumentCaptor<LønnskompensasjonVedtak> vedtakCaptor = ArgumentCaptor.forClass(LønnskompensasjonVedtak.class);
         håndterer.handleMessage("key", payload);
         verify(repository, atLeast(1)).lagre(vedtakCaptor.capture());
@@ -86,8 +78,6 @@ public class MottaVedtakTest {
             "}\n";
 
         when(repository.skalLagreVedtak(any(), any())).thenReturn(true);
-        when(fagsakTjeneste.finnesFagsakerForAktør(any())).thenReturn(true);
-        when(personinfoAdapter.hentAktørForFnr(any())).thenReturn(Optional.of(new AktørId(AKTØR)));
         ArgumentCaptor<LønnskompensasjonVedtak> vedtakCaptor = ArgumentCaptor.forClass(LønnskompensasjonVedtak.class);
         håndterer.handleMessage("key", payload);
         verify(repository, atLeast(1)).lagre(vedtakCaptor.capture());

@@ -45,7 +45,7 @@ public class LønnskompensasjonRepositoryTest extends EntityManagerAwareTest {
         final var vedtakFraRepo = repository.hentLønnskompensasjonForIPeriode(AKTØR_ID, LocalDate.now().minusMonths(17), LocalDate.now());
         assertThat(vedtakFraRepo).hasSize(1);
 
-        final var vedtakForSakId = repository.hentSak("1234", AKTØR_ID);
+        final var vedtakForSakId = repository.hentSak("1234", FNR.getIdent());
         assertThat(vedtakForSakId).isPresent();
         assertThat(vedtakForSakId.get().getOrgNummer()).isEqualTo(new OrgNummer("999999999"));
 
