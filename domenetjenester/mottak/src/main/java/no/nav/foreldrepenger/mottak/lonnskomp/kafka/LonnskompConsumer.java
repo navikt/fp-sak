@@ -21,17 +21,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.vedtak.apptjeneste.AppServiceHandler;
-import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
 public class LonnskompConsumer implements AppServiceHandler {
 
     private static final Logger log = LoggerFactory.getLogger(LonnskompConsumer.class);
-    private static final Environment ENV = Environment.current();
     private KafkaStreams stream;
     private String topic;
 
-    LonnskompConsumer() {
+    public LonnskompConsumer() {
+        // NOSONAR
     }
 
     @Inject
@@ -121,9 +120,6 @@ public class LonnskompConsumer implements AppServiceHandler {
 
     @Override
     public void start() {
-        if (Environment.current().isLocal()) {
-            return;
-        }
         addShutdownHooks();
         stream.start();
         log.info("Starter konsumering av topic={}, tilstand={}", topic, stream.state());
@@ -131,9 +127,6 @@ public class LonnskompConsumer implements AppServiceHandler {
 
     @Override
     public void stop() {
-        if (Environment.current().isLocal()) {
-            return;
-        }
         log.info("Starter shutdown av topic={}, tilstand={} med 10 sekunder timeout", topic, stream.state());
         stream.close(Duration.of(60, ChronoUnit.SECONDS));
         log.info("Shutdown av topic={}, tilstand={} med 10 sekunder timeout", topic, stream.state());
