@@ -26,7 +26,7 @@ class LonnskompStreamKafkaProperties {
     @Inject
     LonnskompStreamKafkaProperties(@KonfigVerdi("bootstrap.servers") String bootstrapServers,
                                    @KonfigVerdi("schema.registry.url") String schemaRegistryUrl,
-                                   @KonfigVerdi("kafka.lonnskompensasjon.topic") String topicName,
+                                   @KonfigVerdi(value = "kafka.lonnskompensasjon.topic", defaultVerdi = "privat-permittering-lonnskomp-vedtak-vtp") String topicName,
                                    @KonfigVerdi("systembruker.username") String username,
                                    @KonfigVerdi("systembruker.password") String password,
                                    @KonfigVerdi(value = "javax.net.ssl.trustStore", required = false) String trustStorePath,
