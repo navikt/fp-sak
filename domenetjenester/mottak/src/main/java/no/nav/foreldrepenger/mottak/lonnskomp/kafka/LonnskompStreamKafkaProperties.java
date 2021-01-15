@@ -24,8 +24,8 @@ class LonnskompStreamKafkaProperties {
 
     @SuppressWarnings("resource")
     @Inject
-    LonnskompStreamKafkaProperties(@KonfigVerdi("kafka.bootstrap.servers") String bootstrapServers,
-                                   @KonfigVerdi("kafka.schema.registry.url") String schemaRegistryUrl,
+    LonnskompStreamKafkaProperties(@KonfigVerdi("bootstrap.servers") String bootstrapServers,
+                                   @KonfigVerdi("schema.registry.url") String schemaRegistryUrl,
                                    @KonfigVerdi("kafka.lonnskompensasjon.topic") String topicName,
                                    @KonfigVerdi("systembruker.username") String username,
                                    @KonfigVerdi("systembruker.password") String password,
@@ -34,7 +34,7 @@ class LonnskompStreamKafkaProperties {
         this.trustStorePath = trustStorePath;
         this.trustStorePassword = trustStorePassword;
         this.topic = new Topic(topicName, Serdes.String(), Serdes.String());
-        this.applicationId = "fpabakus-kom" + (ENV.isProd() ? "-default" : "-" + ENV.getNamespace());
+        this.applicationId = "fpsak-lonnkomp" + (ENV.isProd() ? "-default" : "-" + ENV.getNamespace());
         this.bootstrapServers = bootstrapServers;
         this.schemaRegistryUrl = schemaRegistryUrl;
         this.username = username;
