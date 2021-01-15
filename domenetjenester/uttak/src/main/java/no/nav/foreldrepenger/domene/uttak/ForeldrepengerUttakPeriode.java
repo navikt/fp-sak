@@ -153,6 +153,22 @@ public class ForeldrepengerUttakPeriode {
         return getAktiviteter().stream().anyMatch(aktivitet -> aktivitet.getUtbetalingsgrad().harUtbetaling());
     }
 
+    public boolean harTrekkdager() {
+        return getAktiviteter().stream().anyMatch(aktivitet -> aktivitet.getTrekkdager().merEnn0());
+    }
+
+    public boolean harAktivtUttak() {
+        return harUtbetaling() || harTrekkdager() || erInnvilgetUtsettelse();
+    }
+
+    public boolean erInnvilgetUtsettelse() {
+        return erUtsettelse() && !harTrekkdager() && !harUtbetaling();
+    }
+
+    private boolean erUtsettelse() {
+        return !Objects.equals(getUtsettelseType(), UttakUtsettelseType.UDEFINERT);
+    }
+
     @Override
     public String toString() {
         return "ForeldrepengerUttakPeriode{" +

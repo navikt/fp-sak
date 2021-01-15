@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandling.revurdering.ytelse.fp;
+package no.nav.foreldrepenger.behandling.revurdering;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -16,7 +16,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.revurdering.BerørtBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -43,6 +42,7 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
+import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 
 @ExtendWith(MockitoExtension.class)
 public class BerørtBehandlingTjenesteTest {
@@ -53,11 +53,13 @@ public class BerørtBehandlingTjenesteTest {
     @Mock
     private HistorikkRepository historikkRepository;
     @Mock
-    BehandlingRepositoryProvider repositoryProvider;
+    private BehandlingRepositoryProvider repositoryProvider;
     @Mock
-    FpUttakRepository fpUttakRepository;
+    private FpUttakRepository fpUttakRepository;
     @Mock
     private UttakInputTjeneste uttakInputTjeneste;
+    @Mock
+    private YtelseFordelingTjeneste ytelseFordelingTjeneste;
 
     private Behandling revurdering;
 
@@ -71,7 +73,7 @@ public class BerørtBehandlingTjenesteTest {
         revurdering = Behandling.fraTidligereBehandling(førsteBehandling, BehandlingType.REVURDERING).build();
         berørtBehandlingTjeneste = new BerørtBehandlingTjeneste(stønadskontoSaldoTjeneste, repositoryProvider,
                 uttakInputTjeneste,
-                new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()));
+                new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()), ytelseFordelingTjeneste);
     }
 
     // Scenarie 1 - Opphør
