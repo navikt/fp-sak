@@ -140,8 +140,7 @@ public class LønnskompensasjonVedtak extends BaseEntitet {
         if (o == null || getClass() != o.getClass()) return false;
         LønnskompensasjonVedtak that = (LønnskompensasjonVedtak) o;
         return Objects.equals(sakId, that.sakId) &&
-            //Objects.equals(fnr, that.fnr) &&
-            Objects.equals(aktørId, that.aktørId) &&
+            Objects.equals(fnr, that.fnr) &&
             Objects.equals(orgNummer, that.orgNummer) &&
             Objects.equals(periode, that.periode) &&
             Objects.equals(beløp, that.beløp);
@@ -158,7 +157,7 @@ public class LønnskompensasjonVedtak extends BaseEntitet {
 
     @Override
     public int hashCode() {
-        return Objects.hash(sakId, aktørId, orgNummer, periode, beløp);
+        return Objects.hash(sakId, fnr, orgNummer, periode, beløp);
     }
 
     @Override
