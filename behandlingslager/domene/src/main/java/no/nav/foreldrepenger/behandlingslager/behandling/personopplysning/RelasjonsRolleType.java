@@ -31,20 +31,10 @@ public enum RelasjonsRolleType implements Kodeverdi {
     FARA("FARA", "Far til"),
     MORA("MORA", "Mor til"),
     REGISTRERT_PARTNER("REPA", "Registrert partner med"),
-    SAMBOER("SAMB", "Samboer med"),
     MEDMOR("MMOR", "Medmor"),
 
-    // TODO: sjekk denne
-    @Deprecated
+    // Mulig verdi i PO_RELASJON
     ANNEN_PART_FRA_SØKNAD("ANPA", "Annen part fra søknad"),
-
-    // TODO: sjekk denne
-    @Deprecated
-    BARN_FRA_SØKNAD("BASO", "Barn fra søknad"),
-
-    // TODO: sjekk denne
-    @Deprecated
-    HOVEDSØKER_FRA_SØKNAD("HOVS", "Hovedsøker fra søknad"),
 
     UDEFINERT("-", "Ikke definert"),
     ;
