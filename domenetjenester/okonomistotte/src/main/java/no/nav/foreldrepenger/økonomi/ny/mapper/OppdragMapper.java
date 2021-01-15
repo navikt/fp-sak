@@ -42,7 +42,7 @@ public class OppdragMapper {
     private LocalDate vedtaksdato;
     private boolean brukInntrekk;
 
-    public OppdragMapper(String fnrBruker, OverordnetOppdragKjedeOversikt tidligereOppdrag, List<Oppdrag> nyeOppdrag, Input input) {
+    public OppdragMapper(String fnrBruker, OverordnetOppdragKjedeOversikt tidligereOppdrag, Input input) {
         this.fnrBruker = fnrBruker;
         this.tidligereOppdrag = tidligereOppdrag;
         this.input = input;

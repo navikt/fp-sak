@@ -17,6 +17,7 @@ public class Input {
     private FagsakYtelseType fagsakYtelseType;
     private FamilieYtelseType familieYtelseType;
     private String ansvarligSaksbehandler;
+    private LocalDate vedtaksdato;
     private boolean brukInntrekk;
     private Long prosessTaskId;
 
@@ -55,6 +56,10 @@ public class Input {
         return ansvarligSaksbehandler;
     }
 
+    public LocalDate getVedtaksdato() {
+        return vedtaksdato;
+    }
+
     public boolean brukInntrekk() {
         return brukInntrekk;
     }
@@ -72,6 +77,7 @@ public class Input {
             Objects.requireNonNull(kladd.saksnummer);
             Objects.requireNonNull(kladd.behandlingId);
             Objects.requireNonNull(kladd.fagsakYtelseType);
+            Objects.requireNonNull(kladd.vedtaksdato);
             if (kladd.fagsakYtelseType == FagsakYtelseType.FORELDREPENGER) {
                 if (kladd.familieYtelseType != FamilieYtelseType.FØDSEL && kladd.familieYtelseType != FamilieYtelseType.ADOPSJON) {
                     throw ugyldigKombinasjon(kladd.fagsakYtelseType, kladd.familieYtelseType);
@@ -124,6 +130,11 @@ public class Input {
 
         public Builder medAnsvarligSaksbehandler(String ansvarligSaksbehandler) {
             kladd.ansvarligSaksbehandler = ansvarligSaksbehandler;
+            return this;
+        }
+
+        public Builder medVedtaksdato(LocalDate vedtaksdato) {
+            kladd.vedtaksdato = vedtaksdato;
             return this;
         }
 
