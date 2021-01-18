@@ -8,6 +8,8 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto.FeriepengegrunnlagAndelDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto.FeriepengegrunnlagDto;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 public final class FeriepengegrunnlagMapper {
@@ -17,14 +19,17 @@ public final class FeriepengegrunnlagMapper {
     }
 
     public static Optional<FeriepengegrunnlagDto> map(BeregningsresultatEntitet entitet) {
-        if (entitet.getBeregningsresultatFeriepenger().isEmpty()) {
+        List<BeregningsresultatFeriepengerPrÅr> feriepengerPrÅr = entitet.getBeregningsresultatFeriepenger()
+            .map(BeregningsresultatFeriepenger::getBeregningsresultatFeriepengerPrÅrListe)
+            .orElse(Collections.emptyList());
+        if (feriepengerPrÅr.isEmpty()) {
             return Optional.empty();
         }
         BeregningsresultatFeriepenger feriepenger = entitet.getBeregningsresultatFeriepenger().get();
         FeriepengegrunnlagDto.Builder builder = FeriepengegrunnlagDto.builder()
             .medFeriepengeperiodeFom(feriepenger.getFeriepengerPeriodeFom())
             .medFeriepengeperiodeTom(feriepenger.getFeriepengerPeriodeTom());
-        feriepenger.getBeregningsresultatFeriepengerPrÅrListe().stream()
+        feriepengerPrÅr.stream()
             .map(FeriepengegrunnlagMapper::mapAndel)
             .forEach(builder::leggTilAndel);
         return Optional.of(builder.build());
