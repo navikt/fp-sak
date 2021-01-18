@@ -93,15 +93,12 @@ public class BerørtBehandlingTjeneste {
                                             Long behandlingIdAnnenpart) {
         var uttakInput = uttakInputTjeneste.lagInput(behandlingsresultat.getBehandlingId());
         ForeldrepengerGrunnlag foreldrepengerGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
-        if (foreldrepengerGrunnlag.isTapendeBehandling()) {
+        //Må sjekke konsekvens pga overlapp med samtidig uttak
+        if (foreldrepengerGrunnlag.isTapendeBehandling() || harKonsekvens(behandlingsresultat, KonsekvensForYtelsen.INGEN_ENDRING)) {
             return false;
         }
 
-        if (stønadskontoSaldoTjeneste.erNegativSaldoPåNoenKonto(uttakInput)) {
-            return true;
-        }
-
-        if (behandlingsresultat.isEndretStønadskonto()) {
+        if (behandlingsresultat.isEndretStønadskonto() || stønadskontoSaldoTjeneste.erNegativSaldoPåNoenKonto(uttakInput)) {
             return true;
         }
 
