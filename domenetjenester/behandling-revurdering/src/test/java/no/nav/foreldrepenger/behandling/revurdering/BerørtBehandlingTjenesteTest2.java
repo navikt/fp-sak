@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
@@ -28,6 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Utbetalingsgrad;
@@ -398,6 +400,46 @@ class BerørtBehandlingTjenesteTest2 {
         lagreUttak(morBehandling, morUttak);
 
         var farUttak = new ForeldrepengerUttak(List.of(farsFørstePeriode));
+        lagreUttak(farBehandling, farUttak);
+
+        var resultat = skalBerørtOpprettes(farBehandling, morBehandling);
+        assertThat(resultat).isFalse();
+    }
+
+    @Test
+    public void ikke_berørt_behandling_ved_overlapp_mellom_partene_når_br_konsekvens_er_ingen_endring() {
+        var startDatoMor = LocalDate.of(2020, 1, 1);
+
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel().medAvklarteUttakDatoer(avklarteDatoer(startDatoMor));
+        var scenarioAnnenpart = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var farBehandling = scenario.lagre(repositoryProvider);
+        var morBehandling = scenarioAnnenpart.lagre(repositoryProvider);
+
+        var brMedIngenEndring = Behandlingsresultat.builderEndreEksisterende(getBehandlingsresultat(farBehandling.getId()))
+            .leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.INGEN_ENDRING)
+            .build();
+        getBehandlingsresultatRepository().lagre(farBehandling.getId(), brMedIngenEndring);
+
+        lagUttakInput(farBehandling);
+
+        var morsPeriode = new ForeldrepengerUttakPeriode.Builder().medTidsperiode(startDatoMor,
+            startDatoMor.plusWeeks(15))
+            .medResultatÅrsak(InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medAktiviteter(List.of(uttakPeriodeAktivitet(StønadskontoType.MØDREKVOTE)))
+            .medSamtidigUttak(true)
+            .medSamtidigUttaksprosent(new SamtidigUttaksprosent(50))
+            .build();
+        var farsPeriode = new ForeldrepengerUttakPeriode.Builder().medTidsperiode(morsPeriode.getFom().plusWeeks(1),
+            morsPeriode.getTom().minusWeeks(1))
+            .medResultatÅrsak(InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medAktiviteter(List.of(uttakPeriodeAktivitet(StønadskontoType.FEDREKVOTE)))
+            .medSamtidigUttak(true)
+            .medSamtidigUttaksprosent(new SamtidigUttaksprosent(50))
+            .build();
+        var morUttak = new ForeldrepengerUttak(List.of(morsPeriode));
+        lagreUttak(morBehandling, morUttak);
+
+        var farUttak = new ForeldrepengerUttak(List.of(farsPeriode));
         lagreUttak(farBehandling, farUttak);
 
         var resultat = skalBerørtOpprettes(farBehandling, morBehandling);
