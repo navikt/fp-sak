@@ -166,8 +166,15 @@ public class BerørtBehandlingTjeneste {
         if (periode.harAktivtUttak()) {
             return false;
         }
+        if (!harUttakEtterDato(periode.getTom(), annenpartsUttak)) {
+            return false;
+        }
         var annenpartsOverlappendePeriode = overlappendePeriode(periode, annenpartsUttak.getGjeldendePerioder());
         return annenpartsOverlappendePeriode.isEmpty() || !annenpartsOverlappendePeriode.get().harAktivtUttak();
+    }
+
+    private boolean harUttakEtterDato(LocalDate dato, ForeldrepengerUttak uttak) {
+        return uttak.getGjeldendePerioder().stream().anyMatch(p -> p.getTom().isAfter(dato));
     }
 
     private boolean gammel(Optional<Behandlingsresultat> brukersGjeldendeBehandlingsresultat,
