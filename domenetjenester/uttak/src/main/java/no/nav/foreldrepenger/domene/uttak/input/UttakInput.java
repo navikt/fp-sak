@@ -97,6 +97,10 @@ public class UttakInput {
         return finnesAndelerMedGraderingUtenBeregningsgrunnlag;
     }
 
+    public Set<BehandlingÅrsakType> getBehandlingÅrsaker() {
+        return behandlingÅrsaker;
+    }
+
     public UttakInput medBeregningsgrunnlagStatuser(Set<BeregningsgrunnlagStatus> statuser) {
         var newInput = new UttakInput(this);
         newInput.beregningsgrunnlagStatuser = Set.copyOf(statuser);

@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
@@ -62,7 +61,6 @@ public class OpphørUttakTjenesteTest {
     private Behandling opprettRevurdering(Behandling originalBehandling, Behandlingsresultat.Builder behandlingsresultat) {
         return ScenarioMorSøkerForeldrepenger.forFødsel()
             .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_HENDELSE_FØDSEL)
-            .medBehandlingType(BehandlingType.REVURDERING)
             .medBehandlingsresultat(behandlingsresultat.build())
             .lagre(repositoryProvider);
     }

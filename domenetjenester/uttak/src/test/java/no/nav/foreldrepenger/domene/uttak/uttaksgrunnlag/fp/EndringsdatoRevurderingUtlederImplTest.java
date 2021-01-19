@@ -28,7 +28,6 @@ import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonEventPubliserer;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
@@ -235,7 +234,6 @@ public class EndringsdatoRevurderingUtlederImplTest {
         revurderingScenario.medDefaultInntektArbeidYtelse();
         revurderingScenario.medDefaultOppgittDekningsgrad();
         revurderingScenario.medOriginalBehandling(originalBehandling, RE_ENDRING_FRA_BRUKER);
-        revurderingScenario.medBehandlingType(BehandlingType.REVURDERING);
         OppgittPeriodeEntitet nyOppgittPeriode = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .medPeriode(LocalDate.now().plusWeeks(1), LocalDate.now().plusWeeks(2))
@@ -277,7 +275,6 @@ public class EndringsdatoRevurderingUtlederImplTest {
 
         revurderingScenario.medDefaultInntektArbeidYtelse();
         revurderingScenario.medOriginalBehandling(originalBehandling, RE_ENDRING_FRA_BRUKER);
-        revurderingScenario.medBehandlingType(BehandlingType.REVURDERING);
         OppgittPeriodeEntitet nyOppgittPeriode = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .medPeriode(LocalDate.now().plusWeeks(3), LocalDate.now().plusWeeks(4))
@@ -633,7 +630,6 @@ public class EndringsdatoRevurderingUtlederImplTest {
 
         ScenarioMorSøkerForeldrepenger revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         revurderingScenario.medOriginalBehandling(førstegangsbehandling, RE_OPPLYSNINGER_OM_FORDELING);
-        revurderingScenario.medBehandlingType(BehandlingType.REVURDERING);
 
         Behandling revurdering = revurderingScenario.lagre(repositoryProvider);
         leggTilAktørArbeid(revurdering);
@@ -682,7 +678,6 @@ public class EndringsdatoRevurderingUtlederImplTest {
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .build();
         revurderingScenario.medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriodeEndringssøknad), true));
-        revurderingScenario.medBehandlingType(BehandlingType.REVURDERING);
 
         var revurdering = revurderingScenario.lagre(repositoryProvider);
         var startdatoNyttArbeidsforhold = morFom.plusDays(2);

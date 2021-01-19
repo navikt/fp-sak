@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandling.steg.uttak.fp;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -19,18 +18,16 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
-import no.nav.foreldrepenger.domene.uttak.SkalKopiereUttaksstegTjeneste;
+import no.nav.foreldrepenger.domene.uttak.SkalKopiereUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettUttakManueltAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettePerioderRevurderingUtil;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettePerioderTjeneste;
@@ -43,23 +40,25 @@ public class UttakStegImpl implements UttakSteg {
 
     private static final Logger LOG = LoggerFactory.getLogger(UttakStegImpl.class);
 
-    private BehandlingsresultatRepository behandlingsresultatRepository;
-    private FastsettePerioderTjeneste fastsettePerioderTjeneste;
-    private FastsettUttakManueltAksjonspunktUtleder fastsettUttakManueltAksjonspunktUtleder;
-    private FagsakRelasjonRepository fagsakRelasjonRepository;
-    private FpUttakRepository fpUttakRepository;
-    private UttakInputTjeneste uttakInputTjeneste;
-    private UttakStegBeregnStønadskontoTjeneste beregnStønadskontoTjeneste;
-    private FagsakRepository fagsakRepository;
-    private BehandlingRepository behandlingRepository;
+    private final BehandlingsresultatRepository behandlingsresultatRepository;
+    private final FastsettePerioderTjeneste fastsettePerioderTjeneste;
+    private final FastsettUttakManueltAksjonspunktUtleder fastsettUttakManueltAksjonspunktUtleder;
+    private final FagsakRelasjonRepository fagsakRelasjonRepository;
+    private final FpUttakRepository fpUttakRepository;
+    private final UttakInputTjeneste uttakInputTjeneste;
+    private final UttakStegBeregnStønadskontoTjeneste beregnStønadskontoTjeneste;
+    private final FagsakRepository fagsakRepository;
+    private final BehandlingRepository behandlingRepository;
+    private final SkalKopiereUttakTjeneste skalKopiereUttakTjeneste;
 
     @Inject
     public UttakStegImpl(BehandlingRepositoryProvider repositoryProvider,
-            FastsettePerioderTjeneste fastsettePerioderTjeneste,
-            FastsettUttakManueltAksjonspunktUtleder fastsettUttakManueltAksjonspunktUtleder,
-            UttakInputTjeneste uttakInputTjeneste,
-            UttakStegBeregnStønadskontoTjeneste beregnStønadskontoTjeneste,
-            BehandlingRepository behandlingRepository) {
+                         FastsettePerioderTjeneste fastsettePerioderTjeneste,
+                         FastsettUttakManueltAksjonspunktUtleder fastsettUttakManueltAksjonspunktUtleder,
+                         UttakInputTjeneste uttakInputTjeneste,
+                         UttakStegBeregnStønadskontoTjeneste beregnStønadskontoTjeneste,
+                         BehandlingRepository behandlingRepository,
+                         SkalKopiereUttakTjeneste skalKopiereUttakTjeneste) {
         this.fastsettUttakManueltAksjonspunktUtleder = fastsettUttakManueltAksjonspunktUtleder;
         this.fastsettePerioderTjeneste = fastsettePerioderTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
@@ -69,6 +68,7 @@ public class UttakStegImpl implements UttakSteg {
         this.beregnStønadskontoTjeneste = beregnStønadskontoTjeneste;
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.behandlingRepository = behandlingRepository;
+        this.skalKopiereUttakTjeneste = skalKopiereUttakTjeneste;
     }
 
     @Override
@@ -81,13 +81,16 @@ public class UttakStegImpl implements UttakSteg {
 
         fastsettePerioderTjeneste.fastsettePerioder(input);
 
-        List<AksjonspunktResultat> aksjonspunkter = fastsettUttakManueltAksjonspunktUtleder.utledAksjonspunkterFor(input);
+        List<AksjonspunktResultat> aksjonspunkter = fastsettUttakManueltAksjonspunktUtleder.utledAksjonspunkterFor(
+            input);
         return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
     }
 
     @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType førsteSteg,
-            BehandlingStegType sisteSteg) {
+    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst,
+                                   BehandlingStegModell modell,
+                                   BehandlingStegType førsteSteg,
+                                   BehandlingStegType sisteSteg) {
         if (!Objects.equals(BehandlingStegType.VURDER_UTTAK, førsteSteg)) {
             ryddUttak(kontekst.getBehandlingId());
             ryddStønadskontoberegning(kontekst.getBehandlingId(), kontekst.getFagsakId());
@@ -96,13 +99,14 @@ public class UttakStegImpl implements UttakSteg {
 
     @Override
     public void vedHoppOverFramover(BehandlingskontrollKontekst kontekst,
-            BehandlingStegModell modell,
-            BehandlingStegType førsteSteg,
-            BehandlingStegType sisteSteg) {
-        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-        var behandlingsårsaker = behandlingsårsaker(behandling);
-        if (SkalKopiereUttaksstegTjeneste.skalKopiereStegResultat(behandlingsårsaker)) {
-            var originalBehandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId()).getOriginalBehandlingId().orElseThrow();
+                                    BehandlingStegModell modell,
+                                    BehandlingStegType førsteSteg,
+                                    BehandlingStegType sisteSteg) {
+        var uttakInput = uttakInputTjeneste.lagInput(kontekst.getBehandlingId());
+        if (skalKopiereUttakTjeneste.skalKopiereStegResultat(uttakInput)) {
+            var originalBehandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId())
+                .getOriginalBehandlingId()
+                .orElseThrow();
             var uttak = fpUttakRepository.hentUttakResultatHvisEksisterer(originalBehandling);
             if (uttak.isPresent()) {
                 kopierUttak(kontekst.getBehandlingId(), uttak.get());
@@ -111,13 +115,6 @@ public class UttakStegImpl implements UttakSteg {
             ryddUttak(kontekst.getBehandlingId());
             ryddStønadskontoberegning(kontekst.getBehandlingId(), kontekst.getFagsakId());
         }
-    }
-
-    private List<BehandlingÅrsakType> behandlingsårsaker(Behandling behandling) {
-        return behandling.getBehandlingÅrsaker()
-                .stream()
-                .map(behandlingÅrsak -> behandlingÅrsak.getBehandlingÅrsakType())
-                .collect(Collectors.toList());
     }
 
     private void kopierUttak(Long behandlingId, UttakResultatEntitet uttak) {
@@ -139,7 +136,9 @@ public class UttakStegImpl implements UttakSteg {
         if (behandlingsresultat.isEndretStønadskonto()) {
             var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
             fagsakRelasjonRepository.nullstillOverstyrtStønadskontoberegning(fagsak);
-            var nyttBehandlingsresultat = Behandlingsresultat.builderEndreEksisterende(behandlingsresultat).medEndretStønadskonto(false).build();
+            var nyttBehandlingsresultat = Behandlingsresultat.builderEndreEksisterende(behandlingsresultat)
+                .medEndretStønadskonto(false)
+                .build();
             behandlingsresultatRepository.lagre(behandlingId, nyttBehandlingsresultat);
         }
     }

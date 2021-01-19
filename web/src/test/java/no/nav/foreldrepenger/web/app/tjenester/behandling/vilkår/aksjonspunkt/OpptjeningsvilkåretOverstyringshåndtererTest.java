@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
@@ -22,6 +23,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
@@ -41,7 +46,9 @@ public class OpptjeningsvilkåretOverstyringshåndtererTest {
     public void skal_opprette_aksjonspunkt_for_overstyring() {
         // Arrange
         // Behandling
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medDefaultOppgittFordeling(LocalDate.now())
+            .medFødselAdopsjonsdato(List.of(LocalDate.now()));
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING,
                 BehandlingStegType.VURDER_OPPTJENINGSVILKÅR);
         scenario.leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT);
@@ -70,7 +77,14 @@ public class OpptjeningsvilkåretOverstyringshåndtererTest {
     public void skal_få_historikkinnslag_når_opptjening_er_overstyrt() {
         // Arrange
         // Behandling
-        ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
+        var oppgittPeriode = OppgittPeriodeBuilder.ny()
+            .medPeriode(LocalDate.now(), LocalDate.now().plusWeeks(6))
+            .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+            .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
+            .build();
+        ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriode), true))
+            .medFødselAdopsjonsdato(List.of(LocalDate.now()));
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING,
                 BehandlingStegType.VURDER_OPPTJENINGSVILKÅR);
         scenario.leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT);

@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
@@ -71,7 +70,6 @@ public class FørsteUttaksdatoAksjonspunktUtlederTest {
         AvklarteUttakDatoerEntitet avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(
             dato.plusDays(1)).build();
         ScenarioMorSøkerForeldrepenger scenarioMorSøkerForeldrepenger = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
             .medAvklarteUttakDatoer(avklarteUttakDatoer)
             .medFordeling(new OppgittFordelingEntitet(Collections.singletonList(OppgittPeriodeBuilder.ny()
                 .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
@@ -98,7 +96,6 @@ public class FørsteUttaksdatoAksjonspunktUtlederTest {
         AvklarteUttakDatoerEntitet avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(
             dato).medOpprinneligEndringsdato(dato).build();
         ScenarioMorSøkerForeldrepenger scenarioMorSøkerForeldrepenger = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
             .medAvklarteUttakDatoer(avklarteUttakDatoer)
             .medFordeling(new OppgittFordelingEntitet(Collections.singletonList(OppgittPeriodeBuilder.ny()
                 .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
@@ -121,7 +118,6 @@ public class FørsteUttaksdatoAksjonspunktUtlederTest {
         AvklarteUttakDatoerEntitet avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(
             dato.plusDays(1)).medOpprinneligEndringsdato(dato.plusDays(2)).build();
         ScenarioMorSøkerForeldrepenger scenarioMorSøkerForeldrepenger = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
             .medAvklarteUttakDatoer(avklarteUttakDatoer)
             .medFordeling(new OppgittFordelingEntitet(Collections.singletonList(OppgittPeriodeBuilder.ny()
                 .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
@@ -143,7 +139,6 @@ public class FørsteUttaksdatoAksjonspunktUtlederTest {
         AvklarteUttakDatoerEntitet avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(
             dato.plusDays(1)).medOpprinneligEndringsdato(dato.plusDays(2)).build();
         ScenarioMorSøkerForeldrepenger scenarioMorSøkerForeldrepenger = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
             .medAvklarteUttakDatoer(avklarteUttakDatoer)
             .medFordeling(new OppgittFordelingEntitet(Collections.singletonList(OppgittPeriodeBuilder.ny()
                 .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
@@ -165,7 +160,6 @@ public class FørsteUttaksdatoAksjonspunktUtlederTest {
         AvklarteUttakDatoerEntitet avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(
             dato.plusDays(1)).medOpprinneligEndringsdato(dato.plusDays(2)).build();
         ScenarioMorSøkerForeldrepenger scenarioMorSøkerForeldrepenger = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
             .medAvklarteUttakDatoer(avklarteUttakDatoer)
             .medFordeling(new OppgittFordelingEntitet(Collections.singletonList(OppgittPeriodeBuilder.ny()
                 .medPeriodeType(UttakPeriodeType.FEDREKVOTE)

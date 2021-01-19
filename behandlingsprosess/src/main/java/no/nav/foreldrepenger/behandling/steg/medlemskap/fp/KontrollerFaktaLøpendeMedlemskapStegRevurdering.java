@@ -2,14 +2,10 @@ package no.nav.foreldrepenger.behandling.steg.medlemskap.fp;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -20,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.revurdering.flytkontroll.BehandlingFlytkontroll;
+import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandling.steg.medlemskap.KontrollerFaktaLøpendeMedlemskapSteg;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
@@ -28,10 +25,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -41,8 +35,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.medlem.UtledVurderingsdatoerForMedlemskapTjeneste;
 import no.nav.foreldrepenger.domene.medlem.VurderMedlemskapTjeneste;
-import no.nav.foreldrepenger.domene.medlem.impl.MedlemResultat;
-import no.nav.foreldrepenger.domene.uttak.SkalKopiereUttaksstegTjeneste;
+import no.nav.foreldrepenger.domene.uttak.SkalKopiereUttakTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @BehandlingStegRef(kode = "KOFAK_LOP_MEDL")
@@ -55,25 +48,29 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurdering implements Kontrol
 
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private UtledVurderingsdatoerForMedlemskapTjeneste tjeneste;
-
     private BehandlingRepository behandlingRepository;
     private VurderMedlemskapTjeneste vurderMedlemskapTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-
     private BehandlingFlytkontroll flytkontroll;
+    private SkalKopiereUttakTjeneste skalKopiereUttakTjeneste;
+    private UttakInputTjeneste uttakInputTjeneste;
 
     @Inject
     public KontrollerFaktaLøpendeMedlemskapStegRevurdering(UtledVurderingsdatoerForMedlemskapTjeneste vurderingsdatoer,
-            BehandlingRepositoryProvider provider,
-            VurderMedlemskapTjeneste vurderMedlemskapTjeneste,
-            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-            BehandlingFlytkontroll flytkontroll) {
+                                                           BehandlingRepositoryProvider provider,
+                                                           VurderMedlemskapTjeneste vurderMedlemskapTjeneste,
+                                                           SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                                           BehandlingFlytkontroll flytkontroll,
+                                                           SkalKopiereUttakTjeneste skalKopiereUttakTjeneste,
+                                                           UttakInputTjeneste uttakInputTjeneste) {
         this.tjeneste = vurderingsdatoer;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingRepository = provider.getBehandlingRepository();
         this.vurderMedlemskapTjeneste = vurderMedlemskapTjeneste;
         this.behandlingsresultatRepository = provider.getBehandlingsresultatRepository();
         this.flytkontroll = flytkontroll;
+        this.skalKopiereUttakTjeneste = skalKopiereUttakTjeneste;
+        this.uttakInputTjeneste = uttakInputTjeneste;
     }
 
     KontrollerFaktaLøpendeMedlemskapStegRevurdering() {
@@ -82,20 +79,20 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurdering implements Kontrol
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
-        Long behandlingId = kontekst.getBehandlingId();
+        var behandlingId = kontekst.getBehandlingId();
         List<AksjonspunktResultat> aksjonspunkter = new ArrayList<>();
         if (flytkontroll.uttaksProsessenSkalVente(kontekst.getBehandlingId())) {
             LOGGER.info("Flytkontroll UTTAK: Setter behandling {} revurdering på vent grunnet berørt eller annen part", kontekst.getBehandlingId());
             aksjonspunkter.add(AksjonspunktResultat.opprettForAksjonspunktMedFrist(AUTO_KØET_BEHANDLING, Venteårsak.VENT_ÅPEN_BEHANDLING, null));
         }
 
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         if (skalVurdereLøpendeMedlemskap(kontekst.getBehandlingId())) {
             if (!(behandling.erRevurdering() && FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()))) {
                 throw new IllegalStateException("Utvikler-feil: Behandler bare revudering i foreldrepengerkontekst!.");
             }
-            Set<LocalDate> finnVurderingsdatoer = tjeneste.finnVurderingsdatoer(behandlingId);
-            Set<MedlemResultat> resultat = new HashSet<>();
+            var finnVurderingsdatoer = tjeneste.finnVurderingsdatoer(behandlingId);
+            var resultat = new HashSet<>();
             if (!finnVurderingsdatoer.isEmpty()) {
                 Skjæringstidspunkt skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
                 BehandlingReferanse ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
@@ -105,22 +102,15 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurdering implements Kontrol
                 aksjonspunkter.add(AksjonspunktResultat.opprettForAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FORTSATT_MEDLEMSKAP));
             }
         }
-        var behandlingsårsaker = behandlingsårsaker(behandling);
-        if (SkalKopiereUttaksstegTjeneste.skalKopiereStegResultat(behandlingsårsaker)) {
+        var uttakInput = uttakInputTjeneste.lagInput(behandlingId);
+        if (skalKopiereUttakTjeneste.skalKopiereStegResultat(uttakInput)) {
             return BehandleStegResultat.fremoverførtMedAksjonspunktResultater(FellesTransisjoner.FREMHOPP_TIL_BEREGN_YTELSE, aksjonspunkter);
         }
         return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
     }
 
-    private List<BehandlingÅrsakType> behandlingsårsaker(Behandling behandling) {
-        return behandling.getBehandlingÅrsaker()
-                .stream()
-                .map(behandlingÅrsak -> behandlingÅrsak.getBehandlingÅrsakType())
-                .collect(Collectors.toList());
-    }
-
     private boolean skalVurdereLøpendeMedlemskap(Long behandlingId) {
-        Optional<Behandlingsresultat> behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
+        var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
         return behandlingsresultat.map(b -> b.getVilkårResultat().getVilkårene()).orElse(Collections.emptyList())
                 .stream()
                 .anyMatch(v -> v.getVilkårType().equals(VilkårType.MEDLEMSKAPSVILKÅRET)

@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
@@ -21,6 +22,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktTjeneste;
@@ -38,7 +43,14 @@ public class FødselsvilkåretFarMedmorOverstyringshåndtererTest {
     public void skal_generere_historikkinnslag_om_resultat_fødsel_far_medmor_er_overstyrt() {
         // Arrange
         // Behandling
-        ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
+        var oppgittPeriode = OppgittPeriodeBuilder.ny()
+            .medPeriode(LocalDate.now(), LocalDate.now().plusWeeks(6))
+            .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+            .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
+            .build();
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriode), true))
+            .medFødselAdopsjonsdato(List.of(LocalDate.now()));
         scenario.medSøknad().medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.OVERSTYRING_AV_FØDSELSVILKÅRET_FAR_MEDMOR,
                 BehandlingStegType.SØKERS_RELASJON_TIL_BARN);

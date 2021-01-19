@@ -11,13 +11,12 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
-import no.nav.foreldrepenger.domene.uttak.fakta.omsorg.AnnenForelderHarRettAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.uttak.input.Annenpart;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
@@ -42,8 +41,7 @@ public class AnnenForelderHarRettAksjonspunktUtlederTest {
 
     @Test
     public void aksjonspunkt_dersom_mor_søker_førstegangssøknad_og_annenforelder_har_ikke_rett() {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR)
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR);
         scenario.medAvklarteUttakDatoer(
             new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
         OppgittRettighetEntitet rettighet = new OppgittRettighetEntitet(false, true, false);
@@ -78,8 +76,7 @@ public class AnnenForelderHarRettAksjonspunktUtlederTest {
 
     @Test
     public void aksjonspunkt_dersom_far_søker_førstegangssøknad_og_annenforelder_har_ikke_rett() {
-        ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_FAR)
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_FAR);
         scenario.medAvklarteUttakDatoer(
             new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
         OppgittRettighetEntitet rettighet = new OppgittRettighetEntitet(false, true, false);
@@ -99,12 +96,10 @@ public class AnnenForelderHarRettAksjonspunktUtlederTest {
     @Test
     public void ingen_aksjonspunkt_dersom_far_søker_førstegangssøknad_og_annenforelder_har_ikke_rett_men_har_ES() {
         LocalDate fødselsdato = LocalDate.now().minusMonths(1);
-        ScenarioMorSøkerEngangsstønad mores = ScenarioMorSøkerEngangsstønad.forFødsel(AKTØR_ID_MOR)
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        ScenarioMorSøkerEngangsstønad mores = ScenarioMorSøkerEngangsstønad.forFødsel(AKTØR_ID_MOR);
 
         Behandling morEngang = mores.lagre(repositoryProvider);
-        ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_FAR)
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_FAR);
         scenario.medAvklarteUttakDatoer(
             new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
         OppgittRettighetEntitet rettighet = new OppgittRettighetEntitet(false, true, false);
@@ -125,12 +120,10 @@ public class AnnenForelderHarRettAksjonspunktUtlederTest {
     @Test
     public void aksjonspunkt_dersom_far_søker_førstegangssøknad_og_annenforelder_har_ikke_rett_men_har_ES_for_annet_barn() {
         LocalDate fødselsdato = LocalDate.now().minusMonths(1);
-        ScenarioMorSøkerEngangsstønad mores = ScenarioMorSøkerEngangsstønad.forFødsel(AKTØR_ID_MOR)
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        ScenarioMorSøkerEngangsstønad mores = ScenarioMorSøkerEngangsstønad.forFødsel(AKTØR_ID_MOR);
 
         Behandling morEngang = mores.lagre(repositoryProvider);
-        ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_FAR)
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_FAR);
         scenario.medAvklarteUttakDatoer(
             new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
         OppgittRettighetEntitet rettighet = new OppgittRettighetEntitet(false, true, false);
@@ -150,8 +143,7 @@ public class AnnenForelderHarRettAksjonspunktUtlederTest {
 
     @Test
     public void ingen_aksjonspunkt_dersom_mor_søker_førstegangssøknad_og_annenforelder_har_rett() {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR)
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR);
         scenario.medAvklarteUttakDatoer(
             new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
         OppgittRettighetEntitet rettighet = new OppgittRettighetEntitet(true, true, false);
@@ -168,17 +160,18 @@ public class AnnenForelderHarRettAksjonspunktUtlederTest {
 
     @Test
     public void ingen_aksjonspunkt_dersom_revurdering() {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR)
-            .medBehandlingType(BehandlingType.REVURDERING);
+        var originalBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR)
+            .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
         scenario.medAvklarteUttakDatoer(
             new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
-        OppgittRettighetEntitet rettighet = new OppgittRettighetEntitet(true, true, false);
+        var rettighet = new OppgittRettighetEntitet(true, true, false);
         scenario.medOppgittRettighet(rettighet);
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
         // Act
         var familieHendelse = FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(new Barn()), 1);
-        FamilieHendelser familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse);
+        var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse);
         var aksjonspunktResultater = aksjonspunktUtleder.utledAksjonspunkterFor(lagInput(behandling, familieHendelser));
 
         // Assert
@@ -187,8 +180,7 @@ public class AnnenForelderHarRettAksjonspunktUtlederTest {
 
     @Test
     public void ikke_aksjonspunkt_dersom_mor_søker_førstegangssøknad_og_annenforelder_har_ikke_rett_og_søker_har_aleneomsorg() {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR)
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR);
         scenario.medAvklarteUttakDatoer(
             new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
         OppgittRettighetEntitet rettighet = new OppgittRettighetEntitet(false, true, true);
@@ -206,8 +198,7 @@ public class AnnenForelderHarRettAksjonspunktUtlederTest {
 
     @Test
     public void ingen_aksjonspunkt_dersom_har_ikke_oppgitt_annenpart() {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR)
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR);
         scenario.medAvklarteUttakDatoer(
             new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now().minusWeeks(3)).build());
         OppgittRettighetEntitet rettighet = new OppgittRettighetEntitet(false, true, true);
