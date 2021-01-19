@@ -14,12 +14,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.revurdering.flytkontroll.BehandlingFlytkontroll;
+import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandling.steg.medlemskap.fp.KontrollerFaktaLøpendeMedlemskapStegRevurdering;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -55,8 +57,8 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.medlem.UtledVurderingsdatoerForMedlemskapTjeneste;
 import no.nav.foreldrepenger.domene.medlem.VurderMedlemskapTjeneste;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.domene.uttak.SkalKopiereUttakTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
 @CdiDbAwareTest
 public class KontrollerFaktaLøpendeMedlemskapStegRevurderingTest {
@@ -67,7 +69,7 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurderingTest {
     private final PersonopplysningRepository personopplysningRepository;
     private final FamilieHendelseRepository familieHendelseRepository;
     private final FagsakRepository fagsakRepository;
-    private final Repository repository;
+    private final BehandlingsresultatRepository behandlingsresultatRepository;
 
     @Inject
     private UtledVurderingsdatoerForMedlemskapTjeneste utlederTjeneste;
@@ -79,24 +81,28 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurderingTest {
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     @Inject
     private BehandlingFlytkontroll flytkontroll;
+    @Inject
+    private SkalKopiereUttakTjeneste skalKopiereUttakTjeneste;
+    @Inject
+    private UttakInputTjeneste uttakInputTjeneste;
 
     private KontrollerFaktaLøpendeMedlemskapStegRevurdering steg;
 
     public KontrollerFaktaLøpendeMedlemskapStegRevurderingTest(EntityManager em) {
-        repository = new Repository(em);
         provider = new BehandlingRepositoryProvider(em);
         behandlingRepository = provider.getBehandlingRepository();
         medlemskapRepository = provider.getMedlemskapRepository();
         personopplysningRepository = provider.getPersonopplysningRepository();
         familieHendelseRepository = provider.getFamilieHendelseRepository();
         fagsakRepository = provider.getFagsakRepository();
+        behandlingsresultatRepository = provider.getBehandlingsresultatRepository();
 
     }
 
     @BeforeEach
     public void setUp() {
         steg = new KontrollerFaktaLøpendeMedlemskapStegRevurdering(utlederTjeneste, provider, vurderMedlemskapTjeneste,
-                skjæringstidspunktTjeneste, flytkontroll);
+                skjæringstidspunktTjeneste, flytkontroll, skalKopiereUttakTjeneste, uttakInputTjeneste);
     }
 
     @Test
@@ -127,7 +133,7 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurderingTest {
         Behandlingsresultat behandlingsresultat = Behandlingsresultat.opprettFor(revudering);
         behandlingsresultat.medOppdatertVilkårResultat(vilkårResultat);
         behandlingRepository.lagre(vilkårResultat, behandlingRepository.taSkriveLås(revudering));
-        repository.lagre(behandlingsresultat);
+        behandlingsresultatRepository.lagre(revudering.getId(), behandlingsresultat);
         oppdaterMedlem(datoMedEndring, periode, revudering.getId());
 
         // Act
@@ -167,7 +173,7 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurderingTest {
         Behandlingsresultat behandlingsresultat = Behandlingsresultat.opprettFor(revudering);
         behandlingsresultat.medOppdatertVilkårResultat(vilkårResultat);
         behandlingRepository.lagre(vilkårResultat, behandlingRepository.taSkriveLås(revudering));
-        repository.lagre(behandlingsresultat);
+        behandlingsresultatRepository.lagre(revudering.getId(), behandlingsresultat);
         oppdaterMedlem(datoMedEndring, periode, revudering.getId());
 
         // Act
@@ -181,13 +187,12 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurderingTest {
     }
 
     private MedlemskapPerioderEntitet opprettPeriode(LocalDate fom, LocalDate tom, MedlemskapDekningType dekningType) {
-        MedlemskapPerioderEntitet periode = new MedlemskapPerioderBuilder()
+        return new MedlemskapPerioderBuilder()
                 .medDekningType(dekningType)
                 .medMedlemskapType(MedlemskapType.FORELOPIG)
                 .medPeriode(fom, tom)
                 .medMedlId(1L)
                 .build();
-        return periode;
     }
 
     private Behandling opprettRevurdering(Behandling behandling) {

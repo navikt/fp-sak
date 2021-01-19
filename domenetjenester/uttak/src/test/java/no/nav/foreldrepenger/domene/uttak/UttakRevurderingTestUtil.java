@@ -11,7 +11,6 @@ import java.util.List;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
@@ -104,7 +103,6 @@ public class UttakRevurderingTestUtil {
         ScenarioMorSøkerForeldrepenger revurderingsscenario = ScenarioMorSøkerForeldrepenger.forFødselUtenSøknad(
             aktørId)
             .medOriginalBehandling(førstegangsbehandling, behandlingÅrsakType)
-            .medBehandlingType(BehandlingType.REVURDERING)
             .medFordeling(nyFordeling)
             .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false))
             .medOppgittDekningsgrad(oppgittDekningsgrad);
@@ -136,8 +134,7 @@ public class UttakRevurderingTestUtil {
         Behandling førstegangsbehandling = byggFørstegangsbehandling(scenario, defaultUttaksresultat());
 
         ScenarioMorSøkerForeldrepenger revurderingsscenario = ScenarioMorSøkerForeldrepenger.forAdopsjon()
-            .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING)
-            .medBehandlingType(BehandlingType.REVURDERING);
+            .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
 
         Behandling revurdering = revurderingsscenario.lagre(repositoryProvider);
         kopierGrunnlagsdata(revurdering);
@@ -283,8 +280,7 @@ public class UttakRevurderingTestUtil {
 
         ScenarioMorSøkerForeldrepenger revurderingsscenario = ScenarioMorSøkerForeldrepenger.forFødselUtenSøknad(
             aktørId)
-            .medOriginalBehandling(førstegangsbehandling, behandlingÅrsakType)
-            .medBehandlingType(BehandlingType.REVURDERING);
+            .medOriginalBehandling(førstegangsbehandling, behandlingÅrsakType);
 
         Behandling revurdering = lagre(revurderingsscenario);
         lagreUttaksperiodegrense(revurdering.getId());

@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.uttak.testutilities.behandling;
 
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 
@@ -61,7 +62,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private AvklarteUttakDatoerEntitet avklarteUttakDatoer;
 
     private Behandling originalBehandling;
-    private BehandlingÅrsakType behandlingÅrsakType;
+    private Set<BehandlingÅrsakType> behandlingÅrsaker;
     private PerioderUtenOmsorgEntitet perioderUtenOmsorg;
     private PerioderAleneOmsorgEntitet perioderMedAleneomsorg;
     private UttakResultatPerioderEntitet uttak;
@@ -194,7 +195,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         } else {
             behandlingBuilder = Behandling.fraTidligereBehandling(originalBehandling, behandlingType)
                     .medBehandlingÅrsak(
-                            BehandlingÅrsak.builder(behandlingÅrsakType).medOriginalBehandlingId(originalBehandling.getId()));
+                            BehandlingÅrsak.builder(List.copyOf(behandlingÅrsaker)).medOriginalBehandlingId(originalBehandling.getId()));
         }
 
         return behandlingBuilder;
@@ -234,12 +235,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     @SuppressWarnings("unchecked")
     public S medDefaultOppgittDekningsgrad() {
         medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk100());
-        return (S) this;
-    }
-
-    @SuppressWarnings("unchecked")
-    public S medBehandlingType(BehandlingType behandlingType) {
-        this.behandlingType = behandlingType;
         return (S) this;
     }
 
@@ -290,8 +285,13 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
     @SuppressWarnings("unchecked")
     public S medOriginalBehandling(Behandling originalBehandling, BehandlingÅrsakType behandlingÅrsakType) {
+        return medOriginalBehandling(originalBehandling, Set.of(behandlingÅrsakType));
+    }
+
+    public S medOriginalBehandling(Behandling originalBehandling, Set<BehandlingÅrsakType> behandlingÅrsakType) {
         this.originalBehandling = originalBehandling;
-        this.behandlingÅrsakType = behandlingÅrsakType;
+        this.behandlingÅrsaker = behandlingÅrsakType;
+        this.behandlingType = BehandlingType.REVURDERING;
         return (S) this;
     }
 

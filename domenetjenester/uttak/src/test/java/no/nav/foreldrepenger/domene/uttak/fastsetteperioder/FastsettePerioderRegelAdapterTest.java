@@ -715,11 +715,12 @@ public class FastsettePerioderRegelAdapterTest {
             .medÅrsak(UtsettelseÅrsak.SYKDOM)
             .medPeriode(fødselsdato.plusWeeks(10).plusDays(1), fødselsdato.plusWeeks(12))
             .build();
-        ScenarioMorSøkerForeldrepenger morScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        morScenario.medFordeling(
-            new OppgittFordelingEntitet(List.of(morFpffFørstegangs, morMødrekvoteFørstegangs, morUtsettelseFørstegangs),
-                true));
-        morScenario.medBehandlingType(BehandlingType.REVURDERING);
+        var oppgittFordelingMor = new OppgittFordelingEntitet(List.of(morFpffFørstegangs, morMødrekvoteFørstegangs,
+            morUtsettelseFørstegangs), true);
+        var originalBehandlingMor = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
+        ScenarioMorSøkerForeldrepenger morScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medOriginalBehandling(originalBehandlingMor, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
+            .medFordeling(oppgittFordelingMor);
         Behandling morBehandling = morScenario.lagre(repositoryProvider);
 
         lagreStønadskontoer(morBehandling);
@@ -752,7 +753,6 @@ public class FastsettePerioderRegelAdapterTest {
             .build();
         ScenarioMorSøkerForeldrepenger morScenarioRevurdering = ScenarioMorSøkerForeldrepenger.forFødsel();
         morScenarioRevurdering.medFordeling(new OppgittFordelingEntitet(List.of(morUtsettelseRevurdering), true));
-        morScenarioRevurdering.medBehandlingType(BehandlingType.REVURDERING);
         morScenarioRevurdering.medOriginalBehandling(morBehandling, BehandlingÅrsakType.BERØRT_BEHANDLING);
         morScenarioRevurdering.medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
 

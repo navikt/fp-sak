@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
@@ -50,12 +49,10 @@ public class FastsettUttaksgrunnlagTjenesteTest {
 
         ScenarioFarSøkerForeldrepenger førstegangsbehandlingScenario = ScenarioFarSøkerForeldrepenger.forFødsel();
         førstegangsbehandlingScenario.medFordeling(oppgittFordelingForrigeBehandling);
-        førstegangsbehandlingScenario.medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         Behandling førstegangsbehandling = førstegangsbehandlingScenario.lagre(repositoryProvider);
 
         ScenarioFarSøkerForeldrepenger revurdering = ScenarioFarSøkerForeldrepenger.forFødsel();
         revurdering.medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.RE_OPPLYSNINGER_OM_OPPTJENING);
-        revurdering.medBehandlingType(BehandlingType.REVURDERING);
         revurdering.medFordeling(new OppgittFordelingEntitet(Collections.emptyList(), true));
 
         Behandling revurderingBehandling = revurdering.lagre(repositoryProvider);
@@ -93,7 +90,6 @@ public class FastsettUttaksgrunnlagTjenesteTest {
 
         ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
         scenario.medFordeling(fordeling);
-        scenario.medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         Behandling behandling = scenario.lagre(repositoryProvider);
         LocalDate endringsdato = LocalDate.of(2020, 10, 10);
         when(endringsdatoUtleder.utledEndringsdato(behandling.getId(), List.of(periode))).thenReturn(endringsdato);
@@ -119,7 +115,6 @@ public class FastsettUttaksgrunnlagTjenesteTest {
         ScenarioFarSøkerForeldrepenger førstegangsbehandlingScenario = ScenarioFarSøkerForeldrepenger.forFødsel();
         førstegangsbehandlingScenario.medFordeling(fordeling);
 
-        førstegangsbehandlingScenario.medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         Behandling behandling = førstegangsbehandlingScenario.lagre(repositoryProvider);
 
         var søknadFamilieHendelse = FamilieHendelse.forFødsel(søknadFom, søknadFom.minusWeeks(2), List.of(), 0);
@@ -157,8 +152,7 @@ public class FastsettUttaksgrunnlagTjenesteTest {
         var fordeling = new OppgittFordelingEntitet(List.of(periode1, opphold2, opphold3, opphold1, periode2), true);
 
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medFordeling(fordeling)
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+            .medFordeling(fordeling);
 
         var behandling = scenario.lagre(repositoryProvider);
 
@@ -189,8 +183,7 @@ public class FastsettUttaksgrunnlagTjenesteTest {
         var fordeling = new OppgittFordelingEntitet(List.of(opphold1, opphold2), true);
 
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medFordeling(fordeling)
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+            .medFordeling(fordeling);
 
         var behandling = scenario.lagre(repositoryProvider);
 
@@ -214,8 +207,7 @@ public class FastsettUttaksgrunnlagTjenesteTest {
         var fordeling = new OppgittFordelingEntitet(List.of(søknadsperiode), true);
 
         var scenario = ScenarioMorSøkerForeldrepenger.forAdopsjon()
-            .medFordeling(fordeling)
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+            .medFordeling(fordeling);
 
         var behandling = scenario.lagre(repositoryProvider);
 
