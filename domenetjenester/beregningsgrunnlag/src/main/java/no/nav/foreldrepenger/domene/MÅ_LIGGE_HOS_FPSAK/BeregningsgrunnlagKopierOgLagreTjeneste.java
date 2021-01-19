@@ -123,19 +123,6 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
         return beregningsgrunnlagVilkårOgAkjonspunktResultat;
     }
 
-    public BeregningsgrunnlagVilkårOgAkjonspunktResultat fordelBeregningsgrunnlagUtenVilkårOgPeriodisering(BeregningsgrunnlagInput input) {
-        Long behandlingId = input.getKoblingReferanse().getKoblingId();
-        FordelBeregningsgrunnlagInput fordelInput = (FordelBeregningsgrunnlagInput) kalkulatorStegProsesseringInputTjeneste.lagFortsettInput(
-            behandlingId,
-            input,
-            BehandlingStegType.FORDEL_BEREGNINGSGRUNNLAG);
-        BeregningResultatAggregat beregningResultatAggregat = beregningsgrunnlagTjeneste.fordelBeregningsgrunnlagUtenPeriodisering(fordelInput);
-        Optional<BeregningsgrunnlagEntitet> forrigeBekreftetBeregningsgrunnlag = finnForrigeBgFraTilstand(input, FASTSATT_INN);
-        BeregningsgrunnlagEntitet nyttBg = KalkulusTilBehandlingslagerMapper.mapBeregningsgrunnlag(beregningResultatAggregat.getBeregningsgrunnlag(), beregningResultatAggregat.getBeregningsgrunnlagGrunnlag().getFaktaAggregat(), beregningResultatAggregat.getRegelSporingAggregat());
-        lagreOgKopier(input, beregningResultatAggregat, forrigeBekreftetBeregningsgrunnlag, nyttBg, OPPDATERT_MED_REFUSJON_OG_GRADERING, FASTSATT_INN);
-        return new BeregningsgrunnlagVilkårOgAkjonspunktResultat(beregningResultatAggregat.getBeregningAksjonspunktResultater());
-    }
-
     public BeregningsgrunnlagVilkårOgAkjonspunktResultat fordelBeregningsgrunnlag(BeregningsgrunnlagInput input) {
         Long behandlingId = input.getKoblingReferanse().getKoblingId();
         FordelBeregningsgrunnlagInput fordelInput = (FordelBeregningsgrunnlagInput) kalkulatorStegProsesseringInputTjeneste.lagFortsettInput(
@@ -146,9 +133,7 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
         Optional<BeregningsgrunnlagEntitet> forrigeBekreftetBeregningsgrunnlag = finnForrigeBgFraTilstand(input, FASTSATT_INN);
         BeregningsgrunnlagEntitet nyttBg = KalkulusTilBehandlingslagerMapper.mapBeregningsgrunnlag(beregningResultatAggregat.getBeregningsgrunnlag(), beregningResultatAggregat.getBeregningsgrunnlagGrunnlag().getFaktaAggregat(), beregningResultatAggregat.getRegelSporingAggregat());
         lagreOgKopier(input, beregningResultatAggregat, forrigeBekreftetBeregningsgrunnlag, nyttBg, OPPDATERT_MED_REFUSJON_OG_GRADERING, FASTSATT_INN);
-        BeregningsgrunnlagVilkårOgAkjonspunktResultat beregningsgrunnlagVilkårOgAkjonspunktResultat = new BeregningsgrunnlagVilkårOgAkjonspunktResultat(beregningResultatAggregat.getBeregningAksjonspunktResultater());
-        beregningsgrunnlagVilkårOgAkjonspunktResultat.setVilkårOppfylt(getVilkårResultat(beregningResultatAggregat), getRegelEvalueringVilkårvurdering(beregningResultatAggregat), getRegelInputVilkårvurdering(beregningResultatAggregat));
-        return beregningsgrunnlagVilkårOgAkjonspunktResultat;
+        return new BeregningsgrunnlagVilkårOgAkjonspunktResultat(beregningResultatAggregat.getBeregningAksjonspunktResultater());
     }
 
     private boolean getVilkårResultat(BeregningResultatAggregat beregningResultatAggregat) {
