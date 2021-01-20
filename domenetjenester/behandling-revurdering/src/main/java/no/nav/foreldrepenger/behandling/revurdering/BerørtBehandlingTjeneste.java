@@ -137,10 +137,7 @@ public class BerørtBehandlingTjeneste {
 
     private boolean harOverlappIAktivtUttak(List<ForeldrepengerUttakPeriode> brukersUttak,
                                             List<ForeldrepengerUttakPeriode> annenpartsUttak) {
-        return brukersUttak.stream().anyMatch(periode -> {
-            var overlappendePeriode = overlappendePeriode(periode, annenpartsUttak);
-            return overlappendePeriode.isPresent() && !overlappendePeriode.get().erInnvilgetUtsettelse();
-        });
+        return brukersUttak.stream().anyMatch(periode -> overlappendePeriode(periode, annenpartsUttak).isPresent());
     }
 
     private Optional<ForeldrepengerUttakPeriode> overlappendePeriode(ForeldrepengerUttakPeriode periode,

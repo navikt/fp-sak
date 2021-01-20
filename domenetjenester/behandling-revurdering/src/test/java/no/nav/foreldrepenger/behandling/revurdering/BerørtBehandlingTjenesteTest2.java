@@ -265,7 +265,7 @@ class BerørtBehandlingTjenesteTest2 {
     }
 
     @Test
-    public void ikke_berørt_behandling_ved_overlapp_mellom_partene_der_annenpart_har_innvilget_utsettelse() {
+    public void berørt_behandling_ved_overlapp_mellom_partene_der_annenpart_har_innvilget_utsettelse() {
         var startDatoMor = LocalDate.of(2020, 1, 1);
 
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel().medAvklarteUttakDatoer(avklarteDatoer(startDatoMor));
@@ -297,7 +297,7 @@ class BerørtBehandlingTjenesteTest2 {
         lagreUttak(farBehandling, farUttak);
 
         var resultat = skalBerørtOpprettes(farBehandling, morBehandling);
-        assertThat(resultat).isFalse();
+        assertThat(resultat).isTrue();
     }
 
     @Test
