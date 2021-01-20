@@ -66,6 +66,7 @@ public class PersoninfoAdapter {
         this.basisTjeneste = basisTjeneste;
         this.personinfoTjeneste = personinfoTjeneste;
         this.dkifSpråkKlient = dkifSpråkKlient;
+        this.tpsAdapter = tpsAdapter;
     }
 
     public Optional<Personinfo> innhentPersonopplysningerFor(AktørId aktørId) {
