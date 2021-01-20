@@ -1,8 +1,10 @@
 package no.nav.foreldrepenger.behandlingslager.aktør;
 
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
@@ -21,12 +23,13 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum OppholdstillatelseType implements Kodeverdi {
 
-    MIDLERTIDIG("ADNR", "Aktivt D-nummer"),
-    PERMANENT("BOSA", "Bosatt"),
+    MIDLERTIDIG("MIDLERTIDIG", "Midlertidig oppholdstillatelse"),
+    PERMANENT("PERMANENT", "Permanent oppholdstillatelse"),
     UDEFINERT("-", "Ikke definert"),
     ;
 
-    private static final Map<String, OppholdstillatelseType> KODER = new LinkedHashMap<>();
+    private static final Map<String, OppholdstillatelseType> KODER = Arrays.stream(values())
+        .collect(Collectors.toMap(OppholdstillatelseType::getKode, Function.identity()));
 
     public static final String KODEVERK = "OPPHOLDSTILLATELSE_TYPE";
 
@@ -71,14 +74,6 @@ public enum OppholdstillatelseType implements Kodeverdi {
     @Override
     public String getKode() {
         return kode;
-    }
-
-    static {
-        for (var v : values()) {
-            if (KODER.putIfAbsent(v.kode, v) != null) {
-                throw new IllegalArgumentException("Duplikat : " + v.kode);
-            }
-        }
     }
 
     @Converter(autoApply = true)
