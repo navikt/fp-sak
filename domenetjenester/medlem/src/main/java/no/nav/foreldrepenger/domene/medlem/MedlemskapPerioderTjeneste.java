@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapKi
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.StatsborgerskapEntitet;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.vedtak.konfig.Tid;
 
@@ -103,13 +102,8 @@ public class MedlemskapPerioderTjeneste {
         if (personopplysningerAggregat == null) {
             return false;
         }
-        List<StatsborgerskapEntitet> statsborgerskapListe = personopplysningerAggregat.getStatsborgerskapFor(personopplysningerAggregat.getSøker().getAktørId());
-        for (StatsborgerskapEntitet statsborgerskap : statsborgerskapListe) {
-            if (Landkoder.USA.equals(statsborgerskap.getStatsborgerskap()) || Landkoder.PNG.equals(statsborgerskap.getStatsborgerskap())) {
-                return true;
-            }
-        }
-        return false;
+        return personopplysningerAggregat.harStatsborgerskap(personopplysningerAggregat.getSøker().getAktørId(), Landkoder.USA) ||
+            personopplysningerAggregat.harStatsborgerskap(personopplysningerAggregat.getSøker().getAktørId(), Landkoder.PNG);
     }
 
     public boolean erStatusUtvandret(PersonopplysningerAggregat bruker) {

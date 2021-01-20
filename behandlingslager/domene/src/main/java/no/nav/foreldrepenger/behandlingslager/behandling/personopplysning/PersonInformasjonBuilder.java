@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
+import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
@@ -52,6 +53,13 @@ public class PersonInformasjonBuilder {
     public PersonInformasjonBuilder leggTil(PersonstatusBuilder builder) {
         if (!builder.getErOppdatering()) {
             kladd.leggTilPersonstatus(builder.build());
+        }
+        return this;
+    }
+
+    public PersonInformasjonBuilder leggTil(OppholdstillatelseBuilder builder) {
+        if (!builder.getErOppdatering()) {
+            kladd.leggTilOppholdstillatelse(builder.build());
         }
         return this;
     }
@@ -139,6 +147,10 @@ public class PersonInformasjonBuilder {
 
     public PersonstatusBuilder getPersonstatusBuilder(AktørId aktørId, DatoIntervallEntitet periode) {
         return kladd.getPersonstatusBuilderForAktørId(aktørId, periode);
+    }
+
+    public OppholdstillatelseBuilder getOppholdstillatelseBuilder(AktørId aktørId, DatoIntervallEntitet periode) {
+        return kladd.getOppholdstillatelseBuilderForAktørId(aktørId, periode);
     }
 
     public RelasjonBuilder getRelasjonBuilder(AktørId fraAktør, AktørId tilAktør, RelasjonsRolleType rolle) {
@@ -254,6 +266,11 @@ public class PersonInformasjonBuilder {
             return this;
         }
 
+        public AdresseBuilder medMatrikkelId(String matrikkelId) {
+            kladd.setMatrikkelId(matrikkelId);
+            return this;
+        }
+
         public AdresseBuilder medAdresselinje1(String adresselinje1) {
             kladd.setAdresselinje1(adresselinje1);
             return this;
@@ -336,6 +353,52 @@ public class PersonInformasjonBuilder {
         }
 
         public PersonstatusEntitet build() {
+            return kladd;
+        }
+
+        boolean getErOppdatering() {
+            return oppdatering;
+        }
+    }
+
+    public static final class OppholdstillatelseBuilder {
+
+        private final OppholdstillatelseEntitet kladd;
+        private final boolean oppdatering;
+
+        private OppholdstillatelseBuilder(OppholdstillatelseEntitet kladd, boolean oppdatering) {
+            this.kladd = kladd;
+            this.oppdatering = oppdatering;
+        }
+
+        private static OppholdstillatelseBuilder ny() {
+            return new OppholdstillatelseBuilder(new OppholdstillatelseEntitet(), false);
+        }
+
+        private static OppholdstillatelseBuilder oppdatere(OppholdstillatelseEntitet entitet) {
+            return new OppholdstillatelseBuilder(entitet, true);
+        }
+
+        static OppholdstillatelseBuilder oppdater(Optional<OppholdstillatelseEntitet> entitet) {
+            return entitet.map(OppholdstillatelseBuilder::oppdatere).orElseGet(OppholdstillatelseBuilder::ny);
+        }
+
+        public OppholdstillatelseBuilder medAktørId(AktørId aktørId) {
+            kladd.setAktørId(aktørId);
+            return this;
+        }
+
+        public OppholdstillatelseBuilder medPeriode(DatoIntervallEntitet periode) {
+            kladd.setPeriode(periode);
+            return this;
+        }
+
+        public OppholdstillatelseBuilder medOppholdstillatelse(OppholdstillatelseType tillatelse) {
+            kladd.setTillatelse(tillatelse);
+            return this;
+        }
+
+        public OppholdstillatelseEntitet build() {
             return kladd;
         }
 

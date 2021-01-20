@@ -37,11 +37,6 @@ public class StatsborgerskapPeriode {
         return Objects.hash(gyldighetsperiode, statsborgerskap);
     }
 
-    public static boolean fuzzyEquals(StatsborgerskapPeriode p1, StatsborgerskapPeriode p2) {
-        return Gyldighetsperiode.fuzzyEquals(p1.gyldighetsperiode, p2.gyldighetsperiode) &&
-            Objects.equals(p1.statsborgerskap, p2.statsborgerskap);
-    }
-
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("StatsborgerskapPeriode{");

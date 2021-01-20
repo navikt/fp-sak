@@ -122,9 +122,9 @@ public class PersonopplysningerForUttakImpl implements PersonopplysningerForUtta
         for (PersonAdresseEntitet opplysningAdresseBarn : personopplysningerAggregat.getAdresserFor(
             barn.getAktørId())) {
             var sammeperiode = opplysningAdresseSøker.getPeriode().overlapper(opplysningAdresseBarn.getPeriode());
-            if (sammeperiode && likAdresseIgnoringCase(opplysningAdresseSøker.getAdresselinje1(),
-                opplysningAdresseBarn.getAdresselinje1()) && Objects.equals(opplysningAdresseSøker.getPostnummer(),
-                opplysningAdresseBarn.getPostnummer())) {
+            if (sammeperiode && (likAdresseIgnoringCase(opplysningAdresseSøker.getMatrikkelId(), opplysningAdresseBarn.getMatrikkelId()) ||
+                (likAdresseIgnoringCase(opplysningAdresseSøker.getAdresselinje1(), opplysningAdresseBarn.getAdresselinje1()) &&
+                Objects.equals(opplysningAdresseSøker.getPostnummer(), opplysningAdresseBarn.getPostnummer())))) {
                 return true;
             }
         }

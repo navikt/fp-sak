@@ -1,8 +1,9 @@
 package no.nav.foreldrepenger.domene.personopplysning;
 
 import java.time.LocalDate;
-import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -13,13 +14,15 @@ import javax.inject.Inject;
 
 import org.threeten.extra.Interval;
 
+import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.Adresseinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.FamilierelasjonVL;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
+import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.AdressePeriode;
+import no.nav.foreldrepenger.behandlingslager.aktør.historikk.OppholdstillatelsePeriode;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Personhistorikkinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.PersonstatusPeriode;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.StatsborgerskapPeriode;
@@ -34,6 +37,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.konfig.Tid;
+import no.nav.vedtak.util.Tuple;
 
 @ApplicationScoped
 public class PersonopplysningInnhenter {
@@ -55,50 +59,51 @@ public class PersonopplysningInnhenter {
 
     public void innhentPersonopplysninger(PersonInformasjonBuilder informasjonBuilder, AktørId søker, Optional<AktørId> annenPart,
                                           Interval opplysningsperiode, List<LocalDateInterval> fødselsIntervaller) {
-        Personinfo søkerInfo = personinfoAdapter.innhentSaksopplysningerForSøker(søker);
-        if (søkerInfo == null) {
-            throw new IllegalArgumentException("Finner ikke personinformasjon for aktør " + søker.getId());
-        }
-        Optional<Personinfo> medsøkerInfo = annenPart.flatMap(personinfoAdapter::innhentSaksopplysningerForEktefelle);
 
-        byggPersonopplysningMedRelasjoner(informasjonBuilder, søkerInfo, medsøkerInfo, opplysningsperiode, fødselsIntervaller);
-    }
+        // Fase 1 - Innhent persongalleri - søker, annenpart, relevante barn og ektefelle
+        Map<PersonIdent, Personinfo> innhentet = new LinkedHashMap<>();
+        Personinfo søkerPersonInfo = innhentAktørId(søker, innhentet)
+            .orElseThrow(() -> new IllegalArgumentException("Finner ikke personinformasjon for aktør " + søker.getId()));
 
-    private PersonInformasjonBuilder byggPersonopplysningMedRelasjoner(PersonInformasjonBuilder informasjonBuilder,
-                                                                       Personinfo søkerPersonInfo,
-                                                                       Optional<Personinfo> annenPartInfo,
-                                                                       Interval opplysningsperioden,
-                                                                       List<LocalDateInterval> fødselsintervall) {
+        Optional<Personinfo> annenPartInfo = annenPart.flatMap(ap -> innhentAktørId(ap, innhentet));
+        Set<PersonIdent> annenPartsBarn = annenPartInfo.map(this::getAnnenPartsBarn).orElse(Set.of());
+
+        Set<PersonIdent> barnSomSkalInnhentes = finnBarnRelatertTil(søkerPersonInfo, fødselsIntervaller);
+        Set<PersonIdent> ektefelleSomSkalInnhentes = finnEktefelle(søkerPersonInfo);
+
+        barnSomSkalInnhentes.forEach(barn -> innhentPersonIdent(barn, innhentet));
+        ektefelleSomSkalInnhentes.forEach(ekte -> innhentPersonIdent(ekte, innhentet));
 
         // Historikk for søker
-        List<Personinfo> barna = hentBarnRelatertTil(søkerPersonInfo, fødselsintervall);
-        final Personhistorikkinfo personhistorikkinfo = personinfoAdapter.innhentPersonopplysningerHistorikk(søkerPersonInfo.getAktørId(), opplysningsperioden);
+        final Personhistorikkinfo personhistorikkinfo = personinfoAdapter.innhentPersonopplysningerHistorikk(søkerPersonInfo.getAktørId(), opplysningsperiode);
         if (personhistorikkinfo != null) {
             mapAdresser(personhistorikkinfo.getAdressehistorikk(), informasjonBuilder, søkerPersonInfo);
             mapStatsborgerskap(personhistorikkinfo.getStatsborgerskaphistorikk(), informasjonBuilder, søkerPersonInfo);
             mapPersonstatus(personhistorikkinfo.getPersonstatushistorikk(), informasjonBuilder, søkerPersonInfo);
+            mapOppholdstillatelse(personhistorikkinfo.getOppholdstillatelsehistorikk(), informasjonBuilder, søkerPersonInfo);
         }
+
+        // Fase 2 - mapping til
 
         mapInfoTilEntitet(søkerPersonInfo, informasjonBuilder, false);
         // Ektefelle
-        leggTilEktefelle(søkerPersonInfo, informasjonBuilder);
+        leggTilEktefelle(søkerPersonInfo, informasjonBuilder, innhentet);
 
         // Medsøker (annen part). kan være samme person som Ektefelle
-        annenPartInfo.ifPresent(annenPart -> mapInfoTilEntitet(annenPart, informasjonBuilder, true));
+        annenPartInfo.ifPresent(ap -> mapInfoTilEntitet(ap, informasjonBuilder, true));
 
-        Set<PersonIdent> annenPartsBarn = getAnnenPartsBarn(annenPartInfo);
-
-        barna.forEach(barn -> {
-            mapInfoTilEntitet(barn, informasjonBuilder, true);
-            mapRelasjon(søkerPersonInfo, barn, Collections.singletonList(RelasjonsRolleType.BARN), informasjonBuilder);
-            mapRelasjon(barn, søkerPersonInfo, utledRelasjonsrolleTilBarn(søkerPersonInfo, barn), informasjonBuilder);
-            if (annenPartsBarn.contains(barn.getPersonIdent())) {
-                annenPartInfo.ifPresent(a -> mapRelasjon(a, barn, Collections.singletonList(RelasjonsRolleType.BARN), informasjonBuilder));
-                annenPartInfo.ifPresent(a -> mapRelasjon(barn, a, utledRelasjonsrolleTilBarn(a, barn), informasjonBuilder));
-            }
+        barnSomSkalInnhentes.stream()
+            .filter(barn -> innhentet.get(barn) != null)
+            .forEach(barnIdent -> {
+                var barn = innhentet.get(barnIdent);
+                mapInfoTilEntitet(barn, informasjonBuilder, true);
+                mapRelasjon(søkerPersonInfo, barn, RelasjonsRolleType.BARN, informasjonBuilder);
+                mapRelasjon(barn, søkerPersonInfo, utledRelasjonsrolleTilBarn(søkerPersonInfo, barn), informasjonBuilder);
+                if (annenPartsBarn.contains(barnIdent)) {
+                    annenPartInfo.ifPresent(a -> mapRelasjon(a, barn, RelasjonsRolleType.BARN, informasjonBuilder));
+                    annenPartInfo.ifPresent(a -> mapRelasjon(barn, a, utledRelasjonsrolleTilBarn(a, barn), informasjonBuilder));
+                }
         });
-
-        return informasjonBuilder;
     }
 
     private void mapPersonstatus(List<PersonstatusPeriode> personstatushistorikk, PersonInformasjonBuilder informasjonBuilder, Personinfo personinfo) {
@@ -107,10 +112,21 @@ public class PersonopplysningInnhenter {
             final DatoIntervallEntitet periode = DatoIntervallEntitet.fraOgMedTilOgMed(
                 brukFødselsdatoHvisEtter(personstatus.getGyldighetsperiode().getFom(), personinfo.getFødselsdato()),
                 personstatus.getGyldighetsperiode().getTom());
-            final PersonInformasjonBuilder.PersonstatusBuilder builder = informasjonBuilder.getPersonstatusBuilder(personinfo.getAktørId(), periode);
-            builder.medPeriode(periode)
-                .medPersonstatus(status);
-            informasjonBuilder.leggTil(builder);
+
+            informasjonBuilder
+                .leggTil(informasjonBuilder.getPersonstatusBuilder(personinfo.getAktørId(), periode).medPersonstatus(status));
+        }
+    }
+
+    private void mapOppholdstillatelse(List<OppholdstillatelsePeriode> oppholdshistorikk, PersonInformasjonBuilder informasjonBuilder, Personinfo personinfo) {
+        for (OppholdstillatelsePeriode tillatelse : oppholdshistorikk) {
+            final OppholdstillatelseType type = tillatelse.getTillatelse();
+            final DatoIntervallEntitet periode = DatoIntervallEntitet.fraOgMedTilOgMed(
+                brukFødselsdatoHvisEtter(tillatelse.getGyldighetsperiode().getFom(), personinfo.getFødselsdato()),
+                tillatelse.getGyldighetsperiode().getTom());
+
+            informasjonBuilder
+                .leggTil(informasjonBuilder.getOppholdstillatelseBuilder(personinfo.getAktørId(), periode).medOppholdstillatelse(type));
         }
     }
 
@@ -122,13 +138,9 @@ public class PersonopplysningInnhenter {
 
             final DatoIntervallEntitet periode = DatoIntervallEntitet.fraOgMedTilOgMed(brukFødselsdatoHvisEtter(
                 statsborgerskap.getGyldighetsperiode().getFom(), personinfo.getFødselsdato()), statsborgerskap.getGyldighetsperiode().getTom());
-            final PersonInformasjonBuilder.StatsborgerskapBuilder builder = informasjonBuilder.getStatsborgerskapBuilder(personinfo.getAktørId(), periode,
-                landkode, region);
-            builder.medPeriode(periode)
-                .medStatsborgerskap(landkode);
-            builder.medRegion(region);
 
-            informasjonBuilder.leggTil(builder);
+            informasjonBuilder
+                .leggTil(informasjonBuilder.getStatsborgerskapBuilder(personinfo.getAktørId(), periode, landkode, region));
         }
     }
 
@@ -137,9 +149,8 @@ public class PersonopplysningInnhenter {
         for (AdressePeriode adresse : adressehistorikk) {
             final DatoIntervallEntitet periode = DatoIntervallEntitet.fraOgMedTilOgMed(
                 brukFødselsdatoHvisEtter(adresse.getGyldighetsperiode().getFom(), personinfo.getFødselsdato()), adresse.getGyldighetsperiode().getTom());
-            final PersonInformasjonBuilder.AdresseBuilder adresseBuilder = informasjonBuilder.getAdresseBuilder(aktørId, periode,
-                adresse.getAdresse().getAdresseType());
-            adresseBuilder.medPeriode(periode)
+            var adresseBuilder = informasjonBuilder.getAdresseBuilder(aktørId, periode, adresse.getAdresse().getAdresseType())
+                .medMatrikkelId(adresse.getAdresse().getMatrikkelId())
                 .medAdresselinje1(adresse.getAdresse().getAdresselinje1())
                 .medAdresselinje2(adresse.getAdresse().getAdresselinje2())
                 .medAdresselinje3(adresse.getAdresse().getAdresselinje3())
@@ -158,39 +169,38 @@ public class PersonopplysningInnhenter {
         return dato;
     }
 
-    private List<RelasjonsRolleType> utledRelasjonsrolleTilBarn(Personinfo personinfo, Personinfo barn) {
+    private RelasjonsRolleType utledRelasjonsrolleTilBarn(Personinfo personinfo, Personinfo barn) {
         if (barn == null) {
-            return Collections.emptyList();
+            return RelasjonsRolleType.UDEFINERT;
         }
         return barn.getFamilierelasjoner().stream()
             .filter(fr -> fr.getPersonIdent().equals(personinfo.getPersonIdent()))
-            .map(rel -> utledRelasjonsrolleTilBarn(personinfo.getKjønn(), rel.getRelasjonsrolle()))
-            .collect(Collectors.toList());
+            .map(FamilierelasjonVL::getRelasjonsrolle)
+            .filter(RelasjonsRolleType::erRegistrertForeldre)
+            .findFirst().orElse(RelasjonsRolleType.UDEFINERT);
     }
 
-    private void mapRelasjon(Personinfo fra, Personinfo til, List<RelasjonsRolleType> roller, PersonInformasjonBuilder informasjonBuilder) {
-        if (til == null) {
+    private void mapRelasjon(Personinfo fra, Personinfo til, RelasjonsRolleType rolle, PersonInformasjonBuilder informasjonBuilder) {
+        if (til == null || rolle == null || RelasjonsRolleType.UDEFINERT.equals(rolle)) {
             return;
         }
-        for (RelasjonsRolleType rolle : roller) {
-            final PersonInformasjonBuilder.RelasjonBuilder builder = informasjonBuilder.getRelasjonBuilder(fra.getAktørId(), til.getAktørId(), rolle);
-            builder.harSammeBosted(utledSammeBosted(fra, til, rolle));
-            informasjonBuilder.leggTil(builder);
-        }
+        informasjonBuilder
+            .leggTil(informasjonBuilder.getRelasjonBuilder(fra.getAktørId(), til.getAktørId(), rolle).harSammeBosted(utledSammeBosted(fra, til)));
     }
 
-    private boolean utledSammeBosted(Personinfo personinfo, Personinfo barn, RelasjonsRolleType rolle) {
-        final Optional<Boolean> sammeBosted = personinfo.getFamilierelasjoner().stream()
-            .filter(fr -> fr.getRelasjonsrolle().equals(rolle) && fr.getPersonIdent().equals(barn.getPersonIdent()))
-            .findAny()
-            .map(FamilierelasjonVL::getHarSammeBosted);
-        return sammeBosted.orElse(false);
+    private boolean utledSammeBosted(Personinfo fra, Personinfo til) {
+        var tilAdresser = til.getAdresseInfoList().stream()
+            .filter(ad -> AdresseType.BOSTEDSADRESSE.equals(ad.getGjeldendePostadresseType()))
+            .collect(Collectors.toList());
+        return fra.getAdresseInfoList().stream()
+            .filter(a -> AdresseType.BOSTEDSADRESSE.equals(a.getGjeldendePostadresseType()))
+            .anyMatch(adr1 -> tilAdresser.stream().anyMatch(adr2 -> Adresseinfo.likeAdresser(adr1, adr2)));
     }
 
     private void mapInfoTilEntitet(Personinfo personinfo, PersonInformasjonBuilder informasjonBuilder, boolean lagreIHistoriskeTabeller) {
         final DatoIntervallEntitet periode = getPeriode(personinfo.getFødselsdato(), Tid.TIDENES_ENDE);
-        final PersonInformasjonBuilder.PersonopplysningBuilder builder = informasjonBuilder.getPersonopplysningBuilder(personinfo.getAktørId());
-        builder.medKjønn(personinfo.getKjønn())
+        var builder = informasjonBuilder.getPersonopplysningBuilder(personinfo.getAktørId())
+            .medKjønn(personinfo.getKjønn())
             .medFødselsdato(personinfo.getFødselsdato())
             .medNavn(personinfo.getNavn())
             .medDødsdato(personinfo.getDødsdato())
@@ -199,31 +209,28 @@ public class PersonopplysningInnhenter {
         informasjonBuilder.leggTil(builder);
 
         if (lagreIHistoriskeTabeller || informasjonBuilder.harIkkeFåttStatsborgerskapHistorikk(personinfo.getAktørId())) {
-            final PersonInformasjonBuilder.StatsborgerskapBuilder statsborgerskapBuilder = informasjonBuilder.getStatsborgerskapBuilder(personinfo.getAktørId(),
-                periode, personinfo.getLandkode(), personinfo.getRegion());
-            informasjonBuilder.leggTil(statsborgerskapBuilder);
+            informasjonBuilder
+                .leggTil(informasjonBuilder.getStatsborgerskapBuilder(personinfo.getAktørId(), periode, personinfo.getLandkode(), personinfo.getRegion()));
         }
 
         if (lagreIHistoriskeTabeller || informasjonBuilder.harIkkeFåttAdresseHistorikk(personinfo.getAktørId())) {
             for (Adresseinfo adresse : personinfo.getAdresseInfoList()) {
-                final PersonInformasjonBuilder.AdresseBuilder adresseBuilder = informasjonBuilder.getAdresseBuilder(personinfo.getAktørId(),
-                    periode, adresse.getGjeldendePostadresseType());
-                informasjonBuilder.leggTil(adresseBuilder
+                var adresseBuilder = informasjonBuilder.getAdresseBuilder(personinfo.getAktørId(), periode, adresse.getGjeldendePostadresseType())
+                    .medMatrikkelId(adresse.getMatrikkelId())
                     .medAdresselinje1(adresse.getAdresselinje1())
                     .medAdresselinje2(adresse.getAdresselinje2())
                     .medAdresselinje3(adresse.getAdresselinje3())
+                    .medAdresselinje4(adresse.getAdresselinje4())
                     .medPostnummer(adresse.getPostNr())
                     .medPoststed(adresse.getPoststed())
-                    .medLand(adresse.getLand())
-                    .medAdresseType(adresse.getGjeldendePostadresseType())
-                    .medPeriode(periode));
+                    .medLand(adresse.getLand());
+                informasjonBuilder.leggTil(adresseBuilder);
             }
         }
 
         if (lagreIHistoriskeTabeller || informasjonBuilder.harIkkeFåttPersonstatusHistorikk(personinfo.getAktørId())) {
-            final PersonInformasjonBuilder.PersonstatusBuilder personstatusBuilder = informasjonBuilder.getPersonstatusBuilder(personinfo.getAktørId(),
-                periode).medPersonstatus(personinfo.getPersonstatus());
-            informasjonBuilder.leggTil(personstatusBuilder);
+            informasjonBuilder
+                .leggTil(informasjonBuilder.getPersonstatusBuilder(personinfo.getAktørId(), periode).medPersonstatus(personinfo.getPersonstatus()));
         }
     }
 
@@ -231,46 +238,55 @@ public class PersonopplysningInnhenter {
         return DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom != null ? tom : Tid.TIDENES_ENDE);
     }
 
-    private void leggTilEktefelle(Personinfo søkerPersonInfo, PersonInformasjonBuilder informasjonBuilder) {
-        // Ektefelle
-        final List<FamilierelasjonVL> familierelasjoner = søkerPersonInfo.getFamilierelasjoner()
-            .stream()
+    private void leggTilEktefelle(Personinfo søkerPersonInfo, PersonInformasjonBuilder informasjonBuilder, Map<PersonIdent, Personinfo> innhentet) {
+        søkerPersonInfo.getFamilierelasjoner().stream()
             .filter(f -> f.getRelasjonsrolle().equals(RelasjonsRolleType.EKTE) ||
                 f.getRelasjonsrolle().equals(RelasjonsRolleType.REGISTRERT_PARTNER))
-            .collect(Collectors.toList());
-        for (FamilierelasjonVL familierelasjon : familierelasjoner) {
-            personinfoAdapter.innhentSaksopplysningerFor(familierelasjon.getPersonIdent()).ifPresent(e -> {
-                mapInfoTilEntitet(e, informasjonBuilder, true);
-                mapRelasjon(søkerPersonInfo, e, Collections.singletonList(familierelasjon.getRelasjonsrolle()), informasjonBuilder);
-                mapRelasjon(e, søkerPersonInfo, Collections.singletonList(familierelasjon.getRelasjonsrolle()), informasjonBuilder);
+            .filter(ekte -> innhentet.get(ekte.getPersonIdent()) != null)
+            .forEach(relasjon -> {
+                var ekte = innhentet.get(relasjon.getPersonIdent());
+                mapInfoTilEntitet(ekte, informasjonBuilder, true);
+                mapRelasjon(søkerPersonInfo, ekte, relasjon.getRelasjonsrolle(), informasjonBuilder);
+                mapRelasjon(ekte, søkerPersonInfo, relasjon.getRelasjonsrolle(), informasjonBuilder);
             });
-        }
     }
 
-    private List<Personinfo> hentBarnRelatertTil(Personinfo personinfo, List<LocalDateInterval> fødselsintervall) {
-        return personinfo.getFamilierelasjoner()
-            .stream()
+    private Set<PersonIdent> finnEktefelle(Personinfo personinfo) {
+        return personinfo.getFamilierelasjoner().stream()
+            .filter(f -> f.getRelasjonsrolle().equals(RelasjonsRolleType.EKTE) ||
+                f.getRelasjonsrolle().equals(RelasjonsRolleType.REGISTRERT_PARTNER))
+            .map(FamilierelasjonVL::getPersonIdent)
+            .collect(Collectors.toSet());
+    }
+
+    private Set<PersonIdent> finnBarnRelatertTil(Personinfo personinfo, List<LocalDateInterval> fødselsintervall) {
+        return personinfo.getFamilierelasjoner().stream()
             .filter(r -> r.getRelasjonsrolle().equals(RelasjonsRolleType.BARN))
-            .map(r -> personinfoAdapter.innhentSaksopplysningerFor(r.getPersonIdent()).orElse(null))
+            .map(rel -> personinfoAdapter.hentFødselsdato(rel.getPersonIdent()).map(f -> new Tuple<>(rel.getPersonIdent(), f)).orElse(null))
             .filter(Objects::nonNull)
-            .filter(b -> fødselsintervall.stream().anyMatch(i -> i.encloses(b.getFødselsdato())))
-            .collect(Collectors.toList());
+            .filter(t -> fødselsintervall.stream().anyMatch(i -> i.encloses(t.getElement2())))
+            .map(Tuple::getElement1)
+            .collect(Collectors.toSet());
     }
 
-    private RelasjonsRolleType utledRelasjonsrolleTilBarn(NavBrukerKjønn kjønn, RelasjonsRolleType rolle) {
-        if (kjønn.equals(NavBrukerKjønn.KVINNE) && rolle.equals(RelasjonsRolleType.FARA)) {
-            return RelasjonsRolleType.MEDMOR;
-        }
-
-        return NavBrukerKjønn.KVINNE.equals(kjønn) ? RelasjonsRolleType.MORA : RelasjonsRolleType.FARA;
-    }
-
-    private Set<PersonIdent> getAnnenPartsBarn(Optional<Personinfo> annenPartInfo) {
-        return annenPartInfo.map(Personinfo::getFamilierelasjoner).orElse(Collections.emptySet()).stream()
+    private Set<PersonIdent> getAnnenPartsBarn(Personinfo annenPartInfo) {
+        return annenPartInfo.getFamilierelasjoner().stream()
             .filter(f -> RelasjonsRolleType.BARN.equals(f.getRelasjonsrolle()))
             .map(FamilierelasjonVL::getPersonIdent)
             .collect(Collectors.toSet());
     }
 
+    private Optional<Personinfo> innhentAktørId(AktørId aktørId, Map<PersonIdent, Personinfo> innhentet) {
+        var personinfo = personinfoAdapter.innhentPersonopplysningerFor(aktørId);
+        personinfo.ifPresent(pi -> innhentet.put(pi.getPersonIdent(), pi));
+        return personinfo;
+    }
 
+    private Optional<Personinfo> innhentPersonIdent(PersonIdent ident, Map<PersonIdent, Personinfo> innhentet) {
+        if (innhentet.get(ident) != null)
+            return Optional.of(innhentet.get(ident));
+        var personinfo = personinfoAdapter.innhentPersonopplysningerFor(ident);
+        personinfo.ifPresent(pi -> innhentet.put(pi.getPersonIdent(), pi));
+        return personinfo;
+    }
 }

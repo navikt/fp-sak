@@ -35,11 +35,6 @@ public class AdressePeriode {
             Objects.equals(adresse, that.adresse);
     }
 
-    public static boolean fuzzyEquals(AdressePeriode a1, AdressePeriode a2) {
-        return Gyldighetsperiode.fuzzyEquals(a1.gyldighetsperiode, a2.gyldighetsperiode) &&
-            Adresse.passeLik(a1.adresse, a2.adresse);
-    }
-
     @Override
     public int hashCode() {
         return Objects.hash(gyldighetsperiode, adresse);
@@ -104,7 +99,9 @@ public class AdressePeriode {
 
         @Override
         public String toString() {
-            return "Adresse{" + "adresseType=" + adresseType +
+            return "Adresse{" +
+                "adresseType=" + adresseType +
+                ", matrikkelId='" + matrikkelId + '\'' +
                 ", adresselinje1='" + adresselinje1 + '\'' +
                 ", adresselinje2='" + adresselinje2 + '\'' +
                 ", adresselinje3='" + adresselinje3 + '\'' +
@@ -121,7 +118,7 @@ public class AdressePeriode {
             if (o == null || getClass() != o.getClass()) return false;
             Adresse adresse = (Adresse) o;
             return Objects.equals(adresseType, adresse.adresseType) &&
-                // TODO: enable når slutt sammenligning Objects.equals(matrikkelId, adresse.matrikkelId) &&
+                Objects.equals(matrikkelId, adresse.matrikkelId) &&
                 Objects.equals(adresselinje1, adresse.adresselinje1) &&
                 Objects.equals(adresselinje2, adresse.adresselinje2) &&
                 Objects.equals(adresselinje3, adresse.adresselinje3) &&
@@ -131,19 +128,9 @@ public class AdressePeriode {
                 Objects.equals(land, adresse.land);
         }
 
-        public static boolean passeLik(Adresse a, Adresse adresse) {
-            if (a == null && adresse == null) return true;
-            if (a == null || adresse == null) return false;
-            if (a == adresse) return true;
-            return Objects.equals(a.adresseType, adresse.adresseType) &&
-                // TODO: enable når slutt sammenligning Objects.equals(matrikkelId, adresse.matrikkelId) &&
-                Objects.equals(a.postnummer, adresse.postnummer) &&
-                (Objects.equals(a.land, adresse.land) || a.land == null || adresse.land == null);
-        }
-
         @Override
         public int hashCode() {
-            return Objects.hash(adresseType, adresselinje1, adresselinje2, adresselinje3, adresselinje4, postnummer, poststed, land);
+            return Objects.hash(adresseType, matrikkelId, adresselinje1, adresselinje2, adresselinje3, adresselinje4, postnummer, poststed, land);
         }
     }
 

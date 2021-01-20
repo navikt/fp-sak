@@ -44,6 +44,10 @@ public class PersonInformasjonEntitet extends BaseEntitet {
 
     @ChangeTracked
     @OneToMany(mappedBy = REF_NAME)
+    private List<OppholdstillatelseEntitet> oppholdstillatelser = new ArrayList<>();
+
+    @ChangeTracked
+    @OneToMany(mappedBy = REF_NAME)
     private List<StatsborgerskapEntitet> statsborgerskap = new ArrayList<>();
 
     @ChangeTracked
@@ -77,6 +81,14 @@ public class PersonInformasjonEntitet extends BaseEntitet {
                 personstatuser.add(entitet);
                 entitet.setPersonInformasjon(this);
             });
+        }
+        if (Optional.ofNullable(aggregat.getOppholdstillatelser()).isPresent()) {
+            aggregat.getOppholdstillatelser()
+                .forEach(e -> {
+                    OppholdstillatelseEntitet entitet = new OppholdstillatelseEntitet(e);
+                    oppholdstillatelser.add(entitet);
+                    entitet.setPersonInformasjon(this);
+                });
         }
         if (Optional.ofNullable(aggregat.getStatsborgerskap()).isPresent()) {
             aggregat.getStatsborgerskap()
@@ -122,6 +134,12 @@ public class PersonInformasjonEntitet extends BaseEntitet {
         this.personstatuser.add(personstatus1);
     }
 
+    void leggTilOppholdstillatelse(OppholdstillatelseEntitet oppholdstillatelse) {
+        final OppholdstillatelseEntitet oppholdstillatelse1 = oppholdstillatelse;
+        oppholdstillatelse1.setPersonInformasjon(this);
+        this.oppholdstillatelser.add(oppholdstillatelse1);
+    }
+
     void leggTilPersonrelasjon(PersonRelasjonEntitet relasjon) {
         final PersonRelasjonEntitet relasjon1 = relasjon;
         relasjon1.setPersonopplysningInformasjon(this);
@@ -148,6 +166,7 @@ public class PersonInformasjonEntitet extends BaseEntitet {
     void tilbakestill() {
         this.adresser.clear();
         this.personstatuser.clear();
+        this.oppholdstillatelser.clear();
         this.relasjoner.clear();
         this.statsborgerskap.clear();
     }
@@ -188,6 +207,17 @@ public class PersonInformasjonEntitet extends BaseEntitet {
     }
 
     /**
+     * Eventuelle oppholdstillatelser med gyldighetstidspunkt (fom, tom)
+     * <p>
+     * Det er kun hentet inn data med historikk for søker, tillatelser for øvrige aktører blir ikke innhentet
+     *
+     * @return entitet
+     */
+    public List<OppholdstillatelseEntitet> getOppholdstillatelser() {
+        return Collections.unmodifiableList(oppholdstillatelser);
+    }
+
+    /**
      * Alle relevante aktørers statsborgerskap med gyldighetstidspunkt (fom, tom)
      * <p>
      * Det er kun hentet inn historikk for søker, de andre aktørene ligger inne med perioden fødselsdato -> dødsdato/tidenes ende
@@ -220,6 +250,7 @@ public class PersonInformasjonEntitet extends BaseEntitet {
         }
         PersonInformasjonEntitet that = (PersonInformasjonEntitet) o;
         return Objects.equals(personstatuser, that.personstatuser) &&
+                Objects.equals(oppholdstillatelser, that.oppholdstillatelser) &&
                 Objects.equals(statsborgerskap, that.statsborgerskap) &&
                 Objects.equals(adresser, that.adresser) &&
                 Objects.equals(personopplysninger, that.personopplysninger) &&
@@ -229,21 +260,21 @@ public class PersonInformasjonEntitet extends BaseEntitet {
 
     @Override
     public int hashCode() {
-        return Objects.hash(personstatuser, statsborgerskap, adresser, personopplysninger, relasjoner);
+        return Objects.hash(personstatuser, oppholdstillatelser, statsborgerskap, adresser, personopplysninger, relasjoner);
     }
 
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("PersonInformasjonEntitet{");
-        sb.append("id=").append(id);
-        sb.append(", personstatuser=").append(personstatuser);
-        sb.append(", statsborgerskap=").append(statsborgerskap);
-        sb.append(", adresser=").append(adresser);
-        sb.append(", personopplysninger=").append(personopplysninger);
-        sb.append(", relasjoner=").append(relasjoner);
-        sb.append('}');
-        return sb.toString();
+        return "PersonInformasjonEntitet{" +
+            "id=" + id +
+            ", personstatuser=" + personstatuser +
+            ", oppholdstillatelser=" + oppholdstillatelser +
+            ", statsborgerskap=" + statsborgerskap +
+            ", adresser=" + adresser +
+            ", personopplysninger=" + personopplysninger +
+            ", relasjoner=" + relasjoner +
+            '}';
     }
 
     PersonInformasjonBuilder.RelasjonBuilder getRelasjonBuilderForAktørId(AktørId fraAktør, AktørId tilAktør, RelasjonsRolleType rolle) {
@@ -277,5 +308,12 @@ public class PersonInformasjonEntitet extends BaseEntitet {
                 .filter(it -> it.getAktørId().equals(aktørId) && erSannsynligvisSammePeriode(it.getPeriode(), periode))
                 .findAny();
         return PersonInformasjonBuilder.PersonstatusBuilder.oppdater(eksisterende).medAktørId(aktørId).medPeriode(periode);
+    }
+
+    PersonInformasjonBuilder.OppholdstillatelseBuilder getOppholdstillatelseBuilderForAktørId(AktørId aktørId, DatoIntervallEntitet periode) {
+        final Optional<OppholdstillatelseEntitet> eksisterende = oppholdstillatelser.stream()
+            .filter(it -> it.getAktørId().equals(aktørId) && erSannsynligvisSammePeriode(it.getPeriode(), periode))
+            .findAny();
+        return PersonInformasjonBuilder.OppholdstillatelseBuilder.oppdater(eksisterende).medAktørId(aktørId).medPeriode(periode);
     }
 }

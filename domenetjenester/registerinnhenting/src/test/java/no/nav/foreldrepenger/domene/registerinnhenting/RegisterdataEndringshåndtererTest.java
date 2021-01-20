@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -155,14 +156,14 @@ public class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
             .oppdaterRegisteropplysningerOgReposisjonerBehandlingVedEndringer(behandling);
 
         // Assert
-        verify(personinfoAdapter, times(0)).innhentSaksopplysningerForSøker(Mockito.any(AktørId.class));
+        verify(personinfoAdapter, times(0)).innhentPersonopplysningerFor(Mockito.any(AktørId.class));
     }
 
     @Test
     public void skal_skru_behandlingen_tilbake_når_det_er_diff_i_personinformasjon() {
         // Arrange
         Personinfo søker = opprettSøkerinfo();
-        when(personinfoAdapter.innhentSaksopplysningerForSøker(Mockito.any(AktørId.class))).thenReturn(søker);
+        when(personinfoAdapter.innhentPersonopplysningerFor(Mockito.any(AktørId.class))).thenReturn(Optional.of(søker));
 
         scenarioFødsel.medSøker(søker)
             .medOpplysningerOppdatertTidspunkt(LocalDateTime.now().minusDays(1))
@@ -211,7 +212,7 @@ public class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
     public void skal_starte_behandlingen_på_nytt_25_dager_etter_termin_og_ingen_fødselsdato() {
         // Arrange
         Personinfo søker = opprettSøkerinfo();
-        when(personinfoAdapter.innhentSaksopplysningerForSøker(Mockito.any(AktørId.class))).thenReturn(søker);
+        when(personinfoAdapter.innhentPersonopplysningerFor(Mockito.any(AktørId.class))).thenReturn(Optional.of(søker));
 
         scenarioFødsel
             .medOpplysningerOppdatertTidspunkt(LocalDateTime.now().minusDays(1))
@@ -238,7 +239,7 @@ public class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
         LocalDate fDato = LocalDate.now().minusWeeks(3);
 
         Personinfo søker = opprettSøkerinfo();
-        when(personinfoAdapter.innhentSaksopplysningerForSøker(Mockito.any(AktørId.class))).thenReturn(søker);
+        when(personinfoAdapter.innhentPersonopplysningerFor(Mockito.any(AktørId.class))).thenReturn(Optional.of(søker));
         when(endringskontroller.erRegisterinnhentingPassert(any())).thenReturn(true);
 
         var scenarioFP = ScenarioMorSøkerForeldrepenger.forFødsel().medFødselAdopsjonsdato(List.of(fDato)).medBehandlingType(BehandlingType.REVURDERING)
@@ -261,7 +262,7 @@ public class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
         LocalDateTime opplysningerOppdatertTidspunkt = LocalDateTime.now().minusDays(1);
         Personinfo søker = opprettSøkerinfo();
 
-        when(personinfoAdapter.innhentSaksopplysningerForSøker(Mockito.any(AktørId.class))).thenReturn(søker);
+        when(personinfoAdapter.innhentPersonopplysningerFor(Mockito.any(AktørId.class))).thenReturn(Optional.of(søker));
 
         scenarioAdopsjon
             .medOpplysningerOppdatertTidspunkt(opplysningerOppdatertTidspunkt)
@@ -339,8 +340,8 @@ public class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
     }
 
     private Personinfo opprettSøkerinfo() {
-        FamilierelasjonVL familierelasjon = new FamilierelasjonVL(new PersonIdent(FNR_BARN), RelasjonsRolleType.BARN,
-            true);
+        FamilierelasjonVL familierelasjon = new FamilierelasjonVL(new PersonIdent(FNR_BARN), RelasjonsRolleType.BARN
+        );
 
         return new Personinfo.Builder()
             .medAktørId(SØKER_AKTØR_ID)

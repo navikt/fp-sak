@@ -224,7 +224,7 @@ public class FamilieHendelseTjeneste {
 
         return personopplysninger.getRelasjoner().stream()
             .filter(rel -> rel.getAktørId().equals(ref.getAktørId()) && rel.getRelasjonsrolle().equals(RelasjonsRolleType.BARN))
-            .map(rel -> personopplysninger.getPersonopplysninger().stream().filter(person -> person.getAktørId().equals(rel.getTilAktørId())).findAny().orElse(null))
+            .map(rel -> personopplysninger.getPersonopplysning(rel.getTilAktørId()))
             .filter(barn -> barn != null && erBarnRelatertTilSøknad(fødselsintervall, barn.getFødselsdato()))
             .collect(toList());
     }

@@ -24,14 +24,11 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum PersonstatusType implements Kodeverdi {
 
-    ABNR("ABNR", "Aktivt BOSTNR", false),
     ADNR("ADNR", "Aktivt D-nummer", false),
     BOSA("BOSA", "Bosatt", true),
     DØD("DØD", "Død", true),
-    DØDD("DØDD", "Dødd", false),
     FOSV("FOSV", "Forsvunnet/savnet", false),
     FØDR("FØDR", "Fødselregistrert", false),
-    UFUL("UFUL", "Ufullstendig fødselsnr", false),
     UREG("UREG", "Uregistrert person", false),
     UTAN("UTAN", "Utgått person annullert tilgang Fnr", false),
     UTPE("UTPE", "Utgått person", false),
@@ -48,7 +45,7 @@ public enum PersonstatusType implements Kodeverdi {
         Map.entry("foedselsregistrert", PersonstatusType.FØDR),
         Map.entry("opphoert", PersonstatusType.UTPE),
         Map.entry("utflyttet", UTVA),
-        Map.entry("ikkeBosatt", UREG)  // TODO avklar hvilke som skal avklares og legg til ikke bosatt status
+        Map.entry("ikkeBosatt", UREG)
     );
 
     private static final Map<String, PersonstatusType> KODER = new LinkedHashMap<>();
@@ -70,7 +67,7 @@ public enum PersonstatusType implements Kodeverdi {
     }
 
     public static boolean erDød(PersonstatusType personstatus) {
-        return DØD.equals(personstatus) || DØDD.equals(personstatus);
+        return DØD.equals(personstatus);
     }
 
 

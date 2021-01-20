@@ -835,7 +835,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         });
 
         personInformasjon.getStatsborgerskap().forEach(e -> {
-            Region region = MapRegionLandkoder.mapRangerLandkoder(List.of(e.getStatsborgerskap().getKode()));
+            Region region = MapRegionLandkoder.mapRangerLandkoder(List.of(e.getStatsborgerskap()));
             PersonInformasjonBuilder.StatsborgerskapBuilder builder = personInformasjonBuilder.getStatsborgerskapBuilder(e.getAktørId(),
                     e.getPeriode(),
                     e.getStatsborgerskap(), region);

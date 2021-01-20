@@ -119,9 +119,9 @@ public class RegisterdataInnhenter {
     }
 
     private Optional<AktørId> finnAnnenPart(Long behandlingId) {
-        final Optional<OppgittAnnenPartEntitet> oppgittAnnenPart = personopplysningRepository.hentPersonopplysningerHvisEksisterer(behandlingId)
-            .flatMap(PersonopplysningGrunnlagEntitet::getOppgittAnnenPart);
-        return oppgittAnnenPart.map(OppgittAnnenPartEntitet::getAktørId);
+        return personopplysningRepository.hentPersonopplysningerHvisEksisterer(behandlingId)
+            .flatMap(PersonopplysningGrunnlagEntitet::getOppgittAnnenPart)
+            .map(OppgittAnnenPartEntitet::getAktørId);
     }
 
     public void innhentPersonopplysninger(Behandling behandling) {

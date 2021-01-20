@@ -1,9 +1,11 @@
 package no.nav.foreldrepenger.behandlingslager.geografisk;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class MapRegionLandkoder {
 
@@ -25,7 +27,7 @@ public class MapRegionLandkoder {
         Map.entry(Landkoder.ESP.getKode(), Region.EOS),
         Map.entry(Landkoder.EST.getKode(), Region.EOS),
         Map.entry(Landkoder.FRA.getKode(), Region.EOS),
-        Map.entry(Landkoder.GBR.getKode(), Region.EOS),
+        Map.entry(Landkoder.GBR.getKode(), Region.EOS),  // TODO: BREXIT. Overgangsperiode i 2021. Avklar Sveits
         Map.entry(Landkoder.GRC.getKode(), Region.EOS),
         Map.entry(Landkoder.HRV.getKode(), Region.EOS),
         Map.entry(Landkoder.HUN.getKode(), Region.EOS),
@@ -50,10 +52,22 @@ public class MapRegionLandkoder {
         return LANDKODER_REGION_MAP.getOrDefault(landkode, Region.TREDJELANDS_BORGER);
     }
 
-    public static Region mapRangerLandkoder(List<String> landkoder) {
+    public static Region mapRangerLandkoder(List<Landkoder> landkoder) {
         if (landkoder == null || landkoder.isEmpty())
             return Region.UDEFINERT;
-        return landkoder.stream().map(LANDKODER_REGION_MAP::get).filter(Objects::nonNull).min(Comparator.comparing(Region::getRank)).orElse(Region.TREDJELANDS_BORGER);
+        return landkoder.stream().map(Landkoder::getKode).map(LANDKODER_REGION_MAP::get).filter(Objects::nonNull).min(Comparator.comparing(Region::getRank)).orElse(Region.TREDJELANDS_BORGER);
+    }
+
+    public static Landkoder finnRangertLandkode(List<Landkoder> landkoder) {
+        if (landkoder == null || landkoder.isEmpty())
+            return Landkoder.UOPPGITT;
+        var sortering = landkoder.stream()
+            .collect(Collectors.groupingBy(l -> LANDKODER_REGION_MAP.getOrDefault(l.getKode(), Region.TREDJELANDS_BORGER)));
+        return sortering.entrySet().stream()
+            .filter(e -> !e.getValue().isEmpty())
+            .min(Comparator.comparing(e -> e.getKey().getRank()))
+            .map(Map.Entry::getValue).orElse(Collections.emptyList()).stream()
+            .findFirst().orElse(Landkoder.UOPPGITT);
     }
 
 }

@@ -108,10 +108,7 @@ public class PersonopplysningGrunnlagEntitet extends BaseEntitet {
 
 
     public PersonInformasjonEntitet getGjeldendeVersjon() {
-        if (getOverstyrtVersjon().isPresent()) {
-            return getOverstyrtVersjon().get();
-        }
-        return registrertePersonopplysninger;
+        return getOverstyrtVersjon().orElse(registrertePersonopplysninger);
     }
 
 

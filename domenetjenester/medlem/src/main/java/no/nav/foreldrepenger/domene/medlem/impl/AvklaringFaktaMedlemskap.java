@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapDe
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.StatsborgerskapEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
@@ -101,8 +100,7 @@ public class AvklaringFaktaMedlemskap {
     }
 
     Statsborgerskapsregioner statsborgerskap(PersonopplysningerAggregat søker) {
-        Region region = søker.getStatsborgerskapFor(søker.getSøker().getAktørId()).stream().findFirst()
-            .map(StatsborgerskapEntitet::getRegion).orElse(Region.UDEFINERT);
+        Region region = søker.getStatsborgerskapRegionFor(søker.getSøker().getAktørId());
         if (Region.EOS.equals(region)) {
             return Statsborgerskapsregioner.EØS;
         }
