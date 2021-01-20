@@ -11,6 +11,9 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
@@ -38,6 +41,8 @@ import no.nav.vedtak.exception.TekniskException;
 @FagsakYtelseTypeRef
 @ApplicationScoped
 public class SimulerOppdragSteg implements BehandlingSteg {
+
+    private static final Logger logger = LoggerFactory.getLogger(SimulerOppdragSteg.class);
 
     public static final long DUMMY_TASK_ID = -1L; // TODO (Team Tonic) simulerOppdrag-tjenesten krever en task-id som input, uten
                                                   // at den skal være i bruk
@@ -160,7 +165,13 @@ public class SimulerOppdragSteg implements BehandlingSteg {
     }
 
     private boolean kanOppdatereEksisterendeTilbakekrevingsbehandling(Behandling behandling, SimuleringResultatDto simuleringResultatDto) {
-        return harÅpenTilbakekreving(behandling) && (simuleringResultatDto.getSumFeilutbetaling() != 0);
+        if (harÅpenTilbakekreving(behandling) && (simuleringResultatDto.getSumFeilutbetaling() != 0)) {
+            return true;
+        } else if (harÅpenTilbakekreving(behandling) && (simuleringResultatDto.getSumFeilutbetaling() == 0)) {
+            logger.warn("Saksnummer {} har åpen tilbakekreving og sumFeilutbetaling={}, og vil dermed ikke oppdatere eksisterende tilbakekrevingsbehandling. Dette vil antagelig feile i Fptilbake. Fint om du som ser dette oppdaterer TFP-4032 med hele loggmeldingen så vi kan undersøke. Simuleringsresultat: sumInntrekk={}, slåttAvInntrekk={}",
+                behandling.getFagsak().getSaksnummer(), simuleringResultatDto.getSumFeilutbetaling(), simuleringResultatDto.getSumInntrekk(), simuleringResultatDto.isSlåttAvInntrekk());
+        }
+        return false;
     }
 
     private boolean harÅpenTilbakekreving(Behandling behandling) {
