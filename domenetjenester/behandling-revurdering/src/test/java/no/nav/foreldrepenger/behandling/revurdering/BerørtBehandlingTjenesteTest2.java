@@ -18,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
@@ -441,6 +442,42 @@ class BerørtBehandlingTjenesteTest2 {
 
         var farUttak = new ForeldrepengerUttak(List.of(farsPeriode));
         lagreUttak(farBehandling, farUttak);
+
+        var resultat = skalBerørtOpprettes(farBehandling, morBehandling);
+        assertThat(resultat).isFalse();
+    }
+
+    @Test
+    public void ikke_berørt_behandling_ved_overlapp_mellom_partene_men_behandlingen_er_henlagt() {
+        var startDatoMor = LocalDate.of(2020, 1, 1);
+
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel().medAvklarteUttakDatoer(avklarteDatoer(startDatoMor));
+        var scenarioAnnenpart = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var farBehandling = scenario.lagre(repositoryProvider);
+        var morBehandling = scenarioAnnenpart.lagre(repositoryProvider);
+
+        lagUttakInput(farBehandling);
+
+        var morsPeriode = new ForeldrepengerUttakPeriode.Builder().medTidsperiode(startDatoMor,
+            startDatoMor.plusWeeks(15))
+            .medResultatÅrsak(InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medAktiviteter(List.of(uttakPeriodeAktivitet(StønadskontoType.MØDREKVOTE)))
+            .build();
+        var farsPeriode = new ForeldrepengerUttakPeriode.Builder().medTidsperiode(morsPeriode.getFom().plusWeeks(1),
+            morsPeriode.getTom().minusWeeks(1))
+            .medResultatÅrsak(InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medAktiviteter(List.of(uttakPeriodeAktivitet(StønadskontoType.FEDREKVOTE)))
+            .build();
+        var morUttak = new ForeldrepengerUttak(List.of(morsPeriode));
+        lagreUttak(morBehandling, morUttak);
+
+        var farUttak = new ForeldrepengerUttak(List.of(farsPeriode));
+        lagreUttak(farBehandling, farUttak);
+        var behandlingsresultat = getBehandlingsresultat(farBehandling.getId());
+        var henlagtBehandlingsresultat = Behandlingsresultat.builderEndreEksisterende(behandlingsresultat)
+            .medBehandlingResultatType(BehandlingResultatType.HENLAGT_FEILOPPRETTET)
+            .build();
+        getBehandlingsresultatRepository().lagre(henlagtBehandlingsresultat.getBehandlingId(), henlagtBehandlingsresultat);
 
         var resultat = skalBerørtOpprettes(farBehandling, morBehandling);
         assertThat(resultat).isFalse();

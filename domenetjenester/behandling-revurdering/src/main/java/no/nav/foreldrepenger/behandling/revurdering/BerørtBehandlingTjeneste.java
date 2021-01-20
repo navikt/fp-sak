@@ -91,10 +91,13 @@ public class BerørtBehandlingTjeneste {
     boolean skalBerørtBehandlingOpprettesNy(Behandlingsresultat behandlingsresultat,
                                             Long behandlingId,
                                             Long behandlingIdAnnenpart) {
+        //Må sjekke konsekvens pga overlapp med samtidig uttak
+        if (behandlingsresultat.isBehandlingHenlagt() || harKonsekvens(behandlingsresultat, KonsekvensForYtelsen.INGEN_ENDRING)) {
+            return false;
+        }
         var uttakInput = uttakInputTjeneste.lagInput(behandlingsresultat.getBehandlingId());
         ForeldrepengerGrunnlag foreldrepengerGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
-        //Må sjekke konsekvens pga overlapp med samtidig uttak
-        if (foreldrepengerGrunnlag.isTapendeBehandling() || harKonsekvens(behandlingsresultat, KonsekvensForYtelsen.INGEN_ENDRING)) {
+        if (foreldrepengerGrunnlag.isTapendeBehandling()) {
             return false;
         }
 
