@@ -118,7 +118,7 @@ public class OppdragskontrollOpphør implements OppdragskontrollManager {
             List<Oppdragslinje150> opp150MedSammeKlassekodeListe = opp150ListePerKlassekode.getValue();
             Optional<Oppdragslinje150> sisteOppdr150BrukerOpt = opp150MedSammeKlassekodeListe
                 .stream()
-                .max(Comparator.comparing(Oppdragslinje150::getDelytelseId));
+                .max(Comparator.comparing(Oppdragslinje150::getDelytelseId).thenComparing(Oppdragslinje150::getKodeStatusLinje, Comparator.nullsFirst(Comparator.naturalOrder())));
             if (sisteOppdr150BrukerOpt.isPresent()) {
                 Oppdragslinje150 sisteOppdr150Bruker = sisteOppdr150BrukerOpt.get();
                 boolean skalSendeOpphør = VurderOpphørForYtelse.vurder(behandlingInfo, sisteOppdr150Bruker, mottaker);
@@ -168,7 +168,7 @@ public class OppdragskontrollOpphør implements OppdragskontrollManager {
                                                                 Oppdrag110.Builder nyOppdrag110Builder, Oppdrag110 forrigeOppdrag110,
                                                                 Oppdragskontroll nyOppdragskontroll) {
 
-        if (!opphFørEndringsoppdrFeriepg || VurderOpphørForFeriepenger.vurder(behandlingInfo, forrigeOppdrag110, Optional.empty())) {
+        if (!opphFørEndringsoppdrFeriepg || VurderOpphørForFeriepenger.vurder(behandlingInfo, forrigeOppdrag110, null)) {
             Oppdrag110 nyOppdrag110 = nyOppdrag110Builder.medOppdragskontroll(nyOppdragskontroll).build();
             OpprettOppdragTjeneste.opprettOppdragsenhet120(nyOppdrag110);
             opprettOppdr150LinjeForFeriepengerOPPH(behandlingInfo, nyOppdrag110,
@@ -181,7 +181,7 @@ public class OppdragskontrollOpphør implements OppdragskontrollManager {
     void opprettOppdr150LinjeForFeriepengerOPPH(OppdragInput behandlingInfo, boolean opphFørEndringsoppdrFeriepg,
                                                 Oppdrag110 nyOppdrag110, Oppdrag110 forrigeOppdrag110) {
 
-        if (!opphFørEndringsoppdrFeriepg || VurderOpphørForFeriepenger.vurder(behandlingInfo, forrigeOppdrag110, Optional.empty())) {
+        if (!opphFørEndringsoppdrFeriepg || VurderOpphørForFeriepenger.vurder(behandlingInfo, forrigeOppdrag110, null)) {
             opprettOppdr150LinjeForFeriepengerOPPH(behandlingInfo, nyOppdrag110,
                 forrigeOppdrag110, true, opphFørEndringsoppdrFeriepg);
         }

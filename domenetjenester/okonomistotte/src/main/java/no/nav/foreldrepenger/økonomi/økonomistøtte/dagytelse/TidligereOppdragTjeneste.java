@@ -36,7 +36,7 @@ public class TidligereOppdragTjeneste {
         List<Oppdragslinje150> tidligereOpp150Liste = hentTidligereGjeldendeOppdragslinje150(behandlingInfo, false);
 
         return tidligereOpp150Liste.stream()
-            .max(Comparator.comparing(Oppdragslinje150::getDelytelseId));
+            .max(Comparator.comparing(Oppdragslinje150::getDelytelseId).thenComparing(Oppdragslinje150::getKodeStatusLinje, Comparator.nullsFirst(Comparator.naturalOrder())));
     }
 
     public static List<Oppdragslinje150> finnSisteLinjeKjedeForAlleArbeidsgivere(OppdragInput behandlingInfo) {
@@ -116,7 +116,7 @@ public class TidligereOppdragTjeneste {
     public static long finnMaxDelytelseIdForEnOppdrag110(Oppdrag110 nyOppdrag110, Oppdragslinje150 sisteOppdr150) {
         List<Oppdragslinje150> opp150UtenFeriepengerListe = getOppdragslinje150UtenFeriepenger(nyOppdrag110);
         Optional<Oppdragslinje150> sisteOpprettetOpp150ForDenneOpp110 = opp150UtenFeriepengerListe.stream()
-            .max(Comparator.comparing(Oppdragslinje150::getDelytelseId));
+            .max(Comparator.comparing(Oppdragslinje150::getDelytelseId).thenComparing(Oppdragslinje150::getKodeStatusLinje, Comparator.nullsFirst(Comparator.naturalOrder())));
 
         return sisteOpprettetOpp150ForDenneOpp110.map(Oppdragslinje150::getDelytelseId)
             .orElseGet(sisteOppdr150::getDelytelseId);
@@ -151,7 +151,7 @@ public class TidligereOppdragTjeneste {
 
     private static List<Oppdragslinje150> sortOppdragslinje150Liste(List<Oppdragslinje150> oppdragslinje150Liste) {
         return oppdragslinje150Liste.stream()
-            .sorted(Comparator.comparing(Oppdragslinje150::getDelytelseId))
+            .sorted(Comparator.comparing(Oppdragslinje150::getDelytelseId).thenComparing(Oppdragslinje150::getKodeStatusLinje, Comparator.nullsFirst(Comparator.naturalOrder())))
             .collect(Collectors.toList());
     }
 
@@ -259,19 +259,19 @@ public class TidligereOppdragTjeneste {
         return false;
     }
 
-    public static boolean erEndringsdatoEtterSisteDatoAvAlleTidligereOppdrag(OppdragInput behandlingInfo,
+    public static boolean erEndringsdatoEtterSisteDatoAvAlleTidligereOppdrag(OppdragInput oppdragInput,
                                                                              Oppdragslinje150 sisteOppdr150, Oppdragsmottaker mottaker) {
-        Optional<LocalDate> endringsdatoOpt = behandlingInfo.getEndringsdato();
+        Optional<LocalDate> endringsdatoOpt = oppdragInput.getEndringsdato();
         if (endringsdatoOpt.isPresent()) {
             LocalDate endringsdato = endringsdatoOpt.get();
-            List<Oppdragslinje150> tidligereOppdr150MedFeriepengerListe = hentTidligereGjeldendeOppdr150ForMottakeren(behandlingInfo,
+            List<Oppdragslinje150> tidligereOppdr150MedFeriepengerListe = hentTidligereGjeldendeOppdr150ForMottakeren(oppdragInput,
                 mottaker, true);
             String refunderesId = sisteOppdr150.getRefusjonsinfo156().getRefunderesId();
-            Optional<LocalDate> sisteDatoOpt = tidligereOppdr150MedFeriepengerListe.stream()
+            Optional<LocalDate> sisteVedtakTomDato = tidligereOppdr150MedFeriepengerListe.stream()
                 .filter(opp150 -> opp150.getRefusjonsinfo156().getRefunderesId().equals(refunderesId))
                 .map(Oppdragslinje150::getDatoVedtakTom)
                 .max(Comparator.comparing(Function.identity()));
-            return sisteDatoOpt.map(endringsdato::isAfter).orElse(true);
+            return sisteVedtakTomDato.map(endringsdato::isAfter).orElse(true);
         }
         return false;
     }

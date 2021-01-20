@@ -59,7 +59,7 @@ class UtledDelytelseOgFagsystemIdI150 {
     private static Optional<Oppdragslinje150> finnOpp150MedGittKodeKlassifikOgMaksId(List<Oppdragslinje150> tidligereOppdr150Liste, String kodeklassifikINyeAndeler) {
         return tidligereOppdr150Liste.stream()
             .filter(oppdr150 -> oppdr150.getKodeKlassifik().equals(kodeklassifikINyeAndeler))
-            .max(Comparator.comparing(Oppdragslinje150::getDelytelseId));
+            .max(Comparator.comparing(Oppdragslinje150::getDelytelseId).thenComparing(Oppdragslinje150::getKodeStatusLinje, Comparator.nullsFirst(Comparator.naturalOrder())));
     }
 
     private static void settRefFagsystemId(Oppdrag110 nyOppdrag110, Oppdragslinje150.Builder oppdragslinje150Builder, boolean erDetNyKlassekodeINyOppdrag, int antalIter) {

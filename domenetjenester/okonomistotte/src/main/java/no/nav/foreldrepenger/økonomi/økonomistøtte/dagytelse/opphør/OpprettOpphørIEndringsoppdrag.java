@@ -8,11 +8,15 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.Oppdragsmottaker;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OpprettOppdragTjeneste;
+import no.nav.foreldrepenger.økonomi.økonomistøtte.SimulerOppdragTjeneste;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.FinnStatusForMottakere;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.TidligereOppdragTjeneste;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.fp.OppdragInput;
@@ -24,6 +28,8 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.wrapper.Tilkjent
 
 @ApplicationScoped
 public class OpprettOpphørIEndringsoppdrag {
+
+    private static final Logger log = LoggerFactory.getLogger(OpprettOpphørIEndringsoppdrag.class);
 
     private OppdragskontrollOpphør oppdragskontrollOpphør;
 
@@ -119,34 +125,39 @@ public class OpprettOpphørIEndringsoppdrag {
         opprettOpphørIEndringsoppdragArbeidsgiver(oppdragInput, oppdragskontroll, sisteLinjeKjedeForDenneArbgvren, mottaker, false);
     }
 
-    public Optional<Oppdrag110> opprettOpphørIEndringsoppdragArbeidsgiver(OppdragInput behandlingInfo, Oppdragskontroll oppdragskontroll,
+    public Optional<Oppdrag110> opprettOpphørIEndringsoppdragArbeidsgiver(OppdragInput oppdragInput, Oppdragskontroll oppdragskontroll,
                                                                           List<Oppdragslinje150> tidligereOpp150ListeForArbgvren, Oppdragsmottaker mottaker,
                                                                           boolean opphFørEndringsoppdrFeriepg) {
         Optional<Oppdrag110> nyOppdrag110Opt = Optional.empty();
         Oppdrag110 nyOppdrag110 = null;
         Oppdragslinje150 sisteOppdr150 = Oppdragslinje150Util.getOpp150MedMaxDelytelseId(tidligereOpp150ListeForArbgvren);
         Oppdrag110 forrigeOppdrag110 = sisteOppdr150.getOppdrag110();
-        boolean endringsdatoEtterSisteDatoAvAlleTidligereOppdrag = TidligereOppdragTjeneste.erEndringsdatoEtterSisteDatoAvAlleTidligereOppdrag(behandlingInfo, sisteOppdr150, mottaker);
+        boolean endringsdatoEtterSisteDatoAvAlleTidligereOppdrag = TidligereOppdragTjeneste.erEndringsdatoEtterSisteDatoAvAlleTidligereOppdrag(oppdragInput, sisteOppdr150, mottaker);
+
         if (endringsdatoEtterSisteDatoAvAlleTidligereOppdrag) {
+            log.info("Endringsdato etter siste oppdragsdato!");
             return Optional.empty();
         }
-        Oppdrag110.Builder nyOppdrag110Builder = OpprettOppdrag110Tjeneste.opprettOppdrag110MedRelaterteOppdragsmeldinger(behandlingInfo, sisteOppdr150, mottaker);
 
-        boolean skalSendeOpphør = VurderOpphørForYtelse.vurder(behandlingInfo, sisteOppdr150, mottaker);
+        Oppdrag110.Builder nyOppdrag110Builder = OpprettOppdrag110Tjeneste.opprettOppdrag110MedRelaterteOppdragsmeldinger(oppdragInput, sisteOppdr150, mottaker);
+
+        boolean skalSendeOpphør = VurderOpphørForYtelse.vurder(oppdragInput, sisteOppdr150, mottaker);
         if (skalSendeOpphør) {
-            LocalDate datoStatusFom = FinnOpphørFomDato.finnOpphørFom(tidligereOpp150ListeForArbgvren, behandlingInfo, mottaker);
+            log.info("Skal sende opphør for ytelse for behandling: {}", oppdragInput.getBehandlingId());
+            LocalDate datoStatusFom = FinnOpphørFomDato.finnOpphørFom(tidligereOpp150ListeForArbgvren, oppdragInput, mottaker);
             nyOppdrag110 = kobleOppdrag110TilOppdragskontroll(oppdragskontroll, nyOppdrag110Builder);
-            oppdragskontrollOpphør.opprettOppdragslinje150ForStatusOPPH(behandlingInfo, sisteOppdr150, nyOppdrag110, datoStatusFom);
+            oppdragskontrollOpphør.opprettOppdragslinje150ForStatusOPPH(oppdragInput, sisteOppdr150, nyOppdrag110, datoStatusFom);
             nyOppdrag110Opt = Optional.of(nyOppdrag110);
         }
-        if (!opphFørEndringsoppdrFeriepg || VurderOpphørForFeriepenger.vurder(behandlingInfo, forrigeOppdrag110, Optional.of(mottaker))) {
+        if (!opphFørEndringsoppdrFeriepg || VurderOpphørForFeriepenger.vurder(oppdragInput, forrigeOppdrag110, mottaker)) {
+            log.info("Skal sende opphør for feriepenger for behandling: {} og mottaker: {}", oppdragInput.getBehandlingId(), mottaker.getIdMaskert());
             nyOppdrag110 = nyOppdrag110Opt
                 .orElseGet(() -> kobleOppdrag110TilOppdragskontroll(oppdragskontroll, nyOppdrag110Builder));
-            oppdragskontrollOpphør.opprettOppdr150LinjeForFeriepengerOPPH(behandlingInfo, nyOppdrag110,
+            oppdragskontrollOpphør.opprettOppdr150LinjeForFeriepengerOPPH(oppdragInput, nyOppdrag110,
                 forrigeOppdrag110, false, opphFørEndringsoppdrFeriepg);
         }
         List<Oppdragslinje150> opp150OpphList = TidligereOppdragTjeneste.getOppdragslinje150ForOpphør(nyOppdrag110);
-        oppdragskontrollOpphør.kobleAndreMeldingselementerTilOpp150Opphør(behandlingInfo, sisteOppdr150, opp150OpphList);
+        oppdragskontrollOpphør.kobleAndreMeldingselementerTilOpp150Opphør(oppdragInput, sisteOppdr150, opp150OpphList);
 
         return Optional.ofNullable(nyOppdrag110);
     }
