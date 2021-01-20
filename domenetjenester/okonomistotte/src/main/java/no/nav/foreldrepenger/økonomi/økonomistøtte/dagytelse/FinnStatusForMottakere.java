@@ -15,18 +15,18 @@ public class FinnStatusForMottakere {
     private FinnStatusForMottakere() {
     }
 
-    public static List<Oppdragsmottaker> finnStatusForMottakere(OppdragInput behandlingInfo, List<TilkjentYtelseAndel> andelerOriginal) {
+    public static List<Oppdragsmottaker> finnStatusForMottakere(OppdragInput oppdragInput, List<TilkjentYtelseAndel> andelerOriginal) {
         List<Oppdragsmottaker> oppdragsmottakerList = new ArrayList<>();
-        List<TilkjentYtelseAndel> andelerRevurdering = behandlingInfo.getTilkjentYtelseAndelerFomEndringsdato();
+        List<TilkjentYtelseAndel> andelerRevurdering = oppdragInput.getTilkjentYtelseAndelerFomEndringsdato();
 
-        boolean finnesOppdragForBrukerFraFør = TidligereOppdragTjeneste.finnesOppdrag110ForBruker(behandlingInfo);
-        OppdragsmottakerStatus statusBruker = finnStatusForMottakerBruker(behandlingInfo, andelerOriginal, andelerRevurdering, finnesOppdragForBrukerFraFør);
+        boolean finnesOppdragForBrukerFraFør = TidligereOppdragTjeneste.finnesOppdrag110ForBruker(oppdragInput);
+        OppdragsmottakerStatus statusBruker = finnStatusForMottakerBruker(oppdragInput, andelerOriginal, andelerRevurdering, finnesOppdragForBrukerFraFør);
 
-        Oppdragsmottaker mottakerBruker = new Oppdragsmottaker(behandlingInfo.getPersonIdent().getIdent(), true);
+        Oppdragsmottaker mottakerBruker = new Oppdragsmottaker(oppdragInput.getPersonIdent().getIdent(), true);
         mottakerBruker.setStatus(statusBruker);
         oppdragsmottakerList.add(mottakerBruker);
 
-        List<Oppdragsmottaker> arbeidsgiverList = FinnStatusForMottakere.fastsettMottakerStatusForArbeidsgiver(behandlingInfo, andelerOriginal, andelerRevurdering);
+        List<Oppdragsmottaker> arbeidsgiverList = FinnStatusForMottakere.fastsettMottakerStatusForArbeidsgiver(oppdragInput, andelerOriginal, andelerRevurdering);
         oppdragsmottakerList.addAll(arbeidsgiverList);
 
         return oppdragsmottakerList;
@@ -55,13 +55,13 @@ public class FinnStatusForMottakere {
             andelerRevurdering, orgnrListeFraTidligereOppdrag);
     }
 
-    public static Oppdragsmottaker fastsettMottakerStatusForBruker(OppdragInput behandlingInfo, List<TilkjentYtelseAndel> andelerOriginal,
+    public static Oppdragsmottaker fastsettMottakerStatusForBruker(OppdragInput oppdragInput, List<TilkjentYtelseAndel> andelerOriginal,
                                                                    List<TilkjentYtelseAndel> andelerFomEndringsdatoListe) {
 
-        Oppdragsmottaker mottakerBruker = new Oppdragsmottaker(behandlingInfo.getPersonIdent().getIdent(), true);
+        Oppdragsmottaker mottakerBruker = new Oppdragsmottaker(oppdragInput.getPersonIdent().getIdent(), true);
 
-        boolean finnesOppdragFraFør = TidligereOppdragTjeneste.finnesOppdrag110ForBruker(behandlingInfo);
-        OppdragsmottakerStatus brukerStatus = FinnStatusForMottakere.finnStatusForMottakerBruker(behandlingInfo, andelerOriginal, andelerFomEndringsdatoListe, finnesOppdragFraFør);
+        boolean finnesOppdragFraFør = TidligereOppdragTjeneste.finnesOppdrag110ForBruker(oppdragInput);
+        OppdragsmottakerStatus brukerStatus = FinnStatusForMottakere.finnStatusForMottakerBruker(oppdragInput, andelerOriginal, andelerFomEndringsdatoListe, finnesOppdragFraFør);
         mottakerBruker.setStatus(brukerStatus);
 
         return mottakerBruker;

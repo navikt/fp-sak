@@ -17,4 +17,5 @@ public class OppdragMedPositivKvitteringTestUtil {
         OppdragKvitteringTestUtil.lagPositiveKvitteringer(oppdragskontroll);
         return oppdragskontroll;
     }
+
 }

@@ -75,7 +75,7 @@ public class BehandlingTilOppdragMapperTjeneste {
             tilkjentYtelsePerioderFomEndringsdato = tilkjentYtelseMapper.mapPerioderFomEndringsdato(beregningsresultat);
         }
         BehandlingVedtakOppdrag behandlingVedtakFP = mapBehandlingVedtak.map(behandling);
-        ForrigeOppdragInput forrigeOppdragInput = lagTidligereBehandlingInfo(behandling, tilkjentYtelseMapper);
+        ForrigeOppdragInput forrigeOppdragInput = lagForrigeOppdragInput(behandling, tilkjentYtelseMapper);
 
         Optional<TilbakekrevingInntrekkEntitet> tilbakekrevingInntrekk = tilbakekrevingRepository.hentTilbakekrevingInntrekk(behandling.getId());
         boolean avslåttInntrekk = tilbakekrevingInntrekk.map(TilbakekrevingInntrekkEntitet::isAvslåttInntrekk).orElse(false);
@@ -86,9 +86,9 @@ public class BehandlingTilOppdragMapperTjeneste {
             .medFagsakYtelseType(behandling.getFagsakYtelseType())
             .medBehandlingVedtak(behandlingVedtakFP)
             .medPersonIdent(personIdent)
-            .medForenkletBeregningsresultat(tilkjentYtelse)
+            .medForenkletTilkjentYtelse(tilkjentYtelse)
             .medTilkjentYtelsePerioderFomEndringsdato(tilkjentYtelsePerioderFomEndringsdato)
-            .medTidligereBehandlingInfo(forrigeOppdragInput)
+            .medForrigeOppdragInput(forrigeOppdragInput)
             .medOpphørEtterStpEllerIkkeOpphør(opphørEtterStpEllerIkkeOpphør)
             .medAvslåttInntrekk(avslåttInntrekk)
             .build();
@@ -107,7 +107,7 @@ public class BehandlingTilOppdragMapperTjeneste {
         }
     }
 
-    private ForrigeOppdragInput lagTidligereBehandlingInfo(Behandling behandling, TilkjentYtelseMapper mapper) {
+    private ForrigeOppdragInput lagForrigeOppdragInput(Behandling behandling, TilkjentYtelseMapper mapper) {
         Optional<BeregningsresultatEntitet> forrigeBeregningsresultatFPOpt = getForrigeBeregningsresultatFP(behandling);
         TilkjentYtelse forrigeTilkjentYtelse = null;
         if (forrigeBeregningsresultatFPOpt.isPresent()) {

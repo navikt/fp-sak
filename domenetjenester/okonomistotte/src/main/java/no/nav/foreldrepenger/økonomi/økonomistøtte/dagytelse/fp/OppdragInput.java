@@ -149,7 +149,7 @@ public class OppdragInput {
             return this;
         }
 
-        public Builder medForenkletBeregningsresultat(TilkjentYtelse tilkjentYtelse) {
+        public Builder medForenkletTilkjentYtelse(TilkjentYtelse tilkjentYtelse) {
             kladd.tilkjentYtelse = tilkjentYtelse;
             return this;
         }
@@ -159,7 +159,7 @@ public class OppdragInput {
             return this;
         }
 
-        public Builder medTidligereBehandlingInfo(ForrigeOppdragInput forrigeOppdragInput) {
+        public Builder medForrigeOppdragInput(ForrigeOppdragInput forrigeOppdragInput) {
             kladd.forrigeOppdragInput = forrigeOppdragInput;
             return this;
         }

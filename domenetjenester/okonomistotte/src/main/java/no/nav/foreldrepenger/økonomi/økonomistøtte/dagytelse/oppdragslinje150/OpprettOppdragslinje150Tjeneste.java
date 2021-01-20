@@ -152,9 +152,8 @@ public class OpprettOppdragslinje150Tjeneste {
             .collect(Collectors.toList());
     }
 
-    public static List<TilkjentYtelseAndel> hentForrigeTilkjentYtelseAndeler(OppdragInput oppdragInput) {
-        return oppdragInput.getForrigeTilkjentYtelsePerioder()
-            .stream()
+    public static List<TilkjentYtelseAndel> hentForrigeTilkjentYtelseAndeler(List<TilkjentYtelsePeriode> tilkjentYtelsePerioder) {
+        return tilkjentYtelsePerioder.stream()
             .sorted(Comparator.comparing(TilkjentYtelsePeriode::getFom))
             .map(TilkjentYtelsePeriode::getTilkjentYtelseAndeler)
             .flatMap(List::stream)

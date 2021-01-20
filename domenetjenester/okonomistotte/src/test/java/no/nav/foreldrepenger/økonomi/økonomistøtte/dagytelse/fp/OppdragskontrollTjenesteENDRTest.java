@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -2207,6 +2208,237 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         assertThat(opp150RevurderingListe2).hasSize(4); // AG + Bruker + 2 * FP
         assertThat(opp150RevurderingListe2).noneSatisfy(linje -> assertThat(linje.gjelderOpphør()).isTrue());
     }
+
+    /**
+     * Prodscenario der ytelse omfordeles fra 1 ag til bruker, deretter omfordeles den andre ag til bruker. Oppretter ikke 110 for siste revurdering.
+     */
+    @Test
+    @Disabled
+    public void skalSendeOmfordeleFlereArbeidsgivereSerielt() {
+        // Arrange
+        LocalDate b10fom = LocalDate.of(I_ÅR-1, 11, 2);
+        LocalDate b10tom = LocalDate.of(I_ÅR-1, 11, 19);
+        LocalDate b20fom = LocalDate.of(I_ÅR-1, 11, 20);
+        LocalDate b20tom = LocalDate.of(I_ÅR-1, 11, 30);
+        LocalDate b21fom = LocalDate.of(I_ÅR-1, 12, 1);
+        LocalDate b21tom = LocalDate.of(I_ÅR-1, 12, 31);
+        LocalDate b30fom = LocalDate.of(I_ÅR, 1, 1);
+        LocalDate b30tom = LocalDate.of(I_ÅR, 3, 4);
+        LocalDate b40fom = LocalDate.of(I_ÅR, 3, 5);
+        LocalDate b40tom = LocalDate.of(I_ÅR, 5, 28);
+        LocalDate opptjeningsårFeriepenger = LocalDate.of(I_ÅR-1, 12, 31);
+
+        BeregningsresultatEntitet beregningsresultat = BeregningsresultatEntitet.builder()
+            .medRegelInput("clob1")
+            .medRegelSporing("clob2")
+            .build();
+
+        BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger(beregningsresultat);
+
+        BeregningsresultatPeriode brPeriode1 = buildBeregningsresultatPeriode(beregningsresultat, b10fom, b10tom.plusDays(1));
+        buildBeregningsresultatAndel(brPeriode1, true, 0, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brPeriode1, true, 0, BigDecimal.valueOf(100), virksomhet2);
+        var andelB1P1Org1 = buildBeregningsresultatAndel(brPeriode1, false, 789, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelB1P1Org1, 1207L, opptjeningsårFeriepenger);
+        var andelB1P1Org2 = buildBeregningsresultatAndel(brPeriode1, false, 154, BigDecimal.valueOf(100), virksomhet2);
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelB1P1Org2, 236L, opptjeningsårFeriepenger);
+
+        BeregningsresultatPeriode brPeriode2 = buildBeregningsresultatPeriode(beregningsresultat, b20fom.plusDays(3), b21tom.plusDays(2));
+        buildBeregningsresultatAndel(brPeriode2, true, 0, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brPeriode2, true, 0, BigDecimal.valueOf(100), virksomhet2);
+        var andelB1P2Org1 = buildBeregningsresultatAndel(brPeriode2, false, 789, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelB1P2Org1, 2334L, opptjeningsårFeriepenger);
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelB1P2Org1, 80L, opptjeningsårFeriepenger.plusYears(1));
+        var andelB1P2Org2 = buildBeregningsresultatAndel(brPeriode2, false, 154, BigDecimal.valueOf(100), virksomhet2);
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelB1P2Org2, 456L, opptjeningsårFeriepenger);
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelB1P2Org2, 16L, opptjeningsårFeriepenger.plusYears(1));
+
+        BeregningsresultatPeriode brPeriode3 = buildBeregningsresultatPeriode(beregningsresultat, b30fom.plusDays(2), b30tom.plusDays(1));
+        buildBeregningsresultatAndel(brPeriode3, true, 0, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brPeriode3, true, 0, BigDecimal.valueOf(100), virksomhet2);
+        var andelB1P3Org1 = buildBeregningsresultatAndel(brPeriode3, false, 789, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelB1P3Org1, 1207L, opptjeningsårFeriepenger.plusYears(1));
+        var andelB1P3Org2 = buildBeregningsresultatAndel(brPeriode3, false, 154, BigDecimal.valueOf(100), virksomhet2);
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelB1P3Org2, 236L, opptjeningsårFeriepenger.plusYears(1));
+
+        BeregningsresultatPeriode brPeriode4 = buildBeregningsresultatPeriode(beregningsresultat, b40fom.plusDays(3), b40tom);
+        buildBeregningsresultatAndel(brPeriode4, false, 789, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brPeriode4, false, 154, BigDecimal.valueOf(100), virksomhet2);
+        buildBeregningsresultatAndel(brPeriode4, true, 0, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brPeriode4, true, 0, BigDecimal.valueOf(100), virksomhet2);
+
+        beregningsresultatRepository.lagre(behandling, beregningsresultat);
+        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+
+        // To arbeidsgivere som mottakere ingen oppdrag til bruker
+        assertThat(førsteOppdrag.getOppdrag110Liste().size()).isEqualTo(2);
+        assertThat(førsteOppdrag.getOppdrag110Liste().stream().allMatch(oppdrag110 -> oppdrag110.getKodeFagomrade().equals(ØkonomiKodeFagområde.FPREF.name()))).isTrue();
+
+        // Arrange 1 - første revurdering2
+        Behandling revurdering1 = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
+
+        BeregningsresultatEntitet beregningsresultat1 = BeregningsresultatEntitet.builder()
+            .medRegelInput("clob1")
+            .medRegelSporing("clob2")
+            .medEndringsdato(b20fom.plusDays(1))
+            .build();
+
+        BeregningsresultatFeriepenger feriepenger1 = buildBeregningsresultatFeriepenger(beregningsresultat1);
+
+        BeregningsresultatPeriode brR0Periode1 = buildBeregningsresultatPeriode(beregningsresultat1, b10fom, b10tom);
+        buildBeregningsresultatAndel(brR0Periode1, true, 0, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brR0Periode1, true, 0, BigDecimal.valueOf(100), virksomhet2);
+        var andelB2P1Org1 = buildBeregningsresultatAndel(brR0Periode1, false, 789, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger1, andelB2P1Org1, 1127L, opptjeningsårFeriepenger);
+        var andelB2P1Org2 = buildBeregningsresultatAndel(brR0Periode1, false, 154, BigDecimal.valueOf(100), virksomhet2);
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger1, andelB2P1Org2, 220L, opptjeningsårFeriepenger);
+
+        BeregningsresultatPeriode brR0Periode2 = buildBeregningsresultatPeriode(beregningsresultat1, b20fom, b21tom);
+        buildBeregningsresultatAndel(brR0Periode2, true, 0, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brR0Periode2, true, 0, BigDecimal.valueOf(100), virksomhet2);
+        var andelB2P2Org1 = buildBeregningsresultatAndel(brR0Periode2, false, 789, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger1, andelB2P2Org1, 2414L, opptjeningsårFeriepenger);
+        var andelB2P2Org2 = buildBeregningsresultatAndel(brR0Periode2, false, 154, BigDecimal.valueOf(100), virksomhet2);
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger1, andelB2P2Org2, 471L, opptjeningsårFeriepenger);
+
+        BeregningsresultatPeriode brR0Periode3 = buildBeregningsresultatPeriode(beregningsresultat1, b30fom, b30tom);
+        buildBeregningsresultatAndel(brR0Periode3, true, 0, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brR0Periode3, true, 0, BigDecimal.valueOf(100), virksomhet2);
+        var andelB2P3Org1 = buildBeregningsresultatAndel(brR0Periode3, false, 789, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger1, andelB2P3Org1, 1288L, opptjeningsårFeriepenger.plusYears(1));
+        var andelB2P3Org2 = buildBeregningsresultatAndel(brR0Periode3, false, 154, BigDecimal.valueOf(100), virksomhet2);
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger1, andelB2P3Org2, 251L, opptjeningsårFeriepenger.plusYears(1));
+
+        BeregningsresultatPeriode brR0Periode4 = buildBeregningsresultatPeriode(beregningsresultat1, b40fom, b40tom);
+        buildBeregningsresultatAndel(brR0Periode4, true, 0, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brR0Periode4, true, 0, BigDecimal.valueOf(100), virksomhet2);
+        buildBeregningsresultatAndel(brR0Periode4, false, 789, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brR0Periode4, false, 154, BigDecimal.valueOf(100), virksomhet2);
+
+        beregningsresultatRepository.lagre(revurdering1, beregningsresultat1);
+
+        // Act
+        Oppdragskontroll andreOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering1, 472L);
+
+        // To arbeidsgivere som mottakere ingen oppdrag til bruker
+        assertThat(andreOppdrag.getOppdrag110Liste().size()).isEqualTo(2);
+        assertThat(andreOppdrag.getOppdrag110Liste().stream().allMatch(oppdrag110 -> oppdrag110.getKodeFagomrade().equals(ØkonomiKodeFagområde.FPREF.name()))).isTrue();
+
+
+        // Arrange 2 - andre revurdering med omfordeling av 1 ag til bruker
+        Behandling revurdering2 = opprettOgLagreRevurdering(revurdering1, VedtakResultatType.INNVILGET, false, true);
+
+        BeregningsresultatEntitet beregningsresultat2 = BeregningsresultatEntitet.builder()
+            .medRegelInput("clob1")
+            .medRegelSporing("clob2")
+            .medEndringsdato(b20fom)
+            .build();
+
+        BeregningsresultatFeriepenger feriepenger2 = buildBeregningsresultatFeriepenger(beregningsresultat2);
+
+        BeregningsresultatPeriode brRPeriode1 = buildBeregningsresultatPeriode(beregningsresultat2, b10fom, b10tom);
+        buildBeregningsresultatAndel(brRPeriode1, true, 0, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brRPeriode1, true, 0, BigDecimal.valueOf(100), virksomhet2);
+        var andelB3P1Org1 = buildBeregningsresultatAndel(brRPeriode1, false, 789, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger2, andelB3P1Org1, 1127L, opptjeningsårFeriepenger);
+        var andelB3P1Org2 = buildBeregningsresultatAndel(brRPeriode1, false, 154, BigDecimal.valueOf(100), virksomhet2);
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger2, andelB3P1Org2, 220L, opptjeningsårFeriepenger);
+
+        BeregningsresultatPeriode brRPeriode2a = buildBeregningsresultatPeriode(beregningsresultat2, b20fom, b20tom);
+        buildBeregningsresultatAndel(brRPeriode2a, true, 0, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brRPeriode2a, true, 0, BigDecimal.valueOf(100), virksomhet2);
+        var andelB3P2Org1 = buildBeregningsresultatAndel(brRPeriode2a, false, 789, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger2, andelB3P2Org1, 563L, opptjeningsårFeriepenger);
+        var andelB3P2Org2 = buildBeregningsresultatAndel(brRPeriode2a, false, 154, BigDecimal.valueOf(100), virksomhet2);
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger2, andelB3P2Org2, 110L, opptjeningsårFeriepenger);
+
+        BeregningsresultatPeriode brRPeriode2b = buildBeregningsresultatPeriode(beregningsresultat2, b21fom, b21tom);
+        var andelB3P3Org2 = buildBeregningsresultatAndel(brRPeriode2b, true, 154, BigDecimal.valueOf(100), virksomhet2);
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger2, andelB3P3Org2, 361L, opptjeningsårFeriepenger);
+        buildBeregningsresultatAndel(brRPeriode2b, true, 0, BigDecimal.valueOf(100), virksomhet);
+        var andelB3P3Org1 = buildBeregningsresultatAndel(brRPeriode2b, false, 789, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger2, andelB3P3Org1, 1851L, opptjeningsårFeriepenger);
+
+        BeregningsresultatPeriode brRPeriode3 = buildBeregningsresultatPeriode(beregningsresultat2, b30fom, b30tom);
+        var andelB3P4Org2 = buildBeregningsresultatAndel(brRPeriode3, true, 154, BigDecimal.valueOf(100), virksomhet2);
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger2, andelB3P4Org2, 251L, opptjeningsårFeriepenger.plusYears(1));
+        buildBeregningsresultatAndel(brRPeriode3, true, 0, BigDecimal.valueOf(100), virksomhet);
+        BeregningsresultatAndel andelB3P4Org1 = buildBeregningsresultatAndel(brRPeriode3, false, 789, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger2, andelB3P4Org1, 1288L, opptjeningsårFeriepenger.plusYears(1));
+
+        BeregningsresultatPeriode brRPeriode4 = buildBeregningsresultatPeriode(beregningsresultat2, b40fom, b40tom);
+        buildBeregningsresultatAndel(brRPeriode4, true, 154, BigDecimal.valueOf(100), virksomhet2);
+        buildBeregningsresultatAndel(brRPeriode4, true, 0, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brRPeriode4, false, 789, BigDecimal.valueOf(100), virksomhet);
+
+        beregningsresultatRepository.lagre(revurdering2, beregningsresultat2);
+
+        // Act
+        Oppdragskontroll tredjeOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering2, 473L);
+
+        // To arbeidsgivere som mottakere og bruker
+        assertThat(tredjeOppdrag.getOppdrag110Liste().size()).isEqualTo(3);
+
+        //Assert -- opphør av bruker
+        List<Oppdragslinje150> opp150RevurderingListe = tredjeOppdrag.getOppdrag110Liste().stream()
+            .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
+            .collect(Collectors.toList());
+
+        assertThat(opp150RevurderingListe).hasSize(14); // Bruker + FP
+        assertThat(opp150RevurderingListe).anySatisfy(linje -> assertThat(linje.gjelderOpphør()).isTrue());
+
+
+        // Arrange 3 - tredje revurdering med omfordeling av andre ag til bruker
+        Behandling revurdering3 = opprettOgLagreRevurdering(revurdering2, VedtakResultatType.INNVILGET, false, true);
+        BeregningsresultatEntitet beregningsresultat3 = BeregningsresultatEntitet.builder()
+            .medRegelInput("clob1")
+            .medRegelSporing("clob2")
+            .medEndringsdato(b21fom)
+            .build();
+
+        BeregningsresultatFeriepenger feriepenger3 = buildBeregningsresultatFeriepenger(beregningsresultat3);
+
+        BeregningsresultatPeriode brR2Periode1 = buildBeregningsresultatPeriode(beregningsresultat3, b10fom, b10tom);
+        buildBeregningsresultatAndel(brR2Periode1, true, 0, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brR2Periode1, true, 0, BigDecimal.valueOf(100), virksomhet2);
+        var andelB4P1Org1 = buildBeregningsresultatAndel(brR2Periode1, false, 789, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger3, andelB4P1Org1, 1127L, opptjeningsårFeriepenger);
+        var andelB4P1Org2 = buildBeregningsresultatAndel(brR2Periode1, false, 154, BigDecimal.valueOf(100), virksomhet2);
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger3, andelB4P1Org2, 220L, opptjeningsårFeriepenger);
+
+        BeregningsresultatPeriode brR2Periode2a = buildBeregningsresultatPeriode(beregningsresultat3, b20fom, b20tom);
+        buildBeregningsresultatAndel(brR2Periode2a, true, 0, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brR2Periode2a, true, 0, BigDecimal.valueOf(100), virksomhet2);
+        var andelB4P2Org1 = buildBeregningsresultatAndel(brR2Periode2a, false, 789, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger3, andelB4P2Org1, 563L, opptjeningsårFeriepenger);
+        var andelB4P2Org2 = buildBeregningsresultatAndel(brR2Periode2a, false, 154, BigDecimal.valueOf(100), virksomhet2);
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger3, andelB4P2Org2, 110L, opptjeningsårFeriepenger);
+
+        BeregningsresultatPeriode brR2Periode2b = buildBeregningsresultatPeriode(beregningsresultat3, b21fom, b21tom);
+        var andelB4P3Org1 = buildBeregningsresultatAndel(brR2Periode2b, true, 789, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger3, andelB4P3Org1, 1851L, opptjeningsårFeriepenger);
+        var andelB4P3Org2 = buildBeregningsresultatAndel(brR2Periode2b, true, 154, BigDecimal.valueOf(100), virksomhet2);
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger3, andelB4P3Org2, 361L, opptjeningsårFeriepenger);
+
+        BeregningsresultatPeriode brR2Periode3 = buildBeregningsresultatPeriode(beregningsresultat3, b30fom, b30tom);
+        var andelB4P4Org1 = buildBeregningsresultatAndel(brR2Periode3, true, 789, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger3, andelB4P4Org1, 1288L, opptjeningsårFeriepenger.plusYears(1));
+        var andelB4P4Org2 = buildBeregningsresultatAndel(brR2Periode3, true, 154, BigDecimal.valueOf(100), virksomhet2);
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger3, andelB4P4Org2, 251L, opptjeningsårFeriepenger.plusYears(1));
+
+        BeregningsresultatPeriode brR2Periode4 = buildBeregningsresultatPeriode(beregningsresultat3, b40fom, b40tom);
+        buildBeregningsresultatAndel(brR2Periode4, true, 789, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brR2Periode4, true, 154, BigDecimal.valueOf(100), virksomhet2);
+
+        beregningsresultatRepository.lagre(revurdering3, beregningsresultat3);
+
+        // Act 3
+        Oppdragskontroll fjerdeOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering3,474L);
+
+        // Assert 3 -- opphør AG og endring for bruker
+        assertThat(fjerdeOppdrag.getOppdrag110Liste().size()).isEqualTo(2);
+    }
+
 
     /**
      * Prodscenario der bruker suksessivt mister ytelse. Til man til slutt står uten og det skal sendes opphørsoppdrag

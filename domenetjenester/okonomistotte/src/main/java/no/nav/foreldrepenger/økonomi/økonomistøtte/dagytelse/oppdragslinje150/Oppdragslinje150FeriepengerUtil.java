@@ -64,7 +64,7 @@ public class Oppdragslinje150FeriepengerUtil {
 
         for (Map.Entry<Integer, List<Oppdragslinje150>> entry : opp150PrFeriepengeårMap.entrySet()) {
             entry.getValue().stream()
-                .max(Comparator.comparing(Oppdragslinje150::getDelytelseId))
+                .max(Comparator.comparing(Oppdragslinje150::getDelytelseId).thenComparing(Oppdragslinje150::getKodeStatusLinje, Comparator.nullsFirst(Comparator.naturalOrder())))
                 .ifPresent(sisteOpp150ForFeriepengerList::add);
         }
         return sisteOpp150ForFeriepengerList.stream()

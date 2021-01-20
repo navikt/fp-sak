@@ -36,28 +36,28 @@ public class OpprettOpphørIEndringsoppdrag {
         this.oppdragskontrollOpphør = oppdragskontrollOpphør;
     }
 
-    public void lagOppdragForMottakereSomSkalOpphøre(OppdragInput behandlingInfo, Oppdragskontroll oppdragskontroll, List<TilkjentYtelseAndel> forrigeTilkjentYtelseAndeler) {
-        List<Oppdragsmottaker> oppdragsmottakerList = FinnStatusForMottakere.finnStatusForMottakere(behandlingInfo, forrigeTilkjentYtelseAndeler);
+    public void lagOppdragForMottakereSomSkalOpphøre(OppdragInput oppdragInput, Oppdragskontroll oppdragskontroll, List<TilkjentYtelseAndel> forrigeTilkjentYtelseAndeler) {
+        List<Oppdragsmottaker> oppdragsmottakerList = FinnStatusForMottakere.finnStatusForMottakere(oppdragInput, forrigeTilkjentYtelseAndeler);
         List<Oppdragsmottaker> ikkeMottakerLengerList = oppdragsmottakerList.stream()
             .filter(mottaker -> mottaker.getStatus() != null)
             .filter(Oppdragsmottaker::erStatusOpphør)
             .collect(Collectors.toList());
         for (Oppdragsmottaker mottaker : ikkeMottakerLengerList) {
             if (mottaker.erBruker()) {
-                lagOpphørsoppdragForBruker(behandlingInfo, oppdragskontroll, mottaker);
+                lagOpphørsoppdragForBruker(oppdragInput, oppdragskontroll, mottaker);
             } else {
-                lagOpphørsoppdragForArbeidsgiver(behandlingInfo, oppdragskontroll, mottaker);
+                lagOpphørsoppdragForArbeidsgiver(oppdragInput, oppdragskontroll, mottaker);
             }
         }
     }
 
-    private void lagOpphørsoppdragForBruker(OppdragInput behandlingInfo, Oppdragskontroll oppdragskontroll, Oppdragsmottaker mottaker) {
+    private void lagOpphørsoppdragForBruker(OppdragInput oppdragInput, Oppdragskontroll oppdragskontroll, Oppdragsmottaker mottaker) {
 
-        boolean erDetFlereInntektskategoriBruker = OpprettOppdragslinje150Tjeneste.finnesFlereKlassekodeIForrigeOppdrag(behandlingInfo);
+        boolean erDetFlereInntektskategoriBruker = OpprettOppdragslinje150Tjeneste.finnesFlereKlassekodeIForrigeOppdrag(oppdragInput);
         if (erDetFlereInntektskategoriBruker) {
-            opprettOpphørsoppdragForBrukerMedFlereKlassekode(behandlingInfo, oppdragskontroll, mottaker, false);
+            opprettOpphørsoppdragForBrukerMedFlereKlassekode(oppdragInput, oppdragskontroll, mottaker, false);
         } else {
-            opprettOpphørIEndringsoppdragBruker(behandlingInfo, oppdragskontroll, mottaker, false);
+            opprettOpphørIEndringsoppdragBruker(oppdragInput, oppdragskontroll, mottaker, false);
         }
     }
 
@@ -112,11 +112,11 @@ public class OpprettOpphørIEndringsoppdrag {
         return nyOppdrag110;
     }
 
-    private void lagOpphørsoppdragForArbeidsgiver(OppdragInput behandlingInfo, Oppdragskontroll oppdragskontroll, Oppdragsmottaker mottaker) {
-        List<Oppdragslinje150> sisteLinjeKjedeForArbeidsgivereListe = TidligereOppdragTjeneste.finnSisteLinjeKjedeForAlleArbeidsgivere(behandlingInfo);
+    private void lagOpphørsoppdragForArbeidsgiver(OppdragInput oppdragInput, Oppdragskontroll oppdragskontroll, Oppdragsmottaker mottaker) {
+        List<Oppdragslinje150> sisteLinjeKjedeForArbeidsgivereListe = TidligereOppdragTjeneste.finnSisteLinjeKjedeForAlleArbeidsgivere(oppdragInput);
         List<Oppdragslinje150> sisteLinjeKjedeForDenneArbgvren = Oppdragslinje150Util.finnOppdragslinje150MedRefunderesId(mottaker, sisteLinjeKjedeForArbeidsgivereListe);
 
-        opprettOpphørIEndringsoppdragArbeidsgiver(behandlingInfo, oppdragskontroll, sisteLinjeKjedeForDenneArbgvren, mottaker, false);
+        opprettOpphørIEndringsoppdragArbeidsgiver(oppdragInput, oppdragskontroll, sisteLinjeKjedeForDenneArbgvren, mottaker, false);
     }
 
     public Optional<Oppdrag110> opprettOpphørIEndringsoppdragArbeidsgiver(OppdragInput behandlingInfo, Oppdragskontroll oppdragskontroll,
