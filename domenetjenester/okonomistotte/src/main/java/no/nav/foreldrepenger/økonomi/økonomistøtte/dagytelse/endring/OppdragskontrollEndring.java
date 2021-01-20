@@ -28,6 +28,7 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.oppdragslinje150
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.oppdragslinje150.OpprettOppdragsmeldingerRelatertTil150;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.opphør.OpprettOpphørIEndringsoppdrag;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.wrapper.TilkjentYtelseAndel;
+import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.wrapper.TilkjentYtelsePeriode;
 
 @ApplicationScoped
 public class OppdragskontrollEndring implements OppdragskontrollManager {
@@ -53,7 +54,11 @@ public class OppdragskontrollEndring implements OppdragskontrollManager {
             throw new IllegalStateException("Fant ikke forrige oppdrag");
         }
 
-        List<TilkjentYtelseAndel> andelerOriginal = finnAndelerIForrigeBehandling(nyOppdragskontroll, oppdragInput);
+        List<TilkjentYtelseAndel> andelerOriginal = OpprettOppdragslinje150Tjeneste.hentForrigeTilkjentYtelseAndeler(oppdragInput.getForrigeTilkjentYtelsePerioder());
+        if (!andelerOriginal.isEmpty()) {
+            opprettOpphørIEndringsoppdragFP.lagOppdragForMottakereSomSkalOpphøre(oppdragInput, nyOppdragskontroll, andelerOriginal);
+        }
+
         Map<Oppdragsmottaker, List<TilkjentYtelseAndel>> andelPrMottakerMap = OpprettMottakereMapEndringsoppdrag.finnMottakereMedDeresAndelForEndringsoppdrag(oppdragInput, andelerOriginal);
 
         if (andelPrMottakerMap.isEmpty()) {
@@ -157,12 +162,13 @@ public class OppdragskontrollEndring implements OppdragskontrollManager {
             .filter(opp150 -> opp150.getRefusjonsinfo156().getRefunderesId().equals(Oppdragslinje150Util.endreTilElleveSiffer(mottaker.getOrgnr())))
             .collect(Collectors.toList());
 
-        Oppdragslinje150 sisteOppdr150ForDenneArbeidsgiveren = Oppdragslinje150Util.getOpp150MedMaxDelytelseId(sisteLinjeKjedeForDenneArbeidsgiveren);
         Optional<Oppdrag110> nyOppdrag110Opt = opprettOpphørIEndringsoppdragFP.opprettOpphørIEndringsoppdragArbeidsgiver(oppdragInput, nyOppdragskontroll,
             sisteLinjeKjedeForDenneArbeidsgiveren, mottaker, true);
         if (ingenAndelSkalOpphøresEllerEndres(andelListe, nyOppdrag110Opt)) {
             return;
         }
+
+        Oppdragslinje150 sisteOppdr150ForDenneArbeidsgiveren = Oppdragslinje150Util.getOpp150MedMaxDelytelseId(sisteLinjeKjedeForDenneArbeidsgiveren);
         Oppdrag110 nyOppdrag110 = OpprettOppdrag110Tjeneste.fastsettOppdrag110(oppdragInput, nyOppdragskontroll, nyOppdrag110Opt, sisteOppdr150ForDenneArbeidsgiveren, mottaker);
         if (mottaker.erStatusUendret()) {
             return;
@@ -253,14 +259,6 @@ public class OppdragskontrollEndring implements OppdragskontrollManager {
             .map(Oppdrag110::getFagsystemId)
             .max(Comparator.comparing(Function.identity()))
             .orElseThrow(() -> new IllegalStateException("Utvikler feil: Forrige oppdrag mangler fagsystemId"));
-    }
-
-    private List<TilkjentYtelseAndel> finnAndelerIForrigeBehandling(Oppdragskontroll oppdragskontroll, OppdragInput oppdragInput) {
-        List<TilkjentYtelseAndel> forrigeTilkjentYtelseAndeler = OpprettOppdragslinje150Tjeneste.hentForrigeTilkjentYtelseAndeler(oppdragInput);
-        if (!forrigeTilkjentYtelseAndeler.isEmpty()) {
-            opprettOpphørIEndringsoppdragFP.lagOppdragForMottakereSomSkalOpphøre(oppdragInput, oppdragskontroll, forrigeTilkjentYtelseAndeler);
-        }
-        return forrigeTilkjentYtelseAndeler;
     }
 
     /**

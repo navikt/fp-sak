@@ -18,17 +18,17 @@ class OpprettMottakereMapEndringsoppdrag {
     private OpprettMottakereMapEndringsoppdrag() {
     }
 
-    static Map<Oppdragsmottaker, List<TilkjentYtelseAndel>> finnMottakereMedDeresAndelForEndringsoppdrag(OppdragInput behandlingInfo, List<TilkjentYtelseAndel> andelerOriginal) {
+    static Map<Oppdragsmottaker, List<TilkjentYtelseAndel>> finnMottakereMedDeresAndelForEndringsoppdrag(OppdragInput oppdragInput, List<TilkjentYtelseAndel> andelerOriginal) {
 
-        List<TilkjentYtelseAndel> andelerFomEndringsdatoListe = behandlingInfo.getTilkjentYtelseAndelerFomEndringsdato();
+        List<TilkjentYtelseAndel> andelerFomEndringsdatoListe = oppdragInput.getTilkjentYtelseAndelerFomEndringsdato();
         List<TilkjentYtelseAndel> brukersAndelerListe = FinnStatusForMottakere.getAndelerForMottakeren(andelerFomEndringsdatoListe, true);
         List<TilkjentYtelseAndel> arbeidsgivereAndelerListe = FinnStatusForMottakere.getAndelerForMottakeren(andelerFomEndringsdatoListe, false);
 
-        List<TilkjentYtelsePeriode> tilkjentYtelsePerioder = behandlingInfo.getTilkjentYtelsePerioderFomEndringsdato();
+        List<TilkjentYtelsePeriode> tilkjentYtelsePerioder = oppdragInput.getTilkjentYtelsePerioderFomEndringsdato();
         List<TilkjentYtelseAndel> andelerForBruker = SlåAndelerMedSammePeriodeOgKlassekodeSammen.slåAndelerMedSammePeriodeOgKlassekodeSammen(
             tilkjentYtelsePerioder, brukersAndelerListe, true);
-        Oppdragsmottaker mottakerBruker = FinnStatusForMottakere.fastsettMottakerStatusForBruker(behandlingInfo, andelerOriginal, andelerFomEndringsdatoListe);
-        List<Oppdragsmottaker> mottakerArbeidsgiverList = FinnStatusForMottakere.fastsettMottakerStatusForArbeidsgiver(behandlingInfo, andelerOriginal, arbeidsgivereAndelerListe);
+        Oppdragsmottaker mottakerBruker = FinnStatusForMottakere.fastsettMottakerStatusForBruker(oppdragInput, andelerOriginal, andelerFomEndringsdatoListe);
+        List<Oppdragsmottaker> mottakerArbeidsgiverList = FinnStatusForMottakere.fastsettMottakerStatusForArbeidsgiver(oppdragInput, andelerOriginal, arbeidsgivereAndelerListe);
 
         return opprettMottakereMap(andelerForBruker, arbeidsgivereAndelerListe, tilkjentYtelsePerioder, mottakerBruker, mottakerArbeidsgiverList);
     }
