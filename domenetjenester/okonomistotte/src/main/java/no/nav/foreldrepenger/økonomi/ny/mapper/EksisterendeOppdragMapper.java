@@ -192,7 +192,7 @@ public class EksisterendeOppdragMapper {
 
     private static List<Oppdragslinje150> sortert(List<Oppdragslinje150> oppdragslinje150Liste) {
         return oppdragslinje150Liste.stream()
-            .sorted(Comparator.comparing(Oppdragslinje150::getDelytelseId))
+            .sorted(Comparator.comparing(Oppdragslinje150::getDelytelseId).thenComparing(Oppdragslinje150::getKodeStatusLinje, Comparator.nullsFirst(Comparator.naturalOrder())))
             .collect(Collectors.toList());
     }
 

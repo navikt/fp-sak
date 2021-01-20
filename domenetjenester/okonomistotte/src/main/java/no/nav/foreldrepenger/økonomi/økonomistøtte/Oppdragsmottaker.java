@@ -73,6 +73,10 @@ public class Oppdragsmottaker {
         return OppdragsmottakerStatus.OPPH.equals(this.status);
     }
 
+    public String getIdMaskert() {
+        return "xxxxxx" + getId().substring(6);
+    }
+
     @Override
     public String toString() {
         return "Oppdragsmottaker{" +

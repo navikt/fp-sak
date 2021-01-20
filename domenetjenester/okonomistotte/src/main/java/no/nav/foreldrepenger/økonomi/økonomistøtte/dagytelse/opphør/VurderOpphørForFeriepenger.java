@@ -25,17 +25,17 @@ class VurderOpphørForFeriepenger {
     private VurderOpphørForFeriepenger() {
     }
 
-    static boolean vurder(OppdragInput oppdragInput, Oppdrag110 forrigeOppdrag110, Optional<Oppdragsmottaker> mottakerOpt) {
+    static boolean vurder(OppdragInput oppdragInput, Oppdrag110 forrigeOppdrag110, Oppdragsmottaker mottaker) {
         Optional<TilkjenteFeriepenger> oppdragFeriepengerOpt = oppdragInput.getTilkjentYtelse()
             .flatMap(TilkjentYtelse::getTilkjenteFeriepenger);
-        boolean erBrukerMottaker = !mottakerOpt.isPresent();
+        boolean erBrukerMottaker = (mottaker == null);
         List<LocalDate> gjeldendeFeriepengerÅrFraFør = finnGjeldendeFeriepengerÅrFraFør(oppdragInput, forrigeOppdrag110);
 
         if (oppdragFeriepengerOpt.isPresent()) {
             TilkjenteFeriepenger tilkjenteFeriepenger = oppdragFeriepengerOpt.get();
             for (LocalDate feriepengeår : gjeldendeFeriepengerÅrFraFør) {
                 int opptjeningsår = feriepengeår.getYear() - 1;
-                boolean finnesFeriepengeårIRevurdering = sjekkOmDetFinnesFeriepengeårITilkjentYtelse(mottakerOpt, tilkjenteFeriepenger, opptjeningsår, erBrukerMottaker);
+                boolean finnesFeriepengeårIRevurdering = sjekkOmDetFinnesFeriepengeårITilkjentYtelse(mottaker, tilkjenteFeriepenger, opptjeningsår, erBrukerMottaker);
                 if (finnesFeriepengeårIRevurdering) {
                     continue;
                 }
@@ -46,18 +46,20 @@ class VurderOpphørForFeriepenger {
         return !gjeldendeFeriepengerÅrFraFør.isEmpty();
     }
 
-    private static boolean sjekkOmDetFinnesFeriepengeårITilkjentYtelse(Optional<Oppdragsmottaker> mottakerOpt, TilkjenteFeriepenger tilkjenteFeriepenger,
+    private static boolean sjekkOmDetFinnesFeriepengeårITilkjentYtelse(Oppdragsmottaker mottaker, TilkjenteFeriepenger tilkjenteFeriepenger,
                                                                        int opptjeningsår, boolean erBrukerMottaker) {
         if (erBrukerMottaker) {
             return tilkjenteFeriepenger.getTilkjenteFeriepengerPrÅrList().stream()
                 .filter(TilkjenteFeriepengerPrÅr::skalTilBrukerEllerPrivatperson)
                 .anyMatch(feriepengerPrÅr -> feriepengerPrÅr.getOpptjeningÅr().getYear() == opptjeningsår);
         } else {
-            Oppdragsmottaker mottakerArbeidsgiver = mottakerOpt
-                .orElseThrow(() -> new IllegalStateException("Utvikler feil: Fant ikke arbeidsgiver som mottaker i feriepenger vurdering"));
+            if (null == mottaker) {
+                throw new IllegalStateException("Utvikler feil: Fant ikke arbeidsgiver som mottaker i feriepenger vurdering");
+            }
+
             return tilkjenteFeriepenger.getTilkjenteFeriepengerPrÅrList().stream()
                 .filter(feriepengerPrÅr -> !feriepengerPrÅr.skalTilBrukerEllerPrivatperson()
-                    && feriepengerPrÅr.getArbeidsforholdOrgnr().equals(mottakerArbeidsgiver.getOrgnr()))
+                    && feriepengerPrÅr.getArbeidsforholdOrgnr().equals(mottaker.getOrgnr()))
                 .anyMatch(oppdragFeriepengerPrÅr -> oppdragFeriepengerPrÅr.getOpptjeningÅr().getYear() == opptjeningsår);
         }
     }
@@ -69,8 +71,8 @@ class VurderOpphørForFeriepenger {
 
         Map<LocalDate, List<Oppdragslinje150>> opp150PerFom = oppdr150FeriepengerListe.stream()
             .sorted(Comparator.comparing(Oppdragslinje150::getDelytelseId)
-                .thenComparing(Oppdragslinje150::getKodeStatusLinje, Comparator.nullsLast(Comparator.naturalOrder()))
-                .reversed())
+                .thenComparing(Oppdragslinje150::getKodeStatusLinje, Comparator.nullsFirst(Comparator.naturalOrder())).reversed()
+            )
             .collect(Collectors.groupingBy(Oppdragslinje150::getDatoVedtakFom, TreeMap::new, Collectors.toList()));
 
         List<LocalDate> gjeldendeOppdragslinjer = new ArrayList<>();

@@ -48,7 +48,7 @@ public class Oppdragslinje150FeriepengerUtil {
                                                                                            int feriepengeår) {
         NavigableMap<Long, List<Oppdragslinje150>> opp150PrDelytelseIdMap = tidligereOpp150FeriepengerListe.stream()
             .filter(oppdragslinje150 -> oppdragslinje150.getDatoVedtakFom().getYear() == feriepengeår)
-            .sorted(Comparator.comparing(Oppdragslinje150::getDelytelseId))
+            .sorted(Comparator.comparing(Oppdragslinje150::getDelytelseId).thenComparing(Oppdragslinje150::getKodeStatusLinje, Comparator.nullsFirst(Comparator.naturalOrder())))
             .collect(Collectors.groupingBy(Oppdragslinje150::getDelytelseId, TreeMap::new, Collectors.toList()));
 
         return opp150PrDelytelseIdMap.isEmpty() ? Collections.emptyList() : opp150PrDelytelseIdMap.lastEntry().getValue();

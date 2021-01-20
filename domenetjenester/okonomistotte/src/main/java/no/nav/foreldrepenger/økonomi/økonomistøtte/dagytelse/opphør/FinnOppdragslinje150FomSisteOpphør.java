@@ -18,7 +18,7 @@ public class FinnOppdragslinje150FomSisteOpphør {
         List<Oppdragslinje150> fomSisteOpphørListe = finnOppdragslinje150FomSisteOpphør(sisteDelytelseIdForOpphør, tidligereOpp150MedSammeKlassekodeListe);
 
         return fomSisteOpphørListe.stream()
-            .sorted(Comparator.comparing(Oppdragslinje150::getDelytelseId))
+            .sorted(Comparator.comparing(Oppdragslinje150::getDelytelseId).thenComparing(Oppdragslinje150::getKodeStatusLinje, Comparator.nullsFirst(Comparator.naturalOrder())))
             .collect(Collectors.toList());
     }
 

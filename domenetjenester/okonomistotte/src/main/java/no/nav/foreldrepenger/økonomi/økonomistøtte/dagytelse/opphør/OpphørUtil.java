@@ -54,7 +54,7 @@ public class OpphørUtil {
 
     private static List<Oppdragslinje150> sorterEtterDelytelseId(Collection<Oppdragslinje150> input) {
         return input.stream()
-            .sorted(Comparator.comparing(Oppdragslinje150::getDelytelseId))
+            .sorted(Comparator.comparing(Oppdragslinje150::getDelytelseId).thenComparing(Oppdragslinje150::getKodeStatusLinje, Comparator.nullsFirst(Comparator.naturalOrder())))
             .collect(Collectors.toList());
     }
 

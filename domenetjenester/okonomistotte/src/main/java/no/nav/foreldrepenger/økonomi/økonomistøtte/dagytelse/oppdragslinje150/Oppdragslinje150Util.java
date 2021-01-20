@@ -24,7 +24,7 @@ public class Oppdragslinje150Util {
 
     public static Oppdragslinje150 getOpp150MedMaxDelytelseId(List<Oppdragslinje150> oppdragslinjer) {
         return oppdragslinjer.stream()
-            .max(Comparator.comparing(Oppdragslinje150::getDelytelseId))
+            .max(Comparator.comparing(Oppdragslinje150::getDelytelseId).thenComparing(Oppdragslinje150::getKodeStatusLinje, Comparator.nullsFirst(Comparator.naturalOrder())))
             .orElseThrow(() -> new IllegalStateException("Utvikler feil: Mangler delytelseId"));
     }
 

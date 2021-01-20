@@ -6,14 +6,21 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.opphør.OpprettOpphørIEndringsoppdrag;
 
 @ApplicationScoped
 public class OppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste {
+
+    private static final Logger log = LoggerFactory.getLogger(OppdragskontrollTjenesteImpl.class);
 
     private ØkonomioppdragRepository økonomioppdragRepository;
     private BehandlingRepository behandlingRepository;
@@ -47,6 +54,12 @@ public class OppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste {
         Optional<OppdragskontrollManager> manager = factory.getManager(behandling, tidligereOppdragFinnes);
         if (manager.isPresent()) {
             Oppdragskontroll oppdrag = manager.get().opprettØkonomiOppdrag(behandling, oppdragskontroll);
+
+            if (behandling.getFagsak().getSaksnummer().equals(new Saksnummer("147260073"))){
+                log.warn("Antall oppdrag uten linjer: {} - de skal fjernes.", oppdragskontroll.getOppdrag110Liste().stream().filter(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().isEmpty()).count());
+                oppdragskontroll.getOppdrag110Liste().removeIf(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().isEmpty());
+            }
+
             OppdragskontrollPostConditionCheck.valider(oppdrag);
             return Optional.of(oppdrag);
         } else {
