@@ -131,6 +131,7 @@ public class PersonopplysningRepository {
         utførUpdate(entityManager.createNativeQuery("UPDATE PO_ADRESSE SET AKTOER_ID = :gjeldende WHERE AKTOER_ID = :gammel"), gammel, gjeldende);  //$NON-NLS-1$
         utførUpdate(entityManager.createNativeQuery("UPDATE PO_PERSONOPPLYSNING SET AKTOER_ID = :gjeldende WHERE AKTOER_ID = :gammel"), gammel, gjeldende);  //$NON-NLS-1$
         utførUpdate(entityManager.createNativeQuery("UPDATE PO_PERSONSTATUS SET AKTOER_ID = :gjeldende WHERE AKTOER_ID = :gammel"), gammel, gjeldende);  //$NON-NLS-1$
+        utførUpdate(entityManager.createNativeQuery("UPDATE PO_OPPHOLD SET AKTOER_ID = :gjeldende WHERE AKTOER_ID = :gammel"), gammel, gjeldende);  //$NON-NLS-1$
         utførUpdate(entityManager.createNativeQuery("UPDATE PO_STATSBORGERSKAP SET AKTOER_ID = :gjeldende WHERE AKTOER_ID = :gammel"), gammel, gjeldende);  //$NON-NLS-1$
         utførUpdate(entityManager.createNativeQuery("UPDATE PO_RELASJON SET FRA_AKTOER_ID = :gjeldende WHERE FRA_AKTOER_ID = :gammel"), gammel, gjeldende);  //$NON-NLS-1$
         utførUpdate(entityManager.createNativeQuery("UPDATE PO_RELASJON SET TIL_AKTOER_ID = :gjeldende WHERE TIL_AKTOER_ID = :gammel"), gammel, gjeldende);  //$NON-NLS-1$
@@ -183,6 +184,9 @@ public class PersonopplysningRepository {
             entityManager.persist(entitet);
         }
         for (PersonstatusEntitet entitet : registerVersjon.getPersonstatus()) {
+            entityManager.persist(entitet);
+        }
+        for (OppholdstillatelseEntitet entitet : registerVersjon.getOppholdstillatelser()) {
             entityManager.persist(entitet);
         }
         for (StatsborgerskapEntitet entitet : registerVersjon.getStatsborgerskap()) {
