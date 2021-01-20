@@ -9,6 +9,7 @@
 	<sequence-generator name="SEQ_PO_INFORMASJON" allocation-size="50" sequence-name="SEQ_PO_INFORMASJON" />
 	<sequence-generator name="SEQ_PO_PERSONOPPLYSNING" allocation-size="50" sequence-name="SEQ_PO_PERSONOPPLYSNING" />
 	<sequence-generator name="SEQ_PO_PERSONSTATUS" allocation-size="50" sequence-name="SEQ_PO_PERSONSTATUS" />
+	<sequence-generator name="SEQ_PO_OPPHOLD" allocation-size="50" sequence-name="SEQ_PO_OPPHOLD" />
 	<sequence-generator name="SEQ_PO_STATSBORGERSKAP" allocation-size="50" sequence-name="SEQ_PO_STATSBORGERSKAP" />
 	<sequence-generator name="SEQ_PO_RELASJON" allocation-size="50" sequence-name="SEQ_PO_RELASJON" />
 	<sequence-generator name="SEQ_PO_ADRESSE" allocation-size="50" sequence-name="SEQ_PO_ADRESSE" />
@@ -24,6 +25,7 @@
 	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonAdresseEntitet" />
 	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet" />
 	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonstatusEntitet" />
+	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppholdstillatelseEntitet" />
 	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonRelasjonEntitet" />
 	<entity class="no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.StatsborgerskapEntitet" />
 

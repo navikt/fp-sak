@@ -43,6 +43,10 @@ public class PersonAdresseEntitet extends BaseEntitet implements HarAktørId, In
     private AdresseType adresseType;
 
     @ChangeTracked
+    @Column(name = "matrikkelid")
+    private String matrikkelId;
+
+    @ChangeTracked
     @Column(name = "adresselinje1")
     private String adresselinje1;
 
@@ -78,6 +82,7 @@ public class PersonAdresseEntitet extends BaseEntitet implements HarAktørId, In
     }
 
     PersonAdresseEntitet(PersonAdresseEntitet adresse) {
+        this.matrikkelId = adresse.getMatrikkelId();
         this.adresselinje1 = adresse.getAdresselinje1();
         this.adresselinje2 = adresse.getAdresselinje2();
         this.adresselinje3 = adresse.getAdresselinje3();
@@ -106,6 +111,14 @@ public class PersonAdresseEntitet extends BaseEntitet implements HarAktørId, In
 
     void setAdresseType(AdresseType adresseType) {
         this.adresseType = adresseType;
+    }
+
+    public String getMatrikkelId() {
+        return matrikkelId;
+    }
+
+    public void setMatrikkelId(String matrikkelId) {
+        this.matrikkelId = matrikkelId;
     }
 
     public String getAdresselinje1() {
@@ -203,19 +216,16 @@ public class PersonAdresseEntitet extends BaseEntitet implements HarAktørId, In
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("PersonAdresseEntitet{");
-        sb.append("id=").append(id);
-        sb.append(", gyldighetsperiode=").append(periode);
-        sb.append(", adresseType=").append(adresseType);
-        sb.append(", adresselinje1='").append(adresselinje1).append('\'');
-        sb.append(", adresselinje2='").append(adresselinje2).append('\'');
-        sb.append(", adresselinje3='").append(adresselinje3).append('\'');
-        sb.append(", adresselinje4='").append(adresselinje4).append('\'');
-        sb.append(", postnummer='").append(postnummer).append('\'');
-        sb.append(", poststed='").append(poststed).append('\'');
-        sb.append(", land='").append(land).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "PersonAdresseEntitet{" +
+            "periode=" + periode +
+            ", adresseType=" + adresseType +
+            ", matrikkelId='" + matrikkelId + '\'' +
+            ", adresselinje1='" + adresselinje1 + '\'' +
+            ", adresselinje2='" + adresselinje2 + '\'' +
+            ", postnummer='" + postnummer + '\'' +
+            ", poststed='" + poststed + '\'' +
+            ", land='" + land + '\'' +
+            '}';
     }
 
 }

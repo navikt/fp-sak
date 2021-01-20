@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.domene.person;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.xml.ws.soap.SOAPFaultException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Personhistorikkin
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.domene.person.dkif.DkifSpråkKlient;
+import no.nav.foreldrepenger.domene.person.pdl.AktørTjeneste;
 import no.nav.foreldrepenger.domene.person.pdl.FødselTjeneste;
 import no.nav.foreldrepenger.domene.person.pdl.PersonBasisTjeneste;
 import no.nav.foreldrepenger.domene.person.pdl.PersoninfoTjeneste;
@@ -39,6 +40,7 @@ public class PersoninfoAdapter {
 
     private static final Logger LOG = LoggerFactory.getLogger(PersoninfoAdapter.class);
 
+    private AktørTjeneste aktørConsumer;
     private TpsAdapter tpsAdapter;
     private FødselTjeneste fødselTjeneste;
     private TilknytningTjeneste tilknytningTjeneste;
@@ -50,19 +52,15 @@ public class PersoninfoAdapter {
         // for CDI proxy
     }
 
-    // Midlertidig under refaktorering
-    public PersoninfoAdapter(TpsAdapter tpsAdapter) {
-        this.tpsAdapter = tpsAdapter;
-    }
-
     @Inject
-    public PersoninfoAdapter(TpsAdapter tpsAdapter,
+    public PersoninfoAdapter(AktørTjeneste aktørConsumer,
                              FødselTjeneste fødselTjeneste,
                              TilknytningTjeneste tilknytningTjeneste,
                              PersonBasisTjeneste basisTjeneste,
                              PersoninfoTjeneste personinfoTjeneste,
-                             DkifSpråkKlient dkifSpråkKlient) {
-        this.tpsAdapter = tpsAdapter;
+                             DkifSpråkKlient dkifSpråkKlient,
+                             TpsAdapter tpsAdapter) {
+        this.aktørConsumer = aktørConsumer;
         this.fødselTjeneste = fødselTjeneste;
         this.tilknytningTjeneste = tilknytningTjeneste;
         this.basisTjeneste = basisTjeneste;
@@ -70,54 +68,29 @@ public class PersoninfoAdapter {
         this.dkifSpråkKlient = dkifSpråkKlient;
     }
 
-    public Personinfo innhentSaksopplysningerForSøker(AktørId aktørId) {
-        return hentKjerneinformasjon(aktørId).orElse(null);
+    public Optional<Personinfo> innhentPersonopplysningerFor(AktørId aktørId) {
+        return aktørConsumer.hentPersonIdentForAktørId(aktørId).filter(i -> !i.erFdatNummer()).map(i -> hentKjerneinformasjon(aktørId, i));
     }
 
-    public Optional<Personinfo> innhentSaksopplysningerForEktefelle(AktørId aktørId) {
-        return hentKjerneinformasjon(aktørId);
-    }
-
-    public Personhistorikkinfo innhentPersonopplysningerHistorikk(AktørId aktørId, Interval interval) {
-        var historikk = tpsAdapter.hentPersonhistorikk(aktørId, interval);
-        personinfoTjeneste.hentPersoninfoHistorikk(aktørId, interval, historikk);
-        return historikk;
-    }
-
-    public Optional<Personinfo> innhentSaksopplysningerFor(PersonIdent personIdent) {
+    public Optional<Personinfo> innhentPersonopplysningerFor(PersonIdent personIdent) {
         if (personIdent.erFdatNummer()) {
             return Optional.empty();
         }
-        return tpsAdapter.hentAktørIdForPersonIdent(personIdent).flatMap(a -> hentKjerneinformasjonForBarn(a, personIdent));
+        return aktørConsumer.hentAktørIdForPersonIdent(personIdent).map(a -> hentKjerneinformasjon(a, personIdent));
+    }
+
+    private Personinfo hentKjerneinformasjon(AktørId aktørId, PersonIdent personIdent) {
+        return personinfoTjeneste.hentPersoninfo(aktørId, personIdent);
+    }
+
+    public Personhistorikkinfo innhentPersonopplysningerHistorikk(AktørId aktørId, Interval interval) {
+        return personinfoTjeneste.hentPersoninfoHistorikk(aktørId, interval);
     }
 
     public List<AktørId> finnAktørIdForForeldreTil(PersonIdent personIdent) {
         return fødselTjeneste.hentForeldreTil(personIdent).stream()
-            .flatMap(p -> tpsAdapter.hentAktørIdForPersonIdent(p).stream())
+            .flatMap(p -> aktørConsumer.hentAktørIdForPersonIdent(p).stream())
             .collect(Collectors.toList());
-    }
-
-    private Optional<Personinfo> hentKjerneinformasjonForBarn(AktørId aktørId, PersonIdent personIdent) {
-        try {
-            return Optional.of(hentKjerneinformasjon(aktørId, personIdent));
-            // TODO Lag en skikkelig fiks på dette
-            //Her sorterer vi ut dødfødte barn
-        } catch (SOAPFaultException e) {
-            if (e.getCause().getMessage().contains("status: S610006F")) {
-                return Optional.empty();
-            }
-            throw e;
-        }
-    }
-
-    private Optional<Personinfo> hentKjerneinformasjon(AktørId aktørId) {
-        return tpsAdapter.hentIdentForAktørId(aktørId).map(i -> hentKjerneinformasjon(aktørId, i));
-    }
-
-    private Personinfo hentKjerneinformasjon(AktørId aktørId, PersonIdent personIdent) {
-        var pi = tpsAdapter.hentKjerneinformasjon(personIdent, aktørId);
-        personinfoTjeneste.hentPersoninfo(aktørId, personIdent, pi);
-        return pi;
     }
 
     public List<FødtBarnInfo> innhentAlleFødteForBehandlingIntervaller(AktørId aktørId, List<LocalDateInterval> intervaller) {
@@ -125,7 +98,7 @@ public class PersoninfoAdapter {
     }
 
     public Optional<AktørId> hentAktørForFnr(PersonIdent fnr) {
-        return tpsAdapter.hentAktørIdForPersonIdent(fnr);
+        return aktørConsumer.hentAktørIdForPersonIdent(fnr);
     }
 
     public PersonIdent hentFnrForAktør(AktørId aktørId) {
@@ -133,7 +106,7 @@ public class PersoninfoAdapter {
     }
 
     public Optional<PersonIdent> hentFnr(AktørId aktørId) {
-        return tpsAdapter.hentIdentForAktørId(aktørId);
+        return aktørConsumer.hentPersonIdentForAktørId(aktørId);
     }
 
     public Optional<PersoninfoBasis> hentBrukerBasisForAktør(AktørId aktørId) {
@@ -148,6 +121,10 @@ public class PersoninfoAdapter {
 
     public Optional<PersoninfoKjønn> hentBrukerKjønnForAktør(AktørId aktørId) {
         return basisTjeneste.hentKjønnPersoninfo(aktørId);
+    }
+
+    public Optional<LocalDate> hentFødselsdato(PersonIdent ident) {
+        return basisTjeneste.hentFødselsdato(ident);
     }
 
     public GeografiskTilknytning hentGeografiskTilknytning(AktørId aktørId) {

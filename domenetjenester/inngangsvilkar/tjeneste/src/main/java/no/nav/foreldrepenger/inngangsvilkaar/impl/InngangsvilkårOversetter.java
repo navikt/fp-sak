@@ -40,7 +40,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonstatusEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.StatsborgerskapEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
@@ -323,16 +322,14 @@ public class InngangsvilkårOversetter {
 
     private boolean brukerBorgerAvEOS(Optional<VurdertMedlemskap> medlemskap, PersonopplysningerAggregat aggregat) {
         // Tar det første for det er det som er prioritert høyest rangert på region
-        final Optional<StatsborgerskapEntitet> statsborgerskap = aggregat.getStatsborgerskapFor(aggregat.getSøker().getAktørId()).stream().findFirst();
+        boolean eosBorger = aggregat.harStatsborgerskapRegion(aggregat.getSøker().getAktørId(), Region.EOS);
         return medlemskap
             .map(VurdertMedlemskap::getErEøsBorger)
-            .orElse(Region.EOS.equals(statsborgerskap.map(StatsborgerskapEntitet::getRegion).orElse(null)));
+            .orElse(eosBorger);
     }
 
     private boolean brukerNorskNordisk(PersonopplysningerAggregat aggregat) {
-        // Tar det første for det er det som er prioritert høyest rangert på region
-        final Optional<StatsborgerskapEntitet> statsborgerskap = aggregat.getStatsborgerskapFor(aggregat.getSøker().getAktørId()).stream().findFirst();
-        return Region.NORDEN.equals(statsborgerskap.map(StatsborgerskapEntitet::getRegion).orElse(null));
+        return aggregat.harStatsborgerskapRegion(aggregat.getSøker().getAktørId(), Region.NORDEN);
     }
 
     private PersonStatusType tilPersonStatusType(PersonopplysningerAggregat personopplysninger) {

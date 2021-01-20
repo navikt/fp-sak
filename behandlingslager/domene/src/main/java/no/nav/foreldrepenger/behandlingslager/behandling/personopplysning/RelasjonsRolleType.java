@@ -2,12 +2,9 @@ package no.nav.foreldrepenger.behandlingslager.behandling.personopplysning;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
@@ -43,8 +40,7 @@ public enum RelasjonsRolleType implements Kodeverdi {
 
     public static final String KODEVERK = "RELASJONSROLLE_TYPE";
 
-    private static final Set<RelasjonsRolleType> FORELDRE_ROLLER = Stream.of(RelasjonsRolleType.MORA, RelasjonsRolleType.FARA, RelasjonsRolleType.MEDMOR)
-        .collect(Collectors.toCollection(LinkedHashSet::new));
+    private static final Set<RelasjonsRolleType> FORELDRE_ROLLER = Set.of(RelasjonsRolleType.MORA, RelasjonsRolleType.FARA, RelasjonsRolleType.MEDMOR);
 
     static {
         for (var v : values()) {
@@ -106,7 +102,7 @@ public enum RelasjonsRolleType implements Kodeverdi {
     }
 
     public static boolean erMedmor(RelasjonsRolleType relasjon) {
-        return MEDMOR.getKode().equals(relasjon.getKode());
+        return MEDMOR.equals(relasjon);
     }
 
     public static boolean erFarEllerMedmor(RelasjonsRolleType relasjon) {

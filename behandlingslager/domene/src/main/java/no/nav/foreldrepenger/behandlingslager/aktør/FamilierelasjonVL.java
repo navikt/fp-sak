@@ -8,13 +8,10 @@ import no.nav.foreldrepenger.domene.typer.PersonIdent;
 public class FamilierelasjonVL {
     private PersonIdent personIdent;
     private RelasjonsRolleType relasjonsrolle;
-    private Boolean harSammeBosted;
 
-    public FamilierelasjonVL(PersonIdent personIdent, RelasjonsRolleType relasjonsrolle,
-                             Boolean harSammeBosted) {
+    public FamilierelasjonVL(PersonIdent personIdent, RelasjonsRolleType relasjonsrolle) {
         this.personIdent = personIdent;
         this.relasjonsrolle = relasjonsrolle;
-        this.harSammeBosted = harSammeBosted;
     }
 
     public PersonIdent getPersonIdent() {
@@ -23,10 +20,6 @@ public class FamilierelasjonVL {
 
     public RelasjonsRolleType getRelasjonsrolle() {
         return relasjonsrolle;
-    }
-
-    public Boolean getHarSammeBosted() {
-        return harSammeBosted;
     }
 
     @Override

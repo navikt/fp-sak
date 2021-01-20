@@ -113,6 +113,11 @@ public class PersonIdent implements Comparable<PersonIdent>, IndexKey {
         return n > 3 && n <= 7;
     }
 
+    public boolean erNPID() {
+        int n = Character.digit(ident.charAt(2), 10);
+        return n > 1 && n <= 3;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(ident);

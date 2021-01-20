@@ -74,6 +74,15 @@ public class Adresseinfo {
         return Objects.hash(gjeldendePostadresseType, matrikkelId, adresselinje1, adresselinje2, adresselinje3, adresselinje4, postNr, poststed, land);
     }
 
+    public static boolean likeAdresser(Adresseinfo a1, Adresseinfo a2) {
+        if (a1 == null && a2 == null) return true;
+        if (a1 == null || a2 == null) return false;
+        if (a1.matrikkelId != null || a2.matrikkelId != null) return Objects.equals(a1.matrikkelId, a2.matrikkelId);
+        return Objects.equals(a1.adresselinje1, a2.adresselinje1) &&
+            Objects.equals(a1.postNr, a2.postNr) &&
+            Objects.equals(a1.land, a2.land);
+    }
+
     public static Builder builder(AdresseType gjeldende) {
         return new Builder(gjeldende);
     }

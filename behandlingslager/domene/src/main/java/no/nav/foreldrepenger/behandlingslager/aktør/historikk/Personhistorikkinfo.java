@@ -10,6 +10,7 @@ public class Personhistorikkinfo {
 
     private String aktørId;
     private List<PersonstatusPeriode> personstatushistorikk = new ArrayList<>();
+    private List<OppholdstillatelsePeriode> oppholdstillatelsehistorikk = new ArrayList<>();
     private List<StatsborgerskapPeriode> statsborgerskaphistorikk = new ArrayList<>();
     private List<AdressePeriode> adressehistorikk = new ArrayList<>();
 
@@ -32,14 +33,18 @@ public class Personhistorikkinfo {
         return this.adressehistorikk;
     }
 
+    public List<OppholdstillatelsePeriode> getOppholdstillatelsehistorikk() {
+        return oppholdstillatelsehistorikk;
+    }
+
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Personhistorikkinfo{");
-        sb.append("personstatushistorikk=").append(personstatushistorikk);
-        sb.append(", statsborgerskaphistorikk=").append(statsborgerskaphistorikk);
-        sb.append(", adressehistorikk=").append(adressehistorikk);
-        sb.append('}');
-        return sb.toString();
+        return "Personhistorikkinfo{" +
+            "personstatushistorikk=" + personstatushistorikk +
+            ", oppholdstillatelsehistorikk=" + oppholdstillatelsehistorikk +
+            ", statsborgerskaphistorikk=" + statsborgerskaphistorikk +
+            ", adressehistorikk=" + adressehistorikk +
+            '}';
     }
 
     @Override
@@ -49,13 +54,14 @@ public class Personhistorikkinfo {
         Personhistorikkinfo that = (Personhistorikkinfo) o;
         return Objects.equals(aktørId, that.aktørId) &&
             Objects.equals(personstatushistorikk, that.personstatushistorikk) &&
+            Objects.equals(oppholdstillatelsehistorikk, that.oppholdstillatelsehistorikk) &&
             Objects.equals(statsborgerskaphistorikk, that.statsborgerskaphistorikk) &&
             Objects.equals(adressehistorikk, that.adressehistorikk);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(aktørId, personstatushistorikk, statsborgerskaphistorikk, adressehistorikk);
+        return Objects.hash(aktørId, personstatushistorikk, oppholdstillatelsehistorikk, statsborgerskaphistorikk, adressehistorikk);
     }
 
     public static Builder builder() {
@@ -76,6 +82,11 @@ public class Personhistorikkinfo {
 
         public Builder leggTil(PersonstatusPeriode personstatus) {
             this.kladd.personstatushistorikk.add(personstatus);
+            return this;
+        }
+
+        public Builder leggTil(OppholdstillatelsePeriode tillatelse) {
+            this.kladd.oppholdstillatelsehistorikk.add(tillatelse);
             return this;
         }
 

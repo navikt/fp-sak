@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedle
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedlemskapPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonstatusEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.StatsborgerskapEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
@@ -198,12 +197,9 @@ public class VurderLøpendeMedlemskap {
     }
 
     private boolean brukerNorskNordisk(Optional<PersonopplysningerAggregat> aggregatOptional) {
-        if (aggregatOptional.isPresent()) {
-            PersonopplysningerAggregat aggregat = aggregatOptional.get();
-            final Optional<StatsborgerskapEntitet> statsborgerskap = aggregat.getStatsborgerskapFor(aggregat.getSøker().getAktørId()).stream().findFirst();
-            return Region.NORDEN.equals(statsborgerskap.map(StatsborgerskapEntitet::getRegion).orElse(null));
-        }
-        return false;
+        return aggregatOptional
+            .map(a -> a.harStatsborgerskapRegion(a.getSøker().getAktørId(), Region.NORDEN))
+            .orElse(false);
     }
 
     private PersonStatusType tilPersonStatusType(Optional<PersonopplysningerAggregat> aggregatOptional) {

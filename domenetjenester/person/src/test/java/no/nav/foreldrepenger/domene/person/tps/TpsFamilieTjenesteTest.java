@@ -23,6 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
+import no.nav.foreldrepenger.domene.person.pdl.AktørTjeneste;
 import no.nav.foreldrepenger.domene.person.pdl.FødselTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -36,12 +37,12 @@ public class TpsFamilieTjenesteTest {
     @Mock
     private FødselTjeneste fødselTjeneste;
     @Mock
-    private TpsAdapter tpsTjeneste;
+    private AktørTjeneste aktørConsumer;
     private PersoninfoAdapter personinfoAdapter;
 
     @BeforeEach
     public void setUp() {
-        personinfoAdapter = new PersoninfoAdapter(tpsTjeneste, fødselTjeneste, null, null, null, null);
+        personinfoAdapter = new PersoninfoAdapter(aktørConsumer, fødselTjeneste, null, null, null, null, null);
     }
 
     @Test
@@ -82,10 +83,9 @@ public class TpsFamilieTjenesteTest {
 
     private Set<FamilierelasjonVL> genererBarn(int antallBarn, LocalDate startdatoIntervall) {
         final Set<FamilierelasjonVL> set = new HashSet<>();
-        LocalDate generertFødselsdag = genererFødselsdag(startdatoIntervall.minusWeeks(1));
         IntStream.range(0, Math.toIntExact(antallBarn))
                 .forEach(barnNr -> set
-                        .add(new FamilierelasjonVL(new PersonIdent("" + barnNr + 10L), RelasjonsRolleType.BARN, true)));
+                        .add(new FamilierelasjonVL(new PersonIdent("" + barnNr + 10L), RelasjonsRolleType.BARN)));
         return set;
     }
 

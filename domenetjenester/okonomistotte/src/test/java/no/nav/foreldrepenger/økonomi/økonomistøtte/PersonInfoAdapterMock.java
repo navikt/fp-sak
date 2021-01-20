@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.økonomi.økonomistøtte;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -16,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoArbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoKjønn;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoSpråk;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Personhistorikkinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
@@ -64,29 +66,15 @@ public class PersonInfoAdapterMock extends PersoninfoAdapter {
     public GeografiskTilknytning hentGeografiskTilknytning(AktørId aktørId) {
         return null;
     }
+
     @Override
     public Optional<Tuple<PersonIdent, Diskresjonskode>> hentPersonIdentMedDiskresjonskode(AktørId aktørId) {
         return Optional.empty();
     }
 
     @Override
-    public Personinfo innhentSaksopplysningerForSøker(AktørId aktørId) {
-        return null;
-    }
-
-    @Override
-    public Optional<Personinfo> innhentSaksopplysningerForEktefelle(AktørId aktørId) {
-        return Optional.empty();
-    }
-
-    @Override
     public Personhistorikkinfo innhentPersonopplysningerHistorikk(AktørId aktørId, Interval interval) {
         return null;
-    }
-
-    @Override
-    public Optional<Personinfo> innhentSaksopplysningerFor(PersonIdent personIdent) {
-        return Optional.empty();
     }
 
     @Override
@@ -97,6 +85,26 @@ public class PersonInfoAdapterMock extends PersoninfoAdapter {
     @Override
     public List<FødtBarnInfo> innhentAlleFødteForBehandlingIntervaller(AktørId aktørId, List<LocalDateInterval> intervaller) {
         return Collections.emptyList();
+    }
+
+    @Override
+    public Optional<Personinfo> innhentPersonopplysningerFor(AktørId aktørId) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<Personinfo> innhentPersonopplysningerFor(PersonIdent personIdent) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<LocalDate> hentFødselsdato(PersonIdent ident) {
+        return Optional.empty();
+    }
+
+    @Override
+    public PersoninfoSpråk hentForetrukketSpråk(AktørId aktørId) {
+        return null;
     }
 
 }

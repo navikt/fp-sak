@@ -28,8 +28,8 @@ public class PersonstatusEndringIdentifisererTest {
 
     @Test
     public void testPersonstatusUendret() {
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of(PersonstatusType.ABNR));
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of(PersonstatusType.ABNR));
+        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of(PersonstatusType.FOSV));
+        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of(PersonstatusType.FOSV));
         PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
         boolean erEndret = differ.erPersonstatusEndretForSøkerFør(null);
@@ -39,9 +39,9 @@ public class PersonstatusEndringIdentifisererTest {
     @Test
     public void testPersonstatusUendret_flere_statuser() {
         PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
-                List.of(PersonstatusType.ABNR, PersonstatusType.BOSA));
+                List.of(PersonstatusType.FOSV, PersonstatusType.BOSA));
         PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
-                List.of(PersonstatusType.ABNR, PersonstatusType.BOSA));
+                List.of(PersonstatusType.FOSV, PersonstatusType.BOSA));
         PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
         boolean erEndret = differ.erPersonstatusEndretForSøkerFør(null);
@@ -51,9 +51,9 @@ public class PersonstatusEndringIdentifisererTest {
     @Test
     public void testPersonstatusEndret_ekstra_status_lagt_til() {
         PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
-                List.of(PersonstatusType.ABNR, PersonstatusType.BOSA));
+                List.of(PersonstatusType.FOSV, PersonstatusType.BOSA));
         PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
-                List.of(PersonstatusType.ABNR, PersonstatusType.BOSA, PersonstatusType.FOSV));
+                List.of(PersonstatusType.FOSV, PersonstatusType.BOSA, PersonstatusType.UREG));
         PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
         boolean erEndret = differ.erPersonstatusEndretForSøkerFør(null);
@@ -63,9 +63,9 @@ public class PersonstatusEndringIdentifisererTest {
     @Test
     public void testPersonstatusEndret_status_endret_type() {
         PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
-                List.of(PersonstatusType.ABNR, PersonstatusType.BOSA));
+                List.of(PersonstatusType.FOSV, PersonstatusType.BOSA));
         PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
-                List.of(PersonstatusType.ABNR, PersonstatusType.FOSV));
+                List.of(PersonstatusType.UREG, PersonstatusType.FOSV));
         PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
         boolean erEndret = differ.erPersonstatusEndretForSøkerFør(null);
@@ -75,7 +75,7 @@ public class PersonstatusEndringIdentifisererTest {
     @Test
     public void testPersonstatusUendret_men_rekkefølge_i_liste_endret() {
         PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
-                List.of(PersonstatusType.ABNR, PersonstatusType.BOSA));
+                List.of(PersonstatusType.FOSV, PersonstatusType.BOSA));
         PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlagMotstattRekkefølge(
                 personopplysningGrunnlag1.getRegisterVersjon().map(PersonInformasjonEntitet::getPersonstatus).orElse(Collections.emptyList()));
         PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);

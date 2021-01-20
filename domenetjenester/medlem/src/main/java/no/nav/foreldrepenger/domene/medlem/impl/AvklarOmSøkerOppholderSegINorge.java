@@ -7,7 +7,6 @@ import static no.nav.foreldrepenger.domene.medlem.impl.MedlemResultat.VENT_PÅ_F
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall;
@@ -19,12 +18,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.StatsborgerskapEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -50,8 +46,7 @@ public class AvklarOmSøkerOppholderSegINorge {
 
     public Optional<MedlemResultat> utled(BehandlingReferanse ref, LocalDate vurderingstidspunkt) {
         Long behandlingId = ref.getBehandlingId();
-        final List<String> landkoder = getLandkode(ref.getBehandlingId(), ref.getAktørId(), vurderingstidspunkt);
-        Region region = MapRegionLandkoder.mapRangerLandkoder(landkoder);
+        final Region region = getRegion(ref.getBehandlingId(), ref.getAktørId(), vurderingstidspunkt);
         if ((harFødselsdato(behandlingId) == JA) || (harDatoForOmsorgsovertakelse(behandlingId) == JA)) {
             return Optional.empty();
         }
@@ -143,14 +138,10 @@ public class AvklarOmSøkerOppholderSegINorge {
         return termindato.filter(localDate -> localDate.plusDays(14L).isBefore(dagensDato)).map(localDate -> JA).orElse(NEI);
     }
 
-    private List<String> getLandkode(Long behandlingId, AktørId aktørId, LocalDate vurderingstidspunkt) {
+    private Region getRegion(Long behandlingId, AktørId aktørId, LocalDate vurderingstidspunkt) {
         PersonopplysningerAggregat personopplysninger = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunkt(behandlingId, aktørId,
             vurderingstidspunkt);
 
-        return personopplysninger.getStatsborgerskapFor(aktørId)
-            .stream()
-            .map(StatsborgerskapEntitet::getStatsborgerskap)
-            .map(Landkoder::getKode)
-            .collect(Collectors.toList());
+        return personopplysninger.getStatsborgerskapRegionFor(aktørId);
     }
 }

@@ -16,11 +16,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
+import no.nav.foreldrepenger.domene.person.pdl.AktørTjeneste;
 import no.nav.foreldrepenger.domene.person.pdl.FødselTjeneste;
 import no.nav.foreldrepenger.domene.person.pdl.PersonBasisTjeneste;
 import no.nav.foreldrepenger.domene.person.pdl.PersoninfoTjeneste;
 import no.nav.foreldrepenger.domene.person.pdl.TilknytningTjeneste;
-import no.nav.foreldrepenger.domene.person.tps.TpsAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 
@@ -51,24 +51,24 @@ public class PersoninfoAdapterTest {
         Personinfo kjerneinfoSøker = lagHentPersonResponseForSøker();
         Personinfo kjerneinfobarn = lagHentPersonResponseForBarn();
 
-        TpsAdapter mockTpsAdapter = mock(TpsAdapter.class);
-        lenient().when(mockTpsAdapter.hentAktørIdForPersonIdent(FNR_BARN)).thenReturn(Optional.of(AKTØR_ID_BARN));
-        lenient().when(mockTpsAdapter.hentIdentForAktørId(AKTØR_ID_SØKER)).thenReturn(Optional.of(FNR_SØKER));
-        lenient().when(mockTpsAdapter.hentIdentForAktørId(AKTØR_ID_BARN)).thenReturn(Optional.of(FNR_BARN));
-        lenient().when(mockTpsAdapter.hentKjerneinformasjon(FNR_BARN, AKTØR_ID_BARN)).thenReturn(kjerneinfobarn);
-        lenient().when(mockTpsAdapter.hentKjerneinformasjon(FNR_SØKER, AKTØR_ID_SØKER)).thenReturn(kjerneinfoSøker);
+        AktørTjeneste aktørConsumer = mock(AktørTjeneste.class);
+        lenient().when(aktørConsumer.hentAktørIdForPersonIdent(FNR_BARN)).thenReturn(Optional.of(AKTØR_ID_BARN));
+        lenient().when(aktørConsumer.hentPersonIdentForAktørId(AKTØR_ID_SØKER)).thenReturn(Optional.of(FNR_SØKER));
+        lenient().when(aktørConsumer.hentPersonIdentForAktørId(AKTØR_ID_BARN)).thenReturn(Optional.of(FNR_BARN));
+        lenient().when(personinfoTjeneste.hentPersoninfo(AKTØR_ID_BARN, FNR_BARN)).thenReturn(kjerneinfobarn);
+        lenient().when(personinfoTjeneste.hentPersoninfo(AKTØR_ID_SØKER, FNR_SØKER)).thenReturn(kjerneinfoSøker);
 
         mockPersoninfo = mock(Personinfo.class);
         lenient().when(mockPersoninfo.getFødselsdato()).thenReturn(LocalDate.now()); // trenger bare en verdi
 
-        adapter = new PersoninfoAdapter(mockTpsAdapter, fødselTjeneste, tilknytningTjeneste, basisTjeneste, personinfoTjeneste, null);
+        adapter = new PersoninfoAdapter(aktørConsumer, fødselTjeneste, tilknytningTjeneste, basisTjeneste, personinfoTjeneste, null, null);
     }
 
     @Test
     public void skal_innhente_saksopplysninger_for_søker() {
         lenient().when(mockPersoninfo.getAktørId()).thenReturn(AKTØR_ID_SØKER);
 
-        Personinfo søker = adapter.innhentSaksopplysningerForSøker(AKTØR_ID_SØKER);
+        Personinfo søker = adapter.innhentPersonopplysningerFor(AKTØR_ID_SØKER).orElse(null);
 
         assertThat(søker).isNotNull();
         assertThat(søker.getAktørId()).isEqualTo(AKTØR_ID_SØKER);
@@ -79,7 +79,7 @@ public class PersoninfoAdapterTest {
     public void skal_innhente_saksopplysninger_for_barn() {
         lenient().when(mockPersoninfo.getAktørId()).thenReturn(AKTØR_ID_BARN);
 
-        Optional<Personinfo> barn = adapter.innhentSaksopplysningerFor(FNR_BARN);
+        Optional<Personinfo> barn = adapter.innhentPersonopplysningerFor(FNR_BARN);
 
         assertThat(barn).isPresent();
         assertThat(barn.get().getAktørId()).isEqualTo(AKTØR_ID_BARN);

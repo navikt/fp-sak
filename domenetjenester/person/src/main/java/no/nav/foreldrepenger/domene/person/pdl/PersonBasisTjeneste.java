@@ -127,6 +127,22 @@ public class PersonBasisTjeneste {
         return person.getKjoenn().isEmpty() ? Optional.empty() : Optional.of(kjønn);
     }
 
+    public Optional<LocalDate> hentFødselsdato(PersonIdent ident) {
+        var query = new HentPersonQueryRequest();
+        query.setIdent(ident.getIdent());
+        var projection = new PersonResponseProjection()
+            .foedsel(new FoedselResponseProjection().foedselsdato());
+
+        var person = pdlKlient.hentPerson(query, projection, Tema.FOR);
+
+        var fødselsdato = person.getFoedsel().stream()
+            .map(Foedsel::getFoedselsdato)
+            .filter(Objects::nonNull)
+            .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
+
+        return Optional.ofNullable(fødselsdato);
+    }
+
 
     private String getDiskresjonskode(Person person) {
         var kode = person.getAdressebeskyttelse().stream()
