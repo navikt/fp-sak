@@ -49,6 +49,7 @@ public enum DokumentMalType implements Kodeverdi {
     VARSEL_OM_REVURDERING("VARREV", "Varsel om revurdering"),
     INFO_OM_HENLEGGELSE("IOHENL", "Behandling henlagt"),
     IKKE_SØKT("IKKESO", "Ikke mottatt søknad"),
+    INGEN_ENDRING("INGEND", "Uendret utfall"),
 
     // Disse brevene er utgåtte, men beholdes her grunnet historisk bruk i databasen:
     @Deprecated
