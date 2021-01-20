@@ -88,6 +88,9 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     public void lagreOgSøkeOppOppdragskontrollForPeriodeUtenResultat() {
+        //Testene kjøres ikke mot tom db
+        var førSize = økonomioppdragRepository.hentOppdrag110ForPeriodeOgFagområde(LocalDate.now().minusDays(1),
+            LocalDate.now().minusDays(1), "REFUTG").size();
         // Arrange
         Oppdragskontroll oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
 
@@ -96,8 +99,9 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
 
         // Assert
 
-        List<Oppdrag110> oppdragListe = økonomioppdragRepository.hentOppdrag110ForPeriodeOgFagområde(LocalDate.now().minusDays(1), LocalDate.now().minusDays(1), "REFUTG");
-        assertThat(oppdragListe).isEmpty();
+        var oppdragListe = økonomioppdragRepository.hentOppdrag110ForPeriodeOgFagområde(LocalDate.now().minusDays(1),
+            LocalDate.now().minusDays(1), "REFUTG").size();
+        assertThat(oppdragListe).isEqualTo(førSize);
     }
 
     @Test

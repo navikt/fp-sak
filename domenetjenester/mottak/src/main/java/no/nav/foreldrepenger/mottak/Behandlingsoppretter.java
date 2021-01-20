@@ -219,13 +219,23 @@ public class Behandlingsoppretter {
     }
 
     public boolean erBehandlingOgFørstegangsbehandlingHenlagt(Fagsak fagsak) {
-        Optional<Behandling> behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId());
-        Optional<Behandlingsresultat> behandlingsresultat = behandling.flatMap(b -> behandlingsresultatRepository.hentHvisEksisterer(b.getId()));
-        if (behandlingsresultat.map(Behandlingsresultat::isBehandlingsresultatHenlagt).orElse(false)) {
-            Optional<Behandling> førstegangsbehandling = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(fagsak.getId(), BehandlingType.FØRSTEGANGSSØKNAD);
-            Optional<Behandlingsresultat> førstegangsbehandlingBehandlingsresultat = førstegangsbehandling.flatMap(b -> behandlingsresultatRepository.hentHvisEksisterer(b.getId()));
-            return førstegangsbehandlingBehandlingsresultat.map(Behandlingsresultat::isBehandlingsresultatHenlagt).orElse(false);
+        var behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId());
+        var behandlingsresultat = behandling.flatMap(b -> behandlingsresultatRepository.hentHvisEksisterer(b.getId()));
+        if (behandlingsresultat.isPresent() && erHenlagt(behandlingsresultat.get())) {
+            var førstegangsbehandlingBehandlingsresultat = hentFørstegangsbehandlingsresultat(fagsak);
+            return førstegangsbehandlingBehandlingsresultat.map(br -> erHenlagt(br)).orElse(false);
         }
         return false;
+    }
+
+    private Optional<Behandlingsresultat> hentFørstegangsbehandlingsresultat(Fagsak fagsak) {
+        var førstegangsbehandling = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(
+            fagsak.getId(), BehandlingType.FØRSTEGANGSSØKNAD);
+        return førstegangsbehandling.flatMap(b -> behandlingsresultatRepository.hentHvisEksisterer(b.getId()));
+    }
+
+    private boolean erHenlagt(Behandlingsresultat br) {
+        //Sjekker andre koder enn Behandlingsresultat.isBehandlingHenlagt()
+        return BehandlingResultatType.getHenleggelseskoderForSøknad().contains(br.getBehandlingResultatType());
     }
 }

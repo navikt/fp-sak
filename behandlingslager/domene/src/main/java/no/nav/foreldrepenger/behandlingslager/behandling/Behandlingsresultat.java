@@ -395,8 +395,4 @@ public class Behandlingsresultat extends BaseEntitet {
     public boolean isVilkårAvslått() {
         return VilkårResultatType.AVSLÅTT.equals(vilkårResultat.getVilkårResultatType());
     }
-
-    public boolean isBehandlingsresultatHenlagt() {
-        return BehandlingResultatType.getHenleggelseskoderForSøknad().contains(behandlingResultatType);
-    }
 }
