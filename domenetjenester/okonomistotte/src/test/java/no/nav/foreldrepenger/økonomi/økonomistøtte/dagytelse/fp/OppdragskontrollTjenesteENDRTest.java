@@ -2213,7 +2213,6 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
      * Prodscenario der ytelse omfordeles fra 1 ag til bruker, deretter omfordeles den andre ag til bruker. Oppretter ikke 110 for siste revurdering.
      */
     @Test
-    @Disabled
     public void skalSendeOmfordeleFlereArbeidsgivereSerielt() {
         // Arrange
         LocalDate b10fom = LocalDate.of(I_ÅR-1, 11, 2);
