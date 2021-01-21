@@ -45,7 +45,7 @@
         <jupiter.version>5.7.0</jupiter.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <fp-uttak.version>6.0.2</fp-uttak.version>
+        <fp-uttak.version>6.1.1</fp-uttak.version>
         <svp-uttak.version>2.1.1</svp-uttak.version>
         <felles.version>2.5.3</felles.version>
         <prosesstask.version>2.5.10</prosesstask.version>
