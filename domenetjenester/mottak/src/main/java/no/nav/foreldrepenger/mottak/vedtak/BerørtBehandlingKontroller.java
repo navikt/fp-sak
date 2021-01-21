@@ -87,29 +87,32 @@ public class BerørtBehandlingKontroller {
 
         // OBS: finnesIkkeKøetBehandling sjekker om getFagsakMedforelder(fagsakMedforelder), dvs fagsakBruker har noe i KØ ... riktig? Kømodell trengs
         if (finnesIkkeKøetBehandling(fagsakMedforelder, behandlingsresultatBruker) && innvilgetYtelsesbehandlingMedforelder.isPresent()) {
-            opprettBerørtBehandlingOmNødvendig(fagsakMedforelder, behandlingsresultatBruker, innvilgetYtelsesbehandlingMedforelder.get().getId(), iverksattBehandlingBruker.getId());
+            if (behandlingsresultatBruker.isPresent()) {
+                opprettBerørtBehandlingOmNødvendig(fagsakMedforelder, behandlingsresultatBruker.get(),
+                    innvilgetYtelsesbehandlingMedforelder.get().getId(), iverksattBehandlingBruker.getId());
+            }
         } else {
             håndterKø(fagsakMedforelder);
         }
     }
 
-    private void opprettBerørtBehandlingOmNødvendig(Fagsak kobletFagsak, Optional<Behandlingsresultat> behandlingsresultatBruker,
+    private void opprettBerørtBehandlingOmNødvendig(Fagsak kobletFagsak,
+                                                    Behandlingsresultat behandlingsresultatBruker,
                                                     Long innvilgetYtelsesbehandlingMedforelder,
                                                     Long iverksattBehandlingBruker) {
-        if (behandlingsresultatBruker.isPresent()) {
-            if (berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(behandlingsresultatBruker, iverksattBehandlingBruker, innvilgetYtelsesbehandlingMedforelder)) {
-                fagsakLåsRepository.taLås(kobletFagsak.getId());
-                opprettBerørtBehandling(kobletFagsak, behandlingsresultatBruker);
-            } else {
-                håndterKø(kobletFagsak);
-            }
+        if (berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(behandlingsresultatBruker,
+            iverksattBehandlingBruker, innvilgetYtelsesbehandlingMedforelder)) {
+            fagsakLåsRepository.taLås(kobletFagsak.getId());
+            opprettBerørtBehandling(kobletFagsak, behandlingsresultatBruker);
+        } else {
+            håndterKø(kobletFagsak);
         }
     }
 
     private boolean finnesIkkeKøetBehandling(Fagsak fagsak, Optional<Behandlingsresultat> behandlingsresultat) {
         Optional<Behandling> køetBehandling = behandlingRevurderingRepository.finnKøetBehandlingMedforelder(fagsak);
         køetBehandling.ifPresent(behandling -> opprettHistorikkinnslag(behandling, behandlingsresultat, HistorikkinnslagType.BEH_OPPDATERT_NYE_OPPL));
-        return !køetBehandling.isPresent();
+        return køetBehandling.isEmpty();
     }
 
     private void opprettHistorikkinnslag(Behandling behandling, Optional<Behandlingsresultat> behandlingsresultat, HistorikkinnslagType historikkinnslagType) {
@@ -128,12 +131,13 @@ public class BerørtBehandlingKontroller {
         berørtBehandlingTjeneste.opprettHistorikkinnslagOmRevurdering(behandling, BehandlingÅrsakType.BERØRT_BEHANDLING, null, historikkinnslagType);
     }
 
-    private void opprettBerørtBehandling(Fagsak fagsakMedforelder, Optional<Behandlingsresultat> behandlingsresultat) {
+    private void opprettBerørtBehandling(Fagsak fagsakMedforelder, Behandlingsresultat behandlingsresultat) {
         // Hvis det nå allerede skulle være en åpen behandling (ikke i kø) så legg den i kø før oppretting av berørt.
         behandlingRevurderingRepository.finnÅpenYtelsesbehandling(fagsakMedforelder.getId())
-            .ifPresent(b -> behandlingskontrollTjeneste.settBehandlingPåVent(b, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING, null, null, Venteårsak.VENT_ÅPEN_BEHANDLING));
+            .ifPresent(b -> behandlingskontrollTjeneste.settBehandlingPåVent(b, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING,
+                null, null, Venteårsak.VENT_ÅPEN_BEHANDLING));
         Behandling revurdering = behandlingsoppretter.opprettRevurdering(fagsakMedforelder, BehandlingÅrsakType.BERØRT_BEHANDLING);
-        opprettHistorikkinnslag(revurdering, behandlingsresultat, HistorikkinnslagType.REVURD_OPPR);
+        opprettHistorikkinnslag(revurdering, Optional.of(behandlingsresultat), HistorikkinnslagType.REVURD_OPPR);
         behandlingProsesseringTjeneste.opprettTasksForStartBehandling(revurdering);
     }
 
