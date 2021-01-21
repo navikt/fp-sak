@@ -59,10 +59,6 @@ public class FeriepengegrunnlagRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public FeriepengegrunnlagDto hentFeriepenger(
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        boolean erProd = Environment.current().isProd();
-        if (erProd) {
-            return null;
-        }
         Behandling behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         Optional<BehandlingBeregningsresultatEntitet> beregningsresultat = beregningsresultatRepository.hentBeregningsresultatAggregat(behandling.getId());
         Optional<FeriepengegrunnlagDto> dto = beregningsresultat.map(BehandlingBeregningsresultatEntitet::getBgBeregningsresultatFP)
