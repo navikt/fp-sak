@@ -162,7 +162,7 @@ public class ForeldrepengerUttakPeriode {
     }
 
     public boolean erInnvilgetUtsettelse() {
-        return erUtsettelse() && !harTrekkdager() && !harUtbetaling();
+        return erUtsettelse() && !harTrekkdager() && !harUtbetaling() && isInnvilget();
     }
 
     private boolean erUtsettelse() {
