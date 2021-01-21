@@ -321,6 +321,7 @@ public class PersoninfoTjeneste {
             .collect(Collectors.groupingBy(ap -> forSortering(ap.getAdresse().getAdresseType()), Collectors.mapping(AdressePeriode::getGyldighetsperiode, Collectors.toList())));
         return perioder.stream()
             .map(p -> new AdressePeriode(finnFraPerioder(adresseTypePerioder.get(forSortering(p.getAdresse().getAdresseType())), p.getGyldighetsperiode()), p.getAdresse()))
+            .filter(a -> !a.getGyldighetsperiode().getFom().isAfter(a.getGyldighetsperiode().getTom()))
             .collect(Collectors.toList());
     }
 

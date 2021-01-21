@@ -109,9 +109,7 @@ public class PersonopplysningInnhenter {
     private void mapPersonstatus(List<PersonstatusPeriode> personstatushistorikk, PersonInformasjonBuilder informasjonBuilder, Personinfo personinfo) {
         for (PersonstatusPeriode personstatus : personstatushistorikk) {
             final PersonstatusType status = personstatus.getPersonstatus();
-            final DatoIntervallEntitet periode = DatoIntervallEntitet.fraOgMedTilOgMed(
-                brukFødselsdatoHvisEtter(personstatus.getGyldighetsperiode().getFom(), personinfo.getFødselsdato()),
-                personstatus.getGyldighetsperiode().getTom());
+            final DatoIntervallEntitet periode = fødselsJustertPeriode(personstatus.getGyldighetsperiode().getFom(), personinfo.getFødselsdato(), personstatus.getGyldighetsperiode().getTom());
 
             informasjonBuilder
                 .leggTil(informasjonBuilder.getPersonstatusBuilder(personinfo.getAktørId(), periode).medPersonstatus(status));
@@ -121,9 +119,7 @@ public class PersonopplysningInnhenter {
     private void mapOppholdstillatelse(List<OppholdstillatelsePeriode> oppholdshistorikk, PersonInformasjonBuilder informasjonBuilder, Personinfo personinfo) {
         for (OppholdstillatelsePeriode tillatelse : oppholdshistorikk) {
             final OppholdstillatelseType type = tillatelse.getTillatelse();
-            final DatoIntervallEntitet periode = DatoIntervallEntitet.fraOgMedTilOgMed(
-                brukFødselsdatoHvisEtter(tillatelse.getGyldighetsperiode().getFom(), personinfo.getFødselsdato()),
-                tillatelse.getGyldighetsperiode().getTom());
+            final DatoIntervallEntitet periode = fødselsJustertPeriode(tillatelse.getGyldighetsperiode().getFom(), personinfo.getFødselsdato(), tillatelse.getGyldighetsperiode().getTom());
 
             informasjonBuilder
                 .leggTil(informasjonBuilder.getOppholdstillatelseBuilder(personinfo.getAktørId(), periode).medOppholdstillatelse(type));
@@ -136,8 +132,7 @@ public class PersonopplysningInnhenter {
 
             Region region = MapRegionLandkoder.mapLandkode(statsborgerskap.getStatsborgerskap().getLandkode());
 
-            final DatoIntervallEntitet periode = DatoIntervallEntitet.fraOgMedTilOgMed(brukFødselsdatoHvisEtter(
-                statsborgerskap.getGyldighetsperiode().getFom(), personinfo.getFødselsdato()), statsborgerskap.getGyldighetsperiode().getTom());
+            final DatoIntervallEntitet periode = fødselsJustertPeriode(statsborgerskap.getGyldighetsperiode().getFom(), personinfo.getFødselsdato(), statsborgerskap.getGyldighetsperiode().getTom());
 
             informasjonBuilder
                 .leggTil(informasjonBuilder.getStatsborgerskapBuilder(personinfo.getAktørId(), periode, landkode, region));
@@ -147,8 +142,7 @@ public class PersonopplysningInnhenter {
     private void mapAdresser(List<AdressePeriode> adressehistorikk, PersonInformasjonBuilder informasjonBuilder, Personinfo personinfo) {
         AktørId aktørId = personinfo.getAktørId();
         for (AdressePeriode adresse : adressehistorikk) {
-            final DatoIntervallEntitet periode = DatoIntervallEntitet.fraOgMedTilOgMed(
-                brukFødselsdatoHvisEtter(adresse.getGyldighetsperiode().getFom(), personinfo.getFødselsdato()), adresse.getGyldighetsperiode().getTom());
+            final DatoIntervallEntitet periode = fødselsJustertPeriode(adresse.getGyldighetsperiode().getFom(), personinfo.getFødselsdato(), adresse.getGyldighetsperiode().getTom());
             var adresseBuilder = informasjonBuilder.getAdresseBuilder(aktørId, periode, adresse.getAdresse().getAdresseType())
                 .medMatrikkelId(adresse.getAdresse().getMatrikkelId())
                 .medAdresselinje1(adresse.getAdresse().getAdresselinje1())
@@ -162,11 +156,10 @@ public class PersonopplysningInnhenter {
         }
     }
 
-    private LocalDate brukFødselsdatoHvisEtter(LocalDate dato, LocalDate fødseldato) {
-        if (dato.isBefore(fødseldato)) {
-            return fødseldato;
-        }
-        return dato;
+    private DatoIntervallEntitet fødselsJustertPeriode(LocalDate fom, LocalDate fødselsdato, LocalDate tom) {
+        var brukFom = fom.isBefore(fødselsdato) ? fødselsdato : fom;
+        var safeFom = tom != null && brukFom.isAfter(tom) ? tom : brukFom;
+        return tom != null ? DatoIntervallEntitet.fraOgMedTilOgMed(safeFom, tom) : DatoIntervallEntitet.fraOgMed(safeFom);
     }
 
     private RelasjonsRolleType utledRelasjonsrolleTilBarn(Personinfo personinfo, Personinfo barn) {
