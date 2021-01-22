@@ -14,7 +14,6 @@ public enum DokumentMalType implements Kodeverdi {
 
     //Mal hos team dokument
     INNHENT_DOK("INNHEN", "Innhent dokumentasjon"),
-    POSITIVT_VEDTAK_DOK("POSVED", "Positivt vedtaksbrev"),
     HENLEGG_BEHANDLING_DOK("HENLEG", "Behandling henlagt"),
     AVSLAGSVEDTAK_DOK("AVSLAG", "Avslagsbrev"),
     UENDRETUTFALL_DOK("UENDRE", "Uendret utfall"),
@@ -26,7 +25,6 @@ public enum DokumentMalType implements Kodeverdi {
     INNSYNSKRAV_SVAR("INSSKR", "Svar på innsynskrav"),
     INNVILGELSE_FORELDREPENGER_DOK("INNVFP", "Innvilgelsesbrev Foreldrepenger"),
     OPPHØR_DOK("OPPHOR", "Opphør brev"),
-    INNTEKTSMELDING_FOR_TIDLIG_DOK("INNTID", "Ikke mottatt søknad"),
     AVSLAG_FORELDREPENGER_DOK("AVSLFP", "Avslagsbrev Foreldrepenger"),
 
     //Fritekstbrev - tekst unntatt header og footer genereres av fpformidling
@@ -62,6 +60,10 @@ public enum DokumentMalType implements Kodeverdi {
     VEDTAK_MEDHOLD("VEDMED", "Vedtak om medhold"),
     @Deprecated
     KLAGE_YTELSESVEDTAK_STADFESTET_DOK("KLAGVE", "Vedtak om stadfestelse"),
+    @Deprecated
+    POSITIVT_VEDTAK_DOK("POSVED", "Positivt vedtaksbrev"),
+    @Deprecated
+    INNTEKTSMELDING_FOR_TIDLIG_DOK("INNTID", "Ikke mottatt søknad"),
 
     ;
 

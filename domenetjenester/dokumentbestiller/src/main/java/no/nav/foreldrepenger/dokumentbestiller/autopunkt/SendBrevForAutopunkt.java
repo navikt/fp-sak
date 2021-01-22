@@ -47,11 +47,13 @@ public class SendBrevForAutopunkt {
     }
 
     public void sendBrevForSøknadIkkeMottatt(Behandling behandling, Aksjonspunkt ap) {
-        var dokumentMalType = Environment.current().isProd() ? DokumentMalType.INNTEKTSMELDING_FOR_TIDLIG_DOK : DokumentMalType.IKKE_SØKT;
+        var dokumentMalType = DokumentMalType.IKKE_SØKT;
         if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.INFOBREV_BEHANDLING) || behandling.harBehandlingÅrsak(INFOBREV_OPPHOLD)) {
             dokumentMalType = DokumentMalType.INFO_TIL_ANNEN_FORELDER_DOK;
         }
-        if (!harSendtBrevForMal(behandling.getId(), dokumentMalType)) {
+        if ((DokumentMalType.IKKE_SØKT.equals(dokumentMalType) && !harSendtBrevForMal(behandling.getId(), dokumentMalType) && !harSendtBrevForMal(behandling.getId(), DokumentMalType.INNTEKTSMELDING_FOR_TIDLIG_DOK))
+            || (DokumentMalType.INFO_TIL_ANNEN_FORELDER_DOK.equals(dokumentMalType) && !harSendtBrevForMal(behandling.getId(), dokumentMalType))) {
+            // TODO(JEJ): Gjøre enkel !harSendtBrevForMal(behandling.getId(), dokumentMalType) igjen når det har gått litt tid siden begge ble lansert, inntil det bør begge sjekkes for å unngå dobbeltbrev til bruker...
             BestillBrevDto bestillBrevDto = new BestillBrevDto(behandling.getId(), dokumentMalType);
             dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN, false);
         }
