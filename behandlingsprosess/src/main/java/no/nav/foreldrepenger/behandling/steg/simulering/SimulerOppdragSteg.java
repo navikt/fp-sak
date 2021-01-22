@@ -165,13 +165,12 @@ public class SimulerOppdragSteg implements BehandlingSteg {
     }
 
     private boolean kanOppdatereEksisterendeTilbakekrevingsbehandling(Behandling behandling, SimuleringResultatDto simuleringResultatDto) {
-        if (harÅpenTilbakekreving(behandling) && (simuleringResultatDto.getSumFeilutbetaling() != 0)) {
-            return true;
-        } else if (harÅpenTilbakekreving(behandling) && (simuleringResultatDto.getSumFeilutbetaling() == 0)) {
-            logger.warn("Saksnummer {} har åpen tilbakekreving og sumFeilutbetaling={}, og vil dermed ikke oppdatere eksisterende tilbakekrevingsbehandling. Dette vil antagelig feile i Fptilbake. Fint om du som ser dette oppdaterer TFP-4032 med hele loggmeldingen så vi kan undersøke. Simuleringsresultat: sumInntrekk={}, slåttAvInntrekk={}",
+        boolean harÅpenTilbakekreving = harÅpenTilbakekreving(behandling);
+        if (!harÅpenTilbakekreving && simuleringResultatDto.harFeilutbetaling()) {
+            logger.info("Saksnummer {} har ikke åpen tilbakekreving og det er identifisert feilutbetaling. Simuleringsresultat: sumFeilutbetaling={}, sumInntrekk={}, slåttAvInntrekk={}",
                 behandling.getFagsak().getSaksnummer(), simuleringResultatDto.getSumFeilutbetaling(), simuleringResultatDto.getSumInntrekk(), simuleringResultatDto.isSlåttAvInntrekk());
         }
-        return false;
+        return harÅpenTilbakekreving && (simuleringResultatDto.getSumFeilutbetaling() != 0);
     }
 
     private boolean harÅpenTilbakekreving(Behandling behandling) {
