@@ -105,7 +105,8 @@ public class BerørtBehandlingKontrollerTest {
         when(repositoryProvider.getYtelsesFordelingRepository()).thenReturn(ytelsesFordelingRepository);
         when(repositoryProvider.getSøknadRepository()).thenReturn(søknadRepository);
 
-        berørtBehandlingKontroller = new BerørtBehandlingKontroller(repositoryProvider, behandlingProsesseringTjeneste, berørtBehandlingTjeneste, behandlingskontrollTjeneste, behandlingsoppretter);
+        berørtBehandlingKontroller = new BerørtBehandlingKontroller(repositoryProvider, behandlingProsesseringTjeneste,
+            berørtBehandlingTjeneste, behandlingskontrollTjeneste, behandlingsoppretter);
 
         fBehandling = lagBehandling();
         fagsak = fBehandling.getFagsak();
@@ -120,20 +121,27 @@ public class BerørtBehandlingKontrollerTest {
         when(behandlingRepository.hentBehandling(fBehandlingMedforelder.getId())).thenReturn(fBehandlingMedforelder);
         when(behandlingRepository.hentBehandling(berørt.getId())).thenReturn(berørt);
         when(behandlingRepository.hentBehandling(køetBehandling.getId())).thenReturn(køetBehandling);
-        when(behandlingRepository.hentBehandling(køetBehandlingMedforelder.getId())).thenReturn(køetBehandlingMedforelder);
+        when(behandlingRepository.hentBehandling(køetBehandlingMedforelder.getId())).thenReturn(
+            køetBehandlingMedforelder);
         when(behandlingRepository.hentBehandling(berørtMedforelder.getId())).thenReturn(berørtMedforelder);
 
-        when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak)).thenReturn(Optional.of(fagsakMedforelder));
-        when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsakMedforelder)).thenReturn(Optional.of(fagsak));
-        when(behandlingsoppretter.opprettRevurdering(fagsakMedforelder, BehandlingÅrsakType.BERØRT_BEHANDLING)).thenReturn(berørtMedforelder);
+        when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak)).thenReturn(
+            Optional.of(fagsakMedforelder));
+        when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsakMedforelder)).thenReturn(
+            Optional.of(fagsak));
+        when(behandlingsoppretter.opprettRevurdering(fagsakMedforelder,
+            BehandlingÅrsakType.BERØRT_BEHANDLING)).thenReturn(berørtMedforelder);
         when(behandlingsoppretter.opprettRevurdering(fagsak, BehandlingÅrsakType.BERØRT_BEHANDLING)).thenReturn(berørt);
 
-        when(behandlingsoppretter.oppdaterBehandlingViaHenleggelse(eq(køetBehandling), any(BehandlingÅrsakType.class))).thenReturn(køetBehandling);
+        when(behandlingsoppretter.oppdaterBehandlingViaHenleggelse(eq(køetBehandling),
+            any(BehandlingÅrsakType.class))).thenReturn(køetBehandling);
 
-        when(behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsakMedforelder.getId())).thenReturn(Optional.empty());
+        when(behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsakMedforelder.getId())).thenReturn(
+            Optional.empty());
         when(behandlingRevurderingRepository.finnKøetBehandlingMedforelder(fagsak)).thenReturn(Optional.empty());
         when(behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsak.getId())).thenReturn(Optional.empty());
-        when(behandlingRevurderingRepository.finnKøetBehandlingMedforelder(fagsakMedforelder)).thenReturn(Optional.empty());
+        when(behandlingRevurderingRepository.finnKøetBehandlingMedforelder(fagsakMedforelder)).thenReturn(
+            Optional.empty());
 
     }
 
@@ -141,13 +149,15 @@ public class BerørtBehandlingKontrollerTest {
     public void testHåndterEgenKø() { // Vurder innhold - vil pt ikke være kø når ukoblet
         // Arrange
         when(behandlingRevurderingRepository.finnFagsakPåMedforelder(fagsak)).thenReturn(Optional.empty());
-        when(behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsak.getId())).thenReturn(Optional.of(køetBehandling));
+        when(behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsak.getId())).thenReturn(
+            Optional.of(køetBehandling));
 
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
 
         // Assert
-        verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandlingSettUtført(køetBehandling, Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
+        verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandlingSettUtført(køetBehandling,
+            Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
     }
 
     @Test
@@ -161,12 +171,14 @@ public class BerørtBehandlingKontrollerTest {
         when(aksjonspunkt.getAksjonspunktDefinisjon()).thenReturn(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD);
         when(aksjonspunkt.getFristTid()).thenReturn(LocalDateTime.now().plusDays(30));
         when(køetBehandlingPåVent.getAksjonspunkter()).thenReturn(Set.of(aksjonspunkt));
-        when(køetBehandlingPåVent.getAksjonspunktFor(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD)).thenReturn(aksjonspunkt);
+        when(køetBehandlingPåVent.getAksjonspunktFor(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD)).thenReturn(
+            aksjonspunkt);
         when(køetBehandlingPåVent.getFagsakId()).thenReturn(fagsakMedforelder.getId());
         when(køetBehandlingPåVent.getId()).thenReturn(køetBehandlingMedforelder.getId());
         when(køetBehandlingPåVent.getAktørId()).thenReturn(aktørId);
 
-        when(behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsakMedforelder.getId())).thenReturn(Optional.of(køetBehandlingPåVent));
+        when(behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsakMedforelder.getId())).thenReturn(
+            Optional.of(køetBehandlingPåVent));
 
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
@@ -174,78 +186,97 @@ public class BerørtBehandlingKontrollerTest {
         // Assert
         verify(behandlingskontrollTjeneste).lagreAksjonspunkterUtført(any(), any(), any(), anyString());
         verify(behandlingskontrollTjeneste).lagreAksjonspunkterReåpnet(any(), any(), eq(Boolean.TRUE), anyBoolean());
-        verify(berørtBehandlingTjeneste).opprettHistorikkinnslagForVenteFristRelaterteInnslag(any(), any(), any(), any());
+        verify(berørtBehandlingTjeneste).opprettHistorikkinnslagForVenteFristRelaterteInnslag(any(), any(), any(),
+            any());
         verify(behandlingProsesseringTjeneste).opprettTasksForStartBehandling(any());
     }
 
     @Test
     public void testBerørtBehandlingMedforelder() {
         // Arrange
-        when(behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsakMedforelder.getId())).thenReturn(Optional.of(køetBehandlingMedforelder));
+        when(behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsakMedforelder.getId())).thenReturn(
+            Optional.of(køetBehandlingMedforelder));
 
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
 
         // Assert
-        verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandlingSettUtført(køetBehandlingMedforelder, Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
+        verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandlingSettUtført(køetBehandlingMedforelder,
+            Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
     }
 
     @Test
     public void testBerørtBehandlingMedforelderNårMedforelderHarKøetBehandlingAllerede() {
         // Arrange
-        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakMedforelder.getId())).thenReturn(Optional.of(fBehandlingMedforelder));
-        when(behandlingsresultatRepository.hentHvisEksisterer(fBehandling.getId())).thenReturn(lagBehandlingsresultat(fBehandling, BehandlingResultatType.OPPHØR,
-            KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER));
-        when(behandlingRevurderingRepository.finnKøetBehandlingMedforelder(fagsakMedforelder)).thenReturn(Optional.of(køetBehandlingMedforelder));
+        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakMedforelder.getId())).thenReturn(
+            Optional.of(fBehandlingMedforelder));
+        when(behandlingsresultatRepository.hentHvisEksisterer(fBehandling.getId())).thenReturn(
+            lagBehandlingsresultat(fBehandling, BehandlingResultatType.OPPHØR,
+                KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER));
+        when(behandlingRevurderingRepository.finnKøetBehandlingMedforelder(fagsakMedforelder)).thenReturn(
+            Optional.of(køetBehandlingMedforelder));
 
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
 
         // Assert
         verifyZeroInteractions(behandlingsoppretter);
-        verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandlingSettUtført(køetBehandlingMedforelder, Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
+        verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandlingSettUtført(køetBehandlingMedforelder,
+            Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
     }
 
     private void settOppAvsluttetBehandlingBruker() {
-        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(Optional.of(fBehandling));
-        when(behandlingsresultatRepository.hentHvisEksisterer(fBehandling.getId())).thenReturn(lagBehandlingsresultatInnvilget(fBehandling));
+        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(
+            Optional.of(fBehandling));
+        when(behandlingsresultatRepository.hentHvisEksisterer(fBehandling.getId())).thenReturn(
+            lagBehandlingsresultatInnvilget(fBehandling));
     }
 
     private void settOppAvsluttetBehandling2part() {
-        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakMedforelder.getId())).thenReturn(Optional.of(fBehandlingMedforelder));
-        when(behandlingsresultatRepository.hentHvisEksisterer(fBehandling.getId())).thenReturn(lagBehandlingsresultatInnvilget(fBehandlingMedforelder));
+        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakMedforelder.getId())).thenReturn(
+            Optional.of(fBehandlingMedforelder));
+        when(behandlingsresultatRepository.hentHvisEksisterer(fBehandling.getId())).thenReturn(
+            lagBehandlingsresultatInnvilget(fBehandlingMedforelder));
     }
 
     private void settOppAvsluttetBerørt() {
-        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(Optional.of(berørt));
-        when(behandlingsresultatRepository.hentHvisEksisterer(berørt.getId())).thenReturn(lagBehandlingsresultatInnvilget(berørt));
+        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(
+            Optional.of(berørt));
+        when(behandlingsresultatRepository.hentHvisEksisterer(berørt.getId())).thenReturn(
+            lagBehandlingsresultatInnvilget(berørt));
     }
 
     private void settOppKøBruker() {
-        when(behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsak.getId())).thenReturn(Optional.of(køetBehandling));
-        when(behandlingRevurderingRepository.finnKøetBehandlingMedforelder(fagsakMedforelder)).thenReturn(Optional.of(køetBehandling));
+        when(behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsak.getId())).thenReturn(
+            Optional.of(køetBehandling));
+        when(behandlingRevurderingRepository.finnKøetBehandlingMedforelder(fagsakMedforelder)).thenReturn(
+            Optional.of(køetBehandling));
     }
 
     private void settOppKø2Part() {
-        when(behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsakMedforelder.getId())).thenReturn(Optional.of(køetBehandlingMedforelder));
-        when(behandlingRevurderingRepository.finnKøetBehandlingMedforelder(fagsak)).thenReturn(Optional.of(køetBehandlingMedforelder));
+        when(behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsakMedforelder.getId())).thenReturn(
+            Optional.of(køetBehandlingMedforelder));
+        when(behandlingRevurderingRepository.finnKøetBehandlingMedforelder(fagsak)).thenReturn(
+            Optional.of(køetBehandlingMedforelder));
     }
 
-    private Behandling lagBehandling()
-    {
+    private Behandling lagBehandling() {
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
         return scenario.lagMocked();
     }
 
     private Behandling lagRevurdering(Behandling behandling, BehandlingÅrsakType årsakType) {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medOriginalBehandling(behandling, årsakType).medBehandlingType(BehandlingType.REVURDERING);
+        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medOriginalBehandling(behandling, årsakType)
+            .medBehandlingType(BehandlingType.REVURDERING);
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
         scenario.medFagsakId(behandling.getId()).medSaksnummer(behandling.getFagsak().getSaksnummer());
         return scenario.lagMocked();
     }
 
-    private Optional<Behandlingsresultat> lagBehandlingsresultat(Behandling behandling, BehandlingResultatType behandlingResultatType,
+    private Optional<Behandlingsresultat> lagBehandlingsresultat(Behandling behandling,
+                                                                 BehandlingResultatType behandlingResultatType,
                                                                  KonsekvensForYtelsen konsekvensForYtelsen) {
         return Optional.of(Behandlingsresultat.builder()
             .medBehandlingResultatType(behandlingResultatType)
@@ -267,12 +298,15 @@ public class BerørtBehandlingKontrollerTest {
         settOppAvsluttetBehandling2part();
         settOppKøBruker();
         settOppKø2Part();
-        when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Long.class), any(Long.class))).thenReturn(true);
+        when(
+            berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Long.class), any(Long.class))).thenReturn(
+            true);
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
         // Assert - TODO: hva er riktig oppførsel? Nå blir køet behandling hos medforelder fortsatt og det opprettes ikke berørt
         verifyZeroInteractions(behandlingsoppretter);
-        verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandlingSettUtført(køetBehandlingMedforelder, Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
+        verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandlingSettUtført(køetBehandlingMedforelder,
+            Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
     }
 
     @Test
@@ -282,7 +316,9 @@ public class BerørtBehandlingKontrollerTest {
         settOppAvsluttetBehandling2part();
         settOppKø2Part();
 
-        when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Long.class), any(Long.class))).thenReturn(true);
+        when(
+            berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Long.class), any(Long.class))).thenReturn(
+            true);
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
         // Assert - oppretter berørt behandling på medforelder
@@ -297,12 +333,15 @@ public class BerørtBehandlingKontrollerTest {
         settOppAvsluttetBehandlingBruker();
         settOppAvsluttetBehandling2part();
         settOppKøBruker();
-        when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Long.class), any(Long.class))).thenReturn(true);
+        when(
+            berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Long.class), any(Long.class))).thenReturn(
+            true);
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
         // Assert  - TODO: hva er riktig oppførsel? Nå fortsettes behandling i egen kø  ... opprettes ikke berørt
         verifyZeroInteractions(behandlingsoppretter);
-        verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandlingSettUtført(køetBehandling, Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
+        verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandlingSettUtført(køetBehandling,
+            Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
     }
 
     @Test
@@ -310,7 +349,9 @@ public class BerørtBehandlingKontrollerTest {
         // Arrange
         settOppAvsluttetBehandlingBruker();
         settOppAvsluttetBehandling2part();
-        when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Long.class), any(Long.class))).thenReturn(true);
+        when(
+            berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Long.class), any(Long.class))).thenReturn(
+            true);
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
         // Assert opprett berørt (for medforelder)
@@ -325,12 +366,15 @@ public class BerørtBehandlingKontrollerTest {
         settOppAvsluttetBehandling2part();
         settOppKøBruker();
         settOppKø2Part();
-        when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Long.class), any(Long.class))).thenReturn(false);
+        when(
+            berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Long.class), any(Long.class))).thenReturn(
+            false);
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
         // Assert - dekø fra medforelders kø
         verifyZeroInteractions(behandlingsoppretter);
-        verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandlingSettUtført(køetBehandlingMedforelder, Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
+        verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandlingSettUtført(køetBehandlingMedforelder,
+            Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
     }
 
     @Test
@@ -340,12 +384,15 @@ public class BerørtBehandlingKontrollerTest {
         settOppAvsluttetBehandling2part();
         settOppKø2Part();
 
-        when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Long.class), any(Long.class))).thenReturn(false);
+        when(
+            berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Long.class), any(Long.class))).thenReturn(
+            false);
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
         // Assert  - dekø fra medforelders kø
         verifyZeroInteractions(behandlingsoppretter);
-        verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandlingSettUtført(køetBehandlingMedforelder, Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
+        verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandlingSettUtført(køetBehandlingMedforelder,
+            Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
     }
 
     @Test
@@ -354,12 +401,15 @@ public class BerørtBehandlingKontrollerTest {
         settOppAvsluttetBehandlingBruker();
         settOppAvsluttetBehandling2part();
         settOppKøBruker();
-        when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Long.class), any(Long.class))).thenReturn(false);
+        when(
+            berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Long.class), any(Long.class))).thenReturn(
+            false);
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
         // Assert dekø fra egen kø
         verifyZeroInteractions(behandlingsoppretter);
-        verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandlingSettUtført(køetBehandling, Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
+        verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandlingSettUtført(køetBehandling,
+            Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
     }
 
     @Test
@@ -367,7 +417,9 @@ public class BerørtBehandlingKontrollerTest {
         // Arrange
         settOppAvsluttetBehandlingBruker();
         settOppAvsluttetBehandling2part();
-        when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Long.class), any(Long.class))).thenReturn(false);
+        when(
+            berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Long.class), any(Long.class))).thenReturn(
+            false);
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
         // Assert - skal ikke skje noe
@@ -383,12 +435,15 @@ public class BerørtBehandlingKontrollerTest {
         settOppAvsluttetBerørt();
         settOppKøBruker();
         settOppKø2Part();
-        when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Long.class), any(Long.class))).thenReturn(false);
+        when(
+            berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Long.class), any(Long.class))).thenReturn(
+            false);
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(berørt.getId());
         // Assert - dekø fra medforelders kø
         verifyZeroInteractions(behandlingsoppretter);
-        verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandlingSettUtført(køetBehandlingMedforelder, Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
+        verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandlingSettUtført(køetBehandlingMedforelder,
+            Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
     }
 
     @Test
@@ -399,12 +454,15 @@ public class BerørtBehandlingKontrollerTest {
         settOppAvsluttetBerørt();
         settOppKø2Part();
 
-        when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Long.class), any(Long.class))).thenReturn(false);
+        when(
+            berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Long.class), any(Long.class))).thenReturn(
+            false);
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(berørt.getId());
         // Assert   dekø fra medforelders kø
         verifyZeroInteractions(behandlingsoppretter);
-        verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandlingSettUtført(køetBehandlingMedforelder, Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
+        verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandlingSettUtført(køetBehandlingMedforelder,
+            Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
     }
 
     @Test
@@ -414,11 +472,14 @@ public class BerørtBehandlingKontrollerTest {
         settOppAvsluttetBehandling2part();
         settOppAvsluttetBerørt();
         settOppKøBruker();
-        when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Long.class), any(Long.class))).thenReturn(false);
+        when(
+            berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Long.class), any(Long.class))).thenReturn(
+            false);
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(berørt.getId());
         // Assert dekø fra egen kø og oppdater revurdering - bør kanskje begrenses ved senere tilpasning av berørt (endringssøknad, passert steg X)
-        verify(behandlingsoppretter).oppdaterBehandlingViaHenleggelse(køetBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
+        verify(behandlingsoppretter).oppdaterBehandlingViaHenleggelse(køetBehandling,
+            BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
         verify(behandlingProsesseringTjeneste).opprettTasksForStartBehandling(any());
         verifyNoMoreInteractions(behandlingProsesseringTjeneste);
     }
@@ -429,7 +490,9 @@ public class BerørtBehandlingKontrollerTest {
         settOppAvsluttetBehandlingBruker();
         settOppAvsluttetBehandling2part();
         settOppAvsluttetBerørt();
-        when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Long.class), any(Long.class))).thenReturn(false);
+        when(
+            berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Long.class), any(Long.class))).thenReturn(
+            false);
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(berørt.getId());
         // Assert - skal ikke skje noe
