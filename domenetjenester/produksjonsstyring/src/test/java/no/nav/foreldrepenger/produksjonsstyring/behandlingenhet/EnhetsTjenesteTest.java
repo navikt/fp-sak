@@ -167,6 +167,10 @@ public class EnhetsTjenesteTest {
         lenient().when(personinfoAdapter.hentGeografiskTilknytning(FAR_AKTØR_ID)).thenReturn(annenPartKode6 ? tilknytningKode6 : tilknytningNormal);
         lenient().when(personinfoAdapter.hentGeografiskTilknytning(BARN_AKTØR_ID)).thenReturn(barnKode6 ? tilknytningKode6 : tilknytningNormal);
 
+        lenient().when(personinfoAdapter.hentDiskresjonskode(MOR_AKTØR_ID)).thenReturn(morKode6 ? Diskresjonskode.KODE6 : Diskresjonskode.UDEFINERT);
+        lenient().when(personinfoAdapter.hentDiskresjonskode(FAR_AKTØR_ID)).thenReturn(annenPartKode6 ? Diskresjonskode.KODE6 : Diskresjonskode.UDEFINERT);
+        lenient().when(personinfoAdapter.hentDiskresjonskode(BARN_AKTØR_ID)).thenReturn(barnKode6 ? Diskresjonskode.KODE6 : Diskresjonskode.UDEFINERT);
+
         lenient().doAnswer((Answer<List<ArbeidsfordelingResponse>>) invocation -> {
             ArbeidsfordelingRequest data = (ArbeidsfordelingRequest) invocation.getArguments()[0];
             return Objects.equals("SPSF", data.getDiskresjonskode()) ? List.of(respKode6) : List.of(respNormal);

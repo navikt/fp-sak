@@ -12,8 +12,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Tema;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.vedtak.felles.integrasjon.sak.v1.LegacySakRestKlient;
 import no.nav.vedtak.felles.integrasjon.sak.v1.SakJson;
-import no.nav.vedtak.felles.integrasjon.sak.v1.SakRestKlient;
 
 
 @ApplicationScoped
@@ -21,14 +21,14 @@ public class OpprettGSakTjeneste {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpprettGSakTjeneste.class);
 
-    private SakRestKlient restKlient;
+    private LegacySakRestKlient restKlient;
 
     public OpprettGSakTjeneste() {
         //For CDI
     }
 
     @Inject
-    public OpprettGSakTjeneste(SakRestKlient restKlient) {
+    public OpprettGSakTjeneste(LegacySakRestKlient restKlient) {
         this.restKlient = restKlient;
     }
 
@@ -37,7 +37,7 @@ public class OpprettGSakTjeneste {
             .medAktoerId(aktørId.getId())
             .medApplikasjon(Fagsystem.FPSAK.getOffisiellKode())
             .medTema(Tema.FOR.getOffisiellKode());
-        var sak = restKlient.opprettSak(request);
+        var sak = restKlient.opprettSak(request.build());
         var sakId = new Saksnummer(String.valueOf(sak.getId()));
         LOGGER.info("SAK REST opprettet sak {}", sakId.getVerdi());
         return sakId;
@@ -49,7 +49,7 @@ public class OpprettGSakTjeneste {
             .medFagsakNr(saksnummer.getVerdi())
             .medApplikasjon(Fagsystem.FPSAK.getOffisiellKode())
             .medTema(Tema.FOR.getOffisiellKode());
-        var sak = restKlient.opprettSak(request);
+        var sak = restKlient.opprettSak(request.build());
         var sakId = new Saksnummer(String.valueOf(sak.getId()));
         LOGGER.info("SAK REST opprettet sak {} for saksnummer {}", sakId.getVerdi(), saksnummer.getVerdi());
         return sakId;

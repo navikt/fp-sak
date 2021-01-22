@@ -28,8 +28,6 @@ import no.nav.foreldrepenger.domene.person.pdl.FødselTjeneste;
 import no.nav.foreldrepenger.domene.person.pdl.PersonBasisTjeneste;
 import no.nav.foreldrepenger.domene.person.pdl.PersoninfoTjeneste;
 import no.nav.foreldrepenger.domene.person.pdl.TilknytningTjeneste;
-import no.nav.foreldrepenger.domene.person.tps.TpsAdapter;
-import no.nav.foreldrepenger.domene.person.tps.TpsFeilmeldinger;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
@@ -41,7 +39,6 @@ public class PersoninfoAdapter {
     private static final Logger LOG = LoggerFactory.getLogger(PersoninfoAdapter.class);
 
     private AktørTjeneste aktørConsumer;
-    private TpsAdapter tpsAdapter;
     private FødselTjeneste fødselTjeneste;
     private TilknytningTjeneste tilknytningTjeneste;
     private PersonBasisTjeneste basisTjeneste;
@@ -58,15 +55,13 @@ public class PersoninfoAdapter {
                              TilknytningTjeneste tilknytningTjeneste,
                              PersonBasisTjeneste basisTjeneste,
                              PersoninfoTjeneste personinfoTjeneste,
-                             DkifSpråkKlient dkifSpråkKlient,
-                             TpsAdapter tpsAdapter) {
+                             DkifSpråkKlient dkifSpråkKlient) {
         this.aktørConsumer = aktørConsumer;
         this.fødselTjeneste = fødselTjeneste;
         this.tilknytningTjeneste = tilknytningTjeneste;
         this.basisTjeneste = basisTjeneste;
         this.personinfoTjeneste = personinfoTjeneste;
         this.dkifSpråkKlient = dkifSpråkKlient;
-        this.tpsAdapter = tpsAdapter;
     }
 
     public Optional<Personinfo> innhentPersonopplysningerFor(AktørId aktørId) {
@@ -103,7 +98,7 @@ public class PersoninfoAdapter {
     }
 
     public PersonIdent hentFnrForAktør(AktørId aktørId) {
-        return hentFnr(aktørId).orElseThrow(() -> TpsFeilmeldinger.FACTORY.fantIkkePersonForAktørId().toException());
+        return hentFnr(aktørId).orElseThrow(() -> new IllegalArgumentException("Fant ikke ident for aktør"));
     }
 
     public Optional<PersonIdent> hentFnr(AktørId aktørId) {
@@ -129,9 +124,11 @@ public class PersoninfoAdapter {
     }
 
     public GeografiskTilknytning hentGeografiskTilknytning(AktørId aktørId) {
-        // Bruk TPS og PersonV3 inntil PDL er modent.
-        return hentFnr(aktørId).map(f -> tpsAdapter.hentGeografiskTilknytning(f))
-            .orElse(new GeografiskTilknytning(null, Diskresjonskode.UDEFINERT));
+        return tilknytningTjeneste.hentGeografiskTilknytning(aktørId);
+    }
+
+    public Diskresjonskode hentDiskresjonskode(AktørId aktørId) {
+        return tilknytningTjeneste.hentDiskresjonskode(aktørId);
     }
 
     public Optional<Tuple<PersonIdent, Diskresjonskode>> hentPersonIdentMedDiskresjonskode(AktørId aktørId) {

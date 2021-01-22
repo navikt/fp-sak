@@ -87,8 +87,7 @@ public class EnhetsTjeneste {
 
     private boolean harNoenDiskresjonskode6(Set<AktørId> aktører) {
         return aktører.stream()
-            .map(personinfoAdapter::hentGeografiskTilknytning)
-            .map(GeografiskTilknytning::getDiskresjonskode)
+            .map(personinfoAdapter::hentDiskresjonskode)
             .anyMatch(Diskresjonskode.KODE6::equals);
     }
 

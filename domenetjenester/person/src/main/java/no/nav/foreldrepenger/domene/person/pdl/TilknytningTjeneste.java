@@ -14,11 +14,11 @@ import no.nav.pdl.AdressebeskyttelseGradering;
 import no.nav.pdl.AdressebeskyttelseResponseProjection;
 import no.nav.pdl.GeografiskTilknytningResponseProjection;
 import no.nav.pdl.GtType;
+import no.nav.pdl.HentGeografiskTilknytningQueryRequest;
 import no.nav.pdl.HentPersonQueryRequest;
 import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
 import no.nav.vedtak.felles.integrasjon.pdl.PdlKlient;
-import no.nav.vedtak.felles.integrasjon.pdl.Tema;
 
 @ApplicationScoped
 public class TilknytningTjeneste {
@@ -36,19 +36,17 @@ public class TilknytningTjeneste {
         this.pdlKlient = pdlKlient;
     }
 
-    // IKKE BRUK DENNE - PDL kommer med nytt skjema og ny metode hentDiskresjonsKode
     public GeografiskTilknytning hentGeografiskTilknytning(AktørId aktørId) {
 
-        var query = new HentPersonQueryRequest();
-        query.setIdent(aktørId.getId());
-        var projection = new PersonResponseProjection()
-            .geografiskTilknytning(new GeografiskTilknytningResponseProjection().gtType().gtBydel().gtKommune().gtLand())
-            .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
+        var queryGT = new HentGeografiskTilknytningQueryRequest();
+        queryGT.setIdent(aktørId.getId());
+        var projectionGT = new GeografiskTilknytningResponseProjection()
+            .gtType().gtBydel().gtKommune().gtLand();
 
-        var person = pdlKlient.hentPerson(query, projection, Tema.FOR);
+        var geografiskTilknytning = pdlKlient.hentGT(queryGT, projectionGT);
 
-        var diskresjon = getDiskresjonskode(person);
-        var tilknytning = getTilknytning(person);
+        var diskresjon = hentDiskresjonskode(aktørId);
+        var tilknytning = getTilknytning(geografiskTilknytning);
         return new GeografiskTilknytning(tilknytning, diskresjon);
     }
 
@@ -58,7 +56,7 @@ public class TilknytningTjeneste {
         var projection = new PersonResponseProjection()
             .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
 
-        var person = pdlKlient.hentPerson(query, projection, Tema.FOR);
+        var person = pdlKlient.hentPerson(query, projection);
 
         return getDiskresjonskode(person);
     }
@@ -73,16 +71,16 @@ public class TilknytningTjeneste {
         return AdressebeskyttelseGradering.FORTROLIG.equals(kode) ? Diskresjonskode.KODE7 : Diskresjonskode.UDEFINERT;
     }
 
-    private String getTilknytning(Person person) {
-        if (person.getGeografiskTilknytning() == null || person.getGeografiskTilknytning().getGtType() == null)
+    private String getTilknytning(no.nav.pdl.GeografiskTilknytning gt) {
+        if (gt == null || gt.getGtType() == null)
             return null;
-        var gtType = person.getGeografiskTilknytning().getGtType();
+        var gtType = gt.getGtType();
         if (GtType.BYDEL.equals(gtType))
-            return person.getGeografiskTilknytning().getGtBydel();
+            return gt.getGtBydel();
         if (GtType.KOMMUNE.equals(gtType))
-            return person.getGeografiskTilknytning().getGtKommune();
+            return gt.getGtKommune();
         if (GtType.UTLAND.equals(gtType))
-            return person.getGeografiskTilknytning().getGtLand();
+            return gt.getGtLand();
         return null;
     }
 

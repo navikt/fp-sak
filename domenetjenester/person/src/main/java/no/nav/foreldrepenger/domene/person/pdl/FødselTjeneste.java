@@ -30,7 +30,6 @@ import no.nav.pdl.FoedselResponseProjection;
 import no.nav.pdl.HentPersonQueryRequest;
 import no.nav.pdl.PersonResponseProjection;
 import no.nav.vedtak.felles.integrasjon.pdl.PdlKlient;
-import no.nav.vedtak.felles.integrasjon.pdl.Tema;
 
 @ApplicationScoped
 public class FødselTjeneste {
@@ -56,7 +55,7 @@ public class FødselTjeneste {
             .doedfoedtBarn(new DoedfoedtBarnResponseProjection().dato())
             .familierelasjoner(new FamilierelasjonResponseProjection().relatertPersonsIdent().relatertPersonsRolle());
 
-        var person = pdlKlient.hentPerson(request, projection, Tema.FOR);
+        var person = pdlKlient.hentPerson(request, projection);
 
         List <FødtBarnInfo> alleBarn = new ArrayList<>();
         person.getDoedfoedtBarn().stream()
@@ -85,7 +84,7 @@ public class FødselTjeneste {
         var projection = new PersonResponseProjection()
             .familierelasjoner(new FamilierelasjonResponseProjection().relatertPersonsIdent().relatertPersonsRolle());
 
-        var person = pdlKlient.hentPerson(request, projection, Tema.FOR);
+        var person = pdlKlient.hentPerson(request, projection);
 
         return person.getFamilierelasjoner().stream()
             .filter(f -> !Familierelasjonsrolle.BARN.equals(f.getRelatertPersonsRolle()))
@@ -110,7 +109,7 @@ public class FødselTjeneste {
             .foedsel(new FoedselResponseProjection().foedselsdato())
             .doedsfall(new DoedsfallResponseProjection().doedsdato());
 
-        var barn = pdlKlient.hentPerson(request, projection, Tema.FOR);
+        var barn = pdlKlient.hentPerson(request, projection);
 
         var fødselsdato = barn.getFoedsel().stream()
             .map(Foedsel::getFoedselsdato)

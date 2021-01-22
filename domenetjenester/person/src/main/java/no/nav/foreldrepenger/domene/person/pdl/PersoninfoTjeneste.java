@@ -96,7 +96,6 @@ import no.nav.pdl.UtenlandskAdresseResponseProjection;
 import no.nav.pdl.Vegadresse;
 import no.nav.pdl.VegadresseResponseProjection;
 import no.nav.vedtak.felles.integrasjon.pdl.PdlKlient;
-import no.nav.vedtak.felles.integrasjon.pdl.Tema;
 import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
@@ -187,7 +186,7 @@ public class PersoninfoTjeneste {
                 .utenlandskAdresseIFrittFormat(new UtenlandskAdresseIFrittFormatResponseProjection().adresselinje1().adresselinje2().adresselinje3().byEllerStedsnavn().postkode().landkode()))
             ;
 
-        var person = pdlKlient.hentPerson(query, projection, Tema.FOR);
+        var person = pdlKlient.hentPerson(query, projection);
 
         var fødselsdato = person.getFoedsel().stream()
             .map(Foedsel::getFoedselsdato)
@@ -251,7 +250,7 @@ public class PersoninfoTjeneste {
                 .utenlandskAdresseIFrittFormat(new UtenlandskAdresseIFrittFormatResponseProjection().adresselinje1().adresselinje2().adresselinje3().byEllerStedsnavn().postkode().landkode()))
             ;
 
-        var person = pdlKlient.hentPerson(query, projection, Tema.FOR);
+        var person = pdlKlient.hentPerson(query, projection);
 
         var builder = Personhistorikkinfo.builder().medAktørId(aktørId.getId());
         var personStatusPerioder = person.getFolkeregisterpersonstatus().stream()
