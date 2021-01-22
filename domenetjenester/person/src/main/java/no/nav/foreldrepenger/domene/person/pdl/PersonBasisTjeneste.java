@@ -37,7 +37,6 @@ import no.nav.pdl.NavnResponseProjection;
 import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
 import no.nav.vedtak.felles.integrasjon.pdl.PdlKlient;
-import no.nav.vedtak.felles.integrasjon.pdl.Tema;
 import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
@@ -68,7 +67,7 @@ public class PersonBasisTjeneste {
             .kjoenn(new KjoennResponseProjection().kjoenn())
             .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
 
-        var person = pdlKlient.hentPerson(query, projection, Tema.FOR);
+        var person = pdlKlient.hentPerson(query, projection);
 
         var fødselsdato = person.getFoedsel().stream()
             .map(Foedsel::getFoedselsdato)
@@ -98,7 +97,7 @@ public class PersonBasisTjeneste {
             .navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn())
             .foedsel(new FoedselResponseProjection().foedselsdato());
 
-        var person = pdlKlient.hentPerson(query, projection, Tema.FOR);
+        var person = pdlKlient.hentPerson(query, projection);
 
         var fødselsdato = person.getFoedsel().stream()
             .map(Foedsel::getFoedselsdato)
@@ -119,7 +118,7 @@ public class PersonBasisTjeneste {
         var projection = new PersonResponseProjection()
             .kjoenn(new KjoennResponseProjection().kjoenn());
 
-        var person = pdlKlient.hentPerson(query, projection, Tema.FOR);
+        var person = pdlKlient.hentPerson(query, projection);
 
         var kjønn = new PersoninfoKjønn.Builder().medAktørId(aktørId)
             .medNavBrukerKjønn(mapKjønn(person))
@@ -133,7 +132,7 @@ public class PersonBasisTjeneste {
         var projection = new PersonResponseProjection()
             .foedsel(new FoedselResponseProjection().foedselsdato());
 
-        var person = pdlKlient.hentPerson(query, projection, Tema.FOR);
+        var person = pdlKlient.hentPerson(query, projection);
 
         var fødselsdato = person.getFoedsel().stream()
             .map(Foedsel::getFoedselsdato)

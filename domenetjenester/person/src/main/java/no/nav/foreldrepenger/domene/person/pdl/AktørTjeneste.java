@@ -17,7 +17,6 @@ import no.nav.pdl.Identliste;
 import no.nav.pdl.IdentlisteResponseProjection;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.integrasjon.pdl.PdlKlient;
-import no.nav.vedtak.felles.integrasjon.pdl.Tema;
 import no.nav.vedtak.util.LRUCache;
 
 @ApplicationScoped
@@ -61,7 +60,7 @@ public class AktørTjeneste {
         final Identliste identliste;
 
         try {
-            identliste = pdlKlient.hentIdenter(request, projection, Tema.FOR);
+            identliste = pdlKlient.hentIdenter(request, projection);
         } catch (VLException v) {
             if (PdlKlient.PDL_KLIENT_NOT_FOUND_KODE.equals(v.getKode())) {
                 return Optional.empty();
@@ -89,7 +88,7 @@ public class AktørTjeneste {
         final Identliste identliste;
 
         try {
-            identliste = pdlKlient.hentIdenter(request, projection, Tema.FOR);
+            identliste = pdlKlient.hentIdenter(request, projection);
         } catch (VLException v) {
             if (PdlKlient.PDL_KLIENT_NOT_FOUND_KODE.equals(v.getKode())) {
                 return Optional.empty();

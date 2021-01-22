@@ -42,7 +42,7 @@ public class TpsFamilieTjenesteTest {
 
     @BeforeEach
     public void setUp() {
-        personinfoAdapter = new PersoninfoAdapter(aktørConsumer, fødselTjeneste, null, null, null, null, null);
+        personinfoAdapter = new PersoninfoAdapter(aktørConsumer, fødselTjeneste, null, null, null, null);
     }
 
     @Test
