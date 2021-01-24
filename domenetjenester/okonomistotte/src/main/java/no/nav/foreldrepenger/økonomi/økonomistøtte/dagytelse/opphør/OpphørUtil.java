@@ -10,6 +10,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
@@ -17,6 +20,8 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragKvitteringTjeneste;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.fp.OppdragInput;
 
 public class OpphørUtil {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpphørUtil.class);
 
     static Set<ØkonomiKodeKlassifik> finnKlassekoderSomIkkeErOpphørt(List<Oppdrag110> oppdrag110Liste) {
         return førsteAktiveDatoPrKodeKlassifik(oppdrag110Liste, false, null).keySet();
@@ -37,6 +42,10 @@ public class OpphørUtil {
                 LocalDate tidligste = tidligsteDato.get(kodeKlassifik);
                 if (linje.gjelderOpphør()) {
                     LocalDate opphørsdato = linje.getDatoStatusFom();
+                    if (opphørsdato == null || tidligste == null) {
+                        LOGGER.warn("Opphør uten noe å opphøre: delytelse {} klasseKode {} fom {} tom {} opphørsdato {} tidligste {}",
+                            linje.getDelytelseId(), linje.getKodeKlassifik(), linje.getDatoVedtakFom(), linje.getDatoVedtakTom(), linje.getDatoStatusFom(), tidligste);
+                    }
                     if (!opphørsdato.isAfter(tidligste)) {
                         tidligsteDato.remove(kodeKlassifik);
                     }
