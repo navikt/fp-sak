@@ -123,7 +123,8 @@ public class TilkjentYtelseMapperTest {
             .medFeriepengerPeriodeTom(LocalDate.of(2021, 5, 31))
             .medFeriepengerRegelInput("foo")
             .medFeriepengerRegelSporing("bar")
-            .build(entitet);
+            .build();
+        BeregningsresultatEntitet.builder(entitet).medBeregningsresultatFeriepenger(brFeriepenger);
 
         BeregningsresultatPeriode periode1 = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(jan1, jan2).build(entitet);
         BeregningsresultatAndel andel1 = lagAndelTilOrg(arbeidsgiver1, 1000, periode1);

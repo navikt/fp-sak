@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.ytelse.beregning.BeregnFeriepengerTjeneste;
@@ -70,7 +71,8 @@ public class BeregneYtelseStegImpl implements BeregneYtelseSteg {
 
         // Beregn feriepenger
         var feriepengerTjeneste = FagsakYtelseTypeRef.Lookup.find(beregnFeriepengerTjeneste, ref.getFagsakYtelseType()).orElseThrow();
-        feriepengerTjeneste.beregnFeriepenger(behandling, beregningsresultat);
+        BeregningsresultatFeriepenger feriepenger = feriepengerTjeneste.beregnFeriepenger(behandling, beregningsresultat);
+        BeregningsresultatEntitet.builder(beregningsresultat).medBeregningsresultatFeriepenger(feriepenger);
 
         // Sett endringsdato
         if (behandling.erRevurdering()) {

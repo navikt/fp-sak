@@ -517,7 +517,8 @@ public class OppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTest 
         BeregningsresultatAndel b1Andel = buildBeregningsresultatAndel(b1Periode_1, true, 500, utbetalingsgrad, virksomhet);
         BeregningsresultatPeriode b1Periode_2 = buildBeregningsresultatPeriode(beregningsresultatFP_1, 9, 20);
         buildBeregningsresultatAndel(b1Periode_2, true, 1000, utbetalingsgrad, virksomhet);
-        BeregningsresultatFeriepenger b1_feriepenger = buildBeregningsresultatFeriepenger(beregningsresultatFP_1);
+        BeregningsresultatFeriepenger b1_feriepenger = buildBeregningsresultatFeriepenger();
+        BeregningsresultatEntitet.builder(beregningsresultatFP_1).medBeregningsresultatFeriepenger(b1_feriepenger);
         buildBeregningsresultatFeriepengerPrÅr(b1_feriepenger, b1Andel, 3000L, Collections.singletonList(OppdragskontrollTjenesteTestBase.DAGENS_DATO));
         beregningsresultatRepository.lagre(behandling, beregningsresultatFP_1);
         Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
@@ -530,7 +531,8 @@ public class OppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTest 
         BeregningsresultatAndel b2Andel = buildBeregningsresultatAndel(b2Periode_1, true, 500, utbetalingsgrad, virksomhet);
         BeregningsresultatPeriode b2Periode_2 = buildBeregningsresultatPeriode(beregningsresultatFørsteRevurderingFP, 9, 16);
         buildBeregningsresultatAndel(b2Periode_2, true, 1000, utbetalingsgrad, virksomhet);
-        BeregningsresultatFeriepenger b2_feriepenger = buildBeregningsresultatFeriepenger(beregningsresultatFørsteRevurderingFP);
+        BeregningsresultatFeriepenger b2_feriepenger = buildBeregningsresultatFeriepenger();
+        BeregningsresultatEntitet.builder(beregningsresultatFørsteRevurderingFP).medBeregningsresultatFeriepenger(b2_feriepenger);
         buildBeregningsresultatFeriepengerPrÅr(b2_feriepenger, b2Andel, 3000L, Collections.singletonList(OppdragskontrollTjenesteTestBase.DAGENS_DATO));
         beregningsresultatRepository.lagre(førsteRevurdering, beregningsresultatFørsteRevurderingFP);
         Oppdragskontroll oppdragForFørsteRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, førsteRevurdering);
@@ -543,7 +545,8 @@ public class OppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTest 
         BeregningsresultatAndel b3Andel = buildBeregningsresultatAndel(b3Periode_1, true, 600, utbetalingsgrad, virksomhet);
         BeregningsresultatPeriode b3Periode_2 = buildBeregningsresultatPeriode(beregningsresultatAndreRevurderingFP, 9, 12);
         buildBeregningsresultatAndel(b3Periode_2, true, 900, utbetalingsgrad, virksomhet);
-        BeregningsresultatFeriepenger b3_feriepenger = buildBeregningsresultatFeriepenger(beregningsresultatAndreRevurderingFP);
+        BeregningsresultatFeriepenger b3_feriepenger = buildBeregningsresultatFeriepenger();
+        BeregningsresultatEntitet.builder(beregningsresultatAndreRevurderingFP).medBeregningsresultatFeriepenger(b3_feriepenger);
         buildBeregningsresultatFeriepengerPrÅr(b3_feriepenger, b3Andel, 3000L, Collections.singletonList(OppdragskontrollTjenesteTestBase.DAGENS_DATO));
         beregningsresultatRepository.lagre(andreRevurdering, beregningsresultatAndreRevurderingFP);
 

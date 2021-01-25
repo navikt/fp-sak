@@ -1,20 +1,5 @@
 package no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.fp;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.mock;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.persistence.EntityManager;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -77,7 +62,6 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollManagerFac
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollTjenesteImpl;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OpprettBehandlingForOppdrag;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.OppdragskontrollManagerFactoryDagYtelse;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.SjekkOmDetFinnesTilkjentYtelse;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.adapter.BehandlingTilOppdragMapperTjeneste;
@@ -86,7 +70,22 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.endring.Oppdrags
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.førstegangsoppdrag.OppdragskontrollFørstegang;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.opphør.OppdragskontrollOpphør;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.opphør.OpprettOpphørIEndringsoppdrag;
+import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
 import no.nav.vedtak.felles.testutilities.db.Repository;
+
+import javax.persistence.EntityManager;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 
 @CdiDbAwareTest
 public abstract class OppdragskontrollTjenesteTestBase {
@@ -291,7 +290,8 @@ public abstract class OppdragskontrollTjenesteTestBase {
             BigDecimal.valueOf(100), virksomhet2);
 
         if (medFeriepenger) {
-            BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger(beregningsresultat);
+            BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger();
+            BeregningsresultatEntitet.builder(beregningsresultat).medBeregningsresultatFeriepenger(feriepenger);
             buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelBruker, 20000L, List.of(DAGENS_DATO));
             buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelArbeidsforhold, 15000L, List.of(DAGENS_DATO));
             buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelArbeidsforhold2, 20000L, List.of(DAGENS_DATO));
@@ -350,13 +350,13 @@ public abstract class OppdragskontrollTjenesteTestBase {
             .build(beregningsresultat);
     }
 
-    protected BeregningsresultatFeriepenger buildBeregningsresultatFeriepenger(BeregningsresultatEntitet beregningsresultat) {
+    protected BeregningsresultatFeriepenger buildBeregningsresultatFeriepenger() {
         return BeregningsresultatFeriepenger.builder()
             .medFeriepengerPeriodeFom(DAGENS_DATO.plusDays(1))
             .medFeriepengerPeriodeTom(DAGENS_DATO.plusDays(29))
             .medFeriepengerRegelInput("clob1")
             .medFeriepengerRegelSporing("clob2")
-            .build(beregningsresultat);
+            .build();
     }
 
     protected void buildBeregningsresultatFeriepengerPrÅr(BeregningsresultatFeriepenger beregningsresultatFeriepenger,
@@ -436,7 +436,8 @@ public abstract class OppdragskontrollTjenesteTestBase {
             BigDecimal.valueOf(100), virksomhet2);
 
         if (medFeriepenger) {
-            BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger(beregningsresultat);
+            BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger();
+            BeregningsresultatEntitet.builder(beregningsresultat).medBeregningsresultatFeriepenger(feriepenger);
             buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelBruker, 20000L, List.of(DAGENS_DATO));
             buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelArbeidsforhold, 15000L, List.of(DAGENS_DATO));
             buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelArbeidsforhold2, 20000L, List.of(DAGENS_DATO));
@@ -525,7 +526,8 @@ public abstract class OppdragskontrollTjenesteTestBase {
             .medEndringsdato(endringsdato)
             .build();
 
-        BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger(beregningsresultat);
+        BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger();
+        BeregningsresultatEntitet.builder(beregningsresultat).medBeregningsresultatFeriepenger(feriepenger);
         for (int i = 0; i < dagsatsBruker.size(); i++) {
             var fom = perioder[i * 2];
             var tom = perioder[i * 2 + 1];
@@ -561,7 +563,9 @@ public abstract class OppdragskontrollTjenesteTestBase {
         BeregningsresultatAndel andelArbeidsgiver2 = buildBeregningsresultatAndel(brPeriode2, false, 400,
             BigDecimal.valueOf(100), virksomhet2);
 
-        BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger(beregningsresultat);
+        BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger();
+        BeregningsresultatEntitet.builder(beregningsresultat).medBeregningsresultatFeriepenger(feriepenger);
+
         buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelBruker, 20000L, List.of(DAGENS_DATO));
         buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelArbeidsgiver2, 20000L, List.of(DAGENS_DATO));
 
@@ -580,7 +584,8 @@ public abstract class OppdragskontrollTjenesteTestBase {
         BeregningsresultatPeriode brPeriode2 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
         buildBeregningsresultatAndel(brPeriode2, erBrukerMottaker, 1500, BigDecimal.valueOf(100), virksomhet);
         if (medFeriepenger) {
-            BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger(beregningsresultat);
+            BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger();
+            BeregningsresultatEntitet.builder(beregningsresultat).medBeregningsresultatFeriepenger(feriepenger);
             buildBeregningsresultatFeriepengerPrÅr(feriepenger, andel1, 20000L, List.of(DAGENS_DATO));
         }
 
@@ -601,7 +606,9 @@ public abstract class OppdragskontrollTjenesteTestBase {
             virksomhet);
         BeregningsresultatAndel andel2 = buildBeregningsresultatAndel(brPeriode1, false, 1300, BigDecimal.valueOf(100),
             virksomhet);
-        BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger(beregningsresultat);
+        BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger();
+        BeregningsresultatEntitet.builder(beregningsresultat).medBeregningsresultatFeriepenger(feriepenger);
+
         oppsettFeriepenger(erOpptjentOverFlereÅr, årsbeløp1, årsbeløp2, andel1, feriepenger);
         oppsettFeriepenger(erOpptjentOverFlereÅr, årsbeløp1, årsbeløp2, andel2, feriepenger);
 
@@ -658,8 +665,8 @@ public abstract class OppdragskontrollTjenesteTestBase {
         buildBeregningsresultatAndel(brPeriode4, false, 0, BigDecimal.valueOf(80), virksomhet3);
 
         if (medFeriepenger) {
-            BeregningsresultatFeriepenger feriepengerRevurdering = buildBeregningsresultatFeriepenger(
-                beregningsresultatRevurderingFP);
+            BeregningsresultatFeriepenger feriepengerRevurdering = buildBeregningsresultatFeriepenger();
+            BeregningsresultatEntitet.builder(beregningsresultatRevurderingFP).medBeregningsresultatFeriepenger(feriepengerRevurdering);
             buildBeregningsresultatFeriepengerPrÅr(feriepengerRevurdering, andelRevurderingArbeidsforhold, 15000L,
                 List.of(DAGENS_DATO));
             buildBeregningsresultatFeriepengerPrÅr(feriepengerRevurdering, andelRevurderingArbeidsforhold4, 15000L,
@@ -711,8 +718,9 @@ public abstract class OppdragskontrollTjenesteTestBase {
             BigDecimal.valueOf(100), andreVirksomhetOrgnr, aktivitetStatus, inntektskategori);
 
         if (medFeriepenger) {
-            BeregningsresultatFeriepenger feriepengerRevurdering = buildBeregningsresultatFeriepenger(
-                beregningsresultatRevurderingFP);
+            BeregningsresultatFeriepenger feriepengerRevurdering = buildBeregningsresultatFeriepenger();
+            BeregningsresultatEntitet.builder(beregningsresultatRevurderingFP).medBeregningsresultatFeriepenger(feriepengerRevurdering);
+
             buildBeregningsresultatFeriepengerPrÅr(feriepengerRevurdering, andelRevurderingArbeidsforhold, 15000L,
                 List.of(DAGENS_DATO));
             buildBeregningsresultatFeriepengerPrÅr(feriepengerRevurdering, andelRevurderingArbeidsforhold4, 15000L,
@@ -753,8 +761,9 @@ public abstract class OppdragskontrollTjenesteTestBase {
         buildBeregningsresultatAndel(brPeriode2, true, 1500, BigDecimal.valueOf(80), virksomhet4, aktivitetStatus,
             inntektskategori);
 
-        BeregningsresultatFeriepenger feriepengerRevurdering = buildBeregningsresultatFeriepenger(
-            beregningsresultatRevurderingFP);
+        BeregningsresultatFeriepenger feriepengerRevurdering = buildBeregningsresultatFeriepenger();
+        BeregningsresultatEntitet.builder(beregningsresultatRevurderingFP).medBeregningsresultatFeriepenger(feriepengerRevurdering);
+
         buildBeregningsresultatFeriepengerPrÅr(feriepengerRevurdering, andelRevurderingArbeidsiver, 16000L,
             List.of(DAGENS_DATO));
 
@@ -775,8 +784,9 @@ public abstract class OppdragskontrollTjenesteTestBase {
         BeregningsresultatPeriode brPeriode2 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 9, 20);
         buildBeregningsresultatAndel(brPeriode2, erBrukerMottaker, 1500, BigDecimal.valueOf(100), virksomhet);
         if (medFeriepenger) {
-            BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger(
-                beregningsresultatRevurderingFP);
+            BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger();
+            BeregningsresultatEntitet.builder(beregningsresultatRevurderingFP).medBeregningsresultatFeriepenger(feriepenger);
+
             buildBeregningsresultatFeriepengerPrÅr(feriepenger, andel1, 21000L, List.of(DAGENS_DATO));
         }
 

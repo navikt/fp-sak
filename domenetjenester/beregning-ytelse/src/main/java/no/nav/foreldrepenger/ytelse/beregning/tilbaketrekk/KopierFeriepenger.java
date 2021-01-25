@@ -28,7 +28,8 @@ public class KopierFeriepenger {
             .map(BeregningsresultatFeriepenger::getBeregningsresultatFeriepengerPrÅrListe)
             .orElse(Collections.emptyList());
 
-        BeregningsresultatFeriepenger beregningsresultatFeriepenger = kopierBeregningsresultatFeriepenger(utbetBR, bgFeriepenger);
+        BeregningsresultatFeriepenger beregningsresultatFeriepenger = kopierBeregningsresultatFeriepenger(bgFeriepenger);
+        BeregningsresultatEntitet.builder(utbetBR).medBeregningsresultatFeriepenger(beregningsresultatFeriepenger);
 
         bgFeriepengerPrÅrListe.forEach(prÅr -> {
             BeregningsresultatAndel bgAndel = prÅr.getBeregningsresultatAndel();
@@ -55,13 +56,13 @@ public class KopierFeriepenger {
         });
     }
 
-    private static BeregningsresultatFeriepenger kopierBeregningsresultatFeriepenger(BeregningsresultatEntitet utbetBR, BeregningsresultatFeriepenger bgFeriepenger) {
+    private static BeregningsresultatFeriepenger kopierBeregningsresultatFeriepenger(BeregningsresultatFeriepenger bgFeriepenger) {
         return BeregningsresultatFeriepenger.builder()
             .medFeriepengerPeriodeFom(bgFeriepenger.getFeriepengerPeriodeFom())
             .medFeriepengerPeriodeTom(bgFeriepenger.getFeriepengerPeriodeTom())
             .medFeriepengerRegelSporing(bgFeriepenger.getFeriepengerRegelSporing())
             .medFeriepengerRegelInput(bgFeriepenger.getFeriepengerRegelInput())
-            .build(utbetBR);
+            .build();
     }
 
 }

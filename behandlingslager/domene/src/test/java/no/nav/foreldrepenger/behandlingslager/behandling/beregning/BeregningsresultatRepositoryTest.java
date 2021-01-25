@@ -214,14 +214,14 @@ public class BeregningsresultatRepositoryTest extends EntityManagerAwareTest {
     public void lagreBeregningsresultatFPOgFeriepenger() {
         // Arrange
         var behandling = opprettBehandling();
-        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(Optional.of(LocalDate.now()), false);
         BeregningsresultatFeriepenger feriepenger = BeregningsresultatFeriepenger.builder()
             .medFeriepengerPeriodeFom(LocalDate.now())
             .medFeriepengerPeriodeTom(LocalDate.now())
             .medFeriepengerRegelInput("-")
             .medFeriepengerRegelSporing("-")
-            .build(beregningsresultat);
+            .build();
 
+        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(Optional.of(LocalDate.now()), false, feriepenger);
         BeregningsresultatAndel andel = beregningsresultat.getBeregningsresultatPerioder().get(0).getBeregningsresultatAndelList().get(0);
         BeregningsresultatFeriepengerPrÅr.builder()
             .medOpptjeningsår(LocalDate.now().withMonth(12).withDayOfMonth(31))
@@ -327,11 +327,17 @@ public class BeregningsresultatRepositoryTest extends EntityManagerAwareTest {
             .medBeregningsresultatPeriodeFomOgTom(LocalDate.now().minusDays(20), LocalDate.now().minusDays(15))
             .build(beregningsresultat);
     }
-
     private BeregningsresultatEntitet buildBeregningsresultatFP(Optional<LocalDate> endringsdato, boolean medPrivatpersonArbeidsgiver) {
+        return buildBeregningsresultatFP(endringsdato, medPrivatpersonArbeidsgiver, null);
+    }
+
+    private BeregningsresultatEntitet buildBeregningsresultatFP(Optional<LocalDate> endringsdato, boolean medPrivatpersonArbeidsgiver, BeregningsresultatFeriepenger feriepenger) {
         BeregningsresultatEntitet.Builder builder = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
             .medRegelSporing("clob2");
+        if (feriepenger != null) {
+            builder.medBeregningsresultatFeriepenger(feriepenger);
+        }
         endringsdato.ifPresent(builder::medEndringsdato);
         BeregningsresultatEntitet beregningsresultat = builder.build();
         BeregningsresultatPeriode brPeriode = buildBeregningsresultatPeriode(beregningsresultat);

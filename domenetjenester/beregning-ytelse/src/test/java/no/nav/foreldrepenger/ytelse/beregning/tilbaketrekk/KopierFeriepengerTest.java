@@ -60,7 +60,8 @@ public class KopierFeriepengerTest {
         BeregningsresultatPeriode bgBrPeriode = lagBeregningsresultatPeriode(SKJÆRINGSTIDSPUNKT, SLUTTDATO);
         BeregningsresultatEntitet bgBeregningsresultatFP = bgBrPeriode.getBeregningsresultat();
         var andel = lagAndel(bgBrPeriode, false, 1000);
-        lagBeregningsresultatFeriepenger(bgBeregningsresultatFP, andel);
+        BeregningsresultatFeriepenger feriepenger = lagBeregningsresultatFeriepenger(andel);
+        BeregningsresultatEntitet.builder(bgBeregningsresultatFP).medBeregningsresultatFeriepenger(feriepenger);
 
         BeregningsresultatEntitet utbetTY = lagBeregningsresultatFP();
         BeregningsresultatPeriode utbetP0 = BeregningsresultatPeriode.builder()
@@ -91,17 +92,18 @@ public class KopierFeriepengerTest {
                 .satisfies(prÅr -> assertThat(prÅr.getBeregningsresultatAndel()).isSameAs(utbetP0AndelArbeidsgiver));
     }
 
-    private void lagBeregningsresultatFeriepenger(BeregningsresultatEntitet bgBeregningsresultatFP, BeregningsresultatAndel andel) {
+    private BeregningsresultatFeriepenger lagBeregningsresultatFeriepenger(BeregningsresultatAndel andel) {
         LocalDate fom = LocalDate.of(2020, 5, 1);
         var feriepenger = BeregningsresultatFeriepenger.builder()
                 .medFeriepengerRegelInput("input")
                 .medFeriepengerRegelSporing("sporing")
                 .medFeriepengerPeriodeFom(fom)
                 .medFeriepengerPeriodeTom(LocalDate.of(2020, 5, 31))
-                .build(bgBeregningsresultatFP);
+                .build();
         BeregningsresultatFeriepengerPrÅr.builder().medOpptjeningsår(SKJÆRINGSTIDSPUNKT)
                 .medÅrsbeløp(200L)
                 .build(feriepenger, andel);
+        return feriepenger;
 
     }
 

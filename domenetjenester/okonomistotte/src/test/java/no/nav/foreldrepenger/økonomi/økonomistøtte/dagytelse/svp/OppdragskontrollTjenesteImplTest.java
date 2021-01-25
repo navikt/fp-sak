@@ -44,7 +44,8 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
         BeregningsresultatPeriode brPeriode_2 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
         buildBeregningsresultatAndel(brPeriode_2, true, 1000, BigDecimal.valueOf(100L), virksomhet);
         buildBeregningsresultatAndel(brPeriode_2, false, 1000, BigDecimal.valueOf(100L), virksomhet);
-        BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger(beregningsresultat);
+        BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger();
+        BeregningsresultatEntitet.builder(beregningsresultat).medBeregningsresultatFeriepenger(feriepenger);
         buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelBruker_1, 10000L, LocalDate.of(2018, 12, 31));
         buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelArbeidsgiver_1, 10000L, LocalDate.of(2018, 12, 31));
         beregningsresultatRepository.lagre(behandlingSVP, beregningsresultat);

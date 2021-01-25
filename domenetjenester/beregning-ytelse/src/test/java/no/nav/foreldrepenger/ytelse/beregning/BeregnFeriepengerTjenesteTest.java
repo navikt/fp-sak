@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 
@@ -74,10 +75,10 @@ public class BeregnFeriepengerTjenesteTest {
                 Inntektskategori.ARBEIDSTAKER);
 
         // Act
-        tjeneste.beregnFeriepenger(morsBehandling, morsBeregningsresultatFP);
+        BeregningsresultatFeriepenger feriepenger = tjeneste.beregnFeriepenger(morsBehandling, morsBeregningsresultatFP);
 
         // Assert
-        assertThat(morsBeregningsresultatFP.getBeregningsresultatFeriepenger()).hasValueSatisfying(this::assertBeregningsresultatFeriepenger);
+        assertThat(Optional.of(feriepenger)).hasValueSatisfying(this::assertBeregningsresultatFeriepenger);
     }
 
     @Test
@@ -90,10 +91,10 @@ public class BeregnFeriepengerTjenesteTest {
                 Inntektskategori.ARBEIDSTAKER_UTEN_FERIEPENGER);
 
         // Act
-        tjeneste.beregnFeriepenger(morsBehandling, morsBeregningsresultatFP);
+        BeregningsresultatFeriepenger feriepenger = tjeneste.beregnFeriepenger(morsBehandling, morsBeregningsresultatFP);
 
         // Assert
-        assertThat(morsBeregningsresultatFP.getBeregningsresultatFeriepenger()).hasValueSatisfying(resultat -> {
+        assertThat(Optional.of(feriepenger)).hasValueSatisfying(resultat -> {
             assertThat(resultat.getBeregningsresultatFeriepengerPrÅrListe()).isEmpty();
             assertThat(resultat.getFeriepengerPeriodeFom()).isNull();
             assertThat(resultat.getFeriepengerPeriodeTom()).isNull();

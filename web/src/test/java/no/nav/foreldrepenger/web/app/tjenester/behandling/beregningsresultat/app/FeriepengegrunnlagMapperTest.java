@@ -28,9 +28,9 @@ class FeriepengegrunnlagMapperTest {
 
     private static final InternArbeidsforholdRef ARBEIDSFORHOLD_ID = InternArbeidsforholdRef.namedRef("TEST-REF");
     private BeregningsresultatPeriode nyPeriode;
-    private BeregningsresultatEntitet bgres = BeregningsresultatEntitet.builder().medRegelInput("").medRegelSporing("").build();
     private BeregningsresultatFeriepenger beregningsresultatFeriepenger = BeregningsresultatFeriepenger.builder().medFeriepengerRegelInput("")
-        .medFeriepengerRegelSporing("").medFeriepengerPeriodeFom(FERIE_PERIODE_FOM).medFeriepengerPeriodeTom(FERIE_PERIODE_TOM).build(bgres);
+        .medFeriepengerRegelSporing("").medFeriepengerPeriodeFom(FERIE_PERIODE_FOM).medFeriepengerPeriodeTom(FERIE_PERIODE_TOM).build();
+    private BeregningsresultatEntitet bgres = BeregningsresultatEntitet.builder().medRegelInput("").medRegelSporing("").medBeregningsresultatFeriepenger(beregningsresultatFeriepenger).build();
 
     @BeforeEach
     void setUp() {

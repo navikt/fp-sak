@@ -136,6 +136,7 @@ public class BeregningsresultatEntitet extends BaseEntitet {
         }
 
         public Builder medBeregningsresultatFeriepenger(BeregningsresultatFeriepenger beregningsresultatFeriepenger) {
+            beregningsresultatFeriepenger.setBeregningsresultat(beregningsresultatFPMal);
             beregningsresultatFPMal.beregningsresultatFeriepenger.clear();
             beregningsresultatFPMal.beregningsresultatFeriepenger.add(beregningsresultatFeriepenger);
             return this;

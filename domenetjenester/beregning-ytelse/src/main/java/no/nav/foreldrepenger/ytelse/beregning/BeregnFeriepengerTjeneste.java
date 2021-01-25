@@ -10,6 +10,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -52,7 +53,7 @@ public abstract class BeregnFeriepengerTjeneste {
         this.antallDagerFeriepenger = antallDagerFeriepenger;
     }
 
-    public void beregnFeriepenger(Behandling behandling, BeregningsresultatEntitet beregningsresultat) {
+    public BeregningsresultatFeriepenger beregnFeriepenger(Behandling behandling, BeregningsresultatEntitet beregningsresultat) {
 
         Optional<Behandling> annenPartsBehandling = finnAnnenPartsBehandling(behandling);
         Optional<BeregningsresultatEntitet> annenPartsBeregningsresultat = annenPartsBehandling.flatMap(beh -> {
@@ -71,7 +72,7 @@ public abstract class BeregnFeriepengerTjeneste {
         Evaluation evaluation = regelBeregnFeriepenger.evaluer(regelModell);
         String sporing = RegelmodellOversetter.getSporing(evaluation);
 
-        MapBeregningsresultatFeriepengerFraRegelTilVL.mapFra(beregningsresultat, regelModell, regelInput, sporing);
+        return MapBeregningsresultatFeriepengerFraRegelTilVL.mapFra(beregningsresultat, regelModell, regelInput, sporing);
     }
 
     private Behandlingsresultat getBehandlingsresultat(Long behandlingId) {

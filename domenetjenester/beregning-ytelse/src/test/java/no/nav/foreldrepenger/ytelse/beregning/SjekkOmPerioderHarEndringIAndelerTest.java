@@ -32,9 +32,8 @@ public class SjekkOmPerioderHarEndringIAndelerTest {
     private SjekkOmPerioderHarEndringIAndeler sjekkOmPerioderHarEndringIAndeler;
     private BeregningsresultatPeriode nyPeriode;
     private BeregningsresultatPeriode gammelPeriode;
-    private BeregningsresultatEntitet bgres = BeregningsresultatEntitet.builder().medRegelInput("").medRegelSporing("").build();
     private BeregningsresultatFeriepenger beregningsresultatFeriepenger = BeregningsresultatFeriepenger.builder().medFeriepengerRegelInput("")
-            .medFeriepengerRegelSporing("").medFeriepengerPeriodeFom(LocalDate.now()).medFeriepengerPeriodeTom(LocalDate.now()).build(bgres);
+        .medFeriepengerRegelSporing("").medFeriepengerPeriodeFom(LocalDate.now()).medFeriepengerPeriodeTom(LocalDate.now()).build();
 
     @BeforeEach
     void setUp() {

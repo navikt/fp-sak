@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -42,11 +43,10 @@ public class MapBeregningsresultatFeriepengerFraRegelTilVLTest {
                 .build();
 
         // Act
-        MapBeregningsresultatFeriepengerFraRegelTilVL.mapFra(beregningsresultat, regelmodell, "input", "sporing");
+        BeregningsresultatFeriepenger feriepenger = MapBeregningsresultatFeriepengerFraRegelTilVL.mapFra(beregningsresultat, regelmodell, "input", "sporing");
 
         // Assert
-        var beregningsresultatFeriepengerPrÅrListe = beregningsresultat.getBeregningsresultatFeriepenger().get()
-                .getBeregningsresultatFeriepengerPrÅrListe();
+        var beregningsresultatFeriepengerPrÅrListe = feriepenger.getBeregningsresultatFeriepengerPrÅrListe();
         assertThat(beregningsresultatFeriepengerPrÅrListe).hasSize(0);
     }
 
@@ -61,11 +61,10 @@ public class MapBeregningsresultatFeriepengerFraRegelTilVLTest {
                 .build();
 
         // Act
-        MapBeregningsresultatFeriepengerFraRegelTilVL.mapFra(beregningsresultat, regelmodell, "input", "sporing");
+        BeregningsresultatFeriepenger feriepenger = MapBeregningsresultatFeriepengerFraRegelTilVL.mapFra(beregningsresultat, regelmodell, "input", "sporing");
 
         // Assert
-        var beregningsresultatFeriepengerPrÅrListe = beregningsresultat.getBeregningsresultatFeriepenger().get()
-                .getBeregningsresultatFeriepengerPrÅrListe();
+        var beregningsresultatFeriepengerPrÅrListe = feriepenger.getBeregningsresultatFeriepengerPrÅrListe();
         assertThat(beregningsresultatFeriepengerPrÅrListe).hasSize(1);
     }
 

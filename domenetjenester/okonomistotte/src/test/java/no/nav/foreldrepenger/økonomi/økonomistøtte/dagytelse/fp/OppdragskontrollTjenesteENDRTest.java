@@ -1282,7 +1282,8 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
         buildBeregningsresultatAndel(b1Periode_1, true, 1500, BigDecimal.valueOf(100), null,
             AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE, Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE);
-        BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger(beregningsresultat);
+        BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger();
+        BeregningsresultatEntitet.builder(beregningsresultat).medBeregningsresultatFeriepenger(feriepenger);
         buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelAT, 20000L, Collections.singletonList(OppdragskontrollTjenesteTestBase.DAGENS_DATO));
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
         OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
@@ -1299,7 +1300,8 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         BeregningsresultatPeriode b2Periode_2 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 11, 20);
         buildBeregningsresultatAndel(b2Periode_2, true, 1500, BigDecimal.valueOf(100), virksomhet,
             AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
-        BeregningsresultatFeriepenger feriepengerRevurdering = buildBeregningsresultatFeriepenger(beregningsresultatRevurderingFP);
+        BeregningsresultatFeriepenger feriepengerRevurdering = buildBeregningsresultatFeriepenger();
+        BeregningsresultatEntitet.builder(beregningsresultatRevurderingFP).medBeregningsresultatFeriepenger(feriepengerRevurdering);
         buildBeregningsresultatFeriepengerPrÅr(feriepengerRevurdering, andelRevurderingAT, 20000L, Collections.singletonList(OppdragskontrollTjenesteTestBase.DAGENS_DATO));
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
@@ -1570,7 +1572,9 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
         buildBeregningsresultatAndel(b1Periode_2, true, 1500, BigDecimal.valueOf(100), null,
             AktivitetStatus.FRILANSER, Inntektskategori.FRILANSER);
-        BeregningsresultatFeriepenger b1_feriepenger = buildBeregningsresultatFeriepenger(beregningsresultatFP_1);
+        BeregningsresultatFeriepenger b1_feriepenger = buildBeregningsresultatFeriepenger();
+        BeregningsresultatEntitet.builder(beregningsresultatFP_1).medBeregningsresultatFeriepenger(b1_feriepenger);
+
         buildBeregningsresultatFeriepengerPrÅr(b1_feriepenger, b1Andel, 3000L, Collections.singletonList(OppdragskontrollTjenesteTestBase.DAGENS_DATO));
         beregningsresultatRepository.lagre(behandling, beregningsresultatFP_1);
         Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
@@ -1597,7 +1601,8 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
         buildBeregningsresultatAndel(b2Periode_3, true, 1500, BigDecimal.valueOf(100), null,
             AktivitetStatus.FRILANSER, Inntektskategori.FRILANSER);
-        BeregningsresultatFeriepenger b2_feriepenger = buildBeregningsresultatFeriepenger(beregningsresultatRevurderingFP);
+        BeregningsresultatFeriepenger b2_feriepenger = buildBeregningsresultatFeriepenger();
+        BeregningsresultatEntitet.builder(beregningsresultatRevurderingFP).medBeregningsresultatFeriepenger(b2_feriepenger);
         buildBeregningsresultatFeriepengerPrÅr(b2_feriepenger, b2Andel, 3000L, List.of(OppdragskontrollTjenesteTestBase.DAGENS_DATO, OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusYears(1)));
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
@@ -1670,7 +1675,8 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         BeregningsresultatPeriode b1Periode_2 = buildBeregningsresultatPeriode(beregningsresultatFP_1, 11, 20);
         buildBeregningsresultatAndel(b1Periode_2, true, 1500, BigDecimal.valueOf(100), virksomhet,
             AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
-        BeregningsresultatFeriepenger b1_feriepenger = buildBeregningsresultatFeriepenger(beregningsresultatFP_1);
+        BeregningsresultatFeriepenger b1_feriepenger = buildBeregningsresultatFeriepenger();
+        BeregningsresultatEntitet.builder(beregningsresultatFP_1).medBeregningsresultatFeriepenger(b1_feriepenger);
         buildBeregningsresultatFeriepengerPrÅr(b1_feriepenger, b1Andel, 3000L, Collections.singletonList(OppdragskontrollTjenesteTestBase.DAGENS_DATO));
         beregningsresultatRepository.lagre(behandling, beregningsresultatFP_1);
         Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
@@ -1691,7 +1697,9 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         BeregningsresultatPeriode b2Periode_3 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 21, 30);
         buildBeregningsresultatAndel(b2Periode_3, true, 1500, BigDecimal.valueOf(100), virksomhet,
             AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
-        BeregningsresultatFeriepenger b2_feriepenger = buildBeregningsresultatFeriepenger(beregningsresultatRevurderingFP);
+        BeregningsresultatFeriepenger b2_feriepenger = buildBeregningsresultatFeriepenger();
+        BeregningsresultatEntitet.builder(beregningsresultatRevurderingFP).medBeregningsresultatFeriepenger(b2_feriepenger);
+
         buildBeregningsresultatFeriepengerPrÅr(b2_feriepenger, b2Andel, 3000L, List.of(OppdragskontrollTjenesteTestBase.DAGENS_DATO, OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusYears(1)));
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
@@ -2232,7 +2240,8 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             .medRegelSporing("clob2")
             .build();
 
-        BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger(beregningsresultat);
+        BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger();
+        BeregningsresultatEntitet.builder(beregningsresultat).medBeregningsresultatFeriepenger(feriepenger);
 
         BeregningsresultatPeriode brPeriode1 = buildBeregningsresultatPeriode(beregningsresultat, b10fom, b10tom.plusDays(1));
         buildBeregningsresultatAndel(brPeriode1, true, 0, BigDecimal.valueOf(100), virksomhet);
@@ -2282,7 +2291,8 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             .medEndringsdato(b20fom.plusDays(1))
             .build();
 
-        BeregningsresultatFeriepenger feriepenger1 = buildBeregningsresultatFeriepenger(beregningsresultat1);
+        BeregningsresultatFeriepenger feriepenger1 = buildBeregningsresultatFeriepenger();
+        BeregningsresultatEntitet.builder(beregningsresultat1).medBeregningsresultatFeriepenger(feriepenger1);
 
         BeregningsresultatPeriode brR0Periode1 = buildBeregningsresultatPeriode(beregningsresultat1, b10fom, b10tom);
         buildBeregningsresultatAndel(brR0Periode1, true, 0, BigDecimal.valueOf(100), virksomhet);
@@ -2333,7 +2343,8 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             .medEndringsdato(b20fom)
             .build();
 
-        BeregningsresultatFeriepenger feriepenger2 = buildBeregningsresultatFeriepenger(beregningsresultat2);
+        BeregningsresultatFeriepenger feriepenger2 = buildBeregningsresultatFeriepenger();
+        BeregningsresultatEntitet.builder(beregningsresultat2).medBeregningsresultatFeriepenger(feriepenger2);
 
         BeregningsresultatPeriode brRPeriode1 = buildBeregningsresultatPeriode(beregningsresultat2, b10fom, b10tom);
         buildBeregningsresultatAndel(brRPeriode1, true, 0, BigDecimal.valueOf(100), virksomhet);
@@ -2395,7 +2406,8 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             .medEndringsdato(b21fom)
             .build();
 
-        BeregningsresultatFeriepenger feriepenger3 = buildBeregningsresultatFeriepenger(beregningsresultat3);
+        BeregningsresultatFeriepenger feriepenger3 = buildBeregningsresultatFeriepenger();
+        BeregningsresultatEntitet.builder(beregningsresultat3).medBeregningsresultatFeriepenger(feriepenger3);
 
         BeregningsresultatPeriode brR2Periode1 = buildBeregningsresultatPeriode(beregningsresultat3, b10fom, b10tom);
         buildBeregningsresultatAndel(brR2Periode1, true, 0, BigDecimal.valueOf(100), virksomhet);

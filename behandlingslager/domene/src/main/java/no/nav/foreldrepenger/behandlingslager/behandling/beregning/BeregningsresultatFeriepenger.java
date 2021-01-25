@@ -80,6 +80,11 @@ public class BeregningsresultatFeriepenger extends BaseEntitet {
         return Collections.unmodifiableList(beregningsresultatFeriepengerPrÅrListe);
     }
 
+    void setBeregningsresultat(BeregningsresultatEntitet beregningsresultat) {
+        Objects.requireNonNull(beregningsresultat, "beregningsresultat");
+        this.beregningsresultat = beregningsresultat;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == this) {
@@ -141,15 +146,12 @@ public class BeregningsresultatFeriepenger extends BaseEntitet {
             return this;
         }
 
-        public BeregningsresultatFeriepenger build(BeregningsresultatEntitet beregningsresultat) {
-            beregningsresultatFPMal.beregningsresultat = beregningsresultat;
-            BeregningsresultatEntitet.builder(beregningsresultat).medBeregningsresultatFeriepenger(beregningsresultatFPMal);
+        public BeregningsresultatFeriepenger build() {
             verifyStateForBuild();
             return beregningsresultatFPMal;
         }
 
         public void verifyStateForBuild() {
-            Objects.requireNonNull(beregningsresultatFPMal.beregningsresultat, "beregningsresultat");
             Objects.requireNonNull(beregningsresultatFPMal.beregningsresultatFeriepengerPrÅrListe, "beregningsresultatFeriepengerPrÅrListe");
             Objects.requireNonNull(beregningsresultatFPMal.feriepengerRegelInput, "feriepengerRegelInput");
             Objects.requireNonNull(beregningsresultatFPMal.feriepengerRegelSporing, "feriepengerRegelSporing");

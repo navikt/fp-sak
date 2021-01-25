@@ -17,15 +17,14 @@ public class MapBeregningsresultatFeriepengerFraRegelTilVL {
         // unused
     }
 
-    public static void mapFra(BeregningsresultatEntitet resultat, BeregningsresultatFeriepengerRegelModell regelModell, String regelInput, String sporing) {
+    public static BeregningsresultatFeriepenger mapFra(BeregningsresultatEntitet resultat, BeregningsresultatFeriepengerRegelModell regelModell, String regelInput, String sporing) {
 
         if (regelModell.getFeriepengerPeriode() == null) {
             // Lagrer sporing
-            BeregningsresultatFeriepenger.builder()
+            return BeregningsresultatFeriepenger.builder()
                 .medFeriepengerRegelInput(regelInput)
                 .medFeriepengerRegelSporing(sporing)
-                .build(resultat);
-            return;
+                .build();
         }
 
         var beregningsresultatFeriepenger = BeregningsresultatFeriepenger.builder()
@@ -33,10 +32,11 @@ public class MapBeregningsresultatFeriepengerFraRegelTilVL {
             .medFeriepengerPeriodeTom(regelModell.getFeriepengerPeriode().getTomDato())
             .medFeriepengerRegelInput(regelInput)
             .medFeriepengerRegelSporing(sporing)
-            .build(resultat);
+            .build();
 
         regelModell.getBeregningsresultatPerioder().forEach(regelBeregningsresultatPeriode ->
             mapPeriode(resultat, beregningsresultatFeriepenger, regelBeregningsresultatPeriode));
+        return beregningsresultatFeriepenger;
     }
 
     private static void mapPeriode(BeregningsresultatEntitet resultat, BeregningsresultatFeriepenger beregningsresultatFeriepenger, no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatPeriode regelBeregningsresultatPeriode) {

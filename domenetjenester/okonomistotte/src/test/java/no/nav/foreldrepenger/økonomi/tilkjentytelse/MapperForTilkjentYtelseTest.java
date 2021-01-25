@@ -48,10 +48,17 @@ public class MapperForTilkjentYtelseTest {
     }
 
     static BeregningsresultatEntitet lagTilkjentYtelse(UnaryOperator<BeregningsresultatAndel.Builder> andelModifier) {
+        BeregningsresultatFeriepenger ferienger = BeregningsresultatFeriepenger.builder()
+            .medFeriepengerRegelInput("foo")
+            .medFeriepengerRegelSporing("bar")
+            .medFeriepengerPeriodeFom(LocalDate.of(2018, 3, 1))
+            .medFeriepengerPeriodeTom(LocalDate.of(2018, 3, 31))
+            .build();
         BeregningsresultatEntitet beregningsresultat = BeregningsresultatEntitet.builder()
-                .medRegelInput("foo")
-                .medRegelSporing("bar")
-                .build();
+            .medRegelInput("foo")
+            .medRegelSporing("bar")
+            .medBeregningsresultatFeriepenger(ferienger)
+            .build();
 
         BeregningsresultatPeriode periode = BeregningsresultatPeriode.builder()
                 .medBeregningsresultatPeriodeFomOgTom(LocalDate.of(2018, 3, 1), LocalDate.of(2018, 3, 31))
@@ -65,12 +72,6 @@ public class MapperForTilkjentYtelseTest {
 
         andelBuilder = andelModifier.apply(andelBuilder);
         BeregningsresultatAndel andel = andelBuilder.build(periode);
-        BeregningsresultatFeriepenger ferienger = BeregningsresultatFeriepenger.builder()
-                .medFeriepengerRegelInput("foo")
-                .medFeriepengerRegelSporing("bar")
-                .medFeriepengerPeriodeFom(LocalDate.of(2018, 3, 1))
-                .medFeriepengerPeriodeTom(LocalDate.of(2018, 3, 31))
-                .build(beregningsresultat);
         BeregningsresultatFeriepengerPrÅr.builder()
                 .medOpptjeningsår(LocalDate.of(2018, 12, 31))
                 .medÅrsbeløp(15000L)
