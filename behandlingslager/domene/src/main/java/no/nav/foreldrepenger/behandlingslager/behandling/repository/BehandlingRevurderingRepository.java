@@ -151,19 +151,6 @@ public class BehandlingRevurderingRepository {
         return behandlinger;
     }
 
-    public Optional<Behandling> finnÅpenBehandlingMedforelder(Fagsak fagsak) {
-        Optional<FagsakRelasjon> fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsak);
-        if (!fagsakRelasjon.isPresent() || !fagsakRelasjon.get().getFagsakNrTo().isPresent()) {
-            return Optional.empty();
-        }
-
-        Long fagsakIdEn = fagsakRelasjon.get().getFagsakNrEn().getId();
-        Long fagsakIdTo = fagsakRelasjon.get().getFagsakNrTo().get().getId();
-        Long fagsakIdMedforelder = fagsakIdEn.equals(fagsak.getId()) ? fagsakIdTo : fagsakIdEn;
-
-        return finnÅpenYtelsesbehandling(fagsakIdMedforelder);
-    }
-
     public Optional<Behandling> finnKøetBehandlingMedforelder(Fagsak fagsak) {
         return finnFagsakPåMedforelder(fagsak).flatMap(fs -> finnKøetYtelsesbehandling(fs.getId()));
     }

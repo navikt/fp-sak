@@ -72,89 +72,71 @@ public class BerørtBehandlingKontroller {
         var fagsakPåMedforelder = finnKobletFagsak(fagsakBruker);
         if (fagsakPåMedforelder.isPresent()) {
             var kobletFagsak = fagsakPåMedforelder.get();
-            håndterKøForMedforelder(kobletFagsak, behandlingId);
+            håndterKøForMedforelder(kobletFagsak, fagsakBruker, behandlingId);
         } else {
             håndterKøForBruker(fagsakBruker);
         }
     }
 
-    private void håndterKøForMedforelder(Fagsak fagsakMedforelder, Long behandlingIdBruker) {
+    private void håndterKøForMedforelder(Fagsak fagsakMedforelder, Fagsak fagsakBruker, Long behandlingIdBruker) {
         var innvilgetYtelsesbehandlingMedforelder = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(
             fagsakMedforelder.getId());
-        var iverksattBehandlingBruker = behandlingRepository.hentBehandling(behandlingIdBruker);
-        var behandlingsresultatBruker = behandlingsresultatRepository.hentHvisEksisterer(behandlingIdBruker);
 
-        // OBS: finnesIkkeKøetBehandling sjekker om getFagsakMedforelder(fagsakMedforelder),
-        // dvs fagsakBruker har noe i KØ ... riktig? Kømodell trengs
-        if (finnesIkkeKøetBehandling(fagsakMedforelder, behandlingsresultatBruker)
-            && innvilgetYtelsesbehandlingMedforelder.isPresent()) {
-            if (behandlingsresultatBruker.isPresent()) {
-                opprettBerørtBehandlingOmNødvendig(fagsakMedforelder, behandlingsresultatBruker.get(),
-                    innvilgetYtelsesbehandlingMedforelder.get().getId(), iverksattBehandlingBruker.getId());
+        if (innvilgetYtelsesbehandlingMedforelder.isPresent() && !finnesKøetBehandling(fagsakBruker)) {
+            var behandlingsresultatBruker = behandlingsresultatRepository.hent(behandlingIdBruker);
+            var skalBerørtBehandlingOpprettes = berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(
+                behandlingsresultatBruker, behandlingIdBruker, innvilgetYtelsesbehandlingMedforelder.get().getId());
+            if (skalBerørtBehandlingOpprettes) {
+                opprettBerørtBehandling(fagsakMedforelder, behandlingsresultatBruker);
+            } else {
+                håndterKø(fagsakMedforelder);
             }
         } else {
             håndterKø(fagsakMedforelder);
         }
     }
 
-    private void opprettBerørtBehandlingOmNødvendig(Fagsak kobletFagsak,
-                                                    Behandlingsresultat behandlingsresultatBruker,
-                                                    Long innvilgetYtelsesbehandlingMedforelder,
-                                                    Long iverksattBehandlingBruker) {
-        if (berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(behandlingsresultatBruker, iverksattBehandlingBruker,
-            innvilgetYtelsesbehandlingMedforelder)) {
-            fagsakLåsRepository.taLås(kobletFagsak.getId());
-            opprettBerørtBehandling(kobletFagsak, behandlingsresultatBruker);
+    private boolean finnesKøetBehandling(Fagsak fagsak) {
+        return finnKøetBehandling(fagsak.getId()).isPresent();
+    }
+
+    /**
+     * Oppretter historikkinnslag på medforelders behandling. Type innslag baserer seg på brukers behandlingsresultat
+     */
+    private void opprettHistorikkinnslag(Behandling behandlingMedForelder,
+                                         Behandlingsresultat behandlingsresultatBruker) {
+        if (behandlingsresultatBruker.isEndretStønadskonto()) {
+            berørtBehandlingTjeneste.opprettHistorikkinnslagOmRevurdering(behandlingMedForelder,
+                HistorikkBegrunnelseType.BERORT_BEH_ENDRING_DEKNINGSGRAD);
+        } else if (berørtBehandlingTjeneste.harKonsekvens(behandlingsresultatBruker,
+            KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER)) {
+            berørtBehandlingTjeneste.opprettHistorikkinnslagOmRevurdering(behandlingMedForelder,
+                HistorikkBegrunnelseType.BERORT_BEH_OPPHOR);
         } else {
-            håndterKø(kobletFagsak);
+            berørtBehandlingTjeneste.opprettHistorikkinnslagOmRevurdering(behandlingMedForelder,
+                BehandlingÅrsakType.BERØRT_BEHANDLING);
         }
     }
 
-    private boolean finnesIkkeKøetBehandling(Fagsak fagsak, Optional<Behandlingsresultat> behandlingsresultat) {
-        var køetBehandling = behandlingRevurderingRepository.finnKøetBehandlingMedforelder(fagsak);
-        køetBehandling.ifPresent(behandling -> opprettHistorikkinnslag(behandling, behandlingsresultat,
-            HistorikkinnslagType.BEH_OPPDATERT_NYE_OPPL));
-        return køetBehandling.isEmpty();
-    }
-
-    private void opprettHistorikkinnslag(Behandling behandling,
-                                         Optional<Behandlingsresultat> behandlingsresultat,
-                                         HistorikkinnslagType historikkinnslagType) {
-        if (behandlingsresultat.isPresent()) {
-            if (behandlingsresultat.get().isEndretStønadskonto()) {
-                berørtBehandlingTjeneste.opprettHistorikkinnslagOmRevurdering(behandling, null,
-                    HistorikkBegrunnelseType.BERORT_BEH_ENDRING_DEKNINGSGRAD, historikkinnslagType);
-                return;
-            }
-            if (berørtBehandlingTjeneste.harKonsekvens(behandlingsresultat.get(),
-                KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER)) {
-                berørtBehandlingTjeneste.opprettHistorikkinnslagOmRevurdering(behandling, null,
-                    HistorikkBegrunnelseType.BERORT_BEH_OPPHOR, historikkinnslagType);
-                return;
-            }
-        }
-        berørtBehandlingTjeneste.opprettHistorikkinnslagOmRevurdering(behandling, BehandlingÅrsakType.BERØRT_BEHANDLING,
-            null, historikkinnslagType);
-    }
-
-    private void opprettBerørtBehandling(Fagsak fagsakMedforelder, Behandlingsresultat behandlingsresultat) {
+    private void opprettBerørtBehandling(Fagsak fagsakMedforelder, Behandlingsresultat behandlingsresultatBruker) {
+        fagsakLåsRepository.taLås(fagsakMedforelder.getId());
         // Hvis det nå allerede skulle være en åpen behandling (ikke i kø) så legg den i kø før oppretting av berørt.
         behandlingRevurderingRepository.finnÅpenYtelsesbehandling(fagsakMedforelder.getId())
             .ifPresent(
                 b -> behandlingskontrollTjeneste.settBehandlingPåVent(b, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING,
                     null, null, Venteårsak.VENT_ÅPEN_BEHANDLING));
-        var revurdering = behandlingsoppretter.opprettRevurdering(fagsakMedforelder,
+        var revurderingMedForelder = behandlingsoppretter.opprettRevurdering(fagsakMedforelder,
             BehandlingÅrsakType.BERØRT_BEHANDLING);
-        opprettHistorikkinnslag(revurdering, Optional.of(behandlingsresultat), HistorikkinnslagType.REVURD_OPPR);
-        behandlingProsesseringTjeneste.opprettTasksForStartBehandling(revurdering);
+        opprettHistorikkinnslag(revurderingMedForelder, behandlingsresultatBruker);
+        behandlingProsesseringTjeneste.opprettTasksForStartBehandling(revurderingMedForelder);
     }
 
     private void håndterKø(Fagsak fagsak) {
-        var køetBehandling = finnKøetBehandling(fagsak).orElse(null);
-        if (køetBehandling != null) {
+        var køetBehandlingOpt = finnKøetBehandling(fagsak.getId());
+        if (køetBehandlingOpt.isPresent()) {
+            var køetBehandling = køetBehandlingOpt.get();
             if (harKøetBehandlingAksjonspunktForForTidligSøknadUtførtMenFristFremITid(køetBehandling)) {
-                var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(
-                    køetBehandling);
+                var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(køetBehandling);
                 behandlingskontrollTjeneste.lagreAksjonspunkterUtført(kontekst,
                     køetBehandling.getAktivtBehandlingSteg(),
                     køetBehandling.getAksjonspunktFor(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING),
@@ -186,7 +168,7 @@ public class BerørtBehandlingKontroller {
     }
 
     private void håndterKøForBruker(Fagsak fagsak) {
-        var køetBehandling = finnKøetBehandling(fagsak);
+        var køetBehandling = finnKøetBehandling(fagsak.getId());
         køetBehandling.ifPresent(this::dekøBehandling);
     }
 
@@ -222,8 +204,8 @@ public class BerørtBehandlingKontroller {
             .orElse(BehandlingÅrsakType.UDEFINERT);
     }
 
-    private Optional<Behandling> finnKøetBehandling(Fagsak fagsak) {
-        return behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsak.getId());
+    private Optional<Behandling> finnKøetBehandling(Long fagsakId) {
+        return behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsakId);
     }
 
     private Optional<Behandling> finnKøetBehandlingMedforelder(Fagsak fagsak) {

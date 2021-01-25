@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
@@ -78,7 +79,8 @@ public class BerørtBehandlingTjeneste {
             return false;
         }
 
-        if (brukersGjeldendeBehandlingsresultat.isEndretStønadskonto() || stønadskontoSaldoTjeneste.erNegativSaldoPåNoenKonto(uttakInput)) {
+        if (brukersGjeldendeBehandlingsresultat.isEndretStønadskonto()
+            || stønadskontoSaldoTjeneste.erNegativSaldoPåNoenKonto(uttakInput)) {
             return true;
         }
 
@@ -160,20 +162,23 @@ public class BerørtBehandlingTjeneste {
     }
 
     public void opprettHistorikkinnslagOmRevurdering(Behandling behandling,
-                                                     BehandlingÅrsakType revurderingÅrsak,
-                                                     HistorikkBegrunnelseType historikkBegrunnelseType,
-                                                     HistorikkinnslagType historikkinnslagType) {
-        Historikkinnslag revurderingsInnslag = new Historikkinnslag();
+                                                     HistorikkBegrunnelseType historikkBegrunnelseType) {
+        opprettHistorikkinnslag(behandling, historikkBegrunnelseType);
+    }
+
+    public void opprettHistorikkinnslagOmRevurdering(Behandling behandling, BehandlingÅrsakType behandlingÅrsakType) {
+        opprettHistorikkinnslag(behandling, behandlingÅrsakType);
+    }
+
+    private void opprettHistorikkinnslag(Behandling behandling, Kodeverdi begrunnelse) {
+        var revurderingsInnslag = new Historikkinnslag();
         revurderingsInnslag.setBehandling(behandling);
+        var historikkinnslagType = HistorikkinnslagType.REVURD_OPPR;
         revurderingsInnslag.setType(historikkinnslagType);
         revurderingsInnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
-        HistorikkInnslagTekstBuilder historiebygger = new HistorikkInnslagTekstBuilder().medHendelse(
-            historikkinnslagType);
-        if (revurderingÅrsak != null) {
-            historiebygger.medBegrunnelse(revurderingÅrsak);
-        } else {
-            historiebygger.medBegrunnelse(historikkBegrunnelseType);
-        }
+        var historiebygger = new HistorikkInnslagTekstBuilder().medHendelse(historikkinnslagType);
+        historiebygger.medBegrunnelse(begrunnelse);
+
         historiebygger.build(revurderingsInnslag);
 
         historikkRepository.lagre(revurderingsInnslag);
