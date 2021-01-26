@@ -126,7 +126,7 @@ public class PersonAdresseEntitet extends BaseEntitet implements HarAktørId, In
     }
 
     void setAdresselinje1(String adresselinje1) {
-        this.adresselinje1 = adresselinje1;
+        this.adresselinje1 = max40(adresselinje1);
     }
 
     public String getAdresselinje2() {
@@ -134,7 +134,7 @@ public class PersonAdresseEntitet extends BaseEntitet implements HarAktørId, In
     }
 
     void setAdresselinje2(String adresselinje2) {
-        this.adresselinje2 = adresselinje2;
+        this.adresselinje2 = max40(adresselinje2);
     }
 
     public String getAdresselinje3() {
@@ -142,7 +142,7 @@ public class PersonAdresseEntitet extends BaseEntitet implements HarAktørId, In
     }
 
     void setAdresselinje3(String adresselinje3) {
-        this.adresselinje3 = adresselinje3;
+        this.adresselinje3 = max40(adresselinje3);
     }
 
     public String getAdresselinje4() {
@@ -150,7 +150,7 @@ public class PersonAdresseEntitet extends BaseEntitet implements HarAktørId, In
     }
 
     void setAdresselinje4(String adresselinje4) {
-        this.adresselinje4 = adresselinje4;
+        this.adresselinje4 = max40(adresselinje4);
     }
 
     public String getPostnummer() {
@@ -175,6 +175,10 @@ public class PersonAdresseEntitet extends BaseEntitet implements HarAktørId, In
 
     void setLand(String land) {
         this.land = land;
+    }
+
+    private String max40(String adresselinje) {
+        return adresselinje != null ? adresselinje.substring(0, Math.min(40, adresselinje.length())) : null;
     }
 
     @Override

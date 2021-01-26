@@ -30,14 +30,11 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
-import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.EtterkontrollRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev.InformasjonssakRepository;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.vedtak.avstemming.VedtakOverlappAvstemTask;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
@@ -55,11 +52,8 @@ public class ForvaltningUttrekkRestTjeneste {
 
     private EntityManager entityManager;
     private FagsakRepository fagsakRepository;
-    private BehandlingRepository behandlingRepository;
-    private InformasjonssakRepository informasjonssakRepository;
     private ProsessTaskRepository prosessTaskRepository;
     private OverlappVedtakRepository overlappRepository;
-    private EtterkontrollRepository etterkontrollRepository;
 
     public ForvaltningUttrekkRestTjeneste() {
         // For CDI
@@ -68,17 +62,12 @@ public class ForvaltningUttrekkRestTjeneste {
     @Inject
     public ForvaltningUttrekkRestTjeneste(EntityManager entityManager,
             FagsakRepository fagsakRepository,
-            BehandlingRepository behandlingRepository,
-            InformasjonssakRepository informasjonssakRepository,
             ProsessTaskRepository prosessTaskRepository,
-            OverlappVedtakRepository overlappRepository, EtterkontrollRepository etterkontrollRepository) {
+            OverlappVedtakRepository overlappRepository) {
         this.entityManager = entityManager;
         this.fagsakRepository = fagsakRepository;
-        this.behandlingRepository = behandlingRepository;
-        this.informasjonssakRepository = informasjonssakRepository;
         this.prosessTaskRepository = prosessTaskRepository;
         this.overlappRepository = overlappRepository;
-        this.etterkontrollRepository = etterkontrollRepository;
     }
 
     @POST
