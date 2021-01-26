@@ -20,6 +20,8 @@ public class Feriepengesammenligner {
     private final long behandlingId;
     private final BeregningsresultatEntitet nyttResultat;
     private final BeregningsresultatEntitet gjeldendeResultat;
+    private final String AVVIK_KODE = "FP-110711: ";
+    private final String INGEN_AVVIK_KODE = "FP-110710: ";
 
     private boolean finnesAvvik = false;
 
@@ -111,12 +113,12 @@ public class Feriepengesammenligner {
         this.finnesAvvik = true;
         String gammelBeskrivelse = gammelt == null ? "null" : gammelt.toString();
         String nyBeskrivelse = nytt == null ? "null" : nytt.toString();
-        logger.info("Avvik mellom ny og gammel feriepengeberegning på behandling med id: " + behandlingId +
+        logger.info(AVVIK_KODE + "Avvik mellom ny og gammel feriepengeberegning på behandling med id: " + behandlingId +
             ". Avvik på " + beskrivelse + ". Gammelt grunnlag hadde verdi " + gammelBeskrivelse + ". Nytt grunnlag hadde verdi: " + nyBeskrivelse);
     }
 
     private void loggIngenAvvik() {
-        logger.info("Finner ingen avvik mellom ny og gammel feriepengeberegning på behandling med id: " + behandlingId);
+        logger.info(INGEN_AVVIK_KODE + "Finner ingen avvik mellom ny og gammel feriepengeberegning på behandling med id: " + behandlingId);
     }
 
 
