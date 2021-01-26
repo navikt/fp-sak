@@ -88,6 +88,22 @@ public class BeregningsresultatAndel extends BaseEntitet {
     @Column(name="inntektskategori", nullable = false)
     private Inntektskategori inntektskategori;
 
+    public BeregningsresultatAndel(BeregningsresultatAndel kopi) {
+        this.arbeidsforholdRef = kopi.arbeidsforholdRef;
+        this.arbeidsgiver = kopi.arbeidsgiver;
+        this.brukerErMottaker = kopi.brukerErMottaker;
+        this.arbeidsforholdType = kopi.arbeidsforholdType;
+        this.dagsats = kopi.dagsats;
+        this.stillingsprosent = kopi.stillingsprosent;
+        this.utbetalingsgrad = kopi.utbetalingsgrad;
+        this.dagsatsFraBg = kopi.dagsatsFraBg;
+        this.aktivitetStatus = kopi.aktivitetStatus;
+        this.inntektskategori = kopi.inntektskategori;
+    }
+
+    public BeregningsresultatAndel() {
+    }
+
     public Long getId() {
         return id;
     }

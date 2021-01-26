@@ -56,6 +56,18 @@ public class BeregningsresultatEntitet extends BaseEntitet {
     @Column(name = "endringsdato")
     private LocalDate endringsdato;
 
+    public BeregningsresultatEntitet(BeregningsresultatEntitet kopi) {
+        this.regelInput = kopi.regelInput;
+        this.regelSporing = kopi.regelSporing;
+        this.endringsdato = kopi.endringsdato;
+        kopi.getBeregningsresultatPerioder().forEach(periodeKopi -> {
+            this.beregningsresultatPerioder.add(new BeregningsresultatPeriode(periodeKopi));
+        });
+    }
+
+    public BeregningsresultatEntitet() {
+    }
+
     public Long getId() {
         return id;
     }
@@ -114,6 +126,10 @@ public class BeregningsresultatEntitet extends BaseEntitet {
         return new Builder(beregningsresultat);
     }
 
+    public static Builder builder(Optional<BeregningsresultatEntitet> beregningsresultat) {
+        return new Builder(beregningsresultat);
+    }
+
     public static class Builder {
         private BeregningsresultatEntitet beregningsresultatFPMal;
 
@@ -123,6 +139,10 @@ public class BeregningsresultatEntitet extends BaseEntitet {
 
         public Builder(BeregningsresultatEntitet beregningsresultat) {
             this.beregningsresultatFPMal = beregningsresultat;
+        }
+
+        public Builder(Optional<BeregningsresultatEntitet> beregningsresultat) {
+            this.beregningsresultatFPMal = beregningsresultat.map(BeregningsresultatEntitet::new).orElseGet(BeregningsresultatEntitet::new);
         }
 
         public Builder medRegelInput(String regelInput){
