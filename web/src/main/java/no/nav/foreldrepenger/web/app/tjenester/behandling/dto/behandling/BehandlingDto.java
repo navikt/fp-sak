@@ -184,7 +184,13 @@ public class BehandlingDto {
         return toTrinnsBehandling;
     }
 
+    @Deprecated (forRemoval = true, since = "dato=26.01.2020") //TODO(TOR): Fjerne versjon uten å når frontend har byttet
     @JsonProperty("behandlingArsaker")
+    public List<BehandlingÅrsakDto> getBehandlingArsaker() {
+        return behandlingÅrsaker;
+    }
+
+    @JsonProperty("behandlingÅrsaker")
     public List<BehandlingÅrsakDto> getBehandlingÅrsaker() {
         return behandlingÅrsaker;
     }
