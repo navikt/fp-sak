@@ -7,12 +7,10 @@ import java.util.List;
 
 public class OppdragKjedeFortsettelse {
 
-    private boolean erNy;
     private LocalDate endringsdato;
     private List<OppdragLinje> oppdragslinjer;
 
-    private OppdragKjedeFortsettelse(boolean erNy, LocalDate endringsdato, List<OppdragLinje> oppdragslinjer) {
-        this.erNy = erNy;
+    private OppdragKjedeFortsettelse(LocalDate endringsdato, List<OppdragLinje> oppdragslinjer) {
         this.endringsdato = endringsdato;
         this.oppdragslinjer = oppdragslinjer;
     }
@@ -25,8 +23,8 @@ public class OppdragKjedeFortsettelse {
         return oppdragslinjer.get(0).getDelytelseId().getFagsystemId();
     }
 
-    public static Builder builder(boolean erNy, LocalDate endringsdato) {
-        return new Builder(erNy, endringsdato);
+    public static Builder builder(LocalDate endringsdato) {
+        return new Builder(endringsdato);
     }
 
     public OppdragLinje getSisteLinje() {
@@ -44,18 +42,12 @@ public class OppdragKjedeFortsettelse {
         return endringsdato;
     }
 
-    public boolean erNy() {
-        return erNy;
-    }
-
     public static class Builder {
 
-        private boolean erNy;
         private LocalDate endringsdato;
         private List<OppdragLinje> oppdragslinjer = new ArrayList<>();
 
-        private Builder(boolean erNy, LocalDate endringsdato) {
-            this.erNy = erNy;
+        private Builder(LocalDate endringsdato) {
             this.endringsdato = endringsdato;
         }
 
@@ -86,7 +78,7 @@ public class OppdragKjedeFortsettelse {
         }
 
         public OppdragKjedeFortsettelse build() {
-            return new OppdragKjedeFortsettelse(erNy, endringsdato, oppdragslinjer);
+            return new OppdragKjedeFortsettelse(endringsdato, oppdragslinjer);
         }
     }
 }

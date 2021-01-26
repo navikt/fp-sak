@@ -48,15 +48,6 @@ public class Oppdrag {
         return !erTomt();
     }
 
-    public boolean erNytt() {
-        for (OppdragKjedeFortsettelse kjede : kjeder.values()) {
-            if (!kjede.erNy()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     public LocalDate getEndringsdato() {
         LocalDate endringsdato = null;
         for (OppdragKjedeFortsettelse kjede : kjeder.values()) {

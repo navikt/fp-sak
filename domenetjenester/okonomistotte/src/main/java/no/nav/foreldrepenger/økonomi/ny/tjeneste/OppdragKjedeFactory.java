@@ -41,7 +41,7 @@ public class OppdragKjedeFactory {
         Ytelse iverksattYtelse = tidligereOppdrag.tilYtelse();
         boolean erNy = iverksattYtelse.getPerioder().isEmpty();
         LocalDate endringsdato = EndringsdatoTjeneste.normal().finnEndringsdato(iverksattYtelse, vedtak);
-        return endringsdato == null ? null : lagOppdragskjede(erNy, endringsdato, tidligereOppdrag, vedtak, gjelderFeriepenger);
+        return endringsdato == null ? null : lagOppdragskjede(endringsdato, tidligereOppdrag, vedtak, gjelderFeriepenger);
     }
 
     public OppdragKjedeFortsettelse lagOppdragskjedeFraFellesEndringsdato(OppdragKjede tidligereOppdrag, Ytelse vedtak, boolean gjelderFeriepenger, LocalDate tidligsteEndringsdato) {
@@ -49,7 +49,6 @@ public class OppdragKjedeFactory {
         Objects.requireNonNull(vedtak);
         Objects.requireNonNull(tidligsteEndringsdato);
         Ytelse iverksattYtelse = tidligereOppdrag.tilYtelse();
-        boolean erNy = iverksattYtelse.getPerioder().isEmpty();
         LocalDate endringsdato = EndringsdatoTjeneste.normal().finnEndringsdato(iverksattYtelse, vedtak);
         if (endringsdato != null && endringsdato.isBefore(tidligsteEndringsdato)) {
             throw new IllegalArgumentException("Endringsdato for kjeden er før felles endringsdato");
@@ -57,15 +56,15 @@ public class OppdragKjedeFactory {
         if (vedtak.getPerioderFraOgMed(tidligsteEndringsdato).isEmpty() && !tidligereOppdrag.tilYtelse().harVerdiPåEllerEtter(tidligsteEndringsdato)) {
             return null;
         }
-        return lagOppdragskjede(erNy, tidligsteEndringsdato, tidligereOppdrag, vedtak, gjelderFeriepenger);
+        return lagOppdragskjede(tidligsteEndringsdato, tidligereOppdrag, vedtak, gjelderFeriepenger);
     }
 
-    private OppdragKjedeFortsettelse lagOppdragskjede(boolean erNy, LocalDate endringsdato, OppdragKjede tidligereOppdrag, Ytelse vedtak, boolean gjelderFeriepenger) {
+    private OppdragKjedeFortsettelse lagOppdragskjede(LocalDate endringsdato, OppdragKjede tidligereOppdrag, Ytelse vedtak, boolean gjelderFeriepenger) {
         if (gjelderFeriepenger && vedtak.getPerioder().size() > 1) {
             throw new IllegalArgumentException("For feriepenger skal det være 0 eller 1 periode pr nøkkel (nøkkel inkl opptjeningsår), men fikk: " + vedtak.getPerioder().size() + " perioder");
         }
 
-        OppdragKjedeFortsettelse.Builder builder = OppdragKjedeFortsettelse.builder(erNy, endringsdato);
+        OppdragKjedeFortsettelse.Builder builder = OppdragKjedeFortsettelse.builder(endringsdato);
 
         //for feriepenger sendes opphør kun når feriepengene skal tas bort.
         boolean erYtelseEllerOpphørAvFeriepenger = !gjelderFeriepenger || vedtak.getPerioder().isEmpty();

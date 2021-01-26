@@ -62,7 +62,7 @@ public class OppdragMapper {
             .medSaksbehId(ansvarligSaksbehandler)
             .medAvstemming115(opprettAvstemming115());
 
-        if (oppdrag.getBetalingsmottaker() == Betalingsmottaker.BRUKER && !oppdrag.erNytt() && !erOpphørForMottaker(oppdrag)) {
+        if (oppdrag.getBetalingsmottaker() == Betalingsmottaker.BRUKER && !oppdragErTilNyMottaker(oppdrag) && !erOpphørForMottaker(oppdrag)) {
             opprettOmpostering116(oppdrag.getEndringsdato(), input.brukInntrekk()).ifPresent(builder::medOmpostering116);
         }
 
@@ -78,10 +78,14 @@ public class OppdragMapper {
         }
     }
 
+    private boolean oppdragErTilNyMottaker(Oppdrag oppdrag) {
+        return !tidligereOppdrag.getBetalingsmottakere().contains(oppdrag.getBetalingsmottaker());
+    }
+
     public ØkonomiKodeEndring utledKodeEndring(Oppdrag oppdrag) {
         //usikker på nøyaktig hva som bør sendes her,
         //dette er reverse-engineered fra gammel implementasjon
-        if (oppdrag.erNytt()) {
+        if (oppdragErTilNyMottaker(oppdrag)) {
             return ØkonomiKodeEndring.NY;
         }
         if (oppdrag.getBetalingsmottaker() == Betalingsmottaker.BRUKER && !erOpphørForMottaker(oppdrag)) {
