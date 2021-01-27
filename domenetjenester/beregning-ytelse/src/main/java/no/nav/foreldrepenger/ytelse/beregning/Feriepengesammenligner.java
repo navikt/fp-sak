@@ -5,6 +5,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepengerPrÅr;
 import no.nav.foreldrepenger.domene.typer.Beløp;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 public class Feriepengesammenligner {
     private static final Logger logger = LoggerFactory.getLogger(Feriepengesammenligner.class);
     private final long behandlingId;
+    private final Saksnummer saksnummer;
     private final BeregningsresultatEntitet nyttResultat;
     private final BeregningsresultatEntitet gjeldendeResultat;
     private final String AVVIK_KODE = "FP-110711: ";
@@ -26,9 +28,11 @@ public class Feriepengesammenligner {
     private boolean finnesAvvik = false;
 
     public Feriepengesammenligner(long behandlingId,
+                                  Saksnummer saksnummer,
                                   BeregningsresultatEntitet nyttResultat,
                                   BeregningsresultatEntitet gjeldendeResultat) {
         this.behandlingId = behandlingId;
+        this.saksnummer = saksnummer;
         this.nyttResultat = nyttResultat;
         this.gjeldendeResultat = gjeldendeResultat;
     }
@@ -113,12 +117,12 @@ public class Feriepengesammenligner {
         this.finnesAvvik = true;
         String gammelBeskrivelse = gammelt == null ? "null" : gammelt.toString();
         String nyBeskrivelse = nytt == null ? "null" : nytt.toString();
-        logger.info(AVVIK_KODE + "Avvik mellom ny og gammel feriepengeberegning på behandling med id: " + behandlingId +
+        logger.info(AVVIK_KODE + "Avvik mellom ny og gammel feriepengeberegning på saksnummer " + saksnummer.getVerdi()  + " på behandling med id: " + behandlingId +
             ". Avvik på " + beskrivelse + ". Gammelt grunnlag hadde verdi " + gammelBeskrivelse + ". Nytt grunnlag hadde verdi: " + nyBeskrivelse);
     }
 
     private void loggIngenAvvik() {
-        logger.info(INGEN_AVVIK_KODE + "Finner ingen avvik mellom ny og gammel feriepengeberegning på behandling med id: " + behandlingId);
+        logger.info(INGEN_AVVIK_KODE + "Finner ingen avvik mellom ny og gammel feriepengeberegning på saksnummer " + saksnummer.getVerdi() + " på behandling med id: " + behandlingId);
     }
 
 

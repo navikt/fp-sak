@@ -8,6 +8,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -39,7 +40,7 @@ class FeriepengesammenlignerTest {
             .build(gr1);
         BeregningsresultatFeriepenger.builder().medFeriepengerRegelSporing("").medFeriepengerRegelInput("").medFeriepengerPeriodeFom(LocalDate.now()).medFeriepengerPeriodeFom(LocalDate.now()).build(gr2);
         BeregningsresultatFeriepenger.builder().medFeriepengerRegelSporing("").medFeriepengerRegelInput("").medFeriepengerPeriodeFom(LocalDate.now()).medFeriepengerPeriodeFom(LocalDate.now()).build(gr1);
-        sjekker = new Feriepengesammenligner(123, gr1, gr2);
+        sjekker = new Feriepengesammenligner(123, new Saksnummer("123"), gr1, gr2);
     }
 
     @Test
