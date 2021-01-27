@@ -62,7 +62,7 @@ class FeriepengesammenlignerTest {
     @Test
     public void skal_gi_avvik_når_beløp_er_ulikt() {
         // Arrange
-        lagFerieandel(gr1, 2020, 4999, lagAndel(gr1, "123", true));
+        lagFerieandel(gr1, 2020, 4990, lagAndel(gr1, "123", true));
         lagFerieandel(gr1, 2020, 5000, lagAndel(gr1, "123", false));
 
         lagFerieandel(gr2, 2020, 5000, lagAndel(gr2, "123", true));
@@ -102,7 +102,7 @@ class FeriepengesammenlignerTest {
         BeregningsresultatAndel andel2 = lagAndel(gr2, "123", true);
         lagFerieandel(gr2, 2020, 5000, andel2);
         lagFerieandel(gr2, 2020, 5000, lagAndel(gr2, "321", true));
-        lagFerieandel(gr2, 2021, 4999, andel2);
+        lagFerieandel(gr2, 2021, 4990, andel2);
 
         // Act
         boolean finnesAvvik = sjekker.finnesAvvik();
