@@ -26,6 +26,7 @@ import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingPeriode
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.foreldrepenger.ytelse.beregning.FeriepengeRegeregnTjeneste;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
+import no.nav.vedtak.util.Tuple;
 
 @Path("/forvaltningFeriepenger")
 @ApplicationScoped
@@ -65,13 +66,9 @@ public class ForvaltningFeriepengerRestTjeneste {
     @Operation(description = "Lagrer task for å finne overlapp. Resultat i app-logg", tags = "FORVALTNING-feriepenger")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     public Response avstemPeriodeForOverlapp(@Parameter(description = "Periode") @BeanParam @Valid AvstemmingPeriodeDto dto) {
-        repository.finnSakerForAvstemmingFeriepenger(dto.getFom(), dto.getTom())
-            .forEach(b -> {
-                var avvik = feriepengeRegeregnTjeneste.harDiff(b.getElement2());
-                if (avvik) {
-                    logger.info("Feriepenger avvik for sak {} behandling {}", b.getElement1(), b.getElement2());
-                }
-            });
+        repository.finnSakerForAvstemmingFeriepenger(dto.getFom(), dto.getTom()).stream()
+            .map(Tuple::getElement2)
+            .forEach(feriepengeRegeregnTjeneste::harDiff);
 
         return Response.ok().build();
     }

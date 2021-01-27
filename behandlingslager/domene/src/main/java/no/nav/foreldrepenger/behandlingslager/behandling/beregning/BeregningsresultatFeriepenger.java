@@ -97,6 +97,14 @@ public class BeregningsresultatFeriepenger extends BaseEntitet {
         return Objects.hash(id);
     }
 
+    @Override
+    public String toString() {
+        return "BRFeriepenger{" +
+            "fom=" + feriepengerPeriodeFom +
+            ", tom=" + feriepengerPeriodeTom +
+            '}';
+    }
+
     public static Builder builder() {
         return new Builder();
     }
