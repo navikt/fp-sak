@@ -44,7 +44,7 @@ public class FeriepengeRegeregnTjeneste {
             return false;
         }
         BeregningsresultatEntitet nyttResultat = utledNyttResultat(ref, behandling, gjeldendeResultat);
-        return new Feriepengesammenligner(ref.getBehandlingId(), nyttResultat, gjeldendeResultat.get()).finnesAvvik();
+        return new Feriepengesammenligner(ref.getBehandlingId(), ref.getSaksnummer(), nyttResultat, gjeldendeResultat.get()).finnesAvvik();
     }
 
     private BeregningsresultatEntitet utledNyttResultat(BehandlingReferanse ref, Behandling behandling, Optional<BeregningsresultatEntitet> gjeldendeResultat) {
