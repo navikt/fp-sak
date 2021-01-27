@@ -21,6 +21,7 @@ public class OppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest extend
     @Override
     @BeforeEach
     public void setUp() {
+        setBrukNyOppdragTjeneste(true);
         super.setUp();
     }
 
@@ -31,12 +32,12 @@ public class OppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest extend
         opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 6000L, 7000L);
         //Revurdering #1
         Behandling revurdering_1 = oppsettBeregningsresultatFPRevurderingForFeriepenger(true, 6000L, 7000L);
-        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering_1);
+        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering_1);
         //Revurdering #2
         Behandling revurdering_2 = oppsettBeregningsresultatFPRevurderingForFeriepenger(true, 6000L, 7000L, revurdering_1);
 
         //Act
-        Oppdragskontroll oppdragRevurdering_2 = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering_2);
+        Oppdragskontroll oppdragRevurdering_2 = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering_2);
 
         //Assert
         assertThat(oppdragRevurdering_2.getOppdrag110Liste()).hasSize(2);
@@ -51,12 +52,12 @@ public class OppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest extend
         Oppdragskontroll førstegangsoppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 6000L, 7000L);
         //Revurdering #1
         Behandling revurdering_1 = oppsettBeregningsresultatFPRevurderingForFeriepenger(true, 6000L, 7000L);
-        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering_1);
+        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering_1);
         //Revurdering #2
         Behandling revurdering_2 = oppsettBeregningsresultatFPRevurderingForFeriepenger(true, 5999L, 7001L, revurdering_1);
 
         //Act
-        Oppdragskontroll oppdragRevurdering_2 = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering_2);
+        Oppdragskontroll oppdragRevurdering_2 = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering_2);
 
         //Assert
         assertThat(oppdragRevurdering_2.getOppdrag110Liste()).hasSize(2);
@@ -79,12 +80,12 @@ public class OppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest extend
         Oppdragskontroll førstegangsoppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 6000L, 7000L);
         //Revurdering #1
         Behandling revurdering_1 = oppsettBeregningsresultatFPRevurderingForFeriepenger(true, 6000L, 7000L);
-        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering_1);
+        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering_1);
         //Revurdering #2
         Behandling revurdering_2 = oppsettBeregningsresultatFPRevurderingForFeriepenger(true, 6000L, 7001L, revurdering_1);
 
         //Act
-        Oppdragskontroll oppdragRevurdering_2 = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering_2);
+        Oppdragskontroll oppdragRevurdering_2 = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering_2);
 
         //Assert
         assertThat(oppdragRevurdering_2.getOppdrag110Liste()).hasSize(2);
@@ -101,12 +102,12 @@ public class OppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest extend
         Oppdragskontroll førstegangsoppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 6000L, 7000L);
         //Revurdering #1
         Behandling revurdering_1 = oppsettBeregningsresultatFPRevurderingForFeriepenger(true, 6000L, 7000L);
-        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering_1);
+        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering_1);
         //Revurdering #2
         Behandling revurdering_2 = oppsettBeregningsresultatFPRevurderingForFeriepenger(true, 5999L, 7000L, revurdering_1);
 
         //Act
-        Oppdragskontroll oppdragRevurdering_2 = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering_2);
+        Oppdragskontroll oppdragRevurdering_2 = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering_2);
 
         //Assert
         assertThat(oppdragRevurdering_2.getOppdrag110Liste()).hasSize(2);
@@ -123,12 +124,12 @@ public class OppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest extend
         opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 6000L, 7000L);
         //Revurdering #1
         Behandling revurdering_1 = oppsettBeregningsresultatFPRevurderingForFeriepenger(false, 7000L, 0L);
-        Oppdragskontroll oppdragRevurdering_1 = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering_1);
+        Oppdragskontroll oppdragRevurdering_1 = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering_1);
         //Revurdering #2
         Behandling revurdering_2 = oppsettBeregningsresultatFPRevurderingForFeriepenger(true, 5999L, 7001L, revurdering_1);
 
         //Act
-        Oppdragskontroll oppdragRevurdering_2 = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering_2);
+        Oppdragskontroll oppdragRevurdering_2 = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering_2);
 
         //Assert
         assertThat(oppdragRevurdering_2.getOppdrag110Liste()).hasSize(2);
@@ -151,12 +152,12 @@ public class OppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest extend
         opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 6000L, 7000L);
         //Revurdering #1
         Behandling revurdering_1 = oppsettBeregningsresultatFPRevurderingForFeriepenger(false, 0L, 7000L);
-        Oppdragskontroll oppdragRevurdering_1 = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering_1);
+        Oppdragskontroll oppdragRevurdering_1 = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering_1);
         //Revurdering #2
         Behandling revurdering_2 = oppsettBeregningsresultatFPRevurderingForFeriepenger(true, 5999L, 6999L, revurdering_1);
 
         //Act
-        Oppdragskontroll oppdragRevurdering_2 = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering_2);
+        Oppdragskontroll oppdragRevurdering_2 = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering_2);
 
         //Assert
         assertThat(oppdragRevurdering_2.getOppdrag110Liste()).hasSize(2);
@@ -178,12 +179,12 @@ public class OppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest extend
         opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 6000L, 7000L);
         //Revurdering #1
         Behandling revurdering_1 = oppsettBeregningsresultatFPRevurderingForFeriepenger(false, 0L, 7000L);
-        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering_1);
+        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering_1);
         //Revurdering #2
         Behandling revurdering_2 = oppsettBeregningsresultatFPRevurderingForFeriepenger(true, 5999L, 7000L, revurdering_1);
 
         //Act
-        Oppdragskontroll oppdragRevurdering_2 = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering_2);
+        Oppdragskontroll oppdragRevurdering_2 = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering_2);
 
         //Assert
         assertThat(oppdragRevurdering_2.getOppdrag110Liste()).hasSize(2);
@@ -205,12 +206,12 @@ public class OppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest extend
         opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 6000L, 7000L);
         //Revurdering #1
         Behandling revurdering_1 = oppsettBeregningsresultatFPRevurderingForFeriepenger(false, 7000L, 0L);
-        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering_1);
+        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering_1);
         //Revurdering #2
         Behandling revurdering_2 = oppsettBeregningsresultatFPRevurderingForFeriepenger(true, 7000L, 5999L, revurdering_1);
 
         //Act
-        Oppdragskontroll oppdragRevurdering_2 = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering_2);
+        Oppdragskontroll oppdragRevurdering_2 = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering_2);
 
         //Assert
         assertThat(oppdragRevurdering_2.getOppdrag110Liste()).hasSize(2);
@@ -232,12 +233,12 @@ public class OppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest extend
         opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 6000L, 7000L);
         //Revurdering #1
         Behandling revurdering_1 = oppsettBeregningsresultatFPRevurderingForFeriepenger(false, 0L, 0L);
-        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering_1);
+        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering_1);
         //Revurdering #2
         Behandling revurdering_2 = oppsettBeregningsresultatFPRevurderingForFeriepenger(true, 6000L, 7000L, revurdering_1);
 
         //Act
-        Oppdragskontroll oppdragRevurdering_2 = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering_2);
+        Oppdragskontroll oppdragRevurdering_2 = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering_2);
 
         //Assert
         assertThat(oppdragRevurdering_2.getOppdrag110Liste()).hasSize(2);
@@ -258,12 +259,12 @@ public class OppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest extend
         Oppdragskontroll førstegangsoppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 6000L, 7000L);
         //Revurdering #1
         Behandling revurdering_1 = oppsettBeregningsresultatFPRevurderingForFeriepenger(true, 6000L, 7000L);
-        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering_1);
+        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering_1);
         //Revurdering #2
         Behandling revurdering_2 = oppsettBeregningsresultatFPRevurderingForFeriepenger(false, 0L, 0L, revurdering_1);
 
         //Act
-        Oppdragskontroll oppdragRevurdering_2 = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering_2);
+        Oppdragskontroll oppdragRevurdering_2 = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering_2);
 
         //Assert
         assertThat(oppdragRevurdering_2.getOppdrag110Liste()).hasSize(2);
@@ -287,12 +288,12 @@ public class OppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest extend
         opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 6000L, 7000L);
         //Revurdering #1
         Behandling revurdering_1 = oppsettBeregningsresultatFPRevurderingForFeriepenger(true, 6500L, 7500L);
-        Oppdragskontroll oppdragRevurdering_1 = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering_1);
+        Oppdragskontroll oppdragRevurdering_1 = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering_1);
         //Revurdering #2
         Behandling revurdering_2 = oppsettBeregningsresultatFPRevurderingForFeriepenger(false, 0L, 0L, revurdering_1);
 
         //Act
-        Oppdragskontroll oppdragRevurdering_2 = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering_2);
+        Oppdragskontroll oppdragRevurdering_2 = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering_2);
 
         //Assert
         assertThat(oppdragRevurdering_2.getOppdrag110Liste()).hasSize(2);
@@ -316,12 +317,12 @@ public class OppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest extend
         opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 6000L, 7000L);
         //Revurdering #1
         Behandling revurdering_1 = oppsettBeregningsresultatFPRevurderingForFeriepenger(true, 6200L, 7500L);
-        Oppdragskontroll oppdragRevurdering_1 = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering_1);
+        Oppdragskontroll oppdragRevurdering_1 = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering_1);
         //Revurdering #2
         Behandling revurdering_2 = oppsettBeregningsresultatFPRevurderingForFeriepenger(false, 6200L, 0L, revurdering_1);
 
         //Act
-        Oppdragskontroll oppdragRevurdering_2 = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering_2);
+        Oppdragskontroll oppdragRevurdering_2 = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering_2);
 
         //Assert
         assertThat(oppdragRevurdering_2.getOppdrag110Liste()).hasSize(2);
@@ -346,12 +347,12 @@ public class OppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest extend
         opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 6000L, 7000L);
         //Revurdering #1
         Behandling revurdering_1 = oppsettBeregningsresultatFPRevurderingForFeriepenger(true, 6200L, 7000L);
-        Oppdragskontroll oppdragRevurdering_1 = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering_1);
+        Oppdragskontroll oppdragRevurdering_1 = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering_1);
         //Revurdering #2
         Behandling revurdering_2 = oppsettBeregningsresultatFPRevurderingForFeriepenger(false, 0L, 7000L, revurdering_1);
 
         //Act
-        Oppdragskontroll oppdragRevurdering_2 = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering_2);
+        Oppdragskontroll oppdragRevurdering_2 = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering_2);
 
         //Assert
         assertThat(oppdragRevurdering_2.getOppdrag110Liste()).hasSize(2);
@@ -376,12 +377,12 @@ public class OppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest extend
         opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 6000L, 7000L);
         //Revurdering #1
         Behandling revurdering_1 = oppsettBeregningsresultatFPRevurderingForFeriepenger(true, 5999L, 7200L);
-        Oppdragskontroll oppdragRevurdering_1 = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering_1);
+        Oppdragskontroll oppdragRevurdering_1 = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering_1);
         //Revurdering #2
         Behandling revurdering_2 = oppsettBeregningsresultatFPRevurderingForFeriepenger(false, 0L, 5999L, revurdering_1);
 
         //Act
-        Oppdragskontroll oppdragRevurdering_2 = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering_2);
+        Oppdragskontroll oppdragRevurdering_2 = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering_2);
 
         //Assert
         assertThat(oppdragRevurdering_2.getOppdrag110Liste()).hasSize(2);
@@ -417,12 +418,12 @@ public class OppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest extend
         opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 6000L, 7000L);
         //Revurdering #1
         Behandling revurdering_1 = oppsettBeregningsresultatFPRevurderingForFeriepenger(true, 7000L, 6200L);
-        Oppdragskontroll oppdragRevurdering_1 = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering_1);
+        Oppdragskontroll oppdragRevurdering_1 = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering_1);
         //Revurdering #2
         Behandling revurdering_2 = oppsettBeregningsresultatFPRevurderingForFeriepenger(false, 6000L, 0L, revurdering_1);
 
         //Act
-        Oppdragskontroll oppdragRevurdering_2 = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering_2);
+        Oppdragskontroll oppdragRevurdering_2 = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering_2);
 
         //Assert
         assertThat(oppdragRevurdering_2.getOppdrag110Liste()).hasSize(2);

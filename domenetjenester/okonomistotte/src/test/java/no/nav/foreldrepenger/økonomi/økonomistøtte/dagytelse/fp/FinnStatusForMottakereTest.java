@@ -37,6 +37,7 @@ public class FinnStatusForMottakereTest extends OppdragskontrollTjenesteTestBase
     @BeforeEach
     public void setup() {
         super.setUp();
+        setBrukNyOppdragTjeneste(true);
         forrigeOppdragInputFPFP = mock(ForrigeOppdragInput.class);
         behandlingVedtakFP = new BehandlingVedtakOppdrag("Saksbehandler", BehandlingResultatType.FORELDREPENGER_ENDRET,
             DAGENS_DATO);

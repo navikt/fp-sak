@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 
 import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -44,6 +43,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
     @Override
     @BeforeEach
     public void setUp() {
+        setBrukNyOppdragTjeneste(true);
         super.setUp();
     }
 
@@ -52,7 +52,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         // Arrange
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(true);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
         List<Oppdrag110> originaltOppdrag110Liste = originaltOppdrag.getOppdrag110Liste();
         List<Oppdragslinje150> originaltOppdragslinje150 = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(originaltOppdrag);
 
@@ -62,7 +62,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         //Assert
         OppdragskontrollTestVerktøy.verifiserAvstemming115(oppdragRevurdering);
@@ -79,7 +79,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         LocalDate b1tom = LocalDate.of(I_ÅR, 8, 20);
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatBrukerFP(null, 400, 400, b1fom, b1tom);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
 
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
@@ -89,7 +89,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         tilbakekrevingRepository.lagre(revurdering, true);
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         // Assert
         Oppdrag110 oppdrag110 = OppdragskontrollTestVerktøy.getOppdrag110ForBruker(oppdragRevurdering.getOppdrag110Liste());
@@ -110,7 +110,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         buildBeregningsresultatAndel(b1Periode_1, true, 1500, BigDecimal.valueOf(100), virksomhet);
         buildBeregningsresultatAndel(b1Periode_2, false, 1500, BigDecimal.valueOf(100), virksomhet);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
         LocalDate endringsdato = b1Periode_2.getBeregningsresultatPeriodeFom();
@@ -124,7 +124,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         tilbakekrevingRepository.lagre(revurdering, false);
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         // Assert
         //Bruker
@@ -147,7 +147,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         BeregningsresultatPeriode b1Periode = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
         buildBeregningsresultatAndel(b1Periode, true, 1500, BigDecimal.valueOf(100), virksomhet);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
         LocalDate endringsdato = b1Periode.getBeregningsresultatPeriodeFom().minusDays(1);
@@ -157,7 +157,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         //Assert
         Oppdrag110 oppdrag110Bruker = OppdragskontrollTestVerktøy.getOppdrag110ForBruker(oppdragRevurdering.getOppdrag110Liste());
@@ -180,7 +180,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         LocalDate b1tom = LocalDate.of(I_ÅR, 8, 20);
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatBrukerFP(null, 400, 400, b1fom, b1tom);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
         LocalDate endringsdato = beregningsresultat.getBeregningsresultatPerioder().get(0).getBeregningsresultatPeriodeFom().plusDays(10);
@@ -193,7 +193,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         //Assert
         List<Oppdragslinje150> opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste().stream()
@@ -235,7 +235,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         LocalDate b1p2tom = LocalDate.of(I_ÅR, 8, 20);
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatBrukerFP(null, List.of(400, 400), List.of(400, 400), b1fom, b1tom, b1p2fom, b1p2tom);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
         LocalDate endringsdato = beregningsresultat.getBeregningsresultatPerioder().get(0).getBeregningsresultatPeriodeFom();
@@ -247,7 +247,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         //Assert
         List<Oppdragslinje150> opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste().stream()
@@ -281,7 +281,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         LocalDate b1tom = LocalDate.of(I_ÅR, 8, 10);
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatBrukerFP(null, Collections.singletonList(400), Collections.singletonList(400), b1fom, b1tom);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
         LocalDate endringsdato = LocalDate.of(I_ÅR, 8, 11);
@@ -296,7 +296,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         //Assert
         List<Oppdragslinje150> opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste().stream()
@@ -353,7 +353,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatBrukerFP(null, List.of(400, 300), List.of(400, 300),
             b1p1fom, b1p1tom, b1p2fom, b1p2tom);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
         LocalDate endringsdato = LocalDate.of(I_ÅR, 5, 16);
         LocalDate b2p1fom = LocalDate.of(I_ÅR, 5, 1);
@@ -366,7 +366,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         // Assert
         List<Oppdragslinje150> opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste().stream()
@@ -414,7 +414,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatBrukerFP(null, List.of(400, 300), List.of(400, 300),
             b1p1fom, b1p1tom, b1p2fom, b1p2tom);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
         LocalDate endringsdato = LocalDate.of(I_ÅR, 5, 11);
         LocalDate b2p1fom = LocalDate.of(I_ÅR, 5, 1);
@@ -427,7 +427,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         // Assert
         List<Oppdragslinje150> opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste().stream()
@@ -473,7 +473,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatBrukerFP(null, List.of(400, 300), List.of(400, 300),
             b1p1fom, b1p1tom, b1p2fom, b1p2tom);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
         LocalDate endringsdato = LocalDate.of(I_ÅR, 5, 21);
         LocalDate b2p1fom = LocalDate.of(I_ÅR, 5, 1);
@@ -486,7 +486,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         // Assert
         List<Oppdragslinje150> opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste().stream()
@@ -532,7 +532,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatBrukerFP(null, List.of(400, 300), List.of(400, 300),
             b1p1fom, b1p1tom, b1p2fom, b1p2tom);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
         LocalDate endringsdato = LocalDate.of(I_ÅR, 4, 20);
         LocalDate b2p1fom = LocalDate.of(I_ÅR, 4, 20);
@@ -545,7 +545,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         // Assert
         List<Oppdragslinje150> opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste().stream()
@@ -584,7 +584,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         LocalDate b1tom = LocalDate.of(I_ÅR, 8, 20);
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatBrukerFP(null, Collections.singletonList(400), Collections.singletonList(0), b1fom, b1tom);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
         LocalDate endringsdato = LocalDate.of(I_ÅR, 8, 11);
@@ -598,7 +598,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         //Assert
         List<Oppdrag110> oppdrag110Liste = oppdragRevurdering.getOppdrag110Liste();
@@ -633,7 +633,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         // Arrange
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP();
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
         List<Oppdrag110> originaltOppdrag110Liste = originaltOppdrag.getOppdrag110Liste();
         List<Oppdragslinje150> originaltOppdragslinje150 = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(originaltOppdrag);
 
@@ -643,7 +643,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         //Assert
         OppdragskontrollTestVerktøy.verifiserAvstemming115(oppdragRevurdering);
@@ -657,7 +657,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         // Arrange
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(true);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
         List<Oppdrag110> originaltOppdrag110Liste = originaltOppdrag.getOppdrag110Liste();
         List<Oppdragslinje150> originaltOppdragslinje150 = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(originaltOppdrag);
 
@@ -667,7 +667,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         //Assert
         OppdragskontrollTestVerktøy.verifiserAvstemming115(oppdragRevurdering);
@@ -691,7 +691,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         BeregningsresultatPeriode b1Periode_2 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
         buildBeregningsresultatAndel(b1Periode_2, true, 1500, BigDecimal.valueOf(100), virksomhet);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
         List<Oppdrag110> originaltOppdrag110Liste = originaltOppdrag.getOppdrag110Liste();
         List<Oppdragslinje150> originaltOppdragslinje150 = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(originaltOppdrag);
 
@@ -709,7 +709,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         //Assert
         OppdragskontrollTestVerktøy.verifiserAvstemming115(oppdragRevurdering);
@@ -737,7 +737,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         // Arrange
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatMedFlereInntektskategoriFP(true);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
         List<Oppdrag110> originaltOppdrag110Liste = originaltOppdrag.getOppdrag110Liste();
         List<Oppdragslinje150> originaltOppdragslinje150 = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(originaltOppdrag);
 
@@ -747,7 +747,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         //Assert
         OppdragskontrollTestVerktøy.verifiserAvstemming115(oppdragRevurdering);
@@ -778,7 +778,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         buildBeregningsresultatAndel(b1Periode_2, true, 1500, BigDecimal.valueOf(100), virksomhet,
             AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE, Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
         // Arrange : Revurdering
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
@@ -797,7 +797,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         // Act
-        Oppdragskontroll revurderingOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll revurderingOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         // Assert
         // Assert : Første førstegangsbehandling
@@ -839,7 +839,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         buildBeregningsresultatAndel(b1Periode_2, true, 1500, BigDecimal.valueOf(100), null,
             AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE, Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
         // Arrange : Revurdering
         Behandling revurdering = opprettOgLagreRevurdering(this.behandling, VedtakResultatType.INNVILGET, false, true);
@@ -858,7 +858,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         // Act
-        Oppdragskontroll revurderingOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll revurderingOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         // Assert
         OppdragskontrollTestVerktøy.verifiserAvstemming115(revurderingOppdrag);
@@ -925,7 +925,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         buildBeregningsresultatAndel(b1Periode_2, true, 1500, BigDecimal.valueOf(100), null,
             AktivitetStatus.FRILANSER, Inntektskategori.FRILANSER);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
         // Arrange : Revurdering
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
@@ -942,7 +942,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         // Act
-        Oppdragskontroll revurderingOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll revurderingOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         // Assert : Første førstegangsbehandling
         OppdragskontrollTestVerktøy.verifiserAvstemming115(førsteOppdrag);
@@ -968,7 +968,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         // Arrange
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatMedFlereInntektskategoriFP(true);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
         List<Oppdrag110> originaltOppdrag110Liste = originaltOppdrag.getOppdrag110Liste();
         List<Oppdragslinje150> originaltOppdragslinje150 = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(originaltOppdrag);
 
@@ -979,7 +979,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         //Assert
         List<Oppdragslinje150> opp150RevurdListe = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(oppdragRevurdering);
@@ -998,7 +998,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         LocalDate tom = LocalDate.of(I_ÅR, 8, 7);
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatBrukerFP(null, 1500, 500, fom, tom);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
         // Ny revurdering behandling
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
@@ -1007,7 +1007,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         //Assert
         List<Oppdragslinje150> oppdragslinje150Liste = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(oppdragRevurdering);
@@ -1023,7 +1023,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatMedFlereInntektskategoriFP(true, AktivitetStatus.ARBEIDSTAKER,
             Inntektskategori.ARBEIDSTAKER);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
         List<Oppdrag110> originaltOppdrag110Liste = originaltOppdrag.getOppdrag110Liste();
         List<Oppdragslinje150> originaltOppdragslinje150 = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(originaltOppdrag);
 
@@ -1034,7 +1034,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         //Assert
         List<Oppdragslinje150> opp150RevurdListe = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(oppdragRevurdering);
@@ -1052,7 +1052,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatMedFlereInntektskategoriFP(true, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
 
-        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
         List<Oppdrag110> originaltOppdrag110Liste = originaltOppdrag.getOppdrag110Liste();
         List<Oppdragslinje150> originaltOppdragslinje150 = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(originaltOppdrag);
 
@@ -1065,7 +1065,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         fpUttakRepository.lagreOpprinneligUttakResultatPerioder(revurdering.getId(), perioder);
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         //Assert
         List<Oppdragslinje150> opp150RevurdListe = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(oppdragRevurdering);
@@ -1082,7 +1082,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         // Arrange
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatEntenForBrukerEllerArbgvr(true, false);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
         Oppdrag110 originaltOppdrag110 = originaltOppdrag.getOppdrag110Liste().get(0);
 
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
@@ -1094,7 +1094,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
         Oppdrag110 revurderingOppdrag110 = oppdragRevurdering.getOppdrag110Liste().get(0);
 
         //Assert
@@ -1123,7 +1123,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         buildBeregningsresultatAndel(brPeriode_2, false, 1000, BigDecimal.valueOf(100), virksomhet);
         buildBeregningsresultatAndel(brPeriode_2, false, 1100, BigDecimal.valueOf(100), virksomhet2);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
         List<Oppdrag110> originaltOppdrag110Liste = originaltOppdrag.getOppdrag110Liste();
 
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
@@ -1139,7 +1139,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
         List<Oppdrag110> revurderingOppdrag110Liste = oppdragRevurdering.getOppdrag110Liste();
 
         //Assert
@@ -1201,7 +1201,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         buildBeregningsresultatAndel(b1Periode_2, false, 1500, BigDecimal.valueOf(100), virksomhet,
             AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
         // Arrange : Revurdering
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
@@ -1218,7 +1218,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         // Act
-        Oppdragskontroll revurderingOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll revurderingOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         //Assert
         //Førstegangsbehandling
@@ -1285,7 +1285,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger(beregningsresultat);
         buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelAT, 20000L, Collections.singletonList(OppdragskontrollTjenesteTestBase.DAGENS_DATO));
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
         // Arrange : Revurdering
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
@@ -1305,7 +1305,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
 
         // Act
         Oppdragskontroll revurderingOppdrag =
-            OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+            OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         //Assert
         //Revurdering
@@ -1348,7 +1348,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         buildBeregningsresultatAndel(b1Periode_2, true, 1500, BigDecimal.valueOf(100), null,
             AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE, Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
         // Arrange : Revurdering
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
@@ -1369,7 +1369,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         // Act
-        Oppdragskontroll revurderingOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll revurderingOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         //Assert
         OppdragskontrollTestVerktøy.verifiserAvstemming115(revurderingOppdrag);
@@ -1424,7 +1424,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         buildBeregningsresultatAndel(b1Periode_2, true, 1500, BigDecimal.valueOf(100), null,
             AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE, Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
         // Arrange : Revurdering
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
@@ -1445,7 +1445,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         // Act
-        Oppdragskontroll revurderingOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll revurderingOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         //Assert
         OppdragskontrollTestVerktøy.verifiserAvstemming115(revurderingOppdrag);
@@ -1494,7 +1494,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         buildBeregningsresultatAndel(brPeriode_4, false, 1000, BigDecimal.valueOf(100), virksomhet);
         buildBeregningsresultatAndel(brPeriode_4, false, 1100, BigDecimal.valueOf(100), virksomhet2);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
         List<Oppdrag110> originaltOppdrag110Liste = originaltOppdrag.getOppdrag110Liste();
 
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
@@ -1516,7 +1516,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
         List<Oppdrag110> revurderingOppdrag110Liste = oppdragRevurdering.getOppdrag110Liste();
 
         //Assert
@@ -1573,7 +1573,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         BeregningsresultatFeriepenger b1_feriepenger = buildBeregningsresultatFeriepenger(beregningsresultatFP_1);
         buildBeregningsresultatFeriepengerPrÅr(b1_feriepenger, b1Andel, 3000L, Collections.singletonList(OppdragskontrollTjenesteTestBase.DAGENS_DATO));
         beregningsresultatRepository.lagre(behandling, beregningsresultatFP_1);
-        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
         // Arrange : Revurdering
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
@@ -1602,7 +1602,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         //Act
-        Oppdragskontroll oppdragForRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll oppdragForRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         //Assert
         assertThat(oppdragForRevurdering).isNotNull();
@@ -1673,7 +1673,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         BeregningsresultatFeriepenger b1_feriepenger = buildBeregningsresultatFeriepenger(beregningsresultatFP_1);
         buildBeregningsresultatFeriepengerPrÅr(b1_feriepenger, b1Andel, 3000L, Collections.singletonList(OppdragskontrollTjenesteTestBase.DAGENS_DATO));
         beregningsresultatRepository.lagre(behandling, beregningsresultatFP_1);
-        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
         // Arrange : Revurdering
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
@@ -1696,7 +1696,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         //Act
-        Oppdragskontroll oppdragForRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll oppdragForRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         //Assert
         assertThat(oppdragForRevurdering).isNotNull();
@@ -1758,7 +1758,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         buildBeregningsresultatAndel(b1Periode_2, true, 1500, BigDecimal.valueOf(100), virksomhet,
             AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
         beregningsresultatRepository.lagre(behandling, beregningsresultatFP_1);
-        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
         // Arrange : Revurdering
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
@@ -1778,7 +1778,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         //Act
-        Oppdragskontroll oppdragForRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll oppdragForRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         //Assert
         assertThat(oppdragForRevurdering).isNotNull();
@@ -1824,7 +1824,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         buildBeregningsresultatAndel(b1Periode_2, false, 1500, BigDecimal.valueOf(100), virksomhet,
             AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
         beregningsresultatRepository.lagre(behandling, beregningsresultatFP_1);
-        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
         // Arrange : Revurdering
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
@@ -1844,7 +1844,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         //Act
-        Oppdragskontroll oppdragForRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll oppdragForRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         //Assert
         assertThat(oppdragForRevurdering).isNotNull();
@@ -1892,7 +1892,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         buildBeregningsresultatAndel(b1Periode_2, false, 1500, BigDecimal.valueOf(100), virksomhet,
             AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
         beregningsresultatRepository.lagre(behandling, beregningsresultatFP_1);
-        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
         // Arrange : Revurdering
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
@@ -1914,7 +1914,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         //Act
-        Oppdragskontroll oppdragForRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll oppdragForRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         //Assert
         assertThat(oppdragForRevurdering).isNotNull();
@@ -1948,7 +1948,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         buildBeregningsresultatAndel(b1Periode_2, true, 1000, BigDecimal.valueOf(100), virksomhet);
         buildBeregningsresultatAndel(b1Periode_2, true, 1200, BigDecimal.valueOf(100), null);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
         // Arrange : Revurdering
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
@@ -1963,7 +1963,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         // Act
-        Oppdragskontroll revurderingOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll revurderingOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         // Assert : Revurdering
         List<Oppdrag110> oppdra110BrukerList = revurderingOppdrag.getOppdrag110Liste();
@@ -2005,7 +2005,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         buildBeregningsresultatAndel(b1Periode_2, true, 1200, BigDecimal.valueOf(100), null);
         buildBeregningsresultatAndel(b1Periode_2, false, 1200, BigDecimal.valueOf(100), null);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
         // Arrange : Revurdering
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
@@ -2022,7 +2022,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         // Act
-        Oppdragskontroll revurderingOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll revurderingOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         // Assert : Revurdering
         List<Oppdrag110> oppdra110BrukerList = revurderingOppdrag.getOppdrag110Liste();
@@ -2060,7 +2060,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         BeregningsresultatPeriode b1Periode_2 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
         buildBeregningsresultatAndel(b1Periode_2, false, 1200, BigDecimal.valueOf(100), null);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
         // Arrange : Revurdering
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
@@ -2073,7 +2073,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         // Act
-        Oppdragskontroll revurderingOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll revurderingOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         // Assert : Revurdering
         List<Oppdrag110> oppdra110BrukerList = revurderingOppdrag.getOppdrag110Liste();
@@ -2111,7 +2111,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         BeregningsresultatPeriode b1Periode_2 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
         buildBeregningsresultatAndel(b1Periode_2, false, 1200, BigDecimal.valueOf(100), virksomhet);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
         // Arrange : Revurdering
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
@@ -2126,7 +2126,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         // Act
-        Oppdragskontroll revurderingOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll revurderingOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         // Assert : Revurdering
         List<Oppdrag110> oppdra110List = revurderingOppdrag.getOppdrag110Liste();
@@ -2163,7 +2163,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         LocalDate b12tom = LocalDate.of(I_ÅR, 9, 30);
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatBrukerFP(null, List.of(0, 0, 0),  List.of(0, 800, 800), b10fom, b10tom, b11fom, b11tom, b12fom, b12tom);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
 
@@ -2175,7 +2175,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         //Assert
         List<Oppdragslinje150> opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste().stream()
@@ -2198,7 +2198,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering2, beregningsresultatRevurderingFP2);
 
         // Act 2
-        Oppdragskontroll oppdragRevurdering2 = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering2);
+        Oppdragskontroll oppdragRevurdering2 = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering2);
 
         //Assert 2
         List<Oppdragslinje150> opp150RevurderingListe2 = oppdragRevurdering2.getOppdrag110Liste().stream()
@@ -2267,7 +2267,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         buildBeregningsresultatAndel(brPeriode4, true, 0, BigDecimal.valueOf(100), virksomhet2);
 
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
         // To arbeidsgivere som mottakere ingen oppdrag til bruker
         assertThat(førsteOppdrag.getOppdrag110Liste().size()).isEqualTo(2);
@@ -2317,7 +2317,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering1, beregningsresultat1);
 
         // Act
-        Oppdragskontroll andreOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering1, 472L);
+        Oppdragskontroll andreOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering1, 472L);
 
         // To arbeidsgivere som mottakere ingen oppdrag til bruker
         assertThat(andreOppdrag.getOppdrag110Liste().size()).isEqualTo(2);
@@ -2373,7 +2373,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering2, beregningsresultat2);
 
         // Act
-        Oppdragskontroll tredjeOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering2, 473L);
+        Oppdragskontroll tredjeOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering2, 473L);
 
         // To arbeidsgivere som mottakere og bruker
         assertThat(tredjeOppdrag.getOppdrag110Liste().size()).isEqualTo(3);
@@ -2432,7 +2432,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering3, beregningsresultat3);
 
         // Act 3
-        Oppdragskontroll fjerdeOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering3,474L);
+        Oppdragskontroll fjerdeOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering3,474L);
 
         // Assert 3 -- opphør AG og endring for bruker
         assertThat(fjerdeOppdrag.getOppdrag110Liste().size()).isEqualTo(2);
@@ -2451,7 +2451,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
 
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatBrukerFP(null, List.of(2116),  List.of(0), bminfom, bmaxtom);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
 
@@ -2459,7 +2459,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         //Assert -- opphør av bruker
         List<Oppdragslinje150> opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste().stream()
@@ -2480,7 +2480,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering2, beregningsresultatRevurderingFP2);
 
         // Act 2
-        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering2);
+        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering2);
 
         // Arrange 3 -- opphør enda mer AG
         LocalDate b30tom = LocalDate.of(I_ÅR, 8, 23);
@@ -2496,7 +2496,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering3, beregningsresultatRevurderingFP3);
 
         // Act 3
-        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering3);
+        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering3);
 
 
         // Arrange 4 -- opphør enda mer AG
@@ -2512,7 +2512,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering4, beregningsresultatRevurderingFP4);
 
         // Act 4
-        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering4);
+        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering4);
 
 
         // Arrange 5 -- opphør resten av AG
@@ -2528,7 +2528,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering5, beregningsresultatRevurderingFP5);
 
         // Act 5
-        Oppdragskontroll oppdragRevurdering5 = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering5);
+        Oppdragskontroll oppdragRevurdering5 = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering5);
 
         //Assert 5 -- alt opphøres
         List<Oppdragslinje150> opp150RevurderingListe5 = oppdragRevurdering5.getOppdrag110Liste().stream()
@@ -2551,7 +2551,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
 
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatBrukerFP(null, List.of(897),  List.of(1265), bminfom, bmaxtom);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
+        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
         Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
 
@@ -2559,7 +2559,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
 
         //Assert -- opphør av ag
         List<Oppdragslinje150> opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste().stream()
@@ -2577,7 +2577,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering2, beregningsresultatRevurderingFP2);
 
         // Act 2
-        Oppdragskontroll oppdragRevurdering2 = OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, revurdering2);
+        Oppdragskontroll oppdragRevurdering2 = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering2);
 
 
         //Assert 2 -- alt opphøres
