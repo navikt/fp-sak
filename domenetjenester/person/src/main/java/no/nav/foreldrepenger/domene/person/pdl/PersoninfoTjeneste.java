@@ -448,7 +448,7 @@ public class PersoninfoTjeneste {
         if (vegadresse == null)
             return null;
         String postnummer = Optional.ofNullable(vegadresse.getPostnummer()).orElse(HARDKODET_POSTNR);
-        var gateadresse = vegadresse.getAdressenavn().toUpperCase() + hvisfinnes(vegadresse.getHusnummer()) + hvisfinnes(vegadresse.getHusbokstav());
+        var gateadresse = vegadresse.getAdressenavn().toUpperCase() + hvisfinnes2(vegadresse.getHusnummer(), vegadresse.getHusbokstav());
         return Adresseinfo.builder(type)
             .medMatrikkelId(vegadresse.getMatrikkelId())
             .medAdresselinje1(gateadresse)
@@ -534,6 +534,13 @@ public class PersoninfoTjeneste {
 
     private static String hvisfinnes(Object object) {
         return object == null ? "" : " " + object.toString().trim().toUpperCase();
+    }
+
+    private static String hvisfinnes2(Object object1, Object object2) {
+        if (object1 == null && object2 == null) return "";
+        if (object1 != null && object2 != null)
+            return " " + object1.toString().trim().toUpperCase() + object2.toString().trim().toUpperCase();
+        return object2 == null ? " " + object1.toString().trim().toUpperCase() : " " + object2.toString().trim().toUpperCase();
     }
 
     private String tilPoststed(String postnummer) {
