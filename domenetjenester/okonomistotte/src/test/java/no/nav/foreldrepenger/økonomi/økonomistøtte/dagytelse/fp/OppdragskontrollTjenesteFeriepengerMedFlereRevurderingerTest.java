@@ -21,7 +21,7 @@ public class OppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest extend
     @Override
     @BeforeEach
     public void setUp() {
-        setBrukNyOppdragTjeneste(true);
+        setBrukNyOppdragTjeneste(false);
         super.setUp();
     }
 

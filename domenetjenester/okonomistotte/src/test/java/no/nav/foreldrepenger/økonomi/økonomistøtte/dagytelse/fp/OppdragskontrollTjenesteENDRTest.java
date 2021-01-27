@@ -43,7 +43,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
     @Override
     @BeforeEach
     public void setUp() {
-        setBrukNyOppdragTjeneste(true);
+        setBrukNyOppdragTjeneste(false);
         super.setUp();
     }
 

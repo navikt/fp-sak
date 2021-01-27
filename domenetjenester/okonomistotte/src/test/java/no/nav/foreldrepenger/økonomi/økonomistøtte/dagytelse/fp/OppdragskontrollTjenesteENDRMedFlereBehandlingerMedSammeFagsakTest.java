@@ -34,7 +34,7 @@ public class OppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTest 
     @Override
     @BeforeEach
     public void setUp() {
-        setBrukNyOppdragTjeneste(true);
+        setBrukNyOppdragTjeneste(false);
         super.setUp();
     }
 
