@@ -3,12 +3,11 @@ package no.nav.foreldrepenger.økonomi.ny.tjeneste;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
+import javax.inject.Named;
 
-import no.nav.foreldrepenger.behandling.impl.FinnAnsvarligSaksbehandler;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BehandlingBeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
@@ -25,9 +24,11 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomi.ny.mapper.Input;
 import no.nav.foreldrepenger.økonomi.ny.mapper.LagOppdragTjeneste;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollPostConditionCheck;
+import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollTjeneste;
 
-@ApplicationScoped
-public class NyOppdragskontrollTjeneste {
+@Dependent
+@Named("nyOppdragTjeneste")
+public class NyOppdragskontrollTjeneste implements OppdragskontrollTjeneste {
 
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
@@ -93,6 +94,11 @@ public class NyOppdragskontrollTjeneste {
             return Optional.of(oppdragskontroll);
         }
         return Optional.empty();
+    }
+
+    @Override
+    public void lagre(Oppdragskontroll oppdragskontroll) {
+        lagOppdragTjeneste.lagre(oppdragskontroll);
     }
 
     private LocalDate hentVedtaksdato(Long behandlingId) {

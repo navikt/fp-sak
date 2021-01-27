@@ -3,8 +3,9 @@ package no.nav.foreldrepenger.økonomi.økonomistøtte;
 import java.util.List;
 import java.util.Optional;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +16,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
-@ApplicationScoped
+@Dependent
+@Named("oppdragTjeneste")
 public class OppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste {
 
     private static final Logger log = LoggerFactory.getLogger(OppdragskontrollTjenesteImpl.class);
@@ -69,6 +71,11 @@ public class OppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste {
         return alleOppdragForFagsak.stream()
             .map(ok -> behandlingRepository.hentBehandling(ok.getBehandlingId()))
             .anyMatch(beh -> behandling.getOpprettetTidspunkt().isAfter(beh.getOpprettetTidspunkt()));
+    }
+
+    @Override
+    public Optional<Oppdragskontroll> opprettOppdrag(Long behandlingId, Long prosessTaskId, boolean brukFellesEndringstidspunkt) {
+        return opprettOppdrag(behandlingId, prosessTaskId);
     }
 
     @Override

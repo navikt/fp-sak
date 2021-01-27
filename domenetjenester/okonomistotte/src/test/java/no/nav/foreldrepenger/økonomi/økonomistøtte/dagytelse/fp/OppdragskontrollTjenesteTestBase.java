@@ -38,6 +38,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -67,9 +68,12 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagomr
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
+import no.nav.foreldrepenger.domene.person.pdl.AktørTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.foreldrepenger.økonomi.ny.mapper.LagOppdragTjeneste;
+import no.nav.foreldrepenger.økonomi.ny.tjeneste.NyOppdragskontrollTjeneste;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.HentOppdragMedPositivKvittering;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragMedPositivKvitteringTestUtil;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollManagerFactory;
@@ -112,17 +116,25 @@ public abstract class OppdragskontrollTjenesteTestBase {
     protected FamilieHendelseRepository familieHendelseRepository;
     protected OppdragskontrollTjeneste oppdragskontrollTjeneste;
     protected TilbakekrevingRepository tilbakekrevingRepository;
+    protected BehandlingVedtakRepository behandlingVedtakRepository;
+    protected NyOppdragskontrollTjeneste nyOppdragskontrollTjeneste;
 
     Behandling behandling;
     Fagsak fagsak;
     PersonIdent personIdent = PersonIdent.fra("12345678901");
     BehandlingVedtak behVedtak;
 
+    boolean brukNyOppdragTjeneste = false;
+
     protected String virksomhet = ARBEIDSFORHOLD_ID;
     protected String virksomhet2 = ARBEIDSFORHOLD_ID_2;
     protected String virksomhet3 = ARBEIDSFORHOLD_ID_3;
     protected String virksomhet4 = ARBEIDSFORHOLD_ID_4;
     private EntityManager entityManager;
+
+    public void setBrukNyOppdragTjeneste(boolean brukNyOppdragTjeneste) {
+        this.brukNyOppdragTjeneste = brukNyOppdragTjeneste;
+    }
 
     public void setEntityManager(EntityManager entityManager) {
         this.entityManager = entityManager;
@@ -137,6 +149,7 @@ public abstract class OppdragskontrollTjenesteTestBase {
         fpUttakRepository = new FpUttakRepository(entityManager);
         familieHendelseRepository = new FamilieHendelseRepository(entityManager);
         tilbakekrevingRepository = new TilbakekrevingRepository(entityManager);
+        behandlingVedtakRepository = new BehandlingVedtakRepository(entityManager);
 
         PersoninfoAdapter personinfoAdapterMock = mock(PersoninfoAdapter.class);
 
@@ -163,6 +176,14 @@ public abstract class OppdragskontrollTjenesteTestBase {
         OppdragskontrollManagerFactoryProvider factoryProviderMock = mock(OppdragskontrollManagerFactoryProvider.class);
         lenient().when(factoryProviderMock.getTjeneste(any(FagsakYtelseType.class)))
             .thenReturn(oppdragskontrollManagerFactory);
+
+        AktørTjeneste aktørTjenesteMock = mock(AktørTjeneste.class);
+        lenient().when(aktørTjenesteMock.hentPersonIdentForAktørId(any())).thenReturn(Optional.of(new PersonIdent("1111191012345")));
+
+        LagOppdragTjeneste lagOppdragTjeneste = new LagOppdragTjeneste(aktørTjenesteMock, økonomioppdragRepository);
+
+        nyOppdragskontrollTjeneste = new NyOppdragskontrollTjeneste(behandlingRepository, beregningsresultatRepository,
+            behandlingVedtakRepository, familieHendelseRepository, tilbakekrevingRepository, lagOppdragTjeneste);
 
         oppdragskontrollTjeneste = new OppdragskontrollTjenesteImpl(repositoryProvider, økonomioppdragRepository, factoryProviderMock);
 
@@ -866,5 +887,12 @@ public abstract class OppdragskontrollTjenesteTestBase {
             .stream()
             .filter(opp150 -> ØkonomiKodeKlassifik.fraKode(opp150.getKodeKlassifik()).gjelderFerie())
             .collect(Collectors.toList());
+    }
+
+    protected OppdragskontrollTjeneste getOppdragTjeneste() {
+        if (brukNyOppdragTjeneste) {
+            return nyOppdragskontrollTjeneste;
+        }
+        return oppdragskontrollTjeneste;
     }
 }

@@ -79,4 +79,8 @@ public class LagOppdragTjeneste {
         return tilkjentYtelseMapper.fordelPåNøkler(input.getTilkjentYtelse());
     }
 
+    public void lagre(Oppdragskontroll oppdragskontroll) {
+        økonomioppdragRepository.lagre(oppdragskontroll);
+    }
+
 }

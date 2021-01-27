@@ -12,6 +12,9 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
@@ -32,6 +35,8 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.wrapper.Tilkjent
 
 @ApplicationScoped
 public class OppdragskontrollEndring implements OppdragskontrollManager {
+
+    private static final Logger LOG = LoggerFactory.getLogger(OppdragskontrollEndring.class);
 
     private OpprettOpphørIEndringsoppdrag opprettOpphørIEndringsoppdragFP;
     private BehandlingTilOppdragMapperTjeneste behandlingTilOppdragMapperTjenesteFP;
@@ -105,10 +110,15 @@ public class OppdragskontrollEndring implements OppdragskontrollManager {
 
         boolean erDetFlereKlassekodeIForrigeOppdrag = OpprettOppdragslinje150Tjeneste.finnesFlereKlassekodeIForrigeOppdrag(oppdragInput);
         boolean erDetFlereKlassekodeINyOppdrag = KlassekodeUtleder.getKlassekodeListe(entry.getValue()).size() > 1;
+
         if (!erDetFlereKlassekodeINyOppdrag && !erDetFlereKlassekodeIForrigeOppdrag) {
             opprettEndringsoppdragForBrukerMedEnKlassekode(oppdragInput, nyOppdragskontroll, entry);
+        } else if (!erDetFlereKlassekodeIForrigeOppdrag) {
+            opprettOppdragForBrukerMedFlereKlassekodeIRevurdering(oppdragInput, nyOppdragskontroll, entry.getKey(), entry.getValue());
+        } else if (!erDetFlereKlassekodeINyOppdrag) {
+            opprettOppdragForBrukerMedFlereKlassekodeIForrigeBehandling(oppdragInput, nyOppdragskontroll, entry.getKey(), entry.getValue());
         } else {
-            opprettEndringsoppdragForBrukerMedFlereKlassekode(oppdragInput, nyOppdragskontroll, entry);
+            opprettOppdragForBrukerMedFlereKlassekodeIBådeForrigeOgNyBehandling(oppdragInput, nyOppdragskontroll, entry.getKey(), entry.getValue());
         }
     }
 
@@ -126,22 +136,6 @@ public class OppdragskontrollEndring implements OppdragskontrollManager {
                 return;
             }
             fastsettOppdrag110(oppdragInput, nyOppdragskontroll, mottaker, andelListe, nyOppdrag110Opt, sisteOppdr150Bruker);
-        }
-    }
-
-    private void opprettEndringsoppdragForBrukerMedFlereKlassekode(OppdragInput oppdragInput, Oppdragskontroll nyOppdragskontroll,
-                                                                   Map.Entry<Oppdragsmottaker, List<TilkjentYtelseAndel>> entry) {
-
-        Oppdragsmottaker mottaker = entry.getKey();
-        boolean erDetFlereKlassekodeIForrigeOppdrag = OpprettOppdragslinje150Tjeneste.finnesFlereKlassekodeIForrigeOppdrag(oppdragInput);
-        boolean erDetFlereKlassekodeINyOppdrag = KlassekodeUtleder.getKlassekodeListe(entry.getValue()).size() > 1;
-        List<TilkjentYtelseAndel> andelListe = entry.getValue();
-        if (!erDetFlereKlassekodeIForrigeOppdrag && erDetFlereKlassekodeINyOppdrag) {
-            opprettOppdragForBrukerMedFlereKlassekodeIRevurdering(oppdragInput, nyOppdragskontroll, mottaker, andelListe);
-        } else if (erDetFlereKlassekodeIForrigeOppdrag && !erDetFlereKlassekodeINyOppdrag) {
-            opprettOppdragForBrukerMedFlereKlassekodeIForrigeBehandling(oppdragInput, nyOppdragskontroll, mottaker, andelListe);
-        } else {
-            opprettOppdragForBrukerMedFlereKlassekodeIBådeForrigeOgNyBehandling(oppdragInput, nyOppdragskontroll, mottaker, andelListe);
         }
     }
 

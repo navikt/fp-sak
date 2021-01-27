@@ -7,6 +7,7 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.control.ActivateRequestContext;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.transaction.Transactional;
 
 import org.slf4j.Logger;
@@ -24,7 +25,7 @@ public class SimulerOppdragTjeneste {
     private static final Logger log = LoggerFactory.getLogger(SimulerOppdragTjeneste.class);
 
     private OppdragskontrollTjeneste oppdragskontrollTjeneste;
-    private NyOppdragskontrollTjeneste nyOppdragskontrollTjeneste;
+    private OppdragskontrollTjeneste nyOppdragskontrollTjeneste;
     private OppdragKjerneimplementasjonToggle toggle;
 
     SimulerOppdragTjeneste() {
@@ -32,7 +33,7 @@ public class SimulerOppdragTjeneste {
     }
 
     @Inject
-    public SimulerOppdragTjeneste(OppdragskontrollTjeneste oppdragskontrollTjeneste, NyOppdragskontrollTjeneste nyOppdragskontrollTjeneste, OppdragKjerneimplementasjonToggle toggle) {
+    public SimulerOppdragTjeneste(@Named("oppdragTjeneste") OppdragskontrollTjeneste oppdragskontrollTjeneste, @Named("nyOppdragTjeneste") OppdragskontrollTjeneste nyOppdragskontrollTjeneste, OppdragKjerneimplementasjonToggle toggle) {
         this.oppdragskontrollTjeneste = oppdragskontrollTjeneste;
         this.nyOppdragskontrollTjeneste = nyOppdragskontrollTjeneste;
         this.toggle = toggle;
@@ -52,7 +53,7 @@ public class SimulerOppdragTjeneste {
         Optional<Oppdragskontroll> oppdragskontrollOpt;
         if (brukNyImplementasjon) {
             log.info("Gjennomfører simulering for behandling med id={} med ny implementasjon", behandlingId);
-            oppdragskontrollOpt = nyOppdragskontrollTjeneste.opprettOppdragFraFellesEndringstidspunkt(behandlingId, ventendeTaskId);
+            oppdragskontrollOpt = nyOppdragskontrollTjeneste.opprettOppdrag(behandlingId, ventendeTaskId, true);
         } else {
             oppdragskontrollOpt = oppdragskontrollTjeneste.opprettOppdrag(behandlingId, ventendeTaskId);
         }

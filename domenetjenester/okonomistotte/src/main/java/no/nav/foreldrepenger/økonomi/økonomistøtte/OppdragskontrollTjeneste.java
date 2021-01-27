@@ -8,5 +8,7 @@ public interface OppdragskontrollTjeneste {
 
     Optional<Oppdragskontroll> opprettOppdrag(Long behandlingId, Long prosessTaskId);
 
+    Optional<Oppdragskontroll> opprettOppdrag(Long behandlingId, Long prosessTaskId, boolean brukFellesEndringstidspunkt);
+
     void lagre(Oppdragskontroll oppdragskontroll);
 }
