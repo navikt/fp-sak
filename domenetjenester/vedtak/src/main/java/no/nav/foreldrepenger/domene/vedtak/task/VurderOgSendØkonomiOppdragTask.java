@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,10 +42,12 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
     }
 
     @Inject
-    public VurderOgSendØkonomiOppdragTask(OppdragskontrollTjeneste oppdragskontrollTjeneste,
+    public VurderOgSendØkonomiOppdragTask(@Named("oppdragTjeneste") OppdragskontrollTjeneste oppdragskontrollTjeneste,
                                           ProsessTaskRepository prosessTaskRepository,
                                           BehandlingRepositoryProvider repositoryProvider,
-                                          NyOppdragskontrollTjeneste nyOppdragskontrollTjeneste, OppdragPostConditionTjeneste oppdragPostConditionTjeneste, OppdragKjerneimplementasjonToggle toggle) {
+                                          NyOppdragskontrollTjeneste nyOppdragskontrollTjeneste,
+                                          OppdragPostConditionTjeneste oppdragPostConditionTjeneste,
+                                          OppdragKjerneimplementasjonToggle toggle) {
         super(repositoryProvider.getBehandlingLåsRepository());
         this.oppdragskontrollTjeneste = oppdragskontrollTjeneste;
         this.prosessTaskRepository = prosessTaskRepository;
