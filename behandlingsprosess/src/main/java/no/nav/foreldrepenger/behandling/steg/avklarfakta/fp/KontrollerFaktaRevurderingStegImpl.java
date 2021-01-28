@@ -358,14 +358,14 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     }
 
     private void tilbakestillOppgittFordelingBasertPåBehandlingType(Behandling revurdering) {
-        var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
-        ytelsesFordelingRepository.tilbakestillFordeling(revurdering.getId());
+        tilbakestillFordeling(revurdering.getId());
         if (!erEndringssøknad(revurdering)) {
             var originalBehandling = revurdering.getOriginalBehandlingId().orElseThrow();
             // Hvis original behandling har vært innom uttak så skal periodene fra uttaket
             // brukes for å lage ny YF
             // Se FastsettUttaksgrunnlagOgVurderSøknadsfristSteg
             if (harUttak(originalBehandling)) {
+                var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
                 var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(revurdering.getId());
                 var erAnnenForelderInformert = hentAnnenForelderErInformert(ytelseFordelingAggregat);
                 var tilbakeStiltFordeling = new OppgittFordelingEntitet(Collections.emptyList(), erAnnenForelderInformert);
@@ -374,6 +374,17 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
                 ytelsesFordelingRepository.lagre(revurdering.getId(), yfBuilder.build());
             }
         }
+    }
+
+    private void tilbakestillFordeling(Long behandlingId) {
+        var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+        var ytelseFordelingAggregat = ytelsesFordelingRepository.opprettBuilder(behandlingId)
+            .medAvklarteDatoer(null)
+            .medJustertFordeling(null)
+            .medPerioderUttakDokumentasjon(null)
+            .medOverstyrtFordeling(null)
+            .build();
+        ytelsesFordelingRepository.lagre(behandlingId, ytelseFordelingAggregat);
     }
 
     private boolean harUttak(Long behandlingId) {

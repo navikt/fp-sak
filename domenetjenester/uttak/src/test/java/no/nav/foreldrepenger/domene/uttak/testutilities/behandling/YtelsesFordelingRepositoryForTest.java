@@ -42,11 +42,6 @@ class YtelsesFordelingRepositoryForTest extends YtelsesFordelingRepository {
     }
 
     @Override
-    public void tilbakestillFordeling(Long behandlingId) {
-        throw new IkkeImplementertForTestException();
-    }
-
-    @Override
     public void lagre(Long behandlingId, YtelseFordelingAggregat aggregat) {
         ytelseFordelingAggregatMap.put(behandlingId, aggregat);
     }

@@ -20,14 +20,14 @@ public class YtelsesFordelingRepository {
 
     private EntityManager entityManager;
 
-    protected YtelsesFordelingRepository() {
-        // CDI
-    }
-
     @Inject
     public YtelsesFordelingRepository(EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager");
         this.entityManager = entityManager;
+    }
+
+    protected YtelsesFordelingRepository() {
+        // CDI
     }
 
     public YtelseFordelingAggregat hentAggregat(Long behandlingId) {
@@ -218,18 +218,6 @@ public class YtelsesFordelingRepository {
 
     public Optional<Long> hentIdPåAktivYtelsesFordeling(Long behandlingId) {
         return hentAktivtGrunnlag(behandlingId).map(YtelseFordelingGrunnlagEntitet::getId);
-    }
-
-    /**
-     * Tiltenkt ved inngangen til revurdering
-     */
-    public void tilbakestillFordeling(Long behandlingId) {
-        YtelseFordelingAggregat ytelseFordeling = opprettBuilder(behandlingId).medAvklarteDatoer(null)
-            .medJustertFordeling(null)
-            .medPerioderUttakDokumentasjon(null)
-            .medOverstyrtFordeling(null)
-            .build();
-        lagreOgFlush(behandlingId, ytelseFordeling);
     }
 
     public DiffResult diffResultat(Long grunnlagId1, Long grunnlagId2, boolean onlyCheckTrackedFields) {
