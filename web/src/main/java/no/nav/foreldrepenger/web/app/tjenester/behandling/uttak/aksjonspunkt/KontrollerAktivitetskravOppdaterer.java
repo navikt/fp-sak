@@ -79,7 +79,10 @@ public class KontrollerAktivitetskravOppdaterer implements AksjonspunktOppdatere
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(behandlingId);
         var avklartPeriodeFørEndringsdato = avklartePerioderFørEndringsdato(ytelseFordelingAggregat);
         avklartPeriodeFørEndringsdato.forEach(entiteter::leggTil);
-        ytelsesFordelingRepository.lagreSaksbehandlede(behandlingId, entiteter);
+        var oppdatertYtelseFordelingAggregat = ytelsesFordelingRepository.opprettBuilder(behandlingId)
+            .medSaksbehandledeAktivitetskravPerioder(entiteter)
+            .build();
+        ytelsesFordelingRepository.lagre(behandlingId, oppdatertYtelseFordelingAggregat);
     }
 
     private List<AktivitetskravPeriodeEntitet> avklartePerioderFørEndringsdato(YtelseFordelingAggregat ytelseFordelingAggregat) {

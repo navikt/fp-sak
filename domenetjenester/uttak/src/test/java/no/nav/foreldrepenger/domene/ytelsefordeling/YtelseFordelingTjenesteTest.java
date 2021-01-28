@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeAnnenforelderHarRettEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAnnenforelderHarRettEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.UttakDokumentasjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
@@ -32,32 +31,25 @@ public class YtelseFordelingTjenesteTest {
 
     @Test
     public void test_lagring_perioderuttakdokumentasjon() {
-        final LocalDate enDag = LocalDate.of(2018, 3, 15);
-        List<PeriodeUttakDokumentasjonEntitet> dokumentasjonPerioder = List.of(
+        var enDag = LocalDate.of(2018, 3, 15);
+        var dokumentasjonPerioder = List.of(
             new PeriodeUttakDokumentasjonEntitet(enDag, enDag.plusDays(1), UttakDokumentasjonType.SYK_SØKER),
             new PeriodeUttakDokumentasjonEntitet(enDag.plusDays(4), enDag.plusDays(7),
                 UttakDokumentasjonType.SYK_SØKER));
 
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var opprinnelig = mødrekvote(enDag, enDag.plusDays(7));
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medFordeling(new OppgittFordelingEntitet(List.of(opprinnelig), true));
+        var behandling = scenario.lagre(repositoryProvider);
 
-        OppgittPeriodeEntitet opprinnelig = mødrekvote(enDag, enDag.plusDays(7));
-
-        OppgittFordelingEntitet oppgittPerioder = new OppgittFordelingEntitet(Collections.singletonList(opprinnelig),
-            true);
-
-        repositoryProvider.getYtelsesFordelingRepository().lagre(behandling.getId(), oppgittPerioder);
-
-
-        OppgittPeriodeEntitet ny = mødrekvote(enDag, enDag.plusDays(7));
+        var ny = mødrekvote(enDag, enDag.plusDays(7));
 
         tjeneste.overstyrSøknadsperioder(behandling.getId(), Collections.singletonList(ny), dokumentasjonPerioder);
 
-        Optional<PerioderUttakDokumentasjonEntitet> perioderUttak = tjeneste.hentAggregat(behandling.getId())
-            .getPerioderUttakDokumentasjon();
+        var perioderUttak = tjeneste.hentAggregat(behandling.getId()).getPerioderUttakDokumentasjon();
 
         assertThat(perioderUttak).isNotNull();
-        List<PeriodeUttakDokumentasjonEntitet> perioder = perioderUttak.get().getPerioder();
+        var perioder = perioderUttak.orElseThrow().getPerioder();
         assertThat(perioder).isNotEmpty();
         assertThat(perioder).hasSize(2);
     }

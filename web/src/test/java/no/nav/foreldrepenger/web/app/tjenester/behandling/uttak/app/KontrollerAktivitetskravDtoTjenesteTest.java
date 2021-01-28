@@ -1,5 +1,18 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.KontrollerAktivitetskravAvklaring.I_AKTIVITET;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandling.YtelseMaksdatoTjeneste;
@@ -27,17 +40,6 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktTjenesteImpl;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktUtils;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-
-import javax.persistence.EntityManager;
-import java.time.LocalDate;
-import java.util.List;
-
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.KontrollerAktivitetskravAvklaring.I_AKTIVITET;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 @ExtendWith(FPsakEntityManagerAwareExtension.class)
 class KontrollerAktivitetskravDtoTjenesteTest {
@@ -148,13 +150,16 @@ class KontrollerAktivitetskravDtoTjenesteTest {
     private void lagreOpprinneligAktivitetskrav(Behandling behandling, LocalDate førsteFom, LocalDate førsteTom) {
         var aktivitetsKrav = new AktivitetskravPeriodeEntitet(førsteFom, førsteTom,
             I_AKTIVITET, "ok.");
-        repositoryProvider.getYtelsesFordelingRepository()
-            .lagreOpprinnelige(behandling.getId(), new AktivitetskravPerioderEntitet().leggTil(aktivitetsKrav));
+        var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
+            .medOpprinneligeAktivitetskravPerioder(new AktivitetskravPerioderEntitet().leggTil(aktivitetsKrav));
+        ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
     }
 
     private void lagreOppgittFordeling(Behandling behandling, OppgittPeriodeEntitet... søknadPeriode) {
-        ytelsesFordelingRepository.lagre(behandling.getId(),
-            new OppgittFordelingEntitet(List.of(søknadPeriode), true));
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
+            .medOppgittFordeling(new OppgittFordelingEntitet(List.of(søknadPeriode), true));
+        ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
     }
 
     private static OppgittPeriodeEntitet søknadsperiode(LocalDate førsteSøknadsperiodeFom, LocalDate førsteSøknadsperiodeTom) {

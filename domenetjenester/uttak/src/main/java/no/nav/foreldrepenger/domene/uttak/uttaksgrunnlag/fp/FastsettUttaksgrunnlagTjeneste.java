@@ -59,7 +59,10 @@ public class FastsettUttaksgrunnlagTjeneste {
                 justertFordeling.getOppgittePerioder());
         }
         var avklarteUttakDatoer = avklarteDatoerMedEndringsdato(behandlingId, endringsdato);
-        ytelsesFordelingRepository.lagreJustertFordeling(behandlingId, justertFordeling, avklarteUttakDatoer);
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId)
+            .medJustertFordeling(justertFordeling)
+            .medAvklarteDatoer(avklarteUttakDatoer);
+        ytelsesFordelingRepository.lagre(behandlingId, yfBuilder.build());
     }
 
     private OppgittFordelingEntitet justerFordeling(UttakInput input, LocalDate endringsdatoRevurdering) {

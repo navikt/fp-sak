@@ -50,6 +50,10 @@ public class KontrollerAktivitetskravSteg implements UttakSteg {
                                    BehandlingStegModell modell,
                                    BehandlingStegType førsteSteg,
                                    BehandlingStegType sisteSteg) {
-        ytelsesFordelingRepository.tilbakestillSaksbehandledeAktivitetskravPerioder(kontekst.getBehandlingId());
+        var behandlingId = kontekst.getBehandlingId();
+        var yfa = ytelsesFordelingRepository.opprettBuilder(behandlingId)
+            .medSaksbehandledeAktivitetskravPerioder(null)
+            .build();
+        ytelsesFordelingRepository.lagre(behandlingId, yfa);
     }
 }

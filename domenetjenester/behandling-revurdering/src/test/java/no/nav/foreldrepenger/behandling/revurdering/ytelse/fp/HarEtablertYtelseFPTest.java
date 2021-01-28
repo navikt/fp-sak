@@ -63,7 +63,7 @@ public class HarEtablertYtelseFPTest {
         var fødselsdato = LocalDate.of(2017, 10, 10);
         var førstegangsScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk100())
-                .medDefaultOppgittFordeling(fødselsdato);
+                .medDefaultFordeling(fødselsdato);
         førstegangsScenario.medSøknadHendelse().medFødselsDato(fødselsdato);
         var originalBehandling = førstegangsScenario
                 .lagre(repositoryProvider);

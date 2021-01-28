@@ -99,7 +99,7 @@ public class UttakOverstyringshåndtererTest {
         // arrange
         UttakResultatPerioderEntitet opprinneligPerioder = opprettUttakResultatPeriode(periodeResultatType, fom, tom, stønadskontoType);
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
-                .medDefaultOppgittFordeling(fom)
+                .medDefaultFordeling(fom)
                 .medDefaultSøknadTerminbekreftelse()
                 .medDefaultBekreftetTerminbekreftelse()
                 .medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(fom).build())

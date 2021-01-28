@@ -55,7 +55,7 @@ public class PersonopplysningDtoTjenesteTest {
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger
                 .forFødselMedGittAktørId(AktørId.dummy());
 
-        scenario.medDefaultOppgittFordeling(LocalDate.now());
+        scenario.medDefaultFordeling(LocalDate.now());
         return scenario.lagre(repositoryProvider);
     }
 }

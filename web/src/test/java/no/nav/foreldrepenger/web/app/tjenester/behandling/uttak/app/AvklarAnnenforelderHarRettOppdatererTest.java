@@ -76,9 +76,9 @@ public class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAware
         //Scenario med avklar fakta annen forelder har rett
         ScenarioMorSøkerForeldrepenger scenario = AvklarFaktaTestUtil.opprettScenarioMorSøkerForeldrepenger();
         scenario.leggTilAksjonspunkt(AKSONSPUNKT_DEF, BehandlingStegType.VURDER_UTTAK);
-        scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
-        var behandling = AvklarFaktaTestUtil.opprettBehandling(scenario, getEntityManager());
+        AvklarFaktaTestUtil.opprettBehandlingGrunnlag(getEntityManager(), behandling.getId());
         AvklarAnnenforelderHarRettDto dto = AvklarFaktaTestUtil.opprettDtoAvklarAnnenforelderharIkkeRett();
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
 
@@ -107,9 +107,9 @@ public class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAware
         //Scenario med avklar fakta annen forelder har ikke rett
         ScenarioMorSøkerForeldrepenger scenario = AvklarFaktaTestUtil.opprettScenarioMorSøkerForeldrepenger();
         scenario.leggTilAksjonspunkt(AKSONSPUNKT_DEF, BehandlingStegType.VURDER_UTTAK);
-        scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
-        var behandling = AvklarFaktaTestUtil.opprettBehandling(scenario, getEntityManager());
+        AvklarFaktaTestUtil.opprettBehandlingGrunnlag(getEntityManager(), behandling.getId());
         AvklarAnnenforelderHarRettDto dto = AvklarFaktaTestUtil.opprettDtoAvklarAnnenforelderharIkkeRett();
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode()).get();
 

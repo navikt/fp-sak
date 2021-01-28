@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Oppgitt
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
@@ -127,23 +126,21 @@ public class FaktaUttakOverstyringshåndtererTest {
     }
 
     private Behandling opprettBehandling() {
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.medSøknad();
         var rettighet = new OppgittRettighetEntitet(false, false, true);
-        scenario.medOppgittRettighet(rettighet);
-        scenario.lagre(repositoryProvider);
-        Behandling førstegangsbehandling = scenario.getBehandling();
-
-        final OppgittPeriodeEntitet periode_1 = OppgittPeriodeBuilder.ny()
-                .medPeriode(LocalDate.now().minusDays(10), LocalDate.now())
-                .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-                .build();
-        final OppgittPeriodeEntitet periode_2 = OppgittPeriodeBuilder.ny()
-                .medPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(11))
-                .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-                .build();
-        fordelingRepository.lagre(førstegangsbehandling.getId(), new OppgittFordelingEntitet(List.of(periode_1, periode_2), true));
-        return førstegangsbehandling;
+        var periode_1 = OppgittPeriodeBuilder.ny()
+            .medPeriode(LocalDate.now().minusDays(10), LocalDate.now())
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+            .build();
+        var periode_2 = OppgittPeriodeBuilder.ny()
+            .medPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(11))
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+            .build();
+        var fordeling = new OppgittFordelingEntitet(List.of(periode_1, periode_2), true);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medOppgittRettighet(rettighet)
+            .medFordeling(fordeling);
+        scenario.medSøknad();
+        return scenario.lagre(repositoryProvider);
     }
 
     private BekreftetOppgittPeriodeDto getBekreftetUttakPeriodeDto(LocalDate fom, LocalDate tom) {

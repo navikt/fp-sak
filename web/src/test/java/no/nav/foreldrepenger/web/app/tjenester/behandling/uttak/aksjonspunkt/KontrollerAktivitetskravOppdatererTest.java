@@ -70,13 +70,16 @@ public class KontrollerAktivitetskravOppdatererTest {
             .lagre(repositoryProvider);
         var eksisterendeAktivitetskravPeriode = new AktivitetskravPeriodeEntitet(fødselsdato, avklartTom,
             KontrollerAktivitetskravAvklaring.IKKE_I_AKTIVITET_IKKE_DOKUMENTERT, "ok.");
-        repositoryProvider.getYtelsesFordelingRepository()
-            .lagreOpprinnelige(behandling.getId(), new AktivitetskravPerioderEntitet().leggTil(eksisterendeAktivitetskravPeriode));
+        var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
+            .medOpprinneligeAktivitetskravPerioder(
+                new AktivitetskravPerioderEntitet().leggTil(eksisterendeAktivitetskravPeriode));
+        ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
         var resultat = kjørOppdaterer(dto, behandling);
 
         assertThat(resultat.skalUtføreAksjonspunkt()).isTrue();
 
-        var ytelseFordelingAggregat = repositoryProvider.getYtelsesFordelingRepository()
+        var ytelseFordelingAggregat = ytelsesFordelingRepository
             .hentAggregat(behandling.getId());
         var aktivitetskravPerioder = ytelseFordelingAggregat.getGjeldendeAktivitetskravPerioder()
             .orElseThrow()

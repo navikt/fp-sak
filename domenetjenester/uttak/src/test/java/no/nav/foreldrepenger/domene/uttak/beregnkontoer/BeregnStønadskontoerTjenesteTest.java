@@ -52,14 +52,16 @@ public class BeregnStønadskontoerTjenesteTest {
         LocalDate termindato = LocalDate.now().plusMonths(4);
         Behandling behandling = opprettBehandlingForMor(AktørId.dummy());
 
-        OppgittDekningsgradEntitet dekningsgrad = OppgittDekningsgradEntitet.bruk100();
-        Long behandlingId = behandling.getId();
-        ytelsesFordelingRepository.lagre(behandlingId, dekningsgrad);
+        var dekningsgrad = OppgittDekningsgradEntitet.bruk100();
+        var behandlingId = behandling.getId();
         fagsakRelasjonRepository.opprettRelasjon(behandling.getFagsak(),
             Dekningsgrad.grad(dekningsgrad.getDekningsgrad()));
 
-        OppgittRettighetEntitet rettighet = new OppgittRettighetEntitet(true, true, false);
-        ytelsesFordelingRepository.lagre(behandlingId, rettighet);
+        var yf = ytelsesFordelingRepository.opprettBuilder(behandlingId)
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false))
+            .medOppgittDekningsgrad(dekningsgrad);
+        ytelsesFordelingRepository.lagre(behandlingId, yf.build());
+
         var familieHendelse = FamilieHendelse.forFødsel(termindato, null, List.of(new Barn()), 1);
         FamilieHendelser familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse);
 
@@ -93,14 +95,15 @@ public class BeregnStønadskontoerTjenesteTest {
         var familieHendelse = FamilieHendelse.forFødsel(null, fødselsdato, List.of(new Barn()), 1);
         FamilieHendelser familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse);
 
-        OppgittDekningsgradEntitet dekningsgrad = OppgittDekningsgradEntitet.bruk100();
-        Long behandlingId = behandling.getId();
-        ytelsesFordelingRepository.lagre(behandlingId, dekningsgrad);
+        var dekningsgrad = OppgittDekningsgradEntitet.bruk100();
+        var behandlingId = behandling.getId();
         fagsakRelasjonRepository.opprettRelasjon(behandling.getFagsak(),
             Dekningsgrad.grad(dekningsgrad.getDekningsgrad()));
 
-        OppgittRettighetEntitet rettighet = new OppgittRettighetEntitet(true, true, false);
-        ytelsesFordelingRepository.lagre(behandlingId, rettighet);
+        var yf = ytelsesFordelingRepository.opprettBuilder(behandlingId)
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false))
+            .medOppgittDekningsgrad(dekningsgrad);
+        ytelsesFordelingRepository.lagre(behandlingId, yf.build());
 
         // Act
         BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider,
@@ -131,12 +134,13 @@ public class BeregnStønadskontoerTjenesteTest {
 
         OppgittDekningsgradEntitet dekningsgrad = OppgittDekningsgradEntitet.bruk80();
         Long behandlingId = behandling.getId();
-        ytelsesFordelingRepository.lagre(behandlingId, dekningsgrad);
         fagsakRelasjonRepository.opprettRelasjon(behandling.getFagsak(),
             Dekningsgrad.grad(dekningsgrad.getDekningsgrad()));
 
-        OppgittRettighetEntitet rettighet = new OppgittRettighetEntitet(true, true, true);
-        ytelsesFordelingRepository.lagre(behandlingId, rettighet);
+        var yf = ytelsesFordelingRepository.opprettBuilder(behandlingId)
+            .medOppgittRettighet(new OppgittRettighetEntitet(false, true, true))
+            .medOppgittDekningsgrad(dekningsgrad);
+        ytelsesFordelingRepository.lagre(behandlingId, yf.build());
         var familieHendelse = FamilieHendelse.forFødsel(null, fødselsdato, List.of(new Barn()), 1);
         FamilieHendelser familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse);
 
@@ -163,14 +167,16 @@ public class BeregnStønadskontoerTjenesteTest {
         LocalDate fødselsdato = LocalDate.now().minusWeeks(1);
         Behandling behandling = opprettBehandlingForMor(AktørId.dummy());
 
-        OppgittDekningsgradEntitet dekningsgrad = OppgittDekningsgradEntitet.bruk100();
-        Long behandlingId = behandling.getId();
-        ytelsesFordelingRepository.lagre(behandlingId, dekningsgrad);
+        var dekningsgrad = OppgittDekningsgradEntitet.bruk100();
+        var behandlingId = behandling.getId();
         fagsakRelasjonRepository.opprettRelasjon(behandling.getFagsak(),
             Dekningsgrad.grad(dekningsgrad.getDekningsgrad()));
 
-        OppgittRettighetEntitet rettighet = new OppgittRettighetEntitet(false, true, false);
-        ytelsesFordelingRepository.lagre(behandlingId, rettighet);
+        var yf = ytelsesFordelingRepository.opprettBuilder(behandlingId)
+            .medOppgittRettighet(new OppgittRettighetEntitet(false, true, false))
+            .medOppgittDekningsgrad(dekningsgrad);
+        ytelsesFordelingRepository.lagre(behandlingId, yf.build());
+
         var familieHendelse = FamilieHendelse.forFødsel(null, fødselsdato, List.of(new Barn()), 1);
         FamilieHendelser familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse);
 
@@ -197,14 +203,16 @@ public class BeregnStønadskontoerTjenesteTest {
         LocalDate fødselsdato = LocalDate.now().minusWeeks(1);
         Behandling behandling = opprettBehandlingForFar(AktørId.dummy());
 
-        OppgittDekningsgradEntitet dekningsgrad = OppgittDekningsgradEntitet.bruk100();
-        Long behandlingId = behandling.getId();
-        ytelsesFordelingRepository.lagre(behandlingId, dekningsgrad);
+        var dekningsgrad = OppgittDekningsgradEntitet.bruk100();
+        var behandlingId = behandling.getId();
         fagsakRelasjonRepository.opprettRelasjon(behandling.getFagsak(),
             Dekningsgrad.grad(dekningsgrad.getDekningsgrad()));
 
-        OppgittRettighetEntitet rettighet = new OppgittRettighetEntitet(false, true, false);
-        ytelsesFordelingRepository.lagre(behandlingId, rettighet);
+        var yf = ytelsesFordelingRepository.opprettBuilder(behandlingId)
+            .medOppgittRettighet(new OppgittRettighetEntitet(false, true, false))
+            .medOppgittDekningsgrad(dekningsgrad);
+        ytelsesFordelingRepository.lagre(behandlingId, yf.build());
+
         var familieHendelse = FamilieHendelse.forFødsel(null, fødselsdato, List.of(new Barn()), 1);
         FamilieHendelser familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse);
 

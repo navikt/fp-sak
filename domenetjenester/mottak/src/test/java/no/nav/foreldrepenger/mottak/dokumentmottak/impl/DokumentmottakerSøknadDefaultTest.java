@@ -508,7 +508,7 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
         // Arrange
         Behandling behandling1 = ScenarioMorSøkerForeldrepenger
                 .forFødsel()
-                .medDefaultOppgittFordeling(LocalDate.now())
+                .medDefaultFordeling(LocalDate.now())
                 .medDefaultOppgittDekningsgrad()
                 .lagre(repositoryProvider);
         behandling1.avsluttBehandling();

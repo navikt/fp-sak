@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -18,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
@@ -40,19 +40,22 @@ public class FørsteUttaksdatoAksjonspunktUtlederTest {
 
     @Test
     public void aksjonspunkt_dersom_endringsdato_diff_fra_original_behandling_vedtak() {
-        Behandling revurdering = testUtil.opprettRevurdering(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
+        var revurdering = testUtil.opprettRevurdering(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
 
-        LocalDate manuellSattDato = getFørsteUttakDatoIGjeldendeBehandling(revurdering).plusDays(3);
-        Long revurderingBehandlingId = revurdering.getId();
-        AvklarteUttakDatoerEntitet avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(
+        var manuellSattDato = getFørsteUttakDatoIGjeldendeBehandling(revurdering).plusDays(3);
+        var revurderingBehandlingId = revurdering.getId();
+        var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(
             manuellSattDato).medOpprinneligEndringsdato(manuellSattDato).build();
-        repositoryProvider.getYtelsesFordelingRepository().lagre(revurderingBehandlingId, avklarteUttakDatoer);
-        OppgittPeriodeEntitet periode = OppgittPeriodeBuilder.ny()
+        var periode = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medPeriode(manuellSattDato.minusDays(1), manuellSattDato.plusWeeks(7))
             .build();
-        repositoryProvider.getYtelsesFordelingRepository()
-            .lagre(revurderingBehandlingId, new OppgittFordelingEntitet(Collections.singletonList(periode), true));
+
+        var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(revurderingBehandlingId)
+            .medAvklarteDatoer(avklarteUttakDatoer)
+            .medOppgittFordeling(new OppgittFordelingEntitet(List.of(periode), true));
+        ytelsesFordelingRepository.lagre(revurderingBehandlingId, yfBuilder.build());
 
         // Act
         var input = lagInput(revurdering).medBehandlingÅrsaker(Set.of(BehandlingÅrsakType.RE_KLAGE_UTEN_END_INNTEKT))

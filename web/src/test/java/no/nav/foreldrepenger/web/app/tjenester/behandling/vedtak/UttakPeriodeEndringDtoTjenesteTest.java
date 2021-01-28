@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -95,7 +94,9 @@ public class UttakPeriodeEndringDtoTjenesteTest {
         gamlePerioder.add(gammelPeriode2);
         gamlePerioder.add(gammelPeriode3);
         OppgittFordelingEntitet gammelFordeling = new OppgittFordelingEntitet(gamlePerioder, true);
-        ytelsesFordelingRepository.lagre(behandling.getId(), gammelFordeling);
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
+            .medOppgittFordeling(gammelFordeling);
+        ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
 
         // Legg til 2 ny periode
         OppgittPeriodeEntitet nyPeriode1 = OppgittPeriodeBuilder.ny()
@@ -113,7 +114,9 @@ public class UttakPeriodeEndringDtoTjenesteTest {
         nyePerioder.add(nyPeriode1);
         nyePerioder.add(nyPeriode2);
         OppgittFordelingEntitet nyFordeling = new OppgittFordelingEntitet(nyePerioder, true);
-        ytelsesFordelingRepository.lagreOverstyrtFordeling(behandling.getId(), nyFordeling);
+        var nyYfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
+            .medOverstyrtFordeling(nyFordeling);
+        ytelsesFordelingRepository.lagre(behandling.getId(), nyYfBuilder.build());
 
         // Legg til data i totrinnsvurdering.
         Totrinnsvurdering.Builder ttvurderingBuilder = new Totrinnsvurdering.Builder(behandling,
@@ -152,8 +155,10 @@ public class UttakPeriodeEndringDtoTjenesteTest {
                 .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
                 .medErArbeidstaker(false)
                 .build();
-        OppgittFordelingEntitet gammelFordeling = new OppgittFordelingEntitet(Collections.singletonList(gammelPeriode), true);
-        ytelsesFordelingRepository.lagre(behandling.getId(), gammelFordeling);
+        var gammelFordeling = new OppgittFordelingEntitet(List.of(gammelPeriode), true);
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
+            .medOppgittFordeling(gammelFordeling);
+        ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
 
         // Legg til 2 ny periode
         OppgittPeriodeEntitet nyPeriode1 = OppgittPeriodeBuilder.ny()
@@ -178,7 +183,10 @@ public class UttakPeriodeEndringDtoTjenesteTest {
         nyePerioder.add(nyPeriode2);
         nyePerioder.add(nyPeriode3);
         OppgittFordelingEntitet nyFordeling = new OppgittFordelingEntitet(nyePerioder, true);
-        ytelsesFordelingRepository.lagreOverstyrtFordeling(behandling.getId(), nyFordeling);
+
+        var nyYfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
+            .medOverstyrtFordeling(nyFordeling);
+        ytelsesFordelingRepository.lagre(behandling.getId(), nyYfBuilder.build());
 
         // Legg til data i totrinnsvurdering.
         Totrinnsvurdering.Builder ttvurderingBuilder = new Totrinnsvurdering.Builder(behandling,

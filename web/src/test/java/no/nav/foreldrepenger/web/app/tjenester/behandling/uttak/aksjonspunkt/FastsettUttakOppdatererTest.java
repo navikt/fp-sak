@@ -102,14 +102,18 @@ public class FastsettUttakOppdatererTest {
         // arrange
         UttakResultatPerioderEntitet opprinneligPerioder = opprettUttakResultatPeriode(periodeResultatType, fom, tom, stønadskontoType);
         Behandling behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
-                .medDefaultOppgittFordeling(fom)
+                .medDefaultFordeling(fom)
                 .medDefaultSøknadTerminbekreftelse()
                 .lagre(repositoryProvider);
         repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(behandling.getId(), opprinneligPerioder);
         var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder()
                 .medOpprinneligEndringsdato(fom)
                 .build();
-        repositoryProvider.getYtelsesFordelingRepository().lagre(behandling.getId(), avklarteUttakDatoer);
+        var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+        var ytelseFordelingAggregat = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
+            .medAvklarteDatoer(avklarteUttakDatoer)
+            .build();
+        ytelsesFordelingRepository.lagre(behandling.getId(), ytelseFordelingAggregat);
 
         OppdateringResultat result = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto));
 
@@ -131,7 +135,7 @@ public class FastsettUttakOppdatererTest {
         var fom = LocalDate.of(2019, 1, 1);
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medDefaultSøknadTerminbekreftelse()
-                .medDefaultOppgittFordeling(fom)
+                .medDefaultFordeling(fom)
                 .medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(fom).build());
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.FASTSETT_UTTAKPERIODER, BehandlingStegType.VURDER_UTTAK);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.OVERSTYRING_AV_UTTAKPERIODER, BehandlingStegType.VURDER_UTTAK);

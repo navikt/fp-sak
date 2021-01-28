@@ -110,12 +110,12 @@ public class AvklarFaktaUttakPerioderTjeneste {
     }
 
     public List<UttakPeriodeEndringDto> finnEndringMellomOppgittOgGjeldendePerioder(Long aggregatId) {
-        YtelseFordelingAggregat ytelseFordelingAggregat = ytelsesFordelingRepository.hentYtelsesFordelingPåId(aggregatId);
+        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentYtelsesFordelingPåId(aggregatId);
         return finnEndringMellomOppgittOgGjeldendePerioder(ytelseFordelingAggregat);
     }
 
     public List<UttakPeriodeEndringDto> finnEndringMellomOppgittOgGjeldendePerioderForBehandling(Long behandlingId) {
-        YtelseFordelingAggregat ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(behandlingId);
+        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(behandlingId);
         return finnEndringMellomOppgittOgGjeldendePerioder(ytelseFordelingAggregat);
     }
 

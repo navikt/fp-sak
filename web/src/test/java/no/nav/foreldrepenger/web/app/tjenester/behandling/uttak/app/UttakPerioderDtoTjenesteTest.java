@@ -348,7 +348,11 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         perioderAnnenpart.leggTilPeriode(periode1Annenpart);
 
         Behandling behandling = morBehandlingMedUttak(perioder);
-        repositoryProvider.getYtelsesFordelingRepository().lagre(behandling.getId(), new OppgittRettighetEntitet(true, true, true));
+
+        var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, true, true));
+        ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
 
         Optional<UttakResultatPerioderDto> result = tjeneste().mapFra(behandling);
         assertThat(result.get().isAnnenForelderHarRett()).isTrue();

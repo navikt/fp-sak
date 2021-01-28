@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.time.LocalDate;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -146,10 +146,12 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest extends EntityM
 
         OppgittDekningsgradEntitet dekningsgrad = OppgittDekningsgradEntitet.bruk100();
         Long behandlingId = behandling.getId();
-        ytelsesFordelingRepository.lagre(behandlingId, dekningsgrad);
 
-        OppgittFordelingEntitet fordeling = new OppgittFordelingEntitet(Arrays.asList(periode1, periode2), true);
-        ytelsesFordelingRepository.lagre(behandlingId, fordeling);
+        var fordeling = new OppgittFordelingEntitet(List.of(periode1, periode2), true);
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId)
+            .medOppgittFordeling(fordeling)
+            .medOppgittDekningsgrad(dekningsgrad);
+        ytelsesFordelingRepository.lagre(behandlingId, yfBuilder.build());
 
         final SøknadEntitet søknad = opprettSøknad(førsteUttaksdato, mottattDato, behandling);
         behandlingRepositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
@@ -188,10 +190,12 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest extends EntityM
 
         OppgittDekningsgradEntitet dekningsgrad = OppgittDekningsgradEntitet.bruk100();
         Long behandlingId = behandling.getId();
-        ytelsesFordelingRepository.lagre(behandlingId, dekningsgrad);
 
-        OppgittFordelingEntitet fordeling = new OppgittFordelingEntitet(Arrays.asList(periode1, periode2), true);
-        ytelsesFordelingRepository.lagre(behandlingId, fordeling);
+        var fordeling = new OppgittFordelingEntitet(List.of(periode1, periode2), true);
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId)
+            .medOppgittFordeling(fordeling)
+            .medOppgittDekningsgrad(dekningsgrad);
+        ytelsesFordelingRepository.lagre(behandlingId, yfBuilder.build());
 
         final SøknadEntitet søknad = opprettSøknad(førsteUttaksdato, mottattDato, behandling);
         behandlingRepositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);

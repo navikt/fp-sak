@@ -31,154 +31,58 @@ public class YtelsesFordelingRepository {
     }
 
     public YtelseFordelingAggregat hentAggregat(Long behandlingId) {
-        final Optional<YtelseFordelingGrunnlagEntitet> ytelseFordelingGrunnlagEntitet = hentAktivtGrunnlag(behandlingId);
-        if (ytelseFordelingGrunnlagEntitet.isPresent()) {
-            return mapEntitetTilAggregat(ytelseFordelingGrunnlagEntitet.get());
-        }
-        throw YtelseFordelingFeil.FACTORY.fantIkkeForventetGrunnlagPåBehandling(behandlingId).toException();
+        return hentAggregatHvisEksisterer(behandlingId).orElseThrow(
+            () -> YtelseFordelingFeil.FACTORY.fantIkkeForventetGrunnlagPåBehandling(behandlingId).toException());
+
+    }
+
+    public Optional<YtelseFordelingAggregat> hentAggregatHvisEksisterer(Long behandlingId) {
+        return hentAktivtGrunnlag(behandlingId).map(this::mapEntitetTilAggregat);
+    }
+
+    public void lagre(Long behandlingId, YtelseFordelingAggregat aggregat) {
+        lagreOgFlush(behandlingId, aggregat);
+    }
+
+    /**
+     * Gir builder for å oppdater ytelse fordeling.
+     * Samspiller med bruk av {@link #lagre(Long, YtelseFordelingAggregat)}
+     */
+    public YtelseFordelingAggregat.Builder opprettBuilder(Long behandlingId) {
+        var ytelseFordelingAggregat = hentAggregatHvisEksisterer(behandlingId);
+        return YtelseFordelingAggregat.Builder.oppdatere(ytelseFordelingAggregat);
+    }
+
+    public YtelseFordelingAggregat hentYtelsesFordelingPåId(Long aggregatId) {
+        return getVersjonAvYtelsesFordelingPåId(aggregatId).map(g -> mapEntitetTilAggregat(g)).orElseThrow();
+    }
+
+    private YtelseFordelingAggregat mapEntitetTilAggregat(YtelseFordelingGrunnlagEntitet ytelseFordelingGrunnlagEntitet) {
+        return YtelseFordelingAggregat.Builder.nytt()
+            .medOppgittDekningsgrad(ytelseFordelingGrunnlagEntitet.getOppgittDekningsgrad())
+            .medOppgittRettighet(ytelseFordelingGrunnlagEntitet.getOppgittRettighet())
+            .medPerioderUtenOmsorg(ytelseFordelingGrunnlagEntitet.getPerioderUtenOmsorg())
+            .medPerioderAleneOmsorg(ytelseFordelingGrunnlagEntitet.getPerioderAleneOmsorgEntitet())
+            .medOppgittFordeling(ytelseFordelingGrunnlagEntitet.getOppgittFordeling())
+            .medJustertFordeling(ytelseFordelingGrunnlagEntitet.getJustertFordeling())
+            .medOverstyrtFordeling(ytelseFordelingGrunnlagEntitet.getOverstyrtFordeling())
+            .medPerioderUttakDokumentasjon(ytelseFordelingGrunnlagEntitet.getPerioderUttakDokumentasjon())
+            .medAvklarteDatoer(ytelseFordelingGrunnlagEntitet.getAvklarteUttakDatoer())
+            .medPerioderAnnenforelderHarRett(ytelseFordelingGrunnlagEntitet.getPerioderAnnenforelderHarRettEntitet())
+            .medOpprinneligeAktivitetskravPerioder(ytelseFordelingGrunnlagEntitet.getOpprinneligeAktivitetskravPerioder())
+            .medSaksbehandledeAktivitetskravPerioder(ytelseFordelingGrunnlagEntitet.getSaksbehandledeAktivitetskravPerioder())
+            .build();
     }
 
     private Optional<YtelseFordelingGrunnlagEntitet> hentYtelseFordelingPåId(Long grunnlagId) {
         return getVersjonAvYtelsesFordelingPåId(grunnlagId);
     }
 
-    public YtelseFordelingAggregat hentYtelsesFordelingPåId(Long aggregatId) {
-        Optional<YtelseFordelingGrunnlagEntitet> optGrunnlag = getVersjonAvYtelsesFordelingPåId(
-                aggregatId);
-        if (optGrunnlag.isPresent()) {
-            return mapEntitetTilAggregat(optGrunnlag.get());
-        }
-        return new YtelseFordelingAggregat();
-    }
-
-    private YtelseFordelingAggregat mapEntitetTilAggregat(YtelseFordelingGrunnlagEntitet ytelseFordelingGrunnlagEntitet) {
-        return YtelseFordelingAggregat.Builder.nytt()
-                .medOppgittDekningsgrad(ytelseFordelingGrunnlagEntitet.getOppgittDekningsgrad())
-                .medOppgittRettighet(ytelseFordelingGrunnlagEntitet.getOppgittRettighet())
-                .medPerioderUtenOmsorg(ytelseFordelingGrunnlagEntitet.getPerioderUtenOmsorg())
-                .medPerioderAleneOmsorg(ytelseFordelingGrunnlagEntitet.getPerioderAleneOmsorgEntitet())
-                .medOppgittFordeling(ytelseFordelingGrunnlagEntitet.getOppgittFordeling())
-                .medJustertFordeling(ytelseFordelingGrunnlagEntitet.getJustertFordeling())
-                .medOverstyrtFordeling(ytelseFordelingGrunnlagEntitet.getOverstyrtFordeling())
-                .medPerioderUttakDokumentasjon(ytelseFordelingGrunnlagEntitet.getPerioderUttakDokumentasjon())
-                .medAvklarteDatoer(ytelseFordelingGrunnlagEntitet.getAvklarteUttakDatoer())
-                .medPerioderAnnenforelderHarRett(ytelseFordelingGrunnlagEntitet.getPerioderAnnenforelderHarRettEntitet())
-                .medOpprinneligeAktivitetskravPerioder(ytelseFordelingGrunnlagEntitet.getOpprinneligeAktivitetskravPerioder())
-                .medSaksbehandledeAktivitetskravPerioder(ytelseFordelingGrunnlagEntitet.getSaksbehandledeAktivitetskravPerioder())
-                .build();
-    }
-
-    public Optional<YtelseFordelingAggregat> hentAggregatHvisEksisterer(Long behandlingId) {
-        final Optional<YtelseFordelingGrunnlagEntitet> entitet = hentAktivtGrunnlag(behandlingId);
-        return entitet.map(this::mapEntitetTilAggregat);
-    }
-
-    public void lagre(Long behandlingId, OppgittRettighetEntitet oppgittRettighet) {
-        Objects.requireNonNull(behandlingId, "behandlingId");
-        Objects.requireNonNull(oppgittRettighet, "oppgittRettighet");
-        final YtelseFordelingAggregat.Builder aggregatBuilder = opprettAggregatBuilderFor(behandlingId);
-        aggregatBuilder.medOppgittRettighet(oppgittRettighet);
-
-        lagreOgFlush(behandlingId, aggregatBuilder.build());
-    }
-
-    public void lagre(Long behandlingId, OppgittFordelingEntitet oppgittPerioder) {
-        Objects.requireNonNull(behandlingId, "behandlingId");
-        Objects.requireNonNull(oppgittPerioder, "oppgittPerioder");
-        final YtelseFordelingAggregat.Builder aggregatBuilder = opprettAggregatBuilderFor(behandlingId);
-        aggregatBuilder.medOppgittFordeling(oppgittPerioder);
-        lagreOgFlush(behandlingId, aggregatBuilder.build());
-    }
-
-    public void lagreJustertFordeling(Long behandlingId, OppgittFordelingEntitet justertFordeling, AvklarteUttakDatoerEntitet avklarteUttakDatoer) {
-        Objects.requireNonNull(behandlingId, "behandlingId");
-        Objects.requireNonNull(justertFordeling, "justertFordeling");
-        Objects.requireNonNull(avklarteUttakDatoer, "avklarteUttakDatoer");
-        final YtelseFordelingAggregat.Builder aggregatBuilder = opprettAggregatBuilderFor(behandlingId);
-        if (avklarteUttakDatoer.harVerdier()) {
-            aggregatBuilder.medAvklarteDatoer(avklarteUttakDatoer);
-        }
-        aggregatBuilder.medJustertFordeling(justertFordeling);
-        lagreOgFlush(behandlingId, aggregatBuilder.build());
-    }
-
-    public void lagreOverstyrtFordeling(Long behandlingId, OppgittFordelingEntitet oppgittPerioder,
-            PerioderUttakDokumentasjonEntitet perioderUttakDokumentasjon) {
-        Objects.requireNonNull(behandlingId, "behandlingId");
-        Objects.requireNonNull(oppgittPerioder, "oppgittPerioder");
-        final YtelseFordelingAggregat.Builder aggregatBuilder = opprettAggregatBuilderFor(behandlingId);
-        aggregatBuilder.medOverstyrtFordeling(oppgittPerioder);
-        aggregatBuilder.medPerioderUttakDokumentasjon(perioderUttakDokumentasjon);
-        lagreOgFlush(behandlingId, aggregatBuilder.build());
-    }
-
-    public void lagreOverstyrtFordeling(Long behandlingId, OppgittFordelingEntitet oppgittPerioder) {
-        lagreOverstyrtFordeling(behandlingId, oppgittPerioder, null);
-    }
-
-    public void lagre(Long behandlingId, OppgittDekningsgradEntitet oppgittDekningsgrad) {
-        Objects.requireNonNull(behandlingId, "behandlingId");
-        Objects.requireNonNull(oppgittDekningsgrad, "oppgittDekningsgrad");
-        final YtelseFordelingAggregat.Builder aggregatBuilder = opprettAggregatBuilderFor(behandlingId);
-        aggregatBuilder.medOppgittDekningsgrad(oppgittDekningsgrad);
-        lagreOgFlush(behandlingId, aggregatBuilder.build());
-    }
-
-    public void lagre(Long behandlingId, PerioderUtenOmsorgEntitet perioderUtenOmsorg) {
-        Objects.requireNonNull(behandlingId, "behandlingId");
-        Objects.requireNonNull(perioderUtenOmsorg, "perioderUtenOmsorg");
-        final YtelseFordelingAggregat.Builder aggregatBuilder = opprettAggregatBuilderFor(behandlingId);
-        aggregatBuilder.medPerioderUtenOmsorg(perioderUtenOmsorg);
-        lagreOgFlush(behandlingId, aggregatBuilder.build());
-    }
-
-    public void lagreOpprinnelige(Long behandlingId, AktivitetskravPerioderEntitet aktivitetskravPerioderEntitet) {
-        Objects.requireNonNull(behandlingId, "behandlingId");
-        Objects.requireNonNull(aktivitetskravPerioderEntitet, "aktivitetskravPerioderEntitet");
-        final YtelseFordelingAggregat.Builder aggregatBuilder = opprettAggregatBuilderFor(behandlingId);
-        aggregatBuilder.medOpprinneligeAktivitetskravPerioder(aktivitetskravPerioderEntitet);
-        lagreOgFlush(behandlingId, aggregatBuilder.build());
-    }
-
-    public void lagreSaksbehandlede(Long behandlingId, AktivitetskravPerioderEntitet aktivitetskravPerioderEntitet) {
-        Objects.requireNonNull(behandlingId, "behandlingId");
-        Objects.requireNonNull(aktivitetskravPerioderEntitet, "aktivitetskravPerioderEntitet");
-        final YtelseFordelingAggregat.Builder aggregatBuilder = opprettAggregatBuilderFor(behandlingId);
-        aggregatBuilder.medSaksbehandledeAktivitetskravPerioder(aktivitetskravPerioderEntitet);
-        lagreOgFlush(behandlingId, aggregatBuilder.build());
-    }
-
-    public void lagre(Long behandlingId, PerioderAleneOmsorgEntitet perioderAleneOmsorg) {
-        Objects.requireNonNull(behandlingId, "behandlingId");
-        Objects.requireNonNull(perioderAleneOmsorg, "perioderAleneOmsorg");
-        final YtelseFordelingAggregat.Builder aggregatBuilder = opprettAggregatBuilderFor(behandlingId);
-        aggregatBuilder.medPerioderAleneOmsorg(perioderAleneOmsorg);
-        lagreOgFlush(behandlingId, aggregatBuilder.build());
-    }
-
-    public void lagre(Long behandlingId, PerioderAnnenforelderHarRettEntitet perioderAnnenforelderHarRett) {
-        Objects.requireNonNull(behandlingId, "behandlingId");
-        Objects.requireNonNull(perioderAnnenforelderHarRett, "perioderAnnenforelderHarRett");
-        final YtelseFordelingAggregat.Builder aggregatBuilder = opprettAggregatBuilderFor(behandlingId);
-        aggregatBuilder.medPerioderAnnenforelderHarRett(perioderAnnenforelderHarRett);
-        lagreOgFlush(behandlingId, aggregatBuilder.build());
-    }
-
-    public void lagre(Long behandlingId, AvklarteUttakDatoerEntitet avklarteUttakDatoer) {
-        Objects.requireNonNull(behandlingId, "behandling");
-        Objects.requireNonNull(avklarteUttakDatoer, "avklarteUttakDatoerEntitet");
-        if (avklarteUttakDatoer.harVerdier()) {
-            final YtelseFordelingAggregat.Builder aggregatBuilder = opprettAggregatBuilderFor(behandlingId);
-            aggregatBuilder.medAvklarteDatoer(avklarteUttakDatoer);
-            lagreOgFlush(behandlingId, aggregatBuilder.build());
-        }
-    }
-
     private Optional<YtelseFordelingGrunnlagEntitet> hentAktivtGrunnlag(Long behandlingId) {
         Objects.requireNonNull(behandlingId, "behandlingId");
-        final TypedQuery<YtelseFordelingGrunnlagEntitet> query = entityManager.createQuery("FROM YtelseFordelingGrunnlag gr " +
-                "WHERE gr.behandlingId = :behandlingId " +
-                "AND gr.aktiv = :aktivt", YtelseFordelingGrunnlagEntitet.class);
+        final TypedQuery<YtelseFordelingGrunnlagEntitet> query = entityManager.createQuery(
+            "FROM YtelseFordelingGrunnlag gr " + "WHERE gr.behandlingId = :behandlingId " + "AND gr.aktiv = :aktivt",
+            YtelseFordelingGrunnlagEntitet.class);
         query.setParameter("behandlingId", behandlingId);
         query.setParameter("aktivt", true);
         return HibernateVerktøy.hentUniktResultat(query);
@@ -279,7 +183,8 @@ public class YtelsesFordelingRepository {
     private void lagrePerioderAnnenforelderHarRett(YtelseFordelingGrunnlagEntitet grunnlag) {
         if (grunnlag.getPerioderAnnenforelderHarRettEntitet() != null) {
             entityManager.persist(grunnlag.getPerioderAnnenforelderHarRettEntitet());
-            for (PeriodeAnnenforelderHarRettEntitet periode : grunnlag.getPerioderAnnenforelderHarRettEntitet().getPerioder()) {
+            for (PeriodeAnnenforelderHarRettEntitet periode : grunnlag.getPerioderAnnenforelderHarRettEntitet()
+                .getPerioder()) {
                 entityManager.persist(periode);
             }
         }
@@ -300,11 +205,6 @@ public class YtelsesFordelingRepository {
         }
     }
 
-    private YtelseFordelingAggregat.Builder opprettAggregatBuilderFor(Long behandlingId) {
-        Optional<YtelseFordelingAggregat> ytelseFordelingAggregat = hentAggregatHvisEksisterer(behandlingId);
-        return YtelseFordelingAggregat.Builder.oppdatere(ytelseFordelingAggregat);
-    }
-
     /**
      * Kopierer grunnlag fra en tidligere behandling. Endrer ikke aggregater, en
      * skaper nye referanser til disse.
@@ -317,47 +217,33 @@ public class YtelsesFordelingRepository {
     }
 
     public Optional<Long> hentIdPåAktivYtelsesFordeling(Long behandlingId) {
-        return hentAktivtGrunnlag(behandlingId)
-                .map(YtelseFordelingGrunnlagEntitet::getId);
+        return hentAktivtGrunnlag(behandlingId).map(YtelseFordelingGrunnlagEntitet::getId);
     }
 
     /**
      * Tiltenkt ved inngangen til revurdering
      */
     public void tilbakestillFordeling(Long behandlingId) {
-        YtelseFordelingAggregat ytelseFordeling = opprettAggregatBuilderFor(behandlingId)
-                .medAvklarteDatoer(null)
-                .medJustertFordeling(null)
-                .medPerioderUttakDokumentasjon(null)
-                .medOverstyrtFordeling(null)
-                .build();
+        YtelseFordelingAggregat ytelseFordeling = opprettBuilder(behandlingId).medAvklarteDatoer(null)
+            .medJustertFordeling(null)
+            .medPerioderUttakDokumentasjon(null)
+            .medOverstyrtFordeling(null)
+            .build();
         lagreOgFlush(behandlingId, ytelseFordeling);
     }
 
-    public void tilbakestillSaksbehandledeAktivitetskravPerioder(Long behandlingId) {
-        var yf = opprettAggregatBuilderFor(behandlingId)
-            .medSaksbehandledeAktivitetskravPerioder(null)
-            .build();
-        lagreOgFlush(behandlingId, yf);
-    }
-
-    public void lagre(Long behandlingId, YtelseFordelingAggregat aggregat) {
-        lagreOgFlush(behandlingId, aggregat);
-    }
-
     public DiffResult diffResultat(Long grunnlagId1, Long grunnlagId2, boolean onlyCheckTrackedFields) {
-        YtelseFordelingGrunnlagEntitet grunnlag1 = hentYtelseFordelingPåId(grunnlagId1)
-                .orElseThrow(() -> new IllegalStateException("GrunnlagId1 må være oppgitt"));
-        YtelseFordelingGrunnlagEntitet grunnlag2 = hentYtelseFordelingPåId(grunnlagId2)
-                .orElseThrow(() -> new IllegalStateException("GrunnlagId2 må være oppgitt"));
+        YtelseFordelingGrunnlagEntitet grunnlag1 = hentYtelseFordelingPåId(grunnlagId1).orElseThrow(
+            () -> new IllegalStateException("GrunnlagId1 må være oppgitt"));
+        YtelseFordelingGrunnlagEntitet grunnlag2 = hentYtelseFordelingPåId(grunnlagId2).orElseThrow(
+            () -> new IllegalStateException("GrunnlagId2 må være oppgitt"));
         return new RegisterdataDiffsjekker(onlyCheckTrackedFields).getDiffEntity().diff(grunnlag1, grunnlag2);
     }
 
-    private Optional<YtelseFordelingGrunnlagEntitet> getVersjonAvYtelsesFordelingPåId(
-            Long aggregatId) {
+    private Optional<YtelseFordelingGrunnlagEntitet> getVersjonAvYtelsesFordelingPåId(Long aggregatId) {
         Objects.requireNonNull(aggregatId, "aggregatId");
-        final TypedQuery<YtelseFordelingGrunnlagEntitet> query = entityManager.createQuery("FROM YtelseFordelingGrunnlag gr " +
-                "WHERE gr.id = :aggregatId ", YtelseFordelingGrunnlagEntitet.class);
+        final TypedQuery<YtelseFordelingGrunnlagEntitet> query = entityManager.createQuery(
+            "FROM YtelseFordelingGrunnlag gr " + "WHERE gr.id = :aggregatId ", YtelseFordelingGrunnlagEntitet.class);
         query.setParameter("aggregatId", aggregatId);
         return HibernateVerktøy.hentUniktResultat(query);
     }

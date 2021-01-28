@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.inngangsvilkaar.opptjening;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.Collections;
 import java.util.List;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -24,8 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon.Builder;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -69,8 +67,12 @@ public class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_fastsette_periode_med_termindato() {
-        final LocalDate skjæringstidspunkt = LocalDate.now().plusWeeks(1L).minusDays(1L);
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var skjæringstidspunkt = LocalDate.now().plusWeeks(1L).minusDays(1L);
+        var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
+            .medPeriode(LocalDate.now().plusWeeks(2), LocalDate.now().plusWeeks(4))
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriodeBuilder.build()), true));
         scenario.medSøknadHendelse()
             .medTerminbekreftelse(scenario.medSøknadHendelse()
                 .getTerminbekreftelseBuilder()
@@ -83,47 +85,46 @@ public class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
                 .medTermindato(LocalDate.now().plusWeeks(4L))
                 .medUtstedtDato(LocalDate.now())
                 .medNavnPå("Doktor Dankel"));
-        Behandling behandling = scenario.lagre(repositoryProvider);
-        final OppgittPeriodeBuilder oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
-            .medPeriode(LocalDate.now().plusWeeks(2), LocalDate.now().plusWeeks(4))
-            .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL);
-        repositoryProvider.getYtelsesFordelingRepository()
-            .lagre(behandling.getId(),
-                new OppgittFordelingEntitet(Collections.singletonList(oppgittPeriodeBuilder.build()), true));
+        var behandling = scenario.lagre(repositoryProvider);
 
-        VilkårData data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(
+        var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(
             lagRef(behandling));
 
-        OpptjeningsPeriode op = (OpptjeningsPeriode) data.getEkstraVilkårresultat();
-        Assertions.assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(skjæringstidspunkt);
-        Assertions.assertThat(op.getOpptjeningsperiodeFom())
-            .isEqualTo(op.getOpptjeningsperiodeTom().plusDays(1).minusMonths(10L));
+        var op = (OpptjeningsPeriode) data.getEkstraVilkårresultat();
+        assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(skjæringstidspunkt);
+        assertThat(op.getOpptjeningsperiodeFom()).isEqualTo(op.getOpptjeningsperiodeTom().plusDays(1).minusMonths(10L));
     }
 
     @Test
     public void skal_fastsette_periode_ved_fødsel_mor() {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.medSøknadHendelse().medFødselsDato(LocalDate.now()).medAntallBarn(Integer.valueOf(1));
-        scenario.medBekreftetHendelse().medFødselsDato(LocalDate.now()).medAntallBarn(Integer.valueOf(1));
-        Behandling behandling = scenario.lagre(repositoryProvider);
-        final OppgittPeriodeBuilder oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
+        var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
             .medPeriode(LocalDate.now().plusWeeks(2), LocalDate.now().plusWeeks(4))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL);
-        repositoryProvider.getYtelsesFordelingRepository()
-            .lagre(behandling.getId(),
-                new OppgittFordelingEntitet(Collections.singletonList(oppgittPeriodeBuilder.build()), true));
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriodeBuilder.build()), true));
+        scenario.medSøknadHendelse().medFødselsDato(LocalDate.now()).medAntallBarn(1);
+        scenario.medBekreftetHendelse().medFødselsDato(LocalDate.now()).medAntallBarn(1);
+        var behandling = scenario.lagre(repositoryProvider);
 
-        VilkårData data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(
+        var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(
             lagRef(behandling));
 
-        OpptjeningsPeriode op = (OpptjeningsPeriode) data.getEkstraVilkårresultat();
-        Assertions.assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(LocalDate.now().minusDays(1L));
+        var op = (OpptjeningsPeriode) data.getEkstraVilkårresultat();
+        assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(LocalDate.now().minusDays(1L));
     }
 
     @Test
     public void skal_fastsette_periode_ved_tidlig_uttak_termin_fødsel_mor() {
-        final LocalDate skjæringstidspunkt = LocalDate.now().plusWeeks(1L).minusDays(1);
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var skjæringstidspunkt = LocalDate.now().plusWeeks(1L).minusDays(1);
+        var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
+            .medPeriode(LocalDate.now().plusWeeks(1), LocalDate.now().plusWeeks(10).minusDays(1))
+            .medPeriodeType(UttakPeriodeType.FELLESPERIODE);
+        var oppgittPeriodeBuilder2 = OppgittPeriodeBuilder.ny()
+            .medPeriode(LocalDate.now().plusWeeks(10), LocalDate.now().plusWeeks(13))
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL);
+        var oppgittFordeling = new OppgittFordelingEntitet(
+            List.of(oppgittPeriodeBuilder.build(), oppgittPeriodeBuilder2.build()), true);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medFordeling(oppgittFordeling);
         scenario.medSøknadHendelse()
             .medTerminbekreftelse(scenario.medSøknadHendelse()
                 .getTerminbekreftelseBuilder()
@@ -136,97 +137,88 @@ public class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
                 .medTermindato(LocalDate.now().plusWeeks(13L))
                 .medUtstedtDato(LocalDate.now())
                 .medNavnPå("Doktor Dankel"));
-        scenario.medBekreftetHendelse().medFødselsDato(LocalDate.now().plusWeeks(14)).medAntallBarn(Integer.valueOf(1));
-        Behandling behandling = scenario.lagre(repositoryProvider);
-        final OppgittPeriodeBuilder oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
-            .medPeriode(LocalDate.now().plusWeeks(1), LocalDate.now().plusWeeks(10).minusDays(1))
-            .medPeriodeType(UttakPeriodeType.FELLESPERIODE);
-        final OppgittPeriodeBuilder oppgittPeriodeBuilder2 = OppgittPeriodeBuilder.ny()
-            .medPeriode(LocalDate.now().plusWeeks(10), LocalDate.now().plusWeeks(13))
-            .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL);
-        repositoryProvider.getYtelsesFordelingRepository()
-            .lagre(behandling.getId(),
-                new OppgittFordelingEntitet(List.of(oppgittPeriodeBuilder.build(), oppgittPeriodeBuilder2.build()),
-                    true));
+        scenario.medBekreftetHendelse().medFødselsDato(LocalDate.now().plusWeeks(14)).medAntallBarn(1);
+        var behandling = scenario.lagre(repositoryProvider);
 
-        VilkårData data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(
+        var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(
             lagRef(behandling));
 
-        OpptjeningsPeriode op = (OpptjeningsPeriode) data.getEkstraVilkårresultat();
-        Assertions.assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(skjæringstidspunkt);
-        Assertions.assertThat(op.getOpptjeningsperiodeFom())
-            .isEqualTo(op.getOpptjeningsperiodeTom().plusDays(1).minusMonths(10L));
+        var op = (OpptjeningsPeriode) data.getEkstraVilkårresultat();
+        assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(skjæringstidspunkt);
+        assertThat(op.getOpptjeningsperiodeFom()).isEqualTo(op.getOpptjeningsperiodeTom().plusDays(1).minusMonths(10L));
     }
 
     @Test
     public void skal_fastsette_periode_ved_fødsel_far() {
-        LocalDate fødselsdato = LocalDate.now();
-        ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
-        scenario.medBekreftetHendelse().medFødselsDato(fødselsdato).medAntallBarn(Integer.valueOf(1));
-        scenario.medSøknadHendelse().medFødselsDato(fødselsdato).medAntallBarn(Integer.valueOf(1));
-        Builder builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
-        AktørId barnAktørId = AktørId.dummy();
-        AktørId søkerAktørId = scenario.getDefaultBrukerAktørId();
+        var fødselsdato = LocalDate.now();
+        var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
+            .medPeriode(LocalDate.now().minusDays(1L), LocalDate.now().plusWeeks(4))
+            .medPeriodeType(UttakPeriodeType.FEDREKVOTE);
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriodeBuilder.build()), true));
+        scenario.medBekreftetHendelse().medFødselsDato(fødselsdato).medAntallBarn(1);
+        scenario.medSøknadHendelse().medFødselsDato(fødselsdato).medAntallBarn(1);
+        var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
+        var barnAktørId = AktørId.dummy();
+        var søkerAktørId = scenario.getDefaultBrukerAktørId();
 
-        PersonInformasjon fødtBarn = builderForRegisteropplysninger.medPersonas()
+        var fødtBarn = builderForRegisteropplysninger.medPersonas()
             .fødtBarn(barnAktørId, fødselsdato)
             .relasjonTil(søkerAktørId, RelasjonsRolleType.MORA, null)
             .build();
 
-        PersonInformasjon søker = builderForRegisteropplysninger.medPersonas()
+        var søker = builderForRegisteropplysninger.medPersonas()
             .kvinne(søkerAktørId, SivilstandType.GIFT, Region.NORDEN)
             .statsborgerskap(Landkoder.NOR)
             .relasjonTil(barnAktørId, RelasjonsRolleType.BARN, true)
             .build();
         scenario.medRegisterOpplysninger(søker);
         scenario.medRegisterOpplysninger(fødtBarn);
-        Behandling behandling = scenario.lagre(repositoryProvider);
-        final OppgittPeriodeBuilder oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
-            .medPeriode(LocalDate.now().minusDays(1L), LocalDate.now().plusWeeks(4))
-            .medPeriodeType(UttakPeriodeType.FEDREKVOTE);
-        repositoryProvider.getYtelsesFordelingRepository()
-            .lagre(behandling.getId(),
-                new OppgittFordelingEntitet(Collections.singletonList(oppgittPeriodeBuilder.build()), true));
+        var behandling = scenario.lagre(repositoryProvider);
 
         VilkårData data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(
             lagRef(behandling));
 
         OpptjeningsPeriode op = (OpptjeningsPeriode) data.getEkstraVilkårresultat();
-        Assertions.assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(LocalDate.now().minusDays(1L));
+        assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(LocalDate.now().minusDays(1L));
     }
 
     @Test
     public void skal_fastsette_periode_ved_adopsjon_mor_søker() {
-        Behandling behandling = this.settOppAdopsjonBehandlingForMor(10, false, NavBrukerKjønn.KVINNE, false);
-        final OppgittPeriodeBuilder oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
+        var behandling = settOppAdopsjonBehandlingForMor(10, false, NavBrukerKjønn.KVINNE, false);
+        var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
             .medPeriode(LocalDate.of(2018, 1, 1).minusDays(1L), LocalDate.now().plusWeeks(4))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL);
-        repositoryProvider.getYtelsesFordelingRepository()
-            .lagre(behandling.getId(),
-                new OppgittFordelingEntitet(Collections.singletonList(oppgittPeriodeBuilder.build()), true));
+        var oppgittFordeling = new OppgittFordelingEntitet(List.of(oppgittPeriodeBuilder.build()), true);
+        var yfBuilder = repositoryProvider.getYtelsesFordelingRepository()
+            .opprettBuilder(behandling.getId())
+            .medOppgittFordeling(oppgittFordeling);
+        repositoryProvider.getYtelsesFordelingRepository().lagre(behandling.getId(), yfBuilder.build());
 
-        VilkårData data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(
+        var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(
             lagRef(behandling));
 
-        OpptjeningsPeriode op = (OpptjeningsPeriode) data.getEkstraVilkårresultat();
-        Assertions.assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(LocalDate.of(2018, 1, 1).minusDays(1L));
+        var op = (OpptjeningsPeriode) data.getEkstraVilkårresultat();
+        assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(LocalDate.of(2018, 1, 1).minusDays(1L));
     }
 
     @Test
     public void skal_fastsette_periode_ved_adopsjon_far_søker() {
-        Behandling behandling = this.settOppAdopsjonBehandlingForMor(10, false, NavBrukerKjønn.MANN, false);
-        final OppgittPeriodeBuilder oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
+        var behandling = settOppAdopsjonBehandlingForMor(10, false, NavBrukerKjønn.MANN, false);
+        var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
             .medPeriode(LocalDate.of(2018, 1, 1).minusDays(1L), LocalDate.now().plusWeeks(4))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL);
-        repositoryProvider.getYtelsesFordelingRepository()
-            .lagre(behandling.getId(),
-                new OppgittFordelingEntitet(Collections.singletonList(oppgittPeriodeBuilder.build()), true));
+        var oppgittFordeling = new OppgittFordelingEntitet(List.of(oppgittPeriodeBuilder.build()), true);
+        var yfBuilder = repositoryProvider.getYtelsesFordelingRepository()
+            .opprettBuilder(behandling.getId())
+            .medOppgittFordeling(oppgittFordeling);
+        repositoryProvider.getYtelsesFordelingRepository().lagre(behandling.getId(), yfBuilder.build());
 
-        VilkårData data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(
+        var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(
             lagRef(behandling));
 
-        OpptjeningsPeriode op = (OpptjeningsPeriode) data.getEkstraVilkårresultat();
-        Assertions.assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(LocalDate.of(2018, 1, 1).minusDays(1L));
+        var op = (OpptjeningsPeriode) data.getEkstraVilkårresultat();
+        assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(LocalDate.of(2018, 1, 1).minusDays(1L));
     }
 
     private Behandling settOppAdopsjonBehandlingForMor(int alder,

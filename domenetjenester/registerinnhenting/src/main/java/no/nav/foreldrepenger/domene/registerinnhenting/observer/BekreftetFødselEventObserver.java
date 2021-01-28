@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.registerinnhenting.observer;
 
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -81,10 +80,16 @@ public class BekreftetFødselEventObserver {
     }
 
     private void settNyStartdatoOgOpprettHistorikkInnslag(Behandling behandling, LocalDate nyBekreftetFødselsdato) {
-        final Optional<AvklarteUttakDatoerEntitet> avklarteDatoer = ytelsesFordelingRepository.hentAggregat(behandling.getId()).getAvklarteDatoer();
-        final LocalDate gammelStartdato = avklarteDatoer.map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato).orElse(null);
-        final AvklarteUttakDatoerEntitet entitet = new AvklarteUttakDatoerEntitet.Builder(avklarteDatoer).medFørsteUttaksdato(nyBekreftetFødselsdato).build();
-        ytelsesFordelingRepository.lagre(behandling.getId(), entitet);
+        var avklarteDatoer = ytelsesFordelingRepository.hentAggregat(behandling.getId()).getAvklarteDatoer();
+        var gammelStartdato = avklarteDatoer.map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato).orElse(null);
+        var entitet = new AvklarteUttakDatoerEntitet.Builder(avklarteDatoer)
+            .medFørsteUttaksdato(nyBekreftetFødselsdato)
+            .build();
+
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
+            .medAvklarteDatoer(entitet);
+        ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
+
         historikkinnslagTjeneste.opprettHistorikkinnslagForEndretStartdatoEtterFødselshendelse(behandling, gammelStartdato, nyBekreftetFødselsdato);
     }
 }

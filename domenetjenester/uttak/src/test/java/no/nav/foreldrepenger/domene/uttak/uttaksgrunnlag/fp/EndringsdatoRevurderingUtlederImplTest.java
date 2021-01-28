@@ -102,16 +102,18 @@ public class EndringsdatoRevurderingUtlederImplTest {
 
     @Test
     public void skal_utlede_at_endringsdatoen_er_første_uttaksdato_til_startdato_for_uttak_når_dekningsgrad_er_endret() {
-        UttakResultatPeriodeEntitet opprinneligPeriode = new UttakResultatPeriodeEntitet.Builder(
+        var opprinneligPeriode = new UttakResultatPeriodeEntitet.Builder(
             MANUELT_SATT_FØRSTE_UTTAKSDATO.minusWeeks(1), MANUELT_SATT_FØRSTE_UTTAKSDATO.minusWeeks(1)).medResultatType(
             PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
-        List<UttakResultatPeriodeEntitet> opprinneligUttak = Collections.singletonList(opprinneligPeriode);
-        OppgittDekningsgradEntitet oppgittDekningsgrad = OppgittDekningsgradEntitet.bruk80();
-        Behandling revurdering = testUtil.opprettRevurdering(AktørId.dummy(), RE_OPPLYSNINGER_OM_DØD, opprinneligUttak,
+        var opprinneligUttak = Collections.singletonList(opprinneligPeriode);
+        var oppgittDekningsgrad = OppgittDekningsgradEntitet.bruk80();
+        var revurdering = testUtil.opprettRevurdering(AktørId.dummy(), RE_OPPLYSNINGER_OM_DØD, opprinneligUttak,
             new OppgittFordelingEntitet(Collections.emptyList(), true), oppgittDekningsgrad);
-        AvklarteUttakDatoerEntitet entitet = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(
+        var entitet = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(
             MANUELT_SATT_FØRSTE_UTTAKSDATO).build();
-        ytelsesFordelingRepository.lagre(revurdering.getId(), entitet);
+
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(revurdering.getId()).medAvklarteDatoer(entitet);
+        ytelsesFordelingRepository.lagre(revurdering.getId(), yfBuilder.build());
 
         endreDekningsgrad(revurdering, Dekningsgrad._100);
 
@@ -140,7 +142,10 @@ public class EndringsdatoRevurderingUtlederImplTest {
             new OppgittFordelingEntitet(fordeling, true), OppgittDekningsgradEntitet.bruk100());
         AvklarteUttakDatoerEntitet entitet = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(
             MANUELT_SATT_FØRSTE_UTTAKSDATO).build();
-        ytelsesFordelingRepository.lagre(revurdering.getId(), entitet);
+
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(revurdering.getId())
+            .medAvklarteDatoer(entitet);
+        ytelsesFordelingRepository.lagre(revurdering.getId(), yfBuilder.build());
 
         endreDekningsgrad(revurdering, Dekningsgrad._80);
 
@@ -380,13 +385,16 @@ public class EndringsdatoRevurderingUtlederImplTest {
     @Test // #5
     public void skal_utlede_at_endringsdato_er_manuelt_satt_første_uttaksdato() {
         // Arrange
-        Behandling revurdering = testUtil.opprettRevurdering(RE_HENDELSE_FØDSEL);
-        AvklarteUttakDatoerEntitet entitet = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(
+        var revurdering = testUtil.opprettRevurdering(RE_HENDELSE_FØDSEL);
+        var entitet = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(
             MANUELT_SATT_FØRSTE_UTTAKSDATO).build();
-        ytelsesFordelingRepository.lagre(revurdering.getId(), entitet);
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(revurdering.getId())
+            .medAvklarteDatoer(entitet);
+
+        ytelsesFordelingRepository.lagre(revurdering.getId(), yfBuilder.build());
 
         // Act
-        LocalDate endringsdato = utleder.utledEndringsdato(lagInput(revurdering));
+        var endringsdato = utleder.utledEndringsdato(lagInput(revurdering));
 
         // Assert
         assertThat(endringsdato).isEqualTo(MANUELT_SATT_FØRSTE_UTTAKSDATO);
@@ -395,16 +403,19 @@ public class EndringsdatoRevurderingUtlederImplTest {
     @Test // #2 + #5
     public void skal_utlede_at_endringsdato_er_første_uttaksdag_fra_søknad_når_denne_er_tidligere_enn_manuelt_satt_første_uttaksdato() {
         // Arrange
-        Behandling revurdering = testUtil.opprettRevurdering(RE_ENDRING_FRA_BRUKER);
+        var revurdering = testUtil.opprettRevurdering(RE_ENDRING_FRA_BRUKER);
         testUtil.byggOgLagreOppgittFordelingForMorFPFF(revurdering);
-        AvklarteUttakDatoerEntitet entitet = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(
+        var entitet = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(
             MANUELT_SATT_FØRSTE_UTTAKSDATO).build();
-        ytelsesFordelingRepository.lagre(revurdering.getId(), entitet);
-        FamilieHendelse familieHendelse = FamilieHendelse.forFødsel(null, FØDSELSDATO, List.of(new Barn()), 1);
+
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(revurdering.getId()).medAvklarteDatoer(entitet);
+        ytelsesFordelingRepository.lagre(revurdering.getId(), yfBuilder.build());
+
+        var familieHendelse = FamilieHendelse.forFødsel(null, FØDSELSDATO, List.of(new Barn()), 1);
 
         // Act
         var input = lagInput(revurdering, familieHendelse).medBehandlingÅrsaker(Set.of(RE_ENDRING_FRA_BRUKER));
-        LocalDate endringsdato = utleder.utledEndringsdato(input);
+        var endringsdato = utleder.utledEndringsdato(input);
 
         // Assert
         assertThat(endringsdato).isEqualTo(FØRSTE_UTTAKSDATO_SØKNAD_MOR_FPFF);

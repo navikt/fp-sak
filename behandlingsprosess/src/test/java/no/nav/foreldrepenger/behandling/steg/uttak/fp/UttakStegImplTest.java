@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,6 +46,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
@@ -160,14 +160,17 @@ public class UttakStegImplTest {
     @Test
     public void skal_ha_aksjonspunkt_når_resultat_må_manuelt_fastsettes_her_pga_tomt_på_konto() {
         var behandling = opprettBehandling();
-        ytelsesFordelingRepository.lagreOverstyrtFordeling(behandling.getId(), søknad4ukerFPFF());
 
-        OppgittDekningsgradEntitet dekningsgrad = OppgittDekningsgradEntitet.bruk100();
-        ytelsesFordelingRepository.lagre(behandling.getId(), dekningsgrad);
+        var dekningsgrad = OppgittDekningsgradEntitet.bruk100();
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
+            .medOverstyrtFordeling(søknad4ukerFPFF())
+            .medOppgittDekningsgrad(dekningsgrad);
+        ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
+
         opprettPersonopplysninger(behandling);
 
         // Act
-        BehandleStegResultat behandleStegResultat = steg.utførSteg(kontekst(behandling));
+        var behandleStegResultat = steg.utførSteg(kontekst(behandling));
 
         assertThat(behandleStegResultat).isNotNull();
         assertThat(behandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
@@ -338,11 +341,14 @@ public class UttakStegImplTest {
         ytelsesFordelingRepository.kopierGrunnlagFraEksisterendeBehandling(behandlingId, revurderingId);
         familieHendelseRepository.kopierGrunnlagFraEksisterendeBehandling(behandlingId, revurderingId);
         beregningsgrunnlagKopierOgLagreTjeneste.kopierBeregningsresultatFraOriginalBehandling(behandlingId, revurderingId);
-        AvklarteUttakDatoerEntitet avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder()
+        var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder()
                 .medFørsteUttaksdato(fødselsdato.minusWeeks(3))
                 .medOpprinneligEndringsdato(fødselsdato.minusWeeks(3))
                 .build();
-        ytelsesFordelingRepository.lagre(revurderingId, avklarteUttakDatoer);
+        var ytelseFordelingAggregat = ytelsesFordelingRepository.opprettBuilder(revurderingId)
+            .medAvklarteDatoer(avklarteUttakDatoer)
+            .build();
+        ytelsesFordelingRepository.lagre(revurderingId, ytelseFordelingAggregat);
 
         Behandlingsresultat behandlingsresultat = Behandlingsresultat.builder()
                 .medBehandlingResultatType(BehandlingResultatType.IKKE_FASTSATT)
@@ -529,7 +535,7 @@ public class UttakStegImplTest {
                     .medArbeidsgiver(virksomhet())
                     .build();
 
-            fordeling = new OppgittFordelingEntitet(Arrays.asList(periode0, periode1, periode2), true);
+            fordeling = new OppgittFordelingEntitet(List.of(periode0, periode1, periode2), true);
         } else {
             OppgittPeriodeEntitet periodeFK = OppgittPeriodeBuilder.ny()
                     .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
@@ -540,15 +546,12 @@ public class UttakStegImplTest {
             fordeling = new OppgittFordelingEntitet(List.of(periodeFK), true);
         }
 
-        Long behandlingId = behandling.getId();
-        ytelsesFordelingRepository.lagre(behandlingId, fordeling);
-
-        ytelsesFordelingRepository.lagre(behandlingId, oppgittDekningsgrad);
-
-        var rettighet = new OppgittRettighetEntitet(true, true, false);
-        ytelsesFordelingRepository.lagre(behandlingId, rettighet);
-
-        ytelsesFordelingRepository.lagre(behandlingId, new AvklarteUttakDatoerEntitet.Builder().medJustertEndringsdato(fødselsdato).build());
+        var yfBuilder = YtelseFordelingAggregat.oppdatere(Optional.empty())
+            .medOppgittFordeling(fordeling)
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false))
+            .medOppgittDekningsgrad(oppgittDekningsgrad)
+            .medAvklarteDatoer(new AvklarteUttakDatoerEntitet.Builder().medJustertEndringsdato(fødselsdato).build());
+        ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
 
         final SøknadEntitet søknad = new SøknadEntitet.Builder()
                 .medSøknadsdato(LocalDate.now())

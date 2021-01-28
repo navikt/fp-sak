@@ -28,20 +28,23 @@ class BekreftFaktaForOmsorgAksjonspunkt {
     }
 
     private void bekreftFaktaOmsorg(Long behandlingId, BekreftFaktaForOmsorgVurderingAksjonspunktDto adapter) {
-        PerioderUtenOmsorgEntitet perioderUtenOmsorg = new PerioderUtenOmsorgEntitet();
-        if(Boolean.FALSE.equals(adapter.getOmsorg())) {
-            mapPeriodeUtenOmsorgperioder(adapter.getIkkeOmsorgPerioder())
-                .forEach(perioderUtenOmsorg::leggTil);
-            ytelsesFordelingRepository.lagre(behandlingId, new PerioderUtenOmsorgEntitet(perioderUtenOmsorg));
-        } else {
-            ytelsesFordelingRepository.lagre(behandlingId, perioderUtenOmsorg);
+        var perioderUtenOmsorg = new PerioderUtenOmsorgEntitet();
+        if (Boolean.FALSE.equals(adapter.getOmsorg())) {
+            mapPeriodeUtenOmsorgperioder(adapter.getIkkeOmsorgPerioder()).forEach(perioderUtenOmsorg::leggTil);
         }
+        var ytelseFordelingAggregat = ytelsesFordelingRepository.opprettBuilder(behandlingId)
+            .medPerioderUtenOmsorg(perioderUtenOmsorg)
+            .build();
+        ytelsesFordelingRepository.lagre(behandlingId, ytelseFordelingAggregat);
     }
 
     private void bekreftFaktaAleneomsorg(Long behandlingId, BekreftFaktaForOmsorgVurderingAksjonspunktDto adapter) {
         var erAleneomsorg = !Boolean.FALSE.equals(adapter.getAleneomsorg());
-        ytelsesFordelingRepository.lagre(behandlingId, new PerioderAleneOmsorgEntitet(erAleneomsorg));
-        ytelsesFordelingRepository.lagre(behandlingId, new PerioderAnnenforelderHarRettEntitet(!erAleneomsorg));
+        var ytelseFordelingAggregat = ytelsesFordelingRepository.opprettBuilder(behandlingId)
+            .medPerioderAleneOmsorg(new PerioderAleneOmsorgEntitet(erAleneomsorg))
+            .medPerioderAnnenforelderHarRett(new PerioderAnnenforelderHarRettEntitet(!erAleneomsorg))
+            .build();
+        ytelsesFordelingRepository.lagre(behandlingId, ytelseFordelingAggregat);
     }
 
     private static List<PeriodeUtenOmsorgEntitet> mapPeriodeUtenOmsorgperioder(List<DatoIntervallEntitet> ikkeOmsorgPeriodes) {

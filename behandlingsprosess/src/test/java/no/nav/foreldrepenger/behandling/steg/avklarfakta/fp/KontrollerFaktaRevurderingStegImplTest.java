@@ -4,7 +4,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.InternalManipule
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,7 +33,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseF
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
@@ -208,25 +206,24 @@ public class KontrollerFaktaRevurderingStegImplTest {
         repositoryProvider.getOpptjeningRepository().lagreOpptjeningsperiode(originalBehandling, LocalDate.now().minusYears(1), LocalDate.now(),
                 false);
 
-        ScenarioMorSøkerForeldrepenger revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+        var foreldrepenger = OppgittPeriodeBuilder.ny()
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+            .medPeriode(fom, tom)
+            .build();
+        var fordeling = new OppgittFordelingEntitet(List.of(foreldrepenger), true);
+        var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.REVURDERING)
-                .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
+                .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
+            .medFordeling(fordeling);
         revurderingScenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now()).build());
         revurderingScenario.medDefaultOppgittTilknytning();
 
         revurderingScenario.medSøknadHendelse().medFødselsDato(LocalDate.now().minusDays(10));
-        Behandling revurdering = revurderingScenario.lagre(repositoryProvider);
-        // Legg til fordelingsperiode
-        OppgittPeriodeEntitet foreldrepenger = OppgittPeriodeBuilder.ny()
-                .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-                .medPeriode(fom, tom)
-                .build();
-        OppgittFordelingEntitet fordeling = new OppgittFordelingEntitet(Collections.singletonList(foreldrepenger), true);
-        repositoryProvider.getYtelsesFordelingRepository().lagre(revurdering.getId(), fordeling);
+        var revurdering = revurderingScenario.lagre(repositoryProvider);
 
         // Nødvendig å sette aktivt steg for KOFAK revurdering
         forceOppdaterBehandlingSteg(revurdering, BehandlingStegType.KONTROLLER_FAKTA);
-        BehandlingLås behandlingLås = behandlingRepository.taSkriveLås(revurdering);
+        var behandlingLås = behandlingRepository.taSkriveLås(revurdering);
         behandlingRepository.lagre(revurdering, behandlingLås);
 
         return revurdering;
@@ -277,16 +274,16 @@ public class KontrollerFaktaRevurderingStegImplTest {
         repositoryProvider.getOpptjeningRepository().lagreOpptjeningsperiode(førstegangsbehandling, LocalDate.now().minusYears(1), LocalDate.now(),
                 false);
 
+        var fordeling = new OppgittFordelingEntitet(List.of(), true);
         ScenarioMorSøkerForeldrepenger revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.REVURDERING)
-                .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.BERØRT_BEHANDLING);
+                .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.BERØRT_BEHANDLING)
+            .medFordeling(fordeling);
         revurderingScenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now()).build());
         revurderingScenario.medDefaultOppgittTilknytning();
 
         revurderingScenario.medSøknadHendelse().medFødselsDato(LocalDate.now().minusDays(10));
         Behandling revurdering = revurderingScenario.lagre(repositoryProvider);
-        OppgittFordelingEntitet fordeling = new OppgittFordelingEntitet(Collections.emptyList(), true);
-        repositoryProvider.getYtelsesFordelingRepository().lagre(revurdering.getId(), fordeling);
 
         // Nødvendig å sette aktivt steg for KOFAK revurdering
         forceOppdaterBehandlingSteg(revurdering, BehandlingStegType.KONTROLLER_FAKTA);
@@ -388,7 +385,13 @@ public class KontrollerFaktaRevurderingStegImplTest {
         AvklarteUttakDatoerEntitet avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder()
                 .medFørsteUttaksdato(LocalDate.now())
                 .build();
-        førstegangScenario.medAvklarteUttakDatoer(avklarteUttakDatoer);
+        var foreldrepenger = OppgittPeriodeBuilder.ny()
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+            .medPeriode(LocalDate.now(), LocalDate.now().plusWeeks(20))
+            .build();
+        var fordeling = new OppgittFordelingEntitet(List.of(foreldrepenger), true);
+        førstegangScenario.medAvklarteUttakDatoer(avklarteUttakDatoer)
+            .medFordeling(fordeling);
 
         Behandling originalBehandling = førstegangScenario.lagre(repositoryProvider);
         // Legg til Uttaksperiodegrense -> dessverre ikke tilgjengelig i scenariobygger
@@ -402,14 +405,6 @@ public class KontrollerFaktaRevurderingStegImplTest {
         // Legg til Opptjeningsperidoe -> dessverre ikke tilgjengelig i scenariobygger
         repositoryProvider.getOpptjeningRepository().lagreOpptjeningsperiode(originalBehandling, LocalDate.now().minusYears(1), LocalDate.now(),
                 false);
-        // Legg til fordelingsperiode
-        OppgittPeriodeEntitet foreldrepenger = OppgittPeriodeBuilder.ny()
-                .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-                .medPeriode(LocalDate.now(), LocalDate.now().plusWeeks(20))
-                .build();
-        OppgittFordelingEntitet fordeling = new OppgittFordelingEntitet(Collections.singletonList(foreldrepenger), true);
-        Long orgBehandlingId = originalBehandling.getId();
-        repositoryProvider.getYtelsesFordelingRepository().lagre(orgBehandlingId, fordeling);
 
         ScenarioMorSøkerForeldrepenger revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.REVURDERING)

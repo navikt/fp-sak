@@ -24,14 +24,14 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 public class YtelsesFordelingRepositoryTest extends EntityManagerAwareTest {
 
     private FagsakRepository fagsakRepository;
-    private YtelsesFordelingRepository fordelingRepository;
+    private YtelsesFordelingRepository repository;
     private BehandlingRepository behandlingRepository;
 
     @BeforeEach
     void setUp() {
         var entityManager = getEntityManager();
         fagsakRepository = new FagsakRepository(entityManager);
-        fordelingRepository = new YtelsesFordelingRepository(entityManager);
+        repository = new YtelsesFordelingRepository(entityManager);
         behandlingRepository = new BehandlingRepository(entityManager);
     }
 
@@ -39,18 +39,20 @@ public class YtelsesFordelingRepositoryTest extends EntityManagerAwareTest {
     public void skal_lagre_grunnlaget() {
         var behandling = opprettBehandlingMedYtelseFordeling();
         //Endre periode for å teste overstyring
-        final OppgittPeriodeEntitet periode_12 = OppgittPeriodeBuilder.ny()
+        var periode_12 = OppgittPeriodeBuilder.ny()
             .medPeriode(LocalDate.now().minusDays(10).plusDays(1), LocalDate.now())
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .build();
-        final OppgittPeriodeEntitet periode_22 = OppgittPeriodeBuilder.ny()
+        var periode_22 = OppgittPeriodeBuilder.ny()
             .medPeriode(LocalDate.now().minusDays(20).plusDays(1), LocalDate.now().minusDays(10))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .build();
+        var yfBuilder = repository.opprettBuilder(behandling.getId())
+            .medOverstyrtFordeling(new OppgittFordelingEntitet(List.of(periode_12, periode_22), true));
 
-        fordelingRepository.lagreOverstyrtFordeling(behandling.getId(), new OppgittFordelingEntitet(List.of(periode_12, periode_22), true));
+        repository.lagre(behandling.getId(), yfBuilder.build());
 
-        final YtelseFordelingAggregat aggregat = fordelingRepository.hentAggregat(behandling.getId());
+        var aggregat = repository.hentAggregat(behandling.getId());
 
         assertThat(aggregat).isNotNull();
         assertThat(aggregat.getOppgittDekningsgrad()).isNotNull();
@@ -59,7 +61,7 @@ public class YtelsesFordelingRepositoryTest extends EntityManagerAwareTest {
         assertThat(aggregat.getOppgittFordeling().getOppgittePerioder()).isNotEmpty();
         assertThat(aggregat.getOppgittFordeling().getOppgittePerioder()).hasSize(3);
         assertThat(aggregat.getOverstyrtFordeling()).isNotNull();
-        assertThat(aggregat.getOverstyrtFordeling().get().getOppgittePerioder()).isNotEmpty();
+        assertThat(aggregat.getOverstyrtFordeling().orElseThrow().getOppgittePerioder()).isNotEmpty();
         assertThat(aggregat.getOverstyrtFordeling().get().getOppgittePerioder()).hasSize(2);
 
     }
@@ -69,19 +71,19 @@ public class YtelsesFordelingRepositoryTest extends EntityManagerAwareTest {
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
-        OppgittRettighetEntitet oppgittRettighetEntitet = new OppgittRettighetEntitet(true, true, false);
-        fordelingRepository.lagre(behandling.getId(), oppgittRettighetEntitet);
-        fordelingRepository.lagre(behandling.getId(), OppgittDekningsgradEntitet.bruk80());
-
-
-        OppgittPeriodeEntitet periode_1 = lagOppgittPeriode(LocalDate.now().minusDays(10), LocalDate.now(),
+        var periode_1 = lagOppgittPeriode(LocalDate.now().minusDays(10), LocalDate.now(),
             UttakPeriodeType.FORELDREPENGER);
-        OppgittPeriodeEntitet periode_2 = lagOppgittPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(20),
+        var periode_2 = lagOppgittPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(20),
             UttakPeriodeType.FORELDREPENGER);
-        OppgittPeriodeEntitet periode_3 = lagOppgittPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(20),
+        var periode_3 = lagOppgittPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(20),
             UttakPeriodeType.ANNET);
 
-        fordelingRepository.lagre(behandling.getId(), new OppgittFordelingEntitet(List.of(periode_1, periode_2, periode_3), true));
+        var yf = repository.opprettBuilder(behandling.getId())
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false))
+            .medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk80())
+            .medOppgittFordeling(new OppgittFordelingEntitet(List.of(periode_1, periode_2, periode_3), true))
+            .build();
+        repository.lagre(behandling.getId(), yf);
         return behandling;
     }
 

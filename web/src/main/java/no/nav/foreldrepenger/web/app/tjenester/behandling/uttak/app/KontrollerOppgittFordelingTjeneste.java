@@ -105,14 +105,17 @@ public class KontrollerOppgittFordelingTjeneste {
     }
 
     private void oppdaterEndringsdato(List<BekreftetOppgittPeriodeDto> bekreftedePerioder, Behandling behandling) {
-        Optional<AvklarteUttakDatoerEntitet> avklarteDatoer = ytelseFordelingTjeneste.hentAggregat(behandling.getId()).getAvklarteDatoer();
+        var avklarteDatoer = ytelseFordelingTjeneste.hentAggregat(behandling.getId()).getAvklarteDatoer();
         if (avklarteDatoer.isPresent()) {
-            LocalDate førsteDagIBekreftedePerioder = førsteFomIBekreftedePerioder(bekreftedePerioder);
+            var førsteDagIBekreftedePerioder = førsteFomIBekreftedePerioder(bekreftedePerioder);
             if (førsteDagIBekreftedePerioder.isBefore(avklarteDatoer.get().getGjeldendeEndringsdato())) {
-                AvklarteUttakDatoerEntitet nyeAvklarteDatoer = new AvklarteUttakDatoerEntitet.Builder(avklarteDatoer)
+                var nyeAvklarteDatoer = new AvklarteUttakDatoerEntitet.Builder(avklarteDatoer)
                     .medJustertEndringsdato(førsteDagIBekreftedePerioder)
                     .build();
-                ytelsesFordelingRepository.lagre(behandling.getId(), nyeAvklarteDatoer);
+                var ytelseFordelingAggregat = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
+                    .medAvklarteDatoer(nyeAvklarteDatoer)
+                    .build();
+                ytelsesFordelingRepository.lagre(behandling.getId(), ytelseFordelingAggregat);
             }
         }
     }

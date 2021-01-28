@@ -69,7 +69,7 @@ public class BehandlingÅrsakDtoTest extends EntityManagerAwareTest {
                 ytelseFordelingTjeneste, uttakInputTjeneste, foreldrepengerUttakTjeneste));
 
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medDefaultOppgittFordeling(LocalDate.now());
+            .medDefaultFordeling(LocalDate.now());
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
         var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now())
             .medOpprinneligEndringsdato(LocalDate.now())
