@@ -35,6 +35,14 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomistøtteUtils;
 
 public class OppdragMapper {
 
+    public static final String TYPE_ENHET = "BOS";
+    public static final String ENHET = "8020";
+    public static final LocalDate DATO_ENHET_FOM = LocalDate.of(1900, 1, 1);
+    public static final String TYPE_GRAD = "UFOR";
+    public static final LocalDate DATO_OPPDRAG_GJELDER_FOM = LocalDate.of(2000, 1, 1);
+    public static final String NEI = "N";
+    public static final String JA = "J";
+
     private final Input input;
     private String fnrBruker;
     private String ansvarligSaksbehandler;
@@ -58,7 +66,7 @@ public class OppdragMapper {
             .medFagSystemId(Long.parseLong(oppdrag.getFagsystemId().toString()))
             .medUtbetFrekvens(ØkonomiUtbetFrekvens.MÅNED.getUtbetFrekvens())
             .medOppdragGjelderId(fnrBruker)
-            .medDatoOppdragGjelderFom(LocalDate.of(2000, 1, 1))
+            .medDatoOppdragGjelderFom(DATO_OPPDRAG_GJELDER_FOM)
             .medSaksbehId(ansvarligSaksbehandler)
             .medAvstemming115(opprettAvstemming115());
 
@@ -82,7 +90,7 @@ public class OppdragMapper {
         return !tidligereOppdrag.getBetalingsmottakere().contains(oppdrag.getBetalingsmottaker());
     }
 
-    public ØkonomiKodeEndring utledKodeEndring(Oppdrag oppdrag) {
+    ØkonomiKodeEndring utledKodeEndring(Oppdrag oppdrag) {
         //usikker på nøyaktig hva som bør sendes her,
         //dette er reverse-engineered fra gammel implementasjon
         if (oppdragErTilNyMottaker(oppdrag)) {
@@ -104,7 +112,7 @@ public class OppdragMapper {
             .medTypeSats(linje.getSats().getSatsType().getKode())
             .medVedtakId(vedtaksdato.toString())
             .medFradragTillegg(OppdragskontrollConstants.FRADRAG_TILLEGG)
-            .medBrukKjoreplan("N")
+            .medBrukKjoreplan(NEI)
             .medHenvisning(behandlingId)
             .medSaksbehId(ansvarligSaksbehandler);
 
@@ -142,13 +150,13 @@ public class OppdragMapper {
             Grad170.builder()
                 .medOppdragslinje150(oppdragslinje150)
                 .medGrad(linje.getUtbetalingsgrad().getUtbetalingsgrad())
-                .medTypeGrad("UFOR")
+                .medTypeGrad(TYPE_GRAD)
                 .build();
         }
         return oppdragslinje150;
     }
 
-    public static Avstemming115 opprettAvstemming115() {
+    static Avstemming115 opprettAvstemming115() {
         String localDateTimeStr = ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now());
         return Avstemming115.builder()
             .medKodekomponent(ØkonomiKodekomponent.VLFP.getKodekomponent())
@@ -157,11 +165,11 @@ public class OppdragMapper {
             .build();
     }
 
-    public static void opprettOppdragsenhet120(Oppdrag110 oppdrag110) {
+    static void opprettOppdragsenhet120(Oppdrag110 oppdrag110) {
         Oppdragsenhet120.builder()
-            .medTypeEnhet("BOS")
-            .medEnhet("8020")
-            .medDatoEnhetFom(LocalDate.of(1900, 1, 1))
+            .medTypeEnhet(TYPE_ENHET)
+            .medEnhet(ENHET)
+            .medDatoEnhetFom(DATO_ENHET_FOM)
             .medOppdrag110(oppdrag110)
             .build();
     }
@@ -171,7 +179,7 @@ public class OppdragMapper {
         Ompostering116.Builder ompostering116Builder = new Ompostering116.Builder()
             .medSaksbehId(ansvarligSaksbehandler)
             .medTidspktReg(ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now()))
-            .medOmPostering(erAvslåttInntrekk ? "J" : "N");
+            .medOmPostering(erAvslåttInntrekk ? JA : NEI);
         if (!erAvslåttInntrekk) {
             ompostering116Builder.medDatoOmposterFom(endringsdatoBruker);
         }
