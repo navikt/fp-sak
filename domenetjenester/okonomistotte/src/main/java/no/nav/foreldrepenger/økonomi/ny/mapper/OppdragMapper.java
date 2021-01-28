@@ -167,12 +167,11 @@ public class OppdragMapper {
     }
 
     static Ompostering116 opprettOmpostering116(LocalDate endringsdatoBruker, boolean brukInntrekk, String ansvarligSaksbehandler) {
-        boolean erAvslåttInntrekk = !brukInntrekk;
         Ompostering116.Builder ompostering116Builder = new Ompostering116.Builder()
             .medSaksbehId(ansvarligSaksbehandler)
             .medTidspktReg(ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now()))
-            .medOmPostering(erAvslåttInntrekk ? "J" : "N");
-        if (!erAvslåttInntrekk) {
+            .medOmPostering(brukInntrekk ? "J" : "N");
+        if (brukInntrekk) {
             ompostering116Builder.medDatoOmposterFom(endringsdatoBruker);
         }
         return ompostering116Builder.build();
