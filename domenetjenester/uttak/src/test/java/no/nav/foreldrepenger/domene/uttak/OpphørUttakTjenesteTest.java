@@ -111,11 +111,17 @@ public class OpphørUttakTjenesteTest {
     }
 
     private LocalDate lagreSkjæringstidspunkt(Behandling behandling, LocalDate skjæringstidspunkt) {
-        repositoryProvider.getYtelsesFordelingRepository().lagre(behandling.getId(), new AvklarteUttakDatoerEntitet.Builder()
-            .medFørsteUttaksdato(skjæringstidspunkt).build());
+        var avklarteUttakDatoerEntitet = new AvklarteUttakDatoerEntitet.Builder()
+            .medFørsteUttaksdato(skjæringstidspunkt)
+            .build();
+
+        var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
+            .medAvklarteDatoer(avklarteUttakDatoerEntitet);
+        ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
+
         return skjæringstidspunkt;
     }
-
 
     private class MockUttakResultatBuilder {
         private final UttakResultatPerioderEntitet uttakResultatPerioder;

@@ -24,10 +24,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 
@@ -119,27 +117,25 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
             ytelsesFordelingRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
             if (ytelseFordelingAggregat.isPresent()) {
                 ytelseFordelingAggregat.get().getGjeldendeAktivitetskravPerioder().ifPresent(entitet -> {
-                    ytelsesFordelingRepository.lagreOpprinnelige(nyBehandlingId, entitet);
-                    ytelsesFordelingRepository.tilbakestillSaksbehandledeAktivitetskravPerioder(nyBehandlingId);
+                    var yfa = ytelsesFordelingRepository.opprettBuilder(nyBehandlingId)
+                        .medOpprinneligeAktivitetskravPerioder(entitet)
+                        .medSaksbehandledeAktivitetskravPerioder(null)
+                        .build();
+                    ytelsesFordelingRepository.lagre(nyBehandlingId, yfa);
                 });
             }
         } else {
             // Kopierer kun oppgitt for ny 1gang. Bør kanskje kopiere alt?
             ytelseFordelingAggregat.ifPresent(yfa -> {
-                OppgittFordelingEntitet oppgittFordeling = yfa.getOppgittFordeling();
-                if (oppgittFordeling != null) {
+                var yfBuilder = YtelseFordelingAggregat.oppdatere(yfa)
+                    .medOppgittRettighet(yfa.getOppgittRettighet())
+                    .medOppgittDekningsgrad(yfa.getOppgittDekningsgrad());
+                if (yfa.getOppgittFordeling() != null) {
                     var kopi = revurderingTjenesteFelles.kopierOppgittFordelingFraForrigeBehandling(
-                        oppgittFordeling);
-                    ytelsesFordelingRepository.lagre(nyBehandlingId, kopi);
+                        yfa.getOppgittFordeling());
+                    yfBuilder.medOppgittFordeling(kopi);
                 }
-                OppgittRettighetEntitet oppgittRettighet = yfa.getOppgittRettighet();
-                if (oppgittRettighet != null) {
-                    ytelsesFordelingRepository.lagre(nyBehandlingId, oppgittRettighet);
-                }
-                OppgittDekningsgradEntitet entitet = yfa.getOppgittDekningsgrad();
-                if (entitet != null) {
-                    ytelsesFordelingRepository.lagre(nyBehandlingId, entitet);
-                }
+                ytelsesFordelingRepository.lagre(nyBehandlingId, yfBuilder.build());
             });
         }
         vergeRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);

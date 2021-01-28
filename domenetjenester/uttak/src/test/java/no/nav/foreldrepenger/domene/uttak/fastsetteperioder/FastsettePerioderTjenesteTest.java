@@ -328,12 +328,15 @@ public class FastsettePerioderTjenesteTest {
             .findFirst();
         assertThat(mødrekvote).isPresent();
 
-        List<OppgittPeriodeEntitet> nyePerioder = List.of(OppgittPeriodeBuilder.ny()
+        var nyePerioder = List.of(OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .medPeriode(fødselsdato, fødselsdato.plusWeeks(6).minusDays(1))
             .build());
-        ytelsesFordelingRepository.lagre(behandling.getId(), new OppgittFordelingEntitet(nyePerioder, true));
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
+            .medOppgittFordeling(new OppgittFordelingEntitet(nyePerioder, true));
+
+        ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
 
         // Act
         fastsettePerioderTjeneste.fastsettePerioder(lagInput(behandling, fødselsdato));
@@ -369,8 +372,9 @@ public class FastsettePerioderTjenesteTest {
         Arbeidsgiver virksomhet = virksomhet();
 
         Behandling behandling = behandlingMedSøknadsperioder(List.of(fpffSøknadsperiode, foreldrepengerSøknadsperiode));
-
-        ytelsesFordelingRepository.lagre(behandling.getId(), new OppgittRettighetEntitet(false, true, true));
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
+            .medOppgittRettighet(new OppgittRettighetEntitet(false, true, true));
+        ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
 
         byggArbeidForBehandling(behandling, aktørId, fødselsdato, List.of(virksomhet));
 
@@ -427,7 +431,10 @@ public class FastsettePerioderTjenesteTest {
 
         Behandling behandling = behandlingMedSøknadsperioder(List.of(fpffSøknadsperiode, foreldrepengerSøknadsperiode));
 
-        ytelsesFordelingRepository.lagre(behandling.getId(), new OppgittRettighetEntitet(false, true, true));
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
+            .medOppgittRettighet(new OppgittRettighetEntitet(false, true, true));
+        ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
+
         byggArbeidForBehandling(behandling, aktørId, fødselsdato, List.of(virksomhet, person));
 
         Stønadskonto fpffKonto = Stønadskonto.builder()
@@ -664,14 +671,20 @@ public class FastsettePerioderTjenesteTest {
 
     private void opprettGrunnlag(Long behandlingId, LocalDate mottattDato) {
         var br = repositoryProvider.getBehandlingsresultatRepository().hent(behandlingId);
-        Uttaksperiodegrense uttaksperiodegrense = new Uttaksperiodegrense.Builder(br).medMottattDato(mottattDato)
+        var uttaksperiodegrense = new Uttaksperiodegrense.Builder(br)
+            .medMottattDato(mottattDato)
             .medFørsteLovligeUttaksdag(mottattDato.withDayOfMonth(1).minusMonths(3))
             .build();
 
         uttaksperiodegrenseRepository.lagre(behandlingId, uttaksperiodegrense);
 
-        var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medJustertEndringsdato(mottattDato).build();
-        repositoryProvider.getYtelsesFordelingRepository().lagre(behandlingId, avklarteUttakDatoer);
+        var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder()
+            .medJustertEndringsdato(mottattDato).build();
+        var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId)
+            .medAvklarteDatoer(avklarteUttakDatoer);
+
+        ytelsesFordelingRepository.lagre(behandlingId, yfBuilder.build());
     }
 
     private Fagsak opprettFagsak(RelasjonsRolleType relasjonsRolleType, AktørId aktørId) {

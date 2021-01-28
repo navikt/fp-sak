@@ -19,7 +19,6 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
@@ -761,7 +760,6 @@ public class FastsettePerioderRegelAdapterTest {
         AvklarteUttakDatoerEntitet avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(
             morFpffFørstegangs.getFom()).medOpprinneligEndringsdato(morUtsettelseRevurdering.getFom()).build();
         Long behandlingId = morBehandlingRevurdering.getId();
-        repositoryProvider.getYtelsesFordelingRepository().lagre(behandlingId, avklarteUttakDatoer);
         PerioderUttakDokumentasjonEntitet dokumentasjon = new PerioderUttakDokumentasjonEntitet();
         dokumentasjon.leggTil(
             new PeriodeUttakDokumentasjonEntitet(morUtsettelseRevurdering.getFom(), morUtsettelseRevurdering.getTom(),
@@ -771,11 +769,14 @@ public class FastsettePerioderRegelAdapterTest {
             .medÅrsak(UtsettelseÅrsak.SYKDOM)
             .medPeriode(morUtsettelseFørstegangs.getFom(), morUtsettelseFørstegangs.getTom())
             .build();
-        repositoryProvider.getYtelsesFordelingRepository()
-            .lagreOverstyrtFordeling(behandlingId,
-                new OppgittFordelingEntitet(List.of(morUtsettelseRevurderingOverstyrt), true), dokumentasjon);
+        var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId)
+            .medAvklarteDatoer(avklarteUttakDatoer)
+            .medOverstyrtFordeling(new OppgittFordelingEntitet(List.of(morUtsettelseRevurderingOverstyrt), true))
+            .medPerioderUttakDokumentasjon(dokumentasjon);
+        ytelsesFordelingRepository.lagre(behandlingId, yfBuilder.build());
 
-        UttakBeregningsandelTjenesteTestUtil andelTjeneste = new UttakBeregningsandelTjenesteTestUtil();
+        var andelTjeneste = new UttakBeregningsandelTjenesteTestUtil();
         andelTjeneste.leggTilFrilans();
 
         lagreUttaksperiodegrense(morBehandlingRevurdering.getId());
@@ -783,7 +784,7 @@ public class FastsettePerioderRegelAdapterTest {
         var familieHendelse = FamilieHendelse.forFødsel(null, fødselsdato, List.of(new Barn()), 1);
         var familieHendelser = new FamilieHendelser().medBekreftetHendelse(familieHendelse);
         var ref = BehandlingReferanse.fra(morBehandlingRevurdering, førsteLovligeUttaksdato);
-        YtelsespesifiktGrunnlag ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medErTapendeBehandling(true)
+        var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medErTapendeBehandling(true)
             .medFamilieHendelser(familieHendelser)
             .medAnnenpart(new Annenpart(false, farBehandling.getId()))
             .medOriginalBehandling(new OriginalBehandling(morBehandling.getId(), null));
@@ -791,7 +792,7 @@ public class FastsettePerioderRegelAdapterTest {
             andelTjeneste.hentStatuser())
             .medSøknadMottattDato(
                 familieHendelser.getGjeldendeFamilieHendelse().getFamilieHendelseDato().minusWeeks(4));
-        UttakResultatPerioderEntitet resultat = fastsettePerioder(input, fastsettePerioderRegelAdapter);
+        var resultat = fastsettePerioder(input, fastsettePerioderRegelAdapter);
 
         assertThat(resultat.getPerioder()).hasSize(1);
         assertThat(resultat.getPerioder().get(0).getUtsettelseType()).isEqualTo(UttakUtsettelseType.SYKDOM_SKADE);
@@ -1312,12 +1313,16 @@ public class FastsettePerioderRegelAdapterTest {
                 new Stønadskonto.Builder().medMaxDager(100).medStønadskontoType(StønadskontoType.FELLESPERIODE).build())
             .build());
 
-        LocalDate endringsdato = revurderingSøknadsperiodeFellesperiode.getFom();
-        AvklarteUttakDatoerEntitet avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(
+        var endringsdato = revurderingSøknadsperiodeFellesperiode.getFom();
+        var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(
             LocalDate.of(2018, 1, 1)).medOpprinneligEndringsdato(endringsdato).build();
-        repositoryProvider.getYtelsesFordelingRepository().lagre(revurdering.getId(), avklarteUttakDatoer);
+        var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(revurdering.getId())
+            .medAvklarteDatoer(avklarteUttakDatoer);
 
-        UttakBeregningsandelTjenesteTestUtil beregningsandelTjeneste = new UttakBeregningsandelTjenesteTestUtil();
+        ytelsesFordelingRepository.lagre(revurdering.getId(), yfBuilder.build());
+
+        var beregningsandelTjeneste = new UttakBeregningsandelTjenesteTestUtil();
         beregningsandelTjeneste.leggTilFrilans();
         var input = lagInput(revurdering, beregningsandelTjeneste, fødselsdato);
         UttakResultatPerioderEntitet resultatRevurdering = fastsettePerioder(input, fastsettePerioderRegelAdapter);
@@ -1861,7 +1866,15 @@ public class FastsettePerioderRegelAdapterTest {
     }
 
     private void lagreEndringsdato(Behandling behandling, LocalDate endringsdato) {
-        var avklarteDatoer = new AvklarteUttakDatoerEntitet.Builder().medJustertEndringsdato(endringsdato).build();
-        repositoryProvider.getYtelsesFordelingRepository().lagre(behandling.getId(), avklarteDatoer);
+        var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+
+        var avklarteDatoer = new AvklarteUttakDatoerEntitet.Builder()
+            .medJustertEndringsdato(endringsdato)
+            .build();
+
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
+            .medAvklarteDatoer(avklarteDatoer);
+
+        ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
     }
 }

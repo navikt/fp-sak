@@ -94,9 +94,8 @@ public class FaktaUttakOppdatererTest {
         // Scenario med avklar fakta uttak
         ScenarioMorSøkerForeldrepenger scenario = AvklarFaktaTestUtil.opprettScenarioMorSøkerForeldrepenger();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER, BehandlingStegType.VURDER_UTTAK);
-        scenario.lagre(behandlingRepositoryProvider);
-        // Behandling
-        Behandling behandling = AvklarFaktaTestUtil.opprettBehandling(scenario, entityManager);
+        var behandling = scenario.lagre(behandlingRepositoryProvider);
+        AvklarFaktaTestUtil.opprettBehandlingGrunnlag(entityManager, behandling.getId());
         // dto
         FaktaUttakDto dto = opprettDtoAvklarFaktaUttakDto();
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
@@ -125,9 +124,8 @@ public class FaktaUttakOppdatererTest {
         ScenarioMorSøkerForeldrepenger scenario = AvklarFaktaTestUtil.opprettScenarioMorSøkerForeldrepenger();
         scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.VURDER_UTTAK);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER, BehandlingStegType.VURDER_UTTAK);
-        scenario.lagre(behandlingRepositoryProvider);
-        // Behandling
-        Behandling behandling = AvklarFaktaTestUtil.opprettBehandling(scenario, entityManager);
+        var behandling = scenario.lagre(behandlingRepositoryProvider);
+        AvklarFaktaTestUtil.opprettBehandlingGrunnlag(entityManager, behandling.getId());
         // dto
         FaktaUttakDto dto = opprettDtoAvklarFaktaUttakDto();
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
@@ -149,9 +147,8 @@ public class FaktaUttakOppdatererTest {
                 BehandlingStegType.VURDER_UTTAK);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.OVERSTYRING_AV_FAKTA_UTTAK,
                 BehandlingStegType.VURDER_UTTAK);
-        scenario.lagre(behandlingRepositoryProvider);
-        // Behandling
-        Behandling behandling = AvklarFaktaTestUtil.opprettBehandling(scenario, entityManager);
+        var behandling = scenario.lagre(behandlingRepositoryProvider);
+        AvklarFaktaTestUtil.opprettBehandlingGrunnlag(entityManager, behandling.getId());
 
         // dto
         FaktaUttakDto dto = opprettDtoAvklarFaktaUttakDto();

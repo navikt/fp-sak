@@ -50,14 +50,21 @@ public class YtelseFordelingTjeneste {
                                         List<PeriodeUttakDokumentasjonEntitet> dokumentasjonsperioder) {
         validerOverlapp(overstyrteSøknadsperioder);
         var erAnnenForelderInformert = ytelsesFordelingRepository.hentAggregat(behandlingId).getOppgittFordeling().getErAnnenForelderInformert();
-        var oppgittFordelingEntitet = new OppgittFordelingEntitet(overstyrteSøknadsperioder, erAnnenForelderInformert);
+        var overstyrtFordeling = new OppgittFordelingEntitet(overstyrteSøknadsperioder, erAnnenForelderInformert);
+
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId)
+            .medOverstyrtFordeling(overstyrtFordeling)
+            .medPerioderUttakDokumentasjon(map(dokumentasjonsperioder));
+        ytelsesFordelingRepository.lagre(behandlingId, yfBuilder.build());
+    }
+
+    private PerioderUttakDokumentasjonEntitet map(List<PeriodeUttakDokumentasjonEntitet> dokumentasjonsperioder) {
         if (dokumentasjonsperioder.isEmpty()) {
-            ytelsesFordelingRepository.lagreOverstyrtFordeling(behandlingId, oppgittFordelingEntitet, null);
-        } else {
-            PerioderUttakDokumentasjonEntitet perioderUttakDokumentasjon = new PerioderUttakDokumentasjonEntitet();
-            dokumentasjonsperioder.forEach(perioderUttakDokumentasjon::leggTil);
-            ytelsesFordelingRepository.lagreOverstyrtFordeling(behandlingId, oppgittFordelingEntitet, perioderUttakDokumentasjon);
+            return null;
         }
+        var perioderUttakDokumentasjon = new PerioderUttakDokumentasjonEntitet();
+        dokumentasjonsperioder.forEach(perioderUttakDokumentasjon::leggTil);
+        return perioderUttakDokumentasjon;
     }
 
     private void validerOverlapp(List<OppgittPeriodeEntitet> perioder) {
@@ -92,6 +99,10 @@ public class YtelseFordelingTjeneste {
 
     public void bekreftAnnenforelderHarRett(Long behandlingId, Boolean annenforelderHarRett) {
         var perioderAnnenforelderHarRettEntitet = new PerioderAnnenforelderHarRettEntitet(annenforelderHarRett);
-        ytelsesFordelingRepository.lagre(behandlingId, perioderAnnenforelderHarRettEntitet);
+
+        var ytelseFordelingAggregat = ytelsesFordelingRepository.opprettBuilder(behandlingId)
+            .medPerioderAnnenforelderHarRett(perioderAnnenforelderHarRettEntitet)
+            .build();
+        ytelsesFordelingRepository.lagre(behandlingId, ytelseFordelingAggregat);
     }
 }

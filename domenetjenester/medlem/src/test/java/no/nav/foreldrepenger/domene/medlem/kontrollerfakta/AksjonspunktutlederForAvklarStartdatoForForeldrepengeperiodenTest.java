@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
@@ -245,18 +244,20 @@ public class AksjonspunktutlederForAvklarStartdatoForForeldrepengeperiodenTest e
     }
 
     void opprettOppgittFordeling(LocalDate fødselsdato, Behandling behandling) {
-        OppgittPeriodeEntitet periode1 = OppgittPeriodeBuilder.ny()
+        var periode1 = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medPeriode(fødselsdato, fødselsdato.plusWeeks(6))
             .build();
 
-        OppgittPeriodeEntitet periode2 = OppgittPeriodeBuilder.ny()
+        var periode2 = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .medPeriode(fødselsdato.plusWeeks(6).plusDays(1), fødselsdato.plusWeeks(10))
             .build();
 
-        OppgittFordelingEntitet fordeling = new OppgittFordelingEntitet(List.of(periode1, periode2), true);
-        ytelsesFordelingRepository.lagre(behandling.getId(), fordeling);
+        var fordeling = new OppgittFordelingEntitet(List.of(periode1, periode2), true);
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
+            .medOppgittFordeling(fordeling);
+        ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
     }
 
     void opprettInntektsmelding(LocalDate fødselsdato, Behandling behandling) {

@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
@@ -56,9 +55,8 @@ public class FaktaUttakHistorikkTjenesteTest extends EntityManagerAwareTest {
         ScenarioMorSøkerForeldrepenger scenario = AvklarFaktaTestUtil.opprettScenarioMorSøkerForeldrepenger();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER,
             BehandlingStegType.VURDER_UTTAK);
-        scenario.lagre(repositoryProvider);
-        // Behandling
-        Behandling behandling = AvklarFaktaTestUtil.opprettBehandling(scenario, getEntityManager());
+        var behandling = scenario.lagre(repositoryProvider);
+        AvklarFaktaTestUtil.opprettBehandlingGrunnlag(getEntityManager(), behandling.getId());
 
         // dto
         FaktaUttakDto dto = AvklarFaktaTestUtil.opprettDtoAvklarFaktaUttakDto();
@@ -86,9 +84,8 @@ public class FaktaUttakHistorikkTjenesteTest extends EntityManagerAwareTest {
         ScenarioMorSøkerForeldrepenger scenario = AvklarFaktaTestUtil.opprettScenarioMorSøkerForeldrepenger();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_SAKSBEHANDLER_OVERSTYRING,
             BehandlingStegType.VURDER_UTTAK);
-        scenario.lagre(repositoryProvider);
-        // Behandling
-        Behandling behandling = AvklarFaktaTestUtil.opprettBehandling(scenario, getEntityManager());
+        var behandling = scenario.lagre(repositoryProvider);
+        AvklarFaktaTestUtil.opprettBehandlingGrunnlag(getEntityManager(), behandling.getId());
 
         // dto
         OverstyringFaktaUttakDto.SaksbehandlerOverstyrerFaktaUttakDto dto = AvklarFaktaTestUtil.opprettDtoManuellAvklarFaktaUttakDto();

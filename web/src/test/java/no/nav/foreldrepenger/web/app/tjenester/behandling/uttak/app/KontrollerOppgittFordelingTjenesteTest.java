@@ -10,7 +10,6 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -51,9 +50,8 @@ public class KontrollerOppgittFordelingTjenesteTest extends EntityManagerAwareTe
         ScenarioMorSøkerForeldrepenger scenario = AvklarFaktaTestUtil.opprettScenarioMorSøkerForeldrepenger();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER,
             BehandlingStegType.VURDER_UTTAK);
-        scenario.lagre(repositoryProvider);
-        // Behandling
-        Behandling behandling = AvklarFaktaTestUtil.opprettBehandling(scenario, getEntityManager());
+        var behandling = scenario.lagre(repositoryProvider);
+        AvklarFaktaTestUtil.opprettBehandlingGrunnlag(getEntityManager(), behandling.getId());
 
         FaktaUttakDto dto = AvklarFaktaTestUtil.opprettDtoAvklarFaktaUttakDto();
         tjeneste().bekreftOppgittePerioder(dto.getBekreftedePerioder(), behandling);
@@ -76,9 +74,8 @@ public class KontrollerOppgittFordelingTjenesteTest extends EntityManagerAwareTe
         ScenarioMorSøkerForeldrepenger scenario = AvklarFaktaTestUtil.opprettScenarioMorSøkerForeldrepenger();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_SAKSBEHANDLER_OVERSTYRING,
             BehandlingStegType.VURDER_UTTAK);
-        scenario.lagre(repositoryProvider);
-        // Behandling
-        Behandling behandling = AvklarFaktaTestUtil.opprettBehandling(scenario, getEntityManager());
+        var behandling = scenario.lagre(repositoryProvider);
+        AvklarFaktaTestUtil.opprettBehandlingGrunnlag(getEntityManager(), behandling.getId());
 
         OverstyringFaktaUttakDto.SaksbehandlerOverstyrerFaktaUttakDto dto = AvklarFaktaTestUtil.opprettDtoManuellAvklarFaktaUttakDto();
         tjeneste().bekreftOppgittePerioder(dto.getBekreftedePerioder(), behandling);
@@ -110,9 +107,9 @@ public class KontrollerOppgittFordelingTjenesteTest extends EntityManagerAwareTe
             .build();
         List<OppgittPeriodeEntitet> gjeldendePerioder = List.of(opprinneligPeriode);
         scenario.medFordeling(new OppgittFordelingEntitet(gjeldendePerioder, false));
-        scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
-        Behandling behandling = AvklarFaktaTestUtil.opprettBehandling(scenario, getEntityManager());
+        AvklarFaktaTestUtil.opprettBehandlingGrunnlag(getEntityManager(), behandling.getId());
 
         LocalDate nyDato = LocalDate.of(2019, 2, 10);
         BekreftetOppgittPeriodeDto bekreftetOppgittPeriodeDto = getBekreftetUttakPeriodeDto(nyDato, nyDato.plusDays(1),

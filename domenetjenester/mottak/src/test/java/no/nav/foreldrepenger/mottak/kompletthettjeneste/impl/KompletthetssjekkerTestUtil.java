@@ -1,10 +1,9 @@
 package no.nav.foreldrepenger.mottak.kompletthettjeneste.impl;
 
-import static java.util.Collections.singletonList;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -19,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
@@ -144,9 +142,12 @@ public class KompletthetssjekkerTestUtil {
             builder.medArbeidsprosent(arbeidsprosent);
         }
 
-        OppgittPeriodeEntitet fpPeriode = builder.build();
-        OppgittFordelingEntitet oppgittFordeling = new OppgittFordelingEntitet(singletonList(fpPeriode), true);
-        repositoryProvider.getYtelsesFordelingRepository().lagre(behandling.getId(), oppgittFordeling);
+        var fpPeriode = builder.build();
+        var oppgittFordeling = new OppgittFordelingEntitet(List.of(fpPeriode), true);
+        var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
+            .medOppgittFordeling(oppgittFordeling);
+        ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
     }
 
     private FamilieHendelseEntitet byggFamilieHendelse(Behandling behandling) {

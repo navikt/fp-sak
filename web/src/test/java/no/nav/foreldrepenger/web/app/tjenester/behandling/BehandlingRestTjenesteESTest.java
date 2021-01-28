@@ -23,11 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
@@ -113,23 +108,6 @@ public class BehandlingRestTjenesteESTest extends RepositoryAwareTest {
         scenario.medDefaultBekreftetTerminbekreftelse();
         Behandling behandling = scenario.lagre(repositoryProvider);
         Saksnummer saksnummer = behandling.getFagsak().getSaksnummer();
-
-        OppgittPeriodeEntitet periode1 = OppgittPeriodeBuilder.ny()
-                .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
-                .medPeriode(LocalDate.now(), LocalDate.now().plusWeeks(6))
-                .build();
-
-        OppgittPeriodeEntitet periode2 = OppgittPeriodeBuilder.ny()
-                .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
-                .medPeriode(LocalDate.now().plusWeeks(6).plusDays(1), LocalDate.now().plusWeeks(10))
-                .build();
-
-        OppgittDekningsgradEntitet dekningsgrad = OppgittDekningsgradEntitet.bruk100();
-        Long behandlingId = behandling.getId();
-        ytelsesfordelingRepository.lagre(behandlingId, dekningsgrad);
-
-        OppgittFordelingEntitet fordeling = new OppgittFordelingEntitet(List.of(periode1, periode2), true);
-        ytelsesfordelingRepository.lagre(behandlingId, fordeling);
 
         when(behandlingsutredningTjeneste.hentBehandlingerForSaksnummer(saksnummer)).thenReturn(singletonList(behandling));
 

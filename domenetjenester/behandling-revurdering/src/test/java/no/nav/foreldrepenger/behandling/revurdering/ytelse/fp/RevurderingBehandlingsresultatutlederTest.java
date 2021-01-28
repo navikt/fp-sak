@@ -109,7 +109,7 @@ public class RevurderingBehandlingsresultatutlederTest {
 
     private Behandling opprettFørstegangsbehandling() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medDefaultSøknadTerminbekreftelse()
-                .medDefaultOppgittFordeling(endringsdato).medAvklarteUttakDatoer(
+                .medDefaultFordeling(endringsdato).medAvklarteUttakDatoer(
                         new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(endringsdato).build());
         scenario.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now())
                 .medVedtakResultatType(VedtakResultatType.INNVILGET);
@@ -1215,9 +1215,12 @@ public class RevurderingBehandlingsresultatutlederTest {
     }
 
     private void lagreEndringsdato(LocalDate endringsdato, Long revurderingId) {
-        AvklarteUttakDatoerEntitet avklarteDatoer = new AvklarteUttakDatoerEntitet.Builder()
+        var avklarteDatoer = new AvklarteUttakDatoerEntitet.Builder()
                 .medOpprinneligEndringsdato(endringsdato).build();
-        ytelsesFordelingRepository.lagre(revurderingId, avklarteDatoer);
+        var ytelseFordelingAggregat = ytelsesFordelingRepository.opprettBuilder(revurderingId)
+            .medAvklarteDatoer(avklarteDatoer)
+            .build();
+        ytelsesFordelingRepository.lagre(revurderingId, ytelseFordelingAggregat);
     }
 
     private void leggTilTilbaketrekk(Boolean behandlingMedTilbaketrekk,

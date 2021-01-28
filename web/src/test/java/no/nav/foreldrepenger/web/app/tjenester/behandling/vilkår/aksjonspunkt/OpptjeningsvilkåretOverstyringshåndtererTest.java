@@ -47,7 +47,7 @@ public class OpptjeningsvilkåretOverstyringshåndtererTest {
         // Arrange
         // Behandling
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medDefaultOppgittFordeling(LocalDate.now())
+            .medDefaultFordeling(LocalDate.now())
             .medFødselAdopsjonsdato(List.of(LocalDate.now()));
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING,
                 BehandlingStegType.VURDER_OPPTJENINGSVILKÅR);

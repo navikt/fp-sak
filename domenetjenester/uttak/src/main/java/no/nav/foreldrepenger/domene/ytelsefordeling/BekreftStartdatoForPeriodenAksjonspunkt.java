@@ -1,27 +1,26 @@
 package no.nav.foreldrepenger.domene.ytelsefordeling;
 
-import java.util.Optional;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 
 class BekreftStartdatoForPeriodenAksjonspunkt {
 
-    private final YtelsesFordelingRepository repository;
+    private final YtelsesFordelingRepository ytelsesFordelingRepository;
 
     BekreftStartdatoForPeriodenAksjonspunkt(YtelsesFordelingRepository ytelsesFordelingRepository) {
-        this.repository = ytelsesFordelingRepository;
+        this.ytelsesFordelingRepository = ytelsesFordelingRepository;
     }
 
     public void oppdater(Long behandlingId, BekreftStartdatoForPerioden adapter) {
-        final YtelseFordelingAggregat aggregat = repository.hentAggregat(behandlingId);
-        final Optional<AvklarteUttakDatoerEntitet> avklarteDatoer = aggregat.getAvklarteDatoer();
+        var aggregat = ytelsesFordelingRepository.hentAggregat(behandlingId);
+        var avklarteDatoer = aggregat.getAvklarteDatoer();
 
-        AvklarteUttakDatoerEntitet.Builder builder = new AvklarteUttakDatoerEntitet.Builder(avklarteDatoer)
-            .medFørsteUttaksdato(adapter.getStartdatoForPerioden());
+        var avklarteUttakDatoerEntitet = new AvklarteUttakDatoerEntitet.Builder(avklarteDatoer)
+            .medFørsteUttaksdato(adapter.getStartdatoForPerioden())
+            .build();
 
-        repository.lagre(behandlingId, builder.build());
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId)
+            .medAvklarteDatoer(avklarteUttakDatoerEntitet);
+        ytelsesFordelingRepository.lagre(behandlingId, yfBuilder.build());
     }
-
 }

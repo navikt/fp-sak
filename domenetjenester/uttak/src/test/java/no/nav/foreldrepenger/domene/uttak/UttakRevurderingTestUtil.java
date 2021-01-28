@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.uttak;
 
-import static java.util.Arrays.asList;
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
 
 import java.math.BigDecimal;
@@ -187,19 +186,22 @@ public class UttakRevurderingTestUtil {
     }
 
     public OppgittFordelingEntitet byggOgLagreOppgittFordelingForMorFPFF(Behandling behandling) {
-        OppgittPeriodeBuilder periode1 = OppgittPeriodeBuilder.ny()
+        var periode1 = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
             .medPeriode(FØRSTE_UTTAKSDATO_SØKNAD_MOR_FPFF, FØRSTE_UTTAKSDATO_SØKNAD_MOR_FPFF.plusWeeks(2))
             .medArbeidsgiver(getVirksomhet());
-        OppgittPeriodeBuilder periode2 = OppgittPeriodeBuilder.ny()
+        var periode2 = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .medPeriode(FØRSTE_UTTAKSDATO_SØKNAD_MOR_FPFF.plusWeeks(2).plusDays(1),
                 FØRSTE_UTTAKSDATO_SØKNAD_MOR_FPFF.plusWeeks(10))
             .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR));
 
-        OppgittFordelingEntitet oppgittFordeling = new OppgittFordelingEntitet(
-            asList(periode2.build(), periode1.build()), true);
-        repositoryProvider.getYtelsesFordelingRepository().lagre(behandling.getId(), oppgittFordeling);
+        var oppgittFordeling = new OppgittFordelingEntitet(
+            List.of(periode2.build(), periode1.build()), true);
+        var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
+            .medOppgittFordeling(oppgittFordeling);
+        ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
         return oppgittFordeling;
     }
 
@@ -207,13 +209,16 @@ public class UttakRevurderingTestUtil {
                                                                          LocalDate fom,
                                                                          LocalDate tom,
                                                                          UttakPeriodeType uttakPeriodeType) {
-        OppgittPeriodeBuilder periode = OppgittPeriodeBuilder.ny()
+        var periode = OppgittPeriodeBuilder.ny()
             .medPeriodeType(uttakPeriodeType)
             .medPeriode(fom, tom)
             .medArbeidsgiver(getVirksomhet());
 
-        OppgittFordelingEntitet oppgittFordeling = new OppgittFordelingEntitet(List.of(periode.build()), true);
-        repositoryProvider.getYtelsesFordelingRepository().lagre(behandling.getId(), oppgittFordeling);
+        var oppgittFordeling = new OppgittFordelingEntitet(List.of(periode.build()), true);
+        var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
+            .medOppgittFordeling(oppgittFordeling);
+        ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
         return oppgittFordeling;
     }
 

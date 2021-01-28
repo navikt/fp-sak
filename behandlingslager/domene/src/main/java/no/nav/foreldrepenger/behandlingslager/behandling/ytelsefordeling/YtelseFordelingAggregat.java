@@ -102,6 +102,10 @@ public class YtelseFordelingAggregat {
         return ytelseFordelingAggregat.map(Builder::oppdatere).orElseGet(Builder::nytt);
     }
 
+    public static Builder oppdatere(YtelseFordelingAggregat ytelseFordelingAggregat) {
+        return oppdatere(Optional.ofNullable(ytelseFordelingAggregat));
+    }
+
     public LocalDate getGjeldendeEndringsdato() {
         return getAvklarteDatoer()
             .orElseThrow(() -> new IllegalStateException("Finner ikke avklarte datoer"))

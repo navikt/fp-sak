@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
-import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -14,7 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
@@ -264,19 +262,16 @@ public class StønadskontoSaldoTjenesteTest {
     }
 
     private Behandling behandlingMedKonto(Stønadskonto konto, AktørId aktørId) {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(aktørId);
-        List<OppgittPeriodeEntitet> søknadsperioder = Collections.singletonList(OppgittPeriodeBuilder.ny()
+        var søknadsperioder = Collections.singletonList(OppgittPeriodeBuilder.ny()
             .medPeriode(LocalDate.of(2019, 2, 2), LocalDate.of(2019, 10, 2))
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .build());
-        OppgittFordelingEntitet fordeling = new OppgittFordelingEntitet(søknadsperioder, true);
-        scenario.medFordeling(fordeling);
+        var fordeling = new OppgittFordelingEntitet(søknadsperioder, true);
+        var behandling = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(aktørId)
+            .medFordeling(fordeling)
+            .medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk100()).lagre(repositoryProvider);
 
-        Behandling behandling = scenario.lagre(repositoryProvider);
-
-        repositoryProvider.getYtelsesFordelingRepository().lagre(behandling.getId(), OppgittDekningsgradEntitet.bruk100());
-
-        Stønadskontoberegning kontoer = Stønadskontoberegning.builder()
+        var kontoer = Stønadskontoberegning.builder()
             .medStønadskonto(konto)
             .medRegelEvaluering("asd")
             .medRegelInput("awd")

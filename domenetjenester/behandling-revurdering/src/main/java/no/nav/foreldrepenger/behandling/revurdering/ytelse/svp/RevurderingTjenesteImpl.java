@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -112,10 +113,13 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         } else {
             // Kopierer kun oppgitt for ny 1gang. Bør kanskje kopiere alt?
             ytelsesFordelingRepository.hentAggregatHvisEksisterer(originalBehandlingId).ifPresent(yfa -> {
-                ytelsesFordelingRepository.lagre(nyBehandlingId,
-                        revurderingTjenesteFelles.kopierOppgittFordelingFraForrigeBehandling(yfa.getOppgittFordeling()));
-                ytelsesFordelingRepository.lagre(nyBehandlingId, yfa.getOppgittRettighet());
-                ytelsesFordelingRepository.lagre(nyBehandlingId, yfa.getOppgittDekningsgrad());
+                var fordelingKopi = revurderingTjenesteFelles.kopierOppgittFordelingFraForrigeBehandling(
+                    yfa.getOppgittFordeling());
+                var yfBuilder = YtelseFordelingAggregat.oppdatere(yfa)
+                    .medOppgittFordeling(fordelingKopi)
+                    .medOppgittRettighet(yfa.getOppgittRettighet())
+                    .medOppgittDekningsgrad(yfa.getOppgittDekningsgrad());
+                ytelsesFordelingRepository.lagre(nyBehandlingId, yfBuilder.build());
             });
         }
         vergeRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);

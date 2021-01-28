@@ -147,7 +147,7 @@ public class BeregneYtelseStegImplTest {
         scenario.medBruker(AKTØR_ID, NavBrukerKjønn.KVINNE);
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
         scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now()).build())
-                .medDefaultOppgittFordeling(LocalDate.now());
+                .medDefaultFordeling(LocalDate.now());
 
         var behandling = lagre(scenario);
 

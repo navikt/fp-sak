@@ -348,16 +348,17 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
             .medErArbeidstaker(true)
             .build();
 
-        ScenarioFarSøkerForeldrepenger scenarioFarSøkerForeldrepenger = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medFordeling(new OppgittFordelingEntitet(Collections.singletonList(uttakFPFar), true));
-        scenarioFarSøkerForeldrepenger.medDefaultInntektArbeidYtelse();
-        scenarioFarSøkerForeldrepenger.medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
-        Behandling farsBehandling = lagre(scenarioFarSøkerForeldrepenger);
+        var avklarteUttakDatoerEntitet = new AvklarteUttakDatoerEntitet.Builder().medJustertEndringsdato(fødselsdato).build();
+        var scenarioFarSøkerForeldrepenger = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medFordeling(new OppgittFordelingEntitet(Collections.singletonList(uttakFPFar), true))
+            .medAvklarteUttakDatoer(avklarteUttakDatoerEntitet)
+            .medDefaultInntektArbeidYtelse()
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
+        var farsBehandling = lagre(scenarioFarSøkerForeldrepenger);
 
         repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
 
         lagreUttaksperiodegrense(repositoryProvider.getUttaksperiodegrenseRepository(), farsBehandling.getId());
-        repositoryProvider.getYtelsesFordelingRepository().lagre(farsBehandling.getId(), new AvklarteUttakDatoerEntitet.Builder().medJustertEndringsdato(fødselsdato).build());
         lagreYrkesAktiviter(farsBehandling, virksomhet, Collections.singletonList(aktivitet.getArbeidsforholdId()),
             BigDecimal.valueOf(100), fødselsdato.minusYears(1));
 
@@ -366,7 +367,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
         var ref = lagRef(farsBehandling);
         var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.getBehandlingId());
         var bekreftetFamilieHendelse = FamilieHendelse.forFødsel(null, LocalDate.now().minusWeeks(2), List.of(new Barn()), 1);
-        ForeldrepengerGrunnlag fpGrunnlag = new ForeldrepengerGrunnlag()
+        var fpGrunnlag = new ForeldrepengerGrunnlag()
             .medFamilieHendelser(new FamilieHendelser().medBekreftetHendelse(bekreftetFamilieHendelse))
             .medAnnenpart(new Annenpart(false, morsBehandling.getId()));
         var input = new UttakInput(ref, iayGrunnlag, fpGrunnlag)

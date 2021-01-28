@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Collections;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,7 +29,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -198,15 +197,19 @@ public class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest
     }
 
     private void opprettYtelsesFordelingMedGradering(Behandling behandling, String arbeidsgiver, BigDecimal arbeidsProsent) {
-        OppgittPeriodeEntitet periode = OppgittPeriodeBuilder.ny()
+        var periode = OppgittPeriodeBuilder.ny()
             .medPeriode(LocalDate.now(), LocalDate.now().plusDays(7))
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medErArbeidstaker(true)
             .medArbeidsgiver(Arbeidsgiver.virksomhet(arbeidsgiver))
             .medArbeidsprosent(arbeidsProsent)
             .build();
-        OppgittFordelingEntitet oppgittFordeling = new OppgittFordelingEntitet(Collections.singletonList(periode), true);
-        repositoryProvider.getYtelsesFordelingRepository().lagre(behandling.getId(), oppgittFordeling);
+        var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+        var oppgittFordeling = new OppgittFordelingEntitet(List.of(periode), true);
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
+            .medOppgittFordeling(oppgittFordeling);
+
+        ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
     }
 
     private void lagreEndringssøknad(Behandling behandling) {

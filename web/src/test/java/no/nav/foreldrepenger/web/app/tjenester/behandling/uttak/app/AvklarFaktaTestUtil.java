@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
@@ -73,27 +72,27 @@ public class AvklarFaktaTestUtil {
         return dto;
     }
 
-    public static Behandling opprettBehandling(ScenarioMorSøkerForeldrepenger scenario, EntityManager entityManager) {
+    public static void opprettBehandlingGrunnlag(EntityManager entityManager, Long behandlingId) {
 
-        Behandling behandling = scenario.getBehandling();
-
-        final OppgittPeriodeEntitet periode_1 = OppgittPeriodeBuilder.ny()
+        var periode_1 = OppgittPeriodeBuilder.ny()
             .medPeriode(LocalDate.now().minusDays(10), LocalDate.now())
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .build();
-        final OppgittPeriodeEntitet periode_2 = OppgittPeriodeBuilder.ny()
+        var periode_2 = OppgittPeriodeBuilder.ny()
             .medPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(11))
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .build();
-        YtelsesFordelingRepository ytelsesFordelingRepository = new YtelsesFordelingRepository(entityManager);
-        ytelsesFordelingRepository.lagre(behandling.getId(),
-            new OppgittFordelingEntitet(List.of(periode_1, periode_2), true));
+        var ytelsesFordelingRepository = new YtelsesFordelingRepository(entityManager);
+        var fordeling = new OppgittFordelingEntitet(List.of(periode_1, periode_2), true);
+        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId)
+            .medOppgittFordeling(fordeling);
+        ytelsesFordelingRepository.lagre(behandlingId, yfBuilder.build());
+
         var behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
-        var behandlingsresultat = behandlingsresultatRepository.hent(behandling.getId());
+        var behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
         var uttaksperiodegrense = new Uttaksperiodegrense.Builder(behandlingsresultat).medMottattDato(
             LocalDate.now().minusMonths(1)).medFørsteLovligeUttaksdag(LocalDate.of(2010, 1, 1)).build();
-        new UttaksperiodegrenseRepository(entityManager).lagre(behandling.getId(), uttaksperiodegrense);
-        return behandling;
+        new UttaksperiodegrenseRepository(entityManager).lagre(behandlingId, uttaksperiodegrense);
     }
 
     public static ScenarioMorSøkerForeldrepenger opprettScenarioMorSøkerForeldrepenger() {

@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Oppgitt
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAleneOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUtenOmsorgEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
@@ -141,7 +140,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
         lagreBehandlingsresultatOgVilkårResultat(repositoryProvider);
         lagreInntektArbeidYtelse(lagreIay);
-        lagreYtelseFordelingOpplysninger(repositoryProvider, behandling);
+        lagreYtelseFordeling(repositoryProvider, behandling);
         lagreUttak(repositoryProvider.getFpUttakRepository());
     }
 
@@ -153,34 +152,22 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         }
     }
 
-    private void lagreYtelseFordelingOpplysninger(UttakRepositoryProvider repositoryProvider, Behandling behandling) {
-        YtelsesFordelingRepository ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
-        lagreOppgittRettighet(ytelsesFordelingRepository, behandling);
-        Long behandlingId = behandling.getId();
-        if (oppgittDekningsgrad != null) {
-            ytelsesFordelingRepository.lagre(behandlingId, oppgittDekningsgrad);
+    private void lagreYtelseFordeling(UttakRepositoryProvider repositoryProvider, Behandling behandling) {
+        if (oppgittRettighet == null && oppgittDekningsgrad == null && oppgittFordeling == null
+            && avklarteUttakDatoer == null && perioderUtenOmsorg == null && perioderMedAleneomsorg == null
+            && aktivitetskravPerioder == null) {
+            return;
         }
-        if (oppgittFordeling != null) {
-            ytelsesFordelingRepository.lagre(behandlingId, oppgittFordeling);
-        }
-        if (avklarteUttakDatoer != null) {
-            ytelsesFordelingRepository.lagre(behandlingId, avklarteUttakDatoer);
-        }
-        if (perioderUtenOmsorg != null) {
-            ytelsesFordelingRepository.lagre(behandlingId, perioderUtenOmsorg);
-        }
-        if (perioderMedAleneomsorg != null) {
-            ytelsesFordelingRepository.lagre(behandlingId, perioderMedAleneomsorg);
-        }
-        if (aktivitetskravPerioder != null) {
-            ytelsesFordelingRepository.lagreOpprinnelige(behandlingId, aktivitetskravPerioder);
-        }
-    }
-
-    private void lagreOppgittRettighet(YtelsesFordelingRepository ytelsesFordelingRepository, Behandling behandling) {
-        if (oppgittRettighet != null) {
-            ytelsesFordelingRepository.lagre(behandling.getId(), oppgittRettighet);
-        }
+        var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+        var yf = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
+            .medOppgittRettighet(oppgittRettighet)
+            .medOppgittDekningsgrad(oppgittDekningsgrad)
+            .medOppgittFordeling(oppgittFordeling)
+            .medAvklarteDatoer(avklarteUttakDatoer)
+            .medPerioderUtenOmsorg(perioderUtenOmsorg)
+            .medPerioderAleneOmsorg(perioderMedAleneomsorg)
+            .medOpprinneligeAktivitetskravPerioder(aktivitetskravPerioder);
+        ytelsesFordelingRepository.lagre(behandling.getId(), yf.build());
     }
 
     private Builder grunnBuild(UttakRepositoryProvider repositoryProvider) {

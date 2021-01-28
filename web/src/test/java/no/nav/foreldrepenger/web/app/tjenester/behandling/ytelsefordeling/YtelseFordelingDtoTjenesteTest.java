@@ -24,7 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Oppgitt
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -120,8 +119,23 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
 
     private Behandling opprettBehandling(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
         // Arrange
-        LocalDate termindato = LocalDate.now().plusWeeks(16);
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var termindato = LocalDate.now().plusWeeks(16);
+        var rettighet = new OppgittRettighetEntitet(false, false, true);
+        var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(
+            LocalDate.now().minusDays(20)).medOpprinneligEndringsdato(LocalDate.now().minusDays(20)).build();
+        var periode_1 = OppgittPeriodeBuilder.ny()
+            .medPeriode(LocalDate.now().minusDays(10), LocalDate.now())
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+            .build();
+        var periode_2 = OppgittPeriodeBuilder.ny()
+            .medPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(11))
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+            .build();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medOppgittRettighet(rettighet)
+            .medAvklarteUttakDatoer(avklarteUttakDatoer)
+            .medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk100())
+            .medFordeling(new OppgittFordelingEntitet(List.of(periode_1, periode_2), true));
         scenario.medSøknadHendelse()
             .medTerminbekreftelse(scenario.medSøknadHendelse()
                 .getTerminbekreftelseBuilder()
@@ -129,23 +143,8 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
                 .medUtstedtDato(termindato)
                 .medTermindato(termindato));
 
-        OppgittRettighetEntitet rettighet = new OppgittRettighetEntitet(false, false, true);
-        scenario.medOppgittRettighet(rettighet);
-        AvklarteUttakDatoerEntitet avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(
-            LocalDate.now().minusDays(20)).medOpprinneligEndringsdato(LocalDate.now().minusDays(20)).build();
-        scenario.medAvklarteUttakDatoer(avklarteUttakDatoer);
-        scenario.medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk100());
         scenario.leggTilAksjonspunkt(aksjonspunktDefinisjon, BehandlingStegType.VURDER_UTTAK);
-        Behandling behandling = scenario.lagre(repositoryProvider);
-        final OppgittPeriodeEntitet periode_1 = OppgittPeriodeBuilder.ny()
-            .medPeriode(LocalDate.now().minusDays(10), LocalDate.now())
-            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .build();
-        final OppgittPeriodeEntitet periode_2 = OppgittPeriodeBuilder.ny()
-            .medPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(11))
-            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-            .build();
-        fordelingRepository.lagre(behandling.getId(), new OppgittFordelingEntitet(List.of(periode_1, periode_2), true));
+        var behandling = scenario.lagre(repositoryProvider);
         repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
         return behandling;
     }

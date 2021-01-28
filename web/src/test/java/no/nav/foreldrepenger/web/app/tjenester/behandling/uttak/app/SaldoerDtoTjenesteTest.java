@@ -444,10 +444,14 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     private void lagreEndringsdato(Behandling behandling) {
-        AvklarteUttakDatoerEntitet avklarteDatoer = new AvklarteUttakDatoerEntitet.Builder()
+        var avklarteDatoer = new AvklarteUttakDatoerEntitet.Builder()
             .medOpprinneligEndringsdato(LocalDate.now())
             .build();
-        repositoryProvider.getYtelsesFordelingRepository().lagre(behandling.getId(), avklarteDatoer);
+        var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+        var ytelseFordelingAggregat = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
+            .medAvklarteDatoer(avklarteDatoer)
+            .build();
+        ytelsesFordelingRepository.lagre(behandling.getId(), ytelseFordelingAggregat);
     }
 
     @Test

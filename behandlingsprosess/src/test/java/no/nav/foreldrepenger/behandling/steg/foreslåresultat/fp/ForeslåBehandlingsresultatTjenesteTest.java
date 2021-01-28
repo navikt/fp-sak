@@ -249,7 +249,7 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     }
 
     private Behandling lagRevurdering(Behandling originalBehandling) {
-        Behandling revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
+        var revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
                 .medKopiAvForrigeBehandlingsresultat()
                 .medBehandlingÅrsak(
                         BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
@@ -257,8 +257,14 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
                                 .medOriginalBehandlingId(originalBehandling.getId()))
                 .build();
         behandlingRepository.lagre(revurdering, behandlingRepository.taSkriveLås(revurdering));
-        var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(LocalDate.now()).build();
-        repositoryProvider.getYtelsesFordelingRepository().lagre(revurdering.getId(), avklarteUttakDatoer);
+        var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder()
+            .medOpprinneligEndringsdato(LocalDate.now())
+            .build();
+        var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+        var ytelseFordelingAggregat = ytelsesFordelingRepository.opprettBuilder(revurdering.getId())
+            .medAvklarteDatoer(avklarteUttakDatoer)
+            .build();
+        ytelsesFordelingRepository.lagre(revurdering.getId(), ytelseFordelingAggregat);
         return revurdering;
     }
 

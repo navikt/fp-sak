@@ -177,7 +177,8 @@ public class AksjonspunktTjenesteTest {
     }
 
     private Behandling opprettFørstegangsbehandlingMedAksjonspunkt(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
-        var førstegangsscenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var førstegangsscenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medAvklarteUttakDatoer(avklarteDatoer());
         førstegangsscenario.medSøknad().medMottattDato(LocalDate.now());
         førstegangsscenario.medSøknadHendelse()
                 .medAntallBarn(1)
@@ -187,9 +188,7 @@ public class AksjonspunktTjenesteTest {
                         .medUtstedtDato(UTSTEDTDATO));
 
         førstegangsscenario.leggTilAksjonspunkt(aksjonspunktDefinisjon, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
-        Behandling behandling = førstegangsscenario.lagre(repositoryProvider);
-        repositoryProvider.getYtelsesFordelingRepository().lagre(behandling.getId(), avklarteDatoer()); // HACK
-        return behandling;
+        return førstegangsscenario.lagre(repositoryProvider);
     }
 
     private AvklarteUttakDatoerEntitet avklarteDatoer() {
@@ -197,20 +196,21 @@ public class AksjonspunktTjenesteTest {
     }
 
     private Behandling opprettRevurderingsbehandlingMedAksjonspunkt(Behandling førstegangsbehandling, AksjonspunktDefinisjon aksjonspunktDefinisjon) {
-        Long behandlingId = førstegangsbehandling.getId();
+        var behandlingId = førstegangsbehandling.getId();
         avsluttBehandlingOgFagsak(førstegangsbehandling);
 
         var revurderingsscenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-                .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.RE_HENDELSE_FØDSEL)
-                .medBehandlingType(BehandlingType.REVURDERING);
+            .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.RE_HENDELSE_FØDSEL)
+            .medBehandlingType(BehandlingType.REVURDERING)
+            .medAvklarteUttakDatoer(avklarteDatoer());
         revurderingsscenario.medSøknad().medMottattDato(LocalDate.now());
         revurderingsscenario.leggTilAksjonspunkt(aksjonspunktDefinisjon, BehandlingStegType.KONTROLLER_FAKTA);
 
-        Behandling revurdering = revurderingsscenario.lagre(repositoryProvider);
+        var revurdering = revurderingsscenario.lagre(repositoryProvider);
 
-        Long revurderingId = revurdering.getId();
-        repositoryProvider.getFamilieHendelseRepository().kopierGrunnlagFraEksisterendeBehandling(behandlingId, revurderingId);
-        repositoryProvider.getYtelsesFordelingRepository().lagre(revurderingId, avklarteDatoer()); // HACK
+        var revurderingId = revurdering.getId();
+        repositoryProvider.getFamilieHendelseRepository()
+            .kopierGrunnlagFraEksisterendeBehandling(behandlingId, revurderingId);
         return revurdering;
     }
 

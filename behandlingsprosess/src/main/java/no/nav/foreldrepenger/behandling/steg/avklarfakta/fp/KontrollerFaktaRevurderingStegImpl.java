@@ -369,7 +369,9 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
                 var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(revurdering.getId());
                 var erAnnenForelderInformert = hentAnnenForelderErInformert(ytelseFordelingAggregat);
                 var tilbakeStiltFordeling = new OppgittFordelingEntitet(Collections.emptyList(), erAnnenForelderInformert);
-                ytelsesFordelingRepository.lagre(revurdering.getId(), tilbakeStiltFordeling);
+                var yfBuilder = ytelsesFordelingRepository.opprettBuilder(revurdering.getId())
+                    .medOppgittFordeling(tilbakeStiltFordeling);
+                ytelsesFordelingRepository.lagre(revurdering.getId(), yfBuilder.build());
             }
         }
     }

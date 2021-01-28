@@ -1099,9 +1099,13 @@ public class RevurderingBehandlingsresultatutlederTest {
     }
 
     private void lagreEndringsdato(LocalDate endringsdato) {
-        AvklarteUttakDatoerEntitet avklarteDatoer = new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(
-                endringsdato).build();
-        ytelsesFordelingRepository.lagre(revurdering.getId(), avklarteDatoer);
+        var avklarteDatoer = new AvklarteUttakDatoerEntitet.Builder()
+            .medOpprinneligEndringsdato(endringsdato)
+            .build();
+        var ytelseFordelingAggregat = ytelsesFordelingRepository.opprettBuilder(revurdering.getId())
+            .medAvklarteDatoer(avklarteDatoer)
+            .build();
+        ytelsesFordelingRepository.lagre(revurdering.getId(), ytelseFordelingAggregat);
     }
 
     private void leggTilTilbaketrekk(Boolean behandlingMedTilbaketrekk, Boolean originalBehandlingMedTilbaketrekk) {
