@@ -1,6 +1,27 @@
 package no.nav.foreldrepenger.økonomi.feriepengeavstemming;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.Year;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepengerPrÅr;
@@ -9,28 +30,16 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.HentOppdragMedPositivKvittering;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class Feriepengeavstemmer {
     private static final String AVVIK_KODE = "FP-110712";
+    private static final String BRUKER = "Bruker";
+    private static final String ARBGIVER = "ArbGiv";
     private static final Logger LOGGER = LoggerFactory.getLogger(Feriepengeavstemmer.class);
     private HentOppdragMedPositivKvittering hentOppdragMedPositivKvittering;
     private BehandlingRepository behandlingRepository;
@@ -60,6 +69,28 @@ public class Feriepengeavstemmer {
             .map(BeregningsresultatFeriepenger::getBeregningsresultatFeriepengerPrÅrListe)
             .orElse(Collections.emptyList());
         List<Oppdrag110> positiveOppdrag = hentOppdragMedPositivKvittering.hentOppdragMedPositivKvittering(behandling);
+
+        var oppdrag = sorterteOppdragFeriepenger(positiveOppdrag);
+        var tilkjent = sorterteTilkjenteFeriepenger(feriepengerAndeler);
+        Map<GrupperingNøkkel, BigDecimal> summert = new LinkedHashMap<>();
+        oppdrag.forEach(summert::put);
+        tilkjent.forEach((key, value) -> summert.put(key, summert.getOrDefault(key, BigDecimal.ZERO).subtract(value.getVerdi())));
+
+        Map<Year, BigDecimal> summertÅr = new LinkedHashMap<>();
+        oppdrag.forEach((key,value) -> summertÅr.put(key.getOpptjent(), summertÅr.getOrDefault(key.getOpptjent(), BigDecimal.ZERO).add(value)));
+        tilkjent.forEach((key,value) -> summertÅr.put(key.getOpptjent(), summertÅr.getOrDefault(key.getOpptjent(), BigDecimal.ZERO).subtract(value.getVerdi())));
+
+        summertÅr.entrySet().stream()
+            .filter(e -> Math.abs(e.getValue().longValue()) > 3)
+            .forEach(e -> LOGGER.info("{} årlig oppdrag-tilkjent saksnummer {} behandling {} år {} diff {}",
+                AVVIK_KODE, saksnummer, behandlingId, e.getKey(), e.getValue().longValue()));
+
+        summert.entrySet().stream()
+            .filter(e -> Math.abs(e.getValue().longValue()) > 3)
+            .forEach(e -> LOGGER.info("{} andel {} saksnummer {} behandling {} år {} mottaker {} diff {}",
+                AVVIK_KODE, erAvvik(summertÅr.get(e.getKey().getOpptjent())) ? "oppdrag-tilkjent" : "omfordelt",
+                saksnummer, behandlingId, e.getKey().getOpptjent(), e.getKey().getMottaker(), e.getValue().longValue()));
+        /*
         List<FeriepengeOppdrag> fpOppdrag = sorterteFeriepenger(positiveOppdrag);
 
         boolean avvikErFunnet = false;
@@ -95,8 +126,13 @@ public class Feriepengeavstemmer {
                     AVVIK_KODE, saksnummer, behandlingId, mottakerBeskrivelse, oppdragSum.longValue(), tilkjentYtelseSum.longValue(), diff.longValue());
             }
         }
+         */
 
-        return avvikErFunnet;
+        return summert.values().stream().anyMatch(Feriepengeavstemmer::erAvvik);
+    }
+
+    private static boolean erAvvik(BigDecimal diff) {
+        return Math.abs(diff.longValue()) > 3;
     }
 
     private List<BeregningsresultatFeriepengerPrÅr> finnMatchendeTilkjentYtelseForOppdrag(FeriepengeOppdrag.OppdragMottakerPrÅr oppdragMottakerPrÅr, List<BeregningsresultatFeriepengerPrÅr> feriepengerAndeler) {
@@ -152,41 +188,89 @@ public class Feriepengeavstemmer {
         return utbetalingFom.equals(oppdragMottaker.getUtbetalesFom());
     }
 
+   private static String mottakerFraBRAndel(BeregningsresultatAndel andel) {
+       return andel.erBrukerMottaker() ? BRUKER : andel.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(ARBGIVER);
+   }
 
-    //input er List<Oppdrag110> tidligereOppdrag110 = hentOppdragMedPositivKvittering.hentOppdragMedPositivKvittering(saksnummer);
-    private static List<FeriepengeOppdrag> sorterteFeriepenger(List<Oppdrag110> oppdrag110Liste) {
-        Map<Long, Oppdragslinje150> gjeldendeOL = new HashMap<>();
+    private static String mottakerFraRefusjon156(Refusjonsinfo156 info) {
+        return info != null && info.getRefunderesId() != null ? info.getRefunderesId().substring(2,11) : ARBGIVER;
+    }
 
-        for (Oppdragslinje150 linje : sorterEtterDelytelseIdFP(oppdrag110Liste)) {
-            var forrige = gjeldendeOL.get(linje.getDelytelseId());
+    private static String mottakerFraLinje150(Oppdragslinje150 oppdragslinje150) {
+        return oppdragslinje150.getUtbetalesTilId() != null ? BRUKER : mottakerFraRefusjon156(oppdragslinje150.getRefusjonsinfo156());
+    }
+
+    private static Map<GrupperingNøkkel, Beløp> sorterteTilkjenteFeriepenger(List<BeregningsresultatFeriepengerPrÅr> feriepenger) {
+        return feriepenger.stream()
+            .collect(Collectors.groupingBy(a -> new GrupperingNøkkel(Year.from(a.getOpptjeningsår()), mottakerFraBRAndel(a.getBeregningsresultatAndel())),
+                Collectors.reducing(Beløp.ZERO, BeregningsresultatFeriepengerPrÅr::getÅrsbeløp, Beløp::adder)));
+    }
+
+    private static Map<GrupperingNøkkel, BigDecimal> sorterteOppdragFeriepenger(List<Oppdrag110> oppdrag110Liste) {
+        Map<GrupperingNøkkel, BigDecimal> gjeldendeOL = new HashMap<>();
+
+        for (Oppdragslinje150 linje : sorterEtterDatoFP(oppdrag110Liste)) {
+            var nøkkel = new GrupperingNøkkel(Year.from(linje.getDatoVedtakFom().minusYears(1)), mottakerFraLinje150(linje));
+            var forrige = gjeldendeOL.get(nøkkel);
             if (linje.gjelderOpphør()) {
                 if (forrige == null) {
-                    LOGGER.warn("Opphør uten noe å opphøre: delytelse {} klasseKode {} fom {} tom {} opphørsdato {} tidligste {}",
-                        linje.getDelytelseId(), linje.getKodeKlassifik(), linje.getDatoVedtakFom(), linje.getDatoVedtakTom(), linje.getDatoStatusFom(), forrige);
+                    LOGGER.warn("Opphør uten noe å opphøre: delytelse {} klasseKode {} fom {} opphørsdato {} tidligste {}",
+                        linje.getDelytelseId(), linje.getKodeKlassifik(), linje.getDatoVedtakFom(), linje.getDatoStatusFom(), forrige);
+                } else if (forrige.longValue() != linje.getSats()) {
+                    LOGGER.warn("Avvik gjeldende beløp: delytelse {} klasseKode {} fom {} opphørt {} gjeldende {}",
+                        linje.getDelytelseId(), linje.getKodeKlassifik(), linje.getDatoVedtakFom(), linje.getSats(), forrige);
                 } else {
-                    gjeldendeOL.remove(linje.getDelytelseId());
+                    gjeldendeOL.remove(nøkkel);
                 }
             }
             if (!linje.gjelderOpphør()) {
-                gjeldendeOL.put(linje.getDelytelseId(), linje);
+                gjeldendeOL.put(nøkkel, new BigDecimal(linje.getSats()));
             }
         }
-        return gjeldendeOL.values().stream()
-            .map(ol150 -> new FeriepengeOppdrag(ØkonomiKodeKlassifik.fraKode(ol150.getKodeKlassifik()),
-                ol150.getDatoVedtakFom(), ol150.getSats(),
-                ol150.getUtbetalesTilId(), ol150.getRefusjonsinfo156() != null ? ol150.getRefusjonsinfo156().getRefunderesId() : null))
-            .collect(Collectors.toList());
+        return gjeldendeOL;
     }
 
-
-    private static List<Oppdragslinje150> sorterEtterDelytelseIdFP(Collection<Oppdrag110> input) {
+    private static List<Oppdragslinje150> sorterEtterDatoFP(Collection<Oppdrag110> input) {
         return input.stream()
             .map(Oppdrag110::getOppdragslinje150Liste)
             .flatMap(Collection::stream)
             .filter(ol150 -> ØkonomiKodeKlassifik.fraKode(ol150.getKodeKlassifik()).gjelderFerie())
-            .sorted(Comparator.comparing(Oppdragslinje150::getDelytelseId)
-                .thenComparing(Oppdragslinje150::getOpprettetTidspunkt))
+            .sorted(Comparator.comparing(Oppdragslinje150::getOpprettetTidspunkt))
             .collect(Collectors.toList());
+    }
+
+
+    public static class GrupperingNøkkel {
+
+        private Year opptjent;
+        private String mottaker;
+
+        public GrupperingNøkkel(Year opptjent, String mottaker) {
+            this.opptjent = opptjent;
+            this.mottaker = mottaker;
+        }
+
+        public Year getOpptjent() {
+            return opptjent;
+        }
+
+        public String getMottaker() {
+            return mottaker;
+        }
+
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            GrupperingNøkkel that = (GrupperingNøkkel) o;
+            return Objects.equals(opptjent, that.opptjent) && Objects.equals(mottaker, that.mottaker);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(opptjent, mottaker);
+        }
     }
 
 

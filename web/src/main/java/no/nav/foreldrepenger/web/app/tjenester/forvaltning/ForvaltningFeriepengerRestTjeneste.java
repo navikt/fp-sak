@@ -15,8 +15,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import no.nav.foreldrepenger.økonomi.feriepengeavstemming.Feriepengeavstemmer;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +25,7 @@ import no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev.Informasj
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingPeriodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.foreldrepenger.ytelse.beregning.FeriepengeRegeregnTjeneste;
+import no.nav.foreldrepenger.økonomi.feriepengeavstemming.Feriepengeavstemmer;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.util.Tuple;
 
@@ -79,15 +78,29 @@ public class ForvaltningFeriepengerRestTjeneste {
     }
 
     @POST
+    @Path("/kontrollerPeriodeFeriepenger")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Sjekker avvik feriepenger mellom tilkjent og simulering", tags = "FORVALTNING-feriepenger")
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)
+    public Response kontrollerPeriodeForTilkjent(@Parameter(description = "Periode") @BeanParam @Valid AvstemmingPeriodeDto dto) {
+        repository.finnSakerForAvstemmingFeriepenger(dto.getFom(), dto.getTom()).stream()
+            .map(Tuple::getElement2)
+            .forEach(feriepengeRegeregnTjeneste::harDiffUtenomPeriode);
+
+        return Response.ok().build();
+    }
+
+    @POST
     @Path("/avstemPeriodeFeriepenger")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Lagrer task for å finne overlapp. Resultat i app-logg", tags = "FORVALTNING-feriepenger")
+    @Operation(description = "Avstemmer feriepenger mellom tilkjent og oppdrag", tags = "FORVALTNING-feriepenger")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)
-    public Response avstemPeriodeForOverlapp(@Parameter(description = "Periode") @BeanParam @Valid AvstemmingPeriodeDto dto) {
+    public Response avstemPeriodeForOppdrag(@Parameter(description = "Periode") @BeanParam @Valid AvstemmingPeriodeDto dto) {
         repository.finnSakerForAvstemmingFeriepenger(dto.getFom(), dto.getTom()).stream()
             .map(Tuple::getElement2)
-            .forEach(feriepengeRegeregnTjeneste::harDiff);
+            .forEach(feriepengeavstemmer::avstem);
 
         return Response.ok().build();
     }
