@@ -91,6 +91,15 @@ public class BeregningsresultatFeriepengerPrÅr extends BaseEntitet {
         return Objects.hash(opptjeningsår, årsbeløp);
     }
 
+    @Override
+    public String toString() {
+        return "BRFerPrÅr{" +
+            "brFerie=" + beregningsresultatFeriepenger +
+            ", opptjeningsår=" + opptjeningsår +
+            ", årsbeløp=" + årsbeløp +
+            '}';
+    }
+
     public static Builder builder() {
         return new Builder();
     }
