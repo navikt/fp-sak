@@ -1,39 +1,34 @@
 package no.nav.foreldrepenger.ytelse.beregning;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.Year;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetOgArbeidsforholdNøkkel;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepengerPrÅr;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.Beløp;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public class Feriepengesammenligner {
-    private static final Logger logger = LoggerFactory.getLogger(Feriepengesammenligner.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Feriepengesammenligner.class);
     private final long behandlingId;
     private final Saksnummer saksnummer;
     private final BeregningsresultatEntitet nyttResultat;
     private final BeregningsresultatEntitet gjeldendeResultat;
     private static final String AVVIK_KODE = "FP-110711";
     private static final String BRUKER = "Bruker";
+    private static final String ARBGIVER = "ArbGiv";
+
 
     private boolean finnesAvvik = false;
 
@@ -52,114 +47,100 @@ public class Feriepengesammenligner {
         Optional<BeregningsresultatFeriepenger> gjeldendeFeriepengegrunnlag = gjeldendeResultat.getBeregningsresultatFeriepenger();
         if (nyttFeriepengegrunnlag.isPresent() && gjeldendeFeriepengegrunnlag.isPresent()) {
             sammenlignFeriepengeperiode(nyttFeriepengegrunnlag.get(), gjeldendeFeriepengegrunnlag.get());
-            sammenlignFeriepengeandeler(nyttFeriepengegrunnlag.get().getBeregningsresultatFeriepengerPrÅrListe(),
+            finnesAvvik = sammenlignFeriepengeandeler(nyttFeriepengegrunnlag.get().getBeregningsresultatFeriepengerPrÅrListe(),
                 gjeldendeFeriepengegrunnlag.get().getBeregningsresultatFeriepengerPrÅrListe());
-        }
-        else if (nyttFeriepengegrunnlag.isPresent() || gjeldendeFeriepengegrunnlag.isPresent()) {
+        } else if (nyttFeriepengegrunnlag.isPresent() || gjeldendeFeriepengegrunnlag.isPresent()) {
             // Vet at kun en av de er present
-            loggOgSettAvvik("beregningsresultatFeriepenger", nyttFeriepengegrunnlag, gjeldendeFeriepengegrunnlag);
+            LOGGER.info("{} grunnlag mangler for saksnummer {} behandling {} Gammelt {} Nytt {}",
+                AVVIK_KODE, saksnummer.getVerdi(), behandlingId, gjeldendeFeriepengegrunnlag.isPresent(), nyttFeriepengegrunnlag.isPresent());
+            return true;
         }
         return finnesAvvik;
     }
 
-    private void sammenlignFeriepengeandeler(List<BeregningsresultatFeriepengerPrÅr> nyeAndeler,
+    protected boolean finnesAvvikUtenomPeriode() {
+        Optional<BeregningsresultatFeriepenger> nyttFeriepengegrunnlag = nyttResultat.getBeregningsresultatFeriepenger();
+        Optional<BeregningsresultatFeriepenger> gjeldendeFeriepengegrunnlag = gjeldendeResultat.getBeregningsresultatFeriepenger();
+        if (nyttFeriepengegrunnlag.isPresent() && gjeldendeFeriepengegrunnlag.isPresent()) {
+            finnesAvvik = sammenlignFeriepengeandeler(nyttFeriepengegrunnlag.get().getBeregningsresultatFeriepengerPrÅrListe(),
+                gjeldendeFeriepengegrunnlag.get().getBeregningsresultatFeriepengerPrÅrListe());
+        } else if (nyttFeriepengegrunnlag.isPresent() || gjeldendeFeriepengegrunnlag.isPresent()) {
+            // Vet at kun en av de er present
+            LOGGER.info("{} grunnlag mangler for saksnummer {} behandling {} Gammelt {} Nytt {}",
+                AVVIK_KODE, saksnummer.getVerdi(), behandlingId, gjeldendeFeriepengegrunnlag.isPresent(), nyttFeriepengegrunnlag.isPresent());
+            return true;
+        }
+        return finnesAvvik;
+    }
+
+    private boolean sammenlignFeriepengeandeler(List<BeregningsresultatFeriepengerPrÅr> nyeAndeler,
                                                 List<BeregningsresultatFeriepengerPrÅr> gjeldendeAndeler) {
-        Map<LocalDate, List<BeregningsresultatFeriepengerPrÅr>> nyÅrTilBeløpMap = årTilAndelerMap(nyeAndeler);
-        Map<LocalDate, List<BeregningsresultatFeriepengerPrÅr>> gjeldendeÅrTilBeløpMap = årTilAndelerMap(gjeldendeAndeler);
-        sammenlignÅrligeFeriepenger(nyÅrTilBeløpMap, gjeldendeÅrTilBeløpMap);
-        Set<LocalDate> alleÅrene = Stream.concat(nyÅrTilBeløpMap.keySet().stream(), gjeldendeÅrTilBeløpMap.keySet().stream()).collect(Collectors.toSet());
-        alleÅrene.forEach(år -> sammenlignGrupperteFeriepenger(år, nyÅrTilBeløpMap.getOrDefault(år, List.of()), gjeldendeÅrTilBeløpMap.getOrDefault(år, List.of())));
-    }
+        var simulert = sorterteTilkjenteFeriepenger(nyeAndeler);
+        var tilkjent = sorterteTilkjenteFeriepenger(gjeldendeAndeler);
 
-    private void sammenlignÅrligeFeriepenger(Map<LocalDate, List<BeregningsresultatFeriepengerPrÅr>> nytt,
-                                             Map<LocalDate, List<BeregningsresultatFeriepengerPrÅr>> eksisterende) {
-        Map<LocalDate, BigDecimal> summert = new LinkedHashMap<>();
-        eksisterende.forEach((key, value) -> summert.put(key, finnÅrsbeløp(value).getVerdi()));
-        nytt.forEach((key, value) -> summert.put(key, summert.getOrDefault(key, BigDecimal.ZERO).subtract(finnÅrsbeløp(value).getVerdi())));
+        Map<AndelGruppering, BigDecimal> summert = new LinkedHashMap<>();
+        tilkjent.forEach((key, value) -> summert.put(key, value.getVerdi()));
+        simulert.forEach((key, value) -> summert.put(key, summert.getOrDefault(key, BigDecimal.ZERO).subtract(value.getVerdi())));
+
+        Map<Year, BigDecimal> summertÅr = new LinkedHashMap<>();
+        tilkjent.forEach((key,value) -> summertÅr.put(key.getOpptjent(), summertÅr.getOrDefault(key.getOpptjent(), BigDecimal.ZERO).add(value.getVerdi())));
+        simulert.forEach((key,value) -> summertÅr.put(key.getOpptjent(), summertÅr.getOrDefault(key.getOpptjent(), BigDecimal.ZERO).subtract(value.getVerdi())));
+
+        summertÅr.entrySet().stream()
+            .filter(e -> Math.abs(e.getValue().longValue()) > 3)
+            .forEach(e -> LOGGER.info("{} årlig tilkjent-simulert saksnummer {} behandling {} år {} diff {}",
+                AVVIK_KODE, saksnummer, behandlingId, e.getKey(), e.getValue().longValue()));
+
         summert.entrySet().stream()
             .filter(e -> Math.abs(e.getValue().longValue()) > 3)
-            .forEach(e -> loggOgSettAvvik("Årsbeløp for " + Year.from(e.getKey()) + " diff " + e.getValue().longValue(),
-                finnÅrsbeløp(nytt.getOrDefault(e.getKey(), List.of())).getVerdi().longValue(),
-                finnÅrsbeløp(eksisterende.getOrDefault(e.getKey(), List.of())).getVerdi().longValue()));
+            .forEach(e -> LOGGER.info("{} andel {} saksnummer {} behandling {} år {} mottaker {} diff {} gammel {} ny {}",
+                AVVIK_KODE, erAvvik(summertÅr.get(e.getKey().getOpptjent())) ? "oppdrag-tilkjent" : "omfordelt",
+                saksnummer, behandlingId, e.getKey().getOpptjent(), e.getKey().getMottaker(), e.getValue().longValue(),
+                tilkjent.getOrDefault(e.getKey(), Beløp.ZERO).getVerdi().longValue(),
+                simulert.getOrDefault(e.getKey(), Beløp.ZERO).getVerdi().longValue()));
+
+        return summert.values().stream().anyMatch(Feriepengesammenligner::erAvvik);
     }
 
-    private void sammenlignGrupperteFeriepenger(LocalDate år, List<BeregningsresultatFeriepengerPrÅr> nytt,
-                                             List<BeregningsresultatFeriepengerPrÅr> eksisterende) {
-        var nyGruppert = nøkkelTilGrupperingMap(nytt);
-        var gmlGruppert = nøkkelTilGrupperingMap(eksisterende);
-        Map<Feriepengesammenligner.AndelGruppering, BigDecimal> summert = new LinkedHashMap<>();
-        gmlGruppert.forEach((k, v) -> summert.put(k, finnÅrsbeløp(v).getVerdi()));
-        nyGruppert.forEach((k, v) -> summert.put(k, summert.getOrDefault(k, BigDecimal.ZERO).subtract(finnÅrsbeløp(v).getVerdi())));
-        summert.entrySet().stream()
-            .filter(e -> Math.abs(e.getValue().longValue()) > 3)
-            .forEach(e -> loggOgSettAvvik("Andelsbeløp for " + e.getKey() + " år " + Year.from(år) + " diff " + e.getValue().longValue(),
-                finnÅrsbeløp(nyGruppert.getOrDefault(e.getKey(), List.of())).getVerdi().longValue(),
-                finnÅrsbeløp(gmlGruppert.getOrDefault(e.getKey(), List.of())).getVerdi().longValue()));
-    }
-
-    private void sammenlignNøkler(LocalDate år, Map<AktivitetOgArbeidsforholdNøkkel, List<BeregningsresultatFeriepengerPrÅr>> nyNøkkelTilAndelerMap,
-                                  Map<AktivitetOgArbeidsforholdNøkkel, List<BeregningsresultatFeriepengerPrÅr>> gjeldendeNøkkelTilAndelerMap) {
-        nyNøkkelTilAndelerMap.forEach((nøkkel, andeler) -> {
-            List<BeregningsresultatFeriepengerPrÅr> gjeldendeAndelerForNøkkel = gjeldendeNøkkelTilAndelerMap.getOrDefault(nøkkel, List.of());
-            Beløp gjeldendeÅrsbeløp = finnÅrsbeløp(gjeldendeAndelerForNøkkel);
-            Beløp nyttÅrsbeløp = finnÅrsbeløp(andeler);
-            var diff = gjeldendeÅrsbeløp.getVerdi().subtract(nyttÅrsbeløp.getVerdi()).longValue();
-            if (Math.abs(diff) > 3) {
-                loggOgSettAvvik("Årsbeløp for andel " + nøkkel + " i år " + Year.from(år), nyttÅrsbeløp.getVerdi().longValue(), gjeldendeÅrsbeløp.getVerdi().longValue());
-            }
-        });
-    }
-
-    private Beløp finnÅrsbeløp(List<BeregningsresultatFeriepengerPrÅr> andeler) {
-        return andeler.stream().map(BeregningsresultatFeriepengerPrÅr::getÅrsbeløp).reduce(Beløp::adder).orElse(Beløp.ZERO);
-    }
-
-    private Map<AktivitetOgArbeidsforholdNøkkel, List<BeregningsresultatFeriepengerPrÅr>> nøkkelTilAndelerMap(List<BeregningsresultatFeriepengerPrÅr> andeler) {
-        return andeler.stream()
-            .collect(Collectors.groupingBy(an -> an.getBeregningsresultatAndel().getAktivitetOgArbeidsforholdNøkkel()));
-    }
-
-    private Map<AndelGruppering, List<BeregningsresultatFeriepengerPrÅr>> nøkkelTilGrupperingMap(List<BeregningsresultatFeriepengerPrÅr> andeler) {
-        return andeler.stream()
-            .collect(Collectors.groupingBy(AndelGruppering::new));
-    }
-
-    private Map<LocalDate, List<BeregningsresultatFeriepengerPrÅr>> årTilAndelerMap(List<BeregningsresultatFeriepengerPrÅr> andeler) {
-        return andeler.stream().collect(Collectors.groupingBy(BeregningsresultatFeriepengerPrÅr::getOpptjeningsår));
+    private static boolean erAvvik(BigDecimal diff) {
+        return Math.abs(diff.longValue()) > 3;
     }
 
     private void sammenlignFeriepengeperiode(BeregningsresultatFeriepenger nytt, BeregningsresultatFeriepenger gjeldende) {
         boolean ulikFOM = !Objects.equals(nytt.getFeriepengerPeriodeFom(), gjeldende.getFeriepengerPeriodeFom());
         boolean ulikTOM = !Objects.equals(nytt.getFeriepengerPeriodeTom(), gjeldende.getFeriepengerPeriodeTom());
         if (ulikFOM) {
-            loggOgSettAvvik("feriepengeperiodeFOM", nytt.getFeriepengerPeriodeFom(), gjeldende.getFeriepengerPeriodeFom());
+            LOGGER.info("{} feriepengeperiodeFOM saksnummer {} behandling {} Gammelt {} Nytt {}",
+                AVVIK_KODE, saksnummer.getVerdi(), behandlingId, gjeldende.getFeriepengerPeriodeFom(), nytt.getFeriepengerPeriodeFom());
         }
         if (ulikTOM) {
-            loggOgSettAvvik("feriepengeperiodeTOM", nytt.getFeriepengerPeriodeTom(), gjeldende.getFeriepengerPeriodeTom());
+            LOGGER.info("{} feriepengeperiodeTOM saksnummer {} behandling {} Gammelt {} Nytt {}",
+                AVVIK_KODE, saksnummer.getVerdi(), behandlingId, gjeldende.getFeriepengerPeriodeTom(), nytt.getFeriepengerPeriodeTom());
         }
     }
 
-    private void loggOgSettAvvik(String beskrivelse, Object nytt, Object gammelt) {
-        this.finnesAvvik = true;
-        String gammelBeskrivelse = gammelt == null ? "null" : gammelt.toString();
-        String nyBeskrivelse = nytt == null ? "null" : nytt.toString();
-        logger.info("{} Avvik mellom ny og gammel feriepengeberegning på saksnummer {} behandling {}\n   Avvik {}\n    Gammelt {} Nytt {}",
-            AVVIK_KODE, saksnummer.getVerdi(), behandlingId, beskrivelse, gammelBeskrivelse, nyBeskrivelse);
+    private static Map<AndelGruppering, Beløp> sorterteTilkjenteFeriepenger(List<BeregningsresultatFeriepengerPrÅr> feriepenger) {
+        return feriepenger.stream()
+            .collect(Collectors.groupingBy(AndelGruppering::new,
+                Collectors.reducing(new Beløp(BigDecimal.ZERO), BeregningsresultatFeriepengerPrÅr::getÅrsbeløp, Beløp::adder)));
     }
 
     private static class AndelGruppering {
+        Year opptjent;
         String mottaker;
-        String arbeidsgiver;
-        InternArbeidsforholdRef arbeidsforholdRef;
-        AktivitetStatus aktivitetStatus;
-        Inntektskategori inntektskategori;
 
         AndelGruppering(BeregningsresultatFeriepengerPrÅr andel) {
-            this.mottaker = andel.getBeregningsresultatAndel().erBrukerMottaker() ? BRUKER : "Arbgiv";
-            this.arbeidsgiver = andel.getBeregningsresultatAndel().getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null);
-            this.arbeidsforholdRef = andel.getBeregningsresultatAndel().getArbeidsforholdRef();
-            this.aktivitetStatus = andel.getBeregningsresultatAndel().getAktivitetStatus();
-            this.inntektskategori = andel.getBeregningsresultatAndel().getInntektskategori();
+            this.opptjent = Year.from(andel.getOpptjeningsår());
+            this.mottaker = andel.getBeregningsresultatAndel().erBrukerMottaker() ? BRUKER :
+                andel.getBeregningsresultatAndel().getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(ARBGIVER);
+        }
+
+        public Year getOpptjent() {
+            return opptjent;
+        }
+
+        public String getMottaker() {
+            return mottaker;
         }
 
         @Override
@@ -167,20 +148,19 @@ public class Feriepengesammenligner {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             AndelGruppering that = (AndelGruppering) o;
-            return mottaker.equals(that.mottaker) && Objects.equals(arbeidsgiver, that.arbeidsgiver) && Objects.equals(arbeidsforholdRef, that.arbeidsforholdRef) && aktivitetStatus == that.aktivitetStatus && inntektskategori == that.inntektskategori;
+            return Objects.equals(opptjent, that.opptjent) && Objects.equals(mottaker, that.mottaker);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(mottaker, arbeidsgiver, arbeidsforholdRef, aktivitetStatus, inntektskategori);
+            return Objects.hash(opptjent, mottaker);
         }
 
         @Override
         public String toString() {
             return "AndelGruppering{" +
-                "mottaker='" + mottaker + '\'' +
-                ", arbeidsgiver=" + arbeidsgiver +
-                ", aktivitetStatus=" + aktivitetStatus +
+                "år=" + opptjent +
+                ", mottaker='" + mottaker + '\'' +
                 '}';
         }
     }
