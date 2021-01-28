@@ -39,4 +39,32 @@ public class FeriepengeOppdrag {
         return mottakerRefusjon;
     }
 
+    public OppdragMottakerPrÅr getMottaker() {
+        return new OppdragMottakerPrÅr(mottakerPerson == null ? mottakerRefusjon : mottakerPerson, utbetalesFom, mottakerPerson != null);
+    }
+
+    public class OppdragMottakerPrÅr {
+        private String mottakerId;
+        private LocalDate utbetalesFom;
+        private boolean erSøker;
+
+        public OppdragMottakerPrÅr(String mottakerId, LocalDate utbetalesFom, boolean erSøker) {
+            this.mottakerId = mottakerId;
+            this.utbetalesFom = utbetalesFom;
+            this.erSøker = erSøker;
+        }
+
+        public String getMottakerId() {
+            return mottakerId;
+        }
+
+        public LocalDate getUtbetalesFom() {
+            return utbetalesFom;
+        }
+
+        public boolean isErSøker() {
+            return erSøker;
+        }
+    }
+
 }

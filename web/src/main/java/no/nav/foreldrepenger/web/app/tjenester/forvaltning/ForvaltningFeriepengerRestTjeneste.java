@@ -61,8 +61,19 @@ public class ForvaltningFeriepengerRestTjeneste {
     public Response reberegnFeriepenger(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         long behandlingId = dto.getBehandlingId();
         boolean avvikITilkjentYtelse = feriepengeRegeregnTjeneste.harDiff(behandlingId);
+        String melding = "Finnes avvik i reberegnet feriepengegrunnlag: " + avvikITilkjentYtelse;
+        return Response.ok(melding).build();
+    }
+
+    @POST
+    @Path("/avstemFeriepenger")
+    @Produces(MediaType.TEXT_PLAIN)
+    @Operation(description = "Sammenligner feriepenger som er beregnet i tilkjent ytelse mot gjeldende økonomioppdrag for en behandling", tags = "FORVALTNING-feriepenger")
+    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
+    public Response avstemFeriepenger(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
+        long behandlingId = dto.getBehandlingId();
         boolean avvikMellomTilkjentYtelseOgOppdrag = feriepengeavstemmer.avstem(behandlingId);
-        String melding = "Finnes avvik i reberegnet feriepengegrunnlag: " + avvikITilkjentYtelse + " Finnes avvik mellom feriepengegrunnlag og oppdrag: " + avvikMellomTilkjentYtelseOgOppdrag;
+        String melding = "Finnes avvik mellom feriepengegrunnlag og oppdrag: " + avvikMellomTilkjentYtelseOgOppdrag;
         return Response.ok(melding).build();
     }
 
