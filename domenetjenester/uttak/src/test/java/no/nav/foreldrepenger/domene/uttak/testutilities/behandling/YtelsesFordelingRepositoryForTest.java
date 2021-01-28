@@ -6,7 +6,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
-import no.nav.foreldrepenger.behandlingslager.diff.DiffResult;
 
 class YtelsesFordelingRepositoryForTest extends YtelsesFordelingRepository {
 
@@ -44,10 +43,5 @@ class YtelsesFordelingRepositoryForTest extends YtelsesFordelingRepository {
     @Override
     public void lagre(Long behandlingId, YtelseFordelingAggregat aggregat) {
         ytelseFordelingAggregatMap.put(behandlingId, aggregat);
-    }
-
-    @Override
-    public DiffResult diffResultat(Long grunnlagId1, Long grunnlagId2, boolean onlyCheckTrackedFields) {
-        throw new IkkeImplementertForTestException();
     }
 }

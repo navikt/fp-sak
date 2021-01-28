@@ -196,7 +196,6 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
                         .findFirst();
             }
 
-            @Override
             public DiffResult diffResultat(FamilieHendelseGrunnlagEntitet grunnlag1, FamilieHendelseGrunnlagEntitet grunnlag2,
                     boolean kunSporedeEndringer) {
                 return null;
@@ -246,7 +245,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
             }
 
             @Override
-            public FamilieHendelseGrunnlagEntitet hentFamilieHendelserPåGrunnlagId(Long aggregatId) {
+            public FamilieHendelseGrunnlagEntitet hentGrunnlagPåId(Long aggregatId) {
                 throw new UnsupportedOperationException("Ikke implementert");
             }
 
@@ -588,12 +587,6 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
         }
 
         @Override
-        public DiffResult diffResultat(PersonopplysningGrunnlagEntitet grunnlag1, PersonopplysningGrunnlagEntitet grunnlag2,
-                boolean kunSporedeEndringer) {
-            return null;
-        }
-
-        @Override
         public void lagre(Long behandlingId, PersonInformasjonBuilder builder) {
             final PersonopplysningGrunnlagBuilder oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(
                     Optional.ofNullable(personopplysningMap.getOrDefault(behandlingId, null)));
@@ -642,7 +635,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
         }
 
         @Override
-        public PersonopplysningGrunnlagEntitet hentPersonopplysningerPåId(Long aggregatId) {
+        public PersonopplysningGrunnlagEntitet hentGrunnlagPåId(Long aggregatId) {
             throw new java.lang.UnsupportedOperationException("Ikke implementert");
         }
     }

@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.behandling;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.TraverseEntityGraphFactory;
 import no.nav.foreldrepenger.behandlingslager.diff.DiffEntity;
@@ -24,7 +23,7 @@ public class RegisterdataDiffsjekker {
         traverseGraph = TraverseEntityGraphFactory.build(onlyCheckTrackedFields);
         diffEntity = new DiffEntity(traverseGraph);
     }
-    
+
     public  <T extends Comparable<? super T>> boolean erForskjellPå(List<T> list1, List<T> list2) {
         Map<Node, Pair> leafDifferences = finnForskjellerPåLister(list1, list2);
         return leafDifferences.size() > 0;
@@ -35,7 +34,7 @@ public class RegisterdataDiffsjekker {
         Collections.sort(list2);
         return finnForskjellerPå(list1, list2);
     }
-    
+
     public boolean erForskjellPå(Object object1, Object object2) {
         return !finnForskjellerPå(object1, object2).isEmpty();
     }
@@ -47,18 +46,5 @@ public class RegisterdataDiffsjekker {
 
     public DiffEntity getDiffEntity() {
         return diffEntity;
-    }
-
-    public static Optional<Boolean> eksistenssjekkResultat(Optional<?> eksisterende, Optional<?> nytt) {
-        if (!eksisterende.isPresent() && !nytt.isPresent()) {
-            return Optional.of(Boolean.FALSE);
-        }
-        if (eksisterende.isPresent() && !nytt.isPresent()) {
-            return Optional.of(Boolean.TRUE);
-        }
-        if (!eksisterende.isPresent() && nytt.isPresent()) { // NOSONAR - "redundant" her er false pos.
-            return Optional.of(Boolean.TRUE);
-        }
-        return Optional.empty();
     }
 }

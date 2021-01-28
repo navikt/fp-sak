@@ -43,7 +43,7 @@ public interface InntektArbeidYtelseTjeneste {
      * @param behandlingId
      * @param grunnlagUuid
      */
-    InntektArbeidYtelseGrunnlag hentGrunnlagForGrunnlagId(Long behandlingId, UUID grunnlagUuid);
+    InntektArbeidYtelseGrunnlag hentGrunnlagPåId(Long behandlingId, UUID grunnlagUuid);
 
     /**
      * Finn grunnlag hvis finnes

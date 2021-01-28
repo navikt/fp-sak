@@ -108,7 +108,7 @@ public class OpptjeningsperioderTjeneste {
      */
     public List<OpptjeningsperiodeForSaksbehandling> hentRelevanteOpptjeningAktiveterForSaksbehandling(BehandlingReferanse behandlingReferanse,
             UUID iayGrunnlagUuid) {
-        InntektArbeidYtelseGrunnlag grunnlag = inntektArbeidYtelseTjeneste.hentGrunnlagForGrunnlagId(behandlingReferanse.getBehandlingId(),
+        InntektArbeidYtelseGrunnlag grunnlag = inntektArbeidYtelseTjeneste.hentGrunnlagPåId(behandlingReferanse.getBehandlingId(),
                 iayGrunnlagUuid);
         return mapOpptjeningsperiodeForSaksbehandling(behandlingReferanse, grunnlag, vurderForSaksbehandling);
     }

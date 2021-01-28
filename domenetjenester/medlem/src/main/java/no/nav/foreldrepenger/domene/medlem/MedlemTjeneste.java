@@ -21,10 +21,10 @@ import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAggregat;
+import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapBehandlingsgrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapVilkårPeriodeGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapVilkårPeriodeRepository;
@@ -36,7 +36,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
-import no.nav.foreldrepenger.behandlingslager.diff.DiffResult;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.BasisKodeverdi;
 import no.nav.foreldrepenger.domene.medlem.api.EndringsresultatPersonopplysningerForMedlemskap;
@@ -172,13 +171,6 @@ public class MedlemTjeneste {
         return new VurderMedlemskap(aksjonspunkter, vurderingsÅrsaks);
     }
 
-    public DiffResult diffResultat(EndringsresultatDiff idDiff, boolean kunSporedeEndringer) {
-        Objects.requireNonNull(idDiff.getGrunnlagId1(), "kan ikke diffe når id1 ikke er oppgitt");
-        Objects.requireNonNull(idDiff.getGrunnlagId2(), "kan ikke diffe når id2 ikke er oppgitt");
-
-        return medlemskapRepository.diffResultat((Long) idDiff.getGrunnlagId1(), (Long) idDiff.getGrunnlagId2(), kunSporedeEndringer);
-    }
-
     /**
      * Sjekker både medlemskapsvilkåret og løpende medlemskapsvilkår
      * Tar hensyn til overstyring
@@ -299,6 +291,10 @@ public class MedlemTjeneste {
             return new Tuple<>(VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT);
         }
         throw new IllegalStateException("Kan ikke utlede vilkår utfall type når medlemskapsvilkåret ikke finnes");
+    }
+
+    public Optional<MedlemskapBehandlingsgrunnlagEntitet> hentGrunnlagPåId(Long grunnlagId) {
+        return medlemskapRepository.hentGrunnlagPåId(grunnlagId);
     }
 
     private static final class ElementMedGyldighetsintervallWrapper<T> {

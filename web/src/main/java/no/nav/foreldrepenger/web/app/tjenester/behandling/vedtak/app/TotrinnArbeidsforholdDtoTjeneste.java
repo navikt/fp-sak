@@ -49,7 +49,7 @@ public class TotrinnArbeidsforholdDtoTjeneste {
             Optional<ArbeidsforholdInformasjon> arbeidsforholdInformasjonOpt;
 
             if (iayGrunnlagUuid.isPresent()) {
-                arbeidsforholdInformasjonOpt = inntektArbeidYtelseTjeneste.hentGrunnlagForGrunnlagId(behandling.getId(), iayGrunnlagUuid.get()).getArbeidsforholdInformasjon();
+                arbeidsforholdInformasjonOpt = inntektArbeidYtelseTjeneste.hentGrunnlagPåId(behandling.getId(), iayGrunnlagUuid.get()).getArbeidsforholdInformasjon();
             } else {
                 arbeidsforholdInformasjonOpt = inntektArbeidYtelseTjeneste.finnGrunnlag(behandling.getId())
                     .flatMap(InntektArbeidYtelseGrunnlag::getArbeidsforholdInformasjon);

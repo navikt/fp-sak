@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.registerinnhenting;
 
+import java.util.Objects;
 import java.util.UUID;
 
 import javax.enterprise.context.Dependent;
@@ -7,10 +8,13 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
+import no.nav.foreldrepenger.behandlingslager.behandling.RegisterdataDiffsjekker;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
+import no.nav.foreldrepenger.behandlingslager.diff.DiffResult;
 import no.nav.foreldrepenger.domene.arbeidsforhold.IAYGrunnlagDiff;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -28,11 +32,6 @@ public class EndringsresultatSjekker {
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
 
-
-    EndringsresultatSjekker() {
-        // For CDI
-    }
-
     @Inject
     public EndringsresultatSjekker(PersonopplysningTjeneste personopplysningTjeneste,
                                    FamilieHendelseTjeneste familieHendelseTjeneste,
@@ -46,15 +45,20 @@ public class EndringsresultatSjekker {
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
     }
 
+    EndringsresultatSjekker() {
+        // For CDI
+    }
+
     public EndringsresultatSnapshot opprettEndringsresultatPåBehandlingsgrunnlagSnapshot(Long behandlingId) {
-        EndringsresultatSnapshot snapshot = EndringsresultatSnapshot.opprett();
+        var snapshot = EndringsresultatSnapshot.opprett();
         snapshot.leggTil(personopplysningTjeneste.finnAktivGrunnlagId(behandlingId));
         snapshot.leggTil(familieHendelseTjeneste.finnAktivGrunnlagId(behandlingId));
         snapshot.leggTil(medlemTjeneste.finnAktivGrunnlagId(behandlingId));
 
-        EndringsresultatSnapshot iaySnapshot =  inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingId)
-                .map(iayg -> EndringsresultatSnapshot.medSnapshot(InntektArbeidYtelseGrunnlag.class, iayg.getEksternReferanse()))
-                .orElse(EndringsresultatSnapshot.utenSnapshot(InntektArbeidYtelseGrunnlag.class));
+        var iaySnapshot = inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingId)
+            .map(iayg -> EndringsresultatSnapshot.medSnapshot(InntektArbeidYtelseGrunnlag.class,
+                iayg.getEksternReferanse()))
+            .orElse(EndringsresultatSnapshot.utenSnapshot(InntektArbeidYtelseGrunnlag.class));
 
         snapshot.leggTil(iaySnapshot);
         snapshot.leggTil(ytelseFordelingTjeneste.finnAktivAggregatId(behandlingId));
@@ -62,29 +66,66 @@ public class EndringsresultatSjekker {
         return snapshot;
     }
 
-    public EndringsresultatDiff finnSporedeEndringerPåBehandlingsgrunnlag(Long behandlingId, EndringsresultatSnapshot idSnapshotFør) {
-        final boolean kunSporedeEndringer = true;
+    public EndringsresultatDiff finnSporedeEndringerPåBehandlingsgrunnlag(Long behandlingId,
+                                                                          EndringsresultatSnapshot idSnapshotFør) {
         // Del 1: Finn diff mellom grunnlagets id før og etter oppdatering
-        EndringsresultatSnapshot idSnapshotNå = opprettEndringsresultatPåBehandlingsgrunnlagSnapshot(behandlingId);
-        EndringsresultatDiff idDiff = idSnapshotNå.minus(idSnapshotFør);
+        var idSnapshotNå = opprettEndringsresultatPåBehandlingsgrunnlagSnapshot(behandlingId);
+        var idDiff = idSnapshotNå.minus(idSnapshotFør);
 
         // Del 2: Transformer diff på grunnlagets id til diff på grunnlagets sporede endringer (@ChangeTracked)
-        EndringsresultatDiff sporedeEndringerDiff = EndringsresultatDiff.opprettForSporingsendringer();
-        idDiff.hentDelresultat(PersonInformasjonEntitet.class).ifPresent(idEndring ->
-            sporedeEndringerDiff.leggTilSporetEndring(idEndring, () -> personopplysningTjeneste.diffResultat(idEndring, kunSporedeEndringer)));
-        idDiff.hentDelresultat(FamilieHendelseGrunnlagEntitet.class).ifPresent(idEndring ->
-            sporedeEndringerDiff.leggTilSporetEndring(idEndring, () -> familieHendelseTjeneste.diffResultat(idEndring, kunSporedeEndringer)));
-        idDiff.hentDelresultat(MedlemskapAggregat.class).ifPresent(idEndring ->
-            sporedeEndringerDiff.leggTilSporetEndring(idEndring, () -> medlemTjeneste.diffResultat(idEndring, kunSporedeEndringer)));
-        idDiff.hentDelresultat(InntektArbeidYtelseGrunnlag.class).ifPresent(idEndring ->
-            sporedeEndringerDiff.leggTilSporetEndring(idEndring, () -> {
-                InntektArbeidYtelseGrunnlag grunnlag1 = inntektArbeidYtelseTjeneste.hentGrunnlagForGrunnlagId(behandlingId, (UUID)idEndring.getGrunnlagId1());
-                InntektArbeidYtelseGrunnlag grunnlag2 = inntektArbeidYtelseTjeneste.hentGrunnlagForGrunnlagId(behandlingId, (UUID)idEndring.getGrunnlagId2());
-                return new IAYGrunnlagDiff(grunnlag1, grunnlag2).diffResultat(kunSporedeEndringer);
-            }));
-        idDiff.hentDelresultat(YtelseFordelingAggregat.class).ifPresent(idEndring ->
-            sporedeEndringerDiff.leggTilSporetEndring(idEndring, () -> ytelseFordelingTjeneste.diffResultat(idEndring, kunSporedeEndringer)));
+        var sporedeEndringerDiff = EndringsresultatDiff.opprettForSporingsendringer();
+        idDiff.hentDelresultat(PersonInformasjonEntitet.class).ifPresent(idEndring -> sporedeEndringerDiff.leggTilSporetEndring(idEndring,
+                () -> diffResultatPersonopplysninger(idEndring)));
+        idDiff.hentDelresultat(FamilieHendelseGrunnlagEntitet.class).ifPresent(idEndring -> sporedeEndringerDiff.leggTilSporetEndring(idEndring,
+                () -> diffResultatFamilieHendelse(idEndring)));
+        idDiff.hentDelresultat(MedlemskapAggregat.class).ifPresent(idEndring -> sporedeEndringerDiff.leggTilSporetEndring(idEndring,
+                () -> diffResultatMedslemskap(idEndring)));
+        idDiff.hentDelresultat(InntektArbeidYtelseGrunnlag.class).ifPresent(idEndring -> sporedeEndringerDiff.leggTilSporetEndring(idEndring,
+                () -> diffResultatIay(behandlingId, idEndring)));
+        idDiff.hentDelresultat(YtelseFordelingAggregat.class).ifPresent(idEndring -> sporedeEndringerDiff.leggTilSporetEndring(idEndring,
+                () -> diffResultatYf(idEndring)));
         return sporedeEndringerDiff;
     }
 
+    private DiffResult diffResultatPersonopplysninger(EndringsresultatDiff idDiff) {
+        PersonopplysningGrunnlagEntitet grunnlag1 = personopplysningTjeneste.hentGrunnlagPåId((Long) idDiff.getGrunnlagId1());
+        PersonopplysningGrunnlagEntitet grunnlag2 = personopplysningTjeneste.hentGrunnlagPåId((Long) idDiff.getGrunnlagId2());
+        return new RegisterdataDiffsjekker(true).getDiffEntity().diff(grunnlag1, grunnlag2);
+    }
+
+    private DiffResult diffResultatFamilieHendelse(EndringsresultatDiff idDiff) {
+        var grunnlag1 = familieHendelseTjeneste.hentGrunnlagPåId((Long) idDiff.getGrunnlagId1());
+        var grunnlag2 = familieHendelseTjeneste.hentGrunnlagPåId((Long) idDiff.getGrunnlagId2());
+        return new RegisterdataDiffsjekker(true).getDiffEntity().diff(grunnlag1, grunnlag2);
+    }
+
+    private DiffResult diffResultatMedslemskap(EndringsresultatDiff idDiff) {
+        Objects.requireNonNull(idDiff.getGrunnlagId1(), "kan ikke diffe når id1 ikke er oppgitt");
+        Objects.requireNonNull(idDiff.getGrunnlagId2(), "kan ikke diffe når id2 ikke er oppgitt");
+
+        var grunnlag1 = medlemTjeneste.hentGrunnlagPåId((Long) idDiff.getGrunnlagId1())
+            .orElseThrow(() -> new IllegalStateException("id1 ikke kjent"));
+        var grunnlag2 = medlemTjeneste.hentGrunnlagPåId((Long) idDiff.getGrunnlagId2())
+            .orElseThrow(() -> new IllegalStateException("id2 ikke kjent"));
+        return new RegisterdataDiffsjekker(true).getDiffEntity().diff(grunnlag1, grunnlag2);
+    }
+
+    private DiffResult diffResultatIay(Long behandlingId, EndringsresultatDiff idEndring) {
+        var grunnlag1 = inntektArbeidYtelseTjeneste.hentGrunnlagPåId(behandlingId,
+            (UUID) idEndring.getGrunnlagId1());
+        var grunnlag2 = inntektArbeidYtelseTjeneste.hentGrunnlagPåId(behandlingId,
+            (UUID) idEndring.getGrunnlagId2());
+        return new IAYGrunnlagDiff(grunnlag1, grunnlag2).diffResultat(true);
+    }
+
+    private DiffResult diffResultatYf(EndringsresultatDiff idDiff) {
+        Objects.requireNonNull(idDiff.getGrunnlagId1(), "kan ikke diffe når id1 ikke er oppgitt");
+        Objects.requireNonNull(idDiff.getGrunnlagId2(), "kan ikke diffe når id2 ikke er oppgitt");
+
+        var grunnlag1 = ytelseFordelingTjeneste.hentGrunnlagPåId((Long) idDiff.getGrunnlagId1())
+            .orElseThrow(() -> new IllegalStateException("GrunnlagId1 må være oppgitt"));
+        var grunnlag2 = ytelseFordelingTjeneste.hentGrunnlagPåId((Long) idDiff.getGrunnlagId2())
+            .orElseThrow(() -> new IllegalStateException("GrunnlagId2 må være oppgitt"));
+        return new RegisterdataDiffsjekker(true).getDiffEntity().diff(grunnlag1, grunnlag2);
+    }
 }

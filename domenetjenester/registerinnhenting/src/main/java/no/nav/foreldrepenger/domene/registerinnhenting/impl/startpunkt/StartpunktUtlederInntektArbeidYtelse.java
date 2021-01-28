@@ -83,8 +83,8 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
         // Revurderinger skal normalt begynne i uttak.
         StartpunktType defaultStartpunktForRegisterEndringer = BehandlingType.FØRSTEGANGSSØKNAD.equals(ref.getBehandlingType()) ? StartpunktType.OPPTJENING : StartpunktType.UDEFINERT;
 
-        InntektArbeidYtelseGrunnlag grunnlag1 = iayTjeneste.hentGrunnlagForGrunnlagId(ref.getBehandlingId(), grunnlagId1);
-        InntektArbeidYtelseGrunnlag grunnlag2 = iayTjeneste.hentGrunnlagForGrunnlagId(ref.getBehandlingId(), grunnlagId2);
+        InntektArbeidYtelseGrunnlag grunnlag1 = iayTjeneste.hentGrunnlagPåId(ref.getBehandlingId(), grunnlagId1);
+        InntektArbeidYtelseGrunnlag grunnlag2 = iayTjeneste.hentGrunnlagPåId(ref.getBehandlingId(), grunnlagId2);
 
         LocalDate skjæringstidspunkt = ref.getUtledetSkjæringstidspunkt();
 

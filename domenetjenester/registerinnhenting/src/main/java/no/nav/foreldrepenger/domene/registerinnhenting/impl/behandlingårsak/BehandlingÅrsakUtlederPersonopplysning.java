@@ -37,8 +37,8 @@ class BehandlingÅrsakUtlederPersonopplysning implements BehandlingÅrsakUtleder
         long grunnlag1 = (long) grunnlagId1;
         long grunnlag2 = (long) grunnlagId2;
 
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = personopplysningRepository.hentPersonopplysningerPåId(grunnlag1);
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = personopplysningRepository.hentPersonopplysningerPåId(grunnlag2);
+        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = personopplysningRepository.hentGrunnlagPåId(grunnlag1);
+        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = personopplysningRepository.hentGrunnlagPåId(grunnlag2);
 
         PersonopplysningGrunnlagDiff poDiff = new PersonopplysningGrunnlagDiff(ref.getAktørId(), personopplysningGrunnlag1, personopplysningGrunnlag2);
         boolean forelderErDødEndret = poDiff.erForeldreDødsdatoEndret();

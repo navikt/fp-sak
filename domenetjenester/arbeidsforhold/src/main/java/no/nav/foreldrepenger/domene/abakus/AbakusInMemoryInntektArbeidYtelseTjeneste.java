@@ -98,7 +98,7 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
     }
 
     @Override
-    public InntektArbeidYtelseGrunnlag hentGrunnlagForGrunnlagId(Long behandlingId, UUID inntektArbeidYtelseGrunnlagId) {
+    public InntektArbeidYtelseGrunnlag hentGrunnlagPåId(Long behandlingId, UUID inntektArbeidYtelseGrunnlagId) {
         return grunnlag.stream().filter(g -> Objects.equals(g.getEksternReferanse(), inntektArbeidYtelseGrunnlagId))
                 .findFirst().orElseThrow();
     }
@@ -381,7 +381,7 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
         if (behGrunnlag.isEmpty()) {
             return Optional.empty();
         }
-        return behGrunnlag.stream().map(grId -> hentGrunnlagForGrunnlagId(behandlingId, grId))
+        return behGrunnlag.stream().map(grId -> hentGrunnlagPåId(behandlingId, grId))
                 .filter(gr -> gr.isAktiv())
                 .findFirst();
     }

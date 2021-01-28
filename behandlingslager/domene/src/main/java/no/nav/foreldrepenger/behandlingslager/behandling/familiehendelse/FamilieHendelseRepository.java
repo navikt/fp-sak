@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.RegisterdataDiffsjekker;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
-import no.nav.foreldrepenger.behandlingslager.diff.DiffResult;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 
 @ApplicationScoped
@@ -55,10 +54,6 @@ public class FamilieHendelseRepository {
         return aktivtFamilieHendelseGrunnlag.isPresent() ? Optional.of(aktivtFamilieHendelseGrunnlag.get()) : Optional.empty();
     }
 
-    public DiffResult diffResultat(FamilieHendelseGrunnlagEntitet grunnlag1, FamilieHendelseGrunnlagEntitet grunnlag2, boolean onlyCheckTrackedFields) {
-        return new RegisterdataDiffsjekker(onlyCheckTrackedFields).getDiffEntity().diff(grunnlag1, grunnlag2);
-    }
-
     private Optional<FamilieHendelseGrunnlagEntitet> getAktivtFamilieHendelseGrunnlag(Long behandlingId) {
         final TypedQuery<FamilieHendelseGrunnlagEntitet> query = entityManager.createQuery("FROM FamilieHendelseGrunnlag gr " + // NOSONAR //$NON-NLS-1$
             "WHERE gr.behandlingId = :behandlingId " + //$NON-NLS-1$
@@ -79,7 +74,8 @@ public class FamilieHendelseRepository {
 
         if (tidligereAggregat.isPresent()) {
             final FamilieHendelseGrunnlagEntitet aggregat = tidligereAggregat.get();
-            if (!diffResultat(aggregat, nyttGrunnlag, true).isEmpty()) {
+            var diff = new RegisterdataDiffsjekker(true).getDiffEntity().diff(aggregat, nyttGrunnlag);
+            if (!diff.isEmpty()) {
                 aggregat.setAktiv(false);
                 entityManager.persist(aggregat);
                 entityManager.flush();
@@ -256,11 +252,7 @@ public class FamilieHendelseRepository {
         fjernBekreftetData(behandlingId);
 
         verifiserBehandlingLås(lås);
-        getEntityManager().flush();
-    }
-
-    private EntityManager getEntityManager() {
-        return entityManager;
+        entityManager.flush();
     }
 
     // sjekk lås og oppgrader til skriv
@@ -352,20 +344,13 @@ public class FamilieHendelseRepository {
             .map(FamilieHendelseGrunnlagEntitet::getId);
     }
 
-    public FamilieHendelseGrunnlagEntitet hentFamilieHendelserPåGrunnlagId(Long aggregatId) {
-        Optional<FamilieHendelseGrunnlagEntitet> optGrunnlag = getVersjonAvFamiliehendelseGrunnlagPåId(
-            aggregatId);
-        return optGrunnlag.orElse(null);
-    }
-
-    private Optional<FamilieHendelseGrunnlagEntitet> getVersjonAvFamiliehendelseGrunnlagPåId(
-                                                                                             Long aggregatId) {
-        Objects.requireNonNull(aggregatId, "aggregatId"); // NOSONAR $NON-NLS-1$ //$NON-NLS-1$
-        final TypedQuery<FamilieHendelseGrunnlagEntitet> query = entityManager.createQuery("FROM FamilieHendelseGrunnlag gr " + // NOSONAR //$NON-NLS-1$
-            "WHERE gr.id = :aggregatId ", FamilieHendelseGrunnlagEntitet.class)
+    public FamilieHendelseGrunnlagEntitet hentGrunnlagPåId(Long grunnlagId) {
+        Objects.requireNonNull(grunnlagId, "grunnlagId"); // NOSONAR $NON-NLS-1$ //$NON-NLS-1$
+        var query = entityManager.createQuery("FROM FamilieHendelseGrunnlag gr " + // NOSONAR //$NON-NLS-1$
+            "WHERE gr.id = :grunnlagId ", FamilieHendelseGrunnlagEntitet.class)
            .setFlushMode(FlushModeType.COMMIT); //$NON-NLS-1$
-        query.setParameter("aggregatId", aggregatId); // NOSONAR //$NON-NLS-1$
-        return query.getResultStream().findFirst();
+        query.setParameter("grunnlagId", grunnlagId); // NOSONAR //$NON-NLS-1$
+        return query.getResultStream().findFirst().orElse(null);
     }
 
     /*
