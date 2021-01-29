@@ -81,11 +81,7 @@ public class VedtaksbrevUtleder {
     public static DokumentMalType velgNegativVedtaksmal(Behandling behandling, Behandlingsresultat behandlingsresultat) {
         FagsakYtelseType fagsakYtelseType = behandling.getFagsakYtelseType();
         if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsakYtelseType)) {
-            if (!ENV.isProd()) {
                 return DokumentMalType.AVSLAG_ENGANGSSTØNAD;
-            } else {
-                return DokumentMalType.AVSLAGSVEDTAK_DOK;
-            }
         }else if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
             if (behandlingsresultat.isBehandlingsresultatOpphørt()) {
                 return DokumentMalType.OPPHØR_DOK;

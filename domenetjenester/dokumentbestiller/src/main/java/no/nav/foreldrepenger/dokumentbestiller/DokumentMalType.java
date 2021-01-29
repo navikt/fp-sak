@@ -15,7 +15,6 @@ public enum DokumentMalType implements Kodeverdi {
     //Mal hos team dokument
     INNHENT_DOK("INNHEN", "Innhent dokumentasjon"),
     HENLEGG_BEHANDLING_DOK("HENLEG", "Behandling henlagt"),
-    AVSLAGSVEDTAK_DOK("AVSLAG", "Avslagsbrev"),
     UENDRETUTFALL_DOK("UENDRE", "Uendret utfall"),
     REVURDERING_DOK("REVURD", "Varsel om revurdering"),
     FORLENGET_DOK("FORLEN", "Forlenget saksbehandlingstid"),
@@ -65,6 +64,8 @@ public enum DokumentMalType implements Kodeverdi {
     POSITIVT_VEDTAK_DOK("POSVED", "Positivt vedtaksbrev"),
     @Deprecated
     INNTEKTSMELDING_FOR_TIDLIG_DOK("INNTID", "Ikke mottatt søknad"),
+    @Deprecated
+    AVSLAGSVEDTAK_DOK("AVSLAG", "Avslagsbrev"),
 
     ;
 
