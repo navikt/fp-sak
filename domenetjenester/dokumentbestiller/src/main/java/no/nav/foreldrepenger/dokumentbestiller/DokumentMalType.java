@@ -47,6 +47,7 @@ public enum DokumentMalType implements Kodeverdi {
     VARSEL_OM_REVURDERING("VARREV", "Varsel om revurdering"),
     INFO_OM_HENLEGGELSE("IOHENL", "Behandling henlagt"),
     IKKE_SØKT("IKKESO", "Ikke mottatt søknad"),
+    INNSYN_SVAR( "INNSYN", "Svar på innsynskrav"),
     INGEN_ENDRING("INGEND", "Uendret utfall"),
 
     // Disse brevene er utgåtte, men beholdes her grunnet historisk bruk i databasen:
@@ -82,7 +83,7 @@ public enum DokumentMalType implements Kodeverdi {
 
     private String kode;
 
-    private DokumentMalType(String kode, String navn) {
+    DokumentMalType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
     }

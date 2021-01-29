@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
+import no.nav.vedtak.util.env.Environment;
 
 @BehandlingStegRef(kode = "IVEDSTEG")
 @BehandlingTypeRef("BT-006") // Innsyn
@@ -52,7 +53,9 @@ public class IverksetteInnsynVedtakStegFelles implements IverksetteVedtakSteg {
         Aksjonspunkt ap = behandlingRepository.hentBehandling(kontekst.getBehandlingId()).getAksjonspunktFor(AksjonspunktDefinisjon.FORESLÅ_VEDTAK);
         String begrunnelse = ap.getBegrunnelse();
         String fritekst = nullOrEmpty(begrunnelse) ? " " : begrunnelse;
-        return new BestillBrevDto(kontekst.getBehandlingId(), DokumentMalType.INNSYNSKRAV_SVAR, fritekst);
+
+        return Environment.current().isProd() ? new BestillBrevDto(kontekst.getBehandlingId(), DokumentMalType.INNSYNSKRAV_SVAR, fritekst)
+            : new BestillBrevDto(kontekst.getBehandlingId(), DokumentMalType.INNSYN_SVAR, fritekst);
     }
 
     private boolean nullOrEmpty(String begrunnelse) {
