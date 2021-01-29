@@ -94,7 +94,7 @@ public class Feriepengesammenligner {
         summert.entrySet().stream()
             .filter(e -> Math.abs(e.getValue().longValue()) > 3)
             .forEach(e -> LOGGER.info("{} andel {} saksnummer {} behandling {} år {} mottaker {} diff {} gammel {} ny {}",
-                AVVIK_KODE, erAvvik(summertÅr.get(e.getKey().getOpptjent())) ? "oppdrag-tilkjent" : "omfordelt",
+                AVVIK_KODE, erAvvik(summertÅr.get(e.getKey().getOpptjent())) ? "tilkjent-simulert" : "omfordelt",
                 saksnummer, behandlingId, e.getKey().getOpptjent(), e.getKey().getMottaker(), e.getValue().longValue(),
                 tilkjent.getOrDefault(e.getKey(), Beløp.ZERO).getVerdi().longValue(),
                 simulert.getOrDefault(e.getKey(), Beløp.ZERO).getVerdi().longValue()));

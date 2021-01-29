@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.økonomi.feriepengeavstemming;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.Year;
 import java.util.Collection;
 import java.util.Collections;
@@ -64,11 +63,11 @@ public class Feriepengeavstemmer {
         if (behandling == null || beregningsresultatOpt.isEmpty()) {
             return false;
         }
-        String saksnummer = behandling.getFagsak().getSaksnummer().getVerdi();
+        var saksnummer = behandling.getFagsak().getSaksnummer();
         List<BeregningsresultatFeriepengerPrÅr> feriepengerAndeler = beregningsresultatOpt.get().getBeregningsresultatFeriepenger()
             .map(BeregningsresultatFeriepenger::getBeregningsresultatFeriepengerPrÅrListe)
             .orElse(Collections.emptyList());
-        List<Oppdrag110> positiveOppdrag = hentOppdragMedPositivKvittering.hentOppdragMedPositivKvittering(behandling);
+        List<Oppdrag110> positiveOppdrag = hentOppdragMedPositivKvittering.hentOppdragMedPositivKvittering(saksnummer);
 
         var oppdrag = sorterteOppdragFeriepenger(positiveOppdrag);
         var tilkjent = sorterteTilkjenteFeriepenger(feriepengerAndeler);
@@ -83,50 +82,13 @@ public class Feriepengeavstemmer {
         summertÅr.entrySet().stream()
             .filter(e -> Math.abs(e.getValue().longValue()) > 3)
             .forEach(e -> LOGGER.info("{} årlig oppdrag-tilkjent saksnummer {} behandling {} år {} diff {}",
-                AVVIK_KODE, saksnummer, behandlingId, e.getKey(), e.getValue().longValue()));
+                AVVIK_KODE, saksnummer.getVerdi(), behandlingId, e.getKey(), e.getValue().longValue()));
 
         summert.entrySet().stream()
             .filter(e -> Math.abs(e.getValue().longValue()) > 3)
             .forEach(e -> LOGGER.info("{} andel {} saksnummer {} behandling {} år {} mottaker {} diff {}",
                 AVVIK_KODE, erAvvik(summertÅr.get(e.getKey().getOpptjent())) ? "oppdrag-tilkjent" : "omfordelt",
-                saksnummer, behandlingId, e.getKey().getOpptjent(), e.getKey().getMottaker(), e.getValue().longValue()));
-        /*
-        List<FeriepengeOppdrag> fpOppdrag = sorterteFeriepenger(positiveOppdrag);
-
-        boolean avvikErFunnet = false;
-        Map<FeriepengeAndel.MottakerPrÅr, List<FeriepengeAndel>> feriepengerPrMottakerÅrMap = aggregerFeriepengeandeler(feriepengerAndeler);
-        // Sammenlign tilkjent ytelse mot oppdrag
-        for (var entry : feriepengerPrMottakerÅrMap.entrySet()) {
-            FeriepengeAndel.MottakerPrÅr mottaker = entry.getKey();
-            List<FeriepengeOppdrag> matchendeOppdrag = finnMatchendeOppdragForTilkjentYtelse(mottaker, fpOppdrag);
-            long oppdragLongSum = matchendeOppdrag.stream().mapToLong(FeriepengeOppdrag::getSats).reduce(Long::sum).orElse(0L);
-            BigDecimal oppdragSum = BigDecimal.valueOf(oppdragLongSum);
-            BigDecimal beregnedeFeriepenger = entry.getValue().stream().map(FeriepengeAndel::getBeløp).reduce(Beløp::adder).orElse(Beløp.ZERO).getVerdi();
-            BigDecimal diff = beregnedeFeriepenger.subtract(oppdragSum);
-            if (diff.compareTo(BigDecimal.ZERO) != 0) {
-                String mottakerBeskrivelse = mottaker.isSøkerErMottaker() ? "SØKER" : mottaker.getOrgnr();
-                avvikErFunnet = true;
-                LOGGER.info("{} Avvik mellom ny og gammel feriepengeberegning på saksnummer {} behandling {}\n  Mottaker {}\n Oppdragsum {}\n  Feriepengegrunnlag {} Diff {}",
-                    AVVIK_KODE, saksnummer, behandlingId, mottakerBeskrivelse, oppdragSum.longValue(), beregnedeFeriepenger.longValue(), diff.longValue());
-            }
-        }
-        Map<FeriepengeOppdrag.OppdragMottakerPrÅr, List<FeriepengeOppdrag>> oppdragMottakerPrÅrMap = fpOppdrag.stream().collect(Collectors.groupingBy(FeriepengeOppdrag::getMottaker));
-        // Sammenlign oppdrag mot tilkjent ytelse
-        for (var entry : oppdragMottakerPrÅrMap.entrySet()) {
-            FeriepengeOppdrag.OppdragMottakerPrÅr oppdragMottakerPrÅr = entry.getKey();
-            List<BeregningsresultatFeriepengerPrÅr> matchendeTilkjentYtelse = finnMatchendeTilkjentYtelseForOppdrag(oppdragMottakerPrÅr, feriepengerAndeler);
-            BigDecimal tilkjentYtelseSum = matchendeTilkjentYtelse.stream().map(BeregningsresultatFeriepengerPrÅr::getÅrsbeløp).reduce(Beløp::adder).orElse(Beløp.ZERO).getVerdi();
-            long oppdragSumLong = entry.getValue().stream().mapToLong(FeriepengeOppdrag::getSats).reduce(Long::sum).orElse(0L);
-            BigDecimal oppdragSum = BigDecimal.valueOf(oppdragSumLong);
-            BigDecimal diff = oppdragSum.subtract(tilkjentYtelseSum);
-            if (diff.compareTo(BigDecimal.ZERO) != 0) {
-                String mottakerBeskrivelse = oppdragMottakerPrÅr.isErSøker() ? "SØKER" : oppdragMottakerPrÅr.getMottakerId();
-                avvikErFunnet = true;
-                LOGGER.info("{} Avvik mellom ny og gammel feriepengeberegning på saksnummer {} behandling {}\n  Mottaker {}\n Oppdragsum {}\n  Feriepengegrunnlag {} Diff {}",
-                    AVVIK_KODE, saksnummer, behandlingId, mottakerBeskrivelse, oppdragSum.longValue(), tilkjentYtelseSum.longValue(), diff.longValue());
-            }
-        }
-         */
+                saksnummer.getVerdi(), behandlingId, e.getKey().getOpptjent(), e.getKey().getMottaker(), e.getValue().longValue()));
 
         return summert.values().stream().anyMatch(Feriepengeavstemmer::erAvvik);
     }
@@ -135,60 +97,8 @@ public class Feriepengeavstemmer {
         return Math.abs(diff.longValue()) > 3;
     }
 
-    private List<BeregningsresultatFeriepengerPrÅr> finnMatchendeTilkjentYtelseForOppdrag(FeriepengeOppdrag.OppdragMottakerPrÅr oppdragMottakerPrÅr, List<BeregningsresultatFeriepengerPrÅr> feriepengerAndeler) {
-        if (oppdragMottakerPrÅr.isErSøker()) {
-            return feriepengerAndeler.stream()
-                .filter( fpa -> matcherUtbetalingÅr(oppdragMottakerPrÅr, fpa) && fpa.getBeregningsresultatAndel().erBrukerMottaker())
-                .collect(Collectors.toList());
-        } else {
-            return feriepengerAndeler.stream()
-                .filter( fpa -> matcherUtbetalingÅr(oppdragMottakerPrÅr, fpa)
-                    && !fpa.getBeregningsresultatAndel().erBrukerMottaker()
-                    && oppdragMottakerPrÅr.getMottakerId().equals(finnOrgnrFraTilkjentYtelse(fpa)))
-                .collect(Collectors.toList());
-        }
-    }
 
-    private String finnOrgnrFraTilkjentYtelse(BeregningsresultatFeriepengerPrÅr fpa) {
-        Optional<String> orgnr = fpa.getBeregningsresultatAndel().getArbeidsgiver().map(Arbeidsgiver::getOrgnr);
-        return orgnr.map(this::lagMottakerRefusjonId).orElse(null);
-    }
-
-    private Map<FeriepengeAndel.MottakerPrÅr, List<FeriepengeAndel>> aggregerFeriepengeandeler(List<BeregningsresultatFeriepengerPrÅr> feriepengerAndeler) {
-        List<FeriepengeAndel> feriepengeandeler = feriepengerAndeler.stream().map(andel -> new FeriepengeAndel(andel.getBeregningsresultatAndel().erBrukerMottaker(),
-            andel.getBeregningsresultatAndel().getArbeidsgiver().map(Arbeidsgiver::getOrgnr).orElse(null),
-            andel.getOpptjeningsår(),
-            andel.getÅrsbeløp()))
-            .collect(Collectors.toList());
-        return feriepengeandeler.stream().collect(Collectors.groupingBy(FeriepengeAndel::getMottakerPrÅr));
-
-    }
-
-    private List<FeriepengeOppdrag> finnMatchendeOppdragForTilkjentYtelse(FeriepengeAndel.MottakerPrÅr fpAndel, List<FeriepengeOppdrag> fpOppdrag) {
-        if (fpAndel.isSøkerErMottaker()) {
-            return fpOppdrag.stream().filter(fpo -> fpo.getMottakerPerson() != null && matcherUtbetalingÅr(fpAndel, fpo)).collect(Collectors.toList());
-        } else {
-            return fpOppdrag.stream().filter(fpo -> fpo.getMottakerRefusjon() != null
-                && fpo.getMottakerRefusjon().equals(lagMottakerRefusjonId(fpAndel.getOrgnr()))
-                && matcherUtbetalingÅr(fpAndel, fpo)).collect(Collectors.toList());
-        }
-    }
-
-    private String lagMottakerRefusjonId(String orgnr) {
-        return String.format("00%s", orgnr);
-    }
-
-    private boolean matcherUtbetalingÅr(FeriepengeAndel.MottakerPrÅr fpAndel, FeriepengeOppdrag fpoppdrag) {
-        LocalDate utbetalingFom = LocalDate.of(fpAndel.getOpptjeningsår().getYear() + 1, 5, 1);
-        return utbetalingFom.equals(fpoppdrag.getUtbetalesFom());
-    }
-
-    private boolean matcherUtbetalingÅr(FeriepengeOppdrag.OppdragMottakerPrÅr oppdragMottaker, BeregningsresultatFeriepengerPrÅr fpAndel) {
-        LocalDate utbetalingFom = LocalDate.of(fpAndel.getOpptjeningsår().getYear() + 1, 5, 1);
-        return utbetalingFom.equals(oppdragMottaker.getUtbetalesFom());
-    }
-
-   private static String mottakerFraBRAndel(BeregningsresultatAndel andel) {
+    private static String mottakerFraBRAndel(BeregningsresultatAndel andel) {
        return andel.erBrukerMottaker() ? BRUKER : andel.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(ARBGIVER);
    }
 
