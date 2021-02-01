@@ -46,8 +46,7 @@ public class OpprettOppdragTjeneste {
             .build();
     }
 
-    public static Avstemming115 opprettAvstemming115() {
-        String localDateTimeStr = ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now());
+    public static Avstemming115 opprettAvstemming115(String localDateTimeStr) {
         return Avstemming115.builder()
             .medKodekomponent(ØkonomiKodekomponent.VLFP.getKodekomponent())
             .medNokkelAvstemming(localDateTimeStr)

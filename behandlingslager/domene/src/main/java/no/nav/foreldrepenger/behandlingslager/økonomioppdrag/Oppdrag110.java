@@ -66,6 +66,10 @@ public class Oppdrag110 extends BaseEntitet {
     @Column(name = "saksbeh_id", nullable = false)
     private String saksbehId;
 
+    // Avstemmingsnøkkel - brukes til å matche oppdragsmeldinger i avstemmingen
+    @Column(name = "nokkel_avstemming")
+    private String nokkelAvstemming;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "oppdrags_kontroll_id", nullable = false, updatable = false)
     @JsonBackReference
@@ -88,15 +92,14 @@ public class Oppdrag110 extends BaseEntitet {
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "oppdrag110", cascade = CascadeType.PERSIST)
     private Ompostering116 ompostering116;
 
-    public Oppdrag110() {
+    private Oppdrag110() {}
+
+    public static Builder builder() {
+        return new Builder();
     }
 
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getKodeAksjon() {
@@ -115,10 +118,6 @@ public class Oppdrag110 extends BaseEntitet {
         return fagsystemId;
     }
 
-    public void setFagsystemId(long fagsystemId) {
-        this.fagsystemId = fagsystemId;
-    }
-
     public String getUtbetFrekvens() {
         return utbetFrekvens;
     }
@@ -135,12 +134,12 @@ public class Oppdrag110 extends BaseEntitet {
         return saksbehId;
     }
 
-    public Oppdragskontroll getOppdragskontroll() {
-        return oppdragskontroll;
+    public String getNokkelAvstemming() {
+        return nokkelAvstemming;
     }
 
-    public void setOppdragskontroll(Oppdragskontroll oppdragskontroll) {
-        this.oppdragskontroll = oppdragskontroll;
+    public Oppdragskontroll getOppdragskontroll() {
+        return oppdragskontroll;
     }
 
     public List<Oppdragslinje150> getOppdragslinje150Liste() {
@@ -178,10 +177,6 @@ public class Oppdrag110 extends BaseEntitet {
         return avstemming115;
     }
 
-    public void setAvstemming115(Avstemming115 avstemming115) {
-        this.avstemming115 = avstemming115;
-    }
-
     public Optional<Ompostering116> getOmpostering116() {
         return Optional.ofNullable(ompostering116);
     }
@@ -192,6 +187,10 @@ public class Oppdrag110 extends BaseEntitet {
 
     public boolean venterKvittering() {
         return !erKvitteringMottatt();
+    }
+
+    public long getVersjon() {
+        return versjon;
     }
 
     /**
@@ -232,12 +231,21 @@ public class Oppdrag110 extends BaseEntitet {
             datoOppdragGjelderFom, saksbehId);
     }
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public long getVersjon() {
-        return versjon;
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "<" + //$NON-NLS-1$
+            (id != null ? "id=" + id + ", " : "") //$NON-NLS-1$ //$NON-NLS-2$
+            + "kodeAksjon=" + kodeAksjon + ", " //$NON-NLS-1$ //$NON-NLS-2$
+            + "kodeEndring=" + kodeEndring + ", " //$NON-NLS-1$ //$NON-NLS-2$
+            + "kodeFagomrade=" + kodeFagomrade + "," //$NON-NLS-1$ //$NON-NLS-2$
+            + "fagsystemId=" + fagsystemId + "," //$NON-NLS-1$ //$NON-NLS-2$
+            + "utbetFrekvens=" + utbetFrekvens + "," //$NON-NLS-1$ //$NON-NLS-2$
+            + "oppdragGjelderId=" + oppdragGjelderId + "," //$NON-NLS-1$ //$NON-NLS-2$
+            + "datoOppdragGjelderFom=" + datoOppdragGjelderFom + "," //$NON-NLS-1$ //$NON-NLS-2$
+            + "saksbehId=" + saksbehId + "," //$NON-NLS-1$ //$NON-NLS-2$
+            + "nokkelAvstemming=" + nokkelAvstemming + "," //$NON-NLS-1$ //$NON-NLS-2$
+            + "opprettetTs=" + getOpprettetTidspunkt() //$NON-NLS-1$
+            + ">"; //$NON-NLS-1$
     }
 
     public static class Builder {
@@ -249,6 +257,7 @@ public class Oppdrag110 extends BaseEntitet {
         private String oppdragGjelderId;
         private LocalDate datoOppdragGjelderFom;
         private String saksbehId;
+        private String nøkkelAvstemming;
         private Oppdragskontroll oppdragskontroll;
         private Avstemming115 avstemming115;
         private Ompostering116 ompostering116;
@@ -293,6 +302,11 @@ public class Oppdrag110 extends BaseEntitet {
             return this;
         }
 
+        public Builder medNøkkelAvstemming(String nøkkelAvstemming) {
+            this.nøkkelAvstemming = nøkkelAvstemming;
+            return this;
+        }
+
         public Builder medOppdragskontroll(Oppdragskontroll oppdragskontroll) {
             this.oppdragskontroll = oppdragskontroll;
             return this;
@@ -319,6 +333,7 @@ public class Oppdrag110 extends BaseEntitet {
             oppdrag110.oppdragGjelderId = oppdragGjelderId;
             oppdrag110.datoOppdragGjelderFom = datoOppdragGjelderFom;
             oppdrag110.saksbehId = saksbehId;
+            oppdrag110.nokkelAvstemming = nøkkelAvstemming;
             oppdrag110.oppdragskontroll = oppdragskontroll;
             oppdrag110.avstemming115 = avstemming115;
 
@@ -341,24 +356,9 @@ public class Oppdrag110 extends BaseEntitet {
             Objects.requireNonNull(oppdragGjelderId, "oppdragGjelderId");
             Objects.requireNonNull(datoOppdragGjelderFom, "datoOppdragGjelderFom");
             Objects.requireNonNull(saksbehId, "saksbehId");
+            Objects.requireNonNull(nøkkelAvstemming, "nøkkelAvstemming");
             Objects.requireNonNull(oppdragskontroll, "oppdragskontroll");
             Objects.requireNonNull(avstemming115, "avstemming115");
         }
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "<" + //$NON-NLS-1$
-            (id != null ? "id=" + id + ", " : "") //$NON-NLS-1$ //$NON-NLS-2$
-            + "kodeAksjon=" + kodeAksjon + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "kodeEndring=" + kodeEndring + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "kodeFagomrade=" + kodeFagomrade + "," //$NON-NLS-1$ //$NON-NLS-2$
-            + "fagsystemId=" + fagsystemId + "," //$NON-NLS-1$ //$NON-NLS-2$
-            + "utbetFrekvens=" + utbetFrekvens + "," //$NON-NLS-1$ //$NON-NLS-2$
-            + "oppdragGjelderId=" + oppdragGjelderId + "," //$NON-NLS-1$ //$NON-NLS-2$
-            + "datoOppdragGjelderFom=" + datoOppdragGjelderFom + "," //$NON-NLS-1$ //$NON-NLS-2$
-            + "saksbehId=" + saksbehId + "," //$NON-NLS-1$ //$NON-NLS-2$
-            + "opprettetTs=" + getOpprettetTidspunkt() //$NON-NLS-1$
-            + ">"; //$NON-NLS-1$
     }
 }

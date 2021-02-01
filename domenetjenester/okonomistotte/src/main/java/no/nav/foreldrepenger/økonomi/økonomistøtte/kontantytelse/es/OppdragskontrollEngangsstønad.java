@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.økonomi.økonomistøtte.kontantytelse.es;
 
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -25,6 +26,7 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollManager;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OpprettOppdragTjeneste;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.kontantytelse.es.adapter.MapBehandlingInfoES;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.kontantytelse.es.wrapper.OppdragInputES;
+import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomistøtteUtils;
 
 @ApplicationScoped
 public class OppdragskontrollEngangsstønad implements OppdragskontrollManager {
@@ -55,8 +57,9 @@ public class OppdragskontrollEngangsstønad implements OppdragskontrollManager {
     public Oppdragskontroll opprettØkonomiOppdrag(Behandling behandling, Oppdragskontroll nyOppdragskontroll) {
         OppdragInputES behandlingInfo = mapBehandlingInfo.oppsettBehandlingInfo(behandling);
         Optional<Oppdrag110> forrigeOppdragOpt = behandlingInfo.getForrigeOppddragForSak();
-        Avstemming115 avstemming115 = OpprettOppdragTjeneste.opprettAvstemming115();
-        Oppdrag110 oppdrag110 = opprettOppdrag110ES(behandlingInfo, nyOppdragskontroll, avstemming115, forrigeOppdragOpt);
+        String nøkkelAvstemmingTidspunkt = ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now());
+        Avstemming115 avstemming115 = OpprettOppdragTjeneste.opprettAvstemming115(nøkkelAvstemmingTidspunkt);
+        Oppdrag110 oppdrag110 = opprettOppdrag110ES(behandlingInfo, nyOppdragskontroll, avstemming115, forrigeOppdragOpt, nøkkelAvstemmingTidspunkt);
         OpprettOppdragTjeneste.opprettOppdragsenhet120(oppdrag110);
         Oppdragslinje150 oppdragslinje150 = opprettOppdragslinje150ES(behandlingInfo, oppdrag110, forrigeOppdragOpt);
         OpprettOppdragTjeneste.opprettAttestant180(oppdragslinje150, behandlingInfo.getAnsvarligSaksbehandler());
@@ -64,7 +67,7 @@ public class OppdragskontrollEngangsstønad implements OppdragskontrollManager {
     }
 
     private Oppdrag110 opprettOppdrag110ES(OppdragInputES behandlingInfo, Oppdragskontroll oppdragskontroll,
-                                           Avstemming115 avstemming115, Optional<Oppdrag110> forrigeOppdragOpt) {
+                                           Avstemming115 avstemming115, Optional<Oppdrag110> forrigeOppdragOpt, String nøkkelAvstemming) {
         long fagsystemId = OpprettOppdragTjeneste.genererFagsystemId(Long.parseLong(behandlingInfo.getSaksnummer().getVerdi()), INITIAL_VALUE);
         String kodeEndring = forrigeOppdragOpt.isPresent() ? KODE_ENDRING_UENDRET : KODE_ENDRING_NY;
 
@@ -78,6 +81,7 @@ public class OppdragskontrollEngangsstønad implements OppdragskontrollManager {
             .medDatoOppdragGjelderFom(LocalDate.of(2000, 1, 1))
             .medSaksbehId(behandlingInfo.getAnsvarligSaksbehandler())
             .medOppdragskontroll(oppdragskontroll)
+            .medNøkkelAvstemming(nøkkelAvstemming)
             .medAvstemming115(avstemming115)
             .build();
     }

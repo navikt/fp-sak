@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.økonomi.økonomistøtte;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -68,6 +69,7 @@ class ØkonomiOppdragUtils {
             .medOppdragGjelderId(BehandleØkonomioppdragKvitteringTest.OPPDRAGGJELDERID)
             .medDatoOppdragGjelderFom(LocalDate.now())
             .medSaksbehId(BehandleØkonomioppdragKvitteringTest.SAKSBEHID)
+            .medNøkkelAvstemming(ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now()))
             .medOppdragskontroll(oppdrag)
             .build();
         new Oppdragsenhet120.Builder()
@@ -110,6 +112,7 @@ class ØkonomiOppdragUtils {
                 .medOppdragGjelderId(BehandleØkonomioppdragKvitteringTest.OPPDRAGGJELDERID)
                 .medDatoOppdragGjelderFom(LocalDate.now())
                 .medSaksbehId(BehandleØkonomioppdragKvitteringTest.SAKSBEHID)
+                .medNøkkelAvstemming(ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now()))
                 .medOppdragskontroll(oppdrag)
                 .build();
             new Oppdragsenhet120.Builder()

@@ -109,6 +109,7 @@ public class GrensesnittavstemmingBatchTjenesteTest {
         when(a115.getNokkelAvstemming()).thenReturn(localDateTimeStr);
         when(a115.getTidspnktMelding()).thenReturn(localDateTimeStr);
         Oppdrag110 o110 = new Oppdrag110.Builder().medAvstemming115(a115)
+            .medNøkkelAvstemming(localDateTimeStr)
             .medKodeAksjon(BehandleØkonomioppdragKvitteringTest.KODEAKSJON)
             .medKodeEndring(BehandleØkonomioppdragKvitteringTest.KODEENDRING)
             .medKodeFagomrade(BehandleØkonomioppdragKvitteringTest.KODEFAGOMRADE_ES)

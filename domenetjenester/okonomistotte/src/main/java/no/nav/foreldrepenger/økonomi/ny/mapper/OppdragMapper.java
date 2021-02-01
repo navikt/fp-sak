@@ -50,6 +50,8 @@ public class OppdragMapper {
     }
 
     public void mapTilOppdrag110(Oppdrag oppdrag, Oppdragskontroll oppdragskontroll) {
+        String localDateTimeStr = ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now());
+        
         Oppdrag110.Builder builder = Oppdrag110.builder()
             .medOppdragskontroll(oppdragskontroll)
             .medKodeAksjon(ØkonomiKodeAksjon.EN.getKodeAksjon())
@@ -60,7 +62,8 @@ public class OppdragMapper {
             .medOppdragGjelderId(fnrBruker)
             .medDatoOppdragGjelderFom(LocalDate.of(2000, 1, 1))
             .medSaksbehId(ansvarligSaksbehandler)
-            .medAvstemming115(opprettAvstemming115());
+            .medNøkkelAvstemming(localDateTimeStr)
+            .medAvstemming115(opprettAvstemming115(localDateTimeStr));
 
         if (oppdrag.getBetalingsmottaker() == Betalingsmottaker.BRUKER && !oppdragErTilNyMottaker(oppdrag) && !erOpphørForMottaker(oppdrag)) {
             builder.medOmpostering116(opprettOmpostering116(oppdrag.getEndringsdato(), input.brukInntrekk(), ansvarligSaksbehandler));
@@ -148,8 +151,7 @@ public class OppdragMapper {
         return oppdragslinje150;
     }
 
-    public static Avstemming115 opprettAvstemming115() {
-        String localDateTimeStr = ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now());
+    public static Avstemming115 opprettAvstemming115(String localDateTimeStr) {
         return Avstemming115.builder()
             .medKodekomponent(ØkonomiKodekomponent.VLFP.getKodekomponent())
             .medNokkelAvstemming(localDateTimeStr)

@@ -118,6 +118,7 @@ class TidligereOppdragTjenesteTest {
             .medDatoOppdragGjelderFom(LocalDate.of(2020, 1, 1))
             .medSaksbehId("Z111111")
             .medOppdragskontroll(oppdragskontroll)
+            .medNøkkelAvstemming("foo")
             .medAvstemming115(Avstemming115.builder()
                 .medNokkelAvstemming("foo")
                 .medKodekomponent(ØkonomiKodekomponent.VLFP.getKodekomponent())

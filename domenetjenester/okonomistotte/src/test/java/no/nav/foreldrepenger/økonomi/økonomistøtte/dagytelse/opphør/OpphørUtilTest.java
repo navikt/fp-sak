@@ -154,6 +154,7 @@ public class OpphørUtilTest {
                 .medOppdragGjelderId("11111111111")
                 .medDatoOppdragGjelderFom(LocalDate.of(2020, 1, 1))
                 .medSaksbehId("Z111111")
+                .medNøkkelAvstemming("foo")
                 .medOppdragskontroll(oppdragskontroll)
                 .medAvstemming115(Avstemming115.builder()
                         .medNokkelAvstemming("foo")

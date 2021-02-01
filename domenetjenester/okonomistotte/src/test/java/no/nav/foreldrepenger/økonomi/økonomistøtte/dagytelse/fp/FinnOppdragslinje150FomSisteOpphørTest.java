@@ -181,6 +181,7 @@ public class FinnOppdragslinje150FomSisteOpphørTest {
             .medOppdragGjelderId("oppdraggjelderid")
             .medDatoOppdragGjelderFom(LocalDate.now())
             .medSaksbehId("saksbehid")
+            .medNøkkelAvstemming("nøkkel")
             .medOppdragskontroll(oppdragskontroll)
             .build();
     }

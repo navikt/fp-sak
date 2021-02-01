@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,6 +21,7 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.TfradragTillegg;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.TkodeStatusLinje;
 import no.nav.foreldrepenger.økonomi.behandlingslager.ØkonomiTestBasis;
+import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomistøtteUtils;
 
 public class Attestant180EntityTest extends ØkonomiTestBasis {
     private Attestant180.Builder attestant180Builder;
@@ -144,6 +146,7 @@ public class Attestant180EntityTest extends ØkonomiTestBasis {
     }
 
     private Oppdrag110.Builder lagOppdrag110MedPaakrevdeFelter() {
+        String nøkkleAvstemmingTidspunkt = ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now());
         return Oppdrag110.builder()
                 .medKodeAksjon(KODEAKSJON)
                 .medKodeEndring(KODEENDRING)
@@ -153,8 +156,9 @@ public class Attestant180EntityTest extends ØkonomiTestBasis {
                 .medOppdragGjelderId(OPPDRAGGJELDERID)
                 .medDatoOppdragGjelderFom(DATOOPPDRAGGJELDERFOM)
                 .medSaksbehId(SAKSBEHID)
+                .medNøkkelAvstemming(nøkkleAvstemmingTidspunkt)
                 .medOppdragskontroll(lagOppdragskontrollMedPaakrevdeFelter().build())
-                .medAvstemming115(lagAvstemming115MedPaakrevdeFelter().build());
+                .medAvstemming115(lagAvstemming115MedPaakrevdeFelter(nøkkleAvstemmingTidspunkt).build());
     }
 
     private Oppdragskontroll.Builder lagOppdragskontrollMedPaakrevdeFelter() {
