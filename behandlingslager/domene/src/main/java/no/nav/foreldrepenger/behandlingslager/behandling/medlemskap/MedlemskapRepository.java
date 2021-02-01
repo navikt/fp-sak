@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.medlemskap;
 
 import java.util.Collection;
-import java.util.Objects;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -10,11 +9,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
 import no.nav.foreldrepenger.behandlingslager.TraverseEntityGraphFactory;
-import no.nav.foreldrepenger.behandlingslager.behandling.RegisterdataDiffsjekker;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.diff.DiffEntity;
-import no.nav.foreldrepenger.behandlingslager.diff.DiffResult;
 import no.nav.foreldrepenger.behandlingslager.diff.TraverseGraph;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 
@@ -117,9 +114,8 @@ public class MedlemskapRepository {
     }
 
     public void lagreMedlemskapRegistrert(MedlemskapRegistrertEntitet ny) {
-        EntityManager em = getEntityManager();
-        em.persist(ny);
-        em.flush();
+        entityManager.persist(ny);
+        entityManager.flush();
     }
 
     /** Lagre vurderte opplysninger om meldemskap slik det har blitt gjort av Saksbehandler eller av systemet automatisk. Merk at implementasjonen står fritt til å ta en kopi av oppgitte data.*/
@@ -132,29 +128,28 @@ public class MedlemskapRepository {
         oppdaterLås(lås);
     }
 
-    protected void lagreOgFlush(@SuppressWarnings("unused") Long behandlingId,
+    protected void lagreOgFlush(Long behandlingId,
                                 Optional<MedlemskapBehandlingsgrunnlagEntitet> tidligereGrunnlagOpt,
                                 MedlemskapBehandlingsgrunnlagEntitet nyttGrunnlag) {
 
-        EntityManager em = getEntityManager();
 
         if (tidligereGrunnlagOpt.isPresent()) {
             MedlemskapBehandlingsgrunnlagEntitet tidligereGrunnlag = tidligereGrunnlagOpt.get();
             boolean erForskjellig = medlemskapAggregatDiffer(false).areDifferent(tidligereGrunnlag, nyttGrunnlag);
             if (erForskjellig) {
                 tidligereGrunnlag.setAktiv(false);
-                em.persist(tidligereGrunnlag);
-                em.flush();
-                em.persist(nyttGrunnlag);
+                entityManager.persist(tidligereGrunnlag);
+                entityManager.flush();
+                entityManager.persist(nyttGrunnlag);
             } else {
                 return;
             }
 
         } else {
-            em.persist(nyttGrunnlag);
+            entityManager.persist(nyttGrunnlag);
         }
 
-        em.flush();
+        entityManager.flush();
     }
 
     /** Lagre oppgitte opplysninger om oppgitt tilknytning slik det kan brukes i vurdering av Medlemskap. Merk at implementasjonen står fritt til å ta en kopi av oppgitte data.*/
@@ -180,7 +175,7 @@ public class MedlemskapRepository {
         MedlemskapBehandlingsgrunnlagEntitet nyttGrunnlag = MedlemskapBehandlingsgrunnlagEntitet.fra(gr, behandlingId,
             (VurdertMedlemskapEntitet) null);
         lagreOgFlush(behandlingId, gr, nyttGrunnlag);
-        getEntityManager().flush();
+        entityManager.flush();
     }
 
     protected void oppdaterLås(BehandlingLås lås) {
@@ -188,20 +183,13 @@ public class MedlemskapRepository {
     }
 
     public void lagreVurdertMedlemskap(VurdertMedlemskapEntitet ny) {
-        EntityManager em = getEntityManager();
-        em.persist(ny);
-        em.flush();
+        entityManager.persist(ny);
+        entityManager.flush();
     }
 
     public void lagreOppgittTilknytning(MedlemskapOppgittTilknytningEntitet ny) {
-        EntityManager em = getEntityManager();
-        em.persist(ny);
-        em.flush();
-    }
-
-    private EntityManager getEntityManager() {
-        Objects.requireNonNull(entityManager, "entityManager ikke satt"); //$NON-NLS-1$
-        return entityManager;
+        entityManager.persist(ny);
+        entityManager.flush();
     }
 
     private Optional<MedlemskapAggregat> hentMedlemskap(Optional<MedlemskapBehandlingsgrunnlagEntitet> optGrunnlag) {
@@ -293,11 +281,9 @@ public class MedlemskapRepository {
     }
 
     private void lagreVurdertLøpendeMedlemskap(VurdertMedlemskapPeriodeEntitet ny) {
-        EntityManager em = getEntityManager();
-        em.persist(ny);
+        entityManager.persist(ny);
         ny.getPerioder().forEach(vurdertLøpendeMedlemskap -> {
-            VurdertLøpendeMedlemskapEntitet entitet = vurdertLøpendeMedlemskap;
-            em.persist(entitet);
+            entityManager.persist(vurdertLøpendeMedlemskap);
         });
     }
 
@@ -307,7 +293,7 @@ public class MedlemskapRepository {
     }
 
     protected Optional<MedlemskapBehandlingsgrunnlagEntitet> getAktivtBehandlingsgrunnlag(Long behandlingId) {
-        TypedQuery<MedlemskapBehandlingsgrunnlagEntitet> query = getEntityManager().createQuery(
+        TypedQuery<MedlemskapBehandlingsgrunnlagEntitet> query = entityManager.createQuery(
             "SELECT mbg FROM MedlemskapBehandlingsgrunnlag mbg WHERE mbg.behandlingId = :behandling_id AND mbg.aktiv = 'J'", //$NON-NLS-1$
             MedlemskapBehandlingsgrunnlagEntitet.class)
                 .setParameter("behandling_id", behandlingId); //$NON-NLS-1$
@@ -317,7 +303,7 @@ public class MedlemskapRepository {
 
     protected Optional<MedlemskapBehandlingsgrunnlagEntitet> getInitilVersjonAvBehandlingsgrunnlag(Long behandlingId) {
         // må også sortere på id da opprettetTidspunkt kun er til nærmeste millisekund og ikke satt fra db.
-        TypedQuery<MedlemskapBehandlingsgrunnlagEntitet> query = getEntityManager().createQuery(
+        TypedQuery<MedlemskapBehandlingsgrunnlagEntitet> query = entityManager.createQuery(
             "SELECT mbg FROM MedlemskapBehandlingsgrunnlag mbg WHERE mbg.behandlingId = :behandling_id ORDER BY mbg.opprettetTidspunkt, mbg.id", //$NON-NLS-1$
             MedlemskapBehandlingsgrunnlagEntitet.class)
                 .setParameter("behandling_id", behandlingId)
@@ -338,17 +324,9 @@ public class MedlemskapRepository {
     }
 
     public MedlemskapAggregat hentMedlemskapPåId(Long aggregatId) {
-        Optional<MedlemskapBehandlingsgrunnlagEntitet> optGrunnlag = getVersjonAvMedlemskapGrunnlagPåId(
+        Optional<MedlemskapBehandlingsgrunnlagEntitet> optGrunnlag = hentGrunnlagPåId(
             aggregatId);
         return optGrunnlag.isPresent() ? optGrunnlag.get().tilAggregat() : null;
-    }
-
-    public DiffResult diffResultat(Long grunnlagId1, Long grunnlagId2, boolean onlyCheckTrackedFields) {
-        MedlemskapBehandlingsgrunnlagEntitet grunnlag1 = getVersjonAvMedlemskapGrunnlagPåId(grunnlagId1)
-                .orElseThrow(() -> new IllegalStateException("id1 ikke kjent"));
-        MedlemskapBehandlingsgrunnlagEntitet grunnlag2 = getVersjonAvMedlemskapGrunnlagPåId(grunnlagId2)
-                .orElseThrow(() -> new IllegalStateException("id2 ikke kjent"));
-        return new RegisterdataDiffsjekker(onlyCheckTrackedFields).getDiffEntity().diff(grunnlag1, grunnlag2);
     }
 
     /** Lagre vurderte opplysninger om løpende meldemskap slik det har blitt gjort av Saksbehandler eller av systemet automatisk. Merk at implementasjonen står fritt til å ta en kopi av oppgitte data.*/
@@ -361,11 +339,11 @@ public class MedlemskapRepository {
         oppdaterLås(lås);
     }
 
-    private Optional<MedlemskapBehandlingsgrunnlagEntitet> getVersjonAvMedlemskapGrunnlagPåId(Long aggregatId) {
-        TypedQuery<MedlemskapBehandlingsgrunnlagEntitet> query = getEntityManager().createQuery(
-            "SELECT mbg FROM MedlemskapBehandlingsgrunnlag mbg WHERE mbg.id = :aggregatId", //$NON-NLS-1$
+    public Optional<MedlemskapBehandlingsgrunnlagEntitet> hentGrunnlagPåId(Long grunnlagId) {
+        var query = entityManager.createQuery(
+            "SELECT mbg FROM MedlemskapBehandlingsgrunnlag mbg WHERE mbg.id = :grunnlagId", //$NON-NLS-1$
             MedlemskapBehandlingsgrunnlagEntitet.class)
-                .setParameter("aggregatId", aggregatId);
+                .setParameter("grunnlagId", grunnlagId);
         return query.getResultStream().findFirst();
     }
 }

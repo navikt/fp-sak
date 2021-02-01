@@ -9,10 +9,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.RegisterdataDiffsjekker;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.diff.DiffResult;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 
 @ApplicationScoped
@@ -54,7 +51,7 @@ public class YtelsesFordelingRepository {
     }
 
     public YtelseFordelingAggregat hentYtelsesFordelingPåId(Long aggregatId) {
-        return getVersjonAvYtelsesFordelingPåId(aggregatId).map(g -> mapEntitetTilAggregat(g)).orElseThrow();
+        return hentGrunnlagPåId(aggregatId).map(g -> mapEntitetTilAggregat(g)).orElseThrow();
     }
 
     private YtelseFordelingAggregat mapEntitetTilAggregat(YtelseFordelingGrunnlagEntitet ytelseFordelingGrunnlagEntitet) {
@@ -72,10 +69,6 @@ public class YtelsesFordelingRepository {
             .medOpprinneligeAktivitetskravPerioder(ytelseFordelingGrunnlagEntitet.getOpprinneligeAktivitetskravPerioder())
             .medSaksbehandledeAktivitetskravPerioder(ytelseFordelingGrunnlagEntitet.getSaksbehandledeAktivitetskravPerioder())
             .build();
-    }
-
-    private Optional<YtelseFordelingGrunnlagEntitet> hentYtelseFordelingPåId(Long grunnlagId) {
-        return getVersjonAvYtelsesFordelingPåId(grunnlagId);
     }
 
     private Optional<YtelseFordelingGrunnlagEntitet> hentAktivtGrunnlag(Long behandlingId) {
@@ -220,19 +213,11 @@ public class YtelsesFordelingRepository {
         return hentAktivtGrunnlag(behandlingId).map(YtelseFordelingGrunnlagEntitet::getId);
     }
 
-    public DiffResult diffResultat(Long grunnlagId1, Long grunnlagId2, boolean onlyCheckTrackedFields) {
-        YtelseFordelingGrunnlagEntitet grunnlag1 = hentYtelseFordelingPåId(grunnlagId1).orElseThrow(
-            () -> new IllegalStateException("GrunnlagId1 må være oppgitt"));
-        YtelseFordelingGrunnlagEntitet grunnlag2 = hentYtelseFordelingPåId(grunnlagId2).orElseThrow(
-            () -> new IllegalStateException("GrunnlagId2 må være oppgitt"));
-        return new RegisterdataDiffsjekker(onlyCheckTrackedFields).getDiffEntity().diff(grunnlag1, grunnlag2);
-    }
-
-    private Optional<YtelseFordelingGrunnlagEntitet> getVersjonAvYtelsesFordelingPåId(Long aggregatId) {
-        Objects.requireNonNull(aggregatId, "aggregatId");
-        final TypedQuery<YtelseFordelingGrunnlagEntitet> query = entityManager.createQuery(
-            "FROM YtelseFordelingGrunnlag gr " + "WHERE gr.id = :aggregatId ", YtelseFordelingGrunnlagEntitet.class);
-        query.setParameter("aggregatId", aggregatId);
+    public Optional<YtelseFordelingGrunnlagEntitet> hentGrunnlagPåId(Long grunnlagId) {
+        Objects.requireNonNull(grunnlagId, "grunnlagId");
+        var query = entityManager.createQuery(
+            "FROM YtelseFordelingGrunnlag gr " + "WHERE gr.id = :grunnlagId ", YtelseFordelingGrunnlagEntitet.class);
+        query.setParameter("grunnlagId", grunnlagId);
         return HibernateVerktøy.hentUniktResultat(query);
     }
 }

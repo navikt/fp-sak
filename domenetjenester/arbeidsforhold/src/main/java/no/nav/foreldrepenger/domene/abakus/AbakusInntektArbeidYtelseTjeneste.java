@@ -133,7 +133,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
      * nøkkel
      */
     @Override
-    public InntektArbeidYtelseGrunnlag hentGrunnlagForGrunnlagId(Long behandlingId, UUID inntektArbeidYtelseGrunnlagUuid) {
+    public InntektArbeidYtelseGrunnlag hentGrunnlagPåId(Long behandlingId, UUID inntektArbeidYtelseGrunnlagUuid) {
         var dto = requestCache.getGrunnlag(inntektArbeidYtelseGrunnlagUuid);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         if (dto == null) {

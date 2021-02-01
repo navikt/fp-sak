@@ -1,22 +1,20 @@
 package no.nav.foreldrepenger.domene.ytelsefordeling;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAnnenforelderHarRettEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.diff.DiffResult;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @ApplicationScoped
@@ -86,13 +84,6 @@ public class YtelseFordelingTjeneste {
             .orElse(EndringsresultatSnapshot.utenSnapshot(YtelseFordelingAggregat.class));
     }
 
-    public DiffResult diffResultat(EndringsresultatDiff idDiff, boolean kunSporedeEndringer) {
-        Objects.requireNonNull(idDiff.getGrunnlagId1(), "kan ikke diffe når id1 ikke er oppgitt");
-        Objects.requireNonNull(idDiff.getGrunnlagId2(), "kan ikke diffe når id2 ikke er oppgitt");
-
-        return ytelsesFordelingRepository.diffResultat((Long)idDiff.getGrunnlagId1(), (Long)idDiff.getGrunnlagId2(), kunSporedeEndringer);
-    }
-
     public void aksjonspunktAvklarStartdatoForPerioden(Long behandlingId, BekreftStartdatoForPerioden adapter) {
         new BekreftStartdatoForPeriodenAksjonspunkt(ytelsesFordelingRepository).oppdater(behandlingId, adapter);
     }
@@ -104,5 +95,9 @@ public class YtelseFordelingTjeneste {
             .medPerioderAnnenforelderHarRett(perioderAnnenforelderHarRettEntitet)
             .build();
         ytelsesFordelingRepository.lagre(behandlingId, ytelseFordelingAggregat);
+    }
+
+    public Optional<YtelseFordelingGrunnlagEntitet> hentGrunnlagPåId(Long grunnlagId) {
+        return ytelsesFordelingRepository.hentGrunnlagPåId(grunnlagId);
     }
 }

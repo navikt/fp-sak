@@ -38,8 +38,8 @@ class StartpunktUtlederPersonopplysning implements StartpunktUtleder {
 
     @Override
     public StartpunktType utledStartpunkt(BehandlingReferanse ref, Object grunnlagId1, Object grunnlagId2) {
-        PersonopplysningGrunnlagEntitet grunnlag1 = personopplysningRepository.hentPersonopplysningerPåId((Long)grunnlagId1);
-        PersonopplysningGrunnlagEntitet grunnlag2 = personopplysningRepository.hentPersonopplysningerPåId((Long)grunnlagId2);
+        PersonopplysningGrunnlagEntitet grunnlag1 = personopplysningRepository.hentGrunnlagPåId((Long)grunnlagId1);
+        PersonopplysningGrunnlagEntitet grunnlag2 = personopplysningRepository.hentGrunnlagPåId((Long)grunnlagId2);
         return utled(ref, grunnlag1, grunnlag2);
     }
 

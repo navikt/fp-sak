@@ -6,13 +6,11 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
-import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
-import no.nav.foreldrepenger.behandlingslager.diff.DiffResult;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 @ApplicationScoped
@@ -48,10 +46,7 @@ public class PersonopplysningTjeneste extends AbstractPersonopplysningTjenesteIm
             .orElse(EndringsresultatSnapshot.utenSnapshot(PersonInformasjonEntitet.class));
     }
 
-    public DiffResult diffResultat(EndringsresultatDiff idDiff, boolean kunSporedeEndringer) {
-        PersonopplysningGrunnlagEntitet grunnlag1 = getPersonopplysningRepository().hentPersonopplysningerPåId((Long) idDiff.getGrunnlagId1());
-        PersonopplysningGrunnlagEntitet grunnlag2 = getPersonopplysningRepository().hentPersonopplysningerPåId((Long) idDiff.getGrunnlagId2());
-        return getPersonopplysningRepository().diffResultat(grunnlag1, grunnlag2, kunSporedeEndringer);
+    public PersonopplysningGrunnlagEntitet hentGrunnlagPåId(Long grunnlagId) {
+        return personopplysningRepository.hentGrunnlagPåId(grunnlagId);
     }
-
 }

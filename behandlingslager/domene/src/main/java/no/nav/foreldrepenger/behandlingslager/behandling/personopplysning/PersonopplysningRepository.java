@@ -15,9 +15,7 @@ import javax.persistence.TypedQuery;
 import org.hibernate.jpa.QueryHints;
 
 import no.nav.foreldrepenger.behandlingslager.TraverseEntityGraphFactory;
-import no.nav.foreldrepenger.behandlingslager.behandling.RegisterdataDiffsjekker;
 import no.nav.foreldrepenger.behandlingslager.diff.DiffEntity;
-import no.nav.foreldrepenger.behandlingslager.diff.DiffResult;
 import no.nav.foreldrepenger.behandlingslager.diff.TraverseGraph;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
@@ -79,16 +77,9 @@ public class PersonopplysningRepository {
         return new DiffEntity(traverser);
     }
 
-
     public PersonopplysningGrunnlagEntitet hentPersonopplysninger(Long behandlingId) {
         return getAktivtGrunnlag(behandlingId).orElse(null);
     }
-
-
-    public DiffResult diffResultat(PersonopplysningGrunnlagEntitet grunnlag1, PersonopplysningGrunnlagEntitet grunnlag2, boolean onlyCheckTrackedFields) {
-        return new RegisterdataDiffsjekker(onlyCheckTrackedFields).getDiffEntity().diff(grunnlag1, grunnlag2);
-    }
-
 
     public Optional<PersonopplysningGrunnlagEntitet> hentPersonopplysningerHvisEksisterer(Long behandlingId) {
         Objects.requireNonNull(behandlingId, "behandlingId"); // NOSONAR //$NON-NLS-1$
@@ -277,23 +268,16 @@ public class PersonopplysningRepository {
     }
 
 
-    public PersonopplysningGrunnlagEntitet hentPersonopplysningerPåId(Long aggregatId) {
-        Optional<PersonopplysningGrunnlagEntitet> optGrunnlag = getVersjonAvPersonopplysningBehandlingsgrunnlagPåId(
-            aggregatId);
-
-        return optGrunnlag.orElse(null);
-    }
-
-    private Optional<PersonopplysningGrunnlagEntitet> getVersjonAvPersonopplysningBehandlingsgrunnlagPåId(
-                                                                                                          Long aggregatId) {
-        TypedQuery<PersonopplysningGrunnlagEntitet> query = entityManager.createQuery(
-            "SELECT pbg FROM PersonopplysningGrunnlagEntitet pbg WHERE pbg.id = :aggregatId", //$NON-NLS-1$
+    public PersonopplysningGrunnlagEntitet hentGrunnlagPåId(Long grunnlagId) {
+        var query = entityManager.createQuery(
+            "SELECT pbg FROM PersonopplysningGrunnlagEntitet pbg WHERE pbg.id = :grunnlagId", //$NON-NLS-1$
             PersonopplysningGrunnlagEntitet.class)
-                .setParameter("aggregatId", aggregatId); // NOSONAR //$NON-NLS-1$
+                .setParameter("grunnlagId", grunnlagId); // NOSONAR //$NON-NLS-1$
 
-        Optional<PersonopplysningGrunnlagEntitet> resultat = query.getResultStream().findFirst();
+        var resultat = query.getResultStream().findFirst();
 
         populerAktørIdFraBehandling(resultat);
-        return resultat;
+        return resultat.orElse(null);
     }
+
 }

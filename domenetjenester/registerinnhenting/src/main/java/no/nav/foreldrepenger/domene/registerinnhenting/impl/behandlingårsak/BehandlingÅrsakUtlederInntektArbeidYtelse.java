@@ -32,8 +32,8 @@ class BehandlingÅrsakUtlederInntektArbeidYtelse implements BehandlingÅrsakUtle
         LocalDate skjæringstidspunkt = ref.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
         Saksnummer saksnummer = ref.getSaksnummer();
 
-        InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag1 = inntektArbeidYtelseTjeneste.hentGrunnlagForGrunnlagId(ref.getBehandlingId(), (UUID) grunnlagId1);
-        InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag2 = inntektArbeidYtelseTjeneste.hentGrunnlagForGrunnlagId(ref.getBehandlingId(), (UUID) grunnlagId2);
+        InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag1 = inntektArbeidYtelseTjeneste.hentGrunnlagPåId(ref.getBehandlingId(), (UUID) grunnlagId1);
+        InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag2 = inntektArbeidYtelseTjeneste.hentGrunnlagPåId(ref.getBehandlingId(), (UUID) grunnlagId2);
 
         Set<EndringResultatType> endringResultatTyper = new HashSet<>();
 

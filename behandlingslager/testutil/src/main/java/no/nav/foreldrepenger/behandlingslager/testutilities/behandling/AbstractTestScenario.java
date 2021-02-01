@@ -93,7 +93,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
-import no.nav.foreldrepenger.behandlingslager.diff.DiffResult;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLås;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
@@ -387,12 +386,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             }
 
             @Override
-            public DiffResult diffResultat(FamilieHendelseGrunnlagEntitet grunnlag1, FamilieHendelseGrunnlagEntitet grunnlag2,
-                    boolean kunSporedeEndringer) {
-                return null;
-            }
-
-            @Override
             public void lagre(Behandling behandling, FamilieHendelseBuilder hendelseBuilder) {
                 Long behandlingId = behandling.getId();
                 var kladd = hentAggregatHvisEksisterer(behandlingId);
@@ -462,7 +455,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             }
 
             @Override
-            public FamilieHendelseGrunnlagEntitet hentFamilieHendelserPåGrunnlagId(Long aggregatId) {
+            public FamilieHendelseGrunnlagEntitet hentGrunnlagPåId(Long aggregatId) {
                 throw new UnsupportedOperationException("Ikke implementert");
             }
 
@@ -1441,12 +1434,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         }
 
         @Override
-        public DiffResult diffResultat(PersonopplysningGrunnlagEntitet grunnlag1, PersonopplysningGrunnlagEntitet grunnlag2,
-                boolean kunSporedeEndringer) {
-            return null;
-        }
-
-        @Override
         public void lagre(Long behandlingId, PersonInformasjonBuilder builder) {
             final PersonopplysningGrunnlagBuilder oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(
                     Optional.ofNullable(personopplysningMap.getOrDefault(behandlingId, null)));
@@ -1495,7 +1482,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         }
 
         @Override
-        public PersonopplysningGrunnlagEntitet hentPersonopplysningerPåId(Long aggregatId) {
+        public PersonopplysningGrunnlagEntitet hentGrunnlagPåId(Long aggregatId) {
             throw new java.lang.UnsupportedOperationException("Ikke implementert");
         }
     }

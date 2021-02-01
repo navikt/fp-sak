@@ -152,7 +152,7 @@ public class FamilieHendelseRepositoryTest extends EntityManagerAwareTest {
         repository.lagre(behandling, hendelseBuilder2);
 
         FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = repository.hentAggregat(behandling.getId());
-        FamilieHendelseGrunnlagEntitet førsteVersjonFamilieHendelseAggregat = repository.hentFamilieHendelserPåGrunnlagId(grunnlagIdFørste.get());
+        FamilieHendelseGrunnlagEntitet førsteVersjonFamilieHendelseAggregat = repository.hentGrunnlagPåId(grunnlagIdFørste.get());
 
         assertThat(familieHendelseGrunnlag).isNotEqualTo(førsteVersjonFamilieHendelseAggregat);
         assertThat(familieHendelseGrunnlag.getErAktivt()).isTrue();

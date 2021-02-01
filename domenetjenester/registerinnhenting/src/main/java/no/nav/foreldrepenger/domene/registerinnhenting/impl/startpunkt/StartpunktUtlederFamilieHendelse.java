@@ -79,8 +79,8 @@ class StartpunktUtlederFamilieHendelse implements StartpunktUtleder {
     }
 
     private boolean erAntallBekreftedeBarnEndret(Long id1, Long id2) {
-        FamilieHendelseGrunnlagEntitet grunnlag1 = familieHendelseTjeneste.hentFamilieHendelserPåGrunnlagId(id1);
-        FamilieHendelseGrunnlagEntitet grunnlag2 = familieHendelseTjeneste.hentFamilieHendelserPåGrunnlagId(id2);
+        FamilieHendelseGrunnlagEntitet grunnlag1 = familieHendelseTjeneste.hentGrunnlagPåId(id1);
+        FamilieHendelseGrunnlagEntitet grunnlag2 = familieHendelseTjeneste.hentGrunnlagPåId(id2);
         Integer antallBarn1 = grunnlag1.getGjeldendeVersjon().getAntallBarn();
         Integer antallBarn2 = grunnlag2.getGjeldendeVersjon().getAntallBarn();
 

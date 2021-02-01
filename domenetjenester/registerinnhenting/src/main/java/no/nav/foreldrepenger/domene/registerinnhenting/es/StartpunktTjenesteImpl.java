@@ -75,8 +75,8 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
         differanse.hentDelresultat(PersonInformasjonEntitet.class).filter(EndringsresultatDiff::erSporedeFeltEndret)
             .ifPresent(diff -> startpunkter.add(utledStartpunktForDelresultat(revurdering, diff)));
         differanse.hentDelresultat(InntektArbeidYtelseGrunnlag.class).filter(EndringsresultatDiff::erSporedeFeltEndret).ifPresent(diff -> {
-            InntektArbeidYtelseGrunnlag grunnlag1 = iayTjeneste.hentGrunnlagForGrunnlagId(revurdering.getBehandlingId(), (UUID)diff.getGrunnlagId1());
-            InntektArbeidYtelseGrunnlag grunnlag2 = iayTjeneste.hentGrunnlagForGrunnlagId(revurdering.getBehandlingId(), (UUID)diff.getGrunnlagId2());
+            InntektArbeidYtelseGrunnlag grunnlag1 = iayTjeneste.hentGrunnlagPåId(revurdering.getBehandlingId(), (UUID)diff.getGrunnlagId1());
+            InntektArbeidYtelseGrunnlag grunnlag2 = iayTjeneste.hentGrunnlagPåId(revurdering.getBehandlingId(), (UUID)diff.getGrunnlagId2());
             IAYGrunnlagDiff iayGrunnlagDiff = new IAYGrunnlagDiff(grunnlag1, grunnlag2);
             AktørYtelseEndring aktørYtelseEndringForSøker = iayGrunnlagDiff
                 .endringPåAktørYtelseForAktør(revurdering.getSaksnummer(), revurdering.getUtledetSkjæringstidspunkt(), revurdering.getAktørId());
@@ -93,8 +93,8 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
     }
 
     private boolean erAntallBekreftedeBarnEndret(Long id1, Long id2) {
-        FamilieHendelseGrunnlagEntitet grunnlag1 = familieHendelseTjeneste.hentFamilieHendelserPåGrunnlagId(id1);
-        FamilieHendelseGrunnlagEntitet grunnlag2 = familieHendelseTjeneste.hentFamilieHendelserPåGrunnlagId(id2);
+        FamilieHendelseGrunnlagEntitet grunnlag1 = familieHendelseTjeneste.hentGrunnlagPåId(id1);
+        FamilieHendelseGrunnlagEntitet grunnlag2 = familieHendelseTjeneste.hentGrunnlagPåId(id2);
         Integer antallBarn1 = grunnlag1.getGjeldendeVersjon().getAntallBarn();
         Integer antallBarn2 = grunnlag2.getGjeldendeVersjon().getAntallBarn();
 

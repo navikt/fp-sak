@@ -55,7 +55,6 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
         EndringsresultatDiff diff = endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(revurdering.getId(), snapshotOriginalBehandling);
         LOGGER.info("Endringsresultat ved revurdering={} er: {}", revurdering.getId(), diff);// NOSONAR //$NON-NLS-1$
         return getStartpunktType(revurdering, diff, false);
-
     }
 
     @Override

@@ -17,7 +17,6 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
@@ -29,7 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Uidenti
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
-import no.nav.foreldrepenger.behandlingslager.diff.DiffResult;
 import no.nav.foreldrepenger.familiehendelse.event.FamiliehendelseEventPubliserer;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
@@ -191,8 +189,8 @@ public class FamilieHendelseTjeneste {
     }
 
 
-    public FamilieHendelseGrunnlagEntitet hentFamilieHendelserPåGrunnlagId(Long aggregatId) {
-        return familieGrunnlagRepository.hentFamilieHendelserPåGrunnlagId(aggregatId);
+    public FamilieHendelseGrunnlagEntitet hentGrunnlagPåId(Long grunnlagId) {
+        return familieGrunnlagRepository.hentGrunnlagPåId(grunnlagId);
     }
 
 
@@ -201,13 +199,6 @@ public class FamilieHendelseTjeneste {
         return funnetId
             .map(id -> EndringsresultatSnapshot.medSnapshot(FamilieHendelseGrunnlagEntitet.class, id))
             .orElse(EndringsresultatSnapshot.utenSnapshot(FamilieHendelseGrunnlagEntitet.class));
-    }
-
-
-    public DiffResult diffResultat(EndringsresultatDiff idDiff, boolean kunSporedeEndringer) {
-        FamilieHendelseGrunnlagEntitet grunnlag1 = familieGrunnlagRepository.hentFamilieHendelserPåGrunnlagId((Long) idDiff.getGrunnlagId1());
-        FamilieHendelseGrunnlagEntitet grunnlag2 = familieGrunnlagRepository.hentFamilieHendelserPåGrunnlagId((Long) idDiff.getGrunnlagId2());
-        return familieGrunnlagRepository.diffResultat(grunnlag1, grunnlag2, kunSporedeEndringer);
     }
 
 
