@@ -9,23 +9,19 @@ import javax.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandling.revurdering.RevurderingEndring;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.vedtak.exception.TekniskException;
@@ -35,190 +31,172 @@ public class RevurderingEndringTest {
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
     @Inject
-    private BehandlingRepository behandlingRepository;
-
-    @Inject
     private LegacyESBeregningRepository beregningRepository;
 
     @Test
     public void erRevurderingMedUendretUtfall() {
-        Behandling originalBehandling = opprettOriginalBehandling(1L, BehandlingResultatType.INNVILGET);
-        RevurderingTjeneste revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class,
-                originalBehandling.getFagsak().getYtelseType()).orElseThrow();
+        var originalBehandling = opprettFørstegangsBehandling(1L, BehandlingResultatType.INNVILGET);
+        var revurderingTjeneste = tjeneste();
 
-        Behandling revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-                .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL)
-                        .medOriginalBehandlingId(originalBehandling.getId()))
-                .build();
+        var behandlingsresultat = Behandlingsresultat.builder()
+            .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
+        var revurdering = ScenarioMorSøkerEngangsstønad.forFødsel()
+            .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_MANGLER_FØDSEL)
+            .medBehandlingsresultat(behandlingsresultat)
+            .lagre(repositoryProvider);
 
-        Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET).buildFor(revurdering);
-        BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
-        behandlingRepository.lagre(revurdering, lås);
-        LegacyESBeregningsresultat beregningResultat = opprettBeregning(revurdering, 1L);
-        beregningRepository.lagre(beregningResultat, lås);
+        opprettBeregning(revurdering);
 
         assertThat(revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering)).isTrue();
     }
 
     @Test
     public void erRevurderingMedUendretUtfallEksplittBehandlingstype() {
-        Behandling originalBehandling = opprettOriginalBehandling(1L, BehandlingResultatType.INNVILGET);
-        RevurderingEndring revurderingEndring = new RevurderingEndringImpl(behandlingRepository, beregningRepository);
+        var originalBehandling = opprettFørstegangsBehandling(1L, BehandlingResultatType.INNVILGET);
+        var revurderingEndring = new RevurderingEndringImpl(repositoryProvider.getBehandlingRepository(),
+            beregningRepository, repositoryProvider.getBehandlingsresultatRepository());
 
-        Behandling revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-                .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL)
-                        .medOriginalBehandlingId(originalBehandling.getId()))
-                .build();
+        var behandlingsresultat = Behandlingsresultat.builder()
+            .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
+        var revurdering = ScenarioMorSøkerEngangsstønad.forFødsel()
+            .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_ANNET)
+            .medBehandlingsresultat(behandlingsresultat)
+            .lagre(repositoryProvider);
 
-        Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET).buildFor(revurdering);
-        BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
-        behandlingRepository.lagre(revurdering, lås);
-        LegacyESBeregningsresultat beregningResultat = opprettBeregning(revurdering, 1L);
-        beregningRepository.lagre(beregningResultat, lås);
+        opprettBeregning(revurdering);
 
         assertThat(
-                revurderingEndring.erRevurderingMedUendretUtfall(revurdering, BehandlingResultatType.INNVILGET)).isTrue();
+            revurderingEndring.erRevurderingMedUendretUtfall(revurdering, BehandlingResultatType.INNVILGET)).isTrue();
     }
 
     @Test
     public void erRevurderingMedEndretAntallBarn() {
-        Behandling originalBehandling = opprettOriginalBehandling(2L, BehandlingResultatType.INNVILGET);
-        RevurderingTjeneste revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class,
-                originalBehandling.getFagsak().getYtelseType()).orElseThrow();
+        var originalBehandling = opprettFørstegangsBehandling(2L, BehandlingResultatType.INNVILGET);
+        var revurderingTjeneste = tjeneste();
 
-        Behandling revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-                .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL)
-                        .medOriginalBehandlingId(originalBehandling.getId()))
-                .build();
+        var behandlingsresultat = Behandlingsresultat.builder()
+            .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
+        var revurdering = ScenarioMorSøkerEngangsstønad.forFødsel()
+            .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_ANNET)
+            .medBehandlingsresultat(behandlingsresultat)
+            .lagre(repositoryProvider);
 
-        Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET).buildFor(revurdering);
-        BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
-        behandlingRepository.lagre(revurdering, lås);
-        LegacyESBeregningsresultat beregningResultat = opprettBeregning(revurdering, 1L);
-        beregningRepository.lagre(beregningResultat, lås);
+        opprettBeregning(revurdering);
 
         assertThat(revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering)).isFalse();
     }
 
     @Test
     public void erRevurderingDerBeggeErAvslått() {
-        Behandling originalBehandling = opprettOriginalBehandling(2L, BehandlingResultatType.AVSLÅTT);
-        RevurderingTjeneste revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class,
-                originalBehandling.getFagsak().getYtelseType()).orElseThrow();
+        var originalBehandling = opprettFørstegangsBehandling(2L, BehandlingResultatType.AVSLÅTT);
+        var revurderingTjeneste = tjeneste();
 
-        Behandling revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-                .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL)
-                        .medOriginalBehandlingId(originalBehandling.getId()))
-                .build();
+        var behandlingsresultat = Behandlingsresultat.builder()
+            .medBehandlingResultatType(BehandlingResultatType.AVSLÅTT);
+        var revurdering = ScenarioMorSøkerEngangsstønad.forFødsel()
+            .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_ANNET)
+            .medBehandlingsresultat(behandlingsresultat)
+            .lagre(repositoryProvider);
 
-        Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT).buildFor(revurdering);
-        BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
-        behandlingRepository.lagre(revurdering, lås);
-        LegacyESBeregningsresultat beregningResultat = opprettBeregning(revurdering, 1L);
-        beregningRepository.lagre(beregningResultat, lås);
+        opprettBeregning(revurdering);
 
         assertThat(revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering)).isTrue();
     }
 
     @Test
     public void skal_gi_false_dersom_behandling_ikke_er_revurdering() {
-        Behandling originalBehandling = opprettOriginalBehandling(2L, BehandlingResultatType.AVSLÅTT);
-        RevurderingTjeneste revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class,
-                originalBehandling.getFagsak().getYtelseType()).orElseThrow();
+        var originalBehandling = opprettFørstegangsBehandling(2L, BehandlingResultatType.AVSLÅTT);
+        var revurderingTjeneste = tjeneste();
 
         assertThat(revurderingTjeneste.erRevurderingMedUendretUtfall(originalBehandling)).isFalse();
     }
 
     @Test
     public void skal_gi_feil_dersom_revurdering_ikke_har_original_behandling() {
-        Behandling originalBehandling = opprettOriginalBehandling(2L, BehandlingResultatType.AVSLÅTT);
-        RevurderingTjeneste revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class,
-                originalBehandling.getFagsak().getYtelseType()).orElseThrow();
+        var behandlingsresultat = Behandlingsresultat.builder()
+            .medBehandlingResultatType(BehandlingResultatType.AVSLÅTT);
+        var behandling = ScenarioMorSøkerEngangsstønad.forFødsel()
+            .medBehandlingsresultat(behandlingsresultat)
+            .medOriginalBehandling(null, BehandlingÅrsakType.RE_ANNET)
+            .lagre(repositoryProvider);
+        var revurderingTjeneste = tjeneste();
 
-        Behandling revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-                .medBehandlingÅrsak(
-                        BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandlingId(null))
-                .build();
+        opprettBeregning(behandling);
 
-        Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT).buildFor(revurdering);
-        BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
-        behandlingRepository.lagre(revurdering, lås);
-        LegacyESBeregningsresultat beregningResultat = opprettBeregning(revurdering, 1L);
+        assertThrows(TekniskException.class, () -> revurderingTjeneste.erRevurderingMedUendretUtfall(behandling));
+    }
+
+    private void opprettBeregning(Behandling behandling) {
+        var beregningResultat = opprettBeregning(behandling, 1L);
+        var lås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling);
         beregningRepository.lagre(beregningResultat, lås);
-        assertThrows(TekniskException.class, () -> revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering));
+    }
+
+    private RevurderingTjeneste tjeneste() {
+        return FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, FagsakYtelseType.ENGANGSTØNAD).orElseThrow();
     }
 
     @Test
     public void erRevurderingMedEndretResultatFraInnvilgetTilAvslått() {
-        Behandling originalBehandling = opprettOriginalBehandling(1L, BehandlingResultatType.INNVILGET);
-        RevurderingTjeneste revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class,
-                originalBehandling.getFagsak().getYtelseType()).orElseThrow();
+        var originalBehandling = opprettFørstegangsBehandling(1L, BehandlingResultatType.INNVILGET);
+        var revurderingTjeneste = tjeneste();
 
-        Behandling revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-                .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL)
-                        .medOriginalBehandlingId(originalBehandling.getId()))
-                .build();
-
-        Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT).buildFor(revurdering);
-        BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
-        behandlingRepository.lagre(revurdering, lås);
+        var behandlingsresultat = Behandlingsresultat.builder()
+            .medBehandlingResultatType(BehandlingResultatType.AVSLÅTT);
+        var revurdering = ScenarioMorSøkerEngangsstønad.forFødsel()
+            .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_MANGLER_FØDSEL)
+            .medBehandlingsresultat(behandlingsresultat)
+            .lagre(repositoryProvider);
 
         assertThat(revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering)).isFalse();
     }
 
     @Test
     public void erRevurderingMedEndretResultatFraAvslåttTilInnvilget() {
-        Behandling originalBehandling = opprettOriginalBehandling(1L, BehandlingResultatType.AVSLÅTT);
-        RevurderingTjeneste revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class,
-                originalBehandling.getFagsak().getYtelseType()).orElseThrow();
+        var originalBehandling = opprettFørstegangsBehandling(1L, BehandlingResultatType.AVSLÅTT);
+        var revurderingTjeneste = tjeneste();
 
-        Behandling revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-                .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL)
-                        .medOriginalBehandlingId(originalBehandling.getId()))
-                .build();
+        var behandlingsresultat = Behandlingsresultat.builder()
+            .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
+        var revurdering = ScenarioMorSøkerEngangsstønad.forFødsel()
+            .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_MANGLER_FØDSEL)
+            .medBehandlingsresultat(behandlingsresultat)
+            .lagre(repositoryProvider);
 
-        Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET).buildFor(revurdering);
-        BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
-        behandlingRepository.lagre(revurdering, lås);
-        LegacyESBeregningsresultat beregningResultat = opprettBeregning(revurdering, 1L);
-        beregningRepository.lagre(beregningResultat, lås);
+        opprettBeregning(revurdering);
 
         assertThat(revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering)).isFalse();
     }
 
-    private Behandling opprettOriginalBehandling(Long antallBarn, BehandlingResultatType behandlingResultatType) {
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad
-                .forFødsel()
-                .medDefaultBekreftetTerminbekreftelse();
-        Behandling originalBehandling = scenario.lagre(repositoryProvider);
-        Behandlingsresultat originalResultat = Behandlingsresultat.builder()
-                .medBehandlingResultatType(behandlingResultatType)
-                .buildFor(originalBehandling);
+    private Behandling opprettFørstegangsBehandling(Long antallBarn, BehandlingResultatType behandlingResultatType) {
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
+            .medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(behandlingResultatType))
+            .medDefaultBekreftetTerminbekreftelse();
+        var behandling = scenario.lagre(repositoryProvider);
 
-        BehandlingLås behandlingLås = behandlingRepository.taSkriveLås(originalBehandling);
-        behandlingRepository.lagre(originalBehandling, behandlingLås);
+        var behandlingLås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling);
 
         if (behandlingResultatType.equals(BehandlingResultatType.INNVILGET)) {
-            LegacyESBeregningsresultat originalBeregning = opprettBeregning(originalBehandling, antallBarn);
+            var originalBeregning = opprettBeregning(behandling, antallBarn);
             beregningRepository.lagre(originalBeregning, behandlingLås);
         }
-        BehandlingVedtak originalVedtak = BehandlingVedtak.builder()
-                .medVedtakstidspunkt(LocalDateTime.now())
-                .medBehandlingsresultat(originalResultat)
-                .medVedtakResultatType(
-                        behandlingResultatType.equals(BehandlingResultatType.INNVILGET) ? VedtakResultatType.INNVILGET : VedtakResultatType.AVSLAG)
-                .medAnsvarligSaksbehandler("asdf")
-                .build();
+        var behandlingsresultat = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId());
+        var originalVedtak = BehandlingVedtak.builder()
+            .medVedtakstidspunkt(LocalDateTime.now())
+            .medBehandlingsresultat(behandlingsresultat)
+            .medVedtakResultatType(behandlingResultatType.equals(
+                BehandlingResultatType.INNVILGET) ? VedtakResultatType.INNVILGET : VedtakResultatType.AVSLAG)
+            .medAnsvarligSaksbehandler("asdf")
+            .build();
 
         repositoryProvider.getBehandlingVedtakRepository().lagre(originalVedtak, behandlingLås);
-        return originalBehandling;
+        return behandling;
     }
 
     private LegacyESBeregningsresultat opprettBeregning(Behandling behandling, long antallBarn) {
-        LegacyESBeregning beregning = new LegacyESBeregning(1000L, antallBarn, antallBarn * 1000, LocalDateTime.now());
-        return LegacyESBeregningsresultat.builder()
-                .medBeregning(beregning)
-                .buildFor(behandling, behandling.getBehandlingsresultat());
+        var beregning = new LegacyESBeregning(1000L, antallBarn, antallBarn * 1000, LocalDateTime.now());
+        var behandlingsresultat = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId());
+        return LegacyESBeregningsresultat.builder().medBeregning(beregning).buildFor(behandling, behandlingsresultat);
     }
 
 }

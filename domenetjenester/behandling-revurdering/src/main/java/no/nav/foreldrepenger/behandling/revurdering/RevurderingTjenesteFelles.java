@@ -70,8 +70,9 @@ public class RevurderingTjenesteFelles {
             var basis = behandlingRevurderingRepository.finnSisteVedtatteIkkeHenlagteBehandlingForMedforelder(opprinneligBehandling.getFagsak())
                     .orElseThrow(() -> new IllegalStateException(
                             "Berørt behandling må ha en tilhørende avlsuttet behandling for medforelder - skal ikke skje")); // NOSONAR
+            var behandlingsresultat = behandlingsresultatRepository.hent(basis.getId());
             LOG.info("Revurderingtjeneste oppretter berørt pga id {} med resultat {}", basis.getId(),
-                    basis.getBehandlingsresultat().getBehandlingResultatType().getKode());
+                    behandlingsresultat.getBehandlingResultatType().getKode());
         }
         Behandling revurdering = Behandling.fraTidligereBehandling(opprinneligBehandling, behandlingType)
                 .medBehandlendeEnhet(enhet)

@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -27,15 +28,19 @@ public class RevurderingEndringImpl implements RevurderingEndring {
 
     private LegacyESBeregningRepository beregningRepository;
     private BehandlingRepository behandlingRepository;
-
-    public RevurderingEndringImpl() {
-    }
+    private BehandlingsresultatRepository behandlingsresultatRepository;
 
     @Inject
     public RevurderingEndringImpl(BehandlingRepository behandlingRepository,
-            LegacyESBeregningRepository beregningRepository) {
+                                  LegacyESBeregningRepository beregningRepository,
+                                  BehandlingsresultatRepository behandlingsresultatRepository) {
         this.beregningRepository = beregningRepository;
         this.behandlingRepository = behandlingRepository;
+        this.behandlingsresultatRepository = behandlingsresultatRepository;
+    }
+
+    public RevurderingEndringImpl() {
+        //CDI
     }
 
     @Override
@@ -43,10 +48,11 @@ public class RevurderingEndringImpl implements RevurderingEndring {
         if (!BehandlingType.REVURDERING.equals(behandling.getType())) {
             return false;
         }
-        Long originalBehandlingId = behandling.getOriginalBehandlingId()
-                .orElseThrow(() -> FeilFactory.create(RevurderingFeil.class).revurderingManglerOriginalBehandling(behandling.getId()).toException());
-        var originalBehandling = behandlingRepository.hentBehandling(originalBehandlingId);
-        BehandlingResultatType originalResultatType = getBehandlingsresultat(originalBehandling).getBehandlingResultatType();
+        var originalBehandlingId = behandling.getOriginalBehandlingId()
+            .orElseThrow(() -> FeilFactory.create(RevurderingFeil.class)
+                .revurderingManglerOriginalBehandling(behandling.getId())
+                .toException());
+        var originalResultatType = getBehandlingResultatType(originalBehandlingId);
 
         // Forskjellig utfall
         if (!nyResultatType.equals(originalResultatType)) {
@@ -55,31 +61,38 @@ public class RevurderingEndringImpl implements RevurderingEndring {
 
         // Begge har utfall INNVILGET
         if (nyResultatType.equals(BehandlingResultatType.INNVILGET)) {
-            Optional<LegacyESBeregning> nyBeregning = beregningRepository.getSisteBeregning(behandling.getId());
-            Optional<LegacyESBeregning> originalBeregning = beregningRepository.getSisteBeregning(originalBehandlingId);
+            var nyBeregning = beregningRepository.getSisteBeregning(behandling.getId());
+            var originalBeregning = beregningRepository.getSisteBeregning(originalBehandlingId);
             if (originalBeregning.isPresent() && nyBeregning.isPresent()) {
                 return harSammeBeregnetYtelse(nyBeregning.get(), originalBeregning.get());
             } else {
                 throw FeilFactory.create(RevurderingFeil.class)
-                        .behandlingManglerBeregning(originalBeregning.isPresent() ? behandling.getId() : originalBehandlingId)
-                        .toException();
+                    .behandlingManglerBeregning(
+                        originalBeregning.isPresent() ? behandling.getId() : originalBehandlingId)
+                    .toException();
             }
         }
         // Begge har utfall AVSLÅTT
         return true;
     }
 
-    private Behandlingsresultat getBehandlingsresultat(Behandling behandling) {
-        return behandling.getBehandlingsresultat();
+    private BehandlingResultatType getBehandlingResultatType(Long originalBehandlingId) {
+        var behandling = behandlingRepository.hentBehandling(originalBehandlingId);
+        var behandlingsresultat = getBehandlingsresultat(behandling);
+        return behandlingsresultat.orElseThrow().getBehandlingResultatType();
+    }
+
+    private Optional<Behandlingsresultat> getBehandlingsresultat(Behandling behandling) {
+        return behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
     }
 
     @Override
     public boolean erRevurderingMedUendretUtfall(Behandling behandling) {
         var behandlingResultat = getBehandlingsresultat(behandling);
-        if (behandlingResultat == null) {
+        if (behandlingResultat.isEmpty()) {
             return false;
         }
-        return erRevurderingMedUendretUtfall(behandling, behandlingResultat.getBehandlingResultatType());
+        return erRevurderingMedUendretUtfall(behandling, behandlingResultat.get().getBehandlingResultatType());
     }
 
     private boolean harSammeBeregnetYtelse(LegacyESBeregning nyBeregning, LegacyESBeregning originalBeregning) {

@@ -113,7 +113,7 @@ public class ScenarioAnkeEngangsstønad {
         if (ankeBehandling != null) {
             throw new IllegalStateException("build allerede kalt.  Hent Behandling via getBehandling eller opprett nytt scenario.");
         }
-        abstractTestScenario.buildAvsluttet(repositoryProvider.getBehandlingRepository(), repositoryProvider);
+        abstractTestScenario.buildAvsluttet(repositoryProvider);
         return buildAnke(repositoryProvider);
     }
 

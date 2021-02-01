@@ -41,7 +41,7 @@ public class RevurderingTjenesteImplTest {
         var serviceProvider = new BehandlingskontrollServiceProvider(entityManager,
                 new BehandlingModellRepository(), null);
         var revurderingEndringES = new RevurderingEndringImpl(behandlingRepository,
-                new LegacyESBeregningRepository(entityManager));
+                new LegacyESBeregningRepository(entityManager), repositoryProvider.getBehandlingsresultatRepository());
         var vergeRepository = new VergeRepository(entityManager, new BehandlingLåsRepository(entityManager));
         var revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider);
         revurderingTjeneste = new RevurderingTjenesteImpl(repositoryProvider,
@@ -76,11 +76,12 @@ public class RevurderingTjenesteImplTest {
     }
 
     private Behandling opprettRevurderingsKandidat() {
-
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now())
                 .medVedtakResultatType(VedtakResultatType.INNVILGET);
-        scenario.buildAvsluttet(behandlingRepository, repositoryProvider);
-        return scenario.getBehandling();
+        var behandling = scenario.lagre(repositoryProvider);
+        behandling.avsluttBehandling();
+        behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling.getId()));
+        return behandling;
     }
 }

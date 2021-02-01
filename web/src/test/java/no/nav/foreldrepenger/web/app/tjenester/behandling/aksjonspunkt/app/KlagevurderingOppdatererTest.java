@@ -155,7 +155,8 @@ public class KlagevurderingOppdatererTest {
     private KlagevurderingOppdaterer getKlageVurderer(BehandlingRepositoryProvider repositoryProvider, KlageRepository klageRepository) {
         var behandlingRepository = repositoryProvider.getBehandlingRepository();
         final KlageVurderingTjeneste klageVurderingTjeneste = new KlageVurderingTjeneste(dokumentBestillerTjeneste,
-                prosesseringAsynkTjeneste, behandlingRepository, klageRepository, behandlingskontrollTjeneste);
+                prosesseringAsynkTjeneste, behandlingRepository, klageRepository, behandlingskontrollTjeneste,
+                repositoryProvider.getBehandlingsresultatRepository());
         return new KlagevurderingOppdaterer(historikkApplikasjonTjeneste, behandlingsutredningTjeneste, klageVurderingTjeneste,
                 behandlendeEnhetTjeneste);
     }
