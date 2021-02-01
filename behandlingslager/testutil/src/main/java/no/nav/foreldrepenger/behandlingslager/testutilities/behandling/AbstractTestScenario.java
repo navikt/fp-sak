@@ -690,8 +690,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     }
 
     public Behandling lagre(BehandlingRepositoryProvider repositoryProvider) {
-
-        build(repositoryProvider.getBehandlingRepository(), repositoryProvider);
+        build(repositoryProvider);
         return behandling;
     }
 
@@ -712,10 +711,11 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         return behandling;
     }
 
-    public void buildAvsluttet(BehandlingRepository behandlingRepo, BehandlingRepositoryProvider repositoryProvider) {
+    protected void buildAvsluttet(BehandlingRepositoryProvider repositoryProvider) {
         Builder behandlingBuilder = grunnBuild(repositoryProvider);
 
         behandling = behandlingBuilder.medAvsluttetDato(LocalDateTime.now()).build();
+        var behandlingRepo = repositoryProvider.getBehandlingRepository();
         BehandlingLås lås = behandlingRepo.taSkriveLås(behandling);
         behandlingRepo.lagre(behandling, lås);
 
@@ -857,7 +857,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         return (S) this;
     }
 
-    private void build(BehandlingRepository behandlingRepo, BehandlingRepositoryProvider repositoryProvider) {
+    private void build(BehandlingRepositoryProvider repositoryProvider) {
         if (behandling != null) {
             throw new IllegalStateException("build allerede kalt.  Hent Behandling via getBehandling eller opprett nytt scenario.");
         }
@@ -871,8 +871,9 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
         leggTilAksjonspunkter(behandling);
 
-        BehandlingLås lås = behandlingRepo.taSkriveLås(behandling);
-        behandlingRepo.lagre(behandling, lås);
+        var behandlingRepository = repositoryProvider.getBehandlingRepository();
+        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
+        behandlingRepository.lagre(behandling, lås);
         Long behandlingId = behandling.getId();
 
         opprettHendelseGrunnlag(repositoryProvider);
@@ -885,11 +886,11 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         lagreUttak(repositoryProvider.getFpUttakRepository());
 
         if (this.opplysningerOppdatertTidspunkt != null) {
-            behandlingRepo.oppdaterSistOppdatertTidspunkt(this.behandling, this.opplysningerOppdatertTidspunkt);
+            behandlingRepository.oppdaterSistOppdatertTidspunkt(this.behandling, this.opplysningerOppdatertTidspunkt);
         }
 
         // få med behandlingsresultat etc.
-        behandlingRepo.lagre(behandling, lås);
+        behandlingRepository.lagre(behandling, lås);
     }
 
     private void leggTilAksjonspunkter(Behandling behandling) {
@@ -1391,6 +1392,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         this.originalBehandling = originalBehandling;
         this.behandlingÅrsakType = behandlingÅrsakType;
         this.manueltOpprettet = manueltOpprettet;
+        this.behandlingType = BehandlingType.REVURDERING;
         return (S) this;
     }
 

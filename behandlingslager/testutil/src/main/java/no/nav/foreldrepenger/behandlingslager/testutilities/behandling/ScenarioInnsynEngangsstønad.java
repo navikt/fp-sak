@@ -49,7 +49,7 @@ public class ScenarioInnsynEngangsstønad {
         if (behandling != null) {
             throw new IllegalStateException("build allerede kalt.  Hent Behandling via getBehandling eller opprett nytt scenario.");
         }
-        abstractTestScenario.buildAvsluttet(repositoryProvider.getBehandlingRepository(), repositoryProvider);
+        abstractTestScenario.buildAvsluttet(repositoryProvider);
         return buildInnsyn(repositoryProvider);
     }
 

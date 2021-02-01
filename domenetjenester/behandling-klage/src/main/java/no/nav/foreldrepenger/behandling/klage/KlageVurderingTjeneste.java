@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageFormkravEntitet;
@@ -37,22 +38,25 @@ public class KlageVurderingTjeneste {
     private KlageRepository klageRepository;
     private BehandlingRepository behandlingRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
-
-    KlageVurderingTjeneste() {
-        // for CDI proxy
-    }
+    private BehandlingsresultatRepository behandlingsresultatRepository;
 
     @Inject
     public KlageVurderingTjeneste(DokumentBestillerTjeneste dokumentBestillerTjeneste,
-            ProsesseringAsynkTjeneste prosesseringAsynkTjeneste,
-            BehandlingRepository behandlingRepository,
-            KlageRepository klageRepository,
-            BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
+                                  ProsesseringAsynkTjeneste prosesseringAsynkTjeneste,
+                                  BehandlingRepository behandlingRepository,
+                                  KlageRepository klageRepository,
+                                  BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                  BehandlingsresultatRepository behandlingsresultatRepository) {
         this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
         this.prosesseringAsynkTjeneste = prosesseringAsynkTjeneste;
         this.klageRepository = klageRepository;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingRepository = behandlingRepository;
+        this.behandlingsresultatRepository = behandlingsresultatRepository;
+    }
+
+    KlageVurderingTjeneste() {
+        // for CDI proxy
     }
 
     public KlageResultatEntitet hentEvtOpprettKlageResultat(Behandling behandling) {
@@ -154,8 +158,9 @@ public class KlageVurderingTjeneste {
                 && klageResultatEntitet.getPåKlagdEksternBehandlingUuid().isPresent();
         BehandlingResultatType behandlingResultatType = BehandlingResultatType.tolkBehandlingResultatType(klageVurdering, erPåklagdEksternBehandling);
 
-        if (behandling.getBehandlingsresultat() != null) {
-            Behandlingsresultat.builderEndreEksisterende(behandling.getBehandlingsresultat())
+        var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
+        if (behandlingsresultat.isPresent()) {
+            Behandlingsresultat.builderEndreEksisterende(behandlingsresultat.get())
                     .medBehandlingResultatType(behandlingResultatType);
         } else {
             Behandlingsresultat.builder()

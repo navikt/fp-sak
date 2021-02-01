@@ -70,7 +70,8 @@ public class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         klageRepository = new KlageRepository(getEntityManager());
         historikkTjenesteAdapter = new HistorikkTjenesteAdapter(repositoryProvider.getHistorikkRepository(),
             mock(DokumentArkivTjeneste.class));
-        klageVurderingTjeneste = new KlageVurderingTjeneste(null, null, behandlingRepository, klageRepository, null);
+        klageVurderingTjeneste = new KlageVurderingTjeneste(null, null, behandlingRepository, klageRepository, null,
+                repositoryProvider.getBehandlingsresultatRepository());
         klageFormkravOppdaterer = new KlageFormkravOppdaterer(klageVurderingTjeneste, historikkTjenesteAdapter,
                 behandlingRepository, repositoryProvider.getBehandlingVedtakRepository(), mockFptilbakeRestKlient);
 
