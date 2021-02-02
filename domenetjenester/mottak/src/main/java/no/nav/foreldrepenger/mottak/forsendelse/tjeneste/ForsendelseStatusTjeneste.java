@@ -8,6 +8,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -16,21 +17,26 @@ import no.nav.foreldrepenger.mottak.forsendelse.ForsendelseIdDto;
 import no.nav.foreldrepenger.mottak.forsendelse.ForsendelseStatus;
 import no.nav.foreldrepenger.mottak.forsendelse.ForsendelseStatusDataDTO;
 
+//TODO palfi slett hvis ikke i bruk
 @ApplicationScoped
 public class ForsendelseStatusTjeneste {
 
     private MottatteDokumentRepository mottatteDokumentRepository;
 
     private BehandlingRepository behandlingRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
+
+    @Inject
+    public ForsendelseStatusTjeneste(MottatteDokumentRepository mottatteDokumentRepository,
+                                     BehandlingRepository behandlingRepository,
+                                     BehandlingsresultatRepository behandlingsresultatRepository) {
+        this.mottatteDokumentRepository = mottatteDokumentRepository;
+        this.behandlingRepository = behandlingRepository;
+        this.behandlingsresultatRepository = behandlingsresultatRepository;
+    }
 
     public ForsendelseStatusTjeneste() {
         // FOR CDI
-    }
-
-    @Inject
-    public ForsendelseStatusTjeneste(MottatteDokumentRepository mottatteDokumentRepository, BehandlingRepository behandlingRepository) {
-        this.mottatteDokumentRepository = mottatteDokumentRepository;
-        this.behandlingRepository = behandlingRepository;
     }
 
     public ForsendelseStatusDataDTO getStatusInformasjon(ForsendelseIdDto forsendelseIdDto) {
@@ -51,7 +57,7 @@ public class ForsendelseStatusTjeneste {
     private ForsendelseStatusDataDTO getForsendelseStatusDataDTO(Behandling behandling, UUID forsendelseId) {
         ForsendelseStatusDataDTO forsendelseStatusDataDTO;
         if (behandling.erStatusFerdigbehandlet()) {
-            BehandlingResultatType resultat = behandling.getBehandlingsresultat().getBehandlingResultatType();
+            var resultat = behandlingsresultatRepository.hent(behandling.getId()).getBehandlingResultatType();
             if(resultat.equals(BehandlingResultatType.INNVILGET)) {
                 forsendelseStatusDataDTO = new ForsendelseStatusDataDTO(ForsendelseStatus.INNVLIGET);
             } else if(resultat.equals(BehandlingResultatType.AVSLÅTT)) {

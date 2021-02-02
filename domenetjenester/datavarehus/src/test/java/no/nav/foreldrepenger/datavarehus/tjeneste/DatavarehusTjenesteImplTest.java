@@ -40,7 +40,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
@@ -74,7 +73,6 @@ import no.nav.foreldrepenger.datavarehus.domene.KlageFormkravDvh;
 import no.nav.foreldrepenger.datavarehus.domene.KlageVurderingResultatDvh;
 import no.nav.foreldrepenger.datavarehus.domene.VedtakUtbetalingDvh;
 import no.nav.foreldrepenger.datavarehus.xml.DvhVedtakXmlTjeneste;
-
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnRepository;
@@ -132,14 +130,9 @@ public class DatavarehusTjenesteImplTest {
     }
 
     private DatavarehusTjenesteImpl nyDatavarehusTjeneste(BehandlingRepositoryProvider repositoryProvider) {
-        return new DatavarehusTjenesteImpl(repositoryProvider, datavarehusRepository,
-            totrinnRepository,
-            ankeRepository,
-            klageRepository,
-            mottatteDokumentRepository,
-            dvhVedtakTjenesteEngangsstønad,
-            foreldrepengerUttakTjeneste,
-            skjæringstidspunktTjeneste);
+        return new DatavarehusTjenesteImpl(repositoryProvider, datavarehusRepository, repositoryProvider.getBehandlingsresultatRepository(),
+            totrinnRepository, ankeRepository, klageRepository, mottatteDokumentRepository,
+            dvhVedtakTjenesteEngangsstønad, foreldrepengerUttakTjeneste, skjæringstidspunktTjeneste);
     }
 
     @Test
@@ -259,10 +252,10 @@ public class DatavarehusTjenesteImplTest {
 
     @Test
     public void lagreNedVedtak() {
-        BehandlingVedtak vedtak = byggBehandlingVedtak();
+        var vedtak = byggBehandlingVedtak();
         var behandling = behandlingRepository.hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
-        ArgumentCaptor<BehandlingVedtakDvh> captor = ArgumentCaptor.forClass(BehandlingVedtakDvh.class);
-        DatavarehusTjeneste datavarehusTjeneste = nyDatavarehusTjeneste(repositoryProvider);
+        var captor = ArgumentCaptor.forClass(BehandlingVedtakDvh.class);
+        var datavarehusTjeneste = nyDatavarehusTjeneste(repositoryProvider);
         // Act
         datavarehusTjeneste.lagreNedVedtak(vedtak, behandling);
 
@@ -371,7 +364,6 @@ public class DatavarehusTjenesteImplTest {
         ScenarioMorSøkerEngangsstønad scenario = opprettFørstegangssøknad();
 
         Behandling behandling = scenario.lagre(repositoryProvider);
-        Behandlingsresultat behandlingsresultat = Behandlingsresultat.opprettFor(behandling);
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
         BehandlingVedtak vedtak = BehandlingVedtak.builder()
@@ -379,7 +371,7 @@ public class DatavarehusTjenesteImplTest {
             .medIverksettingStatus(IVERKSETTING_STATUS)
             .medVedtakstidspunkt(VEDTAK_DATO)
             .medVedtakResultatType(VedtakResultatType.INNVILGET)
-            .medBehandlingsresultat(behandlingsresultat)
+            .medBehandlingsresultat(repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId()))
             .build();
         repositoryProvider.getBehandlingVedtakRepository().lagre(vedtak, behandlingRepository.taSkriveLås(behandling));
 

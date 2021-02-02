@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.datavarehus.tjeneste;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Objects;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -33,12 +32,13 @@ public class BehandlingDvhMapper {
     }
 
     public static BehandlingDvh map(Behandling behandling,
-                             LocalDateTime mottattTidspunkt,
-                             Optional<BehandlingVedtak> vedtak,
-                             Optional<FamilieHendelseGrunnlagEntitet> fh,
-                             Optional<KlageVurderingResultat> klageVurderingResultat,
-                             Optional<ForeldrepengerUttak> uttak,
-                             Optional<LocalDate> skjæringstidspunkt) {
+                                    Behandlingsresultat behandlingsresultat,
+                                    LocalDateTime mottattTidspunkt,
+                                    Optional<BehandlingVedtak> vedtak,
+                                    Optional<FamilieHendelseGrunnlagEntitet> fh,
+                                    Optional<KlageVurderingResultat> klageVurderingResultat,
+                                    Optional<ForeldrepengerUttak> uttak,
+                                    Optional<LocalDate> skjæringstidspunkt) {
 
         return BehandlingDvh.builder()
             .ansvarligBeslutter(behandling.getAnsvarligBeslutter())
@@ -46,7 +46,7 @@ public class BehandlingDvhMapper {
             .behandlendeEnhet(behandling.getBehandlendeEnhet())
             .behandlingId(behandling.getId())
             .behandlingUuid(behandling.getUuid())
-            .behandlingResultatType(finnBehandlingResultatType(behandling))
+            .behandlingResultatType(behandlingsresultat == null ? null :behandlingsresultat.getBehandlingResultatType().getKode())
             .behandlingStatus(behandling.getStatus().getKode())
             .behandlingType(behandling.getType().getKode())
             .endretAv(CommonDvhMapper.finnEndretAvEllerOpprettetAv(behandling))
@@ -58,8 +58,8 @@ public class BehandlingDvhMapper {
             .vedtakId(vedtak.map(BehandlingVedtak::getId).orElse(null))
             .relatertBehandling(getRelatertBehandling(behandling, klageVurderingResultat))
             .ferdig(mapFerdig(behandling))
-            .vedtatt(mapVedtatt(behandling))
-            .avbrutt(mapAvbrutt(behandling))
+            .vedtatt(behandlingsresultat != null && mapVedtatt(behandlingsresultat, behandling.getFagsak().getStatus()))
+            .avbrutt(behandlingsresultat != null && mapAvbrutt(behandlingsresultat, behandling.getFagsak().getStatus()))
             .soeknadFamilieHendelse(mapSoeknadFamilieHendelse(fh))
             .bekreftetFamilieHendelse(mapbekreftetFamilieHendelse(fh))
             .overstyrtFamilieHendelse(mapoverstyrtFamilieHendelse(fh))
@@ -99,41 +99,25 @@ public class BehandlingDvhMapper {
         return null;
     }
 
-    private static boolean mapAvbrutt(Behandling behandling) {
-        if (FagsakStatus.AVSLUTTET.equals(behandling.getFagsak().getStatus())) {
-            Behandlingsresultat behandlingsresultat = getBehandlingsresultat(behandling);
-            if (Objects.nonNull(behandlingsresultat)) {
-                return AVBRUTT_BEHANDLINGSRESULTAT.stream().anyMatch(type -> type.equals(behandlingsresultat.getBehandlingResultatType()));
-            }
+    private static boolean mapAvbrutt(Behandlingsresultat behandlingsresultat, FagsakStatus fagsakStatus) {
+        if (FagsakStatus.AVSLUTTET.equals(fagsakStatus)) {
+            return AVBRUTT_BEHANDLINGSRESULTAT.stream().anyMatch(type -> type.equals(behandlingsresultat.getBehandlingResultatType()));
         }
         return false;
     }
 
-    private static boolean mapVedtatt(Behandling behandling) {
-        if (Objects.nonNull(getBehandlingsresultat(behandling))) {
-            BehandlingResultatType behandlingResultatType = getBehandlingsresultat(behandling).getBehandlingResultatType();
-
-            if (FagsakStatus.AVSLUTTET.equals(behandling.getFagsak().getStatus())) {
-                return BehandlingResultatType.AVSLÅTT.equals(behandlingResultatType);
-            } else if (FagsakStatus.LØPENDE.equals(behandling.getFagsak().getStatus())) {
-                return BehandlingResultatType.INNVILGET.equals(behandlingResultatType);
-            }
+    private static boolean mapVedtatt(Behandlingsresultat behandlingsresultat, FagsakStatus fagsakStatus) {
+        var behandlingResultatType = behandlingsresultat.getBehandlingResultatType();
+        if (FagsakStatus.AVSLUTTET.equals(fagsakStatus)) {
+            return BehandlingResultatType.AVSLÅTT.equals(behandlingResultatType);
+        } else if (FagsakStatus.LØPENDE.equals(fagsakStatus)) {
+            return BehandlingResultatType.INNVILGET.equals(behandlingResultatType);
         }
         return false;
-    }
-
-    private static Behandlingsresultat getBehandlingsresultat(Behandling behandling) {
-        return behandling.getBehandlingsresultat();
     }
 
     private static boolean mapFerdig(Behandling behandling) {
         return FagsakStatus.AVSLUTTET.equals(behandling.getFagsak().getStatus());
-    }
-
-    private static String finnBehandlingResultatType(Behandling b) {
-        Optional<Behandling> ob = Optional.ofNullable(b);
-        return ob.map(Behandling::getBehandlingsresultat).map(Behandlingsresultat::getBehandlingResultatType).map(BehandlingResultatType::getKode)
-            .orElse(null);
     }
 
     private static String mapUtlandstilsnitt(Behandling behandling) {

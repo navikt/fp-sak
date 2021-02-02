@@ -38,9 +38,8 @@ public class VurderOpptjeningsvilkårSteg extends VurderOpptjeningsvilkårStegFe
 
     @Inject
     public VurderOpptjeningsvilkårSteg(BehandlingRepositoryProvider repositoryProvider,
-            OpptjeningRepository opptjeningRepository,
-            InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste) {
-        super(repositoryProvider, opptjeningRepository, inngangsvilkårFellesTjeneste, BehandlingStegType.VURDER_OPPTJENINGSVILKÅR);
+                                       InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste) {
+        super(repositoryProvider, inngangsvilkårFellesTjeneste, BehandlingStegType.VURDER_OPPTJENINGSVILKÅR);
     }
 
     @Override

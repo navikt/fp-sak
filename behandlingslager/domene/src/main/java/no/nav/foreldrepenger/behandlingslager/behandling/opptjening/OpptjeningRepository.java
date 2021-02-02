@@ -135,9 +135,7 @@ public class OpptjeningRepository {
             return nyOpptjening;
         };
 
-        Opptjening opptjening = lagre(behandling, oppdateringsfunksjon);
-
-        return opptjening;
+        return lagre(behandling, oppdateringsfunksjon);
     }
 
     public void deaktiverOpptjening(Behandling behandling) {

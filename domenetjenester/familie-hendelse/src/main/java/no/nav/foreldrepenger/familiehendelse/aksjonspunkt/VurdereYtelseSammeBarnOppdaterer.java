@@ -7,15 +7,17 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AvslagbartAksjonspunktDto;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
@@ -30,23 +32,29 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 public abstract class VurdereYtelseSammeBarnOppdaterer implements AksjonspunktOppdaterer<AvslagbartAksjonspunktDto> {
 
     private HistorikkTjenesteAdapter historikkAdapter;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
+    private BehandlingRepository behandlingRepository;
+
+    @Inject
+    VurdereYtelseSammeBarnOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
+                                     BehandlingsresultatRepository behandlingsresultatRepository,
+                                     BehandlingRepository behandlingRepository) {
+        this.historikkAdapter = historikkAdapter;
+        this.behandlingsresultatRepository = behandlingsresultatRepository;
+        this.behandlingRepository = behandlingRepository;
+    }
 
     protected VurdereYtelseSammeBarnOppdaterer() {
         // for CDI proxy
     }
 
-    @Inject
-    VurdereYtelseSammeBarnOppdaterer(HistorikkTjenesteAdapter historikkAdapter) {
-        this.historikkAdapter = historikkAdapter;
-    }
-
     @Override
     public OppdateringResultat oppdater(AvslagbartAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
-        Behandling behandling = param.getBehandling();
-        Optional<Vilkår> relevantVilkår = finnRelevantVilkår(behandling);
+        var behandlingReferanse = param.getRef();
+        Optional<Vilkår> relevantVilkår = finnRelevantVilkår(behandlingReferanse);
         if (relevantVilkår.isPresent()) {
             Vilkår vilkår = relevantVilkår.get();
-            boolean totrinn = endringsHåndtering(behandling, vilkår, dto, finnTekstForFelt(vilkår), param);
+            var totrinn = endringsHåndtering(behandlingReferanse, vilkår, dto, finnTekstForFelt(vilkår), param);
             if (dto.getErVilkarOk()) {
                 var resultatBuilder = OppdateringResultat.utenTransisjon();
                 resultatBuilder.leggTilVilkårResultat(vilkår.getVilkårType(), VilkårUtfallType.OPPFYLT);
@@ -62,16 +70,23 @@ public abstract class VurdereYtelseSammeBarnOppdaterer implements AksjonspunktOp
 
     }
 
-    private boolean endringsHåndtering(Behandling behandling, Vilkår vilkår, AvslagbartAksjonspunktDto dto, HistorikkEndretFeltType historikkEndretFeltType, AksjonspunktOppdaterParameter param) {
-        String aksjonspunktKode = dto.getKode();
-        AksjonspunktDefinisjon aksjonspunktDefinisjon = AksjonspunktDefinisjon.fraKode(aksjonspunktKode);
-        return new HistorikkAksjonspunktAdapter(behandling, historikkAdapter, param)
-                .håndterAksjonspunkt(aksjonspunktDefinisjon, vilkår, dto.getErVilkarOk(), dto.getBegrunnelse(), historikkEndretFeltType);
+    private boolean endringsHåndtering(BehandlingReferanse behandlingReferanse,
+                                       Vilkår vilkår,
+                                       AvslagbartAksjonspunktDto dto,
+                                       HistorikkEndretFeltType historikkEndretFeltType,
+                                       AksjonspunktOppdaterParameter param) {
+        var aksjonspunktKode = dto.getKode();
+        var aksjonspunktDefinisjon = AksjonspunktDefinisjon.fraKode(aksjonspunktKode);
+        var behandling = behandlingRepository.hentBehandling(behandlingReferanse.getBehandlingId());
+        return new HistorikkAksjonspunktAdapter(
+            behandling, historikkAdapter, param).håndterAksjonspunkt(
+            aksjonspunktDefinisjon, vilkår, dto.getErVilkarOk(), dto.getBegrunnelse(), historikkEndretFeltType);
     }
 
     private HistorikkEndretFeltType finnTekstForFelt(Vilkår vilkår) {
         VilkårType vilkårType = vilkår.getVilkårType();
-        if (VilkårType.FØDSELSVILKÅRET_MOR.equals(vilkårType) || VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR.equals(vilkårType)) {
+        if (VilkårType.FØDSELSVILKÅRET_MOR.equals(vilkårType) || VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR.equals(
+            vilkårType)) {
             return HistorikkEndretFeltType.FODSELSVILKARET;
         } else if (VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD.equals(vilkårType)) {
             return HistorikkEndretFeltType.ADOPSJONSVILKARET;
@@ -79,14 +94,13 @@ public abstract class VurdereYtelseSammeBarnOppdaterer implements AksjonspunktOp
         return HistorikkEndretFeltType.UDEFINIERT;
     }
 
-    private Optional<Vilkår> finnRelevantVilkår(Behandling behandling) {
+    private Optional<Vilkår> finnRelevantVilkår(BehandlingReferanse behandlingReferanse) {
 
-        List<VilkårType> relevanteVilkårTyper = Arrays.asList(VilkårType.FØDSELSVILKÅRET_MOR, VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR, VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD);
-        List<Vilkår> vilkårene = behandling.getBehandlingsresultat().getVilkårResultat().getVilkårene();
+        List<VilkårType> relevanteVilkårTyper = Arrays.asList(VilkårType.FØDSELSVILKÅRET_MOR,
+            VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR, VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD);
+        List<Vilkår> vilkårene = behandlingsresultatRepository.hent(behandlingReferanse.getBehandlingId()).getVilkårResultat().getVilkårene();
 
-        return vilkårene.stream()
-                .filter(v -> relevanteVilkårTyper.contains(v.getVilkårType()))
-                .findFirst();
+        return vilkårene.stream().filter(v -> relevanteVilkårTyper.contains(v.getVilkårType())).findFirst();
     }
 
     @ApplicationScoped
@@ -97,8 +111,10 @@ public abstract class VurdereYtelseSammeBarnOppdaterer implements AksjonspunktOp
         }
 
         @Inject
-        public VurdereYtelseSammeBarnSøkerOppdaterer(HistorikkTjenesteAdapter historikkAdapter) {
-            super(historikkAdapter);
+        public VurdereYtelseSammeBarnSøkerOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
+                                                     BehandlingsresultatRepository behandlingsresultatRepository,
+                                                     BehandlingRepository behandlingRepository) {
+            super(historikkAdapter, behandlingsresultatRepository, behandlingRepository);
         }
     }
 
@@ -110,8 +126,10 @@ public abstract class VurdereYtelseSammeBarnOppdaterer implements AksjonspunktOp
         }
 
         @Inject
-        public VurdereYtelseSammeBarnAnnenForelderOppdaterer(HistorikkTjenesteAdapter historikkAdapter) {
-            super(historikkAdapter);
+        public VurdereYtelseSammeBarnAnnenForelderOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
+                                                             BehandlingsresultatRepository behandlingsresultatRepository,
+                                                             BehandlingRepository behandlingRepository) {
+            super(historikkAdapter, behandlingsresultatRepository, behandlingRepository);
         }
     }
 }
