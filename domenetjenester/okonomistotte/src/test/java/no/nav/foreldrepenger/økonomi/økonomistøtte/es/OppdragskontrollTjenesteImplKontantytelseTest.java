@@ -9,6 +9,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -51,18 +53,17 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollManagerFac
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollTjenesteImpl;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OpprettBehandlingForOppdrag;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.kontantytelse.es.OppdragskontrollEngangsstønad;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.kontantytelse.es.OppdragskontrollManagerFactoryKontantytelse;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.kontantytelse.es.adapter.MapBehandlingInfoES;
-import no.nav.vedtak.felles.testutilities.db.Repository;
+import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
 
 public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManagerAwareTest {
 
     private static final String KODE_KLASSIFIK_FODSEL = "FPENFOD-OP";
     private static final String TYPE_SATS_ES = "ENG";
 
-    private Repository repository;
+    private EntityManager entityManager;
 
     private ØkonomioppdragRepository økonomioppdragRepository;
     private BehandlingRepositoryProvider repositoryProvider;
@@ -82,7 +83,7 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
         BehandlingVedtakRepository behandlingVedtakRepository = new BehandlingVedtakRepository(entityManager);
         FamilieHendelseRepository familieHendelseRepository = new FamilieHendelseRepository(entityManager);
 
-        repository = new Repository(entityManager);
+        this.entityManager = entityManager;
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         økonomioppdragRepository = new ØkonomioppdragRepository(entityManager);
@@ -375,12 +376,12 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
         if (VedtakResultatType.INNVILGET.equals(vedtakResultatType)) {
             beregningRepository.lagre(behandlingsresultat.getBeregningResultat(), behandlingLås);
         }
-        repository.lagre(behandlingsresultat);
+        entityManager.persist(behandlingsresultat);
 
         BehandlingVedtak behandlingVedtak = OpprettBehandlingForOppdrag.opprettBehandlingVedtak(revurdering,
             behandlingsresultat, vedtakResultatType);
         repositoryProvider.getBehandlingVedtakRepository().lagre(behandlingVedtak, behandlingLås);
-        repository.flush();
+        entityManager.flush();
 
         return revurdering;
     }
@@ -401,13 +402,13 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
         Behandlingsresultat behandlingsresultat = getBehandlingsresultat(behandling);
         behandlingRepository.lagre(behandlingsresultat.getVilkårResultat(), lås);
         beregningRepository.lagre(behandlingsresultat.getBeregningResultat(), lås);
-        repository.lagre(behandlingsresultat);
+        entityManager.persist(behandlingsresultat);
 
         behandlingVedtak = OpprettBehandlingForOppdrag.opprettBehandlingVedtak(behandling, behandlingsresultat,
             VedtakResultatType.INNVILGET, vedtaksdatoFørIDag);
         repositoryProvider.getBehandlingVedtakRepository().lagre(behandlingVedtak, lås);
 
-        repository.flush();
+        entityManager.flush();
 
         return behandling;
     }

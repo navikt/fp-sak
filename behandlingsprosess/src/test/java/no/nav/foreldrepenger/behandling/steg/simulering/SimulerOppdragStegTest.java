@@ -40,7 +40,6 @@ import no.nav.foreldrepenger.økonomi.simulering.kontrakt.SimuleringResultatDto;
 import no.nav.foreldrepenger.økonomi.simulering.tjeneste.SimuleringIntegrasjonTjeneste;
 import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.SimulerOppdragTjeneste;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
 @CdiDbAwareTest
 public class SimulerOppdragStegTest {
@@ -58,7 +57,7 @@ public class SimulerOppdragStegTest {
     private SimuleringIntegrasjonTjeneste simuleringIntegrasjonTjeneste;
 
     private final BehandlingProsesseringTjeneste behandlingProsesseringTjeneste = mock(BehandlingProsesseringTjeneste.class);
-    private Repository repository;
+    private EntityManager entityManager;
 
     private Behandling behandling;
     private BehandlingskontrollKontekst kontekst;
@@ -70,7 +69,7 @@ public class SimulerOppdragStegTest {
         BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
         simuleringIntegrasjonTjeneste = new SimuleringIntegrasjonTjeneste(fpOppdragRestKlientMock);
         tilbakekrevingRepository = new TilbakekrevingRepository(entityManager);
-        repository = new Repository(entityManager);
+        this.entityManager = entityManager;
         behandling = scenario.lagre(repositoryProvider);
         kontekst = new BehandlingskontrollKontekst(behandling.getFagsakId(), behandling.getAktørId(),
                 behandlingRepository.taSkriveLås(behandling));
@@ -107,14 +106,16 @@ public class SimulerOppdragStegTest {
         tilbakekrevingRepository.lagre(behandling,
                 TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.TILBAKEKREV_I_INFOTRYGD,
                         "varsel"));
-        repository.flushAndClear();
+        entityManager.flush();
+        entityManager.clear();
 
         steg = opprettSteg();
 
         // Act
         steg.vedHoppOverBakover(kontekst, mock(BehandlingStegModell.class), BehandlingStegType.VURDER_UTTAK,
                 BehandlingStegType.FATTE_VEDTAK);
-        repository.flushAndClear();
+        entityManager.flush();
+        entityManager.clear();
 
         // Assert
         Optional<TilbakekrevingValg> tilbakekrevingValg = tilbakekrevingRepository.hent(behandling.getId());
@@ -131,7 +132,8 @@ public class SimulerOppdragStegTest {
 
         // Act
         BehandleStegResultat resultat = steg.utførSteg(kontekst);
-        repository.flushAndClear();
+        entityManager.flush();
+        entityManager.clear();
 
         // Assert
         assertThat(resultat.getAksjonspunktListe()).isEmpty();
@@ -189,7 +191,8 @@ public class SimulerOppdragStegTest {
 
         // Act
         BehandleStegResultat resultat = steg.utførSteg(kontekst);
-        repository.flushAndClear();
+        entityManager.flush();
+        entityManager.clear();
 
         assertThat(resultat.getAksjonspunktListe()).isEmpty();
         assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
@@ -211,7 +214,8 @@ public class SimulerOppdragStegTest {
 
         // Act
         BehandleStegResultat resultat = steg.utførSteg(kontekst);
-        repository.flushAndClear();
+        entityManager.flush();
+        entityManager.clear();
 
         assertThat(resultat.getAksjonspunktListe()).isEmpty();
         assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
@@ -228,7 +232,8 @@ public class SimulerOppdragStegTest {
 
         // Act
         BehandleStegResultat resultat = steg.utførSteg(kontekst);
-        repository.flushAndClear();
+        entityManager.flush();
+        entityManager.clear();
 
         assertThat(resultat.getAksjonspunktListe()).isEmpty();
         assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);

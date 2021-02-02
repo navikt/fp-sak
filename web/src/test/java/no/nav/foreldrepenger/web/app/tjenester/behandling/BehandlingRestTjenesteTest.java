@@ -94,15 +94,13 @@ public class BehandlingRestTjenesteTest extends RepositoryAwareTest {
 
         Behandlingsresultat behandlingsresultat = morsBehandling.getBehandlingsresultat();
         Behandlingsresultat.builderEndreEksisterende(behandlingsresultat).medBehandlingResultatType(BehandlingResultatType.INNVILGET);
-        repository.lagre(behandlingsresultat);
+        entityManager.persist(behandlingsresultat);
         morsBehandling.avsluttBehandling();
-        repository.lagre(morsBehandling);
+        entityManager.persist(morsBehandling);
 
         Behandling farsBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
         repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
-
-        // repoRule.getRepository().flushAndClear();
 
         // Act
         @SuppressWarnings("resource")

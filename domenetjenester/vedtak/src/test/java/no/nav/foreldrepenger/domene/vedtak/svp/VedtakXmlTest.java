@@ -57,14 +57,12 @@ import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakR
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriodeRegelType;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.PeriodeÅrsak;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Sammenligningsgrunnlag;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -80,7 +78,6 @@ import no.nav.foreldrepenger.domene.vedtak.xml.VedtakXmlTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
 @CdiDbAwareTest
 public class VedtakXmlTest {
@@ -89,22 +86,15 @@ public class VedtakXmlTest {
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now().minusDays(5);
     private static final IverksettingStatus IVERKSETTING_STATUS = IverksettingStatus.IKKE_IVERKSATT;
     private static final String ANSVARLIG_SAKSBEHANDLER = "fornavn etternavn";
-    private static final BeregningsgrunnlagTilstand STEG_FASTSATT = BeregningsgrunnlagTilstand.FASTSATT;
-    private static LocalDateTime VEDTAK_DATO = LocalDateTime.parse("2017-10-11T08:00");
+    private static final LocalDateTime VEDTAK_DATO = LocalDateTime.parse("2017-10-11T08:00");
     private final AktørId AKTØR_ID = AktørId.dummy();
 
-    private LocalDate jordmorsdato = LocalDate.now().minusDays(30);
-    private final BehandlingRepositoryProvider repositoryProvider;
-    private final BehandlingRepository behandlingRepository;
-    private final SvangerskapspengerRepository svangerskapspengerRepository;
-    private final Repository repository;
+    private BehandlingRepositoryProvider repositoryProvider;
+    private BehandlingRepository behandlingRepository;
+    private SvangerskapspengerRepository svangerskapspengerRepository;
+    private EntityManager entityManager;
 
-    public VedtakXmlTest(EntityManager em) {
-        repository = new Repository(em);
-        repositoryProvider = new BehandlingRepositoryProvider(em);
-        behandlingRepository = repositoryProvider.getBehandlingRepository();
-        svangerskapspengerRepository = repositoryProvider.getSvangerskapspengerRepository();
-    }
+    private final LocalDate jordmorsdato = LocalDate.now().minusDays(30);
 
     @Mock
     private PersoninfoAdapter personinfoAdapter;
@@ -121,27 +111,26 @@ public class VedtakXmlTest {
     @Inject
     private BehandlingsresultatXmlTjeneste behandlingsresultatXmlTjeneste;
 
-    @Mock
-    private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
-
     @Inject
     private BeregningsresultatRepository beregningsresultatRepository;
 
-    private PersonopplysningXmlTjenesteImpl personopplysningXmlTjeneste;
     private FatteVedtakXmlTjeneste fpSakVedtakXmlTjeneste;
 
-    private VedtakXmlTjeneste vedtakXmlTjeneste;
-
     @BeforeEach
-    public void oppsett() {
+    public void oppsett(EntityManager em) {
+        entityManager = em;
+        repositoryProvider = new BehandlingRepositoryProvider(em);
+        behandlingRepository = repositoryProvider.getBehandlingRepository();
+        svangerskapspengerRepository = repositoryProvider.getSvangerskapspengerRepository();
         SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
         var stp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build();
         Mockito.when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(Mockito.any())).thenReturn(stp);
 
         var poXmlFelles = new PersonopplysningXmlFelles(personinfoAdapter);
-        personopplysningXmlTjeneste = new PersonopplysningXmlTjenesteImpl(poXmlFelles, repositoryProvider, personopplysningTjeneste,
-                iayTjeneste, ytelseFordelingTjeneste, mock(VergeRepository.class), mock(VirksomhetTjeneste.class));
-        vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider);
+        PersonopplysningXmlTjenesteImpl personopplysningXmlTjeneste = new PersonopplysningXmlTjenesteImpl(poXmlFelles,
+            repositoryProvider, personopplysningTjeneste, iayTjeneste, ytelseFordelingTjeneste,
+            mock(VergeRepository.class), mock(VirksomhetTjeneste.class));
+        VedtakXmlTjeneste vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider);
         fpSakVedtakXmlTjeneste = new FatteVedtakXmlTjeneste(repositoryProvider, vedtakXmlTjeneste,
                 new UnitTestLookupInstanceImpl<>(personopplysningXmlTjeneste),
                 behandlingsresultatXmlTjeneste,
@@ -309,7 +298,7 @@ public class VedtakXmlTest {
                 .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
                 .buildFor(behandlingsresultat);
 
-        repository.lagre(vilkårResultat);
+        entityManager.persist(vilkårResultat);
         behandlingsresultat.medOppdatertVilkårResultat(vilkårResultat);
         behandling.setBehandlingresultat(behandlingsresultat);
 

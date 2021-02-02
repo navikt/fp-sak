@@ -81,7 +81,6 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollManagerFac
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollTjenesteImpl;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.OpprettBehandlingForOppdrag;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.OppdragskontrollManagerFactoryDagYtelse;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.SjekkOmDetFinnesTilkjentYtelse;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.adapter.BehandlingTilOppdragMapperTjeneste;
@@ -90,7 +89,7 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.endring.Oppdrags
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.førstegangsoppdrag.OppdragskontrollFørstegang;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.opphør.OppdragskontrollOpphør;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.opphør.OpprettOpphørIEndringsoppdrag;
-import no.nav.vedtak.felles.testutilities.db.Repository;
+import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
 
 @CdiDbAwareTest
 public abstract class OppdragskontrollTjenesteTestBase {
@@ -107,7 +106,6 @@ public abstract class OppdragskontrollTjenesteTestBase {
     static final int I_ÅR = DAGENS_DATO.getYear();
     static final List<Integer> FERIEPENGEÅR_LISTE = List.of(DAGENS_DATO.plusYears(1).getYear(),
         DAGENS_DATO.plusYears(2).getYear());
-    protected Repository repository;
     protected ØkonomioppdragRepository økonomioppdragRepository;
     protected BehandlingRepositoryProvider repositoryProvider;
     protected BehandlingRepository behandlingRepository;
@@ -142,7 +140,6 @@ public abstract class OppdragskontrollTjenesteTestBase {
 
     public void setUp() {
         økonomioppdragRepository = new ØkonomioppdragRepository(entityManager);
-        repository = new Repository(entityManager);
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
@@ -209,11 +206,11 @@ public abstract class OppdragskontrollTjenesteTestBase {
             .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
             .buildFor(behandlingFP);
         behandlingRepository.lagre(getBehandlingsresultat(behandlingFP).getVilkårResultat(), lås);
-        repository.lagre(getBehandlingsresultat(behandlingFP));
+        entityManager.persist(getBehandlingsresultat(behandlingFP));
         behVedtak = OpprettBehandlingForOppdrag.opprettBehandlingVedtak(behandlingFP,
             getBehandlingsresultat(behandlingFP), VedtakResultatType.INNVILGET);
         repositoryProvider.getBehandlingVedtakRepository().lagre(behVedtak, lås);
-        repository.flush();
+        entityManager.flush();
         return behandlingFP;
     }
 
@@ -234,13 +231,13 @@ public abstract class OppdragskontrollTjenesteTestBase {
             .buildFor(behandling);
 
         behandlingRepository.lagre(getBehandlingsresultat(behandling).getVilkårResultat(), lås);
-        repository.lagre(getBehandlingsresultat(behandling));
+        entityManager.persist(getBehandlingsresultat(behandling));
 
         behVedtak = OpprettBehandlingForOppdrag.opprettBehandlingVedtak(behandling, getBehandlingsresultat(behandling),
             VedtakResultatType.INNVILGET);
         repositoryProvider.getBehandlingVedtakRepository().lagre(behVedtak, lås);
 
-        repository.flush();
+        entityManager.flush();
 
         return behandling;
     }
@@ -428,12 +425,12 @@ public abstract class OppdragskontrollTjenesteTestBase {
             Behandlingsresultat.builderEndreEksisterende(behandlingsresultat)
                 .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
         }
-        repository.lagre(getBehandlingsresultat(revurdering));
+        entityManager.persist(getBehandlingsresultat(revurdering));
 
         BehandlingVedtak behandlingVedtak = OpprettBehandlingForOppdrag.opprettBehandlingVedtak(revurdering,
             getBehandlingsresultat(revurdering), resultat);
         repositoryProvider.getBehandlingVedtakRepository().lagre(behandlingVedtak, behandlingLås);
-        repository.flush();
+        entityManager.flush();
 
         return revurdering;
     }

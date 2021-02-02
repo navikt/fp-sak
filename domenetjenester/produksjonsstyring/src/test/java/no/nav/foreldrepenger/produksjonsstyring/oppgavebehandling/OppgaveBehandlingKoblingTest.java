@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -14,12 +16,11 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
 public class OppgaveBehandlingKoblingTest extends EntityManagerAwareTest {
     private static final Saksnummer SAKSNUMMER = new Saksnummer("123");
 
-    private Repository repository;
+    private EntityManager entityManager;
 
     private BehandlingRepositoryProvider repositoryProvider;
 
@@ -27,8 +28,7 @@ public class OppgaveBehandlingKoblingTest extends EntityManagerAwareTest {
 
     @BeforeEach
     public void setup() {
-        var entityManager = getEntityManager();
-        repository = new Repository(entityManager);
+        this.entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         oppgaveBehandlingKoblingRepository = new OppgaveBehandlingKoblingRepository(entityManager);
     }
@@ -50,7 +50,7 @@ public class OppgaveBehandlingKoblingTest extends EntityManagerAwareTest {
         long id = lagreOppgave(oppgave);
 
         // Assert
-        OppgaveBehandlingKobling oppgaveFraBase = repository.hent(OppgaveBehandlingKobling.class, id);
+        OppgaveBehandlingKobling oppgaveFraBase = entityManager.find(OppgaveBehandlingKobling.class, id);
         assertThat(oppgaveFraBase.getOppgaveId()).isEqualTo(oppgaveIdFraGSAK);
     }
 
@@ -102,7 +102,7 @@ public class OppgaveBehandlingKoblingTest extends EntityManagerAwareTest {
         oppgaveKoblingFraBase.ferdigstillOppgave(saksbehandler);
         lagreOppgave(oppgaveKoblingFraBase);
 
-        OppgaveBehandlingKobling oppgaveHentetFraBasen = repository.hent(OppgaveBehandlingKobling.class, oppgaveKoblingFraBase.getId());
+        OppgaveBehandlingKobling oppgaveHentetFraBasen = entityManager.find(OppgaveBehandlingKobling.class, oppgaveKoblingFraBase.getId());
         assertThat(oppgaveHentetFraBasen.isFerdigstilt()).isTrue();
     }
 

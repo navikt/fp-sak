@@ -39,13 +39,11 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntit
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.vedtak.impl.BehandlingVedtakEventPubliserer;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
 public class BehandlingVedtakTjenesteTest extends EntityManagerAwareTest {
 
     public static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
 
-    private Repository repository;
     private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingVedtakTjeneste behandlingVedtakTjeneste;
     private BehandlingRepository behandlingRepository;
@@ -58,7 +56,6 @@ public class BehandlingVedtakTjenesteTest extends EntityManagerAwareTest {
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         behandlingVedtakTjeneste = new BehandlingVedtakTjeneste(behandlingVedtakEventPubliserer, repositoryProvider);
-        repository = new Repository(entityManager);
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         fpUttakRepository = repositoryProvider.getFpUttakRepository();
         behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
@@ -141,7 +138,6 @@ public class BehandlingVedtakTjenesteTest extends EntityManagerAwareTest {
         behandlingRepository.lagre(behandlingsresultat.getVilkårResultat(), lås);
 
         behandlingRepository.lagre(behandling, lås);
-        repository.flush();
     }
 
     private BehandlingskontrollKontekst byggBehandlingsgrunnlagFPForFødsel(BehandlingStegType behandlingStegType) {

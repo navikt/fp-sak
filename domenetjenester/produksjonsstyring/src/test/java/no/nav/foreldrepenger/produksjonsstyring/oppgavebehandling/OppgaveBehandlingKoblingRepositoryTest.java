@@ -6,6 +6,8 @@ import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -14,12 +16,11 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
 public class OppgaveBehandlingKoblingRepositoryTest extends EntityManagerAwareTest {
 
     private static final Saksnummer DUMMY_SAKSNUMMER = new Saksnummer("123");
-    private Repository repository;
+    private EntityManager entityManager;
 
     private OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository;
 
@@ -27,7 +28,7 @@ public class OppgaveBehandlingKoblingRepositoryTest extends EntityManagerAwareTe
     void setUp() {
         var entityManager = getEntityManager();
         oppgaveBehandlingKoblingRepository = new OppgaveBehandlingKoblingRepository(entityManager);
-        repository = new Repository(entityManager);
+        this.entityManager = entityManager;
     }
 
     @Test
@@ -117,7 +118,7 @@ public class OppgaveBehandlingKoblingRepositoryTest extends EntityManagerAwareTe
 
     private void lagOppgave(OppgaveBehandlingKobling oppgaveBehandlingKobling) {
         oppgaveBehandlingKoblingRepository.lagre(oppgaveBehandlingKobling);
-        repository.flush();
+        entityManager.flush();
     }
 
 

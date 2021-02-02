@@ -34,11 +34,11 @@ import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
+
+//TODO palfi fjern
 public class RepositoryAwareTest extends EntityManagerAwareTest {
 
-    protected Repository repository;
     protected BehandlingRepositoryProvider repositoryProvider;
     protected SvangerskapspengerRepository svangerskapspengerRepository;
     protected FamilieHendelseRepository familieHendelseRepository;
@@ -72,37 +72,37 @@ public class RepositoryAwareTest extends EntityManagerAwareTest {
 
     @BeforeEach
     public void beforeEach() {
-        repository = new Repository(getEntityManager());
-        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        hendelsemottakRepository = new HendelsemottakRepository(getEntityManager());
-        beregningsgrunnlagRepository = new BeregningsgrunnlagRepository(getEntityManager());
-        svangerskapspengerRepository = new SvangerskapspengerRepository(getEntityManager());
-        familieHendelseRepository = new FamilieHendelseRepository(getEntityManager());
-        behandlingRepository = new BehandlingRepository(getEntityManager());
-        ytelsesfordelingRepository = new YtelsesFordelingRepository(getEntityManager());
-        personopplysningRepository = new PersonopplysningRepository(getEntityManager());
-        medlemskapRepository = new MedlemskapRepository(getEntityManager());
-        ytelsesFordelingRepository = new YtelsesFordelingRepository(getEntityManager());
-        opptjeningIUtlandDokStatusRepository = new OpptjeningIUtlandDokStatusRepository(getEntityManager());
-        vergeRepository = new VergeRepository(getEntityManager(), behandlingLåsRepository);
-        behandlingLåsRepository = new BehandlingLåsRepository(getEntityManager());
-        fagsakRepository = new FagsakRepository(getEntityManager());
-        medlemskapVilkårPeriodeRepository = new MedlemskapVilkårPeriodeRepository(getEntityManager());
-        historikkRepository = new HistorikkRepository(getEntityManager());
-        søknadRepository = new SøknadRepository(getEntityManager(), behandlingRepository);
-        fagsakRelasjonRepository = new FagsakRelasjonRepository(getEntityManager(), ytelsesFordelingRepository, fagsakLåsRepository);
-        fpUttakRepository = new FpUttakRepository(getEntityManager());
-        uttaksperiodegrenseRepository = new UttaksperiodegrenseRepository(getEntityManager());
-        behandlingVedtakRepository = new BehandlingVedtakRepository(getEntityManager());
-        opptjeningRepository = new OpptjeningRepository(getEntityManager(), behandlingRepository);
-        beregningsresultatRepository = new BeregningsresultatRepository(getEntityManager());
-        mottatteDokumentRepository = new MottatteDokumentRepository(getEntityManager());
-        behandlingRevurderingRepository = new BehandlingRevurderingRepository(getEntityManager(), behandlingRepository, fagsakRelasjonRepository,
+        entityManager = getEntityManager();
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        hendelsemottakRepository = new HendelsemottakRepository(entityManager);
+        beregningsgrunnlagRepository = new BeregningsgrunnlagRepository(entityManager);
+        svangerskapspengerRepository = new SvangerskapspengerRepository(entityManager);
+        familieHendelseRepository = new FamilieHendelseRepository(entityManager);
+        behandlingRepository = new BehandlingRepository(entityManager);
+        ytelsesfordelingRepository = new YtelsesFordelingRepository(entityManager);
+        personopplysningRepository = new PersonopplysningRepository(entityManager);
+        medlemskapRepository = new MedlemskapRepository(entityManager);
+        ytelsesFordelingRepository = new YtelsesFordelingRepository(entityManager);
+        opptjeningIUtlandDokStatusRepository = new OpptjeningIUtlandDokStatusRepository(entityManager);
+        vergeRepository = new VergeRepository(entityManager, behandlingLåsRepository);
+        behandlingLåsRepository = new BehandlingLåsRepository(entityManager);
+        fagsakRepository = new FagsakRepository(entityManager);
+        medlemskapVilkårPeriodeRepository = new MedlemskapVilkårPeriodeRepository(entityManager);
+        historikkRepository = new HistorikkRepository(entityManager);
+        søknadRepository = new SøknadRepository(entityManager, behandlingRepository);
+        fagsakRelasjonRepository = new FagsakRelasjonRepository(entityManager, ytelsesFordelingRepository, fagsakLåsRepository);
+        fpUttakRepository = new FpUttakRepository(entityManager);
+        uttaksperiodegrenseRepository = new UttaksperiodegrenseRepository(entityManager);
+        behandlingVedtakRepository = new BehandlingVedtakRepository(entityManager);
+        opptjeningRepository = new OpptjeningRepository(entityManager, behandlingRepository);
+        beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
+        mottatteDokumentRepository = new MottatteDokumentRepository(entityManager);
+        behandlingRevurderingRepository = new BehandlingRevurderingRepository(entityManager, behandlingRepository, fagsakRelasjonRepository,
                 søknadRepository, behandlingLåsRepository);
-        behandlingsresultatRepository = new BehandlingsresultatRepository(getEntityManager());
-        svangerskapspengerUttakResultatRepository = new SvangerskapspengerUttakResultatRepository(getEntityManager());
-        fagsakLåsRepository = new FagsakLåsRepository(getEntityManager());
-        prosessTaskRepository = new ProsessTaskRepositoryImpl(getEntityManager(), null, null);
+        behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
+        svangerskapspengerUttakResultatRepository = new SvangerskapspengerUttakResultatRepository(entityManager);
+        fagsakLåsRepository = new FagsakLåsRepository(entityManager);
+        prosessTaskRepository = new ProsessTaskRepositoryImpl(entityManager, null, null);
     }
 
 }

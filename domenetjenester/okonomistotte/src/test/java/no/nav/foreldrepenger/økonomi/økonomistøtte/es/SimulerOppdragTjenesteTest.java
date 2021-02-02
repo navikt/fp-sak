@@ -35,7 +35,6 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.SimulerOppdragTjeneste;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.kontantytelse.es.OppdragskontrollEngangsstønad;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.kontantytelse.es.adapter.MapBehandlingInfoES;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
 @ExtendWith(MockitoExtension.class)
 public class SimulerOppdragTjenesteTest extends EntityManagerAwareTest {
@@ -96,7 +95,7 @@ public class SimulerOppdragTjenesteTest extends EntityManagerAwareTest {
         // Arrange
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         Behandling behandling = scenario.lagre(repositoryProvider);
-        new Repository(getEntityManager()).lagre(behandling.getBehandlingsresultat());
+        getEntityManager().persist(behandling.getBehandlingsresultat());
 
         // Act
         var resultat = simulerOppdragTjeneste.simulerOppdrag(behandling.getId(), 0L);

@@ -35,7 +35,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.vedtak.OpprettProsessTaskIverksett;
 import no.nav.foreldrepenger.domene.vedtak.impl.VurderBehandlingerUnderIverksettelse;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
 @CdiDbAwareTest
 public class IverksetteVedtakStegYtelseTest {
@@ -48,7 +47,7 @@ public class IverksetteVedtakStegYtelseTest {
     @Mock
     private OpprettProsessTaskIverksett opprettProsessTaskIverksett;
 
-    private Repository repository;
+    private EntityManager entityManager;
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private HistorikkRepository historikkRepository;
 
@@ -60,7 +59,7 @@ public class IverksetteVedtakStegYtelseTest {
     @BeforeEach
     public void setup(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        repository = new Repository(entityManager);
+        this.entityManager = entityManager;
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         historikkRepository = repositoryProvider.getHistorikkRepository();
@@ -117,9 +116,9 @@ public class IverksetteVedtakStegYtelseTest {
 
         Behandlingsresultat behandlingsresultat = getBehandlingsresultat(behandling);
         behandlingRepository.lagre(behandlingsresultat.getVilkårResultat(), lås);
-        repository.lagre(behandlingsresultat);
+        entityManager.persist(behandlingsresultat);
 
-        repository.flush();
+        entityManager.flush();
 
         return behandling;
     }

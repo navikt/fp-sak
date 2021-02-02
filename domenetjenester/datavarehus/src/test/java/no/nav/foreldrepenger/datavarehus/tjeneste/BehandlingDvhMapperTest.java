@@ -58,7 +58,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
 @ExtendWith(FPsakEntityManagerAwareExtension.class)
 public class BehandlingDvhMapperTest {
@@ -127,7 +126,6 @@ public class BehandlingDvhMapperTest {
     @Test
     public void skal_mappe_til_behandling_dvh_foerste_stoenadsdag(EntityManager entityManager) {
         var repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        var repository = new Repository(entityManager);
 
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         var familieHendelseBuilder = scenario.medSøknadHendelse();
@@ -135,7 +133,7 @@ public class BehandlingDvhMapperTest {
             .medFødselsDato(LocalDate.now())
             .medAdopsjon(familieHendelseBuilder.getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now()));
         var behandling = scenario.lagre(repositoryProvider);
-        repository.lagre(behandling.getBehandlingsresultat());
+        entityManager.persist(behandling.getBehandlingsresultat());
 
         var mottattTidspunkt = LocalDateTime.now();
         var fpUttakRepository = new FpUttakRepository(entityManager);
