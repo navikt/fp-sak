@@ -86,13 +86,8 @@ public class Feriepengesammenligner {
         tilkjent.forEach((key,value) -> summertÅr.put(key.getOpptjent(), summertÅr.getOrDefault(key.getOpptjent(), BigDecimal.ZERO).add(value.getVerdi())));
         simulert.forEach((key,value) -> summertÅr.put(key.getOpptjent(), summertÅr.getOrDefault(key.getOpptjent(), BigDecimal.ZERO).subtract(value.getVerdi())));
 
-        summertÅr.entrySet().stream()
-            .filter(e -> Math.abs(e.getValue().longValue()) > 3)
-            .forEach(e -> LOGGER.info("{} årlig tilkjent-simulert saksnummer {} behandling {} år {} diff {}",
-                AVVIK_KODE, saksnummer, behandlingId, e.getKey(), e.getValue().longValue()));
-
         summert.entrySet().stream()
-            .filter(e -> Math.abs(e.getValue().longValue()) > 3)
+            .filter(e -> erAvvik(e.getValue()))
             .forEach(e -> LOGGER.info("{} andel {} saksnummer {} behandling {} år {} mottaker {} diff {} gammel {} ny {}",
                 AVVIK_KODE, erAvvik(summertÅr.get(e.getKey().getOpptjent())) ? "tilkjent-simulert" : "omfordelt",
                 saksnummer, behandlingId, e.getKey().getOpptjent(), e.getKey().getMottaker(), e.getValue().longValue(),

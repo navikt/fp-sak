@@ -33,6 +33,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTekstBuilderFormater;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagTotrinnsvurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageAvvistÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageMedholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapManuellVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingVidereBehandling;
@@ -96,6 +98,10 @@ public class HistorikkInnslagTekstBuilder {
             // Domene : arbeid og beregningsgrunnlag
             new SimpleEntry<>(Inntektskategori.KODEVERK, Inntektskategori.kodeMap()),
             new SimpleEntry<>(VurderArbeidsforholdHistorikkinnslag.KODEVERK, VurderArbeidsforholdHistorikkinnslag.kodeMap()),
+
+            // Domene : klage og anke
+            new SimpleEntry<>(KlageMedholdÅrsak.KODEVERK, KlageMedholdÅrsak.kodeMap()),
+            new SimpleEntry<>(KlageAvvistÅrsak.KODEVERK, KlageAvvistÅrsak.kodeMap()),
 
             // Domene : Tilbakekreving
             new SimpleEntry<>(TilbakekrevingVidereBehandling.KODEVERK, TilbakekrevingVidereBehandling.kodeMap()));
