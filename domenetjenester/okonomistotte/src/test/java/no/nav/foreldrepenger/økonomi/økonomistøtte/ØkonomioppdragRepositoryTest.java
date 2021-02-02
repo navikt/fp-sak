@@ -6,6 +6,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.time.LocalDate;
 import java.util.List;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,17 +22,16 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
 public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
 
-    private Repository repository;
+    private EntityManager entityManager;
     private ØkonomioppdragRepository økonomioppdragRepository;
 
     @BeforeEach
     void setUp() {
         var entityManager = getEntityManager();
-        repository = new Repository(entityManager);
+        this.entityManager = entityManager;
         økonomioppdragRepository = new ØkonomioppdragRepository(entityManager);
     }
 
@@ -197,7 +198,7 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
         Long id = avstemming115.getId();
         assertThat(id).isNotNull();
 
-        Avstemming115 avst115Lest = repository.hent(Avstemming115.class, id);
+        Avstemming115 avst115Lest = entityManager.find(Avstemming115.class, id);
         assertThat(avst115Lest).isNotNull();
     }
 
@@ -215,7 +216,7 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
         Long id = oppdrsEnhet120.getId();
         assertThat(id).isNotNull();
 
-        Oppdragsenhet120 oppdrsEnhet120Lest = repository.hent(Oppdragsenhet120.class, id);
+        Oppdragsenhet120 oppdrsEnhet120Lest = entityManager.find(Oppdragsenhet120.class, id);
         assertThat(oppdrsEnhet120Lest).isNotNull();
     }
 
@@ -233,7 +234,7 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
         Long id = oppdrLinje150.getId();
         assertThat(id).isNotNull();
 
-        Oppdragslinje150 oppdrLinje150Lest = repository.hent(Oppdragslinje150.class, id);
+        Oppdragslinje150 oppdrLinje150Lest = entityManager.find(Oppdragslinje150.class, id);
         assertThat(oppdrLinje150Lest).isNotNull();
     }
 
@@ -253,7 +254,7 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
         Long id = oppdrLinje150.getId();
         assertThat(id).isNotNull();
 
-        Oppdragslinje150 oppdrLinje150Lest = repository.hent(Oppdragslinje150.class, id);
+        Oppdragslinje150 oppdrLinje150Lest = entityManager.find(Oppdragslinje150.class, id);
         assertThat(oppdrLinje150Lest).isNotNull();
         Grad170 grad170Lest = oppdrLinje150Lest.getGrad170Liste().get(0);
         assertThat(grad170Lest).isNotNull();
@@ -276,7 +277,7 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
         Long id = oppdrLinje150.getId();
         assertThat(id).isNotNull();
 
-        Oppdragslinje150 oppdrLinje150Lest = repository.hent(Oppdragslinje150.class, id);
+        Oppdragslinje150 oppdrLinje150Lest = entityManager.find(Oppdragslinje150.class, id);
         assertThat(oppdrLinje150Lest).isNotNull();
         Refusjonsinfo156 refusjonsinfo156Lest = oppdrLinje150Lest.getRefusjonsinfo156();
         assertThat(refusjonsinfo156Lest).isNotNull();
@@ -303,7 +304,7 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
         Long id = attestant180.getId();
         assertThat(id).isNotNull();
 
-        Attestant180 attestant180Lest = repository.hent(Attestant180.class, id);
+        Attestant180 attestant180Lest = entityManager.find(Attestant180.class, id);
         assertThat(attestant180Lest).isNotNull();
     }
 

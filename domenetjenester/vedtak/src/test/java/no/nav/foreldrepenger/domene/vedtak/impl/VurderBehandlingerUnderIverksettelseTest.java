@@ -4,8 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
@@ -21,21 +24,20 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioInnsynEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
-import no.nav.vedtak.felles.testutilities.db.Repository;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 
-public class VurderBehandlingerUnderIverksettelseTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class VurderBehandlingerUnderIverksettelseTest {
 
-    private Repository repository;
+    private EntityManager entityManager;
     private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingRepository behandlingRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private VurderBehandlingerUnderIverksettelse tjeneste;
 
     @BeforeEach
-    public void setup() {
-        var entityManager = getEntityManager();
-        repository = new Repository(entityManager);
+    public void setup(EntityManager entityManager) {
+        this.entityManager = entityManager;
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         behandlingVedtakRepository = new BehandlingVedtakRepository(entityManager);
@@ -46,7 +48,7 @@ public class VurderBehandlingerUnderIverksettelseTest extends EntityManagerAware
         ScenarioMorSøkerForeldrepenger førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         førstegangScenario.medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår());
         var førstegangBehandling = førstegangScenario.lagre(repositoryProvider);
-        repository.lagre(getBehandlingsresultat(førstegangBehandling));
+        entityManager.persist(getBehandlingsresultat(førstegangBehandling));
         return førstegangBehandling;
     }
 
@@ -128,7 +130,7 @@ public class VurderBehandlingerUnderIverksettelseTest extends EntityManagerAware
         BehandlingLås lås = new BehandlingLås(revurdering.getId());
         behandlingRepository.lagre(revurdering, lås);
         Behandlingsresultat behandlingsresultat = Behandlingsresultat.builderForInngangsvilkår().buildFor(revurdering);
-        repository.lagre(behandlingsresultat);
+        entityManager.persist(behandlingsresultat);
         behandlingRepository.lagre(behandlingsresultat.getVilkårResultat(), lås);
         return revurdering;
     }

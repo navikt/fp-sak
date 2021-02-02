@@ -56,7 +56,6 @@ import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.TfradragTillegg
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomistøtteUtils;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
 @CdiDbAwareTest
 public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
@@ -66,7 +65,7 @@ public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
     private static final AktørId AKTØR_ID_PRIVAT_ARBEIDSGIVER2 = AktørId.dummy();
     private static final String ARBEIDSGIVER_ORGNR = KUNSTIG_ORG;
 
-    private Repository repository;
+    private EntityManager entityManager;
     private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
@@ -85,7 +84,7 @@ public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
 
     @BeforeEach
     public void setUp(EntityManager entityManager) {
-        repository = new Repository(entityManager);
+        this.entityManager = entityManager;
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         var behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
@@ -377,12 +376,12 @@ public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
 
         Behandlingsresultat behandlingsresultat = behandling.getBehandlingsresultat();
         behandlingRepository.lagre(behandlingsresultat.getVilkårResultat(), lås);
-        repository.lagre(behandlingsresultat);
+        entityManager.persist(behandlingsresultat);
 
         BehandlingVedtak behandlingVedtak = byggBehandlingVedtak(LocalDateTime.now(), behandlingsresultat);
         repositoryProvider.getBehandlingVedtakRepository().lagre(behandlingVedtak, lås);
 
-        repository.flush();
+        entityManager.flush();
 
         return behandling;
     }

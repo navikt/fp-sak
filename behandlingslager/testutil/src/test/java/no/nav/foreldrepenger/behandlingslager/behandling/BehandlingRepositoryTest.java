@@ -50,7 +50,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
 public class BehandlingRepositoryTest extends EntityManagerAwareTest {
 
@@ -619,7 +618,9 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
             .build();
 
         lagreBehandling(behandling);
-        new Repository(getEntityManager()).flushAndClear();
+        var entityManager = getEntityManager();
+        entityManager.flush();
+        entityManager.clear();
 
         // Act
         Optional<Behandling> resultatBehandling = behandlingRepository.hentBehandlingHvisFinnes(behandling.getUuid());

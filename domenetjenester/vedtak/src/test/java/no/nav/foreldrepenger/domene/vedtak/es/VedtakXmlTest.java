@@ -7,7 +7,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -71,7 +70,6 @@ import no.nav.foreldrepenger.domene.vedtak.xml.VilkårsgrunnlagXmlTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.xml.YtelseXmlTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
 @CdiDbAwareTest
 public class VedtakXmlTest {
@@ -80,12 +78,12 @@ public class VedtakXmlTest {
 
     private static final AktørId AKTØR_ID = AktørId.dummy();
 
-    private final Repository repository;
-    private final BehandlingRepositoryProvider repositoryProvider;
-    private final BehandlingRepository behandlingRepository;
-    private final BehandlingsresultatRepository behandlingsresultatRepository;
-    private final LegacyESBeregningRepository beregningRepository;
-    private final FagsakRepository fagsakRepository;
+    private EntityManager entityManager;
+    private BehandlingRepositoryProvider repositoryProvider;
+    private BehandlingRepository behandlingRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
+    private LegacyESBeregningRepository beregningRepository;
+    private FagsakRepository fagsakRepository;
 
     @Inject
     private BehandlingsresultatXmlTjeneste behandlingsgrunnlagXmlTjeneste;
@@ -111,17 +109,14 @@ public class VedtakXmlTest {
 
     private FatteVedtakXmlTjeneste tjeneste;
 
-    public VedtakXmlTest(EntityManager em) {
-        repository = new Repository(em);
+    @BeforeEach
+    public void oppsett(EntityManager em) {
+        entityManager = em;
         repositoryProvider = new BehandlingRepositoryProvider(em);
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         beregningRepository = new LegacyESBeregningRepository(em);
         fagsakRepository = new FagsakRepository(em);
-    }
-
-    @BeforeEach
-    public void oppsett() {
 
         SøknadRepository søknadRepository = mock(SøknadRepository.class);
 
@@ -227,7 +222,7 @@ public class VedtakXmlTest {
                 .medBegrunnelse(KLAGE_BEGRUNNELSE).medBehandlendeEnhet(BEHANDLENDE_ENHET_ID).lagre(repositoryProvider, klageRepository);
 
         Behandlingsresultat behandlingsresultat = opprettBehandlingsresultat(behandling, BehandlingResultatType.INNVILGET);
-        repository.lagre(behandlingsresultat);
+        entityManager.persist(behandlingsresultat);
         opprettBehandlingsvedtak(behandling, behandlingsresultat);
         LegacyESBeregning beregning = new LegacyESBeregning(1L, 1L, 1L, LocalDateTime.now());
         var bres = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);

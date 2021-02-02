@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -12,11 +14,10 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
 public class FinnNyesteOppdragForSakTest extends EntityManagerAwareTest {
 
-    private Repository repository;
+    private EntityManager entityManager;
     private ØkonomioppdragRepository økonomioppdragRepository;
     private FinnNyesteOppdragForSak tjeneste;
 
@@ -25,7 +26,7 @@ public class FinnNyesteOppdragForSakTest extends EntityManagerAwareTest {
         var entityManager = getEntityManager();
         økonomioppdragRepository = new ØkonomioppdragRepository(entityManager);
         tjeneste = new FinnNyesteOppdragForSak(økonomioppdragRepository);
-        repository = new Repository(entityManager);
+        this.entityManager = entityManager;
     }
 
     @Test
@@ -43,7 +44,8 @@ public class FinnNyesteOppdragForSakTest extends EntityManagerAwareTest {
 
         long nyesteId = økonomioppdragRepository.lagre(nyesteOppdragskontroll);
 
-        repository.flushAndClear();
+        entityManager.flush();
+        entityManager.clear();
 
         // Act
         List<Oppdrag110> oppdrag110List = tjeneste.finnNyesteOppdragForSak(saksnr);
@@ -67,12 +69,11 @@ public class FinnNyesteOppdragForSakTest extends EntityManagerAwareTest {
         OppdragKvitteringTestUtil.lagPositiveKvitteringer(oppdragskontroll);
         long førsteOppdragId = økonomioppdragRepository.lagre(oppdragskontroll);
 
-        {
-            Oppdragskontroll nyesteOppdragskontroll = buildOppdragskontroll(saksnr, 2L);
-            OppdragTestDataHelper.buildOppdrag110ES(nyesteOppdragskontroll, fagsystemId);
-            økonomioppdragRepository.lagre(nyesteOppdragskontroll);
-            repository.flushAndClear();
-        }
+        Oppdragskontroll nyesteOppdragskontroll = buildOppdragskontroll(saksnr, 2L);
+        OppdragTestDataHelper.buildOppdrag110ES(nyesteOppdragskontroll, fagsystemId);
+        økonomioppdragRepository.lagre(nyesteOppdragskontroll);
+        entityManager.flush();
+        entityManager.clear();
 
         // Act
         List<Oppdrag110> oppdrag110List = tjeneste.finnNyesteOppdragForSak(saksnr);
@@ -96,13 +97,12 @@ public class FinnNyesteOppdragForSakTest extends EntityManagerAwareTest {
         OppdragKvitteringTestUtil.lagPositiveKvitteringer(oppdragskontroll);
         long førsteOppdragId = økonomioppdragRepository.lagre(oppdragskontroll);
 
-        {
-            Oppdragskontroll nyesteOppdragskontroll = buildOppdragskontroll(saksnr, 2L);
-            OppdragTestDataHelper.buildOppdrag110ES(nyesteOppdragskontroll, fagsystemId);
-            OppdragKvitteringTestUtil.lagNegativeKvitteringer(nyesteOppdragskontroll);
-            økonomioppdragRepository.lagre(nyesteOppdragskontroll);
-            repository.flushAndClear();
-        }
+        Oppdragskontroll nyesteOppdragskontroll = buildOppdragskontroll(saksnr, 2L);
+        OppdragTestDataHelper.buildOppdrag110ES(nyesteOppdragskontroll, fagsystemId);
+        OppdragKvitteringTestUtil.lagNegativeKvitteringer(nyesteOppdragskontroll);
+        økonomioppdragRepository.lagre(nyesteOppdragskontroll);
+        entityManager.flush();
+        entityManager.clear();
 
         // Act
         List<Oppdrag110> oppdrag110List = tjeneste.finnNyesteOppdragForSak(saksnr);

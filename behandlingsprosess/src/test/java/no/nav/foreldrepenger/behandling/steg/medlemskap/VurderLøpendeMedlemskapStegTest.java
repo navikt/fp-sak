@@ -63,20 +63,19 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.VurderLøpendeMedlemskap;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
 @CdiDbAwareTest
 public class VurderLøpendeMedlemskapStegTest {
 
-    private final BehandlingRepositoryProvider provider;
-    private final BehandlingRepository behandlingRepository;
-    private final BehandlingsresultatRepository behandlingsresultatRepository;
-    private final MedlemskapRepository medlemskapRepository;
-    private final PersonopplysningRepository personopplysningRepository;
-    private final FamilieHendelseRepository familieHendelseRepository;
-    private final FagsakRepository fagsakRepository;
-    private final MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository;
-    private final Repository repository;
+    private BehandlingRepositoryProvider provider;
+    private BehandlingRepository behandlingRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
+    private MedlemskapRepository medlemskapRepository;
+    private PersonopplysningRepository personopplysningRepository;
+    private FamilieHendelseRepository familieHendelseRepository;
+    private FagsakRepository fagsakRepository;
+    private MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository;
+    private EntityManager entityManager;
 
     private VurderLøpendeMedlemskapSteg steg;
 
@@ -86,9 +85,10 @@ public class VurderLøpendeMedlemskapStegTest {
     @Inject
     private VurderLøpendeMedlemskap vurdertLøpendeMedlemskapTjeneste;
 
-    public VurderLøpendeMedlemskapStegTest(EntityManager em) {
+    @BeforeEach
+    public void setUp(EntityManager em) {
         provider = new BehandlingRepositoryProvider(em);
-        repository = new Repository(em);
+        entityManager = em;
         behandlingRepository = provider.getBehandlingRepository();
         behandlingsresultatRepository = provider.getBehandlingsresultatRepository();
         medlemskapRepository = provider.getMedlemskapRepository();
@@ -96,11 +96,6 @@ public class VurderLøpendeMedlemskapStegTest {
         familieHendelseRepository = provider.getFamilieHendelseRepository();
         fagsakRepository = provider.getFagsakRepository();
         medlemskapVilkårPeriodeRepository = provider.getMedlemskapVilkårPeriodeRepository();
-
-    }
-
-    @BeforeEach
-    public void setUp() {
         steg = new VurderLøpendeMedlemskapSteg(vurdertLøpendeMedlemskapTjeneste, provider);
     }
 
@@ -137,7 +132,7 @@ public class VurderLøpendeMedlemskapStegTest {
         Behandlingsresultat behandlingsresultat = Behandlingsresultat.opprettFor(revudering);
         behandlingsresultat.medOppdatertVilkårResultat(vilkårResultat);
         behandlingRepository.lagre(vilkårResultat, behandlingRepository.taSkriveLås(revudering));
-        repository.lagre(behandlingsresultat);
+        entityManager.persist(behandlingsresultat);
         oppdaterMedlem(datoMedEndring, periode, revudering.getId());
 
         VurdertMedlemskapPeriodeEntitet.Builder builder = new VurdertMedlemskapPeriodeEntitet.Builder();

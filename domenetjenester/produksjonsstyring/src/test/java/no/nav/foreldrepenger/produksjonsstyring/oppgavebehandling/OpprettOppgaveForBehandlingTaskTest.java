@@ -37,7 +37,6 @@ import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavestatus;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
 @CdiDbAwareTest
 public class OpprettOppgaveForBehandlingTaskTest {
@@ -47,7 +46,7 @@ public class OpprettOppgaveForBehandlingTaskTest {
         Tema.FOR.getOffisiellKode(), null, null, null, 1, "4806",
         LocalDate.now().plusDays(1), LocalDate.now(), Prioritet.NORM, Oppgavestatus.AAPNET);
 
-    private Repository repository;
+    private EntityManager entityManager;
     private OppgaveTjeneste tjeneste;
 
     private BehandlingRepositoryProvider repositoryProvider;
@@ -65,7 +64,7 @@ public class OpprettOppgaveForBehandlingTaskTest {
 
     @BeforeEach
     public void setup(EntityManager entityManager) {
-        repository = new Repository(entityManager);
+        this.entityManager = entityManager;
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         oppgaveBehandlingKoblingRepository = new OppgaveBehandlingKoblingRepository(entityManager);
@@ -97,7 +96,8 @@ public class OpprettOppgaveForBehandlingTaskTest {
 
         // Act
         task.doTask(taskData);
-        repository.flushAndClear();
+        entityManager.flush();
+        entityManager.clear();
 
         // Assert
         behandling = behandlingRepository.hentBehandling(behandling.getId());
@@ -127,7 +127,8 @@ public class OpprettOppgaveForBehandlingTaskTest {
 
         // Act
         task.doTask(taskData);
-        repository.flushAndClear();
+        entityManager.flush();
+        entityManager.clear();
 
         // Assert
         oppgaver = oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(revurdering.getId());

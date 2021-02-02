@@ -35,7 +35,6 @@ import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.util.Tuple;
 
@@ -49,7 +48,7 @@ public class BeregneYtelseStegImplTest {
 
     @Inject
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
-    private Repository repository;
+    private EntityManager entityManager;
     @Inject
     @KonfigVerdi(value = "es.maks.stønadsalder.adopsjon", defaultVerdi = "15")
     private int maksStønadsalder = 15;
@@ -63,7 +62,7 @@ public class BeregneYtelseStegImplTest {
 
     @BeforeEach
     public void oppsett(EntityManager em) {
-        repository = new Repository(em);
+        entityManager = em;
         beregningRepository = new LegacyESBeregningRepository(em);
         repositoryProvider = new BehandlingRepositoryProvider(em);
         behandlingRepository = repositoryProvider.getBehandlingRepository();
@@ -71,9 +70,9 @@ public class BeregneYtelseStegImplTest {
         beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
                 new RegisterInnhentingIntervall(Period.of(0, 1, 0), Period.of(0, 6, 0)));
-        repository.lagre(fagsak.getNavBruker());
-        repository.lagre(fagsak);
-        repository.flush();
+        entityManager.persist(fagsak.getNavBruker());
+        entityManager.persist(fagsak);
+        entityManager.flush();
 
         sats = beregningsresultatRepository.finnGjeldendeSats(BeregningSatsType.ENGANG);
 
@@ -90,12 +89,13 @@ public class BeregneYtelseStegImplTest {
         BehandlingskontrollKontekst kontekst = byggBehandlingsgrunnlagForFødsel(antallBarn, LocalDate.now());
 
         // Act
-        Behandling behandling = repository.hent(Behandling.class, kontekst.getBehandlingId());
+        Behandling behandling = entityManager.find(Behandling.class, kontekst.getBehandlingId());
         beregneYtelseSteg.utførSteg(kontekst);
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
 
         // Assert
-        LegacyESBeregningsresultat beregningResultat = getBehandlingsresultat(repository.hent(Behandling.class, kontekst.getBehandlingId()))
+        LegacyESBeregningsresultat beregningResultat = getBehandlingsresultat(
+            entityManager.find(Behandling.class, kontekst.getBehandlingId()))
                 .getBeregningResultat();
         assertThat(beregningResultat.getSisteBeregning().get()).isNotNull();
 
@@ -111,12 +111,12 @@ public class BeregneYtelseStegImplTest {
         BehandlingskontrollKontekst kontekst = byggBehandlingsgrunnlagForFødsel(antallBarn, LocalDate.of(2017, 10, 1));
 
         // Act
-        Behandling behandling = repository.hent(Behandling.class, kontekst.getBehandlingId());
+        Behandling behandling = entityManager.find(Behandling.class, kontekst.getBehandlingId());
         beregneYtelseSteg.utførSteg(kontekst);
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
 
         // Assert
-        behandling = repository.hent(Behandling.class, kontekst.getBehandlingId());
+        behandling = entityManager.find(Behandling.class, kontekst.getBehandlingId());
         LegacyESBeregningsresultat beregningResultat = getBehandlingsresultat(behandling).getBeregningResultat();
         assertThat(beregningResultat.getSisteBeregning().get()).isNotNull();
 
@@ -146,7 +146,7 @@ public class BeregneYtelseStegImplTest {
         beregneYtelseSteg.vedTransisjon(kontekst, null, BehandlingSteg.TransisjonType.HOPP_OVER_BAKOVER, null, null);
 
         // Assert
-        Behandlingsresultat behandlingsresultat = getBehandlingsresultat(repository.hent(Behandling.class, kontekst.getBehandlingId()));
+        Behandlingsresultat behandlingsresultat = getBehandlingsresultat(entityManager.find(Behandling.class, kontekst.getBehandlingId()));
         assertThat(behandlingsresultat.getBeregningResultat().getBeregninger()).isEmpty();
     }
 
@@ -168,7 +168,7 @@ public class BeregneYtelseStegImplTest {
         beregneYtelseSteg.vedTransisjon(kontekst, null, BehandlingSteg.TransisjonType.HOPP_OVER_BAKOVER, null, null);
 
         // Assert
-        Behandlingsresultat behandlingsresultat = getBehandlingsresultat(repository.hent(Behandling.class, kontekst.getBehandlingId()));
+        Behandlingsresultat behandlingsresultat = getBehandlingsresultat(entityManager.find(Behandling.class, kontekst.getBehandlingId()));
         assertThat(behandlingsresultat.getBeregningResultat().getBeregninger()).hasSize(2);
         assertThat(behandlingsresultat.getBeregningResultat().getBeregninger()).extracting(LegacyESBeregning::isOverstyrt)
                 .contains(true)
@@ -193,7 +193,7 @@ public class BeregneYtelseStegImplTest {
         beregneYtelseSteg.vedTransisjon(kontekst, null, BehandlingSteg.TransisjonType.HOPP_OVER_FRAMOVER, null, null);
 
         // Assert
-        Behandlingsresultat behandlingsresultat = getBehandlingsresultat(repository.hent(Behandling.class, kontekst.getBehandlingId()));
+        Behandlingsresultat behandlingsresultat = getBehandlingsresultat(entityManager.find(Behandling.class, kontekst.getBehandlingId()));
         assertThat(behandlingsresultat.getBeregningResultat().getSisteBeregning()).isEmpty();
     }
 

@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -44,14 +46,13 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
 public class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingRepository behandlingRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
-    private Repository repository;
+    private EntityManager entityManager;
     private BeregningsresultatRepository beregningsresultatRepository;
 
     private static final AktørId AKTØR_ID = AktørId.dummy();
@@ -77,7 +78,7 @@ public class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest 
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
-        repository = new Repository(entityManager);
+        this.entityManager = entityManager;
         beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
         iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
         vurdereOmArenaYtelseSkalOpphør = new VurderOmArenaYtelseSkalOpphøre(
@@ -367,9 +368,10 @@ public class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest 
         Behandlingsresultat behandlingsresultat = Behandlingsresultat.builder()
             .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
             .buildFor(behandling);
-        repository.lagre(behandlingsresultat);
-        repository.lagre(behandling);
-        repository.flushAndClear();
+        entityManager.persist(behandlingsresultat);
+        entityManager.persist(behandling);
+        entityManager.flush();
+        entityManager.clear();
 
         // Legg til vedtak
         final BehandlingVedtak behandlingVedtak = BehandlingVedtak.builder()

@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioKlageEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
 public class KlageRepositoryTest extends EntityManagerAwareTest {
 
@@ -36,7 +35,6 @@ public class KlageRepositoryTest extends EntityManagerAwareTest {
     public void skal_lagre_og_oppdatere_formkrav() {
         // Arrange
         var entityManager = getEntityManager();
-        Repository repository = new Repository(entityManager);
         var scenario = ScenarioKlageEngangsstønad.forAvvistNK(ScenarioFarSøkerEngangsstønad.forAdopsjon());
         var behandling = scenario.lagre(repositoryProvider, klageRepository);
         entityManager.flush();
@@ -47,7 +45,8 @@ public class KlageRepositoryTest extends EntityManagerAwareTest {
 
         // Act
         klageRepository.lagreFormkrav(behandling, builder1);
-        repository.flushAndClear();
+        entityManager.flush();
+        entityManager.clear();
 
         // Assert
         Optional<KlageFormkravEntitet> klageFormkrav = klageRepository.hentKlageFormkrav(behandling.getId(), KlageVurdertAv.NK);
@@ -60,7 +59,8 @@ public class KlageRepositoryTest extends EntityManagerAwareTest {
 
         // Act 2
         klageRepository.lagreFormkrav(behandling, builder2);
-        repository.flushAndClear();
+        entityManager.flush();
+        entityManager.clear();
 
         // Assert
         Optional<KlageFormkravEntitet> klageFormkrav2 = klageRepository.hentKlageFormkrav(behandling.getId(), KlageVurdertAv.NK);
@@ -73,7 +73,6 @@ public class KlageRepositoryTest extends EntityManagerAwareTest {
     public void skal_lagre_og_oppdatere_vurderingresultat() {
         // Arrange
         var entityManager = getEntityManager();
-        Repository repository = new Repository(entityManager);
         var scenario = ScenarioKlageEngangsstønad.forUtenVurderingResultat(ScenarioFarSøkerEngangsstønad.forAdopsjon());
         var behandling = scenario.lagre(repositoryProvider, klageRepository);
         entityManager.flush();
@@ -84,7 +83,8 @@ public class KlageRepositoryTest extends EntityManagerAwareTest {
 
         // Act
         klageRepository.lagreVurderingsResultat(behandling, builder1);
-        repository.flushAndClear();
+        entityManager.flush();
+        entityManager.clear();
 
         Long klageBehandlingId = behandling.getId();
         // Assert
@@ -99,7 +99,8 @@ public class KlageRepositoryTest extends EntityManagerAwareTest {
 
         // Act
         klageRepository.lagreVurderingsResultat(behandling, builder2);
-        repository.flushAndClear();
+        entityManager.flush();
+        entityManager.clear();
 
         // Assert
         Optional<KlageVurderingResultat> klageVurderingResultat2 = klageRepository.hentKlageVurderingResultat(klageBehandlingId, KlageVurdertAv.NFP);
@@ -111,7 +112,6 @@ public class KlageRepositoryTest extends EntityManagerAwareTest {
     public void skal_hente_formkrav_fra_ka_når_nfp_og_ka_har_vurdert() {
         // Pre Arrange
         var entityManager = getEntityManager();
-        Repository repository = new Repository(entityManager);
         var scenario = ScenarioKlageEngangsstønad.forUtenVurderingResultat(ScenarioFarSøkerEngangsstønad.forAdopsjon());
         var behandling = scenario.lagre(repositoryProvider, klageRepository);
         entityManager.flush();
@@ -123,7 +123,8 @@ public class KlageRepositoryTest extends EntityManagerAwareTest {
 
         // Act
         klageRepository.lagreFormkrav(behandling,builderNfp);
-        repository.flushAndClear();
+        entityManager.flush();
+        entityManager.clear();
 
         // Assert
         Optional<KlageFormkravEntitet> klageFormkravNfp = klageRepository.hentGjeldendeKlageFormkrav(behandling.getId());
@@ -136,7 +137,8 @@ public class KlageRepositoryTest extends EntityManagerAwareTest {
 
         // Act
         klageRepository.lagreFormkrav(behandling,builderKa);
-        repository.flushAndClear();
+        entityManager.flush();
+        entityManager.clear();
 
         // Assert
         Optional<KlageFormkravEntitet> klageFormkravKa = klageRepository.hentGjeldendeKlageFormkrav(behandling.getId());

@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Journalpost;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
 public class PipRepositoryTest extends EntityManagerAwareTest {
 
@@ -50,8 +49,6 @@ public class PipRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_finne_behandligstatus_og_sakstatus_for_behandling() {
-//        leggTilBarnPåFagsakRelasjon(fagsak.getFagsakRelasjon(), 201L);
-//        leggTilBarnPåFagsakRelasjon(fagsak.getFagsakRelasjon(), 202L);
         Behandling behandling = behandlingBuilder.opprettOgLagreFørstegangssøknad(FagsakYtelseType.FORELDREPENGER);
         lagreBehandling(behandling);
 
@@ -99,7 +96,7 @@ public class PipRepositoryTest extends EntityManagerAwareTest {
         fagsakRepository.lagre(journalpost1);
         Journalpost journalpost2 = new Journalpost(new JournalpostId("4444"), fagsak1);
         fagsakRepository.lagre(journalpost2);
-        new Repository(getEntityManager()).flush();
+        getEntityManager().flush();
 
         Set<Long> fagsakId = pipRepository.fagsakIdForJournalpostId(Collections.singleton(JOURNALPOST_ID));
         assertThat(fagsakId).containsOnly(fagsak1.getId());

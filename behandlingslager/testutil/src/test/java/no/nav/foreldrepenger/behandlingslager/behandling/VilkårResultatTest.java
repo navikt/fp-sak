@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
 public class VilkårResultatTest extends EntityManagerAwareTest {
 
@@ -113,7 +112,7 @@ public class VilkårResultatTest extends EntityManagerAwareTest {
         BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandlingsresultat1.getVilkårResultat(), lås);
         lagreBehandling(behandling);
-        Behandling lagretBehandling = new Repository(getEntityManager()).hent(Behandling.class, behandling.getId());
+        Behandling lagretBehandling = getEntityManager().find(Behandling.class, behandling.getId());
 
         // Assert
         assertThat(lagretBehandling).isEqualTo(behandling);
@@ -284,7 +283,7 @@ public class VilkårResultatTest extends EntityManagerAwareTest {
         Long id = behandling.getId();
         assertThat(id).isNotNull();
 
-        Behandling lagretBehandling = new Repository(getEntityManager()).hent(Behandling.class, id);
+        Behandling lagretBehandling = getEntityManager().find(Behandling.class, id);
         assertThat(lagretBehandling).isEqualTo(behandling);
         assertThat(getBehandlingsresultat(lagretBehandling)).isEqualTo(behandlingsresultat);
 

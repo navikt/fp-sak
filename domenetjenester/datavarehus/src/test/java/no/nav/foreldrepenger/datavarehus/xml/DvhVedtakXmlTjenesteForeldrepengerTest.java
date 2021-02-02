@@ -116,7 +116,6 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.HentOppdragMedPositivKvittering;
 import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
 @CdiDbAwareTest
 public class DvhVedtakXmlTjenesteForeldrepengerTest {
@@ -142,7 +141,7 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
     @Inject
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
 
-    private Repository repository;
+    private EntityManager entityManager;
 
     @Mock
     private PersoninfoAdapter tpsTjeneste;
@@ -177,7 +176,7 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
 
     @BeforeEach
     public void oppsett(EntityManager em) {
-        repository = new Repository(em);
+        entityManager = em;
         HentOppdragMedPositivKvittering hentOppdragMedPositivKvittering = new HentOppdragMedPositivKvittering(økonomioppdragRepository);
 
         SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
@@ -360,7 +359,7 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
         VilkårResultat vilkårResultat = VilkårResultat.builder().medVilkårResultatType(VilkårResultatType.INNVILGET)
                 .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
                 .buildFor(behandlingsresultat);
-        repository.lagre(vilkårResultat);
+        entityManager.persist(vilkårResultat);
         behandlingsresultat.medOppdatertVilkårResultat(vilkårResultat);
         behandling.setBehandlingresultat(behandlingsresultat);
 

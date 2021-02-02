@@ -5,8 +5,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Optional;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -14,22 +17,20 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingL�
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
-public class RisikoklassifiseringRepositoryTest extends EntityManagerAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class RisikoklassifiseringRepositoryTest {
 
     private RisikoklassifiseringRepository risikorepository;
-
-    private Repository repository;
     private BehandlingRepository behandlingRepository;
+    private EntityManager entityManager;
 
     @BeforeEach
-    void setUp() {
-        var entityManager = getEntityManager();
-        repository = new Repository(entityManager);
+    void setUp(EntityManager entityManager) {
+        this.entityManager = entityManager;
         behandlingRepository = new BehandlingRepository(entityManager);
         risikorepository = new RisikoklassifiseringRepository(entityManager);
     }
@@ -167,9 +168,9 @@ public class RisikoklassifiseringRepositoryTest extends EntityManagerAwareTest {
 
         // Opprett fagsak
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, bruker, null, new Saksnummer("1000"));
-        repository.lagre(bruker);
-        repository.lagre(fagsak);
-        repository.flush();
+        entityManager.persist(bruker);
+        entityManager.persist(fagsak);
+        entityManager.flush();
         return fagsak;
     }
 

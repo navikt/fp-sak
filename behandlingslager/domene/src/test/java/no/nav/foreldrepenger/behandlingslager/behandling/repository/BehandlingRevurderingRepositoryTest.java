@@ -32,7 +32,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
 public class BehandlingRevurderingRepositoryTest extends EntityManagerAwareTest {
 
@@ -156,9 +155,7 @@ public class BehandlingRevurderingRepositoryTest extends EntityManagerAwareTest 
         Behandlingsresultat.builderEndreEksisterende(getBehandlingsresultat(behandling))
             .medBehandlingResultatType(BehandlingResultatType.HENLAGT_FEILOPPRETTET);
 
-        Repository repository = new Repository(getEntityManager());
-
-        repository.lagre(behandling);
+        getEntityManager().persist(behandling);
 
         BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(getBehandlingsresultat(behandling).getVilkårResultat(), lås);

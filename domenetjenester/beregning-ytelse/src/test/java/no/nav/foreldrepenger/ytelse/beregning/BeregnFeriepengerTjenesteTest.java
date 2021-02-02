@@ -35,7 +35,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioF
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.ytelse.beregning.fp.BeregnFeriepenger;
-import no.nav.vedtak.felles.testutilities.db.Repository;
 
 @ExtendWith(FPsakEntityManagerAwareExtension.class)
 public class BeregnFeriepengerTjenesteTest {
@@ -45,7 +44,7 @@ public class BeregnFeriepengerTjenesteTest {
     private static final LocalDate SISTE_DAG_FAR = SKJÆRINGSTIDSPUNKT_FAR.plusWeeks(4);
     private static final int DAGSATS = 123;
 
-    private Repository repository;
+    private EntityManager entityManager;
     private BehandlingRepositoryProvider repositoryProvider;
     private BeregningsresultatRepository beregningsresultatRepository;
 
@@ -54,7 +53,7 @@ public class BeregnFeriepengerTjenesteTest {
 
     @BeforeEach
     public void setUp(EntityManager entityManager) {
-        repository = new Repository(entityManager);
+        this.entityManager = entityManager;
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
         tjeneste = new BeregnFeriepenger(repositoryProvider, 60);
@@ -130,9 +129,9 @@ public class BeregnFeriepengerTjenesteTest {
         Behandling farsBehandling = scenarioAnnenPart.lagre(repositoryProvider);
         Behandlingsresultat behandlingsresultat = repositoryProvider.getBehandlingsresultatRepository().hent(farsBehandling.getId());
         Behandlingsresultat.builderEndreEksisterende(behandlingsresultat).medBehandlingResultatType(BehandlingResultatType.INNVILGET);
-        repository.lagre(behandlingsresultat);
+        entityManager.persist(behandlingsresultat);
         farsBehandling.avsluttBehandling();
-        repository.lagre(farsBehandling);
+        entityManager.persist(farsBehandling);
 
         BeregningsresultatEntitet farsBeregningsresultatFP = lagBeregningsresultatFP(SKJÆRINGSTIDSPUNKT_FAR, SISTE_DAG_FAR,
                 Inntektskategori.ARBEIDSTAKER);
