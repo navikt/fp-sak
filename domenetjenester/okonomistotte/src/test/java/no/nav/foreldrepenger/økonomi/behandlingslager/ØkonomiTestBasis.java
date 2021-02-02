@@ -8,8 +8,7 @@ import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomistøtteUtils;
 
 public class ØkonomiTestBasis {
 
-    protected Avstemming115.Builder lagAvstemming115MedPaakrevdeFelter() {
-        String localDateTimeStr = ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now());
+    protected Avstemming115.Builder lagAvstemming115MedPaakrevdeFelter(String localDateTimeStr) {
         return Avstemming115.builder()
             .medKodekomponent(ØkonomiKodekomponent.VLFP.getKodekomponent())
             .medNokkelAvstemming(localDateTimeStr)

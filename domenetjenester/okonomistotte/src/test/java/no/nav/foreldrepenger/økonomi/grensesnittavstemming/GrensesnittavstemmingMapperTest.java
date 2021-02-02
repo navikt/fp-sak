@@ -73,9 +73,9 @@ public class GrensesnittavstemmingMapperTest {
 
     private Oppdragskontroll opprettOppdrag(String status, String fagområde) {
         Oppdragskontroll oppdragskontroll = buildOppdragskontroll(status == null);
-
-        Avstemming115 avstemming115 = buildAvstemming115();
-        Oppdrag110 oppdrag110 = buildOppdrag110(oppdragskontroll, avstemming115, fagområde);
+        String nøkkleAvstemmingTidspunkt = ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now());
+        Avstemming115 avstemming115 = buildAvstemming115(nøkkleAvstemmingTidspunkt);
+        Oppdrag110 oppdrag110 = buildOppdrag110(oppdragskontroll, avstemming115, fagområde, nøkkleAvstemmingTidspunkt);
         buildOppdragsEnhet120(oppdrag110);
         Oppdragslinje150 oppdragslinje150 = buildOppdragslinje150(oppdrag110);
         buildAttestant180(oppdragslinje150);
@@ -284,7 +284,8 @@ public class GrensesnittavstemmingMapperTest {
     }
 
     private Oppdrag110 opprettOppdrag110MedAvsetmmingsDato(Oppdragskontroll oppdrag, LocalDateTime lavAvstemmingsDato, String kodeFagområde) {
-        Oppdrag110 oppdrag110 = buildOppdrag110(oppdrag, buildAvstemming115(lavAvstemmingsDato, lavAvstemmingsDato), kodeFagområde);
+        String nøkkleAvstemmingTidspunkt = ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now());
+        Oppdrag110 oppdrag110 = buildOppdrag110(oppdrag, buildAvstemming115(lavAvstemmingsDato, lavAvstemmingsDato), kodeFagområde, nøkkleAvstemmingTidspunkt);
         buildOppdragsEnhet120(oppdrag110);
         Oppdragslinje150 oppdragslinje150 = buildOppdragslinje150(oppdrag110);
         buildAttestant180(oppdragslinje150);
@@ -370,11 +371,11 @@ public class GrensesnittavstemmingMapperTest {
             .build();
     }
 
-    private Avstemming115 buildAvstemming115() {
+    private Avstemming115 buildAvstemming115(String localDateTimeStr) {
         return avst115Builder
             .medKodekomponent(ØkonomiKodekomponent.VLFP.getKodekomponent())
-            .medNokkelAvstemming(ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now()))
-            .medTidspnktMelding(ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now().minusDays(1)))
+            .medNokkelAvstemming(localDateTimeStr)
+            .medTidspnktMelding(localDateTimeStr)
             .build();
     }
 
@@ -386,7 +387,7 @@ public class GrensesnittavstemmingMapperTest {
             .build();
     }
 
-    private Oppdrag110 buildOppdrag110(Oppdragskontroll oppdragskontroll, Avstemming115 avstemming115, String fagområde) {
+    private Oppdrag110 buildOppdrag110(Oppdragskontroll oppdragskontroll, Avstemming115 avstemming115, String fagområde, String nøkkleAvstemmingTidspunkt) {
         return oppdr110Builder
             .medKodeAksjon(ØkonomiKodeAksjon.TRE.getKodeAksjon())
             .medKodeEndring(ØkonomiKodeEndring.NY.name())
@@ -396,6 +397,7 @@ public class GrensesnittavstemmingMapperTest {
             .medOppdragGjelderId("12345678901")
             .medDatoOppdragGjelderFom(LocalDate.of(2000, 1, 1))
             .medSaksbehId("J5624215")
+            .medNøkkelAvstemming(nøkkleAvstemmingTidspunkt)
             .medOppdragskontroll(oppdragskontroll)
             .medAvstemming115(avstemming115)
             .build();

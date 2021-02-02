@@ -91,9 +91,11 @@ class OppdragMapper {
     }
 
     private Oppdrag110 mapOppdrag110(Oppdragskontroll oppdragskontroll) {
+        String nøkkleAvstemmingTidspunkt = ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now());
         return Oppdrag110.builder()
             .medOppdragskontroll(oppdragskontroll)
-            .medAvstemming115(OpprettOppdragTjeneste.opprettAvstemming115())
+            .medNøkkelAvstemming(nøkkleAvstemmingTidspunkt)
+            .medAvstemming115(OpprettOppdragTjeneste.opprettAvstemming115(nøkkleAvstemmingTidspunkt))
             .medKodeAksjon(ØkonomiKodeAksjon.EN.getKodeAksjon())
             .medKodeEndring(dto.getKodeEndring())
             .medDatoOppdragGjelderFom(LocalDate.of(2000, 1, 1))

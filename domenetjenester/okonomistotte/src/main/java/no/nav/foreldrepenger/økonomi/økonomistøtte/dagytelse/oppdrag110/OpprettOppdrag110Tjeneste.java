@@ -27,10 +27,11 @@ public class OpprettOppdrag110Tjeneste {
 
     public static Oppdrag110 opprettNyOppdrag110(OppdragInput behandlingInfo, Oppdragskontroll oppdragskontroll,
                                                  Oppdragsmottaker mottaker, long fagsystemId) {
+        String localDateTimeStr = ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now());
+        Avstemming115 avstemming115 = OpprettOppdragTjeneste.opprettAvstemming115(localDateTimeStr);
 
-        Avstemming115 avstemming115 = OpprettOppdragTjeneste.opprettAvstemming115();
         Oppdrag110.Builder oppdrag110Builder = opprettOppdrag110Builder(behandlingInfo, avstemming115, mottaker,
-            true, fagsystemId);
+            true, fagsystemId, localDateTimeStr);
         Oppdrag110 oppdrag110 = oppdrag110Builder.medOppdragskontroll(oppdragskontroll).build();
         OpprettOppdragTjeneste.opprettOppdragsenhet120(oppdrag110);
 
@@ -54,17 +55,17 @@ public class OpprettOppdrag110Tjeneste {
     public static Oppdrag110.Builder opprettOppdrag110MedRelaterteOppdragsmeldinger(OppdragInput behandlingInfo,
                                                                                     Oppdragslinje150 sisteOppdr150ForMottakeren,
                                                                                     Oppdragsmottaker mottaker) {
-
-        Avstemming115 avstemming115 = OpprettOppdragTjeneste.opprettAvstemming115();
+        String localDateTimeStr = ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now());
+        Avstemming115 avstemming115 = OpprettOppdragTjeneste.opprettAvstemming115(localDateTimeStr);
         Oppdrag110 forrigeOppdrag110 = sisteOppdr150ForMottakeren.getOppdrag110();
         long fagsystemId = forrigeOppdrag110.getFagsystemId();
 
         return opprettOppdrag110Builder(behandlingInfo,
-            avstemming115, mottaker, false, fagsystemId);
+            avstemming115, mottaker, false, fagsystemId, localDateTimeStr);
     }
 
     private static Oppdrag110.Builder opprettOppdrag110Builder(OppdragInput behandlingInfo, Avstemming115 avstemming115,
-                                                               Oppdragsmottaker mottaker, boolean erNyMottakerIEndring, long fagsystemId) {
+                                                               Oppdragsmottaker mottaker, boolean erNyMottakerIEndring, long fagsystemId, String nøkkelAvstemming) {
 
         String kodeEndring = ØkonomiKodeEndringUtleder.finnKodeEndring(behandlingInfo, mottaker, erNyMottakerIEndring);
         String kodeFagområde = KodeFagområdeTjenesteProvider.getKodeFagområdeTjeneste(behandlingInfo).finn(mottaker.erBruker());
@@ -77,6 +78,7 @@ public class OpprettOppdrag110Tjeneste {
             .medOppdragGjelderId(behandlingInfo.getPersonIdent().getIdent())
             .medDatoOppdragGjelderFom(LocalDate.of(2000, 1, 1))
             .medSaksbehId(behandlingInfo.getAnsvarligSaksbehandler())
+            .medNøkkelAvstemming(nøkkelAvstemming)
             .medAvstemming115(avstemming115);
 
         opprettOmpostering116(behandlingInfo, mottaker).ifPresent(builder::medOmpostering116);

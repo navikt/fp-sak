@@ -296,6 +296,7 @@ public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
     }
 
     private Oppdrag110 byggOppdrag110() {
+        String nøkkleAvstemmingTidspunkt = ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now());
         return Oppdrag110.builder()
             .medKodeAksjon(ØkonomiKodeAksjon.EN.name())
             .medKodeEndring(ØkonomiKodeEndring.NY.name())
@@ -305,17 +306,17 @@ public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
             .medOppdragGjelderId("1")
             .medDatoOppdragGjelderFom(LocalDate.now())
             .medSaksbehId(SAKS_BEHANDLER)
+            .medNøkkelAvstemming(nøkkleAvstemmingTidspunkt)
             .medOppdragskontroll(oppdragskontroll)
-            .medAvstemming115(byggAvstemming115())
+            .medAvstemming115(byggAvstemming115(nøkkleAvstemmingTidspunkt))
             .build();
     }
 
-    private Avstemming115 byggAvstemming115() {
-        String localDateTimeStr = ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now());
+    private Avstemming115 byggAvstemming115(String nøkkleAvstemmingTidspunkt) {
         return Avstemming115.builder()
             .medKodekomponent(ØkonomiKodekomponent.VLFP.getKodekomponent())
-            .medNokkelAvstemming(localDateTimeStr)
-            .medTidspnktMelding(localDateTimeStr)
+            .medNokkelAvstemming(nøkkleAvstemmingTidspunkt)
+            .medTidspnktMelding(nøkkleAvstemmingTidspunkt)
             .build();
     }
 

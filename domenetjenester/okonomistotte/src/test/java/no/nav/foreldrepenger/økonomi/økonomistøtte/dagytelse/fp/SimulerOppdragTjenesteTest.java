@@ -75,6 +75,7 @@ public class SimulerOppdragTjenesteTest {
             .medOppdragGjelderId(saksnummer.getVerdi())
             .medDatoOppdragGjelderFom(LocalDate.MIN)
             .medSaksbehId("Z100000")
+            .medNøkkelAvstemming("nå nøkkel")
             .medOppdragskontroll(oppdragskontroll)
             .medFagSystemId(Long.parseLong(saksnummer.getVerdi()))
             .medAvstemming115(Avstemming115.builder()

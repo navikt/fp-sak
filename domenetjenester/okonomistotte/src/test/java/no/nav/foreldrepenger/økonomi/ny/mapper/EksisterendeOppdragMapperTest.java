@@ -171,6 +171,7 @@ public class EksisterendeOppdragMapperTest {
             .medOppdragGjelderId(frnBruker)
             .medDatoOppdragGjelderFom(LocalDate.MIN)
             .medSaksbehId("Z100000")
+            .medNøkkelAvstemming("en nøkkel")
             .medOppdragskontroll(oppdragskontroll)
             .medFagSystemId(Long.parseLong(fagsystemId.toString()))
             .medAvstemming115(Avstemming115.builder()

@@ -471,6 +471,7 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
                 .medOppdragGjelderId("12345678901")
                 .medDatoOppdragGjelderFom(LocalDate.of(2000, 1, 1))
                 .medSaksbehId("J5624215")
+                .medNøkkelAvstemming("nokkelAvstemming")
                 .medAvstemming115(avstemming115)
                 .medOppdragskontroll(oppdragskontroll)
                 .build();

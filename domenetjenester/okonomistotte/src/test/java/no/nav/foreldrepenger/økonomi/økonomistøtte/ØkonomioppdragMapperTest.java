@@ -175,8 +175,9 @@ public class ØkonomioppdragMapperTest {
 
     private List<Oppdrag110> opprettOppdrag110(Oppdragskontroll oppdragskontroll, boolean gjelderFP, boolean erOppdragslinje150Sortert, boolean erOmpostering) {
 
-        Avstemming115 avstemming115 = buildAvstemming115();
-        List<Oppdrag110> oppdrag110Liste = buildOppdrag110(oppdragskontroll, avstemming115, gjelderFP, erOmpostering);
+        var nøkkleAvstemmingTidspunkt = ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now());
+        Avstemming115 avstemming115 = buildAvstemming115(nøkkleAvstemmingTidspunkt);
+        List<Oppdrag110> oppdrag110Liste = buildOppdrag110(oppdragskontroll, avstemming115, gjelderFP, erOmpostering, nøkkleAvstemmingTidspunkt);
         buildOppdragsEnhet120(oppdrag110Liste);
         List<Oppdragslinje150> oppdragslinje150Liste = buildOppdragslinje150(oppdrag110Liste, gjelderFP, erOppdragslinje150Sortert);
         buildAttestant180(oppdragslinje150Liste);
@@ -398,16 +399,16 @@ public class ØkonomioppdragMapperTest {
             .build();
     }
 
-    private Avstemming115 buildAvstemming115() {
+    private Avstemming115 buildAvstemming115(String nøkkleAvstemmingTidspunkt) {
         return Avstemming115.builder()
             .medKodekomponent(ØkonomiKodekomponent.VLFP.getKodekomponent())
-            .medNokkelAvstemming(ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now()))
-            .medTidspnktMelding(ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now().minusDays(1)))
+            .medNokkelAvstemming(nøkkleAvstemmingTidspunkt)
+            .medTidspnktMelding(nøkkleAvstemmingTidspunkt)
             .build();
     }
 
 
-    private List<Oppdrag110> buildOppdrag110(Oppdragskontroll oppdragskontroll, Avstemming115 avstemming115, boolean gjelderFP, boolean erOmpostering) {
+    private List<Oppdrag110> buildOppdrag110(Oppdragskontroll oppdragskontroll, Avstemming115 avstemming115, boolean gjelderFP, boolean erOmpostering, String nøkkleAvstemmingTidspunkt) {
 
         List<Oppdrag110> oppdrag110Liste = new ArrayList<>();
 
@@ -422,6 +423,7 @@ public class ØkonomioppdragMapperTest {
             .medSaksbehId("J5624215")
             .medOppdragskontroll(oppdragskontroll)
             .medAvstemming115(avstemming115)
+            .medNøkkelAvstemming(nøkkleAvstemmingTidspunkt)
             .medOmpostering116(erOmpostering ? new Ompostering116.Builder().medOmPostering("J")
                 .medDatoOmposterFom(LocalDate.now())
                 .medSaksbehId("J5624215")
@@ -441,6 +443,7 @@ public class ØkonomioppdragMapperTest {
                 .medOppdragGjelderId("12345678901")
                 .medDatoOppdragGjelderFom(LocalDate.of(2000, 1, 1))
                 .medSaksbehId("J5624215")
+                .medNøkkelAvstemming(nøkkleAvstemmingTidspunkt)
                 .medOppdragskontroll(oppdragskontroll)
                 .medAvstemming115(avstemming115)
                 .build();
