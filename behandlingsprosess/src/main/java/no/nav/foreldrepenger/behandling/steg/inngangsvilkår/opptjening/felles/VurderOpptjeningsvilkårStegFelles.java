@@ -15,8 +15,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
@@ -27,28 +25,24 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Opptjeningsv
 public abstract class VurderOpptjeningsvilkårStegFelles extends InngangsvilkårStegImpl {
 
     protected static final VilkårType OPPTJENINGSVILKÅRET = VilkårType.OPPTJENINGSVILKÅRET;
-    private static List<VilkårType> STØTTEDE_VILKÅR = singletonList(OPPTJENINGSVILKÅRET);
+    private static final List<VilkårType> STØTTEDE_VILKÅR = singletonList(OPPTJENINGSVILKÅRET);
 
-    private OpptjeningRepository opptjeningRepository;
-    private BehandlingRepository behandlingRepository;
     private BehandlingRepositoryProvider repositoryProvider;
+
+    public VurderOpptjeningsvilkårStegFelles(BehandlingRepositoryProvider repositoryProvider,
+                                             InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste,
+                                             BehandlingStegType behandlingStegType) {
+        super(repositoryProvider, inngangsvilkårFellesTjeneste, behandlingStegType);
+        this.repositoryProvider = repositoryProvider;
+    }
 
     protected VurderOpptjeningsvilkårStegFelles() {
         // CDI proxy
     }
 
-    public VurderOpptjeningsvilkårStegFelles(BehandlingRepositoryProvider repositoryProvider,
-            OpptjeningRepository opptjeningRepository,
-            InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste,
-            BehandlingStegType behandlingStegType) {
-        super(repositoryProvider, inngangsvilkårFellesTjeneste, behandlingStegType);
-        this.opptjeningRepository = opptjeningRepository;
-        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
-        this.repositoryProvider = repositoryProvider;
-    }
-
     @Override
     protected void utførtRegler(BehandlingskontrollKontekst kontekst, Behandling behandling, RegelResultat regelResultat) {
+        var opptjeningRepository = repositoryProvider.getOpptjeningRepository();
         if (vilkårErVurdert(regelResultat)) {
             OpptjeningsvilkårResultat opres = getVilkårresultat(behandling, regelResultat);
             MapTilOpptjeningAktiviteter mapper = new MapTilOpptjeningAktiviteter();
@@ -86,7 +80,7 @@ public abstract class VurderOpptjeningsvilkårStegFelles extends Inngangsvilkår
             BehandlingStegType hoppesFraSteg) {
         super.vedHoppOverBakover(kontekst, modell, hoppesTilSteg, hoppesFraSteg);
         if (!erVilkårOverstyrt(kontekst.getBehandlingId())) {
-            new RyddOpptjening(behandlingRepository, opptjeningRepository, kontekst).ryddOppAktiviteter();
+            new RyddOpptjening(repositoryProvider, kontekst).ryddOppAktiviteter();
         }
     }
 
@@ -96,7 +90,7 @@ public abstract class VurderOpptjeningsvilkårStegFelles extends Inngangsvilkår
         super.vedHoppOverFramover(kontekst, modell, hoppesFraSteg, hoppesTilSteg);
         if (!repositoryProvider.getBehandlingRepository().hentBehandling(kontekst.getBehandlingId()).erRevurdering()) {
             if (!erVilkårOverstyrt(kontekst.getBehandlingId())) {
-                new RyddOpptjening(behandlingRepository, opptjeningRepository, kontekst).ryddOppAktiviteter();
+                new RyddOpptjening(repositoryProvider, kontekst).ryddOppAktiviteter();
             }
         }
     }

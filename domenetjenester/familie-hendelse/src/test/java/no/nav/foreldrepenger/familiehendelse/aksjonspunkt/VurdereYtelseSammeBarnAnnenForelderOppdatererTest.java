@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
@@ -40,7 +41,7 @@ public class VurdereYtelseSammeBarnAnnenForelderOppdatererTest {
         VurdereYtelseSammeBarnAnnenForelderAksjonspunktDto dto = new VurdereYtelseSammeBarnAnnenForelderAksjonspunktDto();
         dto.setErVilkarOk(true);
 
-        utførAksjonspunktOppdaterer(behandling, dto);
+        utførAksjonspunktOppdaterer(behandling, dto, scenario.mockBehandlingRepositoryProvider());
 
         // Assert
         Behandlingsresultat behandlingsresultat = behandling.getBehandlingsresultat();
@@ -57,7 +58,7 @@ public class VurdereYtelseSammeBarnAnnenForelderOppdatererTest {
         dto.setErVilkarOk(false);
         dto.setAvslagskode("1006");
 
-        utførAksjonspunktOppdaterer(behandling, dto);
+        utførAksjonspunktOppdaterer(behandling, dto, scenario.mockBehandlingRepositoryProvider());
 
         // Assert
         VilkårResultat vilkårResultat = behandling.getBehandlingsresultat().getVilkårResultat();
@@ -91,11 +92,14 @@ public class VurdereYtelseSammeBarnAnnenForelderOppdatererTest {
         return scenario;
     }
 
-    private void utførAksjonspunktOppdaterer(Behandling behandling, VurdereYtelseSammeBarnAnnenForelderAksjonspunktDto dto) {
+    private void utførAksjonspunktOppdaterer(Behandling behandling,
+                                             VurdereYtelseSammeBarnAnnenForelderAksjonspunktDto dto,
+                                             BehandlingRepositoryProvider repositoryProvider) {
         HistorikkTjenesteAdapter mockHistory = lagMockHistory();
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
         // Act
-        OppdateringResultat resultat = new VurdereYtelseSammeBarnOppdaterer.VurdereYtelseSammeBarnAnnenForelderOppdaterer(mockHistory)
+        OppdateringResultat resultat = new VurdereYtelseSammeBarnOppdaterer.VurdereYtelseSammeBarnAnnenForelderOppdaterer(mockHistory,
+            repositoryProvider.getBehandlingsresultatRepository(), repositoryProvider.getBehandlingRepository())
             .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, null, dto));
         byggVilkårResultat(vilkårBuilder, resultat);
         vilkårBuilder.buildFor(behandling);

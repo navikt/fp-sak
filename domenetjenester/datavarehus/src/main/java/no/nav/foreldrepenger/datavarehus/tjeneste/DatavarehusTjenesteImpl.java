@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegTilstand;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
@@ -47,7 +48,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.datavarehus.domene.AksjonspunktDvh;
 import no.nav.foreldrepenger.datavarehus.domene.AnkeVurderingResultatDvh;
-import no.nav.foreldrepenger.datavarehus.domene.BehandlingDvh;
 import no.nav.foreldrepenger.datavarehus.domene.BehandlingStegDvh;
 import no.nav.foreldrepenger.datavarehus.domene.BehandlingVedtakDvh;
 import no.nav.foreldrepenger.datavarehus.domene.DatavarehusRepository;
@@ -74,6 +74,7 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
     private PersonopplysningRepository personopplysningRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private FamilieHendelseRepository familieGrunnlagRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
     private TotrinnRepository totrinnRepository;
     private KlageRepository klageRepository;
     private MottatteDokumentRepository mottatteDokumentRepository;
@@ -82,13 +83,10 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
-    public DatavarehusTjenesteImpl() {
-        //Crazy Dedicated Instructors
-    }
-
     @Inject
     public DatavarehusTjenesteImpl(BehandlingRepositoryProvider repositoryProvider,
                                    DatavarehusRepository datavarehusRepository,
+                                   BehandlingsresultatRepository behandlingsresultatRepository,
                                    TotrinnRepository totrinnRepository,
                                    AnkeRepository ankeRepository,
                                    KlageRepository klageRepository,
@@ -102,6 +100,7 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         this.personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
         this.familieGrunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
+        this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.totrinnRepository = totrinnRepository;
         this.klageRepository = klageRepository;
         this.mottatteDokumentRepository = mottatteDokumentRepository;
@@ -109,6 +108,10 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
         this.dvhVedtakXmlTjeneste = dvhVedtakXmlTjeneste;
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+    }
+
+    public DatavarehusTjenesteImpl() {
+        //Crazy Dedicated Instructors
     }
 
     @Override
@@ -162,21 +165,29 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
     }
 
     private void lagreNedBehandling(Behandling behandling, Optional<BehandlingVedtak> vedtak) {
-        Optional<FamilieHendelseGrunnlagEntitet> fh = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.getId());
-        Optional<KlageVurderingResultat> gjeldendeKlagevurderingresultat = klageRepository.hentGjeldendeKlageVurderingResultat(behandling);
+        var fh = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.getId());
+        var gjeldendeKlagevurderingresultat = klageRepository.hentGjeldendeKlageVurderingResultat(behandling);
         var uttak = foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandling.getId());
-        Optional<LocalDate> skjæringstidspunkt  = Optional.empty();
-        if(uttak.isEmpty() && !FamilieHendelseType.UDEFINERT.equals(fh.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT))){
+        Optional<LocalDate> skjæringstidspunkt = uttak.isPresent() && fh.isPresent() ?
+            skjæringstidspunkt(behandling, fh.get()) : Optional.empty();
+        var mottattTidspunkt = finnMottattTidspunkt(behandling);
+        var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
+        var behandlingDvh = BehandlingDvhMapper.map(behandling, behandlingsresultat.orElse(null),
+            mottattTidspunkt, vedtak, fh, gjeldendeKlagevurderingresultat, uttak, skjæringstidspunkt);
+        datavarehusRepository.lagre(behandlingDvh);
+    }
+
+    private Optional<LocalDate> skjæringstidspunkt(Behandling behandling,
+                                                   FamilieHendelseGrunnlagEntitet fh) {
+        if (!FamilieHendelseType.UDEFINERT.equals(fh.getGjeldendeVersjon().getType())) {
             try {
-                skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).getSkjæringstidspunktHvisUtledet();
+                return skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).getSkjæringstidspunktHvisUtledet();
             } catch (Exception e) {
-                LOGGER.warn("Kunne ikke utlede skjæringstidspunkter for behandling {} antagelig henlagt ufullstendig behandling", behandling.getId());
+                LOGGER.warn("Kunne ikke utlede skjæringstidspunkter for behandling {} antagelig henlagt ufullstendig behandling",
+                    behandling.getId());
             }
         }
-        LocalDateTime mottattTidspunkt = finnMottattTidspunkt(behandling);
-        BehandlingDvh behandlingDvh = BehandlingDvhMapper.map(behandling, mottattTidspunkt, vedtak, fh, gjeldendeKlagevurderingresultat,
-            uttak, skjæringstidspunkt);
-        datavarehusRepository.lagre(behandlingDvh);
+        return Optional.empty();
     }
 
     private LocalDateTime finnMottattTidspunkt(Behandling behandling) {

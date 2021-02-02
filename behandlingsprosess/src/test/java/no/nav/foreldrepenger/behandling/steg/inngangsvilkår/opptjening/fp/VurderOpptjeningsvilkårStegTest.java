@@ -27,12 +27,6 @@ public class VurderOpptjeningsvilkårStegTest {
     @Inject
     public InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste;
 
-    @Inject
-    private OpptjeningRepository opptjeningRepository;
-
-    @Inject
-    private BehandlingRepository behandlingRepository;
-
     private final LocalDate idag = LocalDate.now();
 
     private Behandling lagre(AbstractTestScenario<?> scenario) {
@@ -40,7 +34,7 @@ public class VurderOpptjeningsvilkårStegTest {
     }
 
     @Test
-    public void skal_lagre_resultat_av_opptjeningsvilkår() throws Exception {
+    public void skal_lagre_resultat_av_opptjeningsvilkår() {
 
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
@@ -59,15 +53,15 @@ public class VurderOpptjeningsvilkårStegTest {
         Behandling behandling = lagre(scenario);
         Fagsak fagsak = behandling.getFagsak();
         BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
-                behandlingRepository.taSkriveLås(behandling));
+                repositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId()));
 
         // Act
         // opprett opptjening
-        new FastsettOpptjeningsperiodeSteg(repositoryProvider, opptjeningRepository, inngangsvilkårFellesTjeneste)
+        new FastsettOpptjeningsperiodeSteg(repositoryProvider, inngangsvilkårFellesTjeneste)
                 .utførSteg(kontekst);
 
         // vurder vilkåret
-        new VurderOpptjeningsvilkårSteg(repositoryProvider, opptjeningRepository, inngangsvilkårFellesTjeneste)
+        new VurderOpptjeningsvilkårSteg(repositoryProvider, inngangsvilkårFellesTjeneste)
                 .utførSteg(kontekst);
     }
 }

@@ -62,6 +62,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRe
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedlemskap;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedlemskapBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedlemskapEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagBuilder;
@@ -222,6 +223,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         FagsakLåsRepository fagsakLåsRepository = mockFagsakLåsRepository();
         FagsakRelasjonRepository fagsakRelasjonRepositoryMock = mockFagsakRelasjonRepository();
         BehandlingsresultatRepository resultatRepository = mockBehandlingresultatRepository();
+        OpptjeningRepository opptjeningRepository = mockOpptjeningRepository();
 
         BehandlingLåsRepository behandlingLåsReposiory = mockBehandlingLåsRepository();
 
@@ -241,28 +243,25 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         lenient().when(repositoryProvider.getBehandlingLåsRepository()).thenReturn(behandlingLåsReposiory);
         lenient().when(repositoryProvider.getFagsakRelasjonRepository()).thenReturn(fagsakRelasjonRepositoryMock);
         lenient().when(repositoryProvider.getBehandlingsresultatRepository()).thenReturn(resultatRepository);
+        lenient().when(repositoryProvider.getOpptjeningRepository()).thenReturn(opptjeningRepository);
 
         return behandlingRepository;
+    }
+
+    private OpptjeningRepository mockOpptjeningRepository() {
+        return mock(OpptjeningRepository.class);
     }
 
     private BehandlingsresultatRepository mockBehandlingresultatRepository() {
         return new BehandlingsresultatRepository() {
             @Override
             public Optional<Behandlingsresultat> hentHvisEksisterer(Long behandlingId) {
-                Behandling behandling = behandlingMap.get(behandlingId);
-                if (behandling == null) {
-                    return Optional.empty();
-                }
-                return Optional.ofNullable(behandling.getBehandlingsresultat());
+                return Optional.ofNullable(mockBehandlingRepository.hentBehandling(behandlingId).getBehandlingsresultat());
             }
 
             @Override
             public Behandlingsresultat hent(Long behandlingId) {
-                Behandling behandling = behandlingMap.get(behandlingId);
-                if (behandling == null) {
-                    throw new IllegalStateException("Forventet behandlingsresultat");
-                }
-                return behandling.getBehandlingsresultat();
+                return hentHvisEksisterer(behandlingId).orElseThrow();
             }
         };
     }

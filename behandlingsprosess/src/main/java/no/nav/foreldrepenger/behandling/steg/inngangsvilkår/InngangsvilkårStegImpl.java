@@ -99,7 +99,7 @@ public abstract class InngangsvilkårStegImpl implements InngangsvilkårSteg {
     }
 
     private Behandlingsresultat getBehandlingsresultat(Behandling behandling) {
-        return behandling.getBehandlingsresultat();
+        return behandlingsresultatRepository.hent(behandling.getId());
     }
 
     private boolean harAvslåttForrigeBehandling(Behandling revurdering) {

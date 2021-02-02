@@ -38,7 +38,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
@@ -63,9 +62,6 @@ public class InngangsvilkårStegImplTest {
 
     @Mock
     private RegelOrkestrerer regelOrkestrerer;
-
-    @Mock
-    private OpptjeningRepository opptjeningRepository;
 
     @Test
     public void skal_hoppe_til_uttak_ved_avslag_for_foreldrepenger_ved_revurdering() {
@@ -116,7 +112,7 @@ public class InngangsvilkårStegImplTest {
         when(regelOrkestrerer.vurderInngangsvilkår(eq(Set.of(oppVilkårType)), any(), any())).thenReturn(val);
         var inngangsvilkårFellesTjeneste = new InngangsvilkårFellesTjeneste(regelOrkestrerer, mock(SkjæringstidspunktTjeneste.class));
         // Act
-        BehandleStegResultat stegResultat = new SutOpptjeningSteg(repositoryProvider, opptjeningRepository, inngangsvilkårFellesTjeneste)
+        BehandleStegResultat stegResultat = new SutOpptjeningSteg(repositoryProvider, inngangsvilkårFellesTjeneste)
                 .utførSteg(kontekst);
 
         // Assert
@@ -156,7 +152,7 @@ public class InngangsvilkårStegImplTest {
         when(regelOrkestrerer.vurderInngangsvilkår(eq(Set.of(oppVilkårType)), any(), any())).thenReturn(val);
         var inngangsvilkårFellesTjeneste = new InngangsvilkårFellesTjeneste(regelOrkestrerer, mock(SkjæringstidspunktTjeneste.class));
         // Act
-        BehandleStegResultat stegResultat = new SutOpptjeningSteg(repositoryProvider, opptjeningRepository, inngangsvilkårFellesTjeneste)
+        BehandleStegResultat stegResultat = new SutOpptjeningSteg(repositoryProvider, inngangsvilkårFellesTjeneste)
                 .utførSteg(kontekst);
 
         // Assert
@@ -375,9 +371,9 @@ public class InngangsvilkårStegImplTest {
 
     class SutOpptjeningSteg extends VurderOpptjeningsvilkårSteg {
 
-        SutOpptjeningSteg(BehandlingRepositoryProvider repositoryProvider, OpptjeningRepository opptjeningRepository,
-                InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste) {
-            super(repositoryProvider, opptjeningRepository, inngangsvilkårFellesTjeneste);
+        SutOpptjeningSteg(BehandlingRepositoryProvider repositoryProvider,
+                          InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste) {
+            super(repositoryProvider, inngangsvilkårFellesTjeneste);
         }
 
         @Override

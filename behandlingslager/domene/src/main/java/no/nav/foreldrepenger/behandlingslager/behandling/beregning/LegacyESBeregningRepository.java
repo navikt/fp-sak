@@ -25,7 +25,6 @@ public class LegacyESBeregningRepository {
 
     private EntityManager entityManager;
     private BehandlingRepository behandlingRepository;
-    private BehandlingsresultatRepository behandlingsresultatRepository;
 
     LegacyESBeregningRepository() {
         // for CDI proxy
@@ -33,14 +32,13 @@ public class LegacyESBeregningRepository {
 
     public LegacyESBeregningRepository(EntityManager entityManager) {
         // for test
-        this(entityManager, new BehandlingRepository(entityManager), new  BehandlingsresultatRepository(entityManager));
+        this(entityManager, new BehandlingRepository(entityManager));
     }
 
     @Inject
-    public LegacyESBeregningRepository( EntityManager entityManager, BehandlingRepository behandlingRepository, BehandlingsresultatRepository behandlingsresultatRepository) {
+    public LegacyESBeregningRepository( EntityManager entityManager, BehandlingRepository behandlingRepository) {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
         this.behandlingRepository = behandlingRepository;
-        this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.entityManager = entityManager;
     }
 
