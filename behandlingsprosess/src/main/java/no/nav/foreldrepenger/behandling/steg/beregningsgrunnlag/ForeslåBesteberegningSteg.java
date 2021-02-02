@@ -29,6 +29,9 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.fp.BesteberegningFødendeKvinneTjeneste;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRepository;
+import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @FagsakYtelseTypeRef("FP")
@@ -40,6 +43,7 @@ public class ForeslåBesteberegningSteg implements BeregningsgrunnlagSteg {
     private BehandlingRepository behandlingRepository;
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
     private BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider;
+    private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste;
     private OpptjeningRepository opptjeningRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
@@ -54,13 +58,15 @@ public class ForeslåBesteberegningSteg implements BeregningsgrunnlagSteg {
                                      BeregningsgrunnlagInputProvider inputTjenesteProvider,
                                      BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste,
                                      OpptjeningRepository opptjeningRepository,
-                                     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                                     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                     BeregningsgrunnlagRepository beregningsgrunnlagRepository) {
         this.behandlingRepository = behandlingRepository;
         this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
         this.beregningsgrunnlagInputProvider = Objects.requireNonNull(inputTjenesteProvider, "inputTjenesteProvider");
         this.besteberegningFødendeKvinneTjeneste = besteberegningFødendeKvinneTjeneste;
         this.opptjeningRepository = opptjeningRepository;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+        this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
     }
 
     @Override
@@ -69,7 +75,7 @@ public class ForeslåBesteberegningSteg implements BeregningsgrunnlagSteg {
         var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(kontekst.getBehandlingId());
         BehandlingReferanse ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
         var input = getInputTjeneste(ref.getFagsakYtelseType()).lagInput(ref.getBehandlingId());
-        if (besteberegningFødendeKvinneTjeneste.brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(ref) && skalBehandlesAutomatisk(ref, input)) {
+        if (skalBeregnesAutomatisk(ref, input)) {
             BeregningsgrunnlagVilkårOgAkjonspunktResultat resultat = beregningsgrunnlagKopierOgLagreTjeneste.foreslåBesteberegning(input);
             List<AksjonspunktResultat> aksjonspunkter = resultat.getAksjonspunkter().stream().map(BeregningResultatMapper::map).collect(Collectors.toList());
             return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
@@ -78,8 +84,23 @@ public class ForeslåBesteberegningSteg implements BeregningsgrunnlagSteg {
         return BehandleStegResultat.utførtMedAksjonspunktResultater(Collections.emptyList());
     }
 
-    private boolean skalBehandlesAutomatisk(BehandlingReferanse ref, BeregningsgrunnlagInput input) {
+    private boolean skalBeregnesAutomatisk(BehandlingReferanse ref, BeregningsgrunnlagInput input) {
+        boolean kvalifisererTilBesteberegning = besteberegningFødendeKvinneTjeneste.brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(ref);
+        if (!kvalifisererTilBesteberegning) {
+            return false;
+        }
+        boolean kanBehandlesAutomatisk = kanBehandlesAutomatisk(ref, input);
+        boolean erManueltVurdert = erBesteberegningManueltVurdert(ref);
+        return kanBehandlesAutomatisk && !erManueltVurdert;
+    }
 
+    private boolean erBesteberegningManueltVurdert(BehandlingReferanse ref) {
+        Optional<BeregningsgrunnlagEntitet> beregningsgrunnlagEntitet = beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(ref.getBehandlingId());
+        return beregningsgrunnlagEntitet.map(BeregningsgrunnlagEntitet::getFaktaOmBeregningTilfeller)
+            .orElse(Collections.emptyList()).stream().anyMatch(tilf ->tilf.equals(FaktaOmBeregningTilfelle.VURDER_BESTEBEREGNING));
+    }
+
+    private boolean kanBehandlesAutomatisk(BehandlingReferanse ref, BeregningsgrunnlagInput input) {
         Optional<Opptjening> opptjening = opptjeningRepository.finnOpptjening(ref.getBehandlingId());
         List<OpptjeningAktivitet> opptjeningAktiviteter = opptjening.map(Opptjening::getOpptjeningAktivitet).orElse(Collections.emptyList());
         boolean harKunDpEllerArbeidIOpptjeningsperioden = opptjeningAktiviteter.stream().allMatch(a -> a.getAktivitetType().equals(OpptjeningAktivitetType.DAGPENGER) || a.getAktivitetType().equals(OpptjeningAktivitetType.ARBEID));
