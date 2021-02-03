@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import no.nav.foreldrepenger.behandling.impl.FinnAnsvarligSaksbehandler;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
@@ -17,10 +18,10 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeStatus
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.OppdragPatchDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.OppdragslinjePatchDto;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.OpprettOppdragTjeneste;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.OppdragskontrollConstants;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.dagytelse.oppdragslinje150.Oppdragslinje150Util;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomistøtteUtils;
+import no.nav.foreldrepenger.økonomistøtte.OpprettOppdragTjeneste;
+import no.nav.foreldrepenger.økonomistøtte.dagytelse.OppdragskontrollConstants;
+import no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdragslinje150.Oppdragslinje150Util;
+import no.nav.foreldrepenger.økonomistøtte.ØkonomistøtteUtils;
 
 class OppdragMapper {
 
@@ -41,7 +42,6 @@ class OppdragMapper {
 
     public void mapTil(Oppdragskontroll oppdragskontroll) {
         Oppdrag110 oppdrag110 = mapOppdrag110(oppdragskontroll);
-        OpprettOppdragTjeneste.opprettOppdragsenhet120(oppdrag110);
         for (OppdragslinjePatchDto linje : dto.getOppdragslinjer()) {
             mapOppdragslinje(oppdrag110, linje);
         }
@@ -87,15 +87,12 @@ class OppdragMapper {
                 .medMaksDato(finnSisteDato())
                 .build();
         }
-        OpprettOppdragTjeneste.opprettAttestant180(oppdragslinje, ansvarligSaksbehandler);
     }
 
     private Oppdrag110 mapOppdrag110(Oppdragskontroll oppdragskontroll) {
-        String nøkkleAvstemmingTidspunkt = ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now());
         return Oppdrag110.builder()
             .medOppdragskontroll(oppdragskontroll)
-            .medNøkkelAvstemming(nøkkleAvstemmingTidspunkt)
-            .medAvstemming115(OpprettOppdragTjeneste.opprettAvstemming115(nøkkleAvstemmingTidspunkt))
+            .medAvstemming(Avstemming.ny())
             .medKodeAksjon(ØkonomiKodeAksjon.EN.getKodeAksjon())
             .medKodeEndring(dto.getKodeEndring())
             .medDatoOppdragGjelderFom(LocalDate.of(2000, 1, 1))

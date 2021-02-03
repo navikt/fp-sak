@@ -9,6 +9,7 @@ import java.util.Optional;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -20,8 +21,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import javax.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.vedtak.util.env.Cluster;
@@ -66,25 +66,16 @@ public class Oppdrag110 extends BaseEntitet {
     @Column(name = "saksbeh_id", nullable = false)
     private String saksbehId;
 
-    // Avstemmingsnøkkel - brukes til å matche oppdragsmeldinger i avstemmingen
-    @Column(name = "nokkel_avstemming")
-    private String nokkelAvstemming;
+    @NotNull
+    @Embedded
+    private Avstemming nøkkelAvstemming;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "oppdrags_kontroll_id", nullable = false, updatable = false)
-    @JsonBackReference
     private Oppdragskontroll oppdragskontroll;
-
-    /* bruker @ManyToOne siden JPA ikke støtter OneToOne join på non-PK column. */
-    @ManyToOne(cascade = {CascadeType.PERSIST}, optional = false)
-    @JoinColumn(name = "avstemming115_id", nullable = false)
-    private Avstemming115 avstemming115;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "oppdrag110", cascade = CascadeType.PERSIST)
     private List<Oppdragslinje150> oppdragslinje150Liste = new ArrayList<>();
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "oppdrag110", cascade = CascadeType.PERSIST)
-    private List<Oppdragsenhet120> oppdragsenhet120Liste = new ArrayList<>();
 
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "oppdrag110", cascade = CascadeType.PERSIST)
     private OppdragKvittering oppdragKvittering;
@@ -134,8 +125,8 @@ public class Oppdrag110 extends BaseEntitet {
         return saksbehId;
     }
 
-    public String getNokkelAvstemming() {
-        return nokkelAvstemming;
+    public Avstemming getAvstemming() {
+        return nøkkelAvstemming;
     }
 
     public Oppdragskontroll getOppdragskontroll() {
@@ -151,15 +142,6 @@ public class Oppdrag110 extends BaseEntitet {
         oppdragslinje150Liste.add(oppdragslinje150);
     }
 
-    public List<Oppdragsenhet120> getOppdragsenhet120Liste() {
-        return oppdragsenhet120Liste;
-    }
-
-    void addOppdragsenhet120(Oppdragsenhet120 oppdragsenhet120) {
-        Objects.requireNonNull(oppdragsenhet120, "oppdragsenhet120");
-        oppdragsenhet120Liste.add(oppdragsenhet120);
-    }
-
     public OppdragKvittering getOppdragKvittering() {
         return oppdragKvittering;
     }
@@ -171,10 +153,6 @@ public class Oppdrag110 extends BaseEntitet {
         } else {
             throw new IllegalStateException("Mottat økonomi kvittering kan ikke overskrive en allerede eksisterende kvittering!");
         }
-    }
-
-    public Avstemming115 getAvstemming115() {
-        return avstemming115;
     }
 
     public Optional<Ompostering116> getOmpostering116() {
@@ -205,7 +183,6 @@ public class Oppdrag110 extends BaseEntitet {
         }
     }
 
-
     @Override
     public boolean equals(Object object) {
         if (object == this) {
@@ -222,13 +199,14 @@ public class Oppdrag110 extends BaseEntitet {
             && Objects.equals(utbetFrekvens, oppdr110.getUtbetFrekvens())
             && Objects.equals(oppdragGjelderId, oppdr110.getOppdragGjelderId())
             && Objects.equals(datoOppdragGjelderFom, oppdr110.getDatoOppdragGjelderFom())
-            && Objects.equals(saksbehId, oppdr110.getSaksbehId());
+            && Objects.equals(saksbehId, oppdr110.getSaksbehId())
+            && Objects.equals(nøkkelAvstemming, oppdr110.getAvstemming());
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(kodeAksjon, kodeEndring, kodeFagomrade, fagsystemId, utbetFrekvens, oppdragGjelderId,
-            datoOppdragGjelderFom, saksbehId);
+            datoOppdragGjelderFom, saksbehId, nøkkelAvstemming);
     }
 
     @Override
@@ -243,7 +221,7 @@ public class Oppdrag110 extends BaseEntitet {
             + "oppdragGjelderId=" + oppdragGjelderId + "," //$NON-NLS-1$ //$NON-NLS-2$
             + "datoOppdragGjelderFom=" + datoOppdragGjelderFom + "," //$NON-NLS-1$ //$NON-NLS-2$
             + "saksbehId=" + saksbehId + "," //$NON-NLS-1$ //$NON-NLS-2$
-            + "nokkelAvstemming=" + nokkelAvstemming + "," //$NON-NLS-1$ //$NON-NLS-2$
+            + "avstemming=" + nøkkelAvstemming + "," //$NON-NLS-1$ //$NON-NLS-2$
             + "opprettetTs=" + getOpprettetTidspunkt() //$NON-NLS-1$
             + ">"; //$NON-NLS-1$
     }
@@ -257,9 +235,8 @@ public class Oppdrag110 extends BaseEntitet {
         private String oppdragGjelderId;
         private LocalDate datoOppdragGjelderFom;
         private String saksbehId;
-        private String nøkkelAvstemming;
+        private Avstemming avstemming;
         private Oppdragskontroll oppdragskontroll;
-        private Avstemming115 avstemming115;
         private Ompostering116 ompostering116;
 
         public Builder medKodeAksjon(String kodeAksjon) {
@@ -302,18 +279,13 @@ public class Oppdrag110 extends BaseEntitet {
             return this;
         }
 
-        public Builder medNøkkelAvstemming(String nøkkelAvstemming) {
-            this.nøkkelAvstemming = nøkkelAvstemming;
+        public Builder medAvstemming(Avstemming avstemming) {
+            this.avstemming = avstemming;
             return this;
         }
 
         public Builder medOppdragskontroll(Oppdragskontroll oppdragskontroll) {
             this.oppdragskontroll = oppdragskontroll;
-            return this;
-        }
-
-        public Builder medAvstemming115(Avstemming115 avstemming115) {
-            this.avstemming115 = avstemming115;
             return this;
         }
 
@@ -333,9 +305,8 @@ public class Oppdrag110 extends BaseEntitet {
             oppdrag110.oppdragGjelderId = oppdragGjelderId;
             oppdrag110.datoOppdragGjelderFom = datoOppdragGjelderFom;
             oppdrag110.saksbehId = saksbehId;
-            oppdrag110.nokkelAvstemming = nøkkelAvstemming;
+            oppdrag110.nøkkelAvstemming = avstemming;
             oppdrag110.oppdragskontroll = oppdragskontroll;
-            oppdrag110.avstemming115 = avstemming115;
 
             if (ompostering116 != null) {
                 oppdrag110.ompostering116 = ompostering116;
@@ -346,7 +317,6 @@ public class Oppdrag110 extends BaseEntitet {
             return oppdrag110;
         }
 
-
         public void verifyStateForBuild() {
             Objects.requireNonNull(kodeAksjon, "kodeAksjon");
             Objects.requireNonNull(kodeEndring, "kodeEndring");
@@ -356,9 +326,8 @@ public class Oppdrag110 extends BaseEntitet {
             Objects.requireNonNull(oppdragGjelderId, "oppdragGjelderId");
             Objects.requireNonNull(datoOppdragGjelderFom, "datoOppdragGjelderFom");
             Objects.requireNonNull(saksbehId, "saksbehId");
-            Objects.requireNonNull(nøkkelAvstemming, "nøkkelAvstemming");
+            Objects.requireNonNull(avstemming, "avstemming");
             Objects.requireNonNull(oppdragskontroll, "oppdragskontroll");
-            Objects.requireNonNull(avstemming115, "avstemming115");
         }
     }
 }

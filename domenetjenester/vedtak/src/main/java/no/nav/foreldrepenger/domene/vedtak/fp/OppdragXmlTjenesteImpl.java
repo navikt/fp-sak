@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.domene.vedtak.xml.OppdragXmlTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.xml.VedtakXmlUtil;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.HentOppdragMedPositivKvittering;
+import no.nav.foreldrepenger.økonomistøtte.HentOppdragMedPositivKvittering;
 import no.nav.vedtak.felles.xml.vedtak.oppdrag.dvh.fp.v2.ObjectFactory;
 import no.nav.vedtak.felles.xml.vedtak.oppdrag.dvh.fp.v2.Oppdrag;
 import no.nav.vedtak.felles.xml.vedtak.oppdrag.dvh.fp.v2.Oppdragslinje;

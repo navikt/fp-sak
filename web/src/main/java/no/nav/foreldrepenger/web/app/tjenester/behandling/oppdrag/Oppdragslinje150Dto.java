@@ -27,7 +27,6 @@ public class Oppdragslinje150Dto extends SporingDto {
     private Long henvisning;
     private RefusjonInfo156Dto refusjonInfo156;
     private List<Grad170Dto> grad170;
-    private List<Attestant180Dto> attestant180;
 
     public Oppdragslinje150Dto(Oppdragslinje150 entitet) {
         super(entitet, entitet.getVersjon(), entitet.getId());
@@ -185,14 +184,6 @@ public class Oppdragslinje150Dto extends SporingDto {
         this.grad170 = grad170;
     }
 
-    public List<Attestant180Dto> getAttestant180() {
-        return attestant180;
-    }
-
-    public void setAttestant180(List<Attestant180Dto> attestant180) {
-        this.attestant180 = attestant180;
-    }
-
     public static Oppdragslinje150Dto fraDomene(Oppdragslinje150 oppdragslinje150) {
         Oppdragslinje150Dto oppdragslinje150Dto = new Oppdragslinje150Dto(oppdragslinje150);
         oppdragslinje150Dto.vedtakId = oppdragslinje150.getVedtakId();
@@ -216,10 +207,6 @@ public class Oppdragslinje150Dto extends SporingDto {
         oppdragslinje150Dto.grad170 = oppdragslinje150.getGrad170Liste()
             .stream()
             .map(Grad170Dto::fraDomene)
-            .collect(Collectors.toList());
-        oppdragslinje150Dto.attestant180 = oppdragslinje150.getAttestant180Liste()
-            .stream()
-            .map(Attestant180Dto::fraDomene)
             .collect(Collectors.toList());
         return oppdragslinje150Dto;
 

@@ -1,0 +1,39 @@
+package no.nav.foreldrepenger.økonomistøtte.dagytelse.adapter;
+
+import java.time.LocalDate;
+import java.util.Optional;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import no.nav.foreldrepenger.behandling.impl.FinnAnsvarligSaksbehandler;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
+import no.nav.foreldrepenger.økonomistøtte.dagytelse.wrapper.BehandlingVedtakOppdrag;
+
+@ApplicationScoped
+public class MapBehandlingVedtak {
+    private BehandlingVedtakRepository behandlingVedtakRepository;
+
+    MapBehandlingVedtak() {
+        // for CDI proxy
+    }
+
+    @Inject
+    public MapBehandlingVedtak(BehandlingVedtakRepository behandlingVedtakRepository) {
+        this.behandlingVedtakRepository = behandlingVedtakRepository;
+    }
+
+    public BehandlingVedtakOppdrag map(Behandling behandling) {
+        Optional<BehandlingVedtak> behandlingVedtakOpt = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId());
+
+        String ansvarligSaksbehandler = behandlingVedtakOpt.map(BehandlingVedtak::getAnsvarligSaksbehandler)
+            .orElseGet(() -> FinnAnsvarligSaksbehandler.finn(behandling));
+        LocalDate vedtaksdato = behandlingVedtakOpt.map(BehandlingVedtak::getVedtaksdato)
+            .orElseGet(LocalDate::now);
+        BehandlingResultatType behandlingResultatType = behandling.getBehandlingsresultat().getBehandlingResultatType();
+        return new BehandlingVedtakOppdrag(ansvarligSaksbehandler, behandlingResultatType, vedtaksdato);
+    }
+}

@@ -25,7 +25,7 @@ import no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev.Informasj
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingPeriodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.foreldrepenger.ytelse.beregning.FeriepengeRegeregnTjeneste;
-import no.nav.foreldrepenger.økonomi.feriepengeavstemming.Feriepengeavstemmer;
+import no.nav.foreldrepenger.økonomistøtte.feriepengeavstemming.Feriepengeavstemmer;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.util.Tuple;
 
