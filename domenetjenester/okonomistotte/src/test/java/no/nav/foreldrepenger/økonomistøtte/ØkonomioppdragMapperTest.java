@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Attestant180;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad170;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116;
@@ -179,7 +178,6 @@ public class ØkonomioppdragMapperTest {
 
         List<Oppdrag110> oppdrag110Liste = buildOppdrag110(oppdragskontroll, gjelderFP, erOmpostering);
         List<Oppdragslinje150> oppdragslinje150Liste = buildOppdragslinje150(oppdrag110Liste, gjelderFP, erOppdragslinje150Sortert);
-        buildAttestant180(oppdragslinje150Liste);
         if (gjelderFP) {
             buildGrad170(oppdragslinje150Liste);
             buildRefusjonsinfo156(oppdragslinje150Liste);
@@ -236,8 +234,7 @@ public class ØkonomioppdragMapperTest {
 
                 List<no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Attestant180> attestant180GenerertListe = oppdragsLinje150Generert.getAttestant180();
                 for (no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Attestant180 attestant180Generert : attestant180GenerertListe) {
-                    Attestant180 attestant180 = oppdragslinje150.getAttestant180Liste().get(0);
-                    assertThat(attestant180Generert.getAttestantId()).isEqualTo(attestant180.getAttestantId());
+                    assertThat(attestant180Generert.getAttestantId()).isEqualTo(oppdrag110.getSaksbehId());
                 }
 
                 if (gjelderFP) {
@@ -261,21 +258,6 @@ public class ØkonomioppdragMapperTest {
         }
     }
 
-    private List<Attestant180> buildAttestant180(List<Oppdragslinje150> oppdragslinje150Liste) {
-
-        List<Attestant180> attestant180Liste = new ArrayList<>();
-        for (Oppdragslinje150 oppdragslinje150 : oppdragslinje150Liste) {
-            attestant180Liste.add(buildAttestant180(oppdragslinje150));
-        }
-        return attestant180Liste;
-    }
-
-    private Attestant180 buildAttestant180(Oppdragslinje150 oppdragslinje150) {
-        return Attestant180.builder()
-            .medOppdragslinje150(oppdragslinje150)
-            .medAttestantId("1234")
-            .build();
-    }
 
     private List<Grad170> buildGrad170(List<Oppdragslinje150> oppdragslinje150Liste) {
         List<Grad170> grad170Liste = new ArrayList<>();

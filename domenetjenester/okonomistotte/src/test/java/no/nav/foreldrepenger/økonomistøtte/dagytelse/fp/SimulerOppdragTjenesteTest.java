@@ -13,7 +13,6 @@ import javax.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Attestant180;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
@@ -95,10 +94,6 @@ public class SimulerOppdragTjenesteTest {
             .medKodeKlassifik(ØkonomiKodeKlassifik.FPATORD.getKodeKlassifik())
             .medTypeSats(ØkonomiTypeSats.DAG.name())
             .medOppdrag110(oppdrag110)
-            .build();
-        Attestant180.builder()
-            .medOppdragslinje150(o150)
-            .medAttestantId("1234")
             .build();
         return o150;
     }

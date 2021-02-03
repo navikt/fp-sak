@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Attestant180;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad170;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
@@ -84,10 +83,6 @@ class ØkonomiOppdragUtils {
             .medHenvisning(gjelderFP ? BehandleØkonomioppdragKvitteringTest.BEHANDLINGID_FP : BehandleØkonomioppdragKvitteringTest.BEHANDLINGID_ES)
             .medOppdrag110(o110_1)
             .build();
-        Attestant180.builder()
-            .medAttestantId(BehandleØkonomioppdragKvitteringTest.SAKSBEHID)
-            .medOppdragslinje150(o150_1)
-            .build();
         if (gjelderFP) {
             leggTilGrad170(Collections.singletonList(o150_1));
         }
@@ -118,10 +113,6 @@ class ØkonomiOppdragUtils {
                 .medSaksbehId(BehandleØkonomioppdragKvitteringTest.SAKSBEHID)
                 .medHenvisning(gjelderFP ? BehandleØkonomioppdragKvitteringTest.BEHANDLINGID_FP : BehandleØkonomioppdragKvitteringTest.BEHANDLINGID_ES)
                 .medOppdrag110(o110_2)
-                .build();
-            Attestant180.builder()
-                .medAttestantId(BehandleØkonomioppdragKvitteringTest.SAKSBEHID)
-                .medOppdragslinje150(o150_2)
                 .build();
             leggTilGrad170(Collections.singletonList(o150_2));
             leggTilRefusjons156(Collections.singletonList(o150_2));

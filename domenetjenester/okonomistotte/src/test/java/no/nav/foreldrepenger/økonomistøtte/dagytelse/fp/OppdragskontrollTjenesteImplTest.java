@@ -63,7 +63,6 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
         List<Oppdragslinje150> oppdragslinje150Liste = verifiserOppdragslinje150(oppdrag110Liste);
         verifiserGrad170(oppdragslinje150Liste);
         verifiserRefusjonInfo156(oppdragslinje150Liste);
-        verifiserAttestant180(oppdragslinje150Liste);
     }
 
     /**
@@ -215,8 +214,6 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
             for (Oppdragslinje150 oppdrlinje150 : oppdrlinje150Liste) {
                 assertThat(oppdrlinje150).isNotNull();
                 assertThat(oppdrlinje150.getOppdrag110()).isNotNull();
-                assertThat(oppdrlinje150.getAttestant180Liste()).hasSize(1);
-                assertThat(oppdrlinje150.getAttestant180Liste().get(0)).isNotNull();
             }
         }
     }
@@ -453,7 +450,6 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
         assertThat(oppdragslinje150List).allSatisfy(oppdragslinje150 -> {
             assertThat(oppdragslinje150.getKodeEndringLinje()).isEqualTo(ØkonomiKodeEndringLinje.NY.name());
             assertThat(oppdragslinje150.getRefusjonsinfo156()).isNull();
-            assertThat(oppdragslinje150.getAttestant180Liste()).isNotEmpty();
             assertThat(oppdragslinje150.getGrad170Liste()).isNotEmpty();
         });
     }
@@ -499,19 +495,9 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
             assertThat(opp150.getHenvisning()).isEqualTo(behandling.getId());
             assertThat(opp150.getSaksbehId()).isEqualTo(behVedtak.getAnsvarligSaksbehandler());
             assertThat(opp150.getBrukKjoreplan()).isEqualTo("N");
-            assertThat(opp150.getAttestant180Liste()).hasSize(1);
             assertThat(opp150.getGrad170Liste()).hasSize(1);
             assertUtbetalesTilId(opp150, brukerErMottaker, utbetalesTilId);
         }
-    }
-
-    private void verifiserAttestant180(List<Oppdragslinje150> oppdragslinje150List) {
-        assertThat(oppdragslinje150List).allSatisfy(oppdragslinje150 -> {
-            var attestant180Liste = oppdragslinje150.getAttestant180Liste();
-            assertThat(attestant180Liste).hasSize(1);
-            var attestant180 = attestant180Liste.get(0);
-            assertThat(attestant180.getAttestantId()).isEqualTo(behVedtak.getAnsvarligSaksbehandler());
-        });
     }
 
     private List<Oppdragslinje150> verifiserOppdragslinje150(List<Oppdrag110> oppdrag110Liste) {
@@ -607,7 +593,6 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
             assertThat(oppdragslinje150.getHenvisning()).isEqualTo(behandling.getId());
             assertThat(oppdragslinje150.getSaksbehId()).isEqualTo(behVedtak.getAnsvarligSaksbehandler());
             assertThat(oppdragslinje150.getBrukKjoreplan()).isEqualTo("N");
-            assertThat(oppdragslinje150.getAttestant180Liste()).hasSize(1);
             assertThat(oppdragslinje150.getGrad170Liste()).hasSize(1);
             assertUtbetalesTilId(oppdragslinje150, brukerErMottaker, utbetalesTilId);
             if (løpenummer > 100L) {

@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Attestant180;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad170;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116;
@@ -119,11 +118,6 @@ public class OppdragMapper {
             builder.medUtbetalesTilId(fnrBruker);
         }
         Oppdragslinje150 oppdragslinje150 = builder.build();
-
-        Attestant180.builder()
-            .medAttestantId(ansvarligSaksbehandler)
-            .medOppdragslinje150(oppdragslinje150)
-            .build();
 
         if (kjedeNøkkel.getBetalingsmottaker() instanceof Betalingsmottaker.ArbeidsgiverOrgnr) {
             Betalingsmottaker.ArbeidsgiverOrgnr mottaker = (Betalingsmottaker.ArbeidsgiverOrgnr) kjedeNøkkel.getBetalingsmottaker();

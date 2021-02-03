@@ -97,8 +97,7 @@ public class OppdragskontrollOpphør implements OppdragskontrollManager {
         }
         List<Oppdragslinje150> opp150List = nyOppdragOpt.map(Oppdrag110::getOppdragslinje150Liste)
             .orElse(Collections.emptyList());
-        List<Oppdragslinje150> opp150OpphList = Oppdragslinje150Util.getOppdragslinje150ForOpphør(opp150List);
-        OpprettOppdragsmeldingerRelatertTil150.opprettAttestant180(opp150OpphList, behandlingInfo.getAnsvarligSaksbehandler());
+        Oppdragslinje150Util.getOppdragslinje150ForOpphør(opp150List);
         return nyOppdragOpt;
     }
 
@@ -199,9 +198,7 @@ public class OppdragskontrollOpphør implements OppdragskontrollManager {
         Oppdrag110 nyOppdrag110 = oppdrag110Builder.medOppdragskontroll(nyOppdragskontroll).build();
         opprettOppdragslinje150ForStatusOPPH(behandlingInfo, sisteOppdr150Bruker, nyOppdrag110, opphørStatusFom);
         opprettOppdr150LinjeForFeriepengerOPPH(behandlingInfo, opphFørEndringsoppdrFeriepg, nyOppdrag110, forrigeOppdrag110);
-        List<Oppdragslinje150> opp150OpphList = TidligereOppdragTjeneste.getOppdragslinje150ForOpphør(nyOppdrag110);
-        OpprettOppdragsmeldingerRelatertTil150.opprettAttestant180(opp150OpphList, behandlingInfo.getAnsvarligSaksbehandler());
-
+        TidligereOppdragTjeneste.getOppdragslinje150ForOpphør(nyOppdrag110);
         return nyOppdrag110;
     }
 
@@ -234,7 +231,6 @@ public class OppdragskontrollOpphør implements OppdragskontrollManager {
 
     void kobleAndreMeldingselementerTilOpp150Opphør(OppdragInput behandlingInfo, Oppdragslinje150 sisteOppdr150, List<Oppdragslinje150> opp150OpphList) {
         opp150OpphList.forEach(nyOppdragslinje150 -> {
-            OpprettOppdragTjeneste.opprettAttestant180(nyOppdragslinje150, behandlingInfo.getAnsvarligSaksbehandler());
             Refusjonsinfo156 forrigeRefusjonsinfo156 = sisteOppdr150.getRefusjonsinfo156();
             OpprettOppdragsmeldingerRelatertTil150.opprettRefusjonsinfo156(behandlingInfo, nyOppdragslinje150, forrigeRefusjonsinfo156);
         });

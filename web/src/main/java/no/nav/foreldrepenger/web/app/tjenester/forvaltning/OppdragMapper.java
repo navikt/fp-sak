@@ -87,7 +87,6 @@ class OppdragMapper {
                 .medMaksDato(finnSisteDato())
                 .build();
         }
-        OpprettOppdragTjeneste.opprettAttestant180(oppdragslinje, ansvarligSaksbehandler);
     }
 
     private Oppdrag110 mapOppdrag110(Oppdragskontroll oppdragskontroll) {

@@ -16,7 +16,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Attestant180;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
@@ -112,7 +111,7 @@ public class GrensesnittavstemmingBatchTjenesteTest {
             .medSaksbehId(BehandleØkonomioppdragKvitteringTest.SAKSBEHID)
             .medOppdragskontroll(oppdrag)
             .build();
-        Oppdragslinje150 o150 = new Oppdragslinje150.Builder().medVedtakId(
+        new Oppdragslinje150.Builder().medVedtakId(
             BehandleØkonomioppdragKvitteringTest.VEDTAKID)
             .medKodeEndringLinje(BehandleØkonomioppdragKvitteringTest.KODEENDRINGLINJE)
             .medKodeKlassifik(BehandleØkonomioppdragKvitteringTest.KODEKLASSIFIK_ES)
@@ -125,10 +124,6 @@ public class GrensesnittavstemmingBatchTjenesteTest {
             .medUtbetalesTilId(BehandleØkonomioppdragKvitteringTest.OPPDRAGGJELDERID)
             .medHenvisning(BehandleØkonomioppdragKvitteringTest.BEHANDLINGID_ES)
             .medOppdrag110(o110)
-            .build();
-        Attestant180.builder()
-            .medAttestantId(BehandleØkonomioppdragKvitteringTest.SAKSBEHID)
-            .medOppdragslinje150(o150)
             .build();
         oppdrag.getOppdrag110Liste().add(o110);
         return oppdrag;

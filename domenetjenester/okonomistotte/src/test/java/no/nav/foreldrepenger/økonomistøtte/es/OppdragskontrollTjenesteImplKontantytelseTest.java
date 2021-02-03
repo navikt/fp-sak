@@ -52,10 +52,10 @@ import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollManagerFactoryProvi
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollTjenesteImpl;
 import no.nav.foreldrepenger.økonomistøtte.OpprettBehandlingForOppdrag;
-import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 import no.nav.foreldrepenger.økonomistøtte.kontantytelse.es.OppdragskontrollEngangsstønad;
 import no.nav.foreldrepenger.økonomistøtte.kontantytelse.es.OppdragskontrollManagerFactoryKontantytelse;
 import no.nav.foreldrepenger.økonomistøtte.kontantytelse.es.adapter.MapBehandlingInfoES;
+import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 
 public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManagerAwareTest {
 
@@ -115,8 +115,7 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
         verifiserOppdragskontroll(oppdragskontroll, prosessTaskId);
         List<Oppdrag110> oppdrag110Liste = verifiserOppdrag110(oppdragskontroll);
         verifiserAvstemming(oppdrag110Liste);
-        List<Oppdragslinje150> oppdragslinje150Liste = verifiserOppdragslinje150(oppdrag110Liste, behandling);
-        verifiserAttestant180(oppdragslinje150Liste);
+        verifiserOppdragslinje150(oppdrag110Liste, behandling);
     }
 
     @Test
@@ -143,8 +142,6 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
         Oppdragslinje150 oppdrlinje150 = oppdrag110.getOppdragslinje150Liste().get(0);
         assertThat(oppdrlinje150).isNotNull();
         assertThat(oppdrlinje150.getOppdrag110()).isNotNull();
-        assertThat(oppdrlinje150.getAttestant180Liste()).hasSize(1);
-        assertThat(oppdrlinje150.getAttestant180Liste().get(0)).isNotNull();
     }
 
     @Test
@@ -257,15 +254,6 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
         assertThat(oppdragslinje150.getDelytelseId()).isEqualTo(delYtelseId);
     }
 
-    private void verifiserAttestant180(List<Oppdragslinje150> oppdragslinje150List) {
-        assertThat(oppdragslinje150List).allSatisfy(oppdragslinje150 -> {
-            var attestant180Liste = oppdragslinje150.getAttestant180Liste();
-            assertThat(attestant180Liste).hasSize(1);
-            var attestant180 = attestant180Liste.get(0);
-            assertThat(attestant180.getAttestantId()).isEqualTo(behandlingVedtak.getAnsvarligSaksbehandler());
-        });
-    }
-
     private List<Oppdragslinje150> verifiserOppdragslinje150(List<Oppdrag110> oppdrag110Liste, Behandling behandling) {
         List<Oppdragslinje150> oppdragslinje150List = oppdrag110Liste.stream()
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
@@ -293,7 +281,6 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
             assertThat(oppdragslinje150.getSaksbehId()).isEqualTo(behandlingVedtak.getAnsvarligSaksbehandler());
             assertThat(oppdragslinje150.getBrukKjoreplan()).isEqualTo("N");
             assertThat(oppdragslinje150.getOppdrag110()).isEqualTo(oppdrag110);
-            assertThat(oppdragslinje150.getAttestant180Liste()).hasSize(1);
         }
         return oppdragslinje150List;
     }

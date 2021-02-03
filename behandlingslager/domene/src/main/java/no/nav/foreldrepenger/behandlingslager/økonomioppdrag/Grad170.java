@@ -119,13 +119,13 @@ public class Grad170 extends BaseEntitet {
 
         public Grad170 build() {
             verifyStateForBuild();
-            Grad170 attestant180 = new Grad170();
-            attestant180.typeGrad = typeGrad;
-            attestant180.grad = grad;
-            attestant180.oppdragslinje150 = oppdragslinje150;
-            oppdragslinje150.addGrad170(attestant180);
+            Grad170 grad170 = new Grad170();
+            grad170.typeGrad = typeGrad;
+            grad170.grad = grad;
+            grad170.oppdragslinje150 = oppdragslinje150;
+            oppdragslinje150.addGrad170(grad170);
 
-            return attestant180;
+            return grad170;
         }
 
         public void verifyStateForBuild() {

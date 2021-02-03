@@ -47,8 +47,7 @@ public class OppdragskontrollFørstegang implements OppdragskontrollManager {
             long fagsystemId = OpprettOppdrag110Tjeneste.settFagsystemId(behandlingInfo.getSaksnummer(), initialLøpenummer, false);
             Oppdrag110 oppdrag110 = OpprettOppdrag110Tjeneste.opprettNyOppdrag110(behandlingInfo, nyOppdragskontroll, mottaker, fagsystemId);
             List<TilkjentYtelseAndel> andelListe = entry.getValue();
-            List<Oppdragslinje150> oppdragslinje150List = OpprettOppdragslinje150Tjeneste.opprettOppdragslinje150(behandlingInfo, oppdrag110, andelListe, mottaker);
-            OpprettOppdragsmeldingerRelatertTil150.opprettAttestant180(oppdragslinje150List, behandlingInfo.getAnsvarligSaksbehandler());
+            OpprettOppdragslinje150Tjeneste.opprettOppdragslinje150(behandlingInfo, oppdrag110, andelListe, mottaker);
             initialLøpenummer++;
         }
         return nyOppdragskontroll;

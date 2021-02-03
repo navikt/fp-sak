@@ -16,7 +16,6 @@
     <sequence-generator name="SEQ_OPPDRAG_KVITTERING" allocation-size="50" sequence-name="SEQ_OPPDRAG_KVITTERING" />
     <sequence-generator name="SEQ_OKO_OMPOSTERING_116" allocation-size="50" sequence-name="SEQ_OKO_OMPOSTERING_116" />
 
-    <entity class="no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Attestant180" />
     <entity class="no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad170" />
     <entity class="no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110" />
     <entity class="no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll" />

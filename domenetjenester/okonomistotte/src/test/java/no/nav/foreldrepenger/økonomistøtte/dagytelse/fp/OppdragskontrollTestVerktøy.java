@@ -176,11 +176,6 @@ class OppdragskontrollTestVerktøy {
         }
     }
 
-    static void verifiserAttestant180(List<Oppdragslinje150> opp150List) {
-        assertThat(opp150List).allSatisfy(opp150 ->
-            assertThat(opp150.getAttestant180Liste()).isNotEmpty());
-    }
-
     static void verifiserRefusjonInfo156(List<Oppdrag110> opp110RevurderingList, Oppdragskontroll originaltOppdrag) {
 
         List<Oppdragslinje150> opp150RevurderingList = opp110RevurderingList.stream().filter(opp110 -> opp110.getKodeFagomrade().equals(ØkonomiKodeFagområde.FPREF.name()))

@@ -16,12 +16,6 @@ public class OpprettOppdragsmeldingerRelatertTil150 {
     private OpprettOppdragsmeldingerRelatertTil150() {
     }
 
-    public static void opprettAttestant180(List<Oppdragslinje150> oppdragslinje150, String ansvarligSaksbehandler) {
-        for (Oppdragslinje150 oppdrLinje150 : oppdragslinje150) {
-            OpprettOppdragTjeneste.opprettAttestant180(oppdrLinje150, ansvarligSaksbehandler);
-        }
-    }
-
     public static void opprettGrad170(Oppdragslinje150 oppdragslinje150, int grad) {
         Grad170.builder()
             .medTypeGrad(OppdragskontrollConstants.TYPE_GRAD)

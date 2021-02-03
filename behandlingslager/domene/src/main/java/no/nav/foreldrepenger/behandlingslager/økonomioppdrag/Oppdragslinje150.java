@@ -104,9 +104,6 @@ public class Oppdragslinje150 extends BaseEntitet {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "oppdragslinje150", cascade = CascadeType.PERSIST)
     private List<Grad170> grad170Liste = new ArrayList<>();
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "oppdragslinje150", cascade = CascadeType.PERSIST)
-    private List<Attestant180> attestant180Liste = new ArrayList<>();
-
     public Oppdragslinje150() {
     }
 
@@ -226,15 +223,6 @@ public class Oppdragslinje150 extends BaseEntitet {
     protected void addGrad170(Grad170 grad170) {
         Objects.requireNonNull(grad170, "grad170");
         grad170Liste.add(grad170);
-    }
-
-    public List<Attestant180> getAttestant180Liste() {
-        return attestant180Liste;
-    }
-
-    protected void addAttestant180(Attestant180 attestant180) {
-        Objects.requireNonNull(attestant180, "attestant180");
-        attestant180Liste.add(attestant180);
     }
 
     public long getVersjon() {

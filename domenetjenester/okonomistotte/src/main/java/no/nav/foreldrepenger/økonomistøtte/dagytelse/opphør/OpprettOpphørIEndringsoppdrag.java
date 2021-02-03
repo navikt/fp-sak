@@ -82,9 +82,7 @@ public class OpprettOpphørIEndringsoppdrag {
         if (!nyOppdrag110Opt.isPresent()) {
             return Optional.empty();
         }
-        List<Oppdragslinje150> opp150OpphList = TidligereOppdragTjeneste.getOppdragslinje150ForOpphør(nyOppdrag110Opt.get());
-        OpprettOppdragsmeldingerRelatertTil150.opprettAttestant180(opp150OpphList, behandlingInfo.getAnsvarligSaksbehandler());
-
+        TidligereOppdragTjeneste.getOppdragslinje150ForOpphør(nyOppdrag110Opt.get());
         return nyOppdrag110Opt;
     }
 

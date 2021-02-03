@@ -13,7 +13,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import javax.persistence.TypedQuery;
 
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Attestant180;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
@@ -117,10 +116,5 @@ public class ØkonomioppdragRepository {
 
     private void lagre(Oppdragslinje150 oppdragslinje150) {
         entityManager.persist(oppdragslinje150);
-        oppdragslinje150.getAttestant180Liste().forEach(this::lagre);
-    }
-
-    private void lagre(Attestant180 attestant180) {
-        entityManager.persist(attestant180);
     }
 }

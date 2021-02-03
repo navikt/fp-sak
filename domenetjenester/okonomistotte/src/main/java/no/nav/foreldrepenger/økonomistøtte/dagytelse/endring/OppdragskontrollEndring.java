@@ -101,7 +101,6 @@ public class OppdragskontrollEndring implements OppdragskontrollManager {
         Oppdragsmottaker mottaker = entry.getKey();
         List<TilkjentYtelseAndel> andelListe = entry.getValue();
         List<Oppdragslinje150> oppdragslinje150List = OpprettOppdragslinje150Tjeneste.opprettOppdragslinje150(oppdragInput, oppdrag110, andelListe, mottaker);
-        OpprettOppdragsmeldingerRelatertTil150.opprettAttestant180(oppdragslinje150List, oppdragInput.getAnsvarligSaksbehandler());
     }
 
     private void opprettEndringsoppdragForBruker(OppdragInput oppdragInput, Oppdragskontroll nyOppdragskontroll,
@@ -169,9 +168,8 @@ public class OppdragskontrollEndring implements OppdragskontrollManager {
         if (mottaker.erStatusUendret()) {
             return;
         }
-        List<Oppdragslinje150> oppdragslinje150List = OpprettOppdragslinje150Tjeneste.opprettOppdragslinje150(oppdragInput, nyOppdrag110,
+        OpprettOppdragslinje150Tjeneste.opprettOppdragslinje150(oppdragInput, nyOppdrag110,
             andelListe, mottaker, sisteOppdr150ForDenneArbeidsgiveren);
-        OpprettOppdragsmeldingerRelatertTil150.opprettAttestant180(oppdragslinje150List, oppdragInput.getAnsvarligSaksbehandler());
     }
 
     private void opprettOppdragForBrukerMedFlereKlassekodeIRevurdering(OppdragInput oppdragInput,
@@ -185,9 +183,8 @@ public class OppdragskontrollEndring implements OppdragskontrollManager {
                 mottaker, true);
             Oppdrag110 nyOppdrag110 = OpprettOppdrag110Tjeneste.fastsettOppdrag110(oppdragInput, nyOppdragskontroll, nyOppdrag110Opt, sisteOppdr150Bruker, mottaker);
             List<List<TilkjentYtelseAndel>> andelerGruppertMedKlassekode = OpprettOppdragslinje150Tjeneste.gruppereAndelerMedKlassekode(andelListe);
-            List<Oppdragslinje150> oppdragslinje150List = OpprettOppdragslinje150Tjeneste.opprettOppdr150ForBrukerMedFlereKlassekode(oppdragInput, nyOppdrag110,
+            OpprettOppdragslinje150Tjeneste.opprettOppdr150ForBrukerMedFlereKlassekode(oppdragInput, nyOppdrag110,
                 andelerGruppertMedKlassekode, mottaker, Collections.singletonList(sisteOppdr150Bruker));
-            OpprettOppdragsmeldingerRelatertTil150.opprettAttestant180(oppdragslinje150List, oppdragInput.getAnsvarligSaksbehandler());
         }
     }
 
@@ -218,9 +215,8 @@ public class OppdragskontrollEndring implements OppdragskontrollManager {
             .filter(oppdr150 -> oppdr150.getKodeKlassifik().equals(kodeKlassifik))
             .max(Comparator.comparing(Oppdragslinje150::getDelytelseId).thenComparing(Oppdragslinje150::getKodeStatusLinje, Comparator.nullsFirst(Comparator.naturalOrder())))
             .orElse(oppdr150MedMaxDelytelseId);
-        List<Oppdragslinje150> oppdragslinje150List = OpprettOppdragslinje150Tjeneste.opprettOppdragslinje150(oppdragInput, nyOppdrag110,
+        OpprettOppdragslinje150Tjeneste.opprettOppdragslinje150(oppdragInput, nyOppdrag110,
             andelListe, mottaker, sisteOppdr150Bruker);
-        OpprettOppdragsmeldingerRelatertTil150.opprettAttestant180(oppdragslinje150List, oppdragInput.getAnsvarligSaksbehandler());
     }
 
     private void opprettOppdragForBrukerMedFlereKlassekodeIBådeForrigeOgNyBehandling(OppdragInput oppdragInput, Oppdragskontroll oppdragskontroll,
@@ -241,9 +237,8 @@ public class OppdragskontrollEndring implements OppdragskontrollManager {
         }
         List<Oppdragslinje150> tidligereOpp150ListForKjeding = !opphørtOppdragslinje150Liste.isEmpty() ? opphørtOppdragslinje150Liste : tidligereOpp150ListeForBruker;
         List<List<TilkjentYtelseAndel>> andelerGruppertMedKlassekode = OpprettOppdragslinje150Tjeneste.gruppereAndelerMedKlassekode(andelListe);
-        List<Oppdragslinje150> oppdragslinje150List = OpprettOppdragslinje150Tjeneste.opprettOppdr150ForBrukerMedFlereKlassekode(oppdragInput, nyOppdrag110,
+        OpprettOppdragslinje150Tjeneste.opprettOppdr150ForBrukerMedFlereKlassekode(oppdragInput, nyOppdrag110,
             andelerGruppertMedKlassekode, mottaker, tidligereOpp150ListForKjeding);
-        OpprettOppdragsmeldingerRelatertTil150.opprettAttestant180(oppdragslinje150List, oppdragInput.getAnsvarligSaksbehandler());
     }
 
     private boolean erMottakerIBådeForrigeOgNyTilkjentYtelse(Oppdragsmottaker mottaker) {

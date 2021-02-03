@@ -14,7 +14,6 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.xml.sax.SAXException;
 
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Attestant180;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad170;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
@@ -86,7 +85,7 @@ public class ØkonomioppdragMapper {
         oppdrag110.setAvstemming115(mapAvstemming115(okoOppdrag110.getAvstemming()));
 
         oppdrag110.getOppdragsEnhet120().add(mapOppdragsEnhet120());
-        oppdrag110.getOppdragsLinje150().addAll(mapOppdragsLinje150(okoOppdrag110.getOppdragslinje150Liste(), kode));
+        oppdrag110.getOppdragsLinje150().addAll(mapOppdragsLinje150(okoOppdrag110.getOppdragslinje150Liste(), kode, okoOppdrag110.getSaksbehId()));
         oppdrag110.setDatoOppdragGjelderFom(toXmlGregCal(okoOppdrag110.getDatoOppdragGjelderFom()));
 
         Optional<no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116> optOmpostering116 = okoOppdrag110.getOmpostering116();
@@ -126,7 +125,7 @@ public class ØkonomioppdragMapper {
         return oppdragsEnhet120;
     }
 
-    private List<OppdragsLinje150> mapOppdragsLinje150(List<Oppdragslinje150> okoOppdrlinje150Liste, String kode) {
+    private List<OppdragsLinje150> mapOppdragsLinje150(List<Oppdragslinje150> okoOppdrlinje150Liste, String kode, String saksbehId) {
         List<OppdragsLinje150> oppdragsLinje150Liste = new ArrayList<>();
         for (Oppdragslinje150 okoOppdrlinje150 : okoOppdrlinje150Liste) {
             OppdragsLinje150 oppdragsLinje150 = objectFactory.createOppdragsLinje150();
@@ -146,7 +145,7 @@ public class ØkonomioppdragMapper {
             oppdragsLinje150.setFradragTillegg(TfradragTillegg.fromValue(okoOppdrlinje150.getFradragTillegg()));
             oppdragsLinje150.setTypeSats(okoOppdrlinje150.getTypeSats());
             oppdragsLinje150.setBrukKjoreplan(okoOppdrlinje150.getBrukKjoreplan());
-            oppdragsLinje150.setSaksbehId(okoOppdrlinje150.getSaksbehId());
+            oppdragsLinje150.setSaksbehId(saksbehId);
             oppdragsLinje150.setUtbetalesTilId(okoOppdrlinje150.getUtbetalesTilId());
             oppdragsLinje150.setHenvisning(String.valueOf(okoOppdrlinje150.getHenvisning()));
             if (okoOppdrlinje150.getRefFagsystemId() != null) {
@@ -155,8 +154,8 @@ public class ØkonomioppdragMapper {
             if (okoOppdrlinje150.getRefDelytelseId() != null) {
                 oppdragsLinje150.setRefDelytelseId(String.valueOf(okoOppdrlinje150.getRefDelytelseId()));
             }
-            // Maks en attestant180, get(0) er ok
-            oppdragsLinje150.getAttestant180().add(mapAttestant180(okoOppdrlinje150.getAttestant180Liste().get(0)));
+
+            oppdragsLinje150.getAttestant180().add(mapAttestant180(saksbehId));
             if (!kode.equals(ØkonomiKodeFagområde.REFUTG.name())) {
                 setGrad170OgRefusjonsinfo156(kode, okoOppdrlinje150, oppdragsLinje150);
             }
@@ -197,11 +196,11 @@ public class ØkonomioppdragMapper {
         return grad170;
     }
 
-    private no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Attestant180 mapAttestant180(Attestant180 okoAttestant180) {
+    private no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Attestant180 mapAttestant180(String saksbehId) {
         final no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Attestant180 attestant180 =
             objectFactory.createAttestant180();
 
-        attestant180.setAttestantId(okoAttestant180.getAttestantId());
+        attestant180.setAttestantId(saksbehId);
 
         return attestant180;
     }

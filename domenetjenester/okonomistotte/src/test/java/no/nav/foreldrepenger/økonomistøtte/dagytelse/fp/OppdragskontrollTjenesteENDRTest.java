@@ -214,7 +214,6 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         List<Oppdragslinje150> opp150RevurderingListeForArbeidsgiver = getOppdragslinje150ForMottaker(oppdragRevurdering, false);
         assertThat(opp150RevurderingListeForArbeidsgiver).anySatisfy(feriepenger ->
             assertThat(feriepenger.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPREFAGFER_IOP.getKodeKlassifik()));
-        OppdragskontrollTestVerktøy.verifiserAttestant180(opp150RevurderingListe);
     }
 
     private List<Oppdragslinje150> getOppdragslinje150ForMottaker(Oppdragskontroll oppdragRevurdering, boolean erBruker) {
@@ -270,7 +269,6 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             assertThat(feriepenger.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPATFER.getKodeKlassifik()));
         assertThat(opp150RevurderingListeForArbeidsgiver).anySatisfy(feriepenger ->
             assertThat(feriepenger.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPREFAGFER_IOP.getKodeKlassifik()));
-        OppdragskontrollTestVerktøy.verifiserAttestant180(opp150RevurderingListe);
     }
 
     @Test
@@ -316,7 +314,6 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             assertThat(feriepenger.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPATFER.getKodeKlassifik()));
         assertThat(opp150RevurderingListeForArbeidsgiver).anySatisfy(feriepenger ->
             assertThat(feriepenger.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPREFAGFER_IOP.getKodeKlassifik()));
-        OppdragskontrollTestVerktøy.verifiserAttestant180(opp150RevurderingListe);
         //Kjeding for bruker
         List<Oppdragslinje150> forrigeOpp150ListeForBruker = getOppdragslinje150ForMottaker(førsteOppdrag, true);
         List<Oppdragslinje150> forrigeOpp150ListeUtenFeriepgForBruker = getOpp150MedKodeklassifik(forrigeOpp150ListeForBruker, ØkonomiKodeKlassifik.FPATORD.getKodeKlassifik());
@@ -390,7 +387,6 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPATORD.getKodeKlassifik()));
         assertThat(opp150RevurderingListeForArbeidsgiver).allSatisfy(oppdragslinje150 ->
             assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPREFAG_IOP.getKodeKlassifik()));
-        OppdragskontrollTestVerktøy.verifiserAttestant180(opp150RevurderingListe);
     }
 
 
@@ -450,7 +446,6 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPATORD.getKodeKlassifik()));
         assertThat(opp150RevurderingListeForArbeidsgiver).allSatisfy(oppdragslinje150 ->
             assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPREFAG_IOP.getKodeKlassifik()));
-        OppdragskontrollTestVerktøy.verifiserAttestant180(opp150RevurderingListe);
     }
 
     /*
@@ -509,7 +504,6 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPATORD.getKodeKlassifik()));
         assertThat(opp150RevurderingListeForArbeidsgiver).allSatisfy(oppdragslinje150 ->
             assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPREFAG_IOP.getKodeKlassifik()));
-        OppdragskontrollTestVerktøy.verifiserAttestant180(opp150RevurderingListe);
     }
 
     /*
@@ -573,7 +567,6 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPATORD.getKodeKlassifik()));
         assertThat(opp150RevurderingListeForArbeidsgiver).allSatisfy(oppdragslinje150 ->
             assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPREFAG_IOP.getKodeKlassifik()));
-        OppdragskontrollTestVerktøy.verifiserAttestant180(opp150RevurderingListe);
     }
 
     @Test
@@ -621,7 +614,6 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             assertThat(linjeEndring.getSats()).isEqualTo(400);
             assertThat(linjeEndring.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPREFAG_IOP.getKodeKlassifik());
         });
-        OppdragskontrollTestVerktøy.verifiserAttestant180(opp150RevurderingListe);
         List<Oppdragslinje150> opp150RevurderingListeForArbeidsgiver = getOppdragslinje150ForMottaker(oppdragRevurdering, false);
         assertThat(opp150RevurderingListeForArbeidsgiver).anySatisfy(oppdragslinje150 ->
             assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPREFAGFER_IOP.getKodeKlassifik()));
@@ -1000,10 +992,6 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
 
         //Assert
         List<Oppdragslinje150> oppdragslinje150Liste = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(oppdragRevurdering);
-        boolean invalidAttestantId = oppdragslinje150Liste.stream()
-            .flatMap(oppdragslinje150 -> oppdragslinje150.getAttestant180Liste().stream())
-            .anyMatch(attestant180 -> (attestant180.getAttestantId().isEmpty() || attestant180.getAttestantId() == null));
-        assertThat(invalidAttestantId).isFalse();
     }
 
     @Test
@@ -2166,7 +2154,6 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         assertThat(opp150RevurderingListe).hasSize(2); // AG + FP
         assertThat(opp150RevurderingListe).allSatisfy(linje -> assertThat(linje.gjelderOpphør()).isTrue());
         assertThat(opp150RevurderingListe).anySatisfy(linje -> assertThat(linje.getDatoStatusFom()).isEqualTo(b2p1fom));
-        OppdragskontrollTestVerktøy.verifiserAttestant180(opp150RevurderingListe);
 
         // Arrange 2
         Behandling revurdering2 = opprettOgLagreRevurdering(revurdering, VedtakResultatType.INNVILGET, false, true);

@@ -11,7 +11,6 @@ import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Attestant180;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad170;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
@@ -243,29 +242,4 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
         assertThat(refusjonsinfo156Lest).isNotNull();
         assertThat(refusjonsinfo156Lest.getId()).isNotEqualTo(0);
     }
-
-    @Test
-    public void lagreAttestant180() {
-        // Arrange
-        Oppdragskontroll oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
-        Oppdrag110 oppdr110 = OppdragTestDataHelper.buildOppdrag110ES(oppdrkontroll, 44L);
-        Oppdragslinje150 oppdrLinje150 = OppdragTestDataHelper.buildOppdragslinje150(oppdr110);
-
-        Attestant180.Builder attestant180Builder = Attestant180.builder();
-        Attestant180 attestant180 = attestant180Builder
-            .medAttestantId("E8798765")
-            .medOppdragslinje150(oppdrLinje150)
-            .build();
-
-        // Act
-        økonomioppdragRepository.lagre(oppdrkontroll);
-
-        // Assert
-        Long id = attestant180.getId();
-        assertThat(id).isNotNull();
-
-        Attestant180 attestant180Lest = entityManager.find(Attestant180.class, id);
-        assertThat(attestant180Lest).isNotNull();
-    }
-
 }
