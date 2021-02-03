@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK;
 
+import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand.BESTEBEREGNET;
 import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand.FASTSATT;
 import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand.FASTSATT_INN;
 import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand.FORESLÅTT;
@@ -24,12 +25,14 @@ import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.FaktaOmBeregningInput;
 import no.nav.folketrygdloven.kalkulator.input.FordelBeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.ForeslåBeregningsgrunnlagInput;
+import no.nav.folketrygdloven.kalkulator.input.ForeslåBesteberegningInput;
 import no.nav.folketrygdloven.kalkulator.modell.behandling.KoblingReferanse;
 import no.nav.folketrygdloven.kalkulator.output.BeregningAksjonspunktResultat;
 import no.nav.folketrygdloven.kalkulator.output.BeregningResultatAggregat;
 import no.nav.folketrygdloven.kalkulator.output.RegelSporingAggregat;
 import no.nav.folketrygdloven.kalkulator.output.RegelSporingPeriode;
 import no.nav.folketrygdloven.kalkulator.steg.BeregningsgrunnlagTjeneste;
+import no.nav.folketrygdloven.kalkulator.steg.besteberegning.BesteberegningResultat;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagPeriodeRegelType;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
@@ -37,6 +40,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.input.KalkulatorStegProsesseringInputTjeneste;
+import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.fra_kalkulus.BesteberegningMapper;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.fra_kalkulus.KalkulusTilBehandlingslagerMapper;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
@@ -160,6 +164,23 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
             .filter(p -> p.getPeriode().overlapper(førstePeriode) && p.getRegelType().equals(BeregningsgrunnlagPeriodeRegelType.VILKÅR_VURDERING))
             .findFirst();
     }
+
+    public BeregningsgrunnlagVilkårOgAkjonspunktResultat foreslåBesteberegning(BeregningsgrunnlagInput input) {
+        Long behandlingId = input.getKoblingReferanse().getKoblingId();
+        ForeslåBesteberegningInput foreslåBeregningsgrunnlagInput = (ForeslåBesteberegningInput) kalkulatorStegProsesseringInputTjeneste.lagFortsettInput(
+            behandlingId,
+            input,
+            BehandlingStegType.FORESLÅ_BESTEBEREGNING);
+        BesteberegningResultat beregningResultatAggregat = beregningsgrunnlagTjeneste.foreslåBesteberegning(foreslåBeregningsgrunnlagInput);
+        BeregningsgrunnlagEntitet nyttBg = BesteberegningMapper.mapBeregningsgrunnlagMedBesteberegning(
+            beregningResultatAggregat.getBeregningsgrunnlag(),
+            beregningResultatAggregat.getBeregningsgrunnlagGrunnlag().getFaktaAggregat(),
+            beregningResultatAggregat.getRegelSporingAggregat(),
+            beregningResultatAggregat.getBesteberegningVurderingGrunnlag());
+        beregningsgrunnlagRepository.lagre(behandlingId, nyttBg, BESTEBEREGNET);
+        return new BeregningsgrunnlagVilkårOgAkjonspunktResultat(beregningResultatAggregat.getBeregningAksjonspunktResultater());
+    }
+
 
     public BeregningsgrunnlagVilkårOgAkjonspunktResultat foreslåBeregningsgrunnlag(BeregningsgrunnlagInput input) {
         Long behandlingId = input.getKoblingReferanse().getKoblingId();

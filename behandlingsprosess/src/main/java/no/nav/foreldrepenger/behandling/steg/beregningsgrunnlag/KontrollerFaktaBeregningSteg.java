@@ -37,9 +37,8 @@ public class KontrollerFaktaBeregningSteg implements BeregningsgrunnlagSteg {
 
     @Inject
     public KontrollerFaktaBeregningSteg(BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
-            BehandlingRepository behandlingRepository,
-            HentOgLagreBeregningsgrunnlagTjeneste hentBeregningsgrunnlagTjeneste,
-            BeregningsgrunnlagInputProvider inputTjenesteProvider) {
+                                        BehandlingRepository behandlingRepository,
+                                        BeregningsgrunnlagInputProvider inputTjenesteProvider) {
         this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.beregningsgrunnlagInputProvider = Objects.requireNonNull(inputTjenesteProvider, "inputTjenesteProvider");

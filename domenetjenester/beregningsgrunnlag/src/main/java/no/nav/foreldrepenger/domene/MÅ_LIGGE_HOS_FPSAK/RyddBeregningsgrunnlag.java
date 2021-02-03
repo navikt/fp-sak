@@ -30,6 +30,11 @@ public class RyddBeregningsgrunnlag {
         }
     }
 
+    public void ryddForeslåBesteberegningVedTilbakeføring() {
+        beregningsgrunnlagRepository
+            .reaktiverBeregningsgrunnlagGrunnlagEntitet(kontekst.getBehandlingId(), BeregningsgrunnlagTilstand.BESTEBEREGNET);
+    }
+
     public void ryddForeslåBeregningsgrunnlagVedTilbakeføring() {
         beregningsgrunnlagRepository
             .reaktiverBeregningsgrunnlagGrunnlagEntitet(kontekst.getBehandlingId(), BeregningsgrunnlagTilstand.FORESLÅTT);

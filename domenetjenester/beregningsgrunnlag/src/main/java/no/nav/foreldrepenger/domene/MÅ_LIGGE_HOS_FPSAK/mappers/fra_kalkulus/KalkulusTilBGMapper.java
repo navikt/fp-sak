@@ -93,7 +93,7 @@ public class KalkulusTilBGMapper {
                 .medAvkortetPrÅr(fraKalkulus.getAvkortetPrÅr())
                 .medAvkortetRefusjonPrÅr(fraKalkulus.getAvkortetRefusjonPrÅr())
                 .medBeregnetPrÅr(fraKalkulus.getBeregnetPrÅr())
-                .medBesteberegningPrÅr(skalBesteberegnes(faktaAktør) ? fraKalkulus.getBeregnetPrÅr() : null)
+                .medBesteberegningPrÅr(fraKalkulus.getBesteberegningPrÅr())
                 .medFastsattAvSaksbehandler(fraKalkulus.getFastsattAvSaksbehandler())
                 .medOverstyrtPrÅr(fraKalkulus.getOverstyrtPrÅr())
                 .medFordeltPrÅr(fraKalkulus.getFordeltPrÅr())
@@ -138,10 +138,6 @@ public class KalkulusTilBGMapper {
             return null;
         }
         return faktaAktør.map(FaktaAktørDto::getErNyIArbeidslivetSN).orElse(null);
-    }
-
-    private static boolean skalBesteberegnes(Optional<FaktaAktørDto> faktaAktør) {
-        return faktaAktør.map(fa -> fa.getSkalBesteberegnes() != null && fa.getSkalBesteberegnes().equals(true)).orElse(false);
     }
 
     private static Boolean mapMottarYtelse(BeregningsgrunnlagPrStatusOgAndelDto fraKalkulus, Optional<FaktaAktørDto> faktaAktør,

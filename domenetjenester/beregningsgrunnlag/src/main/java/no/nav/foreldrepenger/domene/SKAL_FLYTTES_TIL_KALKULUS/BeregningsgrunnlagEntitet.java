@@ -64,6 +64,9 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
     @OneToOne(mappedBy = "beregningsgrunnlag", cascade = CascadeType.PERSIST)
     private Sammenligningsgrunnlag sammenligningsgrunnlag;
 
+    @OneToOne(mappedBy = "beregningsgrunnlag", cascade = CascadeType.PERSIST)
+    private BesteberegninggrunnlagEntitet besteberegninggrunnlag;
+
     @OneToMany(mappedBy = "beregningsgrunnlag")
     private List<SammenligningsgrunnlagPrStatus> sammenligningsgrunnlagPrStatusListe = new ArrayList<>();
 
@@ -88,6 +91,8 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
         this.overstyrt = kopi.isOverstyrt();
         this.skjæringstidspunkt = kopi.getSkjæringstidspunkt();
         kopi.getSammenligningsgrunnlag().map(Sammenligningsgrunnlag::new).ifPresent(this::setSammenligningsgrunnlag);
+        kopi.getBesteberegninggrunnlag().map(BesteberegninggrunnlagEntitet::new).ifPresent(this::setBesteberegninggrunnlag);
+
         kopi.getRegelSporinger().values().stream().map(BeregningsgrunnlagRegelSporing::new)
             .forEach(this::leggTilBeregningsgrunnlagRegel);
         kopi.getSammenligningsgrunnlagPrStatusListe().stream().map(SammenligningsgrunnlagPrStatus::new).forEach(this::leggTilSammenligningsgrunnlagPrStatus);
@@ -122,6 +127,10 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
 
     public Optional<Sammenligningsgrunnlag> getSammenligningsgrunnlag() {
         return Optional.ofNullable(sammenligningsgrunnlag);
+    }
+
+    public Optional<BesteberegninggrunnlagEntitet> getBesteberegninggrunnlag() {
+        return Optional.ofNullable(besteberegninggrunnlag);
     }
 
     public Beløp getGrunnbeløp() {
@@ -169,6 +178,11 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
     void setSammenligningsgrunnlag(Sammenligningsgrunnlag sammenligningsgrunnlag) {
         sammenligningsgrunnlag.setBeregningsgrunnlag(this);
         this.sammenligningsgrunnlag = sammenligningsgrunnlag;
+    }
+
+    void setBesteberegninggrunnlag(BesteberegninggrunnlagEntitet besteberegninggrunnlag) {
+        besteberegninggrunnlag.setBeregningsgrunnlag(this);
+        this.besteberegninggrunnlag = besteberegninggrunnlag;
     }
 
     public BeregningsgrunnlagRegelSporing getRegelsporing(BeregningsgrunnlagRegelType regelType) {
@@ -293,10 +307,14 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
             if (original.isEmpty()) {
                 return new Builder();
             }
-            if (original.get().getId() != null) {
+            return oppdater(original.get());
+        }
+
+        public static Builder oppdater(BeregningsgrunnlagEntitet original) {
+            if (original.getId() != null) {
                 throw new IllegalStateException("Kan ikke endre på et lagret grunnlag");
             }
-            return new Builder(original.get(), true);
+            return new Builder(original, true);
         }
 
         public Builder medSkjæringstidspunkt(LocalDate skjæringstidspunkt) {
@@ -344,6 +362,17 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
             kladd.setSammenligningsgrunnlag(sammenligningsgrunnlag);
             return this;
         }
+
+
+        public Builder medBesteberegninggrunnlag(BesteberegninggrunnlagEntitet besteberegninggrunnlag) {
+            verifiserKanModifisere();
+            if (besteberegninggrunnlag == null) {
+                return this;
+            }
+            kladd.setBesteberegninggrunnlag(besteberegninggrunnlag);
+            return this;
+        }
+
 
         public Builder leggTilSammenligningsgrunnlag(SammenligningsgrunnlagPrStatus.Builder sammenligningsgrunnlagPrStatusBuilder) { // NOSONAR
             sammenligningsgrunnlagPrStatusBuilder.build(kladd);

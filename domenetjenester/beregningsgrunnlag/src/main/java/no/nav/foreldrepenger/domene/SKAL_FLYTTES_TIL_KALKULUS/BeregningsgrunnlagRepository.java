@@ -267,6 +267,11 @@ public class BeregningsgrunnlagRepository {
         if (tidligereAggregat.isPresent()) {
             if (tidligereAggregat.get().getBeregningsgrunnlagTilstand().erFør(nyttGrunnlag.getBeregningsgrunnlagTilstand())) {
                 KopierRegelsporing.kopierRegelsporingerTilGrunnlag(nyttGrunnlag, tidligereAggregat);
+                // Kopierer besteberegning
+                tidligereAggregat.get().getBeregningsgrunnlag()
+                    .flatMap(BeregningsgrunnlagEntitet::getBesteberegninggrunnlag)
+                    .map(BesteberegninggrunnlagEntitet::new)
+                    .ifPresent(bbGrunnlag -> nyttGrunnlag.getBeregningsgrunnlag().ifPresent(bg -> bg.setBesteberegninggrunnlag(bbGrunnlag)));
             }
             tidligereAggregat.get().setAktiv(false);
             entityManager.persist(tidligereAggregat.get());

@@ -20,6 +20,7 @@ import no.nav.folketrygdloven.kalkulator.input.FaktaOmBeregningInput;
 import no.nav.folketrygdloven.kalkulator.input.FastsettBeregningsaktiviteterInput;
 import no.nav.folketrygdloven.kalkulator.input.FordelBeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.ForeslåBeregningsgrunnlagInput;
+import no.nav.folketrygdloven.kalkulator.input.ForeslåBesteberegningInput;
 import no.nav.folketrygdloven.kalkulator.input.FullføreBeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.StegProsesseringInput;
 import no.nav.folketrygdloven.kalkulator.input.VurderRefusjonBeregningsgrunnlagInput;
@@ -91,6 +92,8 @@ public class KalkulatorStegProsesseringInputTjeneste {
         StegProsesseringInput stegProsesseringInput = lagStegProsesseringInput(behandling, input, stegType);
         if (stegType.equals(BehandlingStegType.KONTROLLER_FAKTA_BEREGNING)) {
             return new FaktaOmBeregningInput(stegProsesseringInput).medGrunnbeløpsatser(finnSatser());
+        } else if (stegType.equals(BehandlingStegType.FORESLÅ_BESTEBEREGNING)) {
+            return lagInputForeslåBesteberegning(stegProsesseringInput);
         } else if (stegType.equals(BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG)) {
             return lagInputForeslå(stegProsesseringInput);
         } else if (stegType.equals(BehandlingStegType.VURDER_REF_BERGRUNN)) {
@@ -134,6 +137,11 @@ public class KalkulatorStegProsesseringInputTjeneste {
             .medForrigeGrunnlagFraStegUt(grunnlagFraStegUt.map(BehandlingslagerTilKalkulusMapper::mapGrunnlag).orElse(null))
             .medForrigeGrunnlagFraSteg(grunnlagFraSteg.map(BehandlingslagerTilKalkulusMapper::mapGrunnlag).orElse(null))
             .medStegUtTilstand(mapTilKalkulatorStegUtTilstand(stegType).orElse(null));
+    }
+
+    private ForeslåBesteberegningInput lagInputForeslåBesteberegning(StegProsesseringInput stegProsesseringInput) {
+        var input = new ForeslåBesteberegningInput(stegProsesseringInput);
+        return input.medGrunnbeløpsatser(finnSatser());
     }
 
     private ForeslåBeregningsgrunnlagInput lagInputForeslå(StegProsesseringInput stegProsesseringInput) {

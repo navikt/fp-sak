@@ -27,6 +27,7 @@ import no.nav.folketrygdloven.kalkulator.modell.opptjening.OpptjeningAktiviteter
 import no.nav.folketrygdloven.kalkulator.modell.typer.InternArbeidsforholdRefDto;
 import no.nav.folketrygdloven.kalkulator.output.BeregningAksjonspunktResultat;
 import no.nav.folketrygdloven.kalkulator.steg.BeregningsgrunnlagTjeneste;
+import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
@@ -82,16 +83,16 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteKontrollerFaktaTest {
         repositoryProvider = new RepositoryProvider(em);
         beregningsgrunnlagRepository = repositoryProvider.getBeregningsgrunnlagRepository();
         beregningsgrunnlagKopierOgLagreTjeneste = new BeregningsgrunnlagKopierOgLagreTjeneste(
-                beregningsgrunnlagRepository,
-                beregningsgrunnlagTjeneste,
-                kalkulatorStegProsesseringInputTjeneste);
+            beregningsgrunnlagRepository,
+            beregningsgrunnlagTjeneste,
+            kalkulatorStegProsesseringInputTjeneste);
 
         Arbeidsgiver virksomhet = Arbeidsgiver.virksomhet(ORG_NUMMER);
         behandlingReferanse = lagBehandlingReferanse();
         LocalDate arbeidsperiodeFom = SKJÆRINGSTIDSPUNKT.minusYears(1);
         LocalDate arbeidsperiodeTom = SKJÆRINGSTIDSPUNKT.plusMonths(10);
         InntektArbeidYtelseGrunnlag iayGr = lagIAYGrunnlagForArbeidUtenInntektsmeldingMedLønnsendring(virksomhet, behandlingReferanse,
-                arbeidsperiodeFom, arbeidsperiodeTom);
+            arbeidsperiodeFom, arbeidsperiodeTom);
         BeregningsgrunnlagGrunnlagBuilder bgGrunnlag = lagBeregningsgrunnlagMedAndelOgAktiviteter(virksomhet, arbeidsperiodeFom, arbeidsperiodeTom);
         beregningsgrunnlagRepository.lagre(behandlingReferanse.getBehandlingId(), bgGrunnlag, FASTSATT_BEREGNINGSAKTIVITETER);
         input = lagBeregningsgrunnlagInput(behandlingReferanse, iayGr);
@@ -105,20 +106,20 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteKontrollerFaktaTest {
 
         // Assert
         Optional<BeregningsgrunnlagGrunnlagEntitet> bgMedAndeler = beregningsgrunnlagRepository
-                .hentBeregningsgrunnlagGrunnlagEntitet(behandlingReferanse.getBehandlingId());
+            .hentBeregningsgrunnlagGrunnlagEntitet(behandlingReferanse.getBehandlingId());
         assertThat(bgMedAndeler).isPresent();
         assertThat(ap).hasSize(1);
         List<FaktaOmBeregningTilfelle> faktaOmBeregningTilfelles = finnTilfeller(bgMedAndeler);
         assertThat(faktaOmBeregningTilfelles).containsExactlyInAnyOrder(FaktaOmBeregningTilfelle.VURDER_MOTTAR_YTELSE,
-                FaktaOmBeregningTilfelle.VURDER_LØNNSENDRING);
+            FaktaOmBeregningTilfelle.VURDER_LØNNSENDRING);
 
     }
 
     private List<FaktaOmBeregningTilfelle> finnTilfeller(Optional<BeregningsgrunnlagGrunnlagEntitet> bgMedAndeler) {
         return bgMedAndeler
-                .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag)
-                .map(BeregningsgrunnlagEntitet::getFaktaOmBeregningTilfeller)
-                .orElse(Collections.emptyList());
+            .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag)
+            .map(BeregningsgrunnlagEntitet::getFaktaOmBeregningTilfeller)
+            .orElse(Collections.emptyList());
     }
 
     @Test
@@ -130,8 +131,8 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteKontrollerFaktaTest {
         lagreBekreftetLønnsendring();
 
         BeregningsgrunnlagEntitet bgFraFastsattAktiviteter = beregningsgrunnlagRepository
-                .hentSisteBeregningsgrunnlagGrunnlagEntitet(behandlingReferanse.getBehandlingId(), FASTSATT_BEREGNINGSAKTIVITETER)
-                .orElseThrow().getBeregningsgrunnlag().orElseThrow();
+            .hentSisteBeregningsgrunnlagGrunnlagEntitet(behandlingReferanse.getBehandlingId(), FASTSATT_BEREGNINGSAKTIVITETER)
+            .orElseThrow().getBeregningsgrunnlag().orElseThrow();
 
         // Simulerer tilbakehopp ved å lagre grunnlag fra forrige steg på nytt slik at
         // dette bli aktivt
@@ -142,28 +143,28 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteKontrollerFaktaTest {
 
         // Assert
         Optional<BeregningsgrunnlagGrunnlagEntitet> bgMedAndeler = beregningsgrunnlagRepository
-                .hentBeregningsgrunnlagGrunnlagEntitet(behandlingReferanse.getBehandlingId());
+            .hentBeregningsgrunnlagGrunnlagEntitet(behandlingReferanse.getBehandlingId());
         assertThat(bgMedAndeler).isPresent();
         assertThat(ap).hasSize(1);
         List<FaktaOmBeregningTilfelle> faktaOmBeregningTilfelles = finnTilfeller(bgMedAndeler);
         assertThat(faktaOmBeregningTilfelles).containsExactlyInAnyOrder(FaktaOmBeregningTilfelle.VURDER_MOTTAR_YTELSE,
-                FaktaOmBeregningTilfelle.VURDER_LØNNSENDRING);
+            FaktaOmBeregningTilfelle.VURDER_LØNNSENDRING);
         Boolean erLønnsendring = bgMedAndeler.get().getBeregningsgrunnlag().get()
-                .getBeregningsgrunnlagPerioder().get(0).getBeregningsgrunnlagPrStatusOgAndelList().get(0)
-                .getBgAndelArbeidsforhold().get().erLønnsendringIBeregningsperioden();
+            .getBeregningsgrunnlagPerioder().get(0).getBeregningsgrunnlagPrStatusOgAndelList().get(0)
+            .getBgAndelArbeidsforhold().get().erLønnsendringIBeregningsperioden();
         assertThat(erLønnsendring).isTrue();
 
     }
 
     private void lagreBekreftetLønnsendring() {
         BeregningsgrunnlagEntitet bgFraFastsattAktiviteter = beregningsgrunnlagRepository
-                .hentSisteBeregningsgrunnlagGrunnlagEntitet(behandlingReferanse.getBehandlingId(), OPPDATERT_MED_ANDELER)
-                .orElseThrow().getBeregningsgrunnlag().orElseThrow();
+            .hentSisteBeregningsgrunnlagGrunnlagEntitet(behandlingReferanse.getBehandlingId(), OPPDATERT_MED_ANDELER)
+            .orElseThrow().getBeregningsgrunnlag().orElseThrow();
         BeregningsgrunnlagEntitet bekreftetBg = new BeregningsgrunnlagEntitet(bgFraFastsattAktiviteter);
         BGAndelArbeidsforhold
-                .builder(bekreftetBg.getBeregningsgrunnlagPerioder().get(0).getBeregningsgrunnlagPrStatusOgAndelList().get(0)
-                        .getBgAndelArbeidsforhold().get())
-                .medLønnsendringIBeregningsperioden(true);
+            .builder(bekreftetBg.getBeregningsgrunnlagPerioder().get(0).getBeregningsgrunnlagPrStatusOgAndelList().get(0)
+                .getBgAndelArbeidsforhold().get())
+            .medLønnsendringIBeregningsperioden(true);
         beregningsgrunnlagRepository.lagre(behandlingReferanse.getBehandlingId(), bekreftetBg, KOFAKBER_UT);
     }
 
@@ -180,60 +181,60 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteKontrollerFaktaTest {
 
     private BehandlingReferanse lagBehandlingReferanse() {
         return ScenarioForeldrepenger.nyttScenario().lagre(repositoryProvider).medSkjæringstidspunkt(
-                Skjæringstidspunkt.builder()
-                        .medFørsteUttaksdato(SKJÆRINGSTIDSPUNKT)
-                        .medSkjæringstidspunktOpptjening(SKJÆRINGSTIDSPUNKT)
-                        .medSkjæringstidspunktBeregning(SKJÆRINGSTIDSPUNKT)
-                        .medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
-                        .build());
+            Skjæringstidspunkt.builder()
+                .medFørsteUttaksdato(SKJÆRINGSTIDSPUNKT)
+                .medSkjæringstidspunktOpptjening(SKJÆRINGSTIDSPUNKT)
+                .medSkjæringstidspunktBeregning(SKJÆRINGSTIDSPUNKT)
+                .medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
+                .build());
     }
 
     private BeregningsgrunnlagGrunnlagBuilder lagBeregningsgrunnlagMedAndelOgAktiviteter(Arbeidsgiver virksomhet, LocalDate arbeidsperiodeFom,
-            LocalDate arbeidsperiodeTom) {
+                                                                                         LocalDate arbeidsperiodeTom) {
         BeregningsgrunnlagEntitet bg = BeregningsgrunnlagEntitet.ny()
-                .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
-                .medGrunnbeløp(BigDecimal.valueOf(99_000))
-                .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(ARBEIDSTAKER))
-                .build();
+            .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
+            .medGrunnbeløp(BigDecimal.valueOf(99_000))
+            .leggTilAktivitetStatus(BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(ARBEIDSTAKER))
+            .build();
         BeregningsgrunnlagPeriode periode = BeregningsgrunnlagPeriode.ny()
-                .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null)
-                .build(bg);
+            .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null)
+            .build(bg);
         BeregningsgrunnlagPrStatusOgAndel.builder()
-                .medAktivitetStatus(ARBEIDSTAKER)
-                .medBGAndelArbeidsforhold(BGAndelArbeidsforhold.builder()
-                        .medArbeidsperiodeFom(arbeidsperiodeFom)
-                        .medArbeidsperiodeTom(arbeidsperiodeTom)
-                        .medArbeidsgiver(virksomhet))
-                .build(periode);
+            .medAktivitetStatus(ARBEIDSTAKER)
+            .medBGAndelArbeidsforhold(BGAndelArbeidsforhold.builder()
+                .medArbeidsperiodeFom(arbeidsperiodeFom)
+                .medArbeidsperiodeTom(arbeidsperiodeTom)
+                .medArbeidsgiver(virksomhet))
+            .build(periode);
         return BeregningsgrunnlagGrunnlagBuilder.oppdatere(empty())
-                .medBeregningsgrunnlag(bg)
-                .medRegisterAktiviteter(BeregningAktivitetAggregatEntitet.builder()
-                        .leggTilAktivitet(BeregningAktivitetEntitet.builder()
-                                .medPeriode(ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(arbeidsperiodeFom, arbeidsperiodeTom))
-                                .medArbeidsgiver(virksomhet)
-                                .medOpptjeningAktivitetType(OpptjeningAktivitetType.ARBEID).build())
-                        .medSkjæringstidspunktOpptjening(SKJÆRINGSTIDSPUNKT).build());
+            .medBeregningsgrunnlag(bg)
+            .medRegisterAktiviteter(BeregningAktivitetAggregatEntitet.builder()
+                .leggTilAktivitet(BeregningAktivitetEntitet.builder()
+                    .medPeriode(ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(arbeidsperiodeFom, arbeidsperiodeTom))
+                    .medArbeidsgiver(virksomhet)
+                    .medOpptjeningAktivitetType(OpptjeningAktivitetType.ARBEID).build())
+                .medSkjæringstidspunktOpptjening(SKJÆRINGSTIDSPUNKT).build());
     }
 
     private InntektArbeidYtelseGrunnlag lagIAYGrunnlagForArbeidUtenInntektsmeldingMedLønnsendring(Arbeidsgiver virksomhet,
-            BehandlingReferanse behandlingReferanse, LocalDate arbeidsperiodeFom, LocalDate arbeidsperiodeTom) {
+                                                                                                  BehandlingReferanse behandlingReferanse, LocalDate arbeidsperiodeFom, LocalDate arbeidsperiodeTom) {
         InntektArbeidYtelseAggregatBuilder oppdatere = InntektArbeidYtelseAggregatBuilder.oppdatere(empty(), VersjonType.REGISTER)
-                .leggTilAktørArbeid(InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder.oppdatere(empty())
-                        .medAktørId(behandlingReferanse.getAktørId())
-                        .leggTilYrkesaktivitet(YrkesaktivitetBuilder.oppdatere(empty())
-                                .medArbeidsgiver(virksomhet)
-                                .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
-                                        .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(arbeidsperiodeFom, arbeidsperiodeTom)))
-                                .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
-                                        .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(arbeidsperiodeFom, arbeidsperiodeTom))
-                                        .medProsentsats(BigDecimal.valueOf(100))
-                                        .medSisteLønnsendringsdato(SKJÆRINGSTIDSPUNKT.minusMonths(1)))
-                                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)));
+            .leggTilAktørArbeid(InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder.oppdatere(empty())
+                .medAktørId(behandlingReferanse.getAktørId())
+                .leggTilYrkesaktivitet(YrkesaktivitetBuilder.oppdatere(empty())
+                    .medArbeidsgiver(virksomhet)
+                    .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
+                        .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(arbeidsperiodeFom, arbeidsperiodeTom)))
+                    .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
+                        .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(arbeidsperiodeFom, arbeidsperiodeTom))
+                        .medProsentsats(BigDecimal.valueOf(100))
+                        .medSisteLønnsendringsdato(SKJÆRINGSTIDSPUNKT.minusMonths(1)))
+                    .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)));
 
         return InntektArbeidYtelseGrunnlagBuilder.nytt()
-                .medInformasjon(ArbeidsforholdInformasjonBuilder.oppdatere(empty()).leggTil(ArbeidsforholdOverstyringBuilder.oppdatere(empty())
-                        .medArbeidsgiver(virksomhet).medHandling(ArbeidsforholdHandlingType.BRUK_UTEN_INNTEKTSMELDING)).build())
-                .medData(oppdatere)
-                .build();
+            .medInformasjon(ArbeidsforholdInformasjonBuilder.oppdatere(empty()).leggTil(ArbeidsforholdOverstyringBuilder.oppdatere(empty())
+                .medArbeidsgiver(virksomhet).medHandling(ArbeidsforholdHandlingType.BRUK_UTEN_INNTEKTSMELDING)).build())
+            .medData(oppdatere)
+            .build();
     }
 }
