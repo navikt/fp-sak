@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.time.LocalDate;
 import java.util.Optional;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,9 +19,11 @@ import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
@@ -27,12 +31,12 @@ import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.OppgittPeriodeMottattDatoTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.MottattDokumentOversetterSøknad;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.MottattDokumentWrapperSøknad;
-import no.nav.foreldrepenger.web.RepositoryAwareTest;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapper;
 import no.nav.vedtak.felles.xml.soeknad.v3.Soeknad;
 
 @ExtendWith(MockitoExtension.class)
-public class EndringssøknadSøknadMapperTest extends RepositoryAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class EndringssøknadSøknadMapperTest {
 
     @Mock
     private InntektArbeidYtelseTjeneste iayTjeneste;
@@ -43,12 +47,14 @@ public class EndringssøknadSøknadMapperTest extends RepositoryAwareTest {
     @Mock
     private DatavarehusTjeneste datavarehusTjeneste;
     private OppgittPeriodeMottattDatoTjeneste oppgittPeriodeMottattDatoTjeneste;
-    private SøknadMapper ytelseSøknadMapper = new EndringssøknadSøknadMapper();
+    private final SøknadMapper ytelseSøknadMapper = new EndringssøknadSøknadMapper();
+    private BehandlingRepositoryProvider repositoryProvider;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp(EntityManager entityManager) {
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         oppgittPeriodeMottattDatoTjeneste = new OppgittPeriodeMottattDatoTjeneste(
-                new YtelseFordelingTjeneste(ytelsesfordelingRepository));
+            new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()));
     }
 
     @Test
@@ -58,24 +64,25 @@ public class EndringssøknadSøknadMapperTest extends RepositoryAwareTest {
         oppdaterDtoForFødsel(manuellRegistreringEndringsøknadDto, true, LocalDate.now(), 1);
         Soeknad soeknad = ytelseSøknadMapper.mapSøknad(manuellRegistreringEndringsøknadDto, navBruker);
 
-        MottattDokumentOversetterSøknad oversetter = new MottattDokumentOversetterSøknad(repositoryProvider, virksomhetTjeneste,
-                iayTjeneste, personinfoAdapter, datavarehusTjeneste, svangerskapspengerRepository, oppgittPeriodeMottattDatoTjeneste);
+        MottattDokumentOversetterSøknad oversetter = new MottattDokumentOversetterSøknad(repositoryProvider,
+            virksomhetTjeneste, iayTjeneste, personinfoAdapter, datavarehusTjeneste, oppgittPeriodeMottattDatoTjeneste);
 
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker);
         Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
-        fagsakRepository.opprettNy(fagsak);
+        repositoryProvider.getFagsakRepository().opprettNy(fagsak);
+        var behandlingRepository = repositoryProvider.getBehandlingRepository();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
-        MottattDokument.Builder mottattDokumentBuilder = new MottattDokument.Builder()
-                .medDokumentType(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL)
-                .medMottattDato(LocalDate.now())
-                .medFagsakId(fagsak.getId())
-                .medElektroniskRegistrert(true);
+        MottattDokument.Builder mottattDokumentBuilder = new MottattDokument.Builder().medDokumentType(
+            DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL)
+            .medMottattDato(LocalDate.now())
+            .medFagsakId(fagsak.getId())
+            .medElektroniskRegistrert(true);
 
         var wrapper = (MottattDokumentWrapperSøknad) MottattDokumentWrapperSøknad.tilXmlWrapper(soeknad);
-        assertThrows(IllegalArgumentException.class, () -> {
-            oversetter.trekkUtDataOgPersister(wrapper, mottattDokumentBuilder.build(), behandling, Optional.empty());
-        });
+        assertThrows(IllegalArgumentException.class,
+            () -> oversetter.trekkUtDataOgPersister(wrapper, mottattDokumentBuilder.build(), behandling,
+                Optional.empty()));
     }
 
 }

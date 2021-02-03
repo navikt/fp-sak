@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,30 +20,38 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.hendelser.HendelseSorteringRepository;
+import no.nav.foreldrepenger.behandlingslager.hendelser.HendelsemottakRepository;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.AktørIdDto;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.pdl.DødfødselHendelseDto;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.pdl.FødselHendelseDto;
 import no.nav.foreldrepenger.mottak.hendelser.JsonMapper;
 import no.nav.foreldrepenger.mottak.hendelser.KlargjørHendelseTask;
-import no.nav.foreldrepenger.web.RepositoryAwareTest;
 import no.nav.foreldrepenger.web.app.tjenester.hendelser.HendelserRestTjeneste.AbacAktørIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.hendelser.HendelserRestTjeneste.AbacHendelseWrapperDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
+import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 
 @ExtendWith(MockitoExtension.class)
-public class HendelserRestTjenesteTest extends RepositoryAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class HendelserRestTjenesteTest {
 
     private static final String HENDELSE_ID = "1337";
 
     @Mock
     private HendelseSorteringRepository sorteringRepository;
     private HendelserRestTjeneste hendelserRestTjeneste;
+    private HendelsemottakRepository hendelsemottakRepository;
+    private ProsessTaskRepositoryImpl prosessTaskRepository;
 
     @BeforeEach
-    public void before() {
-        hendelserRestTjeneste = new HendelserRestTjeneste(sorteringRepository, hendelsemottakRepository, prosessTaskRepository);
+    public void before(EntityManager entityManager) {
+        hendelsemottakRepository = new HendelsemottakRepository(entityManager);
+        prosessTaskRepository = new ProsessTaskRepositoryImpl(entityManager, null, null);
+        hendelserRestTjeneste = new HendelserRestTjeneste(sorteringRepository, hendelsemottakRepository,
+            prosessTaskRepository);
     }
 
     @Test

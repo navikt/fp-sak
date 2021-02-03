@@ -152,7 +152,6 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
                                            InntektArbeidYtelseTjeneste iayTjeneste,
                                            PersoninfoAdapter personinfoAdapter,
                                            DatavarehusTjeneste datavarehusTjeneste,
-                                           SvangerskapspengerRepository svangerskapspengerRepository,
                                            OppgittPeriodeMottattDatoTjeneste oppgittPeriodeMottattDatoTjeneste) {
         this.iayTjeneste = iayTjeneste;
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
@@ -165,7 +164,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
         this.behandlingRevurderingRepository = repositoryProvider.getBehandlingRevurderingRepository();
         this.datavarehusTjeneste = datavarehusTjeneste;
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
-        this.svangerskapspengerRepository = svangerskapspengerRepository;
+        this.svangerskapspengerRepository = repositoryProvider.getSvangerskapspengerRepository();
         this.oppgittPeriodeMottattDatoTjeneste = oppgittPeriodeMottattDatoTjeneste;
     }
 

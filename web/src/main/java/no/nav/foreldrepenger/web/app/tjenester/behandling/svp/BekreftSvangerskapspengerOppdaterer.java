@@ -59,16 +59,14 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
     }
 
     @Inject
-    public BekreftSvangerskapspengerOppdaterer(SvangerskapspengerRepository svangerskapspengerRepository,
-                                               HistorikkTjenesteAdapter historikkAdapter,
+    public BekreftSvangerskapspengerOppdaterer(HistorikkTjenesteAdapter historikkAdapter,
                                                BehandlingRepositoryProvider repositoryProvider,
-                                               FamilieHendelseRepository familieHendelseRepository,
                                                TilgangerTjeneste tilgangerTjeneste,
                                                InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
-        this.svangerskapspengerRepository = svangerskapspengerRepository;
+        this.svangerskapspengerRepository = repositoryProvider.getSvangerskapspengerRepository();
         this.historikkAdapter = historikkAdapter;
         this.repositoryProvider = repositoryProvider;
-        this.familieHendelseRepository = familieHendelseRepository;
+        this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
         this.tilgangerTjeneste = tilgangerTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
     }
