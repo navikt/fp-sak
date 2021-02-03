@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Attestant180;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad170;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragsenhet120;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
@@ -179,24 +178,6 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
         assertThat(oppdragListe).hasSize(2);
         assertThat(oppdragListe).containsExactlyInAnyOrder(oppdragskontroll, nyesteOppdragskontroll);
 
-    }
-
-    @Test
-    public void lagreOppdragsenhet120() {
-        // Arrange
-        Oppdragskontroll oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
-        Oppdrag110 oppdr110 = OppdragTestDataHelper.buildOppdrag110ES(oppdrkontroll, 44L);
-        Oppdragsenhet120 oppdrsEnhet120 = OppdragTestDataHelper.buildOppdragsEnhet120(oppdr110);
-
-        // Act
-        økonomioppdragRepository.lagre(oppdrkontroll);
-
-        // Assert
-        Long id = oppdrsEnhet120.getId();
-        assertThat(id).isNotNull();
-
-        Oppdragsenhet120 oppdrsEnhet120Lest = entityManager.find(Oppdragsenhet120.class, id);
-        assertThat(oppdrsEnhet120Lest).isNotNull();
     }
 
     @Test

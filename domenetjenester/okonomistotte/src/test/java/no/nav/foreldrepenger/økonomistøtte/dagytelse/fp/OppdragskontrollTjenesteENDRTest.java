@@ -66,7 +66,6 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
 
         //Assert
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
-        OppdragskontrollTestVerktøy.verifiserOppdragsenhet120(oppdragRevurdering);
         verifiserOppdrag110_ENDR(oppdragRevurdering, originaltOppdrag110Liste, true);
         verifiserOppdragslinje150_ENDR(oppdragRevurdering, originaltOppdragslinje150, endringsdato, true, false, 80);
     }
@@ -647,7 +646,6 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
 
         //Assert
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
-        OppdragskontrollTestVerktøy.verifiserOppdragsenhet120(oppdragRevurdering);
         verifiserOppdrag110_ENDR(oppdragRevurdering, originaltOppdrag110Liste, false);
         verifiserOppdragslinje150_ENDR(oppdragRevurdering, originaltOppdragslinje150, endringsdato, false, false, 80);
     }
@@ -671,7 +669,6 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
 
         //Assert
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
-        OppdragskontrollTestVerktøy.verifiserOppdragsenhet120(oppdragRevurdering);
         verifiserOppdrag110_ENDR(oppdragRevurdering, originaltOppdrag110Liste, true);
         verifiserOppdragslinje150_ENDR(oppdragRevurdering, originaltOppdragslinje150, endringsdato, true, false, 80);
         verifiserOppdr150SomErUendret(oppdragRevurdering);
@@ -713,7 +710,6 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
 
         //Assert
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
-        OppdragskontrollTestVerktøy.verifiserOppdragsenhet120(oppdragRevurdering);
         List<Oppdrag110> oppdrag110Liste = oppdragRevurdering.getOppdrag110Liste();
         assertThat(oppdrag110Liste).hasSize(1);
         verifiserOppdrag110_ENDR(oppdragRevurdering, originaltOppdrag110Liste, false);
@@ -751,7 +747,6 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
 
         //Assert
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
-        OppdragskontrollTestVerktøy.verifiserOppdragsenhet120(oppdragRevurdering);
         verifiserOppdrag110_ENDR(oppdragRevurdering, originaltOppdrag110Liste, true);
         verifiserOppdragslinje150_ENDR(oppdragRevurdering, originaltOppdragslinje150, endringsdato, true, true, 80);
         OppdragskontrollTestVerktøy.verifiserOppdragslinje150ForHverKlassekode(originaltOppdrag, oppdragRevurdering);
@@ -802,13 +797,11 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         // Assert
         // Assert : Første førstegangsbehandling
         OppdragskontrollTestVerktøy.verifiserAvstemming(førsteOppdrag);
-        OppdragskontrollTestVerktøy.verifiserOppdragsenhet120(førsteOppdrag);
         List<Oppdrag110> oppdrag110Liste_1 = førsteOppdrag.getOppdrag110Liste();
         assertThat(oppdrag110Liste_1).hasSize(1);
 
         // Assert : Revurdering
         OppdragskontrollTestVerktøy.verifiserAvstemming(førsteOppdrag);
-        OppdragskontrollTestVerktøy.verifiserOppdragsenhet120(førsteOppdrag);
         List<Oppdrag110> oppdrag110Liste_2 = revurderingOppdrag.getOppdrag110Liste();
         assertThat(oppdrag110Liste_2).hasSize(1);
         verifiserOppdrag110_ENDR(revurderingOppdrag, oppdrag110Liste_2, false);
@@ -862,7 +855,6 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
 
         // Assert
         OppdragskontrollTestVerktøy.verifiserAvstemming(revurderingOppdrag);
-        OppdragskontrollTestVerktøy.verifiserOppdragsenhet120(revurderingOppdrag);
         List<Oppdrag110> oppdrag110RevurderingListe = revurderingOppdrag.getOppdrag110Liste();
         assertThat(oppdrag110RevurderingListe).hasSize(1);
         List<Oppdragslinje150> opp150RevurderingListe = oppdrag110RevurderingListe.get(0).getOppdragslinje150Liste();
@@ -946,13 +938,11 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
 
         // Assert : Første førstegangsbehandling
         OppdragskontrollTestVerktøy.verifiserAvstemming(førsteOppdrag);
-        OppdragskontrollTestVerktøy.verifiserOppdragsenhet120(førsteOppdrag);
         List<Oppdrag110> oppdrag110Liste_1 = førsteOppdrag.getOppdrag110Liste();
         assertThat(oppdrag110Liste_1).hasSize(1);
 
         // Assert : Revurdering
         OppdragskontrollTestVerktøy.verifiserAvstemming(førsteOppdrag);
-        OppdragskontrollTestVerktøy.verifiserOppdragsenhet120(førsteOppdrag);
         List<Oppdragslinje150> originaltOpp150Liste = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(førsteOppdrag);
         List<Oppdragslinje150> opp150RevurdListe = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(revurderingOppdrag);
         verifiserKodeklassifik(originaltOpp150Liste, opp150RevurdListe);
@@ -984,7 +974,6 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         //Assert
         List<Oppdragslinje150> opp150RevurdListe = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(oppdragRevurdering);
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
-        OppdragskontrollTestVerktøy.verifiserOppdragsenhet120(oppdragRevurdering);
         verifiserOppdrag110_ENDR(oppdragRevurdering, originaltOppdrag110Liste, true);
         OppdragskontrollTestVerktøy.verifiserOppdr150SomErOpphørt(opp150RevurdListe, originaltOppdragslinje150, endringsdato, true, true, false);
         OppdragskontrollTestVerktøy.verifiserOppdr150SomErNy(opp150RevurdListe, originaltOppdragslinje150, 80);
@@ -1039,7 +1028,6 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         //Assert
         List<Oppdragslinje150> opp150RevurdListe = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(oppdragRevurdering);
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
-        OppdragskontrollTestVerktøy.verifiserOppdragsenhet120(oppdragRevurdering);
         verifiserOppdrag110_ENDR(oppdragRevurdering, originaltOppdrag110Liste, true);
         OppdragskontrollTestVerktøy.verifiserOppdr150SomErOpphørt(opp150RevurdListe, originaltOppdragslinje150, endringsdato, true, true, false);
         OppdragskontrollTestVerktøy.verifiserOppdr150SomErNy(opp150RevurdListe, originaltOppdragslinje150, 80);
@@ -1070,7 +1058,6 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         //Assert
         List<Oppdragslinje150> opp150RevurdListe = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(oppdragRevurdering);
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
-        OppdragskontrollTestVerktøy.verifiserOppdragsenhet120(oppdragRevurdering);
         verifiserOppdrag110_ENDR(oppdragRevurdering, originaltOppdrag110Liste, true);
         OppdragskontrollTestVerktøy.verifiserOppdr150SomErOpphørt(opp150RevurdListe, originaltOppdragslinje150, endringsdato, true,
             true, true);
@@ -1099,7 +1086,6 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
 
         //Assert
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
-        OppdragskontrollTestVerktøy.verifiserOppdragsenhet120(oppdragRevurdering);
         assertThat(originaltOppdrag110.getKodeFagomrade()).isEqualTo(ØkonomiKodeFagområde.FP.name());
         assertThat(originaltOppdrag110.getKodeEndring()).isEqualTo(ØkonomiKodeEndring.NY.name());
         assertThat(revurderingOppdrag110.getKodeFagomrade()).isEqualTo(ØkonomiKodeFagområde.FP.name());
@@ -1144,7 +1130,6 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
 
         //Assert
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
-        OppdragskontrollTestVerktøy.verifiserOppdragsenhet120(oppdragRevurdering);
         assertThat(originaltOppdrag110Liste).hasSize(2);
         assertThat(originaltOppdrag110Liste).allSatisfy(oppdrag110 -> {
                 assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(ØkonomiKodeFagområde.FPREF.name());
@@ -1223,7 +1208,6 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         //Assert
         //Førstegangsbehandling
         OppdragskontrollTestVerktøy.verifiserAvstemming(revurderingOppdrag);
-        OppdragskontrollTestVerktøy.verifiserOppdragsenhet120(revurderingOppdrag);
         List<Oppdrag110> originaltOppdrag110Liste = førsteOppdrag.getOppdrag110Liste();
         assertThat(originaltOppdrag110Liste).hasSize(2);
 
@@ -1373,7 +1357,6 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
 
         //Assert
         OppdragskontrollTestVerktøy.verifiserAvstemming(revurderingOppdrag);
-        OppdragskontrollTestVerktøy.verifiserOppdragsenhet120(revurderingOppdrag);
         //Oppdrag110 for førstegangsbehandling
         List<Oppdrag110> oppdrag110ListeForBruker = førsteOppdrag.getOppdrag110Liste();
         assertThat(oppdrag110ListeForBruker).hasSize(1);
@@ -1449,7 +1432,6 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
 
         //Assert
         OppdragskontrollTestVerktøy.verifiserAvstemming(revurderingOppdrag);
-        OppdragskontrollTestVerktøy.verifiserOppdragsenhet120(revurderingOppdrag);
         //Oppdrag110 for førstegangsbehandling
         List<Oppdrag110> oppdrag110ListeForBruker = førsteOppdrag.getOppdrag110Liste();
         assertThat(oppdrag110ListeForBruker).hasSize(1);
@@ -1521,7 +1503,6 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
 
         //Assert
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
-        OppdragskontrollTestVerktøy.verifiserOppdragsenhet120(oppdragRevurdering);
         assertThat(originaltOppdrag110Liste).hasSize(2);
         assertThat(originaltOppdrag110Liste).allSatisfy(oppdrag110 -> {
                 assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(ØkonomiKodeFagområde.FPREF.name());

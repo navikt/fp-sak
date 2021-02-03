@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad170;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragsenhet120;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
@@ -153,20 +152,6 @@ class OppdragskontrollTestVerktøy {
         assertThat(avstemmingRevurdList).hasSameSizeAs(oppdragRevurdering.getOppdrag110Liste());
         for (Avstemming avstemmingRevurd : avstemmingRevurdList) {
             assertThat(avstemmingRevurd.getKodekomponent()).isEqualTo(ØkonomiKodekomponent.VLFP.getKodekomponent());
-        }
-    }
-
-    static void verifiserOppdragsenhet120(Oppdragskontroll oppdragRevurdering) {
-        List<Oppdragsenhet120> oppdragsenhet120RevurdList = oppdragRevurdering.getOppdrag110Liste().stream()
-            .flatMap(oppdrag110 -> oppdrag110.getOppdragsenhet120Liste().stream()).collect(Collectors.toList());
-
-        assertThat(oppdragsenhet120RevurdList).isNotEmpty();
-        assertThat(oppdragsenhet120RevurdList).isNotNull();
-        assertThat(oppdragsenhet120RevurdList).hasSameSizeAs(oppdragRevurdering.getOppdrag110Liste());
-        for (Oppdragsenhet120 oppdragsenhet120Revurd : oppdragsenhet120RevurdList) {
-            assertThat(oppdragsenhet120Revurd.getTypeEnhet()).isEqualTo("BOS");
-            assertThat(oppdragsenhet120Revurd.getEnhet()).isEqualTo("8020");
-            assertThat(oppdragsenhet120Revurd.getDatoEnhetFom()).isEqualTo(LocalDate.of(1900, 1, 1));
         }
     }
 

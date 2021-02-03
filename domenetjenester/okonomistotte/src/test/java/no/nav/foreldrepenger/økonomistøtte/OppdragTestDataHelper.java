@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad170;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragsenhet120;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
@@ -43,17 +42,6 @@ public class OppdragTestDataHelper {
             .medHenvisning(47L)
             .build();
 
-    }
-
-    static Oppdragsenhet120 buildOppdragsEnhet120(Oppdrag110 oppdrag110) {
-        Oppdragsenhet120.Builder oppdrsEnhet120Builder = Oppdragsenhet120.builder();
-
-        return oppdrsEnhet120Builder
-            .medTypeEnhet("BOS")
-            .medEnhet("8020")
-            .medDatoEnhetFom(LocalDate.now())
-            .medOppdrag110(oppdrag110)
-            .build();
     }
 
     public static Oppdrag110 buildOppdrag110ES(Oppdragskontroll oppdragskontroll, Long fagsystemId) {

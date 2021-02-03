@@ -10,7 +10,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad170;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragsenhet120;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
@@ -65,7 +64,6 @@ public class OppdragMapper {
         }
 
         Oppdrag110 oppdrag110 = builder.build();
-        opprettOppdragsenhet120(oppdrag110);
 
         LocalDate maxdatoRefusjon = getMaxdatoRefusjon(oppdrag);
 
@@ -144,15 +142,6 @@ public class OppdragMapper {
                 .build();
         }
         return oppdragslinje150;
-    }
-
-    public static void opprettOppdragsenhet120(Oppdrag110 oppdrag110) {
-        Oppdragsenhet120.builder()
-            .medTypeEnhet("BOS")
-            .medEnhet("8020")
-            .medDatoEnhetFom(LocalDate.of(1900, 1, 1))
-            .medOppdrag110(oppdrag110)
-            .build();
     }
 
     static Ompostering116 opprettOmpostering116(LocalDate endringsdatoBruker, boolean brukInntrekk, String ansvarligSaksbehandler) {

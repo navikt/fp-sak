@@ -16,7 +16,6 @@ import org.mockito.Mock;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Attestant180;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragsenhet120;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
@@ -42,7 +41,6 @@ public class SimulerOppdragTjenesteTest {
         var saksnummer = new Saksnummer("100000001");
         Oppdragskontroll oppdragskontroll = lagOppdragskontroll(saksnummer);
         var o110 = lagOppdrag110(oppdragskontroll, saksnummer);
-        buildOppdragsenhet120(o110);
         buildOppdragslinje150(o110);
         when(oppdragskontrollTjeneste.opprettOppdrag(anyLong(), anyLong())).thenReturn(Optional.ofNullable(oppdragskontroll));
 
@@ -78,15 +76,6 @@ public class SimulerOppdragTjenesteTest {
             .medAvstemming(Avstemming.ny())
             .medOppdragskontroll(oppdragskontroll)
             .medFagSystemId(Long.parseLong(saksnummer.getVerdi()))
-            .build();
-    }
-
-    private Oppdragsenhet120 buildOppdragsenhet120(Oppdrag110 oppdrag110) {
-        return Oppdragsenhet120.builder()
-            .medTypeEnhet("BOS")
-            .medEnhet("8020")
-            .medDatoEnhetFom(LocalDate.now())
-            .medOppdrag110(oppdrag110)
             .build();
     }
 

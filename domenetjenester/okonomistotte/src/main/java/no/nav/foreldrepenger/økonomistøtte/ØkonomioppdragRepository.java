@@ -15,7 +15,6 @@ import javax.persistence.TypedQuery;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Attestant180;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragsenhet120;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -113,12 +112,7 @@ public class ØkonomioppdragRepository {
 
     private void lagre(Oppdrag110 oppdrag110) {
         entityManager.persist(oppdrag110);
-        oppdrag110.getOppdragsenhet120Liste().forEach(this::lagre);
         oppdrag110.getOppdragslinje150Liste().forEach(this::lagre);
-    }
-
-    private void lagre(Oppdragsenhet120 oppdragsenhet120) {
-        entityManager.persist(oppdragsenhet120);
     }
 
     private void lagre(Oppdragslinje150 oppdragslinje150) {

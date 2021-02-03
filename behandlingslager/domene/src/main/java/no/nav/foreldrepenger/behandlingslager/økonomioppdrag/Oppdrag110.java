@@ -77,9 +77,6 @@ public class Oppdrag110 extends BaseEntitet {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "oppdrag110", cascade = CascadeType.PERSIST)
     private List<Oppdragslinje150> oppdragslinje150Liste = new ArrayList<>();
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "oppdrag110", cascade = CascadeType.PERSIST)
-    private List<Oppdragsenhet120> oppdragsenhet120Liste = new ArrayList<>();
-
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "oppdrag110", cascade = CascadeType.PERSIST)
     private OppdragKvittering oppdragKvittering;
 
@@ -143,15 +140,6 @@ public class Oppdrag110 extends BaseEntitet {
     void addOppdragslinje150(Oppdragslinje150 oppdragslinje150) {
         Objects.requireNonNull(oppdragslinje150, "oppdragslinje150");
         oppdragslinje150Liste.add(oppdragslinje150);
-    }
-
-    public List<Oppdragsenhet120> getOppdragsenhet120Liste() {
-        return oppdragsenhet120Liste;
-    }
-
-    void addOppdragsenhet120(Oppdragsenhet120 oppdragsenhet120) {
-        Objects.requireNonNull(oppdragsenhet120, "oppdragsenhet120");
-        oppdragsenhet120Liste.add(oppdragsenhet120);
     }
 
     public OppdragKvittering getOppdragKvittering() {

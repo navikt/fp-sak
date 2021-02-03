@@ -8,7 +8,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Attestant180;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad170;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragsenhet120;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
@@ -70,12 +69,6 @@ class ØkonomiOppdragUtils {
             .medAvstemming(Avstemming.ny())
             .medOppdragskontroll(oppdrag)
             .build();
-        new Oppdragsenhet120.Builder()
-            .medTypeEnhet(BehandleØkonomioppdragKvitteringTest.TYPEENHET)
-            .medDatoEnhetFom(LocalDate.now())
-            .medEnhet(BehandleØkonomioppdragKvitteringTest.ENHET)
-            .medOppdrag110(o110_1)
-            .build();
         Oppdragslinje150 o150_1 = new Oppdragslinje150.Builder()
             .medVedtakId(BehandleØkonomioppdragKvitteringTest.VEDTAKID)
             .medDelytelseId(101002100100L)
@@ -111,12 +104,6 @@ class ØkonomiOppdragUtils {
                 .medDatoOppdragGjelderFom(LocalDate.now())
                 .medSaksbehId(BehandleØkonomioppdragKvitteringTest.SAKSBEHID)
                 .medOppdragskontroll(oppdrag)
-                .build();
-            new Oppdragsenhet120.Builder()
-                .medTypeEnhet(BehandleØkonomioppdragKvitteringTest.TYPEENHET)
-                .medDatoEnhetFom(LocalDate.now())
-                .medEnhet(BehandleØkonomioppdragKvitteringTest.ENHET)
-                .medOppdrag110(o110_2)
                 .build();
             Oppdragslinje150 o150_2 = new Oppdragslinje150.Builder()
                 .medVedtakId(BehandleØkonomioppdragKvitteringTest.VEDTAKID)

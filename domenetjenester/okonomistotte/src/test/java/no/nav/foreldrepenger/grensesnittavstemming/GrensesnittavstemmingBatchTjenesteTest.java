@@ -19,7 +19,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Attestant180;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragsenhet120;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.grensesnittavstemming.queue.producer.GrensesnittavstemmingJmsProducer;
@@ -112,11 +111,6 @@ public class GrensesnittavstemmingBatchTjenesteTest {
             .medDatoOppdragGjelderFom(LocalDate.now())
             .medSaksbehId(BehandleØkonomioppdragKvitteringTest.SAKSBEHID)
             .medOppdragskontroll(oppdrag)
-            .build();
-        new Oppdragsenhet120.Builder().medTypeEnhet(BehandleØkonomioppdragKvitteringTest.TYPEENHET)
-            .medDatoEnhetFom(LocalDate.now())
-            .medEnhet(BehandleØkonomioppdragKvitteringTest.ENHET)
-            .medOppdrag110(o110)
             .build();
         Oppdragslinje150 o150 = new Oppdragslinje150.Builder().medVedtakId(
             BehandleØkonomioppdragKvitteringTest.VEDTAKID)

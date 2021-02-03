@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Attestant180;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragsenhet120;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
@@ -44,7 +43,6 @@ public class GrensesnittavstemmingMapperTest {
 
     private Oppdragskontroll.Builder oppdrkontrollBuilder;
     private Oppdrag110.Builder oppdr110Builder;
-    private Oppdragsenhet120.Builder oppdrsEnhet120Builder;
     private Oppdragslinje150.Builder oppdrLinje150Builder;
     private Attestant180.Builder attestant180Builder;
     private OppdragKvittering.Builder oppdragKvitteringBuilder;
@@ -57,7 +55,6 @@ public class GrensesnittavstemmingMapperTest {
     void setUp() {
         oppdrkontrollBuilder = Oppdragskontroll.builder();
         oppdr110Builder = Oppdrag110.builder();
-        oppdrsEnhet120Builder = Oppdragsenhet120.builder();
         oppdrLinje150Builder = Oppdragslinje150.builder();
         attestant180Builder = Attestant180.builder();
         oppdragKvitteringBuilder = OppdragKvittering.builder();
@@ -71,7 +68,6 @@ public class GrensesnittavstemmingMapperTest {
     private Oppdragskontroll opprettOppdrag(String status, String fagområde) {
         Oppdragskontroll oppdragskontroll = buildOppdragskontroll(status == null);
         Oppdrag110 oppdrag110 = buildOppdrag110(oppdragskontroll, fagområde, LocalDateTime.now());
-        buildOppdragsEnhet120(oppdrag110);
         Oppdragslinje150 oppdragslinje150 = buildOppdragslinje150(oppdrag110);
         buildAttestant180(oppdragslinje150);
 
@@ -280,7 +276,6 @@ public class GrensesnittavstemmingMapperTest {
 
     private Oppdrag110 opprettOppdrag110MedAvsetmmingsDato(Oppdragskontroll oppdrag, LocalDateTime lavAvstemmingsDato, String kodeFagområde) {
         Oppdrag110 oppdrag110 = buildOppdrag110(oppdrag, kodeFagområde, lavAvstemmingsDato);
-        buildOppdragsEnhet120(oppdrag110);
         Oppdragslinje150 oppdragslinje150 = buildOppdragslinje150(oppdrag110);
         buildAttestant180(oppdragslinje150);
         return oppdrag110;
@@ -354,15 +349,6 @@ public class GrensesnittavstemmingMapperTest {
             .medHenvisning(43L)
             .build();
 
-    }
-
-    private Oppdragsenhet120 buildOppdragsEnhet120(Oppdrag110 oppdrag110) {
-        return oppdrsEnhet120Builder
-            .medTypeEnhet("BOS")
-            .medEnhet("8020")
-            .medDatoEnhetFom(LocalDate.now())
-            .medOppdrag110(oppdrag110)
-            .build();
     }
 
     private Oppdrag110 buildOppdrag110(Oppdragskontroll oppdragskontroll, String fagområde, LocalDateTime avstemmingsTidspunkt) {

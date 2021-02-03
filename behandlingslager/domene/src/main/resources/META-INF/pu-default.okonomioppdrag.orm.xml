@@ -19,7 +19,6 @@
     <entity class="no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Attestant180" />
     <entity class="no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad170" />
     <entity class="no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110" />
-    <entity class="no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragsenhet120" />
     <entity class="no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll" />
     <entity class="no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150" />
     <entity class="no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156" />

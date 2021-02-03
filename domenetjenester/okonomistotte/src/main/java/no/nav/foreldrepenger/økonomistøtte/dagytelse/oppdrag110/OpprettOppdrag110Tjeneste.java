@@ -31,7 +31,6 @@ public class OpprettOppdrag110Tjeneste {
         Oppdrag110.Builder oppdrag110Builder = opprettOppdrag110Builder(behandlingInfo, mottaker,
             true, fagsystemId);
         Oppdrag110 oppdrag110 = oppdrag110Builder.medOppdragskontroll(oppdragskontroll).build();
-        OpprettOppdragTjeneste.opprettOppdragsenhet120(oppdrag110);
 
         return oppdrag110;
     }
@@ -45,7 +44,6 @@ public class OpprettOppdrag110Tjeneste {
         } else {
             Oppdrag110.Builder oppdrag110Builder = opprettOppdrag110MedRelaterteOppdragsmeldinger(behandlingInfo, tidligereOpp150ForMottakeren, oppdragsmottaker);
             nyOppdrag110 = oppdrag110Builder.medOppdragskontroll(oppdragskontroll).build();
-            OpprettOppdragTjeneste.opprettOppdragsenhet120(nyOppdrag110);
         }
         return nyOppdrag110;
     }

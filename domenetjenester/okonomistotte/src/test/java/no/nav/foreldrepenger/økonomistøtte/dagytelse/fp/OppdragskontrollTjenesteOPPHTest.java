@@ -53,7 +53,6 @@ public class OppdragskontrollTjenesteOPPHTest extends OppdragskontrollTjenesteTe
 
         //Assert
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
-        OppdragskontrollTestVerktøy.verifiserOppdragsenhet120(oppdragRevurdering);
         List<Oppdrag110> oppdrag110RevurderingList = verifiserOppdrag110_OPPH(oppdragRevurdering, originaltOppdrag);
         List<Oppdragslinje150> oppdragslinje150Liste = verifiserOppdragslinje150_OPPH(oppdragRevurdering, originaltOppdrag);
         OppdragskontrollTestVerktøy.verifiserGrad170(oppdragslinje150Liste, originaltOppdrag);
@@ -72,7 +71,6 @@ public class OppdragskontrollTjenesteOPPHTest extends OppdragskontrollTjenesteTe
 
         //Assert
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
-        OppdragskontrollTestVerktøy.verifiserOppdragsenhet120(oppdragRevurdering);
         verifiserOppdrag110_OPPH(oppdragRevurdering, originaltOppdrag);
         verifiserOppdragslinje150MedFlereKategorier_OPPH(oppdragRevurdering, originaltOppdrag);
     }
@@ -97,7 +95,6 @@ public class OppdragskontrollTjenesteOPPHTest extends OppdragskontrollTjenesteTe
 
         //Assert
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
-        OppdragskontrollTestVerktøy.verifiserOppdragsenhet120(oppdragRevurdering);
         verifiserOPPHForBrukerIENDR(oppdragRevurdering, originaltOppdrag110Liste, endringsdato);
     }
 
@@ -176,7 +173,6 @@ public class OppdragskontrollTjenesteOPPHTest extends OppdragskontrollTjenesteTe
 
         //Assert
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
-        OppdragskontrollTestVerktøy.verifiserOppdragsenhet120(oppdragRevurdering);
         verifiserOppdrag110OgOppdragslinje150(oppdragRevurdering, originaltOppdrag110Liste, false);
     }
 
@@ -201,7 +197,6 @@ public class OppdragskontrollTjenesteOPPHTest extends OppdragskontrollTjenesteTe
 
         //Assert
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
-        OppdragskontrollTestVerktøy.verifiserOppdragsenhet120(oppdragRevurdering);
         verifiserOppdrag110OgOppdragslinje150(oppdragRevurdering, originaltOppdrag110Liste, true);
     }
 
@@ -295,7 +290,6 @@ public class OppdragskontrollTjenesteOPPHTest extends OppdragskontrollTjenesteTe
 
         //Assert
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
-        OppdragskontrollTestVerktøy.verifiserOppdragsenhet120(oppdragRevurdering);
         verifiserOppdrag110OgOppdragslinje150(oppdragRevurdering, originaltOppdrag110Liste, false);
     }
 

@@ -33,7 +33,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragsenhet120;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
@@ -116,7 +115,6 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
         verifiserOppdragskontroll(oppdragskontroll, prosessTaskId);
         List<Oppdrag110> oppdrag110Liste = verifiserOppdrag110(oppdragskontroll);
         verifiserAvstemming(oppdrag110Liste);
-        verifiserOppdragsenhet120(oppdrag110Liste);
         List<Oppdragslinje150> oppdragslinje150Liste = verifiserOppdragslinje150(oppdrag110Liste, behandling);
         verifiserAttestant180(oppdragslinje150Liste);
     }
@@ -140,7 +138,6 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
         Oppdrag110 oppdrag110 = oppdrkontroll.getOppdrag110Liste().get(0);
         assertThat(oppdrag110).isNotNull();
         assertThat(oppdrag110.getOppdragslinje150Liste()).hasSize(1);
-        assertThat(oppdrag110.getOppdragsenhet120Liste()).hasSize(1);
         assertThat(oppdrag110.getAvstemming()).isNotNull();
 
         Oppdragslinje150 oppdrlinje150 = oppdrag110.getOppdragslinje150Liste().get(0);
@@ -310,17 +307,6 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
             Avstemming avstemming = oppdrag110.getAvstemming();
             assertThat(avstemming).isNotNull();
             assertThat(avstemming.getKodekomponent()).isEqualTo(ØkonomiKodekomponent.VLFP.getKodekomponent());
-        });
-    }
-
-    private void verifiserOppdragsenhet120(List<Oppdrag110> oppdrag110Liste) {
-        assertThat(oppdrag110Liste).allSatisfy(oppdrag110 -> {
-            var oppdragsenhet120List = oppdrag110.getOppdragsenhet120Liste();
-            assertThat(oppdragsenhet120List).hasSize(1);
-            Oppdragsenhet120 oppdragsenhet120 = oppdragsenhet120List.get(0);
-            assertThat(oppdragsenhet120.getTypeEnhet()).isEqualTo("BOS");
-            assertThat(oppdragsenhet120.getEnhet()).isEqualTo("8020");
-            assertThat(oppdragsenhet120.getDatoEnhetFom()).isEqualTo(LocalDate.of(1900, 1, 1));
         });
     }
 

@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Attestant180;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad170;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragsenhet120;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
@@ -34,6 +33,11 @@ import no.nav.vedtak.felles.integrasjon.felles.ws.JaxbHelper;
 
 
 public class ØkonomioppdragMapper {
+
+    private static final String TYPE_ENHET = "BOS";
+    private static final String ENHET = "8020";
+    private static final LocalDate DATO_ENHET_FOM = LocalDate.of(1900, 1, 1);
+
     // TODO (Team Tonic): Fjern global state oppdragskontroll
     private Oppdragskontroll oppdragskontroll;
     private ObjectFactory objectFactory;
@@ -80,8 +84,8 @@ public class ØkonomioppdragMapper {
         oppdrag110.setOppdragGjelderId(okoOppdrag110.getOppdragGjelderId());
         oppdrag110.setSaksbehId(String.valueOf(okoOppdrag110.getSaksbehId()));
         oppdrag110.setAvstemming115(mapAvstemming115(okoOppdrag110.getAvstemming()));
-        // Maks en oppdragsenhet, get(0) er ok
-        oppdrag110.getOppdragsEnhet120().add(mapOppdragsEnhet120(okoOppdrag110.getOppdragsenhet120Liste().get(0)));
+
+        oppdrag110.getOppdragsEnhet120().add(mapOppdragsEnhet120());
         oppdrag110.getOppdragsLinje150().addAll(mapOppdragsLinje150(okoOppdrag110.getOppdragslinje150Liste(), kode));
         oppdrag110.setDatoOppdragGjelderFom(toXmlGregCal(okoOppdrag110.getDatoOppdragGjelderFom()));
 
@@ -111,13 +115,13 @@ public class ØkonomioppdragMapper {
         return avstemming115;
     }
 
-    private no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.OppdragsEnhet120 mapOppdragsEnhet120(Oppdragsenhet120 okoOppdragsenhet120) {
+    private no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.OppdragsEnhet120 mapOppdragsEnhet120() {
         final no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.OppdragsEnhet120 oppdragsEnhet120 =
             objectFactory.createOppdragsEnhet120();
 
-        oppdragsEnhet120.setTypeEnhet(okoOppdragsenhet120.getTypeEnhet());
-        oppdragsEnhet120.setEnhet(okoOppdragsenhet120.getEnhet());
-        oppdragsEnhet120.setDatoEnhetFom(toXmlGregCal(okoOppdragsenhet120.getDatoEnhetFom()));
+        oppdragsEnhet120.setTypeEnhet(TYPE_ENHET);
+        oppdragsEnhet120.setEnhet(ENHET);
+        oppdragsEnhet120.setDatoEnhetFom(toXmlGregCal(DATO_ENHET_FOM));
 
         return oppdragsEnhet120;
     }

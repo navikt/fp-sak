@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad170;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragsenhet120;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
@@ -42,6 +41,10 @@ public class ØkonomioppdragMapperTest {
     private static final String KODE_KLASSIFIK_FODSEL = "FPENFOD-OP";
     private static final String TYPE_GRAD = "UFOR";
     private static final String REFUNDERES_ID = "123456789";
+
+    private static final String TYPE_ENHET = "BOS";
+    private static final String ENHET = "8020";
+    private static final LocalDate DATO_ENHET_FOM = LocalDate.of(1900, 1, 1);
 
     private Oppdragskontroll oppdragskontroll;
     private ØkonomioppdragMapper økonomioppdragMapper;
@@ -175,7 +178,6 @@ public class ØkonomioppdragMapperTest {
     private List<Oppdrag110> opprettOppdrag110(Oppdragskontroll oppdragskontroll, boolean gjelderFP, boolean erOppdragslinje150Sortert, boolean erOmpostering) {
 
         List<Oppdrag110> oppdrag110Liste = buildOppdrag110(oppdragskontroll, gjelderFP, erOmpostering);
-        buildOppdragsEnhet120(oppdrag110Liste);
         List<Oppdragslinje150> oppdragslinje150Liste = buildOppdragslinje150(oppdrag110Liste, gjelderFP, erOppdragslinje150Sortert);
         buildAttestant180(oppdragslinje150Liste);
         if (gjelderFP) {
@@ -203,10 +205,9 @@ public class ØkonomioppdragMapperTest {
 
             no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.OppdragsEnhet120 oppdragsEnhet120Generert = oppdrag110Generert.getOppdragsEnhet120().get(0);
 
-            Oppdragsenhet120 oppdragsEnhet120 = oppdrag110.getOppdragsenhet120Liste().get(0);
-            assertThat(oppdragsEnhet120Generert.getTypeEnhet()).isEqualTo(oppdragsEnhet120.getTypeEnhet());
-            assertThat(oppdragsEnhet120Generert.getEnhet()).isEqualTo(oppdragsEnhet120.getEnhet());
-            assertThat(oppdragsEnhet120Generert.getDatoEnhetFom()).isEqualTo(DateUtil.convertToXMLGregorianCalendarRemoveTimezone(oppdragsEnhet120.getDatoEnhetFom()));
+            assertThat(oppdragsEnhet120Generert.getTypeEnhet()).isEqualTo(TYPE_ENHET);
+            assertThat(oppdragsEnhet120Generert.getEnhet()).isEqualTo(ENHET);
+            assertThat(oppdragsEnhet120Generert.getDatoEnhetFom()).isEqualTo(DateUtil.convertToXMLGregorianCalendarRemoveTimezone(DATO_ENHET_FOM));
 
             List<no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.OppdragsLinje150> oppdragsLinje150GenerertListe = oppdrag110Generert.getOppdragsLinje150();
 
@@ -377,23 +378,6 @@ public class ØkonomioppdragMapperTest {
             .medSaksbehId("F2365245")
             .medUtbetalesTilId("123456789")
             .medHenvisning(43L);
-    }
-
-    private List<Oppdragsenhet120> buildOppdragsEnhet120(List<Oppdrag110> oppdrag110Liste) {
-        List<Oppdragsenhet120> oppdragsenhet120Liste = new ArrayList<>();
-        for (Oppdrag110 oppdrag110 : oppdrag110Liste) {
-            oppdragsenhet120Liste.add(buildOppdragsenhet120(oppdrag110));
-        }
-        return oppdragsenhet120Liste;
-    }
-
-    private Oppdragsenhet120 buildOppdragsenhet120(Oppdrag110 oppdrag110) {
-        return Oppdragsenhet120.builder()
-            .medTypeEnhet("BOS")
-            .medEnhet("8020")
-            .medDatoEnhetFom(LocalDate.now())
-            .medOppdrag110(oppdrag110)
-            .build();
     }
 
     private List<Oppdrag110> buildOppdrag110(Oppdragskontroll oppdragskontroll, boolean gjelderFP, boolean erOmpostering) {

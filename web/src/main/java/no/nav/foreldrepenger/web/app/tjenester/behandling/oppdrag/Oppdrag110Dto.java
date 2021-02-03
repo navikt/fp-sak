@@ -23,7 +23,6 @@ public class Oppdrag110Dto extends SporingDto {
     private Ompostering116Dto ompostering116Dto;
     private List<OppdragKvitteringDto> oppdragKvittering;
     private List<Oppdragslinje150Dto> oppdragslinje150;
-    private List<OppdragEnhet120Dto> oppdragEnhet120;
 
     public Oppdrag110Dto(Oppdrag110 entitet) {
         super(entitet, entitet.getVersjon(), entitet.getId());
@@ -126,9 +125,6 @@ public class Oppdrag110Dto extends SporingDto {
         oppdrag110Dto.oppdragKvittering = oppdrag110.erKvitteringMottatt() ?
             List.of(OppdragKvitteringDto.fraDomene(oppdrag110.getOppdragKvittering())) :
             List.of();
-        oppdrag110Dto.oppdragEnhet120 = oppdrag110.getOppdragsenhet120Liste().stream()
-            .map(OppdragEnhet120Dto::fraDomene)
-            .collect(Collectors.toList());
         Optional<Ompostering116> optOmposter = oppdrag110.getOmpostering116();
         oppdrag110Dto.oppdragslinje150 = oppdrag110.getOppdragslinje150Liste().stream()
             .map(Oppdragslinje150Dto::fraDomene)
@@ -163,7 +159,4 @@ public class Oppdrag110Dto extends SporingDto {
         return oppdragKvittering;
     }
 
-    public List<OppdragEnhet120Dto> getOppdragEnhet120() {
-        return oppdragEnhet120;
-    }
 }

@@ -42,7 +42,6 @@ class OppdragMapper {
 
     public void mapTil(Oppdragskontroll oppdragskontroll) {
         Oppdrag110 oppdrag110 = mapOppdrag110(oppdragskontroll);
-        OpprettOppdragTjeneste.opprettOppdragsenhet120(oppdrag110);
         for (OppdragslinjePatchDto linje : dto.getOppdragslinjer()) {
             mapOppdragslinje(oppdrag110, linje);
         }

@@ -99,7 +99,6 @@ public class OppdragskontrollOpphør implements OppdragskontrollManager {
             .orElse(Collections.emptyList());
         List<Oppdragslinje150> opp150OpphList = Oppdragslinje150Util.getOppdragslinje150ForOpphør(opp150List);
         OpprettOppdragsmeldingerRelatertTil150.opprettAttestant180(opp150OpphList, behandlingInfo.getAnsvarligSaksbehandler());
-        OpprettOppdragTjeneste.opprettOppdragsenhet120(nyOppdragOpt);
         return nyOppdragOpt;
     }
 
@@ -170,7 +169,6 @@ public class OppdragskontrollOpphør implements OppdragskontrollManager {
 
         if (!opphFørEndringsoppdrFeriepg || VurderOpphørForFeriepenger.vurder(behandlingInfo, forrigeOppdrag110, null)) {
             Oppdrag110 nyOppdrag110 = nyOppdrag110Builder.medOppdragskontroll(nyOppdragskontroll).build();
-            OpprettOppdragTjeneste.opprettOppdragsenhet120(nyOppdrag110);
             opprettOppdr150LinjeForFeriepengerOPPH(behandlingInfo, nyOppdrag110,
                 forrigeOppdrag110, true, opphFørEndringsoppdrFeriepg);
             return Optional.of(nyOppdrag110);
@@ -199,7 +197,6 @@ public class OppdragskontrollOpphør implements OppdragskontrollManager {
         Oppdrag110.Builder oppdrag110Builder = OpprettOppdrag110Tjeneste.opprettOppdrag110MedRelaterteOppdragsmeldinger(behandlingInfo, sisteOppdr150Bruker,
             opprettMottakerInstance(behandlingInfo, sisteOppdr150Bruker));
         Oppdrag110 nyOppdrag110 = oppdrag110Builder.medOppdragskontroll(nyOppdragskontroll).build();
-        OpprettOppdragTjeneste.opprettOppdragsenhet120(nyOppdrag110);
         opprettOppdragslinje150ForStatusOPPH(behandlingInfo, sisteOppdr150Bruker, nyOppdrag110, opphørStatusFom);
         opprettOppdr150LinjeForFeriepengerOPPH(behandlingInfo, opphFørEndringsoppdrFeriepg, nyOppdrag110, forrigeOppdrag110);
         List<Oppdragslinje150> opp150OpphList = TidligereOppdragTjeneste.getOppdragslinje150ForOpphør(nyOppdrag110);
@@ -250,7 +247,6 @@ public class OppdragskontrollOpphør implements OppdragskontrollManager {
         Oppdrag110.Builder oppdrag110Builder = OpprettOppdrag110Tjeneste.opprettOppdrag110MedRelaterteOppdragsmeldinger(behandlingInfo, sisteOppdr150,
             opprettMottakerInstance(behandlingInfo, sisteOppdr150));
         Oppdrag110 nyOppdrag110 = oppdrag110Builder.medOppdragskontroll(nyOppdragskontroll).build();
-        OpprettOppdragTjeneste.opprettOppdragsenhet120(nyOppdrag110);
         opprettOppdragslinje150ForStatusOPPH(behandlingInfo, sisteOppdr150, nyOppdrag110, opphørStatusFom);
         opprettOppdr150LinjeForFeriepengerOPPH(behandlingInfo, nyOppdrag110, forrigeOppdrag110,
             false, false);

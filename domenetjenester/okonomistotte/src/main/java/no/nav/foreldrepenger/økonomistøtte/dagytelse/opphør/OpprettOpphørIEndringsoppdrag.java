@@ -110,7 +110,6 @@ public class OpprettOpphørIEndringsoppdrag {
 
     private Oppdrag110 opprettOppdrag110Og150ForOpphørBruker(OppdragInput behandlingInfo, Oppdragskontroll oppdragskontroll, Oppdragsmottaker mottaker, Oppdragslinje150 sisteOppdr150Bruker, Oppdrag110.Builder nyOppdrag110Builder) {
         Oppdrag110 nyOppdrag110 = nyOppdrag110Builder.medOppdragskontroll(oppdragskontroll).build();
-        OpprettOppdragTjeneste.opprettOppdragsenhet120(nyOppdrag110);
         List<Oppdragslinje150> tidligereOppdr150Liste = TidligereOppdragTjeneste.hentTidligereGjeldendeOppdragslinje150(behandlingInfo, false);
         LocalDate datoStatusFom = FinnOpphørFomDato.finnOpphørFom(tidligereOppdr150Liste, behandlingInfo, mottaker);
         oppdragskontrollOpphør.opprettOppdragslinje150ForStatusOPPH(behandlingInfo, sisteOppdr150Bruker,
@@ -164,7 +163,6 @@ public class OpprettOpphørIEndringsoppdrag {
 
     private Oppdrag110 kobleOppdrag110TilOppdragskontroll(Oppdragskontroll oppdragskontroll, Oppdrag110.Builder nyOppdrag110Builder) {
         Oppdrag110 nyOppdrag110 = nyOppdrag110Builder.medOppdragskontroll(oppdragskontroll).build();
-        OpprettOppdragTjeneste.opprettOppdragsenhet120(nyOppdrag110);
 
         return nyOppdrag110;
     }

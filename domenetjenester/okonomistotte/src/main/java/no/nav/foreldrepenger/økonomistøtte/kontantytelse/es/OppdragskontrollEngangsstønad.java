@@ -56,7 +56,6 @@ public class OppdragskontrollEngangsstønad implements OppdragskontrollManager {
         OppdragInputES behandlingInfo = mapBehandlingInfo.oppsettBehandlingInfo(behandling);
         Optional<Oppdrag110> forrigeOppdragOpt = behandlingInfo.getForrigeOppddragForSak();
         Oppdrag110 oppdrag110 = opprettOppdrag110ES(behandlingInfo, nyOppdragskontroll, forrigeOppdragOpt);
-        OpprettOppdragTjeneste.opprettOppdragsenhet120(oppdrag110);
         Oppdragslinje150 oppdragslinje150 = opprettOppdragslinje150ES(behandlingInfo, oppdrag110, forrigeOppdragOpt);
         OpprettOppdragTjeneste.opprettAttestant180(oppdragslinje150, behandlingInfo.getAnsvarligSaksbehandler());
         return nyOppdragskontroll;
