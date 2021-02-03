@@ -43,6 +43,7 @@ import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningFeriepenge
 import no.nav.foreldrepenger.web.app.tjenester.hendelser.HendelserRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.integrasjonstatus.IntegrasjonstatusRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.kodeverk.KodeverkRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.nokkeltall.LosNøkkeltallRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.saksbehandler.FeatureToggleRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.saksbehandler.InitielleLinksRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.saksbehandler.NavAnsattRestTjeneste;
@@ -101,6 +102,7 @@ public class RestImplementationClasses {
         classes.add(ForvaltningBeregningRestTjeneste.class);
         classes.add(ForvaltningFeriepengerRestTjeneste.class);
         classes.add(BrevRestTjeneste.class);
+        classes.add(LosNøkkeltallRestTjeneste.class);
 
         return Set.copyOf(classes);
     }
