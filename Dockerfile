@@ -18,7 +18,6 @@ COPY web/target/lib/*.jar /app/lib/
 
 # Application Start Command
 COPY run-java.sh /
-RUN chmod +x /run-java.sh
 
 # Export vault properties
 COPY export-vault.sh /init-scripts/export-vault.sh
