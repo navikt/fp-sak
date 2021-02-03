@@ -35,7 +35,7 @@ import no.nav.foreldrepenger.kontrakter.tilkjentytelse.TilkjentYtelse;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.app.BeregningsresultatTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto.BeregningsresultatEngangsstønadDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto.BeregningsresultatMedUttaksplanDto;
-import no.nav.foreldrepenger.tilkjentytelse.TilkjentYtelseTjeneste;
+import no.nav.foreldrepenger.økonomistøtte.tilkjentytelse.TilkjentYtelseTjeneste;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 @Path(BeregningsresultatRestTjeneste.BASE_PATH)

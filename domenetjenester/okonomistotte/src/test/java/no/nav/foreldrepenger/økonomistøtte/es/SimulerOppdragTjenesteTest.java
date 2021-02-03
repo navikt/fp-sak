@@ -24,8 +24,8 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.foreldrepenger.ny.tjeneste.NyOppdragskontrollTjeneste;
-import no.nav.foreldrepenger.ny.toggle.OppdragKjerneimplementasjonToggle;
+import no.nav.foreldrepenger.økonomistøtte.ny.tjeneste.NyOppdragskontrollTjeneste;
+import no.nav.foreldrepenger.økonomistøtte.ny.toggle.OppdragKjerneimplementasjonToggle;
 import no.nav.foreldrepenger.økonomistøtte.FinnNyesteOppdragForSak;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollManagerFactory;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollManagerFactoryProvider;

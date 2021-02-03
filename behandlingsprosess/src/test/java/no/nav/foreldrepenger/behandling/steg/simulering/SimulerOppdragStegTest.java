@@ -33,11 +33,11 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.simulering.klient.FpOppdragRestKlient;
-import no.nav.foreldrepenger.simulering.klient.FpoppdragSystembrukerRestKlient;
-import no.nav.foreldrepenger.simulering.kontrakt.SimulerOppdragDto;
-import no.nav.foreldrepenger.simulering.kontrakt.SimuleringResultatDto;
-import no.nav.foreldrepenger.simulering.tjeneste.SimuleringIntegrasjonTjeneste;
+import no.nav.foreldrepenger.økonomistøtte.simulering.klient.FpOppdragRestKlient;
+import no.nav.foreldrepenger.økonomistøtte.simulering.klient.FpoppdragSystembrukerRestKlient;
+import no.nav.foreldrepenger.økonomistøtte.simulering.kontrakt.SimulerOppdragDto;
+import no.nav.foreldrepenger.økonomistøtte.simulering.kontrakt.SimuleringResultatDto;
+import no.nav.foreldrepenger.økonomistøtte.simulering.tjeneste.SimuleringIntegrasjonTjeneste;
 import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
 import no.nav.foreldrepenger.økonomistøtte.SimulerOppdragTjeneste;
 
