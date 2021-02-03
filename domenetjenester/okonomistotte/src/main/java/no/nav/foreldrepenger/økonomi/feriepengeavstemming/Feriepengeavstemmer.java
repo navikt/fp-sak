@@ -79,16 +79,12 @@ public class Feriepengeavstemmer {
         oppdrag.forEach((key,value) -> summertÅr.put(key.getOpptjent(), summertÅr.getOrDefault(key.getOpptjent(), BigDecimal.ZERO).add(value)));
         tilkjent.forEach((key,value) -> summertÅr.put(key.getOpptjent(), summertÅr.getOrDefault(key.getOpptjent(), BigDecimal.ZERO).subtract(value.getVerdi())));
 
-        summertÅr.entrySet().stream()
-            .filter(e -> Math.abs(e.getValue().longValue()) > 3)
-            .forEach(e -> LOGGER.info("{} årlig oppdrag-tilkjent saksnummer {} behandling {} år {} diff {}",
-                AVVIK_KODE, saksnummer.getVerdi(), behandlingId, e.getKey(), e.getValue().longValue()));
-
         summert.entrySet().stream()
             .filter(e -> Math.abs(e.getValue().longValue()) > 3)
-            .forEach(e -> LOGGER.info("{} andel {} saksnummer {} behandling {} år {} mottaker {} diff {}",
+            .forEach(e -> LOGGER.info("{} andel {} saksnummer {} behandling {} år {} mottaker {} diff {} oppdrag {} tilkjent {}",
                 AVVIK_KODE, erAvvik(summertÅr.get(e.getKey().getOpptjent())) ? "oppdrag-tilkjent" : "omfordelt",
-                saksnummer.getVerdi(), behandlingId, e.getKey().getOpptjent(), e.getKey().getMottaker(), e.getValue().longValue()));
+                saksnummer.getVerdi(), behandlingId, e.getKey().getOpptjent(), e.getKey().getMottaker(), e.getValue().longValue(),
+                oppdrag.getOrDefault(e.getKey(), BigDecimal.ZERO).longValue(), tilkjent.getOrDefault(e.getKey(), Beløp.ZERO).getVerdi().longValue()));
 
         return summert.values().stream().anyMatch(Feriepengeavstemmer::erAvvik);
     }
