@@ -8,8 +8,11 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
@@ -21,20 +24,21 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRe
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedlemskapPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.medlem.MedlemskapAksjonspunktTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.foreldrepenger.web.RepositoryAwareTest;
 
-public class AvklarFortsattMedlemskapOppdatererTest extends RepositoryAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class AvklarFortsattMedlemskapOppdatererTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
-    private LocalDate now = LocalDate.now();
+    private final LocalDate now = LocalDate.now();
 
     @BeforeEach
-    public void beforeEach() {
-        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
+    public void beforeEach(EntityManager entityManager) {
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
     }
 
     @Test

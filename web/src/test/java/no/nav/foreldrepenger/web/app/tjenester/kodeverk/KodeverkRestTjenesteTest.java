@@ -21,11 +21,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
-import no.nav.foreldrepenger.web.RepositoryAwareTest;
 import no.nav.foreldrepenger.web.app.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.web.app.tjenester.kodeverk.app.HentKodeverkTjeneste;
 
-public class KodeverkRestTjenesteTest extends RepositoryAwareTest {
+public class KodeverkRestTjenesteTest {
 
     private HentKodeverkTjeneste hentKodeverkTjeneste;
 

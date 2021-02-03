@@ -14,6 +14,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,6 +27,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
@@ -33,6 +36,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.Tilrett
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
@@ -52,11 +56,11 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.tilganger.InnloggetNavAnsattDto;
 import no.nav.foreldrepenger.tilganger.TilgangerTjeneste;
-import no.nav.foreldrepenger.web.RepositoryAwareTest;
 import no.nav.vedtak.exception.FunksjonellException;
 
 @ExtendWith(MockitoExtension.class)
-public class BekreftSvangerskapspengerOppdatererTest extends RepositoryAwareTest {
+@ExtendWith(FPsakEntityManagerAwareExtension.class)
+public class BekreftSvangerskapspengerOppdatererTest {
 
     private static final LocalDate BEHOV_DATO = LocalDate.now();
     private static final LocalDate TERMINDATO = LocalDate.now().plusMonths(5);
@@ -64,32 +68,37 @@ public class BekreftSvangerskapspengerOppdatererTest extends RepositoryAwareTest
     public static final InternArbeidsforholdRef INTERN_ARBEIDSFORHOLD_REF = InternArbeidsforholdRef.nyRef();
     public static final InternArbeidsforholdRef INTERN_ARBEIDSFORHOLD_REF2 = InternArbeidsforholdRef.nyRef();
 
-    private HistorikkTjenesteAdapter historikkAdapter;
     @Mock
     private TilgangerTjeneste tilgangerTjenesteMock;
-    private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
-    private BekreftSvangerskapspengerOppdaterer oppdaterer;
+    private final InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
 
-    @Override
+    private BekreftSvangerskapspengerOppdaterer oppdaterer;
+    private BehandlingRepositoryProvider repositoryProvider;
+
     @BeforeEach
-    public void beforeEach() {
-        super.beforeEach();
-        historikkAdapter = new HistorikkTjenesteAdapter(repositoryProvider.getHistorikkRepository(), null);
-        oppdaterer = new BekreftSvangerskapspengerOppdaterer(svangerskapspengerRepository, historikkAdapter,
-            repositoryProvider, familieHendelseRepository, tilgangerTjenesteMock, inntektArbeidYtelseTjeneste);
+    public void beforeEach(EntityManager entityManager) {
+        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        HistorikkTjenesteAdapter historikkAdapter = new HistorikkTjenesteAdapter(
+            repositoryProvider.getHistorikkRepository(), null);
+        oppdaterer = new BekreftSvangerskapspengerOppdaterer(historikkAdapter, repositoryProvider,
+            tilgangerTjenesteMock, inntektArbeidYtelseTjeneste);
     }
 
     @Test
     public void skal_kunne_fjerne_permisjon_ved_flere_arbeidsforhold_i_samme_virksomhet_og_tilrettelegging_uten_id() {
         Behandling behandling = behandlingMedTilretteleggingAP();
 
-        InntektArbeidYtelseAggregatBuilder register = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
+        InntektArbeidYtelseAggregatBuilder register = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(),
+            VersjonType.REGISTER);
 
         LocalDate permisjonFom = LocalDate.of(2020, 2, 17);
         LocalDate permisjonTom = LocalDate.of(2020, 7, 12);
-        Yrkesaktivitet yrkesaktivitet = byggYrkesaktivitet(byggPermisjon(permisjonFom, permisjonTom), BEHOV_DATO, INTERN_ARBEIDSFORHOLD_REF);
-        Yrkesaktivitet yrkesaktivitet2 = byggYrkesaktivitet(null, TERMINDATO.plusMonths(10), INTERN_ARBEIDSFORHOLD_REF2);
-        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder.oppdatere(Optional.empty())
+        Yrkesaktivitet yrkesaktivitet = byggYrkesaktivitet(byggPermisjon(permisjonFom, permisjonTom), BEHOV_DATO,
+            INTERN_ARBEIDSFORHOLD_REF);
+        Yrkesaktivitet yrkesaktivitet2 = byggYrkesaktivitet(null, TERMINDATO.plusMonths(10),
+            INTERN_ARBEIDSFORHOLD_REF2);
+        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder
+            .oppdatere(Optional.empty())
             .medAktørId(behandling.getAktørId());
         aktørArbeidBuilder.leggTilYrkesaktivitet(yrkesaktivitet).leggTilYrkesaktivitet(yrkesaktivitet2);
         register.leggTilAktørArbeid(aktørArbeidBuilder);
@@ -99,18 +108,23 @@ public class BekreftSvangerskapspengerOppdatererTest extends RepositoryAwareTest
 
         BekreftSvangerskapspengerDto dto = byggDto(BEHOV_DATO, TERMINDATO,
             svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getId(),
-            new VelferdspermisjonDto(permisjonFom, permisjonTom, BigDecimal.valueOf(100), PermisjonsbeskrivelseType.VELFERDSPERMISJON, false),
-            null,
+            new VelferdspermisjonDto(permisjonFom, permisjonTom, BigDecimal.valueOf(100),
+                PermisjonsbeskrivelseType.VELFERDSPERMISJON, false), null,
             new SvpTilretteleggingDatoDto(BEHOV_DATO.plusWeeks(1), TilretteleggingType.INGEN_TILRETTELEGGING, null));
 
         AksjonspunktOppdaterParameter param = new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto);
 
         OppdateringResultat resultat = oppdaterer.oppdater(dto, param);
 
-        InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId());
-        boolean permisjonErFjernet = inntektArbeidYtelseGrunnlag.getSaksbehandletVersjon().get()
-            .getAktørArbeid().iterator().next()
-            .hentAlleYrkesaktiviteter().stream()
+        InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(
+            behandling.getId());
+        boolean permisjonErFjernet = inntektArbeidYtelseGrunnlag.getSaksbehandletVersjon()
+            .orElseThrow()
+            .getAktørArbeid()
+            .iterator()
+            .next()
+            .hentAlleYrkesaktiviteter()
+            .stream()
             .allMatch(ya -> ya.getPermisjon().isEmpty());
 
         assertThat(permisjonErFjernet).isTrue();
@@ -123,7 +137,8 @@ public class BekreftSvangerskapspengerOppdatererTest extends RepositoryAwareTest
     public void skal_sette_totrinn_ved_endring() {
         Behandling behandling = behandlingMedTilretteleggingAP();
 
-        InntektArbeidYtelseAggregatBuilder register = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
+        InntektArbeidYtelseAggregatBuilder register = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(),
+            VersjonType.REGISTER);
         inntektArbeidYtelseTjeneste.lagreIayAggregat(behandling.getId(), register);
 
         SvpGrunnlagEntitet svpGrunnlag = byggSøknadsgrunnlag(behandling);
@@ -144,12 +159,12 @@ public class BekreftSvangerskapspengerOppdatererTest extends RepositoryAwareTest
             new SvpTilretteleggingDatoDto(BEHOV_DATO.plusWeeks(1), TilretteleggingType.HEL_TILRETTELEGGING, null));
 
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_SVP_TILRETTELEGGING, BehandlingStegType.VURDER_TILRETTELEGGING);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_SVP_TILRETTELEGGING,
+            BehandlingStegType.VURDER_TILRETTELEGGING);
         Behandling behandling = scenario.lagre(repositoryProvider);
         AksjonspunktOppdaterParameter param = new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto);
 
-        assertThatThrownBy(() -> oppdaterer.oppdater(dto, param))
-            .isInstanceOf(FunksjonellException.class)
+        assertThatThrownBy(() -> oppdaterer.oppdater(dto, param)).isInstanceOf(FunksjonellException.class)
             .hasMessageContaining("FP-682318");
     }
 
@@ -158,21 +173,23 @@ public class BekreftSvangerskapspengerOppdatererTest extends RepositoryAwareTest
         settOppTilgangTilOverstyring(true);
         Behandling behandling = behandlingMedTilretteleggingAP();
 
-        InntektArbeidYtelseAggregatBuilder register = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
+        InntektArbeidYtelseAggregatBuilder register = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(),
+            VersjonType.REGISTER);
         inntektArbeidYtelseTjeneste.lagreIayAggregat(behandling.getId(), register);
 
         SvpGrunnlagEntitet svpGrunnlag = byggSøknadsgrunnlag(behandling);
         BekreftSvangerskapspengerDto dto = byggDto(BEHOV_DATO, TERMINDATO,
             svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getId(),
-            new SvpTilretteleggingDatoDto(BEHOV_DATO.plusWeeks(1), TilretteleggingType.DELVIS_TILRETTELEGGING, new BigDecimal("30.00"),
-                new BigDecimal("40.00")));
+            new SvpTilretteleggingDatoDto(BEHOV_DATO.plusWeeks(1), TilretteleggingType.DELVIS_TILRETTELEGGING,
+                new BigDecimal("30.00"), new BigDecimal("40.00")));
         AksjonspunktOppdaterParameter param = new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto);
 
         OppdateringResultat resultat = oppdaterer.oppdater(dto, param);
 
         assertThat(resultat.kreverTotrinnsKontroll()).isTrue();
-        var oppdatertGrunnlag = svangerskapspengerRepository.hentGrunnlag(behandling.getId());
-        var tilrettelegginger = new TilretteleggingFilter(oppdatertGrunnlag.get()).getAktuelleTilretteleggingerUfiltrert();
+        var oppdatertGrunnlag = repositoryProvider.getSvangerskapspengerRepository().hentGrunnlag(behandling.getId());
+        var tilrettelegginger = new TilretteleggingFilter(
+            oppdatertGrunnlag.orElseThrow()).getAktuelleTilretteleggingerUfiltrert();
         assertThat(tilrettelegginger).hasSize(1);
         var endretTilrettelegging = tilrettelegginger.get(0);
         assertThat(endretTilrettelegging.getTilretteleggingFOMListe()).hasSize(1);
@@ -180,7 +197,8 @@ public class BekreftSvangerskapspengerOppdatererTest extends RepositoryAwareTest
         assertThat(endretTilretteleggingDato.getFomDato()).isEqualTo(BEHOV_DATO.plusWeeks(1));
         assertThat(endretTilretteleggingDato.getType()).isEqualTo(TilretteleggingType.DELVIS_TILRETTELEGGING);
         assertThat(endretTilretteleggingDato.getStillingsprosent()).isEqualByComparingTo(new BigDecimal("30.00"));
-        assertThat(endretTilretteleggingDato.getOverstyrtUtbetalingsgrad()).isEqualByComparingTo(new BigDecimal("40.00"));
+        assertThat(endretTilretteleggingDato.getOverstyrtUtbetalingsgrad()).isEqualByComparingTo(
+            new BigDecimal("40.00"));
     }
 
     @Test
@@ -191,25 +209,24 @@ public class BekreftSvangerskapspengerOppdatererTest extends RepositoryAwareTest
         SvpGrunnlagEntitet svpGrunnlag = byggSøknadsgrunnlag(behandling);
         BekreftSvangerskapspengerDto dto = byggDto(BEHOV_DATO, TERMINDATO,
             svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getId(),
-            new SvpTilretteleggingDatoDto(BEHOV_DATO.plusWeeks(1), TilretteleggingType.DELVIS_TILRETTELEGGING, new BigDecimal("20.00"),
-                new BigDecimal("40.00")));
+            new SvpTilretteleggingDatoDto(BEHOV_DATO.plusWeeks(1), TilretteleggingType.DELVIS_TILRETTELEGGING,
+                new BigDecimal("20.00"), new BigDecimal("40.00")));
         AksjonspunktOppdaterParameter param = new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto);
 
-        assertThatThrownBy(() -> oppdaterer.oppdater(dto, param))
-            .isInstanceOf(FunksjonellException.class)
+        assertThatThrownBy(() -> oppdaterer.oppdater(dto, param)).isInstanceOf(FunksjonellException.class)
             .hasMessageContaining("FP-682319");
     }
 
     @Test
     public void stillingsprosent_skal_kunne_være_null_når_arbeidsforholdet_ikke_skal_brukes() {
         var behandling = behandlingMedTilretteleggingAP();
-        InntektArbeidYtelseAggregatBuilder register = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
+        InntektArbeidYtelseAggregatBuilder register = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(),
+            VersjonType.REGISTER);
         inntektArbeidYtelseTjeneste.lagreIayAggregat(behandling.getId(), register);
 
         var svpGrunnlag = byggSøknadsgrunnlag(behandling);
         var dto = byggDto(BEHOV_DATO, TERMINDATO,
-            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getId(),
-            false,
+            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getId(), false,
             new SvpTilretteleggingDatoDto(BEHOV_DATO.plusWeeks(1), TilretteleggingType.DELVIS_TILRETTELEGGING, null));
 
         var param = new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto);
@@ -220,8 +237,10 @@ public class BekreftSvangerskapspengerOppdatererTest extends RepositoryAwareTest
     public void skal_fjerne_permisjon_ved_ugyldig_velferdspermisjon() {
         Behandling behandling = behandlingMedTilretteleggingAP();
 
-        InntektArbeidYtelseAggregatBuilder register = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
-        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = register.getAktørArbeidBuilder(behandling.getAktørId());
+        InntektArbeidYtelseAggregatBuilder register = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(),
+            VersjonType.REGISTER);
+        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = register.getAktørArbeidBuilder(
+            behandling.getAktørId());
         YrkesaktivitetBuilder yrkesaktivitetBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
         yrkesaktivitetBuilder.medArbeidsgiver(Arbeidsgiver.virksomhet(ARBEIDSGIVER_IDENT));
         yrkesaktivitetBuilder.medArbeidsforholdId(INTERN_ARBEIDSFORHOLD_REF);
@@ -241,12 +260,13 @@ public class BekreftSvangerskapspengerOppdatererTest extends RepositoryAwareTest
             new SvpTilretteleggingDatoDto(BEHOV_DATO.plusWeeks(1), TilretteleggingType.INGEN_TILRETTELEGGING, null));
         AksjonspunktOppdaterParameter param = new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto);
         SvpArbeidsforholdDto svpArbeidsforholdDto = dto.getBekreftetSvpArbeidsforholdList().get(0);
-        svpArbeidsforholdDto.setVelferdspermisjoner(
-            List.of(new VelferdspermisjonDto(BEHOV_DATO, TERMINDATO, permisjonsprosent, PermisjonsbeskrivelseType.VELFERDSPERMISJON, false)));
+        svpArbeidsforholdDto.setVelferdspermisjoner(List.of(
+            new VelferdspermisjonDto(BEHOV_DATO, TERMINDATO, permisjonsprosent,
+                PermisjonsbeskrivelseType.VELFERDSPERMISJON, false)));
         OppdateringResultat resultat = oppdaterer.oppdater(dto, param);
 
-        Optional<InntektArbeidYtelseAggregat> saksbehandletVersjon = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId())
-            .getSaksbehandletVersjon();
+        Optional<InntektArbeidYtelseAggregat> saksbehandletVersjon = inntektArbeidYtelseTjeneste.hentGrunnlag(
+            behandling.getId()).getSaksbehandletVersjon();
 
         assertThat(saksbehandletVersjon).isPresent();
         AktørArbeid aktørArbeid = saksbehandletVersjon.get().getAktørArbeid().iterator().next();
@@ -256,14 +276,14 @@ public class BekreftSvangerskapspengerOppdatererTest extends RepositoryAwareTest
 
     private Behandling behandlingMedTilretteleggingAP() {
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_SVP_TILRETTELEGGING, BehandlingStegType.VURDER_TILRETTELEGGING);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_SVP_TILRETTELEGGING,
+            BehandlingStegType.VURDER_TILRETTELEGGING);
         scenario.medDefaultBekreftetTerminbekreftelse();
         return scenario.lagre(repositoryProvider);
     }
 
     private void settOppTilgangTilOverstyring(boolean kanOverstyre) {
-        var dto = new InnloggetNavAnsattDto.Builder()
-            .setBrukernavn("mrOverstyrer")
+        var dto = new InnloggetNavAnsattDto.Builder().setBrukernavn("mrOverstyrer")
             .setNavn("Mr Overstyrer")
             .setKanBehandleKode6(false)
             .setKanBehandleKode7(false)
@@ -278,33 +298,37 @@ public class BekreftSvangerskapspengerOppdatererTest extends RepositoryAwareTest
     }
 
     private SvpGrunnlagEntitet byggSøknadsgrunnlag(Behandling behandling) {
-        SvpTilretteleggingEntitet tilrettelegging = new SvpTilretteleggingEntitet.Builder()
-            .medBehovForTilretteleggingFom(BEHOV_DATO)
+        SvpTilretteleggingEntitet tilrettelegging = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(
+            BEHOV_DATO)
             .medIngenTilrettelegging(BEHOV_DATO)
             .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
             .medArbeidsgiver(Arbeidsgiver.person(AktørId.dummy()))
             .medMottattTidspunkt(LocalDateTime.now())
             .medKopiertFraTidligereBehandling(false)
             .medTilretteleggingFom(new TilretteleggingFOM.Builder().medFomDato(BEHOV_DATO)
-                .medTilretteleggingType(TilretteleggingType.INGEN_TILRETTELEGGING).build())
+                .medTilretteleggingType(TilretteleggingType.INGEN_TILRETTELEGGING)
+                .build())
             .build();
-        SvpGrunnlagEntitet svpGrunnlag = new SvpGrunnlagEntitet.Builder()
-            .medBehandlingId(behandling.getId())
+        SvpGrunnlagEntitet svpGrunnlag = new SvpGrunnlagEntitet.Builder().medBehandlingId(behandling.getId())
             .medOpprinneligeTilrettelegginger(List.of(tilrettelegging))
             .build();
-        svangerskapspengerRepository.lagreOgFlush(svpGrunnlag);
+        repositoryProvider.getSvangerskapspengerRepository().lagreOgFlush(svpGrunnlag);
         return svpGrunnlag;
     }
 
 
-    private BekreftSvangerskapspengerDto byggDto(LocalDate behovDato, LocalDate termindato,
-                                                 Long id, VelferdspermisjonDto permisjonDto, InternArbeidsforholdRef internArbeidsforholdRef,
+    private BekreftSvangerskapspengerDto byggDto(LocalDate behovDato,
+                                                 LocalDate termindato,
+                                                 Long id,
+                                                 VelferdspermisjonDto permisjonDto,
+                                                 InternArbeidsforholdRef internArbeidsforholdRef,
                                                  SvpTilretteleggingDatoDto... tilretteleggingDatoer) {
         return byggDto(behovDato, termindato, id, true, permisjonDto, internArbeidsforholdRef, tilretteleggingDatoer);
     }
 
 
-    private BekreftSvangerskapspengerDto byggDto(LocalDate behovDato, LocalDate termindato,
+    private BekreftSvangerskapspengerDto byggDto(LocalDate behovDato,
+                                                 LocalDate termindato,
                                                  Long id,
                                                  SvpTilretteleggingDatoDto... tilretteleggingDatoer) {
         return byggDto(behovDato, termindato, id, true, tilretteleggingDatoer);
@@ -334,7 +358,8 @@ public class BekreftSvangerskapspengerOppdatererTest extends RepositoryAwareTest
 
         arbeidsforholdDto.setTilretteleggingDatoer(datoer);
         arbeidsforholdDto.setArbeidsgiverReferanse(ARBEIDSGIVER_IDENT);
-        arbeidsforholdDto.setInternArbeidsforholdReferanse(internArbeidsforholdRef == null ? null : internArbeidsforholdRef.getReferanse());
+        arbeidsforholdDto.setInternArbeidsforholdReferanse(
+            internArbeidsforholdRef == null ? null : internArbeidsforholdRef.getReferanse());
         arbeidsforholdDto.setMottattTidspunkt(LocalDateTime.now());
         arbeidsforholdDto.setTilretteleggingId(id);
         arbeidsforholdDto.setSkalBrukes(skalBrukes);
@@ -347,7 +372,8 @@ public class BekreftSvangerskapspengerOppdatererTest extends RepositoryAwareTest
     }
 
     private Permisjon byggPermisjon(LocalDate permisjonFom, LocalDate permisjonTom) {
-        return YrkesaktivitetBuilder.nyPermisjonBuilder().medProsentsats(BigDecimal.valueOf(100))
+        return YrkesaktivitetBuilder.nyPermisjonBuilder()
+            .medProsentsats(BigDecimal.valueOf(100))
             .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.VELFERDSPERMISJON)
             .medPeriode(permisjonFom, permisjonTom)
             .build();
@@ -363,13 +389,10 @@ public class BekreftSvangerskapspengerOppdatererTest extends RepositoryAwareTest
             .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
                 .medPeriode(DatoIntervallEntitet.fraOgMed(fomDato))
                 .medProsentsats(BigDecimal.ZERO))
-            .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMed(fomDato)));
+            .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny().medPeriode(DatoIntervallEntitet.fraOgMed(fomDato)));
         if (permisjon != null) {
-            yrkesaktivitetBuilder
-                .leggTilPermisjon(permisjon);
+            yrkesaktivitetBuilder.leggTilPermisjon(permisjon);
         }
-        return yrkesaktivitetBuilder
-            .build();
+        return yrkesaktivitetBuilder.build();
     }
 }
