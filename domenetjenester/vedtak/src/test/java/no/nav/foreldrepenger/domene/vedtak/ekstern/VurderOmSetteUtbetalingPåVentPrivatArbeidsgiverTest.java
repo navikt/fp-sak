@@ -37,7 +37,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming115;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
@@ -46,7 +46,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndrin
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeStatusLinje;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodekomponent;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiTypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
@@ -54,8 +53,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.TfradragTillegg;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomistøtteUtils;
+import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 
 @CdiDbAwareTest
 public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
@@ -295,7 +293,6 @@ public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
     }
 
     private Oppdrag110 byggOppdrag110() {
-        String nøkkleAvstemmingTidspunkt = ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now());
         return Oppdrag110.builder()
             .medKodeAksjon(ØkonomiKodeAksjon.EN.name())
             .medKodeEndring(ØkonomiKodeEndring.NY.name())
@@ -305,17 +302,8 @@ public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
             .medOppdragGjelderId("1")
             .medDatoOppdragGjelderFom(LocalDate.now())
             .medSaksbehId(SAKS_BEHANDLER)
-            .medNøkkelAvstemming(nøkkleAvstemmingTidspunkt)
+            .medAvstemming(Avstemming.ny())
             .medOppdragskontroll(oppdragskontroll)
-            .medAvstemming115(byggAvstemming115(nøkkleAvstemmingTidspunkt))
-            .build();
-    }
-
-    private Avstemming115 byggAvstemming115(String nøkkleAvstemmingTidspunkt) {
-        return Avstemming115.builder()
-            .medKodekomponent(ØkonomiKodekomponent.VLFP.getKodekomponent())
-            .medNokkelAvstemming(nøkkleAvstemmingTidspunkt)
-            .medTidspnktMelding(nøkkleAvstemmingTidspunkt)
             .build();
     }
 

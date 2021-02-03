@@ -5,7 +5,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomiOppdragKøTjeneste;
+import no.nav.foreldrepenger.økonomistøtte.ØkonomiOppdragKøTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 

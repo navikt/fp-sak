@@ -22,10 +22,10 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.økonomi.ny.postcondition.OppdragPostConditionTjeneste;
-import no.nav.foreldrepenger.økonomi.ny.tjeneste.NyOppdragskontrollTjeneste;
-import no.nav.foreldrepenger.økonomi.ny.toggle.OppdragKjerneimplementasjonToggle;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.OppdragskontrollTjeneste;
+import no.nav.foreldrepenger.ny.postcondition.OppdragPostConditionTjeneste;
+import no.nav.foreldrepenger.ny.tjeneste.NyOppdragskontrollTjeneste;
+import no.nav.foreldrepenger.ny.toggle.OppdragKjerneimplementasjonToggle;
+import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHendelse;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;

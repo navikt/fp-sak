@@ -19,7 +19,7 @@ public class Oppdrag110Dto extends SporingDto {
     private String kodeFagomrade;
     private String utbetFrekvens;
     private LocalDate datoOppdragGjelderFom;
-    private Avstemming115Dto avstemming115;
+    private AvstemmingDto avstemming;
     private Ompostering116Dto ompostering116Dto;
     private List<OppdragKvitteringDto> oppdragKvittering;
     private List<Oppdragslinje150Dto> oppdragslinje150;
@@ -93,12 +93,12 @@ public class Oppdrag110Dto extends SporingDto {
         this.utbetFrekvens = utbetFrekvens;
     }
 
-    public Avstemming115Dto getAvstemming115() {
-        return avstemming115;
+    public AvstemmingDto getAvstemming() {
+        return avstemming;
     }
 
-    public void setAvstemming115(Avstemming115Dto avstemming115) {
-        this.avstemming115 = avstemming115;
+    public void setAvstemming(AvstemmingDto avstemming) {
+        this.avstemming = avstemming;
     }
 
     public List<Oppdragslinje150Dto> getOppdragslinje150() {
@@ -120,7 +120,7 @@ public class Oppdrag110Dto extends SporingDto {
         oppdrag110Dto.kodeEndring = oppdrag110.getKodeEndring();
         oppdrag110Dto.kodeFagomrade = oppdrag110.getKodeFagomrade();
         oppdrag110Dto.utbetFrekvens = oppdrag110.getUtbetFrekvens();
-        oppdrag110Dto.avstemming115 = Avstemming115Dto.fraDomene(oppdrag110.getAvstemming115());
+        oppdrag110Dto.avstemming = AvstemmingDto.fraDomene(oppdrag110.getAvstemming());
         oppdrag110Dto.datoOppdragGjelderFom = oppdrag110.getDatoOppdragGjelderFom();
 
         oppdrag110Dto.oppdragKvittering = oppdrag110.erKvitteringMottatt() ?

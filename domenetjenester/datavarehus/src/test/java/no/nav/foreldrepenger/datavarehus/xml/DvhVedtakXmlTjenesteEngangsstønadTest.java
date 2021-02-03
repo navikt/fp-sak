@@ -32,9 +32,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming115;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
@@ -57,8 +56,8 @@ import no.nav.foreldrepenger.domene.vedtak.xml.PersonopplysningXmlFelles;
 import no.nav.foreldrepenger.domene.vedtak.xml.VedtakXmlTjeneste;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.TfradragTillegg;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.HentOppdragMedPositivKvittering;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.ØkonomioppdragRepository;
+import no.nav.foreldrepenger.økonomistøtte.HentOppdragMedPositivKvittering;
+import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 
 @CdiDbAwareTest
@@ -264,8 +263,7 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
                 .medProsessTaskId(56L)
                 .build();
 
-        Avstemming115 avstemming115 = buildAvstemming115();
-        Oppdrag110 oppdrag110 = buildOppdrag110(oppdrag, avstemming115);
+        Oppdrag110 oppdrag110 = buildOppdrag110(oppdrag);
         buildOppdragslinje150(oppdrag110, delytelseId);
         buildOppdragKvittering(oppdrag110);
 
@@ -300,15 +298,7 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
                 .build();
     }
 
-    private Avstemming115 buildAvstemming115() {
-        return Avstemming115.builder()
-                .medKodekomponent(Fagsystem.FPSAK.getOffisiellKode())
-                .medNokkelAvstemming("nokkelAvstemming")
-                .medTidspnktMelding("tidspnktMelding")
-                .build();
-    }
-
-    private Oppdrag110 buildOppdrag110(Oppdragskontroll oppdragskontroll, Avstemming115 avstemming115) {
+    private Oppdrag110 buildOppdrag110(Oppdragskontroll oppdragskontroll) {
         return Oppdrag110.builder()
                 .medKodeAksjon(ØkonomiKodeAksjon.TRE.getKodeAksjon())
                 .medKodeEndring(ØkonomiKodeEndring.NY.name())
@@ -318,8 +308,7 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
                 .medOppdragGjelderId("12345678901")
                 .medDatoOppdragGjelderFom(LocalDate.of(2000, 1, 1))
                 .medSaksbehId("J5624215")
-                .medNøkkelAvstemming("nokkelAvstemming")
-                .medAvstemming115(avstemming115)
+                .medAvstemming(Avstemming.ny())
                 .medOppdragskontroll(oppdragskontroll)
                 .build();
     }

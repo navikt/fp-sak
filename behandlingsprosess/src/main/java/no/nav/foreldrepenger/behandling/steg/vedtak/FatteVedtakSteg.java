@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.økonomi.simulering.tjeneste.SimulerInntrekkSjekkeTjeneste;
+import no.nav.foreldrepenger.simulering.tjeneste.SimulerInntrekkSjekkeTjeneste;
 
 @BehandlingStegRef(kode = "FVEDSTEG")
 @BehandlingTypeRef

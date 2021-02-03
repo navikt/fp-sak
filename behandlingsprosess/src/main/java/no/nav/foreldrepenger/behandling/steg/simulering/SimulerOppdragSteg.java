@@ -29,11 +29,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingValg;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
-import no.nav.foreldrepenger.økonomi.simulering.klient.FpoppdragSystembrukerRestKlient;
-import no.nav.foreldrepenger.økonomi.simulering.kontrakt.SimuleringResultatDto;
-import no.nav.foreldrepenger.økonomi.simulering.tjeneste.SimuleringIntegrasjonTjeneste;
+import no.nav.foreldrepenger.simulering.klient.FpoppdragSystembrukerRestKlient;
+import no.nav.foreldrepenger.simulering.kontrakt.SimuleringResultatDto;
+import no.nav.foreldrepenger.simulering.tjeneste.SimuleringIntegrasjonTjeneste;
 import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
-import no.nav.foreldrepenger.økonomi.økonomistøtte.SimulerOppdragTjeneste;
+import no.nav.foreldrepenger.økonomistøtte.SimulerOppdragTjeneste;
 import no.nav.vedtak.exception.TekniskException;
 
 @BehandlingStegRef(kode = "SIMOPP")
