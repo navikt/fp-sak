@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.domene.risikoklassifisering.task.RisikoklassifiseringUtførTask;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
@@ -116,8 +115,7 @@ public class Risikoklassifisering {
     }
 
     private AnnenPart leggTilAnnenPart(BehandlingReferanse ref) {
-        var oppgittAnnenPart = personopplysningRepository.hentPersonopplysningerHvisEksisterer(ref.getBehandlingId())
-            .flatMap(PersonopplysningGrunnlagEntitet::getOppgittAnnenPart);
+        var oppgittAnnenPart = personopplysningRepository.hentOppgittAnnenPartHvisEksisterer(ref.getBehandlingId());
         if (oppgittAnnenPart.isPresent()) {
             var aktoerId =
                 oppgittAnnenPart.get().getAktørId() == null ? null : oppgittAnnenPart.get().getAktørId().getId();

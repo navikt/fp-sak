@@ -29,6 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRe
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertLøpendeMedlemskapEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedlemskap;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedlemskapPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppholdstillatelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -51,6 +52,8 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.Perso
 @ApplicationScoped
 public class MedlemDtoTjeneste {
     private static final String UKJENT_NAVN = "UKJENT NAVN";
+    private static final LocalDate OPPHOLD_CUTOFF = LocalDate.of(2018,7,1);
+
     private static final List<AksjonspunktDefinisjon> MEDL_AKSJONSPUNKTER = List.of(AVKLAR_OM_ER_BOSATT,
         AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE,
         AVKLAR_LOVLIG_OPPHOLD,
@@ -135,6 +138,7 @@ public class MedlemDtoTjeneste {
         mapInntekter(dto, behandlingId, personopplysningerAggregat.orElse(null), ref);
         mapSkjæringstidspunkt(dto, medlemskapOpt.orElse(null), behandling.getAksjonspunkter(), ref);
         mapRegistrerteMedlPerioder(dto, medlemskapOpt.map(MedlemskapAggregat::getRegistrertMedlemskapPerioder).orElse(Collections.emptySet()));
+        dto.setOpphold(mapOppholdstillatelser(behandlingId));
         dto.setFom(mapMedlemV2Fom(behandling, ref, personopplysningerAggregat, medlemskapOpt).orElse(null));
 
         if (behandling.getAksjonspunkter().stream().map(Aksjonspunkt::getAksjonspunktDefinisjon).collect(Collectors.toList()).contains(AksjonspunktDefinisjon.AVKLAR_FORTSATT_MEDLEMSKAP)) {
@@ -189,6 +193,20 @@ public class MedlemDtoTjeneste {
             medlemPeriodeDto.setAksjonspunkter(entrySet.getValue().getAksjonspunkter().stream().map(Kodeverdi::getKode).collect(Collectors.toSet()));
             dtoPerioder.add(medlemPeriodeDto);
         }
+    }
+
+    private List<OppholdstilltatelseDto> mapOppholdstillatelser(Long behandlingId) {
+        return personopplysningTjeneste.hentOppholdstillatelser(behandlingId).stream()
+            .map(this::mapOppholdstillatelse)
+            .collect(Collectors.toList());
+    }
+
+    private OppholdstilltatelseDto mapOppholdstillatelse(OppholdstillatelseEntitet oppholdstillatelse) {
+        var dto = new OppholdstilltatelseDto();
+        dto.setOppholdstillatelseType(oppholdstillatelse.getTillatelse());
+        dto.setFom(oppholdstillatelse.getPeriode().getFomDato().isBefore(OPPHOLD_CUTOFF) ? null : oppholdstillatelse.getPeriode().getFomDato());
+        dto.setTom(oppholdstillatelse.getPeriode().getTomDato());
+        return dto;
     }
 
     private Optional<VurdertMedlemskap> finnVurderMedlemskap(Set<VurdertLøpendeMedlemskapEntitet> perioder, Map.Entry<LocalDate, VurderMedlemskap> entrySet) {

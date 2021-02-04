@@ -36,7 +36,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageFormkravEnti
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -127,8 +126,7 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
         Optional<Behandling> behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId);
         Optional<AktørId> annenPartAktørId = Optional.empty();
         if (behandling.isPresent()) {
-            annenPartAktørId = personopplysningRepository.hentPersonopplysningerHvisEksisterer(behandling.get().getId())
-                .flatMap(PersonopplysningGrunnlagEntitet::getOppgittAnnenPart).map(OppgittAnnenPartEntitet::getAktørId);
+            annenPartAktørId = personopplysningRepository.hentOppgittAnnenPartHvisEksisterer(behandling.get().getId()).map(OppgittAnnenPartEntitet::getAktørId);
         }
         FagsakDvh fagsakDvh = FagsakDvhMapper.map(fagsak, annenPartAktørId);
         datavarehusRepository.lagre(fagsakDvh);

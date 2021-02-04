@@ -9,6 +9,7 @@ public class MedlemV2Dto {
     private List<InntektDto> inntekt;
     private List<MedlemskapPerioderDto> medlemskapPerioder;
     private Set<MedlemPeriodeDto> perioder;
+    private List<OppholdstilltatelseDto> opphold;
     private LocalDate fom; // gjeldendeFra
 
     public MedlemV2Dto() {
@@ -45,5 +46,13 @@ public class MedlemV2Dto {
 
     public void setFom(LocalDate fom) {
         this.fom = fom;
+    }
+
+    public List<OppholdstilltatelseDto> getOpphold() {
+        return opphold;
+    }
+
+    public void setOpphold(List<OppholdstilltatelseDto> opphold) {
+        this.opphold = opphold;
     }
 }

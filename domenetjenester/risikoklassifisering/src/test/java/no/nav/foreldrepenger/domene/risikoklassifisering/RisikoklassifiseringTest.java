@@ -35,7 +35,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.HendelseVersjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
@@ -168,12 +167,8 @@ public class RisikoklassifiseringTest {
             Optional.of(familieHendelseGrunnlag));
 
         if (annenPart) {
-            var personopplysningGrunnlagEntitet = PersonopplysningGrunnlagBuilder
-                .oppdatere(Optional.empty())
-                .medOppgittAnnenPart(new OppgittAnnenPartBuilder().medAktørId(ANNEN_PART_AKTØR_ID).build())
-                .build();
-            when(personopplysningRepository.hentPersonopplysningerHvisEksisterer(behandling.getBehandlingId()))
-                .thenReturn(Optional.of(personopplysningGrunnlagEntitet));
+            when(personopplysningRepository.hentOppgittAnnenPartHvisEksisterer(behandling.getBehandlingId()))
+                .thenReturn(Optional.of(new OppgittAnnenPartBuilder().medAktørId(ANNEN_PART_AKTØR_ID).build()));
         }
         MDC.put("callId", "callId");
     }

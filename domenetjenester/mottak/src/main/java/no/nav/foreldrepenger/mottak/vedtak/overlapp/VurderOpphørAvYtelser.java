@@ -35,7 +35,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
@@ -339,8 +338,7 @@ public class VurderOpphørAvYtelser  {
     }
 
     private Optional<AktørId> hentAnnenPartAktørId(long behId) {
-        return personopplysningRepository.hentPersonopplysningerHvisEksisterer(behId)
-            .flatMap(PersonopplysningGrunnlagEntitet::getOppgittAnnenPart)
+        return personopplysningRepository.hentOppgittAnnenPartHvisEksisterer(behId)
             .map(OppgittAnnenPartEntitet::getAktørId);
     }
 
