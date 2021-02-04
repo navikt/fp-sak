@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.abakus.iaygrunnlag.Periode;
-import no.nav.folketrygdloven.kalkulator.BeregningsperiodeTjeneste;
+import no.nav.folketrygdloven.kalkulator.felles.BeregningsperiodeTjeneste;
 import no.nav.folketrygdloven.kalkulator.adapter.regelmodelltilvl.MapBGSkjæringstidspunktOgStatuserFraRegelTilVL;
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.FastsettBeregningsaktiviteterInput;

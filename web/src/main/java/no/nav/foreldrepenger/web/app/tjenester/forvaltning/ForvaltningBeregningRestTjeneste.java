@@ -36,7 +36,7 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import no.nav.folketrygdloven.kalkulator.felles.BeregningUtils;
+import no.nav.folketrygdloven.kalkulator.felles.MeldekortUtils;
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.modell.iay.InntektArbeidYtelseGrunnlagDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.YtelseAnvistDto;
@@ -216,7 +216,7 @@ public class ForvaltningBeregningRestTjeneste {
             InntektArbeidYtelseGrunnlagDto kalkGrunlag = IAYMapperTilKalkulus.mapGrunnlag(inntektArbeidYtelseGrunnlag, behandling.getAktørId());
             YtelseFilterDto ytelseFilter = new YtelseFilterDto(kalkGrunlag.getAktørYtelseFraRegister()).før(skjæringstidspunkt);
             Set<FagsakYtelseType> ytelseTyper = Set.of(FagsakYtelseType.DAGPENGER, FagsakYtelseType.ARBEIDSAVKLARINGSPENGER);
-            Optional<YtelseDto> ytelseDto = BeregningUtils.sisteVedtakFørStpForType(ytelseFilter, skjæringstidspunkt, ytelseTyper);
+            Optional<YtelseDto> ytelseDto = MeldekortUtils.sisteVedtakFørStpForType(ytelseFilter, skjæringstidspunkt, ytelseTyper);
 
             if (ytelseDto.isPresent()) {
                 LocalDate sisteVedtakFom = ytelseDto.get().getPeriode().getFomDato();
