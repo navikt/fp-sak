@@ -277,7 +277,7 @@ public class OppdragskontrollOpphør implements OppdragskontrollManager {
             .build();
 
         if (!gjelderFeriepenger) {
-            int grad = forrigeOppdr150.getGrad170Liste().get(0).getGrad();
+            int grad = !forrigeOppdr150.getGrad170Liste().isEmpty() ? forrigeOppdr150.getGrad170Liste().get(0).getGrad() : 100;
             OpprettOppdragsmeldingerRelatertTil150.opprettGrad170(oppdragslinje150, grad);
         }
         return oppdragslinje150;
