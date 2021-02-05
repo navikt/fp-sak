@@ -37,7 +37,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPe
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -119,8 +118,7 @@ public class RegisterdataInnhenter {
     }
 
     private Optional<AktørId> finnAnnenPart(Long behandlingId) {
-        return personopplysningRepository.hentPersonopplysningerHvisEksisterer(behandlingId)
-            .flatMap(PersonopplysningGrunnlagEntitet::getOppgittAnnenPart)
+        return personopplysningRepository.hentOppgittAnnenPartHvisEksisterer(behandlingId)
             .map(OppgittAnnenPartEntitet::getAktørId);
     }
 

@@ -112,8 +112,7 @@ public class BehandlendeEnhetTjeneste {
 
 
     private Optional<AktørId> finnAktørAnnenPart(Behandling behandling) {
-        return personopplysningRepository.hentPersonopplysningerHvisEksisterer(behandling.getId())
-            .flatMap(PersonopplysningGrunnlagEntitet::getOppgittAnnenPart).map(OppgittAnnenPartEntitet::getAktørId);
+        return personopplysningRepository.hentOppgittAnnenPartHvisEksisterer(behandling.getId()).map(OppgittAnnenPartEntitet::getAktørId);
     }
 
     private Set<AktørId> finnAktørIdFraPersonopplysninger(Behandling behandling) {

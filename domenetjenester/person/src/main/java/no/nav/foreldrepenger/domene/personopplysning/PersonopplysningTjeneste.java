@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.personopplysning;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -7,6 +8,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppholdstillatelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
@@ -48,5 +50,10 @@ public class PersonopplysningTjeneste extends AbstractPersonopplysningTjenesteIm
 
     public PersonopplysningGrunnlagEntitet hentGrunnlagPåId(Long grunnlagId) {
         return personopplysningRepository.hentGrunnlagPåId(grunnlagId);
+    }
+
+    public List<OppholdstillatelseEntitet> hentOppholdstillatelser(Long behandlingId) {
+        return getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(behandlingId).flatMap(PersonopplysningGrunnlagEntitet::getRegisterVersjon)
+            .map(PersonInformasjonEntitet::getOppholdstillatelser).orElse(List.of());
     }
 }

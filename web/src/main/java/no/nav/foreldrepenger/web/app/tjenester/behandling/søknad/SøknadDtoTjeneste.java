@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -96,9 +96,7 @@ public class SøknadDtoTjeneste {
         soknadFodselDto.setBegrunnelseForSenInnsending(søknad.getBegrunnelseForSenInnsending());
         soknadFodselDto.setFarSokerType(søknad.getFarSøkerType());
 
-        personopplysningRepository.hentPersonopplysningerHvisEksisterer(behandlingId).flatMap(PersonopplysningGrunnlagEntitet::getOppgittAnnenPart).ifPresent(oap -> {
-            soknadFodselDto.setAnnenPartNavn(oap.getNavn());
-        });
+        personopplysningRepository.hentOppgittAnnenPartHvisEksisterer(behandlingId).map(OppgittAnnenPartEntitet::getNavn).ifPresent(soknadFodselDto::setAnnenPartNavn);
 
         ytelsesfordelingRepository.hentAggregatHvisEksisterer(behandlingId).ifPresent(of -> {
             soknadFodselDto.setOppgittRettighet(OppgittRettighetDto.mapFra(of.getOppgittRettighet()));
@@ -160,9 +158,7 @@ public class SøknadDtoTjeneste {
         soknadAdopsjonDto.setAntallBarn(familieHendelse.getAntallBarn());
         soknadAdopsjonDto.setBegrunnelseForSenInnsending(søknad.getBegrunnelseForSenInnsending());
 
-        personopplysningRepository.hentPersonopplysningerHvisEksisterer(behandlingId).flatMap(PersonopplysningGrunnlagEntitet::getOppgittAnnenPart).ifPresent(oap -> {
-            soknadAdopsjonDto.setAnnenPartNavn(oap.getNavn());
-        });
+        personopplysningRepository.hentOppgittAnnenPartHvisEksisterer(behandlingId).map(OppgittAnnenPartEntitet::getNavn).ifPresent(soknadAdopsjonDto::setAnnenPartNavn);
 
         ytelsesfordelingRepository.hentAggregatHvisEksisterer(behandlingId).ifPresent(of -> {
             soknadAdopsjonDto.setOppgittRettighet(OppgittRettighetDto.mapFra(of.getOppgittRettighet()));

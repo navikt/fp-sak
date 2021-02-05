@@ -32,7 +32,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOp
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittTilknytningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -202,8 +201,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
             SøknadEntitet originalSøknad = søknadRepository.hentSøknad(originalBehandlingId);
             søknadBuilder = new SøknadEntitet.Builder(originalSøknad, false);
 
-            personopplysningRepository.hentPersonopplysningerHvisEksisterer(originalBehandlingId)
-                .flatMap(PersonopplysningGrunnlagEntitet::getOppgittAnnenPart)
+            personopplysningRepository.hentOppgittAnnenPartHvisEksisterer(originalBehandlingId)
                 .ifPresent(oap -> {
                     OppgittAnnenPartBuilder oppgittAnnenPartBuilder = new OppgittAnnenPartBuilder(oap);
                     personopplysningRepository.lagre(behandlingId, oppgittAnnenPartBuilder);

@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -142,6 +143,7 @@ public class HentKodeverkTjeneste {
         map.put(FarSøkerType.class.getSimpleName(), FarSøkerType.kodeMap().values());
         map.put(MedlemskapDekningType.class.getSimpleName(), MedlemskapDekningType.kodeMap().values());
         map.put(MedlemskapType.class.getSimpleName(), MedlemskapType.kodeMap().values());
+        map.put(OppholdstillatelseType.class.getSimpleName(), OppholdstillatelseType.kodeMap().values());
         map.put(Avslagsårsak.class.getSimpleName(), Avslagsårsak.kodeMap().values());
         map.put(StønadskontoType.class.getSimpleName(), StønadskontoType.kodeMap().values());
         map.put(KonsekvensForYtelsen.class.getSimpleName(), KonsekvensForYtelsen.kodeMap().values());
