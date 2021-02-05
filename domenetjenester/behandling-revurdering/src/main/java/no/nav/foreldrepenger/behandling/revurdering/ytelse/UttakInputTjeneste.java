@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.folketrygdloven.kalkulator.GraderingUtenBeregningsgrunnlagTjeneste;
+import no.nav.folketrygdloven.kalkulator.guitjenester.GraderingUtenBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.AndelGraderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;

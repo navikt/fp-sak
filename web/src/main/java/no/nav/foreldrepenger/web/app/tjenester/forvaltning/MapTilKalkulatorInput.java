@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.SvangerskapspengerGrunnlag;
+import no.nav.folketrygdloven.kalkulator.input.SvangerskapspengerGrunnlag;
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.YtelsespesifiktGrunnlag;
 import no.nav.folketrygdloven.kalkulator.modell.gradering.AktivitetGradering;
@@ -137,8 +137,8 @@ class MapTilKalkulatorInput {
         } else if (ytelsespesifiktGrunnlag instanceof SvangerskapspengerGrunnlag) {
             SvangerskapspengerGrunnlag svpGrunnlag = (SvangerskapspengerGrunnlag) ytelsespesifiktGrunnlag;
             return new no.nav.folketrygdloven.kalkulus.beregning.v1.SvangerskapspengerGrunnlag(mapUtbetalingsgradPrAktivitet(svpGrunnlag.getUtbetalingsgradPrAktivitet()));
-        } else if (ytelsespesifiktGrunnlag instanceof no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.ForeldrepengerGrunnlag) {
-            no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.ForeldrepengerGrunnlag fpGrunnlag = (no.nav.folketrygdloven.kalkulator.KLASSER_MED_AVHENGIGHETER.ForeldrepengerGrunnlag) ytelsespesifiktGrunnlag;
+        } else if (ytelsespesifiktGrunnlag instanceof no.nav.folketrygdloven.kalkulator.input.ForeldrepengerGrunnlag) {
+            no.nav.folketrygdloven.kalkulator.input.ForeldrepengerGrunnlag fpGrunnlag = (no.nav.folketrygdloven.kalkulator.input.ForeldrepengerGrunnlag) ytelsespesifiktGrunnlag;
             return new ForeldrepengerGrunnlag(BigDecimal.valueOf(fpGrunnlag.getDekningsgrad()), fpGrunnlag.isKvalifisererTilBesteberegning());
         }
         return null;
