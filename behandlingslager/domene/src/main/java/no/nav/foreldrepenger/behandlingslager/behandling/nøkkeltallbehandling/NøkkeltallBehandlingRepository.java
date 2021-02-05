@@ -33,40 +33,41 @@ public class NøkkeltallBehandlingRepository {
 
     public List<NøkkeltallBehandlingVentestatus> hentNøkkeltallBehandlingVentestatus() {
         Query query = entityManager.createNativeQuery(
-            "with cte as ( " +
-                "select " +
-                "b.behandlende_enhet, " +
-                "b.behandling_type,  " +
-                "case when exists (select 1 from aksjonspunkt a " +
-                "where a.aksjonspunkt_status in :åpenAksjonspunktStatus " +
-                "AND SUBSTR(A.AKSJONSPUNKT_DEF,1,1) NOT IN ('5','6') " +
-                "and a.behandling_id = b.id) then 'PÅ_VENT' else 'IKKE_PÅ_VENT' end as på_vent, " +
-                "( " +
-                "    select trunc(min(yfp.fom), 'MM') " +
-                "    from gr_ytelses_fordeling gyf " +
-                "    join yf_fordeling_periode yfp on yfp.fordeling_id = gyf.so_fordeling_id " +
-                "    where gyf.behandling_id = b.id " +
-                "    and gyf.aktiv = 'J' " +
-                "    group by gyf.so_fordeling_id " +
-                ") as tidligste_fom " +
-                "from behandling b " +
-                "join fagsak fs on fs.id = b.fagsak_id " +
-                "where B.BEHANDLING_STATUS != :avsluttetBehandlingStatus and YTELSE_TYPE = :fpYtelseType) " +
-                "select behandlende_enhet, behandling_type, på_vent, tidligste_fom, count(1) " +
-                "from cte " +
-                "group by behandlende_enhet, behandling_type, på_vent, tidligste_fom")
-            .setParameter("åpenAksjonspunktStatus", åpneAksjonspunktStatus())
+            "select " +
+                "behandling.enhet, behandling.behandling_type, " +
+                "coalesce(ventestatus.på_vent, 'IKKE_PÅ_VENT') as på_vent " +
+                ",behandling.tidligste_fom, count(1)" +
+                "from " +
+                "(" +
+                "    select b.id, B.BEHANDLENDE_ENHET as enhet, b.behandling_type, " +
+                "    ( " +
+                "        select trunc(min(yfp.fom), 'MM') " +
+                "        from gr_ytelses_fordeling gyf " +
+                "        join yf_fordeling_periode yfp on yfp.fordeling_id = gyf.so_fordeling_id " +
+                "        where gyf.behandling_id = b.id " +
+                "        and gyf.aktiv = 'J' " +
+                "        group by gyf.so_fordeling_id " +
+                "    ) as tidligste_fom " +
+                "    from behandling b " +
+                "    join fagsak fs on fs.id = b.fagsak_id " +
+                "    where b.behandling_status != :avsluttetBehandlingStatus " +
+                "    and fs.YTELSE_TYPE = :fpYtelseType " +
+                "    and b.opprettet_tid > to_timestamp('31.05.2020 23:59:59','dd.mm.yyyy hh24:mi:ss') " +
+                ") behandling " +
+                "left join (" +
+                "    select a.behandling_id, 'PÅ_VENT' as på_vent" +
+                "    from aksjonspunkt a" +
+                "    where a.aksjonspunkt_status = :åpenAksjonspunktStatus" +
+                "    and substr(a.aksjonspunkt_def, 1, 1) not in ('5', '6') " +
+                ") ventestatus on ventestatus.behandling_id = behandling.id " +
+                "group by behandling.enhet, behandling.behandling_type, coalesce(ventestatus.på_vent, 'IKKE_PÅ_VENT'), " +
+                "behandling.tidligste_fom")
+            .setParameter("åpenAksjonspunktStatus", AksjonspunktStatus.OPPRETTET.getKode())
             .setParameter("avsluttetBehandlingStatus", BehandlingStatus.AVSLUTTET.getKode())
             .setParameter("fpYtelseType", FagsakYtelseType.YtelseType.FP.name());
         @SuppressWarnings("unchecked")
         var result = (List<Object[]>) query.getResultList();
         return result.stream().map(NøkkeltallBehandlingRepository::map).collect(Collectors.toList());
-    }
-
-    private static List<String> åpneAksjonspunktStatus() {
-        return AksjonspunktStatus.getÅpneAksjonspunktStatuser().stream()
-            .map(AksjonspunktStatus::getKode)
-            .collect(Collectors.toList());
     }
 
     private static NøkkeltallBehandlingVentestatus map(Object record) {
