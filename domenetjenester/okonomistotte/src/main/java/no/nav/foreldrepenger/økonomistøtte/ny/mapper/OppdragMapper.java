@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad170;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
@@ -90,7 +91,7 @@ public class OppdragMapper {
     }
 
     Oppdragslinje150 mapTilOppdragslinje150(Oppdrag110 oppdrag110, KjedeNøkkel kjedeNøkkel, OppdragLinje linje, LocalDate maxdatoRefusjon, LocalDate vedtaksdato, Long behandlingId) {
-        Oppdragslinje150.Builder builder = Oppdragslinje150.builder()
+        var builder = Oppdragslinje150.builder()
             .medOppdrag110(oppdrag110)
             .medDelytelseId(Long.valueOf(linje.getDelytelseId().toString()))
             .medKodeKlassifik(kjedeNøkkel.getKlassekode().getKodeKlassifik())
@@ -129,6 +130,8 @@ public class OppdragMapper {
                 .build();
         }
         if (linje.getUtbetalingsgrad() != null) {
+            builder.medGrad(Grad.prosent(linje.getUtbetalingsgrad().getUtbetalingsgrad()));
+            
             Grad170.builder()
                 .medOppdragslinje150(oppdragslinje150)
                 .medGrad(linje.getUtbetalingsgrad().getUtbetalingsgrad())

@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad170;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
@@ -240,9 +241,9 @@ public class ØkonomioppdragMapperTest {
                 if (gjelderFP) {
                     List<no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Grad170> grad170GenerertListe = oppdragsLinje150Generert.getGrad170();
                     for (no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Grad170 grad170Generert : grad170GenerertListe) {
-                        Grad170 grad170 = oppdragslinje150.getGrad170Liste().get(0);
-                        assertThat(grad170Generert.getGrad()).isEqualTo(BigInteger.valueOf(grad170.getGrad()));
-                        assertThat(grad170Generert.getTypeGrad()).isEqualTo(grad170.getTypeGrad());
+                        Grad grad = oppdragslinje150.getGrad();
+                        assertThat(grad170Generert.getGrad()).isEqualTo(BigInteger.valueOf(grad.getVerdi()));
+                        assertThat(grad170Generert.getTypeGrad()).isEqualTo(grad.getType());
                     }
 
                     no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Refusjonsinfo156 refusjonsinfo156Generert = oppdragsLinje150Generert.getRefusjonsinfo156();
@@ -268,6 +269,7 @@ public class ØkonomioppdragMapperTest {
     }
 
     private Grad170 buildGrad170(Oppdragslinje150 oppdragslinje150) {
+        oppdragslinje150.setGrad(Grad._100);
         return Grad170.builder()
             .medGrad(100)
             .medTypeGrad(TYPE_GRAD)

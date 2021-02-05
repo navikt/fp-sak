@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
@@ -94,6 +95,9 @@ public class Oppdragslinje150 extends BaseEntitet {
     @Column(name = "ref_delytelse_id")
     private Long refDelytelseId;
 
+    @Embedded
+    private Grad grad;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "oppdrag110_id", nullable = false, updatable = false)
     private Oppdrag110 oppdrag110;
@@ -104,7 +108,10 @@ public class Oppdragslinje150 extends BaseEntitet {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "oppdragslinje150", cascade = CascadeType.PERSIST)
     private List<Grad170> grad170Liste = new ArrayList<>();
 
-    public Oppdragslinje150() {
+    private Oppdragslinje150() {}
+
+    public static Builder builder() {
+        return new Builder();
     }
 
     public Long getId() {
@@ -199,6 +206,14 @@ public class Oppdragslinje150 extends BaseEntitet {
         return refDelytelseId;
     }
 
+    public Grad getGrad() {
+        return grad;
+    }
+
+    public void setGrad(Grad grad) {
+        this.grad = grad;
+    }
+
     public Oppdrag110 getOppdrag110() {
         return oppdrag110;
     }
@@ -252,16 +267,37 @@ public class Oppdragslinje150 extends BaseEntitet {
             && Objects.equals(saksbehId, oppdrlinje150.getSaksbehId())
             && Objects.equals(utbetalesTilId, oppdrlinje150.getUtbetalesTilId())
             && Objects.equals(refFagsystemId, oppdrlinje150.getRefFagsystemId())
-            && Objects.equals(refDelytelseId, oppdrlinje150.getRefDelytelseId());
+            && Objects.equals(refDelytelseId, oppdrlinje150.getRefDelytelseId())
+            && Objects.equals(grad, oppdrlinje150.getGrad());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(kodeEndringLinje, kodeStatusLinje, datoStatusFom, vedtakId, delytelseId, kodeKlassifik, vedtakPeriode, sats, fradragTillegg, typeSats, brukKjoreplan, saksbehId, utbetalesTilId, refFagsystemId, refDelytelseId);
+        return Objects.hash(kodeEndringLinje, kodeStatusLinje, datoStatusFom, vedtakId, delytelseId, kodeKlassifik, vedtakPeriode, sats, fradragTillegg, typeSats, brukKjoreplan, saksbehId, utbetalesTilId, refFagsystemId, refDelytelseId, grad);
     }
 
-    public static Builder builder() {
-        return new Builder();
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "<" + //$NON-NLS-1$
+            (id != null ? "id=" + id + ", " : "") //$NON-NLS-1$ //$NON-NLS-2$
+            + "kodeEndringLinje=" + kodeEndringLinje + ", " //$NON-NLS-1$ //$NON-NLS-2$
+            + "kodeStatusLinje=" + kodeStatusLinje + ", " //$NON-NLS-1$ //$NON-NLS-2$
+            + "datoStatusFom=" + datoStatusFom + ", " //$NON-NLS-1$ //$NON-NLS-2$
+            + "vedtakId=" + vedtakId + ", " //$NON-NLS-1$ //$NON-NLS-2$
+            + "delytelseId=" + delytelseId + ", " //$NON-NLS-1$ //$NON-NLS-2$
+            + "kodeKlassifik=" + kodeKlassifik + ", " //$NON-NLS-1$ //$NON-NLS-2$
+            + "vedtakPeriode=" + vedtakPeriode + ", " //$NON-NLS-1$ //$NON-NLS-2$
+            + "sats=" + sats + ", " //$NON-NLS-1$ //$NON-NLS-2$
+            + "fradragTillegg=" + fradragTillegg + ", " //$NON-NLS-1$ //$NON-NLS-2$
+            + "typeSats=" + typeSats + ", " //$NON-NLS-1$ //$NON-NLS-2$
+            + "brukKjoreplan=" + brukKjoreplan + ", " //$NON-NLS-1$ //$NON-NLS-2$
+            + "saksbehId=" + saksbehId + ", " //$NON-NLS-1$ //$NON-NLS-2$
+            + "utbetalesTilId=" + utbetalesTilId + ", " //$NON-NLS-1$ //$NON-NLS-2$
+            + "refFagsystemId=" + refFagsystemId + ", " //$NON-NLS-1$ //$NON-NLS-2$
+            + "refDelytelseId=" + refDelytelseId + ", " //$NON-NLS-1$ //$NON-NLS-2$
+            + "grad=" + grad + ", " //$NON-NLS-1$ //$NON-NLS-2$
+            + "opprettetTs=" + getOpprettetTidspunkt() //$NON-NLS-1$
+            + ">"; //$NON-NLS-1$
     }
 
     public static class Builder {
@@ -282,6 +318,7 @@ public class Oppdragslinje150 extends BaseEntitet {
         private Long refFagsystemId;
         private Long refDelytelseId;
         private Oppdrag110 oppdrag110;
+        private Grad grad;
 
         public Builder medKodeEndringLinje(String kodeEndringLinje) {
             this.kodeEndringLinje = kodeEndringLinje;
@@ -363,6 +400,11 @@ public class Oppdragslinje150 extends BaseEntitet {
             return this;
         }
 
+        public Builder medGrad(Grad grad) {
+            this.grad = grad;
+            return this;
+        }
+
         public Builder medOppdrag110(Oppdrag110 oppdrag110) {
             this.oppdrag110 = oppdrag110;
             return this;
@@ -387,6 +429,7 @@ public class Oppdragslinje150 extends BaseEntitet {
             oppdragslinje150.henvisning = henvisning;
             oppdragslinje150.refFagsystemId = refFagsystemId;
             oppdragslinje150.refDelytelseId = refDelytelseId;
+            oppdragslinje150.grad = grad;
             oppdragslinje150.oppdrag110 = oppdrag110;
             oppdrag110.addOppdragslinje150(oppdragslinje150);
 
@@ -405,28 +448,5 @@ public class Oppdragslinje150 extends BaseEntitet {
             Objects.requireNonNull(henvisning, "henvisning");
             Objects.requireNonNull(oppdrag110, "oppdrag110");
         }
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "<" + //$NON-NLS-1$
-            (id != null ? "id=" + id + ", " : "") //$NON-NLS-1$ //$NON-NLS-2$
-            + "kodeEndringLinje=" + kodeEndringLinje + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "kodeStatusLinje=" + kodeStatusLinje + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "datoStatusFom=" + datoStatusFom + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "vedtakId=" + vedtakId + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "delytelseId=" + delytelseId + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "kodeKlassifik=" + kodeKlassifik + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "vedtakPeriode=" + vedtakPeriode + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "sats=" + sats + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "fradragTillegg=" + fradragTillegg + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "typeSats=" + typeSats + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "brukKjoreplan=" + brukKjoreplan + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "saksbehId=" + saksbehId + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "utbetalesTilId=" + utbetalesTilId + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "refFagsystemId=" + refFagsystemId + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "refDelytelseId=" + refDelytelseId + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "opprettetTs=" + getOpprettetTidspunkt() //$NON-NLS-1$
-            + ">"; //$NON-NLS-1$
     }
 }

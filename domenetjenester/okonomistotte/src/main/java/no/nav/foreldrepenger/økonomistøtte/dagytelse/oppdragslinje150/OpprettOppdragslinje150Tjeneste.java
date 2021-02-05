@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdragslinje150;
 
+import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.økonomistøtte.Oppdragsmottaker;
@@ -56,8 +58,10 @@ public class OpprettOppdragslinje150Tjeneste {
             for (TilkjentYtelseAndel andel : andelListe) {
                 List<Oppdrag110> alleTidligereOppdrag110ForMottaker = finnOpprag110ForGittFagsystemId(oppdragInput, oppdrag110);
                 OppdragsmottakerInfo oppdragInfo = new OppdragsmottakerInfo(mottaker, andel, alleTidligereOppdrag110ForMottaker, tidligereOppdr150Liste);
+
                 Oppdragslinje150 oppdragslinje150 = opprettOppdragslinje150FørsteOppdrag(oppdragInput, oppdragInfo, oppdrag110,
-                    delYtelseIdListe, count, teller++);
+                    delYtelseIdListe, count, teller++, andel.getUtbetalingsgrad());
+
                 int grad = andel.getUtbetalingsgrad().setScale(0, RoundingMode.HALF_EVEN).intValue();
                 OpprettOppdragsmeldingerRelatertTil150.opprettGrad170(oppdragslinje150, grad);
                 oppdrlinje150Liste.add(oppdragslinje150);
@@ -84,7 +88,7 @@ public class OpprettOppdragslinje150Tjeneste {
         for (TilkjentYtelseAndel andel : andelerListe) {
             List<Oppdrag110> alleTidligereOppdrag110ForMottaker = finnOpprag110ForGittFagsystemId(oppdragInput, nyOppdrag110);
             OppdragsmottakerInfo oppdragInfo = new OppdragsmottakerInfo(mottaker, andel, alleTidligereOppdrag110ForMottaker, tidligereOppdr150Liste);
-            Oppdragslinje150 oppdragslinje150 = opprettOppdragslinje150FørsteOppdrag(oppdragInput, oppdragInfo, nyOppdrag110, delYtelseIdListe, teller++);
+            Oppdragslinje150 oppdragslinje150 = opprettOppdragslinje150FørsteOppdrag(oppdragInput, oppdragInfo, nyOppdrag110, delYtelseIdListe, teller++, andel.getUtbetalingsgrad());
             int grad = andel.getUtbetalingsgrad().setScale(0, RoundingMode.HALF_EVEN).intValue();
             OpprettOppdragsmeldingerRelatertTil150.opprettGrad170(oppdragslinje150, grad);
             if (!mottaker.erBruker()) {
@@ -104,15 +108,15 @@ public class OpprettOppdragslinje150Tjeneste {
     }
 
     private static Oppdragslinje150 opprettOppdragslinje150FørsteOppdrag(OppdragInput oppdragInput, OppdragsmottakerInfo oppdragInfo, Oppdrag110 nyOppdrag110,
-                                                                         List<Long> delYtelseIdListe, int teller) {
+                                                                         List<Long> delYtelseIdListe, int teller, BigDecimal utbetalingsgrad) {
         return opprettOppdragslinje150FørsteOppdrag(oppdragInput, oppdragInfo, nyOppdrag110,
-            delYtelseIdListe, INITIAL_COUNT, teller);
+            delYtelseIdListe, INITIAL_COUNT, teller, utbetalingsgrad);
     }
 
     private static Oppdragslinje150 opprettOppdragslinje150FørsteOppdrag(OppdragInput oppdragInput, OppdragsmottakerInfo oppdragInfo, Oppdrag110 nyOppdrag110,
-                                                                         List<Long> delYtelseIdListe, int count, int teller) {
+                                                                         List<Long> delYtelseIdListe, int count, int teller, BigDecimal utbetalingsgrad) {
 
-        Oppdragslinje150.Builder oppdragslinje150Builder = opprettOppdragslinje150Builder(oppdragInput, oppdragInfo, nyOppdrag110);
+        Oppdragslinje150.Builder oppdragslinje150Builder = opprettOppdragslinje150Builder(oppdragInput, oppdragInfo, nyOppdrag110, utbetalingsgrad);
 
         List<Oppdragslinje150> tidligereOppdr150Liste = oppdragInfo.getTidligereOppdr150MottakerListe();
         if (tidligereOppdr150Liste.isEmpty()) {
@@ -124,7 +128,7 @@ public class OpprettOppdragslinje150Tjeneste {
         return oppdragslinje150Builder.build();
     }
 
-    private static Oppdragslinje150.Builder opprettOppdragslinje150Builder(OppdragInput oppdragInput, OppdragsmottakerInfo oppdragInfo, Oppdrag110 oppdrag110) {
+    private static Oppdragslinje150.Builder opprettOppdragslinje150Builder(OppdragInput oppdragInput, OppdragsmottakerInfo oppdragInfo, Oppdrag110 oppdrag110, BigDecimal utbetalingsgrad) {
         TilkjentYtelseAndel andel = oppdragInfo.getTilkjentYtelseAndel();
         Oppdragsmottaker mottaker = oppdragInfo.getMottaker();
 
@@ -138,7 +142,8 @@ public class OpprettOppdragslinje150Tjeneste {
         oppdragslinje150Builder.medKodeKlassifik(kodeKlassifik)
             .medOppdrag110(oppdrag110)
             .medVedtakFomOgTom(vedtakFom, vedtakTom)
-            .medSats(dagsats);
+            .medSats(dagsats)
+            .medGrad(Grad.prosent(utbetalingsgrad));
         if (mottaker.erBruker()) {
             oppdragslinje150Builder.medUtbetalesTilId(Oppdragslinje150Util.endreTilElleveSiffer(mottaker.getId()));
         }

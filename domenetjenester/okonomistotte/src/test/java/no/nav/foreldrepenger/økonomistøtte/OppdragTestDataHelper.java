@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.økonomistøtte;
 import java.time.LocalDate;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad170;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
@@ -40,6 +41,7 @@ public class OppdragTestDataHelper {
             .medUtbetalesTilId("123456789")
             .medOppdrag110(oppdrag110)
             .medHenvisning(47L)
+            .medGrad(Grad._100)
             .build();
 
     }
@@ -78,9 +80,7 @@ public class OppdragTestDataHelper {
     }
 
     static void buildGrad170(Oppdragslinje150 oppdragslinje150) {
-        Grad170.Builder grad170Builder = Grad170.builder();
-
-        grad170Builder
+        Grad170.builder()
             .medGrad(100)
             .medTypeGrad("UFOR")
             .medOppdragslinje150(oppdragslinje150)
