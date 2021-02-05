@@ -51,8 +51,7 @@ public class VurderSøknadsfristTjeneste {
         }
 
         var søknad = søknadRepository.hentSøknad(behandlingId);
-        var regelAdapter = new SøknadsfristRegelAdapter();
-        var resultat = regelAdapter.vurderSøknadsfristFor(søknad, oppgittePerioder);
+        var resultat = SøknadsfristRegelAdapter.vurderSøknadsfristFor(søknad, oppgittePerioder);
 
         lagreResultat(behandlingId, resultat, søknad.getMottattDato());
         return utledAksjonspunkt(resultat);
@@ -70,9 +69,9 @@ public class VurderSøknadsfristTjeneste {
     }
 
     private Optional<AksjonspunktDefinisjon> utledAksjonspunkt(SøknadsfristResultat resultat) {
-        Optional<String> årsakKode = resultat.getÅrsakKodeIkkeVurdert();
+        var årsakKode = resultat.getÅrsakKodeIkkeVurdert();
         if (!resultat.isRegelOppfylt() && årsakKode.isPresent()) {
-            AksjonspunktDefinisjon aksjonspunktDefinisjon = AksjonspunktDefinisjon.fraKode(årsakKode.get());
+            var aksjonspunktDefinisjon = AksjonspunktDefinisjon.fraKode(årsakKode.get());
 
             return Optional.of(aksjonspunktDefinisjon);
         }
