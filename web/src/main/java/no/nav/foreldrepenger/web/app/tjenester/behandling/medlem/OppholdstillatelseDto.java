@@ -4,12 +4,12 @@ import java.time.LocalDate;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
 
-public class OppholdstilltatelseDto {
+public class OppholdstillatelseDto {
     private LocalDate fom;
     private LocalDate tom;
     private OppholdstillatelseType oppholdstillatelseType;
 
-    public OppholdstilltatelseDto() {
+    public OppholdstillatelseDto() {
         // trengs for deserialisering av JSON
     }
 
