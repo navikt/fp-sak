@@ -9,10 +9,8 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.steg.søknadsfrist.SøktPeriodeTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.regler.SøknadsfristUtil;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakPeriodegrenseDto;
@@ -36,12 +34,12 @@ public class UttakPeriodegrenseDtoTjeneste {
 
     public Optional<UttakPeriodegrenseDto> mapFra(UttakInput input) {
         var ref = input.getBehandlingReferanse();
-        Optional<Behandlingsresultat> behandlingsresultatOpt = behandlingsresultatRepository.hentHvisEksisterer(ref.getBehandlingId());
+        var behandlingsresultatOpt = behandlingsresultatRepository.hentHvisEksisterer(ref.getBehandlingId());
         if (behandlingsresultatOpt.isPresent()) {
-            Optional<Uttaksperiodegrense> gjeldendeUttaksperiodegrense = behandlingsresultatOpt.get().getGjeldendeUttaksperiodegrense();
+            var gjeldendeUttaksperiodegrense = behandlingsresultatOpt.get().getGjeldendeUttaksperiodegrense();
             if (gjeldendeUttaksperiodegrense.isPresent()) {
-                Uttaksperiodegrense grense = gjeldendeUttaksperiodegrense.get();
-                UttakPeriodegrenseDto dto = new UttakPeriodegrenseDto();
+                var grense = gjeldendeUttaksperiodegrense.get();
+                var dto = new UttakPeriodegrenseDto();
                 dto.setSoknadsfristForForsteUttaksdato(grense.getFørsteLovligeUttaksdag());
                 dto.setMottattDato(grense.getMottattDato());
 
@@ -55,7 +53,9 @@ public class UttakPeriodegrenseDtoTjeneste {
 
     private void populerDto(UttakPeriodegrenseDto dto, UttakInput input) {
         var ref = input.getBehandlingReferanse();
-        var søktPeriodeOpt = FagsakYtelseTypeRef.Lookup.find(SøktPeriodeTjeneste.class, ref.getFagsakYtelseType()).orElseThrow().finnSøktPeriode(input);
+        var søktPeriodeOpt = FagsakYtelseTypeRef.Lookup.find(SøktPeriodeTjeneste.class, ref.getFagsakYtelseType())
+            .orElseThrow()
+            .finnSøktPeriode(input);
 
         søktPeriodeOpt.ifPresent(søktPeriode -> {
             var søknadsfrist = finnSøknadsfristForPeriodeMedStart(søktPeriode.getFomDato());
