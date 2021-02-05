@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.medlem;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -9,7 +10,7 @@ public class MedlemV2Dto {
     private List<InntektDto> inntekt;
     private List<MedlemskapPerioderDto> medlemskapPerioder;
     private Set<MedlemPeriodeDto> perioder;
-    private List<OppholdstilltatelseDto> opphold;
+    private List<OppholdstillatelseDto> opphold = new ArrayList<>();
     private LocalDate fom; // gjeldendeFra
 
     public MedlemV2Dto() {
@@ -48,11 +49,11 @@ public class MedlemV2Dto {
         this.fom = fom;
     }
 
-    public List<OppholdstilltatelseDto> getOpphold() {
+    public List<OppholdstillatelseDto> getOpphold() {
         return opphold;
     }
 
-    public void setOpphold(List<OppholdstilltatelseDto> opphold) {
+    public void setOpphold(List<OppholdstillatelseDto> opphold) {
         this.opphold = opphold;
     }
 }

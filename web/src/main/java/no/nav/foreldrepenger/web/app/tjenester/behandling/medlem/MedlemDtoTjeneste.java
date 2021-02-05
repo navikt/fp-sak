@@ -195,14 +195,14 @@ public class MedlemDtoTjeneste {
         }
     }
 
-    private List<OppholdstilltatelseDto> mapOppholdstillatelser(Long behandlingId) {
+    private List<OppholdstillatelseDto> mapOppholdstillatelser(Long behandlingId) {
         return personopplysningTjeneste.hentOppholdstillatelser(behandlingId).stream()
             .map(this::mapOppholdstillatelse)
             .collect(Collectors.toList());
     }
 
-    private OppholdstilltatelseDto mapOppholdstillatelse(OppholdstillatelseEntitet oppholdstillatelse) {
-        var dto = new OppholdstilltatelseDto();
+    private OppholdstillatelseDto mapOppholdstillatelse(OppholdstillatelseEntitet oppholdstillatelse) {
+        var dto = new OppholdstillatelseDto();
         dto.setOppholdstillatelseType(oppholdstillatelse.getTillatelse());
         dto.setFom(oppholdstillatelse.getPeriode().getFomDato().isBefore(OPPHOLD_CUTOFF) ? null : oppholdstillatelse.getPeriode().getFomDato());
         dto.setTom(oppholdstillatelse.getPeriode().getTomDato());
