@@ -9,7 +9,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 public class Oppdragslinje150Dto extends SporingDto {
 
     private String vedtakId;
-    private String saksbehId;
     private String utbetalesTilId;
     private Long delytelseId;
     private Long refDelytelseId;
@@ -25,6 +24,9 @@ public class Oppdragslinje150Dto extends SporingDto {
     private String fradragTillegg;
     private String brukKjoreplan;
     private Long henvisning;
+
+
+    private Integer grad;
     private RefusjonInfo156Dto refusjonInfo156;
     private List<Grad170Dto> grad170;
 
@@ -38,14 +40,6 @@ public class Oppdragslinje150Dto extends SporingDto {
 
     public void setVedtakId(String vedtakId) {
         this.vedtakId = vedtakId;
-    }
-
-    public String getSaksbehId() {
-        return saksbehId;
-    }
-
-    public void setSaksbehId(String saksbehId) {
-        this.saksbehId = saksbehId;
     }
 
     public String getUtbetalesTilId() {
@@ -172,6 +166,14 @@ public class Oppdragslinje150Dto extends SporingDto {
         return refusjonInfo156;
     }
 
+    public Integer getGrad() {
+        return grad;
+    }
+
+    public void setGrad(Integer grad) {
+        this.grad = grad;
+    }
+
     public void setRefusjonInfo156(RefusjonInfo156Dto refusjonInfo156) {
         this.refusjonInfo156 = refusjonInfo156;
     }
@@ -187,7 +189,6 @@ public class Oppdragslinje150Dto extends SporingDto {
     public static Oppdragslinje150Dto fraDomene(Oppdragslinje150 oppdragslinje150) {
         Oppdragslinje150Dto oppdragslinje150Dto = new Oppdragslinje150Dto(oppdragslinje150);
         oppdragslinje150Dto.vedtakId = oppdragslinje150.getVedtakId();
-        oppdragslinje150Dto.saksbehId = oppdragslinje150.getSaksbehId();
         oppdragslinje150Dto.utbetalesTilId = oppdragslinje150.getUtbetalesTilId();
         oppdragslinje150Dto.delytelseId = oppdragslinje150.getDelytelseId();
         oppdragslinje150Dto.refDelytelseId = oppdragslinje150.getRefDelytelseId();
@@ -203,6 +204,7 @@ public class Oppdragslinje150Dto extends SporingDto {
         oppdragslinje150Dto.fradragTillegg = oppdragslinje150.getFradragTillegg();
         oppdragslinje150Dto.brukKjoreplan = oppdragslinje150.getBrukKjoreplan();
         oppdragslinje150Dto.henvisning = oppdragslinje150.getHenvisning();
+        oppdragslinje150Dto.grad = oppdragslinje150.getGrad().getVerdi();
         oppdragslinje150Dto.refusjonInfo156 = oppdragslinje150.getRefusjonsinfo156() != null ? RefusjonInfo156Dto.fraDomene(oppdragslinje150.getRefusjonsinfo156()) : null;
         oppdragslinje150Dto.grad170 = oppdragslinje150.getGrad170Liste()
             .stream()

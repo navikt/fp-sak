@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeStatus
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.OppdragPatchDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.OppdragslinjePatchDto;
-import no.nav.foreldrepenger.økonomistøtte.OpprettOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.OppdragskontrollConstants;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdragslinje150.Oppdragslinje150Util;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomistøtteUtils;

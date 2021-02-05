@@ -12,6 +12,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
@@ -279,6 +280,7 @@ public class OppdragskontrollOpphør implements OppdragskontrollManager {
         if (!gjelderFeriepenger) {
             int grad = !forrigeOppdr150.getGrad170Liste().isEmpty() ? forrigeOppdr150.getGrad170Liste().get(0).getGrad() : 100;
             OpprettOppdragsmeldingerRelatertTil150.opprettGrad170(oppdragslinje150, grad);
+            oppdragslinje150.setGrad(Grad.prosent(grad)); //TODO: MS midlertidig løsning - fjern når Grad170 saneres helt.
         }
         return oppdragslinje150;
     }

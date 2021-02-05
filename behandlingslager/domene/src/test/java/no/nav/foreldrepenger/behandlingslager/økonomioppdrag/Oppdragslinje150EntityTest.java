@@ -66,7 +66,6 @@ public class Oppdragslinje150EntityTest {
         assertThat(oppdragslinje150.getFradragTillegg()).isEqualTo(FRADRAGTILLEGG);
         assertThat(oppdragslinje150.getTypeSats()).isEqualTo(TYPESATS);
         assertThat(oppdragslinje150.getBrukKjoreplan()).isEqualTo(BRUKKJOREPLAN);
-        assertThat(oppdragslinje150.getSaksbehId()).isEqualTo(SAKSBEHID);
         assertThat(oppdragslinje150.getUtbetalesTilId()).isEqualTo(UTBETALESTILID);
         assertThat(oppdragslinje150.getRefFagsystemId()).isEqualTo(REFFAGSYSTEMID);
         assertThat(oppdragslinje150.getRefDelytelseId()).isEqualTo(REFDELYTELSEID);

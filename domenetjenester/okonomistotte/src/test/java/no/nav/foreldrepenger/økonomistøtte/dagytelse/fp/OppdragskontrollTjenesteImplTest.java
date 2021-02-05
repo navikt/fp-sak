@@ -493,7 +493,6 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
             assertThat(opp150.getSats()).isEqualTo(andel.getDagsats());
             assertThat(opp150.getTypeSats()).isEqualTo(TYPE_SATS_FP_YTELSE);
             assertThat(opp150.getHenvisning()).isEqualTo(behandling.getId());
-            assertThat(opp150.getSaksbehId()).isEqualTo(behVedtak.getAnsvarligSaksbehandler());
             assertThat(opp150.getBrukKjoreplan()).isEqualTo("N");
             assertThat(opp150.getGrad170Liste()).hasSize(1);
             assertUtbetalesTilId(opp150, brukerErMottaker, utbetalesTilId);
@@ -591,7 +590,6 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
             assertThat(oppdragslinje150.getSats()).isEqualTo(andel.getDagsats());
             assertThat(oppdragslinje150.getTypeSats()).isEqualTo(TYPE_SATS_FP_YTELSE);
             assertThat(oppdragslinje150.getHenvisning()).isEqualTo(behandling.getId());
-            assertThat(oppdragslinje150.getSaksbehId()).isEqualTo(behVedtak.getAnsvarligSaksbehandler());
             assertThat(oppdragslinje150.getBrukKjoreplan()).isEqualTo("N");
             assertThat(oppdragslinje150.getGrad170Liste()).hasSize(1);
             assertUtbetalesTilId(oppdragslinje150, brukerErMottaker, utbetalesTilId);
