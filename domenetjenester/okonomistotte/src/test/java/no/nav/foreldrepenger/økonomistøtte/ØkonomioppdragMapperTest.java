@@ -225,7 +225,7 @@ public class ØkonomioppdragMapperTest {
                 assertThat(oppdragsLinje150Generert.getFradragTillegg()).isEqualTo(TfradragTillegg.fromValue(oppdragslinje150.getFradragTillegg()));
                 assertThat(oppdragsLinje150Generert.getTypeSats()).isEqualTo(oppdragslinje150.getTypeSats());
                 assertThat(oppdragsLinje150Generert.getBrukKjoreplan()).isEqualTo(oppdragslinje150.getBrukKjoreplan());
-                assertThat(oppdragsLinje150Generert.getSaksbehId()).isEqualTo(oppdragslinje150.getSaksbehId());
+                assertThat(oppdragsLinje150Generert.getSaksbehId()).isEqualTo(oppdrag110.getSaksbehId());
                 assertThat(oppdragsLinje150Generert.getUtbetalesTilId()).isEqualTo(oppdragslinje150.getUtbetalesTilId());
                 assertThat(oppdragsLinje150Generert.getHenvisning()).isEqualTo(String.valueOf(oppdragslinje150.getHenvisning()));
                 if (!gjelderFP) {

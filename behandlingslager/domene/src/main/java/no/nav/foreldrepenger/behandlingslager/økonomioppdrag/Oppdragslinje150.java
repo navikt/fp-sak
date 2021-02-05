@@ -80,7 +80,7 @@ public class Oppdragslinje150 extends BaseEntitet {
     @Column(name = "bruk_kjore_plan", nullable = false)
     private String brukKjoreplan;
 
-    @Column(name = "saksbeh_id", nullable = false)
+    @Column(name = "saksbeh_id")
     private String saksbehId;
 
     @Column(name = "utbetales_til_id")
@@ -182,7 +182,7 @@ public class Oppdragslinje150 extends BaseEntitet {
         return brukKjoreplan;
     }
 
-    public String getSaksbehId() {
+    private String getSaksbehId() {
         return saksbehId;
     }
 

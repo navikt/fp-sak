@@ -278,7 +278,6 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
             assertThat(oppdragslinje150.getTypeSats()).isEqualTo(TYPE_SATS_ES);
             assertThat(oppdragslinje150.getHenvisning()).isEqualTo(behandling.getId());
             assertThat(oppdragslinje150.getUtbetalesTilId()).isEqualTo(personIdent.getIdent());
-            assertThat(oppdragslinje150.getSaksbehId()).isEqualTo(behandlingVedtak.getAnsvarligSaksbehandler());
             assertThat(oppdragslinje150.getBrukKjoreplan()).isEqualTo("N");
             assertThat(oppdragslinje150.getOppdrag110()).isEqualTo(oppdrag110);
         }
