@@ -267,22 +267,20 @@ public class OppdragskontrollOpphør implements OppdragskontrollManager {
 
         Oppdragslinje150.Builder oppdragslinje150Builder = Oppdragslinje150.builder();
         OpprettOppdragslinje150Tjeneste.settFellesFelterIOppdr150(behandlingInfo, oppdragslinje150Builder, true, gjelderFeriepenger);
-        Oppdragslinje150 oppdragslinje150 = oppdragslinje150Builder
+        oppdragslinje150Builder
             .medDatoStatusFom(datoStatusFom)
             .medDelytelseId(delytelseId)
             .medKodeKlassifik(kodeKlassifik)
             .medVedtakFomOgTom(vedtakFom, vedtakTom)
             .medSats(dagsats)
             .medUtbetalesTilId(forrigeOppdr150.getUtbetalesTilId())
-            .medOppdrag110(oppdrag110)
-            .build();
+            .medOppdrag110(oppdrag110);
 
         if (!gjelderFeriepenger) {
-            int grad = !forrigeOppdr150.getGrad170Liste().isEmpty() ? forrigeOppdr150.getGrad170Liste().get(0).getGrad() : 100;
-            OpprettOppdragsmeldingerRelatertTil150.opprettGrad170(oppdragslinje150, grad);
-            oppdragslinje150.setGrad(Grad.prosent(grad)); //TODO: MS midlertidig løsning - fjern når Grad170 saneres helt.
+            int grad = Optional.ofNullable(forrigeOppdr150.getGrad()).map(Grad::getVerdi).orElse(100);
+            oppdragslinje150Builder.medGrad(Grad.prosent(grad));
         }
-        return oppdragslinje150;
+        return oppdragslinje150Builder.build();
     }
 
     private Oppdragsmottaker opprettMottakerInstance(OppdragInput behandlingInfo, Oppdragslinje150 tidligereOpp150ForMottakeren) {

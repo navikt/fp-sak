@@ -6,7 +6,6 @@ import java.util.List;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad170;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
@@ -46,18 +45,6 @@ class ØkonomiOppdragUtils {
         }
     }
 
-    static void leggTilGrad170(List<Oppdragslinje150> o150Liste) {
-        for (Oppdragslinje150 o150 : o150Liste) {
-            o150.setGrad(Grad.prosent(BehandleØkonomioppdragKvitteringTest.GRAD));
-            
-            Grad170.builder()
-                .medGrad(BehandleØkonomioppdragKvitteringTest.GRAD)
-                .medTypeGrad(BehandleØkonomioppdragKvitteringTest.TYPE_GRAD)
-                .medOppdragslinje150(o150)
-                .build();
-        }
-    }
-
     static void setupOppdrag110(Oppdragskontroll oppdrag, Boolean gjelderFP) {
         Oppdrag110 o110_1 = new Oppdrag110.Builder()
             .medKodeAksjon(BehandleØkonomioppdragKvitteringTest.KODEAKSJON)
@@ -71,7 +58,7 @@ class ØkonomiOppdragUtils {
             .medAvstemming(Avstemming.ny())
             .medOppdragskontroll(oppdrag)
             .build();
-        Oppdragslinje150 o150_1 = new Oppdragslinje150.Builder()
+        var builder = new Oppdragslinje150.Builder()
             .medVedtakId(BehandleØkonomioppdragKvitteringTest.VEDTAKID)
             .medDelytelseId(101002100100L)
             .medKodeEndringLinje(BehandleØkonomioppdragKvitteringTest.KODEENDRINGLINJE)
@@ -84,11 +71,11 @@ class ØkonomiOppdragUtils {
             .medSaksbehId(BehandleØkonomioppdragKvitteringTest.SAKSBEHID)
             .medUtbetalesTilId(BehandleØkonomioppdragKvitteringTest.OPPDRAGGJELDERID)
             .medHenvisning(gjelderFP ? BehandleØkonomioppdragKvitteringTest.BEHANDLINGID_FP : BehandleØkonomioppdragKvitteringTest.BEHANDLINGID_ES)
-            .medOppdrag110(o110_1)
-            .build();
+            .medOppdrag110(o110_1);
         if (gjelderFP) {
-            leggTilGrad170(Collections.singletonList(o150_1));
+            builder.medGrad(Grad.prosent(BehandleØkonomioppdragKvitteringTest.GRAD));
         }
+        builder.build();
 
         if (gjelderFP) {
             Oppdrag110 o110_2 = new Oppdrag110.Builder()
@@ -116,8 +103,8 @@ class ØkonomiOppdragUtils {
                 .medSaksbehId(BehandleØkonomioppdragKvitteringTest.SAKSBEHID)
                 .medHenvisning(gjelderFP ? BehandleØkonomioppdragKvitteringTest.BEHANDLINGID_FP : BehandleØkonomioppdragKvitteringTest.BEHANDLINGID_ES)
                 .medOppdrag110(o110_2)
+                .medGrad(Grad.prosent(BehandleØkonomioppdragKvitteringTest.GRAD))
                 .build();
-            leggTilGrad170(Collections.singletonList(o150_2));
             leggTilRefusjons156(Collections.singletonList(o150_2));
 
         }

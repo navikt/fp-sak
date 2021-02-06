@@ -18,7 +18,6 @@ public class OppdragskontrollConstants {
     public static final String FRADRAG_TILLEGG = TfradragTillegg.T.name();
     public static final String TYPE_SATS_DAG = ØkonomiTypeSats.DAG.name();
     public static final String TYPE_SATS_FERIEPENGER = ØkonomiTypeSats.ENG.name();
-    public static final String TYPE_GRAD = "UFOR";
     public static final String BRUK_KJOREPLAN = "N";
     public static final String OMPOSTERING_J = "J";
     public static final String OMPOSTERING_N = "N";

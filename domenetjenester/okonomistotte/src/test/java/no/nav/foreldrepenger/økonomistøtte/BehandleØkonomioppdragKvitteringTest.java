@@ -65,8 +65,6 @@ public class BehandleØkonomioppdragKvitteringTest {
 
     public static final Integer GRAD = 100;
 
-    public static final String TYPE_GRAD = "UFOR";
-
     public static final String REFUNDERES_ID = "123456789";
 
     public static final String VEDTAKID = "VedtakId";

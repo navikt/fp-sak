@@ -18,7 +18,6 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad170;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
@@ -39,7 +38,6 @@ import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
 public class ØkonomioppdragMapperTest {
 
     private static final String KODE_KLASSIFIK_FODSEL = "FPENFOD-OP";
-    private static final String TYPE_GRAD = "UFOR";
     private static final String REFUNDERES_ID = "123456789";
 
     private static final String TYPE_ENHET = "BOS";
@@ -180,7 +178,6 @@ public class ØkonomioppdragMapperTest {
         List<Oppdrag110> oppdrag110Liste = buildOppdrag110(oppdragskontroll, gjelderFP, erOmpostering);
         List<Oppdragslinje150> oppdragslinje150Liste = buildOppdragslinje150(oppdrag110Liste, gjelderFP, erOppdragslinje150Sortert);
         if (gjelderFP) {
-            buildGrad170(oppdragslinje150Liste);
             buildRefusjonsinfo156(oppdragslinje150Liste);
         }
         return oppdrag110Liste;
@@ -259,24 +256,6 @@ public class ØkonomioppdragMapperTest {
         }
     }
 
-
-    private List<Grad170> buildGrad170(List<Oppdragslinje150> oppdragslinje150Liste) {
-        List<Grad170> grad170Liste = new ArrayList<>();
-        for (Oppdragslinje150 oppdragslinje150 : oppdragslinje150Liste) {
-            grad170Liste.add(buildGrad170(oppdragslinje150));
-        }
-        return grad170Liste;
-    }
-
-    private Grad170 buildGrad170(Oppdragslinje150 oppdragslinje150) {
-        oppdragslinje150.setGrad(Grad._100);
-        return Grad170.builder()
-            .medGrad(100)
-            .medTypeGrad(TYPE_GRAD)
-            .medOppdragslinje150(oppdragslinje150)
-            .build();
-    }
-
     private List<Refusjonsinfo156> buildRefusjonsinfo156(List<Oppdragslinje150> oppdragslinje150Liste) {
         List<Refusjonsinfo156> refusjonsinfo156Liste = new ArrayList<>();
         List<Oppdragslinje150> oppdragslinje150List = oppdragslinje150Liste.stream().
@@ -337,6 +316,7 @@ public class ØkonomioppdragMapperTest {
         return builder
             .medKodeKlassifik(kodeKlassifik)
             .medTypeSats(ØkonomiTypeSats.ENG.name())
+            .medGrad(Grad._100)
             .medOppdrag110(oppdrag110)
             .build();
     }

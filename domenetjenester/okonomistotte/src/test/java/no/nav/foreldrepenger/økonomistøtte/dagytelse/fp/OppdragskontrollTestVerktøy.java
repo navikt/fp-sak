@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad170;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
@@ -155,23 +155,22 @@ class OppdragskontrollTestVerktøy {
         }
     }
 
-    static void verifiserGrad170(List<Oppdragslinje150> opp150RevurderingList, Oppdragskontroll originaltOppdrag) {
+    static void verifiserGrad(List<Oppdragslinje150> opp150RevurderingList, Oppdragskontroll originaltOppdrag) {
         List<Oppdragslinje150> originaltOpp150Liste = getOppdragslinje150Liste(originaltOppdrag);
 
         for (Oppdragslinje150 opp150Revurdering : opp150RevurderingList) {
             if (!erOpp150ForFeriepenger(opp150Revurdering)) {
-                assertThat(opp150Revurdering.getGrad170Liste()).isNotNull();
-                assertThat(opp150Revurdering.getGrad170Liste()).isNotEmpty();
+                assertThat(opp150Revurdering.getGrad()).isNotNull();
             } else {
-                assertThat(opp150Revurdering.getGrad170Liste()).isEmpty();
+                assertThat(opp150Revurdering.getGrad()).isNull();
             }
             Oppdragslinje150 originaltOpp150 = originaltOpp150Liste.stream().
                 filter(opp150 -> opp150.getDelytelseId().equals(opp150Revurdering.getDelytelseId())).findFirst().orElse(null);
             if (originaltOpp150 != null && !erOpp150ForFeriepenger(originaltOpp150)) {
-                Grad170 grad170Revurdering = opp150Revurdering.getGrad170Liste().get(0);
-                Grad170 grad170Originalt = originaltOpp150.getGrad170Liste().get(0);
-                assertThat(grad170Revurdering.getTypeGrad()).isEqualTo(grad170Originalt.getTypeGrad());
-                assertThat(grad170Revurdering.getGrad()).isEqualTo(grad170Originalt.getGrad());
+                Grad gradRevurdering = opp150Revurdering.getGrad();
+                Grad gradOriginalt = originaltOpp150.getGrad();
+                assertThat(gradRevurdering.getType()).isEqualTo(gradOriginalt.getType());
+                assertThat(gradRevurdering.getVerdi()).isEqualTo(gradOriginalt.getVerdi());
             }
         }
     }
@@ -264,13 +263,12 @@ class OppdragskontrollTestVerktøy {
                 assertThat(opp150Ny.getRefusjonsinfo156()).isNotNull();
             }
             if (opp150MedGradering(opp150Ny)) {
-                assertThat(opp150Ny.getGrad170Liste().get(0).getGrad()).isEqualTo(gradering);
+                assertThat(opp150Ny.getGrad().getVerdi()).isEqualTo(gradering);
             }
             if (!erOpp150ForFeriepenger(opp150Ny)) {
-                assertThat(opp150Ny.getGrad170Liste()).isNotEmpty();
-                assertThat(opp150Ny.getGrad170Liste()).isNotNull();
+                assertThat(opp150Ny.getGrad()).isNotNull();
             } else {
-                assertThat(opp150Ny.getGrad170Liste()).isEmpty();
+                assertThat(opp150Ny.getGrad()).isNull();
                 assertThat(opp150Ny.getRefFagsystemId()).isNull();
                 assertThat(opp150Ny.getRefDelytelseId()).isNull();
             }
@@ -306,7 +304,7 @@ class OppdragskontrollTestVerktøy {
 
         Oppdragskontroll originaltOppdrag = originaltOpp150Liste.get(0).getOppdrag110().getOppdragskontroll();
         List<Oppdrag110> oppdrag110RevurderingList = originaltOppdrag.getOppdrag110Liste();
-        verifiserGrad170(opp150RevurdListe, originaltOppdrag);
+        verifiserGrad(opp150RevurdListe, originaltOppdrag);
         verifiserRefusjonInfo156(oppdrag110RevurderingList, originaltOppdrag);
     }
 

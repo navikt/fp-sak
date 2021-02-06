@@ -61,9 +61,6 @@ public class OpprettOppdragslinje150Tjeneste {
 
                 Oppdragslinje150 oppdragslinje150 = opprettOppdragslinje150FørsteOppdrag(oppdragInput, oppdragInfo, oppdrag110,
                     delYtelseIdListe, count, teller++, andel.getUtbetalingsgrad());
-
-                int grad = andel.getUtbetalingsgrad().setScale(0, RoundingMode.HALF_EVEN).intValue();
-                OpprettOppdragsmeldingerRelatertTil150.opprettGrad170(oppdragslinje150, grad);
                 oppdrlinje150Liste.add(oppdragslinje150);
             }
             count = count + andelListe.size();
@@ -89,8 +86,6 @@ public class OpprettOppdragslinje150Tjeneste {
             List<Oppdrag110> alleTidligereOppdrag110ForMottaker = finnOpprag110ForGittFagsystemId(oppdragInput, nyOppdrag110);
             OppdragsmottakerInfo oppdragInfo = new OppdragsmottakerInfo(mottaker, andel, alleTidligereOppdrag110ForMottaker, tidligereOppdr150Liste);
             Oppdragslinje150 oppdragslinje150 = opprettOppdragslinje150FørsteOppdrag(oppdragInput, oppdragInfo, nyOppdrag110, delYtelseIdListe, teller++, andel.getUtbetalingsgrad());
-            int grad = andel.getUtbetalingsgrad().setScale(0, RoundingMode.HALF_EVEN).intValue();
-            OpprettOppdragsmeldingerRelatertTil150.opprettGrad170(oppdragslinje150, grad);
             if (!mottaker.erBruker()) {
                 LocalDate maksDato = FinnMottakerInfoITilkjentYtelse.finnSisteDagMedUtbetalingTilMottaker(oppdragInput, mottaker);
                 OpprettOppdragsmeldingerRelatertTil150.opprettRefusjonsinfo156(oppdragInput, oppdragslinje150, mottaker, maksDato);

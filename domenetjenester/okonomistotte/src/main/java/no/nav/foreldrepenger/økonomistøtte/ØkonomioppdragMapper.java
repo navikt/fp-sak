@@ -15,7 +15,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.xml.sax.SAXException;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad170;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
@@ -167,9 +167,8 @@ public class ØkonomioppdragMapper {
     }
 
     private void setGrad170OgRefusjonsinfo156(String kode, Oppdragslinje150 okoOppdrlinje150, OppdragsLinje150 oppdragsLinje150) {
-        if (!okoOppdrlinje150.getGrad170Liste().isEmpty()) {
-            // Maks en grad170, get(0) er ok
-            oppdragsLinje150.getGrad170().add(mapGrad170(okoOppdrlinje150.getGrad170Liste().get(0)));
+        if (null != okoOppdrlinje150.getGrad()) {
+            oppdragsLinje150.getGrad170().add(mapGrad170(okoOppdrlinje150.getGrad()));
         }
         if (ØkonomiKodeFagområde.gjelderRefusjonTilArbeidsgiver(kode)) {
             oppdragsLinje150.setRefusjonsinfo156(mapRefusjonInfo156(okoOppdrlinje150.getRefusjonsinfo156()));
@@ -187,11 +186,11 @@ public class ØkonomioppdragMapper {
         return refusjonsinfo156;
     }
 
-    private no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Grad170 mapGrad170(Grad170 okoGrad170) {
+    private no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Grad170 mapGrad170(Grad okoGrad) {
         final no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Grad170 grad170 = objectFactory.createGrad170();
 
-        grad170.setGrad(BigInteger.valueOf(okoGrad170.getGrad()));
-        grad170.setTypeGrad(okoGrad170.getTypeGrad());
+        grad170.setGrad(BigInteger.valueOf(okoGrad.getVerdi()));
+        grad170.setTypeGrad(okoGrad.getType());
 
         return grad170;
     }

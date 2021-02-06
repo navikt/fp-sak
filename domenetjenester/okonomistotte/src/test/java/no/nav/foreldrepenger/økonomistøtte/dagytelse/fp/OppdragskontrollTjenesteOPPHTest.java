@@ -55,7 +55,7 @@ public class OppdragskontrollTjenesteOPPHTest extends OppdragskontrollTjenesteTe
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
         List<Oppdrag110> oppdrag110RevurderingList = verifiserOppdrag110_OPPH(oppdragRevurdering, originaltOppdrag);
         List<Oppdragslinje150> oppdragslinje150Liste = verifiserOppdragslinje150_OPPH(oppdragRevurdering, originaltOppdrag);
-        OppdragskontrollTestVerktøy.verifiserGrad170(oppdragslinje150Liste, originaltOppdrag);
+        OppdragskontrollTestVerktøy.verifiserGrad(oppdragslinje150Liste, originaltOppdrag);
         OppdragskontrollTestVerktøy.verifiserRefusjonInfo156(oppdrag110RevurderingList, originaltOppdrag);
     }
 
@@ -375,10 +375,9 @@ public class OppdragskontrollTjenesteOPPHTest extends OppdragskontrollTjenesteTe
                 assertThat(opp150Revurdering.getRefusjonsinfo156()).isNotNull();
             }
             if (!OppdragskontrollTestVerktøy.erOpp150ForFeriepenger(opp150Revurdering)) {
-                assertThat(opp150Revurdering.getGrad170Liste()).isNotEmpty();
-                assertThat(opp150Revurdering.getGrad170Liste()).isNotNull();
+                assertThat(opp150Revurdering.getGrad()).isNotNull();
             } else {
-                assertThat(opp150Revurdering.getGrad170Liste()).isEmpty();
+                assertThat(opp150Revurdering.getGrad()).isNull();
             }
         }
     }

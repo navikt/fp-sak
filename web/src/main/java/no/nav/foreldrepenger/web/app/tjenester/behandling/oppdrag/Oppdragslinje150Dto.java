@@ -24,11 +24,8 @@ public class Oppdragslinje150Dto extends SporingDto {
     private String fradragTillegg;
     private String brukKjoreplan;
     private Long henvisning;
-
-
     private Integer grad;
     private RefusjonInfo156Dto refusjonInfo156;
-    private List<Grad170Dto> grad170;
 
     public Oppdragslinje150Dto(Oppdragslinje150 entitet) {
         super(entitet, entitet.getVersjon(), entitet.getId());
@@ -178,14 +175,6 @@ public class Oppdragslinje150Dto extends SporingDto {
         this.refusjonInfo156 = refusjonInfo156;
     }
 
-    public List<Grad170Dto> getGrad170() {
-        return grad170;
-    }
-
-    public void setGrad170(List<Grad170Dto> grad170) {
-        this.grad170 = grad170;
-    }
-
     public static Oppdragslinje150Dto fraDomene(Oppdragslinje150 oppdragslinje150) {
         Oppdragslinje150Dto oppdragslinje150Dto = new Oppdragslinje150Dto(oppdragslinje150);
         oppdragslinje150Dto.vedtakId = oppdragslinje150.getVedtakId();
@@ -206,10 +195,6 @@ public class Oppdragslinje150Dto extends SporingDto {
         oppdragslinje150Dto.henvisning = oppdragslinje150.getHenvisning();
         oppdragslinje150Dto.grad = oppdragslinje150.getGrad().getVerdi();
         oppdragslinje150Dto.refusjonInfo156 = oppdragslinje150.getRefusjonsinfo156() != null ? RefusjonInfo156Dto.fraDomene(oppdragslinje150.getRefusjonsinfo156()) : null;
-        oppdragslinje150Dto.grad170 = oppdragslinje150.getGrad170Liste()
-            .stream()
-            .map(Grad170Dto::fraDomene)
-            .collect(Collectors.toList());
         return oppdragslinje150Dto;
 
     }
