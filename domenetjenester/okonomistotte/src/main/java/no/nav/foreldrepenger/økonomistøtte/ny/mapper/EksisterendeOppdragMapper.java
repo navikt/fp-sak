@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -12,7 +13,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad170;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
@@ -148,14 +149,7 @@ public class EksisterendeOppdragMapper {
     }
 
     private static Utbetalingsgrad mapUtbetalingsgrad(Oppdragslinje150 linje) {
-        List<Grad170> grad170 = linje.getGrad170Liste();
-        if (grad170.isEmpty()) {
-            return null;
-        }
-        if (grad170.size() == 1) {
-            return new Utbetalingsgrad(grad170.get(0).getGrad());
-        }
-        throw new IllegalArgumentException("Forventer 0 eller 1 Grad170, men fikk " + grad170.size());
+        return Optional.ofNullable(linje.getGrad()).map(Grad::getVerdi).map(Utbetalingsgrad::new).orElse(null);
     }
 
     private static Sats mapSats(Oppdragslinje150 linje) {

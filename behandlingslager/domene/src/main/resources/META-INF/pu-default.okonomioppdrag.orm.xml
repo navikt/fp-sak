@@ -5,7 +5,6 @@
       http://xmlns.jcp.org/xml/ns/persistence/orm_2_1.xsd"
                  version="2.1">
 
-    <sequence-generator name="SEQ_OKO_GRAD_170" allocation-size="50" sequence-name="SEQ_OKO_GRAD_170" />
     <sequence-generator name="SEQ_OKO_OPPDRAG_110" allocation-size="50" sequence-name="SEQ_OKO_OPPDRAG_110" />
     <sequence-generator name="SEQ_OPPDRAG_KONTROLL" allocation-size="50" sequence-name="SEQ_OPPDRAG_KONTROLL" />
     <sequence-generator name="SEQ_OKO_OPPDRAG_LINJE_150" allocation-size="50" sequence-name="SEQ_OKO_OPPDRAG_LINJE_150" />
@@ -13,7 +12,6 @@
     <sequence-generator name="SEQ_OPPDRAG_KVITTERING" allocation-size="50" sequence-name="SEQ_OPPDRAG_KVITTERING" />
     <sequence-generator name="SEQ_OKO_OMPOSTERING_116" allocation-size="50" sequence-name="SEQ_OKO_OMPOSTERING_116" />
 
-    <entity class="no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad170" />
     <entity class="no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110" />
     <entity class="no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll" />
     <entity class="no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150" />

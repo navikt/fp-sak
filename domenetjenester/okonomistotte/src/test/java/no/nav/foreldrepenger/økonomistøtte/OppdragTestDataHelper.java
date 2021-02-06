@@ -4,7 +4,6 @@ import java.time.LocalDate;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad170;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
@@ -79,8 +78,8 @@ public class OppdragTestDataHelper {
             .build();
     }
 
-    static void buildGrad170(Oppdragslinje150 oppdragslinje150) {
-        Grad170.builder()
+    static void buildgetOppdragTjeneste()(Oppdragslinje150 oppdragslinje150) {
+        getOppdragTjeneste().builder()
             .medGrad(100)
             .medTypeGrad("UFOR")
             .medOppdragslinje150(oppdragslinje150)

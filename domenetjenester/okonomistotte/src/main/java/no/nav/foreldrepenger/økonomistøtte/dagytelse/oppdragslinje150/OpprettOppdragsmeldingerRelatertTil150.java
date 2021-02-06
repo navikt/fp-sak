@@ -1,28 +1,15 @@
 package no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdragslinje150;
 
 import java.time.LocalDate;
-import java.util.List;
 
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad170;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
 import no.nav.foreldrepenger.økonomistøtte.Oppdragsmottaker;
-import no.nav.foreldrepenger.økonomistøtte.OpprettOppdragTjeneste;
-import no.nav.foreldrepenger.økonomistøtte.dagytelse.OppdragskontrollConstants;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragInput;
 
 public class OpprettOppdragsmeldingerRelatertTil150 {
 
-    private OpprettOppdragsmeldingerRelatertTil150() {
-    }
-
-    public static void opprettGrad170(Oppdragslinje150 oppdragslinje150, int grad) {
-        Grad170.builder()
-            .medTypeGrad(OppdragskontrollConstants.TYPE_GRAD)
-            .medGrad(grad)
-            .medOppdragslinje150(oppdragslinje150)
-            .build();
-    }
+    private OpprettOppdragsmeldingerRelatertTil150() {}
 
     public static void opprettRefusjonsinfo156(OppdragInput behandlingInfo, Oppdragslinje150 nyOppdragslinje150, Refusjonsinfo156 forrigeRefusjonsinfo156) {
         Refusjonsinfo156.builder()

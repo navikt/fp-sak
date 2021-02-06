@@ -7,7 +7,6 @@ import java.util.Map;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad170;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
@@ -131,8 +130,8 @@ public class OppdragMapper {
         }
         if (linje.getUtbetalingsgrad() != null) {
             builder.medGrad(Grad.prosent(linje.getUtbetalingsgrad().getUtbetalingsgrad()));
-            
-            Grad170.builder()
+
+            getOppdragTjeneste().builder()
                 .medOppdragslinje150(oppdragslinje150)
                 .medGrad(linje.getUtbetalingsgrad().getUtbetalingsgrad())
                 .medTypeGrad("UFOR")

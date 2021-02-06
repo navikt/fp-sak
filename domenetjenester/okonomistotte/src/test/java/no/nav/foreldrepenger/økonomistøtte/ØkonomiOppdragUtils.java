@@ -6,7 +6,6 @@ import java.util.List;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad170;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
@@ -49,7 +48,7 @@ class ØkonomiOppdragUtils {
     static void leggTilGrad170(List<Oppdragslinje150> o150Liste) {
         for (Oppdragslinje150 o150 : o150Liste) {
             o150.setGrad(Grad.prosent(BehandleØkonomioppdragKvitteringTest.GRAD));
-            
+
             Grad170.builder()
                 .medGrad(BehandleØkonomioppdragKvitteringTest.GRAD)
                 .medTypeGrad(BehandleØkonomioppdragKvitteringTest.TYPE_GRAD)

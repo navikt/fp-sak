@@ -105,9 +105,6 @@ public class Oppdragslinje150 extends BaseEntitet {
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "oppdragslinje150", cascade = CascadeType.PERSIST)
     private Refusjonsinfo156 refusjonsinfo156;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "oppdragslinje150", cascade = CascadeType.PERSIST)
-    private List<Grad170> grad170Liste = new ArrayList<>();
-
     private Oppdragslinje150() {}
 
     public static Builder builder() {
@@ -229,15 +226,6 @@ public class Oppdragslinje150 extends BaseEntitet {
     protected void setRefusjonsinfo156(Refusjonsinfo156 refusjonsinfo156) {
         Objects.requireNonNull(refusjonsinfo156, "refusjonsinfo156");
         this.refusjonsinfo156 = refusjonsinfo156;
-    }
-
-    public List<Grad170> getGrad170Liste() {
-        return grad170Liste;
-    }
-
-    protected void addGrad170(Grad170 grad170) {
-        Objects.requireNonNull(grad170, "grad170");
-        grad170Liste.add(grad170);
     }
 
     public long getVersjon() {
