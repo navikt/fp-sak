@@ -167,10 +167,10 @@ class OppdragskontrollTestVerktøy {
             Oppdragslinje150 originaltOpp150 = originaltOpp150Liste.stream().
                 filter(opp150 -> opp150.getDelytelseId().equals(opp150Revurdering.getDelytelseId())).findFirst().orElse(null);
             if (originaltOpp150 != null && !erOpp150ForFeriepenger(originaltOpp150)) {
-                Grad grad170Revurdering = opp150Revurdering.getGrad();
-                Grad grad170Originalt = originaltOpp150.getGrad();
-                assertThat(grad170Revurdering.getType()).isEqualTo(grad170Originalt.getType());
-                assertThat(grad170Revurdering.getVerdi()).isEqualTo(grad170Originalt.getVerdi());
+                Grad gradRevurdering = opp150Revurdering.getGrad();
+                Grad gradOriginalt = originaltOpp150.getGrad();
+                assertThat(gradRevurdering.getType()).isEqualTo(gradOriginalt.getType());
+                assertThat(gradRevurdering.getVerdi()).isEqualTo(gradOriginalt.getVerdi());
             }
         }
     }

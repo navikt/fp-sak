@@ -195,30 +195,7 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
         Oppdragslinje150 oppdrLinje150Lest = entityManager.find(Oppdragslinje150.class, id);
         assertThat(oppdrLinje150Lest).isNotNull();
     }
-
-    @Test
-    public void lagreGrad170() {
-        // Arrange
-        Oppdragskontroll oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
-        Oppdrag110 oppdr110 = OppdragTestDataHelper.buildOppdrag110ES(oppdrkontroll, 44L);
-        Oppdragslinje150 oppdrLinje150 = OppdragTestDataHelper.buildOppdragslinje150(oppdr110);
-
-        OppdragTestDataHelper.buildGrad170(oppdrLinje150);
-
-        // Act
-        økonomioppdragRepository.lagre(oppdrkontroll);
-
-        // Assert
-        Long id = oppdrLinje150.getId();
-        assertThat(id).isNotNull();
-
-        Oppdragslinje150 oppdrLinje150Lest = entityManager.find(Oppdragslinje150.class, id);
-        assertThat(oppdrLinje150Lest).isNotNull();
-        Grad170 grad170Lest = oppdrLinje150Lest.getGrad170Liste().get(0);
-        assertThat(grad170Lest).isNotNull();
-        assertThat(grad170Lest.getId()).isNotEqualTo(0);
-    }
-
+    
     @Test
     public void lagreRefusjonsinfo156() {
         // Arrange

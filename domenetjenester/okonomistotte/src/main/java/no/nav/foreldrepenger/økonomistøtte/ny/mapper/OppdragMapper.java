@@ -16,6 +16,8 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
+import no.nav.foreldrepenger.økonomistøtte.dagytelse.OppdragskontrollConstants;
+import no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdragslinje150.Oppdragslinje150Util;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Betalingsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.KjedeNøkkel;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Oppdrag;
@@ -26,8 +28,6 @@ import no.nav.foreldrepenger.økonomistøtte.ny.domene.YtelsePeriode;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.MottakerOppdragKjedeOversikt;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.OverordnetOppdragKjedeOversikt;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomistøtteUtils;
-import no.nav.foreldrepenger.økonomistøtte.dagytelse.OppdragskontrollConstants;
-import no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdragslinje150.Oppdragslinje150Util;
 
 public class OppdragMapper {
 
@@ -130,12 +130,6 @@ public class OppdragMapper {
         }
         if (linje.getUtbetalingsgrad() != null) {
             builder.medGrad(Grad.prosent(linje.getUtbetalingsgrad().getUtbetalingsgrad()));
-
-            getOppdragTjeneste().builder()
-                .medOppdragslinje150(oppdragslinje150)
-                .medGrad(linje.getUtbetalingsgrad().getUtbetalingsgrad())
-                .medTypeGrad("UFOR")
-                .build();
         }
         return oppdragslinje150;
     }

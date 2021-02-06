@@ -78,14 +78,6 @@ public class OppdragTestDataHelper {
             .build();
     }
 
-    static void buildgetOppdragTjeneste()(Oppdragslinje150 oppdragslinje150) {
-        getOppdragTjeneste().builder()
-            .medGrad(100)
-            .medTypeGrad("UFOR")
-            .medOppdragslinje150(oppdragslinje150)
-            .build();
-    }
-
     static void buildRefusjonsinfo156(Oppdragslinje150 oppdragslinje150) {
         Refusjonsinfo156.Builder refusjonsinfo156Builder = Refusjonsinfo156.builder();
 
