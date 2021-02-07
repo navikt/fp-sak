@@ -45,13 +45,14 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingOppretti
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.Redirect;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.SakRettigheterDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.ProsessTaskGruppeIdDto;
-import no.nav.foreldrepenger.web.app.tjenester.fagsak.app.FagsakTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.app.FagsakSamlingForBruker;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.app.FagsakTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakBackendDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.PersonDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SokefeltDto;
+import no.nav.foreldrepenger.web.app.util.StringUtils;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
 
@@ -222,8 +223,8 @@ public class FagsakRestTjeneste {
     }
 
     private PersonDto mapFraPersoninfoBasis(PersoninfoBasis pi) {
-        return new PersonDto(pi.getNavn(), pi.getAlder(), String.valueOf(pi.getPersonIdent().getIdent()),
-            pi.erKvinne(), pi.getPersonstatus(), pi.getDiskresjonskode(), pi.getDødsdato());
+        return new PersonDto(StringUtils.formaterMedStoreOgSmåBokstaver(pi.getNavn()), pi.getPersonIdent().getIdent(),
+            pi.erKvinne(), pi.getPersonstatus(), pi.getDiskresjonskode(), pi.getFødselsdato(), pi.getDødsdato());
     }
 
 }

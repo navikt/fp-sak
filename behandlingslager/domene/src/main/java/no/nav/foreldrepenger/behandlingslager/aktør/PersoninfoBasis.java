@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.aktør;
 import static java.util.Objects.requireNonNull;
 
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -45,10 +44,6 @@ public class PersoninfoBasis {
 
     public LocalDate getFødselsdato() {
         return fødselsdato;
-    }
-
-    public int getAlder() {
-        return (int) ChronoUnit.YEARS.between(fødselsdato, LocalDate.now());
     }
 
     public boolean erKvinne() {

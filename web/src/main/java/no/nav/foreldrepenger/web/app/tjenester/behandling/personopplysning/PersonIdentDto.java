@@ -6,7 +6,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 public abstract class PersonIdentDto {
 
     private String fnr;
-    private Long aktoerId;
+    private String aktoerId;
     private Diskresjonskode diskresjonskode;
 
     public Diskresjonskode getDiskresjonskode() {
@@ -30,7 +30,7 @@ public abstract class PersonIdentDto {
     }
 
     void setAktoerId(AktørId aktoerId) {
-        this.aktoerId = Long.parseLong(aktoerId.getId());
+        this.aktoerId = aktoerId.getId();
     }
 
 }

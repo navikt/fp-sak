@@ -85,7 +85,7 @@ public class PersonIdent implements Comparable<PersonIdent>, IndexKey {
 
     @Override
     public String getIndexKey() {
-        return ident + "(" + (erDnr() ? "DNR" : erFdatNummer() ? "FDAT" : "FNR") + ")";
+        return ident + "(" + (erDnr() ? "DNR" : "FNR") + ")";
     }
 
     @Override
@@ -114,6 +114,7 @@ public class PersonIdent implements Comparable<PersonIdent>, IndexKey {
     }
 
     public boolean erNPID() {
+        if (ident.length() != FNR_LENGDE) return false;
         int n = Character.digit(ident.charAt(2), 10);
         return n > 1 && n <= 3;
     }
@@ -123,12 +124,6 @@ public class PersonIdent implements Comparable<PersonIdent>, IndexKey {
         return Objects.hash(ident);
     }
 
-    /**
-     * Hvorvidt dette er et Fdat Nummer (dvs. gjelder person uten tildelt fødselsnummer).
-     */
-    public boolean erFdatNummer() {
-        return isFdatNummer(getPersonnummer(ident));
-    }
 
     @Override
     public String toString() {

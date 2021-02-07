@@ -188,12 +188,15 @@ public class PersonopplysningerAggregat {
     }
 
     public Optional<PersonopplysningEntitet> getAnnenPart() {
-        var annenpart = getOppgittAnnenPart().map(ap -> personopplysninger.get(ap.getAktørId())).orElse(null);
-        return Optional.ofNullable(annenpart);
+        return getOppgittAnnenPart().map(OppgittAnnenPartEntitet::getAktørId).map(personopplysninger::get);
     }
 
     public Optional<PersonopplysningEntitet> getEktefelle() {
         return getTilPersonerFor(søkerAktørId, RelasjonsRolleType.EKTE).stream().findFirst();
+    }
+
+    public Optional<PersonopplysningEntitet> getAnnenPartEllerEktefelle() {
+        return getAnnenPart().or(this::getEktefelle);
     }
 
     public List<PersonRelasjonEntitet> getSøkersRelasjoner() {
@@ -246,7 +249,6 @@ public class PersonopplysningerAggregat {
                     familierelasjon.getTilAktørId().equals(aktørId) &&
                     familierelasjon.getRelasjonsrolle().equals(relasjonsRolle))
                 .findFirst();
-        // Overgang DSF->FREG gir !harSammeBosted fra TPS
         if (ektefelleRelasjon.filter(PersonRelasjonEntitet::getHarSammeBosted).isPresent()) {
             return true;
         }

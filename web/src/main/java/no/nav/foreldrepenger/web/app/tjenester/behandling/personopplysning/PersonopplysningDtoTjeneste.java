@@ -1,9 +1,10 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning;
 
+import static no.nav.foreldrepenger.web.app.util.StringUtils.formaterMedStoreOgSmåBokstaver;
+
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -32,12 +33,16 @@ import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
+import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.SøknadDtoFeil;
 
 @ApplicationScoped
 public class PersonopplysningDtoTjeneste {
+
+    private static final String UTLAND = "UtlandskIdent";
 
     private VergeRepository vergeRepository;
     private PersonopplysningTjeneste personopplysningTjeneste;
@@ -61,8 +66,9 @@ public class PersonopplysningDtoTjeneste {
     }
 
     private static List<PersonadresseDto> lagAddresseDto(PersonopplysningEntitet personopplysning, PersonopplysningerAggregat aggregat) {
-        List<PersonAdresseEntitet> adresser = aggregat.getAdresserFor(personopplysning.getAktørId());
-        return adresser.stream().map(e -> lagDto(e, personopplysning.getNavn())).collect(Collectors.toList());
+        return aggregat.getAdresserFor(personopplysning.getAktørId()).stream()
+            .map(e -> lagDto(e, personopplysning.getNavn()))
+            .collect(Collectors.toList());
     }
 
     private static LandkoderDto lagLandkoderDto(Landkoder landkode) {
@@ -87,26 +93,8 @@ public class PersonopplysningDtoTjeneste {
 
     }
 
-    private static String formaterMedStoreOgSmåBokstaver(String tekst) {
-        if (tekst == null || (tekst = tekst.trim()).isEmpty()) { // NOSONAR
-            return null;
-        }
-        String skilletegnPattern = "(\\s|[()\\-_.,/])";
-        char[] tegn = tekst.toLowerCase(Locale.getDefault()).toCharArray();
-        boolean nesteSkalHaStorBokstav = true;
-        for (int i = 0; i < tegn.length; i++) {
-            boolean erSkilletegn = String.valueOf(tegn[i]).matches(skilletegnPattern);
-            if (!erSkilletegn && nesteSkalHaStorBokstav) {
-                tegn[i] = Character.toTitleCase(tegn[i]);
-            }
-            nesteSkalHaStorBokstav = erSkilletegn;
-        }
-        return new String(tegn);
-    }
-
     private boolean harVerge(Long behandlingId) {
-        Optional<VergeAggregat> verge = vergeRepository.hentAggregat(behandlingId);
-        return verge.isPresent() && verge.get().getVerge().isPresent();
+        return vergeRepository.hentAggregat(behandlingId).map(VergeAggregat::getVerge).isPresent();
     }
 
     public PersonopplysningTilbakeDto lagPersonopplysningTilbakeDto(Long behandlingId) {
@@ -121,23 +109,15 @@ public class PersonopplysningDtoTjeneste {
 
     public Optional<PersonopplysningDto> lagPersonopplysningDto(Long behandlingId, LocalDate tidspunkt) {
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        Optional<PersonopplysningerAggregat> aggregatOpt = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(behandling.getId(), behandling.getAktørId(), tidspunkt);
-
-        if (aggregatOpt.isPresent()) {
-            Optional<FamilieHendelseGrunnlagEntitet> familieHendelseAggregat = familieHendelseRepository
-                .hentAggregatHvisEksisterer(behandlingId);
-            PersonopplysningerAggregat aggregat = aggregatOpt.get();
-            return Optional.ofNullable(aggregat.getSøker())
-                .map(søker -> mapPersonopplysningDto(behandling, søker, aggregat, familieHendelseAggregat));
-        }
-        return Optional.empty();
+        return personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(behandling.getId(), behandling.getAktørId(), tidspunkt)
+            .filter(a -> a.getSøker() != null)
+            .map(aggregat -> mapPersonopplysningDto(behandling, aggregat));
     }
 
     private PersonopplysningDto mapPersonopplysningDto(Behandling behandling,
-                                                       PersonopplysningEntitet søker,
-                                                       PersonopplysningerAggregat aggregat,
-                                                       Optional<FamilieHendelseGrunnlagEntitet> familieHendelseAggregat) {
+                                                       PersonopplysningerAggregat aggregat) {
 
+        PersonopplysningEntitet søker = aggregat.getSøker();
         RelasjonsRolleType rolleForSøker = utledRolleForSøker(behandling.getFagsak(), aggregat, søker);
         PersonopplysningDto dto = enkelMapping(søker, aggregat, rolleForSøker);
 
@@ -146,14 +126,11 @@ public class PersonopplysningDtoTjeneste {
             .map(e -> enkelMapping(e, aggregat, RelasjonsRolleType.BARN))
             .collect(Collectors.toList()));
 
-        dto.setBarnSoktFor(Collections.emptyList());
-
-        if (familieHendelseAggregat.isPresent()) {
-            final FamilieHendelseGrunnlagEntitet grunnlag = familieHendelseAggregat.get();
-            dto.setBarnSoktFor(grunnlag.getGjeldendeBarna().stream()
-                .map(this::enkelFHMapping)
-                .collect(Collectors.toList()));
-        }
+        var søknadsbarn = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
+            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeBarna).orElse(Collections.emptyList()).stream()
+            .map(this::enkelFHMapping)
+            .collect(Collectors.toList());
+        dto.setBarnSoktFor(søknadsbarn);
 
         mapAnnenpart(søker, rolleForSøker, aggregat, behandling.getFagsak().getSaksnummer()).ifPresent(ap -> {
             ap.setBarn(aggregat.getFellesBarn().stream()
@@ -225,7 +202,7 @@ public class PersonopplysningDtoTjeneste {
         }
 
         var oppgittAnnenPart = aggregat.getOppgittAnnenPart();
-        if (oppgittAnnenPart.isPresent() && harOppgittLand(oppgittAnnenPart.get().getUtenlandskFnrLand())) {
+        if (oppgittAnnenPart.isPresent() && harOppgittLand(oppgittAnnenPart.orElse(null))) {
             var annenPartsRolle = utledRolleForAnnenPart(null, rolleForSøker, aggregat, null);
             return Optional.of(enkelUtenlandskAnnenPartMapping(oppgittAnnenPart.get(), annenPartsRolle));
         }
@@ -236,8 +213,8 @@ public class PersonopplysningDtoTjeneste {
         return Optional.ofNullable(aggregat.getPersonopplysning(relatertBehandling.getAktørId())).map(p -> enkelMapping(p, aggregat, rolle));
     }
 
-    private boolean harOppgittLand(Landkoder utenlandskFnrLand) {
-        return utenlandskFnrLand != null && !Landkoder.UDEFINERT.equals(utenlandskFnrLand);
+    private boolean harOppgittLand(OppgittAnnenPartEntitet annenPart) {
+        return annenPart != null && annenPart.getUtenlandskFnrLand() != null && !Landkoder.UDEFINERT.equals(annenPart.getUtenlandskFnrLand());
     }
 
     private PersonopplysningDto enkelUtenlandskAnnenPartMapping(OppgittAnnenPartEntitet oppgittAnnenPart, RelasjonsRolleType rolle) {
@@ -302,99 +279,109 @@ public class PersonopplysningDtoTjeneste {
 
     public Optional<PersonopplysningMedlemskapDto> lagPersonopplysningMedlemskapDto(Long behandlingId, LocalDate tidspunkt) {
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        Optional<PersonopplysningerAggregat> aggregatOpt = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(behandling.getId(), behandling.getAktørId(), tidspunkt);
-
-        if (aggregatOpt.isPresent()) {
-            PersonopplysningerAggregat aggregat = aggregatOpt.get();
-            return Optional.ofNullable(aggregat.getSøker())
-                .map(søker -> mapPersonopplysningMedlemskapDto(behandling, søker, aggregat));
-        }
-        return Optional.empty();
+        return personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(behandling.getId(), behandling.getAktørId(), tidspunkt)
+            .map(aggregat -> enkelMappingMedlemskap(aggregat.getSøker(), aggregat));
     }
 
-    private PersonopplysningMedlemskapDto mapPersonopplysningMedlemskapDto(Behandling behandling,
-                                                                           PersonopplysningEntitet søker,
-                                                                           PersonopplysningerAggregat aggregat) {
+    public Optional<PersonopplysningMedlemskapDto> lagAnnenpartPersonopplysningMedlemskapDto(Long behandlingId, LocalDate tidspunkt) {
+        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        return personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(behandlingId, behandling.getAktørId(), tidspunkt)
+            .flatMap(this::mapAnnenpartMedlemskap);
+    }
 
-        RelasjonsRolleType rolleForSøker = utledRolleForSøker(behandling.getFagsak(), aggregat, søker);
-        PersonopplysningMedlemskapDto dto = enkelMappingMedlemskap(søker, aggregat, rolleForSøker);
-
-        mapAnnenpartMedlemskap(søker, rolleForSøker, aggregat, behandling.getFagsak().getSaksnummer()).ifPresent(dto::setAnnenPart);
-
-        return dto;
+    private Optional<PersonopplysningMedlemskapDto> mapAnnenpartMedlemskap(PersonopplysningerAggregat aggregat) {
+        var oppgittAnnenPart = aggregat.getOppgittAnnenPart()
+            .filter(oap -> oap.getAktørId() == null && harOppgittLand(oap));
+        return oppgittAnnenPart.map(this::enkelUtenlandskAnnenPartMappingMedlemskap)
+            .or(() -> aggregat.getAnnenPartEllerEktefelle().map(ap -> enkelMappingMedlemskap(ap, aggregat)));
 
     }
 
-    private Optional<PersonopplysningMedlemskapDto> mapAnnenpartMedlemskap(PersonopplysningEntitet søker,
-                                                       RelasjonsRolleType rolleForSøker,
-                                                       PersonopplysningerAggregat aggregat,
-                                                       Saksnummer saksnummner) {
-        var annenPartOpplysning = aggregat.getAnnenPart().orElse(null);
-        var relatertBehandling = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattBehandling(saksnummner);
-        if (relatertBehandling.isPresent()) {
-            var annenPartsRolle = utledRolleForAnnenPart(relatertBehandling.map(Behandling::getFagsak).orElse(null), rolleForSøker,
-                aggregat, annenPartOpplysning);
-            return mapRelatertAnnenpartMedlemskap(aggregat, relatertBehandling.get(), annenPartsRolle);
-        }
-
-        if (annenPartOpplysning != null) {
-            if (søker.getAktørId().equals(annenPartOpplysning.getAktørId())) {
-                throw SøknadDtoFeil.FACTORY.kanIkkeVæreBådeFarOgMorTilEtBarn().toException();
-            }
-            var annenPartsRolle = utledRolleForAnnenPart(null, rolleForSøker, aggregat, annenPartOpplysning);
-            return Optional.of(enkelMappingMedlemskap(annenPartOpplysning, aggregat, annenPartsRolle));
-        }
-
-        var oppgittAnnenPart = aggregat.getOppgittAnnenPart();
-        if (oppgittAnnenPart.isPresent() && harOppgittLand(oppgittAnnenPart.get().getUtenlandskFnrLand())) {
-            var annenPartsRolle = utledRolleForAnnenPart(null, rolleForSøker, aggregat, null);
-            return Optional.of(enkelUtenlandskAnnenPartMappingMedlemskap(oppgittAnnenPart.get(), annenPartsRolle));
-        }
-        return Optional.empty();
-    }
-
-    private Optional<PersonopplysningMedlemskapDto> mapRelatertAnnenpartMedlemskap(PersonopplysningerAggregat aggregat, Behandling relatertBehandling, RelasjonsRolleType rolle) {
-        return Optional.ofNullable(aggregat.getPersonopplysning(relatertBehandling.getAktørId())).map(p -> enkelMappingMedlemskap(p, aggregat, rolle));
-    }
-
-    private PersonopplysningMedlemskapDto enkelUtenlandskAnnenPartMappingMedlemskap(OppgittAnnenPartEntitet oppgittAnnenPart, RelasjonsRolleType rolle) {
-        PersonopplysningMedlemskapDto dto = new PersonopplysningMedlemskapDto();
-        PersonstatusType ureg = PersonstatusType.UREG;
+    private PersonopplysningMedlemskapDto enkelUtenlandskAnnenPartMappingMedlemskap(OppgittAnnenPartEntitet oppgittAnnenPart) {
+        PersonopplysningMedlemskapDto dto = new PersonopplysningMedlemskapDto(UTLAND);
+        PersonstatusType ureg = PersonstatusType.UDEFINERT;
         dto.setAvklartPersonstatus(new AvklartPersonstatus(ureg, ureg));
         dto.setPersonstatus(ureg);
-        dto.setRelasjonsRolle(rolle);
-
-        if (oppgittAnnenPart.getAktørId() != null) {
-            dto.setAktoerId(oppgittAnnenPart.getAktørId().getId());
-        }
-        dto.setNavn(oppgittAnnenPart.getNavn());
-        if (oppgittAnnenPart.getUtenlandskFnrLand() != null) {
-            dto.setStatsborgerskap(lagLandkoderDto(oppgittAnnenPart.getUtenlandskFnrLand()));
-        }
+        dto.setStatsborgerskap(oppgittAnnenPart.getUtenlandskFnrLand());
+        dto.setRegion(MapRegionLandkoder.mapLandkode(oppgittAnnenPart.getUtenlandskFnrLand().getKode()));
         return dto;
     }
 
-    private PersonopplysningMedlemskapDto enkelMappingMedlemskap(PersonopplysningEntitet personopplysning, PersonopplysningerAggregat aggregat, RelasjonsRolleType rolle) {
-        PersonopplysningMedlemskapDto dto = new PersonopplysningMedlemskapDto();
-        dto.setRelasjonsRolle(rolle);
-        final Optional<Landkoder> landkoder = aggregat.getStatsborgerskapFor(personopplysning.getAktørId()).stream().findFirst().map(StatsborgerskapEntitet::getStatsborgerskap);
-        landkoder.ifPresent(landkoder1 -> dto.setStatsborgerskap(lagLandkoderDto(landkoder1)));
-        final PersonstatusType gjeldendePersonstatus = hentPersonstatus(personopplysning, aggregat);
+    private PersonopplysningMedlemskapDto enkelMappingMedlemskap(PersonopplysningEntitet personopplysning, PersonopplysningerAggregat aggregat) {
+        PersonopplysningMedlemskapDto dto = new PersonopplysningMedlemskapDto(personopplysning.getAktørId().getId());
+        Optional.ofNullable(personopplysning.getRegion()).ifPresent(dto::setRegion);
+        aggregat.getStatsborgerskapFor(personopplysning.getAktørId()).stream().findFirst()
+            .map(StatsborgerskapEntitet::getStatsborgerskap)
+            .ifPresent(dto::setStatsborgerskap);
+        final var gjeldendePersonstatus = hentPersonstatus(personopplysning, aggregat);
         dto.setPersonstatus(gjeldendePersonstatus);
-        final AvklartPersonstatus avklartPersonstatus = new AvklartPersonstatus(aggregat.getOrginalPersonstatusFor(personopplysning.getAktørId())
+        final var avklartPersonstatus = new AvklartPersonstatus(aggregat.getOrginalPersonstatusFor(personopplysning.getAktørId())
             .map(PersonstatusEntitet::getPersonstatus).orElse(gjeldendePersonstatus),
             gjeldendePersonstatus);
         dto.setAvklartPersonstatus(avklartPersonstatus);
-        dto.setSivilstand(personopplysning.getSivilstand());
+        return dto;
+    }
 
-        dto.setAktoerId(personopplysning.getAktørId().getId());
+    public Optional<PersonoversiktDto> lagPersonversiktDto(Long behandlingId, LocalDate tidspunkt) {
+        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        return personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(behandlingId, behandling.getAktørId(), tidspunkt)
+            .filter(a -> a.getSøker() != null)
+            .map(aggregat -> mapPersonoversikt(behandlingId, aggregat));
+    }
+
+    private PersonoversiktDto mapPersonoversikt(Long behandlingId, PersonopplysningerAggregat aggregat) {
+        var dto = new PersonoversiktDto();
+
+        aggregat.getAktørPersonopplysningMap().forEach((k, v) -> dto.leggTilPerson(k.getId(), enkelPersonMapping(v, aggregat)));
+        dto.setBrukerId(aggregat.getSøker().getAktørId().getId());
+        aggregat.getAnnenPart().map(PersonopplysningEntitet::getAktørId).map(AktørId::getId).ifPresent(dto::setAnnenpartId);
+        aggregat.getEktefelle().map(PersonopplysningEntitet::getAktørId).map(AktørId::getId).ifPresent(dto::setEktefelleId);
+        dto.setBarnMedId(aggregat.getBarna().stream().map(PersonopplysningEntitet::getAktørId).map(AktørId::getId).collect(Collectors.toList()));
+
+        List<PersonopplysningBasisDto> uidentifiserteBarn = familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId)
+            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeBarna).orElse(Collections.emptyList()).stream()
+            .map(this::enkelUidentifisertBarnMapping)
+            .collect(Collectors.toList());
+        uidentifiserteBarn.forEach(b -> dto.leggTilPerson(b.getIdentifikator(), b));
+        dto.setBarnUtenId(uidentifiserteBarn.stream().map(PersonopplysningBasisDto::getIdentifikator).collect(Collectors.toList()));
+
+        if (dto.getAnnenpartId() == null) {
+            aggregat.getOppgittAnnenPart().filter(this::harOppgittLand)
+                .ifPresent(annenpart -> {
+                    dto.setAnnenpartId(UTLAND);
+                    dto.leggTilPerson(UTLAND, enkelUtenlandskAnnenPartMapping(annenpart));
+                });
+        }
+
+        dto.setBrukerHarVerge(harVerge(behandlingId));
+        return dto;
+    }
+
+    private PersonopplysningBasisDto enkelUidentifisertBarnMapping(UidentifisertBarn uidentifisertBarn) {
+        var dto = new PersonopplysningBasisDto("Barn " + uidentifisertBarn.getBarnNummer());
+        dto.setFodselsdato(uidentifisertBarn.getFødselsdato());
+        uidentifisertBarn.getDødsdato().ifPresent(dto::setDodsdato);
+        return dto;
+    }
+
+    private PersonopplysningBasisDto enkelPersonMapping(PersonopplysningEntitet personopplysning, PersonopplysningerAggregat aggregat) {
+        var dto = new PersonopplysningBasisDto(personopplysning.getAktørId().getId());
+        dto.setNavBrukerKjonn(personopplysning.getKjønn());
+        dto.setSivilstand(personopplysning.getSivilstand());
+        dto.setAktoerId(personopplysning.getAktørId());
         dto.setNavn(formaterMedStoreOgSmåBokstaver(personopplysning.getNavn()));
+        dto.setFodselsdato(personopplysning.getFødselsdato());
         dto.setDodsdato(personopplysning.getDødsdato());
         dto.setAdresser(lagAddresseDto(personopplysning, aggregat));
-        if (personopplysning.getRegion() != null) {
-            dto.setRegion(personopplysning.getRegion());
-        }
-        dto.setFodselsdato(personopplysning.getFødselsdato());
+        return dto;
+    }
+
+    private PersonopplysningBasisDto enkelUtenlandskAnnenPartMapping(OppgittAnnenPartEntitet oppgittAnnenPart) {
+        var dto = new PersonopplysningBasisDto(UTLAND);
+
+        dto.setNavBrukerKjonn(NavBrukerKjønn.UDEFINERT);
+        var bruknavn = Optional.ofNullable(oppgittAnnenPart.getUtenlandskPersonident()).orElse(oppgittAnnenPart.getType().getKode());
+        dto.setNavn(bruknavn);
         return dto;
     }
 }
