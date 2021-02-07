@@ -42,10 +42,6 @@ public class AktørTjeneste {
     }
 
     public Optional<AktørId> hentAktørIdForPersonIdent(PersonIdent personIdent) {
-        if (personIdent.erFdatNummer()) {
-            // har ikke tildelt personnr
-            return Optional.empty();
-        }
         var fraCache = cacheIdentTilAktørId.get(personIdent);
         if (fraCache != null) {
             return Optional.of(fraCache);
@@ -80,7 +76,7 @@ public class AktørTjeneste {
         }
         var request = new HentIdenterQueryRequest();
         request.setIdent(aktørId.getId());
-        request.setGrupper(List.of(IdentGruppe.FOLKEREGISTERIDENT));
+        request.setGrupper(List.of(IdentGruppe.FOLKEREGISTERIDENT, IdentGruppe.NPID));
         request.setHistorikk(Boolean.FALSE);
         var projection = new IdentlisteResponseProjection()
             .identer(new IdentInformasjonResponseProjection().ident());

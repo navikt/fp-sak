@@ -8,6 +8,7 @@ import java.util.Set;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapManuellVurderingType;
 import no.nav.foreldrepenger.domene.medlem.api.VurderingsÅrsak;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonopplysningDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonopplysningMedlemskapDto;
 
 public class MedlemPeriodeDto {
 
@@ -21,6 +22,8 @@ public class MedlemPeriodeDto {
     private Boolean bosattVurdering;
     private MedlemskapManuellVurderingType medlemskapManuellVurderingType;
     private String begrunnelse;
+    private PersonopplysningMedlemskapDto personopplysningBruker;
+    private PersonopplysningMedlemskapDto personopplysningAnnenPart;
 
     public MedlemPeriodeDto() {
         // trengs for deserialisering av JSON
@@ -92,6 +95,22 @@ public class MedlemPeriodeDto {
 
     void setPersonopplysninger(PersonopplysningDto personopplysninger) {
         this.personopplysninger = personopplysninger;
+    }
+
+    public PersonopplysningMedlemskapDto getPersonopplysningBruker() {
+        return personopplysningBruker;
+    }
+
+    public void setPersonopplysningBruker(PersonopplysningMedlemskapDto personopplysningBruker) {
+        this.personopplysningBruker = personopplysningBruker;
+    }
+
+    public PersonopplysningMedlemskapDto getPersonopplysningAnnenPart() {
+        return personopplysningAnnenPart;
+    }
+
+    public void setPersonopplysningAnnenPart(PersonopplysningMedlemskapDto personopplysningAnnenPart) {
+        this.personopplysningAnnenPart = personopplysningAnnenPart;
     }
 
     @Override

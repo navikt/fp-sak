@@ -36,6 +36,7 @@ import no.nav.foreldrepenger.web.app.exceptions.FeilType;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.app.FagsakTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.PersonDto;
+import no.nav.foreldrepenger.web.app.util.StringUtils;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 @ApplicationScoped
@@ -77,12 +78,12 @@ public class AktoerRestTjeneste {
             if (personinfo.isPresent()) {
                 PersoninfoBasis pi = personinfo.get();
                 PersonDto personDto = new PersonDto(
-                        pi.getNavn(),
-                        pi.getAlder(),
-                        String.valueOf(pi.getPersonIdent().getIdent()),
+                        StringUtils.formaterMedStoreOgSmåBokstaver(pi.getNavn()),
+                        pi.getPersonIdent().getIdent(),
                         pi.erKvinne(),
                         pi.getPersonstatus(),
                         pi.getDiskresjonskode(),
+                        pi.getFødselsdato(),
                         pi.getDødsdato());
                 aktoerInfoDto.setPerson(personDto);
                 aktoerInfoDto.setAktoerId(pi.getAktørId().getId());

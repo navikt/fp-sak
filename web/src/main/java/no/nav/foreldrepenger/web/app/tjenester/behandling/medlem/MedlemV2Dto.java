@@ -7,7 +7,6 @@ import java.util.Set;
 
 public class MedlemV2Dto {
 
-    private List<InntektDto> inntekt;
     private List<MedlemskapPerioderDto> medlemskapPerioder;
     private Set<MedlemPeriodeDto> perioder;
     private List<OppholdstillatelseDto> opphold = new ArrayList<>();
@@ -15,14 +14,6 @@ public class MedlemV2Dto {
 
     public MedlemV2Dto() {
         // trengs for deserialisering av JSON
-    }
-
-    public List<InntektDto> getInntekt() {
-        return inntekt;
-    }
-
-    void setInntekt(List<InntektDto> inntekt) {
-        this.inntekt = inntekt;
     }
 
     public List<MedlemskapPerioderDto> getMedlemskapPerioder() {

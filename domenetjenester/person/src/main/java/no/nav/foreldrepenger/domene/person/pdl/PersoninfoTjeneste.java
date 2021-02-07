@@ -158,7 +158,7 @@ public class PersoninfoTjeneste {
     public Personinfo hentPersoninfo(AktørId aktørId, PersonIdent personIdent) {
 
         var query = new HentPersonQueryRequest();
-        query.setIdent(aktørId.getId());
+        query.setIdent(personIdent.getIdent());
 
         var projection = new PersonResponseProjection()
             .navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn())
@@ -501,7 +501,7 @@ public class PersoninfoTjeneste {
     }
 
     private static Adresseinfo mapUkjentadresse(UkjentBosted ukjentBosted) {
-        return Adresseinfo.builder(AdresseType.UKJENT_ADRESSE).build();
+        return Adresseinfo.builder(AdresseType.UKJENT_ADRESSE).medLand(Landkoder.XUK.getKode()).build();
     }
 
     private static Adresseinfo mapUtenlandskadresse(AdresseType type, UtenlandskAdresse utenlandskAdresse) {
@@ -550,9 +550,28 @@ public class PersoninfoTjeneste {
         return poststedKodeverkRepository.finnPoststed(postnummer).map(Poststed::getPoststednavn).orElse(HARDKODET_POSTSTED);
     }
 
+    // TODO: Sjekk hva som kommer. Vurder Periodisering
+    private List<OppholdstillatelsePeriode> periodiserOppholdstillatelser(List<OppholdstillatelsePeriode> uperiodisert) {
+        var gyldighetsperioder = uperiodisert.stream().map(OppholdstillatelsePeriode::getGyldighetsperiode).collect(Collectors.toList());
+        return uperiodisert.stream()
+            .map(p -> new OppholdstillatelsePeriode(finnFomFraTomPerioder(gyldighetsperioder, p.getGyldighetsperiode()), p.getTillatelse()))
+            .collect(Collectors.toList());
+    }
+
+    private static Gyldighetsperiode finnFomFraTomPerioder(List<Gyldighetsperiode> alleperioder, Gyldighetsperiode periode) {
+        if (!periode.getFom().equals(Tid.TIDENES_BEGYNNELSE)) return periode;
+        if (alleperioder.stream().noneMatch(p -> p.getTom().isBefore(periode.getTom()) && p.getTom().isAfter(periode.getFom())))
+            return periode;
+        var fom = alleperioder.stream()
+            .map(Gyldighetsperiode::getTom)
+            .filter(d -> d.isBefore(periode.getTom()))
+            .max(Comparator.naturalOrder())
+            .map(d -> d.plusDays(1)).orElse(Tid.TIDENES_BEGYNNELSE);
+        return Gyldighetsperiode.innenfor(fom, periode.getTom());
+    }
+
     private static boolean relevantOppholdstillatelse(Opphold opphold) {
-        return Oppholdstillatelse.PERMANENT.equals(opphold.getType()) ||
-            (Oppholdstillatelse.MIDLERTIDIG.equals(opphold.getType()) && opphold.getOppholdFra() != null);
+        return Oppholdstillatelse.PERMANENT.equals(opphold.getType()) || Oppholdstillatelse.MIDLERTIDIG.equals(opphold.getType());
 
     }
 

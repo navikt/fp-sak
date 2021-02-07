@@ -65,13 +65,10 @@ public class PersoninfoAdapter {
     }
 
     public Optional<Personinfo> innhentPersonopplysningerFor(AktørId aktørId) {
-        return aktørConsumer.hentPersonIdentForAktørId(aktørId).filter(i -> !i.erFdatNummer()).map(i -> hentKjerneinformasjon(aktørId, i));
+        return aktørConsumer.hentPersonIdentForAktørId(aktørId).map(i -> hentKjerneinformasjon(aktørId, i));
     }
 
     public Optional<Personinfo> innhentPersonopplysningerFor(PersonIdent personIdent) {
-        if (personIdent.erFdatNummer()) {
-            return Optional.empty();
-        }
         return aktørConsumer.hentAktørIdForPersonIdent(personIdent).map(a -> hentKjerneinformasjon(a, personIdent));
     }
 
@@ -140,7 +137,12 @@ public class PersoninfoAdapter {
         if (personIdent == null) {
             return new PersoninfoSpråk(aktørId, Språkkode.NB);
         }
-        return new PersoninfoSpråk(aktørId, dkifSpråkKlient.finnSpråkkodeForBruker(personIdent.getIdent()));
+        try {
+            return new PersoninfoSpråk(aktørId, dkifSpråkKlient.finnSpråkkodeForBruker(personIdent.getIdent()));
+        } catch (Exception e) {
+            LOG.warn("DKIF feiler, defaulter til NB", e);
+        }
+        return new PersoninfoSpråk(aktørId, Språkkode.NB);
     }
 
 }

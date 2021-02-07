@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.Adresseinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.FamilierelasjonVL;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
-import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.AdressePeriode;
@@ -118,8 +117,8 @@ public class PersonopplysningInnhenter {
 
     private void mapOppholdstillatelse(List<OppholdstillatelsePeriode> oppholdshistorikk, PersonInformasjonBuilder informasjonBuilder, Personinfo personinfo) {
         for (OppholdstillatelsePeriode tillatelse : oppholdshistorikk) {
-            final OppholdstillatelseType type = tillatelse.getTillatelse();
-            final DatoIntervallEntitet periode = fødselsJustertPeriode(tillatelse.getGyldighetsperiode().getFom(), personinfo.getFødselsdato(), tillatelse.getGyldighetsperiode().getTom());
+            final var type = tillatelse.getTillatelse();
+            final var periode = fødselsJustertPeriode(tillatelse.getGyldighetsperiode().getFom(), tillatelse.getGyldighetsperiode().getFom(), tillatelse.getGyldighetsperiode().getTom());
 
             informasjonBuilder
                 .leggTil(informasjonBuilder.getOppholdstillatelseBuilder(personinfo.getAktørId(), periode).medOppholdstillatelse(type));

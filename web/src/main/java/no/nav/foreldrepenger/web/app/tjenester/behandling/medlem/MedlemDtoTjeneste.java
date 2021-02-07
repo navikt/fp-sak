@@ -6,8 +6,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -35,23 +33,16 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
-import no.nav.foreldrepenger.domene.iay.modell.Inntektspost;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.medlem.api.VurderMedlemskap;
 import no.nav.foreldrepenger.domene.medlem.api.VurderingsÅrsak;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonopplysningDtoTjeneste;
 
 @ApplicationScoped
 public class MedlemDtoTjeneste {
-    private static final String UKJENT_NAVN = "UKJENT NAVN";
+
     private static final LocalDate OPPHOLD_CUTOFF = LocalDate.of(2018,7,1);
 
     private static final List<AksjonspunktDefinisjon> MEDL_AKSJONSPUNKTER = List.of(AVKLAR_OM_ER_BOSATT,
@@ -61,7 +52,6 @@ public class MedlemDtoTjeneste {
 
     private MedlemskapRepository medlemskapRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private BehandlingRepository behandlingRepository;
     private MedlemTjeneste medlemTjeneste;
     private PersonopplysningTjeneste personopplysningTjeneste;
@@ -70,14 +60,12 @@ public class MedlemDtoTjeneste {
     @Inject
     public MedlemDtoTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
                              SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                             InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
                              MedlemTjeneste medlemTjeneste,
                              PersonopplysningTjeneste personopplysningTjeneste,
                              PersonopplysningDtoTjeneste personopplysningDtoTjeneste) {
 
         this.medlemskapRepository = behandlingRepositoryProvider.getMedlemskapRepository();
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
-        this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.medlemTjeneste = medlemTjeneste;
         this.personopplysningTjeneste = personopplysningTjeneste;
@@ -101,41 +89,12 @@ public class MedlemDtoTjeneste {
         }).collect(Collectors.toList());
     }
 
-    private void mapInntekt(Collection<InntektDto> inntektDto, Arbeidsgiver arbeidsgiver, Collection<Inntektspost> inntektsposter) {
-        String utbetaler = finnUtbetalerVisningstekst(arbeidsgiver);
-        inntektsposter
-            .forEach(inntektspost -> {
-                InntektDto dto = new InntektDto(); // NOSONAR
-                if (utbetaler != null) {
-                    dto.setUtbetaler(utbetaler);
-                } else {
-                    if (inntektspost.getYtelseType() != null) {
-                        dto.setUtbetaler(inntektspost.getYtelseType().getNavn());
-                    }
-                }
-
-                dto.setFom(inntektspost.getPeriode().getFomDato());
-                dto.setTom(inntektspost.getPeriode().getTomDato());
-                dto.setYtelse(inntektspost.getInntektspostType().equals(InntektspostType.YTELSE));
-                dto.setBelop(inntektspost.getBeløp().getVerdi().intValue());
-                inntektDto.add(dto);
-            });
-    }
-
-    private String finnUtbetalerVisningstekst(Arbeidsgiver arbeidsgiver) {
-        if (arbeidsgiver == null) {
-            return null;
-        }
-        return arbeidsgiver.getIdentifikator();
-    }
-
     public Optional<MedlemV2Dto> lagMedlemV2Dto(Long behandlingId) {
         Optional<MedlemskapAggregat> medlemskapOpt = medlemskapRepository.hentMedlemskap(behandlingId);
         final Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         final MedlemV2Dto dto = new MedlemV2Dto();
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
         Optional<PersonopplysningerAggregat> personopplysningerAggregat = personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(ref);
-        mapInntekter(dto, behandlingId, personopplysningerAggregat.orElse(null), ref);
         mapSkjæringstidspunkt(dto, medlemskapOpt.orElse(null), behandling.getAksjonspunkter(), ref);
         mapRegistrerteMedlPerioder(dto, medlemskapOpt.map(MedlemskapAggregat::getRegistrertMedlemskapPerioder).orElse(Collections.emptySet()));
         dto.setOpphold(mapOppholdstillatelser(behandlingId));
@@ -214,11 +173,6 @@ public class MedlemDtoTjeneste {
             .filter(it -> it.getVurderingsdato().equals(entrySet.getKey())).map(it -> (VurdertMedlemskap) it).findAny();
     }
 
-    private void mapInntekter(MedlemV2Dto dto, Long behandlingId, PersonopplysningerAggregat personopplysningerAggregat, BehandlingReferanse ref) {
-        inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingId)
-            .ifPresent(aggregat -> dto.setInntekt(lagInntektDto(aggregat, personopplysningerAggregat, ref)));
-    }
-
     private void mapSkjæringstidspunkt(MedlemV2Dto dto, MedlemskapAggregat aggregat, Set<Aksjonspunkt> aksjonspunkter, BehandlingReferanse ref) {
         final Optional<MedlemskapAggregat> aggregatOpts = Optional.ofNullable(aggregat);
         final Optional<VurdertMedlemskap> vurdertMedlemskapOpt = aggregatOpts.flatMap(MedlemskapAggregat::getVurdertMedlemskap);
@@ -241,6 +195,8 @@ public class MedlemDtoTjeneste {
         final MedlemPeriodeDto periodeDto = new MedlemPeriodeDto();
         periodeDto.setÅrsaker(årsaker);
         personopplysningDtoTjeneste.lagPersonopplysningDto(behandlingId, vurderingsdato).ifPresent(periodeDto::setPersonopplysninger);
+        //personopplysningDtoTjeneste.lagPersonopplysningMedlemskapDto(behandlingId, vurderingsdato).ifPresent(periodeDto::setPersonopplysningBruker);
+        //personopplysningDtoTjeneste.lagAnnenpartPersonopplysningMedlemskapDto(behandlingId, vurderingsdato).ifPresent(periodeDto::setPersonopplysningAnnenPart);
         periodeDto.setVurderingsdato(vurderingsdato);
 
         if (vurdertMedlemskapOpt.isPresent()) {
@@ -259,6 +215,8 @@ public class MedlemDtoTjeneste {
         final MedlemPeriodeDto periodeDto = new MedlemPeriodeDto();
         periodeDto.setÅrsaker(årsaker);
         personopplysningDtoTjeneste.lagPersonopplysningDto(behandlingId, vurderingsdato).ifPresent(periodeDto::setPersonopplysninger);
+        //personopplysningDtoTjeneste.lagPersonopplysningMedlemskapDto(behandlingId, vurderingsdato).ifPresent(periodeDto::setPersonopplysningBruker);
+        //personopplysningDtoTjeneste.lagAnnenpartPersonopplysningMedlemskapDto(behandlingId, vurderingsdato).ifPresent(periodeDto::setPersonopplysningAnnenPart);
         periodeDto.setVurderingsdato(vurderingsdato);
 
         if (vurdertMedlemskapOpt.isPresent()) {
@@ -271,19 +229,6 @@ public class MedlemDtoTjeneste {
             periodeDto.setBegrunnelse(vurdertMedlemskap.getBegrunnelse());
         }
         return periodeDto;
-    }
-
-    private List<InntektDto> lagInntektDto(InntektArbeidYtelseGrunnlag grunnlag, PersonopplysningerAggregat personopplysningerAggregat, BehandlingReferanse ref) {
-        AktørId aktørId = ref.getAktørId();
-        List<InntektDto> inntektDto = new ArrayList<>();
-        LocalDate stp = ref.getSkjæringstidspunkt().getSkjæringstidspunktHvisUtledet().orElse(null);
-        var filter = new InntektFilter(grunnlag.getAktørInntektFraRegister(aktørId)).før(stp).filterPensjonsgivende();
-        mapAktørInntekt(inntektDto, aktørId, filter, personopplysningerAggregat);
-        return inntektDto;
-    }
-
-    private void mapAktørInntekt(List<InntektDto> inntektDto, AktørId aktørId, InntektFilter filter, PersonopplysningerAggregat personopplysningerAggregat) {
-        filter.forFilter((inntekt, inntektsposter) -> mapInntekt(inntektDto, inntekt.getArbeidsgiver(), inntektsposter));
     }
 
     //TODO(OJR) Hack!!! kan fjernes hvis man ønsker å utføre en migrerning(kompleks) av gamle medlemskapvurdering i produksjon

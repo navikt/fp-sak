@@ -28,7 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.familiehendelse.rest.FamilieHendelseGrunnlagDto;
@@ -45,7 +44,6 @@ public class FamiliehendelseRestTjeneste {
     private BehandlingRepository behandlingRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private FamilieHendelseRepository familieHendelseRepository;
-    private BehandlingRepositoryProvider behandlingRepositoryProvider;
 
     static final String BASE_PATH = "/behandling";
     private static final String FAMILIEHENDELSE_PART_PATH = "/familiehendelse";
