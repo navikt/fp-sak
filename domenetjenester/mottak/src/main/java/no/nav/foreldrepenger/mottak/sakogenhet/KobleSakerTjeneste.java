@@ -128,6 +128,7 @@ public class KobleSakerTjeneste {
     private Set<AktørId> finnAndreRegistrerteForeldreForBarnekull(AktørId aktørId, List<LocalDateInterval> intervaller) {
         // Hent fødsler i intervall og deretter kjerneinfo m/familierelasjoner for disse
         return personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(aktørId, intervaller).stream()
+            .filter(b -> b.getIdent() != null) // Dødfødsel
             .flatMap(b -> personinfoAdapter.finnAktørIdForForeldreTil(b.getIdent()).stream())
             .filter(a -> !aktørId.equals(a))
             .collect(Collectors.toSet());

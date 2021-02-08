@@ -34,7 +34,6 @@ import no.nav.vedtak.felles.integrasjon.pdl.PdlKlient;
 public class FødselTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(FødselTjeneste.class);
-    private static final PersonIdent FDAT_GENERISK = new PersonIdent("01012000001");
 
     private PdlKlient pdlKlient;
 
@@ -92,7 +91,6 @@ public class FødselTjeneste {
     private static FødtBarnInfo fraDødfødsel(DoedfoedtBarn barn) {
         var dato = LocalDate.parse(barn.getDato(), DateTimeFormatter.ISO_LOCAL_DATE);
         return new FødtBarnInfo.Builder()
-            .medIdent(FDAT_GENERISK)
             .medFødselsdato(dato)
             .medDødsdato(dato)
             .build();
