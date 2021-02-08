@@ -9,8 +9,8 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.steg.søknadsfrist.SøktPeriodeTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.regler.SøknadsfristUtil;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakPeriodegrenseDto;
@@ -19,13 +19,13 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakPeriode
 public class UttakPeriodegrenseDtoTjeneste {
 
     private SøknadRepository søknadRepository;
-    private BehandlingsresultatRepository behandlingsresultatRepository;
+    private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
 
     @Inject
     public UttakPeriodegrenseDtoTjeneste(SøknadRepository søknadRepository,
-                                         BehandlingsresultatRepository behandlingsresultatRepository) {
-        this.behandlingsresultatRepository = behandlingsresultatRepository;
+                                         UttaksperiodegrenseRepository uttaksperiodegrenseRepository) {
         this.søknadRepository = søknadRepository;
+        this.uttaksperiodegrenseRepository = uttaksperiodegrenseRepository;
     }
 
     UttakPeriodegrenseDtoTjeneste() {
@@ -34,19 +34,15 @@ public class UttakPeriodegrenseDtoTjeneste {
 
     public Optional<UttakPeriodegrenseDto> mapFra(UttakInput input) {
         var ref = input.getBehandlingReferanse();
-        var behandlingsresultatOpt = behandlingsresultatRepository.hentHvisEksisterer(ref.getBehandlingId());
-        if (behandlingsresultatOpt.isPresent()) {
-            var gjeldendeUttaksperiodegrense = behandlingsresultatOpt.get().getGjeldendeUttaksperiodegrense();
-            if (gjeldendeUttaksperiodegrense.isPresent()) {
-                var grense = gjeldendeUttaksperiodegrense.get();
-                var dto = new UttakPeriodegrenseDto();
-                dto.setSoknadsfristForForsteUttaksdato(grense.getFørsteLovligeUttaksdag());
-                dto.setMottattDato(grense.getMottattDato());
+        var uttaksperiodegrense = uttaksperiodegrenseRepository.hentHvisEksisterer(ref.getBehandlingId());
+        if (uttaksperiodegrense.isPresent()) {
+            var dto = new UttakPeriodegrenseDto();
+            dto.setSoknadsfristForForsteUttaksdato(uttaksperiodegrense.get().getFørsteLovligeUttaksdag());
+            dto.setMottattDato(uttaksperiodegrense.get().getMottattDato());
 
-                populerDto(dto, input);
+            populerDto(dto, input);
 
-                return Optional.of(dto);
-            }
+            return Optional.of(dto);
         }
         return Optional.empty();
     }
