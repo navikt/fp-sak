@@ -34,6 +34,7 @@ import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.RefusjonskravDato;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.vedtak.util.env.Environment;
 
 public abstract class BeregningsgrunnlagGUIInputFelles {
 
@@ -115,12 +116,17 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
         InntektArbeidYtelseGrunnlagDto iayGrunnlagMedArbeidsforholdOpplysninger = InntektArbeidYtelseGrunnlagDtoBuilder.oppdatere(iayGrunnlagDto)
                 .medArbeidsgiverOpplysninger(mapArbeidsforholdOpplysninger(arbeidsgiverOpplysninger, iayGrunnlag.getArbeidsforholdOverstyringer()))
                 .build();
-        return Optional.of(new BeregningsgrunnlagGUIInput(
-                MapBehandlingRef.mapRef(ref),
-                iayGrunnlagMedArbeidsforholdOpplysninger,
-                aktivitetGradering,
-                IAYMapperTilKalkulus.mapRefusjonskravDatoer(refusjonskravDatoer),
-                ytelseGrunnlag));
+        BeregningsgrunnlagGUIInput input = new BeregningsgrunnlagGUIInput(
+            MapBehandlingRef.mapRef(ref),
+            iayGrunnlagMedArbeidsforholdOpplysninger,
+            aktivitetGradering,
+            IAYMapperTilKalkulus.mapRefusjonskravDatoer(refusjonskravDatoer),
+            ytelseGrunnlag);
+
+        // Toggles
+        input.leggTilToggle("visning-inntektsgrunnlag", !Environment.current().isProd());
+
+        return Optional.of(input);
     }
 
     private InntektArbeidYtelseGrunnlagDto settInntektsmeldingDiffPåIAYGrunnlag(InntektArbeidYtelseGrunnlagDto iayGrunnlagDto,
