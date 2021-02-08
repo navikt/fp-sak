@@ -25,22 +25,13 @@ class UtbetalingsgradTest {
     }
 
     @Test
-    public void skal_alltid_returnere_UFOR_som_type_utbetalingsgrad() {
-        var gradVerdi = 50;
-        Utbetalingsgrad utbetalingsgrad = Utbetalingsgrad.prosent(gradVerdi);
-
-        assertThat(utbetalingsgrad.getType()).isEqualTo(UFOR);
-        validerObjekt(utbetalingsgrad, gradVerdi);
-    }
-
-    @Test
     public void skal_feile_hvis_utbetalingsgrad_er_null() {
         Exception thrown = assertThrows(
             NullPointerException.class,
             () -> Utbetalingsgrad.prosent(null)
         );
 
-        assertTrue(thrown.getMessage().contains("grad"));
+        assertTrue(thrown.getMessage().contains("utbetalingsgrad"));
     }
 
     @Test
@@ -89,7 +80,6 @@ class UtbetalingsgradTest {
 
     private void validerObjekt(Utbetalingsgrad utbetalingsgrad, Integer expectedGrad) {
         assertThat(utbetalingsgrad.getVerdi()).isEqualTo(expectedGrad);
-        assertThat(utbetalingsgrad.getType()).isEqualTo(UFOR);
     }
 
 }

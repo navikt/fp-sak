@@ -17,7 +17,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Version;
 
 import org.hibernate.annotations.Immutable;
 
@@ -40,16 +39,10 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
     @Column(name = "kode_endring_linje", nullable = false)
     private String kodeEndringLinje;
 
-    @Column(name = "kode_status_linje")
-    private String kodeStatusLinje;
-
-    @Column(name = "dato_status_fom")
-    private LocalDate datoStatusFom;
-
-    @Column(name = "vedtak_id")
+    @Column(name = "vedtak_id", nullable = false)
     private String vedtakId;
 
-    @Column(name = "delytelse_id")
+    @Column(name = "delytelse_id", nullable = false)
     private Long delytelseId;
 
     @Column(name = "kode_klassifik", nullable = false)
@@ -57,8 +50,8 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
 
     @Embedded
     @AttributeOverrides({
-        @AttributeOverride(name = "fomDato", column = @Column(name = "dato_vedtak_fom")),
-        @AttributeOverride(name = "tomDato", column = @Column(name = "dato_vedtak_tom"))
+        @AttributeOverride(name = "fomDato", column = @Column(name = "dato_vedtak_fom", nullable = false)),
+        @AttributeOverride(name = "tomDato", column = @Column(name = "dato_vedtak_tom", nullable = false))
     })
     private DatoIntervallEntitet vedtakPeriode;
 
@@ -68,21 +61,27 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
     @Column(name = "type_sats", nullable = false)
     private String typeSats;
 
-    @Column(name = "utbetales_til_id")
-    private String utbetalesTilId;
-
-    @Column(name = "ref_fagsystem_id")
-    private Long refFagsystemId;
-
-    @Column(name = "ref_delytelse_id")
-    private Long refDelytelseId;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "oppdrag110_id", nullable = false)
+    private Oppdrag110 oppdrag110;
 
     @Embedded
     private Utbetalingsgrad utbetalingsgrad;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "oppdrag110_id", nullable = false, updatable = false)
-    private Oppdrag110 oppdrag110;
+    @Column(name = "kode_status_linje")
+    private String kodeStatusLinje;
+
+    @Column(name = "dato_status_fom")
+    private LocalDate datoStatusFom;
+
+    @Column(name = "utbetales_til_id")
+    private String utbetalesTilId;
+
+    @Column(name = "ref_delytelse_id")
+    private Long refDelytelseId;
+
+    @Column(name = "ref_fagsystem_id")
+    private Long refFagsystemId;
 
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "oppdragslinje150")
     private Refusjonsinfo156 refusjonsinfo156;
@@ -167,10 +166,6 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
 
     public Utbetalingsgrad getUtbetalingsgrad() {
         return utbetalingsgrad;
-    }
-
-    public void setGrad(Utbetalingsgrad utbetalingsgrad) {
-        this.utbetalingsgrad = utbetalingsgrad;
     }
 
     public Oppdrag110 getOppdrag110() {

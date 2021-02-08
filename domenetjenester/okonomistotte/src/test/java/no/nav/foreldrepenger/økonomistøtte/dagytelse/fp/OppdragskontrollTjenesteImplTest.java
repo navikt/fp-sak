@@ -523,7 +523,6 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
         assertThat(oppdragslinje150List).allSatisfy(oppdragslinje150 -> {
             var grad = oppdragslinje150.getUtbetalingsgrad();
             assertThat(grad).isNotNull();
-            assertThat(grad.getType()).isEqualTo("UFOR");
             if (OppdragskontrollTestVerktøy.opp150MedGradering(oppdragslinje150)) {
                 assertThat(grad.getVerdi()).isEqualTo(80);
             } else {

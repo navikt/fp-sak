@@ -169,7 +169,6 @@ class OppdragskontrollTestVerktøy {
             if (originaltOpp150 != null && !erOpp150ForFeriepenger(originaltOpp150)) {
                 Utbetalingsgrad utbetalingsgradRevurdering = opp150Revurdering.getUtbetalingsgrad();
                 Utbetalingsgrad utbetalingsgradOriginalt = originaltOpp150.getUtbetalingsgrad();
-                assertThat(utbetalingsgradRevurdering.getType()).isEqualTo(utbetalingsgradOriginalt.getType());
                 assertThat(utbetalingsgradRevurdering.getVerdi()).isEqualTo(utbetalingsgradOriginalt.getVerdi());
             }
         }

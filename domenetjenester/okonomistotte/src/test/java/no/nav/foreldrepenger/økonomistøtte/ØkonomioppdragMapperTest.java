@@ -45,6 +45,7 @@ public class ØkonomioppdragMapperTest {
     private static final LocalDate DATO_ENHET_FOM = LocalDate.of(1900, 1, 1);
     private static final String FRADRAG_TILLEGG = "T";
     private static final String BRUK_KJØREPLAN = "N";
+    private static final String TYPE_GRAD = "UFOR";
 
     private Oppdragskontroll oppdragskontroll;
     private ØkonomioppdragMapper økonomioppdragMapper;
@@ -242,7 +243,7 @@ public class ØkonomioppdragMapperTest {
                     for (no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Grad170 grad170Generert : grad170GenerertListe) {
                         Utbetalingsgrad utbetalingsgrad = oppdragslinje150.getUtbetalingsgrad();
                         assertThat(grad170Generert.getGrad()).isEqualTo(BigInteger.valueOf(utbetalingsgrad.getVerdi()));
-                        assertThat(grad170Generert.getTypeGrad()).isEqualTo(utbetalingsgrad.getType());
+                        assertThat(grad170Generert.getTypeGrad()).isEqualTo(TYPE_GRAD);
                     }
 
                     no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Refusjonsinfo156 refusjonsinfo156Generert = oppdragsLinje150Generert.getRefusjonsinfo156();

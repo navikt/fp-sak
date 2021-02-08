@@ -19,12 +19,10 @@ public class Utbetalingsgrad {
 
     public static final Utbetalingsgrad _100 = Utbetalingsgrad.prosent(100);
 
-    private static final String TYPE_GRAD = "UFOR";
-
     @Min(0)
     @Max(100)
     @Digits(integer = 3, fraction = 0)
-    @Column(name = "utbetalingsgrad", updatable = false)
+    @Column(name = "utbetalingsgrad")
     private Integer utebetalingsgrad;
 
     private Utbetalingsgrad() {
@@ -45,10 +43,6 @@ public class Utbetalingsgrad {
 
     public Integer getVerdi() {
         return utebetalingsgrad;
-    }
-
-    public String getType() {
-        return TYPE_GRAD;
     }
 
     static Integer validate(Integer utbetalingsgrad) {

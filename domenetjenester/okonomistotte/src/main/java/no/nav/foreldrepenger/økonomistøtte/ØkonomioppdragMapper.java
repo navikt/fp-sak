@@ -38,6 +38,7 @@ public class ØkonomioppdragMapper {
     private static final LocalDate DATO_ENHET_FOM = LocalDate.of(1900, 1, 1);
     private static final String FRADRAG_TILLEGG = "T";
     private static final String BRUK_KJOREPLAN = "N";
+    private static final String TYPE_GRAD = "UFOR";
 
     // TODO (Team Tonic): Fjern global state oppdragskontroll
     private Oppdragskontroll oppdragskontroll;
@@ -192,7 +193,7 @@ public class ØkonomioppdragMapper {
         final no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Grad170 grad170 = objectFactory.createGrad170();
 
         grad170.setGrad(BigInteger.valueOf(okoUtbetalingsgrad.getVerdi()));
-        grad170.setTypeGrad(okoUtbetalingsgrad.getType());
+        grad170.setTypeGrad(TYPE_GRAD);
 
         return grad170;
     }
