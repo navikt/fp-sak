@@ -41,6 +41,8 @@ import no.nav.vedtak.util.Tuple;
 @ApplicationScoped
 public class PersonopplysningInnhenter {
 
+    private static final LocalDate FIKTIV_FOM = LocalDate.of(1900,1,1);
+
     private PersoninfoAdapter personinfoAdapter;
 
     PersonopplysningInnhenter() {
@@ -118,7 +120,7 @@ public class PersonopplysningInnhenter {
     private void mapOppholdstillatelse(List<OppholdstillatelsePeriode> oppholdshistorikk, PersonInformasjonBuilder informasjonBuilder, Personinfo personinfo) {
         for (OppholdstillatelsePeriode tillatelse : oppholdshistorikk) {
             final var type = tillatelse.getTillatelse();
-            final var periode = fødselsJustertPeriode(tillatelse.getGyldighetsperiode().getFom(), tillatelse.getGyldighetsperiode().getFom(), tillatelse.getGyldighetsperiode().getTom());
+            final var periode = fødselsJustertPeriode(tillatelse.getGyldighetsperiode().getFom(), FIKTIV_FOM, tillatelse.getGyldighetsperiode().getTom());
 
             informasjonBuilder
                 .leggTil(informasjonBuilder.getOppholdstillatelseBuilder(personinfo.getAktørId(), periode).medOppholdstillatelse(type));
