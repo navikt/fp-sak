@@ -95,7 +95,8 @@ import no.nav.pdl.UtenlandskAdresseIFrittFormatResponseProjection;
 import no.nav.pdl.UtenlandskAdresseResponseProjection;
 import no.nav.pdl.Vegadresse;
 import no.nav.pdl.VegadresseResponseProjection;
-import no.nav.vedtak.felles.integrasjon.pdl.PdlKlient;
+import no.nav.vedtak.felles.integrasjon.pdl.Pdl;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
@@ -107,42 +108,37 @@ public class PersoninfoTjeneste {
     private static final String HARDKODET_POSTSTED = "UKJENT";
 
     private static final Set<Sivilstandstype> JURIDISK_GIFT = Set.of(Sivilstandstype.GIFT, Sivilstandstype.SEPARERT,
-        Sivilstandstype.REGISTRERT_PARTNER, Sivilstandstype.SEPARERT_PARTNER);
+            Sivilstandstype.REGISTRERT_PARTNER, Sivilstandstype.SEPARERT_PARTNER);
 
     private static final Map<Sivilstandstype, SivilstandType> SIVSTAND_FRA_FREG = Map.ofEntries(
-        Map.entry(Sivilstandstype.UOPPGITT, SivilstandType.UOPPGITT),
-        Map.entry(Sivilstandstype.UGIFT, SivilstandType.UGIFT),
-        Map.entry(Sivilstandstype.GIFT, SivilstandType.GIFT),
-        Map.entry(Sivilstandstype.ENKE_ELLER_ENKEMANN, SivilstandType.ENKEMANN),
-        Map.entry(Sivilstandstype.SKILT, SivilstandType.SKILT),
-        Map.entry(Sivilstandstype.SEPARERT, SivilstandType.SEPARERT),
-        Map.entry(Sivilstandstype.REGISTRERT_PARTNER, SivilstandType.REGISTRERT_PARTNER),
-        Map.entry(Sivilstandstype.SEPARERT_PARTNER, SivilstandType.SEPARERT_PARTNER),
-        Map.entry(Sivilstandstype.SKILT_PARTNER, SivilstandType.SKILT_PARTNER),
-        Map.entry(Sivilstandstype.GJENLEVENDE_PARTNER, SivilstandType.GJENLEVENDE_PARTNER)
-    );
+            Map.entry(Sivilstandstype.UOPPGITT, SivilstandType.UOPPGITT),
+            Map.entry(Sivilstandstype.UGIFT, SivilstandType.UGIFT),
+            Map.entry(Sivilstandstype.GIFT, SivilstandType.GIFT),
+            Map.entry(Sivilstandstype.ENKE_ELLER_ENKEMANN, SivilstandType.ENKEMANN),
+            Map.entry(Sivilstandstype.SKILT, SivilstandType.SKILT),
+            Map.entry(Sivilstandstype.SEPARERT, SivilstandType.SEPARERT),
+            Map.entry(Sivilstandstype.REGISTRERT_PARTNER, SivilstandType.REGISTRERT_PARTNER),
+            Map.entry(Sivilstandstype.SEPARERT_PARTNER, SivilstandType.SEPARERT_PARTNER),
+            Map.entry(Sivilstandstype.SKILT_PARTNER, SivilstandType.SKILT_PARTNER),
+            Map.entry(Sivilstandstype.GJENLEVENDE_PARTNER, SivilstandType.GJENLEVENDE_PARTNER));
 
     private static final Map<Familierelasjonsrolle, RelasjonsRolleType> ROLLE_FRA_FREG_ROLLE = Map.ofEntries(
-        Map.entry(Familierelasjonsrolle.BARN, RelasjonsRolleType.BARN),
-        Map.entry(Familierelasjonsrolle.MOR, RelasjonsRolleType.MORA),
-        Map.entry(Familierelasjonsrolle.FAR, RelasjonsRolleType.FARA),
-        Map.entry(Familierelasjonsrolle.MEDMOR, RelasjonsRolleType.MEDMOR)
-    );
+            Map.entry(Familierelasjonsrolle.BARN, RelasjonsRolleType.BARN),
+            Map.entry(Familierelasjonsrolle.MOR, RelasjonsRolleType.MORA),
+            Map.entry(Familierelasjonsrolle.FAR, RelasjonsRolleType.FARA),
+            Map.entry(Familierelasjonsrolle.MEDMOR, RelasjonsRolleType.MEDMOR));
 
     private static final Map<Sivilstandstype, RelasjonsRolleType> ROLLE_FRA_FREG_STAND = Map.ofEntries(
-        Map.entry(Sivilstandstype.GIFT, RelasjonsRolleType.EKTE),
-        Map.entry(Sivilstandstype.SEPARERT, RelasjonsRolleType.EKTE),
-        Map.entry(Sivilstandstype.REGISTRERT_PARTNER, RelasjonsRolleType.REGISTRERT_PARTNER),
-        Map.entry(Sivilstandstype.SEPARERT_PARTNER, RelasjonsRolleType.REGISTRERT_PARTNER)
-    );
+            Map.entry(Sivilstandstype.GIFT, RelasjonsRolleType.EKTE),
+            Map.entry(Sivilstandstype.SEPARERT, RelasjonsRolleType.EKTE),
+            Map.entry(Sivilstandstype.REGISTRERT_PARTNER, RelasjonsRolleType.REGISTRERT_PARTNER),
+            Map.entry(Sivilstandstype.SEPARERT_PARTNER, RelasjonsRolleType.REGISTRERT_PARTNER));
 
     private static final Map<Oppholdstillatelse, OppholdstillatelseType> TILLATELSE_FRA_FREG_OPPHOLD = Map.ofEntries(
-        Map.entry(Oppholdstillatelse.PERMANENT, OppholdstillatelseType.PERMANENT),
-        Map.entry(Oppholdstillatelse.MIDLERTIDIG, OppholdstillatelseType.MIDLERTIDIG)
-    );
+            Map.entry(Oppholdstillatelse.PERMANENT, OppholdstillatelseType.PERMANENT),
+            Map.entry(Oppholdstillatelse.MIDLERTIDIG, OppholdstillatelseType.MIDLERTIDIG));
 
-
-    private PdlKlient pdlKlient;
+    private Pdl pdlKlient;
     private PoststedKodeverkRepository poststedKodeverkRepository;
 
     PersoninfoTjeneste() {
@@ -150,7 +146,7 @@ public class PersoninfoTjeneste {
     }
 
     @Inject
-    public PersoninfoTjeneste(PdlKlient pdlKlient, PoststedKodeverkRepository repository) {
+    public PersoninfoTjeneste(@Jersey Pdl pdlKlient, PoststedKodeverkRepository repository) {
         this.pdlKlient = pdlKlient;
         this.poststedKodeverkRepository = repository;
     }
@@ -161,64 +157,68 @@ public class PersoninfoTjeneste {
         query.setIdent(personIdent.getIdent());
 
         var projection = new PersonResponseProjection()
-            .navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn())
-            .foedsel(new FoedselResponseProjection().foedselsdato())
-            .doedsfall(new DoedsfallResponseProjection().doedsdato())
-            .folkeregisterpersonstatus(new FolkeregisterpersonstatusResponseProjection().forenkletStatus().status())
-            .kjoenn(new KjoennResponseProjection().kjoenn())
-            .sivilstand(new SivilstandResponseProjection().relatertVedSivilstand().type())
-            .statsborgerskap(new StatsborgerskapResponseProjection().land())
-            .familierelasjoner(new FamilierelasjonResponseProjection().relatertPersonsRolle().relatertPersonsIdent().minRolleForPerson())
-            .bostedsadresse(new BostedsadresseResponseProjection().gyldigFraOgMed().angittFlyttedato()
-                .vegadresse(new VegadresseResponseProjection().matrikkelId().adressenavn().husnummer().husbokstav().postnummer())
-                .matrikkeladresse(new MatrikkeladresseResponseProjection().matrikkelId().bruksenhetsnummer().tilleggsnavn().postnummer())
-                .ukjentBosted(new UkjentBostedResponseProjection().bostedskommune())
-                .utenlandskAdresse(new UtenlandskAdresseResponseProjection().adressenavnNummer().bygningEtasjeLeilighet().postboksNummerNavn().bySted().regionDistriktOmraade().postkode().landkode()))
-            .oppholdsadresse(new OppholdsadresseResponseProjection().gyldigFraOgMed()
-                .vegadresse(new VegadresseResponseProjection().matrikkelId().adressenavn().husnummer().husbokstav().postnummer())
-                .matrikkeladresse(new MatrikkeladresseResponseProjection().matrikkelId().bruksenhetsnummer().tilleggsnavn().postnummer())
-                .utenlandskAdresse(new UtenlandskAdresseResponseProjection().adressenavnNummer().bygningEtasjeLeilighet().postboksNummerNavn().bySted().regionDistriktOmraade().postkode().landkode()))
-            .kontaktadresse(new KontaktadresseResponseProjection().type().gyldigFraOgMed()
-                .vegadresse(new VegadresseResponseProjection().matrikkelId().adressenavn().husnummer().husbokstav().postnummer())
-                .postboksadresse(new PostboksadresseResponseProjection().postboks().postbokseier().postnummer())
-                .postadresseIFrittFormat(new PostadresseIFrittFormatResponseProjection().adresselinje1().adresselinje2().adresselinje3().postnummer())
-                .utenlandskAdresse(new UtenlandskAdresseResponseProjection().adressenavnNummer().bygningEtasjeLeilighet().postboksNummerNavn().bySted().regionDistriktOmraade().postkode().landkode())
-                .utenlandskAdresseIFrittFormat(new UtenlandskAdresseIFrittFormatResponseProjection().adresselinje1().adresselinje2().adresselinje3().byEllerStedsnavn().postkode().landkode()))
-            ;
+                .navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn())
+                .foedsel(new FoedselResponseProjection().foedselsdato())
+                .doedsfall(new DoedsfallResponseProjection().doedsdato())
+                .folkeregisterpersonstatus(new FolkeregisterpersonstatusResponseProjection().forenkletStatus().status())
+                .kjoenn(new KjoennResponseProjection().kjoenn())
+                .sivilstand(new SivilstandResponseProjection().relatertVedSivilstand().type())
+                .statsborgerskap(new StatsborgerskapResponseProjection().land())
+                .familierelasjoner(new FamilierelasjonResponseProjection().relatertPersonsRolle().relatertPersonsIdent().minRolleForPerson())
+                .bostedsadresse(new BostedsadresseResponseProjection().gyldigFraOgMed().angittFlyttedato()
+                        .vegadresse(new VegadresseResponseProjection().matrikkelId().adressenavn().husnummer().husbokstav().postnummer())
+                        .matrikkeladresse(new MatrikkeladresseResponseProjection().matrikkelId().bruksenhetsnummer().tilleggsnavn().postnummer())
+                        .ukjentBosted(new UkjentBostedResponseProjection().bostedskommune())
+                        .utenlandskAdresse(new UtenlandskAdresseResponseProjection().adressenavnNummer().bygningEtasjeLeilighet().postboksNummerNavn()
+                                .bySted().regionDistriktOmraade().postkode().landkode()))
+                .oppholdsadresse(new OppholdsadresseResponseProjection().gyldigFraOgMed()
+                        .vegadresse(new VegadresseResponseProjection().matrikkelId().adressenavn().husnummer().husbokstav().postnummer())
+                        .matrikkeladresse(new MatrikkeladresseResponseProjection().matrikkelId().bruksenhetsnummer().tilleggsnavn().postnummer())
+                        .utenlandskAdresse(new UtenlandskAdresseResponseProjection().adressenavnNummer().bygningEtasjeLeilighet().postboksNummerNavn()
+                                .bySted().regionDistriktOmraade().postkode().landkode()))
+                .kontaktadresse(new KontaktadresseResponseProjection().type().gyldigFraOgMed()
+                        .vegadresse(new VegadresseResponseProjection().matrikkelId().adressenavn().husnummer().husbokstav().postnummer())
+                        .postboksadresse(new PostboksadresseResponseProjection().postboks().postbokseier().postnummer())
+                        .postadresseIFrittFormat(
+                                new PostadresseIFrittFormatResponseProjection().adresselinje1().adresselinje2().adresselinje3().postnummer())
+                        .utenlandskAdresse(new UtenlandskAdresseResponseProjection().adressenavnNummer().bygningEtasjeLeilighet().postboksNummerNavn()
+                                .bySted().regionDistriktOmraade().postkode().landkode())
+                        .utenlandskAdresseIFrittFormat(new UtenlandskAdresseIFrittFormatResponseProjection().adresselinje1().adresselinje2()
+                                .adresselinje3().byEllerStedsnavn().postkode().landkode()));
 
         var person = pdlKlient.hentPerson(query, projection);
 
         var fødselsdato = person.getFoedsel().stream()
-            .map(Foedsel::getFoedselsdato)
-            .filter(Objects::nonNull)
-            .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
+                .map(Foedsel::getFoedselsdato)
+                .filter(Objects::nonNull)
+                .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
         var dødssdato = person.getDoedsfall().stream()
-            .map(Doedsfall::getDoedsdato)
-            .filter(Objects::nonNull)
-            .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
+                .map(Doedsfall::getDoedsdato)
+                .filter(Objects::nonNull)
+                .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
         var pdlStatus = person.getFolkeregisterpersonstatus().stream()
-            .map(Folkeregisterpersonstatus::getStatus)
-            .findFirst().map(PersonstatusType::fraFregPersonstatus).orElse(PersonstatusType.UDEFINERT);
+                .map(Folkeregisterpersonstatus::getStatus)
+                .findFirst().map(PersonstatusType::fraFregPersonstatus).orElse(PersonstatusType.UDEFINERT);
         var sivilstand = person.getSivilstand().stream()
-            .map(Sivilstand::getType)
-            .findFirst()
-            .map(st -> SIVSTAND_FRA_FREG.getOrDefault(st, SivilstandType.UOPPGITT)).orElse(SivilstandType.UOPPGITT);
+                .map(Sivilstand::getType)
+                .findFirst()
+                .map(st -> SIVSTAND_FRA_FREG.getOrDefault(st, SivilstandType.UOPPGITT)).orElse(SivilstandType.UOPPGITT);
         var statsborgerskap = mapStatsborgerskap(person.getStatsborgerskap());
         var familierelasjoner = mapFamilierelasjoner(person.getFamilierelasjoner(), person.getSivilstand());
         var adresser = mapAdresser(person.getBostedsadresse(), person.getKontaktadresse(), person.getOppholdsadresse());
 
         return new Personinfo.Builder().medAktørId(aktørId).medPersonIdent(personIdent)
-            .medNavn(person.getNavn().stream().map(PersoninfoTjeneste::mapNavn).filter(Objects::nonNull).findFirst().orElse("MANGLER NAVN"))
-            .medFødselsdato(fødselsdato)
-            .medDødsdato(dødssdato)
-            .medNavBrukerKjønn(mapKjønn(person))
-            .medPersonstatusType(pdlStatus)
-            .medSivilstandType(sivilstand)
-            .medLandkode(statsborgerskap)
-            .medRegion(MapRegionLandkoder.mapLandkode(statsborgerskap.getKode()))
-            .medFamilierelasjon(familierelasjoner)
-            .medAdresseInfoList(adresser)
-            .build();
+                .medNavn(person.getNavn().stream().map(PersoninfoTjeneste::mapNavn).filter(Objects::nonNull).findFirst().orElse("MANGLER NAVN"))
+                .medFødselsdato(fødselsdato)
+                .medDødsdato(dødssdato)
+                .medNavBrukerKjønn(mapKjønn(person))
+                .medPersonstatusType(pdlStatus)
+                .medSivilstandType(sivilstand)
+                .medLandkode(statsborgerskap)
+                .medRegion(MapRegionLandkoder.mapLandkode(statsborgerskap.getKode()))
+                .medFamilierelasjon(familierelasjoner)
+                .medAdresseInfoList(adresser)
+                .build();
     }
 
     public Personhistorikkinfo hentPersoninfoHistorikk(AktørId aktørId, Interval interval) {
@@ -229,52 +229,64 @@ public class PersoninfoTjeneste {
         query.setIdent(aktørId.getId());
 
         var projection = new PersonResponseProjection()
-            .folkeregisterpersonstatus(new PersonFolkeregisterpersonstatusParametrizedInput().historikk(true), new FolkeregisterpersonstatusResponseProjection()
-                .forenkletStatus().status().folkeregistermetadata(new FolkeregistermetadataResponseProjection().ajourholdstidspunkt().gyldighetstidspunkt().opphoerstidspunkt()))
-            .opphold(new PersonOppholdParametrizedInput().historikk(true), new OppholdResponseProjection().type().oppholdFra().oppholdTil())
-            .statsborgerskap(new PersonStatsborgerskapParametrizedInput().historikk(true), new StatsborgerskapResponseProjection().land().gyldigFraOgMed().gyldigTilOgMed())
-            .bostedsadresse(new PersonBostedsadresseParametrizedInput().historikk(true), new BostedsadresseResponseProjection().angittFlyttedato().gyldigFraOgMed().gyldigTilOgMed()
-                .vegadresse(new VegadresseResponseProjection().matrikkelId().adressenavn().husnummer().husbokstav().postnummer())
-                .matrikkeladresse(new MatrikkeladresseResponseProjection().matrikkelId().bruksenhetsnummer().tilleggsnavn().postnummer())
-                .ukjentBosted(new UkjentBostedResponseProjection().bostedskommune())
-                .utenlandskAdresse(new UtenlandskAdresseResponseProjection().adressenavnNummer().bygningEtasjeLeilighet().postboksNummerNavn().bySted().regionDistriktOmraade().postkode().landkode()))
-            .oppholdsadresse(new PersonOppholdsadresseParametrizedInput().historikk(true), new OppholdsadresseResponseProjection().gyldigFraOgMed().gyldigTilOgMed()
-                .vegadresse(new VegadresseResponseProjection().matrikkelId().adressenavn().husnummer().husbokstav().postnummer())
-                .matrikkeladresse(new MatrikkeladresseResponseProjection().matrikkelId().bruksenhetsnummer().tilleggsnavn().postnummer())
-                .utenlandskAdresse(new UtenlandskAdresseResponseProjection().adressenavnNummer().bygningEtasjeLeilighet().postboksNummerNavn().bySted().regionDistriktOmraade().postkode().landkode()))
-            .kontaktadresse(new PersonKontaktadresseParametrizedInput().historikk(true), new KontaktadresseResponseProjection().type().gyldigFraOgMed().gyldigTilOgMed()
-                .vegadresse(new VegadresseResponseProjection().matrikkelId().adressenavn().husnummer().husbokstav().postnummer())
-                .postboksadresse(new PostboksadresseResponseProjection().postboks().postbokseier().postnummer())
-                .postadresseIFrittFormat(new PostadresseIFrittFormatResponseProjection().adresselinje1().adresselinje2().adresselinje3().postnummer())
-                .utenlandskAdresse(new UtenlandskAdresseResponseProjection().adressenavnNummer().bygningEtasjeLeilighet().postboksNummerNavn().bySted().regionDistriktOmraade().postkode().landkode())
-                .utenlandskAdresseIFrittFormat(new UtenlandskAdresseIFrittFormatResponseProjection().adresselinje1().adresselinje2().adresselinje3().byEllerStedsnavn().postkode().landkode()))
-            ;
+                .folkeregisterpersonstatus(new PersonFolkeregisterpersonstatusParametrizedInput().historikk(true),
+                        new FolkeregisterpersonstatusResponseProjection()
+                                .forenkletStatus().status()
+                                .folkeregistermetadata(new FolkeregistermetadataResponseProjection().ajourholdstidspunkt().gyldighetstidspunkt()
+                                        .opphoerstidspunkt()))
+                .opphold(new PersonOppholdParametrizedInput().historikk(true), new OppholdResponseProjection().type().oppholdFra().oppholdTil())
+                .statsborgerskap(new PersonStatsborgerskapParametrizedInput().historikk(true),
+                        new StatsborgerskapResponseProjection().land().gyldigFraOgMed().gyldigTilOgMed())
+                .bostedsadresse(new PersonBostedsadresseParametrizedInput().historikk(true),
+                        new BostedsadresseResponseProjection().angittFlyttedato().gyldigFraOgMed().gyldigTilOgMed()
+                                .vegadresse(new VegadresseResponseProjection().matrikkelId().adressenavn().husnummer().husbokstav().postnummer())
+                                .matrikkeladresse(
+                                        new MatrikkeladresseResponseProjection().matrikkelId().bruksenhetsnummer().tilleggsnavn().postnummer())
+                                .ukjentBosted(new UkjentBostedResponseProjection().bostedskommune())
+                                .utenlandskAdresse(new UtenlandskAdresseResponseProjection().adressenavnNummer().bygningEtasjeLeilighet()
+                                        .postboksNummerNavn().bySted().regionDistriktOmraade().postkode().landkode()))
+                .oppholdsadresse(new PersonOppholdsadresseParametrizedInput().historikk(true), new OppholdsadresseResponseProjection()
+                        .gyldigFraOgMed().gyldigTilOgMed()
+                        .vegadresse(new VegadresseResponseProjection().matrikkelId().adressenavn().husnummer().husbokstav().postnummer())
+                        .matrikkeladresse(new MatrikkeladresseResponseProjection().matrikkelId().bruksenhetsnummer().tilleggsnavn().postnummer())
+                        .utenlandskAdresse(new UtenlandskAdresseResponseProjection().adressenavnNummer().bygningEtasjeLeilighet().postboksNummerNavn()
+                                .bySted().regionDistriktOmraade().postkode().landkode()))
+                .kontaktadresse(new PersonKontaktadresseParametrizedInput().historikk(true),
+                        new KontaktadresseResponseProjection().type().gyldigFraOgMed().gyldigTilOgMed()
+                                .vegadresse(new VegadresseResponseProjection().matrikkelId().adressenavn().husnummer().husbokstav().postnummer())
+                                .postboksadresse(new PostboksadresseResponseProjection().postboks().postbokseier().postnummer())
+                                .postadresseIFrittFormat(
+                                        new PostadresseIFrittFormatResponseProjection().adresselinje1().adresselinje2().adresselinje3().postnummer())
+                                .utenlandskAdresse(new UtenlandskAdresseResponseProjection().adressenavnNummer().bygningEtasjeLeilighet()
+                                        .postboksNummerNavn().bySted().regionDistriktOmraade().postkode().landkode())
+                                .utenlandskAdresseIFrittFormat(new UtenlandskAdresseIFrittFormatResponseProjection().adresselinje1().adresselinje2()
+                                        .adresselinje3().byEllerStedsnavn().postkode().landkode()));
 
         var person = pdlKlient.hentPerson(query, projection);
 
         var builder = Personhistorikkinfo.builder().medAktørId(aktørId.getId());
         var personStatusPerioder = person.getFolkeregisterpersonstatus().stream()
-            .map(PersoninfoTjeneste::mapPersonstatusHistorisk)
-            .collect(Collectors.toList());
+                .map(PersoninfoTjeneste::mapPersonstatusHistorisk)
+                .collect(Collectors.toList());
         periodiserPersonstatus(personStatusPerioder).stream()
-            .filter(p -> p.getGyldighetsperiode().getTom().isAfter(fom) && p.getGyldighetsperiode().getFom().isBefore(tom))
-            .forEach(builder::leggTil);
+                .filter(p -> p.getGyldighetsperiode().getTom().isAfter(fom) && p.getGyldighetsperiode().getFom().isBefore(tom))
+                .forEach(builder::leggTil);
 
         person.getStatsborgerskap().stream()
-            .map(PersoninfoTjeneste::mapStatsborgerskapHistorikk)
-            .filter(p -> p.getGyldighetsperiode().getTom().isAfter(fom) && p.getGyldighetsperiode().getFom().isBefore(tom))
-            .forEach(builder::leggTil);
+                .map(PersoninfoTjeneste::mapStatsborgerskapHistorikk)
+                .filter(p -> p.getGyldighetsperiode().getTom().isAfter(fom) && p.getGyldighetsperiode().getFom().isBefore(tom))
+                .forEach(builder::leggTil);
 
         person.getOpphold().stream()
-            .filter(PersoninfoTjeneste::relevantOppholdstillatelse)
-            .map(PersoninfoTjeneste::mapOppholdsHistorikk)
-            .filter(p -> p.getGyldighetsperiode().getTom().isAfter(fom) && p.getGyldighetsperiode().getFom().isBefore(tom))
-            .forEach(builder::leggTil);
+                .filter(PersoninfoTjeneste::relevantOppholdstillatelse)
+                .map(PersoninfoTjeneste::mapOppholdsHistorikk)
+                .filter(p -> p.getGyldighetsperiode().getTom().isAfter(fom) && p.getGyldighetsperiode().getFom().isBefore(tom))
+                .forEach(builder::leggTil);
 
         var adressePerioder = mapAdresserHistorikk(person.getBostedsadresse(), person.getKontaktadresse(), person.getOppholdsadresse());
         periodiserAdresse(adressePerioder).stream()
-            .filter(p -> p.getGyldighetsperiode().getTom().isAfter(fom) && p.getGyldighetsperiode().getFom().isBefore(tom))
-            .forEach(builder::leggTil);
+                .filter(p -> p.getGyldighetsperiode().getTom().isAfter(fom) && p.getGyldighetsperiode().getFom().isBefore(tom))
+                .forEach(builder::leggTil);
 
         return builder.build();
     }
@@ -287,9 +299,9 @@ public class PersoninfoTjeneste {
 
     private static NavBrukerKjønn mapKjønn(Person person) {
         var kode = person.getKjoenn().stream()
-            .map(Kjoenn::getKjoenn)
-            .filter(Objects::nonNull)
-            .findFirst().orElse(KjoennType.UKJENT);
+                .map(Kjoenn::getKjoenn)
+                .filter(Objects::nonNull)
+                .findFirst().orElse(KjoennType.UKJENT);
         if (KjoennType.MANN.equals(kode))
             return NavBrukerKjønn.MANN;
         return KjoennType.KVINNE.equals(kode) ? NavBrukerKjønn.KVINNE : NavBrukerKjønn.UDEFINERT;
@@ -311,17 +323,20 @@ public class PersoninfoTjeneste {
     private static List<PersonstatusPeriode> periodiserPersonstatus(List<PersonstatusPeriode> perioder) {
         var gyldighetsperioder = perioder.stream().map(PersonstatusPeriode::getGyldighetsperiode).collect(Collectors.toList());
         return perioder.stream()
-            .map(p -> new PersonstatusPeriode(finnFraPerioder(gyldighetsperioder, p.getGyldighetsperiode()), p.getPersonstatus()))
-            .collect(Collectors.toList());
+                .map(p -> new PersonstatusPeriode(finnFraPerioder(gyldighetsperioder, p.getGyldighetsperiode()), p.getPersonstatus()))
+                .collect(Collectors.toList());
     }
 
     private static List<AdressePeriode> periodiserAdresse(List<AdressePeriode> perioder) {
         var adresseTypePerioder = perioder.stream()
-            .collect(Collectors.groupingBy(ap -> forSortering(ap.getAdresse().getAdresseType()), Collectors.mapping(AdressePeriode::getGyldighetsperiode, Collectors.toList())));
+                .collect(Collectors.groupingBy(ap -> forSortering(ap.getAdresse().getAdresseType()),
+                        Collectors.mapping(AdressePeriode::getGyldighetsperiode, Collectors.toList())));
         return perioder.stream()
-            .map(p -> new AdressePeriode(finnFraPerioder(adresseTypePerioder.get(forSortering(p.getAdresse().getAdresseType())), p.getGyldighetsperiode()), p.getAdresse()))
-            .filter(a -> !a.getGyldighetsperiode().getFom().isAfter(a.getGyldighetsperiode().getTom()))
-            .collect(Collectors.toList());
+                .map(p -> new AdressePeriode(
+                        finnFraPerioder(adresseTypePerioder.get(forSortering(p.getAdresse().getAdresseType())), p.getGyldighetsperiode()),
+                        p.getAdresse()))
+                .filter(a -> !a.getGyldighetsperiode().getFom().isAfter(a.getGyldighetsperiode().getTom()))
+                .collect(Collectors.toList());
     }
 
     private static AdresseType forSortering(AdresseType type) {
@@ -336,26 +351,27 @@ public class PersoninfoTjeneste {
         if (alleperioder.stream().noneMatch(p -> p.getFom().isAfter(periode.getFom()) && p.getFom().isBefore(periode.getTom())))
             return periode;
         var tom = alleperioder.stream()
-            .map(Gyldighetsperiode::getFom)
-            .filter(d -> d.isAfter(periode.getFom()))
-            .min(Comparator.naturalOrder())
-            .map(d -> d.minusDays(1)).orElse(Tid.TIDENES_ENDE);
+                .map(Gyldighetsperiode::getFom)
+                .filter(d -> d.isAfter(periode.getFom()))
+                .min(Comparator.naturalOrder())
+                .map(d -> d.minusDays(1)).orElse(Tid.TIDENES_ENDE);
         return Gyldighetsperiode.innenfor(periode.getFom(), tom);
     }
 
     private static StatsborgerskapPeriode mapStatsborgerskapHistorikk(Statsborgerskap statsborgerskap) {
-        var gyldigTil = statsborgerskap.getGyldigTilOgMed() == null ? null :
-            LocalDate.parse(statsborgerskap.getGyldigTilOgMed(), DateTimeFormatter.ISO_LOCAL_DATE);
-        var gyldigFra = statsborgerskap.getGyldigFraOgMed() == null ? null :
-            LocalDate.parse(statsborgerskap.getGyldigFraOgMed(), DateTimeFormatter.ISO_LOCAL_DATE);
-        return new StatsborgerskapPeriode(Gyldighetsperiode.innenfor(gyldigFra, gyldigTil), new no.nav.foreldrepenger.behandlingslager.aktør.Statsborgerskap(statsborgerskap.getLand()));
+        var gyldigTil = statsborgerskap.getGyldigTilOgMed() == null ? null
+                : LocalDate.parse(statsborgerskap.getGyldigTilOgMed(), DateTimeFormatter.ISO_LOCAL_DATE);
+        var gyldigFra = statsborgerskap.getGyldigFraOgMed() == null ? null
+                : LocalDate.parse(statsborgerskap.getGyldigFraOgMed(), DateTimeFormatter.ISO_LOCAL_DATE);
+        return new StatsborgerskapPeriode(Gyldighetsperiode.innenfor(gyldigFra, gyldigTil),
+                new no.nav.foreldrepenger.behandlingslager.aktør.Statsborgerskap(statsborgerskap.getLand()));
     }
 
     private static Landkoder mapStatsborgerskap(List<Statsborgerskap> statsborgerskap) {
         List<Landkoder> alleLand = statsborgerskap.stream()
-            .map(Statsborgerskap::getLand)
-            .map(Landkoder::fraKodeDefaultUdefinert)
-            .collect(Collectors.toList());
+                .map(Statsborgerskap::getLand)
+                .map(Landkoder::fraKodeDefaultUdefinert)
+                .collect(Collectors.toList());
         return alleLand.stream().anyMatch(Landkoder.NOR::equals) ? Landkoder.NOR : MapRegionLandkoder.finnRangertLandkode(alleLand);
     }
 
@@ -363,13 +379,13 @@ public class PersoninfoTjeneste {
         Set<FamilierelasjonVL> relasjoner = new HashSet<>();
 
         familierelasjoner.stream()
-            .map(r -> new FamilierelasjonVL(new PersonIdent(r.getRelatertPersonsIdent()), mapRelasjonsrolle(r.getRelatertPersonsRolle())))
-            .forEach(relasjoner::add);
+                .map(r -> new FamilierelasjonVL(new PersonIdent(r.getRelatertPersonsIdent()), mapRelasjonsrolle(r.getRelatertPersonsRolle())))
+                .forEach(relasjoner::add);
         sivilstandliste.stream()
-            .filter(rel -> JURIDISK_GIFT.contains(rel.getType()))
-            .filter(rel -> rel.getRelatertVedSivilstand() != null)
-            .map(r -> new FamilierelasjonVL(new PersonIdent(r.getRelatertVedSivilstand()), mapRelasjonsrolle(r.getType())))
-            .forEach(relasjoner::add);
+                .filter(rel -> JURIDISK_GIFT.contains(rel.getType()))
+                .filter(rel -> rel.getRelatertVedSivilstand() != null)
+                .map(r -> new FamilierelasjonVL(new PersonIdent(r.getRelatertVedSivilstand()), mapRelasjonsrolle(r.getType())))
+                .forEach(relasjoner::add);
         return relasjoner;
     }
 
@@ -381,11 +397,13 @@ public class PersoninfoTjeneste {
         return ROLLE_FRA_FREG_STAND.getOrDefault(type, RelasjonsRolleType.UDEFINERT);
     }
 
-    private List<AdressePeriode> mapAdresserHistorikk(List<Bostedsadresse> bostedsadresser, List<Kontaktadresse> kontaktadresser, List<Oppholdsadresse> oppholdsadresser) {
+    private List<AdressePeriode> mapAdresserHistorikk(List<Bostedsadresse> bostedsadresser, List<Kontaktadresse> kontaktadresser,
+            List<Oppholdsadresse> oppholdsadresser) {
         List<AdressePeriode> adresser = new ArrayList<>();
         bostedsadresser.forEach(b -> {
             var periode = periodeFraDates(b.getGyldigFraOgMed(), b.getGyldigTilOgMed());
-            var flyttedato = b.getAngittFlyttedato() != null ? LocalDate.parse(b.getAngittFlyttedato(), DateTimeFormatter.ISO_LOCAL_DATE) : periode.getFom();
+            var flyttedato = b.getAngittFlyttedato() != null ? LocalDate.parse(b.getAngittFlyttedato(), DateTimeFormatter.ISO_LOCAL_DATE)
+                    : periode.getFom();
             var periode2 = flyttedato.isBefore(periode.getFom()) ? Gyldighetsperiode.innenfor(flyttedato, periode.getTom()) : periode;
             mapAdresser(List.of(b), List.of(), List.of()).forEach(a -> adresser.add(mapAdresseinfoTilAdressePeriode(periode2, a)));
         });
@@ -401,43 +419,54 @@ public class PersoninfoTjeneste {
     }
 
     private static Gyldighetsperiode periodeFraDates(Date dateFom, Date dateTom) {
-        var gyldigTil = dateTom == null ? null :
-            LocalDateTime.ofInstant(dateTom.toInstant(), ZoneId.systemDefault()).toLocalDate();
-        var gyldigFra = dateFom == null ? null :
-            LocalDateTime.ofInstant(dateFom.toInstant(), ZoneId.systemDefault()).toLocalDate();
+        var gyldigTil = dateTom == null ? null : LocalDateTime.ofInstant(dateTom.toInstant(), ZoneId.systemDefault()).toLocalDate();
+        var gyldigFra = dateFom == null ? null : LocalDateTime.ofInstant(dateFom.toInstant(), ZoneId.systemDefault()).toLocalDate();
         return Gyldighetsperiode.innenfor(gyldigFra, gyldigTil);
     }
 
     private static AdressePeriode mapAdresseinfoTilAdressePeriode(Gyldighetsperiode periode, Adresseinfo adresseinfo) {
         return AdressePeriode.builder().medGyldighetsperiode(periode)
-            .medMatrikkelId(adresseinfo.getMatrikkelId())
-            .medAdresselinje1(adresseinfo.getAdresselinje1())
-            .medAdresselinje2(adresseinfo.getAdresselinje2())
-            .medAdresselinje3(adresseinfo.getAdresselinje3())
-            .medAdresselinje4(adresseinfo.getAdresselinje4())
-            .medAdresseType(adresseinfo.getGjeldendePostadresseType())
-            .medPostnummer(adresseinfo.getPostNr())
-            .medPoststed(adresseinfo.getPoststed())
-            .medLand(adresseinfo.getLand())
-            .build();
+                .medMatrikkelId(adresseinfo.getMatrikkelId())
+                .medAdresselinje1(adresseinfo.getAdresselinje1())
+                .medAdresselinje2(adresseinfo.getAdresselinje2())
+                .medAdresselinje3(adresseinfo.getAdresselinje3())
+                .medAdresselinje4(adresseinfo.getAdresselinje4())
+                .medAdresseType(adresseinfo.getGjeldendePostadresseType())
+                .medPostnummer(adresseinfo.getPostNr())
+                .medPoststed(adresseinfo.getPoststed())
+                .medLand(adresseinfo.getLand())
+                .build();
     }
 
-    private List<Adresseinfo> mapAdresser(List<Bostedsadresse> bostedsadresser, List<Kontaktadresse> kontaktadresser, List<Oppholdsadresse> oppholdsadresser) {
+    private List<Adresseinfo> mapAdresser(List<Bostedsadresse> bostedsadresser, List<Kontaktadresse> kontaktadresser,
+            List<Oppholdsadresse> oppholdsadresser) {
         List<Adresseinfo> resultat = new ArrayList<>();
-        bostedsadresser.stream().map(Bostedsadresse::getVegadresse).map(a -> mapVegadresse(AdresseType.BOSTEDSADRESSE, a)).filter(Objects::nonNull).forEach(resultat::add);
-        bostedsadresser.stream().map(Bostedsadresse::getMatrikkeladresse).map(a -> mapMatrikkeladresse(AdresseType.BOSTEDSADRESSE, a)).filter(Objects::nonNull).forEach(resultat::add);
-        bostedsadresser.stream().map(Bostedsadresse::getUkjentBosted).filter(Objects::nonNull).map(PersoninfoTjeneste::mapUkjentadresse).forEach(resultat::add);
-        bostedsadresser.stream().map(Bostedsadresse::getUtenlandskAdresse).map(a -> mapUtenlandskadresse(AdresseType.BOSTEDSADRESSE, a)).filter(Objects::nonNull).forEach(resultat::add);
+        bostedsadresser.stream().map(Bostedsadresse::getVegadresse).map(a -> mapVegadresse(AdresseType.BOSTEDSADRESSE, a)).filter(Objects::nonNull)
+                .forEach(resultat::add);
+        bostedsadresser.stream().map(Bostedsadresse::getMatrikkeladresse).map(a -> mapMatrikkeladresse(AdresseType.BOSTEDSADRESSE, a))
+                .filter(Objects::nonNull).forEach(resultat::add);
+        bostedsadresser.stream().map(Bostedsadresse::getUkjentBosted).filter(Objects::nonNull).map(PersoninfoTjeneste::mapUkjentadresse)
+                .forEach(resultat::add);
+        bostedsadresser.stream().map(Bostedsadresse::getUtenlandskAdresse).map(a -> mapUtenlandskadresse(AdresseType.BOSTEDSADRESSE, a))
+                .filter(Objects::nonNull).forEach(resultat::add);
 
-        oppholdsadresser.stream().map(Oppholdsadresse::getVegadresse).map(a -> mapVegadresse(AdresseType.MIDLERTIDIG_POSTADRESSE_NORGE, a)).filter(Objects::nonNull).forEach(resultat::add);
-        oppholdsadresser.stream().map(Oppholdsadresse::getMatrikkeladresse).map(a -> mapMatrikkeladresse(AdresseType.MIDLERTIDIG_POSTADRESSE_NORGE, a)).filter(Objects::nonNull).forEach(resultat::add);
-        oppholdsadresser.stream().map(Oppholdsadresse::getUtenlandskAdresse).map(a -> mapUtenlandskadresse(AdresseType.MIDLERTIDIG_POSTADRESSE_UTLAND, a)).filter(Objects::nonNull).forEach(resultat::add);
+        oppholdsadresser.stream().map(Oppholdsadresse::getVegadresse).map(a -> mapVegadresse(AdresseType.MIDLERTIDIG_POSTADRESSE_NORGE, a))
+                .filter(Objects::nonNull).forEach(resultat::add);
+        oppholdsadresser.stream().map(Oppholdsadresse::getMatrikkeladresse)
+                .map(a -> mapMatrikkeladresse(AdresseType.MIDLERTIDIG_POSTADRESSE_NORGE, a)).filter(Objects::nonNull).forEach(resultat::add);
+        oppholdsadresser.stream().map(Oppholdsadresse::getUtenlandskAdresse)
+                .map(a -> mapUtenlandskadresse(AdresseType.MIDLERTIDIG_POSTADRESSE_UTLAND, a)).filter(Objects::nonNull).forEach(resultat::add);
 
-        kontaktadresser.stream().map(Kontaktadresse::getVegadresse).map(a -> mapVegadresse(AdresseType.POSTADRESSE, a)).filter(Objects::nonNull).forEach(resultat::add);
-        kontaktadresser.stream().map(Kontaktadresse::getPostboksadresse).map(a -> mapPostboksadresse(AdresseType.POSTADRESSE, a)).filter(Objects::nonNull).forEach(resultat::add);
-        kontaktadresser.stream().map(Kontaktadresse::getPostadresseIFrittFormat).map(a -> mapFriAdresseNorsk(AdresseType.POSTADRESSE, a)).filter(Objects::nonNull).forEach(resultat::add);
-        kontaktadresser.stream().map(Kontaktadresse::getUtenlandskAdresse).map(a -> mapUtenlandskadresse(AdresseType.POSTADRESSE_UTLAND, a)).filter(Objects::nonNull).forEach(resultat::add);
-        kontaktadresser.stream().map(Kontaktadresse::getUtenlandskAdresseIFrittFormat).map(a -> mapFriAdresseUtland(AdresseType.POSTADRESSE_UTLAND, a)).filter(Objects::nonNull).forEach(resultat::add);
+        kontaktadresser.stream().map(Kontaktadresse::getVegadresse).map(a -> mapVegadresse(AdresseType.POSTADRESSE, a)).filter(Objects::nonNull)
+                .forEach(resultat::add);
+        kontaktadresser.stream().map(Kontaktadresse::getPostboksadresse).map(a -> mapPostboksadresse(AdresseType.POSTADRESSE, a))
+                .filter(Objects::nonNull).forEach(resultat::add);
+        kontaktadresser.stream().map(Kontaktadresse::getPostadresseIFrittFormat).map(a -> mapFriAdresseNorsk(AdresseType.POSTADRESSE, a))
+                .filter(Objects::nonNull).forEach(resultat::add);
+        kontaktadresser.stream().map(Kontaktadresse::getUtenlandskAdresse).map(a -> mapUtenlandskadresse(AdresseType.POSTADRESSE_UTLAND, a))
+                .filter(Objects::nonNull).forEach(resultat::add);
+        kontaktadresser.stream().map(Kontaktadresse::getUtenlandskAdresseIFrittFormat)
+                .map(a -> mapFriAdresseUtland(AdresseType.POSTADRESSE_UTLAND, a)).filter(Objects::nonNull).forEach(resultat::add);
         if (resultat.isEmpty()) {
             resultat.add(mapUkjentadresse(null));
         }
@@ -450,12 +479,12 @@ public class PersoninfoTjeneste {
         String postnummer = Optional.ofNullable(vegadresse.getPostnummer()).orElse(HARDKODET_POSTNR);
         var gateadresse = vegadresse.getAdressenavn().toUpperCase() + hvisfinnes2(vegadresse.getHusnummer(), vegadresse.getHusbokstav());
         return Adresseinfo.builder(type)
-            .medMatrikkelId(vegadresse.getMatrikkelId())
-            .medAdresselinje1(gateadresse)
-            .medPostNr(postnummer)
-            .medPoststed(tilPoststed(postnummer))
-            .medLand(Landkoder.NOR.getKode())
-            .build();
+                .medMatrikkelId(vegadresse.getMatrikkelId())
+                .medAdresselinje1(gateadresse)
+                .medPostNr(postnummer)
+                .medPoststed(tilPoststed(postnummer))
+                .medLand(Landkoder.NOR.getKode())
+                .build();
     }
 
     private Adresseinfo mapMatrikkeladresse(AdresseType type, Matrikkeladresse matrikkeladresse) {
@@ -463,13 +492,14 @@ public class PersoninfoTjeneste {
             return null;
         String postnummer = Optional.ofNullable(matrikkeladresse.getPostnummer()).orElse(HARDKODET_POSTNR);
         return Adresseinfo.builder(type)
-            .medMatrikkelId(matrikkeladresse.getMatrikkelId())
-            .medAdresselinje1(matrikkeladresse.getTilleggsnavn() != null ? matrikkeladresse.getTilleggsnavn().toUpperCase() : matrikkeladresse.getBruksenhetsnummer())
-            .medAdresselinje2(matrikkeladresse.getTilleggsnavn() != null ? matrikkeladresse.getBruksenhetsnummer() : null)
-            .medPostNr(postnummer)
-            .medPoststed(tilPoststed(postnummer))
-            .medLand(Landkoder.NOR.getKode())
-            .build();
+                .medMatrikkelId(matrikkeladresse.getMatrikkelId())
+                .medAdresselinje1(matrikkeladresse.getTilleggsnavn() != null ? matrikkeladresse.getTilleggsnavn().toUpperCase()
+                        : matrikkeladresse.getBruksenhetsnummer())
+                .medAdresselinje2(matrikkeladresse.getTilleggsnavn() != null ? matrikkeladresse.getBruksenhetsnummer() : null)
+                .medPostNr(postnummer)
+                .medPoststed(tilPoststed(postnummer))
+                .medLand(Landkoder.NOR.getKode())
+                .build();
     }
 
     private Adresseinfo mapPostboksadresse(AdresseType type, Postboksadresse postboksadresse) {
@@ -478,12 +508,12 @@ public class PersoninfoTjeneste {
         String postnummer = Optional.ofNullable(postboksadresse.getPostnummer()).orElse(HARDKODET_POSTNR);
         var postboks = "Postboks" + hvisfinnes(postboksadresse.getPostboks());
         return Adresseinfo.builder(type)
-            .medAdresselinje1(postboksadresse.getPostbokseier() != null ? postboksadresse.getPostbokseier().toUpperCase() : postboks)
-            .medAdresselinje2(postboksadresse.getPostbokseier() != null ? postboks : null)
-            .medPostNr(postnummer)
-            .medPoststed(tilPoststed(postnummer))
-            .medLand(Landkoder.NOR.getKode())
-            .build();
+                .medAdresselinje1(postboksadresse.getPostbokseier() != null ? postboksadresse.getPostbokseier().toUpperCase() : postboks)
+                .medAdresselinje2(postboksadresse.getPostbokseier() != null ? postboks : null)
+                .medPostNr(postnummer)
+                .medPoststed(tilPoststed(postnummer))
+                .medLand(Landkoder.NOR.getKode())
+                .build();
     }
 
     private Adresseinfo mapFriAdresseNorsk(AdresseType type, PostadresseIFrittFormat postadresse) {
@@ -491,13 +521,13 @@ public class PersoninfoTjeneste {
             return null;
         String postnummer = Optional.ofNullable(postadresse.getPostnummer()).orElse(HARDKODET_POSTNR);
         return Adresseinfo.builder(type)
-            .medAdresselinje1(postadresse.getAdresselinje1() != null ? postadresse.getAdresselinje1().toUpperCase() : null)
-            .medAdresselinje2(postadresse.getAdresselinje2() != null ? postadresse.getAdresselinje2().toUpperCase() : null)
-            .medAdresselinje3(postadresse.getAdresselinje3() != null ? postadresse.getAdresselinje3().toUpperCase() : null)
-            .medPostNr(postnummer)
-            .medPoststed(tilPoststed(postnummer))
-            .medLand(Landkoder.NOR.getKode())
-            .build();
+                .medAdresselinje1(postadresse.getAdresselinje1() != null ? postadresse.getAdresselinje1().toUpperCase() : null)
+                .medAdresselinje2(postadresse.getAdresselinje2() != null ? postadresse.getAdresselinje2().toUpperCase() : null)
+                .medAdresselinje3(postadresse.getAdresselinje3() != null ? postadresse.getAdresselinje3().toUpperCase() : null)
+                .medPostNr(postnummer)
+                .medPoststed(tilPoststed(postnummer))
+                .medLand(Landkoder.NOR.getKode())
+                .build();
     }
 
     private static Adresseinfo mapUkjentadresse(UkjentBosted ukjentBosted) {
@@ -507,14 +537,16 @@ public class PersoninfoTjeneste {
     private static Adresseinfo mapUtenlandskadresse(AdresseType type, UtenlandskAdresse utenlandskAdresse) {
         if (utenlandskAdresse == null)
             return null;
-        var linje1 = hvisfinnes(utenlandskAdresse.getAdressenavnNummer()) + hvisfinnes(utenlandskAdresse.getBygningEtasjeLeilighet()) + hvisfinnes(utenlandskAdresse.getPostboksNummerNavn());
-        var linje2 = hvisfinnes(utenlandskAdresse.getPostkode()) + hvisfinnes(utenlandskAdresse.getBySted()) + hvisfinnes(utenlandskAdresse.getRegionDistriktOmraade());
+        var linje1 = hvisfinnes(utenlandskAdresse.getAdressenavnNummer()) + hvisfinnes(utenlandskAdresse.getBygningEtasjeLeilighet())
+                + hvisfinnes(utenlandskAdresse.getPostboksNummerNavn());
+        var linje2 = hvisfinnes(utenlandskAdresse.getPostkode()) + hvisfinnes(utenlandskAdresse.getBySted())
+                + hvisfinnes(utenlandskAdresse.getRegionDistriktOmraade());
         return Adresseinfo.builder(type)
-            .medAdresselinje1(linje1)
-            .medAdresselinje2(linje2)
-            .medAdresselinje3(utenlandskAdresse.getLandkode())
-            .medLand(utenlandskAdresse.getLandkode())
-            .build();
+                .medAdresselinje1(linje1)
+                .medAdresselinje2(linje2)
+                .medAdresselinje3(utenlandskAdresse.getLandkode())
+                .medLand(utenlandskAdresse.getLandkode())
+                .build();
     }
 
     private static Adresseinfo mapFriAdresseUtland(AdresseType type, UtenlandskAdresseIFrittFormat utenlandskAdresse) {
@@ -522,14 +554,15 @@ public class PersoninfoTjeneste {
             return null;
         var postlinje = hvisfinnes(utenlandskAdresse.getPostkode()) + hvisfinnes(utenlandskAdresse.getByEllerStedsnavn());
         var sisteline = utenlandskAdresse.getAdresselinje3() != null ? postlinje + utenlandskAdresse.getLandkode()
-            : (utenlandskAdresse.getAdresselinje2() != null ? utenlandskAdresse.getLandkode() : null);
+                : (utenlandskAdresse.getAdresselinje2() != null ? utenlandskAdresse.getLandkode() : null);
         return Adresseinfo.builder(type)
-            .medAdresselinje1(utenlandskAdresse.getAdresselinje1())
-            .medAdresselinje2(utenlandskAdresse.getAdresselinje2() != null ? utenlandskAdresse.getAdresselinje2().toUpperCase() : postlinje)
-            .medAdresselinje3(utenlandskAdresse.getAdresselinje3() != null ? utenlandskAdresse.getAdresselinje3().toUpperCase() : (utenlandskAdresse.getAdresselinje2() != null ? postlinje : utenlandskAdresse.getLandkode()))
-            .medAdresselinje4(sisteline)
-            .medLand(utenlandskAdresse.getLandkode())
-            .build();
+                .medAdresselinje1(utenlandskAdresse.getAdresselinje1())
+                .medAdresselinje2(utenlandskAdresse.getAdresselinje2() != null ? utenlandskAdresse.getAdresselinje2().toUpperCase() : postlinje)
+                .medAdresselinje3(utenlandskAdresse.getAdresselinje3() != null ? utenlandskAdresse.getAdresselinje3().toUpperCase()
+                        : (utenlandskAdresse.getAdresselinje2() != null ? postlinje : utenlandskAdresse.getLandkode()))
+                .medAdresselinje4(sisteline)
+                .medLand(utenlandskAdresse.getLandkode())
+                .build();
     }
 
     private static String hvisfinnes(Object object) {
@@ -537,7 +570,8 @@ public class PersoninfoTjeneste {
     }
 
     private static String hvisfinnes2(Object object1, Object object2) {
-        if (object1 == null && object2 == null) return "";
+        if (object1 == null && object2 == null)
+            return "";
         if (object1 != null && object2 != null)
             return " " + object1.toString().trim().toUpperCase() + object2.toString().trim().toUpperCase();
         return object2 == null ? " " + object1.toString().trim().toUpperCase() : " " + object2.toString().trim().toUpperCase();
@@ -554,19 +588,20 @@ public class PersoninfoTjeneste {
     private List<OppholdstillatelsePeriode> periodiserOppholdstillatelser(List<OppholdstillatelsePeriode> uperiodisert) {
         var gyldighetsperioder = uperiodisert.stream().map(OppholdstillatelsePeriode::getGyldighetsperiode).collect(Collectors.toList());
         return uperiodisert.stream()
-            .map(p -> new OppholdstillatelsePeriode(finnFomFraTomPerioder(gyldighetsperioder, p.getGyldighetsperiode()), p.getTillatelse()))
-            .collect(Collectors.toList());
+                .map(p -> new OppholdstillatelsePeriode(finnFomFraTomPerioder(gyldighetsperioder, p.getGyldighetsperiode()), p.getTillatelse()))
+                .collect(Collectors.toList());
     }
 
     private static Gyldighetsperiode finnFomFraTomPerioder(List<Gyldighetsperiode> alleperioder, Gyldighetsperiode periode) {
-        if (!periode.getFom().equals(Tid.TIDENES_BEGYNNELSE)) return periode;
+        if (!periode.getFom().equals(Tid.TIDENES_BEGYNNELSE))
+            return periode;
         if (alleperioder.stream().noneMatch(p -> p.getTom().isBefore(periode.getTom()) && p.getTom().isAfter(periode.getFom())))
             return periode;
         var fom = alleperioder.stream()
-            .map(Gyldighetsperiode::getTom)
-            .filter(d -> d.isBefore(periode.getTom()))
-            .max(Comparator.naturalOrder())
-            .map(d -> d.plusDays(1)).orElse(Tid.TIDENES_BEGYNNELSE);
+                .map(Gyldighetsperiode::getTom)
+                .filter(d -> d.isBefore(periode.getTom()))
+                .max(Comparator.naturalOrder())
+                .map(d -> d.plusDays(1)).orElse(Tid.TIDENES_BEGYNNELSE);
         return Gyldighetsperiode.innenfor(fom, periode.getTom());
     }
 
@@ -577,10 +612,8 @@ public class PersoninfoTjeneste {
 
     private static OppholdstillatelsePeriode mapOppholdsHistorikk(Opphold opphold) {
         var type = TILLATELSE_FRA_FREG_OPPHOLD.get(opphold.getType());
-        var gyldigTil = opphold.getOppholdTil() == null ? null :
-            LocalDate.parse(opphold.getOppholdTil(), DateTimeFormatter.ISO_LOCAL_DATE);
-        var gyldigFra = opphold.getOppholdFra() == null ? null :
-            LocalDate.parse(opphold.getOppholdFra(), DateTimeFormatter.ISO_LOCAL_DATE);
+        var gyldigTil = opphold.getOppholdTil() == null ? null : LocalDate.parse(opphold.getOppholdTil(), DateTimeFormatter.ISO_LOCAL_DATE);
+        var gyldigFra = opphold.getOppholdFra() == null ? null : LocalDate.parse(opphold.getOppholdFra(), DateTimeFormatter.ISO_LOCAL_DATE);
         return new OppholdstillatelsePeriode(Gyldighetsperiode.innenfor(gyldigFra, gyldigTil), type);
     }
 

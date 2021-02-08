@@ -16,13 +16,13 @@ import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.pdl.IdentGruppe;
 import no.nav.pdl.IdentInformasjon;
 import no.nav.pdl.Identliste;
-import no.nav.vedtak.felles.integrasjon.pdl.PdlKlient;
+import no.nav.vedtak.felles.integrasjon.pdl.Pdl;
 
 public class AktørTjenesteTest {
 
     private AktørTjeneste aktørTjeneste;
 
-    private PdlKlient pdlMock = Mockito.mock(PdlKlient.class);
+    private Pdl pdlMock = Mockito.mock(Pdl.class);
 
     private final AktørId aktørId = AktørId.dummy();
     private final PersonIdent fnr = new PersonIdent(new FiktiveFnr().nesteKvinneFnr());
@@ -34,7 +34,8 @@ public class AktørTjenesteTest {
 
     @Test
     public void basics_hent_aktørid() {
-        Mockito.when(pdlMock.hentIdenter(any(), any())).thenReturn(new Identliste(List.of(new IdentInformasjon(aktørId.getId(), IdentGruppe.AKTORID, false))));
+        Mockito.when(pdlMock.hentIdenter(any(), any()))
+                .thenReturn(new Identliste(List.of(new IdentInformasjon(aktørId.getId(), IdentGruppe.AKTORID, false))));
 
         Optional<AktørId> optAktørId = aktørTjeneste.hentAktørIdForPersonIdent(fnr);
         assertThat(optAktørId).isPresent();
@@ -43,7 +44,8 @@ public class AktørTjenesteTest {
 
     @Test
     public void basics_hent_ident() {
-        Mockito.when(pdlMock.hentIdenter(any(), any())).thenReturn(new Identliste(List.of(new IdentInformasjon(fnr.getIdent(), IdentGruppe.FOLKEREGISTERIDENT, false))));
+        Mockito.when(pdlMock.hentIdenter(any(), any()))
+                .thenReturn(new Identliste(List.of(new IdentInformasjon(fnr.getIdent(), IdentGruppe.FOLKEREGISTERIDENT, false))));
 
         Optional<PersonIdent> optFnr = aktørTjeneste.hentPersonIdentForAktørId(aktørId);
         assertThat(optFnr).isPresent();
