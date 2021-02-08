@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
@@ -97,11 +97,7 @@ public class OppdragMapper {
             .medVedtakFomOgTom(linje.getPeriode().getFom(), linje.getPeriode().getTom())
             .medSats(linje.getSats().getSats())
             .medTypeSats(linje.getSats().getSatsType().getKode())
-            .medVedtakId(vedtaksdato.toString())
-            .medFradragTillegg(OppdragskontrollConstants.FRADRAG_TILLEGG)
-            .medBrukKjoreplan("N")
-            .medHenvisning(behandlingId)
-            .medSaksbehId(ansvarligSaksbehandler);
+            .medVedtakId(vedtaksdato.toString());
 
         if (linje.erOpphørslinje()) {
             builder.medKodeEndringLinje(ØkonomiKodeEndringLinje.ENDR.name());
@@ -129,7 +125,7 @@ public class OppdragMapper {
                 .build();
         }
         if (linje.getUtbetalingsgrad() != null) {
-            builder.medGrad(Grad.prosent(linje.getUtbetalingsgrad().getUtbetalingsgrad()));
+            builder.medUtbetalingsgrad(Utbetalingsgrad.prosent(linje.getUtbetalingsgrad().getUtbetalingsgrad()));
         }
         return oppdragslinje150;
     }

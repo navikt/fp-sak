@@ -427,13 +427,9 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
                 .medKodeKlassifik("FPENFOD-OP")
                 .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
                 .medSats(61122L)
-                .medFradragTillegg(TfradragTillegg.F.value())
                 .medTypeSats(ØkonomiTypeSats.UKE.name())
-                .medBrukKjoreplan("B")
-                .medSaksbehId("F2365245")
                 .medUtbetalesTilId("123456789")
                 .medOppdrag110(oppdrag110)
-                .medHenvisning(43L)
                 .medRefDelytelseId(1L)
                 .build();
 

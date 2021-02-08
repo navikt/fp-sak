@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.økonomioppdrag;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.Objects;
 
@@ -16,52 +15,46 @@ import javax.validation.constraints.Min;
  * Den sikrer at grad er alltid i riktig format som tilsvarer: Heltall fra 0 - 100.
  */
 @Embeddable
-public class Grad {
+public class Utbetalingsgrad {
 
-    public static final Grad _100 = Grad.prosent(100);
-
-    private static final String TYPE_GRAD = "UFOR";
+    public static final Utbetalingsgrad _100 = Utbetalingsgrad.prosent(100);
 
     @Min(0)
     @Max(100)
     @Digits(integer = 3, fraction = 0)
-    @Column(name = "grad", updatable = false)
-    private Integer grad;
+    @Column(name = "utbetalingsgrad")
+    private Integer utebetalingsgrad;
 
-    private Grad() {
+    private Utbetalingsgrad() {
         // for JPA
     }
 
-    private Grad(Integer grad) {
-        this.grad = grad;
+    private Utbetalingsgrad(Integer grad) {
+        this.utebetalingsgrad = grad;
     }
 
-    public static Grad prosent(int grad) {
-        return new Grad(validate(grad));
+    public static Utbetalingsgrad prosent(int grad) {
+        return new Utbetalingsgrad(validate(grad));
     }
 
-    public static Grad prosent(BigDecimal grad) {
-        return Grad.prosent(validate(scale(grad).intValue()));
+    public static Utbetalingsgrad prosent(BigDecimal grad) {
+        return Utbetalingsgrad.prosent(validate(scale(grad).intValue()));
     }
 
     public Integer getVerdi() {
-        return grad;
+        return utebetalingsgrad;
     }
 
-    public String getType() {
-        return TYPE_GRAD;
-    }
-
-    static Integer validate(Integer grad) {
-        Objects.requireNonNull(grad, "grad");
-        if (grad < 0 || grad > 100) {
-            throw new IllegalArgumentException("Grad er utenfor lovlig intervall [0,100]: " + grad);
+    static Integer validate(Integer utbetalingsgrad) {
+        Objects.requireNonNull(utbetalingsgrad, "utbetalingsgrad");
+        if (utbetalingsgrad < 0 || utbetalingsgrad > 100) {
+            throw new IllegalArgumentException("Utbetalingsgrad er utenfor lovlig intervall [0,100]: " + utbetalingsgrad);
         }
-        return grad;
+        return utbetalingsgrad;
     }
 
     private static BigDecimal scale(BigDecimal verdi) {
-        Objects.requireNonNull(verdi, "grad");
+        Objects.requireNonNull(verdi, "utbetalingsgrad");
         return verdi.setScale(0, RoundingMode.HALF_UP);
     }
 
@@ -69,8 +62,8 @@ public class Grad {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Grad grad1 = (Grad) o;
-        return Objects.equals(getVerdi(), grad1.getVerdi());
+        Utbetalingsgrad utbetalingsgrad1 = (Utbetalingsgrad) o;
+        return Objects.equals(getVerdi(), utbetalingsgrad1.getVerdi());
     }
 
     @Override
@@ -81,7 +74,7 @@ public class Grad {
     @Override
     public String toString() {
         return "Grad{" +
-            "grad=" + grad +
+            "utbetalingsgrad=" + utebetalingsgrad +
             '}';
     }
 }

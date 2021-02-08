@@ -150,13 +150,9 @@ public class EksisterendeOppdragMapperTest {
             .medVedtakFomOgTom(p.getFom(), p.getTom())
             .medSats(sats.getSats())
             .medTypeSats(sats.getSatsType().getKode())
-            .medBrukKjoreplan("N")
-            .medHenvisning(oppdrag110.getOppdragskontroll().getBehandlingId())
-            .medSaksbehId(oppdrag110.getSaksbehId())
             .medDatoStatusFom(opphørFomDato)
             .medKodeStatusLinje(opphørFomDato != null ? "OPPH" : null)
             .medKodeEndringLinje(opphørFomDato != null ? "ENDR" : "NY")
-            .medFradragTillegg("T")
             .medRefDelytelseId(refDelytelseId != null ? Long.parseLong(refDelytelseId.toString()) : null)
             .medRefFagsystemId(refDelytelseId != null ? Long.parseLong(refDelytelseId.getFagsystemId().toString()) : null)
             .build();

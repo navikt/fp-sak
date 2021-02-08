@@ -17,7 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
@@ -43,6 +43,9 @@ public class ØkonomioppdragMapperTest {
     private static final String TYPE_ENHET = "BOS";
     private static final String ENHET = "8020";
     private static final LocalDate DATO_ENHET_FOM = LocalDate.of(1900, 1, 1);
+    private static final String FRADRAG_TILLEGG = "T";
+    private static final String BRUK_KJØREPLAN = "N";
+    private static final String TYPE_GRAD = "UFOR";
 
     private Oppdragskontroll oppdragskontroll;
     private ØkonomioppdragMapper økonomioppdragMapper;
@@ -56,13 +59,13 @@ public class ØkonomioppdragMapperTest {
     @Test
     public void testMapVedtaksDataToOppdragES() {
         List<Oppdrag110> oppdrag110 = opprettOppdrag110(oppdragskontroll, false);
-        verifyMapVedtaksDataToOppdrag(oppdrag110, false);
+        verifyMapVedtaksDataToOppdrag(oppdrag110, false, oppdragskontroll.getBehandlingId());
     }
 
     @Test
     public void testMapVedtaksDataToOppdragFP() {
         List<Oppdrag110> oppdrag110 = opprettOppdrag110(oppdragskontroll, true);
-        verifyMapVedtaksDataToOppdrag(oppdrag110, true);
+        verifyMapVedtaksDataToOppdrag(oppdrag110, true, oppdragskontroll.getBehandlingId());
     }
 
     @Test
@@ -73,7 +76,7 @@ public class ØkonomioppdragMapperTest {
 
         //Act
         oppdrag110List.forEach(opp110 ->
-            oppdragGenerertList.add(økonomioppdragMapper.mapVedtaksDataToOppdrag(opp110)));
+            oppdragGenerertList.add(økonomioppdragMapper.mapVedtaksDataToOppdrag(opp110, oppdragskontroll.getBehandlingId())));
 
         //Assert
         for (int i = 0; i < oppdrag110List.size(); i++) {
@@ -155,7 +158,7 @@ public class ØkonomioppdragMapperTest {
 
         //Act
         oppdrag110List.forEach(opp110 ->
-            oppdragGenerertList.add(økonomioppdragMapper.mapVedtaksDataToOppdrag(opp110)));
+            oppdragGenerertList.add(økonomioppdragMapper.mapVedtaksDataToOppdrag(opp110, oppdragskontroll.getBehandlingId())));
 
         Optional<Oppdrag> oppdrag = oppdragGenerertList.stream().filter(o -> o.getOppdrag110().getKodeFagomraade().equals("FP")).findFirst();
         assertThat(oppdrag).isPresent();
@@ -183,10 +186,10 @@ public class ØkonomioppdragMapperTest {
         return oppdrag110Liste;
     }
 
-    private void verifyMapVedtaksDataToOppdrag(List<Oppdrag110> oppdrag110Liste, boolean gjelderFP) {
+    private void verifyMapVedtaksDataToOppdrag(List<Oppdrag110> oppdrag110Liste, boolean gjelderFP, Long behandlingId) {
 
         for (Oppdrag110 oppdrag110 : oppdrag110Liste) {
-            Oppdrag oppdrag = økonomioppdragMapper.mapVedtaksDataToOppdrag(oppdrag110);
+            Oppdrag oppdrag = økonomioppdragMapper.mapVedtaksDataToOppdrag(oppdrag110, behandlingId);
 
             no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag110 oppdrag110Generert = oppdrag.getOppdrag110();
             assertThat(oppdrag110Generert.getKodeAksjon()).isEqualTo(oppdrag110.getKodeAksjon());
@@ -219,12 +222,12 @@ public class ØkonomioppdragMapperTest {
                 assertThat(oppdragsLinje150Generert.getDatoVedtakFom()).isEqualTo(DateUtil.convertToXMLGregorianCalendarRemoveTimezone(oppdragslinje150.getDatoVedtakFom()));
                 assertThat(oppdragsLinje150Generert.getDatoVedtakTom()).isEqualTo(DateUtil.convertToXMLGregorianCalendarRemoveTimezone(oppdragslinje150.getDatoVedtakTom()));
                 assertThat(oppdragsLinje150Generert.getSats()).isEqualTo(new BigDecimal(oppdragslinje150.getSats()));
-                assertThat(oppdragsLinje150Generert.getFradragTillegg()).isEqualTo(TfradragTillegg.fromValue(oppdragslinje150.getFradragTillegg()));
+                assertThat(oppdragsLinje150Generert.getFradragTillegg()).isEqualTo(TfradragTillegg.fromValue(FRADRAG_TILLEGG));
                 assertThat(oppdragsLinje150Generert.getTypeSats()).isEqualTo(oppdragslinje150.getTypeSats());
-                assertThat(oppdragsLinje150Generert.getBrukKjoreplan()).isEqualTo(oppdragslinje150.getBrukKjoreplan());
+                assertThat(oppdragsLinje150Generert.getBrukKjoreplan()).isEqualTo(BRUK_KJØREPLAN);
                 assertThat(oppdragsLinje150Generert.getSaksbehId()).isEqualTo(oppdrag110.getSaksbehId());
                 assertThat(oppdragsLinje150Generert.getUtbetalesTilId()).isEqualTo(oppdragslinje150.getUtbetalesTilId());
-                assertThat(oppdragsLinje150Generert.getHenvisning()).isEqualTo(String.valueOf(oppdragslinje150.getHenvisning()));
+                assertThat(oppdragsLinje150Generert.getHenvisning()).isEqualTo(String.valueOf(oppdrag110.getOppdragskontroll().getBehandlingId()));
                 if (!gjelderFP) {
                     assertThat(oppdragsLinje150Generert.getRefFagsystemId()).isNull();
                     assertThat(oppdragsLinje150Generert.getRefDelytelseId()).isNull();
@@ -238,9 +241,9 @@ public class ØkonomioppdragMapperTest {
                 if (gjelderFP) {
                     List<no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Grad170> grad170GenerertListe = oppdragsLinje150Generert.getGrad170();
                     for (no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Grad170 grad170Generert : grad170GenerertListe) {
-                        Grad grad = oppdragslinje150.getGrad();
-                        assertThat(grad170Generert.getGrad()).isEqualTo(BigInteger.valueOf(grad.getVerdi()));
-                        assertThat(grad170Generert.getTypeGrad()).isEqualTo(grad.getType());
+                        Utbetalingsgrad utbetalingsgrad = oppdragslinje150.getUtbetalingsgrad();
+                        assertThat(grad170Generert.getGrad()).isEqualTo(BigInteger.valueOf(utbetalingsgrad.getVerdi()));
+                        assertThat(grad170Generert.getTypeGrad()).isEqualTo(TYPE_GRAD);
                     }
 
                     no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Refusjonsinfo156 refusjonsinfo156Generert = oppdragsLinje150Generert.getRefusjonsinfo156();
@@ -316,7 +319,7 @@ public class ØkonomioppdragMapperTest {
         return builder
             .medKodeKlassifik(kodeKlassifik)
             .medTypeSats(ØkonomiTypeSats.ENG.name())
-            .medGrad(Grad._100)
+            .medUtbetalingsgrad(Utbetalingsgrad._100)
             .medOppdrag110(oppdrag110)
             .build();
     }
@@ -337,11 +340,7 @@ public class ØkonomioppdragMapperTest {
             .medDelytelseId(delytelseId)
             .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
             .medSats(1122L)
-            .medFradragTillegg(TfradragTillegg.F.value())
-            .medBrukKjoreplan("B")
-            .medSaksbehId("F2365245")
-            .medUtbetalesTilId("123456789")
-            .medHenvisning(43L);
+            .medUtbetalesTilId("123456789");
     }
 
     private List<Oppdrag110> buildOppdrag110(Oppdragskontroll oppdragskontroll, boolean gjelderFP, boolean erOmpostering) {

@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.økonomistøtte;
 import java.time.LocalDate;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
@@ -33,14 +33,10 @@ public class OppdragTestDataHelper {
             .medKodeKlassifik(KODE_KLASSIFIK_FODSEL)
             .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
             .medSats(61122L)
-            .medFradragTillegg(TfradragTillegg.F.value())
             .medTypeSats(ØkonomiTypeSats.UKE.name())
-            .medBrukKjoreplan("B")
-            .medSaksbehId("F2365245")
             .medUtbetalesTilId("123456789")
             .medOppdrag110(oppdrag110)
-            .medHenvisning(47L)
-            .medGrad(Grad._100)
+            .medUtbetalingsgrad(Utbetalingsgrad._100)
             .build();
 
     }

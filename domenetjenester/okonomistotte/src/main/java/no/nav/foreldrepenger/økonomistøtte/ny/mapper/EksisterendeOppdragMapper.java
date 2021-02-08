@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
@@ -27,7 +27,6 @@ import no.nav.foreldrepenger.økonomistøtte.ny.domene.OppdragLinje;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Periode;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Sats;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.SatsType;
-import no.nav.foreldrepenger.økonomistøtte.ny.domene.Utbetalingsgrad;
 import no.nav.foreldrepenger.økonomistøtte.OppdragKvitteringTjeneste;
 import no.nav.vedtak.util.env.Environment;
 
@@ -148,8 +147,8 @@ public class EksisterendeOppdragMapper {
         throw new IllegalStateException("Fikk ikke-støttet kodeStatus=" + linje.getKodeStatusLinje());
     }
 
-    private static Utbetalingsgrad mapUtbetalingsgrad(Oppdragslinje150 linje) {
-        return Optional.ofNullable(linje.getGrad()).map(Grad::getVerdi).map(Utbetalingsgrad::new).orElse(null);
+    private static no.nav.foreldrepenger.økonomistøtte.ny.domene.Utbetalingsgrad mapUtbetalingsgrad(Oppdragslinje150 linje) {
+        return Optional.ofNullable(linje.getUtbetalingsgrad()).map(Utbetalingsgrad::getVerdi).map(no.nav.foreldrepenger.økonomistøtte.ny.domene.Utbetalingsgrad::new).orElse(null);
     }
 
     private static Sats mapSats(Oppdragslinje150 linje) {

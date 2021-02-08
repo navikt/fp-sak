@@ -16,6 +16,7 @@ import javax.persistence.TypedQuery;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 @ApplicationScoped
@@ -116,5 +117,12 @@ public class ØkonomioppdragRepository {
 
     private void lagre(Oppdragslinje150 oppdragslinje150) {
         entityManager.persist(oppdragslinje150);
+        lagre(oppdragslinje150.getRefusjonsinfo156());
+    }
+
+    private void lagre(Refusjonsinfo156 refusjonsinfo156) {
+        if (null != refusjonsinfo156) {
+            entityManager.persist(refusjonsinfo156);
+        }
     }
 }

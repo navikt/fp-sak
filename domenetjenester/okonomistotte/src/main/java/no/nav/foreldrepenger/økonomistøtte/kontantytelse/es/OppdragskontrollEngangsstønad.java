@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagomr
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiTypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
-import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.TfradragTillegg;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollManager;
 import no.nav.foreldrepenger.økonomistøtte.OpprettOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.kontantytelse.es.adapter.MapBehandlingInfoES;
@@ -35,9 +34,7 @@ public class OppdragskontrollEngangsstønad implements OppdragskontrollManager {
     private static final String KODE_ENDRING_UENDRET = ØkonomiKodeEndring.UEND.name();
     private static final String KODE_ENDRING_LINJE_NY = ØkonomiKodeEndringLinje.NY.name();
     private static final String KODE_ENDRING_LINJE_ENDRING = ØkonomiKodeEndringLinje.ENDR.name();
-    private static final String FRADRAG_TILLEGG = TfradragTillegg.T.name();
     private static final String TYPE_SATS_ES = ØkonomiTypeSats.ENG.name();
-    private static final String BRUK_KJOREPLAN = "N";
     private static final String KODE_STATUS_LINJE_OPPHØR = ØkonomiKodeStatusLinje.OPPH.name();
 
     private MapBehandlingInfoES mapBehandlingInfo;
@@ -108,10 +105,6 @@ public class OppdragskontrollEngangsstønad implements OppdragskontrollManager {
             .medVedtakId(vedtaksdato.toString())
             .medDelytelseId(delytelseId)
             .medKodeKlassifik(kodeKlassifik)
-            .medFradragTillegg(FRADRAG_TILLEGG)
-            .medBrukKjoreplan(BRUK_KJOREPLAN)
-            .medSaksbehId(behandlingInfo.getAnsvarligSaksbehandler())
-            .medHenvisning(behandlingInfo.getBehandling().getId())
             .medOppdrag110(oppdrag110)
             .medVedtakFomOgTom(vedtaksdato, vedtaksdato)
             .medSats(satsEngangsstonad)
@@ -158,14 +151,9 @@ public class OppdragskontrollEngangsstønad implements OppdragskontrollManager {
             .medKodeKlassifik(kodeKlassifik)
             .medVedtakFomOgTom(tidligereDatoVedtakFom, tidligereDatoVedtakTom)
             .medSats(sats)
-            .medFradragTillegg(FRADRAG_TILLEGG)
             .medTypeSats(TYPE_SATS_ES)
-            .medBrukKjoreplan(BRUK_KJOREPLAN)
-            .medSaksbehId(behandlingInfo.getAnsvarligSaksbehandler())
-            // FIXME (Tonic): Fjern Fnr fra modellen.  Kan det slås opp ved oversending til Økonomi?
             // FIXME (Tonic): Her brukes fnr, endres til aktørid ved ny versjon av oppdragsmelding
             .medUtbetalesTilId(behandlingInfo.getPersonIdent().getIdent())
-            .medHenvisning(behandlingInfo.getBehandling().getId())
             .medOppdrag110(oppdrag110)
             .medRefFagsystemId(refFagsystemId)
             .medRefDelytelseId(refDelytelseId)

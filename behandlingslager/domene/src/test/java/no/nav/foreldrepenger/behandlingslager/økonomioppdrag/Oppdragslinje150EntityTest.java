@@ -24,9 +24,7 @@ public class Oppdragslinje150EntityTest {
     private static final LocalDate DATOVEDTAKFOM = LocalDate.now().minusDays(10);
     private static final LocalDate DATOVEDTAKTOM = LocalDate.now().minusDays(8);
     private static final long SATS = 50000L;
-    private static final String FRADRAGTILLEGG = "T";
     private static final String TYPESATS = "ENG";
-    private static final String BRUKKJOREPLAN = "N";
     private static final String SAKSBEHID = "Z1236524";
     private static final LocalDate DATOOPPDRAGGJELDERFOM = LocalDate.of(2000, 1, 1);
     private static final String UTBETALESTILID = "456";
@@ -63,9 +61,7 @@ public class Oppdragslinje150EntityTest {
         assertThat(oppdragslinje150.getDatoVedtakFom()).isEqualTo(DATOVEDTAKFOM);
         assertThat(oppdragslinje150.getDatoVedtakTom()).isEqualTo(DATOVEDTAKTOM);
         assertThat(oppdragslinje150.getSats()).isEqualTo(SATS);
-        assertThat(oppdragslinje150.getFradragTillegg()).isEqualTo(FRADRAGTILLEGG);
         assertThat(oppdragslinje150.getTypeSats()).isEqualTo(TYPESATS);
-        assertThat(oppdragslinje150.getBrukKjoreplan()).isEqualTo(BRUKKJOREPLAN);
         assertThat(oppdragslinje150.getUtbetalesTilId()).isEqualTo(UTBETALESTILID);
         assertThat(oppdragslinje150.getRefFagsystemId()).isEqualTo(REFFAGSYSTEMID);
         assertThat(oppdragslinje150.getRefDelytelseId()).isEqualTo(REFDELYTELSEID);
@@ -181,14 +177,10 @@ public class Oppdragslinje150EntityTest {
                 .medKodeKlassifik(KODEKLASSIFIK)
                 .medVedtakFomOgTom(DATOVEDTAKFOM, DATOVEDTAKTOM)
                 .medSats(SATS)
-                .medFradragTillegg(FRADRAGTILLEGG)
                 .medTypeSats(TYPESATS)
-                .medBrukKjoreplan(BRUKKJOREPLAN)
-                .medSaksbehId(SAKSBEHID)
                 .medUtbetalesTilId(UTBETALESTILID)
                 .medRefFagsystemId(REFFAGSYSTEMID)
                 .medRefDelytelseId(REFDELYTELSEID)
-                .medHenvisning(43L)
                 .medOppdrag110(lagOppdrag110MedPaakrevdeFelter().build());
 
     }

@@ -15,7 +15,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.xml.sax.SAXException;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
@@ -36,6 +36,9 @@ public class ØkonomioppdragMapper {
     private static final String TYPE_ENHET = "BOS";
     private static final String ENHET = "8020";
     private static final LocalDate DATO_ENHET_FOM = LocalDate.of(1900, 1, 1);
+    private static final String FRADRAG_TILLEGG = "T";
+    private static final String BRUK_KJOREPLAN = "N";
+    private static final String TYPE_GRAD = "UFOR";
 
     // TODO (Team Tonic): Fjern global state oppdragskontroll
     private Oppdragskontroll oppdragskontroll;
@@ -46,9 +49,9 @@ public class ØkonomioppdragMapper {
         this.objectFactory = new ObjectFactory();
     }
 
-    public no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag mapVedtaksDataToOppdrag(Oppdrag110 okoOppdrag110) {
+    public no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag mapVedtaksDataToOppdrag(Oppdrag110 okoOppdrag110, Long behandlingId) {
         final no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag oppdrag = objectFactory.createOppdrag();
-        oppdrag.setOppdrag110(mapOppdrag110(okoOppdrag110));
+        oppdrag.setOppdrag110(mapOppdrag110(okoOppdrag110, behandlingId));
         return oppdrag;
     }
 
@@ -59,7 +62,7 @@ public class ØkonomioppdragMapper {
 
         List<String> oppdragXmlListe = new ArrayList<>();
         for (Oppdrag110 okoOppdrag110 : oppdrag110UtenKvittering) {
-            no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag oppdrag = mapVedtaksDataToOppdrag(okoOppdrag110);
+            no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag oppdrag = mapVedtaksDataToOppdrag(okoOppdrag110, oppdragskontroll.getBehandlingId());
             try {
                 String oppdragXml = JaxbHelper.marshalAndValidateJaxb(OppdragSkjemaConstants.JAXB_CLASS, oppdrag, OppdragSkjemaConstants.XSD_LOCATION);
                 oppdragXmlListe.add(oppdragXml);
@@ -70,10 +73,10 @@ public class ØkonomioppdragMapper {
         return oppdragXmlListe;
     }
 
-    private no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag110 mapOppdrag110(Oppdrag110 okoOppdrag110) {
+    private no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag110 mapOppdrag110(Oppdrag110 okoOppdrag110, Long behandlingId) {
         final no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag110 oppdrag110 = objectFactory.createOppdrag110();
         //TODO (Tonic): Løsningsbeskrivelse viser at Oppdrag110 er en liste men Økonomi Oppdrag tar bare et Oppdrag110
-        String kode = okoOppdrag110.getKodeFagomrade();
+        String kodeFagområde = okoOppdrag110.getKodeFagomrade();
         oppdrag110.setKodeAksjon(okoOppdrag110.getKodeAksjon());
         oppdrag110.setKodeEndring(okoOppdrag110.getKodeEndring());
         //TODO (Tonic): Sjekk vis dette må være enum eller ikke
@@ -85,7 +88,7 @@ public class ØkonomioppdragMapper {
         oppdrag110.setAvstemming115(mapAvstemming115(okoOppdrag110.getAvstemming()));
 
         oppdrag110.getOppdragsEnhet120().add(mapOppdragsEnhet120());
-        oppdrag110.getOppdragsLinje150().addAll(mapOppdragsLinje150(okoOppdrag110.getOppdragslinje150Liste(), kode, okoOppdrag110.getSaksbehId()));
+        oppdrag110.getOppdragsLinje150().addAll(mapOppdragsLinje150(okoOppdrag110.getOppdragslinje150Liste(), kodeFagområde, okoOppdrag110.getSaksbehId(), behandlingId));
         oppdrag110.setDatoOppdragGjelderFom(toXmlGregCal(okoOppdrag110.getDatoOppdragGjelderFom()));
 
         Optional<no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116> optOmpostering116 = okoOppdrag110.getOmpostering116();
@@ -125,7 +128,7 @@ public class ØkonomioppdragMapper {
         return oppdragsEnhet120;
     }
 
-    private List<OppdragsLinje150> mapOppdragsLinje150(List<Oppdragslinje150> okoOppdrlinje150Liste, String kode, String saksbehId) {
+    private List<OppdragsLinje150> mapOppdragsLinje150(List<Oppdragslinje150> okoOppdrlinje150Liste, String kode, String saksbehId, Long behandlingId) {
         List<OppdragsLinje150> oppdragsLinje150Liste = new ArrayList<>();
         for (Oppdragslinje150 okoOppdrlinje150 : okoOppdrlinje150Liste) {
             OppdragsLinje150 oppdragsLinje150 = objectFactory.createOppdragsLinje150();
@@ -142,12 +145,12 @@ public class ØkonomioppdragMapper {
             oppdragsLinje150.setDatoVedtakFom(toXmlGregCal(okoOppdrlinje150.getDatoVedtakFom()));
             oppdragsLinje150.setDatoVedtakTom(toXmlGregCal(okoOppdrlinje150.getDatoVedtakTom()));
             oppdragsLinje150.setSats(new BigDecimal(okoOppdrlinje150.getSats()));
-            oppdragsLinje150.setFradragTillegg(TfradragTillegg.fromValue(okoOppdrlinje150.getFradragTillegg()));
+            oppdragsLinje150.setFradragTillegg(TfradragTillegg.fromValue(FRADRAG_TILLEGG));
             oppdragsLinje150.setTypeSats(okoOppdrlinje150.getTypeSats());
-            oppdragsLinje150.setBrukKjoreplan(okoOppdrlinje150.getBrukKjoreplan());
+            oppdragsLinje150.setBrukKjoreplan(BRUK_KJOREPLAN);
             oppdragsLinje150.setSaksbehId(saksbehId);
             oppdragsLinje150.setUtbetalesTilId(okoOppdrlinje150.getUtbetalesTilId());
-            oppdragsLinje150.setHenvisning(String.valueOf(okoOppdrlinje150.getHenvisning()));
+            oppdragsLinje150.setHenvisning(String.valueOf(behandlingId));
             if (okoOppdrlinje150.getRefFagsystemId() != null) {
                 oppdragsLinje150.setRefFagsystemId(String.valueOf(okoOppdrlinje150.getRefFagsystemId()));
             }
@@ -167,8 +170,8 @@ public class ØkonomioppdragMapper {
     }
 
     private void setGrad170OgRefusjonsinfo156(String kode, Oppdragslinje150 okoOppdrlinje150, OppdragsLinje150 oppdragsLinje150) {
-        if (null != okoOppdrlinje150.getGrad()) {
-            oppdragsLinje150.getGrad170().add(mapGrad170(okoOppdrlinje150.getGrad()));
+        if (null != okoOppdrlinje150.getUtbetalingsgrad()) {
+            oppdragsLinje150.getGrad170().add(mapGrad170(okoOppdrlinje150.getUtbetalingsgrad()));
         }
         if (ØkonomiKodeFagområde.gjelderRefusjonTilArbeidsgiver(kode)) {
             oppdragsLinje150.setRefusjonsinfo156(mapRefusjonInfo156(okoOppdrlinje150.getRefusjonsinfo156()));
@@ -186,11 +189,11 @@ public class ØkonomioppdragMapper {
         return refusjonsinfo156;
     }
 
-    private no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Grad170 mapGrad170(Grad okoGrad) {
+    private no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Grad170 mapGrad170(Utbetalingsgrad okoUtbetalingsgrad) {
         final no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Grad170 grad170 = objectFactory.createGrad170();
 
-        grad170.setGrad(BigInteger.valueOf(okoGrad.getVerdi()));
-        grad170.setTypeGrad(okoGrad.getType());
+        grad170.setGrad(BigInteger.valueOf(okoUtbetalingsgrad.getVerdi()));
+        grad170.setTypeGrad(TYPE_GRAD);
 
         return grad170;
     }

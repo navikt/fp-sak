@@ -117,12 +117,8 @@ public class GrensesnittavstemmingBatchTjenesteTest {
             .medKodeKlassifik(BehandleØkonomioppdragKvitteringTest.KODEKLASSIFIK_ES)
             .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
             .medSats(BehandleØkonomioppdragKvitteringTest.SATS)
-            .medFradragTillegg(BehandleØkonomioppdragKvitteringTest.FRADRAGTILLEGG)
             .medTypeSats(BehandleØkonomioppdragKvitteringTest.TYPESATS_ES)
-            .medBrukKjoreplan("N")
-            .medSaksbehId(BehandleØkonomioppdragKvitteringTest.SAKSBEHID)
             .medUtbetalesTilId(BehandleØkonomioppdragKvitteringTest.OPPDRAGGJELDERID)
-            .medHenvisning(BehandleØkonomioppdragKvitteringTest.BEHANDLINGID_ES)
             .medOppdrag110(o110)
             .build();
         oppdrag.getOppdrag110Liste().add(o110);

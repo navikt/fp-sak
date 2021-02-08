@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
@@ -160,17 +160,16 @@ class OppdragskontrollTestVerktøy {
 
         for (Oppdragslinje150 opp150Revurdering : opp150RevurderingList) {
             if (!erOpp150ForFeriepenger(opp150Revurdering)) {
-                assertThat(opp150Revurdering.getGrad()).isNotNull();
+                assertThat(opp150Revurdering.getUtbetalingsgrad()).isNotNull();
             } else {
-                assertThat(opp150Revurdering.getGrad()).isNull();
+                assertThat(opp150Revurdering.getUtbetalingsgrad()).isNull();
             }
             Oppdragslinje150 originaltOpp150 = originaltOpp150Liste.stream().
                 filter(opp150 -> opp150.getDelytelseId().equals(opp150Revurdering.getDelytelseId())).findFirst().orElse(null);
             if (originaltOpp150 != null && !erOpp150ForFeriepenger(originaltOpp150)) {
-                Grad gradRevurdering = opp150Revurdering.getGrad();
-                Grad gradOriginalt = originaltOpp150.getGrad();
-                assertThat(gradRevurdering.getType()).isEqualTo(gradOriginalt.getType());
-                assertThat(gradRevurdering.getVerdi()).isEqualTo(gradOriginalt.getVerdi());
+                Utbetalingsgrad utbetalingsgradRevurdering = opp150Revurdering.getUtbetalingsgrad();
+                Utbetalingsgrad utbetalingsgradOriginalt = originaltOpp150.getUtbetalingsgrad();
+                assertThat(utbetalingsgradRevurdering.getVerdi()).isEqualTo(utbetalingsgradOriginalt.getVerdi());
             }
         }
     }
@@ -263,12 +262,12 @@ class OppdragskontrollTestVerktøy {
                 assertThat(opp150Ny.getRefusjonsinfo156()).isNotNull();
             }
             if (opp150MedGradering(opp150Ny)) {
-                assertThat(opp150Ny.getGrad().getVerdi()).isEqualTo(gradering);
+                assertThat(opp150Ny.getUtbetalingsgrad().getVerdi()).isEqualTo(gradering);
             }
             if (!erOpp150ForFeriepenger(opp150Ny)) {
-                assertThat(opp150Ny.getGrad()).isNotNull();
+                assertThat(opp150Ny.getUtbetalingsgrad()).isNotNull();
             } else {
-                assertThat(opp150Ny.getGrad()).isNull();
+                assertThat(opp150Ny.getUtbetalingsgrad()).isNull();
                 assertThat(opp150Ny.getRefFagsystemId()).isNull();
                 assertThat(opp150Ny.getRefDelytelseId()).isNull();
             }
@@ -356,7 +355,6 @@ class OppdragskontrollTestVerktøy {
         }
         assertThat(opp150Revurd.getSats()).isEqualTo(originaltOpp150.getSats());
         assertThat(opp150Revurd.getTypeSats()).isEqualTo(originaltOpp150.getTypeSats());
-        assertThat(opp150Revurd.getBrukKjoreplan()).isEqualTo(originaltOpp150.getBrukKjoreplan());
     }
 
     private static void verifiserFeriepenger(List<Oppdragslinje150> opp150RevurdListe) {
