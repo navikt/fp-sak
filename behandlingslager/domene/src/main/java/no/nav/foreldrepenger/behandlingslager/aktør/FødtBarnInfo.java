@@ -18,6 +18,7 @@ public class FødtBarnInfo {
         this.dødsdato = dødsdato;
     }
 
+    // OBS: vil være null ved dødfødsel
     public PersonIdent getIdent() {
         return ident;
     }
