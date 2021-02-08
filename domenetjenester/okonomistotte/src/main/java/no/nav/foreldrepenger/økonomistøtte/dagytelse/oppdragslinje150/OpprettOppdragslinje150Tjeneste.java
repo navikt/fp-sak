@@ -191,7 +191,6 @@ public class OpprettOppdragslinje150Tjeneste {
         }
         oppdr150Builder.medKodeEndringLinje(kodeEndringLinje)
             .medVedtakId(vedtaksdato.toString())
-            .medHenvisning(oppdragInput.getBehandlingId())
             .medTypeSats(typeSats);
     }
 

@@ -275,7 +275,6 @@ public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
             .medUtbetalesTilId("456")
             .medRefFagsystemId(678L)
             .medRefDelytelseId(789L)
-            .medHenvisning(43L)
             .medOppdrag110(byggOppdrag110());
         if (gjelderOpphør) {
             builder

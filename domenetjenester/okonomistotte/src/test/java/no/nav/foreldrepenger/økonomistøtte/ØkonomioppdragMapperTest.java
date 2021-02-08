@@ -58,13 +58,13 @@ public class ØkonomioppdragMapperTest {
     @Test
     public void testMapVedtaksDataToOppdragES() {
         List<Oppdrag110> oppdrag110 = opprettOppdrag110(oppdragskontroll, false);
-        verifyMapVedtaksDataToOppdrag(oppdrag110, false);
+        verifyMapVedtaksDataToOppdrag(oppdrag110, false, oppdragskontroll.getBehandlingId());
     }
 
     @Test
     public void testMapVedtaksDataToOppdragFP() {
         List<Oppdrag110> oppdrag110 = opprettOppdrag110(oppdragskontroll, true);
-        verifyMapVedtaksDataToOppdrag(oppdrag110, true);
+        verifyMapVedtaksDataToOppdrag(oppdrag110, true, oppdragskontroll.getBehandlingId());
     }
 
     @Test
@@ -75,7 +75,7 @@ public class ØkonomioppdragMapperTest {
 
         //Act
         oppdrag110List.forEach(opp110 ->
-            oppdragGenerertList.add(økonomioppdragMapper.mapVedtaksDataToOppdrag(opp110)));
+            oppdragGenerertList.add(økonomioppdragMapper.mapVedtaksDataToOppdrag(opp110, oppdragskontroll.getBehandlingId())));
 
         //Assert
         for (int i = 0; i < oppdrag110List.size(); i++) {
@@ -157,7 +157,7 @@ public class ØkonomioppdragMapperTest {
 
         //Act
         oppdrag110List.forEach(opp110 ->
-            oppdragGenerertList.add(økonomioppdragMapper.mapVedtaksDataToOppdrag(opp110)));
+            oppdragGenerertList.add(økonomioppdragMapper.mapVedtaksDataToOppdrag(opp110, oppdragskontroll.getBehandlingId())));
 
         Optional<Oppdrag> oppdrag = oppdragGenerertList.stream().filter(o -> o.getOppdrag110().getKodeFagomraade().equals("FP")).findFirst();
         assertThat(oppdrag).isPresent();
@@ -185,10 +185,10 @@ public class ØkonomioppdragMapperTest {
         return oppdrag110Liste;
     }
 
-    private void verifyMapVedtaksDataToOppdrag(List<Oppdrag110> oppdrag110Liste, boolean gjelderFP) {
+    private void verifyMapVedtaksDataToOppdrag(List<Oppdrag110> oppdrag110Liste, boolean gjelderFP, Long behandlingId) {
 
         for (Oppdrag110 oppdrag110 : oppdrag110Liste) {
-            Oppdrag oppdrag = økonomioppdragMapper.mapVedtaksDataToOppdrag(oppdrag110);
+            Oppdrag oppdrag = økonomioppdragMapper.mapVedtaksDataToOppdrag(oppdrag110, behandlingId);
 
             no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag110 oppdrag110Generert = oppdrag.getOppdrag110();
             assertThat(oppdrag110Generert.getKodeAksjon()).isEqualTo(oppdrag110.getKodeAksjon());
@@ -226,7 +226,7 @@ public class ØkonomioppdragMapperTest {
                 assertThat(oppdragsLinje150Generert.getBrukKjoreplan()).isEqualTo(BRUK_KJØREPLAN);
                 assertThat(oppdragsLinje150Generert.getSaksbehId()).isEqualTo(oppdrag110.getSaksbehId());
                 assertThat(oppdragsLinje150Generert.getUtbetalesTilId()).isEqualTo(oppdragslinje150.getUtbetalesTilId());
-                assertThat(oppdragsLinje150Generert.getHenvisning()).isEqualTo(String.valueOf(oppdragslinje150.getHenvisning()));
+                assertThat(oppdragsLinje150Generert.getHenvisning()).isEqualTo(String.valueOf(oppdrag110.getOppdragskontroll().getBehandlingId()));
                 if (!gjelderFP) {
                     assertThat(oppdragsLinje150Generert.getRefFagsystemId()).isNull();
                     assertThat(oppdragsLinje150Generert.getRefDelytelseId()).isNull();
@@ -339,8 +339,7 @@ public class ØkonomioppdragMapperTest {
             .medDelytelseId(delytelseId)
             .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
             .medSats(1122L)
-            .medUtbetalesTilId("123456789")
-            .medHenvisning(43L);
+            .medUtbetalesTilId("123456789");
     }
 
     private List<Oppdrag110> buildOppdrag110(Oppdragskontroll oppdragskontroll, boolean gjelderFP, boolean erOmpostering) {

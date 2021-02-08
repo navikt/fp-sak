@@ -119,7 +119,6 @@ public class GrensesnittavstemmingBatchTjenesteTest {
             .medSats(BehandleØkonomioppdragKvitteringTest.SATS)
             .medTypeSats(BehandleØkonomioppdragKvitteringTest.TYPESATS_ES)
             .medUtbetalesTilId(BehandleØkonomioppdragKvitteringTest.OPPDRAGGJELDERID)
-            .medHenvisning(BehandleØkonomioppdragKvitteringTest.BEHANDLINGID_ES)
             .medOppdrag110(o110)
             .build();
         oppdrag.getOppdrag110Liste().add(o110);

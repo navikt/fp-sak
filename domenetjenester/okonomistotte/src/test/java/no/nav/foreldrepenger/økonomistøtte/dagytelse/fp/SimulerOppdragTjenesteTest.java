@@ -87,7 +87,6 @@ public class SimulerOppdragTjenesteTest {
             .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
             .medSats(1122L)
             .medUtbetalesTilId("123456789")
-            .medHenvisning(43L)
             .medKodeKlassifik(ØkonomiKodeKlassifik.FPATORD.getKodeKlassifik())
             .medTypeSats(ØkonomiTypeSats.DAG.name())
             .medOppdrag110(oppdrag110)

@@ -492,7 +492,6 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
             assertThat(opp150.getDatoVedtakTom()).isEqualTo(andel.getBeregningsresultatPeriode().getBeregningsresultatPeriodeTom());
             assertThat(opp150.getSats()).isEqualTo(andel.getDagsats());
             assertThat(opp150.getTypeSats()).isEqualTo(TYPE_SATS_FP_YTELSE);
-            assertThat(opp150.getHenvisning()).isEqualTo(behandling.getId());
             assertThat(opp150.getUtbetalingsgrad()).isNotNull();
             assertUtbetalesTilId(opp150, brukerErMottaker, utbetalesTilId);
         }
@@ -587,7 +586,6 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
             assertThat(oppdragslinje150.getDatoVedtakTom()).isEqualTo(andel.getBeregningsresultatPeriode().getBeregningsresultatPeriodeTom());
             assertThat(oppdragslinje150.getSats()).isEqualTo(andel.getDagsats());
             assertThat(oppdragslinje150.getTypeSats()).isEqualTo(TYPE_SATS_FP_YTELSE);
-            assertThat(oppdragslinje150.getHenvisning()).isEqualTo(behandling.getId());
             assertThat(oppdragslinje150.getUtbetalingsgrad()).isNotNull();
             assertUtbetalesTilId(oppdragslinje150, brukerErMottaker, utbetalesTilId);
             if (løpenummer > 100L) {

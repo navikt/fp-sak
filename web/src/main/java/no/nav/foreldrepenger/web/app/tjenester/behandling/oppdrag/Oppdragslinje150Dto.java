@@ -19,8 +19,7 @@ public class Oppdragslinje150Dto extends SporingDto {
     private String kodeKlassifik;
     private long sats;
     private String typeSats;
-    private Long henvisning;
-    private Integer grad;
+    private Integer utbetalingsgrad;
     private RefusjonInfo156Dto refusjonInfo156;
 
     public Oppdragslinje150Dto(Oppdragslinje150 entitet) {
@@ -131,24 +130,16 @@ public class Oppdragslinje150Dto extends SporingDto {
         this.typeSats = typeSats;
     }
 
-    public Long getHenvisning() {
-        return henvisning;
-    }
-
-    public void setHenvisning(Long henvisning) {
-        this.henvisning = henvisning;
-    }
-
     public RefusjonInfo156Dto getRefusjonInfo156() {
         return refusjonInfo156;
     }
 
-    public Integer getGrad() {
-        return grad;
+    public Integer getUtbetalingsgrad() {
+        return utbetalingsgrad;
     }
 
-    public void setGrad(Integer grad) {
-        this.grad = grad;
+    public void setUtbetalingsgrad(Integer utbetalingsgrad) {
+        this.utbetalingsgrad = utbetalingsgrad;
     }
 
     public void setRefusjonInfo156(RefusjonInfo156Dto refusjonInfo156) {
@@ -170,8 +161,7 @@ public class Oppdragslinje150Dto extends SporingDto {
         oppdragslinje150Dto.kodeKlassifik = oppdragslinje150.getKodeKlassifik();
         oppdragslinje150Dto.sats = oppdragslinje150.getSats();
         oppdragslinje150Dto.typeSats = oppdragslinje150.getTypeSats();
-        oppdragslinje150Dto.henvisning = oppdragslinje150.getHenvisning();
-        oppdragslinje150Dto.grad = oppdragslinje150.getUtbetalingsgrad().getVerdi();
+        oppdragslinje150Dto.utbetalingsgrad = oppdragslinje150.getUtbetalingsgrad().getVerdi();
         oppdragslinje150Dto.refusjonInfo156 = oppdragslinje150.getRefusjonsinfo156() != null ? RefusjonInfo156Dto.fraDomene(oppdragslinje150.getRefusjonsinfo156()) : null;
         return oppdragslinje150Dto;
 

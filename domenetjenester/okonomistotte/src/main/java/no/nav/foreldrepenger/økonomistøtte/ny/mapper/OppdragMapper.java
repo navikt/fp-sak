@@ -97,8 +97,7 @@ public class OppdragMapper {
             .medVedtakFomOgTom(linje.getPeriode().getFom(), linje.getPeriode().getTom())
             .medSats(linje.getSats().getSats())
             .medTypeSats(linje.getSats().getSatsType().getKode())
-            .medVedtakId(vedtaksdato.toString())
-            .medHenvisning(behandlingId);
+            .medVedtakId(vedtaksdato.toString());
 
         if (linje.erOpphørslinje()) {
             builder.medKodeEndringLinje(ØkonomiKodeEndringLinje.ENDR.name());

@@ -48,9 +48,9 @@ public class ØkonomioppdragMapper {
         this.objectFactory = new ObjectFactory();
     }
 
-    public no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag mapVedtaksDataToOppdrag(Oppdrag110 okoOppdrag110) {
+    public no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag mapVedtaksDataToOppdrag(Oppdrag110 okoOppdrag110, Long behandlingId) {
         final no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag oppdrag = objectFactory.createOppdrag();
-        oppdrag.setOppdrag110(mapOppdrag110(okoOppdrag110));
+        oppdrag.setOppdrag110(mapOppdrag110(okoOppdrag110, behandlingId));
         return oppdrag;
     }
 
@@ -61,7 +61,7 @@ public class ØkonomioppdragMapper {
 
         List<String> oppdragXmlListe = new ArrayList<>();
         for (Oppdrag110 okoOppdrag110 : oppdrag110UtenKvittering) {
-            no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag oppdrag = mapVedtaksDataToOppdrag(okoOppdrag110);
+            no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag oppdrag = mapVedtaksDataToOppdrag(okoOppdrag110, oppdragskontroll.getBehandlingId());
             try {
                 String oppdragXml = JaxbHelper.marshalAndValidateJaxb(OppdragSkjemaConstants.JAXB_CLASS, oppdrag, OppdragSkjemaConstants.XSD_LOCATION);
                 oppdragXmlListe.add(oppdragXml);
@@ -72,10 +72,10 @@ public class ØkonomioppdragMapper {
         return oppdragXmlListe;
     }
 
-    private no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag110 mapOppdrag110(Oppdrag110 okoOppdrag110) {
+    private no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag110 mapOppdrag110(Oppdrag110 okoOppdrag110, Long behandlingId) {
         final no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag110 oppdrag110 = objectFactory.createOppdrag110();
         //TODO (Tonic): Løsningsbeskrivelse viser at Oppdrag110 er en liste men Økonomi Oppdrag tar bare et Oppdrag110
-        String kode = okoOppdrag110.getKodeFagomrade();
+        String kodeFagområde = okoOppdrag110.getKodeFagomrade();
         oppdrag110.setKodeAksjon(okoOppdrag110.getKodeAksjon());
         oppdrag110.setKodeEndring(okoOppdrag110.getKodeEndring());
         //TODO (Tonic): Sjekk vis dette må være enum eller ikke
@@ -87,7 +87,7 @@ public class ØkonomioppdragMapper {
         oppdrag110.setAvstemming115(mapAvstemming115(okoOppdrag110.getAvstemming()));
 
         oppdrag110.getOppdragsEnhet120().add(mapOppdragsEnhet120());
-        oppdrag110.getOppdragsLinje150().addAll(mapOppdragsLinje150(okoOppdrag110.getOppdragslinje150Liste(), kode, okoOppdrag110.getSaksbehId()));
+        oppdrag110.getOppdragsLinje150().addAll(mapOppdragsLinje150(okoOppdrag110.getOppdragslinje150Liste(), kodeFagområde, okoOppdrag110.getSaksbehId(), behandlingId));
         oppdrag110.setDatoOppdragGjelderFom(toXmlGregCal(okoOppdrag110.getDatoOppdragGjelderFom()));
 
         Optional<no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116> optOmpostering116 = okoOppdrag110.getOmpostering116();
@@ -127,7 +127,7 @@ public class ØkonomioppdragMapper {
         return oppdragsEnhet120;
     }
 
-    private List<OppdragsLinje150> mapOppdragsLinje150(List<Oppdragslinje150> okoOppdrlinje150Liste, String kode, String saksbehId) {
+    private List<OppdragsLinje150> mapOppdragsLinje150(List<Oppdragslinje150> okoOppdrlinje150Liste, String kode, String saksbehId, Long behandlingId) {
         List<OppdragsLinje150> oppdragsLinje150Liste = new ArrayList<>();
         for (Oppdragslinje150 okoOppdrlinje150 : okoOppdrlinje150Liste) {
             OppdragsLinje150 oppdragsLinje150 = objectFactory.createOppdragsLinje150();
@@ -149,7 +149,7 @@ public class ØkonomioppdragMapper {
             oppdragsLinje150.setBrukKjoreplan(BRUK_KJOREPLAN);
             oppdragsLinje150.setSaksbehId(saksbehId);
             oppdragsLinje150.setUtbetalesTilId(okoOppdrlinje150.getUtbetalesTilId());
-            oppdragsLinje150.setHenvisning(String.valueOf(okoOppdrlinje150.getHenvisning()));
+            oppdragsLinje150.setHenvisning(String.valueOf(behandlingId));
             if (okoOppdrlinje150.getRefFagsystemId() != null) {
                 oppdragsLinje150.setRefFagsystemId(String.valueOf(okoOppdrlinje150.getRefFagsystemId()));
             }

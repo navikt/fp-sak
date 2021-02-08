@@ -36,7 +36,6 @@ public class OppdragTestDataHelper {
             .medTypeSats(ØkonomiTypeSats.UKE.name())
             .medUtbetalesTilId("123456789")
             .medOppdrag110(oppdrag110)
-            .medHenvisning(47L)
             .medUtbetalingsgrad(Utbetalingsgrad._100)
             .build();
 

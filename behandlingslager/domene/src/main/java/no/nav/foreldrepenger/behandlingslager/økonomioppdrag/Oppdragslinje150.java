@@ -75,9 +75,6 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
     @Column(name = "utbetales_til_id")
     private String utbetalesTilId;
 
-    @Column(name = "henvisning", nullable = false)
-    private long henvisning;
-
     @Column(name = "ref_fagsystem_id")
     private Long refFagsystemId;
 
@@ -162,14 +159,6 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
 
     public String getUtbetalesTilId() {
         return utbetalesTilId;
-    }
-
-    public Long getHenvisning() {
-        return henvisning;
-    }
-
-    public void setHenvisning(Long henvisning) {
-        this.henvisning = henvisning;
     }
 
     public Long getRefFagsystemId() {
@@ -271,7 +260,6 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
         private Long sats;
         private String typeSats;
         private String utbetalesTilId;
-        private Long henvisning;
         private Long refFagsystemId;
         private Long refDelytelseId;
         private Oppdrag110 oppdrag110;
@@ -327,11 +315,6 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
             return this;
         }
 
-        public Builder medHenvisning(Long henvisning) {
-            this.henvisning = henvisning;
-            return this;
-        }
-
         public Builder medRefFagsystemId(Long refFagsystemId) {
             this.refFagsystemId = refFagsystemId;
             return this;
@@ -365,7 +348,6 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
             oppdragslinje150.sats = sats;
             oppdragslinje150.typeSats = typeSats;
             oppdragslinje150.utbetalesTilId = utbetalesTilId;
-            oppdragslinje150.henvisning = henvisning;
             oppdragslinje150.refFagsystemId = refFagsystemId;
             oppdragslinje150.refDelytelseId = refDelytelseId;
             oppdragslinje150.utbetalingsgrad = utbetalingsgrad;
@@ -381,7 +363,6 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
             Objects.requireNonNull(vedtakPeriode, "vedtakPeriode");
             Objects.requireNonNull(sats, "sats");
             Objects.requireNonNull(typeSats, "typeSats");
-            Objects.requireNonNull(henvisning, "henvisning");
             Objects.requireNonNull(oppdrag110, "oppdrag110");
         }
     }

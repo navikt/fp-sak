@@ -181,7 +181,6 @@ public class Oppdragslinje150EntityTest {
                 .medUtbetalesTilId(UTBETALESTILID)
                 .medRefFagsystemId(REFFAGSYSTEMID)
                 .medRefDelytelseId(REFDELYTELSEID)
-                .medHenvisning(43L)
                 .medOppdrag110(lagOppdrag110MedPaakrevdeFelter().build());
 
     }
