@@ -23,6 +23,8 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.Immutable;
+
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.vedtak.util.env.Cluster;
 import no.nav.vedtak.util.env.Environment;
@@ -74,7 +76,8 @@ public class Oppdrag110 extends BaseEntitet {
     @JoinColumn(name = "oppdrags_kontroll_id", nullable = false, updatable = false)
     private Oppdragskontroll oppdragskontroll;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "oppdrag110", cascade = CascadeType.PERSIST)
+    @Immutable
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "oppdrag110")
     private List<Oppdragslinje150> oppdragslinje150Liste = new ArrayList<>();
 
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "oppdrag110", cascade = CascadeType.PERSIST)

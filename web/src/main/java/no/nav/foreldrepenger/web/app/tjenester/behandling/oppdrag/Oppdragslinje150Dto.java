@@ -23,7 +23,7 @@ public class Oppdragslinje150Dto extends SporingDto {
     private RefusjonInfo156Dto refusjonInfo156;
 
     public Oppdragslinje150Dto(Oppdragslinje150 entitet) {
-        super(entitet, entitet.getVersjon(), entitet.getId());
+        super(entitet, 0L, entitet.getId());
     }
 
     public String getVedtakId() {

@@ -37,10 +37,6 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_OKO_OPPDRAG_LINJE_150")
     private Long id;
 
-    @Version
-    @Column(name = "versjon", nullable = false)
-    private long versjon;
-
     @Column(name = "kode_endring_linje", nullable = false)
     private String kodeEndringLinje;
 
@@ -192,10 +188,6 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
     protected void setRefusjonsinfo156(Refusjonsinfo156 refusjonsinfo156) {
         Objects.requireNonNull(refusjonsinfo156, "refusjonsinfo156");
         this.refusjonsinfo156 = refusjonsinfo156;
-    }
-
-    public long getVersjon() {
-        return versjon;
     }
 
     @Override
