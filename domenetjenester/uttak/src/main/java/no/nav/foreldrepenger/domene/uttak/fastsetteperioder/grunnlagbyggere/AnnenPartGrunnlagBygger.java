@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.domene.uttak.UttakEnumMapper;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
@@ -20,6 +19,7 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Trekkdager;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AnnenPart;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AnnenpartUttakPeriode;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AnnenpartUttakPeriodeAktivitet;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Utbetalingsgrad;
 
 @ApplicationScoped
 public class AnnenPartGrunnlagBygger {
@@ -63,10 +63,12 @@ public class AnnenPartGrunnlagBygger {
             .medFlerbarnsdager(periode.isFlerbarnsdager())
             .medInnvilget(PeriodeResultatType.INNVILGET.equals(periode.getResultatType()));
 
-        for (UttakResultatPeriodeAktivitetEntitet aktivitet : periode.getAktiviteter()) {
+        for (var aktivitet : periode.getAktiviteter()) {
+            var utbetalingsgrad = new Utbetalingsgrad(aktivitet.getUtbetalingsgrad().decimalValue());
+            var trekkdager = new Trekkdager(aktivitet.getTrekkdager().decimalValue());
+            var trekkonto = UttakEnumMapper.map(aktivitet.getTrekkonto());
             var mapped = new AnnenpartUttakPeriodeAktivitet(UttakEnumMapper.map(aktivitet.getUttakAktivitet()),
-                UttakEnumMapper.map(aktivitet.getTrekkonto()),
-                new Trekkdager(aktivitet.getTrekkdager().decimalValue()), aktivitet.getUtbetalingsgrad().decimalValue());
+                trekkonto, trekkdager, utbetalingsgrad);
             builder.medUttakPeriodeAktivitet(mapped);
         }
         return builder.build();
