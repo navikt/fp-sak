@@ -30,9 +30,10 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodekomponent;
@@ -448,7 +449,7 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
     private void verifyOpp150NårFørstegangsoppdragBlirSendtIRevurdering(List<Oppdragslinje150> oppdragslinje150List) {
         assertThat(oppdragslinje150List).isNotEmpty();
         assertThat(oppdragslinje150List).allSatisfy(oppdragslinje150 -> {
-            assertThat(oppdragslinje150.getKodeEndringLinje()).isEqualTo(KodeEndringLinjeType.NY);
+            assertThat(oppdragslinje150.getKodeEndringLinje()).isEqualTo(KodeEndringLinje.NY);
             assertThat(oppdragslinje150.getRefusjonsinfo156()).isNull();
             assertThat(oppdragslinje150.getUtbetalingsgrad()).isNotNull();
         });
@@ -485,13 +486,13 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
                 kodeklassifik = ØkonomiKodeKlassifik.FPREFAG_IOP.getKodeKlassifik();
             }
             String utbetalesTilId = brukerErMottaker ? personIdent.getIdent() : andel.getArbeidsforholdIdentifikator();
-            assertThat(opp150.getKodeEndringLinje()).isEqualTo(KodeEndringLinjeType.NY);
+            assertThat(opp150.getKodeEndringLinje()).isEqualTo(KodeEndringLinje.NY);
             assertThat(opp150.getVedtakId()).isEqualTo(behVedtak.getVedtaksdato().toString());
             assertThat(opp150.getKodeKlassifik()).isEqualTo(kodeklassifik);
             assertThat(opp150.getDatoVedtakFom()).isEqualTo(andel.getBeregningsresultatPeriode().getBeregningsresultatPeriodeFom());
             assertThat(opp150.getDatoVedtakTom()).isEqualTo(andel.getBeregningsresultatPeriode().getBeregningsresultatPeriodeTom());
             assertThat(opp150.getSats()).isEqualTo(andel.getDagsats());
-            assertThat(opp150.getTypeSats()).isEqualTo(TYPE_SATS_FP_YTELSE);
+            assertThat(opp150.getTypeSats()).isEqualTo(TypeSats.DAGLIG);
             assertThat(opp150.getUtbetalingsgrad()).isNotNull();
             assertUtbetalesTilId(opp150, brukerErMottaker, utbetalesTilId);
         }
@@ -577,14 +578,14 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
             delYtelseIdListe.add(oppdragslinje150.getDelytelseId());
 
             String utbetalesTilId = brukerErMottaker ? personIdent.getIdent() : andel.getArbeidsforholdIdentifikator();
-            assertThat(oppdragslinje150.getKodeEndringLinje()).isEqualTo(KodeEndringLinjeType.NY);
+            assertThat(oppdragslinje150.getKodeEndringLinje()).isEqualTo(KodeEndringLinje.NY);
             assertThat(oppdragslinje150.getVedtakId()).isEqualTo(vedtaksdatoFP.toString());
             assertThat(oppdragslinje150.getDelytelseId()).isEqualTo(concatenateValues(fagsystemId, løpenummer));
             assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(brukerErMottaker ? ØkonomiKodeKlassifik.FPATORD.getKodeKlassifik() : ØkonomiKodeKlassifik.FPREFAG_IOP.getKodeKlassifik());
             assertThat(oppdragslinje150.getDatoVedtakFom()).isEqualTo(andel.getBeregningsresultatPeriode().getBeregningsresultatPeriodeFom());
             assertThat(oppdragslinje150.getDatoVedtakTom()).isEqualTo(andel.getBeregningsresultatPeriode().getBeregningsresultatPeriodeTom());
             assertThat(oppdragslinje150.getSats()).isEqualTo(andel.getDagsats());
-            assertThat(oppdragslinje150.getTypeSats()).isEqualTo(TYPE_SATS_FP_YTELSE);
+            assertThat(oppdragslinje150.getTypeSats()).isEqualTo(TypeSats.DAGLIG);
             assertThat(oppdragslinje150.getUtbetalingsgrad()).isNotNull();
             assertUtbetalesTilId(oppdragslinje150, brukerErMottaker, utbetalesTilId);
             if (løpenummer > 100L) {

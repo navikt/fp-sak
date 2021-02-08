@@ -17,10 +17,11 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.økonomistøtte.grensesnittavstemming.queue.producer.GrensesnittavstemmingJmsProducer;
 import no.nav.foreldrepenger.økonomistøtte.BehandleØkonomioppdragKvitteringTest;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
@@ -114,11 +115,11 @@ public class GrensesnittavstemmingBatchTjenesteTest {
             .build();
         new Oppdragslinje150.Builder().medVedtakId(
             BehandleØkonomioppdragKvitteringTest.VEDTAKID)
-            .medKodeEndringLinje(KodeEndringLinjeType.NY)
+            .medKodeEndringLinje(KodeEndringLinje.NY)
             .medKodeKlassifik(BehandleØkonomioppdragKvitteringTest.KODEKLASSIFIK_ES)
             .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
             .medSats(BehandleØkonomioppdragKvitteringTest.SATS)
-            .medTypeSats(BehandleØkonomioppdragKvitteringTest.TYPESATS_ES)
+            .medTypeSats(TypeSats.ENGANG)
             .medUtbetalesTilId(BehandleØkonomioppdragKvitteringTest.OPPDRAGGJELDERID)
             .medOppdrag110(o110)
             .build();

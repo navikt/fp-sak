@@ -34,15 +34,15 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiTypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -273,7 +273,7 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
     private Oppdragslinje150 buildOppdragslinje150(Oppdrag110 oppdrag110, Long delytelseId) {
 
         return Oppdragslinje150.builder()
-                .medKodeEndringLinje(KodeEndringLinjeType.ENDRING)
+                .medKodeEndringLinje(KodeEndringLinje.ENDRING)
                 .medKodeStatusLinje("OPPH")
                 .medDatoStatusFom(LocalDate.now())
                 .medVedtakId("345")
@@ -281,7 +281,7 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
                 .medKodeKlassifik("FPENFOD-OP")
                 .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
                 .medSats(61122L)
-                .medTypeSats(ØkonomiTypeSats.UKE.name())
+                .medTypeSats(TypeSats.DAGLIG)
                 .medUtbetalesTilId("123456789")
                 .medOppdrag110(oppdrag110)
                 .medRefDelytelseId(1L)

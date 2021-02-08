@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeStatusLinje;
@@ -414,7 +414,7 @@ public class OppdragskontrollTjenesteOPPHTest extends OppdragskontrollTjenesteTe
             assertThat(revurderingOpp150Bruker.getDelytelseId()).isEqualTo(originaltOpp150Bruker.getDelytelseId());
             assertThat(revurderingOpp150Bruker.getRefDelytelseId()).isNull();
             assertThat(revurderingOpp150Bruker.getRefFagsystemId()).isNull();
-            assertThat(revurderingOpp150Bruker.getKodeEndringLinje()).isEqualTo(KodeEndringLinjeType.ENDRING);
+            assertThat(revurderingOpp150Bruker.getKodeEndringLinje()).isEqualTo(KodeEndringLinje.ENDRING);
             assertThat(revurderingOpp150Bruker.getKodeStatusLinje()).isEqualTo(ØkonomiKodeStatusLinje.OPPH.name());
             LocalDate førsteDatoVedtakFom = OppdragskontrollTestVerktøy.finnFørsteDatoVedtakFom(originaltOpp150BrukerListe, originaltOpp150Bruker);
             LocalDate datoStatusFom = førsteDatoVedtakFom.isAfter(endringsdato) ? førsteDatoVedtakFom : endringsdato;
@@ -451,7 +451,7 @@ public class OppdragskontrollTjenesteOPPHTest extends OppdragskontrollTjenesteTe
             for (String klassifikasjon : klassifikasjoner) {
                 Optional<Oppdragslinje150> opphørslinje = nyttOppdrag.getOppdragslinje150Liste().stream()
                     .filter(opp150 -> klassifikasjon.equals(opp150.getKodeKlassifik()))
-                    .filter(opp150 -> KodeEndringLinjeType.ENDRING.equals(opp150.getKodeEndringLinje()))
+                    .filter(opp150 -> KodeEndringLinje.ENDRING.equals(opp150.getKodeEndringLinje()))
                     .filter(opp150 -> ØkonomiKodeStatusLinje.OPPH.name().equals(opp150.getKodeStatusLinje()))
                     .findFirst();
                 assertThat(opphørslinje)
@@ -479,7 +479,7 @@ public class OppdragskontrollTjenesteOPPHTest extends OppdragskontrollTjenesteTe
             assertThat(sisteOriginaltOppdragsLinje.getDelytelseId()).isEqualTo(sisteNyOppdragsLinje.getDelytelseId());
             assertThat(sisteNyOppdragsLinje.getRefDelytelseId()).isNull();
             assertThat(sisteNyOppdragsLinje.getRefFagsystemId()).isNull();
-            assertThat(sisteNyOppdragsLinje.getKodeEndringLinje()).isEqualTo(KodeEndringLinjeType.ENDRING);
+            assertThat(sisteNyOppdragsLinje.getKodeEndringLinje()).isEqualTo(KodeEndringLinje.ENDRING);
             assertThat(sisteNyOppdragsLinje.getKodeStatusLinje()).isEqualTo(ØkonomiKodeStatusLinje.OPPH.name());
         }
     }
@@ -497,7 +497,7 @@ public class OppdragskontrollTjenesteOPPHTest extends OppdragskontrollTjenesteTe
             assertThat(nyOpp150.getDelytelseId()).isEqualTo(originaltOpp150.getDelytelseId());
             assertThat(nyOpp150.getRefDelytelseId()).isNull();
             assertThat(nyOpp150.getRefFagsystemId()).isNull();
-            assertThat(nyOpp150.getKodeEndringLinje()).isEqualTo(KodeEndringLinjeType.ENDRING);
+            assertThat(nyOpp150.getKodeEndringLinje()).isEqualTo(KodeEndringLinje.ENDRING);
             assertThat(nyOpp150.getKodeStatusLinje()).isEqualTo(ØkonomiKodeStatusLinje.OPPH.name());
             assertThat(nyOpp150.getSats()).isEqualTo(originaltOpp150.getSats());
         }

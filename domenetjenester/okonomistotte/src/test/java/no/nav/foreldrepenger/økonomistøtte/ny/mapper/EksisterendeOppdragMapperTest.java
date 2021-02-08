@@ -11,10 +11,11 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Betalingsmottaker;
@@ -150,10 +151,10 @@ public class EksisterendeOppdragMapperTest {
             .medKodeKlassifik(økonomiKodeKlassifik.getKodeKlassifik())
             .medVedtakFomOgTom(p.getFom(), p.getTom())
             .medSats(sats.getSats())
-            .medTypeSats(sats.getSatsType().getKode())
+            .medTypeSats(TypeSats.fraKode(sats.getSatsType().getKode()))
             .medDatoStatusFom(opphørFomDato)
             .medKodeStatusLinje(opphørFomDato != null ? "OPPH" : null)
-            .medKodeEndringLinje(opphørFomDato != null ? KodeEndringLinjeType.ENDRING : KodeEndringLinjeType.NY)
+            .medKodeEndringLinje(opphørFomDato != null ? KodeEndringLinje.ENDRING : KodeEndringLinje.NY)
             .medRefDelytelseId(refDelytelseId != null ? Long.parseLong(refDelytelseId.toString()) : null)
             .medRefFagsystemId(refDelytelseId != null ? Long.parseLong(refDelytelseId.getFagsystemId().toString()) : null)
             .build();

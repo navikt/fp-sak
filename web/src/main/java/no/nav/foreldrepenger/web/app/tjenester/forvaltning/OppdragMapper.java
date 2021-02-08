@@ -7,12 +7,13 @@ import no.nav.foreldrepenger.behandling.impl.FinnAnsvarligSaksbehandler;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeStatusLinje;
@@ -60,12 +61,12 @@ class OppdragMapper {
             .medOppdrag110(oppdrag110)
             .medVedtakFomOgTom(linje.getFom(), linje.getTom())
             .medSats(linje.getSats())
-            .medTypeSats(linje.getSatsType())
+            .medTypeSats(TypeSats.fraKode(linje.getSatsType()))
             .medDelytelseId(linje.getDelytelseId())
             .medRefDelytelseId(linje.getRefDelytelseId())
             .medRefFagsystemId(linje.getRefFagsystemId())
             .medVedtakId(behandlingVedtak.getVedtaksdato().toString())
-            .medKodeEndringLinje(KodeEndringLinjeType.fraKode(linje.getKodeEndring()))
+            .medKodeEndringLinje(KodeEndringLinje.fraKode(linje.getKodeEndring()))
             .medKodeKlassifik(linje.getKodeKlassifik());
         if (linje.getOpphørFom() != null) {
             builder.medDatoStatusFom(linje.getOpphørFom());

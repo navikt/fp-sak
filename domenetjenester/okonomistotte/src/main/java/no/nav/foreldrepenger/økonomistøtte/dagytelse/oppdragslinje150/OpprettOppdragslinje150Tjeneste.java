@@ -10,10 +10,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.økonomistøtte.Oppdragsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.FinnMottakerInfoITilkjentYtelse;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.KlassekodeUtleder;
@@ -183,15 +184,14 @@ public class OpprettOppdragslinje150Tjeneste {
 
     public static void settFellesFelterIOppdr150(OppdragInput oppdragInput, Oppdragslinje150.Builder oppdr150Builder, boolean gjelderOpphør, boolean gjelderFeriepenger) {
         LocalDate vedtaksdato = oppdragInput.getVedtaksdato();
-        String typeSats = gjelderFeriepenger ? OppdragskontrollConstants.TYPE_SATS_FERIEPENGER : OppdragskontrollConstants.TYPE_SATS_DAG;
         boolean erEndringMedBortfallAvHeleYtelsen = summerHeleTilkjentYtelse(getPerioderForTilkjentYtelse(oppdragInput)) == 0 &&
             summerHeleTilkjentYtelse(oppdragInput.getForrigeTilkjentYtelsePerioder()) > 0;
         if (gjelderOpphør || erEndringMedBortfallAvHeleYtelsen) {
             oppdr150Builder.medKodeStatusLinje(OppdragskontrollConstants.KODE_STATUS_LINJE_OPPHØR);
         }
-        oppdr150Builder.medKodeEndringLinje(gjelderOpphør ? KodeEndringLinjeType.ENDRING : KodeEndringLinjeType.NY)
+        oppdr150Builder.medKodeEndringLinje(gjelderOpphør ? KodeEndringLinje.ENDRING : KodeEndringLinje.NY)
             .medVedtakId(vedtaksdato.toString())
-            .medTypeSats(typeSats);
+            .medTypeSats(gjelderFeriepenger ? TypeSats.ENGANG : TypeSats.DAGLIG);
     }
 
     private static List<TilkjentYtelsePeriode> getPerioderForTilkjentYtelse(OppdragInput oppdragInput) {

@@ -3,16 +3,16 @@ package no.nav.foreldrepenger.økonomistøtte;
 import java.time.LocalDate;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiTypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
@@ -24,7 +24,7 @@ public class OppdragTestDataHelper {
         Oppdragslinje150.Builder oppdrLinje150Builder = Oppdragslinje150.builder();
 
         return oppdrLinje150Builder
-            .medKodeEndringLinje(KodeEndringLinjeType.ENDRING)
+            .medKodeEndringLinje(KodeEndringLinje.ENDRING)
             .medKodeStatusLinje("ENDR")
             .medDatoStatusFom(LocalDate.now())
             .medVedtakId("456")
@@ -32,7 +32,7 @@ public class OppdragTestDataHelper {
             .medKodeKlassifik(KODE_KLASSIFIK_FODSEL)
             .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
             .medSats(61122L)
-            .medTypeSats(ØkonomiTypeSats.UKE.name())
+            .medTypeSats(TypeSats.DAGLIG)
             .medUtbetalesTilId("123456789")
             .medOppdrag110(oppdrag110)
             .medUtbetalingsgrad(Utbetalingsgrad._100)

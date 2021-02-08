@@ -22,7 +22,8 @@ import javax.persistence.Table;
 import org.hibernate.annotations.Immutable;
 
 import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 /**
@@ -38,9 +39,9 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_OKO_OPPDRAG_LINJE_150")
     private Long id;
 
-    @Convert(converter = KodeEndringLinjeType.KodeverdiConverter.class)
+    @Convert(converter = KodeEndringLinje.KodeverdiConverter.class)
     @Column(name = "kode_endring_linje", nullable = false)
-    private KodeEndringLinjeType kodeEndringLinje;
+    private KodeEndringLinje kodeEndringLinje;
 
     @Column(name = "vedtak_id", nullable = false)
     private String vedtakId;
@@ -61,8 +62,9 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
     @Column(name = "sats", nullable = false)
     private long sats;
 
+    @Convert(converter = TypeSats.KodeverdiConverter.class)
     @Column(name = "type_sats", nullable = false)
-    private String typeSats;
+    private TypeSats typeSats;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "oppdrag110_id", nullable = false)
@@ -103,7 +105,7 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
         this.id = id;
     }
 
-    public KodeEndringLinjeType getKodeEndringLinje() {
+    public KodeEndringLinje getKodeEndringLinje() {
         return kodeEndringLinje;
     }
 
@@ -147,7 +149,7 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
         this.sats = sats;
     }
 
-    public String getTypeSats() {
+    public TypeSats getTypeSats() {
         return typeSats;
     }
 
@@ -240,7 +242,7 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
     }
 
     public static class Builder {
-        private KodeEndringLinjeType kodeEndringLinje;
+        private KodeEndringLinje kodeEndringLinje;
         private String kodeStatusLinje;
         private LocalDate datoStatusFom;
         private String vedtakId;
@@ -248,14 +250,14 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
         private String kodeKlassifik;
         private DatoIntervallEntitet vedtakPeriode;
         private Long sats;
-        private String typeSats;
+        private TypeSats typeSats;
         private String utbetalesTilId;
         private Long refFagsystemId;
         private Long refDelytelseId;
         private Oppdrag110 oppdrag110;
         private Utbetalingsgrad utbetalingsgrad;
 
-        public Builder medKodeEndringLinje(KodeEndringLinjeType kodeEndringLinje) {
+        public Builder medKodeEndringLinje(KodeEndringLinje kodeEndringLinje) {
             this.kodeEndringLinje = kodeEndringLinje;
             return this;
         }
@@ -295,7 +297,7 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
             return this;
         }
 
-        public Builder medTypeSats(String typeSats) {
+        public Builder medTypeSats(TypeSats typeSats) {
             this.typeSats = typeSats;
             return this;
         }

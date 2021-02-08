@@ -35,9 +35,10 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodekomponent;
@@ -60,7 +61,6 @@ import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManagerAwareTest {
 
     private static final String KODE_KLASSIFIK_FODSEL = "FPENFOD-OP";
-    private static final String TYPE_SATS_ES = "ENG";
 
     private EntityManager entityManager;
 
@@ -161,7 +161,7 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
         Oppdragslinje150 originalOppdragslinje150 = originaltOppdrag110.getOppdragslinje150Liste().get(0);
         Oppdragslinje150 oppdragslinje150 = verifiserOppdrag110(oppdragRevurdering, ØkonomiKodeEndring.UEND,
             originaltOppdrag110.getFagsystemId());
-        verifiserOppdragslinje150(oppdragslinje150, KodeEndringLinjeType.NY, null,
+        verifiserOppdragslinje150(oppdragslinje150, KodeEndringLinje.NY, null,
             originalOppdragslinje150.getDelytelseId() + 1, originalOppdragslinje150.getDelytelseId(),
             originaltOppdrag110.getFagsystemId(), 2 * OpprettBehandlingForOppdrag.SATS);
     }
@@ -185,7 +185,7 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
         Oppdragslinje150 originalOppdragslinje150 = originaltOppdrag110.getOppdragslinje150Liste().get(0);
         Oppdragslinje150 oppdragslinje150 = verifiserOppdrag110(oppdragRevurdering, ØkonomiKodeEndring.UEND,
             originaltOppdrag110.getFagsystemId());
-        verifiserOppdragslinje150(oppdragslinje150, KodeEndringLinjeType.ENDRING, ØkonomiKodeStatusLinje.OPPH,
+        verifiserOppdragslinje150(oppdragslinje150, KodeEndringLinje.ENDRING, ØkonomiKodeStatusLinje.OPPH,
             originalOppdragslinje150.getDelytelseId(), null, null, OpprettBehandlingForOppdrag.SATS);
     }
 
@@ -220,7 +220,7 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
         assertThat(andreRevurderingopp150.getDatoVedtakTom()).isEqualTo(førsteRevurderingOpp150.getDatoVedtakTom());
         assertThat(andreRevurderingopp150.getDatoStatusFom()).isEqualTo(førsteRevurderingOpp150.getDatoVedtakFom());
 
-        verifiserOppdragslinje150(andreRevurderingopp150, KodeEndringLinjeType.ENDRING, ØkonomiKodeStatusLinje.OPPH,
+        verifiserOppdragslinje150(andreRevurderingopp150, KodeEndringLinje.ENDRING, ØkonomiKodeStatusLinje.OPPH,
             førsteRevurderingOpp150.getDelytelseId(), null, null, OpprettBehandlingForOppdrag.SATS);
     }
 
@@ -236,7 +236,7 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
     }
 
     private void verifiserOppdragslinje150(Oppdragslinje150 oppdragslinje150,
-                                           KodeEndringLinjeType kodeEndringLinje,
+                                           KodeEndringLinje kodeEndringLinje,
                                            ØkonomiKodeStatusLinje kodeStatusLinje,
                                            Long delYtelseId,
                                            Long refDelytelseId,
@@ -264,7 +264,7 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
         for (Oppdrag110 oppdrag110 : oppdrag110Liste) {
             assertThat(oppdrag110.getOppdragslinje150Liste()).hasSize(1);
             Oppdragslinje150 oppdragslinje150 = oppdragslinje150List.get(0);
-            assertThat(oppdragslinje150.getKodeEndringLinje()).isEqualTo(KodeEndringLinjeType.NY);
+            assertThat(oppdragslinje150.getKodeEndringLinje()).isEqualTo(KodeEndringLinje.NY);
             assertThat(oppdragslinje150.getVedtakId()).isEqualTo(vedtaksdatoES.toString());
             assertThat(oppdragslinje150.getDelytelseId()).isEqualTo(
                 concatenateValues(oppdrag110.getFagsystemId(), løpenummer));
@@ -275,7 +275,7 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
                 .getSisteBeregning()
                 .get()
                 .getBeregnetTilkjentYtelse());
-            assertThat(oppdragslinje150.getTypeSats()).isEqualTo(TYPE_SATS_ES);
+            assertThat(oppdragslinje150.getTypeSats()).isEqualTo(TypeSats.ENGANG);
             assertThat(oppdragslinje150.getUtbetalesTilId()).isEqualTo(personIdent.getIdent());
             assertThat(oppdragslinje150.getOppdrag110()).isEqualTo(oppdrag110);
         }
