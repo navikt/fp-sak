@@ -8,7 +8,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
@@ -24,7 +24,7 @@ public class OppdragTestDataHelper {
         Oppdragslinje150.Builder oppdrLinje150Builder = Oppdragslinje150.builder();
 
         return oppdrLinje150Builder
-            .medKodeEndringLinje(KodeEndringLinjeType.ENDRING)
+            .medKodeEndringLinje(KodeEndringLinje.ENDRING)
             .medKodeStatusLinje("ENDR")
             .medDatoStatusFom(LocalDate.now())
             .medVedtakId("456")

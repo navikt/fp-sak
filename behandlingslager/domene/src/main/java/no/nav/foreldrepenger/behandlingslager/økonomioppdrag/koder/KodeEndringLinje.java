@@ -8,13 +8,13 @@ import javax.persistence.Converter;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum KodeEndringLinjeType implements Kodeverdi {
+public enum KodeEndringLinje implements Kodeverdi {
     NY("NY"),
     ENDRING("ENDR")
     ;
 
     private static final String KODEVERK = "KODE_ENDRING_LINJE_TYPE";
-    private static final Map<String, KodeEndringLinjeType> KODER = new LinkedHashMap<>();
+    private static final Map<String, KodeEndringLinje> KODER = new LinkedHashMap<>();
 
     static {
         for (var v : values()) {
@@ -27,11 +27,11 @@ public enum KodeEndringLinjeType implements Kodeverdi {
     private String navn;
     private String kode;
 
-    KodeEndringLinjeType(String kode) {
+    KodeEndringLinje(String kode) {
         this.kode = kode;
     }
 
-    public static KodeEndringLinjeType fraKode(String kode) {
+    public static KodeEndringLinje fraKode(String kode) {
         if (kode == null) {
             return null;
         }
@@ -58,14 +58,14 @@ public enum KodeEndringLinjeType implements Kodeverdi {
     }
 
     @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<KodeEndringLinjeType, String> {
+    public static class KodeverdiConverter implements AttributeConverter<KodeEndringLinje, String> {
         @Override
-        public String convertToDatabaseColumn(KodeEndringLinjeType attribute) {
+        public String convertToDatabaseColumn(KodeEndringLinje attribute) {
             return attribute == null ? null : attribute.getKode();
         }
 
         @Override
-        public KodeEndringLinjeType convertToEntityAttribute(String dbData) {
+        public KodeEndringLinje convertToEntityAttribute(String dbData) {
             return dbData == null ? null : fraKode(dbData);
         }
     }

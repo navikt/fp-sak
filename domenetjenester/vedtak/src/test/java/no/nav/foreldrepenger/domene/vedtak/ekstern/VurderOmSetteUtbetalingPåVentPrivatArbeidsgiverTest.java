@@ -38,17 +38,16 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeStatusLinje;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiTypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -265,7 +264,7 @@ public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
 
     private Oppdragslinje150 byggOppdrag150(LocalDate datoVedtakFom, LocalDate datoVedtakTom, boolean erBruker, boolean gjelderOpphør) {
         Oppdragslinje150.Builder builder = Oppdragslinje150.builder()
-            .medKodeEndringLinje(KodeEndringLinjeType.NY)
+            .medKodeEndringLinje(KodeEndringLinje.NY)
             .medDatoStatusFom(LocalDate.now())
             .medVedtakId("123")
             .medDelytelseId(300L)
@@ -279,7 +278,7 @@ public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
             .medOppdrag110(byggOppdrag110());
         if (gjelderOpphør) {
             builder
-                .medKodeEndringLinje(KodeEndringLinjeType.ENDRING)
+                .medKodeEndringLinje(KodeEndringLinje.ENDRING)
                 .medKodeStatusLinje(ØkonomiKodeStatusLinje.OPPH.name());
         }
         return builder.build();

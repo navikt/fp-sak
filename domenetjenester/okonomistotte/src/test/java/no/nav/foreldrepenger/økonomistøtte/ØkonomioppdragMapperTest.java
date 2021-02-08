@@ -17,18 +17,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiTypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag;
@@ -335,7 +334,7 @@ public class ØkonomioppdragMapperTest {
 
     private Oppdragslinje150.Builder settFellesFelterIOpp150(Long delytelseId) {
         return Oppdragslinje150.builder()
-            .medKodeEndringLinje(KodeEndringLinjeType.ENDRING)
+            .medKodeEndringLinje(KodeEndringLinje.ENDRING)
             .medKodeStatusLinje("OPPH")
             .medDatoStatusFom(LocalDate.now())
             .medVedtakId("345")

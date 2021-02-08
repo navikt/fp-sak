@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.økonomistøtte.Oppdragsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.FinnMottakerInfoITilkjentYtelse;
@@ -189,7 +189,7 @@ public class OpprettOppdragslinje150Tjeneste {
         if (gjelderOpphør || erEndringMedBortfallAvHeleYtelsen) {
             oppdr150Builder.medKodeStatusLinje(OppdragskontrollConstants.KODE_STATUS_LINJE_OPPHØR);
         }
-        oppdr150Builder.medKodeEndringLinje(gjelderOpphør ? KodeEndringLinjeType.ENDRING : KodeEndringLinjeType.NY)
+        oppdr150Builder.medKodeEndringLinje(gjelderOpphør ? KodeEndringLinje.ENDRING : KodeEndringLinje.NY)
             .medVedtakId(vedtaksdato.toString())
             .medTypeSats(gjelderFeriepenger ? TypeSats.ENGANG : TypeSats.DAGLIG);
     }

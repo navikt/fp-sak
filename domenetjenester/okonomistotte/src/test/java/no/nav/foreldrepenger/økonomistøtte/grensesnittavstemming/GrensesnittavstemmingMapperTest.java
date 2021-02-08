@@ -16,13 +16,12 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodekomponent;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiTypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.AksjonType;
@@ -30,7 +29,6 @@ import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.A
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.AvstemmingType;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.Avstemmingsdata;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.KildeType;
-import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.TfradragTillegg;
 
 public class GrensesnittavstemmingMapperTest {
 
@@ -322,7 +320,7 @@ public class GrensesnittavstemmingMapperTest {
     private Oppdragslinje150 buildOppdragslinje150(Oppdrag110 oppdrag110) {
 
         return oppdrLinje150Builder
-            .medKodeEndringLinje(KodeEndringLinjeType.ENDRING)
+            .medKodeEndringLinje(KodeEndringLinje.ENDRING)
             .medKodeStatusLinje("OPPH")
             .medDatoStatusFom(LocalDate.now())
             .medVedtakId("345")

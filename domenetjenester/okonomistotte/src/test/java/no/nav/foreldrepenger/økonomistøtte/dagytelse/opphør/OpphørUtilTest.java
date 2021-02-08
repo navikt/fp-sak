@@ -9,17 +9,16 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeStatusLinje;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiTypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
@@ -113,7 +112,7 @@ public class OpphørUtilTest {
     private Oppdragslinje150 lagOpphørslinje(Oppdrag110 oppdrag110, ØkonomiKodeKlassifik klassekode, LocalDate fom, LocalDate tom, Long delytelseId,
                                              LocalDate opphørsdatao, Long henvisning, Long refDelytelseId, Long refFagsystemId) {
         return lagOppdragslinjeBuilder(oppdrag110, klassekode, fom, tom, delytelseId, henvisning, refDelytelseId, refFagsystemId)
-                .medKodeEndringLinje(KodeEndringLinjeType.ENDRING)
+                .medKodeEndringLinje(KodeEndringLinje.ENDRING)
                 .medKodeStatusLinje(ØkonomiKodeStatusLinje.OPPH.name())
                 .medDatoStatusFom(opphørsdatao)
                 .build();
@@ -128,7 +127,7 @@ public class OpphørUtilTest {
     private Oppdragslinje150.Builder lagOppdragslinjeBuilder(Oppdrag110 oppdrag110, ØkonomiKodeKlassifik klassekode, LocalDate fom, LocalDate tom,
                                                              Long delytelseId, Long henvisning, Long refDelyteseId, Long refFagsystemId) {
         return Oppdragslinje150.builder()
-                .medKodeEndringLinje(KodeEndringLinjeType.NY)
+                .medKodeEndringLinje(KodeEndringLinje.NY)
                 .medKodeKlassifik(klassekode.getKodeKlassifik())
                 .medVedtakFomOgTom(fom, tom)
                 .medSats(1L)

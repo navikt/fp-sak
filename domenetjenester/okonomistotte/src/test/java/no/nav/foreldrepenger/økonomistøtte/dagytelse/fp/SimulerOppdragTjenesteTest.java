@@ -17,16 +17,14 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiTypeSats;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.TfradragTillegg;
-import no.nav.foreldrepenger.økonomistøtte.ny.toggle.OppdragKjerneimplementasjonToggle;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.SimulerOppdragTjeneste;
+import no.nav.foreldrepenger.økonomistøtte.ny.toggle.OppdragKjerneimplementasjonToggle;
 
 @CdiDbAwareTest
 public class SimulerOppdragTjenesteTest {
@@ -82,7 +80,7 @@ public class SimulerOppdragTjenesteTest {
 
     private Oppdragslinje150 buildOppdragslinje150(Oppdrag110 oppdrag110) {
         var o150 = Oppdragslinje150.builder()
-            .medKodeEndringLinje(KodeEndringLinjeType.NY)
+            .medKodeEndringLinje(KodeEndringLinje.NY)
             .medDatoStatusFom(LocalDate.now())
             .medVedtakId("345")
             .medDelytelseId(1L)

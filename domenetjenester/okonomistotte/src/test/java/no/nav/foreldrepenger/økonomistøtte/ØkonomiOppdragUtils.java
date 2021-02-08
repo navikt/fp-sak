@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
@@ -63,7 +63,7 @@ class ØkonomiOppdragUtils {
         var builder = new Oppdragslinje150.Builder()
             .medVedtakId(BehandleØkonomioppdragKvitteringTest.VEDTAKID)
             .medDelytelseId(101002100100L)
-            .medKodeEndringLinje(KodeEndringLinjeType.NY)
+            .medKodeEndringLinje(KodeEndringLinje.NY)
             .medKodeKlassifik(hentKodeKlassifik(gjelderFP))
             .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
             .medSats(BehandleØkonomioppdragKvitteringTest.SATS)
@@ -91,7 +91,7 @@ class ØkonomiOppdragUtils {
             Oppdragslinje150 o150_2 = new Oppdragslinje150.Builder()
                 .medVedtakId(BehandleØkonomioppdragKvitteringTest.VEDTAKID)
                 .medDelytelseId(101002101100L)
-                .medKodeEndringLinje(KodeEndringLinjeType.NY)
+                .medKodeEndringLinje(KodeEndringLinje.NY)
                 .medKodeKlassifik(hentKodeKlassifik(gjelderFP))
                 .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
                 .medSats(BehandleØkonomioppdragKvitteringTest.SATS)

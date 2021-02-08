@@ -63,6 +63,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
@@ -94,8 +95,6 @@ import no.nav.foreldrepenger.økonomistøtte.dagytelse.opphør.OpprettOpphørIEn
 @CdiDbAwareTest
 public abstract class OppdragskontrollTjenesteTestBase {
 
-    static final String TYPE_SATS_FP_FERIEPG = "ENG";
-    static final String TYPE_SATS_FP_YTELSE = "DAG";
     static final String ARBEIDSFORHOLD_ID = "999999999";
     static final String ARBEIDSFORHOLD_ID_2 = "123456789";
     static final String ARBEIDSFORHOLD_ID_3 = "789123456";
