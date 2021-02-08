@@ -2699,7 +2699,7 @@ Graderingsinformasjon for økonomioppdrag
 |#|Navn|Type|Default|Nullable|Constraint|Comment|Key
 |1|ID|NUMBER||||Primærnøkkel|PK
 |2|VERSJON|NUMBER|0||||
-|3|TYPE_GRAD|VARCHAR2||||Hva slags grad som mottas|
+|3|TYPE_GRAD|VARCHAR2||||Hva slags utbetalingsgrad som mottas|
 |4|GRAD|NUMBER||||Grad, prosent|
 |5|OPPDRAGS_LINJE_150_ID|NUMBER||||FK: Fremmednøkkel for kopling til tabellen som holder detaljene for oppdraget til oppgjør|
 |6|OPPRETTET_AV|VARCHAR2|'VL'||||

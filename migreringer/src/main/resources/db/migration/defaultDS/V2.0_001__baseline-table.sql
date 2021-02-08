@@ -3285,7 +3285,7 @@ END;
    COMMENT ON TABLE "OKO_AVSTEMMING_115"  IS 'Inneholder de relevante verdier som mappes og sender med i request melding. (Tabell fra Økonomi)';
 
    COMMENT ON COLUMN "OKO_GRAD_170"."ID" IS 'Primærnøkkel';
-   COMMENT ON COLUMN "OKO_GRAD_170"."TYPE_GRAD" IS 'Hva slags grad som mottas';
+   COMMENT ON COLUMN "OKO_GRAD_170"."TYPE_GRAD" IS 'Hva slags utbetalingsgrad som mottas';
    COMMENT ON COLUMN "OKO_GRAD_170"."GRAD" IS 'Grad, prosent';
    COMMENT ON COLUMN "OKO_GRAD_170"."OPPDRAGS_LINJE_150_ID" IS 'FK: Fremmednøkkel for kopling til tabellen som holder detaljene for oppdraget til oppgjør';
    COMMENT ON TABLE "OKO_GRAD_170"  IS 'Graderingsinformasjon for økonomioppdrag';

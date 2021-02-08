@@ -15,7 +15,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.xml.sax.SAXException;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
@@ -186,11 +186,11 @@ public class ØkonomioppdragMapper {
         return refusjonsinfo156;
     }
 
-    private no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Grad170 mapGrad170(Grad okoGrad) {
+    private no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Grad170 mapGrad170(Utbetalingsgrad okoUtbetalingsgrad) {
         final no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Grad170 grad170 = objectFactory.createGrad170();
 
-        grad170.setGrad(BigInteger.valueOf(okoGrad.getVerdi()));
-        grad170.setTypeGrad(okoGrad.getType());
+        grad170.setGrad(BigInteger.valueOf(okoUtbetalingsgrad.getVerdi()));
+        grad170.setTypeGrad(okoUtbetalingsgrad.getType());
 
         return grad170;
     }

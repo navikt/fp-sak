@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
@@ -167,10 +167,10 @@ class OppdragskontrollTestVerktøy {
             Oppdragslinje150 originaltOpp150 = originaltOpp150Liste.stream().
                 filter(opp150 -> opp150.getDelytelseId().equals(opp150Revurdering.getDelytelseId())).findFirst().orElse(null);
             if (originaltOpp150 != null && !erOpp150ForFeriepenger(originaltOpp150)) {
-                Grad gradRevurdering = opp150Revurdering.getGrad();
-                Grad gradOriginalt = originaltOpp150.getGrad();
-                assertThat(gradRevurdering.getType()).isEqualTo(gradOriginalt.getType());
-                assertThat(gradRevurdering.getVerdi()).isEqualTo(gradOriginalt.getVerdi());
+                Utbetalingsgrad utbetalingsgradRevurdering = opp150Revurdering.getGrad();
+                Utbetalingsgrad utbetalingsgradOriginalt = originaltOpp150.getGrad();
+                assertThat(utbetalingsgradRevurdering.getType()).isEqualTo(utbetalingsgradOriginalt.getType());
+                assertThat(utbetalingsgradRevurdering.getVerdi()).isEqualTo(utbetalingsgradOriginalt.getVerdi());
             }
         }
     }

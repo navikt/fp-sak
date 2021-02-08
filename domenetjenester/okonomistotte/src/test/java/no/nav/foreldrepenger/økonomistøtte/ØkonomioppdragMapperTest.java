@@ -17,7 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
@@ -238,9 +238,9 @@ public class ØkonomioppdragMapperTest {
                 if (gjelderFP) {
                     List<no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Grad170> grad170GenerertListe = oppdragsLinje150Generert.getGrad170();
                     for (no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Grad170 grad170Generert : grad170GenerertListe) {
-                        Grad grad = oppdragslinje150.getGrad();
-                        assertThat(grad170Generert.getGrad()).isEqualTo(BigInteger.valueOf(grad.getVerdi()));
-                        assertThat(grad170Generert.getTypeGrad()).isEqualTo(grad.getType());
+                        Utbetalingsgrad utbetalingsgrad = oppdragslinje150.getGrad();
+                        assertThat(grad170Generert.getGrad()).isEqualTo(BigInteger.valueOf(utbetalingsgrad.getVerdi()));
+                        assertThat(grad170Generert.getTypeGrad()).isEqualTo(utbetalingsgrad.getType());
                     }
 
                     no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Refusjonsinfo156 refusjonsinfo156Generert = oppdragsLinje150Generert.getRefusjonsinfo156();
@@ -316,7 +316,7 @@ public class ØkonomioppdragMapperTest {
         return builder
             .medKodeKlassifik(kodeKlassifik)
             .medTypeSats(ØkonomiTypeSats.ENG.name())
-            .medGrad(Grad._100)
+            .medGrad(Utbetalingsgrad._100)
             .medOppdrag110(oppdrag110)
             .build();
     }

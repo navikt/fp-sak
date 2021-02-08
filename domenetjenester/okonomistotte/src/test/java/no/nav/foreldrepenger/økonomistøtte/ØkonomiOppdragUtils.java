@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
@@ -73,7 +73,7 @@ class ØkonomiOppdragUtils {
             .medHenvisning(gjelderFP ? BehandleØkonomioppdragKvitteringTest.BEHANDLINGID_FP : BehandleØkonomioppdragKvitteringTest.BEHANDLINGID_ES)
             .medOppdrag110(o110_1);
         if (gjelderFP) {
-            builder.medGrad(Grad.prosent(BehandleØkonomioppdragKvitteringTest.GRAD));
+            builder.medGrad(Utbetalingsgrad.prosent(BehandleØkonomioppdragKvitteringTest.GRAD));
         }
         builder.build();
 
@@ -103,7 +103,7 @@ class ØkonomiOppdragUtils {
                 .medSaksbehId(BehandleØkonomioppdragKvitteringTest.SAKSBEHID)
                 .medHenvisning(gjelderFP ? BehandleØkonomioppdragKvitteringTest.BEHANDLINGID_FP : BehandleØkonomioppdragKvitteringTest.BEHANDLINGID_ES)
                 .medOppdrag110(o110_2)
-                .medGrad(Grad.prosent(BehandleØkonomioppdragKvitteringTest.GRAD))
+                .medGrad(Utbetalingsgrad.prosent(BehandleØkonomioppdragKvitteringTest.GRAD))
                 .build();
             leggTilRefusjons156(Collections.singletonList(o150_2));
 

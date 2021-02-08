@@ -12,7 +12,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollManager;
 import no.nav.foreldrepenger.økonomistøtte.Oppdragsmottaker;
-import no.nav.foreldrepenger.økonomistøtte.OpprettOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.TidligereOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.VurderFeriepengerBeregning;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.adapter.BehandlingTilOppdragMapperTjeneste;
@@ -277,8 +276,8 @@ public class OppdragskontrollOpphør implements OppdragskontrollManager {
             .medOppdrag110(oppdrag110);
 
         if (!gjelderFeriepenger) {
-            int grad = Optional.ofNullable(forrigeOppdr150.getGrad()).map(Grad::getVerdi).orElse(100);
-            oppdragslinje150Builder.medGrad(Grad.prosent(grad));
+            int grad = Optional.ofNullable(forrigeOppdr150.getGrad()).map(Utbetalingsgrad::getVerdi).orElse(100);
+            oppdragslinje150Builder.medGrad(Utbetalingsgrad.prosent(grad));
         }
         return oppdragslinje150Builder.build();
     }

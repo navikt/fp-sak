@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdragslinje150;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.økonomistøtte.Oppdragsmottaker;
@@ -138,7 +137,7 @@ public class OpprettOppdragslinje150Tjeneste {
             .medOppdrag110(oppdrag110)
             .medVedtakFomOgTom(vedtakFom, vedtakTom)
             .medSats(dagsats)
-            .medGrad(Grad.prosent(utbetalingsgrad));
+            .medGrad(Utbetalingsgrad.prosent(utbetalingsgrad));
         if (mottaker.erBruker()) {
             oppdragslinje150Builder.medUtbetalesTilId(Oppdragslinje150Util.endreTilElleveSiffer(mottaker.getId()));
         }

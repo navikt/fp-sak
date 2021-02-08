@@ -2,10 +2,7 @@
 package no.nav.foreldrepenger.behandlingslager.økonomioppdrag;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
@@ -19,7 +16,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
@@ -96,7 +92,7 @@ public class Oppdragslinje150 extends BaseEntitet {
     private Long refDelytelseId;
 
     @Embedded
-    private Grad grad;
+    private Utbetalingsgrad utbetalingsgrad;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "oppdrag110_id", nullable = false, updatable = false)
@@ -203,12 +199,12 @@ public class Oppdragslinje150 extends BaseEntitet {
         return refDelytelseId;
     }
 
-    public Grad getGrad() {
-        return grad;
+    public Utbetalingsgrad getGrad() {
+        return utbetalingsgrad;
     }
 
-    public void setGrad(Grad grad) {
-        this.grad = grad;
+    public void setGrad(Utbetalingsgrad utbetalingsgrad) {
+        this.utbetalingsgrad = utbetalingsgrad;
     }
 
     public Oppdrag110 getOppdrag110() {
@@ -256,12 +252,12 @@ public class Oppdragslinje150 extends BaseEntitet {
             && Objects.equals(utbetalesTilId, oppdrlinje150.getUtbetalesTilId())
             && Objects.equals(refFagsystemId, oppdrlinje150.getRefFagsystemId())
             && Objects.equals(refDelytelseId, oppdrlinje150.getRefDelytelseId())
-            && Objects.equals(grad, oppdrlinje150.getGrad());
+            && Objects.equals(utbetalingsgrad, oppdrlinje150.getGrad());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(kodeEndringLinje, kodeStatusLinje, datoStatusFom, vedtakId, delytelseId, kodeKlassifik, vedtakPeriode, sats, fradragTillegg, typeSats, brukKjoreplan, saksbehId, utbetalesTilId, refFagsystemId, refDelytelseId, grad);
+        return Objects.hash(kodeEndringLinje, kodeStatusLinje, datoStatusFom, vedtakId, delytelseId, kodeKlassifik, vedtakPeriode, sats, fradragTillegg, typeSats, brukKjoreplan, saksbehId, utbetalesTilId, refFagsystemId, refDelytelseId, utbetalingsgrad);
     }
 
     @Override
@@ -283,7 +279,7 @@ public class Oppdragslinje150 extends BaseEntitet {
             + "utbetalesTilId=" + utbetalesTilId + ", " //$NON-NLS-1$ //$NON-NLS-2$
             + "refFagsystemId=" + refFagsystemId + ", " //$NON-NLS-1$ //$NON-NLS-2$
             + "refDelytelseId=" + refDelytelseId + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "grad=" + grad + ", " //$NON-NLS-1$ //$NON-NLS-2$
+            + "grad=" + utbetalingsgrad + ", " //$NON-NLS-1$ //$NON-NLS-2$
             + "opprettetTs=" + getOpprettetTidspunkt() //$NON-NLS-1$
             + ">"; //$NON-NLS-1$
     }
@@ -306,7 +302,7 @@ public class Oppdragslinje150 extends BaseEntitet {
         private Long refFagsystemId;
         private Long refDelytelseId;
         private Oppdrag110 oppdrag110;
-        private Grad grad;
+        private Utbetalingsgrad utbetalingsgrad;
 
         public Builder medKodeEndringLinje(String kodeEndringLinje) {
             this.kodeEndringLinje = kodeEndringLinje;
@@ -388,8 +384,8 @@ public class Oppdragslinje150 extends BaseEntitet {
             return this;
         }
 
-        public Builder medGrad(Grad grad) {
-            this.grad = grad;
+        public Builder medGrad(Utbetalingsgrad utbetalingsgrad) {
+            this.utbetalingsgrad = utbetalingsgrad;
             return this;
         }
 
@@ -417,7 +413,7 @@ public class Oppdragslinje150 extends BaseEntitet {
             oppdragslinje150.henvisning = henvisning;
             oppdragslinje150.refFagsystemId = refFagsystemId;
             oppdragslinje150.refDelytelseId = refDelytelseId;
-            oppdragslinje150.grad = grad;
+            oppdragslinje150.utbetalingsgrad = utbetalingsgrad;
             oppdragslinje150.oppdrag110 = oppdrag110;
             oppdrag110.addOppdragslinje150(oppdragslinje150);
 

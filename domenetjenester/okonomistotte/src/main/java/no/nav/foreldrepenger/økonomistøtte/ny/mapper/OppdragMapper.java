@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Grad;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
@@ -129,7 +129,7 @@ public class OppdragMapper {
                 .build();
         }
         if (linje.getUtbetalingsgrad() != null) {
-            builder.medGrad(Grad.prosent(linje.getUtbetalingsgrad().getUtbetalingsgrad()));
+            builder.medGrad(Utbetalingsgrad.prosent(linje.getUtbetalingsgrad().getUtbetalingsgrad()));
         }
         return oppdragslinje150;
     }
