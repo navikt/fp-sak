@@ -133,7 +133,6 @@ public class OpphørUtilTest {
                 .medVedtakFomOgTom(fom, tom)
                 .medSats(1L)
                 .medTypeSats(ØkonomiTypeSats.DAG.name())
-                .medBrukKjoreplan("N")
                 .medSaksbehId("Z11111")
                 .medHenvisning(henvisning)
                 .medOppdrag110(oppdrag110)

@@ -37,6 +37,7 @@ public class ØkonomioppdragMapper {
     private static final String ENHET = "8020";
     private static final LocalDate DATO_ENHET_FOM = LocalDate.of(1900, 1, 1);
     private static final String FRADRAG_TILLEGG = "T";
+    private static final String BRUK_KJOREPLAN = "N";
 
     // TODO (Team Tonic): Fjern global state oppdragskontroll
     private Oppdragskontroll oppdragskontroll;
@@ -145,7 +146,7 @@ public class ØkonomioppdragMapper {
             oppdragsLinje150.setSats(new BigDecimal(okoOppdrlinje150.getSats()));
             oppdragsLinje150.setFradragTillegg(TfradragTillegg.fromValue(FRADRAG_TILLEGG));
             oppdragsLinje150.setTypeSats(okoOppdrlinje150.getTypeSats());
-            oppdragsLinje150.setBrukKjoreplan(okoOppdrlinje150.getBrukKjoreplan());
+            oppdragsLinje150.setBrukKjoreplan(BRUK_KJOREPLAN);
             oppdragsLinje150.setSaksbehId(saksbehId);
             oppdragsLinje150.setUtbetalesTilId(okoOppdrlinje150.getUtbetalesTilId());
             oppdragsLinje150.setHenvisning(String.valueOf(okoOppdrlinje150.getHenvisning()));
@@ -168,8 +169,8 @@ public class ØkonomioppdragMapper {
     }
 
     private void setGrad170OgRefusjonsinfo156(String kode, Oppdragslinje150 okoOppdrlinje150, OppdragsLinje150 oppdragsLinje150) {
-        if (null != okoOppdrlinje150.getGrad()) {
-            oppdragsLinje150.getGrad170().add(mapGrad170(okoOppdrlinje150.getGrad()));
+        if (null != okoOppdrlinje150.getUtbetalingsgrad()) {
+            oppdragsLinje150.getGrad170().add(mapGrad170(okoOppdrlinje150.getUtbetalingsgrad()));
         }
         if (ØkonomiKodeFagområde.gjelderRefusjonTilArbeidsgiver(kode)) {
             oppdragsLinje150.setRefusjonsinfo156(mapRefusjonInfo156(okoOppdrlinje150.getRefusjonsinfo156()));

@@ -44,6 +44,7 @@ public class ØkonomioppdragMapperTest {
     private static final String ENHET = "8020";
     private static final LocalDate DATO_ENHET_FOM = LocalDate.of(1900, 1, 1);
     private static final String FRADRAG_TILLEGG = "T";
+    private static final String BRUK_KJØREPLAN = "N";
 
     private Oppdragskontroll oppdragskontroll;
     private ØkonomioppdragMapper økonomioppdragMapper;
@@ -222,7 +223,7 @@ public class ØkonomioppdragMapperTest {
                 assertThat(oppdragsLinje150Generert.getSats()).isEqualTo(new BigDecimal(oppdragslinje150.getSats()));
                 assertThat(oppdragsLinje150Generert.getFradragTillegg()).isEqualTo(TfradragTillegg.fromValue(FRADRAG_TILLEGG));
                 assertThat(oppdragsLinje150Generert.getTypeSats()).isEqualTo(oppdragslinje150.getTypeSats());
-                assertThat(oppdragsLinje150Generert.getBrukKjoreplan()).isEqualTo(oppdragslinje150.getBrukKjoreplan());
+                assertThat(oppdragsLinje150Generert.getBrukKjoreplan()).isEqualTo(BRUK_KJØREPLAN);
                 assertThat(oppdragsLinje150Generert.getSaksbehId()).isEqualTo(oppdrag110.getSaksbehId());
                 assertThat(oppdragsLinje150Generert.getUtbetalesTilId()).isEqualTo(oppdragslinje150.getUtbetalesTilId());
                 assertThat(oppdragsLinje150Generert.getHenvisning()).isEqualTo(String.valueOf(oppdragslinje150.getHenvisning()));
@@ -239,7 +240,7 @@ public class ØkonomioppdragMapperTest {
                 if (gjelderFP) {
                     List<no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Grad170> grad170GenerertListe = oppdragsLinje150Generert.getGrad170();
                     for (no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Grad170 grad170Generert : grad170GenerertListe) {
-                        Utbetalingsgrad utbetalingsgrad = oppdragslinje150.getGrad();
+                        Utbetalingsgrad utbetalingsgrad = oppdragslinje150.getUtbetalingsgrad();
                         assertThat(grad170Generert.getGrad()).isEqualTo(BigInteger.valueOf(utbetalingsgrad.getVerdi()));
                         assertThat(grad170Generert.getTypeGrad()).isEqualTo(utbetalingsgrad.getType());
                     }
@@ -338,7 +339,6 @@ public class ØkonomioppdragMapperTest {
             .medDelytelseId(delytelseId)
             .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
             .medSats(1122L)
-            .medBrukKjoreplan("B")
             .medSaksbehId("F2365245")
             .medUtbetalesTilId("123456789")
             .medHenvisning(43L);

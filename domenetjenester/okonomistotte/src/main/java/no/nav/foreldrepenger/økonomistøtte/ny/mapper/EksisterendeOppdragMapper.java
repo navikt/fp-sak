@@ -148,7 +148,7 @@ public class EksisterendeOppdragMapper {
     }
 
     private static no.nav.foreldrepenger.økonomistøtte.ny.domene.Utbetalingsgrad mapUtbetalingsgrad(Oppdragslinje150 linje) {
-        return Optional.ofNullable(linje.getGrad()).map(Utbetalingsgrad::getVerdi).map(no.nav.foreldrepenger.økonomistøtte.ny.domene.Utbetalingsgrad::new).orElse(null);
+        return Optional.ofNullable(linje.getUtbetalingsgrad()).map(Utbetalingsgrad::getVerdi).map(no.nav.foreldrepenger.økonomistøtte.ny.domene.Utbetalingsgrad::new).orElse(null);
     }
 
     private static Sats mapSats(Oppdragslinje150 linje) {

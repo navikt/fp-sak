@@ -34,12 +34,11 @@ public class OppdragTestDataHelper {
             .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
             .medSats(61122L)
             .medTypeSats(ØkonomiTypeSats.UKE.name())
-            .medBrukKjoreplan("B")
             .medSaksbehId("F2365245")
             .medUtbetalesTilId("123456789")
             .medOppdrag110(oppdrag110)
             .medHenvisning(47L)
-            .medGrad(Utbetalingsgrad._100)
+            .medUtbetalingsgrad(Utbetalingsgrad._100)
             .build();
 
     }

@@ -118,7 +118,6 @@ public class GrensesnittavstemmingBatchTjenesteTest {
             .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
             .medSats(BehandleØkonomioppdragKvitteringTest.SATS)
             .medTypeSats(BehandleØkonomioppdragKvitteringTest.TYPESATS_ES)
-            .medBrukKjoreplan("N")
             .medSaksbehId(BehandleØkonomioppdragKvitteringTest.SAKSBEHID)
             .medUtbetalesTilId(BehandleØkonomioppdragKvitteringTest.OPPDRAGGJELDERID)
             .medHenvisning(BehandleØkonomioppdragKvitteringTest.BEHANDLINGID_ES)

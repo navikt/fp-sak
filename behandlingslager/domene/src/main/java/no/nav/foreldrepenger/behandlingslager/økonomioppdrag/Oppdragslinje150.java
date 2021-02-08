@@ -6,7 +6,6 @@ import java.util.Objects;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -23,7 +22,6 @@ import javax.persistence.Version;
 import org.hibernate.annotations.Immutable;
 
 import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 /**
@@ -73,9 +71,6 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
 
     @Column(name = "type_sats", nullable = false)
     private String typeSats;
-
-    @Column(name = "bruk_kjore_plan", nullable = false)
-    private String brukKjoreplan;
 
     @Column(name = "saksbeh_id")
     private String saksbehId;
@@ -168,10 +163,6 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
         return typeSats;
     }
 
-    public String getBrukKjoreplan() {
-        return brukKjoreplan;
-    }
-
     private String getSaksbehId() {
         return saksbehId;
     }
@@ -196,7 +187,7 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
         return refDelytelseId;
     }
 
-    public Utbetalingsgrad getGrad() {
+    public Utbetalingsgrad getUtbetalingsgrad() {
         return utbetalingsgrad;
     }
 
@@ -243,17 +234,16 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
             && Objects.equals(vedtakPeriode, oppdrlinje150.vedtakPeriode)
             && Objects.equals(sats, oppdrlinje150.getSats())
             && Objects.equals(typeSats, oppdrlinje150.getTypeSats())
-            && Objects.equals(brukKjoreplan, oppdrlinje150.getBrukKjoreplan())
             && Objects.equals(saksbehId, oppdrlinje150.getSaksbehId())
             && Objects.equals(utbetalesTilId, oppdrlinje150.getUtbetalesTilId())
             && Objects.equals(refFagsystemId, oppdrlinje150.getRefFagsystemId())
             && Objects.equals(refDelytelseId, oppdrlinje150.getRefDelytelseId())
-            && Objects.equals(utbetalingsgrad, oppdrlinje150.getGrad());
+            && Objects.equals(utbetalingsgrad, oppdrlinje150.getUtbetalingsgrad());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(kodeEndringLinje, kodeStatusLinje, datoStatusFom, vedtakId, delytelseId, kodeKlassifik, vedtakPeriode, sats, typeSats, brukKjoreplan, saksbehId, utbetalesTilId, refFagsystemId, refDelytelseId, utbetalingsgrad);
+        return Objects.hash(kodeEndringLinje, kodeStatusLinje, datoStatusFom, vedtakId, delytelseId, kodeKlassifik, vedtakPeriode, sats, typeSats, saksbehId, utbetalesTilId, refFagsystemId, refDelytelseId, utbetalingsgrad);
     }
 
     @Override
@@ -269,7 +259,6 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
             + "vedtakPeriode=" + vedtakPeriode + ", " //$NON-NLS-1$ //$NON-NLS-2$
             + "sats=" + sats + ", " //$NON-NLS-1$ //$NON-NLS-2$
             + "typeSats=" + typeSats + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "brukKjoreplan=" + brukKjoreplan + ", " //$NON-NLS-1$ //$NON-NLS-2$
             + "saksbehId=" + saksbehId + ", " //$NON-NLS-1$ //$NON-NLS-2$
             + "utbetalesTilId=" + utbetalesTilId + ", " //$NON-NLS-1$ //$NON-NLS-2$
             + "refFagsystemId=" + refFagsystemId + ", " //$NON-NLS-1$ //$NON-NLS-2$
@@ -289,7 +278,6 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
         private DatoIntervallEntitet vedtakPeriode;
         private Long sats;
         private String typeSats;
-        private String brukKjoreplan;
         private String saksbehId;
         private String utbetalesTilId;
         private Long henvisning;
@@ -343,11 +331,6 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
             return this;
         }
 
-        public Builder medBrukKjoreplan(String brukKjoreplan) {
-            this.brukKjoreplan = brukKjoreplan;
-            return this;
-        }
-
         public Builder medSaksbehId(String saksbehId) {
             this.saksbehId = saksbehId;
             return this;
@@ -395,7 +378,6 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
             oppdragslinje150.vedtakPeriode = vedtakPeriode;
             oppdragslinje150.sats = sats;
             oppdragslinje150.typeSats = typeSats;
-            oppdragslinje150.brukKjoreplan = brukKjoreplan;
             oppdragslinje150.saksbehId = saksbehId;
             oppdragslinje150.utbetalesTilId = utbetalesTilId;
             oppdragslinje150.henvisning = henvisning;
@@ -414,7 +396,6 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
             Objects.requireNonNull(vedtakPeriode, "vedtakPeriode");
             Objects.requireNonNull(sats, "sats");
             Objects.requireNonNull(typeSats, "typeSats");
-            Objects.requireNonNull(brukKjoreplan, "brukKjoreplan");
             Objects.requireNonNull(saksbehId, "saksbehId");
             Objects.requireNonNull(henvisning, "henvisning");
             Objects.requireNonNull(oppdrag110, "oppdrag110");

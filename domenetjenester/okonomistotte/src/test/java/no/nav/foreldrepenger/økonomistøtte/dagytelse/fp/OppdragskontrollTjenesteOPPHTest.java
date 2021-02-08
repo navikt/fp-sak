@@ -375,9 +375,9 @@ public class OppdragskontrollTjenesteOPPHTest extends OppdragskontrollTjenesteTe
                 assertThat(opp150Revurdering.getRefusjonsinfo156()).isNotNull();
             }
             if (!OppdragskontrollTestVerktøy.erOpp150ForFeriepenger(opp150Revurdering)) {
-                assertThat(opp150Revurdering.getGrad()).isNotNull();
+                assertThat(opp150Revurdering.getUtbetalingsgrad()).isNotNull();
             } else {
-                assertThat(opp150Revurdering.getGrad()).isNull();
+                assertThat(opp150Revurdering.getUtbetalingsgrad()).isNull();
             }
         }
     }

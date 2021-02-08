@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.oppdrag;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 
@@ -21,7 +19,6 @@ public class Oppdragslinje150Dto extends SporingDto {
     private String kodeKlassifik;
     private long sats;
     private String typeSats;
-    private String brukKjoreplan;
     private Long henvisning;
     private Integer grad;
     private RefusjonInfo156Dto refusjonInfo156;
@@ -134,15 +131,6 @@ public class Oppdragslinje150Dto extends SporingDto {
         this.typeSats = typeSats;
     }
 
-
-    public String getBrukKjoreplan() {
-        return brukKjoreplan;
-    }
-
-    public void setBrukKjoreplan(String brukKjoreplan) {
-        this.brukKjoreplan = brukKjoreplan;
-    }
-
     public Long getHenvisning() {
         return henvisning;
     }
@@ -182,9 +170,8 @@ public class Oppdragslinje150Dto extends SporingDto {
         oppdragslinje150Dto.kodeKlassifik = oppdragslinje150.getKodeKlassifik();
         oppdragslinje150Dto.sats = oppdragslinje150.getSats();
         oppdragslinje150Dto.typeSats = oppdragslinje150.getTypeSats();
-        oppdragslinje150Dto.brukKjoreplan = oppdragslinje150.getBrukKjoreplan();
         oppdragslinje150Dto.henvisning = oppdragslinje150.getHenvisning();
-        oppdragslinje150Dto.grad = oppdragslinje150.getGrad().getVerdi();
+        oppdragslinje150Dto.grad = oppdragslinje150.getUtbetalingsgrad().getVerdi();
         oppdragslinje150Dto.refusjonInfo156 = oppdragslinje150.getRefusjonsinfo156() != null ? RefusjonInfo156Dto.fraDomene(oppdragslinje150.getRefusjonsinfo156()) : null;
         return oppdragslinje150Dto;
 

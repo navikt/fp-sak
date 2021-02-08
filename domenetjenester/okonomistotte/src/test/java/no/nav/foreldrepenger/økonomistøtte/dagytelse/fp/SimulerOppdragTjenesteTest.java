@@ -86,7 +86,6 @@ public class SimulerOppdragTjenesteTest {
             .medDelytelseId(1L)
             .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
             .medSats(1122L)
-            .medBrukKjoreplan("B")
             .medSaksbehId("F2365245")
             .medUtbetalesTilId("123456789")
             .medHenvisning(43L)

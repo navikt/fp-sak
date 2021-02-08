@@ -57,7 +57,6 @@ class OppdragMapper {
     private void mapOppdragslinje(Oppdrag110 oppdrag110, OppdragslinjePatchDto linje) {
         Oppdragslinje150.Builder builder = Oppdragslinje150.builder()
             .medOppdrag110(oppdrag110)
-            .medBrukKjoreplan(OppdragskontrollConstants.BRUK_KJOREPLAN)
             .medSaksbehId(ansvarligSaksbehandler)
             .medHenvisning(behandling.getId())
             .medVedtakFomOgTom(linje.getFom(), linje.getTom())

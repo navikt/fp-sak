@@ -272,7 +272,6 @@ public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
             .medVedtakFomOgTom(datoVedtakFom, datoVedtakTom)
             .medSats(1000L)
             .medTypeSats(ØkonomiTypeSats.MND.name())
-            .medBrukKjoreplan("N")
             .medSaksbehId(SAKS_BEHANDLER)
             .medUtbetalesTilId("456")
             .medRefFagsystemId(678L)

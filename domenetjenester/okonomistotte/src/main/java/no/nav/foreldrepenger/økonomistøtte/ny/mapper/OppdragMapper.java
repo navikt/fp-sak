@@ -98,7 +98,6 @@ public class OppdragMapper {
             .medSats(linje.getSats().getSats())
             .medTypeSats(linje.getSats().getSatsType().getKode())
             .medVedtakId(vedtaksdato.toString())
-            .medBrukKjoreplan("N")
             .medHenvisning(behandlingId)
             .medSaksbehId(ansvarligSaksbehandler);
 
@@ -128,7 +127,7 @@ public class OppdragMapper {
                 .build();
         }
         if (linje.getUtbetalingsgrad() != null) {
-            builder.medGrad(Utbetalingsgrad.prosent(linje.getUtbetalingsgrad().getUtbetalingsgrad()));
+            builder.medUtbetalingsgrad(Utbetalingsgrad.prosent(linje.getUtbetalingsgrad().getUtbetalingsgrad()));
         }
         return oppdragslinje150;
     }

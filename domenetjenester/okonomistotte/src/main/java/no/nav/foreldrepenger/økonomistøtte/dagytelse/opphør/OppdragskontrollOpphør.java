@@ -276,7 +276,7 @@ public class OppdragskontrollOpphør implements OppdragskontrollManager {
             .medOppdrag110(oppdrag110);
 
         if (!gjelderFeriepenger) {
-            int grad = Optional.ofNullable(forrigeOppdr150.getGrad()).map(Utbetalingsgrad::getVerdi).orElse(100);
+            int grad = Optional.ofNullable(forrigeOppdr150.getUtbetalingsgrad()).map(Utbetalingsgrad::getVerdi).orElse(100);
             oppdragslinje150Builder.medUtbetalingsgrad(Utbetalingsgrad.prosent(grad));
         }
         return oppdragslinje150Builder.build();
