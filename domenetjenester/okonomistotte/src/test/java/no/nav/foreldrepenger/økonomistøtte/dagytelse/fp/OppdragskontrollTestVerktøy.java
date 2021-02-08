@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndringLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeStatusLinje;
@@ -85,7 +85,7 @@ class OppdragskontrollTestVerktøy {
             .filter(opp150 -> !opp150.getKodeKlassifik().equals(ØkonomiKodeKlassifik.FPATFER.getKodeKlassifik())).collect(Collectors.toList());
         List<Oppdragslinje150> revurderingOppdr150Liste = getOppdragslinje150Liste(revurderingOppdrag);
         List<Oppdragslinje150> revurderingOppdr150ListeBruker = revurderingOppdr150Liste.stream().filter(opp150 -> opp150.getOppdrag110().getKodeFagomrade().equals(ØkonomiKodeFagområde.FP.name()))
-            .filter(opp150 -> !opp150.getKodeKlassifik().equals(ØkonomiKodeKlassifik.FPATFER.getKodeKlassifik())).filter(opp150 -> opp150.getKodeEndringLinje().equals(ØkonomiKodeEndringLinje.NY.name()))
+            .filter(opp150 -> !opp150.getKodeKlassifik().equals(ØkonomiKodeKlassifik.FPATFER.getKodeKlassifik())).filter(opp150 -> opp150.getKodeEndringLinje().equals(KodeEndringLinjeType.NY))
             .filter(opp150 -> opp150.getDatoVedtakFom().equals(OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(8))).collect(Collectors.toList());
 
         assertThat(originaltOppdr150ListeBruker).hasSize(1);
@@ -99,7 +99,7 @@ class OppdragskontrollTestVerktøy {
     static void verifiserOppdr150MedNyKlassekode(List<Oppdragslinje150> opp150RevurdListe) {
         List<Oppdragslinje150> opp150Liste = opp150RevurdListe.stream()
             .filter(oppdr150 -> !oppdr150.getKodeKlassifik().equals(ØkonomiKodeKlassifik.FPATFER.getKodeKlassifik()) && !oppdr150.getKodeKlassifik().equals(ØkonomiKodeKlassifik.FPREFAGFER_IOP.getKodeKlassifik()))
-            .filter(oppdr150 -> oppdr150.getKodeEndringLinje().equals(ØkonomiKodeEndringLinje.NY.name())).collect(Collectors.toList());
+            .filter(oppdr150 -> oppdr150.getKodeEndringLinje().equals(KodeEndringLinjeType.NY)).collect(Collectors.toList());
         List<String> klasseKodeListe = opp150Liste.stream().map(Oppdragslinje150::getKodeKlassifik).distinct().collect(Collectors.toList());
         assertThat(klasseKodeListe).containsOnly(ØkonomiKodeKlassifik.FPATAL.getKodeKlassifik(), ØkonomiKodeKlassifik.FPREFAG_IOP.getKodeKlassifik());
         assertThat(opp150Liste).anySatisfy(opp150 -> assertThat(opp150.getRefDelytelseId()).isNull());
@@ -238,7 +238,7 @@ class OppdragskontrollTestVerktøy {
 
     protected static void verifiserOppdr150SomErNy(List<Oppdragslinje150> opp150RevurdListe, List<Oppdragslinje150> originaltOpp150Liste, int gradering) {
         List<Oppdragslinje150> opp150NyList = opp150RevurdListe.stream()
-            .filter(oppdr150 -> oppdr150.getKodeEndringLinje().equals(ØkonomiKodeEndringLinje.NY.name()))
+            .filter(oppdr150 -> oppdr150.getKodeEndringLinje().equals(KodeEndringLinjeType.NY))
             .collect(Collectors.toList());
 
         List<Oppdragslinje150> opp150List = new ArrayList<>();
@@ -342,7 +342,7 @@ class OppdragskontrollTestVerktøy {
      */
     private static void verifiserOpphørForrigeOppdrag(List<Oppdragslinje150> originaltOpp150Liste, LocalDate endringsdato, List<LocalDate> opphørsdatoVerdierForFeriepenger, Oppdragslinje150 opp150Revurd, Oppdragslinje150 originaltOpp150) {
         assertThat(opp150Revurd.getDelytelseId()).isEqualTo(originaltOpp150.getDelytelseId());
-        assertThat(opp150Revurd.getKodeEndringLinje()).isEqualTo(ØkonomiKodeEndringLinje.ENDR.name());
+        assertThat(opp150Revurd.getKodeEndringLinje()).isEqualTo(KodeEndringLinjeType.ENDRING);
         assertThat(opp150Revurd.getKodeStatusLinje()).isEqualTo(ØkonomiKodeStatusLinje.OPPH.name());
         assertThat(opp150Revurd.getRefDelytelseId()).isNull();
         assertThat(opp150Revurd.getRefFagsystemId()).isNull();

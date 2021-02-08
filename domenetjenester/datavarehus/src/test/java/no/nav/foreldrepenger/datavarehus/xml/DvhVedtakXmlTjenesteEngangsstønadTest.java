@@ -34,6 +34,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
@@ -54,7 +55,6 @@ import no.nav.foreldrepenger.domene.vedtak.es.OppdragXmlTjenesteImpl;
 import no.nav.foreldrepenger.domene.vedtak.xml.BehandlingsresultatXmlTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.xml.PersonopplysningXmlFelles;
 import no.nav.foreldrepenger.domene.vedtak.xml.VedtakXmlTjeneste;
-import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.TfradragTillegg;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.HentOppdragMedPositivKvittering;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
@@ -273,7 +273,7 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
     private Oppdragslinje150 buildOppdragslinje150(Oppdrag110 oppdrag110, Long delytelseId) {
 
         return Oppdragslinje150.builder()
-                .medKodeEndringLinje("ENDR")
+                .medKodeEndringLinje(KodeEndringLinjeType.ENDRING)
                 .medKodeStatusLinje("OPPH")
                 .medDatoStatusFom(LocalDate.now())
                 .medVedtakId("345")

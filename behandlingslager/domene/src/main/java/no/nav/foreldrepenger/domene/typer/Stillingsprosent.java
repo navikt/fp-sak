@@ -22,8 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.diff.TraverseValue;
 public class Stillingsprosent implements Serializable, IndexKey, TraverseValue {
     private static final Logger log = LoggerFactory.getLogger(Stillingsprosent.class);
 
-    private static final RoundingMode AVRUNDINGSMODUS = RoundingMode.HALF_EVEN;
-
     private static final BigDecimal MAX_VERDI = new BigDecimal(500);
 
     public static final Stillingsprosent ZERO = new Stillingsprosent(0);
@@ -63,7 +61,7 @@ public class Stillingsprosent implements Serializable, IndexKey, TraverseValue {
     }
 
     private BigDecimal skalertVerdi() {
-        return verdi.setScale(2, AVRUNDINGSMODUS);
+        return verdi.setScale(2, RoundingMode.HALF_EVEN);
     }
 
     @Override

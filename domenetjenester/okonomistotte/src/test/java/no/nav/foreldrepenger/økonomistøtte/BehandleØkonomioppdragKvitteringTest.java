@@ -45,19 +45,11 @@ public class BehandleØkonomioppdragKvitteringTest {
 
     public static final String SAKSBEHID = "aa000000";
 
-    public static final String TYPEENHET = "BOS";
-
-    public static final String ENHET = "ENHET";
-
-    public static final String KODEENDRINGLINJE = "NY";
-
     public static final String KODEKLASSIFIK_ES = "FPENFOD-OP";
 
     public static final String KODEKLASSIFIK_FP = "FPATORD";
 
     public static final Long SATS = 654L;
-
-    public static final String FRADRAGTILLEGG = "T";
 
     public static final String TYPESATS_ES = "ENG";
 

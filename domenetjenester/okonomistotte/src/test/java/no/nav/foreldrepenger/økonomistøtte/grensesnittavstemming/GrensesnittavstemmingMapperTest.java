@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
@@ -320,7 +321,7 @@ public class GrensesnittavstemmingMapperTest {
     private Oppdragslinje150 buildOppdragslinje150(Oppdrag110 oppdrag110) {
 
         return oppdrLinje150Builder
-            .medKodeEndringLinje("ENDR")
+            .medKodeEndringLinje(KodeEndringLinjeType.ENDRING)
             .medKodeStatusLinje("OPPH")
             .medDatoStatusFom(LocalDate.now())
             .medVedtakId("345")

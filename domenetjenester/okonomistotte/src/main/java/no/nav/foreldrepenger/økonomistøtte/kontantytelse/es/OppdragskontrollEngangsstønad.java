@@ -10,12 +10,12 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiTypeSats;
@@ -32,8 +32,6 @@ public class OppdragskontrollEngangsstønad implements OppdragskontrollManager {
 
     private static final String KODE_ENDRING_NY = ØkonomiKodeEndring.NY.name();
     private static final String KODE_ENDRING_UENDRET = ØkonomiKodeEndring.UEND.name();
-    private static final String KODE_ENDRING_LINJE_NY = ØkonomiKodeEndringLinje.NY.name();
-    private static final String KODE_ENDRING_LINJE_ENDRING = ØkonomiKodeEndringLinje.ENDR.name();
     private static final String TYPE_SATS_ES = ØkonomiTypeSats.ENG.name();
     private static final String KODE_STATUS_LINJE_OPPHØR = ØkonomiKodeStatusLinje.OPPH.name();
 
@@ -101,7 +99,7 @@ public class OppdragskontrollEngangsstønad implements OppdragskontrollManager {
         long satsEngangsstonad = behandlingInfo.getSats();
 
         Oppdragslinje150.Builder oppdragslinje150Builder = Oppdragslinje150.builder()
-            .medKodeEndringLinje(KODE_ENDRING_LINJE_NY)
+            .medKodeEndringLinje(KodeEndringLinjeType.NY)
             .medVedtakId(vedtaksdato.toString())
             .medDelytelseId(delytelseId)
             .medKodeKlassifik(kodeKlassifik)
@@ -117,7 +115,7 @@ public class OppdragskontrollEngangsstønad implements OppdragskontrollManager {
     private Oppdragslinje150 opprettOppdragslinje150LinketTilForrigeOppdrag(OppdragInputES behandlingInfo, Oppdrag110 oppdrag110, Oppdrag110 forrigeOppdrag110, String kodeKlassifik) {
         Long delytelseId;
         long sats;
-        String kodeEndringLinje;
+        KodeEndringLinjeType kodeEndringLinje;
         String kodeStatusLinje = null;
         Long refFagsystemId = forrigeOppdrag110.getFagsystemId();
         Oppdragslinje150 forrigeOppdragslinje150 = forrigeOppdrag110.getOppdragslinje150Liste()
@@ -132,7 +130,7 @@ public class OppdragskontrollEngangsstønad implements OppdragskontrollManager {
         if (VedtakResultatType.AVSLAG.equals(behandlingInfo.getVedtakResultatType())) { // Variant 3
             delytelseId = forrigeOppdragslinje150.getDelytelseId();
             sats = behandlingInfo.getSatsFraTidligereBehandling();
-            kodeEndringLinje = KODE_ENDRING_LINJE_ENDRING;
+            kodeEndringLinje = KodeEndringLinjeType.ENDRING;
             kodeStatusLinje = KODE_STATUS_LINJE_OPPHØR;
             statusdato = tidligereDatoVedtakFom;
             refFagsystemId = null;
@@ -140,7 +138,7 @@ public class OppdragskontrollEngangsstønad implements OppdragskontrollManager {
         } else { // Variant 2
             delytelseId = OpprettOppdragTjeneste.incrementInitialValue(forrigeOppdragslinje150.getDelytelseId());
             sats = behandlingInfo.getSats();
-            kodeEndringLinje = KODE_ENDRING_LINJE_NY;
+            kodeEndringLinje = KodeEndringLinjeType.NY;
         }
         return Oppdragslinje150.builder()
             .medKodeEndringLinje(kodeEndringLinje)

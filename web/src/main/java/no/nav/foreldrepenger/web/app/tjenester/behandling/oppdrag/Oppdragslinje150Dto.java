@@ -153,7 +153,7 @@ public class Oppdragslinje150Dto extends SporingDto {
         oppdragslinje150Dto.delytelseId = oppdragslinje150.getDelytelseId();
         oppdragslinje150Dto.refDelytelseId = oppdragslinje150.getRefDelytelseId();
         oppdragslinje150Dto.refFagsystemId = oppdragslinje150.getRefFagsystemId();
-        oppdragslinje150Dto.kodeEndringLinje = oppdragslinje150.getKodeEndringLinje();
+        oppdragslinje150Dto.kodeEndringLinje = oppdragslinje150.getKodeEndringLinje().getKode();
         oppdragslinje150Dto.kodeStatusLinje = oppdragslinje150.getKodeStatusLinje();
         oppdragslinje150Dto.datoStatusFom = oppdragslinje150.getDatoStatusFom();
         oppdragslinje150Dto.datoVedtakFom = oppdragslinje150.getDatoVedtakFom();

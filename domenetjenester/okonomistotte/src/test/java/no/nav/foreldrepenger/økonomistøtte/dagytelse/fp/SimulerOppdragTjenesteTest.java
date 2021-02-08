@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiTypeSats;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
@@ -80,7 +81,7 @@ public class SimulerOppdragTjenesteTest {
 
     private Oppdragslinje150 buildOppdragslinje150(Oppdrag110 oppdrag110) {
         var o150 = Oppdragslinje150.builder()
-            .medKodeEndringLinje("NY")
+            .medKodeEndringLinje(KodeEndringLinjeType.NY)
             .medDatoStatusFom(LocalDate.now())
             .medVedtakId("345")
             .medDelytelseId(1L)

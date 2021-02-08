@@ -38,6 +38,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
@@ -51,7 +52,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekv
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.TfradragTillegg;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 
@@ -264,7 +264,7 @@ public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
 
     private Oppdragslinje150 byggOppdrag150(LocalDate datoVedtakFom, LocalDate datoVedtakTom, boolean erBruker, boolean gjelderOpphør) {
         Oppdragslinje150.Builder builder = Oppdragslinje150.builder()
-            .medKodeEndringLinje(ØkonomiKodeEndring.NY.name())
+            .medKodeEndringLinje(KodeEndringLinjeType.NY)
             .medDatoStatusFom(LocalDate.now())
             .medVedtakId("123")
             .medDelytelseId(300L)
@@ -278,7 +278,7 @@ public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
             .medOppdrag110(byggOppdrag110());
         if (gjelderOpphør) {
             builder
-                .medKodeEndringLinje(ØkonomiKodeEndring.ENDR.name())
+                .medKodeEndringLinje(KodeEndringLinjeType.ENDRING)
                 .medKodeStatusLinje(ØkonomiKodeStatusLinje.OPPH.name());
         }
         return builder.build();

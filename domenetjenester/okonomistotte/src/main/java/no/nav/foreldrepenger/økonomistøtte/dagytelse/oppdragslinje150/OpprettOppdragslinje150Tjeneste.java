@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
@@ -182,14 +183,13 @@ public class OpprettOppdragslinje150Tjeneste {
 
     public static void settFellesFelterIOppdr150(OppdragInput oppdragInput, Oppdragslinje150.Builder oppdr150Builder, boolean gjelderOpphør, boolean gjelderFeriepenger) {
         LocalDate vedtaksdato = oppdragInput.getVedtaksdato();
-        String kodeEndringLinje = gjelderOpphør ? OppdragskontrollConstants.KODE_ENDRING_LINJE_ENDRING : OppdragskontrollConstants.KODE_ENDRING_LINJE_NY;
         String typeSats = gjelderFeriepenger ? OppdragskontrollConstants.TYPE_SATS_FERIEPENGER : OppdragskontrollConstants.TYPE_SATS_DAG;
         boolean erEndringMedBortfallAvHeleYtelsen = summerHeleTilkjentYtelse(getPerioderForTilkjentYtelse(oppdragInput)) == 0 &&
             summerHeleTilkjentYtelse(oppdragInput.getForrigeTilkjentYtelsePerioder()) > 0;
         if (gjelderOpphør || erEndringMedBortfallAvHeleYtelsen) {
             oppdr150Builder.medKodeStatusLinje(OppdragskontrollConstants.KODE_STATUS_LINJE_OPPHØR);
         }
-        oppdr150Builder.medKodeEndringLinje(kodeEndringLinje)
+        oppdr150Builder.medKodeEndringLinje(gjelderOpphør ? KodeEndringLinjeType.ENDRING : KodeEndringLinjeType.NY)
             .medVedtakId(vedtaksdato.toString())
             .medTypeSats(typeSats);
     }

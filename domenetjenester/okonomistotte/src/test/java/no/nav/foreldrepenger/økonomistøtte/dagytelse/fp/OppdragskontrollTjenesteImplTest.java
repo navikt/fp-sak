@@ -32,7 +32,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndringLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodekomponent;
@@ -448,7 +448,7 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
     private void verifyOpp150NårFørstegangsoppdragBlirSendtIRevurdering(List<Oppdragslinje150> oppdragslinje150List) {
         assertThat(oppdragslinje150List).isNotEmpty();
         assertThat(oppdragslinje150List).allSatisfy(oppdragslinje150 -> {
-            assertThat(oppdragslinje150.getKodeEndringLinje()).isEqualTo(ØkonomiKodeEndringLinje.NY.name());
+            assertThat(oppdragslinje150.getKodeEndringLinje()).isEqualTo(KodeEndringLinjeType.NY);
             assertThat(oppdragslinje150.getRefusjonsinfo156()).isNull();
             assertThat(oppdragslinje150.getUtbetalingsgrad()).isNotNull();
         });
@@ -485,7 +485,7 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
                 kodeklassifik = ØkonomiKodeKlassifik.FPREFAG_IOP.getKodeKlassifik();
             }
             String utbetalesTilId = brukerErMottaker ? personIdent.getIdent() : andel.getArbeidsforholdIdentifikator();
-            assertThat(opp150.getKodeEndringLinje()).isEqualTo(ØkonomiKodeEndringLinje.NY.name());
+            assertThat(opp150.getKodeEndringLinje()).isEqualTo(KodeEndringLinjeType.NY);
             assertThat(opp150.getVedtakId()).isEqualTo(behVedtak.getVedtaksdato().toString());
             assertThat(opp150.getKodeKlassifik()).isEqualTo(kodeklassifik);
             assertThat(opp150.getDatoVedtakFom()).isEqualTo(andel.getBeregningsresultatPeriode().getBeregningsresultatPeriodeFom());
@@ -577,7 +577,7 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
             delYtelseIdListe.add(oppdragslinje150.getDelytelseId());
 
             String utbetalesTilId = brukerErMottaker ? personIdent.getIdent() : andel.getArbeidsforholdIdentifikator();
-            assertThat(oppdragslinje150.getKodeEndringLinje()).isEqualTo(ØkonomiKodeEndringLinje.NY.name());
+            assertThat(oppdragslinje150.getKodeEndringLinje()).isEqualTo(KodeEndringLinjeType.NY);
             assertThat(oppdragslinje150.getVedtakId()).isEqualTo(vedtaksdatoFP.toString());
             assertThat(oppdragslinje150.getDelytelseId()).isEqualTo(concatenateValues(fagsystemId, løpenummer));
             assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(brukerErMottaker ? ØkonomiKodeKlassifik.FPATORD.getKodeKlassifik() : ØkonomiKodeKlassifik.FPREFAG_IOP.getKodeKlassifik());

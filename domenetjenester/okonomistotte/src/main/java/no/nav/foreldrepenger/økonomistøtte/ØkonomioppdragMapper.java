@@ -15,11 +15,11 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.xml.sax.SAXException;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.ObjectFactory;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Ompostering116;
@@ -132,7 +132,7 @@ public class ØkonomioppdragMapper {
         List<OppdragsLinje150> oppdragsLinje150Liste = new ArrayList<>();
         for (Oppdragslinje150 okoOppdrlinje150 : okoOppdrlinje150Liste) {
             OppdragsLinje150 oppdragsLinje150 = objectFactory.createOppdragsLinje150();
-            oppdragsLinje150.setKodeEndringLinje(okoOppdrlinje150.getKodeEndringLinje());
+            oppdragsLinje150.setKodeEndringLinje(okoOppdrlinje150.getKodeEndringLinje().getKode());
             if (okoOppdrlinje150.gjelderOpphør()) {
                 oppdragsLinje150.setKodeStatusLinje(TkodeStatusLinje.fromValue(okoOppdrlinje150.getKodeStatusLinje()));
             }
