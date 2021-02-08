@@ -11,18 +11,17 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndringLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiTypeSats;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.TfradragTillegg;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.opphør.FinnOppdragslinje150FomSisteOpphør;
 
 public class FinnOppdragslinje150FomSisteOpphørTest {
 
-    private static final String NY = ØkonomiKodeEndringLinje.NY.name();
-    private static final String ENDR = ØkonomiKodeEndringLinje.ENDR.name();
+    private static final KodeEndringLinjeType NY = KodeEndringLinjeType.NY;
+    private static final KodeEndringLinjeType ENDR = KodeEndringLinjeType.ENDRING;
     private static final String OPPH = ØkonomiKodeStatusLinje.OPPH.name();
 
     /**
@@ -139,25 +138,25 @@ public class FinnOppdragslinje150FomSisteOpphørTest {
         assertThat(filtrertOppdragslinje150List.get(0).getVedtakId()).isEqualTo("2018-01-02");
     }
 
-    private Oppdragslinje150 opprettOppdragslinje150(Long delytelseId, String økonomiKodeEndringLinje) {
+    private Oppdragslinje150 opprettOppdragslinje150(Long delytelseId, KodeEndringLinjeType økonomiKodeEndringLinje) {
         return opprettOppdragslinje150(delytelseId, økonomiKodeEndringLinje, "2018-08-01");
     }
 
-    private Oppdragslinje150 opprettOppdragslinje150(Long delytelseId, String økonomiKodeEndringLinje, String vedtakId) {
+    private Oppdragslinje150 opprettOppdragslinje150(Long delytelseId, KodeEndringLinjeType kodeEndringLinjeType, String vedtakId) {
         Oppdrag110 oppdrag110 = opprettOppdrag110();
 
         Oppdragslinje150.Builder builder = Oppdragslinje150.builder()
             .medDelytelseId(delytelseId)
-            .medKodeEndringLinje(økonomiKodeEndringLinje)
+            .medKodeEndringLinje(kodeEndringLinjeType)
             .medVedtakId(vedtakId)
             .medKodeKlassifik(ØkonomiKodeKlassifik.FPATORD.getKodeKlassifik())
             .medVedtakFomOgTom(LocalDate.now(), LocalDate.now().plusDays(15))
             .medSats(2000L)
             .medTypeSats(ØkonomiTypeSats.DAG.name())
             .medOppdrag110(oppdrag110);
-        if (ENDR.equals(økonomiKodeEndringLinje)) {
+        if (ENDR.equals(kodeEndringLinjeType)) {
             builder.medKodeStatusLinje(OPPH);
-            builder.medKodeEndringLinje(ENDR);
+            builder.medKodeEndringLinje(kodeEndringLinjeType);
         } else {
             builder.medKodeEndringLinje(NY);
         }

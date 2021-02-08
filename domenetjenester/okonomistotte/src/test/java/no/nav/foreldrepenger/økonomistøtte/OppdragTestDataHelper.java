@@ -3,19 +3,18 @@ package no.nav.foreldrepenger.økonomistøtte;
 import java.time.LocalDate;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiTypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.TfradragTillegg;
-import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.TkodeStatusLinje;
 
 
 public class OppdragTestDataHelper {
@@ -25,7 +24,7 @@ public class OppdragTestDataHelper {
         Oppdragslinje150.Builder oppdrLinje150Builder = Oppdragslinje150.builder();
 
         return oppdrLinje150Builder
-            .medKodeEndringLinje(TkodeStatusLinje.OPPH.value())
+            .medKodeEndringLinje(KodeEndringLinjeType.ENDRING)
             .medKodeStatusLinje("ENDR")
             .medDatoStatusFom(LocalDate.now())
             .medVedtakId("456")

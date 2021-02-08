@@ -6,15 +6,15 @@ import java.util.List;
 import java.util.Map;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.OppdragskontrollConstants;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdragslinje150.Oppdragslinje150Util;
@@ -100,11 +100,11 @@ public class OppdragMapper {
             .medVedtakId(vedtaksdato.toString());
 
         if (linje.erOpphørslinje()) {
-            builder.medKodeEndringLinje(ØkonomiKodeEndringLinje.ENDR.name());
+            builder.medKodeEndringLinje(KodeEndringLinjeType.ENDRING);
             builder.medKodeStatusLinje(OppdragskontrollConstants.KODE_STATUS_LINJE_OPPHØR);
             builder.medDatoStatusFom(linje.getOpphørFomDato());
         } else {
-            builder.medKodeEndringLinje(ØkonomiKodeEndringLinje.NY.name());
+            builder.medKodeEndringLinje(KodeEndringLinjeType.NY);
             if (linje.getRefDelytelseId() != null) {
                 builder.medRefDelytelseId(Long.valueOf(linje.getRefDelytelseId().toString()));
                 builder.medRefFagsystemId(Long.valueOf(linje.getRefDelytelseId().getFagsystemId().toString()));

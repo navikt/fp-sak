@@ -7,6 +7,7 @@ import java.util.Objects;
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -21,6 +22,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.Immutable;
 
 import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 /**
@@ -36,8 +38,9 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_OKO_OPPDRAG_LINJE_150")
     private Long id;
 
+    @Convert(converter = KodeEndringLinjeType.KodeverdiConverter.class)
     @Column(name = "kode_endring_linje", nullable = false)
-    private String kodeEndringLinje;
+    private KodeEndringLinjeType kodeEndringLinje;
 
     @Column(name = "vedtak_id", nullable = false)
     private String vedtakId;
@@ -100,16 +103,12 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
         this.id = id;
     }
 
-    public String getKodeEndringLinje() {
+    public KodeEndringLinjeType getKodeEndringLinje() {
         return kodeEndringLinje;
     }
 
     public String getKodeStatusLinje() {
         return kodeStatusLinje;
-    }
-
-    public boolean gjelderOpphør() {
-        return getKodeStatusLinje() != null;
     }
 
     public LocalDate getDatoStatusFom() {
@@ -185,6 +184,10 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
         this.refusjonsinfo156 = refusjonsinfo156;
     }
 
+    public boolean gjelderOpphør() {
+        return getKodeStatusLinje() != null;
+    }
+
     @Override
     public boolean equals(Object object) {
         if (object == this) {
@@ -237,7 +240,7 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
     }
 
     public static class Builder {
-        private String kodeEndringLinje;
+        private KodeEndringLinjeType kodeEndringLinje;
         private String kodeStatusLinje;
         private LocalDate datoStatusFom;
         private String vedtakId;
@@ -252,7 +255,7 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
         private Oppdrag110 oppdrag110;
         private Utbetalingsgrad utbetalingsgrad;
 
-        public Builder medKodeEndringLinje(String kodeEndringLinje) {
+        public Builder medKodeEndringLinje(KodeEndringLinjeType kodeEndringLinje) {
             this.kodeEndringLinje = kodeEndringLinje;
             return this;
         }
@@ -353,4 +356,5 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
             Objects.requireNonNull(oppdrag110, "oppdrag110");
         }
     }
+
 }

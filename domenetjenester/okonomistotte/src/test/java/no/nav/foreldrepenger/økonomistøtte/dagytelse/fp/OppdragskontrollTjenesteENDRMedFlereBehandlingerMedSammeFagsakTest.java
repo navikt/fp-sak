@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndringLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
 import no.nav.foreldrepenger.økonomistøtte.OppdragMedPositivKvitteringTestUtil;
@@ -84,23 +84,23 @@ public class OppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTest 
         List<Oppdrag110> oppdrag110Liste_1 = oppdragForFørstegangsbehandling.getOppdrag110Liste();
         assertThat(oppdrag110Liste_1).hasSize(2);
         verifiserOppdrag110KodeEndring(oppdrag110Liste_1, List.of(ØkonomiKodeEndring.NY, ØkonomiKodeEndring.NY));
-        verifiserOppdragslinje150KodeEndring(OppdragskontrollTestVerktøy.getOpp150ListeForBruker(oppdrag110Liste_1), List.of(ØkonomiKodeEndringLinje.NY, ØkonomiKodeEndringLinje.NY));
-        verifiserOppdragslinje150KodeEndring(OppdragskontrollTestVerktøy.getOpp150ListeForEnVirksomhet(oppdrag110Liste_1, virksomhet), Collections.singletonList(ØkonomiKodeEndringLinje.NY));
+        verifiserOppdragslinje150KodeEndring(OppdragskontrollTestVerktøy.getOpp150ListeForBruker(oppdrag110Liste_1), List.of(KodeEndringLinjeType.NY, KodeEndringLinjeType.NY));
+        verifiserOppdragslinje150KodeEndring(OppdragskontrollTestVerktøy.getOpp150ListeForEnVirksomhet(oppdrag110Liste_1, virksomhet), Collections.singletonList(KodeEndringLinjeType.NY));
 
         // Assert : Første revurdering
         List<Oppdrag110> oppdrag110Liste_2 = oppdragForFørsteRevurdering.getOppdrag110Liste();
         assertThat(oppdrag110Liste_2).hasSize(2);
         verifiserOppdrag110KodeEndring(oppdrag110Liste_2, List.of(ØkonomiKodeEndring.UEND, ØkonomiKodeEndring.UEND));
-        verifiserOppdragslinje150KodeEndring(OppdragskontrollTestVerktøy.getOpp150ListeForBruker(oppdrag110Liste_2), Collections.singletonList(ØkonomiKodeEndringLinje.ENDR));
-        verifiserOppdragslinje150KodeEndring(OppdragskontrollTestVerktøy.getOpp150ListeForEnVirksomhet(oppdrag110Liste_2, virksomhet), List.of(ØkonomiKodeEndringLinje.ENDR, ØkonomiKodeEndringLinje.NY));
+        verifiserOppdragslinje150KodeEndring(OppdragskontrollTestVerktøy.getOpp150ListeForBruker(oppdrag110Liste_2), Collections.singletonList(KodeEndringLinjeType.ENDRING));
+        verifiserOppdragslinje150KodeEndring(OppdragskontrollTestVerktøy.getOpp150ListeForEnVirksomhet(oppdrag110Liste_2, virksomhet), List.of(KodeEndringLinjeType.ENDRING, KodeEndringLinjeType.NY));
         verifiserOpphørFom(OppdragskontrollTestVerktøy.getOpp150ListeForBruker(oppdrag110Liste_2), førsteEndringsdato);
 
         // Assert : Andre revurdering
         List<Oppdrag110> oppdrag110Liste_3 = oppdragForAndreRevurdering.getOppdrag110Liste();
         assertThat(oppdrag110Liste_3).hasSize(2);
         verifiserOppdrag110KodeEndring(oppdrag110Liste_3, List.of(ØkonomiKodeEndring.UEND, ØkonomiKodeEndring.UEND));
-        verifiserOppdragslinje150KodeEndring(OppdragskontrollTestVerktøy.getOpp150ListeForBruker(oppdrag110Liste_3), Collections.singletonList(ØkonomiKodeEndringLinje.ENDR));
-        verifiserOppdragslinje150KodeEndring(OppdragskontrollTestVerktøy.getOpp150ListeForEnVirksomhet(oppdrag110Liste_3, virksomhet), List.of(ØkonomiKodeEndringLinje.ENDR, ØkonomiKodeEndringLinje.NY));
+        verifiserOppdragslinje150KodeEndring(OppdragskontrollTestVerktøy.getOpp150ListeForBruker(oppdrag110Liste_3), Collections.singletonList(KodeEndringLinjeType.ENDRING));
+        verifiserOppdragslinje150KodeEndring(OppdragskontrollTestVerktøy.getOpp150ListeForEnVirksomhet(oppdrag110Liste_3, virksomhet), List.of(KodeEndringLinjeType.ENDRING, KodeEndringLinjeType.NY));
         verifiserOpphørFom(OppdragskontrollTestVerktøy.getOpp150ListeForBruker(oppdrag110Liste_3), andreEndringsdato);
 
         // Assert : Kjeding
@@ -144,20 +144,20 @@ public class OppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTest 
         List<Oppdrag110> oppdrag110Liste_1 = oppdragForFørsteFørstegangsbehandling.getOppdrag110Liste();
         assertThat(oppdrag110Liste_1).hasSize(1);
         verifiserOppdrag110KodeEndring(oppdrag110Liste_1, Collections.singletonList(ØkonomiKodeEndring.NY));
-        verifiserOppdragslinje150KodeEndring(oppdrag110Liste_1.get(0).getOppdragslinje150Liste(), List.of(ØkonomiKodeEndringLinje.NY, ØkonomiKodeEndringLinje.NY));
+        verifiserOppdragslinje150KodeEndring(oppdrag110Liste_1.get(0).getOppdragslinje150Liste(), List.of(KodeEndringLinjeType.NY, KodeEndringLinjeType.NY));
 
         // Assert : Revurdering
         List<Oppdrag110> oppdrag110Liste_2 = oppdragForRevurdering.getOppdrag110Liste();
         assertThat(oppdrag110Liste_2).hasSize(1);
         verifiserOppdrag110KodeEndring(oppdrag110Liste_2, Collections.singletonList(ØkonomiKodeEndring.UEND));
-        verifiserOppdragslinje150KodeEndring(oppdrag110Liste_2.get(0).getOppdragslinje150Liste(), Collections.singletonList(ØkonomiKodeEndringLinje.ENDR));
+        verifiserOppdragslinje150KodeEndring(oppdrag110Liste_2.get(0).getOppdragslinje150Liste(), Collections.singletonList(KodeEndringLinjeType.ENDRING));
 
         // Assert : Andre førstegangsbehandling
         List<Oppdrag110> oppdrag110Liste_3 = oppdragForAndreFørstegangsbehandling.getOppdrag110Liste();
         assertThat(oppdrag110Liste_3).hasSize(1);
         assertThat(oppdrag110Liste_3.get(0).getOmpostering116()).isNotPresent();
         verifiserOppdrag110KodeEndring(oppdrag110Liste_3, Collections.singletonList(ØkonomiKodeEndring.UEND));
-        verifiserOppdragslinje150KodeEndring(oppdrag110Liste_3.get(0).getOppdragslinje150Liste(), Collections.singletonList(ØkonomiKodeEndringLinje.NY));
+        verifiserOppdragslinje150KodeEndring(oppdrag110Liste_3.get(0).getOppdragslinje150Liste(), Collections.singletonList(KodeEndringLinjeType.NY));
 
         // Assert : Kjeding
         verifiserKjedingNårDetErFlereBehandlingerMedSammeFagsak(oppdragForFørsteFørstegangsbehandling, oppdragForRevurdering, oppdragForAndreFørstegangsbehandling, false);
@@ -211,20 +211,20 @@ public class OppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTest 
         List<Oppdrag110> oppdrag110Liste_1 = oppdragForFørsteFørstegangsbehandling.getOppdrag110Liste();
         assertThat(oppdrag110Liste_1).hasSize(1);
         verifiserOppdrag110KodeEndring(oppdrag110Liste_1, Collections.singletonList(ØkonomiKodeEndring.NY));
-        verifiserOppdragslinje150KodeEndring(oppdrag110Liste_1.get(0).getOppdragslinje150Liste(), List.of(ØkonomiKodeEndringLinje.NY, ØkonomiKodeEndringLinje.NY));
+        verifiserOppdragslinje150KodeEndring(oppdrag110Liste_1.get(0).getOppdragslinje150Liste(), List.of(KodeEndringLinjeType.NY, KodeEndringLinjeType.NY));
 
         // Assert : Revurdering
         List<Oppdrag110> oppdrag110Liste_2 = oppdragForRevurdering.getOppdrag110Liste();
         assertThat(oppdrag110Liste_2).hasSize(1);
         verifiserOppdrag110KodeEndring(oppdrag110Liste_2, Collections.singletonList(ØkonomiKodeEndring.UEND));
-        verifiserOppdragslinje150KodeEndring(oppdrag110Liste_2.get(0).getOppdragslinje150Liste(), Collections.singletonList(ØkonomiKodeEndringLinje.ENDR));
+        verifiserOppdragslinje150KodeEndring(oppdrag110Liste_2.get(0).getOppdragslinje150Liste(), Collections.singletonList(KodeEndringLinjeType.ENDRING));
 
         // Assert : Andre førstegangsbehandling
         List<Oppdrag110> oppdrag110Liste_3 = oppdragForAndreFørstegangsbehandling.getOppdrag110Liste();
         assertThat(oppdrag110Liste_3).hasSize(2);
         verifiserOppdrag110KodeEndring(oppdrag110Liste_3, List.of(ØkonomiKodeEndring.UEND, ØkonomiKodeEndring.NY));
-        verifiserOppdragslinje150KodeEndring(OppdragskontrollTestVerktøy.getOpp150ListeForBruker(oppdrag110Liste_3), List.of(ØkonomiKodeEndringLinje.NY, ØkonomiKodeEndringLinje.NY));
-        verifiserOppdragslinje150KodeEndring(OppdragskontrollTestVerktøy.getOpp150ListeForEnVirksomhet(oppdrag110Liste_3, virksomhet), List.of(ØkonomiKodeEndringLinje.NY, ØkonomiKodeEndringLinje.NY));
+        verifiserOppdragslinje150KodeEndring(OppdragskontrollTestVerktøy.getOpp150ListeForBruker(oppdrag110Liste_3), List.of(KodeEndringLinjeType.NY, KodeEndringLinjeType.NY));
+        verifiserOppdragslinje150KodeEndring(OppdragskontrollTestVerktøy.getOpp150ListeForEnVirksomhet(oppdrag110Liste_3, virksomhet), List.of(KodeEndringLinjeType.NY, KodeEndringLinjeType.NY));
 
         // Assert : Kjeding
         verifiserKjedingNårDetErFlereBehandlingerMedSammeFagsak(oppdragForFørsteFørstegangsbehandling, oppdragForRevurdering, oppdragForAndreFørstegangsbehandling, false);
@@ -988,19 +988,17 @@ public class OppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTest 
         assertThat(opp150ForOpphPåFLIAndreRevurderingListe).hasSize(3);
     }
 
-    private void verifiserOppdrag110KodeEndring
-        (List<Oppdrag110> oppdrag110List, List<ØkonomiKodeEndring> kode) {
+    private void verifiserOppdrag110KodeEndring(List<Oppdrag110> oppdrag110List, List<ØkonomiKodeEndring> kode) {
         assertThat(oppdrag110List).hasSameSizeAs(kode);
         for (int i = 0; i < oppdrag110List.size(); i++) {
             assertThat(oppdrag110List.get(i).getKodeEndring()).isEqualTo(kode.get(i).name());
         }
     }
 
-    private void verifiserOppdragslinje150KodeEndring
-        (List<Oppdragslinje150> oppdragslinje150List, List<ØkonomiKodeEndringLinje> kode) {
+    private void verifiserOppdragslinje150KodeEndring(List<Oppdragslinje150> oppdragslinje150List, List<KodeEndringLinjeType> kode) {
         assertThat(oppdragslinje150List).hasSameSizeAs(kode);
         for (int i = 0; i < oppdragslinje150List.size(); i++) {
-            assertThat(oppdragslinje150List.get(i).getKodeEndringLinje()).isEqualTo(kode.get(i).name());
+            assertThat(oppdragslinje150List.get(i).getKodeEndringLinje()).isEqualTo(kode.get(i));
         }
     }
 

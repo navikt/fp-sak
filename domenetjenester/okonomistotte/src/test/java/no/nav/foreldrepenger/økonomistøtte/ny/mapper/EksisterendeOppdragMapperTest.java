@@ -11,6 +11,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
@@ -152,7 +153,7 @@ public class EksisterendeOppdragMapperTest {
             .medTypeSats(sats.getSatsType().getKode())
             .medDatoStatusFom(opphørFomDato)
             .medKodeStatusLinje(opphørFomDato != null ? "OPPH" : null)
-            .medKodeEndringLinje(opphørFomDato != null ? "ENDR" : "NY")
+            .medKodeEndringLinje(opphørFomDato != null ? KodeEndringLinjeType.ENDRING : KodeEndringLinjeType.NY)
             .medRefDelytelseId(refDelytelseId != null ? Long.parseLong(refDelytelseId.toString()) : null)
             .medRefFagsystemId(refDelytelseId != null ? Long.parseLong(refDelytelseId.getFagsystemId().toString()) : null)
             .build();

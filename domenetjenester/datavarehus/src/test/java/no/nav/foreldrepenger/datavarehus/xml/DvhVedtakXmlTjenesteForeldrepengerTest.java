@@ -71,6 +71,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEnti
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
@@ -111,7 +112,6 @@ import no.nav.foreldrepenger.domene.vedtak.xml.BehandlingsresultatXmlTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.xml.PersonopplysningXmlFelles;
 import no.nav.foreldrepenger.domene.vedtak.xml.VedtakXmlTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
-import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.TfradragTillegg;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.HentOppdragMedPositivKvittering;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
@@ -419,7 +419,7 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
     private Oppdragslinje150 buildOppdragslinje150(Oppdrag110 oppdrag110, Long delytelseId) {
 
         Oppdragslinje150 oppdragslinje150 = Oppdragslinje150.builder()
-                .medKodeEndringLinje("ENDR")
+                .medKodeEndringLinje(KodeEndringLinjeType.ENDRING)
                 .medKodeStatusLinje("OPPH")
                 .medDatoStatusFom(LocalDate.now())
                 .medVedtakId("345")

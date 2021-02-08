@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public class Oppdragslinje150EntityTest {
@@ -15,7 +16,7 @@ public class Oppdragslinje150EntityTest {
     private Oppdragslinje150 oppdragslinje150;
     private Oppdragslinje150 oppdragslinje150_2;
 
-    private static final String KODEENDRINGLINJE = "NY";
+    private static final KodeEndringLinjeType KODEENDRINGLINJE = KodeEndringLinjeType.NY;
     private static final String KODESTATUSLINJE = "OPPH";
     private static final LocalDate DATOSTATUSFOM = LocalDate.now().minusDays(15);
     private static final String VEDTAKID = "457";
@@ -146,7 +147,7 @@ public class Oppdragslinje150EntityTest {
     public void skal_bruke_KodeEndringLinje_i_equalsOgHashCode() {
         oppdragslinje150Builder = lagBuilderMedPaakrevdeFelter();
         oppdragslinje150 = oppdragslinje150Builder.build();
-        oppdragslinje150Builder.medKodeEndringLinje("ENDR");
+        oppdragslinje150Builder.medKodeEndringLinje(KodeEndringLinjeType.ENDRING);
         oppdragslinje150_2 = oppdragslinje150Builder.build();
 
         assertThat(oppdragslinje150).isNotEqualTo(oppdragslinje150_2);

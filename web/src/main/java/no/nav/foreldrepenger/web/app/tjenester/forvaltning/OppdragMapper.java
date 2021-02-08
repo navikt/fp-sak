@@ -7,6 +7,7 @@ import no.nav.foreldrepenger.behandling.impl.FinnAnsvarligSaksbehandler;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
@@ -64,7 +65,7 @@ class OppdragMapper {
             .medRefDelytelseId(linje.getRefDelytelseId())
             .medRefFagsystemId(linje.getRefFagsystemId())
             .medVedtakId(behandlingVedtak.getVedtaksdato().toString())
-            .medKodeEndringLinje(linje.getKodeEndring())
+            .medKodeEndringLinje(KodeEndringLinjeType.fraKode(linje.getKodeEndring()))
             .medKodeKlassifik(linje.getKodeKlassifik());
         if (linje.getOpphørFom() != null) {
             builder.medDatoStatusFom(linje.getOpphørFom());
