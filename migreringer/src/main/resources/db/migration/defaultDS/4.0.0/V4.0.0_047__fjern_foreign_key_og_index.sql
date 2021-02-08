@@ -24,6 +24,6 @@ DROP INDEX IDX_OKO_ATTESTANT_180_6;
 DROP INDEX IDX_OKO_OPPDRAG_LINJE_150_3;
 ALTER TABLE OKO_OPPDRAG_LINJE_150 MODIFY (SAKSBEH_ID null);
 
---Flytt utbetalingsgrad-170 til oppdrag-150 steg 1
+--Flytt grad-170 til oppdrag-150 steg 1
 ALTER TABLE OKO_OPPDRAG_LINJE_150 ADD GRAD NUMBER(5);
-COMMENT ON COLUMN "OKO_OPPDRAG_LINJE_150"."GRAD" is 'Grad, prosent. Mappes til utbetalingsgrad-170 i oppdragsmelding sammen med type_grad = UFOR'
+COMMENT ON COLUMN "OKO_OPPDRAG_LINJE_150"."GRAD" is 'Grad, prosent. Mappes til grad-170 i oppdragsmelding sammen med type_grad = UFOR'
