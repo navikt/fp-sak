@@ -24,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
@@ -224,7 +225,7 @@ public class ØkonomioppdragMapperTest {
                 assertThat(oppdragsLinje150Generert.getDatoVedtakTom()).isEqualTo(DateUtil.convertToXMLGregorianCalendarRemoveTimezone(oppdragslinje150.getDatoVedtakTom()));
                 assertThat(oppdragsLinje150Generert.getSats()).isEqualTo(new BigDecimal(oppdragslinje150.getSats()));
                 assertThat(oppdragsLinje150Generert.getFradragTillegg()).isEqualTo(TfradragTillegg.fromValue(FRADRAG_TILLEGG));
-                assertThat(oppdragsLinje150Generert.getTypeSats()).isEqualTo(oppdragslinje150.getTypeSats());
+                assertThat(oppdragsLinje150Generert.getTypeSats()).isEqualTo(oppdragslinje150.getTypeSats().getKode());
                 assertThat(oppdragsLinje150Generert.getBrukKjoreplan()).isEqualTo(BRUK_KJØREPLAN);
                 assertThat(oppdragsLinje150Generert.getSaksbehId()).isEqualTo(oppdrag110.getSaksbehId());
                 assertThat(oppdragsLinje150Generert.getUtbetalesTilId()).isEqualTo(oppdragslinje150.getUtbetalesTilId());
@@ -306,7 +307,7 @@ public class ØkonomioppdragMapperTest {
             String kodeKlassifik = finnKodeKlassifikVerdi(oppdrag110);
             Oppdragslinje150 oppdragslinje150 = builder
                 .medKodeKlassifik(gjelderFP ? kodeKlassifik : KODE_KLASSIFIK_FODSEL)
-                .medTypeSats(gjelderFP ? ØkonomiTypeSats.DAG.name() : ØkonomiTypeSats.UKE.name())
+                .medTypeSats(gjelderFP ? TypeSats.DAGLIG : TypeSats.ENGANG)
                 .medOppdrag110(oppdrag110)
                 .build();
             opp150Liste.add(oppdragslinje150);
@@ -319,7 +320,7 @@ public class ØkonomioppdragMapperTest {
         String kodeKlassifik = oppdrag110.getKodeFagomrade().equals("FP") ? ØkonomiKodeKlassifik.FPATFER.getKodeKlassifik() : ØkonomiKodeKlassifik.FPREFAGFER_IOP.getKodeKlassifik();
         return builder
             .medKodeKlassifik(kodeKlassifik)
-            .medTypeSats(ØkonomiTypeSats.ENG.name())
+            .medTypeSats(TypeSats.ENGANG)
             .medUtbetalingsgrad(Utbetalingsgrad._100)
             .medOppdrag110(oppdrag110)
             .build();

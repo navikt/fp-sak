@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
@@ -96,7 +97,7 @@ public class OppdragMapper {
             .medKodeKlassifik(kjedeNøkkel.getKlassekode().getKodeKlassifik())
             .medVedtakFomOgTom(linje.getPeriode().getFom(), linje.getPeriode().getTom())
             .medSats(linje.getSats().getSats())
-            .medTypeSats(linje.getSats().getSatsType().getKode())
+            .medTypeSats(TypeSats.fraKode(linje.getSats().getSatsType().getKode()))
             .medVedtakId(vedtaksdato.toString());
 
         if (linje.erOpphørslinje()) {

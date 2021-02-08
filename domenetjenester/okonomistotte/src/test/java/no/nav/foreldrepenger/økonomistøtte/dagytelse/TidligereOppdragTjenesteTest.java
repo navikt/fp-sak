@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringL
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
@@ -93,7 +94,7 @@ class TidligereOppdragTjenesteTest {
             .medKodeKlassifik(klassekode.getKodeKlassifik())
             .medVedtakFomOgTom(fom, tom)
             .medSats(1L)
-            .medTypeSats(ØkonomiTypeSats.DAG.name())
+            .medTypeSats(TypeSats.DAGLIG)
             .medOppdrag110(oppdrag110)
             .medDelytelseId(delytelseId)
             .medUtbetalesTilId("11111111111")

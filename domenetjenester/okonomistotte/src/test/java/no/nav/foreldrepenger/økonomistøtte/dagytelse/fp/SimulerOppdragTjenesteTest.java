@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiTypeSats;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
@@ -89,7 +90,7 @@ public class SimulerOppdragTjenesteTest {
             .medSats(1122L)
             .medUtbetalesTilId("123456789")
             .medKodeKlassifik(ØkonomiKodeKlassifik.FPATORD.getKodeKlassifik())
-            .medTypeSats(ØkonomiTypeSats.DAG.name())
+            .medTypeSats(TypeSats.DAGLIG)
             .medOppdrag110(oppdrag110)
             .build();
         return o150;

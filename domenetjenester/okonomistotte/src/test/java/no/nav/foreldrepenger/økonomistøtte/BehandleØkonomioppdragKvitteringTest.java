@@ -51,10 +51,6 @@ public class BehandleØkonomioppdragKvitteringTest {
 
     public static final Long SATS = 654L;
 
-    public static final String TYPESATS_ES = "ENG";
-
-    public static final String TYPESATS_FP = "DAG";
-
     public static final Integer GRAD = 100;
 
     public static final String REFUNDERES_ID = "123456789";

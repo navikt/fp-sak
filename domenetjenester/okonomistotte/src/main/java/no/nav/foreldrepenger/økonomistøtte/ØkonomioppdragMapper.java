@@ -146,7 +146,7 @@ public class ØkonomioppdragMapper {
             oppdragsLinje150.setDatoVedtakTom(toXmlGregCal(okoOppdrlinje150.getDatoVedtakTom()));
             oppdragsLinje150.setSats(new BigDecimal(okoOppdrlinje150.getSats()));
             oppdragsLinje150.setFradragTillegg(TfradragTillegg.fromValue(FRADRAG_TILLEGG));
-            oppdragsLinje150.setTypeSats(okoOppdrlinje150.getTypeSats());
+            oppdragsLinje150.setTypeSats(okoOppdrlinje150.getTypeSats().getKode());
             oppdragsLinje150.setBrukKjoreplan(BRUK_KJOREPLAN);
             oppdragsLinje150.setSaksbehId(saksbehId);
             oppdragsLinje150.setUtbetalesTilId(okoOppdrlinje150.getUtbetalesTilId());

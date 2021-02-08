@@ -23,6 +23,7 @@ import org.hibernate.annotations.Immutable;
 
 import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 /**
@@ -61,8 +62,9 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
     @Column(name = "sats", nullable = false)
     private long sats;
 
+    @Convert(converter = TypeSats.KodeverdiConverter.class)
     @Column(name = "type_sats", nullable = false)
-    private String typeSats;
+    private TypeSats typeSats;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "oppdrag110_id", nullable = false)
@@ -147,7 +149,7 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
         this.sats = sats;
     }
 
-    public String getTypeSats() {
+    public TypeSats getTypeSats() {
         return typeSats;
     }
 
@@ -248,7 +250,7 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
         private String kodeKlassifik;
         private DatoIntervallEntitet vedtakPeriode;
         private Long sats;
-        private String typeSats;
+        private TypeSats typeSats;
         private String utbetalesTilId;
         private Long refFagsystemId;
         private Long refDelytelseId;
@@ -295,7 +297,7 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
             return this;
         }
 
-        public Builder medTypeSats(String typeSats) {
+        public Builder medTypeSats(TypeSats typeSats) {
             this.typeSats = typeSats;
             return this;
         }

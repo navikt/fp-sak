@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
@@ -329,7 +330,7 @@ public class GrensesnittavstemmingMapperTest {
             .medKodeKlassifik(KODE_KLASSIFIK_FODSEL)
             .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
             .medSats(61122L)
-            .medTypeSats(ØkonomiTypeSats.UKE.name())
+            .medTypeSats(TypeSats.ENGANG)
             .medUtbetalesTilId("123456789")
             .medOppdrag110(oppdrag110)
             .build();

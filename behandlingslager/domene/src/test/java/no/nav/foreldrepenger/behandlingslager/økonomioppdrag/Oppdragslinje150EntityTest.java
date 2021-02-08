@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinjeType;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public class Oppdragslinje150EntityTest {
@@ -25,7 +26,7 @@ public class Oppdragslinje150EntityTest {
     private static final LocalDate DATOVEDTAKFOM = LocalDate.now().minusDays(10);
     private static final LocalDate DATOVEDTAKTOM = LocalDate.now().minusDays(8);
     private static final long SATS = 50000L;
-    private static final String TYPESATS = "ENG";
+    private static final TypeSats TYPESATS = TypeSats.ENGANG;
     private static final String SAKSBEHID = "Z1236524";
     private static final LocalDate DATOOPPDRAGGJELDERFOM = LocalDate.of(2000, 1, 1);
     private static final String UTBETALESTILID = "456";

@@ -11,14 +11,15 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 
 class ØkonomiOppdragUtils {
 
-    static String hentTypeSats(Boolean gjelderFP) {
+    static TypeSats hentTypeSats(Boolean gjelderFP) {
         if (gjelderFP) {
-            return BehandleØkonomioppdragKvitteringTest.TYPESATS_FP;
+            return TypeSats.DAGLIG;
         }
-        return BehandleØkonomioppdragKvitteringTest.TYPESATS_ES;
+        return TypeSats.ENGANG;
     }
 
     static String hentKodeKlassifik(Boolean gjelderFP) {

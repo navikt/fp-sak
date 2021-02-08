@@ -42,6 +42,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringL
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
@@ -271,7 +272,7 @@ public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
             .medKodeKlassifik(finnKodeKlassifik(erBruker))
             .medVedtakFomOgTom(datoVedtakFom, datoVedtakTom)
             .medSats(1000L)
-            .medTypeSats(ØkonomiTypeSats.MND.name())
+            .medTypeSats(TypeSats.DAGLIG)
             .medUtbetalesTilId("456")
             .medRefFagsystemId(678L)
             .medRefDelytelseId(789L)
