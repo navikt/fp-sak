@@ -15,7 +15,6 @@ public class OppdragskontrollConstants {
     public static final String KODE_ENDRING_ENDRET = ØkonomiKodeEndring.ENDR.name();
     public static final String KODE_ENDRING_LINJE_NY = ØkonomiKodeEndringLinje.NY.name();
     public static final String KODE_ENDRING_LINJE_ENDRING = ØkonomiKodeEndringLinje.ENDR.name();
-    public static final String FRADRAG_TILLEGG = TfradragTillegg.T.name();
     public static final String TYPE_SATS_DAG = ØkonomiTypeSats.DAG.name();
     public static final String TYPE_SATS_FERIEPENGER = ØkonomiTypeSats.ENG.name();
     public static final String BRUK_KJOREPLAN = "N";

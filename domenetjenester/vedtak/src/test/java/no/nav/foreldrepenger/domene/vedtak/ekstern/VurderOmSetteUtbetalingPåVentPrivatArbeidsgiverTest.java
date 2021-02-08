@@ -271,7 +271,6 @@ public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
             .medKodeKlassifik(finnKodeKlassifik(erBruker))
             .medVedtakFomOgTom(datoVedtakFom, datoVedtakTom)
             .medSats(1000L)
-            .medFradragTillegg(TfradragTillegg.T.name())
             .medTypeSats(ØkonomiTypeSats.MND.name())
             .medBrukKjoreplan("N")
             .medSaksbehId(SAKS_BEHANDLER)

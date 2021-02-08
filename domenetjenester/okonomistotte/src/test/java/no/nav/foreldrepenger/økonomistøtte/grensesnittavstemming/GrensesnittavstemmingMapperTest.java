@@ -328,7 +328,6 @@ public class GrensesnittavstemmingMapperTest {
             .medKodeKlassifik(KODE_KLASSIFIK_FODSEL)
             .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
             .medSats(61122L)
-            .medFradragTillegg(TfradragTillegg.F.value())
             .medTypeSats(ØkonomiTypeSats.UKE.name())
             .medBrukKjoreplan("B")
             .medSaksbehId("F2365245")

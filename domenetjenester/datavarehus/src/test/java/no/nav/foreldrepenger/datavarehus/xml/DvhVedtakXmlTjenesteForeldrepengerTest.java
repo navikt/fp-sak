@@ -427,7 +427,6 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
                 .medKodeKlassifik("FPENFOD-OP")
                 .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
                 .medSats(61122L)
-                .medFradragTillegg(TfradragTillegg.F.value())
                 .medTypeSats(ØkonomiTypeSats.UKE.name())
                 .medBrukKjoreplan("B")
                 .medSaksbehId("F2365245")

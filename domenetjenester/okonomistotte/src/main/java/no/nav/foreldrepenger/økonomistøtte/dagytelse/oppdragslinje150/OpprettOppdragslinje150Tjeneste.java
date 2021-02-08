@@ -137,7 +137,7 @@ public class OpprettOppdragslinje150Tjeneste {
             .medOppdrag110(oppdrag110)
             .medVedtakFomOgTom(vedtakFom, vedtakTom)
             .medSats(dagsats)
-            .medGrad(Utbetalingsgrad.prosent(utbetalingsgrad));
+            .medUtbetalingsgrad(Utbetalingsgrad.prosent(utbetalingsgrad));
         if (mottaker.erBruker()) {
             oppdragslinje150Builder.medUtbetalesTilId(Oppdragslinje150Util.endreTilElleveSiffer(mottaker.getId()));
         }
@@ -191,7 +191,6 @@ public class OpprettOppdragslinje150Tjeneste {
         }
         oppdr150Builder.medKodeEndringLinje(kodeEndringLinje)
             .medVedtakId(vedtaksdato.toString())
-            .medFradragTillegg(OppdragskontrollConstants.FRADRAG_TILLEGG)
             .medBrukKjoreplan(OppdragskontrollConstants.BRUK_KJOREPLAN)
             .medSaksbehId(oppdragInput.getAnsvarligSaksbehandler())
             .medHenvisning(oppdragInput.getBehandlingId())

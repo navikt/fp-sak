@@ -43,6 +43,7 @@ public class ØkonomioppdragMapperTest {
     private static final String TYPE_ENHET = "BOS";
     private static final String ENHET = "8020";
     private static final LocalDate DATO_ENHET_FOM = LocalDate.of(1900, 1, 1);
+    private static final String FRADRAG_TILLEGG = "T";
 
     private Oppdragskontroll oppdragskontroll;
     private ØkonomioppdragMapper økonomioppdragMapper;
@@ -219,7 +220,7 @@ public class ØkonomioppdragMapperTest {
                 assertThat(oppdragsLinje150Generert.getDatoVedtakFom()).isEqualTo(DateUtil.convertToXMLGregorianCalendarRemoveTimezone(oppdragslinje150.getDatoVedtakFom()));
                 assertThat(oppdragsLinje150Generert.getDatoVedtakTom()).isEqualTo(DateUtil.convertToXMLGregorianCalendarRemoveTimezone(oppdragslinje150.getDatoVedtakTom()));
                 assertThat(oppdragsLinje150Generert.getSats()).isEqualTo(new BigDecimal(oppdragslinje150.getSats()));
-                assertThat(oppdragsLinje150Generert.getFradragTillegg()).isEqualTo(TfradragTillegg.fromValue(oppdragslinje150.getFradragTillegg()));
+                assertThat(oppdragsLinje150Generert.getFradragTillegg()).isEqualTo(TfradragTillegg.fromValue(FRADRAG_TILLEGG));
                 assertThat(oppdragsLinje150Generert.getTypeSats()).isEqualTo(oppdragslinje150.getTypeSats());
                 assertThat(oppdragsLinje150Generert.getBrukKjoreplan()).isEqualTo(oppdragslinje150.getBrukKjoreplan());
                 assertThat(oppdragsLinje150Generert.getSaksbehId()).isEqualTo(oppdrag110.getSaksbehId());
@@ -316,7 +317,7 @@ public class ØkonomioppdragMapperTest {
         return builder
             .medKodeKlassifik(kodeKlassifik)
             .medTypeSats(ØkonomiTypeSats.ENG.name())
-            .medGrad(Utbetalingsgrad._100)
+            .medUtbetalingsgrad(Utbetalingsgrad._100)
             .medOppdrag110(oppdrag110)
             .build();
     }
@@ -337,7 +338,6 @@ public class ØkonomioppdragMapperTest {
             .medDelytelseId(delytelseId)
             .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
             .medSats(1122L)
-            .medFradragTillegg(TfradragTillegg.F.value())
             .medBrukKjoreplan("B")
             .medSaksbehId("F2365245")
             .medUtbetalesTilId("123456789")

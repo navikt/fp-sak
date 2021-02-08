@@ -65,7 +65,6 @@ class ØkonomiOppdragUtils {
             .medKodeKlassifik(hentKodeKlassifik(gjelderFP))
             .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
             .medSats(BehandleØkonomioppdragKvitteringTest.SATS)
-            .medFradragTillegg(BehandleØkonomioppdragKvitteringTest.FRADRAGTILLEGG)
             .medTypeSats(hentTypeSats(gjelderFP))
             .medBrukKjoreplan("N")
             .medSaksbehId(BehandleØkonomioppdragKvitteringTest.SAKSBEHID)
@@ -73,7 +72,7 @@ class ØkonomiOppdragUtils {
             .medHenvisning(gjelderFP ? BehandleØkonomioppdragKvitteringTest.BEHANDLINGID_FP : BehandleØkonomioppdragKvitteringTest.BEHANDLINGID_ES)
             .medOppdrag110(o110_1);
         if (gjelderFP) {
-            builder.medGrad(Utbetalingsgrad.prosent(BehandleØkonomioppdragKvitteringTest.GRAD));
+            builder.medUtbetalingsgrad(Utbetalingsgrad.prosent(BehandleØkonomioppdragKvitteringTest.GRAD));
         }
         builder.build();
 
@@ -97,13 +96,12 @@ class ØkonomiOppdragUtils {
                 .medKodeKlassifik(hentKodeKlassifik(gjelderFP))
                 .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
                 .medSats(BehandleØkonomioppdragKvitteringTest.SATS)
-                .medFradragTillegg(BehandleØkonomioppdragKvitteringTest.FRADRAGTILLEGG)
                 .medTypeSats(hentTypeSats(gjelderFP))
                 .medBrukKjoreplan("N")
                 .medSaksbehId(BehandleØkonomioppdragKvitteringTest.SAKSBEHID)
                 .medHenvisning(gjelderFP ? BehandleØkonomioppdragKvitteringTest.BEHANDLINGID_FP : BehandleØkonomioppdragKvitteringTest.BEHANDLINGID_ES)
                 .medOppdrag110(o110_2)
-                .medGrad(Utbetalingsgrad.prosent(BehandleØkonomioppdragKvitteringTest.GRAD))
+                .medUtbetalingsgrad(Utbetalingsgrad.prosent(BehandleØkonomioppdragKvitteringTest.GRAD))
                 .build();
             leggTilRefusjons156(Collections.singletonList(o150_2));
 

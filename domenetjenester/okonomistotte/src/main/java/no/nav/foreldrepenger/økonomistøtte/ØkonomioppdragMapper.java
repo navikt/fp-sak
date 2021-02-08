@@ -36,6 +36,7 @@ public class ØkonomioppdragMapper {
     private static final String TYPE_ENHET = "BOS";
     private static final String ENHET = "8020";
     private static final LocalDate DATO_ENHET_FOM = LocalDate.of(1900, 1, 1);
+    private static final String FRADRAG_TILLEGG = "T";
 
     // TODO (Team Tonic): Fjern global state oppdragskontroll
     private Oppdragskontroll oppdragskontroll;
@@ -142,7 +143,7 @@ public class ØkonomioppdragMapper {
             oppdragsLinje150.setDatoVedtakFom(toXmlGregCal(okoOppdrlinje150.getDatoVedtakFom()));
             oppdragsLinje150.setDatoVedtakTom(toXmlGregCal(okoOppdrlinje150.getDatoVedtakTom()));
             oppdragsLinje150.setSats(new BigDecimal(okoOppdrlinje150.getSats()));
-            oppdragsLinje150.setFradragTillegg(TfradragTillegg.fromValue(okoOppdrlinje150.getFradragTillegg()));
+            oppdragsLinje150.setFradragTillegg(TfradragTillegg.fromValue(FRADRAG_TILLEGG));
             oppdragsLinje150.setTypeSats(okoOppdrlinje150.getTypeSats());
             oppdragsLinje150.setBrukKjoreplan(okoOppdrlinje150.getBrukKjoreplan());
             oppdragsLinje150.setSaksbehId(saksbehId);

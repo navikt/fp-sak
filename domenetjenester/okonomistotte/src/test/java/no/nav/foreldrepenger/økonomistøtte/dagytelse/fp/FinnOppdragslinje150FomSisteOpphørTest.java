@@ -153,7 +153,6 @@ public class FinnOppdragslinje150FomSisteOpphørTest {
             .medKodeKlassifik(ØkonomiKodeKlassifik.FPATORD.getKodeKlassifik())
             .medVedtakFomOgTom(LocalDate.now(), LocalDate.now().plusDays(15))
             .medSats(2000L)
-            .medFradragTillegg(TfradragTillegg.T.name())
             .medTypeSats(ØkonomiTypeSats.DAG.name())
             .medBrukKjoreplan("N")
             .medSaksbehId("12345")

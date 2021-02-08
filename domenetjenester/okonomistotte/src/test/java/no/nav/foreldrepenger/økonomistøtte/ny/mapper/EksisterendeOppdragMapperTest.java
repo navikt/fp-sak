@@ -156,7 +156,6 @@ public class EksisterendeOppdragMapperTest {
             .medDatoStatusFom(opphørFomDato)
             .medKodeStatusLinje(opphørFomDato != null ? "OPPH" : null)
             .medKodeEndringLinje(opphørFomDato != null ? "ENDR" : "NY")
-            .medFradragTillegg("T")
             .medRefDelytelseId(refDelytelseId != null ? Long.parseLong(refDelytelseId.toString()) : null)
             .medRefFagsystemId(refDelytelseId != null ? Long.parseLong(refDelytelseId.getFagsystemId().toString()) : null)
             .build();

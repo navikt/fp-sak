@@ -91,7 +91,6 @@ class TidligereOppdragTjenesteTest {
                                                              Long delytelseId, Long henvisning, Long refDelyteseId, Long refFagsystemId) {
         return Oppdragslinje150.builder()
             .medKodeEndringLinje(ØkonomiKodeEndringLinje.NY.name())
-            .medFradragTillegg(TfradragTillegg.T.value())
             .medKodeKlassifik(klassekode.getKodeKlassifik())
             .medVedtakFomOgTom(fom, tom)
             .medSats(1L)

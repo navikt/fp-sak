@@ -98,7 +98,6 @@ public class OppdragMapper {
             .medSats(linje.getSats().getSats())
             .medTypeSats(linje.getSats().getSatsType().getKode())
             .medVedtakId(vedtaksdato.toString())
-            .medFradragTillegg(OppdragskontrollConstants.FRADRAG_TILLEGG)
             .medBrukKjoreplan("N")
             .medHenvisning(behandlingId)
             .medSaksbehId(ansvarligSaksbehandler);

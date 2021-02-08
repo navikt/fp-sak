@@ -21,7 +21,6 @@ public class Oppdragslinje150Dto extends SporingDto {
     private String kodeKlassifik;
     private long sats;
     private String typeSats;
-    private String fradragTillegg;
     private String brukKjoreplan;
     private Long henvisning;
     private Integer grad;
@@ -135,13 +134,6 @@ public class Oppdragslinje150Dto extends SporingDto {
         this.typeSats = typeSats;
     }
 
-    public String getFradragTillegg() {
-        return fradragTillegg;
-    }
-
-    public void setFradragTillegg(String fradragTillegg) {
-        this.fradragTillegg = fradragTillegg;
-    }
 
     public String getBrukKjoreplan() {
         return brukKjoreplan;
@@ -190,7 +182,6 @@ public class Oppdragslinje150Dto extends SporingDto {
         oppdragslinje150Dto.kodeKlassifik = oppdragslinje150.getKodeKlassifik();
         oppdragslinje150Dto.sats = oppdragslinje150.getSats();
         oppdragslinje150Dto.typeSats = oppdragslinje150.getTypeSats();
-        oppdragslinje150Dto.fradragTillegg = oppdragslinje150.getFradragTillegg();
         oppdragslinje150Dto.brukKjoreplan = oppdragslinje150.getBrukKjoreplan();
         oppdragslinje150Dto.henvisning = oppdragslinje150.getHenvisning();
         oppdragslinje150Dto.grad = oppdragslinje150.getGrad().getVerdi();

@@ -63,7 +63,6 @@ public class Oppdragslinje150EntityTest {
         assertThat(oppdragslinje150.getDatoVedtakFom()).isEqualTo(DATOVEDTAKFOM);
         assertThat(oppdragslinje150.getDatoVedtakTom()).isEqualTo(DATOVEDTAKTOM);
         assertThat(oppdragslinje150.getSats()).isEqualTo(SATS);
-        assertThat(oppdragslinje150.getFradragTillegg()).isEqualTo(FRADRAGTILLEGG);
         assertThat(oppdragslinje150.getTypeSats()).isEqualTo(TYPESATS);
         assertThat(oppdragslinje150.getBrukKjoreplan()).isEqualTo(BRUKKJOREPLAN);
         assertThat(oppdragslinje150.getUtbetalesTilId()).isEqualTo(UTBETALESTILID);
@@ -181,7 +180,6 @@ public class Oppdragslinje150EntityTest {
                 .medKodeKlassifik(KODEKLASSIFIK)
                 .medVedtakFomOgTom(DATOVEDTAKFOM, DATOVEDTAKTOM)
                 .medSats(SATS)
-                .medFradragTillegg(FRADRAGTILLEGG)
                 .medTypeSats(TYPESATS)
                 .medBrukKjoreplan(BRUKKJOREPLAN)
                 .medSaksbehId(SAKSBEHID)

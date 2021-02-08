@@ -20,6 +20,9 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
+import org.hibernate.annotations.Immutable;
+
+import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
@@ -27,9 +30,10 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
  * Denne klassen er en ren avbildning fra Oppdragsløsningens meldingsformater.
  * Navngivning følger ikke nødvendigvis Vedtaksløsningens navnestandarder.
  */
+@Immutable
 @Entity(name = "Oppdragslinje150")
 @Table(name = "OKO_OPPDRAG_LINJE_150")
-public class Oppdragslinje150 extends BaseEntitet {
+public class Oppdragslinje150 extends BaseCreateableEntitet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_OKO_OPPDRAG_LINJE_150")
@@ -67,9 +71,6 @@ public class Oppdragslinje150 extends BaseEntitet {
     @Column(name = "sats", nullable = false)
     private long sats;
 
-    @Column(name = "fradrag_tillegg", nullable = false)
-    private String fradragTillegg;
-
     @Column(name = "type_sats", nullable = false)
     private String typeSats;
 
@@ -98,7 +99,7 @@ public class Oppdragslinje150 extends BaseEntitet {
     @JoinColumn(name = "oppdrag110_id", nullable = false, updatable = false)
     private Oppdrag110 oppdrag110;
 
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "oppdragslinje150", cascade = CascadeType.PERSIST)
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "oppdragslinje150")
     private Refusjonsinfo156 refusjonsinfo156;
 
     private Oppdragslinje150() {}
@@ -161,10 +162,6 @@ public class Oppdragslinje150 extends BaseEntitet {
 
     public void setSats(long sats) {
         this.sats = sats;
-    }
-
-    public String getFradragTillegg() {
-        return fradragTillegg;
     }
 
     public String getTypeSats() {
@@ -245,7 +242,6 @@ public class Oppdragslinje150 extends BaseEntitet {
             && Objects.equals(kodeKlassifik, oppdrlinje150.getKodeKlassifik())
             && Objects.equals(vedtakPeriode, oppdrlinje150.vedtakPeriode)
             && Objects.equals(sats, oppdrlinje150.getSats())
-            && Objects.equals(fradragTillegg, oppdrlinje150.getFradragTillegg())
             && Objects.equals(typeSats, oppdrlinje150.getTypeSats())
             && Objects.equals(brukKjoreplan, oppdrlinje150.getBrukKjoreplan())
             && Objects.equals(saksbehId, oppdrlinje150.getSaksbehId())
@@ -257,7 +253,7 @@ public class Oppdragslinje150 extends BaseEntitet {
 
     @Override
     public int hashCode() {
-        return Objects.hash(kodeEndringLinje, kodeStatusLinje, datoStatusFom, vedtakId, delytelseId, kodeKlassifik, vedtakPeriode, sats, fradragTillegg, typeSats, brukKjoreplan, saksbehId, utbetalesTilId, refFagsystemId, refDelytelseId, utbetalingsgrad);
+        return Objects.hash(kodeEndringLinje, kodeStatusLinje, datoStatusFom, vedtakId, delytelseId, kodeKlassifik, vedtakPeriode, sats, typeSats, brukKjoreplan, saksbehId, utbetalesTilId, refFagsystemId, refDelytelseId, utbetalingsgrad);
     }
 
     @Override
@@ -272,7 +268,6 @@ public class Oppdragslinje150 extends BaseEntitet {
             + "kodeKlassifik=" + kodeKlassifik + ", " //$NON-NLS-1$ //$NON-NLS-2$
             + "vedtakPeriode=" + vedtakPeriode + ", " //$NON-NLS-1$ //$NON-NLS-2$
             + "sats=" + sats + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "fradragTillegg=" + fradragTillegg + ", " //$NON-NLS-1$ //$NON-NLS-2$
             + "typeSats=" + typeSats + ", " //$NON-NLS-1$ //$NON-NLS-2$
             + "brukKjoreplan=" + brukKjoreplan + ", " //$NON-NLS-1$ //$NON-NLS-2$
             + "saksbehId=" + saksbehId + ", " //$NON-NLS-1$ //$NON-NLS-2$
@@ -293,7 +288,6 @@ public class Oppdragslinje150 extends BaseEntitet {
         private String kodeKlassifik;
         private DatoIntervallEntitet vedtakPeriode;
         private Long sats;
-        private String fradragTillegg;
         private String typeSats;
         private String brukKjoreplan;
         private String saksbehId;
@@ -344,11 +338,6 @@ public class Oppdragslinje150 extends BaseEntitet {
             return this;
         }
 
-        public Builder medFradragTillegg(String fradragTillegg) {
-            this.fradragTillegg = fradragTillegg;
-            return this;
-        }
-
         public Builder medTypeSats(String typeSats) {
             this.typeSats = typeSats;
             return this;
@@ -384,7 +373,7 @@ public class Oppdragslinje150 extends BaseEntitet {
             return this;
         }
 
-        public Builder medGrad(Utbetalingsgrad utbetalingsgrad) {
+        public Builder medUtbetalingsgrad(Utbetalingsgrad utbetalingsgrad) {
             this.utbetalingsgrad = utbetalingsgrad;
             return this;
         }
@@ -405,7 +394,6 @@ public class Oppdragslinje150 extends BaseEntitet {
             oppdragslinje150.kodeKlassifik = kodeKlassifik;
             oppdragslinje150.vedtakPeriode = vedtakPeriode;
             oppdragslinje150.sats = sats;
-            oppdragslinje150.fradragTillegg = fradragTillegg;
             oppdragslinje150.typeSats = typeSats;
             oppdragslinje150.brukKjoreplan = brukKjoreplan;
             oppdragslinje150.saksbehId = saksbehId;
@@ -425,7 +413,6 @@ public class Oppdragslinje150 extends BaseEntitet {
             Objects.requireNonNull(kodeKlassifik, "kodeKlassifik");
             Objects.requireNonNull(vedtakPeriode, "vedtakPeriode");
             Objects.requireNonNull(sats, "sats");
-            Objects.requireNonNull(fradragTillegg, "fradragTillegg");
             Objects.requireNonNull(typeSats, "typeSats");
             Objects.requireNonNull(brukKjoreplan, "brukKjoreplan");
             Objects.requireNonNull(saksbehId, "saksbehId");
