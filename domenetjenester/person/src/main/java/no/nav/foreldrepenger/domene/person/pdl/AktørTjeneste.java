@@ -16,7 +16,9 @@ import no.nav.pdl.IdentInformasjonResponseProjection;
 import no.nav.pdl.Identliste;
 import no.nav.pdl.IdentlisteResponseProjection;
 import no.nav.vedtak.exception.VLException;
+import no.nav.vedtak.felles.integrasjon.pdl.Pdl;
 import no.nav.vedtak.felles.integrasjon.pdl.PdlKlient;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.util.LRUCache;
 
 @ApplicationScoped
@@ -28,14 +30,14 @@ public class AktørTjeneste {
     private LRUCache<AktørId, PersonIdent> cacheAktørIdTilIdent;
     private LRUCache<PersonIdent, AktørId> cacheIdentTilAktørId;
 
-    private PdlKlient pdlKlient;
+    private Pdl pdlKlient;
 
     AktørTjeneste() {
         // CDI
     }
 
     @Inject
-    public AktørTjeneste(PdlKlient pdlKlient) {
+    public AktørTjeneste(@Jersey Pdl pdlKlient) {
         this.pdlKlient = pdlKlient;
         this.cacheAktørIdTilIdent = new LRUCache<>(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT);
         this.cacheIdentTilAktørId = new LRUCache<>(DEFAULT_CACHE_SIZE, DEFAULT_CACHE_TIMEOUT);
@@ -51,7 +53,7 @@ public class AktørTjeneste {
         request.setGrupper(List.of(IdentGruppe.AKTORID));
         request.setHistorikk(Boolean.FALSE);
         var projection = new IdentlisteResponseProjection()
-            .identer(new IdentInformasjonResponseProjection().ident());
+                .identer(new IdentInformasjonResponseProjection().ident());
 
         final Identliste identliste;
 
@@ -65,7 +67,8 @@ public class AktørTjeneste {
         }
 
         var aktørId = identliste.getIdenter().stream().findFirst().map(IdentInformasjon::getIdent).map(AktørId::new);
-        aktørId.ifPresent(a -> cacheIdentTilAktørId.put(personIdent, a)); // Kan ikke legge til i cache aktørId -> ident ettersom ident kan være ikke-current
+        aktørId.ifPresent(a -> cacheIdentTilAktørId.put(personIdent, a)); // Kan ikke legge til i cache aktørId -> ident ettersom ident kan være
+                                                                          // ikke-current
         return aktørId;
     }
 
@@ -79,7 +82,7 @@ public class AktørTjeneste {
         request.setGrupper(List.of(IdentGruppe.FOLKEREGISTERIDENT, IdentGruppe.NPID));
         request.setHistorikk(Boolean.FALSE);
         var projection = new IdentlisteResponseProjection()
-            .identer(new IdentInformasjonResponseProjection().ident());
+                .identer(new IdentInformasjonResponseProjection().ident());
 
         final Identliste identliste;
 

@@ -18,21 +18,22 @@ import no.nav.pdl.HentGeografiskTilknytningQueryRequest;
 import no.nav.pdl.HentPersonQueryRequest;
 import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
-import no.nav.vedtak.felles.integrasjon.pdl.PdlKlient;
+import no.nav.vedtak.felles.integrasjon.pdl.Pdl;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 
 @ApplicationScoped
 public class TilknytningTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(TilknytningTjeneste.class);
 
-    private PdlKlient pdlKlient;
+    private Pdl pdlKlient;
 
     TilknytningTjeneste() {
         // CDI
     }
 
     @Inject
-    public TilknytningTjeneste(PdlKlient pdlKlient) {
+    public TilknytningTjeneste(@Jersey Pdl pdlKlient) {
         this.pdlKlient = pdlKlient;
     }
 
@@ -41,7 +42,7 @@ public class TilknytningTjeneste {
         var queryGT = new HentGeografiskTilknytningQueryRequest();
         queryGT.setIdent(aktørId.getId());
         var projectionGT = new GeografiskTilknytningResponseProjection()
-            .gtType().gtBydel().gtKommune().gtLand();
+                .gtType().gtBydel().gtKommune().gtLand();
 
         var geografiskTilknytning = pdlKlient.hentGT(queryGT, projectionGT);
 
@@ -54,7 +55,7 @@ public class TilknytningTjeneste {
         var query = new HentPersonQueryRequest();
         query.setIdent(aktørId.getId());
         var projection = new PersonResponseProjection()
-            .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
+                .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
 
         var person = pdlKlient.hentPerson(query, projection);
 
@@ -63,9 +64,9 @@ public class TilknytningTjeneste {
 
     private Diskresjonskode getDiskresjonskode(Person person) {
         var kode = person.getAdressebeskyttelse().stream()
-            .map(Adressebeskyttelse::getGradering)
-            .filter(g -> !AdressebeskyttelseGradering.UGRADERT.equals(g))
-            .findFirst().orElse(null);
+                .map(Adressebeskyttelse::getGradering)
+                .filter(g -> !AdressebeskyttelseGradering.UGRADERT.equals(g))
+                .findFirst().orElse(null);
         if (AdressebeskyttelseGradering.STRENGT_FORTROLIG.equals(kode) || AdressebeskyttelseGradering.STRENGT_FORTROLIG_UTLAND.equals(kode))
             return Diskresjonskode.KODE6;
         return AdressebeskyttelseGradering.FORTROLIG.equals(kode) ? Diskresjonskode.KODE7 : Diskresjonskode.UDEFINERT;
