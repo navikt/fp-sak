@@ -72,9 +72,6 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
     @Column(name = "type_sats", nullable = false)
     private String typeSats;
 
-    @Column(name = "saksbeh_id")
-    private String saksbehId;
-
     @Column(name = "utbetales_til_id")
     private String utbetalesTilId;
 
@@ -163,10 +160,6 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
         return typeSats;
     }
 
-    private String getSaksbehId() {
-        return saksbehId;
-    }
-
     public String getUtbetalesTilId() {
         return utbetalesTilId;
     }
@@ -234,7 +227,6 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
             && Objects.equals(vedtakPeriode, oppdrlinje150.vedtakPeriode)
             && Objects.equals(sats, oppdrlinje150.getSats())
             && Objects.equals(typeSats, oppdrlinje150.getTypeSats())
-            && Objects.equals(saksbehId, oppdrlinje150.getSaksbehId())
             && Objects.equals(utbetalesTilId, oppdrlinje150.getUtbetalesTilId())
             && Objects.equals(refFagsystemId, oppdrlinje150.getRefFagsystemId())
             && Objects.equals(refDelytelseId, oppdrlinje150.getRefDelytelseId())
@@ -243,7 +235,8 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
 
     @Override
     public int hashCode() {
-        return Objects.hash(kodeEndringLinje, kodeStatusLinje, datoStatusFom, vedtakId, delytelseId, kodeKlassifik, vedtakPeriode, sats, typeSats, saksbehId, utbetalesTilId, refFagsystemId, refDelytelseId, utbetalingsgrad);
+        return Objects.hash(kodeEndringLinje, kodeStatusLinje, datoStatusFom, vedtakId, delytelseId, kodeKlassifik,
+            vedtakPeriode, sats, typeSats, utbetalesTilId, refFagsystemId, refDelytelseId, utbetalingsgrad);
     }
 
     @Override
@@ -259,7 +252,6 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
             + "vedtakPeriode=" + vedtakPeriode + ", " //$NON-NLS-1$ //$NON-NLS-2$
             + "sats=" + sats + ", " //$NON-NLS-1$ //$NON-NLS-2$
             + "typeSats=" + typeSats + ", " //$NON-NLS-1$ //$NON-NLS-2$
-            + "saksbehId=" + saksbehId + ", " //$NON-NLS-1$ //$NON-NLS-2$
             + "utbetalesTilId=" + utbetalesTilId + ", " //$NON-NLS-1$ //$NON-NLS-2$
             + "refFagsystemId=" + refFagsystemId + ", " //$NON-NLS-1$ //$NON-NLS-2$
             + "refDelytelseId=" + refDelytelseId + ", " //$NON-NLS-1$ //$NON-NLS-2$
@@ -278,7 +270,6 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
         private DatoIntervallEntitet vedtakPeriode;
         private Long sats;
         private String typeSats;
-        private String saksbehId;
         private String utbetalesTilId;
         private Long henvisning;
         private Long refFagsystemId;
@@ -331,11 +322,6 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
             return this;
         }
 
-        public Builder medSaksbehId(String saksbehId) {
-            this.saksbehId = saksbehId;
-            return this;
-        }
-
         public Builder medUtbetalesTilId(String utbetalesTilId) {
             this.utbetalesTilId = utbetalesTilId;
             return this;
@@ -378,7 +364,6 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
             oppdragslinje150.vedtakPeriode = vedtakPeriode;
             oppdragslinje150.sats = sats;
             oppdragslinje150.typeSats = typeSats;
-            oppdragslinje150.saksbehId = saksbehId;
             oppdragslinje150.utbetalesTilId = utbetalesTilId;
             oppdragslinje150.henvisning = henvisning;
             oppdragslinje150.refFagsystemId = refFagsystemId;
@@ -396,7 +381,6 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
             Objects.requireNonNull(vedtakPeriode, "vedtakPeriode");
             Objects.requireNonNull(sats, "sats");
             Objects.requireNonNull(typeSats, "typeSats");
-            Objects.requireNonNull(saksbehId, "saksbehId");
             Objects.requireNonNull(henvisning, "henvisning");
             Objects.requireNonNull(oppdrag110, "oppdrag110");
         }

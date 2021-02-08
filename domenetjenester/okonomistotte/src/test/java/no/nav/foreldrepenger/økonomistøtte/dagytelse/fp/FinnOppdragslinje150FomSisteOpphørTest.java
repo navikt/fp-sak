@@ -154,7 +154,6 @@ public class FinnOppdragslinje150FomSisteOpphørTest {
             .medVedtakFomOgTom(LocalDate.now(), LocalDate.now().plusDays(15))
             .medSats(2000L)
             .medTypeSats(ØkonomiTypeSats.DAG.name())
-            .medSaksbehId("12345")
             .medHenvisning(123L)
             .medOppdrag110(oppdrag110);
         if (ENDR.equals(økonomiKodeEndringLinje)) {

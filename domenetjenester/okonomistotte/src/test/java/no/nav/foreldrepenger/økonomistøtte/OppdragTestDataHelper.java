@@ -34,7 +34,6 @@ public class OppdragTestDataHelper {
             .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
             .medSats(61122L)
             .medTypeSats(ØkonomiTypeSats.UKE.name())
-            .medSaksbehId("F2365245")
             .medUtbetalesTilId("123456789")
             .medOppdrag110(oppdrag110)
             .medHenvisning(47L)

@@ -178,7 +178,6 @@ public class Oppdragslinje150EntityTest {
                 .medVedtakFomOgTom(DATOVEDTAKFOM, DATOVEDTAKTOM)
                 .medSats(SATS)
                 .medTypeSats(TYPESATS)
-                .medSaksbehId(SAKSBEHID)
                 .medUtbetalesTilId(UTBETALESTILID)
                 .medRefFagsystemId(REFFAGSYSTEMID)
                 .medRefDelytelseId(REFDELYTELSEID)

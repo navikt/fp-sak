@@ -98,8 +98,7 @@ public class OppdragMapper {
             .medSats(linje.getSats().getSats())
             .medTypeSats(linje.getSats().getSatsType().getKode())
             .medVedtakId(vedtaksdato.toString())
-            .medHenvisning(behandlingId)
-            .medSaksbehId(ansvarligSaksbehandler);
+            .medHenvisning(behandlingId);
 
         if (linje.erOpphørslinje()) {
             builder.medKodeEndringLinje(ØkonomiKodeEndringLinje.ENDR.name());

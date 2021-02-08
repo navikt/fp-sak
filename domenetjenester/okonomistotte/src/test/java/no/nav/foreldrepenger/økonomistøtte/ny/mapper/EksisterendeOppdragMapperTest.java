@@ -151,7 +151,6 @@ public class EksisterendeOppdragMapperTest {
             .medSats(sats.getSats())
             .medTypeSats(sats.getSatsType().getKode())
             .medHenvisning(oppdrag110.getOppdragskontroll().getBehandlingId())
-            .medSaksbehId(oppdrag110.getSaksbehId())
             .medDatoStatusFom(opphørFomDato)
             .medKodeStatusLinje(opphørFomDato != null ? "OPPH" : null)
             .medKodeEndringLinje(opphørFomDato != null ? "ENDR" : "NY")

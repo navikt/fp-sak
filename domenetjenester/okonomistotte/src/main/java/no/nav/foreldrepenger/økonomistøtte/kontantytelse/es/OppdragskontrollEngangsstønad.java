@@ -105,7 +105,6 @@ public class OppdragskontrollEngangsstønad implements OppdragskontrollManager {
             .medVedtakId(vedtaksdato.toString())
             .medDelytelseId(delytelseId)
             .medKodeKlassifik(kodeKlassifik)
-            .medSaksbehId(behandlingInfo.getAnsvarligSaksbehandler())
             .medHenvisning(behandlingInfo.getBehandling().getId())
             .medOppdrag110(oppdrag110)
             .medVedtakFomOgTom(vedtaksdato, vedtaksdato)
@@ -154,7 +153,6 @@ public class OppdragskontrollEngangsstønad implements OppdragskontrollManager {
             .medVedtakFomOgTom(tidligereDatoVedtakFom, tidligereDatoVedtakTom)
             .medSats(sats)
             .medTypeSats(TYPE_SATS_ES)
-            .medSaksbehId(behandlingInfo.getAnsvarligSaksbehandler())
             // FIXME (Tonic): Her brukes fnr, endres til aktørid ved ny versjon av oppdragsmelding
             .medUtbetalesTilId(behandlingInfo.getPersonIdent().getIdent())
             .medHenvisning(behandlingInfo.getBehandling().getId())

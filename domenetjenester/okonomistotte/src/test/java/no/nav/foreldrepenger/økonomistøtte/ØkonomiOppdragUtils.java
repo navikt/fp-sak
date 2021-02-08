@@ -66,7 +66,6 @@ class ØkonomiOppdragUtils {
             .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
             .medSats(BehandleØkonomioppdragKvitteringTest.SATS)
             .medTypeSats(hentTypeSats(gjelderFP))
-            .medSaksbehId(BehandleØkonomioppdragKvitteringTest.SAKSBEHID)
             .medUtbetalesTilId(BehandleØkonomioppdragKvitteringTest.OPPDRAGGJELDERID)
             .medHenvisning(gjelderFP ? BehandleØkonomioppdragKvitteringTest.BEHANDLINGID_FP : BehandleØkonomioppdragKvitteringTest.BEHANDLINGID_ES)
             .medOppdrag110(o110_1);
@@ -96,7 +95,6 @@ class ØkonomiOppdragUtils {
                 .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
                 .medSats(BehandleØkonomioppdragKvitteringTest.SATS)
                 .medTypeSats(hentTypeSats(gjelderFP))
-                .medSaksbehId(BehandleØkonomioppdragKvitteringTest.SAKSBEHID)
                 .medHenvisning(gjelderFP ? BehandleØkonomioppdragKvitteringTest.BEHANDLINGID_FP : BehandleØkonomioppdragKvitteringTest.BEHANDLINGID_ES)
                 .medOppdrag110(o110_2)
                 .medUtbetalingsgrad(Utbetalingsgrad.prosent(BehandleØkonomioppdragKvitteringTest.GRAD))
