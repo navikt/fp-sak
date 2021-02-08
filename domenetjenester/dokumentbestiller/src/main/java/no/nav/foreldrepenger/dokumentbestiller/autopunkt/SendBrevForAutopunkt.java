@@ -20,12 +20,9 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
-import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
 public class SendBrevForAutopunkt {
-
-    private static final Environment ENV = Environment.current();
 
     private DokumentBestillerTjeneste dokumentBestillerTjeneste;
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
@@ -95,8 +92,7 @@ public class SendBrevForAutopunkt {
         if (!harSendtBrevForMal(behandling.getId(), DokumentMalType.REVURDERING_DOK)
             && !harSendtBrevForMal(behandling.getId(), DokumentMalType.VARSEL_OM_REVURDERING)) {
 
-            var dokumentMalType = ENV.isProd() ? DokumentMalType.REVURDERING_DOK : DokumentMalType.VARSEL_OM_REVURDERING;
-            BestillBrevDto bestillBrevDto = new BestillBrevDto(behandling.getId(), dokumentMalType);
+            BestillBrevDto bestillBrevDto = new BestillBrevDto(behandling.getId(), DokumentMalType.VARSEL_OM_REVURDERING);
             bestillBrevDto.setÅrsakskode(RevurderingVarslingÅrsak.BARN_IKKE_REGISTRERT_FOLKEREGISTER.getKode());
             dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN, false);
         }

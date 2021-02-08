@@ -16,11 +16,8 @@ import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveBehandlingKobling;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveBehandlingKoblingRepository;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
-import no.nav.vedtak.util.env.Environment;
 
 class VarselRevurderingHåndterer {
-
-    private static final Environment ENV = Environment.current();
 
     private Period defaultVenteFrist;
     private DokumentBestillerTjeneste dokumentBestillerTjeneste;
@@ -40,8 +37,7 @@ class VarselRevurderingHåndterer {
     }
 
     void oppdater(Behandling behandling, VarselRevurderingAksjonspunktDto adapter) {
-        DokumentMalType dokumentMalType = ENV.isProd() ? DokumentMalType.REVURDERING_DOK : DokumentMalType.VARSEL_OM_REVURDERING;
-        BestillBrevDto bestillBrevDto = new BestillBrevDto(behandling.getId(), dokumentMalType, adapter.getFritekst());
+        BestillBrevDto bestillBrevDto = new BestillBrevDto(behandling.getId(), DokumentMalType.VARSEL_OM_REVURDERING, adapter.getFritekst());
         bestillBrevDto.setÅrsakskode(RevurderingVarslingÅrsak.ANNET.getKode());
         dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.SAKSBEHANDLER);
         settBehandlingPaVent(behandling, adapter.getFrist(), fraDto(adapter.getVenteÅrsakKode()));
