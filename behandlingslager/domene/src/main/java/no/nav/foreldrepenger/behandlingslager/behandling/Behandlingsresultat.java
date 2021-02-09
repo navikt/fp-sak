@@ -1,12 +1,9 @@
 package no.nav.foreldrepenger.behandlingslager.behandling;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
@@ -29,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 @Entity(name = "Behandlingsresultat")
@@ -51,7 +47,7 @@ public class Behandlingsresultat extends BaseEntitet {
     )
     private VilkårResultat vilkårResultat;
 
-    @ManyToOne()
+    @ManyToOne
     @JoinColumn(name = "beregning_resultat_id"
     /* , updatable = false // får ikke satt denne til false, men skal aldri kunne endres dersom satt tidligere */
     /* , nullable=false // kan være null, men når den er satt kan ikke oppdateres */
@@ -81,9 +77,6 @@ public class Behandlingsresultat extends BaseEntitet {
     @Convert(converter = Vedtaksbrev.KodeverdiConverter.class)
     @Column(name = "vedtaksbrev", nullable = false)
     private Vedtaksbrev vedtaksbrev = Vedtaksbrev.UDEFINERT;
-
-    @OneToMany(mappedBy = "behandlingsresultat")
-    private Set<Uttaksperiodegrense> uttaksperiodegrense = new HashSet<>();
 
     @Convert(converter = BooleanToStringConverter.class)
     @Column(name = "endret_dekningsgrad", nullable = false)
@@ -173,18 +166,6 @@ public class Behandlingsresultat extends BaseEntitet {
 
     public Vedtaksbrev getVedtaksbrev() {
         return vedtaksbrev;
-    }
-
-    public void leggTilUttaksperiodegrense(Uttaksperiodegrense uttaksperiodegrense) {
-        this.uttaksperiodegrense.add(uttaksperiodegrense);
-    }
-
-    public Set<Uttaksperiodegrense> getAlleUttaksperiodegrenser() {
-        return Collections.unmodifiableSet(uttaksperiodegrense);
-    }
-
-    public Optional<Uttaksperiodegrense> getGjeldendeUttaksperiodegrense() {
-        return uttaksperiodegrense.stream().filter(Uttaksperiodegrense::getErAktivt).findFirst();
     }
 
     public boolean isEndretDekningsgrad() {

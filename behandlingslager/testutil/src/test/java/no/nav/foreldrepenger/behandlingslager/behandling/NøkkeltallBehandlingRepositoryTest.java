@@ -1,5 +1,18 @@
 package no.nav.foreldrepenger.behandlingslager.behandling;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
+import java.util.List;
+import java.util.Objects;
+
+import javax.persistence.EntityManager;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.nøkkeltallbehandling.BehandlingVenteStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.nøkkeltallbehandling.NøkkeltallBehandlingRepository;
@@ -8,16 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-
-import javax.persistence.EntityManager;
-import java.time.LocalDate;
-import java.time.temporal.TemporalAdjusters;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(FPsakEntityManagerAwareExtension.class)
 public class NøkkeltallBehandlingRepositoryTest {
@@ -55,9 +58,9 @@ public class NøkkeltallBehandlingRepositoryTest {
     private static int antallTreff(List<NøkkeltallBehandlingVentestatus> nøkkeltallInitiell,
                                    NøkkeltallBehandlingVentestatus forventet) {
         return nøkkeltallInitiell.stream()
-            .filter(i -> i.getBehandlendeEnhet().equals(forventet.getBehandlendeEnhet()))
-            .filter(i -> i.getBehandlingType().equals(forventet.getBehandlingType()))
-            .filter(i -> i.getFørsteUttakMåned().equals(forventet.getFørsteUttakMåned()))
+            .filter(i -> Objects.equals(i.getBehandlendeEnhet(), forventet.getBehandlendeEnhet()))
+            .filter(i -> Objects.equals(i.getBehandlingType(), forventet.getBehandlingType()))
+            .filter(i -> Objects.equals(i.getFørsteUttakMåned(), forventet.getFørsteUttakMåned()))
             .filter(i -> i.getBehandlingVenteStatus() == forventet.getBehandlingVenteStatus())
             .mapToInt(NøkkeltallBehandlingVentestatus::getAntall)
             .sum();

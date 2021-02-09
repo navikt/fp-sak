@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -25,7 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.uttak.svp.FørsteLovligeUttaksdatoTjeneste;
 import no.nav.foreldrepenger.domene.uttak.svp.RegelmodellSøknaderMapper;
@@ -86,8 +84,8 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest {
         assertThat(behandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
         assertThat(behandleStegResultat.getAksjonspunktListe()).hasSize(0);
 
-        Behandling lagretBehandling = behandlingRepository.hentBehandling(behandling.getId());
-        Optional<Uttaksperiodegrense> gjeldendeUttaksperiodegrense = lagretBehandling.getBehandlingsresultat().getGjeldendeUttaksperiodegrense();
+        var gjeldendeUttaksperiodegrense = repositoryProvider.getUttaksperiodegrenseRepository()
+            .hentHvisEksisterer(behandling.getId());
         assertThat(gjeldendeUttaksperiodegrense).isPresent();
         assertThat(gjeldendeUttaksperiodegrense.get().getFørsteLovligeUttaksdag()).isEqualTo(LocalDate.of(2019, Month.FEBRUARY, 1));
         assertThat(gjeldendeUttaksperiodegrense.get().getMottattDato()).isEqualTo(mottatdato);
@@ -117,8 +115,8 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest {
         assertThat(behandleStegResultat.getAksjonspunktListe()).hasSize(1);
         assertThat(behandleStegResultat.getAksjonspunktListe().get(0)).isEqualTo(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRIST);
 
-        Behandling lagretBehandling = behandlingRepository.hentBehandling(behandling.getId());
-        Optional<Uttaksperiodegrense> gjeldendeUttaksperiodegrense = lagretBehandling.getBehandlingsresultat().getGjeldendeUttaksperiodegrense();
+        var gjeldendeUttaksperiodegrense = repositoryProvider.getUttaksperiodegrenseRepository()
+            .hentHvisEksisterer(behandling.getId());
         assertThat(gjeldendeUttaksperiodegrense).isPresent();
         assertThat(gjeldendeUttaksperiodegrense.get().getFørsteLovligeUttaksdag()).isEqualTo(LocalDate.of(2019, Month.JUNE, 1));
         assertThat(gjeldendeUttaksperiodegrense.get().getMottattDato()).isEqualTo(mottatdato);

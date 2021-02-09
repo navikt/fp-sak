@@ -36,19 +36,18 @@ public class UttaksperiodegrenseRepository {
     }
 
     public void lagre(Long behandlingId, Uttaksperiodegrense uttaksperiodegrense) {
-        final BehandlingLås lås = behandlingLåsRepository.taLås(behandlingId);
-        Behandlingsresultat behandlingsresultat = hentBehandlingsresultat(behandlingId);
-        final Optional<Uttaksperiodegrense> tidligereAggregat = getAktivtUttaksperiodegrense(behandlingsresultat);
+        var lås = behandlingLåsRepository.taLås(behandlingId);
+        var behandlingsresultat = hentBehandlingsresultat(behandlingId);
+        var tidligereAggregat = getAktivtUttaksperiodegrense(behandlingsresultat);
         if (tidligereAggregat.isPresent()) {
-            final Uttaksperiodegrense aggregat = tidligereAggregat.get();
-            boolean erForskjellig = uttaksperiodegrenseAggregatDiffer().areDifferent(aggregat, uttaksperiodegrense);
+            var aggregat = tidligereAggregat.get();
+            var erForskjellig = uttaksperiodegrenseAggregatDiffer().areDifferent(aggregat, uttaksperiodegrense);
             if (erForskjellig) {
                 aggregat.setAktiv(false);
                 entityManager.persist(aggregat);
                 entityManager.flush();
             }
         }
-        behandlingsresultat.leggTilUttaksperiodegrense(uttaksperiodegrense);
         entityManager.persist(uttaksperiodegrense);
         verifiserBehandlingLås(lås);
         entityManager.flush();
