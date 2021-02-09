@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.oppdrag;
 import java.time.LocalDate;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 
 public class Oppdragslinje150Dto extends SporingDto {
 
@@ -16,7 +17,7 @@ public class Oppdragslinje150Dto extends SporingDto {
     private LocalDate datoStatusFom;
     private LocalDate datoVedtakFom;
     private LocalDate datoVedtakTom;
-    private String kodeKlassifik;
+    private KodeKlassifik kodeKlassifik;
     private long sats;
     private String typeSats;
     private Integer utbetalingsgrad;
@@ -106,11 +107,11 @@ public class Oppdragslinje150Dto extends SporingDto {
         this.datoVedtakTom = datoVedtakTom;
     }
 
-    public String getKodeKlassifik() {
+    public KodeKlassifik getKodeKlassifik() {
         return kodeKlassifik;
     }
 
-    public void setKodeKlassifik(String kodeKlassifik) {
+    public void setKodeKlassifik(KodeKlassifik kodeKlassifik) {
         this.kodeKlassifik = kodeKlassifik;
     }
 

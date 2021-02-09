@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
@@ -22,7 +23,7 @@ public class Oppdragslinje150EntityTest {
     private static final LocalDate DATOSTATUSFOM = LocalDate.now().minusDays(15);
     private static final String VEDTAKID = "457";
     private static final Long DELYTELSEID = 300L;
-    private static final String KODEKLASSIFIK = "FPENFOD-OP";
+    private static final KodeKlassifik KODEKLASSIFIK = KodeKlassifik.FPF_ARBEIDSTAKER;
     private static final LocalDate DATOVEDTAKFOM = LocalDate.now().minusDays(10);
     private static final LocalDate DATOVEDTAKTOM = LocalDate.now().minusDays(8);
     private static final long SATS = 50000L;
@@ -127,7 +128,7 @@ public class Oppdragslinje150EntityTest {
         assertThat(oppdragslinje150).isEqualTo(oppdragslinje150_2);
         assertThat(oppdragslinje150_2).isEqualTo(oppdragslinje150);
 
-        oppdragslinje150_2 = oppdragslinje150Builder.medKodeKlassifik("FPENAD-OP").build();
+        oppdragslinje150_2 = oppdragslinje150Builder.medKodeKlassifik(KodeKlassifik.FERIEPENGER_BRUKER).build();
         assertThat(oppdragslinje150).isNotEqualTo(oppdragslinje150_2);
         assertThat(oppdragslinje150_2).isNotEqualTo(oppdragslinje150);
     }
@@ -136,7 +137,7 @@ public class Oppdragslinje150EntityTest {
     public void skal_bruke_KodeKlassifik_i_equalsOgHashCode() {
         oppdragslinje150Builder = lagBuilderMedPaakrevdeFelter();
         oppdragslinje150 = oppdragslinje150Builder.build();
-        oppdragslinje150Builder.medKodeKlassifik("FPENAD-OP");
+        oppdragslinje150Builder.medKodeKlassifik(KodeKlassifik.FERIEPENGER_BRUKER);
         oppdragslinje150_2 = oppdragslinje150Builder.build();
 
         assertThat(oppdragslinje150).isNotEqualTo(oppdragslinje150_2);

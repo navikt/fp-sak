@@ -9,6 +9,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
@@ -18,7 +19,6 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 
 public class OppdragTestDataHelper {
-    private static final String KODE_KLASSIFIK_FODSEL = "FPENFOD-OP";
 
     static Oppdragslinje150 buildOppdragslinje150(Oppdrag110 oppdrag110) {
         Oppdragslinje150.Builder oppdrLinje150Builder = Oppdragslinje150.builder();
@@ -29,7 +29,7 @@ public class OppdragTestDataHelper {
             .medDatoStatusFom(LocalDate.now())
             .medVedtakId("456")
             .medDelytelseId(64L)
-            .medKodeKlassifik(KODE_KLASSIFIK_FODSEL)
+            .medKodeKlassifik(KodeKlassifik.ES_FØDSEL)
             .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
             .medSats(61122L)
             .medTypeSats(TypeSats.DAGLIG)

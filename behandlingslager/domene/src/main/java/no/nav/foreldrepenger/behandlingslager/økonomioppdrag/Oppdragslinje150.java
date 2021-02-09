@@ -23,6 +23,7 @@ import org.hibernate.annotations.Immutable;
 
 import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
@@ -49,8 +50,9 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
     @Column(name = "delytelse_id", nullable = false)
     private Long delytelseId;
 
+    @Convert(converter = KodeKlassifik.KodeverdiConverter.class)
     @Column(name = "kode_klassifik", nullable = false)
-    private String kodeKlassifik;
+    private KodeKlassifik kodeKlassifik;
 
     @Embedded
     @AttributeOverrides({
@@ -125,12 +127,8 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
         return delytelseId;
     }
 
-    public String getKodeKlassifik() {
+    public KodeKlassifik getKodeKlassifik() {
         return kodeKlassifik;
-    }
-
-    public ØkonomiKodeKlassifik getKodeKlassifikEnum() {
-        return ØkonomiKodeKlassifik.fraKode(kodeKlassifik);
     }
 
     public LocalDate getDatoVedtakFom() {
@@ -247,7 +245,7 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
         private LocalDate datoStatusFom;
         private String vedtakId;
         private Long delytelseId;
-        private String kodeKlassifik;
+        private KodeKlassifik kodeKlassifik;
         private DatoIntervallEntitet vedtakPeriode;
         private Long sats;
         private TypeSats typeSats;
@@ -282,7 +280,7 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
             return this;
         }
 
-        public Builder medKodeKlassifik(String kodeKlassifik) {
+        public Builder medKodeKlassifik(KodeKlassifik kodeKlassifik) {
             this.kodeKlassifik = kodeKlassifik;
             return this;
         }

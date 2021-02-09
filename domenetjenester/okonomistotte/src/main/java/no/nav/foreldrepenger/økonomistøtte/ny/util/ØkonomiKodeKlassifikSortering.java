@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.økonomistøtte.ny.util;
 import java.util.Arrays;
 import java.util.List;
 
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 
 public class ØkonomiKodeKlassifikSortering {
 
@@ -15,12 +15,12 @@ public class ØkonomiKodeKlassifikSortering {
         "FER", "FER-IOP", "FERPP-IOP"
     );
 
-    public static int getSorteringsplassering(ØkonomiKodeKlassifik økonomiKodeKlassifik) {
+    public static int getSorteringsplassering(KodeKlassifik kodeKlassifik) {
         for (int i = 0; i < SUFFIX_SORTERING.size(); i++) {
-            if (økonomiKodeKlassifik.getKodeKlassifik().endsWith(SUFFIX_SORTERING.get(i))) {
+            if (kodeKlassifik.getKode().endsWith(SUFFIX_SORTERING.get(i))) {
                 return i;
             }
         }
-        throw new IllegalArgumentException("Ikke-definert sorteringsplassering for " + økonomiKodeKlassifik);
+        throw new IllegalArgumentException("Ikke-definert sorteringsplassering for " + kodeKlassifik);
     }
 }

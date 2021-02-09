@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringL
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.økonomistøtte.grensesnittavstemming.queue.producer.GrensesnittavstemmingJmsProducer;
 import no.nav.foreldrepenger.økonomistøtte.BehandleØkonomioppdragKvitteringTest;
@@ -116,7 +117,7 @@ public class GrensesnittavstemmingBatchTjenesteTest {
         new Oppdragslinje150.Builder().medVedtakId(
             BehandleØkonomioppdragKvitteringTest.VEDTAKID)
             .medKodeEndringLinje(KodeEndringLinje.NY)
-            .medKodeKlassifik(BehandleØkonomioppdragKvitteringTest.KODEKLASSIFIK_ES)
+            .medKodeKlassifik(KodeKlassifik.ES_FØDSEL)
             .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
             .medSats(BehandleØkonomioppdragKvitteringTest.SATS)
             .medTypeSats(TypeSats.ENGANG)

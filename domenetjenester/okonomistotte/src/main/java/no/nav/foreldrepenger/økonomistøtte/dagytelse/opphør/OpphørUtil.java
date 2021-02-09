@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.økonomistøtte.OppdragKvitteringTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragInput;
 
@@ -27,12 +27,12 @@ public class OpphørUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpphørUtil.class);
 
-    static Set<ØkonomiKodeKlassifik> finnKlassekoderSomIkkeErOpphørt(List<Oppdrag110> oppdrag110Liste) {
+    static Set<KodeKlassifik> finnKlassekoderSomIkkeErOpphørt(List<Oppdrag110> oppdrag110Liste) {
         return førsteAktiveDatoPrKodeKlassifik(oppdrag110Liste, false, null).keySet();
     }
 
-    private static Map<ØkonomiKodeKlassifik, LocalDate> førsteAktiveDatoPrKodeKlassifik(List<Oppdrag110> oppdrag110Liste, boolean kunBruker, String refunderesId) {
-        Map<ØkonomiKodeKlassifik, LocalDate> tidligsteDato = new HashMap<>();
+    private static Map<KodeKlassifik, LocalDate> førsteAktiveDatoPrKodeKlassifik(List<Oppdrag110> oppdrag110Liste, boolean kunBruker, String refunderesId) {
+        Map<KodeKlassifik, LocalDate> tidligsteDato = new HashMap<>();
         Map<FeriepengerNøkkel, LocalDate> feriepengerTidligstDato = new HashMap<>();
 
         for (Oppdrag110 oppdrag110 : sorterEtterOpprettetTidspunk(oppdrag110Liste)) {
@@ -43,7 +43,7 @@ public class OpphørUtil {
                 if (!kunBruker && refunderesId != null && linje.getRefusjonsinfo156() != null && !Objects.equals(linje.getRefusjonsinfo156().getRefunderesId(), refunderesId)) {
                     continue;
                 }
-                ØkonomiKodeKlassifik kodeKlassifik = ØkonomiKodeKlassifik.fraKode(linje.getKodeKlassifik());
+                KodeKlassifik kodeKlassifik = linje.getKodeKlassifik();
 
                 if (kodeKlassifik.gjelderFerie()) {
                     FeriepengerNøkkel feriepengerNøkkel = FeriepengerNøkkel.fra(linje.getDatoVedtakFom(), kodeKlassifik);
@@ -82,7 +82,7 @@ public class OpphørUtil {
             }
         }
 
-        Map<ØkonomiKodeKlassifik, Optional<FeriepengerNøkkel>> minFeriepengerFomDatoPerKodeklasifikk = feriepengerTidligstDato.keySet().stream().collect(groupingBy(FeriepengerNøkkel::getKodeKlassifik,
+        Map<KodeKlassifik, Optional<FeriepengerNøkkel>> minFeriepengerFomDatoPerKodeklasifikk = feriepengerTidligstDato.keySet().stream().collect(groupingBy(FeriepengerNøkkel::getKodeKlassifik,
             minBy(Comparator.comparing(FeriepengerNøkkel::getÅrDetGjelderFor))));
 
         minFeriepengerFomDatoPerKodeklasifikk.values().forEach(entry -> tidligsteDato.put(entry.map(FeriepengerNøkkel::getKodeKlassifik).orElseThrow(), entry.map(FeriepengerNøkkel::getÅrDetGjelderFor).orElseThrow()));
@@ -111,7 +111,7 @@ public class OpphørUtil {
         return førsteAktiveDatoPrKodeKlassifik(oppdragForBruker, true, null).isEmpty();
     }
 
-    static boolean erBrukerAllredeFullstendigOpphørtForKlassekode(OppdragInput behandlingInfo, ØkonomiKodeKlassifik klassekode) {
+    static boolean erBrukerAllredeFullstendigOpphørtForKlassekode(OppdragInput behandlingInfo, KodeKlassifik klassekode) {
         List<Oppdrag110> oppdragForBruker = behandlingInfo.getAlleTidligereOppdrag110().stream()
             .filter(OpphørUtil::gjelderBruker)
             .filter(o -> o.venterKvittering() || OppdragKvitteringTjeneste.harPositivKvittering(o))
@@ -140,14 +140,14 @@ public class OpphørUtil {
 
     static class FeriepengerNøkkel {
         private final LocalDate årDetGjelderFor;
-        private final ØkonomiKodeKlassifik kodeKlassifik;
+        private final KodeKlassifik kodeKlassifik;
 
-        public FeriepengerNøkkel(LocalDate årDetGjelderFor, ØkonomiKodeKlassifik kodeKlassifik) {
+        public FeriepengerNøkkel(LocalDate årDetGjelderFor, KodeKlassifik kodeKlassifik) {
             this.årDetGjelderFor = årDetGjelderFor;
             this.kodeKlassifik = kodeKlassifik;
         }
 
-        public static FeriepengerNøkkel fra(LocalDate årDetGjelderFor, ØkonomiKodeKlassifik kodeKlassifik) {
+        public static FeriepengerNøkkel fra(LocalDate årDetGjelderFor, KodeKlassifik kodeKlassifik) {
             return new FeriepengerNøkkel(årDetGjelderFor, kodeKlassifik);
         }
 
@@ -155,7 +155,7 @@ public class OpphørUtil {
             return årDetGjelderFor;
         }
 
-        public ØkonomiKodeKlassifik getKodeKlassifik() {
+        public KodeKlassifik getKodeKlassifik() {
             return kodeKlassifik;
         }
 

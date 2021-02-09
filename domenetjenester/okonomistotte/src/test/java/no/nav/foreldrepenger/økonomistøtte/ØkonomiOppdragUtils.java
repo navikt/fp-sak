@@ -11,6 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 
 class ØkonomiOppdragUtils {
@@ -22,11 +23,11 @@ class ØkonomiOppdragUtils {
         return TypeSats.ENGANG;
     }
 
-    static String hentKodeKlassifik(Boolean gjelderFP) {
+    static KodeKlassifik hentKodeKlassifik(Boolean gjelderFP) {
         if (gjelderFP) {
-            return BehandleØkonomioppdragKvitteringTest.KODEKLASSIFIK_FP;
+            return KodeKlassifik.FPF_ARBEIDSTAKER;
         }
-        return BehandleØkonomioppdragKvitteringTest.KODEKLASSIFIK_ES;
+        return KodeKlassifik.ES_FØDSEL;
     }
 
     static String hentKodeFagomrade(Boolean gjelderFP, Boolean brukerErMottaker) {

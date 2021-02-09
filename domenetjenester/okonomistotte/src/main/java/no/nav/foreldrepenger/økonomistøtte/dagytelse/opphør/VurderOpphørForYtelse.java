@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.økonomistøtte.Oppdragsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.KlassekodeUtleder;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.TidligereOppdragTjeneste;
@@ -57,7 +58,7 @@ class VurderOpphørForYtelse {
         return !endringsdato.isAfter(sisteOppdr150ForMottaker.getDatoVedtakTom());
     }
 
-    private static List<TilkjentYtelseAndel> filtrerForKlassekode(List<TilkjentYtelseAndel> finnAndelerIOppdragPerioder, String kodeKlassifik) {
+    private static List<TilkjentYtelseAndel> filtrerForKlassekode(List<TilkjentYtelseAndel> finnAndelerIOppdragPerioder, KodeKlassifik kodeKlassifik) {
         return finnAndelerIOppdragPerioder.stream()
             .filter(andel -> KlassekodeUtleder.utled(andel).equals(kodeKlassifik))
             .collect(Collectors.toList());

@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollManager;
 import no.nav.foreldrepenger.økonomistøtte.Oppdragsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.KlassekodeUtleder;
@@ -210,7 +211,7 @@ public class OppdragskontrollEndring implements OppdragskontrollManager {
         TilkjentYtelseAndel andel = andelListe.stream()
             .findFirst()
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Mangler oppdrag andel"));
-        String kodeKlassifik = KlassekodeUtleder.utled(andel);
+        KodeKlassifik kodeKlassifik = KlassekodeUtleder.utled(andel);
         Oppdragslinje150 sisteOppdr150Bruker = tidligereOppdr150Liste.stream()
             .filter(oppdr150 -> oppdr150.getKodeKlassifik().equals(kodeKlassifik))
             .max(Comparator.comparing(Oppdragslinje150::getDelytelseId).thenComparing(Oppdragslinje150::getKodeStatusLinje, Comparator.nullsFirst(Comparator.naturalOrder())))

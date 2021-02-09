@@ -8,6 +8,7 @@ import java.util.Set;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.økonomistøtte.Oppdragsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.FinnMottakerInfoITilkjentYtelse;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.KlassekodeUtleder;
@@ -67,7 +68,7 @@ class OpprettOppdragslinje150FeriepengerTjeneste {
         int opptjeningsår = opptjeningsDato.getYear();
         LocalDate vedtakFom = LocalDate.of(opptjeningsår + 1, 5, 1);
         LocalDate vedtakTom = LocalDate.of(opptjeningsår + 1, 5, 31);
-        String kodeKlassifik = KlassekodeUtleder.utledForFeriepenger(mottaker, behandlingInfo.getFamilieYtelseType());
+        KodeKlassifik kodeKlassifik = KlassekodeUtleder.utledForFeriepenger(mottaker, behandlingInfo.getFamilieYtelseType());
         long sats = VurderFeriepengerBeregning.beregnFeriepengerMedGittOpptjeningsår(opdragFeriepengerPrÅrList, opptjeningsDato);
 
         Oppdragslinje150.Builder oppdragslinje150Builder = Oppdragslinje150.builder();

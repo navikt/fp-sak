@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.økonomistøtte.OpprettOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.KlassekodeUtleder;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.TidligereOppdragTjeneste;
@@ -38,7 +39,7 @@ class UtledDelytelseOgFagsystemIdI150 {
         boolean erDetNyKlassekodeINyOppdrag;
         List<Oppdragslinje150> tidligereOppdr150Liste = oppdragInfo.getTidligereOppdr150MottakerListe();
         if (oppdragInfo.getMottaker().erBruker()) {
-            String kodeklassifikINyeAndeler = KlassekodeUtleder.utled(oppdragInfo.getTilkjentYtelseAndel());
+            KodeKlassifik kodeklassifikINyeAndeler = KlassekodeUtleder.utled(oppdragInfo.getTilkjentYtelseAndel());
             Optional<Oppdragslinje150> sisteOppdr150Opt = finnOpp150MedGittKodeKlassifikOgMaksId(tidligereOppdr150Liste, kodeklassifikINyeAndeler);
             erDetNyKlassekodeINyOppdrag = !sisteOppdr150Opt.isPresent();
             sisteOppdr150 = sisteOppdr150Opt.orElseGet(() -> Oppdragslinje150Util.getOpp150MedMaxDelytelseId(tidligereOppdr150Liste));
@@ -56,7 +57,7 @@ class UtledDelytelseOgFagsystemIdI150 {
         }
     }
 
-    private static Optional<Oppdragslinje150> finnOpp150MedGittKodeKlassifikOgMaksId(List<Oppdragslinje150> tidligereOppdr150Liste, String kodeklassifikINyeAndeler) {
+    private static Optional<Oppdragslinje150> finnOpp150MedGittKodeKlassifikOgMaksId(List<Oppdragslinje150> tidligereOppdr150Liste, KodeKlassifik kodeklassifikINyeAndeler) {
         return tidligereOppdr150Liste.stream()
             .filter(oppdr150 -> oppdr150.getKodeKlassifik().equals(kodeklassifikINyeAndeler))
             .max(Comparator.comparing(Oppdragslinje150::getDelytelseId).thenComparing(Oppdragslinje150::getKodeStatusLinje, Comparator.nullsFirst(Comparator.naturalOrder())));

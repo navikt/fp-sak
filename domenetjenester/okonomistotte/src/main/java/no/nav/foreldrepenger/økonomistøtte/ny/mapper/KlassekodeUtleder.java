@@ -4,48 +4,47 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.InntektskategoriKlassekodeMapper;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 
 public class KlassekodeUtleder {
 
     private KlassekodeUtleder() {
     }
 
-    public static ØkonomiKodeKlassifik utled(BeregningsresultatAndel andel, FamilieYtelseType familieYtelseType) {
+    public static KodeKlassifik utled(BeregningsresultatAndel andel, FamilieYtelseType familieYtelseType) {
         boolean erRefusjonTilArbeidsgiver = !andel.skalTilBrukerEllerPrivatperson();
         return utled(andel.getInntektskategori(), familieYtelseType, erRefusjonTilArbeidsgiver);
     }
 
-    public static ØkonomiKodeKlassifik utled(Inntektskategori inntektskategori, FamilieYtelseType familieYtelseType, boolean refusjonArbeidsgiver) {
+    public static KodeKlassifik utled(Inntektskategori inntektskategori, FamilieYtelseType familieYtelseType, boolean refusjonArbeidsgiver) {
         if (refusjonArbeidsgiver) {
             switch (familieYtelseType) {
                 case FØDSEL:
-                    return ØkonomiKodeKlassifik.FPREFAG_IOP;
+                    return KodeKlassifik.FPF_REFUSJON_AG;
                 case ADOPSJON:
-                    return ØkonomiKodeKlassifik.FPADREFAG_IOP;
+                    return KodeKlassifik.FPA_REFUSJON_AG;
                 case SVANGERSKAPSPENGER:
-                    return ØkonomiKodeKlassifik.FPSVREFAG_IOP;
+                    return KodeKlassifik.SVP_REFUSJON_AG;
                 default:
                     throw new IllegalArgumentException("Utvikler feil: Opdrag andel har ikke-støttet familie ytelse type: " + familieYtelseType);
             }
         } else {
-            String kode = InntektskategoriKlassekodeMapper.mapTilKlassekode(inntektskategori, familieYtelseType);
-            return ØkonomiKodeKlassifik.fraKode(kode);
+            return InntektskategoriKlassekodeMapper.mapTilKlassekode(inntektskategori, familieYtelseType);
         }
     }
 
-    public static ØkonomiKodeKlassifik utledForFeriepenger() {
-        return ØkonomiKodeKlassifik.FPATFER;
+    public static KodeKlassifik utledForFeriepenger() {
+        return KodeKlassifik.FERIEPENGER_BRUKER;
     }
 
-    public static ØkonomiKodeKlassifik utledForFeriepengeRefusjon(FamilieYtelseType familieYtelseType) {
+    public static KodeKlassifik utledForFeriepengeRefusjon(FamilieYtelseType familieYtelseType) {
         switch (familieYtelseType) {
             case FØDSEL:
-                return ØkonomiKodeKlassifik.FPREFAGFER_IOP;
+                return KodeKlassifik.FPF_FERIEPENGER_AG;
             case ADOPSJON:
-                return ØkonomiKodeKlassifik.FPADREFAGFER_IOP;
+                return KodeKlassifik.FPA_FERIEPENGER_AG;
             case SVANGERSKAPSPENGER:
-                return ØkonomiKodeKlassifik.FPSVREFAGFER_IOP;
+                return KodeKlassifik.SVP_FERIEPENGER_AG;
             default:
                 throw new IllegalArgumentException("Utvikler feil: Ikke-støttet familie ytelse type: " + familieYtelseType);
         }

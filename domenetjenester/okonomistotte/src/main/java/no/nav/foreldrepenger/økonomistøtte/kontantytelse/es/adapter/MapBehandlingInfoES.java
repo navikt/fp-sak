@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -26,9 +27,6 @@ import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 
 @ApplicationScoped
 public class MapBehandlingInfoES {
-
-    private static final String KODE_KLASSIFIK_FODSEL = "FPENFOD-OP";
-    private static final String KODE_KLASSIFIK_ADOPSJON = "FPENAD-OP";
 
     private LegacyESBeregningRepository beregningRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
@@ -59,7 +57,7 @@ public class MapBehandlingInfoES {
         PersonIdent personIdent = personinfoAdapter.hentFnrForAktør(behandling.getAktørId());
         BehandlingVedtak behVedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId()).orElse(null);
 
-        String kodeKlassifik = mapKodeKlassifik(behandling);
+        KodeKlassifik kodeKlassifik = mapKodeKlassifik(behandling);
         long sats = hentSatsFraBehandling(behandling.getId());
         Optional<ForrigeOppdragInputES> tidligereBehandlingInfo = mapTidligereBehandlinginfo(saksnummer);
         return new OppdragInputES(saksnummer, behandling, behVedtak, personIdent, kodeKlassifik, sats, tidligereBehandlingInfo);
@@ -85,10 +83,10 @@ public class MapBehandlingInfoES {
         return finnNyesteOppdragForSak.finnNyesteOppdragForSak(saksnummer).stream().findFirst();
     }
 
-    private String mapKodeKlassifik(Behandling behandling) {
+    private KodeKlassifik mapKodeKlassifik(Behandling behandling) {
         return familieGrunnlagRepository.hentAggregat(behandling.getId()).getGjeldendeVersjon().getGjelderFødsel()
-            ? KODE_KLASSIFIK_FODSEL
-            : KODE_KLASSIFIK_ADOPSJON;
+            ? KodeKlassifik.ES_FØDSEL
+            : KodeKlassifik.ES_ADOPSJON;
     }
 
     private long hentSatsFraBehandling(long behandlingId) {

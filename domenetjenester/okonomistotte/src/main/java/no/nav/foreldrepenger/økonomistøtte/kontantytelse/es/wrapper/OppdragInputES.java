@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
@@ -20,14 +21,14 @@ public class OppdragInputES {
     private final Behandling behandling;
     private final BehandlingVedtak behVedtak;
     private final PersonIdent personIdent;
-    private final String kodeKlassifik;
+    private final KodeKlassifik kodeKlassifik;
     private final Optional<ForrigeOppdragInputES> tidligereBehandlingInfo;
     private final long sats;
 
     public OppdragInputES(Saksnummer saksnummer, Behandling behandling,
                           BehandlingVedtak behVedtak,
                           PersonIdent personIdent,
-                          String kodeKlassifik,
+                          KodeKlassifik kodeKlassifik,
                           long sats,
                           Optional<ForrigeOppdragInputES> tidligereBehandlingInfo) {
         this.saksnummer = saksnummer;
@@ -80,7 +81,7 @@ public class OppdragInputES {
         return behandlingsresultat.isVilkårAvslått() ? BehandlingResultatType.AVSLÅTT : BehandlingResultatType.INNVILGET;
     }
 
-    public String getKodeKlassifik() {
+    public KodeKlassifik getKodeKlassifik() {
         return kodeKlassifik;
     }
 

@@ -39,6 +39,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
@@ -278,7 +279,7 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
                 .medDatoStatusFom(LocalDate.now())
                 .medVedtakId("345")
                 .medDelytelseId(delytelseId)
-                .medKodeKlassifik("FPENFOD-OP")
+                .medKodeKlassifik(KodeKlassifik.FPA_SELVSTENDIG)
                 .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
                 .medSats(61122L)
                 .medTypeSats(TypeSats.DAGLIG)

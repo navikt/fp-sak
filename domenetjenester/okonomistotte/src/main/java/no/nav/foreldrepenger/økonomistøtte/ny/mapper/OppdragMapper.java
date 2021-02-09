@@ -94,7 +94,7 @@ public class OppdragMapper {
         var builder = Oppdragslinje150.builder()
             .medOppdrag110(oppdrag110)
             .medDelytelseId(Long.valueOf(linje.getDelytelseId().toString()))
-            .medKodeKlassifik(kjedeNøkkel.getKlassekode().getKodeKlassifik())
+            .medKodeKlassifik(kjedeNøkkel.getKlassekode())
             .medVedtakFomOgTom(linje.getPeriode().getFom(), linje.getPeriode().getTom())
             .medSats(linje.getSats().getSats())
             .medTypeSats(TypeSats.fraKode(linje.getSats().getSatsType().getKode()))

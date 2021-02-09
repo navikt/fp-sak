@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 
 class OppdragskontrollFeriepengerTestUtil extends OppdragskontrollTjenesteTestBase {
 
@@ -123,7 +123,7 @@ class OppdragskontrollFeriepengerTestUtil extends OppdragskontrollTjenesteTestBa
     }
 
     static List<Oppdragslinje150> getOppdr150ForFeriepengerForEnMottaker(List<Oppdragslinje150> forrigeOpp150FeriepengerListe, boolean erBrukerMottaker) {
-        String kodeKlassifik = erBrukerMottaker ? ØkonomiKodeKlassifik.FPATFER.getKodeKlassifik() : ØkonomiKodeKlassifik.FPREFAGFER_IOP.getKodeKlassifik();
+        KodeKlassifik kodeKlassifik = erBrukerMottaker ? KodeKlassifik.FERIEPENGER_BRUKER : KodeKlassifik.FPF_FERIEPENGER_AG;
         return forrigeOpp150FeriepengerListe.stream()
             .filter(opp150 -> kodeKlassifik.equals(opp150.getKodeKlassifik()))
             .collect(Collectors.toList());

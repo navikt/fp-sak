@@ -30,7 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.økonomistøtte.HentOppdragMedPositivKvittering;
 
@@ -140,7 +140,7 @@ public class Feriepengeavstemmer {
         return input.stream()
             .map(Oppdrag110::getOppdragslinje150Liste)
             .flatMap(Collection::stream)
-            .filter(ol150 -> ØkonomiKodeKlassifik.fraKode(ol150.getKodeKlassifik()).gjelderFerie())
+            .filter(ol150 -> ol150.getKodeKlassifik().gjelderFerie())
             .sorted(Comparator.comparing(Oppdragslinje150::getOpprettetTidspunkt))
             .collect(Collectors.toList());
     }

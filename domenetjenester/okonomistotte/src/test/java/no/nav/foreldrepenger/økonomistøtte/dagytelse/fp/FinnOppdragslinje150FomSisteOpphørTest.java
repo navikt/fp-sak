@@ -13,7 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeStatusLinje;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.opphør.FinnOppdragslinje150FomSisteOpphør;
@@ -149,7 +149,7 @@ public class FinnOppdragslinje150FomSisteOpphørTest {
             .medDelytelseId(delytelseId)
             .medKodeEndringLinje(kodeEndringLinje)
             .medVedtakId(vedtakId)
-            .medKodeKlassifik(ØkonomiKodeKlassifik.FPATORD.getKodeKlassifik())
+            .medKodeKlassifik(KodeKlassifik.FPF_ARBEIDSTAKER)
             .medVedtakFomOgTom(LocalDate.now(), LocalDate.now().plusDays(15))
             .medSats(2000L)
             .medTypeSats(TypeSats.DAGLIG)

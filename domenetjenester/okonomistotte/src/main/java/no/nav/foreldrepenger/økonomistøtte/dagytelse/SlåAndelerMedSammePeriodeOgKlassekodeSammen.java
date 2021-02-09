@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.wrapper.TilkjentYtelseAndel;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.wrapper.TilkjentYtelsePeriode;
 
@@ -77,8 +78,8 @@ public class SlåAndelerMedSammePeriodeOgKlassekodeSammen {
 
     private static List<TilkjentYtelseAndel> slåAndelerSammenForBruker(List<TilkjentYtelseAndel> andelListeIEnPeriodeForMottakeren) {
         List<TilkjentYtelseAndel> andelerBruker = new ArrayList<>();
-        List<String> klassekodeListe = KlassekodeUtleder.getKlassekodeListe(andelListeIEnPeriodeForMottakeren);
-        for (String klassekode : klassekodeListe) {
+        List<KodeKlassifik> klassekodeListe = KlassekodeUtleder.getKlassekodeListe(andelListeIEnPeriodeForMottakeren);
+        for (KodeKlassifik klassekode : klassekodeListe) {
             List<TilkjentYtelseAndel> andelerMedSammeKlassekode = finnOppdragAndelerMedSammeKlassekode(andelListeIEnPeriodeForMottakeren, klassekode);
             if (andelerMedSammeKlassekode.size() > 1) {
                 TilkjentYtelseAndel tilkjentYtelseAndel = slåSammenOppdragsAndelerMedSammeKlassekode(andelerMedSammeKlassekode);
@@ -88,7 +89,7 @@ public class SlåAndelerMedSammePeriodeOgKlassekodeSammen {
         return andelerBruker;
     }
 
-    private static List<TilkjentYtelseAndel> finnOppdragAndelerMedSammeKlassekode(List<TilkjentYtelseAndel> tilkjentYtelseAndelListe, String klassekode) {
+    private static List<TilkjentYtelseAndel> finnOppdragAndelerMedSammeKlassekode(List<TilkjentYtelseAndel> tilkjentYtelseAndelListe, KodeKlassifik klassekode) {
         return tilkjentYtelseAndelListe.stream()
             .filter(andel -> klassekode.equals(mapTilKlassekode(andel)))
             .collect(Collectors.toList());
@@ -97,7 +98,7 @@ public class SlåAndelerMedSammePeriodeOgKlassekodeSammen {
     private static List<TilkjentYtelseAndel> fastsettAndelerListe(List<TilkjentYtelseAndel> alleAndelerListeForMottakeren, List<TilkjentYtelseAndel> andelerKombinertMedSammeKlassekodeForMottakeren) {
         List<TilkjentYtelseAndel> fastsattAndelerListeForMottakeren = new ArrayList<>();
         for (TilkjentYtelseAndel kombinasjonAvFlereSomEnAndel : andelerKombinertMedSammeKlassekodeForMottakeren) {
-            String klassekode = mapTilKlassekode(kombinasjonAvFlereSomEnAndel);
+            KodeKlassifik klassekode = mapTilKlassekode(kombinasjonAvFlereSomEnAndel);
             boolean erDetFjernet = alleAndelerListeForMottakeren.removeIf(eneAndel -> eneAndel.getTilkjentYtelsePeriode().equals(kombinasjonAvFlereSomEnAndel.getTilkjentYtelsePeriode())
                 && klassekode.equals(mapTilKlassekode(eneAndel)));
             if (erDetFjernet) {
@@ -125,7 +126,7 @@ public class SlåAndelerMedSammePeriodeOgKlassekodeSammen {
             .sum();
     }
 
-    private static String mapTilKlassekode(TilkjentYtelseAndel andel) {
+    private static KodeKlassifik mapTilKlassekode(TilkjentYtelseAndel andel) {
         return KlassekodeUtleder.utled(andel);
     }
 }

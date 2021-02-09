@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Betalingsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.KjedeNøkkel;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Periode;
@@ -38,7 +38,7 @@ public class TilkjentYtelseMapperTest {
     LocalDate nesteMai31 = LocalDate.of(2021, 5, 31);
 
     TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
-    ØkonomiKodeKlassifik kodeFrilanser = ØkonomiKodeKlassifik.FPATFRI;
+    KodeKlassifik kodeFrilanser = KodeKlassifik.FPF_FRILANSER;
 
     Arbeidsgiver arbeidsgiver1 = Arbeidsgiver.virksomhet("111111111");
 
@@ -77,7 +77,7 @@ public class TilkjentYtelseMapperTest {
 
         Assertions.assertThat(resultat).hasSize(1);
 
-        ØkonomiKodeKlassifik kodeklasse = ØkonomiKodeKlassifik.fraKode("FPATAL");
+        KodeKlassifik kodeklasse = KodeKlassifik.fraKode("FPATAL");
         KjedeNøkkel forventetNøkkel = KjedeNøkkel.lag(kodeklasse, Betalingsmottaker.BRUKER);
         Assertions.assertThat(resultat.keySet()).contains(forventetNøkkel);
 
@@ -103,7 +103,7 @@ public class TilkjentYtelseMapperTest {
 
         Assertions.assertThat(resultat).hasSize(1);
 
-        ØkonomiKodeKlassifik kodeklasse = ØkonomiKodeKlassifik.fraKode("FPATFRI");
+        KodeKlassifik kodeklasse = KodeKlassifik.fraKode("FPATFRI");
         KjedeNøkkel forventetNøkkel = KjedeNøkkel.lag(kodeklasse, Betalingsmottaker.BRUKER);
         Assertions.assertThat(resultat.keySet()).contains(forventetNøkkel);
 
@@ -137,8 +137,8 @@ public class TilkjentYtelseMapperTest {
         Map<KjedeNøkkel, Ytelse> resultat = mapper.fordelPåNøkler(perioder).getYtelsePrNøkkel();
 
         //assert
-        KjedeNøkkel forventetNøkkelYtelse = KjedeNøkkel.lag(ØkonomiKodeKlassifik.FPREFAG_IOP, Betalingsmottaker.forArbeidsgiver("111111111"));
-        KjedeNøkkel forventetNøkkelFeriepenger = KjedeNøkkel.lag(ØkonomiKodeKlassifik.FPREFAGFER_IOP, Betalingsmottaker.forArbeidsgiver("111111111"), 2020);
+        KjedeNøkkel forventetNøkkelYtelse = KjedeNøkkel.lag(KodeKlassifik.FPF_REFUSJON_AG, Betalingsmottaker.forArbeidsgiver("111111111"));
+        KjedeNøkkel forventetNøkkelFeriepenger = KjedeNøkkel.lag(KodeKlassifik.FPF_FERIEPENGER_AG, Betalingsmottaker.forArbeidsgiver("111111111"), 2020);
         Assertions.assertThat(resultat.keySet()).containsOnly(forventetNøkkelYtelse, forventetNøkkelFeriepenger);
 
         Ytelse ytelse = resultat.get(forventetNøkkelYtelse);

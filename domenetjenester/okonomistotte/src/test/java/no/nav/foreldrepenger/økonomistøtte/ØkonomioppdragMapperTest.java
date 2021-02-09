@@ -27,7 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringL
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag;
@@ -38,7 +38,6 @@ import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
 
 public class ØkonomioppdragMapperTest {
 
-    private static final String KODE_KLASSIFIK_FODSEL = "FPENFOD-OP";
     private static final String REFUNDERES_ID = "123456789";
 
     private static final String TYPE_ENHET = "BOS";
@@ -219,7 +218,7 @@ public class ØkonomioppdragMapperTest {
                 assertThat(oppdragsLinje150Generert.getDatoStatusFom()).isEqualTo(DateUtil.convertToXMLGregorianCalendarRemoveTimezone(oppdragslinje150.getDatoStatusFom()));
                 assertThat(oppdragsLinje150Generert.getVedtakId()).isEqualTo(String.valueOf(oppdragslinje150.getVedtakId()));
                 assertThat(oppdragsLinje150Generert.getDelytelseId()).isEqualTo(String.valueOf(oppdragslinje150.getDelytelseId()));
-                assertThat(oppdragsLinje150Generert.getKodeKlassifik()).isEqualTo(oppdragslinje150.getKodeKlassifik());
+                assertThat(oppdragsLinje150Generert.getKodeKlassifik()).isEqualTo(oppdragslinje150.getKodeKlassifik().getKode());
                 assertThat(oppdragsLinje150Generert.getDatoVedtakFom()).isEqualTo(DateUtil.convertToXMLGregorianCalendarRemoveTimezone(oppdragslinje150.getDatoVedtakFom()));
                 assertThat(oppdragsLinje150Generert.getDatoVedtakTom()).isEqualTo(DateUtil.convertToXMLGregorianCalendarRemoveTimezone(oppdragslinje150.getDatoVedtakTom()));
                 assertThat(oppdragsLinje150Generert.getSats()).isEqualTo(new BigDecimal(oppdragslinje150.getSats()));
@@ -303,9 +302,9 @@ public class ØkonomioppdragMapperTest {
         List<Oppdragslinje150> opp150Liste = new ArrayList<>();
         for (Long delytelseId : delytelseIdList) {
             Oppdragslinje150.Builder builder = settFellesFelterIOpp150(delytelseId);
-            String kodeKlassifik = finnKodeKlassifikVerdi(oppdrag110);
+            KodeKlassifik kodeKlassifik = finnKodeKlassifikVerdi(oppdrag110);
             Oppdragslinje150 oppdragslinje150 = builder
-                .medKodeKlassifik(gjelderFP ? kodeKlassifik : KODE_KLASSIFIK_FODSEL)
+                .medKodeKlassifik(gjelderFP ? kodeKlassifik : KodeKlassifik.ES_FØDSEL)
                 .medTypeSats(gjelderFP ? TypeSats.DAGLIG : TypeSats.ENGANG)
                 .medOppdrag110(oppdrag110)
                 .build();
@@ -316,7 +315,7 @@ public class ØkonomioppdragMapperTest {
 
     private Oppdragslinje150 buildOppdragslinje150Feriepenger(Oppdrag110 oppdrag110) {
         Oppdragslinje150.Builder builder = settFellesFelterIOpp150(3L);
-        String kodeKlassifik = oppdrag110.getKodeFagomrade().equals("FP") ? ØkonomiKodeKlassifik.FPATFER.getKodeKlassifik() : ØkonomiKodeKlassifik.FPREFAGFER_IOP.getKodeKlassifik();
+        KodeKlassifik kodeKlassifik = oppdrag110.getKodeFagomrade().equals("FP") ? KodeKlassifik.FERIEPENGER_BRUKER : KodeKlassifik.FPF_FERIEPENGER_AG;
         return builder
             .medKodeKlassifik(kodeKlassifik)
             .medTypeSats(TypeSats.ENGANG)
@@ -325,11 +324,11 @@ public class ØkonomioppdragMapperTest {
             .build();
     }
 
-    private String finnKodeKlassifikVerdi(Oppdrag110 oppdrag110) {
+    private KodeKlassifik finnKodeKlassifikVerdi(Oppdrag110 oppdrag110) {
         if (oppdrag110.getKodeFagomrade().equals("FP")) {
-            return ØkonomiKodeKlassifik.FPATORD.getKodeKlassifik();
+            return KodeKlassifik.FPF_ARBEIDSTAKER;
         }
-        return ØkonomiKodeKlassifik.FPREFAG_IOP.getKodeKlassifik();
+        return KodeKlassifik.FPF_REFUSJON_AG;
     }
 
     private Oppdragslinje150.Builder settFellesFelterIOpp150(Long delytelseId) {

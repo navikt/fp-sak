@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragsmottakerStatus;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollManager;
 import no.nav.foreldrepenger.økonomistøtte.Oppdragsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.TidligereOppdragTjeneste;
@@ -105,13 +105,13 @@ public class OppdragskontrollOpphør implements OppdragskontrollManager {
                                                                               List<Oppdragslinje150> tidligereOppdr150Liste, Oppdrag110.Builder nyOppdrag110Builder,
                                                                               Oppdragskontroll nyOppdragskontroll) {
 
-        Map<String, List<Oppdragslinje150>> opp150ListePerKlassekodeMap = tidligereOppdr150Liste.stream()
+        Map<KodeKlassifik, List<Oppdragslinje150>> opp150ListePerKlassekodeMap = tidligereOppdr150Liste.stream()
             .collect(Collectors.groupingBy(Oppdragslinje150::getKodeKlassifik));
 
         int iter = 0;
         Oppdrag110 nyOppdrag110 = null;
-        for (Map.Entry<String, List<Oppdragslinje150>> opp150ListePerKlassekode : opp150ListePerKlassekodeMap.entrySet()) {
-            if (OpphørUtil.erBrukerAllredeFullstendigOpphørtForKlassekode(behandlingInfo, ØkonomiKodeKlassifik.fraKode(opp150ListePerKlassekode.getKey())))
+        for (Map.Entry<KodeKlassifik, List<Oppdragslinje150>> opp150ListePerKlassekode : opp150ListePerKlassekodeMap.entrySet()) {
+            if (OpphørUtil.erBrukerAllredeFullstendigOpphørtForKlassekode(behandlingInfo, opp150ListePerKlassekode.getKey()))
                 continue;
             List<Oppdragslinje150> opp150MedSammeKlassekodeListe = opp150ListePerKlassekode.getValue();
             Optional<Oppdragslinje150> sisteOppdr150BrukerOpt = opp150MedSammeKlassekodeListe
@@ -261,7 +261,7 @@ public class OppdragskontrollOpphør implements OppdragskontrollManager {
         LocalDate vedtakFom = forrigeOppdr150.getDatoVedtakFom();
         LocalDate vedtakTom = forrigeOppdr150.getDatoVedtakTom();
         Long delytelseId = forrigeOppdr150.getDelytelseId();
-        String kodeKlassifik = forrigeOppdr150.getKodeKlassifik();
+        KodeKlassifik kodeKlassifik = forrigeOppdr150.getKodeKlassifik();
         long dagsats = forrigeOppdr150.getSats();
 
         Oppdragslinje150.Builder oppdragslinje150Builder = Oppdragslinje150.builder();
