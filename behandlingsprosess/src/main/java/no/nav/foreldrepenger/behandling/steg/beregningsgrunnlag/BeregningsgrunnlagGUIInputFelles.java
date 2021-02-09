@@ -1,10 +1,7 @@
 package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
 
-import static no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus.IAYMapperTilKalkulus.mapArbeidsforholdOpplysninger;
-
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -21,19 +18,16 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.AndelGraderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus.IAYMapperTilKalkulus;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus.MapBehandlingRef;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.RefusjonskravDato;
-import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.vedtak.util.env.Environment;
 
 public abstract class BeregningsgrunnlagGUIInputFelles {
 
@@ -105,22 +99,18 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
             iayGrunnlagDto = iayGrunnlagDtoUtenIMDiff;
         }
 
-        Map<Arbeidsgiver, ArbeidsgiverOpplysninger> arbeidsgiverOpplysninger = iayGrunnlag.getAktørArbeidFraRegister(ref.getAktørId())
-                .map(AktørArbeid::hentAlleYrkesaktiviteter)
-                .orElse(Collections.emptyList())
-                .stream()
-                .map(Yrkesaktivitet::getArbeidsgiver)
-                .distinct()
-                .collect(Collectors.toMap(a -> a, arbeidsgiverTjeneste::hent));
-        InntektArbeidYtelseGrunnlagDto iayGrunnlagMedArbeidsforholdOpplysninger = InntektArbeidYtelseGrunnlagDtoBuilder.oppdatere(iayGrunnlagDto)
-                .medArbeidsgiverOpplysninger(mapArbeidsforholdOpplysninger(arbeidsgiverOpplysninger, iayGrunnlag.getArbeidsforholdOverstyringer()))
-                .build();
-        return Optional.of(new BeregningsgrunnlagGUIInput(
-                MapBehandlingRef.mapRef(ref),
-                iayGrunnlagMedArbeidsforholdOpplysninger,
-                aktivitetGradering,
-                IAYMapperTilKalkulus.mapRefusjonskravDatoer(refusjonskravDatoer),
-                ytelseGrunnlag));
+        InntektArbeidYtelseGrunnlagDto iayGrunnlagMedArbeidsforholdOpplysninger = InntektArbeidYtelseGrunnlagDtoBuilder.oppdatere(iayGrunnlagDto).build();
+        BeregningsgrunnlagGUIInput input = new BeregningsgrunnlagGUIInput(
+            MapBehandlingRef.mapRef(ref),
+            iayGrunnlagMedArbeidsforholdOpplysninger,
+            aktivitetGradering,
+            IAYMapperTilKalkulus.mapRefusjonskravDatoer(refusjonskravDatoer),
+            ytelseGrunnlag);
+
+        // Toggles
+        input.leggTilToggle("visning-inntektsgrunnlag", !Environment.current().isProd());
+
+        return Optional.of(input);
     }
 
     private InntektArbeidYtelseGrunnlagDto settInntektsmeldingDiffPåIAYGrunnlag(InntektArbeidYtelseGrunnlagDto iayGrunnlagDto,
