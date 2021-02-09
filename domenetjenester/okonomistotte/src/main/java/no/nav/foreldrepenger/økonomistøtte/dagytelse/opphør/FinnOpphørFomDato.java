@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.økonomistøtte.Oppdragsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.KlassekodeUtleder;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.TidligereOppdragTjeneste;
@@ -25,7 +26,7 @@ class FinnOpphørFomDato {
 
     static LocalDate finnOpphørFom(List<Oppdragslinje150> opp150Liste, OppdragInput behandlingInfo, Oppdragsmottaker mottaker) {
         List<TilkjentYtelsePeriode> forrigeTilkjentYtelsePeriodeListe = behandlingInfo.getForrigeTilkjentYtelsePerioder();
-        String kodeKlassifik = opp150Liste.get(0).getKodeKlassifik();
+        KodeKlassifik kodeKlassifik = opp150Liste.get(0).getKodeKlassifik();
         if (mottaker.erStatusOpphør()) {
             return finnForrigeFørsteInnvilgetPeriodeFom(kodeKlassifik, mottaker, forrigeTilkjentYtelsePeriodeListe);
         }
@@ -42,7 +43,7 @@ class FinnOpphørFomDato {
 
     static LocalDate finnOpphørFomForBruker(Oppdragslinje150 sisteOppdr150Bruker, OppdragInput behandlingInfo) {
         String ident = behandlingInfo.getPersonIdent().getIdent();
-        String kodeKlassifik = sisteOppdr150Bruker.getKodeKlassifik();
+        KodeKlassifik kodeKlassifik = sisteOppdr150Bruker.getKodeKlassifik();
         List<TilkjentYtelsePeriode> forrigeTilkjentYtelsePeriodeListe = behandlingInfo.getForrigeTilkjentYtelsePerioder();
 
         return finnForrigeFørsteInnvilgetPeriodeFom(kodeKlassifik, new Oppdragsmottaker(ident, true), forrigeTilkjentYtelsePeriodeListe);
@@ -51,7 +52,7 @@ class FinnOpphørFomDato {
     static LocalDate finnOpphørFomForArbeidsgiver(List<Oppdragslinje150> tidligereGjeldendeOpp150Liste, OppdragInput behandlingInfo) {
         String refunderesId = tidligereGjeldendeOpp150Liste.get(0).getRefusjonsinfo156().getRefunderesId();
         String orgnr = Oppdragslinje150Util.endreTilNiSiffer(refunderesId);
-        String kodeKlassifik = tidligereGjeldendeOpp150Liste.get(0).getKodeKlassifik();
+        KodeKlassifik kodeKlassifik = tidligereGjeldendeOpp150Liste.get(0).getKodeKlassifik();
         List<TilkjentYtelsePeriode> forrigeTilkjentYtelsePeriodeListe = behandlingInfo.getForrigeTilkjentYtelsePerioder();
 
         return finnForrigeFørsteInnvilgetPeriodeFom(kodeKlassifik, new Oppdragsmottaker(orgnr, false), forrigeTilkjentYtelsePeriodeListe);
@@ -64,7 +65,7 @@ class FinnOpphørFomDato {
             .orElseThrow(() -> new IllegalStateException("Utvikler feil: Mangler vedtak fom dato"));
     }
 
-    private static LocalDate finnForrigeFørsteInnvilgetPeriodeFom(String kodeKlassifik, Oppdragsmottaker mottaker, List<TilkjentYtelsePeriode> forrigeTilkjentYtelsePeriodeListe) {
+    private static LocalDate finnForrigeFørsteInnvilgetPeriodeFom(KodeKlassifik kodeKlassifik, Oppdragsmottaker mottaker, List<TilkjentYtelsePeriode> forrigeTilkjentYtelsePeriodeListe) {
         List<TilkjentYtelseAndel> forrigeTilkjentYtelseAndelListe = TidligereOppdragTjeneste.finnAndelerIOppdragPerioder(mottaker, forrigeTilkjentYtelsePeriodeListe);
         TilkjentYtelsePeriode forrigeFørsteInnvilgetPeriode = finnForrigeFørsteInnvilgetPeriodeForMottaker(mottaker,
             forrigeTilkjentYtelseAndelListe, kodeKlassifik);
@@ -73,7 +74,7 @@ class FinnOpphørFomDato {
     }
 
     private static TilkjentYtelsePeriode finnForrigeFørsteInnvilgetPeriodeForMottaker(Oppdragsmottaker mottaker, List<TilkjentYtelseAndel> forrigeTilkjentYtelseAndelListe,
-                                                                                      String kodeKlassifik) {
+                                                                                      KodeKlassifik kodeKlassifik) {
         if (mottaker.erBruker()) {
             return getFørstePeriodeMedBrukersandel(forrigeTilkjentYtelseAndelListe, kodeKlassifik);
         }
@@ -85,7 +86,7 @@ class FinnOpphørFomDato {
         return tilkjentYtelsePeriode.get();
     }
 
-    private static TilkjentYtelsePeriode getFørstePeriodeMedBrukersandel(List<TilkjentYtelseAndel> andelListe, String kodeKlassifik) {
+    private static TilkjentYtelsePeriode getFørstePeriodeMedBrukersandel(List<TilkjentYtelseAndel> andelListe, KodeKlassifik kodeKlassifik) {
         return andelListe.stream()
             .filter(andel -> KlassekodeUtleder.utled(andel).equals(kodeKlassifik))
             .sorted(Comparator.comparing(brAndel -> brAndel.getTilkjentYtelsePeriode().getFom()))

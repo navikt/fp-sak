@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
@@ -75,7 +76,7 @@ public class OppdragskontrollEngangsstønad implements OppdragskontrollManager {
     }
 
     private Oppdragslinje150 opprettOppdragslinje150ES(OppdragInputES behandlingInfo, Oppdrag110 oppdrag110, Optional<Oppdrag110> forrigeOppdragOpt) {
-        String kodeKlassifik = behandlingInfo.getKodeKlassifik();
+        KodeKlassifik kodeKlassifik = behandlingInfo.getKodeKlassifik();
 
         // Her er det 3 varianter
         // 1) Første oppdrag i saken - alltid innvilgelse
@@ -92,7 +93,7 @@ public class OppdragskontrollEngangsstønad implements OppdragskontrollManager {
         return oppdrlinje150;
     }
 
-    private Oppdragslinje150 opprettOppdragslinje150FørsteOppdragES(OppdragInputES behandlingInfo, Oppdrag110 oppdrag110, String kodeKlassifik) {
+    private Oppdragslinje150 opprettOppdragslinje150FørsteOppdragES(OppdragInputES behandlingInfo, Oppdrag110 oppdrag110, KodeKlassifik kodeKlassifik) {
         LocalDate vedtaksdato = behandlingInfo.getVedtaksdato();
         long teller = OpprettOppdragTjeneste.incrementInitialValue(INITIAL_VALUE);
         long delytelseId = OpprettOppdragTjeneste.concatenateValues(oppdrag110.getFagsystemId(), teller);
@@ -112,7 +113,7 @@ public class OppdragskontrollEngangsstønad implements OppdragskontrollManager {
         return oppdragslinje150Builder.build();
     }
 
-    private Oppdragslinje150 opprettOppdragslinje150LinketTilForrigeOppdrag(OppdragInputES behandlingInfo, Oppdrag110 oppdrag110, Oppdrag110 forrigeOppdrag110, String kodeKlassifik) {
+    private Oppdragslinje150 opprettOppdragslinje150LinketTilForrigeOppdrag(OppdragInputES behandlingInfo, Oppdrag110 oppdrag110, Oppdrag110 forrigeOppdrag110, KodeKlassifik kodeKlassifik) {
         Long delytelseId;
         long sats;
         KodeEndringLinje kodeEndringLinje;

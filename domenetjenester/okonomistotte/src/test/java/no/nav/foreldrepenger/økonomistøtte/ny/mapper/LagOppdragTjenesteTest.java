@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskateg
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Betalingsmottaker;
@@ -64,7 +64,7 @@ public class LagOppdragTjenesteTest {
         assertThat(oppdrag.getFagsystemId().getSaksnummer()).isEqualTo(saksnummer.getVerdi());
         assertThat(oppdrag.getØkonomiFagområde()).isEqualTo(ØkonomiKodeFagområde.FP);
 
-        KjedeNøkkel nøkkelYtelse = KjedeNøkkel.lag(ØkonomiKodeKlassifik.fraKode("FPSND-OP"), Betalingsmottaker.BRUKER);
+        KjedeNøkkel nøkkelYtelse = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPSND-OP"), Betalingsmottaker.BRUKER);
         assertThat(oppdrag.getKjeder().keySet()).containsOnly(nøkkelYtelse);
 
         OppdragKjedeFortsettelse kjede = oppdrag.getKjeder().get(nøkkelYtelse);
@@ -87,8 +87,8 @@ public class LagOppdragTjenesteTest {
         assertThat(resultat).hasSize(1);
         Oppdrag oppdrag = resultat.get(0);
 
-        KjedeNøkkel nøkkelYtelse = KjedeNøkkel.lag(ØkonomiKodeKlassifik.fraKode("FPATORD"), Betalingsmottaker.BRUKER);
-        KjedeNøkkel nøkkelFeriepenger = KjedeNøkkel.lag(ØkonomiKodeKlassifik.fraKode("FPATFER"), Betalingsmottaker.BRUKER, 2020);
+        KjedeNøkkel nøkkelYtelse = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPATORD"), Betalingsmottaker.BRUKER);
+        KjedeNøkkel nøkkelFeriepenger = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPATFER"), Betalingsmottaker.BRUKER, 2020);
         assertThat(oppdrag.getKjeder().keySet()).containsOnly(nøkkelYtelse, nøkkelFeriepenger);
 
         OppdragKjedeFortsettelse ytelsekjede = oppdrag.getKjeder().get(nøkkelYtelse);

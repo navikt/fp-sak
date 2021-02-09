@@ -33,7 +33,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.økonomistøtte.OppdragMedPositivKvitteringTestUtil;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.OppdragskontrollConstants;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdrag110.KodeFagområdeTjeneste;
@@ -210,10 +210,10 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         });
         List<Oppdragslinje150> opp150RevurderingListeForBruker = getOppdragslinje150ForMottaker(oppdragRevurdering, true);
         assertThat(opp150RevurderingListeForBruker).anySatisfy(feriepenger ->
-            assertThat(feriepenger.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPATFER.getKodeKlassifik()));
+            assertThat(feriepenger.getKodeKlassifik()).isEqualTo(KodeKlassifik.FERIEPENGER_BRUKER));
         List<Oppdragslinje150> opp150RevurderingListeForArbeidsgiver = getOppdragslinje150ForMottaker(oppdragRevurdering, false);
         assertThat(opp150RevurderingListeForArbeidsgiver).anySatisfy(feriepenger ->
-            assertThat(feriepenger.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPREFAGFER_IOP.getKodeKlassifik()));
+            assertThat(feriepenger.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_FERIEPENGER_AG));
     }
 
     private List<Oppdragslinje150> getOppdragslinje150ForMottaker(Oppdragskontroll oppdragRevurdering, boolean erBruker) {
@@ -266,9 +266,9 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             assertThat(linjeEndring.getSats()).isEqualTo(400);
         });
         assertThat(opp150RevurderingListeForBruker).anySatisfy(feriepenger ->
-            assertThat(feriepenger.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPATFER.getKodeKlassifik()));
+            assertThat(feriepenger.getKodeKlassifik()).isEqualTo(KodeKlassifik.FERIEPENGER_BRUKER));
         assertThat(opp150RevurderingListeForArbeidsgiver).anySatisfy(feriepenger ->
-            assertThat(feriepenger.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPREFAGFER_IOP.getKodeKlassifik()));
+            assertThat(feriepenger.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_FERIEPENGER_AG));
     }
 
     @Test
@@ -311,21 +311,21 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             assertThat(linjeEndring.getSats()).isEqualTo(300);
         });
         assertThat(opp150RevurderingListeForBruker).anySatisfy(feriepenger ->
-            assertThat(feriepenger.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPATFER.getKodeKlassifik()));
+            assertThat(feriepenger.getKodeKlassifik()).isEqualTo(KodeKlassifik.FERIEPENGER_BRUKER));
         assertThat(opp150RevurderingListeForArbeidsgiver).anySatisfy(feriepenger ->
-            assertThat(feriepenger.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPREFAGFER_IOP.getKodeKlassifik()));
+            assertThat(feriepenger.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_FERIEPENGER_AG));
         //Kjeding for bruker
         List<Oppdragslinje150> forrigeOpp150ListeForBruker = getOppdragslinje150ForMottaker(førsteOppdrag, true);
-        List<Oppdragslinje150> forrigeOpp150ListeUtenFeriepgForBruker = getOpp150MedKodeklassifik(forrigeOpp150ListeForBruker, ØkonomiKodeKlassifik.FPATORD.getKodeKlassifik());
+        List<Oppdragslinje150> forrigeOpp150ListeUtenFeriepgForBruker = getOpp150MedKodeklassifik(forrigeOpp150ListeForBruker, KodeKlassifik.FPF_ARBEIDSTAKER);
         Oppdragslinje150 forrigeOpp150ForBruker = forrigeOpp150ListeUtenFeriepgForBruker.get(0);
-        List<Oppdragslinje150> opp150RevurderingListeUtenFeriepgForBruker = getOpp150MedKodeklassifik(opp150RevurderingListeForBruker, ØkonomiKodeKlassifik.FPATORD.getKodeKlassifik());
+        List<Oppdragslinje150> opp150RevurderingListeUtenFeriepgForBruker = getOpp150MedKodeklassifik(opp150RevurderingListeForBruker, KodeKlassifik.FPF_ARBEIDSTAKER);
         Oppdragslinje150 opp150RevurderingForBruker = opp150RevurderingListeUtenFeriepgForBruker.get(0);
         assertThat(forrigeOpp150ForBruker.getDelytelseId()).isEqualTo(opp150RevurderingForBruker.getRefDelytelseId());
         //Kjeding for arbeidsgiver
         List<Oppdragslinje150> forrigeOpp150ListeForArbeidsgiver = getOppdragslinje150ForMottaker(førsteOppdrag, false);
-        List<Oppdragslinje150> forrigeOpp150ListeUtenFeriepgForArbeidsgiver = getOpp150MedKodeklassifik(forrigeOpp150ListeForArbeidsgiver, ØkonomiKodeKlassifik.FPREFAG_IOP.getKodeKlassifik());
+        List<Oppdragslinje150> forrigeOpp150ListeUtenFeriepgForArbeidsgiver = getOpp150MedKodeklassifik(forrigeOpp150ListeForArbeidsgiver, KodeKlassifik.FPF_REFUSJON_AG);
         Oppdragslinje150 forrigeOpp150ForArbeidsgiver = forrigeOpp150ListeUtenFeriepgForArbeidsgiver.get(0);
-        List<Oppdragslinje150> opp150RevurderingListeUtenFeriepgForArbeidsgiver = getOpp150MedKodeklassifik(opp150RevurderingListeForArbeidsgiver, ØkonomiKodeKlassifik.FPREFAG_IOP.getKodeKlassifik());
+        List<Oppdragslinje150> opp150RevurderingListeUtenFeriepgForArbeidsgiver = getOpp150MedKodeklassifik(opp150RevurderingListeForArbeidsgiver, KodeKlassifik.FPF_REFUSJON_AG);
         Oppdragslinje150 opp150RevurderingForArbeidsgiver = opp150RevurderingListeUtenFeriepgForArbeidsgiver.get(0);
         assertThat(forrigeOpp150ForArbeidsgiver.getDelytelseId()).isEqualTo(opp150RevurderingForArbeidsgiver.getRefDelytelseId());
     }
@@ -384,9 +384,9 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         });
 
         assertThat(opp150RevurderingListeForBruker).allSatisfy(oppdragslinje150 ->
-            assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPATORD.getKodeKlassifik()));
+            assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_ARBEIDSTAKER));
         assertThat(opp150RevurderingListeForArbeidsgiver).allSatisfy(oppdragslinje150 ->
-            assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPREFAG_IOP.getKodeKlassifik()));
+            assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_REFUSJON_AG));
     }
 
 
@@ -443,9 +443,9 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             assertThat(linjeEndring.getSats()).isEqualTo(200);
         });
         assertThat(opp150RevurderingListeForBruker).allSatisfy(oppdragslinje150 ->
-            assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPATORD.getKodeKlassifik()));
+            assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_ARBEIDSTAKER));
         assertThat(opp150RevurderingListeForArbeidsgiver).allSatisfy(oppdragslinje150 ->
-            assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPREFAG_IOP.getKodeKlassifik()));
+            assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_REFUSJON_AG));
     }
 
     /*
@@ -501,9 +501,9 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             assertThat(linjeEndring.getSats()).isEqualTo(200);
         });
         assertThat(opp150RevurderingListeForBruker).allSatisfy(oppdragslinje150 ->
-            assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPATORD.getKodeKlassifik()));
+            assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_ARBEIDSTAKER));
         assertThat(opp150RevurderingListeForArbeidsgiver).allSatisfy(oppdragslinje150 ->
-            assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPREFAG_IOP.getKodeKlassifik()));
+            assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_REFUSJON_AG));
     }
 
     /*
@@ -564,9 +564,9 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             assertThat(linjeEndring.getSats()).isEqualTo(200);
         });
         assertThat(opp150RevurderingListeForBruker).allSatisfy(oppdragslinje150 ->
-            assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPATORD.getKodeKlassifik()));
+            assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_ARBEIDSTAKER));
         assertThat(opp150RevurderingListeForArbeidsgiver).allSatisfy(oppdragslinje150 ->
-            assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPREFAG_IOP.getKodeKlassifik()));
+            assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_REFUSJON_AG));
     }
 
     @Test
@@ -612,11 +612,11 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         assertThat(opp150RevurderingListe).anySatisfy(linjeEndring -> {
             assertThat(linjeEndring.gjelderOpphør()).isFalse();
             assertThat(linjeEndring.getSats()).isEqualTo(400);
-            assertThat(linjeEndring.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPREFAG_IOP.getKodeKlassifik());
+            assertThat(linjeEndring.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_REFUSJON_AG);
         });
         List<Oppdragslinje150> opp150RevurderingListeForArbeidsgiver = getOppdragslinje150ForMottaker(oppdragRevurdering, false);
         assertThat(opp150RevurderingListeForArbeidsgiver).anySatisfy(oppdragslinje150 ->
-            assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPREFAGFER_IOP.getKodeKlassifik()));
+            assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_FERIEPENGER_AG));
     }
 
     @Test
@@ -708,7 +708,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         List<Oppdragslinje150> opp150Liste = OppdragskontrollTestVerktøy.getOpp150ListeForBruker(oppdrag110Liste);
         //En Opphør på AT, To for ny AT, To for ny FL
         assertThat(opp150Liste).hasSize(5);
-        List<Oppdragslinje150> opp150ForFLListe = OppdragskontrollTestVerktøy.getOppdragslinje150MedKlassekode(opp150Liste, "FPATFRI");
+        List<Oppdragslinje150> opp150ForFLListe = OppdragskontrollTestVerktøy.getOppdragslinje150MedKlassekode(opp150Liste, KodeKlassifik.FPF_FRILANSER);
         assertThat(opp150ForFLListe).allSatisfy(opp150 ->
             assertThat(opp150.gjelderOpphør()).isFalse());
         verifiserOppdragslinje150_ENDR(oppdragRevurdering, originaltOppdragslinje150, endringsdato, false, true, 100);
@@ -852,17 +852,17 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         List<Oppdragslinje150> opp150RevurderingListe = oppdrag110RevurderingListe.get(0).getOppdragslinje150Liste();
         assertThat(opp150RevurderingListe).hasSize(6);
         //Opphør for FL
-        List<Oppdragslinje150> opp150OpphForFLListe = getOpp150MedKodeklassifik(opp150RevurderingListe, ØkonomiKodeKlassifik.FPATFRI.getKodeKlassifik());
+        List<Oppdragslinje150> opp150OpphForFLListe = getOpp150MedKodeklassifik(opp150RevurderingListe, KodeKlassifik.FPF_FRILANSER);
         assertThat(opp150OpphForFLListe).hasSize(1);
         assertThat(opp150OpphForFLListe).allSatisfy(oppdragslinje150 ->
             assertThat(oppdragslinje150.gjelderOpphør()).isTrue());
         //Opphør for SN
-        List<Oppdragslinje150> opp150OpphForSNListe = getOpp150MedKodeklassifik(opp150RevurderingListe, ØkonomiKodeKlassifik.FPSND_OP.getKodeKlassifik());
+        List<Oppdragslinje150> opp150OpphForSNListe = getOpp150MedKodeklassifik(opp150RevurderingListe, KodeKlassifik.FPF_SELVSTENDIG);
         assertThat(opp150OpphForSNListe).hasSize(1);
         assertThat(opp150OpphForSNListe).allSatisfy(oppdragslinje150 ->
             assertThat(oppdragslinje150.gjelderOpphør()).isTrue());
         //Oppdragslinje150 for AT
-        List<Oppdragslinje150> opp150ForATListe = getOpp150MedKodeklassifik(opp150RevurderingListe, ØkonomiKodeKlassifik.FPATORD.getKodeKlassifik());
+        List<Oppdragslinje150> opp150ForATListe = getOpp150MedKodeklassifik(opp150RevurderingListe, KodeKlassifik.FPF_ARBEIDSTAKER);
         assertThat(opp150ForATListe).hasSize(2);
         assertThat(opp150ForATListe).allSatisfy(oppdragslinje150 ->
             assertThat(oppdragslinje150.gjelderOpphør()).isFalse());
@@ -873,7 +873,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         Oppdragslinje150 andreOpp150ForAT = sortertOpp150OpphForATListe.get(1);
         assertThat(andreOpp150ForAT.getRefDelytelseId()).isEqualTo(førsteOpp150ForAT.getDelytelseId());
         //Oppdragslinje150 for DP
-        List<Oppdragslinje150> opp150OpphForDPListe = getOpp150MedKodeklassifik(opp150RevurderingListe, ØkonomiKodeKlassifik.FPATAL.getKodeKlassifik());
+        List<Oppdragslinje150> opp150OpphForDPListe = getOpp150MedKodeklassifik(opp150RevurderingListe, KodeKlassifik.FPF_DAGPENGER);
         assertThat(opp150OpphForDPListe).hasSize(2);
         assertThat(opp150OpphForDPListe).allSatisfy(oppdragslinje150 ->
             assertThat(oppdragslinje150.gjelderOpphør()).isFalse());
@@ -1082,7 +1082,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         assertThat(revurderingOpp150Liste).hasSize(1);
         Oppdragslinje150 opp150Opphør = revurderingOpp150Liste.get(0);
         assertThat(opp150Opphør.getDatoStatusFom()).isEqualTo(endringsdato);
-        assertThat(opp150Opphør.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPATORD.getKodeKlassifik());
+        assertThat(opp150Opphør.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_ARBEIDSTAKER);
         assertThat(opp150Opphør.gjelderOpphør()).isTrue();
     }
 
@@ -1136,7 +1136,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         assertThat(revurderingOpp150Liste).hasSize(2);
         assertThat(revurderingOpp150Liste).allSatisfy(opp150 -> {
             assertThat(opp150.getDatoStatusFom()).isEqualTo(endringsdato);
-            assertThat(opp150.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPREFAG_IOP.getKodeKlassifik());
+            assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_REFUSJON_AG);
             assertThat(opp150.gjelderOpphør()).isTrue();
         });
         Oppdragslinje150 opp150ForVirksomhet1 = OppdragskontrollTestVerktøy.getOpp150ForEnVirksomhet(revurderingOpp150Liste, virksomhet);
@@ -1218,11 +1218,11 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             assertThat(opp150.gjelderOpphør()).isTrue();
         });
         List<Oppdragslinje150> oppdragslinje150OpphPå_AT = revurderingOpp150ListeForBruker.stream()
-            .filter(opp150 -> ØkonomiKodeKlassifik.FPATORD.getKodeKlassifik().equals(opp150.getKodeKlassifik()))
+            .filter(opp150 -> KodeKlassifik.FPF_ARBEIDSTAKER.equals(opp150.getKodeKlassifik()))
             .collect(Collectors.toList());
         assertThat(oppdragslinje150OpphPå_AT).hasSize(1);
         List<Oppdragslinje150> oppdragslinje150OpphPå_SN = revurderingOpp150ListeForBruker.stream()
-            .filter(opp150 -> ØkonomiKodeKlassifik.FPSND_OP.getKodeKlassifik().equals(opp150.getKodeKlassifik()))
+            .filter(opp150 -> KodeKlassifik.FPF_SELVSTENDIG.equals(opp150.getKodeKlassifik()))
             .collect(Collectors.toList());
         assertThat(oppdragslinje150OpphPå_SN).hasSize(1);
         //Oppdragslinje150 for Arbeidsgiver
@@ -1235,7 +1235,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             .filter(opp150 -> !opp150.gjelderOpphør()).collect(Collectors.toList());
         assertThat(opp150ForInnvilgelse).hasSize(2);
         assertThat(opp150ForInnvilgelse).allSatisfy(opp150 ->
-            assertThat(opp150.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPREFAG_IOP.getKodeKlassifik()));
+            assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_REFUSJON_AG));
     }
 
     /**
@@ -1292,7 +1292,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         assertThat(revurderingOpp150ListeForBruker).hasSize(1);
         Oppdragslinje150 opp150ForBruker = revurderingOpp150ListeForBruker.get(0);
         assertThat(opp150ForBruker.gjelderOpphør()).isFalse();
-        assertThat(opp150ForBruker.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPATORD.getKodeKlassifik());
+        assertThat(opp150ForBruker.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_ARBEIDSTAKER);
     }
 
     /**
@@ -1363,11 +1363,11 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             assertThat(opp150.gjelderOpphør()).isTrue();
         });
         Optional<Oppdragslinje150> opp150ForBrukerAT = opp150ListeForBrukerIRevurdering.stream()
-            .filter(opp150 -> ØkonomiKodeKlassifik.FPATORD.getKodeKlassifik().equals(opp150.getKodeKlassifik()))
+            .filter(opp150 -> KodeKlassifik.FPF_ARBEIDSTAKER.equals(opp150.getKodeKlassifik()))
             .findFirst();
         assertThat(opp150ForBrukerAT).isPresent();
         Optional<Oppdragslinje150> opp150ForBrukerSN = opp150ListeForBrukerIRevurdering.stream()
-            .filter(opp150 -> ØkonomiKodeKlassifik.FPSND_OP.getKodeKlassifik().equals(opp150.getKodeKlassifik()))
+            .filter(opp150 -> KodeKlassifik.FPF_SELVSTENDIG.equals(opp150.getKodeKlassifik()))
             .findFirst();
         assertThat(opp150ForBrukerSN).isPresent();
     }
@@ -1438,11 +1438,11 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             assertThat(opp150.gjelderOpphør()).isTrue();
         });
         Optional<Oppdragslinje150> opp150ForBrukerAT = opp150ListeForBrukerIRevurdering.stream()
-            .filter(opp150 -> ØkonomiKodeKlassifik.FPATORD.getKodeKlassifik().equals(opp150.getKodeKlassifik()))
+            .filter(opp150 -> KodeKlassifik.FPF_ARBEIDSTAKER.equals(opp150.getKodeKlassifik()))
             .findFirst();
         assertThat(opp150ForBrukerAT).isPresent();
         Optional<Oppdragslinje150> opp150ForBrukerSN = opp150ListeForBrukerIRevurdering.stream()
-            .filter(opp150 -> ØkonomiKodeKlassifik.FPSND_OP.getKodeKlassifik().equals(opp150.getKodeKlassifik()))
+            .filter(opp150 -> KodeKlassifik.FPF_SELVSTENDIG.equals(opp150.getKodeKlassifik()))
             .findFirst();
         assertThat(opp150ForBrukerSN).isPresent();
     }
@@ -1586,29 +1586,29 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         assertThat(opp150ListeForBruker).hasSize(3);
         //Oppdragslinje150 for feriepenger
         List<Oppdragslinje150> opp150ForFeriepengerList = OppdragskontrollTestVerktøy.getOppdragslinje150MedKlassekode(opp150ListeForBruker,
-            ØkonomiKodeKlassifik.FPATFER.getKodeKlassifik());
+            KodeKlassifik.FERIEPENGER_BRUKER);
         assertThat(opp150ForFeriepengerList).hasSize(1);
         Oppdragslinje150 opp150ForFeriepenger = opp150ForFeriepengerList.get(0);
         assertThat(opp150ForFeriepenger.gjelderOpphør()).isFalse();
         assertThat(opp150ForFeriepenger.getDatoVedtakFom().getYear()).isEqualTo(I_ÅR + 2);
         //Oppdragslinje150 for AT
         List<Oppdragslinje150> opp150ForATIRevurderingList = OppdragskontrollTestVerktøy.getOppdragslinje150MedKlassekode(opp150ListeForBruker,
-            ØkonomiKodeKlassifik.FPATORD.getKodeKlassifik());
+            KodeKlassifik.FPF_ARBEIDSTAKER);
         assertThat(opp150ForATIRevurderingList).hasSize(1);
         Oppdragslinje150 opp150ForATIRevurdering = opp150ForATIRevurderingList.get(0);
         assertThat(opp150ForATIRevurdering.gjelderOpphør()).isFalse();
         List<Oppdragslinje150> tidligereOpp150ForATList = OppdragskontrollTestVerktøy.getOppdragslinje150MedKlassekode(originalOpp110Liste.get(0).getOppdragslinje150Liste(),
-            ØkonomiKodeKlassifik.FPATORD.getKodeKlassifik());
+            KodeKlassifik.FPF_ARBEIDSTAKER);
         Oppdragslinje150 sisteOpp150ForAT = tidligereOpp150ForATList.stream().max(Comparator.comparing(Oppdragslinje150::getDelytelseId)).get();
         assertThat(opp150ForATIRevurdering.getRefDelytelseId()).isEqualTo(sisteOpp150ForAT.getDelytelseId());
         //Oppdragslinje150 for FL
         List<Oppdragslinje150> opp150ForFLIRevurderingList = OppdragskontrollTestVerktøy.getOppdragslinje150MedKlassekode(opp150ListeForBruker,
-            ØkonomiKodeKlassifik.FPATFRI.getKodeKlassifik());
+            KodeKlassifik.FPF_FRILANSER);
         assertThat(opp150ForFLIRevurderingList).hasSize(1);
         Oppdragslinje150 opp150ForFLIRevurdering = opp150ForFLIRevurderingList.get(0);
         assertThat(opp150ForFLIRevurdering.gjelderOpphør()).isFalse();
         List<Oppdragslinje150> tidligereOpp150ForFLList = OppdragskontrollTestVerktøy.getOppdragslinje150MedKlassekode(originalOpp110Liste.get(0).getOppdragslinje150Liste(),
-            ØkonomiKodeKlassifik.FPATFRI.getKodeKlassifik());
+            KodeKlassifik.FPF_FRILANSER);
         Oppdragslinje150 sisteOpp150ForFL = tidligereOpp150ForFLList.stream().max(Comparator.comparing(Oppdragslinje150::getDelytelseId)).get();
         assertThat(opp150ForFLIRevurdering.getRefDelytelseId()).isEqualTo(sisteOpp150ForFL.getDelytelseId());
     }
@@ -1680,19 +1680,19 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         assertThat(opp150ListeForBruker).hasSize(2);
         //Oppdragslinje150 for feriepenger
         List<Oppdragslinje150> opp150ForFeriepengerList = OppdragskontrollTestVerktøy.getOppdragslinje150MedKlassekode(opp150ListeForBruker,
-            ØkonomiKodeKlassifik.FPATFER.getKodeKlassifik());
+            KodeKlassifik.FERIEPENGER_BRUKER);
         assertThat(opp150ForFeriepengerList).hasSize(1);
         Oppdragslinje150 opp150ForFeriepenger = opp150ForFeriepengerList.get(0);
         assertThat(opp150ForFeriepenger.gjelderOpphør()).isFalse();
         assertThat(opp150ForFeriepenger.getDatoVedtakFom().getYear()).isEqualTo(I_ÅR + 2);
         //Oppdragslinje150 for AT
         List<Oppdragslinje150> opp150ForATIRevurderingList = OppdragskontrollTestVerktøy.getOppdragslinje150MedKlassekode(opp150ListeForBruker,
-            ØkonomiKodeKlassifik.FPATORD.getKodeKlassifik());
+            KodeKlassifik.FPF_ARBEIDSTAKER);
         assertThat(opp150ForATIRevurderingList).hasSize(1);
         Oppdragslinje150 opp150ForATIRevurdering = opp150ForATIRevurderingList.get(0);
         assertThat(opp150ForATIRevurdering.gjelderOpphør()).isFalse();
         List<Oppdragslinje150> tidligereOpp150ForATList = OppdragskontrollTestVerktøy.getOppdragslinje150MedKlassekode(originalOpp110Liste.get(0).getOppdragslinje150Liste(),
-            ØkonomiKodeKlassifik.FPATORD.getKodeKlassifik());
+            KodeKlassifik.FPF_ARBEIDSTAKER);
         Oppdragslinje150 sisteOpp150ForAT = tidligereOpp150ForATList.stream().max(Comparator.comparing(Oppdragslinje150::getDelytelseId)).get();
         assertThat(opp150ForATIRevurdering.getRefDelytelseId()).isEqualTo(sisteOpp150ForAT.getDelytelseId());
     }
@@ -2573,7 +2573,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             .filter(opp150 -> !opp150.gjelderOpphør())
             .collect(Collectors.toList());
         assertThat(opp150ForOpph.getDatoStatusFom()).isEqualTo(endringsdato);
-        assertThat(opp150ForOpph.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPREFAG_IOP.getKodeKlassifik());
+        assertThat(opp150ForOpph.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_REFUSJON_AG);
         assertThat(opp150ForOpph.getRefusjonsinfo156().getRefunderesId()).isIn(List.of(endreTilElleveSiffer(virksomhet), endreTilElleveSiffer(virksomhet2)));
         assertThat(opp150FomEndringsdato).hasSize(4);
         List<Long> delytelseIdList = opp150FomEndringsdato.stream().map(Oppdragslinje150::getDelytelseId).collect(Collectors.toList());
@@ -2583,10 +2583,10 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
     }
 
     private void verifiserKjeding(List<Oppdragslinje150> originaltOpp150Liste, List<Oppdragslinje150> opp150RevurdListe) {
-        List<Oppdragslinje150> opp150ForSNOriginalListe = getOpp150MedKodeklassifik(originaltOpp150Liste, ØkonomiKodeKlassifik.FPSND_OP.getKodeKlassifik());
-        List<Oppdragslinje150> opp150ForSNRevurdListe = getOpp150MedKodeklassifik(opp150RevurdListe, ØkonomiKodeKlassifik.FPSND_OP.getKodeKlassifik());
-        List<Oppdragslinje150> opp150ForFLRevurdListe = getOpp150MedKodeklassifik(opp150RevurdListe, ØkonomiKodeKlassifik.FPATFRI.getKodeKlassifik());
-        List<Oppdragslinje150> opp150ForFLOriginalListe = getOpp150MedKodeklassifik(originaltOpp150Liste, ØkonomiKodeKlassifik.FPATFRI.getKodeKlassifik());
+        List<Oppdragslinje150> opp150ForSNOriginalListe = getOpp150MedKodeklassifik(originaltOpp150Liste, KodeKlassifik.FPF_SELVSTENDIG);
+        List<Oppdragslinje150> opp150ForSNRevurdListe = getOpp150MedKodeklassifik(opp150RevurdListe, KodeKlassifik.FPF_SELVSTENDIG);
+        List<Oppdragslinje150> opp150ForFLRevurdListe = getOpp150MedKodeklassifik(opp150RevurdListe, KodeKlassifik.FPF_FRILANSER);
+        List<Oppdragslinje150> opp150ForFLOriginalListe = getOpp150MedKodeklassifik(originaltOpp150Liste, KodeKlassifik.FPF_FRILANSER);
         Oppdragslinje150 opp150ForFLOpph = opp150ForFLRevurdListe.stream()
             .filter(Oppdragslinje150::gjelderOpphør)
             .findFirst().get();
@@ -2599,29 +2599,29 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             assertThat(opp150.getDelytelseId()).isEqualTo(opp150ForFLOpph.getDelytelseId()));
     }
 
-    private List<Oppdragslinje150> getOpp150MedKodeklassifik(List<Oppdragslinje150> opp150RevurdListe, String kodeKlassifik) {
+    private List<Oppdragslinje150> getOpp150MedKodeklassifik(List<Oppdragslinje150> opp150RevurdListe, KodeKlassifik kodeKlassifik) {
         return opp150RevurdListe.stream()
             .filter(opp150 -> kodeKlassifik.equals(opp150.getKodeKlassifik()))
             .collect(Collectors.toList());
     }
 
     private void verifiserKodeklassifik(List<Oppdragslinje150> originaltOpp150Liste, List<Oppdragslinje150> opp150RevurdListe) {
-        List<String> kodeKlassifikForrigeListe = OppdragskontrollTestVerktøy.getKodeklassifikIOppdr150Liste(originaltOpp150Liste);
-        List<String> kodeKlassifikRevurderingListe = OppdragskontrollTestVerktøy.getKodeklassifikIOppdr150Liste(opp150RevurdListe);
-        List<String> kodeKlassifikRevurderingOpphListe = OppdragskontrollTestVerktøy.getKodeklassifikKunForOpp150MedOpph(opp150RevurdListe);
-        assertThat(kodeKlassifikForrigeListe).containsOnlyElementsOf(List.of(ØkonomiKodeKlassifik.FPATFRI.getKodeKlassifik(), ØkonomiKodeKlassifik.FPATORD.getKodeKlassifik()));
-        assertThat(kodeKlassifikRevurderingListe).containsOnlyElementsOf(List.of(ØkonomiKodeKlassifik.FPATFRI.getKodeKlassifik(), ØkonomiKodeKlassifik.FPATORD.getKodeKlassifik()));
-        assertThat(kodeKlassifikRevurderingOpphListe).containsOnlyElementsOf(List.of(ØkonomiKodeKlassifik.FPATFRI.getKodeKlassifik(), ØkonomiKodeKlassifik.FPATORD.getKodeKlassifik()));
+        List<KodeKlassifik> kodeKlassifikForrigeListe = OppdragskontrollTestVerktøy.getKodeklassifikIOppdr150Liste(originaltOpp150Liste);
+        List<KodeKlassifik> kodeKlassifikRevurderingListe = OppdragskontrollTestVerktøy.getKodeklassifikIOppdr150Liste(opp150RevurdListe);
+        List<KodeKlassifik> kodeKlassifikRevurderingOpphListe = OppdragskontrollTestVerktøy.getKodeklassifikKunForOpp150MedOpph(opp150RevurdListe);
+        assertThat(kodeKlassifikForrigeListe).containsOnlyElementsOf(List.of(KodeKlassifik.FPF_FRILANSER, KodeKlassifik.FPF_ARBEIDSTAKER));
+        assertThat(kodeKlassifikRevurderingListe).containsOnlyElementsOf(List.of(KodeKlassifik.FPF_FRILANSER, KodeKlassifik.FPF_ARBEIDSTAKER));
+        assertThat(kodeKlassifikRevurderingOpphListe).containsOnlyElementsOf(List.of(KodeKlassifik.FPF_FRILANSER, KodeKlassifik.FPF_ARBEIDSTAKER));
     }
 
     private void verifiserKodeklassifikNårRevurderingHarNye(List<Oppdragslinje150> originaltOpp150Liste, List<Oppdragslinje150> opp150RevurdListe) {
-        List<String> kodeKlassifikForrigeListe = OppdragskontrollTestVerktøy.getKodeklassifikIOppdr150Liste(originaltOpp150Liste);
-        List<String> kodeKlassifikRevurderingListe = OppdragskontrollTestVerktøy.getKodeklassifikIOppdr150Liste(opp150RevurdListe);
-        List<String> kodeKlassifikRevurderingOpphListe = OppdragskontrollTestVerktøy.getKodeklassifikKunForOpp150MedOpph(opp150RevurdListe);
-        assertThat(kodeKlassifikForrigeListe).containsOnlyElementsOf(List.of(ØkonomiKodeKlassifik.FPATFRI.getKodeKlassifik(), ØkonomiKodeKlassifik.FPSND_OP.getKodeKlassifik()));
-        assertThat(kodeKlassifikRevurderingListe).containsOnlyElementsOf(List.of(ØkonomiKodeKlassifik.FPATFRI.getKodeKlassifik(), ØkonomiKodeKlassifik.FPATORD.getKodeKlassifik(),
-            ØkonomiKodeKlassifik.FPSND_OP.getKodeKlassifik()));
-        assertThat(kodeKlassifikRevurderingOpphListe).containsOnlyElementsOf(List.of(ØkonomiKodeKlassifik.FPATFRI.getKodeKlassifik(), ØkonomiKodeKlassifik.FPSND_OP.getKodeKlassifik()));
+        List<KodeKlassifik> kodeKlassifikForrigeListe = OppdragskontrollTestVerktøy.getKodeklassifikIOppdr150Liste(originaltOpp150Liste);
+        List<KodeKlassifik> kodeKlassifikRevurderingListe = OppdragskontrollTestVerktøy.getKodeklassifikIOppdr150Liste(opp150RevurdListe);
+        List<KodeKlassifik> kodeKlassifikRevurderingOpphListe = OppdragskontrollTestVerktøy.getKodeklassifikKunForOpp150MedOpph(opp150RevurdListe);
+        assertThat(kodeKlassifikForrigeListe).containsOnlyElementsOf(List.of(KodeKlassifik.FPF_FRILANSER, KodeKlassifik.FPF_SELVSTENDIG));
+        assertThat(kodeKlassifikRevurderingListe).containsOnlyElementsOf(List.of(KodeKlassifik.FPF_FRILANSER, KodeKlassifik.FPF_ARBEIDSTAKER,
+            KodeKlassifik.FPF_SELVSTENDIG));
+        assertThat(kodeKlassifikRevurderingOpphListe).containsOnlyElementsOf(List.of(KodeKlassifik.FPF_FRILANSER, KodeKlassifik.FPF_SELVSTENDIG));
     }
 
 
@@ -2638,7 +2638,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         List<Oppdragslinje150> opp150VirksomhetListe = opp150RevurdListe.stream()
             .filter(oppdragslinje150 -> oppdragslinje150.getRefusjonsinfo156() != null)
             .filter(oppdragslinje150 -> oppdragslinje150.getRefusjonsinfo156().getRefunderesId().equals(OppdragskontrollTestVerktøy.endreTilElleveSiffer(virksomhet)))
-            .filter(oppdragslinje150 -> oppdragslinje150.getKodeKlassifik().equals(ØkonomiKodeKlassifik.FPREFAGFER_IOP.getKodeKlassifik()))
+            .filter(oppdragslinje150 -> oppdragslinje150.getKodeKlassifik().equals(KodeKlassifik.FPF_FERIEPENGER_AG))
             .collect(Collectors.toList());
         assertThat(opp150VirksomhetListe).isEmpty();
     }

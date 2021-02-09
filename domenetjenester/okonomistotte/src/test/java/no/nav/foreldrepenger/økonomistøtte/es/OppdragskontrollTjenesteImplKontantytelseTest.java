@@ -35,6 +35,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
@@ -59,8 +60,6 @@ import no.nav.foreldrepenger.økonomistøtte.kontantytelse.es.adapter.MapBehandl
 import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 
 public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManagerAwareTest {
-
-    private static final String KODE_KLASSIFIK_FODSEL = "FPENFOD-OP";
 
     private EntityManager entityManager;
 
@@ -268,7 +267,7 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
             assertThat(oppdragslinje150.getVedtakId()).isEqualTo(vedtaksdatoES.toString());
             assertThat(oppdragslinje150.getDelytelseId()).isEqualTo(
                 concatenateValues(oppdrag110.getFagsystemId(), løpenummer));
-            assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(KODE_KLASSIFIK_FODSEL);
+            assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(KodeKlassifik.ES_FØDSEL);
             assertThat(oppdragslinje150.getDatoVedtakFom()).isEqualTo(vedtaksdatoES);
             assertThat(oppdragslinje150.getDatoVedtakTom()).isEqualTo(vedtaksdatoES);
             assertThat(oppdragslinje150.getSats()).isEqualTo(getBehandlingsresultat(behandling).getBeregningResultat()

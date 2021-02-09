@@ -9,7 +9,7 @@ import java.util.Map;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Betalingsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.DelytelseId;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.KjedeNøkkel;
@@ -157,8 +157,8 @@ public class EndringsdatoTjenesteTest {
 
     @Test
     public void skal_finne_tidligste_endringsdato_på_tvers_av_oppdrag() {
-        KjedeNøkkel nøkkelBruker = KjedeNøkkel.lag(ØkonomiKodeKlassifik.FPATORD, Betalingsmottaker.BRUKER);
-        KjedeNøkkel nøkkelArbeidsgiver = KjedeNøkkel.lag(ØkonomiKodeKlassifik.FPREFAG_IOP, Betalingsmottaker.forArbeidsgiver("000000000"));
+        KjedeNøkkel nøkkelBruker = KjedeNøkkel.lag(KodeKlassifik.FPF_ARBEIDSTAKER, Betalingsmottaker.BRUKER);
+        KjedeNøkkel nøkkelArbeidsgiver = KjedeNøkkel.lag(KodeKlassifik.FPF_REFUSJON_AG, Betalingsmottaker.forArbeidsgiver("000000000"));
 
         OverordnetOppdragKjedeOversikt tidligereOppdrag = new OverordnetOppdragKjedeOversikt(Collections.emptyMap());
 
@@ -179,8 +179,8 @@ public class EndringsdatoTjenesteTest {
 
     @Test
     public void skal_finne_tidligste_endringsdato_på_tvers_av_oppdrag_for_revurdering() {
-        KjedeNøkkel nøkkelBruker = KjedeNøkkel.lag(ØkonomiKodeKlassifik.FPATORD, Betalingsmottaker.BRUKER);
-        KjedeNøkkel nøkkelArbeidsgiver = KjedeNøkkel.lag(ØkonomiKodeKlassifik.FPREFAG_IOP, Betalingsmottaker.forArbeidsgiver("000000000"));
+        KjedeNøkkel nøkkelBruker = KjedeNøkkel.lag(KodeKlassifik.FPF_ARBEIDSTAKER, Betalingsmottaker.BRUKER);
+        KjedeNøkkel nøkkelArbeidsgiver = KjedeNøkkel.lag(KodeKlassifik.FPF_REFUSJON_AG, Betalingsmottaker.forArbeidsgiver("000000000"));
 
         OverordnetOppdragKjedeOversikt tidligereOppdrag = new OverordnetOppdragKjedeOversikt(Map.of(
             nøkkelBruker, OppdragKjede.builder()

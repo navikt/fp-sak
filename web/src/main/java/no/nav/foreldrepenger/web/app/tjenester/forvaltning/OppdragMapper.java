@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
@@ -67,7 +68,7 @@ class OppdragMapper {
             .medRefFagsystemId(linje.getRefFagsystemId())
             .medVedtakId(behandlingVedtak.getVedtaksdato().toString())
             .medKodeEndringLinje(KodeEndringLinje.fraKode(linje.getKodeEndring()))
-            .medKodeKlassifik(linje.getKodeKlassifik());
+            .medKodeKlassifik(KodeKlassifik.fraKode(linje.getKodeKlassifik()));
         if (linje.getOpphørFom() != null) {
             builder.medDatoStatusFom(linje.getOpphørFom());
             builder.medKodeStatusLinje(ØkonomiKodeStatusLinje.OPPH.name());

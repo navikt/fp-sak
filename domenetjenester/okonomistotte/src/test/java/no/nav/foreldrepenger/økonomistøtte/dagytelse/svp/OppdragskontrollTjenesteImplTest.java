@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragskontrollTjenesteTestBase;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdrag110.KodeFagområdeTjeneste;
 
@@ -70,15 +70,15 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
         List<Oppdragslinje150> opp150List_Bruker = oppdrag110_Bruker.get().getOppdragslinje150Liste();
         assertThat(opp150List_Bruker).anySatisfy(opp150 ->
             assertThat(opp150.getKodeKlassifik()).isIn(Arrays.asList(
-                ØkonomiKodeKlassifik.FPSVATORD.getKodeKlassifik(),
-                ØkonomiKodeKlassifik.FPATFER.getKodeKlassifik())
+                KodeKlassifik.SVP_ARBEDISTAKER,
+                KodeKlassifik.FERIEPENGER_BRUKER.getKode())
             ));
         //Oppdragslinje150 - Arbeidsgiver
         List<Oppdragslinje150> opp150List_Arbeidsgiver = oppdrag110_Arbeidsgiver.get().getOppdragslinje150Liste();
         assertThat(opp150List_Arbeidsgiver).anySatisfy(opp150 ->
             assertThat(opp150.getKodeKlassifik()).isIn(Arrays.asList(
-                ØkonomiKodeKlassifik.FPSVREFAG_IOP.getKodeKlassifik(),
-                ØkonomiKodeKlassifik.FPSVREFAGFER_IOP.getKodeKlassifik())
+                KodeKlassifik.SVP_REFUSJON_AG,
+                KodeKlassifik.SVP_FERIEPENGER_AG)
             ));
     }
 }

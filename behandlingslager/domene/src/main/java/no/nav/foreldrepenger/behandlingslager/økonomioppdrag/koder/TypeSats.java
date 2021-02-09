@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
@@ -24,17 +25,14 @@ public enum TypeSats implements Kodeverdi {
         }
     }
 
-    private String navn;
-    private String kode;
+    private final String kode;
 
     TypeSats(String kode) {
         this.kode = kode;
     }
 
     public static TypeSats fraKode(String kode) {
-        if (kode == null) {
-            return null;
-        }
+        Objects.requireNonNull(kode, "typeSats");
         var ad = KODER.get(kode);
         if (ad == null) {
             throw new IllegalArgumentException("Ukjent TypeSats: " + kode);
@@ -44,7 +42,7 @@ public enum TypeSats implements Kodeverdi {
 
     @Override
     public String getNavn() {
-        return navn;
+        return null;
     }
 
     @Override
@@ -61,12 +59,12 @@ public enum TypeSats implements Kodeverdi {
     public static class KodeverdiConverter implements AttributeConverter<TypeSats, String> {
         @Override
         public String convertToDatabaseColumn(TypeSats attribute) {
-            return attribute == null ? null : attribute.getKode();
+            return attribute.getKode();
         }
 
         @Override
         public TypeSats convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : fraKode(dbData);
+            return fraKode(dbData);
         }
     }
 }

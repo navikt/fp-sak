@@ -141,7 +141,7 @@ public class ØkonomioppdragMapper {
             }
             oppdragsLinje150.setVedtakId(okoOppdrlinje150.getVedtakId());
             oppdragsLinje150.setDelytelseId(String.valueOf(okoOppdrlinje150.getDelytelseId()));
-            oppdragsLinje150.setKodeKlassifik(okoOppdrlinje150.getKodeKlassifik());
+            oppdragsLinje150.setKodeKlassifik(okoOppdrlinje150.getKodeKlassifik().getKode());
             oppdragsLinje150.setDatoVedtakFom(toXmlGregCal(okoOppdrlinje150.getDatoVedtakFom()));
             oppdragsLinje150.setDatoVedtakTom(toXmlGregCal(okoOppdrlinje150.getDatoVedtakTom()));
             oppdragsLinje150.setSats(new BigDecimal(okoOppdrlinje150.getSats()));

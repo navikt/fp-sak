@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdrag110.KodeFagområdeTjeneste;
 
 public class OppdragskontrollTjenesteFeriepengerTest extends OppdragskontrollTjenesteTestBase {
@@ -817,7 +817,7 @@ public class OppdragskontrollTjenesteFeriepengerTest extends OppdragskontrollTje
             .get();
         List<Oppdragslinje150> opp150FeriepengerBruker = getOppdragslinje150Feriepenger(oppdrag110Bruker);
         assertThat(opp150FeriepengerBruker).allSatisfy(opp150 ->
-            assertThat(opp150.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPATFER.getKodeKlassifik()));
+            assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FERIEPENGER_BRUKER));
         // Arbeidsgiver
         Oppdrag110 oppdrag110Arbeidsgiver = oppdrag.getOppdrag110Liste()
             .stream()
@@ -826,6 +826,6 @@ public class OppdragskontrollTjenesteFeriepengerTest extends OppdragskontrollTje
             .get();
         List<Oppdragslinje150> opp150FeriepengerArbeidsgiver = getOppdragslinje150Feriepenger(oppdrag110Arbeidsgiver);
         assertThat(opp150FeriepengerArbeidsgiver).allSatisfy(opp150 ->
-            assertThat(opp150.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPADREFAGFER_IOP.getKodeKlassifik()));
+            assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPA_FERIEPENGER_AG));
     }
 }

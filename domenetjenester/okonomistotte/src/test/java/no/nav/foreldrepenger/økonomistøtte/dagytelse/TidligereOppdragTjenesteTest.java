@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
@@ -39,22 +39,22 @@ class TidligereOppdragTjenesteTest {
         long fagsystemId = 999999999L;
         Oppdrag110 oppdrag1 = lagOppdrag110(oppdragskontroll, ØkonomiKodeFagområde.FP, ØkonomiKodeEndring.NY, fagsystemId);
         oppdrag1.setOpprettetTidspunkt(LocalDateTime.now().minusDays(1));
-        lagOppdragslinje(oppdrag1, ØkonomiKodeKlassifik.FPATORD, LocalDate.of(2019, 10, 17), LocalDate.of(2019, 11, 6), fagsystemId*1000 + 100, HENVISNING_1, null, null);
-        lagOppdragslinje(oppdrag1, ØkonomiKodeKlassifik.FPATORD, LocalDate.of(2019, 11, 7), LocalDate.of(2019, 12, 18), fagsystemId*1000 + 101, HENVISNING_1, fagsystemId*1000 + 100, fagsystemId);
-        lagOppdragslinje(oppdrag1, ØkonomiKodeKlassifik.FPATORD, LocalDate.of(2019, 12, 19), LocalDate.of(2020, 2, 19), fagsystemId*1000 + 102, HENVISNING_1, fagsystemId*1000 + 101, fagsystemId);
-        lagOppdragslinje(oppdrag1, ØkonomiKodeKlassifik.FPATORD, LocalDate.of(2020, 2, 20), LocalDate.of(2020, 6, 10), fagsystemId*1000 + 103, HENVISNING_1, fagsystemId*1000 + 102, fagsystemId);
-        lagOppdragslinje(oppdrag1, ØkonomiKodeKlassifik.FPATFER, LocalDate.of(2020, 5, 1), LocalDate.of(2020, 5, 31), fagsystemId*1000 + 104, HENVISNING_1, null, null);
-        lagOppdragslinje(oppdrag1, ØkonomiKodeKlassifik.FPATFER, LocalDate.of(2021, 5, 1), LocalDate.of(2021, 5, 31), fagsystemId*1000 + 105, HENVISNING_1, null, null);
+        lagOppdragslinje(oppdrag1, KodeKlassifik.FPF_ARBEIDSTAKER, LocalDate.of(2019, 10, 17), LocalDate.of(2019, 11, 6), fagsystemId*1000 + 100, HENVISNING_1, null, null);
+        lagOppdragslinje(oppdrag1, KodeKlassifik.FPF_ARBEIDSTAKER, LocalDate.of(2019, 11, 7), LocalDate.of(2019, 12, 18), fagsystemId*1000 + 101, HENVISNING_1, fagsystemId*1000 + 100, fagsystemId);
+        lagOppdragslinje(oppdrag1, KodeKlassifik.FPF_ARBEIDSTAKER, LocalDate.of(2019, 12, 19), LocalDate.of(2020, 2, 19), fagsystemId*1000 + 102, HENVISNING_1, fagsystemId*1000 + 101, fagsystemId);
+        lagOppdragslinje(oppdrag1, KodeKlassifik.FPF_ARBEIDSTAKER, LocalDate.of(2020, 2, 20), LocalDate.of(2020, 6, 10), fagsystemId*1000 + 103, HENVISNING_1, fagsystemId*1000 + 102, fagsystemId);
+        lagOppdragslinje(oppdrag1, KodeKlassifik.FERIEPENGER_BRUKER, LocalDate.of(2020, 5, 1), LocalDate.of(2020, 5, 31), fagsystemId*1000 + 104, HENVISNING_1, null, null);
+        lagOppdragslinje(oppdrag1, KodeKlassifik.FERIEPENGER_BRUKER, LocalDate.of(2021, 5, 1), LocalDate.of(2021, 5, 31), fagsystemId*1000 + 105, HENVISNING_1, null, null);
 
         Oppdrag110 oppdrag2 = lagOppdrag110(oppdragskontroll, ØkonomiKodeFagområde.FP, ØkonomiKodeEndring.ENDR, fagsystemId);
         oppdrag2.setOpprettetTidspunkt(LocalDateTime.now());
-        lagOpphørslinje(oppdrag2, ØkonomiKodeKlassifik.FPATORD, LocalDate.of(2020, 2, 20), LocalDate.of(2020, 6, 10), fagsystemId*1000 + 103, LocalDate.of(2019, 10, 17), HENVISNING_2, null, null);
-        lagOpphørslinje(oppdrag2, ØkonomiKodeKlassifik.FPATFER, LocalDate.of(2020, 5, 1), LocalDate.of(2020, 5, 31), fagsystemId*1000 + 104, LocalDate.of(2020, 5, 1), HENVISNING_2, null, null);
-        lagOpphørslinje(oppdrag2, ØkonomiKodeKlassifik.FPATFER, LocalDate.of(2021, 5, 1), LocalDate.of(2021, 5, 31), fagsystemId*1000 + 105, LocalDate.of(2021, 5, 1), HENVISNING_2, null, null);
-        lagOppdragslinje(oppdrag1, ØkonomiKodeKlassifik.FPATAL, LocalDate.of(2019, 10, 17), LocalDate.of(2019, 10, 25), fagsystemId*1000 + 106, HENVISNING_2, null, null);
-        lagOppdragslinje(oppdrag1, ØkonomiKodeKlassifik.FPATAL, LocalDate.of(2019, 10, 28), LocalDate.of(2019, 12, 6), fagsystemId*1000 + 107, HENVISNING_2, fagsystemId*1000 + 106, fagsystemId);
-        lagOppdragslinje(oppdrag1, ØkonomiKodeKlassifik.FPATAL, LocalDate.of(2019, 12, 7), LocalDate.of(2020, 2, 7), fagsystemId*1000 + 108, HENVISNING_2, fagsystemId*1000 + 107, fagsystemId);
-        lagOppdragslinje(oppdrag1, ØkonomiKodeKlassifik.FPATAL, LocalDate.of(2020, 2, 10), LocalDate.of(2020, 5, 31), fagsystemId*1000 + 109, HENVISNING_2, fagsystemId*1000 + 108, fagsystemId);
+        lagOpphørslinje(oppdrag2, KodeKlassifik.FPF_ARBEIDSTAKER, LocalDate.of(2020, 2, 20), LocalDate.of(2020, 6, 10), fagsystemId*1000 + 103, LocalDate.of(2019, 10, 17), HENVISNING_2, null, null);
+        lagOpphørslinje(oppdrag2, KodeKlassifik.FERIEPENGER_BRUKER, LocalDate.of(2020, 5, 1), LocalDate.of(2020, 5, 31), fagsystemId*1000 + 104, LocalDate.of(2020, 5, 1), HENVISNING_2, null, null);
+        lagOpphørslinje(oppdrag2, KodeKlassifik.FERIEPENGER_BRUKER, LocalDate.of(2021, 5, 1), LocalDate.of(2021, 5, 31), fagsystemId*1000 + 105, LocalDate.of(2021, 5, 1), HENVISNING_2, null, null);
+        lagOppdragslinje(oppdrag1, KodeKlassifik.FPF_DAGPENGER, LocalDate.of(2019, 10, 17), LocalDate.of(2019, 10, 25), fagsystemId*1000 + 106, HENVISNING_2, null, null);
+        lagOppdragslinje(oppdrag1, KodeKlassifik.FPF_DAGPENGER, LocalDate.of(2019, 10, 28), LocalDate.of(2019, 12, 6), fagsystemId*1000 + 107, HENVISNING_2, fagsystemId*1000 + 106, fagsystemId);
+        lagOppdragslinje(oppdrag1, KodeKlassifik.FPF_DAGPENGER, LocalDate.of(2019, 12, 7), LocalDate.of(2020, 2, 7), fagsystemId*1000 + 108, HENVISNING_2, fagsystemId*1000 + 107, fagsystemId);
+        lagOppdragslinje(oppdrag1, KodeKlassifik.FPF_DAGPENGER, LocalDate.of(2020, 2, 10), LocalDate.of(2020, 5, 31), fagsystemId*1000 + 109, HENVISNING_2, fagsystemId*1000 + 108, fagsystemId);
 
         ForrigeOppdragInput forrigeOppdragInput = new ForrigeOppdragInput(Arrays.asList(oppdrag1, oppdrag2), null);
 
@@ -71,7 +71,7 @@ class TidligereOppdragTjenesteTest {
         Assertions.assertThat(oppdragslinje150s.size()).isEqualTo(5);
     }
 
-    private Oppdragslinje150 lagOpphørslinje(Oppdrag110 oppdrag110, ØkonomiKodeKlassifik klassekode, LocalDate fom, LocalDate tom, Long delytelseId,
+    private Oppdragslinje150 lagOpphørslinje(Oppdrag110 oppdrag110, KodeKlassifik klassekode, LocalDate fom, LocalDate tom, Long delytelseId,
                                              LocalDate opphørsdatao, Long henvisning, Long refDelytelseId, Long refFagsystemId) {
         return lagOppdragslinjeBuilder(oppdrag110, klassekode, fom, tom, delytelseId, henvisning, refDelytelseId, refFagsystemId)
             .medKodeEndringLinje(KodeEndringLinje.ENDRING)
@@ -80,17 +80,17 @@ class TidligereOppdragTjenesteTest {
             .build();
     }
 
-    private Oppdragslinje150 lagOppdragslinje(Oppdrag110 oppdrag110, ØkonomiKodeKlassifik klassekode, LocalDate fom, LocalDate tom, Long delytelseId,
+    private Oppdragslinje150 lagOppdragslinje(Oppdrag110 oppdrag110, KodeKlassifik klassekode, LocalDate fom, LocalDate tom, Long delytelseId,
                                               Long henvisning, Long refDelytelseId, Long refFagsystemId) {
         return lagOppdragslinjeBuilder(oppdrag110, klassekode, fom, tom, delytelseId, henvisning, refDelytelseId, refFagsystemId)
             .build();
     }
 
-    private Oppdragslinje150.Builder lagOppdragslinjeBuilder(Oppdrag110 oppdrag110, ØkonomiKodeKlassifik klassekode, LocalDate fom, LocalDate tom,
+    private Oppdragslinje150.Builder lagOppdragslinjeBuilder(Oppdrag110 oppdrag110, KodeKlassifik klassekode, LocalDate fom, LocalDate tom,
                                                              Long delytelseId, Long henvisning, Long refDelyteseId, Long refFagsystemId) {
         return Oppdragslinje150.builder()
             .medKodeEndringLinje(KodeEndringLinje.NY)
-            .medKodeKlassifik(klassekode.getKodeKlassifik())
+            .medKodeKlassifik(klassekode)
             .medVedtakFomOgTom(fom, tom)
             .medSats(1L)
             .medTypeSats(TypeSats.DAGLIG)

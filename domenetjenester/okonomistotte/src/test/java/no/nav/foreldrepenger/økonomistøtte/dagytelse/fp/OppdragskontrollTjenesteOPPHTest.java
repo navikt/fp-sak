@@ -23,10 +23,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeStatusLinje;
 import no.nav.foreldrepenger.økonomistøtte.OppdragMedPositivKvitteringTestUtil;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.OppdragskontrollConstants;
@@ -406,7 +406,7 @@ public class OppdragskontrollTjenesteOPPHTest extends OppdragskontrollTjenesteTe
         List<Oppdragslinje150> revurderingOpp150BrukerListe = nyOpp110Bruker.getOppdragslinje150Liste();
 
         assertThat(revurderingOpp150BrukerListe).anySatisfy(opp150 ->
-            assertThat(opp150.getKodeKlassifik()).isEqualTo(ØkonomiKodeKlassifik.FPATFER.getKodeKlassifik()));
+            assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FERIEPENGER_BRUKER));
 
         for (int ix = 0; ix < revurderingOpp150BrukerListe.size(); ix++) {
             Oppdragslinje150 revurderingOpp150Bruker = revurderingOpp150BrukerListe.get(ix);
@@ -418,7 +418,7 @@ public class OppdragskontrollTjenesteOPPHTest extends OppdragskontrollTjenesteTe
             assertThat(revurderingOpp150Bruker.getKodeStatusLinje()).isEqualTo(ØkonomiKodeStatusLinje.OPPH.name());
             LocalDate førsteDatoVedtakFom = OppdragskontrollTestVerktøy.finnFørsteDatoVedtakFom(originaltOpp150BrukerListe, originaltOpp150Bruker);
             LocalDate datoStatusFom = førsteDatoVedtakFom.isAfter(endringsdato) ? førsteDatoVedtakFom : endringsdato;
-            assertThat(revurderingOpp150Bruker.getDatoStatusFom()).isEqualTo(revurderingOpp150Bruker.getKodeKlassifik().equals(ØkonomiKodeKlassifik.FPATFER.getKodeKlassifik())
+            assertThat(revurderingOpp150Bruker.getDatoStatusFom()).isEqualTo(revurderingOpp150Bruker.getKodeKlassifik().equals(KodeKlassifik.FERIEPENGER_BRUKER)
                 ? LocalDate.of(I_ÅR + 1, 5, 1) : datoStatusFom);
             assertThat(revurderingOpp150Bruker.getSats()).isEqualTo(originaltOpp150Bruker.getSats());
         }
@@ -444,11 +444,11 @@ public class OppdragskontrollTjenesteOPPHTest extends OppdragskontrollTjenesteTe
                 .filter(nytt -> originalt.getFagsystemId() == nytt.getFagsystemId())
                 .findFirst().orElse(null);
             assertThat(nyttOppdrag).isNotNull();
-            List<String> klassifikasjoner = originalt.getOppdragslinje150Liste().stream()
+            List<KodeKlassifik> klassifikasjoner = originalt.getOppdragslinje150Liste().stream()
                 .map(Oppdragslinje150::getKodeKlassifik)
                 .distinct()
                 .collect(Collectors.toList());
-            for (String klassifikasjon : klassifikasjoner) {
+            for (KodeKlassifik klassifikasjon : klassifikasjoner) {
                 Optional<Oppdragslinje150> opphørslinje = nyttOppdrag.getOppdragslinje150Liste().stream()
                     .filter(opp150 -> klassifikasjon.equals(opp150.getKodeKlassifik()))
                     .filter(opp150 -> KodeEndringLinje.ENDRING.equals(opp150.getKodeEndringLinje()))
@@ -463,16 +463,16 @@ public class OppdragskontrollTjenesteOPPHTest extends OppdragskontrollTjenesteTe
     }
 
     private void verifiserOppdragslinje150MedFlereKategorier_OPPH(Oppdragskontroll oppdragRevurdering, Oppdragskontroll originaltOppdrag) {
-        Map<String, List<Oppdragslinje150>> originaltOppLinjePerKodeKl = originaltOppdrag.getOppdrag110Liste().stream()
+        Map<KodeKlassifik, List<Oppdragslinje150>> originaltOppLinjePerKodeKl = originaltOppdrag.getOppdrag110Liste().stream()
             .filter(this::gjelderFagområdeBruker)
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
             .collect(Collectors.groupingBy(Oppdragslinje150::getKodeKlassifik));
-        Map<String, List<Oppdragslinje150>> nyOpp150LinjePerKodeKl = oppdragRevurdering.getOppdrag110Liste().stream()
+        Map<KodeKlassifik, List<Oppdragslinje150>> nyOpp150LinjePerKodeKl = oppdragRevurdering.getOppdrag110Liste().stream()
             .filter(this::gjelderFagområdeBruker)
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
             .collect(Collectors.groupingBy(Oppdragslinje150::getKodeKlassifik));
 
-        for (String kodeKlassifik : originaltOppLinjePerKodeKl.keySet()) {
+        for (KodeKlassifik kodeKlassifik : originaltOppLinjePerKodeKl.keySet()) {
             Oppdragslinje150 sisteOriginaltOppdragsLinje = originaltOppLinjePerKodeKl.get(kodeKlassifik).stream()
                 .max(Comparator.comparing(Oppdragslinje150::getDelytelseId)).get();
             Oppdragslinje150 sisteNyOppdragsLinje = nyOpp150LinjePerKodeKl.get(kodeKlassifik).get(0);

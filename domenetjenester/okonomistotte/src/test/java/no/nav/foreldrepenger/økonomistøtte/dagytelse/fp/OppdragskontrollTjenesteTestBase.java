@@ -63,10 +63,9 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.person.pdl.AktørTjeneste;
@@ -514,9 +513,9 @@ public abstract class OppdragskontrollTjenesteTestBase {
                 .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
                 .collect(Collectors.toList());
             assertThat(opp150List).anySatisfy(opp150 -> assertThat(opp150.getKodeKlassifik()).isEqualTo(
-                ØkonomiKodeKlassifik.FPATFER.getKodeKlassifik()));
+                KodeKlassifik.FERIEPENGER_BRUKER));
             assertThat(opp150List).anySatisfy(opp150 -> assertThat(opp150.getKodeKlassifik()).isEqualTo(
-                ØkonomiKodeKlassifik.FPREFAGFER_IOP.getKodeKlassifik()));
+                KodeKlassifik.FPF_FERIEPENGER_AG));
         }
     }
 
@@ -881,7 +880,7 @@ public abstract class OppdragskontrollTjenesteTestBase {
     static List<Oppdragslinje150> getOppdragslinje150Feriepenger(Oppdrag110 oppdrag110) {
         return oppdrag110.getOppdragslinje150Liste()
             .stream()
-            .filter(opp150 -> ØkonomiKodeKlassifik.fraKode(opp150.getKodeKlassifik()).gjelderFerie())
+            .filter(opp150 -> opp150.getKodeKlassifik().gjelderFerie())
             .collect(Collectors.toList());
     }
 

@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.økonomistøtte.ny.mapper;
 
-import static no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik.FPATFER;
-import static no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik.FPATORD;
+import static no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik.FERIEPENGER_BRUKER;
+import static no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik.FPF_ARBEIDSTAKER;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -11,12 +11,12 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Betalingsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.DelytelseId;
@@ -52,7 +52,7 @@ public class EksisterendeOppdragMapperTest {
         lagOrdinærLinje(oppdrag110, delytelseId2, p2, Sats.dagsats(150), delytelseId1);
 
         Map<KjedeNøkkel, OppdragKjede> kjeder = EksisterendeOppdragMapper.tilKjeder(Arrays.asList(oppdragskontroll));
-        KjedeNøkkel kjedeNøkkel = KjedeNøkkel.lag(FPATORD, Betalingsmottaker.BRUKER);
+        KjedeNøkkel kjedeNøkkel = KjedeNøkkel.lag(FPF_ARBEIDSTAKER, Betalingsmottaker.BRUKER);
         Assertions.assertThat(kjeder.keySet()).containsOnly(kjedeNøkkel);
         OppdragKjede kjede = kjeder.get(kjedeNøkkel);
         Assertions.assertThat(kjede.getOppdragslinjer()).containsExactly(
@@ -69,8 +69,8 @@ public class EksisterendeOppdragMapperTest {
         lagOrdinærLinje(oppdrag110, delytelseId2, p2, Sats.dagsats(150), null); // denne peker ikke til forrige, slik den egentlig skal
 
         Map<KjedeNøkkel, OppdragKjede> kjeder = EksisterendeOppdragMapper.tilKjeder(Arrays.asList(oppdragskontroll));
-        KjedeNøkkel kjedeNøkkel = KjedeNøkkel.lag(FPATORD, Betalingsmottaker.BRUKER);
-        KjedeNøkkel kjedeNøkkelKnektKjede = KjedeNøkkel.builder(FPATORD, Betalingsmottaker.BRUKER).medKnektKjedeDel(1).build();
+        KjedeNøkkel kjedeNøkkel = KjedeNøkkel.lag(FPF_ARBEIDSTAKER, Betalingsmottaker.BRUKER);
+        KjedeNøkkel kjedeNøkkelKnektKjede = KjedeNøkkel.builder(FPF_ARBEIDSTAKER, Betalingsmottaker.BRUKER).medKnektKjedeDel(1).build();
         Assertions.assertThat(kjeder.keySet()).containsOnly(kjedeNøkkel, kjedeNøkkelKnektKjede);
         Assertions.assertThat(kjeder.get(kjedeNøkkel).getOppdragslinjer()).containsExactly(
             OppdragLinje.builder().medDelytelseId(delytelseId1).medPeriode(p1).medSats(Sats.dagsats(100)).build());
@@ -90,7 +90,7 @@ public class EksisterendeOppdragMapperTest {
         lagOrdinærLinje(oppdrag110, delytelseId3, p3, Sats.dagsats(100), DelytelseId.parse(Long.toString(linje2.getDelytelseId())));
 
         Map<KjedeNøkkel, OppdragKjede> kjeder = EksisterendeOppdragMapper.tilKjeder(Arrays.asList(oppdragskontroll));
-        KjedeNøkkel kjedeNøkkel = KjedeNøkkel.lag(FPATORD, Betalingsmottaker.BRUKER);
+        KjedeNøkkel kjedeNøkkel = KjedeNøkkel.lag(FPF_ARBEIDSTAKER, Betalingsmottaker.BRUKER);
         Assertions.assertThat(kjeder.keySet()).containsOnly(kjedeNøkkel);
         OppdragKjede kjede = kjeder.get(kjedeNøkkel);
         Assertions.assertThat(kjede.getOppdragslinjer()).containsExactly(
@@ -107,12 +107,12 @@ public class EksisterendeOppdragMapperTest {
 
         Oppdragskontroll oppdragskontroll = lagOppdragskontroll();
         Oppdrag110 oppdrag110 = lagOppdrag110(oppdragskontroll, FagsystemId.parse(saksnummer.getVerdi() + "100"));
-        lagOppdragslinje150(oppdrag110, delytelseId1, mai, Sats.engang(1000), null, null, FPATFER);
-        lagOppdragslinje150(oppdrag110, delytelseId1, mai, Sats.engang(1000), null, mai.getFom(), FPATFER);
-        lagOppdragslinje150(oppdrag110, delytelseId2, mai, Sats.engang(1000), null, null, FPATFER);
+        lagOppdragslinje150(oppdrag110, delytelseId1, mai, Sats.engang(1000), null, null, FERIEPENGER_BRUKER);
+        lagOppdragslinje150(oppdrag110, delytelseId1, mai, Sats.engang(1000), null, mai.getFom(), FERIEPENGER_BRUKER);
+        lagOppdragslinje150(oppdrag110, delytelseId2, mai, Sats.engang(1000), null, null, FERIEPENGER_BRUKER);
 
         Map<KjedeNøkkel, OppdragKjede> kjeder = EksisterendeOppdragMapper.tilKjeder(Arrays.asList(oppdragskontroll));
-        KjedeNøkkel kjedeNøkkel = KjedeNøkkel.lag(FPATFER, Betalingsmottaker.BRUKER, 2019);
+        KjedeNøkkel kjedeNøkkel = KjedeNøkkel.lag(FERIEPENGER_BRUKER, Betalingsmottaker.BRUKER, 2019);
         KjedeNøkkel kjedeNøkkel2 = kjedeNøkkel.forNesteKnekteKjededel();
         Assertions.assertThat(kjeder.keySet()).containsOnly(kjedeNøkkel, kjedeNøkkel2);
         OppdragKjede aktivKjede = kjeder.get(kjedeNøkkel);
@@ -136,19 +136,19 @@ public class EksisterendeOppdragMapperTest {
     }
 
     private Oppdragslinje150 lagOpphørslinje(Oppdrag110 oppdrag110, DelytelseId delytelseId, Periode p, Sats sats, LocalDate opphørFomDato) {
-        return lagOppdragslinje150(oppdrag110, delytelseId, p, sats, null, opphørFomDato, FPATORD);
+        return lagOppdragslinje150(oppdrag110, delytelseId, p, sats, null, opphørFomDato, FPF_ARBEIDSTAKER);
     }
 
     private Oppdragslinje150 lagOrdinærLinje(Oppdrag110 oppdrag110, DelytelseId delytelseId, Periode p, Sats sats, DelytelseId refDelytelseId) {
-        return lagOppdragslinje150(oppdrag110, delytelseId, p, sats, refDelytelseId, null, FPATORD);
+        return lagOppdragslinje150(oppdrag110, delytelseId, p, sats, refDelytelseId, null, FPF_ARBEIDSTAKER);
     }
 
     private Oppdragslinje150 lagOppdragslinje150(Oppdrag110 oppdrag110, DelytelseId delytelseId, Periode p, Sats sats, DelytelseId refDelytelseId,
-                                                 LocalDate opphørFomDato, ØkonomiKodeKlassifik økonomiKodeKlassifik) {
+                                                 LocalDate opphørFomDato, KodeKlassifik kodeKlassifik) {
         return Oppdragslinje150.builder()
             .medOppdrag110(oppdrag110)
             .medDelytelseId(Long.parseLong(delytelseId.toString()))
-            .medKodeKlassifik(økonomiKodeKlassifik.getKodeKlassifik())
+            .medKodeKlassifik(kodeKlassifik)
             .medVedtakFomOgTom(p.getFom(), p.getTom())
             .medSats(sats.getSats())
             .medTypeSats(TypeSats.fraKode(sats.getSatsType().getKode()))

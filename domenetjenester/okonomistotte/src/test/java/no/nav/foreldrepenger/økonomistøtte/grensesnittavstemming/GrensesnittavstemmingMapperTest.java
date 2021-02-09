@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
@@ -33,8 +34,6 @@ import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.K
 public class GrensesnittavstemmingMapperTest {
 
     private static final int MAKS_AVSTEMMING_MELDING_BYTES = 32000;
-
-    private static final String KODE_KLASSIFIK_FODSEL = "FPENFOD-OP";
 
     private static final String MELDINGKODE = "Kode1234";
 
@@ -325,7 +324,7 @@ public class GrensesnittavstemmingMapperTest {
             .medDatoStatusFom(LocalDate.now())
             .medVedtakId("345")
             .medDelytelseId(64L)
-            .medKodeKlassifik(KODE_KLASSIFIK_FODSEL)
+            .medKodeKlassifik(KodeKlassifik.ES_FØDSEL)
             .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
             .medSats(61122L)
             .medTypeSats(TypeSats.ENGANG)

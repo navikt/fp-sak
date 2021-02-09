@@ -46,7 +46,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
@@ -284,8 +284,8 @@ public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
         return builder.build();
     }
 
-    private String finnKodeKlassifik(boolean erBruker) {
-        return erBruker ? ØkonomiKodeKlassifik.FPATORD.name() : ØkonomiKodeKlassifik.FPREFAG_IOP.name();
+    private KodeKlassifik finnKodeKlassifik(boolean erBruker) {
+        return erBruker ? KodeKlassifik.FPF_ARBEIDSTAKER : KodeKlassifik.FPF_REFUSJON_AG;
     }
 
     private Oppdrag110 byggOppdrag110() {

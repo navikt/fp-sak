@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.økonomistøtte.Oppdragsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.FinnMottakerInfoITilkjentYtelse;
@@ -38,7 +39,7 @@ public class OpprettOppdragslinje150Tjeneste {
 
     public static List<Oppdragslinje150> opprettOppdragslinje150(OppdragInput oppdragInput, Oppdrag110 oppdrag110,
                                                                  List<TilkjentYtelseAndel> andelListe, Oppdragsmottaker mottaker) {
-        List<String> klassekodeListe = KlassekodeUtleder.getKlassekodeListe(andelListe);
+        List<KodeKlassifik> klassekodeListe = KlassekodeUtleder.getKlassekodeListe(andelListe);
         if (mottaker.erBruker() && klassekodeListe.size() > 1) {
             List<List<TilkjentYtelseAndel>> andelerGruppertMedKlassekode = gruppereAndelerMedKlassekode(andelListe);
             return opprettOppdr150ForBrukerMedFlereKlassekode(oppdragInput, oppdrag110,
@@ -130,12 +131,11 @@ public class OpprettOppdragslinje150Tjeneste {
 
         LocalDate vedtakFom = andel.getOppdragPeriodeFom();
         LocalDate vedtakTom = andel.getOppdragPeriodeTom();
-        String kodeKlassifik = KlassekodeUtleder.utled(andel);
         int dagsats = andel.getDagsats();
 
         Oppdragslinje150.Builder oppdragslinje150Builder = Oppdragslinje150.builder();
         settFellesFelterIOppdr150(oppdragInput, oppdragslinje150Builder, false, false);
-        oppdragslinje150Builder.medKodeKlassifik(kodeKlassifik)
+        oppdragslinje150Builder.medKodeKlassifik(KlassekodeUtleder.utled(andel))
             .medOppdrag110(oppdrag110)
             .medVedtakFomOgTom(vedtakFom, vedtakTom)
             .medSats(dagsats)
@@ -171,13 +171,13 @@ public class OpprettOppdragslinje150Tjeneste {
 
     public static List<List<TilkjentYtelseAndel>> gruppereAndelerMedKlassekode(List<TilkjentYtelseAndel> andelListe) {
         Map<String, List<TilkjentYtelseAndel>> andelPrKlassekodeMap = new LinkedHashMap<>();
-        List<String> klassekodeListe = KlassekodeUtleder.getKlassekodeListe(andelListe);
-        for (String klassekode : klassekodeListe) {
+        List<KodeKlassifik> klassekodeListe = KlassekodeUtleder.getKlassekodeListe(andelListe);
+        for (KodeKlassifik klassekode : klassekodeListe) {
             List<TilkjentYtelseAndel> andelerMedSammeKlassekode = andelListe.stream()
                 .filter(andel -> KlassekodeUtleder.utled(andel).equals(klassekode))
                 .sorted(Comparator.comparing(TilkjentYtelseAndel::getOppdragPeriodeFom))
                 .collect(Collectors.toList());
-            andelPrKlassekodeMap.put(klassekode, andelerMedSammeKlassekode);
+            andelPrKlassekodeMap.put(klassekode.getKode(), andelerMedSammeKlassekode);
         }
         return new ArrayList<>(andelPrKlassekodeMap.values());
     }

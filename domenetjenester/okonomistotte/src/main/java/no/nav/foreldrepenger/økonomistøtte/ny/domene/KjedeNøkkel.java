@@ -2,24 +2,24 @@ package no.nav.foreldrepenger.økonomistøtte.ny.domene;
 
 import java.util.Objects;
 
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.økonomistøtte.ny.util.ØkonomiKodeKlassifikSortering;
 
 public class KjedeNøkkel implements Comparable<KjedeNøkkel> {
 
-    private ØkonomiKodeKlassifik klassekode;
+    private KodeKlassifik klassekode;
     private Betalingsmottaker betalingsmottaker;
     private Integer feriepengeÅr;
     private Integer knektKjedeDel;
 
-    public static KjedeNøkkel lag(ØkonomiKodeKlassifik klassekode, Betalingsmottaker betalingsmottaker) {
+    public static KjedeNøkkel lag(KodeKlassifik klassekode, Betalingsmottaker betalingsmottaker) {
         return KjedeNøkkel.builder()
             .medKlassekode(klassekode)
             .medBetalingsmottaker(betalingsmottaker)
             .build();
     }
 
-    public static KjedeNøkkel lag(ØkonomiKodeKlassifik klassekode, Betalingsmottaker betalingsmottaker, int feriepengeÅr) {
+    public static KjedeNøkkel lag(KodeKlassifik klassekode, Betalingsmottaker betalingsmottaker, int feriepengeÅr) {
         return KjedeNøkkel.builder()
             .medKlassekode(klassekode)
             .medBetalingsmottaker(betalingsmottaker)
@@ -27,7 +27,7 @@ public class KjedeNøkkel implements Comparable<KjedeNøkkel> {
             .build();
     }
 
-    private KjedeNøkkel(ØkonomiKodeKlassifik klassekode, Betalingsmottaker betalingsmottaker, Integer feriepengeÅr, Integer knektKjedeDel) {
+    private KjedeNøkkel(KodeKlassifik klassekode, Betalingsmottaker betalingsmottaker, Integer feriepengeÅr, Integer knektKjedeDel) {
         this.klassekode = klassekode;
         this.betalingsmottaker = betalingsmottaker;
         this.feriepengeÅr = feriepengeÅr;
@@ -38,7 +38,7 @@ public class KjedeNøkkel implements Comparable<KjedeNøkkel> {
         return new KjedeNøkkel(klassekode, betalingsmottaker, feriepengeÅr, knektKjedeDel != null ? knektKjedeDel + 1 : 1);
     }
 
-    public ØkonomiKodeKlassifik getKlassekode() {
+    public KodeKlassifik getKlassekode() {
         return klassekode;
     }
 
@@ -110,12 +110,12 @@ public class KjedeNøkkel implements Comparable<KjedeNøkkel> {
         return new Builder();
     }
 
-    public static Builder builder(ØkonomiKodeKlassifik klassekode, Betalingsmottaker betalingsmottaker) {
+    public static Builder builder(KodeKlassifik klassekode, Betalingsmottaker betalingsmottaker) {
         return new Builder(klassekode, betalingsmottaker);
     }
 
     public static class Builder {
-        private ØkonomiKodeKlassifik klassekode;
+        private KodeKlassifik klassekode;
         private Betalingsmottaker betalingsmottaker;
         private Integer feriepengeÅr;
         private Integer knektKjedeDel;
@@ -123,12 +123,12 @@ public class KjedeNøkkel implements Comparable<KjedeNøkkel> {
         private Builder() {
         }
 
-        private Builder(ØkonomiKodeKlassifik klassekode, Betalingsmottaker betalingsmottaker) {
+        private Builder(KodeKlassifik klassekode, Betalingsmottaker betalingsmottaker) {
             this.klassekode = klassekode;
             this.betalingsmottaker = betalingsmottaker;
         }
 
-        public Builder medKlassekode(ØkonomiKodeKlassifik klassekode) {
+        public Builder medKlassekode(KodeKlassifik klassekode) {
             this.klassekode = klassekode;
             return this;
         }

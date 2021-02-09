@@ -16,7 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeKlassifik;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.økonomistøtte.Oppdragsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragInput;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdrag110.KodeFagområdeTjeneste;
@@ -146,7 +146,7 @@ public class TidligereOppdragTjeneste {
     }
 
     private static boolean erIkkeFeriepenger(Oppdragslinje150 oppdragslinje150) {
-        return !ØkonomiKodeKlassifik.fraKode(oppdragslinje150.getKodeKlassifik()).gjelderFerie();
+        return !oppdragslinje150.getKodeKlassifik().gjelderFerie();
     }
 
     private static List<Oppdragslinje150> sortOppdragslinje150Liste(List<Oppdragslinje150> oppdragslinje150Liste) {
@@ -184,13 +184,13 @@ public class TidligereOppdragTjeneste {
     private static List<Oppdragslinje150> getGjeldendeOppdragslinje150(List<Oppdragslinje150> alleOppdr150Liste) {
 
         List<Oppdragslinje150> gjeldendeOppdr150Liste = new ArrayList<>();
-        Map<String, List<Oppdragslinje150>> opp150PrKlassekodeMap = alleOppdr150Liste.stream()
+        Map<KodeKlassifik, List<Oppdragslinje150>> opp150PrKlassekodeMap = alleOppdr150Liste.stream()
             .collect(Collectors.groupingBy(
                 Oppdragslinje150::getKodeKlassifik,
                 LinkedHashMap::new,
                 Collectors.mapping(Function.identity(), Collectors.toList())));
 
-        for (Map.Entry<String, List<Oppdragslinje150>> entry : opp150PrKlassekodeMap.entrySet()) {
+        for (Map.Entry<KodeKlassifik, List<Oppdragslinje150>> entry : opp150PrKlassekodeMap.entrySet()) {
             List<Oppdragslinje150> oppdragslinje150Liste = finnGjeldendeOppdragslinje150Liste(entry.getValue());
             gjeldendeOppdr150Liste.addAll(oppdragslinje150Liste);
         }
