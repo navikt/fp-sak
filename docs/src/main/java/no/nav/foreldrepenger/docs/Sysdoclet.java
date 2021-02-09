@@ -35,6 +35,7 @@ import jdk.javadoc.doclet.Doclet;
 import jdk.javadoc.doclet.DocletEnvironment;
 import jdk.javadoc.doclet.Reporter;
 import no.nav.fpsak.nare.doc.doclet.RegelmodellDoclet;
+import no.nav.vedtak.feil.doc.FeilmeldingDoclet;
 import no.nav.vedtak.felles.integrasjon.felles.ws.doc.WebServiceDoclet;
 import no.nav.vedtak.konfig.doc.KonfigverdiDoclet;
 
@@ -54,6 +55,7 @@ public class Sysdoclet implements jdk.javadoc.doclet.Doclet {
     }
 
     private List<Doclet> doclets = Arrays.asList(
+            new FeilmeldingDoclet(),
             new WebServiceDoclet(),
             new KonfigverdiDoclet(),
             new RegelmodellDoclet());
