@@ -86,7 +86,7 @@ public class ForvaltningSøknadRestTjeneste {
         var oap = personopplysningRepository.hentPersonopplysninger(behandling.getId()).getOppgittAnnenPart().orElseThrow();
 
         if (dto.getBegrunnelse() == null)
-            throw new IllegalArgumentException("Mangler begrunnelse");
+            throw new ForvaltningException("Mangler begrunnelse");
         var nyAktørId = personinfoAdapter.hentAktørForFnr(new PersonIdent(dto.getIdentAnnenPart())).orElseThrow();
         int antall = entityManager.createNativeQuery(
                 "UPDATE SO_ANNEN_PART SET AKTOER_ID = :anpa, utl_person_ident = :ident, endret_av = :begr WHERE id = :apid")
@@ -114,7 +114,7 @@ public class ForvaltningSøknadRestTjeneste {
 
         AktørId eksisterendeAnnenPart = oap.getAktørId();
         if (oap.getAktørId() != null && !eksisterendeAnnenPart.equals(behandling.getAktørId()))
-            throw new IllegalArgumentException("Støtter bare patching der aktørId er null eller lik bruker i saken");
+            throw new ForvaltningException("Støtter bare patching der aktørId er null eller lik bruker i saken");
         int antall = entityManager.createNativeQuery(
                 "UPDATE SO_ANNEN_PART SET AKTOER_ID = null, utl_person_ident = :ident, endret_av = :begr WHERE id = :apid")
                 .setParameter("ident", dto.getIdentAnnenPart())

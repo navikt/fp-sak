@@ -16,6 +16,7 @@ import org.slf4j.MDC;
 
 import no.nav.foreldrepenger.validering.FeltFeilDto;
 import no.nav.foreldrepenger.validering.Valideringsfeil;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningException;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.feil.Feil;
@@ -152,6 +153,8 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<ApplicationEx
         } else if (cause instanceof UnsupportedOperationException) {
             String message = cause.getMessage() != null ? LoggerUtils.removeLineBreaks(cause.getMessage()) : "";
             LOGGER.info("Fikk ikke-implementert-feil: " + message, cause);
+        } else if (cause instanceof ForvaltningException) {
+            LOGGER.warn("Feil i bruk av forvaltningstjenester", cause);
         } else {
             String message = cause.getMessage() != null ? LoggerUtils.removeLineBreaks(cause.getMessage()) : "";
             LOGGER.error("Fikk uventet feil:" + message, cause);

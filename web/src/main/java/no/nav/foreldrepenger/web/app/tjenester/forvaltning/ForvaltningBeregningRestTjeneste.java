@@ -129,7 +129,7 @@ public class ForvaltningBeregningRestTjeneste {
         var brukTom = dto.getSatsTom() != null ? dto.getSatsTom() : LocalDate.now().plusYears(99);
         var gjeldende = beregningsresultatRepository.finnGjeldendeSats(type);
         if (!sjekkVerdierOK(dto, gjeldende, brukTom))
-            throw new IllegalArgumentException("Ulovlige verdier " + dto);
+            throw new ForvaltningException("Ulovlige verdier " + dto);
         LOGGER.warn("SATSJUSTERTING: sjekk med produkteier om det er ventet, noter usedId i loggen {}", dto);
         gjeldende.setTomDato(dto.getSatsFom().minusDays(1));
         beregningsresultatRepository.lagreSats(gjeldende);

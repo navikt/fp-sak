@@ -86,9 +86,8 @@ public class ForvaltningUttakTjeneste {
     boolean erFerdigForeldrepengerBehandlingSomHarFørtTilOpphør(long behandlingId) {
         var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        return behandling.getStatus().erFerdigbehandletStatus()
-            && FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())
-            && behandlingsresultat.orElseThrow().isBehandlingsresultatOpphørt();
+        return behandling.getStatus().erFerdigbehandletStatus() && FagsakYtelseType.FORELDREPENGER.equals(
+            behandling.getFagsakYtelseType()) && behandlingsresultat.orElseThrow().isBehandlingsresultatOpphørt();
     }
 
     void lagOpphørtUttaksresultat(long behandlingId) {
@@ -106,12 +105,14 @@ public class ForvaltningUttakTjeneste {
 
     private void kopierBeregningsgrunnlag(Behandling behandling) {
         behandling.getOriginalBehandlingId()
-            .ifPresent(originalId -> beregningsgrunnlagKopierOgLagreTjeneste.kopierBeregningsresultatFraOriginalBehandling(originalId, behandling.getId()));
+            .ifPresent(
+                originalId -> beregningsgrunnlagKopierOgLagreTjeneste.kopierBeregningsresultatFraOriginalBehandling(
+                    originalId, behandling.getId()));
     }
 
     private UttakResultatPeriodeEntitet opphørPeriode(Behandling behandling, UttakResultatPeriodeEntitet periode) {
-        UttakResultatPeriodeEntitet.Builder builder = new UttakResultatPeriodeEntitet.Builder(periode.getFom(), periode.getTom())
-            .medResultatType(PeriodeResultatType.AVSLÅTT, opphørAvslagsårsak(behandling))
+        UttakResultatPeriodeEntitet.Builder builder = new UttakResultatPeriodeEntitet.Builder(periode.getFom(),
+            periode.getTom()).medResultatType(PeriodeResultatType.AVSLÅTT, opphørAvslagsårsak(behandling))
             .medUtsettelseType(periode.getUtsettelseType())
             .medOppholdÅrsak(periode.getOppholdÅrsak())
             .medOverføringÅrsak(periode.getOverføringÅrsak())
@@ -144,13 +145,13 @@ public class ForvaltningUttakTjeneste {
         if (!foreldreansvarsvilkåretOppfylt(vilkårResultat)) {
             return IkkeOppfyltÅrsak.FORELDREANSVARSVILKÅRET_IKKE_OPPFYLT;
         }
-        throw new IllegalStateException("Alle inngangsvilkår er oppfylt");
+        throw new ForvaltningException("Alle inngangsvilkår er oppfylt");
     }
 
     private UttakResultatPeriodeAktivitetEntitet opphørAktivitet(UttakResultatPeriodeEntitet periode,
                                                                  UttakResultatPeriodeAktivitetEntitet aktivitet) {
-        return new UttakResultatPeriodeAktivitetEntitet.Builder(periode, aktivitet.getUttakAktivitet())
-            .medTrekkonto(aktivitet.getTrekkonto())
+        return new UttakResultatPeriodeAktivitetEntitet.Builder(periode, aktivitet.getUttakAktivitet()).medTrekkonto(
+            aktivitet.getTrekkonto())
             .medTrekkdager(Trekkdager.ZERO)
             .medArbeidsprosent(aktivitet.getArbeidsprosent())
             .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
@@ -171,17 +172,15 @@ public class ForvaltningUttakTjeneste {
     }
 
     public void endreAnnenForelderHarRett(long behandlingId, boolean harRett) {
-
         var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandlingId);
         if (ytelseFordelingAggregat.getPerioderAnnenforelderHarRett().isEmpty()) {
-            throw new IllegalArgumentException("Kan ikke endre ettersom annen forelder har rett ikke er avklart");
+            throw new ForvaltningException("Kan ikke endre ettersom annen forelder har rett ikke er avklart");
         }
         if (UttakOmsorgUtil.harAnnenForelderRett(ytelseFordelingAggregat, Optional.empty()) != harRett) {
             ytelseFordelingTjeneste.bekreftAnnenforelderHarRett(behandlingId, harRett);
 
             lagHistorikkinnslag(harRett, behandlingId);
         }
-
     }
 
     private void lagHistorikkinnslag(boolean harRett, Long behandlingId) {
@@ -191,8 +190,7 @@ public class ForvaltningUttakTjeneste {
         historikkinnslag.setBehandlingId(behandlingId);
 
         var begrunnelse = harRett ? "FORVALTNING - Endret til annen forelder har rett" : "FORVALTNING - Endret til annen forelder har ikke rett";
-        var historieBuilder = new HistorikkInnslagTekstBuilder()
-            .medHendelse(HistorikkinnslagType.FAKTA_ENDRET)
+        var historieBuilder = new HistorikkInnslagTekstBuilder().medHendelse(HistorikkinnslagType.FAKTA_ENDRET)
             .medBegrunnelse(begrunnelse);
         historieBuilder.build(historikkinnslag);
         historikkRepository.lagre(historikkinnslag);

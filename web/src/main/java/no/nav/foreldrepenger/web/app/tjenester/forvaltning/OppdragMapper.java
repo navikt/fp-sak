@@ -121,7 +121,7 @@ class OppdragMapper {
         switch (behandling.getFagsakYtelseType()) {
             case ENGANGSTØNAD:
                 if (!erBrukerMottaker) {
-                    throw new IllegalArgumentException("Engangstønad skal kun utbetales til bruker");
+                    throw new ForvaltningException("Engangstønad skal kun utbetales til bruker");
                 }
                 return ØkonomiKodeFagområde.REFUTG;
             case FORELDREPENGER:
@@ -129,7 +129,7 @@ class OppdragMapper {
             case SVANGERSKAPSPENGER:
                 return erBrukerMottaker ? ØkonomiKodeFagområde.SVP : ØkonomiKodeFagområde.SVPREF;
             default:
-                throw new IllegalArgumentException("Ukjent ytelsetype i behandlingId=" + behandling.getId());
+                throw new ForvaltningException("Ukjent ytelsetype i behandlingId=" + behandling.getId());
         }
     }
 }
