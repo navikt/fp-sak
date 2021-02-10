@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.arbeidsforhold.aksjonspunkt;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -30,7 +31,6 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYS
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.historikk.VurderArbeidsforholdHistorikkinnslag;
-import no.nav.vedtak.felles.integrasjon.journal.v3.JournalConsumer;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(FPsakEntityManagerAwareExtension.class)
@@ -40,9 +40,6 @@ public class ArbeidsforholdHistorikkinnslagTjenesteTest {
 
     @Mock
     private ArbeidsgiverHistorikkinnslag arbeidsgiverHistorikkinnslagTjeneste;
-
-    @Mock
-    private JournalConsumer journalConsumer;
 
     private IAYRepositoryProvider provider;
     private HistorikkTjenesteAdapter historikkAdapter;
@@ -54,8 +51,7 @@ public class ArbeidsforholdHistorikkinnslagTjenesteTest {
     void setup(EntityManager entityManager) {
         provider = new IAYRepositoryProvider(entityManager);
         var historikkRepository = new HistorikkRepository(entityManager);
-        var dokumentApplikasjonTjeneste = new DokumentArkivTjeneste(journalConsumer, provider.getFagsakRepository());
-        historikkAdapter = new HistorikkTjenesteAdapter(historikkRepository, dokumentApplikasjonTjeneste);
+        historikkAdapter = new HistorikkTjenesteAdapter(historikkRepository, mock(DokumentArkivTjeneste.class));
         arbeidsforholdHistorikkinnslagTjeneste = new ArbeidsforholdHistorikkinnslagTjeneste(historikkAdapter, arbeidsgiverHistorikkinnslagTjeneste);
         behandling = opprettBehandling();
 

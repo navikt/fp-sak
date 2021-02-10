@@ -1,8 +1,10 @@
 package no.nav.foreldrepenger.dokumentarkiv;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 
@@ -11,7 +13,7 @@ public class ArkivDokument {
     private String tittel;
     private DokumentTypeId dokumentTypeId;
     private List<ArkivDokumentHentbart> tilgjengeligSom; // hvilke formater som er tilgjengelig fra joark
-    private List<ArkivDokumentVedlegg> interneVedlegg; // sammensatt dokument der vedlegg er scannet inn i ett dokument
+    private Set<DokumentTypeId> alleDokumenttyper = new HashSet<>(); // sammensatt dokument der vedlegg er scannet inn i ett dokument
 
     public String getDokumentId() {
         return dokumentId;
@@ -37,12 +39,8 @@ public class ArkivDokument {
         this.dokumentTypeId = dokumentTypeId;
     }
 
-    public List<ArkivDokumentVedlegg> getInterneVedlegg() {
-        return interneVedlegg != null ? interneVedlegg : List.of();
-    }
-
-    public void setInterneVedlegg(List<ArkivDokumentVedlegg> interneVedlegg) {
-        this.interneVedlegg = interneVedlegg;
+    public Set<DokumentTypeId> getAlleDokumenttyper() {
+        return alleDokumenttyper;
     }
 
     public List<ArkivDokumentHentbart> getTilgjengeligSom() {
@@ -75,7 +73,6 @@ public class ArkivDokument {
         private Builder() {
             this.arkivDokument = new ArkivDokument();
             this.arkivDokument.setDokumentType(DokumentTypeId.UDEFINERT);
-            this.arkivDokument.setInterneVedlegg(new ArrayList<>());
             this.arkivDokument.setTilgjengeligSom(new ArrayList<>());
         }
 
@@ -95,11 +92,12 @@ public class ArkivDokument {
 
         public Builder medDokumentTypeId(DokumentTypeId dokumentTypeId) {
             this.arkivDokument.setDokumentType(dokumentTypeId);
+            this.arkivDokument.getAlleDokumenttyper().add(dokumentTypeId);
             return this;
         }
 
-        public Builder leggTilInterntVedlegg(ArkivDokumentVedlegg vedlegg){
-            this.arkivDokument.getInterneVedlegg().add(vedlegg);
+        public Builder medAlleDokumenttyper(Set<DokumentTypeId> dokumentTypeId){
+            this.arkivDokument.getAlleDokumenttyper().addAll(dokumentTypeId);
             return this;
         }
 

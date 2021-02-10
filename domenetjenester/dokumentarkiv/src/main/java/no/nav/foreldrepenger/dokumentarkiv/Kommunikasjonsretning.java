@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.dokumentarkiv;
 
-import java.util.Collections;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public enum Kommunikasjonsretning {
     /**
@@ -18,17 +16,13 @@ public enum Kommunikasjonsretning {
      */
     NOTAT("N");
 
-    private static final Map<String, Kommunikasjonsretning> KOMMUNIKASJONSRETNING_MAP;
+    private static final Map<String, Kommunikasjonsretning> KOMMUNIKASJONSRETNING_MAP = Map.ofEntries(
+        Map.entry(INN.kommunikasjonsretningCode, INN),
+        Map.entry(UT.kommunikasjonsretningCode, UT),
+        Map.entry(NOTAT.kommunikasjonsretningCode, NOTAT)
+    );
 
     private String kommunikasjonsretningCode;
-
-    static {
-        Map<String, Kommunikasjonsretning> map = new ConcurrentHashMap<>();
-        for (Kommunikasjonsretning kommunikasjonsretning : Kommunikasjonsretning.values()) {
-            map.put(kommunikasjonsretning.getKommunikasjonsretningCode(), kommunikasjonsretning);
-        }
-        KOMMUNIKASJONSRETNING_MAP = Collections.unmodifiableMap(map);
-    }
 
     Kommunikasjonsretning(String kommunikasjonsretningCode) {
         this.kommunikasjonsretningCode = kommunikasjonsretningCode;
@@ -36,9 +30,5 @@ public enum Kommunikasjonsretning {
 
     public static Kommunikasjonsretning fromKommunikasjonsretningCode(String kommunikasjonsretningCode) {
         return KOMMUNIKASJONSRETNING_MAP.get(kommunikasjonsretningCode);
-    }
-
-    public String getKommunikasjonsretningCode() {
-        return kommunikasjonsretningCode;
     }
 }

@@ -6,6 +6,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.persistence.AttributeConverter;
@@ -192,9 +193,7 @@ public enum DokumentTypeId implements Kodeverdi, MedOffisiellKode {
     }
 
     public static DokumentTypeId finnForKodeverkEiersKode(String offisiellDokumentType) {
-        if (offisiellDokumentType == null)
-            return UDEFINERT;
-        return KODER.getOrDefault(offisiellDokumentType, ANNET);
+        return Optional.ofNullable(offisiellDokumentType).map(off -> KODER.getOrDefault(offisiellDokumentType, ANNET)).orElse(UDEFINERT);
     }
 
     public static DokumentTypeId finnForKodeverkEiersNavn(String navn) {
@@ -255,7 +254,8 @@ public enum DokumentTypeId implements Kodeverdi, MedOffisiellKode {
         Map.entry("Mor tar utdanning på heltid", BEKREFTELSE_FRA_STUDIESTED),
         Map.entry("Terminbekreftelse", BEKREFTELSE_VENTET_FØDSELSDATO),
         Map.entry("Kopi av skattemelding", KOPI_SKATTEMELDING),
-        Map.entry("Svar på varsel om tilbakebetaling", TILBAKE_UTTALSELSE)
+        Map.entry("Svar på varsel om tilbakebetaling", TILBAKE_UTTALSELSE),
+        Map.entry("Klage", DokumentTypeId.KLAGE_DOKUMENT),
+        Map.entry("Anke", DokumentTypeId.KLAGE_DOKUMENT)
     );
-
 }

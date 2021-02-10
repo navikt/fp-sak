@@ -27,7 +27,6 @@ import no.nav.foreldrepenger.historikk.HistorikkAvklartSoeknadsperiodeType;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.FaktaUttakDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.OverstyringFaktaUttakDto;
-import no.nav.vedtak.felles.integrasjon.journal.v3.JournalConsumerImpl;
 
 public class FaktaUttakHistorikkTjenesteTest extends EntityManagerAwareTest {
 
@@ -41,11 +40,9 @@ public class FaktaUttakHistorikkTjenesteTest extends EntityManagerAwareTest {
     void setUp() {
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        DokumentArkivTjeneste dokumentArkivTjeneste = new DokumentArkivTjeneste(mock(JournalConsumerImpl.class),
-            repositoryProvider.getFagsakRepository());
         ytelseFordelingTjeneste = new YtelseFordelingTjeneste(new YtelsesFordelingRepository(entityManager));
         historikkApplikasjonTjeneste = new HistorikkTjenesteAdapter(repositoryProvider.getHistorikkRepository(),
-            dokumentArkivTjeneste);
+            mock(DokumentArkivTjeneste.class));
     }
 
     @Test

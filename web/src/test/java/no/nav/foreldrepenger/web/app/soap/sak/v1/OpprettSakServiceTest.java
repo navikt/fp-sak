@@ -289,9 +289,7 @@ public class OpprettSakServiceTest {
             fagsak.setSaksnummer(sakId);
             // Whitebox.setInternalState(fagsak, "saksnummer", sakId);
             return null;
-        })
-                .when(opprettSakTjeneste).oppdaterFagsakMedGsakSaksnummer(anyLong(), any(Saksnummer.class));
-
+        }).when(opprettSakTjeneste).oppdaterFagsakMedGsakSaksnummer(anyLong(), any(Saksnummer.class));
     }
 
     private Fagsak mockFagsak(Long fagsakId) {
