@@ -74,4 +74,5 @@
     <root level="${log.level.root:-INFO}">
         <appender-ref ref="stdout_json"/>
     </root>
+    <include optional="true" resource="logback-${NAIS_CLUSTER_NAME}.xml"/>
 </configuration>
