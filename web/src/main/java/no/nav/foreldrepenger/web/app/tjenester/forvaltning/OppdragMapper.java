@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
@@ -19,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
+import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.OppdragPatchDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.OppdragslinjePatchDto;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.OppdragskontrollConstants;
@@ -61,7 +63,7 @@ class OppdragMapper {
         Oppdragslinje150.Builder builder = Oppdragslinje150.builder()
             .medOppdrag110(oppdrag110)
             .medVedtakFomOgTom(linje.getFom(), linje.getTom())
-            .medSats(linje.getSats())
+            .medSats(Sats.på(linje.getSats()))
             .medTypeSats(TypeSats.fraKode(linje.getSatsType()))
             .medDelytelseId(linje.getDelytelseId())
             .medRefDelytelseId(linje.getRefDelytelseId())

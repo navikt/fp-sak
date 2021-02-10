@@ -27,6 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifi
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.Beløp;
 
 /**
  * Denne klassen er en ren avbildning fra Oppdragsløsningens meldingsformater.
@@ -62,8 +63,9 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
     })
     private DatoIntervallEntitet vedtakPeriode;
 
-    @Column(name = "sats", nullable = false)
-    private long sats;
+    @Embedded
+    @AttributeOverrides(@AttributeOverride(name = "sats", column = @Column(name = "sats", nullable = false)))
+    private Sats sats;
 
     @Convert(converter = TypeSats.KodeverdiConverter.class)
     @Column(name = "type_sats", nullable = false)
@@ -141,12 +143,8 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
         return vedtakPeriode.getTomDato();
     }
 
-    public long getSats() {
+    public Sats getSats() {
         return sats;
-    }
-
-    public void setSats(long sats) {
-        this.sats = sats;
     }
 
     public TypeSats getTypeSats() {
@@ -249,7 +247,7 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
         private Long delytelseId;
         private KodeKlassifik kodeKlassifik;
         private DatoIntervallEntitet vedtakPeriode;
-        private Long sats;
+        private Sats sats;
         private TypeSats typeSats;
         private String utbetalesTilId;
         private Long refFagsystemId;
@@ -292,7 +290,7 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
             return this;
         }
 
-        public Builder medSats(long sats) {
+        public Builder medSats(Sats sats) {
             this.sats = sats;
             return this;
         }

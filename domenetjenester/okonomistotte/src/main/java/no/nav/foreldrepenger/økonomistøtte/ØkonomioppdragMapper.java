@@ -135,7 +135,7 @@ public class ØkonomioppdragMapper {
             OppdragsLinje150 oppdragsLinje150 = objectFactory.createOppdragsLinje150();
             oppdragsLinje150.setKodeEndringLinje(okoOppdrlinje150.getKodeEndringLinje().getKode());
             if (okoOppdrlinje150.gjelderOpphør()) {
-                oppdragsLinje150.setKodeStatusLinje(TkodeStatusLinje.fromValue(okoOppdrlinje150.getKodeStatusLinje()));
+                oppdragsLinje150.setKodeStatusLinje(TkodeStatusLinje.fromValue(okoOppdrlinje150.getKodeStatusLinje().getKode()));
             }
             if (okoOppdrlinje150.getDatoStatusFom() != null) {
                 oppdragsLinje150.setDatoStatusFom(toXmlGregCal(okoOppdrlinje150.getDatoStatusFom()));
@@ -145,7 +145,7 @@ public class ØkonomioppdragMapper {
             oppdragsLinje150.setKodeKlassifik(okoOppdrlinje150.getKodeKlassifik().getKode());
             oppdragsLinje150.setDatoVedtakFom(toXmlGregCal(okoOppdrlinje150.getDatoVedtakFom()));
             oppdragsLinje150.setDatoVedtakTom(toXmlGregCal(okoOppdrlinje150.getDatoVedtakTom()));
-            oppdragsLinje150.setSats(new BigDecimal(okoOppdrlinje150.getSats()));
+            oppdragsLinje150.setSats(BigDecimal.valueOf(okoOppdrlinje150.getSats().getVerdi()));
             oppdragsLinje150.setFradragTillegg(TfradragTillegg.fromValue(FRADRAG_TILLEGG));
             oppdragsLinje150.setTypeSats(okoOppdrlinje150.getTypeSats().getKode());
             oppdragsLinje150.setBrukKjoreplan(BRUK_KJOREPLAN);

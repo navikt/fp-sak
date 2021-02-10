@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
@@ -21,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
+import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollManager;
 import no.nav.foreldrepenger.økonomistøtte.OpprettOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.kontantytelse.es.adapter.MapBehandlingInfoES;
@@ -33,7 +35,6 @@ public class OppdragskontrollEngangsstønad implements OppdragskontrollManager {
 
     private static final String KODE_ENDRING_NY = ØkonomiKodeEndring.NY.name();
     private static final String KODE_ENDRING_UENDRET = ØkonomiKodeEndring.UEND.name();
-    private static final TypeSats TYPE_SATS_ES = TypeSats.ENGANG;
 
     private MapBehandlingInfoES mapBehandlingInfo;
 
@@ -105,8 +106,8 @@ public class OppdragskontrollEngangsstønad implements OppdragskontrollManager {
             .medKodeKlassifik(kodeKlassifik)
             .medOppdrag110(oppdrag110)
             .medVedtakFomOgTom(vedtaksdato, vedtaksdato)
-            .medSats(satsEngangsstonad)
-            .medTypeSats(TYPE_SATS_ES)
+            .medSats(Sats.på(satsEngangsstonad))
+            .medTypeSats(TypeSats.ENGANG)
             // FIXME (Tonic): Her brukes fnr, endres til aktørid ved ny versjon av oppdragsmelding
             .medUtbetalesTilId(behandlingInfo.getPersonIdent().getIdent());
         return oppdragslinje150Builder.build();
@@ -148,8 +149,8 @@ public class OppdragskontrollEngangsstønad implements OppdragskontrollManager {
             .medDelytelseId(delytelseId)
             .medKodeKlassifik(kodeKlassifik)
             .medVedtakFomOgTom(tidligereDatoVedtakFom, tidligereDatoVedtakTom)
-            .medSats(sats)
-            .medTypeSats(TYPE_SATS_ES)
+            .medSats(Sats.på(sats))
+            .medTypeSats(TypeSats.ENGANG)
             // FIXME (Tonic): Her brukes fnr, endres til aktørid ved ny versjon av oppdragsmelding
             .medUtbetalesTilId(behandlingInfo.getPersonIdent().getIdent())
             .medOppdrag110(oppdrag110)

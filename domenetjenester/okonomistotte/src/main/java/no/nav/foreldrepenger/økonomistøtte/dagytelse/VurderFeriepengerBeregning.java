@@ -8,6 +8,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
+import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.økonomistøtte.Oppdragsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragInput;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdragslinje150.Oppdragslinje150FeriepengerUtil;
@@ -40,7 +42,7 @@ public class VurderFeriepengerBeregning {
                 continue;
             }
             opp150MedMaxDelytelseIdListe.forEach(opp150 -> {
-                if (opp150.getSats() != sumFraRevurderingBeh) {
+                if (!opp150.getSats().equals(Sats.på(sumFraRevurderingBeh))) {
                     opp150FeriepengerListe.add(opp150);
                 }
             });

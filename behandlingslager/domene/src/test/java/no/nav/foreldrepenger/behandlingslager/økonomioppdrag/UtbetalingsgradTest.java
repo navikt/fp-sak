@@ -10,8 +10,6 @@ import org.junit.jupiter.api.Test;
 
 class UtbetalingsgradTest {
 
-    private static final String UFOR = "UFOR";
-
     @Test
     public void skal_bygge_instans_med_påkrevde_felter_utbetalingsgrad_0() {
         var gradVerdi = 0;

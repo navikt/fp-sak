@@ -12,6 +12,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
@@ -19,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragsmottakerStatus;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
+import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollManager;
 import no.nav.foreldrepenger.økonomistøtte.Oppdragsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.TidligereOppdragTjeneste;
@@ -262,7 +264,6 @@ public class OppdragskontrollOpphør implements OppdragskontrollManager {
         LocalDate vedtakTom = forrigeOppdr150.getDatoVedtakTom();
         Long delytelseId = forrigeOppdr150.getDelytelseId();
         KodeKlassifik kodeKlassifik = forrigeOppdr150.getKodeKlassifik();
-        long dagsats = forrigeOppdr150.getSats();
 
         Oppdragslinje150.Builder oppdragslinje150Builder = Oppdragslinje150.builder();
         OpprettOppdragslinje150Tjeneste.settFellesFelterIOppdr150(behandlingInfo, oppdragslinje150Builder, true, gjelderFeriepenger);
@@ -271,7 +272,7 @@ public class OppdragskontrollOpphør implements OppdragskontrollManager {
             .medDelytelseId(delytelseId)
             .medKodeKlassifik(kodeKlassifik)
             .medVedtakFomOgTom(vedtakFom, vedtakTom)
-            .medSats(dagsats)
+            .medSats(forrigeOppdr150.getSats())
             .medUtbetalesTilId(forrigeOppdr150.getUtbetalesTilId())
             .medOppdrag110(oppdrag110);
 

@@ -153,9 +153,9 @@ public class EksisterendeOppdragMapper {
 
     private static Sats mapSats(Oppdragslinje150 linje) {
         if (linje.getTypeSats().getKode().equals(SatsType.DAG.getKode())) {
-            return Sats.dagsats(linje.getSats());
+            return Sats.dagsats(linje.getSats().getVerdi().longValue());
         } else if (linje.getTypeSats().getKode().equals(SatsType.ENGANG.getKode())) {
-            return Sats.engang(linje.getSats());
+            return Sats.engang(linje.getSats().getVerdi().longValue());
         } else {
             throw new IllegalArgumentException("Ikke-støttet satstype: " + linje.getTypeSats());
         }

@@ -8,6 +8,7 @@ import java.util.Set;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.økonomistøtte.Oppdragsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.FinnMottakerInfoITilkjentYtelse;
@@ -76,7 +77,7 @@ class OpprettOppdragslinje150FeriepengerTjeneste {
         oppdragslinje150Builder.medKodeKlassifik(kodeKlassifik)
             .medOppdrag110(oppdrag110)
             .medVedtakFomOgTom(vedtakFom, vedtakTom)
-            .medSats(sats);
+            .medSats(Sats.på(sats));
         if (mottaker.erBruker()) {
             oppdragslinje150Builder.medUtbetalesTilId(Oppdragslinje150Util.endreTilElleveSiffer(mottaker.getId()));
         }

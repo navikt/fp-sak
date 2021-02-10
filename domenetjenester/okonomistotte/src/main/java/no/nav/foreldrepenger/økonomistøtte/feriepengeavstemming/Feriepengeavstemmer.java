@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.økonomistøtte.HentOppdragMedPositivKvittering;
 
@@ -122,7 +121,7 @@ public class Feriepengeavstemmer {
                 if (forrige == null) {
                     LOGGER.warn("Opphør uten noe å opphøre: delytelse {} klasseKode {} fom {} opphørsdato {} tidligste {}",
                         linje.getDelytelseId(), linje.getKodeKlassifik(), linje.getDatoVedtakFom(), linje.getDatoStatusFom(), forrige);
-                } else if (forrige.longValue() != linje.getSats()) {
+                } else if (forrige.intValue() != linje.getSats().getVerdi()) {
                     LOGGER.warn("Avvik gjeldende beløp: delytelse {} klasseKode {} fom {} opphørt {} gjeldende {}",
                         linje.getDelytelseId(), linje.getKodeKlassifik(), linje.getDatoVedtakFom(), linje.getSats(), forrige);
                 } else {
@@ -130,7 +129,7 @@ public class Feriepengeavstemmer {
                 }
             }
             if (!linje.gjelderOpphør()) {
-                gjeldendeOL.put(nøkkel, new BigDecimal(linje.getSats()));
+                gjeldendeOL.put(nøkkel, BigDecimal.valueOf(linje.getSats().getVerdi()));
             }
         }
         return gjeldendeOL;

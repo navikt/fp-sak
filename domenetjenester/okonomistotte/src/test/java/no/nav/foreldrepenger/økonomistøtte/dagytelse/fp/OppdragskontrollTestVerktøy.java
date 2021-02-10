@@ -17,12 +17,14 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
+import no.nav.foreldrepenger.domene.typer.Beløp;
 
 class OppdragskontrollTestVerktøy {
 
@@ -93,8 +95,8 @@ class OppdragskontrollTestVerktøy {
         assertThat(revurderingOppdr150ListeBruker).hasSize(1);
         assertThat(originaltOppdr150ListeBruker.get(0).getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_ARBEIDSTAKER);
         assertThat(revurderingOppdr150ListeBruker.get(0).getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_ARBEIDSTAKER);
-        assertThat(originaltOppdr150ListeBruker.get(0).getSats()).isEqualTo(3000L);
-        assertThat(revurderingOppdr150ListeBruker.get(0).getSats()).isEqualTo(3100L);
+        assertThat(originaltOppdr150ListeBruker.get(0).getSats()).isEqualTo(Sats.på(3000L));
+        assertThat(revurderingOppdr150ListeBruker.get(0).getSats()).isEqualTo(Sats.på(3100L));
     }
 
     static void verifiserOppdr150MedNyKlassekode(List<Oppdragslinje150> opp150RevurdListe) {

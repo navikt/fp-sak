@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
@@ -67,7 +68,7 @@ class ØkonomiOppdragUtils {
             .medKodeEndringLinje(KodeEndringLinje.NY)
             .medKodeKlassifik(hentKodeKlassifik(gjelderFP))
             .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
-            .medSats(BehandleØkonomioppdragKvitteringTest.SATS)
+            .medSats(Sats.på(654L))
             .medTypeSats(hentTypeSats(gjelderFP))
             .medUtbetalesTilId(BehandleØkonomioppdragKvitteringTest.OPPDRAGGJELDERID)
             .medOppdrag110(o110_1);
@@ -95,7 +96,7 @@ class ØkonomiOppdragUtils {
                 .medKodeEndringLinje(KodeEndringLinje.NY)
                 .medKodeKlassifik(hentKodeKlassifik(gjelderFP))
                 .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
-                .medSats(BehandleØkonomioppdragKvitteringTest.SATS)
+                .medSats(Sats.på(654L))
                 .medTypeSats(hentTypeSats(gjelderFP))
                 .medOppdrag110(o110_2)
                 .medUtbetalingsgrad(Utbetalingsgrad.prosent(BehandleØkonomioppdragKvitteringTest.GRAD))

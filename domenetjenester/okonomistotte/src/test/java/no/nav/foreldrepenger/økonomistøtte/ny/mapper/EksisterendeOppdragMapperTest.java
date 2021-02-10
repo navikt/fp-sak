@@ -151,7 +151,7 @@ public class EksisterendeOppdragMapperTest {
             .medDelytelseId(Long.parseLong(delytelseId.toString()))
             .medKodeKlassifik(kodeKlassifik)
             .medVedtakFomOgTom(p.getFom(), p.getTom())
-            .medSats(sats.getSats())
+            .medSats(no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats.på(sats.getSats()))
             .medTypeSats(TypeSats.fraKode(sats.getSatsType().getKode()))
             .medDatoStatusFom(opphørFomDato)
             .medKodeStatusLinje(opphørFomDato != null ? KodeStatusLinje.OPPHØR : null)

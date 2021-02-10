@@ -189,7 +189,7 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
     }
 
     @Test
-    public void zavslagSomReferererTilForrigeOppdragSomTilhørerFørsteRevurderingPåSammeSak() {
+    public void avslagSomReferererTilForrigeOppdragSomTilhørerFørsteRevurderingPåSammeSak() {
         // Act 1: Førstegangsbehandling
         Behandling behandling = opprettOgLagreBehandlingES(true);
         OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
@@ -248,7 +248,7 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
             assertThat(oppdragslinje150.getKodeStatusLinje()).isEqualTo(kodeStatusLinje);
         }
         assertThat(oppdragslinje150.getRefFagsystemId()).isEqualTo(refFagsystemId);
-        assertThat(oppdragslinje150.getSats()).isEqualTo(sats);
+        assertThat(oppdragslinje150.getSats().getVerdi().longValue()).isEqualTo(sats);
         assertThat(oppdragslinje150.getRefDelytelseId()).isEqualTo(refDelytelseId);
         assertThat(oppdragslinje150.getDelytelseId()).isEqualTo(delYtelseId);
     }
@@ -270,7 +270,7 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
             assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(KodeKlassifik.ES_FØDSEL);
             assertThat(oppdragslinje150.getDatoVedtakFom()).isEqualTo(vedtaksdatoES);
             assertThat(oppdragslinje150.getDatoVedtakTom()).isEqualTo(vedtaksdatoES);
-            assertThat(oppdragslinje150.getSats()).isEqualTo(getBehandlingsresultat(behandling).getBeregningResultat()
+            assertThat(oppdragslinje150.getSats().getVerdi().longValue()).isEqualTo(getBehandlingsresultat(behandling).getBeregningResultat()
                 .getSisteBeregning()
                 .get()
                 .getBeregnetTilkjentYtelse());

@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringL
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
+import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public class Oppdragslinje150EntityTest {
@@ -20,14 +21,13 @@ public class Oppdragslinje150EntityTest {
     private Oppdragslinje150 oppdragslinje150_2;
 
     private static final KodeEndringLinje KODEENDRINGLINJE = KodeEndringLinje.NY;
-    private static final KodeStatusLinje KODESTATUSLINJE = KodeStatusLinje.OPPHØR;
     private static final LocalDate DATOSTATUSFOM = LocalDate.now().minusDays(15);
     private static final String VEDTAKID = "457";
     private static final Long DELYTELSEID = 300L;
     private static final KodeKlassifik KODEKLASSIFIK = KodeKlassifik.FPF_ARBEIDSTAKER;
     private static final LocalDate DATOVEDTAKFOM = LocalDate.now().minusDays(10);
     private static final LocalDate DATOVEDTAKTOM = LocalDate.now().minusDays(8);
-    private static final long SATS = 50000L;
+    private static final Sats SATS = Sats.på(50000);
     private static final TypeSats TYPESATS = TypeSats.ENGANG;
     private static final String SAKSBEHID = "Z1236524";
     private static final LocalDate DATOOPPDRAGGJELDERFOM = LocalDate.of(2000, 1, 1);
@@ -57,7 +57,6 @@ public class Oppdragslinje150EntityTest {
         oppdragslinje150 = lagBuilderMedPaakrevdeFelter().build();
 
         assertThat(oppdragslinje150.getKodeEndringLinje()).isEqualTo(KODEENDRINGLINJE);
-        assertThat(oppdragslinje150.getKodeStatusLinje()).isEqualTo(KODESTATUSLINJE);
         assertThat(oppdragslinje150.getDatoStatusFom()).isEqualTo(DATOSTATUSFOM);
         assertThat(oppdragslinje150.getVedtakId()).isEqualTo(VEDTAKID);
         assertThat(oppdragslinje150.getDelytelseId()).isEqualTo(DELYTELSEID);
@@ -174,7 +173,6 @@ public class Oppdragslinje150EntityTest {
 
         return Oppdragslinje150.builder()
                 .medKodeEndringLinje(KODEENDRINGLINJE)
-                .medKodeStatusLinje(KODESTATUSLINJE)
                 .medDatoStatusFom(DATOSTATUSFOM)
                 .medVedtakId(VEDTAKID)
                 .medDelytelseId(DELYTELSEID)

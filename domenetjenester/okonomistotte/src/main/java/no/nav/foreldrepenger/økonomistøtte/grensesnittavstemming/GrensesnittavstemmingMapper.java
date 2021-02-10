@@ -150,7 +150,7 @@ public class GrensesnittavstemmingMapper {
     private long getBelop(Oppdrag110 oppdrag) {
         long belop = 0L;
         for (Oppdragslinje150 oppdragslinje : oppdrag.getOppdragslinje150Liste()) {
-            belop += oppdragslinje.getSats();
+            belop += oppdragslinje.getSats().getVerdi().longValue();
         }
         return belop;
     }

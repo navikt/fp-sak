@@ -27,18 +27,16 @@ public class Beløp implements Serializable, IndexKey, TraverseValue {
         // for hibernate
     }
 
+    public static Beløp av(long verdi) {
+        return new Beløp((int) verdi);
+    }
+
     public Beløp(BigDecimal verdi) {
         this.verdi = verdi;
     }
 
-
     // Beleilig å kunne opprette gjennom int
     public Beløp(Integer verdi) {
-        this.verdi = verdi == null ? null : new BigDecimal(verdi);
-    }
-
-    // Beleilig å kunne opprette gjennom string
-    public Beløp(String verdi) {
         this.verdi = verdi == null ? null : new BigDecimal(verdi);
     }
 
@@ -98,5 +96,9 @@ public class Beløp implements Serializable, IndexKey, TraverseValue {
 
     public Beløp adder(Beløp augend) {
         return new Beløp(this.verdi.add(augend.getVerdi()));
+    }
+
+    public Beløp subtract(Beløp verdi) {
+        return new Beløp(this.verdi.subtract(verdi.getVerdi()));
     }
 }

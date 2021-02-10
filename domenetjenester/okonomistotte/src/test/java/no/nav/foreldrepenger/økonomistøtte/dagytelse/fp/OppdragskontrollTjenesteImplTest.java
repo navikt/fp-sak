@@ -31,6 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
@@ -39,6 +40,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagomr
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodekomponent;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
+import no.nav.foreldrepenger.domene.typer.Beløp;
 
 public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTestBase {
 
@@ -243,7 +245,7 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
         List<Oppdragslinje150> oppdragslinje150List = oppdrag110List.get(0).getOppdragslinje150Liste();
         assertThat(oppdragslinje150List).hasSize(2);
         assertThat(oppdragslinje150List).allSatisfy(opp150 -> {
-            assertThat(opp150.getSats()).isEqualTo(1000L);
+            assertThat(opp150.getSats()).isEqualTo(Sats.på(1000L));
             assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_ARBEIDSTAKER);
         });
     }
@@ -270,7 +272,7 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
         List<Oppdragslinje150> oppdragslinje150List = oppdrag110List.get(0).getOppdragslinje150Liste();
         assertThat(oppdragslinje150List).hasSize(2);
         assertThat(oppdragslinje150List).allSatisfy(opp150 -> {
-            assertThat(opp150.getSats()).isEqualTo(1000L);
+            assertThat(opp150.getSats()).isEqualTo(Sats.på(1000L));
             assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_ARBEIDSTAKER);
         });
     }
@@ -297,7 +299,7 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
         List<Oppdragslinje150> oppdragslinje150List = oppdrag110List.get(0).getOppdragslinje150Liste();
         assertThat(oppdragslinje150List).hasSize(2);
         assertThat(oppdragslinje150List).allSatisfy(opp150 -> {
-            assertThat(opp150.getSats()).isEqualTo(1000L);
+            assertThat(opp150.getSats()).isEqualTo(Sats.på(1000L));
             assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_ARBEIDSTAKER);
         });
     }
@@ -328,7 +330,7 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
         List<Oppdragslinje150> oppdragslinje150List = oppdrag110List.get(0).getOppdragslinje150Liste();
         assertThat(oppdragslinje150List).hasSize(2);
         assertThat(oppdragslinje150List).allSatisfy(opp150 -> {
-            assertThat(opp150.getSats()).isEqualTo(1000L);
+            assertThat(opp150.getSats()).isEqualTo(Sats.på(1000L));
             assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_ARBEIDSTAKER);
         });
     }
@@ -366,14 +368,14 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
         List<Oppdragslinje150> opp150ListPrivatArbgvr = OppdragskontrollTestVerktøy.getOpp150ListeForBruker(oppdrag110List);
         assertThat(opp150ListPrivatArbgvr).hasSize(2);
         assertThat(opp150ListPrivatArbgvr).allSatisfy(opp150 -> {
-            assertThat(opp150.getSats()).isEqualTo(500L);
+            assertThat(opp150.getSats()).isEqualTo(Sats.på(500L));
             assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_ARBEIDSTAKER);
         });
         //Oppdragslinj150 for arbeidsgiver
         List<Oppdragslinje150> opp150ListVirksomhet = OppdragskontrollTestVerktøy.getOpp150ListeForEnVirksomhet(oppdrag110List, virksomhet);
         assertThat(opp150ListVirksomhet).hasSize(2);
         assertThat(opp150ListVirksomhet).allSatisfy(opp150 -> {
-            assertThat(opp150.getSats()).isEqualTo(500L);
+            assertThat(opp150.getSats()).isEqualTo(Sats.på(500L));
             assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_REFUSJON_AG);
         });
     }
@@ -411,14 +413,14 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
         List<Oppdragslinje150> opp150ListPrivatArbgvr = OppdragskontrollTestVerktøy.getOpp150ListeForBruker(oppdrag110List);
         assertThat(opp150ListPrivatArbgvr).hasSize(2);
         assertThat(opp150ListPrivatArbgvr).allSatisfy(opp150 -> {
-            assertThat(opp150.getSats()).isEqualTo(1500L);
+            assertThat(opp150.getSats()).isEqualTo(Sats.på(1500L));
             assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_ARBEIDSTAKER);
         });
         //Oppdragslinj150 for arbeidsgiver
         List<Oppdragslinje150> opp150ListVirksomhet = OppdragskontrollTestVerktøy.getOpp150ListeForEnVirksomhet(oppdrag110List, virksomhet);
         assertThat(opp150ListVirksomhet).hasSize(2);
         assertThat(opp150ListVirksomhet).allSatisfy(opp150 -> {
-            assertThat(opp150.getSats()).isEqualTo(500L);
+            assertThat(opp150.getSats()).isEqualTo(Sats.på(500L));
             assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_REFUSJON_AG);
         });
     }
@@ -492,7 +494,7 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
             assertThat(opp150.getKodeKlassifik()).isEqualTo(kodeklassifik);
             assertThat(opp150.getDatoVedtakFom()).isEqualTo(andel.getBeregningsresultatPeriode().getBeregningsresultatPeriodeFom());
             assertThat(opp150.getDatoVedtakTom()).isEqualTo(andel.getBeregningsresultatPeriode().getBeregningsresultatPeriodeTom());
-            assertThat(opp150.getSats()).isEqualTo(andel.getDagsats());
+            assertThat(opp150.getSats()).isEqualTo(Sats.på(andel.getDagsats()));
             assertThat(opp150.getTypeSats()).isEqualTo(TypeSats.DAGLIG);
             assertThat(opp150.getUtbetalingsgrad()).isNotNull();
             assertUtbetalesTilId(opp150, brukerErMottaker, utbetalesTilId);
@@ -586,7 +588,7 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
             assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(brukerErMottaker ? KodeKlassifik.FPF_ARBEIDSTAKER : KodeKlassifik.FPF_REFUSJON_AG);
             assertThat(oppdragslinje150.getDatoVedtakFom()).isEqualTo(andel.getBeregningsresultatPeriode().getBeregningsresultatPeriodeFom());
             assertThat(oppdragslinje150.getDatoVedtakTom()).isEqualTo(andel.getBeregningsresultatPeriode().getBeregningsresultatPeriodeTom());
-            assertThat(oppdragslinje150.getSats()).isEqualTo(andel.getDagsats());
+            assertThat(oppdragslinje150.getSats()).isEqualTo(Sats.på(andel.getDagsats()));
             assertThat(oppdragslinje150.getTypeSats()).isEqualTo(TypeSats.DAGLIG);
             assertThat(oppdragslinje150.getUtbetalingsgrad()).isNotNull();
             assertUtbetalesTilId(oppdragslinje150, brukerErMottaker, utbetalesTilId);
