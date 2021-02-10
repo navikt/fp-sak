@@ -13,12 +13,13 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeStatusLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
+import no.nav.foreldrepenger.økonomistøtte.OppdragKvitteringTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Betalingsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.DelytelseId;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.KjedeNøkkel;
@@ -27,7 +28,6 @@ import no.nav.foreldrepenger.økonomistøtte.ny.domene.OppdragLinje;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Periode;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Sats;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.SatsType;
-import no.nav.foreldrepenger.økonomistøtte.OppdragKvitteringTjeneste;
 import no.nav.vedtak.util.env.Environment;
 
 
@@ -141,7 +141,7 @@ public class EksisterendeOppdragMapper {
         if (linje.getDatoStatusFom() == null) {
             return null;
         }
-        if (ØkonomiKodeStatusLinje.OPPH.name().equals(linje.getKodeStatusLinje())) {
+        if (KodeStatusLinje.OPPHØR.equals(linje.getKodeStatusLinje())) {
             return linje.getDatoStatusFom();
         }
         throw new IllegalStateException("Fikk ikke-støttet kodeStatus=" + linje.getKodeStatusLinje());

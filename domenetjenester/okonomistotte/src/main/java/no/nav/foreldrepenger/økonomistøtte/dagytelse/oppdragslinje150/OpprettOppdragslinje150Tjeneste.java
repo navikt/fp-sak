@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.økonomistøtte.Oppdragsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.FinnMottakerInfoITilkjentYtelse;
@@ -187,7 +188,7 @@ public class OpprettOppdragslinje150Tjeneste {
         boolean erEndringMedBortfallAvHeleYtelsen = summerHeleTilkjentYtelse(getPerioderForTilkjentYtelse(oppdragInput)) == 0 &&
             summerHeleTilkjentYtelse(oppdragInput.getForrigeTilkjentYtelsePerioder()) > 0;
         if (gjelderOpphør || erEndringMedBortfallAvHeleYtelsen) {
-            oppdr150Builder.medKodeStatusLinje(OppdragskontrollConstants.KODE_STATUS_LINJE_OPPHØR);
+            oppdr150Builder.medKodeStatusLinje(KodeStatusLinje.OPPHØR);
         }
         oppdr150Builder.medKodeEndringLinje(gjelderOpphør ? KodeEndringLinje.ENDRING : KodeEndringLinje.NY)
             .medVedtakId(vedtaksdato.toString())

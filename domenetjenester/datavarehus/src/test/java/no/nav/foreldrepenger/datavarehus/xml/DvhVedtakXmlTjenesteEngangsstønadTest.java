@@ -40,6 +40,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
@@ -275,7 +276,7 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
 
         return Oppdragslinje150.builder()
                 .medKodeEndringLinje(KodeEndringLinje.ENDRING)
-                .medKodeStatusLinje("OPPH")
+                .medKodeStatusLinje(KodeStatusLinje.OPPHØR)
                 .medDatoStatusFom(LocalDate.now())
                 .medVedtakId("345")
                 .medDelytelseId(delytelseId)

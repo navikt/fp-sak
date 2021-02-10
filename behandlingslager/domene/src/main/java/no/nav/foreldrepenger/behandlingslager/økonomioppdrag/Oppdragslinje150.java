@@ -24,6 +24,7 @@ import org.hibernate.annotations.Immutable;
 import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
@@ -75,8 +76,9 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
     @Embedded
     private Utbetalingsgrad utbetalingsgrad;
 
+    @Convert(converter = KodeStatusLinje.KodeverdiConverter.class)
     @Column(name = "kode_status_linje")
-    private String kodeStatusLinje;
+    private KodeStatusLinje kodeStatusLinje;
 
     @Column(name = "dato_status_fom")
     private LocalDate datoStatusFom;
@@ -111,7 +113,7 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
         return kodeEndringLinje;
     }
 
-    public String getKodeStatusLinje() {
+    public KodeStatusLinje getKodeStatusLinje() {
         return kodeStatusLinje;
     }
 
@@ -241,7 +243,7 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
 
     public static class Builder {
         private KodeEndringLinje kodeEndringLinje;
-        private String kodeStatusLinje;
+        private KodeStatusLinje kodeStatusLinje;
         private LocalDate datoStatusFom;
         private String vedtakId;
         private Long delytelseId;
@@ -260,7 +262,7 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
             return this;
         }
 
-        public Builder medKodeStatusLinje(String kodeStatusLinje) {
+        public Builder medKodeStatusLinje(KodeStatusLinje kodeStatusLinje) {
             this.kodeStatusLinje = kodeStatusLinje;
             return this;
         }

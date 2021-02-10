@@ -13,17 +13,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeStatusLinje;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodekomponent;
 
 class OppdragskontrollTestVerktøy {
 
@@ -276,11 +275,11 @@ class OppdragskontrollTestVerktøy {
                 assertThat(opp150Ny.getRefDelytelseId()).isNull();
             }
         }
-        List<String> statusList = opp150List.stream()
+        List<KodeStatusLinje> statusList = opp150List.stream()
             .filter(Oppdragslinje150::gjelderOpphør)
             .map(Oppdragslinje150::getKodeStatusLinje)
             .collect(Collectors.toList());
-        assertThat(statusList).containsOnly(ØkonomiKodeStatusLinje.OPPH.name());
+        assertThat(statusList).containsOnly(KodeStatusLinje.OPPHØR);
     }
 
     protected static void verifiserOppdr150SomErOpphørt(List<Oppdragslinje150> opp150RevurdListe, List<Oppdragslinje150> originaltOpp150Liste, LocalDate endringsdato,
@@ -347,7 +346,7 @@ class OppdragskontrollTestVerktøy {
     private static void verifiserOpphørForrigeOppdrag(List<Oppdragslinje150> originaltOpp150Liste, LocalDate endringsdato, List<LocalDate> opphørsdatoVerdierForFeriepenger, Oppdragslinje150 opp150Revurd, Oppdragslinje150 originaltOpp150) {
         assertThat(opp150Revurd.getDelytelseId()).isEqualTo(originaltOpp150.getDelytelseId());
         assertThat(opp150Revurd.getKodeEndringLinje()).isEqualTo(KodeEndringLinje.ENDRING);
-        assertThat(opp150Revurd.getKodeStatusLinje()).isEqualTo(ØkonomiKodeStatusLinje.OPPH.name());
+        assertThat(opp150Revurd.getKodeStatusLinje()).isEqualTo(KodeStatusLinje.OPPHØR);
         assertThat(opp150Revurd.getRefDelytelseId()).isNull();
         assertThat(opp150Revurd.getRefFagsystemId()).isNull();
         if (erOpp150ForFeriepenger(opp150Revurd)) {
@@ -374,8 +373,8 @@ class OppdragskontrollTestVerktøy {
         List<Oppdragslinje150> opp150ArbeidsgiverList = opp150RevurdListe.stream()
             .filter(opp150 -> opp150.getKodeKlassifik().equals(KodeKlassifik.FPF_FERIEPENGER_AG)).collect(Collectors.toList());
         assertThat(opp150FeriepgBrukerList).anySatisfy(opp150 ->
-            assertThat(opp150.getKodeStatusLinje()).isEqualTo(ØkonomiKodeStatusLinje.OPPH.name()));
+            assertThat(opp150.getKodeStatusLinje()).isEqualTo(KodeStatusLinje.OPPHØR));
         assertThat(opp150ArbeidsgiverList).anySatisfy(opp150 ->
-            assertThat(opp150.getKodeStatusLinje()).isEqualTo(ØkonomiKodeStatusLinje.OPPH.name()));
+            assertThat(opp150.getKodeStatusLinje()).isEqualTo(KodeStatusLinje.OPPHØR));
     }
 }

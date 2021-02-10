@@ -12,9 +12,9 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeStatusLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.opphør.FinnOppdragslinje150FomSisteOpphør;
 
@@ -22,7 +22,6 @@ public class FinnOppdragslinje150FomSisteOpphørTest {
 
     private static final KodeEndringLinje NY = KodeEndringLinje.NY;
     private static final KodeEndringLinje ENDR = KodeEndringLinje.ENDRING;
-    private static final String OPPH = ØkonomiKodeStatusLinje.OPPH.name();
 
     /**
      * Første oppdrag (delytelseId=1): Status NY
@@ -155,7 +154,7 @@ public class FinnOppdragslinje150FomSisteOpphørTest {
             .medTypeSats(TypeSats.DAGLIG)
             .medOppdrag110(oppdrag110);
         if (ENDR.equals(kodeEndringLinje)) {
-            builder.medKodeStatusLinje(OPPH);
+            builder.medKodeStatusLinje(KodeStatusLinje.OPPHØR);
             builder.medKodeEndringLinje(kodeEndringLinje);
         } else {
             builder.medKodeEndringLinje(NY);

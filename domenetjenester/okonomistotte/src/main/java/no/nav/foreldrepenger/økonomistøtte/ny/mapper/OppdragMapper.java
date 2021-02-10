@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
@@ -102,7 +103,7 @@ public class OppdragMapper {
 
         if (linje.erOpphørslinje()) {
             builder.medKodeEndringLinje(KodeEndringLinje.ENDRING);
-            builder.medKodeStatusLinje(OppdragskontrollConstants.KODE_STATUS_LINJE_OPPHØR);
+            builder.medKodeStatusLinje(KodeStatusLinje.OPPHØR);
             builder.medDatoStatusFom(linje.getOpphørFomDato());
         } else {
             builder.medKodeEndringLinje(KodeEndringLinje.NY);
