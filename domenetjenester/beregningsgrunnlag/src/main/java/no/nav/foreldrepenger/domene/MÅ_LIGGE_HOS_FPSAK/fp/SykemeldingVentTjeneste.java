@@ -6,10 +6,12 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseFilter;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.time.LocalDate;
 import java.util.Optional;
 
+@ApplicationScoped
 public class SykemeldingVentTjeneste {
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
 

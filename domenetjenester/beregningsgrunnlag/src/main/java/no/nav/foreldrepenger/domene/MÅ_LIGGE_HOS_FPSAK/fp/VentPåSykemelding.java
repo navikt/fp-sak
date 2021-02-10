@@ -17,6 +17,15 @@ public class VentPåSykemelding {
     private static final List<Arbeidskategori> ARBEIDSKATEGORI_DAGPENGER = List.of(Arbeidskategori.DAGPENGER, Arbeidskategori.KOMBINASJON_ARBEIDSTAKER_OG_DAGPENGER);
 
 
+    /**
+     * Utleder om vi skal vente på å motta siste sykemelding fra søker dersom søker går på sykepenger som er løpende
+     * og vi ikke har en sykemelding som krysser skjæringstidspunktet
+     * @param filter ytelsefilter med alle søkers ytelser
+     * @param skjæringstidspunkt skjæringstidspunkt for opptjening
+     * @param dagensDato dagens dato (tas inn som parameter for enklere test)
+     * @return Returnerer tom Optional om vi ikke skal opprette vente punkt.
+     * Returnerer en Optional med en LocalDate (frist vi skal vente til) dersom vi skal vente
+     */
     public static Optional<LocalDate> utledVenteFrist(YtelseFilter filter, LocalDate skjæringstidspunkt, LocalDate dagensDato) {
         Collection<Ytelse> løpendeSykepenger = filter.før(skjæringstidspunkt).filter(y -> RelatertYtelseTilstand.LØPENDE.equals(y.getStatus())
             && RelatertYtelseType.SYKEPENGER.equals(y.getRelatertYtelseType())).getFiltrertYtelser();
@@ -25,16 +34,20 @@ public class VentPåSykemelding {
             .filter(yt -> erBasertPåDagpenger(yt.getYtelseGrunnlag()))
             .collect(Collectors.toList());
 
+        if (løpendeSPBasertPåDagpenger.isEmpty()) {
+            return Optional.empty();
+        }
+
         boolean finnesNødvendigSykemelding = finnesSykemeldingPåSkjæringstidspunktet(løpendeSPBasertPåDagpenger, skjæringstidspunkt);
         return finnesNødvendigSykemelding ? Optional.empty() : utledFrist(skjæringstidspunkt, dagensDato);
 
     }
 
-    private static Optional<LocalDate> utledFrist(LocalDate skjæringstidspunktOpptjening, LocalDate dagensdato) {
-        if (!dagensdato.isAfter(skjæringstidspunktOpptjening)) {
-            return Optional.of(skjæringstidspunktOpptjening.plusDays(1));
+    private static Optional<LocalDate> utledFrist(LocalDate skjæringstidspunkt, LocalDate dagensdato) {
+        if (!dagensdato.isAfter(skjæringstidspunkt)) {
+            return Optional.of(skjæringstidspunkt.plusDays(1));
         }
-        if (!dagensdato.isAfter(skjæringstidspunktOpptjening.plusDays(14))) {
+        if (!dagensdato.isAfter(skjæringstidspunkt.plusDays(14))) {
             return Optional.of(dagensdato.plusDays(1));
         }
         return Optional.empty();
