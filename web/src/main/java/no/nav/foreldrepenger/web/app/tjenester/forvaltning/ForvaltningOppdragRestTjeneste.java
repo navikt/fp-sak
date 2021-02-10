@@ -176,7 +176,7 @@ public class ForvaltningOppdragRestTjeneste {
         // begrenser derfor hvor ofte den kan brukes for å hindre feil bruk
         int antallPatchedeINærFortid = finnAntallPatchedeSistePeriode(entityManager, Period.ofWeeks(4));
         if (antallPatchedeINærFortid > 10) {
-            throw new IllegalArgumentException(
+            throw new ForvaltningException(
                     "Ikke klar for patching enda. Vurder å øke tillatt hyppighet i ForvaltningOppdragRestTjeneste ved behov");
         }
     }
@@ -225,10 +225,10 @@ public class ForvaltningOppdragRestTjeneste {
     private void validerUferdigProsesstask(ProsessTaskData task) {
         ProsessTaskStatus status = task.getStatus();
         if (status != ProsessTaskStatus.VENTER_SVAR && status != ProsessTaskStatus.FEILET) {
-            throw new IllegalArgumentException("Kan ikke patche oppdrag som er ferdig. Kan kun brukes når prosesstask er FEILET eller VENTER_SVAR");
+            throw new ForvaltningException("Kan ikke patche oppdrag som er ferdig. Kan kun brukes når prosesstask er FEILET eller VENTER_SVAR");
         }
         if (status == ProsessTaskStatus.VENTER_SVAR && ChronoUnit.MINUTES.between(task.getSistKjørt(), LocalDateTime.now()) > 120) {
-            throw new IllegalArgumentException(
+            throw new ForvaltningException(
                     "Skal ikke patche oppdrag uten at OS har fått rimelig tid til å svare (sanity check). Prøv igjen senere.");
         }
     }
@@ -236,31 +236,31 @@ public class ForvaltningOppdragRestTjeneste {
     private void validerFerdigProsesstask(ProsessTaskData task) {
         ProsessTaskStatus status = task.getStatus();
         if (status != ProsessTaskStatus.FERDIG) {
-            throw new IllegalArgumentException("Denne skal kun brukes for FERDIG prosesstask. Se om du heller skal bruke endepunktet /patch-oppdrag");
+            throw new ForvaltningException("Denne skal kun brukes for FERDIG prosesstask. Se om du heller skal bruke endepunktet /patch-oppdrag");
         }
         if (ChronoUnit.DAYS.between(task.getSistKjørt(), LocalDateTime.now()) > 90) {
-            throw new IllegalArgumentException(
+            throw new ForvaltningException(
                     "Skal ikke patche oppdrag som er så gamle som dette (sanity check). Endre grensen i java-koden hvis det er strengt nødvendig.");
         }
     }
 
     private void validerFagsystemId(Behandling behandling, long fagsystemId) {
         if (!Long.toString(fagsystemId / 1000).equals(behandling.getFagsak().getSaksnummer().getVerdi())) {
-            throw new IllegalArgumentException("FagsystemId=" + fagsystemId + " passer ikke med saksnummer for behandlingId=" + behandling.getId());
+            throw new ForvaltningException("FagsystemId=" + fagsystemId + " passer ikke med saksnummer for behandlingId=" + behandling.getId());
         }
     }
 
     private void validerDelytelseId(OppdragPatchDto dto) {
         for (OppdragslinjePatchDto linje : dto.getOppdragslinjer()) {
             if (dto.getFagsystemId() != linje.getDelytelseId() / 1000) {
-                throw new IllegalArgumentException("FagsystemId=" + dto.getFagsystemId() + " matcher ikke med delytelseId=" + linje.getDelytelseId());
+                throw new ForvaltningException("FagsystemId=" + dto.getFagsystemId() + " matcher ikke med delytelseId=" + linje.getDelytelseId());
             }
             if (linje.getRefFagsystemId() != null && dto.getFagsystemId() != linje.getRefFagsystemId()) {
-                throw new IllegalArgumentException(
+                throw new ForvaltningException(
                         "FagsystemId=" + dto.getFagsystemId() + " matcher ikke med refFagsystemId=" + linje.getRefFagsystemId());
             }
             if (linje.getRefDelytelseId() != null && dto.getFagsystemId() != linje.getRefDelytelseId() / 1000) {
-                throw new IllegalArgumentException(
+                throw new ForvaltningException(
                         "FagsystemId=" + dto.getFagsystemId() + " matcher ikke med refDelytelseId=" + linje.getRefDelytelseId());
             }
         }

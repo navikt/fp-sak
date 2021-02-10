@@ -83,7 +83,7 @@ public class OverstyrDekningsgradTjeneste {
 
         Optional<FagsakRelasjon> fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak);
         if (fagsakRelasjon.flatMap(FagsakRelasjon::getFagsakNrTo).isPresent()) {
-            throw new IllegalStateException("Ikke støttet: Berørt sak");
+            throw new ForvaltningException("Ikke støttet: Berørt sak");
         }
         Dekningsgrad fraVerdi = fagsakRelasjon.orElseThrow().getDekningsgrad();
         Dekningsgrad tilVerdi = overstyrtVerdi.get();

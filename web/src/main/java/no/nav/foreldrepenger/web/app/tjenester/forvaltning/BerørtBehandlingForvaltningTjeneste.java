@@ -36,7 +36,7 @@ public class BerørtBehandlingForvaltningTjeneste {
 
     void opprettNyBerørtBehandling(Fagsak fagsak) {
         if (!revurderingTjeneste.kanRevurderingOpprettes(fagsak)) {
-            throw new IllegalArgumentException("Kan ikke opprette revurdering for fagsak " + fagsak.getId());
+            throw new ForvaltningException("Kan ikke opprette revurdering for fagsak " + fagsak.getId());
         }
 
         var behandlingÅrsakType = BehandlingÅrsakType.BERØRT_BEHANDLING;
