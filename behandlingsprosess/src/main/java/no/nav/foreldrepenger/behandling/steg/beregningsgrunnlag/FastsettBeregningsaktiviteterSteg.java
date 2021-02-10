@@ -93,7 +93,7 @@ public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg
         return Optional.of(AksjonspunktResultat.opprettForAksjonspunktMedFrist(
             AksjonspunktDefinisjon.AUTO_VENT_PÅ_SYKEMELDING,
             Venteårsak.VENT_MANGLENDE_SYKEMELDING,
-            LocalDateTime.of(LocalDate.now().plusDays(1), LocalDateTime.now().toLocalTime())));
+            LocalDateTime.of(ventefrist.get(), LocalDateTime.now().toLocalTime())));
     }
 
     @Override
