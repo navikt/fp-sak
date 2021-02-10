@@ -52,9 +52,8 @@ import no.nav.tjeneste.virksomhet.journal.v3.meldinger.HentKjerneJournalpostList
 import no.nav.tjeneste.virksomhet.journal.v3.meldinger.HentKjerneJournalpostListeResponse;
 import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
 import no.nav.vedtak.felles.integrasjon.journal.v3.JournalConsumer;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.felles.integrasjon.saf.HentDokumentQuery;
-import no.nav.vedtak.felles.integrasjon.saf.Saf;
+import no.nav.vedtak.felles.integrasjon.saf.SafTjeneste;
 
 @ApplicationScoped
 public class DokumentArkivTjeneste {
@@ -62,7 +61,7 @@ public class DokumentArkivTjeneste {
     private static final Long SAKSNUMMER_TRANSISJON = 152000000L;
 
     private JournalConsumer journalConsumer;
-    private Saf safKlient;
+    private SafTjeneste safKlient;
     private FagsakRepository fagsakRepository;
 
     private final Set<ArkivFilType> filTyperPdf = byggArkivFilTypeSet();
@@ -74,7 +73,7 @@ public class DokumentArkivTjeneste {
     }
 
     @Inject
-    public DokumentArkivTjeneste(JournalConsumer journalConsumer, @Jersey Saf safTjeneste, FagsakRepository fagsakRepository) {
+    public DokumentArkivTjeneste(JournalConsumer journalConsumer, SafTjeneste safTjeneste, FagsakRepository fagsakRepository) {
         this.journalConsumer = journalConsumer;
         this.safKlient = safTjeneste;
         this.fagsakRepository = fagsakRepository;
@@ -229,9 +228,7 @@ public class DokumentArkivTjeneste {
     private List<ArkivJournalPost> doHentJournalpostListe(Saksnummer saksnummer, Set<Journalstatus> exclude) {
         var query = new DokumentoversiktFagsakQueryRequest();
         query.setFagsak(new FagsakInput(saksnummer.getVerdi(), Fagsystem.FPSAK.getOffisiellKode()));
-        query.setTema(List.of());
-        query.setJournalposttyper(List.of());
-        query.setJournalstatuser(List.of());
+        query.setFoerste(1000);
 
         var projection = new DokumentoversiktResponseProjection()
             .journalposter(standardJournalpostProjection());
