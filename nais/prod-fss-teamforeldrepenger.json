@@ -64,6 +64,7 @@
     "DKIF_RS_URL": "http://dkif.default/api/v1/personer/kontaktinformasjon",
     "ARBEIDSFORDELING_RS_URL": "https://app.adeo.no/norg2/api/v1/arbeidsfordeling/enheter",
     "PDL_BASE_URL" : "http://pdl-api.default/graphql",
+    "SAF_BASE_URL" : "https://saf.nais.adeo.no",
     "KODEVERK_V2_URL": "https://kodeverk.nais.adeo.no/ws/kodeverk/v2",
     "AZURE_V2_TOKEN_ENDPOINT": "https://login.microsoftonline.com/62366534-1ec3-4962-8869-9b5535279d0b/oauth2/v2.0/token",
     "AZURE_HTTP_PROXY": "http://webproxy.nais:8088",

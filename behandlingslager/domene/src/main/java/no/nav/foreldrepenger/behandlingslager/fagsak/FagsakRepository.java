@@ -22,9 +22,14 @@ import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 import no.nav.vedtak.util.Tuple;
+import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
 public class FagsakRepository {
+
+    private static final long SAKSNUMMER_BASE = 152000000L;
+
+    private static final boolean ER_PROD = Environment.current().isProd();
 
     public EntityManager getEntityManager() {
         return entityManager;
@@ -125,7 +130,16 @@ public class FagsakRepository {
         entityManager.persist(fagsak.getNavBruker());
         entityManager.persist(fagsak);
         entityManager.flush();
+        if (!ER_PROD && fagsak.getSaksnummer() == null) {
+            fagsak.setSaksnummer(genererSaksnummerFraId(fagsak.getId()));
+            entityManager.persist(fagsak);
+            entityManager.flush();
+        }
         return fagsak.getId();
+    }
+
+    private Saksnummer genererSaksnummerFraId(Long fagsakId) {
+        return new Saksnummer(String.valueOf(SAKSNUMMER_BASE + fagsakId));
     }
 
     public void oppdaterRelasjonsRolle(Long fagsakId, RelasjonsRolleType relasjonsRolleType) {

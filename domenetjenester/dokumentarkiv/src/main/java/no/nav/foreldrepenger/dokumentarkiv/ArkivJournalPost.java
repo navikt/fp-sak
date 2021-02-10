@@ -6,11 +6,9 @@ import java.util.List;
 import java.util.Objects;
 
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public class ArkivJournalPost {
     private JournalpostId journalpostId;
-    private Saksnummer saksnummer;
     private ArkivDokument hovedDokument;
     private List<ArkivDokument> andreDokument;
     private Kommunikasjonsretning kommunikasjonsretning;
@@ -23,14 +21,6 @@ public class ArkivJournalPost {
 
     public void setJournalpostId(JournalpostId journalpostId) {
         this.journalpostId = journalpostId;
-    }
-
-    public Saksnummer getSaksnummer() {
-        return saksnummer;
-    }
-
-    public void setSaksnummer(Saksnummer saksnummer) {
-        this.saksnummer = saksnummer;
     }
 
     public ArkivDokument getHovedDokument() {
@@ -79,7 +69,6 @@ public class ArkivJournalPost {
         if (o == null || getClass() != o.getClass()) return false;
         ArkivJournalPost that = (ArkivJournalPost) o;
         return Objects.equals(journalpostId, that.journalpostId) &&
-            Objects.equals(saksnummer, that.saksnummer) &&
             Objects.equals(hovedDokument, that.hovedDokument) &&
             Objects.equals(andreDokument, that.andreDokument) &&
             Objects.equals(kommunikasjonsretning, that.kommunikasjonsretning) &&
@@ -89,7 +78,7 @@ public class ArkivJournalPost {
 
     @Override
     public int hashCode() {
-        return Objects.hash(journalpostId, saksnummer, hovedDokument, andreDokument, kommunikasjonsretning, beskrivelse, tidspunkt);
+        return Objects.hash(journalpostId, hovedDokument, andreDokument, kommunikasjonsretning, beskrivelse, tidspunkt);
     }
 
     public static class Builder {
@@ -102,11 +91,6 @@ public class ArkivJournalPost {
 
         public static Builder ny() {
             return new Builder();
-        }
-
-        public Builder medSaksnummer(Saksnummer saksnummer) {
-            this.arkivJournalPost.setSaksnummer(saksnummer);
-            return this;
         }
 
         public Builder medJournalpostId(JournalpostId journalpostId) {

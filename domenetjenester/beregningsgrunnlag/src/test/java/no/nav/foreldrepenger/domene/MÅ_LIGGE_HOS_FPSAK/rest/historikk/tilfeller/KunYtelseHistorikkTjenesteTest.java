@@ -21,7 +21,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.FaktaBeregningLagreDto;
@@ -42,7 +41,6 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilde
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
-import no.nav.vedtak.felles.integrasjon.journal.v3.JournalConsumerImpl;
 
 @ExtendWith(FPsakEntityManagerAwareExtension.class)
 public class KunYtelseHistorikkTjenesteTest {
@@ -72,9 +70,7 @@ public class KunYtelseHistorikkTjenesteTest {
             .medAndelsnr(ANDELSNR)
             .medAktivitetStatus(BRUKERS_ANDEL)
             .build(periode1);
-        DokumentArkivTjeneste dokumentArkivTjeneste = new DokumentArkivTjeneste(mock(JournalConsumerImpl.class),
-            new FagsakRepository(entityManager));
-        historikkAdapter = new HistorikkTjenesteAdapter(new HistorikkRepository(entityManager), dokumentArkivTjeneste);
+        historikkAdapter = new HistorikkTjenesteAdapter(new HistorikkRepository(entityManager), mock(DokumentArkivTjeneste.class));
     }
 
     @Test

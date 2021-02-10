@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFelt;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
@@ -61,9 +60,7 @@ public class VurderRefusjonHistorikkTjenesteTest {
     @BeforeEach
     public void setUp(EntityManager entityManager) {
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
-        DokumentArkivTjeneste dokumentArkivTjeneste = new DokumentArkivTjeneste(null,
-            new FagsakRepository(entityManager));
-        historikkTjenesteAdapter = new HistorikkTjenesteAdapter(new HistorikkRepository(entityManager), dokumentArkivTjeneste);
+        historikkTjenesteAdapter = new HistorikkTjenesteAdapter(new HistorikkRepository(entityManager), mock(DokumentArkivTjeneste.class));
         VirksomhetTjeneste virksomhetTjeneste = mock(VirksomhetTjeneste.class);
         when(virksomhetTjeneste.hentOrganisasjon(VIRKSOMHET.getIdentifikator()))
             .thenReturn(new Virksomhet.Builder().medOrgnr(VIRKSOMHET.getOrgnr()).build());

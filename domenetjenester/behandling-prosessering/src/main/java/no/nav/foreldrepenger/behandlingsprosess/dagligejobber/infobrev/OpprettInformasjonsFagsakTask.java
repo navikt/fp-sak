@@ -38,6 +38,7 @@ import no.nav.foreldrepenger.produksjonsstyring.opprettgsak.OpprettGSakTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
+import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
 @ProsessTask(OpprettInformasjonsFagsakTask.TASKTYPE)
@@ -53,6 +54,8 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
 
     private static final Logger log = LoggerFactory.getLogger(OpprettInformasjonsFagsakTask.class);
     private static final Period FH_DIFF_PERIODE = Period.parse("P6W");
+
+    private static final boolean ER_PROD = Environment.current().isProd();
 
     private BehandlingOpprettingTjeneste behandlingOpprettingTjeneste;
     private PersoninfoAdapter personinfoAdapter;
@@ -119,8 +122,10 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
         NavBruker navBruker = brukerTjeneste.hentEllerOpprettFraAktørId(aktørId);
         Fagsak fagsak = Fagsak.opprettNy(ytelseType, navBruker);
         fagsakTjeneste.opprettFagsak(fagsak);
-        Saksnummer saksnummer = opprettGSakTjeneste.opprettArkivsak(aktørId);
-        fagsakTjeneste.oppdaterFagsakMedGsakSaksnummer(fagsak.getId(), saksnummer);
+        if (ER_PROD || fagsak.getSaksnummer() == null) {
+            Saksnummer saksnummer = opprettGSakTjeneste.opprettArkivsak(aktørId);
+            fagsakTjeneste.oppdaterFagsakMedGsakSaksnummer(fagsak.getId(), saksnummer);
+        }
         return fagsakTjeneste.finnEksaktFagsak(fagsak.getId());
     }
 

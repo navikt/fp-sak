@@ -48,11 +48,12 @@ import no.nav.vedtak.felles.integrasjon.journal.v3.JournalConsumer;
 public class DokumentArkivTjenesteTest {
 
     private static final JournalpostId JOURNAL_ID = new JournalpostId("42");
-    private static final String DOKUMENT_ID = "66";
     private static final Saksnummer KJENT_SAK = new Saksnummer("123456");
     private static final LocalDateTime NOW = LocalDateTime.of(LocalDate.now(), LocalTime.of(10, 10));
     private static final LocalDateTime YESTERDAY = LocalDateTime.of(LocalDate.now().minusDays(1), LocalTime.of(10, 10));
     private static DokumentTypeId SØK_ENG_FØDSEL;
+
+    private Long DOKUMENT_ID = 66L;
 
     private DokumentArkivTjeneste dokumentApplikasjonTjeneste;
     private JournalConsumer mockJournalProxyService;
@@ -65,7 +66,7 @@ public class DokumentArkivTjenesteTest {
         final Optional<Fagsak> mock1 = Optional.of(fagsak);
         when(fagsakRepository.hentSakGittSaksnummer(any(Saksnummer.class))).thenReturn(mock1);
         SØK_ENG_FØDSEL = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
-        dokumentApplikasjonTjeneste = new DokumentArkivTjeneste(mockJournalProxyService, fagsakRepository);
+        dokumentApplikasjonTjeneste = new DokumentArkivTjeneste(mockJournalProxyService, null, fagsakRepository);
     }
 
     @Test
@@ -82,7 +83,6 @@ public class DokumentArkivTjenesteTest {
         ArkivJournalPost arkivJournalPost = arkivDokuments.get(0);
         ArkivDokument arkivDokument = arkivJournalPost.getHovedDokument();
         assertThat(arkivJournalPost.getJournalpostId()).isEqualTo(JOURNAL_ID);
-        assertThat(arkivDokument.getDokumentId()).isEqualTo(DOKUMENT_ID);
         assertThat(arkivDokument.getTittel()).isEqualTo(SØK_ENG_FØDSEL.getNavn());
         assertThat(arkivJournalPost.getTidspunkt()).isEqualTo(YESTERDAY);
         assertThat(arkivJournalPost.getKommunikasjonsretning()).isEqualTo(Kommunikasjonsretning.UT);
@@ -219,7 +219,7 @@ public class DokumentArkivTjenesteTest {
 
         // Act
 
-        byte[] bytesActual = dokumentApplikasjonTjeneste.hentDokument(new JournalpostId("123"), "456");
+        byte[] bytesActual = dokumentApplikasjonTjeneste.hentDokument(new Saksnummer("321"), new JournalpostId("123"), "456");
 
         // Assert
         assertThat(bytesActual).isEqualTo(bytesExpected);
@@ -245,7 +245,7 @@ public class DokumentArkivTjenesteTest {
 
     private DetaljertDokumentinformasjon createDokumentinfoRelasjon(String filtype, String variantformat, String dokumentTypeId, String tittel) {
         DetaljertDokumentinformasjon dokumentinfoRelasjon = new DetaljertDokumentinformasjon();
-        dokumentinfoRelasjon.setDokumentId(DOKUMENT_ID);
+        dokumentinfoRelasjon.setDokumentId(String.valueOf(DOKUMENT_ID++));
         DokumenttypeIder dokumenttyper = new DokumenttypeIder();
         dokumenttyper.setValue(dokumentTypeId);
         dokumentinfoRelasjon.setDokumentTypeId(dokumenttyper);

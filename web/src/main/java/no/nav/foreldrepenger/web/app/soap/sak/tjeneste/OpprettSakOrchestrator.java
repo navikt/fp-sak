@@ -13,9 +13,13 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Journalpost;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
 public class OpprettSakOrchestrator {
+
+    private static final boolean ER_PROD = Environment.current().isProd();
+
     private OpprettSakTjeneste opprettSakTjeneste;
     private FagsakRepository fagsakRepository;
 
@@ -31,7 +35,7 @@ public class OpprettSakOrchestrator {
     public Saksnummer opprettSak(BehandlingTema behandlingTema, AktørId aktørId) {
         FagsakYtelseType ytelseType = opprettSakTjeneste.utledYtelseType(behandlingTema);
         Fagsak fagsak = opprettSakTjeneste.opprettSakVL(aktørId, ytelseType);
-        return opprettEllerFinnGsak(aktørId, fagsak);
+        return ER_PROD || fagsak.getSaksnummer() == null ? opprettEllerFinnGsak(aktørId, fagsak) : fagsak.getSaksnummer();
     }
 
     public Saksnummer opprettSak(JournalpostId journalpostId, BehandlingTema behandlingTema, AktørId aktørId) {
