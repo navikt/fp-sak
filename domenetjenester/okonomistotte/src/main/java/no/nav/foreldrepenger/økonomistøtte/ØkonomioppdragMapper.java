@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodekomponent;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.ObjectFactory;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Ompostering116;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.OppdragSkjemaConstants;
@@ -110,7 +111,7 @@ public class ØkonomioppdragMapper {
         final no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Avstemming115 avstemming115 =
             objectFactory.createAvstemming115();
 
-        avstemming115.setKodeKomponent(avstemming.getKodekomponent());
+        avstemming115.setKodeKomponent(ØkonomiKodekomponent.VLFP.getKode());
         avstemming115.setNokkelAvstemming(avstemming.getNøkkel());
         avstemming115.setTidspktMelding(avstemming.getTidspunkt());
 

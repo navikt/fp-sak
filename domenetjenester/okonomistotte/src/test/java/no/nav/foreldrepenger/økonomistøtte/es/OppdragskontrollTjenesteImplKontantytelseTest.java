@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.økonomistøtte.es;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -289,7 +290,8 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
         assertThat(oppdrag110Liste).allSatisfy(oppdrag110 -> {
             Avstemming avstemming = oppdrag110.getAvstemming();
             assertThat(avstemming).isNotNull();
-            assertThat(avstemming.getKodekomponent()).isEqualTo(ØkonomiKodekomponent.VLFP.getKodekomponent());
+            assertThat(avstemming.getNøkkel()).isNotNull();
+            assertEquals(avstemming.getNøkkel(), avstemming.getTidspunkt());
         });
     }
 

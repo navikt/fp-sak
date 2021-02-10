@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.økonomistøtte.dagytelse.fp;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -516,7 +517,8 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
         assertThat(oppdrag110Liste).allSatisfy(oppdrag110 -> {
             Avstemming avstemming = oppdrag110.getAvstemming();
             assertThat(avstemming).isNotNull();
-            assertThat(avstemming.getKodekomponent()).isEqualTo(ØkonomiKodekomponent.VLFP.getKodekomponent());
+            assertThat(avstemming.getNøkkel()).isNotNull();
+            assertEquals(avstemming.getNøkkel(), avstemming.getTidspunkt());
         });
     }
 

@@ -306,11 +306,11 @@ public class GrensesnittavstemmingMapperTest {
         assertThat(aksjon).isNotNull();
         assertThat(aksjon.getAksjonType()).isEqualTo(aksjonType);
         assertThat(aksjon.getAvleverendeAvstemmingId()).isNotNull();
-        assertThat(aksjon.getAvleverendeKomponentKode()).isEqualTo(ØkonomiKodekomponent.VLFP.getKodekomponent());
+        assertThat(aksjon.getAvleverendeKomponentKode()).isEqualTo(ØkonomiKodekomponent.VLFP.getKode());
         assertThat(aksjon.getAvstemmingType()).isEqualTo(AvstemmingType.GRSN);
         assertThat(aksjon.getBrukerId()).isEqualTo(GrensesnittavstemmingMapper.BRUKER_ID_FOR_VEDTAKSLØSNINGEN);
         assertThat(aksjon.getKildeType()).isEqualTo(KildeType.AVLEV);
-        assertThat(aksjon.getMottakendeKomponentKode()).isEqualTo(ØkonomiKodekomponent.OS.getKodekomponent());
+        assertThat(aksjon.getMottakendeKomponentKode()).isEqualTo(ØkonomiKodekomponent.OS.getKode());
         assertThat(aksjon.getUnderkomponentKode()).isEqualTo(kodeFagområde);
     }
 
