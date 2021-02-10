@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.behandlingslager.uttak;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 import java.time.LocalDate;
 
@@ -46,6 +47,26 @@ public class UttaksperiodegrenseRepositoryTest extends EntityManagerAwareTest {
 
         // Assert
         assertThat(uttaksperiodegrenseRepository.hentHvisEksisterer(behandlingId)).isEmpty();
+    }
+
+    @Test
+    public void ikke_lagre_duplikate_aktive_hvis_ingen_endring() {
+        var behandlingsresultat = lagBehandlingMedResultat();
+        var uttaksperiodegrense1 = new Uttaksperiodegrense.Builder(behandlingsresultat)
+            .medMottattDato(LocalDate.now())
+            .medFørsteLovligeUttaksdag((LocalDate.now().minusDays(5)))
+            .build();
+        var uttaksperiodegrense2 = new Uttaksperiodegrense.Builder(behandlingsresultat)
+            .medMottattDato(uttaksperiodegrense1.getMottattDato())
+            .medFørsteLovligeUttaksdag(uttaksperiodegrense1.getFørsteLovligeUttaksdag())
+            .build();
+
+        var behandlingId = behandlingsresultat.getBehandlingId();
+        uttaksperiodegrenseRepository.lagre(behandlingId, uttaksperiodegrense1);
+        uttaksperiodegrenseRepository.lagre(behandlingId, uttaksperiodegrense2);
+
+        // Kaster exception ved duplikat
+        assertThatCode(() -> uttaksperiodegrenseRepository.hent(behandlingId)).doesNotThrowAnyException();
     }
 
     private Behandlingsresultat lagBehandlingMedResultat() {
