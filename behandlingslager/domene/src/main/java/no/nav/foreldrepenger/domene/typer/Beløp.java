@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.diff.TraverseValue;
 @Embeddable
 public class Beløp implements Serializable, IndexKey, TraverseValue {
     public static final Beløp ZERO = new Beløp(BigDecimal.ZERO);
-    private static final RoundingMode AVRUNDINGSMODUS = RoundingMode.HALF_EVEN;
 
     @Column(name = "beloep", scale = 2)
     @ChangeTracked
@@ -44,7 +43,7 @@ public class Beløp implements Serializable, IndexKey, TraverseValue {
     }
 
     private BigDecimal skalertVerdi() {
-        return verdi == null ? null : verdi.setScale(2, AVRUNDINGSMODUS);
+        return verdi == null ? null : verdi.setScale(2, RoundingMode.HALF_EVEN);
     }
 
     @Override

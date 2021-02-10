@@ -9,13 +9,12 @@ import javax.persistence.Converter;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum KodeEndringLinje implements Kodeverdi {
-    NY("NY"),
-    ENDRING("ENDR")
+public enum KodeStatusLinje implements Kodeverdi {
+    OPPHØR("OPPH")
     ;
 
-    private static final String KODEVERK = "KODE_ENDRING_LINJE_TYPE";
-    private static final Map<String, KodeEndringLinje> KODER = new LinkedHashMap<>();
+    private static final String KODEVERK = "KODE_STATUS_LINJE_TYPE";
+    private static final Map<String, KodeStatusLinje> KODER = new LinkedHashMap<>();
 
     static {
         for (var v : values()) {
@@ -27,15 +26,15 @@ public enum KodeEndringLinje implements Kodeverdi {
 
     private final String kode;
 
-    KodeEndringLinje(String kode) {
+    KodeStatusLinje(String kode) {
         this.kode = kode;
     }
 
-    public static KodeEndringLinje fraKode(String kode) {
-        Objects.requireNonNull(kode, "kodeEndringLinje");
+    public static KodeStatusLinje fraKode(String kode) {
+        Objects.requireNonNull(kode, "kodeStatusLinje");
         var ad = KODER.get(kode);
         if (ad == null) {
-            throw new IllegalArgumentException("Ukjent KodeEndringLinje: " + kode);
+            throw new IllegalArgumentException("Ukjent KodeStatusLinje: " + kode);
         }
         return ad;
     }
@@ -56,15 +55,15 @@ public enum KodeEndringLinje implements Kodeverdi {
     }
 
     @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<KodeEndringLinje, String> {
+    public static class KodeverdiConverter implements AttributeConverter<KodeStatusLinje, String> {
         @Override
-        public String convertToDatabaseColumn(KodeEndringLinje attribute) {
-            return attribute.getKode();
+        public String convertToDatabaseColumn(KodeStatusLinje attribute) {
+            return attribute == null ? null : attribute.getKode();
         }
 
         @Override
-        public KodeEndringLinje convertToEntityAttribute(String dbData) {
-            return fraKode(dbData);
+        public KodeStatusLinje convertToEntityAttribute(String dbData) {
+            return dbData == null ? null : fraKode(dbData);
         }
     }
 }
