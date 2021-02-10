@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Betalingsmottaker;
@@ -150,10 +151,10 @@ public class EksisterendeOppdragMapperTest {
             .medDelytelseId(Long.parseLong(delytelseId.toString()))
             .medKodeKlassifik(kodeKlassifik)
             .medVedtakFomOgTom(p.getFom(), p.getTom())
-            .medSats(sats.getSats())
+            .medSats(no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats.på(sats.getSats()))
             .medTypeSats(TypeSats.fraKode(sats.getSatsType().getKode()))
             .medDatoStatusFom(opphørFomDato)
-            .medKodeStatusLinje(opphørFomDato != null ? "OPPH" : null)
+            .medKodeStatusLinje(opphørFomDato != null ? KodeStatusLinje.OPPHØR : null)
             .medKodeEndringLinje(opphørFomDato != null ? KodeEndringLinje.ENDRING : KodeEndringLinje.NY)
             .medRefDelytelseId(refDelytelseId != null ? Long.parseLong(refDelytelseId.toString()) : null)
             .medRefFagsystemId(refDelytelseId != null ? Long.parseLong(refDelytelseId.getFagsystemId().toString()) : null)

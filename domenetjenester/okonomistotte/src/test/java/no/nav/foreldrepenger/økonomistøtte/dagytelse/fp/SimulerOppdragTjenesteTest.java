@@ -17,10 +17,12 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
+import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.SimulerOppdragTjeneste;
@@ -85,7 +87,7 @@ public class SimulerOppdragTjenesteTest {
             .medVedtakId("345")
             .medDelytelseId(1L)
             .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
-            .medSats(1122L)
+            .medSats(Sats.på(1122L))
             .medUtbetalesTilId("123456789")
             .medKodeKlassifik(KodeKlassifik.FPF_ARBEIDSTAKER)
             .medTypeSats(TypeSats.DAGLIG)

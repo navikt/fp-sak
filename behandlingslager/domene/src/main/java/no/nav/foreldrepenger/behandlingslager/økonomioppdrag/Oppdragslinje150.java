@@ -24,8 +24,10 @@ import org.hibernate.annotations.Immutable;
 import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.Beløp;
 
 /**
  * Denne klassen er en ren avbildning fra Oppdragsløsningens meldingsformater.
@@ -61,8 +63,9 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
     })
     private DatoIntervallEntitet vedtakPeriode;
 
-    @Column(name = "sats", nullable = false)
-    private long sats;
+    @Embedded
+    @AttributeOverrides(@AttributeOverride(name = "sats", column = @Column(name = "sats", nullable = false)))
+    private Sats sats;
 
     @Convert(converter = TypeSats.KodeverdiConverter.class)
     @Column(name = "type_sats", nullable = false)
@@ -75,8 +78,9 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
     @Embedded
     private Utbetalingsgrad utbetalingsgrad;
 
+    @Convert(converter = KodeStatusLinje.KodeverdiConverter.class)
     @Column(name = "kode_status_linje")
-    private String kodeStatusLinje;
+    private KodeStatusLinje kodeStatusLinje;
 
     @Column(name = "dato_status_fom")
     private LocalDate datoStatusFom;
@@ -111,7 +115,7 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
         return kodeEndringLinje;
     }
 
-    public String getKodeStatusLinje() {
+    public KodeStatusLinje getKodeStatusLinje() {
         return kodeStatusLinje;
     }
 
@@ -139,12 +143,8 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
         return vedtakPeriode.getTomDato();
     }
 
-    public long getSats() {
+    public Sats getSats() {
         return sats;
-    }
-
-    public void setSats(long sats) {
-        this.sats = sats;
     }
 
     public TypeSats getTypeSats() {
@@ -241,13 +241,13 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
 
     public static class Builder {
         private KodeEndringLinje kodeEndringLinje;
-        private String kodeStatusLinje;
+        private KodeStatusLinje kodeStatusLinje;
         private LocalDate datoStatusFom;
         private String vedtakId;
         private Long delytelseId;
         private KodeKlassifik kodeKlassifik;
         private DatoIntervallEntitet vedtakPeriode;
-        private Long sats;
+        private Sats sats;
         private TypeSats typeSats;
         private String utbetalesTilId;
         private Long refFagsystemId;
@@ -260,7 +260,7 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
             return this;
         }
 
-        public Builder medKodeStatusLinje(String kodeStatusLinje) {
+        public Builder medKodeStatusLinje(KodeStatusLinje kodeStatusLinje) {
             this.kodeStatusLinje = kodeStatusLinje;
             return this;
         }
@@ -290,7 +290,7 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
             return this;
         }
 
-        public Builder medSats(long sats) {
+        public Builder medSats(Sats sats) {
             this.sats = sats;
             return this;
         }

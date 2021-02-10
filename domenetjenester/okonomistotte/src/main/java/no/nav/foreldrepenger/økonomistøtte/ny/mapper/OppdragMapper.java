@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
@@ -13,10 +14,12 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
+import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.OppdragskontrollConstants;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdragslinje150.Oppdragslinje150Util;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Betalingsmottaker;
@@ -96,13 +99,13 @@ public class OppdragMapper {
             .medDelytelseId(Long.valueOf(linje.getDelytelseId().toString()))
             .medKodeKlassifik(kjedeNøkkel.getKlassekode())
             .medVedtakFomOgTom(linje.getPeriode().getFom(), linje.getPeriode().getTom())
-            .medSats(linje.getSats().getSats())
+            .medSats(Sats.på(linje.getSats().getSats()))
             .medTypeSats(TypeSats.fraKode(linje.getSats().getSatsType().getKode()))
             .medVedtakId(vedtaksdato.toString());
 
         if (linje.erOpphørslinje()) {
             builder.medKodeEndringLinje(KodeEndringLinje.ENDRING);
-            builder.medKodeStatusLinje(OppdragskontrollConstants.KODE_STATUS_LINJE_OPPHØR);
+            builder.medKodeStatusLinje(KodeStatusLinje.OPPHØR);
             builder.medDatoStatusFom(linje.getOpphørFomDato());
         } else {
             builder.medKodeEndringLinje(KodeEndringLinje.NY);

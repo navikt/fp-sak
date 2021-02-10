@@ -7,18 +7,20 @@ import no.nav.foreldrepenger.behandling.impl.FinnAnsvarligSaksbehandler;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
+import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.OppdragPatchDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.OppdragslinjePatchDto;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.OppdragskontrollConstants;
@@ -61,7 +63,7 @@ class OppdragMapper {
         Oppdragslinje150.Builder builder = Oppdragslinje150.builder()
             .medOppdrag110(oppdrag110)
             .medVedtakFomOgTom(linje.getFom(), linje.getTom())
-            .medSats(linje.getSats())
+            .medSats(Sats.på(linje.getSats()))
             .medTypeSats(TypeSats.fraKode(linje.getSatsType()))
             .medDelytelseId(linje.getDelytelseId())
             .medRefDelytelseId(linje.getRefDelytelseId())
@@ -71,7 +73,7 @@ class OppdragMapper {
             .medKodeKlassifik(KodeKlassifik.fraKode(linje.getKodeKlassifik()));
         if (linje.getOpphørFom() != null) {
             builder.medDatoStatusFom(linje.getOpphørFom());
-            builder.medKodeStatusLinje(ØkonomiKodeStatusLinje.OPPH.name());
+            builder.medKodeStatusLinje(KodeStatusLinje.OPPHØR);
         }
         if (dto.erBrukerMottaker()) {
             builder.medUtbetalesTilId(fnrBruker);

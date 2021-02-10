@@ -6,13 +6,13 @@ public enum ØkonomiKodekomponent {
     OS("OS")
     ;
 
-    private String kodekomponent;
+    private String kode;
 
-    ØkonomiKodekomponent(String kodekomponent) {
-        this.kodekomponent = kodekomponent;
+    ØkonomiKodekomponent(String kode) {
+        this.kode = kode;
     }
 
-    public String getKodekomponent() {
-        return kodekomponent;
+    public String getKode() {
+        return kode;
     }
 }

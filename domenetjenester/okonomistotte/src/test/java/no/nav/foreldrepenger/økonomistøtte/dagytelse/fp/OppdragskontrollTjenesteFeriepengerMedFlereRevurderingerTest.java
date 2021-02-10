@@ -14,6 +14,8 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
+import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.økonomistøtte.OppdragMedPositivKvitteringTestUtil;
 
 public class OppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest extends OppdragskontrollTjenesteTestBase {
@@ -193,7 +195,7 @@ public class OppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest extend
         assertThat(opp150AndreRevurderingFeriepengerListe).allSatisfy(opp150 -> {
             assertThat(opp150.gjelderOpphør()).isFalse();
             assertThat(opp150.getDatoVedtakFom().getYear()).isEqualTo(FERIEPENGEÅR_LISTE.get(0));
-            assertThat(opp150.getSats()).isEqualTo(5999L);
+            assertThat(opp150.getSats()).isEqualTo(Sats.på(5999L));
             assertThat(opp150.getRefDelytelseId()).isNull();
             assertThat(opp150.getRefFagsystemId()).isNull();
         });
@@ -220,7 +222,7 @@ public class OppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest extend
         assertThat(opp150AndreRevurderingFeriepengerListe).allSatisfy(opp150 -> {
             assertThat(opp150.gjelderOpphør()).isFalse();
             assertThat(opp150.getDatoVedtakFom().getYear()).isEqualTo(FERIEPENGEÅR_LISTE.get(1));
-            assertThat(opp150.getSats()).isEqualTo(5999L);
+            assertThat(opp150.getSats()).isEqualTo(Sats.på(5999L));
             assertThat(opp150.getRefDelytelseId()).isNull();
             assertThat(opp150.getRefFagsystemId()).isNull();
         });

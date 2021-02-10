@@ -150,7 +150,7 @@ public class GrensesnittavstemmingMapper {
     private long getBelop(Oppdrag110 oppdrag) {
         long belop = 0L;
         for (Oppdragslinje150 oppdragslinje : oppdrag.getOppdragslinje150Liste()) {
-            belop += oppdragslinje.getSats();
+            belop += oppdragslinje.getSats().getVerdi().longValue();
         }
         return belop;
     }
@@ -252,8 +252,8 @@ public class GrensesnittavstemmingMapper {
         aksjonsdata.setAksjonType(aksjonType);
         aksjonsdata.setKildeType(KildeType.AVLEV);
         aksjonsdata.setAvstemmingType(AvstemmingType.GRSN);
-        aksjonsdata.setAvleverendeKomponentKode(ØkonomiKodekomponent.VLFP.getKodekomponent());
-        aksjonsdata.setMottakendeKomponentKode(ØkonomiKodekomponent.OS.getKodekomponent());
+        aksjonsdata.setAvleverendeKomponentKode(ØkonomiKodekomponent.VLFP.getKode());
+        aksjonsdata.setMottakendeKomponentKode(ØkonomiKodekomponent.OS.getKode());
         aksjonsdata.setUnderkomponentKode(fagområde);
         aksjonsdata.setNokkelFom(finnAvstemmingMedLavestNokkelAvstemmingsDato(oppdragsliste).getNøkkel());
         Avstemming senestAvstemming = finnAvstemmingMedHøyestNokkelAvstemmingsDato(oppdragsliste);

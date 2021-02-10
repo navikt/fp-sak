@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.økonomistøtte.es;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -35,14 +36,13 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeStatusLinje;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodekomponent;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
@@ -184,12 +184,12 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
         Oppdragslinje150 originalOppdragslinje150 = originaltOppdrag110.getOppdragslinje150Liste().get(0);
         Oppdragslinje150 oppdragslinje150 = verifiserOppdrag110(oppdragRevurdering, ØkonomiKodeEndring.UEND,
             originaltOppdrag110.getFagsystemId());
-        verifiserOppdragslinje150(oppdragslinje150, KodeEndringLinje.ENDRING, ØkonomiKodeStatusLinje.OPPH,
+        verifiserOppdragslinje150(oppdragslinje150, KodeEndringLinje.ENDRING, KodeStatusLinje.OPPHØR,
             originalOppdragslinje150.getDelytelseId(), null, null, OpprettBehandlingForOppdrag.SATS);
     }
 
     @Test
-    public void zavslagSomReferererTilForrigeOppdragSomTilhørerFørsteRevurderingPåSammeSak() {
+    public void avslagSomReferererTilForrigeOppdragSomTilhørerFørsteRevurderingPåSammeSak() {
         // Act 1: Førstegangsbehandling
         Behandling behandling = opprettOgLagreBehandlingES(true);
         OppdragMedPositivKvitteringTestUtil.opprett(oppdragskontrollTjeneste, behandling);
@@ -219,7 +219,7 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
         assertThat(andreRevurderingopp150.getDatoVedtakTom()).isEqualTo(førsteRevurderingOpp150.getDatoVedtakTom());
         assertThat(andreRevurderingopp150.getDatoStatusFom()).isEqualTo(førsteRevurderingOpp150.getDatoVedtakFom());
 
-        verifiserOppdragslinje150(andreRevurderingopp150, KodeEndringLinje.ENDRING, ØkonomiKodeStatusLinje.OPPH,
+        verifiserOppdragslinje150(andreRevurderingopp150, KodeEndringLinje.ENDRING, KodeStatusLinje.OPPHØR,
             førsteRevurderingOpp150.getDelytelseId(), null, null, OpprettBehandlingForOppdrag.SATS);
     }
 
@@ -236,7 +236,7 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
 
     private void verifiserOppdragslinje150(Oppdragslinje150 oppdragslinje150,
                                            KodeEndringLinje kodeEndringLinje,
-                                           ØkonomiKodeStatusLinje kodeStatusLinje,
+                                           KodeStatusLinje kodeStatusLinje,
                                            Long delYtelseId,
                                            Long refDelytelseId,
                                            Long refFagsystemId,
@@ -245,10 +245,10 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
         if (kodeStatusLinje == null) {
             assertThat(oppdragslinje150.getKodeStatusLinje()).isNull();
         } else {
-            assertThat(oppdragslinje150.getKodeStatusLinje()).isEqualTo(kodeStatusLinje.name());
+            assertThat(oppdragslinje150.getKodeStatusLinje()).isEqualTo(kodeStatusLinje);
         }
         assertThat(oppdragslinje150.getRefFagsystemId()).isEqualTo(refFagsystemId);
-        assertThat(oppdragslinje150.getSats()).isEqualTo(sats);
+        assertThat(oppdragslinje150.getSats().getVerdi().longValue()).isEqualTo(sats);
         assertThat(oppdragslinje150.getRefDelytelseId()).isEqualTo(refDelytelseId);
         assertThat(oppdragslinje150.getDelytelseId()).isEqualTo(delYtelseId);
     }
@@ -270,7 +270,7 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
             assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(KodeKlassifik.ES_FØDSEL);
             assertThat(oppdragslinje150.getDatoVedtakFom()).isEqualTo(vedtaksdatoES);
             assertThat(oppdragslinje150.getDatoVedtakTom()).isEqualTo(vedtaksdatoES);
-            assertThat(oppdragslinje150.getSats()).isEqualTo(getBehandlingsresultat(behandling).getBeregningResultat()
+            assertThat(oppdragslinje150.getSats().getVerdi().longValue()).isEqualTo(getBehandlingsresultat(behandling).getBeregningResultat()
                 .getSisteBeregning()
                 .get()
                 .getBeregnetTilkjentYtelse());
@@ -289,7 +289,8 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
         assertThat(oppdrag110Liste).allSatisfy(oppdrag110 -> {
             Avstemming avstemming = oppdrag110.getAvstemming();
             assertThat(avstemming).isNotNull();
-            assertThat(avstemming.getKodekomponent()).isEqualTo(ØkonomiKodekomponent.VLFP.getKodekomponent());
+            assertThat(avstemming.getNøkkel()).isNotNull();
+            assertEquals(avstemming.getNøkkel(), avstemming.getTidspunkt());
         });
     }
 

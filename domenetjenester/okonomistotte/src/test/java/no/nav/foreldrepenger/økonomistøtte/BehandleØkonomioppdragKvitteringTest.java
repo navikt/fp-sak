@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
+import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.AlleMottakereHarPositivKvitteringImpl;
 import no.nav.foreldrepenger.økonomistøtte.kontantytelse.es.AlleMottakereHarPositivKvitteringEngangsstønad;
@@ -44,8 +45,6 @@ public class BehandleØkonomioppdragKvitteringTest {
     public static final String OPPDRAGGJELDERID = "01010101010";
 
     public static final String SAKSBEHID = "aa000000";
-
-    public static final Long SATS = 654L;
 
     public static final Integer GRAD = 100;
 

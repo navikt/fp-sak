@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.diff.TraverseValue;
 @Embeddable
 public class Beløp implements Serializable, IndexKey, TraverseValue {
     public static final Beløp ZERO = new Beløp(BigDecimal.ZERO);
-    private static final RoundingMode AVRUNDINGSMODUS = RoundingMode.HALF_EVEN;
 
     @Column(name = "beloep", scale = 2)
     @ChangeTracked
@@ -28,23 +27,21 @@ public class Beløp implements Serializable, IndexKey, TraverseValue {
         // for hibernate
     }
 
+    public static Beløp av(long verdi) {
+        return new Beløp((int) verdi);
+    }
+
     public Beløp(BigDecimal verdi) {
         this.verdi = verdi;
     }
-
 
     // Beleilig å kunne opprette gjennom int
     public Beløp(Integer verdi) {
         this.verdi = verdi == null ? null : new BigDecimal(verdi);
     }
 
-    // Beleilig å kunne opprette gjennom string
-    public Beløp(String verdi) {
-        this.verdi = verdi == null ? null : new BigDecimal(verdi);
-    }
-
     private BigDecimal skalertVerdi() {
-        return verdi == null ? null : verdi.setScale(2, AVRUNDINGSMODUS);
+        return verdi == null ? null : verdi.setScale(2, RoundingMode.HALF_EVEN);
     }
 
     @Override
@@ -99,5 +96,9 @@ public class Beløp implements Serializable, IndexKey, TraverseValue {
 
     public Beløp adder(Beløp augend) {
         return new Beløp(this.verdi.add(augend.getVerdi()));
+    }
+
+    public Beløp subtract(Beløp verdi) {
+        return new Beløp(this.verdi.subtract(verdi.getVerdi()));
     }
 }

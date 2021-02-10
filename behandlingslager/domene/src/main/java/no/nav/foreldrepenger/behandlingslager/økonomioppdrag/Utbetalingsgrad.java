@@ -38,7 +38,7 @@ public class Utbetalingsgrad {
     }
 
     public static Utbetalingsgrad prosent(BigDecimal grad) {
-        return Utbetalingsgrad.prosent(validate(scale(grad).intValue()));
+        return Utbetalingsgrad.prosent(scale(grad).intValue());
     }
 
     public Integer getVerdi() {

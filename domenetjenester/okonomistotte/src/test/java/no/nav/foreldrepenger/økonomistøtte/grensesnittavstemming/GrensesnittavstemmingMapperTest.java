@@ -16,14 +16,17 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodekomponent;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
+import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.AksjonType;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.Aksjonsdata;
@@ -306,11 +309,11 @@ public class GrensesnittavstemmingMapperTest {
         assertThat(aksjon).isNotNull();
         assertThat(aksjon.getAksjonType()).isEqualTo(aksjonType);
         assertThat(aksjon.getAvleverendeAvstemmingId()).isNotNull();
-        assertThat(aksjon.getAvleverendeKomponentKode()).isEqualTo(ØkonomiKodekomponent.VLFP.getKodekomponent());
+        assertThat(aksjon.getAvleverendeKomponentKode()).isEqualTo(ØkonomiKodekomponent.VLFP.getKode());
         assertThat(aksjon.getAvstemmingType()).isEqualTo(AvstemmingType.GRSN);
         assertThat(aksjon.getBrukerId()).isEqualTo(GrensesnittavstemmingMapper.BRUKER_ID_FOR_VEDTAKSLØSNINGEN);
         assertThat(aksjon.getKildeType()).isEqualTo(KildeType.AVLEV);
-        assertThat(aksjon.getMottakendeKomponentKode()).isEqualTo(ØkonomiKodekomponent.OS.getKodekomponent());
+        assertThat(aksjon.getMottakendeKomponentKode()).isEqualTo(ØkonomiKodekomponent.OS.getKode());
         assertThat(aksjon.getUnderkomponentKode()).isEqualTo(kodeFagområde);
     }
 
@@ -320,13 +323,13 @@ public class GrensesnittavstemmingMapperTest {
 
         return oppdrLinje150Builder
             .medKodeEndringLinje(KodeEndringLinje.ENDRING)
-            .medKodeStatusLinje("OPPH")
+            .medKodeStatusLinje(KodeStatusLinje.OPPHØR)
             .medDatoStatusFom(LocalDate.now())
             .medVedtakId("345")
             .medDelytelseId(64L)
             .medKodeKlassifik(KodeKlassifik.ES_FØDSEL)
             .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
-            .medSats(61122L)
+            .medSats(Sats.på(61122L))
             .medTypeSats(TypeSats.ENGANG)
             .medUtbetalesTilId("123456789")
             .medOppdrag110(oppdrag110)

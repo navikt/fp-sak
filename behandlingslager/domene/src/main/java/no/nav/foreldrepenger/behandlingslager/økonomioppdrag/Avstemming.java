@@ -40,10 +40,6 @@ public class Avstemming {
         return nøkkelAvstemming;
     }
 
-    public String getKodekomponent() {
-        return ØkonomiKodekomponent.VLFP.getKodekomponent();
-    }
-
     public String getTidspunkt() {
         return getNøkkel();
     }

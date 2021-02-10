@@ -12,10 +12,13 @@ import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
+import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.økonomistøtte.Oppdragsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.FinnMottakerInfoITilkjentYtelse;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.KlassekodeUtleder;
@@ -138,7 +141,7 @@ public class OpprettOppdragslinje150Tjeneste {
         oppdragslinje150Builder.medKodeKlassifik(KlassekodeUtleder.utled(andel))
             .medOppdrag110(oppdrag110)
             .medVedtakFomOgTom(vedtakFom, vedtakTom)
-            .medSats(dagsats)
+            .medSats(Sats.på(dagsats))
             .medUtbetalingsgrad(Utbetalingsgrad.prosent(utbetalingsgrad));
         if (mottaker.erBruker()) {
             oppdragslinje150Builder.medUtbetalesTilId(Oppdragslinje150Util.endreTilElleveSiffer(mottaker.getId()));
@@ -187,7 +190,7 @@ public class OpprettOppdragslinje150Tjeneste {
         boolean erEndringMedBortfallAvHeleYtelsen = summerHeleTilkjentYtelse(getPerioderForTilkjentYtelse(oppdragInput)) == 0 &&
             summerHeleTilkjentYtelse(oppdragInput.getForrigeTilkjentYtelsePerioder()) > 0;
         if (gjelderOpphør || erEndringMedBortfallAvHeleYtelsen) {
-            oppdr150Builder.medKodeStatusLinje(OppdragskontrollConstants.KODE_STATUS_LINJE_OPPHØR);
+            oppdr150Builder.medKodeStatusLinje(KodeStatusLinje.OPPHØR);
         }
         oppdr150Builder.medKodeEndringLinje(gjelderOpphør ? KodeEndringLinje.ENDRING : KodeEndringLinje.NY)
             .medVedtakId(vedtaksdato.toString())

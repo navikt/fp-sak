@@ -13,8 +13,6 @@ import org.junit.jupiter.api.Test;
 
 public class AvstemmingTest {
 
-    private static final String KODEKOMPONENT = ØkonomiKodekomponent.VLFP.getKodekomponent();
-
     @Test
     public void skal_bygge_instans_med_påkrevde_felter() {
         Avstemming avstemming = Avstemming.ny();
@@ -62,7 +60,6 @@ public class AvstemmingTest {
     }
 
     private void validerObjekt(Avstemming avstemming) {
-        assertThat(avstemming.getKodekomponent()).isEqualTo(KODEKOMPONENT);
         assertThat(avstemming.getNøkkel()).isNotNull();
         assertThat(avstemming.getTidspunkt()).isNotNull();
         assertThat(avstemming.getNøkkel()).isEqualTo(avstemming.getTidspunkt());
