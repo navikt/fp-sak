@@ -1,10 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.svp;
 
-import java.util.Objects;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
 import no.nav.folketrygdloven.kalkulator.input.SvangerskapspengerGrunnlag;
 import no.nav.folketrygdloven.kalkulator.input.YtelsespesifiktGrunnlag;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -16,8 +11,11 @@ import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus.Til
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.svp.BeregnTilrettleggingsperioderTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import java.util.Objects;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef("SVP")
@@ -31,14 +29,13 @@ public class BeregningsgrunnlagGUIInputTjeneste extends BeregningsgrunnlagGUIInp
 
     @Inject
     public BeregningsgrunnlagGUIInputTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
-            InntektArbeidYtelseTjeneste iayTjeneste,
-            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-            AndelGraderingTjeneste andelGraderingTjeneste,
-            BeregnTilrettleggingsperioderTjeneste tilrettleggingsperioderTjeneste,
-            InntektsmeldingTjeneste inntektsmeldingTjeneste,
-            ArbeidsgiverTjeneste arbeidsgiverTjeneste) {
+                                              InntektArbeidYtelseTjeneste iayTjeneste,
+                                              SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                              AndelGraderingTjeneste andelGraderingTjeneste,
+                                              BeregnTilrettleggingsperioderTjeneste tilrettleggingsperioderTjeneste,
+                                              InntektsmeldingTjeneste inntektsmeldingTjeneste) {
         super(behandlingRepositoryProvider.getBehandlingRepository(), iayTjeneste, skjæringstidspunktTjeneste, andelGraderingTjeneste,
-                inntektsmeldingTjeneste, arbeidsgiverTjeneste);
+                inntektsmeldingTjeneste);
         this.tilrettleggingsperioderTjeneste = Objects.requireNonNull(tilrettleggingsperioderTjeneste, "tilrettleggingsperioderTjeneste");
     }
 

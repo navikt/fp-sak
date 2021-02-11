@@ -32,7 +32,6 @@ import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BesteberegningMån
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BesteberegninggrunnlagEntitet;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
@@ -54,10 +53,9 @@ public class BeregningsgrunnlagGUIInputTjeneste extends BeregningsgrunnlagGUIInp
                                               AndelGraderingTjeneste andelGraderingTjeneste,
                                               BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste,
                                               InntektsmeldingTjeneste inntektsmeldingTjeneste,
-                                              ArbeidsgiverTjeneste arbeidsgiverTjeneste,
                                               HentOgLagreBeregningsgrunnlagTjeneste hentOgLagreBeregningsgrunnlagTjeneste) {
         super(behandlingRepositoryProvider.getBehandlingRepository(), iayTjeneste, skjæringstidspunktTjeneste, andelGraderingTjeneste,
-                inntektsmeldingTjeneste, arbeidsgiverTjeneste);
+                inntektsmeldingTjeneste);
         this.fagsakRelasjonRepository = Objects.requireNonNull(behandlingRepositoryProvider.getFagsakRelasjonRepository(),
                 "fagsakRelasjonRepository");
         this.besteberegningFødendeKvinneTjeneste = besteberegningFødendeKvinneTjeneste;
