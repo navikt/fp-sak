@@ -52,8 +52,10 @@ import no.nav.tjeneste.virksomhet.journal.v3.meldinger.HentKjerneJournalpostList
 import no.nav.tjeneste.virksomhet.journal.v3.meldinger.HentKjerneJournalpostListeResponse;
 import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
 import no.nav.vedtak.felles.integrasjon.journal.v3.JournalConsumer;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.felles.integrasjon.saf.HentDokumentQuery;
-import no.nav.vedtak.felles.integrasjon.saf.SafTjeneste;
+import no.nav.vedtak.felles.integrasjon.saf.Saf;
+import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
 public class DokumentArkivTjeneste {
@@ -61,11 +63,13 @@ public class DokumentArkivTjeneste {
     private static final Long SAKSNUMMER_TRANSISJON = 152000000L;
 
     private JournalConsumer journalConsumer;
-    private SafTjeneste safKlient;
+    private Saf safKlient;
     private FagsakRepository fagsakRepository;
 
     private final Set<ArkivFilType> filTyperPdf = byggArkivFilTypeSet();
     private static final VariantFormat VARIANT_FORMAT_ARKIV = VariantFormat.ARKIV;
+
+    private static final boolean ER_DEV = Environment.current().isDev();
 
 
     DokumentArkivTjeneste() {
@@ -73,7 +77,7 @@ public class DokumentArkivTjeneste {
     }
 
     @Inject
-    public DokumentArkivTjeneste(JournalConsumer journalConsumer, SafTjeneste safTjeneste, FagsakRepository fagsakRepository) {
+    public DokumentArkivTjeneste(JournalConsumer journalConsumer, @Jersey Saf safTjeneste, FagsakRepository fagsakRepository) {
         this.journalConsumer = journalConsumer;
         this.safKlient = safTjeneste;
         this.fagsakRepository = fagsakRepository;
@@ -81,7 +85,7 @@ public class DokumentArkivTjeneste {
 
     public byte[] hentDokument(Saksnummer saksnummer, JournalpostId journalpostId, String dokumentId) {
         LOG.info("HentDokument: input parametere journalpostId {} dokumentId {}", journalpostId, dokumentId);
-        if (Long.parseLong(saksnummer.getVerdi()) > SAKSNUMMER_TRANSISJON) {
+        if (ER_DEV || Long.parseLong(saksnummer.getVerdi()) > SAKSNUMMER_TRANSISJON) {
             var query = new HentDokumentQuery(journalpostId.getVerdi(), dokumentId, VARIANT_FORMAT_ARKIV.getOffisiellKode());
             return safKlient.hentDokument(query);
         }
@@ -138,7 +142,7 @@ public class DokumentArkivTjeneste {
     }
 
     public List<ArkivJournalPost> hentAlleJournalposterForSak(Saksnummer saksnummer) {
-        if (Long.parseLong(saksnummer.getVerdi()) > SAKSNUMMER_TRANSISJON) {
+        if (ER_DEV || Long.parseLong(saksnummer.getVerdi()) > SAKSNUMMER_TRANSISJON) {
             return doHentJournalpostListe(saksnummer, Set.of(Journalstatus.UTGAAR));
         }
         List<ArkivJournalPost> journalPosts = new ArrayList<>();
@@ -155,7 +159,7 @@ public class DokumentArkivTjeneste {
     }
 
     public Optional<ArkivJournalPost> hentJournalpostForSak(Saksnummer saksnummer, JournalpostId journalpostId) {
-        if (Long.parseLong(saksnummer.getVerdi()) > SAKSNUMMER_TRANSISJON) {
+        if (ER_DEV || Long.parseLong(saksnummer.getVerdi()) > SAKSNUMMER_TRANSISJON) {
             return doHentJournalpost(journalpostId);
         }
         return doHentKjerneJournalpostListe(saksnummer)
