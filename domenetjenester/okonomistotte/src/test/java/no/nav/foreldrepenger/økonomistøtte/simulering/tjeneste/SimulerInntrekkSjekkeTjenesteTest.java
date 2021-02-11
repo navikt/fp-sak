@@ -52,7 +52,7 @@ public class SimulerInntrekkSjekkeTjenesteTest {
         when(tilbakekrevingRepository.hent(anyLong())).thenReturn(Optional.empty());
         simulerInntrekkSjekkeTjeneste.sjekkIntrekk(behandling);
         verify(tilbakekrevingRepository, times(1)).hent(anyLong());
-        verify(simulerOppdragTjeneste, never()).simulerOppdrag(anyLong(), anyLong());
+        verify(simulerOppdragTjeneste, never()).simulerOppdrag(anyLong(), any());
     }
 
     @Test
@@ -60,7 +60,7 @@ public class SimulerInntrekkSjekkeTjenesteTest {
         when(tilbakekrevingRepository.hent(anyLong())).thenReturn(opprettTilbakekrevingValg(TilbakekrevingVidereBehandling.TILBAKEKREV_I_INFOTRYGD));
         simulerInntrekkSjekkeTjeneste.sjekkIntrekk(behandling);
         verify(tilbakekrevingRepository, times(1)).hent(anyLong());
-        verify(simulerOppdragTjeneste, never()).simulerOppdrag(anyLong(), anyLong());
+        verify(simulerOppdragTjeneste, never()).simulerOppdrag(anyLong(), any());
     }
 
     @Test
@@ -69,7 +69,7 @@ public class SimulerInntrekkSjekkeTjenesteTest {
         when(simuleringIntegrasjonTjeneste.hentResultat(anyLong())).thenReturn(Optional.of(new SimuleringResultatDto(0L, -2345L, false)));
         simulerInntrekkSjekkeTjeneste.sjekkIntrekk(behandling);
         verify(tilbakekrevingRepository, times(1)).hent(anyLong());
-        verify(simulerOppdragTjeneste, times(1)).simulerOppdrag(anyLong(), anyLong());
+        verify(simulerOppdragTjeneste, times(1)).simulerOppdrag(anyLong(), any());
         verify(tilbakekrevingRepository, never()).lagre(any(Behandling.class), any(TilbakekrevingValg.class));
     }
 

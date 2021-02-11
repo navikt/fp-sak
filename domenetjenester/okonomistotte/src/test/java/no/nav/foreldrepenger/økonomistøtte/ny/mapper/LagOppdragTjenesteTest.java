@@ -40,6 +40,7 @@ public class LagOppdragTjenesteTest {
     Periode periode = Periode.of(dag1, dag1.plusDays(3));
     Periode nesteMai = Periode.of(LocalDate.of(2021, 5, 1), LocalDate.of(2021, 5, 31));
     AktørId brukerAktørId = AktørId.dummy();
+    String brukerFnr = "33333333333";
     LocalDate vedtaksdato = dag1;
 
     @Test
@@ -69,7 +70,7 @@ public class LagOppdragTjenesteTest {
 
         OppdragKjedeFortsettelse kjede = oppdrag.getKjeder().get(nøkkelYtelse);
         assertThat(kjede.getOppdragslinjer()).hasSize(1);
-        assertLik(kjede.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("1-100")).medPeriode(periode).medSats(Sats.dagsats(1000)).medUtbetalingsgrad(new Utbetalingsgrad(100)).build());
+        assertLik(kjede.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("100-100")).medPeriode(periode).medSats(Sats.dagsats(1000)).medUtbetalingsgrad(new Utbetalingsgrad(100)).build());
     }
 
     @Test
@@ -93,11 +94,11 @@ public class LagOppdragTjenesteTest {
 
         OppdragKjedeFortsettelse ytelsekjede = oppdrag.getKjeder().get(nøkkelYtelse);
         assertThat(ytelsekjede.getOppdragslinjer()).hasSize(1);
-        assertLik(ytelsekjede.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("1-100")).medPeriode(periode).medSats(Sats.dagsats(1000)).medUtbetalingsgrad(new Utbetalingsgrad(100)).build());
+        assertLik(ytelsekjede.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("100-100")).medPeriode(periode).medSats(Sats.dagsats(1000)).medUtbetalingsgrad(new Utbetalingsgrad(100)).build());
 
         OppdragKjedeFortsettelse feriepengeKjede = oppdrag.getKjeder().get(nøkkelFeriepenger);
         assertThat(feriepengeKjede.getOppdragslinjer()).hasSize(1);
-        assertLik(feriepengeKjede.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("1-101")).medPeriode(nesteMai).medSats(Sats.engang(200)).build());
+        assertLik(feriepengeKjede.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("100-101")).medPeriode(nesteMai).medSats(Sats.engang(200)).build());
     }
 
     private DelytelseId delytelseId(String suffix) {
@@ -125,9 +126,9 @@ public class LagOppdragTjenesteTest {
             .medTilkjentYtelse(tilkjentYtelse)
             .medSaksnummer(saksnummer)
             .medBehandlingId(enBehandlingId)
-            .medBruker(brukerAktørId)
             .medBrukInntrekk(vanligInntrekkbeslutning)
             .medVedtaksdato(vedtaksdato)
+            .medBrukerFnr(brukerFnr)
             .build();
     }
 

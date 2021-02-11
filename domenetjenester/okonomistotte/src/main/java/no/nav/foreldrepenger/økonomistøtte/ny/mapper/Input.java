@@ -1,17 +1,20 @@
 package no.nav.foreldrepenger.økonomistøtte.ny.mapper;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public class Input {
     private BeregningsresultatEntitet tilkjentYtelse;
-    private AktørId bruker;
+    private List<Oppdragskontroll> tidligereOppdrag;
+    private String brukerFnr;
     private Long behandlingId;
     private Saksnummer saksnummer;
     private FagsakYtelseType fagsakYtelseType;
@@ -30,10 +33,6 @@ public class Input {
 
     public BeregningsresultatEntitet getTilkjentYtelse() {
         return tilkjentYtelse;
-    }
-
-    public AktørId getBruker() {
-        return bruker;
     }
 
     public Long getBehandlingId() {
@@ -68,16 +67,24 @@ public class Input {
         return prosessTaskId;
     }
 
+    public List<Oppdragskontroll> getTidligereOppdrag() {
+        return tidligereOppdrag;
+    }
+
+    public String getBrukerFnr() {
+        return brukerFnr;
+    }
+
     public static class Builder {
         private Input kladd = new Input();
 
         public Input build() {
             Objects.requireNonNull(kladd.tilkjentYtelse);
-            Objects.requireNonNull(kladd.bruker);
             Objects.requireNonNull(kladd.saksnummer);
             Objects.requireNonNull(kladd.behandlingId);
             Objects.requireNonNull(kladd.fagsakYtelseType);
             Objects.requireNonNull(kladd.vedtaksdato);
+            Objects.requireNonNull(kladd.brukerFnr);
             if (kladd.fagsakYtelseType == FagsakYtelseType.FORELDREPENGER) {
                 if (kladd.familieYtelseType != FamilieYtelseType.FØDSEL && kladd.familieYtelseType != FamilieYtelseType.ADOPSJON) {
                     throw ugyldigKombinasjon(kladd.fagsakYtelseType, kladd.familieYtelseType);
@@ -100,11 +107,6 @@ public class Input {
 
         public Builder medTilkjentYtelse(BeregningsresultatEntitet tilkjentYtelse) {
             kladd.tilkjentYtelse = tilkjentYtelse;
-            return this;
-        }
-
-        public Builder medBruker(AktørId bruker) {
-            kladd.bruker = bruker;
             return this;
         }
 
@@ -145,6 +147,16 @@ public class Input {
 
         public Builder medProsessTaskId(Long prosessTaskId) {
             kladd.prosessTaskId = prosessTaskId;
+            return this;
+        }
+
+        public Builder medBrukerFnr(String brukerFnr) {
+            kladd.brukerFnr = brukerFnr;
+            return this;
+        }
+
+        public Builder medTidligereOppdrag(List<Oppdragskontroll> tidligereOppdrag) {
+            kladd.tidligereOppdrag = tidligereOppdrag;
             return this;
         }
 

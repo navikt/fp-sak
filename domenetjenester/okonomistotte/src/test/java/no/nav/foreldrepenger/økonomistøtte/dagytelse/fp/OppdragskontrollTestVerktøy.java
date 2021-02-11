@@ -24,7 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifi
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
-import no.nav.foreldrepenger.domene.typer.Beløp;
 
 class OppdragskontrollTestVerktøy {
 

@@ -42,7 +42,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
@@ -63,26 +62,20 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.person.pdl.AktørTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.foreldrepenger.økonomistøtte.ny.mapper.LagOppdragTjeneste;
-import no.nav.foreldrepenger.økonomistøtte.ny.tjeneste.NyOppdragskontrollTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.HentOppdragMedPositivKvittering;
 import no.nav.foreldrepenger.økonomistøtte.OppdragMedPositivKvitteringTestUtil;
-import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollManagerFactory;
-import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollManagerFactoryProvider;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollTjenesteImpl;
 import no.nav.foreldrepenger.økonomistøtte.OpprettBehandlingForOppdrag;
-import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
-import no.nav.foreldrepenger.økonomistøtte.dagytelse.OppdragskontrollManagerFactoryDagYtelse;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.SjekkOmDetFinnesTilkjentYtelse;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.adapter.BehandlingTilOppdragMapperTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.adapter.MapBehandlingVedtak;
@@ -90,6 +83,9 @@ import no.nav.foreldrepenger.økonomistøtte.dagytelse.endring.OppdragskontrollE
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.førstegangsoppdrag.OppdragskontrollFørstegang;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.opphør.OppdragskontrollOpphør;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.opphør.OpprettOpphørIEndringsoppdrag;
+import no.nav.foreldrepenger.økonomistøtte.ny.mapper.LagOppdragTjeneste;
+import no.nav.foreldrepenger.økonomistøtte.ny.tjeneste.NyOppdragskontrollTjenesteImpl;
+import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 
 @CdiDbAwareTest
 public abstract class OppdragskontrollTjenesteTestBase {
@@ -113,7 +109,7 @@ public abstract class OppdragskontrollTjenesteTestBase {
     protected OppdragskontrollTjeneste oppdragskontrollTjeneste;
     protected TilbakekrevingRepository tilbakekrevingRepository;
     protected BehandlingVedtakRepository behandlingVedtakRepository;
-    protected NyOppdragskontrollTjeneste nyOppdragskontrollTjeneste;
+    protected NyOppdragskontrollTjenesteImpl nyOppdragskontrollTjeneste;
 
     Behandling behandling;
     Fagsak fagsak;
@@ -157,30 +153,26 @@ public abstract class OppdragskontrollTjenesteTestBase {
         BehandlingTilOppdragMapperTjeneste behandlingTilOppdragMapperTjenesteFP = new BehandlingTilOppdragMapperTjeneste(
             hentOppdragMedPositivKvittering, mapBehandlingVedtakFP, personinfoAdapterMock, tilbakekrevingRepository,
             beregningsresultatRepository, familieHendelseRepository, sjekkOmDetFinnesTilkjentYtelse);
-        OppdragskontrollFørstegang oppdragskontrollFørstegangFP = new OppdragskontrollFørstegang(
-            behandlingTilOppdragMapperTjenesteFP);
-        OppdragskontrollOpphør oppdragskontrollOpphørFP = new OppdragskontrollOpphør(behandlingTilOppdragMapperTjenesteFP);
+        OppdragskontrollFørstegang oppdragskontrollFørstegangFP = new OppdragskontrollFørstegang();
+        OppdragskontrollOpphør oppdragskontrollOpphørFP = new OppdragskontrollOpphør();
         OpprettOpphørIEndringsoppdrag opprettOpphørIEndringsoppdragBruker = new OpprettOpphørIEndringsoppdrag(
             oppdragskontrollOpphørFP);
         OppdragskontrollEndring oppdragskontrollEndringFP = new OppdragskontrollEndring(
-            behandlingTilOppdragMapperTjenesteFP, opprettOpphørIEndringsoppdragBruker);
-        OppdragskontrollManagerFactory oppdragskontrollManagerFactory = new OppdragskontrollManagerFactoryDagYtelse(
-            oppdragskontrollFørstegangFP, oppdragskontrollEndringFP, oppdragskontrollOpphørFP,
-            sjekkOmDetFinnesTilkjentYtelse);
-
-        OppdragskontrollManagerFactoryProvider factoryProviderMock = mock(OppdragskontrollManagerFactoryProvider.class);
-        lenient().when(factoryProviderMock.getTjeneste(any(FagsakYtelseType.class)))
-            .thenReturn(oppdragskontrollManagerFactory);
+            opprettOpphørIEndringsoppdragBruker);
 
         AktørTjeneste aktørTjenesteMock = mock(AktørTjeneste.class);
-        lenient().when(aktørTjenesteMock.hentPersonIdentForAktørId(any())).thenReturn(Optional.of(new PersonIdent("1111191012345")));
+        lenient().when(aktørTjenesteMock.hentPersonIdentForAktørId(any())).thenReturn(Optional.of(personIdent));
 
-        LagOppdragTjeneste lagOppdragTjeneste = new LagOppdragTjeneste(aktørTjenesteMock, økonomioppdragRepository);
+        LagOppdragTjeneste lagOppdragTjeneste = new LagOppdragTjeneste();
+        nyOppdragskontrollTjeneste = new NyOppdragskontrollTjenesteImpl(lagOppdragTjeneste, økonomioppdragRepository);
 
-        nyOppdragskontrollTjeneste = new NyOppdragskontrollTjeneste(behandlingRepository, beregningsresultatRepository,
-            behandlingVedtakRepository, familieHendelseRepository, tilbakekrevingRepository, lagOppdragTjeneste);
-
-        oppdragskontrollTjeneste = new OppdragskontrollTjenesteImpl(repositoryProvider, økonomioppdragRepository, factoryProviderMock);
+        oppdragskontrollTjeneste = new OppdragskontrollTjenesteImpl(repositoryProvider,
+            økonomioppdragRepository,
+            oppdragskontrollFørstegangFP,
+            oppdragskontrollEndringFP,
+            oppdragskontrollOpphørFP,
+            sjekkOmDetFinnesTilkjentYtelse,
+            behandlingTilOppdragMapperTjenesteFP);
 
         behandling = opprettOgLagreBehandling(FamilieYtelseType.FØDSEL);
 
@@ -880,7 +872,7 @@ public abstract class OppdragskontrollTjenesteTestBase {
     static List<Oppdragslinje150> getOppdragslinje150Feriepenger(Oppdrag110 oppdrag110) {
         return oppdrag110.getOppdragslinje150Liste()
             .stream()
-            .filter(opp150 -> opp150.getKodeKlassifik().gjelderFerie())
+            .filter(opp150 -> opp150.getKodeKlassifik().gjelderFeriepenger())
             .collect(Collectors.toList());
     }
 

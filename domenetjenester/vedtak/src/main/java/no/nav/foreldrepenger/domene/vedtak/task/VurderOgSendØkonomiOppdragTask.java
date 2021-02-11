@@ -9,14 +9,16 @@ import javax.inject.Named;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
-import no.nav.foreldrepenger.økonomistøtte.ny.postcondition.OppdragPostConditionTjeneste;
-import no.nav.foreldrepenger.økonomistøtte.ny.tjeneste.NyOppdragskontrollTjeneste;
-import no.nav.foreldrepenger.økonomistøtte.ny.toggle.OppdragKjerneimplementasjonToggle;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollTjeneste;
+import no.nav.foreldrepenger.økonomistøtte.ny.postcondition.OppdragPostConditionTjeneste;
+import no.nav.foreldrepenger.økonomistøtte.ny.tjeneste.NyOppdragskontrollTjenesteImpl;
+import no.nav.foreldrepenger.økonomistøtte.ny.toggle.OppdragKjerneimplementasjonToggle;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHendelse;
@@ -32,10 +34,12 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
     public static final String TASKTYPE = "iverksetteVedtak.oppdragTilØkonomi";
 
     private OppdragskontrollTjeneste oppdragskontrollTjeneste;
-    private NyOppdragskontrollTjeneste nyOppdragskontrollTjeneste;
+    private NyOppdragskontrollTjenesteImpl nyOppdragskontrollTjeneste;
+    private OppdragskontrollTjeneste oppdragskontrollEngangsstønadTjeneste;
     private ProsessTaskRepository prosessTaskRepository;
     private OppdragPostConditionTjeneste oppdragPostConditionTjeneste;
     private OppdragKjerneimplementasjonToggle toggle;
+    private BehandlingRepository behandlingRepository;
 
     VurderOgSendØkonomiOppdragTask() {
         // for CDI proxy
@@ -43,9 +47,10 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
 
     @Inject
     public VurderOgSendØkonomiOppdragTask(@Named("oppdragTjeneste") OppdragskontrollTjeneste oppdragskontrollTjeneste,
+                                          @Named("oppdragEngangstønadTjeneste") OppdragskontrollTjeneste oppdragskontrollTjenesteEngangsstønad,
                                           ProsessTaskRepository prosessTaskRepository,
                                           BehandlingRepositoryProvider repositoryProvider,
-                                          NyOppdragskontrollTjeneste nyOppdragskontrollTjeneste,
+                                          NyOppdragskontrollTjenesteImpl nyOppdragskontrollTjeneste,
                                           OppdragPostConditionTjeneste oppdragPostConditionTjeneste,
                                           OppdragKjerneimplementasjonToggle toggle) {
         super(repositoryProvider.getBehandlingLåsRepository());
@@ -53,6 +58,8 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
         this.prosessTaskRepository = prosessTaskRepository;
         this.nyOppdragskontrollTjeneste = nyOppdragskontrollTjeneste;
         this.oppdragPostConditionTjeneste = oppdragPostConditionTjeneste;
+        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.oppdragskontrollEngangsstønadTjeneste = oppdragskontrollTjenesteEngangsstønad;
         this.toggle = toggle;
     }
 
@@ -69,14 +76,22 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
     }
 
     private void vurderSendingAvOppdrag(ProsessTaskData prosessTaskData, Long behandlingId) {
-        boolean brukNyImplementasjon = toggle.brukNyImpl(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+
         Optional<Oppdragskontroll> oppdragskontrollOpt;
-        if (brukNyImplementasjon) {
-            log.info("Bruker ny implementasjon av kjernen i modulen fpsak.okonomistotte for behandlingId={}", behandlingId);
-            oppdragskontrollOpt = nyOppdragskontrollTjeneste.opprettOppdrag(behandlingId, prosessTaskData.getId());
+
+        if (behandling.getFagsakYtelseType().equals(FagsakYtelseType.ENGANGSTØNAD)) {
+            log.info("Simulerer engangsstønad for behandlingId: {}", behandlingId);
+            oppdragskontrollOpt = oppdragskontrollEngangsstønadTjeneste.opprettOppdrag(behandlingId, -1L);
         } else {
-            oppdragskontrollOpt = oppdragskontrollTjeneste.opprettOppdrag(behandlingId, prosessTaskData.getId());
+            if (toggle.brukNyImpl(behandlingId)) {
+                log.info("Bruker ny implementasjon av kjernen i modulen fpsak.okonomistotte for behandlingId={}", behandlingId);
+                oppdragskontrollOpt = nyOppdragskontrollTjeneste.opprettOppdrag(behandlingId, prosessTaskData.getId());
+            } else {
+                oppdragskontrollOpt = oppdragskontrollTjeneste.opprettOppdrag(behandlingId, prosessTaskData.getId());
+            }
         }
+
 
         if (oppdragskontrollOpt.isPresent()) {
             log.info("Klargjør økonomioppdrag for behandling: {}", behandlingId); //$NON-NLS-1$

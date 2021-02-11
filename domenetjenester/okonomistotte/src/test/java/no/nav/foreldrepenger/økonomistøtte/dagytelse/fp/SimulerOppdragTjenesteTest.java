@@ -13,6 +13,7 @@ import javax.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
@@ -22,14 +23,17 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringL
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.økonomistøtte.OppdragInputTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.SimulerOppdragTjeneste;
+import no.nav.foreldrepenger.økonomistøtte.ny.mapper.Input;
 import no.nav.foreldrepenger.økonomistøtte.ny.toggle.OppdragKjerneimplementasjonToggle;
 
 @CdiDbAwareTest
 public class SimulerOppdragTjenesteTest {
+    @Mock
+    private OppdragInputTjeneste oppdragInputTjeneste;
     @Mock
     private OppdragskontrollTjeneste oppdragskontrollTjeneste;
     @Mock
@@ -43,14 +47,15 @@ public class SimulerOppdragTjenesteTest {
         Oppdragskontroll oppdragskontroll = lagOppdragskontroll(saksnummer);
         var o110 = lagOppdrag110(oppdragskontroll, saksnummer);
         buildOppdragslinje150(o110);
+        //when(oppdragInputTjeneste.lagInput(anyLong(), anyLong())).thenReturn(Input.builder().build());
         when(oppdragskontrollTjeneste.opprettOppdrag(anyLong(), anyLong())).thenReturn(Optional.ofNullable(oppdragskontroll));
 
         when(toggle.brukNyImpl(any())).thenReturn(false);
 
-        var simulerOppdragTjeneste = new SimulerOppdragTjeneste(oppdragskontrollTjeneste, null, toggle);
+        var simulerOppdragTjeneste = new SimulerOppdragTjeneste(oppdragskontrollTjeneste, null, oppdragInputTjeneste, toggle);
 
         // Act
-        var resultat = simulerOppdragTjeneste.simulerOppdrag(1L, 0L);
+        var resultat = simulerOppdragTjeneste.simulerOppdrag(1L, FagsakYtelseType.FORELDREPENGER);
 
         // Assert
         assertThat(resultat).hasSize(1);

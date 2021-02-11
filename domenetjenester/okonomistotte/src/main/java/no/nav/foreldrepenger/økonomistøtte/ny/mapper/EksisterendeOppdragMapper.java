@@ -167,7 +167,7 @@ public class EksisterendeOppdragMapper {
             ? Betalingsmottaker.BRUKER
             : Betalingsmottaker.forArbeidsgiver(normaliserOrgnr(refusjonsinfo.getRefunderesId()));
         KjedeNøkkel.Builder builder = KjedeNøkkel.builder(linje.getKodeKlassifik(), mottaker);
-        if (linje.getKodeKlassifik().gjelderFerie()) {
+        if (linje.getKodeKlassifik().gjelderFeriepenger()) {
             builder.medFeriepengeÅr(linje.getDatoVedtakFom().getYear() - 1);
         }
         return builder.build();

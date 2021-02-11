@@ -146,7 +146,7 @@ public class TidligereOppdragTjeneste {
     }
 
     private static boolean erIkkeFeriepenger(Oppdragslinje150 oppdragslinje150) {
-        return !oppdragslinje150.getKodeKlassifik().gjelderFerie();
+        return !oppdragslinje150.getKodeKlassifik().gjelderFeriepenger();
     }
 
     private static List<Oppdragslinje150> sortOppdragslinje150Liste(List<Oppdragslinje150> oppdragslinje150Liste) {

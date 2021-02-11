@@ -45,7 +45,7 @@ public class OpphørUtil {
                 }
                 KodeKlassifik kodeKlassifik = linje.getKodeKlassifik();
 
-                if (kodeKlassifik.gjelderFerie()) {
+                if (kodeKlassifik.gjelderFeriepenger()) {
                     FeriepengerNøkkel feriepengerNøkkel = FeriepengerNøkkel.fra(linje.getDatoVedtakFom(), kodeKlassifik);
                     LocalDate tidligste = feriepengerTidligstDato.get(feriepengerNøkkel);
 

@@ -29,8 +29,6 @@ public class SimulerInntrekkSjekkeTjeneste {
     private TilbakekrevingRepository tilbakekrevingRepository;
     private HistorikkRepository historikkRepository;
 
-    private static final long DUMMY_TASK_ID = -1L;
-
     SimulerInntrekkSjekkeTjeneste() {
         // for CDI proxy
     }
@@ -57,7 +55,7 @@ public class SimulerInntrekkSjekkeTjeneste {
         }
         Optional<TilbakekrevingValg> tilbakekrevingValg = tilbakekrevingRepository.hent(behandling.getId());
         if (tilbakekrevingValg.filter(valg -> valg.getVidereBehandling().equals(TilbakekrevingVidereBehandling.INNTREKK)).isPresent()) {
-            List<String> oppdragXmler = simulerOppdragTjeneste.simulerOppdrag(behandling.getId(), DUMMY_TASK_ID);
+            List<String> oppdragXmler = simulerOppdragTjeneste.simulerOppdrag(behandling.getId(), behandling.getFagsakYtelseType());
             simuleringIntegrasjonTjeneste.startSimulering(behandling.getId(), oppdragXmler);
 
             Optional<SimuleringResultatDto> simuleringResultatDto = simuleringIntegrasjonTjeneste.hentResultat(behandling.getId());

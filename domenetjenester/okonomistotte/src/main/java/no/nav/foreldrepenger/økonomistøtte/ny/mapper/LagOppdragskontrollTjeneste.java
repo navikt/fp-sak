@@ -8,11 +8,11 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 class LagOppdragskontrollTjeneste {
 
-    static Oppdragskontroll lagOppdragskontroll(Input input, List<Oppdragskontroll> tidligereOppdrag) {
+    static Oppdragskontroll lagOppdragskontroll(Input input) {
         Saksnummer saksnummer = input.getSaksnummer();
         Long behandlingId = input.getBehandlingId();
 
-        Optional<Oppdragskontroll> oppdragskontrollForBehandlingOpt = tidligereOppdrag.stream()
+        Optional<Oppdragskontroll> oppdragskontrollForBehandlingOpt = input.getTidligereOppdrag().stream()
             .filter(oppdragskontroll -> behandlingId.equals(oppdragskontroll.getBehandlingId()))
             .findFirst();
         if (oppdragskontrollForBehandlingOpt.isPresent()) {

@@ -22,14 +22,12 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
-import no.nav.foreldrepenger.domene.typer.Beløp;
-import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollManager;
 import no.nav.foreldrepenger.økonomistøtte.OpprettOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.kontantytelse.es.adapter.MapBehandlingInfoES;
 import no.nav.foreldrepenger.økonomistøtte.kontantytelse.es.wrapper.OppdragInputES;
 
 @ApplicationScoped
-public class OppdragskontrollEngangsstønad implements OppdragskontrollManager {
+public class OppdragskontrollEngangsstønad {
 
     private static final long INITIAL_VALUE = 99L;
 
@@ -47,13 +45,15 @@ public class OppdragskontrollEngangsstønad implements OppdragskontrollManager {
         this.mapBehandlingInfo = mapBehandlingInfo;
     }
 
-    @Override
     public Oppdragskontroll opprettØkonomiOppdrag(Behandling behandling, Oppdragskontroll nyOppdragskontroll) {
         OppdragInputES behandlingInfo = mapBehandlingInfo.oppsettBehandlingInfo(behandling);
-        Optional<Oppdrag110> forrigeOppdragOpt = behandlingInfo.getForrigeOppddragForSak();
-        Oppdrag110 oppdrag110 = opprettOppdrag110ES(behandlingInfo, nyOppdragskontroll, forrigeOppdragOpt);
-        opprettOppdragslinje150ES(behandlingInfo, oppdrag110, forrigeOppdragOpt);
-        return nyOppdragskontroll;
+        return opprettØkonomiOppdrag(behandlingInfo, nyOppdragskontroll);
+    }
+    public Oppdragskontroll opprettØkonomiOppdrag(OppdragInputES input, Oppdragskontroll oppdragskontroll) {
+        Optional<Oppdrag110> forrigeOppdragOpt = input.getForrigeOppddragForSak();
+        Oppdrag110 oppdrag110 = opprettOppdrag110ES(input, oppdragskontroll, forrigeOppdragOpt);
+        opprettOppdragslinje150ES(input, oppdrag110, forrigeOppdragOpt);
+        return oppdragskontroll;
     }
 
     private Oppdrag110 opprettOppdrag110ES(OppdragInputES behandlingInfo, Oppdragskontroll oppdragskontroll,

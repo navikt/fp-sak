@@ -139,7 +139,7 @@ public class Feriepengeavstemmer {
         return input.stream()
             .map(Oppdrag110::getOppdragslinje150Liste)
             .flatMap(Collection::stream)
-            .filter(ol150 -> ol150.getKodeKlassifik().gjelderFerie())
+            .filter(ol150 -> ol150.getKodeKlassifik().gjelderFeriepenger())
             .sorted(Comparator.comparing(Oppdragslinje150::getOpprettetTidspunkt))
             .collect(Collectors.toList());
     }

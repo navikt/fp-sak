@@ -11,7 +11,7 @@ public class FagsystemId implements Comparable<FagsystemId> {
     public static FagsystemId førsteForFagsak(String saksnummer) {
         FagsystemId id = new FagsystemId();
         id.saksnummer = saksnummer;
-        id.løpenummer = 1;
+        id.løpenummer = 100;
         id.gammeltFormat = false;
         return id;
     }

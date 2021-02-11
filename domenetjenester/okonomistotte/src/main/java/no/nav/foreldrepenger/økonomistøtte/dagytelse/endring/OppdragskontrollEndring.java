@@ -29,7 +29,6 @@ import no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragInput;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdrag110.OpprettOppdrag110Tjeneste;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdragslinje150.Oppdragslinje150Util;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdragslinje150.OpprettOppdragslinje150Tjeneste;
-import no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdragslinje150.OpprettOppdragsmeldingerRelatertTil150;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.opphør.OpprettOpphørIEndringsoppdrag;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.wrapper.TilkjentYtelseAndel;
 
@@ -39,29 +38,25 @@ public class OppdragskontrollEndring implements OppdragskontrollManager {
     private static final Logger LOG = LoggerFactory.getLogger(OppdragskontrollEndring.class);
 
     private OpprettOpphørIEndringsoppdrag opprettOpphørIEndringsoppdragFP;
-    private BehandlingTilOppdragMapperTjeneste behandlingTilOppdragMapperTjenesteFP;
 
     OppdragskontrollEndring() {
         // For CDI
     }
 
     @Inject
-    public OppdragskontrollEndring(BehandlingTilOppdragMapperTjeneste behandlingTilOppdragMapperTjenesteFP,
-                                   OpprettOpphørIEndringsoppdrag opprettOpphørIEndringsoppdragFP) {
-        this.behandlingTilOppdragMapperTjenesteFP = behandlingTilOppdragMapperTjenesteFP;
+    public OppdragskontrollEndring(OpprettOpphørIEndringsoppdrag opprettOpphørIEndringsoppdragFP) {
         this.opprettOpphørIEndringsoppdragFP = opprettOpphørIEndringsoppdragFP;
     }
 
     @Override
-    public Oppdragskontroll opprettØkonomiOppdrag(Behandling behandling, Oppdragskontroll nyOppdragskontroll) {
-        OppdragInput oppdragInput = behandlingTilOppdragMapperTjenesteFP.map(behandling);
+    public Oppdragskontroll opprettØkonomiOppdrag(OppdragInput oppdragInput, Oppdragskontroll oppdragskontroll) {
         if (oppdragInput.getAlleTidligereOppdrag110().isEmpty()) {
             throw new IllegalStateException("Fant ikke forrige oppdrag");
         }
 
         List<TilkjentYtelseAndel> andelerOriginal = OpprettOppdragslinje150Tjeneste.hentForrigeTilkjentYtelseAndeler(oppdragInput.getForrigeTilkjentYtelsePerioder());
         if (!andelerOriginal.isEmpty()) {
-            opprettOpphørIEndringsoppdragFP.lagOppdragForMottakereSomSkalOpphøre(oppdragInput, nyOppdragskontroll, andelerOriginal);
+            opprettOpphørIEndringsoppdragFP.lagOppdragForMottakereSomSkalOpphøre(oppdragInput, oppdragskontroll, andelerOriginal);
         }
 
         Map<Oppdragsmottaker, List<TilkjentYtelseAndel>> andelPrMottakerMap = OpprettMottakereMapEndringsoppdrag.finnMottakereMedDeresAndelForEndringsoppdrag(oppdragInput, andelerOriginal);
@@ -69,8 +64,9 @@ public class OppdragskontrollEndring implements OppdragskontrollManager {
         if (andelPrMottakerMap.isEmpty()) {
             throw new IllegalStateException("Finnes ingen oppdragsmottakere i behandling " + oppdragInput.getBehandlingId());
         }
-        opprettEndringsoppdrag(oppdragInput, andelPrMottakerMap, nyOppdragskontroll);
-        return nyOppdragskontroll;
+        opprettEndringsoppdrag(oppdragInput, andelPrMottakerMap, oppdragskontroll);
+
+        return oppdragskontroll;
     }
 
     private void opprettEndringsoppdrag(OppdragInput oppdragInput,
@@ -101,7 +97,7 @@ public class OppdragskontrollEndring implements OppdragskontrollManager {
         Oppdrag110 oppdrag110 = OpprettOppdrag110Tjeneste.opprettNyOppdrag110(oppdragInput, oppdragskontroll, entry.getKey(), fagsystemId);
         Oppdragsmottaker mottaker = entry.getKey();
         List<TilkjentYtelseAndel> andelListe = entry.getValue();
-        List<Oppdragslinje150> oppdragslinje150List = OpprettOppdragslinje150Tjeneste.opprettOppdragslinje150(oppdragInput, oppdrag110, andelListe, mottaker);
+        OpprettOppdragslinje150Tjeneste.opprettOppdragslinje150(oppdragInput, oppdrag110, andelListe, mottaker);
     }
 
     private void opprettEndringsoppdragForBruker(OppdragInput oppdragInput, Oppdragskontroll nyOppdragskontroll,

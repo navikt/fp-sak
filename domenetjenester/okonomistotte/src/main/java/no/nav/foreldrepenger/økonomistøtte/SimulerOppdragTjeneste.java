@@ -13,6 +13,7 @@ import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.økonomistøtte.ny.toggle.OppdragKjerneimplementasjonToggle;
 
@@ -24,7 +25,8 @@ public class SimulerOppdragTjeneste {
     private static final Logger log = LoggerFactory.getLogger(SimulerOppdragTjeneste.class);
 
     private OppdragskontrollTjeneste oppdragskontrollTjeneste;
-    private OppdragskontrollTjeneste nyOppdragskontrollTjeneste;
+    private OppdragskontrollTjeneste esOppdragskontrollTjeneste;
+    private OppdragInputTjeneste oppdragInputTjeneste;
     private OppdragKjerneimplementasjonToggle toggle;
 
     SimulerOppdragTjeneste() {
@@ -32,9 +34,13 @@ public class SimulerOppdragTjeneste {
     }
 
     @Inject
-    public SimulerOppdragTjeneste(@Named("oppdragTjeneste") OppdragskontrollTjeneste oppdragskontrollTjeneste, @Named("nyOppdragTjeneste") OppdragskontrollTjeneste nyOppdragskontrollTjeneste, OppdragKjerneimplementasjonToggle toggle) {
+    public SimulerOppdragTjeneste(@Named("oppdragTjeneste") OppdragskontrollTjeneste oppdragskontrollTjeneste, // @Named("nyOppdragTjeneste")
+                                  @Named("oppdragEngangstønadTjeneste") OppdragskontrollTjeneste esOppdragskontrollTjeneste,
+                                  OppdragInputTjeneste oppdragInputTjeneste,
+                                  OppdragKjerneimplementasjonToggle toggle) {
         this.oppdragskontrollTjeneste = oppdragskontrollTjeneste;
-        this.nyOppdragskontrollTjeneste = nyOppdragskontrollTjeneste;
+        this.esOppdragskontrollTjeneste = esOppdragskontrollTjeneste;
+        this.oppdragInputTjeneste = oppdragInputTjeneste;
         this.toggle = toggle;
     }
 
@@ -43,19 +49,28 @@ public class SimulerOppdragTjeneste {
      * Vi har en Oppdrag110-linje per oppdragsmottaker.
      *
      * @param behandlingId   behandling.id
-     * @param ventendeTaskId TaskId til ventende prosessTask
+     * @param fagsakYtelseType
      * @return En liste med XMLer som kan sendes over til oppdrag
      */
-    public List<String> simulerOppdrag(Long behandlingId, Long ventendeTaskId) {
+    public List<String> simulerOppdrag(Long behandlingId, FagsakYtelseType fagsakYtelseType) {
         log.info("Oppretter simuleringsoppdrag for behandling: {}", behandlingId); //$NON-NLS-1$
         boolean brukNyImplementasjon = toggle.brukNyImpl(behandlingId);
+
         Optional<Oppdragskontroll> oppdragskontrollOpt;
-        if (brukNyImplementasjon) {
-            log.info("Gjennomfører simulering for behandling med id={} med ny implementasjon", behandlingId);
-            oppdragskontrollOpt = nyOppdragskontrollTjeneste.opprettOppdrag(behandlingId, ventendeTaskId, true);
+
+        if (fagsakYtelseType.equals(FagsakYtelseType.ENGANGSTØNAD)) {
+            log.info("Simulerer engangsstønad for behandlingId: {}", behandlingId);
+            oppdragskontrollOpt = esOppdragskontrollTjeneste.opprettOppdrag(behandlingId, -1L);
         } else {
-            oppdragskontrollOpt = oppdragskontrollTjeneste.opprettOppdrag(behandlingId, ventendeTaskId);
+            if (brukNyImplementasjon) {
+                log.info("Gjennomfører simulering for behandling med id={} med ny implementasjon", behandlingId);
+                var input = oppdragInputTjeneste.lagInput(behandlingId, -1L);
+                oppdragskontrollOpt = oppdragskontrollTjeneste.opprettOppdrag(input, true);
+            } else {
+                oppdragskontrollOpt = oppdragskontrollTjeneste.opprettOppdrag(behandlingId, -1L);
+            }
         }
+
         if (oppdragskontrollOpt.isPresent()) {
             ØkonomioppdragMapper mapper = new ØkonomioppdragMapper(oppdragskontrollOpt.get());
             return mapper.generateOppdragXML();

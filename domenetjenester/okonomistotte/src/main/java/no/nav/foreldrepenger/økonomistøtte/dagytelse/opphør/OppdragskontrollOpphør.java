@@ -12,15 +12,13 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragsmottakerStatus;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
-import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollManager;
 import no.nav.foreldrepenger.økonomistøtte.Oppdragsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.TidligereOppdragTjeneste;
@@ -36,28 +34,18 @@ import no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdragslinje150.OpprettO
 
 @ApplicationScoped
 public class OppdragskontrollOpphør implements OppdragskontrollManager {
+    public OppdragskontrollOpphør() {}
 
-    private BehandlingTilOppdragMapperTjeneste behandlingTilOppdragMapperTjeneste;
-
-    OppdragskontrollOpphør() {
-        // For CDI
-    }
-
-    @Inject
-    public OppdragskontrollOpphør(BehandlingTilOppdragMapperTjeneste behandlingTilOppdragMapperTjeneste) {
-        this.behandlingTilOppdragMapperTjeneste = behandlingTilOppdragMapperTjeneste;
-    }
 
     @Override
-    public Oppdragskontroll opprettØkonomiOppdrag(Behandling behandling, Oppdragskontroll oppdragskontroll) {
-        OppdragInput behandlingInfo = behandlingTilOppdragMapperTjeneste.map(behandling);
-        boolean erDetFlereKlassekodeForBruker = OpprettOppdragslinje150Tjeneste.finnesFlereKlassekodeIForrigeOppdrag(behandlingInfo);
+    public Oppdragskontroll opprettØkonomiOppdrag(OppdragInput input, Oppdragskontroll oppdragskontroll) {
+        boolean erDetFlereKlassekodeForBruker = OpprettOppdragslinje150Tjeneste.finnesFlereKlassekodeIForrigeOppdrag(input);
         if (erDetFlereKlassekodeForBruker) {
-            opprettOpphørsoppdragForBrukerMedFlereKlassekode(behandlingInfo, oppdragskontroll);
+            opprettOpphørsoppdragForBrukerMedFlereKlassekode(input, oppdragskontroll);
         } else {
-            opprettOpphørsoppdragForBruker(behandlingInfo, oppdragskontroll);
+            opprettOpphørsoppdragForBruker(input, oppdragskontroll);
         }
-        opprettOpphørsoppdragForArbeidsgiver(behandlingInfo, oppdragskontroll);
+        opprettOpphørsoppdragForArbeidsgiver(input, oppdragskontroll);
         return oppdragskontroll;
     }
 
