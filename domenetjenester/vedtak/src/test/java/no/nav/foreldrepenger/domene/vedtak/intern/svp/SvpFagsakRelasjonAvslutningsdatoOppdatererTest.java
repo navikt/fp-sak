@@ -6,7 +6,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -31,6 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatArbeidsforholdEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatPeriodeEntitet;
@@ -151,15 +151,32 @@ public class SvpFagsakRelasjonAvslutningsdatoOppdatererTest {
             .buildFor(behandling));
     }
 
-    private Optional<SvangerskapspengerUttakResultatEntitet> lagUttakMedEnGyldigPeriode(LocalDate fom, LocalDate tom, Behandlingsresultat br) {
-        SvangerskapspengerUttakResultatPeriodeEntitet periode = new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(fom,tom).medUtbetalingsgrad(BigDecimal.valueOf(100)).medPeriodeResultatType(PeriodeResultatType.INNVILGET).build();
-        SvangerskapspengerUttakResultatArbeidsforholdEntitet arbeidsforhold = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder().medPeriode(periode).build();
-        return Optional.of(new SvangerskapspengerUttakResultatEntitet.Builder(br).medUttakResultatArbeidsforhold(arbeidsforhold).build());
+    private Optional<SvangerskapspengerUttakResultatEntitet> lagUttakMedEnGyldigPeriode(LocalDate fom,
+                                                                                        LocalDate tom,
+                                                                                        Behandlingsresultat br) {
+        var periode = new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(fom, tom)
+            .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
+            .medPeriodeResultatType(PeriodeResultatType.INNVILGET)
+            .build();
+        var arbeidsforhold = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder()
+            .medPeriode(periode)
+            .build();
+        var entitet = new SvangerskapspengerUttakResultatEntitet.Builder(br)
+            .medUttakResultatArbeidsforhold(arbeidsforhold).build();
+        return Optional.of(entitet);
     }
 
-    private Optional<SvangerskapspengerUttakResultatEntitet> lagUttakMedEnUgyldigPeriode(LocalDate fom, LocalDate tom, Behandlingsresultat br) {
-        SvangerskapspengerUttakResultatPeriodeEntitet periode = new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(fom,tom).medUtbetalingsgrad(BigDecimal.valueOf(100)).build();
-        SvangerskapspengerUttakResultatArbeidsforholdEntitet arbeidsforhold = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder().medPeriode(periode).build();
-        return Optional.of(new SvangerskapspengerUttakResultatEntitet.Builder(br).medUttakResultatArbeidsforhold(arbeidsforhold).build());
+    private Optional<SvangerskapspengerUttakResultatEntitet> lagUttakMedEnUgyldigPeriode(LocalDate fom,
+                                                                                         LocalDate tom,
+                                                                                         Behandlingsresultat br) {
+        var periode = new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(fom, tom)
+            .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
+            .build();
+        var arbeidsforhold = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder()
+            .medPeriode(periode)
+            .build();
+        var entitet = new SvangerskapspengerUttakResultatEntitet.Builder(br)
+            .medUttakResultatArbeidsforhold(arbeidsforhold).build();
+        return Optional.of(entitet);
     }
 }

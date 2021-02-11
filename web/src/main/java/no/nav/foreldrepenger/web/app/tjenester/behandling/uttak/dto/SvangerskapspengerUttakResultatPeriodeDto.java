@@ -1,13 +1,13 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.PeriodeIkkeOppfyltÅrsak;
 
 public class SvangerskapspengerUttakResultatPeriodeDto {
-    private BigDecimal utbetalingsgrad;
+    private Utbetalingsgrad utbetalingsgrad;
     private PeriodeResultatType periodeResultatType;
     private PeriodeIkkeOppfyltÅrsak periodeIkkeOppfyltÅrsak;
     private LocalDate fom;
@@ -25,7 +25,7 @@ public class SvangerskapspengerUttakResultatPeriodeDto {
         return new Builder();
     }
 
-    public BigDecimal getUtbetalingsgrad() {
+    public Utbetalingsgrad getUtbetalingsgrad() {
         return utbetalingsgrad;
     }
 
@@ -46,7 +46,7 @@ public class SvangerskapspengerUttakResultatPeriodeDto {
     }
 
     public static final class Builder {
-        private BigDecimal utbetalingsgrad;
+        private Utbetalingsgrad utbetalingsgrad;
         private PeriodeResultatType periodeResultatType;
         private PeriodeIkkeOppfyltÅrsak periodeIkkeOppfyltÅrsak;
         private LocalDate fom;
@@ -55,7 +55,7 @@ public class SvangerskapspengerUttakResultatPeriodeDto {
         private Builder() {
         }
 
-        public Builder medUtbetalingsgrad(BigDecimal utbetalingsgrad) {
+        public Builder medUtbetalingsgrad(Utbetalingsgrad utbetalingsgrad) {
             this.utbetalingsgrad = utbetalingsgrad;
             return this;
         }

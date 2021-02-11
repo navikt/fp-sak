@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandlingslager.uttak.fp;
+package no.nav.foreldrepenger.behandlingslager.uttak;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -23,6 +23,8 @@ public class Utbetalingsgrad implements Comparable<Utbetalingsgrad> {
 
     public static final Utbetalingsgrad ZERO = new Utbetalingsgrad(0);
     public static final Utbetalingsgrad TEN = new Utbetalingsgrad(10);
+    public static final Utbetalingsgrad FULL = new Utbetalingsgrad(100);
+    public static final Utbetalingsgrad HUNDRED = FULL;
 
     @Column(name = "utbetalingsprosent")
     @Min(0)

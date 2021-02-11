@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandling.revurdering.ytelse.svp;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -11,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.ArbeidsforholdIkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.PeriodeIkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatArbeidsforholdEntitet;
@@ -125,7 +125,7 @@ public class UttakResultatHolderTest {
         return new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(fom, tom)
                 .medRegelInput("{}")
                 .medRegelEvaluering("{}")
-                .medUtbetalingsgrad(BigDecimal.valueOf(100L))
+                .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
                 .medPeriodeIkkeOppfyltÅrsak(årsak)
                 .medPeriodeResultatType(PeriodeResultatType.AVSLÅTT)
                 .build();

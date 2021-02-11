@@ -249,7 +249,7 @@ public class UttakRestTjeneste {
     @Deprecated
     public SvangerskapspengerUttakResultatDto hentSvangerskapspengerUttakResultat(
             @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
-        Behandling behandling = hentBehandling(behandlingIdDto);
+        var behandling = hentBehandling(behandlingIdDto);
         return svpUttakResultatDtoTjeneste.mapFra(behandling).orElse(null);
     }
 

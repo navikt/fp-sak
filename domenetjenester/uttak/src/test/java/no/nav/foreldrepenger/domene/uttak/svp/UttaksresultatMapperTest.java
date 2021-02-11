@@ -9,6 +9,7 @@ import java.time.Month;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.ArbeidsforholdIkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.PeriodeIkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -49,6 +50,6 @@ public class UttaksresultatMapperTest {
         assertThat(periodeEntitet.getFom()).isEqualTo(periode.getFom());
         assertThat(periodeEntitet.getTom()).isEqualTo(periode.getTom());
         assertThat(periodeEntitet.getPeriodeResultatType()).isEqualTo(PeriodeResultatType.AVSLÅTT);
-        assertThat(periodeEntitet.getUtbetalingsgrad()).isEqualTo(BigDecimal.ZERO);
+        assertThat(periodeEntitet.getUtbetalingsgrad()).isEqualTo(Utbetalingsgrad.ZERO);
     }
 }

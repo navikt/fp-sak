@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.uttak.svp;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
 
@@ -18,6 +17,7 @@ import javax.persistence.Table;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 @Entity
@@ -28,8 +28,9 @@ public class SvangerskapspengerUttakResultatPeriodeEntitet extends BaseEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_SVP_UTTAK_PERIODE")
     private Long id;
 
-    @Column(name = "utbetalingsgrad", nullable = false)
-    private BigDecimal utbetalingsgrad;
+    @Embedded
+    @AttributeOverride(name = "verdi", column = @Column(name = "utbetalingsgrad", nullable = false))
+    private Utbetalingsgrad utbetalingsgrad;
 
     @Convert(converter = PeriodeResultatType.KodeverdiConverter.class)
     @Column(name = "periode_resultat_type", nullable = false)
@@ -80,7 +81,7 @@ public class SvangerskapspengerUttakResultatPeriodeEntitet extends BaseEntitet {
         return tidsperiode;
     }
 
-    public BigDecimal getUtbetalingsgrad() {
+    public Utbetalingsgrad getUtbetalingsgrad() {
         return utbetalingsgrad;
     }
 
@@ -130,7 +131,7 @@ public class SvangerskapspengerUttakResultatPeriodeEntitet extends BaseEntitet {
             this.kladd.tidsperiode = DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom);
         }
 
-        public Builder medUtbetalingsgrad(BigDecimal utbetalingsgrad) {
+        public Builder medUtbetalingsgrad(Utbetalingsgrad utbetalingsgrad) {
             kladd.utbetalingsgrad = utbetalingsgrad;
             return this;
         }

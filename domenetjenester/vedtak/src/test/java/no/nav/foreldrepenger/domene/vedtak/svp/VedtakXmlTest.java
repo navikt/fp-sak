@@ -49,6 +49,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractT
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.PeriodeIkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatArbeidsforholdEntitet;
@@ -196,7 +197,7 @@ public class VedtakXmlTest {
         var uttakPeriodeA = new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(fom, tom)
                 .medRegelInput("{}")
                 .medRegelEvaluering("{}")
-                .medUtbetalingsgrad(BigDecimal.valueOf(30L))
+                .medUtbetalingsgrad(new Utbetalingsgrad(30L))
                 .medPeriodeIkkeOppfyltÅrsak(PeriodeIkkeOppfyltÅrsak.INGEN)
                 .medPeriodeResultatType(PeriodeResultatType.INNVILGET)
                 .build();
@@ -204,7 +205,7 @@ public class VedtakXmlTest {
         var uttakPeriodeB = new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(tom.plusDays(1), tom.plusDays(10))
                 .medRegelInput("{}")
                 .medRegelEvaluering("{}")
-                .medUtbetalingsgrad(BigDecimal.valueOf(50L))
+                .medUtbetalingsgrad(new Utbetalingsgrad(50L))
                 .medPeriodeIkkeOppfyltÅrsak(PeriodeIkkeOppfyltÅrsak.INGEN)
                 .medPeriodeResultatType(PeriodeResultatType.AVSLÅTT)
                 .build();
@@ -212,7 +213,7 @@ public class VedtakXmlTest {
         var uttakPeriodeC = new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(tom.plusDays(11), tom.plusDays(20))
                 .medRegelInput("{}")
                 .medRegelEvaluering("{}")
-                .medUtbetalingsgrad(BigDecimal.valueOf(20L))
+                .medUtbetalingsgrad(new Utbetalingsgrad(20L))
                 .medPeriodeIkkeOppfyltÅrsak(PeriodeIkkeOppfyltÅrsak.INGEN)
                 .medPeriodeResultatType(PeriodeResultatType.MANUELL_BEHANDLING)
                 .build();

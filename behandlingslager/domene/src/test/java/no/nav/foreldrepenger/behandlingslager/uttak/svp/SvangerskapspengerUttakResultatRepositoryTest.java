@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.uttak.svp;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
 
@@ -16,6 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
@@ -45,7 +45,7 @@ public class SvangerskapspengerUttakResultatRepositoryTest extends EntityManager
         var uttakPeriode = new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(fom, tom)
             .medRegelInput("{}")
             .medRegelEvaluering("{}")
-            .medUtbetalingsgrad(BigDecimal.valueOf(100L))
+            .medUtbetalingsgrad(Utbetalingsgrad.FULL)
             .medPeriodeIkkeOppfyltÅrsak(PeriodeIkkeOppfyltÅrsak.INGEN)
             .medPeriodeResultatType(PeriodeResultatType.INNVILGET)
             .build();
@@ -73,7 +73,7 @@ public class SvangerskapspengerUttakResultatRepositoryTest extends EntityManager
         var perioder = arbeidsforhold.getPerioder();
         assertThat(perioder).hasSize(1);
         assertThat(perioder.get(0).getTidsperiode()).isEqualTo(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
-        assertThat(perioder.get(0).getUtbetalingsgrad()).isEqualTo(BigDecimal.valueOf(100L));
+        assertThat(perioder.get(0).getUtbetalingsgrad()).isEqualTo(Utbetalingsgrad.HUNDRED);
         assertThat(perioder.get(0).getPeriodeResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
     }
 
@@ -87,7 +87,7 @@ public class SvangerskapspengerUttakResultatRepositoryTest extends EntityManager
         var uttakPeriode = new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(fom, tom)
             .medRegelInput("{}")
             .medRegelEvaluering("{}")
-            .medUtbetalingsgrad(BigDecimal.valueOf(100L))
+            .medUtbetalingsgrad(Utbetalingsgrad.FULL)
             .medPeriodeIkkeOppfyltÅrsak(PeriodeIkkeOppfyltÅrsak._8308_SØKT_FOR_SENT)
             .medPeriodeResultatType(PeriodeResultatType.AVSLÅTT)
             .build();
@@ -110,7 +110,7 @@ public class SvangerskapspengerUttakResultatRepositoryTest extends EntityManager
         var perioder = arbeidsforhold.get(0).getPerioder();
         assertThat(perioder).hasSize(1);
         assertThat(perioder.get(0).getTidsperiode()).isEqualTo(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
-        assertThat(perioder.get(0).getUtbetalingsgrad()).isEqualTo(BigDecimal.valueOf(100L));
+        assertThat(perioder.get(0).getUtbetalingsgrad()).isEqualTo(Utbetalingsgrad.HUNDRED);
         assertThat(perioder.get(0).getPeriodeResultatType()).isEqualTo(PeriodeResultatType.AVSLÅTT);
         assertThat(perioder.get(0).getPeriodeIkkeOppfyltÅrsak()).isEqualTo(PeriodeIkkeOppfyltÅrsak._8308_SØKT_FOR_SENT);
     }
