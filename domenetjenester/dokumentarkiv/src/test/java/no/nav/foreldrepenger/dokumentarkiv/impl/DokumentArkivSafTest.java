@@ -36,8 +36,7 @@ import no.nav.saf.Journalposttype;
 import no.nav.saf.Journalstatus;
 import no.nav.saf.Tema;
 import no.nav.saf.Variantformat;
-import no.nav.vedtak.felles.integrasjon.saf.Saf;
-import no.nav.vedtak.felles.integrasjon.saf.SafJerseyTjeneste;
+import no.nav.vedtak.felles.integrasjon.saf.SafTjeneste;
 
 public class DokumentArkivSafTest {
 
@@ -48,13 +47,13 @@ public class DokumentArkivSafTest {
     private static DokumentTypeId SØK_ENG_FØDSEL;
 
     private DokumentArkivTjeneste dokumentApplikasjonTjeneste;
-    private Saf saf;
+    private SafTjeneste saf;
 
     private Long DOKUMENT_ID = 66L;
 
     @BeforeEach
     public void setUp() {
-        saf = mock(SafJerseyTjeneste.class);
+        saf = mock(SafTjeneste.class);
         final FagsakRepository fagsakRepository = mock(FagsakRepository.class);
         final Fagsak fagsak = mock(Fagsak.class);
         final Optional<Fagsak> mock1 = Optional.of(fagsak);
