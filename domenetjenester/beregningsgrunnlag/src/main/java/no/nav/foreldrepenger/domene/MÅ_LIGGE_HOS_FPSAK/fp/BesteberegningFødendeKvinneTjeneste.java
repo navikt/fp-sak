@@ -48,6 +48,19 @@ public class BesteberegningFødendeKvinneTjeneste {
     }
 
     public boolean brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(BehandlingReferanse behandlingReferanse) {
+        if (!erFødendeKvinneSomSøkerForeldrepenger(behandlingReferanse)) {
+            return false;
+        }
+
+        Optional<OpptjeningAktiviteter> opptjeningForBeregning = opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(behandlingReferanse, inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.getBehandlingId()));
+        if (opptjeningForBeregning.isEmpty()) {
+            return false;
+        }
+
+        return brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(behandlingReferanse, opptjeningForBeregning.get());
+    }
+
+    boolean erFødendeKvinneSomSøkerForeldrepenger(BehandlingReferanse behandlingReferanse) {
         if (!gjelderForeldrepenger(behandlingReferanse)) {
             return false;
         }
@@ -55,15 +68,9 @@ public class BesteberegningFødendeKvinneTjeneste {
             .hentAggregatHvisEksisterer(behandlingReferanse.getBehandlingId())
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon);
         var familiehendelseType = familiehendelse.map(FamilieHendelseEntitet::getType).orElseThrow(() -> new IllegalStateException("Mangler FamilieHendelse#type for behandling: " + behandlingReferanse.getBehandlingId()));
-
-        Optional<OpptjeningAktiviteter> opptjeningForBeregning = opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(behandlingReferanse, inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.getBehandlingId()));
-
-        if (opptjeningForBeregning.isEmpty()) {
-            return false;
-        }
-
-        return brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(behandlingReferanse, familiehendelseType, opptjeningForBeregning.get());
+        return erFødendeKvinne(behandlingReferanse.getRelasjonsRolleType(), familiehendelseType);
     }
+
 
     private static boolean gjelderForeldrepenger(BehandlingReferanse behandlingReferanse) {
         return FagsakYtelseType.FORELDREPENGER.equals(behandlingReferanse.getFagsakYtelseType());
@@ -78,11 +85,7 @@ public class BesteberegningFødendeKvinneTjeneste {
     }
 
     private boolean brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(BehandlingReferanse behandlingReferanse,
-                                                                         FamilieHendelseType type,
                                                                          OpptjeningAktiviteter opptjeningAktiviteter) {
-        if (!erFødendeKvinne(behandlingReferanse.getRelasjonsRolleType(), type)) {
-            return false;
-        }
         LocalDate skjæringstidspunkt = behandlingReferanse.getUtledetSkjæringstidspunkt();
         return harDagpengerPåSkjæringstidspunktet(skjæringstidspunkt, opptjeningAktiviteter)
             || harSykepengerMedOvergangFraDagpenger(behandlingReferanse);

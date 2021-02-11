@@ -61,7 +61,8 @@ public enum Venteårsak implements Kodeverdi {
     AAP_DP_SISTE_10_MND_SVP("AAP_DP_SISTE_10_MND_SVP", "Behandlingen er satt på vent på grunn av mangel i løsningen. Det jobbes med å løse dette."),
     FL_SN_IKKE_STOTTET_FOR_SVP("FL_SN_IKKE_STOTTET_FOR_SVP", "Behandlingen er satt på vent på grunn av mangel i løsningen. Det jobbes med å løse dette."),
     VENT_MANGLENDE_ARBEIDSFORHOLD("VENT_MANGLENDE_ARBEIDSFORHOLD", "Sak settes på vent pga kommune- og fylkesammenslåing. Meld saken i Porten."),
-;
+    VENT_MANGLENDE_SYKEMELDING("VENT_MANGLENDE_SYKEMELDING", "Venter på siste sykemelding for sykepenger basert på dagpenger"),
+    ;
     public static final String KODEVERK = "VENT_AARSAK";
     private static final Map<String, Venteårsak> KODER = new LinkedHashMap<>();
 
