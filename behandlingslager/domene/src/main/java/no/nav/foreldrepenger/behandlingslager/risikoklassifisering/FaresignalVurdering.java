@@ -16,13 +16,18 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.TempAvledeKode;
 
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum FaresignalVurdering implements Kodeverdi {
 
-    INNVIRKNING("INNVIRKNING", "Faresignalene hadde innvirkning på behandlingen"),
-    INGEN_INNVIRKNING("INGEN_INNVIRKNING", "Faresignalene hadde ingen innvirkning på behandlingen"),
+    INNVIRKNING("INNVIRKNING", "Faresignalene vurderes som reelle"),
+    INNVILGET_REDUSERT("INNVILGET_REDUSERT", "Saken er innvilget med redusert beregningsgrunnlag"),
+    INNVILGET_UENDRET("INNVILGET_UENDRET", "Saken er innvilget uten at faresignalene påvirket utfallet"),
+    AVSLAG_FARESIGNAL("AVSLAG_FARESIGNAL", "Saken er avslått på grunn av faresignalene"),
+    AVSLAG_ANNET("AVSLAG_ANNET", "Saken er avslått av andre årsaker"),
+    INGEN_INNVIRKNING("INGEN_INNVIRKNING", "Faresignalene vurderes ikke som reelle"),
     UDEFINERT("-", "Udefinert"),
     ;
 
@@ -52,11 +57,12 @@ public enum FaresignalVurdering implements Kodeverdi {
         this.navn = navn;
     }
 
-    @JsonCreator
-    public static FaresignalVurdering fraKode(@JsonProperty("kode") String kode) {
-        if (kode == null) {
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+    public static FaresignalVurdering fraKode(@JsonProperty(value = "kode") Object node) {
+        if (node == null) {
             return null;
         }
+        String kode = TempAvledeKode.getVerdi(FaresignalVurdering.class, node, "kode");
         var ad = KODER.get(kode);
         if (ad == null) {
             throw new IllegalArgumentException("Ukjent FaresignalVurdering: " + kode);

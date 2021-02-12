@@ -28,17 +28,12 @@ public class RisikoklassifiseringRepository {
 
     public void lagreVurderingAvFaresignalerForRisikoklassifisering(FaresignalVurdering faresignalVurdering, long behandlingId) {
 
-        Optional<RisikoklassifiseringEntitet> gammelEntitetOpt = hentRisikoklassifiseringForBehandling(behandlingId);
-
-        if (gammelEntitetOpt.isEmpty()) {
-            throw new IllegalStateException("Finner ikke risikoklassifisering for behandling med id " + behandlingId);
-        }
-
-        RisikoklassifiseringEntitet gammelEntitet = gammelEntitetOpt.get();
+        var gammelEntitet = hentRisikoklassifiseringForBehandling(behandlingId)
+            .orElseThrow(() -> new IllegalStateException("Finner ikke risikoklassifisering for behandling med id " + behandlingId));
 
         deaktiverGrunnlag(gammelEntitet);
 
-        RisikoklassifiseringEntitet nyEntitet = RisikoklassifiseringEntitet.builder()
+        var nyEntitet = RisikoklassifiseringEntitet.builder()
             .medKontrollresultat(gammelEntitet.getKontrollresultat())
             .medFaresignalVurdering(faresignalVurdering)
             .buildFor(gammelEntitet.getBehandlingId());
@@ -72,8 +67,7 @@ public class RisikoklassifiseringRepository {
     }
 
     private void deaktiverGammeltGrunnlagOmNødvendig(Long behandlingId) {
-        Optional<RisikoklassifiseringEntitet> risikoklassifiseringEntitet = hentRisikoklassifiseringForBehandling(behandlingId);
-        risikoklassifiseringEntitet.ifPresent(this::deaktiverGrunnlag);
+        hentRisikoklassifiseringForBehandling(behandlingId).ifPresent(this::deaktiverGrunnlag);
     }
 
     private void deaktiverGrunnlag(RisikoklassifiseringEntitet risikoklassifiseringEntitet) {
