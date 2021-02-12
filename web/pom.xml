@@ -15,7 +15,7 @@
     <name>FPSAK :: Web - Webapp</name>
     <properties>
         <simpleclient.version>0.10.0</simpleclient.version>
-        <swagger-ui.version>3.42.0</swagger-ui.version>
+        <swagger-ui.version>3.43.0</swagger-ui.version>
         <resteasy.version>4.5.8.Final</resteasy.version>
     </properties>
     <dependencies>
