@@ -95,9 +95,9 @@ public class MapUttakResultatFraVLTilRegel {
     }
 
     private UttakAktivitet mapAktivitet(UttakInput input, SvangerskapspengerUttakResultatArbeidsforholdEntitet uttakArbeidsforhold, SvangerskapspengerUttakResultatPeriodeEntitet periode) {
-        BigDecimal utbetalingsgrad = periode.getUtbetalingsgrad().compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : BigDecimal.valueOf(100);
-        BigDecimal stillingsprosent = mapStillingsprosent(input, uttakArbeidsforhold);
-        BigDecimal totalStillingsprosent = finnTotalStillingsprosentHosAG(input, uttakArbeidsforhold);
+        var utbetalingsgrad = periode.getUtbetalingsgrad().harUtbetaling() ? BigDecimal.valueOf(100) : BigDecimal.ZERO;
+        var stillingsprosent = mapStillingsprosent(input, uttakArbeidsforhold);
+        var totalStillingsprosent = finnTotalStillingsprosentHosAG(input, uttakArbeidsforhold);
         var arbeidsforhold = mapArbeidsforhold(uttakArbeidsforhold);
         var aktivitetStatus = MapUttakArbeidTypeTilAktivitetStatus.map(uttakArbeidsforhold.getUttakArbeidType());
 

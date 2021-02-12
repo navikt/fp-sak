@@ -1,11 +1,10 @@
 package no.nav.foreldrepenger.domene.uttak.svp;
 
-import java.math.BigDecimal;
-
 import javax.enterprise.context.ApplicationScoped;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.ArbeidsforholdIkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.PeriodeIkkeOppfyltÅrsak;
@@ -73,10 +72,10 @@ class UttaksresultatMapper {
         periodeBuilder.medRegelEvaluering(periode.getRegelSporing());
         if (periode.getUtfallType().equals(UtfallType.OPPFYLT)) {
             periodeBuilder.medPeriodeResultatType(PeriodeResultatType.INNVILGET);
-            periodeBuilder.medUtbetalingsgrad(periode.getUtbetalingsgrad());
+            periodeBuilder.medUtbetalingsgrad(new Utbetalingsgrad(periode.getUtbetalingsgrad()));
         } else {
             periodeBuilder.medPeriodeResultatType(PeriodeResultatType.AVSLÅTT);
-            periodeBuilder.medUtbetalingsgrad(BigDecimal.ZERO);
+            periodeBuilder.medUtbetalingsgrad(Utbetalingsgrad.ZERO);
             if (periode.getÅrsak() != null) {
                 var periodeÅrsak = PeriodeIkkeOppfyltÅrsak.fraKode(String.valueOf(periode.getÅrsak().getId()));
                 periodeBuilder.medPeriodeIkkeOppfyltÅrsak(periodeÅrsak);

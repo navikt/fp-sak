@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.PeriodeIkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatArbeidsforholdEntitet;
@@ -64,7 +65,7 @@ public class MapUttakResultatFraVLTilRegelTest {
         // Arrange
         var fom = LocalDate.of(2019, Month.JANUARY, 1);
         var tom = LocalDate.of(2019, Month.MARCH, 31);
-        var uttakPeriode = lagUttaksperiode(fom, tom, BigDecimal.valueOf(66));
+        var uttakPeriode = lagUttaksperiode(fom, tom, new Utbetalingsgrad(66));
         var uttakArbeidsforhold = lagArbeidsforhold(ORGNR, ARB_ID, uttakPeriode);
         var uttakResultat = lagUttak(uttakArbeidsforhold);
         // Act
@@ -90,7 +91,7 @@ public class MapUttakResultatFraVLTilRegelTest {
         // Arrange
         var fom = LocalDate.of(2019, Month.JANUARY, 1);
         var tom = LocalDate.of(2019, Month.MARCH, 31);
-        var uttakPeriode = lagUttaksperiode(fom, tom, BigDecimal.valueOf(66));
+        var uttakPeriode = lagUttaksperiode(fom, tom, new Utbetalingsgrad(66));
         var uttakArbeidsforhold = lagUttakResultatArbeidsforhold(UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE, null, null, uttakPeriode);
         var uttakResultat = lagUttak(uttakArbeidsforhold);
         // Act
@@ -114,10 +115,10 @@ public class MapUttakResultatFraVLTilRegelTest {
         // Arrange
         var fom = LocalDate.of(2019, Month.JANUARY, 1);
         var tom = LocalDate.of(2019, Month.MARCH, 31);
-        var uttakPeriode = lagUttaksperiode(fom, tom, BigDecimal.valueOf(66));
+        var uttakPeriode = lagUttaksperiode(fom, tom, new Utbetalingsgrad(66));
         var fom2 = tom.plusDays(1);
         var tom2 = LocalDate.of(2019, 4, 30);
-        var uttakPeriode2 = lagUttaksperiode(fom2, tom2, BigDecimal.valueOf(66));
+        var uttakPeriode2 = lagUttaksperiode(fom2, tom2, new Utbetalingsgrad(66));
         var uttakArbeidsforhold = lagArbeidsforhold(ORGNR, ARB_ID, uttakPeriode, uttakPeriode2);
         var uttakResultat = lagUttak(uttakArbeidsforhold);
         // Act
@@ -151,16 +152,16 @@ public class MapUttakResultatFraVLTilRegelTest {
         var tom = LocalDate.of(2019, Month.MARCH, 31);
         var fom2 = tom.plusDays(1);
         var tom2 = LocalDate.of(2019, 4, 30);
-        var uttakPeriode = lagUttaksperiode(fom, tom, BigDecimal.valueOf(66));
-        var uttakPeriode2 = lagUttaksperiode(fom2, tom2, BigDecimal.valueOf(66));
+        var uttakPeriode = lagUttaksperiode(fom, tom, new Utbetalingsgrad(66));
+        var uttakPeriode2 = lagUttaksperiode(fom2, tom2, new Utbetalingsgrad(66));
         var uttakArbeidsforhold = lagArbeidsforhold(ORGNR, ARB_ID, uttakPeriode, uttakPeriode2);
         // Arbeidsforhold 2
         var fom3 = LocalDate.of(2019, Month.FEBRUARY, 1);
         var tom3 = LocalDate.of(2019, Month.APRIL, 15);
         var fom4 = tom3.plusDays(1);
         var tom4 = LocalDate.of(2019, 5, 15);
-        var uttakPeriode3 = lagUttaksperiode(fom3, tom3, BigDecimal.valueOf(66));
-        var uttakPeriode4 = lagUttaksperiode(fom4, tom4, BigDecimal.valueOf(66));
+        var uttakPeriode3 = lagUttaksperiode(fom3, tom3, new Utbetalingsgrad(66));
+        var uttakPeriode4 = lagUttaksperiode(fom4, tom4, new Utbetalingsgrad(66));
         var arbeidsforholdId = InternArbeidsforholdRef.nyRef();
         var uttakArbeidsforhold2 = lagArbeidsforhold("123", arbeidsforholdId, uttakPeriode3, uttakPeriode4);
         var uttakResultat = lagUttak(uttakArbeidsforhold, uttakArbeidsforhold2);
@@ -214,7 +215,7 @@ public class MapUttakResultatFraVLTilRegelTest {
         return builder.build();
     }
 
-    private SvangerskapspengerUttakResultatPeriodeEntitet lagUttaksperiode(LocalDate fom, LocalDate tom, BigDecimal utbetalingsgrad) {
+    private SvangerskapspengerUttakResultatPeriodeEntitet lagUttaksperiode(LocalDate fom, LocalDate tom, Utbetalingsgrad utbetalingsgrad) {
         return new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(fom, tom)
                 .medRegelInput("{}")
                 .medRegelEvaluering("{}")

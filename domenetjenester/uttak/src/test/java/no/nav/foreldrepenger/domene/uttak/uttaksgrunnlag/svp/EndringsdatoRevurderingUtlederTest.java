@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.svp;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
@@ -13,6 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.PeriodeIkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatArbeidsforholdEntitet;
@@ -49,7 +49,7 @@ public class EndringsdatoRevurderingUtlederTest {
             .Builder(FØRSTE_DAG, SISTE_DAG)
             .medRegelInput("{}")
             .medRegelEvaluering("{}")
-            .medUtbetalingsgrad(BigDecimal.valueOf(100L))
+            .medUtbetalingsgrad(Utbetalingsgrad.HUNDRED)
             .medPeriodeIkkeOppfyltÅrsak(PeriodeIkkeOppfyltÅrsak._8308_SØKT_FOR_SENT)
             .medPeriodeResultatType(PeriodeResultatType.AVSLÅTT)
             .build();

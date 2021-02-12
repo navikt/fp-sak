@@ -17,6 +17,7 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -52,7 +53,7 @@ public class UttakResultatPeriodeAktivitetEntitet extends BaseEntitet {
     @Column(name = "arbeidstidsprosent", nullable = false)
     private BigDecimal arbeidsprosent;
 
-    @Column(name = "utbetalingsprosent")
+    @Embedded
     private Utbetalingsgrad utbetalingsgrad;
 
     @Convert(converter = BooleanToStringConverter.class)
