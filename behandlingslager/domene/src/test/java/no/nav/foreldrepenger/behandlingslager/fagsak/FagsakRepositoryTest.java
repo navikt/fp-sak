@@ -24,19 +24,6 @@ public class FagsakRepositoryTest extends EntityManagerAwareTest {
         fagsakRepository = new FagsakRepository(getEntityManager());
     }
 
-    @Test
-    public void ny_fagsak_får_saksnummer() {
-        AktørId aktørId = AktørId.dummy();
-        Fagsak fagsak = opprettFagsak(aktørId);
-
-        assertThat(fagsak.getSaksnummer()).isNotNull();
-        assertThat(fagsak.getSaksnummer().getVerdi().compareTo("152000000") > 0).isTrue();
-
-        Fagsak resultat = fagsakRepository.hentSakGittSaksnummer(fagsak.getSaksnummer()).orElse(null);
-
-        assertThat(resultat).isNotNull();
-    }
-
 
     @Test
     public void skal_finne_eksakt_fagsak_gitt_id() {
@@ -124,7 +111,7 @@ public class FagsakRepositoryTest extends EntityManagerAwareTest {
         NavBruker bruker = NavBruker.opprettNyNB(aktørId);
 
         // Opprett fagsak
-        Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, bruker, null);
+        Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, bruker);
         var navBrukerRepository = new NavBrukerRepository(getEntityManager());
         navBrukerRepository.lagre(bruker);
         fagsakRepository.opprettNy(fagsak);

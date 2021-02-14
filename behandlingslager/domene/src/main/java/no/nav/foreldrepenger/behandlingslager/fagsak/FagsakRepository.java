@@ -22,14 +22,9 @@ import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 import no.nav.vedtak.util.Tuple;
-import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
 public class FagsakRepository {
-
-    private static final long SAKSNUMMER_BASE = 152000000L;
-
-    private static final boolean ER_PROD = Environment.current().isProd();
 
     public EntityManager getEntityManager() {
         return entityManager;
@@ -130,28 +125,12 @@ public class FagsakRepository {
         entityManager.persist(fagsak.getNavBruker());
         entityManager.persist(fagsak);
         entityManager.flush();
-        if (!ER_PROD && fagsak.getSaksnummer() == null) {
-            fagsak.setSaksnummer(genererSaksnummerFraId(fagsak.getId()));
-            entityManager.persist(fagsak);
-            entityManager.flush();
-        }
         return fagsak.getId();
-    }
-
-    private Saksnummer genererSaksnummerFraId(Long fagsakId) {
-        return new Saksnummer(String.valueOf(SAKSNUMMER_BASE + fagsakId));
     }
 
     public void oppdaterRelasjonsRolle(Long fagsakId, RelasjonsRolleType relasjonsRolleType) {
         Fagsak fagsak = finnEksaktFagsak(fagsakId);
         fagsak.setRelasjonsRolleType(relasjonsRolleType);
-        entityManager.persist(fagsak);
-        entityManager.flush();
-    }
-
-    public void oppdaterSaksnummer(Long fagsakId, Saksnummer saksnummer) {
-        Fagsak fagsak = finnEksaktFagsak(fagsakId);
-        fagsak.setSaksnummer(saksnummer);
         entityManager.persist(fagsak);
         entityManager.flush();
     }
@@ -219,6 +198,12 @@ public class FagsakRepository {
         @SuppressWarnings("unchecked")
         List<String> saksnumre = query.getResultList();
         return saksnumre.stream().filter(Objects::nonNull).map(Saksnummer::new).collect(Collectors.toList());
+    }
+
+    public Saksnummer genererNyttSaksnummer() {
+        Query query = entityManager.createNativeQuery("select SEQ_SAKSNUMMER.nextval as num from dual"); //NOSONAR Her har vi full kontroll på sql
+        BigDecimal singleResult = (BigDecimal) query.getSingleResult();
+        return new Saksnummer(String.valueOf(singleResult.longValue()));
     }
 
     public void fagsakSkalBehandlesAvInfotrygd(Long fagsakId) {
