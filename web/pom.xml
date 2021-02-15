@@ -15,8 +15,8 @@
     <name>FPSAK :: Web - Webapp</name>
     <properties>
         <simpleclient.version>0.10.0</simpleclient.version>
-        <swagger-ui.version>3.42.0</swagger-ui.version>
-        <resteasy.version>4.5.8.Final</resteasy.version>
+        <swagger-ui.version>3.43.0</swagger-ui.version>
+        <resteasy.version>4.6.0.Final</resteasy.version>
     </properties>
     <dependencies>
 
@@ -426,7 +426,7 @@
             <dependency>
                 <groupId>com.fasterxml.woodstox</groupId>
                 <artifactId>woodstox-core</artifactId>
-                <version>6.2.3</version>
+                <version>6.2.4</version>
             </dependency>
             <dependency>
                 <!-- velger en transitiv avhengighet - felles ikke enig med seg selv -->

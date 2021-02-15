@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -89,31 +90,40 @@ public class DokumentRestTjenesteTest {
         // Whitebox.setInternalState(fagsak, "id", fagsakId);
         when(fagsakRepository.hentSakGittSaksnummer(any())).thenReturn(Optional.of(fagsak));
 
-        ArkivDokument søknad = new ArkivDokument();
-        søknad.setTittel("Søknad");
-        søknad.setDokumentId("456");
-        søknad.setDokumentType(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL);
-        ArkivJournalPost søknadJP = new ArkivJournalPost();
-        søknadJP.setJournalpostId(new JournalpostId("123"));
-        søknadJP.setTidspunkt(LocalDateTime.of(LocalDate.now().minusDays(6), LocalTime.of(10, 10)));
-        søknadJP.setHovedDokument(søknad);
+        var søknad = ArkivDokument.Builder.ny()
+            .medTittel("Søknad")
+            .medDokumentId("456")
+            .medDokumentTypeId(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL)
+            .medAlleDokumenttyper(Set.of(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL))
+            .build();
+        var søknadJP = ArkivJournalPost.Builder.ny()
+            .medJournalpostId(new JournalpostId("123"))
+            .medTidspunkt(LocalDateTime.of(LocalDate.now().minusDays(6), LocalTime.of(10, 10)))
+            .medHoveddokument(søknad)
+            .build();
 
-        ArkivDokument vedlegg = new ArkivDokument();
-        søknad.setTittel("vedlegg");
-        søknad.setDokumentId("123");
-        søknad.setDokumentType(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL);
-        ArkivJournalPost søknadV = new ArkivJournalPost();
-        søknadV.setJournalpostId(new JournalpostId("125"));
-        søknadV.setHovedDokument(vedlegg);
+        var vedlegg = ArkivDokument.Builder.ny()
+            .medTittel("vedlegg")
+            .medDokumentId("123")
+            .medDokumentTypeId(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL)
+            .medAlleDokumenttyper(Set.of(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL))
+            .build();
+        var søknadV = ArkivJournalPost.Builder.ny()
+            .medJournalpostId(new JournalpostId("125"))
+            .medHoveddokument(vedlegg)
+            .build();
 
-        ArkivDokument im = new ArkivDokument();
-        im.setTittel("Inntektsmelding");
-        im.setDokumentId("789");
-        im.setDokumentType(DokumentTypeId.INNTEKTSMELDING);
-        ArkivJournalPost imJP = new ArkivJournalPost();
-        imJP.setJournalpostId(new JournalpostId("124"));
-        imJP.setTidspunkt(LocalDateTime.of(LocalDate.now().minusDays(4), LocalTime.of(10, 10)));
-        imJP.setHovedDokument(im);
+        var im = ArkivDokument.Builder.ny()
+            .medTittel("Inntektsmelding")
+            .medDokumentId("789")
+            .medDokumentTypeId(DokumentTypeId.INNTEKTSMELDING)
+            .medAlleDokumenttyper(Set.of(DokumentTypeId.INNTEKTSMELDING))
+            .build();
+        var imJP = ArkivJournalPost.Builder.ny()
+            .medJournalpostId(new JournalpostId("124"))
+            .medTidspunkt(LocalDateTime.of(LocalDate.now().minusDays(4), LocalTime.of(10, 10)))
+            .medHoveddokument(im)
+            .build();
 
         when(dokumentArkivTjeneste.hentAlleDokumenterForVisning(any())).thenReturn(List.of(søknadJP, søknadV, imJP));
 
