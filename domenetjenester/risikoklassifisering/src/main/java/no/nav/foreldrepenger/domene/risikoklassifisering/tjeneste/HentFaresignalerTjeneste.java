@@ -22,8 +22,8 @@ import no.nav.vedtak.util.LRUCache;
 public class HentFaresignalerTjeneste {
     private static final Logger LOGGER = LoggerFactory.getLogger(HentFaresignalerTjeneste.class);
 
-    private static final long CACHE_ELEMENT_LIVE_TIME_MS = TimeUnit.MILLISECONDS.convert(10, TimeUnit.MINUTES);
-    private LRUCache<String, FaresignalerRespons> faresignalerCache = new LRUCache<>(5000, CACHE_ELEMENT_LIVE_TIME_MS);
+    private static final long CACHE_ELEMENT_LIVE_TIME_MS = TimeUnit.MILLISECONDS.convert(1, TimeUnit.HOURS);
+    private LRUCache<String, FaresignalerRespons> faresignalerCache = new LRUCache<>(1000, CACHE_ELEMENT_LIVE_TIME_MS);
 
     private static final String ENDPOINT_KEY = "fprisk_risikoklassifisering_hent.url";
 
