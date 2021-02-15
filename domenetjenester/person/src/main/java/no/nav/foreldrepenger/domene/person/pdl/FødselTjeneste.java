@@ -36,14 +36,14 @@ public class FødselTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(FødselTjeneste.class);
 
-    private Pdl pdlKlient;
+    private PdlKlientLogCause pdlKlient;
 
     FødselTjeneste() {
         // CDI
     }
 
     @Inject
-    public FødselTjeneste(@Jersey Pdl pdlKlient) {
+    public FødselTjeneste(PdlKlientLogCause pdlKlient) {
         this.pdlKlient = pdlKlient;
     }
 
