@@ -28,10 +28,6 @@ import no.nav.foreldrepenger.domene.person.pdl.AktørTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
-import no.nav.tjeneste.virksomhet.journal.v3.informasjon.Journalposttyper;
-import no.nav.tjeneste.virksomhet.journal.v3.informasjon.Journaltilstand;
-import no.nav.tjeneste.virksomhet.journal.v3.informasjon.hentkjernejournalpostliste.Journalpost;
-import no.nav.tjeneste.virksomhet.journal.v3.meldinger.HentKjerneJournalpostListeResponse;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.sikkerhet.abac.AbacAttributtSamling;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
@@ -96,7 +92,6 @@ public class PdpRequestBuilderTest {
     public void skal_angi_aktørId_gitt_journalpost_id_som_input() {
         AbacAttributtSamling attributter = byggAbacAttributtSamling().leggTil(AbacDataAttributter.opprett()
                 .leggTil(AppAbacAttributtType.JOURNALPOST_ID, JOURNALPOST_ID.getVerdi()));
-        final HentKjerneJournalpostListeResponse mockJournalResponse = initJournalMockResponse(false);
 
         lenient().when(pipRepository.fagsakIdForJournalpostId(Collections.singleton(JOURNALPOST_ID))).thenReturn(Collections.singleton(FAGSAK_ID));
         lenient().when(pipRepository.fagsakIdForSaksnummer(Collections.singleton(SAKSNUMMER))).thenReturn(Collections.singleton(FAGSAK_ID));
@@ -185,18 +180,6 @@ public class PdpRequestBuilderTest {
         attributtSamling.setActionType(BeskyttetRessursActionAttributt.READ);
         attributtSamling.setResource(FPSakBeskyttetRessursAttributt.FAGSAK);
         return attributtSamling;
-    }
-
-    private HentKjerneJournalpostListeResponse initJournalMockResponse(boolean utgått) {
-        HentKjerneJournalpostListeResponse response = new HentKjerneJournalpostListeResponse();
-        Journalpost dummy = new Journalpost();
-        dummy.setJournalpostId(JOURNALPOST_ID.getVerdi());
-        dummy.setJournaltilstand(utgått ? Journaltilstand.UTGAAR : Journaltilstand.ENDELIG);
-        Journalposttyper retning = new Journalposttyper();
-        retning.setValue("I");
-        dummy.setJournalposttype(retning);
-        response.getJournalpostListe().add(dummy);
-        return response;
     }
 
 }

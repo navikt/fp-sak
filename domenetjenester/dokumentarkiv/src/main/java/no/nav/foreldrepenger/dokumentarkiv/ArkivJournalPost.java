@@ -10,7 +10,7 @@ import no.nav.foreldrepenger.domene.typer.JournalpostId;
 public class ArkivJournalPost {
     private JournalpostId journalpostId;
     private ArkivDokument hovedDokument;
-    private List<ArkivDokument> andreDokument;
+    private List<ArkivDokument> andreDokument = new ArrayList<>();
     private Kommunikasjonsretning kommunikasjonsretning;
     private String beskrivelse;
     private LocalDateTime tidspunkt;
@@ -19,48 +19,24 @@ public class ArkivJournalPost {
         return journalpostId;
     }
 
-    public void setJournalpostId(JournalpostId journalpostId) {
-        this.journalpostId = journalpostId;
-    }
-
     public ArkivDokument getHovedDokument() {
         return hovedDokument;
-    }
-
-    public void setHovedDokument(ArkivDokument hovedDokument) {
-        this.hovedDokument = hovedDokument;
     }
 
     public List<ArkivDokument> getAndreDokument() {
         return andreDokument;
     }
 
-    public void setAndreDokument(List<ArkivDokument> andreDokument) {
-        this.andreDokument = andreDokument;
-    }
-
     public Kommunikasjonsretning getKommunikasjonsretning() {
         return kommunikasjonsretning;
-    }
-
-    public void setKommunikasjonsretning(Kommunikasjonsretning kommunikasjonsretning) {
-        this.kommunikasjonsretning = kommunikasjonsretning;
     }
 
     public String getBeskrivelse() {
         return beskrivelse;
     }
 
-    public void setBeskrivelse(String beskrivelse) {
-        this.beskrivelse = beskrivelse;
-    }
-
     public LocalDateTime getTidspunkt() {
         return tidspunkt;
-    }
-
-    public void setTidspunkt(LocalDateTime tidspunkt) {
-        this.tidspunkt = tidspunkt;
     }
 
     @Override
@@ -86,7 +62,6 @@ public class ArkivJournalPost {
 
         private Builder() {
             this.arkivJournalPost = new ArkivJournalPost();
-            this.arkivJournalPost.setAndreDokument(new ArrayList<>());
         }
 
         public static Builder ny() {
@@ -94,27 +69,32 @@ public class ArkivJournalPost {
         }
 
         public Builder medJournalpostId(JournalpostId journalpostId) {
-            this.arkivJournalPost.setJournalpostId(journalpostId);
+            this.arkivJournalPost.journalpostId = journalpostId;
             return this;
         }
 
         public Builder medTidspunkt(LocalDateTime tidspunkt) {
-            this.arkivJournalPost.setTidspunkt(tidspunkt);
+            this.arkivJournalPost.tidspunkt = tidspunkt;
             return this;
         }
 
         public Builder medBeskrivelse(String beskrivelse) {
-            this.arkivJournalPost.setBeskrivelse(beskrivelse);
+            this.arkivJournalPost.beskrivelse = beskrivelse;
             return this;
         }
 
         public Builder medKommunikasjonsretning(Kommunikasjonsretning innUtNotat){
-            this.arkivJournalPost.setKommunikasjonsretning(innUtNotat);
+            this.arkivJournalPost.kommunikasjonsretning = innUtNotat;
             return this;
         }
 
         public Builder medHoveddokument(ArkivDokument hovedDokument){
-            this.arkivJournalPost.setHovedDokument(hovedDokument);
+            this.arkivJournalPost.hovedDokument = hovedDokument;
+            return this;
+        }
+
+        public Builder medAndreDokument(List<ArkivDokument> vedlegg){
+            this.arkivJournalPost.getAndreDokument().addAll(vedlegg);
             return this;
         }
 

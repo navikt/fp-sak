@@ -19,8 +19,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
@@ -37,7 +35,6 @@ import no.nav.saf.Journalstatus;
 import no.nav.saf.Tema;
 import no.nav.saf.Variantformat;
 import no.nav.vedtak.felles.integrasjon.saf.Saf;
-import no.nav.vedtak.felles.integrasjon.saf.SafTjeneste;
 
 public class DokumentArkivSafTest {
 
@@ -55,12 +52,8 @@ public class DokumentArkivSafTest {
     @BeforeEach
     public void setUp() {
         saf = mock(Saf.class);
-        final FagsakRepository fagsakRepository = mock(FagsakRepository.class);
-        final Fagsak fagsak = mock(Fagsak.class);
-        final Optional<Fagsak> mock1 = Optional.of(fagsak);
-        when(fagsakRepository.hentSakGittSaksnummer(any(Saksnummer.class))).thenReturn(mock1);
         SØK_ENG_FØDSEL = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
-        dokumentApplikasjonTjeneste = new DokumentArkivTjeneste(null, saf, fagsakRepository);
+        dokumentApplikasjonTjeneste = new DokumentArkivTjeneste(saf);
     }
 
     @Test

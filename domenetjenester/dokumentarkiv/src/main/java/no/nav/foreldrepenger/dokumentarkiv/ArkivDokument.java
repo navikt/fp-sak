@@ -1,18 +1,17 @@
 package no.nav.foreldrepenger.dokumentarkiv;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
+import no.nav.foreldrepenger.behandlingslager.behandling.VariantFormat;
 
 public class ArkivDokument {
     private String dokumentId;
     private String tittel;
     private DokumentTypeId dokumentTypeId;
-    private List<ArkivDokumentHentbart> tilgjengeligSom; // hvilke formater som er tilgjengelig fra joark
+    private Set<VariantFormat> tilgjengeligSom = new HashSet<>(); // hvilke formater som er tilgjengelig fra joark
     private Set<DokumentTypeId> alleDokumenttyper = new HashSet<>(); // sammensatt dokument der vedlegg er scannet inn i ett dokument
 
     public String getDokumentId() {
@@ -43,12 +42,8 @@ public class ArkivDokument {
         return alleDokumenttyper;
     }
 
-    public List<ArkivDokumentHentbart> getTilgjengeligSom() {
-        return tilgjengeligSom != null ? tilgjengeligSom : List.of();
-    }
-
-    public void setTilgjengeligSom(List<ArkivDokumentHentbart> tilgjengeligSom) {
-        this.tilgjengeligSom = tilgjengeligSom;
+    public Set<VariantFormat> getTilgjengeligSom() {
+        return tilgjengeligSom;
     }
 
     @Override
@@ -73,7 +68,6 @@ public class ArkivDokument {
         private Builder() {
             this.arkivDokument = new ArkivDokument();
             this.arkivDokument.setDokumentType(DokumentTypeId.UDEFINERT);
-            this.arkivDokument.setTilgjengeligSom(new ArrayList<>());
         }
 
         public static Builder ny() {
@@ -101,8 +95,8 @@ public class ArkivDokument {
             return this;
         }
 
-        public Builder leggTilTilgjengeligFormat(ArkivDokumentHentbart arkivVariant){
-            this.arkivDokument.getTilgjengeligSom().add(arkivVariant);
+        public Builder medVariantFormater(Set<VariantFormat> variantFormater){
+            this.arkivDokument.getTilgjengeligSom().addAll(variantFormater);
             return this;
         }
 
