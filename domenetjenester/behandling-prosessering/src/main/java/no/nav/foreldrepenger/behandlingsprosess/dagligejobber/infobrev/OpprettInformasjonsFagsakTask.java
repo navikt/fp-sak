@@ -32,13 +32,10 @@ import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettin
 import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveFeilmeldinger;
-import no.nav.foreldrepenger.produksjonsstyring.opprettgsak.OpprettGSakTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
-import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
 @ProsessTask(OpprettInformasjonsFagsakTask.TASKTYPE)
@@ -55,13 +52,10 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
     private static final Logger log = LoggerFactory.getLogger(OpprettInformasjonsFagsakTask.class);
     private static final Period FH_DIFF_PERIODE = Period.parse("P6W");
 
-    private static final boolean ER_PROD = Environment.current().isProd();
-
     private BehandlingOpprettingTjeneste behandlingOpprettingTjeneste;
     private PersoninfoAdapter personinfoAdapter;
     private FagsakTjeneste fagsakTjeneste;
     private NavBrukerTjeneste brukerTjeneste;
-    private OpprettGSakTjeneste opprettGSakTjeneste;
     private FagsakRepository fagsakRepository;
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private FamilieHendelseRepository familieHendelseRepository;
@@ -77,13 +71,11 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
             PersoninfoAdapter personinfoAdapter,
             NavBrukerTjeneste brukerTjeneste,
             FagsakTjeneste fagsakTjeneste,
-            OpprettGSakTjeneste opprettGSakTjeneste,
             FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         this.behandlingOpprettingTjeneste = behandlingOpprettingTjeneste;
         this.personinfoAdapter = personinfoAdapter;
         this.brukerTjeneste = brukerTjeneste;
         this.fagsakTjeneste = fagsakTjeneste;
-        this.opprettGSakTjeneste = opprettGSakTjeneste;
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
@@ -120,13 +112,7 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
     private Fagsak opprettNyFagsak(AktørId aktørId) {
         FagsakYtelseType ytelseType = FagsakYtelseType.FORELDREPENGER;
         NavBruker navBruker = brukerTjeneste.hentEllerOpprettFraAktørId(aktørId);
-        Fagsak fagsak = Fagsak.opprettNy(ytelseType, navBruker);
-        fagsakTjeneste.opprettFagsak(fagsak);
-        if (ER_PROD || fagsak.getSaksnummer() == null) {
-            Saksnummer saksnummer = opprettGSakTjeneste.opprettArkivsak(aktørId);
-            fagsakTjeneste.oppdaterFagsakMedGsakSaksnummer(fagsak.getId(), saksnummer);
-        }
-        return fagsakTjeneste.finnEksaktFagsak(fagsak.getId());
+        return fagsakTjeneste.opprettFagsak(ytelseType, navBruker);
     }
 
     private void kobleNyFagsakTilMors(Long fagsakIdMor, Fagsak fagsak) {

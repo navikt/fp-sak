@@ -85,7 +85,7 @@ public class Fagsak extends BaseEntitet {
             this.brukerRolle = rolle;
         }
         if (saksnummer != null) {
-            setSaksnummer(saksnummer);
+            this.saksnummer = saksnummer;
         }
     }
 
@@ -93,8 +93,8 @@ public class Fagsak extends BaseEntitet {
         return new Fagsak(ytelseType, bruker);
     }
 
-    public static Fagsak opprettNy(FagsakYtelseType ytelseType, NavBruker bruker, RelasjonsRolleType rolle) {
-        return new Fagsak(ytelseType, bruker, rolle, null);
+    public static Fagsak opprettNy(FagsakYtelseType ytelseType, NavBruker bruker, Saksnummer saksnummer) {
+        return new Fagsak(ytelseType, bruker, null, saksnummer);
     }
 
     public static Fagsak opprettNy(FagsakYtelseType ytelseType, NavBruker bruker, RelasjonsRolleType rolle, Saksnummer saksnummer) {
@@ -115,10 +115,6 @@ public class Fagsak extends BaseEntitet {
 
     public Saksnummer getSaksnummer() {
         return saksnummer;
-    }
-
-    public void setSaksnummer(Saksnummer saksnummer) {
-        this.saksnummer = saksnummer;
     }
 
     public NavBruker getNavBruker() {

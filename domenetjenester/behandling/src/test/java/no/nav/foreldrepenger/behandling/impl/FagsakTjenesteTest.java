@@ -63,9 +63,7 @@ public class FagsakTjenesteTest {
 
     private Fagsak lagNyFagsak() {
         NavBruker søker = NavBruker.opprettNyNB(forelderAktørId);
-        Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, søker);
-        tjeneste.opprettFagsak(fagsak);
-        return fagsak;
+        return tjeneste.opprettFagsak(FagsakYtelseType.ENGANGSTØNAD, søker);
     }
 
     @Test
@@ -138,10 +136,10 @@ public class FagsakTjenesteTest {
         // Ifølgeregler i mottak skal vi opprette en nyTerminbekreftelse sak hvis vi
         // ikke har sak nyere enn 10 mnd:
         NavBruker søker = brukerRepository.hent(forelderAktørId).orElseGet(() -> NavBruker.opprettNy(forelderAktørId, Språkkode.NB));
-        Fagsak fagsakNy = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, søker);
-        tjeneste.opprettFagsak(fagsakNy);
+        Fagsak fagsakNy = tjeneste.opprettFagsak(FagsakYtelseType.ENGANGSTØNAD, søker);
         assertThat(fagsak.getNavBruker().getId()).as("Forventer at fagsakene peker til samme bruker")
                 .isEqualTo(fagsakNy.getNavBruker().getId());
+        assertThat(fagsak.getSaksnummer().getVerdi().compareTo("152001000") > 0).isTrue();
     }
 
 }

@@ -77,11 +77,6 @@ class FagsakRepositoryForTest extends FagsakRepository {
     }
 
     @Override
-    public void oppdaterSaksnummer(Long fagsakId, Saksnummer saksnummer) {
-        throw new IkkeImplementertForTestException();
-    }
-
-    @Override
     public void oppdaterBruker(Long fagsakId, NavBruker bruker) {
         throw new IkkeImplementertForTestException();
     }

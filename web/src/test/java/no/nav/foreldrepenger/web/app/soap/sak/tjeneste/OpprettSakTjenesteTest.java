@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
-import no.nav.foreldrepenger.produksjonsstyring.opprettgsak.OpprettGSakTjeneste;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(FPsakEntityManagerAwareExtension.class)
@@ -45,8 +44,7 @@ public class OpprettSakTjenesteTest {
 
         var fagsakTjeneste = new FagsakTjeneste(new FagsakRepository(entityManager),
             new SøknadRepository(entityManager, new BehandlingRepository(entityManager)), null);
-        var opprettGSakTjeneste = new OpprettGSakTjeneste(null);
-        this.opprettSakTjeneste = new OpprettSakTjeneste(fagsakTjeneste, opprettGSakTjeneste, brukerTjeneste, null);
+        this.opprettSakTjeneste = new OpprettSakTjeneste(fagsakTjeneste, brukerTjeneste);
     }
 
     @Test

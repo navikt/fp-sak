@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonRelasjonEntitet;
@@ -21,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadReposito
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Journalpost;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
@@ -87,17 +89,30 @@ public class FagsakTjeneste {
         LOGGER.info("oppdaterRelasjonsRolle fagsak har {} ingen oppdatering", fagsak.getRelasjonsRolleType().getKode());
     }
 
-    public void opprettFagsak(Fagsak nyFagsak) {
+    public Fagsak opprettFagsak(FagsakYtelseType ytelseType, NavBruker bruker) {
+        var nyFagsak = Fagsak.opprettNy(ytelseType, bruker, genererNyttSaksnummer());
         validerNyFagsak(nyFagsak);
+        validerHarSaksnummer(nyFagsak);
         fagsakRepository.opprettNy(nyFagsak);
         if (fagsakStatusEventPubliserer != null) {
             fagsakStatusEventPubliserer.fireEvent(nyFagsak, nyFagsak.getStatus());
         }
+        return nyFagsak;
+    }
+
+    private Saksnummer genererNyttSaksnummer() {
+        return fagsakRepository.genererNyttSaksnummer();
     }
 
     private void validerNyFagsak(Fagsak fagsak) {
         if ((fagsak.getId() != null) || !Objects.equals(fagsak.getStatus(), FagsakStatus.OPPRETTET)) {
             throw new IllegalArgumentException("Kan ikke kalle opprett fagsak med eksisterende: " + fagsak); //$NON-NLS-1$
+        }
+    }
+
+    private void validerHarSaksnummer(Fagsak fagsak) {
+        if (fagsak.getSaksnummer() == null) {
+            throw new IllegalArgumentException("Kan ikke kalle opprett fagsak uten saksnummer"); //$NON-NLS-1$
         }
     }
 
@@ -121,10 +136,6 @@ public class FagsakTjeneste {
 
     public Fagsak finnEksaktFagsak(long fagsakId) {
         return fagsakRepository.finnEksaktFagsak(fagsakId);
-    }
-
-    public void oppdaterFagsakMedGsakSaksnummer(Long fagsakId, Saksnummer saksnummer) {
-        fagsakRepository.oppdaterSaksnummer(fagsakId, saksnummer);
     }
 
     public void lagreJournalPost(Journalpost journalpost) {

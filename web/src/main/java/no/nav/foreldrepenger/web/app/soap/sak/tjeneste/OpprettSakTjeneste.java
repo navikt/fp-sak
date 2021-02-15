@@ -12,12 +12,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Journalpost;
-import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
 import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.produksjonsstyring.opprettgsak.OpprettGSakTjeneste;
 
 @ApplicationScoped
 @Transactional
@@ -29,37 +27,28 @@ import no.nav.foreldrepenger.produksjonsstyring.opprettgsak.OpprettGSakTjeneste;
 public class OpprettSakTjeneste {
 
     private FagsakTjeneste fagsakTjeneste;
-    private OpprettGSakTjeneste opprettGSakTjeneste;
     private NavBrukerTjeneste brukerTjeneste;
-    private DatavarehusTjeneste datavarehusTjeneste;
 
     public OpprettSakTjeneste() {
         //For CDI
     }
 
     @Inject
-    public OpprettSakTjeneste(FagsakTjeneste fagsakTjeneste, OpprettGSakTjeneste opprettGSakTjeneste,
-                              NavBrukerTjeneste brukerTjeneste, DatavarehusTjeneste datavarehusTjeneste) {
+    public OpprettSakTjeneste(FagsakTjeneste fagsakTjeneste,
+                              NavBrukerTjeneste brukerTjeneste) {
         this.fagsakTjeneste = fagsakTjeneste;
-        this.opprettGSakTjeneste = opprettGSakTjeneste;
         this.brukerTjeneste = brukerTjeneste;
-        this.datavarehusTjeneste = datavarehusTjeneste;
     }
 
     public Fagsak opprettSakVL(AktørId bruker, FagsakYtelseType ytelseType) {
         NavBruker navBruker = brukerTjeneste.hentEllerOpprettFraAktørId(bruker);
-        Fagsak fagsak = Fagsak.opprettNy(ytelseType, navBruker);
-        fagsakTjeneste.opprettFagsak(fagsak);
-
-        return fagsak;
+        return fagsakTjeneste.opprettFagsak(ytelseType, navBruker);
     }
 
     public Fagsak opprettSakVL(AktørId bruker, FagsakYtelseType ytelseType, JournalpostId journalpostId) {
         NavBruker navBruker = brukerTjeneste.hentEllerOpprettFraAktørId(bruker);
-        Fagsak fagsak = Fagsak.opprettNy(ytelseType, navBruker);
-        fagsakTjeneste.opprettFagsak(fagsak);
+        Fagsak fagsak = fagsakTjeneste.opprettFagsak(ytelseType, navBruker);
         knyttFagsakOgJournalpost(fagsak.getId(), journalpostId);
-
         return fagsak;
     }
 
@@ -70,16 +59,6 @@ public class OpprettSakTjeneste {
             throw OpprettSakFeil.FACTORY.ukjentBehandlingstemaKode(behandlingTema.getOffisiellKode()).toException();
         }
         return fagsakYtelseType;
-    }
-
-    public Saksnummer opprettEllerFinnGsak(AktørId aktørId) {
-        return opprettGSakTjeneste.opprettArkivsak(aktørId);
-    }
-
-    public void oppdaterFagsakMedGsakSaksnummer(Long fagsakId, Saksnummer saksnummer) {
-        fagsakTjeneste.oppdaterFagsakMedGsakSaksnummer(fagsakId, saksnummer);
-        //Dette er en unntaksløsning for å sikre at DVH oppdaters med saksnummer. DVH oppdatering skal normalt gå gjennom events
-        datavarehusTjeneste.lagreNedFagsak(fagsakId);
     }
 
     public void knyttSakOgJournalpost(Saksnummer saksnummer, JournalpostId journalPostId) {
