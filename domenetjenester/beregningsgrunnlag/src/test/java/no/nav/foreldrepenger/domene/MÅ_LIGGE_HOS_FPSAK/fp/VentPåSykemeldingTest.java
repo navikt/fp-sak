@@ -161,8 +161,6 @@ class VentPåSykemeldingTest {
 
     }
 
-
-
     private LocalDate førStp(int dager) {
         return STP.minusDays(dager);
     }
