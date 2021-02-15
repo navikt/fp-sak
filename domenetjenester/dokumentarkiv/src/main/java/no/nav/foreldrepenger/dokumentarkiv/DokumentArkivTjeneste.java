@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -37,6 +38,7 @@ import no.nav.saf.Variantformat;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.felles.integrasjon.saf.HentDokumentQuery;
 import no.nav.vedtak.felles.integrasjon.saf.Saf;
+import no.nav.vedtak.util.LRUCache;
 
 @ApplicationScoped
 public class DokumentArkivTjeneste {
@@ -46,6 +48,9 @@ public class DokumentArkivTjeneste {
 
     private static final VariantFormat VARIANT_FORMAT_ARKIV = VariantFormat.ARKIV;
     private static final Set<Journalstatus> EKSKLUDER_STATUS = Set.of(Journalstatus.UTGAAR);
+
+    private static final long CACHE_ELEMENT_LIVE_TIME_MS = TimeUnit.MILLISECONDS.convert(15, TimeUnit.MINUTES);
+    private LRUCache<String, List<ArkivJournalPost>> sakJournalCache = new LRUCache<>(500, CACHE_ELEMENT_LIVE_TIME_MS);
 
 
     DokumentArkivTjeneste() {
@@ -91,6 +96,8 @@ public class DokumentArkivTjeneste {
     }
 
     public List<ArkivJournalPost> hentAlleJournalposterForSak(Saksnummer saksnummer) {
+        if (sakJournalCache.get(saksnummer.getVerdi()) != null && !sakJournalCache.get(saksnummer.getVerdi()).isEmpty())
+            return sakJournalCache.get(saksnummer.getVerdi());
         var query = new DokumentoversiktFagsakQueryRequest();
         query.setFagsak(new FagsakInput(saksnummer.getVerdi(), Fagsystem.FPSAK.getOffisiellKode()));
         query.setFoerste(1000);
@@ -100,10 +107,13 @@ public class DokumentArkivTjeneste {
 
         var resultat = safKlient.dokumentoversiktFagsak(query, projection);
 
-        return resultat.getJournalposter().stream()
+        var journalposter = resultat.getJournalposter().stream()
             .filter(j -> j.getJournalstatus() == null || !EKSKLUDER_STATUS.contains(j.getJournalstatus()))
             .map(this::mapTilArkivJournalPost)
             .collect(Collectors.toList());
+
+        sakJournalCache.put(saksnummer.getVerdi(), journalposter);
+        return journalposter;
     }
 
     public Optional<ArkivJournalPost> hentJournalpostForSak(@SuppressWarnings("unused") Saksnummer saksnummer, JournalpostId journalpostId) {
