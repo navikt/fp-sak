@@ -27,10 +27,11 @@ public class UttakResultatPerioderEntitet extends BaseEntitet {
     @BatchSize(size = 25)
     private List<UttakResultatPeriodeEntitet> perioder = new ArrayList<>();
 
-    public void leggTilPeriode(UttakResultatPeriodeEntitet periode) {
+    public UttakResultatPerioderEntitet leggTilPeriode(UttakResultatPeriodeEntitet periode) {
         validerIkkeOverlapp(periode);
         perioder.add(periode);
         periode.setPerioder(this);
+        return this;
     }
 
     private void validerIkkeOverlapp(UttakResultatPeriodeEntitet p2) {

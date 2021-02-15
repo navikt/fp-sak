@@ -152,7 +152,7 @@ public class KontrollerFaktaPeriodeDto {
 
     public static class Builder {
 
-        private KontrollerFaktaPeriodeDto kladd = new KontrollerFaktaPeriodeDto();
+        private final KontrollerFaktaPeriodeDto kladd = new KontrollerFaktaPeriodeDto();
 
         public Builder() {
         }

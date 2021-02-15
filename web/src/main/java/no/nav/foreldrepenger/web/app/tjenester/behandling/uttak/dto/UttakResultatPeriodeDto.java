@@ -33,6 +33,7 @@ public class UttakResultatPeriodeDto {
     private UttakPeriodeType periodeType;
     private UttakUtsettelseType utsettelseType;
     private OppholdÅrsak oppholdÅrsak;
+    private LocalDate mottattDato;
 
     private UttakResultatPeriodeDto() {
 
@@ -117,9 +118,13 @@ public class UttakResultatPeriodeDto {
         return graderingAvslagÅrsak == null ? null : graderingAvslagÅrsak.getLovHjemmelData();
     }
 
+    public LocalDate getMottattDato() {
+        return mottattDato;
+    }
+
     public static class Builder {
 
-        private UttakResultatPeriodeDto kladd = new UttakResultatPeriodeDto();
+        private final UttakResultatPeriodeDto kladd = new UttakResultatPeriodeDto();
 
         public Builder medTidsperiode(LocalDate fom, LocalDate tom) {
             kladd.fom = fom;
@@ -184,6 +189,11 @@ public class UttakResultatPeriodeDto {
 
         public Builder medOppholdÅrsak(OppholdÅrsak oppholdÅrsak) {
             kladd.oppholdÅrsak = oppholdÅrsak;
+            return this;
+        }
+
+        public Builder medMottattDato(LocalDate mottattDato) {
+            kladd.mottattDato = mottattDato;
             return this;
         }
 

@@ -32,6 +32,7 @@ public class ForeldrepengerUttakPeriode {
     private boolean opprinneligSendtTilManuellBehandling;
     private String begrunnelse;
     private boolean manueltBehandlet;
+    private LocalDate mottattDato;
 
     private ForeldrepengerUttakPeriode() {
 
@@ -169,6 +170,10 @@ public class ForeldrepengerUttakPeriode {
         return !Objects.equals(getUtsettelseType(), UttakUtsettelseType.UDEFINERT);
     }
 
+    public LocalDate getMottattDato() {
+        return mottattDato;
+    }
+
     @Override
     public String toString() {
         return "ForeldrepengerUttakPeriode{" +
@@ -186,6 +191,7 @@ public class ForeldrepengerUttakPeriode {
             ", søktKonto=" + søktKonto +
             ", opprinneligSendtTilManuellBehandling=" + opprinneligSendtTilManuellBehandling +
             ", manueltBehandlet=" + manueltBehandlet +
+            ", mottattDato=" + mottattDato +
             '}';
     }
 
@@ -278,6 +284,11 @@ public class ForeldrepengerUttakPeriode {
 
         public Builder medManueltBehandlet(boolean manueltBehandlet) {
             kladd.manueltBehandlet = manueltBehandlet;
+            return this;
+        }
+
+        public Builder medMottattDato(LocalDate mottattDato) {
+            kladd.mottattDato = mottattDato;
             return this;
         }
 
