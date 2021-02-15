@@ -45,7 +45,7 @@ public class PersonBasisTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(PersonBasisTjeneste.class);
 
-    private Pdl pdlKlient;
+    private PdlKlientLogCause pdlKlient;
     private boolean isProd = Environment.current().isProd();
 
     PersonBasisTjeneste() {
@@ -53,7 +53,7 @@ public class PersonBasisTjeneste {
     }
 
     @Inject
-    public PersonBasisTjeneste(@Jersey Pdl pdlKlient) {
+    public PersonBasisTjeneste(PdlKlientLogCause pdlKlient) {
         this.pdlKlient = pdlKlient;
     }
 

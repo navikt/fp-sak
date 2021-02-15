@@ -26,14 +26,14 @@ public class TilknytningTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(TilknytningTjeneste.class);
 
-    private Pdl pdlKlient;
+    private PdlKlientLogCause pdlKlient;
 
     TilknytningTjeneste() {
         // CDI
     }
 
     @Inject
-    public TilknytningTjeneste(@Jersey Pdl pdlKlient) {
+    public TilknytningTjeneste(PdlKlientLogCause pdlKlient) {
         this.pdlKlient = pdlKlient;
     }
 

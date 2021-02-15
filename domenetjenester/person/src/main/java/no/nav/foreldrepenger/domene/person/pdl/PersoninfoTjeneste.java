@@ -138,7 +138,7 @@ public class PersoninfoTjeneste {
             Map.entry(Oppholdstillatelse.PERMANENT, OppholdstillatelseType.PERMANENT),
             Map.entry(Oppholdstillatelse.MIDLERTIDIG, OppholdstillatelseType.MIDLERTIDIG));
 
-    private Pdl pdlKlient;
+    private PdlKlientLogCause pdlKlient;
     private PoststedKodeverkRepository poststedKodeverkRepository;
 
     PersoninfoTjeneste() {
@@ -146,7 +146,7 @@ public class PersoninfoTjeneste {
     }
 
     @Inject
-    public PersoninfoTjeneste(@Jersey Pdl pdlKlient, PoststedKodeverkRepository repository) {
+    public PersoninfoTjeneste(PdlKlientLogCause pdlKlient, PoststedKodeverkRepository repository) {
         this.pdlKlient = pdlKlient;
         this.poststedKodeverkRepository = repository;
     }
