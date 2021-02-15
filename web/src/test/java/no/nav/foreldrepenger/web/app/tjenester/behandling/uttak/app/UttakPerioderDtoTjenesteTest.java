@@ -62,26 +62,28 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     public void skalHenteUttaksPerioderFraRepository() {
-        UttakResultatPerioderEntitet perioder = new UttakResultatPerioderEntitet();
+        var perioder = new UttakResultatPerioderEntitet();
         var internArbeidsforholdId = InternArbeidsforholdRef.nyRef();
         var eksternArbeidsforholdId = EksternArbeidsforholdRef.ref("ID1");
         var arbeidsgiver = Arbeidsgiver.virksomhet(orgnr);
-        UttakAktivitetEntitet uttakAktivitet = new UttakAktivitetEntitet.Builder()
+        var uttakAktivitet = new UttakAktivitetEntitet.Builder()
             .medArbeidsforhold(arbeidsgiver, internArbeidsforholdId)
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
             .build();
-        UttakPeriodeType periodeType = UttakPeriodeType.MØDREKVOTE;
-        UttakResultatPeriodeSøknadEntitet periodeSøknad = new UttakResultatPeriodeSøknadEntitet.Builder()
+        var periodeType = UttakPeriodeType.MØDREKVOTE;
+        var mottattDato = LocalDate.now();
+        var periodeSøknad = new UttakResultatPeriodeSøknadEntitet.Builder()
             .medUttakPeriodeType(periodeType)
+            .medMottattDato(mottattDato)
             .build();
-        UttakResultatPeriodeEntitet periode = periodeBuilder(LocalDate.now(), LocalDate.now().plusWeeks(2))
+        var periode = periodeBuilder(LocalDate.now(), LocalDate.now().plusWeeks(2))
             .medGraderingInnvilget(true)
             .medSamtidigUttak(true)
             .medSamtidigUttaksprosent(SamtidigUttaksprosent.TEN)
             .medResultatType(PeriodeResultatType.AVSLÅTT, PeriodeResultatÅrsak.UKJENT)
             .medPeriodeSoknad(periodeSøknad)
             .build();
-        UttakResultatPeriodeAktivitetEntitet periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitet)
+        var periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitet)
             .medTrekkonto(StønadskontoType.FELLESPERIODE)
             .medArbeidsprosent(BigDecimal.TEN)
             .medErSøktGradering(true)
@@ -89,15 +91,15 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
             .build();
         perioder.leggTilPeriode(periode);
 
-        Behandling behandling = morBehandlingMedUttak(perioder);
+        var behandling = morBehandlingMedUttak(perioder);
 
         var arbeidsforholdInformasjonBuilder = ArbeidsforholdInformasjonBuilder.builder(Optional.empty());
         arbeidsforholdInformasjonBuilder.leggTil(arbeidsgiver, internArbeidsforholdId, eksternArbeidsforholdId);
         inntektArbeidYtelseTjeneste.lagreArbeidsforhold(behandling.getId(), behandling.getAktørId(), arbeidsforholdInformasjonBuilder);
 
-        UttakPerioderDtoTjeneste tjeneste = tjeneste();
+        var tjeneste = tjeneste();
 
-        Optional<UttakResultatPerioderDto> result = tjeneste.mapFra(behandling);
+        var result = tjeneste.mapFra(behandling);
 
         assertThat(result).isPresent();
         assertThat(result.get().getPerioderSøker()).hasSize(1);
@@ -111,6 +113,7 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         assertThat(result.get().getPerioderSøker().get(0).isSamtidigUttak()).isEqualTo(periode.isSamtidigUttak());
         assertThat(result.get().getPerioderSøker().get(0).getSamtidigUttaksprosent()).isEqualTo(periode.getSamtidigUttaksprosent());
         assertThat(result.get().getPerioderSøker().get(0).getPeriodeType()).isEqualTo(periodeType);
+        assertThat(result.get().getPerioderSøker().get(0).getMottattDato()).isEqualTo(mottattDato);
         assertThat(result.get().getPerioderSøker().get(0).getAktiviteter()).hasSize(1);
         assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getArbeidsforholdId()).isEqualTo(periodeAktivitet.getArbeidsforholdRef().getReferanse());
         assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getEksternArbeidsforholdId()).isEqualTo(eksternArbeidsforholdId.getReferanse());
@@ -119,7 +122,6 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getTrekkdager()).isEqualTo(periodeAktivitet.getTrekkdager().decimalValue());
         assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getProsentArbeid()).isEqualTo(periodeAktivitet.getArbeidsprosent());
         assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getUtbetalingsgrad()).isEqualTo(periodeAktivitet.getUtbetalingsgrad());
-        assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getUttakArbeidType()).isEqualTo(periodeAktivitet.getUttakArbeidType());
         assertThat(result.get().getPerioderSøker().get(0).getAktiviteter().get(0).getUttakArbeidType()).isEqualTo(periodeAktivitet.getUttakArbeidType());
     }
 

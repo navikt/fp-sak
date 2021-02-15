@@ -108,7 +108,8 @@ public class UttakPerioderDtoTjeneste {
         return sortedByFom(list);
     }
 
-    private UttakResultatPeriodeDto map(ForeldrepengerUttakPeriode periode, Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag) {
+    private UttakResultatPeriodeDto map(ForeldrepengerUttakPeriode periode,
+                                        Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag) {
         var dto = new UttakResultatPeriodeDto.Builder()
             .medTidsperiode(periode.getFom(), periode.getTom())
             .medManuellBehandlingÅrsak(periode.getManuellBehandlingÅrsak())
@@ -123,6 +124,7 @@ public class UttakPerioderDtoTjeneste {
             .medGraderingAvslåttÅrsak(periode.getGraderingAvslagÅrsak())
             .medOppholdÅrsak(periode.getOppholdÅrsak())
             .medPeriodeType(periode.getSøktKonto())
+            .medMottattDato(periode.getMottattDato())
             .build();
 
         for (var aktivitet : periode.getAktiviteter()) {
