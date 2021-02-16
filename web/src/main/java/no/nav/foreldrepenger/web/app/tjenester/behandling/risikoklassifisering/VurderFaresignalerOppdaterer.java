@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.risikoklassifisering;
 
 import java.util.Objects;
-import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -15,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndr
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.FaresignalVurdering;
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.Kontrollresultat;
-import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.RisikoklassifiseringEntitet;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
@@ -40,18 +38,20 @@ public class VurderFaresignalerOppdaterer implements AksjonspunktOppdaterer<Vurd
     @Override
     public OppdateringResultat oppdater(VurderFaresignalerDto dto, AksjonspunktOppdaterParameter param) {
         Long behandlingId = param.getBehandlingId();
-        Optional<RisikoklassifiseringEntitet> risikoklassifiseringEntitet = risikovurderingTjeneste.hentRisikoklassifiseringForBehandling(behandlingId);
-        if (!risikoklassifiseringEntitet.isPresent() || !Objects.equals(risikoklassifiseringEntitet.get().getKontrollresultat(), Kontrollresultat.HØY)) {
-            throw new IllegalStateException("Skal ikke kunne vurdere faresignaler for behandling med id " + behandlingId);
-        }
+        var risikoklassifiseringEntitet = risikovurderingTjeneste.hentRisikoklassifiseringForBehandling(behandlingId)
+            .filter(rk -> Kontrollresultat.HØY.equals(rk.getKontrollresultat()))
+            .orElseThrow(() -> new IllegalStateException("Skal ikke kunne vurdere faresignaler for behandling med id " + behandlingId));
 
-        FaresignalVurdering originalFaresignalVurdering = risikoklassifiseringEntitet.get().getFaresignalVurdering();
+        var originalFaresignalVurdering = risikoklassifiseringEntitet.getFaresignalVurdering();
 
-        if (dto.getHarInnvirketBehandlingen() == null) {
+        if (dto.getHarInnvirketBehandlingen() == null && dto.getFaresignalVurdering() == null) {
             throw new IllegalStateException("Har ikke mottatt vurdering av faresignaler for behandling med id " + behandlingId);
         }
 
-        if (dto.getHarInnvirketBehandlingen()) {
+        if (dto.getFaresignalVurdering() != null && !FaresignalVurdering.UDEFINERT.equals(dto.getFaresignalVurdering())) {
+            risikovurderingTjeneste.lagreVurderingAvFaresignalerForBehandling(behandlingId, dto.getFaresignalVurdering());
+            lagHistorikkInnslag(dto, dto.getFaresignalVurdering(), originalFaresignalVurdering, param);
+        } else if (dto.getHarInnvirketBehandlingen()) {
             risikovurderingTjeneste.lagreVurderingAvFaresignalerForBehandling(behandlingId, FaresignalVurdering.INNVIRKNING);
             lagHistorikkInnslag(dto, FaresignalVurdering.INNVIRKNING, originalFaresignalVurdering, param);
         } else {
@@ -74,9 +74,8 @@ public class VurderFaresignalerOppdaterer implements AksjonspunktOppdaterer<Vurd
     private HistorikkEndretFeltVerdiType finnEndretVerdiType(FaresignalVurdering faresignalVurdering) {
         if (faresignalVurdering == null || FaresignalVurdering.UDEFINERT.equals(faresignalVurdering)) {
             return null;
-        } else return Objects.equals(faresignalVurdering, FaresignalVurdering.INNVIRKNING)
-            ? HistorikkEndretFeltVerdiType.INNVIRKNING
-            : HistorikkEndretFeltVerdiType.INGEN_INNVIRKNING;
+        } else return Objects.equals(faresignalVurdering, FaresignalVurdering.INGEN_INNVIRKNING)
+            ? HistorikkEndretFeltVerdiType.INGEN_INNVIRKNING : HistorikkEndretFeltVerdiType.INNVIRKNING;
     }
 
     private void oppdaterVedEndretVerdi(HistorikkEndretFeltVerdiType nyVerdi, HistorikkEndretFeltVerdiType gammelVerdi) {

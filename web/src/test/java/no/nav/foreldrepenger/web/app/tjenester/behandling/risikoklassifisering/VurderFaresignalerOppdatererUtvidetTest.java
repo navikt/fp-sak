@@ -27,7 +27,7 @@ import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.Risikovurderin
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
-public class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
+public class VurderFaresignalerOppdatererUtvidetTest extends EntityManagerAwareTest {
 
     private RisikoklassifiseringRepository risikoklassifiseringRepository;
 
@@ -54,7 +54,7 @@ public class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
     @Test
     public void skal_oppdatere_korrekt_ved_ingen_innvirkning() {
         // Arrange
-        VurderFaresignalerDto dto = new VurderFaresignalerDto("Dustemikkel", false, null);
+        VurderFaresignalerDto dto = new VurderFaresignalerDto("Dustemikkel", false, FaresignalVurdering.INGEN_INNVIRKNING);
         risikoklassifiseringRepository.lagreRisikoklassifisering(
             lagRisikoklassifisering(Kontrollresultat.HØY, FaresignalVurdering.UDEFINERT), behandling.getId());
 
@@ -73,7 +73,7 @@ public class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
     @Test
     public void skal_oppdatere_korrekt_ved_har_hatt_innvirkning() {
         // Arrange
-        VurderFaresignalerDto dto = new VurderFaresignalerDto("Dustemikkel", true, null);
+        VurderFaresignalerDto dto = new VurderFaresignalerDto("Dustemikkel", true, FaresignalVurdering.AVSLAG_FARESIGNAL);
         risikoklassifiseringRepository.lagreRisikoklassifisering(
             lagRisikoklassifisering(Kontrollresultat.HØY, FaresignalVurdering.UDEFINERT), behandling.getId());
 
@@ -85,14 +85,14 @@ public class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
 
         // Assert
         assertThat(oppdatertEntitet).isPresent();
-        assertThat(oppdatertEntitet.get().getFaresignalVurdering()).isEqualTo(FaresignalVurdering.INNVIRKNING);
+        assertThat(oppdatertEntitet.get().getFaresignalVurdering()).isEqualTo(FaresignalVurdering.AVSLAG_FARESIGNAL);
         assertThat(oppdatertEntitet.get().getKontrollresultat()).isEqualTo(Kontrollresultat.HØY);
     }
 
     @Test
     public void skal_lage_korrekt_historikkinnslag_når_det_ikke_finnes_tidligere_vurdering() {
         // Arrange
-        VurderFaresignalerDto dto = new VurderFaresignalerDto("Dustemikkel", true, null);
+        VurderFaresignalerDto dto = new VurderFaresignalerDto("Dustemikkel", true, FaresignalVurdering.INNVILGET_UENDRET);
         risikoklassifiseringRepository.lagreRisikoklassifisering(
             lagRisikoklassifisering(Kontrollresultat.HØY, FaresignalVurdering.UDEFINERT), behandling.getId());
 
@@ -120,7 +120,7 @@ public class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
     @Test
     public void skal_lage_korrekt_historikkinnslag_når_det_finnes_tidligere_vurdering_ingen_innvirkning() {
         // Arrange
-        VurderFaresignalerDto dto = new VurderFaresignalerDto("Dustemikkel", true, null);
+        VurderFaresignalerDto dto = new VurderFaresignalerDto("Dustemikkel", true, FaresignalVurdering.INNVILGET_REDUSERT);
         risikoklassifiseringRepository.lagreRisikoklassifisering(
             lagRisikoklassifisering(Kontrollresultat.HØY, FaresignalVurdering.INGEN_INNVIRKNING), behandling.getId());
 
@@ -149,7 +149,7 @@ public class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
     @Test
     public void skal_lage_korrekt_historikkinnslag_når_det_finnes_tidligere_vurdering_innvirkning() {
         // Arrange
-        VurderFaresignalerDto dto = new VurderFaresignalerDto("Dustemikkel", false, null);
+        VurderFaresignalerDto dto = new VurderFaresignalerDto("Dustemikkel", false, FaresignalVurdering.INGEN_INNVIRKNING);
         risikoklassifiseringRepository.lagreRisikoklassifisering(
             lagRisikoklassifisering(Kontrollresultat.HØY, FaresignalVurdering.INNVIRKNING), behandling.getId());
 
@@ -178,7 +178,7 @@ public class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
     @Test
     public void skal_feile_om_det_ikke_finnes_en_risikoklassifisering_for_behandlingen() {
         // Arrange
-        VurderFaresignalerDto dto = new VurderFaresignalerDto("Dustemikkel", true, null);
+        VurderFaresignalerDto dto = new VurderFaresignalerDto("Dustemikkel", true, FaresignalVurdering.AVSLAG_FARESIGNAL);
 
         // Act
         assertThrows(IllegalStateException.class, () -> vurderFaresignalerOppdaterer.oppdater(dto,

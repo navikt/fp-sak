@@ -100,7 +100,7 @@ public class RisikoklassifiseringRepositoryTest {
         assertThat(persistertKlassifisering.get()).isEqualTo(risikoklassifiseringEntitet);
 
         // Act
-        risikorepository.lagreVurderingAvFaresignalerForRisikoklassifisering(FaresignalVurdering.INNVIRKNING, behandling.getId());
+        risikorepository.lagreVurderingAvFaresignalerForRisikoklassifisering(FaresignalVurdering.INNVILGET_REDUSERT, behandling.getId());
         Optional<RisikoklassifiseringEntitet> nyPersistertKlassifisering = risikorepository.hentRisikoklassifiseringForBehandling(behandling.getId());
 
         // Assert
@@ -108,7 +108,7 @@ public class RisikoklassifiseringRepositoryTest {
         RisikoklassifiseringEntitet entitet = nyPersistertKlassifisering.get();
         assertThat(entitet.getKontrollresultat()).isEqualTo(risikoklassifiseringEntitet.getKontrollresultat());
         assertThat(entitet.getBehandlingId()).isEqualTo(risikoklassifiseringEntitet.getBehandlingId());
-        assertThat(entitet.getFaresignalVurdering()).isEqualTo(FaresignalVurdering.INNVIRKNING);
+        assertThat(entitet.getFaresignalVurdering()).isEqualTo(FaresignalVurdering.INNVILGET_REDUSERT);
     }
 
     @Test
