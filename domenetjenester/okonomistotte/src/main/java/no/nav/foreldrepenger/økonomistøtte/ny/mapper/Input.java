@@ -1,19 +1,17 @@
 package no.nav.foreldrepenger.økonomistøtte.ny.mapper;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Objects;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.GruppertYtelse;
+import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.OverordnetOppdragKjedeOversikt;
 
 public class Input {
-    private BeregningsresultatEntitet tilkjentYtelse;
-    private List<Oppdragskontroll> tidligereOppdrag;
+    private GruppertYtelse tilkjentYtelse;
+    private OverordnetOppdragKjedeOversikt tidligereOppdrag;
     private String brukerFnr;
     private Long behandlingId;
     private Saksnummer saksnummer;
@@ -31,7 +29,7 @@ public class Input {
         return new Builder();
     }
 
-    public BeregningsresultatEntitet getTilkjentYtelse() {
+    public GruppertYtelse getTilkjentYtelse() {
         return tilkjentYtelse;
     }
 
@@ -67,7 +65,7 @@ public class Input {
         return prosessTaskId;
     }
 
-    public List<Oppdragskontroll> getTidligereOppdrag() {
+    public OverordnetOppdragKjedeOversikt getTidligereOppdrag() {
         return tidligereOppdrag;
     }
 
@@ -105,7 +103,7 @@ public class Input {
             }
         }
 
-        public Builder medTilkjentYtelse(BeregningsresultatEntitet tilkjentYtelse) {
+        public Builder medTilkjentYtelse(GruppertYtelse tilkjentYtelse) {
             kladd.tilkjentYtelse = tilkjentYtelse;
             return this;
         }
@@ -155,7 +153,7 @@ public class Input {
             return this;
         }
 
-        public Builder medTidligereOppdrag(List<Oppdragskontroll> tidligereOppdrag) {
+        public Builder medTidligereOppdrag(OverordnetOppdragKjedeOversikt tidligereOppdrag) {
             kladd.tidligereOppdrag = tidligereOppdrag;
             return this;
         }

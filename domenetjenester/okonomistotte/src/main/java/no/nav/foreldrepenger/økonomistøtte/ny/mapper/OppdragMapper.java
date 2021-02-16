@@ -85,9 +85,11 @@ public class OppdragMapper {
         if (oppdragErTilNyMottaker(oppdrag)) {
             return ØkonomiKodeEndring.NY;
         }
+
         if (oppdrag.getBetalingsmottaker() == Betalingsmottaker.BRUKER && !erOpphørForMottaker(oppdrag)) {
             return ØkonomiKodeEndring.ENDR;
         }
+
         return ØkonomiKodeEndring.UEND;
     }
 

@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 public enum SatsType implements Kodeverdi {
 
     DAG("DAG"),
-    DAG7("DAG7"),
     ENGANG("ENG"),
     UDEFINERT("-"),
     ;

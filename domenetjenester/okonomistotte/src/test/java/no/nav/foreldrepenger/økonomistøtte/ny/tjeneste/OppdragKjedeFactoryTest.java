@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.økonomistøtte.ny.domene.OppdragKjede;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.OppdragKjedeFortsettelse;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.OppdragLinje;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Periode;
-import no.nav.foreldrepenger.økonomistøtte.ny.domene.Sats;
+import no.nav.foreldrepenger.økonomistøtte.ny.domene.Satsen;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Ytelse;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.YtelsePeriode;
 
@@ -47,9 +47,9 @@ public class OppdragKjedeFactoryTest {
     public void skal_kjede_sammen_perioder_i_førstegangsvedtak() {
         OppdragKjede tidligereOppdrag = OppdragKjede.builder().build();
         Ytelse nyYtelse = Ytelse.builder()
-            .leggTilPeriode(new YtelsePeriode(p1, Sats.dagsats(1000)))
-            .leggTilPeriode(new YtelsePeriode(p2, Sats.dagsats(1100)))
-            .leggTilPeriode(new YtelsePeriode(p3, Sats.dagsats(1200)))
+            .leggTilPeriode(new YtelsePeriode(p1, Satsen.dagsats(1000)))
+            .leggTilPeriode(new YtelsePeriode(p2, Satsen.dagsats(1100)))
+            .leggTilPeriode(new YtelsePeriode(p3, Satsen.dagsats(1200)))
             .build();
 
         OppdragKjedeFactory factory = OppdragKjedeFactory.lagForNyMottaker(fagsystemId);
@@ -57,9 +57,9 @@ public class OppdragKjedeFactoryTest {
 
         List<OppdragLinje> linjer = resultat.getOppdragslinjer();
         assertThat(linjer).hasSize(3);
-        assertLik(linjer.get(0), p1, Sats.dagsats(1000), fagsystemId, null);
-        assertLik(linjer.get(1), p2, Sats.dagsats(1100), fagsystemId, linjer.get(0).getDelytelseId());
-        assertLik(linjer.get(2), p3, Sats.dagsats(1200), fagsystemId, linjer.get(1).getDelytelseId());
+        assertLik(linjer.get(0), p1, Satsen.dagsats(1000), fagsystemId, null);
+        assertLik(linjer.get(1), p2, Satsen.dagsats(1100), fagsystemId, linjer.get(0).getDelytelseId());
+        assertLik(linjer.get(2), p3, Satsen.dagsats(1200), fagsystemId, linjer.get(1).getDelytelseId());
     }
 
     @Test
@@ -67,18 +67,18 @@ public class OppdragKjedeFactoryTest {
         OppdragKjede tidligereOppdrag = OppdragKjede.builder()
             .medOppdragslinje(OppdragLinje.builder()
                 .medPeriode(p1)
-                .medSats(Sats.dagsats(1000))
+                .medSats(Satsen.dagsats(1000))
                 .medDelytelseId(DelytelseId.parse("FOO-1-1"))
                 .build())
             .medOppdragslinje(OppdragLinje.builder()
                 .medPeriode(p2)
-                .medSats(Sats.dagsats(2000))
+                .medSats(Satsen.dagsats(2000))
                 .medDelytelseId(DelytelseId.parse("FOO-1-2"))
                 .medRefDelytelseId(DelytelseId.parse("FOO-1-1"))
                 .build())
             .medOppdragslinje(OppdragLinje.builder()
                 .medPeriode(p3)
-                .medSats(Sats.dagsats(1100))
+                .medSats(Satsen.dagsats(1100))
                 .medDelytelseId(DelytelseId.parse("FOO-1-3"))
                 .medRefDelytelseId(DelytelseId.parse("FOO-1-2"))
                 .build())
@@ -90,7 +90,7 @@ public class OppdragKjedeFactoryTest {
 
         // ved opphør skal siste linje sendes på nytt, med opphørsdato til første dato det skal opphøres fra
         assertThat(resultat.getOppdragslinjer()).hasSize(1);
-        assertOpphørslinje(resultat.getOppdragslinjer().get(0), p3, Sats.dagsats(1100), fagsystemId, p1.getFom());
+        assertOpphørslinje(resultat.getOppdragslinjer().get(0), p3, Satsen.dagsats(1100), fagsystemId, p1.getFom());
     }
 
     @Test
@@ -98,25 +98,25 @@ public class OppdragKjedeFactoryTest {
         OppdragKjede tidligereOppdrag = OppdragKjede.builder()
             .medOppdragslinje(OppdragLinje.builder()
                 .medPeriode(p1)
-                .medSats(Sats.dagsats(1000))
+                .medSats(Satsen.dagsats(1000))
                 .medDelytelseId(DelytelseId.parse("FOO-1-1"))
                 .build())
             .medOppdragslinje(OppdragLinje.builder()
                 .medPeriode(p2)
-                .medSats(Sats.dagsats(2000))
+                .medSats(Satsen.dagsats(2000))
                 .medDelytelseId(DelytelseId.parse("FOO-1-2"))
                 .medRefDelytelseId(DelytelseId.parse("FOO-1-1"))
                 .build())
             .medOppdragslinje(OppdragLinje.builder()
                 .medPeriode(p3)
-                .medSats(Sats.dagsats(1100))
+                .medSats(Satsen.dagsats(1100))
                 .medDelytelseId(DelytelseId.parse("FOO-1-3"))
                 .medRefDelytelseId(DelytelseId.parse("FOO-1-2"))
                 .build())
             .build();
         Ytelse nyYtelse = Ytelse.builder()
-            .leggTilPeriode(new YtelsePeriode(p1, Sats.dagsats(1000)))
-            .leggTilPeriode(new YtelsePeriode(p2del1, Sats.dagsats(2000)))
+            .leggTilPeriode(new YtelsePeriode(p1, Satsen.dagsats(1000)))
+            .leggTilPeriode(new YtelsePeriode(p2del1, Satsen.dagsats(2000)))
             .build();
 
         OppdragKjedeFactory factory = OppdragKjedeFactory.lagForEksisterendeMottaker(DelytelseId.parse("FOO-1-3"));
@@ -124,7 +124,7 @@ public class OppdragKjedeFactoryTest {
 
         // ved opphør skal siste linje sendes på nytt, med opphørsdato til første dato det skal opphøres fra
         assertThat(resultat.getOppdragslinjer()).hasSize(1);
-        assertOpphørslinje(resultat.getOppdragslinjer().get(0), p3, Sats.dagsats(1100), fagsystemId,
+        assertOpphørslinje(resultat.getOppdragslinjer().get(0), p3, Satsen.dagsats(1100), fagsystemId,
             p2del1.getTom().plusDays(1));
     }
 
@@ -134,30 +134,30 @@ public class OppdragKjedeFactoryTest {
         OppdragKjede tidligereOppdrag = OppdragKjede.builder()
             .medOppdragslinje(OppdragLinje.builder()
                 .medPeriode(p1)
-                .medSats(Sats.dagsats(1000))
+                .medSats(Satsen.dagsats(1000))
                 .medDelytelseId(DelytelseId.parse("FOO-1-1"))
                 .build())
             .medOppdragslinje(OppdragLinje.builder()
                 .medPeriode(p2)
-                .medSats(Sats.dagsats(2000))
+                .medSats(Satsen.dagsats(2000))
                 .medDelytelseId(DelytelseId.parse("FOO-1-2"))
                 .medRefDelytelseId(DelytelseId.parse("FOO-1-1"))
                 .build())
             .medOppdragslinje(OppdragLinje.builder()
                 .medPeriode(p2)
-                .medSats(Sats.dagsats(2000))
+                .medSats(Satsen.dagsats(2000))
                 .medDelytelseId(DelytelseId.parse("FOO-1-2"))
                 .medOpphørFomDato(p1.getFom())
                 .build())
             .build();
-        Ytelse nyYtelse = Ytelse.builder().leggTilPeriode(new YtelsePeriode(p2del1, Sats.dagsats(2000))).build();
+        Ytelse nyYtelse = Ytelse.builder().leggTilPeriode(new YtelsePeriode(p2del1, Satsen.dagsats(2000))).build();
 
         OppdragKjedeFactory factory = OppdragKjedeFactory.lagForEksisterendeMottaker(DelytelseId.parse("FOO-1-2"));
         OppdragKjedeFortsettelse resultat = factory.lagOppdragskjedeForYtelse(tidligereOppdrag, nyYtelse);
 
         // ved opphør skal siste linje sendes på nytt, med opphørsdato til første dato det skal opphøres fra
         assertThat(resultat.getOppdragslinjer()).hasSize(1);
-        assertLik(resultat.getOppdragslinjer().get(0), p2del1, Sats.dagsats(2000), fagsystemId,
+        assertLik(resultat.getOppdragslinjer().get(0), p2del1, Satsen.dagsats(2000), fagsystemId,
             DelytelseId.parse("FOO-1-2"));
     }
 
@@ -166,31 +166,31 @@ public class OppdragKjedeFactoryTest {
         OppdragKjede tidligereOppdrag = OppdragKjede.builder()
             .medOppdragslinje(OppdragLinje.builder()
                 .medPeriode(p1)
-                .medSats(Sats.dagsats(1000))
+                .medSats(Satsen.dagsats(1000))
                 .medDelytelseId(DelytelseId.parse("FOO-1-1"))
                 .build())
             .medOppdragslinje(OppdragLinje.builder()
                 .medPeriode(p2del1)
-                .medSats(Sats.dagsats(1500))
+                .medSats(Satsen.dagsats(1500))
                 .medDelytelseId(DelytelseId.parse("FOO-1-2"))
                 .medRefDelytelseId(DelytelseId.parse("FOO-1-1"))
                 .build())
             .medOppdragslinje(OppdragLinje.builder()
                 .medPeriode(p2del2)
-                .medSats(Sats.dagsats(2000))
+                .medSats(Satsen.dagsats(2000))
                 .medDelytelseId(DelytelseId.parse("FOO-1-3"))
                 .medRefDelytelseId(DelytelseId.parse("FOO-1-2"))
                 .build())
             .medOppdragslinje(OppdragLinje.builder()
                 .medPeriode(p3)
-                .medSats(Sats.dagsats(1100))
+                .medSats(Satsen.dagsats(1100))
                 .medDelytelseId(DelytelseId.parse("FOO-1-4"))
                 .medRefDelytelseId(DelytelseId.parse("FOO-1-3"))
                 .build())
             .build();
         Ytelse nyYtelse = Ytelse.builder()
-            .leggTilPeriode(new YtelsePeriode(p1, Sats.dagsats(1000)))
-            .leggTilPeriode(new YtelsePeriode(p2, Sats.dagsats(1500)))
+            .leggTilPeriode(new YtelsePeriode(p1, Satsen.dagsats(1000)))
+            .leggTilPeriode(new YtelsePeriode(p2, Satsen.dagsats(1500)))
             .build();
 
         OppdragKjedeFactory factory = OppdragKjedeFactory.lagForEksisterendeMottaker(DelytelseId.parse("FOO-1-4"));
@@ -199,8 +199,8 @@ public class OppdragKjedeFactoryTest {
         // ved opphør skal siste linje sendes på nytt, med opphørsdato til første dato det skal opphøres fra
         List<OppdragLinje> linjer = resultat.getOppdragslinjer();
         assertThat(linjer).hasSize(2);
-        assertOpphørslinje(linjer.get(0), p3, Sats.dagsats(1100), fagsystemId, p2.getFom().plusDays(1));
-        assertLik(linjer.get(1), p2del2, Sats.dagsats(1500), fagsystemId, linjer.get(0).getDelytelseId());
+        assertOpphørslinje(linjer.get(0), p3, Satsen.dagsats(1100), fagsystemId, p2.getFom().plusDays(1));
+        assertLik(linjer.get(1), p2del2, Satsen.dagsats(1500), fagsystemId, linjer.get(0).getDelytelseId());
     }
 
     @Test
@@ -209,13 +209,13 @@ public class OppdragKjedeFactoryTest {
             .medOppdragslinje(OppdragLinje.builder()
                 .medDelytelseId(DelytelseId.parse("FOO-1-1"))
                 .medPeriode(p2)
-                .medSats(Sats.dag7(1000))
+                .medSats(Satsen.dagsats(1000))
                 .build())
             .build();
 
         Ytelse nyttVedtak = Ytelse.builder()
-            .leggTilPeriode(new YtelsePeriode(p1, Sats.dag7(1000)))
-            .leggTilPeriode(new YtelsePeriode(p2, Sats.dag7(1000)))
+            .leggTilPeriode(new YtelsePeriode(p1, Satsen.dagsats(1000)))
+            .leggTilPeriode(new YtelsePeriode(p2, Satsen.dagsats(1000)))
             .build();
 
         OppdragKjedeFactory factory = OppdragKjedeFactory.lagForEksisterendeMottaker(DelytelseId.parse("FOO-1-1"));
@@ -223,9 +223,9 @@ public class OppdragKjedeFactoryTest {
             .getOppdragslinjer();
         assertThat(linjer).hasSize(3);
         LocalDate opphørsdato = p2.getFom();
-        assertOpphørslinje(linjer.get(0), p2, Sats.dag7(1000), fagsystemId, opphørsdato);
-        assertLik(linjer.get(1), p1, Sats.dag7(1000), fagsystemId, linjer.get(0).getDelytelseId());
-        assertLik(linjer.get(2), p2, Sats.dag7(1000), fagsystemId, linjer.get(1).getDelytelseId());
+        assertOpphørslinje(linjer.get(0), p2, Satsen.dagsats(1000), fagsystemId, opphørsdato);
+        assertLik(linjer.get(1), p1, Satsen.dagsats(1000), fagsystemId, linjer.get(0).getDelytelseId());
+        assertLik(linjer.get(2), p2, Satsen.dagsats(1000), fagsystemId, linjer.get(1).getDelytelseId());
     }
 
     @Test
@@ -233,7 +233,7 @@ public class OppdragKjedeFactoryTest {
         OppdragKjede tidligereOppdrag = OppdragKjede.builder()
             .medOppdragslinje(OppdragLinje.builder()
                 .medPeriode(mai)
-                .medSats(Sats.engang(1000))
+                .medSats(Satsen.engang(1000))
                 .medDelytelseId(DelytelseId.parse("FOO-1-1"))
                 .build())
             .build();
@@ -244,7 +244,7 @@ public class OppdragKjedeFactoryTest {
 
         // ved opphør skal siste linje sendes på nytt, med opphørsdato til første dato det skal opphøres fra
         assertThat(resultat.getOppdragslinjer()).hasSize(1);
-        assertOpphørslinje(resultat.getOppdragslinjer().get(0), mai, Sats.engang(1000), fagsystemId, mai.getFom());
+        assertOpphørslinje(resultat.getOppdragslinjer().get(0), mai, Satsen.engang(1000), fagsystemId, mai.getFom());
     }
 
     @Test
@@ -252,18 +252,18 @@ public class OppdragKjedeFactoryTest {
         OppdragKjede tidligereOppdrag = OppdragKjede.builder()
             .medOppdragslinje(OppdragLinje.builder()
                 .medPeriode(mai)
-                .medSats(Sats.engang(1000))
+                .medSats(Satsen.engang(1000))
                 .medDelytelseId(DelytelseId.parse("FOO-1-1"))
                 .build())
             .build();
-        Ytelse nyYtelse = Ytelse.builder().leggTilPeriode(new YtelsePeriode(mai, Sats.engang(1001))).build();
+        Ytelse nyYtelse = Ytelse.builder().leggTilPeriode(new YtelsePeriode(mai, Satsen.engang(1001))).build();
 
         OppdragKjedeFactory factory = OppdragKjedeFactory.lagForEksisterendeMottaker(DelytelseId.parse("FOO-1-1"));
         OppdragKjedeFortsettelse resultat = factory.lagOppdragskjedeForFeriepenger(tidligereOppdrag, nyYtelse);
 
         // ved opphør skal siste linje sendes på nytt, med opphørsdato til første dato det skal opphøres fra
         assertThat(resultat.getOppdragslinjer()).hasSize(1);
-        assertLik(resultat.getOppdragslinjer().get(0), mai, Sats.engang(1001), fagsystemId,
+        assertLik(resultat.getOppdragslinjer().get(0), mai, Satsen.engang(1001), fagsystemId,
             DelytelseId.parse("FOO-1-1"));
     }
 
@@ -277,13 +277,13 @@ public class OppdragKjedeFactoryTest {
         OppdragKjede tidligereOppdrag = OppdragKjede.builder()
             .medOppdragslinje(OppdragLinje.builder()
                 .medPeriode(helePeriode)
-                .medSats(Sats.dag7(1000))
+                .medSats(Satsen.dagsats(1000))
                 .medDelytelseId(DelytelseId.parse("FOO-1-1"))
                 .build())
             .build();
         Ytelse nyYtelse = Ytelse.builder()
-            .leggTilPeriode(new YtelsePeriode(Periode.of(dag1, dag1), Sats.dag7(1000)))
-            .leggTilPeriode(new YtelsePeriode(Periode.of(dag3, dag3), Sats.dag7(1000)))
+            .leggTilPeriode(new YtelsePeriode(Periode.of(dag1, dag1), Satsen.dagsats(1000)))
+            .leggTilPeriode(new YtelsePeriode(Periode.of(dag3, dag3), Satsen.dagsats(1000)))
             .build();
 
         OppdragKjedeFactory factory = OppdragKjedeFactory.lagForEksisterendeMottaker(DelytelseId.parse("FOO-1-1"));
@@ -293,12 +293,12 @@ public class OppdragKjedeFactoryTest {
         assertThat(linjer.get(0).erOpphørslinje()).isTrue();
         assertThat(linjer.get(0).getPeriode()).isEqualTo(helePeriode);
         assertThat(linjer.get(0).getOpphørFomDato()).isEqualTo(dag2);
-        assertThat(linjer.get(0).getSats()).isEqualTo(Sats.dag7(1000));
+        assertThat(linjer.get(0).getSats()).isEqualTo(Satsen.dagsats(1000));
         assertThat(linjer.get(0).getDelytelseId()).isEqualTo(DelytelseId.parse("FOO-1-1"));
 
         assertThat(linjer.get(1).erOpphørslinje()).isFalse();
         assertThat(linjer.get(1).getPeriode()).isEqualTo(Periode.of(dag3, dag3));
-        assertThat(linjer.get(1).getSats()).isEqualTo(Sats.dag7(1000));
+        assertThat(linjer.get(1).getSats()).isEqualTo(Satsen.dagsats(1000));
         assertThat(linjer.get(1).getDelytelseId()).isEqualTo(DelytelseId.parse("FOO-1-2"));
         assertThat(linjer.get(1).getRefDelytelseId()).isEqualTo(DelytelseId.parse("FOO-1-1"));
     }
@@ -306,18 +306,18 @@ public class OppdragKjedeFactoryTest {
     @Test
     public void skal_håndtere_at_første_dato_i_kjeden_ikke_er_i_første_linje() {
         OppdragKjede kjede = OppdragKjede.builder()
-            .medOppdragslinje(OppdragLinje.builder().medPeriode(p("02.03.2020-05.03.2020")).medSats(Sats.dag7(1)).medDelytelseId(DelytelseId.parse("x-1-100")).build())
-            .medOppdragslinje(OppdragLinje.builder().medPeriode(p("06.03.2020-06.03.2020")).medSats(Sats.dag7(1)).medDelytelseId(DelytelseId.parse("x-1-101")).medRefDelytelseId(DelytelseId.parse("x-1-100")).build())
-            .medOppdragslinje(OppdragLinje.builder().medPeriode(p("06.03.2020-06.03.2020")).medSats(Sats.dag7(1)).medDelytelseId(DelytelseId.parse("x-1-101")).medOpphørFomDato(LocalDate.of(2020, 3, 2)).build())
-            .medOppdragslinje(OppdragLinje.builder().medPeriode(p("01.03.2020-01.03.2020")).medSats(Sats.dag7(1)).medDelytelseId(DelytelseId.parse("x-1-103")).medRefDelytelseId(DelytelseId.parse("x-1-101")).build())
-            .medOppdragslinje(OppdragLinje.builder().medPeriode(p("02.03.2020-02.03.2020")).medSats(Sats.dag7(1)).medDelytelseId(DelytelseId.parse("x-1-104")).medRefDelytelseId(DelytelseId.parse("x-1-103")).build())
-            .medOppdragslinje(OppdragLinje.builder().medPeriode(p("05.03.2020-06.03.2020")).medSats(Sats.dag7(1)).medDelytelseId(DelytelseId.parse("x-1-105")).medRefDelytelseId(DelytelseId.parse("x-1-104")).build())
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p("02.03.2020-05.03.2020")).medSats(Satsen.dagsats(1)).medDelytelseId(DelytelseId.parse("x-1-100")).build())
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p("06.03.2020-06.03.2020")).medSats(Satsen.dagsats(1)).medDelytelseId(DelytelseId.parse("x-1-101")).medRefDelytelseId(DelytelseId.parse("x-1-100")).build())
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p("06.03.2020-06.03.2020")).medSats(Satsen.dagsats(1)).medDelytelseId(DelytelseId.parse("x-1-101")).medOpphørFomDato(LocalDate.of(2020, 3, 2)).build())
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p("01.03.2020-01.03.2020")).medSats(Satsen.dagsats(1)).medDelytelseId(DelytelseId.parse("x-1-103")).medRefDelytelseId(DelytelseId.parse("x-1-101")).build())
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p("02.03.2020-02.03.2020")).medSats(Satsen.dagsats(1)).medDelytelseId(DelytelseId.parse("x-1-104")).medRefDelytelseId(DelytelseId.parse("x-1-103")).build())
+            .medOppdragslinje(OppdragLinje.builder().medPeriode(p("05.03.2020-06.03.2020")).medSats(Satsen.dagsats(1)).medDelytelseId(DelytelseId.parse("x-1-105")).medRefDelytelseId(DelytelseId.parse("x-1-104")).build())
             .build();
 
         Ytelse nyYtelse = Ytelse.builder()
-            .leggTilPeriode(new YtelsePeriode(p("01.03.2020-01.03.2020"), Sats.dag7(2)))
-            .leggTilPeriode(new YtelsePeriode(p("02.03.2020-05.03.2020"), Sats.dag7(2)))
-            .leggTilPeriode(new YtelsePeriode(p("06.03.2020-06.03.2020"), Sats.dag7(2)))
+            .leggTilPeriode(new YtelsePeriode(p("01.03.2020-01.03.2020"), Satsen.dagsats(2)))
+            .leggTilPeriode(new YtelsePeriode(p("02.03.2020-05.03.2020"), Satsen.dagsats(2)))
+            .leggTilPeriode(new YtelsePeriode(p("06.03.2020-06.03.2020"), Satsen.dagsats(2)))
             .build();
 
 
@@ -326,9 +326,9 @@ public class OppdragKjedeFactoryTest {
 
         OppdragKjede endelig = kjede.leggTil(resultat);
         assertThat(endelig.tilYtelse().getPerioder()).containsExactly(
-            new YtelsePeriode(p("01.03.2020-01.03.2020"), Sats.dag7(2)),
-            new YtelsePeriode(p("02.03.2020-05.03.2020"), Sats.dag7(2)),
-            new YtelsePeriode(p("06.03.2020-06.03.2020"), Sats.dag7(2))
+            new YtelsePeriode(p("01.03.2020-01.03.2020"), Satsen.dagsats(2)),
+            new YtelsePeriode(p("02.03.2020-05.03.2020"), Satsen.dagsats(2)),
+            new YtelsePeriode(p("06.03.2020-06.03.2020"), Satsen.dagsats(2))
         );
 
         //TODO lag test som sjekker oppdragslinjene direkte
@@ -343,7 +343,7 @@ public class OppdragKjedeFactoryTest {
 
     public void assertLik(OppdragLinje linje,
                           Periode p,
-                          Sats sats,
+                          Satsen sats,
                           FagsystemId fagsystemId,
                           DelytelseId refDelytelseId) {
         assertThat(linje.getPeriode()).isEqualTo(p);
@@ -356,7 +356,7 @@ public class OppdragKjedeFactoryTest {
 
     public void assertOpphørslinje(OppdragLinje linje,
                                    Periode p,
-                                   Sats sats,
+                                   Satsen sats,
                                    FagsystemId fagsystemId,
                                    LocalDate opphørsdato) {
         assertThat(linje.getPeriode()).isEqualTo(p);

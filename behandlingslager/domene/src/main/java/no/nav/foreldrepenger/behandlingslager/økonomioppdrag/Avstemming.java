@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
  * Denne klassen er en ren avbildning fra Oppdragsløsningens meldingsformater.
  * Den sikrer at avstemmingsnøkkel er alltid i riktig format som tilsvarer: yyyy-MM-dd-HH.mm.ss.SSS */
 @Embeddable
-public class Avstemming {
+public class Avstemming implements Comparable<Avstemming> {
 
     private static final String PATTERN = "yyyy-MM-dd-HH.mm.ss.SSS";
 
@@ -74,5 +74,10 @@ public class Avstemming {
         return "Avstemming{" +
             "nøkkelAvstemming='" + nøkkelAvstemming + '\'' +
             '}';
+    }
+
+    @Override
+    public int compareTo(Avstemming o) {
+        return this.nøkkelAvstemming.compareTo(o.nøkkelAvstemming);
     }
 }

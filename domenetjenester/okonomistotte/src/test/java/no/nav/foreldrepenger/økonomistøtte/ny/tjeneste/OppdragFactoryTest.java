@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.økonomistøtte.ny.domene.OppdragKjede;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.OppdragKjedeFortsettelse;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.OppdragLinje;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Periode;
-import no.nav.foreldrepenger.økonomistøtte.ny.domene.Sats;
+import no.nav.foreldrepenger.økonomistøtte.ny.domene.Satsen;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Utbetalingsgrad;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Ytelse;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.YtelsePeriode;
@@ -47,7 +47,7 @@ public class OppdragFactoryTest {
     public void skal_få_oppdrag_for_førstegangsvedtak_til_bruker_som_er_selvstendig_næringsdrivende() {
         KjedeNøkkel nøkkelYtelse = KjedeNøkkel.lag(KodeKlassifik.FPF_SELVSTENDIG, Betalingsmottaker.BRUKER);
         GruppertYtelse målbilde = GruppertYtelse.builder()
-            .leggTilKjede(nøkkelYtelse, Ytelse.builder().leggTilPeriode(new YtelsePeriode(periode, Sats.dagsats(1000), Utbetalingsgrad.prosent(100))).build())
+            .leggTilKjede(nøkkelYtelse, Ytelse.builder().leggTilPeriode(new YtelsePeriode(periode, Satsen.dagsats(1000), Utbetalingsgrad.prosent(100))).build())
             .build();
 
         //act
@@ -63,7 +63,7 @@ public class OppdragFactoryTest {
 
         OppdragKjedeFortsettelse kjede = oppdrag.getKjeder().get(nøkkelYtelse);
         assertThat(kjede.getOppdragslinjer()).hasSize(1);
-        assertLik(kjede.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("100-100")).medPeriode(periode).medSats(Sats.dagsats(1000)).medUtbetalingsgrad(new Utbetalingsgrad(100)).build());
+        assertLik(kjede.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("100-100")).medPeriode(periode).medSats(Satsen.dagsats(1000)).medUtbetalingsgrad(new Utbetalingsgrad(100)).build());
     }
 
     @Test
@@ -71,8 +71,8 @@ public class OppdragFactoryTest {
         KjedeNøkkel nøkkelYtelse = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPATORD"), Betalingsmottaker.BRUKER);
         KjedeNøkkel nøkkelFeriepenger = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPATFER"), Betalingsmottaker.BRUKER, 2020);
         GruppertYtelse målbilde = GruppertYtelse.builder()
-            .leggTilKjede(nøkkelYtelse, Ytelse.builder().leggTilPeriode(new YtelsePeriode(periode, Sats.dagsats(1000), Utbetalingsgrad.prosent(100))).build())
-            .leggTilKjede(nøkkelFeriepenger, Ytelse.builder().leggTilPeriode(new YtelsePeriode(nesteMai, Sats.engang(200))).build())
+            .leggTilKjede(nøkkelYtelse, Ytelse.builder().leggTilPeriode(new YtelsePeriode(periode, Satsen.dagsats(1000), Utbetalingsgrad.prosent(100))).build())
+            .leggTilKjede(nøkkelFeriepenger, Ytelse.builder().leggTilPeriode(new YtelsePeriode(nesteMai, Satsen.engang(200))).build())
             .build();
         //act
         List<Oppdrag> resultat = oppdragFactory.lagOppdrag(OverordnetOppdragKjedeOversikt.TOM, målbilde);
@@ -84,11 +84,11 @@ public class OppdragFactoryTest {
 
         OppdragKjedeFortsettelse ytelsekjede = oppdrag.getKjeder().get(nøkkelYtelse);
         assertThat(ytelsekjede.getOppdragslinjer()).hasSize(1);
-        assertLik(ytelsekjede.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("100-100")).medPeriode(periode).medSats(Sats.dagsats(1000)).medUtbetalingsgrad(new Utbetalingsgrad(100)).build());
+        assertLik(ytelsekjede.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("100-100")).medPeriode(periode).medSats(Satsen.dagsats(1000)).medUtbetalingsgrad(new Utbetalingsgrad(100)).build());
 
         OppdragKjedeFortsettelse feriepengeKjede = oppdrag.getKjeder().get(nøkkelFeriepenger);
         assertThat(feriepengeKjede.getOppdragslinjer()).hasSize(1);
-        assertLik(feriepengeKjede.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("100-101")).medPeriode(nesteMai).medSats(Sats.engang(200)).build());
+        assertLik(feriepengeKjede.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("100-101")).medPeriode(nesteMai).medSats(Satsen.engang(200)).build());
     }
 
     @Test
@@ -98,10 +98,10 @@ public class OppdragFactoryTest {
         KjedeNøkkel nøkkelYtelseTilArbeidsgiver2 = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPREFAG-IOP"), Betalingsmottaker.forArbeidsgiver("000000002"));
         KjedeNøkkel nøkkelYtelseTilArbeidsgiver3 = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPREFAG-IOP"), Betalingsmottaker.forArbeidsgiver("000000003"));
         GruppertYtelse målbilde = GruppertYtelse.builder()
-            .leggTilKjede(nøkkelYtelseTilBruker, Ytelse.builder().leggTilPeriode(new YtelsePeriode(periode, Sats.dagsats(1000), Utbetalingsgrad.prosent(100))).build())
-            .leggTilKjede(nøkkelYtelseTilArbeidsgiver1, Ytelse.builder().leggTilPeriode(new YtelsePeriode(periode, Sats.dagsats(101))).build())
-            .leggTilKjede(nøkkelYtelseTilArbeidsgiver2, Ytelse.builder().leggTilPeriode(new YtelsePeriode(periode, Sats.dagsats(102))).build())
-            .leggTilKjede(nøkkelYtelseTilArbeidsgiver3, Ytelse.builder().leggTilPeriode(new YtelsePeriode(periode, Sats.dagsats(103))).build())
+            .leggTilKjede(nøkkelYtelseTilBruker, Ytelse.builder().leggTilPeriode(new YtelsePeriode(periode, Satsen.dagsats(1000), Utbetalingsgrad.prosent(100))).build())
+            .leggTilKjede(nøkkelYtelseTilArbeidsgiver1, Ytelse.builder().leggTilPeriode(new YtelsePeriode(periode, Satsen.dagsats(101))).build())
+            .leggTilKjede(nøkkelYtelseTilArbeidsgiver2, Ytelse.builder().leggTilPeriode(new YtelsePeriode(periode, Satsen.dagsats(102))).build())
+            .leggTilKjede(nøkkelYtelseTilArbeidsgiver3, Ytelse.builder().leggTilPeriode(new YtelsePeriode(periode, Satsen.dagsats(103))).build())
             .build();
         //act
         List<Oppdrag> resultat = oppdragFactory.lagOppdrag(OverordnetOppdragKjedeOversikt.TOM, målbilde);
@@ -109,19 +109,19 @@ public class OppdragFactoryTest {
         assertThat(resultat).hasSize(4);
         OppdragKjedeFortsettelse ytelsekjedeBruker = resultat.get(0).getKjeder().get(nøkkelYtelseTilBruker);
         assertThat(ytelsekjedeBruker.getOppdragslinjer()).hasSize(1);
-        assertLik(ytelsekjedeBruker.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("100-100")).medPeriode(periode).medSats(Sats.dagsats(1000)).medUtbetalingsgrad(new Utbetalingsgrad(100)).build());
+        assertLik(ytelsekjedeBruker.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("100-100")).medPeriode(periode).medSats(Satsen.dagsats(1000)).medUtbetalingsgrad(new Utbetalingsgrad(100)).build());
 
         OppdragKjedeFortsettelse ytelsekjedeArbeidsgiver1 = resultat.get(1).getKjeder().get(nøkkelYtelseTilArbeidsgiver1);
         assertThat(ytelsekjedeArbeidsgiver1.getOppdragslinjer()).hasSize(1);
-        assertLik(ytelsekjedeArbeidsgiver1.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("101-100")).medPeriode(periode).medSats(Sats.dagsats(101)).build());
+        assertLik(ytelsekjedeArbeidsgiver1.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("101-100")).medPeriode(periode).medSats(Satsen.dagsats(101)).build());
 
         OppdragKjedeFortsettelse ytelsekjedeArbeidsgiver2 = resultat.get(2).getKjeder().get(nøkkelYtelseTilArbeidsgiver2);
         assertThat(ytelsekjedeArbeidsgiver2.getOppdragslinjer()).hasSize(1);
-        assertLik(ytelsekjedeArbeidsgiver2.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("102-100")).medPeriode(periode).medSats(Sats.dagsats(102)).build());
+        assertLik(ytelsekjedeArbeidsgiver2.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("102-100")).medPeriode(periode).medSats(Satsen.dagsats(102)).build());
 
         OppdragKjedeFortsettelse ytelsekjedeArbeidsgiver3 = resultat.get(3).getKjeder().get(nøkkelYtelseTilArbeidsgiver3);
         assertThat(ytelsekjedeArbeidsgiver3.getOppdragslinjer()).hasSize(1);
-        assertLik(ytelsekjedeArbeidsgiver3.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("103-100")).medPeriode(periode).medSats(Sats.dagsats(103)).build());
+        assertLik(ytelsekjedeArbeidsgiver3.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("103-100")).medPeriode(periode).medSats(Satsen.dagsats(103)).build());
     }
 
     @Test
@@ -129,8 +129,8 @@ public class OppdragFactoryTest {
         Betalingsmottaker arbeidsgiver = Betalingsmottaker.forArbeidsgiver("000000001");
         KjedeNøkkel nøkkelYtelseTilBruker = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPATORD"), Betalingsmottaker.BRUKER);
         KjedeNøkkel nøkkelYtelseTilArbeidsgiver = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPREFAG-IOP"), arbeidsgiver);
-        YtelsePeriode brukersYtelsePeriode = new YtelsePeriode(this.periode, Sats.dagsats(1000), Utbetalingsgrad.prosent(100));
-        YtelsePeriode arbeidsgiversYtelsePeriode = new YtelsePeriode(this.periode, Sats.dagsats(101));
+        YtelsePeriode brukersYtelsePeriode = new YtelsePeriode(this.periode, Satsen.dagsats(1000), Utbetalingsgrad.prosent(100));
+        YtelsePeriode arbeidsgiversYtelsePeriode = new YtelsePeriode(this.periode, Satsen.dagsats(101));
         GruppertYtelse målbilde = GruppertYtelse.builder()
             .leggTilKjede(nøkkelYtelseTilBruker, Ytelse.builder().leggTilPeriode(brukersYtelsePeriode).build())
             .leggTilKjede(nøkkelYtelseTilArbeidsgiver, Ytelse.builder().leggTilPeriode(arbeidsgiversYtelsePeriode).build())
@@ -157,8 +157,8 @@ public class OppdragFactoryTest {
         Betalingsmottaker arbeidsgiver = Betalingsmottaker.forArbeidsgiver("000000001");
         KjedeNøkkel nøkkelYtelseTilBruker = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPATORD"), Betalingsmottaker.BRUKER);
         KjedeNøkkel nøkkelYtelseTilArbeidsgiver = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPREFAG-IOP"), arbeidsgiver);
-        YtelsePeriode brukersYtelsePeriode = new YtelsePeriode(this.periode, Sats.dagsats(1000), Utbetalingsgrad.prosent(100));
-        YtelsePeriode arbeidsgiversYtelsePeriode = new YtelsePeriode(this.periode, Sats.dagsats(101));
+        YtelsePeriode brukersYtelsePeriode = new YtelsePeriode(this.periode, Satsen.dagsats(1000), Utbetalingsgrad.prosent(100));
+        YtelsePeriode arbeidsgiversYtelsePeriode = new YtelsePeriode(this.periode, Satsen.dagsats(101));
         GruppertYtelse målbilde = GruppertYtelse.builder()
             .leggTilKjede(nøkkelYtelseTilBruker, Ytelse.builder().leggTilPeriode(brukersYtelsePeriode).build())
             .leggTilKjede(nøkkelYtelseTilArbeidsgiver, Ytelse.builder().leggTilPeriode(arbeidsgiversYtelsePeriode).build())

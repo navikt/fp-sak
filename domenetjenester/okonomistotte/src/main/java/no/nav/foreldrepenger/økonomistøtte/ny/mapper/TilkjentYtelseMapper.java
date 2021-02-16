@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Betalingsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.KjedeNøkkel;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Periode;
-import no.nav.foreldrepenger.økonomistøtte.ny.domene.Sats;
+import no.nav.foreldrepenger.økonomistøtte.ny.domene.Satsen;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Utbetalingsgrad;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Ytelse;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.YtelsePeriode;
@@ -97,7 +97,7 @@ public class TilkjentYtelseMapper {
     private YtelsePeriode lagYtelsePeriodeForFeriepenger(BeregningsresultatFeriepengerPrÅr feriepenger) {
         int utbetalingsår = feriepenger.getOpptjeningsåret() + 1;
         Periode utbetalingsperiode = Periode.of(LocalDate.of(utbetalingsår, 5, 1), LocalDate.of(utbetalingsår, 5, 31));
-        return new YtelsePeriode(utbetalingsperiode, Sats.engang(feriepenger.getÅrsbeløp().getVerdi().intValueExact()));
+        return new YtelsePeriode(utbetalingsperiode, Satsen.engang(feriepenger.getÅrsbeløp().getVerdi().intValueExact()));
     }
 
     private YtelsePeriodeMedNøkkel tilYtelsePeriodeMedNøkkel(BeregningsresultatPeriode periode, BeregningsresultatAndel andel) {
@@ -105,7 +105,7 @@ public class TilkjentYtelseMapper {
     }
 
     private YtelsePeriode tilYtelsePeriode(BeregningsresultatPeriode periode, BeregningsresultatAndel andel) {
-        return new YtelsePeriode(Periode.of(periode.getBeregningsresultatPeriodeFom(), periode.getBeregningsresultatPeriodeTom()), Sats.dagsats(andel.getDagsats()), tilUtbetalingsgrad(andel));
+        return new YtelsePeriode(Periode.of(periode.getBeregningsresultatPeriodeFom(), periode.getBeregningsresultatPeriodeTom()), Satsen.dagsats(andel.getDagsats()), tilUtbetalingsgrad(andel));
     }
 
     private Utbetalingsgrad tilUtbetalingsgrad(BeregningsresultatAndel andel) {

@@ -6,7 +6,7 @@ import java.util.Objects;
 public class OppdragLinje {
     private Periode periode;
 
-    private Sats sats;
+    private Satsen sats;
     private Utbetalingsgrad utbetalingsgrad;
     private DelytelseId delytelseId;
     private DelytelseId refDelytelseId;
@@ -26,7 +26,7 @@ public class OppdragLinje {
             .build();
     }
 
-    private OppdragLinje(Periode periode, Sats sats, Utbetalingsgrad utbetalingsgrad, DelytelseId delytelseId, DelytelseId refDelytelseId, LocalDate opphørFomDato) {
+    private OppdragLinje(Periode periode, Satsen sats, Utbetalingsgrad utbetalingsgrad, DelytelseId delytelseId, DelytelseId refDelytelseId, LocalDate opphørFomDato) {
         this.periode = periode;
         this.sats = sats;
         this.utbetalingsgrad = utbetalingsgrad;
@@ -39,7 +39,7 @@ public class OppdragLinje {
         return periode;
     }
 
-    public Sats getSats() {
+    public Satsen getSats() {
         return sats;
     }
 
@@ -95,7 +95,7 @@ public class OppdragLinje {
     public static class Builder {
 
         private Periode periode;
-        private Sats sats;
+        private Satsen sats;
         private Utbetalingsgrad utbetalingsgrad;
         private DelytelseId delytelseId;
         private DelytelseId refDelytelseId;
@@ -116,7 +116,7 @@ public class OppdragLinje {
             return this;
         }
 
-        public Builder medSats(Sats sats) {
+        public Builder medSats(Satsen sats) {
             this.sats = sats;
             return this;
         }

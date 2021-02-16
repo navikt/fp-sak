@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.økonomistøtte.dagytelse.fp;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -40,7 +41,7 @@ public class SimulerOppdragTjenesteTest {
     private OppdragKjerneimplementasjonToggle toggle;
 
     @Test
-    public void simulerOppdrag_uten_behandling_vedtak_FP(EntityManager em) {
+    public void simulerOppdrag_uten_behandling_vedtak_FP() {
         // Arrange
 
         var saksnummer = new Saksnummer("100000001");
@@ -48,7 +49,8 @@ public class SimulerOppdragTjenesteTest {
         var o110 = lagOppdrag110(oppdragskontroll, saksnummer);
         buildOppdragslinje150(o110);
         //when(oppdragInputTjeneste.lagInput(anyLong(), anyLong())).thenReturn(Input.builder().build());
-        when(oppdragskontrollTjeneste.opprettOppdrag(anyLong(), anyLong())).thenReturn(Optional.ofNullable(oppdragskontroll));
+        lenient().when(oppdragskontrollTjeneste.opprettOppdrag(anyLong(), anyLong())).thenReturn(Optional.ofNullable(oppdragskontroll));
+        lenient().when(oppdragskontrollTjeneste.opprettOppdrag(any())).thenReturn(Optional.ofNullable(oppdragskontroll));
 
         when(toggle.brukNyImpl(any())).thenReturn(false);
 

@@ -4,20 +4,20 @@ import java.util.Objects;
 
 public class YtelseVerdi {
 
-    private Sats sats;
+    private Satsen sats;
     private Utbetalingsgrad utbetalingsgrad;
 
-    public YtelseVerdi(Sats sats) {
+    public YtelseVerdi(Satsen sats) {
         Objects.requireNonNull(sats);
         this.sats = sats;
     }
 
-    public YtelseVerdi(Sats sats, Utbetalingsgrad utbetalingsgrad) {
+    public YtelseVerdi(Satsen sats, Utbetalingsgrad utbetalingsgrad) {
         this(sats);
         this.utbetalingsgrad = utbetalingsgrad;
     }
 
-    public Sats getSats() {
+    public Satsen getSats() {
         return sats;
     }
 

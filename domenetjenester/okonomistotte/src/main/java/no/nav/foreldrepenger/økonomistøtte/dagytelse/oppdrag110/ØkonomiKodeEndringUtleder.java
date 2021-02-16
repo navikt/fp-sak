@@ -14,7 +14,7 @@ class ØkonomiKodeEndringUtleder {
     static String finnKodeEndring(OppdragInput behandlingInfo, Oppdragsmottaker mottaker, boolean erNyMottakerIEndring) {
         return mottaker.erBruker()
             ? finnKodeEndringForBruker(behandlingInfo, mottaker, erNyMottakerIEndring)
-            : finnKodeEndringForArbeidsgiver(behandlingInfo, erNyMottakerIEndring);
+            : finnKodeEndringForArbeidsgiver(erNyMottakerIEndring);
     }
 
     private static String finnKodeEndringForBruker(OppdragInput behandlingInfo, Oppdragsmottaker mottaker, boolean erNyMottakerIEndring) {
@@ -29,14 +29,7 @@ class ØkonomiKodeEndringUtleder {
             : OppdragskontrollConstants.KODE_ENDRING_UENDRET;
     }
 
-    private static String finnKodeEndringForArbeidsgiver(OppdragInput behandlingInfo,
-                                                         boolean erNyMottakerIEndring) {
-        if (behandlingInfo.gjelderOpphør()) {
-            boolean erOpphørEtterStp = behandlingInfo.erOpphørEtterStpEllerIkkeOpphør();
-            return erOpphørEtterStp && erNyMottakerIEndring
-                ? OppdragskontrollConstants.KODE_ENDRING_NY
-                : OppdragskontrollConstants.KODE_ENDRING_UENDRET;
-        }
+    private static String finnKodeEndringForArbeidsgiver(boolean erNyMottakerIEndring) {
         return erNyMottakerIEndring
             ? OppdragskontrollConstants.KODE_ENDRING_NY
             : OppdragskontrollConstants.KODE_ENDRING_UENDRET;

@@ -21,7 +21,11 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.domene.person.pdl.AktørTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.GruppertYtelse;
+import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.OverordnetOppdragKjedeOversikt;
+import no.nav.foreldrepenger.økonomistøtte.ny.mapper.EksisterendeOppdragMapper;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.Input;
+import no.nav.foreldrepenger.økonomistøtte.ny.mapper.TilkjentYtelseMapper;
 
 @Dependent
 public class OppdragInputTjeneste {
@@ -57,20 +61,22 @@ public class OppdragInputTjeneste {
 
     public Input lagInput(long behandlingId, long prosessTaskId) {
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        var fagsak = behandling.getFagsak();
 
+        var fagsak = behandling.getFagsak();
+        var familieYtelseType = finnFamilieYtelseType(behandlingId, fagsak.getYtelseType());
         var build = Input.builder()
-            .medTilkjentYtelse(hentTilkjentYtelse(behandlingId))
-            .medBrukInntrekk(hentBrukInntrekk(behandlingId))
-            .medFagsakYtelseType(fagsak.getYtelseType())
-            .medFamilieYtelseType(finnFamilieYtelseType(behandlingId, fagsak.getYtelseType()))
-            .medSaksnummer(fagsak.getSaksnummer())
             .medBehandlingId(behandlingId)
+            .medSaksnummer(fagsak.getSaksnummer())
+            .medFagsakYtelseType(fagsak.getYtelseType())
             .medVedtaksdato(hentVedtaksdato(behandlingId))
             .medAnsvarligSaksbehandler(behandling.getAnsvarligBeslutter())
-            .medProsessTaskId(prosessTaskId)
+            //.medBehandlingResultatType()
             .medBrukerFnr(hentFnrBruker(behandling))
-            .medTidligereOppdrag(hentTidligereOppdragskontroll(fagsak.getSaksnummer()))
+            .medFamilieYtelseType(familieYtelseType)
+            .medTilkjentYtelse(grupperYtelse(hentTilkjentYtelse(behandlingId), familieYtelseType))
+            .medBrukInntrekk(hentBrukInntrekk(behandlingId))
+            .medProsessTaskId(prosessTaskId)
+            .medTidligereOppdrag(mapTidligereOppdrag(hentTidligereOppdragskontroll(fagsak.getSaksnummer())))
             ;
         return build.build();
     }
@@ -81,6 +87,10 @@ public class OppdragInputTjeneste {
 
     private List<Oppdragskontroll> hentTidligereOppdragskontroll(Saksnummer saksnummer) {
         return økonomioppdragRepository.finnAlleOppdragForSak(saksnummer);
+    }
+
+    private OverordnetOppdragKjedeOversikt mapTidligereOppdrag(List<Oppdragskontroll> tidligereOppdragskontroll) {
+        return new OverordnetOppdragKjedeOversikt(EksisterendeOppdragMapper.tilKjeder(tidligereOppdragskontroll));
     }
 
     private LocalDate hentVedtaksdato(Long behandlingId) {
@@ -103,6 +113,11 @@ public class OppdragInputTjeneste {
             return beregningsresultatAggregat.getUtbetBeregningsresultatFP();
         }
         return beregningsresultatAggregat.getBgBeregningsresultatFP();
+    }
+
+    private GruppertYtelse grupperYtelse(BeregningsresultatEntitet beregningsresultat, FamilieYtelseType familieYtelseType) {
+        TilkjentYtelseMapper tilkjentYtelseMapper = TilkjentYtelseMapper.lagFor(familieYtelseType);
+        return tilkjentYtelseMapper.fordelPåNøkler(beregningsresultat);
     }
 
     private FamilieYtelseType finnFamilieYtelseType(long behandlingId, FagsakYtelseType fagsakYtelseType) {
