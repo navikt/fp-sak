@@ -130,7 +130,7 @@ public class BrevRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Hent behandling med tilhørende ressurslenker for bruk i brev", tags = "brev")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public Response hentBehandlingDtoForBrev(@NotNull @Parameter(description = "Id eller UUID for behandlingen") @Valid BehandlingIdDto behandlingIdDto) {
+    public Response hentBehandlingDtoForBrev(@NotNull @Parameter(description = "Id eller UUID for behandlingen") @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) {
         if (behandlingIdDto.getBehandlingUuid() != null) {
             var behandling = behandlingRepository.hentBehandlingHvisFinnes(behandlingIdDto.getBehandlingUuid());
             var dto = behandling.map(value -> behandlingBrevDtoTjeneste.lagDtoForBrev(value)).orElse(null);
