@@ -32,19 +32,16 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
     private BehandlingRepository behandlingRepository;
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    private AndelGraderingTjeneste andelGraderingTjeneste;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
 
     @Inject
     public BeregningsgrunnlagGUIInputFelles(BehandlingRepository behandlingRepository,
                                             InntektArbeidYtelseTjeneste iayTjeneste,
                                             SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                            AndelGraderingTjeneste andelGraderingTjeneste,
                                             InntektsmeldingTjeneste inntektsmeldingTjeneste) {
         this.behandlingRepository = Objects.requireNonNull(behandlingRepository, "behandlingRepository");
         this.iayTjeneste = Objects.requireNonNull(iayTjeneste, "iayTjeneste");
         this.skjæringstidspunktTjeneste = Objects.requireNonNull(skjæringstidspunktTjeneste, "skjæringstidspunktTjeneste");
-        this.andelGraderingTjeneste = Objects.requireNonNull(andelGraderingTjeneste, "andelGrderingTjeneste");
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
     }
 
@@ -78,7 +75,6 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
      * Optional.empty().
      */
     private Optional<BeregningsgrunnlagGUIInput> lagInput(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        var aktivitetGradering = andelGraderingTjeneste.utled(ref);
         List<RefusjonskravDato> refusjonskravDatoer = inntektsmeldingTjeneste.hentAlleRefusjonskravDatoerForFagsak(ref.getSaksnummer());
         List<Inntektsmelding> inntektsmeldingDiff = inntektsmeldingTjeneste.hentInntektsmeldingDiffFraOriginalbehandling(ref);
         List<InntektsmeldingDto> inntektsmeldingDiffDto = inntektsmeldingDiff.stream().map(IAYMapperTilKalkulus::mapInntektsmeldingDto)
@@ -97,7 +93,6 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
         BeregningsgrunnlagGUIInput input = new BeregningsgrunnlagGUIInput(
             MapBehandlingRef.mapRef(ref),
             iayGrunnlagDto,
-            aktivitetGradering,
             IAYMapperTilKalkulus.mapRefusjonskravDatoer(refusjonskravDatoer),
             ytelseGrunnlag);
 

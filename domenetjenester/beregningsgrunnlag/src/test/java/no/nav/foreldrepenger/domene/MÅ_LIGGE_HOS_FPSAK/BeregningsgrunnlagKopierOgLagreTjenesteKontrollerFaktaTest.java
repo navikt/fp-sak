@@ -173,9 +173,8 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteKontrollerFaktaTest {
                         List.of(OpptjeningAktiviteterDto.nyPeriode(no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType.ARBEID,
                                 Intervall.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT), ORG_NUMMER, null,
                                 InternArbeidsforholdRefDto.nullRef()))),
-                AktivitetGradering.INGEN_GRADERING,
                 List.of(),
-                new ForeldrepengerGrunnlag(100, false));
+                new ForeldrepengerGrunnlag(100, false, AktivitetGradering.INGEN_GRADERING));
     }
 
     private BehandlingReferanse lagBehandlingReferanse() {

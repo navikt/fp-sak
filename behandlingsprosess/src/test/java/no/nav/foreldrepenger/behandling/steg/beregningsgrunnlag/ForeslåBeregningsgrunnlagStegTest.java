@@ -72,8 +72,8 @@ public class ForeslåBeregningsgrunnlagStegTest {
                 .medFørsteUttaksdato(LocalDate.now())
                 .medSkjæringstidspunktOpptjening(LocalDate.now());
         var ref = BehandlingReferanse.fra(behandling, stp.build());
-        ForeldrepengerGrunnlag foreldrepengerGrunnlag = new ForeldrepengerGrunnlag(100, false);
-        var input = new BeregningsgrunnlagInput(MapBehandlingRef.mapRef(ref), null, null, AktivitetGradering.INGEN_GRADERING, List.of(),
+        ForeldrepengerGrunnlag foreldrepengerGrunnlag = new ForeldrepengerGrunnlag(100, false, AktivitetGradering.INGEN_GRADERING);
+        var input = new BeregningsgrunnlagInput(MapBehandlingRef.mapRef(ref), null, null, List.of(),
                 foreldrepengerGrunnlag);
         var inputTjeneste = mock(BeregningsgrunnlagInputTjeneste.class);
         when(behandlingRepository.hentBehandling(behandling.getId())).thenReturn(behandling);
