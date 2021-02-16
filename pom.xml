@@ -82,6 +82,12 @@
             </dependency>
 
             <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-transports-http-jetty</artifactId>
+                <version>3.3.6</version> <!-- NB: Hvis du endrer versjon  sjekk om WS-kall fra Gosys til VL virker (eller med SoapUI) -->
+            </dependency>
+
+            <dependency>
                 <groupId>no.nav.foreldrepenger.felles.ukelonn.integrasjon</groupId>
                 <artifactId>felles-integrasjon-jms</artifactId>
                 <version>${ukelonn.felles.version}</version>
@@ -579,6 +585,17 @@
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
                 <version>2.4.0-b180830.0359</version>
+            </dependency>
+            <dependency>
+                <!-- velger en transitiv avhengighet - felles ikke enig med seg selv -->
+                <groupId>jakarta.xml.bind</groupId>
+                <artifactId>jakarta.xml.bind-api</artifactId>
+                <version>3.0.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.woodstox</groupId>
+                <artifactId>woodstox-core</artifactId>
+                <version>6.2.4</version>
             </dependency>
             <dependency>
                 <groupId>com.google.code.findbugs</groupId>
