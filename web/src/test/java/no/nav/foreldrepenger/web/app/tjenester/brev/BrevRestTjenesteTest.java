@@ -11,7 +11,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.UUID;
 
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingBrevDtoTjeneste;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -28,18 +27,16 @@ public class BrevRestTjenesteTest {
     private BrevRestTjeneste brevRestTjeneste;
     private DokumentBestillerTjeneste dokumentBestillerTjenesteMock;
     private DokumentBehandlingTjeneste dokumentBehandlingTjenesteMock;
-    private BehandlingBrevDtoTjeneste behandlingBrevDtoTjeneste;
     private BehandlingRepository behandlingRepository;
 
     @BeforeEach
     public void setUp() {
         dokumentBestillerTjenesteMock = mock(DokumentBestillerTjeneste.class);
         dokumentBehandlingTjenesteMock = mock(DokumentBehandlingTjeneste.class);
-        behandlingBrevDtoTjeneste = mock(BehandlingBrevDtoTjeneste.class);
         behandlingRepository = mock(BehandlingRepository.class);
         when(behandlingRepository.hentBehandling(anyLong())).thenReturn(mock(Behandling.class));
 
-        brevRestTjeneste = new BrevRestTjeneste(dokumentBestillerTjenesteMock, dokumentBehandlingTjenesteMock, behandlingRepository, behandlingBrevDtoTjeneste);
+        brevRestTjeneste = new BrevRestTjeneste(dokumentBestillerTjenesteMock, dokumentBehandlingTjenesteMock, behandlingRepository);
     }
 
     @Test
