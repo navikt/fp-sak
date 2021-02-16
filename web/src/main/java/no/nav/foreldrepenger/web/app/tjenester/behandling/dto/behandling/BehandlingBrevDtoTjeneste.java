@@ -1,18 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling;
 
-import static no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoUtil.get;
-import static no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoUtil.post;
-
-import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
 import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.BehandlingIdVersjonDto;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
@@ -33,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
@@ -42,7 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
-import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagGrunnlagEntitet;
@@ -61,7 +46,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.arbeidsforhold.Inntekt
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsgrunnlag.BeregningsgrunnlagRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.BeregningsresultatRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.FeriepengegrunnlagRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.ByttBehandlendeEnhetDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.GjenopptaBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.HenleggBehandlingDto;
@@ -70,7 +54,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.SettBehandlingPaVe
 import no.nav.foreldrepenger.web.app.tjenester.behandling.innsyn.InnsynRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.KlageRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageVurderingResultatAksjonspunktMellomlagringDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.kontroll.KontrollRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.opptjening.OpptjeningRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.svp.SvangerskapspengerRestTjeneste;
@@ -79,7 +62,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.tilbakekreving.Tilbake
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.UttakRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.KontrollerAktivitetskravDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BehandlingMedUttaksperioderDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.TotrinnskontrollRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.VergeRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.VilkårRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.YtelsefordelingRestTjeneste;
@@ -90,13 +72,21 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.familiehendelse.FamiliehendelseRestTjeneste;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import java.time.LocalDate;
+import java.util.Objects;
+import java.util.Optional;
+
+import static no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoUtil.get;
+import static no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoUtil.post;
+
 /**
- * Bygger et sammensatt resultat av BehandlingDto ved å samle data fra ulike tjenester, for å kunne levere dette ut på en REST tjeneste.
+ * Bygger en BehandlingBrevDto som skal brukes til å populere brev for behandlinger behandlet i fpsak.
  */
 
-//FIXME (TEAM SVP) denne burde splittes til å støtte en enkelt ytelse
 @ApplicationScoped
-public class BehandlingDtoTjeneste {
+public class BehandlingBrevDtoTjeneste {
 
     private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
@@ -114,21 +104,21 @@ public class BehandlingDtoTjeneste {
     private String fpoppdragOverrideProxyUrl;
     private KontrollerAktivitetskravDtoTjeneste kontrollerAktivitetskravDtoTjeneste;
 
-    BehandlingDtoTjeneste() {
+    BehandlingBrevDtoTjeneste() {
         // for CDI proxy
     }
 
     @Inject
-    public BehandlingDtoTjeneste(BehandlingRepositoryProvider repositoryProvider,
-                                 HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
-                                 TilbakekrevingRepository tilbakekrevingRepository,
-                                 SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                 OpptjeningIUtlandDokStatusTjeneste opptjeningIUtlandDokStatusTjeneste,
-                                 BehandlingDokumentRepository behandlingDokumentRepository,
-                                 RelatertBehandlingTjeneste relatertBehandlingTjeneste,
-                                 ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
-                                 @KonfigVerdi(value = "fpoppdrag.override.proxy.url", required = false) String fpoppdragOverrideProxyUrl,
-                                 KontrollerAktivitetskravDtoTjeneste kontrollerAktivitetskravDtoTjeneste) {
+    public BehandlingBrevDtoTjeneste(BehandlingRepositoryProvider repositoryProvider,
+                                     HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
+                                     TilbakekrevingRepository tilbakekrevingRepository,
+                                     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                     OpptjeningIUtlandDokStatusTjeneste opptjeningIUtlandDokStatusTjeneste,
+                                     BehandlingDokumentRepository behandlingDokumentRepository,
+                                     RelatertBehandlingTjeneste relatertBehandlingTjeneste,
+                                     ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
+                                     @KonfigVerdi(value = "fpoppdrag.override.proxy.url", required = false) String fpoppdragOverrideProxyUrl,
+                                     KontrollerAktivitetskravDtoTjeneste kontrollerAktivitetskravDtoTjeneste) {
 
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
@@ -147,54 +137,8 @@ public class BehandlingDtoTjeneste {
         this.kontrollerAktivitetskravDtoTjeneste = kontrollerAktivitetskravDtoTjeneste;
     }
 
-    private static BehandlingDto lagBehandlingDto(Behandling behandling,
-                                                  Optional<BehandlingsresultatDto> behandlingsresultatDto,
-                                                  boolean erBehandlingMedGjeldendeVedtak,
-                                                  SøknadRepository søknadRepository,
-                                                  LocalDate vedtaksdato) {
-        BehandlingDto dto = new BehandlingDto();
-        UuidDto uuidDto = new UuidDto(behandling.getUuid());
-        BehandlingIdDto idDto = new BehandlingIdDto(behandling.getId());
-        BehandlingDtoUtil.setStandardfelterMedGjeldendeVedtak(behandling, dto, erBehandlingMedGjeldendeVedtak, vedtaksdato);
-        dto.setSpråkkode(getSpråkkode(behandling, søknadRepository));
-        dto.setBehandlingsresultat(behandlingsresultatDto.orElse(null));
-
-        // Felles for alle behandlingstyper
-        dto.leggTil(get(BehandlingRestTjeneste.RETTIGHETER_PATH, "behandling-rettigheter", uuidDto));
-
-        if (behandling.erYtelseBehandling()) {
-            dto.leggTil(get(PersonRestTjeneste.PERSONOPPLYSNINGER_PATH, "soeker-personopplysninger", uuidDto));
-            dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_V2_PATH, "familiehendelse-v2", uuidDto));
-        }
-
-        if (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) {
-            dto.leggTil(get(KontrollRestTjeneste.KONTROLLRESULTAT_V2_PATH, "kontrollresultat", idDto));
-            dto.leggTil(get(AksjonspunktRestTjeneste.AKSJONSPUNKT_RISIKO_PATH, "risikoklassifisering-aksjonspunkt", uuidDto));
-        }
-
-        if (BehandlingType.REVURDERING.equals(behandling.getType())) {
-            dto.leggTil(get(AksjonspunktRestTjeneste.AKSJONSPUNKT_KONTROLLER_REVURDERING_PATH, "har-apent-kontroller-revurdering-aksjonspunkt", uuidDto));
-            dto.leggTil(get(BeregningsresultatRestTjeneste.HAR_SAMME_RESULTAT_PATH, "har-samme-resultat", uuidDto));
-        }
-
-        if (BehandlingType.KLAGE.equals(behandling.getType())) {
-            dto.leggTil(get(KlageRestTjeneste.KLAGE_V2_PATH, "klage-vurdering", uuidDto));
-        }
-
-        if (!BehandlingType.INNSYN.equals(behandling.getType())) {
-            // Totrinnsbehandling
-            if (BehandlingStatus.FATTER_VEDTAK.equals(behandling.getStatus())) {
-                dto.leggTil(get(TotrinnskontrollRestTjeneste.ARSAKER_PATH, "totrinnskontroll-arsaker", uuidDto));
-                dto.leggTil(post(AksjonspunktRestTjeneste.AKSJONSPUNKT_PATH, "bekreft-totrinnsaksjonspunkt", uuidDto));
-            } else if (BehandlingStatus.UTREDES.equals(behandling.getStatus())) {
-                dto.leggTil(get(TotrinnskontrollRestTjeneste.ARSAKER_READ_ONLY_PATH, "totrinnskontroll-arsaker-readOnly", uuidDto));
-            }
-        }
-
-        // Brev
-        dto.leggTil(ResourceLink.get("/fpformidling/api/brev/maler", "brev-maler", uuidDto));
-        dto.leggTil(post(BrevRestTjeneste.BREV_BESTILL_PATH, "brev-bestill", new BestillBrevDto()));
-
+    public BehandlingBrevDto lagDtoForBrev(Behandling behandling) {
+        BehandlingBrevDto dto = lagDto(behandling);
         return dto;
     }
 
@@ -207,47 +151,11 @@ public class BehandlingDtoTjeneste {
         }
     }
 
-    public List<BehandlingDto> lagBehandlingDtoer(List<Behandling> behandlinger) {
-        if (behandlinger.isEmpty()) {
-            return Collections.emptyList();
-        }
-        Optional<BehandlingVedtak> gjeldendeVedtak = behandlingVedtakRepository.hentGjeldendeVedtak(behandlinger.get(0).getFagsak());
-        Optional<Behandling> behandlingMedGjeldendeVedtak = gjeldendeVedtak.map(BehandlingVedtak::getBehandlingsresultat).map(Behandlingsresultat::getBehandlingId).map(behandlingRepository::hentBehandling);
-        return behandlinger.stream().map(behandling -> {
-            boolean erBehandlingMedGjeldendeVedtak = erBehandlingMedGjeldendeVedtak(behandling, behandlingMedGjeldendeVedtak);
-            var behandlingsresultatDto = lagBehandlingsresultatDto(behandling);
-            var vedtaksdato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId()).map(bv -> bv.getVedtaksdato())
-                .orElse(null);
-            return lagBehandlingDto(behandling, behandlingsresultatDto, erBehandlingMedGjeldendeVedtak,
-                søknadRepository, vedtaksdato);
-        }).collect(Collectors.toList());
-    }
-
-    private boolean erBehandlingMedGjeldendeVedtak(Behandling behandling, Optional<Behandling> behandlingMedGjeldendeVedtak) {
-        if (behandlingMedGjeldendeVedtak.isEmpty()) {
-            return false;
-        }
-        return Objects.equals(behandlingMedGjeldendeVedtak.get().getId(), behandling.getId());
-    }
-
-    public UtvidetBehandlingDto lagUtvidetBehandlingDto(Behandling behandling, AsyncPollingStatus asyncStatus) {
-        Optional<Behandling> sisteAvsluttedeIkkeHenlagteBehandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId());
-        UtvidetBehandlingDto dto = mapFra(behandling, erBehandlingMedGjeldendeVedtak(behandling, sisteAvsluttedeIkkeHenlagteBehandling));
-        if (asyncStatus != null && !asyncStatus.isPending()) {
-            dto.setAsyncStatus(asyncStatus);
-        }
-        return dto;
-    }
-
-    public AnnenPartBehandlingDto lagAnnenPartBehandlingDto(Behandling behandling) {
-        return AnnenPartBehandlingDto.mapFra(behandling);
-    }
-
-    private void settStandardfelterUtvidet(Behandling behandling, UtvidetBehandlingDto dto, boolean erBehandlingMedGjeldendeVedtak) {
+    private void settStandardfelterForBrev(Behandling behandling, BehandlingBrevDto dto) {
         var vedtaksDato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
             .map(bv -> bv.getVedtaksdato())
             .orElse(null);
-        BehandlingDtoUtil.settStandardfelterUtvidet(behandling, dto, erBehandlingMedGjeldendeVedtak, vedtaksDato);
+        BehandlingDtoUtil.setStandardfelter(behandling, dto, vedtaksDato);
         dto.setSpråkkode(getSpråkkode(behandling, søknadRepository));
         var behandlingsresultatDto = lagBehandlingsresultatDto(behandling);
         dto.setBehandlingsresultat(behandlingsresultatDto.orElse(null));
@@ -279,9 +187,9 @@ public class BehandlingDtoTjeneste {
         }
     }
 
-    private UtvidetBehandlingDto mapFra(Behandling behandling, boolean erBehandlingMedGjeldendeVedtak) {
-        UtvidetBehandlingDto dto = new UtvidetBehandlingDto();
-        settStandardfelterUtvidet(behandling, dto, erBehandlingMedGjeldendeVedtak);
+    private BehandlingBrevDto lagDto(Behandling behandling) {
+        BehandlingBrevDto dto = new BehandlingBrevDto();
+        settStandardfelterForBrev(behandling, dto);
 
         SaksnummerDto saksnummerDto = new SaksnummerDto(behandling.getFagsak().getSaksnummer());
         dto.leggTil(get(FagsakRestTjeneste.FAGSAK_PATH, "fagsak", saksnummerDto));
@@ -309,27 +217,27 @@ public class BehandlingDtoTjeneste {
         return utvideBehandlingDto(behandling, dto);
     }
 
-    private UtvidetBehandlingDto utvideBehandlingDtoKlage(Behandling behandling, UtvidetBehandlingDto dto) {
+    private BehandlingBrevDto utvideBehandlingDtoKlage(Behandling behandling, BehandlingBrevDto dto) {
         UuidDto uuidDto = new UuidDto(behandling.getUuid());
         dto.leggTil(get(KlageRestTjeneste.KLAGE_V2_PATH, "klage-vurdering", uuidDto));
         dto.leggTil(get(KlageRestTjeneste.MOTTATT_KLAGEDOKUMENT_V2_PATH, "mottatt-klagedokument", uuidDto));
         return dto;
     }
 
-    private UtvidetBehandlingDto utvideBehandlingDtoAnke(Behandling behandling, UtvidetBehandlingDto dto) {
+    private BehandlingBrevDto utvideBehandlingDtoAnke(Behandling behandling, BehandlingBrevDto dto) {
         UuidDto uuidDto = new UuidDto(behandling.getUuid());
         dto.leggTil(get(AnkeRestTjeneste.ANKEVURDERING_V2_PATH, "anke-vurdering", uuidDto));
         return dto;
     }
 
-    private UtvidetBehandlingDto utvideBehandlingDtoForInnsyn(Behandling behandling, UtvidetBehandlingDto dto) {
+    private BehandlingBrevDto utvideBehandlingDtoForInnsyn(Behandling behandling, BehandlingBrevDto dto) {
         UuidDto uuidDto = new UuidDto(behandling.getUuid());
         dto.leggTil(get(InnsynRestTjeneste.INNSYN_PATH, "innsyn", uuidDto));
         dto.leggTil(get(DokumentRestTjeneste.DOKUMENTER_PATH, "dokumenter", uuidDto));
         return dto;
     }
 
-    private UtvidetBehandlingDto utvideBehandlingDto(Behandling behandling, UtvidetBehandlingDto dto) {
+    private BehandlingBrevDto utvideBehandlingDto(Behandling behandling, BehandlingBrevDto dto) {
         UuidDto uuidDto = new UuidDto(behandling.getUuid());
         // mapping ved hjelp av tjenester
         dto.leggTil(get(SøknadRestTjeneste.SOKNAD_PATH, "soknad", uuidDto));
@@ -504,10 +412,6 @@ public class BehandlingDtoTjeneste {
         return behandling.getAksjonspunkter().stream()
             .map(Aksjonspunkt::getAksjonspunktDefinisjon)
             .anyMatch(AksjonspunktDefinisjon.AVKLAR_VERGE::equals);
-    }
-
-    public Boolean finnBehandlingOperasjonRettigheter(Behandling behandling) {
-        return this.søknadRepository.hentSøknadHvisEksisterer(behandling.getId()).isPresent();
     }
 
     private Behandlingsresultat getBehandlingsresultat(Long behandlingId) {

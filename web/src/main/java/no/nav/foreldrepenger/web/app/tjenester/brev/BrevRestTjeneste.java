@@ -15,7 +15,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
+import no.nav.foreldrepenger.behandling.BehandlingIdDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingBrevDtoTjeneste;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,10 +51,13 @@ public class BrevRestTjeneste {
     public static final String VARSEL_REVURDERING_PATH = BASE_PATH + VARSEL_REVURDERING_PART_PATH;
     private static final String BREV_BESTILL_PART_PATH = "/bestill";
     public static final String BREV_BESTILL_PATH = BASE_PATH + BREV_BESTILL_PART_PATH;
+    private static final String BREV_RESSURSER__PART_PATH = "/ressurser";
+    public static final String BREV_RESSURSER_PATH = BASE_PATH + BREV_RESSURSER__PART_PATH;
 
     private DokumentBestillerTjeneste dokumentBestillerTjeneste;
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
     private BehandlingRepository behandlingRepository;
+    private BehandlingBrevDtoTjeneste behandlingBrevDtoTjeneste;
 
     public BrevRestTjeneste() {
         // For Rest-CDI
@@ -60,10 +66,12 @@ public class BrevRestTjeneste {
     @Inject
     public BrevRestTjeneste(DokumentBestillerTjeneste dokumentBestillerTjeneste,
                             DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
-                            BehandlingRepository behandlingRepository) {
+                            BehandlingRepository behandlingRepository,
+                            BehandlingBrevDtoTjeneste behandlingBrevDtoTjeneste) {
         this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
         this.behandlingRepository = behandlingRepository;
+        this.behandlingBrevDtoTjeneste = behandlingBrevDtoTjeneste;
     }
 
     @POST
@@ -116,4 +124,24 @@ public class BrevRestTjeneste {
         return dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.REVURDERING_DOK)
             || dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.VARSEL_OM_REVURDERING); // NOSONAR
     }
+
+    @GET
+    @Path(BREV_RESSURSER_PATH)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Operation(description = "Hent behandling med tilhørende ressurslenker for bruk i brev", tags = "brev")
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public Response hentBehandlingDtoForBrev(@NotNull @Parameter(description = "Id eller UUID for behandlingen") @Valid BehandlingIdDto behandlingIdDto) {
+        if (behandlingIdDto.getBehandlingUuid() != null) {
+            var behandling = behandlingRepository.hentBehandlingHvisFinnes(behandlingIdDto.getBehandlingUuid());
+            var dto = behandling.map(value -> behandlingBrevDtoTjeneste.lagDtoForBrev(value)).orElse(null);
+            Response.ResponseBuilder responseBuilder = Response.ok().entity(dto);
+            return responseBuilder.build();
+        } else {
+            var behandling = behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingId());
+            var dto = behandling != null ? behandlingBrevDtoTjeneste.lagDtoForBrev(behandling) : null;
+            Response.ResponseBuilder responseBuilder = Response.ok().entity(dto);
+            return responseBuilder.build();
+        }
+    }
+
 }
