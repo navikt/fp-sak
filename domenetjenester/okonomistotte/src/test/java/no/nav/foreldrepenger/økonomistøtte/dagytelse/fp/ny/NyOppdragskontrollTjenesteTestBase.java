@@ -43,17 +43,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
-import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.Utbetalingsgrad;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
@@ -64,7 +54,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifi
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.økonomistøtte.OppdragInputTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.OppdragMedPositivKvitteringTestUtil;
@@ -417,7 +406,7 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
             .build(beregningsresultatFeriepenger, andel);
     }
 
-    private Behandling opprettOgLagreRevurdering(Behandling originalBehandling,
+    protected Behandling opprettOgLagreRevurdering(Behandling originalBehandling,
                                                    VedtakResultatType resultat,
                                                    boolean gjelderOpphør,
                                                    boolean gjelderEndring) {
@@ -954,35 +943,6 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
             Optional.of(endringsdato), erOpptjentOverFlereÅr, årsbeløp1, årsbeløp2);
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
         return revurdering;
-    }
-
-    protected UttakResultatPerioderEntitet buildUttakResultatPerioderEntitet() {
-        UttakResultatPerioderEntitet opprinneligPerioder = new UttakResultatPerioderEntitet();
-
-        UttakResultatPeriodeEntitet periode = new UttakResultatPeriodeEntitet.Builder(DAGENS_DATO.minusMonths(1),
-            DAGENS_DATO).medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT).build();
-        UttakAktivitetEntitet uttakAktivitet = new UttakAktivitetEntitet.Builder().medArbeidsforhold(
-            Arbeidsgiver.virksomhet(virksomhet), InternArbeidsforholdRef.nyRef())
-            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
-            .build();
-        UttakResultatPeriodeAktivitetEntitet periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(
-            periode, uttakAktivitet).medTrekkonto(StønadskontoType.FORELDREPENGER)
-            .medArbeidsprosent(BigDecimal.ZERO)
-            .medTrekkdager(new Trekkdager(1))
-            .medUtbetalingsgrad(Utbetalingsgrad.TEN)
-            .build();
-        periode.leggTilAktivitet(periodeAktivitet);
-        opprinneligPerioder.leggTilPeriode(periode);
-
-        return opprinneligPerioder;
-    }
-
-    static List<Oppdragslinje150> getOppdragslinje150Feriepenger(Oppdragskontroll oppdrag) {
-        return oppdrag.getOppdrag110Liste()
-            .stream()
-            .map(NyOppdragskontrollTjenesteTestBase::getOppdragslinje150Feriepenger)
-            .flatMap(List::stream)
-            .collect(Collectors.toList());
     }
 
     static List<Oppdragslinje150> getOppdragslinje150Feriepenger(Oppdrag110 oppdrag110) {
