@@ -46,6 +46,7 @@ public enum DokumentMalType implements Kodeverdi {
     IKKE_SØKT("IKKESO", "Ikke mottatt søknad"),
     INNSYN_SVAR( "INNSYN", "Svar på innsynskrav"),
     INGEN_ENDRING("INGEND", "Uendret utfall"),
+    INFO_TIL_ANNEN_FORELDER("INFOAF", "Informasjonsbrev til den andre forelderen"),
 
     // Disse brevene er utgåtte, men beholdes her grunnet historisk bruk i databasen:
     @Deprecated
