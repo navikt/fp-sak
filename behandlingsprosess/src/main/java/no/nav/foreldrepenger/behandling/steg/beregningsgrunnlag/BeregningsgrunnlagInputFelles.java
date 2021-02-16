@@ -34,7 +34,6 @@ public abstract class BeregningsgrunnlagInputFelles {
     private BehandlingRepository behandlingRepository;
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    private AndelGraderingTjeneste andelGraderingTjeneste;
     private OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     private KalkulusKonfigInjecter kalkulusKonfigInjecter;
@@ -43,14 +42,12 @@ public abstract class BeregningsgrunnlagInputFelles {
     public BeregningsgrunnlagInputFelles(BehandlingRepository behandlingRepository,
             InntektArbeidYtelseTjeneste iayTjeneste,
             SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-            AndelGraderingTjeneste andelGraderingTjeneste,
             OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste,
             InntektsmeldingTjeneste inntektsmeldingTjeneste,
             KalkulusKonfigInjecter kalkulusKonfigInjecter) {
         this.behandlingRepository = Objects.requireNonNull(behandlingRepository, "behandlingRepository");
         this.iayTjeneste = Objects.requireNonNull(iayTjeneste, "iayTjeneste");
         this.skjæringstidspunktTjeneste = Objects.requireNonNull(skjæringstidspunktTjeneste, "skjæringstidspunktTjeneste");
-        this.andelGraderingTjeneste = Objects.requireNonNull(andelGraderingTjeneste, "andelGrderingTjeneste");
         this.opptjeningForBeregningTjeneste = Objects.requireNonNull(opptjeningForBeregningTjeneste, "opptjeningForBeregningTjeneste");
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.kalkulusKonfigInjecter = kalkulusKonfigInjecter;
@@ -92,7 +89,6 @@ public abstract class BeregningsgrunnlagInputFelles {
 
     /** Returnerer input hvis data er på tilgjengelig for det, ellers Exception. */
     private BeregningsgrunnlagInput lagInput(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        var aktivitetGradering = andelGraderingTjeneste.utled(ref);
         var opptjeningAktiviteter = opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(ref, iayGrunnlag);
         if (opptjeningAktiviteter.isEmpty()) {
             throw new IllegalStateException("No value present: Fant ikke forventet OpptjeningAktiviteter for behandling.");
@@ -116,7 +112,6 @@ public abstract class BeregningsgrunnlagInputFelles {
                 MapBehandlingRef.mapRef(ref),
                 iayGrunnlagDto,
                 OpptjeningMapperTilKalkulus.mapOpptjeningAktiviteter(opptjeningAktiviteter.orElseThrow()),
-                aktivitetGradering,
                 IAYMapperTilKalkulus.mapRefusjonskravDatoer(refusjonskravDatoer),
                 ytelseGrunnlag);
         kalkulusKonfigInjecter.leggTilFeatureToggles(beregningsgrunnlagInput);

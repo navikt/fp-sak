@@ -85,7 +85,6 @@ class MapTilKalkulatorInput {
             beregningsgrunnlagInput.getSkjæringstidspunktOpptjening());
         kalkulatorInputDto.medYtelsespesifiktGrunnlag(mapYtelsesSpesifiktGrunnlag(beregningsgrunnlagInput.getYtelsespesifiktGrunnlag()));
         kalkulatorInputDto.medRefusjonskravDatoer(mapRefusjonskravDatoer(beregningsgrunnlagInput.getRefusjonskravDatoer()));
-        kalkulatorInputDto.medAktivitetGradering(mapAktivitetGradering(beregningsgrunnlagInput.getAktivitetGradering()));
         return kalkulatorInputDto;
     }
 
@@ -139,7 +138,8 @@ class MapTilKalkulatorInput {
             return new no.nav.folketrygdloven.kalkulus.beregning.v1.SvangerskapspengerGrunnlag(mapUtbetalingsgradPrAktivitet(svpGrunnlag.getUtbetalingsgradPrAktivitet()));
         } else if (ytelsespesifiktGrunnlag instanceof no.nav.folketrygdloven.kalkulator.input.ForeldrepengerGrunnlag) {
             no.nav.folketrygdloven.kalkulator.input.ForeldrepengerGrunnlag fpGrunnlag = (no.nav.folketrygdloven.kalkulator.input.ForeldrepengerGrunnlag) ytelsespesifiktGrunnlag;
-            return new ForeldrepengerGrunnlag(BigDecimal.valueOf(fpGrunnlag.getDekningsgrad()), fpGrunnlag.isKvalifisererTilBesteberegning());
+            AktivitetGraderingDto aktivitetGraderingDto = mapAktivitetGradering(fpGrunnlag.getAktivitetGradering());
+            return new ForeldrepengerGrunnlag(BigDecimal.valueOf(fpGrunnlag.getDekningsgrad()), fpGrunnlag.isKvalifisererTilBesteberegning(), aktivitetGraderingDto);
         }
         return null;
     }

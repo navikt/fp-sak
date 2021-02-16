@@ -34,11 +34,10 @@ public class BeregningsgrunnlagInputTjeneste extends BeregningsgrunnlagInputFell
     public BeregningsgrunnlagInputTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
             InntektArbeidYtelseTjeneste iayTjeneste,
             SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-            AndelGraderingTjeneste andelGraderingTjeneste,
             OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste,
             BeregnTilrettleggingsperioderTjeneste tilrettleggingsperioderTjeneste, InntektsmeldingTjeneste inntektsmeldingTjeneste,
             KalkulusKonfigInjecter kalkulusKonfigInjecter) {
-        super(behandlingRepositoryProvider.getBehandlingRepository(), iayTjeneste, skjæringstidspunktTjeneste, andelGraderingTjeneste,
+        super(behandlingRepositoryProvider.getBehandlingRepository(), iayTjeneste, skjæringstidspunktTjeneste,
                 opptjeningForBeregningTjeneste, inntektsmeldingTjeneste, kalkulusKonfigInjecter);
         this.tilrettleggingsperioderTjeneste = Objects.requireNonNull(tilrettleggingsperioderTjeneste, "tilrettleggingsperioderTjeneste");
     }

@@ -27,6 +27,7 @@ public class BeregningsgrunnlagInputTjeneste extends BeregningsgrunnlagInputFell
 
     private FagsakRelasjonRepository fagsakRelasjonRepository;
     private BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste;
+    private AndelGraderingTjeneste andelGraderingTjeneste;
 
     protected BeregningsgrunnlagInputTjeneste() {
         // CDI proxy
@@ -40,15 +41,17 @@ public class BeregningsgrunnlagInputTjeneste extends BeregningsgrunnlagInputFell
             OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste,
             BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste, InntektsmeldingTjeneste inntektsmeldingTjeneste,
             KalkulusKonfigInjecter kalkulusKonfigInjecter) {
-        super(behandlingRepositoryProvider.getBehandlingRepository(), iayTjeneste, skjæringstidspunktTjeneste, andelGraderingTjeneste,
+        super(behandlingRepositoryProvider.getBehandlingRepository(), iayTjeneste, skjæringstidspunktTjeneste,
                 opptjeningForBeregningTjeneste, inntektsmeldingTjeneste, kalkulusKonfigInjecter);
         this.fagsakRelasjonRepository = Objects.requireNonNull(behandlingRepositoryProvider.getFagsakRelasjonRepository(),
                 "fagsakRelasjonRepository");
         this.besteberegningFødendeKvinneTjeneste = besteberegningFødendeKvinneTjeneste;
+        this.andelGraderingTjeneste = Objects.requireNonNull(andelGraderingTjeneste, "andelGrderingTjeneste");
     }
 
     @Override
     public YtelsespesifiktGrunnlag getYtelsespesifiktGrunnlag(BehandlingReferanse ref) {
+        var aktivitetGradering = andelGraderingTjeneste.utled(ref);
         var saksnummer = ref.getSaksnummer();
         var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonHvisEksisterer(saksnummer);
         var dekningsgrad = fagsakRelasjon.map(FagsakRelasjon::getGjeldendeDekningsgrad)

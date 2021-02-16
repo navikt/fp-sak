@@ -393,9 +393,8 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteFastsettAktiviteterTest {
         no.nav.folketrygdloven.kalkulator.modell.behandling.KoblingReferanse behandlingReferanse1 = MapBehandlingRef.mapRef(behandlingReferanse);
         return new BeregningsgrunnlagInput(behandlingReferanse1, iayGrunnlag,
                 opptjeningAktiviteter,
-                AktivitetGradering.INGEN_GRADERING,
                 List.of(),
-                new ForeldrepengerGrunnlag(100, false));
+                new ForeldrepengerGrunnlag(100, false, AktivitetGradering.INGEN_GRADERING));
     }
 
     private OpptjeningAktiviteterDto lagOpptjeningAktiviteterMedArbeidOgVentelønnVartpenger() {
