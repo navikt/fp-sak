@@ -47,19 +47,19 @@ public class FormidlingRestTjeneste {
     }
 
     @GET
-    @Path(RESSURSER_PATH)
+    @Path(RESSURSER_PART_PATH)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    @Operation(description = "Hent behandling med tilhørende ressurslenker for bruk i brev", tags = "brev")
+    @Operation(description = "Hent behandling med tilhørende ressurslenker for bruk i formidling", tags = "formidling")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response hentBehandlingDtoForBrev(@NotNull @Parameter(description = "Id eller UUID for behandlingen") @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) {
         if (behandlingIdDto.getBehandlingUuid() != null) {
             var behandling = behandlingRepository.hentBehandlingHvisFinnes(behandlingIdDto.getBehandlingUuid());
-            var dto = behandling.map(value -> behandlingFormidlingDtoTjeneste.lagDtoForBrev(value)).orElse(null);
+            var dto = behandling.map(value -> behandlingFormidlingDtoTjeneste.lagDtoForFormidling(value)).orElse(null);
             Response.ResponseBuilder responseBuilder = Response.ok().entity(dto);
             return responseBuilder.build();
         } else {
             var behandling = behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingId());
-            var dto = behandling != null ? behandlingFormidlingDtoTjeneste.lagDtoForBrev(behandling) : null;
+            var dto = behandling != null ? behandlingFormidlingDtoTjeneste.lagDtoForFormidling(behandling) : null;
             Response.ResponseBuilder responseBuilder = Response.ok().entity(dto);
             return responseBuilder.build();
         }

@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling;
 
-import no.nav.foreldrepenger.behandling.BehandlingIdVersjonDto;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
@@ -32,28 +31,17 @@ import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Beregningsgrunnlag
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjenestePathHack1;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BekreftedeAksjonspunkterDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.anke.AnkeRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.anke.aksjonspunkt.AnkeVurderingResultatAksjonspunktMellomlagringDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.arbeidsforhold.InntektArbeidYtelseRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsgrunnlag.BeregningsgrunnlagRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.BeregningsresultatRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.ByttBehandlendeEnhetDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.GjenopptaBehandlingDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.HenleggBehandlingDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.ReåpneBehandlingDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.SettBehandlingPaVentDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.innsyn.InnsynRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.KlageRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageVurderingResultatAksjonspunktMellomlagringDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.SøknadRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.UttakRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BehandlingMedUttaksperioderDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.VergeRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.VilkårRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.YtelsefordelingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.brev.BrevRestTjeneste;
@@ -68,7 +56,6 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import static no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoUtil.get;
-import static no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoUtil.post;
 
 /**
  * Bygger en BehandlingBrevDto som skal brukes til å populere brev for behandlinger behandlet i fpsak.
@@ -113,7 +100,7 @@ public class BehandlingFormidlingDtoTjeneste {
         this.relatertBehandlingTjeneste = relatertBehandlingTjeneste;
     }
 
-    public BehandlingFormidlingDto lagDtoForBrev(Behandling behandling) {
+    public BehandlingFormidlingDto lagDtoForFormidling(Behandling behandling) {
         BehandlingFormidlingDto dto = lagDto(behandling);
         return dto;
     }
@@ -137,32 +124,6 @@ public class BehandlingFormidlingDtoTjeneste {
         dto.setBehandlingsresultat(behandlingsresultatDto.orElse(null));
     }
 
-    private static void leggTilLenkerForBehandlingsoperasjoner(Behandling behandling, BehandlingDto dto) {
-        // Felles for alle behandlingstyper
-        dto.leggTil(post(BehandlingRestTjeneste.BYTT_ENHET_PATH, "bytt-behandlende-enhet", new ByttBehandlendeEnhetDto()));
-        dto.leggTil(post(BehandlingRestTjeneste.HENLEGG_PATH, "henlegg-behandling", new HenleggBehandlingDto()));
-        dto.leggTil(post(BehandlingRestTjeneste.GJENOPPTA_PATH, "gjenoppta-behandling", new GjenopptaBehandlingDto()));
-        dto.leggTil(post(BehandlingRestTjeneste.SETT_PA_VENT_PATH, "sett-behandling-pa-vent", new SettBehandlingPaVentDto()));
-        dto.leggTil(post(BehandlingRestTjeneste.ENDRE_VENTEFRIST_PATH, "endre-pa-vent", new SettBehandlingPaVentDto()));
-        dto.leggTil(post(AksjonspunktRestTjeneste.AKSJONSPUNKT_PATH, "lagre-aksjonspunkter", new BekreftedeAksjonspunkterDto()));
-
-        if (behandling.erYtelseBehandling()) {
-            dto.leggTil(post(BehandlingRestTjeneste.OPNE_FOR_ENDRINGER_PATH, "opne-for-endringer", new ReåpneBehandlingDto()));
-            dto.leggTil(post(AksjonspunktRestTjeneste.AKSJONSPUNKT_OVERSTYR_PATH, "lagre-overstyr-aksjonspunkter", new BekreftedeAksjonspunkterDto()));
-            dto.leggTil(post(VergeRestTjeneste.VERGE_OPPRETT_PATH, "opprett-verge", new BehandlingIdVersjonDto()));
-            dto.leggTil(post(VergeRestTjeneste.VERGE_FJERN_PATH, "fjern-verge", new BehandlingIdVersjonDto()));
-            if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
-                dto.leggTil(post(UttakRestTjeneste.STONADSKONTOER_GITT_UTTAKSPERIODER_PATH, "lagre-stonadskontoer-gitt-uttaksperioder", new BehandlingMedUttaksperioderDto()));
-            }
-        }
-        if (BehandlingType.ANKE.equals(behandling.getType())) {
-            dto.leggTil(post(AnkeRestTjeneste.MELLOMLAGRE_ANKE_PATH, "mellomlagre-anke", new AnkeVurderingResultatAksjonspunktMellomlagringDto()));
-        }
-        if (BehandlingType.KLAGE.equals(behandling.getType())) {
-            dto.leggTil(post(KlageRestTjeneste.MELLOMLAGRE_PATH, "mellomlagre-klage", new KlageVurderingResultatAksjonspunktMellomlagringDto()));
-        }
-    }
-
     private BehandlingFormidlingDto lagDto(Behandling behandling) {
         BehandlingFormidlingDto dto = new BehandlingFormidlingDto();
         settStandardfelterForBrev(behandling, dto);
@@ -170,8 +131,6 @@ public class BehandlingFormidlingDtoTjeneste {
         SaksnummerDto saksnummerDto = new SaksnummerDto(behandling.getFagsak().getSaksnummer());
         dto.leggTil(get(FagsakRestTjeneste.FAGSAK_PATH, "fagsak", saksnummerDto));
         dto.leggTil(get(FagsakRestTjeneste.FAGSAK_BACKEND_PATH, "fagsak-backend", saksnummerDto));
-
-        leggTilLenkerForBehandlingsoperasjoner(behandling, dto);
 
         UuidDto uuidDto = new UuidDto(behandling.getUuid());
         dto.leggTil(get(AksjonspunktRestTjeneste.AKSJONSPUNKT_V2_PATH, "aksjonspunkter", uuidDto));
@@ -221,6 +180,7 @@ public class BehandlingFormidlingDtoTjeneste {
         dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_V2_PATH, "familiehendelse-v2", uuidDto));
 
         if (behandlingHarVergeAksjonspunkt(behandling)) {
+            dto.leggTil(get(PersonRestTjeneste.VERGE_PATH, "soeker-verge", uuidDto));
             dto.leggTil(get(PersonRestTjeneste.VERGE_BACKEND_PATH, "verge-backend", uuidDto));
         }
 
