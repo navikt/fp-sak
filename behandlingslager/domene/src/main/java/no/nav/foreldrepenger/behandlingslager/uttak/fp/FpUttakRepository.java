@@ -151,14 +151,6 @@ public class FpUttakRepository {
         return HibernateVerktøy.hentUniktResultat(query);
     }
 
-    public List<OrgManuellÅrsakEntitet> finnOrgManuellÅrsak(String virksomhetsnummer) {
-        TypedQuery<OrgManuellÅrsakEntitet> query = entityManager
-            .createQuery("select u from OrgManuellÅrsakEntitet u " +
-                "where u.virksomhetsnummer = :virksomhetsnummer", OrgManuellÅrsakEntitet.class)
-            .setParameter("virksomhetsnummer", virksomhetsnummer);
-        return query.getResultList();
-    }
-
     public void deaktivterAktivtResultat(Long behandlingId) {
         Optional<UttakResultatEntitet> uttakResultat = hentUttakResultatHvisEksisterer(behandlingId);
         uttakResultat.ifPresent(this::deaktiverResultat);

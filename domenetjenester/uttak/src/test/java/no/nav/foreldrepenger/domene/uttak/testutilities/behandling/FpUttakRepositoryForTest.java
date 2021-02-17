@@ -1,12 +1,10 @@
 package no.nav.foreldrepenger.domene.uttak.testutilities.behandling;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.OrgManuellÅrsakEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 
@@ -51,11 +49,6 @@ class FpUttakRepositoryForTest extends FpUttakRepository {
 
     @Override
     public Optional<UttakResultatEntitet> hentUttakResultatPåId(Long behandlingId) {
-        throw new IkkeImplementertForTestException();
-    }
-
-    @Override
-    public List<OrgManuellÅrsakEntitet> finnOrgManuellÅrsak(String virksomhetsnummer) {
         throw new IkkeImplementertForTestException();
     }
 
