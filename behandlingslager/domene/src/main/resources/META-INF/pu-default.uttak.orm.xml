@@ -37,7 +37,6 @@
     <entity class="no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet"/>
     <entity class="no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeSøknadEntitet"/>
     <entity class="no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatDokRegelEntitet"/>
-    <entity class="no.nav.foreldrepenger.behandlingslager.uttak.fp.OrgManuellÅrsakEntitet"/>
 
     <!-- Uttak av FP kodeverk-->
     <entity class="no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto"/>

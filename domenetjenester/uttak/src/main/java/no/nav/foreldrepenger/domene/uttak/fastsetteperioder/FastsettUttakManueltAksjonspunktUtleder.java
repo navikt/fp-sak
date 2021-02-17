@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -23,15 +24,31 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 @ApplicationScoped
 public class FastsettUttakManueltAksjonspunktUtleder {
 
-    private FpUttakRepository fpUttakRepository;
+    private static final Set<String> ORGNR_TILKNYTTET_STORTINGET = Set.of(
+        "971524960" //Stortingsrepresentant
+        , "874707112" //Stortinget
+        , "982110777" //Stortingets Kontrollutvalg for Etterretnings-, Overvåkings- Og Sikkerhetstjeneste, Eos-utvalget
+        , "982164176" //Stortingets Kontrollutvalg for Etterretnings-, Overvåkings- Og Sikkerhetstjeneste, Eos-utvalget
+        , "971527439" //Ombudsmannen for Forsvaret
+        , "974721198" //Ombudsmannen for Forsvaret
+        , "974760843" //Riksrevisjonen
+        , "974707314" //Riksrevisjonen
+        , "974761270" //Sivilombudsmannen Stortingets Ombudsmann for Forvaltningen
+        , "974720590" //Sivilombudsmannen Stortingets Ombudsmann for Forvaltningen
+        , "914781175" //Norges Nasjonale Institusjon for Menneskerettigheter Avd Kautokeino
+        , "885002862" //Norges Nasjonale Institusjon for Menneskerettigheter Avd Kautokeino
+        , "914781329" //Norges Nasjonale Institusjon for Menneskerettigheter Avd Oslo
+    );
 
-    FastsettUttakManueltAksjonspunktUtleder() {
-        //CDI
-    }
+    private FpUttakRepository fpUttakRepository;
 
     @Inject
     FastsettUttakManueltAksjonspunktUtleder(UttakRepositoryProvider repositoryProvider){
         this.fpUttakRepository = repositoryProvider.getFpUttakRepository();
+    }
+
+    FastsettUttakManueltAksjonspunktUtleder() {
+        //CDI
     }
 
     public List<AksjonspunktResultat> utledAksjonspunkterFor(UttakInput input) {
@@ -60,7 +77,9 @@ public class FastsettUttakManueltAksjonspunktUtleder {
     private Optional<AksjonspunktResultat> utledAksjonspunktForStortingsrepresentant(UttakInput input) {
         Collection<Yrkesaktivitet> yrkesaktiviteter = input.getYrkesaktiviteter().hentAlleYrkesaktiviteter();
         for (Yrkesaktivitet yrkesaktivitet : yrkesaktiviteter) {
-            if (yrkesaktivitet.getArbeidsgiver() != null && yrkesaktivitet.getArbeidsgiver().getErVirksomhet() && aktivitetErTilknyttetStortinget(yrkesaktivitet)) {
+            if (yrkesaktivitet.getArbeidsgiver() != null
+                && yrkesaktivitet.getArbeidsgiver().getErVirksomhet()
+                && aktivitetErTilknyttetStortinget(yrkesaktivitet)) {
                 return Optional.of(AksjonspunktResultat.opprettForAksjonspunkt(AksjonspunktDefinisjon.TILKNYTTET_STORTINGET));
             }
         }
@@ -87,8 +106,7 @@ public class FastsettUttakManueltAksjonspunktUtleder {
     }
 
     private boolean aktivitetErTilknyttetStortinget(Yrkesaktivitet yrkesaktivitet) {
-        return yrkesaktivitet.getArbeidsgiver().getOrgnr() != null
-            && !fpUttakRepository.finnOrgManuellÅrsak(yrkesaktivitet.getArbeidsgiver().getOrgnr()).isEmpty();
+        return ORGNR_TILKNYTTET_STORTINGET.contains(yrkesaktivitet.getArbeidsgiver().getOrgnr());
     }
 
 }
