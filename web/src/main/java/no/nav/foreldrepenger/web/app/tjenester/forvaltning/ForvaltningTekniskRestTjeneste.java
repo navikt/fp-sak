@@ -157,7 +157,7 @@ public class ForvaltningTekniskRestTjeneste {
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         var lås = behandlingRepository.taSkriveLås(behandling.getId());
         Aksjonspunkt aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktKode())
-                .orElseThrow(() -> new IllegalStateException(MANGLER_AP + dto.getAksjonspunktKode()));
+                .orElseThrow(() -> new ForvaltningException(MANGLER_AP + dto.getAksjonspunktKode()));
         BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(), List.of(aksjonspunkt));
         behandlingRepository.lagre(behandling, lås);
@@ -180,7 +180,7 @@ public class ForvaltningTekniskRestTjeneste {
         var lås = behandlingRepository.taSkriveLås(behandling.getId());
         Aksjonspunkt aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktKode())
                 .filter(Aksjonspunkt::isToTrinnsBehandling)
-                .orElseThrow(() -> new IllegalStateException(MANGLER_AP + dto.getAksjonspunktKode()));
+                .orElseThrow(() -> new ForvaltningException(MANGLER_AP + dto.getAksjonspunktKode()));
         aksjonspunktRepository.fjernToTrinnsBehandlingKreves(aksjonspunkt);
         behandlingRepository.lagre(behandling, lås);
         return Response.ok().build();
@@ -202,7 +202,7 @@ public class ForvaltningTekniskRestTjeneste {
         var lås = behandlingRepository.taSkriveLås(behandling.getId());
         Aksjonspunkt aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktKode())
                 .filter(ap -> !ap.isToTrinnsBehandling())
-                .orElseThrow(() -> new IllegalStateException(MANGLER_AP + dto.getAksjonspunktKode()));
+                .orElseThrow(() -> new ForvaltningException(MANGLER_AP + dto.getAksjonspunktKode()));
         aksjonspunktRepository.setToTrinnsBehandlingKreves(aksjonspunkt);
         behandlingRepository.lagre(behandling, lås);
         return Response.ok().build();

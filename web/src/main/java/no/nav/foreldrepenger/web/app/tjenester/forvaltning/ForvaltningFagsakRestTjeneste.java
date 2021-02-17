@@ -125,7 +125,7 @@ public class ForvaltningFagsakRestTjeneste {
         } else {
             logger.info("Avslutter fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
             OppdaterFagsakStatus oppdaterFagsakStatus = FagsakYtelseTypeRef.Lookup.find(oppdaterFagsakStatuser, fagsak.getYtelseType())
-                    .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + fagsak.getYtelseType().getKode()));
+                    .orElseThrow(() -> new ForvaltningException("Ingen implementasjoner funnet for ytelse: " + fagsak.getYtelseType().getKode()));
             oppdaterFagsakStatus.avsluttFagsakUtenAktiveBehandlinger(fagsak);
             return Response.ok().build();
         }
