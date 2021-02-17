@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk.AksjonspunktutlederTilbaketrekk;
+import no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk.AutomatiskTilbaketrekkTjeneste;
 
 @BehandlingStegRef(kode = "VURDER_TILBAKETREKK")
 @BehandlingTypeRef("BT-004")
@@ -33,6 +34,7 @@ public class VurderTilbaketrekkSteg implements BehandlingSteg {
     private AksjonspunktutlederTilbaketrekk aksjonspunktutlederTilbaketrekk;
     private BehandlingRepository behandlingRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private AutomatiskTilbaketrekkTjeneste automatiskTilbaketrekkTjeneste;
 
     VurderTilbaketrekkSteg() {
         // for CDI proxy
@@ -41,10 +43,12 @@ public class VurderTilbaketrekkSteg implements BehandlingSteg {
     @Inject
     public VurderTilbaketrekkSteg(AksjonspunktutlederTilbaketrekk aksjonspunktutlederTilbaketrekk,
             BehandlingRepository behandlingRepository,
-            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+            AutomatiskTilbaketrekkTjeneste automatiskTilbaketrekkTjeneste) {
         this.aksjonspunktutlederTilbaketrekk = aksjonspunktutlederTilbaketrekk;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingRepository = behandlingRepository;
+        this.automatiskTilbaketrekkTjeneste = automatiskTilbaketrekkTjeneste;
     }
 
     @Override
@@ -61,6 +65,12 @@ public class VurderTilbaketrekkSteg implements BehandlingSteg {
         Skjæringstidspunkt skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
         BehandlingReferanse ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
         List<AksjonspunktResultat> aksjonspunkter = aksjonspunktutlederTilbaketrekk.utledAksjonspunkterFor(new AksjonspunktUtlederInput(ref));
-        return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
+
+        if (!aksjonspunkter.isEmpty()) {
+            automatiskTilbaketrekkTjeneste.kopierTilbaketrekksvurderingFraForrigeResultat(ref);
+            return BehandleStegResultat.utførtUtenAksjonspunkter();
+        } else {
+            return BehandleStegResultat.utførtUtenAksjonspunkter();
+        }
     }
 }
