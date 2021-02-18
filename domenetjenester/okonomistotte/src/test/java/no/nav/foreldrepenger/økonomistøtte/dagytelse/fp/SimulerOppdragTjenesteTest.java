@@ -51,9 +51,7 @@ public class SimulerOppdragTjenesteTest {
         Oppdragskontroll oppdragskontroll = lagOppdragskontroll(saksnummer);
         var o110 = lagOppdrag110(oppdragskontroll, saksnummer);
         buildOppdragslinje150(o110);
-        //when(oppdragInputTjeneste.lagInput(anyLong(), anyLong())).thenReturn(Input.builder().build());
-        lenient().when(oppdragskontrollTjeneste.opprettOppdrag(anyLong(), anyLong())).thenReturn(Optional.ofNullable(oppdragskontroll));
-        lenient().when(oppdragskontrollTjeneste.opprettOppdrag(any())).thenReturn(Optional.ofNullable(oppdragskontroll));
+        lenient().when(oppdragskontrollTjeneste.simulerOppdrag(anyLong())).thenReturn(Optional.ofNullable(oppdragskontroll));
 
         when(toggle.brukNyImpl(any())).thenReturn(false);
 
