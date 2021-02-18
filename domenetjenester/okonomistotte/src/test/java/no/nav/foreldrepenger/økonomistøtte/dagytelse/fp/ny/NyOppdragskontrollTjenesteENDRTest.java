@@ -24,7 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
@@ -34,23 +33,15 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.OppdragMedPositivKvitteringTestUtil;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.OppdragskontrollConstants;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragskontrollTestVerktøy;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdrag110.KodeFagområdeTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.GruppertYtelse;
-import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.OverordnetOppdragKjedeOversikt;
-import no.nav.foreldrepenger.økonomistøtte.ny.mapper.EksisterendeOppdragMapper;
-import no.nav.foreldrepenger.økonomistøtte.ny.mapper.Input;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.TilkjentYtelseMapper;
 
 public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenesteTestBase {
 
-    public static final long PROSESS_TASK_ID = 23L;
-    public static final String BRUKER_FNR = "12345678901";
-    public static final Saksnummer SAKSNUMMER = Saksnummer.infotrygd("101000");
-    public static final long BEHANDLING_ID = 123456L;
     public static final String ANSVARLIG_SAKSBEHANDLER = "Antonina";
 
     @BeforeEach
@@ -84,11 +75,6 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         verifiserOppdrag110_ENDR(oppdragRevurdering.getOppdrag110Liste(), originaltOppdrag110Liste, true);
         verifiserOppdragslinje150_ENDR(oppdragRevurdering, originaltOppdragslinje150, true, false, 80);
     }
-
-    private OverordnetOppdragKjedeOversikt mapTidligereOppdrag(List<Oppdragskontroll> tidligereOppdragskontroll) {
-        return new OverordnetOppdragKjedeOversikt(EksisterendeOppdragMapper.tilKjeder(tidligereOppdragskontroll));
-    }
-
 
     @Test
     public void skalSendeOppdragMedOmpostering116HvisAvslåttInntrekk() {
@@ -163,7 +149,6 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    @Disabled // skal sjekke med Øystein Wiborg om det er ok med en tidligere endringsdato.
     public void skalSendeOppdragMedOmpostering116OgSetteDatoOmposterFomTilFørsteUttaksdatoFraForrigeBehandlingForBrukerNårEndringsdatoErTidligere() {
         // Arrange
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(Optional.empty());
@@ -191,7 +176,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         assertThat(oppdrag110Bruker.getOmpostering116()).isPresent();
         Ompostering116 ompostering116 = oppdrag110Bruker.getOmpostering116().get();
         assertThat(ompostering116.getOmPostering()).isEqualTo("J");
-        assertThat(ompostering116.getDatoOmposterFom()).isEqualTo(b1Periode.getBeregningsresultatPeriodeFom());
+        assertThat(ompostering116.getDatoOmposterFom()).isEqualTo(endringsdato);
     }
 
     /**
@@ -1098,7 +1083,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
         verifiserOppdrag110_ENDR(oppdragRevurdering.getOppdrag110Liste(), originaltOppdrag110Liste, true);
         OppdragskontrollTestVerktøy.verifiserOppdr150SomErOpphørt(opp150RevurdListe, originaltOppdragslinje150, true, true, false);
-        OppdragskontrollTestVerktøy.verifiserOppdr150SomErNy(opp150RevurdListe, originaltOppdragslinje150, 80);
+        OppdragskontrollTestVerktøy.verifiserOppdr150SomErNy(opp150RevurdListe, originaltOppdragslinje150, List.of(80));
         OppdragskontrollTestVerktøy.verifiserOppdr150MedNyKlassekode(opp150RevurdListe);
     }
 
@@ -1127,7 +1112,6 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
     }
 
     @Test
-    @Disabled // Her må det finnes en måte til å summere andeler med forskjellige utbetalingsgrad.
     public void skalSendeOppdragNårEnMottakerHarFlereAndelerMedSammeKlassekodeIEnPeriode() {
         // Arrange
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatMedFlereInntektskategoriFP(true, AktivitetStatus.ARBEIDSTAKER,
@@ -1156,7 +1140,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
         verifiserOppdrag110_ENDR(oppdragRevurdering.getOppdrag110Liste(), originaltOppdrag110Liste, true);
         OppdragskontrollTestVerktøy.verifiserOppdr150SomErOpphørt(opp150RevurdListe, originaltOppdragslinje150, true, true, false);
-        OppdragskontrollTestVerktøy.verifiserOppdr150SomErNy(opp150RevurdListe, originaltOppdragslinje150, 80);
+        OppdragskontrollTestVerktøy.verifiserOppdr150SomErNy(opp150RevurdListe, originaltOppdragslinje150, List.of(80, 100));
         OppdragskontrollTestVerktøy.verifiserOppdr150SomAndelerSlåSammen(originaltOppdrag, oppdragRevurdering);
     }
 
@@ -2802,7 +2786,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         List<Oppdragslinje150> opp150RevurdListe = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(oppdragskontroll);
 
         verifiserOppdr150SomErOpphørt(opp150RevurdListe, originaltOpp150Liste, medFeriepenger, medFlereKlassekode, false);
-        verifiserOppdr150SomErNy(opp150RevurdListe, originaltOpp150Liste, gradering);
+        verifiserOppdr150SomErNy(opp150RevurdListe, originaltOpp150Liste, List.of(gradering));
     }
 
     private void verifiserOppdr150SomErUendret(Oppdragskontroll oppdrag) {
@@ -2813,24 +2797,5 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
             .filter(oppdragslinje150 -> oppdragslinje150.getKodeKlassifik().equals(KodeKlassifik.FPF_FERIEPENGER_AG))
             .collect(Collectors.toList());
         assertThat(opp150VirksomhetListe).isEmpty();
-    }
-
-    private Input getInput(Long prosessTaskId) {
-        return inputTjeneste.lagInput(behandling.getId(), prosessTaskId);
-    }
-
-    private Input.Builder getInputStandardBuilder(GruppertYtelse gruppertYtelse) {
-        return Input.builder()
-            .medTilkjentYtelse(gruppertYtelse)
-            .medTidligereOppdrag(OverordnetOppdragKjedeOversikt.TOM)
-            .medBrukerFnr(BRUKER_FNR)
-            .medBehandlingId(BEHANDLING_ID)
-            .medSaksnummer(SAKSNUMMER)
-            .medFagsakYtelseType(FagsakYtelseType.FORELDREPENGER)
-            .medFamilieYtelseType(FamilieYtelseType.FØDSEL)
-            .medAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER)
-            .medVedtaksdato(VEDTAKSDATO)
-            .medBrukInntrekk(true)
-            .medProsessTaskId(PROSESS_TASK_ID);
     }
 }

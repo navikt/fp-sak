@@ -11,39 +11,14 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.persistence.EntityManager;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
-import no.nav.foreldrepenger.behandlingslager.behandling.RettenTil;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepengerPrÅr;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
@@ -54,11 +29,8 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifi
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.foreldrepenger.økonomistøtte.OppdragInputTjeneste;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.OppdragMedPositivKvitteringTestUtil;
-import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollTjeneste;
-import no.nav.foreldrepenger.økonomistøtte.OpprettBehandlingForOppdrag;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragskontrollTestVerktøy;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Betalingsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.KjedeNøkkel;
@@ -67,11 +39,21 @@ import no.nav.foreldrepenger.økonomistøtte.ny.domene.Satsen;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Ytelse;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.YtelsePeriode;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.GruppertYtelse;
+import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.OverordnetOppdragKjedeOversikt;
+import no.nav.foreldrepenger.økonomistøtte.ny.mapper.EksisterendeOppdragMapper;
+import no.nav.foreldrepenger.økonomistøtte.ny.mapper.Input;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.LagOppdragTjeneste;
+import no.nav.foreldrepenger.økonomistøtte.ny.mapper.TilkjentYtelseMapper;
 import no.nav.foreldrepenger.økonomistøtte.ny.tjeneste.NyOppdragskontrollTjenesteImpl;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 
 public abstract class NyOppdragskontrollTjenesteTestBase {
+
+    public static final long PROSESS_TASK_ID = 23L;
+    public static final String BRUKER_FNR = "12345678901";
+    public static final Saksnummer SAKSNUMMER = Saksnummer.infotrygd("101000");
+    public static final long BEHANDLING_ID = 123456L;
+    public static final String ANSVARLIG_SAKSBEHANDLER = "Katarzyna";
 
     public static final LocalDate VEDTAKSDATO = LocalDate.now();
 
@@ -85,148 +67,39 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
     static final int I_ÅR = DAGENS_DATO.getYear();
     static final List<Integer> FERIEPENGEÅR_LISTE = List.of(DAGENS_DATO.plusYears(1).getYear(),
         DAGENS_DATO.plusYears(2).getYear());
-    protected ØkonomioppdragRepository økonomioppdragRepository;
-    protected BehandlingRepositoryProvider repositoryProvider;
-    protected BehandlingRepository behandlingRepository;
-    protected BeregningsresultatRepository beregningsresultatRepository;
-    protected FpUttakRepository fpUttakRepository;
-    protected FamilieHendelseRepository familieHendelseRepository;
-    protected TilbakekrevingRepository tilbakekrevingRepository;
-    protected BehandlingVedtakRepository behandlingVedtakRepository;
-    protected NyOppdragskontrollTjenesteImpl nyOppdragskontrollTjeneste;
-    protected OppdragInputTjeneste inputTjeneste;
 
-    Behandling behandling;
-    Fagsak fagsak;
-    PersonIdent personIdent = PersonIdent.fra("12345678901");
-    BehandlingVedtak behVedtak;
+    protected ØkonomioppdragRepository økonomioppdragRepository;
+    protected NyOppdragskontrollTjenesteImpl nyOppdragskontrollTjeneste;
 
     protected String virksomhet = ARBEIDSFORHOLD_ID;
     protected String virksomhet2 = ARBEIDSFORHOLD_ID_2;
     protected String virksomhet3 = ARBEIDSFORHOLD_ID_3;
     protected String virksomhet4 = ARBEIDSFORHOLD_ID_4;
-    private EntityManager entityManager;
 
-    public void setEntityManager(EntityManager entityManager) {
-        this.entityManager = entityManager;
+    protected Input.Builder getInputStandardBuilder(GruppertYtelse gruppertYtelse) {
+        return Input.builder()
+            .medTilkjentYtelse(gruppertYtelse)
+            .medTidligereOppdrag(OverordnetOppdragKjedeOversikt.TOM)
+            .medBrukerFnr(BRUKER_FNR)
+            .medBehandlingId(BEHANDLING_ID)
+            .medSaksnummer(SAKSNUMMER)
+            .medFagsakYtelseType(FagsakYtelseType.FORELDREPENGER)
+            .medFamilieYtelseType(FamilieYtelseType.FØDSEL)
+            .medAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER)
+            .medVedtaksdato(VEDTAKSDATO)
+            .medBrukInntrekk(true)
+            .medProsessTaskId(PROSESS_TASK_ID);
+    }
+
+    protected OverordnetOppdragKjedeOversikt mapTidligereOppdrag(List<Oppdragskontroll> tidligereOppdragskontroll) {
+        return new OverordnetOppdragKjedeOversikt(EksisterendeOppdragMapper.tilKjeder(tidligereOppdragskontroll));
     }
 
     public void setUp() {
-//        økonomioppdragRepository = new ØkonomioppdragRepository(entityManager);
-//        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-//        behandlingRepository = repositoryProvider.getBehandlingRepository();
-//        beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
-//        fpUttakRepository = new FpUttakRepository(entityManager);
-//        familieHendelseRepository = new FamilieHendelseRepository(entityManager);
-//        tilbakekrevingRepository = new TilbakekrevingRepository(entityManager);
-//        behandlingVedtakRepository = new BehandlingVedtakRepository(entityManager);
-//
-//        AktørTjeneste aktørTjenesteMock = mock(AktørTjeneste.class);
-//        lenient().when(aktørTjenesteMock.hentPersonIdentForAktørId(any())).thenReturn(Optional.of(personIdent));
-//
-//        inputTjeneste = new OppdragInputTjeneste(behandlingRepository,
-//            beregningsresultatRepository,
-//            behandlingVedtakRepository,
-//            familieHendelseRepository,
-//            tilbakekrevingRepository,
-//            aktørTjenesteMock,
-//            økonomioppdragRepository);
-
         nyOppdragskontrollTjeneste = new NyOppdragskontrollTjenesteImpl(new LagOppdragTjeneste(), mock(ØkonomioppdragRepository.class));
-//        behandling = opprettOgLagreBehandling(FamilieYtelseType.FØDSEL);
     }
 
-    protected Behandling opprettOgLagreBehandlingFPForSammeFagsak(Fagsak fagsak) {
-        Behandling behandlingFP = Behandling.forFørstegangssøknad(fagsak).build();
-        final FamilieHendelseBuilder hendelse = familieHendelseRepository.opprettBuilderFor(behandlingFP);
-        hendelse.medTerminbekreftelse(hendelse.getTerminbekreftelseBuilder()
-            .medTermindato(LocalDate.now().plusDays(40))
-            .medUtstedtDato(LocalDate.now().minusDays(7))
-            .medNavnPå("Navn"));
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandlingFP);
-        behandlingRepository.lagre(behandlingFP, lås);
-        familieHendelseRepository.lagre(behandlingFP, hendelse);
-        Behandlingsresultat.builderForInngangsvilkår()
-            .leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.INGEN_ENDRING)
-            .medRettenTil(RettenTil.HAR_RETT_TIL_FP)
-            .medVedtaksbrev(Vedtaksbrev.INGEN)
-            .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
-            .buildFor(behandlingFP);
-        behandlingRepository.lagre(getBehandlingsresultat(behandlingFP).getVilkårResultat(), lås);
-        entityManager.persist(getBehandlingsresultat(behandlingFP));
-        behVedtak = OpprettBehandlingForOppdrag.opprettBehandlingVedtak(behandlingFP,
-            getBehandlingsresultat(behandlingFP), VedtakResultatType.INNVILGET);
-        repositoryProvider.getBehandlingVedtakRepository().lagre(behVedtak, lås);
-        entityManager.flush();
-        return behandlingFP;
-    }
-
-    protected Behandling opprettOgLagreBehandling(FamilieYtelseType familieYtelseType) {
-        AbstractTestScenario<?> scenario;
-        if (FamilieYtelseType.SVANGERSKAPSPENGER.equals(familieYtelseType)) {
-            scenario = scenarioSvangerskapspenger();
-        } else {
-            scenario = scenarioForeldrepenger(familieYtelseType);
-        }
-        behandling = scenario.lagre(repositoryProvider);
-        fagsak = scenario.getFagsak();
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
-        Behandlingsresultat.builderForInngangsvilkår()
-            .leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.INGEN_ENDRING)
-            .medRettenTil(RettenTil.HAR_RETT_TIL_FP)
-            .medVedtaksbrev(Vedtaksbrev.INGEN)
-            .buildFor(behandling);
-
-        behandlingRepository.lagre(getBehandlingsresultat(behandling).getVilkårResultat(), lås);
-        entityManager.persist(getBehandlingsresultat(behandling));
-
-        behVedtak = OpprettBehandlingForOppdrag.opprettBehandlingVedtak(behandling, getBehandlingsresultat(behandling),
-            VedtakResultatType.INNVILGET);
-        repositoryProvider.getBehandlingVedtakRepository().lagre(behVedtak, lås);
-
-        entityManager.flush();
-
-        return behandling;
-    }
-
-    private Behandlingsresultat getBehandlingsresultat(Behandling behandling) {
-        return behandling.getBehandlingsresultat();
-    }
-
-    private ScenarioMorSøkerForeldrepenger scenarioForeldrepenger(FamilieYtelseType familieYtelseType) {
-        if (FamilieYtelseType.FØDSEL.equals(familieYtelseType)) {
-            ScenarioMorSøkerForeldrepenger scenarioFødsel = ScenarioMorSøkerForeldrepenger.forFødsel();
-            scenarioFødsel.medSøknadHendelse()
-                .medTerminbekreftelse(scenarioFødsel.medSøknadHendelse()
-                    .getTerminbekreftelseBuilder()
-                    .medTermindato(LocalDate.now().plusMonths(1)))
-                .medAntallBarn(1);
-            scenarioFødsel.medBekreftetHendelse()
-                .medTerminbekreftelse(scenarioFødsel.medBekreftetHendelse()
-                    .getTerminbekreftelseBuilder()
-                    .medTermindato(LocalDate.now().plusMonths(1)))
-                .medAntallBarn(1);
-            return scenarioFødsel;
-        }
-        ScenarioMorSøkerForeldrepenger scenarioAdopsjon = ScenarioMorSøkerForeldrepenger.forAdopsjon();
-        scenarioAdopsjon.medSøknadHendelse()
-            .medAdopsjon(scenarioAdopsjon.medSøknadHendelse()
-                .getAdopsjonBuilder()
-                .medOmsorgsovertakelseDato(LocalDate.now())
-                .medAnkomstDato(LocalDate.now()));
-        return scenarioAdopsjon;
-    }
-
-    private ScenarioMorSøkerSvangerskapspenger scenarioSvangerskapspenger() {
-        ScenarioMorSøkerSvangerskapspenger scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
-        scenario.medSøknadHendelse()
-            .medTerminbekreftelse(
-                scenario.medSøknadHendelse().getTerminbekreftelseBuilder().medTermindato(LocalDate.now().plusMonths(1)))
-            .medAntallBarn(1);
-        return scenario;
-    }
-
-    protected GruppertYtelse buildTilkjentYtelseFP() {
+   protected GruppertYtelse buildTilkjentYtelseFP() {
         return buildTilkjentYtelseFP(false);
     }
 
@@ -406,46 +279,7 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
             .build(beregningsresultatFeriepenger, andel);
     }
 
-    protected Behandling opprettOgLagreRevurdering(Behandling originalBehandling,
-                                                   VedtakResultatType resultat,
-                                                   boolean gjelderOpphør,
-                                                   boolean gjelderEndring) {
-
-        Behandling revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL)
-                .medOriginalBehandlingId(originalBehandling.getId()))
-            .build();
-
-        BehandlingLås behandlingLås = behandlingRepository.taSkriveLås(revurdering);
-        behandlingRepository.lagre(revurdering, behandlingLås);
-        repositoryProvider.getFamilieHendelseRepository()
-            .kopierGrunnlagFraEksisterendeBehandling(originalBehandling.getId(), revurdering.getId());
-        OpprettBehandlingForOppdrag.genererBehandlingOgResultatFP(revurdering);
-        behandlingRepository.lagre(getBehandlingsresultat(revurdering).getVilkårResultat(), behandlingLås);
-        if (gjelderOpphør) {
-            Behandlingsresultat behandlingsresultat = getBehandlingsresultat(revurdering);
-            Behandlingsresultat.builderEndreEksisterende(behandlingsresultat)
-                .medBehandlingResultatType(BehandlingResultatType.OPPHØR);
-        } else if (gjelderEndring) {
-            Behandlingsresultat behandlingsresultat = getBehandlingsresultat(revurdering);
-            Behandlingsresultat.builderEndreEksisterende(behandlingsresultat)
-                .medBehandlingResultatType(BehandlingResultatType.FORELDREPENGER_ENDRET);
-        } else {
-            Behandlingsresultat behandlingsresultat = getBehandlingsresultat(revurdering);
-            Behandlingsresultat.builderEndreEksisterende(behandlingsresultat)
-                .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
-        }
-        entityManager.persist(getBehandlingsresultat(revurdering));
-
-        BehandlingVedtak behandlingVedtak = OpprettBehandlingForOppdrag.opprettBehandlingVedtak(revurdering,
-            getBehandlingsresultat(revurdering), resultat);
-        repositoryProvider.getBehandlingVedtakRepository().lagre(behandlingVedtak, behandlingLås);
-        entityManager.flush();
-
-        return revurdering;
-    }
-
-    protected GruppertYtelse buildTilkjentYtelseMedFlereInntektskategoriFP(boolean medFeriepenger) {
+   protected GruppertYtelse buildTilkjentYtelseMedFlereInntektskategoriFP(boolean medFeriepenger) {
         var gruppertYtelse = GruppertYtelse.builder()
             .leggTilKjede(
                 KjedeNøkkel.lag(KodeKlassifik.FPF_ARBEIDSTAKER, Betalingsmottaker.BRUKER),
@@ -556,26 +390,6 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
                     .leggTilPeriode(lagPeriode(VEDTAKSDATO, 8, 14, Satsen.dagsats(400), 100))
                     .build());
         return gruppertYtelse.build();
-    }
-
-    protected BeregningsresultatEntitet buildBeregningsresultatMedFlereAndelerSomArbeidsgiver() {
-        BeregningsresultatEntitet beregningsresultat = BeregningsresultatEntitet.builder()
-            .medRegelInput("clob1")
-            .medRegelSporing("clob2")
-            .build();
-        BeregningsresultatPeriode brPeriode1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 7);
-        buildBeregningsresultatAndel(brPeriode1, true, 1500, BigDecimal.valueOf(80), virksomhet);
-        buildBeregningsresultatAndel(brPeriode1, true, 1500, BigDecimal.valueOf(80), virksomhet2,
-            AktivitetStatus.FRILANSER, Inntektskategori.FRILANSER);
-        buildBeregningsresultatAndel(brPeriode1, false, 500, BigDecimal.valueOf(100), virksomhet);
-        buildBeregningsresultatAndel(brPeriode1, true, 1000, BigDecimal.valueOf(100), virksomhet,
-            AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE, Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE);
-
-        BeregningsresultatPeriode brPeriode2 = buildBeregningsresultatPeriode(beregningsresultat, 8, 15);
-        buildBeregningsresultatAndel(brPeriode2, true, 1600, BigDecimal.valueOf(80), virksomhet2);
-        buildBeregningsresultatAndel(brPeriode2, false, 400, BigDecimal.valueOf(100), virksomhet2);
-
-        return beregningsresultat;
     }
 
     protected void verifiserOppdrag110_ENDR(List<Oppdrag110> nyOpp110Liste,
@@ -701,7 +515,7 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
         return beregningsresultat;
     }
 
-    private BeregningsresultatEntitet buildBeregningsresultatFPForVerifiseringAvOpp150MedFeriepenger(Optional<LocalDate> endringsdatoOpt,
+    protected BeregningsresultatEntitet buildBeregningsresultatFPForVerifiseringAvOpp150MedFeriepenger(Optional<LocalDate> endringsdatoOpt,
                                                                                                      boolean erOpptjentOverFlereÅr,
                                                                                                      Long årsbeløp1,
                                                                                                      Long årsbeløp2) {
@@ -917,42 +731,35 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
                                                                                            Long årsbeløp2) {
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFPForVerifiseringAvOpp150MedFeriepenger(
             Optional.empty(), erOpptjentOverFlereÅr, årsbeløp1, årsbeløp2);
+
         if (gjelderFødsel) {
-            beregningsresultatRepository.lagre(behandling, beregningsresultat);
-            return OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
+            TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+            GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+            var builder = getInputStandardBuilder(gruppertYtelse);
+
+            return OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
         }
-        Behandling behandlingAdopsjon = opprettOgLagreBehandling(FamilieYtelseType.ADOPSJON);
-        beregningsresultatRepository.lagre(behandlingAdopsjon, beregningsresultat);
-        return OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandlingAdopsjon);
+
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.ADOPSJON);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+
+        return OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
     }
 
-    protected Behandling oppsettBeregningsresultatFPRevurderingForFeriepenger(boolean erOpptjentOverFlereÅr,
-                                                                              Long årsbeløp1,
-                                                                              Long årsbeløp2) {
-        return oppsettBeregningsresultatFPRevurderingForFeriepenger(erOpptjentOverFlereÅr, årsbeløp1, årsbeløp2,
-            behandling);
+    public static List<Oppdragslinje150> getOppdragslinje150Feriepenger(Oppdragskontroll oppdrag) {
+        return oppdrag.getOppdrag110Liste()
+            .stream()
+            .map(NyOppdragskontrollTjenesteTestBase::getOppdragslinje150Feriepenger)
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
     }
 
-    protected Behandling oppsettBeregningsresultatFPRevurderingForFeriepenger(boolean erOpptjentOverFlereÅr,
-                                                                              Long årsbeløp1,
-                                                                              Long årsbeløp2,
-                                                                              Behandling behandling) {
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        LocalDate endringsdato = DAGENS_DATO.plusDays(1);
-        BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFPForVerifiseringAvOpp150MedFeriepenger(
-            Optional.of(endringsdato), erOpptjentOverFlereÅr, årsbeløp1, årsbeløp2);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
-        return revurdering;
-    }
-
-    static List<Oppdragslinje150> getOppdragslinje150Feriepenger(Oppdrag110 oppdrag110) {
+    public static List<Oppdragslinje150> getOppdragslinje150Feriepenger(Oppdrag110 oppdrag110) {
         return oppdrag110.getOppdragslinje150Liste()
             .stream()
             .filter(opp150 -> opp150.getKodeKlassifik().gjelderFeriepenger())
             .collect(Collectors.toList());
     }
 
-    protected OppdragskontrollTjeneste getOppdragTjeneste() {
-        return nyOppdragskontrollTjeneste;
-    }
 }

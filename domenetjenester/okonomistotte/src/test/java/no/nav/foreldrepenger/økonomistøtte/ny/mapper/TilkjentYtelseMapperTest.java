@@ -70,8 +70,7 @@ public class TilkjentYtelseMapperTest {
     }
 
     @Test
-    @Disabled
-    public void skal_mappe_utbetalingsgrad_riktig() {
+    public void skal_mappe_utbetalingsgrad_riktig_summeres() {
         BeregningsresultatPeriode periode1 = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(jan1, jan2).build(entitet);
 
         BeregningsresultatAndel.builder()
@@ -79,7 +78,7 @@ public class TilkjentYtelseMapperTest {
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
             .medDagsats(100)
             .medDagsatsFraBg(100)
-            .medUtbetalingsgrad(BigDecimal.valueOf(80))
+            .medUtbetalingsgrad(BigDecimal.valueOf(60))
             .medStillingsprosent(BigDecimal.valueOf(100))
             .build(periode1);
 
@@ -88,7 +87,7 @@ public class TilkjentYtelseMapperTest {
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER_UTEN_FERIEPENGER)
             .medDagsats(100)
             .medDagsatsFraBg(100)
-            .medUtbetalingsgrad(BigDecimal.valueOf(80))
+            .medUtbetalingsgrad(BigDecimal.valueOf(50))
             .medStillingsprosent(BigDecimal.valueOf(100))
             .build(periode1);
 
@@ -107,7 +106,7 @@ public class TilkjentYtelseMapperTest {
         YtelsePeriode ytelsePeriode = ytelse.getPerioder().get(0);
         Assertions.assertThat(ytelsePeriode.getSats()).isEqualTo(Satsen.dagsats(200));
         Assertions.assertThat(ytelsePeriode.getPeriode()).isEqualTo(Periode.of(jan1, jan2));
-        Assertions.assertThat(ytelsePeriode.getUtbetalingsgrad()).isEqualTo(new Utbetalingsgrad(80));
+        Assertions.assertThat(ytelsePeriode.getUtbetalingsgrad()).isEqualTo(new Utbetalingsgrad(100));
     }
 
     @Test

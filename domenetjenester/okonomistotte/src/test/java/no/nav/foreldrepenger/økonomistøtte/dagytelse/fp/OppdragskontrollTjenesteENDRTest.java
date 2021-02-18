@@ -970,7 +970,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
         verifiserOppdrag110_ENDR(oppdragRevurdering, originaltOppdrag110Liste, true);
         OppdragskontrollTestVerktøy.verifiserOppdr150SomErOpphørt(opp150RevurdListe, originaltOppdragslinje150, true, true, false);
-        OppdragskontrollTestVerktøy.verifiserOppdr150SomErNy(opp150RevurdListe, originaltOppdragslinje150, 80);
+        OppdragskontrollTestVerktøy.verifiserOppdr150SomErNy(opp150RevurdListe, originaltOppdragslinje150, List.of(80));
         OppdragskontrollTestVerktøy.verifiserOppdr150MedNyKlassekode(opp150RevurdListe);
     }
 
@@ -1020,7 +1020,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
         verifiserOppdrag110_ENDR(oppdragRevurdering, originaltOppdrag110Liste, true);
         OppdragskontrollTestVerktøy.verifiserOppdr150SomErOpphørt(opp150RevurdListe, originaltOppdragslinje150, true, true, false);
-        OppdragskontrollTestVerktøy.verifiserOppdr150SomErNy(opp150RevurdListe, originaltOppdragslinje150, 80);
+        OppdragskontrollTestVerktøy.verifiserOppdr150SomErNy(opp150RevurdListe, originaltOppdragslinje150, List.of(80));
         OppdragskontrollTestVerktøy.verifiserOppdr150SomAndelerSlåSammen(originaltOppdrag, oppdragRevurdering);
     }
 
@@ -2632,7 +2632,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         List<Oppdragslinje150> opp150RevurdListe = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(oppdragskontroll);
 
         verifiserOppdr150SomErOpphørt(opp150RevurdListe, originaltOpp150Liste, medFeriepenger, medFlereKlassekode, false);
-        verifiserOppdr150SomErNy(opp150RevurdListe, originaltOpp150Liste, gradering);
+        verifiserOppdr150SomErNy(opp150RevurdListe, originaltOpp150Liste, List.of(gradering));
     }
 
     private void verifiserOppdr150SomErUendret(Oppdragskontroll oppdrag) {

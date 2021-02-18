@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -13,7 +15,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.IntervallUtil;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
@@ -29,6 +34,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragskontrollTestVerktøy;
+import no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdrag110.KodeFagområdeTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Betalingsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.KjedeNøkkel;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Satsen;
@@ -39,12 +45,6 @@ import no.nav.foreldrepenger.økonomistøtte.ny.mapper.Input;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.TilkjentYtelseMapper;
 
 public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenesteTestBase {
-
-    public static final long PROSESS_TASK_ID = 23L;
-    public static final String BRUKER_FNR = "12345678901";
-    public static final Saksnummer SAKSNUMMER = Saksnummer.infotrygd("101000");
-    public static final long BEHANDLING_ID = 123456L;
-    public static final String ANSVARLIG_SAKSBEHANDLER = "Antonina";
 
     @BeforeEach
     public void setUp() {
@@ -578,6 +578,63 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
         }
     }
 
+    @Test
+    public void skal_sende_oppdrag_for_svangerskapspenger() {
+        //Arrange
+        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(Optional.empty());
+        BeregningsresultatPeriode brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
+        BeregningsresultatAndel andelBruker_1 = buildBeregningsresultatAndel(brPeriode_1, true, 1000, BigDecimal.valueOf(100L), virksomhet);
+        BeregningsresultatAndel andelArbeidsgiver_1 = buildBeregningsresultatAndel(brPeriode_1, false, 1000, BigDecimal.valueOf(100L), virksomhet);
+        BeregningsresultatPeriode brPeriode_2 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
+        buildBeregningsresultatAndel(brPeriode_2, true, 1000, BigDecimal.valueOf(100L), virksomhet);
+        buildBeregningsresultatAndel(brPeriode_2, false, 1000, BigDecimal.valueOf(100L), virksomhet);
+        BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger(beregningsresultat);
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelBruker_1, 10000L, LocalDate.of(2018, 12, 31));
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelArbeidsgiver_1, 10000L, LocalDate.of(2018, 12, 31));
+
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.SVANGERSKAPSPENGER);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse)
+            .medFagsakYtelseType(FagsakYtelseType.SVANGERSKAPSPENGER)
+            .medFamilieYtelseType(FamilieYtelseType.SVANGERSKAPSPENGER);
+
+        //Act
+        var oppdragskontroll = nyOppdragskontrollTjeneste.opprettOppdrag(builder.build());
+
+        //Assert
+        if (oppdragskontroll.isPresent()) {
+            var ok = oppdragskontroll.get();
+
+            assertThat(oppdragskontroll).isNotNull();
+            List<Oppdrag110> oppdrag110List = ok.getOppdrag110Liste();
+            assertThat(oppdrag110List).hasSize(2);
+            //Oppdrag110 - Bruker
+            Optional<Oppdrag110> oppdrag110_Bruker = oppdrag110List.stream()
+                .filter(o110 -> KodeFagområdeTjeneste.forSvangerskapspenger().gjelderBruker(o110))
+                .findFirst();
+            assertThat(oppdrag110_Bruker).isPresent();
+            //Oppdrag110 - Arbeidsgiver
+            Optional<Oppdrag110> oppdrag110_Arbeidsgiver = oppdrag110List.stream()
+                .filter(o110 -> !KodeFagområdeTjeneste.forSvangerskapspenger().gjelderBruker(o110))
+                .findFirst();
+            assertThat(oppdrag110_Arbeidsgiver).isPresent();
+            //Oppdragslinje150 - Bruker
+            List<Oppdragslinje150> opp150List_Bruker = oppdrag110_Bruker.get().getOppdragslinje150Liste();
+            assertThat(opp150List_Bruker).anySatisfy(opp150 ->
+                assertThat(opp150.getKodeKlassifik()).isIn(Arrays.asList(
+                    KodeKlassifik.SVP_ARBEDISTAKER,
+                    KodeKlassifik.FERIEPENGER_BRUKER.getKode())
+                ));
+            //Oppdragslinje150 - Arbeidsgiver
+            List<Oppdragslinje150> opp150List_Arbeidsgiver = oppdrag110_Arbeidsgiver.get().getOppdragslinje150Liste();
+            assertThat(opp150List_Arbeidsgiver).anySatisfy(opp150 ->
+                assertThat(opp150.getKodeKlassifik()).isIn(Arrays.asList(
+                    KodeKlassifik.SVP_REFUSJON_AG,
+                    KodeKlassifik.SVP_FERIEPENGER_AG)
+                ));
+        }
+    }
+
     private void verifyOpp150NårFørstegangsoppdragBlirSendtIRevurdering(List<Oppdragslinje150> oppdragslinje150List) {
         assertThat(oppdragslinje150List).isNotEmpty();
         assertThat(oppdragslinje150List).allSatisfy(oppdragslinje150 -> {
@@ -654,21 +711,6 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
         );
         assertThat(mottakere110.stream().map(Oppdrag110::getFagsystemId).distinct().count()).isEqualTo(antallMottakere);
         verifiserAvstemming(mottakere110);
-    }
-
-    private Input.Builder getInputStandardBuilder(GruppertYtelse gruppertYtelse) {
-        return Input.builder()
-            .medTilkjentYtelse(gruppertYtelse)
-            .medTidligereOppdrag(OverordnetOppdragKjedeOversikt.TOM)
-            .medBrukerFnr(BRUKER_FNR)
-            .medBehandlingId(BEHANDLING_ID)
-            .medSaksnummer(SAKSNUMMER)
-            .medFagsakYtelseType(FagsakYtelseType.FORELDREPENGER)
-            .medFamilieYtelseType(FamilieYtelseType.FØDSEL)
-            .medAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER)
-            .medVedtaksdato(VEDTAKSDATO)
-            .medBrukInntrekk(true)
-            .medProsessTaskId(PROSESS_TASK_ID);
     }
 
 }

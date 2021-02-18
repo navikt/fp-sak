@@ -120,7 +120,7 @@ public class OppdragskontrollTestVerktøy {
         List<KodeKlassifik> klassekodeListe = opp150OriginalListe.stream().map(Oppdragslinje150::getKodeKlassifik).distinct().collect(Collectors.toList());
         klassekodeListe.forEach(kode -> {
             if (opp150RevurderingListe.stream().anyMatch(opp150 -> opp150.getKodeKlassifik().equals(kode))) {
-                Oppdragslinje150 førsteOpp150IKjede = opp150RevurderingListe.stream().filter(opp150 -> opp150.getKodeKlassifik().equals(kode))
+                Oppdragslinje150 førsteOpp150IKjede = opp150RevurderingListe.stream().filter(opp150 -> opp150.getKodeKlassifik().equals(kode) && !opp150.gjelderOpphør())
                     .min(Comparator.comparing(Oppdragslinje150::getDatoVedtakFom)).get();
                 assertThat(opp150OriginalListe).anySatisfy(opp150 -> assertThat(opp150.getDelytelseId()).isEqualTo(førsteOpp150IKjede.getRefDelytelseId()));
             }
@@ -178,7 +178,7 @@ public class OppdragskontrollTestVerktøy {
         }
     }
 
-    static void verifiserRefusjonInfo156(List<Oppdrag110> opp110RevurderingList, Oppdragskontroll originaltOppdrag) {
+    public static void verifiserRefusjonInfo156(List<Oppdrag110> opp110RevurderingList, Oppdragskontroll originaltOppdrag) {
 
         List<Oppdragslinje150> opp150RevurderingList = opp110RevurderingList.stream().filter(opp110 -> opp110.getKodeFagomrade().equals(ØkonomiKodeFagområde.FPREF.name()))
             .flatMap(opp110 -> opp110.getOppdragslinje150Liste().stream())
@@ -208,7 +208,7 @@ public class OppdragskontrollTestVerktøy {
         verifiserKjedingForOppdragslinje150(revurderingOppdr150ListeAT, revurderingOppdr150ListeFL);
     }
 
-    static void verifiserOpphørsdatoen(Oppdragskontroll originaltOppdrag, Oppdragskontroll oppdragRevurdering) {
+    public static void verifiserOpphørsdatoen(Oppdragskontroll originaltOppdrag, Oppdragskontroll oppdragRevurdering) {
         List<Oppdragslinje150> originaltOppdr150Liste = originaltOppdrag.getOppdrag110Liste().stream().flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream()).collect(Collectors.toList());
         List<Oppdragslinje150> oppdr150OpphørtListe = oppdragRevurdering.getOppdrag110Liste().stream().flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste()
             .stream()).filter(opp150 -> opp150.gjelderOpphør() && !opp150.getKodeKlassifik().equals(KodeKlassifik.FPF_REFUSJON_AG)).collect(Collectors.toList());
@@ -240,7 +240,7 @@ public class OppdragskontrollTestVerktøy {
     }
 
 
-    public static void verifiserOppdr150SomErNy(List<Oppdragslinje150> opp150RevurdListe, List<Oppdragslinje150> originaltOpp150Liste, int gradering) {
+    public static void verifiserOppdr150SomErNy(List<Oppdragslinje150> opp150RevurdListe, List<Oppdragslinje150> originaltOpp150Liste, List<Integer> gradering) {
         List<Oppdragslinje150> opp150NyList = opp150RevurdListe.stream()
             .filter(oppdr150 -> oppdr150.getKodeEndringLinje().equals(KodeEndringLinje.NY))
             .collect(Collectors.toList());
@@ -266,7 +266,7 @@ public class OppdragskontrollTestVerktøy {
                 assertThat(opp150Ny.getRefusjonsinfo156()).isNotNull();
             }
             if (opp150MedGradering(opp150Ny)) {
-                assertThat(opp150Ny.getUtbetalingsgrad().getVerdi()).isEqualTo(gradering);
+                assertThat(opp150Ny.getUtbetalingsgrad().getVerdi()).isIn(gradering);
             }
             if (!erOpp150ForFeriepenger(opp150Ny)) {
                 assertThat(opp150Ny.getUtbetalingsgrad()).isNotNull();
