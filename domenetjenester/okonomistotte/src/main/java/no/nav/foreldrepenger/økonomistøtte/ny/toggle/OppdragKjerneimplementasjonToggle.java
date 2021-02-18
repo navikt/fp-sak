@@ -14,9 +14,7 @@ import no.nav.vedtak.util.env.Environment;
 public class OppdragKjerneimplementasjonToggle {
 
     //TODO legg inn saksnumre i denne lista for å lansere ny impl for utvalgte saker
-    public static final Set<Saksnummer> LANSERT_I_PROD = Set.of(
-        new Saksnummer("147260073")
-    );
+    public static final Set<Saksnummer> LANSERT_I_PROD = Set.of();
 
     private BehandlingRepository behandlingRepository;
 
@@ -31,6 +29,6 @@ public class OppdragKjerneimplementasjonToggle {
 
     public boolean brukNyImpl(Long behandlingId) {
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        return Environment.current().isProd() && LANSERT_I_PROD.contains(behandling.getFagsak().getSaksnummer());
+        return !Environment.current().isProd() || LANSERT_I_PROD.contains(behandling.getFagsak().getSaksnummer());
     }
 }
