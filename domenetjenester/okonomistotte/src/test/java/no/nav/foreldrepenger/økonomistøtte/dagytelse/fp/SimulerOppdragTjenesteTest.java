@@ -29,6 +29,7 @@ import no.nav.foreldrepenger.økonomistøtte.OppdragInputTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.SimulerOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.Input;
+import no.nav.foreldrepenger.økonomistøtte.ny.tjeneste.NyOppdragskontrollTjenesteImpl;
 import no.nav.foreldrepenger.økonomistøtte.ny.toggle.OppdragKjerneimplementasjonToggle;
 
 @CdiDbAwareTest
@@ -37,6 +38,8 @@ public class SimulerOppdragTjenesteTest {
     private OppdragInputTjeneste oppdragInputTjeneste;
     @Mock
     private OppdragskontrollTjeneste oppdragskontrollTjeneste;
+    @Mock
+    NyOppdragskontrollTjenesteImpl nyOppdragskontrollTjeneste;
     @Mock
     private OppdragKjerneimplementasjonToggle toggle;
 
@@ -54,7 +57,7 @@ public class SimulerOppdragTjenesteTest {
 
         when(toggle.brukNyImpl(any())).thenReturn(false);
 
-        var simulerOppdragTjeneste = new SimulerOppdragTjeneste(oppdragskontrollTjeneste, null, oppdragInputTjeneste, toggle);
+        var simulerOppdragTjeneste = new SimulerOppdragTjeneste(oppdragskontrollTjeneste, null, nyOppdragskontrollTjeneste, oppdragInputTjeneste, toggle);
 
         // Act
         var resultat = simulerOppdragTjeneste.simulerOppdrag(1L, FagsakYtelseType.FORELDREPENGER);

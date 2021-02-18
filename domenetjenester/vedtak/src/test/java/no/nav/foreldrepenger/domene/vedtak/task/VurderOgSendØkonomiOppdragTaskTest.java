@@ -31,6 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.økonomistøtte.OppdragInputTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollEngangsstønadTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.postcondition.OppdragPostConditionTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.tjeneste.NyOppdragskontrollTjenesteImpl;
@@ -62,6 +63,9 @@ public class VurderOgSendØkonomiOppdragTaskTest {
     private NyOppdragskontrollTjenesteImpl nyOppdragskontrollTjeneste;
 
     @Mock
+    private OppdragInputTjeneste oppdragInputTjeneste;
+
+    @Mock
     private OppdragPostConditionTjeneste oppdragPostConditionTjeneste;
 
     @Mock
@@ -76,7 +80,7 @@ public class VurderOgSendØkonomiOppdragTaskTest {
         lenient().when(prosessTaskData.getAktørId()).thenReturn(AKTØR_ID);
         var repositoryProvider = ScenarioMorSøkerForeldrepenger.forFødsel().mockBehandlingRepositoryProvider();
         lenient().when(repositoryProvider.getBehandlingRepository().hentBehandling(BEHANDLING_ID)).thenReturn(Behandling.nyBehandlingFor(Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB)), BehandlingType.FØRSTEGANGSSØKNAD).build());
-        task = new VurderOgSendØkonomiOppdragTask(oppdragskontrollTjeneste, oppdragskontrollTjeneste, repo, repositoryProvider, nyOppdragskontrollTjeneste, oppdragPostConditionTjeneste, toggle);
+        task = new VurderOgSendØkonomiOppdragTask(oppdragskontrollTjeneste, oppdragskontrollTjeneste, repo, repositoryProvider, nyOppdragskontrollTjeneste, oppdragPostConditionTjeneste, toggle, oppdragInputTjeneste);
     }
 
     @Test

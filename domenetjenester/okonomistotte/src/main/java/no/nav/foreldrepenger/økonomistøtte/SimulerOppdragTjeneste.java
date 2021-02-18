@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
+import no.nav.foreldrepenger.økonomistøtte.ny.tjeneste.NyOppdragskontrollTjenesteImpl;
 import no.nav.foreldrepenger.økonomistøtte.ny.toggle.OppdragKjerneimplementasjonToggle;
 
 @ApplicationScoped
@@ -27,6 +28,7 @@ public class SimulerOppdragTjeneste {
     private OppdragskontrollTjeneste oppdragskontrollTjeneste;
     private OppdragskontrollTjeneste esOppdragskontrollTjeneste;
     private OppdragInputTjeneste oppdragInputTjeneste;
+    private NyOppdragskontrollTjenesteImpl nyOppdragskontrollTjeneste;
     private OppdragKjerneimplementasjonToggle toggle;
 
     SimulerOppdragTjeneste() {
@@ -36,10 +38,12 @@ public class SimulerOppdragTjeneste {
     @Inject
     public SimulerOppdragTjeneste(@Named("oppdragTjeneste") OppdragskontrollTjeneste oppdragskontrollTjeneste, // @Named("nyOppdragTjeneste")
                                   @Named("oppdragEngangstønadTjeneste") OppdragskontrollTjeneste esOppdragskontrollTjeneste,
+                                  NyOppdragskontrollTjenesteImpl nyOppdragskontrollTjeneste,
                                   OppdragInputTjeneste oppdragInputTjeneste,
                                   OppdragKjerneimplementasjonToggle toggle) {
         this.oppdragskontrollTjeneste = oppdragskontrollTjeneste;
         this.esOppdragskontrollTjeneste = esOppdragskontrollTjeneste;
+        this.nyOppdragskontrollTjeneste = nyOppdragskontrollTjeneste;
         this.oppdragInputTjeneste = oppdragInputTjeneste;
         this.toggle = toggle;
     }
@@ -60,14 +64,14 @@ public class SimulerOppdragTjeneste {
 
         if (fagsakYtelseType.equals(FagsakYtelseType.ENGANGSTØNAD)) {
             log.info("Simulerer engangsstønad for behandlingId: {}", behandlingId);
-            oppdragskontrollOpt = esOppdragskontrollTjeneste.opprettOppdrag(behandlingId, -1L);
+            oppdragskontrollOpt = esOppdragskontrollTjeneste.simulerOppdrag(behandlingId);
         } else {
             if (brukNyImplementasjon) {
                 log.info("Gjennomfører simulering for behandling med id={} med ny implementasjon", behandlingId);
-                var input = oppdragInputTjeneste.lagInput(behandlingId, -1L);
-                oppdragskontrollOpt = oppdragskontrollTjeneste.opprettOppdrag(input, true);
+                var input = oppdragInputTjeneste.lagInput(behandlingId);
+                oppdragskontrollOpt = nyOppdragskontrollTjeneste.simulerOppdrag(input);
             } else {
-                oppdragskontrollOpt = oppdragskontrollTjeneste.opprettOppdrag(behandlingId, -1L);
+                oppdragskontrollOpt = oppdragskontrollTjeneste.simulerOppdrag(behandlingId);
             }
         }
 

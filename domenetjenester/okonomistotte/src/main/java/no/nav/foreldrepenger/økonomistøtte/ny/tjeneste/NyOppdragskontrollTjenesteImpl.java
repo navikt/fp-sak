@@ -39,12 +39,22 @@ public class NyOppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste 
         return Optional.empty();
     }
 
+    @Override
+    public Optional<Oppdragskontroll> simulerOppdrag(Long behandlingId) {
+        return Optional.empty();
+    }
+
     /**
      * Brukes ved iverksettelse. Sender over kun nødvendige endringer til oppdragssystemet.
      */
     @Override
     public Optional<Oppdragskontroll> opprettOppdrag(Input input) {
         return opprettOppdrag(input, false);
+    }
+
+    @Override
+    public Optional<Oppdragskontroll> simulerOppdrag(Input input) {
+        return opprettOppdrag(input, true);
     }
 
     /**

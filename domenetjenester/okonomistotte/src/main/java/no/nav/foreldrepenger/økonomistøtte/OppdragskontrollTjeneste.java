@@ -9,10 +9,15 @@ public interface OppdragskontrollTjeneste {
 
     Optional<Oppdragskontroll> opprettOppdrag(Input input);
 
+    Optional<Oppdragskontroll> simulerOppdrag(Input input);
+
     Optional<Oppdragskontroll> opprettOppdrag(Input input, boolean brukFellesEndringstidspunkt);
 
     @Deprecated
     Optional<Oppdragskontroll> opprettOppdrag(Long behandlingId, Long prosessTaskId);
+
+    @Deprecated
+    Optional<Oppdragskontroll> simulerOppdrag(Long behandlingId);
 
     @Deprecated
     Optional<Oppdragskontroll> opprettOppdrag(Long behandlingId, Long prosessTaskId, boolean brukFellesEndringstidspunkt);

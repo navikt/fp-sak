@@ -27,6 +27,7 @@ import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.SimulerOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.kontantytelse.es.OppdragskontrollEngangsstønad;
 import no.nav.foreldrepenger.økonomistøtte.kontantytelse.es.adapter.MapBehandlingInfoES;
+import no.nav.foreldrepenger.økonomistøtte.ny.tjeneste.NyOppdragskontrollTjenesteImpl;
 import no.nav.foreldrepenger.økonomistøtte.ny.toggle.OppdragKjerneimplementasjonToggle;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 
@@ -61,7 +62,7 @@ public class SimulerOppdragTjenesteTest extends EntityManagerAwareTest {
         familieHendelseRepository = new FamilieHendelseRepository(entityManager);
         when(toggle.brukNyImpl(any())).thenReturn(false);
 
-        simulerOppdragTjeneste = new SimulerOppdragTjeneste(mock(OppdragskontrollTjeneste.class), mockTjeneste() , mock(OppdragInputTjeneste.class), toggle);
+        simulerOppdragTjeneste = new SimulerOppdragTjeneste(mock(OppdragskontrollTjeneste.class), mockTjeneste(), mock(NyOppdragskontrollTjenesteImpl.class), mock(OppdragInputTjeneste.class), toggle);
     }
 
     private OppdragskontrollTjeneste mockTjeneste() {

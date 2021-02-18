@@ -30,6 +30,8 @@ import no.nav.foreldrepenger.økonomistøtte.ny.mapper.TilkjentYtelseMapper;
 @Dependent
 public class OppdragInputTjeneste {
 
+    private static final long DUMMY_PT_SIMULERING_ID = -1L;
+
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
@@ -79,6 +81,10 @@ public class OppdragInputTjeneste {
             .medTidligereOppdrag(mapTidligereOppdrag(hentTidligereOppdragskontroll(fagsak.getSaksnummer())))
             ;
         return build.build();
+    }
+
+    public Input lagInput(long behandlingId) {
+        return lagInput(behandlingId, DUMMY_PT_SIMULERING_ID);
     }
 
     private String hentFnrBruker(Behandling behandling) {

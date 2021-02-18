@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølg
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
+import no.nav.foreldrepenger.økonomistøtte.OppdragInputTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.postcondition.OppdragPostConditionTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.tjeneste.NyOppdragskontrollTjenesteImpl;
@@ -39,6 +40,7 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
     private ProsessTaskRepository prosessTaskRepository;
     private OppdragPostConditionTjeneste oppdragPostConditionTjeneste;
     private OppdragKjerneimplementasjonToggle toggle;
+    private OppdragInputTjeneste oppdragInputTjeneste;
     private BehandlingRepository behandlingRepository;
 
     VurderOgSendØkonomiOppdragTask() {
@@ -52,7 +54,8 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
                                           BehandlingRepositoryProvider repositoryProvider,
                                           NyOppdragskontrollTjenesteImpl nyOppdragskontrollTjeneste,
                                           OppdragPostConditionTjeneste oppdragPostConditionTjeneste,
-                                          OppdragKjerneimplementasjonToggle toggle) {
+                                          OppdragKjerneimplementasjonToggle toggle,
+                                          OppdragInputTjeneste oppdragInputTjeneste) {
         super(repositoryProvider.getBehandlingLåsRepository());
         this.oppdragskontrollTjeneste = oppdragskontrollTjeneste;
         this.prosessTaskRepository = prosessTaskRepository;
@@ -60,6 +63,7 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
         this.oppdragPostConditionTjeneste = oppdragPostConditionTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.oppdragskontrollEngangsstønadTjeneste = oppdragskontrollTjenesteEngangsstønad;
+        this.oppdragInputTjeneste = oppdragInputTjeneste;
         this.toggle = toggle;
     }
 
@@ -82,11 +86,12 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
 
         if (behandling.getFagsakYtelseType().equals(FagsakYtelseType.ENGANGSTØNAD)) {
             log.info("Simulerer engangsstønad for behandlingId: {}", behandlingId);
-            oppdragskontrollOpt = oppdragskontrollEngangsstønadTjeneste.opprettOppdrag(behandlingId, -1L);
+            oppdragskontrollOpt = oppdragskontrollEngangsstønadTjeneste.opprettOppdrag(behandlingId, prosessTaskData.getId());
         } else {
             if (toggle.brukNyImpl(behandlingId)) {
                 log.info("Bruker ny implementasjon av kjernen i modulen fpsak.okonomistotte for behandlingId={}", behandlingId);
-                oppdragskontrollOpt = nyOppdragskontrollTjeneste.opprettOppdrag(behandlingId, prosessTaskData.getId());
+                var input = oppdragInputTjeneste.lagInput(behandlingId, prosessTaskData.getId());
+                oppdragskontrollOpt = nyOppdragskontrollTjeneste.opprettOppdrag(input);
             } else {
                 oppdragskontrollOpt = oppdragskontrollTjeneste.opprettOppdrag(behandlingId, prosessTaskData.getId());
             }
