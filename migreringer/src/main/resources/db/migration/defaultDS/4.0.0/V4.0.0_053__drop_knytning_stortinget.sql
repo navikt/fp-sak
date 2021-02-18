@@ -1,0 +1,2 @@
+drop sequence SEQ_ORG_MANUELL_BEHANDLING;
+drop table ORG_MANUELL_BEHANDLING;
