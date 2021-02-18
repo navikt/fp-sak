@@ -100,7 +100,7 @@ public class UttakResultatEntitet extends BaseEntitet {
 
         public UttakResultatEntitet build() {
             if (kladd.getOverstyrtPerioder() != null && kladd.getOpprinneligPerioder() == null) {
-                throw UttakEntitetFeil.FACTORY.manueltFastettePerioderManglerEksisterendeResultat(kladd.behandlingsresultat.getBehandlingId()).toException();
+                throw UttakEntitetFeil.manueltFastettePerioderManglerEksisterendeResultat(kladd.behandlingsresultat.getBehandlingId());
             }
             return kladd;
         }

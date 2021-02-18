@@ -1,16 +1,16 @@
 package no.nav.foreldrepenger.behandlingslager.uttak.fp;
 
-import static no.nav.vedtak.feil.LogLevel.ERROR;
+import no.nav.vedtak.exception.TekniskException;
 
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+class UttakEntitetFeil {
 
-interface UttakEntitetFeil extends DeklarerteFeil {
-    UttakEntitetFeil FACTORY = FeilFactory.create(UttakEntitetFeil.class);
+    private UttakEntitetFeil() {
 
-    @TekniskFeil(feilkode = "FP-661902", feilmelding = "Behandling må ha eksisterende uttaksresultat ved lagring av manuelt fastsatte perioder. Behandling id %s", logLevel = ERROR)
-    Feil manueltFastettePerioderManglerEksisterendeResultat(Long behandlingId);
+    }
+
+    static TekniskException manueltFastettePerioderManglerEksisterendeResultat(Long behandlingId) {
+        return new TekniskException("FP-661902", String
+                .format("Behandling må ha eksisterende uttaksresultat ved lagring av manuelt fastsatte perioder. Behandling id %s", behandlingId));
+    }
 
 }
