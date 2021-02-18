@@ -96,11 +96,17 @@ public enum KodeKlassifik implements Kodeverdi {
         return KODEVERK;
     }
 
-    public boolean gjelderFerie() {
-        return this == FERIEPENGER_BRUKER
-            || this == FPF_FERIEPENGER_AG
-            || this == FPA_FERIEPENGER_AG
-            || this == SVP_FERIEPENGER_AG;
+    public boolean gjelderFeriepenger() {
+        return this.equals(FERIEPENGER_BRUKER)
+            || this.equals(FPF_FERIEPENGER_AG)
+            || this.equals(FPA_FERIEPENGER_AG)
+            || this.equals(SVP_FERIEPENGER_AG);
+    }
+
+    public boolean gjelderArbeidsgiver() {
+        return this.equals(FPF_REFUSJON_AG)
+            || this.equals(FPA_REFUSJON_AG)
+            || this.equals(SVP_REFUSJON_AG);
     }
 
     @Converter(autoApply = true)

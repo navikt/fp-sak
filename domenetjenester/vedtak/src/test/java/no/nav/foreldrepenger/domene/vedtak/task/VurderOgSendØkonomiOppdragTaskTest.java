@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.domene.vedtak.task;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -18,12 +19,22 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
+import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.NavBrukerBuilder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.økonomistøtte.OppdragInputTjeneste;
+import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollEngangsstønadTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.postcondition.OppdragPostConditionTjeneste;
-import no.nav.foreldrepenger.økonomistøtte.ny.tjeneste.NyOppdragskontrollTjeneste;
+import no.nav.foreldrepenger.økonomistøtte.ny.tjeneste.NyOppdragskontrollTjenesteImpl;
 import no.nav.foreldrepenger.økonomistøtte.ny.toggle.OppdragKjerneimplementasjonToggle;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -49,7 +60,10 @@ public class VurderOgSendØkonomiOppdragTaskTest {
     private OppdragskontrollTjeneste oppdragskontrollTjeneste;
 
     @Mock
-    private NyOppdragskontrollTjeneste nyOppdragskontrollTjeneste;
+    private NyOppdragskontrollTjenesteImpl nyOppdragskontrollTjeneste;
+
+    @Mock
+    private OppdragInputTjeneste oppdragInputTjeneste;
 
     @Mock
     private OppdragPostConditionTjeneste oppdragPostConditionTjeneste;
@@ -64,7 +78,9 @@ public class VurderOgSendØkonomiOppdragTaskTest {
         when(prosessTaskData.getBehandlingId()).thenReturn(BEHANDLING_ID.toString());
         lenient().when(prosessTaskData.getId()).thenReturn(TASK_ID);
         lenient().when(prosessTaskData.getAktørId()).thenReturn(AKTØR_ID);
-        task = new VurderOgSendØkonomiOppdragTask(oppdragskontrollTjeneste, repo, ScenarioMorSøkerForeldrepenger.forFødsel().mockBehandlingRepositoryProvider(), nyOppdragskontrollTjeneste, oppdragPostConditionTjeneste, toggle);
+        var repositoryProvider = ScenarioMorSøkerForeldrepenger.forFødsel().mockBehandlingRepositoryProvider();
+        lenient().when(repositoryProvider.getBehandlingRepository().hentBehandling(BEHANDLING_ID)).thenReturn(Behandling.nyBehandlingFor(Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB)), BehandlingType.FØRSTEGANGSSØKNAD).build());
+        task = new VurderOgSendØkonomiOppdragTask(oppdragskontrollTjeneste, oppdragskontrollTjeneste, repo, repositoryProvider, nyOppdragskontrollTjeneste, oppdragPostConditionTjeneste, toggle, oppdragInputTjeneste);
     }
 
     @Test

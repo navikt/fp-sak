@@ -39,7 +39,6 @@ public class OppdragKjedeFactory {
         Objects.requireNonNull(tidligereOppdrag);
         Objects.requireNonNull(vedtak);
         Ytelse iverksattYtelse = tidligereOppdrag.tilYtelse();
-        boolean erNy = iverksattYtelse.getPerioder().isEmpty();
         LocalDate endringsdato = EndringsdatoTjeneste.normal().finnEndringsdato(iverksattYtelse, vedtak);
         return endringsdato == null ? null : lagOppdragskjede(endringsdato, tidligereOppdrag, vedtak, gjelderFeriepenger);
     }

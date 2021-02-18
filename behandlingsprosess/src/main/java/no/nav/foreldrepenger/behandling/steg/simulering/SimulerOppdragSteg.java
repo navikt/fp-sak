@@ -44,9 +44,6 @@ public class SimulerOppdragSteg implements BehandlingSteg {
 
     private static final Logger logger = LoggerFactory.getLogger(SimulerOppdragSteg.class);
 
-    public static final long DUMMY_TASK_ID = -1L; // TODO (Team Tonic) simulerOppdrag-tjenesten krever en task-id som input, uten
-                                                  // at den skal være i bruk
-
     private static final int ÅPNINGSTID = 7;
     private static final int STENGETID = 21;
 
@@ -110,7 +107,7 @@ public class SimulerOppdragSteg implements BehandlingSteg {
     }
 
     private void startSimulering(Behandling behandling) {
-        List<String> oppdragXmler = simulerOppdragTjeneste.simulerOppdrag(behandling.getId(), DUMMY_TASK_ID);
+        List<String> oppdragXmler = simulerOppdragTjeneste.simulerOppdrag(behandling.getId(), behandling.getFagsakYtelseType());
         simuleringIntegrasjonTjeneste.startSimulering(behandling.getId(), oppdragXmler);
     }
 

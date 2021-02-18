@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Betalingsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Periode;
-import no.nav.foreldrepenger.økonomistøtte.ny.domene.Sats;
+import no.nav.foreldrepenger.økonomistøtte.ny.domene.Satsen;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Ytelse;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.YtelsePeriode;
 
@@ -32,11 +32,11 @@ public class OppdragPostConditionTjenesteTest {
     @Test
     public void skal_ignorere_helger_for_satstype_dagsats() {
         Ytelse ytelseKontinuerlig = Ytelse.builder()
-            .leggTilPeriode(new YtelsePeriode(Periode.of(mandag, fredag), Sats.dagsats(100)))
-            .leggTilPeriode(new YtelsePeriode(Periode.of(nesteMandag, nesteMandag), Sats.dagsats(100)))
+            .leggTilPeriode(new YtelsePeriode(Periode.of(mandag, fredag), Satsen.dagsats(100)))
+            .leggTilPeriode(new YtelsePeriode(Periode.of(nesteMandag, nesteMandag), Satsen.dagsats(100)))
             .build();
         Ytelse ytelseSplittet = Ytelse.builder().leggTilPeriode(
-            new YtelsePeriode(Periode.of(mandag, nesteMandag), Sats.dagsats(100)))
+            new YtelsePeriode(Periode.of(mandag, nesteMandag), Satsen.dagsats(100)))
             .build();
         assertThat(OppdragPostConditionTjeneste.finnDifferanse(ytelseKontinuerlig, ytelseSplittet, Betalingsmottaker.BRUKER)).isEmpty();
         assertThat(OppdragPostConditionTjeneste.finnDifferanse(ytelseSplittet, ytelseKontinuerlig, Betalingsmottaker.BRUKER)).isEmpty();
@@ -44,18 +44,18 @@ public class OppdragPostConditionTjenesteTest {
 
     @Test
     public void skal_finne_differanse() {
-        Ytelse ytelse1 = Ytelse.builder().leggTilPeriode(new YtelsePeriode(Periode.of(mandag, mandag), Sats.dagsats(100))).build();
+        Ytelse ytelse1 = Ytelse.builder().leggTilPeriode(new YtelsePeriode(Periode.of(mandag, mandag), Satsen.dagsats(100))).build();
 
         assertThat(OppdragPostConditionTjeneste.finnDifferanse(Ytelse.EMPTY, ytelse1, Betalingsmottaker.BRUKER)).contains(new OppdragPostConditionTjeneste.TilkjentYtelseDifferanse(mandag, null, 100));
         assertThat(OppdragPostConditionTjeneste.finnDifferanse(ytelse1, Ytelse.EMPTY, Betalingsmottaker.BRUKER)).contains(new OppdragPostConditionTjeneste.TilkjentYtelseDifferanse(mandag, null, -100));
 
-        Ytelse ytelse1SøndagSøndag = Ytelse.builder().leggTilPeriode(new YtelsePeriode(Periode.of(forrigeSøndag, søndag), Sats.dagsats(100))).build();
-        Ytelse ytelse2SøndagSøndag = Ytelse.builder().leggTilPeriode(new YtelsePeriode(Periode.of(forrigeSøndag, søndag), Sats.dagsats(200))).build();
+        Ytelse ytelse1SøndagSøndag = Ytelse.builder().leggTilPeriode(new YtelsePeriode(Periode.of(forrigeSøndag, søndag), Satsen.dagsats(100))).build();
+        Ytelse ytelse2SøndagSøndag = Ytelse.builder().leggTilPeriode(new YtelsePeriode(Periode.of(forrigeSøndag, søndag), Satsen.dagsats(200))).build();
         assertThat(OppdragPostConditionTjeneste.finnDifferanse(ytelse1SøndagSøndag, ytelse2SøndagSøndag, Betalingsmottaker.BRUKER)).contains(new OppdragPostConditionTjeneste.TilkjentYtelseDifferanse(mandag, null, 500));
         assertThat(OppdragPostConditionTjeneste.finnDifferanse(ytelse2SøndagSøndag, ytelse1SøndagSøndag, Betalingsmottaker.BRUKER)).contains(new OppdragPostConditionTjeneste.TilkjentYtelseDifferanse(mandag, null, -500));
 
-        Ytelse ytelseUke1 = Ytelse.builder().leggTilPeriode(new YtelsePeriode(Periode.of(mandag, lørdag), Sats.dagsats(100))).build();
-        Ytelse ytelseUke1OgNesteMandag = Ytelse.builder().leggTilPeriode(new YtelsePeriode(Periode.of(mandag, nesteMandag), Sats.dagsats(100))).build();
+        Ytelse ytelseUke1 = Ytelse.builder().leggTilPeriode(new YtelsePeriode(Periode.of(mandag, lørdag), Satsen.dagsats(100))).build();
+        Ytelse ytelseUke1OgNesteMandag = Ytelse.builder().leggTilPeriode(new YtelsePeriode(Periode.of(mandag, nesteMandag), Satsen.dagsats(100))).build();
 
         assertThat(OppdragPostConditionTjeneste.finnDifferanse(ytelseUke1, ytelseUke1OgNesteMandag, Betalingsmottaker.BRUKER)).contains(new OppdragPostConditionTjeneste.TilkjentYtelseDifferanse(nesteMandag, null, 100));
         assertThat(OppdragPostConditionTjeneste.finnDifferanse(ytelseUke1OgNesteMandag, ytelseUke1, Betalingsmottaker.BRUKER)).contains(new OppdragPostConditionTjeneste.TilkjentYtelseDifferanse(nesteMandag, null, -100));

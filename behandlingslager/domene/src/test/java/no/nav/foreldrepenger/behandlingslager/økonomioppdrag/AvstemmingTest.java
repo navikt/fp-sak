@@ -59,6 +59,17 @@ public class AvstemmingTest {
         assertNotEquals(avstemming2.hashCode(), avstemming1.hashCode());
     }
 
+    @Test
+    void test_compareTo() {
+        var testDato = LocalDateTime.now();
+        var avstemming1 = Avstemming.fra(testDato);
+        var avstemming2 =  Avstemming.fra(testDato.plusDays(1));
+
+        assertThat(avstemming1.compareTo(avstemming2)).isEqualTo(-1);
+        assertThat(avstemming2.compareTo(avstemming1)).isEqualTo(1);
+        assertThat(avstemming1.compareTo(avstemming1)).isEqualTo(0);
+    }
+
     private void validerObjekt(Avstemming avstemming) {
         assertThat(avstemming.getNøkkel()).isNotNull();
         assertThat(avstemming.getTidspunkt()).isNotNull();

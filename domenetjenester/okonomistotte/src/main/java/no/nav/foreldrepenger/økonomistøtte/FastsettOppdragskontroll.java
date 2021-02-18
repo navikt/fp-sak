@@ -16,6 +16,7 @@ public class FastsettOppdragskontroll {
         Optional<Oppdragskontroll> oppdragskontrollForBehandlingOpt = tidligereOppdragListe.stream()
             .filter(oppdragskontroll -> behandlingId.equals(oppdragskontroll.getBehandlingId()))
             .findFirst();
+
         if (oppdragskontrollForBehandlingOpt.isPresent()) {
             Oppdragskontroll oppdragskontroll = oppdragskontrollForBehandlingOpt.get();
             oppdragskontroll.setVenterKvittering(Boolean.TRUE);

@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
@@ -50,12 +49,10 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.økonomistøtte.FinnNyesteOppdragForSak;
 import no.nav.foreldrepenger.økonomistøtte.OppdragMedPositivKvitteringTestUtil;
-import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollManagerFactoryProvider;
+import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollEngangsstønadTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollTjeneste;
-import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollTjenesteImpl;
 import no.nav.foreldrepenger.økonomistøtte.OpprettBehandlingForOppdrag;
 import no.nav.foreldrepenger.økonomistøtte.kontantytelse.es.OppdragskontrollEngangsstønad;
-import no.nav.foreldrepenger.økonomistøtte.kontantytelse.es.OppdragskontrollManagerFactoryKontantytelse;
 import no.nav.foreldrepenger.økonomistøtte.kontantytelse.es.adapter.MapBehandlingInfoES;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 
@@ -91,12 +88,7 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
             behandlingVedtakRepository, familieHendelseRepository);
         var oppdragskontrollEngangsstønad = new OppdragskontrollEngangsstønad(mapBehandlingInfo);
         RevurderingEndring revurderingEndring = mock(RevurderingEndring.class);
-
-        var oppdragskontrollManagerFactory = new OppdragskontrollManagerFactoryKontantytelse(revurderingEndring,
-            oppdragskontrollEngangsstønad);
-        var providerMock = mock(OppdragskontrollManagerFactoryProvider.class);
-        oppdragskontrollTjeneste = new OppdragskontrollTjenesteImpl(repositoryProvider, økonomioppdragRepository, providerMock);
-        when(providerMock.getTjeneste(any(FagsakYtelseType.class))).thenReturn(oppdragskontrollManagerFactory);
+        oppdragskontrollTjeneste = new OppdragskontrollEngangsstønadTjeneste(repositoryProvider, økonomioppdragRepository, oppdragskontrollEngangsstønad, revurderingEndring);
         when(tpsTjeneste.hentFnrForAktør(any(AktørId.class))).thenReturn(personIdent);
 
     }

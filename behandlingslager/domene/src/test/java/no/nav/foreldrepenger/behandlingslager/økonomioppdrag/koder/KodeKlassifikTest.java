@@ -43,12 +43,12 @@ class KodeKlassifikTest {
 
     @Test
     void gjelderFerie() {
-        assertThat(KodeKlassifik.FERIEPENGER_BRUKER.gjelderFerie()).isTrue();
-        assertThat(KodeKlassifik.FPA_FERIEPENGER_AG.gjelderFerie()).isTrue();
-        assertThat(KodeKlassifik.FPF_FERIEPENGER_AG.gjelderFerie()).isTrue();
-        assertThat(KodeKlassifik.SVP_FERIEPENGER_AG.gjelderFerie()).isTrue();
+        assertThat(KodeKlassifik.FERIEPENGER_BRUKER.gjelderFeriepenger()).isTrue();
+        assertThat(KodeKlassifik.FPA_FERIEPENGER_AG.gjelderFeriepenger()).isTrue();
+        assertThat(KodeKlassifik.FPF_FERIEPENGER_AG.gjelderFeriepenger()).isTrue();
+        assertThat(KodeKlassifik.SVP_FERIEPENGER_AG.gjelderFeriepenger()).isTrue();
 
-        assertThat(KodeKlassifik.FPA_ARBEIDSTAKER.gjelderFerie()).isFalse();
+        assertThat(KodeKlassifik.FPA_ARBEIDSTAKER.gjelderFeriepenger()).isFalse();
     }
 
     @Test

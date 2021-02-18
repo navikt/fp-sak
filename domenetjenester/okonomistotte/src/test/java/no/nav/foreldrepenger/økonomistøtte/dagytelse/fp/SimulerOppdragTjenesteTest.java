@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.økonomistøtte.dagytelse.fp;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -13,6 +14,7 @@ import javax.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
@@ -22,35 +24,41 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringL
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.økonomistøtte.OppdragInputTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.SimulerOppdragTjeneste;
+import no.nav.foreldrepenger.økonomistøtte.ny.mapper.Input;
+import no.nav.foreldrepenger.økonomistøtte.ny.tjeneste.NyOppdragskontrollTjenesteImpl;
 import no.nav.foreldrepenger.økonomistøtte.ny.toggle.OppdragKjerneimplementasjonToggle;
 
 @CdiDbAwareTest
 public class SimulerOppdragTjenesteTest {
     @Mock
+    private OppdragInputTjeneste oppdragInputTjeneste;
+    @Mock
     private OppdragskontrollTjeneste oppdragskontrollTjeneste;
+    @Mock
+    NyOppdragskontrollTjenesteImpl nyOppdragskontrollTjeneste;
     @Mock
     private OppdragKjerneimplementasjonToggle toggle;
 
     @Test
-    public void simulerOppdrag_uten_behandling_vedtak_FP(EntityManager em) {
+    public void simulerOppdrag_uten_behandling_vedtak_FP() {
         // Arrange
 
         var saksnummer = new Saksnummer("100000001");
         Oppdragskontroll oppdragskontroll = lagOppdragskontroll(saksnummer);
         var o110 = lagOppdrag110(oppdragskontroll, saksnummer);
         buildOppdragslinje150(o110);
-        when(oppdragskontrollTjeneste.opprettOppdrag(anyLong(), anyLong())).thenReturn(Optional.ofNullable(oppdragskontroll));
+        lenient().when(oppdragskontrollTjeneste.simulerOppdrag(anyLong())).thenReturn(Optional.ofNullable(oppdragskontroll));
 
         when(toggle.brukNyImpl(any())).thenReturn(false);
 
-        var simulerOppdragTjeneste = new SimulerOppdragTjeneste(oppdragskontrollTjeneste, null, toggle);
+        var simulerOppdragTjeneste = new SimulerOppdragTjeneste(oppdragskontrollTjeneste, null, nyOppdragskontrollTjeneste, oppdragInputTjeneste, toggle);
 
         // Act
-        var resultat = simulerOppdragTjeneste.simulerOppdrag(1L, 0L);
+        var resultat = simulerOppdragTjeneste.simulerOppdrag(1L, FagsakYtelseType.FORELDREPENGER);
 
         // Assert
         assertThat(resultat).hasSize(1);

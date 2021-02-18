@@ -19,8 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
-import no.nav.foreldrepenger.domene.typer.Beløp;
-import no.nav.foreldrepenger.økonomistøtte.dagytelse.OppdragskontrollConstants;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdragslinje150.Oppdragslinje150Util;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Betalingsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.KjedeNøkkel;
@@ -87,9 +85,11 @@ public class OppdragMapper {
         if (oppdragErTilNyMottaker(oppdrag)) {
             return ØkonomiKodeEndring.NY;
         }
+
         if (oppdrag.getBetalingsmottaker() == Betalingsmottaker.BRUKER && !erOpphørForMottaker(oppdrag)) {
             return ØkonomiKodeEndring.ENDR;
         }
+
         return ØkonomiKodeEndring.UEND;
     }
 
@@ -117,6 +117,11 @@ public class OppdragMapper {
         if (kjedeNøkkel.getBetalingsmottaker() == Betalingsmottaker.BRUKER) {
             builder.medUtbetalesTilId(fnrBruker);
         }
+
+        if (linje.getUtbetalingsgrad() != null) {
+            builder.medUtbetalingsgrad(Utbetalingsgrad.prosent(linje.getUtbetalingsgrad().getUtbetalingsgrad()));
+        }
+
         Oppdragslinje150 oppdragslinje150 = builder.build();
 
         if (kjedeNøkkel.getBetalingsmottaker() instanceof Betalingsmottaker.ArbeidsgiverOrgnr) {
@@ -127,9 +132,6 @@ public class OppdragMapper {
                 .medRefunderesId(Oppdragslinje150Util.endreTilElleveSiffer(mottaker.getOrgnr()))
                 .medOppdragslinje150(oppdragslinje150)
                 .build();
-        }
-        if (linje.getUtbetalingsgrad() != null) {
-            builder.medUtbetalingsgrad(Utbetalingsgrad.prosent(linje.getUtbetalingsgrad().getUtbetalingsgrad()));
         }
         return oppdragslinje150;
     }
@@ -161,7 +163,7 @@ public class OppdragMapper {
         LocalDate sisteUtbetalingsdato = null;
         for (Map.Entry<KjedeNøkkel, OppdragKjede> entry : oppdrag.getKjeder().entrySet()) {
             KjedeNøkkel nøkkel = entry.getKey();
-            if (nøkkel.getKlassekode().gjelderFerie()) {
+            if (nøkkel.getKlassekode().gjelderFeriepenger()) {
                 //TODO?? kan være bedre å inkludere feriepenger for å få mer nøyaktig angivelse av tid for mottaker
                 continue;
             }

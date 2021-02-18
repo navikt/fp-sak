@@ -57,7 +57,7 @@ public class MapBehandlingInfoES {
         PersonIdent personIdent = personinfoAdapter.hentFnrForAktør(behandling.getAktørId());
         BehandlingVedtak behVedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId()).orElse(null);
 
-        KodeKlassifik kodeKlassifik = mapKodeKlassifik(behandling);
+        KodeKlassifik kodeKlassifik = mapKodeKlassifik(behandling.getId());
         long sats = hentSatsFraBehandling(behandling.getId());
         Optional<ForrigeOppdragInputES> tidligereBehandlingInfo = mapTidligereBehandlinginfo(saksnummer);
         return new OppdragInputES(saksnummer, behandling, behVedtak, personIdent, kodeKlassifik, sats, tidligereBehandlingInfo);
@@ -83,8 +83,8 @@ public class MapBehandlingInfoES {
         return finnNyesteOppdragForSak.finnNyesteOppdragForSak(saksnummer).stream().findFirst();
     }
 
-    private KodeKlassifik mapKodeKlassifik(Behandling behandling) {
-        return familieGrunnlagRepository.hentAggregat(behandling.getId()).getGjeldendeVersjon().getGjelderFødsel()
+    private KodeKlassifik mapKodeKlassifik(long behandlingId) {
+        return familieGrunnlagRepository.hentAggregat(behandlingId).getGjeldendeVersjon().getGjelderFødsel()
             ? KodeKlassifik.ES_FØDSEL
             : KodeKlassifik.ES_ADOPSJON;
     }

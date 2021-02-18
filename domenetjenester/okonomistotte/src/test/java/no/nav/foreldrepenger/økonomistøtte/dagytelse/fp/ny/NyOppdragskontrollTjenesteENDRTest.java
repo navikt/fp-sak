@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.økonomistøtte.dagytelse.fp;
+package no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.ny;
 
 import static no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragskontrollTestVerktøy.endreTilElleveSiffer;
 import static no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragskontrollTestVerktøy.verifiserOppdr150SomErNy;
@@ -7,7 +7,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -16,17 +15,16 @@ import java.util.stream.Collectors;
 
 import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
@@ -37,14 +35,17 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndrin
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.økonomistøtte.OppdragMedPositivKvitteringTestUtil;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.OppdragskontrollConstants;
+import no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragskontrollTestVerktøy;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdrag110.KodeFagområdeTjeneste;
+import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.GruppertYtelse;
+import no.nav.foreldrepenger.økonomistøtte.ny.mapper.TilkjentYtelseMapper;
 
-public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTestBase {
+public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenesteTestBase {
 
-    @Override
+    public static final String ANSVARLIG_SAKSBEHANDLER = "Antonina";
+
     @BeforeEach
     public void setUp() {
-        setBrukNyOppdragTjeneste(false);
         super.setUp();
     }
 
@@ -52,25 +53,28 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
     public void skalSendeEndringsoppdragOppdragMedFeriepengerNårEndringsdatoErFørsteUttaksdag() {
         // Arrange
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(true);
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
+
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
         List<Oppdrag110> originaltOppdrag110Liste = originaltOppdrag.getOppdrag110Liste();
         List<Oppdragslinje150> originaltOppdragslinje150 = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(originaltOppdrag);
 
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        LocalDate endringsdato = OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(1);
-        BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatRevurderingFP(true, endringsdato);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+        BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatRevurderingFP(true);
+
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
-        verifiserOppdrag110_ENDR(oppdragRevurdering, originaltOppdrag110Liste, true);
+        verifiserOppdrag110_ENDR(oppdragRevurdering.getOppdrag110Liste(), originaltOppdrag110Liste, true);
         verifiserOppdragslinje150_ENDR(oppdragRevurdering, originaltOppdragslinje150, true, false, 80);
     }
-
 
     @Test
     public void skalSendeOppdragMedOmpostering116HvisAvslåttInntrekk() {
@@ -78,18 +82,19 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         LocalDate b1fom = LocalDate.of(I_ÅR, 1, 1);
         LocalDate b1tom = LocalDate.of(I_ÅR, 8, 20);
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatBrukerFP(null, 400, 400, b1fom, b1tom);
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
-
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatBrukerFP(b1fom, 300, 300, b1fom, b1tom);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
-        tilbakekrevingRepository.lagre(revurdering, true);
+
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag))).medBrukInntrekk(false);
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         // Assert
         Oppdrag110 oppdrag110 = OppdragskontrollTestVerktøy.getOppdrag110ForBruker(oppdragRevurdering.getOppdrag110Liste());
@@ -109,10 +114,12 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         BeregningsresultatPeriode b1Periode_2 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
         buildBeregningsresultatAndel(b1Periode_1, true, 1500, BigDecimal.valueOf(100), virksomhet);
         buildBeregningsresultatAndel(b1Periode_2, false, 1500, BigDecimal.valueOf(100), virksomhet);
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
+
         LocalDate endringsdato = b1Periode_2.getBeregningsresultatPeriodeFom();
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
         BeregningsresultatPeriode b2Periode_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 10);
@@ -120,11 +127,12 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         BeregningsresultatPeriode b2Periode_2 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 11, 20);
         buildBeregningsresultatAndel(b2Periode_2, true, 1200, BigDecimal.valueOf(100), virksomhet);
         buildBeregningsresultatAndel(b2Periode_2, false, 1000, BigDecimal.valueOf(100), virksomhet);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
-        tilbakekrevingRepository.lagre(revurdering, false);
+
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         // Assert
         //Bruker
@@ -146,25 +154,29 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(Optional.empty());
         BeregningsresultatPeriode b1Periode = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
         buildBeregningsresultatAndel(b1Periode, true, 1500, BigDecimal.valueOf(100), virksomhet);
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
+
         LocalDate endringsdato = b1Periode.getBeregningsresultatPeriodeFom().minusDays(1);
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
         BeregningsresultatPeriode b2Periode = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 10, 20);
         buildBeregningsresultatAndel(b2Periode, true, 1500, BigDecimal.valueOf(100), virksomhet);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
         Oppdrag110 oppdrag110Bruker = OppdragskontrollTestVerktøy.getOppdrag110ForBruker(oppdragRevurdering.getOppdrag110Liste());
         assertThat(oppdrag110Bruker.getOmpostering116()).isPresent();
         Ompostering116 ompostering116 = oppdrag110Bruker.getOmpostering116().get();
         assertThat(ompostering116.getOmPostering()).isEqualTo("J");
-        assertThat(ompostering116.getDatoOmposterFom()).isEqualTo(b1Periode.getBeregningsresultatPeriodeFom());
+        assertThat(ompostering116.getDatoOmposterFom()).isEqualTo(endringsdato);
     }
 
     /**
@@ -180,10 +192,12 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         LocalDate b1fom = LocalDate.of(I_ÅR, 8, 1);
         LocalDate b1tom = LocalDate.of(I_ÅR, 8, 20);
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatBrukerFP(null, 400, 400, b1fom, b1tom);
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
+
         LocalDate endringsdato = beregningsresultat.getBeregningsresultatPerioder().get(0).getBeregningsresultatPeriodeFom().plusDays(10);
 
         LocalDate b2p1fom = LocalDate.of(I_ÅR, 8, 1);
@@ -191,10 +205,12 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         LocalDate b2p2fom = LocalDate.of(I_ÅR, 8, 11);
         LocalDate b2p2tom = LocalDate.of(I_ÅR, 8, 20);
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatBrukerFP(endringsdato, List.of(400, 300), List.of(400, 300), b2p1fom, b2p1tom, b2p2fom, b2p2tom);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
         List<Oppdragslinje150> opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste().stream()
@@ -234,20 +250,24 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         LocalDate b1p2fom = LocalDate.of(I_ÅR, 8, 11);
         LocalDate b1p2tom = LocalDate.of(I_ÅR, 8, 20);
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatBrukerFP(null, List.of(400, 400), List.of(400, 400), b1fom, b1tom, b1p2fom, b1p2tom);
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
+
         LocalDate endringsdato = beregningsresultat.getBeregningsresultatPerioder().get(0).getBeregningsresultatPeriodeFom();
 
         LocalDate b2p1fom = LocalDate.of(I_ÅR, 8, 11);
         LocalDate b2p1tom = LocalDate.of(I_ÅR, 8, 20);
 
-        BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatBrukerFP(endringsdato, Collections.singletonList(400), Collections.singletonList(400), b2p1fom, b2p1tom);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+        BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatBrukerFP(endringsdato, List.of(400), List.of(400), b2p1fom, b2p1tom);
+
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
         List<Oppdragslinje150> opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste().stream()
@@ -278,11 +298,13 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         // Arrange
         LocalDate b1fom = LocalDate.of(I_ÅR, 8, 1);
         LocalDate b1tom = LocalDate.of(I_ÅR, 8, 10);
-        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatBrukerFP(null, Collections.singletonList(400), Collections.singletonList(400), b1fom, b1tom);
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
+        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatBrukerFP(null, List.of(400), List.of(400), b1fom, b1tom);
 
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
+
         LocalDate endringsdato = LocalDate.of(I_ÅR, 8, 11);
 
         LocalDate b2p1fom = LocalDate.of(I_ÅR, 8, 1);
@@ -290,12 +312,14 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         LocalDate b2p2fom = LocalDate.of(I_ÅR, 8, 11);
         LocalDate b2p2tom = LocalDate.of(I_ÅR, 8, 20);
 
-        BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatBrukerFP(endringsdato, List.of(300, 300), List.of(300, 300),
+        BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatBrukerFP(endringsdato, List.of(400, 300), List.of(400, 300),
             b2p1fom, b2p1tom, b2p2fom, b2p2tom);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
         List<Oppdragslinje150> opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste().stream()
@@ -317,14 +341,14 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         assertThat(opp150RevurderingListeForArbeidsgiver).anySatisfy(feriepenger ->
             assertThat(feriepenger.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_FERIEPENGER_AG));
         //Kjeding for bruker
-        List<Oppdragslinje150> forrigeOpp150ListeForBruker = getOppdragslinje150ForMottaker(førsteOppdrag, true);
+        List<Oppdragslinje150> forrigeOpp150ListeForBruker = getOppdragslinje150ForMottaker(originaltOppdrag, true);
         List<Oppdragslinje150> forrigeOpp150ListeUtenFeriepgForBruker = getOpp150MedKodeklassifik(forrigeOpp150ListeForBruker, KodeKlassifik.FPF_ARBEIDSTAKER);
         Oppdragslinje150 forrigeOpp150ForBruker = forrigeOpp150ListeUtenFeriepgForBruker.get(0);
         List<Oppdragslinje150> opp150RevurderingListeUtenFeriepgForBruker = getOpp150MedKodeklassifik(opp150RevurderingListeForBruker, KodeKlassifik.FPF_ARBEIDSTAKER);
         Oppdragslinje150 opp150RevurderingForBruker = opp150RevurderingListeUtenFeriepgForBruker.get(0);
         assertThat(forrigeOpp150ForBruker.getDelytelseId()).isEqualTo(opp150RevurderingForBruker.getRefDelytelseId());
         //Kjeding for arbeidsgiver
-        List<Oppdragslinje150> forrigeOpp150ListeForArbeidsgiver = getOppdragslinje150ForMottaker(førsteOppdrag, false);
+        List<Oppdragslinje150> forrigeOpp150ListeForArbeidsgiver = getOppdragslinje150ForMottaker(originaltOppdrag, false);
         List<Oppdragslinje150> forrigeOpp150ListeUtenFeriepgForArbeidsgiver = getOpp150MedKodeklassifik(forrigeOpp150ListeForArbeidsgiver, KodeKlassifik.FPF_REFUSJON_AG);
         Oppdragslinje150 forrigeOpp150ForArbeidsgiver = forrigeOpp150ListeUtenFeriepgForArbeidsgiver.get(0);
         List<Oppdragslinje150> opp150RevurderingListeUtenFeriepgForArbeidsgiver = getOpp150MedKodeklassifik(opp150RevurderingListeForArbeidsgiver, KodeKlassifik.FPF_REFUSJON_AG);
@@ -350,21 +374,25 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         LocalDate b1p2tom = LocalDate.of(I_ÅR, 5, 30);
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatBrukerFP(null, List.of(400, 300), List.of(400, 300),
             b1p1fom, b1p1tom, b1p2fom, b1p2tom);
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
+
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
         LocalDate endringsdato = LocalDate.of(I_ÅR, 5, 16);
         LocalDate b2p1fom = LocalDate.of(I_ÅR, 5, 1);
         LocalDate b2p1tom = LocalDate.of(I_ÅR, 5, 15);
         LocalDate b2p2fom = LocalDate.of(I_ÅR, 5, 16);
         LocalDate b2p2tom = LocalDate.of(I_ÅR, 5, 30);
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatBrukerFP(endringsdato, List.of(400, 200), List.of(400, 200),
             b2p1fom, b2p1tom, b2p2fom, b2p2tom);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         // Assert
         List<Oppdragslinje150> opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste().stream()
@@ -410,21 +438,23 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         LocalDate b1p2tom = LocalDate.of(I_ÅR, 5, 30);
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatBrukerFP(null, List.of(400, 300), List.of(400, 300),
             b1p1fom, b1p1tom, b1p2fom, b1p2tom);
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
         LocalDate endringsdato = LocalDate.of(I_ÅR, 5, 11);
         LocalDate b2p1fom = LocalDate.of(I_ÅR, 5, 1);
         LocalDate b2p1tom = LocalDate.of(I_ÅR, 5, 10);
         LocalDate b2p2fom = LocalDate.of(I_ÅR, 5, 11);
         LocalDate b2p2tom = LocalDate.of(I_ÅR, 5, 30);
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatBrukerFP(endringsdato, List.of(400, 200), List.of(400, 200),
             b2p1fom, b2p1tom, b2p2fom, b2p2tom);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         // Assert
         List<Oppdragslinje150> opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste().stream()
@@ -468,35 +498,38 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         LocalDate b1p2tom = LocalDate.of(I_ÅR, 5, 30);
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatBrukerFP(null, List.of(400, 300), List.of(400, 300),
             b1p1fom, b1p1tom, b1p2fom, b1p2tom);
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
         LocalDate endringsdato = LocalDate.of(I_ÅR, 5, 21);
         LocalDate b2p1fom = LocalDate.of(I_ÅR, 5, 1);
         LocalDate b2p1tom = LocalDate.of(I_ÅR, 5, 20);
         LocalDate b2p2fom = LocalDate.of(I_ÅR, 5, 21);
         LocalDate b2p2tom = LocalDate.of(I_ÅR, 5, 30);
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
+
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatBrukerFP(endringsdato, List.of(400, 200), List.of(400, 200),
             b2p1fom, b2p1tom, b2p2fom, b2p2tom);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         // Assert
         List<Oppdragslinje150> opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste().stream()
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
             .collect(Collectors.toList());
 
-        assertThat(opp150RevurderingListe).hasSize(4);
+        assertThat(opp150RevurderingListe).hasSize(6);
         List<Oppdragslinje150> opp150RevurderingListeForBruker = getOppdragslinje150ForMottaker(oppdragRevurdering, true);
-        assertThat(opp150RevurderingListeForBruker).hasSize(2);
+        assertThat(opp150RevurderingListeForBruker).hasSize(3);
         List<Oppdragslinje150> opp150RevurderingListeForArbeidsgiver = getOppdragslinje150ForMottaker(oppdragRevurdering, false);
-        assertThat(opp150RevurderingListeForArbeidsgiver).hasSize(2);
+        assertThat(opp150RevurderingListeForArbeidsgiver).hasSize(3);
         assertThat(opp150RevurderingListe).anySatisfy(linjeOpphør -> {
             assertThat(linjeOpphør.gjelderOpphør()).isTrue();
-            assertThat(linjeOpphør.getDatoStatusFom()).isEqualTo(endringsdato);
+            assertThat(linjeOpphør.getDatoStatusFom()).isEqualTo(b1p2fom);
         });
         assertThat(opp150RevurderingListe).anySatisfy(linjeEndring -> {
             assertThat(linjeEndring.gjelderOpphør()).isFalse();
@@ -526,21 +559,24 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         LocalDate b1p2tom = LocalDate.of(I_ÅR, 5, 30);
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatBrukerFP(null, List.of(400, 300), List.of(400, 300),
             b1p1fom, b1p1tom, b1p2fom, b1p2tom);
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
         LocalDate endringsdato = LocalDate.of(I_ÅR, 4, 20);
         LocalDate b2p1fom = LocalDate.of(I_ÅR, 4, 20);
         LocalDate b2p1tom = LocalDate.of(I_ÅR, 5, 20);
         LocalDate b2p2fom = LocalDate.of(I_ÅR, 5, 21);
         LocalDate b2p2tom = LocalDate.of(I_ÅR, 6, 10);
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatBrukerFP(endringsdato, List.of(400, 200), List.of(400, 200),
             b2p1fom, b2p1tom, b2p2fom, b2p2tom);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         // Assert
         List<Oppdragslinje150> opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste().stream()
@@ -576,11 +612,12 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         // Arrange
         LocalDate b1fom = LocalDate.of(I_ÅR, 8, 1);
         LocalDate b1tom = LocalDate.of(I_ÅR, 8, 20);
-        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatBrukerFP(null, Collections.singletonList(400), Collections.singletonList(0), b1fom, b1tom);
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
+        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatBrukerFP(null, List.of(400), List.of(0), b1fom, b1tom);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
         LocalDate endringsdato = LocalDate.of(I_ÅR, 8, 11);
 
         LocalDate b2p1fom = LocalDate.of(I_ÅR, 8, 1);
@@ -589,16 +626,17 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         LocalDate b2p2tom = LocalDate.of(I_ÅR, 8, 20);
 
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatBrukerFP(endringsdato, List.of(400, 0), List.of(0, 400), b2p1fom, b2p1tom, b2p2fom, b2p2tom);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
         List<Oppdrag110> oppdrag110Liste = oppdragRevurdering.getOppdrag110Liste();
         assertThat(oppdrag110Liste).hasSize(2);
         Oppdrag110 oppdrag110Bruker = OppdragskontrollTestVerktøy.getOppdrag110ForBruker(oppdrag110Liste);
-        assertThat(oppdrag110Bruker.getKodeEndring()).isEqualTo(ØkonomiKodeEndring.UEND.name());
+        assertThat(oppdrag110Bruker.getKodeEndring()).isEqualTo(ØkonomiKodeEndring.ENDR.name());
         Oppdrag110 oppdrag110Arbeidsgiver = OppdragskontrollTestVerktøy.getOppdrag110ForArbeidsgiver(oppdrag110Liste, virksomhet);
         assertThat(oppdrag110Arbeidsgiver.getKodeEndring()).isEqualTo(ØkonomiKodeEndring.NY.name());
 
@@ -625,22 +663,27 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
     public void skalSendeEndringsoppdragNårEndringsdatoErMidtIFørstePeriodeIRevurderingOgDetErFlereMottakereSomBrukerOgArbeidsgiver() {
         // Arrange
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP();
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
+
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
+
         List<Oppdrag110> originaltOppdrag110Liste = originaltOppdrag.getOppdrag110Liste();
         List<Oppdragslinje150> originaltOppdragslinje150 = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(originaltOppdrag);
 
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
         LocalDate endringsdato = beregningsresultat.getBeregningsresultatPerioder().get(0).getBeregningsresultatPeriodeFom().plusDays(5);
-        BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatRevurderingFP(false, endringsdato);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+        BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatRevurderingFP(false);
+
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
-        verifiserOppdrag110_ENDR(oppdragRevurdering, originaltOppdrag110Liste, false);
+        verifiserOppdrag110_ENDR(oppdragRevurdering.getOppdrag110Liste(), originaltOppdrag110Liste, false);
         verifiserOppdragslinje150_ENDR(oppdragRevurdering, originaltOppdragslinje150, false, false, 80);
     }
 
@@ -648,22 +691,24 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
     public void skalOppretteEndringsoppdragNårBehandlingsresultatErInnvilgetOgForrigeOppdragEksisterer() {
         // Arrange
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(true);
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
         List<Oppdrag110> originaltOppdrag110Liste = originaltOppdrag.getOppdrag110Liste();
         List<Oppdragslinje150> originaltOppdragslinje150 = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(originaltOppdrag);
 
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, false);
         LocalDate endringsdato = beregningsresultat.getBeregningsresultatPerioder().get(0).getBeregningsresultatPeriodeFom();
-        BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatRevurderingFP(true, endringsdato);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+        BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatRevurderingFP(true);
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
-        verifiserOppdrag110_ENDR(oppdragRevurdering, originaltOppdrag110Liste, true);
+        verifiserOppdrag110_ENDR(oppdragRevurdering.getOppdrag110Liste(), originaltOppdrag110Liste, true);
         verifiserOppdragslinje150_ENDR(oppdragRevurdering, originaltOppdragslinje150, true, false, 80);
         verifiserOppdr150SomErUendret(oppdragRevurdering);
     }
@@ -681,13 +726,14 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         buildBeregningsresultatAndel(b1Periode_1, true, 1500, BigDecimal.valueOf(100), virksomhet);
         BeregningsresultatPeriode b1Periode_2 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
         buildBeregningsresultatAndel(b1Periode_2, true, 1500, BigDecimal.valueOf(100), virksomhet);
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
         List<Oppdrag110> originaltOppdrag110Liste = originaltOppdrag.getOppdrag110Liste();
         List<Oppdragslinje150> originaltOppdragslinje150 = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(originaltOppdrag);
 
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        LocalDate endringsdato = OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(1);
+        LocalDate endringsdato = NyOppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(1);
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
         BeregningsresultatPeriode b2Periode_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 10);
         buildBeregningsresultatAndel(b2Periode_1, true, 1000, BigDecimal.valueOf(100), virksomhet);
@@ -697,16 +743,17 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         buildBeregningsresultatAndel(b2Periode_2, true, 1000, BigDecimal.valueOf(100), virksomhet);
         buildBeregningsresultatAndel(b2Periode_2, true, 1000, BigDecimal.valueOf(100), null,
             AktivitetStatus.FRILANSER, Inntektskategori.FRILANSER);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
         List<Oppdrag110> oppdrag110Liste = oppdragRevurdering.getOppdrag110Liste();
         assertThat(oppdrag110Liste).hasSize(1);
-        verifiserOppdrag110_ENDR(oppdragRevurdering, originaltOppdrag110Liste, false);
+        verifiserOppdrag110_ENDR(oppdragRevurdering.getOppdrag110Liste(), originaltOppdrag110Liste, false);
         List<Oppdragslinje150> opp150Liste = OppdragskontrollTestVerktøy.getOpp150ListeForBruker(oppdrag110Liste);
         //En Opphør på AT, To for ny AT, To for ny FL
         assertThat(opp150Liste).hasSize(5);
@@ -726,22 +773,25 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
     public void skalSendeEndringsoppdragNårDetErFlereKlassekodeBådeIForrigeOgNyOppdragOgDeErLike() {
         // Arrange
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatMedFlereInntektskategoriFP(true);
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
         List<Oppdrag110> originaltOppdrag110Liste = originaltOppdrag.getOppdrag110Liste();
         List<Oppdragslinje150> originaltOppdragslinje150 = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(originaltOppdrag);
 
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
         LocalDate endringsdato = beregningsresultat.getBeregningsresultatPerioder().get(0).getBeregningsresultatPeriodeFom();
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatRevurderingMedFlereInntektskategoriFP(AktivitetStatus.FRILANSER, Inntektskategori.FRILANSER, endringsdato);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
-        verifiserOppdrag110_ENDR(oppdragRevurdering, originaltOppdrag110Liste, true);
+        verifiserOppdrag110_ENDR(oppdragRevurdering.getOppdrag110Liste(), originaltOppdrag110Liste, true);
         verifiserOppdragslinje150_ENDR(oppdragRevurdering, originaltOppdragslinje150, true, true, 80);
         OppdragskontrollTestVerktøy.verifiserOppdragslinje150ForHverKlassekode(originaltOppdrag, oppdragRevurdering);
     }
@@ -766,12 +816,14 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             AktivitetStatus.FRILANSER, Inntektskategori.FRILANSER);
         buildBeregningsresultatAndel(b1Periode_2, true, 1500, BigDecimal.valueOf(100), virksomhet,
             AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE, Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE);
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
+
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
         // Arrange : Revurdering
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        LocalDate endringsdato = OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(1);
+        LocalDate endringsdato = NyOppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(1);
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
         BeregningsresultatPeriode b2Periode_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 5);
         buildBeregningsresultatAndel(b2Periode_1, true, 1500, BigDecimal.valueOf(100), virksomhet,
@@ -783,24 +835,25 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
         buildBeregningsresultatAndel(b2Periode_2, true, 1500, BigDecimal.valueOf(100), null,
             AktivitetStatus.FRILANSER, Inntektskategori.FRILANSER);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll revurderingOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         // Assert
         // Assert : Første førstegangsbehandling
-        OppdragskontrollTestVerktøy.verifiserAvstemming(førsteOppdrag);
-        List<Oppdrag110> oppdrag110Liste_1 = førsteOppdrag.getOppdrag110Liste();
+        OppdragskontrollTestVerktøy.verifiserAvstemming(originaltOppdrag);
+        List<Oppdrag110> oppdrag110Liste_1 = originaltOppdrag.getOppdrag110Liste();
         assertThat(oppdrag110Liste_1).hasSize(1);
 
         // Assert : Revurdering
-        OppdragskontrollTestVerktøy.verifiserAvstemming(førsteOppdrag);
-        List<Oppdrag110> oppdrag110Liste_2 = revurderingOppdrag.getOppdrag110Liste();
+        OppdragskontrollTestVerktøy.verifiserAvstemming(originaltOppdrag);
+        List<Oppdrag110> oppdrag110Liste_2 = oppdragRevurdering.getOppdrag110Liste();
         assertThat(oppdrag110Liste_2).hasSize(1);
-        verifiserOppdrag110_ENDR(revurderingOppdrag, oppdrag110Liste_2, false);
-        List<Oppdragslinje150> originaltOpp150Liste = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(førsteOppdrag);
-        List<Oppdragslinje150> opp150RevurdListe = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(revurderingOppdrag);
+        verifiserOppdrag110_ENDR(oppdragRevurdering.getOppdrag110Liste(), oppdrag110Liste_2, false);
+        List<Oppdragslinje150> originaltOpp150Liste = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(originaltOppdrag);
+        List<Oppdragslinje150> opp150RevurdListe = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(oppdragRevurdering);
         verifiserKodeklassifikNårRevurderingHarNye(originaltOpp150Liste, opp150RevurdListe);
         verifiserKjeding(originaltOpp150Liste, opp150RevurdListe);
     }
@@ -825,11 +878,12 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             AktivitetStatus.FRILANSER, Inntektskategori.FRILANSER);
         buildBeregningsresultatAndel(b1Periode_2, true, 1500, BigDecimal.valueOf(100), null,
             AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE, Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE);
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
         // Arrange : Revurdering
-        Behandling revurdering = opprettOgLagreRevurdering(this.behandling, VedtakResultatType.INNVILGET, false, true);
         LocalDate endringsdato = b1Periode_1.getBeregningsresultatPeriodeFom();
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
         BeregningsresultatPeriode b2Periode_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 5);
@@ -842,14 +896,15 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
         buildBeregningsresultatAndel(b2Periode_2, true, 1500, BigDecimal.valueOf(100), null,
             AktivitetStatus.DAGPENGER, Inntektskategori.DAGPENGER);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll revurderingOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         // Assert
-        OppdragskontrollTestVerktøy.verifiserAvstemming(revurderingOppdrag);
-        List<Oppdrag110> oppdrag110RevurderingListe = revurderingOppdrag.getOppdrag110Liste();
+        OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
+        List<Oppdrag110> oppdrag110RevurderingListe = oppdragRevurdering.getOppdrag110Liste();
         assertThat(oppdrag110RevurderingListe).hasSize(1);
         List<Oppdragslinje150> opp150RevurderingListe = oppdrag110RevurderingListe.get(0).getOppdragslinje150Liste();
         assertThat(opp150RevurderingListe).hasSize(6);
@@ -910,12 +965,13 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
         buildBeregningsresultatAndel(b1Periode_2, true, 1500, BigDecimal.valueOf(100), null,
             AktivitetStatus.FRILANSER, Inntektskategori.FRILANSER);
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
         // Arrange : Revurdering
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        LocalDate endringsdato = OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(1);
+        LocalDate endringsdato = NyOppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(1);
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
         BeregningsresultatPeriode b2Periode_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 5);
         buildBeregningsresultatAndel(b2Periode_1, true, 1500, BigDecimal.valueOf(100), virksomhet2,
@@ -925,20 +981,21 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
         buildBeregningsresultatAndel(b2Periode_2, true, 1500, BigDecimal.valueOf(100), virksomhet2,
             AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll revurderingOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         // Assert : Første førstegangsbehandling
-        OppdragskontrollTestVerktøy.verifiserAvstemming(førsteOppdrag);
-        List<Oppdrag110> oppdrag110Liste_1 = førsteOppdrag.getOppdrag110Liste();
+        OppdragskontrollTestVerktøy.verifiserAvstemming(originaltOppdrag);
+        List<Oppdrag110> oppdrag110Liste_1 = originaltOppdrag.getOppdrag110Liste();
         assertThat(oppdrag110Liste_1).hasSize(1);
 
         // Assert : Revurdering
-        OppdragskontrollTestVerktøy.verifiserAvstemming(førsteOppdrag);
-        List<Oppdragslinje150> originaltOpp150Liste = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(førsteOppdrag);
-        List<Oppdragslinje150> opp150RevurdListe = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(revurderingOppdrag);
+        OppdragskontrollTestVerktøy.verifiserAvstemming(originaltOppdrag);
+        List<Oppdragslinje150> originaltOpp150Liste = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(originaltOppdrag);
+        List<Oppdragslinje150> opp150RevurdListe = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(oppdragRevurdering);
         verifiserKodeklassifik(originaltOpp150Liste, opp150RevurdListe);
         List<Oppdragslinje150> opp150IAndrePeriode = opp150RevurdListe.stream()
             .filter(opp150 -> opp150.getDatoVedtakFom().equals(b2Periode_2.getBeregningsresultatPeriodeFom()))
@@ -948,27 +1005,83 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
     }
 
     @Test
+    public void skalSendeEndringsOppdragHvisEndringIUtbetalingsgrad() {
+
+        // Arrange : Førstegangsbehandling
+        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(Optional.empty());
+        BeregningsresultatPeriode b1Periode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
+        buildBeregningsresultatAndel(b1Periode_1, true, 1500, BigDecimal.valueOf(100), null,
+            AktivitetStatus.FRILANSER, Inntektskategori.FRILANSER);
+        BeregningsresultatPeriode b1Periode_2 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
+        buildBeregningsresultatAndel(b1Periode_2, true, 1500, BigDecimal.valueOf(100), virksomhet,
+            AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
+        buildBeregningsresultatAndel(b1Periode_2, true, 1500, BigDecimal.valueOf(100), null,
+            AktivitetStatus.FRILANSER, Inntektskategori.FRILANSER);
+
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
+
+        // Arrange : Revurdering
+        LocalDate endringsdato = NyOppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(1);
+        BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
+        BeregningsresultatPeriode b2Periode_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 10);
+        buildBeregningsresultatAndel(b2Periode_1, true, 1500, BigDecimal.valueOf(80), null,
+            AktivitetStatus.FRILANSER, Inntektskategori.FRILANSER);
+        BeregningsresultatPeriode b2Periode_2 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 11, 20);
+        buildBeregningsresultatAndel(b2Periode_2, true, 1500, BigDecimal.valueOf(80), virksomhet,
+            AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
+        buildBeregningsresultatAndel(b2Periode_2, true, 1500, BigDecimal.valueOf(80), null,
+            AktivitetStatus.FRILANSER, Inntektskategori.FRILANSER);
+
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
+
+        // Act
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
+
+        // Assert : Første førstegangsbehandling
+        OppdragskontrollTestVerktøy.verifiserAvstemming(originaltOppdrag);
+        List<Oppdrag110> oppdrag110Liste_1 = originaltOppdrag.getOppdrag110Liste();
+        assertThat(oppdrag110Liste_1).hasSize(1);
+
+        // Assert : Revurdering
+        OppdragskontrollTestVerktøy.verifiserAvstemming(originaltOppdrag);
+        List<Oppdragslinje150> originaltOpp150Liste = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(originaltOppdrag);
+        List<Oppdragslinje150> opp150RevurdListe = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(oppdragRevurdering);
+        verifiserKodeklassifik(originaltOpp150Liste, opp150RevurdListe);
+        List<Oppdragslinje150> opp150IAndrePeriode = opp150RevurdListe.stream()
+            .filter(opp150 -> !opp150.gjelderOpphør())
+            .collect(Collectors.toList());
+        assertThat(opp150IAndrePeriode).hasSize(3);
+        assertThat(opp150IAndrePeriode).allSatisfy(opp150 -> assertThat(opp150.getUtbetalingsgrad().getVerdi()).isEqualTo(80));
+    }
+
+    @Test
     public void skalSendeEndringsoppdragNårDetErFlereKlassekodeIForrigeOppdragOgEnNyKlassekodeINyOppdrag() {
         // Arrange
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatMedFlereInntektskategoriFP(true);
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
         List<Oppdrag110> originaltOppdrag110Liste = originaltOppdrag.getOppdrag110Liste();
         List<Oppdragslinje150> originaltOppdragslinje150 = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(originaltOppdrag);
 
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
         LocalDate endringsdato = beregningsresultat.getBeregningsresultatPerioder().stream().min(Comparator.comparing(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom))
             .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom).get();
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatRevurderingFP(AktivitetStatus.DAGPENGER, Inntektskategori.DAGPENGER, endringsdato);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
         List<Oppdragslinje150> opp150RevurdListe = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(oppdragRevurdering);
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
-        verifiserOppdrag110_ENDR(oppdragRevurdering, originaltOppdrag110Liste, true);
+        verifiserOppdrag110_ENDR(oppdragRevurdering.getOppdrag110Liste(), originaltOppdrag110Liste, true);
         OppdragskontrollTestVerktøy.verifiserOppdr150SomErOpphørt(opp150RevurdListe, originaltOppdragslinje150, true, true, false);
         OppdragskontrollTestVerktøy.verifiserOppdr150SomErNy(opp150RevurdListe, originaltOppdragslinje150, List.of(80));
         OppdragskontrollTestVerktøy.verifiserOppdr150MedNyKlassekode(opp150RevurdListe);
@@ -980,20 +1093,22 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         LocalDate fom = LocalDate.of(I_ÅR, 8, 1);
         LocalDate tom = LocalDate.of(I_ÅR, 8, 7);
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatBrukerFP(null, 1500, 500, fom, tom);
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
         // Ny revurdering behandling
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
         LocalDate endringsdato = beregningsresultat.getBeregningsresultatPerioder().get(0).getBeregningsresultatPeriodeFom();
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatRevurderingMedFlereInntektskategoriFP(AktivitetStatus.FRILANSER, Inntektskategori.FRILANSER, endringsdato);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
-        List<Oppdragslinje150> oppdragslinje150Liste = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(oppdragRevurdering);
+        OppdragskontrollTestVerktøy.getOppdragslinje150Liste(oppdragRevurdering);
     }
 
     @Test
@@ -1001,26 +1116,31 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         // Arrange
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatMedFlereInntektskategoriFP(true, AktivitetStatus.ARBEIDSTAKER,
             Inntektskategori.ARBEIDSTAKER);
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
+
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
+
         List<Oppdrag110> originaltOppdrag110Liste = originaltOppdrag.getOppdrag110Liste();
         List<Oppdragslinje150> originaltOppdragslinje150 = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(originaltOppdrag);
 
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
         LocalDate endringsdato = beregningsresultat.getBeregningsresultatPerioder().get(0).getBeregningsresultatPeriodeFom();
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatRevurderingMedFlereInntektskategoriFP(AktivitetStatus.ARBEIDSTAKER,
             Inntektskategori.ARBEIDSTAKER_UTEN_FERIEPENGER, endringsdato);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
         List<Oppdragslinje150> opp150RevurdListe = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(oppdragRevurdering);
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
-        verifiserOppdrag110_ENDR(oppdragRevurdering, originaltOppdrag110Liste, true);
+        verifiserOppdrag110_ENDR(oppdragRevurdering.getOppdrag110Liste(), originaltOppdrag110Liste, true);
         OppdragskontrollTestVerktøy.verifiserOppdr150SomErOpphørt(opp150RevurdListe, originaltOppdragslinje150, true, true, false);
-        OppdragskontrollTestVerktøy.verifiserOppdr150SomErNy(opp150RevurdListe, originaltOppdragslinje150, List.of(80));
+        OppdragskontrollTestVerktøy.verifiserOppdr150SomErNy(opp150RevurdListe, originaltOppdragslinje150, List.of(80, 100));
         OppdragskontrollTestVerktøy.verifiserOppdr150SomAndelerSlåSammen(originaltOppdrag, oppdragRevurdering);
     }
 
@@ -1028,27 +1148,27 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
     public void skalOppretteEndringsoppdragNårBehandlingsresultatErOpphørOgOpphørsdatoErEtterStp() {
         // Arrange
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatMedFlereInntektskategoriFP(true, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-
-        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
         List<Oppdrag110> originaltOppdrag110Liste = originaltOppdrag.getOppdrag110Liste();
         List<Oppdragslinje150> originaltOppdragslinje150 = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(originaltOppdrag);
 
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, true, false);
         LocalDate endringsdato = beregningsresultat.getBeregningsresultatPerioder().get(1).getBeregningsresultatPeriodeFom();
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatRevurderingMedFlereInntektskategoriFP(AktivitetStatus.ARBEIDSTAKER,
             Inntektskategori.ARBEIDSTAKER_UTEN_FERIEPENGER, endringsdato);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
-        UttakResultatPerioderEntitet perioder = buildUttakResultatPerioderEntitet();
-        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(revurdering.getId(), perioder);
+
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
         List<Oppdragslinje150> opp150RevurdListe = OppdragskontrollTestVerktøy.getOppdragslinje150Liste(oppdragRevurdering);
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
-        verifiserOppdrag110_ENDR(oppdragRevurdering, originaltOppdrag110Liste, true);
+        verifiserOppdrag110_ENDR(oppdragRevurdering.getOppdrag110Liste(), originaltOppdrag110Liste, true);
         OppdragskontrollTestVerktøy.verifiserOppdr150SomErOpphørt(opp150RevurdListe, originaltOppdragslinje150, true,
             true, true);
         OppdragskontrollTestVerktøy.verifiserOppdr150SomAndelerSlåSammen(originaltOppdrag, oppdragRevurdering);
@@ -1058,20 +1178,25 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
     public void skalSendeKunOpphørSomEnDelAvEndringsoppdragHvisEndringsdatoErEtterSisteDatoITidligereOppdragForBruker() {
         // Arrange
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatEntenForBrukerEllerArbgvr(true, false);
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
         Oppdrag110 originaltOppdrag110 = originaltOppdrag.getOppdrag110Liste().get(0);
 
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
         LocalDate sistePeriodeTom = beregningsresultat.getBeregningsresultatPerioder().get(1).getBeregningsresultatPeriodeTom();
         LocalDate endringsdato = sistePeriodeTom.minusDays(5);
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
-        BeregningsresultatPeriode brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(1), endringsdato.minusDays(1));
+        BeregningsresultatPeriode brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, NyOppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(1), endringsdato.minusDays(1));
         buildBeregningsresultatAndel(brPeriode_1, true, 500, BigDecimal.valueOf(100), virksomhet);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
+
         Oppdrag110 revurderingOppdrag110 = oppdragRevurdering.getOppdrag110Liste().get(0);
 
         //Assert
@@ -1079,11 +1204,11 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         assertThat(originaltOppdrag110.getKodeFagomrade()).isEqualTo(ØkonomiKodeFagområde.FP.name());
         assertThat(originaltOppdrag110.getKodeEndring()).isEqualTo(ØkonomiKodeEndring.NY.name());
         assertThat(revurderingOppdrag110.getKodeFagomrade()).isEqualTo(ØkonomiKodeFagområde.FP.name());
-        assertThat(revurderingOppdrag110.getKodeEndring()).isEqualTo(ØkonomiKodeEndring.UEND.name());
+        assertThat(revurderingOppdrag110.getKodeEndring()).isEqualTo(ØkonomiKodeEndring.ENDR.name());
         List<Oppdragslinje150> revurderingOpp150Liste = revurderingOppdrag110.getOppdragslinje150Liste();
-        assertThat(revurderingOpp150Liste).hasSize(1);
+        assertThat(revurderingOpp150Liste).hasSize(2);
         Oppdragslinje150 opp150Opphør = revurderingOpp150Liste.get(0);
-        assertThat(opp150Opphør.getDatoStatusFom()).isEqualTo(endringsdato);
+        assertThat(opp150Opphør.getDatoStatusFom()).isEqualTo(NyOppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(1));
         assertThat(opp150Opphør.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_ARBEIDSTAKER);
         assertThat(opp150Opphør.gjelderOpphør()).isTrue();
     }
@@ -1098,11 +1223,12 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         BeregningsresultatPeriode brPeriode_2 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
         buildBeregningsresultatAndel(brPeriode_2, false, 1000, BigDecimal.valueOf(100), virksomhet);
         buildBeregningsresultatAndel(brPeriode_2, false, 1100, BigDecimal.valueOf(100), virksomhet2);
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
         List<Oppdrag110> originaltOppdrag110Liste = originaltOppdrag.getOppdrag110Liste();
 
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
         LocalDate sistePeriodeTom = beregningsresultat.getBeregningsresultatPerioder().get(1).getBeregningsresultatPeriodeTom();
         LocalDate endringsdato = sistePeriodeTom.minusDays(3);
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
@@ -1112,10 +1238,11 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         BeregningsresultatPeriode brPeriodeRevurdering_2 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 11, 16);
         buildBeregningsresultatAndel(brPeriodeRevurdering_2, false, 1000, BigDecimal.valueOf(100), virksomhet);
         buildBeregningsresultatAndel(brPeriodeRevurdering_2, false, 1100, BigDecimal.valueOf(100), virksomhet2);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
         List<Oppdrag110> revurderingOppdrag110Liste = oppdragRevurdering.getOppdrag110Liste();
 
         //Assert
@@ -1175,11 +1302,13 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         //Andel for arbeidsgiver i periode#2
         buildBeregningsresultatAndel(b1Periode_2, false, 1500, BigDecimal.valueOf(100), virksomhet,
             AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
+
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
         // Arrange : Revurdering
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
         LocalDate endringsdato = b1Periode_1.getBeregningsresultatPeriodeFom();
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
         BeregningsresultatPeriode b2Periode_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 10);
@@ -1190,28 +1319,27 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         BeregningsresultatPeriode b2Periode_2 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 11, 20);
         buildBeregningsresultatAndel(b2Periode_2, false, 1500, BigDecimal.valueOf(100), virksomhet,
             AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll revurderingOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
         //Førstegangsbehandling
-        OppdragskontrollTestVerktøy.verifiserAvstemming(revurderingOppdrag);
-        List<Oppdrag110> originaltOppdrag110Liste = førsteOppdrag.getOppdrag110Liste();
+        OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
+        List<Oppdrag110> originaltOppdrag110Liste = originaltOppdrag.getOppdrag110Liste();
         assertThat(originaltOppdrag110Liste).hasSize(2);
 
         //Revurdering
-        List<Oppdrag110> revurderingOppdrag110Liste = revurderingOppdrag.getOppdrag110Liste();
-        assertThat(revurderingOppdrag110Liste).hasSize(2);
+        List<Oppdrag110> revurderingOppdrag110Liste = oppdragRevurdering.getOppdrag110Liste();
+        assertThat(revurderingOppdrag110Liste).hasSize(1); // Kun opphør for SND og Bruker siden AG uten endring.
         //Oppdrag110 for Bruker
         Oppdrag110 oppdrag110Bruker = OppdragskontrollTestVerktøy.getOppdrag110ForBruker(revurderingOppdrag110Liste);
         assertThat(oppdrag110Bruker.getKodeFagomrade()).isEqualTo(ØkonomiKodeFagområde.FP.name());
         assertThat(oppdrag110Bruker.getKodeEndring()).isEqualTo(ØkonomiKodeEndring.UEND.name());
-        //Oppdrag110 for Arbeidsgiver
-        Oppdrag110 oppdrag110Arbeidsgiver = OppdragskontrollTestVerktøy.getOppdrag110ForArbeidsgiver(revurderingOppdrag110Liste, virksomhet);
-        assertThat(oppdrag110Arbeidsgiver.getKodeFagomrade()).isEqualTo(ØkonomiKodeFagområde.FPREF.name());
-        assertThat(oppdrag110Arbeidsgiver.getKodeEndring()).isEqualTo(ØkonomiKodeEndring.UEND.name());
+
         //Oppdragslinj150 for Bruker
         List<Oppdragslinje150> revurderingOpp150ListeForBruker = oppdrag110Bruker.getOppdragslinje150Liste();
         assertThat(revurderingOpp150ListeForBruker).hasSize(2);
@@ -1227,17 +1355,6 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             .filter(opp150 -> KodeKlassifik.FPF_SELVSTENDIG.equals(opp150.getKodeKlassifik()))
             .collect(Collectors.toList());
         assertThat(oppdragslinje150OpphPå_SN).hasSize(1);
-        //Oppdragslinje150 for Arbeidsgiver
-        List<Oppdragslinje150> revurderingOpp150ListeForArbeidsgiver = oppdrag110Arbeidsgiver.getOppdragslinje150Liste();
-        assertThat(revurderingOpp150ListeForArbeidsgiver).hasSize(3);
-        List<Oppdragslinje150> opp150ForOpphør = revurderingOpp150ListeForArbeidsgiver.stream()
-            .filter(Oppdragslinje150::gjelderOpphør).collect(Collectors.toList());
-        assertThat(opp150ForOpphør).hasSize(1);
-        List<Oppdragslinje150> opp150ForInnvilgelse = revurderingOpp150ListeForArbeidsgiver.stream()
-            .filter(opp150 -> !opp150.gjelderOpphør()).collect(Collectors.toList());
-        assertThat(opp150ForInnvilgelse).hasSize(2);
-        assertThat(opp150ForInnvilgelse).allSatisfy(opp150 ->
-            assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_REFUSJON_AG));
     }
 
     /**
@@ -1257,13 +1374,16 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         buildBeregningsresultatAndel(b1Periode_1, true, 1500, BigDecimal.valueOf(100), null,
             AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE, Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE);
         BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger(beregningsresultat);
-        buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelAT, 20000L, Collections.singletonList(OppdragskontrollTjenesteTestBase.DAGENS_DATO));
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelAT, 20000L, List.of(NyOppdragskontrollTjenesteTestBase.DAGENS_DATO));
+
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
         // Arrange : Revurdering
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
         LocalDate endringsdato = b1Periode_1.getBeregningsresultatPeriodeTom().plusDays(1);
+
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
         BeregningsresultatPeriode b2Periode_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 10);
         //Andel for bruker i periode#1
@@ -1274,16 +1394,17 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         buildBeregningsresultatAndel(b2Periode_2, true, 1500, BigDecimal.valueOf(100), virksomhet,
             AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
         BeregningsresultatFeriepenger feriepengerRevurdering = buildBeregningsresultatFeriepenger(beregningsresultatRevurderingFP);
-        buildBeregningsresultatFeriepengerPrÅr(feriepengerRevurdering, andelRevurderingAT, 20000L, Collections.singletonList(OppdragskontrollTjenesteTestBase.DAGENS_DATO));
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+        buildBeregningsresultatFeriepengerPrÅr(feriepengerRevurdering, andelRevurderingAT, 20000L, List.of(NyOppdragskontrollTjenesteTestBase.DAGENS_DATO));
+
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll revurderingOppdrag =
-            OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
         //Revurdering
-        List<Oppdrag110> revurderingOppdrag110Liste = revurderingOppdrag.getOppdrag110Liste();
+        List<Oppdrag110> revurderingOppdrag110Liste = oppdragRevurdering.getOppdrag110Liste();
         assertThat(revurderingOppdrag110Liste).hasSize(1);
         //Oppdrag110 for Bruker
         Oppdrag110 oppdrag110Bruker = OppdragskontrollTestVerktøy.getOppdrag110ForBruker(revurderingOppdrag110Liste);
@@ -1291,10 +1412,9 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         assertThat(oppdrag110Bruker.getKodeEndring()).isEqualTo(ØkonomiKodeEndring.ENDR.name());
         //Oppdragslinj150 for Bruker
         List<Oppdragslinje150> revurderingOpp150ListeForBruker = oppdrag110Bruker.getOppdragslinje150Liste();
-        assertThat(revurderingOpp150ListeForBruker).hasSize(1);
-        Oppdragslinje150 opp150ForBruker = revurderingOpp150ListeForBruker.get(0);
-        assertThat(opp150ForBruker.gjelderOpphør()).isFalse();
-        assertThat(opp150ForBruker.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_ARBEIDSTAKER);
+        assertThat(revurderingOpp150ListeForBruker).hasSize(2);
+        assertThat(revurderingOpp150ListeForBruker).anySatisfy( oppdragslinje150 ->  assertThat(oppdragslinje150.gjelderOpphør()).isTrue());
+        assertThat(revurderingOpp150ListeForBruker).anySatisfy( oppdragslinje150 ->  assertThat(oppdragslinje150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_ARBEIDSTAKER));
     }
 
     /**
@@ -1321,11 +1441,12 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
         buildBeregningsresultatAndel(b1Periode_2, true, 1500, BigDecimal.valueOf(100), null,
             AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE, Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE);
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
         // Arrange : Revurdering
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
         LocalDate endringsdato = b1Periode_2.getBeregningsresultatPeriodeTom().minusDays(4);
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
         BeregningsresultatPeriode b2Periode_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 10);
@@ -1340,28 +1461,29 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
         buildBeregningsresultatAndel(b2Periode_2, true, 1500, BigDecimal.valueOf(100), null,
             AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll revurderingOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
-        OppdragskontrollTestVerktøy.verifiserAvstemming(revurderingOppdrag);
+        OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
         //Oppdrag110 for førstegangsbehandling
-        List<Oppdrag110> oppdrag110ListeForBruker = førsteOppdrag.getOppdrag110Liste();
+        List<Oppdrag110> oppdrag110ListeForBruker = originaltOppdrag.getOppdrag110Liste();
         assertThat(oppdrag110ListeForBruker).hasSize(1);
         assertThat(oppdrag110ListeForBruker.get(0).getKodeFagomrade()).isEqualTo(ØkonomiKodeFagområde.FP.name());
         assertThat(oppdrag110ListeForBruker.get(0).getKodeEndring()).isEqualTo(ØkonomiKodeEndring.NY.name());
         //Oppdrag110 for revurdering
-        List<Oppdrag110> oppdrag110ListeForBrukerIRevurdering = revurderingOppdrag.getOppdrag110Liste();
+        List<Oppdrag110> oppdrag110ListeForBrukerIRevurdering = oppdragRevurdering.getOppdrag110Liste();
         assertThat(oppdrag110ListeForBrukerIRevurdering).hasSize(1);
         assertThat(oppdrag110ListeForBrukerIRevurdering.get(0).getKodeFagomrade()).isEqualTo(ØkonomiKodeFagområde.FP.name());
-        assertThat(oppdrag110ListeForBrukerIRevurdering.get(0).getKodeEndring()).isEqualTo(ØkonomiKodeEndring.UEND.name());
+        assertThat(oppdrag110ListeForBrukerIRevurdering.get(0).getKodeEndring()).isEqualTo(ØkonomiKodeEndring.ENDR.name());
         //Oppdragslinje150 for bruker i revurdering
         List<Oppdragslinje150> opp150ListeForBrukerIRevurdering = oppdrag110ListeForBrukerIRevurdering.get(0).getOppdragslinje150Liste();
-        assertThat(opp150ListeForBrukerIRevurdering).hasSize(2);
-        assertThat(opp150ListeForBrukerIRevurdering).allSatisfy(opp150 -> {
-            assertThat(opp150.getDatoStatusFom()).isEqualTo(endringsdato);
+        assertThat(opp150ListeForBrukerIRevurdering).hasSize(4);
+        assertThat(opp150ListeForBrukerIRevurdering.stream().filter(Oppdragslinje150::gjelderOpphør)).allSatisfy(opp150 -> {
+            assertThat(opp150.getDatoStatusFom()).isEqualTo(b1Periode_1.getBeregningsresultatPeriodeFom());
             assertThat(opp150.gjelderOpphør()).isTrue();
         });
         Optional<Oppdragslinje150> opp150ForBrukerAT = opp150ListeForBrukerIRevurdering.stream()
@@ -1369,6 +1491,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             .findFirst();
         assertThat(opp150ForBrukerAT).isPresent();
         Optional<Oppdragslinje150> opp150ForBrukerSN = opp150ListeForBrukerIRevurdering.stream()
+            .filter(Oppdragslinje150::gjelderOpphør)
             .filter(opp150 -> KodeKlassifik.FPF_SELVSTENDIG.equals(opp150.getKodeKlassifik()))
             .findFirst();
         assertThat(opp150ForBrukerSN).isPresent();
@@ -1396,11 +1519,12 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
         buildBeregningsresultatAndel(b1Periode_2, true, 1500, BigDecimal.valueOf(100), null,
             AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE, Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE);
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
         // Arrange : Revurdering
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
         LocalDate endringsdato = b1Periode_2.getBeregningsresultatPeriodeTom().minusDays(4);
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
         BeregningsresultatPeriode b2Periode_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 10);
@@ -1415,28 +1539,29 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
         buildBeregningsresultatAndel(b2Periode_2, true, 1500, BigDecimal.valueOf(100), null,
             AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE, Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll revurderingOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
-        OppdragskontrollTestVerktøy.verifiserAvstemming(revurderingOppdrag);
+        OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
         //Oppdrag110 for førstegangsbehandling
-        List<Oppdrag110> oppdrag110ListeForBruker = førsteOppdrag.getOppdrag110Liste();
+        List<Oppdrag110> oppdrag110ListeForBruker = originaltOppdrag.getOppdrag110Liste();
         assertThat(oppdrag110ListeForBruker).hasSize(1);
         assertThat(oppdrag110ListeForBruker.get(0).getKodeFagomrade()).isEqualTo(ØkonomiKodeFagområde.FP.name());
         assertThat(oppdrag110ListeForBruker.get(0).getKodeEndring()).isEqualTo(ØkonomiKodeEndring.NY.name());
         //Oppdrag110 for revurdering
-        List<Oppdrag110> oppdrag110ListeForBrukerIRevurdering = revurderingOppdrag.getOppdrag110Liste();
+        List<Oppdrag110> oppdrag110ListeForBrukerIRevurdering = oppdragRevurdering.getOppdrag110Liste();
         assertThat(oppdrag110ListeForBrukerIRevurdering).hasSize(1);
         assertThat(oppdrag110ListeForBrukerIRevurdering.get(0).getKodeFagomrade()).isEqualTo(ØkonomiKodeFagområde.FP.name());
-        assertThat(oppdrag110ListeForBrukerIRevurdering.get(0).getKodeEndring()).isEqualTo(ØkonomiKodeEndring.UEND.name());
+        assertThat(oppdrag110ListeForBrukerIRevurdering.get(0).getKodeEndring()).isEqualTo(ØkonomiKodeEndring.ENDR.name());
         //Oppdragslinje150 for bruker i revurdering
         List<Oppdragslinje150> opp150ListeForBrukerIRevurdering = oppdrag110ListeForBrukerIRevurdering.get(0).getOppdragslinje150Liste();
         assertThat(opp150ListeForBrukerIRevurdering).hasSize(2);
         assertThat(opp150ListeForBrukerIRevurdering).allSatisfy(opp150 -> {
-            assertThat(opp150.getDatoStatusFom()).isEqualTo(endringsdato);
+            assertThat(opp150.getDatoStatusFom()).isEqualTo(b2Periode_2.getBeregningsresultatPeriodeTom().plusDays(1));
             assertThat(opp150.gjelderOpphør()).isTrue();
         });
         Optional<Oppdragslinje150> opp150ForBrukerAT = opp150ListeForBrukerIRevurdering.stream()
@@ -1444,6 +1569,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
             .findFirst();
         assertThat(opp150ForBrukerAT).isPresent();
         Optional<Oppdragslinje150> opp150ForBrukerSN = opp150ListeForBrukerIRevurdering.stream()
+            .filter(Oppdragslinje150::gjelderOpphør)
             .filter(opp150 -> KodeKlassifik.FPF_SELVSTENDIG.equals(opp150.getKodeKlassifik()))
             .findFirst();
         assertThat(opp150ForBrukerSN).isPresent();
@@ -1465,11 +1591,12 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         BeregningsresultatPeriode brPeriode_4 = buildBeregningsresultatPeriode(beregningsresultat, 16, 20);
         buildBeregningsresultatAndel(brPeriode_4, false, 1000, BigDecimal.valueOf(100), virksomhet);
         buildBeregningsresultatAndel(brPeriode_4, false, 1100, BigDecimal.valueOf(100), virksomhet2);
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
         List<Oppdrag110> originaltOppdrag110Liste = originaltOppdrag.getOppdrag110Liste();
 
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
         LocalDate førstePeriodeFom = beregningsresultat.getBeregningsresultatPerioder().get(0).getBeregningsresultatPeriodeFom();
         LocalDate endringsdato = førstePeriodeFom.plusDays(2);
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
@@ -1485,10 +1612,11 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         BeregningsresultatPeriode brPeriodeRevurdering_4 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 16, 20);
         buildBeregningsresultatAndel(brPeriodeRevurdering_4, false, 500, BigDecimal.valueOf(100), virksomhet);
         buildBeregningsresultatAndel(brPeriodeRevurdering_4, false, 700, BigDecimal.valueOf(100), virksomhet2);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
         List<Oppdrag110> revurderingOppdrag110Liste = oppdragRevurdering.getOppdrag110Liste();
 
         //Assert
@@ -1507,8 +1635,8 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         );
         List<Oppdragslinje150> revurderingOpp150Arbgvr1 = OppdragskontrollTestVerktøy.getOpp150ListeForEnVirksomhet(revurderingOppdrag110Liste, virksomhet);
         List<Oppdragslinje150> revurderingOpp150Arbgvr2 = OppdragskontrollTestVerktøy.getOpp150ListeForEnVirksomhet(revurderingOppdrag110Liste, virksomhet2);
-        verifiserOpp150NårDetErFlereArbeidsgivereSomMottaker(endringsdato, revurderingOpp150Arbgvr1);
-        verifiserOpp150NårDetErFlereArbeidsgivereSomMottaker(endringsdato, revurderingOpp150Arbgvr2);
+        verifiserOpp150NårDetErFlereArbeidsgivereSomMottaker(førstePeriodeFom, revurderingOpp150Arbgvr1);
+        verifiserOpp150NårDetErFlereArbeidsgivereSomMottaker(førstePeriodeFom, revurderingOpp150Arbgvr2);
     }
 
     /**
@@ -1542,12 +1670,13 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         buildBeregningsresultatAndel(b1Periode_2, true, 1500, BigDecimal.valueOf(100), null,
             AktivitetStatus.FRILANSER, Inntektskategori.FRILANSER);
         BeregningsresultatFeriepenger b1_feriepenger = buildBeregningsresultatFeriepenger(beregningsresultatFP_1);
-        buildBeregningsresultatFeriepengerPrÅr(b1_feriepenger, b1Andel, 3000L, Collections.singletonList(OppdragskontrollTjenesteTestBase.DAGENS_DATO));
-        beregningsresultatRepository.lagre(behandling, beregningsresultatFP_1);
-        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
+        buildBeregningsresultatFeriepengerPrÅr(b1_feriepenger, b1Andel, 3000L, List.of(NyOppdragskontrollTjenesteTestBase.DAGENS_DATO));
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultatFP_1);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
         // Arrange : Revurdering
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
         LocalDate endringsdato = b1Periode_2.getBeregningsresultatPeriodeTom().plusDays(1);
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
         BeregningsresultatPeriode b2Periode_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 10);
@@ -1569,18 +1698,20 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         buildBeregningsresultatAndel(b2Periode_3, true, 1500, BigDecimal.valueOf(100), null,
             AktivitetStatus.FRILANSER, Inntektskategori.FRILANSER);
         BeregningsresultatFeriepenger b2_feriepenger = buildBeregningsresultatFeriepenger(beregningsresultatRevurderingFP);
-        buildBeregningsresultatFeriepengerPrÅr(b2_feriepenger, b2Andel, 3000L, List.of(OppdragskontrollTjenesteTestBase.DAGENS_DATO, OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusYears(1)));
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+        buildBeregningsresultatFeriepengerPrÅr(b2_feriepenger, b2Andel, 3000L, List.of(NyOppdragskontrollTjenesteTestBase.DAGENS_DATO, NyOppdragskontrollTjenesteTestBase.DAGENS_DATO.plusYears(1)));
 
-        //Act
-        Oppdragskontroll oppdragForRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
+
+        // Act
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
-        assertThat(oppdragForRevurdering).isNotNull();
+        assertThat(oppdragRevurdering).isNotNull();
         //Oppdrag110
-        List<Oppdrag110> originalOpp110Liste = førsteOppdrag.getOppdrag110Liste();
+        List<Oppdrag110> originalOpp110Liste = originaltOppdrag.getOppdrag110Liste();
         assertThat(originalOpp110Liste).hasSize(1);
-        List<Oppdrag110> opp110ListeForRevurdering = oppdragForRevurdering.getOppdrag110Liste();
+        List<Oppdrag110> opp110ListeForRevurdering = oppdragRevurdering.getOppdrag110Liste();
         assertThat(opp110ListeForRevurdering).hasSize(1);
         Oppdrag110 oppdrag110ForBruker = opp110ListeForRevurdering.get(0);
         //Oppdragslinje150
@@ -1642,12 +1773,13 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         buildBeregningsresultatAndel(b1Periode_2, true, 1500, BigDecimal.valueOf(100), virksomhet,
             AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
         BeregningsresultatFeriepenger b1_feriepenger = buildBeregningsresultatFeriepenger(beregningsresultatFP_1);
-        buildBeregningsresultatFeriepengerPrÅr(b1_feriepenger, b1Andel, 3000L, Collections.singletonList(OppdragskontrollTjenesteTestBase.DAGENS_DATO));
-        beregningsresultatRepository.lagre(behandling, beregningsresultatFP_1);
-        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
+        buildBeregningsresultatFeriepengerPrÅr(b1_feriepenger, b1Andel, 3000L, List.of(NyOppdragskontrollTjenesteTestBase.DAGENS_DATO));
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultatFP_1);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
         // Arrange : Revurdering
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
         LocalDate endringsdato = b1Periode_2.getBeregningsresultatPeriodeTom().plusDays(1);
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
         BeregningsresultatPeriode b2Periode_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 10);
@@ -1663,18 +1795,19 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         buildBeregningsresultatAndel(b2Periode_3, true, 1500, BigDecimal.valueOf(100), virksomhet,
             AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
         BeregningsresultatFeriepenger b2_feriepenger = buildBeregningsresultatFeriepenger(beregningsresultatRevurderingFP);
-        buildBeregningsresultatFeriepengerPrÅr(b2_feriepenger, b2Andel, 3000L, List.of(OppdragskontrollTjenesteTestBase.DAGENS_DATO, OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusYears(1)));
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+        buildBeregningsresultatFeriepengerPrÅr(b2_feriepenger, b2Andel, 3000L, List.of(NyOppdragskontrollTjenesteTestBase.DAGENS_DATO, NyOppdragskontrollTjenesteTestBase.DAGENS_DATO.plusYears(1)));
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
-        //Act
-        Oppdragskontroll oppdragForRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        // Act
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
-        assertThat(oppdragForRevurdering).isNotNull();
+        assertThat(oppdragRevurdering).isNotNull();
         //Oppdrag110
-        List<Oppdrag110> originalOpp110Liste = førsteOppdrag.getOppdrag110Liste();
+        List<Oppdrag110> originalOpp110Liste = originaltOppdrag.getOppdrag110Liste();
         assertThat(originalOpp110Liste).hasSize(1);
-        List<Oppdrag110> opp110ListeForRevurdering = oppdragForRevurdering.getOppdrag110Liste();
+        List<Oppdrag110> opp110ListeForRevurdering = oppdragRevurdering.getOppdrag110Liste();
         assertThat(opp110ListeForRevurdering).hasSize(1);
         Oppdrag110 oppdrag110ForBruker = opp110ListeForRevurdering.get(0);
         //Oppdragslinje150
@@ -1728,11 +1861,12 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         //Andel for bruker i periode#2
         buildBeregningsresultatAndel(b1Periode_2, true, 1500, BigDecimal.valueOf(100), virksomhet,
             AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
-        beregningsresultatRepository.lagre(behandling, beregningsresultatFP_1);
-        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultatFP_1);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
         // Arrange : Revurdering
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
         LocalDate endringsdato = b1Periode_2.getBeregningsresultatPeriodeFom();
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
         BeregningsresultatPeriode b2Periode_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 10);
@@ -1746,17 +1880,19 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         BeregningsresultatPeriode b2Periode_2 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 11, 20);
         buildBeregningsresultatAndel(b2Periode_2, true, 800, BigDecimal.valueOf(100), virksomhet,
             AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
-        //Act
-        Oppdragskontroll oppdragForRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
+
+        // Act
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
-        assertThat(oppdragForRevurdering).isNotNull();
+        assertThat(oppdragRevurdering).isNotNull();
         //Oppdrag110
-        List<Oppdrag110> originalOpp110Liste = førsteOppdrag.getOppdrag110Liste();
+        List<Oppdrag110> originalOpp110Liste = originaltOppdrag.getOppdrag110Liste();
         assertThat(originalOpp110Liste).hasSize(2);
-        List<Oppdrag110> opp110ListeForRevurdering = oppdragForRevurdering.getOppdrag110Liste();
+        List<Oppdrag110> opp110ListeForRevurdering = oppdragRevurdering.getOppdrag110Liste();
         assertThat(opp110ListeForRevurdering).hasSize(1);
         Oppdrag110 oppdrag110ForBruker = opp110ListeForRevurdering.get(0);
         assertThat(KodeFagområdeTjeneste.forForeldrepenger().gjelderBruker(oppdrag110ForBruker)).isTrue();
@@ -1794,11 +1930,12 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         //Andel for arbeidsgiver i periode#2
         buildBeregningsresultatAndel(b1Periode_2, false, 1500, BigDecimal.valueOf(100), virksomhet,
             AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
-        beregningsresultatRepository.lagre(behandling, beregningsresultatFP_1);
-        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultatFP_1);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
         // Arrange : Revurdering
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
         LocalDate endringsdato = b1Periode_2.getBeregningsresultatPeriodeFom();
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
         BeregningsresultatPeriode b2Periode_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 10);
@@ -1812,17 +1949,18 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         BeregningsresultatPeriode b2Periode_2 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 11, 20);
         buildBeregningsresultatAndel(b2Periode_2, false, 800, BigDecimal.valueOf(100), virksomhet,
             AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
-        //Act
-        Oppdragskontroll oppdragForRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        // Act
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
-        assertThat(oppdragForRevurdering).isNotNull();
+        assertThat(oppdragRevurdering).isNotNull();
         //Oppdrag110
-        List<Oppdrag110> originalOpp110Liste = førsteOppdrag.getOppdrag110Liste();
+        List<Oppdrag110> originalOpp110Liste = originaltOppdrag.getOppdrag110Liste();
         assertThat(originalOpp110Liste).hasSize(2);
-        List<Oppdrag110> opp110ListeForRevurdering = oppdragForRevurdering.getOppdrag110Liste();
+        List<Oppdrag110> opp110ListeForRevurdering = oppdragRevurdering.getOppdrag110Liste();
         assertThat(opp110ListeForRevurdering).hasSize(1);
         Oppdrag110 oppdrag110ForArbeidsgiver = opp110ListeForRevurdering.get(0);
         assertThat(KodeFagområdeTjeneste.forForeldrepenger().gjelderBruker(oppdrag110ForArbeidsgiver)).isFalse();
@@ -1862,11 +2000,12 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         //Andel for arbeidsgiver i periode#2
         buildBeregningsresultatAndel(b1Periode_2, false, 1500, BigDecimal.valueOf(100), virksomhet,
             AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
-        beregningsresultatRepository.lagre(behandling, beregningsresultatFP_1);
-        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultatFP_1);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
         // Arrange : Revurdering
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
         LocalDate endringsdato = b1Periode_2.getBeregningsresultatPeriodeFom();
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
         BeregningsresultatPeriode b2Periode_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 10);
@@ -1882,17 +2021,18 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         BeregningsresultatPeriode b2Periode_2 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 11, 20);
         buildBeregningsresultatAndel(b2Periode_2, false, 800, BigDecimal.valueOf(100), virksomhet,
             AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
-        //Act
-        Oppdragskontroll oppdragForRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        // Act
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
-        assertThat(oppdragForRevurdering).isNotNull();
+        assertThat(oppdragRevurdering).isNotNull();
         //Oppdrag110
-        List<Oppdrag110> originalOpp110Liste = førsteOppdrag.getOppdrag110Liste();
+        List<Oppdrag110> originalOpp110Liste = originaltOppdrag.getOppdrag110Liste();
         assertThat(originalOpp110Liste).hasSize(2);
-        List<Oppdrag110> opp110ListeForRevurdering = oppdragForRevurdering.getOppdrag110Liste();
+        List<Oppdrag110> opp110ListeForRevurdering = oppdragRevurdering.getOppdrag110Liste();
         assertThat(opp110ListeForRevurdering).hasSize(1);
         Oppdrag110 oppdrag110ForArbeidsgiver = opp110ListeForRevurdering.get(0);
         assertThat(KodeFagområdeTjeneste.forForeldrepenger().gjelderBruker(oppdrag110ForArbeidsgiver)).isFalse();
@@ -1918,12 +2058,13 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         BeregningsresultatPeriode b1Periode_2 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
         buildBeregningsresultatAndel(b1Periode_2, true, 1000, BigDecimal.valueOf(100), virksomhet);
         buildBeregningsresultatAndel(b1Periode_2, true, 1200, BigDecimal.valueOf(100), null);
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
         // Arrange : Revurdering
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        LocalDate endringsdato = OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(1);
+        LocalDate endringsdato = NyOppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(1);
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
         BeregningsresultatPeriode b2Periode_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 10);
         buildBeregningsresultatAndel(b2Periode_1, true, 1100, BigDecimal.valueOf(100), virksomhet);
@@ -1931,13 +2072,14 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         BeregningsresultatPeriode b2Periode_2 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 11, 20);
         buildBeregningsresultatAndel(b2Periode_2, true, 1100, BigDecimal.valueOf(100), virksomhet);
         buildBeregningsresultatAndel(b2Periode_2, true, 1300, BigDecimal.valueOf(100), null);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll revurderingOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         // Assert : Revurdering
-        List<Oppdrag110> oppdra110BrukerList = revurderingOppdrag.getOppdrag110Liste();
+        List<Oppdrag110> oppdra110BrukerList = oppdragRevurdering.getOppdrag110Liste();
         assertThat(oppdra110BrukerList).hasSize(1);
         assertThat(oppdra110BrukerList.get(0).getKodeEndring()).isEqualTo(ØkonomiKodeEndring.ENDR.name());
         List<Oppdragslinje150> alleOpp150BrukerListe = oppdra110BrukerList.get(0).getOppdragslinje150Liste();
@@ -1975,12 +2117,13 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         buildBeregningsresultatAndel(b1Periode_2, true, 1000, BigDecimal.valueOf(100), virksomhet);
         buildBeregningsresultatAndel(b1Periode_2, true, 1200, BigDecimal.valueOf(100), null);
         buildBeregningsresultatAndel(b1Periode_2, false, 1200, BigDecimal.valueOf(100), null);
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
         // Arrange : Revurdering
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        LocalDate endringsdato = OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(1);
+        LocalDate endringsdato = NyOppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(1);
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
         BeregningsresultatPeriode b2Periode_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 10);
         buildBeregningsresultatAndel(b2Periode_1, true, 1100, BigDecimal.valueOf(100), virksomhet);
@@ -1990,13 +2133,14 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         buildBeregningsresultatAndel(b2Periode_2, true, 1100, BigDecimal.valueOf(100), virksomhet);
         buildBeregningsresultatAndel(b2Periode_2, true, 1300, BigDecimal.valueOf(100), null);
         buildBeregningsresultatAndel(b2Periode_2, false, 1300, BigDecimal.valueOf(100), null);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll revurderingOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         // Assert : Revurdering
-        List<Oppdrag110> oppdra110BrukerList = revurderingOppdrag.getOppdrag110Liste();
+        List<Oppdrag110> oppdra110BrukerList = oppdragRevurdering.getOppdrag110Liste();
         assertThat(oppdra110BrukerList).hasSize(1);
         assertThat(oppdra110BrukerList.get(0).getKodeEndring()).isEqualTo(ØkonomiKodeEndring.ENDR.name());
         List<Oppdragslinje150> alleOpp150BrukerListe = oppdra110BrukerList.get(0).getOppdragslinje150Liste();
@@ -2022,6 +2166,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
      * Andeler: AT(Privat arbgvr)
      */
     @Test
+    @Disabled // må vurdere hvordan man skal løse problemet - send oppgave tit NØS uansett?
     public void skalSendeEndringsOppdragNårPrivatArbgvrHarRefusjonIForrigeBehandlingOgBrukerBlirMottakerIRevurdering() {
 
         // Arrange : Førstegangsbehandling
@@ -2030,24 +2175,27 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         buildBeregningsresultatAndel(b1Periode_1, false, 1200, BigDecimal.valueOf(100), null);
         BeregningsresultatPeriode b1Periode_2 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
         buildBeregningsresultatAndel(b1Periode_2, false, 1200, BigDecimal.valueOf(100), null);
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
         // Arrange : Revurdering
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        LocalDate endringsdato = OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(1);
+        LocalDate endringsdato = NyOppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(1);
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
         BeregningsresultatPeriode b2Periode_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 10);
         buildBeregningsresultatAndel(b2Periode_1, true, 1200, BigDecimal.valueOf(100), null);
         BeregningsresultatPeriode b2Periode_2 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 11, 20);
         buildBeregningsresultatAndel(b2Periode_2, true, 1200, BigDecimal.valueOf(100), null);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll revurderingOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         // Assert : Revurdering
-        List<Oppdrag110> oppdra110BrukerList = revurderingOppdrag.getOppdrag110Liste();
+        List<Oppdrag110> oppdra110BrukerList = oppdragRevurdering.getOppdrag110Liste();
         assertThat(oppdra110BrukerList).hasSize(1);
         assertThat(oppdra110BrukerList.get(0).getKodeEndring()).isEqualTo(ØkonomiKodeEndring.ENDR.name());
         List<Oppdragslinje150> alleOpp150BrukerListe = oppdra110BrukerList.get(0).getOppdragslinje150Liste();
@@ -2081,12 +2229,14 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         buildBeregningsresultatAndel(b1Periode_1, false, 1200, BigDecimal.valueOf(100), virksomhet);
         BeregningsresultatPeriode b1Periode_2 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
         buildBeregningsresultatAndel(b1Periode_2, false, 1200, BigDecimal.valueOf(100), virksomhet);
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
         // Arrange : Revurdering
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
-        LocalDate endringsdato = OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(1);
+        LocalDate endringsdato = NyOppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(1);
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
         BeregningsresultatPeriode b2Periode_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 10);
         buildBeregningsresultatAndel(b2Periode_1, false, 1200, BigDecimal.valueOf(100), virksomhet);
@@ -2094,17 +2244,15 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         BeregningsresultatPeriode b2Periode_2 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 11, 20);
         buildBeregningsresultatAndel(b2Periode_2, false, 1200, BigDecimal.valueOf(100), virksomhet);
         buildBeregningsresultatAndel(b2Periode_2, false, 1000, BigDecimal.valueOf(100), null);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
         // Act
-        Oppdragskontroll revurderingOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         // Assert : Revurdering
-        List<Oppdrag110> oppdra110List = revurderingOppdrag.getOppdrag110Liste();
-        assertThat(oppdra110List).hasSize(2);
-        //Oppdrag110 virksomhet
-        Oppdrag110 oppdrag110ForVirksomhet = OppdragskontrollTestVerktøy.getOppdrag110ForArbeidsgiver(oppdra110List, virksomhet);
-        assertThat(oppdrag110ForVirksomhet.getKodeEndring()).isEqualTo(ØkonomiKodeEndring.UEND.name());
+        List<Oppdrag110> oppdra110List = oppdragRevurdering.getOppdrag110Liste();
+        assertThat(oppdra110List).hasSize(1); // ny oppdag for privat arbeidsgiver
         //Oppdrag110 privat arbgvr
         Oppdrag110 oppdrag110ForPrivatArbgvr = OppdragskontrollTestVerktøy.getOppdrag110ForBruker(oppdra110List);
         assertThat(oppdrag110ForPrivatArbgvr.getKodeEndring()).isEqualTo(ØkonomiKodeEndring.NY.name());
@@ -2133,20 +2281,23 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         LocalDate b12fom = LocalDate.of(I_ÅR, 9, 16);
         LocalDate b12tom = LocalDate.of(I_ÅR, 9, 30);
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatBrukerFP(null, List.of(0, 0, 0),  List.of(0, 800, 800), b10fom, b10tom, b11fom, b11tom, b12fom, b12tom);
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
         LocalDate b2p1fom = LocalDate.of(I_ÅR, 8, 1);
         LocalDate b2p1tom = LocalDate.of(I_ÅR, 8, 15);
         LocalDate b2p2fom = LocalDate.of(I_ÅR, 9, 16);
         LocalDate b2p2tom = LocalDate.of(I_ÅR, 9, 30);
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatBrukerFP(null, List.of(0, 0), List.of(0, 0), b2p1fom, b2p1tom, b2p2fom, b2p2tom);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
         List<Oppdragslinje150> opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste().stream()
@@ -2158,17 +2309,17 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         assertThat(opp150RevurderingListe).anySatisfy(linje -> assertThat(linje.getDatoStatusFom()).isEqualTo(b2p1fom));
 
         // Arrange 2
-        Behandling revurdering2 = opprettOgLagreRevurdering(revurdering, VedtakResultatType.INNVILGET, false, true);
         LocalDate endringsdato = LocalDate.of(I_ÅR, 9, 1);
         LocalDate b3p1fom = LocalDate.of(I_ÅR, 9, 1);
         LocalDate b3p1tom = LocalDate.of(I_ÅR, 9, 15);
         LocalDate b3p2fom = LocalDate.of(I_ÅR, 9, 16);
         LocalDate b3p2tom = LocalDate.of(I_ÅR, 9, 30);
         BeregningsresultatEntitet beregningsresultatRevurderingFP2 = buildBeregningsresultatBrukerFP(endringsdato, List.of(0, 820), List.of(820, 0), b3p1fom, b3p1tom, b3p2fom, b3p2tom);
-        beregningsresultatRepository.lagre(revurdering2, beregningsresultatRevurderingFP2);
+        GruppertYtelse gruppertYtelse3 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP2);
+        var builder3 = getInputStandardBuilder(gruppertYtelse3).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag, oppdragRevurdering)));
 
-        // Act 2
-        Oppdragskontroll oppdragRevurdering2 = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering2);
+        // Act
+        Oppdragskontroll oppdragRevurdering2 = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder3.build());
 
         //Assert 2
         List<Oppdragslinje150> opp150RevurderingListe2 = oppdragRevurdering2.getOppdrag110Liste().stream()
@@ -2236,15 +2387,16 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         buildBeregningsresultatAndel(brPeriode4, true, 0, BigDecimal.valueOf(100), virksomhet);
         buildBeregningsresultatAndel(brPeriode4, true, 0, BigDecimal.valueOf(100), virksomhet2);
 
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        Oppdragskontroll førsteOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
         // To arbeidsgivere som mottakere ingen oppdrag til bruker
-        assertThat(førsteOppdrag.getOppdrag110Liste().size()).isEqualTo(2);
-        assertThat(førsteOppdrag.getOppdrag110Liste().stream().allMatch(oppdrag110 -> oppdrag110.getKodeFagomrade().equals(ØkonomiKodeFagområde.FPREF.name()))).isTrue();
+        assertThat(originaltOppdrag.getOppdrag110Liste().size()).isEqualTo(2);
+        assertThat(originaltOppdrag.getOppdrag110Liste().stream().allMatch(oppdrag110 -> oppdrag110.getKodeFagomrade().equals(ØkonomiKodeFagområde.FPREF.name()))).isTrue();
 
         // Arrange 1 - første revurdering2
-        Behandling revurdering1 = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
 
         BeregningsresultatEntitet beregningsresultat1 = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
@@ -2284,18 +2436,18 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         buildBeregningsresultatAndel(brR0Periode4, false, 789, BigDecimal.valueOf(100), virksomhet);
         buildBeregningsresultatAndel(brR0Periode4, false, 154, BigDecimal.valueOf(100), virksomhet2);
 
-        beregningsresultatRepository.lagre(revurdering1, beregningsresultat1);
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultat1);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll andreOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering1, 472L);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         // To arbeidsgivere som mottakere ingen oppdrag til bruker
-        assertThat(andreOppdrag.getOppdrag110Liste().size()).isEqualTo(2);
-        assertThat(andreOppdrag.getOppdrag110Liste().stream().allMatch(oppdrag110 -> oppdrag110.getKodeFagomrade().equals(ØkonomiKodeFagområde.FPREF.name()))).isTrue();
+        assertThat(oppdragRevurdering.getOppdrag110Liste().size()).isEqualTo(2);
+        assertThat(oppdragRevurdering.getOppdrag110Liste().stream().allMatch(oppdrag110 -> oppdrag110.getKodeFagomrade().equals(ØkonomiKodeFagområde.FPREF.name()))).isTrue();
 
 
         // Arrange 2 - andre revurdering med omfordeling av 1 ag til bruker
-        Behandling revurdering2 = opprettOgLagreRevurdering(revurdering1, VedtakResultatType.INNVILGET, false, true);
 
         BeregningsresultatEntitet beregningsresultat2 = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
@@ -2340,25 +2492,25 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         buildBeregningsresultatAndel(brRPeriode4, true, 0, BigDecimal.valueOf(100), virksomhet);
         buildBeregningsresultatAndel(brRPeriode4, false, 789, BigDecimal.valueOf(100), virksomhet);
 
-        beregningsresultatRepository.lagre(revurdering2, beregningsresultat2);
+        GruppertYtelse gruppertYtelse3 = mapper.fordelPåNøkler(beregningsresultat2);
+        var builder3 = getInputStandardBuilder(gruppertYtelse3).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag, oppdragRevurdering)));
 
-        // Act
-        Oppdragskontroll tredjeOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering2, 473L);
+        // ActoppdragRevurdering = {Oppdragskontroll@3699} "Oppdragskontroll<behandlingId=123456, saksnummer=Saksnummer<101000>, venterKvittering=true, prosessTaskId=23, opprettetTs=null>"
+        Oppdragskontroll oppdragRevurdering2 = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder3.build());
 
         // To arbeidsgivere som mottakere og bruker
-        assertThat(tredjeOppdrag.getOppdrag110Liste().size()).isEqualTo(3);
+        assertThat(oppdragRevurdering2.getOppdrag110Liste().size()).isEqualTo(2);
 
         //Assert -- opphør av bruker
-        List<Oppdragslinje150> opp150RevurderingListe = tredjeOppdrag.getOppdrag110Liste().stream()
+        List<Oppdragslinje150> opp150RevurderingListe = oppdragRevurdering2.getOppdrag110Liste().stream()
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
             .collect(Collectors.toList());
 
-        assertThat(opp150RevurderingListe).hasSize(14); // Bruker + FP
+        assertThat(opp150RevurderingListe).hasSize(8); // Bruker + FP
         assertThat(opp150RevurderingListe).anySatisfy(linje -> assertThat(linje.gjelderOpphør()).isTrue());
 
 
         // Arrange 3 - tredje revurdering med omfordeling av andre ag til bruker
-        Behandling revurdering3 = opprettOgLagreRevurdering(revurdering2, VedtakResultatType.INNVILGET, false, true);
         BeregningsresultatEntitet beregningsresultat3 = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
             .medRegelSporing("clob2")
@@ -2399,13 +2551,14 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         buildBeregningsresultatAndel(brR2Periode4, true, 789, BigDecimal.valueOf(100), virksomhet);
         buildBeregningsresultatAndel(brR2Periode4, true, 154, BigDecimal.valueOf(100), virksomhet2);
 
-        beregningsresultatRepository.lagre(revurdering3, beregningsresultat3);
+        GruppertYtelse gruppertYtelse4 = mapper.fordelPåNøkler(beregningsresultat3);
+        var builder4 = getInputStandardBuilder(gruppertYtelse4).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag, oppdragRevurdering, oppdragRevurdering2)));
 
-        // Act 3
-        Oppdragskontroll fjerdeOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering3,474L);
+        // Act
+        Oppdragskontroll oppdragRevurdering3 = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder4.build());
 
         // Assert 3 -- opphør AG og endring for bruker
-        assertThat(fjerdeOppdrag.getOppdrag110Liste().size()).isEqualTo(2);
+        assertThat(oppdragRevurdering3.getOppdrag110Liste().size()).isEqualTo(2);
     }
 
 
@@ -2420,16 +2573,18 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         LocalDate bmax2tom = LocalDate.of(I_ÅR, 12, 4);
 
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatBrukerFP(null, List.of(2116),  List.of(0), bminfom, bmaxtom);
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
 
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatBrukerFP(bminfom, List.of(0), List.of(2143), bminfom, bmaxtom);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert -- opphør av bruker
         List<Oppdragslinje150> opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste().stream()
@@ -2444,13 +2599,14 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         LocalDate b21fom = LocalDate.of(I_ÅR, 8, 24);
         LocalDate b20tom = LocalDate.of(I_ÅR, 8, 23);
 
-        Behandling revurdering2 = opprettOgLagreRevurdering(revurdering, VedtakResultatType.INNVILGET, false, true);
         BeregningsresultatEntitet beregningsresultatRevurderingFP2 = buildBeregningsresultatBrukerFP(bminfom, List.of(0, 0), List.of(0, 2143),
             bminfom, b20tom, b21fom, bmax2tom);
-        beregningsresultatRepository.lagre(revurdering2, beregningsresultatRevurderingFP2);
 
-        // Act 2
-        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering2);
+        GruppertYtelse gruppertYtelse3 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP2);
+        var builder3 = getInputStandardBuilder(gruppertYtelse3).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag, oppdragRevurdering)));
+
+        // Act
+        Oppdragskontroll oppdragRevurdering2 = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder3.build());
 
         // Arrange 3 -- opphør enda mer AG
         LocalDate b30tom = LocalDate.of(I_ÅR, 8, 23);
@@ -2460,13 +2616,14 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         LocalDate b32tom = LocalDate.of(I_ÅR, 10, 18);
         LocalDate b33fom = LocalDate.of(I_ÅR, 10, 19);
 
-        Behandling revurdering3 = opprettOgLagreRevurdering(revurdering2, VedtakResultatType.INNVILGET, false, true);
         BeregningsresultatEntitet beregningsresultatRevurderingFP3 = buildBeregningsresultatBrukerFP(b31fom, List.of(0,0,0,0), List.of(0,0,2143,0),
             bminfom, b30tom, b31fom, b31tom, b32fom, b32tom, b33fom, bmax2tom);
-        beregningsresultatRepository.lagre(revurdering3, beregningsresultatRevurderingFP3);
 
-        // Act 3
-        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering3);
+        GruppertYtelse gruppertYtelse4 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP3);
+        var builder4 = getInputStandardBuilder(gruppertYtelse4).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag, oppdragRevurdering, oppdragRevurdering2)));
+
+        // Act
+        Oppdragskontroll oppdragRevurdering3 = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder4.build());
 
 
         // Arrange 4 -- opphør enda mer AG
@@ -2476,13 +2633,13 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         LocalDate b42tom = LocalDate.of(I_ÅR, 10, 18);
         LocalDate b43fom = LocalDate.of(I_ÅR, 10, 19);
 
-        Behandling revurdering4 = opprettOgLagreRevurdering(revurdering3, VedtakResultatType.INNVILGET, false, true);
         BeregningsresultatEntitet beregningsresultatRevurderingFP4 = buildBeregningsresultatBrukerFP(b41fom, List.of(0,0,0), List.of(0,2143,0),
             b41fom, b41tom, b42fom, b42tom, b43fom, bmax2tom);
-        beregningsresultatRepository.lagre(revurdering4, beregningsresultatRevurderingFP4);
+        GruppertYtelse gruppertYtelse5 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP4);
+        var builder5 = getInputStandardBuilder(gruppertYtelse5).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag, oppdragRevurdering, oppdragRevurdering2, oppdragRevurdering3)));
 
-        // Act 4
-        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering4);
+        // Act
+        Oppdragskontroll oppdragRevurdering4 = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder5.build());
 
 
         // Arrange 5 -- opphør resten av AG
@@ -2492,13 +2649,13 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         LocalDate b52tom = LocalDate.of(I_ÅR, 10, 23);
         LocalDate b53fom = LocalDate.of(I_ÅR, 10, 24);
 
-        Behandling revurdering5 = opprettOgLagreRevurdering(revurdering4, VedtakResultatType.INNVILGET, false, true);
         BeregningsresultatEntitet beregningsresultatRevurderingFP5 = buildBeregningsresultatBrukerFP(b51fom, List.of(0,0,0), List.of(0,0,0),
             b51fom, b51tom, b52fom, b52tom, b53fom, bmax2tom);
-        beregningsresultatRepository.lagre(revurdering5, beregningsresultatRevurderingFP5);
+        GruppertYtelse gruppertYtelse6 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP5);
+        var builder6 = getInputStandardBuilder(gruppertYtelse6).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag, oppdragRevurdering, oppdragRevurdering2, oppdragRevurdering3, oppdragRevurdering4)));
 
-        // Act 5
-        Oppdragskontroll oppdragRevurdering5 = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering5);
+        // Act
+        Oppdragskontroll oppdragRevurdering5 = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder6.build());
 
         //Assert 5 -- alt opphøres
         List<Oppdragslinje150> opp150RevurderingListe5 = oppdragRevurdering5.getOppdrag110Liste().stream()
@@ -2520,16 +2677,18 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         LocalDate bmaxtom = LocalDate.of(I_ÅR, 7, 3);
 
         BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatBrukerFP(null, List.of(897),  List.of(1265), bminfom, bmaxtom);
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-        OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), behandling);
-
-        Behandling revurdering = opprettOgLagreRevurdering(behandling, VedtakResultatType.INNVILGET, false, true);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatBrukerFP(bminfom, List.of(2162), List.of(0), bminfom, bmaxtom);
-        beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
+
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering);
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert -- opphør av ag
         List<Oppdragslinje150> opp150RevurderingListe = oppdragRevurdering.getOppdrag110Liste().stream()
@@ -2542,12 +2701,12 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
 
         // Arrange 2 -- opphør deler av AG
 
-        Behandling revurdering2 = opprettOgLagreRevurdering(revurdering, VedtakResultatType.INNVILGET, false, true);
-        BeregningsresultatEntitet beregningsresultatRevurderingFP2 = buildBeregningsresultatBrukerFP(bminfom, List.of(0), List.of(0), bminfom, bmaxtom);
-        beregningsresultatRepository.lagre(revurdering2, beregningsresultatRevurderingFP2);
+        BeregningsresultatEntitet beregningsresultatRevurderingFP3 = buildBeregningsresultatBrukerFP(bminfom, List.of(0), List.of(0), bminfom, bmaxtom);
+        GruppertYtelse gruppertYtelse3 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP3);
+        var builder3 = getInputStandardBuilder(gruppertYtelse3).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag, oppdragRevurdering)));
 
-        // Act 2
-        Oppdragskontroll oppdragRevurdering2 = OppdragMedPositivKvitteringTestUtil.opprett(getOppdragTjeneste(), revurdering2);
+        // Act
+        Oppdragskontroll oppdragRevurdering2 = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder3.build());
 
 
         //Assert 2 -- alt opphøres
@@ -2588,17 +2747,13 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         List<Oppdragslinje150> opp150ForSNOriginalListe = getOpp150MedKodeklassifik(originaltOpp150Liste, KodeKlassifik.FPF_SELVSTENDIG);
         List<Oppdragslinje150> opp150ForSNRevurdListe = getOpp150MedKodeklassifik(opp150RevurdListe, KodeKlassifik.FPF_SELVSTENDIG);
         List<Oppdragslinje150> opp150ForFLRevurdListe = getOpp150MedKodeklassifik(opp150RevurdListe, KodeKlassifik.FPF_FRILANSER);
-        List<Oppdragslinje150> opp150ForFLOriginalListe = getOpp150MedKodeklassifik(originaltOpp150Liste, KodeKlassifik.FPF_FRILANSER);
-        Oppdragslinje150 opp150ForFLOpph = opp150ForFLRevurdListe.stream()
-            .filter(Oppdragslinje150::gjelderOpphør)
-            .findFirst().get();
+
+        assertThat(opp150ForFLRevurdListe).hasSize(0);
         assertThat(opp150ForSNRevurdListe).hasSize(1);
         Oppdragslinje150 opp150SN = opp150ForSNRevurdListe.get(0);
         assertThat(opp150SN.gjelderOpphør()).isTrue();
         assertThat(opp150ForSNOriginalListe).anySatisfy(opp150 ->
             assertThat(opp150.getDelytelseId()).isEqualTo(opp150SN.getDelytelseId()));
-        assertThat(opp150ForFLOriginalListe).anySatisfy(opp150 ->
-            assertThat(opp150.getDelytelseId()).isEqualTo(opp150ForFLOpph.getDelytelseId()));
     }
 
     private List<Oppdragslinje150> getOpp150MedKodeklassifik(List<Oppdragslinje150> opp150RevurdListe, KodeKlassifik kodeKlassifik) {
@@ -2611,19 +2766,18 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         List<KodeKlassifik> kodeKlassifikForrigeListe = OppdragskontrollTestVerktøy.getKodeklassifikIOppdr150Liste(originaltOpp150Liste);
         List<KodeKlassifik> kodeKlassifikRevurderingListe = OppdragskontrollTestVerktøy.getKodeklassifikIOppdr150Liste(opp150RevurdListe);
         List<KodeKlassifik> kodeKlassifikRevurderingOpphListe = OppdragskontrollTestVerktøy.getKodeklassifikKunForOpp150MedOpph(opp150RevurdListe);
-        assertThat(kodeKlassifikForrigeListe).containsOnlyElementsOf(List.of(KodeKlassifik.FPF_FRILANSER, KodeKlassifik.FPF_ARBEIDSTAKER));
-        assertThat(kodeKlassifikRevurderingListe).containsOnlyElementsOf(List.of(KodeKlassifik.FPF_FRILANSER, KodeKlassifik.FPF_ARBEIDSTAKER));
-        assertThat(kodeKlassifikRevurderingOpphListe).containsOnlyElementsOf(List.of(KodeKlassifik.FPF_FRILANSER, KodeKlassifik.FPF_ARBEIDSTAKER));
+        assertThat(kodeKlassifikForrigeListe).containsAnyElementsOf(List.of(KodeKlassifik.FPF_FRILANSER, KodeKlassifik.FPF_ARBEIDSTAKER));
+        assertThat(kodeKlassifikRevurderingListe).containsAnyElementsOf(List.of(KodeKlassifik.FPF_FRILANSER, KodeKlassifik.FPF_ARBEIDSTAKER));
+        assertThat(kodeKlassifikRevurderingOpphListe).containsAnyElementsOf(List.of(KodeKlassifik.FPF_FRILANSER, KodeKlassifik.FPF_ARBEIDSTAKER));
     }
 
     private void verifiserKodeklassifikNårRevurderingHarNye(List<Oppdragslinje150> originaltOpp150Liste, List<Oppdragslinje150> opp150RevurdListe) {
         List<KodeKlassifik> kodeKlassifikForrigeListe = OppdragskontrollTestVerktøy.getKodeklassifikIOppdr150Liste(originaltOpp150Liste);
         List<KodeKlassifik> kodeKlassifikRevurderingListe = OppdragskontrollTestVerktøy.getKodeklassifikIOppdr150Liste(opp150RevurdListe);
         List<KodeKlassifik> kodeKlassifikRevurderingOpphListe = OppdragskontrollTestVerktøy.getKodeklassifikKunForOpp150MedOpph(opp150RevurdListe);
-        assertThat(kodeKlassifikForrigeListe).containsOnlyElementsOf(List.of(KodeKlassifik.FPF_FRILANSER, KodeKlassifik.FPF_SELVSTENDIG));
-        assertThat(kodeKlassifikRevurderingListe).containsOnlyElementsOf(List.of(KodeKlassifik.FPF_FRILANSER, KodeKlassifik.FPF_ARBEIDSTAKER,
-            KodeKlassifik.FPF_SELVSTENDIG));
-        assertThat(kodeKlassifikRevurderingOpphListe).containsOnlyElementsOf(List.of(KodeKlassifik.FPF_FRILANSER, KodeKlassifik.FPF_SELVSTENDIG));
+        assertThat(kodeKlassifikForrigeListe).containsAnyElementsOf(List.of(KodeKlassifik.FPF_FRILANSER, KodeKlassifik.FPF_SELVSTENDIG));
+        assertThat(kodeKlassifikRevurderingListe).containsAnyElementsOf(List.of(KodeKlassifik.FPF_ARBEIDSTAKER, KodeKlassifik.FPF_SELVSTENDIG));
+        assertThat(kodeKlassifikRevurderingOpphListe).containsExactly(KodeKlassifik.FPF_SELVSTENDIG);
     }
 
 

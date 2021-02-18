@@ -21,11 +21,11 @@ public class YtelsePeriode {
         this.verdi = verdi;
     }
 
-    public YtelsePeriode(Periode periode, Sats sats) {
+    public YtelsePeriode(Periode periode, Satsen sats) {
         this(periode, new YtelseVerdi(sats));
     }
 
-    public YtelsePeriode(Periode periode, Sats sats, Utbetalingsgrad utbetalingsgrad) {
+    public YtelsePeriode(Periode periode, Satsen sats, Utbetalingsgrad utbetalingsgrad) {
         this(periode, new YtelseVerdi(sats, utbetalingsgrad));
     }
 
@@ -37,7 +37,7 @@ public class YtelsePeriode {
         return verdi;
     }
 
-    public Sats getSats() {
+    public Satsen getSats() {
         return verdi.getSats();
     }
 
@@ -50,7 +50,7 @@ public class YtelsePeriode {
             throw new IllegalArgumentException("Kan ikke sette ny fom-dato som ikke er i eksisterende periode");
         }
         SatsType satsType = verdi.getSats().getSatsType();
-        if (satsType != SatsType.DAG && satsType != SatsType.DAG7) {
+        if (satsType != SatsType.DAG) {
             throw new IllegalArgumentException("Kan ikke sette ny fom-dato for satsType: " + satsType);
         }
         Periode nyPeriode = Periode.of(nyFomDato, periode.getTom());
@@ -76,7 +76,7 @@ public class YtelsePeriode {
             YtelsePeriode periode = iterator.next();
             validerNøkler(førstePeriode, periode);
         }
-        Sats sats = summerSats(satsType, perioder);
+        Satsen sats = summerSats(satsType, perioder);
         Utbetalingsgrad utbetalingsgrad = summerUtbetalingsgrad(perioder);
         return new YtelsePeriode(førstePeriode.getPeriode(), sats, utbetalingsgrad);
     }
@@ -94,13 +94,13 @@ public class YtelsePeriode {
         return new Utbetalingsgrad(utbetalingsgrad > 100 ? 100 : utbetalingsgrad);
     }
 
-    private static Sats summerSats(SatsType satsType, Collection<YtelsePeriode> perioder) {
+    private static Satsen summerSats(SatsType satsType, Collection<YtelsePeriode> perioder) {
         long sats = perioder.stream()
             .map(YtelsePeriode::getSats)
-            .mapToLong(Sats::getSats)
+            .mapToLong(Satsen::getSats)
             .reduce(Long::sum)
             .orElseThrow();
-        return new Sats(satsType, sats);
+        return new Satsen(satsType, sats);
     }
 
     public static void validerNøkler(YtelsePeriode p1, YtelsePeriode p2) {

@@ -78,7 +78,7 @@ public class SimulerOppdragStegTest {
     @Test
     public void skal_ha_aksjonspunkter_fra_aksjonspunktutleder_når_feature_er_enabled_men_skal_kalle_på_tjeneste_og_klient() {
         // Arrange
-        when(simulerOppdragTjenesteMock.simulerOppdrag(anyLong(), anyLong())).thenReturn(
+        when(simulerOppdragTjenesteMock.simulerOppdrag(anyLong(), any())).thenReturn(
                 Collections.singletonList("test"));
 
         when(fpOppdragRestKlientMock.hentResultat(anyLong())).thenReturn(
@@ -91,7 +91,7 @@ public class SimulerOppdragStegTest {
         // Assert
         assertThat(resultat.getAksjonspunktListe()).containsOnly(AksjonspunktDefinisjon.VURDER_FEILUTBETALING);
         assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
-        verify(simulerOppdragTjenesteMock).simulerOppdrag(anyLong(), anyLong());
+        verify(simulerOppdragTjenesteMock).simulerOppdrag(anyLong(), any());
         verify(fpOppdragRestKlientMock).startSimulering(any(SimulerOppdragDto.class));
 
         Optional<TilbakekrevingInntrekkEntitet> tilbakekrevingInntrekk = tilbakekrevingRepository.hentTilbakekrevingInntrekk(

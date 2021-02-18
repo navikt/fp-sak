@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -19,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Betalingsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.DelytelseId;
@@ -28,8 +26,10 @@ import no.nav.foreldrepenger.økonomistøtte.ny.domene.Oppdrag;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.OppdragKjedeFortsettelse;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.OppdragLinje;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Periode;
-import no.nav.foreldrepenger.økonomistøtte.ny.domene.Sats;
+import no.nav.foreldrepenger.økonomistøtte.ny.domene.Satsen;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Utbetalingsgrad;
+import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.GruppertYtelse;
+import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.OverordnetOppdragKjedeOversikt;
 
 
 public class LagOppdragTjenesteTest {
@@ -39,12 +39,12 @@ public class LagOppdragTjenesteTest {
     LocalDate dag1 = LocalDate.of(2020, 11, 9);
     Periode periode = Periode.of(dag1, dag1.plusDays(3));
     Periode nesteMai = Periode.of(LocalDate.of(2021, 5, 1), LocalDate.of(2021, 5, 31));
-    AktørId brukerAktørId = AktørId.dummy();
+    String brukerFnr = "33333333333";
     LocalDate vedtaksdato = dag1;
 
     @Test
     public void skal_få_ingen_oppdrag_for_tomt_førstegangsvedtak() {
-        List<Oppdrag> resultat = LagOppdragTjeneste.lagOppdrag(Collections.emptyList(), lagTomInput());
+        List<Oppdrag> resultat = LagOppdragTjeneste.lagOppdrag(lagTomInput());
         assertThat(resultat).isEmpty();
     }
 
@@ -54,9 +54,12 @@ public class LagOppdragTjenesteTest {
         BeregningsresultatPeriode tyPeriode = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(periode.getFom(), periode.getTom()).build(tilkjentYtelse);
         BeregningsresultatAndel.builder().medBrukerErMottaker(true).medInntektskategori(Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE).medDagsatsFraBg(1000).medDagsats(1000).medUtbetalingsgrad(BigDecimal.valueOf(100)).medStillingsprosent(BigDecimal.valueOf(100)).build(tyPeriode);
 
-        Input input = lagInput(FagsakYtelseType.FORELDREPENGER, FamilieYtelseType.FØDSEL, tilkjentYtelse);
+        TilkjentYtelseMapper tilkjentYtelseMapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
+        var gruppertYtelse = tilkjentYtelseMapper.fordelPåNøkler(tilkjentYtelse);
+
+        Input input = lagInput(FagsakYtelseType.FORELDREPENGER, FamilieYtelseType.FØDSEL, gruppertYtelse);
         //act
-        List<Oppdrag> resultat = LagOppdragTjeneste.lagOppdrag(Collections.emptyList(), input);
+        List<Oppdrag> resultat = LagOppdragTjeneste.lagOppdrag(input);
         //assert
         assertThat(resultat).hasSize(1);
         Oppdrag oppdrag = resultat.get(0);
@@ -69,7 +72,7 @@ public class LagOppdragTjenesteTest {
 
         OppdragKjedeFortsettelse kjede = oppdrag.getKjeder().get(nøkkelYtelse);
         assertThat(kjede.getOppdragslinjer()).hasSize(1);
-        assertLik(kjede.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("1-100")).medPeriode(periode).medSats(Sats.dagsats(1000)).medUtbetalingsgrad(new Utbetalingsgrad(100)).build());
+        assertLik(kjede.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("100-100")).medPeriode(periode).medSats(Satsen.dagsats(1000)).medUtbetalingsgrad(new Utbetalingsgrad(100)).build());
     }
 
     @Test
@@ -80,9 +83,12 @@ public class LagOppdragTjenesteTest {
         BeregningsresultatFeriepenger feriepenger = BeregningsresultatFeriepenger.builder().medFeriepengerRegelInput("foo").medFeriepengerRegelSporing("bar").medFeriepengerPeriodeFom(nesteMai.getFom()).medFeriepengerPeriodeTom(nesteMai.getTom()).build(tilkjentYtelse);
         BeregningsresultatFeriepengerPrÅr.builder().medÅrsbeløp(200).medOpptjeningsår(dag1.getYear()).build(feriepenger, andel);
 
-        Input input = lagInput(FagsakYtelseType.FORELDREPENGER, FamilieYtelseType.FØDSEL, tilkjentYtelse);
+        TilkjentYtelseMapper tilkjentYtelseMapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
+        var gruppertYtelse = tilkjentYtelseMapper.fordelPåNøkler(tilkjentYtelse);
+
+        Input input = lagInput(FagsakYtelseType.FORELDREPENGER, FamilieYtelseType.FØDSEL, gruppertYtelse);
         //act
-        List<Oppdrag> resultat = LagOppdragTjeneste.lagOppdrag(Collections.emptyList(), input);
+        List<Oppdrag> resultat = LagOppdragTjeneste.lagOppdrag(input);
         //assert
         assertThat(resultat).hasSize(1);
         Oppdrag oppdrag = resultat.get(0);
@@ -93,11 +99,11 @@ public class LagOppdragTjenesteTest {
 
         OppdragKjedeFortsettelse ytelsekjede = oppdrag.getKjeder().get(nøkkelYtelse);
         assertThat(ytelsekjede.getOppdragslinjer()).hasSize(1);
-        assertLik(ytelsekjede.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("1-100")).medPeriode(periode).medSats(Sats.dagsats(1000)).medUtbetalingsgrad(new Utbetalingsgrad(100)).build());
+        assertLik(ytelsekjede.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("100-100")).medPeriode(periode).medSats(Satsen.dagsats(1000)).medUtbetalingsgrad(new Utbetalingsgrad(100)).build());
 
         OppdragKjedeFortsettelse feriepengeKjede = oppdrag.getKjeder().get(nøkkelFeriepenger);
         assertThat(feriepengeKjede.getOppdragslinjer()).hasSize(1);
-        assertLik(feriepengeKjede.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("1-101")).medPeriode(nesteMai).medSats(Sats.engang(200)).build());
+        assertLik(feriepengeKjede.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("100-101")).medPeriode(nesteMai).medSats(Satsen.engang(200)).build());
     }
 
     private DelytelseId delytelseId(String suffix) {
@@ -114,20 +120,21 @@ public class LagOppdragTjenesteTest {
     }
 
     Input lagTomInput() {
-        BeregningsresultatEntitet tomtResultat = BeregningsresultatEntitet.builder().medRegelInput("foo").medRegelSporing("bar").build();
+        GruppertYtelse tomtResultat = GruppertYtelse.builder().build();
         return lagInput(FagsakYtelseType.FORELDREPENGER, FamilieYtelseType.FØDSEL, tomtResultat);
     }
 
-    Input lagInput(FagsakYtelseType ytelseType, FamilieYtelseType familieYtelseType, BeregningsresultatEntitet tilkjentYtelse) {
+    Input lagInput(FagsakYtelseType ytelseType, FamilieYtelseType familieYtelseType, GruppertYtelse tilkjentYtelse) {
         return Input.builder()
             .medFagsakYtelseType(ytelseType)
             .medFamilieYtelseType(familieYtelseType)
             .medTilkjentYtelse(tilkjentYtelse)
+            .medTidligereOppdrag(OverordnetOppdragKjedeOversikt.TOM)
             .medSaksnummer(saksnummer)
             .medBehandlingId(enBehandlingId)
-            .medBruker(brukerAktørId)
             .medBrukInntrekk(vanligInntrekkbeslutning)
             .medVedtaksdato(vedtaksdato)
+            .medBrukerFnr(brukerFnr)
             .build();
     }
 

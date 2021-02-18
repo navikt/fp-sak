@@ -26,7 +26,7 @@ import no.nav.foreldrepenger.økonomistøtte.ny.domene.KjedeNøkkel;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.OppdragKjede;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.OppdragLinje;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Periode;
-import no.nav.foreldrepenger.økonomistøtte.ny.domene.Sats;
+import no.nav.foreldrepenger.økonomistøtte.ny.domene.Satsen;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.SatsType;
 import no.nav.vedtak.util.env.Environment;
 
@@ -122,7 +122,7 @@ public class EksisterendeOppdragMapper {
     private static List<Oppdrag110> sorterOgVelgKunGyldige(List<Oppdrag110> tidligereOppdrag) {
         return tidligereOppdrag.stream()
             .filter(ok -> ok.venterKvittering() || OppdragKvitteringTjeneste.harPositivKvittering(ok))
-            .sorted(Comparator.comparing(Oppdrag110::getOpprettetTidspunkt))
+            .sorted(Comparator.comparing(Oppdrag110::getAvstemming))
             .collect(Collectors.toList());
     }
 
@@ -151,11 +151,11 @@ public class EksisterendeOppdragMapper {
         return Optional.ofNullable(linje.getUtbetalingsgrad()).map(Utbetalingsgrad::getVerdi).map(no.nav.foreldrepenger.økonomistøtte.ny.domene.Utbetalingsgrad::new).orElse(null);
     }
 
-    private static Sats mapSats(Oppdragslinje150 linje) {
+    private static Satsen mapSats(Oppdragslinje150 linje) {
         if (linje.getTypeSats().getKode().equals(SatsType.DAG.getKode())) {
-            return Sats.dagsats(linje.getSats().getVerdi().longValue());
+            return Satsen.dagsats(linje.getSats().getVerdi().longValue());
         } else if (linje.getTypeSats().getKode().equals(SatsType.ENGANG.getKode())) {
-            return Sats.engang(linje.getSats().getVerdi().longValue());
+            return Satsen.engang(linje.getSats().getVerdi().longValue());
         } else {
             throw new IllegalArgumentException("Ikke-støttet satstype: " + linje.getTypeSats());
         }
@@ -167,7 +167,7 @@ public class EksisterendeOppdragMapper {
             ? Betalingsmottaker.BRUKER
             : Betalingsmottaker.forArbeidsgiver(normaliserOrgnr(refusjonsinfo.getRefunderesId()));
         KjedeNøkkel.Builder builder = KjedeNøkkel.builder(linje.getKodeKlassifik(), mottaker);
-        if (linje.getKodeKlassifik().gjelderFerie()) {
+        if (linje.getKodeKlassifik().gjelderFeriepenger()) {
             builder.medFeriepengeÅr(linje.getDatoVedtakFom().getYear() - 1);
         }
         return builder.build();

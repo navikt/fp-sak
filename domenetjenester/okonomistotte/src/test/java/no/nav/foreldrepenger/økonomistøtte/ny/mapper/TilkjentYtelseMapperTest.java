@@ -5,8 +5,10 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
@@ -18,10 +20,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskateg
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Betalingsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.KjedeNøkkel;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Periode;
-import no.nav.foreldrepenger.økonomistøtte.ny.domene.Sats;
+import no.nav.foreldrepenger.økonomistøtte.ny.domene.Satsen;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Utbetalingsgrad;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Ytelse;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.YtelsePeriode;
@@ -61,7 +64,47 @@ public class TilkjentYtelseMapperTest {
         Assertions.assertThat(ytelse.getPerioder()).hasSize(1);
 
         YtelsePeriode ytelsePeriode = ytelse.getPerioder().get(0);
-        Assertions.assertThat(ytelsePeriode.getSats()).isEqualTo(Sats.dagsats(100));
+        Assertions.assertThat(ytelsePeriode.getSats()).isEqualTo(Satsen.dagsats(100));
+        Assertions.assertThat(ytelsePeriode.getPeriode()).isEqualTo(Periode.of(jan1, jan2));
+        Assertions.assertThat(ytelsePeriode.getUtbetalingsgrad()).isEqualTo(new Utbetalingsgrad(100));
+    }
+
+    @Test
+    public void skal_mappe_utbetalingsgrad_riktig_summeres() {
+        BeregningsresultatPeriode periode1 = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(jan1, jan2).build(entitet);
+
+        BeregningsresultatAndel.builder()
+            .medBrukerErMottaker(true)
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medDagsats(100)
+            .medDagsatsFraBg(100)
+            .medUtbetalingsgrad(BigDecimal.valueOf(60))
+            .medStillingsprosent(BigDecimal.valueOf(100))
+            .build(periode1);
+
+        BeregningsresultatAndel.builder()
+            .medBrukerErMottaker(true)
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER_UTEN_FERIEPENGER)
+            .medDagsats(100)
+            .medDagsatsFraBg(100)
+            .medUtbetalingsgrad(BigDecimal.valueOf(50))
+            .medStillingsprosent(BigDecimal.valueOf(100))
+            .build(periode1);
+
+        List<BeregningsresultatPeriode> perioder = Arrays.asList(periode1);
+
+        Map<KjedeNøkkel, Ytelse> resultat = mapper.fordelPåNøkler(perioder).getYtelsePrNøkkel();
+
+        Assertions.assertThat(resultat).hasSize(1);
+
+        KjedeNøkkel forventetNøkkel = KjedeNøkkel.lag(KodeKlassifik.FPF_ARBEIDSTAKER, Betalingsmottaker.BRUKER);
+        Assertions.assertThat(resultat.keySet()).contains(forventetNøkkel);
+
+        Ytelse ytelse = resultat.get(forventetNøkkel);
+        Assertions.assertThat(ytelse.getPerioder()).hasSize(1);
+
+        YtelsePeriode ytelsePeriode = ytelse.getPerioder().get(0);
+        Assertions.assertThat(ytelsePeriode.getSats()).isEqualTo(Satsen.dagsats(200));
         Assertions.assertThat(ytelsePeriode.getPeriode()).isEqualTo(Periode.of(jan1, jan2));
         Assertions.assertThat(ytelsePeriode.getUtbetalingsgrad()).isEqualTo(new Utbetalingsgrad(100));
     }
@@ -85,7 +128,7 @@ public class TilkjentYtelseMapperTest {
         Assertions.assertThat(ytelse.getPerioder()).hasSize(1);
 
         YtelsePeriode ytelsePeriode = ytelse.getPerioder().get(0);
-        Assertions.assertThat(ytelsePeriode.getSats()).isEqualTo(Sats.dagsats(100 + 200));
+        Assertions.assertThat(ytelsePeriode.getSats()).isEqualTo(Satsen.dagsats(100 + 200));
         Assertions.assertThat(ytelsePeriode.getPeriode()).isEqualTo(Periode.of(jan1, jan2));
         Assertions.assertThat(ytelsePeriode.getUtbetalingsgrad()).isEqualTo(new Utbetalingsgrad(100));
     }
@@ -111,7 +154,7 @@ public class TilkjentYtelseMapperTest {
         Assertions.assertThat(ytelse.getPerioder()).hasSize(1);
 
         YtelsePeriode ytelsePeriode = ytelse.getPerioder().get(0);
-        Assertions.assertThat(ytelsePeriode.getSats()).isEqualTo(Sats.dagsats(1));
+        Assertions.assertThat(ytelsePeriode.getSats()).isEqualTo(Satsen.dagsats(1));
         Assertions.assertThat(ytelsePeriode.getPeriode()).isEqualTo(Periode.of(jan2, jan2));
     }
 
@@ -144,20 +187,49 @@ public class TilkjentYtelseMapperTest {
         Ytelse ytelse = resultat.get(forventetNøkkelYtelse);
         Assertions.assertThat(ytelse.getPerioder()).hasSize(2);
         YtelsePeriode ytelsePeriode1 = ytelse.getPerioder().get(0);
-        Assertions.assertThat(ytelsePeriode1.getSats()).isEqualTo(Sats.dagsats(1000));
+        Assertions.assertThat(ytelsePeriode1.getSats()).isEqualTo(Satsen.dagsats(1000));
         Assertions.assertThat(ytelsePeriode1.getPeriode()).isEqualTo(Periode.of(jan1, jan2));
         Assertions.assertThat(ytelsePeriode1.getUtbetalingsgrad()).isEqualTo(new Utbetalingsgrad(100));
         YtelsePeriode ytelsePeriode2 = ytelse.getPerioder().get(1);
-        Assertions.assertThat(ytelsePeriode2.getSats()).isEqualTo(Sats.dagsats(1500));
+        Assertions.assertThat(ytelsePeriode2.getSats()).isEqualTo(Satsen.dagsats(1500));
         Assertions.assertThat(ytelsePeriode2.getPeriode()).isEqualTo(Periode.of(jan3, jan4));
         Assertions.assertThat(ytelsePeriode2.getUtbetalingsgrad()).isEqualTo(new Utbetalingsgrad(100));
 
         Ytelse feriepenger = resultat.get(forventetNøkkelFeriepenger);
         Assertions.assertThat(feriepenger.getPerioder()).hasSize(1);
         YtelsePeriode feriepengerPeriode = feriepenger.getPerioder().get(0);
-        Assertions.assertThat(feriepengerPeriode.getSats()).isEqualTo(Sats.engang(204 + 408));
+        Assertions.assertThat(feriepengerPeriode.getSats()).isEqualTo(Satsen.engang(204 + 408));
         Assertions.assertThat(feriepengerPeriode.getPeriode()).isEqualTo(Periode.of(nesteMai1, nesteMai31));
         Assertions.assertThat(feriepengerPeriode.getUtbetalingsgrad()).isNull();
+    }
+
+    @Test
+    public void skal_mappe_andeler_fra_private_arbeidsgivere_til_bruker() {
+        BeregningsresultatPeriode periode1 = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(jan1, jan2).build(entitet);
+        lagAndelTilBruker(Inntektskategori.ARBEIDSTAKER, 1000, periode1);
+        lagAndelTilOrg(Arbeidsgiver.person(new AktørId(1234567891234L)), 500, periode1);
+        BeregningsresultatPeriode periode2 = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(jan3, jan4).build(entitet);
+        lagAndelTilBruker(Inntektskategori.ARBEIDSTAKER, 1000, periode2);
+        lagAndelTilOrg(Arbeidsgiver.person(new AktørId(1234567891234L)), 500, periode2);
+        List<BeregningsresultatPeriode> perioder = Arrays.asList(periode1, periode2);
+
+        Map<KjedeNøkkel, Ytelse> resultat = mapper.fordelPåNøkler(perioder).getYtelsePrNøkkel();
+
+        //assert
+        KjedeNøkkel forventetNøkkelYtelse = KjedeNøkkel.lag(KodeKlassifik.FPF_ARBEIDSTAKER, Betalingsmottaker.BRUKER);
+        Assertions.assertThat(resultat.keySet()).containsOnly(forventetNøkkelYtelse);
+
+        Ytelse ytelse = resultat.get(forventetNøkkelYtelse);
+        Assertions.assertThat(ytelse.getPerioder()).hasSize(2);
+        YtelsePeriode ytelsePeriode1 = ytelse.getPerioder().get(0);
+        Assertions.assertThat(ytelsePeriode1.getSats()).isEqualTo(Satsen.dagsats(1500));
+        Assertions.assertThat(ytelsePeriode1.getPeriode()).isEqualTo(Periode.of(jan1, jan2));
+        Assertions.assertThat(ytelsePeriode1.getUtbetalingsgrad()).isEqualTo(new Utbetalingsgrad(100));
+
+        YtelsePeriode ytelsePeriode2 = ytelse.getPerioder().get(1);
+        Assertions.assertThat(ytelsePeriode2.getSats()).isEqualTo(Satsen.dagsats(1500));
+        Assertions.assertThat(ytelsePeriode2.getPeriode()).isEqualTo(Periode.of(jan3, jan4));
+        Assertions.assertThat(ytelsePeriode2.getUtbetalingsgrad()).isEqualTo(new Utbetalingsgrad(100));
     }
 
     private static BeregningsresultatAndel lagAndelTilBruker(Inntektskategori inntektskategori, int dagsats, BeregningsresultatPeriode periode) {

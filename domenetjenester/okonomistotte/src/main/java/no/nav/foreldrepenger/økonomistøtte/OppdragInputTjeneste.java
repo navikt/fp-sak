@@ -1,11 +1,10 @@
-package no.nav.foreldrepenger.økonomistøtte.ny.tjeneste;
+package no.nav.foreldrepenger.økonomistøtte;
 
 import java.time.LocalDate;
-import java.util.Optional;
+import java.util.List;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BehandlingBeregningsresultatEntitet;
@@ -20,92 +19,88 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
+import no.nav.foreldrepenger.domene.person.pdl.AktørTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.GruppertYtelse;
+import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.OverordnetOppdragKjedeOversikt;
+import no.nav.foreldrepenger.økonomistøtte.ny.mapper.EksisterendeOppdragMapper;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.Input;
-import no.nav.foreldrepenger.økonomistøtte.ny.mapper.LagOppdragTjeneste;
-import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollPostConditionCheck;
-import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollTjeneste;
+import no.nav.foreldrepenger.økonomistøtte.ny.mapper.TilkjentYtelseMapper;
 
 @Dependent
-@Named("nyOppdragTjeneste")
-public class NyOppdragskontrollTjeneste implements OppdragskontrollTjeneste {
+public class OppdragInputTjeneste {
+
+    private static final long DUMMY_PT_SIMULERING_ID = -1L;
 
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private FamilieHendelseRepository familieHendelseRepository;
     private TilbakekrevingRepository tilbakekrevingRepository;
+    private AktørTjeneste aktørTjeneste;
+    private ØkonomioppdragRepository økonomioppdragRepository;
 
-    private LagOppdragTjeneste lagOppdragTjeneste;
-
-    NyOppdragskontrollTjeneste() {
-        //for cdi proxy
+    private OppdragInputTjeneste() {
+        // for cdi proxy
     }
 
     @Inject
-    public NyOppdragskontrollTjeneste(BehandlingRepository behandlingRepository, BeregningsresultatRepository beregningsresultatRepository, BehandlingVedtakRepository behandlingVedtakRepository, FamilieHendelseRepository familieHendelseRepository, TilbakekrevingRepository tilbakekrevingRepository, LagOppdragTjeneste lagOppdragTjeneste) {
+    public OppdragInputTjeneste(BehandlingRepository behandlingRepository,
+                                BeregningsresultatRepository beregningsresultatRepository,
+                                BehandlingVedtakRepository behandlingVedtakRepository,
+                                FamilieHendelseRepository familieHendelseRepository,
+                                TilbakekrevingRepository tilbakekrevingRepository,
+                                AktørTjeneste aktørTjeneste,
+                                ØkonomioppdragRepository økonomioppdragRepository) {
         this.behandlingRepository = behandlingRepository;
         this.beregningsresultatRepository = beregningsresultatRepository;
         this.behandlingVedtakRepository = behandlingVedtakRepository;
         this.familieHendelseRepository = familieHendelseRepository;
         this.tilbakekrevingRepository = tilbakekrevingRepository;
-        this.lagOppdragTjeneste = lagOppdragTjeneste;
+        this.aktørTjeneste = aktørTjeneste;
+        this.økonomioppdragRepository = økonomioppdragRepository;
     }
 
-    /**
-     * Brukes ved iverksettelse. Sender over kun nødvendige endringer til oppdragssystemet.
-     */
-    public Optional<Oppdragskontroll> opprettOppdrag(Long behandlingId, Long prosessTaskId) {
-        return opprettOppdrag(behandlingId, prosessTaskId, false);
-    }
-
-    /**
-     * Brukes ved simulering. Finner tidligste endringstidspunkt på tvers av mottakere, og sender alt for alle mottakere f.o.m. det felles endringstidspunktet.
-     * Det gjør at simuleringsvisningen får data for alle mottakere og inntektskategorier, og ikke bare for de som er endret.
-     */
-    public Optional<Oppdragskontroll> opprettOppdragFraFellesEndringstidspunkt(Long behandlingId, Long prosessTaskId) {
-        return opprettOppdrag(behandlingId, prosessTaskId, true);
-    }
-
-    public Optional<Oppdragskontroll> opprettOppdrag(Long behandlingId, Long prosessTaskId, boolean brukFellesEndringstidspunkt) {
+    public Input lagInput(long behandlingId, long prosessTaskId) {
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        LocalDate vedtaksdato = hentVedtaksdato(behandlingId);
-        BeregningsresultatEntitet tilkjentYtelse = hentTilkjentYtelse(behandlingId);
-        boolean brukInntrekk = hentBrukInntrekk(behandlingId);
 
-        Saksnummer saksnummer = behandling.getFagsak().getSaksnummer();
-
-        Input input = Input.builder()
-            .medTilkjentYtelse(tilkjentYtelse)
-            .medBrukInntrekk(brukInntrekk)
-            .medFagsakYtelseType(behandling.getFagsak().getYtelseType())
-            .medFamilieYtelseType(finnFamilieYtelseType(behandling))
-            .medBruker(behandling.getAktørId())
-            .medSaksnummer(saksnummer)
+        var fagsak = behandling.getFagsak();
+        var familieYtelseType = finnFamilieYtelseType(behandlingId, fagsak.getYtelseType());
+        var build = Input.builder()
             .medBehandlingId(behandlingId)
-            .medVedtaksdato(vedtaksdato)
+            .medSaksnummer(fagsak.getSaksnummer())
+            .medFagsakYtelseType(fagsak.getYtelseType())
+            .medVedtaksdato(hentVedtaksdato(behandlingId))
             .medAnsvarligSaksbehandler(behandling.getAnsvarligBeslutter())
+            //.medBehandlingResultatType()
+            .medBrukerFnr(hentFnrBruker(behandling))
+            .medFamilieYtelseType(familieYtelseType)
+            .medTilkjentYtelse(grupperYtelse(hentTilkjentYtelse(behandlingId), familieYtelseType))
+            .medBrukInntrekk(hentBrukInntrekk(behandlingId))
             .medProsessTaskId(prosessTaskId)
-            .build();
-
-        Oppdragskontroll oppdragskontroll = lagOppdragTjeneste.lagOppdrag(input, brukFellesEndringstidspunkt);
-        if (oppdragskontroll != null) {
-            OppdragskontrollPostConditionCheck.valider(oppdragskontroll);
-            return Optional.of(oppdragskontroll);
-        }
-        return Optional.empty();
+            .medTidligereOppdrag(mapTidligereOppdrag(hentTidligereOppdragskontroll(fagsak.getSaksnummer())))
+            ;
+        return build.build();
     }
 
-    @Override
-    public void lagre(Oppdragskontroll oppdragskontroll) {
-        lagOppdragTjeneste.lagre(oppdragskontroll);
+    public Input lagInput(long behandlingId) {
+        return lagInput(behandlingId, DUMMY_PT_SIMULERING_ID);
+    }
+
+    private String hentFnrBruker(Behandling behandling) {
+        return aktørTjeneste.hentPersonIdentForAktørId(behandling.getAktørId()).orElseThrow().getIdent();
+    }
+
+    private List<Oppdragskontroll> hentTidligereOppdragskontroll(Saksnummer saksnummer) {
+        return økonomioppdragRepository.finnAlleOppdragForSak(saksnummer);
+    }
+
+    private OverordnetOppdragKjedeOversikt mapTidligereOppdrag(List<Oppdragskontroll> tidligereOppdragskontroll) {
+        return new OverordnetOppdragKjedeOversikt(EksisterendeOppdragMapper.tilKjeder(tidligereOppdragskontroll));
     }
 
     private LocalDate hentVedtaksdato(Long behandlingId) {
-        Optional<BehandlingVedtak> behandlingVedtakOpt = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId);
-
-        return behandlingVedtakOpt.map(BehandlingVedtak::getVedtaksdato)
-            .orElseGet(LocalDate::now);
+        return behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId).map(BehandlingVedtak::getVedtaksdato).orElseThrow();
     }
 
     private boolean hentBrukInntrekk(Long behandlingId) {
@@ -126,10 +121,14 @@ public class NyOppdragskontrollTjeneste implements OppdragskontrollTjeneste {
         return beregningsresultatAggregat.getBgBeregningsresultatFP();
     }
 
-    private FamilieYtelseType finnFamilieYtelseType(Behandling behandling) {
-        FagsakYtelseType fagsakYtelseType = behandling.getFagsakYtelseType();
+    private GruppertYtelse grupperYtelse(BeregningsresultatEntitet beregningsresultat, FamilieYtelseType familieYtelseType) {
+        TilkjentYtelseMapper tilkjentYtelseMapper = TilkjentYtelseMapper.lagFor(familieYtelseType);
+        return tilkjentYtelseMapper.fordelPåNøkler(beregningsresultat);
+    }
+
+    private FamilieYtelseType finnFamilieYtelseType(long behandlingId, FagsakYtelseType fagsakYtelseType) {
         if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
-            return gjelderFødsel(behandling.getId())
+            return gjelderFødsel(behandlingId)
                 ? FamilieYtelseType.FØDSEL
                 : FamilieYtelseType.ADOPSJON;
         } else if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(fagsakYtelseType)) {
@@ -143,4 +142,5 @@ public class NyOppdragskontrollTjeneste implements OppdragskontrollTjeneste {
         return familieHendelseRepository.hentAggregat(behandlingId)
             .getGjeldendeVersjon().getGjelderFødsel();
     }
+
 }

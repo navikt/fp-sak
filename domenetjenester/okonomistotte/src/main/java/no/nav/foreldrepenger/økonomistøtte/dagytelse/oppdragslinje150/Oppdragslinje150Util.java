@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.økonomistøtte.Oppdragsmottaker;
 
 public class Oppdragslinje150Util {
@@ -30,7 +29,7 @@ public class Oppdragslinje150Util {
 
     public static List<Oppdragslinje150> getOpp150ForFeriepengerMedKlassekode(List<Oppdragslinje150> oppdragslinjer) {
         return oppdragslinjer.stream()
-            .filter(oppdragslinje150 -> oppdragslinje150.getKodeKlassifik().gjelderFerie())
+            .filter(oppdragslinje150 -> oppdragslinje150.getKodeKlassifik().gjelderFeriepenger())
             .collect(Collectors.toList());
     }
 

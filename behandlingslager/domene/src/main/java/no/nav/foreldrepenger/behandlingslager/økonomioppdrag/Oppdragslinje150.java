@@ -27,7 +27,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifi
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-import no.nav.foreldrepenger.domene.typer.Beløp;
 
 /**
  * Denne klassen er en ren avbildning fra Oppdragsløsningens meldingsformater.

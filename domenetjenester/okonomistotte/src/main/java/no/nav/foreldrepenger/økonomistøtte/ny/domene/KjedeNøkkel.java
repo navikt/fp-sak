@@ -103,7 +103,7 @@ public class KjedeNøkkel implements Comparable<KjedeNøkkel> {
     }
 
     public boolean gjelderFeriepenger() {
-        return klassekode.gjelderFerie();
+        return klassekode.gjelderFeriepenger();
     }
 
     public static Builder builder() {
@@ -151,7 +151,7 @@ public class KjedeNøkkel implements Comparable<KjedeNøkkel> {
         public KjedeNøkkel build() {
             Objects.requireNonNull(klassekode, "klassekode mangler");
             Objects.requireNonNull(betalingsmottaker, "betalingsmottaker mangler");
-            if (klassekode.gjelderFerie()) {
+            if (klassekode.gjelderFeriepenger()) {
                 Objects.requireNonNull(feriepengeÅr, "feriepengeår kreves når klassekode " + klassekode + " gjelder ferie");
             } else if (feriepengeÅr != null) {
                 throw new IllegalArgumentException("feriepengeår skal ikke benyttes når klassekode " + klassekode + " ikke gjelder ferie");

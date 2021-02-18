@@ -38,15 +38,14 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndrin
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodekomponent;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
-import no.nav.foreldrepenger.domene.typer.Beløp;
 
 public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTestBase {
 
     @Override
     @BeforeEach
     public void setUp() {
+        super.setBrukNyOppdragTjeneste(false);
         super.setUp();
     }
 
@@ -58,7 +57,7 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
 
         // Act
-        Oppdragskontroll oppdragskontroll = oppdragskontrollTjeneste.opprettOppdrag(behandling.getId(), prosessTaskId).get();
+        Oppdragskontroll oppdragskontroll = getOppdragTjeneste().opprettOppdrag(behandling.getId(), prosessTaskId).get();
 
         // Assert
         verifiserOppdragskontroll(oppdragskontroll, prosessTaskId);
@@ -86,7 +85,7 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         // Act
-        Oppdragskontroll oppdragskontroll = oppdragskontrollTjeneste.opprettOppdrag(revurdering.getId(), 32L).get();
+        Oppdragskontroll oppdragskontroll = getOppdragTjeneste().opprettOppdrag(revurdering.getId(), 32L).get();
 
         // Assert
         verifiserOppdragskontroll(oppdragskontroll, 32L);
@@ -114,7 +113,7 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(revurdering, beregningsresultatRevurderingFP);
 
         // Act
-        var oppdragskontroll = oppdragskontrollTjeneste.opprettOppdrag(revurdering.getId(), 33L).get();
+        var oppdragskontroll = getOppdragTjeneste().opprettOppdrag(revurdering.getId(), 33L).get();
 
         // Assert
         verifiserOppdragskontroll(oppdragskontroll, 33L);
@@ -134,7 +133,7 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
 
         // Act
-        Oppdragskontroll oppdrag = oppdragskontrollTjeneste.opprettOppdrag(behandling.getId(), prosessTaskId).get();
+        Oppdragskontroll oppdrag = getOppdragTjeneste().opprettOppdrag(behandling.getId(), prosessTaskId).get();
 
         //Assert
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdrag);
@@ -150,7 +149,7 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
 
         // Act
-        Oppdragskontroll oppdrag = oppdragskontrollTjeneste.opprettOppdrag(behandling.getId(), prosessTaskId).get();
+        Oppdragskontroll oppdrag = getOppdragTjeneste().opprettOppdrag(behandling.getId(), prosessTaskId).get();
 
         //Assert
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdrag);
@@ -178,7 +177,7 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
 
         // Act
-        Oppdragskontroll oppdrag = oppdragskontrollTjeneste.opprettOppdrag(behandling.getId(), prosessTaskId).get();
+        Oppdragskontroll oppdrag = getOppdragTjeneste().opprettOppdrag(behandling.getId(), prosessTaskId).get();
 
         //Assert
         verifiserOppdragslinje150MedFlereKlassekode(oppdrag);
@@ -201,7 +200,7 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
 
         // Act
-        Oppdragskontroll oppdrkontroll = oppdragskontrollTjeneste.opprettOppdrag(behandling.getId(), 67L).get();
+        Oppdragskontroll oppdrkontroll = getOppdragTjeneste().opprettOppdrag(behandling.getId(), 67L).get();
 
         // Assert
         assertThat(oppdrkontroll).isNotNull();
@@ -235,7 +234,7 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
 
         //Act
-        Oppdragskontroll oppdrag = oppdragskontrollTjeneste.opprettOppdrag(behandling.getId(), 123L).get();
+        Oppdragskontroll oppdrag = getOppdragTjeneste().opprettOppdrag(behandling.getId(), 123L).get();
 
         //Assert
         assertThat(oppdrag).isNotNull();
@@ -263,7 +262,7 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
 
         //Act
-        Oppdragskontroll oppdrag = oppdragskontrollTjeneste.opprettOppdrag(behandling.getId(), 123L).get();
+        Oppdragskontroll oppdrag = getOppdragTjeneste().opprettOppdrag(behandling.getId(), 123L).get();
 
         //Assert
         assertThat(oppdrag).isNotNull();
@@ -290,7 +289,7 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
 
         //Act
-        Oppdragskontroll oppdrag = oppdragskontrollTjeneste.opprettOppdrag(behandling.getId(), 123L).get();
+        Oppdragskontroll oppdrag = getOppdragTjeneste().opprettOppdrag(behandling.getId(), 123L).get();
 
         //Assert
         assertThat(oppdrag).isNotNull();
@@ -321,7 +320,7 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
 
         //Act
-        Oppdragskontroll oppdrag = oppdragskontrollTjeneste.opprettOppdrag(behandling.getId(), 123L).get();
+        Oppdragskontroll oppdrag = getOppdragTjeneste().opprettOppdrag(behandling.getId(), 123L).get();
 
         //Assert
         assertThat(oppdrag).isNotNull();
@@ -352,7 +351,7 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
 
         //Act
-        Oppdragskontroll oppdrag = oppdragskontrollTjeneste.opprettOppdrag(behandling.getId(), 123L).get();
+        Oppdragskontroll oppdrag = getOppdragTjeneste().opprettOppdrag(behandling.getId(), 123L).get();
 
         //Assert
         assertThat(oppdrag).isNotNull();
@@ -397,7 +396,7 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
 
         //Act
-        Oppdragskontroll oppdrag = oppdragskontrollTjeneste.opprettOppdrag(behandling.getId(), 123L).get();
+        Oppdragskontroll oppdrag = getOppdragTjeneste().opprettOppdrag(behandling.getId(), 123L).get();
 
         //Assert
         assertThat(oppdrag).isNotNull();
@@ -436,7 +435,7 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
         beregningsresultatRepository.lagre(behandlingAdopsjon, beregningsresultat);
 
         // Act
-        Oppdragskontroll oppdragskontroll = oppdragskontrollTjeneste.opprettOppdrag(behandlingAdopsjon.getId(), 23L).get();
+        Oppdragskontroll oppdragskontroll = getOppdragTjeneste().opprettOppdrag(behandlingAdopsjon.getId(), 23L).get();
 
         // Assert
         // Bruker
@@ -460,7 +459,8 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
 
     private void verifiserOppdragslinje150MedFlereKlassekode(Oppdragskontroll oppdrag) {
         List<Oppdragslinje150> oppdr150ListeArbeidsgiver = oppdrag.getOppdrag110Liste().stream().filter(opp110 -> opp110.getKodeFagomrade().equals(ØkonomiKodeFagområde.FPREF.name()))
-            .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream()).filter(opp150 -> !opp150.getKodeKlassifik().equals(KodeKlassifik.FPF_FERIEPENGER_AG))
+            .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream()).filter(opp150 -> !opp150.getKodeKlassifik().gjelderFeriepenger())
+            .sorted(Comparator.comparing(Oppdragslinje150::getDatoVedtakFom))
             .collect(Collectors.toList());
         List<Oppdragslinje150> oppdr150ListeAT = OppdragskontrollTestVerktøy.getOppdragslinje150MedKlassekode(oppdrag, KodeKlassifik.FPF_ARBEIDSTAKER);
         List<Oppdragslinje150> oppdr150ListeFL = OppdragskontrollTestVerktøy.getOppdragslinje150MedKlassekode(oppdrag, KodeKlassifik.FPF_FRILANSER);
@@ -469,7 +469,8 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
             .filter(andel -> andel.getInntektskategori().equals(Inntektskategori.ARBEIDSTAKER)).collect(Collectors.toList());
         List<BeregningsresultatAndel> brukersandelerListeFL = andelersListe.stream().filter(BeregningsresultatAndel::erBrukerMottaker)
             .filter(andel -> andel.getInntektskategori().equals(Inntektskategori.FRILANSER)).collect(Collectors.toList());
-        List<BeregningsresultatAndel> arbeidsgiversandelerListe = andelersListe.stream().filter(andel -> !andel.erBrukerMottaker()).collect(Collectors.toList());
+        List<BeregningsresultatAndel> arbeidsgiversandelerListe = andelersListe.stream().filter(andel -> !andel.erBrukerMottaker())
+            .collect(Collectors.toList());
 
         verifiserOppdragslinje150MedFlereKlassekode(oppdr150ListeAT, brukersandelerListeAT);
         verifiserOppdragslinje150MedFlereKlassekode(oppdr150ListeFL, brukersandelerListeFL);
@@ -504,6 +505,7 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
     private List<Oppdragslinje150> verifiserOppdragslinje150(List<Oppdrag110> oppdrag110Liste) {
         List<Oppdragslinje150> oppdragslinje150List = oppdrag110Liste.stream()
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
+            .sorted(Comparator.comparing(Oppdragslinje150::getDatoVedtakFom))
             .collect(Collectors.toList());
 
         List<Long> delYtelseIdListe = new ArrayList<>();
@@ -526,12 +528,12 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
 
     private void verifiserGrad(List<Oppdragslinje150> oppdragslinje150List) {
         assertThat(oppdragslinje150List).allSatisfy(oppdragslinje150 -> {
-            var grad = oppdragslinje150.getUtbetalingsgrad();
-            assertThat(grad).isNotNull();
+            var utbetalingsgrad = oppdragslinje150.getUtbetalingsgrad();
+            assertThat(utbetalingsgrad).isNotNull();
             if (OppdragskontrollTestVerktøy.opp150MedGradering(oppdragslinje150)) {
-                assertThat(grad.getVerdi()).isEqualTo(80);
+                assertThat(utbetalingsgrad.getVerdi()).isEqualTo(80);
             } else {
-                assertThat(grad.getVerdi()).isEqualTo(100);
+                assertThat(utbetalingsgrad.getVerdi()).isEqualTo(100);
             }
         });
     }
