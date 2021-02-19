@@ -122,12 +122,10 @@ public class SimulerOppdragSteg implements BehandlingSteg {
         if (simuleringResultatDto.isPresent()) {
             SimuleringResultatDto resultatDto = simuleringResultatDto.get();
 
-            // TODO dette har ingenting med utledning av aksjonspunkt å gjøre, og bør
-            // flyttes til alternativ metode
-            tilbakekrevingRepository.lagre(behandling, resultatDto.isSlåttAvInntrekk());
+            lagreBrukInntrekk(behandling, resultatDto);
 
-            if (kanOppdatereEksisterendeTilbakekrevingsbehandling(behandling, resultatDto)) { // vi sender TILBAKEKREVING_OPPDATER når det finnes et
-                                                                                              // simulering resultat
+            // vi sender TILBAKEKREVING_OPPDATER når det finnes et simulering resultat
+            if (kanOppdatereEksisterendeTilbakekrevingsbehandling(behandling, resultatDto)) {
                 lagreTilbakekrevingValg(behandling, TilbakekrevingValg.medOppdaterTilbakekrevingsbehandling());
                 return BehandleStegResultat.utførtUtenAksjonspunkter();
             }
@@ -141,6 +139,10 @@ public class SimulerOppdragSteg implements BehandlingSteg {
             }
         }
         return BehandleStegResultat.utførtUtenAksjonspunkter();
+    }
+
+    private void lagreBrukInntrekk(Behandling behandling, SimuleringResultatDto resultatDto) {
+        tilbakekrevingRepository.lagre(behandling, resultatDto.isSlåttAvInntrekk());
     }
 
     private LocalDateTime utledNesteKjøring() {
