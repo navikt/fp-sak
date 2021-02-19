@@ -23,7 +23,7 @@ public class BehandlingDtoUtil {
                                           UtvidetBehandlingDto dto,
                                           boolean erBehandlingMedGjeldendeVedtak,
                                           LocalDate vedtaksDato) {
-        setStandardfelter(behandling, dto, erBehandlingMedGjeldendeVedtak, vedtaksDato);
+        setStandardfelterMedGjeldendeVedtak(behandling, dto, erBehandlingMedGjeldendeVedtak, vedtaksDato);
               dto.setAnsvarligBeslutter(behandling.getAnsvarligBeslutter());
         dto.setBehandlingHenlagt(behandling.isBehandlingHenlagt());
     }
@@ -51,10 +51,8 @@ public class BehandlingDtoUtil {
         return Collections.emptyList();
     }
 
-
     static void setStandardfelter(Behandling behandling,
                                   BehandlingDto dto,
-                                  boolean erBehandlingMedGjeldendeVedtak,
                                   LocalDate vedtaksDato) {
         dto.setFagsakId(behandling.getFagsakId());
         dto.setId(behandling.getId());
@@ -69,7 +67,6 @@ public class BehandlingDtoUtil {
         dto.setBehandlendeEnhetId(behandling.getBehandlendeOrganisasjonsEnhet().getEnhetId());
         dto.setBehandlendeEnhetNavn(behandling.getBehandlendeOrganisasjonsEnhet().getEnhetNavn());
         dto.setFørsteÅrsak(førsteÅrsak(behandling).orElse(null));
-        dto.setGjeldendeVedtak(erBehandlingMedGjeldendeVedtak);
         dto.setBehandlingsfristTid(behandling.getBehandlingstidFrist());
         dto.setErAktivPapirsøknad(erAktivPapirsøknad(behandling));
         dto.setBehandlingPåVent(behandling.isBehandlingPåVent());
@@ -81,6 +78,14 @@ public class BehandlingDtoUtil {
         dto.setAnsvarligSaksbehandler(behandling.getAnsvarligSaksbehandler());
         dto.setToTrinnsBehandling(behandling.isToTrinnsBehandling());
         dto.setBehandlingArsaker(lagBehandlingÅrsakDto(behandling));
+    }
+
+    static void setStandardfelterMedGjeldendeVedtak(Behandling behandling,
+                                                    BehandlingDto dto,
+                                                    boolean erBehandlingMedGjeldendeVedtak,
+                                                    LocalDate vedtaksDato) {
+        setStandardfelter(behandling, dto, vedtaksDato);
+        dto.setGjeldendeVedtak(erBehandlingMedGjeldendeVedtak);
     }
 
     static Optional<BehandlingÅrsakDto> førsteÅrsak(Behandling behandling) {
