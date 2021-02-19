@@ -29,8 +29,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRepository;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.fpsak.tidsserie.StandardCombinators;

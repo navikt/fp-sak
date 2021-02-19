@@ -9,8 +9,8 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AndelKilde;
+import no.nav.foreldrepenger.domene.modell.AktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.AndelKilde;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 public class FordelRedigerbarAndelDto {

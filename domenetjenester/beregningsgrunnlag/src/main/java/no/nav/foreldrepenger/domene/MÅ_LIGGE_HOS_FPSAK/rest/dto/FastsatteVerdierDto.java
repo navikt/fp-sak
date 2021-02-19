@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Inntektskategori;
+import no.nav.foreldrepenger.domene.modell.Inntektskategori;
 
 
 public class FastsatteVerdierDto {

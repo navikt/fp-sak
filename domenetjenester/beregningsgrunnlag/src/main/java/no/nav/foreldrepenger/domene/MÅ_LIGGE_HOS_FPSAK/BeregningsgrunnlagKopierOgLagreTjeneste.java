@@ -1,14 +1,14 @@
 package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK;
 
-import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand.BESTEBEREGNET;
-import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand.FASTSATT;
-import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand.FASTSATT_INN;
-import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand.FORESLÅTT;
-import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand.FORESLÅTT_UT;
-import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand.KOFAKBER_UT;
-import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER;
-import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand.OPPDATERT_MED_REFUSJON_OG_GRADERING;
-import static no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand.VURDERT_REFUSJON;
+import static no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand.BESTEBEREGNET;
+import static no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand.FASTSATT;
+import static no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand.FASTSATT_INN;
+import static no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand.FORESLÅTT;
+import static no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand.FORESLÅTT_UT;
+import static no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand.KOFAKBER_UT;
+import static no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER;
+import static no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand.OPPDATERT_MED_REFUSJON_OG_GRADERING;
+import static no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand.VURDERT_REFUSJON;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -43,11 +43,11 @@ import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.input.KalkulatorStegPros
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.fra_kalkulus.BesteberegningMapper;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.fra_kalkulus.KalkulusTilBehandlingslagerMapper;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagGrunnlagBuilder;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagGrunnlagEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRepository;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagBuilder;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand;
 
 /**
  * Fasade tjeneste for å delegere alle kall fra steg

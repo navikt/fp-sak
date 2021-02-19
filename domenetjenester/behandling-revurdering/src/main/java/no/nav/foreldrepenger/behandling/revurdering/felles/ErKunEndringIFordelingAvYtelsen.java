@@ -11,9 +11,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.RettenTil;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 
 class ErKunEndringIFordelingAvYtelsen {
     private ErKunEndringIFordelingAvYtelsen() {

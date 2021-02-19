@@ -23,12 +23,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BGAndelArbeidsforhold;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRepository;
+import no.nav.foreldrepenger.domene.modell.AktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.vedtak.konfig.Tid;
 

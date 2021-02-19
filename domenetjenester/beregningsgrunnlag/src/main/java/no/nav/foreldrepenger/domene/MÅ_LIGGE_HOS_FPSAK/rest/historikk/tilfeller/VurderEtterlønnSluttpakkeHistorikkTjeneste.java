@@ -12,10 +12,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAk
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.FaktaOmBeregningTilfelleRef;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.FaktaBeregningLagreDto;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.VurderEtterlønnSluttpakkeDto;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagGrunnlagEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 

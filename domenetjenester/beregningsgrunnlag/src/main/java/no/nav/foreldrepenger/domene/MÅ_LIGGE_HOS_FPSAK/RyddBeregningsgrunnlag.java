@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRepository;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand;
 
 public class RyddBeregningsgrunnlag {
 

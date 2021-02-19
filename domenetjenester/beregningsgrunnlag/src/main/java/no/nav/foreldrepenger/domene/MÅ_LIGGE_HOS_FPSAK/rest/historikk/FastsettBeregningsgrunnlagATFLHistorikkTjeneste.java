@@ -13,10 +13,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkResu
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.FastsettBeregningsgrunnlagATFLDto;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.InntektPrAndelDto;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.modell.AktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;

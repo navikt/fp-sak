@@ -6,9 +6,9 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 
 import no.nav.folketrygdloven.kalkulator.output.BeregningAksjonspunktResultat;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningAktivitetAggregatEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagGrunnlagEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningAktivitetAggregatEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
 
 @ApplicationScoped
 class KopierBeregningsgrunnlag {

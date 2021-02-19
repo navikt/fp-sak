@@ -12,8 +12,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndr
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningAktivitetAggregatEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningAktivitetEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningAktivitetAggregatEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningAktivitetEntitet;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;

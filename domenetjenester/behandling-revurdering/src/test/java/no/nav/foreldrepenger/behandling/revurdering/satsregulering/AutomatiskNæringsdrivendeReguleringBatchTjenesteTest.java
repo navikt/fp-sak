@@ -28,12 +28,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagAktivitetStatus;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRepository;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.domene.modell.AktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @CdiDbAwareTest

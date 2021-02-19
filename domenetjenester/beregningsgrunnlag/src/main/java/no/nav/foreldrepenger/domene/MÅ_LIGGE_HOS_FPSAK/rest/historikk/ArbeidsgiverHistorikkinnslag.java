@@ -9,8 +9,8 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Organisasjonstype;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningAktivitetEntitet;
+import no.nav.foreldrepenger.domene.modell.AktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.BeregningAktivitetEntitet;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;

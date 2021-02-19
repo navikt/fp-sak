@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand;
 
 public class MapStegTilTilstand {
 

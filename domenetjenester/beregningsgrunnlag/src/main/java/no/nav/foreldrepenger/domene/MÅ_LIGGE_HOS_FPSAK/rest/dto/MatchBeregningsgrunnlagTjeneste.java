@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 
 /**
  * Tjeneste som finner andeler basert på informasjon om andelen (arbeidsforholdId, andelsnr)

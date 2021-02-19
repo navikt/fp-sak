@@ -10,17 +10,17 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BGAndelArbeidsforhold;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagAktivitetStatus;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Inntektskategori;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.PeriodeÅrsak;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Sammenligningsgrunnlag;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.SammenligningsgrunnlagPrStatus;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.SammenligningsgrunnlagType;
+import no.nav.foreldrepenger.domene.modell.AktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.modell.Inntektskategori;
+import no.nav.foreldrepenger.domene.modell.PeriodeÅrsak;
+import no.nav.foreldrepenger.domene.modell.Sammenligningsgrunnlag;
+import no.nav.foreldrepenger.domene.modell.SammenligningsgrunnlagPrStatus;
+import no.nav.foreldrepenger.domene.modell.SammenligningsgrunnlagType;
 
 public class BeregningsgrunnlagDiffSjekkerTest {
 
@@ -400,13 +400,13 @@ public class BeregningsgrunnlagDiffSjekkerTest {
         sammenligningsgrunnlagPrStatusAt.medRapportertPrÅr(BigDecimal.valueOf(100_000));
         sammenligningsgrunnlagPrStatusAt.medAvvikPromille(BigDecimal.ZERO);
         sammenligningsgrunnlagPrStatusAt.medSammenligningsperiode(LocalDate.now().minusYears(1), LocalDate.now());
-        sammenligningsgrunnlagPrStatusAt.medSammenligningsgrunnlagType(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.SammenligningsgrunnlagType.SAMMENLIGNING_AT);
+        sammenligningsgrunnlagPrStatusAt.medSammenligningsgrunnlagType(no.nav.foreldrepenger.domene.modell.SammenligningsgrunnlagType.SAMMENLIGNING_AT);
 
         SammenligningsgrunnlagPrStatus.Builder sammenligningsgrunnlagPrStatusFl = new SammenligningsgrunnlagPrStatus.Builder();
         sammenligningsgrunnlagPrStatusFl.medRapportertPrÅr(BigDecimal.valueOf(200_000));
         sammenligningsgrunnlagPrStatusFl.medAvvikPromille(BigDecimal.valueOf(250));
         sammenligningsgrunnlagPrStatusFl.medSammenligningsperiode(LocalDate.now().minusYears(1), LocalDate.now());
-        sammenligningsgrunnlagPrStatusFl.medSammenligningsgrunnlagType(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.SammenligningsgrunnlagType.SAMMENLIGNING_FL);
+        sammenligningsgrunnlagPrStatusFl.medSammenligningsgrunnlagType(no.nav.foreldrepenger.domene.modell.SammenligningsgrunnlagType.SAMMENLIGNING_FL);
 
         BeregningsgrunnlagEntitet beregningsgrunnlagEntitet = BeregningsgrunnlagEntitet.ny()
                 .leggTilSammenligningsgrunnlag(sammenligningsgrunnlagPrStatusAt)
@@ -423,13 +423,13 @@ public class BeregningsgrunnlagDiffSjekkerTest {
         sammenligningsgrunnlagPrStatusAt.medRapportertPrÅr(BigDecimal.valueOf(100_000));
         sammenligningsgrunnlagPrStatusAt.medAvvikPromille(BigDecimal.ZERO);
         sammenligningsgrunnlagPrStatusAt.medSammenligningsperiode(LocalDate.now().minusYears(1), LocalDate.now());
-        sammenligningsgrunnlagPrStatusAt.medSammenligningsgrunnlagType(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.SammenligningsgrunnlagType.SAMMENLIGNING_AT);
+        sammenligningsgrunnlagPrStatusAt.medSammenligningsgrunnlagType(no.nav.foreldrepenger.domene.modell.SammenligningsgrunnlagType.SAMMENLIGNING_AT);
 
         SammenligningsgrunnlagPrStatus.Builder sammenligningsgrunnlagPrStatusFl = new SammenligningsgrunnlagPrStatus.Builder();
         sammenligningsgrunnlagPrStatusFl.medRapportertPrÅr(BigDecimal.valueOf(200_000));
         sammenligningsgrunnlagPrStatusFl.medAvvikPromille(BigDecimal.valueOf(250));
         sammenligningsgrunnlagPrStatusFl.medSammenligningsperiode(LocalDate.now().minusYears(1), LocalDate.now());
-        sammenligningsgrunnlagPrStatusFl.medSammenligningsgrunnlagType(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.SammenligningsgrunnlagType.SAMMENLIGNING_FL);
+        sammenligningsgrunnlagPrStatusFl.medSammenligningsgrunnlagType(no.nav.foreldrepenger.domene.modell.SammenligningsgrunnlagType.SAMMENLIGNING_FL);
 
         BeregningsgrunnlagEntitet aktivt = BeregningsgrunnlagEntitet.ny()
                 .leggTilSammenligningsgrunnlag(sammenligningsgrunnlagPrStatusAt)
@@ -451,25 +451,25 @@ public class BeregningsgrunnlagDiffSjekkerTest {
         sammenligningsgrunnlagPrStatusAtAktivt.medRapportertPrÅr(BigDecimal.valueOf(100_000));
         sammenligningsgrunnlagPrStatusAtAktivt.medAvvikPromille(avvikPromilleAtAktivt);
         sammenligningsgrunnlagPrStatusAtAktivt.medSammenligningsperiode(LocalDate.now().minusYears(1), LocalDate.now());
-        sammenligningsgrunnlagPrStatusAtAktivt.medSammenligningsgrunnlagType(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.SammenligningsgrunnlagType.SAMMENLIGNING_AT);
+        sammenligningsgrunnlagPrStatusAtAktivt.medSammenligningsgrunnlagType(no.nav.foreldrepenger.domene.modell.SammenligningsgrunnlagType.SAMMENLIGNING_AT);
 
         SammenligningsgrunnlagPrStatus.Builder sammenligningsgrunnlagPrStatusFlAktivt = new SammenligningsgrunnlagPrStatus.Builder();
         sammenligningsgrunnlagPrStatusFlAktivt.medRapportertPrÅr(BigDecimal.valueOf(200_000));
         sammenligningsgrunnlagPrStatusFlAktivt.medAvvikPromille(BigDecimal.valueOf(250));
         sammenligningsgrunnlagPrStatusFlAktivt.medSammenligningsperiode(LocalDate.now().minusYears(1), LocalDate.now());
-        sammenligningsgrunnlagPrStatusFlAktivt.medSammenligningsgrunnlagType(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.SammenligningsgrunnlagType.SAMMENLIGNING_FL);
+        sammenligningsgrunnlagPrStatusFlAktivt.medSammenligningsgrunnlagType(no.nav.foreldrepenger.domene.modell.SammenligningsgrunnlagType.SAMMENLIGNING_FL);
 
         SammenligningsgrunnlagPrStatus.Builder sammenligningsgrunnlagPrStatusFlForrige = new SammenligningsgrunnlagPrStatus.Builder();
         sammenligningsgrunnlagPrStatusFlForrige.medRapportertPrÅr(BigDecimal.valueOf(200_000));
         sammenligningsgrunnlagPrStatusFlForrige.medAvvikPromille(BigDecimal.valueOf(250));
         sammenligningsgrunnlagPrStatusFlForrige.medSammenligningsperiode(LocalDate.now().minusYears(1), LocalDate.now());
-        sammenligningsgrunnlagPrStatusFlForrige.medSammenligningsgrunnlagType(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.SammenligningsgrunnlagType.SAMMENLIGNING_FL);
+        sammenligningsgrunnlagPrStatusFlForrige.medSammenligningsgrunnlagType(no.nav.foreldrepenger.domene.modell.SammenligningsgrunnlagType.SAMMENLIGNING_FL);
 
         SammenligningsgrunnlagPrStatus.Builder sammenligningsgrunnlagPrStatusAtForrige = new SammenligningsgrunnlagPrStatus.Builder();
         sammenligningsgrunnlagPrStatusAtForrige.medRapportertPrÅr(BigDecimal.valueOf(100_000));
         sammenligningsgrunnlagPrStatusAtForrige.medAvvikPromille(avvikPromilleAtForrige);
         sammenligningsgrunnlagPrStatusAtForrige.medSammenligningsperiode(LocalDate.now().minusYears(1), LocalDate.now());
-        sammenligningsgrunnlagPrStatusAtForrige.medSammenligningsgrunnlagType(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.SammenligningsgrunnlagType.SAMMENLIGNING_AT);
+        sammenligningsgrunnlagPrStatusAtForrige.medSammenligningsgrunnlagType(no.nav.foreldrepenger.domene.modell.SammenligningsgrunnlagType.SAMMENLIGNING_AT);
 
         BeregningsgrunnlagEntitet aktivt = BeregningsgrunnlagEntitet.ny()
                 .leggTilSammenligningsgrunnlag(sammenligningsgrunnlagPrStatusAtAktivt)

@@ -5,7 +5,7 @@ import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
 
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle;
+import no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 
 public class FaktaBeregningLagreDto {

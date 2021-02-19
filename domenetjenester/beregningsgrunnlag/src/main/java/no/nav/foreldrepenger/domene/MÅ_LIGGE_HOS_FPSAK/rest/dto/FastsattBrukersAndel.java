@@ -4,7 +4,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Inntektskategori;
+import no.nav.foreldrepenger.domene.modell.Inntektskategori;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 
 public class FastsattBrukersAndel {

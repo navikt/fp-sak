@@ -8,8 +8,8 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.AktivitetStatus;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Inntektskategori;
+import no.nav.foreldrepenger.domene.modell.AktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.Inntektskategori;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;

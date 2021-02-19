@@ -31,10 +31,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.GrunnbeløpTjeneste;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.KalkulusKonfigInjecter;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus.BehandlingslagerTilKalkulusMapper;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagGrunnlagEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRepository;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 
 @ApplicationScoped
@@ -182,7 +182,7 @@ public class KalkulatorStegProsesseringInputTjeneste {
         List<Behandling> behandlinger = behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsakId);
         return behandlinger.stream()
             .filter(b -> b.getStatus().erFerdigbehandletStatus())
-            .map(kobling -> beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitet(kobling.getId(), no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand.FASTSATT))
+            .map(kobling -> beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitet(kobling.getId(), no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand.FASTSATT))
             .filter(Optional::isPresent)
             .map(Optional::get)
             .filter(gr -> MonthDay.from(gr.getBeregningsgrunnlag().orElseThrow(() -> new IllegalStateException("Skal ha beregningsgrunnlag"))
