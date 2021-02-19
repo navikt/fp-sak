@@ -1,4 +1,4 @@
-FROM navikt/java:11-appdynamics
+FROM navikt/java:15-appdynamics
 ENV APPD_ENABLED=true
 ENV APP_NAME=fpsak
 ENV APPDYNAMICS_CONTROLLER_HOST_NAME=appdynamics.adeo.no
@@ -19,4 +19,4 @@ COPY web/target/lib/*.jar /app/lib/
 # Export vault properties
 COPY export-vault.sh /init-scripts/export-vault.sh
 
-ENV JAVA_OPTS="-XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/./urandom -Duser.timezone=Europe/Oslo -Dapplication.name=fpsak "
+ENV JAVA_OPTS="-XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/./urandom -Duser.timezone=Europe/Oslo -Dapplication.name=fpsak --enable-preview"
