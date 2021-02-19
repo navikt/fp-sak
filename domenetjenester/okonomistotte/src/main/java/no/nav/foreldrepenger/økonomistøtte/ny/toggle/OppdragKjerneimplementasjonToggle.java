@@ -29,6 +29,6 @@ public class OppdragKjerneimplementasjonToggle {
 
     public boolean brukNyImpl(Long behandlingId) {
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        return !Environment.current().isProd() || LANSERT_I_PROD.contains(behandling.getFagsak().getSaksnummer());
+        return !Environment.current().isProd() && LANSERT_I_PROD.contains(behandling.getFagsak().getSaksnummer());
     }
 }
