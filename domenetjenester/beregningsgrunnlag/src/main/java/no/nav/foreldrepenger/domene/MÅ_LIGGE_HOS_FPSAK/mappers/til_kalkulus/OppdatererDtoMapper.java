@@ -49,7 +49,7 @@ import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.fordeling.Forde
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.fordeling.FordelBeregningsgrunnlagPeriodeDto;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.fordeling.FordelFastsatteVerdierDto;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.fordeling.FordelRedigerbarAndelDto;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle;
+import no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle;
 
 public class OppdatererDtoMapper {
     public static no.nav.folketrygdloven.kalkulator.aksjonspunkt.dto.FastsettBeregningsgrunnlagATFLDto mapFastsettBeregningsgrunnlagATFLDto(FastsettBeregningsgrunnlagATFLDto tilKalkulus) {

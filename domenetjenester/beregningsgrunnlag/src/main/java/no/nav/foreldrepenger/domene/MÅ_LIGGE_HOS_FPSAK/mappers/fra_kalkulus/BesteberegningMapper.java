@@ -10,10 +10,10 @@ import no.nav.folketrygdloven.kalkulator.steg.besteberegning.BesteberegningMåne
 import no.nav.folketrygdloven.kalkulator.steg.besteberegning.BesteberegningVurderingGrunnlag;
 import no.nav.folketrygdloven.kalkulator.steg.besteberegning.Inntekt;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BesteberegningInntektEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BesteberegningMånedsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BesteberegninggrunnlagEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.modell.BesteberegningInntektEntitet;
+import no.nav.foreldrepenger.domene.modell.BesteberegningMånedsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.modell.BesteberegninggrunnlagEntitet;
 
 public class BesteberegningMapper {
 

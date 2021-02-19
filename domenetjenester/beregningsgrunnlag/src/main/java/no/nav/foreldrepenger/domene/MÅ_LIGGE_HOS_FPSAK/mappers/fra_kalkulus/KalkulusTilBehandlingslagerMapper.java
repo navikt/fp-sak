@@ -20,19 +20,19 @@ import no.nav.folketrygdloven.kalkulator.output.RegelSporingPeriode;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagRegelType;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningAktivitetAggregatEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningAktivitetEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningAktivitetHandlingType;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningAktivitetOverstyringEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningAktivitetOverstyringerEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningRefusjonOverstyringEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningRefusjonOverstyringerEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningRefusjonPeriodeEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagGrunnlagBuilder;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagGrunnlagEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagTilstand;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle;
+import no.nav.foreldrepenger.domene.modell.BeregningAktivitetAggregatEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningAktivitetEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningAktivitetHandlingType;
+import no.nav.foreldrepenger.domene.modell.BeregningAktivitetOverstyringEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningAktivitetOverstyringerEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningRefusjonOverstyringEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningRefusjonOverstyringerEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningRefusjonPeriodeEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagBuilder;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 
@@ -88,7 +88,7 @@ public class KalkulusTilBehandlingslagerMapper {
         regelLogg.ifPresent(regelSporingGrunnlag -> builder.medRegelSporing(
             regelSporingGrunnlag.getRegelInput(),
             regelSporingGrunnlag.getRegelEvaluering(),
-            no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagRegelType.fraKode(regelType.getKode())));
+            no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRegelType.fraKode(regelType.getKode())));
     }
 
     public static BeregningRefusjonOverstyringerEntitet mapRefusjonOverstyring(BeregningRefusjonOverstyringerDto refusjonOverstyringerFraKalkulus) {

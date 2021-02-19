@@ -4,7 +4,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.Inntektskategori;
+import no.nav.foreldrepenger.domene.modell.Inntektskategori;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 
 public class FastsettBeregningsgrunnlagAndelDto extends RedigerbarAndelDto {

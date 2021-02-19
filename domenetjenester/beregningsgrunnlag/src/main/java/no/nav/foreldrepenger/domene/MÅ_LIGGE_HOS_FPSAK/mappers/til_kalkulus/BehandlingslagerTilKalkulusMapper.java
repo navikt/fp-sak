@@ -25,15 +25,15 @@ import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningAktivitetHandlingType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.folketrygdloven.kalkulus.kodeverk.FaktaOmBeregningTilfelle;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BGAndelArbeidsforhold;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningAktivitetAggregatEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningAktivitetEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningAktivitetOverstyringerEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningRefusjonOverstyringerEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningRefusjonPeriodeEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagGrunnlagEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
+import no.nav.foreldrepenger.domene.modell.BeregningAktivitetAggregatEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningAktivitetEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningAktivitetOverstyringerEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningRefusjonOverstyringerEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningRefusjonPeriodeEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 
 public class BehandlingslagerTilKalkulusMapper {
@@ -162,7 +162,7 @@ public class BehandlingslagerTilKalkulusMapper {
             .collect(Collectors.toList());
     }
 
-    private static Optional<FaktaAktørDto> mapFaktaAktør(List<BeregningsgrunnlagPrStatusOgAndel> andeler, List<no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller) {
+    private static Optional<FaktaAktørDto> mapFaktaAktør(List<BeregningsgrunnlagPrStatusOgAndel> andeler, List<no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller) {
         FaktaAktørDto.Builder faktaAktørBuilder = FaktaAktørDto.builder();
         mapEtterlønnSluttpakke(faktaOmBeregningTilfeller, faktaAktørBuilder);
         mapMottarFLYtelse(andeler, faktaOmBeregningTilfeller, faktaAktørBuilder);
@@ -173,9 +173,9 @@ public class BehandlingslagerTilKalkulusMapper {
     }
 
     private static void mapErNyoppstartetFL(List<BeregningsgrunnlagPrStatusOgAndel> andeler,
-                                            List<no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller,
+                                            List<no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller,
                                             FaktaAktørDto.Builder faktaAktørBuilder) {
-        boolean harVurdertNyoppstartetFL = faktaOmBeregningTilfeller.stream().anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle.VURDER_NYOPPSTARTET_FL));
+        boolean harVurdertNyoppstartetFL = faktaOmBeregningTilfeller.stream().anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle.VURDER_NYOPPSTARTET_FL));
         if (harVurdertNyoppstartetFL) {
             andeler.stream().filter(a -> a.getAktivitetStatus().erFrilanser() && a.erNyoppstartet().isPresent())
                 .findFirst()
@@ -185,16 +185,16 @@ public class BehandlingslagerTilKalkulusMapper {
         }
     }
 
-    private static void mapSkalBesteberegnes(List<BeregningsgrunnlagPrStatusOgAndel> andeler, List<no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller, FaktaAktørDto.Builder faktaAktørBuilder) {
-        boolean harVurdertBesteberegning = faktaOmBeregningTilfeller.stream().anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle.VURDER_BESTEBEREGNING));
+    private static void mapSkalBesteberegnes(List<BeregningsgrunnlagPrStatusOgAndel> andeler, List<no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller, FaktaAktørDto.Builder faktaAktørBuilder) {
+        boolean harVurdertBesteberegning = faktaOmBeregningTilfeller.stream().anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle.VURDER_BESTEBEREGNING));
         if (harVurdertBesteberegning) {
             boolean harFastsattBesteberegning = andeler.stream().anyMatch(a -> a.getBesteberegningPrÅr() != null);
             faktaAktørBuilder.medSkalBesteberegnes(harFastsattBesteberegning);
         }
     }
 
-    private static void mapErNyIArbeidslivetSN(List<BeregningsgrunnlagPrStatusOgAndel> andeler, List<no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller, FaktaAktørDto.Builder faktaAktørBuilder) {
-        boolean harVurdertNyIArbeidslivetSN = faktaOmBeregningTilfeller.stream().anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle.VURDER_SN_NY_I_ARBEIDSLIVET));
+    private static void mapErNyIArbeidslivetSN(List<BeregningsgrunnlagPrStatusOgAndel> andeler, List<no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller, FaktaAktørDto.Builder faktaAktørBuilder) {
+        boolean harVurdertNyIArbeidslivetSN = faktaOmBeregningTilfeller.stream().anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle.VURDER_SN_NY_I_ARBEIDSLIVET));
         if (harVurdertNyIArbeidslivetSN) {
             andeler.stream().filter(a -> a.getAktivitetStatus().erSelvstendigNæringsdrivende())
                 .findFirst()
@@ -203,8 +203,8 @@ public class BehandlingslagerTilKalkulusMapper {
         }
     }
 
-    private static void mapMottarFLYtelse(List<BeregningsgrunnlagPrStatusOgAndel> andeler, List<no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller, FaktaAktørDto.Builder faktaAktørBuilder) {
-        boolean harVurdertMottarYtelse = faktaOmBeregningTilfeller.stream().anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle.VURDER_MOTTAR_YTELSE));
+    private static void mapMottarFLYtelse(List<BeregningsgrunnlagPrStatusOgAndel> andeler, List<no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller, FaktaAktørDto.Builder faktaAktørBuilder) {
+        boolean harVurdertMottarYtelse = faktaOmBeregningTilfeller.stream().anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle.VURDER_MOTTAR_YTELSE));
         if (harVurdertMottarYtelse) {
             andeler.stream().filter(a -> a.getAktivitetStatus().erFrilanser() && a.mottarYtelse().isPresent())
                 .findFirst()
@@ -214,9 +214,9 @@ public class BehandlingslagerTilKalkulusMapper {
         }
     }
 
-    private static void mapEtterlønnSluttpakke(List<no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller, FaktaAktørDto.Builder faktaAktørBuilder) {
-        boolean harVurdertEtterlønnSluttpakke = faktaOmBeregningTilfeller.stream().anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle.VURDER_ETTERLØNN_SLUTTPAKKE));
-        boolean harEtterlønnSlutpakke = faktaOmBeregningTilfeller.stream().anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle.FASTSETT_ETTERLØNN_SLUTTPAKKE));
+    private static void mapEtterlønnSluttpakke(List<no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller, FaktaAktørDto.Builder faktaAktørBuilder) {
+        boolean harVurdertEtterlønnSluttpakke = faktaOmBeregningTilfeller.stream().anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle.VURDER_ETTERLØNN_SLUTTPAKKE));
+        boolean harEtterlønnSlutpakke = faktaOmBeregningTilfeller.stream().anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle.FASTSETT_ETTERLØNN_SLUTTPAKKE));
         if (harVurdertEtterlønnSluttpakke) {
             faktaAktørBuilder.medMottarEtterlønnSluttpakke(harEtterlønnSlutpakke);
         }

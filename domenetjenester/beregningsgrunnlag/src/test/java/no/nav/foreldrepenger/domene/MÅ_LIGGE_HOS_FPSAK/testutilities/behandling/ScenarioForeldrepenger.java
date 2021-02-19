@@ -4,8 +4,8 @@ import static no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType.FOR
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningAktivitetAggregatEntitet;
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningAktivitetAggregatEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 
 /**
  * Default test scenario builder for Mor søker Foreldrepenger. Kan opprettes for fødsel og brukes til å

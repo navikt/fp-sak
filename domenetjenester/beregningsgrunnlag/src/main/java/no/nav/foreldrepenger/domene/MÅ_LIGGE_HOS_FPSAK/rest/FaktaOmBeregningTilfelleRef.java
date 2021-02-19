@@ -20,7 +20,7 @@ import javax.enterprise.inject.Stereotype;
 import javax.enterprise.util.AnnotationLiteral;
 import javax.inject.Qualifier;
 
-import no.nav.foreldrepenger.domene.SKAL_FLYTTES_TIL_KALKULUS.FaktaOmBeregningTilfelle;
+import no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle;
 
 
 /**
