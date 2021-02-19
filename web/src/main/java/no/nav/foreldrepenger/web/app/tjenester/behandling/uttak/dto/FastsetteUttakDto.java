@@ -44,6 +44,7 @@ public abstract class FastsetteUttakDto extends BekreftetAksjonspunktDto {
 
     }
 
+    //TODO palfi fjern når alle AP er løst i prod
     @JsonTypeName(AksjonspunktKodeDefinisjon.TILKNYTTET_STORTINGET_KODE)
     public static class FastsetteUttakTilknyttetStortinget extends FastsetteUttakDto {
 
