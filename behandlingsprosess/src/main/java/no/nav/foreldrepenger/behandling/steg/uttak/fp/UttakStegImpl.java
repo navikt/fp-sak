@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.uttak.fp;
 
-import java.util.List;
 import java.util.Objects;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -11,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandling.steg.uttak.UttakSteg;
-import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
@@ -73,7 +71,7 @@ public class UttakStegImpl implements UttakSteg {
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
-        Long behandlingId = kontekst.getBehandlingId();
+        var behandlingId = kontekst.getBehandlingId();
 
         var input = uttakInputTjeneste.lagInput(behandlingId);
 
@@ -81,8 +79,7 @@ public class UttakStegImpl implements UttakSteg {
 
         fastsettePerioderTjeneste.fastsettePerioder(input);
 
-        List<AksjonspunktResultat> aksjonspunkter = fastsettUttakManueltAksjonspunktUtleder.utledAksjonspunkterFor(
-            input);
+        var aksjonspunkter = fastsettUttakManueltAksjonspunktUtleder.utledAksjonspunkterFor(input);
         return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
     }
 

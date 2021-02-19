@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
 
 public class UttakYrkesaktiviteter {
-    private UttakInput input;
+    private final UttakInput input;
 
     public UttakYrkesaktiviteter(UttakInput input) {
         this.input = input;
@@ -48,31 +48,8 @@ public class UttakYrkesaktiviteter {
             .collect(Collectors.toList());
     }
 
-    private List<Yrkesaktivitet> hentYrkesAktiviteterFrilans(UttakInput input) {
-        var ref = input.getBehandlingReferanse();
-        var grunnlag = input.getIayGrunnlag();
-        var bgStatuser = input.getBeregningsgrunnlagStatuser();
-
-        if (grunnlag == null || (bgStatuser == null || bgStatuser.isEmpty())) {
-            return Collections.emptyList();
-        }
-        var skjæringstidspunkt = ref.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
-
-        var aktørId = ref.getAktørId();
-        var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(aktørId)).etter(skjæringstidspunkt);
-
-        return filter.getFrilansOppdrag().stream()
-            .filter(yrkesaktivitet -> skalYrkesaktivitetTasMed(yrkesaktivitet, bgStatuser))
-            .collect(Collectors.toList());
-    }
-
-    public List<Yrkesaktivitet> hentAlleYrkesaktiviteter() {
-        List<Yrkesaktivitet> aktiviteter = hentYrkesAktiviteterOrdinærtArbeidsforhold(input);
-        aktiviteter.addAll(hentYrkesAktiviteterFrilans(input));
-        return aktiviteter;
-    }
-
-    private boolean skalYrkesaktivitetTasMed(Yrkesaktivitet yrkesaktivitet, Collection<BeregningsgrunnlagStatus> statuser) {
+    private boolean skalYrkesaktivitetTasMed(Yrkesaktivitet yrkesaktivitet,
+                                             Collection<BeregningsgrunnlagStatus> statuser) {
         return statuser.stream().anyMatch(bgStatus -> skalYrkesaktivitetTasMed(yrkesaktivitet, bgStatus));
     }
 
@@ -80,13 +57,13 @@ public class UttakYrkesaktiviteter {
         var arbeidsgiver = bgStatus.getArbeidsgiver().orElse(null);
         var arbeidsforhold = bgStatus.getArbeidsforholdRef().orElse(InternArbeidsforholdRef.nullRef());
         var arbeidsgiver2 = yrkesaktivitet.getArbeidsgiver();
-        var arbeidsforhold2 = Optional.ofNullable(yrkesaktivitet.getArbeidsforholdRef()).orElse(InternArbeidsforholdRef.nullRef());
+        var arbeidsforhold2 = Optional.ofNullable(yrkesaktivitet.getArbeidsforholdRef())
+            .orElse(InternArbeidsforholdRef.nullRef());
         if (arbeidsgiver == null || arbeidsgiver2 == null) {
             return false;
         }
 
-        return Objects.equals(arbeidsgiver, arbeidsgiver2)
-            && arbeidsforhold.gjelderFor(arbeidsforhold2);
+        return Objects.equals(arbeidsgiver, arbeidsgiver2) && arbeidsforhold.gjelderFor(arbeidsforhold2);
     }
 
     public BigDecimal finnStillingsprosentOrdinærtArbeid(Arbeidsgiver arbeidsgiver,
@@ -94,11 +71,15 @@ public class UttakYrkesaktiviteter {
                                                          LocalDate dato) {
         List<Yrkesaktivitet> yrkesAktiviteter = hentYrkesAktiviteterOrdinærtArbeidsforhold(input);
         var ref = input.getBehandlingReferanse();
-        return finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbeidsforholdRef, yrkesAktiviteter, dato, ref.getSkjæringstidspunkt());
+        return finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbeidsforholdRef, yrkesAktiviteter, dato,
+            ref.getSkjæringstidspunkt());
     }
 
     public Set<AktivitetIdentifikator> tilAktivitetIdentifikatorer() {
-        return input.getBeregningsgrunnlagStatuser().stream().map(statusPeriode -> statusPeriode.toUttakAktivitetIdentifikator()).collect(Collectors.toSet());
+        return input.getBeregningsgrunnlagStatuser()
+            .stream()
+            .map(statusPeriode -> statusPeriode.toUttakAktivitetIdentifikator())
+            .collect(Collectors.toSet());
     }
 
     private BigDecimal finnStillingsprosentOrdinærtArbeid(Arbeidsgiver arbeidsgiver,
@@ -111,16 +92,16 @@ public class UttakYrkesaktiviteter {
         List<Yrkesaktivitet> yaMedAnsettelsesperiodePåDato = yaMedAnsettelsesperiodePåDato(filter0, arbeidsgiver, ref,
             yrkesaktivitetList, dato);
 
-        var filter = new YrkesaktivitetFilter(null, yaMedAnsettelsesperiodePåDato).etter(skjæringstidspunkt.getUtledetSkjæringstidspunkt());
+        var filter = new YrkesaktivitetFilter(null, yaMedAnsettelsesperiodePåDato).etter(
+            skjæringstidspunkt.getUtledetSkjæringstidspunkt());
 
         BigDecimal sum = BigDecimal.ZERO;
         for (Yrkesaktivitet ya : filter.getAlleYrkesaktiviteter()) {
             var aktivitetsAvtaler = filter.getAktivitetsAvtalerForArbeid(ya);
             if (aktivitetsAvtaler.isEmpty()) {
-                String melding = "Forventer minst en aktivitetsavtale ved dato " + dato.toString() +
-                    " i yrkesaktivitet" + ya.toString() +
-                    " med ansettelsesperioder " + filter.getAnsettelsesPerioder(ya).toString() +
-                    " og alle aktivitetsavtaler " + aktivitetsAvtaler.toString();
+                String melding = "Forventer minst en aktivitetsavtale ved dato " + dato.toString() + " i yrkesaktivitet"
+                    + ya.toString() + " med ansettelsesperioder " + filter.getAnsettelsesPerioder(ya).toString()
+                    + " og alle aktivitetsavtaler " + aktivitetsAvtaler.toString();
                 throw new IllegalStateException(melding);
             }
             sum = sum.add(finnStillingsprosent(aktivitetsAvtaler, dato));
@@ -199,12 +180,13 @@ public class UttakYrkesaktiviteter {
     }
 
     public Optional<LocalDate> finnStartdato(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef) {
-       return avtalerForOrdinærtArbeidsforhold(arbeidsgiver, arbeidsforholdRef)
+        return avtalerForOrdinærtArbeidsforhold(arbeidsgiver, arbeidsforholdRef)
             .min(Comparator.comparing(o -> o.getPeriode().getFomDato()))
             .map(ansettelsesPeriode -> ansettelsesPeriode.getPeriode().getFomDato());
     }
 
-    private Stream<AktivitetsAvtale> avtalerForOrdinærtArbeidsforhold(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef) {
+    private Stream<AktivitetsAvtale> avtalerForOrdinærtArbeidsforhold(Arbeidsgiver arbeidsgiver,
+                                                                      InternArbeidsforholdRef arbeidsforholdRef) {
         var yrkesaktiviteter = hentYrkesAktiviteterOrdinærtArbeidsforhold(input);
         var filter = new YrkesaktivitetFilter(yrkesaktiviteter);
 
