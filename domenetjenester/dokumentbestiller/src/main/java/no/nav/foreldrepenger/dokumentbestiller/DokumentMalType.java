@@ -27,7 +27,6 @@ public enum DokumentMalType implements Kodeverdi {
     //Fritekstbrev - tekst unntatt header og footer genereres av fpformidling
     FRITEKST_DOK("FRITKS", "Fritekstbrev"),
     ETTERLYS_INNTEKTSMELDING_DOK("INNLYS", "Etterlys inntektsmelding"),
-    INFO_TIL_ANNEN_FORELDER_DOK("INAFOR", "Informasjonsbrev til den andre forelderen"),
     INNVILGELSE_SVANGERSKAPSPENGER_DOK("INNSVP", "Innvilgelsesbrev svangerskapspenger"),
     ANKEBREV_BESLUTNING_OM_OPPHEVING("ANKEBO", "Ankebrev om beslutning om oppheving"),
     VEDTAK_OMGJORING_ANKE_DOK("VEDOGA", "Vedtak om omgjøring i ankesak"),
@@ -69,7 +68,8 @@ public enum DokumentMalType implements Kodeverdi {
     REVURDERING_DOK("REVURD", "Varsel om revurdering"),
     @Deprecated
     UENDRETUTFALL_DOK("UENDRE", "Uendret utfall"),
-
+    @Deprecated
+    INFO_TIL_ANNEN_FORELDER_DOK("INAFOR", "Informasjonsbrev til den andre forelderen"),
     ;
 
     private static final Map<String, DokumentMalType> KODER = new LinkedHashMap<>();
