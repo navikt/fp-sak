@@ -10,7 +10,6 @@ public class PersonoversiktDto {
 
     private String brukerId;
     private String annenpartId;
-    private String ektefelleId;
     private List<String> barnMedId;
 
     public PersonoversiktDto() {
@@ -38,14 +37,6 @@ public class PersonoversiktDto {
 
     public void setAnnenpartId(String annenpartId) {
         this.annenpartId = annenpartId;
-    }
-
-    public String getEktefelleId() {
-        return ektefelleId;
-    }
-
-    public void setEktefelleId(String ektefelleId) {
-        this.ektefelleId = ektefelleId;
     }
 
     public List<String> getBarnMedId() {

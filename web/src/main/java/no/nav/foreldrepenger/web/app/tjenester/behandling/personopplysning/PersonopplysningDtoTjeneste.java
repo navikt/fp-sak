@@ -333,8 +333,7 @@ public class PersonopplysningDtoTjeneste {
         aggregat.getAktørPersonopplysningMap().forEach((k, v) -> dto.leggTilPerson(k.getId(), enkelPersonMapping(v, aggregat)));
 
         dto.setBrukerId(aggregat.getSøker().getAktørId().getId());
-        aggregat.getAnnenPart().map(PersonopplysningEntitet::getAktørId).map(AktørId::getId).ifPresent(dto::setAnnenpartId);
-        aggregat.getEktefelle().map(PersonopplysningEntitet::getAktørId).map(AktørId::getId).ifPresent(dto::setEktefelleId);
+        aggregat.getAnnenPartEllerEktefelle().map(PersonopplysningEntitet::getAktørId).map(AktørId::getId).ifPresent(dto::setAnnenpartId);
         dto.setBarnMedId(aggregat.getBarna().stream().map(PersonopplysningEntitet::getAktørId).map(AktørId::getId).collect(Collectors.toList()));
 
         if (dto.getAnnenpartId() == null) {
