@@ -3,7 +3,10 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -26,7 +29,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.UuidDto;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.domene.person.verge.VergeDtoTjeneste;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeBackendDto;
@@ -164,6 +166,37 @@ public class PersonRestTjeneste {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
+    @Path(PERSONOVERSIKT_PART_PATH)
+    @Operation(description = "Hent oversikt over personopplysninger søker i behandling", tags = "behandling - person", responses = {
+        @ApiResponse(responseCode = "200", description = "Returnerer Personoversikt, null hvis ikke finnes (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = PersonoversiktDto.class)))
+    })
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    @Deprecated
+    public PersonoversiktDto getPersonoversikt(
+        @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
+        Long behandlingId = getBehandlingsId(behandlingIdDto);
+        var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
+        var brukDato = Optional.ofNullable(behandling.getAvsluttetDato()).map(LocalDateTime::toLocalDate).orElseGet(LocalDate::now);
+        Optional<PersonoversiktDto> personopplysningDto = personopplysningDtoTjeneste.lagPersonversiktDto(behandlingId, brukDato);
+        personopplysningDto.map(PersonoversiktDto::getPersoner).orElse(Map.of())
+            .forEach((id, person) -> personopplysningFnrFinder.oppdaterMedPersonIdent(person));
+
+        return personopplysningDto.orElse(null);
+    }
+
+    @GET
+    @Path(PERSONOVERSIKT_PART_PATH)
+    @Operation(description = "Hent oversikt over  personopplysninger søker i behandling", tags = "behandling - person", responses = {
+        @ApiResponse(responseCode = "200", description = "Returnerer Personopplysninger, null hvis ikke finnes (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = PersonoversiktDto.class)))
+    })
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public PersonoversiktDto getPersonoversikt(
+        @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        return getPersonoversikt(new BehandlingIdDto(uuidDto));
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
     @Path(MEDLEMSKAP_V2_PART_PATH)
     @Operation(description = "Hent informasjon om medlemskap i Folketrygden for søker i behandling", tags = "behandling - person", responses = {
         @ApiResponse(responseCode = "200", description = "Returnerer Medlemskap, null hvis ikke finnes (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = MedlemV2Dto.class)))
@@ -173,7 +206,12 @@ public class PersonRestTjeneste {
     public MedlemV2Dto hentMedlemskap(
         @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
         Long behandlingId = getBehandlingsId(behandlingIdDto);
-        Optional<MedlemV2Dto> medlemDto = medlemDtoTjeneste.lagMedlemV2Dto(behandlingId);
+        var medlemDto = medlemDtoTjeneste.lagMedlemV2Dto(behandlingId);
+        medlemDto.map(MedlemV2Dto::getPerioder).orElse(Set.of())
+            .forEach(p -> {
+                if (p.getPersonopplysningBruker() != null) personopplysningFnrFinder.oppdaterMedPersonIdent(p.getPersonopplysningBruker());
+                if (p.getPersonopplysningAnnenPart() != null) personopplysningFnrFinder.oppdaterMedPersonIdent(p.getPersonopplysningAnnenPart());
+            });
         return medlemDto.orElse(null);
     }
 
@@ -189,13 +227,8 @@ public class PersonRestTjeneste {
     }
 
     private Long getBehandlingsId(BehandlingIdDto behandlingIdDto) {
-        Long behandlingId = behandlingIdDto.getBehandlingId();
-        if (behandlingId != null) {
-            return behandlingId;
-        } else {
-            Behandling behandling = behandlingsprosessTjeneste.hentBehandling(behandlingIdDto.getBehandlingUuid());
-            return behandling.getId();
-        }
+        return Optional.ofNullable(behandlingIdDto.getBehandlingId())
+            .orElseGet(() ->  behandlingsprosessTjeneste.hentBehandling(behandlingIdDto.getBehandlingUuid()).getId());
     }
 
 }

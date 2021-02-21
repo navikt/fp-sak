@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -13,6 +14,7 @@ import no.nav.foreldrepenger.web.app.rest.ResourceLink;
 
 public class FagsakDto {
     private Long saksnummer;
+    private String saksnummerString;
     private FagsakYtelseType sakstype;
     private RelasjonsRolleType relasjonsRolleType;
     private FagsakStatus status;
@@ -42,6 +44,7 @@ public class FagsakDto {
                      List<ResourceLink> links,
                      List<ResourceLink> linksOnce) {
         this.saksnummer = Long.parseLong(fagsak.getSaksnummer().getVerdi());
+        this.saksnummerString = fagsak.getSaksnummer().getVerdi();
         this.aktoerId = fagsak.getAktørId().getId();
         this.sakstype = fagsak.getYtelseType();
         this.status = fagsak.getStatus();
@@ -67,6 +70,10 @@ public class FagsakDto {
 
     public FagsakStatus getStatus() {
         return status;
+    }
+
+    public String getSaksnummerString() {
+        return saksnummerString;
     }
 
     public LocalDate getBarnFodt() {
@@ -114,47 +121,42 @@ public class FagsakDto {
     }
 
     @Override
-    public String toString() {
-        return "<saksnummer=" + saksnummer + //$NON-NLS-1$
-            ", sakstype=" + sakstype + //$NON-NLS-1$
-            ", status=" + status + //$NON-NLS-1$
-            ", barnFodt=" + barnFodt + //$NON-NLS-1$
-            ", antallBarn=" + antallBarn + //$NON-NLS-1$
-            ", opprettet=" + opprettet + //$NON-NLS-1$
-            ", endret=" + endret + //$NON-NLS-1$
-            ", relasjonsrolle=" + relasjonsRolleType + //$NON-NLS-1$
-            ", dekningsgrad=" + dekningsgrad + //$NON-NLS-1$
-            ">";
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof FagsakDto)) return false;
-
+        if (o == null || getClass() != o.getClass()) return false;
         FagsakDto fagsakDto = (FagsakDto) o;
-
-        if (!saksnummer.equals(fagsakDto.saksnummer)) return false;
-        if (!sakstype.equals(fagsakDto.sakstype)) return false;
-        if (!status.equals(fagsakDto.status)) return false;
-        if (barnFodt != null ? !barnFodt.equals(fagsakDto.barnFodt) : fagsakDto.barnFodt != null) return false;
-        if (opprettet != null ? !opprettet.equals(fagsakDto.opprettet) : fagsakDto.opprettet != null) return false;
-        if (!relasjonsRolleType.equals(fagsakDto.relasjonsRolleType)) return false;
-        if (!dekningsgrad.equals(fagsakDto.dekningsgrad)) return false;
-        return endret != null ? endret.equals(fagsakDto.endret) : fagsakDto.endret == null;
+        return Objects.equals(saksnummer, fagsakDto.saksnummer)
+            && Objects.equals(saksnummerString, fagsakDto.saksnummerString)
+            && sakstype == fagsakDto.sakstype && relasjonsRolleType == fagsakDto.relasjonsRolleType && status == fagsakDto.status
+            && Objects.equals(barnFodt, fagsakDto.barnFodt)
+            && Objects.equals(opprettet, fagsakDto.opprettet)
+            && Objects.equals(endret, fagsakDto.endret) &&
+            Objects.equals(antallBarn, fagsakDto.antallBarn)
+            && Objects.equals(kanRevurderingOpprettes, fagsakDto.kanRevurderingOpprettes)
+            && Objects.equals(skalBehandlesAvInfotrygd, fagsakDto.skalBehandlesAvInfotrygd)
+            && Objects.equals(dekningsgrad, fagsakDto.dekningsgrad)
+            && Objects.equals(aktoerId, fagsakDto.aktoerId);
     }
 
     @Override
     public int hashCode() {
-        int result = saksnummer.hashCode();
-        result = 31 * result + sakstype.hashCode();
-        result = 31 * result + status.hashCode();
-        result = 31 * result + (barnFodt != null ? barnFodt.hashCode() : 0);
-        result = 31 * result + relasjonsRolleType.hashCode();
-        result = 31 * result + dekningsgrad.hashCode();
-        result = 31 * result + (opprettet != null ? opprettet.hashCode() : 0);
-        result = 31 * result + (endret != null ? endret.hashCode() : 0);
-        return result;
+        return Objects.hash(saksnummer, saksnummerString, sakstype, relasjonsRolleType, status,
+            barnFodt, opprettet, endret, antallBarn, kanRevurderingOpprettes, skalBehandlesAvInfotrygd,
+            dekningsgrad, aktoerId);
     }
 
+    @Override
+    public String toString() {
+        return "FagsakDto{" +
+            "saksnummer=" + saksnummer +
+            ", sakstype=" + sakstype +
+            ", relasjonsRolleType=" + relasjonsRolleType +
+            ", status=" + status +
+            ", barnFodt=" + barnFodt +
+            ", opprettet=" + opprettet +
+            ", endret=" + endret +
+            ", antallBarn=" + antallBarn +
+            ", dekningsgrad=" + dekningsgrad +
+            '}';
+    }
 }

@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import no.nav.foreldrepenger.web.app.tjenester.abakus.IAYRegisterdataCallbackRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.aktoer.AktoerRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.batch.BatchRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingBackendRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjeneste;
@@ -35,6 +34,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.VilkårRestTje
 import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.YtelsefordelingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.brev.BrevRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.dokument.DokumentRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.AktoerRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.FagsakRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.familiehendelse.FamiliehendelseRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fordeling.FordelRestTjeneste;

@@ -12,8 +12,6 @@ public class PersonoversiktDto {
     private String annenpartId;
     private String ektefelleId;
     private List<String> barnMedId;
-    private List<String> barnUtenId;
-    private boolean brukerHarVerge;
 
     public PersonoversiktDto() {
     }
@@ -58,19 +56,4 @@ public class PersonoversiktDto {
         this.barnMedId = barnMedId;
     }
 
-    public List<String> getBarnUtenId() {
-        return barnUtenId;
-    }
-
-    public void setBarnUtenId(List<String> barnUtenId) {
-        this.barnUtenId = barnUtenId;
-    }
-
-    public boolean isBrukerHarVerge() {
-        return brukerHarVerge;
-    }
-
-    public void setBrukerHarVerge(boolean brukerHarVerge) {
-        this.brukerHarVerge = brukerHarVerge;
-    }
 }

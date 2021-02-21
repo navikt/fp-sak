@@ -19,7 +19,6 @@ public class PersonopplysningDto extends PersonIdentDto {
     private AvklartPersonstatus avklartPersonstatus;
     private PersonstatusType personstatus;
     private SivilstandType sivilstand;
-    private String navn;
     private LocalDate dodsdato;
     private LocalDate fodselsdato;
     private List<PersonadresseDto> adresser = new ArrayList<>();
@@ -78,14 +77,6 @@ public class PersonopplysningDto extends PersonIdentDto {
 
     public void setNummer(Integer nummer) {
         this.nummer = nummer;
-    }
-
-    public String getNavn() {
-        return navn;
-    }
-
-    void setNavn(String navn) {
-        this.navn = navn;
     }
 
     public LocalDate getDodsdato() {

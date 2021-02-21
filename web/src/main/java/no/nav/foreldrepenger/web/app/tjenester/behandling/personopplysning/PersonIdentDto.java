@@ -8,13 +8,22 @@ public abstract class PersonIdentDto {
     private String fnr;
     private String aktoerId;
     private Diskresjonskode diskresjonskode;
+    private String navn;
 
     public Diskresjonskode getDiskresjonskode() {
         return diskresjonskode;
     }
 
+    void setDiskresjonskode(Diskresjonskode diskresjonskode) {
+        this.diskresjonskode = diskresjonskode;
+    }
+
     public AktørId getAktoerId() {
         return aktoerId == null ? null : new AktørId(aktoerId);
+    }
+
+    void setAktoerId(AktørId aktoerId) {
+        this.aktoerId = aktoerId.getId();
     }
 
     public String getFnr() {
@@ -25,12 +34,11 @@ public abstract class PersonIdentDto {
         this.fnr = fnr;
     }
 
-    void setDiskresjonskode(Diskresjonskode diskresjonskode) {
-        this.diskresjonskode = diskresjonskode;
+    public String getNavn() {
+        return navn;
     }
 
-    void setAktoerId(AktørId aktoerId) {
-        this.aktoerId = aktoerId.getId();
+    public void setNavn(String navn) {
+        this.navn = navn;
     }
-
 }

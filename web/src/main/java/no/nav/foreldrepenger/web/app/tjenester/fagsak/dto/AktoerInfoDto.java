@@ -1,15 +1,18 @@
-package no.nav.foreldrepenger.web.app.tjenester.aktoer;
+package no.nav.foreldrepenger.web.app.tjenester.fagsak.dto;
 
 import java.util.List;
-
-import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakDto;
-import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.PersonDto;
 
 public class AktoerInfoDto {
 
     private String aktoerId;
     private PersonDto person;
     private List<FagsakDto> fagsaker;
+
+    public AktoerInfoDto(String aktoerId, PersonDto person, List<FagsakDto> fagsaker) {
+        this.aktoerId = aktoerId;
+        this.person = person;
+        this.fagsaker = fagsaker;
+    }
 
     public String getAktoerId() {
         return aktoerId;
