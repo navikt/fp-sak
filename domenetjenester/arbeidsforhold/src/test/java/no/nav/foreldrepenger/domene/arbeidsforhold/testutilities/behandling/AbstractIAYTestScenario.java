@@ -41,6 +41,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.HendelseVersjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
@@ -99,6 +100,8 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
     private BehandlingRepository mockBehandlingRepository;
     private BehandlingType behandlingType = BehandlingType.FØRSTEGANGSSØKNAD;
 
+
+    //TODO palfi rydd
     private Behandling originalBehandling;
     private BehandlingÅrsakType behandlingÅrsakType;
     private IAYRepositoryProvider repositoryProvider;
@@ -399,7 +402,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
         PersonopplysningRepository personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
         Long behandlingId = behandling.getId();
         if (oppgittAnnenPartBuilder != null) {
-            personopplysningRepository.lagre(behandlingId, oppgittAnnenPartBuilder);
+            personopplysningRepository.lagre(behandlingId, oppgittAnnenPartBuilder.build());
         }
 
     }
@@ -600,10 +603,10 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
         }
 
         @Override
-        public void lagre(Long behandlingId, OppgittAnnenPartBuilder oppgittAnnenPart) {
+        public void lagre(Long behandlingId, OppgittAnnenPartEntitet oppgittAnnenPart) {
             final PersonopplysningGrunnlagBuilder oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(
                     Optional.ofNullable(personopplysningMap.getOrDefault(behandlingId, null)));
-            oppdatere.medOppgittAnnenPart(oppgittAnnenPart.build());
+            oppdatere.medOppgittAnnenPart(oppgittAnnenPart);
             personopplysningMap.put(behandlingId, oppdatere.build());
         }
 

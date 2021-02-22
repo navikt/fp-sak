@@ -85,9 +85,6 @@ import no.nav.foreldrepenger.søknad.v3.SøknadConstants;
 import no.nav.vedtak.felles.xml.soeknad.endringssoeknad.v3.Endringssoeknad;
 import no.nav.vedtak.felles.xml.soeknad.engangsstoenad.v3.Engangsstønad;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Adopsjon;
-import no.nav.vedtak.felles.xml.soeknad.felles.v3.AnnenForelder;
-import no.nav.vedtak.felles.xml.soeknad.felles.v3.AnnenForelderMedNorskIdent;
-import no.nav.vedtak.felles.xml.soeknad.felles.v3.AnnenForelderUtenNorskIdent;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Bruker;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Foedsel;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Medlemskap;
@@ -109,7 +106,6 @@ import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.UtenlandskArbeidsforho
 import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.UtenlandskOrganisasjon;
 import no.nav.vedtak.felles.xml.soeknad.kodeverk.v3.AnnenOpptjeningTyper;
 import no.nav.vedtak.felles.xml.soeknad.kodeverk.v3.Innsendingstype;
-import no.nav.vedtak.felles.xml.soeknad.kodeverk.v3.Land;
 import no.nav.vedtak.felles.xml.soeknad.kodeverk.v3.Omsorgsovertakelseaarsaker;
 import no.nav.vedtak.felles.xml.soeknad.kodeverk.v3.Virksomhetstyper;
 import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Arbeidsforhold;
@@ -144,6 +140,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
     private SvangerskapspengerRepository svangerskapspengerRepository;
     private FagsakRepository fagsakRepository;
     private OppgittPeriodeMottattDatoTjeneste oppgittPeriodeMottattDatoTjeneste;
+    private AnnenPartOversetter annenPartOversetter;
 
     @Inject
     public MottattDokumentOversetterSøknad(BehandlingRepositoryProvider repositoryProvider,
@@ -151,7 +148,8 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
                                            InntektArbeidYtelseTjeneste iayTjeneste,
                                            PersoninfoAdapter personinfoAdapter,
                                            DatavarehusTjeneste datavarehusTjeneste,
-                                           OppgittPeriodeMottattDatoTjeneste oppgittPeriodeMottattDatoTjeneste) {
+                                           OppgittPeriodeMottattDatoTjeneste oppgittPeriodeMottattDatoTjeneste,
+                                           AnnenPartOversetter annenPartOversetter) {
         this.iayTjeneste = iayTjeneste;
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
         this.søknadRepository = repositoryProvider.getSøknadRepository();
@@ -165,6 +163,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.svangerskapspengerRepository = repositoryProvider.getSvangerskapspengerRepository();
         this.oppgittPeriodeMottattDatoTjeneste = oppgittPeriodeMottattDatoTjeneste;
+        this.annenPartOversetter = annenPartOversetter;
     }
 
     MottattDokumentOversetterSøknad() {
@@ -204,7 +203,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
             personopplysningRepository.hentOppgittAnnenPartHvisEksisterer(originalBehandlingId)
                 .ifPresent(oap -> {
                     OppgittAnnenPartBuilder oppgittAnnenPartBuilder = new OppgittAnnenPartBuilder(oap);
-                    personopplysningRepository.lagre(behandlingId, oppgittAnnenPartBuilder);
+                    personopplysningRepository.lagre(behandlingId, oppgittAnnenPartBuilder.build());
                 });
 
             MedlemskapOppgittTilknytningEntitet oppgittTilknytning = medlemskapRepository.hentMedlemskap(behandlingId)
@@ -260,10 +259,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
         if (wrapper.getOmYtelse() != null) {
             byggMedlemskap(wrapper, behandlingId, mottattDato);
         }
-        if (skalByggeSøknadAnnenPart(wrapper)) {
-            byggSøknadAnnenPart(wrapper, behandling);
-        }
-
+        lagreAnnenPart(wrapper, behandling);
         byggYtelsesSpesifikkeFelter(wrapper, behandling, søknadBuilder);
         byggOpptjeningsspesifikkeFelter(wrapper, behandlingId);
         if (wrapper.getOmYtelse() instanceof Svangerskapspenger) {
@@ -454,7 +450,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
                 PersonIdent arbeidsgiverIdent = new PersonIdent(
                     ((no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Arbeidsgiver) arbeidsforhold).getIdentifikator());
                 Optional<AktørId> aktørIdArbeidsgiver = personinfoAdapter.hentAktørForFnr(arbeidsgiverIdent);
-                if (!aktørIdArbeidsgiver.isPresent()) {
+                if (aktørIdArbeidsgiver.isEmpty()) {
                     throw MottattDokumentFeil.FACTORY.finnerIkkeArbeidsgiverITPS().toException();
                 }
                 arbeidsgiver = Arbeidsgiver.person(aktørIdArbeidsgiver.get());
@@ -956,51 +952,12 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
         return søknadBuilder;
     }
 
-    private boolean skalByggeSøknadAnnenPart(MottattDokumentWrapperSøknad skjema) {
-        AnnenForelder annenForelder = null;
-        if (skjema.getOmYtelse() instanceof Foreldrepenger) {
-            annenForelder = ((Foreldrepenger) skjema.getOmYtelse()).getAnnenForelder();
-            return (annenForelder != null);
-        } else if (skjema.getOmYtelse() instanceof Engangsstønad) {
-            annenForelder = ((Engangsstønad) skjema.getOmYtelse()).getAnnenForelder();
-        }
-        return (annenForelder != null);
+    private void lagreAnnenPart(MottattDokumentWrapperSøknad skjema, Behandling behandling) {
+        var oppgittAnnenPart = annenPartOversetter.oversett(skjema, behandling.getAktørId());
+        oppgittAnnenPart.ifPresent(ap -> personopplysningRepository.lagre(behandling.getId(), ap));
     }
 
-    private void byggSøknadAnnenPart(MottattDokumentWrapperSøknad skjema, Behandling behandling) {
-        OppgittAnnenPartBuilder oppgittAnnenPartBuilder = new OppgittAnnenPartBuilder();
-
-        AnnenForelder annenForelder = null;
-
-        if (skjema.getOmYtelse() instanceof Foreldrepenger) {
-            annenForelder = ((Foreldrepenger) skjema.getOmYtelse()).getAnnenForelder();
-        } else if (skjema.getOmYtelse() instanceof Engangsstønad) {
-            annenForelder = ((Engangsstønad) skjema.getOmYtelse()).getAnnenForelder();
-        }
-
-        if (annenForelder instanceof AnnenForelderMedNorskIdent) { // NOSONAR - ok måte å finne riktig JAXB-type
-            AnnenForelderMedNorskIdent annenForelderMedNorskIdent = (AnnenForelderMedNorskIdent) annenForelder;
-            oppgittAnnenPartBuilder.medAktørId(new AktørId(annenForelderMedNorskIdent.getAktoerId()));
-
-        } else if (annenForelder instanceof AnnenForelderUtenNorskIdent) { // NOSONAR - ok måte å finne riktig JAXB-type
-            AnnenForelderUtenNorskIdent annenForelderUtenNorskIdent = (AnnenForelderUtenNorskIdent) annenForelder;
-            String annenPartIdentString = annenForelderUtenNorskIdent.getUtenlandskPersonidentifikator();
-            if (PersonIdent.erGyldigFnr(annenPartIdentString)) {
-                personinfoAdapter.hentAktørForFnr(new PersonIdent(annenPartIdentString))
-                    .filter(a -> !behandling.getAktørId().equals(a))
-                    .ifPresent(oppgittAnnenPartBuilder::medAktørId);
-            }
-            oppgittAnnenPartBuilder.medUtenlandskFnr(annenPartIdentString);
-            Optional<String> funnetLandkode = Optional.ofNullable(annenForelderUtenNorskIdent.getLand())
-                .map(Land::getKode);
-            funnetLandkode.ifPresent(s -> oppgittAnnenPartBuilder.medUtenlandskFnrLand(finnLandkode(s)));
-        }
-
-        personopplysningRepository.lagre(behandling.getId(), oppgittAnnenPartBuilder);
-
-    }
-
-    private Landkoder finnLandkode(String landKode) {
+    static Landkoder finnLandkode(String landKode) {
         return Landkoder.fraKode(landKode);
     }
 

@@ -211,13 +211,13 @@ public class PersonopplysningRepository {
     }
 
 
-    public void lagre(Long behandlingId, OppgittAnnenPartBuilder oppgittAnnenPart) {
+    public void lagre(Long behandlingId, OppgittAnnenPartEntitet oppgittAnnenPart) {
         Objects.requireNonNull(behandlingId, "behandlingId"); // NOSONAR //$NON-NLS-1$
         Objects.requireNonNull(oppgittAnnenPart, "oppgittAnnenPart"); // NOSONAR //$NON-NLS-1$
 
         final PersonopplysningGrunnlagBuilder nyttGrunnlag = getGrunnlagBuilderFor(behandlingId);
 
-        nyttGrunnlag.medOppgittAnnenPart(oppgittAnnenPart.build());
+        nyttGrunnlag.medOppgittAnnenPart(oppgittAnnenPart);
 
         lagreOgFlush(behandlingId, nyttGrunnlag);
     }
