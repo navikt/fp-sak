@@ -13,7 +13,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputFelles;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputProvider;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
+import no.nav.foreldrepenger.domene.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulus.OppdatererDtoMapper;
 import no.nav.foreldrepenger.domene.rest.BeregningHåndterer;
 import no.nav.foreldrepenger.domene.rest.dto.AvklarteAktiviteterDto;

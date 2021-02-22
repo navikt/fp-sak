@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK;
+package no.nav.foreldrepenger.domene;
 
 import static no.nav.foreldrepenger.domene.mappers.fra_kalkulus.KalkulusTilBehandlingslagerMapper.mapBeregningsgrunnlag;
 import static no.nav.foreldrepenger.domene.mappers.fra_kalkulus.KalkulusTilBehandlingslagerMapper.mapSaksbehandletAktivitet;
@@ -45,7 +45,7 @@ import no.nav.foreldrepenger.domene.mappers.til_kalkulus.IAYMapperTilKalkulus;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulus.MapBehandlingRef;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulus.OpptjeningMapperTilKalkulus;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.testutilities.behandling.ScenarioForeldrepenger;
+import no.nav.foreldrepenger.domene.testutilities.behandling.ScenarioForeldrepenger;
 import no.nav.foreldrepenger.domene.modell.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.BeregningAktivitetAggregatEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningAktivitetEntitet;

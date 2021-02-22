@@ -25,10 +25,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.RepositoryProvider;
+import no.nav.foreldrepenger.domene.RepositoryProvider;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningForBeregningTjeneste;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.testutilities.behandling.ScenarioForeldrepenger;
+import no.nav.foreldrepenger.domene.testutilities.behandling.ScenarioForeldrepenger;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
