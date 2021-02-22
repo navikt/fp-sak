@@ -64,6 +64,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedle
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedlemskapEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
@@ -737,7 +738,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         PersonopplysningRepository personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
         Long behandlingId = behandling.getId();
         if (oppgittAnnenPartBuilder != null) {
-            personopplysningRepository.lagre(behandlingId, oppgittAnnenPartBuilder);
+            personopplysningRepository.lagre(behandlingId, oppgittAnnenPartBuilder.build());
         }
 
         if (personer != null && !personer.isEmpty()) {
@@ -1448,10 +1449,10 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         }
 
         @Override
-        public void lagre(Long behandlingId, OppgittAnnenPartBuilder oppgittAnnenPart) {
+        public void lagre(Long behandlingId, OppgittAnnenPartEntitet oppgittAnnenPart) {
             final PersonopplysningGrunnlagBuilder oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(
                     Optional.ofNullable(personopplysningMap.getOrDefault(behandlingId, null)));
-            oppdatere.medOppgittAnnenPart(oppgittAnnenPart.build());
+            oppdatere.medOppgittAnnenPart(oppgittAnnenPart);
             personopplysningMap.put(behandlingId, oppdatere.build());
         }
 
