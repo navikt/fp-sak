@@ -252,9 +252,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     FASTSETT_UTTAKPERIODER(AksjonspunktKodeDefinisjon.FASTSETT_UTTAKPERIODER_KODE,
             AksjonspunktType.MANUELL, "Fastsett uttaksperioder manuelt", BehandlingStegType.VURDER_UTTAK, VurderingspunktType.UT, UTEN_VILKÅR,
             SkjermlenkeType.UTTAK, TOTRINN, EnumSet.of(FP)),
-    TILKNYTTET_STORTINGET(AksjonspunktKodeDefinisjon.TILKNYTTET_STORTINGET_KODE,
-            AksjonspunktType.MANUELL, "Søker er stortingsrepresentant/administrativt ansatt i Stortinget", BehandlingStegType.VURDER_UTTAK,
-            VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.UTTAK, TOTRINN, EnumSet.of(FP, SVP)),
     KONTROLLER_REALITETSBEHANDLING_ELLER_KLAGE(
             AksjonspunktKodeDefinisjon.KONTROLLER_REALITETSBEHANDLING_ELLER_KLAGE_KODE, AksjonspunktType.MANUELL, "Kontroller realitetsbehandling/klage",
             BehandlingStegType.VURDER_UTTAK, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.UTTAK, TOTRINN, EnumSet.of(FP, SVP)),
@@ -472,8 +469,10 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     _5078(AksjonspunktKodeDefinisjon.KONTROLLER_TILSTØTENDE_YTELSER_INNVILGET_KODE, AksjonspunktType.MANUELL, "Kontroller tilstøtende ytelser innvilget"),
     @Deprecated
     _5079(AksjonspunktKodeDefinisjon.KONTROLLER_TILSTØTENDE_YTELSER_OPPHØRT_KODE, AksjonspunktType.MANUELL, "Kontroller tilstøtende ytelser opphørt"),
-
-
+    @Deprecated
+    TILKNYTTET_STORTINGET(AksjonspunktKodeDefinisjon.TILKNYTTET_STORTINGET_KODE,
+        AksjonspunktType.MANUELL, "Søker er stortingsrepresentant/administrativt ansatt i Stortinget", BehandlingStegType.VURDER_UTTAK,
+        VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.UTTAK, TOTRINN, EnumSet.of(FP, SVP)),
     ;
 
     static final String KODEVERK = "AKSJONSPUNKT_DEF";
