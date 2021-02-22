@@ -1,2 +1,0 @@
-= Hendelser
-TODO:  ... Mangler automatisk generering
