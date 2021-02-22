@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 import no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType;
 import no.nav.folketrygdloven.kalkulator.modell.opptjening.OpptjeningAktiviteterDto;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.opptjening.OpptjeningAktiviteter;
+import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
 
 public class OpptjeningMapperTilKalkulus {
 

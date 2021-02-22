@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.opptjening;
+package no.nav.foreldrepenger.domene.opptjening;
 
 import java.util.ArrayList;
 import java.util.Arrays;
