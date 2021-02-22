@@ -1,0 +1,41 @@
+package no.nav.foreldrepenger.domene.rest.dto;
+
+import java.util.List;
+
+import javax.validation.Valid;
+import javax.validation.constraints.Size;
+
+public class BesteberegningFødendeKvinneDto {
+
+    @Valid
+    @Size(max = 100)
+    private List<BesteberegningFødendeKvinneAndelDto> besteberegningAndelListe;
+
+    @Valid
+    private DagpengeAndelLagtTilBesteberegningDto nyDagpengeAndel;
+
+    BesteberegningFødendeKvinneDto() {
+        // For Jackson
+    }
+
+    public BesteberegningFødendeKvinneDto(List<BesteberegningFødendeKvinneAndelDto> besteberegningAndelListe) {
+        this.besteberegningAndelListe = besteberegningAndelListe;
+    }
+
+    public BesteberegningFødendeKvinneDto(List<BesteberegningFødendeKvinneAndelDto> besteberegningAndelListe, DagpengeAndelLagtTilBesteberegningDto nyDagpengeAndel) {
+        this.nyDagpengeAndel = nyDagpengeAndel;
+        this.besteberegningAndelListe = besteberegningAndelListe;
+    }
+
+    public List<BesteberegningFødendeKvinneAndelDto> getBesteberegningAndelListe() {
+        return besteberegningAndelListe;
+    }
+
+    public void setBesteberegningAndelListe(List<BesteberegningFødendeKvinneAndelDto> besteberegningAndelListe) {
+        this.besteberegningAndelListe = besteberegningAndelListe;
+    }
+
+    public DagpengeAndelLagtTilBesteberegningDto getNyDagpengeAndel() {
+        return nyDagpengeAndel;
+    }
+}
