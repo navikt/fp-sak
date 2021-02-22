@@ -13,11 +13,11 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputFelles;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus.OppdatererDtoMapper;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.BeregningHåndterer;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.VurderFaktaOmBeregningDto;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.historikk.FaktaBeregningHistorikkHåndterer;
+import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
+import no.nav.foreldrepenger.domene.prosess.mappers.til_kalkulus.OppdatererDtoMapper;
+import no.nav.foreldrepenger.domene.prosess.rest.BeregningHåndterer;
+import no.nav.foreldrepenger.domene.prosess.rest.dto.VurderFaktaOmBeregningDto;
+import no.nav.foreldrepenger.domene.prosess.rest.historikk.FaktaBeregningHistorikkHåndterer;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand;
@@ -26,8 +26,8 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 
 
 @ApplicationScoped
-@DtoTilServiceAdapter(dto = no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.VurderFaktaOmBeregningDto.class, adapter = AksjonspunktOppdaterer.class)
-public class VurderFaktaOmBeregningOppdaterer implements AksjonspunktOppdaterer<no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.VurderFaktaOmBeregningDto> {
+@DtoTilServiceAdapter(dto = no.nav.foreldrepenger.domene.prosess.rest.dto.VurderFaktaOmBeregningDto.class, adapter = AksjonspunktOppdaterer.class)
+public class VurderFaktaOmBeregningOppdaterer implements AksjonspunktOppdaterer<no.nav.foreldrepenger.domene.prosess.rest.dto.VurderFaktaOmBeregningDto> {
 
     private FaktaBeregningHistorikkHåndterer faktaBeregningHistorikkHåndterer;
     private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;

@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
+import no.nav.foreldrepenger.domene.prosess.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
 
 @ApplicationScoped
 class BeregningsgrunnlagVilkårTjeneste {

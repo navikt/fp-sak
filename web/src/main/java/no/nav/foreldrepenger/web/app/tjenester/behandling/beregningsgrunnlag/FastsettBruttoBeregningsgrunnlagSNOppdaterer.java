@@ -10,10 +10,10 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputFelles;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputProvider;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus.OppdatererDtoMapper;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.BeregningHåndterer;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.FastsettBruttoBeregningsgrunnlagSNDto;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.historikk.FastsettBruttoBeregningsgrunnlagSNHistorikkTjeneste;
+import no.nav.foreldrepenger.domene.prosess.mappers.til_kalkulus.OppdatererDtoMapper;
+import no.nav.foreldrepenger.domene.prosess.rest.BeregningHåndterer;
+import no.nav.foreldrepenger.domene.prosess.rest.dto.FastsettBruttoBeregningsgrunnlagSNDto;
+import no.nav.foreldrepenger.domene.prosess.rest.historikk.FastsettBruttoBeregningsgrunnlagSNHistorikkTjeneste;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = FastsettBruttoBeregningsgrunnlagSNDto.class, adapter = AksjonspunktOppdaterer.class)

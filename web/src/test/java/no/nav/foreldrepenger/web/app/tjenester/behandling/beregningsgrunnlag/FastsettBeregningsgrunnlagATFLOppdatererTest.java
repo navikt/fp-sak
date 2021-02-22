@@ -26,11 +26,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.BeregningHåndterer;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.FastsettBeregningsgrunnlagATFLDto;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.historikk.FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.historikk.FastsettBeregningsgrunnlagATFLHistorikkTjeneste;
+import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
+import no.nav.foreldrepenger.domene.prosess.rest.BeregningHåndterer;
+import no.nav.foreldrepenger.domene.prosess.rest.dto.FastsettBeregningsgrunnlagATFLDto;
+import no.nav.foreldrepenger.domene.prosess.rest.historikk.FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste;
+import no.nav.foreldrepenger.domene.prosess.rest.historikk.FastsettBeregningsgrunnlagATFLHistorikkTjeneste;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 
 @ExtendWith(MockitoExtension.class)

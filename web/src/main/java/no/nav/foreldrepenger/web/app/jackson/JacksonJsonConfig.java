@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.VurderFaktaOmBeregningDto;
+import no.nav.foreldrepenger.domene.prosess.rest.dto.VurderFaktaOmBeregningDto;
 import no.nav.foreldrepenger.domene.arbeidsforhold.aksjonspunkt.AvklarArbeidsforholdDto;
 import no.nav.foreldrepenger.domene.person.verge.dto.AvklarVergeDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto;

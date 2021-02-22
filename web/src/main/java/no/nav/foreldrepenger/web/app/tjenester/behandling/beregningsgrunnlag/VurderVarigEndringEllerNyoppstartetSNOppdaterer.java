@@ -18,14 +18,14 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus.OppdatererDtoMapper;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.BeregningHåndterer;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.VurderVarigEndringEllerNyoppstartetSNDto;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.historikk.VurderVarigEndringEllerNyoppstarteteSNHistorikkTjeneste;
+import no.nav.foreldrepenger.domene.prosess.mappers.til_kalkulus.OppdatererDtoMapper;
+import no.nav.foreldrepenger.domene.prosess.rest.BeregningHåndterer;
+import no.nav.foreldrepenger.domene.prosess.rest.dto.VurderVarigEndringEllerNyoppstartetSNDto;
+import no.nav.foreldrepenger.domene.prosess.rest.historikk.VurderVarigEndringEllerNyoppstarteteSNHistorikkTjeneste;
 
 @ApplicationScoped
-@DtoTilServiceAdapter(dto = no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.VurderVarigEndringEllerNyoppstartetSNDto.class, adapter = AksjonspunktOppdaterer.class)
-public class VurderVarigEndringEllerNyoppstartetSNOppdaterer implements AksjonspunktOppdaterer<no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.VurderVarigEndringEllerNyoppstartetSNDto> {
+@DtoTilServiceAdapter(dto = no.nav.foreldrepenger.domene.prosess.rest.dto.VurderVarigEndringEllerNyoppstartetSNDto.class, adapter = AksjonspunktOppdaterer.class)
+public class VurderVarigEndringEllerNyoppstartetSNOppdaterer implements AksjonspunktOppdaterer<no.nav.foreldrepenger.domene.prosess.rest.dto.VurderVarigEndringEllerNyoppstartetSNDto> {
     private static final AksjonspunktDefinisjon FASTSETTBRUTTOSNKODE = AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_SELVSTENDIG_NÆRINGSDRIVENDE;
 
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
