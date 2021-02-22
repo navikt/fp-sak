@@ -3,6 +3,8 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREATE;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
+import java.util.Optional;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -21,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev.InformasjonssakRepository;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingPeriodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
@@ -84,7 +87,8 @@ public class ForvaltningFeriepengerRestTjeneste {
     @Operation(description = "Sjekker avvik feriepenger mellom tilkjent og simulering", tags = "FORVALTNING-feriepenger")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     public Response kontrollerPeriodeForTilkjent(@Parameter(description = "Periode") @BeanParam @Valid AvstemmingPeriodeDto dto) {
-        repository.finnSakerForAvstemmingFeriepenger(dto.getFom(), dto.getTom()).stream()
+        var ytelse = Optional.ofNullable(FagsakYtelseType.fraKode(dto.getKey())).orElseThrow();
+        repository.finnSakerForAvstemmingFeriepenger(dto.getFom(), dto.getTom(), ytelse).stream()
             .map(Tuple::getElement2)
             .forEach(feriepengeRegeregnTjeneste::harDiffUtenomPeriode);
 
@@ -98,7 +102,8 @@ public class ForvaltningFeriepengerRestTjeneste {
     @Operation(description = "Avstemmer feriepenger mellom tilkjent og oppdrag", tags = "FORVALTNING-feriepenger")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     public Response avstemPeriodeForOppdrag(@Parameter(description = "Periode") @BeanParam @Valid AvstemmingPeriodeDto dto) {
-        repository.finnSakerForAvstemmingFeriepenger(dto.getFom(), dto.getTom()).stream()
+        var ytelse = Optional.ofNullable(FagsakYtelseType.fraKode(dto.getKey())).orElseThrow();
+        repository.finnSakerForAvstemmingFeriepenger(dto.getFom(), dto.getTom(), ytelse).stream()
             .map(Tuple::getElement2)
             .forEach(feriepengeavstemmer::avstem);
 

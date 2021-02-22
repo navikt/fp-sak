@@ -330,9 +330,9 @@ public class InformasjonssakRepository {
         "    on (fsmax=beh.fagsak_id and br.opprettet_tid = maxbr) " +
         " where beh.behandling_status in (:avsluttet) and beh.behandling_type in (:behtyper) " +
         " and fs.opprettet_tid >= :fomdato and fs.opprettet_tid <= :tomdato " +
-        " and fs.ytelse_type in (:foreldrepenger) ";
+        " and fs.ytelse_type = :foreldrepenger ";
 
-    public List<Tuple<String, Long>> finnSakerForAvstemmingFeriepenger(LocalDate fom, LocalDate tom) {
+    public List<Tuple<String, Long>> finnSakerForAvstemmingFeriepenger(LocalDate fom, LocalDate tom, FagsakYtelseType ytelseType) {
         /*
          * Plukker behandlingId for senest avsluttetde behandling for fagsaker opprettet innen gitt tidsrom
          */
@@ -343,7 +343,7 @@ public class InformasjonssakRepository {
         query.setParameter("fomdato", fom); //$NON-NLS-1$
         query.setParameter("tomdato", tom.plusDays(1)); //$NON-NLS-1$
 
-        query.setParameter("foreldrepenger", List.of(FagsakYtelseType.FORELDREPENGER.getKode())); //$NON-NLS-1$
+        query.setParameter("foreldrepenger", ytelseType.getKode()); //$NON-NLS-1$
         query.setParameter("restyper", List.of(BehandlingResultatType.INNVILGET.getKode(), BehandlingResultatType.INGEN_ENDRING.getKode(),
             BehandlingResultatType.FORELDREPENGER_ENDRET.getKode(), BehandlingResultatType.OPPHØR.getKode()));
         query.setParameter("avsluttet", avsluttendeStatus); //$NON-NLS-1$

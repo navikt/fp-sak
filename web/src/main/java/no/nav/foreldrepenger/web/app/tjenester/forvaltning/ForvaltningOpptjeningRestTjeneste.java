@@ -169,10 +169,9 @@ public class ForvaltningOpptjeningRestTjeneste {
         Long behandlingId = dto.getBehandlingId();
         var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
         var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId);
-        var mappedOpptjening = new IAYTilDtoMapper(behandling.getAktørId(), KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()),
+        return new IAYTilDtoMapper(behandling.getAktørId(), KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()),
                 iayGrunnlag.getEksternReferanse(), behandling.getUuid()).mapTilDto(iayGrunnlag)
                         .getOppgittOpptjening();
 
-        return mappedOpptjening;
     }
 }

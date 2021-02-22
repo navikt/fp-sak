@@ -6,6 +6,7 @@ import static no.nav.foreldrepenger.behandling.BehandlendeFagsystem.BehandlendeS
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -20,6 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystem;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemFellesUtils;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemTjeneste;
@@ -110,13 +112,10 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
 
     private boolean harAnnenPartSakVL(VurderFagsystem vurderFagsystem) {
         return vurderFagsystem.getAnnenPart().map(fagsakRepository::hentForBruker).orElse(Collections.emptyList()).stream()
-            .anyMatch(s -> fellesUtils.erFagsakPassendeForFamilieHendelse(vurderFagsystem, s, true));
+            .anyMatch(s -> Set.of(FagsakYtelseType.ENGANGSTØNAD, FagsakYtelseType.FORELDREPENGER).contains(s.getYtelseType()) && !s.getSkalTilInfotrygd());
     }
 
     private boolean skalVurdereInfotrygdForAnnenPart(VurderFagsystem vurderFagsystem) {
-        if (vurderFagsystem.getAnnenPart().isEmpty()) {
-            return false;
-        }
-        return !harAnnenPartSakVL(vurderFagsystem);
+        return vurderFagsystem.getAnnenPart().isPresent() && !harAnnenPartSakVL(vurderFagsystem);
     }
 }

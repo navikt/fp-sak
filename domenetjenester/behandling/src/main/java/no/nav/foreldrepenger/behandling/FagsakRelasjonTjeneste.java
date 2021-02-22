@@ -85,23 +85,17 @@ public class FagsakRelasjonTjeneste {
 
     public void opprettEllerOppdaterRelasjon(Fagsak fagsak, Optional<FagsakRelasjon> fagsakRelasjon, Dekningsgrad dekningsgrad) {
         Optional<FagsakRelasjon> fagsakRelasjonOpt = fagsakRelasjonRepository.opprettEllerOppdaterRelasjon(fagsak, fagsakRelasjon, dekningsgrad);
-        if (fagsakRelasjonOpt.isPresent()) {
-            fagsakRelasjonEventPubliserer.fireEvent(fagsakRelasjonOpt.get());
-        }
+        fagsakRelasjonOpt.ifPresent(relasjon -> fagsakRelasjonEventPubliserer.fireEvent(relasjon));
     }
 
     public void kobleFagsaker(Fagsak fagsakEn, Fagsak fagsakTo, Behandling behandlingEn) {
         Optional<FagsakRelasjon> fagsakRelasjonOpt = fagsakRelasjonRepository.kobleFagsaker(fagsakEn, fagsakTo, behandlingEn);
-        if (fagsakRelasjonOpt.isPresent()) {
-            fagsakRelasjonEventPubliserer.fireEvent(fagsakRelasjonOpt.get());
-        }
+        fagsakRelasjonOpt.ifPresent(fagsakRelasjon -> fagsakRelasjonEventPubliserer.fireEvent(fagsakRelasjon));
     }
 
     public void fraKobleFagsaker(Fagsak fagsakEn, Fagsak fagsakTo) {
         Optional<FagsakRelasjon> fagsakRelasjonOpt = fagsakRelasjonRepository.fraKobleFagsaker(fagsakEn, fagsakTo);
-        if (fagsakRelasjonOpt.isPresent()) {
-            fagsakRelasjonEventPubliserer.fireEvent(fagsakRelasjonOpt.get());
-        }
+        fagsakRelasjonOpt.ifPresent(fagsakRelasjon -> fagsakRelasjonEventPubliserer.fireEvent(fagsakRelasjon));
     }
 
     public void nullstillOverstyrtDekningsgrad(Fagsak fagsak) {
@@ -122,8 +116,6 @@ public class FagsakRelasjonTjeneste {
             Optional<FagsakLås> fagsak1Lås, Optional<FagsakLås> fagsak2Lås) {
         Optional<FagsakRelasjon> fagsakRelasjonOpt = fagsakRelasjonRepository.oppdaterMedAvsluttningsdato(relasjon, avsluttningsdato, lås, fagsak1Lås,
                 fagsak2Lås);
-        if (fagsakRelasjonOpt.isPresent()) {
-            fagsakRelasjonEventPubliserer.fireEvent(fagsakRelasjonOpt.get());
-        }
+        fagsakRelasjonOpt.ifPresent(fagsakRelasjon -> fagsakRelasjonEventPubliserer.fireEvent(fagsakRelasjon));
     }
 }

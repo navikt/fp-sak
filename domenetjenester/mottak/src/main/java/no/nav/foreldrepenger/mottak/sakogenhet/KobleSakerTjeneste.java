@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
@@ -42,6 +44,7 @@ public class KobleSakerTjeneste {
     private PersonopplysningRepository personopplysningRepository;
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
 
     KobleSakerTjeneste() {
@@ -58,6 +61,7 @@ public class KobleSakerTjeneste {
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.fagsakRepository = provider.getFagsakRepository();
         this.behandlingRepository = provider.getBehandlingRepository();
+        this.behandlingsresultatRepository = provider.getBehandlingsresultatRepository();
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
     }
     /*
@@ -154,6 +158,7 @@ public class KobleSakerTjeneste {
             .filter(f -> !behandling.getAktørId().equals(f.getAktørId()))
             .filter(f -> fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(f).flatMap(FagsakRelasjon::getFagsakNrTo).isEmpty())
             .flatMap(f -> behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(f.getId()).stream())
+            .filter(this::ekskluderAvslåtte)
             .filter(b -> sammeFamilieHendelse(grunnlag, b))
             .collect(Collectors.toList());
         if (filtrertGrunnlag.size() > 1) {
@@ -168,6 +173,13 @@ public class KobleSakerTjeneste {
     private boolean sammeFamilieHendelse(FamilieHendelseGrunnlagEntitet grunnlag, Behandling aktuellBehandling) {
         var grunnlagAktuellBehandling = familieHendelseTjeneste.finnAggregat(aktuellBehandling.getId());
         return grunnlagAktuellBehandling.filter(g -> familieHendelseTjeneste.matcherGrunnlagene(grunnlag, g)).isPresent();
+    }
+
+    private boolean ekskluderAvslåtte(Behandling behandling) {
+        var sisteVedtakAvslag = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId())
+            .flatMap(b -> behandlingsresultatRepository.hentHvisEksisterer(b.getId()))
+            .map(Behandlingsresultat::isBehandlingsresultatAvslått).orElse(Boolean.FALSE);
+        return !sisteVedtakAvslag;
     }
 
 }

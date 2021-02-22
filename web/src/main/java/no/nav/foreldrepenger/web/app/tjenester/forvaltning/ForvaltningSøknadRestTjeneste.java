@@ -17,6 +17,7 @@ import javax.ws.rs.core.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -71,6 +72,28 @@ public class ForvaltningSøknadRestTjeneste {
                 dto.getBegrunnelse());
 
         return Response.ok(antall).build();
+    }
+
+    @POST
+    @Path("/manglendeTermindato")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "Legg til terminbekreftelse på åpen/siste behandling ifm prematur situasjons", tags = "FORVALTNING-søknad")
+    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK, sporingslogg = false)
+    public Response manglendeTermindato(@BeanParam @Valid SaksnummerTermindatoDto dto) {
+        var fagsakId = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(dto.getSaksnummer())).map(Fagsak::getId).orElseThrow();
+        var behandling = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakId).stream()
+            .filter(b -> !b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING))
+            .findFirst().orElseGet(() -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElseThrow());
+        var gjeldende = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
+        if (gjeldende.isEmpty() || gjeldende.flatMap(FamilieHendelseGrunnlagEntitet::getGjeldendeTerminbekreftelse).isPresent())
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        var hendelsebuilder = familieHendelseRepository.opprettBuilderFor(behandling);
+        var terminbuilder = hendelsebuilder.getTerminbekreftelseBuilder()
+            .medTermindato(dto.getTermindato())
+            .medNavnPå(dto.getBegrunnelse());
+        familieHendelseRepository.lagre(behandling, hendelsebuilder.medTerminbekreftelse(terminbuilder));
+
+        return Response.ok().build();
     }
 
     @POST

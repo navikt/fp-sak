@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.vedtak;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -38,6 +39,21 @@ public class OverlappVedtakRepository {
         query.setParameter("saksnummer", saksnummer); // NOSONAR
         query.setParameter("hendelse", OverlappVedtak.HENDELSE_AVSTEM_SAK + "-" + saksnummer.getVerdi()); // NOSONAR
         query.executeUpdate();
+    }
+
+    public void slettAvstemtPeriode(LocalDate før) {
+        entityManager.createNativeQuery(
+            "DELETE FROM OVERLAPP_VEDTAK WHERE opprettet_tid < :foer")
+            .setParameter("foer", før.atStartOfDay())
+            .executeUpdate(); // NOSONAR
+    }
+
+    public void slettAvstemtPeriode(LocalDate før, String hendelse) {
+        entityManager.createNativeQuery(
+            "DELETE FROM OVERLAPP_VEDTAK WHERE opprettet_tid < :foer and hendelse=:hendelse")
+            .setParameter("foer", før.atStartOfDay())
+            .setParameter("hendelse", hendelse)
+            .executeUpdate(); ; // NOSONAR
     }
 
     public void lagre(OverlappVedtak.Builder overlappBuilder) {
