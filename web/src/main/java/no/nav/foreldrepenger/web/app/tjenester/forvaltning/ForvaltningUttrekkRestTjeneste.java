@@ -140,6 +140,21 @@ public class ForvaltningUttrekkRestTjeneste {
     }
 
     @POST
+    @Path("/slettTidligereAvstemmingOverlapp")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Lagrer task for å finne overlapp. Resultat i app-logg", tags = "FORVALTNING-uttrekk")
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)
+    public Response slettTidligereAvstemming(@Parameter(description = "Periode") @BeanParam @Valid AvstemmingPeriodeDto dto) {
+        if ("hendelseALLE".equals(dto.getKey())) {
+            overlappRepository.slettAvstemtPeriode(dto.getFom());
+        } else {
+            overlappRepository.slettAvstemtPeriode(dto.getFom(), dto.getKey());
+        }
+        return Response.ok().build();
+    }
+
+    @POST
     @Path("/avstemSakOverlappTrex")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)

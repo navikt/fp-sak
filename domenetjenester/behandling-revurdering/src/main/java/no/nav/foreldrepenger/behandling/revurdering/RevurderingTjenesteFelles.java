@@ -59,14 +59,14 @@ public class RevurderingTjenesteFelles {
         this.revurderingHistorikk = new RevurderingHistorikk(repositoryProvider.getHistorikkRepository());
     }
 
-    public Behandling opprettRevurderingsbehandling(BehandlingÅrsakType revurderingÅrsakType, Behandling opprinneligBehandling,
+    public Behandling opprettRevurderingsbehandling(List<BehandlingÅrsakType> revurderingÅrsakTyper, Behandling opprinneligBehandling,
             boolean manueltOpprettet,
             OrganisasjonsEnhet enhet) {
         BehandlingType behandlingType = BehandlingType.REVURDERING;
-        BehandlingÅrsak.Builder revurderingÅrsak = BehandlingÅrsak.builder(revurderingÅrsakType)
+        BehandlingÅrsak.Builder revurderingÅrsak = BehandlingÅrsak.builder(revurderingÅrsakTyper)
                 .medOriginalBehandlingId(opprinneligBehandling.getId())
                 .medManueltOpprettet(manueltOpprettet);
-        if (revurderingÅrsakType.equals(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
+        if (revurderingÅrsakTyper.contains(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
             var basis = behandlingRevurderingRepository.finnSisteVedtatteIkkeHenlagteBehandlingForMedforelder(opprinneligBehandling.getFagsak())
                     .orElseThrow(() -> new IllegalStateException(
                             "Berørt behandling må ha en tilhørende avlsuttet behandling for medforelder - skal ikke skje")); // NOSONAR
@@ -78,7 +78,7 @@ public class RevurderingTjenesteFelles {
                 .medBehandlendeEnhet(enhet)
                 .medBehandlingstidFrist(LocalDate.now().plusWeeks(behandlingType.getBehandlingstidFristUker()))
                 .medBehandlingÅrsak(revurderingÅrsak).build();
-        revurderingHistorikk.opprettHistorikkinnslagOmRevurdering(revurdering, revurderingÅrsakType, manueltOpprettet);
+        revurderingHistorikk.opprettHistorikkinnslagOmRevurdering(revurdering, revurderingÅrsakTyper, manueltOpprettet);
         return revurdering;
     }
 

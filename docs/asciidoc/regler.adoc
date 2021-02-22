@@ -1,108 +1,34 @@
 
 == RegelBeregnFeriepenger
-++++
- Det mangler dokumentasjon
-
-++++
-
-: https://confluence.adeo.no/display/MODNAV/27c+Beregn+feriepenger+PK-51965+OMR-49
-include::{generated}/no.nav.foreldrepenger.beregning.regelmodell.feriepenger.BeregningsresultatFeriepengerRegelModell.adoc[]
-
-include::{generated}/no.nav.foreldrepenger.beregning.regler.feriepenger.RegelBeregnFeriepenger.adoc[]
+https://confluence.adeo.no/display/MODNAV/27c+Beregn+feriepenger+PK-51965+OMR-49
 
 == RegelFastsettBeregningsresultat
-++++
- Det mangler dokumentasjon
-
-++++
-
 FP_BR 20.1: https://confluence.adeo.no/pages/viewpage.action?pageId=262414229
-include::{generated}/no.nav.foreldrepenger.beregning.regelmodell.BeregningsresultatRegelmodell.adoc[]
-
-include::{generated}/no.nav.foreldrepenger.beregning.regler.RegelFastsettBeregningsresultat.adoc[]
 
 == RegelFastsettUtenAvkortingATFL
-++++
- Det mangler dokumentasjon
-
-++++
-
 FP_BR_29.6: https://confluence.adeo.no/display/MODNAV/FP_BR+29+-+Avkorte+beregningsgrunnlag
-include::{generated}/no.nav.foreldrepenger.beregningsgrunnlag.regelmodell.resultat.BeregningsgrunnlagPeriode.adoc[]
-
-include::{generated}/no.nav.foreldrepenger.beregningsgrunnlag.arbeidstaker.RegelFastsettUtenAvkortingATFL.adoc[]
 
 == RegelFastsettUtbetalingsbeløpTilBruker
-++++
- Det mangler dokumentasjon
-
-++++
-
 FP_BR_29.8 6-9: https://confluence.adeo.no/display/MODNAV/FP_BR+29+-+Avkorte+beregningsgrunnlag
-include::{generated}/no.nav.foreldrepenger.beregningsgrunnlag.regelmodell.resultat.BeregningsgrunnlagPeriode.adoc[]
-
-include::{generated}/no.nav.foreldrepenger.beregningsgrunnlag.avkorting.RegelFastsettUtbetalingsbeløpTilBruker.adoc[]
 
 == RegelBeregnRefusjonPrArbeidsforhold
-++++
- Det mangler dokumentasjon
-
-++++
 
 FP_BR_29.13.1-3: https://confluence.adeo.no/pages/viewpage.action?pageId=180066764
-include::{generated}/no.nav.foreldrepenger.beregningsgrunnlag.regelmodell.resultat.BeregningsgrunnlagPeriode.adoc[]
-
-include::{generated}/no.nav.foreldrepenger.beregningsgrunnlag.fastsette.refusjon.over6g.RegelBeregnRefusjonPrArbeidsforhold.adoc[]
 
 == RegelBeregningsgrunnlagSN
-++++
- Det mangler dokumentasjon
-
-++++
-
 FP_BR_2: https://confluence.adeo.no/pages/viewpage.action?pageId=174163430
-include::{generated}/no.nav.foreldrepenger.beregningsgrunnlag.regelmodell.resultat.BeregningsgrunnlagPeriode.adoc[]
-
-include::{generated}/no.nav.foreldrepenger.beregningsgrunnlag.selvstendig.RegelBeregningsgrunnlagSN.adoc[]
 
 == RegelFastsettBeregningsgrunnlagDPellerAAP
-++++
- Det mangler dokumentasjon
-
-++++
-
 FP_BR_10: https://confluence.adeo.no/display/MODNAV/13t.+Beregningsgrunnlag+dagpenger+og+AAP+PK-47492
-include::{generated}/no.nav.foreldrepenger.beregningsgrunnlag.regelmodell.resultat.BeregningsgrunnlagPeriode.adoc[]
-
-include::{generated}/no.nav.foreldrepenger.beregningsgrunnlag.ytelse.dagpengerelleraap.RegelFastsettBeregningsgrunnlagDPellerAAP.adoc[]
 
 == RegelOpprettBeregningsgrunnlagsandelerForTilstøtendeYtelse
 Fastsett andeler for aktivitetstatus tilstøtende ytelse: https://confluence.adeo.no/pages/viewpage.action?pageId=267637219
-include::{generated}/no.nav.foreldrepenger.beregningsgrunnlag.regelmodell.resultat.BeregningsgrunnlagFraTilstøtendeYtelse.adoc[]
-
-include::{generated}/no.nav.foreldrepenger.beregningsgrunnlag.ytelse.RegelOpprettBeregningsgrunnlagsandelerForTilstøtendeYtelse.adoc[]
 
 == RegelFastsettSkjæringstidspunkt
-++++
- Det mangler dokumentasjon
-
-++++
-
 FP_BR_21: https://confluence.adeo.no/pages/viewpage.action?pageId=234395762
-include::{generated}/no.nav.foreldrepenger.skjæringstidspunkt.regelmodell.AktivitetStatusModell.adoc[]
-
-include::{generated}/no.nav.foreldrepenger.skjæringstidspunkt.regel.RegelFastsettSkjæringstidspunkt.adoc[]
 
 == RegelFastsettStatusVedSkjæringstidspunkt
-++++
- Det mangler dokumentasjon
-
-++++
-
 FP_BR_19: https://confluence.adeo.no/display/MODNAV/Funksjonell+beskrivelse+-+Fastsette+status
-include::{generated}/no.nav.foreldrepenger.skjæringstidspunkt.regelmodell.AktivitetStatusModell.adoc[]
-
-include::{generated}/no.nav.foreldrepenger.skjæringstidspunkt.status.RegelFastsettStatusVedSkjæringstidspunkt.adoc[]
 
 == AdopsjonsvilkårEngangsstønad
 ++++
@@ -125,9 +51,6 @@ include::{generated}/no.nav.foreldrepenger.skjæringstidspunkt.status.RegelFasts
 ++++
 
 FP_VK_4: https://confluence.adeo.no/pages/viewpage.action?pageId=173827808
-include::{generated}/no.nav.foreldrepenger.inngangsvilkaar.regelmodell.grunnlag.AdopsjonsvilkårGrunnlag.adoc[]
-
-include::{generated}/no.nav.foreldrepenger.inngangsvilkaar.adopsjon.AdopsjonsvilkårEngangsstønad.adoc[]
 
 == AdopsjonsvilkårForeldrepenger
 ++++
@@ -146,9 +69,6 @@ include::{generated}/no.nav.foreldrepenger.inngangsvilkaar.adopsjon.Adopsjonsvil
 ++++
 
 FP_VK_16: https://confluence.adeo.no/pages/viewpage.action?pageId=183700165
-include::{generated}/no.nav.foreldrepenger.inngangsvilkaar.regelmodell.grunnlag.AdopsjonsvilkårGrunnlag.adoc[]
-
-include::{generated}/no.nav.foreldrepenger.inngangsvilkaar.adopsjon.AdopsjonsvilkårForeldrepenger.adoc[]
 
 == FødselsvilkårFar
 ++++
@@ -167,9 +87,6 @@ include::{generated}/no.nav.foreldrepenger.inngangsvilkaar.adopsjon.Adopsjonsvil
 ++++
 
 FP_VK_11: https://confluence.adeo.no/pages/viewpage.action?pageId=198890456
-include::{generated}/no.nav.foreldrepenger.inngangsvilkaar.regelmodell.grunnlag.FødselsvilkårGrunnlag.adoc[]
-
-include::{generated}/no.nav.foreldrepenger.inngangsvilkaar.fødsel.FødselsvilkårFar.adoc[]
 
 == FødselsvilkårMor
 ++++
@@ -191,9 +108,6 @@ include::{generated}/no.nav.foreldrepenger.inngangsvilkaar.fødsel.Fødselsvilk�
 ++++
 
 FP_VK_1: https://confluence.adeo.no/pages/viewpage.action?pageId=173827762
-include::{generated}/no.nav.foreldrepenger.inngangsvilkaar.regelmodell.grunnlag.FødselsvilkårGrunnlag.adoc[]
-
-include::{generated}/no.nav.foreldrepenger.inngangsvilkaar.fødsel.FødselsvilkårMor.adoc[]
 
 == Medlemskapsvilkår
 ++++
@@ -218,9 +132,6 @@ include::{generated}/no.nav.foreldrepenger.inngangsvilkaar.fødsel.Fødselsvilk�
 ++++
 
 FP_VK_2: https://confluence.adeo.no/pages/viewpage.action?pageId=173827808
-include::{generated}/no.nav.foreldrepenger.inngangsvilkaar.regelmodell.grunnlag.MedlemskapsvilkårGrunnlag.adoc[]
-
-include::{generated}/no.nav.foreldrepenger.inngangsvilkaar.medlemskap.Medlemskapsvilkår.adoc[]
 
 == Opptjeningsvilkår
 ++++
@@ -253,20 +164,9 @@ include::{generated}/no.nav.foreldrepenger.inngangsvilkaar.medlemskap.Medlemskap
 ++++
 
 FP_VK_23: https://confluence.adeo.no/pages/viewpage.action?pageId=174836170
-include::{generated}/no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Opptjeningsgrunnlag.adoc[]
-
-include::{generated}/no.nav.foreldrepenger.inngangsvilkaar.opptjening.Opptjeningsvilkår.adoc[]
 
 == RegelFastsettOpptjeningsperiode
-++++
- Det mangler dokumentasjon
-
-++++
-
 FP_VK_21: https://confluence.adeo.no/display/MODNAV/OMR11+-+A1+Vurdering+for+opptjeningsvilkår+-+Funksjonell+beskrivelse
-include::{generated}/no.nav.foreldrepenger.inngangsvilkaar.regelmodell.grunnlag.OpptjeningsperiodeGrunnlag.adoc[]
-
-include::{generated}/no.nav.foreldrepenger.inngangsvilkaar.opptjeningsperiode.RegelFastsettOpptjeningsperiode.adoc[]
 
 == Søknadsfristvilkår
 ++++
@@ -291,21 +191,12 @@ include::{generated}/no.nav.foreldrepenger.inngangsvilkaar.opptjeningsperiode.Re
 ++++
 
 FP_VK_3: https://confluence.adeo.no/pages/viewpage.action?pageId=173827683
-include::{generated}/no.nav.foreldrepenger.inngangsvilkaar.regelmodell.grunnlag.SoeknadsfristvilkarGrunnlag.adoc[]
-
-include::{generated}/no.nav.foreldrepenger.inngangsvilkaar.søknadsfrist.Søknadsfristvilkår.adoc[]
 
 == UtsettelseDelregel
 FP_VK 18: TODO
-include::{generated}/no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.FastsettePeriodeGrunnlag.adoc[]
-
-include::{generated}/no.nav.foreldrepenger.regler.uttak.fastsetteperiode.UtsettelseDelregel.adoc[]
 
 == ForeldrepengerFødselDelregel
 FP_VK XX10: https://confluence.adeo.no/pages/viewpage.action?pageId=292407153
-include::{generated}/no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.FastsettePeriodeGrunnlag.adoc[]
-
-include::{generated}/no.nav.foreldrepenger.regler.uttak.fastsetteperiode.ForeldrepengerFødselDelregel.adoc[]
 
 == FastsettePeriodeRegel
 ++++
@@ -314,9 +205,6 @@ include::{generated}/no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Foreldr
 ++++
 
 FP_VK 14: TODO
-include::{generated}/no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.FastsettePeriodeGrunnlag.adoc[]
-
-include::{generated}/no.nav.foreldrepenger.regler.uttak.fastsetteperiode.FastsettePeriodeRegel.adoc[]
 
 == MødrekvoteDelregel
 ++++
@@ -340,9 +228,6 @@ include::{generated}/no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Fastset
 ++++
 
 FP_VK 10: https://confluence.adeo.no/pages/viewpage.action?pageId=252823417
-include::{generated}/no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.FastsettePeriodeGrunnlag.adoc[]
-
-include::{generated}/no.nav.foreldrepenger.regler.uttak.fastsetteperiode.MødrekvoteDelregel.adoc[]
 
 == ForeldrepengerFørFødselDelregel
 ++++
@@ -361,9 +246,6 @@ include::{generated}/no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Mødrek
 ++++
 
 FP_VK XX10: https://confluence.adeo.no/pages/viewpage.action?pageId=252823617
-include::{generated}/no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.FastsettePeriodeGrunnlag.adoc[]
-
-include::{generated}/no.nav.foreldrepenger.regler.uttak.fastsetteperiode.ForeldrepengerFørFødselDelregel.adoc[]
 
 == FellesperiodeDelregel
 ++++
@@ -383,9 +265,6 @@ include::{generated}/no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Foreldr
 ++++
 
 FP_VK 19: https://confluence.adeo.no/pages/viewpage.action?pageId=252823617
-include::{generated}/no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.FastsettePeriodeGrunnlag.adoc[]
-
-include::{generated}/no.nav.foreldrepenger.regler.uttak.fastsetteperiode.FellesperiodeDelregel.adoc[]
 
 == FedrekvoteDelregel
 ++++
@@ -405,9 +284,6 @@ include::{generated}/no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Fellesp
 ++++
 
 FP_VK 13: https://confluence.adeo.no/pages/viewpage.action?pageId=252823417
-include::{generated}/no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.FastsettePeriodeGrunnlag.adoc[]
-
-include::{generated}/no.nav.foreldrepenger.regler.uttak.fastsetteperiode.FedrekvoteDelregel.adoc[]
 
 == BeregnKontoer
 ++++
@@ -416,14 +292,8 @@ include::{generated}/no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Fedrekv
 ++++
 
 FP_VK 17: https://confluence.adeo.no/pages/viewpage.action?pageId=174837789
-include::{generated}/no.nav.foreldrepenger.regler.uttak.beregnkontoer.grunnlag.BeregnKontoerGrunnlag.adoc[]
-
-include::{generated}/no.nav.foreldrepenger.regler.uttak.beregnkontoer.BeregnKontoer.adoc[]
 
 == SøknadsfristRegel
 FP_VK XX7: https://confluence.adeo.no/pages/viewpage.action?pageId=254450376
-include::{generated}/no.nav.foreldrepenger.regler.søknadsfrist.grunnlag.SøknadsfristGrunnlag.adoc[]
-
-include::{generated}/no.nav.foreldrepenger.regler.søknadsfrist.SøknadsfristRegel.adoc[]
 
 

@@ -71,7 +71,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
 
     @Override
     public Behandling opprettManuellRevurdering(Fagsak fagsak, BehandlingÅrsakType revurderingsÅrsak, OrganisasjonsEnhet enhet) {
-        Behandling behandling = opprettRevurdering(fagsak, revurderingsÅrsak, true, enhet);
+        Behandling behandling = opprettRevurdering(fagsak, List.of(revurderingsÅrsak), true, enhet);
         BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         behandlingskontrollTjeneste.lagreAksjonspunkterFunnet(kontekst,
                 List.of(AksjonspunktDefinisjon.KONTROLL_AV_MANUELT_OPPRETTET_REVURDERINGSBEHANDLING));
@@ -80,10 +80,15 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
 
     @Override
     public Behandling opprettAutomatiskRevurdering(Fagsak fagsak, BehandlingÅrsakType revurderingsÅrsak, OrganisasjonsEnhet enhet) {
-        return opprettRevurdering(fagsak, revurderingsÅrsak, false, enhet);
+        return opprettRevurdering(fagsak, List.of(revurderingsÅrsak), false, enhet);
     }
 
-    private Behandling opprettRevurdering(Fagsak fagsak, BehandlingÅrsakType revurderingsÅrsak, boolean manueltOpprettet, OrganisasjonsEnhet enhet) {
+    @Override
+    public Behandling opprettAutomatiskRevurderingMultiÅrsak(Fagsak fagsak, List<BehandlingÅrsakType> revurderingsÅrsaker, OrganisasjonsEnhet enhet) {
+        return opprettRevurdering(fagsak, revurderingsÅrsaker, false, enhet);
+    }
+
+    private Behandling opprettRevurdering(Fagsak fagsak, List<BehandlingÅrsakType> revurderingsÅrsaker, boolean manueltOpprettet, OrganisasjonsEnhet enhet) {
         Behandling origBehandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())
                 .orElseThrow(() -> RevurderingFeil.FACTORY.tjenesteFinnerIkkeBehandlingForRevurdering(fagsak.getId()).toException());
 
@@ -91,7 +96,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         behandlingskontrollTjeneste.initBehandlingskontroll(origBehandling);
 
         // deretter opprett revurdering
-        Behandling revurdering = revurderingTjenesteFelles.opprettRevurderingsbehandling(revurderingsÅrsak, origBehandling, manueltOpprettet, enhet);
+        Behandling revurdering = revurderingTjenesteFelles.opprettRevurderingsbehandling(revurderingsÅrsaker, origBehandling, manueltOpprettet, enhet);
         BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(revurdering);
         behandlingskontrollTjeneste.opprettBehandling(kontekst, revurdering);
 
@@ -115,15 +120,13 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(originalBehandlingId);
         if (BehandlingType.REVURDERING.equals(ny.getType())) {
             ytelsesFordelingRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
-            if (ytelseFordelingAggregat.isPresent()) {
-                ytelseFordelingAggregat.get().getGjeldendeAktivitetskravPerioder().ifPresent(entitet -> {
-                    var yfa = ytelsesFordelingRepository.opprettBuilder(nyBehandlingId)
-                        .medOpprinneligeAktivitetskravPerioder(entitet)
-                        .medSaksbehandledeAktivitetskravPerioder(null)
-                        .build();
-                    ytelsesFordelingRepository.lagre(nyBehandlingId, yfa);
-                });
-            }
+            ytelseFordelingAggregat.flatMap(YtelseFordelingAggregat::getGjeldendeAktivitetskravPerioder).ifPresent(entitet -> {
+                var yfa = ytelsesFordelingRepository.opprettBuilder(nyBehandlingId)
+                    .medOpprinneligeAktivitetskravPerioder(entitet)
+                    .medSaksbehandledeAktivitetskravPerioder(null)
+                    .build();
+                ytelsesFordelingRepository.lagre(nyBehandlingId, yfa);
+            });
         } else {
             // Kopierer kun oppgitt for ny 1gang. Bør kanskje kopiere alt?
             ytelseFordelingAggregat.ifPresent(yfa -> {

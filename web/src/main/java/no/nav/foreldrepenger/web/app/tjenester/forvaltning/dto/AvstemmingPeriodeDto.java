@@ -23,12 +23,6 @@ public class AvstemmingPeriodeDto implements AbacDto {
     private String key;
 
     @NotNull
-    @Parameter(description = "logprefix")
-    @QueryParam("prefix")
-    @Pattern(regexp = InputValideringRegex.FRITEKST)
-    private String prefix;
-
-    @NotNull
     @Parameter(description = "fom (YYYY-MM-DD)")
     @QueryParam("fom")
     @Pattern(regexp = DATO_PATTERN)
@@ -40,9 +34,8 @@ public class AvstemmingPeriodeDto implements AbacDto {
     @Pattern(regexp = DATO_PATTERN)
     private String tom;
 
-    public AvstemmingPeriodeDto(@NotNull String key, @NotNull String prefix, @NotNull String fom, @NotNull String tom) {
+    public AvstemmingPeriodeDto(@NotNull String key, @NotNull String fom, @NotNull String tom) {
         this.key = key;
-        this.prefix = prefix;
         this.fom = fom;
         this.tom = tom;
     }
@@ -57,10 +50,6 @@ public class AvstemmingPeriodeDto implements AbacDto {
 
     public String getKey() {
         return key;
-    }
-
-    public String getPrefix() {
-        return prefix;
     }
 
     public LocalDate getFom() {

@@ -1,12 +1,17 @@
 = Applikasjon
 
-include::systemkontekst.adoc[]
+== Systemkontekst
+
+Diagrammet under viser oversikt over FPSAK med tilknyttede systemer i løsningen (FPFORDEL, FPABONNENT).
+Her vises også hvilke virksomhetstjenester løsningen er avhengig av.
+
+image::https://confluence.adeo.no/download/attachments/231977872/kontekstdiagram-fp.png[Systemkontekst for Foreldrepenger saksbehandling.,1000,500]
+
+
 include::applikasjonsarkitektur.adoc[leveloffset=+1]
 include::gui.adoc[leveloffset=+1]
 include::prosessTaskOversikt.adoc[leveloffset=+1]
-include::regel-tjenester.adoc[leveloffset=+1]
-include::integrasjon/integrasjoner.adoc[leveloffset=+1]
-include::batch.adoc[leveloffset=+1]
 include::sikkerhet.adoc[leveloffset=+1]
 include::monitorering.adoc[leveloffset=+1]
-
+include::integrasjon/patterns.adoc
+include::regler.adoc[leveloffset=+1]

@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandling.revurdering.ytelse.es;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -22,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.utlanddok.Op
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -65,18 +65,18 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
 
     @Override
     public Behandling opprettManuellRevurdering(Fagsak fagsak, BehandlingÅrsakType revurderingsÅrsak, OrganisasjonsEnhet enhet) {
-        return opprettRevurdering(fagsak, revurderingsÅrsak, true, enhet);
+        return opprettRevurdering(fagsak, List.of(revurderingsÅrsak), true, enhet);
     }
 
     @Override
     public Behandling opprettAutomatiskRevurdering(Fagsak fagsak, BehandlingÅrsakType revurderingsÅrsak, OrganisasjonsEnhet enhet) {
-        return opprettRevurdering(fagsak, revurderingsÅrsak, false, enhet);
+        return opprettRevurdering(fagsak, List.of(revurderingsÅrsak), false, enhet);
     }
 
-    private Behandling opprettRevurdering(Fagsak fagsak, BehandlingÅrsakType revurderingÅrsakType, boolean manueltOpprettet,
-            OrganisasjonsEnhet enhet) {
+    private Behandling opprettRevurdering(Fagsak fagsak, List<BehandlingÅrsakType> revurderingÅrsakTyper, boolean manueltOpprettet,
+                                          OrganisasjonsEnhet enhet) {
         Optional<Behandling> opprinneligBehandlingOptional = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId());
-        if (!opprinneligBehandlingOptional.isPresent()) {
+        if (opprinneligBehandlingOptional.isEmpty()) {
             throw RevurderingFeil.FACTORY.tjenesteFinnerIkkeBehandlingForRevurdering(fagsak.getId()).toException();
         }
         Behandling opprinneligBehandling = opprinneligBehandlingOptional.get();
@@ -84,14 +84,13 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         behandlingskontrollTjeneste.initBehandlingskontroll(opprinneligBehandling);
 
         // deretter opprett kontekst for revurdering og opprett
-        Behandling revurderingBehandling = revurderingTjenesteFelles.opprettRevurderingsbehandling(revurderingÅrsakType, opprinneligBehandling,
+        Behandling revurderingBehandling = revurderingTjenesteFelles.opprettRevurderingsbehandling(revurderingÅrsakTyper, opprinneligBehandling,
                 manueltOpprettet, enhet);
         BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(revurderingBehandling);
         behandlingskontrollTjeneste.opprettBehandling(kontekst, revurderingBehandling);
 
         // Kopier søknadsdata
-        final Optional<SøknadEntitet> søknadOptional = søknadRepository.hentSøknadHvisEksisterer(opprinneligBehandling.getId());
-        søknadOptional.ifPresent(s -> søknadRepository.lagreOgFlush(revurderingBehandling, s));
+        søknadRepository.hentSøknadHvisEksisterer(opprinneligBehandling.getId()).ifPresent(s -> søknadRepository.lagreOgFlush(revurderingBehandling, s));
         kopierAlleGrunnlagFraTidligereBehandling(opprinneligBehandling, revurderingBehandling);
         return revurderingBehandling;
     }

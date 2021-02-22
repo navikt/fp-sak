@@ -303,9 +303,9 @@ public class VurderFagsystemTjenesteImplTest {
         long annenPartSakId = 222L;
         fagsakAnnenPartFP.setId(annenPartSakId);
         Optional<Behandling> behandling = Optional.of(byggBehandlingFødsel(fagsakAnnenPartFP));
-        when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(annenPartSakId)).thenReturn(behandling);
+        lenient().when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(annenPartSakId)).thenReturn(behandling);
         FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = byggFødselGrunnlag(BARN_TERMINDATO, BARN_FØDSELSDATO);
-        when(grunnlagRepository.hentAggregatHvisEksisterer(any())).thenReturn(Optional.of(familieHendelseGrunnlag));
+        lenient().when(grunnlagRepository.hentAggregatHvisEksisterer(any())).thenReturn(Optional.of(familieHendelseGrunnlag));
         vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteFP));
 
         BehandlendeFagsystem result = toVurderFagsystem(fagsystem);
@@ -314,7 +314,7 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void skalReturnereInfotrygdNårSøknadIkkeHarSaksnummerOgAnnenPartIkkeHarSakForSammeBarnIVL() {
+    public void skalReturnereVLNårSøknadIkkeHarSaksnummerOgAnnenPartIkkeHarSakForSammeBarnIVL() {
         VurderFagsystem fagsystem = byggVurderFagsystemMedAnnenPart(BehandlingTema.FORELDREPENGER_FØDSEL, ANNEN_PART_ID, null, BRUKER_AKTØR_ID,
                 JOURNALPOST_ID, BARN_TERMINDATO, BARN_FØDSELSDATO);
 
@@ -324,14 +324,14 @@ public class VurderFagsystemTjenesteImplTest {
         long annenPartSakId = 222L;
         fagsakAnnenPartFP.setId(annenPartSakId);
         Optional<Behandling> behandling = Optional.of(byggBehandlingFødsel(fagsakAnnenPartFP));
-        when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(annenPartSakId)).thenReturn(behandling);
+        lenient().when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(annenPartSakId)).thenReturn(behandling);
         FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = byggFødselGrunnlag(BARN_TERMINDATO.minusMonths(10),
                 BARN_FØDSELSDATO.minusMonths(10));
-        when(grunnlagRepository.hentAggregatHvisEksisterer(any())).thenReturn(Optional.of(familieHendelseGrunnlag));
+        lenient().when(grunnlagRepository.hentAggregatHvisEksisterer(any())).thenReturn(Optional.of(familieHendelseGrunnlag));
         vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteFP));
 
         BehandlendeFagsystem result = toVurderFagsystem(fagsystem);
-        assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VURDER_INFOTRYGD);
+        assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
         assertThat(result.getSaksnummer()).isEmpty();
     }
 }
