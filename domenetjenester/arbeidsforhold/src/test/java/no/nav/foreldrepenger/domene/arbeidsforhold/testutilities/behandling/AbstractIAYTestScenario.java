@@ -25,14 +25,11 @@ import org.mockito.stubbing.Answer;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerRepository;
-import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling.Builder;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagBuilder;
@@ -53,7 +50,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
-import no.nav.foreldrepenger.behandlingslager.diff.DiffResult;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
@@ -95,15 +91,11 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
     private OppgittAnnenPartBuilder oppgittAnnenPartBuilder;
     private BehandlingStegType startSteg;
 
-    private Long fagsakId = nyId();
-    private String behandlendeEnhet;
+    private final Long fagsakId = nyId();
+    private final BehandlingType behandlingType = BehandlingType.FØRSTEGANGSSØKNAD;
+
     private BehandlingRepository mockBehandlingRepository;
-    private BehandlingType behandlingType = BehandlingType.FØRSTEGANGSSØKNAD;
 
-
-    //TODO palfi rydd
-    private Behandling originalBehandling;
-    private BehandlingÅrsakType behandlingÅrsakType;
     private IAYRepositoryProvider repositoryProvider;
     private PersonInformasjon.Builder personInformasjonBuilder;
 
@@ -182,8 +174,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
     }
 
     private MottatteDokumentRepository mockMottatteDokumentRepository() {
-        MottatteDokumentRepository dokumentRepository = Mockito.mock(MottatteDokumentRepository.class);
-        return dokumentRepository;
+        return Mockito.mock(MottatteDokumentRepository.class);
     }
 
     private FamilieHendelseRepository mockFamilieHendelseGrunnlagRepository() {
@@ -197,11 +188,6 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
             public Optional<FamilieHendelseGrunnlagEntitet> hentAggregatHvisEksisterer(Long behandlingId) {
                 return familieHendelseAggregatMap.entrySet().stream().filter(e -> Objects.equals(behandlingId, e.getKey())).map(e -> e.getValue())
                         .findFirst();
-            }
-
-            public DiffResult diffResultat(FamilieHendelseGrunnlagEntitet grunnlag1, FamilieHendelseGrunnlagEntitet grunnlag2,
-                    boolean kunSporedeEndringer) {
-                return null;
             }
 
             @Override
@@ -266,12 +252,11 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
                 if (aggregat.isPresent()) {
                     if (aggregat.get().getHarOverstyrteData()) {
                         return HendelseVersjonType.OVERSTYRT;
-                    } else if (aggregat.get().getHarBekreftedeData() || (aggregat.get().getSøknadVersjon() != null)) {
+                    } else if (aggregat.get().getHarBekreftedeData() || aggregat.get().getSøknadVersjon() != null) {
                         return HendelseVersjonType.BEKREFTET;
-                    } else if (aggregat.get().getSøknadVersjon() == null) {
+                    } else {
                         return HendelseVersjonType.SØKNAD;
                     }
-                    throw new IllegalStateException();
                 }
                 return HendelseVersjonType.SØKNAD;
             }
@@ -298,9 +283,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
             Long id = a.getArgument(0);
             return behandlingMap.getOrDefault(id, null);
         });
-        when(behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(ArgumentMatchers.any())).thenAnswer(a -> {
-            return List.copyOf(behandlingMap.values());
-        });
+        when(behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(ArgumentMatchers.any())).thenAnswer(a -> List.copyOf(behandlingMap.values()));
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(ArgumentMatchers.any()))
                 .thenAnswer(a -> {
                     Long id = a.getArgument(0);
@@ -325,7 +308,6 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
                     if (id == null) {
                         id = nyId();
                         beh.setId(id);
-                        // Whitebox.setInternalState(beh, "id", id);
                     }
 
                     beh.getAksjonspunkter().forEach(punkt -> punkt.setId(nyId()));
@@ -359,7 +341,6 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
             if (id == null) {
                 id = fagsakId;
                 fagsak.setId(id);
-                // Whitebox.setInternalState(fagsak, "id", id);
             }
             return id;
         });
@@ -368,7 +349,6 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
         Mockito.doAnswer(invocation -> {
             FagsakStatus status = invocation.getArgument(1);
             fagsak.setStatus(status);
-            // Whitebox.setInternalState(fagsak, "fagsakStatus", status);
             return null;
         }).when(fagsakRepository)
                 .oppdaterFagsakStatus(eq(fagsakId), ArgumentMatchers.any(FagsakStatus.class));
@@ -420,12 +400,6 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
         return (S) this;
     }
 
-    @SuppressWarnings("unchecked")
-    public S medFagsak(Fagsak fagsak) {
-        this.fagsak = fagsak;
-        return (S) this;
-    }
-
     private void build(BehandlingRepository behandlingRepo, IAYRepositoryProvider repositoryProvider) {
         if (behandling != null) {
             throw new IllegalStateException("build allerede kalt.  Hent Behandling via getBehandling eller opprett nytt scenario.");
@@ -434,7 +408,6 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
 
         this.behandling = behandlingBuilder.build();
 
-        // FIXME: Fjern avh til startSteg
         if (startSteg != null) {
             InternalManipulerBehandling.forceOppdaterBehandlingSteg(behandling, startSteg);
         }
@@ -462,19 +435,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
         }
 
         // oppprett og lagre behandling
-        Builder behandlingBuilder;
-        if (originalBehandling == null) {
-            behandlingBuilder = Behandling.nyBehandlingFor(fagsak, behandlingType);
-        } else {
-            behandlingBuilder = Behandling.fraTidligereBehandling(originalBehandling, behandlingType)
-                    .medBehandlingÅrsak(BehandlingÅrsak.builder(behandlingÅrsakType).medOriginalBehandlingId(originalBehandling.getId()));
-        }
-
-        if (behandlendeEnhet != null) {
-            behandlingBuilder.medBehandlendeEnhet(new OrganisasjonsEnhet(behandlendeEnhet, null));
-        }
-
-        return behandlingBuilder;
+        return Behandling.nyBehandlingFor(fagsak, behandlingType);
 
     }
 
