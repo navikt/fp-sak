@@ -16,5 +16,3 @@
 include::intro.adoc[]
 include::applikasjon.adoc[]
 include::database.adoc[]
-include::konfig.adoc[]
-include::feilmeldinger.adoc[]

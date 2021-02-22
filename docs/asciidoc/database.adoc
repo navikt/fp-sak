@@ -79,9 +79,3 @@ Domenemodell for beregning av ytelse.
 .Beregning
 [link=images/BEREGNING.svg, window="_blank"]
 image::BEREGNING.svg[Beregning,600]
-
-== Default
-include::{generated}/defaultDS.adoc[leveloffset=+1]
-
-== Datavarehus
-include::{generated}/dvhDS.adoc[leveloffset=+1]
