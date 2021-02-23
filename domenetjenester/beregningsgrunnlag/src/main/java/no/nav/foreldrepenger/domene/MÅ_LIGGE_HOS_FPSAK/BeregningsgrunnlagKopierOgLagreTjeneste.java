@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene;
+package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK;
 
 import static no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand.BESTEBEREGNET;
 import static no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand.FASTSATT;

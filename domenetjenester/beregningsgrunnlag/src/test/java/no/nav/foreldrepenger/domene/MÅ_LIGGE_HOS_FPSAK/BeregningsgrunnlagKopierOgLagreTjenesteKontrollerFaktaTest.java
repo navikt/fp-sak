@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene;
+package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK;
 
 import static java.util.Optional.empty;
 import static no.nav.foreldrepenger.domene.modell.AktivitetStatus.ARBEIDSTAKER;
@@ -36,7 +36,7 @@ import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.input.KalkulatorStegProsesseringInputTjeneste;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulus.IAYMapperTilKalkulus;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulus.MapBehandlingRef;
-import no.nav.foreldrepenger.domene.testutilities.behandling.ScenarioForeldrepenger;
+import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.testutilities.behandling.ScenarioForeldrepenger;
 import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.modell.BeregningAktivitetAggregatEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningAktivitetEntitet;

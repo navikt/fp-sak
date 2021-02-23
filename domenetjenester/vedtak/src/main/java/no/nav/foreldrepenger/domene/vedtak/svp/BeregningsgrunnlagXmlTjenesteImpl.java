@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
-import no.nav.foreldrepenger.domene.HentOgLagreBeregningsgrunnlagTjeneste;
+import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;

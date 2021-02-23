@@ -1,11 +1,10 @@
-package no.nav.foreldrepenger.domene;
+package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import no.nav.foreldrepenger.domene.BeregningsgrunnlagDiffSjekker;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
