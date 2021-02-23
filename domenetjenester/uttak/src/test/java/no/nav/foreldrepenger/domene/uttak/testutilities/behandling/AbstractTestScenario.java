@@ -58,6 +58,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private OppgittRettighetEntitet oppgittRettighet;
     private OppgittDekningsgradEntitet oppgittDekningsgrad;
     private OppgittFordelingEntitet oppgittFordeling;
+    private OppgittFordelingEntitet justertFordeling;
     private AvklarteUttakDatoerEntitet avklarteUttakDatoer;
 
     private Behandling originalBehandling;
@@ -65,7 +66,8 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private PerioderUtenOmsorgEntitet perioderUtenOmsorg;
     private PerioderAleneOmsorgEntitet perioderMedAleneomsorg;
     private UttakResultatPerioderEntitet uttak;
-    private AktivitetskravPerioderEntitet aktivitetskravPerioder;
+    private AktivitetskravPerioderEntitet opprinneligeAktivitetskravPerioder;
+    private AktivitetskravPerioderEntitet saksbehandledeAktivitetskravPerioder;
 
     protected AbstractTestScenario(FagsakYtelseType fagsakYtelseType, RelasjonsRolleType brukerRolle, AktørId aktørId) {
         fagsak = Fagsak.opprettNy(fagsakYtelseType, NavBruker.opprettNy(aktørId, Språkkode.NB), brukerRolle,
@@ -155,7 +157,8 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private void lagreYtelseFordeling(UttakRepositoryProvider repositoryProvider, Behandling behandling) {
         if (oppgittRettighet == null && oppgittDekningsgrad == null && oppgittFordeling == null
             && avklarteUttakDatoer == null && perioderUtenOmsorg == null && perioderMedAleneomsorg == null
-            && aktivitetskravPerioder == null) {
+            && opprinneligeAktivitetskravPerioder == null && justertFordeling == null
+            && saksbehandledeAktivitetskravPerioder == null) {
             return;
         }
         var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
@@ -163,10 +166,13 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             .medOppgittRettighet(oppgittRettighet)
             .medOppgittDekningsgrad(oppgittDekningsgrad)
             .medOppgittFordeling(oppgittFordeling)
+            .medJustertFordeling(justertFordeling)
             .medAvklarteDatoer(avklarteUttakDatoer)
             .medPerioderUtenOmsorg(perioderUtenOmsorg)
             .medPerioderAleneOmsorg(perioderMedAleneomsorg)
-            .medOpprinneligeAktivitetskravPerioder(aktivitetskravPerioder);
+            .medOpprinneligeAktivitetskravPerioder(opprinneligeAktivitetskravPerioder)
+            .medSaksbehandledeAktivitetskravPerioder(saksbehandledeAktivitetskravPerioder)
+            ;
         ytelsesFordelingRepository.lagre(behandling.getId(), yf.build());
     }
 
@@ -253,6 +259,12 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     }
 
     @SuppressWarnings("unchecked")
+    public S medJustertFordeling(OppgittFordelingEntitet justertFordeling) {
+        this.justertFordeling = justertFordeling;
+        return (S) this;
+    }
+
+    @SuppressWarnings("unchecked")
     public S medAvklarteUttakDatoer(AvklarteUttakDatoerEntitet avklarteUttakDatoer) {
         this.avklarteUttakDatoer = avklarteUttakDatoer;
         return (S) this;
@@ -287,9 +299,17 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     }
 
     public S medAktivitetskravPerioder(List<AktivitetskravPeriodeEntitet> perioder) {
-        this.aktivitetskravPerioder = new AktivitetskravPerioderEntitet();
+        this.opprinneligeAktivitetskravPerioder = new AktivitetskravPerioderEntitet();
         for (var p : perioder) {
-            this.aktivitetskravPerioder.leggTil(p);
+            this.opprinneligeAktivitetskravPerioder.leggTil(p);
+        }
+        return (S) this;
+    }
+
+    public S medSaksbehandledeAktivitetskravPerioder(List<AktivitetskravPeriodeEntitet> perioder) {
+        this.saksbehandledeAktivitetskravPerioder = new AktivitetskravPerioderEntitet();
+        for (var p : perioder) {
+            this.saksbehandledeAktivitetskravPerioder.leggTil(p);
         }
         return (S) this;
     }

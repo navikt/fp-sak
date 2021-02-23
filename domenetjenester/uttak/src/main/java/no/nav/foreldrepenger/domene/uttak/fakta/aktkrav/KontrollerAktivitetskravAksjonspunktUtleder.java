@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -97,10 +98,7 @@ public class KontrollerAktivitetskravAksjonspunktUtleder {
 
     private static Set<AktivitetskravPeriodeEntitet> finnAvklartePerioderSomDekkerSøknadsperiode(OppgittPeriodeEntitet periode,
                                                                                                  YtelseFordelingAggregat ytelseFordelingAggregat) {
-        var avklartePerioder = ytelseFordelingAggregat.getGjeldendeAktivitetskravPerioder()
-            .stream()
-            .flatMap(perioder -> perioder.getPerioder().stream())
-            .collect(Collectors.toList());
+        var avklartePerioder = finnRelevanteAvklartePerioder(ytelseFordelingAggregat);
         var dekkendeAvklartePerioder = new HashSet<AktivitetskravPeriodeEntitet>();
         var dato = periode.getFom();
         do {
@@ -114,6 +112,41 @@ public class KontrollerAktivitetskravAksjonspunktUtleder {
             dato = dato.plusDays(1);
         } while (!dato.isAfter(periode.getTom()));
         return dekkendeAvklartePerioder;
+    }
+
+    private static List<AktivitetskravPeriodeEntitet> finnRelevanteAvklartePerioder(YtelseFordelingAggregat ytelseFordelingAggregat) {
+        if (ytelseFordelingAggregat.getSaksbehandledeAktivitetskravPerioder().isPresent()) {
+            return ytelseFordelingAggregat.getSaksbehandledeAktivitetskravPerioder().get().getPerioder();
+        }
+        return ytelseFordelingAggregat.getOpprinneligeAktivitetskravPerioder()
+            .stream()
+            .flatMap(perioder -> perioder.getPerioder().stream())
+            .flatMap(p -> {
+                //Behandlinger med nye oppgitte perioder (endringssøknader) må avklare aktivitetskrav uansett avklaringer gjort i tidligere behandlinger
+                if (inneholderNyePerioder(ytelseFordelingAggregat)) {
+                    return fjernPerioderEtterDato(p, ytelseFordelingAggregat.getGjeldendeEndringsdato()).stream();
+                }
+                return Stream.of(p);
+            })
+            .collect(Collectors.toList());
+    }
+
+    private static boolean inneholderNyePerioder(YtelseFordelingAggregat ytelseFordelingAggregat) {
+        return ytelseFordelingAggregat.getOppgittFordeling() != null && !ytelseFordelingAggregat.getOppgittFordeling()
+            .getOppgittePerioder()
+            .isEmpty();
+    }
+
+    private static List<AktivitetskravPeriodeEntitet> fjernPerioderEtterDato(AktivitetskravPeriodeEntitet periode,
+                                                                             LocalDate dato) {
+        if (periode.getTidsperiode().inkluderer(dato) && !periode.getTidsperiode().getFomDato().isEqual(dato)) {
+            return List.of(new AktivitetskravPeriodeEntitet(periode.getTidsperiode().getFomDato(), dato.minusDays(1),
+                periode.getAvklaring(), periode.getBegrunnelse()));
+        }
+        if (!periode.getTidsperiode().getFomDato().isBefore(dato)) {
+            return List.of();
+        }
+        return List.of(periode);
     }
 
     private static boolean erHelg(LocalDate dato) {
