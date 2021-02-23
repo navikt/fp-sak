@@ -3,8 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;

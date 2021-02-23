@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AktivitetskravPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AktivitetskravPerioderEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
@@ -35,7 +36,6 @@ import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktTjenesteImpl;
@@ -140,11 +140,11 @@ class KontrollerAktivitetskravDtoTjenesteTest {
     }
 
     private Behandling behandlingFraScenario() {
-        ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(AktørId.dummy());
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, false, false))
+            .medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medJustertEndringsdato(DATO.minusDays(60)).build());
         scenario.medSøknadHendelse().medFødselsDato(DATO.minusDays(60)).medAntallBarn(1);
-        scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, false, false));
-        scenario.lagre(repositoryProvider);
-        return scenario.getBehandling();
+        return scenario.lagre(repositoryProvider);
     }
 
     private void lagreOpprinneligAktivitetskrav(Behandling behandling, LocalDate førsteFom, LocalDate førsteTom) {
@@ -152,7 +152,7 @@ class KontrollerAktivitetskravDtoTjenesteTest {
             I_AKTIVITET, "ok.");
         var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
-            .medOpprinneligeAktivitetskravPerioder(new AktivitetskravPerioderEntitet().leggTil(aktivitetsKrav));
+            .medSaksbehandledeAktivitetskravPerioder(new AktivitetskravPerioderEntitet().leggTil(aktivitetsKrav));
         ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
     }
 
