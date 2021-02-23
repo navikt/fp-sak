@@ -18,10 +18,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus.OppdatererDtoMapper;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.BeregningHåndterer;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.dto.OverstyrBeregningsgrunnlagDto;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.rest.historikk.FaktaBeregningHistorikkHåndterer;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulus.OppdatererDtoMapper;
+import no.nav.foreldrepenger.domene.rest.BeregningHåndterer;
+import no.nav.foreldrepenger.domene.rest.dto.OverstyrBeregningsgrunnlagDto;
+import no.nav.foreldrepenger.domene.rest.historikk.FaktaBeregningHistorikkHåndterer;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand;

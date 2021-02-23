@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.behandling.revurdering.ytelse.fp;
 
-import static no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.mappers.til_kalkulus.IAYMapperTilKalkulus.mapArbeidsgiver;
+import static no.nav.foreldrepenger.domene.mappers.til_kalkulus.IAYMapperTilKalkulus.mapArbeidsgiver;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
