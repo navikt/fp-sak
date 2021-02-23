@@ -293,7 +293,7 @@ public class PersonopplysningDtoTjeneste {
 
     private PersonopplysningMedlemDto enkelUtenlandskAnnenPartMappingMedlemskap(OppgittAnnenPartEntitet oppgittAnnenPart) {
         PersonopplysningMedlemDto dto = new PersonopplysningMedlemDto();
-        var bruknavn = Optional.ofNullable(oppgittAnnenPart.getUtenlandskPersonident()).orElse(oppgittAnnenPart.getType().getKode());
+        var bruknavn = Optional.ofNullable(oppgittAnnenPart.getUtenlandskPersonident()).orElse(oppgittAnnenPart.getUtenlandskFnrLand().getKode());
         dto.setNavn(bruknavn);
         dto.setNavBrukerKjonn(NavBrukerKjønn.UDEFINERT);
         dto.setPersonstatus(PersonstatusType.UREG);
@@ -356,7 +356,7 @@ public class PersonopplysningDtoTjeneste {
         var dto = new PersonopplysningBasisDto(null);
 
         dto.setKjønn(NavBrukerKjønn.UDEFINERT);
-        var bruknavn = Optional.ofNullable(oppgittAnnenPart.getUtenlandskPersonident()).orElse(oppgittAnnenPart.getType().getKode());
+        var bruknavn = Optional.ofNullable(oppgittAnnenPart.getUtenlandskPersonident()).orElse(oppgittAnnenPart.getUtenlandskFnrLand().getKode());
         dto.setNavn(bruknavn);
         return dto;
     }
