@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK;
+package no.nav.foreldrepenger.domene;
 
 import static no.nav.foreldrepenger.domene.mappers.fra_kalkulus.KalkulusTilBehandlingslagerMapper.mapTilstand;
 

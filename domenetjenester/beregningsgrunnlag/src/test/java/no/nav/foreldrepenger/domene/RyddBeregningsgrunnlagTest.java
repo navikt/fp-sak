@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK;
+package no.nav.foreldrepenger.domene;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.testutilities.behandling.ScenarioForeldrepenger;
+import no.nav.foreldrepenger.domene.testutilities.behandling.ScenarioForeldrepenger;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand;

@@ -25,7 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
+import no.nav.foreldrepenger.domene.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;

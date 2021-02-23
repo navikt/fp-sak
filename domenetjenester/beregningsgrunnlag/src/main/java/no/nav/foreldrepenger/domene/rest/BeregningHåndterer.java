@@ -29,7 +29,7 @@ import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.HåndterBeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagGrunnlagDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
+import no.nav.foreldrepenger.domene.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.input.KalkulatorHåndteringInputTjeneste;
 
 /**

@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.KalkulusKonfigInjecter;
+import no.nav.foreldrepenger.domene.KalkulusKonfigInjecter;
 import no.nav.foreldrepenger.domene.fp.BesteberegningFødendeKvinneTjeneste;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningForBeregningTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
