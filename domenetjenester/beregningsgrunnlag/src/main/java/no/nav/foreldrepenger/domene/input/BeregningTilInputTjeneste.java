@@ -10,7 +10,7 @@ import javax.inject.Inject;
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.modell.behandling.KoblingReferanse;
 import no.nav.folketrygdloven.kalkulator.modell.behandling.Skjæringstidspunkt;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.KalkulusKonfigInjecter;
+import no.nav.foreldrepenger.domene.prosess.KalkulusKonfigInjecter;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulus.BehandlingslagerTilKalkulusMapper;
 import no.nav.foreldrepenger.domene.modell.BeregningAktivitetAggregatEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;

@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK;
+package no.nav.foreldrepenger.domene.prosess;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
