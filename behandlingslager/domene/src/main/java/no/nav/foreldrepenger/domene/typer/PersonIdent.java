@@ -42,17 +42,7 @@ public class PersonIdent implements Comparable<PersonIdent>, IndexKey {
             return false;
         }
         String s = str.trim();
-        return s.length() == FNR_LENGDE && !isFdatNummer(getPersonnummer(s)) && validerFnrStruktur(s);
-    }
-
-    private static String getPersonnummer(String str) {
-        return (str == null || str.length() < PERSONNR_LENGDE)
-            ? null
-            : str.substring(str.length() - PERSONNR_LENGDE, str.length());
-    }
-
-    private static boolean isFdatNummer(String personnummer) {
-        return personnummer != null && personnummer.length() == PERSONNR_LENGDE && personnummer.startsWith("0000");
+        return s.length() == FNR_LENGDE && validerFnrStruktur(s);
     }
 
     private static int sum(String foedselsnummer, int... faktors) {

@@ -8,6 +8,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppholdstillatelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
@@ -55,5 +56,10 @@ public class PersonopplysningTjeneste extends AbstractPersonopplysningTjenesteIm
     public List<OppholdstillatelseEntitet> hentOppholdstillatelser(Long behandlingId) {
         return getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(behandlingId).flatMap(PersonopplysningGrunnlagEntitet::getRegisterVersjon)
             .map(PersonInformasjonEntitet::getOppholdstillatelser).orElse(List.of());
+    }
+
+    public Optional<AktørId> hentOppgittAnnenPartAktørId(Long behandlingId) {
+        return getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(behandlingId)
+            .flatMap(PersonopplysningGrunnlagEntitet::getOppgittAnnenPart).map(OppgittAnnenPartEntitet::getAktørId);
     }
 }

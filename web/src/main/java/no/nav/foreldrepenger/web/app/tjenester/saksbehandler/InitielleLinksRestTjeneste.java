@@ -50,6 +50,7 @@ public class InitielleLinksRestTjeneste {
         List<ResourceLink> saklenker = new ArrayList<>();
         saklenker.add(get(FagsakRestTjeneste.FAGSAK_PATH, "fagsak"));
         saklenker.add(get(FagsakRestTjeneste.BRUKER_PATH, "sak-bruker"));
+        saklenker.add(get(FagsakRestTjeneste.PERSONER_PATH, "sak-personer"));
         saklenker.add(get(FagsakRestTjeneste.RETTIGHETER_PATH, "sak-rettigheter"));
         saklenker.add(get(HistorikkRestTjeneste.HISTORIKK_PATH, "sak-historikk"));
         saklenker.add(get(DokumentRestTjeneste.DOKUMENTER_PATH, "sak-dokumentliste"));

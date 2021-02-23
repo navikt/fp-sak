@@ -4,56 +4,41 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
+import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 
-@JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY, isGetterVisibility = Visibility.NONE)
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class PersonDto {
 
-    @JsonProperty("navn")
     private String navn;
-
-    @JsonProperty("alder")
     private Integer alder;
-
-    @JsonProperty("personnummer")
     private String personnummer;
-
-    @JsonProperty("erKvinne")
+    private NavBrukerKjønn kjønn;
     private Boolean erKvinne;
-
-    @JsonProperty("personstatusType")
     private PersonstatusType personstatusType;
-
-    @JsonProperty("diskresjonskode")
     private String diskresjonskode;
-
-    @JsonProperty("fodselsdato")
     private LocalDate fodselsdato;
-
-    @JsonProperty("dodsdato")
     private LocalDate dodsdato;
+    private boolean erDod;
+    private Språkkode språkkode;
 
     public PersonDto() {
         // Injiseres i test
     }
 
-    public PersonDto(String navn, String personnummer, boolean erKvinne, PersonstatusType personstatusType, String diskresjonskode,
-                     LocalDate fodselsdato, LocalDate dodsdato) {
+    public PersonDto(String navn, String personnummer, NavBrukerKjønn navBrukerKjønn, PersonstatusType personstatusType, String diskresjonskode,
+                     LocalDate fodselsdato, LocalDate dodsdato, Språkkode språkkode) {
         this.navn = navn;
         this.alder = (int) ChronoUnit.YEARS.between(fodselsdato, LocalDate.now());
         this.personnummer = personnummer;
-        this.erKvinne = erKvinne;
+        this.erKvinne = NavBrukerKjønn.KVINNE.equals(navBrukerKjønn);
+        this.kjønn = navBrukerKjønn;
         this.personstatusType = personstatusType;
         this.diskresjonskode = diskresjonskode;
         this.fodselsdato = fodselsdato;
         this.dodsdato = dodsdato;
+        this.erDod = dodsdato != null || PersonstatusType.erDød(personstatusType);
+        this.språkkode = språkkode;
     }
 
     public String getNavn() {
@@ -68,17 +53,16 @@ public class PersonDto {
         return personnummer;
     }
 
+    public NavBrukerKjønn getKjønn() {
+        return kjønn;
+    }
+
     public Boolean getErKvinne() {
         return erKvinne;
     }
 
     public PersonstatusType getPersonstatusType() {
         return personstatusType;
-    }
-
-    @JsonGetter
-    public Boolean getErDod() {
-        return PersonstatusType.erDød(personstatusType);
     }
 
     public String getDiskresjonskode() {
@@ -91,6 +75,14 @@ public class PersonDto {
 
     public LocalDate getDodsdato() {
         return dodsdato;
+    }
+
+    public boolean getErDod() {
+        return erDod;
+    }
+
+    public Språkkode getSpråkkode() {
+        return språkkode;
     }
 
     @Override

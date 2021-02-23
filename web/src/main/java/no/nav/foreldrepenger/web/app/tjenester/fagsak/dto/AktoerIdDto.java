@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.web.app.tjenester.aktoer;
+package no.nav.foreldrepenger.web.app.tjenester.fagsak.dto;
 
 import java.util.Optional;
 

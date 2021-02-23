@@ -1,30 +1,29 @@
 package no.nav.foreldrepenger.web.app.tjenester.fagsak.app;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
+import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
+import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
+import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
+import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -36,8 +35,15 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus
 import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.dokument.DokumentRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.FagsakRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.AktoerInfoDto;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakBackendDto;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakDto;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.PersonDto;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SakHendelseDto;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SakPersonerDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.util.RestUtils;
+import no.nav.foreldrepenger.web.app.util.StringUtils;
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
@@ -45,14 +51,15 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 public class FagsakTjeneste {
     private static FagsakProsessTaskFeil FEIL = FeilFactory.create(FagsakProsessTaskFeil.class);
 
-    private FagsakRepository fagsakRespository;
+    private FagsakRepository fagsakRepository;
 
     private PersoninfoAdapter personinfoAdapter;
     private BehandlingRepository behandlingRepository;
     private ProsesseringAsynkTjeneste prosesseringAsynkTjeneste;
 
-    private Predicate<String> predikatErFnr = søkestreng -> søkestreng.matches("\\d{11}");
+    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
+    private PersonopplysningTjeneste personopplysningTjeneste;
     private DekningsgradTjeneste dekningsgradTjeneste;
 
     protected FagsakTjeneste() {
@@ -60,22 +67,27 @@ public class FagsakTjeneste {
     }
 
     @Inject
-    public FagsakTjeneste(FagsakRepository fagsakRespository,
+    public FagsakTjeneste(FagsakRepository fagsakRepository,
                           BehandlingRepository behandlingRepository,
-                          ProsesseringAsynkTjeneste prosesseringAsynkTjeneste, PersoninfoAdapter personinfoAdapter,
+                          ProsesseringAsynkTjeneste prosesseringAsynkTjeneste,
+                          PersoninfoAdapter personinfoAdapter,
+                          FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
                           FamilieHendelseTjeneste familieHendelseTjeneste,
+                          PersonopplysningTjeneste personopplysningTjeneste,
                           DekningsgradTjeneste dekningsgradTjeneste) {
-        this.fagsakRespository = fagsakRespository;
+        this.fagsakRepository = fagsakRepository;
         this.personinfoAdapter = personinfoAdapter;
         this.behandlingRepository = behandlingRepository;
+        this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
+        this.personopplysningTjeneste = personopplysningTjeneste;
         this.prosesseringAsynkTjeneste = prosesseringAsynkTjeneste;
         this.dekningsgradTjeneste = dekningsgradTjeneste;
     }
 
     public Optional<AsyncPollingStatus> sjekkProsessTaskPågår(Saksnummer saksnummer, String gruppe) {
 
-        Optional<Fagsak> fagsak = fagsakRespository.hentSakGittSaksnummer(saksnummer);
+        Optional<Fagsak> fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer);
         if (fagsak.isPresent()) {
             Long fagsakId = fagsak.get().getId();
             Map<String, ProsessTaskData> nesteTask = prosesseringAsynkTjeneste.sjekkProsessTaskPågår(fagsakId, null, gruppe);
@@ -83,84 +95,122 @@ public class FagsakTjeneste {
         } else {
             return Optional.empty();
         }
-
     }
 
-    public FagsakSamlingForBruker hentSaker(String søkestreng) {
-        if (!søkestreng.matches("\\d+")) {
-            return FagsakSamlingForBruker.emptyView();
+    public Optional<Fagsak> hentFagsakForSaksnummer(Saksnummer saksnummer) {
+        return fagsakRepository.hentSakGittSaksnummer(saksnummer);
+    }
+
+    public List<FagsakDto> søkFagsakDto(String søkestreng) {
+        if (PersonIdent.erGyldigFnr(søkestreng)) {
+            return hentFagsakDtoForFnr(new PersonIdent(søkestreng));
         }
 
-        if (predikatErFnr.test(søkestreng)) {
-            return hentSakerForFnr(new PersonIdent(søkestreng));
-        } else {
-            return hentFagsakForSaksnummer(new Saksnummer(søkestreng));
+        try {
+            return hentFagsakDtoForSaksnummer(new Saksnummer(søkestreng), true).stream().collect(Collectors.toList());
+        } catch (Exception e) { // Ugyldig saksnummer
+            return List.of();
         }
     }
 
-    public Optional<PersoninfoBasis> hentBruker(Saksnummer saksnummer) {
-        return fagsakRespository.hentSakGittSaksnummer(saksnummer).map(Fagsak::getAktørId).flatMap(personinfoAdapter::hentBrukerBasisForAktør);
+    private List<FagsakDto> hentFagsakDtoForFnr(PersonIdent fnr) {
+        return personinfoAdapter.hentAktørForFnr(fnr)
+            .map(a -> fagsakRepository.hentForBruker(a)).orElse(List.of()).stream()
+            .map(fagsak -> mapFraFagsakTilFagsakDto(fagsak, true))
+            .collect(Collectors.toList());
     }
 
-    private FagsakSamlingForBruker hentSakerForFnr(PersonIdent fnr) {
-        AktørId aktørId = personinfoAdapter.hentAktørForFnr(fnr).orElse(null);
-        if (aktørId == null) {
-            return FagsakSamlingForBruker.emptyView();
-        }
-        List<Fagsak> fagsaker = fagsakRespository.hentForBruker(aktørId);
-        return tilFagsakView(fagsaker, finnAntallBarnTps(fagsaker));
+    public Optional<FagsakDto> hentFagsakDtoForSaksnummer(Saksnummer saksnummer) {
+        return hentFagsakDtoForSaksnummer(saksnummer, false);
     }
 
-    /** Returnerer samling med kun en fagsak. */
-    public FagsakSamlingForBruker hentFagsakForSaksnummer(Saksnummer saksnummer) {
-        Optional<Fagsak> fagsak = fagsakRespository.hentSakGittSaksnummer(saksnummer);
-        if (fagsak.isEmpty()) {
-            return FagsakSamlingForBruker.emptyView();
-        }
-        List<Fagsak> fagsaker = Collections.singletonList(fagsak.get());
-
-        return tilFagsakView(fagsaker, finnAntallBarnTps(fagsaker));
+    public Optional<FagsakBackendDto> lagFagsakBackendDto(Saksnummer saksnummer) {
+        return hentFagsakForSaksnummer(saksnummer).map(fagsak -> new FagsakBackendDto(fagsak, finnDekningsgrad(saksnummer)));
     }
 
-    public Optional<Fagsak> hentFagsakForSaksnummerBackend(Saksnummer saksnummer) {
-        return fagsakRespository.hentSakGittSaksnummer(saksnummer);
+    public Optional<PersonDto> lagBrukerDto(Saksnummer saksnummer) {
+        return hentBruker(saksnummer).map(FagsakTjeneste::mapFraPersoninfoBasisTilPersonDto);
     }
 
-    public Optional<Dekningsgrad> hentDekningsgradForSaksnummerBackend(Saksnummer saksnummer) {
-        return dekningsgradTjeneste.finnDekningsgrad(saksnummer);
+    public Optional<SakPersonerDto> lagSakPersonerDto(Saksnummer saksnummer) {
+        var fagsak = hentFagsakForSaksnummer(saksnummer).orElse(null);
+        var brukerinfo = hentBruker(saksnummer).orElse(null);
+        if (fagsak == null || brukerinfo == null) return Optional.empty();
+        var språk = Optional.ofNullable(fagsak.getNavBruker()).map(NavBruker::getSpråkkode).orElse(Språkkode.NB);
+        var bruker = mapFraPersoninfoBasisTilPersonDto(brukerinfo, språk);
+        var annenPart = fagsakRelasjonTjeneste.finnRelasjonFor(fagsak).getRelatertFagsak(fagsak).map(Fagsak::getAktørId)
+            .or(() -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
+                .flatMap(b -> personopplysningTjeneste.hentOppgittAnnenPartAktørId(b.getId())))
+            .flatMap(personinfoAdapter::hentBrukerBasisForAktør)
+            .map(FagsakTjeneste::mapFraPersoninfoBasisTilPersonDto);
+        var fh = hentFamilieHendelse(fagsak);
+        return Optional.of(new SakPersonerDto(bruker, annenPart.orElse(null), fh.orElse(null)));
     }
 
-    private FagsakSamlingForBruker tilFagsakView(List<Fagsak> fagsaker, Map<Long, Integer> antallBarnPerFagsak) {
-        FagsakSamlingForBruker view = new FagsakSamlingForBruker();
-        fagsaker.forEach(sak -> {
-            var dekningsgrad = dekningsgradTjeneste.finnDekningsgrad(sak.getSaksnummer());
-            view.leggTil(sak, antallBarnPerFagsak.get(sak.getId()), hentBarnsFødselsdato(sak), dekningsgrad.orElse(null));
-        });
-        return view;
+    public Optional<AktoerInfoDto> lagAktoerInfoDto(AktørId aktørId) {
+        var personinfo = personinfoAdapter.hentBrukerBasisForAktør(aktørId).orElse(null);
+        if (personinfo == null) return Optional.empty();
+        PersonDto personDto = mapFraPersoninfoBasisTilPersonDto(personinfo);
+        var fagsakDtoer= fagsakRepository.hentForBruker(aktørId).stream()
+            .map(fagsak -> mapFraFagsakTilFagsakDto(fagsak, true))
+            .collect(Collectors.toList());
+        var aktoerInfoDto = new AktoerInfoDto(personinfo.getAktørId().getId(), personDto, fagsakDtoer);
+        return Optional.of(aktoerInfoDto);
     }
 
-    private LocalDate hentBarnsFødselsdato(Fagsak fagsak) {
-        final Optional<Behandling> behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId());
-        if (behandling.isPresent()) {
-            final Optional<FamilieHendelseEntitet> bekreftetFødsel = familieHendelseTjeneste.finnAggregat(behandling.get().getId())
-                    .flatMap(FamilieHendelseGrunnlagEntitet::getGjeldendeBekreftetVersjon)
-                    .filter(hendelse -> hendelse.getType().equals(FamilieHendelseType.FØDSEL));
-            if (bekreftetFødsel.isPresent()) {
-                return bekreftetFødsel.get().getBarna().stream().map(UidentifisertBarn::getFødselsdato).findFirst().orElse(null);
-            }
-        }
-        return null;
+    private Optional<PersoninfoBasis> hentBruker(Saksnummer saksnummer) {
+        return hentFagsakForSaksnummer(saksnummer).map(Fagsak::getAktørId).flatMap(personinfoAdapter::hentBrukerBasisForAktør);
     }
 
-    private Map<Long, Integer> finnAntallBarnTps(List<Fagsak> fagsaker) {
-        Map<Long, Integer> antallBarnPerFagsak = new HashMap<>();
-        for (Fagsak fagsak : fagsaker) {
-            antallBarnPerFagsak.put(fagsak.getId(), 0); // FIXME: Skal ikke være hardkodet.
-        }
-        return antallBarnPerFagsak;
+    private Integer finnDekningsgrad(Saksnummer saksnummer) {
+        return dekningsgradTjeneste.finnDekningsgrad(saksnummer).map(Dekningsgrad::getVerdi).orElse(null);
     }
 
-    public static List<ResourceLink> lagLenker(Fagsak fagsak) {
+    private static PersonDto mapFraPersoninfoBasisTilPersonDto(PersoninfoBasis pi) {
+        return mapFraPersoninfoBasisTilPersonDto(pi, Språkkode.NB);
+    }
+
+    private static PersonDto mapFraPersoninfoBasisTilPersonDto(PersoninfoBasis pi, Språkkode språkkode) {
+        return new PersonDto(StringUtils.formaterMedStoreOgSmåBokstaver(pi.getNavn()),
+            pi.getPersonIdent().getIdent(),
+            pi.getKjønn(),
+            pi.getPersonstatus(),
+            pi.getDiskresjonskode(),
+            pi.getFødselsdato(),
+            pi.getDødsdato(),
+            språkkode);
+    }
+
+    private Optional<FagsakDto> hentFagsakDtoForSaksnummer(Saksnummer saksnummer, boolean erSøk) {
+        return fagsakRepository.hentSakGittSaksnummer(saksnummer)
+            .map(f -> mapFraFagsakTilFagsakDto(f, erSøk));
+    }
+
+    private FagsakDto mapFraFagsakTilFagsakDto(Fagsak fagsak, boolean utenRevurderingSjekk) {
+        var kanRevurderingOpprettes = utenRevurderingSjekk ? null :
+            FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, fagsak.getYtelseType()).orElseThrow().kanRevurderingOpprettes(fagsak);
+        var fh = hentFamilieHendelse(fagsak);
+        return new FagsakDto(
+            fagsak,
+            fh.map(SakHendelseDto::getHendelseDato).orElse(null),
+            fh.map(SakHendelseDto::getAntallBarn).orElse(null),
+            kanRevurderingOpprettes,
+            fagsak.getSkalTilInfotrygd(),
+            fagsak.getRelasjonsRolleType(),
+            finnDekningsgrad(fagsak.getSaksnummer()),
+            FagsakTjeneste.lagLenker(fagsak),
+            FagsakTjeneste.lagLenkerEngangshent(fagsak));
+    }
+
+
+    private Optional<SakHendelseDto> hentFamilieHendelse(Fagsak fagsak) {
+        return behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
+            .flatMap(b -> familieHendelseTjeneste.finnAggregat(b.getId()))
+            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+            .map(h -> new SakHendelseDto(h.getType(), h.getSkjæringstidspunkt(), h.getAntallBarn()));
+    }
+
+    private static List<ResourceLink> lagLenker(Fagsak fagsak) {
         List<ResourceLink> lenkene = new ArrayList<>();
         var saksnummer = new SaksnummerDto(fagsak.getSaksnummer());
         lenkene.add(get(FagsakRestTjeneste.RETTIGHETER_PATH, "sak-rettigheter", saksnummer));
@@ -171,14 +221,15 @@ public class FagsakTjeneste {
         return lenkene;
     }
 
-    public static List<ResourceLink> lagLenkerEngangshent(Fagsak fagsak) {
+    private static List<ResourceLink> lagLenkerEngangshent(Fagsak fagsak) {
         List<ResourceLink> lenkene = new ArrayList<>();
-        lenkene.add(get(FagsakRestTjeneste.BRUKER_PATH, "sak-bruker", new SaksnummerDto(fagsak.getSaksnummer())));
+        var saksnummer = new SaksnummerDto(fagsak.getSaksnummer());
+        lenkene.add(get(FagsakRestTjeneste.BRUKER_PATH, "sak-bruker", saksnummer));
+        lenkene.add(get(FagsakRestTjeneste.PERSONER_PATH, "sak-personer", saksnummer));
         return lenkene;
     }
 
-    static ResourceLink get(String path, String rel, Object dto) {
+    private static ResourceLink get(String path, String rel, Object dto) {
         return ResourceLink.get(RestUtils.getApiPath(path), rel, dto);
     }
-
 }

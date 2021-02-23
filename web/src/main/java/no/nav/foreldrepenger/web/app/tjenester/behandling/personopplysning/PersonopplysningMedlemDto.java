@@ -5,24 +5,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
+import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 
-public class PersonopplysningBasisDto extends PersonIdentDto {
+public class PersonopplysningMedlemDto extends PersonIdentDto {
 
-    private final String identifikator;
     private NavBrukerKjønn navBrukerKjonn;
-    private SivilstandType sivilstand;
+    private PersonstatusType personstatus;
+    private Region region;
     private LocalDate dodsdato;
     private LocalDate fodselsdato;
     private List<PersonadresseDto> adresser = new ArrayList<>();
-
-    public PersonopplysningBasisDto(String identifikator) {
-        this.identifikator = identifikator;
-    }
-
-    public String getIdentifikator() {
-        return identifikator;
-    }
 
     public NavBrukerKjønn getNavBrukerKjonn() {
         return navBrukerKjonn;
@@ -32,12 +25,20 @@ public class PersonopplysningBasisDto extends PersonIdentDto {
         this.navBrukerKjonn = navBrukerKjonn;
     }
 
-    public SivilstandType getSivilstand() {
-        return sivilstand;
+    public PersonstatusType getPersonstatus() {
+        return personstatus;
     }
 
-    public void setSivilstand(SivilstandType sivilstand) {
-        this.sivilstand = sivilstand;
+    public void setPersonstatus(PersonstatusType personstatus) {
+        this.personstatus = personstatus;
+    }
+
+    public Region getRegion() {
+        return region;
+    }
+
+    public void setRegion(Region region) {
+        this.region = region;
     }
 
     public LocalDate getDodsdato() {

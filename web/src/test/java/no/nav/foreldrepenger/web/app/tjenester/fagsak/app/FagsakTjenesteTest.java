@@ -30,6 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.NavBrukerBuilder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
@@ -42,7 +43,7 @@ import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 @ExtendWith(MockitoExtension.class)
 public class FagsakTjenesteTest {
 
-    private static final String FNR = "12345678901";
+    private static final String FNR = new FiktiveFnr().nesteFnr();
     private static final AktørId AKTØR_ID = AktørId.dummy();
     private static final Saksnummer SAKSNUMMER = new Saksnummer("123");
 
@@ -72,9 +73,8 @@ public class FagsakTjenesteTest {
 
     @BeforeEach
     public void oppsett() {
-
         ProsesseringAsynkTjeneste prosesseringAsynkTjeneste = mock(ProsesseringAsynkTjeneste.class);
-        tjeneste = new FagsakTjeneste(fagsakRepository, behandlingRepository, prosesseringAsynkTjeneste, personinfoAdapter, hendelseTjeneste,
+        tjeneste = new FagsakTjeneste(fagsakRepository, behandlingRepository, prosesseringAsynkTjeneste, personinfoAdapter, null, hendelseTjeneste, null,
                 dekningsgradTjeneste);
     }
 
@@ -96,14 +96,12 @@ public class FagsakTjenesteTest {
         var dekningsgrad = Optional.of(Dekningsgrad._100);
         when(dekningsgradTjeneste.finnDekningsgrad(any())).thenReturn(dekningsgrad);
 
-        FagsakSamlingForBruker view = tjeneste.hentSaker(FNR);
+        var view = tjeneste.søkFagsakDto(FNR);
 
-        assertThat(view.isEmpty()).isFalse();
-        assertThat(view.getFagsakInfoer()).hasSize(1);
-        FagsakSamlingForBruker.FagsakRad info = view.getFagsakInfoer().get(0);
-        assertThat(info.getFagsak()).isEqualTo(fagsak);
-        assertThat(info.getFødselsdato()).isEqualTo(fødselsdato);
-        assertThat(info.getDekningsgrad()).isEqualTo(dekningsgrad);
+        assertThat(view).hasSize(1);
+        assertThat(view.get(0).getSaksnummer()).isEqualTo(Long.parseLong(fagsak.getSaksnummer().getVerdi()));
+        assertThat(view.get(0).getBarnFodt()).isEqualTo(fødselsdato);
+        assertThat(view.get(0).getDekningsgrad()).isEqualTo(Dekningsgrad._100.getVerdi());
     }
 
     @Test
@@ -122,13 +120,12 @@ public class FagsakTjenesteTest {
         var dekningsgrad = Optional.of(Dekningsgrad._80);
         when(dekningsgradTjeneste.finnDekningsgrad(any())).thenReturn(dekningsgrad);
 
-        FagsakSamlingForBruker view = tjeneste.hentSaker(SAKSNUMMER.getVerdi());
+        var view = tjeneste.søkFagsakDto(SAKSNUMMER.getVerdi());
 
-        assertThat(view.isEmpty()).isFalse();
-        assertThat(view.getFagsakInfoer()).hasSize(1);
-        FagsakSamlingForBruker.FagsakRad info = view.getFagsakInfoer().get(0);
-        assertThat(info.getFagsak()).isEqualTo(fagsak);
-        assertThat(info.getDekningsgrad()).isEqualTo(dekningsgrad);
+        assertThat(view).hasSize(1);
+        assertThat(view.get(0).getSaksnummer()).isEqualTo(Long.parseLong(fagsak.getSaksnummer().getVerdi()));
+        assertThat(view.get(0).getBarnFodt()).isEqualTo(fødselsdato);
+        assertThat(view.get(0).getDekningsgrad()).isEqualTo(Dekningsgrad._80.getVerdi());
     }
 
     @Test
@@ -138,29 +135,29 @@ public class FagsakTjenesteTest {
         Fagsak fagsak = FagsakBuilder.nyEngangstønad(RelasjonsRolleType.MORA).medBruker(navBruker).medSaksnummer(SAKSNUMMER).build();
         // Whitebox.setInternalState(fagsak, "id", -1L);
         fagsak.setId(-1L);
-        FagsakSamlingForBruker view = tjeneste.hentSaker(valueOf(SAKSNUMMER));
+        var view = tjeneste.søkFagsakDto(valueOf(SAKSNUMMER));
 
-        assertThat(view.isEmpty()).isTrue();
+        assertThat(view).isEmpty();
     }
 
     @Test
     public void skal_returnere_tomt_view_dersom_søkestreng_ikke_er_gyldig_fnr_eller_saksnr() {
-        FagsakSamlingForBruker view = tjeneste.hentSaker("ugyldig_søkestreng");
-        assertThat(view.isEmpty()).isTrue();
+        var view = tjeneste.søkFagsakDto("ugyldig_søkestreng");
+        assertThat(view).isEmpty();
     }
 
     @Test
     public void skal_returnere_tomt_view_ved_ukjent_fnr() {
         when(personinfoAdapter.hentAktørForFnr(new PersonIdent(FNR))).thenReturn(Optional.empty());
 
-        FagsakSamlingForBruker view = tjeneste.hentSaker(FNR);
+        var view = tjeneste.søkFagsakDto(FNR);
 
-        assertThat(view.isEmpty()).isTrue();
+        assertThat(view).isEmpty();
     }
 
     @Test
     public void skal_returnere_tomt_view_ved_ukjent_saksnr() {
-        FagsakSamlingForBruker view = tjeneste.hentSaker(valueOf(SAKSNUMMER));
-        assertThat(view.isEmpty()).isTrue();
+        var view = tjeneste.søkFagsakDto(valueOf(SAKSNUMMER));
+        assertThat(view).isEmpty();
     }
 }

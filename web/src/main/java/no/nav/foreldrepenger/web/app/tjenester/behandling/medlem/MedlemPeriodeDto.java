@@ -8,7 +8,7 @@ import java.util.Set;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapManuellVurderingType;
 import no.nav.foreldrepenger.domene.medlem.api.VurderingsÅrsak;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonopplysningDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonopplysningMedlemskapDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonopplysningMedlemDto;
 
 public class MedlemPeriodeDto {
 
@@ -22,8 +22,8 @@ public class MedlemPeriodeDto {
     private Boolean bosattVurdering;
     private MedlemskapManuellVurderingType medlemskapManuellVurderingType;
     private String begrunnelse;
-    private PersonopplysningMedlemskapDto personopplysningBruker;
-    private PersonopplysningMedlemskapDto personopplysningAnnenPart;
+    private PersonopplysningMedlemDto personopplysningBruker;
+    private PersonopplysningMedlemDto personopplysningAnnenPart;
 
     public MedlemPeriodeDto() {
         // trengs for deserialisering av JSON
@@ -97,19 +97,19 @@ public class MedlemPeriodeDto {
         this.personopplysninger = personopplysninger;
     }
 
-    public PersonopplysningMedlemskapDto getPersonopplysningBruker() {
+    public PersonopplysningMedlemDto getPersonopplysningBruker() {
         return personopplysningBruker;
     }
 
-    public void setPersonopplysningBruker(PersonopplysningMedlemskapDto personopplysningBruker) {
+    public void setPersonopplysningBruker(PersonopplysningMedlemDto personopplysningBruker) {
         this.personopplysningBruker = personopplysningBruker;
     }
 
-    public PersonopplysningMedlemskapDto getPersonopplysningAnnenPart() {
+    public PersonopplysningMedlemDto getPersonopplysningAnnenPart() {
         return personopplysningAnnenPart;
     }
 
-    public void setPersonopplysningAnnenPart(PersonopplysningMedlemskapDto personopplysningAnnenPart) {
+    public void setPersonopplysningAnnenPart(PersonopplysningMedlemDto personopplysningAnnenPart) {
         this.personopplysningAnnenPart = personopplysningAnnenPart;
     }
 
