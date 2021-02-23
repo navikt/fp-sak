@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -52,6 +54,17 @@ public class PersonopplysningDtoPersonIdentTjeneste {
             dto.setDiskresjonskode(findKode(dto.getAktoerId(), piDiskresjonFinder));
         }
 
+    }
+
+    public void oppdaterMedPersonIdent(PersonoversiktDto dto) {
+        // memoriser oppslagsfunksjoner - unngår repeterende tjeneste kall eksternt
+        // Sett fødselsnummer og diskresjonskodepå personopplysning for alle
+        // behandlinger. Fødselsnummer og diskresjonskode lagres ikke i basen og må derfor hentes fra
+        // TPS/IdentRepository// for å vises i GUI.
+        var alle = new ArrayList<>(List.of(dto.getBruker()));
+        Optional.ofNullable(dto.getAnnenPart()).ifPresent(alle::add);
+        alle.addAll(dto.getBarn());
+        alle.forEach(this::oppdaterMedPersonIdent);
     }
 
     void setFnrPaPersonopplysning(PersonopplysningDto dto, Function<AktørId, Optional<Tuple<PersonIdent, Diskresjonskode>>> piDiskresjonFinder) {

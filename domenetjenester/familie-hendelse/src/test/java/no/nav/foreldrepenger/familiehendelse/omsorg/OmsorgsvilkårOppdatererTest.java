@@ -43,10 +43,9 @@ public class OmsorgsvilkårOppdatererTest {
         scenario.lagMocked();
 
         behandling = scenario.getBehandling();
-        OmsorghendelseTjeneste hendelseTjeneste = Mockito.mock(OmsorghendelseTjeneste.class);
 
         tekstBuilder = new HistorikkInnslagTekstBuilder();
-        omsorgsvilkarOppdaterer = new OmsorgsvilkårAksjonspunktOppdaterer.OmsorgsvilkårOppdaterer(hendelseTjeneste, mockHistorikkAdapter());
+        omsorgsvilkarOppdaterer = new OmsorgsvilkårAksjonspunktOppdaterer.OmsorgsvilkårOppdaterer(mockHistorikkAdapter());
     }
 
     private HistorikkTjenesteAdapter mockHistorikkAdapter() {

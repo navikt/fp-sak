@@ -19,6 +19,10 @@ public class AvklartDataAdopsjonDto extends FamiliehendelseDto implements Omsorg
     @Size(max = 9)
     private Map<Integer, LocalDate> adopsjonFodelsedatoer;
 
+    @Valid
+    @Size(max = 9)
+    private Map<Integer, LocalDate> fødselsdatoer;
+
     public AvklartDataAdopsjonDto() {
         super(SøknadType.ADOPSJON);
     }
@@ -62,5 +66,13 @@ public class AvklartDataAdopsjonDto extends FamiliehendelseDto implements Omsorg
 
     void setAnkomstNorge(LocalDate ankomstNorge) {
         this.ankomstNorge = ankomstNorge;
+    }
+
+    public Map<Integer, LocalDate> getFødselsdatoer() {
+        return fødselsdatoer;
+    }
+
+    public void setFødselsdatoer(Map<Integer, LocalDate> fødselsdatoer) {
+        this.fødselsdatoer = fødselsdatoer;
     }
 }

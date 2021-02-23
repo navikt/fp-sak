@@ -56,17 +56,19 @@ public class FamiliehendelseDataDtoTjeneste {
 
     private static FamiliehendelseDto lagOmsorgDto(FamilieHendelseEntitet hendelse) {
         AvklartDataOmsorgDto dto = new AvklartDataOmsorgDto(SøknadType.fra(hendelse));
-        mapOmsorg(hendelse, dto);
-        dto.setAntallBarnTilBeregning(hendelse.getAntallBarn());
+        Map<Integer, LocalDate> fødselsdatoer = tilFødselsMap(hendelse);
+        mapOmsorg(hendelse, dto, fødselsdatoer);
 
         return dto;
     }
 
-    private static void mapOmsorg(FamilieHendelseEntitet hendelse, AvklartDataOmsorgDto dto) {
+    private static void mapOmsorg(FamilieHendelseEntitet hendelse, AvklartDataOmsorgDto dto, Map<Integer, LocalDate> fødselsdatoer) {
         hendelse.getAdopsjon().ifPresent(adopsjon -> {
             dto.setOmsorgsovertakelseDato(adopsjon.getOmsorgsovertakelseDato());
             dto.setForeldreansvarDato(adopsjon.getForeldreansvarDato());
             dto.setVilkarType(adopsjon.getOmsorgovertakelseVilkår());
+            dto.setFødselsdatoer(fødselsdatoer);
+            dto.setAntallBarnTilBeregning(hendelse.getAntallBarn());
         });
     }
 
@@ -86,6 +88,7 @@ public class FamiliehendelseDataDtoTjeneste {
             dto.setOmsorgsovertakelseDato(adopsjon.getOmsorgsovertakelseDato());
             dto.setAnkomstNorge(adopsjon.getAnkomstNorgeDato());
             dto.setAdopsjonFodelsedatoer(fødselsdatoer);
+            dto.setFødselsdatoer(fødselsdatoer);
         });
     }
 
@@ -172,22 +175,13 @@ public class FamiliehendelseDataDtoTjeneste {
     private static Optional<FamiliehendelseDto> lagAdopsjonDto(FamilieHendelseGrunnlagEntitet grunnlag) {
         AvklartDataAdopsjonDto dto = new AvklartDataAdopsjonDto();
 
-        Optional<FamilieHendelseEntitet> gjeldendeBekreftetVersjon = grunnlag.getGjeldendeBekreftetVersjon();
-        if (gjeldendeBekreftetVersjon.isPresent()) {
-            FamilieHendelseEntitet bekreftet = gjeldendeBekreftetVersjon.get();
-            Map<Integer, LocalDate> fødselsdatoer = tilFødselsMap(bekreftet);
-
-            mapAdopsjon(bekreftet, dto, fødselsdatoer);
-        }
+        grunnlag.getGjeldendeBekreftetVersjon().ifPresent(bekreftet -> mapAdopsjon(bekreftet, dto, tilFødselsMap(bekreftet)));
         return Optional.of(dto);
     }
 
     private static Optional<FamiliehendelseDto> lagOmsorgDto(FamilieHendelseGrunnlagEntitet grunnlag) {
         AvklartDataOmsorgDto dto = new AvklartDataOmsorgDto(SøknadType.fra(grunnlag.getGjeldendeVersjon()));
-        grunnlag.getGjeldendeBekreftetVersjon().ifPresent(hendelse -> {
-            mapOmsorg(hendelse, dto);
-            dto.setAntallBarnTilBeregning(hendelse.getAntallBarn());
-        });
+        grunnlag.getGjeldendeBekreftetVersjon().ifPresent(bekreftet -> mapOmsorg(bekreftet, dto, tilFødselsMap(bekreftet)));
         return Optional.of(dto);
     }
 }

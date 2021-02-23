@@ -32,12 +32,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndr
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat.Builder;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.domene.personopplysning.AvklarOmsorgOgForeldreansvarAksjonspunktData;
-import no.nav.foreldrepenger.domene.personopplysning.AvklartDataBarnAdapter;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto;
 import no.nav.foreldrepenger.familiehendelse.omsorg.OmsorghendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.omsorg.OmsorgsvilkårKonfigurasjon;
@@ -108,7 +105,7 @@ public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppda
         AksjonspunktDefinisjon aksjonspunktDefinisjon = AksjonspunktDefinisjon.fraKode(dto.getKode());
 
         final AvklarOmsorgOgForeldreansvarAksjonspunktData data = new AvklarOmsorgOgForeldreansvarAksjonspunktData(dto.getVilkårType().getKode(),
-            aksjonspunktDefinisjon, dto.getOmsorgsovertakelseDato(), dto.getAntallBarn(), barnAdapter);
+            aksjonspunktDefinisjon, dto.getOmsorgsovertakelseDato(), dto.getAntallBarn(), barnAdapter, dto.getFødselsdatoer());
 
         omsorghendelseTjeneste.aksjonspunktAvklarOmsorgOgForeldreansvar(behandling, data, builder);
     }
@@ -200,6 +197,11 @@ public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppda
     }
 
     private List<UidentifisertBarn> getOppdaterteBarn(AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto dto) {
+        if (dto.getFødselsdatoer() != null && !dto.getFødselsdatoer().isEmpty()) {
+            return dto.getFødselsdatoer().entrySet().stream()
+                .map(entry -> new UidentifisertBarnEntitet(entry.getValue(), entry.getKey()))
+                .collect(Collectors.toList());
+        }
         List<AvklartDataBarnDto> barna = dto.getBarn();
         if (barna != null) {
             return barna.stream()
@@ -224,14 +226,7 @@ public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppda
         // Endrede
         for (UidentifisertBarn opprinnelig : orginalBarn) {
             Optional<UidentifisertBarn> endret = oppdaterteBarn.stream()
-                .filter(oppdatert -> opprinnelig.getBarnNummer() != null && oppdatert.getBarnNummer() != null) // Kan
-                // bare
-                // spore
-                // endringer
-                // på
-                // barn
-                // med
-                // nummer
+                .filter(oppdatert -> opprinnelig.getBarnNummer() != null && oppdatert.getBarnNummer() != null) // Kan bare spore endringer på barn med nummer
                 .filter(oppdatert -> opprinnelig.getBarnNummer().equals(oppdatert.getBarnNummer()))
                 .filter(oppdatert -> !opprinnelig.getFødselsdato().equals(oppdatert.getFødselsdato()))
                 .findFirst();

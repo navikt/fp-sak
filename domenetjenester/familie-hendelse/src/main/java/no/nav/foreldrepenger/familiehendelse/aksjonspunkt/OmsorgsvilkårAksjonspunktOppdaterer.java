@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
+import java.util.Objects;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -10,18 +12,18 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat.Builder;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.Foreldreansvarsvilkår1AksjonspunktDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.Foreldreansvarsvilkår2AksjonspunktDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.OmsorgsvilkårAksjonspunktDto;
-import no.nav.foreldrepenger.familiehendelse.omsorg.OmsorghendelseTjeneste;
+import no.nav.foreldrepenger.familiehendelse.omsorg.OmsorgsvilkårKonfigurasjon;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 /**
@@ -31,14 +33,12 @@ public abstract class OmsorgsvilkårAksjonspunktOppdaterer implements Aksjonspun
 
     private VilkårType vilkårType;
     private HistorikkTjenesteAdapter historikkAdapter;
-    private OmsorghendelseTjeneste omsorghendelseTjeneste;
 
     protected OmsorgsvilkårAksjonspunktOppdaterer() {
         // for CDI proxy
     }
 
-    public OmsorgsvilkårAksjonspunktOppdaterer(OmsorghendelseTjeneste omsorghendelseTjeneste, HistorikkTjenesteAdapter historikkAdapter, VilkårType vilkårType) {
-        this.omsorghendelseTjeneste = omsorghendelseTjeneste;
+    public OmsorgsvilkårAksjonspunktOppdaterer(HistorikkTjenesteAdapter historikkAdapter, VilkårType vilkårType) {
         this.historikkAdapter = historikkAdapter;
         this.vilkårType = vilkårType;
     }
@@ -56,7 +56,11 @@ public abstract class OmsorgsvilkårAksjonspunktOppdaterer implements Aksjonspun
             .medSkjermlenke(skjermlenkeType);
 
         // Rydd opp gjenopprettede aksjonspunkt på andre omsorgsvilkår ved eventuelt tilbakehopp
-        omsorghendelseTjeneste.aksjonspunktOmsorgsvilkår(behandling, aksjonspunktDefinisjon, resultatBuilder);
+        behandling.getAksjonspunkter().stream()
+            .filter(ap -> OmsorgsvilkårKonfigurasjon.getOmsorgsovertakelseAksjonspunkter().contains(ap.getAksjonspunktDefinisjon()))
+            .filter(ap -> !Objects.equals(ap.getAksjonspunktDefinisjon(), aksjonspunktDefinisjon)) // ikke sett seg selv til avbrutt
+            .filter(Aksjonspunkt::erOpprettet)
+            .forEach(ap -> resultatBuilder.medEkstraAksjonspunktResultat(ap.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
 
         if (dto.getErVilkarOk()) {
             resultatBuilder.leggTilVilkårResultat(vilkårType, VilkårUtfallType.OPPFYLT);
@@ -79,9 +83,8 @@ public abstract class OmsorgsvilkårAksjonspunktOppdaterer implements Aksjonspun
         }
 
         @Inject
-        public Foreldreansvarsvilkår1Oppdaterer(OmsorghendelseTjeneste omsorghendelseTjeneste,
-                                                HistorikkTjenesteAdapter historikkAdapter) {
-            super(omsorghendelseTjeneste, historikkAdapter, VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD);
+        public Foreldreansvarsvilkår1Oppdaterer(HistorikkTjenesteAdapter historikkAdapter) {
+            super(historikkAdapter, VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD);
         }
 
         @Override
@@ -100,9 +103,8 @@ public abstract class OmsorgsvilkårAksjonspunktOppdaterer implements Aksjonspun
         }
 
         @Inject
-        public Foreldreansvarsvilkår2Oppdaterer(OmsorghendelseTjeneste omsorghendelseTjeneste,
-                                                HistorikkTjenesteAdapter historikkAdapter) {
-            super(omsorghendelseTjeneste, historikkAdapter, VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD);
+        public Foreldreansvarsvilkår2Oppdaterer(HistorikkTjenesteAdapter historikkAdapter) {
+            super(historikkAdapter, VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD);
         }
 
         @Override
@@ -120,8 +122,8 @@ public abstract class OmsorgsvilkårAksjonspunktOppdaterer implements Aksjonspun
         }
 
         @Inject
-        public OmsorgsvilkårOppdaterer(OmsorghendelseTjeneste omsorghendelseTjeneste, HistorikkTjenesteAdapter historikkAdapter) {
-            super(omsorghendelseTjeneste, historikkAdapter, VilkårType.OMSORGSVILKÅRET);
+        public OmsorgsvilkårOppdaterer(HistorikkTjenesteAdapter historikkAdapter) {
+            super(historikkAdapter, VilkårType.OMSORGSVILKÅRET);
         }
 
         @Override

@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class PersonoversiktDto {
 
@@ -37,10 +36,4 @@ public class PersonoversiktDto {
         this.barn.add(barn);
     }
 
-    public List<PersonopplysningBasisDto> getPersoner() {
-        var alle = new ArrayList<>(List.of(bruker));
-        Optional.ofNullable(annenPart).ifPresent(alle::add);
-        alle.addAll(barn);
-        return alle;
-    }
 }

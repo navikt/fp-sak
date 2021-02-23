@@ -13,9 +13,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.domene.personopplysning.AvklarForeldreansvarAksjonspunktData;
-import no.nav.foreldrepenger.domene.personopplysning.AvklartDataBarnAdapter;
-import no.nav.foreldrepenger.domene.personopplysning.AvklartDataForeldreAdapter;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.AvklarFaktaForForeldreansvarAksjonspunktDto;
 import no.nav.foreldrepenger.familiehendelse.omsorg.OmsorghendelseTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
@@ -59,9 +56,6 @@ public class AvklarForeldreansvarOppdaterer implements AksjonspunktOppdaterer<Av
     }
 
     private void oppdaterAksjonspunktGrunnlag(AvklarFaktaForForeldreansvarAksjonspunktDto dto, Behandling behandling) {
-        List<AvklartDataForeldreAdapter> foreldreAdapter = new ArrayList<>();
-        dto.getForeldre().forEach(foreldre ->
-            foreldreAdapter.add(new AvklartDataForeldreAdapter(foreldre.getAktorId(), foreldre.getDødsdato())));
 
         List<AvklartDataBarnAdapter> barnAdapter = new ArrayList<>();
         dto.getBarn().forEach(barn ->
@@ -70,7 +64,7 @@ public class AvklarForeldreansvarOppdaterer implements AksjonspunktOppdaterer<Av
         AksjonspunktDefinisjon apDef = AksjonspunktDefinisjon.fraKode(dto.getKode());
 
         final AvklarForeldreansvarAksjonspunktData data = new AvklarForeldreansvarAksjonspunktData(apDef,
-            dto.getOmsorgsovertakelseDato(),dto.getForeldreansvarDato(),dto.getAntallBarn(), foreldreAdapter, barnAdapter);
+            dto.getOmsorgsovertakelseDato(),dto.getForeldreansvarDato(),dto.getAntallBarn(), barnAdapter, dto.getFødselsdatoer());
 
         omsorghendelseTjeneste.aksjonspunktAvklarForeldreansvar(behandling, data);
     }

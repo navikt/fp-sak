@@ -2,7 +2,9 @@ package no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
@@ -36,22 +38,30 @@ public class AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto extends Bekreft
     @ValidKodeverk
     private VilkårType vilkårType;
 
+    @Deprecated
     @JsonProperty("antallBarn")
     @Min(1)
     @Max(9)
     private Integer antallBarn;
 
+    @Deprecated
     @JsonProperty("barn")
     @Valid
     @NotNull
     @Size(max = 9)
     private List<AvklartDataBarnDto> barn = new ArrayList<>();
 
+    @Deprecated
     @JsonProperty("foreldre")
     @Valid
     @NotNull
     @Size(max = 9)
     private List<AvklartDataForeldreDto> foreldre = new ArrayList<>();
+
+    @JsonProperty("fødselsdatoer")
+    @Valid
+    @Size(max = 9)
+    private Map<Integer, LocalDate> fødselsdatoer = new HashMap<>();
 
 
     @Override
@@ -93,5 +103,13 @@ public class AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto extends Bekreft
 
     public void setForeldre(List<AvklartDataForeldreDto> foreldre) {
         this.foreldre = foreldre;
+    }
+
+    public Map<Integer, LocalDate> getFødselsdatoer() {
+        return fødselsdatoer;
+    }
+
+    public void setFødselsdatoer(Map<Integer, LocalDate> fødselsdatoer) {
+        this.fødselsdatoer = fødselsdatoer;
     }
 }
