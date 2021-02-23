@@ -54,23 +54,6 @@ public class PersonopplysningDtoPersonIdentTjeneste {
 
     }
 
-    public void oppdaterMedPersonIdent(PersonoversiktDto personoversiktDto) {
-        // memoriser oppslagsfunksjoner - unngår repeterende tjeneste kall eksternt
-        Function<AktørId, Optional<Tuple<PersonIdent, Diskresjonskode>>> piDiskresjonFinder = memoize((aktørId) -> personinfoAdapter.hentPersonIdentMedDiskresjonskode(aktørId));
-
-        // Sett fødselsnummer og diskresjonskodepå personopplysning for alle
-        // behandlinger. Fødselsnummer og diskresjonskode lagres ikke i basen og må derfor hentes fra
-        // TPS/IdentRepository// for å vises i GUI.
-        if (personoversiktDto != null) {
-            personoversiktDto.getPersoner().values().stream()
-                .filter(e -> e.getAktoerId() != null)
-                .forEach(dto -> {
-                    dto.setDiskresjonskode(findKode(dto.getAktoerId(), piDiskresjonFinder));
-                    dto.setFnr(findFnr(dto.getAktoerId(), piDiskresjonFinder));
-                });
-        }
-    }
-
     void setFnrPaPersonopplysning(PersonopplysningDto dto, Function<AktørId, Optional<Tuple<PersonIdent, Diskresjonskode>>> piDiskresjonFinder) {
 
         // Soker

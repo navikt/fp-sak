@@ -1,50 +1,46 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 public class PersonoversiktDto {
 
-    private final Map<String, PersonopplysningBasisDto> personer = new HashMap<>();
-
-    private String brukerId;
-    private String annenpartId;
-    private List<String> barnMedId;
+    private PersonopplysningBasisDto bruker;
+    private PersonopplysningBasisDto annenPart;
+    private List<PersonopplysningBasisDto> barn = new ArrayList<>();
 
     public PersonoversiktDto() {
     }
 
-    public Map<String, PersonopplysningBasisDto> getPersoner() {
-        return personer;
+    public PersonopplysningBasisDto getBruker() {
+        return bruker;
     }
 
-    public void leggTilPerson(String identifikator, PersonopplysningBasisDto dto) {
-        personer.put(identifikator, dto);
+    public void setBruker(PersonopplysningBasisDto bruker) {
+        this.bruker = bruker;
     }
 
-    public String getBrukerId() {
-        return brukerId;
+    public PersonopplysningBasisDto getAnnenPart() {
+        return annenPart;
     }
 
-    public void setBrukerId(String brukerId) {
-        this.brukerId = brukerId;
+    public void setAnnenPart(PersonopplysningBasisDto annenPart) {
+        this.annenPart = annenPart;
     }
 
-    public String getAnnenpartId() {
-        return annenpartId;
+    public List<PersonopplysningBasisDto> getBarn() {
+        return barn;
     }
 
-    public void setAnnenpartId(String annenpartId) {
-        this.annenpartId = annenpartId;
+    public void leggTilBarn(PersonopplysningBasisDto barn) {
+        this.barn.add(barn);
     }
 
-    public List<String> getBarnMedId() {
-        return barnMedId;
+    public List<PersonopplysningBasisDto> getPersoner() {
+        var alle = new ArrayList<>(List.of(bruker));
+        Optional.ofNullable(annenPart).ifPresent(alle::add);
+        alle.addAll(barn);
+        return alle;
     }
-
-    public void setBarnMedId(List<String> barnMedId) {
-        this.barnMedId = barnMedId;
-    }
-
 }

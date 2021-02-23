@@ -171,7 +171,8 @@ public class FagsakTjeneste {
     }
 
     private static PersonDto mapFraPersoninfoBasisTilPersonDto(PersoninfoBasis pi, Språkkode språkkode) {
-        return new PersonDto(StringUtils.formaterMedStoreOgSmåBokstaver(pi.getNavn()),
+        return new PersonDto(pi.getAktørId().getId(),
+            StringUtils.formaterMedStoreOgSmåBokstaver(pi.getNavn()),
             pi.getPersonIdent().getIdent(),
             pi.getKjønn(),
             pi.getPersonstatus(),
