@@ -267,11 +267,8 @@ public class PersonopplysningDtoTjeneste {
     }
 
     private PersonstatusType hentPersonstatus(PersonopplysningEntitet personopplysning, PersonopplysningerAggregat aggregat) {
-        PersonstatusEntitet personstatus = aggregat.getPersonstatusFor(personopplysning.getAktørId());
-        if (personstatus == null) {
-            return PersonstatusType.UDEFINERT;
-        }
-        return personstatus.getPersonstatus();
+        return Optional.ofNullable(aggregat.getPersonstatusFor(personopplysning.getAktørId()))
+            .map(PersonstatusEntitet::getPersonstatus).orElse(PersonstatusType.UDEFINERT);
     }
 
     public Optional<PersonopplysningMedlemDto> lagPersonopplysningMedlemskapDto(Long behandlingId, LocalDate tidspunkt) {
@@ -299,7 +296,7 @@ public class PersonopplysningDtoTjeneste {
         var bruknavn = Optional.ofNullable(oppgittAnnenPart.getUtenlandskPersonident()).orElse(oppgittAnnenPart.getType().getKode());
         dto.setNavn(bruknavn);
         dto.setNavBrukerKjonn(NavBrukerKjønn.UDEFINERT);
-        dto.setPersonstatus(PersonstatusType.UDEFINERT);
+        dto.setPersonstatus(PersonstatusType.UREG);
         dto.setRegion(MapRegionLandkoder.mapLandkode(oppgittAnnenPart.getUtenlandskFnrLand().getKode()));
         return dto;
     }
@@ -310,7 +307,12 @@ public class PersonopplysningDtoTjeneste {
         dto.setNavn(formaterMedStoreOgSmåBokstaver(personopplysning.getNavn()));
         dto.setNavBrukerKjonn(personopplysning.getKjønn());
         Optional.ofNullable(personopplysning.getRegion()).ifPresent(dto::setRegion);
-        dto.setPersonstatus(hentPersonstatus(personopplysning, aggregat));
+        var gjeldendePersonstatus = hentPersonstatus(personopplysning, aggregat);
+        dto.setPersonstatus(gjeldendePersonstatus);
+        final AvklartPersonstatus avklartPersonstatus = new AvklartPersonstatus(aggregat.getOrginalPersonstatusFor(personopplysning.getAktørId())
+            .map(PersonstatusEntitet::getPersonstatus).orElse(gjeldendePersonstatus),
+            gjeldendePersonstatus);
+        dto.setAvklartPersonstatus(avklartPersonstatus);
         dto.setFodselsdato(personopplysning.getFødselsdato());
         dto.setDodsdato(personopplysning.getDødsdato());
         dto.setAdresser(lagAddresseDto(personopplysning, aggregat));
