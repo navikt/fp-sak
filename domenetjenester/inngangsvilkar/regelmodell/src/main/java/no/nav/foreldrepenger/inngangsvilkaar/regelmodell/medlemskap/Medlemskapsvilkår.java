@@ -69,15 +69,19 @@ public class Medlemskapsvilkår implements RuleService<MedlemskapsvilkårGrunnla
                 .hvis(new SjekkOmBrukerHarArbeidsforholdOgInntekt(), new Oppfylt())
                 .ellers(new IkkeOppfylt(SjekkOmBrukerHarArbeidsforholdOgInntekt.IKKE_OPPFYLT_IKKE_BOSATT));
 
-        Specification<MedlemskapsvilkårGrunnlag> sjekkOmBrukHarArbeidsforholdOgInntektVedStatusUtvandretNode =
-            rs.hvisRegel(SjekkOmBrukerHarArbeidsforholdOgInntekt.ID, "Har bruker minst ett aktivt arbeidsforhold med inntekt i relevant periode")
-                .hvis(new SjekkOmBrukerHarArbeidsforholdOgInntekt(), new Oppfylt())
-                .ellers(new IkkeOppfylt(SjekkBrukerErAvklartSomBosattEllerDød.IKKE_OPPFYLT_BRUKER_ER_UTVANDRET));
-
         Specification<MedlemskapsvilkårGrunnlag> brukerAvklartSomIkkeBosattNode =
             rs.hvisRegel(SjekkBrukerErAvklartSomIkkeBosatt.ID, "Hvis ikke bruker er avklart som ikke bosatt")
                 .hvisIkke(new SjekkBrukerErAvklartSomIkkeBosatt(), brukerAvklartNordiskStatsborgerNode)
                 .ellers(sjekkOmBrukHarArbeidsforholdOgInntektVedStatusIkkeBosattNode);
+
+        /*
+         * Utgått: Regel FP_VK_2.1 er ikke lenger i bruk. Dvs brukerRegistrertSomBosattNode
+         * Andre personstatuser enn bosatt + død vil alltid gi aksjonspunkt for avklaring om bosatt -> behandles i FP_VK_2.x
+         */
+        Specification<MedlemskapsvilkårGrunnlag> sjekkOmBrukHarArbeidsforholdOgInntektVedStatusUtvandretNode =
+            rs.hvisRegel(SjekkOmBrukerHarArbeidsforholdOgInntekt.ID, "Har bruker minst ett aktivt arbeidsforhold med inntekt i relevant periode")
+                .hvis(new SjekkOmBrukerHarArbeidsforholdOgInntekt(), new Oppfylt())
+                .ellers(new IkkeOppfylt(SjekkBrukerErAvklartSomBosattEllerDød.IKKE_OPPFYLT_BRUKER_ER_UTVANDRET));
 
         Specification<MedlemskapsvilkårGrunnlag> brukerRegistrertSomBosattNode =
             rs.hvisRegel(SjekkBrukerErAvklartSomBosattEllerDød.ID, "Hvis bruker er avklart som bosatt eller død ...")
@@ -86,7 +90,7 @@ public class Medlemskapsvilkår implements RuleService<MedlemskapsvilkårGrunnla
 
         Specification<MedlemskapsvilkårGrunnlag> brukerPliktigEllerFrivilligMedlemNode =
             rs.hvisRegel(SjekkBrukerErAvklartSomPliktigEllerFrivilligMedlem.ID, "Hvis bruker ikke er avklart som pliktig eller frivillig medlem ...")
-                .hvisIkke(new SjekkBrukerErAvklartSomPliktigEllerFrivilligMedlem(), brukerRegistrertSomBosattNode)
+                .hvisIkke(new SjekkBrukerErAvklartSomPliktigEllerFrivilligMedlem(), brukerAvklartSomIkkeBosattNode)
                 .ellers(new Oppfylt());
 
         return rs.hvisRegel(SjekkBrukerErAvklartSomIkkeMedlem.ID, "Hvis ikke bruker er avklart som ikke medlem ...")

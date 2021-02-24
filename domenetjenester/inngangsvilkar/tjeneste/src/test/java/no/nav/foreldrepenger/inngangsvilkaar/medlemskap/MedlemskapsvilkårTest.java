@@ -176,13 +176,13 @@ public class MedlemskapsvilkårTest {
      * registrert som utvandret (FP VK 2.1) = JA - bruker har relevant
      * arbeidsforhold og inntekt som dekker skjæringstidspunkt (FP_VK_2.2.1) = NEI
      * <p>
-     * Forventet: Ikke oppfylt, avslagsid 1021
+     * Forventet: Ikke oppfylt, avslagsid 1025
      */
     @Test
     public void skal_vurdere_utvandret_som_vilkår_ikke_oppfylt_ingen_relevant_arbeid_og_inntekt() {
         // Arrange
         var scenario = lagTestScenario(MedlemskapDekningType.UNNTATT, Landkoder.NOR, PersonstatusType.UTVA);
-        scenario.medMedlemskap().medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.IKKE_RELEVANT);
+        scenario.medMedlemskap().medBosattVurdering(false).medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.IKKE_RELEVANT);
         Behandling behandling = lagre(scenario);
 
         // Act
@@ -191,7 +191,7 @@ public class MedlemskapsvilkårTest {
         // Assert
         assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
         assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
-        assertThat(vilkårData.getVilkårUtfallMerknad()).isEqualTo(VilkårUtfallMerknad.VM_1021);
+        assertThat(vilkårData.getVilkårUtfallMerknad()).isEqualTo(VilkårUtfallMerknad.VM_1025);
     }
 
     /**
@@ -200,7 +200,7 @@ public class MedlemskapsvilkårTest {
      * registrert som utvandret (FP VK 2.1) = JA - bruker har relevant
      * arbeidsforhold og inntekt som dekker skjæringstidspunkt (FP_VK_2.2.1) = JA
      * <p>
-     * Forventet: Ikke oppfylt, avslagsid 1021
+     * Forventet: oppfylt
      */
     @Test
     public void skal_vurdere_utvandret_som_vilkår_oppfylt_når_relevant_arbeid_og_inntekt_finnes() {
@@ -412,12 +412,11 @@ public class MedlemskapsvilkårTest {
      * (FP_VK_2.2.1) = NEI
      */
     @Test
-    public void skal_få_medlemskapsvilkåret_satt_til_ikke_oppfylt_når_saksbehandler_setter_personstatus_til_utvandert_og_ingen_relevant_arbeid_og_inntekt() {
+    public void skal_få_medlemskapsvilkåret_satt_til_ikke_oppfylt_når_saksbehandler_har_avklar_som_ikke_bosatt_og_ingen_relevant_arbeid_og_inntekt() {
         // Arrange
 
         var scenario = lagTestScenario(MedlemskapDekningType.FTL_2_9_1_c, Landkoder.NOR, PersonstatusType.UREG);
-        scenario.medMedlemskap().medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.IKKE_RELEVANT);
-
+        scenario.medMedlemskap().medBosattVurdering(false).medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.IKKE_RELEVANT);
         leggTilSøker(scenario, PersonstatusType.UREG, Region.NORDEN, Landkoder.SWE);
 
         Behandling behandling = lagre(scenario);
@@ -437,7 +436,7 @@ public class MedlemskapsvilkårTest {
         // Assert
         assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
         assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
-        assertThat(vilkårData.getVilkårUtfallMerknad()).isEqualTo(VilkårUtfallMerknad.VM_1021);
+        assertThat(vilkårData.getVilkårUtfallMerknad()).isEqualTo(VilkårUtfallMerknad.VM_1025);
     }
 
     /**

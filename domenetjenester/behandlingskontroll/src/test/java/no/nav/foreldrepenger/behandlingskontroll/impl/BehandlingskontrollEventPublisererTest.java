@@ -195,7 +195,7 @@ public class BehandlingskontrollEventPublisererTest {
         AksjonspunktDefinisjon a0_0 = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
         AksjonspunktDefinisjon a0_1 = AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL;
         AksjonspunktDefinisjon a1_0 = AksjonspunktDefinisjon.AVKLAR_ADOPSJONSDOKUMENTAJON;
-        AksjonspunktDefinisjon a1_1 = AksjonspunktDefinisjon.AVKLAR_FAKTA_FOR_PERSONSTATUS;
+        AksjonspunktDefinisjon a1_1 = AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD;
         AksjonspunktDefinisjon a2_0 = AksjonspunktDefinisjon.AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE;
         AksjonspunktDefinisjon a2_1 = AksjonspunktDefinisjon.AVKLAR_TILLEGGSOPPLYSNINGER;
 
