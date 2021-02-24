@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
@@ -142,9 +143,14 @@ public class FagsakTjeneste {
             .or(() -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
                 .flatMap(b -> personopplysningTjeneste.hentOppgittAnnenPartAktørId(b.getId())))
             .flatMap(personinfoAdapter::hentBrukerBasisForAktør)
-            .map(FagsakTjeneste::mapFraPersoninfoBasisTilPersonDto);
+            .map(FagsakTjeneste::mapFraPersoninfoBasisTilPersonDto)
+            .orElseGet(() -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
+                .flatMap(b -> personopplysningTjeneste.hentOppgittAnnenPart(b.getId()))
+                .filter(ap -> ap.getAktørId() == null && ap.getUtenlandskFnrLand() != null && !Landkoder.UDEFINERT.equals(ap.getUtenlandskFnrLand()))
+                .map(ap -> new PersonDto(null, null, null, null, null, null, null, null, null))
+                .orElse(null));
         var fh = hentFamilieHendelse(fagsak);
-        return Optional.of(new SakPersonerDto(bruker, annenPart.orElse(null), fh.orElse(null)));
+        return Optional.of(new SakPersonerDto(bruker, annenPart, fh.orElse(null)));
     }
 
     public Optional<AktoerInfoDto> lagAktoerInfoDto(AktørId aktørId) {
@@ -208,7 +214,7 @@ public class FagsakTjeneste {
         return behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
             .flatMap(b -> familieHendelseTjeneste.finnAggregat(b.getId()))
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-            .map(h -> new SakHendelseDto(h.getType(), h.getSkjæringstidspunkt(), h.getAntallBarn()));
+            .map(h -> new SakHendelseDto(h.getType(), h.getSkjæringstidspunkt(), h.getAntallBarn(), h.getBarna().stream().allMatch(b -> b.getDødsdato().isPresent())));
     }
 
     private static List<ResourceLink> lagLenker(Fagsak fagsak) {

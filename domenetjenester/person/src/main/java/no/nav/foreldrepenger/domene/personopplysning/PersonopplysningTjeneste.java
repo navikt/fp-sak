@@ -62,4 +62,9 @@ public class PersonopplysningTjeneste extends AbstractPersonopplysningTjenesteIm
         return getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(behandlingId)
             .flatMap(PersonopplysningGrunnlagEntitet::getOppgittAnnenPart).map(OppgittAnnenPartEntitet::getAktørId);
     }
+
+    public Optional<OppgittAnnenPartEntitet> hentOppgittAnnenPart(Long behandlingId) {
+        return getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(behandlingId)
+            .flatMap(PersonopplysningGrunnlagEntitet::getOppgittAnnenPart);
+    }
 }
