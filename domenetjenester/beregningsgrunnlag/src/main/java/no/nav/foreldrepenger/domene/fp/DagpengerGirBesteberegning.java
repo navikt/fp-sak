@@ -6,6 +6,7 @@ import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
 import no.nav.foreldrepenger.domene.iay.modell.Ytelse;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.Arbeidskategori;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
@@ -24,7 +25,7 @@ public class DagpengerGirBesteberegning {
      * False om dette ikke finnes.
      */
     public static boolean harDagpengerPåEllerIntillSkjæringstidspunkt(OpptjeningAktiviteter aktiviteter, Collection<Ytelse> ytelser, LocalDate skjæringstidspunkt) {
-        LocalDate datoSomMåHaDagpenger = skjæringstidspunkt.minusDays(1);
+        LocalDate datoSomMåHaDagpenger = finnDatoSomSkalSjekkesForDPEllerSP(skjæringstidspunkt);
         return harDagpengerPåEllerOppTilSkjæringstidspunktet(aktiviteter, datoSomMåHaDagpenger)
             || harSykepengerMedOvergangFraDagpengerPåEllerOppTilSkjæringstidspunktet(ytelser, datoSomMåHaDagpenger);
 
@@ -46,4 +47,14 @@ public class DagpengerGirBesteberegning {
             .anyMatch(aktivitet -> aktivitet.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.DAGPENGER));
     }
 
+    private static LocalDate finnDatoSomSkalSjekkesForDPEllerSP(LocalDate skjæringstidspunkt) {
+        LocalDate datoFørStp = skjæringstidspunkt.minusDays(1);
+        if (datoFørStp.getDayOfWeek().equals(DayOfWeek.SATURDAY)) {
+            return datoFørStp.minusDays(1);
+        } else if (datoFørStp.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
+            return datoFørStp.minusDays(2);
+        }
+        return datoFørStp;
+
+    }
 }
