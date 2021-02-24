@@ -24,8 +24,8 @@ public class TapendeBehandlingTjeneste {
 
     @Inject
     public TapendeBehandlingTjeneste(SøknadRepository søknadRepository,
-            RelatertBehandlingTjeneste relatertBehandlingTjeneste,
-            ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste) {
+                                     RelatertBehandlingTjeneste relatertBehandlingTjeneste,
+                                     ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste) {
         this.søknadRepository = søknadRepository;
         this.relatertBehandlingTjeneste = relatertBehandlingTjeneste;
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
@@ -42,7 +42,8 @@ public class TapendeBehandlingTjeneste {
         if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_OPPLYSNINGER_OM_FORDELING)) {
             return false;
         }
-        var annenpartBehandling = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattBehandling(behandling.getFagsak().getSaksnummer());
+        var annenpartBehandling = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattBehandling(
+            behandling.getFagsak().getSaksnummer());
         if (annenpartBehandling.isEmpty() || !harUttak(annenpartBehandling.get())) {
             return false;
         }
@@ -53,17 +54,26 @@ public class TapendeBehandlingTjeneste {
         return foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(annenpartBehandling.getId()).isPresent();
     }
 
-    private boolean annenpartSøknadMottattEtterSøkersSøknad(Behandling søkersBehandling, Behandling annenpartBehandling) {
+    private boolean annenpartSøknadMottattEtterSøkersSøknad(Behandling søkersBehandling,
+                                                            Behandling annenpartBehandling) {
         var nyesteSøkersSøknad = søknadRepository.hentSøknad(søkersBehandling.getId());
         var nyesteAnnenpartSøknad = søknadRepository.hentSøknad(annenpartBehandling.getId());
-        if ((nyesteSøkersSøknad == null) || (nyesteAnnenpartSøknad == null)) {
-            LOG.info("Behandling {} mangler søknad", nyesteSøkersSøknad == null ? søkersBehandling.getId() : annenpartBehandling.getId());
+        if (nyesteAnnenpartSøknad == null) {
+            logManglerSøknad(annenpartBehandling);
+            return false;
+        }
+        if (nyesteSøkersSøknad == null) {
+            logManglerSøknad(søkersBehandling);
             return false;
         }
         if (mottattSammeDag(nyesteSøkersSøknad, nyesteAnnenpartSøknad)) {
             return nyesteAnnenpartSøknad.getOpprettetTidspunkt().isAfter(nyesteSøkersSøknad.getOpprettetTidspunkt());
         }
         return nyesteAnnenpartSøknad.getMottattDato().isAfter(nyesteSøkersSøknad.getMottattDato());
+    }
+
+    private void logManglerSøknad(Behandling behandling) {
+        LOG.info("Behandling {} mangler søknad", behandling.getId());
     }
 
     private boolean mottattSammeDag(SøknadEntitet nyesteSøkersSøknad, SøknadEntitet nyesteAnnenpartSøknad) {
