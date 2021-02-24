@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.BeregningsgrunnlagKopierOgLagreTjeneste;
+import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
 
 @FagsakYtelseTypeRef("*")
 @BehandlingStegRef(kode = "FORDEL_BERGRUNN")

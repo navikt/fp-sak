@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK;
+package no.nav.foreldrepenger.domene.prosess;
 
 import static no.nav.vedtak.konfig.Tid.TIDENES_ENDE;
 import static org.assertj.core.api.Assertions.assertThat;

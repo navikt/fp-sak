@@ -51,7 +51,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntit
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
+import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;

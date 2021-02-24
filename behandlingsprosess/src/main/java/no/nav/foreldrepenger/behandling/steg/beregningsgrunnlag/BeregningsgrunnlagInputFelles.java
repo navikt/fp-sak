@@ -16,7 +16,7 @@ import no.nav.folketrygdloven.kalkulator.modell.iay.InntektsmeldingDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.KalkulusKonfigInjecter;
+import no.nav.foreldrepenger.domene.prosess.KalkulusKonfigInjecter;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulus.IAYMapperTilKalkulus;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulus.MapBehandlingRef;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulus.OpptjeningMapperTilKalkulus;

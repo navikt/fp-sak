@@ -13,7 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
-import no.nav.foreldrepenger.domene.MÅ_LIGGE_HOS_FPSAK.HentOgLagreBeregningsgrunnlagTjeneste;
+import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagAndelDto;
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagDto;
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagPeriodeDto;
