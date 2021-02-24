@@ -76,24 +76,23 @@ public class YtelseSøknadMapper implements SøknadMapper {
     private static void mapTilTilrettelegging(SvpTilretteleggingDto svpTilretteleggingDto, Tilrettelegging tilrettelegging) {
         var tilretteleggingType = svpTilretteleggingDto.getTilretteleggingType();
         switch (tilretteleggingType) {
-            case HEL_TILRETTELEGGING:
+            case HEL_TILRETTELEGGING -> {
                 var helTilrettelegging = new HelTilrettelegging();
                 helTilrettelegging.setTilrettelagtArbeidFom(svpTilretteleggingDto.getDato());
                 tilrettelegging.getHelTilrettelegging().add(helTilrettelegging);
-                break;
-            case DELVIS_TILRETTELEGGING:
+            }
+            case DELVIS_TILRETTELEGGING -> {
                 var delvisTilrettelegging = new DelvisTilrettelegging();
                 delvisTilrettelegging.setStillingsprosent(svpTilretteleggingDto.getStillingsprosent());
                 delvisTilrettelegging.setTilrettelagtArbeidFom(svpTilretteleggingDto.getDato());
                 tilrettelegging.getDelvisTilrettelegging().add(delvisTilrettelegging);
-                break;
-            case INGEN_TILRETTELEGGING:
+            }
+            case INGEN_TILRETTELEGGING -> {
                 var ingenTilretelegging = new IngenTilrettelegging();
                 ingenTilretelegging.setSlutteArbeidFom(svpTilretteleggingDto.getDato());
                 tilrettelegging.getIngenTilrettelegging().add(ingenTilretelegging);
-                break;
-            default:
-                throw new UnsupportedOperationException("Uteglemt enum valg :" + tilretteleggingType);
+            }
+            default -> throw new UnsupportedOperationException("Uteglemt enum valg :" + tilretteleggingType);
         }
     }
 

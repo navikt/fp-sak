@@ -60,51 +60,34 @@ public final class TextFormater {
     }
 
     private static String typeString(Collector.Type t) {
-        switch (t) {
-            case GAUGE:
-                return "gauge";
-            case COUNTER:
-                return "counter";
-            case SUMMARY:
-                return "summary";
-            case HISTOGRAM:
-                return "histogram";
-            default:
-                return "untyped";
-        }
+        return switch (t) {
+            case GAUGE -> "gauge";
+            case COUNTER -> "counter";
+            case SUMMARY -> "summary";
+            case HISTOGRAM -> "histogram";
+            default -> "untyped";
+        };
     }
 
     private static void writeEscapedHelp(Writer writer, String s) throws IOException {
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
             switch (c) {
-                case '\\':
-                    writer.append("\\\\");
-                    break;
-                case '\n':
-                    writer.append("\\n");
-                    break;
-                default:
-                    writer.append(c);
+                case '\\' -> writer.append("\\\\");
+                case '\n' -> writer.append("\\n");
+                default -> writer.append(c);
             }
         }
     }
-    
+
     private static void writeEscapedLabelValue(Writer writer, String s) throws IOException {
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
             switch (c) {
-                case '\\':
-                    writer.append("\\\\");
-                    break;
-                case '\"':
-                    writer.append("\\\"");
-                    break;
-                case '\n':
-                    writer.append("\\n");
-                    break;
-                default:
-                    writer.append(c);
+                case '\\' -> writer.append("\\\\");
+                case '\"' -> writer.append("\\\"");
+                case '\n' -> writer.append("\\n");
+                default -> writer.append(c);
             }
         }
     }
