@@ -9,9 +9,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
@@ -23,7 +21,6 @@ import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollManager;
 import no.nav.foreldrepenger.økonomistøtte.Oppdragsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.TidligereOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.VurderFeriepengerBeregning;
-import no.nav.foreldrepenger.økonomistøtte.dagytelse.adapter.BehandlingTilOppdragMapperTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragInput;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdrag110.KodeFagområdeTjenesteProvider;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdrag110.OpprettOppdrag110Tjeneste;
@@ -265,7 +262,9 @@ public class OppdragskontrollOpphør implements OppdragskontrollManager {
             .medOppdrag110(oppdrag110);
 
         if (!gjelderFeriepenger) {
-            int grad = Optional.ofNullable(forrigeOppdr150.getUtbetalingsgrad()).map(Utbetalingsgrad::getVerdi).orElse(100);
+            // Hvis det blir null-pointer her så skyldes det antagelig noe uheldig patching av en sak med neg kvittering.
+            // Remediet er å sette til 100 dersom grad er null - men vi vil gjerne feile hvis TFP-4086 gjenoppstår
+            var grad = forrigeOppdr150.getUtbetalingsgrad().getVerdi();
             oppdragslinje150Builder.medUtbetalingsgrad(Utbetalingsgrad.prosent(grad));
         }
         return oppdragslinje150Builder.build();
