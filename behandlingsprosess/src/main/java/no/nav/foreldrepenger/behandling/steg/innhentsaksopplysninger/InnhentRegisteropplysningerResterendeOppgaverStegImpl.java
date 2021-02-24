@@ -5,6 +5,7 @@ import static java.util.Collections.singletonList;
 import static no.nav.foreldrepenger.behandling.steg.kompletthet.VurderKompletthetStegFelles.autopunktAlleredeUtført;
 import static no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat.opprettForAksjonspunkt;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AUTO_VENT_ETTERLYST_INNTEKTSMELDING;
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AVKLAR_VERGE;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -100,28 +101,8 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
         enhetTjeneste.sjekkEnhetEtterEndring(behandling)
                 .ifPresent(e -> enhetTjeneste.oppdaterBehandlendeEnhet(behandling, e, HistorikkAktør.VEDTAKSLØSNINGEN, "Personopplysning"));
 
-        return BehandleStegResultat.utførtMedAksjonspunkter(sjekkPersonstatus(ref));
+        return erSøkerUnder18ar(ref) ? BehandleStegResultat.utførtMedAksjonspunkter(List.of(AVKLAR_VERGE)) : BehandleStegResultat.utførtUtenAksjonspunkter();
 
-    }
-
-    // TODO(OJR) flytte denne til egen utleder?
-    private List<AksjonspunktDefinisjon> sjekkPersonstatus(BehandlingReferanse ref) {
-        List<PersonstatusType> liste = asList(PersonstatusType.BOSA, PersonstatusType.DØD, PersonstatusType.UTVA, PersonstatusType.ADNR);
-
-        PersonopplysningerAggregat personopplysninger = personopplysningTjeneste.hentPersonopplysninger(ref);
-
-        List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner = new ArrayList<>();
-        for (PersonstatusEntitet personstatus : personopplysninger.getPersonstatuserFor(ref.getAktørId())) {
-            if (!liste.contains(personstatus.getPersonstatus())) {
-                aksjonspunktDefinisjoner.add(AksjonspunktDefinisjon.AVKLAR_FAKTA_FOR_PERSONSTATUS);
-                break; // Trenger ikke loope mer når vi får aksjonspunkt
-            }
-        }
-
-        if (erSøkerUnder18ar(ref)) {
-            aksjonspunktDefinisjoner.add(AksjonspunktDefinisjon.AVKLAR_VERGE);
-        }
-        return aksjonspunktDefinisjoner;
     }
 
     private boolean erSøkerUnder18ar(BehandlingReferanse ref) {

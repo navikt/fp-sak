@@ -138,11 +138,11 @@ public class AksjonspunktTjenesteTest {
     @Test
     public void skal_sette_totrinn_når_revurdering_ap_medfører_endring_i_grunnlag() {
         // Arrange
-        Behandling førstegangsbehandling = opprettFørstegangsbehandlingMedAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FAKTA_FOR_PERSONSTATUS);
+        Behandling førstegangsbehandling = opprettFørstegangsbehandlingMedAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE);
         AksjonspunktTestSupport.setTilUtført(førstegangsbehandling.getAksjonspunkter().iterator().next(), BEGRUNNELSE);
         Behandling revurdering = opprettRevurderingsbehandlingMedAksjonspunkt(førstegangsbehandling,
-                AksjonspunktDefinisjon.AVKLAR_FAKTA_FOR_PERSONSTATUS);
-        AvklarSaksopplysningerDto dto = new AvklarSaksopplysningerDto(BEGRUNNELSE, "UTVA", true);
+                AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE);
+        var dto = new BekreftTerminbekreftelseAksjonspunktDto(BEGRUNNELSE, LocalDate.now(), LocalDate.now(), 2);
 
         // Act
         aksjonspunktTjeneste.bekreftAksjonspunkter(singletonList(dto), revurdering.getId());

@@ -88,7 +88,7 @@ public class AksjonspunktDvhMapperTest {
     private Behandling behandling() {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, SØKERS_RELASJON_TIL_BARN);
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FAKTA_FOR_PERSONSTATUS, SØKERS_RELASJON_TIL_BARN);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE, SØKERS_RELASJON_TIL_BARN);
         var behandling = scenario.lagMocked();
         behandling.setAnsvarligBeslutter(ANSVARLIG_BESLUTTER);
         behandling.setAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER);

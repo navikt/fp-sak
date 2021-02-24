@@ -9,10 +9,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall;
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -22,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOp
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonstatusEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.domene.medlem.MedlemskapPerioderTjeneste;
@@ -34,6 +37,8 @@ import no.nav.fpsak.tidsserie.StandardCombinators;
 public class AvklarOmErBosatt {
     //Setter den til 364 for å unngå skuddårproblemer, (365 og 366 blir da "større" enn et år)
     private static final int ANTALL_DAGER_I_ÅRET = 364;
+
+    private static final Set<PersonstatusType> STATUS_UTEN_AVKLARINGSBEHOV = Set.of(PersonstatusType.BOSA, PersonstatusType.DØD);
 
     private FamilieHendelseRepository familieHendelseRepository;
     private PersonopplysningTjeneste personopplysningTjeneste;
@@ -51,7 +56,9 @@ public class AvklarOmErBosatt {
 
     public Optional<MedlemResultat> utled(Behandling behandling, LocalDate vurderingsdato) {
         Long behandlingId = behandling.getId();
-        if (søkerHarSøktPåTerminOgSkalOppholdeSegIUtlandetImerEnn12M(behandlingId, vurderingsdato)) {
+        if (harPersonstatusSomSkalAvklares(behandling, vurderingsdato)) {
+            return Optional.of(MedlemResultat.AVKLAR_OM_ER_BOSATT);
+        } else if (søkerHarSøktPåTerminOgSkalOppholdeSegIUtlandetImerEnn12M(behandlingId, vurderingsdato)) {
             return Optional.of(MedlemResultat.AVKLAR_OM_ER_BOSATT);
         } else if (harBrukerTilknytningHjemland(behandlingId) == NEI) {
             return Optional.of(MedlemResultat.AVKLAR_OM_ER_BOSATT);
@@ -64,6 +71,13 @@ public class AvklarOmErBosatt {
                 return Optional.empty();
             }
         }
+    }
+
+    private boolean harPersonstatusSomSkalAvklares(Behandling behandling, LocalDate vurderingsdato) {
+        var personopplysninger = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunkt(behandling.getId(), behandling.getAktørId(), vurderingsdato);
+        var personstatus = Optional.ofNullable(personopplysninger.getPersonstatusFor(behandling.getAktørId()))
+            .map(PersonstatusEntitet::getPersonstatus).orElse(PersonstatusType.UDEFINERT);
+        return !STATUS_UTEN_AVKLARINGSBEHOV.contains(personstatus);
     }
 
     private boolean søkerHarSøktPåTerminOgSkalOppholdeSegIUtlandetImerEnn12M(Long behandlingId, LocalDate vurderingsdato) {

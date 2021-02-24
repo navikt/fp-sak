@@ -139,7 +139,7 @@ public class DatavarehusTjenesteImplTest {
     public void lagreNedAksjonspunkter() {
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FAKTA_FOR_PERSONSTATUS, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.medBehandlingStegStart(BEHANDLING_STEG_TYPE);
         scenario.medBehandlendeEnhet(BEHANDLENDE_ENHET);
         Behandling behandling = scenario.lagre(repositoryProvider);
@@ -184,7 +184,7 @@ public class DatavarehusTjenesteImplTest {
     public void lagreNedBehandling() {
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FAKTA_FOR_PERSONSTATUS, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.medBehandlendeEnhet(BEHANDLENDE_ENHET);
         Behandling behandling = scenario.lagMocked();
         forceOppdaterBehandlingSteg(behandling, BEHANDLING_STEG_TYPE);
@@ -204,7 +204,7 @@ public class DatavarehusTjenesteImplTest {
     public void lagreNedBehandlingMedMottattSøknadDokument() {
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FAKTA_FOR_PERSONSTATUS, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.medBehandlendeEnhet(BEHANDLENDE_ENHET);
         Behandling behandling = scenario.lagMocked();
         forceOppdaterBehandlingSteg(behandling, BEHANDLING_STEG_TYPE);
@@ -233,7 +233,7 @@ public class DatavarehusTjenesteImplTest {
     public void lagreNedBehandlingMedId() {
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FAKTA_FOR_PERSONSTATUS, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.medBehandlendeEnhet(BEHANDLENDE_ENHET);
 
         Behandling behandling = scenario.lagMocked();

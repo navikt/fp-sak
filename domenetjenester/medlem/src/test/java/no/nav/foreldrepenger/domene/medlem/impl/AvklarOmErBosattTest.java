@@ -56,13 +56,47 @@ public class AvklarOmErBosattTest {
     }
 
     @Test
+    public void skal_få_aksjonspunkt_ved_udefinert_personstatus() {
+        // Arrange
+        LocalDate fødselsDato = LocalDate.now();
+        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        scenario.medDefaultOppgittTilknytning();
+        scenario.medSøknadHendelse().medFødselsDato(fødselsDato).medAntallBarn(1);
+        leggTilSøker(scenario, AdresseType.POSTADRESSE_UTLAND, Landkoder.SWE, PersonstatusType.UDEFINERT);
+        Behandling behandling = scenario.lagre(provider);
+
+        // Act
+        Optional<MedlemResultat> resultat = avklarOmErBosatt.utled(behandling, fødselsDato);
+
+        // Assert
+        assertThat(resultat).contains(AVKLAR_OM_ER_BOSATT);
+    }
+
+    @Test
+    public void skal_få_aksjonspunkt_ved_utvandret_personstatus() {
+        // Arrange
+        LocalDate fødselsDato = LocalDate.now();
+        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        scenario.medDefaultOppgittTilknytning();
+        scenario.medSøknadHendelse().medFødselsDato(fødselsDato).medAntallBarn(1);
+        leggTilSøker(scenario, AdresseType.POSTADRESSE_UTLAND, Landkoder.SWE, PersonstatusType.UTVA);
+        Behandling behandling = scenario.lagre(provider);
+
+        // Act
+        Optional<MedlemResultat> resultat = avklarOmErBosatt.utled(behandling, fødselsDato);
+
+        // Assert
+        assertThat(resultat).contains(AVKLAR_OM_ER_BOSATT);
+    }
+
+    @Test
     public void skal_gi_medlem_resultat_AVKLAR_OM_ER_BOSATT() {
         // Arrange
         LocalDate fødselsDato = LocalDate.now();
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medDefaultOppgittTilknytning();
         scenario.medSøknadHendelse().medFødselsDato(fødselsDato).medAntallBarn(1);
-        leggTilSøker(scenario, AdresseType.POSTADRESSE_UTLAND, Landkoder.SWE);
+        leggTilSøker(scenario, AdresseType.POSTADRESSE_UTLAND, Landkoder.SWE, PersonstatusType.BOSA);
         Behandling behandling = scenario.lagre(provider);
 
         // Act
@@ -80,7 +114,7 @@ public class AvklarOmErBosattTest {
         scenario.medDefaultOppgittTilknytning();
         scenario.medSøknadHendelse().medFødselsDato(fødselsDato).medAntallBarn(1);
 
-        leggTilSøker(scenario, AdresseType.BOSTEDSADRESSE, Landkoder.NOR);
+        leggTilSøker(scenario, AdresseType.BOSTEDSADRESSE, Landkoder.NOR, PersonstatusType.BOSA);
         Behandling behandling = scenario.lagre(provider);
 
         // Act
@@ -95,7 +129,7 @@ public class AvklarOmErBosattTest {
         // Arrange
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medDefaultOppgittTilknytning();
-        leggTilSøker(scenario, AdresseType.MIDLERTIDIG_POSTADRESSE_UTLAND, Landkoder.USA);
+        leggTilSøker(scenario, AdresseType.MIDLERTIDIG_POSTADRESSE_UTLAND, Landkoder.USA, PersonstatusType.BOSA);
         LocalDate fødselsDato = LocalDate.now();
         scenario.medSøknadHendelse().medFødselsDato(fødselsDato);
         MedlemskapPerioderEntitet gyldigPeriodeUnderFødsel = new MedlemskapPerioderBuilder()
@@ -119,7 +153,7 @@ public class AvklarOmErBosattTest {
         // Arrange
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medDefaultOppgittTilknytning();
-        leggTilSøker(scenario, AdresseType.MIDLERTIDIG_POSTADRESSE_UTLAND, Landkoder.USA);
+        leggTilSøker(scenario, AdresseType.MIDLERTIDIG_POSTADRESSE_UTLAND, Landkoder.USA, PersonstatusType.BOSA);
         LocalDate fødselsDato = LocalDate.now();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
         MedlemskapPerioderEntitet gyldigPeriodeUnderFødsel = new MedlemskapPerioderBuilder()
@@ -149,7 +183,7 @@ public class AvklarOmErBosattTest {
                 .build();
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medDefaultOppgittTilknytning();
-        leggTilSøker(scenario, AdresseType.BOSTEDSADRESSE, Landkoder.NOR);
+        leggTilSøker(scenario, AdresseType.BOSTEDSADRESSE, Landkoder.NOR, PersonstatusType.BOSA);
         scenario.medOppgittTilknytning().medOpphold(singletonList(oppholdUtlandForrigePeriode)).medOppholdNå(false);
         Behandling behandling = scenario.lagre(provider);
 
@@ -175,7 +209,7 @@ public class AvklarOmErBosattTest {
                 .medPeriode(LocalDate.now().plusDays(20), LocalDate.now().plusYears(2))
                 .build();
 
-        leggTilSøker(scenario, AdresseType.BOSTEDSADRESSE, Landkoder.NOR);
+        leggTilSøker(scenario, AdresseType.BOSTEDSADRESSE, Landkoder.NOR, PersonstatusType.BOSA);
         scenario.medOppgittTilknytning()
                 .medOpphold(List.of(fremtidigOppholdISverige))
                 .medOppholdNå(true);
@@ -221,7 +255,7 @@ public class AvklarOmErBosattTest {
                 .medPeriode(LocalDate.now().plusMonths(6), LocalDate.now().plusMonths(8))
                 .build();
 
-        leggTilSøker(scenario, AdresseType.BOSTEDSADRESSE, Landkoder.NOR);
+        leggTilSøker(scenario, AdresseType.BOSTEDSADRESSE, Landkoder.NOR, PersonstatusType.BOSA);
         scenario.medOppgittTilknytning()
                 .medOpphold(List.of(swe, usa, bel, png))
                 .medOppholdNå(true);
@@ -267,7 +301,7 @@ public class AvklarOmErBosattTest {
                 .medPeriode(LocalDate.now().plusMonths(6), LocalDate.now().plusMonths(15))
                 .build();
 
-        leggTilSøker(scenario, AdresseType.BOSTEDSADRESSE, Landkoder.NOR);
+        leggTilSøker(scenario, AdresseType.BOSTEDSADRESSE, Landkoder.NOR, PersonstatusType.BOSA);
         scenario.medOppgittTilknytning()
                 .medOpphold(List.of(swe, usa, bel, png))
                 .medOppholdNå(true);
@@ -293,7 +327,7 @@ public class AvklarOmErBosattTest {
                 .medPeriode(LocalDate.now().plusDays(20), LocalDate.now().plusYears(2))
                 .build();
 
-        leggTilSøker(scenario, AdresseType.BOSTEDSADRESSE, Landkoder.NOR);
+        leggTilSøker(scenario, AdresseType.BOSTEDSADRESSE, Landkoder.NOR, PersonstatusType.BOSA);
         scenario.medOppgittTilknytning()
                 .medOpphold(List.of(fremtidigOppholdISverige))
                 .medOppholdNå(true);
@@ -321,7 +355,7 @@ public class AvklarOmErBosattTest {
                 .medPeriode(LocalDate.now().plusDays(20), LocalDate.now().plusMonths(9))
                 .build();
 
-        leggTilSøker(scenario, AdresseType.BOSTEDSADRESSE, Landkoder.NOR);
+        leggTilSøker(scenario, AdresseType.BOSTEDSADRESSE, Landkoder.NOR, PersonstatusType.BOSA);
         scenario.medOppgittTilknytning()
                 .medOpphold(List.of(fremtidigOppholdISverige))
                 .medOppholdNå(true);
@@ -342,7 +376,7 @@ public class AvklarOmErBosattTest {
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medDefaultOppgittTilknytning();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now()).medAntallBarn(1);
-        leggTilSøker(scenario, AdresseType.BOSTEDSADRESSE, Landkoder.NOR);
+        leggTilSøker(scenario, AdresseType.BOSTEDSADRESSE, Landkoder.NOR, PersonstatusType.BOSA);
         Behandling behandling = scenario.lagre(provider);
 
         // Act
@@ -352,13 +386,13 @@ public class AvklarOmErBosattTest {
         assertThat(resultat).isEmpty();
     }
 
-    private void leggTilSøker(AbstractTestScenario<?> scenario, AdresseType adresseType, Landkoder adresseLand) {
+    private void leggTilSøker(AbstractTestScenario<?> scenario, AdresseType adresseType, Landkoder adresseLand, PersonstatusType personstatus) {
         PersonInformasjon.Builder builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
         AktørId søkerAktørId = scenario.getDefaultBrukerAktørId();
         Personas persona = builderForRegisteropplysninger
                 .medPersonas()
                 .kvinne(søkerAktørId, SivilstandType.UOPPGITT, Region.UDEFINERT)
-                .personstatus(PersonstatusType.UDEFINERT)
+                .personstatus(personstatus)
                 .statsborgerskap(adresseLand);
 
         PersonAdresse.Builder adresseBuilder = PersonAdresse.builder().adresselinje1("Portveien 2").land(adresseLand);

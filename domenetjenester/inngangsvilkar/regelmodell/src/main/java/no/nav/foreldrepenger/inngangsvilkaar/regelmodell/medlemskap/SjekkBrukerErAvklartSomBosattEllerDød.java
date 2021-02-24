@@ -6,6 +6,10 @@ import no.nav.fpsak.nare.evaluation.RuleReasonRef;
 import no.nav.fpsak.nare.evaluation.RuleReasonRefImpl;
 import no.nav.fpsak.nare.specification.LeafSpecification;
 
+/*
+ * Utgått: Regel FP_VK_2.1 er ikke lenger i bruk. Dvs brukerRegistrertSomBosattNode
+ * Andre personstatuser enn bosatt + død vil alltid gi aksjonspunkt for avklaring om bosatt -> behandles i FP_VK_2.x
+ */
 @RuleDocumentation(SjekkBrukerErAvklartSomBosattEllerDød.ID)
 public class SjekkBrukerErAvklartSomBosattEllerDød extends LeafSpecification<MedlemskapsvilkårGrunnlag> {
 
