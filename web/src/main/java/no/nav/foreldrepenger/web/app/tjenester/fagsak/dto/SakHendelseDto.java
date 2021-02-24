@@ -10,15 +10,17 @@ public class SakHendelseDto {
     private FamilieHendelseType hendelseType;
     private LocalDate hendelseDato;
     private Integer antallBarn;
+    private boolean dødfødsel;
 
     public SakHendelseDto() {
         // Injiseres i test
     }
 
-    public SakHendelseDto(FamilieHendelseType hendelseType, LocalDate hendelseDato, Integer antallBarn) {
+    public SakHendelseDto(FamilieHendelseType hendelseType, LocalDate hendelseDato, Integer antallBarn, boolean dødfødsel) {
         this.hendelseType = hendelseType;
         this.hendelseDato = hendelseDato;
         this.antallBarn = antallBarn;
+        this.dødfødsel = dødfødsel;
     }
 
     public FamilieHendelseType getHendelseType() {
@@ -33,6 +35,9 @@ public class SakHendelseDto {
         return antallBarn;
     }
 
+    public boolean isDødfødsel() {
+        return dødfødsel;
+    }
 
     @Override
     public boolean equals(Object o) {

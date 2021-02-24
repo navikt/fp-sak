@@ -41,6 +41,8 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.SøknadDtoFeil
 @ApplicationScoped
 public class PersonopplysningDtoTjeneste {
 
+    private static String UTLAND_NAVN = "Utlandsk personident";
+
     private VergeRepository vergeRepository;
     private PersonopplysningTjeneste personopplysningTjeneste;
     private BehandlingRepository behandlingRepository;
@@ -335,7 +337,7 @@ public class PersonopplysningDtoTjeneste {
 
         if (dto.getAnnenPart() == null) {
             aggregat.getOppgittAnnenPart().filter(this::harOppgittLand)
-                .ifPresent(annenpart -> dto.setAnnenPart(enkelUtenlandskAnnenPartMapping(annenpart)));
+                .ifPresent(annenpart -> dto.setAnnenPart(enkelUtenlandskAnnenPartMapping()));
         }
         return dto;
     }
@@ -352,12 +354,10 @@ public class PersonopplysningDtoTjeneste {
         return dto;
     }
 
-    private PersonopplysningBasisDto enkelUtenlandskAnnenPartMapping(OppgittAnnenPartEntitet oppgittAnnenPart) {
+    private PersonopplysningBasisDto enkelUtenlandskAnnenPartMapping() {
         var dto = new PersonopplysningBasisDto(null);
-
         dto.setKjønn(NavBrukerKjønn.UDEFINERT);
-        var bruknavn = Optional.ofNullable(oppgittAnnenPart.getUtenlandskPersonident()).orElse(oppgittAnnenPart.getUtenlandskFnrLand().getKode());
-        dto.setNavn(bruknavn);
+        dto.setNavn(UTLAND_NAVN);
         return dto;
     }
 }
