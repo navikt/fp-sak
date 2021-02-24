@@ -151,7 +151,7 @@ public class BesteberegningFødendeKvinneTjenesteTest {
     public void skalIkkeGiBesteberegningIkkeDagpengerPåStp() {
         lagreFamilihendelseFødsel();
         OpptjeningAktiviteter opptjeningAktiviteter = OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER,
-            new no.nav.abakus.iaygrunnlag.Periode(OPPTJENINGSPERIODE.getFomDato(), SKJÆRINGSTIDSPUNKT.minusDays(2)));
+            new no.nav.abakus.iaygrunnlag.Periode(OPPTJENINGSPERIODE.getFomDato(), SKJÆRINGSTIDSPUNKT.minusDays(3)));
         when(opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(any(), any()))
                 .thenReturn(Optional.of(opptjeningAktiviteter));
         BehandlingReferanse ref = lagBehandlingReferanseMedStp(behandlingReferanse);
