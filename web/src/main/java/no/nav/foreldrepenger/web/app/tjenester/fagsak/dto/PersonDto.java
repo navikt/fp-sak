@@ -12,33 +12,37 @@ public class PersonDto {
 
     private String navn;
     private Integer alder;
+    private String fødselsnummer;
     private String personnummer;
     private NavBrukerKjønn kjønn;
     private Boolean erKvinne;
     private PersonstatusType personstatusType;
     private String diskresjonskode;
-    private LocalDate fodselsdato;
+    private LocalDate fødselsdato;
     private LocalDate dodsdato;
     private boolean erDod;
     private Språkkode språkkode;
+    private String aktørId;
 
     public PersonDto() {
         // Injiseres i test
     }
 
-    public PersonDto(String navn, String personnummer, NavBrukerKjønn navBrukerKjønn, PersonstatusType personstatusType, String diskresjonskode,
-                     LocalDate fodselsdato, LocalDate dodsdato, Språkkode språkkode) {
+    public PersonDto(String aktørid, String navn, String fødselsnummer, NavBrukerKjønn navBrukerKjønn, PersonstatusType personstatusType, String diskresjonskode,
+                     LocalDate fødselsdato, LocalDate dodsdato, Språkkode språkkode) {
         this.navn = navn;
-        this.alder = (int) ChronoUnit.YEARS.between(fodselsdato, LocalDate.now());
-        this.personnummer = personnummer;
+        this.alder = (int) ChronoUnit.YEARS.between(fødselsdato, LocalDate.now());
+        this.personnummer = fødselsnummer;
+        this.fødselsnummer = fødselsnummer;
         this.erKvinne = NavBrukerKjønn.KVINNE.equals(navBrukerKjønn);
         this.kjønn = navBrukerKjønn;
         this.personstatusType = personstatusType;
         this.diskresjonskode = diskresjonskode;
-        this.fodselsdato = fodselsdato;
+        this.fødselsdato = fødselsdato;
         this.dodsdato = dodsdato;
         this.erDod = dodsdato != null || PersonstatusType.erDød(personstatusType);
         this.språkkode = språkkode;
+        this.aktørId = aktørid;
     }
 
     public String getNavn() {
@@ -69,8 +73,8 @@ public class PersonDto {
         return diskresjonskode;
     }
 
-    public LocalDate getFodselsdato() {
-        return fodselsdato;
+    public LocalDate getFødselsdato() {
+        return fødselsdato;
     }
 
     public LocalDate getDodsdato() {
@@ -83,6 +87,14 @@ public class PersonDto {
 
     public Språkkode getSpråkkode() {
         return språkkode;
+    }
+
+    public String getAktørId() {
+        return aktørId;
+    }
+
+    public String getFødselsnummer() {
+        return fødselsnummer;
     }
 
     @Override
@@ -98,14 +110,12 @@ public class PersonDto {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PersonDto personDto = (PersonDto) o;
-        return Objects.equals(navn, personDto.navn) &&
-            Objects.equals(personnummer, personDto.personnummer) &&
-            Objects.equals(erKvinne, personDto.erKvinne) &&
-            Objects.equals(fodselsdato, personDto.fodselsdato);
+        return Objects.equals(aktørId, personDto.aktørId) &&
+            Objects.equals(fødselsnummer, personDto.fødselsnummer);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(navn, personnummer, erKvinne, fodselsdato);
+        return Objects.hash(aktørId, personnummer);
     }
 }

@@ -6,30 +6,26 @@ import java.util.List;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public class PersonopplysningBasisDto extends PersonIdentDto {
 
-    private final String identifikator;
-    private NavBrukerKjønn navBrukerKjonn;
+    private NavBrukerKjønn kjønn;
     private SivilstandType sivilstand;
-    private LocalDate dodsdato;
-    private LocalDate fodselsdato;
+    private LocalDate dødsdato;
+    private LocalDate fødselsdato;
     private List<PersonadresseDto> adresser = new ArrayList<>();
 
-    public PersonopplysningBasisDto(String identifikator) {
-        this.identifikator = identifikator;
+    public PersonopplysningBasisDto(AktørId aktørId) {
+        this.setAktoerId(aktørId);
     }
 
-    public String getIdentifikator() {
-        return identifikator;
+    public NavBrukerKjønn getKjønn() {
+        return kjønn;
     }
 
-    public NavBrukerKjønn getNavBrukerKjonn() {
-        return navBrukerKjonn;
-    }
-
-    public void setNavBrukerKjonn(NavBrukerKjønn navBrukerKjonn) {
-        this.navBrukerKjonn = navBrukerKjonn;
+    public void setKjønn(NavBrukerKjønn kjønn) {
+        this.kjønn = kjønn;
     }
 
     public SivilstandType getSivilstand() {
@@ -40,20 +36,20 @@ public class PersonopplysningBasisDto extends PersonIdentDto {
         this.sivilstand = sivilstand;
     }
 
-    public LocalDate getDodsdato() {
-        return dodsdato;
+    public LocalDate getDødsdato() {
+        return dødsdato;
     }
 
-    public void setDodsdato(LocalDate dodsdato) {
-        this.dodsdato = dodsdato;
+    public void setDødsdato(LocalDate dødsdato) {
+        this.dødsdato = dødsdato;
     }
 
-    public LocalDate getFodselsdato() {
-        return fodselsdato;
+    public LocalDate getFødselsdato() {
+        return fødselsdato;
     }
 
-    public void setFodselsdato(LocalDate fodselsdato) {
-        this.fodselsdato = fodselsdato;
+    public void setFødselsdato(LocalDate fødselsdato) {
+        this.fødselsdato = fødselsdato;
     }
 
     public List<PersonadresseDto> getAdresser() {

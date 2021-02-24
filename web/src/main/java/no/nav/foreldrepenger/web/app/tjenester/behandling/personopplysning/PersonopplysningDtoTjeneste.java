@@ -35,14 +35,11 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.SøknadDtoFeil;
 
 @ApplicationScoped
 public class PersonopplysningDtoTjeneste {
-
-    private static final String UTLAND = "UtlandskIdent";
 
     private VergeRepository vergeRepository;
     private PersonopplysningTjeneste personopplysningTjeneste;
@@ -270,11 +267,8 @@ public class PersonopplysningDtoTjeneste {
     }
 
     private PersonstatusType hentPersonstatus(PersonopplysningEntitet personopplysning, PersonopplysningerAggregat aggregat) {
-        PersonstatusEntitet personstatus = aggregat.getPersonstatusFor(personopplysning.getAktørId());
-        if (personstatus == null) {
-            return PersonstatusType.UDEFINERT;
-        }
-        return personstatus.getPersonstatus();
+        return Optional.ofNullable(aggregat.getPersonstatusFor(personopplysning.getAktørId()))
+            .map(PersonstatusEntitet::getPersonstatus).orElse(PersonstatusType.UDEFINERT);
     }
 
     public Optional<PersonopplysningMedlemDto> lagPersonopplysningMedlemskapDto(Long behandlingId, LocalDate tidspunkt) {
@@ -302,7 +296,7 @@ public class PersonopplysningDtoTjeneste {
         var bruknavn = Optional.ofNullable(oppgittAnnenPart.getUtenlandskPersonident()).orElse(oppgittAnnenPart.getUtenlandskFnrLand().getKode());
         dto.setNavn(bruknavn);
         dto.setNavBrukerKjonn(NavBrukerKjønn.UDEFINERT);
-        dto.setPersonstatus(PersonstatusType.UDEFINERT);
+        dto.setPersonstatus(PersonstatusType.UREG);
         dto.setRegion(MapRegionLandkoder.mapLandkode(oppgittAnnenPart.getUtenlandskFnrLand().getKode()));
         return dto;
     }
@@ -313,7 +307,12 @@ public class PersonopplysningDtoTjeneste {
         dto.setNavn(formaterMedStoreOgSmåBokstaver(personopplysning.getNavn()));
         dto.setNavBrukerKjonn(personopplysning.getKjønn());
         Optional.ofNullable(personopplysning.getRegion()).ifPresent(dto::setRegion);
-        dto.setPersonstatus(hentPersonstatus(personopplysning, aggregat));
+        var gjeldendePersonstatus = hentPersonstatus(personopplysning, aggregat);
+        dto.setPersonstatus(gjeldendePersonstatus);
+        final AvklartPersonstatus avklartPersonstatus = new AvklartPersonstatus(aggregat.getOrginalPersonstatusFor(personopplysning.getAktørId())
+            .map(PersonstatusEntitet::getPersonstatus).orElse(gjeldendePersonstatus),
+            gjeldendePersonstatus);
+        dto.setAvklartPersonstatus(avklartPersonstatus);
         dto.setFodselsdato(personopplysning.getFødselsdato());
         dto.setDodsdato(personopplysning.getDødsdato());
         dto.setAdresser(lagAddresseDto(personopplysning, aggregat));
@@ -330,38 +329,33 @@ public class PersonopplysningDtoTjeneste {
     private PersonoversiktDto mapPersonoversikt(PersonopplysningerAggregat aggregat) {
         var dto = new PersonoversiktDto();
 
-        aggregat.getAktørPersonopplysningMap().forEach((k, v) -> dto.leggTilPerson(k.getId(), enkelPersonMapping(v, aggregat)));
+        dto.setBruker(enkelPersonMapping(aggregat.getSøker(), aggregat));
+        aggregat.getAnnenPartEllerEktefelle().map(p -> enkelPersonMapping(p, aggregat)).ifPresent(dto::setAnnenPart);
+        aggregat.getBarna().stream().map(p -> enkelPersonMapping(p, aggregat)).forEach(dto::leggTilBarn);
 
-        dto.setBrukerId(aggregat.getSøker().getAktørId().getId());
-        aggregat.getAnnenPartEllerEktefelle().map(PersonopplysningEntitet::getAktørId).map(AktørId::getId).ifPresent(dto::setAnnenpartId);
-        dto.setBarnMedId(aggregat.getBarna().stream().map(PersonopplysningEntitet::getAktørId).map(AktørId::getId).collect(Collectors.toList()));
-
-        if (dto.getAnnenpartId() == null) {
+        if (dto.getAnnenPart() == null) {
             aggregat.getOppgittAnnenPart().filter(this::harOppgittLand)
-                .ifPresent(annenpart -> {
-                    dto.setAnnenpartId(UTLAND);
-                    dto.leggTilPerson(UTLAND, enkelUtenlandskAnnenPartMapping(annenpart));
-                });
+                .ifPresent(annenpart -> dto.setAnnenPart(enkelUtenlandskAnnenPartMapping(annenpart)));
         }
         return dto;
     }
 
     private PersonopplysningBasisDto enkelPersonMapping(PersonopplysningEntitet personopplysning, PersonopplysningerAggregat aggregat) {
-        var dto = new PersonopplysningBasisDto(personopplysning.getAktørId().getId());
-        dto.setNavBrukerKjonn(personopplysning.getKjønn());
+        var dto = new PersonopplysningBasisDto(personopplysning.getAktørId());
+        dto.setKjønn(personopplysning.getKjønn());
         dto.setSivilstand(personopplysning.getSivilstand());
         dto.setAktoerId(personopplysning.getAktørId());
         dto.setNavn(formaterMedStoreOgSmåBokstaver(personopplysning.getNavn()));
-        dto.setFodselsdato(personopplysning.getFødselsdato());
-        dto.setDodsdato(personopplysning.getDødsdato());
+        dto.setFødselsdato(personopplysning.getFødselsdato());
+        dto.setDødsdato(personopplysning.getDødsdato());
         dto.setAdresser(lagAddresseDto(personopplysning, aggregat));
         return dto;
     }
 
     private PersonopplysningBasisDto enkelUtenlandskAnnenPartMapping(OppgittAnnenPartEntitet oppgittAnnenPart) {
-        var dto = new PersonopplysningBasisDto(UTLAND);
+        var dto = new PersonopplysningBasisDto(null);
 
-        dto.setNavBrukerKjonn(NavBrukerKjønn.UDEFINERT);
+        dto.setKjønn(NavBrukerKjønn.UDEFINERT);
         var bruknavn = Optional.ofNullable(oppgittAnnenPart.getUtenlandskPersonident()).orElse(oppgittAnnenPart.getUtenlandskFnrLand().getKode());
         dto.setNavn(bruknavn);
         return dto;

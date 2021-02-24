@@ -1,8 +1,10 @@
 package no.nav.foreldrepenger.familiehendelse.rest;
 
 import java.time.LocalDate;
+import java.util.Map;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Size;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.OmsorgsovertakelseVilkårType;
 
@@ -15,6 +17,10 @@ public class AvklartDataOmsorgDto extends FamiliehendelseDto {
 
     private Integer antallBarnTilBeregning;
     private LocalDate foreldreansvarDato;
+
+    @Valid
+    @Size(max = 9)
+    private Map<Integer, LocalDate> fødselsdatoer;
 
     public AvklartDataOmsorgDto() {
         // trengs for deserialisering av JSON
@@ -55,5 +61,13 @@ public class AvklartDataOmsorgDto extends FamiliehendelseDto {
 
     void setAntallBarnTilBeregning(Integer antallBarnTilBeregning) {
         this.antallBarnTilBeregning = antallBarnTilBeregning;
+    }
+
+    public Map<Integer, LocalDate> getFødselsdatoer() {
+        return fødselsdatoer;
+    }
+
+    public void setFødselsdatoer(Map<Integer, LocalDate> fødselsdatoer) {
+        this.fødselsdatoer = fødselsdatoer;
     }
 }

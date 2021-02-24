@@ -12,6 +12,7 @@ public class PersonopplysningMedlemDto extends PersonIdentDto {
 
     private NavBrukerKjønn navBrukerKjonn;
     private PersonstatusType personstatus;
+    private AvklartPersonstatus avklartPersonstatus;
     private Region region;
     private LocalDate dodsdato;
     private LocalDate fodselsdato;
@@ -63,5 +64,13 @@ public class PersonopplysningMedlemDto extends PersonIdentDto {
 
     public void setAdresser(List<PersonadresseDto> adresser) {
         this.adresser = adresser;
+    }
+
+    public AvklartPersonstatus getAvklartPersonstatus() {
+        return avklartPersonstatus;
+    }
+
+    public void setAvklartPersonstatus(AvklartPersonstatus avklartPersonstatus) {
+        this.avklartPersonstatus = avklartPersonstatus;
     }
 }

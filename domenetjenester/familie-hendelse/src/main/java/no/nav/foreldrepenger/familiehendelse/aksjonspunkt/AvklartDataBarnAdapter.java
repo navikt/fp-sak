@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.personopplysning;
+package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
 import java.time.LocalDate;
 

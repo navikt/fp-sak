@@ -23,7 +23,9 @@ public abstract class PersonIdentDto {
     }
 
     void setAktoerId(AktørId aktoerId) {
-        this.aktoerId = aktoerId.getId();
+        if (aktoerId != null) {
+            this.aktoerId = aktoerId.getId();
+        }
     }
 
     public String getFnr() {

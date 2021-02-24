@@ -4,7 +4,6 @@ import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -177,11 +176,10 @@ public class PersonRestTjeneste {
         Long behandlingId = getBehandlingsId(behandlingIdDto);
         var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
         var brukDato = Optional.ofNullable(behandling.getAvsluttetDato()).map(LocalDateTime::toLocalDate).orElseGet(LocalDate::now);
-        Optional<PersonoversiktDto> personopplysningDto = personopplysningDtoTjeneste.lagPersonversiktDto(behandlingId, brukDato);
-        personopplysningDto.map(PersonoversiktDto::getPersoner).orElse(Map.of())
-            .forEach((id, person) -> personopplysningFnrFinder.oppdaterMedPersonIdent(person));
+        Optional<PersonoversiktDto> personoversiktDto = personopplysningDtoTjeneste.lagPersonversiktDto(behandlingId, brukDato);
+        personoversiktDto.ifPresent(personopplysningFnrFinder::oppdaterMedPersonIdent);
 
-        return personopplysningDto.orElse(null);
+        return personoversiktDto.orElse(null);
     }
 
     @GET
