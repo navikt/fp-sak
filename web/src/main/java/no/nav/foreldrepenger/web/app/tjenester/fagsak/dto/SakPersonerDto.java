@@ -5,17 +5,15 @@ public class SakPersonerDto {
     private PersonDto bruker;
     private PersonDto annenPart;
     private SakHendelseDto familiehendelse;
-    private boolean utlandskAnnenPart;
 
     public SakPersonerDto() {
         // Injiseres i test
     }
 
-    public SakPersonerDto(PersonDto bruker, PersonDto annenPart, SakHendelseDto familiehendelse, boolean utlandskAnnenPart) {
+    public SakPersonerDto(PersonDto bruker, PersonDto annenPart, SakHendelseDto familiehendelse) {
         this.bruker = bruker;
         this.annenPart = annenPart;
         this.familiehendelse = familiehendelse;
-        this.utlandskAnnenPart = utlandskAnnenPart;
     }
 
     public PersonDto getBruker() {
@@ -28,9 +26,5 @@ public class SakPersonerDto {
 
     public SakHendelseDto getFamiliehendelse() {
         return familiehendelse;
-    }
-
-    public boolean isUtlandskAnnenPart() {
-        return utlandskAnnenPart;
     }
 }

@@ -143,13 +143,14 @@ public class FagsakTjeneste {
             .or(() -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
                 .flatMap(b -> personopplysningTjeneste.hentOppgittAnnenPartAktørId(b.getId())))
             .flatMap(personinfoAdapter::hentBrukerBasisForAktør)
-            .map(FagsakTjeneste::mapFraPersoninfoBasisTilPersonDto);
-        var utlandskAnnenPart = annenPart.isEmpty() &&  behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
-            .flatMap(b -> personopplysningTjeneste.hentOppgittAnnenPart(b.getId()))
-            .filter(ap -> ap.getAktørId() == null && ap.getUtenlandskFnrLand() != null && !Landkoder.UDEFINERT.equals(ap.getUtenlandskFnrLand()))
-            .isPresent();
+            .map(FagsakTjeneste::mapFraPersoninfoBasisTilPersonDto)
+            .orElseGet(() -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
+                .flatMap(b -> personopplysningTjeneste.hentOppgittAnnenPart(b.getId()))
+                .filter(ap -> ap.getAktørId() == null && ap.getUtenlandskFnrLand() != null && !Landkoder.UDEFINERT.equals(ap.getUtenlandskFnrLand()))
+                .map(ap -> new PersonDto(null, null, null, null, null, null, null, null, null))
+                .orElse(null));
         var fh = hentFamilieHendelse(fagsak);
-        return Optional.of(new SakPersonerDto(bruker, annenPart.orElse(null), fh.orElse(null), utlandskAnnenPart));
+        return Optional.of(new SakPersonerDto(bruker, annenPart, fh.orElse(null)));
     }
 
     public Optional<AktoerInfoDto> lagAktoerInfoDto(AktørId aktørId) {
