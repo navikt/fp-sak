@@ -5,6 +5,7 @@ import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
 import no.nav.foreldrepenger.domene.iay.modell.Ytelse;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.Arbeidskategori;
+import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -49,12 +50,6 @@ public class DagpengerGirBesteberegning {
 
     private static LocalDate finnDatoSomSkalSjekkesForDPEllerSP(LocalDate skjæringstidspunkt) {
         LocalDate datoFørStp = skjæringstidspunkt.minusDays(1);
-        if (datoFørStp.getDayOfWeek().equals(DayOfWeek.SATURDAY)) {
-            return datoFørStp.minusDays(1);
-        } else if (datoFørStp.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
-            return datoFørStp.minusDays(2);
-        }
-        return datoFørStp;
-
+        return VirkedagUtil.tomVirkedag(datoFørStp);
     }
 }
