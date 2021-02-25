@@ -66,7 +66,7 @@ public class ForeslåBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
 
         if (behandling.getFagsakYtelseType().equals(FagsakYtelseType.FORELDREPENGER)) {
             VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(aksjonspunkter,
-                    input.getYtelsespesifiktGrunnlag().getDekningsgrad(),
+                    input.getYtelsespesifiktGrunnlag().getDekningsgrad(input.getBeregningsgrunnlag()),
                     getBarn(ref.getBehandlingId()));
         }
         return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);

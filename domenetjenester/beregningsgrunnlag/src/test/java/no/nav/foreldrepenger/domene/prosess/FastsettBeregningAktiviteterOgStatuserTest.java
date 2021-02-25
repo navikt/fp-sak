@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 
 import no.nav.folketrygdloven.kalkulator.adapter.vltilregelmodell.MapBeregningAktiviteterFraVLTilRegelK14;
+import no.nav.folketrygdloven.kalkulator.steg.fastsettskjæringstidspunkt.ytelse.k14.FastsettSkjæringstidspunktOgStatuserK14;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -103,7 +104,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         iayTestUtil = new BeregningIAYTestUtil(iayTjeneste);
         fastsettBeregningAktiviteter = new FastsettBeregningAktiviteter(new UnitTestLookupInstanceImpl<>(new MapBeregningAktiviteterFraVLTilRegelK14()));
         var mapFraRegel = new MapBGSkjæringstidspunktOgStatuserFraRegelTilVL(new UnitTestLookupInstanceImpl<>(new BeregningsperiodeTjeneste()));
-        fastsettSkjæringstidspunktOgStatuser = new FastsettSkjæringstidspunktOgStatuser(mapFraRegel);
+        fastsettSkjæringstidspunktOgStatuser = new FastsettSkjæringstidspunktOgStatuserK14(mapFraRegel);
         repositoryProvider = new RepositoryProvider(entityManager);
     }
 
