@@ -20,7 +20,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DagpengerGirBesteberegningTest {
-    private static final LocalDate STP = LocalDate.of(2020,6,1);
+    private static final LocalDate STP = LocalDate.of(2020,6,2);
 
     @Test
     public void skal_gi_true_ved_sykepenger_på_dagpenger_på_stp() {
@@ -130,6 +130,26 @@ class DagpengerGirBesteberegningTest {
 
         // Assert
         assertThat(resultat).isFalse();
+    }
+
+    @Test
+    public void når_stp_er_mandag_skal_vi_se_på_fredagen_før_for_sykepenger() {
+        // Act
+        LocalDate mandagSTP = STP.minusDays(1);
+        DatoIntervallEntitet periode = DatoIntervallEntitet.fraOgMedTilOgMed(mandagSTP.minusDays(30), mandagSTP.minusDays(3));
+        YtelseBuilder ytelseBuilder = lagYtelse(RelatertYtelseType.SYKEPENGER, periode, RelatertYtelseTilstand.LØPENDE);
+        lagYtelseAnvist(ytelseBuilder, periode);
+        lagYtelseGrunnlag(ytelseBuilder, Arbeidskategori.DAGPENGER);
+
+        // Act
+        no.nav.abakus.iaygrunnlag.Periode periode2 = new no.nav.abakus.iaygrunnlag.Periode(STP.minusDays(30), STP.plusDays(1));
+        boolean resultat = DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(
+            OpptjeningAktiviteter.fra(OpptjeningAktivitetType.FRILANS, periode2),
+            Collections.singletonList(ytelseBuilder.build()),
+            mandagSTP);
+
+        // Assert
+        assertThat(resultat).isTrue();
     }
 
     private void lagYtelseAnvist(YtelseBuilder builder, DatoIntervallEntitet periode) {
