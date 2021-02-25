@@ -15,13 +15,10 @@ public enum VurderingspunktType {
     }
 
     public static VurderingspunktType getType(String kode) {
-        switch (kode) {
-            case "INN": //$NON-NLS-1$
-                return INN;
-            case "UT": //$NON-NLS-1$
-                return UT;
-            default:
-                throw new IllegalArgumentException("Ukjent kode: " + kode); //$NON-NLS-1$
-        }
+        return switch (kode) {
+            case "INN" -> INN;
+            case "UT" -> UT;
+            default -> throw new IllegalArgumentException("Ukjent kode: " + kode); //$NON-NLS-1$
+        };
     }
 }

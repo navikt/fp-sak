@@ -15,18 +15,20 @@ public class DkifRestTest {
 
     private static ObjectMapper mapper;
 
-    private static final String json = "{\n" +
-        "  \"kontaktinfo\": {\n" +
-        "    \"12345678901\": {\n" +
-        "      \"personident\": \"12345678901\",\n" +
-        "      \"kanVarsles\": false,\n" +
-        "      \"reservert\": false,\n" +
-        "      \"epostadresse\": \"noreply@nav.no\",\n" +
-        "      \"mobiltelefonnummer\": \"11111111\",\n" +
-        "      \"spraak\": \"nb\"\n" +
-        "    }\n" +
-        "  }\n" +
-        "}";
+    private static final String json = """
+        {
+          "kontaktinfo": {
+            "12345678901": {
+              "personident": "12345678901",
+              "kanVarsles": false,
+              "reservert": false,
+              "epostadresse": "noreply@nav.no",
+              "mobiltelefonnummer": "11111111",
+              "spraak": "nb"
+            }
+          }
+        }
+        """;
 
     static  {
         mapper = new ObjectMapper();

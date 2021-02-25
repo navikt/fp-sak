@@ -52,26 +52,16 @@ class HistorikkAksjonspunktAdapter {
     }
 
     static SkjermlenkeType getSkjermlenkeType(VilkårType vilkårType, String aksjonspunktKode) {
-        switch (aksjonspunktKode) {
-            case "5007":
-                return SkjermlenkeType.SOEKNADSFRIST;
-            case "5011":
-                return SkjermlenkeType.PUNKT_FOR_OMSORG;
-            case "5013":
-                return SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR;
-            case "5014":
-                return SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR;
-            case "5017":
-                    return SkjermlenkeType.OPPLYSNINGSPLIKT;
-            case "5031":
-                // avklar om søker har mottatt støte
-                return SkjermlenkeType.getSkjermlenkeTypeForMottattStotte(vilkårType);
-            case "5032":
-                // avklar om annen forelder har mottatt støtte
-                return SkjermlenkeType.getSkjermlenkeTypeForMottattStotte(vilkårType);
-            default:
-                throw new UnsupportedOperationException("Støtter ikke aksjonspunktKode=" + aksjonspunktKode);
-        }
+        return switch (aksjonspunktKode) {
+            case "5007" -> SkjermlenkeType.SOEKNADSFRIST;
+            case "5011" -> SkjermlenkeType.PUNKT_FOR_OMSORG;
+            case "5013" -> SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR;
+            case "5014" -> SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR;
+            case "5017" -> SkjermlenkeType.OPPLYSNINGSPLIKT;
+            case "5031" -> SkjermlenkeType.getSkjermlenkeTypeForMottattStotte(vilkårType);  // avklar om søker har mottatt støte
+            case "5032" -> SkjermlenkeType.getSkjermlenkeTypeForMottattStotte(vilkårType);  // avklar om annen forelder har mottatt støtte
+            default -> throw new UnsupportedOperationException("Støtter ikke aksjonspunktKode=" + aksjonspunktKode);
+        };
     }
 
     private boolean oppdaterVedEndretVerdi(HistorikkEndretFeltType feltkode, VilkårUtfallType original, VilkårUtfallType bekreftet) {

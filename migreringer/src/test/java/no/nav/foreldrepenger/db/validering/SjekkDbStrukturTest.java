@@ -20,8 +20,12 @@ import no.nav.foreldrepenger.dbstoette.Databaseskjemainitialisering;
  */
 public class SjekkDbStrukturTest {
 
-    private static final String HJELP = "\n\nDu har nylig lagt til en ny tabell eller kolonne som ikke er dokumentert ihht. gjeldende regler for dokumentasjon."
-            + "\nVennligst gå over sql scriptene og dokumenter tabellene på korrekt måte.";
+    private static final String HJELP = """
+
+            Du har nylig lagt til en ny tabell eller kolonne som ikke er dokumentert ihht. gjeldende regler for dokumentasjon.
+            Vennligst gå over sql scriptene og dokumenter tabellene på korrekt måte.
+
+            """;
 
     private static DataSource ds;
     private static String schema;
@@ -38,8 +42,8 @@ public class SjekkDbStrukturTest {
         String sql = "SELECT table_name FROM all_tab_comments WHERE (comments IS NULL OR comments in ('', 'MISSING COLUMN COMMENT')) AND owner=sys_context('userenv', 'current_schema') AND table_name NOT LIKE 'schema_%' AND table_name not like '%_MOCK'";
         List<String> avvik = new ArrayList<>();
         try (Connection conn = ds.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql);
-                ResultSet rs = stmt.executeQuery()) {
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 avvik.add(rs.getString(1));
@@ -54,26 +58,27 @@ public class SjekkDbStrukturTest {
     public void sjekk_at_alle_relevant_kolonner_er_dokumentert() throws Exception {
         List<String> avvik = new ArrayList<>();
 
-        String sql = "SELECT t.table_name||'.'||t.column_name "
-                + "  FROM all_col_comments t "
-                + " WHERE (t.comments IS NULL OR t.comments = '') "
-                + "   AND t.owner = sys_context('userenv','current_schema') "
-                + "   AND ( upper(t.table_name) NOT LIKE 'SCHEMA_%' AND upper(t.table_name) NOT LIKE '%_MOCK') "
-                + "   AND NOT EXISTS (SELECT 1 FROM all_constraints a, all_cons_columns b "
-                + "                    WHERE a.table_name = b.table_name "
-                + "                      AND b.table_name = t.table_name "
-                + "                      AND a.constraint_name = b.constraint_name "
-                + "                      AND b.column_name = t.column_name "
-                + "                      AND constraint_type IN ('P','R') "
-                + "                      AND a.owner = t.owner "
-                + "                      AND b.owner = a.owner) "
-                + "   AND upper(t.column_name) NOT IN ('OPPRETTET_TID','ENDRET_TID','OPPRETTET_AV','ENDRET_AV','VERSJON','BESKRIVELSE','NAVN','FOM', 'TOM', 'LANDKODE', 'KL_LANDKODE', 'AKTIV') "
-                + "   AND upper(t.column_name) NOT LIKE 'KLx_%' ESCAPE 'x'"
-                + " ORDER BY t.table_name, t.column_name ";
+        String sql = """
+                SELECT t.table_name||'.'||t.column_name
+                  FROM all_col_comments t
+                 WHERE (t.comments IS NULL OR t.comments = '')
+                   AND t.owner = sys_context('userenv','current_schema')
+                   AND ( upper(t.table_name) NOT LIKE 'SCHEMA_%' AND upper(t.table_name) NOT LIKE '%_MOCK')
+                   AND NOT EXISTS (SELECT 1 FROM all_constraints a, all_cons_columns b
+                                    WHERE a.table_name = b.table_name
+                                      AND b.table_name = t.table_name
+                                      AND a.constraint_name = b.constraint_name
+                                      AND b.column_name = t.column_name
+                                      AND constraint_type IN ('P','R')
+                                      AND a.owner = t.owner
+                                      AND b.owner = a.owner)
+                   AND upper(t.column_name) NOT IN ('OPPRETTET_TID','ENDRET_TID','OPPRETTET_AV','ENDRET_AV','VERSJON','BESKRIVELSE','NAVN','FOM', 'TOM', 'LANDKODE', 'AKTIV')
+                 ORDER BY t.table_name, t.column_name
+                """;
 
         try (Connection conn = ds.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql);
-                ResultSet rs = stmt.executeQuery()) {
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 avvik.add("\n" + rs.getString(1));
@@ -86,32 +91,32 @@ public class SjekkDbStrukturTest {
 
     @Test
     public void sjekk_at_alle_FK_kolonner_har_fornuftig_indekser() throws Exception {
-        String sql = "SELECT "
-                + "  uc.table_name, uc.constraint_name, LISTAGG(dcc.column_name, ',') WITHIN GROUP (ORDER BY dcc.position) as columns" +
-                " FROM all_Constraints Uc" +
-                "   INNER JOIN all_cons_columns dcc ON dcc.constraint_name  =uc.constraint_name AND dcc.owner=uc.owner" +
-                " WHERE Uc.Constraint_Type='R'" +
-                "   AND Uc.Owner            = upper(?)" +
-                "   AND Dcc.Column_Name NOT LIKE 'KL_%'" +
-                "   AND EXISTS" +
-                "       (SELECT ucc.position, ucc.column_name" +
-                "         FROM all_cons_columns ucc" +
-                "         WHERE Ucc.Constraint_Name=Uc.Constraint_Name" +
-                "           AND Uc.Owner             =Ucc.Owner" +
-                "           AND ucc.column_name NOT LIKE 'KL_%'" +
-                "       MINUS" +
-                "        SELECT uic.column_position AS position, uic.column_name" +
-                "        FROM all_ind_columns uic" +
-                "        WHERE uic.table_name=uc.table_name" +
-                "          AND uic.table_owner =uc.owner" +
-                "       )" +
-                " GROUP BY Uc.Table_Name, Uc.Constraint_Name" +
-                " ORDER BY uc.table_name";
+        String sql = """
+                SELECT
+                  uc.table_name, uc.constraint_name, LISTAGG(dcc.column_name, ',') WITHIN GROUP (ORDER BY dcc.position) as columns
+                FROM all_Constraints Uc
+                  INNER JOIN all_cons_columns dcc ON dcc.constraint_name  =uc.constraint_name AND dcc.owner=uc.owner
+                WHERE Uc.Constraint_Type='R'
+                  AND Uc.Owner            = upper(?)
+                  AND EXISTS
+                      (SELECT ucc.position, ucc.column_name
+                        FROM all_cons_columns ucc
+                        WHERE Ucc.Constraint_Name=Uc.Constraint_Name
+                          AND Uc.Owner             =Ucc.Owner
+                      MINUS
+                       SELECT uic.column_position AS position, uic.column_name
+                       FROM all_ind_columns uic
+                       WHERE uic.table_name=uc.table_name
+                         AND uic.table_owner =uc.owner
+                      )
+                GROUP BY Uc.Table_Name, Uc.Constraint_Name
+                ORDER BY uc.table_name
+                """;
 
         List<String> avvik = new ArrayList<>();
         StringBuilder tekst = new StringBuilder();
         try (Connection conn = ds.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, schema);
 
@@ -126,61 +131,26 @@ public class SjekkDbStrukturTest {
 
         }
         int sz = avvik.size();
-        String manglerIndeks = "Kolonner som inngår i Foreign Keys skal ha indeker (ikke KL_ kolonner).\nMangler indekser for ";
+        String manglerIndeks = "Kolonner som inngår i Foreign Keys skal ha indekser .\nMangler indekser for ";
 
         assertThat(avvik).withFailMessage(manglerIndeks + sz + " foreign keys\n" + tekst).isEmpty();
 
     }
 
     @Test
-    public void skal_ha_KL_prefiks_for_kodeverk_kolonne_i_source_tabell() throws Exception {
-        String sql = "Select cola.table_name, cola.column_name From All_Constraints Uc  " +
-                "Inner Join All_Cons_Columns Cola On Cola.Constraint_Name=Uc.Constraint_Name And Cola.Owner=Uc.Owner " +
-                "Inner Join All_Cons_Columns Colb On Colb.Constraint_Name=Uc.r_Constraint_Name And Colb.Owner=Uc.Owner " +
-                " " +
-                "Where Uc.Constraint_Type='R' And Uc.Owner= upper(?) " +
-                "And Colb.Column_Name='KODEVERK' And Colb.Table_Name='KODELISTE' " +
-                "And Colb.Position=Cola.Position " +
-                "And Cola.Table_Name Not Like 'KODELI%' " +
-                "and cola.column_name not like 'KL_%' ";
-
-        List<String> avvik = new ArrayList<>();
-        StringBuilder tekst = new StringBuilder();
-        try (Connection conn = ds.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, schema);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-
-                while (rs.next()) {
-                    String t = rs.getString(1) + ", " + rs.getString(2);
-                    avvik.add(t);
-                    tekst.append(t).append("\n");
-                }
-            }
-
-        }
-
-        int sz = avvik.size();
-        String feilTekst = "Feil navn på kolonner som refererer KODELISTE, skal ha 'KL_' prefiks. Antall feil=";
-
-        assertThat(avvik).withFailMessage(feilTekst + sz + ".\n\nTabell, kolonne\n" + tekst).isEmpty();
-
-    }
-
-    @Test
     public void skal_ha_primary_key_i_hver_tabell_som_begynner_med_PK() throws Exception {
-        String sql = "SELECT table_name FROM all_tables at "
-                + " WHERE table_name "
-                + " NOT IN ( SELECT ac.table_name FROM all_constraints ac "
-                + "         WHERE ac.constraint_type ='P' and at.owner=ac.owner and ac.constraint_name like 'PK_%') "
-                + " AND at.owner=upper(?) and at.table_name not like 'schema_%'";
+        String sql = """
+                SELECT table_name FROM all_tables at
+                WHERE table_name
+                 NOT IN ( SELECT ac.table_name FROM all_constraints ac
+                         WHERE ac.constraint_type ='P' and at.owner=ac.owner and ac.constraint_name like 'PK_%')
+                AND at.owner=upper(?) and at.table_name not like 'schema_%'
+                """;
 
         List<String> avvik = new ArrayList<>();
         StringBuilder tekst = new StringBuilder();
         try (Connection conn = ds.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, schema);
 
@@ -205,12 +175,12 @@ public class SjekkDbStrukturTest {
     @Test
     public void skal_ha_alle_foreign_keys_begynne_med_FK() throws Exception {
         String sql = "SELECT ac.table_name, ac.constraint_name FROM all_constraints ac"
-                + " WHERE ac.constraint_type ='R' and ac.owner=upper(?) and constraint_name NOT LIKE 'FK_%'";
+            + " WHERE ac.constraint_type ='R' and ac.owner=upper(?) and constraint_name NOT LIKE 'FK_%'";
 
         List<String> avvik = new ArrayList<>();
         StringBuilder tekst = new StringBuilder();
         try (Connection conn = ds.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, schema);
 
@@ -234,16 +204,18 @@ public class SjekkDbStrukturTest {
 
     @Test
     public void skal_ha_korrekt_index_navn() throws Exception {
-        String sql = "select table_name, index_name, column_name"
-                + " from all_ind_columns"
-                + " where table_owner=upper(?)"
-                + " and index_name not like 'PK_%' and index_name not like 'IDX_%' and index_name not like 'UIDX_%'"
-                + " and table_name not like 'schema_%'";
+        String sql = """
+                select table_name, index_name, column_name
+                 from all_ind_columns
+                 where table_owner=upper(?)
+                 and index_name not like 'PK_%' and index_name not like 'IDX_%' and index_name not like 'UIDX_%'
+                 and table_name not like 'schema_%'
+                """;
 
         List<String> avvik = new ArrayList<>();
         StringBuilder tekst = new StringBuilder();
         try (Connection conn = ds.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, schema);
 
@@ -267,32 +239,32 @@ public class SjekkDbStrukturTest {
 
     @Test
     public void skal_ha_samme_data_type_for_begge_sider_av_en_FK() throws Exception {
-        String sql = "SELECT T.TABLE_NAME\n" +
-                ", TCC.COLUMN_NAME AS KOL_A\n" +
-                ", ATT.DATA_TYPE AS KOL_A_DATA_TYPE\n" +
-                ", ATT.CHAR_LENGTH AS KOL_A_CHAR_LENGTH\n" +
-                ", ATT.CHAR_USED AS KOL_A_CHAR_USED\n" +
-                ", RCC.COLUMN_NAME AS KOL_B \n" +
-                ", ATR.DATA_TYPE AS KOL_B_DATA_TYPE\n" +
-                ", ATR.CHAR_LENGTH AS KOL_B_CHAR_LENGTH\n" +
-                ", atr.CHAR_USED as KOL_B_CHAR_USED\n" +
-                "FROM ALL_CONSTRAINTS T \n" +
-                "INNER JOIN ALL_CONSTRAINTS R ON R.OWNER=T.OWNER AND R.CONSTRAINT_NAME = T.R_CONSTRAINT_NAME\n" +
-                "INNER JOIN ALL_CONS_COLUMNS TCC ON TCC.TABLE_NAME=T.TABLE_NAME AND TCC.OWNER=T.OWNER AND TCC.CONSTRAINT_NAME=T.CONSTRAINT_NAME \n" +
-                "INNER JOIN ALL_CONS_COLUMNS RCC ON RCC.TABLE_NAME = R.TABLE_NAME AND RCC.OWNER=R.OWNER AND RCC.CONSTRAINT_NAME=R.CONSTRAINT_NAME\n" +
-                "INNER JOIN ALL_TAB_COLS ATT ON ATT.COLUMN_NAME=TCC.COLUMN_NAME AND ATT.OWNER=TCC.OWNER AND Att.TABLE_NAME=TCC.TABLE_NAME\n" +
-                "inner join all_tab_cols atr on atr.column_name=rcc.column_name and atr.owner=rcc.owner and atr.table_name=rcc.table_name\n" +
-                "WHERE T.OWNER=upper(?) AND T.CONSTRAINT_TYPE='R'\n" +
-                "AND TCC.POSITION = RCC.POSITION\n" +
-                "AND TCC.POSITION IS NOT NULL AND RCC.POSITION IS NOT NULL\n" +
-                "AND ((ATT.DATA_TYPE!=ATR.DATA_TYPE) OR (ATT.CHAR_LENGTH!=ATR.CHAR_LENGTH OR ATT.CHAR_USED!=ATR.CHAR_USED) OR (ATT.DATA_TYPE NOT LIKE '%CHAR%' AND ATT.DATA_LENGTH!=ATR.DATA_LENGTH))\n"
-                +
-                "ORDER BY T.TABLE_NAME, TCC.COLUMN_NAME";
-
+        String sql = """
+                SELECT T.TABLE_NAME
+                , TCC.COLUMN_NAME AS KOL_A
+                , ATT.DATA_TYPE AS KOL_A_DATA_TYPE
+                , ATT.CHAR_LENGTH AS KOL_A_CHAR_LENGTH
+                , ATT.CHAR_USED AS KOL_A_CHAR_USED
+                , RCC.COLUMN_NAME AS KOL_B
+                , ATR.DATA_TYPE AS KOL_B_DATA_TYPE
+                , ATR.CHAR_LENGTH AS KOL_B_CHAR_LENGTH
+                , atr.CHAR_USED as KOL_B_CHAR_USED
+                FROM ALL_CONSTRAINTS T
+                INNER JOIN ALL_CONSTRAINTS R ON R.OWNER=T.OWNER AND R.CONSTRAINT_NAME = T.R_CONSTRAINT_NAME
+                INNER JOIN ALL_CONS_COLUMNS TCC ON TCC.TABLE_NAME=T.TABLE_NAME AND TCC.OWNER=T.OWNER AND TCC.CONSTRAINT_NAME=T.CONSTRAINT_NAME
+                INNER JOIN ALL_CONS_COLUMNS RCC ON RCC.TABLE_NAME = R.TABLE_NAME AND RCC.OWNER=R.OWNER AND RCC.CONSTRAINT_NAME=R.CONSTRAINT_NAME
+                INNER JOIN ALL_TAB_COLS ATT ON ATT.COLUMN_NAME=TCC.COLUMN_NAME AND ATT.OWNER=TCC.OWNER AND Att.TABLE_NAME=TCC.TABLE_NAME
+                inner join all_tab_cols atr on atr.column_name=rcc.column_name and atr.owner=rcc.owner and atr.table_name=rcc.table_name
+                WHERE T.OWNER=upper(?) AND T.CONSTRAINT_TYPE='R'
+                AND TCC.POSITION = RCC.POSITION
+                AND TCC.POSITION IS NOT NULL AND RCC.POSITION IS NOT NULL
+                AND ((ATT.DATA_TYPE!=ATR.DATA_TYPE) OR (ATT.CHAR_LENGTH!=ATR.CHAR_LENGTH OR ATT.CHAR_USED!=ATR.CHAR_USED) OR (ATT.DATA_TYPE NOT LIKE '%CHAR%' AND ATT.DATA_LENGTH!=ATR.DATA_LENGTH))
+                ORDER BY T.TABLE_NAME, TCC.COLUMN_NAME
+                """;
         List<String> avvik = new ArrayList<>();
         StringBuilder tekst = new StringBuilder();
         try (Connection conn = ds.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, schema);
 
@@ -300,7 +272,7 @@ public class SjekkDbStrukturTest {
 
                 while (rs.next()) {
                     String t = rs.getString(1) + ", " + rs.getString(2) + ", " + rs.getString(3) + ", " + rs.getString(4) + ", " + rs.getString(5)
-                            + ", " + rs.getString(6) + ", " + rs.getString(7) + ", " + rs.getString(8) + ", " + rs.getString(9);
+                        + ", " + rs.getString(6) + ", " + rs.getString(7) + ", " + rs.getString(8) + ", " + rs.getString(9);
                     avvik.add(t);
                     tekst.append(t).append("\n");
                 }
@@ -318,16 +290,18 @@ public class SjekkDbStrukturTest {
 
     @Test
     public void skal_deklarere_VARCHAR2_kolonner_som_CHAR_ikke_BYTE_semantikk() throws Exception {
-        String sql = "SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE, CHAR_USED, CHAR_LENGTH\n"
-                + "FROM ALL_TAB_COLS\n"
-                + "WHERE DATA_TYPE = 'VARCHAR2'\n"
-                + "AND CHAR_USED !='C' AND TABLE_NAME NOT LIKE '%schema%' AND CHAR_LENGTH>1 AND OWNER=upper(?)\n"
-                + "ORDER BY 1, 2";
+        String sql = """
+                SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE, CHAR_USED, CHAR_LENGTH
+                FROM ALL_TAB_COLS
+                WHERE DATA_TYPE = 'VARCHAR2'
+                AND CHAR_USED !='C' AND TABLE_NAME NOT LIKE '%schema%' AND CHAR_LENGTH>1 AND OWNER=upper(?)
+                ORDER BY 1, 2
+                """;
 
         List<String> avvik = new ArrayList<>();
         StringBuilder tekst = new StringBuilder();
         try (Connection conn = ds.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, schema);
 
@@ -357,7 +331,7 @@ public class SjekkDbStrukturTest {
         List<String> avvik = new ArrayList<>();
         StringBuilder tekst = new StringBuilder();
         try (Connection conn = ds.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, schema);
 
@@ -381,16 +355,18 @@ public class SjekkDbStrukturTest {
 
     @Test
     public void sjekk_at_status_verdiene_i_prosess_task_tabellen_er_også_i_pollingSQL() throws Exception {
-        String sql = "SELECT SEARCH_CONDITION\n" +
-                "FROM all_constraints\n" +
-                "WHERE table_name = 'PROSESS_TASK'\n" +
-                "AND constraint_name = 'CHK_PROSESS_TASK_STATUS'\n" +
-                "AND owner = sys_context('userenv','current_schema')";
+        String sql = """
+                SELECT SEARCH_CONDITION
+                FROM all_constraints
+                WHERE table_name = 'PROSESS_TASK'
+                AND constraint_name = 'CHK_PROSESS_TASK_STATUS'
+                AND owner = sys_context('userenv','current_schema')
+                """;
 
         List<String> statusVerdier = new ArrayList<>();
         try (Connection conn = ds.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql);
-                ResultSet rs = stmt.executeQuery()) {
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 statusVerdier.add(rs.getString(1));
@@ -399,6 +375,6 @@ public class SjekkDbStrukturTest {
         }
         String feilTekst = "Ved innføring av ny stause må sqlen i TaskManager_pollTask.sql må oppdateres ";
         assertThat(statusVerdier).withFailMessage(feilTekst)
-                .containsExactly("status in ('KLAR', 'FEILET', 'VENTER_SVAR', 'SUSPENDERT', 'VETO', 'FERDIG', 'KJOERT')");
+            .containsExactly("status in ('KLAR', 'FEILET', 'VENTER_SVAR', 'SUSPENDERT', 'VETO', 'FERDIG', 'KJOERT')");
     }
 }

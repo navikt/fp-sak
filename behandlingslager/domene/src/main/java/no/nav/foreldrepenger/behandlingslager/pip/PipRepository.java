@@ -38,14 +38,14 @@ public class PipRepository {
     public Optional<PipBehandlingsData> hentDataForBehandling(Long behandlingId) {
         Objects.requireNonNull(behandlingId, "behandlingId"); // NOSONAR
 
-        String sql = "SELECT " +
-            "b.behandling_status behandligStatus, " +
-            "b.ansvarlig_saksbehandler ansvarligSaksbehandler, " +
-            "f.id fagsakId, " +
-            "f.fagsak_status fagsakStatus " +
-            "FROM BEHANDLING b " +
-            "JOIN FAGSAK f ON b.fagsak_id = f.id " +
-            "WHERE b.id = :behandlingId";
+        String sql = """
+            SELECT b.behandling_status behandligStatus,
+            b.ansvarlig_saksbehandler ansvarligSaksbehandler,
+            f.id fagsakId, f.fagsak_status fagsakStatus
+            FROM BEHANDLING b
+            JOIN FAGSAK f ON b.fagsak_id = f.id
+            WHERE b.id = :behandlingId
+            """;
 
         Query query = entityManager.createNativeQuery(sql, "PipDataResult");
         query.setParameter("behandlingId", behandlingId);
@@ -64,14 +64,14 @@ public class PipRepository {
     public Optional<PipBehandlingsData> hentDataForBehandlingUuid(UUID behandlingUuid) {
         Objects.requireNonNull(behandlingUuid, "behandlingUuid"); // NOSONAR
 
-        String sql = "SELECT " +
-            "b.behandling_status behandligStatus, " +
-            "b.ansvarlig_saksbehandler ansvarligSaksbehandler, " +
-            "f.id fagsakId, " +
-            "f.fagsak_status fagsakStatus " +
-            "FROM BEHANDLING b " +
-            "JOIN FAGSAK f ON b.fagsak_id = f.id " +
-            "WHERE b.uuid = :behandlingUuid";
+        String sql = """
+            SELECT b.behandling_status behandligStatus,
+            b.ansvarlig_saksbehandler ansvarligSaksbehandler,
+            f.id fagsakId, f.fagsak_status fagsakStatus
+            FROM BEHANDLING b
+            JOIN FAGSAK f ON b.fagsak_id = f.id
+            WHERE b.uuid = :behandlingUuid
+            """;
 
         Query query = entityManager.createNativeQuery(sql, "PipDataResult");
         query.setParameter("behandlingUuid", behandlingUuid);
@@ -92,22 +92,24 @@ public class PipRepository {
         if (fagsakIder.isEmpty()) {
             return Collections.emptySet();
         }
-        String sql = "SELECT por.AKTOER_ID From Fagsak fag " +
-            "JOIN BEHANDLING beh ON fag.ID = beh.FAGSAK_ID " +
-            "JOIN GR_PERSONOPPLYSNING grp ON grp.behandling_id = beh.ID " +
-            "JOIN PO_INFORMASJON poi ON grp.registrert_informasjon_id = poi.ID " +
-            "JOIN PO_PERSONOPPLYSNING por ON poi.ID = por.po_informasjon_id " +
-            "WHERE fag.id in (:fagsakIder) AND grp.aktiv = 'J' " +
-            " UNION ALL " + // NOSONAR
-            "SELECT br.AKTOER_ID FROM Fagsak fag " +
-            "JOIN Bruker br ON fag.BRUKER_ID = br.ID " +
-            "WHERE fag.id in (:fagsakIder) AND br.AKTOER_ID IS NOT NULL " +
-            " UNION ALL " + // NOSONAR
-            "SELECT sa.AKTOER_ID From Fagsak fag " +
-            "JOIN BEHANDLING beh ON fag.ID = beh.FAGSAK_ID " +
-            "JOIN GR_PERSONOPPLYSNING grp ON grp.behandling_id = beh.ID " +
-            "JOIN SO_ANNEN_PART sa ON grp.so_annen_part_id = sa.ID " +
-            "WHERE fag.id in (:fagsakIder) AND grp.aktiv = 'J' AND sa.AKTOER_ID IS NOT NULL ";
+        String sql = """
+            SELECT por.AKTOER_ID From Fagsak fag
+            JOIN BEHANDLING beh ON fag.ID = beh.FAGSAK_ID
+            JOIN GR_PERSONOPPLYSNING grp ON grp.behandling_id = beh.ID
+            JOIN PO_INFORMASJON poi ON grp.registrert_informasjon_id = poi.ID
+            JOIN PO_PERSONOPPLYSNING por ON poi.ID = por.po_informasjon_id
+            WHERE fag.id in (:fagsakIder) AND grp.aktiv = 'J'
+             UNION ALL
+            SELECT br.AKTOER_ID FROM Fagsak fag
+            JOIN Bruker br ON fag.BRUKER_ID = br.ID
+            WHERE fag.id in (:fagsakIder) AND br.AKTOER_ID IS NOT NULL
+             UNION ALL
+            SELECT sa.AKTOER_ID From Fagsak fag
+            JOIN BEHANDLING beh ON fag.ID = beh.FAGSAK_ID
+            JOIN GR_PERSONOPPLYSNING grp ON grp.behandling_id = beh.ID
+            JOIN SO_ANNEN_PART sa ON grp.so_annen_part_id = sa.ID
+            WHERE fag.id in (:fagsakIder) AND grp.aktiv = 'J' AND sa.AKTOER_ID IS NOT NULL
+            """;
 
         Query query = entityManager.createNativeQuery(sql); // NOSONAR
         query.setParameter("fagsakIder", fagsakIder);
@@ -120,22 +122,24 @@ public class PipRepository {
     public Set<AktørId> hentAktørIdKnyttetTilSaksnummer(String saksnummer) {
         Objects.requireNonNull(saksnummer, SAKSNUMMER);
 
-        String sql = "SELECT por.AKTOER_ID From Fagsak fag " +
-            "JOIN BEHANDLING beh ON fag.ID = beh.FAGSAK_ID " +
-            "JOIN GR_PERSONOPPLYSNING grp ON grp.behandling_id = beh.ID " +
-            "JOIN PO_INFORMASJON poi ON grp.registrert_informasjon_id = poi.ID " +
-            "JOIN PO_PERSONOPPLYSNING por ON poi.ID = por.po_informasjon_id " +
-            "WHERE fag.SAKSNUMMER = (:saksnummer) AND grp.aktiv = 'J' " +
-            " UNION ALL " + // NOSONAR
-            "SELECT br.AKTOER_ID FROM Fagsak fag " +
-            "JOIN Bruker br ON fag.BRUKER_ID = br.ID " +
-            "WHERE fag.SAKSNUMMER = (:saksnummer) AND br.AKTOER_ID IS NOT NULL " +
-            " UNION ALL " + // NOSONAR
-            "SELECT sa.AKTOER_ID From Fagsak fag " +
-            "JOIN BEHANDLING beh ON fag.ID = beh.FAGSAK_ID " +
-            "JOIN GR_PERSONOPPLYSNING grp ON grp.behandling_id = beh.ID " +
-            "JOIN SO_ANNEN_PART sa ON grp.so_annen_part_id = sa.ID " +
-            "WHERE fag.SAKSNUMMER = (:saksnummer) AND grp.aktiv = 'J' AND sa.AKTOER_ID IS NOT NULL ";
+        String sql = """
+            SELECT por.AKTOER_ID From Fagsak fag
+            JOIN BEHANDLING beh ON fag.ID = beh.FAGSAK_ID
+            JOIN GR_PERSONOPPLYSNING grp ON grp.behandling_id = beh.ID
+            JOIN PO_INFORMASJON poi ON grp.registrert_informasjon_id = poi.ID
+            JOIN PO_PERSONOPPLYSNING por ON poi.ID = por.po_informasjon_id
+            WHERE fag.SAKSNUMMER = (:saksnummer) AND grp.aktiv = 'J'
+             UNION ALL
+            SELECT br.AKTOER_ID FROM Fagsak fag
+            JOIN Bruker br ON fag.BRUKER_ID = br.ID
+            WHERE fag.SAKSNUMMER = (:saksnummer) AND br.AKTOER_ID IS NOT NULL
+             UNION ALL
+            SELECT sa.AKTOER_ID From Fagsak fag
+            JOIN BEHANDLING beh ON fag.ID = beh.FAGSAK_ID
+            JOIN GR_PERSONOPPLYSNING grp ON grp.behandling_id = beh.ID
+            JOIN SO_ANNEN_PART sa ON grp.so_annen_part_id = sa.ID
+            WHERE fag.SAKSNUMMER = (:saksnummer) AND grp.aktiv = 'J' AND sa.AKTOER_ID IS NOT NULL
+            """;
 
         Query query = entityManager.createNativeQuery(sql); // NOSONAR
         query.setParameter(SAKSNUMMER, saksnummer);
@@ -181,10 +185,7 @@ public class PipRepository {
         if (aktørId.isEmpty()) {
             return Collections.emptySet();
         }
-        String sql = "SELECT f.id " +
-            "from FAGSAK f " +
-            "join BRUKER b on (f.bruker_id = b.id) " +
-            "where b.aktoer_id in (:aktørId)";
+        String sql = "SELECT f.id from FAGSAK f join BRUKER b on (f.bruker_id = b.id) where b.aktoer_id in (:aktørId)";
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("aktørId", aktørId.stream().map(AktørId::getId).collect(Collectors.toList()));
         List<BigDecimal> result = (List<BigDecimal>) query.getResultList();
