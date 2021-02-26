@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -12,7 +10,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.AvklarFaktaForForeldreansvarAksjonspunktDto;
 import no.nav.foreldrepenger.familiehendelse.omsorg.OmsorghendelseTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
@@ -57,14 +54,7 @@ public class AvklarForeldreansvarOppdaterer implements AksjonspunktOppdaterer<Av
 
     private void oppdaterAksjonspunktGrunnlag(AvklarFaktaForForeldreansvarAksjonspunktDto dto, Behandling behandling) {
 
-        List<AvklartDataBarnAdapter> barnAdapter = new ArrayList<>();
-        dto.getBarn().forEach(barn ->
-            barnAdapter.add(new AvklartDataBarnAdapter(barn.getAktørId(), barn.getFodselsdato(), barn.getNummer())));
-
-        AksjonspunktDefinisjon apDef = AksjonspunktDefinisjon.fraKode(dto.getKode());
-
-        final AvklarForeldreansvarAksjonspunktData data = new AvklarForeldreansvarAksjonspunktData(apDef,
-            dto.getOmsorgsovertakelseDato(),dto.getForeldreansvarDato(),dto.getAntallBarn(), barnAdapter, dto.getFødselsdatoer());
+        var data = new AvklarForeldreansvarAksjonspunktData(dto.getOmsorgsovertakelseDato(),dto.getForeldreansvarDato());
 
         omsorghendelseTjeneste.aksjonspunktAvklarForeldreansvar(behandling, data);
     }

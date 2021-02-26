@@ -1,17 +1,14 @@
 package no.nav.foreldrepenger.familiehendelse.omsorg;
 
-import static java.util.Collections.singletonList;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,9 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.OmsorgsovertakelseVilkårType;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
@@ -46,8 +41,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.AvklarOmsorgOgForeldreansvarOppdaterer;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto;
-import no.nav.foreldrepenger.familiehendelse.rest.AvklartDataBarnDto;
-import no.nav.foreldrepenger.familiehendelse.rest.AvklartDataForeldreDto;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
@@ -78,7 +71,10 @@ public class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwa
         // Arrange
         AktørId forelderId = AktørId.dummy();
 
-        scenario.medSøknadHendelse().medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now()));
+        scenario.medSøknadHendelse()
+            .medAntallBarn(2)
+            .leggTilBarn(LocalDate.now().minusYears(1)).leggTilBarn(LocalDate.now().minusYears(1))
+            .medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now()));
 
         PersonInformasjon forelder = scenario.opprettBuilderForRegisteropplysninger()
             .leggTilPersonopplysninger(
@@ -92,7 +88,6 @@ public class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwa
         Behandling behandling = scenario.lagre(repositoryProvider);
 
         AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto dto = new AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto();
-        dto.setAntallBarn(2);
         dto.setOmsorgsovertakelseDato(LocalDate.now());
         dto.setVilkårType(VilkårType.OMSORGSVILKÅRET);
 
@@ -108,95 +103,6 @@ public class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwa
             assertThat(value.getOmsorgsovertakelseDato()).as("omsorgsovertakelsesDato").isEqualTo(LocalDate.now());
             assertThat(value.getOmsorgovertakelseVilkår()).as("omsorgsovertakelsesVilkår").isEqualTo(OmsorgsovertakelseVilkårType.OMSORGSVILKÅRET);
         });
-    }
-
-    @Test
-    public void skal_legge_til_nytt_barn_dersom_id_er_tom_i_dto() {
-        // Arrange
-        // Behandlingsgrunnlag UTEN eksisterende bekreftet barn
-        AktørId forelderId = AktørId.dummy();
-        scenario.medSøknadHendelse().medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now()));
-        scenario.medSøknad();
-
-        PersonInformasjon forelder = scenario.opprettBuilderForRegisteropplysninger()
-            .leggTilPersonopplysninger(
-                Personopplysning.builderMedDefaultVerdier(forelderId)
-                    .navn("Forelder"))
-            .build();
-
-        scenario.medRegisterOpplysninger(forelder);
-        scenario.leggTilAksjonspunkt(AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE, BehandlingStegType.KONTROLLER_FAKTA);
-
-        Behandling behandling = scenario.lagre(repositoryProvider);
-
-        AvklartDataBarnDto barn1 = new AvklartDataBarnDto();
-        barn1.setFodselsdato(LocalDate.now());
-
-        AvklartDataForeldreDto forelder1 = new AvklartDataForeldreDto();
-        forelder1.setAktorId(forelderId);
-
-        AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto dto = new AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto();
-        dto.setAntallBarn(1);
-        dto.setOmsorgsovertakelseDato(LocalDate.now());
-        dto.setVilkårType(VilkårType.OMSORGSVILKÅRET);
-        dto.setForeldre(singletonList(forelder1));
-        dto.setBarn(singletonList(barn1));
-
-        // Act
-        avklarOmsorgOgForeldreansvar(behandling, dto);
-
-        // Assert
-        final FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        final FamilieHendelseEntitet gjeldendeVersjon = familieHendelseGrunnlag.getGjeldendeVersjon();
-        assertThat(gjeldendeVersjon.getBarna()).hasSize(1);
-    }
-
-    @Test
-    public void skal_oppdatere_eksisterende_barn_dersom_id_er_oppgitt_i_dto() {
-        // Arrange
-        AktørId forelderId = AktørId.dummy();
-        LocalDate fødselsdato = LocalDate.now();
-        LocalDate oppdatertFødselsdato = fødselsdato.plusDays(1);
-
-        scenario.medSøknadHendelse().medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now()));
-
-        PersonInformasjon forelder = scenario.opprettBuilderForRegisteropplysninger()
-            .leggTilPersonopplysninger(
-                Personopplysning.builderMedDefaultVerdier(forelderId)
-                    .navn("Forelder"))
-            .build();
-
-        scenario.medSøknad();
-        scenario.medRegisterOpplysninger(forelder);
-        scenario.leggTilAksjonspunkt(AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE, BehandlingStegType.KONTROLLER_FAKTA);
-
-        Behandling behandling = scenario.lagre(repositoryProvider);
-        final no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet personopplysning = getSøkerPersonopplysning(behandling.getId());
-        AvklartDataBarnDto barn1 = new AvklartDataBarnDto();
-        barn1.setFodselsdato(oppdatertFødselsdato);
-
-        AvklartDataForeldreDto forelder1 = new AvklartDataForeldreDto();
-        forelder1.setAktorId(personopplysning.getPersonopplysninger().stream()
-            .filter(e -> e.getAktørId().equals(forelderId))
-            .findFirst().get().getAktørId());
-
-        AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto dto = new AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto();
-        dto.setAntallBarn(1);
-        dto.setOmsorgsovertakelseDato(LocalDate.now());
-        dto.setVilkårType(VilkårType.OMSORGSVILKÅRET);
-        dto.setForeldre(Collections.singletonList(forelder1));
-        dto.setBarn(Collections.singletonList(barn1));
-
-        // Act
-        avklarOmsorgOgForeldreansvar(behandling, dto);
-
-        // Assert
-        final FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        final FamilieHendelseEntitet gjeldendeVersjon = familieHendelseGrunnlag.getGjeldendeVersjon();
-        assertThat(gjeldendeVersjon.getBarna()).hasSize(1);
-        assertThat(gjeldendeVersjon.getAntallBarn()).isEqualTo(1);
-        assertThat(gjeldendeVersjon.getBarna().stream().map(UidentifisertBarn::getFødselsdato)
-            .collect(Collectors.toList())).contains(oppdatertFødselsdato);
     }
 
     private OppdateringResultat avklarOmsorgOgForeldreansvar(Behandling behandling, AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto dto) {
@@ -223,53 +129,6 @@ public class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwa
         }
     }
 
-    @Test
-    public void skal_fjerne_eksisterende_barn_dersom_antall_barn_reduseres() {
-        // Arrange
-        AktørId forelderId = AktørId.dummy();
-        LocalDate fødselsdato1 = LocalDate.now();
-
-        // Behandlingsgrunnlag MED eksisterende 2 bekreftede barn
-        scenario.medSøknadHendelse().medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now()));
-
-        PersonInformasjon forelder = scenario.opprettBuilderForRegisteropplysninger()
-            .leggTilPersonopplysninger(
-                Personopplysning.builderMedDefaultVerdier(forelderId)
-                    .navn("Forelder"))
-            .build();
-
-        scenario.medSøknad();
-        scenario.medRegisterOpplysninger(forelder);
-        scenario.leggTilAksjonspunkt(AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE, BehandlingStegType.KONTROLLER_FAKTA);
-        Behandling behandling = scenario.lagre(repositoryProvider);
-        final no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet personopplysning = getSøkerPersonopplysning(behandling.getId());
-        // Kun 1 barn fra DTO
-        AvklartDataBarnDto barnDto1 = new AvklartDataBarnDto();
-        barnDto1.setFodselsdato(LocalDate.now());
-
-        AvklartDataForeldreDto forelder1 = new AvklartDataForeldreDto();
-        forelder1.setAktorId(personopplysning.getPersonopplysninger().stream()
-            .filter(e -> e.getAktørId().equals(forelderId))
-            .findFirst().get().getAktørId());
-
-        AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto dto = new AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto();
-        dto.setAntallBarn(1);
-        dto.setOmsorgsovertakelseDato(LocalDate.now());
-        dto.setVilkårType(VilkårType.OMSORGSVILKÅRET);
-        dto.setForeldre(singletonList(forelder1));
-        dto.setBarn(singletonList(barnDto1));
-
-        // Act
-        avklarOmsorgOgForeldreansvar(behandling, dto);
-
-        // Assert
-        final FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        final FamilieHendelseEntitet gjeldendeVersjon = familieHendelseGrunnlag.getGjeldendeVersjon();
-        assertThat(gjeldendeVersjon.getBarna()).hasSize(1);
-        assertThat(gjeldendeVersjon.getAntallBarn()).isEqualTo(1);
-        assertThat(gjeldendeVersjon.getBarna().stream().map(UidentifisertBarn::getFødselsdato)
-            .collect(Collectors.toList())).containsOnly(fødselsdato1);
-    }
 
     private no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet getSøkerPersonopplysning(Long behandlingId) {
         PersonopplysningGrunnlagEntitet grunnlag = getPersonopplysninger(behandlingId);
@@ -309,15 +168,9 @@ public class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwa
         scenario.medRegisterOpplysninger(forelder);
         Behandling behandling = scenario.lagre(repositoryProvider);
 
-        AvklartDataForeldreDto forelderDto = new AvklartDataForeldreDto();
-        forelderDto.setAktorId(forelderId);
-        forelderDto.setDødsdato(oppdatertDødsdato);
-
         AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto dto = new AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto();
-        dto.setAntallBarn(1);
         dto.setOmsorgsovertakelseDato(LocalDate.now());
         dto.setVilkårType(VilkårType.OMSORGSVILKÅRET);
-        dto.setForeldre(singletonList(forelderDto));
 
         var resultat = avklarOmsorgOgForeldreansvar(behandling, dto);
 
@@ -349,7 +202,6 @@ public class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwa
 
         // Dto
         AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto dto = new AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto();
-        dto.setAntallBarn(1);
         dto.setOmsorgsovertakelseDato(omsorgsovertakelsesdatoBekreftet);
         dto.setVilkårType(VilkårType.OMSORGSVILKÅRET);
 
@@ -365,57 +217,6 @@ public class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwa
         assertThat(felt.getNavn()).as("navn").isEqualTo(HistorikkEndretFeltType.OMSORGSOVERTAKELSESDATO.getKode());
         assertThat(felt.getFraVerdi()).as("fraVerdi").isEqualTo("04.03.2019");
         assertThat(felt.getTilVerdi()).as("tilVerdi").isEqualTo("05.03.2019");
-    }
-
-    @Test
-    public void skal_generere_historikkinnslag_ved_avklaring_av_ved_omsorgsovertakelse_antall_barn() {
-        // Arrange
-        int antallBarnFraSøknad = 2;
-        int antallBarnBekreftet = 1;
-
-        // Behandling
-        scenario.medSøknad()
-            .medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);
-        scenario.medSøknadHendelse()
-            .medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder()
-                .medOmsorgsovertakelseDato(LocalDate.now()))
-            .medAntallBarn(antallBarnFraSøknad);
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE, BehandlingStegType.KONTROLLER_FAKTA);
-        Behandling behandling = scenario.lagre(repositoryProvider);
-
-        // Dto
-        AvklartDataBarnDto barn = new AvklartDataBarnDto();
-        barn.setFodselsdato(LocalDate.now());
-
-        AvklartDataForeldreDto forelder1 = new AvklartDataForeldreDto();
-
-        AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto dto = new AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto();
-        dto.setAntallBarn(antallBarnBekreftet);
-        dto.setOmsorgsovertakelseDato(LocalDate.now());
-        dto.setVilkårType(VilkårType.OMSORGSVILKÅRET);
-        dto.setForeldre(Collections.singletonList(forelder1));
-        dto.setBarn(Collections.singletonList(barn));
-
-        avklarOmsorgOgForeldreansvar(behandling, dto);
-        Historikkinnslag historikkinnslag = new Historikkinnslag();
-        historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
-        List<HistorikkinnslagDel> historikkInnslagDeler = this.tekstBuilder.build(historikkinnslag);
-
-        // Assert
-        assertHistorikkinnslag(historikkInnslagDeler, HistorikkEndretFeltType.ANTALL_BARN, Integer.toString(antallBarnFraSøknad),
-            Integer.toString(antallBarnBekreftet));
-    }
-
-    private void assertHistorikkinnslag(List<HistorikkinnslagDel> historikkInnslagDeler, HistorikkEndretFeltType endretFeltType, String fraVerdi,
-                                        String tilVerdi) {
-        assertThat(historikkInnslagDeler).hasSize(1);
-        HistorikkinnslagDel del = historikkInnslagDeler.get(0);
-        Optional<HistorikkinnslagFelt> feltOpt = del.getEndretFelt(endretFeltType);
-        assertThat(feltOpt).as("endretFelt").hasValueSatisfying(felt -> {
-            assertThat(felt.getNavn()).as("navn").isEqualTo(endretFeltType.getKode());
-            assertThat(felt.getFraVerdi()).as("fraVerdi").isEqualTo(fraVerdi);
-            assertThat(felt.getTilVerdi()).as("tilVerdi").isEqualTo(tilVerdi);
-        });
     }
 
     private HistorikkTjenesteAdapter lagMockHistory() {
