@@ -10,11 +10,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.OmsorgsovertakelseVilkårType;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarnEntitet;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.AvklarForeldreansvarAksjonspunktData;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.AvklarOmsorgOgForeldreansvarAksjonspunktData;
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.AvklartDataBarnAdapter;
 
 @ApplicationScoped
 public class OmsorghendelseTjeneste {
@@ -38,18 +36,7 @@ public class OmsorghendelseTjeneste {
         oppdatertOverstyrtHendelse
             .medAdopsjon(oppdatertOverstyrtHendelse.getAdopsjonBuilder()
                 .medOmsorgovertalseVilkårType(omsorgsovertakelseVilkårType)
-                .medOmsorgsovertakelseDato(data.getOmsorgsovertakelseDato()))
-            .tilbakestillBarn();
-        if (data.getFødselsdatoer() == null || data.getFødselsdatoer().isEmpty()) {
-            oppdatertOverstyrtHendelse.medAntallBarn(data.getAntallBarn());
-            for (AvklartDataBarnAdapter avklartDataBarnAdapter : data.getBarn()) {
-                oppdatertOverstyrtHendelse.leggTilBarn(new UidentifisertBarnEntitet(avklartDataBarnAdapter.getFødselsdato(), avklartDataBarnAdapter.getNummer()));
-            }
-        } else {
-            data.getFødselsdatoer()
-                .forEach((barnnummer, fødselsdato) -> oppdatertOverstyrtHendelse.leggTilBarn(new UidentifisertBarnEntitet(fødselsdato, barnnummer)));
-        }
-
+                .medOmsorgsovertakelseDato(data.getOmsorgsovertakelseDato()));
         familieHendelseTjeneste.lagreOverstyrtHendelse(behandling, oppdatertOverstyrtHendelse);
         // Aksjonspunkter
         behandling.getAksjonspunkter().stream()
@@ -62,21 +49,10 @@ public class OmsorghendelseTjeneste {
         // Omsorgsovertakelse
         final FamilieHendelseBuilder oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandling);
         oppdatertOverstyrtHendelse
-            .tilbakestillBarn()
             .medAdopsjon(oppdatertOverstyrtHendelse.getAdopsjonBuilder()
                 .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_2_LEDD)
                 .medOmsorgsovertakelseDato(data.getOmsorgsovertakelseDato())
                 .medForeldreansvarDato(data.getForeldreansvarDato()));
-        if (data.getFødselsdatoer() == null || data.getFødselsdatoer().isEmpty()) {
-            oppdatertOverstyrtHendelse.medAntallBarn(data.getAntallBarn());
-            for (AvklartDataBarnAdapter avklartDataBarnAdapter : data.getBarn()) {
-                oppdatertOverstyrtHendelse.leggTilBarn(new UidentifisertBarnEntitet(avklartDataBarnAdapter.getFødselsdato(), avklartDataBarnAdapter.getNummer()));
-            }
-        } else {
-            data.getFødselsdatoer()
-                .forEach((barnnummer, fødselsdato) -> oppdatertOverstyrtHendelse.leggTilBarn(new UidentifisertBarnEntitet(fødselsdato, barnnummer)));
-        }
-
         familieHendelseTjeneste.lagreOverstyrtHendelse(behandling, oppdatertOverstyrtHendelse);
     }
 }

@@ -1,10 +1,6 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
-import static java.util.stream.Collectors.toList;
-
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -25,8 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.OmsorgsovertakelseVilkårType;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarnEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -38,7 +32,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto;
 import no.nav.foreldrepenger.familiehendelse.omsorg.OmsorghendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.omsorg.OmsorgsvilkårKonfigurasjon;
-import no.nav.foreldrepenger.familiehendelse.rest.AvklartDataBarnDto;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
 
@@ -99,13 +92,11 @@ public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppda
     private void oppdaterAksjonspunktGrunnlag(AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto dto, AksjonspunktOppdaterParameter param,
                                               OppdateringResultat.Builder builder) {
         Behandling behandling = param.getBehandling();
-        List<AvklartDataBarnAdapter> barnAdapter = new ArrayList<>();
-        dto.getBarn().forEach(barn -> barnAdapter.add(new AvklartDataBarnAdapter(barn.getAktørId(), barn.getFodselsdato(), barn.getNummer())));
 
         AksjonspunktDefinisjon aksjonspunktDefinisjon = AksjonspunktDefinisjon.fraKode(dto.getKode());
 
-        final AvklarOmsorgOgForeldreansvarAksjonspunktData data = new AvklarOmsorgOgForeldreansvarAksjonspunktData(dto.getVilkårType().getKode(),
-            aksjonspunktDefinisjon, dto.getOmsorgsovertakelseDato(), dto.getAntallBarn(), barnAdapter, dto.getFødselsdatoer());
+        var data = new AvklarOmsorgOgForeldreansvarAksjonspunktData(dto.getVilkårType().getKode(),
+            aksjonspunktDefinisjon, dto.getOmsorgsovertakelseDato());
 
         omsorghendelseTjeneste.aksjonspunktAvklarOmsorgOgForeldreansvar(behandling, data, builder);
     }
@@ -150,13 +141,6 @@ public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppda
         erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.OMSORGSOVERTAKELSESDATO,
             orginalOmsorgsovertakelseDato.orElse(null), dto.getOmsorgsovertakelseDato());
 
-        Integer orginalAntallBarn = getOrginalAntallBarnForOmsorgsovertakelse(hendelseGrunnlag);
-        erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.ANTALL_BARN, orginalAntallBarn, dto.getAntallBarn()) || erEndret;
-
-        List<UidentifisertBarn> orginaleBarn = getOpprinneligeBarn(behandlingId);
-        List<UidentifisertBarn> oppdaterteBarn = getOppdaterteBarn(dto);
-        erEndret = oppdaterVedEndringAvFødselsdatoer(orginaleBarn, oppdaterteBarn) || erEndret;
-
         VilkårType vilkårType = dto.getVilkårType();
         List<VilkårType> vilkårTyper = getBehandlingsresultat(behandlingId).getVilkårResultat().getVilkårene().stream()
             .map(Vilkår::getVilkårType)
@@ -187,56 +171,8 @@ public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppda
         return null;
     }
 
-    private List<UidentifisertBarn> getOpprinneligeBarn(Long behandlingId) {
-        List<UidentifisertBarn> oppgitteBarn = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandlingId).getGjeldendeVersjon()
-            .getBarna().stream()
-            .map(barn -> new UidentifisertBarnEntitet(barn.getBarnNummer(), barn.getFødselsdato(), null))
-            .collect(toList());
-
-        return oppgitteBarn;
-    }
-
-    private List<UidentifisertBarn> getOppdaterteBarn(AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto dto) {
-        if (dto.getFødselsdatoer() != null && !dto.getFødselsdatoer().isEmpty()) {
-            return dto.getFødselsdatoer().entrySet().stream()
-                .map(entry -> new UidentifisertBarnEntitet(entry.getValue(), entry.getKey()))
-                .collect(Collectors.toList());
-        }
-        List<AvklartDataBarnDto> barna = dto.getBarn();
-        if (barna != null) {
-            return barna.stream()
-                .map(barn -> new UidentifisertBarnEntitet(barn.getNummer(), barn.getFodselsdato(), null))
-                .collect(toList());
-        } else {
-            return Collections.emptyList();
-        }
-    }
-
-    private Integer getOrginalAntallBarnForOmsorgsovertakelse(FamilieHendelseGrunnlagEntitet grunnlag) {
-        return grunnlag.getGjeldendeAntallBarn();
-    }
-
     private Optional<LocalDate> getOriginalOmsorgsovertakelseDato(FamilieHendelseGrunnlagEntitet grunnlag) {
         return grunnlag.getGjeldendeAdopsjon().map(AdopsjonEntitet::getOmsorgsovertakelseDato);
-    }
-
-    private boolean oppdaterVedEndringAvFødselsdatoer(List<UidentifisertBarn> orginalBarn, List<UidentifisertBarn> oppdaterteBarn) {
-        boolean erEndret = false;
-
-        // Endrede
-        for (UidentifisertBarn opprinnelig : orginalBarn) {
-            Optional<UidentifisertBarn> endret = oppdaterteBarn.stream()
-                .filter(oppdatert -> opprinnelig.getBarnNummer() != null && oppdatert.getBarnNummer() != null) // Kan bare spore endringer på barn med nummer
-                .filter(oppdatert -> opprinnelig.getBarnNummer().equals(oppdatert.getBarnNummer()))
-                .filter(oppdatert -> !opprinnelig.getFødselsdato().equals(oppdatert.getFødselsdato()))
-                .findFirst();
-
-            if (endret.isPresent()) {
-                erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.FODSELSDATO, opprinnelig.getFødselsdato(), endret.get().getFødselsdato())
-                    || erEndret;
-            }
-        }
-        return erEndret;
     }
 
     private boolean oppdaterVedEndretVerdi(HistorikkEndretFeltType type, LocalDate original, LocalDate bekreftet) {
@@ -247,14 +183,6 @@ public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppda
         return false;
     }
 
-
-    private boolean oppdaterVedEndretVerdi(HistorikkEndretFeltType type, Number original, Number bekreftet) {
-        if (!Objects.equals(bekreftet, original)) {
-            historikkAdapter.tekstBuilder().medEndretFelt(type, original, bekreftet);
-            return true;
-        }
-        return false;
-    }
 
     private Behandlingsresultat getBehandlingsresultat(Long behandlingId) {
         return behandlingsresultatRepository.hentHvisEksisterer(behandlingId).orElse(null);
