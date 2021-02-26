@@ -25,6 +25,10 @@ public class BehandlingFormidlingDto extends BehandlingDto {
         return formidlingRessurser;
     }
 
+    public void leggTilFormidlingRessurs(ResourceLink link) {
+        this.formidlingRessurser.add(link);
+    }
+
     public void setFormidlingRessurser(List<ResourceLink> formidlingRessurser) {
         this.formidlingRessurser = formidlingRessurser;
     }
