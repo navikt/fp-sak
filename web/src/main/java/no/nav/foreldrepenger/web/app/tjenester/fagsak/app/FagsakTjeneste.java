@@ -139,7 +139,8 @@ public class FagsakTjeneste {
         if (fagsak == null || brukerinfo == null) return Optional.empty();
         var språk = Optional.ofNullable(fagsak.getNavBruker()).map(NavBruker::getSpråkkode).orElse(Språkkode.NB);
         var bruker = mapFraPersoninfoBasisTilPersonDto(brukerinfo, språk);
-        var annenPart = fagsakRelasjonTjeneste.finnRelasjonFor(fagsak).getRelatertFagsak(fagsak).map(Fagsak::getAktørId)
+        var annenPart = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak)
+            .flatMap(fr -> fr.getRelatertFagsak(fagsak)).map(Fagsak::getAktørId)
             .or(() -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
                 .flatMap(b -> personopplysningTjeneste.hentOppgittAnnenPartAktørId(b.getId())))
             .flatMap(personinfoAdapter::hentBrukerBasisForAktør)
