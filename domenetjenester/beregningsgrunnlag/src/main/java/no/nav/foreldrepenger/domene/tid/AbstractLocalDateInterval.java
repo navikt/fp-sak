@@ -107,31 +107,21 @@ public abstract class AbstractLocalDateInterval implements Comparable<AbstractLo
     }
 
     public static LocalDate forrigeArbeidsdag(LocalDate dato) {
-        if (dato != TIDENES_BEGYNNELSE && dato != TIDENES_ENDE) {
-            switch (dato.getDayOfWeek()) {
-                case SATURDAY:
-                    return dato.minusDays(1);
-                case SUNDAY:
-                    return dato.minusDays(2);
-                default:
-                    break;
-            }
-        }
-        return dato;
+        if (dato == TIDENES_BEGYNNELSE || dato == TIDENES_ENDE) return dato;
+        return switch (dato.getDayOfWeek()) {
+            case SATURDAY -> dato.minusDays(1);
+            case SUNDAY -> dato.minusDays(2);
+            default -> dato;
+        };
     }
 
     public static LocalDate nesteArbeidsdag(LocalDate dato) {
-        if (dato != TIDENES_BEGYNNELSE && dato != TIDENES_ENDE) {
-            switch (dato.getDayOfWeek()) {
-                case SATURDAY:
-                    return dato.plusDays(2);
-                case SUNDAY:
-                    return dato.plusDays(1);
-                default:
-                    break;
-            }
-        }
-        return dato;
+        if (dato == TIDENES_BEGYNNELSE || dato == TIDENES_ENDE) return dato;
+        return switch (dato.getDayOfWeek()) {
+            case SATURDAY -> dato.plusDays(2);
+            case SUNDAY -> dato.plusDays(1);
+            default -> dato;
+        };
     }
 
     public long antallDager() {

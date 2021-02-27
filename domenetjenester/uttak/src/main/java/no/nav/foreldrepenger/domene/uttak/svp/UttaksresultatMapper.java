@@ -54,16 +54,12 @@ class UttaksresultatMapper {
     }
 
     private UttakArbeidType mapTilUttakArbeidType(AktivitetType aktivitetType) {
-        switch(aktivitetType) {
-            case ARBEID:
-                return UttakArbeidType.ORDINÆRT_ARBEID;
-            case SELVSTENDIG_NÆRINGSDRIVENDE:
-                return UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE;
-            case FRILANS:
-                return UttakArbeidType.FRILANS;
-            default:
-                return UttakArbeidType.ANNET;
-        }
+        return switch (aktivitetType) {
+            case ARBEID -> UttakArbeidType.ORDINÆRT_ARBEID;
+            case SELVSTENDIG_NÆRINGSDRIVENDE -> UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE;
+            case FRILANS -> UttakArbeidType.FRILANS;
+            default -> UttakArbeidType.ANNET;
+        };
     }
 
     private SvangerskapspengerUttakResultatPeriodeEntitet.Builder konverterPeriode(Uttaksperiode periode) {

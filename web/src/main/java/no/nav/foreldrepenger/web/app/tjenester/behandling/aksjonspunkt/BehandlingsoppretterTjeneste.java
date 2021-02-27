@@ -63,22 +63,14 @@ public class BehandlingsoppretterTjeneste {
         if (finnesÅpneBehandlingerAvType) {
             return false;
         }
-        switch (type) {
-            case ANKE:
-                Optional<Behandling> sisteKlage = behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(fagsakId, BehandlingType.KLAGE);
-                return sisteKlage.filter(Behandling::erAvsluttet).isPresent();
-            case KLAGE:
-                Optional<Behandling> sisteFørstegang = behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(fagsakId, BehandlingType.FØRSTEGANGSSØKNAD);
-                return sisteFørstegang.filter(Behandling::erAvsluttet).isPresent();
-            case INNSYN:
-                return true;
-            case REVURDERING:
-                return kanOppretteRevurdering(fagsakId);
-            case FØRSTEGANGSSØKNAD:
-                return kanOppretteFørstegangsbehandling(fagsakId);
-            default:
-                return false;
-        }
+        return switch (type) {
+            case ANKE -> behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(fagsakId, BehandlingType.KLAGE).filter(Behandling::erAvsluttet).isPresent();
+            case KLAGE -> behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(fagsakId, BehandlingType.FØRSTEGANGSSØKNAD).filter(Behandling::erAvsluttet).isPresent();
+            case INNSYN -> true;
+            case REVURDERING -> kanOppretteRevurdering(fagsakId);
+            case FØRSTEGANGSSØKNAD -> kanOppretteFørstegangsbehandling(fagsakId);
+            default -> false;
+        };
     }
 
     /** Opprett ny behandling. Returner Prosess Task gruppe for å ta den videre. */

@@ -101,14 +101,14 @@ public class FagsakRepository {
     }
 
     public List<Tuple<Long, AktørId>> hentIkkeAvsluttedeFagsakerIPeriodeNaticve(LocalDate fom, LocalDate tom) {
-        Query query = entityManager.createNativeQuery(
-                "select f.id, bu.aktoer_id from fpsak.fagsak f join fpsak.bruker bu on f.bruker_id=bu.id join fpsak.fagsak_relasjon fr on f.id =fagsak_en_id\n"
-                        +
-                        "where fagsak_status<>'AVSLU' and aktiv='J' " +
-                        "and fr.AVSLUTTNINGSDATO >= :fom " +
-                        "and fr.AVSLUTTNINGSDATO < :tom " +
-                        "and nvl(fr.endret_tid, fr.opprettet_tid) < :cutoff " +
-                        "and f.id not in (select fagsak_id from fpsak.behandling where behandling_type in ('BT-002', 'BT-004') and behandling_status not in ('IVED', 'AVSLU'))"); //$NON-NLS-1$
+        Query query = entityManager.createNativeQuery("""
+                select f.id, bu.aktoer_id from fpsak.fagsak f join fpsak.bruker bu on f.bruker_id=bu.id join fpsak.fagsak_relasjon fr on f.id =fagsak_en_id
+                where fagsak_status<>'AVSLU' and aktiv='J'
+                  and fr.AVSLUTTNINGSDATO >= :fom
+                  and fr.AVSLUTTNINGSDATO < :tom
+                  and nvl(fr.endret_tid, fr.opprettet_tid) < :cutoff
+                  and f.id not in (select fagsak_id from fpsak.behandling where behandling_type in ('BT-002', 'BT-004') and behandling_status not in ('IVED', 'AVSLU'))
+                """); //$NON-NLS-1$
         query.setParameter("fom", fom); //$NON-NLS-1$
         query.setParameter("tom", tom); //$NON-NLS-1$
         query.setParameter("cutoff", LocalDate.of(2020, 9, 1)); //$NON-NLS-1$

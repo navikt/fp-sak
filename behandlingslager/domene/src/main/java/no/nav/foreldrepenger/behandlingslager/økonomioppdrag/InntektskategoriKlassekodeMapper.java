@@ -67,15 +67,11 @@ public class InntektskategoriKlassekodeMapper {
     }
 
     private static Map<Inntektskategori, KodeKlassifik> getMap(FamilieYtelseType type) {
-        switch (type) {
-            case FØDSEL:
-                return INNTEKTSKATEGORI_KLASSEKODE_MAP_FØDSEL;
-            case ADOPSJON:
-                return INNTEKTSKATEGORI_KLASSEKODE_MAP_ADOPSJON;
-            case SVANGERSKAPSPENGER:
-                return INNTEKTSKATEGORI_KLASSEKODE_MAP_SVANGERSKAPSPENGER;
-            default:
-                throw new IllegalArgumentException("Støtter ikke FamilieYtelseType: " + type);
-        }
+        return switch (type) {
+            case FØDSEL -> INNTEKTSKATEGORI_KLASSEKODE_MAP_FØDSEL;
+            case ADOPSJON -> INNTEKTSKATEGORI_KLASSEKODE_MAP_ADOPSJON;
+            case SVANGERSKAPSPENGER -> INNTEKTSKATEGORI_KLASSEKODE_MAP_SVANGERSKAPSPENGER;
+            default -> throw new IllegalArgumentException("Støtter ikke FamilieYtelseType: " + type);
+        };
     }
 }

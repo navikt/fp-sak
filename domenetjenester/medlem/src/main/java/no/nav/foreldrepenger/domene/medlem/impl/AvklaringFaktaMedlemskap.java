@@ -79,21 +79,13 @@ public class AvklaringFaktaMedlemskap {
             if (harStatusUtvandret(personopplysninger) == JA) {
                 return Optional.empty();
             } else {
-
                 var region = statsborgerskap(personopplysninger);
-                switch (region) {
-                    case EØS:
-                        if (harInntektSiste3mnd(behandling, vurderingsdato) == JA) {
-                            return Optional.empty();
-                        }
-                        return Optional.of(MedlemResultat.AVKLAR_OPPHOLDSRETT);
-                    case TREDJE_LANDS_BORGER:
-                        return Optional.of(MedlemResultat.AVKLAR_LOVLIG_OPPHOLD);
-                    case NORDISK:
-                        return Optional.empty();
-                    default:
-                        throw new IllegalArgumentException("Støtter ikke Statsborgerskapsregioner: " + region);
-                }
+                return switch (region) {
+                    case EØS -> harInntektSiste3mnd(behandling, vurderingsdato) == JA ? Optional.empty() : Optional.of(MedlemResultat.AVKLAR_OPPHOLDSRETT);
+                    case TREDJE_LANDS_BORGER -> Optional.of(MedlemResultat.AVKLAR_LOVLIG_OPPHOLD);
+                    case NORDISK -> Optional.empty();
+                    default -> throw new IllegalArgumentException("Støtter ikke Statsborgerskapsregioner: " + region);
+                };
             }
         }
         throw new IllegalStateException("Udefinert utledning av aksjonspunkt for medlemskapsfakta"); //$NON-NLS-1$

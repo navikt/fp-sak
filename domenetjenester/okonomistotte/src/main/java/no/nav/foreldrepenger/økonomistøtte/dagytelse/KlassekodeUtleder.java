@@ -19,16 +19,12 @@ public class KlassekodeUtleder {
         if (andel.skalTilBrukerEllerPrivatperson()) {
             return InntektskategoriKlassekodeMapper.mapTilKlassekode(andel.getInntektskategori(), familieYtelseType);
         } else {
-            switch (familieYtelseType) {
-                case FØDSEL:
-                    return KodeKlassifik.FPF_REFUSJON_AG;
-                case ADOPSJON:
-                    return KodeKlassifik.FPA_REFUSJON_AG;
-                case SVANGERSKAPSPENGER:
-                    return KodeKlassifik.SVP_REFUSJON_AG;
-                default:
-                    throw new IllegalArgumentException("Utvikler feil: Opdrag andel har ikke-støttet familie ytelse type: " + familieYtelseType);
-            }
+            return switch (familieYtelseType) {
+                case FØDSEL -> KodeKlassifik.FPF_REFUSJON_AG;
+                case ADOPSJON -> KodeKlassifik.FPA_REFUSJON_AG;
+                case SVANGERSKAPSPENGER -> KodeKlassifik.SVP_REFUSJON_AG;
+                default -> throw new IllegalArgumentException("Utvikler feil: Opdrag andel har ikke-støttet familie ytelse type: " + familieYtelseType);
+            };
         }
     }
 
@@ -36,16 +32,12 @@ public class KlassekodeUtleder {
         if (mottaker.erBruker()) {
             return KodeKlassifik.FERIEPENGER_BRUKER;
         } else {
-            switch (familieYtelseType) {
-                case FØDSEL:
-                    return KodeKlassifik.FPF_FERIEPENGER_AG;
-                case ADOPSJON:
-                    return KodeKlassifik.FPA_FERIEPENGER_AG;
-                case SVANGERSKAPSPENGER:
-                    return KodeKlassifik.SVP_FERIEPENGER_AG;
-                default:
-                    throw new IllegalArgumentException("Utvikler feil: Ikke-støttet familie ytelse type: " + familieYtelseType);
-            }
+            return switch (familieYtelseType) {
+                case FØDSEL -> KodeKlassifik.FPF_FERIEPENGER_AG;
+                case ADOPSJON -> KodeKlassifik.FPA_FERIEPENGER_AG;
+                case SVANGERSKAPSPENGER -> KodeKlassifik.SVP_FERIEPENGER_AG;
+                default -> throw new IllegalArgumentException("Utvikler feil: Ikke-støttet familie ytelse type: " + familieYtelseType);
+            };
         }
     }
 

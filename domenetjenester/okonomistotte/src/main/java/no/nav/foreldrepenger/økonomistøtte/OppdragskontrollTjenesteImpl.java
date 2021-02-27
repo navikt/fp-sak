@@ -116,17 +116,12 @@ public class OppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste {
 
     private Optional<OppdragskontrollManager> hentTjeneste(Behandling behandling, boolean finnesOppdragFraFør) {
         var diff = sjekkOmDetFinnesTilkjentYtelse.tilkjentYtelseDiffMotForrige(behandling);
-        switch (diff) {
-            case INGEN_ENDRING:
-                return Optional.empty();
-            case ENDRET_TIL_TOM:
-                return Optional.of(oppdragskontrollOpphør);
-            case ENDRET_FRA_TOM:
-                return Optional.of(finnesOppdragFraFør ? oppdragskontrollEndring : oppdragskontrollFørstegang);
-            case ANNEN_ENDRING:
-                return Optional.of(oppdragskontrollEndring);
-            default:
-                throw new IllegalArgumentException("Ikke-støttet YtelseDiff: " + diff);
-        }
+        return switch (diff) {
+            case INGEN_ENDRING -> Optional.empty();
+            case ENDRET_TIL_TOM -> Optional.of(oppdragskontrollOpphør);
+            case ENDRET_FRA_TOM -> Optional.of(finnesOppdragFraFør ? oppdragskontrollEndring : oppdragskontrollFørstegang);
+            case ANNEN_ENDRING -> Optional.of(oppdragskontrollEndring);
+            default -> throw new IllegalArgumentException("Ikke-støttet YtelseDiff: " + diff);
+        };
     }
 }

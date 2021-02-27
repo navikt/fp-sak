@@ -20,12 +20,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.ManuellBehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
-import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatDokRegelEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
@@ -285,18 +285,13 @@ public class FastsettePerioderRegelResultatKonverterer {
     private OppholdÅrsak tilOppholdÅrsak(UttakPeriode uttakPeriode) {
         if (erOppholdsperiode(uttakPeriode)) {
             Stønadskontotype stønadskontotype = uttakPeriode.getStønadskontotype();
-            switch (stønadskontotype) {
-                case MØDREKVOTE:
-                    return OppholdÅrsak.MØDREKVOTE_ANNEN_FORELDER;
-                case FEDREKVOTE:
-                    return OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER;
-                case FELLESPERIODE:
-                    return OppholdÅrsak.KVOTE_FELLESPERIODE_ANNEN_FORELDER;
-                case FORELDREPENGER:
-                    return OppholdÅrsak.KVOTE_FORELDREPENGER_ANNEN_FORELDER;
-                default:
-                    throw new IllegalArgumentException("Utvikler-feil: Kom ut av regel med stønadskontotype" + stønadskontotype);
-            }
+            return switch (stønadskontotype) {
+                case MØDREKVOTE -> OppholdÅrsak.MØDREKVOTE_ANNEN_FORELDER;
+                case FEDREKVOTE -> OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER;
+                case FELLESPERIODE -> OppholdÅrsak.KVOTE_FELLESPERIODE_ANNEN_FORELDER;
+                case FORELDREPENGER -> OppholdÅrsak.KVOTE_FORELDREPENGER_ANNEN_FORELDER;
+                default -> throw new IllegalArgumentException("Utvikler-feil: Kom ut av regel med stønadskontotype" + stønadskontotype);
+            };
         }
 
         return OppholdÅrsak.UDEFINERT;

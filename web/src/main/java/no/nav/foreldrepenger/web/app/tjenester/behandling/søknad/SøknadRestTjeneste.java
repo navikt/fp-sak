@@ -37,6 +37,8 @@ public class SøknadRestTjeneste {
     static final String BASE_PATH = "/behandling";
     private static final String SOKNAD_PART_PATH = "/soknad";
     public static final String SOKNAD_PATH = BASE_PATH + SOKNAD_PART_PATH;
+    private static final String SOKNAD_BACKEND_PART_PATH = "/soknad-backend";
+    public static final String SOKNAD_BACKEND_PATH = BASE_PATH + SOKNAD_BACKEND_PART_PATH;
 
     private BehandlingRepository behandlingRepository;
     private SøknadDtoTjeneste dtoMapper;
@@ -76,5 +78,31 @@ public class SøknadRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public SoknadDto getSøknad(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         return getSøknad(new BehandlingIdDto(uuidDto));
+    }
+
+    @POST
+    @Path(SOKNAD_BACKEND_PART_PATH)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "Hent informasjon om søknad", tags = "søknad", responses = {
+        @ApiResponse(responseCode = "200", description = "Returnerer forenklet søknad til andre applikasjoner", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = SoknadDto.class)))
+    })
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    @Deprecated
+    public SoknadBackendDto getSøknadBackend(@NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
+        Long behandlingId = behandlingIdDto.getBehandlingId();
+        Behandling behandling = behandlingId != null
+            ? behandlingRepository.hentBehandling(behandlingId)
+            : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
+        return dtoMapper.mapForBackend(behandling).orElse(null);
+    }
+
+    @GET
+    @Path(SOKNAD_BACKEND_PART_PATH)
+    @Operation(description = "Hent informasjon om søknad", tags = "søknad", responses = {
+        @ApiResponse(responseCode = "200", description = "RReturnerer forenklet søknad til andre applikasjoner", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = SoknadDto.class)))
+    })
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public SoknadBackendDto getSøknadBackend(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        return getSøknadBackend(new BehandlingIdDto(uuidDto));
     }
 }

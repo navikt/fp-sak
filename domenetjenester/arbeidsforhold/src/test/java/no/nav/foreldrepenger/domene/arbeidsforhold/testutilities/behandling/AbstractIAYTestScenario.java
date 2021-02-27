@@ -197,17 +197,10 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
                 var builder = FamilieHendelseGrunnlagBuilder.oppdatere(kladd);
                 var type = utledTypeFor(kladd);
                 switch (type) {
-                    case SØKNAD:
-                        builder.medSøknadVersjon(hendelseBuilder);
-                        break;
-                    case BEKREFTET:
-                        builder.medBekreftetVersjon(hendelseBuilder);
-                        break;
-                    case OVERSTYRT:
-                        builder.medOverstyrtVersjon(hendelseBuilder);
-                        break;
-                    default:
-                        throw new UnsupportedOperationException("Støtter ikke HendelseVersjonType:" + type);
+                    case SØKNAD -> builder.medSøknadVersjon(hendelseBuilder);
+                    case BEKREFTET -> builder.medBekreftetVersjon(hendelseBuilder);
+                    case OVERSTYRT -> builder.medOverstyrtVersjon(hendelseBuilder);
+                    default -> throw new UnsupportedOperationException("Støtter ikke HendelseVersjonType:" + type);
                 }
                 familieHendelseAggregatMap.remove(behandlingId);
                 familieHendelseAggregatMap.put(behandlingId, builder.build());

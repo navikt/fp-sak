@@ -129,17 +129,10 @@ public class FamilieHendelseRepository {
         var aggregatBuilder = opprettAggregatBuilderFor(behandlingId);
         var type = hendelseBuilder.getType();
         switch (type) {
-            case SØKNAD:
-                aggregatBuilder.medSøknadVersjon(hendelseBuilder);
-                break;
-            case BEKREFTET:
-                aggregatBuilder.medBekreftetVersjon(hendelseBuilder);
-                break;
-            case OVERSTYRT:
-                aggregatBuilder.medOverstyrtVersjon(hendelseBuilder);
-                break;
-            default:
-                throw new IllegalArgumentException("Støtter ikke HendelseVersjonType: " + type);
+            case SØKNAD -> aggregatBuilder.medSøknadVersjon(hendelseBuilder);
+            case BEKREFTET -> aggregatBuilder.medBekreftetVersjon(hendelseBuilder);
+            case OVERSTYRT -> aggregatBuilder.medOverstyrtVersjon(hendelseBuilder);
+            default -> throw new IllegalArgumentException("Støtter ikke HendelseVersjonType: " + type);
         }
         lagreOgFlush(behandlingId, aggregatBuilder.build());
     }
