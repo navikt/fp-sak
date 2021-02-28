@@ -82,17 +82,13 @@ public final class KodeverkMapper {
         if ((ytelseType == null) || "-".equals(ytelseType.getKode())) {
             return null;
         }
-        switch (ytelseType.getKodeverk()) {
-            case no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltYtelseFraOffentligeType.KODEVERK:
-                return no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltYtelseFraOffentligeType.fraKode(ytelseType.getKode());
-            case no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltNæringsYtelseType.KODEVERK:
-                return no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltNæringsYtelseType.fraKode(ytelseType.getKode());
-            case no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltPensjonTrygdType.KODEVERK:
-                return no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltPensjonTrygdType.fraKode(ytelseType.getKode());
-            default:
-                throw new IllegalArgumentException("Ukjent YtelseType: " + ytelseType + ", kan ikke mappes til "
-                        + no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltYtelseType.class.getName());
-        }
+        return switch (ytelseType.getKodeverk()) {
+            case no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltYtelseFraOffentligeType.KODEVERK -> no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltYtelseFraOffentligeType.fraKode(ytelseType.getKode());
+            case no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltNæringsYtelseType.KODEVERK -> no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltNæringsYtelseType.fraKode(ytelseType.getKode());
+            case no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltPensjonTrygdType.KODEVERK -> no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltPensjonTrygdType.fraKode(ytelseType.getKode());
+            default -> throw new IllegalArgumentException("Ukjent YtelseType: " + ytelseType + ", kan ikke mappes til "
+                + no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltYtelseType.class.getName());
+        };
 
     }
 
@@ -106,34 +102,24 @@ public final class KodeverkMapper {
         }
 
         String kode = dto.getKode();
-        switch (kode) {
-            case "OPPR":
-                return RelatertYtelseTilstand.IKKE_STARTET;
-            case "UBEH":
-                return RelatertYtelseTilstand.ÅPEN;
-            case "AVSLU":
-                return RelatertYtelseTilstand.AVSLUTTET;
-            case "LOP":
-                return RelatertYtelseTilstand.LØPENDE;
-            default:
-                throw new IllegalArgumentException("Ukjent YtelseStatus: " + dto);
-        }
+        return switch (kode) {
+            case "OPPR" -> RelatertYtelseTilstand.IKKE_STARTET;
+            case "UBEH" -> RelatertYtelseTilstand.ÅPEN;
+            case "AVSLU" -> RelatertYtelseTilstand.AVSLUTTET;
+            case "LOP" -> RelatertYtelseTilstand.LØPENDE;
+            default -> throw new IllegalArgumentException("Ukjent YtelseStatus: " + dto);
+        };
     }
 
     static no.nav.abakus.iaygrunnlag.kodeverk.YtelseStatus getAbakusYtelseStatusForFpsakRelatertYtelseTilstand(RelatertYtelseTilstand tilstand) {
         var kode = tilstand.getKode();
-        switch (kode) {
-            case "IKKESTARTET":
-                return no.nav.abakus.iaygrunnlag.kodeverk.YtelseStatus.OPPRETTET;
-            case "ÅPEN":
-                return no.nav.abakus.iaygrunnlag.kodeverk.YtelseStatus.UNDER_BEHANDLING;
-            case "AVSLUTTET":
-                return no.nav.abakus.iaygrunnlag.kodeverk.YtelseStatus.AVSLUTTET;
-            case "LØPENDE":
-                return no.nav.abakus.iaygrunnlag.kodeverk.YtelseStatus.LØPENDE;
-            default:
-                throw new IllegalArgumentException("Ukjent RelatertYtelseTilstand: " + kode);
-        }
+        return switch (kode) {
+            case "IKKESTARTET" -> YtelseStatus.OPPRETTET;
+            case "ÅPEN" -> YtelseStatus.UNDER_BEHANDLING;
+            case "AVSLUTTET" -> YtelseStatus.AVSLUTTET;
+            case "LØPENDE" -> YtelseStatus.LØPENDE;
+            default -> throw new IllegalArgumentException("Ukjent RelatertYtelseTilstand: " + kode);
+        };
     }
 
     static YtelseType mapUtbetaltYtelseTypeTilGrunnlag(no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltYtelseType type) {
@@ -141,16 +127,12 @@ public final class KodeverkMapper {
             return OffentligYtelseType.UDEFINERT;
         }
         String kode = type.getKode();
-        switch (type.getKodeverk()) {
-            case no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltYtelseFraOffentligeType.KODEVERK:
-                return OffentligYtelseType.fraKode(kode);
-            case no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltNæringsYtelseType.KODEVERK:
-                return NæringsinntektType.fraKode(kode);
-            case no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltPensjonTrygdType.KODEVERK:
-                return PensjonTrygdType.fraKode(kode);
-            default:
-                throw new IllegalArgumentException("Ukjent UtbetaltYtelseType: " + type);
-        }
+        return switch (type.getKodeverk()) {
+            case no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltYtelseFraOffentligeType.KODEVERK -> OffentligYtelseType.fraKode(kode);
+            case no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltNæringsYtelseType.KODEVERK -> NæringsinntektType.fraKode(kode);
+            case no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltPensjonTrygdType.KODEVERK -> PensjonTrygdType.fraKode(kode);
+            default -> throw new IllegalArgumentException("Ukjent UtbetaltYtelseType: " + type);
+        };
     }
 
     static TemaUnderkategori getTemaUnderkategori(no.nav.abakus.iaygrunnlag.kodeverk.TemaUnderkategori kode) {

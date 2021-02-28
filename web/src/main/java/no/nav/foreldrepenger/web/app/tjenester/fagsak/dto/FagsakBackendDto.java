@@ -9,6 +9,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
 public class FagsakBackendDto {
     private Long saksnummer;
+    private String saksnummerString;
     private FagsakYtelseType sakstype;
     private RelasjonsRolleType relasjonsRolleType;
     private FagsakStatus status;
@@ -25,6 +26,7 @@ public class FagsakBackendDto {
     public FagsakBackendDto(Fagsak fagsak,
                             Integer dekningsgrad) {
         this.saksnummer = Long.parseLong(fagsak.getSaksnummer().getVerdi());
+        this.saksnummerString = fagsak.getSaksnummer().getVerdi();
         this.sakstype = fagsak.getYtelseType();
         this.status = fagsak.getStatus();
         this.relasjonsRolleType = fagsak.getRelasjonsRolleType();
@@ -36,6 +38,10 @@ public class FagsakBackendDto {
 
     public Long getSaksnummer() {
         return saksnummer;
+    }
+
+    public String getSaksnummerString() {
+        return saksnummerString;
     }
 
     public FagsakYtelseType getSakstype() {

@@ -241,21 +241,14 @@ public class FordelRestTjeneste {
             dto = new BehandlendeFagsystemDto();
         }
         switch (behandlendeFagsystem.getBehandlendeSystem()) {
-            case VEDTAKSLØSNING:
-                dto.setBehandlesIVedtaksløsningen(true);
-                break;
-            case VURDER_INFOTRYGD:
-                dto.setSjekkMotInfotrygd(true);
-                break;
-            case MANUELL_VURDERING:
-                dto.setManuellVurdering(true);
-                break;
-            case PRØV_IGJEN:
+            case VEDTAKSLØSNING -> dto.setBehandlesIVedtaksløsningen(true);
+            case VURDER_INFOTRYGD -> dto.setSjekkMotInfotrygd(true);
+            case MANUELL_VURDERING -> dto.setManuellVurdering(true);
+            case PRØV_IGJEN -> {
                 dto.setPrøvIgjen(true);
                 dto.setPrøvIgjenTidspunkt(behandlendeFagsystem.getPrøvIgjenTidspunkt());
-                break;
-            default:
-                throw new IllegalArgumentException("Utviklerfeil, manglende mapping");
+            }
+            default -> throw new IllegalArgumentException("Utviklerfeil, manglende mapping");
         }
         return dto;
     }

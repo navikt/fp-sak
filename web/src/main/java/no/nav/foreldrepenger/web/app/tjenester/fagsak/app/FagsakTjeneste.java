@@ -215,7 +215,8 @@ public class FagsakTjeneste {
         return behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
             .flatMap(b -> familieHendelseTjeneste.finnAggregat(b.getId()))
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-            .map(h -> new SakHendelseDto(h.getType(), h.getSkjæringstidspunkt(), h.getAntallBarn(), h.getBarna().stream().allMatch(b -> b.getDødsdato().isPresent())));
+            .map(h -> new SakHendelseDto(h.getType(), h.getSkjæringstidspunkt(), h.getAntallBarn(),
+                !h.getBarna().isEmpty() && h.getBarna().stream().allMatch(b -> b.getDødsdato().isPresent())));
     }
 
     private static List<ResourceLink> lagLenker(Fagsak fagsak) {

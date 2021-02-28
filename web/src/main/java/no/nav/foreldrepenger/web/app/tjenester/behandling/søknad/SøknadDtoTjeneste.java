@@ -82,6 +82,26 @@ public class SøknadDtoTjeneste {
         return Optional.empty();
     }
 
+    public Optional<SoknadBackendDto> mapForBackend(Behandling behandling) {
+        return repositoryProvider.getSøknadRepository().hentSøknadHvisEksisterer(behandling.getId())
+            .map(søknad -> getBackendDto(behandling, søknad));
+    }
+
+    private SoknadBackendDto getBackendDto(Behandling behandling, SøknadEntitet søknad) {
+        var familieHendelse = familieHendelseRepository.hentAggregat(behandling.getId()).getSøknadVersjon();
+
+        SoknadBackendDto soknadBackendDto = new SoknadBackendDto();
+        soknadBackendDto.setMottattDato(søknad.getMottattDato());
+        soknadBackendDto.setSoknadsdato(søknad.getSøknadsdato());
+        soknadBackendDto.setSpraakkode(søknad.getSpråkkode());
+        soknadBackendDto.setSoknadType(familieHendelse.getGjelderFødsel() ? SøknadType.FØDSEL : SøknadType.ADOPSJON);
+
+        ytelsesfordelingRepository.hentAggregatHvisEksisterer(behandling.getId())
+            .ifPresent(of -> soknadBackendDto.setOppgittRettighet(OppgittRettighetDto.mapFra(of.getOppgittRettighet())));
+
+        return soknadBackendDto;
+    }
+
     private Optional<SoknadDto> lagSoknadFodselDto(SøknadEntitet søknad, FamilieHendelseEntitet familieHendelse, BehandlingReferanse ref) {
         Long behandlingId = ref.getBehandlingId();
 

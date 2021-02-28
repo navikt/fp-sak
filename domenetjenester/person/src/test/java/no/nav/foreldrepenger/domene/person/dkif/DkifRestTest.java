@@ -49,26 +49,28 @@ public class DkifRestTest {
     @Test
     public void mapping_jurdisk_enhet() throws IOException {
         // Arrange
-        String ny = "{\n" +
-            "  \"kontaktinfo\": {\n" +
-            "    \"12345678901\": {\n" +
-            "      \"personident\": \"12345678901\",\n" +
-            "      \"kanVarsles\": false,\n" +
-            "      \"reservert\": false,\n" +
-            "      \"epostadresse\": \"noreply@nav.no\",\n" +
-            "      \"mobiltelefonnummer\": \"11111111\",\n" +
-            "      \"spraak\": \"nb\"\n" +
-            "    },\n" +
-            "    \"12345678902\": {\n" +
-            "      \"personident\": \"12345678902\",\n" +
-            "      \"kanVarsles\": false,\n" +
-            "      \"reservert\": false,\n" +
-            "      \"epostadresse\": \"noreply@nav.no\",\n" +
-            "      \"mobiltelefonnummer\": \"11111111\",\n" +
-            "      \"spraak\": \"nn\"\n" +
-            "    }\n" +
-            "  }\n" +
-            "}";
+        String ny = """
+            {
+              "kontaktinfo": {
+                "12345678901": {
+                  "personident": "12345678901",
+                  "kanVarsles": false,
+                  "reservert": false,
+                  "epostadresse": "noreply@nav.no",
+                  "mobiltelefonnummer": "11111111",
+                  "spraak": "nb"
+                },
+                "12345678902": {
+                  "personident": "12345678902",
+                  "kanVarsles": false,
+                  "reservert": false,
+                  "epostadresse": "noreply@nav.no",
+                  "mobiltelefonnummer": "11111111",
+                  "spraak": "nn"
+                }
+              }
+            }
+            """;
 
         var k = fromJson(ny, DigitalKontaktinfo.class);
         assertThat(k.getSpraak("12345678901")).isPresent();

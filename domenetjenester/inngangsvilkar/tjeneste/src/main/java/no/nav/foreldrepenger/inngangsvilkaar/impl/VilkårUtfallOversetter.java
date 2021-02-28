@@ -101,16 +101,12 @@ public class VilkårUtfallOversetter {
         for (Evaluation ev : leafEvaluations) {
             if (ev.getOutcome() != null) {
                 Resultat res = ev.result();
-                switch (res) {
-                    case JA:
-                        return VilkårUtfallType.OPPFYLT;
-                    case NEI:
-                        return VilkårUtfallType.IKKE_OPPFYLT;
-                    case IKKE_VURDERT:
-                        return VilkårUtfallType.IKKE_VURDERT;
-                    default:
-                        throw new IllegalArgumentException("Ukjent Resultat:" + res + " ved evaluering av:" + ev);
-                }
+                return switch (res) {
+                    case JA -> VilkårUtfallType.OPPFYLT;
+                    case NEI -> VilkårUtfallType.IKKE_OPPFYLT;
+                    case IKKE_VURDERT -> VilkårUtfallType.IKKE_VURDERT;
+                    default -> throw new IllegalArgumentException("Ukjent Resultat:" + res + " ved evaluering av:" + ev);
+                };
             } else {
                 return VilkårUtfallType.OPPFYLT;
             }

@@ -65,15 +65,11 @@ class FinnBrukersFeriepengePeriode extends LeafSpecification<BeregningsresultatF
     }
 
     private int antallDagerFeriepenger(Dekningsgrad dekningsgrad, int antallDagerFeriepenger) {
-        switch (dekningsgrad) {
-            case DEKNINGSGRAD_100:
-                return antallDagerFeriepenger;
-            case DEKNINGSGRAD_80:
-                return (int) (antallDagerFeriepenger / dekningsgrad.getVerdi());
-            default:
-                throw new IllegalArgumentException("Ukjent dekningsgrad [" + dekningsgrad + "].");
-
-        }
+        return switch (dekningsgrad) {
+            case DEKNINGSGRAD_100 -> antallDagerFeriepenger;
+            case DEKNINGSGRAD_80 -> (int) (antallDagerFeriepenger / dekningsgrad.getVerdi());
+            default -> throw new IllegalArgumentException("Ukjent dekningsgrad [" + dekningsgrad + "].");
+        };
     }
 
     private int finnAntallDagerSomSkalLeggesTil(List<BeregningsresultatPeriode> beregningsresultatPerioder, List<BeregningsresultatPeriode> annenPartsBeregningsresultatPerioder, boolean annenpartRettPåFeriepenger, LocalDate dato) {

@@ -58,15 +58,14 @@ public class BehandlingKandidaterRepository {
 
     private List<Behandling> finnUtløpteBehandlingerEndringssøknader() {
 
-        TypedQuery<Behandling> query = entityManager.createQuery(
-            "SELECT behandling FROM Behandling behandling " +
-                "INNER JOIN BehandlingÅrsak behandling_arsak " +
-                "ON behandling=behandling_arsak.behandling " +
-                "WHERE NOT behandling.status IN (:avsluttetOgIverksetterStatus) " +
-                "AND behandling.behandlingstidFrist< :idag " +
-                "AND behandling_arsak.behandlingÅrsakType = :endringType " +
-                "AND behandling.behandlingType = :revurderingType", //$NON-NLS-1$
-            Behandling.class);
+        TypedQuery<Behandling> query = entityManager.createQuery("""
+            SELECT behandling FROM Behandling behandling
+            INNER JOIN BehandlingÅrsak behandling_arsak ON behandling=behandling_arsak.behandling
+            WHERE NOT behandling.status IN (:avsluttetOgIverksetterStatus)
+              AND behandling.behandlingstidFrist< :idag
+              AND behandling_arsak.behandlingÅrsakType = :endringType
+              AND behandling.behandlingType = :revurderingType
+            """, Behandling.class);
 
         query.setParameter("idag", LocalDate.now()); //$NON-NLS-1$
         query.setParameter("revurderingType", BehandlingType.REVURDERING);

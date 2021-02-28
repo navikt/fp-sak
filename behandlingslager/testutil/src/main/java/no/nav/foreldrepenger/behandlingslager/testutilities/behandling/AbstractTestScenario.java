@@ -392,17 +392,10 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
                 var builder = FamilieHendelseGrunnlagBuilder.oppdatere(kladd);
                 HendelseVersjonType type = utledTypeFor(kladd);
                 switch (type) {
-                    case SØKNAD:
-                        builder.medSøknadVersjon(hendelseBuilder);
-                        break;
-                    case BEKREFTET:
-                        builder.medBekreftetVersjon(hendelseBuilder);
-                        break;
-                    case OVERSTYRT:
-                        builder.medOverstyrtVersjon(hendelseBuilder);
-                        break;
-                    default:
-                        throw new IllegalArgumentException("Støtter ikke HendelseVersjonType: " + type);
+                    case SØKNAD -> builder.medSøknadVersjon(hendelseBuilder);
+                    case BEKREFTET -> builder.medBekreftetVersjon(hendelseBuilder);
+                    case OVERSTYRT -> builder.medOverstyrtVersjon(hendelseBuilder);
+                    default -> throw new IllegalArgumentException("Støtter ikke HendelseVersjonType: " + type);
                 }
                 familieHendelseAggregatMap.remove(behandlingId);
                 familieHendelseAggregatMap.put(behandlingId, builder.build());

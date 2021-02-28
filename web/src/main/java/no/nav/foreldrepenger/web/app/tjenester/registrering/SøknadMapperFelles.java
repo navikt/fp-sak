@@ -246,21 +246,14 @@ public class SøknadMapperFelles {
 
     private static Omsorgsovertakelseaarsaker mapOmsorgsovertakelseaarsaker(ManuellRegistreringDto registreringDto) {
         Omsorgsovertakelseaarsaker omsorgsovertakelseaarsaker = new Omsorgsovertakelseaarsaker();
-        FarSøkerType farSøkerType;
-        switch (registreringDto.getRettigheter()) {
-            case ANNEN_FORELDER_DOED:
-                farSøkerType = FarSøkerType.ANDRE_FORELDER_DØD;
-                break;
-            case MANN_ADOPTERER_ALENE:
-                farSøkerType = FarSøkerType.ADOPTERER_ALENE;
-                break;
-            case OVERTA_FORELDREANSVARET_ALENE:
-            default:
-                farSøkerType = (erSøknadVedFødsel(registreringDto.getErBarnetFodt(), registreringDto.getTema())
-                    ? FarSøkerType.OVERTATT_OMSORG_F
-                    : FarSøkerType.OVERTATT_OMSORG
-                );
-        }
+        FarSøkerType farSøkerType = switch (registreringDto.getRettigheter()) {
+            case ANNEN_FORELDER_DOED -> FarSøkerType.ANDRE_FORELDER_DØD;
+            case MANN_ADOPTERER_ALENE -> FarSøkerType.ADOPTERER_ALENE;
+            default -> (erSøknadVedFødsel(registreringDto.getErBarnetFodt(), registreringDto.getTema())
+                ? FarSøkerType.OVERTATT_OMSORG_F
+                : FarSøkerType.OVERTATT_OMSORG
+            );
+        };
         omsorgsovertakelseaarsaker.setKode(farSøkerType.getKode());
         return omsorgsovertakelseaarsaker;
     }

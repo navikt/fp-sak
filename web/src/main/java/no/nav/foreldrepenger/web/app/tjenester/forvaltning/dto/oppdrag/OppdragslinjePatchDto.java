@@ -95,14 +95,11 @@ public class OppdragslinjePatchDto {
 
     @AssertTrue
     boolean isSatsSannsynlig() {
-        switch (satsType) {
-            case "ENG":
-                return sats < 100000;
-            case "DAG":
-                return sats < 3000;
-            default:
-                return false;
-        }
+        return switch (satsType) {
+            case "ENG" -> sats < 100000;
+            case "DAG" -> sats < 3000;
+            default -> false;
+        };
     }
 
     public long getDelytelseId() {

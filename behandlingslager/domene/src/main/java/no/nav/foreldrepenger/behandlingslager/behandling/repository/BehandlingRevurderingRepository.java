@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStat
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.util.Tuple;
@@ -90,15 +89,15 @@ public class BehandlingRevurderingRepository {
     }
 
     private List<Long> finnHenlagteBehandlingerEtter(Long fagsakId, Behandling sisteInnvilgede) {
-        TypedQuery<Long> query = getEntityManager().createQuery(
-            "SELECT b.id FROM Behandling b WHERE b.fagsak.id=:fagsakId " +
-                " AND b.behandlingType=:type" +
-                " AND b.opprettetTidspunkt >= to_timestamp(:etterTidspunkt)" +
-                " AND EXISTS (SELECT r FROM Behandlingsresultat r" +
-                "    WHERE r.behandling=b " +
-                "    AND r.behandlingResultatType IN :henlagtKoder)" +
-                " ORDER BY b.opprettetTidspunkt ASC", //$NON-NLS-1$
-            Long.class);
+        TypedQuery<Long> query = getEntityManager().createQuery("""
+            SELECT b.id FROM Behandling b WHERE b.fagsak.id=:fagsakId
+             AND b.behandlingType=:type
+             AND b.opprettetTidspunkt >= to_timestamp(:etterTidspunkt)
+             AND EXISTS (SELECT r FROM Behandlingsresultat r
+                WHERE r.behandling=b
+                AND r.behandlingResultatType IN :henlagtKoder)
+             ORDER BY b.opprettetTidspunkt ASC
+            """, Long.class);
         query.setParameter("fagsakId", fagsakId); //$NON-NLS-1$
         query.setParameter("type", BehandlingType.REVURDERING);
         query.setParameter("henlagtKoder", BehandlingResultatType.getAlleHenleggelseskoder());
@@ -194,29 +193,31 @@ public class BehandlingRevurderingRepository {
         return behandlinger.isEmpty() ? Optional.empty() : Optional.of(behandlinger.get(0));
     }
 
-    private static final String REGULERING_SELECT_STD =
-        "SELECT DISTINCT f.id , bru.aktoer_id " +
-            " from Fagsak f join bruker bru on f.bruker_id=bru.id " +
-            "  join behandling b on b.fagsak_id=f.id " +
-            "  join behandling_resultat br on (br.behandling_id=b.id and br.behandling_resultat_type in (:restyper)) " +
-            "  join (select beh.fagsak_id fsmax, max(brsq.opprettet_tid) maxbr from behandling beh  " +
-            "        join behandling_resultat brsq on (brsq.behandling_id=beh.id and brsq.behandling_resultat_type in (:restyper)) " +
-            "        where beh.behandling_type in (:ytelse) and beh.behandling_status in (:avsluttet) " +
-            "        group by beh.fagsak_id) on (fsmax=b.fagsak_id and br.opprettet_tid = maxbr) " +
-            "  join GR_BEREGNINGSGRUNNLAG grbg on (grbg.behandling_id=b.id and grbg.aktiv = 'J') " +
-            "  join BEREGNINGSGRUNNLAG bglag on grbg.beregningsgrunnlag_id=bglag.id " +
-            "  join BR_RESULTAT_BEHANDLING grbr on (grbr.behandling_id=b.id and grbr.aktiv = 'J') " +
-            "  join (select BEREGNINGSRESULTAT_FP_ID brfpid, min(BR_PERIODE_FOM) fom " +
-            "    from br_periode brp left join br_andel bra on bra.br_periode_id = brp.id " +
-            "    where (dagsats>0) group by BEREGNINGSRESULTAT_FP_ID " +
-            "  ) brnetto on brnetto.brfpid=grbr.BG_BEREGNINGSRESULTAT_FP_ID  ";
-    private static final String REGULERING_WHERE_STD =
-        "where b.behandling_status in (:avsluttet) and b.behandling_type in (:ytelse) " +
-        "  and brnetto.fom is not null " +
-        "  and bglag.SKJARINGSTIDSPUNKT >= :fomdato  " +
-        "  and f.id not in ( select beh.fagsak_id from behandling beh " +
-        "    where beh.behandling_status not in (:avsluttet) and beh.behandling_type in (:ytelse)  " +
-        "      and beh.id not in (select ba.behandling_id from behandling_arsak ba where behandling_arsak_type=:berort) ) ";
+    private static final String REGULERING_SELECT_STD = """
+        SELECT DISTINCT f.id , bru.aktoer_id
+          from Fagsak f join bruker bru on f.bruker_id=bru.id
+          join behandling b on b.fagsak_id=f.id
+          join behandling_resultat br on (br.behandling_id=b.id and br.behandling_resultat_type in (:restyper))
+          join (select beh.fagsak_id fsmax, max(brsq.opprettet_tid) maxbr from behandling beh
+                join behandling_resultat brsq on (brsq.behandling_id=beh.id and brsq.behandling_resultat_type in (:restyper))
+                where beh.behandling_type in (:ytelse) and beh.behandling_status in (:avsluttet)
+                group by beh.fagsak_id) on (fsmax=b.fagsak_id and br.opprettet_tid = maxbr)
+          join GR_BEREGNINGSGRUNNLAG grbg on (grbg.behandling_id=b.id and grbg.aktiv = 'J')
+          join BEREGNINGSGRUNNLAG bglag on grbg.beregningsgrunnlag_id=bglag.id
+          join BR_RESULTAT_BEHANDLING grbr on (grbr.behandling_id=b.id and grbr.aktiv = 'J')
+          join (select BEREGNINGSRESULTAT_FP_ID brfpid, min(BR_PERIODE_FOM) fom
+                from br_periode brp left join br_andel bra on bra.br_periode_id = brp.id
+                where (dagsats>0) group by BEREGNINGSRESULTAT_FP_ID
+               ) brnetto on brnetto.brfpid=grbr.BG_BEREGNINGSRESULTAT_FP_ID
+        """;
+    private static final String REGULERING_WHERE_STD = """
+        where b.behandling_status in (:avsluttet) and b.behandling_type in (:ytelse)
+          and brnetto.fom is not null
+          and bglag.SKJARINGSTIDSPUNKT >= :fomdato
+          and f.id not in ( select beh.fagsak_id from behandling beh
+            where beh.behandling_status not in (:avsluttet) and beh.behandling_type in (:ytelse)
+              and beh.id not in (select ba.behandling_id from behandling_arsak ba where behandling_arsak_type=:berort) )
+        """;
     private static final String REGULERING_GMLSATS_STD =
         "  and bglag.grunnbeloep=:gmlsats  ";
 
@@ -231,11 +232,12 @@ public class BehandlingRevurderingRepository {
          * OBS: De som kun har innvilget utsettelse (ingen utbetaling) får riktig beregning når det kommer endringssøknad med uttak
          */
         Query query = getEntityManager().createNativeQuery(
-            REGULERING_SELECT_STD +
-                "  join (select beregningsgrunnlag_id bgid, max(brutto_pr_aar) brutto " +
-                "        from BEREGNINGSGRUNNLAG_PERIODE " +
-                "        group by beregningsgrunnlag_id " +
-                "    ) bgmax on bgmax.bgid=grbg.beregningsgrunnlag_id " +
+            REGULERING_SELECT_STD + """
+                    join (select beregningsgrunnlag_id bgid, max(brutto_pr_aar) brutto
+                        from BEREGNINGSGRUNNLAG_PERIODE
+                        group by beregningsgrunnlag_id
+                    ) bgmax on bgmax.bgid=grbg.beregningsgrunnlag_id
+                    """ +
                 REGULERING_WHERE_STD +
                 REGULERING_GMLSATS_STD +
                 "  and bgmax.brutto >= (bglag.grunnbeloep * :avkorting ) "); //$NON-NLS-1$
@@ -261,12 +263,13 @@ public class BehandlingRevurderingRepository {
          * OBS: De som kun har innvilget utsettelse (ingen utbetaling) får riktig beregning når det kommer endringssøknad med uttak
          */
         Query query = getEntityManager().createNativeQuery(
-            REGULERING_SELECT_STD +
-                "  JOIN BG_AKTIVITET_STATUS bgs ON (bgs.BEREGNINGSGRUNNLAG_ID = grbg.BEREGNINGSGRUNNLAG_ID and bgs.AKTIVITET_STATUS in (:milsiv) ) " +
-                "  join (select beregningsgrunnlag_id bgid, min(brutto_pr_aar) brutto " +
-                "        from BEREGNINGSGRUNNLAG_PERIODE " +
-                "        group by beregningsgrunnlag_id " +
-                "    ) bgmin on bgmin.bgid=grbg.beregningsgrunnlag_id " +
+            REGULERING_SELECT_STD + """
+                  JOIN BG_AKTIVITET_STATUS bgs ON (bgs.BEREGNINGSGRUNNLAG_ID = grbg.BEREGNINGSGRUNNLAG_ID and bgs.AKTIVITET_STATUS in (:milsiv) )
+                  join (select beregningsgrunnlag_id bgid, min(brutto_pr_aar) brutto
+                        from BEREGNINGSGRUNNLAG_PERIODE
+                        group by beregningsgrunnlag_id
+                    ) bgmin on bgmin.bgid=grbg.beregningsgrunnlag_id
+                """ +
                 REGULERING_WHERE_STD +
                 REGULERING_GMLSATS_STD +
                 "  and bgmin.brutto <= (:nysats * :avkorting ) " ); //$NON-NLS-1$

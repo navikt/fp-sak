@@ -7,12 +7,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import no.nav.folketrygdloven.kalkulator.modell.iay.ArbeidsgiverOpplysningerDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.AktivitetsAvtaleDtoBuilder;
 import no.nav.folketrygdloven.kalkulator.modell.iay.ArbeidsforholdInformasjonDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.ArbeidsforholdInformasjonDtoBuilder;
 import no.nav.folketrygdloven.kalkulator.modell.iay.ArbeidsforholdOverstyringDtoBuilder;
 import no.nav.folketrygdloven.kalkulator.modell.iay.ArbeidsforholdReferanseDto;
+import no.nav.folketrygdloven.kalkulator.modell.iay.ArbeidsgiverOpplysningerDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.BekreftetPermisjonDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.InntektArbeidYtelseAggregatBuilder;
 import no.nav.folketrygdloven.kalkulator.modell.iay.InntektArbeidYtelseGrunnlagDto;
@@ -34,12 +34,10 @@ import no.nav.folketrygdloven.kalkulator.modell.iay.YrkesaktivitetDtoBuilder;
 import no.nav.folketrygdloven.kalkulator.modell.iay.YtelseAnvistDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.YtelseAnvistDtoBuilder;
 import no.nav.folketrygdloven.kalkulator.modell.iay.YtelseDtoBuilder;
-import no.nav.folketrygdloven.kalkulus.typer.AktørId;
+import no.nav.folketrygdloven.kalkulator.modell.typer.Arbeidsgiver;
 import no.nav.folketrygdloven.kalkulator.modell.typer.EksternArbeidsforholdRef;
 import no.nav.folketrygdloven.kalkulator.modell.typer.InternArbeidsforholdRefDto;
 import no.nav.folketrygdloven.kalkulator.modell.typer.Stillingsprosent;
-import no.nav.folketrygdloven.kalkulator.modell.typer.Arbeidsgiver;
-import no.nav.folketrygdloven.kalkulus.kodeverk.TemaUnderkategori;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import no.nav.folketrygdloven.kalkulus.kodeverk.ArbeidType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.ArbeidsforholdHandlingType;
@@ -50,7 +48,9 @@ import no.nav.folketrygdloven.kalkulus.kodeverk.NaturalYtelseType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.NæringsinntektType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.OffentligYtelseType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.PensjonTrygdType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.TemaUnderkategori;
 import no.nav.folketrygdloven.kalkulus.kodeverk.VirksomhetType;
+import no.nav.folketrygdloven.kalkulus.typer.AktørId;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
@@ -303,16 +303,12 @@ public class IAYMapperTilKalkulus {
             return OffentligYtelseType.UDEFINERT;
         String kodeverk = type.getKodeverk();
         String kode = type.getKode();
-        switch (kodeverk) {
-            case no.nav.foreldrepenger.domene.iay.modell.kodeverk.OffentligYtelseType.KODEVERK:
-                return OffentligYtelseType.fraKode(kode);
-            case no.nav.foreldrepenger.domene.iay.modell.kodeverk.NæringsinntektType.KODEVERK:
-                return NæringsinntektType.fraKode(kode);
-            case no.nav.foreldrepenger.domene.iay.modell.kodeverk.PensjonTrygdType.KODEVERK:
-                return PensjonTrygdType.fraKode(kode);
-            default:
-                throw new IllegalArgumentException("Ukjent UtbetaltYtelseType: " + type);
-        }
+        return switch (kodeverk) {
+            case no.nav.foreldrepenger.domene.iay.modell.kodeverk.OffentligYtelseType.KODEVERK -> OffentligYtelseType.fraKode(kode);
+            case no.nav.foreldrepenger.domene.iay.modell.kodeverk.NæringsinntektType.KODEVERK -> NæringsinntektType.fraKode(kode);
+            case no.nav.foreldrepenger.domene.iay.modell.kodeverk.PensjonTrygdType.KODEVERK -> PensjonTrygdType.fraKode(kode);
+            default -> throw new IllegalArgumentException("Ukjent UtbetaltYtelseType: " + type);
+        };
     }
 
     public static List<RefusjonskravDatoDto> mapRefusjonskravDatoer(List<RefusjonskravDato> refusjonskravDatoer) {

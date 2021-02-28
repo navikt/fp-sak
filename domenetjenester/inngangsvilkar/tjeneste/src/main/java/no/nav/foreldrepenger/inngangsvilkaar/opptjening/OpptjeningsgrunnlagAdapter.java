@@ -81,16 +81,12 @@ public class OpptjeningsgrunnlagAdapter {
     }
 
     private ReferanseType getAktivtetReferanseType(Opptjeningsnøkkel.Type type) {
-        switch (type) {
-            // skiller nå ikke på arbeidsforhold pr arbeidsgiver
-            case ARBEIDSFORHOLD_ID:
-            case ORG_NUMMER:
-                return ReferanseType.ORGNR;
-            case AKTØR_ID:
-                return ReferanseType.AKTØRID;
-            default:
-                return null;
-        }
+        // skiller nå ikke på arbeidsforhold pr arbeidsgiver
+        return switch (type) {
+            case ARBEIDSFORHOLD_ID, ORG_NUMMER -> ReferanseType.ORGNR;
+            case AKTØR_ID -> ReferanseType.AKTØRID;
+            default -> null;
+        };
     }
 
     private void leggTilOpptjening(Collection<OpptjeningAktivitetPeriode> opptjeningAktiveter, Opptjeningsgrunnlag opptjeningsGrunnlag) {
