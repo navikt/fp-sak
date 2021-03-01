@@ -185,7 +185,8 @@ public class KontrollerAktivitetskravAksjonspunktUtlederTest {
         var behandling = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medOppgittRettighet(new OppgittRettighetEntitet(false, true, false))
             .medFordeling(new OppgittFordelingEntitet(List.of(søknadsperiode), true))
-            .medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(søknadsperiode.getFom()).build())
+            .medAvklarteUttakDatoer(
+                new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(søknadsperiode.getFom()).build())
             .lagre(repositoryProvider);
         var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
         return uttakInput(BehandlingReferanse.fra(behandling), familieHendelse);
@@ -398,8 +399,7 @@ public class KontrollerAktivitetskravAksjonspunktUtlederTest {
         var behandling = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
             .medFordeling(new OppgittFordelingEntitet(List.of(fellesperiode), true))
-            .medJustertFordeling(
-                new OppgittFordelingEntitet(List.of(fellesperiode), true))
+            .medJustertFordeling(new OppgittFordelingEntitet(List.of(fellesperiode), true))
             .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false))
             .medAktivitetskravPerioder(List.of(avklartPeriode))
             .medAvklarteUttakDatoer(avklarteUttakDatoer)
@@ -428,8 +428,7 @@ public class KontrollerAktivitetskravAksjonspunktUtlederTest {
         var behandling = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
             .medFordeling(new OppgittFordelingEntitet(List.of(fellesperiode), true))
-            .medJustertFordeling(
-                new OppgittFordelingEntitet(List.of(fellesperiode), true))
+            .medJustertFordeling(new OppgittFordelingEntitet(List.of(fellesperiode), true))
             .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false))
             .medAktivitetskravPerioder(List.of(avklartPeriode))
             .medSaksbehandledeAktivitetskravPerioder(List.of(avklartPeriode))
@@ -457,11 +456,38 @@ public class KontrollerAktivitetskravAksjonspunktUtlederTest {
         var behandling = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
             .medFordeling(new OppgittFordelingEntitet(List.of(fellesperiode), true))
-            .medJustertFordeling(
-                new OppgittFordelingEntitet(List.of(fellesperiode), true))
+            .medJustertFordeling(new OppgittFordelingEntitet(List.of(fellesperiode), true))
             .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false))
             .medAktivitetskravPerioder(List.of(avklartPeriode))
             .medSaksbehandledeAktivitetskravPerioder(List.of(avklartPeriode))
+            .lagre(repositoryProvider);
+
+        var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
+        var ref = BehandlingReferanse.fra(behandling);
+        var fellesperiode1Resultat = skalKontrollereAktivitetskrav(ref, fellesperiode,
+            ytelseFordelingTjeneste.hentAggregat(behandling.getId()), familieHendelse, true);
+
+        assertThat(fellesperiode1Resultat.isAvklart()).isFalse();
+        assertThat(fellesperiode1Resultat.isKravTilAktivitet()).isFalse();
+        assertThat(fellesperiode1Resultat.getAvklartePerioder()).isEmpty();
+    }
+
+    @Test
+    public void skalIkkeKontrollereAktivitetskravHvisBehandlingHarAvklarteDatoerMenManglerEndringsdato() {
+        var fødselsdato = LocalDate.of(2020, 1, 1);
+        var fellesperiode = fellesperiode(fødselsdato);
+
+        var førstegangsbehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
+        var avklartPeriode = new AktivitetskravPeriodeEntitet(fellesperiode.getFom(), fellesperiode.getTom(),
+            KontrollerAktivitetskravAvklaring.IKKE_I_AKTIVITET_DOKUMENTERT, "begrunnelse");
+        var behandling = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
+            .medFordeling(new OppgittFordelingEntitet(List.of(fellesperiode), true))
+            .medJustertFordeling(new OppgittFordelingEntitet(List.of(fellesperiode), true))
+            .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false))
+            .medAktivitetskravPerioder(List.of(avklartPeriode))
+            .medAvklarteUttakDatoer(
+                new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(fellesperiode.getFom()).build())
             .lagre(repositoryProvider);
 
         var familieHendelse = FamilieHendelse.forFødsel(fødselsdato, fødselsdato, List.of(), 1);
