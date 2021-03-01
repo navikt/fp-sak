@@ -139,7 +139,7 @@ class MapTilKalkulatorInput {
         } else if (ytelsespesifiktGrunnlag instanceof no.nav.folketrygdloven.kalkulator.input.ForeldrepengerGrunnlag) {
             no.nav.folketrygdloven.kalkulator.input.ForeldrepengerGrunnlag fpGrunnlag = (no.nav.folketrygdloven.kalkulator.input.ForeldrepengerGrunnlag) ytelsespesifiktGrunnlag;
             AktivitetGraderingDto aktivitetGraderingDto = mapAktivitetGradering(fpGrunnlag.getAktivitetGradering());
-            return new ForeldrepengerGrunnlag(BigDecimal.valueOf(fpGrunnlag.getDekningsgrad()), fpGrunnlag.isKvalifisererTilBesteberegning(), aktivitetGraderingDto);
+            return new ForeldrepengerGrunnlag(BigDecimal.valueOf(fpGrunnlag.getDekningsgrad(null)), fpGrunnlag.isKvalifisererTilBesteberegning(), aktivitetGraderingDto);
         }
         return null;
     }
