@@ -100,7 +100,7 @@ public class OppdragInputTjeneste {
     }
 
     private LocalDate hentVedtaksdato(Long behandlingId) {
-        return behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId).map(BehandlingVedtak::getVedtaksdato).orElseThrow();
+        return behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId).map(BehandlingVedtak::getVedtaksdato).orElse(LocalDate.now()); // Trenger en dato da vedtak er ikke på plass ved simulering.
     }
 
     private boolean hentBrukInntrekk(Long behandlingId) {
