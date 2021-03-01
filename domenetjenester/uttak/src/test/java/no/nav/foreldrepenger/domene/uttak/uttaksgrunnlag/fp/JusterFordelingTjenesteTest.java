@@ -164,6 +164,34 @@ public class JusterFordelingTjenesteTest {
     }
 
     @Test
+    public void ikke_skal_slå_sammen_perioder_der_mottatt_dato_er_ulik() {
+        var mottattDato1 = LocalDate.of(2020, 1, 1);
+        var mødrekvote1 = OppgittPeriodeBuilder.ny().medPeriode(LocalDate.of(2019, 8, 15), LocalDate.of(2019, 8, 19))
+            .medPeriodeType(MØDREKVOTE)
+            .medMottattDato(mottattDato1)
+            .build();
+        var mottattDato2 = LocalDate.of(2020, 2, 2);
+        var mødrekvote2 = OppgittPeriodeBuilder.ny().medPeriode(LocalDate.of(2019, 8, 20), LocalDate.of(2019, 8, 25))
+            .medPeriodeType(MØDREKVOTE)
+            .medMottattDato(mottattDato2)
+            .build();
+
+        var oppgittePerioder = List.of(mødrekvote1, mødrekvote2);
+
+        var justertePerioder = justerFordelingTjeneste.juster(oppgittePerioder, mødrekvote1.getFom(),
+            mødrekvote1.getFom());
+
+        assertThat(justertePerioder).hasSize(2);
+
+        var justertMødrekvote1 = justertePerioder.get(0);
+        var justertMødrekvote2 = justertePerioder.get(1);
+        assertThat(justertMødrekvote1.getFom()).isEqualTo(mødrekvote1.getFom());
+        assertThat(justertMødrekvote1.getTom()).isEqualTo(mødrekvote1.getTom());
+        assertThat(justertMødrekvote2.getFom()).isEqualTo(mødrekvote2.getFom());
+        assertThat(justertMødrekvote2.getTom()).isEqualTo(mødrekvote2.getTom());
+    }
+
+    @Test
     public void skal_slå_sammen_like_perioder_usortert() {
         var foreldrepenger1 = lagPeriode(FORELDREPENGER, LocalDate.of(2019, 8, 26), LocalDate.of(2019, 10, 6));
         var foreldrepenger2 = lagPeriode(FORELDREPENGER, LocalDate.of(2019, 10, 7), LocalDate.of(2020, 1, 20));

@@ -92,6 +92,7 @@ class JusterFordelingTjeneste {
             Objects.equals(periode1.getPeriodeType(), periode2.getPeriodeType()) &&
             Objects.equals(periode1.getPeriodeVurderingType(), periode2.getPeriodeVurderingType()) &&
             Objects.equals(periode1.getSamtidigUttaksprosent(), periode2.getSamtidigUttaksprosent()) &&
+            Objects.equals(periode1.getMottattDato(), periode2.getMottattDato()) &&
             Objects.equals(periode1.getÅrsak(), periode2.getÅrsak()) &&
             Objects.equals(periode1.getArbeidsprosent(), periode2.getArbeidsprosent());
     }
