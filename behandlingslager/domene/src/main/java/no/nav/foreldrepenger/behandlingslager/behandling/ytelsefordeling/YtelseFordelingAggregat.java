@@ -107,13 +107,16 @@ public class YtelseFordelingAggregat {
     }
 
     public LocalDate getGjeldendeEndringsdato() {
-        return getAvklarteDatoer()
-            .orElseThrow(() -> new IllegalStateException("Finner ikke avklarte datoer"))
-            .getGjeldendeEndringsdato();
+        return getGjeldendeEndringsdatoHvisEksisterer()
+            .orElseThrow(() -> new IllegalStateException("Finner ikke endringsdato"));
+    }
+
+    public Optional<LocalDate> getGjeldendeEndringsdatoHvisEksisterer() {
+        return getAvklarteDatoer().map(AvklarteUttakDatoerEntitet::getGjeldendeEndringsdato);
     }
 
     public static class Builder {
-        private YtelseFordelingAggregat kladd;
+        private final YtelseFordelingAggregat kladd;
 
         private Builder() {
             this.kladd = new YtelseFordelingAggregat();
