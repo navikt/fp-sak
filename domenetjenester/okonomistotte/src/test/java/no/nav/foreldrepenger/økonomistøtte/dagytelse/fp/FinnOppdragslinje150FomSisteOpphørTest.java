@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringL
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
-import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.opphør.FinnOppdragslinje150FomSisteOpphør;
 
@@ -168,7 +167,6 @@ public class FinnOppdragslinje150FomSisteOpphørTest {
         Oppdragskontroll oppdragskontroll = opprettOppdragskontroll();
         return Oppdrag110.builder()
             .medAvstemming(Avstemming.ny())
-            .medKodeAksjon("kodeAksjon")
             .medKodeEndring("kodeEndring")
             .medKodeFagomrade("kode")
             .medFagSystemId(123L)

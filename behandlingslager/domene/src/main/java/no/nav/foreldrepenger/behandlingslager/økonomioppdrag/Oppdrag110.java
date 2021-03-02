@@ -20,13 +20,11 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Immutable;
 
 import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.vedtak.util.env.Cluster;
 import no.nav.vedtak.util.env.Environment;
 
@@ -40,9 +38,6 @@ public class Oppdrag110 extends BaseCreateableEntitet {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_OKO_OPPDRAG_110")
     private Long id;
-
-    @Column(name = "kode_aksjon", nullable = false)
-    private String kodeAksjon;
 
     @Column(name = "kode_endring", nullable = false)
     private String kodeEndring;
@@ -91,10 +86,6 @@ public class Oppdrag110 extends BaseCreateableEntitet {
 
     public Long getId() {
         return id;
-    }
-
-    public String getKodeAksjon() {
-        return kodeAksjon;
     }
 
     public String getKodeEndring() {
@@ -167,10 +158,6 @@ public class Oppdrag110 extends BaseCreateableEntitet {
         return !erKvitteringMottatt();
     }
 
-    public long getVersjon() {
-        return versjon;
-    }
-
     /**
      * gjør tilgjengelig for test, siden det er funksjonell avhengighet til opprettetTidspunkt
      */
@@ -192,8 +179,7 @@ public class Oppdrag110 extends BaseCreateableEntitet {
             return false;
         }
         Oppdrag110 oppdr110 = (Oppdrag110) object;
-        return Objects.equals(kodeAksjon, oppdr110.getKodeAksjon())
-            && Objects.equals(kodeEndring, oppdr110.getKodeEndring())
+        return Objects.equals(kodeEndring, oppdr110.getKodeEndring())
             && Objects.equals(kodeFagomrade, oppdr110.getKodeFagomrade())
             && Objects.equals(fagsystemId, oppdr110.getFagsystemId())
             && Objects.equals(utbetFrekvens, oppdr110.getUtbetFrekvens())
@@ -205,7 +191,7 @@ public class Oppdrag110 extends BaseCreateableEntitet {
 
     @Override
     public int hashCode() {
-        return Objects.hash(kodeAksjon, kodeEndring, kodeFagomrade, fagsystemId, utbetFrekvens, oppdragGjelderId,
+        return Objects.hash(kodeEndring, kodeFagomrade, fagsystemId, utbetFrekvens, oppdragGjelderId,
             datoOppdragGjelderFom, saksbehId, nøkkelAvstemming);
     }
 
@@ -213,7 +199,6 @@ public class Oppdrag110 extends BaseCreateableEntitet {
     public String toString() {
         return getClass().getSimpleName() + "<" + //$NON-NLS-1$
             (id != null ? "id=" + id + ", " : "") //$NON-NLS-1$ //$NON-NLS-2$
-            + "kodeAksjon=" + kodeAksjon + ", " //$NON-NLS-1$ //$NON-NLS-2$
             + "kodeEndring=" + kodeEndring + ", " //$NON-NLS-1$ //$NON-NLS-2$
             + "kodeFagomrade=" + kodeFagomrade + "," //$NON-NLS-1$ //$NON-NLS-2$
             + "fagsystemId=" + fagsystemId + "," //$NON-NLS-1$ //$NON-NLS-2$
@@ -227,7 +212,6 @@ public class Oppdrag110 extends BaseCreateableEntitet {
     }
 
     public static class Builder {
-        private String kodeAksjon;
         private String kodeEndring;
         private String kodeFagomrade;
         private Long fagsystemId;
@@ -238,11 +222,6 @@ public class Oppdrag110 extends BaseCreateableEntitet {
         private Avstemming avstemming;
         private Oppdragskontroll oppdragskontroll;
         private Ompostering116 ompostering116;
-
-        public Builder medKodeAksjon(String kodeAksjon) {
-            this.kodeAksjon = kodeAksjon;
-            return this;
-        }
 
         public Builder medKodeEndring(String kodeEndring) {
             this.kodeEndring = kodeEndring;

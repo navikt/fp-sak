@@ -5,13 +5,13 @@ import java.util.Collections;
 import java.util.List;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 
@@ -51,7 +51,6 @@ class ØkonomiOppdragUtils {
 
     static void setupOppdrag110(Oppdragskontroll oppdrag, Boolean gjelderFP) {
         Oppdrag110 o110_1 = new Oppdrag110.Builder()
-            .medKodeAksjon(BehandleØkonomioppdragKvitteringTest.KODEAKSJON)
             .medKodeEndring(BehandleØkonomioppdragKvitteringTest.KODEENDRING)
             .medKodeFagomrade(hentKodeFagomrade(gjelderFP, true))
             .medFagSystemId(BehandleØkonomioppdragKvitteringTest.FAGSYSTEMID_BRUKER)
@@ -80,7 +79,6 @@ class ØkonomiOppdragUtils {
         if (gjelderFP) {
             Oppdrag110 o110_2 = new Oppdrag110.Builder()
                 .medAvstemming(Avstemming.ny())
-                .medKodeAksjon(BehandleØkonomioppdragKvitteringTest.KODEAKSJON)
                 .medKodeEndring(BehandleØkonomioppdragKvitteringTest.KODEENDRING)
                 .medKodeFagomrade(hentKodeFagomrade(gjelderFP, false))
                 .medFagSystemId(BehandleØkonomioppdragKvitteringTest.FAGSYSTEMID_ARBEIDSGIVER)

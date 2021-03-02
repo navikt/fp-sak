@@ -15,7 +15,6 @@ public class Oppdrag110EntityTest {
     private Oppdrag110 oppdrag110;
     private Oppdrag110 oppdrag110_2;
 
-    private static final String KODEAKSJON = ØkonomiKodeAksjon.EN.name();
     private static final String KODEENDRING = ØkonomiKodeEndring.NY.name();
     private static final String KODEFAGOMRADE = ØkonomiKodeFagområde.REFUTG.name();
     private static final Long FAGSYSTEMID = 250L;
@@ -39,7 +38,6 @@ public class Oppdrag110EntityTest {
     public void skal_bygge_instans_med_påkrevde_felter() {
         oppdrag110 = lagBuilderMedPaakrevdeFelter().build();
 
-        assertThat(oppdrag110.getKodeAksjon()).isEqualTo(KODEAKSJON);
         assertThat(oppdrag110.getKodeEndring()).isEqualTo(KODEENDRING);
         assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(KODEFAGOMRADE);
         assertThat(oppdrag110.getFagsystemId()).isEqualTo(FAGSYSTEMID);
@@ -51,16 +49,7 @@ public class Oppdrag110EntityTest {
 
     @Test
     public void skal_ikke_bygge_instans_hvis_mangler_påkrevde_felter() {
-        // mangler kodeAksjon
-        try {
-            oppdrag110Builder.build();
-            fail(FORVENTET_EXCEPTION);
-        } catch (NullPointerException e) {
-            assertThat(e.getMessage()).contains("kodeAksjon");
-        }
-
         // mangler kodeEndring
-        oppdrag110Builder.medKodeAksjon(KODEAKSJON);
         try {
             oppdrag110Builder.build();
             fail(FORVENTET_EXCEPTION);
@@ -185,7 +174,6 @@ public class Oppdrag110EntityTest {
 
     private Oppdrag110.Builder lagBuilderMedPaakrevdeFelter() {
         return Oppdrag110.builder()
-                .medKodeAksjon(KODEAKSJON)
                 .medKodeEndring(KODEENDRING)
                 .medKodeFagomrade(KODEFAGOMRADE)
                 .medFagSystemId(FAGSYSTEMID)

@@ -16,7 +16,6 @@ public class OppdragKvitteringEntityTest {
     private OppdragKvittering oppdragKvittering;
     private OppdragKvittering oppdragKvittering_2;
 
-    private static final String KODEAKSJON = ØkonomiKodeAksjon.EN.name();
     private static final String KODEENDRING = ØkonomiKodeEndring.NY.name();
     private static final String KODEFAGOMRADE = ØkonomiKodeFagområde.FP.name();
     private static final String ALVORLIGHETSGRAD = "00";
@@ -109,7 +108,6 @@ public class OppdragKvitteringEntityTest {
 
     private Oppdrag110.Builder lagOppdrag110MedPaakrevdeFelter() {
         return Oppdrag110.builder()
-                .medKodeAksjon(KODEAKSJON)
                 .medKodeEndring(KODEENDRING)
                 .medKodeFagomrade(KODEFAGOMRADE)
                 .medFagSystemId(FAGSYSTEMID)

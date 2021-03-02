@@ -62,7 +62,6 @@ public class OppdragskontrollEngangsstønad {
         String kodeEndring = forrigeOppdragOpt.isPresent() ? KODE_ENDRING_UENDRET : KODE_ENDRING_NY;
 
         return Oppdrag110.builder()
-            .medKodeAksjon(ØkonomiKodeAksjon.EN.getKodeAksjon())
             .medKodeEndring(kodeEndring)
             .medKodeFagomrade(ØkonomiKodeFagområde.REFUTG.name())
             .medFagSystemId(fagsystemId)

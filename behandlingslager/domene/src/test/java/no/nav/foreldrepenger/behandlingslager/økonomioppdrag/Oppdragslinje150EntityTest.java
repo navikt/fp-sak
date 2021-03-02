@@ -34,7 +34,6 @@ public class Oppdragslinje150EntityTest {
     private static final String UTBETALESTILID = "456";
     private static final Long REFFAGSYSTEMID = 678L;
     private static final Long REFDELYTELSEID = 789L;
-    private static final String KODEAKSJON = ØkonomiKodeAksjon.EN.name();
     private static final String KODEENDRING = ØkonomiKodeEndring.NY.name();
     private static final String KODEFAGOMRADE = ØkonomiKodeFagområde.REFUTG.name();
     private static final Long FAGSYSTEMID = 250L;
@@ -189,7 +188,6 @@ public class Oppdragslinje150EntityTest {
 
     private Oppdrag110.Builder lagOppdrag110MedPaakrevdeFelter() {
         return Oppdrag110.builder()
-                .medKodeAksjon(KODEAKSJON)
                 .medKodeEndring(KODEENDRING)
                 .medKodeFagomrade(KODEFAGOMRADE)
                 .medFagSystemId(FAGSYSTEMID)

@@ -25,14 +25,12 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodekomponent;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
-import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.OppdragsLinje150;
@@ -50,6 +48,7 @@ public class ØkonomioppdragMapperTest {
     private static final String FRADRAG_TILLEGG = "T";
     private static final String BRUK_KJØREPLAN = "N";
     private static final String TYPE_GRAD = "UFOR";
+    public static final String KODE_AKSJON = "1";
 
     private Oppdragskontroll oppdragskontroll;
     private ØkonomioppdragMapper økonomioppdragMapper;
@@ -196,7 +195,7 @@ public class ØkonomioppdragMapperTest {
             Oppdrag oppdrag = økonomioppdragMapper.mapVedtaksDataToOppdrag(oppdrag110, behandlingId);
 
             no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag110 oppdrag110Generert = oppdrag.getOppdrag110();
-            assertThat(oppdrag110Generert.getKodeAksjon()).isEqualTo(oppdrag110.getKodeAksjon());
+            assertThat(oppdrag110Generert.getKodeAksjon()).isEqualTo(KODE_AKSJON);
             assertThat(oppdrag110Generert.getKodeEndring()).isEqualTo(oppdrag110.getKodeEndring());
             assertThat(oppdrag110Generert.getKodeFagomraade()).isEqualTo(oppdrag110.getKodeFagomrade()); //
             assertThat(oppdrag110Generert.getUtbetFrekvens()).isEqualTo(oppdrag110.getUtbetFrekvens());
@@ -352,7 +351,6 @@ public class ØkonomioppdragMapperTest {
         List<Oppdrag110> oppdrag110Liste = new ArrayList<>();
 
         Oppdrag110 oppdrag110_1 = Oppdrag110.builder()
-            .medKodeAksjon(ØkonomiKodeAksjon.TRE.getKodeAksjon())
             .medKodeEndring(ØkonomiKodeEndring.NY.name())
             .medKodeFagomrade(gjelderFP ? "FP" : "REFUTG")
             .medFagSystemId(44L)
@@ -373,7 +371,6 @@ public class ØkonomioppdragMapperTest {
 
         if (gjelderFP) {
             Oppdrag110 oppdrag110_2 = Oppdrag110.builder()
-                .medKodeAksjon(ØkonomiKodeAksjon.TRE.getKodeAksjon())
                 .medKodeEndring(ØkonomiKodeEndring.NY.name())
                 .medKodeFagomrade("FPREF")
                 .medFagSystemId(55L)

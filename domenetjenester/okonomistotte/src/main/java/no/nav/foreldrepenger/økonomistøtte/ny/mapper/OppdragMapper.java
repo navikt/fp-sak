@@ -50,7 +50,6 @@ public class OppdragMapper {
     public void mapTilOppdrag110(Oppdrag oppdrag, Oppdragskontroll oppdragskontroll) {
         Oppdrag110.Builder builder = Oppdrag110.builder()
             .medOppdragskontroll(oppdragskontroll)
-            .medKodeAksjon(ØkonomiKodeAksjon.EN.getKodeAksjon())
             .medKodeEndring(utledKodeEndring(oppdrag).name())
             .medKodeFagomrade(oppdrag.getØkonomiFagområde().name())
             .medFagSystemId(Long.parseLong(oppdrag.getFagsystemId().toString()))

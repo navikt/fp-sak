@@ -338,7 +338,6 @@ public class GrensesnittavstemmingMapperTest {
 
     private Oppdrag110 buildOppdrag110(Oppdragskontroll oppdragskontroll, String fagområde, LocalDateTime avstemmingsTidspunkt) {
         return oppdr110Builder
-            .medKodeAksjon(ØkonomiKodeAksjon.TRE.getKodeAksjon())
             .medKodeEndring(ØkonomiKodeEndring.NY.name())
             .medKodeFagomrade(fagområde)
             .medFagSystemId(44L)

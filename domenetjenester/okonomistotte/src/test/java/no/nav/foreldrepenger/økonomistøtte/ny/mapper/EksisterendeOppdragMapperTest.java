@@ -163,7 +163,6 @@ public class EksisterendeOppdragMapperTest {
 
     private Oppdrag110 lagOppdrag110(Oppdragskontroll oppdragskontroll, FagsystemId fagsystemId) {
         return Oppdrag110.builder()
-            .medKodeAksjon("1")
             .medKodeEndring("NY")
             .medKodeFagomrade("FP")
             .medUtbetFrekvens("MND")

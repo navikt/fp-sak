@@ -14,7 +14,6 @@ public class Oppdrag110Dto extends SporingDto {
     private String oppdragGjelderId;
     private String saksbehId;
     private Long oppdragsKontrollId;
-    private String kodeAksjon;
     private String kodeEndring;
     private String kodeFagomrade;
     private String utbetFrekvens;
@@ -25,7 +24,7 @@ public class Oppdrag110Dto extends SporingDto {
     private List<Oppdragslinje150Dto> oppdragslinje150;
 
     public Oppdrag110Dto(Oppdrag110 entitet) {
-        super(entitet, entitet.getVersjon(), entitet.getId());
+        super(entitet, 0L, entitet.getId());
     }
 
     public Long getFagsystemId() {
@@ -58,14 +57,6 @@ public class Oppdrag110Dto extends SporingDto {
 
     public void setOppdragsKontrollId(Long oppdragsKontrollId) {
         this.oppdragsKontrollId = oppdragsKontrollId;
-    }
-
-    public String getKodeAksjon() {
-        return kodeAksjon;
-    }
-
-    public void setKodeAksjon(String kodeAksjon) {
-        this.kodeAksjon = kodeAksjon;
     }
 
     public String getKodeEndring() {
@@ -115,7 +106,6 @@ public class Oppdrag110Dto extends SporingDto {
         oppdrag110Dto.oppdragGjelderId = oppdrag110.getOppdragGjelderId();
         oppdrag110Dto.saksbehId = oppdrag110.getSaksbehId();
         oppdrag110Dto.oppdragsKontrollId = oppdrag110.getOppdragskontroll().getId();
-        oppdrag110Dto.kodeAksjon = oppdrag110.getKodeAksjon();
         oppdrag110Dto.kodeEndring = oppdrag110.getKodeEndring();
         oppdrag110Dto.kodeFagomrade = oppdrag110.getKodeFagomrade();
         oppdrag110Dto.utbetFrekvens = oppdrag110.getUtbetFrekvens();

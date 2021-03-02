@@ -40,6 +40,7 @@ public class ØkonomioppdragMapper {
     private static final String FRADRAG_TILLEGG = "T";
     private static final String BRUK_KJOREPLAN = "N";
     private static final String TYPE_GRAD = "UFOR";
+    public static final String KODE_AKSJON = "1";
 
     // TODO (Team Tonic): Fjern global state oppdragskontroll
     private Oppdragskontroll oppdragskontroll;
@@ -78,7 +79,7 @@ public class ØkonomioppdragMapper {
         final no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag110 oppdrag110 = objectFactory.createOppdrag110();
         //TODO (Tonic): Løsningsbeskrivelse viser at Oppdrag110 er en liste men Økonomi Oppdrag tar bare et Oppdrag110
         String kodeFagområde = okoOppdrag110.getKodeFagomrade();
-        oppdrag110.setKodeAksjon(okoOppdrag110.getKodeAksjon());
+        oppdrag110.setKodeAksjon(KODE_AKSJON);
         oppdrag110.setKodeEndring(okoOppdrag110.getKodeEndring());
         //TODO (Tonic): Sjekk vis dette må være enum eller ikke
         oppdrag110.setKodeFagomraade(okoOppdrag110.getKodeFagomrade());

@@ -64,7 +64,6 @@ public class OpprettOppdrag110Tjeneste {
         String kodeEndring = ØkonomiKodeEndringUtleder.finnKodeEndring(behandlingInfo, mottaker, erNyMottakerIEndring);
         String kodeFagområde = KodeFagområdeTjenesteProvider.getKodeFagområdeTjeneste(behandlingInfo).finn(mottaker.erBruker());
         Oppdrag110.Builder builder = Oppdrag110.builder()
-            .medKodeAksjon(ØkonomiKodeAksjon.EN.getKodeAksjon())
             .medKodeEndring(kodeEndring)
             .medKodeFagomrade(kodeFagområde)
             .medFagSystemId(fagsystemId)

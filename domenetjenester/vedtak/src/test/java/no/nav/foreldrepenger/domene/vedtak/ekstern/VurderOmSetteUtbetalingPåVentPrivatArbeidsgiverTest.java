@@ -46,7 +46,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringL
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
@@ -291,7 +290,6 @@ public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
 
     private Oppdrag110 byggOppdrag110() {
         return Oppdrag110.builder()
-            .medKodeAksjon(ØkonomiKodeAksjon.EN.name())
             .medKodeEndring(ØkonomiKodeEndring.NY.name())
             .medKodeFagomrade(ØkonomiKodeFagområde.FP.name())
             .medFagSystemId(250L)

@@ -93,7 +93,6 @@ class OppdragMapper {
         return Oppdrag110.builder()
             .medOppdragskontroll(oppdragskontroll)
             .medAvstemming(Avstemming.ny())
-            .medKodeAksjon(ØkonomiKodeAksjon.EN.getKodeAksjon())
             .medKodeEndring(dto.getKodeEndring())
             .medDatoOppdragGjelderFom(LocalDate.of(2000, 1, 1))
             .medKodeFagomrade(utledFagområde(behandling, dto.erBrukerMottaker()).name())

@@ -17,15 +17,15 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
-import no.nav.foreldrepenger.økonomistøtte.grensesnittavstemming.queue.producer.GrensesnittavstemmingJmsProducer;
 import no.nav.foreldrepenger.økonomistøtte.BehandleØkonomioppdragKvitteringTest;
+import no.nav.foreldrepenger.økonomistøtte.grensesnittavstemming.queue.producer.GrensesnittavstemmingJmsProducer;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -105,7 +105,6 @@ public class GrensesnittavstemmingBatchTjenesteTest {
         Oppdragskontroll oppdrag = new Oppdragskontroll();
         Oppdrag110 o110 = new Oppdrag110.Builder()
             .medAvstemming(Avstemming.ny())
-            .medKodeAksjon(BehandleØkonomioppdragKvitteringTest.KODEAKSJON)
             .medKodeEndring(BehandleØkonomioppdragKvitteringTest.KODEENDRING)
             .medKodeFagomrade(BehandleØkonomioppdragKvitteringTest.KODEFAGOMRADE_ES)
             .medFagSystemId(BehandleØkonomioppdragKvitteringTest.FAGSYSTEMID_BRUKER)

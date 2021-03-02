@@ -30,8 +30,6 @@ public class BehandleØkonomioppdragKvitteringTest {
 
     public static final Long FAGSYSTEMID_ARBEIDSGIVER = 256L;
 
-    public static final String KODEAKSJON = "1";
-
     public static final String KODEENDRING = "NY";
 
     public static final String KODEFAGOMRADE_ES = "REFUTG";

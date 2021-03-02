@@ -39,7 +39,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringL
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
@@ -291,7 +290,6 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
 
         long initialLøpenummer = 100L;
         for (Oppdrag110 oppdrag110 : oppdrag110List) {
-            assertThat(oppdrag110.getKodeAksjon()).isEqualTo(ØkonomiKodeAksjon.EN.getKodeAksjon());
             assertThat(oppdrag110.getKodeEndring()).isEqualTo(ØkonomiKodeEndring.NY.name());
             assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(ØkonomiKodeFagområde.REFUTG.name());
             assertThat(oppdrag110.getFagsystemId()).isEqualTo(
