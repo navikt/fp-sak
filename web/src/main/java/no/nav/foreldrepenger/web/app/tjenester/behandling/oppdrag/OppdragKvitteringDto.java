@@ -8,7 +8,7 @@ public class OppdragKvitteringDto extends SporingDto {
     private String beskrMelding;
 
     public OppdragKvitteringDto(OppdragKvittering entitet) {
-        super(entitet, entitet.getVersjon(), entitet.getId());
+        super(entitet, 0L, entitet.getId());
     }
 
     public String getAlvorlighetsgrad() {

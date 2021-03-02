@@ -104,7 +104,6 @@ class OppdragMapper {
         if (dto.taMedOmpostering116()) {
             boolean erAvslåttInntrekk = dto.getOmposterFom() == null;
             Ompostering116.Builder builder = new Ompostering116.Builder()
-                .medSaksbehId(ansvarligSaksbehandler)
                 .medTidspktReg(ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now()))
                 .medOmPostering(erAvslåttInntrekk ? OppdragskontrollConstants.OMPOSTERING_N : OppdragskontrollConstants.OMPOSTERING_J);
             if (!erAvslåttInntrekk) {

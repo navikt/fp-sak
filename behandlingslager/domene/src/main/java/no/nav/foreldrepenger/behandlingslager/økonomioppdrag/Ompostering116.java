@@ -12,11 +12,15 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Immutable;
+
+import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 
+@Immutable
 @Table(name = "OKO_OMPOSTERING_116")
 @Entity(name = "Ompostering116")
-public class Ompostering116 extends BaseEntitet {
+public class Ompostering116 extends BaseCreateableEntitet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_OKO_OMPOSTERING_116")
@@ -35,10 +39,7 @@ public class Ompostering116 extends BaseEntitet {
     @Column(name = "tidspkt_reg", nullable = false)
     private String tidspktReg;
 
-    @Column(name = "saksbeh_id", nullable = false)
-    private String saksbehId;
-
-    Ompostering116() {
+    protected Ompostering116() {
         // For hibernate
     }
 
@@ -52,10 +53,6 @@ public class Ompostering116 extends BaseEntitet {
 
     public String getTidspktReg() {
         return tidspktReg;
-    }
-
-    public String getSaksbehId() {
-        return saksbehId;
     }
 
     void setOppdrag110(Oppdrag110 oppdrag110) {
@@ -84,11 +81,6 @@ public class Ompostering116 extends BaseEntitet {
             return this;
         }
 
-        public Builder medSaksbehId(String saksbehId) {
-            kladd.saksbehId = saksbehId;
-            return this;
-        }
-
         public Ompostering116 build() {
             verifiser();
             return kladd;
@@ -97,7 +89,6 @@ public class Ompostering116 extends BaseEntitet {
         private void verifiser() {
             Objects.requireNonNull(kladd.omPostering);
             Objects.requireNonNull(kladd.tidspktReg);
-            Objects.requireNonNull(kladd.saksbehId);
         }
     }
 }

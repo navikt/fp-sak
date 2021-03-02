@@ -13,19 +13,19 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
+import org.hibernate.annotations.Immutable;
+
+import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 
+@Immutable
 @Entity(name = "OppdragKvittering")
 @Table(name = "OPPDRAG_KVITTERING")
-public class OppdragKvittering extends BaseEntitet {
+public class OppdragKvittering extends BaseCreateableEntitet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_OPPDRAG_KVITTERING")
     private Long id;
-
-    @Version
-    @Column(name = "versjon", nullable = false)
-    private long versjon;
 
     @Column(name = "alvorlighetsgrad")
     private String alvorlighetsgrad;
@@ -40,9 +40,7 @@ public class OppdragKvittering extends BaseEntitet {
     @JoinColumn(name = "oppdrag_110_id", nullable = false)
     private Oppdrag110 oppdrag110;
 
-
-    public OppdragKvittering() {
-    }
+    protected OppdragKvittering() {}
 
     public Long getId() {
         return id;
@@ -82,10 +80,6 @@ public class OppdragKvittering extends BaseEntitet {
 
     public void setOppdrag110(Oppdrag110 oppdrag110) {
         this.oppdrag110 = oppdrag110;
-    }
-
-    public long getVersjon() {
-        return versjon;
     }
 
     @Override
