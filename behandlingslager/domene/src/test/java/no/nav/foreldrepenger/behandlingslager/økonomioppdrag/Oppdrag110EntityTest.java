@@ -70,15 +70,17 @@ public class Oppdrag110EntityTest {
             assertThat(e.getMessage()).contains("fagsystemId");
         }
 
-        // mangler utbetFrekvens
+        // mangler fagsystemId
         oppdrag110Builder.medFagSystemId(FAGSYSTEMID);
         try {
             oppdrag110Builder.build();
             fail(FORVENTET_EXCEPTION);
         } catch (NullPointerException e) {
-            assertThat(e.getMessage()).contains("utbetFrekvens");
+            assertThat(e.getMessage()).contains("oppdragGjelderId");
         }
 
+        // mangler saksbehId
+        oppdrag110Builder.medOppdragGjelderId(OPPDRAGGJELDERID);
         try {
             oppdrag110Builder.build();
             fail(FORVENTET_EXCEPTION);

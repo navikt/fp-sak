@@ -31,9 +31,11 @@ import no.nav.vedtak.util.env.Environment;
  * Denne klassen er en ren avbildning fra Oppdragsløsningens meldingsformater.
  * Navngivning følger ikke nødvendigvis Vedtaksløsningens navnestandarder.
  */
+@Immutable
 @Entity(name = "Oppdrag110")
 @Table(name = "OKO_OPPDRAG_110")
 public class Oppdrag110 extends BaseCreateableEntitet {
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_OKO_OPPDRAG_110")
     private Long id;
@@ -71,7 +73,7 @@ public class Oppdrag110 extends BaseCreateableEntitet {
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "oppdrag110", cascade = CascadeType.PERSIST)
     private Ompostering116 ompostering116;
 
-    private Oppdrag110() {}
+    protected Oppdrag110() {}
 
     public static Builder builder() {
         return new Builder();
