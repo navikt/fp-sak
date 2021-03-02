@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
@@ -169,7 +170,7 @@ public class FinnOppdragslinje150FomSisteOpphørTest {
         return Oppdrag110.builder()
             .medAvstemming(Avstemming.ny())
             .medKodeEndring(KodeEndring.NY)
-            .medKodeFagomrade("kode")
+            .medKodeFagomrade(KodeFagområde.FORELDREPENGER_BRUKER)
             .medFagSystemId(123L)
             .medOppdragGjelderId("oppdraggjelderid")
             .medSaksbehId("saksbehid")
