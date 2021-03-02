@@ -1,12 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling;
 
-import static no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoUtil.get;
-
-import java.util.Optional;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -23,6 +16,12 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.SøknadRestTje
 import no.nav.foreldrepenger.web.app.tjenester.behandling.tilbakekreving.TilbakekrevingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.FagsakRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import java.util.Optional;
+
+import static no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoUtil.get;
 
 /**
  * Returnerer behandlingsinformasjon og lenker for en behandling.
@@ -103,11 +102,15 @@ public class BehandlingDtoForBackendTjeneste {
     }
 
     private Språkkode getSpråkkode(Behandling behandling) {
-        Optional<SøknadEntitet> søknadOpt = søknadRepository.hentSøknadHvisEksisterer(behandling.getId());
-        if (søknadOpt.isPresent()) {
-            return søknadOpt.get().getSpråkkode();
+        if (!behandling.erYtelseBehandling()) {
+            Behandling sisteYtelsesBehandling = behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(behandling.getFagsakId()).orElse(null);
+            if (sisteYtelsesBehandling==null) {
+                return behandling.getFagsak().getNavBruker().getSpråkkode();
+            } else {
+                return søknadRepository.hentSøknadHvisEksisterer(sisteYtelsesBehandling.getId()).map(SøknadEntitet::getSpråkkode).orElse(behandling.getFagsak().getNavBruker().getSpråkkode());
+            }
         } else {
-            return behandling.getFagsak().getNavBruker().getSpråkkode();
+            return søknadRepository.hentSøknadHvisEksisterer(behandling.getId()).map(SøknadEntitet::getSpråkkode).orElse(behandling.getFagsak().getNavBruker().getSpråkkode());
         }
     }
 }
