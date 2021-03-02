@@ -20,7 +20,7 @@ public class LagOppdragTjeneste {
         GruppertYtelse målbilde = input.getTilkjentYtelse();
         OverordnetOppdragKjedeOversikt tidligereOppdrag = input.getTidligereOppdrag();
 
-        OppdragFactory oppdragFactory = new OppdragFactory(ØkonomiFagområdeMapper::tilFagområde, input.getYtelseType(), input.getSaksnummer());
+        OppdragFactory oppdragFactory = new OppdragFactory(FagområdeMapper::tilFagområde, input.getYtelseType(), input.getSaksnummer());
 
         if (brukFellesEndringstidspunkt) {
             oppdragFactory.setFellesEndringstidspunkt(EndringsdatoTjeneste.normal().finnTidligsteEndringsdato(målbilde, tidligereOppdrag));
@@ -41,7 +41,7 @@ public class LagOppdragTjeneste {
         GruppertYtelse målbilde = input.getTilkjentYtelse();
         OverordnetOppdragKjedeOversikt tidligereOppdrag = input.getTidligereOppdrag();
 
-        OppdragFactory oppdragFactory = new OppdragFactory(ØkonomiFagområdeMapper::tilFagområde, input.getYtelseType(), input.getSaksnummer());
+        OppdragFactory oppdragFactory = new OppdragFactory(FagområdeMapper::tilFagområde, input.getYtelseType(), input.getSaksnummer());
         return oppdragFactory.lagOppdrag(tidligereOppdrag, målbilde);
     }
 

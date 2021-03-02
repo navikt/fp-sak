@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodekomponent;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.AksjonType;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.Aksjonsdata;
@@ -53,18 +53,17 @@ public class GrensesnittavstemmingMapper {
         if (oppdragsliste == null || oppdragsliste.isEmpty()) {
             throw new IllegalStateException("Grensesnittavstemming uten oppdragsliste er ikke mulig");
         }
-        if (!(ØkonomiKodeFagområde.FPREF.name().equals(fagområde) ||
-            ØkonomiKodeFagområde.FP.name().equals(fagområde) ||
-            ØkonomiKodeFagområde.REFUTG.name().equals(fagområde) ||
-            ØkonomiKodeFagområde.SVP.name().equals(fagområde) ||
-            ØkonomiKodeFagområde.SVPREF.name().equals(fagområde))) {
+        KodeFagområde kodeFagområde;
+        try {
+            kodeFagområde = KodeFagområde.fraKode(fagområde);
+        } catch (Exception e) {
             throw new IllegalStateException("Grensesnittavstemming uten fagområde er ikke mulig");
         }
 
         this.objectFactory = new ObjectFactory();
         this.avstemmingId = encodeUUIDBase64(UUID.randomUUID());
         this.fagområde = fagområde;
-        this.oppdragsliste = oppdragsliste.stream().filter(opp -> opp.getKodeFagomrade().equals(fagområde)).collect(Collectors.toList());
+        this.oppdragsliste = oppdragsliste.stream().filter(opp -> opp.getKodeFagomrade().equals(kodeFagområde)).collect(Collectors.toList());
     }
 
     private static String encodeUUIDBase64(UUID uuid) {

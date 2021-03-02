@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 
 public class Oppdrag110Dto extends SporingDto {
 
@@ -15,7 +16,7 @@ public class Oppdrag110Dto extends SporingDto {
     private String saksbehId;
     private Long oppdragsKontrollId;
     private KodeEndring kodeEndring;
-    private String kodeFagomrade;
+    private KodeFagområde kodeFagomrade;
     private AvstemmingDto avstemming;
     private Ompostering116Dto ompostering116Dto;
     private List<OppdragKvitteringDto> oppdragKvittering;
@@ -65,11 +66,11 @@ public class Oppdrag110Dto extends SporingDto {
         this.kodeEndring = kodeEndring;
     }
 
-    public String getKodeFagomrade() {
+    public KodeFagområde getKodeFagomrade() {
         return kodeFagomrade;
     }
 
-    public void setKodeFagomrade(String kodeFagomrade) {
+    public void setKodeFagomrade(KodeFagområde kodeFagomrade) {
         this.kodeFagomrade = kodeFagomrade;
     }
 

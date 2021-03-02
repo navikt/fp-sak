@@ -10,6 +10,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.Oppdragsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.OpprettOppdragTjeneste;
@@ -61,7 +62,7 @@ public class OpprettOppdrag110Tjeneste {
                                                                Oppdragsmottaker mottaker, boolean erNyMottakerIEndring, long fagsystemId) {
 
         KodeEndring kodeEndring = ØkonomiKodeEndringUtleder.finnKodeEndring(behandlingInfo, mottaker, erNyMottakerIEndring);
-        String kodeFagområde = KodeFagområdeTjenesteProvider.getKodeFagområdeTjeneste(behandlingInfo).finn(mottaker.erBruker());
+        KodeFagområde kodeFagområde = KodeFagområdeTjenesteProvider.getKodeFagområdeTjeneste(behandlingInfo).finn(mottaker.erBruker());
         Oppdrag110.Builder builder = Oppdrag110.builder()
             .medKodeEndring(kodeEndring)
             .medKodeFagomrade(kodeFagområde)

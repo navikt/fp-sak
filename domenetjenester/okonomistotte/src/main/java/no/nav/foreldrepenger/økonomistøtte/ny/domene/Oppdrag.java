@@ -5,23 +5,23 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 
 public class Oppdrag {
-    private ØkonomiKodeFagområde økonomiFagområde;
+    private KodeFagområde kodeFagområde;
     private FagsystemId fagsystemId;
     private Betalingsmottaker betalingsmottaker;
     private Map<KjedeNøkkel, OppdragKjedeFortsettelse> kjeder;
 
-    private Oppdrag(ØkonomiKodeFagområde økonomiFagområde, FagsystemId fagsystemId, Betalingsmottaker betalingsmottaker, Map<KjedeNøkkel, OppdragKjedeFortsettelse> kjeder) {
-        this.økonomiFagområde = økonomiFagområde;
+    private Oppdrag(KodeFagområde kodeFagområde, FagsystemId fagsystemId, Betalingsmottaker betalingsmottaker, Map<KjedeNøkkel, OppdragKjedeFortsettelse> kjeder) {
+        this.kodeFagområde = kodeFagområde;
         this.fagsystemId = fagsystemId;
         this.betalingsmottaker = betalingsmottaker;
         this.kjeder = kjeder;
     }
 
-    public ØkonomiKodeFagområde getØkonomiFagområde() {
-        return økonomiFagområde;
+    public KodeFagområde getKodeFagområde() {
+        return kodeFagområde;
     }
 
     public FagsystemId getFagsystemId() {
@@ -36,7 +36,7 @@ public class Oppdrag {
         return kjeder;
     }
 
-    public static Builder builder(ØkonomiKodeFagområde økonomFagområde, FagsystemId fagsystemId, Betalingsmottaker betalingsmottaker) {
+    public static Builder builder(KodeFagområde økonomFagområde, FagsystemId fagsystemId, Betalingsmottaker betalingsmottaker) {
         return new Builder(økonomFagområde, fagsystemId, betalingsmottaker);
     }
 
@@ -63,11 +63,11 @@ public class Oppdrag {
         private FagsystemId fagsystemId;
         private Betalingsmottaker betalingsmottaker;
         private Map<KjedeNøkkel, OppdragKjedeFortsettelse> kjeder = new HashMap<>();
-        private ØkonomiKodeFagområde økonomiFagområde;
+        private KodeFagområde kodeFagområde;
 
-        private Builder(ØkonomiKodeFagområde økonomiFagområde, FagsystemId fagsystemId, Betalingsmottaker betalingsmottaker) {
-            this.økonomiFagområde = økonomiFagområde;
-            Objects.requireNonNull(økonomiFagområde);
+        private Builder(KodeFagområde kodeFagområde, FagsystemId fagsystemId, Betalingsmottaker betalingsmottaker) {
+            this.kodeFagområde = kodeFagområde;
+            Objects.requireNonNull(kodeFagområde);
             Objects.requireNonNull(fagsystemId);
             Objects.requireNonNull(betalingsmottaker);
             this.fagsystemId = fagsystemId;
@@ -93,7 +93,7 @@ public class Oppdrag {
         }
 
         public Oppdrag build() {
-            return new Oppdrag(økonomiFagområde, fagsystemId, betalingsmottaker, kjeder);
+            return new Oppdrag(kodeFagområde, fagsystemId, betalingsmottaker, kjeder);
         }
     }
 }

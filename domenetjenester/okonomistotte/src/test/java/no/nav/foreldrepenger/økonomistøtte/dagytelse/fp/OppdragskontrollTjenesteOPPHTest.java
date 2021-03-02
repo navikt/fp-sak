@@ -25,9 +25,9 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.økonomistøtte.OppdragMedPositivKvitteringTestUtil;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.OppdragskontrollConstants;
 
@@ -505,6 +505,6 @@ public class OppdragskontrollTjenesteOPPHTest extends OppdragskontrollTjenesteTe
     }
 
     private boolean gjelderFagområdeBruker(Oppdrag110 oppdrag110) {
-        return ØkonomiKodeFagområde.FP.name().equals(oppdrag110.getKodeFagomrade());
+        return KodeFagområde.FORELDREPENGER_BRUKER.equals(oppdrag110.getKodeFagomrade());
     }
 }

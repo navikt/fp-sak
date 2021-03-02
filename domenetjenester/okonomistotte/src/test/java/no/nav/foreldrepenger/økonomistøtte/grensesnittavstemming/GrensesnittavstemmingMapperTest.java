@@ -19,10 +19,10 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodekomponent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.AksjonType;
@@ -44,7 +44,7 @@ public class GrensesnittavstemmingMapperTest {
     private Oppdragslinje150.Builder oppdrLinje150Builder;
     private OppdragKvittering.Builder oppdragKvitteringBuilder;
     private GrensesnittavstemmingMapper grensesnittavstemmingMapper;
-    private String kodeFagområde;
+    private KodeFagområde kodeFagområde;
 
     private List<Oppdrag110> oppdragsliste;
 
@@ -54,14 +54,14 @@ public class GrensesnittavstemmingMapperTest {
         oppdr110Builder = Oppdrag110.builder();
         oppdrLinje150Builder = Oppdragslinje150.builder();
         oppdragKvitteringBuilder = OppdragKvittering.builder();
-        kodeFagområde = ØkonomiKodeFagområde.FPREF.name();
+        kodeFagområde = KodeFagområde.FORELDREPENGER_AG;
         Oppdragskontroll oppdragskontroll = opprettOppdrag(null, kodeFagområde);
 
         oppdragsliste = Collections.singletonList(oppdragskontroll.getOppdrag110Liste().get(0));
-        grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde);
+        grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde.getKode());
     }
 
-    private Oppdragskontroll opprettOppdrag(String status, String fagområde) {
+    private Oppdragskontroll opprettOppdrag(String status, KodeFagområde fagområde) {
         Oppdragskontroll oppdragskontroll = buildOppdragskontroll(status == null);
         Oppdrag110 oppdrag110 = buildOppdrag110(oppdragskontroll, fagområde, LocalDateTime.now());
         buildOppdragslinje150(oppdrag110);
@@ -102,7 +102,7 @@ public class GrensesnittavstemmingMapperTest {
         }
     }
 
-    private void setupForStoreDatamengder(String kodeFagområde) {
+    private void setupForStoreDatamengder(KodeFagområde kodeFagområde) {
         oppdragsliste = new ArrayList<>();
         for (int gruppe = 0; gruppe < 60; gruppe++) {
             Oppdragskontroll oppdrag = opprettOppdrag("00", kodeFagområde);
@@ -117,10 +117,10 @@ public class GrensesnittavstemmingMapperTest {
             oppdrag = opprettOppdrag("04", kodeFagområde);
             oppdragsliste.addAll(oppdrag.getOppdrag110Liste());
         }
-        grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde);
+        grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde.getKode());
     }
 
-    private void setupForStørreDatamengder(String kodeFagområde) {
+    private void setupForStørreDatamengder(KodeFagområde kodeFagområde) {
 
         oppdragsliste = new ArrayList<>();
         for (int gruppe = 0; gruppe < 560; gruppe++) {
@@ -136,27 +136,27 @@ public class GrensesnittavstemmingMapperTest {
             oppdrag = opprettOppdrag("04", kodeFagområde);
             oppdragsliste.addAll(oppdrag.getOppdrag110Liste());
         }
-        grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde);
+        grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde.getKode());
     }
 
     private void opprettOppdragMedFlereOppdrag110ForForskjelligeFagområder() {
         oppdragsliste = new ArrayList<>();
 
-        Oppdragskontroll oppdrag = opprettOppdrag("00", ØkonomiKodeFagområde.FP.name());
+        Oppdragskontroll oppdrag = opprettOppdrag("00", KodeFagområde.FORELDREPENGER_BRUKER);
         Oppdragskontroll oppdrag2 = opprettOppdrag("00", kodeFagområde);
-        Oppdragskontroll oppdrag3 = opprettOppdrag("00", ØkonomiKodeFagområde.REFUTG.name());
+        Oppdragskontroll oppdrag3 = opprettOppdrag("00", KodeFagområde.ENGANGSSTØNAD);
         oppdrag.getOppdrag110Liste().add(oppdrag2.getOppdrag110Liste().get(0));
         oppdrag.getOppdrag110Liste().add(oppdrag3.getOppdrag110Liste().get(0));
 
         oppdragsliste.addAll(oppdrag.getOppdrag110Liste());
 
-        grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde);
+        grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde.getKode());
     }
 
     @Test
     public void testDatameldingXMLvedStoreDatamengder() {
         // Arrange
-        setupForStoreDatamengder(ØkonomiKodeFagområde.FPREF.name());
+        setupForStoreDatamengder(KodeFagområde.FORELDREPENGER_AG);
         // Act
         List<String> meldinger = grensesnittavstemmingMapper.lagDatameldinger();
         // Assert
@@ -210,7 +210,7 @@ public class GrensesnittavstemmingMapperTest {
     @Test
     public void testDatameldingVedStoreDatamengder() {
         // Arrange
-        String kodeFagområde = ØkonomiKodeFagområde.REFUTG.name();
+        KodeFagområde kodeFagområde = KodeFagområde.ENGANGSSTØNAD;
         setupForStoreDatamengder(kodeFagområde);
         // Act
         List<Avstemmingsdata> avstemmingsdataListe = grensesnittavstemmingMapper.lagAvstemmingsdataListe();
@@ -224,7 +224,7 @@ public class GrensesnittavstemmingMapperTest {
     @Test
     public void testAtSisteDataHarInnslag() {
         // Arrange
-        setupForStørreDatamengder(ØkonomiKodeFagområde.FP.name());
+        setupForStørreDatamengder(KodeFagområde.FORELDREPENGER_BRUKER);
         // Act
         List<Avstemmingsdata> avstemmingsdataListe = grensesnittavstemmingMapper.lagAvstemmingsdataListe();
         // Assert
@@ -259,7 +259,7 @@ public class GrensesnittavstemmingMapperTest {
         oppdragsliste.addAll(oppdrag.getOppdrag110Liste());
 
         //Act
-        grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde);
+        grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde.getKode());
 
         List<Avstemmingsdata> avstemmingsdata = grensesnittavstemmingMapper.lagAvstemmingsdataListe();
 
@@ -269,13 +269,13 @@ public class GrensesnittavstemmingMapperTest {
         sjekkAksjonsInnhold(forventetFom, forventetTom, avstemmingsdata.get(0), AksjonType.DATA, true, kodeFagområde);
     }
 
-    private Oppdrag110 opprettOppdrag110MedAvsetmmingsDato(Oppdragskontroll oppdrag, LocalDateTime lavAvstemmingsDato, String kodeFagområde) {
+    private Oppdrag110 opprettOppdrag110MedAvsetmmingsDato(Oppdragskontroll oppdrag, LocalDateTime lavAvstemmingsDato, KodeFagområde kodeFagområde) {
         Oppdrag110 oppdrag110 = buildOppdrag110(oppdrag, kodeFagområde, lavAvstemmingsDato);
         buildOppdragslinje150(oppdrag110);
         return oppdrag110;
     }
 
-    private void sjekkAksjonsInnhold(Avstemming forvendetFom, Avstemming forvendetTom, Avstemmingsdata avstemmingsdata, AksjonType aksjonType, boolean første, String kodeFagområde) {
+    private void sjekkAksjonsInnhold(Avstemming forvendetFom, Avstemming forvendetTom, Avstemmingsdata avstemmingsdata, AksjonType aksjonType, boolean første, KodeFagområde kodeFagområde) {
         sjekkAksjonsInnhold(avstemmingsdata, aksjonType, første, kodeFagområde);
 
         Aksjonsdata aksjon = avstemmingsdata.getAksjon();
@@ -283,7 +283,7 @@ public class GrensesnittavstemmingMapperTest {
         assertThat(aksjon.getNokkelTom()).isEqualTo(forvendetTom.getNøkkel());
     }
 
-    private void sjekkAksjonsInnhold(Avstemmingsdata avstemmingsdata, AksjonType aksjonType, boolean første, String kodeFagområde) {
+    private void sjekkAksjonsInnhold(Avstemmingsdata avstemmingsdata, AksjonType aksjonType, boolean første, KodeFagområde kodeFagområde) {
         assertThat(avstemmingsdata).isNotNull();
         if (AksjonType.DATA.equals(aksjonType)) {
             assertThat(avstemmingsdata.getDetalj()).isNotEmpty();
@@ -311,7 +311,7 @@ public class GrensesnittavstemmingMapperTest {
         assertThat(aksjon.getBrukerId()).isEqualTo(GrensesnittavstemmingMapper.BRUKER_ID_FOR_VEDTAKSLØSNINGEN);
         assertThat(aksjon.getKildeType()).isEqualTo(KildeType.AVLEV);
         assertThat(aksjon.getMottakendeKomponentKode()).isEqualTo(ØkonomiKodekomponent.OS.getKode());
-        assertThat(aksjon.getUnderkomponentKode()).isEqualTo(kodeFagområde);
+        assertThat(aksjon.getUnderkomponentKode()).isEqualTo(kodeFagområde.getKode());
     }
 
     //    ---------------------------------------------
@@ -333,7 +333,7 @@ public class GrensesnittavstemmingMapperTest {
             .build();
     }
 
-    private Oppdrag110 buildOppdrag110(Oppdragskontroll oppdragskontroll, String fagområde, LocalDateTime avstemmingsTidspunkt) {
+    private Oppdrag110 buildOppdrag110(Oppdragskontroll oppdragskontroll, KodeFagområde fagområde, LocalDateTime avstemmingsTidspunkt) {
         return oppdr110Builder
             .medKodeEndring(KodeEndring.NY)
             .medKodeFagomrade(fagområde)

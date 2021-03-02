@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public class OppdragKvitteringEntityTest {
@@ -15,7 +16,7 @@ public class OppdragKvitteringEntityTest {
     private OppdragKvittering oppdragKvittering;
     private OppdragKvittering oppdragKvittering_2;
 
-    private static final String KODEFAGOMRADE = ØkonomiKodeFagområde.FP.name();
+    private static final KodeFagområde KODEFAGOMRADE = KodeFagområde.FORELDREPENGER_BRUKER;
     private static final String ALVORLIGHETSGRAD = "00";
     private static final String BESKR_MELDING = "Beskr melding";
     private static final String MELDING_KODE = "Melding kode";

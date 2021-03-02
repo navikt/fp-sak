@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public class Oppdrag110EntityTest {
@@ -15,7 +16,7 @@ public class Oppdrag110EntityTest {
     private Oppdrag110 oppdrag110_2;
 
     private static final KodeEndring KODEENDRING = KodeEndring.ENDRING;
-    private static final String KODEFAGOMRADE = ØkonomiKodeFagområde.REFUTG.name();
+    private static final KodeFagområde KODEFAGOMRADE = KodeFagområde.ENGANGSSTØNAD;
     private static final Long FAGSYSTEMID = 250L;
     private static final String OPPDRAGGJELDERID = "1";
     private static final String SAKSBEHID = "Z1236525";

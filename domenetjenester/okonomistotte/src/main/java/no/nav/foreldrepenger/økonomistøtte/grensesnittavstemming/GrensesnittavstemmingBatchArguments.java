@@ -5,15 +5,12 @@ import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import no.nav.foreldrepenger.batch.BatchArgument;
 import no.nav.foreldrepenger.batch.BatchArguments;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 
 public class GrensesnittavstemmingBatchArguments extends BatchArguments {
 
@@ -23,14 +20,6 @@ public class GrensesnittavstemmingBatchArguments extends BatchArguments {
     private static final String FAGOMRÅDE_KEY = "fagomrade";
     private static final String DATE_PATTERN = "dd-MM-yyyy";
     private static final Integer MAX_PERIOD = 7;
-
-    private static final Set<String> gyldigeFagområder = new HashSet<>(Arrays.asList(
-        ØkonomiKodeFagområde.REFUTG.toString(),
-        ØkonomiKodeFagområde.FP.toString(),
-        ØkonomiKodeFagområde.FPREF.toString(),
-        ØkonomiKodeFagområde.SVP.toString(),
-        ØkonomiKodeFagområde.SVPREF.toString()
-    ));
 
     @BatchArgument(beskrivelse = "Antall dager tilbake i tid det skal genereres rapport for.")
     private Integer antallDager;
@@ -97,11 +86,13 @@ public class GrensesnittavstemmingBatchArguments extends BatchArguments {
 
     @Override
     public boolean isValid() {
-        if (null == fagområde) {
+        try {
+            KodeFagområde.fraKode(getFagområde());
+        } catch (Exception e) {
             return false;
-        } else if (!gyldigeFagområder.contains(fagområde)) {
-            return false;
-        } else if (antallDager != null) {
+        }
+
+        if (antallDager != null) {
             return harGenerertDatoer && isValidPeriod();
         }
         return hasSetDates() && isValidDateRange() && isValidPeriod();

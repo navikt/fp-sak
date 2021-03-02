@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.økonomistøtte.ny.tjeneste;
 import java.time.LocalDate;
 import java.util.Map;
 
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Betalingsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.FagsystemId;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.KjedeNøkkel;
@@ -15,12 +15,12 @@ import no.nav.foreldrepenger.økonomistøtte.ny.util.SetUtil;
 
 public class OppdragForMottakerTjeneste {
 
-    private final ØkonomiKodeFagområde økonomiFagområde;
+    private final KodeFagområde økonomiFagområde;
     private final FagsystemId fagsystemId;
     private final Betalingsmottaker betalingsmottaker;
     private final LocalDate fellesEndringstidspunkt;
 
-    public OppdragForMottakerTjeneste(ØkonomiKodeFagområde økonomiFagområde, FagsystemId fagsystemId, Betalingsmottaker betalingsmottaker, LocalDate fellesEndringstidspunkt) {
+    public OppdragForMottakerTjeneste(KodeFagområde økonomiFagområde, FagsystemId fagsystemId, Betalingsmottaker betalingsmottaker, LocalDate fellesEndringstidspunkt) {
         this.økonomiFagområde = økonomiFagområde;
         this.fagsystemId = fagsystemId;
         this.betalingsmottaker = betalingsmottaker;

@@ -26,6 +26,7 @@ import org.hibernate.annotations.Immutable;
 
 import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.vedtak.util.env.Cluster;
 import no.nav.vedtak.util.env.Environment;
 
@@ -46,8 +47,9 @@ public class Oppdrag110 extends BaseCreateableEntitet {
     @Column(name = "kode_endring", nullable = false)
     private KodeEndring kodeEndring;
 
+    @Convert(converter = KodeFagområde.KodeverdiConverter.class)
     @Column(name = "kode_fagomrade", nullable = false)
-    private String kodeFagomrade;
+    private KodeFagområde kodeFagomrade;
 
     @Column(name = "fagsystem_id", nullable = false)
     private long fagsystemId;
@@ -90,7 +92,7 @@ public class Oppdrag110 extends BaseCreateableEntitet {
         return kodeEndring;
     }
 
-    public String getKodeFagomrade() {
+    public KodeFagområde getKodeFagomrade() {
         return kodeFagomrade;
     }
 
@@ -199,7 +201,7 @@ public class Oppdrag110 extends BaseCreateableEntitet {
 
     public static class Builder {
         private KodeEndring kodeEndring;
-        private String kodeFagomrade;
+        private KodeFagområde kodeFagomrade;
         private Long fagsystemId;
         private String oppdragGjelderId;
         private String saksbehId;
@@ -212,7 +214,7 @@ public class Oppdrag110 extends BaseCreateableEntitet {
             return this;
         }
 
-        public Builder medKodeFagomrade(String kodeFagomrade) {
+        public Builder medKodeFagomrade(KodeFagområde kodeFagomrade) {
             this.kodeFagomrade = kodeFagomrade;
             return this;
         }

@@ -20,10 +20,10 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 
 public class OppdragskontrollTestVerktøy {
 
@@ -42,7 +42,7 @@ public class OppdragskontrollTestVerktøy {
 
     public static Oppdrag110 getOppdrag110ForBruker(List<Oppdrag110> oppdrag110Liste) {
         return oppdrag110Liste.stream()
-            .filter(oppdrag110 -> ØkonomiKodeFagområde.FP.name().equals(oppdrag110.getKodeFagomrade()))
+            .filter(oppdrag110 -> KodeFagområde.FORELDREPENGER_BRUKER.equals(oppdrag110.getKodeFagomrade()))
             .findFirst().get();
     }
 
@@ -58,7 +58,7 @@ public class OppdragskontrollTestVerktøy {
 
     public static List<Oppdragslinje150> getOpp150ListeForEnVirksomhet(List<Oppdrag110> oppdrag110Liste, String virksomhetOrgnr) {
         return oppdrag110Liste.stream()
-            .filter(oppdrag110 -> ØkonomiKodeFagområde.FPREF.name().equals(oppdrag110.getKodeFagomrade()))
+            .filter(oppdrag110 -> KodeFagområde.FORELDREPENGER_AG.equals(oppdrag110.getKodeFagomrade()))
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
             .filter(oppdragslinje150 -> oppdragslinje150.getRefusjonsinfo156().getRefunderesId().equals(endreTilElleveSiffer(virksomhetOrgnr)))
             .collect(Collectors.toList());
@@ -66,7 +66,7 @@ public class OppdragskontrollTestVerktøy {
 
     public static List<Oppdragslinje150> getOpp150ListeForBruker(List<Oppdrag110> oppdrag110Liste) {
         return oppdrag110Liste.stream()
-            .filter(oppdrag110 -> ØkonomiKodeFagområde.FP.name().equals(oppdrag110.getKodeFagomrade()))
+            .filter(oppdrag110 -> KodeFagområde.FORELDREPENGER_BRUKER.equals(oppdrag110.getKodeFagomrade()))
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
             .collect(Collectors.toList());
     }
@@ -83,10 +83,10 @@ public class OppdragskontrollTestVerktøy {
 
     public static void verifiserOppdr150SomAndelerSlåSammen(Oppdragskontroll originaltOppdrag, Oppdragskontroll revurderingOppdrag) {
         List<Oppdragslinje150> originaltoppdr150Liste = getOppdragslinje150Liste(originaltOppdrag);
-        List<Oppdragslinje150> originaltOppdr150ListeBruker = originaltoppdr150Liste.stream().filter(opp150 -> opp150.getOppdrag110().getKodeFagomrade().equals(ØkonomiKodeFagområde.FP.name()))
+        List<Oppdragslinje150> originaltOppdr150ListeBruker = originaltoppdr150Liste.stream().filter(opp150 -> opp150.getOppdrag110().getKodeFagomrade().equals(KodeFagområde.FORELDREPENGER_BRUKER))
             .filter(opp150 -> !opp150.getKodeKlassifik().equals(KodeKlassifik.FERIEPENGER_BRUKER)).collect(Collectors.toList());
         List<Oppdragslinje150> revurderingOppdr150Liste = getOppdragslinje150Liste(revurderingOppdrag);
-        List<Oppdragslinje150> revurderingOppdr150ListeBruker = revurderingOppdr150Liste.stream().filter(opp150 -> opp150.getOppdrag110().getKodeFagomrade().equals(ØkonomiKodeFagområde.FP.name()))
+        List<Oppdragslinje150> revurderingOppdr150ListeBruker = revurderingOppdr150Liste.stream().filter(opp150 -> opp150.getOppdrag110().getKodeFagomrade().equals(KodeFagområde.FORELDREPENGER_BRUKER))
             .filter(opp150 -> !opp150.getKodeKlassifik().equals(KodeKlassifik.FERIEPENGER_BRUKER)).filter(opp150 -> opp150.getKodeEndringLinje().equals(KodeEndringLinje.NY))
             .filter(opp150 -> opp150.getDatoVedtakFom().equals(OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(8))).collect(Collectors.toList());
 
@@ -180,7 +180,7 @@ public class OppdragskontrollTestVerktøy {
 
     public static void verifiserRefusjonInfo156(List<Oppdrag110> opp110RevurderingList, Oppdragskontroll originaltOppdrag) {
 
-        List<Oppdragslinje150> opp150RevurderingList = opp110RevurderingList.stream().filter(opp110 -> opp110.getKodeFagomrade().equals(ØkonomiKodeFagområde.FPREF.name()))
+        List<Oppdragslinje150> opp150RevurderingList = opp110RevurderingList.stream().filter(opp110 -> opp110.getKodeFagomrade().equals(KodeFagområde.FORELDREPENGER_AG))
             .flatMap(opp110 -> opp110.getOppdragslinje150Liste().stream())
             .collect(Collectors.toList());
 
@@ -221,7 +221,7 @@ public class OppdragskontrollTestVerktøy {
     }
 
     public static LocalDate finnFørsteDatoVedtakFom(List<Oppdragslinje150> originaltOpp150Liste, Oppdragslinje150 originaltOpp150) {
-        if (originaltOpp150.getOppdrag110().getKodeFagomrade().equals(ØkonomiKodeFagområde.FP.name())) {
+        if (originaltOpp150.getOppdrag110().getKodeFagomrade().equals(KodeFagområde.FORELDREPENGER_BRUKER)) {
             return originaltOpp150Liste.stream().filter(opp150 -> !opp150.getKodeKlassifik().equals(KodeKlassifik.FPF_REFUSJON_AG)
                 && !opp150.getKodeKlassifik().equals(KodeKlassifik.FPF_FERIEPENGER_AG)).min(Comparator.comparing(Oppdragslinje150::getDatoVedtakFom)).map(Oppdragslinje150::getDatoVedtakFom).get();
         } else {
@@ -232,7 +232,7 @@ public class OppdragskontrollTestVerktøy {
     }
 
     public static boolean opp150MedGradering(Oppdragslinje150 oppdragslinje150) {
-        boolean erBrukerEllerVirksomhet = oppdragslinje150.getOppdrag110().getKodeFagomrade().equals(ØkonomiKodeFagområde.FP.name()) ||
+        boolean erBrukerEllerVirksomhet = oppdragslinje150.getOppdrag110().getKodeFagomrade().equals(KodeFagområde.FORELDREPENGER_BRUKER) ||
             oppdragslinje150.getRefusjonsinfo156().getRefunderesId().equals("00789123456");
         boolean gjelderFeriepenger = oppdragslinje150.getKodeKlassifik().equals(KodeKlassifik.FERIEPENGER_BRUKER) ||
             oppdragslinje150.getKodeKlassifik().equals(KodeKlassifik.FPF_FERIEPENGER_AG);
@@ -262,7 +262,7 @@ public class OppdragskontrollTestVerktøy {
                 assertThat(opp150Ny.getKodeKlassifik()).isEqualTo(oppdr150.getKodeKlassifik());
                 opp150List.add(oppdr150);
             }
-            if (opp150Ny.getOppdrag110().getKodeFagomrade().equals(ØkonomiKodeFagområde.FPREF.name())) {
+            if (opp150Ny.getOppdrag110().getKodeFagomrade().equals(KodeFagområde.FORELDREPENGER_AG)) {
                 assertThat(opp150Ny.getRefusjonsinfo156()).isNotNull();
             }
             if (opp150MedGradering(opp150Ny)) {

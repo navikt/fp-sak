@@ -31,8 +31,8 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.økonomistøtte.OppdragMedPositivKvitteringTestUtil;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.OppdragskontrollConstants;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragskontrollTestVerktøy;
@@ -1201,9 +1201,9 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
 
         //Assert
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
-        assertThat(originaltOppdrag110.getKodeFagomrade()).isEqualTo(ØkonomiKodeFagområde.FP.name());
+        assertThat(originaltOppdrag110.getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_BRUKER);
         assertThat(originaltOppdrag110.getKodeEndring()).isEqualTo(KodeEndring.NY);
-        assertThat(revurderingOppdrag110.getKodeFagomrade()).isEqualTo(ØkonomiKodeFagområde.FP.name());
+        assertThat(revurderingOppdrag110.getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_BRUKER);
         assertThat(revurderingOppdrag110.getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
         List<Oppdragslinje150> revurderingOpp150Liste = revurderingOppdrag110.getOppdragslinje150Liste();
         assertThat(revurderingOpp150Liste).hasSize(2);
@@ -1249,13 +1249,13 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
         assertThat(originaltOppdrag110Liste).hasSize(2);
         assertThat(originaltOppdrag110Liste).allSatisfy(oppdrag110 -> {
-                assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(ØkonomiKodeFagområde.FPREF.name());
+                assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_AG);
                 assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.NY);
             }
         );
         assertThat(revurderingOppdrag110Liste).hasSize(2);
         assertThat(revurderingOppdrag110Liste).allSatisfy(oppdrag110 -> {
-                assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(ØkonomiKodeFagområde.FPREF.name());
+                assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_AG);
                 assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.UENDRET);
             }
         );
@@ -1337,7 +1337,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         assertThat(revurderingOppdrag110Liste).hasSize(1); // Kun opphør for SND og Bruker siden AG uten endring.
         //Oppdrag110 for Bruker
         Oppdrag110 oppdrag110Bruker = OppdragskontrollTestVerktøy.getOppdrag110ForBruker(revurderingOppdrag110Liste);
-        assertThat(oppdrag110Bruker.getKodeFagomrade()).isEqualTo(ØkonomiKodeFagområde.FP.name());
+        assertThat(oppdrag110Bruker.getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_BRUKER);
         assertThat(oppdrag110Bruker.getKodeEndring()).isEqualTo(KodeEndring.UENDRET);
 
         //Oppdragslinj150 for Bruker
@@ -1408,7 +1408,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         assertThat(revurderingOppdrag110Liste).hasSize(1);
         //Oppdrag110 for Bruker
         Oppdrag110 oppdrag110Bruker = OppdragskontrollTestVerktøy.getOppdrag110ForBruker(revurderingOppdrag110Liste);
-        assertThat(oppdrag110Bruker.getKodeFagomrade()).isEqualTo(ØkonomiKodeFagområde.FP.name());
+        assertThat(oppdrag110Bruker.getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_BRUKER);
         assertThat(oppdrag110Bruker.getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
         //Oppdragslinj150 for Bruker
         List<Oppdragslinje150> revurderingOpp150ListeForBruker = oppdrag110Bruker.getOppdragslinje150Liste();
@@ -1472,12 +1472,12 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         //Oppdrag110 for førstegangsbehandling
         List<Oppdrag110> oppdrag110ListeForBruker = originaltOppdrag.getOppdrag110Liste();
         assertThat(oppdrag110ListeForBruker).hasSize(1);
-        assertThat(oppdrag110ListeForBruker.get(0).getKodeFagomrade()).isEqualTo(ØkonomiKodeFagområde.FP.name());
+        assertThat(oppdrag110ListeForBruker.get(0).getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_BRUKER);
         assertThat(oppdrag110ListeForBruker.get(0).getKodeEndring()).isEqualTo(KodeEndring.NY);
         //Oppdrag110 for revurdering
         List<Oppdrag110> oppdrag110ListeForBrukerIRevurdering = oppdragRevurdering.getOppdrag110Liste();
         assertThat(oppdrag110ListeForBrukerIRevurdering).hasSize(1);
-        assertThat(oppdrag110ListeForBrukerIRevurdering.get(0).getKodeFagomrade()).isEqualTo(ØkonomiKodeFagområde.FP.name());
+        assertThat(oppdrag110ListeForBrukerIRevurdering.get(0).getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_BRUKER);
         assertThat(oppdrag110ListeForBrukerIRevurdering.get(0).getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
         //Oppdragslinje150 for bruker i revurdering
         List<Oppdragslinje150> opp150ListeForBrukerIRevurdering = oppdrag110ListeForBrukerIRevurdering.get(0).getOppdragslinje150Liste();
@@ -1550,12 +1550,12 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         //Oppdrag110 for førstegangsbehandling
         List<Oppdrag110> oppdrag110ListeForBruker = originaltOppdrag.getOppdrag110Liste();
         assertThat(oppdrag110ListeForBruker).hasSize(1);
-        assertThat(oppdrag110ListeForBruker.get(0).getKodeFagomrade()).isEqualTo(ØkonomiKodeFagområde.FP.name());
+        assertThat(oppdrag110ListeForBruker.get(0).getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_BRUKER);
         assertThat(oppdrag110ListeForBruker.get(0).getKodeEndring()).isEqualTo(KodeEndring.NY);
         //Oppdrag110 for revurdering
         List<Oppdrag110> oppdrag110ListeForBrukerIRevurdering = oppdragRevurdering.getOppdrag110Liste();
         assertThat(oppdrag110ListeForBrukerIRevurdering).hasSize(1);
-        assertThat(oppdrag110ListeForBrukerIRevurdering.get(0).getKodeFagomrade()).isEqualTo(ØkonomiKodeFagområde.FP.name());
+        assertThat(oppdrag110ListeForBrukerIRevurdering.get(0).getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_BRUKER);
         assertThat(oppdrag110ListeForBrukerIRevurdering.get(0).getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
         //Oppdragslinje150 for bruker i revurdering
         List<Oppdragslinje150> opp150ListeForBrukerIRevurdering = oppdrag110ListeForBrukerIRevurdering.get(0).getOppdragslinje150Liste();
@@ -1623,13 +1623,13 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
         assertThat(originaltOppdrag110Liste).hasSize(2);
         assertThat(originaltOppdrag110Liste).allSatisfy(oppdrag110 -> {
-                assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(ØkonomiKodeFagområde.FPREF.name());
+                assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_AG);
                 assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.NY);
             }
         );
         assertThat(revurderingOppdrag110Liste).hasSize(2);
         assertThat(revurderingOppdrag110Liste).allSatisfy(oppdrag110 -> {
-                assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(ØkonomiKodeFagområde.FPREF.name());
+                assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_AG);
                 assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.UENDRET);
             }
         );
@@ -2394,7 +2394,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
 
         // To arbeidsgivere som mottakere ingen oppdrag til bruker
         assertThat(originaltOppdrag.getOppdrag110Liste().size()).isEqualTo(2);
-        assertThat(originaltOppdrag.getOppdrag110Liste().stream().allMatch(oppdrag110 -> oppdrag110.getKodeFagomrade().equals(ØkonomiKodeFagområde.FPREF.name()))).isTrue();
+        assertThat(originaltOppdrag.getOppdrag110Liste().stream().allMatch(oppdrag110 -> oppdrag110.getKodeFagomrade().equals(KodeFagområde.FORELDREPENGER_AG))).isTrue();
 
         // Arrange 1 - første revurdering2
 
@@ -2444,7 +2444,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
 
         // To arbeidsgivere som mottakere ingen oppdrag til bruker
         assertThat(oppdragRevurdering.getOppdrag110Liste().size()).isEqualTo(2);
-        assertThat(oppdragRevurdering.getOppdrag110Liste().stream().allMatch(oppdrag110 -> oppdrag110.getKodeFagomrade().equals(ØkonomiKodeFagområde.FPREF.name()))).isTrue();
+        assertThat(oppdragRevurdering.getOppdrag110Liste().stream().allMatch(oppdrag110 -> oppdrag110.getKodeFagomrade().equals(KodeFagområde.FORELDREPENGER_AG))).isTrue();
 
 
         // Arrange 2 - andre revurdering med omfordeling av 1 ag til bruker

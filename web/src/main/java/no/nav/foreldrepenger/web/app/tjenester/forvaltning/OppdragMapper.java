@@ -15,10 +15,10 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.OppdragPatchDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.OppdragslinjePatchDto;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.OppdragskontrollConstants;
@@ -92,7 +92,7 @@ class OppdragMapper {
             .medOppdragskontroll(oppdragskontroll)
             .medAvstemming(Avstemming.ny())
             .medKodeEndring(KodeEndring.fraKode(dto.getKodeEndring()))
-            .medKodeFagomrade(utledFagområde(behandling, dto.erBrukerMottaker()).name())
+            .medKodeFagomrade(utledFagområde(behandling, dto.erBrukerMottaker()))
             .medOppdragGjelderId(fnrBruker)
             .medFagSystemId(dto.getFagsystemId())
             .medSaksbehId(ansvarligSaksbehandler)
@@ -115,17 +115,17 @@ class OppdragMapper {
         return null;
     }
 
-    private ØkonomiKodeFagområde utledFagområde(Behandling behandling, boolean erBrukerMottaker) {
+    private KodeFagområde utledFagområde(Behandling behandling, boolean erBrukerMottaker) {
         switch (behandling.getFagsakYtelseType()) {
             case ENGANGSTØNAD:
                 if (!erBrukerMottaker) {
                     throw new ForvaltningException("Engangstønad skal kun utbetales til bruker");
                 }
-                return ØkonomiKodeFagområde.REFUTG;
+                return KodeFagområde.ENGANGSSTØNAD;
             case FORELDREPENGER:
-                return erBrukerMottaker ? ØkonomiKodeFagområde.FP : ØkonomiKodeFagområde.FPREF;
+                return erBrukerMottaker ? KodeFagområde.FORELDREPENGER_BRUKER : KodeFagområde.FORELDREPENGER_AG;
             case SVANGERSKAPSPENGER:
-                return erBrukerMottaker ? ØkonomiKodeFagområde.SVP : ØkonomiKodeFagområde.SVPREF;
+                return erBrukerMottaker ? KodeFagområde.SVANGERSKAPSPENGER_BRUKER : KodeFagområde.SVANGERSKAPSPENGER_AG;
             default:
                 throw new ForvaltningException("Ukjent ytelsetype i behandlingId=" + behandling.getId());
         }

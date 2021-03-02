@@ -63,8 +63,8 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.person.pdl.AktørTjeneste;
@@ -489,7 +489,7 @@ public abstract class OppdragskontrollTjenesteTestBase {
                 Oppdrag110 opp110 = refusjonsinfo156.get().getOppdragslinje150().getOppdrag110();
                 assertThat(opp110.getKodeEndring()).isEqualTo(KodeEndring.NY);
             } else {
-                assertThat(oppdr110Revurd.getKodeEndring()).isEqualTo(ØkonomiKodeFagområde.FP.name()
+                assertThat(oppdr110Revurd.getKodeEndring()).isEqualTo(KodeFagområde.FORELDREPENGER_BRUKER
                     .equals(
                         oppdr110Revurd.getKodeFagomrade()) ? KodeEndring.ENDRING : KodeEndring.UENDRET);
             }

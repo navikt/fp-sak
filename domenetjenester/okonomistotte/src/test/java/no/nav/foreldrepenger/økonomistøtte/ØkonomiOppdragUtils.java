@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 
@@ -31,7 +32,7 @@ class ØkonomiOppdragUtils {
         return KodeKlassifik.ES_FØDSEL;
     }
 
-    static String hentKodeFagomrade(Boolean gjelderFP, Boolean brukerErMottaker) {
+    static KodeFagområde hentKodeFagomrade(Boolean gjelderFP, Boolean brukerErMottaker) {
         if (gjelderFP) {
             return brukerErMottaker ? BehandleØkonomioppdragKvitteringTest.KODEFAGOMRADE_FP : BehandleØkonomioppdragKvitteringTest.KODEFAGOMRADE_FPREF;
         }

@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
@@ -33,7 +34,7 @@ public class Oppdragslinje150EntityTest {
     private static final String UTBETALESTILID = "456";
     private static final Long REFFAGSYSTEMID = 678L;
     private static final Long REFDELYTELSEID = 789L;
-    private static final String KODEFAGOMRADE = ØkonomiKodeFagområde.REFUTG.name();
+    private static final KodeFagområde KODEFAGOMRADE = KodeFagområde.ENGANGSSTØNAD;
     private static final Long FAGSYSTEMID = 250L;
     private static final String OPPDRAGGJELDERID = "1";
     private static final Saksnummer SAKSID = new Saksnummer("700");

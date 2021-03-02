@@ -15,7 +15,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.IntervallUtil;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
@@ -29,10 +28,9 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragskontrollTestVerktøy;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdrag110.KodeFagområdeTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Betalingsmottaker;
@@ -40,8 +38,6 @@ import no.nav.foreldrepenger.økonomistøtte.ny.domene.KjedeNøkkel;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Satsen;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Ytelse;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.GruppertYtelse;
-import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.OverordnetOppdragKjedeOversikt;
-import no.nav.foreldrepenger.økonomistøtte.ny.mapper.Input;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.TilkjentYtelseMapper;
 
 public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenesteTestBase {
@@ -68,7 +64,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
 
             // Verifiser andeler
             var mottakere110 = ok.getOppdrag110Liste();
-            varifiserMottakere110(mottakere110, gruppertYtelse.getNøkler().size(), List.of(ØkonomiKodeFagområde.FP.name(), ØkonomiKodeFagområde.FPREF.name()));
+            varifiserMottakere110(mottakere110, gruppertYtelse.getNøkler().size(), List.of(KodeFagområde.FORELDREPENGER_BRUKER, KodeFagområde.FORELDREPENGER_AG));
 
             // Verifiser utbetalinger
             verifiserUtbetalingene150(mottakere110, List.of(KodeKlassifik.FPF_ARBEIDSTAKER, KodeKlassifik.FPF_REFUSJON_AG));
@@ -106,7 +102,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
 
             // Verifiser andeler
             var mottakere110 = ok.getOppdrag110Liste();
-            varifiserMottakere110(mottakere110, gruppertYtelse.getNøkler().size(), List.of(ØkonomiKodeFagområde.FP.name()));
+            varifiserMottakere110(mottakere110, gruppertYtelse.getNøkler().size(), List.of(KodeFagområde.FORELDREPENGER_BRUKER));
 
             // Verifiser utbetalinger
             verifiserUtbetalingene150(mottakere110, List.of(KodeKlassifik.FPF_ARBEIDSTAKER));
@@ -151,7 +147,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
 
             // Verifiser andeler
             var mottakere110 = ok.getOppdrag110Liste();
-            varifiserMottakere110(mottakere110, gruppertYtelse.getNøkler().size(), List.of(ØkonomiKodeFagområde.SVP.name()));
+            varifiserMottakere110(mottakere110, gruppertYtelse.getNøkler().size(), List.of(KodeFagområde.SVANGERSKAPSPENGER_BRUKER));
 
             // Verifiser utbetalinger
             verifiserUtbetalingene150(mottakere110, List.of(KodeKlassifik.SVP_ARBEDISTAKER));
@@ -182,7 +178,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
 
             // Verifiser andeler
             var mottakere110 = ok.getOppdrag110Liste();
-            varifiserMottakere110(mottakere110, gruppertYtelse.getBetalingsmottakere().size(), List.of(ØkonomiKodeFagområde.FP.name(), ØkonomiKodeFagområde.FPREF.name()));
+            varifiserMottakere110(mottakere110, gruppertYtelse.getBetalingsmottakere().size(), List.of(KodeFagområde.FORELDREPENGER_BRUKER, KodeFagområde.FORELDREPENGER_AG));
 
             // Verifiser utbetalinger
             verifiserUtbetalingene150(mottakere110, List.of(KodeKlassifik.FPF_ARBEIDSTAKER, KodeKlassifik.FPF_FRILANSER, KodeKlassifik.FPF_REFUSJON_AG, KodeKlassifik.FERIEPENGER_BRUKER, KodeKlassifik.FPF_FERIEPENGER_AG));
@@ -211,7 +207,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
 
             // Verifiser andeler
             var mottakere110 = ok.getOppdrag110Liste();
-            varifiserMottakere110(mottakere110, gruppertYtelse.getBetalingsmottakere().size(), List.of(ØkonomiKodeFagområde.FP.name(), ØkonomiKodeFagområde.FPREF.name()));
+            varifiserMottakere110(mottakere110, gruppertYtelse.getBetalingsmottakere().size(), List.of(KodeFagområde.FORELDREPENGER_BRUKER, KodeFagområde.FORELDREPENGER_AG));
 
             // Verifiser utbetalinger
             verifiserUtbetalingene150(mottakere110, List.of(KodeKlassifik.FPF_ARBEIDSTAKER, KodeKlassifik.FPF_FRILANSER, KodeKlassifik.FPF_REFUSJON_AG, KodeKlassifik.FPF_SELVSTENDIG));
@@ -300,7 +296,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
 
             // Verifiser andeler
             var mottakere110 = ok.getOppdrag110Liste();
-            varifiserMottakere110(mottakere110, gruppertYtelse.getBetalingsmottakere().size(), List.of(ØkonomiKodeFagområde.FP.name(), ØkonomiKodeFagområde.FPREF.name()));
+            varifiserMottakere110(mottakere110, gruppertYtelse.getBetalingsmottakere().size(), List.of(KodeFagområde.FORELDREPENGER_BRUKER, KodeFagområde.FORELDREPENGER_AG));
 
             // Verifiser utbetalinger
             verifiserUtbetalingene150(mottakere110, List.of(KodeKlassifik.FPF_ARBEIDSTAKER, KodeKlassifik.FPF_FRILANSER, KodeKlassifik.FPF_REFUSJON_AG, KodeKlassifik.FPF_SELVSTENDIG));
@@ -699,7 +695,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
         });
     }
 
-    private void varifiserMottakere110(List<Oppdrag110> mottakere110, int antallMottakere, List<String> kodeFagområder) {
+    private void varifiserMottakere110(List<Oppdrag110> mottakere110, int antallMottakere, List<KodeFagområde> kodeFagområder) {
         assertThat(mottakere110).isNotEmpty();
         assertThat(mottakere110.size()).isEqualTo(antallMottakere);
 

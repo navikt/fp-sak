@@ -11,10 +11,10 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 
@@ -41,26 +41,26 @@ public class OppdragTestDataHelper {
     }
 
     public static Oppdrag110 buildOppdrag110ES(Oppdragskontroll oppdragskontroll, Long fagsystemId) {
-        return buildOppdrag110(oppdragskontroll, fagsystemId, ØkonomiKodeFagområde.REFUTG);
+        return buildOppdrag110(oppdragskontroll, fagsystemId, KodeFagområde.ENGANGSSTØNAD);
     }
 
     public static Oppdrag110 buildOppdrag110FPBruker(Oppdragskontroll oppdragskontroll, Long fagsystemId) {
-        return buildOppdrag110(oppdragskontroll, fagsystemId, ØkonomiKodeFagområde.FP);
+        return buildOppdrag110(oppdragskontroll, fagsystemId, KodeFagområde.FORELDREPENGER_BRUKER);
     }
 
     public static Oppdrag110 buildOppdrag110FPArbeidsgiver(Oppdragskontroll oppdragskontroll, Long fagsystemId) {
-        Oppdrag110 oppdrag110 = buildOppdrag110(oppdragskontroll, fagsystemId, ØkonomiKodeFagområde.FPREF);
+        Oppdrag110 oppdrag110 = buildOppdrag110(oppdragskontroll, fagsystemId, KodeFagområde.FORELDREPENGER_AG);
         Oppdragslinje150 oppdrag150 = OppdragTestDataHelper.buildOppdragslinje150(oppdrag110);
         OppdragTestDataHelper.buildRefusjonsinfo156(oppdrag150);
         return oppdrag110;
     }
 
-    private static Oppdrag110 buildOppdrag110(Oppdragskontroll oppdragskontroll, Long fagsystemId, ØkonomiKodeFagområde økonomiKodeFagområde) {
+    private static Oppdrag110 buildOppdrag110(Oppdragskontroll oppdragskontroll, Long fagsystemId, KodeFagområde økonomiKodeFagområde) {
         Oppdrag110.Builder oppdr110Builder = Oppdrag110.builder();
 
         Oppdrag110.Builder oppdrag110Builder = oppdr110Builder
             .medKodeEndring(KodeEndring.NY)
-            .medKodeFagomrade(økonomiKodeFagområde.name())
+            .medKodeFagomrade(økonomiKodeFagområde)
             .medFagSystemId(fagsystemId)
             .medOppdragGjelderId("12345678901")
             .medSaksbehId("J5624215")

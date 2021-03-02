@@ -16,10 +16,10 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.økonomistøtte.OpprettOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.kontantytelse.es.adapter.MapBehandlingInfoES;
 import no.nav.foreldrepenger.økonomistøtte.kontantytelse.es.wrapper.OppdragInputES;
@@ -61,7 +61,7 @@ public class OppdragskontrollEngangsstønad {
 
         return Oppdrag110.builder()
             .medKodeEndring(kodeEndring)
-            .medKodeFagomrade(ØkonomiKodeFagområde.REFUTG.name())
+            .medKodeFagomrade(KodeFagområde.ENGANGSSTØNAD)
             .medFagSystemId(fagsystemId)
             .medOppdragGjelderId(behandlingInfo.getPersonIdent().getIdent())
             .medSaksbehId(behandlingInfo.getAnsvarligSaksbehandler())

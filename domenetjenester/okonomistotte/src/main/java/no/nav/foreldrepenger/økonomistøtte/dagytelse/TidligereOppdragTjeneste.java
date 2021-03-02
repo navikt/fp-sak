@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.økonomistøtte.Oppdragsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragInput;
@@ -157,7 +157,7 @@ public class TidligereOppdragTjeneste {
 
     private static List<Oppdragslinje150> hentAlleTidligereOppdr150ForMottakerenListe(OppdragInput behandlingInfo, Oppdragsmottaker mottaker) {
         KodeFagområdeTjeneste fagområdeTjeneste = finnFagområdeTjeneste(behandlingInfo);
-        String økonomiKodeFagområde = fagområdeTjeneste.finn(mottaker.erBruker());
+        KodeFagområde økonomiKodeFagområde = fagområdeTjeneste.finn(mottaker.erBruker());
         List<Oppdragslinje150> oppdragslinje150Liste = behandlingInfo.getAlleTidligereOppdrag110().stream()
             .filter(oppdrag110 -> oppdrag110.getKodeFagomrade().equals(økonomiKodeFagområde))
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
@@ -214,7 +214,7 @@ public class TidligereOppdragTjeneste {
 
     private static List<Oppdragslinje150> getAlleTidligereOppdr150ForArbeidsgivere(OppdragInput behandlingInfo) {
         return behandlingInfo.getAlleTidligereOppdrag110().stream()
-            .filter(oppdrag110 -> ØkonomiKodeFagområde.gjelderRefusjonTilArbeidsgiver(oppdrag110.getKodeFagomrade()))
+            .filter(oppdrag110 -> oppdrag110.getKodeFagomrade().gjelderRefusjonTilArbeidsgiver())
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
             .filter(TidligereOppdragTjeneste::erIkkeFeriepenger)
             .collect(Collectors.toList());
@@ -222,7 +222,7 @@ public class TidligereOppdragTjeneste {
 
     static List<String> finnRefunderesIdITidligereOppdrag(OppdragInput behandlingInfo) {
         return behandlingInfo.getAlleTidligereOppdrag110().stream()
-            .filter(oppdrag110 -> ØkonomiKodeFagområde.gjelderRefusjonTilArbeidsgiver(oppdrag110.getKodeFagomrade()))
+            .filter(oppdrag110 -> oppdrag110.getKodeFagomrade().gjelderRefusjonTilArbeidsgiver())
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
             .map(Oppdragslinje150::getRefusjonsinfo156)
             .map(Refusjonsinfo156::getRefunderesId)

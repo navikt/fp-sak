@@ -49,7 +49,7 @@ public class OppdragMapper {
         Oppdrag110.Builder builder = Oppdrag110.builder()
             .medOppdragskontroll(oppdragskontroll)
             .medKodeEndring(utledKodeEndring(oppdrag))
-            .medKodeFagomrade(oppdrag.getØkonomiFagområde().name())
+            .medKodeFagomrade(oppdrag.getKodeFagområde())
             .medFagSystemId(Long.parseLong(oppdrag.getFagsystemId().toString()))
             .medOppdragGjelderId(fnrBruker)
             .medSaksbehId(ansvarligSaksbehandler)
