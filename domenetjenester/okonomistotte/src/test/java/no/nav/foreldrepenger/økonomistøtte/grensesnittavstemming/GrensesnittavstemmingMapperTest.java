@@ -239,7 +239,7 @@ public class GrensesnittavstemmingMapperTest {
         List<Avstemmingsdata> avstemmingsdataListe = grensesnittavstemmingMapper.lagAvstemmingsdataListe();
         // Assert
         assertThat(avstemmingsdataListe).hasSize(1);
-        assertThat(avstemmingsdataListe.get(avstemmingsdataListe.size() - 1).getAksjon().getUnderkomponentKode()).isEqualTo(kodeFagområde);
+        assertThat(avstemmingsdataListe.get(avstemmingsdataListe.size() - 1).getAksjon().getUnderkomponentKode()).isEqualTo(kodeFagområde.getKode());
     }
 
     @Test

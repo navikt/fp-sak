@@ -53,16 +53,4 @@ public class KodeFagområdeTjenesteTest {
         boolean value = tjenesteSVP.gjelderBruker(oppdrag110);
         assertThat(value).isTrue();
     }
-
-    @Test
-    public void skal_kaste_exception_når_det_gjelder_fagområde_av_ES() {
-        when(oppdrag110.getKodeFagomrade()).thenReturn(KodeFagområde.ENGANGSSTØNAD);
-        assertThrows(IllegalArgumentException.class, () -> tjenesteFP.gjelderBruker(oppdrag110));
-    }
-
-    @Test
-    public void skal_kaste_exception_når_det_gjelder_ugyldig_fagområde() {
-        when(oppdrag110.getKodeFagomrade()).thenReturn(null);
-        assertThrows(IllegalArgumentException.class, () -> tjenesteFP.gjelderBruker(oppdrag110));
-    }
 }
