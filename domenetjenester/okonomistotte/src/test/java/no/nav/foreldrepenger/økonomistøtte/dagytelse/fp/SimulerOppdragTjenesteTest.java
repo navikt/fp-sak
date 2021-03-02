@@ -75,7 +75,6 @@ public class SimulerOppdragTjenesteTest {
             .medKodeEndring("NY")
             .medKodeFagomrade("FP")
             .medOppdragGjelderId(saksnummer.getVerdi())
-            .medDatoOppdragGjelderFom(LocalDate.MIN)
             .medSaksbehId("Z100000")
             .medAvstemming(Avstemming.ny())
             .medOppdragskontroll(oppdragskontroll)

@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.økonomioppdrag;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,9 +50,6 @@ public class Oppdrag110 extends BaseCreateableEntitet {
     @Column(name = "oppdrag_gjelder_id", nullable = false)
     private String oppdragGjelderId;
 
-    @Column(name = "dato_Oppdrag_Gjelder_Fom", nullable = false)
-    private LocalDate datoOppdragGjelderFom;
-
     @Column(name = "saksbeh_id", nullable = false)
     private String saksbehId;
 
@@ -99,10 +95,6 @@ public class Oppdrag110 extends BaseCreateableEntitet {
 
     public String getOppdragGjelderId() {
         return oppdragGjelderId;
-    }
-
-    public LocalDate getDatoOppdragGjelderFom() {
-        return datoOppdragGjelderFom;
     }
 
     public String getSaksbehId() {
@@ -176,7 +168,6 @@ public class Oppdrag110 extends BaseCreateableEntitet {
             && Objects.equals(kodeFagomrade, oppdr110.getKodeFagomrade())
             && Objects.equals(fagsystemId, oppdr110.getFagsystemId())
             && Objects.equals(oppdragGjelderId, oppdr110.getOppdragGjelderId())
-            && Objects.equals(datoOppdragGjelderFom, oppdr110.getDatoOppdragGjelderFom())
             && Objects.equals(saksbehId, oppdr110.getSaksbehId())
             && Objects.equals(nøkkelAvstemming, oppdr110.getAvstemming());
     }
@@ -184,7 +175,7 @@ public class Oppdrag110 extends BaseCreateableEntitet {
     @Override
     public int hashCode() {
         return Objects.hash(kodeEndring, kodeFagomrade, fagsystemId, oppdragGjelderId,
-            datoOppdragGjelderFom, saksbehId, nøkkelAvstemming);
+            saksbehId, nøkkelAvstemming);
     }
 
     @Override
@@ -195,7 +186,6 @@ public class Oppdrag110 extends BaseCreateableEntitet {
             + "kodeFagomrade=" + kodeFagomrade + "," //$NON-NLS-1$ //$NON-NLS-2$
             + "fagsystemId=" + fagsystemId + "," //$NON-NLS-1$ //$NON-NLS-2$
             + "oppdragGjelderId=" + oppdragGjelderId + "," //$NON-NLS-1$ //$NON-NLS-2$
-            + "datoOppdragGjelderFom=" + datoOppdragGjelderFom + "," //$NON-NLS-1$ //$NON-NLS-2$
             + "saksbehId=" + saksbehId + "," //$NON-NLS-1$ //$NON-NLS-2$
             + "avstemming=" + nøkkelAvstemming + "," //$NON-NLS-1$ //$NON-NLS-2$
             + "opprettetTs=" + getOpprettetTidspunkt() //$NON-NLS-1$
@@ -207,7 +197,6 @@ public class Oppdrag110 extends BaseCreateableEntitet {
         private String kodeFagomrade;
         private Long fagsystemId;
         private String oppdragGjelderId;
-        private LocalDate datoOppdragGjelderFom;
         private String saksbehId;
         private Avstemming avstemming;
         private Oppdragskontroll oppdragskontroll;
@@ -230,11 +219,6 @@ public class Oppdrag110 extends BaseCreateableEntitet {
 
         public Builder medOppdragGjelderId(String oppdragGjelderId) {
             this.oppdragGjelderId = oppdragGjelderId;
-            return this;
-        }
-
-        public Builder medDatoOppdragGjelderFom(LocalDate datoOppdrGjelderFom) {
-            this.datoOppdragGjelderFom = datoOppdrGjelderFom;
             return this;
         }
 
@@ -265,7 +249,6 @@ public class Oppdrag110 extends BaseCreateableEntitet {
             oppdrag110.kodeFagomrade = kodeFagomrade;
             oppdrag110.fagsystemId = fagsystemId;
             oppdrag110.oppdragGjelderId = oppdragGjelderId;
-            oppdrag110.datoOppdragGjelderFom = datoOppdragGjelderFom;
             oppdrag110.saksbehId = saksbehId;
             oppdrag110.nøkkelAvstemming = avstemming;
             oppdrag110.oppdragskontroll = oppdragskontroll;
@@ -284,7 +267,6 @@ public class Oppdrag110 extends BaseCreateableEntitet {
             Objects.requireNonNull(kodeFagomrade, "kodeFagomrade");
             Objects.requireNonNull(fagsystemId, "fagsystemId");
             Objects.requireNonNull(oppdragGjelderId, "oppdragGjelderId");
-            Objects.requireNonNull(datoOppdragGjelderFom, "datoOppdragGjelderFom");
             Objects.requireNonNull(saksbehId, "saksbehId");
             Objects.requireNonNull(avstemming, "avstemming");
             Objects.requireNonNull(oppdragskontroll, "oppdragskontroll");

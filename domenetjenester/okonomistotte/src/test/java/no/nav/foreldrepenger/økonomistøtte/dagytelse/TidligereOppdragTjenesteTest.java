@@ -106,7 +106,6 @@ class TidligereOppdragTjenesteTest {
             .medKodeEndring(status.name())
             .medFagSystemId(fagsystemId)
             .medOppdragGjelderId("11111111111")
-            .medDatoOppdragGjelderFom(LocalDate.of(2020, 1, 1))
             .medSaksbehId("Z111111")
             .medOppdragskontroll(oppdragskontroll)
             .medAvstemming(Avstemming.ny())

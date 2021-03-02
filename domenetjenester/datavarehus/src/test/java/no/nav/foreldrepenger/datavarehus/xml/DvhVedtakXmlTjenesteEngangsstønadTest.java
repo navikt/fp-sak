@@ -301,7 +301,6 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
                 .medKodeFagomrade(ØkonomiKodeFagområde.REFUTG.name())
                 .medFagSystemId(OPPDRAG_FAGSYSTEM_ID)
                 .medOppdragGjelderId("12345678901")
-                .medDatoOppdragGjelderFom(LocalDate.of(2000, 1, 1))
                 .medSaksbehId("J5624215")
                 .medAvstemming(Avstemming.ny())
                 .medOppdragskontroll(oppdragskontroll)

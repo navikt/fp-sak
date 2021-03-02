@@ -3,8 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.økonomioppdrag;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.time.LocalDate;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +17,6 @@ public class Oppdrag110EntityTest {
     private static final String KODEFAGOMRADE = ØkonomiKodeFagområde.REFUTG.name();
     private static final Long FAGSYSTEMID = 250L;
     private static final String OPPDRAGGJELDERID = "1";
-    private static final LocalDate DATOOPPDRAGGJELDERFOM = LocalDate.of(2000, 1, 1);
     private static final String SAKSBEHID = "Z1236525";
     private static final Long BEHANDLINGID = 321L;
     private static final Saksnummer SAKSID = new Saksnummer("700");
@@ -82,17 +79,6 @@ public class Oppdrag110EntityTest {
             assertThat(e.getMessage()).contains("utbetFrekvens");
         }
 
-        // mangler oppdragGjelderId
-        oppdrag110Builder.medOppdragGjelderId(OPPDRAGGJELDERID);
-        try {
-            oppdrag110Builder.build();
-            fail(FORVENTET_EXCEPTION);
-        } catch (NullPointerException e) {
-            assertThat(e.getMessage()).contains("datoOppdragGjelderFom");
-        }
-
-        // mangler saksbehId
-        oppdrag110Builder.medDatoOppdragGjelderFom(DATOOPPDRAGGJELDERFOM);
         try {
             oppdrag110Builder.build();
             fail(FORVENTET_EXCEPTION);
@@ -167,7 +153,6 @@ public class Oppdrag110EntityTest {
                 .medKodeFagomrade(KODEFAGOMRADE)
                 .medFagSystemId(FAGSYSTEMID)
                 .medOppdragGjelderId(OPPDRAGGJELDERID)
-                .medDatoOppdragGjelderFom(DATOOPPDRAGGJELDERFOM)
                 .medSaksbehId(SAKSBEHID)
                 .medAvstemming(Avstemming.ny())
                 .medOppdragskontroll(lagOppdragskontrollMedPaakrevdeFelter().build());

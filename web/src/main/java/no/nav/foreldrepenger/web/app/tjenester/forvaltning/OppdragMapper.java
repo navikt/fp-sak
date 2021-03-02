@@ -91,7 +91,6 @@ class OppdragMapper {
             .medOppdragskontroll(oppdragskontroll)
             .medAvstemming(Avstemming.ny())
             .medKodeEndring(dto.getKodeEndring())
-            .medDatoOppdragGjelderFom(LocalDate.of(2000, 1, 1))
             .medKodeFagomrade(utledFagområde(behandling, dto.erBrukerMottaker()).name())
             .medOppdragGjelderId(fnrBruker)
             .medFagSystemId(dto.getFagsystemId())

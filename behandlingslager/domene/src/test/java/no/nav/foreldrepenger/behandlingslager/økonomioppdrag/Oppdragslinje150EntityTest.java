@@ -29,7 +29,6 @@ public class Oppdragslinje150EntityTest {
     private static final Sats SATS = Sats.på(50000);
     private static final TypeSats TYPESATS = TypeSats.ENGANG;
     private static final String SAKSBEHID = "Z1236524";
-    private static final LocalDate DATOOPPDRAGGJELDERFOM = LocalDate.of(2000, 1, 1);
     private static final String UTBETALESTILID = "456";
     private static final Long REFFAGSYSTEMID = 678L;
     private static final Long REFDELYTELSEID = 789L;
@@ -190,7 +189,6 @@ public class Oppdragslinje150EntityTest {
                 .medKodeFagomrade(KODEFAGOMRADE)
                 .medFagSystemId(FAGSYSTEMID)
                 .medOppdragGjelderId(OPPDRAGGJELDERID)
-                .medDatoOppdragGjelderFom(DATOOPPDRAGGJELDERFOM)
                 .medSaksbehId(SAKSBEHID)
                 .medAvstemming(Avstemming.ny())
                 .medOppdragskontroll(lagOppdragskontrollMedPaakrevdeFelter().build());

@@ -63,7 +63,6 @@ public class OppdragTestDataHelper {
             .medKodeFagomrade(økonomiKodeFagområde.name())
             .medFagSystemId(fagsystemId)
             .medOppdragGjelderId("12345678901")
-            .medDatoOppdragGjelderFom(LocalDate.of(2000, 1, 1))
             .medSaksbehId("J5624215")
             .medAvstemming(Avstemming.ny())
             .medOppdragskontroll(oppdragskontroll);

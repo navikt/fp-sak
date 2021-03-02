@@ -109,7 +109,6 @@ public class GrensesnittavstemmingBatchTjenesteTest {
             .medKodeFagomrade(BehandleØkonomioppdragKvitteringTest.KODEFAGOMRADE_ES)
             .medFagSystemId(BehandleØkonomioppdragKvitteringTest.FAGSYSTEMID_BRUKER)
             .medOppdragGjelderId(BehandleØkonomioppdragKvitteringTest.OPPDRAGGJELDERID)
-            .medDatoOppdragGjelderFom(LocalDate.now())
             .medSaksbehId(BehandleØkonomioppdragKvitteringTest.SAKSBEHID)
             .medOppdragskontroll(oppdrag)
             .build();

@@ -339,7 +339,6 @@ public class GrensesnittavstemmingMapperTest {
             .medKodeFagomrade(fagområde)
             .medFagSystemId(44L)
             .medOppdragGjelderId("12345678901")
-            .medDatoOppdragGjelderFom(LocalDate.of(2000, 1, 1))
             .medSaksbehId("J5624215")
             .medAvstemming(Avstemming.fra(avstemmingsTidspunkt))
             .medOppdragskontroll(oppdragskontroll)

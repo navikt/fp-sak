@@ -16,7 +16,6 @@ public class Oppdrag110Dto extends SporingDto {
     private Long oppdragsKontrollId;
     private String kodeEndring;
     private String kodeFagomrade;
-    private LocalDate datoOppdragGjelderFom;
     private AvstemmingDto avstemming;
     private Ompostering116Dto ompostering116Dto;
     private List<OppdragKvitteringDto> oppdragKvittering;
@@ -92,7 +91,6 @@ public class Oppdrag110Dto extends SporingDto {
 
     public static Oppdrag110Dto fraDomene(Oppdrag110 oppdrag110) {
         Oppdrag110Dto oppdrag110Dto = new Oppdrag110Dto(oppdrag110);
-        oppdrag110Dto.datoOppdragGjelderFom = oppdrag110.getDatoOppdragGjelderFom();
         oppdrag110Dto.fagsystemId = oppdrag110.getFagsystemId();
         oppdrag110Dto.oppdragGjelderId = oppdrag110.getOppdragGjelderId();
         oppdrag110Dto.saksbehId = oppdrag110.getSaksbehId();
@@ -100,7 +98,6 @@ public class Oppdrag110Dto extends SporingDto {
         oppdrag110Dto.kodeEndring = oppdrag110.getKodeEndring();
         oppdrag110Dto.kodeFagomrade = oppdrag110.getKodeFagomrade();
         oppdrag110Dto.avstemming = AvstemmingDto.fraDomene(oppdrag110.getAvstemming());
-        oppdrag110Dto.datoOppdragGjelderFom = oppdrag110.getDatoOppdragGjelderFom();
 
         oppdrag110Dto.oppdragKvittering = oppdrag110.erKvitteringMottatt() ?
             List.of(OppdragKvitteringDto.fraDomene(oppdrag110.getOppdragKvittering())) :
@@ -123,15 +120,6 @@ public class Oppdrag110Dto extends SporingDto {
 
     public Oppdrag110Dto setOmpostering116Dto(Ompostering116Dto ompostering116Dto) {
         this.ompostering116Dto = ompostering116Dto;
-        return this;
-    }
-
-    public LocalDate getDatoOppdragGjelderFom() {
-        return datoOppdragGjelderFom;
-    }
-
-    public Oppdrag110Dto setDatoOppdragGjelderFom(LocalDate datoOppdragGjelderFom) {
-        this.datoOppdragGjelderFom = datoOppdragGjelderFom;
         return this;
     }
 

@@ -52,7 +52,6 @@ public class OppdragMapper {
             .medKodeFagomrade(oppdrag.getØkonomiFagområde().name())
             .medFagSystemId(Long.parseLong(oppdrag.getFagsystemId().toString()))
             .medOppdragGjelderId(fnrBruker)
-            .medDatoOppdragGjelderFom(LocalDate.of(2000, 1, 1))
             .medSaksbehId(ansvarligSaksbehandler)
             .medAvstemming(Avstemming.ny());
 

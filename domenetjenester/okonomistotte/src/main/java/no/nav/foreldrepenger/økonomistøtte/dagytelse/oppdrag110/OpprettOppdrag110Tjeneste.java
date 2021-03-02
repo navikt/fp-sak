@@ -66,7 +66,6 @@ public class OpprettOppdrag110Tjeneste {
             .medKodeFagomrade(kodeFagområde)
             .medFagSystemId(fagsystemId)
             .medOppdragGjelderId(behandlingInfo.getPersonIdent().getIdent())
-            .medDatoOppdragGjelderFom(LocalDate.of(2000, 1, 1))
             .medSaksbehId(behandlingInfo.getAnsvarligSaksbehandler())
             .medAvstemming(Avstemming.ny());
 

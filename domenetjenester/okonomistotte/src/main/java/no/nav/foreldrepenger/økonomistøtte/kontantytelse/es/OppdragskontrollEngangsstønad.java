@@ -64,7 +64,6 @@ public class OppdragskontrollEngangsstønad {
             .medKodeFagomrade(ØkonomiKodeFagområde.REFUTG.name())
             .medFagSystemId(fagsystemId)
             .medOppdragGjelderId(behandlingInfo.getPersonIdent().getIdent())
-            .medDatoOppdragGjelderFom(LocalDate.of(2000, 1, 1))
             .medSaksbehId(behandlingInfo.getAnsvarligSaksbehandler())
             .medOppdragskontroll(oppdragskontroll)
             .medAvstemming(Avstemming.ny())

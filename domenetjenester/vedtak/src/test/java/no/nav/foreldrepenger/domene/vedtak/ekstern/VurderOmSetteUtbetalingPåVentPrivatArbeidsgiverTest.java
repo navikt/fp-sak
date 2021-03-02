@@ -293,7 +293,6 @@ public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
             .medKodeFagomrade(ØkonomiKodeFagområde.FP.name())
             .medFagSystemId(250L)
             .medOppdragGjelderId("1")
-            .medDatoOppdragGjelderFom(LocalDate.now())
             .medSaksbehId(SAKS_BEHANDLER)
             .medAvstemming(Avstemming.ny())
             .medOppdragskontroll(oppdragskontroll)

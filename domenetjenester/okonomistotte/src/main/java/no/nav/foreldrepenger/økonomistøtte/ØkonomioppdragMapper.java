@@ -40,8 +40,9 @@ public class ØkonomioppdragMapper {
     private static final String FRADRAG_TILLEGG = "T";
     private static final String BRUK_KJOREPLAN = "N";
     private static final String TYPE_GRAD = "UFOR";
-    public static final String KODE_AKSJON = "1";
-    public static final String UTBET_FREKVENS = "MND";
+    private static final String KODE_AKSJON = "1";
+    private static final String UTBET_FREKVENS = "MND";
+    private static final LocalDate DATO_OPPDRAG_GJELDER_FOM = LocalDate.of(2000, 1, 1);
 
     // TODO (Team Tonic): Fjern global state oppdragskontroll
     private Oppdragskontroll oppdragskontroll;
@@ -92,7 +93,7 @@ public class ØkonomioppdragMapper {
 
         oppdrag110.getOppdragsEnhet120().add(mapOppdragsEnhet120());
         oppdrag110.getOppdragsLinje150().addAll(mapOppdragsLinje150(okoOppdrag110.getOppdragslinje150Liste(), kodeFagområde, okoOppdrag110.getSaksbehId(), behandlingId));
-        oppdrag110.setDatoOppdragGjelderFom(toXmlGregCal(okoOppdrag110.getDatoOppdragGjelderFom()));
+        oppdrag110.setDatoOppdragGjelderFom(toXmlGregCal(DATO_OPPDRAG_GJELDER_FOM));
 
         Optional<no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116> optOmpostering116 = okoOppdrag110.getOmpostering116();
         optOmpostering116.ifPresent(ompostering116 -> oppdrag110.setOmpostering116(mapOmpostering116(ompostering116)));

@@ -166,7 +166,6 @@ public class EksisterendeOppdragMapperTest {
             .medKodeEndring("NY")
             .medKodeFagomrade("FP")
             .medOppdragGjelderId(frnBruker)
-            .medDatoOppdragGjelderFom(LocalDate.MIN)
             .medSaksbehId("Z100000")
             .medAvstemming(Avstemming.ny())
             .medOppdragskontroll(oppdragskontroll)

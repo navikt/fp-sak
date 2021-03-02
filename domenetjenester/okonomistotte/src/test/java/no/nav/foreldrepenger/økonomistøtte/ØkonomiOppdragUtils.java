@@ -55,7 +55,6 @@ class ØkonomiOppdragUtils {
             .medKodeFagomrade(hentKodeFagomrade(gjelderFP, true))
             .medFagSystemId(BehandleØkonomioppdragKvitteringTest.FAGSYSTEMID_BRUKER)
             .medOppdragGjelderId(BehandleØkonomioppdragKvitteringTest.OPPDRAGGJELDERID)
-            .medDatoOppdragGjelderFom(LocalDate.now())
             .medSaksbehId(BehandleØkonomioppdragKvitteringTest.SAKSBEHID)
             .medAvstemming(Avstemming.ny())
             .medOppdragskontroll(oppdrag)
@@ -82,7 +81,6 @@ class ØkonomiOppdragUtils {
                 .medKodeFagomrade(hentKodeFagomrade(gjelderFP, false))
                 .medFagSystemId(BehandleØkonomioppdragKvitteringTest.FAGSYSTEMID_ARBEIDSGIVER)
                 .medOppdragGjelderId(BehandleØkonomioppdragKvitteringTest.OPPDRAGGJELDERID)
-                .medDatoOppdragGjelderFom(LocalDate.now())
                 .medSaksbehId(BehandleØkonomioppdragKvitteringTest.SAKSBEHID)
                 .medOppdragskontroll(oppdrag)
                 .build();
