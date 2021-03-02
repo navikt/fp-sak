@@ -48,9 +48,6 @@ public class Oppdrag110 extends BaseCreateableEntitet {
     @Column(name = "fagsystem_id", nullable = false)
     private long fagsystemId;
 
-    @Column(name = "utbet_frekvens", nullable = false)
-    private String utbetFrekvens;
-
     @Column(name = "oppdrag_gjelder_id", nullable = false)
     private String oppdragGjelderId;
 
@@ -98,10 +95,6 @@ public class Oppdrag110 extends BaseCreateableEntitet {
 
     public long getFagsystemId() {
         return fagsystemId;
-    }
-
-    public String getUtbetFrekvens() {
-        return utbetFrekvens;
     }
 
     public String getOppdragGjelderId() {
@@ -182,7 +175,6 @@ public class Oppdrag110 extends BaseCreateableEntitet {
         return Objects.equals(kodeEndring, oppdr110.getKodeEndring())
             && Objects.equals(kodeFagomrade, oppdr110.getKodeFagomrade())
             && Objects.equals(fagsystemId, oppdr110.getFagsystemId())
-            && Objects.equals(utbetFrekvens, oppdr110.getUtbetFrekvens())
             && Objects.equals(oppdragGjelderId, oppdr110.getOppdragGjelderId())
             && Objects.equals(datoOppdragGjelderFom, oppdr110.getDatoOppdragGjelderFom())
             && Objects.equals(saksbehId, oppdr110.getSaksbehId())
@@ -191,7 +183,7 @@ public class Oppdrag110 extends BaseCreateableEntitet {
 
     @Override
     public int hashCode() {
-        return Objects.hash(kodeEndring, kodeFagomrade, fagsystemId, utbetFrekvens, oppdragGjelderId,
+        return Objects.hash(kodeEndring, kodeFagomrade, fagsystemId, oppdragGjelderId,
             datoOppdragGjelderFom, saksbehId, nøkkelAvstemming);
     }
 
@@ -202,7 +194,6 @@ public class Oppdrag110 extends BaseCreateableEntitet {
             + "kodeEndring=" + kodeEndring + ", " //$NON-NLS-1$ //$NON-NLS-2$
             + "kodeFagomrade=" + kodeFagomrade + "," //$NON-NLS-1$ //$NON-NLS-2$
             + "fagsystemId=" + fagsystemId + "," //$NON-NLS-1$ //$NON-NLS-2$
-            + "utbetFrekvens=" + utbetFrekvens + "," //$NON-NLS-1$ //$NON-NLS-2$
             + "oppdragGjelderId=" + oppdragGjelderId + "," //$NON-NLS-1$ //$NON-NLS-2$
             + "datoOppdragGjelderFom=" + datoOppdragGjelderFom + "," //$NON-NLS-1$ //$NON-NLS-2$
             + "saksbehId=" + saksbehId + "," //$NON-NLS-1$ //$NON-NLS-2$
@@ -215,7 +206,6 @@ public class Oppdrag110 extends BaseCreateableEntitet {
         private String kodeEndring;
         private String kodeFagomrade;
         private Long fagsystemId;
-        private String utbetFrekvens;
         private String oppdragGjelderId;
         private LocalDate datoOppdragGjelderFom;
         private String saksbehId;
@@ -235,11 +225,6 @@ public class Oppdrag110 extends BaseCreateableEntitet {
 
         public Builder medFagSystemId(long fagsystemId) {
             this.fagsystemId = fagsystemId;
-            return this;
-        }
-
-        public Builder medUtbetFrekvens(String utbetFrekvens) {
-            this.utbetFrekvens = utbetFrekvens;
             return this;
         }
 
@@ -276,11 +261,9 @@ public class Oppdrag110 extends BaseCreateableEntitet {
         public Oppdrag110 build() {
             verifyStateForBuild();
             Oppdrag110 oppdrag110 = new Oppdrag110();
-            oppdrag110.kodeAksjon = kodeAksjon;
             oppdrag110.kodeEndring = kodeEndring;
             oppdrag110.kodeFagomrade = kodeFagomrade;
             oppdrag110.fagsystemId = fagsystemId;
-            oppdrag110.utbetFrekvens = utbetFrekvens;
             oppdrag110.oppdragGjelderId = oppdragGjelderId;
             oppdrag110.datoOppdragGjelderFom = datoOppdragGjelderFom;
             oppdrag110.saksbehId = saksbehId;
@@ -297,11 +280,9 @@ public class Oppdrag110 extends BaseCreateableEntitet {
         }
 
         public void verifyStateForBuild() {
-            Objects.requireNonNull(kodeAksjon, "kodeAksjon");
             Objects.requireNonNull(kodeEndring, "kodeEndring");
             Objects.requireNonNull(kodeFagomrade, "kodeFagomrade");
             Objects.requireNonNull(fagsystemId, "fagsystemId");
-            Objects.requireNonNull(utbetFrekvens, "utbetFrekvens");
             Objects.requireNonNull(oppdragGjelderId, "oppdragGjelderId");
             Objects.requireNonNull(datoOppdragGjelderFom, "datoOppdragGjelderFom");
             Objects.requireNonNull(saksbehId, "saksbehId");

@@ -45,7 +45,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLi
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
@@ -301,7 +300,6 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
                 .medKodeEndring(ØkonomiKodeEndring.NY.name())
                 .medKodeFagomrade(ØkonomiKodeFagområde.REFUTG.name())
                 .medFagSystemId(OPPDRAG_FAGSYSTEM_ID)
-                .medUtbetFrekvens(ØkonomiUtbetFrekvens.DAG.getUtbetFrekvens())
                 .medOppdragGjelderId("12345678901")
                 .medDatoOppdragGjelderFom(LocalDate.of(2000, 1, 1))
                 .medSaksbehId("J5624215")

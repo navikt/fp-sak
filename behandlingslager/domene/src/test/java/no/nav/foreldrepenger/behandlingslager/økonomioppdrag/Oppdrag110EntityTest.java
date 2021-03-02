@@ -18,7 +18,6 @@ public class Oppdrag110EntityTest {
     private static final String KODEENDRING = ØkonomiKodeEndring.NY.name();
     private static final String KODEFAGOMRADE = ØkonomiKodeFagområde.REFUTG.name();
     private static final Long FAGSYSTEMID = 250L;
-    private static final String UTBETFREKVENS = ØkonomiUtbetFrekvens.ENGANG.name();
     private static final String OPPDRAGGJELDERID = "1";
     private static final LocalDate DATOOPPDRAGGJELDERFOM = LocalDate.of(2000, 1, 1);
     private static final String SAKSBEHID = "Z1236525";
@@ -41,7 +40,6 @@ public class Oppdrag110EntityTest {
         assertThat(oppdrag110.getKodeEndring()).isEqualTo(KODEENDRING);
         assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(KODEFAGOMRADE);
         assertThat(oppdrag110.getFagsystemId()).isEqualTo(FAGSYSTEMID);
-        assertThat(oppdrag110.getUtbetFrekvens()).isEqualTo(UTBETFREKVENS);
         assertThat(oppdrag110.getOppdragGjelderId()).isEqualTo(OPPDRAGGJELDERID);
         assertThat(oppdrag110.getSaksbehId()).isEqualTo(SAKSBEHID);
 
@@ -82,15 +80,6 @@ public class Oppdrag110EntityTest {
             fail(FORVENTET_EXCEPTION);
         } catch (NullPointerException e) {
             assertThat(e.getMessage()).contains("utbetFrekvens");
-        }
-
-        // mangler oppdragGjelderId
-        oppdrag110Builder.medUtbetFrekvens(UTBETFREKVENS);
-        try {
-            oppdrag110Builder.build();
-            fail(FORVENTET_EXCEPTION);
-        } catch (NullPointerException e) {
-            assertThat(e.getMessage()).contains("oppdragGjelderId");
         }
 
         // mangler oppdragGjelderId
@@ -177,7 +166,6 @@ public class Oppdrag110EntityTest {
                 .medKodeEndring(KODEENDRING)
                 .medKodeFagomrade(KODEFAGOMRADE)
                 .medFagSystemId(FAGSYSTEMID)
-                .medUtbetFrekvens(UTBETFREKVENS)
                 .medOppdragGjelderId(OPPDRAGGJELDERID)
                 .medDatoOppdragGjelderFom(DATOOPPDRAGGJELDERFOM)
                 .medSaksbehId(SAKSBEHID)

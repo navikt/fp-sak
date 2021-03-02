@@ -165,7 +165,6 @@ public class EksisterendeOppdragMapperTest {
         return Oppdrag110.builder()
             .medKodeEndring("NY")
             .medKodeFagomrade("FP")
-            .medUtbetFrekvens("MND")
             .medOppdragGjelderId(frnBruker)
             .medDatoOppdragGjelderFom(LocalDate.MIN)
             .medSaksbehId("Z100000")

@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLi
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragInput;
@@ -106,7 +105,6 @@ class TidligereOppdragTjenesteTest {
             .medKodeFagomrade(fagområde.name())
             .medKodeEndring(status.name())
             .medFagSystemId(fagsystemId)
-            .medUtbetFrekvens(ØkonomiUtbetFrekvens.MÅNED.getUtbetFrekvens())
             .medOppdragGjelderId("11111111111")
             .medDatoOppdragGjelderFom(LocalDate.of(2020, 1, 1))
             .medSaksbehId("Z111111")

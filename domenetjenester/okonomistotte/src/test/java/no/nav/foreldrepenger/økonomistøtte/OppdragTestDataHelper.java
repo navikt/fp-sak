@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLi
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 
@@ -63,7 +62,6 @@ public class OppdragTestDataHelper {
             .medKodeEndring(ØkonomiKodeEndring.NY.name())
             .medKodeFagomrade(økonomiKodeFagområde.name())
             .medFagSystemId(fagsystemId)
-            .medUtbetFrekvens(ØkonomiUtbetFrekvens.DAG.name())
             .medOppdragGjelderId("12345678901")
             .medDatoOppdragGjelderFom(LocalDate.of(2000, 1, 1))
             .medSaksbehId("J5624215")

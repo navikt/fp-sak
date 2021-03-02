@@ -74,7 +74,6 @@ public class SimulerOppdragTjenesteTest {
         return Oppdrag110.builder()
             .medKodeEndring("NY")
             .medKodeFagomrade("FP")
-            .medUtbetFrekvens("MND")
             .medOppdragGjelderId(saksnummer.getVerdi())
             .medDatoOppdragGjelderFom(LocalDate.MIN)
             .medSaksbehId("Z100000")

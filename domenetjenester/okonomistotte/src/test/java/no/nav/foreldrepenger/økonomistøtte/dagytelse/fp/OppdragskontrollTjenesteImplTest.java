@@ -37,7 +37,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifi
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
 
 public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTestBase {
 
@@ -651,7 +650,6 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
             assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(brukerErMottaker ? ØkonomiKodeFagområde.FP.name() : ØkonomiKodeFagområde.FPREF.name());
             assertThat(oppdrag110.getFagsystemId()).isEqualTo(concatenateValues(Long.parseLong(fagsak.getSaksnummer().getVerdi()), initialLøpenummer++));
             assertThat(oppdrag110.getSaksbehId()).isEqualTo(behVedtak.getAnsvarligSaksbehandler());
-            assertThat(oppdrag110.getUtbetFrekvens()).isEqualTo(ØkonomiUtbetFrekvens.MÅNED.getUtbetFrekvens());
             assertThat(oppdrag110.getOppdragGjelderId()).isEqualTo(personIdent.getIdent());
             assertThat(oppdrag110.getOppdragskontroll()).isEqualTo(oppdragskontroll);
             assertThat(oppdrag110.getAvstemming()).isNotNull();

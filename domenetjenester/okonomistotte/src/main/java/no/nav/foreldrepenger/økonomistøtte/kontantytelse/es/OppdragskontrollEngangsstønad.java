@@ -18,10 +18,8 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringL
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
 import no.nav.foreldrepenger.økonomistøtte.OpprettOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.kontantytelse.es.adapter.MapBehandlingInfoES;
 import no.nav.foreldrepenger.økonomistøtte.kontantytelse.es.wrapper.OppdragInputES;
@@ -65,7 +63,6 @@ public class OppdragskontrollEngangsstønad {
             .medKodeEndring(kodeEndring)
             .medKodeFagomrade(ØkonomiKodeFagområde.REFUTG.name())
             .medFagSystemId(fagsystemId)
-            .medUtbetFrekvens(ØkonomiUtbetFrekvens.MÅNED.getUtbetFrekvens())
             .medOppdragGjelderId(behandlingInfo.getPersonIdent().getIdent())
             .medDatoOppdragGjelderFom(LocalDate.of(2000, 1, 1))
             .medSaksbehId(behandlingInfo.getAnsvarligSaksbehandler())

@@ -22,7 +22,6 @@ public class OppdragKvitteringEntityTest {
     private static final String BESKR_MELDING = "Beskr melding";
     private static final String MELDING_KODE = "Melding kode";
     private static final Long FAGSYSTEMID = 250L;
-    private static final String UTBETFREKVENS = ØkonomiUtbetFrekvens.MÅNED.name();
     private static final String OPPDRAGGJELDERID = "1";
     private static final LocalDate DATOOPPDRAGGJELDERFOM = LocalDate.of(2000, 1, 1);
     private static final String SAKSBEHID = "Z1236525";
@@ -111,7 +110,6 @@ public class OppdragKvitteringEntityTest {
                 .medKodeEndring(KODEENDRING)
                 .medKodeFagomrade(KODEFAGOMRADE)
                 .medFagSystemId(FAGSYSTEMID)
-                .medUtbetFrekvens(UTBETFREKVENS)
                 .medOppdragGjelderId(OPPDRAGGJELDERID)
                 .medDatoOppdragGjelderFom(DATOOPPDRAGGJELDERFOM)
                 .medSaksbehId(SAKSBEHID)

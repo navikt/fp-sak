@@ -16,7 +16,6 @@ public class Oppdrag110Dto extends SporingDto {
     private Long oppdragsKontrollId;
     private String kodeEndring;
     private String kodeFagomrade;
-    private String utbetFrekvens;
     private LocalDate datoOppdragGjelderFom;
     private AvstemmingDto avstemming;
     private Ompostering116Dto ompostering116Dto;
@@ -75,14 +74,6 @@ public class Oppdrag110Dto extends SporingDto {
         this.kodeFagomrade = kodeFagomrade;
     }
 
-    public String getUtbetFrekvens() {
-        return utbetFrekvens;
-    }
-
-    public void setUtbetFrekvens(String utbetFrekvens) {
-        this.utbetFrekvens = utbetFrekvens;
-    }
-
     public AvstemmingDto getAvstemming() {
         return avstemming;
     }
@@ -108,7 +99,6 @@ public class Oppdrag110Dto extends SporingDto {
         oppdrag110Dto.oppdragsKontrollId = oppdrag110.getOppdragskontroll().getId();
         oppdrag110Dto.kodeEndring = oppdrag110.getKodeEndring();
         oppdrag110Dto.kodeFagomrade = oppdrag110.getKodeFagomrade();
-        oppdrag110Dto.utbetFrekvens = oppdrag110.getUtbetFrekvens();
         oppdrag110Dto.avstemming = AvstemmingDto.fraDomene(oppdrag110.getAvstemming());
         oppdrag110Dto.datoOppdragGjelderFom = oppdrag110.getDatoOppdragGjelderFom();
 

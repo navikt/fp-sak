@@ -38,8 +38,6 @@ public class BehandleØkonomioppdragKvitteringTest {
 
     public static final String KODEFAGOMRADE_FPREF = "FPREF";
 
-    public static final String UTBETFREKVENS = "ENG";
-
     public static final String OPPDRAGGJELDERID = "01010101010";
 
     public static final String SAKSBEHID = "aa000000";

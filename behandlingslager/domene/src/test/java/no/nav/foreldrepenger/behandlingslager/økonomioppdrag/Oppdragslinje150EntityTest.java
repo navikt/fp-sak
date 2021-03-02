@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringL
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
-import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public class Oppdragslinje150EntityTest {
@@ -37,7 +36,6 @@ public class Oppdragslinje150EntityTest {
     private static final String KODEENDRING = ØkonomiKodeEndring.NY.name();
     private static final String KODEFAGOMRADE = ØkonomiKodeFagområde.REFUTG.name();
     private static final Long FAGSYSTEMID = 250L;
-    private static final String UTBETFREKVENS = ØkonomiUtbetFrekvens.ENGANG.name();
     private static final String OPPDRAGGJELDERID = "1";
     private static final Saksnummer SAKSID = new Saksnummer("700");
     private static final Boolean VENTERKVITTERING = true;
@@ -191,7 +189,6 @@ public class Oppdragslinje150EntityTest {
                 .medKodeEndring(KODEENDRING)
                 .medKodeFagomrade(KODEFAGOMRADE)
                 .medFagSystemId(FAGSYSTEMID)
-                .medUtbetFrekvens(UTBETFREKVENS)
                 .medOppdragGjelderId(OPPDRAGGJELDERID)
                 .medDatoOppdragGjelderFom(DATOOPPDRAGGJELDERFOM)
                 .medSaksbehId(SAKSBEHID)

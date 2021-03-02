@@ -41,6 +41,7 @@ public class ØkonomioppdragMapper {
     private static final String BRUK_KJOREPLAN = "N";
     private static final String TYPE_GRAD = "UFOR";
     public static final String KODE_AKSJON = "1";
+    public static final String UTBET_FREKVENS = "MND";
 
     // TODO (Team Tonic): Fjern global state oppdragskontroll
     private Oppdragskontroll oppdragskontroll;
@@ -84,7 +85,7 @@ public class ØkonomioppdragMapper {
         //TODO (Tonic): Sjekk vis dette må være enum eller ikke
         oppdrag110.setKodeFagomraade(okoOppdrag110.getKodeFagomrade());
         oppdrag110.setFagsystemId(String.valueOf(okoOppdrag110.getFagsystemId()));
-        oppdrag110.setUtbetFrekvens(okoOppdrag110.getUtbetFrekvens());
+        oppdrag110.setUtbetFrekvens(UTBET_FREKVENS);
         oppdrag110.setOppdragGjelderId(okoOppdrag110.getOppdragGjelderId());
         oppdrag110.setSaksbehId(String.valueOf(okoOppdrag110.getSaksbehId()));
         oppdrag110.setAvstemming115(mapAvstemming115(okoOppdrag110.getAvstemming()));

@@ -41,7 +41,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLi
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -295,7 +294,6 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
             assertThat(oppdrag110.getFagsystemId()).isEqualTo(
                 concatenateValues(Long.parseLong(fagsak.getSaksnummer().getVerdi()), initialLøpenummer++));
             assertThat(oppdrag110.getSaksbehId()).isEqualTo(behandlingVedtak.getAnsvarligSaksbehandler());
-            assertThat(oppdrag110.getUtbetFrekvens()).isEqualTo(ØkonomiUtbetFrekvens.MÅNED.getUtbetFrekvens());
             assertThat(oppdrag110.getOppdragGjelderId()).isEqualTo(personIdent.getIdent());
             assertThat(oppdrag110.getOppdragskontroll()).isEqualTo(oppdragskontroll);
             assertThat(oppdrag110.getAvstemming()).isNotNull();

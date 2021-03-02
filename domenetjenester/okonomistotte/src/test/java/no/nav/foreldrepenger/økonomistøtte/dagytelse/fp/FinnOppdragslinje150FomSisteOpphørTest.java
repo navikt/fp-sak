@@ -170,7 +170,6 @@ public class FinnOppdragslinje150FomSisteOpphørTest {
             .medKodeEndring("kodeEndring")
             .medKodeFagomrade("kode")
             .medFagSystemId(123L)
-            .medUtbetFrekvens("utbetfrekvens")
             .medOppdragGjelderId("oppdraggjelderid")
             .medDatoOppdragGjelderFom(LocalDate.now())
             .medSaksbehId("saksbehid")

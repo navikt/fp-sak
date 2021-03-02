@@ -48,7 +48,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLi
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -293,7 +292,6 @@ public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
             .medKodeEndring(ØkonomiKodeEndring.NY.name())
             .medKodeFagomrade(ØkonomiKodeFagområde.FP.name())
             .medFagSystemId(250L)
-            .medUtbetFrekvens(ØkonomiUtbetFrekvens.MÅNED.name())
             .medOppdragGjelderId("1")
             .medDatoOppdragGjelderFom(LocalDate.now())
             .medSaksbehId(SAKS_BEHANDLER)
