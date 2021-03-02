@@ -84,7 +84,7 @@ public class BeregningsgrunnlagFormidlingDtoTjeneste {
             andel.getNyIArbeidslivet(),
             andel.getArbeidsforholdType(),
             andel.getBeregningsperiodeFom(),
-            andel.getBeregningsperiodeFom(),
+            andel.getBeregningsperiodeTom(),
             arbeidsforholdDto.orElse(null));
     }
 
