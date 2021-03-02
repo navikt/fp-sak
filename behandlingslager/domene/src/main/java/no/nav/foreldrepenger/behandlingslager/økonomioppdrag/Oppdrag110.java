@@ -25,6 +25,7 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Immutable;
 
+import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.vedtak.util.env.Cluster;
 import no.nav.vedtak.util.env.Environment;
@@ -35,14 +36,10 @@ import no.nav.vedtak.util.env.Environment;
  */
 @Entity(name = "Oppdrag110")
 @Table(name = "OKO_OPPDRAG_110")
-public class Oppdrag110 extends BaseEntitet {
+public class Oppdrag110 extends BaseCreateableEntitet {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_OKO_OPPDRAG_110")
     private Long id;
-
-    @Version
-    @Column(name = "versjon", nullable = false)
-    private long versjon;
 
     @Column(name = "kode_aksjon", nullable = false)
     private String kodeAksjon;
