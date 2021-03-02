@@ -13,11 +13,11 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -36,7 +36,7 @@ class TidligereOppdragTjenesteTest {
     public void skal_kunne_håndtere_ferepenger_på_samme_kodeklasifikk_gjennom_flere_år() {
         Oppdragskontroll oppdragskontroll = lagOppdragskontroll(saksnummer);
         long fagsystemId = 999999999L;
-        Oppdrag110 oppdrag1 = lagOppdrag110(oppdragskontroll, ØkonomiKodeFagområde.FP, ØkonomiKodeEndring.NY, fagsystemId);
+        Oppdrag110 oppdrag1 = lagOppdrag110(oppdragskontroll, ØkonomiKodeFagområde.FP, KodeEndring.NY, fagsystemId);
         oppdrag1.setOpprettetTidspunkt(LocalDateTime.now().minusDays(1));
         lagOppdragslinje(oppdrag1, KodeKlassifik.FPF_ARBEIDSTAKER, LocalDate.of(2019, 10, 17), LocalDate.of(2019, 11, 6), fagsystemId*1000 + 100, HENVISNING_1, null, null);
         lagOppdragslinje(oppdrag1, KodeKlassifik.FPF_ARBEIDSTAKER, LocalDate.of(2019, 11, 7), LocalDate.of(2019, 12, 18), fagsystemId*1000 + 101, HENVISNING_1, fagsystemId*1000 + 100, fagsystemId);
@@ -45,7 +45,7 @@ class TidligereOppdragTjenesteTest {
         lagOppdragslinje(oppdrag1, KodeKlassifik.FERIEPENGER_BRUKER, LocalDate.of(2020, 5, 1), LocalDate.of(2020, 5, 31), fagsystemId*1000 + 104, HENVISNING_1, null, null);
         lagOppdragslinje(oppdrag1, KodeKlassifik.FERIEPENGER_BRUKER, LocalDate.of(2021, 5, 1), LocalDate.of(2021, 5, 31), fagsystemId*1000 + 105, HENVISNING_1, null, null);
 
-        Oppdrag110 oppdrag2 = lagOppdrag110(oppdragskontroll, ØkonomiKodeFagområde.FP, ØkonomiKodeEndring.ENDR, fagsystemId);
+        Oppdrag110 oppdrag2 = lagOppdrag110(oppdragskontroll, ØkonomiKodeFagområde.FP, KodeEndring.ENDRING, fagsystemId);
         oppdrag2.setOpprettetTidspunkt(LocalDateTime.now());
         lagOpphørslinje(oppdrag2, KodeKlassifik.FPF_ARBEIDSTAKER, LocalDate.of(2020, 2, 20), LocalDate.of(2020, 6, 10), fagsystemId*1000 + 103, LocalDate.of(2019, 10, 17), HENVISNING_2, null, null);
         lagOpphørslinje(oppdrag2, KodeKlassifik.FERIEPENGER_BRUKER, LocalDate.of(2020, 5, 1), LocalDate.of(2020, 5, 31), fagsystemId*1000 + 104, LocalDate.of(2020, 5, 1), HENVISNING_2, null, null);
@@ -100,10 +100,10 @@ class TidligereOppdragTjenesteTest {
             .medRefFagsystemId(refFagsystemId);
     }
 
-    private Oppdrag110 lagOppdrag110(Oppdragskontroll oppdragskontroll, ØkonomiKodeFagområde fagområde, ØkonomiKodeEndring status, long fagsystemId) {
+    private Oppdrag110 lagOppdrag110(Oppdragskontroll oppdragskontroll, ØkonomiKodeFagområde fagområde, KodeEndring kodeEndring, long fagsystemId) {
         return Oppdrag110.builder()
             .medKodeFagomrade(fagområde.name())
-            .medKodeEndring(status.name())
+            .medKodeEndring(kodeEndring)
             .medFagSystemId(fagsystemId)
             .medOppdragGjelderId("11111111111")
             .medSaksbehId("Z111111")

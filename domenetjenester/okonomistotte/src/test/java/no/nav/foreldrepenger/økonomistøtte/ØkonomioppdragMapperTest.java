@@ -24,11 +24,11 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodekomponent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag;
@@ -196,7 +196,7 @@ public class ØkonomioppdragMapperTest {
 
             no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag110 oppdrag110Generert = oppdrag.getOppdrag110();
             assertThat(oppdrag110Generert.getKodeAksjon()).isEqualTo(KODE_AKSJON);
-            assertThat(oppdrag110Generert.getKodeEndring()).isEqualTo(oppdrag110.getKodeEndring());
+            assertThat(oppdrag110Generert.getKodeEndring()).isEqualTo(oppdrag110.getKodeEndring().getKode());
             assertThat(oppdrag110Generert.getKodeFagomraade()).isEqualTo(oppdrag110.getKodeFagomrade());
             assertThat(oppdrag110Generert.getUtbetFrekvens()).isEqualTo(UTBET_FREKVENS);
 
@@ -351,7 +351,7 @@ public class ØkonomioppdragMapperTest {
         List<Oppdrag110> oppdrag110Liste = new ArrayList<>();
 
         Oppdrag110 oppdrag110_1 = Oppdrag110.builder()
-            .medKodeEndring(ØkonomiKodeEndring.NY.name())
+            .medKodeEndring(KodeEndring.NY)
             .medKodeFagomrade(gjelderFP ? "FP" : "REFUTG")
             .medFagSystemId(44L)
             .medOppdragGjelderId("12345678901")
@@ -369,7 +369,7 @@ public class ØkonomioppdragMapperTest {
 
         if (gjelderFP) {
             Oppdrag110 oppdrag110_2 = Oppdrag110.builder()
-                .medKodeEndring(ØkonomiKodeEndring.NY.name())
+                .medKodeEndring(KodeEndring.NY)
                 .medKodeFagomrade("FPREF")
                 .medFagSystemId(55L)
                 .medOppdragGjelderId("12345678901")

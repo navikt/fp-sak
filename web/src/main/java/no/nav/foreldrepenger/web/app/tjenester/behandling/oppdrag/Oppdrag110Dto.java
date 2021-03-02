@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.oppdrag;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 
 public class Oppdrag110Dto extends SporingDto {
 
@@ -14,7 +14,7 @@ public class Oppdrag110Dto extends SporingDto {
     private String oppdragGjelderId;
     private String saksbehId;
     private Long oppdragsKontrollId;
-    private String kodeEndring;
+    private KodeEndring kodeEndring;
     private String kodeFagomrade;
     private AvstemmingDto avstemming;
     private Ompostering116Dto ompostering116Dto;
@@ -57,11 +57,11 @@ public class Oppdrag110Dto extends SporingDto {
         this.oppdragsKontrollId = oppdragsKontrollId;
     }
 
-    public String getKodeEndring() {
+    public KodeEndring getKodeEndring() {
         return kodeEndring;
     }
 
-    public void setKodeEndring(String kodeEndring) {
+    public void setKodeEndring(KodeEndring kodeEndring) {
         this.kodeEndring = kodeEndring;
     }
 

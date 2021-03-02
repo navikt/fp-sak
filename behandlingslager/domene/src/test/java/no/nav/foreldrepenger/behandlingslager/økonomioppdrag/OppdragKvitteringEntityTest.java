@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public class OppdragKvitteringEntityTest {
@@ -14,7 +15,6 @@ public class OppdragKvitteringEntityTest {
     private OppdragKvittering oppdragKvittering;
     private OppdragKvittering oppdragKvittering_2;
 
-    private static final String KODEENDRING = ØkonomiKodeEndring.NY.name();
     private static final String KODEFAGOMRADE = ØkonomiKodeFagområde.FP.name();
     private static final String ALVORLIGHETSGRAD = "00";
     private static final String BESKR_MELDING = "Beskr melding";
@@ -104,7 +104,7 @@ public class OppdragKvitteringEntityTest {
 
     private Oppdrag110.Builder lagOppdrag110MedPaakrevdeFelter() {
         return Oppdrag110.builder()
-                .medKodeEndring(KODEENDRING)
+                .medKodeEndring(KodeEndring.NY)
                 .medKodeFagomrade(KODEFAGOMRADE)
                 .medFagSystemId(FAGSYSTEMID)
                 .medOppdragGjelderId(OPPDRAGGJELDERID)

@@ -82,9 +82,8 @@ public class ØkonomioppdragMapper {
         //TODO (Tonic): Løsningsbeskrivelse viser at Oppdrag110 er en liste men Økonomi Oppdrag tar bare et Oppdrag110
         String kodeFagområde = okoOppdrag110.getKodeFagomrade();
         oppdrag110.setKodeAksjon(KODE_AKSJON);
-        oppdrag110.setKodeEndring(okoOppdrag110.getKodeEndring());
-        //TODO (Tonic): Sjekk vis dette må være enum eller ikke
-        oppdrag110.setKodeFagomraade(okoOppdrag110.getKodeFagomrade());
+        oppdrag110.setKodeEndring(okoOppdrag110.getKodeEndring().getKode());
+        oppdrag110.setKodeFagomraade(kodeFagområde);
         oppdrag110.setFagsystemId(String.valueOf(okoOppdrag110.getFagsystemId()));
         oppdrag110.setUtbetFrekvens(UTBET_FREKVENS);
         oppdrag110.setOppdragGjelderId(okoOppdrag110.getOppdragGjelderId());

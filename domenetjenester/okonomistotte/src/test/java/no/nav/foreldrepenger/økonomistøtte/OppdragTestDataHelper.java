@@ -9,11 +9,11 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
@@ -59,7 +59,7 @@ public class OppdragTestDataHelper {
         Oppdrag110.Builder oppdr110Builder = Oppdrag110.builder();
 
         Oppdrag110.Builder oppdrag110Builder = oppdr110Builder
-            .medKodeEndring(ØkonomiKodeEndring.NY.name())
+            .medKodeEndring(KodeEndring.NY)
             .medKodeFagomrade(økonomiKodeFagområde.name())
             .medFagSystemId(fagsystemId)
             .medOppdragGjelderId("12345678901")

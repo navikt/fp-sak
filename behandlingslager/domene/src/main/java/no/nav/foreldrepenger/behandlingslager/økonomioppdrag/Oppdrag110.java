@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -24,6 +25,7 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.Immutable;
 
 import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.vedtak.util.env.Cluster;
 import no.nav.vedtak.util.env.Environment;
 
@@ -40,8 +42,9 @@ public class Oppdrag110 extends BaseCreateableEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_OKO_OPPDRAG_110")
     private Long id;
 
+    @Convert(converter = KodeEndring.KodeverdiConverter.class)
     @Column(name = "kode_endring", nullable = false)
-    private String kodeEndring;
+    private KodeEndring kodeEndring;
 
     @Column(name = "kode_fagomrade", nullable = false)
     private String kodeFagomrade;
@@ -83,7 +86,7 @@ public class Oppdrag110 extends BaseCreateableEntitet {
         return id;
     }
 
-    public String getKodeEndring() {
+    public KodeEndring getKodeEndring() {
         return kodeEndring;
     }
 
@@ -195,7 +198,7 @@ public class Oppdrag110 extends BaseCreateableEntitet {
     }
 
     public static class Builder {
-        private String kodeEndring;
+        private KodeEndring kodeEndring;
         private String kodeFagomrade;
         private Long fagsystemId;
         private String oppdragGjelderId;
@@ -204,7 +207,7 @@ public class Oppdrag110 extends BaseCreateableEntitet {
         private Oppdragskontroll oppdragskontroll;
         private Ompostering116 ompostering116;
 
-        public Builder medKodeEndring(String kodeEndring) {
+        public Builder medKodeEndring(KodeEndring kodeEndring) {
             this.kodeEndring = kodeEndring;
             return this;
         }

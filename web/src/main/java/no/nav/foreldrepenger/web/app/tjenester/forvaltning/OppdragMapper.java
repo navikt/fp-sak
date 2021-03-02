@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
@@ -90,7 +91,7 @@ class OppdragMapper {
         return Oppdrag110.builder()
             .medOppdragskontroll(oppdragskontroll)
             .medAvstemming(Avstemming.ny())
-            .medKodeEndring(dto.getKodeEndring())
+            .medKodeEndring(KodeEndring.fraKode(dto.getKodeEndring()))
             .medKodeFagomrade(utledFagområde(behandling, dto.erBrukerMottaker()).name())
             .medOppdragGjelderId(fnrBruker)
             .medFagSystemId(dto.getFagsystemId())

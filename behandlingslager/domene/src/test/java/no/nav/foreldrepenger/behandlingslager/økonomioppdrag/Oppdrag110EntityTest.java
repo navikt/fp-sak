@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public class Oppdrag110EntityTest {
@@ -13,7 +14,7 @@ public class Oppdrag110EntityTest {
     private Oppdrag110 oppdrag110;
     private Oppdrag110 oppdrag110_2;
 
-    private static final String KODEENDRING = ØkonomiKodeEndring.NY.name();
+    private static final KodeEndring KODEENDRING = KodeEndring.ENDRING;
     private static final String KODEFAGOMRADE = ØkonomiKodeFagområde.REFUTG.name();
     private static final Long FAGSYSTEMID = 250L;
     private static final String OPPDRAGGJELDERID = "1";
@@ -108,7 +109,7 @@ public class Oppdrag110EntityTest {
         assertThat(oppdrag110).isEqualTo(oppdrag110_2);
         assertThat(oppdrag110_2).isEqualTo(oppdrag110);
 
-        oppdrag110_2 = oppdrag110Builder.medKodeEndring(ØkonomiKodeEndring.ENDR.name()).build();
+        oppdrag110_2 = oppdrag110Builder.medKodeEndring(KodeEndring.UENDRET).build();
         assertThat(oppdrag110).isNotEqualTo(oppdrag110_2);
         assertThat(oppdrag110_2).isNotEqualTo(oppdrag110);
     }
@@ -117,7 +118,7 @@ public class Oppdrag110EntityTest {
     public void skal_bruke_KodeEndring_i_equalsOgHashCode() {
         oppdrag110Builder = lagBuilderMedPaakrevdeFelter();
         oppdrag110 = oppdrag110Builder.build();
-        oppdrag110Builder.medKodeEndring(ØkonomiKodeEndring.ENDR.name());
+        oppdrag110Builder.medKodeEndring(KodeEndring.UENDRET);
         oppdrag110_2 = oppdrag110Builder.build();
 
         assertThat(oppdrag110).isNotEqualTo(oppdrag110_2);

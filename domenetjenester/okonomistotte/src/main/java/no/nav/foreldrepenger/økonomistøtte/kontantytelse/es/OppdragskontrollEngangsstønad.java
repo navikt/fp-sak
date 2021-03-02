@@ -14,11 +14,11 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.økonomistøtte.OpprettOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.kontantytelse.es.adapter.MapBehandlingInfoES;
@@ -29,8 +29,8 @@ public class OppdragskontrollEngangsstønad {
 
     private static final long INITIAL_VALUE = 99L;
 
-    private static final String KODE_ENDRING_NY = ØkonomiKodeEndring.NY.name();
-    private static final String KODE_ENDRING_UENDRET = ØkonomiKodeEndring.UEND.name();
+    private static final KodeEndring KODE_ENDRING_NY = KodeEndring.NY;
+    private static final KodeEndring KODE_ENDRING_UENDRET = KodeEndring.UENDRET;
 
     private MapBehandlingInfoES mapBehandlingInfo;
 
@@ -57,7 +57,7 @@ public class OppdragskontrollEngangsstønad {
     private Oppdrag110 opprettOppdrag110ES(OppdragInputES behandlingInfo, Oppdragskontroll oppdragskontroll,
                                            Optional<Oppdrag110> forrigeOppdragOpt) {
         long fagsystemId = OpprettOppdragTjeneste.genererFagsystemId(Long.parseLong(behandlingInfo.getSaksnummer().getVerdi()), INITIAL_VALUE);
-        String kodeEndring = forrigeOppdragOpt.isPresent() ? KODE_ENDRING_UENDRET : KODE_ENDRING_NY;
+        KodeEndring kodeEndring = forrigeOppdragOpt.isPresent() ? KODE_ENDRING_UENDRET : KODE_ENDRING_NY;
 
         return Oppdrag110.builder()
             .medKodeEndring(kodeEndring)
