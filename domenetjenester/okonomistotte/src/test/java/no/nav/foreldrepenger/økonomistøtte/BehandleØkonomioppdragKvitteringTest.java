@@ -15,7 +15,8 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
-import no.nav.foreldrepenger.domene.typer.Beløp;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.AlleMottakereHarPositivKvitteringImpl;
 import no.nav.foreldrepenger.økonomistøtte.kontantytelse.es.AlleMottakereHarPositivKvitteringEngangsstønad;
@@ -30,17 +31,13 @@ public class BehandleØkonomioppdragKvitteringTest {
 
     public static final Long FAGSYSTEMID_ARBEIDSGIVER = 256L;
 
-    public static final String KODEAKSJON = "1";
+    public static final KodeEndring KODEENDRING = KodeEndring.NY;
 
-    public static final String KODEENDRING = "NY";
+    public static final KodeFagområde KODEFAGOMRADE_ES = KodeFagområde.ENGANGSSTØNAD;
 
-    public static final String KODEFAGOMRADE_ES = "REFUTG";
+    public static final KodeFagområde KODEFAGOMRADE_FP = KodeFagområde.FORELDREPENGER_BRUKER;
 
-    public static final String KODEFAGOMRADE_FP = "FP";
-
-    public static final String KODEFAGOMRADE_FPREF = "FPREF";
-
-    public static final String UTBETFREKVENS = "ENG";
+    public static final KodeFagområde KODEFAGOMRADE_FPREF = KodeFagområde.FORELDREPENGER_AG;
 
     public static final String OPPDRAGGJELDERID = "01010101010";
 

@@ -3,11 +3,11 @@ package no.nav.foreldrepenger.behandlingslager.økonomioppdrag;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.time.LocalDate;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public class Oppdrag110EntityTest {
@@ -15,13 +15,10 @@ public class Oppdrag110EntityTest {
     private Oppdrag110 oppdrag110;
     private Oppdrag110 oppdrag110_2;
 
-    private static final String KODEAKSJON = ØkonomiKodeAksjon.EN.name();
-    private static final String KODEENDRING = ØkonomiKodeEndring.NY.name();
-    private static final String KODEFAGOMRADE = ØkonomiKodeFagområde.REFUTG.name();
+    private static final KodeEndring KODEENDRING = KodeEndring.ENDRING;
+    private static final KodeFagområde KODEFAGOMRADE = KodeFagområde.ENGANGSSTØNAD;
     private static final Long FAGSYSTEMID = 250L;
-    private static final String UTBETFREKVENS = ØkonomiUtbetFrekvens.ENGANG.name();
     private static final String OPPDRAGGJELDERID = "1";
-    private static final LocalDate DATOOPPDRAGGJELDERFOM = LocalDate.of(2000, 1, 1);
     private static final String SAKSBEHID = "Z1236525";
     private static final Long BEHANDLINGID = 321L;
     private static final Saksnummer SAKSID = new Saksnummer("700");
@@ -39,11 +36,9 @@ public class Oppdrag110EntityTest {
     public void skal_bygge_instans_med_påkrevde_felter() {
         oppdrag110 = lagBuilderMedPaakrevdeFelter().build();
 
-        assertThat(oppdrag110.getKodeAksjon()).isEqualTo(KODEAKSJON);
         assertThat(oppdrag110.getKodeEndring()).isEqualTo(KODEENDRING);
         assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(KODEFAGOMRADE);
         assertThat(oppdrag110.getFagsystemId()).isEqualTo(FAGSYSTEMID);
-        assertThat(oppdrag110.getUtbetFrekvens()).isEqualTo(UTBETFREKVENS);
         assertThat(oppdrag110.getOppdragGjelderId()).isEqualTo(OPPDRAGGJELDERID);
         assertThat(oppdrag110.getSaksbehId()).isEqualTo(SAKSBEHID);
 
@@ -51,16 +46,7 @@ public class Oppdrag110EntityTest {
 
     @Test
     public void skal_ikke_bygge_instans_hvis_mangler_påkrevde_felter() {
-        // mangler kodeAksjon
-        try {
-            oppdrag110Builder.build();
-            fail(FORVENTET_EXCEPTION);
-        } catch (NullPointerException e) {
-            assertThat(e.getMessage()).contains("kodeAksjon");
-        }
-
         // mangler kodeEndring
-        oppdrag110Builder.medKodeAksjon(KODEAKSJON);
         try {
             oppdrag110Builder.build();
             fail(FORVENTET_EXCEPTION);
@@ -86,17 +72,8 @@ public class Oppdrag110EntityTest {
             assertThat(e.getMessage()).contains("fagsystemId");
         }
 
-        // mangler utbetFrekvens
+        // mangler fagsystemId
         oppdrag110Builder.medFagSystemId(FAGSYSTEMID);
-        try {
-            oppdrag110Builder.build();
-            fail(FORVENTET_EXCEPTION);
-        } catch (NullPointerException e) {
-            assertThat(e.getMessage()).contains("utbetFrekvens");
-        }
-
-        // mangler oppdragGjelderId
-        oppdrag110Builder.medUtbetFrekvens(UTBETFREKVENS);
         try {
             oppdrag110Builder.build();
             fail(FORVENTET_EXCEPTION);
@@ -104,17 +81,8 @@ public class Oppdrag110EntityTest {
             assertThat(e.getMessage()).contains("oppdragGjelderId");
         }
 
-        // mangler oppdragGjelderId
-        oppdrag110Builder.medOppdragGjelderId(OPPDRAGGJELDERID);
-        try {
-            oppdrag110Builder.build();
-            fail(FORVENTET_EXCEPTION);
-        } catch (NullPointerException e) {
-            assertThat(e.getMessage()).contains("datoOppdragGjelderFom");
-        }
-
         // mangler saksbehId
-        oppdrag110Builder.medDatoOppdragGjelderFom(DATOOPPDRAGGJELDERFOM);
+        oppdrag110Builder.medOppdragGjelderId(OPPDRAGGJELDERID);
         try {
             oppdrag110Builder.build();
             fail(FORVENTET_EXCEPTION);
@@ -142,7 +110,7 @@ public class Oppdrag110EntityTest {
         assertThat(oppdrag110).isEqualTo(oppdrag110_2);
         assertThat(oppdrag110_2).isEqualTo(oppdrag110);
 
-        oppdrag110_2 = oppdrag110Builder.medKodeEndring(ØkonomiKodeEndring.ENDR.name()).build();
+        oppdrag110_2 = oppdrag110Builder.medKodeEndring(KodeEndring.UENDRET).build();
         assertThat(oppdrag110).isNotEqualTo(oppdrag110_2);
         assertThat(oppdrag110_2).isNotEqualTo(oppdrag110);
     }
@@ -151,7 +119,7 @@ public class Oppdrag110EntityTest {
     public void skal_bruke_KodeEndring_i_equalsOgHashCode() {
         oppdrag110Builder = lagBuilderMedPaakrevdeFelter();
         oppdrag110 = oppdrag110Builder.build();
-        oppdrag110Builder.medKodeEndring(ØkonomiKodeEndring.ENDR.name());
+        oppdrag110Builder.medKodeEndring(KodeEndring.UENDRET);
         oppdrag110_2 = oppdrag110Builder.build();
 
         assertThat(oppdrag110).isNotEqualTo(oppdrag110_2);
@@ -185,13 +153,10 @@ public class Oppdrag110EntityTest {
 
     private Oppdrag110.Builder lagBuilderMedPaakrevdeFelter() {
         return Oppdrag110.builder()
-                .medKodeAksjon(KODEAKSJON)
                 .medKodeEndring(KODEENDRING)
                 .medKodeFagomrade(KODEFAGOMRADE)
                 .medFagSystemId(FAGSYSTEMID)
-                .medUtbetFrekvens(UTBETFREKVENS)
                 .medOppdragGjelderId(OPPDRAGGJELDERID)
-                .medDatoOppdragGjelderFom(DATOOPPDRAGGJELDERFOM)
                 .medSaksbehId(SAKSBEHID)
                 .medAvstemming(Avstemming.ny())
                 .medOppdragskontroll(lagOppdragskontrollMedPaakrevdeFelter().build());

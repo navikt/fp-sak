@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodekomponent;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.ObjectFactory;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Ompostering116;
@@ -40,6 +40,9 @@ public class ØkonomioppdragMapper {
     private static final String FRADRAG_TILLEGG = "T";
     private static final String BRUK_KJOREPLAN = "N";
     private static final String TYPE_GRAD = "UFOR";
+    private static final String KODE_AKSJON = "1";
+    private static final String UTBET_FREKVENS = "MND";
+    private static final LocalDate DATO_OPPDRAG_GJELDER_FOM = LocalDate.of(2000, 1, 1);
 
     // TODO (Team Tonic): Fjern global state oppdragskontroll
     private Oppdragskontroll oppdragskontroll;
@@ -77,20 +80,19 @@ public class ØkonomioppdragMapper {
     private no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag110 mapOppdrag110(Oppdrag110 okoOppdrag110, Long behandlingId) {
         final no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag110 oppdrag110 = objectFactory.createOppdrag110();
         //TODO (Tonic): Løsningsbeskrivelse viser at Oppdrag110 er en liste men Økonomi Oppdrag tar bare et Oppdrag110
-        String kodeFagområde = okoOppdrag110.getKodeFagomrade();
-        oppdrag110.setKodeAksjon(okoOppdrag110.getKodeAksjon());
-        oppdrag110.setKodeEndring(okoOppdrag110.getKodeEndring());
-        //TODO (Tonic): Sjekk vis dette må være enum eller ikke
-        oppdrag110.setKodeFagomraade(okoOppdrag110.getKodeFagomrade());
+        KodeFagområde kodeFagområde = okoOppdrag110.getKodeFagomrade();
+        oppdrag110.setKodeAksjon(KODE_AKSJON);
+        oppdrag110.setKodeEndring(okoOppdrag110.getKodeEndring().getKode());
+        oppdrag110.setKodeFagomraade(kodeFagområde.getKode());
         oppdrag110.setFagsystemId(String.valueOf(okoOppdrag110.getFagsystemId()));
-        oppdrag110.setUtbetFrekvens(okoOppdrag110.getUtbetFrekvens());
+        oppdrag110.setUtbetFrekvens(UTBET_FREKVENS);
         oppdrag110.setOppdragGjelderId(okoOppdrag110.getOppdragGjelderId());
         oppdrag110.setSaksbehId(String.valueOf(okoOppdrag110.getSaksbehId()));
         oppdrag110.setAvstemming115(mapAvstemming115(okoOppdrag110.getAvstemming()));
 
         oppdrag110.getOppdragsEnhet120().add(mapOppdragsEnhet120());
         oppdrag110.getOppdragsLinje150().addAll(mapOppdragsLinje150(okoOppdrag110.getOppdragslinje150Liste(), kodeFagområde, okoOppdrag110.getSaksbehId(), behandlingId));
-        oppdrag110.setDatoOppdragGjelderFom(toXmlGregCal(okoOppdrag110.getDatoOppdragGjelderFom()));
+        oppdrag110.setDatoOppdragGjelderFom(toXmlGregCal(DATO_OPPDRAG_GJELDER_FOM));
 
         Optional<no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116> optOmpostering116 = okoOppdrag110.getOmpostering116();
         optOmpostering116.ifPresent(ompostering116 -> oppdrag110.setOmpostering116(mapOmpostering116(ompostering116)));
@@ -129,7 +131,7 @@ public class ØkonomioppdragMapper {
         return oppdragsEnhet120;
     }
 
-    private List<OppdragsLinje150> mapOppdragsLinje150(List<Oppdragslinje150> okoOppdrlinje150Liste, String kode, String saksbehId, Long behandlingId) {
+    private List<OppdragsLinje150> mapOppdragsLinje150(List<Oppdragslinje150> okoOppdrlinje150Liste, KodeFagområde kodeFagområde, String saksbehId, Long behandlingId) {
         List<OppdragsLinje150> oppdragsLinje150Liste = new ArrayList<>();
         for (Oppdragslinje150 okoOppdrlinje150 : okoOppdrlinje150Liste) {
             OppdragsLinje150 oppdragsLinje150 = objectFactory.createOppdragsLinje150();
@@ -158,25 +160,22 @@ public class ØkonomioppdragMapper {
             if (okoOppdrlinje150.getRefDelytelseId() != null) {
                 oppdragsLinje150.setRefDelytelseId(String.valueOf(okoOppdrlinje150.getRefDelytelseId()));
             }
-
             oppdragsLinje150.getAttestant180().add(mapAttestant180(saksbehId));
-            if (!kode.equals(ØkonomiKodeFagområde.REFUTG.name())) {
-                setGrad170OgRefusjonsinfo156(kode, okoOppdrlinje150, oppdragsLinje150);
+
+            if (!kodeFagområde.gjelderEngangsstønad()) {
+                if (null != okoOppdrlinje150.getUtbetalingsgrad()) {
+                    oppdragsLinje150.getGrad170().add(mapGrad170(okoOppdrlinje150.getUtbetalingsgrad()));
+                }
+                if (kodeFagområde.gjelderRefusjonTilArbeidsgiver()) {
+                    oppdragsLinje150.setRefusjonsinfo156(mapRefusjonInfo156(okoOppdrlinje150.getRefusjonsinfo156()));
+                }
             }
+
             oppdragsLinje150Liste.add(oppdragsLinje150);
         }
         return oppdragsLinje150Liste.stream()
             .sorted(Comparator.comparing(opp150 -> Long.parseLong(opp150.getDelytelseId())))
             .collect(Collectors.toList());
-    }
-
-    private void setGrad170OgRefusjonsinfo156(String kode, Oppdragslinje150 okoOppdrlinje150, OppdragsLinje150 oppdragsLinje150) {
-        if (null != okoOppdrlinje150.getUtbetalingsgrad()) {
-            oppdragsLinje150.getGrad170().add(mapGrad170(okoOppdrlinje150.getUtbetalingsgrad()));
-        }
-        if (ØkonomiKodeFagområde.gjelderRefusjonTilArbeidsgiver(kode)) {
-            oppdragsLinje150.setRefusjonsinfo156(mapRefusjonInfo156(okoOppdrlinje150.getRefusjonsinfo156()));
-        }
     }
 
     private no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Refusjonsinfo156 mapRefusjonInfo156(Refusjonsinfo156 okoRefusjonsInfo156) {

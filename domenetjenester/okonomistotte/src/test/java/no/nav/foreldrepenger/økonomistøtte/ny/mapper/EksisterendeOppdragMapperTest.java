@@ -14,7 +14,9 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
@@ -163,12 +165,9 @@ public class EksisterendeOppdragMapperTest {
 
     private Oppdrag110 lagOppdrag110(Oppdragskontroll oppdragskontroll, FagsystemId fagsystemId) {
         return Oppdrag110.builder()
-            .medKodeAksjon("1")
-            .medKodeEndring("NY")
-            .medKodeFagomrade("FP")
-            .medUtbetFrekvens("MND")
+            .medKodeEndring(KodeEndring.NY)
+            .medKodeFagomrade(KodeFagområde.FORELDREPENGER_BRUKER)
             .medOppdragGjelderId(frnBruker)
-            .medDatoOppdragGjelderFom(LocalDate.MIN)
             .medSaksbehId("Z100000")
             .medAvstemming(Avstemming.ny())
             .medOppdragskontroll(oppdragskontroll)

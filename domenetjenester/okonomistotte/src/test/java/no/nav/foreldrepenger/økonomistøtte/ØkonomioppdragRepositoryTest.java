@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
@@ -79,7 +80,7 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
         // Assert
 
         List<Oppdrag110> oppdragListe = økonomioppdragRepository.hentOppdrag110ForPeriodeOgFagområde(LocalDate.now(),
-            LocalDate.now(), "REFUTG");
+            LocalDate.now(), KodeFagområde.ENGANGSSTØNAD);
         assertThat(oppdragListe.stream().map(o -> o.getOppdragskontroll().getBehandlingId())).contains(behandlingId);
     }
 
@@ -87,7 +88,7 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
     public void lagreOgSøkeOppOppdragskontrollForPeriodeUtenResultat() {
         //Testene kjøres ikke mot tom db
         var førSize = økonomioppdragRepository.hentOppdrag110ForPeriodeOgFagområde(LocalDate.now().minusDays(1),
-            LocalDate.now().minusDays(1), "REFUTG").size();
+            LocalDate.now().minusDays(1), KodeFagområde.ENGANGSSTØNAD).size();
         // Arrange
         Oppdragskontroll oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
 
@@ -97,7 +98,7 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
         // Assert
 
         var oppdragListe = økonomioppdragRepository.hentOppdrag110ForPeriodeOgFagområde(LocalDate.now().minusDays(1),
-            LocalDate.now().minusDays(1), "REFUTG").size();
+            LocalDate.now().minusDays(1), KodeFagområde.ENGANGSSTØNAD).size();
         assertThat(oppdragListe).isEqualTo(førSize);
     }
 
@@ -195,7 +196,7 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
         Oppdragslinje150 oppdrLinje150Lest = entityManager.find(Oppdragslinje150.class, id);
         assertThat(oppdrLinje150Lest).isNotNull();
     }
-    
+
     @Test
     public void lagreRefusjonsinfo156() {
         // Arrange

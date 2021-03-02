@@ -35,14 +35,12 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -150,7 +148,7 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
 
         // Assert 2: Revurdering
         Oppdragslinje150 originalOppdragslinje150 = originaltOppdrag110.getOppdragslinje150Liste().get(0);
-        Oppdragslinje150 oppdragslinje150 = verifiserOppdrag110(oppdragRevurdering, ØkonomiKodeEndring.UEND,
+        Oppdragslinje150 oppdragslinje150 = verifiserOppdrag110(oppdragRevurdering, KodeEndring.UENDRET,
             originaltOppdrag110.getFagsystemId());
         verifiserOppdragslinje150(oppdragslinje150, KodeEndringLinje.NY, null,
             originalOppdragslinje150.getDelytelseId() + 1, originalOppdragslinje150.getDelytelseId(),
@@ -174,7 +172,7 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
 
         // Assert 2: Revurdering
         Oppdragslinje150 originalOppdragslinje150 = originaltOppdrag110.getOppdragslinje150Liste().get(0);
-        Oppdragslinje150 oppdragslinje150 = verifiserOppdrag110(oppdragRevurdering, ØkonomiKodeEndring.UEND,
+        Oppdragslinje150 oppdragslinje150 = verifiserOppdrag110(oppdragRevurdering, KodeEndring.UENDRET,
             originaltOppdrag110.getFagsystemId());
         verifiserOppdragslinje150(oppdragslinje150, KodeEndringLinje.ENDRING, KodeStatusLinje.OPPHØR,
             originalOppdragslinje150.getDelytelseId(), null, null, OpprettBehandlingForOppdrag.SATS);
@@ -205,7 +203,7 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
         // Assert 3: Revurdering
         assertThat(førsteRevurderingOpp110.getOppdragslinje150Liste()).hasSize(1);
         Oppdragslinje150 førsteRevurderingOpp150 = førsteRevurderingOpp110.getOppdragslinje150Liste().get(0);
-        Oppdragslinje150 andreRevurderingopp150 = verifiserOppdrag110(oppdragAndreRevurdering, ØkonomiKodeEndring.UEND,
+        Oppdragslinje150 andreRevurderingopp150 = verifiserOppdrag110(oppdragAndreRevurdering, KodeEndring.UENDRET,
             førsteRevurderingOpp110.getFagsystemId());
         assertThat(andreRevurderingopp150.getDatoVedtakFom()).isEqualTo(førsteRevurderingOpp150.getDatoVedtakFom());
         assertThat(andreRevurderingopp150.getDatoVedtakTom()).isEqualTo(førsteRevurderingOpp150.getDatoVedtakTom());
@@ -216,11 +214,11 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
     }
 
     private Oppdragslinje150 verifiserOppdrag110(Oppdragskontroll oppdragskontroll,
-                                                 ØkonomiKodeEndring kodeEndring,
+                                                 KodeEndring kodeEndring,
                                                  Long fagsystemId) {
         assertThat(oppdragskontroll.getOppdrag110Liste()).hasSize(1);
         Oppdrag110 oppdrag110 = oppdragskontroll.getOppdrag110Liste().get(0);
-        assertThat(oppdrag110.getKodeEndring()).isEqualTo(kodeEndring.name());
+        assertThat(oppdrag110.getKodeEndring()).isEqualTo(kodeEndring);
         assertThat(oppdrag110.getFagsystemId()).isEqualTo(fagsystemId);
         assertThat(oppdrag110.getOppdragslinje150Liste()).hasSize(1);
         return oppdrag110.getOppdragslinje150Liste().get(0);
@@ -291,13 +289,11 @@ public class OppdragskontrollTjenesteImplKontantytelseTest extends EntityManager
 
         long initialLøpenummer = 100L;
         for (Oppdrag110 oppdrag110 : oppdrag110List) {
-            assertThat(oppdrag110.getKodeAksjon()).isEqualTo(ØkonomiKodeAksjon.EN.getKodeAksjon());
-            assertThat(oppdrag110.getKodeEndring()).isEqualTo(ØkonomiKodeEndring.NY.name());
-            assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(ØkonomiKodeFagområde.REFUTG.name());
+            assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.NY);
+            assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(KodeFagområde.ENGANGSSTØNAD);
             assertThat(oppdrag110.getFagsystemId()).isEqualTo(
                 concatenateValues(Long.parseLong(fagsak.getSaksnummer().getVerdi()), initialLøpenummer++));
             assertThat(oppdrag110.getSaksbehId()).isEqualTo(behandlingVedtak.getAnsvarligSaksbehandler());
-            assertThat(oppdrag110.getUtbetFrekvens()).isEqualTo(ØkonomiUtbetFrekvens.MÅNED.getUtbetFrekvens());
             assertThat(oppdrag110.getOppdragGjelderId()).isEqualTo(personIdent.getIdent());
             assertThat(oppdrag110.getOppdragskontroll()).isEqualTo(oppdragskontroll);
             assertThat(oppdrag110.getAvstemming()).isNotNull();

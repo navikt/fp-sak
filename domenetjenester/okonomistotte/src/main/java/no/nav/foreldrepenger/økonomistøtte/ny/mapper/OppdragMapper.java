@@ -6,19 +6,17 @@ import java.util.List;
 import java.util.Map;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdragslinje150.Oppdragslinje150Util;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Betalingsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.KjedeNøkkel;
@@ -50,13 +48,10 @@ public class OppdragMapper {
     public void mapTilOppdrag110(Oppdrag oppdrag, Oppdragskontroll oppdragskontroll) {
         Oppdrag110.Builder builder = Oppdrag110.builder()
             .medOppdragskontroll(oppdragskontroll)
-            .medKodeAksjon(ØkonomiKodeAksjon.EN.getKodeAksjon())
-            .medKodeEndring(utledKodeEndring(oppdrag).name())
-            .medKodeFagomrade(oppdrag.getØkonomiFagområde().name())
+            .medKodeEndring(utledKodeEndring(oppdrag))
+            .medKodeFagomrade(oppdrag.getKodeFagområde())
             .medFagSystemId(Long.parseLong(oppdrag.getFagsystemId().toString()))
-            .medUtbetFrekvens(ØkonomiUtbetFrekvens.MÅNED.getUtbetFrekvens())
             .medOppdragGjelderId(fnrBruker)
-            .medDatoOppdragGjelderFom(LocalDate.of(2000, 1, 1))
             .medSaksbehId(ansvarligSaksbehandler)
             .medAvstemming(Avstemming.ny());
 
@@ -79,18 +74,18 @@ public class OppdragMapper {
         return !tidligereOppdrag.getBetalingsmottakere().contains(oppdrag.getBetalingsmottaker());
     }
 
-    public ØkonomiKodeEndring utledKodeEndring(Oppdrag oppdrag) {
+    public KodeEndring utledKodeEndring(Oppdrag oppdrag) {
         //usikker på nøyaktig hva som bør sendes her,
         //dette er reverse-engineered fra gammel implementasjon
         if (oppdragErTilNyMottaker(oppdrag)) {
-            return ØkonomiKodeEndring.NY;
+            return KodeEndring.NY;
         }
 
         if (oppdrag.getBetalingsmottaker() == Betalingsmottaker.BRUKER && !erOpphørForMottaker(oppdrag)) {
-            return ØkonomiKodeEndring.ENDR;
+            return KodeEndring.ENDRING;
         }
 
-        return ØkonomiKodeEndring.UEND;
+        return KodeEndring.UENDRET;
     }
 
     Oppdragslinje150 mapTilOppdragslinje150(Oppdrag110 oppdrag110, KjedeNøkkel kjedeNøkkel, OppdragLinje linje, LocalDate maxdatoRefusjon, LocalDate vedtaksdato, Long behandlingId) {

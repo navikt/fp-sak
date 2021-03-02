@@ -3,11 +3,11 @@ package no.nav.foreldrepenger.behandlingslager.økonomioppdrag;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.time.LocalDate;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public class OppdragKvitteringEntityTest {
@@ -16,16 +16,12 @@ public class OppdragKvitteringEntityTest {
     private OppdragKvittering oppdragKvittering;
     private OppdragKvittering oppdragKvittering_2;
 
-    private static final String KODEAKSJON = ØkonomiKodeAksjon.EN.name();
-    private static final String KODEENDRING = ØkonomiKodeEndring.NY.name();
-    private static final String KODEFAGOMRADE = ØkonomiKodeFagområde.FP.name();
+    private static final KodeFagområde KODEFAGOMRADE = KodeFagområde.FORELDREPENGER_BRUKER;
     private static final String ALVORLIGHETSGRAD = "00";
     private static final String BESKR_MELDING = "Beskr melding";
     private static final String MELDING_KODE = "Melding kode";
     private static final Long FAGSYSTEMID = 250L;
-    private static final String UTBETFREKVENS = ØkonomiUtbetFrekvens.MÅNED.name();
     private static final String OPPDRAGGJELDERID = "1";
-    private static final LocalDate DATOOPPDRAGGJELDERFOM = LocalDate.of(2000, 1, 1);
     private static final String SAKSBEHID = "Z1236525";
     private static final Long BEHANDLINGID = 321L;
     private static final Saksnummer SAKSID = new Saksnummer("700");
@@ -109,13 +105,10 @@ public class OppdragKvitteringEntityTest {
 
     private Oppdrag110.Builder lagOppdrag110MedPaakrevdeFelter() {
         return Oppdrag110.builder()
-                .medKodeAksjon(KODEAKSJON)
-                .medKodeEndring(KODEENDRING)
+                .medKodeEndring(KodeEndring.NY)
                 .medKodeFagomrade(KODEFAGOMRADE)
                 .medFagSystemId(FAGSYSTEMID)
-                .medUtbetFrekvens(UTBETFREKVENS)
                 .medOppdragGjelderId(OPPDRAGGJELDERID)
-                .medDatoOppdragGjelderFom(DATOOPPDRAGGJELDERFOM)
                 .medSaksbehId(SAKSBEHID)
                 .medAvstemming(Avstemming.ny())
                 .medOppdragskontroll(lagOppdragskontrollMedPaakrevdeFelter().build());

@@ -39,14 +39,12 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeAksjon;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiUtbetFrekvens;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
@@ -299,13 +297,10 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
 
     private Oppdrag110 buildOppdrag110(Oppdragskontroll oppdragskontroll) {
         return Oppdrag110.builder()
-                .medKodeAksjon(ØkonomiKodeAksjon.TRE.getKodeAksjon())
-                .medKodeEndring(ØkonomiKodeEndring.NY.name())
-                .medKodeFagomrade(ØkonomiKodeFagområde.REFUTG.name())
+                .medKodeEndring(KodeEndring.NY)
+                .medKodeFagomrade(KodeFagområde.ENGANGSSTØNAD)
                 .medFagSystemId(OPPDRAG_FAGSYSTEM_ID)
-                .medUtbetFrekvens(ØkonomiUtbetFrekvens.DAG.getUtbetFrekvens())
                 .medOppdragGjelderId("12345678901")
-                .medDatoOppdragGjelderFom(LocalDate.of(2000, 1, 1))
                 .medSaksbehId("J5624215")
                 .medAvstemming(Avstemming.ny())
                 .medOppdragskontroll(oppdragskontroll)

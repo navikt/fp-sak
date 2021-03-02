@@ -8,11 +8,12 @@ import java.time.LocalDate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
-import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public class Oppdragslinje150EntityTest {
@@ -30,15 +31,11 @@ public class Oppdragslinje150EntityTest {
     private static final Sats SATS = Sats.på(50000);
     private static final TypeSats TYPESATS = TypeSats.ENGANG;
     private static final String SAKSBEHID = "Z1236524";
-    private static final LocalDate DATOOPPDRAGGJELDERFOM = LocalDate.of(2000, 1, 1);
     private static final String UTBETALESTILID = "456";
     private static final Long REFFAGSYSTEMID = 678L;
     private static final Long REFDELYTELSEID = 789L;
-    private static final String KODEAKSJON = ØkonomiKodeAksjon.EN.name();
-    private static final String KODEENDRING = ØkonomiKodeEndring.NY.name();
-    private static final String KODEFAGOMRADE = ØkonomiKodeFagområde.REFUTG.name();
+    private static final KodeFagområde KODEFAGOMRADE = KodeFagområde.ENGANGSSTØNAD;
     private static final Long FAGSYSTEMID = 250L;
-    private static final String UTBETFREKVENS = ØkonomiUtbetFrekvens.ENGANG.name();
     private static final String OPPDRAGGJELDERID = "1";
     private static final Saksnummer SAKSID = new Saksnummer("700");
     private static final Boolean VENTERKVITTERING = true;
@@ -189,13 +186,10 @@ public class Oppdragslinje150EntityTest {
 
     private Oppdrag110.Builder lagOppdrag110MedPaakrevdeFelter() {
         return Oppdrag110.builder()
-                .medKodeAksjon(KODEAKSJON)
-                .medKodeEndring(KODEENDRING)
+                .medKodeEndring(KodeEndring.NY)
                 .medKodeFagomrade(KODEFAGOMRADE)
                 .medFagSystemId(FAGSYSTEMID)
-                .medUtbetFrekvens(UTBETFREKVENS)
                 .medOppdragGjelderId(OPPDRAGGJELDERID)
-                .medDatoOppdragGjelderFom(DATOOPPDRAGGJELDERFOM)
                 .medSaksbehId(SAKSBEHID)
                 .medAvstemming(Avstemming.ny())
                 .medOppdragskontroll(lagOppdragskontrollMedPaakrevdeFelter().build());

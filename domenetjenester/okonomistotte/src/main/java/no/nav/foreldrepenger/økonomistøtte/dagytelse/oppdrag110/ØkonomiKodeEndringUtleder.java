@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdrag110;
 
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.økonomistøtte.Oppdragsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.FinnMottakerInfoITilkjentYtelse;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.OppdragskontrollConstants;
@@ -11,13 +12,13 @@ class ØkonomiKodeEndringUtleder {
         // skjul default constructor
     }
 
-    static String finnKodeEndring(OppdragInput behandlingInfo, Oppdragsmottaker mottaker, boolean erNyMottakerIEndring) {
+    static KodeEndring finnKodeEndring(OppdragInput behandlingInfo, Oppdragsmottaker mottaker, boolean erNyMottakerIEndring) {
         return mottaker.erBruker()
             ? finnKodeEndringForBruker(behandlingInfo, mottaker, erNyMottakerIEndring)
             : finnKodeEndringForArbeidsgiver(erNyMottakerIEndring);
     }
 
-    private static String finnKodeEndringForBruker(OppdragInput behandlingInfo, Oppdragsmottaker mottaker, boolean erNyMottakerIEndring) {
+    private static KodeEndring finnKodeEndringForBruker(OppdragInput behandlingInfo, Oppdragsmottaker mottaker, boolean erNyMottakerIEndring) {
         if (erNyMottakerIEndring) {
             return OppdragskontrollConstants.KODE_ENDRING_NY;
         }
@@ -29,7 +30,7 @@ class ØkonomiKodeEndringUtleder {
             : OppdragskontrollConstants.KODE_ENDRING_UENDRET;
     }
 
-    private static String finnKodeEndringForArbeidsgiver(boolean erNyMottakerIEndring) {
+    private static KodeEndring finnKodeEndringForArbeidsgiver(boolean erNyMottakerIEndring) {
         return erNyMottakerIEndring
             ? OppdragskontrollConstants.KODE_ENDRING_NY
             : OppdragskontrollConstants.KODE_ENDRING_UENDRET;

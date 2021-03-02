@@ -9,8 +9,6 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import javax.persistence.EntityManager;
-
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
@@ -20,7 +18,9 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
@@ -28,7 +28,6 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.OppdragInputTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.SimulerOppdragTjeneste;
-import no.nav.foreldrepenger.økonomistøtte.ny.mapper.Input;
 import no.nav.foreldrepenger.økonomistøtte.ny.tjeneste.NyOppdragskontrollTjenesteImpl;
 import no.nav.foreldrepenger.økonomistøtte.ny.toggle.OppdragKjerneimplementasjonToggle;
 
@@ -75,12 +74,9 @@ public class SimulerOppdragTjenesteTest {
 
     private Oppdrag110 lagOppdrag110(Oppdragskontroll oppdragskontroll, Saksnummer saksnummer) {
         return Oppdrag110.builder()
-            .medKodeAksjon("1")
-            .medKodeEndring("NY")
-            .medKodeFagomrade("FP")
-            .medUtbetFrekvens("MND")
+            .medKodeEndring(KodeEndring.NY)
+            .medKodeFagomrade(KodeFagområde.FORELDREPENGER_BRUKER)
             .medOppdragGjelderId(saksnummer.getVerdi())
-            .medDatoOppdragGjelderFom(LocalDate.MIN)
             .medSaksbehId("Z100000")
             .medAvstemming(Avstemming.ny())
             .medOppdragskontroll(oppdragskontroll)
@@ -91,14 +87,13 @@ public class SimulerOppdragTjenesteTest {
     private Oppdragslinje150 buildOppdragslinje150(Oppdrag110 oppdrag110) {
         var o150 = Oppdragslinje150.builder()
             .medKodeEndringLinje(KodeEndringLinje.NY)
-            .medDatoStatusFom(LocalDate.now())
             .medVedtakId("345")
             .medDelytelseId(1L)
             .medVedtakFomOgTom(LocalDate.now(), LocalDate.now())
             .medSats(Sats.på(1122L))
+            .medTypeSats(TypeSats.DAGLIG)
             .medUtbetalesTilId("123456789")
             .medKodeKlassifik(KodeKlassifik.FPF_ARBEIDSTAKER)
-            .medTypeSats(TypeSats.DAGLIG)
             .medOppdrag110(oppdrag110)
             .build();
         return o150;

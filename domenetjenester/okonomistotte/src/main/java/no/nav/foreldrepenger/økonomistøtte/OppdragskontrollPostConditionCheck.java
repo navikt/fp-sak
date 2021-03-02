@@ -2,6 +2,8 @@ package no.nav.foreldrepenger.økonomistøtte;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.LogLevel;
@@ -18,17 +20,12 @@ public class OppdragskontrollPostConditionCheck {
 
     private static void valider(Oppdrag110 oppdrag110) {
         if (oppdrag110.getOppdragslinje150Liste().isEmpty()) {
-            throw Feilene.FACTORY.tomOppdrag110(oppdrag110.getKodeFagomrade(), oppdrag110.getFagsystemId()).toException();
+            throw new TekniskException(
+                "FP-611541",
+                String.format("PostCondition feilet for generert oppdrag. Fagområde=%s fagsystemid=%s. Oppdrag110 inneholder ingen oppdragslinjer. Det er ikke forventet.",
+                    oppdrag110.getKodeFagomrade(),
+                    oppdrag110.getFagsystemId())
+            );
         }
-    }
-
-
-    interface Feilene extends DeklarerteFeil {
-
-        Feilene FACTORY = FeilFactory.create(Feilene.class);
-
-        @TekniskFeil(feilkode = "FP-611541", feilmelding = "PostCondition feilet for generert oppdrag. Fagområde=%s fagsystemid=%s. Oppdrag110 inneholder ingen oppdragslinjer. Det er ikke forventet.", logLevel = LogLevel.WARN)
-        Feil tomOppdrag110(String kodeFagomrade, long fagsystemId);
-
     }
 }

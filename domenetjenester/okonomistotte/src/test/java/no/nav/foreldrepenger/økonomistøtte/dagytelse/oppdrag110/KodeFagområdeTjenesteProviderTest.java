@@ -11,7 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragInput;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.wrapper.TilkjentYtelse;
 
@@ -41,7 +41,7 @@ public class KodeFagområdeTjenesteProviderTest {
         // Arrange
         when(behandlingInfo.getTilkjentYtelse()).thenReturn(Optional.empty());
         when(behandlingInfo.getAlleTidligereOppdrag110()).thenReturn(Collections.singletonList(oppdrag110));
-        when(oppdrag110.getKodeFagomrade()).thenReturn(ØkonomiKodeFagområde.FP.name());
+        when(oppdrag110.getKodeFagomrade()).thenReturn(KodeFagområde.FORELDREPENGER_BRUKER);
 
         // Act
         var kodeFagområdeTjeneste = KodeFagområdeTjenesteProvider.getKodeFagområdeTjeneste(behandlingInfo);

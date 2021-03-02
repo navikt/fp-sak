@@ -12,11 +12,12 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
-import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.opphør.FinnOppdragslinje150FomSisteOpphør;
 
@@ -168,13 +169,10 @@ public class FinnOppdragslinje150FomSisteOpphørTest {
         Oppdragskontroll oppdragskontroll = opprettOppdragskontroll();
         return Oppdrag110.builder()
             .medAvstemming(Avstemming.ny())
-            .medKodeAksjon("kodeAksjon")
-            .medKodeEndring("kodeEndring")
-            .medKodeFagomrade("kode")
+            .medKodeEndring(KodeEndring.NY)
+            .medKodeFagomrade(KodeFagområde.FORELDREPENGER_BRUKER)
             .medFagSystemId(123L)
-            .medUtbetFrekvens("utbetfrekvens")
             .medOppdragGjelderId("oppdraggjelderid")
-            .medDatoOppdragGjelderFom(LocalDate.now())
             .medSaksbehId("saksbehid")
             .medOppdragskontroll(oppdragskontroll)
             .build();

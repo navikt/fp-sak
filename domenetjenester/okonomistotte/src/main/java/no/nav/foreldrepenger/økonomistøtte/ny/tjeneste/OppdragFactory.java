@@ -7,7 +7,7 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Betalingsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.FagsystemId;
@@ -18,12 +18,12 @@ import no.nav.foreldrepenger.økonomistøtte.ny.util.SetUtil;
 
 public class OppdragFactory {
 
-    private BiFunction<FagsakYtelseType, Boolean, ØkonomiKodeFagområde> fagområdeMapper;
+    private BiFunction<FagsakYtelseType, Boolean, KodeFagområde> fagområdeMapper;
     private FagsakYtelseType ytelseType;
     private final Saksnummer saksnummer;
     private LocalDate fellesEndringstidspunkt;
 
-    public OppdragFactory(BiFunction<FagsakYtelseType, Boolean, ØkonomiKodeFagområde> fagområdeMapper, FagsakYtelseType ytelseType, Saksnummer saksnummer) {
+    public OppdragFactory(BiFunction<FagsakYtelseType, Boolean, KodeFagområde> fagområdeMapper, FagsakYtelseType ytelseType, Saksnummer saksnummer) {
         this.fagområdeMapper = fagområdeMapper;
         this.ytelseType = ytelseType;
         this.saksnummer = saksnummer;
@@ -39,7 +39,7 @@ public class OppdragFactory {
         for (Betalingsmottaker betalingsmottaker : SetUtil.sortertUnion(Betalingsmottaker.COMPARATOR, tidligereOppdrag.getBetalingsmottakere(), målbilde.getBetalingsmottakere())) {
             var tidligereOppdragForMottaker = tidligereOppdrag.filter(betalingsmottaker);
             var målbildeForMottaker = målbilde.finnYtelse(betalingsmottaker);
-            ØkonomiKodeFagområde økonomiFagområde = utledØkonomiFagområde(betalingsmottaker);
+            KodeFagområde økonomiFagområde = utledØkonomiFagområde(betalingsmottaker);
             OppdragForMottakerTjeneste oppdragForMottakerTjeneste = new OppdragForMottakerTjeneste(økonomiFagområde, fagsystemIdUtleder.getFagsystemId(betalingsmottaker), betalingsmottaker, fellesEndringstidspunkt);
             resultat.add(oppdragForMottakerTjeneste.lagOppdrag(tidligereOppdragForMottaker, målbildeForMottaker));
         }
@@ -48,7 +48,7 @@ public class OppdragFactory {
             .collect(Collectors.toList());
     }
 
-    private ØkonomiKodeFagområde utledØkonomiFagområde(Betalingsmottaker betalingsmottaker) {
+    private KodeFagområde utledØkonomiFagområde(Betalingsmottaker betalingsmottaker) {
         boolean erRefusjon = !Betalingsmottaker.BRUKER.equals(betalingsmottaker);
         return fagområdeMapper.apply(ytelseType, erRefusjon);
     }

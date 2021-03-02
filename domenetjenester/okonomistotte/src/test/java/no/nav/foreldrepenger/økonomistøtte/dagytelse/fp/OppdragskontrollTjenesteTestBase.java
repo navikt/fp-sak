@@ -46,12 +46,12 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractT
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
-import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
@@ -62,9 +62,9 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeEndring;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.person.pdl.AktørTjeneste;
@@ -487,11 +487,11 @@ public abstract class OppdragskontrollTjenesteTestBase {
                 .findFirst();
             if (refusjonsinfo156.isPresent()) {
                 Oppdrag110 opp110 = refusjonsinfo156.get().getOppdragslinje150().getOppdrag110();
-                assertThat(opp110.getKodeEndring()).isEqualTo(ØkonomiKodeEndring.NY.name());
+                assertThat(opp110.getKodeEndring()).isEqualTo(KodeEndring.NY);
             } else {
-                assertThat(oppdr110Revurd.getKodeEndring()).isEqualTo(ØkonomiKodeFagområde.FP.name()
+                assertThat(oppdr110Revurd.getKodeEndring()).isEqualTo(KodeFagområde.FORELDREPENGER_BRUKER
                     .equals(
-                        oppdr110Revurd.getKodeFagomrade()) ? ØkonomiKodeEndring.ENDR.name() : ØkonomiKodeEndring.UEND.name());
+                        oppdr110Revurd.getKodeFagomrade()) ? KodeEndring.ENDRING : KodeEndring.UENDRET);
             }
             assertThat(oppdr110Revurd.getOppdragslinje150Liste()).isNotEmpty();
             boolean nyMottaker = erMottakerNy(oppdr110Revurd);
@@ -512,7 +512,7 @@ public abstract class OppdragskontrollTjenesteTestBase {
     }
 
     private boolean erMottakerNy(Oppdrag110 oppdr110Revurd) {
-        return ØkonomiKodeEndring.NY.name().equals(oppdr110Revurd.getKodeEndring());
+        return KodeEndring.NY.equals(oppdr110Revurd.getKodeEndring());
     }
 
     protected BeregningsresultatEntitet buildBeregningsresultatBrukerFP(LocalDate endringsdato,

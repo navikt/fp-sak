@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.økonomioppdrag;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +8,7 @@ import java.util.Optional;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -20,12 +20,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Immutable;
 
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.vedtak.util.env.Cluster;
 import no.nav.vedtak.util.env.Environment;
 
@@ -33,37 +34,28 @@ import no.nav.vedtak.util.env.Environment;
  * Denne klassen er en ren avbildning fra Oppdragsløsningens meldingsformater.
  * Navngivning følger ikke nødvendigvis Vedtaksløsningens navnestandarder.
  */
+@Immutable
 @Entity(name = "Oppdrag110")
 @Table(name = "OKO_OPPDRAG_110")
-public class Oppdrag110 extends BaseEntitet {
+public class Oppdrag110 extends BaseCreateableEntitet {
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_OKO_OPPDRAG_110")
     private Long id;
 
-    @Version
-    @Column(name = "versjon", nullable = false)
-    private long versjon;
-
-    @Column(name = "kode_aksjon", nullable = false)
-    private String kodeAksjon;
-
+    @Convert(converter = KodeEndring.KodeverdiConverter.class)
     @Column(name = "kode_endring", nullable = false)
-    private String kodeEndring;
+    private KodeEndring kodeEndring;
 
+    @Convert(converter = KodeFagområde.KodeverdiConverter.class)
     @Column(name = "kode_fagomrade", nullable = false)
-    private String kodeFagomrade;
+    private KodeFagområde kodeFagomrade;
 
     @Column(name = "fagsystem_id", nullable = false)
     private long fagsystemId;
 
-    @Column(name = "utbet_frekvens", nullable = false)
-    private String utbetFrekvens;
-
     @Column(name = "oppdrag_gjelder_id", nullable = false)
     private String oppdragGjelderId;
-
-    @Column(name = "dato_Oppdrag_Gjelder_Fom", nullable = false)
-    private LocalDate datoOppdragGjelderFom;
 
     @Column(name = "saksbeh_id", nullable = false)
     private String saksbehId;
@@ -86,7 +78,7 @@ public class Oppdrag110 extends BaseEntitet {
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "oppdrag110", cascade = CascadeType.PERSIST)
     private Ompostering116 ompostering116;
 
-    private Oppdrag110() {}
+    protected Oppdrag110() {}
 
     public static Builder builder() {
         return new Builder();
@@ -96,15 +88,11 @@ public class Oppdrag110 extends BaseEntitet {
         return id;
     }
 
-    public String getKodeAksjon() {
-        return kodeAksjon;
-    }
-
-    public String getKodeEndring() {
+    public KodeEndring getKodeEndring() {
         return kodeEndring;
     }
 
-    public String getKodeFagomrade() {
+    public KodeFagområde getKodeFagomrade() {
         return kodeFagomrade;
     }
 
@@ -112,16 +100,8 @@ public class Oppdrag110 extends BaseEntitet {
         return fagsystemId;
     }
 
-    public String getUtbetFrekvens() {
-        return utbetFrekvens;
-    }
-
     public String getOppdragGjelderId() {
         return oppdragGjelderId;
-    }
-
-    public LocalDate getDatoOppdragGjelderFom() {
-        return datoOppdragGjelderFom;
     }
 
     public String getSaksbehId() {
@@ -170,10 +150,6 @@ public class Oppdrag110 extends BaseEntitet {
         return !erKvitteringMottatt();
     }
 
-    public long getVersjon() {
-        return versjon;
-    }
-
     /**
      * gjør tilgjengelig for test, siden det er funksjonell avhengighet til opprettetTidspunkt
      */
@@ -195,34 +171,28 @@ public class Oppdrag110 extends BaseEntitet {
             return false;
         }
         Oppdrag110 oppdr110 = (Oppdrag110) object;
-        return Objects.equals(kodeAksjon, oppdr110.getKodeAksjon())
-            && Objects.equals(kodeEndring, oppdr110.getKodeEndring())
+        return Objects.equals(kodeEndring, oppdr110.getKodeEndring())
             && Objects.equals(kodeFagomrade, oppdr110.getKodeFagomrade())
             && Objects.equals(fagsystemId, oppdr110.getFagsystemId())
-            && Objects.equals(utbetFrekvens, oppdr110.getUtbetFrekvens())
             && Objects.equals(oppdragGjelderId, oppdr110.getOppdragGjelderId())
-            && Objects.equals(datoOppdragGjelderFom, oppdr110.getDatoOppdragGjelderFom())
             && Objects.equals(saksbehId, oppdr110.getSaksbehId())
             && Objects.equals(nøkkelAvstemming, oppdr110.getAvstemming());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(kodeAksjon, kodeEndring, kodeFagomrade, fagsystemId, utbetFrekvens, oppdragGjelderId,
-            datoOppdragGjelderFom, saksbehId, nøkkelAvstemming);
+        return Objects.hash(kodeEndring, kodeFagomrade, fagsystemId, oppdragGjelderId,
+            saksbehId, nøkkelAvstemming);
     }
 
     @Override
     public String toString() {
         return getClass().getSimpleName() + "<" + //$NON-NLS-1$
             (id != null ? "id=" + id + ", " : "") //$NON-NLS-1$ //$NON-NLS-2$
-            + "kodeAksjon=" + kodeAksjon + ", " //$NON-NLS-1$ //$NON-NLS-2$
             + "kodeEndring=" + kodeEndring + ", " //$NON-NLS-1$ //$NON-NLS-2$
             + "kodeFagomrade=" + kodeFagomrade + "," //$NON-NLS-1$ //$NON-NLS-2$
             + "fagsystemId=" + fagsystemId + "," //$NON-NLS-1$ //$NON-NLS-2$
-            + "utbetFrekvens=" + utbetFrekvens + "," //$NON-NLS-1$ //$NON-NLS-2$
             + "oppdragGjelderId=" + oppdragGjelderId + "," //$NON-NLS-1$ //$NON-NLS-2$
-            + "datoOppdragGjelderFom=" + datoOppdragGjelderFom + "," //$NON-NLS-1$ //$NON-NLS-2$
             + "saksbehId=" + saksbehId + "," //$NON-NLS-1$ //$NON-NLS-2$
             + "avstemming=" + nøkkelAvstemming + "," //$NON-NLS-1$ //$NON-NLS-2$
             + "opprettetTs=" + getOpprettetTidspunkt() //$NON-NLS-1$
@@ -230,29 +200,21 @@ public class Oppdrag110 extends BaseEntitet {
     }
 
     public static class Builder {
-        private String kodeAksjon;
-        private String kodeEndring;
-        private String kodeFagomrade;
+        private KodeEndring kodeEndring;
+        private KodeFagområde kodeFagomrade;
         private Long fagsystemId;
-        private String utbetFrekvens;
         private String oppdragGjelderId;
-        private LocalDate datoOppdragGjelderFom;
         private String saksbehId;
         private Avstemming avstemming;
         private Oppdragskontroll oppdragskontroll;
         private Ompostering116 ompostering116;
 
-        public Builder medKodeAksjon(String kodeAksjon) {
-            this.kodeAksjon = kodeAksjon;
-            return this;
-        }
-
-        public Builder medKodeEndring(String kodeEndring) {
+        public Builder medKodeEndring(KodeEndring kodeEndring) {
             this.kodeEndring = kodeEndring;
             return this;
         }
 
-        public Builder medKodeFagomrade(String kodeFagomrade) {
+        public Builder medKodeFagomrade(KodeFagområde kodeFagomrade) {
             this.kodeFagomrade = kodeFagomrade;
             return this;
         }
@@ -262,18 +224,8 @@ public class Oppdrag110 extends BaseEntitet {
             return this;
         }
 
-        public Builder medUtbetFrekvens(String utbetFrekvens) {
-            this.utbetFrekvens = utbetFrekvens;
-            return this;
-        }
-
         public Builder medOppdragGjelderId(String oppdragGjelderId) {
             this.oppdragGjelderId = oppdragGjelderId;
-            return this;
-        }
-
-        public Builder medDatoOppdragGjelderFom(LocalDate datoOppdrGjelderFom) {
-            this.datoOppdragGjelderFom = datoOppdrGjelderFom;
             return this;
         }
 
@@ -300,13 +252,10 @@ public class Oppdrag110 extends BaseEntitet {
         public Oppdrag110 build() {
             verifyStateForBuild();
             Oppdrag110 oppdrag110 = new Oppdrag110();
-            oppdrag110.kodeAksjon = kodeAksjon;
             oppdrag110.kodeEndring = kodeEndring;
             oppdrag110.kodeFagomrade = kodeFagomrade;
             oppdrag110.fagsystemId = fagsystemId;
-            oppdrag110.utbetFrekvens = utbetFrekvens;
             oppdrag110.oppdragGjelderId = oppdragGjelderId;
-            oppdrag110.datoOppdragGjelderFom = datoOppdragGjelderFom;
             oppdrag110.saksbehId = saksbehId;
             oppdrag110.nøkkelAvstemming = avstemming;
             oppdrag110.oppdragskontroll = oppdragskontroll;
@@ -321,13 +270,10 @@ public class Oppdrag110 extends BaseEntitet {
         }
 
         public void verifyStateForBuild() {
-            Objects.requireNonNull(kodeAksjon, "kodeAksjon");
             Objects.requireNonNull(kodeEndring, "kodeEndring");
             Objects.requireNonNull(kodeFagomrade, "kodeFagomrade");
             Objects.requireNonNull(fagsystemId, "fagsystemId");
-            Objects.requireNonNull(utbetFrekvens, "utbetFrekvens");
             Objects.requireNonNull(oppdragGjelderId, "oppdragGjelderId");
-            Objects.requireNonNull(datoOppdragGjelderFom, "datoOppdragGjelderFom");
             Objects.requireNonNull(saksbehId, "saksbehId");
             Objects.requireNonNull(avstemming, "avstemming");
             Objects.requireNonNull(oppdragskontroll, "oppdragskontroll");

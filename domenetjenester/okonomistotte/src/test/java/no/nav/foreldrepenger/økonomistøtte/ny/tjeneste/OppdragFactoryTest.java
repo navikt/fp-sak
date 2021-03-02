@@ -9,7 +9,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Betalingsmottaker;
@@ -26,7 +26,7 @@ import no.nav.foreldrepenger.økonomistøtte.ny.domene.Ytelse;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.YtelsePeriode;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.GruppertYtelse;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.OverordnetOppdragKjedeOversikt;
-import no.nav.foreldrepenger.økonomistøtte.ny.mapper.ØkonomiFagområdeMapper;
+import no.nav.foreldrepenger.økonomistøtte.ny.mapper.FagområdeMapper;
 
 public class OppdragFactoryTest {
 
@@ -35,7 +35,7 @@ public class OppdragFactoryTest {
     Periode periode = Periode.of(dag1, dag1.plusDays(3));
     Periode nesteMai = Periode.of(LocalDate.of(2021, 5, 1), LocalDate.of(2021, 5, 31));
 
-    OppdragFactory oppdragFactory = new OppdragFactory(ØkonomiFagområdeMapper::tilFagområde, FagsakYtelseType.FORELDREPENGER, saksnummer);
+    OppdragFactory oppdragFactory = new OppdragFactory(FagområdeMapper::tilFagområde, FagsakYtelseType.FORELDREPENGER, saksnummer);
 
     @Test
     public void skal_få_ingen_oppdrag_for_tomt_førstegangsvedtak() {
@@ -57,7 +57,7 @@ public class OppdragFactoryTest {
         Oppdrag oppdrag = resultat.get(0);
         assertThat(oppdrag.getBetalingsmottaker()).isEqualTo(Betalingsmottaker.BRUKER);
         assertThat(oppdrag.getFagsystemId().getSaksnummer()).isEqualTo(saksnummer.getVerdi());
-        assertThat(oppdrag.getØkonomiFagområde()).isEqualTo(ØkonomiKodeFagområde.FP);
+        assertThat(oppdrag.getKodeFagområde()).isEqualTo(KodeFagområde.FORELDREPENGER_BRUKER);
 
         assertThat(oppdrag.getKjeder().keySet()).containsOnly(nøkkelYtelse);
 

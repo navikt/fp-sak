@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.batch.BatchArguments;
 import no.nav.foreldrepenger.batch.BatchStatus;
 import no.nav.foreldrepenger.batch.BatchTjeneste;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.økonomistøtte.grensesnittavstemming.queue.producer.GrensesnittavstemmingJmsProducer;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 
@@ -39,7 +40,7 @@ public class GrensesnittavstemmingBatchTjeneste implements BatchTjeneste {
     }
 
     private void utførGrensesnittavstemming(LocalDate fomDato, LocalDate tomDato, String fagområde) {
-        List<Oppdrag110> oppdragsliste = økonomioppdragRepository.hentOppdrag110ForPeriodeOgFagområde(fomDato, tomDato, fagområde);
+        List<Oppdrag110> oppdragsliste = økonomioppdragRepository.hentOppdrag110ForPeriodeOgFagområde(fomDato, tomDato, KodeFagområde.fraKode(fagområde));
         if (oppdragsliste.isEmpty()) {
             log.info("Ingen oppdrag funnet for periode {} - {} for fagområde {}. Grensesnittavstemming ikke utført.", fomDato, tomDato, fagområde); //NOSONAR
             return;

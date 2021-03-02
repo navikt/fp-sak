@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdrag110;
 import java.util.List;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragInput;
 
 public class KodeFagområdeTjenesteProvider {
@@ -23,7 +22,7 @@ public class KodeFagområdeTjenesteProvider {
 
     private static KodeFagområdeTjeneste fraTidligereOppdrag(List<Oppdrag110> tidligereOppdrag110) {
         boolean gjelderFP = tidligereOppdrag110.stream()
-            .anyMatch(o110 -> ØkonomiKodeFagområde.gjelderForeldrepenger(o110.getKodeFagomrade()));
+            .anyMatch(o110 -> o110.getKodeFagomrade().gjelderForeldrepenger());
 
         return gjelderFP
             ? KodeFagområdeTjeneste.forForeldrepenger()

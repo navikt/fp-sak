@@ -16,7 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodeFagområde;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Betalingsmottaker;
@@ -65,7 +65,7 @@ public class LagOppdragTjenesteTest {
         Oppdrag oppdrag = resultat.get(0);
         assertThat(oppdrag.getBetalingsmottaker()).isEqualTo(Betalingsmottaker.BRUKER);
         assertThat(oppdrag.getFagsystemId().getSaksnummer()).isEqualTo(saksnummer.getVerdi());
-        assertThat(oppdrag.getØkonomiFagområde()).isEqualTo(ØkonomiKodeFagområde.FP);
+        assertThat(oppdrag.getKodeFagområde()).isEqualTo(KodeFagområde.FORELDREPENGER_BRUKER);
 
         KjedeNøkkel nøkkelYtelse = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPSND-OP"), Betalingsmottaker.BRUKER);
         assertThat(oppdrag.getKjeder().keySet()).containsOnly(nøkkelYtelse);

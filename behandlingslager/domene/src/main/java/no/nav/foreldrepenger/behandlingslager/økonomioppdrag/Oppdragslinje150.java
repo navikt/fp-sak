@@ -96,7 +96,7 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "oppdragslinje150")
     private Refusjonsinfo156 refusjonsinfo156;
 
-    private Oppdragslinje150() {}
+    protected Oppdragslinje150() {}
 
     public static Builder builder() {
         return new Builder();
