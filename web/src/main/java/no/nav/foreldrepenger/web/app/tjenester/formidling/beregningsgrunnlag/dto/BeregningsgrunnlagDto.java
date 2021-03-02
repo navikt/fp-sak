@@ -41,6 +41,7 @@ public class BeregningsgrunnlagDto {
     @DecimalMax("10000000.00")
     private BigDecimal grunnbeløp;
 
+    @JsonProperty(value = "beregningsgrunnlagperioder")
     @Valid
     @NotNull
     @Size(min = 1)

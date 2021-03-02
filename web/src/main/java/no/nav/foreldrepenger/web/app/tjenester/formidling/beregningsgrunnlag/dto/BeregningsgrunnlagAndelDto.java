@@ -1,5 +1,8 @@
 package no.nav.foreldrepenger.web.app.tjenester.formidling.beregningsgrunnlag.dto;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import no.nav.foreldrepenger.domene.modell.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
@@ -12,6 +15,11 @@ import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.NONE;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(value = JsonInclude.Include.NON_ABSENT, content = JsonInclude.Include.NON_EMPTY)
+@JsonAutoDetect(fieldVisibility = NONE, getterVisibility = NONE, setterVisibility = NONE, isGetterVisibility = NONE, creatorVisibility = NONE)
 public class BeregningsgrunnlagAndelDto {
 
     @JsonProperty("dagsats")
@@ -57,9 +65,9 @@ public class BeregningsgrunnlagAndelDto {
     @Valid
     private LocalDate beregningsperiodeTom;
 
-    @JsonProperty(value = "arbeidsforholdType")
+    @JsonProperty(value = "arbeidsforhold")
     @Valid
-    private BgAndelArbeidsforholdDto bgAndelArbeidsforhold;
+    private BgAndelArbeidsforholdDto arbeidsforhold;
 
     public BeregningsgrunnlagAndelDto(@Valid @Digits(integer = 8, fraction = 2) @DecimalMin("0.00") @DecimalMax("10000.00") Long dagsats,
                                       @Valid @NotNull AktivitetStatus aktivitetStatus,
@@ -69,7 +77,7 @@ public class BeregningsgrunnlagAndelDto {
                                       @Valid @NotNull OpptjeningAktivitetType arbeidsforholdType,
                                       @Valid LocalDate beregningsperiodeFom,
                                       @Valid LocalDate beregningsperiodeTom,
-                                      @Valid BgAndelArbeidsforholdDto bgAndelArbeidsforhold) {
+                                      @Valid BgAndelArbeidsforholdDto arbeidsforhold) {
         this.dagsats = dagsats;
         this.aktivitetStatus = aktivitetStatus;
         this.bruttoPrÅr = bruttoPrÅr;
@@ -78,7 +86,7 @@ public class BeregningsgrunnlagAndelDto {
         this.arbeidsforholdType = arbeidsforholdType;
         this.beregningsperiodeFom = beregningsperiodeFom;
         this.beregningsperiodeTom = beregningsperiodeTom;
-        this.bgAndelArbeidsforhold = bgAndelArbeidsforhold;
+        this.arbeidsforhold = arbeidsforhold;
     }
 
     public Long getDagsats() {
@@ -113,7 +121,7 @@ public class BeregningsgrunnlagAndelDto {
         return beregningsperiodeTom;
     }
 
-    public BgAndelArbeidsforholdDto getBgAndelArbeidsforhold() {
-        return bgAndelArbeidsforhold;
+    public BgAndelArbeidsforholdDto getArbeidsforhold() {
+        return arbeidsforhold;
     }
 }

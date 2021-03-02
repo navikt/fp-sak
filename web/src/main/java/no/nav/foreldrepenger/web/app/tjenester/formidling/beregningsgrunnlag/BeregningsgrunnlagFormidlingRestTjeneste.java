@@ -12,9 +12,9 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -51,17 +51,15 @@ public class BeregningsgrunnlagFormidlingRestTjeneste {
     public BeregningsgrunnlagFormidlingRestTjeneste(BehandlingRepository behandlingRepository,
                                                     BeregningsgrunnlagRepository beregningsgrunnlagRepository) {
         this.behandlingRepository = behandlingRepository;
+        this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
     }
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
+    @GET
     @Operation(description = "Hent beregningsgrunnlag for angitt behandling for formidlingsbruk", summary = ("Returnerer beregningsgrunnlag for behandling for formidlingsbruk."), tags = "formidling")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     @Path(BEREGNINGSGRUNNLAG_PART_PATH)
-    @Deprecated
-
-    public Response hentBeregningsgrunnlag(
-        @NotNull @Parameter(description = "BehandlingUid for aktuell behandling") @Valid UuidDto uuidDto) {
+    public Response hentBeregningsgrunnlagFormidling(
+        @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         Optional<UUID> uid = Optional.ofNullable(uuidDto.getBehandlingUuid());
         Optional<BeregningsgrunnlagDto> dto = uid.flatMap(behandlingRepository::hentBehandlingHvisFinnes)
             .flatMap(beh -> beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(beh.getId()))
