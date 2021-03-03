@@ -67,10 +67,9 @@ public class VurderTilbaketrekkSteg implements BehandlingSteg {
         List<AksjonspunktResultat> aksjonspunkter = aksjonspunktutlederTilbaketrekk.utledAksjonspunkterFor(new AksjonspunktUtlederInput(ref));
 
         if (!aksjonspunkter.isEmpty()) {
+            // Ønsker ikke lenger opprettte dette aksjonspunktet
             automatiskTilbaketrekkTjeneste.kopierTilbaketrekksvurderingFraForrigeResultat(ref);
-            return BehandleStegResultat.utførtUtenAksjonspunkter();
-        } else {
-            return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
+        return BehandleStegResultat.utførtUtenAksjonspunkter();
     }
 }
