@@ -35,7 +35,7 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
     public static final String TASKTYPE = "iverksetteVedtak.oppdragTilØkonomi";
 
     private OppdragskontrollTjeneste oppdragskontrollTjeneste;
-    private NyOppdragskontrollTjenesteImpl nyOppdragskontrollTjeneste;
+    private OppdragskontrollTjeneste nyOppdragskontrollTjeneste;
     private OppdragskontrollTjeneste oppdragskontrollEngangsstønadTjeneste;
     private ProsessTaskRepository prosessTaskRepository;
     private OppdragPostConditionTjeneste oppdragPostConditionTjeneste;
@@ -52,7 +52,7 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
                                           @Named("oppdragEngangstønadTjeneste") OppdragskontrollTjeneste oppdragskontrollTjenesteEngangsstønad,
                                           ProsessTaskRepository prosessTaskRepository,
                                           BehandlingRepositoryProvider repositoryProvider,
-                                          NyOppdragskontrollTjenesteImpl nyOppdragskontrollTjeneste,
+                                          @Named("nyOppdragTjeneste") OppdragskontrollTjeneste nyOppdragskontrollTjeneste,
                                           OppdragPostConditionTjeneste oppdragPostConditionTjeneste,
                                           OppdragKjerneimplementasjonToggle toggle,
                                           OppdragInputTjeneste oppdragInputTjeneste) {
@@ -96,7 +96,6 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
                 oppdragskontrollOpt = oppdragskontrollTjeneste.opprettOppdrag(behandlingId, prosessTaskData.getId());
             }
         }
-
 
         if (oppdragskontrollOpt.isPresent()) {
             log.info("Klargjør økonomioppdrag for behandling: {}", behandlingId); //$NON-NLS-1$

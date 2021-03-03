@@ -71,7 +71,7 @@ public class Oppdrag110 extends BaseCreateableEntitet {
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "oppdrag110", cascade = CascadeType.PERSIST)
     private OppdragKvittering oppdragKvittering;
 
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "oppdrag110", cascade = CascadeType.PERSIST)
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "oppdrag110")
     private Ompostering116 ompostering116;
 
     @Immutable

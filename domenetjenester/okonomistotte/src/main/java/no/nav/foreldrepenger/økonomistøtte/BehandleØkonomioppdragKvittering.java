@@ -58,53 +58,41 @@ public class BehandleØkonomioppdragKvittering {
         Long behandlingId = kvittering.getBehandlingId();
 
         log.info("Behandler økonomikvittering med resultatkode: {} i behandling: {}", kvittering.getAlvorlighetsgrad(), behandlingId); //$NON-NLS-1$
-        //Korrelere med lagret oppdrag
-        Oppdragskontroll oppdrag = økonomioppdragRepository.finnVentendeOppdrag(behandlingId);
 
-        // oppdatere status i Økonomioppdrag-datalager
-        List<Oppdrag110> okoOppdrag110Liste = oppdrag.getOppdrag110Liste();
+        var oppdragUtenKvittering = økonomioppdragRepository.hentOppdragUtenKvittering(kvittering.getFagsystemId(), behandlingId);
 
-        List<Oppdrag110> okoOppdrag110UtenKvitteringListe = okoOppdrag110Liste.stream()
-            .filter(Oppdrag110::venterKvittering)
-            .filter(oppdr110 -> oppdr110.getFagsystemId() == kvittering.getFagsystemId())
-            .collect(Collectors.toList());
-
-        if (okoOppdrag110UtenKvitteringListe.isEmpty()) {
-            throw new IllegalStateException("Finnes ikke oppdrag for kvittering med fagsystemId: " + kvittering.getFagsystemId());
-        } else if (okoOppdrag110UtenKvitteringListe.size() > 1) {
-            throw new IllegalStateException("Finnes flere oppdrag uten kvittering med samme fagsystemId: " + kvittering.getFagsystemId());
-        }
-
-        Oppdrag110 okoOppdrag110 = okoOppdrag110UtenKvitteringListe.get(0);
-
-        OppdragKvittering.builder()
+        var oppdragKvittering = OppdragKvittering.builder()
             .medAlvorlighetsgrad(kvittering.getAlvorlighetsgrad())
             .medMeldingKode(kvittering.getMeldingKode())
             .medBeskrMelding(kvittering.getBeskrMelding())
-            .medOppdrag110(okoOppdrag110)
+            .medOppdrag110(oppdragUtenKvittering)
             .build();
 
-        boolean erAlleKvitteringerMottatt = sjekkAlleKvitteringMottatt(okoOppdrag110Liste);
+        økonomioppdragRepository.lagre(oppdragKvittering);
+
+        Oppdragskontroll oppdragskontroll = oppdragUtenKvittering.getOppdragskontroll();
+
+        boolean erAlleKvitteringerMottatt = sjekkAlleKvitteringMottatt(oppdragskontroll.getOppdrag110Liste());
 
         if (erAlleKvitteringerMottatt) {
             log.info("Alle økonomioppdrag-kvitteringer er mottatt for behandling: {}", behandlingId);
-            oppdrag.setVenterKvittering(false);
+            oppdragskontroll.setVenterKvittering(false);
 
             if (oppdaterProsesstask) {
                 //Dersom kvittering viser positivt resultat: La Behandlingskontroll/TaskManager fortsette behandlingen - trigger prosesstask Behandling.Avslutte hvis brev er bekreftet levert
-                boolean alleViserPositivtResultat = erAlleKvitteringerMedPositivtResultat(behandlingId, oppdrag);
+                boolean alleViserPositivtResultat = erAlleKvitteringerMedPositivtResultat(behandlingId, oppdragskontroll);
                 if (alleViserPositivtResultat) {
                     log.info("Alle økonomioppdrag-kvitteringer viser positivt resultat for behandling: {}", behandlingId);
-                    hendelsesmottak.mottaHendelse(oppdrag.getProsessTaskId(), ProsessTaskHendelse.ØKONOMI_OPPDRAG_KVITTERING);
+                    hendelsesmottak.mottaHendelse(oppdragskontroll.getProsessTaskId(), ProsessTaskHendelse.ØKONOMI_OPPDRAG_KVITTERING);
                 } else {
                     log.warn("Ikke alle økonomioppdrag-kvitteringer viser positivt resultat for behandling: {}", behandlingId);
-                    behandleNegativeKvittering.nullstilleØkonomioppdragTask(oppdrag.getProsessTaskId());
+                    behandleNegativeKvittering.nullstilleØkonomioppdragTask(oppdragskontroll.getProsessTaskId());
                 }
             } else {
-                log.info("Oppdaterer ikke prosesstask");
+                log.info("Oppdaterer ikke prosesstask.");
             }
+            økonomioppdragRepository.lagre(oppdragskontroll);
         }
-        økonomioppdragRepository.lagre(oppdrag);
     }
 
     private boolean sjekkAlleKvitteringMottatt(List<Oppdrag110> oppdrag110Liste) {

@@ -72,7 +72,6 @@ public class OppdragInputTjeneste {
             .medFagsakYtelseType(fagsak.getYtelseType())
             .medVedtaksdato(hentVedtaksdato(behandlingId))
             .medAnsvarligSaksbehandler(behandling.getAnsvarligBeslutter())
-            //.medBehandlingResultatType()
             .medBrukerFnr(hentFnrBruker(behandling))
             .medFamilieYtelseType(familieYtelseType)
             .medTilkjentYtelse(grupperYtelse(hentTilkjentYtelse(behandlingId), familieYtelseType))

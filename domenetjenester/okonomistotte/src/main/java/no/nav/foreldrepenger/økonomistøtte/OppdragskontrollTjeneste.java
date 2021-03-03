@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.økonomistøtte;
 
 import java.util.Optional;
 
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.Input;
 

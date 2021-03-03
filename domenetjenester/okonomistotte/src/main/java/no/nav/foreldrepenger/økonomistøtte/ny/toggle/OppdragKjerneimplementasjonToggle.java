@@ -1,22 +1,19 @@
 package no.nav.foreldrepenger.økonomistøtte.ny.toggle;
 
-import java.util.Set;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import net.bytebuddy.asm.Advice;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
 public class OppdragKjerneimplementasjonToggle {
-
-    //TODO legg inn saksnumre i denne lista for å lansere ny impl for utvalgte saker
-    public static final Set<Saksnummer> LANSERT_I_PROD = Set.of(
-        new Saksnummer("144272131")
-    );
 
     private BehandlingRepository behandlingRepository;
 
@@ -31,6 +28,7 @@ public class OppdragKjerneimplementasjonToggle {
 
     public boolean brukNyImpl(Long behandlingId) {
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        return !Environment.current().isProd() || LANSERT_I_PROD.contains(behandling.getFagsak().getSaksnummer());
+        var fagsakOpprettetTid = behandling.getFagsak().getOpprettetTidspunkt();
+        return !Environment.current().isProd() || fagsakOpprettetTid.isAfter(LocalDateTime.of(LocalDate.of(2021, 3, 3), LocalTime.MIDNIGHT));
     }
 }

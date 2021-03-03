@@ -13,6 +13,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import javax.persistence.TypedQuery;
 
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
@@ -56,11 +58,14 @@ public class ØkonomioppdragRepository {
         }
 
         List<Oppdrag110> resultList = entityManager
-            .createQuery(
-                "select o110 from Oppdrag110 as o110 where o110.opprettetTidspunkt >= :fomTidspunkt " +
-                    " and o110.opprettetTidspunkt < :tilTidspunkt " +
-                    " and o110.kodeFagomrade = :fagomrade" +
-                    " order by o110.opprettetTidspunkt, o110.nøkkelAvstemming", Oppdrag110.class) //$NON-NLS-1$
+            .createQuery("""
+                select o110 from Oppdrag110 as o110
+                where o110.opprettetTidspunkt >= :fomTidspunkt
+                    and o110.opprettetTidspunkt < :tilTidspunkt
+                    and o110.kodeFagomrade = :fagomrade
+                order by o110.opprettetTidspunkt, o110.nøkkelAvstemming
+                    """,
+                Oppdrag110.class) //$NON-NLS-1$
             .setParameter("fomTidspunkt", fomDato.atStartOfDay()) //$NON-NLS-1$
             .setParameter("tilTidspunkt", tomDato.plusDays(1).atStartOfDay()) //$NON-NLS-1$
             .setParameter("fagomrade", fagområde)
@@ -69,20 +74,21 @@ public class ØkonomioppdragRepository {
         return resultList;
     }
 
-
-    public Oppdragskontroll finnVentendeOppdrag(long behandlingId) {
-        final LockModeType lockModeType = LockModeType.PESSIMISTIC_WRITE;
-        entityManager.setProperty("javax.persistence.lock.timeout", 500);
-        TypedQuery<Oppdragskontroll> query = entityManager.createQuery(
-            "from Oppdragskontroll " +
-                "where behandlingId = :behandlingId " +
-                "and venterKvittering = :venterKvittering", Oppdragskontroll.class); //$NON-NLS-1$
-        query.setParameter("behandlingId", behandlingId); //$NON-NLS-1$
-        query.setParameter("venterKvittering", true); //$NON-NLS-1$
-        query.setLockMode(lockModeType);
-        return hentEksaktResultat(query);
+    public Oppdrag110 hentOppdragUtenKvittering(long fagsystemId, long behandlingId) {
+        Objects.requireNonNull(fagsystemId, "fagsystemId");
+        Objects.requireNonNull(behandlingId, "behandlingId");
+        var typedQuery = entityManager
+            .createQuery("""
+                    select o110 from Oppdrag110 as o110
+                    where o110.oppdragskontroll.behandlingId = :behandlingId
+                        and o110.fagsystemId = :fagsystemId
+                        and o110.oppdragKvittering is empty
+                    """, Oppdrag110.class) //$NON-NLS-1$
+            .setParameter("fagsystemId", fagsystemId)
+            .setParameter("behandlingId", behandlingId)
+            ;
+        return hentEksaktResultat(typedQuery);
     }
-
 
     public Optional<Oppdragskontroll> finnOppdragForBehandling(long behandlingId) {
         List<Oppdragskontroll> resultList = entityManager.createQuery(
@@ -114,7 +120,14 @@ public class ØkonomioppdragRepository {
 
     private void lagre(Oppdrag110 oppdrag110) {
         entityManager.persist(oppdrag110);
+        oppdrag110.getOmpostering116().ifPresent(this::lagre);
         oppdrag110.getOppdragslinje150Liste().forEach(this::lagre);
+    }
+
+    private void lagre(Ompostering116 ompostering116) {
+        if (ompostering116 != null) {
+            entityManager.persist(ompostering116);
+        }
     }
 
     private void lagre(Oppdragslinje150 oppdragslinje150) {
@@ -126,5 +139,10 @@ public class ØkonomioppdragRepository {
         if (null != refusjonsinfo156) {
             entityManager.persist(refusjonsinfo156);
         }
+    }
+
+    public void lagre(OppdragKvittering oppdragKvittering) {
+        entityManager.persist(oppdragKvittering);
+        entityManager.flush();
     }
 }
