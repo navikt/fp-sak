@@ -97,7 +97,7 @@ public class AvklarOmErBosatt {
             LocalDateTimeline<Boolean> fremtidigePerioder = new LocalDateTimeline<>(fremtidigeOpphold,
                 StandardCombinators::alwaysTrueForMatch).compress();
 
-           return fremtidigePerioder.getDatoIntervaller()
+           return fremtidigePerioder.getLocalDateIntervals()
                .stream()
                .anyMatch(this::periodeLengreEnn12M);
         }

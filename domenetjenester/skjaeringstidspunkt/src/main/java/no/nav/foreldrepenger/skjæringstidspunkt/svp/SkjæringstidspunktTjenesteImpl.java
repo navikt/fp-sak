@@ -12,6 +12,9 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -23,12 +26,16 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.Tilrett
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingType;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @FagsakYtelseTypeRef("SVP")
 @ApplicationScoped
 public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjeneste, SkjæringstidspunktRegisterinnhentingTjeneste {
 
+    private static final int MAX_SVANGERSKAP_UKER = 42;
+
     private SvangerskapspengerRepository svangerskapspengerRepository;
+    private FamilieHendelseRepository familieHendelseRepository;
     private OpptjeningRepository opptjeningRepository;
     private BehandlingRepository behandlingRepository;
 
@@ -38,21 +45,24 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
 
     @Inject
     public SkjæringstidspunktTjenesteImpl(SvangerskapspengerRepository svangerskapspengerRepository,
+                                          FamilieHendelseRepository familieHendelseRepository,
                                           OpptjeningRepository opptjeningRepository,
                                           BehandlingRepository behandlingRepository) {
         this.svangerskapspengerRepository = svangerskapspengerRepository;
+        this.familieHendelseRepository = familieHendelseRepository;
         this.opptjeningRepository = opptjeningRepository;
         this.behandlingRepository = behandlingRepository;
     }
 
     @Override
     public Skjæringstidspunkt getSkjæringstidspunkter(Long behandlingId) {
-        Skjæringstidspunkt.Builder builder = Skjæringstidspunkt.builder();
         LocalDate skjæringstidspunkt = utledSkjæringstidspunkt(behandlingId);
-        builder.medFørsteUttaksdato(skjæringstidspunkt);
-        builder.medUtledetSkjæringstidspunkt(skjæringstidspunkt);
-        builder.medSkjæringstidspunktOpptjening(skjæringstidspunkt);
-        return builder.build();
+        return Skjæringstidspunkt.builder()
+            .medFørsteUttaksdato(skjæringstidspunkt)
+            .medUtledetSkjæringstidspunkt(skjæringstidspunkt)
+            .medSkjæringstidspunktOpptjening(skjæringstidspunkt)
+            .medUtledetMedlemsintervall(utledYtelseintervall(behandlingId, skjæringstidspunkt))
+            .build();
     }
 
     @Override
@@ -116,5 +126,17 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         //TODO(OJR) en svakhet?
         // Har ikke grunnlag for å avgjøre skjæringstidspunkt enda så gir midlertidig dagens dato. for at DTOer skal fungere.
         return LocalDate.now();
+    }
+
+    private LocalDateInterval utledYtelseintervall(Long behandlingId, LocalDate skjæringstidspunkt) {
+        try {
+            var antattTom = familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId)
+                .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+                .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
+                .orElse(skjæringstidspunkt.plusWeeks(MAX_SVANGERSKAP_UKER));
+            return new LocalDateInterval(skjæringstidspunkt, antattTom);
+        } catch (Exception e) {
+            return new LocalDateInterval(skjæringstidspunkt, skjæringstidspunkt.plusWeeks(MAX_SVANGERSKAP_UKER));
+        }
     }
 }

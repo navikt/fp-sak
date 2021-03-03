@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAggregat;
@@ -46,7 +47,7 @@ public class AvklaringFaktaMedlemskap {
         this.personopplysningTjeneste = personopplysningTjeneste;
     }
 
-    public Optional<MedlemResultat> utled(Behandling behandling, LocalDate vurderingsdato) { // NOSONAR
+    public Optional<MedlemResultat> utled(BehandlingReferanse ref, Behandling behandling, LocalDate vurderingsdato) { // NOSONAR
         Long behandlingId = behandling.getId();
         Optional<MedlemskapAggregat> medlemskap = medlemskapRepository.hentMedlemskap(behandlingId);
 
@@ -79,27 +80,34 @@ public class AvklaringFaktaMedlemskap {
             if (harStatusUtvandret(personopplysninger) == JA) {
                 return Optional.empty();
             } else {
-                var region = statsborgerskap(personopplysninger);
+                if (harOppholdstilltatelseVed(ref, vurderingsdato) == JA) {
+                    return Optional.empty();
+                }
+                var region = statsborgerskap(personopplysninger, vurderingsdato);
                 return switch (region) {
                     case EØS -> harInntektSiste3mnd(behandling, vurderingsdato) == JA ? Optional.empty() : Optional.of(MedlemResultat.AVKLAR_OPPHOLDSRETT);
                     case TREDJE_LANDS_BORGER -> Optional.of(MedlemResultat.AVKLAR_LOVLIG_OPPHOLD);
                     case NORDISK -> Optional.empty();
-                    default -> throw new IllegalArgumentException("Støtter ikke Statsborgerskapsregioner: " + region);
                 };
             }
         }
         throw new IllegalStateException("Udefinert utledning av aksjonspunkt for medlemskapsfakta"); //$NON-NLS-1$
     }
 
-    Statsborgerskapsregioner statsborgerskap(PersonopplysningerAggregat søker) {
-        Region region = søker.getStatsborgerskapRegionFor(søker.getSøker().getAktørId());
-        if (Region.EOS.equals(region)) {
-            return Statsborgerskapsregioner.EØS;
+    Statsborgerskapsregioner statsborgerskap(PersonopplysningerAggregat søker, LocalDate vurderingsdato) {
+        Region region = søker.getStatsborgerskapRegionVedTidspunkt(søker.getSøker().getAktørId(), vurderingsdato);
+        return switch (region) {
+            case NORDEN -> Statsborgerskapsregioner.NORDISK;
+            case EOS -> Statsborgerskapsregioner.EØS;
+            default -> Statsborgerskapsregioner.TREDJE_LANDS_BORGER;
+        };
+    }
+
+    private Utfall harOppholdstilltatelseVed(BehandlingReferanse ref, LocalDate vurderingsdato) {
+        if (ref.getUtledetMedlemsintervall().encloses(vurderingsdato)) {
+            return personopplysningTjeneste.harOppholdstillatelseForPeriode(ref.getBehandlingId(), ref.getUtledetMedlemsintervall()) ? JA : NEI;
         }
-        if (Region.NORDEN.equals(region)) {
-            return Statsborgerskapsregioner.NORDISK;
-        }
-        return Statsborgerskapsregioner.TREDJE_LANDS_BORGER;
+        return personopplysningTjeneste.harOppholdstillatelsePåDato(ref.getBehandlingId(), vurderingsdato) ? JA : NEI;
     }
 
     private Utfall harDekningsgrad(LocalDate vurderingsdato, Set<MedlemskapPerioderEntitet> medlemskapPerioder) {

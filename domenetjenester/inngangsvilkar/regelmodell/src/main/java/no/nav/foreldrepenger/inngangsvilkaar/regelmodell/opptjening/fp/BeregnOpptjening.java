@@ -121,7 +121,7 @@ public class BeregnOpptjening extends LeafSpecification<OpptjeningsvilkårMellom
         if (tidslinje.isEmpty()) {
             return Period.ofDays(0);
         }
-        NavigableSet<LocalDateInterval> datoIntervaller = tidslinje.getDatoIntervaller();
+        NavigableSet<LocalDateInterval> datoIntervaller = tidslinje.getLocalDateIntervals();
         LocalDate startAvMåned = datoIntervaller.first().getFomDato().with(firstDayOfMonth());
         LocalDate sluttAvSisteMåned = datoIntervaller.last().getTomDato().with(lastDayOfMonth());
 

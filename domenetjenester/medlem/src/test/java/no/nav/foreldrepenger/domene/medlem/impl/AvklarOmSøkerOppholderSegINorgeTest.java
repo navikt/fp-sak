@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
@@ -39,6 +40,7 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @CdiDbAwareTest
 public class AvklarOmSøkerOppholderSegINorgeTest {
@@ -164,7 +166,9 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
     }
 
     private Optional<MedlemResultat> kallTjeneste(Behandling behandling, LocalDate dato) {
-        var ref = BehandlingReferanse.fra(behandling, dato);
+        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(dato)
+            .medUtledetMedlemsintervall(new LocalDateInterval(dato.minusWeeks(4), dato.plusWeeks(4)))
+            .build());
         return tjeneste.utled(ref, dato);
     }
 

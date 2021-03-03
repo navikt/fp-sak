@@ -136,8 +136,7 @@ public class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         oppdatere.medAdopsjon(oppdatere.getAdopsjonBuilder()
             .medOmsorgsovertakelseDato(omsorgsovertakelseDato)
             .medAdoptererAlene(true)
-            .medErEktefellesBarn(false))
-            .leggTilBarn(fødselAdopsjonsdato);
+            .medErEktefellesBarn(false));
         familieGrunnlagRepository.lagre(behandling, oppdatere);
 
         SøknadEntitet.Builder søknadBuilder = new SøknadEntitet.Builder()
@@ -249,7 +248,7 @@ public class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
             .medAntallBarn(1)
             .medFødselsDato(fødselsdato);
         familieGrunnlagRepository.lagre(behandling, hendelseBuilder);
-        final FamilieHendelseBuilder hendelseBuilder1 = familieGrunnlagRepository.opprettBuilderFor(behandling).medAntallBarn(1).leggTilBarn(fødselsdato);
+        final FamilieHendelseBuilder hendelseBuilder1 = familieGrunnlagRepository.opprettBuilderFor(behandling).tilbakestillBarn().medAntallBarn(1).leggTilBarn(fødselsdato);
         familieGrunnlagRepository.lagre(behandling, hendelseBuilder1);
 
         SøknadEntitet.Builder søknadBuilder = new SøknadEntitet.Builder()

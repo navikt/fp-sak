@@ -224,7 +224,7 @@ public class VedtaksHendelseHåndterer {
             return false;
 
         var fpTidslinje = new LocalDateTimeline<>(fpsegments, StandardCombinators::alwaysTrueForMatch).compress();
-        return !fpTidslinje.intersection(ytelseTidslinje).getDatoIntervaller().isEmpty();
+        return !fpTidslinje.intersection(ytelseTidslinje).getLocalDateIntervals().isEmpty();
     }
 
     private interface YtelseFeil extends DeklarerteFeil {

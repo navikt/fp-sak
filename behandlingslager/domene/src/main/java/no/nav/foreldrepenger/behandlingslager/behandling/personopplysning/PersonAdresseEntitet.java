@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
+import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.HarAktørId;
@@ -196,6 +197,10 @@ public class PersonAdresseEntitet extends BaseEntitet implements HarAktørId, In
 
     void setPeriode(DatoIntervallEntitet periode) {
         this.periode = periode;
+    }
+
+    public boolean erUtlandskAdresse() {
+        return !Landkoder.erNorge(land) || adresseType.erUtlandsAdresseType();
     }
 
     @Override

@@ -40,7 +40,7 @@ class MergeOverlappendePeriodeHjelp {
             return Collections.emptyList();
         }
         List<FastsattOpptjeningAktivitetDto> resultat = new ArrayList<>();
-        NavigableSet<LocalDateInterval> datoIntervaller = resultatInn.getDatoIntervaller();
+        NavigableSet<LocalDateInterval> datoIntervaller = resultatInn.getLocalDateIntervals();
         for (LocalDateInterval intervall : datoIntervaller) {
             LocalDateSegment<OpptjeningAktivitetKlassifisering> segment = resultatInn.getSegment(intervall);
             OpptjeningAktivitetKlassifisering klassifisering = segment.getValue();

@@ -7,7 +7,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
-import no.nav.foreldrepenger.behandling.Skjæringstidspunkt.Builder;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
@@ -15,6 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @FagsakYtelseTypeRef("ES")
 @ApplicationScoped
@@ -66,16 +66,15 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     @Override
     public Skjæringstidspunkt getSkjæringstidspunkter(Long behandlingId) {
         Optional<FamilieHendelseGrunnlagEntitet> familieHendelseAggregat = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandlingId);
-        Builder builder = Skjæringstidspunkt.builder();
 
-        Optional<LocalDate> bekreftetSkjæringstidspunkt = utledSkjæringstidspunktFraBekreftedeData(familieHendelseAggregat);
-        if(bekreftetSkjæringstidspunkt.isPresent()) {
-            builder.medUtledetSkjæringstidspunkt(bekreftetSkjæringstidspunkt.get());
-        } else {
-            LocalDate oppgittSkjæringstidspunkt = utledSkjæringstidspunktFraOppgitteData(familieHendelseAggregat);
-            builder.medUtledetSkjæringstidspunkt(oppgittSkjæringstidspunkt);
-        }
-        return builder.build();
+        var skjæringstidspunkt = utledSkjæringstidspunktFraBekreftedeData(familieHendelseAggregat)
+            .orElseGet(() -> utledSkjæringstidspunktFraOppgitteData(familieHendelseAggregat));
+        var ytelseIntervall = skjæringstidspunkt != null ? new LocalDateInterval(skjæringstidspunkt.minusWeeks(4), skjæringstidspunkt.plusWeeks(4)) : null;
+
+        return Skjæringstidspunkt.builder()
+            .medUtledetSkjæringstidspunkt(skjæringstidspunkt)
+            .medUtledetMedlemsintervall(ytelseIntervall)
+            .build();
     }
 
 }

@@ -204,12 +204,12 @@ public class BeregneYtelseStegImplTest {
         BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
         final FamilieHendelseBuilder søknadVersjon = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(behandling)
-                .medFødselsDato(fødselsdato)
+                .medFødselsDato(fødselsdato, antallBarn)
                 .medAntallBarn(antallBarn);
         repositoryProvider.getFamilieHendelseRepository().lagre(behandling, søknadVersjon);
         final FamilieHendelseBuilder bekreftetVersjon = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(behandling)
                 .medAntallBarn(antallBarn).tilbakestillBarn();
-        IntStream.range(0, antallBarn).forEach(it -> bekreftetVersjon.medFødselsDato(fødselsdato));
+        IntStream.range(0, antallBarn).forEach(it -> bekreftetVersjon.leggTilBarn(fødselsdato));
         repositoryProvider.getFamilieHendelseRepository().lagre(behandling, bekreftetVersjon);
         SøknadEntitet søknad = new SøknadEntitet.Builder()
                 .medSøknadsdato(LocalDate.now())

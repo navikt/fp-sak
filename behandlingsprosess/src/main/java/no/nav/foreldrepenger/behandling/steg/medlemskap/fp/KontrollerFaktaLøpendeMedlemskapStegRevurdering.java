@@ -91,11 +91,11 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurdering implements Kontrol
             if (!(behandling.erRevurdering() && FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()))) {
                 throw new IllegalStateException("Utvikler-feil: Behandler bare revudering i foreldrepengerkontekst!.");
             }
-            var finnVurderingsdatoer = tjeneste.finnVurderingsdatoer(behandlingId);
+            Skjæringstidspunkt skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
+            BehandlingReferanse ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
+            var finnVurderingsdatoer = tjeneste.finnVurderingsdatoer(ref);
             var resultat = new HashSet<>();
             if (!finnVurderingsdatoer.isEmpty()) {
-                Skjæringstidspunkt skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
-                BehandlingReferanse ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
                 finnVurderingsdatoer.forEach(dato -> resultat.addAll(vurderMedlemskapTjeneste.vurderMedlemskap(ref, dato)));
             }
             if (!resultat.isEmpty()) {

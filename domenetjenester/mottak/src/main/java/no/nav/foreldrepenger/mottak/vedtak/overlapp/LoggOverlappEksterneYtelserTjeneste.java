@@ -32,9 +32,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.abakus.AbakusTjeneste;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
-import no.nav.foreldrepenger.domene.abakus.AbakusTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -139,9 +139,9 @@ public class LoggOverlappEksterneYtelserTjeneste {
     private List<OverlappVedtak.Builder> loggOverlappendeYtelser(Long behandlingId, Saksnummer saksnummer, AktørId aktørId) {
         var ytelseType = behandlingRepository.hentBehandling(behandlingId).getFagsakYtelseType();
         LocalDateTimeline<BigDecimal> perioderFpGradert = getTidslinjeForBehandling(behandlingId, ytelseType);
-        if (perioderFpGradert.getDatoIntervaller().isEmpty())
+        if (perioderFpGradert.getLocalDateIntervals().isEmpty())
             return Collections.emptyList();
-        var tidligsteUttakFP = perioderFpGradert.getDatoIntervaller().stream().map(LocalDateInterval::getFomDato).min(Comparator.naturalOrder()).orElse(Tid.TIDENES_ENDE);
+        var tidligsteUttakFP = perioderFpGradert.getLocalDateIntervals().stream().map(LocalDateInterval::getFomDato).min(Comparator.naturalOrder()).orElse(Tid.TIDENES_ENDE);
 
         var ident = getFnrFraAktørId(aktørId);
         List<OverlappVedtak.Builder> overlappene = new ArrayList<>();
@@ -266,7 +266,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
                                                              LocalDateTimeline<BigDecimal> tlGrunnlag) {
         var filter = perioderFP.intersection(tlGrunnlag, StandardCombinators::sum).filterValue(v -> v.compareTo(HUNDRE) > 0);
 
-        return filter.getDatoIntervaller().stream()
+        return filter.getLocalDateIntervals().stream()
             .map(filter::getSegment)
             .map(s -> opprettOverlappBuilder(s.getLocalDateInterval(), s.getValue()).medFagsystem(fagsystem).medYtelse(ytelseType).medReferanse(referanse))
             .collect(Collectors.toList());

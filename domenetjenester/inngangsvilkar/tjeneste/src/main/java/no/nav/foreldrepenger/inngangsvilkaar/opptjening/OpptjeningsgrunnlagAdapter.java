@@ -134,7 +134,7 @@ public class OpptjeningsgrunnlagAdapter {
                     tidsserie = tidsserie.combine(tidsserieInput, this::sjekkVurdering, LocalDateTimeline.JoinStyle.CROSS_JOIN);
                 }
 
-                for (LocalDateInterval interval : tidsserie.getDatoIntervaller()) {
+                for (LocalDateInterval interval : tidsserie.getLocalDateIntervals()) {
                     resultat.add(tidsserie.getSegment(interval).getValue());
                 }
             }

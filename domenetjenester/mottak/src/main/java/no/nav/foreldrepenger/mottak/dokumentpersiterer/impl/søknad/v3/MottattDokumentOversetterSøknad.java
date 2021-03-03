@@ -796,14 +796,9 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
                 hendelseBuilder.getTerminbekreftelseBuilder().medTermindato(fødsel.getTermindato()));
         }
         int antallBarn = fødsel.getAntallBarn();
-        List<LocalDate> fødselsdatoene = new ArrayList<>();
-        for (int i = 1; i <= antallBarn; i++) {
-            fødselsdatoene.add(fødselsdato);
-        }
-
         hendelseBuilder.tilbakestillBarn().medAntallBarn(antallBarn);
-        for (LocalDate localDate : fødselsdatoene) {
-            hendelseBuilder.leggTilBarn(localDate);
+        for (int i = 1; i <= antallBarn; i++) {
+            hendelseBuilder.leggTilBarn(fødselsdato);
         }
     }
 

@@ -82,6 +82,7 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
         final FamilieHendelseGrunnlagEntitet eksisterendeGrunnlag = familieHendelseTjeneste.hentAggregat(behandlingId);
         final FamilieHendelseBuilder oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandling);
         oppdatertOverstyrtHendelse
+            .tilbakestillBarn()
             .medTerminbekreftelse(oppdatertOverstyrtHendelse.getTerminbekreftelseBuilder()
                 .medNavnPå(eksisterendeGrunnlag.getSøknadVersjon().getTerminbekreftelse().map(TerminbekreftelseEntitet::getNavnPå).orElse("Ukjent opphav"))
                 .medTermindato(dto.getTermindato())

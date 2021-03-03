@@ -13,6 +13,7 @@ public final class PersonInformasjon {
     private List<PersonAdresse> adresser = new ArrayList<>();
     private List<Personopplysning> personopplysninger = new ArrayList<>();
     private List<PersonRelasjon> relasjoner = new ArrayList<>();
+    private List<Oppholdstillatelse> opphold = new ArrayList<>();
 
     public PersonopplysningVersjonType getType() {
         return type;
@@ -36,6 +37,10 @@ public final class PersonInformasjon {
 
     public List<PersonRelasjon> getRelasjoner() {
         return relasjoner;
+    }
+
+    public List<Oppholdstillatelse> getOpphold() {
+        return opphold;
     }
 
     public static Builder builder(PersonopplysningVersjonType type) {
@@ -71,6 +76,11 @@ public final class PersonInformasjon {
 
         public Builder leggTilRelasjon(PersonRelasjon.Builder builder) {
             kladd.relasjoner.add(builder.build());
+            return this;
+        }
+
+        public Builder leggTilOpphold(Oppholdstillatelse.OppholdstillatelseBuilder builder) {
+            kladd.opphold.add(builder.build());
             return this;
         }
 

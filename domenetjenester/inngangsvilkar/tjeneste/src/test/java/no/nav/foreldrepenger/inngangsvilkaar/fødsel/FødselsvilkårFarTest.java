@@ -32,7 +32,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopp
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.personopplysning.BasisPersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
@@ -53,7 +53,7 @@ public class FødselsvilkårFarTest extends EntityManagerAwareTest {
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
-        BasisPersonopplysningTjeneste personopplysningTjeneste = new BasisPersonopplysningTjeneste(
+        PersonopplysningTjeneste personopplysningTjeneste = new PersonopplysningTjeneste(
             repositoryProvider.getPersonopplysningRepository());
         oversetter = new InngangsvilkårOversetter(repositoryProvider,
             personopplysningTjeneste, new YtelseMaksdatoTjeneste(repositoryProvider, new RelatertBehandlingTjeneste(repositoryProvider)),

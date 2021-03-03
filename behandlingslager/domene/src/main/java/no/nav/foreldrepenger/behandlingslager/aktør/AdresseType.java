@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
@@ -117,5 +118,10 @@ public enum AdresseType implements Kodeverdi, MedOffisiellKode {
 
     }
 
+    private static final Set<AdresseType> UTLANDSTYPER = Set.of(POSTADRESSE_UTLAND, MIDLERTIDIG_POSTADRESSE_UTLAND);
+
+    public boolean erUtlandsAdresseType() {
+        return UTLANDSTYPER.contains(this);
+    }
 
 }

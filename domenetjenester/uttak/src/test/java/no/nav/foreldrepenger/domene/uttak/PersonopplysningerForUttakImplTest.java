@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
-import no.nav.foreldrepenger.domene.personopplysning.BasisPersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
@@ -29,7 +29,7 @@ class PersonopplysningerForUttakImplTest {
 
     @Test
     void skal_hente_søkers_dødsdato() {
-        var personopplysningTjeneste = mock(BasisPersonopplysningTjeneste.class);
+        var personopplysningTjeneste = mock(PersonopplysningTjeneste.class);
         var personopplysninger = new PersonopplysningerForUttakImpl(personopplysningTjeneste);
 
         var dødsdato = LocalDate.of(2020, 1, 1);
@@ -45,7 +45,7 @@ class PersonopplysningerForUttakImplTest {
 
     @Test
     void skal_returnere_empty_hvis_søker_ikke_er_død() {
-        var personopplysningTjeneste = mock(BasisPersonopplysningTjeneste.class);
+        var personopplysningTjeneste = mock(PersonopplysningTjeneste.class);
         var personopplysninger = new PersonopplysningerForUttakImpl(personopplysningTjeneste);
 
         var behandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(new UttakRepositoryProviderForTest());
@@ -59,7 +59,7 @@ class PersonopplysningerForUttakImplTest {
 
     @Test
     void skal_returnere_har_oppgitt_annenpart() {
-        var personopplysningTjeneste = mock(BasisPersonopplysningTjeneste.class);
+        var personopplysningTjeneste = mock(PersonopplysningTjeneste.class);
         var personopplysninger = new PersonopplysningerForUttakImpl(personopplysningTjeneste);
 
         var behandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(new UttakRepositoryProviderForTest());
@@ -76,7 +76,7 @@ class PersonopplysningerForUttakImplTest {
 
     @Test
     void skal_ikke_returnere_har_oppgitt_annenpart() {
-        var personopplysningTjeneste = mock(BasisPersonopplysningTjeneste.class);
+        var personopplysningTjeneste = mock(PersonopplysningTjeneste.class);
         var personopplysninger = new PersonopplysningerForUttakImpl(personopplysningTjeneste);
 
         var behandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(new UttakRepositoryProviderForTest());
@@ -93,7 +93,7 @@ class PersonopplysningerForUttakImplTest {
 
     @Test
     void skal_returnere_ektefelle_har_samme_bosted_hvis_gift() {
-        var personopplysningTjeneste = mock(BasisPersonopplysningTjeneste.class);
+        var personopplysningTjeneste = mock(PersonopplysningTjeneste.class);
         var personopplysninger = new PersonopplysningerForUttakImpl(personopplysningTjeneste);
 
         var behandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(new UttakRepositoryProviderForTest());
@@ -123,7 +123,7 @@ class PersonopplysningerForUttakImplTest {
 
     @Test
     void skal_returnere_at_annenpart_er_uten_norsk_id() {
-        var personopplysningTjeneste = mock(BasisPersonopplysningTjeneste.class);
+        var personopplysningTjeneste = mock(PersonopplysningTjeneste.class);
         var personopplysninger = new PersonopplysningerForUttakImpl(personopplysningTjeneste);
 
         var behandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(new UttakRepositoryProviderForTest());
@@ -140,7 +140,7 @@ class PersonopplysningerForUttakImplTest {
 
     @Test
     void skal_returnere_at_annenpart_ikke_er_uten_norsk_id_hvis_ukjent_annenpart() {
-        var personopplysningTjeneste = mock(BasisPersonopplysningTjeneste.class);
+        var personopplysningTjeneste = mock(PersonopplysningTjeneste.class);
         var personopplysninger = new PersonopplysningerForUttakImpl(personopplysningTjeneste);
 
         var behandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(new UttakRepositoryProviderForTest());
@@ -158,7 +158,7 @@ class PersonopplysningerForUttakImplTest {
 
     @Test
     void skal_returnere_at_annenpart_ikke_er_uten_norsk_id() {
-        var personopplysningTjeneste = mock(BasisPersonopplysningTjeneste.class);
+        var personopplysningTjeneste = mock(PersonopplysningTjeneste.class);
         var personopplysninger = new PersonopplysningerForUttakImpl(personopplysningTjeneste);
 
         var behandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(new UttakRepositoryProviderForTest());

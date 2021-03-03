@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 /**
  * Minimal metadata for en behandling.
@@ -165,6 +166,12 @@ public class BehandlingReferanse {
         // precondition
         sjekkSkjæringstidspunkt();
         return skjæringstidspunkt.getUtledetSkjæringstidspunkt();
+    }
+
+    public LocalDateInterval getUtledetMedlemsintervall() {
+        // precondition
+        sjekkSkjæringstidspunkt();
+        return skjæringstidspunkt.getUtledetMedlemsintervall();
     }
 
     public Skjæringstidspunkt getSkjæringstidspunkt() {

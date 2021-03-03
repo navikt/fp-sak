@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
+import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
@@ -80,6 +81,12 @@ public class Personas {
 
     public Personas personstatus(PersonstatusType personstatus, LocalDate fom, LocalDate tom) {
         builder.leggTilPersonstatus(Personstatus.builder().aktørId(aktørId).personstatus(personstatus).periode(fom, tom == null ? Tid.TIDENES_ENDE : tom));
+        return this;
+    }
+
+    public Personas opphold(OppholdstillatelseType oppholdstillatelseType, LocalDate fom, LocalDate tom) {
+        builder.leggTilOpphold(Oppholdstillatelse.builder().medAktørId(aktørId).medOppholdstillatelse(oppholdstillatelseType)
+            .medPeriode(fom, tom == null ? Tid.TIDENES_ENDE : tom));
         return this;
     }
 

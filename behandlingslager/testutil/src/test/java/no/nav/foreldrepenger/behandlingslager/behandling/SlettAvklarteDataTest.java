@@ -45,10 +45,10 @@ public class SlettAvklarteDataTest extends EntityManagerAwareTest {
         final ScenarioFarSøkerEngangsstønad scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
         scenario.medSøknadHendelse(scenario.medSøknadHendelse()
             .medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder()
-                .medOmsorgsovertakelseDato(LocalDate.now())).medAntallBarn(1));
+                .medOmsorgsovertakelseDato(LocalDate.now())).leggTilBarn(LocalDate.now().minusYears(5)).medAntallBarn(1));
         scenario.medBekreftetHendelse(scenario.medBekreftetHendelse()
             .medAdopsjon(scenario.medBekreftetHendelse().getAdopsjonBuilder()
-                .medOmsorgsovertakelseDato(LocalDate.now())).medAntallBarn(1));
+                .medOmsorgsovertakelseDato(LocalDate.now())).leggTilBarn(LocalDate.now().minusYears(5)).medAntallBarn(1));
 
         Behandling behandling = lagre(scenario);
 

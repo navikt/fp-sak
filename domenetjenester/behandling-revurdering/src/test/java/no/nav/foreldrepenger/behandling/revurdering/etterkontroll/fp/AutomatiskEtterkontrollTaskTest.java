@@ -514,14 +514,16 @@ public class AutomatiskEtterkontrollTaskTest {
 
         if (medBekreftet) {
             scenario.medBekreftetHendelse()
-                    .medFødselsDato(terminDato)
+                    .tilbakestillBarn()
+                    .medFødselsDato(terminDato, antallBarn)
                     .erFødsel()
                     .medAntallBarn(antallBarn);
         }
 
         if (medOverstyrtFødsel) {
             scenario.medOverstyrtHendelse()
-                    .medFødselsDato(terminDato)
+                    .tilbakestillBarn()
+                    .medFødselsDato(terminDato, antallBarn)
                     .erFødsel()
                     .medAntallBarn(antallBarn);
         }

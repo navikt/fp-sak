@@ -48,7 +48,7 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.medlem.MedlemskapPerioderTjeneste;
-import no.nav.foreldrepenger.domene.personopplysning.BasisPersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.Kjoenn;
@@ -72,7 +72,7 @@ public class InngangsvilkårOversetter {
     private FamilieHendelseRepository familieGrunnlagRepository;
     private MedlemskapPerioderTjeneste medlemskapPerioderTjeneste;
     private SøknadRepository søknadRepository;
-    private BasisPersonopplysningTjeneste personopplysningTjeneste;
+    private PersonopplysningTjeneste personopplysningTjeneste;
     private YtelseMaksdatoTjeneste ytelseMaksdatoTjeneste;
     private InntektArbeidYtelseTjeneste iayTjeneste;
 
@@ -87,7 +87,7 @@ public class InngangsvilkårOversetter {
      */
     @Inject
     public InngangsvilkårOversetter(BehandlingRepositoryProvider repositoryProvider,
-                                    BasisPersonopplysningTjeneste personopplysningTjeneste,
+                                    PersonopplysningTjeneste personopplysningTjeneste,
                                     YtelseMaksdatoTjeneste beregnMorsMaksdatoTjeneste,
                                     InntektArbeidYtelseTjeneste iayTjeneste,
                                     @KonfigVerdi(value = "terminbekreftelse.tidligst.utstedelse.før.termin", defaultVerdi = "P18W3D") Period tidligsteUtstedelseAvTerminBekreftelse) {
@@ -248,6 +248,8 @@ public class InngangsvilkårOversetter {
 
         Optional<InntektArbeidYtelseGrunnlag> iayOpt = iayTjeneste.finnGrunnlag(behandlingId);
         grunnlag.setHarSøkerArbeidsforholdOgInntekt(FinnOmSøkerHarArbeidsforholdOgInntekt.finn(iayOpt, ref.getUtledetSkjæringstidspunkt(), ref.getAktørId()));
+
+        grunnlag.setBrukerHarOppholdstillatelse(personopplysningTjeneste.harOppholdstillatelseForPeriode(ref.getBehandlingId(), ref.getUtledetMedlemsintervall()));
 
         // defaulter uavklarte fakta til true
         grunnlag.setBrukerAvklartLovligOppholdINorge(

@@ -163,9 +163,9 @@ public class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManag
             .forFødsel();
         leggTilSøker(scenario, NavBrukerKjønn.KVINNE);
         scenario.medSøknadHendelse()
-            .medFødselsDato(fødseldato)
+            .medFødselsDato(fødseldato, antallBarnSøknad)
             .medAntallBarn(antallBarnSøknad);
-        scenario.medBekreftetHendelse().medFødselsDato(fødseldato).medAntallBarn(antallBarnTps);
+        scenario.medBekreftetHendelse().tilbakestillBarn().medFødselsDato(fødseldato, antallBarnTps).medAntallBarn(antallBarnTps);
         return scenario.lagre(repositoryProvider);
     }
 

@@ -10,7 +10,7 @@ public class MedlemV2Dto {
     private List<MedlemskapPerioderDto> medlemskapPerioder;
     private Set<MedlemPeriodeDto> perioder;
     private List<OppholdstillatelseDto> opphold = new ArrayList<>();
-    private LocalDate fom; // gjeldendeFra
+    private LocalDate fom; // Opphør fra dato - stp eller senere
 
     public MedlemV2Dto() {
         // trengs for deserialisering av JSON

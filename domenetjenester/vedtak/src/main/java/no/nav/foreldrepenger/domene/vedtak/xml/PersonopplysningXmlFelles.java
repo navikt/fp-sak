@@ -6,9 +6,11 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
+import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoArbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppholdstillatelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonstatusEntitet;
@@ -118,6 +120,9 @@ public class PersonopplysningXmlFelles {
         Landkoder statsborgerskap = aggregat.getStatsborgerskapFor(personopplysning.getAktørId()).stream().findFirst()
             .map(StatsborgerskapEntitet::getStatsborgerskap).orElse(Landkoder.UDEFINERT);
         person.setStatsborgerskap(VedtakXmlUtil.lagKodeverksOpplysning(statsborgerskap));
+
+        aggregat.getOppholdstillatelseFor(personopplysning.getAktørId()).map(OppholdstillatelseEntitet::getTillatelse)
+            .map(OppholdstillatelseType::getKode).map(VedtakXmlUtil::lagStringOpplysning).ifPresent(person::setOppholdstillatelse);
     }
 
 }

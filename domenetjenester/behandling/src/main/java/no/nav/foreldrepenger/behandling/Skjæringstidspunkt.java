@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
 
+import no.nav.fpsak.tidsserie.LocalDateInterval;
+
 /**
  * Inneholder relevante tidspunkter for en behandling
  */
@@ -12,6 +14,7 @@ public class Skjæringstidspunkt {
     private LocalDate skjæringstidspunktOpptjening;
     private LocalDate skjæringstidspunktBeregning;
     private LocalDate førsteUttaksdato;
+    private LocalDateInterval utledetMedlemsintervall;
 
     private Skjæringstidspunkt() {
         // hide constructor
@@ -26,6 +29,10 @@ public class Skjæringstidspunkt {
 
     public Optional<LocalDate> getSkjæringstidspunktHvisUtledet() {
         return Optional.ofNullable(utledetSkjæringstidspunkt);
+    }
+
+    public LocalDateInterval getUtledetMedlemsintervall() {
+        return utledetMedlemsintervall;
     }
 
     public LocalDate getUtledetSkjæringstidspunkt() {
@@ -117,6 +124,11 @@ public class Skjæringstidspunkt {
 
         public Builder medUtledetSkjæringstidspunkt(LocalDate dato) {
             kladd.utledetSkjæringstidspunkt = dato;
+            return this;
+        }
+
+        public Builder medUtledetMedlemsintervall(LocalDateInterval datointervall) {
+            kladd.utledetMedlemsintervall = datointervall;
             return this;
         }
 
