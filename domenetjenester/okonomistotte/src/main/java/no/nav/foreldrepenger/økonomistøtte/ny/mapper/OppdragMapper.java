@@ -56,7 +56,7 @@ public class OppdragMapper {
             .medAvstemming(Avstemming.ny());
 
         if (oppdrag.getBetalingsmottaker() == Betalingsmottaker.BRUKER && !oppdragErTilNyMottaker(oppdrag) && !erOpphørForMottaker(oppdrag)) {
-            builder.medOmpostering116(opprettOmpostering116(oppdrag.getEndringsdato(), input.brukInntrekk(), ansvarligSaksbehandler));
+            builder.medOmpostering116(opprettOmpostering116(oppdrag.getEndringsdato(), input.brukInntrekk()));
         }
 
         Oppdrag110 oppdrag110 = builder.build();
@@ -131,9 +131,8 @@ public class OppdragMapper {
         return oppdragslinje150;
     }
 
-    static Ompostering116 opprettOmpostering116(LocalDate endringsdatoBruker, boolean brukInntrekk, String ansvarligSaksbehandler) {
+    static Ompostering116 opprettOmpostering116(LocalDate endringsdatoBruker, boolean brukInntrekk) {
         Ompostering116.Builder ompostering116Builder = new Ompostering116.Builder()
-            .medSaksbehId(ansvarligSaksbehandler)
             .medTidspktReg(ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now()))
             .medOmPostering(brukInntrekk ? "J" : "N");
         if (brukInntrekk) {

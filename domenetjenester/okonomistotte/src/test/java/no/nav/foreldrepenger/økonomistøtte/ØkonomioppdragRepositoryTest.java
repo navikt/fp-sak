@@ -50,24 +50,6 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void lagreOgSøkeOppOppdragskontroll() {
-        // Arrange
-        Oppdragskontroll oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
-        Long behandlingId = oppdrkontroll.getBehandlingId();
-
-        // Act
-        økonomioppdragRepository.lagre(oppdrkontroll);
-
-        // Assert
-        Long id = oppdrkontroll.getId();
-        assertThat(id).isNotNull();
-
-        Oppdragskontroll oppdrkontrollLest = økonomioppdragRepository.finnVentendeOppdrag(behandlingId);
-
-        assertThat(oppdrkontrollLest).isNotNull();
-    }
-
-    @Test
     public void lagreOgSøkeOppOppdragskontrollForPeriode() {
         // Arrange
         Oppdragskontroll oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
@@ -82,6 +64,56 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
         List<Oppdrag110> oppdragListe = økonomioppdragRepository.hentOppdrag110ForPeriodeOgFagområde(LocalDate.now(),
             LocalDate.now(), KodeFagområde.ENGANGSSTØNAD);
         assertThat(oppdragListe.stream().map(o -> o.getOppdragskontroll().getBehandlingId())).contains(behandlingId);
+    }
+
+    @Test
+    public void finnAlleOppdragUtenKvittering() {
+        // Arrange
+        Oppdragskontroll oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
+        Oppdrag110 oppdr110 = OppdragTestDataHelper.buildOppdrag110ES(oppdrkontroll, 44L);
+        OppdragTestDataHelper.buildOppdragslinje150(oppdr110);
+
+        økonomioppdragRepository.lagre(oppdrkontroll);
+
+        var oppdrag110 = økonomioppdragRepository.hentOppdragUtenKvittering(oppdr110.getFagsystemId(), oppdrkontroll.getBehandlingId());
+
+        assertThat(oppdrag110).isNotNull();
+    }
+
+    @Test
+    public void kastExceptionHvisFlereOppdragUtenKvitteringFinnes() {
+        // Arrange
+        Oppdragskontroll oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
+        Oppdrag110 oppdr110 = OppdragTestDataHelper.buildOppdrag110ES(oppdrkontroll, 44L);
+        OppdragTestDataHelper.buildOppdragslinje150(oppdr110);
+        Oppdrag110 oppdr110_2 = OppdragTestDataHelper.buildOppdrag110ES(oppdrkontroll, 44L);
+        OppdragTestDataHelper.buildOppdragslinje150(oppdr110_2);
+
+        økonomioppdragRepository.lagre(oppdrkontroll);
+        assertThatThrownBy(() ->
+            økonomioppdragRepository.hentOppdragUtenKvittering(oppdr110.getFagsystemId(), oppdrkontroll.getBehandlingId()))
+            .hasMessageContaining("returnerte mer enn eksakt ett resultat");
+    }
+
+    @Test
+    public void okHvisFlereOppdragFinnesMenKunEnnUtenKvittering() {
+        // Arrange
+        Oppdragskontroll oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
+        Oppdrag110 oppdr110 = OppdragTestDataHelper.buildOppdrag110ES(oppdrkontroll, 44L);
+        OppdragTestDataHelper.buildOppdragslinje150(oppdr110);
+        Oppdrag110 oppdr110_2 = OppdragTestDataHelper.buildOppdrag110ES(oppdrkontroll, 44L);
+        OppdragTestDataHelper.buildOppdragslinje150(oppdr110_2);
+        økonomioppdragRepository.lagre(oppdrkontroll);
+
+        var oppdragKvittering = OppdragKvitteringTestUtil.lagPositivKvitting(oppdr110_2);
+        økonomioppdragRepository.lagre(oppdragKvittering);
+
+        // Act
+        var oppdrag110 = økonomioppdragRepository.hentOppdragUtenKvittering(oppdr110.getFagsystemId(), oppdrkontroll.getBehandlingId());
+
+        assertThat(oppdrag110).isNotNull();
+        assertThat(oppdrag110.getOppdragKvittering()).isNull();
+        assertThat(oppdrag110.getFagsystemId()).isEqualTo(44L);
     }
 
     @Test
@@ -100,23 +132,6 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
         var oppdragListe = økonomioppdragRepository.hentOppdrag110ForPeriodeOgFagområde(LocalDate.now().minusDays(1),
             LocalDate.now().minusDays(1), KodeFagområde.ENGANGSSTØNAD).size();
         assertThat(oppdragListe).isEqualTo(førSize);
-    }
-
-    @Test
-    public void lagreOgSøkeOppOppdragskontrollDerKvitteringErMottatt() {
-        // Arrange
-        Oppdragskontroll oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
-        oppdrkontroll.setVenterKvittering(false);
-        Long behandlingId = oppdrkontroll.getBehandlingId();
-
-        // Act
-        økonomioppdragRepository.lagre(oppdrkontroll);
-
-        // Assert
-        Long id = oppdrkontroll.getId();
-        assertThat(id).isNotNull();
-        assertThatThrownBy(() -> økonomioppdragRepository.finnVentendeOppdrag(behandlingId))
-            .hasMessageContaining("F-650018");
     }
 
     @Test
@@ -142,10 +157,12 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
         // Arrange
         Oppdragskontroll oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
         Oppdrag110 oppdrag110 = OppdragTestDataHelper.buildOppdrag110ES(oppdrkontroll, 44L);
-        OppdragKvitteringTestUtil.lagPositivKvitting(oppdrag110);
+        long id = økonomioppdragRepository.lagre(oppdrkontroll);
+
+        var oppdragKvittering = OppdragKvitteringTestUtil.lagPositivKvitting(oppdrag110);
 
         // Act
-        long id = økonomioppdragRepository.lagre(oppdrkontroll);
+        økonomioppdragRepository.lagre(oppdragKvittering);
 
         // Assert
 

@@ -85,7 +85,6 @@ public class OpprettOppdrag110Tjeneste {
     private static Optional<Ompostering116> opprettOmpostering116(OppdragInput behandlingInfo) {
         boolean erAvslåttInntrekk = behandlingInfo.isAvslåttInntrekk();
         Ompostering116.Builder ompostering116Builder = new Ompostering116.Builder()
-            .medSaksbehId(behandlingInfo.getAnsvarligSaksbehandler())
             .medTidspktReg(ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now()))
             .medOmPostering(erAvslåttInntrekk ? OppdragskontrollConstants.OMPOSTERING_N : OppdragskontrollConstants.OMPOSTERING_J);
         if (!erAvslåttInntrekk) {

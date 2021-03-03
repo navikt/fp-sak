@@ -51,7 +51,7 @@ public class Oppdragskontroll extends BaseEntitet {
     @Column(name = "prosess_task_id", nullable = false)
     private Long prosessTaskId;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "oppdragskontroll", cascade = CascadeType.PERSIST)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "oppdragskontroll")
     private List<Oppdrag110> oppdrag110Liste = new ArrayList<>();
 
     public Oppdragskontroll() {

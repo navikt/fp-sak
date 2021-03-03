@@ -38,7 +38,7 @@ public class SimulerOppdragTjenesteTest {
     @Mock
     private OppdragskontrollTjeneste oppdragskontrollTjeneste;
     @Mock
-    NyOppdragskontrollTjenesteImpl nyOppdragskontrollTjeneste;
+    private OppdragskontrollTjeneste nyOppdragskontrollTjeneste;
     @Mock
     private OppdragKjerneimplementasjonToggle toggle;
 

@@ -68,15 +68,15 @@ public class Oppdrag110 extends BaseCreateableEntitet {
     @JoinColumn(name = "oppdrags_kontroll_id", nullable = false, updatable = false)
     private Oppdragskontroll oppdragskontroll;
 
-    @Immutable
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "oppdrag110")
-    private List<Oppdragslinje150> oppdragslinje150Liste = new ArrayList<>();
-
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "oppdrag110", cascade = CascadeType.PERSIST)
     private OppdragKvittering oppdragKvittering;
 
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "oppdrag110", cascade = CascadeType.PERSIST)
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "oppdrag110")
     private Ompostering116 ompostering116;
+
+    @Immutable
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "oppdrag110")
+    private List<Oppdragslinje150> oppdragslinje150Liste = new ArrayList<>();
 
     protected Oppdrag110() {}
 

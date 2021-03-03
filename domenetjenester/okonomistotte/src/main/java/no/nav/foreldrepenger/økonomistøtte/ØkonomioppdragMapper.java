@@ -79,8 +79,8 @@ public class ØkonomioppdragMapper {
 
     private no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag110 mapOppdrag110(Oppdrag110 okoOppdrag110, Long behandlingId) {
         final no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag110 oppdrag110 = objectFactory.createOppdrag110();
-        //TODO (Tonic): Løsningsbeskrivelse viser at Oppdrag110 er en liste men Økonomi Oppdrag tar bare et Oppdrag110
         KodeFagområde kodeFagområde = okoOppdrag110.getKodeFagomrade();
+
         oppdrag110.setKodeAksjon(KODE_AKSJON);
         oppdrag110.setKodeEndring(okoOppdrag110.getKodeEndring().getKode());
         oppdrag110.setKodeFagomraade(kodeFagområde.getKode());
@@ -95,16 +95,16 @@ public class ØkonomioppdragMapper {
         oppdrag110.setDatoOppdragGjelderFom(toXmlGregCal(DATO_OPPDRAG_GJELDER_FOM));
 
         Optional<no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116> optOmpostering116 = okoOppdrag110.getOmpostering116();
-        optOmpostering116.ifPresent(ompostering116 -> oppdrag110.setOmpostering116(mapOmpostering116(ompostering116)));
+        optOmpostering116.ifPresent(ompostering116 -> oppdrag110.setOmpostering116(mapOmpostering116(ompostering116, oppdrag110.getSaksbehId())));
         return oppdrag110;
     }
 
 
-    private Ompostering116 mapOmpostering116(no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116 okoOmpostering116) {
+    private Ompostering116 mapOmpostering116(no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116 okoOmpostering116, String saksbehandlerId) {
         Ompostering116 ompostering116 = objectFactory.createOmpostering116();
         ompostering116.setOmPostering(okoOmpostering116.getOmPostering());
         ompostering116.setDatoOmposterFom(toXmlGregCal(okoOmpostering116.getDatoOmposterFom()));
-        ompostering116.setSaksbehId(okoOmpostering116.getSaksbehId());
+        ompostering116.setSaksbehId(saksbehandlerId);
         ompostering116.setTidspktReg(okoOmpostering116.getTidspktReg());
         return ompostering116;
     }

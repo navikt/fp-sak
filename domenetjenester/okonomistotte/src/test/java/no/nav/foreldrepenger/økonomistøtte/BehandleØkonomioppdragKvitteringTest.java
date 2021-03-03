@@ -89,7 +89,8 @@ public class BehandleØkonomioppdragKvitteringTest {
         var oppdrag = OppdragTestDataHelper.buildOppdragskontroll(new Saksnummer("35"), BEHANDLINGID_ES, PROSESSTASKID);
         when(alleMottakereHarPositivKvitteringProvider.getTjeneste(anyLong())).thenReturn(new AlleMottakereHarPositivKvitteringEngangsstønad());
         ØkonomiOppdragUtils.setupOppdrag110(oppdrag, false);
-        when(økonomioppdragRepository.finnVentendeOppdrag(BEHANDLINGID_ES)).thenReturn(oppdrag);
+
+        when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_BRUKER, BEHANDLINGID_ES)).thenReturn(oppdrag.getOppdrag110Liste().get(0));
         ØkonomiKvittering kvittering = opprettKvittering(KVITTERING_OK, null, KVITTERING_MELDING_OK, FAGSYSTEMID_BRUKER, false);
 
         // Act
@@ -98,6 +99,7 @@ public class BehandleØkonomioppdragKvitteringTest {
         // Assert
         assertThat(oppdrag.getVenterKvittering()).isFalse();
         verify(økonomioppdragRepository).lagre(oppdrag);
+        verify(økonomioppdragRepository, times(1)).lagre(any(OppdragKvittering.class));
         verify(hendelsesmottak).mottaHendelse(PROSESSTASKID, ProsessTaskHendelse.ØKONOMI_OPPDRAG_KVITTERING);
     }
 
@@ -108,9 +110,8 @@ public class BehandleØkonomioppdragKvitteringTest {
         when(alleMottakereHarPositivKvitteringProvider.getTjeneste(anyLong())).thenReturn(new AlleMottakereHarPositivKvitteringEngangsstønad());
         ØkonomiOppdragUtils.setupOppdrag110(oppdrag, false);
 
-        when(økonomioppdragRepository.finnVentendeOppdrag(BEHANDLINGID_ES)).thenReturn(oppdrag);
+        when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_BRUKER, BEHANDLINGID_ES)).thenReturn(oppdrag.getOppdrag110Liste().get(0));
         ØkonomiKvittering kvittering = opprettKvittering(KVITTERING_FEIL, KVITTERING_MELDINGKODE_FEIL, KVITTERING_MELDING_FEIL, FAGSYSTEMID_BRUKER, false);
-
 
         // Act
         behandleØkonomioppdragKvittering.behandleKvittering(kvittering);
@@ -118,6 +119,7 @@ public class BehandleØkonomioppdragKvitteringTest {
         // Assert
         assertThat(oppdrag.getVenterKvittering()).isFalse();
         verify(økonomioppdragRepository).lagre(oppdrag);
+        verify(økonomioppdragRepository, times(1)).lagre(any(OppdragKvittering.class));
         verify(hendelsesmottak, never()).mottaHendelse(any(), any());
     }
 
@@ -126,10 +128,11 @@ public class BehandleØkonomioppdragKvitteringTest {
         // Arrange
         var oppdrag = OppdragTestDataHelper.buildOppdragskontroll(new Saksnummer("35"), BEHANDLINGID_FP, PROSESSTASKID);
         when(alleMottakereHarPositivKvitteringProvider.getTjeneste(anyLong())).thenReturn(new AlleMottakereHarPositivKvitteringImpl());
-        OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
-        OppdragTestDataHelper.buildOppdrag110FPArbeidsgiver(oppdrag, FAGSYSTEMID_ARBEIDSGIVER);
+        var oppdragBruker = OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
+        var oppdragAg = OppdragTestDataHelper.buildOppdrag110FPArbeidsgiver(oppdrag, FAGSYSTEMID_ARBEIDSGIVER);
 
-        when(økonomioppdragRepository.finnVentendeOppdrag(BEHANDLINGID_FP)).thenReturn(oppdrag);
+        when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_BRUKER, BEHANDLINGID_FP)).thenReturn(oppdragBruker);
+        when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_ARBEIDSGIVER, BEHANDLINGID_FP)).thenReturn(oppdragAg);
         ØkonomiKvittering kvittering_1 = opprettKvittering(KVITTERING_OK, null, KVITTERING_MELDING_OK, FAGSYSTEMID_BRUKER, true);
         ØkonomiKvittering kvittering_2 = opprettKvittering(KVITTERING_OK, null, KVITTERING_MELDING_OK, FAGSYSTEMID_ARBEIDSGIVER, true);
 
@@ -139,7 +142,8 @@ public class BehandleØkonomioppdragKvitteringTest {
 
         // Assert
         assertThat(oppdrag.getVenterKvittering()).isFalse();
-        verify(økonomioppdragRepository, times(2)).lagre(oppdrag);
+        verify(økonomioppdragRepository, times(1)).lagre(oppdrag);
+        verify(økonomioppdragRepository, times(2)).lagre(any(OppdragKvittering.class));
         verify(hendelsesmottak).mottaHendelse(PROSESSTASKID, ProsessTaskHendelse.ØKONOMI_OPPDRAG_KVITTERING);
         oppdrag.getOppdrag110Liste().forEach(o110 -> {
             assertThat(o110.getOppdragKvittering()).isNotNull();
@@ -155,13 +159,13 @@ public class BehandleØkonomioppdragKvitteringTest {
         Oppdrag110 oppdrag110 = OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
         OppdragKvittering.builder().medAlvorlighetsgrad(KVITTERING_OK).medOppdrag110(oppdrag110).build();
 
-        when(økonomioppdragRepository.finnVentendeOppdrag(BEHANDLINGID_FP)).thenReturn(oppdrag);
+        when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_BRUKER, BEHANDLINGID_FP)).thenReturn(oppdrag110);
         ØkonomiKvittering kvittering_1 = opprettKvittering(KVITTERING_OK, null, KVITTERING_MELDING_OK, FAGSYSTEMID_BRUKER, true);
 
         // Act
         assertThatThrownBy(() -> behandleØkonomioppdragKvittering.behandleKvittering(kvittering_1))
             .isInstanceOf(IllegalStateException.class)
-            .hasMessageContaining("Finnes ikke oppdrag for kvittering med fagsystemId: ");
+            .hasMessageContaining("Mottat økonomi kvittering kan ikke overskrive en allerede eksisterende kvittering!");
     }
 
     @Test
@@ -172,9 +176,9 @@ public class BehandleØkonomioppdragKvitteringTest {
 
         Oppdrag110 oppdrag110 = OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
         OppdragKvittering.builder().medAlvorlighetsgrad(KVITTERING_OK).medOppdrag110(oppdrag110).build();
-        OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
+        var oppdragBruker2 = OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
 
-        when(økonomioppdragRepository.finnVentendeOppdrag(BEHANDLINGID_FP)).thenReturn(oppdrag);
+        when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_BRUKER, BEHANDLINGID_FP)).thenReturn(oppdragBruker2);
         ØkonomiKvittering kvittering_1 = opprettKvittering(KVITTERING_OK, null, KVITTERING_MELDING_OK, FAGSYSTEMID_BRUKER, true);
 
         // Act
@@ -195,20 +199,18 @@ public class BehandleØkonomioppdragKvitteringTest {
         // Arrange
         var oppdrag = OppdragTestDataHelper.buildOppdragskontroll(new Saksnummer("35"), BEHANDLINGID_FP, PROSESSTASKID);
         when(alleMottakereHarPositivKvitteringProvider.getTjeneste(anyLong())).thenReturn(new AlleMottakereHarPositivKvitteringImpl());
-        OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
+        var oppdragBruker1 = OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
         OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
 
-        when(økonomioppdragRepository.finnVentendeOppdrag(BEHANDLINGID_FP)).thenReturn(oppdrag);
+        when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_BRUKER, BEHANDLINGID_FP)).thenReturn(oppdragBruker1);
         ØkonomiKvittering kvittering_1 = opprettKvittering(KVITTERING_OK, null, KVITTERING_MELDING_OK, FAGSYSTEMID_BRUKER, true);
         ØkonomiKvittering kvittering_2 = opprettKvittering(KVITTERING_OK, null, KVITTERING_MELDING_OK, FAGSYSTEMID_BRUKER, true);
 
         // Act
-        assertThatThrownBy(() -> behandleØkonomioppdragKvittering.behandleKvittering(kvittering_1))
-            .isInstanceOf(IllegalStateException.class)
-            .hasMessageContaining("Finnes flere oppdrag uten kvittering med samme fagsystemId: ");
-        assertThatThrownBy(() -> behandleØkonomioppdragKvittering.behandleKvittering(kvittering_2))
-            .isInstanceOf(IllegalStateException.class)
-            .hasMessageContaining("Finnes flere oppdrag uten kvittering med samme fagsystemId: ");
+       behandleØkonomioppdragKvittering.behandleKvittering(kvittering_1);
+       assertThatThrownBy(() -> behandleØkonomioppdragKvittering.behandleKvittering(kvittering_2))
+           .isInstanceOf(IllegalStateException.class)
+           .hasMessageContaining("Mottat økonomi kvittering kan ikke overskrive en allerede eksisterende kvittering!");
     }
 
     @Test
@@ -216,10 +218,11 @@ public class BehandleØkonomioppdragKvitteringTest {
         // Arrange
         when(alleMottakereHarPositivKvitteringProvider.getTjeneste(anyLong())).thenReturn(new AlleMottakereHarPositivKvitteringImpl());
         var oppdrag = OppdragTestDataHelper.buildOppdragskontroll(new Saksnummer("35"), BEHANDLINGID_FP, PROSESSTASKID);
-        OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
-        OppdragTestDataHelper.buildOppdrag110FPArbeidsgiver(oppdrag, FAGSYSTEMID_ARBEIDSGIVER);
+        var oppdragBruker = OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
+        var oppdragAg = OppdragTestDataHelper.buildOppdrag110FPArbeidsgiver(oppdrag, FAGSYSTEMID_ARBEIDSGIVER);
 
-        when(økonomioppdragRepository.finnVentendeOppdrag(BEHANDLINGID_FP)).thenReturn(oppdrag);
+        when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_BRUKER, BEHANDLINGID_FP)).thenReturn(oppdragBruker);
+        when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_ARBEIDSGIVER, BEHANDLINGID_FP)).thenReturn(oppdragAg);
         ØkonomiKvittering kvittering_1 = opprettKvittering(KVITTERING_OK, null, KVITTERING_MELDING_OK, FAGSYSTEMID_BRUKER, true);
         ØkonomiKvittering kvittering_2 = opprettKvittering(KVITTERING_FEIL, KVITTERING_MELDINGKODE_FEIL, KVITTERING_MELDING_FEIL, FAGSYSTEMID_ARBEIDSGIVER, true);
 
@@ -229,8 +232,9 @@ public class BehandleØkonomioppdragKvitteringTest {
 
         // Assert
         assertThat(oppdrag.getVenterKvittering()).isFalse();
-        verify(økonomioppdragRepository, times(2)).lagre(oppdrag);
+        verify(økonomioppdragRepository, times(1)).lagre(oppdrag);
         verify(hendelsesmottak, never()).mottaHendelse(any(), any());
+        verify(økonomioppdragRepository, times(2)).lagre(any(OppdragKvittering.class));
         verify(behandleHendelseØkonomioppdrag).nullstilleØkonomioppdragTask(any());
     }
 
@@ -239,10 +243,11 @@ public class BehandleØkonomioppdragKvitteringTest {
         // Arrange
         when(alleMottakereHarPositivKvitteringProvider.getTjeneste(anyLong())).thenReturn(new AlleMottakereHarPositivKvitteringImpl());
         var oppdrag = OppdragTestDataHelper.buildOppdragskontroll(new Saksnummer("35"), BEHANDLINGID_FP, PROSESSTASKID);
-        OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
-        OppdragTestDataHelper.buildOppdrag110FPArbeidsgiver(oppdrag, FAGSYSTEMID_ARBEIDSGIVER);
+        var oppdragBruker = OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
+        var oppdragAg = OppdragTestDataHelper.buildOppdrag110FPArbeidsgiver(oppdrag, FAGSYSTEMID_ARBEIDSGIVER);
 
-        when(økonomioppdragRepository.finnVentendeOppdrag(BEHANDLINGID_FP)).thenReturn(oppdrag);
+        when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_BRUKER, BEHANDLINGID_FP)).thenReturn(oppdragBruker);
+        when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_ARBEIDSGIVER, BEHANDLINGID_FP)).thenReturn(oppdragAg);
         ØkonomiKvittering kvittering_1 = opprettKvittering(KVITTERING_FEIL, KVITTERING_MELDINGKODE_FEIL, KVITTERING_MELDING_FEIL, FAGSYSTEMID_BRUKER, true);
         ØkonomiKvittering kvittering_2 = opprettKvittering(KVITTERING_FEIL, KVITTERING_MELDINGKODE_FEIL, KVITTERING_MELDING_FEIL, FAGSYSTEMID_ARBEIDSGIVER, true);
 
@@ -252,7 +257,8 @@ public class BehandleØkonomioppdragKvitteringTest {
 
         // Assert
         assertThat(oppdrag.getVenterKvittering()).isFalse();
-        verify(økonomioppdragRepository, times(2)).lagre(oppdrag);
+        verify(økonomioppdragRepository, times(1)).lagre(oppdrag);
+        verify(økonomioppdragRepository, times(2)).lagre(any(OppdragKvittering.class));
         verify(hendelsesmottak, never()).mottaHendelse(any(), any());
     }
 

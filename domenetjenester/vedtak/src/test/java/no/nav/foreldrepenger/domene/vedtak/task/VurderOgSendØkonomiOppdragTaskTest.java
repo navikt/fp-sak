@@ -60,7 +60,7 @@ public class VurderOgSendØkonomiOppdragTaskTest {
     private OppdragskontrollTjeneste oppdragskontrollTjeneste;
 
     @Mock
-    private NyOppdragskontrollTjenesteImpl nyOppdragskontrollTjeneste;
+    private OppdragskontrollTjeneste nyOppdragskontrollTjeneste;
 
     @Mock
     private OppdragInputTjeneste oppdragInputTjeneste;

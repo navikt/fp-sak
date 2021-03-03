@@ -11,7 +11,7 @@ public class RefusjonInfo156Dto extends SporingDto {
     private LocalDate datoFom;
 
     public RefusjonInfo156Dto(Refusjonsinfo156 entitet) {
-        super(entitet, entitet.getVersjon(), entitet.getId());
+        super(entitet, 0L, entitet.getId());
     }
 
     public LocalDate getMaksDato() {

@@ -361,7 +361,6 @@ public class ØkonomioppdragMapperTest {
             .medAvstemming(Avstemming.ny())
             .medOmpostering116(erOmpostering ? new Ompostering116.Builder().medOmPostering("J")
                 .medDatoOmposterFom(LocalDate.now())
-                .medSaksbehId("J5624215")
                 .medTidspktReg(ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now()))
                 .build() : null)
             .build();

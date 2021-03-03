@@ -13,18 +13,18 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
+import org.hibernate.annotations.Immutable;
+
+import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 
+@Immutable
 @Entity(name = "Refusjonsinfo156")
 @Table(name = "OKO_REFUSJONSINFO_156")
-public class Refusjonsinfo156 extends BaseEntitet {
+public class Refusjonsinfo156 extends BaseCreateableEntitet {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_OKO_REFUSJONSINFO_156")
     private Long id;
-
-    @Version
-    @Column(name = "versjon", nullable = false)
-    private long versjon;
 
     @OneToOne(optional = false)
     @JoinColumn(name = "oppdrags_linje_150_id", nullable = false, updatable = false)
@@ -80,10 +80,6 @@ public class Refusjonsinfo156 extends BaseEntitet {
 
     public void setOppdragslinje150(Oppdragslinje150 oppdragslinje150) {
         this.oppdragslinje150 = oppdragslinje150;
-    }
-
-    public long getVersjon() {
-        return versjon;
     }
 
     @Override

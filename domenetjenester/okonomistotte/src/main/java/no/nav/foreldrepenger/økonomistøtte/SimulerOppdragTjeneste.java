@@ -27,8 +27,8 @@ public class SimulerOppdragTjeneste {
 
     private OppdragskontrollTjeneste oppdragskontrollTjeneste;
     private OppdragskontrollTjeneste esOppdragskontrollTjeneste;
+    private OppdragskontrollTjeneste nyOppdragskontrollTjeneste;
     private OppdragInputTjeneste oppdragInputTjeneste;
-    private NyOppdragskontrollTjenesteImpl nyOppdragskontrollTjeneste;
     private OppdragKjerneimplementasjonToggle toggle;
 
     SimulerOppdragTjeneste() {
@@ -36,9 +36,9 @@ public class SimulerOppdragTjeneste {
     }
 
     @Inject
-    public SimulerOppdragTjeneste(@Named("oppdragTjeneste") OppdragskontrollTjeneste oppdragskontrollTjeneste, // @Named("nyOppdragTjeneste")
+    public SimulerOppdragTjeneste(@Named("oppdragTjeneste") OppdragskontrollTjeneste oppdragskontrollTjeneste,
                                   @Named("oppdragEngangstønadTjeneste") OppdragskontrollTjeneste esOppdragskontrollTjeneste,
-                                  NyOppdragskontrollTjenesteImpl nyOppdragskontrollTjeneste,
+                                  @Named("nyOppdragTjeneste") OppdragskontrollTjeneste nyOppdragskontrollTjeneste,
                                   OppdragInputTjeneste oppdragInputTjeneste,
                                   OppdragKjerneimplementasjonToggle toggle) {
         this.oppdragskontrollTjeneste = oppdragskontrollTjeneste;
