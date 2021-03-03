@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.RefusjonskravDato;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.vedtak.util.env.Environment;
 
 import javax.inject.Inject;
 import java.util.Collections;
@@ -96,7 +95,7 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
             ytelseGrunnlag);
 
         // Toggles
-        input.leggTilToggle("visning-inntektsgrunnlag", !Environment.current().isProd());
+        input.leggTilToggle("visning-inntektsgrunnlag", true);
 
         return Optional.of(input);
     }
