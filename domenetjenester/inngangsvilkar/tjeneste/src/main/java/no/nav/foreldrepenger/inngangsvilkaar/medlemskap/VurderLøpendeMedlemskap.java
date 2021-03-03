@@ -140,7 +140,7 @@ public class VurderLøpendeMedlemskap {
             grunnlag.setBrukerAvklartBosatt(vurdertOpt.map(v -> defaultValueTrue(v.getBosattVurdering())).orElse(true));
             grunnlag.setBrukerAvklartOppholdsrett(vurdertOpt.map(v -> defaultValueTrue(v.getOppholdsrettVurdering())).orElse(true));
             grunnlag.setBrukerAvklartPliktigEllerFrivillig(erAvklartSomPliktigEllerFrivillingMedlem(vurdertOpt, medlemskap, vurderingsdato));
-            grunnlag.setBrukerHarOppholdstillatelse(harOppholdstillatelsePåDato(behandlingId, vurderingsdato));
+            grunnlag.setBrukerHarOppholdstillatelse(harOppholdstillatelsePåDato(ref, vurderingsdato));
 
             resulatat.put(vurderingsdato, grunnlag);
         }
@@ -273,7 +273,10 @@ public class VurderLøpendeMedlemskap {
     }
 
 
-    public boolean harOppholdstillatelsePåDato(Long behandlingId, LocalDate vurderingsdato) {
-        return personopplysningTjeneste.harOppholdstillatelsePåDato(behandlingId, vurderingsdato);
+    public boolean harOppholdstillatelsePåDato(BehandlingReferanse ref, LocalDate vurderingsdato) {
+        if (ref.getUtledetMedlemsintervall().encloses(vurderingsdato)) {
+            return personopplysningTjeneste.harOppholdstillatelseForPeriode(ref.getBehandlingId(), ref.getUtledetMedlemsintervall());
+        }
+        return personopplysningTjeneste.harOppholdstillatelsePåDato(ref.getBehandlingId(), vurderingsdato);
     }
 }
