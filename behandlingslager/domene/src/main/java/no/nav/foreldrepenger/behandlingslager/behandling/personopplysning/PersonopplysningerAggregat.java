@@ -111,9 +111,7 @@ public class PersonopplysningerAggregat {
 
     public PersonstatusEntitet getPersonstatusFor(AktørId aktørId) {
         return aktuellePersonstatus.stream()
-            .filter(ss -> ss.getAktørId().equals(aktørId))
-            .sorted(Comparator.comparing(PersonstatusEntitet::getPeriode).reversed())
-            .findFirst().orElse(null);
+            .filter(ss -> ss.getAktørId().equals(aktørId)).max(Comparator.comparing(PersonstatusEntitet::getPeriode)).orElse(null);
     }
 
     public PersonopplysningEntitet getSøker() {
@@ -126,8 +124,9 @@ public class PersonopplysningerAggregat {
             .collect(Collectors.toList());
     }
 
-    public Region getStatsborgerskapRegionFor(AktørId aktørId) {
+    public Region getStatsborgerskapRegionVedTidspunkt(AktørId aktørId, LocalDate vurderingsdato) {
         return statsborgerskap.getOrDefault(aktørId, List.of()).stream()
+            .filter(s -> s.getPeriode().inkluderer(vurderingsdato))
             .min(Comparator.comparing(s -> s.getRegion().getRank()))
             .map(StatsborgerskapEntitet::getRegion).orElse(Region.TREDJELANDS_BORGER);
     }
@@ -142,8 +141,9 @@ public class PersonopplysningerAggregat {
             .anyMatch(sb -> region.equals(sb.getRegion()));
     }
 
-    public List<OppholdstillatelseEntitet> getOppholdstillatelser(AktørId aktørId) {
-        return søkerAktørId.equals(aktørId) ? oppholdstillatelser : List.of();
+    public Optional<OppholdstillatelseEntitet> getOppholdstillatelseFor(AktørId aktørId) {
+        List<OppholdstillatelseEntitet> aktuelle = søkerAktørId.equals(aktørId) ? oppholdstillatelser : List.of();
+        return aktuelle.stream().max(Comparator.comparing(OppholdstillatelseEntitet::getPeriode));
     }
 
     /**

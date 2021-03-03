@@ -15,6 +15,10 @@ public class MedlemskapsvilkårGrunnlag implements VilkårGrunnlag {
      */
     private PersonStatusType personStatusType;
     /**
+     * Status på personen (valgene er: Bosatt, Utvandret eller Død)
+     */
+    private boolean brukerHarOppholdstillatelse;
+    /**
      * Om bruker er pliktig eller frivillig medlem
      */
     private boolean brukerAvklartPliktigEllerFrivillig;
@@ -63,6 +67,10 @@ public class MedlemskapsvilkårGrunnlag implements VilkårGrunnlag {
         return personStatusType;
     }
 
+    public boolean isBrukerHarOppholdstillatelse() {
+        return brukerHarOppholdstillatelse;
+    }
+
     public boolean isBrukerAvklartBosatt() {
         return brukerAvklartBosatt;
     }
@@ -109,6 +117,10 @@ public class MedlemskapsvilkårGrunnlag implements VilkårGrunnlag {
 
     public void setHarSøkerArbeidsforholdOgInntekt(boolean harSøkerArbeidsforholdOgInntekt) {
         this.harSøkerArbeidsforholdOgInntekt = harSøkerArbeidsforholdOgInntekt;
+    }
+
+    public void setBrukerHarOppholdstillatelse(boolean brukerHarOppholdstillatelse) {
+        this.brukerHarOppholdstillatelse = brukerHarOppholdstillatelse;
     }
 
     @Override

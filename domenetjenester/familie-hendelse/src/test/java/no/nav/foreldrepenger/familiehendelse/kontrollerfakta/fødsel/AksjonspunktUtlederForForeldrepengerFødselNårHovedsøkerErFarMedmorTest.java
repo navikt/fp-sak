@@ -115,10 +115,10 @@ public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedm
         ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger
             .forFødsel();
         scenario.medSøknadHendelse()
-            .medFødselsDato(fødseldato)
+            .medFødselsDato(fødseldato, antallBarnSøknad)
             .medAntallBarn(antallBarnSøknad);
         leggTilSøker(scenario, NavBrukerKjønn.MANN);
-        scenario.medBekreftetHendelse().medFødselsDato(fødseldato).medAntallBarn(antallBarnTps);
+        scenario.medBekreftetHendelse().medFødselsDato(fødseldato, antallBarnTps).medAntallBarn(antallBarnTps);
         return scenario.lagre(repositoryProvider);
     }
 

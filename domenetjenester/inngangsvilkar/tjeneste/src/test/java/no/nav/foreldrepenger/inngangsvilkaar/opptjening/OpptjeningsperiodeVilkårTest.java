@@ -27,7 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.personopplysning.BasisPersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
@@ -54,9 +54,8 @@ public class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
             new RelatertBehandlingTjeneste(repositoryProvider));
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste,
             stputil);
-        BasisPersonopplysningTjeneste personopplysningTjeneste = new BasisPersonopplysningTjeneste(
-            repositoryProvider.getPersonopplysningRepository());
-        YtelseMaksdatoTjeneste beregnMorsMaksdatoTjeneste = new YtelseMaksdatoTjeneste(repositoryProvider,
+        var personopplysningTjeneste = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository());
+        var beregnMorsMaksdatoTjeneste = new YtelseMaksdatoTjeneste(repositoryProvider,
             new RelatertBehandlingTjeneste(repositoryProvider));
         InngangsvilkårOversetter oversetter = new InngangsvilkårOversetter(repositoryProvider, personopplysningTjeneste,
             beregnMorsMaksdatoTjeneste, iayTjeneste, null);

@@ -39,23 +39,25 @@ import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.medlem.MedlemskapPerioderTjeneste;
 import no.nav.foreldrepenger.domene.medlem.UtledVurderingsdatoerForMedlemskapTjeneste;
-import no.nav.foreldrepenger.domene.personopplysning.BasisPersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.Medlemskapsvilkår;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.MedlemskapsvilkårGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.PersonStatusType;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.fpsak.nare.evaluation.Evaluation;
 
 @ApplicationScoped
 public class VurderLøpendeMedlemskap {
 
-    private BasisPersonopplysningTjeneste personopplysningTjeneste;
+    private PersonopplysningTjeneste personopplysningTjeneste;
     private MedlemskapRepository medlemskapRepository;
     private InngangsvilkårOversetter inngangsvilkårOversetter;
     private BehandlingRepository behandlingRepository;
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private MedlemskapPerioderTjeneste medTjeneste;
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private UtledVurderingsdatoerForMedlemskapTjeneste utledVurderingsdatoerMedlemskap;
 
     VurderLøpendeMedlemskap() {
@@ -63,11 +65,12 @@ public class VurderLøpendeMedlemskap {
     }
 
     @Inject
-    public VurderLøpendeMedlemskap(BasisPersonopplysningTjeneste personopplysningTjeneste,
+    public VurderLøpendeMedlemskap(PersonopplysningTjeneste personopplysningTjeneste,
                                    BehandlingRepository behandlingRepository,
                                    MedlemskapRepository medlemskapRepository,
                                    InngangsvilkårOversetter inngangsvilkårOversetter,
                                    MedlemskapPerioderTjeneste medTjeneste,
+                                   SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                    UtledVurderingsdatoerForMedlemskapTjeneste utledVurderingsdatoerMedlemskapTjeneste,
                                    InntektArbeidYtelseTjeneste iayTjeneste) {
         this.personopplysningTjeneste = personopplysningTjeneste;
@@ -75,6 +78,7 @@ public class VurderLøpendeMedlemskap {
         this.medlemskapRepository = medlemskapRepository;
         this.medTjeneste = medTjeneste;
         this.iayTjeneste = iayTjeneste;
+        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.inngangsvilkårOversetter = inngangsvilkårOversetter;
         this.utledVurderingsdatoerMedlemskap = utledVurderingsdatoerMedlemskapTjeneste;
     }
@@ -103,9 +107,13 @@ public class VurderLøpendeMedlemskap {
     }
 
     private Map<LocalDate, MedlemskapsvilkårGrunnlag> lagGrunnlag(Long behandlingId) {
+        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
+        BehandlingReferanse ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
+
         Optional<MedlemskapAggregat> medlemskap = medlemskapRepository.hentMedlemskap(behandlingId);
         Optional<VurdertMedlemskapPeriodeEntitet> vurdertMedlemskapPeriode = medlemskap.flatMap(MedlemskapAggregat::getVurderingLøpendeMedlemskap);
-        List<LocalDate> vurderingsdatoerListe = utledVurderingsdatoerMedlemskap.finnVurderingsdatoer(behandlingId)
+        List<LocalDate> vurderingsdatoerListe = utledVurderingsdatoerMedlemskap.finnVurderingsdatoer(ref)
             .stream()
             .sorted(LocalDate::compareTo)
             .collect(Collectors.toList());
@@ -116,8 +124,6 @@ public class VurderLøpendeMedlemskap {
 
         Map<LocalDate, VurdertLøpendeMedlemskapEntitet> map = mapVurderingFraSaksbehandler(vurdertMedlemskapPeriode);
 
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        BehandlingReferanse ref = BehandlingReferanse.fra(behandling);
         Map<LocalDate, MedlemskapsvilkårGrunnlag> resulatat = new TreeMap<>();
         for (LocalDate vurderingsdato : vurderingsdatoerListe) {
             Optional<VurdertLøpendeMedlemskapEntitet> vurdertOpt = Optional.ofNullable(map.get(vurderingsdato));
@@ -134,6 +140,7 @@ public class VurderLøpendeMedlemskap {
             grunnlag.setBrukerAvklartBosatt(vurdertOpt.map(v -> defaultValueTrue(v.getBosattVurdering())).orElse(true));
             grunnlag.setBrukerAvklartOppholdsrett(vurdertOpt.map(v -> defaultValueTrue(v.getOppholdsrettVurdering())).orElse(true));
             grunnlag.setBrukerAvklartPliktigEllerFrivillig(erAvklartSomPliktigEllerFrivillingMedlem(vurdertOpt, medlemskap, vurderingsdato));
+            grunnlag.setBrukerHarOppholdstillatelse(harOppholdstillatelsePåDato(ref, vurderingsdato));
 
             resulatat.put(vurderingsdato, grunnlag);
         }
@@ -263,5 +270,13 @@ public class VurderLøpendeMedlemskap {
         LocalDate tomDato = aktivitetsAvtale.getPeriode().getTomDato();
         return (aktivitetsAvtale.getErLøpende() && fomDato.isBefore(skjæringstidspunkt))
             || (fomDato.isBefore(skjæringstidspunkt) && tomDato.isAfter(skjæringstidspunkt));
+    }
+
+
+    public boolean harOppholdstillatelsePåDato(BehandlingReferanse ref, LocalDate vurderingsdato) {
+        if (ref.getUtledetMedlemsintervall().encloses(vurderingsdato)) {
+            return personopplysningTjeneste.harOppholdstillatelseForPeriode(ref.getBehandlingId(), ref.getUtledetMedlemsintervall());
+        }
+        return personopplysningTjeneste.harOppholdstillatelsePåDato(ref.getBehandlingId(), vurderingsdato);
     }
 }

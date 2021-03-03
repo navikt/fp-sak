@@ -53,7 +53,17 @@ public class FamilieHendelseBuilder {
     }
 
     public FamilieHendelseBuilder medFødselsDato(LocalDate fødselsDato) {
+        tilbakestillBarn();
         leggTilBarn(fødselsDato);
+        return this;
+    }
+
+    // Kall evt tilbakestill før du kaller denne
+    public FamilieHendelseBuilder medFødselsDato(LocalDate fødselsDato, int antall) {
+        if (antall > 0) {
+            leggTilBarn(fødselsDato);
+            return medFødselsDato(fødselsDato, antall - 1);
+        }
         return this;
     }
 
@@ -140,7 +150,7 @@ public class FamilieHendelseBuilder {
 
     public FamilieHendelseEntitet build() {
         if (hendelse.getTerminbekreftelse().isPresent() && hendelse.getAdopsjon().isPresent()) {
-            throw new IllegalStateException("Utvikler feil: Kan ikke både ha terminbekreftelse og adopsjon");
+            throw new IllegalStateException("Utviklerfeil: Kan ikke både ha terminbekreftelse og adopsjon");
         } else if (hendelse.getAdopsjon().isPresent()) {
             if (hendelse.getAdopsjon().get().getOmsorgovertakelseVilkår().equals(OmsorgsovertakelseVilkårType.UDEFINERT)
                     && !erSøknadEllerBekreftetVersjonOgSattTilOmsorg()) {
@@ -156,6 +166,9 @@ public class FamilieHendelseBuilder {
         }
         if (hendelse.getAntallBarn() == null) {
             hendelse.setAntallBarn(hendelse.getBarna().size());
+        }
+        if (!FamilieHendelseType.TERMIN.equals(hendelse.getType()) && hendelse.getAntallBarn() != hendelse.getBarna().size()) {
+            throw new IllegalStateException("Utviklerfeil: Avvik mellom antall barn og uidentifisert barn");
         }
         return hendelse;
     }

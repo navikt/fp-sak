@@ -10,6 +10,9 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
+import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapDekningType;
@@ -36,6 +39,8 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
 import no.nav.foreldrepenger.domene.medlem.MedlemskapPerioderTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
+import no.nav.vedtak.konfig.Tid;
 
 public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
 
@@ -74,12 +79,20 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
 
         leggTilSøker(scenario);
         Behandling behandling = lagre(scenario);
+        var ref = lagRef(behandling);
 
         // Act
-        Optional<MedlemResultat> resultat = tjeneste.utled(behandling, SKJÆRINGSDATO_FØDSEL);
+        Optional<MedlemResultat> resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
 
         // Assert
         assertThat(resultat).isEmpty();
+    }
+
+    private BehandlingReferanse lagRef(Behandling behandling) {
+        return BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder()
+            .medUtledetSkjæringstidspunkt(SKJÆRINGSDATO_FØDSEL)
+            .medUtledetMedlemsintervall(new LocalDateInterval(SKJÆRINGSDATO_FØDSEL.minusWeeks(4), SKJÆRINGSDATO_FØDSEL.plusWeeks(4)))
+            .medFørsteUttaksdato(SKJÆRINGSDATO_FØDSEL).build());
     }
 
     @Test
@@ -98,9 +111,11 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
         leggTilSøker(scenario);
         Behandling behandling = lagre(scenario);
+        var ref = lagRef(behandling);
 
         // Act
-        Optional<MedlemResultat> resultat = tjeneste.utled(behandling, SKJÆRINGSDATO_FØDSEL);
+        Optional<MedlemResultat> resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+
 
         // Assert
         assertThat(resultat).isEmpty();
@@ -123,9 +138,11 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
 
         leggTilSøker(scenario);
         Behandling behandling = lagre(scenario);
+        var ref = lagRef(behandling);
 
         // Act
-        Optional<MedlemResultat> resultat = tjeneste.utled(behandling, SKJÆRINGSDATO_FØDSEL);
+        Optional<MedlemResultat> resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+
 
         // Assert
         assertThat(resultat).contains(MedlemResultat.AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE);
@@ -147,9 +164,11 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
         leggTilSøker(scenario);
         Behandling behandling = lagre(scenario);
+        var ref = lagRef(behandling);
 
         // Act
-        Optional<MedlemResultat> resultat = tjeneste.utled(behandling, SKJÆRINGSDATO_FØDSEL);
+        Optional<MedlemResultat> resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+
 
         // Assert
         assertThat(resultat).isEmpty();
@@ -171,9 +190,11 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
         leggTilSøker(scenario, Landkoder.USA, Region.UDEFINERT, PersonstatusType.UTVA);
         Behandling behandling = lagre(scenario);
+        var ref = lagRef(behandling);
 
         // Act
-        Optional<MedlemResultat> resultat = tjeneste.utled(behandling, SKJÆRINGSDATO_FØDSEL);
+        Optional<MedlemResultat> resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+
 
         // Assert
         assertThat(resultat).isEmpty();
@@ -195,9 +216,11 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
         leggTilSøker(scenario, Landkoder.USA, Region.UDEFINERT, PersonstatusType.BOSA);
         Behandling behandling = lagre(scenario);
+        var ref = lagRef(behandling);
 
         // Act
-        Optional<MedlemResultat> resultat = tjeneste.utled(behandling, SKJÆRINGSDATO_FØDSEL);
+        Optional<MedlemResultat> resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+
 
         // Assert
         assertThat(resultat).contains(MedlemResultat.AVKLAR_LOVLIG_OPPHOLD);
@@ -211,9 +234,11 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
         leggTilSøker(scenario, Landkoder.NOR, Region.NORDEN, PersonstatusType.UTVA);
         Behandling behandling = lagre(scenario);
+        var ref = lagRef(behandling);
 
         // Act
-        Optional<MedlemResultat> resultat = tjeneste.utled(behandling, SKJÆRINGSDATO_FØDSEL);
+        Optional<MedlemResultat> resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+
 
         // Assert
         assertThat(resultat).isEmpty();
@@ -227,9 +252,11 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
         leggTilSøker(scenario, Landkoder.SWE, Region.UDEFINERT, PersonstatusType.BOSA);
         Behandling behandling = lagre(scenario);
+        var ref = lagRef(behandling);
 
         // Act
-        Optional<MedlemResultat> resultat = tjeneste.utled(behandling, SKJÆRINGSDATO_FØDSEL);
+        Optional<MedlemResultat> resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+
 
         // Assert
         assertThat(resultat).isEmpty();
@@ -256,8 +283,11 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         builder.leggTilAktørInntekt(aktørInntekt);
         iayTjeneste.lagreIayAggregat(behandling.getId(), builder);
 
+        var ref = lagRef(behandling);
+
         // Act
-        Optional<MedlemResultat> resultat = tjeneste.utled(behandling, SKJÆRINGSDATO_FØDSEL);
+        Optional<MedlemResultat> resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+
 
         // Assert
         assertThat(resultat).isEmpty();
@@ -275,9 +305,11 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
         leggTilSøker(scenario, Landkoder.BEL, Region.UDEFINERT, PersonstatusType.BOSA);
         Behandling behandling = lagre(scenario);
+        var ref = lagRef(behandling);
 
         // Act
-        Optional<MedlemResultat> resultat = tjeneste.utled(behandling, SKJÆRINGSDATO_FØDSEL);
+        Optional<MedlemResultat> resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+
 
         // Assert
         assertThat(resultat).contains(MedlemResultat.AVKLAR_OPPHOLDSRETT);
@@ -291,9 +323,65 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
         leggTilSøker(scenario, Landkoder.UDEFINERT, Region.UDEFINERT, PersonstatusType.BOSA);
         Behandling behandling = lagre(scenario);
+        var ref = lagRef(behandling);
 
         // Act
-        Optional<MedlemResultat> resultat = tjeneste.utled(behandling, SKJÆRINGSDATO_FØDSEL);
+        Optional<MedlemResultat> resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+
+
+        // Assert
+        assertThat(resultat).contains(MedlemResultat.AVKLAR_LOVLIG_OPPHOLD);
+    }
+
+    @Test
+    public void skal_ikke_opprette_aksjonspunkt_ved_region_eøs_med_opphold() {
+        // Arrange
+        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
+        scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
+        leggTilSøker(scenario, Landkoder.BEL, Region.UDEFINERT, PersonstatusType.BOSA, OppholdstillatelseType.MIDLERTIDIG, SKJÆRINGSDATO_FØDSEL.minusYears(1), SKJÆRINGSDATO_FØDSEL.plusYears(1));
+        Behandling behandling = lagre(scenario);
+        var ref = lagRef(behandling);
+
+        // Act
+        Optional<MedlemResultat> resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+
+
+        // Assert
+        assertThat(resultat).isEmpty();
+    }
+
+    @Test
+    public void skal_ikke_opprette_aksjonspunkt_ved_region_3land_med_opphold() {
+        // Arrange
+        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
+        scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
+        leggTilSøker(scenario, Landkoder.ARG, Region.UDEFINERT, PersonstatusType.BOSA, OppholdstillatelseType.PERMANENT, SKJÆRINGSDATO_FØDSEL.minusYears(1), Tid.TIDENES_ENDE);
+        Behandling behandling = lagre(scenario);
+        var ref = lagRef(behandling);
+
+        // Act
+        Optional<MedlemResultat> resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+
+
+        // Assert
+        assertThat(resultat).isEmpty();
+    }
+
+    @Test
+    public void skal_opprette_aksjonspunkt_ved_region_3land_med_delvis_opphold() {
+        // Arrange
+        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
+        scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
+        leggTilSøker(scenario, Landkoder.USA, Region.UDEFINERT, PersonstatusType.BOSA, OppholdstillatelseType.MIDLERTIDIG, SKJÆRINGSDATO_FØDSEL.minusYears(1), SKJÆRINGSDATO_FØDSEL);
+        Behandling behandling = lagre(scenario);
+        var ref = lagRef(behandling);
+
+        // Act
+        Optional<MedlemResultat> resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+
 
         // Assert
         assertThat(resultat).contains(MedlemResultat.AVKLAR_LOVLIG_OPPHOLD);
@@ -311,6 +399,21 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
             .kvinne(søkerAktørId, SivilstandType.UOPPGITT, region)
             .personstatus(personstatus)
             .statsborgerskap(statsborgerskap)
+            .build();
+        scenario.medRegisterOpplysninger(søker);
+        return søkerAktørId;
+    }
+
+    private AktørId leggTilSøker(AbstractTestScenario<?> scenario, Landkoder statsborgerskap, Region region, PersonstatusType personstatus,
+                                 OppholdstillatelseType opphold, LocalDate oppholdFom, LocalDate oppholdTom) {
+        PersonInformasjon.Builder builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
+        AktørId søkerAktørId = scenario.getDefaultBrukerAktørId();
+        PersonInformasjon søker = builderForRegisteropplysninger
+            .medPersonas()
+            .kvinne(søkerAktørId, SivilstandType.UOPPGITT, region)
+            .personstatus(personstatus)
+            .statsborgerskap(statsborgerskap)
+            .opphold(opphold, oppholdFom, oppholdTom)
             .build();
         scenario.medRegisterOpplysninger(søker);
         return søkerAktørId;

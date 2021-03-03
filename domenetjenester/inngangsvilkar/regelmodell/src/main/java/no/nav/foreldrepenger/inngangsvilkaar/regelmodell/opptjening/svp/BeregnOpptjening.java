@@ -110,7 +110,7 @@ public class BeregnOpptjening extends LeafSpecification<OpptjeningsvilkårMellom
         if (tidslinje.isEmpty()) {
             return Period.ofDays(0);
         }
-        var dager = tidslinje.getDatoIntervaller().stream()
+        var dager = tidslinje.getLocalDateIntervals().stream()
             .map(LocalDateInterval::days)
             .mapToInt(Long::intValue)
             .sum();

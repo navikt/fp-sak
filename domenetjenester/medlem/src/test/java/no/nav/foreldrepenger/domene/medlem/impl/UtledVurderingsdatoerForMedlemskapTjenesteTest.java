@@ -12,7 +12,10 @@ import javax.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
+import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -38,10 +41,10 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
-import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
@@ -53,6 +56,7 @@ import no.nav.foreldrepenger.domene.medlem.UtledVurderingsdatoerForMedlemskapTje
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @CdiDbAwareTest
 public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
@@ -75,8 +79,10 @@ public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
     @Test
     public void skal_ikke_utlede_dato_når_overlappende_perioder_uten_endring_i_medl() {
         // Arrange
+        var startdato = LocalDate.now();
+        var sluttdato = startdato.plusWeeks(53);
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now()).build());
+        scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(startdato).build());
         scenario.medDefaultSøknadTerminbekreftelse();
         MedlemskapPerioderEntitet periode = new MedlemskapPerioderBuilder()
                 .medDekningType(MedlemskapDekningType.FULL)
@@ -101,10 +107,9 @@ public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
         avslutterBehandlingOgFagsak(behandling);
 
         Behandling revudering = opprettRevudering(behandling);
-        Long revurderingId = revudering.getId();
 
         // Act
-        Set<LocalDate> vurderingsdatoer = tjeneste.finnVurderingsdatoer(revurderingId);
+        Set<LocalDate> vurderingsdatoer = tjeneste.finnVurderingsdatoer(lagRef(revudering, startdato, sluttdato));
 
         // Assert
         assertThat(vurderingsdatoer).isEmpty();
@@ -113,8 +118,10 @@ public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
     @Test
     public void skal_utlede_dato_når_overlappende_perioder_med_endring_i_periode_med_senest_beslutningsdato() {
         // Arrange
+        var startdato = LocalDate.now();
+        var sluttdato = startdato.plusWeeks(53);
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now()).build());
+        scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(startdato).build());
         scenario.medDefaultSøknadTerminbekreftelse();
         MedlemskapPerioderEntitet periode = new MedlemskapPerioderBuilder()
                 .medDekningType(MedlemskapDekningType.FULL)
@@ -141,7 +148,7 @@ public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
         Behandling revudering = opprettRevudering(behandling);
         Long revurderingId = revudering.getId();
 
-        LocalDate endringsdato = LocalDate.now().plusMonths(1);
+        LocalDate endringsdato = startdato.plusMonths(1);
         MedlemskapPerioderEntitet endretPeriode = new MedlemskapPerioderBuilder()
                 .medDekningType(MedlemskapDekningType.FULL)
                 .medMedlemskapType(MedlemskapType.ENDELIG)
@@ -153,7 +160,7 @@ public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
         medlemskapRepository.lagreMedlemskapRegisterOpplysninger(revurderingId, List.of(periode, endretPeriode));
 
         // Act
-        Set<LocalDate> vurderingsdatoer = tjeneste.finnVurderingsdatoer(revurderingId);
+        Set<LocalDate> vurderingsdatoer = tjeneste.finnVurderingsdatoer(lagRef(revudering, startdato, sluttdato));
 
         // Assert
         assertThat(vurderingsdatoer).containsExactly(endringsdato);
@@ -162,13 +169,14 @@ public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
     @Test
     public void skal_utled_vurderingsdato_ved_endring_i_medlemskapsperioder() {
         // Arrange
-        LocalDate datoMedEndring = LocalDate.now().plusDays(10);
-        LocalDate ettÅrSiden = LocalDate.now().minusYears(1);
-        LocalDate iDag = LocalDate.now();
+        var startdato = LocalDate.now();
+        var sluttdato = startdato.plusWeeks(53);
+        LocalDate datoMedEndring = startdato.plusDays(10);
+        LocalDate ettÅrSiden = startdato.minusYears(1);
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now()).build());
+        scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(startdato).build());
         scenario.medDefaultSøknadTerminbekreftelse();
-        MedlemskapPerioderEntitet periode = opprettPeriode(ettÅrSiden, iDag, MedlemskapDekningType.FTL_2_6);
+        MedlemskapPerioderEntitet periode = opprettPeriode(ettÅrSiden, startdato, MedlemskapDekningType.FTL_2_6);
         scenario.leggTilMedlemskapPeriode(periode);
         Behandling behandling = scenario.lagre(provider);
         avslutterBehandlingOgFagsak(behandling);
@@ -179,7 +187,7 @@ public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
         oppdaterMedlem(datoMedEndring, periode, revurderingId);
 
         // Act
-        Set<LocalDate> vurderingsdatoer = tjeneste.finnVurderingsdatoer(revurderingId);
+        Set<LocalDate> vurderingsdatoer = tjeneste.finnVurderingsdatoer(lagRef(revudering, startdato, sluttdato));
 
         // Assert
         assertThat(vurderingsdatoer).containsExactly(datoMedEndring);
@@ -188,35 +196,36 @@ public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
     @Test
     public void skal_utled_vurderingsdato_ved_endring_personopplysninger_statsborgerskap() {
         // Arrange
-        LocalDate iDag = LocalDate.now();
+        var startdato = LocalDate.now();
+        var sluttdato = startdato.plusYears(3);
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medDefaultSøknadTerminbekreftelse();
-        scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now()).build());
+        scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(startdato).build());
         AktørId søkerAktørId = scenario.getDefaultBrukerAktørId();
 
-        DatoIntervallEntitet førsteÅr = DatoIntervallEntitet.fraOgMedTilOgMed(iDag, iDag.plusYears(1));
-        DatoIntervallEntitet andreÅr = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.plusYears(1), iDag.plusYears(2));
-        DatoIntervallEntitet tredjeÅr = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.plusYears(2), iDag.plusYears(3));
+        DatoIntervallEntitet førsteÅr = DatoIntervallEntitet.fraOgMedTilOgMed(startdato, startdato.plusYears(1));
+        DatoIntervallEntitet andreÅr = DatoIntervallEntitet.fraOgMedTilOgMed(startdato.plusYears(1), startdato.plusYears(2));
+        DatoIntervallEntitet tredjeÅr = DatoIntervallEntitet.fraOgMedTilOgMed(startdato.plusYears(2), startdato.plusYears(3).minusWeeks(1));
         Behandling behandling = scenario.lagre(provider);
         Long behandlingId = behandling.getId();
         PersonopplysningGrunnlagEntitet personopplysningGrunnlag = personopplysningRepository.hentPersonopplysninger(behandlingId);
 
         PersonInformasjonBuilder personInformasjonBuilder = PersonInformasjonBuilder.oppdater(personopplysningGrunnlag.getRegisterVersjon(),
                 PersonopplysningVersjonType.REGISTRERT);
-        PersonInformasjonBuilder.StatsborgerskapBuilder norgeFørsteÅr = personInformasjonBuilder.getStatsborgerskapBuilder(søkerAktørId, førsteÅr,
-                Landkoder.NOR, Region.NORDEN);
+        PersonInformasjonBuilder.StatsborgerskapBuilder amerikaFørsteÅr = personInformasjonBuilder.getStatsborgerskapBuilder(søkerAktørId, førsteÅr,
+                Landkoder.ARG, Region.TREDJELANDS_BORGER);
         PersonInformasjonBuilder.StatsborgerskapBuilder spaniaAndreÅr = personInformasjonBuilder.getStatsborgerskapBuilder(søkerAktørId, andreÅr,
                 Landkoder.ESP, Region.EOS);
         PersonInformasjonBuilder.StatsborgerskapBuilder norgeTredjeÅr = personInformasjonBuilder.getStatsborgerskapBuilder(søkerAktørId, tredjeÅr,
                 Landkoder.NOR, Region.NORDEN);
-        personInformasjonBuilder.leggTil(norgeFørsteÅr);
+        personInformasjonBuilder.leggTil(amerikaFørsteÅr);
         personInformasjonBuilder.leggTil(spaniaAndreÅr);
         personInformasjonBuilder.leggTil(norgeTredjeÅr);
 
         personopplysningRepository.lagre(behandlingId, personInformasjonBuilder);
 
         // Act
-        Set<LocalDate> vurderingsdatoer = tjeneste.finnVurderingsdatoer(behandlingId);
+        Set<LocalDate> vurderingsdatoer = tjeneste.finnVurderingsdatoer(lagRef(behandling, startdato, sluttdato));
 
         assertThat(vurderingsdatoer).containsExactlyInAnyOrder(andreÅr.getFomDato(), tredjeÅr.getFomDato());
     }
@@ -224,15 +233,16 @@ public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
     @Test
     public void skal_utled_vurderingsdato_ved_endring_personopplysninger_personstatus_skal_ikke_se_på_død() {
         // Arrange
-        LocalDate iDag = LocalDate.now();
+        var startdato = LocalDate.now();
+        var sluttdato = startdato.plusYears(3);
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medDefaultSøknadTerminbekreftelse();
         scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now()).build());
         AktørId søkerAktørId = scenario.getDefaultBrukerAktørId();
 
-        DatoIntervallEntitet førsteÅr = DatoIntervallEntitet.fraOgMedTilOgMed(iDag, iDag.plusYears(1));
-        DatoIntervallEntitet andreÅr = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.plusYears(1), iDag.plusYears(2));
-        DatoIntervallEntitet tredjeÅr = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.plusYears(2), iDag.plusYears(3));
+        DatoIntervallEntitet førsteÅr = DatoIntervallEntitet.fraOgMedTilOgMed(startdato, startdato.plusYears(1));
+        DatoIntervallEntitet andreÅr = DatoIntervallEntitet.fraOgMedTilOgMed(startdato.plusYears(1), startdato.plusYears(2));
+        DatoIntervallEntitet tredjeÅr = DatoIntervallEntitet.fraOgMedTilOgMed(startdato.plusYears(2), startdato.plusYears(3));
         Behandling behandling = scenario.lagre(provider);
         Long behandlingId = behandling.getId();
         PersonopplysningGrunnlagEntitet personopplysningGrunnlag = personopplysningRepository.hentPersonopplysninger(behandlingId);
@@ -252,7 +262,7 @@ public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
         personopplysningRepository.lagre(behandlingId, personInformasjonBuilder);
 
         // Act
-        Set<LocalDate> vurderingsdatoer = tjeneste.finnVurderingsdatoer(behandlingId);
+        Set<LocalDate> vurderingsdatoer = tjeneste.finnVurderingsdatoer(lagRef(behandling, startdato, sluttdato));
 
         assertThat(vurderingsdatoer).containsExactlyInAnyOrder(andreÅr.getFomDato());
     }
@@ -260,15 +270,16 @@ public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
     @Test
     public void skal_utled_vurderingsdato_ved_endring_personopplysninger_adressetype() {
         // Arrange
-        LocalDate iDag = LocalDate.now();
+        var startdato = LocalDate.now();
+        var sluttdato = startdato.plusYears(3);
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medDefaultSøknadTerminbekreftelse();
-        scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now()).build());
+        scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(startdato).build());
         AktørId søkerAktørId = scenario.getDefaultBrukerAktørId();
 
-        DatoIntervallEntitet førsteÅr = DatoIntervallEntitet.fraOgMedTilOgMed(iDag, iDag.plusYears(1));
-        DatoIntervallEntitet andreÅr = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.plusYears(1), iDag.plusYears(2));
-        DatoIntervallEntitet tredjeÅr = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.plusYears(2), iDag.plusYears(3));
+        DatoIntervallEntitet førsteÅr = DatoIntervallEntitet.fraOgMedTilOgMed(startdato, startdato.plusYears(1));
+        DatoIntervallEntitet andreÅr = DatoIntervallEntitet.fraOgMedTilOgMed(startdato.plusYears(1), startdato.plusYears(2));
+        DatoIntervallEntitet tredjeÅr = DatoIntervallEntitet.fraOgMedTilOgMed(startdato.plusYears(2), startdato.plusYears(3));
         Behandling behandling = scenario.lagre(provider);
         Long behandlingId = behandling.getId();
         PersonopplysningGrunnlagEntitet personopplysningGrunnlag = personopplysningRepository.hentPersonopplysninger(behandlingId);
@@ -276,11 +287,11 @@ public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
         PersonInformasjonBuilder personInformasjonBuilder = PersonInformasjonBuilder.oppdater(personopplysningGrunnlag.getRegisterVersjon(),
                 PersonopplysningVersjonType.REGISTRERT);
         PersonInformasjonBuilder.AdresseBuilder bostedFørsteÅr = personInformasjonBuilder.getAdresseBuilder(søkerAktørId, førsteÅr,
-                AdresseType.BOSTEDSADRESSE);
+                AdresseType.BOSTEDSADRESSE).medLand(Landkoder.XUK.getKode());
         PersonInformasjonBuilder.AdresseBuilder utlandAndreÅr = personInformasjonBuilder.getAdresseBuilder(søkerAktørId, andreÅr,
-                AdresseType.POSTADRESSE_UTLAND);
+                AdresseType.BOSTEDSADRESSE).medLand(Landkoder.NOR.getKode());
         PersonInformasjonBuilder.AdresseBuilder bostedTredjeÅr = personInformasjonBuilder.getAdresseBuilder(søkerAktørId, tredjeÅr,
-                AdresseType.BOSTEDSADRESSE);
+                AdresseType.POSTADRESSE_UTLAND);
         personInformasjonBuilder.leggTil(bostedFørsteÅr);
         personInformasjonBuilder.leggTil(utlandAndreÅr);
         personInformasjonBuilder.leggTil(bostedTredjeÅr);
@@ -288,23 +299,53 @@ public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
         personopplysningRepository.lagre(behandlingId, personInformasjonBuilder);
 
         // Act
-        Set<LocalDate> vurderingsdatoer = tjeneste.finnVurderingsdatoer(behandlingId);
+        Set<LocalDate> vurderingsdatoer = tjeneste.finnVurderingsdatoer(lagRef(behandling, startdato, sluttdato));
 
-        assertThat(vurderingsdatoer).containsExactlyInAnyOrder(andreÅr.getFomDato(), tredjeÅr.getFomDato());
+        assertThat(vurderingsdatoer).containsExactlyInAnyOrder(førsteÅr.getTomDato().plusDays(1), tredjeÅr.getFomDato());
+    }
+
+    @Test
+    public void skal_utlede_vurderingsdato_ved_opphold_tom_i_uttaket() {
+        // Arrange
+        var startdato = LocalDate.now();
+        var sluttdato = startdato.plusWeeks(53);
+        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        scenario.medDefaultSøknadTerminbekreftelse();
+        scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(startdato).build());
+        AktørId søkerAktørId = scenario.getDefaultBrukerAktørId();
+
+        Behandling behandling = scenario.lagre(provider);
+        Long behandlingId = behandling.getId();
+        PersonopplysningGrunnlagEntitet personopplysningGrunnlag = personopplysningRepository.hentPersonopplysninger(behandlingId);
+
+        PersonInformasjonBuilder personInformasjonBuilder = PersonInformasjonBuilder.oppdater(personopplysningGrunnlag.getRegisterVersjon(),
+            PersonopplysningVersjonType.REGISTRERT);
+        PersonInformasjonBuilder.OppholdstillatelseBuilder midlertidig = personInformasjonBuilder
+            .getOppholdstillatelseBuilder(søkerAktørId, DatoIntervallEntitet.fraOgMedTilOgMed(startdato.minusMonths(15), startdato.plusMonths(9)))
+            .medOppholdstillatelse(OppholdstillatelseType.MIDLERTIDIG);
+        personInformasjonBuilder.leggTil(midlertidig);
+
+        personopplysningRepository.lagre(behandlingId, personInformasjonBuilder);
+
+        // Act
+        Set<LocalDate> vurderingsdatoer = tjeneste.finnVurderingsdatoer(lagRef(behandling, startdato, sluttdato));
+
+        assertThat(vurderingsdatoer).containsExactlyInAnyOrder(startdato.plusMonths(9).plusDays(1));
     }
 
     @Test
     public void skal_ikke_utlede_vurderingsdato_som_ligger_før_skjæringstidspunkt() {
         // Arrange
-        LocalDate iDag = LocalDate.now();
+        var startdato = LocalDate.now();
+        var sluttdato = startdato.plusWeeks(51);
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medDefaultSøknadTerminbekreftelse();
-        scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now()).build());
+        scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(startdato).build());
         AktørId søkerAktørId = scenario.getDefaultBrukerAktørId();
 
-        DatoIntervallEntitet førsteÅr = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.minusYears(3), iDag.minusYears(2));
-        DatoIntervallEntitet andreÅr = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.minusYears(2), iDag.minusYears(1));
-        DatoIntervallEntitet tredjeÅr = DatoIntervallEntitet.fraOgMedTilOgMed(iDag, iDag.plusYears(1));
+        DatoIntervallEntitet førsteÅr = DatoIntervallEntitet.fraOgMedTilOgMed(startdato.minusYears(3), startdato.minusYears(2));
+        DatoIntervallEntitet andreÅr = DatoIntervallEntitet.fraOgMedTilOgMed(startdato.minusYears(2), startdato.minusYears(1));
+        DatoIntervallEntitet tredjeÅr = DatoIntervallEntitet.fraOgMedTilOgMed(startdato, startdato.plusYears(1));
         Behandling behandling = scenario.lagre(provider);
         Long behandlingId = behandling.getId();
         PersonopplysningGrunnlagEntitet personopplysningGrunnlag = personopplysningRepository.hentPersonopplysninger(behandlingId);
@@ -324,9 +365,18 @@ public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
         personopplysningRepository.lagre(behandlingId, personInformasjonBuilder);
 
         // Act
-        Set<LocalDate> vurderingsdatoer = tjeneste.finnVurderingsdatoer(behandlingId);
+        Set<LocalDate> vurderingsdatoer = tjeneste.finnVurderingsdatoer(lagRef(behandling, startdato, sluttdato));
 
         assertThat(vurderingsdatoer).isEmpty();
+    }
+
+    private BehandlingReferanse lagRef(Behandling behandling, LocalDate fom, LocalDate tom) {
+        return BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder()
+            .medUtledetSkjæringstidspunkt(fom)
+            .medUtledetMedlemsintervall(new LocalDateInterval(fom, tom))
+            .medFørsteUttaksdato(fom)
+            .medSkjæringstidspunktOpptjening(fom)
+            .build());
     }
 
     private void oppdaterMedlem(LocalDate datoMedEndring, MedlemskapPerioderEntitet periode, Long behandlingId) {

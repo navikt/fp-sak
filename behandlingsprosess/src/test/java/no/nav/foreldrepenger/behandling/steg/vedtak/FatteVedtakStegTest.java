@@ -515,7 +515,7 @@ public class FatteVedtakStegTest {
     private BehandlingskontrollKontekst byggBehandlingsgrunnlagForFødsel(int antallBarn, BehandlingStegType behandlingStegType,
             List<AksjonspunktDefinisjon> aksjonspunkter) {
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        scenario.medBekreftetHendelse().medFødselsDato(SKJÆRINGSTIDSPUNKT)
+        scenario.medBekreftetHendelse().tilbakestillBarn().medFødselsDato(SKJÆRINGSTIDSPUNKT, antallBarn)
                 .medAntallBarn(antallBarn);
         aksjonspunkter.forEach(apd -> scenario.leggTilAksjonspunkt(apd, BehandlingStegType.KONTROLLER_FAKTA));
 

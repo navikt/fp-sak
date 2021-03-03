@@ -104,7 +104,7 @@ public class BarnFinnerTest {
     private ScenarioMorSøkerEngangsstønad byggBehandlingsgrunnlagForFødsel(int antallBarn) {
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         final FamilieHendelseBuilder hendelseBuilder = scenario.medBekreftetHendelse().medAntallBarn(antallBarn);
-        IntStream.range(0, antallBarn).forEach(it -> hendelseBuilder.medFødselsDato(LocalDate.now()));
+        IntStream.range(0, antallBarn).forEach(it -> hendelseBuilder.leggTilBarn(LocalDate.now()));
         scenario.medBekreftetHendelse(hendelseBuilder);
         return scenario;
     }

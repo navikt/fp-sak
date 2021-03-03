@@ -47,7 +47,7 @@ import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
-import no.nav.foreldrepenger.domene.personopplysning.BasisPersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -66,7 +66,7 @@ public class InngangsvilkårOversetterTest {
     private InngangsvilkårOversetter oversetter;
 
     @Inject
-    private BasisPersonopplysningTjeneste personopplysningTjeneste;
+    private PersonopplysningTjeneste personopplysningTjeneste;
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;

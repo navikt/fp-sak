@@ -129,13 +129,14 @@ public class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest 
         // Behandling
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse()
-            .medFødselsDato(fødselsDatoFraSøknad)
-            .medAntallBarn(2);
-        scenario.medBekreftetHendelse()
-            .leggTilBarn(fødselsdatoFraTps)
-            .leggTilBarn(fødselsdatoFraTps)
-            .leggTilBarn(fødselsdatoFraTps)
+            .medFødselsDato(fødselsDatoFraSøknad, antallBarnOpprinnelig)
             .medAntallBarn(antallBarnOpprinnelig);
+        scenario.medBekreftetHendelse()
+            .tilbakestillBarn()
+            .leggTilBarn(fødselsdatoFraTps)
+            .leggTilBarn(fødselsdatoFraTps)
+            .leggTilBarn(fødselsdatoFraTps)
+            .medAntallBarn(3);
         scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         final Behandling behandling = scenario.lagre(repositoryProvider);
         // Dto
@@ -311,7 +312,7 @@ public class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest 
         scenario.medSøknad()
             .medSøknadsdato(now);
         scenario.medSøknadHendelse()
-            .medFødselsDato(now.minusDays(3))
+            .medFødselsDato(now.minusDays(3), 2)
             .medAntallBarn(2);
         scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
 
@@ -346,13 +347,15 @@ public class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest 
             .medSøknadsdato(now);
         scenario.medSøknadHendelse()
             .medAntallBarn(2)
-            .medFødselsDato(fødselsdatoFraSøknad);
+            .medFødselsDato(fødselsdatoFraSøknad,2);
         scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
 
         scenario.medBekreftetHendelse()
+            .tilbakestillBarn()
             .leggTilBarn(fødselsdatoFraTps)
             .leggTilBarn(fødselsdatoFraTps)
-            .leggTilBarn(fødselsdatoFraTps);
+            .leggTilBarn(fødselsdatoFraTps)
+            .medAntallBarn(3);
         Behandling behandling = scenario.lagre(repositoryProvider);
         SjekkManglendeFodselDto dto = new SjekkManglendeFodselDto("Begrunnelse",
             true, true, new ArrayList<UidentifisertBarnDto>());

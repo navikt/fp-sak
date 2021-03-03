@@ -15,15 +15,15 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
-import no.nav.foreldrepenger.domene.personopplysning.BasisPersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 
 @ApplicationScoped
 public class PersonopplysningerForUttakImpl implements PersonopplysningerForUttak {
 
-    private BasisPersonopplysningTjeneste personopplysningTjeneste;
+    private PersonopplysningTjeneste personopplysningTjeneste;
 
     @Inject
-    public PersonopplysningerForUttakImpl(BasisPersonopplysningTjeneste personopplysningTjeneste) {
+    public PersonopplysningerForUttakImpl(PersonopplysningTjeneste personopplysningTjeneste) {
         this.personopplysningTjeneste = personopplysningTjeneste;
     }
 

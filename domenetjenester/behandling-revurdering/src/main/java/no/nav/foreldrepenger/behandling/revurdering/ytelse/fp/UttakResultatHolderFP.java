@@ -75,11 +75,11 @@ public class UttakResultatHolderFP implements UttakResultatHolder {
         var uttakresultatSammenligneMed = (UttakResultatHolderFP) other;
         LocalDateTimeline<WrapUttakPeriode> uttaksTL = lagTidslinjeFraUttaksPerioder(uttakresultatSammenligneMed.getGjeldendePerioder());
         LocalDateTimeline<WrapUttakPeriode> originalTL = lagTidslinjeFraUttaksPerioder(getGjeldendePerioder());
-        if (uttaksTL.getDatoIntervaller().size() != originalTL.getDatoIntervaller().size()) {
+        if (uttaksTL.getLocalDateIntervals().size() != originalTL.getLocalDateIntervals().size()) {
             return true;
         }
         LocalDateTimeline<WrapUttakPeriode> kombinert = uttaksTL.combine(originalTL, this::fjernLikePerioder, LocalDateTimeline.JoinStyle.CROSS_JOIN);
-        return !kombinert.filterValue(Objects::nonNull).getDatoIntervaller().isEmpty();
+        return !kombinert.filterValue(Objects::nonNull).getLocalDateIntervals().isEmpty();
     }
 
     @Override

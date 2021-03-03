@@ -370,8 +370,7 @@ public class VedtakXmlTest {
         hendelseBuilder
                 .medAdopsjon(hendelseBuilder.getAdopsjonBuilder()
                         .medAdoptererAlene(false)
-                        .medErEktefellesBarn(false))
-                .leggTilBarn(fødselsdato).leggTilBarn(fødselsdato.minusYears(2));
+                        .medErEktefellesBarn(false));
         repositoryProvider.getFamilieHendelseRepository().lagre(behandling, hendelseBuilder);
 
         final SøknadEntitet søknad = new SøknadEntitet.Builder()

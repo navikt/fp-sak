@@ -31,7 +31,7 @@ public class PersonDto {
     public PersonDto(String aktørid, String navn, String fødselsnummer, NavBrukerKjønn navBrukerKjønn, PersonstatusType personstatusType, String diskresjonskode,
                      LocalDate fødselsdato, LocalDate dodsdato, Språkkode språkkode) {
         this.navn = navn;
-        this.alder = (int) ChronoUnit.YEARS.between(fødselsdato, LocalDate.now());
+        this.alder = fødselsdato != null ? (int) ChronoUnit.YEARS.between(fødselsdato, LocalDate.now()) : 0;
         this.personnummer = fødselsnummer;
         this.fødselsnummer = fødselsnummer;
         this.erKvinne = NavBrukerKjønn.KVINNE.equals(navBrukerKjønn);

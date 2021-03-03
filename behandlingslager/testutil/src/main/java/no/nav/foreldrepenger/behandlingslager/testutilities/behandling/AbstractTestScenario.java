@@ -834,6 +834,11 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             personInformasjonBuilder.leggTil(builder);
         });
 
+        personInformasjon.getOpphold().forEach(e -> {
+            PersonInformasjonBuilder.OppholdstillatelseBuilder builder = personInformasjonBuilder.getOppholdstillatelseBuilder(e.getAktørId(), e.getPeriode()).medOppholdstillatelse(e.getTillatelse());
+            personInformasjonBuilder.leggTil(builder);
+        });
+
         repository.lagre(behandling.getId(), personInformasjonBuilder);
     }
 

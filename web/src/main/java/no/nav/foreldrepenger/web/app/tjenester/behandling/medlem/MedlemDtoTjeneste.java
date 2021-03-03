@@ -106,6 +106,9 @@ public class MedlemDtoTjeneste {
         return Optional.of(dto);
     }
 
+    /*
+     * Skal finne evt opphør FOM dato for revurderinger
+     */
     private Optional<LocalDate> mapMedlemV2Fom(Behandling behandling, BehandlingReferanse ref,
                                                Optional<PersonopplysningerAggregat> personopplysningerAggregat,
                                                Optional<MedlemskapAggregat> medlemskapAggregat) {
@@ -130,14 +133,7 @@ public class MedlemDtoTjeneste {
     }
 
     private Optional<LocalDate> medlemV2FomFraMedlemskap(BehandlingReferanse ref, Optional<MedlemskapAggregat> medlemskapAggregat) {
-        if (medlemskapAggregat.isPresent()) {
-            var aggregat = medlemskapAggregat.get();
-            var vurdertMedlemskapOpt = aggregat.getVurdertMedlemskap();
-            if (vurdertMedlemskapOpt.isPresent()) {
-                return ref.getSkjæringstidspunkt().getSkjæringstidspunktHvisUtledet();
-            }
-        }
-        return Optional.empty();
+        return medlemskapAggregat.flatMap(MedlemskapAggregat::getVurdertMedlemskap).isPresent() ? ref.getSkjæringstidspunkt().getSkjæringstidspunktHvisUtledet() : Optional.empty();
     }
 
     private void mapRegistrerteMedlPerioder(MedlemV2Dto dto, Set<MedlemskapPerioderEntitet> perioder) {

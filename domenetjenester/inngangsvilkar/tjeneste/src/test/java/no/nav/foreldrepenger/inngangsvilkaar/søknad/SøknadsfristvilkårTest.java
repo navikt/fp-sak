@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.personopplysning.BasisPersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -42,7 +42,7 @@ public class SøknadsfristvilkårTest extends EntityManagerAwareTest {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         var iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
-        var personopplysningTjeneste = new BasisPersonopplysningTjeneste(
+        var personopplysningTjeneste = new PersonopplysningTjeneste(
             repositoryProvider.getPersonopplysningRepository());
         oversetter = new InngangsvilkårOversetter(repositoryProvider,
             personopplysningTjeneste, new YtelseMaksdatoTjeneste(repositoryProvider, new RelatertBehandlingTjeneste(repositoryProvider)),

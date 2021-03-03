@@ -185,9 +185,9 @@ public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErMorTest
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger
             .forFødsel();
         scenario.medSøknadHendelse()
-            .medFødselsDato(fødseldato)
+            .medFødselsDato(fødseldato, antallBarnSøknad)
             .medAntallBarn(antallBarnSøknad);
-        scenario.medBekreftetHendelse().medFødselsDato(fødseldato).medAntallBarn(antallBarnTps);
+        scenario.medBekreftetHendelse().medFødselsDato(fødseldato, antallBarnTps).medAntallBarn(antallBarnTps);
         return scenario.lagre(repositoryProvider);
     }
 

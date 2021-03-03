@@ -87,7 +87,7 @@ public class MapUttakResultatFraVLTilRegel {
     }
 
     private List<UttakResultatPeriode> mapTimelineTilRegelmodell(LocalDateTimeline<List<UttakAktivitet>> uttakTimeline) {
-        return uttakTimeline.getDatoIntervaller()
+        return uttakTimeline.getLocalDateIntervals()
             .stream()
             .map(uttakTimeline::getSegment)
             .map(segment -> new UttakResultatPeriode(segment.getFom(), segment.getTom(), segment.getValue(), false))

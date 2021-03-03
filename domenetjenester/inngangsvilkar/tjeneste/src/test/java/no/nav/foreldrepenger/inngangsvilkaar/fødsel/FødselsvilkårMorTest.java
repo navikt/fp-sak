@@ -9,7 +9,6 @@ import java.time.Period;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -34,7 +33,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopp
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.personopplysning.BasisPersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
@@ -55,7 +54,7 @@ public class FødselsvilkårMorTest extends EntityManagerAwareTest {
         InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
             new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
-        BasisPersonopplysningTjeneste personopplysningTjeneste = new BasisPersonopplysningTjeneste(
+        PersonopplysningTjeneste personopplysningTjeneste = new PersonopplysningTjeneste(
             repositoryProvider.getPersonopplysningRepository());
         oversetter = new InngangsvilkårOversetter(repositoryProvider, personopplysningTjeneste,
             new YtelseMaksdatoTjeneste(repositoryProvider, new RelatertBehandlingTjeneste(repositoryProvider)),
@@ -63,7 +62,7 @@ public class FødselsvilkårMorTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_vurdere_vilkår_som_ikke_oppfylt_når_søker_ikke_er_kvinne() throws JsonProcessingException, IOException {
+    public void skal_vurdere_vilkår_som_ikke_oppfylt_når_søker_ikke_er_kvinne() throws IOException {
         // Arrange
         ScenarioFarSøkerEngangsstønad scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
@@ -244,8 +243,8 @@ public class FødselsvilkårMorTest extends EntityManagerAwareTest {
         // Arrange
         LocalDate fødselsdato = LocalDate.now();
         ScenarioFarSøkerEngangsstønad scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
-        scenario.medSøknadHendelse().medFødselsDato(fødselsdato).medAntallBarn(0);
-        scenario.medBekreftetHendelse().medFødselsDato(fødselsdato).medAntallBarn(0);
+        scenario.medSøknadHendelse().medFødselsDato(fødselsdato).medAntallBarn(1);
+        scenario.medBekreftetHendelse().tilbakestillBarn().medAntallBarn(0).erFødsel();
         scenario.medBrukerKjønn(NavBrukerKjønn.KVINNE);
         leggTilSøker(scenario, NavBrukerKjønn.KVINNE);
         Behandling behandling = scenario.lagre(repositoryProvider);

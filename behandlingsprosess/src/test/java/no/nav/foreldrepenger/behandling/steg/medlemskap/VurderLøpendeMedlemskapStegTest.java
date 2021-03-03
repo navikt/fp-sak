@@ -49,10 +49,10 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
-import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
@@ -102,16 +102,17 @@ public class VurderLøpendeMedlemskapStegTest {
     @Test
     public void skal_gi_avslag() {
         // Arrange
-        LocalDate datoMedEndring = LocalDate.now().plusDays(10);
-        LocalDate ettÅrSiden = LocalDate.now().minusYears(1);
-        LocalDate iDag = LocalDate.now();
+        var termin = LocalDate.now().plusDays(40); // Default i test
+        LocalDate datoMedEndring = termin;
+        LocalDate ettÅrSiden = termin.minusYears(1);
+        LocalDate start = termin.minusWeeks(3);
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         AvklarteUttakDatoerEntitet avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder()
-                .medFørsteUttaksdato(LocalDate.now())
+                .medFørsteUttaksdato(start)
                 .build();
         scenario.medAvklarteUttakDatoer(avklarteUttakDatoer);
         scenario.medDefaultSøknadTerminbekreftelse();
-        MedlemskapPerioderEntitet periode = opprettPeriode(ettÅrSiden, iDag, MedlemskapDekningType.FTL_2_6);
+        MedlemskapPerioderEntitet periode = opprettPeriode(ettÅrSiden, start, MedlemskapDekningType.FTL_2_6);
         scenario.leggTilMedlemskapPeriode(periode);
 
         Behandling behandling = scenario.lagre(provider);
@@ -122,7 +123,7 @@ public class VurderLøpendeMedlemskapStegTest {
         personInformasjonBuilder.leggTil(personstatusBuilder);
 
         personopplysningRepository.lagre(behandling.getId(), personInformasjonBuilder);
-        avslutterBehandlingOgFagsak(behandling);
+        avslutterBehandlingOgFagsak(behandling, start);
 
         Behandling revudering = opprettRevudering(behandling);
         VilkårResultat.Builder inngangsvilkårBuilder = VilkårResultat.builder();
@@ -200,18 +201,17 @@ public class VurderLøpendeMedlemskapStegTest {
         return periode;
     }
 
-    private void avslutterBehandlingOgFagsak(Behandling behandling) {
+    private void avslutterBehandlingOgFagsak(Behandling behandling, LocalDate startdato) {
         BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
-        provider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(behandling.getId(), lagUttaksPeriode());
+        provider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(behandling.getId(), lagUttaksPeriode(startdato));
 
         behandling.avsluttBehandling();
         behandlingRepository.lagre(behandling, lås);
         fagsakRepository.oppdaterFagsakStatus(behandling.getFagsakId(), FagsakStatus.AVSLUTTET);
     }
 
-    private UttakResultatPerioderEntitet lagUttaksPeriode() {
-        LocalDate idag = LocalDate.now();
-        UttakResultatPeriodeEntitet periode = new UttakResultatPeriodeEntitet.Builder(idag, idag.plusDays(6))
+    private UttakResultatPerioderEntitet lagUttaksPeriode(LocalDate startdato) {
+        UttakResultatPeriodeEntitet periode = new UttakResultatPeriodeEntitet.Builder(startdato, startdato.plusWeeks(49))
                 .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
                 .build();
         UttakAktivitetEntitet uttakAktivtet = new UttakAktivitetEntitet.Builder()

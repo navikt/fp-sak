@@ -56,6 +56,9 @@ public class AvklarOmSøkerOppholderSegINorge {
         if ((erGiftMedNordiskBorger(ref) == JA) || (erGiftMedBorgerMedANNETStatsborgerskap(ref) == JA)) {
             return Optional.empty();
         }
+        if (harOppholdstilltatelseVed(ref, vurderingstidspunkt) == JA) {
+            return Optional.empty();
+        }
         if (harSøkerHattInntektINorgeDeSiste3Mnd(behandlingId, ref.getAktørId(), vurderingstidspunkt) == JA) {
             return Optional.empty();
         }
@@ -131,6 +134,13 @@ public class AvklarOmSøkerOppholderSegINorge {
         return inntektSiste3M ? JA : NEI;
     }
 
+    private Utfall harOppholdstilltatelseVed(BehandlingReferanse ref, LocalDate vurderingsdato) {
+        if (ref.getUtledetMedlemsintervall().encloses(vurderingsdato)) {
+            return personopplysningTjeneste.harOppholdstillatelseForPeriode(ref.getBehandlingId(), ref.getUtledetMedlemsintervall()) ? JA : NEI;
+        }
+        return personopplysningTjeneste.harOppholdstillatelsePåDato(ref.getBehandlingId(), vurderingsdato) ? JA : NEI;
+    }
+
     private Utfall harTermindatoPassertMed14Dager(Long behandlingId) {
         LocalDate dagensDato = LocalDate.now();
         final Optional<LocalDate> termindato = familieGrunnlagRepository.hentAggregat(behandlingId).getGjeldendeTerminbekreftelse()
@@ -142,6 +152,6 @@ public class AvklarOmSøkerOppholderSegINorge {
         PersonopplysningerAggregat personopplysninger = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunkt(behandlingId, aktørId,
             vurderingstidspunkt);
 
-        return personopplysninger.getStatsborgerskapRegionFor(aktørId);
+        return personopplysninger.getStatsborgerskapRegionVedTidspunkt(aktørId, vurderingstidspunkt);
     }
 }

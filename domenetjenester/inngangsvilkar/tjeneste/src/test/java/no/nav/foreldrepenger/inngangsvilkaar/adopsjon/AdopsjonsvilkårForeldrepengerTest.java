@@ -33,7 +33,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopp
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.personopplysning.BasisPersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
@@ -47,7 +47,7 @@ public class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
     private InntektArbeidYtelseTjeneste iayTjeneste;
 
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    private BasisPersonopplysningTjeneste personopplysningTjeneste;
+    private PersonopplysningTjeneste personopplysningTjeneste;
     private InngangsvilkårOversetter oversetter;
 
     @BeforeEach
@@ -56,7 +56,7 @@ public class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
         iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
             new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
-        personopplysningTjeneste = new BasisPersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository());
+        personopplysningTjeneste = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository());
         oversetter = new InngangsvilkårOversetter(repositoryProvider,
             personopplysningTjeneste, new YtelseMaksdatoTjeneste(repositoryProvider, new RelatertBehandlingTjeneste(repositoryProvider)),
             iayTjeneste, null);

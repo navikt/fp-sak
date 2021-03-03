@@ -151,7 +151,7 @@ public class MedlemTjeneste {
     }
 
     public Map<LocalDate, VurderMedlemskap> utledVurderingspunkterMedAksjonspunkt(BehandlingReferanse ref) {
-        final Map<LocalDate, Set<VurderingsÅrsak>> vurderingsdatoer = utledVurderingsdatoerTjeneste.finnVurderingsdatoerMedÅrsak(ref.getBehandlingId());
+        final Map<LocalDate, Set<VurderingsÅrsak>> vurderingsdatoer = utledVurderingsdatoerTjeneste.finnVurderingsdatoerMedÅrsak(ref);
         final HashMap<LocalDate, VurderMedlemskap> map = new HashMap<>();
         for (Map.Entry<LocalDate, Set<VurderingsÅrsak>> entry : vurderingsdatoer.entrySet()) {
             LocalDate vurderingsdato = entry.getKey();
@@ -172,6 +172,8 @@ public class MedlemTjeneste {
     }
 
     /**
+     * TODO: Sjekk denne mot det som hentes til MedlemV2Dto .... Denne brukes som UttakInput
+     *
      * Sjekker både medlemskapsvilkåret og løpende medlemskapsvilkår
      * Tar hensyn til overstyring
      *

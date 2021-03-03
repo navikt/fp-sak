@@ -253,7 +253,7 @@ public class FamilieHendelseTjeneste {
     }
 
     static List<LocalDateInterval> utledPerioderForRegisterinnhenting(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
-        return utledTidslineFraGrunnlag(familieHendelseGrunnlag).getDatoIntervaller().stream().collect(Collectors.toUnmodifiableList());
+        return utledTidslineFraGrunnlag(familieHendelseGrunnlag).getLocalDateIntervals().stream().collect(Collectors.toUnmodifiableList());
     }
 
     static LocalDateTimeline<Boolean> utledTidslineFraGrunnlag(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {

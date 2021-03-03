@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.YtelseMaksdatoTjeneste;
+import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapDekningType;
@@ -54,7 +55,7 @@ import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
-import no.nav.foreldrepenger.domene.personopplysning.BasisPersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -70,7 +71,7 @@ public class MedlemskapsvilkårTest {
     public static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
 
     @Inject
-    private BasisPersonopplysningTjeneste personopplysningTjeneste;
+    private PersonopplysningTjeneste personopplysningTjeneste;
 
     private InngangsvilkårOversetter oversetter;
 
@@ -387,6 +388,35 @@ public class MedlemskapsvilkårTest {
      * NEI - bruker oppgir opphold i norge (FP VK 2.3) = JA - bruker oppgir opphold
      * norge minst 12 mnd (FP VK 2.5) = JA - bruker norsk/nordisk statsborger i TPS
      * (FP VK 2.11) = NEI - bruker EU/EØS statsborger = NEI - bruker har avklart
+     * lovlig opphold (FP VK 2.12) = NEI
+     * <p>
+     * Forventet: Ikke oppfylt, avslagsid 1023
+     */
+    @Test
+    public void skal_vurdere_annen_statsborger_med_oppholdstillatelse_som_vilkår_oppfylt() {
+        // Arrange
+        var scenario = lagTestScenario(Landkoder.NOR, PersonstatusType.BOSA);
+        leggTilSøker(scenario, PersonstatusType.BOSA, Region.UDEFINERT, Landkoder.ARG,
+            OppholdstillatelseType.MIDLERTIDIG, SKJÆRINGSTIDSPUNKT.minusYears(1), SKJÆRINGSTIDSPUNKT.plusYears(1));
+        scenario.medMedlemskap().medBosattVurdering(true)
+            .medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.IKKE_RELEVANT);
+        Behandling behandling = lagre(scenario);
+
+        // Act
+        VilkårData vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
+
+        // Assert
+        assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
+        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
+    }
+
+    /**
+     * Input: - bruker registrert som ikke medlem (FP VK 2.13) = NEI - bruker
+     * avklart som pliktig eller frivillig medlem (FP VK 2.2) = NEI - bruker
+     * registrert som utvandret (FP VK 2.1) = NEI - bruker avklart som ikke bosatt =
+     * NEI - bruker oppgir opphold i norge (FP VK 2.3) = JA - bruker oppgir opphold
+     * norge minst 12 mnd (FP VK 2.5) = JA - bruker norsk/nordisk statsborger i TPS
+     * (FP VK 2.11) = NEI - bruker EU/EØS statsborger = NEI - bruker har avklart
      * lovlig opphold (FP VK 2.12) = JA
      * <p>
      * Forventet: oppfylt
@@ -512,6 +542,11 @@ public class MedlemskapsvilkårTest {
     }
 
     private void leggTilSøker(ScenarioMorSøkerEngangsstønad scenario, PersonstatusType personstatus, Region region, Landkoder statsborgerskapLand) {
+        leggTilSøker(scenario, personstatus, region, statsborgerskapLand, null, null, null);
+    }
+
+    private void leggTilSøker(ScenarioMorSøkerEngangsstønad scenario, PersonstatusType personstatus, Region region, Landkoder statsborgerskapLand,
+                              OppholdstillatelseType opphold, LocalDate oppholdFom, LocalDate oppholdTom) {
         Builder builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
         AktørId barnAktørId = AktørId.dummy();
         AktørId søkerAktørId = scenario.getDefaultBrukerAktørId();
@@ -522,14 +557,14 @@ public class MedlemskapsvilkårTest {
                 .relasjonTil(søkerAktørId, RelasjonsRolleType.MORA, null)
                 .build();
 
-        PersonInformasjon søker = builderForRegisteropplysninger
+        var søker = builderForRegisteropplysninger
                 .medPersonas()
                 .kvinne(søkerAktørId, SivilstandType.GIFT, region)
                 .statsborgerskap(statsborgerskapLand)
                 .personstatus(personstatus)
-                .relasjonTil(barnAktørId, RelasjonsRolleType.BARN, null)
-                .build();
-        scenario.medRegisterOpplysninger(søker);
+                .relasjonTil(barnAktørId, RelasjonsRolleType.BARN, null);
+        if (opphold != null) søker.opphold(opphold, oppholdFom, oppholdTom);
+        scenario.medRegisterOpplysninger(søker.build());
         scenario.medRegisterOpplysninger(fødtBarn);
     }
 

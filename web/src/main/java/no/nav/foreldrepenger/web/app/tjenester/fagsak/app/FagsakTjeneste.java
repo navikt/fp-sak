@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.fagsak.app;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +16,9 @@ import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -215,8 +218,12 @@ public class FagsakTjeneste {
         return behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
             .flatMap(b -> familieHendelseTjeneste.finnAggregat(b.getId()))
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-            .map(h -> new SakHendelseDto(h.getType(), h.getSkjæringstidspunkt(), h.getAntallBarn(),
+            .map(h -> new SakHendelseDto(h.getType(), hendelseDato(h), h.getAntallBarn(),
                 !h.getBarna().isEmpty() && h.getBarna().stream().allMatch(b -> b.getDødsdato().isPresent())));
+    }
+
+    private LocalDate hendelseDato(FamilieHendelseEntitet fh) {
+        return Optional.ofNullable(fh.getSkjæringstidspunkt()).orElseGet(() -> fh.getTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato).orElse(null));
     }
 
     private static List<ResourceLink> lagLenker(Fagsak fagsak) {
