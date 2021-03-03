@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -50,7 +49,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.InnvilgetÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
-import no.nav.vedtak.feil.Feil;
+import no.nav.vedtak.exception.TekniskException;
 
 public class HistorikkInnslagTekstBuilder {
 
@@ -510,18 +509,18 @@ public class HistorikkInnslagTekstBuilder {
      * @param historikkinnslagType
      */
     private void verify(HistorikkinnslagType historikkinnslagType) {
-        List<Feil> verificationResults = new ArrayList<>();
+        var verificationResults = new ArrayList<TekniskException>();
         historikkinnslagDeler.forEach(del -> {
-            Optional<Feil> exception = verify(historikkinnslagType, del);
+            var exception = verify(historikkinnslagType, del);
             exception.ifPresent(verificationResults::add);
         });
         // kast feil dersom alle deler feiler valideringen
         if (verificationResults.size() == historikkinnslagDeler.size()) {
-            throw verificationResults.get(0).toException();
+            throw verificationResults.get(0);
         }
     }
 
-    private Optional<Feil> verify(HistorikkinnslagType historikkinnslagType, HistorikkinnslagDel historikkinnslagDel) {
+    private Optional<TekniskException> verify(HistorikkinnslagType historikkinnslagType, HistorikkinnslagDel historikkinnslagDel) {
         String type = historikkinnslagType.getMal();
 
         if (HistorikkinnslagMal.MAL_TYPE_1.equals(type)) {
@@ -557,23 +556,21 @@ public class HistorikkInnslagTekstBuilder {
         if (HistorikkinnslagMal.MAL_TYPE_9.equals(type)) {
             return checkFieldsPresent(type, historikkinnslagDel, HistorikkinnslagFeltType.HENDELSE, HistorikkinnslagFeltType.ENDRET_FELT);
         }
-        throw HistorikkInnsalgFeil.FACTORY.ukjentHistorikkinnslagType(type).toException();
+        throw HistorikkInnsalgFeil.ukjentHistorikkinnslagType(type);
     }
 
-    private Optional<Feil> checkFieldsPresent(String type, HistorikkinnslagDel del, HistorikkinnslagFeltType... fields) {
-        List<HistorikkinnslagFeltType> fieldList = Arrays.asList(fields);
-        Set<HistorikkinnslagFeltType> harFelt = findFields(del, fieldList).collect(Collectors.toCollection(LinkedHashSet::new));
+    private Optional<TekniskException> checkFieldsPresent(String type, HistorikkinnslagDel del, HistorikkinnslagFeltType... fields) {
+        var fieldList = Arrays.asList(fields);
+        var harFelt = findFields(del, fieldList).collect(Collectors.toCollection(LinkedHashSet::new));
 
         // harFelt skal inneholde alle de samme feltene som fieldList
         if (harFelt.size() == fields.length) {
             return Optional.empty();
-        } else {
-            List<String> feltKoder = fieldList.stream().map(HistorikkinnslagFeltType::getKode).collect(Collectors.toList());
-            return Optional.of(HistorikkInnsalgFeil.FACTORY.manglerFeltForHistorikkInnslag(type, feltKoder));
         }
+        return Optional.of(HistorikkInnsalgFeil.manglerFeltForHistorikkInnslag(type, fieldList, harFelt));
     }
 
-    private Optional<Feil> checkAtLeastOnePresent(String type, HistorikkinnslagDel del, HistorikkinnslagFeltType... fields) {
+    private Optional<TekniskException> checkAtLeastOnePresent(String type, HistorikkinnslagDel del, HistorikkinnslagFeltType... fields) {
         List<HistorikkinnslagFeltType> fieldList = Arrays.asList(fields);
         Optional<HistorikkinnslagFeltType> opt = findFields(del, fieldList).findAny();
 
@@ -581,7 +578,7 @@ public class HistorikkInnslagTekstBuilder {
             return Optional.empty();
         } else {
             List<String> feltKoder = fieldList.stream().map(HistorikkinnslagFeltType::getKode).collect(Collectors.toList());
-            return Optional.of(HistorikkInnsalgFeil.FACTORY.manglerMinstEtFeltForHistorikkinnslag(type, feltKoder));
+            return Optional.of(HistorikkInnsalgFeil.manglerMinstEtFeltForHistorikkinnslag(type, feltKoder));
         }
     }
 

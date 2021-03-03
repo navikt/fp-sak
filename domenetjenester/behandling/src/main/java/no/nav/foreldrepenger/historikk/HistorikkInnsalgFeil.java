@@ -1,23 +1,38 @@
 package no.nav.foreldrepenger.historikk;
 
-import static no.nav.vedtak.feil.LogLevel.ERROR;
-
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFeltType;
+import no.nav.vedtak.exception.TekniskException;
 
-interface HistorikkInnsalgFeil extends DeklarerteFeil {
-    HistorikkInnsalgFeil FACTORY = FeilFactory.create(HistorikkInnsalgFeil.class);
+final class HistorikkInnsalgFeil {
 
-    @TekniskFeil(feilkode = "FP-876694", feilmelding = "For type %s, mangler felter %s for historikkinnslag.", logLevel = ERROR)
-    Feil manglerFeltForHistorikkInnslag(String type, List<String> manglendeFelt);
+    private HistorikkInnsalgFeil() {
+    }
 
-    @TekniskFeil(feilkode = "FP-876693", feilmelding = "For type %s, forventer minst et felt av type %s", logLevel = ERROR)
-    Feil manglerMinstEtFeltForHistorikkinnslag(String type, List<String> manglendeFelt);
+    static TekniskException manglerFeltForHistorikkInnslag(String type,
+                                                           List<HistorikkinnslagFeltType> requiredFelt,
+                                                           Set<HistorikkinnslagFeltType> foundFelter) {
+        var requiredKoder = map(requiredFelt);
+        var foundKoder = map(foundFelter);
+        return new TekniskException("FP-876694",
+            String.format("Historikkinnslag %s ikke riktig bygd. Required: %s. Found: %s", type, requiredKoder,
+                foundKoder));
+    }
 
-    @TekniskFeil(feilkode = "FP-876692", feilmelding = "Ukjent historikkinnslagstype: %s", logLevel = ERROR)
-    Feil ukjentHistorikkinnslagType(String kode);
+    private static List<String> map(Collection<HistorikkinnslagFeltType> feltTyper) {
+        return feltTyper.stream().map(HistorikkinnslagFeltType::getKode).collect(Collectors.toList());
+    }
+
+    static TekniskException manglerMinstEtFeltForHistorikkinnslag(String type, List<String> manglendeFelt) {
+        return new TekniskException("FP-876693",
+            String.format("For type %s, forventer minst et felt av type %s", type, manglendeFelt));
+    }
+
+    static TekniskException ukjentHistorikkinnslagType(String kode) {
+        return new TekniskException("FP-876692", String.format("Ukjent historikkinnslagstype: %s", kode));
+    }
 }
