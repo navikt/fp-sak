@@ -456,7 +456,7 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
     }
 
     private void verifiserOppdragslinje150MedFlereKlassekode(Oppdragskontroll oppdrag) {
-        List<Oppdragslinje150> oppdr150ListeArbeidsgiver = oppdrag.getOppdrag110Liste().stream().filter(opp110 -> opp110.getKodeFagomrade().equals(KodeFagområde.FORELDREPENGER_AG))
+        List<Oppdragslinje150> oppdr150ListeArbeidsgiver = oppdrag.getOppdrag110Liste().stream().filter(opp110 -> opp110.getKodeFagomrade().equals(KodeFagområde.FORELDREPENGER_ARBEIDSGIVER))
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream()).filter(opp150 -> !opp150.getKodeKlassifik().gjelderFeriepenger())
             .sorted(Comparator.comparing(Oppdragslinje150::getDatoVedtakFom))
             .collect(Collectors.toList());
@@ -647,7 +647,7 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
         for (Oppdrag110 oppdrag110 : oppdrag110List) {
             assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.NY);
             boolean brukerErMottaker = ix110 == 0;
-            assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(brukerErMottaker ? KodeFagområde.FORELDREPENGER_BRUKER : KodeFagområde.FORELDREPENGER_AG);
+            assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(brukerErMottaker ? KodeFagområde.FORELDREPENGER_BRUKER : KodeFagområde.FORELDREPENGER_ARBEIDSGIVER);
             assertThat(oppdrag110.getFagsystemId()).isEqualTo(concatenateValues(Long.parseLong(fagsak.getSaksnummer().getVerdi()), initialLøpenummer++));
             assertThat(oppdrag110.getSaksbehId()).isEqualTo(behVedtak.getAnsvarligSaksbehandler());
             assertThat(oppdrag110.getOppdragGjelderId()).isEqualTo(personIdent.getIdent());

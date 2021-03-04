@@ -109,6 +109,10 @@ public enum KodeKlassifik implements Kodeverdi {
             || this.equals(SVP_REFUSJON_AG);
     }
 
+    public boolean gjelderEngangsstønad() {
+        return this.equals(ES_FØDSEL) || this.equals(ES_ADOPSJON);
+    }
+
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<KodeKlassifik, String> {
         @Override

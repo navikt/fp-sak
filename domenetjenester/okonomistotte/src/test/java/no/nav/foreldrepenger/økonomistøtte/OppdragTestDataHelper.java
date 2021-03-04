@@ -49,7 +49,7 @@ public class OppdragTestDataHelper {
     }
 
     public static Oppdrag110 buildOppdrag110FPArbeidsgiver(Oppdragskontroll oppdragskontroll, Long fagsystemId) {
-        Oppdrag110 oppdrag110 = buildOppdrag110(oppdragskontroll, fagsystemId, KodeFagområde.FORELDREPENGER_AG);
+        Oppdrag110 oppdrag110 = buildOppdrag110(oppdragskontroll, fagsystemId, KodeFagområde.FORELDREPENGER_ARBEIDSGIVER);
         Oppdragslinje150 oppdrag150 = OppdragTestDataHelper.buildOppdragslinje150(oppdrag110);
         OppdragTestDataHelper.buildRefusjonsinfo156(oppdrag150);
         return oppdrag110;

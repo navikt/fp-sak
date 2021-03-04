@@ -2,9 +2,10 @@ package no.nav.foreldrepenger.økonomistøtte;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
-import no.nav.foreldrepenger.økonomistøtte.dagytelse.OppdragskontrollConstants;
 
 public class OppdragKvitteringTjeneste {
+
+    public static final int POSITIV_KVITTERING = 4;
 
     private OppdragKvitteringTjeneste() {
         // hide public constructor
@@ -16,6 +17,6 @@ public class OppdragKvitteringTjeneste {
 
     private static boolean erPositivKvittering(OppdragKvittering oppdragKvittering) {
         int alvorlighetsgrad = Integer.parseInt(oppdragKvittering.getAlvorlighetsgrad());
-        return alvorlighetsgrad <= OppdragskontrollConstants.POSITIV_KVITTERING;
+        return alvorlighetsgrad <= POSITIV_KVITTERING;
     }
 }

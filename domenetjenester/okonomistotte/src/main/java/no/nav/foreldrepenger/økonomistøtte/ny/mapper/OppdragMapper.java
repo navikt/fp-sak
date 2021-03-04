@@ -75,17 +75,10 @@ public class OppdragMapper {
     }
 
     public KodeEndring utledKodeEndring(Oppdrag oppdrag) {
-        //usikker på nøyaktig hva som bør sendes her,
-        //dette er reverse-engineered fra gammel implementasjon
         if (oppdragErTilNyMottaker(oppdrag)) {
             return KodeEndring.NY;
         }
-
-        if (oppdrag.getBetalingsmottaker() == Betalingsmottaker.BRUKER && !erOpphørForMottaker(oppdrag)) {
-            return KodeEndring.ENDRING;
-        }
-
-        return KodeEndring.UENDRET;
+        return KodeEndring.ENDRING;
     }
 
     Oppdragslinje150 mapTilOppdragslinje150(Oppdrag110 oppdrag110, KjedeNøkkel kjedeNøkkel, OppdragLinje linje, LocalDate maxdatoRefusjon, LocalDate vedtaksdato, Long behandlingId) {

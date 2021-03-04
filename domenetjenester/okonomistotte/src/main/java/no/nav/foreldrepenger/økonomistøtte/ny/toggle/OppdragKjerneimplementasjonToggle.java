@@ -29,6 +29,6 @@ public class OppdragKjerneimplementasjonToggle {
     public boolean brukNyImpl(Long behandlingId) {
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         var fagsakOpprettetTid = behandling.getFagsak().getOpprettetTidspunkt();
-        return !Environment.current().isProd() || fagsakOpprettetTid.isAfter(LocalDateTime.of(LocalDate.of(2021, 3, 3), LocalTime.MIDNIGHT));
+        return !Environment.current().isProd() || fagsakOpprettetTid.isAfter(LocalDateTime.of(LocalDate.of(2021, 2, 1), LocalTime.MIDNIGHT));
     }
 }

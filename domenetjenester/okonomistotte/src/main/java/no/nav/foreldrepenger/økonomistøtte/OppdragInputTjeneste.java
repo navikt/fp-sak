@@ -6,6 +6,8 @@ import java.util.List;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.StringUtils;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BehandlingBeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
@@ -31,6 +33,7 @@ import no.nav.foreldrepenger.økonomistøtte.ny.mapper.TilkjentYtelseMapper;
 public class OppdragInputTjeneste {
 
     private static final long DUMMY_PT_SIMULERING_ID = -1L;
+    private static final String DEFAULT_ANSVARLIG_SAKSBEHANDLER = "VL";
 
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
@@ -62,24 +65,24 @@ public class OppdragInputTjeneste {
     }
 
     public Input lagInput(long behandlingId, long prosessTaskId) {
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         var fagsak = behandling.getFagsak();
+        var behandlingVedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId);
         var familieYtelseType = finnFamilieYtelseType(behandlingId, fagsak.getYtelseType());
-        var build = Input.builder()
+
+        var inputBuilder = Input.builder()
             .medBehandlingId(behandlingId)
             .medSaksnummer(fagsak.getSaksnummer())
             .medFagsakYtelseType(fagsak.getYtelseType())
-            .medVedtaksdato(hentVedtaksdato(behandlingId))
-            .medAnsvarligSaksbehandler(behandling.getAnsvarligBeslutter())
+            .medVedtaksdato(behandlingVedtak.map(BehandlingVedtak::getVedtaksdato).orElse(LocalDate.now()))
+            .medAnsvarligSaksbehandler(behandlingVedtak.map(BehandlingVedtak::getAnsvarligSaksbehandler).orElse(finnSaksbehandlerFra(behandling)))
             .medBrukerFnr(hentFnrBruker(behandling))
-            .medFamilieYtelseType(familieYtelseType)
             .medTilkjentYtelse(grupperYtelse(hentTilkjentYtelse(behandlingId), familieYtelseType))
             .medBrukInntrekk(hentBrukInntrekk(behandlingId))
             .medProsessTaskId(prosessTaskId)
             .medTidligereOppdrag(mapTidligereOppdrag(hentTidligereOppdragskontroll(fagsak.getSaksnummer())))
             ;
-        return build.build();
+        return inputBuilder.build();
     }
 
     public Input lagInput(long behandlingId) {
@@ -98,10 +101,6 @@ public class OppdragInputTjeneste {
         return new OverordnetOppdragKjedeOversikt(EksisterendeOppdragMapper.tilKjeder(tidligereOppdragskontroll));
     }
 
-    private LocalDate hentVedtaksdato(Long behandlingId) {
-        return behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId).map(BehandlingVedtak::getVedtaksdato).orElse(LocalDate.now()); // Trenger en dato da vedtak er ikke på plass ved simulering.
-    }
-
     private boolean hentBrukInntrekk(Long behandlingId) {
         boolean inntrekkErSkruddAv = tilbakekrevingRepository.hentTilbakekrevingInntrekk(behandlingId)
             .map(TilbakekrevingInntrekkEntitet::isAvslåttInntrekk)
@@ -109,7 +108,7 @@ public class OppdragInputTjeneste {
         return !inntrekkErSkruddAv;
     }
 
-    BeregningsresultatEntitet hentTilkjentYtelse(Long behandlingId) {
+    private BeregningsresultatEntitet hentTilkjentYtelse(Long behandlingId) {
         BehandlingBeregningsresultatEntitet beregningsresultatAggregat = beregningsresultatRepository.hentBeregningsresultatAggregat(behandlingId).orElse(null);
         if (beregningsresultatAggregat == null) {
             return null;
@@ -142,4 +141,12 @@ public class OppdragInputTjeneste {
             .getGjeldendeVersjon().getGjelderFødsel();
     }
 
+    private static String finnSaksbehandlerFra(Behandling behandling) {
+        if (StringUtils.isNotBlank(behandling.getAnsvarligBeslutter())) {
+            return behandling.getAnsvarligBeslutter();
+        } else if (StringUtils.isNotBlank(behandling.getAnsvarligSaksbehandler())) {
+            return behandling.getAnsvarligSaksbehandler();
+        }
+        return DEFAULT_ANSVARLIG_SAKSBEHANDLER;
+    }
 }

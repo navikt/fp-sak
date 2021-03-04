@@ -370,7 +370,7 @@ public class ØkonomioppdragMapperTest {
         if (gjelderFP) {
             Oppdrag110 oppdrag110_2 = Oppdrag110.builder()
                 .medKodeEndring(KodeEndring.NY)
-                .medKodeFagomrade(KodeFagområde.FORELDREPENGER_AG)
+                .medKodeFagomrade(KodeFagområde.FORELDREPENGER_ARBEIDSGIVER)
                 .medFagSystemId(55L)
                 .medOppdragGjelderId("12345678901")
                 .medSaksbehId("J5624215")

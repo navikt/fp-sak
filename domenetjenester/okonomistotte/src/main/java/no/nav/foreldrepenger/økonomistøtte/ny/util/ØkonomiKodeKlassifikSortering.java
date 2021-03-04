@@ -10,9 +10,9 @@ public class ØkonomiKodeKlassifikSortering {
     private static final List<String> SUFFIX_SORTERING = Arrays.asList(
         "ATORD", "ATAL", "ATFRI", "ATSJO",
         "SND-OP", "SNDDM-OP", "SNDJB-OP", "SNDFI",
-        "FRISINN-FRILANS", "FRISINN-SELVST-OP",
         "REFAG-IOP",
-        "FER", "FER-IOP", "FERPP-IOP"
+        "FER", "FER-IOP",
+        "ENFOD-OP", "ENAD-OP"
     );
 
     public static int getSorteringsplassering(KodeKlassifik kodeKlassifik) {

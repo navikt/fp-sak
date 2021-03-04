@@ -14,8 +14,8 @@ import no.nav.foreldrepenger.økonomistøtte.ny.domene.OppdragKjede;
 
 public class OverordnetOppdragKjedeOversikt {
 
-    protected Map<KjedeNøkkel, OppdragKjede> oppdragskjeder;
-    private Map<Betalingsmottaker, FagsystemId> fagsystemIdPrMottaker;
+    protected final Map<KjedeNøkkel, OppdragKjede> oppdragskjeder;
+    private final Map<Betalingsmottaker, FagsystemId> fagsystemIdPrMottaker;
 
     public static OverordnetOppdragKjedeOversikt TOM = new OverordnetOppdragKjedeOversikt(Collections.emptyMap());
 

@@ -16,8 +16,8 @@ import no.nav.foreldrepenger.økonomistøtte.ny.util.SetUtil;
 
 public class MottakerOppdragKjedeOversikt {
 
-    private Betalingsmottaker betalingsmottaker;
-    protected Map<KjedeNøkkel, OppdragKjede> oppdragskjeder;
+    private final Betalingsmottaker betalingsmottaker;
+    protected final Map<KjedeNøkkel, OppdragKjede> oppdragskjeder;
 
     public MottakerOppdragKjedeOversikt(Betalingsmottaker betalingsmottaker, Map<KjedeNøkkel, OppdragKjede> oppdragskjeder) {
         this.betalingsmottaker = betalingsmottaker;

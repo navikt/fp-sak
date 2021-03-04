@@ -58,7 +58,7 @@ public class OppdragskontrollTestVerktøy {
 
     public static List<Oppdragslinje150> getOpp150ListeForEnVirksomhet(List<Oppdrag110> oppdrag110Liste, String virksomhetOrgnr) {
         return oppdrag110Liste.stream()
-            .filter(oppdrag110 -> KodeFagområde.FORELDREPENGER_AG.equals(oppdrag110.getKodeFagomrade()))
+            .filter(oppdrag110 -> KodeFagområde.FORELDREPENGER_ARBEIDSGIVER.equals(oppdrag110.getKodeFagomrade()))
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
             .filter(oppdragslinje150 -> oppdragslinje150.getRefusjonsinfo156().getRefunderesId().equals(endreTilElleveSiffer(virksomhetOrgnr)))
             .collect(Collectors.toList());
@@ -180,7 +180,7 @@ public class OppdragskontrollTestVerktøy {
 
     public static void verifiserRefusjonInfo156(List<Oppdrag110> opp110RevurderingList, Oppdragskontroll originaltOppdrag) {
 
-        List<Oppdragslinje150> opp150RevurderingList = opp110RevurderingList.stream().filter(opp110 -> opp110.getKodeFagomrade().equals(KodeFagområde.FORELDREPENGER_AG))
+        List<Oppdragslinje150> opp150RevurderingList = opp110RevurderingList.stream().filter(opp110 -> opp110.getKodeFagomrade().equals(KodeFagområde.FORELDREPENGER_ARBEIDSGIVER))
             .flatMap(opp110 -> opp110.getOppdragslinje150Liste().stream())
             .collect(Collectors.toList());
 
@@ -262,7 +262,7 @@ public class OppdragskontrollTestVerktøy {
                 assertThat(opp150Ny.getKodeKlassifik()).isEqualTo(oppdr150.getKodeKlassifik());
                 opp150List.add(oppdr150);
             }
-            if (opp150Ny.getOppdrag110().getKodeFagomrade().equals(KodeFagområde.FORELDREPENGER_AG)) {
+            if (opp150Ny.getOppdrag110().getKodeFagomrade().equals(KodeFagområde.FORELDREPENGER_ARBEIDSGIVER)) {
                 assertThat(opp150Ny.getRefusjonsinfo156()).isNotNull();
             }
             if (opp150MedGradering(opp150Ny)) {

@@ -122,9 +122,9 @@ class OppdragMapper {
                 }
                 return KodeFagområde.ENGANGSSTØNAD;
             case FORELDREPENGER:
-                return erBrukerMottaker ? KodeFagområde.FORELDREPENGER_BRUKER : KodeFagområde.FORELDREPENGER_AG;
+                return erBrukerMottaker ? KodeFagområde.FORELDREPENGER_BRUKER : KodeFagområde.FORELDREPENGER_ARBEIDSGIVER;
             case SVANGERSKAPSPENGER:
-                return erBrukerMottaker ? KodeFagområde.SVANGERSKAPSPENGER_BRUKER : KodeFagområde.SVANGERSKAPSPENGER_AG;
+                return erBrukerMottaker ? KodeFagområde.SVANGERSKAPSPENGER_BRUKER : KodeFagområde.SVANGERSKAPSPENGER_ARBEIDSGIVER;
             default:
                 throw new ForvaltningException("Ukjent ytelsetype i behandlingId=" + behandling.getId());
         }

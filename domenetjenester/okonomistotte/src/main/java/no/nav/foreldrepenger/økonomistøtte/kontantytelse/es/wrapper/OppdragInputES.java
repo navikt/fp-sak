@@ -17,10 +17,11 @@ import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public class OppdragInputES {
+
+    private final PersonIdent personIdent;
     private final Saksnummer saksnummer;
     private final Behandling behandling;
     private final BehandlingVedtak behVedtak;
-    private final PersonIdent personIdent;
     private final KodeKlassifik kodeKlassifik;
     private final Optional<ForrigeOppdragInputES> tidligereBehandlingInfo;
     private final long sats;
@@ -48,7 +49,7 @@ public class OppdragInputES {
         return behandling;
     }
 
-    public Optional<BehandlingVedtak> getBehVedtak() {
+    private Optional<BehandlingVedtak> getBehVedtak() {
         return Optional.ofNullable(behVedtak);
     }
 
@@ -91,10 +92,6 @@ public class OppdragInputES {
 
     private ForrigeOppdragInputES getTidligereBehandlingInfo() {
         return tidligereBehandlingInfo.orElseThrow(() -> new IllegalStateException("Fant ikke TidligereBehandlingInfoES for behandling " + behandling.getId()));
-    }
-
-    public BehandlingVedtak getTidligereVedtak() {
-        return getTidligereBehandlingInfo().getTidligereVedtak();
     }
 
     public long getSats() {

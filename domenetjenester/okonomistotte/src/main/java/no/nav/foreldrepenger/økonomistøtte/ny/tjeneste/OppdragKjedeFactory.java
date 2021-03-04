@@ -35,15 +35,15 @@ public class OppdragKjedeFactory {
         return lagOppdragskjede(tidligereOppdrag, vedtak, true);
     }
 
-    public OppdragKjedeFortsettelse lagOppdragskjede(OppdragKjede tidligereOppdrag, Ytelse vedtak, boolean gjelderFeriepenger) {
+    public OppdragKjedeFortsettelse lagOppdragskjede(OppdragKjede tidligereOppdrag, Ytelse vedtak, boolean gjelderEngangsutbetaling) {
         Objects.requireNonNull(tidligereOppdrag);
         Objects.requireNonNull(vedtak);
         Ytelse iverksattYtelse = tidligereOppdrag.tilYtelse();
         LocalDate endringsdato = EndringsdatoTjeneste.normal().finnEndringsdato(iverksattYtelse, vedtak);
-        return endringsdato == null ? null : lagOppdragskjede(endringsdato, tidligereOppdrag, vedtak, gjelderFeriepenger);
+        return endringsdato == null ? null : lagOppdragskjede(endringsdato, tidligereOppdrag, vedtak, gjelderEngangsutbetaling);
     }
 
-    public OppdragKjedeFortsettelse lagOppdragskjedeFraFellesEndringsdato(OppdragKjede tidligereOppdrag, Ytelse vedtak, boolean gjelderFeriepenger, LocalDate tidligsteEndringsdato) {
+    public OppdragKjedeFortsettelse lagOppdragskjedeFraFellesEndringsdato(OppdragKjede tidligereOppdrag, Ytelse vedtak, boolean gjelderEngangsutbetaling, LocalDate tidligsteEndringsdato) {
         Objects.requireNonNull(tidligereOppdrag);
         Objects.requireNonNull(vedtak);
         Objects.requireNonNull(tidligsteEndringsdato);
@@ -55,18 +55,18 @@ public class OppdragKjedeFactory {
         if (vedtak.getPerioderFraOgMed(tidligsteEndringsdato).isEmpty() && !tidligereOppdrag.tilYtelse().harVerdiPåEllerEtter(tidligsteEndringsdato)) {
             return null;
         }
-        return lagOppdragskjede(tidligsteEndringsdato, tidligereOppdrag, vedtak, gjelderFeriepenger);
+        return lagOppdragskjede(tidligsteEndringsdato, tidligereOppdrag, vedtak, gjelderEngangsutbetaling);
     }
 
-    private OppdragKjedeFortsettelse lagOppdragskjede(LocalDate endringsdato, OppdragKjede tidligereOppdrag, Ytelse vedtak, boolean gjelderFeriepenger) {
-        if (gjelderFeriepenger && vedtak.getPerioder().size() > 1) {
-            throw new IllegalArgumentException("For feriepenger skal det være 0 eller 1 periode pr nøkkel (nøkkel inkl opptjeningsår), men fikk: " + vedtak.getPerioder().size() + " perioder");
+    private OppdragKjedeFortsettelse lagOppdragskjede(LocalDate endringsdato, OppdragKjede tidligereOppdrag, Ytelse vedtak, boolean gjelderEngangsutbetaling) {
+        if (gjelderEngangsutbetaling && vedtak.getPerioder().size() > 1) {
+            throw new IllegalArgumentException("For feriepenger/engangsstønad skal det være 0 eller 1 periode pr nøkkel (nøkkel inkl opptjeningsår), men fikk: " + vedtak.getPerioder().size() + " perioder");
         }
 
         OppdragKjedeFortsettelse.Builder builder = OppdragKjedeFortsettelse.builder(endringsdato);
 
-        //for feriepenger sendes opphør kun når feriepengene skal tas bort.
-        boolean erYtelseEllerOpphørAvFeriepenger = !gjelderFeriepenger || vedtak.getPerioder().isEmpty();
+        //for engangsutbetalinger sendes opphør kun når ytelsen skal tas bort.
+        boolean erYtelseEllerOpphørAvFeriepenger = !gjelderEngangsutbetaling || vedtak.getPerioder().isEmpty();
         if (erYtelseEllerOpphørAvFeriepenger && endringsdato != null && tidligereOppdrag.tilYtelse().harVerdiPåEllerEtter(endringsdato)) {
             LocalDate opphørsdato = tidligereOppdrag.getFørsteDato().isAfter(endringsdato) ? tidligereOppdrag.getFørsteDato() : endringsdato;
             builder.medOppdragslinje(OppdragLinje.lagOpphørslinje(tidligereOppdrag.getSisteLinje(), opphørsdato));

@@ -37,7 +37,7 @@ public class BehandleØkonomioppdragKvitteringTest {
 
     public static final KodeFagområde KODEFAGOMRADE_FP = KodeFagområde.FORELDREPENGER_BRUKER;
 
-    public static final KodeFagområde KODEFAGOMRADE_FPREF = KodeFagområde.FORELDREPENGER_AG;
+    public static final KodeFagområde KODEFAGOMRADE_FPREF = KodeFagområde.FORELDREPENGER_ARBEIDSGIVER;
 
     public static final String OPPDRAGGJELDERID = "01010101010";
 

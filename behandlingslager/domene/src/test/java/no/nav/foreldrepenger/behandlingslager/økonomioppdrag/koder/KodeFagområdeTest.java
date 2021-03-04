@@ -28,12 +28,12 @@ class KodeFagområdeTest {
 
     @Test
     void getNavn() {
-        assertThat(KodeFagområde.FORELDREPENGER_AG.getNavn()).isNull();
+        assertThat(KodeFagområde.FORELDREPENGER_ARBEIDSGIVER.getNavn()).isNull();
     }
 
     @Test
     void getKode() {
-        assertThat(KodeFagområde.SVANGERSKAPSPENGER_AG.getKode()).isEqualTo("SVPREF");
+        assertThat(KodeFagområde.SVANGERSKAPSPENGER_ARBEIDSGIVER.getKode()).isEqualTo("SVPREF");
     }
 
     @Test

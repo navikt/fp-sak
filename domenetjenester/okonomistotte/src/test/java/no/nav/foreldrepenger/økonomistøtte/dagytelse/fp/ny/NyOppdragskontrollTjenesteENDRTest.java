@@ -98,7 +98,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
 
         // Assert
         Oppdrag110 oppdrag110 = OppdragskontrollTestVerktøy.getOppdrag110ForBruker(oppdragRevurdering.getOppdrag110Liste());
-        assertThat(oppdrag110.getKodeEndring()).isEqualTo(OppdragskontrollConstants.KODE_ENDRING_ENDRET);
+        assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
         assertThat(oppdrag110.getOmpostering116()).isPresent();
         Ompostering116 ompostering116 = oppdrag110.getOmpostering116().get();
         assertThat(ompostering116.getOmPostering()).isEqualTo("N");
@@ -137,14 +137,14 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         // Assert
         //Bruker
         Oppdrag110 oppdrag110Bruker = OppdragskontrollTestVerktøy.getOppdrag110ForBruker(oppdragRevurdering.getOppdrag110Liste());
-        assertThat(oppdrag110Bruker.getKodeEndring()).isEqualTo(OppdragskontrollConstants.KODE_ENDRING_ENDRET);
+        assertThat(oppdrag110Bruker.getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
         assertThat(oppdrag110Bruker.getOmpostering116()).isPresent();
         Ompostering116 ompostering116 = oppdrag110Bruker.getOmpostering116().get();
         assertThat(ompostering116.getOmPostering()).isEqualTo("J");
         assertThat(ompostering116.getDatoOmposterFom()).isEqualTo(endringsdato);
         //Arbeidsgiver
         Oppdrag110 oppdrag110Arbeidsgiver = OppdragskontrollTestVerktøy.getOppdrag110ForArbeidsgiver(oppdragRevurdering.getOppdrag110Liste(), virksomhet);
-        assertThat(oppdrag110Arbeidsgiver.getKodeEndring()).isEqualTo(OppdragskontrollConstants.KODE_ENDRING_UENDRET);
+        assertThat(oppdrag110Arbeidsgiver.getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
         assertThat(oppdrag110Arbeidsgiver.getOmpostering116()).isNotPresent();
     }
 
@@ -1249,14 +1249,14 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
         assertThat(originaltOppdrag110Liste).hasSize(2);
         assertThat(originaltOppdrag110Liste).allSatisfy(oppdrag110 -> {
-                assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_AG);
+                assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_ARBEIDSGIVER);
                 assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.NY);
             }
         );
         assertThat(revurderingOppdrag110Liste).hasSize(2);
         assertThat(revurderingOppdrag110Liste).allSatisfy(oppdrag110 -> {
-                assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_AG);
-                assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.UENDRET);
+                assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_ARBEIDSGIVER);
+                assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
             }
         );
         List<Oppdragslinje150> revurderingOpp150Liste = revurderingOppdrag110Liste.stream()
@@ -1338,7 +1338,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         //Oppdrag110 for Bruker
         Oppdrag110 oppdrag110Bruker = OppdragskontrollTestVerktøy.getOppdrag110ForBruker(revurderingOppdrag110Liste);
         assertThat(oppdrag110Bruker.getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_BRUKER);
-        assertThat(oppdrag110Bruker.getKodeEndring()).isEqualTo(KodeEndring.UENDRET);
+        assertThat(oppdrag110Bruker.getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
 
         //Oppdragslinj150 for Bruker
         List<Oppdragslinje150> revurderingOpp150ListeForBruker = oppdrag110Bruker.getOppdragslinje150Liste();
@@ -1623,14 +1623,14 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
         assertThat(originaltOppdrag110Liste).hasSize(2);
         assertThat(originaltOppdrag110Liste).allSatisfy(oppdrag110 -> {
-                assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_AG);
+                assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_ARBEIDSGIVER);
                 assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.NY);
             }
         );
         assertThat(revurderingOppdrag110Liste).hasSize(2);
         assertThat(revurderingOppdrag110Liste).allSatisfy(oppdrag110 -> {
-                assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_AG);
-                assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.UENDRET);
+                assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_ARBEIDSGIVER);
+                assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
             }
         );
         List<Oppdragslinje150> revurderingOpp150Arbgvr1 = OppdragskontrollTestVerktøy.getOpp150ListeForEnVirksomhet(revurderingOppdrag110Liste, virksomhet);
@@ -2394,7 +2394,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
 
         // To arbeidsgivere som mottakere ingen oppdrag til bruker
         assertThat(originaltOppdrag.getOppdrag110Liste().size()).isEqualTo(2);
-        assertThat(originaltOppdrag.getOppdrag110Liste().stream().allMatch(oppdrag110 -> oppdrag110.getKodeFagomrade().equals(KodeFagområde.FORELDREPENGER_AG))).isTrue();
+        assertThat(originaltOppdrag.getOppdrag110Liste().stream().allMatch(oppdrag110 -> oppdrag110.getKodeFagomrade().equals(KodeFagområde.FORELDREPENGER_ARBEIDSGIVER))).isTrue();
 
         // Arrange 1 - første revurdering2
 
@@ -2444,7 +2444,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
 
         // To arbeidsgivere som mottakere ingen oppdrag til bruker
         assertThat(oppdragRevurdering.getOppdrag110Liste().size()).isEqualTo(2);
-        assertThat(oppdragRevurdering.getOppdrag110Liste().stream().allMatch(oppdrag110 -> oppdrag110.getKodeFagomrade().equals(KodeFagområde.FORELDREPENGER_AG))).isTrue();
+        assertThat(oppdragRevurdering.getOppdrag110Liste().stream().allMatch(oppdrag110 -> oppdrag110.getKodeFagomrade().equals(KodeFagområde.FORELDREPENGER_ARBEIDSGIVER))).isTrue();
 
 
         // Arrange 2 - andre revurdering med omfordeling av 1 ag til bruker

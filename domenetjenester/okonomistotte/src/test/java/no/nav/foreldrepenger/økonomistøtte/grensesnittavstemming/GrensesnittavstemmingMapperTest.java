@@ -54,7 +54,7 @@ public class GrensesnittavstemmingMapperTest {
         oppdr110Builder = Oppdrag110.builder();
         oppdrLinje150Builder = Oppdragslinje150.builder();
         oppdragKvitteringBuilder = OppdragKvittering.builder();
-        kodeFagområde = KodeFagområde.FORELDREPENGER_AG;
+        kodeFagområde = KodeFagområde.FORELDREPENGER_ARBEIDSGIVER;
         Oppdragskontroll oppdragskontroll = opprettOppdrag(null, kodeFagområde);
 
         oppdragsliste = Collections.singletonList(oppdragskontroll.getOppdrag110Liste().get(0));
@@ -156,7 +156,7 @@ public class GrensesnittavstemmingMapperTest {
     @Test
     public void testDatameldingXMLvedStoreDatamengder() {
         // Arrange
-        setupForStoreDatamengder(KodeFagområde.FORELDREPENGER_AG);
+        setupForStoreDatamengder(KodeFagområde.FORELDREPENGER_ARBEIDSGIVER);
         // Act
         List<String> meldinger = grensesnittavstemmingMapper.lagDatameldinger();
         // Assert

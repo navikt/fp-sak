@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.økonomistøtte.ny.util.SetUtil;
 
 public class EndringsdatoTjeneste {
 
-    private boolean ignorerDagsatsIHelg;
+    private final boolean ignorerDagsatsIHelg;
 
     public static EndringsdatoTjeneste ignorerDagsatsIHelg() {
         return new EndringsdatoTjeneste(true);

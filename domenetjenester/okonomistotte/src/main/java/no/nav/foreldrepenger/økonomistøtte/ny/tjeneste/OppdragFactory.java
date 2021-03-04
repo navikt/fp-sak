@@ -18,8 +18,8 @@ import no.nav.foreldrepenger.økonomistøtte.ny.util.SetUtil;
 
 public class OppdragFactory {
 
-    private BiFunction<FagsakYtelseType, Boolean, KodeFagområde> fagområdeMapper;
-    private FagsakYtelseType ytelseType;
+    private final BiFunction<FagsakYtelseType, Boolean, KodeFagområde> fagområdeMapper;
+    private final FagsakYtelseType ytelseType;
     private final Saksnummer saksnummer;
     private LocalDate fellesEndringstidspunkt;
 
