@@ -88,4 +88,27 @@ class KontrollerAktivitetskravHistorikkinnslagTjenesteTest {
         var historikk = repository.hentHistorikk(behandling.getId());
         assertThat(historikk).isEmpty();
     }
+
+    @Test
+    public void oppretteHistorikkinnslagHvisBareBegrunnelseErEndret(EntityManager entityManager) {
+        var repository = new HistorikkRepository(entityManager);
+        var adapter = new HistorikkTjenesteAdapter(repository, null);
+        var tjeneste = new KontrollerAktivitetskravHistorikkinnslagTjeneste(adapter);
+        var behandling = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .lagre(new BehandlingRepositoryProvider(entityManager));
+
+        var nyPeriode = new KontrollerAktivitetskravPeriodeDto();
+        nyPeriode.setBegrunnelse("begrunnelse1");
+        nyPeriode.setAvklaring(I_AKTIVITET);
+        nyPeriode.setFom(LocalDate.now());
+        nyPeriode.setTom(LocalDate.now().plusDays(1));
+        var dto = new KontrollerAktivitetskravDto();
+        dto.setAvklartePerioder(List.of(nyPeriode));
+        var eksisterendePeriode = new AktivitetskravPeriodeEntitet(nyPeriode.getFom(), nyPeriode.getTom(), nyPeriode.getAvklaring(),
+            "ny begrunnelse");
+        tjeneste.opprettHistorikkinnslag(behandling.getId(), dto, List.of(eksisterendePeriode));
+
+        var historikk = repository.hentHistorikk(behandling.getId());
+        assertThat(historikk).hasSize(1);
+    }
 }
