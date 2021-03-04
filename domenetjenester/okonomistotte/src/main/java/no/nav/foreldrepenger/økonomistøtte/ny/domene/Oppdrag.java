@@ -8,10 +8,10 @@ import java.util.Objects;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 
 public class Oppdrag {
-    private KodeFagområde kodeFagområde;
-    private FagsystemId fagsystemId;
-    private Betalingsmottaker betalingsmottaker;
-    private Map<KjedeNøkkel, OppdragKjedeFortsettelse> kjeder;
+    private final KodeFagområde kodeFagområde;
+    private final FagsystemId fagsystemId;
+    private final Betalingsmottaker betalingsmottaker;
+    private final Map<KjedeNøkkel, OppdragKjedeFortsettelse> kjeder;
 
     private Oppdrag(KodeFagområde kodeFagområde, FagsystemId fagsystemId, Betalingsmottaker betalingsmottaker, Map<KjedeNøkkel, OppdragKjedeFortsettelse> kjeder) {
         this.kodeFagområde = kodeFagområde;

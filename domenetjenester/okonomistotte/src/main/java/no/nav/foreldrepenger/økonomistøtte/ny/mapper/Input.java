@@ -16,7 +16,6 @@ public class Input {
     private Long behandlingId;
     private Saksnummer saksnummer;
     private FagsakYtelseType fagsakYtelseType;
-    private FamilieYtelseType familieYtelseType;
     private String ansvarligSaksbehandler;
     private LocalDate vedtaksdato;
     private boolean brukInntrekk;
@@ -43,10 +42,6 @@ public class Input {
 
     public FagsakYtelseType getYtelseType() {
         return fagsakYtelseType;
-    }
-
-    public FamilieYtelseType getFamilieYtelseType() {
-        return familieYtelseType;
     }
 
     public String getAnsvarligSaksbehandler() {
@@ -83,19 +78,7 @@ public class Input {
             Objects.requireNonNull(kladd.fagsakYtelseType);
             Objects.requireNonNull(kladd.vedtaksdato);
             Objects.requireNonNull(kladd.brukerFnr);
-            if (kladd.fagsakYtelseType == FagsakYtelseType.FORELDREPENGER) {
-                if (kladd.familieYtelseType != FamilieYtelseType.FØDSEL && kladd.familieYtelseType != FamilieYtelseType.ADOPSJON) {
-                    throw ugyldigKombinasjon(kladd.fagsakYtelseType, kladd.familieYtelseType);
-                }
-            } else if (kladd.fagsakYtelseType == FagsakYtelseType.SVANGERSKAPSPENGER) {
-                if (kladd.familieYtelseType != FamilieYtelseType.SVANGERSKAPSPENGER) {
-                    throw ugyldigKombinasjon(kladd.fagsakYtelseType, kladd.familieYtelseType);
-                }
-            } else if (kladd.fagsakYtelseType == FagsakYtelseType.ENGANGSTØNAD) {
-                if (kladd.familieYtelseType != null) {
-                    throw ugyldigKombinasjon(kladd.fagsakYtelseType, kladd.familieYtelseType);
-                }
-            }
+
             try {
                 return kladd;
             } finally {
@@ -120,11 +103,6 @@ public class Input {
 
         public Builder medFagsakYtelseType(FagsakYtelseType fagsakYtelseType) {
             kladd.fagsakYtelseType = fagsakYtelseType;
-            return this;
-        }
-
-        public Builder medFamilieYtelseType(FamilieYtelseType familieYtelseType) {
-            kladd.familieYtelseType = familieYtelseType;
             return this;
         }
 
@@ -156,10 +134,6 @@ public class Input {
         public Builder medTidligereOppdrag(OverordnetOppdragKjedeOversikt tidligereOppdrag) {
             kladd.tidligereOppdrag = tidligereOppdrag;
             return this;
-        }
-
-        private static IllegalArgumentException ugyldigKombinasjon(FagsakYtelseType fagsakYtelseType, FamilieYtelseType familieYtelseType) {
-            return new IllegalArgumentException("Ugyldig kombinasjon ytelseType " + fagsakYtelseType + " og familieYtelseType " + familieYtelseType);
         }
     }
 }

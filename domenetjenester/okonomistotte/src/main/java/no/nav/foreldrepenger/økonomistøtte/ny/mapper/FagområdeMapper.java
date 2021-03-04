@@ -13,8 +13,8 @@ public class FagområdeMapper {
 
     public static KodeFagområde tilFagområdeRefusjon(FagsakYtelseType ytelseType) {
         return switch (ytelseType) {
-            case FORELDREPENGER -> KodeFagområde.FORELDREPENGER_AG;
-            case SVANGERSKAPSPENGER -> KodeFagområde.SVANGERSKAPSPENGER_AG;
+            case FORELDREPENGER -> KodeFagområde.FORELDREPENGER_ARBEIDSGIVER;
+            case SVANGERSKAPSPENGER -> KodeFagområde.SVANGERSKAPSPENGER_ARBEIDSGIVER;
             default -> throw new IllegalArgumentException("Ikke-støttet ytelse-type: " + ytelseType);
         };
     }

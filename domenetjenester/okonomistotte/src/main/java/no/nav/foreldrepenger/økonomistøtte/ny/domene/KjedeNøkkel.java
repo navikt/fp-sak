@@ -7,10 +7,10 @@ import no.nav.foreldrepenger.økonomistøtte.ny.util.ØkonomiKodeKlassifikSorter
 
 public class KjedeNøkkel implements Comparable<KjedeNøkkel> {
 
-    private KodeKlassifik klassekode;
-    private Betalingsmottaker betalingsmottaker;
-    private Integer feriepengeÅr;
-    private Integer knektKjedeDel;
+    private final KodeKlassifik klassekode;
+    private final Betalingsmottaker betalingsmottaker;
+    private final Integer feriepengeÅr;
+    private final Integer knektKjedeDel;
 
     public static KjedeNøkkel lag(KodeKlassifik klassekode, Betalingsmottaker betalingsmottaker) {
         return KjedeNøkkel.builder()
@@ -102,8 +102,8 @@ public class KjedeNøkkel implements Comparable<KjedeNøkkel> {
         return Integer.compare(kjedeDel, annenKjedeDel);
     }
 
-    public boolean gjelderFeriepenger() {
-        return klassekode.gjelderFeriepenger();
+    public boolean gjelderEngangsutbetaling() {
+        return klassekode.gjelderFeriepenger() || klassekode.gjelderEngangsstønad();
     }
 
     public static Builder builder() {

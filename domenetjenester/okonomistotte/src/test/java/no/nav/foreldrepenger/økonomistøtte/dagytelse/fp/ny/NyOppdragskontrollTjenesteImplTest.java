@@ -64,7 +64,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
 
             // Verifiser andeler
             var mottakere110 = ok.getOppdrag110Liste();
-            varifiserMottakere110(mottakere110, gruppertYtelse.getNøkler().size(), List.of(KodeFagområde.FORELDREPENGER_BRUKER, KodeFagområde.FORELDREPENGER_AG));
+            varifiserMottakere110(mottakere110, gruppertYtelse.getNøkler().size(), List.of(KodeFagområde.FORELDREPENGER_BRUKER, KodeFagområde.FORELDREPENGER_ARBEIDSGIVER));
 
             // Verifiser utbetalinger
             verifiserUtbetalingene150(mottakere110, List.of(KodeKlassifik.FPF_ARBEIDSTAKER, KodeKlassifik.FPF_REFUSJON_AG));
@@ -134,8 +134,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
             .build();
 
         var inputBuilder = getInputStandardBuilder(gruppertYtelse)
-            .medFagsakYtelseType(FagsakYtelseType.SVANGERSKAPSPENGER)
-            .medFamilieYtelseType(FamilieYtelseType.SVANGERSKAPSPENGER);
+            .medFagsakYtelseType(FagsakYtelseType.SVANGERSKAPSPENGER);
 
         // Act
         var oppdragskontroll = nyOppdragskontrollTjeneste.opprettOppdrag(inputBuilder.build());
@@ -178,7 +177,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
 
             // Verifiser andeler
             var mottakere110 = ok.getOppdrag110Liste();
-            varifiserMottakere110(mottakere110, gruppertYtelse.getBetalingsmottakere().size(), List.of(KodeFagområde.FORELDREPENGER_BRUKER, KodeFagområde.FORELDREPENGER_AG));
+            varifiserMottakere110(mottakere110, gruppertYtelse.getBetalingsmottakere().size(), List.of(KodeFagområde.FORELDREPENGER_BRUKER, KodeFagområde.FORELDREPENGER_ARBEIDSGIVER));
 
             // Verifiser utbetalinger
             verifiserUtbetalingene150(mottakere110, List.of(KodeKlassifik.FPF_ARBEIDSTAKER, KodeKlassifik.FPF_FRILANSER, KodeKlassifik.FPF_REFUSJON_AG, KodeKlassifik.FERIEPENGER_BRUKER, KodeKlassifik.FPF_FERIEPENGER_AG));
@@ -207,7 +206,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
 
             // Verifiser andeler
             var mottakere110 = ok.getOppdrag110Liste();
-            varifiserMottakere110(mottakere110, gruppertYtelse.getBetalingsmottakere().size(), List.of(KodeFagområde.FORELDREPENGER_BRUKER, KodeFagområde.FORELDREPENGER_AG));
+            varifiserMottakere110(mottakere110, gruppertYtelse.getBetalingsmottakere().size(), List.of(KodeFagområde.FORELDREPENGER_BRUKER, KodeFagområde.FORELDREPENGER_ARBEIDSGIVER));
 
             // Verifiser utbetalinger
             verifiserUtbetalingene150(mottakere110, List.of(KodeKlassifik.FPF_ARBEIDSTAKER, KodeKlassifik.FPF_FRILANSER, KodeKlassifik.FPF_REFUSJON_AG, KodeKlassifik.FPF_SELVSTENDIG));
@@ -296,7 +295,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
 
             // Verifiser andeler
             var mottakere110 = ok.getOppdrag110Liste();
-            varifiserMottakere110(mottakere110, gruppertYtelse.getBetalingsmottakere().size(), List.of(KodeFagområde.FORELDREPENGER_BRUKER, KodeFagområde.FORELDREPENGER_AG));
+            varifiserMottakere110(mottakere110, gruppertYtelse.getBetalingsmottakere().size(), List.of(KodeFagområde.FORELDREPENGER_BRUKER, KodeFagområde.FORELDREPENGER_ARBEIDSGIVER));
 
             // Verifiser utbetalinger
             verifiserUtbetalingene150(mottakere110, List.of(KodeKlassifik.FPF_ARBEIDSTAKER, KodeKlassifik.FPF_FRILANSER, KodeKlassifik.FPF_REFUSJON_AG, KodeKlassifik.FPF_SELVSTENDIG));
@@ -555,7 +554,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
         TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.ADOPSJON);
         GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
 
-        var builder = getInputStandardBuilder(gruppertYtelse).medFamilieYtelseType(FamilieYtelseType.ADOPSJON);
+        var builder = getInputStandardBuilder(gruppertYtelse);
 
         //Act
         var oppdragskontroll = nyOppdragskontrollTjeneste.opprettOppdrag(builder.build());
@@ -591,8 +590,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
         TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.SVANGERSKAPSPENGER);
         GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
         var builder = getInputStandardBuilder(gruppertYtelse)
-            .medFagsakYtelseType(FagsakYtelseType.SVANGERSKAPSPENGER)
-            .medFamilieYtelseType(FamilieYtelseType.SVANGERSKAPSPENGER);
+            .medFagsakYtelseType(FagsakYtelseType.SVANGERSKAPSPENGER);
 
         //Act
         var oppdragskontroll = nyOppdragskontrollTjeneste.opprettOppdrag(builder.build());

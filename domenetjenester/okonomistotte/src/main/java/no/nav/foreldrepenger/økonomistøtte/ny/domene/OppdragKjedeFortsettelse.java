@@ -7,8 +7,8 @@ import java.util.List;
 
 public class OppdragKjedeFortsettelse {
 
-    private LocalDate endringsdato;
-    private List<OppdragLinje> oppdragslinjer;
+    private final LocalDate endringsdato;
+    private final List<OppdragLinje> oppdragslinjer;
 
     private OppdragKjedeFortsettelse(LocalDate endringsdato, List<OppdragLinje> oppdragslinjer) {
         this.endringsdato = endringsdato;
@@ -44,8 +44,8 @@ public class OppdragKjedeFortsettelse {
 
     public static class Builder {
 
-        private LocalDate endringsdato;
-        private List<OppdragLinje> oppdragslinjer = new ArrayList<>();
+        private final LocalDate endringsdato;
+        private final List<OppdragLinje> oppdragslinjer = new ArrayList<>();
 
         private Builder(LocalDate endringsdato) {
             this.endringsdato = endringsdato;

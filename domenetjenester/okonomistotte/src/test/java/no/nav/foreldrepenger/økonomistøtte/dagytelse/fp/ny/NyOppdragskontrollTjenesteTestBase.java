@@ -84,7 +84,6 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
             .medBehandlingId(BEHANDLING_ID)
             .medSaksnummer(SAKSNUMMER)
             .medFagsakYtelseType(FagsakYtelseType.FORELDREPENGER)
-            .medFamilieYtelseType(FamilieYtelseType.FØDSEL)
             .medAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER)
             .medVedtaksdato(VEDTAKSDATO)
             .medBrukInntrekk(true)
@@ -409,7 +408,7 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
             } else {
                 assertThat(oppdr110Revurd.getKodeEndring()).isEqualTo(KodeFagområde.FORELDREPENGER_BRUKER
                     .equals(
-                        oppdr110Revurd.getKodeFagomrade()) ? KodeEndring.ENDRING : KodeEndring.UENDRET);
+                        oppdr110Revurd.getKodeFagomrade()) ? KodeEndring.ENDRING : KodeEndring.ENDRING);
             }
             assertThat(oppdr110Revurd.getOppdragslinje150Liste()).isNotEmpty();
             boolean nyMottaker = erMottakerNy(oppdr110Revurd);

@@ -19,11 +19,6 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.FinnNyesteOppdragForSak;
 import no.nav.foreldrepenger.økonomistøtte.kontantytelse.es.wrapper.ForrigeOppdragInputES;
 import no.nav.foreldrepenger.økonomistøtte.kontantytelse.es.wrapper.OppdragInputES;
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 
 @ApplicationScoped
 public class MapBehandlingInfoES {
@@ -69,11 +64,8 @@ public class MapBehandlingInfoES {
         if (oppdrag110Opt.isPresent()) {
             Oppdrag110 tidligereOppdrag110 = oppdrag110Opt.get();
             long tidligereBehandlingId = tidligereOppdrag110.getOppdragskontroll().getBehandlingId();
-            BehandlingVedtak tidligereVedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(tidligereBehandlingId)
-                .orElseThrow(() -> MapBehandlingInfoESFeil.FACTORY
-                    .fantIkkeTidligereBehandlingVedtak(tidligereBehandlingId).toException());
             long sats = hentSatsFraBehandling(tidligereBehandlingId);
-            ForrigeOppdragInputES tidligereBehandlingInfo = new ForrigeOppdragInputES(tidligereOppdrag110, tidligereVedtak, sats);
+            ForrigeOppdragInputES tidligereBehandlingInfo = new ForrigeOppdragInputES(tidligereOppdrag110, sats);
             return Optional.of(tidligereBehandlingInfo);
         }
         return Optional.empty();
@@ -92,12 +84,5 @@ public class MapBehandlingInfoES {
     private long hentSatsFraBehandling(long behandlingId) {
         Optional<LegacyESBeregning> beregning = beregningRepository.getSisteBeregning(behandlingId);
         return beregning.map(LegacyESBeregning::getBeregnetTilkjentYtelse).orElse(0L);
-    }
-
-    interface MapBehandlingInfoESFeil extends DeklarerteFeil {
-        MapBehandlingInfoESFeil FACTORY = FeilFactory.create(MapBehandlingInfoESFeil.class);
-
-        @TekniskFeil(feilkode = "FP-131242", feilmelding = "Fant ikke tidligere BehandlingVedtak, behandlingId=%s.", logLevel = LogLevel.ERROR)
-        Feil fantIkkeTidligereBehandlingVedtak(long behandlingId);
     }
 }

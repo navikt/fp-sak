@@ -12,9 +12,9 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 public enum KodeFagområde implements Kodeverdi {
     ENGANGSSTØNAD("REFUTG"),
     FORELDREPENGER_BRUKER("FP"),
-    FORELDREPENGER_AG("FPREF"),
+    FORELDREPENGER_ARBEIDSGIVER("FPREF"),
     SVANGERSKAPSPENGER_BRUKER("SVP"),
-    SVANGERSKAPSPENGER_AG("SVPREF")
+    SVANGERSKAPSPENGER_ARBEIDSGIVER("SVPREF")
     ;
 
     private static final String KODEVERK = "KODE_FAGOMRÅDE_TYPE";
@@ -48,11 +48,11 @@ public enum KodeFagområde implements Kodeverdi {
     }
 
     public boolean gjelderForeldrepenger() {
-        return FORELDREPENGER_BRUKER.equals(this) || FORELDREPENGER_AG.equals(this);
+        return FORELDREPENGER_BRUKER.equals(this) || FORELDREPENGER_ARBEIDSGIVER.equals(this);
     }
 
     public boolean gjelderRefusjonTilArbeidsgiver() {
-        return FORELDREPENGER_AG.equals(this) || SVANGERSKAPSPENGER_AG.equals(this);
+        return FORELDREPENGER_ARBEIDSGIVER.equals(this) || SVANGERSKAPSPENGER_ARBEIDSGIVER.equals(this);
     }
 
     @Override

@@ -23,11 +23,11 @@ public class KodeFagområdeTjeneste {
         if (gjelderForeldrepenger) {
             return erBrukerMottaker
                 ? KodeFagområde.FORELDREPENGER_BRUKER
-                : KodeFagområde.FORELDREPENGER_AG;
+                : KodeFagområde.FORELDREPENGER_ARBEIDSGIVER;
         }
         return erBrukerMottaker
             ? KodeFagområde.SVANGERSKAPSPENGER_BRUKER
-            : KodeFagområde.SVANGERSKAPSPENGER_AG;
+            : KodeFagområde.SVANGERSKAPSPENGER_ARBEIDSGIVER;
     }
 
     public boolean gjelderBruker(Oppdrag110 oppdrag110) {

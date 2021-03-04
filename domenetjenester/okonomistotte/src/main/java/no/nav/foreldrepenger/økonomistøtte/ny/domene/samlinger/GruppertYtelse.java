@@ -14,7 +14,7 @@ public class GruppertYtelse {
 
     public static final GruppertYtelse TOM = new GruppertYtelse(Collections.emptyMap());
 
-    private Map<KjedeNøkkel, Ytelse> ytelsePrNøkkel;
+    private final Map<KjedeNøkkel, Ytelse> ytelsePrNøkkel;
 
     public GruppertYtelse(Map<KjedeNøkkel, Ytelse> ytelsePrNøkkel) {
         this.ytelsePrNøkkel = ytelsePrNøkkel;

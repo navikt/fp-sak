@@ -4,13 +4,13 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 public class OppdragLinje {
-    private Periode periode;
+    private final Periode periode;
 
-    private Satsen sats;
-    private Utbetalingsgrad utbetalingsgrad;
-    private DelytelseId delytelseId;
-    private DelytelseId refDelytelseId;
-    private LocalDate opphørFomDato;
+    private final Satsen sats;
+    private final Utbetalingsgrad utbetalingsgrad;
+    private final DelytelseId delytelseId;
+    private final DelytelseId refDelytelseId;
+    private final LocalDate opphørFomDato;
 
     public static Builder builder() {
         return new Builder();

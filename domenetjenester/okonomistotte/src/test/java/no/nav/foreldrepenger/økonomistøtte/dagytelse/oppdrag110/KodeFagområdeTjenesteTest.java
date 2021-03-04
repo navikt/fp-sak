@@ -25,7 +25,7 @@ public class KodeFagområdeTjenesteTest {
     @Test
     public void skal_finne_kode_for_fagområde_når_ytelse_type_er_FP_og_oppdragsmottaker_er_arbeidsgiver() {
         KodeFagområde value = tjenesteFP.finn(false);
-        assertThat(value).isEqualTo(KodeFagområde.FORELDREPENGER_AG);
+        assertThat(value).isEqualTo(KodeFagområde.FORELDREPENGER_ARBEIDSGIVER);
     }
 
     @Test
@@ -37,7 +37,7 @@ public class KodeFagområdeTjenesteTest {
     @Test
     public void skal_finne_kode_for_fagområde_når_ytelse_type_er_SVP_og_oppdragsmottaker_er_arbeidsgiver() {
         KodeFagområde value = tjenesteSVP.finn(false);
-        assertThat(value).isEqualTo(KodeFagområde.SVANGERSKAPSPENGER_AG);
+        assertThat(value).isEqualTo(KodeFagområde.SVANGERSKAPSPENGER_ARBEIDSGIVER);
     }
 
     @Test

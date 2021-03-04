@@ -32,8 +32,8 @@ public class OppdragForMottakerTjeneste {
         Oppdrag.Builder builder = Oppdrag.builder(økonomiFagområde, fagsystemId, betalingsmottaker);
         for (KjedeNøkkel nøkkel : SetUtil.sortertUnionOfKeys(eksisterendeOppdrag.getKjeder(), nyTilkjentYtelse)) {
             OppdragKjedeFortsettelse kjede = fellesEndringstidspunkt == null
-                ? factory.lagOppdragskjede(eksisterendeOppdrag.getKjede(nøkkel), nyTilkjentYtelse.getOrDefault(nøkkel, Ytelse.EMPTY), nøkkel.gjelderFeriepenger())
-                : factory.lagOppdragskjedeFraFellesEndringsdato(eksisterendeOppdrag.getKjede(nøkkel), nyTilkjentYtelse.getOrDefault(nøkkel, Ytelse.EMPTY), nøkkel.gjelderFeriepenger(), fellesEndringstidspunkt);
+                ? factory.lagOppdragskjede(eksisterendeOppdrag.getKjede(nøkkel), nyTilkjentYtelse.getOrDefault(nøkkel, Ytelse.EMPTY), nøkkel.gjelderEngangsutbetaling())
+                : factory.lagOppdragskjedeFraFellesEndringsdato(eksisterendeOppdrag.getKjede(nøkkel), nyTilkjentYtelse.getOrDefault(nøkkel, Ytelse.EMPTY), nøkkel.gjelderEngangsutbetaling(), fellesEndringstidspunkt);
             if (kjede != null) {
                 builder.leggTil(nøkkel, kjede);
             }

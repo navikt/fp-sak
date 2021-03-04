@@ -127,7 +127,6 @@ public class LagOppdragTjenesteTest {
     Input lagInput(FagsakYtelseType ytelseType, FamilieYtelseType familieYtelseType, GruppertYtelse tilkjentYtelse) {
         return Input.builder()
             .medFagsakYtelseType(ytelseType)
-            .medFamilieYtelseType(familieYtelseType)
             .medTilkjentYtelse(tilkjentYtelse)
             .medTidligereOppdrag(OverordnetOppdragKjedeOversikt.TOM)
             .medSaksnummer(saksnummer)

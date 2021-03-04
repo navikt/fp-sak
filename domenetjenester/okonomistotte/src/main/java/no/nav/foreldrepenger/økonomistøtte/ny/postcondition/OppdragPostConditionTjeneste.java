@@ -38,6 +38,7 @@ import no.nav.foreldrepenger.økonomistøtte.ny.mapper.TilkjentYtelseMapper;
 import no.nav.foreldrepenger.økonomistøtte.ny.tjeneste.EndringsdatoTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.util.SetUtil;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.feil.Feil;
 
 @ApplicationScoped
@@ -83,10 +84,10 @@ public class OppdragPostConditionTjeneste {
         Map<Betalingsmottaker, TilkjentYtelseDifferanse> resultat = sammenlignEffektAvOppdragMedTilkjentYtelse(behandling, beregningsresultat);
         boolean altOk = true;
         for (var entry : resultat.entrySet()) {
-            Feil feil = konverterTilFeil(behandling.getFagsak().getSaksnummer(), Long.toString(behandling.getId()), entry.getKey(), entry.getValue());
+            TekniskException feil = konverterTilFeil(behandling.getFagsak().getSaksnummer(), Long.toString(behandling.getId()), entry.getKey(), entry.getValue());
             if (feil != null) {
                 feil.log(logger);
-                if (feil.getLogLevel() != Level.INFO) {
+                if ("FP-767898".equals(feil.getKode())) {
                     altOk = false;
                 }
             }
@@ -122,7 +123,7 @@ public class OppdragPostConditionTjeneste {
     }
 
 
-    private Feil konverterTilFeil(Saksnummer saksnummer, String behandlingId, Betalingsmottaker betalingsmottaker, TilkjentYtelseDifferanse differanse) {
+    private TekniskException konverterTilFeil(Saksnummer saksnummer, String behandlingId, Betalingsmottaker betalingsmottaker, TilkjentYtelseDifferanse differanse) {
         if (!differanse.harAvvik()) {
             return null;
         }
@@ -143,9 +144,9 @@ public class OppdragPostConditionTjeneste {
         }
         message += " Sum effekt er " + formatForskjell(sumForskjell);
         if (sumForskjell == 0) {
-            return OppdragValideringFeil.FACTORY.minorValideringsfeil(message);
+            return OppdragValideringFeil.minorValideringsfeil(message);
         } else {
-            return OppdragValideringFeil.FACTORY.valideringsfeil(message);
+            return OppdragValideringFeil.valideringsfeil(message);
         }
     }
 
@@ -175,9 +176,9 @@ public class OppdragPostConditionTjeneste {
     }
 
     static class TilkjentYtelseDifferanse {
-        private LocalDate førsteDatoForDifferanseSats;
-        private LocalDate førsteDatoForDifferanseUtbetalingsgrad;
-        private long differanseYtelse;
+        private final LocalDate førsteDatoForDifferanseSats;
+        private final LocalDate førsteDatoForDifferanseUtbetalingsgrad;
+        private final long differanseYtelse;
 
         public TilkjentYtelseDifferanse(LocalDate førsteDatoForDifferanseSats, LocalDate førsteDatoForDifferanseUtbetalingsgrad, long differanseYtelse) {
             this.førsteDatoForDifferanseSats = førsteDatoForDifferanseSats;
