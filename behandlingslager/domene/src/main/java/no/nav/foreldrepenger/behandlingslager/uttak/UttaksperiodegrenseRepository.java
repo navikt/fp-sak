@@ -50,7 +50,8 @@ public class UttaksperiodegrenseRepository {
     }
 
     public Uttaksperiodegrense hent(Long behandlingId) {
-        return hentHvisEksisterer(behandlingId).orElseThrow();
+        return hentHvisEksisterer(behandlingId)
+            .orElseThrow(() -> new IllegalStateException("Fant ikke uttaksperiodegrense for behandling " + behandlingId));
     }
 
     public Optional<Uttaksperiodegrense> hentHvisEksisterer(Long behandlingId) {
@@ -77,7 +78,8 @@ public class UttaksperiodegrenseRepository {
 
     private Behandlingsresultat hentBehandlingsresultat(Long behandlingId) {
         return behandlingsresultatRepository.hentHvisEksisterer(behandlingId)
-            .orElseThrow(() -> new IllegalStateException("Må ha behandlingsresultat ved lagring av uttak"));
+            .orElseThrow(() -> new IllegalStateException("Må ha behandlingsresultat ved lagring av uttak. Behandling "
+                + behandlingId));
     }
 
     private Optional<Uttaksperiodegrense> getAktivtUttaksperiodegrense(Behandlingsresultat behandlingsresultat) {

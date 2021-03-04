@@ -38,7 +38,8 @@ public class FpUttakRepository {
         // CDI proxy
     }
 
-    public void lagreOpprinneligUttakResultatPerioder(Long behandlingId, UttakResultatPerioderEntitet opprinneligPerioder) {
+    public void lagreOpprinneligUttakResultatPerioder(Long behandlingId,
+                                                      UttakResultatPerioderEntitet opprinneligPerioder) {
         lagreUttaksresultat(behandlingId, builder -> builder.nullstill().medOpprinneligPerioder(opprinneligPerioder));
     }
 
@@ -46,7 +47,8 @@ public class FpUttakRepository {
         lagreUttaksresultat(behandlingId, builder -> builder.medOverstyrtPerioder(overstyrtPerioder));
     }
 
-    private void lagreUttaksresultat(Long behandlingId, Function<UttakResultatEntitet.Builder, UttakResultatEntitet.Builder> resultatTransformator) {
+    private void lagreUttaksresultat(Long behandlingId,
+                                     Function<UttakResultatEntitet.Builder, UttakResultatEntitet.Builder> resultatTransformator) {
         final BehandlingLås lås = behandlingLåsRepository.taLås(behandlingId);
 
         Optional<UttakResultatEntitet> eksistrendeResultat = hentUttakResultatHvisEksisterer(behandlingId);
@@ -73,7 +75,8 @@ public class FpUttakRepository {
 
     private Behandlingsresultat hentBehandlingsresultat(Long behandlingId) {
         return behandlingsresultatRepository.hentHvisEksisterer(behandlingId)
-            .orElseThrow(() -> new IllegalStateException("Må ha behandlingsresultat ved lagring av uttak"));
+            .orElseThrow(() -> new IllegalStateException(
+                "Må ha behandlingsresultat ved lagring av uttak. Behandling " + behandlingId));
     }
 
     private void persistResultat(UttakResultatEntitet resultat) {
@@ -131,22 +134,24 @@ public class FpUttakRepository {
 
     public Optional<UttakResultatEntitet> hentUttakResultatHvisEksisterer(Long behandlingId) {
         TypedQuery<UttakResultatEntitet> query = entityManager.createQuery(
-            "select uttakResultat from UttakResultatEntitet uttakResultat " +
-                "join uttakResultat.behandlingsresultat resultat" +
-                " where resultat.behandling.id=:behandlingId and uttakResultat.aktiv='J'", UttakResultatEntitet.class); //$NON-NLS-1$
+            "select uttakResultat from UttakResultatEntitet uttakResultat "
+                + "join uttakResultat.behandlingsresultat resultat"
+                + " where resultat.behandling.id=:behandlingId and uttakResultat.aktiv='J'",
+            UttakResultatEntitet.class); //$NON-NLS-1$
         query.setParameter("behandlingId", behandlingId); // NOSONAR //$NON-NLS-1$
         return hentUniktResultat(query);
     }
 
     public UttakResultatEntitet hentUttakResultat(Long behandlingId) {
         Optional<UttakResultatEntitet> resultat = hentUttakResultatHvisEksisterer(behandlingId);
-        return resultat.orElseThrow(() -> new NoResultException("Fant ikke uttak resultat på behandlingen " + behandlingId + ", selv om det var forventet."));
+        return resultat.orElseThrow(() -> new NoResultException(
+            "Fant ikke uttak resultat på behandlingen " + behandlingId + ", selv om det var forventet."));
     }
 
     public Optional<UttakResultatEntitet> hentUttakResultatPåId(Long id) {
         Objects.requireNonNull(id, "aggregatId"); // NOSONAR $NON-NLS-1$
-        final TypedQuery<UttakResultatEntitet> query = entityManager.createQuery("FROM UttakResultatEntitet ur " +
-            "WHERE ur.id = :id ", UttakResultatEntitet.class);
+        final TypedQuery<UttakResultatEntitet> query = entityManager.createQuery(
+            "FROM UttakResultatEntitet ur " + "WHERE ur.id = :id ", UttakResultatEntitet.class);
         query.setParameter("id", id);
         return HibernateVerktøy.hentUniktResultat(query);
     }
