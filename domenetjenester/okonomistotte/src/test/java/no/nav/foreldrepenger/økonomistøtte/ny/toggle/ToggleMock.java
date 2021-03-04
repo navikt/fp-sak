@@ -10,7 +10,7 @@ public class ToggleMock extends OppdragKjerneimplementasjonToggle {
     private boolean brukNyImpl = false;
 
     @Override
-    public boolean brukNyImpl(Long behandlingId) {
+    public boolean brukNyImpl() {
         return brukNyImpl;
     }
 

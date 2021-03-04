@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLi
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.OppdragPatchDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.OppdragslinjePatchDto;
-import no.nav.foreldrepenger.økonomistøtte.dagytelse.OppdragskontrollConstants;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdragslinje150.Oppdragslinje150Util;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomistøtteUtils;
 
@@ -105,7 +104,7 @@ class OppdragMapper {
             boolean erAvslåttInntrekk = dto.getOmposterFom() == null;
             Ompostering116.Builder builder = new Ompostering116.Builder()
                 .medTidspktReg(ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now()))
-                .medOmPostering(erAvslåttInntrekk ? OppdragskontrollConstants.OMPOSTERING_N : OppdragskontrollConstants.OMPOSTERING_J);
+                .medOmPostering(!erAvslåttInntrekk);
             if (!erAvslåttInntrekk) {
                 builder.medDatoOmposterFom(dto.getOmposterFom());
             }

@@ -36,8 +36,8 @@ public class ØkonomiOppdragKøTjeneste {
         // hvis oppdragskontroll ble tidgligere lagret av en annen prosess
         // legge oppdrag på kø
         oppdragskontroll.ifPresent(ok -> {
-            ØkonomioppdragMapper mapper = new ØkonomioppdragMapper(ok);
-            List<String> oppdragXMLListe = mapper.generateOppdragXML();
+            ØkonomioppdragMapper mapper = new ØkonomioppdragMapper();
+            List<String> oppdragXMLListe = mapper.generateOppdragXML(ok);
             //Legge oppdragXML i kø til Økonomiløsningen
             for (String oppdragXML : oppdragXMLListe) {
                 økonomioppdragJmsProducer.sendØkonomiOppdrag(oppdragXML);

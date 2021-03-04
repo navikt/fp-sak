@@ -28,6 +28,7 @@ import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.OppdragSkjemaCo
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.OppdragsLinje150;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.TfradragTillegg;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.TkodeStatusLinje;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
 import no.nav.vedtak.felles.integrasjon.felles.ws.JaxbHelper;
 
@@ -44,22 +45,17 @@ public class ØkonomioppdragMapper {
     private static final String UTBET_FREKVENS = "MND";
     private static final LocalDate DATO_OPPDRAG_GJELDER_FOM = LocalDate.of(2000, 1, 1);
 
-    // TODO (Team Tonic): Fjern global state oppdragskontroll
-    private Oppdragskontroll oppdragskontroll;
-    private ObjectFactory objectFactory;
+    private final ObjectFactory objectFactory = new ObjectFactory();
 
-    public ØkonomioppdragMapper(Oppdragskontroll okoOppdragskontroll) {
-        this.oppdragskontroll = okoOppdragskontroll;
-        this.objectFactory = new ObjectFactory();
-    }
+    public ØkonomioppdragMapper() {}
 
-    public no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag mapVedtaksDataToOppdrag(Oppdrag110 okoOppdrag110, Long behandlingId) {
+    no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag mapVedtaksDataToOppdrag(Oppdrag110 okoOppdrag110, Long behandlingId) {
         final no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag oppdrag = objectFactory.createOppdrag();
         oppdrag.setOppdrag110(mapOppdrag110(okoOppdrag110, behandlingId));
         return oppdrag;
     }
 
-    public List<String> generateOppdragXML() {
+    public List<String> generateOppdragXML(Oppdragskontroll oppdragskontroll) {
         List<Oppdrag110> oppdrag110UtenKvittering = oppdragskontroll.getOppdrag110Liste().stream()
             .filter(Oppdrag110::venterKvittering)
             .collect(Collectors.toList());
@@ -71,7 +67,9 @@ public class ØkonomioppdragMapper {
                 String oppdragXml = JaxbHelper.marshalAndValidateJaxb(OppdragSkjemaConstants.JAXB_CLASS, oppdrag, OppdragSkjemaConstants.XSD_LOCATION);
                 oppdragXmlListe.add(oppdragXml);
             } catch (JAXBException | SAXException e) {
-                throw ØkonomistøtteFeil.FACTORY.xmlgenereringsfeil(oppdrag.getOppdrag110().getOppdragsId(), e).toException();
+                throw new TekniskException("FP-536167",
+                    String.format("Kan ikke konvertere oppdrag med id %s. Problemer ved generering av xml",
+                        oppdrag.getOppdrag110().getOppdragsId(), e));
             }
         }
         return oppdragXmlListe;
@@ -102,7 +100,7 @@ public class ØkonomioppdragMapper {
 
     private Ompostering116 mapOmpostering116(no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116 okoOmpostering116, String saksbehandlerId) {
         Ompostering116 ompostering116 = objectFactory.createOmpostering116();
-        ompostering116.setOmPostering(okoOmpostering116.getOmPostering());
+        ompostering116.setOmPostering(okoOmpostering116.getOmPostering() ? "J" : "N");
         ompostering116.setDatoOmposterFom(toXmlGregCal(okoOmpostering116.getDatoOmposterFom()));
         ompostering116.setSaksbehId(saksbehandlerId);
         ompostering116.setTidspktReg(okoOmpostering116.getTidspktReg());

@@ -127,7 +127,7 @@ public class OppdragMapper {
     static Ompostering116 opprettOmpostering116(LocalDate endringsdatoBruker, boolean brukInntrekk) {
         Ompostering116.Builder ompostering116Builder = new Ompostering116.Builder()
             .medTidspktReg(ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now()))
-            .medOmPostering(brukInntrekk ? "J" : "N");
+            .medOmPostering(brukInntrekk);
         if (brukInntrekk) {
             ompostering116Builder.medDatoOmposterFom(endringsdatoBruker);
         }

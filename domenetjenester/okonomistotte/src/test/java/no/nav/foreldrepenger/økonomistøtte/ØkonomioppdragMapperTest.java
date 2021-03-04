@@ -48,8 +48,8 @@ public class ØkonomioppdragMapperTest {
     private static final String FRADRAG_TILLEGG = "T";
     private static final String BRUK_KJØREPLAN = "N";
     private static final String TYPE_GRAD = "UFOR";
-    public static final String KODE_AKSJON = "1";
-    public static final String UTBET_FREKVENS = "MND";
+    private static final String KODE_AKSJON = "1";
+    private static final String UTBET_FREKVENS = "MND";
 
     private Oppdragskontroll oppdragskontroll;
     private ØkonomioppdragMapper økonomioppdragMapper;
@@ -57,7 +57,7 @@ public class ØkonomioppdragMapperTest {
     @BeforeEach
     public void setup() {
         oppdragskontroll = buildOppdragskontroll();
-        økonomioppdragMapper = new ØkonomioppdragMapper(oppdragskontroll);
+        økonomioppdragMapper = new ØkonomioppdragMapper();
     }
 
     @Test
@@ -109,7 +109,7 @@ public class ØkonomioppdragMapperTest {
     @Test
     public void generer_xml_for_oppdrag110_uten_kvittinger_ES() {
         opprettOppdrag110(oppdragskontroll, false);
-        List<String> oppdragXmlListe = økonomioppdragMapper.generateOppdragXML();
+        List<String> oppdragXmlListe = økonomioppdragMapper.generateOppdragXML(oppdragskontroll);
         assertThat(oppdragXmlListe).hasSize(1);
         assertThat(oppdragXmlListe.get(0)).isNotNull();
     }
@@ -117,7 +117,7 @@ public class ØkonomioppdragMapperTest {
     @Test
     public void generer_xml_for_oppdrag110_uten_kvittinger_FP() {
         opprettOppdrag110(oppdragskontroll, true);
-        List<String> oppdragXmlListe = økonomioppdragMapper.generateOppdragXML();
+        List<String> oppdragXmlListe = økonomioppdragMapper.generateOppdragXML(oppdragskontroll);
         assertThat(oppdragXmlListe).hasSize(2);
         assertThat(oppdragXmlListe.get(0)).isNotNull();
         assertThat(oppdragXmlListe.get(1)).isNotNull();
@@ -127,7 +127,7 @@ public class ØkonomioppdragMapperTest {
     public void ikke_generer_xml_for_oppdrag110_med_positiv_kvittering_ES() {
         opprettOppdrag110(oppdragskontroll, false);
         OppdragKvitteringTestUtil.lagPositiveKvitteringer(oppdragskontroll);
-        List<String> oppdragXmlListe = økonomioppdragMapper.generateOppdragXML();
+        List<String> oppdragXmlListe = økonomioppdragMapper.generateOppdragXML(oppdragskontroll);
         assertThat(oppdragXmlListe).isEmpty();
     }
 
@@ -135,7 +135,7 @@ public class ØkonomioppdragMapperTest {
     public void ikke_generer_xml_for_oppdrag110_med_negativ_kvittering_ES() {
         opprettOppdrag110(oppdragskontroll, false);
         OppdragKvitteringTestUtil.lagNegativeKvitteringer(oppdragskontroll);
-        List<String> oppdragXmlListe = økonomioppdragMapper.generateOppdragXML();
+        List<String> oppdragXmlListe = økonomioppdragMapper.generateOppdragXML(oppdragskontroll);
         assertThat(oppdragXmlListe).isEmpty();
     }
 
@@ -143,7 +143,7 @@ public class ØkonomioppdragMapperTest {
     public void ikke_generer_xml_for_oppdrag110_med_positiv_kvittering_FP() {
         opprettOppdrag110(oppdragskontroll, true);
         OppdragKvitteringTestUtil.lagPositiveKvitteringer(oppdragskontroll);
-        List<String> oppdragXmlListe = økonomioppdragMapper.generateOppdragXML();
+        List<String> oppdragXmlListe = økonomioppdragMapper.generateOppdragXML(oppdragskontroll);
         assertThat(oppdragXmlListe).isEmpty();
     }
 
@@ -151,7 +151,7 @@ public class ØkonomioppdragMapperTest {
     public void ikke_generer_xml_for_oppdrag110_med_negativ_kvittering_FP() {
         opprettOppdrag110(oppdragskontroll, true);
         OppdragKvitteringTestUtil.lagNegativeKvitteringer(oppdragskontroll);
-        List<String> oppdragXmlListe = økonomioppdragMapper.generateOppdragXML();
+        List<String> oppdragXmlListe = økonomioppdragMapper.generateOppdragXML(oppdragskontroll);
         assertThat(oppdragXmlListe).isEmpty();
     }
 
@@ -359,7 +359,8 @@ public class ØkonomioppdragMapperTest {
             .medSaksbehId("J5624215")
             .medOppdragskontroll(oppdragskontroll)
             .medAvstemming(Avstemming.ny())
-            .medOmpostering116(erOmpostering ? new Ompostering116.Builder().medOmPostering("J")
+            .medOmpostering116(erOmpostering ? new Ompostering116.Builder()
+                .medOmPostering(true)
                 .medDatoOmposterFom(LocalDate.now())
                 .medTidspktReg(ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now()))
                 .build() : null)

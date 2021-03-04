@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.Oppdragsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.OpprettOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.FinnMottakerInfoITilkjentYtelse;
-import no.nav.foreldrepenger.økonomistøtte.dagytelse.OppdragskontrollConstants;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragInput;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomistøtteUtils;
 
@@ -86,7 +85,7 @@ public class OpprettOppdrag110Tjeneste {
         boolean erAvslåttInntrekk = behandlingInfo.isAvslåttInntrekk();
         Ompostering116.Builder ompostering116Builder = new Ompostering116.Builder()
             .medTidspktReg(ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now()))
-            .medOmPostering(erAvslåttInntrekk ? OppdragskontrollConstants.OMPOSTERING_N : OppdragskontrollConstants.OMPOSTERING_J);
+            .medOmPostering(!erAvslåttInntrekk);
         if (!erAvslåttInntrekk) {
             LocalDate datoOmposterFom = finnDatoOmposterFom(behandlingInfo);
             ompostering116Builder.medDatoOmposterFom(datoOmposterFom);

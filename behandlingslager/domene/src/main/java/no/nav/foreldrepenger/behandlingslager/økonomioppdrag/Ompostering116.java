@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -16,6 +17,7 @@ import org.hibernate.annotations.Immutable;
 
 import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 @Immutable
 @Table(name = "OKO_OMPOSTERING_116")
@@ -30,8 +32,9 @@ public class Ompostering116 extends BaseCreateableEntitet {
     @JoinColumn(name = "oko_oppdrag_110_id", nullable = false)
     private Oppdrag110 oppdrag110;
 
+    @Convert(converter = BooleanToStringConverter.class)
     @Column(name = "om_postering", nullable = false)
-    private String omPostering;
+    private Boolean omPostering;
 
     @Column(name = "dato_omposter_fom")
     private LocalDate datoOmposterFom;
@@ -43,7 +46,7 @@ public class Ompostering116 extends BaseCreateableEntitet {
         // For hibernate
     }
 
-    public String getOmPostering() {
+    public Boolean getOmPostering() {
         return omPostering;
     }
 
@@ -66,7 +69,7 @@ public class Ompostering116 extends BaseCreateableEntitet {
     public static class Builder {
         Ompostering116 kladd = new Ompostering116();
 
-        public Builder medOmPostering(String ompostering) {
+        public Builder medOmPostering(Boolean ompostering) {
             kladd.omPostering = ompostering;
             return this;
         }

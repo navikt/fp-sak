@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.økonomistøtte.OppdragInputTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.postcondition.OppdragPostConditionTjeneste;
-import no.nav.foreldrepenger.økonomistøtte.ny.tjeneste.NyOppdragskontrollTjenesteImpl;
 import no.nav.foreldrepenger.økonomistøtte.ny.toggle.OppdragKjerneimplementasjonToggle;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -88,7 +87,7 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
             log.info("Simulerer engangsstønad for behandlingId: {}", behandlingId);
             oppdragskontrollOpt = oppdragskontrollEngangsstønadTjeneste.opprettOppdrag(behandlingId, prosessTaskData.getId());
         } else {
-            if (toggle.brukNyImpl(behandlingId)) {
+            if (toggle.brukNyImpl()) {
                 log.info("Bruker ny implementasjon av kjernen i modulen fpsak.okonomistotte for behandlingId={}", behandlingId);
                 var input = oppdragInputTjeneste.lagInput(behandlingId, prosessTaskData.getId());
                 oppdragskontrollOpt = nyOppdragskontrollTjeneste.opprettOppdrag(input);
