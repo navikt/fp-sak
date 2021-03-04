@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.økonomistøtte.Oppdragsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.FinnMottakerInfoITilkjentYtelse;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.KlassekodeUtleder;
-import no.nav.foreldrepenger.økonomistøtte.dagytelse.OppdragskontrollConstants;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.TidligereOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.VurderFeriepengerBeregning;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragInput;
