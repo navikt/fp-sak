@@ -410,7 +410,7 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
 
         // Assert
         Oppdrag110 oppdrag110Bruker = OppdragskontrollTestVerktøy.getOppdrag110ForBruker(oppdragRevurdering.getOppdrag110Liste());
-        assertThat(oppdrag110Bruker.getKodeEndring()).isEqualTo(OppdragskontrollConstants.KODE_ENDRING_UENDRET);
+        assertThat(oppdrag110Bruker.getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
         assertThat(oppdrag110Bruker.getOmpostering116()).isNotPresent();
     }
 

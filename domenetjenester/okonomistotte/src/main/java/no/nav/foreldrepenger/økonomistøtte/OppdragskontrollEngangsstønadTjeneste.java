@@ -28,7 +28,7 @@ import no.nav.foreldrepenger.økonomistøtte.ny.mapper.Input;
 @Dependent
 @FagsakYtelseTypeRef("ES")
 @Named("oppdragEngangstønadTjeneste")
-public class OppdragskontrollEngangsstønadTjeneste implements OppdragskontrollTjeneste {
+public class    OppdragskontrollEngangsstønadTjeneste implements OppdragskontrollTjeneste {
 
     private static final Logger log = LoggerFactory.getLogger(OppdragskontrollEngangsstønadTjeneste.class);
     private static final Long DUMMY_PT_ID_SIMULERING = -1L;

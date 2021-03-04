@@ -98,7 +98,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
 
         // Assert
         Oppdrag110 oppdrag110 = OppdragskontrollTestVerktøy.getOppdrag110ForBruker(oppdragRevurdering.getOppdrag110Liste());
-        assertThat(oppdrag110.getKodeEndring()).isEqualTo(OppdragskontrollConstants.KODE_ENDRING_ENDRET);
+        assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
         assertThat(oppdrag110.getOmpostering116()).isPresent();
         Ompostering116 ompostering116 = oppdrag110.getOmpostering116().get();
         assertThat(ompostering116.getOmPostering()).isEqualTo("N");
@@ -137,14 +137,14 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         // Assert
         //Bruker
         Oppdrag110 oppdrag110Bruker = OppdragskontrollTestVerktøy.getOppdrag110ForBruker(oppdragRevurdering.getOppdrag110Liste());
-        assertThat(oppdrag110Bruker.getKodeEndring()).isEqualTo(OppdragskontrollConstants.KODE_ENDRING_ENDRET);
+        assertThat(oppdrag110Bruker.getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
         assertThat(oppdrag110Bruker.getOmpostering116()).isPresent();
         Ompostering116 ompostering116 = oppdrag110Bruker.getOmpostering116().get();
         assertThat(ompostering116.getOmPostering()).isEqualTo("J");
         assertThat(ompostering116.getDatoOmposterFom()).isEqualTo(endringsdato);
         //Arbeidsgiver
         Oppdrag110 oppdrag110Arbeidsgiver = OppdragskontrollTestVerktøy.getOppdrag110ForArbeidsgiver(oppdragRevurdering.getOppdrag110Liste(), virksomhet);
-        assertThat(oppdrag110Arbeidsgiver.getKodeEndring()).isEqualTo(OppdragskontrollConstants.KODE_ENDRING_UENDRET);
+        assertThat(oppdrag110Arbeidsgiver.getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
         assertThat(oppdrag110Arbeidsgiver.getOmpostering116()).isNotPresent();
     }
 
