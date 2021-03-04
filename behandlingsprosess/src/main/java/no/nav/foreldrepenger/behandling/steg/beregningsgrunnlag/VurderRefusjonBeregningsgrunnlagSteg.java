@@ -58,6 +58,9 @@ public class VurderRefusjonBeregningsgrunnlagSteg implements BeregningsgrunnlagS
             return BehandleStegResultat.fremoverført(FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT);
         } else {
             List<BeregningAksjonspunktResultat> aksjonspunkter = beregningsgrunnlagResultat.getAksjonspunkter();
+            if (true) {
+                return BehandleStegResultat.utførtUtenAksjonspunkter();
+            }
             return BehandleStegResultat
                     .utførtMedAksjonspunktResultater(aksjonspunkter.stream().map(BeregningResultatMapper::map).collect(Collectors.toList()));
         }
