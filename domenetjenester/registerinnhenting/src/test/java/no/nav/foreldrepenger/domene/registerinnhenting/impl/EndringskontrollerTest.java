@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -30,7 +31,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.registerinnhenting.KontrollerFaktaInngangsVilkårUtleder;
@@ -223,6 +226,53 @@ public class EndringskontrollerTest {
 
         // Assert
         assertThat(revurdering.getStartpunkt()).isEqualTo(startpunktSRB);
+    }
+
+    @Test
+    public void skal_avbryte_avklar_termin_når_det_finnes_fødsel() {
+        // Arrange
+        LocalDate fdato = LocalDate.now().minusWeeks(3);
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medFødselAdopsjonsdato(List.of(fdato))
+            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
+            .leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE, BehandlingStegType.KONTROLLER_FAKTA);
+        scenario.medSøknadHendelse().medAntallBarn(1).medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
+            .medTermindato(LocalDate.now().minusDays(5))
+            .medUtstedtDato(LocalDate.now().minusMonths(1))
+            .medNavnPå("Legen min"));
+        scenario.medBekreftetHendelse().medAntallBarn(1).medFødselsDato(LocalDate.now().minusDays(2))
+            .medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
+                .medTermindato(LocalDate.now().minusDays(5))
+                .medUtstedtDato(LocalDate.now().minusMonths(1))
+                .medNavnPå("Legen min"));
+
+        Behandling behandling = scenario.lagMocked();
+        behandling.setStartpunkt(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
+
+        forceOppdaterBehandlingSteg(behandling, BehandlingStegType.SØKERS_RELASJON_TIL_BARN, BehandlingStegStatus.INNGANG, BehandlingStegStatus.UTFØRT);
+
+        assertThat(behandling.getAksjonspunktFor(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE).erÅpentAksjonspunkt()).isTrue();
+
+        var startpunktSRB = StartpunktType.OPPTJENING;
+        when(startpunktTjenesteMock.utledStartpunktForDiffBehandlingsgrunnlag(any(), any(EndringsresultatDiff.class))).thenReturn(startpunktSRB);
+        when(behandlingskontrollTjenesteMock.erStegPassert(any(Long.class), any())).thenReturn(true);
+        when(behandlingskontrollTjenesteMock.erStegPassert(any(Behandling.class), any())).thenReturn(true);
+        when(behandlingskontrollTjenesteMock.sammenlignRekkefølge(any(), any(), any(), any())).thenReturn(-1);
+        when(behandlingskontrollTjenesteMock.skalAksjonspunktLøsesIEllerEtterSteg(FagsakYtelseType.FORELDREPENGER, BehandlingType.FØRSTEGANGSSØKNAD,
+            BehandlingStegType.SØKERS_RELASJON_TIL_BARN, AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE)).thenReturn(true);
+
+        // Blir ikke reutledet
+        when(kontrollerFaktaTjenesteMock.utledAksjonspunkterFomSteg(any(), any())).thenReturn(Collections.emptyList());
+
+        Endringskontroller endringskontroller = new Endringskontroller(behandlingskontrollTjenesteMock, startpunktTjenesteProviderMock, null, historikkinnslagTjenesteMock, kontrollerFaktaTjenesterMock, skjæringstidspunktTjeneste);
+
+
+        // Act
+        endringskontroller.spolTilStartpunkt(behandling, EndringsresultatDiff.medDiff(Inntektsmelding.class, 1L, 2L), StartpunktType.UDEFINERT);
+
+        // Assert
+        assertThat(behandling.getAktivtBehandlingSteg()).isEqualTo(BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
+        verify(behandlingskontrollTjenesteMock).lagreAksjonspunkterAvbrutt(any(), any(), any());
     }
 
     @Test

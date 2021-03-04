@@ -107,9 +107,10 @@ public class Endringskontroller {
 
         oppdaterStartpunktVedBehov(behandling, startpunktType);
 
-        // Gjør aksjonspunktutledning utenom steg kun for startpunkt inne i inngangsvilkårene
-        if (harUtførtKontrollerFakta(behandling) && STARTPUNKT_STEG_INNGANG_VILKÅR.contains(tilSteg)) {
-            utledAksjonspunkterTilHøyreForStartpunkt(kontekst, tilSteg, ref, behandling, tilbakeføres);
+        // Gjør aksjonspunktutledning utenom steg kun dersom man står i eller skal gå tilbake til inngangsvilkår
+        var sjekkSteg = tilbakeføres ? tilSteg : fraSteg;
+        if (harUtførtKontrollerFakta(behandling) && STARTPUNKT_STEG_INNGANG_VILKÅR.contains(sjekkSteg)) {
+            utledAksjonspunkterTilHøyreForStartpunkt(kontekst, sjekkSteg, ref, behandling);
         }
 
         if (tilbakeføres) {
@@ -163,15 +164,14 @@ public class Endringskontroller {
     }
 
     // Orkestrerer aksjonspunktene for kontroll av fakta som utføres ifm tilbakehopp til et sted innen inngangsvilkår
-    private void utledAksjonspunkterTilHøyreForStartpunkt(BehandlingskontrollKontekst kontekst, BehandlingStegType tilSteg, BehandlingReferanse ref, Behandling behandling, boolean tilbakeføres) {
-        var tidligsteSteg = tilbakeføres ? tilSteg : behandling.getAktivtBehandlingSteg();
+    private void utledAksjonspunkterTilHøyreForStartpunkt(BehandlingskontrollKontekst kontekst, BehandlingStegType fomSteg, BehandlingReferanse ref, Behandling behandling) {
         var resultater = FagsakYtelseTypeRef.Lookup.find(KontrollerFaktaInngangsVilkårUtleder.class, kontrollerFaktaTjenester, ref.getFagsakYtelseType())
             .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + ref.getFagsakYtelseType().getKode()))
-            .utledAksjonspunkterFomSteg(ref, tidligsteSteg);
+            .utledAksjonspunkterFomSteg(ref, fomSteg);
         List<Aksjonspunkt> avbrytes = behandling.getÅpneAksjonspunkter().stream()
             .filter(ap -> !ap.erManueltOpprettet() && !ap.erAutopunkt())
-            .filter(ap -> resultater.stream().noneMatch(ar -> ap.getAksjonspunktDefinisjon().equals(ar.getAksjonspunktDefinisjon())))
-            .filter(ap -> behandlingskontrollTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(ref.getFagsakYtelseType(), ref.getBehandlingType(), tidligsteSteg, ap.getAksjonspunktDefinisjon()))
+            .filter(ap -> resultater.isEmpty() || resultater.stream().noneMatch(ar -> ap.getAksjonspunktDefinisjon().equals(ar.getAksjonspunktDefinisjon())))
+            .filter(ap -> behandlingskontrollTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(ref.getFagsakYtelseType(), ref.getBehandlingType(), fomSteg, ap.getAksjonspunktDefinisjon()))
             .collect(Collectors.toList());
         var opprettes = resultater.stream()
             .filter(ar -> !AksjonspunktStatus.UTFØRT.equals(behandling.getAksjonspunktMedDefinisjonOptional(ar.getAksjonspunktDefinisjon())
