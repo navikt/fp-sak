@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
-import no.nav.foreldrepenger.økonomistøtte.ny.tjeneste.NyOppdragskontrollTjenesteImpl;
 import no.nav.foreldrepenger.økonomistøtte.ny.toggle.OppdragKjerneimplementasjonToggle;
 
 @ApplicationScoped
@@ -58,7 +57,7 @@ public class SimulerOppdragTjeneste {
      */
     public List<String> simulerOppdrag(Long behandlingId, FagsakYtelseType fagsakYtelseType) {
         log.info("Oppretter simuleringsoppdrag for behandling: {}", behandlingId); //$NON-NLS-1$
-        boolean brukNyImplementasjon = toggle.brukNyImpl(behandlingId);
+        boolean brukNyImplementasjon = toggle.brukNyImpl();
 
         Optional<Oppdragskontroll> oppdragskontrollOpt;
 
@@ -76,8 +75,8 @@ public class SimulerOppdragTjeneste {
         }
 
         if (oppdragskontrollOpt.isPresent()) {
-            ØkonomioppdragMapper mapper = new ØkonomioppdragMapper(oppdragskontrollOpt.get());
-            return mapper.generateOppdragXML();
+            ØkonomioppdragMapper mapper = new ØkonomioppdragMapper();
+            return mapper.generateOppdragXML(oppdragskontrollOpt.get());
         }
         return Collections.emptyList();
     }

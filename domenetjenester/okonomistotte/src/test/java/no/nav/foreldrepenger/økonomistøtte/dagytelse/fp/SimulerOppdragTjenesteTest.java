@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.økonomistøtte.dagytelse.fp;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
@@ -28,7 +27,6 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.OppdragInputTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.SimulerOppdragTjeneste;
-import no.nav.foreldrepenger.økonomistøtte.ny.tjeneste.NyOppdragskontrollTjenesteImpl;
 import no.nav.foreldrepenger.økonomistøtte.ny.toggle.OppdragKjerneimplementasjonToggle;
 
 @CdiDbAwareTest
@@ -52,7 +50,7 @@ public class SimulerOppdragTjenesteTest {
         buildOppdragslinje150(o110);
         lenient().when(oppdragskontrollTjeneste.simulerOppdrag(anyLong())).thenReturn(Optional.ofNullable(oppdragskontroll));
 
-        when(toggle.brukNyImpl(any())).thenReturn(false);
+        when(toggle.brukNyImpl()).thenReturn(false);
 
         var simulerOppdragTjeneste = new SimulerOppdragTjeneste(oppdragskontrollTjeneste, null, nyOppdragskontrollTjeneste, oppdragInputTjeneste, toggle);
 

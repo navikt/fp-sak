@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116;
 
 public class Ompostering116Dto extends SporingDto {
-    private String omPostering;
+    private Boolean omPostering;
     private LocalDate datoOmposterFom;
     private String tidspktReg;
 
@@ -13,7 +13,7 @@ public class Ompostering116Dto extends SporingDto {
         super(entitet, null, entitet.getId());
     }
 
-    public String getOmPostering() {
+    public Boolean getOmPostering() {
         return omPostering;
     }
 

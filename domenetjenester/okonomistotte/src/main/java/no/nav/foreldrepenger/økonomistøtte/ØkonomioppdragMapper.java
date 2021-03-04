@@ -45,22 +45,17 @@ public class ØkonomioppdragMapper {
     private static final String UTBET_FREKVENS = "MND";
     private static final LocalDate DATO_OPPDRAG_GJELDER_FOM = LocalDate.of(2000, 1, 1);
 
-    // TODO (Team Tonic): Fjern global state oppdragskontroll
-    private Oppdragskontroll oppdragskontroll;
-    private ObjectFactory objectFactory;
+    private final ObjectFactory objectFactory = new ObjectFactory();
 
-    public ØkonomioppdragMapper(Oppdragskontroll okoOppdragskontroll) {
-        this.oppdragskontroll = okoOppdragskontroll;
-        this.objectFactory = new ObjectFactory();
-    }
+    public ØkonomioppdragMapper() {}
 
-    public no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag mapVedtaksDataToOppdrag(Oppdrag110 okoOppdrag110, Long behandlingId) {
+    no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag mapVedtaksDataToOppdrag(Oppdrag110 okoOppdrag110, Long behandlingId) {
         final no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag oppdrag = objectFactory.createOppdrag();
         oppdrag.setOppdrag110(mapOppdrag110(okoOppdrag110, behandlingId));
         return oppdrag;
     }
 
-    public List<String> generateOppdragXML() {
+    public List<String> generateOppdragXML(Oppdragskontroll oppdragskontroll) {
         List<Oppdrag110> oppdrag110UtenKvittering = oppdragskontroll.getOppdrag110Liste().stream()
             .filter(Oppdrag110::venterKvittering)
             .collect(Collectors.toList());

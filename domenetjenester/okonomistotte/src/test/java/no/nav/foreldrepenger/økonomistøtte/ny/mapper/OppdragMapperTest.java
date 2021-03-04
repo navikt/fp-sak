@@ -13,7 +13,7 @@ class OppdragMapperTest {
 
         var ompostering116 = OppdragMapper.opprettOmpostering116(omposteringFom, true);
 
-        Assertions.assertThat(ompostering116.getOmPostering()).isEqualTo("J");
+        Assertions.assertThat(ompostering116.getOmPostering()).isTrue();
         Assertions.assertThat(ompostering116.getDatoOmposterFom()).isEqualTo(omposteringFom);
     }
 
@@ -23,7 +23,7 @@ class OppdragMapperTest {
 
         var ompostering116 = OppdragMapper.opprettOmpostering116(omposteringFom, false);
 
-        Assertions.assertThat(ompostering116.getOmPostering()).isEqualTo("N");
+        Assertions.assertThat(ompostering116.getOmPostering()).isFalse();
         Assertions.assertThat(ompostering116.getDatoOmposterFom()).isNull();
     }
 }

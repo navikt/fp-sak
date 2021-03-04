@@ -60,7 +60,7 @@ public class SimulerOppdragTjenesteTest extends EntityManagerAwareTest {
         beregningRepository = new LegacyESBeregningRepository(entityManager);
         behandlingVedtakRepository = new BehandlingVedtakRepository(entityManager);
         familieHendelseRepository = new FamilieHendelseRepository(entityManager);
-        when(toggle.brukNyImpl(any())).thenReturn(false);
+        when(toggle.brukNyImpl()).thenReturn(false);
 
         simulerOppdragTjeneste = new SimulerOppdragTjeneste(mock(OppdragskontrollTjeneste.class), mockTjeneste(), mock(NyOppdragskontrollTjenesteImpl.class), mock(OppdragInputTjeneste.class), toggle);
     }

@@ -95,7 +95,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
         assertThat(oppdrag110.getOmpostering116()).isPresent();
         Ompostering116 ompostering116 = oppdrag110.getOmpostering116().get();
-        assertThat(ompostering116.getOmPostering()).isEqualTo("N");
+        assertThat(ompostering116.getOmPostering()).isFalse();
         assertThat(ompostering116.getDatoOmposterFom()).isNull();
     }
 
@@ -131,7 +131,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         assertThat(oppdrag110Bruker.getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
         assertThat(oppdrag110Bruker.getOmpostering116()).isPresent();
         Ompostering116 ompostering116 = oppdrag110Bruker.getOmpostering116().get();
-        assertThat(ompostering116.getOmPostering()).isEqualTo("J");
+        assertThat(ompostering116.getOmPostering()).isTrue();
         assertThat(ompostering116.getDatoOmposterFom()).isEqualTo(endringsdato);
         //Arbeidsgiver
         Oppdrag110 oppdrag110Arbeidsgiver = OppdragskontrollTestVerktøy.getOppdrag110ForArbeidsgiver(oppdragRevurdering.getOppdrag110Liste(), virksomhet);
@@ -162,7 +162,7 @@ public class OppdragskontrollTjenesteENDRTest extends OppdragskontrollTjenesteTe
         Oppdrag110 oppdrag110Bruker = OppdragskontrollTestVerktøy.getOppdrag110ForBruker(oppdragRevurdering.getOppdrag110Liste());
         assertThat(oppdrag110Bruker.getOmpostering116()).isPresent();
         Ompostering116 ompostering116 = oppdrag110Bruker.getOmpostering116().get();
-        assertThat(ompostering116.getOmPostering()).isEqualTo("J");
+        assertThat(ompostering116.getOmPostering()).isTrue();
         assertThat(ompostering116.getDatoOmposterFom()).isEqualTo(b1Periode.getBeregningsresultatPeriodeFom());
     }
 
