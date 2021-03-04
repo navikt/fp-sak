@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
@@ -79,16 +80,26 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
             }
         }
 
-        final FamilieHendelseGrunnlagEntitet eksisterendeGrunnlag = familieHendelseTjeneste.hentAggregat(behandlingId);
         final FamilieHendelseBuilder oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandling);
-        oppdatertOverstyrtHendelse
-            .tilbakestillBarn()
-            .medTerminbekreftelse(oppdatertOverstyrtHendelse.getTerminbekreftelseBuilder()
-                .medNavnPå(eksisterendeGrunnlag.getSøknadVersjon().getTerminbekreftelse().map(TerminbekreftelseEntitet::getNavnPå).orElse("Ukjent opphav"))
-                .medTermindato(dto.getTermindato())
-                .medUtstedtDato(dto.getUtstedtdato()))
-            .medAntallBarn(dto.getAntallBarn());
-        familieHendelseTjeneste.lagreOverstyrtHendelse(behandling, oppdatertOverstyrtHendelse);
+        if (FamilieHendelseType.TERMIN.equals(grunnlag.getGjeldendeVersjon().getType())) {
+            oppdatertOverstyrtHendelse
+                .tilbakestillBarn()
+                .medTerminbekreftelse(oppdatertOverstyrtHendelse.getTerminbekreftelseBuilder()
+                    .medNavnPå(grunnlag.getSøknadVersjon().getTerminbekreftelse().map(TerminbekreftelseEntitet::getNavnPå).orElse("Ukjent opphav"))
+                    .medTermindato(dto.getTermindato())
+                    .medUtstedtDato(dto.getUtstedtdato()))
+                .medAntallBarn(dto.getAntallBarn());
+            familieHendelseTjeneste.lagreOverstyrtHendelse(behandling, oppdatertOverstyrtHendelse);
+        } else {
+            // Hvis man nå av en eller annen grunn har aksjonspunkt avklar termin når typen er fødsel.
+            oppdatertOverstyrtHendelse
+                .medTerminbekreftelse(oppdatertOverstyrtHendelse.getTerminbekreftelseBuilder()
+                    .medNavnPå(grunnlag.getSøknadVersjon().getTerminbekreftelse().map(TerminbekreftelseEntitet::getNavnPå).orElse("Ukjent opphav"))
+                    .medTermindato(dto.getTermindato())
+                    .medUtstedtDato(dto.getUtstedtdato()))
+                .medAntallBarn(dto.getAntallBarn());
+            familieHendelseTjeneste.lagreOverstyrtHendelse(behandling, oppdatertOverstyrtHendelse);
+        }
 
         final FamilieHendelseGrunnlagEntitet oppdatertGrunnlag = familieHendelseTjeneste.hentAggregat(behandlingId);
 
