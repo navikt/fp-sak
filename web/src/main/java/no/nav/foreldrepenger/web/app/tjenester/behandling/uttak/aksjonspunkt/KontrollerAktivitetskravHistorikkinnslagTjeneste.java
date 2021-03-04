@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.aksjonspunkt;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -56,7 +57,8 @@ public class KontrollerAktivitetskravHistorikkinnslagTjeneste {
         builder.ferdigstillHistorikkinnslagDel();
         builder.medOpplysning(HistorikkOpplysningType.UTTAK_PERIODE_FOM, periode.getFom());
         builder.medOpplysning(HistorikkOpplysningType.UTTAK_PERIODE_TOM, periode.getTom());
-        builder.medEndretFelt(HistorikkEndretFeltType.AKTIVITETSKRAV_AVKLARING, null, eksisterendeVerdi, periode.getAvklaring());
+        var fraVerdi = Objects.equals(eksisterendeVerdi, periode.getAvklaring()) ? null : eksisterendeVerdi;
+        builder.medEndretFelt(HistorikkEndretFeltType.AKTIVITETSKRAV_AVKLARING, null, fraVerdi, periode.getAvklaring());
         builder.medBegrunnelse(periode.getBegrunnelse());
         builder.medSkjermlenke(SkjermlenkeType.FAKTA_OM_AKTIVITETSKRAV);
     }

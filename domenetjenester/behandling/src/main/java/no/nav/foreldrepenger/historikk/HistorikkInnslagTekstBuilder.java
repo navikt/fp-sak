@@ -545,7 +545,6 @@ public class HistorikkInnslagTekstBuilder {
         if (HistorikkinnslagMal.MAL_TYPE_11.equals(type)) {
             return checkFieldsPresent(type, historikkinnslagDel,
                 HistorikkinnslagFeltType.SKJERMLENKE,
-                HistorikkinnslagFeltType.HENDELSE,
                 HistorikkinnslagFeltType.ENDRET_FELT,
                 HistorikkinnslagFeltType.OPPLYSNINGER,
                 HistorikkinnslagFeltType.BEGRUNNELSE);
