@@ -57,6 +57,7 @@ public class KalkulusTilBehandlingslagerMapper {
         leggTilRegelsporing(regelSporingerGrunnlag, builder, BeregningsgrunnlagRegelType.PERIODISERING);
         leggTilRegelsporing(regelSporingerGrunnlag, builder, BeregningsgrunnlagRegelType.PERIODISERING_NATURALYTELSE);
         leggTilRegelsporing(regelSporingerGrunnlag, builder, BeregningsgrunnlagRegelType.PERIODISERING_REFUSJON);
+        leggTilRegelsporing(regelSporingerGrunnlag, builder, BeregningsgrunnlagRegelType.PERIODISERING_GRADERING);
         leggTilRegelsporing(regelSporingerGrunnlag, builder, BeregningsgrunnlagRegelType.BRUKERS_STATUS);
         leggTilRegelsporing(regelSporingerGrunnlag, builder, BeregningsgrunnlagRegelType.SKJÆRINGSTIDSPUNKT);
         builder.medSkjæringstidspunkt(beregningsgrunnlagFraKalkulus.getSkjæringstidspunkt());
