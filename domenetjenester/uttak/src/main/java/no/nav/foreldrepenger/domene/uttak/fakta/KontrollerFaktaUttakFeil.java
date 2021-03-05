@@ -1,22 +1,20 @@
 package no.nav.foreldrepenger.domene.uttak.fakta;
 
-import static no.nav.vedtak.feil.LogLevel.ERROR;
-import static no.nav.vedtak.feil.LogLevel.WARN;
-
 import java.time.LocalDate;
 
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.exception.TekniskException;
 
-public interface KontrollerFaktaUttakFeil extends DeklarerteFeil {
-    KontrollerFaktaUttakFeil FACTORY = FeilFactory.create(KontrollerFaktaUttakFeil.class);
+public final class KontrollerFaktaUttakFeil {
 
-    @TekniskFeil(feilkode = "FP-823386", feilmelding = "Datafeil. Periode er dokumentert uten at saksbehandler har begrunnet dette.", logLevel = WARN)
-    Feil dokumentertUtenBegrunnelse();
+    public static TekniskException dokumentertUtenBegrunnelse() {
+        return new TekniskException("FP-823386",
+            "Datafeil. Periode er dokumentert uten at saksbehandler har begrunnet dette.");
+    }
 
-    @TekniskFeil(feilkode = "FP-651234", feilmelding = "Ikke gyldig søknadsperiode. Periode med gradering for arbeidstaker trenger arbeidsgiver oppgitt. %s %s %s", logLevel = ERROR)
-    Feil søktGraderingUtenArbeidsgiver(String periodeType, LocalDate fom, LocalDate tom);
-
+    public static TekniskException søktGraderingUtenArbeidsgiver(String periodeType, LocalDate fom, LocalDate tom) {
+        var msg = String.format("""
+            Ikke gyldig søknadsperiode. Periode med gradering for arbeidstaker trenger arbeidsgiver oppgitt. %s %s %s
+            """, periodeType, fom, tom);
+        return new TekniskException("FP-651234", msg);
+    }
 }

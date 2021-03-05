@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Objects;
 
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
-import no.nav.vedtak.feil.FeilFactory;
 
 class EndringerHarBegrunnelseValidering implements OverstyrUttakPerioderValidering {
 
@@ -16,9 +15,9 @@ class EndringerHarBegrunnelseValidering implements OverstyrUttakPerioderValideri
 
     @Override
     public void utfør(List<ForeldrepengerUttakPeriode> nyePerioder) {
-        for (ForeldrepengerUttakPeriode periode : nyePerioder) {
+        for (var periode : nyePerioder) {
             if (nullOrEmpty(periode.getBegrunnelse()) && harEndring(periode)) {
-                throw FeilFactory.create(OverstyrUttakValideringFeil.class).periodeManglerBegrunnelse().toException();
+                throw OverstyrUttakValideringFeil.periodeManglerBegrunnelse();
             }
         }
     }
@@ -28,7 +27,7 @@ class EndringerHarBegrunnelseValidering implements OverstyrUttakPerioderValideri
     }
 
     private boolean harEndring(ForeldrepengerUttakPeriode periode) {
-        for (ForeldrepengerUttakPeriode opprinneligPeriode : opprinnelig) {
+        for (var opprinneligPeriode : opprinnelig) {
             if (periode.erLikBortsettFraTrekkdager(opprinneligPeriode)) {
                 return false;
             }

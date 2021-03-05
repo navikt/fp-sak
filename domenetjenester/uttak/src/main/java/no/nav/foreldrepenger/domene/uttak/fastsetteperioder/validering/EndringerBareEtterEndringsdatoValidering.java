@@ -5,12 +5,11 @@ import java.util.List;
 import java.util.Objects;
 
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
-import no.nav.vedtak.feil.FeilFactory;
 
 class EndringerBareEtterEndringsdatoValidering implements OverstyrUttakPerioderValidering {
 
     private final LocalDate endringsdato;
-    private List<ForeldrepengerUttakPeriode> opprinnelige;
+    private final List<ForeldrepengerUttakPeriode> opprinnelige;
 
     EndringerBareEtterEndringsdatoValidering(List<ForeldrepengerUttakPeriode> opprinnelige, LocalDate endringsdato) {
         this.endringsdato = Objects.requireNonNull(endringsdato);
@@ -21,12 +20,13 @@ class EndringerBareEtterEndringsdatoValidering implements OverstyrUttakPerioderV
     public void utfør(List<ForeldrepengerUttakPeriode> nyePerioder) {
         nyePerioder.forEach(p -> {
             if (p.getTom().isBefore(endringsdato) && harEndring(p)) {
-                throw FeilFactory.create(OverstyrUttakValideringFeil.class).perioderFørEndringsdatoKanIkkeEndres().toException();
+                throw OverstyrUttakValideringFeil.perioderFørEndringsdatoKanIkkeEndres();
             }
         });
     }
 
     private boolean harEndring(ForeldrepengerUttakPeriode nyPeriode) {
-        return opprinnelige.stream().noneMatch(opprinneligPeriode -> opprinneligPeriode.erLikBortsettFraTrekkdager(nyPeriode));
+        return opprinnelige.stream()
+            .noneMatch(opprinneligPeriode -> opprinneligPeriode.erLikBortsettFraTrekkdager(nyPeriode));
     }
 }

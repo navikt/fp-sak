@@ -1,21 +1,25 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder;
 
-import static no.nav.vedtak.feil.LogLevel.ERROR;
-
 import java.util.List;
 
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakAktivitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.exception.TekniskException;
 
-interface FastsettePerioderFeil extends DeklarerteFeil {
+final class FastsettePerioderFeil {
 
-    @TekniskFeil(feilkode = "FP-818121", feilmelding = "Fant ikke opprinnelig periode for ny periode %s", logLevel = ERROR)
-    Feil manglendeOpprinneligPeriode(ForeldrepengerUttakPeriode periode);
+    private FastsettePerioderFeil() {
+    }
 
-    @TekniskFeil(feilkode = "FP-299466", feilmelding = "Finner ingen aktivitet i opprinnelig for ny aktivitet %s %s", logLevel = ERROR)
-    Feil manglendeOpprinneligAktivitet(ForeldrepengerUttakAktivitet nyAktivitet, List<UttakResultatPeriodeAktivitetEntitet> aktiviteter);
+    static TekniskException manglendeOpprinneligPeriode(ForeldrepengerUttakPeriode periode) {
+        return new TekniskException("FP-818121", "Fant ikke opprinnelig periode for ny periode " + periode);
+    }
+
+    static TekniskException manglendeOpprinneligAktivitet(ForeldrepengerUttakAktivitet nyAktivitet,
+                                                   List<UttakResultatPeriodeAktivitetEntitet> aktiviteter) {
+        var msg = String.format("Finner ingen aktivitet i opprinnelig for ny aktivitet %s %s", nyAktivitet,
+            aktiviteter);
+        return new TekniskException("FP-299466", msg);
+    }
 }

@@ -18,11 +18,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.tid.IntervalUtils;
 import no.nav.foreldrepenger.domene.uttak.fakta.KontrollerFaktaUttakFeil;
-import no.nav.vedtak.feil.FeilFactory;
 
 final class SøknadsperiodeDokumentasjonKontrollerer {
 
@@ -37,28 +34,27 @@ final class SøknadsperiodeDokumentasjonKontrollerer {
 
     static KontrollerFaktaData kontrollerPerioder(YtelseFordelingAggregat ytelseFordeling,
                                                   LocalDate fødselsDatoTilTidligOppstart) {
-        List<PeriodeUttakDokumentasjonEntitet> dokumentasjonPerioder = hentDokumentasjonPerioder(ytelseFordeling);
+        var dokumentasjonPerioder = hentDokumentasjonPerioder(ytelseFordeling);
 
-        SøknadsperiodeDokumentasjonKontrollerer kontrollerer = new SøknadsperiodeDokumentasjonKontrollerer(dokumentasjonPerioder,
+        var kontrollerer = new SøknadsperiodeDokumentasjonKontrollerer(dokumentasjonPerioder,
             fødselsDatoTilTidligOppstart);
-        return kontrollerer.kontrollerSøknadsperioder(ytelseFordeling.getGjeldendeSøknadsperioder().getOppgittePerioder());
+        return kontrollerer.kontrollerSøknadsperioder(
+            ytelseFordeling.getGjeldendeSøknadsperioder().getOppgittePerioder());
     }
 
     private static List<PeriodeUttakDokumentasjonEntitet> hentDokumentasjonPerioder(YtelseFordelingAggregat ytelseFordeling) {
         return ytelseFordeling.getPerioderUttakDokumentasjon()
-            .map(PerioderUttakDokumentasjonEntitet::getPerioder).orElse(Collections.emptyList());
+            .map(PerioderUttakDokumentasjonEntitet::getPerioder)
+            .orElse(Collections.emptyList());
     }
 
     private KontrollerFaktaData kontrollerSøknadsperioder(List<OppgittPeriodeEntitet> søknadsperioder) {
-        List<KontrollerFaktaPeriode> perioder = søknadsperioder.stream()
-            .map(this::kontrollerSøknadsperiode)
-            .collect(toList());
-
+        var perioder = søknadsperioder.stream().map(this::kontrollerSøknadsperiode).collect(toList());
         return new KontrollerFaktaData(perioder);
     }
 
     KontrollerFaktaPeriode kontrollerSøknadsperiode(OppgittPeriodeEntitet søknadsperiode) {
-        List<PeriodeUttakDokumentasjonEntitet> eksisterendeDokumentasjon = finnDokumentasjon(søknadsperiode.getFom(), søknadsperiode.getTom());
+        var eksisterendeDokumentasjon = finnDokumentasjon(søknadsperiode.getFom(), søknadsperiode.getTom());
 
         if (erPeriodenAvklartAvSaksbehandler(søknadsperiode)) {
             return kontrollerAvklartPeriode(søknadsperiode, eksisterendeDokumentasjon);
@@ -75,7 +71,7 @@ final class SøknadsperiodeDokumentasjonKontrollerer {
     private KontrollerFaktaPeriode kontrollerUavklartPeriode(OppgittPeriodeEntitet søknadsperiode,
                                                              List<PeriodeUttakDokumentasjonEntitet> eksisterendeDokumentasjon) {
         if (!eksisterendeDokumentasjon.isEmpty()) {
-            throw KontrollerFaktaUttakFeil.FACTORY.dokumentertUtenBegrunnelse().toException();
+            throw KontrollerFaktaUttakFeil.dokumentertUtenBegrunnelse();
         }
 
         if (søknadsperiode.isUtsettelse()) {
@@ -98,11 +94,11 @@ final class SøknadsperiodeDokumentasjonKontrollerer {
     }
 
     private List<PeriodeUttakDokumentasjonEntitet> finnDokumentasjon(LocalDate fom, LocalDate tom) {
-        IntervalUtils søknadPeriode = new IntervalUtils(fom, tom);
+        var søknadPeriode = new IntervalUtils(fom, tom);
         List<PeriodeUttakDokumentasjonEntitet> resultat = new ArrayList<>();
 
-        for (PeriodeUttakDokumentasjonEntitet dokumentasjon : dokumentasjonPerioder) {
-            DatoIntervallEntitet dokumentasjonPeriode = dokumentasjon.getPeriode();
+        for (var dokumentasjon : dokumentasjonPerioder) {
+            var dokumentasjonPeriode = dokumentasjon.getPeriode();
             if (søknadPeriode.overlapper(dokumentasjonPeriode)) {
                 resultat.add(dokumentasjon);
             }
@@ -112,8 +108,8 @@ final class SøknadsperiodeDokumentasjonKontrollerer {
 
     private void validerSøknadsperiodeGraderingOrdinærtArbeidsforhold(OppgittPeriodeEntitet søknadsperiode) {
         if (søknadsperiode.getArbeidsgiver() == null && søknadsperiode.isArbeidstaker()) {
-            throw FeilFactory.create(KontrollerFaktaUttakFeil.class).søktGraderingUtenArbeidsgiver(søknadsperiode.getPeriodeType().getKode(),
-                søknadsperiode.getFom(), søknadsperiode.getTom()).toException();
+            throw KontrollerFaktaUttakFeil.søktGraderingUtenArbeidsgiver(søknadsperiode.getPeriodeType().getKode(),
+                søknadsperiode.getFom(), søknadsperiode.getTom());
         }
     }
 
@@ -124,16 +120,16 @@ final class SøknadsperiodeDokumentasjonKontrollerer {
     private boolean erGyldigGrunnForTidligOppstart(OppgittPeriodeEntitet søknadsperiode) {
         // Søker far/medmor uttak av Fellesperiode eller fedrekvote eller foreldrepenger før uke 7 ved fødsel?
         //unntak uttak av flerbarnsdager
-        if (fødselsDatoTilTidligOppstart != null
-            && !søknadsperiode.isFlerbarnsdager()
-            && søknadsperiode.getFom().isBefore(fødselsDatoTilTidligOppstart.plusWeeks(6L))) {
-            return FELLESPERIODE.equals(søknadsperiode.getPeriodeType()) || FEDREKVOTE.equals(søknadsperiode.getPeriodeType()) || FORELDREPENGER.equals(søknadsperiode.getPeriodeType());
+        if (fødselsDatoTilTidligOppstart != null && !søknadsperiode.isFlerbarnsdager() && søknadsperiode.getFom()
+            .isBefore(fødselsDatoTilTidligOppstart.plusWeeks(6L))) {
+            return FELLESPERIODE.equals(søknadsperiode.getPeriodeType()) || FEDREKVOTE.equals(
+                søknadsperiode.getPeriodeType()) || FORELDREPENGER.equals(søknadsperiode.getPeriodeType());
         }
         return false;
     }
 
     private KontrollerFaktaPeriode kontrollerUtsettelse(OppgittPeriodeEntitet søknadsperiode) {
-        Årsak utsettelseÅrsak = søknadsperiode.getÅrsak();
+        var utsettelseÅrsak = søknadsperiode.getÅrsak();
         if (ARBEID.equals(utsettelseÅrsak)) {
             return kontrollerUtsettelseArbeid(søknadsperiode);
         }
