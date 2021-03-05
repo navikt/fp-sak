@@ -27,7 +27,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 @ProsessTask(BatchRunnerTask.TASKTYPE)
 public class BatchRunnerTask implements ProsessTaskHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(BatchRunnerTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BatchRunnerTask.class);
 
     public static final String TASKTYPE = "batch.runner";
     static final String BATCH_NAME = "batch.runner.name";
@@ -57,7 +57,7 @@ public class BatchRunnerTask implements ProsessTaskHandler {
         }
         if (batchDate != null && !batchDate.equals(LocalDate.now().toString())) {
             String logMessage = batchName + " dato passert " + batchDate;
-            logger.warn("Kjører ikke batch {}", logMessage);
+            LOG.warn("Kjører ikke batch {}", logMessage);
             return;
         }
         final BatchTjeneste batchTjeneste = batchSupportTjeneste.finnBatchTjenesteForNavn(batchName);
@@ -68,7 +68,7 @@ public class BatchRunnerTask implements ProsessTaskHandler {
 
         if (batchArguments.isValid()) {
             String logMessage = batchName + " parametere " + (batchParams != null ? batchParams : "");
-            logger.info("Starter batch {}", logMessage);
+            LOG.info("Starter batch {}", logMessage);
             batchTjeneste.launch(batchArguments);
         } else {
             throw BatchFeil.ugyldigeJobParametere(batchArguments);

@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.diff.TraverseValue;
  */
 @Embeddable
 public class Stillingsprosent implements Serializable, IndexKey, TraverseValue {
-    private static final Logger log = LoggerFactory.getLogger(Stillingsprosent.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Stillingsprosent.class);
 
     private static final BigDecimal MAX_VERDI = new BigDecimal(500);
 
@@ -99,11 +99,11 @@ public class Stillingsprosent implements Serializable, IndexKey, TraverseValue {
 
     private BigDecimal fiksNegativOgMax(BigDecimal verdi) {
         if (null != verdi && verdi.compareTo(BigDecimal.ZERO) < 0) {
-            log.info("[IAY] Prosent (yrkesaktivitet, permisjon) kan ikke være mindre enn 0, absolutt verdi brukes isteden. Verdi fra AA-reg: {}", verdi);
+            LOG.info("[IAY] Prosent (yrkesaktivitet, permisjon) kan ikke være mindre enn 0, absolutt verdi brukes isteden. Verdi fra AA-reg: {}", verdi);
             verdi = verdi.abs();
         }
         if (null != verdi && verdi.compareTo(MAX_VERDI) > 0) {
-            log.info("[IAY] Prosent (yrkesaktivitet, permisjon) kan ikke være mer enn 500, avkortet verdi brukes isteden. Verdi fra AA-reg: {}", verdi);
+            LOG.info("[IAY] Prosent (yrkesaktivitet, permisjon) kan ikke være mer enn 500, avkortet verdi brukes isteden. Verdi fra AA-reg: {}", verdi);
             verdi = MAX_VERDI;
         }
         return verdi;

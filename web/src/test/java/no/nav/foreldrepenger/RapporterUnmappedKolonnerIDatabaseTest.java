@@ -38,7 +38,7 @@ import no.nav.foreldrepenger.dbstoette.Databaseskjemainitialisering;
  * gjennomgås jevnlig for å luke manglende contract av db skjema.
  */
 public class RapporterUnmappedKolonnerIDatabaseTest {
-    private static final Logger log = LoggerFactory.getLogger(RapporterUnmappedKolonnerIDatabaseTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RapporterUnmappedKolonnerIDatabaseTest.class);
 
     private static EntityManagerFactory entityManagerFactory;
 
@@ -123,10 +123,10 @@ public class RapporterUnmappedKolonnerIDatabaseTest {
                     var unmapped = new TreeSet<>(dbColumns.get(tableName));
                     unmapped.removeAll(columnNames);
                     if (!unmapped.isEmpty()) {
-                        log.error("Table {} has unmapped columns: {}", table.getName(), unmapped);
+                        LOG.error("Table {} has unmapped columns: {}", table.getName(), unmapped);
                     }
                 } else {
-                    log.error("Table {} not in database schema {}", tableName, namespaceName);
+                    LOG.error("Table {} not in database schema {}", tableName, namespaceName);
                 }
             }
         }
@@ -144,7 +144,7 @@ public class RapporterUnmappedKolonnerIDatabaseTest {
                 String tableName = table.getName().toUpperCase();
                 dbTables.remove(tableName);
             }
-            dbTables.forEach(t -> log.error("Table not mapped in hibernate{}: {}", namespaceName, t));
+            dbTables.forEach(t -> LOG.error("Table not mapped in hibernate{}: {}", namespaceName, t));
         }
 
     }

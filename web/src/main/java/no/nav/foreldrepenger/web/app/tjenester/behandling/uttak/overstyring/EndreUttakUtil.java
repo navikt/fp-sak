@@ -9,7 +9,7 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
-import no.nav.vedtak.feil.FeilFactory;
+import no.nav.vedtak.exception.TekniskException;
 
 public class EndreUttakUtil {
 
@@ -23,8 +23,9 @@ public class EndreUttakUtil {
                 return gjeldendePeriode;
             }
         }
-        throw FeilFactory.create(EndreUttakFeil.class).fantIkkeMatchendeGjeldendePeriode(nyPeriode.getFomDato(),
-            nyPeriode.getTomDato()).toException();
+        var msg = String.format("Fant ikke gjeldende periode for ny periode fom %s tom %s",
+            nyPeriode.getFomDato(), nyPeriode.getTomDato());
+        throw new TekniskException("FP-817091", msg);
     }
 
     public static ForeldrepengerUttakPeriodeAktivitet finnGjeldendeAktivitetFor(ForeldrepengerUttakPeriode gjeldendePeriode,
@@ -39,8 +40,9 @@ public class EndreUttakUtil {
                 return aktivitet;
             }
         }
-        throw FeilFactory.create(EndreUttakFeil.class).fantIkkeMatchendeGjeldendePeriodeAktivitet(gjeldendePeriode.getFom(),
-            gjeldendePeriode.getTom(), arbeidsforholdRef, arbeidsgiver, uttakArbeidType).toException();
+        var msg = String.format("Fant ikke gjeldende periode aktivitet for periode fom %s tom %s for arbeidsgiver %s - %s - %s",
+            gjeldendePeriode.getFom(), gjeldendePeriode.getTom(), arbeidsforholdRef, arbeidsgiver, uttakArbeidType);
+        throw new TekniskException("FP-811231", msg);
     }
 
     public static ForeldrepengerUttakPeriodeAktivitet finnGjeldendeAktivitetFor(List<ForeldrepengerUttakPeriode> gjeldeneperioder,

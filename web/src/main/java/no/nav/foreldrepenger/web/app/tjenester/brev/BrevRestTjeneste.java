@@ -39,7 +39,7 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 @Transactional
 public class BrevRestTjeneste {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BrevRestTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BrevRestTjeneste.class);
 
     static final String BASE_PATH = "/brev";
     private static final String DOKUMENT_SENDT_PART_PATH = "/dokument-sendt";
@@ -75,7 +75,7 @@ public class BrevRestTjeneste {
             @Parameter(description = "Inneholder kode til brevmal og data som skal flettes inn i brevet") @Valid BestillBrevDto bestillBrevDto) { // NOSONAR
         // FIXME: behandlingUuid brukes mot fp-formidling og kan derfor også brukes mot
         // fpsak-frontend her
-        LOGGER.info("Brev med brevmalkode={} bestilt på behandlingId={}", bestillBrevDto.getBrevmalkode(), bestillBrevDto.getBehandlingId());
+        LOG.info("Brev med brevmalkode={} bestilt på behandlingId={}", bestillBrevDto.getBrevmalkode(), bestillBrevDto.getBehandlingId());
         dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.SAKSBEHANDLER, true);
         oppdaterBehandlingBasertPåManueltBrev(DokumentMalType.fraKode(bestillBrevDto.getBrevmalkode()), bestillBrevDto.getBehandlingId());
     }

@@ -77,11 +77,11 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.OppgittPeriodeMottattDatoTjeneste;
-import no.nav.foreldrepenger.mottak.dokumentpersiterer.MottattDokumentFeil;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.MottattDokumentOversetter;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.NamespaceRef;
 import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
 import no.nav.foreldrepenger.søknad.v3.SøknadConstants;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.xml.soeknad.endringssoeknad.v3.Endringssoeknad;
 import no.nav.vedtak.felles.xml.soeknad.engangsstoenad.v3.Engangsstønad;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Adopsjon;
@@ -300,8 +300,10 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
     private RelasjonsRolleType utledRolle(Bruker bruker, Long behandlingId, AktørId aktørId) {
         NavBrukerKjønn kjønn = personinfoAdapter.hentBrukerKjønnForAktør(aktørId)
             .map(PersoninfoKjønn::getKjønn)
-            .orElseThrow(
-                () -> MottattDokumentFeil.FACTORY.dokumentManglerRelasjonsRolleType(behandlingId).toException());
+            .orElseThrow(() -> {
+                var msg = String.format("Søknad på behandling %s mangler RelasjonsRolleType", behandlingId);
+                throw new TekniskException("FP-931148", msg);
+            });
 
         if (bruker == null || bruker.getSoeknadsrolle() == null) {
             return NavBrukerKjønn.MANN.equals(kjønn) ? RelasjonsRolleType.FARA : RelasjonsRolleType.MORA;
@@ -451,7 +453,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
                     ((no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Arbeidsgiver) arbeidsforhold).getIdentifikator());
                 Optional<AktørId> aktørIdArbeidsgiver = personinfoAdapter.hentAktørForFnr(arbeidsgiverIdent);
                 if (aktørIdArbeidsgiver.isEmpty()) {
-                    throw MottattDokumentFeil.FACTORY.finnerIkkeArbeidsgiverITPS().toException();
+                    throw new TekniskException("FP-545381", "Fant ikke personident for arbeidsgiver som er privatperson i TPS");
                 }
                 arbeidsgiver = Arbeidsgiver.person(aktørIdArbeidsgiver.get());
             }
@@ -468,7 +470,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
             builder.medOpplysningerOmRisikofaktorer(
                 ((SelvstendigNæringsdrivende) arbeidsforhold).getOpplysningerOmRisikofaktorer());
         } else {
-            throw MottattDokumentFeil.FACTORY.ukjentArbeidsForholdType().toException();
+            throw new TekniskException("FP-187531", "Ukjent type arbeidsforhold i svangerskapspengesøknad");
         }
     }
 

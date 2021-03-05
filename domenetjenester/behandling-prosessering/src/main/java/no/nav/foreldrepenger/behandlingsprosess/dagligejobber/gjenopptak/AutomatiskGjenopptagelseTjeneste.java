@@ -11,6 +11,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingKandidaterRepository;
@@ -27,7 +28,7 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 @ApplicationScoped
 public class AutomatiskGjenopptagelseTjeneste {
 
-    private static final Logger log = org.slf4j.LoggerFactory.getLogger(AutomatiskGjenopptagelseTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AutomatiskGjenopptagelseTjeneste.class);
     private static final Set<OppgaveÅrsak> OPPGAVE_TYPER = Set.of(OppgaveÅrsak.BEHANDLE_SAK, OppgaveÅrsak.REVURDER);
 
     private ProsessTaskRepository prosessTaskRepository;
@@ -67,7 +68,7 @@ public class AutomatiskGjenopptagelseTjeneste {
     }
 
     private void opprettProsessTask(Behandling behandling, String callId, LocalTime baseline, int spread) {
-        log.info("oppretter task med ny callId: {} ", callId);
+        LOG.info("oppretter task med ny callId: {} ", callId);
         ProsessTaskData prosessTaskData = new ProsessTaskData(GjenopptaBehandlingTask.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setSekvens("1");

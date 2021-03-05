@@ -31,7 +31,7 @@ import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 @Table(name = "FAGSAK")
 public class Fagsak extends BaseEntitet {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Fagsak.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Fagsak.class);
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_FAGSAK")
@@ -138,7 +138,7 @@ public class Fagsak extends BaseEntitet {
             this.brukerRolle = rolle;
         } else if (!rolle.equals(RelasjonsRolleType.UDEFINERT) && !brukerRolle.equals(rolle)) {
             if (!brukerRolle.equals(RelasjonsRolleType.UDEFINERT)) {
-                LOGGER.warn("Bruker har skiftet rolle fra '{}' til '{}", brukerRolle.getKode(), rolle.getKode());
+                LOG.warn("Bruker har skiftet rolle fra '{}' til '{}", brukerRolle.getKode(), rolle.getKode());
             }
             this.brukerRolle = rolle;
         }

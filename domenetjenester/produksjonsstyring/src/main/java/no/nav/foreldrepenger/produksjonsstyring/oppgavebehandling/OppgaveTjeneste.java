@@ -42,7 +42,7 @@ import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
 @ApplicationScoped
 public class OppgaveTjeneste {
-    private static final Logger logger = LoggerFactory.getLogger(OppgaveTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OppgaveTjeneste.class);
     private static final int DEFAULT_OPPGAVEFRIST_DAGER = 1;
     private static final String DEFAULT_OPPGAVEBESKRIVELSE = "Må behandle sak i VL!";
 
@@ -122,7 +122,7 @@ public class OppgaveTjeneste {
             .medBehandlingstema(BehandlingTema.fraFagsak(fagsak, null).getOffisiellKode())
             .medOppgavetype(ÅRSAK_TIL_OPPGAVETYPER.get(oppgaveÅrsak).getKode());
         var oppgave = restKlient.opprettetOppgave(orequest);
-        logger.info("FPSAK GOSYS opprettet LOS oppgave {}", oppgave);
+        LOG.info("FPSAK GOSYS opprettet LOS oppgave {}", oppgave);
         return behandleRespons(behandling.getId(), oppgaveÅrsak, oppgave.getId().toString(), fagsak.getSaksnummer());
     }
 
@@ -140,7 +140,7 @@ public class OppgaveTjeneste {
         if (oppgave.isPresent()) {
             avsluttOppgave(oppgave.get());
         } else {
-            OppgaveFeilmeldinger.FACTORY.oppgaveMedÅrsakIkkeFunnet(oppgaveÅrsak.getKode(), behandlingId).log(logger);
+            OppgaveFeilmeldinger.FACTORY.oppgaveMedÅrsakIkkeFunnet(oppgaveÅrsak.getKode(), behandlingId).log(LOG);
         }
     }
 
@@ -149,7 +149,7 @@ public class OppgaveTjeneste {
         if (oppgave.isPresent()) {
             avsluttOppgave(oppgave.get());
         } else {
-            OppgaveFeilmeldinger.FACTORY.oppgaveMedIdIkkeFunnet(oppgaveId, behandlingId).log(logger);
+            OppgaveFeilmeldinger.FACTORY.oppgaveMedIdIkkeFunnet(oppgaveId, behandlingId).log(LOG);
         }
     }
 
@@ -159,7 +159,7 @@ public class OppgaveTjeneste {
         }
         restKlient.ferdigstillOppgave(aktivOppgave.getOppgaveId());
         var oppgv = restKlient.hentOppgave(aktivOppgave.getOppgaveId());
-        logger.info("FPSAK GOSYS ferdigstilte oppgave {} svar {}", aktivOppgave.getOppgaveId(), oppgv);
+        LOG.info("FPSAK GOSYS ferdigstilte oppgave {} svar {}", aktivOppgave.getOppgaveId(), oppgv);
     }
 
     private void ferdigstillOppgaveBehandlingKobling(OppgaveBehandlingKobling aktivOppgave) {
@@ -243,7 +243,7 @@ public class OppgaveTjeneste {
     public boolean harÅpneOppgaverAvType(AktørId aktørId, Oppgavetyper oppgavetype) {
         try {
             var oppgaver = restKlient.finnÅpneOppgaver(aktørId.getId(), Tema.FOR.getOffisiellKode(), List.of(oppgavetype.getKode()));
-            logger.info("FPSAK GOSYS fant {} oppgaver av type {}", oppgaver.size(), oppgavetype.getKode());
+            LOG.info("FPSAK GOSYS fant {} oppgaver av type {}", oppgaver.size(), oppgavetype.getKode());
             return oppgaver != null && !oppgaver.isEmpty();
         } catch (Exception e) {
             throw OppgaveFeilmeldinger.FACTORY.feilVedHentingAvOppgaver(oppgavetype.getKode()).toException();
@@ -259,7 +259,7 @@ public class OppgaveTjeneste {
             .medBehandlingstema(BehandlingTema.fraFagsak(fagsak, null).getOffisiellKode())
             .medOppgavetype(ÅRSAK_TIL_OPPGAVETYPER.get(oppgaveÅrsak).getKode());
         var oppgave = restKlient.opprettetOppgave(orequest);
-        logger.info("FPSAK GOSYS opprettet VURDER VL oppgave {}", oppgave);
+        LOG.info("FPSAK GOSYS opprettet VURDER VL oppgave {}", oppgave);
         return oppgave.getId().toString();
     }
 
@@ -275,7 +275,7 @@ public class OppgaveTjeneste {
             .medBehandlingstema(BehandlingTema.fraFagsak(fagsak, null).getOffisiellKode())
             .medOppgavetype(ÅRSAK_TIL_OPPGAVETYPER.get(oppgaveÅrsak).getKode());
         var oppgave = restKlient.opprettetOppgave(orequest);
-        logger.info("FPSAK GOSYS opprettet VURDER IT oppgave {}", oppgave);
+        LOG.info("FPSAK GOSYS opprettet VURDER IT oppgave {}", oppgave);
         return oppgave.getId().toString();
     }
 
@@ -301,7 +301,7 @@ public class OppgaveTjeneste {
             .medBehandlingstema(BehandlingTema.fraFagsak(fagsak, null).getOffisiellKode())
             .medOppgavetype(Oppgavetyper.BEHANDLE_SAK_IT.getKode());
         var oppgave = restKlient.opprettetOppgave(orequest);
-        logger.info("FPSAK GOSYS opprettet BEH/IT oppgave {}", oppgave);
+        LOG.info("FPSAK GOSYS opprettet BEH/IT oppgave {}", oppgave);
         return oppgave.getId().toString();
     }
 
@@ -323,7 +323,7 @@ public class OppgaveTjeneste {
             .medBehandlingstema(NØS_BEH_TEMA)
             .medOppgavetype(Oppgavetyper.SETTVENT.getKode());
         var oppgave = restKlient.opprettetOppgave(orequest);
-        logger.info("FPSAK GOSYS opprettet NØS oppgave {}", oppgave);
+        LOG.info("FPSAK GOSYS opprettet NØS oppgave {}", oppgave);
         return oppgave.getId().toString();
     }
 
@@ -357,14 +357,14 @@ public class OppgaveTjeneste {
         Optional<OppgaveBehandlingKobling> oppgave = oppgaveBehandlingKoblingRepository.hentOppgaveBehandlingKobling(behandlingId, oppgaveId);
         oppgave.filter(o -> !o.isFerdigstilt()).ifPresent(this::ferdigstillOppgaveBehandlingKobling);
         restKlient.ferdigstillOppgave(oppgaveId);
-        logger.info("FPSAK GOSYS forvaltning ferdigstilte oppgave {}", oppgaveId);
+        LOG.info("FPSAK GOSYS forvaltning ferdigstilte oppgave {}", oppgaveId);
     }
 
     public void feilregistrerOppgaveForForvaltning(Long behandlingId, String oppgaveId) {
         Optional<OppgaveBehandlingKobling> oppgave = oppgaveBehandlingKoblingRepository.hentOppgaveBehandlingKobling(behandlingId, oppgaveId);
         oppgave.filter(o -> !o.isFerdigstilt()).ifPresent(this::ferdigstillOppgaveBehandlingKobling);
         restKlient.feilregistrerOppgave(oppgaveId);
-        logger.info("FPSAK GOSYS forvaltning feilregistrerte oppgave {}", oppgaveId);
+        LOG.info("FPSAK GOSYS forvaltning feilregistrerte oppgave {}", oppgaveId);
 
     }
 

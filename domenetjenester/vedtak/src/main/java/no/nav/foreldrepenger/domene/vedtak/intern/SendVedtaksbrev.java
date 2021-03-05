@@ -30,7 +30,7 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 @ApplicationScoped
 public class SendVedtaksbrev {
 
-    private static final Logger log = LoggerFactory.getLogger(SendVedtaksbrev.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SendVedtaksbrev.class);
 
     private BehandlingRepository behandlingRepository;
     private KlageRepository klageRepository;
@@ -63,7 +63,7 @@ public class SendVedtaksbrev {
     void sendVedtaksbrev(Long behandlingId) {
         Optional<BehandlingVedtak> behandlingVedtakOpt = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId);
         if (behandlingVedtakOpt.isEmpty()) {
-            log.info("Det foreligger ikke vedtak i behandling: {}, kan ikke sende vedtaksbrev", behandlingId); //$NON-NLS-1$
+            LOG.info("Det foreligger ikke vedtak i behandling: {}, kan ikke sende vedtaksbrev", behandlingId); //$NON-NLS-1$
             return;
         }
         BehandlingVedtak behandlingVedtak = behandlingVedtakOpt.get();
@@ -71,36 +71,36 @@ public class SendVedtaksbrev {
 
         boolean fritekstVedtaksbrev = Vedtaksbrev.FRITEKST.equals(behandlingVedtak.getBehandlingsresultat().getVedtaksbrev());
         if (Fagsystem.INFOTRYGD.equals(behandling.getMigrertKilde()) && !fritekstVedtaksbrev) {
-            log.info("Sender ikke vedtaksbrev for sak som er migrert fra Infotrygd. Gjelder behandlingId {}", behandling.getId());
+            LOG.info("Sender ikke vedtaksbrev for sak som er migrert fra Infotrygd. Gjelder behandlingId {}", behandling.getId());
             return;
         }
 
         if (BehandlingType.KLAGE.equals(behandling.getType()) && !skalSendeVedtaksbrevIKlagebehandling(behandling)) {
-            log.info("Sender ikke vedtaksbrev fra klagebehandlingen i behandlingen etter, eller når KlageVurderingResultat = null. For behandlingId {}", behandlingId); //$NON-NLS-1$
+            LOG.info("Sender ikke vedtaksbrev fra klagebehandlingen i behandlingen etter, eller når KlageVurderingResultat = null. For behandlingId {}", behandlingId); //$NON-NLS-1$
             return;
         }
 
         if (BehandlingType.ANKE.equals(behandling.getType()) && !skalSendeVedtaksbrevEtterAnke(behandling)) {
-            log.info("Sender ikke vedtaksbrev for vedtak fra omgjøring fra klageinstansen på behandling {}, gjelder omgjør fra klageinstans", behandlingId); //$NON-NLS-1$
+            LOG.info("Sender ikke vedtaksbrev for vedtak fra omgjøring fra klageinstansen på behandling {}, gjelder omgjør fra klageinstans", behandlingId); //$NON-NLS-1$
             return;
         }
 
         if (erBehandlingEtterKlage(behandling) && !skalSendeVedtaksbrevEtterKlage(behandling)) {
-            log.info("Sender ikke vedtaksbrev for vedtak fra omgjøring fra klageinstansen på behandling {}, gjelder medhold fra klageinstans", behandlingId); //$NON-NLS-1$
+            LOG.info("Sender ikke vedtaksbrev for vedtak fra omgjøring fra klageinstansen på behandling {}, gjelder medhold fra klageinstans", behandlingId); //$NON-NLS-1$
             return;
         }
 
         if (behandlingVedtak.isBeslutningsvedtak()) {
             if (harSendtVarselOmRevurdering(behandlingId)) {
-                log.info("Sender informasjonsbrev om uendret utfall i behandling: {}", behandlingId); //$NON-NLS-1$
+                LOG.info("Sender informasjonsbrev om uendret utfall i behandling: {}", behandlingId); //$NON-NLS-1$
             } else {
-                log.info("Uendret utfall av revurdering og har ikke sendt varsel om revurdering. Sender ikke brev for behandling: {}", behandlingId); //$NON-NLS-1$
+                LOG.info("Uendret utfall av revurdering og har ikke sendt varsel om revurdering. Sender ikke brev for behandling: {}", behandlingId); //$NON-NLS-1$
                 return;
             }
         } else if (gjelderEngangsstønad(behandling)) {
-            log.info("Sender vedtaksbrev({}) for engangsstønad i behandling: {}", behandlingVedtak.getVedtakResultatType().getKode(), behandlingId); //$NON-NLS-1$
+            LOG.info("Sender vedtaksbrev({}) for engangsstønad i behandling: {}", behandlingVedtak.getVedtakResultatType().getKode(), behandlingId); //$NON-NLS-1$
         } else {
-            log.info("Sender vedtaksbrev({}) for foreldrepenger i behandling: {}", behandlingVedtak.getVedtakResultatType().getKode(), behandlingId); //$NON-NLS-1
+            LOG.info("Sender vedtaksbrev({}) for foreldrepenger i behandling: {}", behandlingVedtak.getVedtakResultatType().getKode(), behandlingId); //$NON-NLS-1
         }
         dokumentBestillerTjeneste.produserVedtaksbrev(behandlingVedtak);
     }

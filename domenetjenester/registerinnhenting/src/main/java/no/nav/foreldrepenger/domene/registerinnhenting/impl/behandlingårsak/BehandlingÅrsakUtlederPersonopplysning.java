@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningGrunnlagDif
 @ApplicationScoped
 @GrunnlagRef("PersonInformasjon")
 class BehandlingÅrsakUtlederPersonopplysning implements BehandlingÅrsakUtleder {
-    private static final Logger log = LoggerFactory.getLogger(BehandlingÅrsakUtlederPersonopplysning.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BehandlingÅrsakUtlederPersonopplysning.class);
 
     private PersonopplysningRepository personopplysningRepository;
 
@@ -45,7 +45,7 @@ class BehandlingÅrsakUtlederPersonopplysning implements BehandlingÅrsakUtleder
         boolean barnetsDødsdatoEndret = poDiff.erBarnDødsdatoEndret();
 
         if (forelderErDødEndret || barnetsDødsdatoEndret) {
-            log.info("Setter endringsresultat til opplysning om død, har endring forelderErDødEndret {} barnetsDødsdatoEndret {}, grunnlagid1: {}, grunnlagid2: {}", forelderErDødEndret, barnetsDødsdatoEndret, grunnlag1, grunnlag2); //$NON-NLS-1
+            LOG.info("Setter endringsresultat til opplysning om død, har endring forelderErDødEndret {} barnetsDødsdatoEndret {}, grunnlagid1: {}, grunnlagid2: {}", forelderErDødEndret, barnetsDødsdatoEndret, grunnlag1, grunnlag2); //$NON-NLS-1
             return Set.of(EndringResultatType.OPPLYSNING_OM_DØD, EndringResultatType.REGISTEROPPLYSNING);
         }
         return Collections.singleton(EndringResultatType.REGISTEROPPLYSNING);

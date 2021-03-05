@@ -28,7 +28,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class AutomatiskGrunnbelopReguleringTask extends FagsakProsessTask {
     public static final String TASKTYPE = "behandlingsprosess.satsregulering";
-    private static final Logger log = LoggerFactory.getLogger(AutomatiskGrunnbelopReguleringTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AutomatiskGrunnbelopReguleringTask.class);
     private BehandlingRepository behandlingRepository;
     private ProsessTaskRepository prosessTaskRepository;
     private FagsakRepository fagsakRepository;
@@ -58,7 +58,7 @@ public class AutomatiskGrunnbelopReguleringTask extends FagsakProsessTask {
         // utenom evt berørt behandling.
         boolean åpneYtelsesBehandlinger = behandlingRepository.harÅpenOrdinærYtelseBehandlingerForFagsakId(fagsakId);
         if (åpneYtelsesBehandlinger) {
-            log.info("GrunnbeløpRegulering finnes allerede åpen revurdering på fagsakId = {}", fagsakId);
+            LOG.info("GrunnbeløpRegulering finnes allerede åpen revurdering på fagsakId = {}", fagsakId);
             return;
         }
 
@@ -68,7 +68,7 @@ public class AutomatiskGrunnbelopReguleringTask extends FagsakProsessTask {
         RevurderingTjeneste revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, fagsak.getYtelseType()).orElseThrow();
         Behandling revurdering = revurderingTjeneste.opprettAutomatiskRevurdering(fagsak, BehandlingÅrsakType.RE_SATS_REGULERING, enhet);
 
-        log.info("GrunnbeløpRegulering har opprettet revurdering på fagsak med fagsakId = {}", fagsakId);
+        LOG.info("GrunnbeløpRegulering har opprettet revurdering på fagsak med fagsakId = {}", fagsakId);
 
         if (skalKøes) {
             flytkontroll.settNyRevurderingPåVent(revurdering);

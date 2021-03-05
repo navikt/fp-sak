@@ -52,7 +52,7 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 @ApplicationScoped
 public class AbakusTjeneste {
 
-    private static final Logger log = LoggerFactory.getLogger(AbakusTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbakusTjeneste.class);
     private final ObjectMapper iayMapper = IayGrunnlagJsonMapper.getMapper();
     private final ObjectWriter iayJsonWriter = iayMapper.writerWithDefaultPrettyPrinter();
     private final ObjectReader iayGrunnlagReader = iayMapper.readerFor(InntektArbeidYtelseGrunnlagDto.class);
@@ -230,7 +230,7 @@ public class AbakusTjeneste {
                 }
             }
         } catch (RuntimeException re) {
-            log.warn("Feil ved henting av data fra abakus: endpoint=" + endpoint, re);
+            LOG.warn("Feil ved henting av data fra abakus: endpoint=" + endpoint, re);
             throw re;
         }
     }
@@ -242,7 +242,7 @@ public class AbakusTjeneste {
         HttpPut httpPut = new HttpPut(endpointGrunnlag);
         httpPut.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
 
-        log.info("Lagre IAY grunnlag (behandlingUUID={}) i Abakus", dto.getKoblingReferanse());
+        LOG.info("Lagre IAY grunnlag (behandlingUUID={}) i Abakus", dto.getKoblingReferanse());
         try (var httpResponse = oidcRestClient.execute(httpPut)) {
             int responseCode = httpResponse.getStatusLine().getStatusCode();
             if (responseCode != HttpStatus.SC_OK) {
@@ -266,7 +266,7 @@ public class AbakusTjeneste {
         HttpPost httpPost = new HttpPost(endpointMottaInntektsmeldinger);
         httpPost.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
 
-        log.info("Lagre mottatte inntektsmeldinger (behandlingUUID={}) i Abakus", dto.getKoblingReferanse());
+        LOG.info("Lagre mottatte inntektsmeldinger (behandlingUUID={}) i Abakus", dto.getKoblingReferanse());
         try (var httpResponse = oidcRestClient.execute(httpPost)) {
             int responseCode = httpResponse.getStatusLine().getStatusCode();
             if (responseCode != HttpStatus.SC_OK) {
@@ -290,7 +290,7 @@ public class AbakusTjeneste {
         HttpPost httpPost = new HttpPost(endpointMottaOppgittOpptjening);
         httpPost.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
 
-        log.info("Lagre oppgitt opptjening (behandlingUUID={}) i Abakus", request.getKoblingReferanse());
+        LOG.info("Lagre oppgitt opptjening (behandlingUUID={}) i Abakus", request.getKoblingReferanse());
         try (var httpResponse = oidcRestClient.execute(httpPost)) {
             int responseCode = httpResponse.getStatusLine().getStatusCode();
             if (responseCode != HttpStatus.SC_OK) {
@@ -314,7 +314,7 @@ public class AbakusTjeneste {
         HttpPost httpPost = new HttpPost(endpointKopierGrunnlag);
         httpPost.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
 
-        log.info("Kopierer grunnlag fra (behandlingUUID={}) til (behandlingUUID={}) i Abakus", request.getGammelReferanse(),
+        LOG.info("Kopierer grunnlag fra (behandlingUUID={}) til (behandlingUUID={}) i Abakus", request.getGammelReferanse(),
                 request.getNyReferanse());
         try (var httpResponse = oidcRestClient.execute(httpPost)) {
             int responseCode = httpResponse.getStatusLine().getStatusCode();

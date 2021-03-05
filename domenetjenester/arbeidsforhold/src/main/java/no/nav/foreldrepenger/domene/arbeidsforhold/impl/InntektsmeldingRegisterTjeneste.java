@@ -44,7 +44,7 @@ public class InntektsmeldingRegisterTjeneste {
     private static final String VALID_REF = "behandlingReferanse";
     private static final Set<ArbeidType> AA_REG_TYPER = Set.of(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, ArbeidType.MARITIMT_ARBEIDSFORHOLD,
             ArbeidType.FORENKLET_OPPGJØRSORDNING);
-    private static final Logger LOGGER = LoggerFactory.getLogger(InntektsmeldingRegisterTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(InntektsmeldingRegisterTjeneste.class);
 
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
@@ -109,13 +109,13 @@ public class InntektsmeldingRegisterTjeneste {
     private void logInntektsmeldinger(BehandlingReferanse referanse, Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger,
             String filtrert) {
         if (påkrevdeInntektsmeldinger.isEmpty()) {
-            LOGGER.info("{} påkrevdeInntektsmeldinger[{}]: TOM LISTE", filtrert, referanse.getBehandlingId());
+            LOG.info("{} påkrevdeInntektsmeldinger[{}]: TOM LISTE", filtrert, referanse.getBehandlingId());
             return;
         }
 
         påkrevdeInntektsmeldinger.forEach((key, value) -> {
             String arbeidsforholdReferanser = value.stream().map(InternArbeidsforholdRef::toString).collect(Collectors.joining(","));
-            LOGGER.info("{} påkrevdeInntektsmeldinger[{}]: identifikator: {}, arbeidsforholdRef: {}", filtrert, referanse.getBehandlingId(),
+            LOG.info("{} påkrevdeInntektsmeldinger[{}]: identifikator: {}, arbeidsforholdRef: {}", filtrert, referanse.getBehandlingId(),
                     key.getIdentifikator(),
                     arbeidsforholdReferanser);
         });

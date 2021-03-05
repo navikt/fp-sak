@@ -3,22 +3,20 @@ package no.nav.foreldrepenger.jsonfeed;
 import java.io.IOException;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.exception.TekniskException;
 
-class JsonMapper {
+final class JsonMapper {
 
     private static final ObjectMapper MAPPER = getObjectMapper();
+
+    private JsonMapper() {
+    }
 
     private static ObjectMapper getObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();
@@ -34,29 +32,8 @@ class JsonMapper {
         try {
             return MAPPER.readerFor(clazz).readValue(json);
         } catch (IOException e) {
-            throw JsonMapperFeil.FACTORY.ioExceptionVedLesing(e).toException();
+            throw new TekniskException("F-713328", "Fikk IO exception ved parsing av JSON", e);
         }
-    }
-    
-    static String toJson(Object dto) {
-        try {
-            return MAPPER.writeValueAsString(dto);
-        } catch (JsonProcessingException e) {
-            throw JsonMapperFeil.FACTORY.kunneIkkeSerialisereJson(e).toException();
-        }
-    }
-
-    
-    interface JsonMapperFeil extends DeklarerteFeil {
-
-        public static final JsonMapperFeil FACTORY = FeilFactory.create(JsonMapperFeil.class);
-
-        @TekniskFeil(feilkode = "F-228314", feilmelding = "Kunne ikke serialisere objekt til JSON", logLevel = LogLevel.WARN)
-        Feil kunneIkkeSerialisereJson(JsonProcessingException cause);
-        
-        @TekniskFeil(feilkode = "F-713328", feilmelding = "Fikk IO exception ved parsing av JSON", logLevel = LogLevel.WARN)
-        Feil ioExceptionVedLesing(IOException cause);
-
     }
 
 }

@@ -16,7 +16,7 @@ import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 
 public abstract class DokumentmottakerSøknad extends DokumentmottakerYtelsesesrelatertDokument {
 
-    private static final Logger logger = LoggerFactory.getLogger(DokumentmottakerSøknad.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DokumentmottakerSøknad.class);
 
     private KøKontroller køKontroller;
 

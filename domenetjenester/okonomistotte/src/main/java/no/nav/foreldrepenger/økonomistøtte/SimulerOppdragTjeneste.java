@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.økonomistøtte.ny.toggle.OppdragKjerneimplementasj
 @Transactional
 public class SimulerOppdragTjeneste {
 
-    private static final Logger log = LoggerFactory.getLogger(SimulerOppdragTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SimulerOppdragTjeneste.class);
 
     private OppdragskontrollTjeneste oppdragskontrollTjeneste;
     private OppdragskontrollTjeneste esOppdragskontrollTjeneste;
@@ -56,17 +56,17 @@ public class SimulerOppdragTjeneste {
      * @return En liste med XMLer som kan sendes over til oppdrag
      */
     public List<String> simulerOppdrag(Long behandlingId, FagsakYtelseType fagsakYtelseType) {
-        log.info("Oppretter simuleringsoppdrag for behandling: {}", behandlingId); //$NON-NLS-1$
+        LOG.info("Oppretter simuleringsoppdrag for behandling: {}", behandlingId); //$NON-NLS-1$
         boolean brukNyImplementasjon = toggle.brukNyImpl();
 
         Optional<Oppdragskontroll> oppdragskontrollOpt;
 
         if (fagsakYtelseType.equals(FagsakYtelseType.ENGANGSTØNAD)) {
-            log.info("Simulerer engangsstønad for behandlingId: {}", behandlingId);
+            LOG.info("Simulerer engangsstønad for behandlingId: {}", behandlingId);
             oppdragskontrollOpt = esOppdragskontrollTjeneste.simulerOppdrag(behandlingId);
         } else {
             if (brukNyImplementasjon) {
-                log.info("Gjennomfører simulering for behandling med id={} med ny implementasjon", behandlingId);
+                LOG.info("Gjennomfører simulering for behandling med id={} med ny implementasjon", behandlingId);
                 var input = oppdragInputTjeneste.lagInput(behandlingId);
                 oppdragskontrollOpt = nyOppdragskontrollTjeneste.simulerOppdrag(input);
             } else {

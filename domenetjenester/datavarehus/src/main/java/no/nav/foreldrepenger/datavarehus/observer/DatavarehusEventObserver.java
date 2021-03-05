@@ -26,7 +26,7 @@ import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
 
 @ApplicationScoped
 public class DatavarehusEventObserver {
-    protected final Logger log = LoggerFactory.getLogger(this.getClass());
+    protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
     private DatavarehusTjeneste tjeneste;
 
@@ -40,19 +40,19 @@ public class DatavarehusEventObserver {
     }
 
     public void observerFagsakRelasjonEvent(@Observes FagsakRelasjonEvent event) {
-        log.debug("Lagrer FagsakRelasjon i DVH {} ", event.getFagsakRelasjon().getId());//NOSONAR
+        LOG.debug("Lagrer FagsakRelasjon i DVH {} ", event.getFagsakRelasjon().getId());//NOSONAR
         tjeneste.lagreNedFagsakRelasjon(event.getFagsakRelasjon());
     }
 
     public void observerAksjonspunktStatusEvent(@Observes AksjonspunktStatusEvent event) {
         List<Aksjonspunkt> aksjonspunkter = event.getAksjonspunkter();
-        log.debug("Lagrer {} aksjonspunkter i DVH datavarehus, for behandling {} og steg {}", aksjonspunkter.size(), event.getBehandlingId(), event.getBehandlingStegType());//NOSONAR
+        LOG.debug("Lagrer {} aksjonspunkter i DVH datavarehus, for behandling {} og steg {}", aksjonspunkter.size(), event.getBehandlingId(), event.getBehandlingStegType());//NOSONAR
         tjeneste.lagreNedAksjonspunkter(aksjonspunkter, event.getBehandlingId(), event.getBehandlingStegType());
         tjeneste.oppdaterHvisKlageEllerAnke(event.getBehandlingId(), aksjonspunkter);
     }
 
     public void observerFagsakStatus(@Observes FagsakStatusEvent event) {
-        log.debug("Lagrer fagsak {} i DVH mellomalger", event.getFagsakId());//NOSONAR
+        LOG.debug("Lagrer fagsak {} i DVH mellomalger", event.getFagsakId());//NOSONAR
         tjeneste.lagreNedFagsak(event.getFagsakId());
     }
 
@@ -60,26 +60,26 @@ public class DatavarehusEventObserver {
         Optional<BehandlingStegTilstandSnapshot> fraTilstand = event.getFraTilstand();
         if (fraTilstand.isPresent()) {
             BehandlingStegTilstandSnapshot tilstand = fraTilstand.get();
-            log.debug("Lagrer behandligsteg endring fra tilstand {} i DVH datavarehus for behandling {}; behandlingStegTilstandId {}", //NOSONAR
+            LOG.debug("Lagrer behandligsteg endring fra tilstand {} i DVH datavarehus for behandling {}; behandlingStegTilstandId {}", //NOSONAR
                 tilstand.getSteg().getKode(), event.getBehandlingId(), tilstand.getId());
             tjeneste.lagreNedBehandlingStegTilstand(event.getBehandlingId(), tilstand);
         }
         Optional<BehandlingStegTilstandSnapshot> tilTilstand = event.getTilTilstand();
         if (tilTilstand.isPresent() && !Objects.equals(tilTilstand.orElse(null), fraTilstand.orElse(null))) {
             BehandlingStegTilstandSnapshot tilstand = tilTilstand.get();
-            log.debug("Lagrer behandligsteg endring til tilstand {} i DVH datavarehus for behandlingId {}; behandlingStegTilstandId {}", //NOSONAR
+            LOG.debug("Lagrer behandligsteg endring til tilstand {} i DVH datavarehus for behandlingId {}; behandlingStegTilstandId {}", //NOSONAR
                 tilstand.getSteg().getKode(), event.getBehandlingId(), tilstand.getId());
             tjeneste.lagreNedBehandlingStegTilstand(event.getBehandlingId(), tilstand);
         }
     }
 
     public void observerBehandlingEnhetEvent(@Observes BehandlingEnhetEvent event) {
-        log.debug("Lagrer behandling {} i DVH datavarehus", event.getBehandlingId());//NOSONAR
+        LOG.debug("Lagrer behandling {} i DVH datavarehus", event.getBehandlingId());//NOSONAR
         tjeneste.lagreNedBehandling(event.getBehandlingId());
     }
 
     public void observerBehandlingStatusEvent(@Observes BehandlingStatusEvent event) {
-        log.debug("Lagrer behandling {} i DVH datavarehus", event.getBehandlingId());//NOSONAR
+        LOG.debug("Lagrer behandling {} i DVH datavarehus", event.getBehandlingId());//NOSONAR
         tjeneste.lagreNedBehandling(event.getBehandlingId());
     }
 
@@ -92,7 +92,7 @@ public class DatavarehusEventObserver {
 
     public void observerBehandlingVedtakEvent(@Observes BehandlingVedtakEvent event) {
         if (IverksettingStatus.IVERKSATT.equals(event.getVedtak().getIverksettingStatus())) {
-            log.debug("Lagrer vedtak {} for behandling {} i DVH datavarehus", event.getVedtak().getId(), event.getBehandlingId());//NOSONAR
+            LOG.debug("Lagrer vedtak {} for behandling {} i DVH datavarehus", event.getVedtak().getId(), event.getBehandlingId());//NOSONAR
             tjeneste.lagreNedVedtak(event.getVedtak(), event.getBehandling());
         }
     }

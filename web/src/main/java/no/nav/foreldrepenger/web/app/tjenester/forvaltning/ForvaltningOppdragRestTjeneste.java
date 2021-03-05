@@ -55,7 +55,7 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 @Transactional
 public class ForvaltningOppdragRestTjeneste {
 
-    private static final Logger logger = LoggerFactory.getLogger(ForvaltningOppdragRestTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ForvaltningOppdragRestTjeneste.class);
 
     private BehandleØkonomioppdragKvittering økonomioppdragKvitteringTjeneste;
     private ØkonomioppdragRepository økonomioppdragRepository;
@@ -101,7 +101,7 @@ public class ForvaltningOppdragRestTjeneste {
         kvittering.setFagsystemId(kvitteringDto.getFagsystemId());
         kvittering.setAlvorlighetsgrad("00"); // kode som indikerer at alt er OK
 
-        logger.info("Kvitterer oppdrag OK for behandlingId={} fagsystemId={} oppdaterProsessTask={}", kvitteringDto.getBehandlingId(),
+        LOG.info("Kvitterer oppdrag OK for behandlingId={} fagsystemId={} oppdaterProsessTask={}", kvitteringDto.getBehandlingId(),
                 kvitteringDto.getFagsystemId(), oppdaterProsessTask);
         økonomioppdragKvitteringTjeneste.behandleKvittering(kvittering, oppdaterProsessTask);
 
@@ -125,7 +125,7 @@ public class ForvaltningOppdragRestTjeneste {
         utførPatching(dto, behandlingId, behandling, oppdragskontroll);
         lagSendØkonomioppdragTask(vurderØkonomiTask, false);
 
-        logger.warn(
+        LOG.warn(
                 "Patchet oppdrag for behandling={} fagsystemId={}. Ta kontakt med Team Ukelønn for å avsjekke resultatet når prosesstask er kjørt.",
                 behandlingId, dto.getFagsystemId());
         return Response.ok("Patchet oppdrag for behandling=" + behandlingId).build();
@@ -149,7 +149,7 @@ public class ForvaltningOppdragRestTjeneste {
         byttStatusTilVenterPåKvittering(vurderØkonomiTask);
         lagSendØkonomioppdragTask(vurderØkonomiTask, true);
 
-        logger.warn("Patchet oppdrag for behandling={} og kjører prosesstask for å sende. Ta kontakt med Team Ukelønn for å avsjekke resultatet.",
+        LOG.warn("Patchet oppdrag for behandling={} og kjører prosesstask for å sende. Ta kontakt med Team Ukelønn for å avsjekke resultatet.",
                 behandlingId);
         return Response.ok("Patchet oppdrag for behandling=" + behandlingId).build();
     }
@@ -189,7 +189,7 @@ public class ForvaltningOppdragRestTjeneste {
                         .medAlvorlighetsgrad("04") // må sette en feilkode slik at
                         .medBeskrMelding("Erstattes av nytt oppdrag")
                         .build();
-                logger.info(
+                LOG.info(
                         "Eksisterende oppdrag for behandlingId={} fagsystemId={} som ventet på kvittering, ble satt til kvittert med feilkode slik at oppdraget ikke tas i betraktning i senere behandlinger.",
                         dto.getBehandlingId(), dto.getFagsystemId());
             }

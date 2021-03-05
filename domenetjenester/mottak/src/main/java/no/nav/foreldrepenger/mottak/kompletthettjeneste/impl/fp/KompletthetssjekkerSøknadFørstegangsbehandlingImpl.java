@@ -28,7 +28,7 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 @BehandlingTypeRef("BT-002")
 @FagsakYtelseTypeRef("FP")
 public class KompletthetssjekkerSøknadFørstegangsbehandlingImpl extends KompletthetssjekkerSøknadImpl {
-    private static final Logger LOGGER = LoggerFactory.getLogger(KompletthetssjekkerSøknadFørstegangsbehandlingImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(KompletthetssjekkerSøknadFørstegangsbehandlingImpl.class);
 
     private SøknadRepository søknadRepository;
     private DokumentArkivTjeneste dokumentArkivTjeneste;
@@ -60,7 +60,7 @@ public class KompletthetssjekkerSøknadFørstegangsbehandlingImpl extends Komple
         List<ManglendeVedlegg> manglendeVedlegg = identifiserManglendeVedlegg(søknad, dokumentTypeIds);
 
         if (!manglendeVedlegg.isEmpty()) {
-            LOGGER.info("Behandling {} er ikke komplett - mangler følgende vedlegg til søknad: {}", ref.getBehandlingId(),
+            LOG.info("Behandling {} er ikke komplett - mangler følgende vedlegg til søknad: {}", ref.getBehandlingId(),
                 lagDokumentTypeString(manglendeVedlegg)); // NOSONAR //$NON-NLS-1$
         }
 

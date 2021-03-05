@@ -49,7 +49,7 @@ public class DatavarehusAdminRestTjeneste {
     private LagretVedtakRepository lagretVedtakRepository;
     private DatavarehusTjeneste datavarehusTjeneste;
     private VedtakTjeneste vedtakTjeneste;
-    private final Logger log = LoggerFactory.getLogger(DatavarehusAdminRestTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DatavarehusAdminRestTjeneste.class);
 
     public DatavarehusAdminRestTjeneste() {
         // CDI
@@ -75,7 +75,7 @@ public class DatavarehusAdminRestTjeneste {
     public Response genererVedtaksXmlTilDvh(
             @Parameter(description = "Datointervall i dvh vedtak tabell hvor det skal genereres ny vedtaks xml. FagsakYtelseType kan settes for å angi for hvilken ytelese det skal genereres ny vedtaks xml, dersom .") @NotNull @Valid GenererVedtaksXmlDvhDto genererVedtaksXmlDvhDto) {
 
-        log.info("Forsøker å regenerere vedtaks XML  for datavarehus i intervall [{}] - [{}]", genererVedtaksXmlDvhDto.getFom(),
+        LOG.info("Forsøker å regenerere vedtaks XML  for datavarehus i intervall [{}] - [{}]", genererVedtaksXmlDvhDto.getFom(),
                 genererVedtaksXmlDvhDto.getTom());
 
         List<Long> behandlinger = datavarehusTjeneste.hentVedtakBehandlinger(genererVedtaksXmlDvhDto.getFom(), genererVedtaksXmlDvhDto.getTom());
@@ -92,7 +92,7 @@ public class DatavarehusAdminRestTjeneste {
                 antBehandlinger++;
             }
         }
-        log.info("Har opprettet nye prosesstask for å regenrere vedtaksxml for {} behandlinger", antBehandlinger);
+        LOG.info("Har opprettet nye prosesstask for å regenrere vedtaksxml for {} behandlinger", antBehandlinger);
 
         return Response.ok().build();
     }
@@ -104,7 +104,7 @@ public class DatavarehusAdminRestTjeneste {
     public Response genererVedtaksXmlTilDvhSomKanMangleDvhVedtakXml(
             @Parameter(description = "Datointervall i dvh vedtak tabell hvor det skal genereres ny vedtaks xml. FagsakYtelseType settes for å angi for hvilken ytelese det skal genereres ny vedtaks xml.") @NotNull @Valid GenererVedtaksXmlDvhDto genererVedtaksXmlDvhDto) {
 
-        log.info("Forsøker å generere vedtaks XML for datavarehus i intervall [{}] - [{}] med fagsakYtelseType {}", genererVedtaksXmlDvhDto.getFom(),
+        LOG.info("Forsøker å generere vedtaks XML for datavarehus i intervall [{}] - [{}] med fagsakYtelseType {}", genererVedtaksXmlDvhDto.getFom(),
                 genererVedtaksXmlDvhDto.getTom(), genererVedtaksXmlDvhDto.getFagsakYtelseType());
 
         List<Long> behandlinger = lagretVedtakRepository.hentLagretVedtakBehandlingId(genererVedtaksXmlDvhDto.getFom(),
@@ -118,7 +118,7 @@ public class DatavarehusAdminRestTjeneste {
             prosessTaskData.setCallIdFraEksisterende();
             prosessTaskRepository.lagre(prosessTaskData);
         }
-        log.info("Har opprettet nye prosesstask for å genrere vedtaksxml for {} behandlinger", behandlinger.size());
+        LOG.info("Har opprettet nye prosesstask for å genrere vedtaksxml for {} behandlinger", behandlinger.size());
 
         return Response.ok().build();
     }
@@ -130,7 +130,7 @@ public class DatavarehusAdminRestTjeneste {
     public Response regenererVedtaksXml(
             @Parameter(description = "Behandlingid") @QueryParam("BehandlingId") @NotNull @Valid BehandlingIdDto behandlingIdDto) {
 
-        log.info("Skal generere vedtakXML for behandlingid {} ", behandlingIdDto);
+        LOG.info("Skal generere vedtakXML for behandlingid {} ", behandlingIdDto);
 
         Long behandlingId = behandlingIdDto.getBehandlingId();
         Behandling behandling = behandlingId != null
@@ -145,7 +145,7 @@ public class DatavarehusAdminRestTjeneste {
             prosessTaskData.setCallIdFraEksisterende();
             prosessTaskRepository.lagre(prosessTaskData);
         } else {
-            log.warn("Oppgitt behandling {} er ukjent", behandlingIdDto); // NOSONAR
+            LOG.warn("Oppgitt behandling {} er ukjent", behandlingIdDto); // NOSONAR
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
 
@@ -159,7 +159,7 @@ public class DatavarehusAdminRestTjeneste {
     public Response regenererVedtaksXmlDvh(
             @Parameter(description = "Behandlingid") @QueryParam("BehandlingId") @NotNull @Valid BehandlingIdDto behandlingIdDto) {
 
-        log.info("Skal generere vedtakXML_DVH for behandlingid {} ", behandlingIdDto);
+        LOG.info("Skal generere vedtakXML_DVH for behandlingid {} ", behandlingIdDto);
 
         Long behandlingId = behandlingIdDto.getBehandlingId();
         Behandling behandling = behandlingId != null
@@ -174,7 +174,7 @@ public class DatavarehusAdminRestTjeneste {
             prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
             prosessTaskData.setCallIdFraEksisterende();
             prosessTaskRepository.lagre(prosessTaskData);
-            log.info("Har opprettet  prosesstask for å regenrere dvh vedtaksxml for {} behandling", behandlingIdDto);
+            LOG.info("Har opprettet  prosesstask for å regenrere dvh vedtaksxml for {} behandling", behandlingIdDto);
         });
 
         return Response.ok().build();

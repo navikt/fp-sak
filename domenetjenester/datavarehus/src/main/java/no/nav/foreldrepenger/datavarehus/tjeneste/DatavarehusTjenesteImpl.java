@@ -65,7 +65,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 @ApplicationScoped
 public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DatavarehusTjenesteImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DatavarehusTjenesteImpl.class);
 
     private DatavarehusRepository datavarehusRepository;
     private FagsakRepository fagsakRepository;
@@ -181,7 +181,7 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
             try {
                 return skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).getSkjæringstidspunktHvisUtledet();
             } catch (Exception e) {
-                LOGGER.warn("Kunne ikke utlede skjæringstidspunkter for behandling {} antagelig henlagt ufullstendig behandling",
+                LOG.warn("Kunne ikke utlede skjæringstidspunkter for behandling {} antagelig henlagt ufullstendig behandling",
                     behandling.getId());
             }
         }

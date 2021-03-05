@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 @DokumentGruppeRef("INNTEKTSMELDING")
 class DokumentmottakerInntektsmelding extends DokumentmottakerYtelsesesrelatertDokument {
 
-    private static final Logger logger = LoggerFactory.getLogger(DokumentmottakerInntektsmelding.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DokumentmottakerInntektsmelding.class);
 
     @Inject
     public DokumentmottakerInntektsmelding(DokumentmottakerFelles dokumentmottakerFelles,
@@ -105,7 +105,7 @@ class DokumentmottakerInntektsmelding extends DokumentmottakerYtelsesesrelatertD
         Behandling avsluttetBehandling = behandlingRepository.hentBehandling(behandlingId);
         boolean harÅpenBehandling = !revurderingRepository.hentSisteYtelsesbehandling(fagsak.getId()).map(Behandling::erSaksbehandlingAvsluttet).orElse(Boolean.TRUE);
         if (harÅpenBehandling || !(erAvslag(avsluttetBehandling) || avsluttetBehandling.isBehandlingHenlagt())) {
-            logger.warn("Ignorerer forsøk på å opprette ny førstegangsbehandling fra tidligere avsluttet id={} på fagsak={}, der harÅpenBehandling={}, avsluttetHarAvslag={}, avsluttetErHenlagt={}",
+            LOG.warn("Ignorerer forsøk på å opprette ny førstegangsbehandling fra tidligere avsluttet id={} på fagsak={}, der harÅpenBehandling={}, avsluttetHarAvslag={}, avsluttetErHenlagt={}",
                 behandlingId, fagsak.getId(), harÅpenBehandling, erAvslag(avsluttetBehandling), avsluttetBehandling.isBehandlingHenlagt());
             return;
         }

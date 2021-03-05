@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
-import static no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktApplikasjonFeil.FACTORY;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -52,6 +51,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
 @ApplicationScoped
@@ -226,9 +226,8 @@ public class AksjonspunktTjeneste {
             // behandling var avslått
             if (BehandlingResultatType.INGEN_ENDRING.equals(behandlingsresultat.getBehandlingResultatType())) {
                 return harAvslåttForrigeBehandling(behandlingRepository.hentBehandling(originalBehandlingId.get()));
-            } else {
-                return behandlingsresultat.isBehandlingsresultatAvslått();
             }
+            return behandlingsresultat.isBehandlingsresultatAvslått();
         }
         return false;
     }
@@ -407,16 +406,16 @@ public class AksjonspunktTjeneste {
                                                                                         String aksjonspunktDefinisjonKode) {
         Instance<Object> instance = finnAdapter(dtoClass, AksjonspunktOppdaterer.class);
         if (instance.isUnsatisfied()) {
-            throw FACTORY.kanIkkeFinneAksjonspunktUtleder(aksjonspunktDefinisjonKode).toException();
-        } else {
-            Object minInstans = instance.get();
-            if (minInstans.getClass().isAnnotationPresent(Dependent.class)) {
-                throw new IllegalStateException(
-                    "Kan ikke ha @Dependent scope bean ved Instance lookup dersom en ikke også håndtere lifecycle selv: " + minInstans.getClass());
-            }
-            return (AksjonspunktOppdaterer<BekreftetAksjonspunktDto>) minInstans;
-
+            throw new TekniskException("FP-770743",
+                "Finner ikke håndtering for aksjonspunkt med kode: " + aksjonspunktDefinisjonKode);
         }
+        Object minInstans = instance.get();
+        if (minInstans.getClass().isAnnotationPresent(Dependent.class)) {
+            throw new IllegalStateException(
+                "Kan ikke ha @Dependent scope bean ved Instance lookup dersom en ikke også håndtere lifecycle selv: " + minInstans.getClass());
+        }
+        return (AksjonspunktOppdaterer<BekreftetAksjonspunktDto>) minInstans;
+
     }
 
     private Instance<Object> finnAdapter(Class<?> cls, final Class<?> targetAdapter) {
@@ -440,15 +439,15 @@ public class AksjonspunktTjeneste {
         Instance<Object> instance = finnAdapter(dto.getClass(), Overstyringshåndterer.class);
 
         if (instance.isUnsatisfied()) {
-            throw FACTORY.kanIkkeFinneOverstyringshåndterer(dto.getClass().getSimpleName()).toException();
-        } else {
-            Object minInstans = instance.get();
-            if (minInstans.getClass().isAnnotationPresent(Dependent.class)) {
-                throw new IllegalStateException(
-                    "Kan ikke ha @Dependent scope bean ved Instance lookup dersom en ikke også håndtere lifecycle selv: " + minInstans.getClass());
-            }
-            return (Overstyringshåndterer<V>) minInstans;
+            throw new TekniskException("FP-475766",
+                "Finner ikke overstyringshåndterer for DTO: " + dto.getClass().getSimpleName());
         }
+        Object minInstans = instance.get();
+        if (minInstans.getClass().isAnnotationPresent(Dependent.class)) {
+            throw new IllegalStateException(
+                "Kan ikke ha @Dependent scope bean ved Instance lookup dersom en ikke også håndtere lifecycle selv: " + minInstans.getClass());
+        }
+        return (Overstyringshåndterer<V>) minInstans;
     }
 
     private void settToTrinnPåOverstyrtAksjonspunktHvisKreves(Behandling behandling, OverstyringAksjonspunktDto dto,

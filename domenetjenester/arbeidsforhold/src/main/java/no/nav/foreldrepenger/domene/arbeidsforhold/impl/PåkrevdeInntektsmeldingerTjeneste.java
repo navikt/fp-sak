@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 @ApplicationScoped
 public class PåkrevdeInntektsmeldingerTjeneste {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(VurderArbeidsforholdTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(VurderArbeidsforholdTjeneste.class);
 
     private InntektsmeldingRegisterTjeneste inntektsmeldingArkivTjeneste;
     private SøknadRepository søknadRepository;
@@ -43,7 +43,7 @@ public class PåkrevdeInntektsmeldingerTjeneste {
         if (!erEndringssøknad) {
             for (Map.Entry<Arbeidsgiver, Set<InternArbeidsforholdRef>> entry : manglendeInntektsmeldinger.entrySet()) {
                 LeggTilResultat.leggTil(result, AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING, entry.getKey(), entry.getValue());
-                LOGGER.info("Mangler inntektsmelding: arbeidsgiver={}, arbeidsforholdRef={}", entry.getKey(), entry.getValue());
+                LOG.info("Mangler inntektsmelding: arbeidsgiver={}, arbeidsforholdRef={}", entry.getKey(), entry.getValue());
             }
         }
     }

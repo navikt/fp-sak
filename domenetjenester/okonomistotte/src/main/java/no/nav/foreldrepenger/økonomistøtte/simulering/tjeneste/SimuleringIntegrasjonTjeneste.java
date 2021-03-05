@@ -18,7 +18,7 @@ import no.nav.vedtak.exception.IntegrasjonException;
 @ApplicationScoped
 public class SimuleringIntegrasjonTjeneste {
 
-    private static final Logger logger = LoggerFactory.getLogger(SimuleringIntegrasjonTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SimuleringIntegrasjonTjeneste.class);
 
     private FpOppdragRestKlient restKlient;
 
@@ -42,7 +42,7 @@ public class SimuleringIntegrasjonTjeneste {
                 throw SimulerOppdragIntegrasjonTjenesteFeil.FACTORY.startSimuleringFeiletMedFeilmelding(behandlingId, e).toException();
             }
         } else {
-            logger.info("Ingen oppdrag å simulere. {}", behandlingId);
+            LOG.info("Ingen oppdrag å simulere. {}", behandlingId);
         }
     }
 

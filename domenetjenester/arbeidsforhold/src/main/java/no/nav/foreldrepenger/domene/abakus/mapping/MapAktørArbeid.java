@@ -153,7 +153,7 @@ public class MapAktørArbeid {
 
     public static class MapTilDto {
 
-        private static final Logger log = LoggerFactory.getLogger(MapTilDto.class);
+        private static final Logger LOG = LoggerFactory.getLogger(MapTilDto.class);
 
         private ArbeidsforholdInformasjon arbeidsforholdInformasjon;
 
@@ -255,7 +255,7 @@ public class MapAktørArbeid {
             }
 
             if ((eksternRef == null) || (eksternRef.getReferanse() == null)) {
-                log.warn("Mangler eksternReferanse for internReferanse={}, forkaster internReferanse. Antar feilmapping", internRef);
+                LOG.warn("Mangler eksternReferanse for internReferanse={}, forkaster internReferanse. Antar feilmapping", internRef);
                 return null;
             }
 

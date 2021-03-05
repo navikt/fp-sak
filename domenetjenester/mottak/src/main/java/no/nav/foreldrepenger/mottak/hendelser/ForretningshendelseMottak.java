@@ -55,7 +55,7 @@ public class ForretningshendelseMottak {
         ForretningshendelseType.FØDSEL, f -> new FødselForretningshendelse(mapToAktørIds(f), ((FødselHendelseDto)f).getFødselsdato(), getEndringstype(f))
     );
 
-    private Logger LOGGER = LoggerFactory.getLogger(getClass());
+    private Logger LOG = LoggerFactory.getLogger(getClass());
 
     private ForretningshendelseHåndtererProvider håndtererProvider;
     private ForretningshendelseSaksvelgerProvider saksvelgerProvider;
@@ -139,7 +139,7 @@ public class ForretningshendelseMottak {
 
         // Case 4: Ytelsesbehandling finnes, men verken åpen eller innvilget. Antas å inntreffe sjelden
         if (sisteInnvilgedeYtelsesbehandling.isEmpty()) {
-            FEILFACTORY.finnesYtelsebehandlingSomVerkenErÅpenEllerInnvilget(hendelseType.getKode(), fagsakId).log(LOGGER);
+            FEILFACTORY.finnesYtelsebehandlingSomVerkenErÅpenEllerInnvilget(hendelseType.getKode(), fagsakId).log(LOG);
             return;
         }
         Behandling innvilgetBehandling = sisteInnvilgedeYtelsesbehandling.get();

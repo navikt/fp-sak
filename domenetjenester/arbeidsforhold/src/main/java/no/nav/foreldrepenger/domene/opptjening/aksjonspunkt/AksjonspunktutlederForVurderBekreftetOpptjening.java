@@ -41,7 +41,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 public class AksjonspunktutlederForVurderBekreftetOpptjening implements AksjonspunktUtleder {
 
     private static final List<AksjonspunktResultat> INGEN_AKSJONSPUNKTER = emptyList();
-    private static final Logger logger = LoggerFactory.getLogger(AksjonspunktutlederForVurderBekreftetOpptjening.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AksjonspunktutlederForVurderBekreftetOpptjening.class);
     private OpptjeningRepository opptjeningRepository;
     private InntektArbeidYtelseTjeneste iayTjeneste;
 
@@ -71,17 +71,17 @@ public class AksjonspunktutlederForVurderBekreftetOpptjening implements Aksjonsp
         LocalDate skjæringstidspunkt = param.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
         if (finnesDetArbeidsforholdMedStillingsprosentLik0(param.getAktørId(), inntektArbeidYtelseGrunnlag, opptjeningPeriode,
                 skjæringstidspunkt) == JA) {
-            logger.info("Utleder AP 5051 fra stillingsprosent 0: behandlingId={}", behandlingId);
+            LOG.info("Utleder AP 5051 fra stillingsprosent 0: behandlingId={}", behandlingId);
             return opprettListeForAksjonspunkt(VURDER_PERIODER_MED_OPPTJENING);
         }
 
         if (finnesDetBekreftetFrilans(param.getAktørId(), inntektArbeidYtelseGrunnlag, opptjeningPeriode, skjæringstidspunkt) == JA) {
-            logger.info("Utleder AP 5051 fra bekreftet frilans: behandlingId={}", behandlingId);
+            LOG.info("Utleder AP 5051 fra bekreftet frilans: behandlingId={}", behandlingId);
             return opprettListeForAksjonspunkt(VURDER_PERIODER_MED_OPPTJENING);
         }
 
         if (finnesDetArbeidsforholdLagtTilAvSaksbehandler(param.getRef(), inntektArbeidYtelseGrunnlag, skjæringstidspunkt) == JA) {
-            logger.info("Utleder AP 5051 fra arbeidsforhold lagt til av saksbehandler: behandlingId={}", behandlingId);
+            LOG.info("Utleder AP 5051 fra arbeidsforhold lagt til av saksbehandler: behandlingId={}", behandlingId);
             return opprettListeForAksjonspunkt(VURDER_PERIODER_MED_OPPTJENING);
 
         }

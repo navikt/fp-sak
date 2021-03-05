@@ -28,7 +28,7 @@ public class OppdaterBehandlendeEnhetTask extends BehandlingProsessTask {
 
     public static final String BEGRUNNELSE = "Enhetsomlegging";
 
-    private static final Logger log = LoggerFactory.getLogger(OppdaterBehandlendeEnhetTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OppdaterBehandlendeEnhetTask.class);
 
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     private BehandlingRepository behandlingRepository;
@@ -49,7 +49,7 @@ public class OppdaterBehandlendeEnhetTask extends BehandlingProsessTask {
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         Optional<OrganisasjonsEnhet> nyEnhet = behandlendeEnhetTjeneste.sjekkOppdatertEnhetEtterReallokering(behandling);
         if (nyEnhet.isPresent()) {
-            log.info("Endrer behandlende enhet for behandling: {}", prosessTaskData.getBehandlingId()); //NOSONAR
+            LOG.info("Endrer behandlende enhet for behandling: {}", prosessTaskData.getBehandlingId()); //NOSONAR
             behandlendeEnhetTjeneste.oppdaterBehandlendeEnhet(behandling, nyEnhet.get(), HistorikkAktør.VEDTAKSLØSNINGEN, BEGRUNNELSE);
         }
     }

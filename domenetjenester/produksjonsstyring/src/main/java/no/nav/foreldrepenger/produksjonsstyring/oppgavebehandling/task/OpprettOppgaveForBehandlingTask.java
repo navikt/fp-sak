@@ -19,7 +19,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class OpprettOppgaveForBehandlingTask extends GenerellProsessTask {
     public static final String TASKTYPE = "oppgavebehandling.opprettOppgaveBehandleSak";
-    private static final Logger log = LoggerFactory.getLogger(OpprettOppgaveForBehandlingTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OpprettOppgaveForBehandlingTask.class);
     private OppgaveTjeneste oppgaveTjeneste;
 
     OpprettOppgaveForBehandlingTask() {
@@ -36,7 +36,7 @@ public class OpprettOppgaveForBehandlingTask extends GenerellProsessTask {
     protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         String oppgaveId = oppgaveTjeneste.opprettBehandleOppgaveForBehandling(behandlingId);
         if (oppgaveId != null) {
-            log.info("Oppgave opprettet i GSAK for å behandle sak. Oppgavenummer: {}", oppgaveId); //NOSONAR
+            LOG.info("Oppgave opprettet i GSAK for å behandle sak. Oppgavenummer: {}", oppgaveId); //NOSONAR
         }
     }
 }

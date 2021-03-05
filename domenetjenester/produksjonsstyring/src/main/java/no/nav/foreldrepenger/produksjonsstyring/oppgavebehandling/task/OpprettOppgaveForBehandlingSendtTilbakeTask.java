@@ -19,7 +19,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class OpprettOppgaveForBehandlingSendtTilbakeTask extends GenerellProsessTask {
     public static final String TASKTYPE = "oppgavebehandling.opprettOppgaveSakSendtTilbake";
-    private static final Logger log = LoggerFactory.getLogger(OpprettOppgaveForBehandlingSendtTilbakeTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OpprettOppgaveForBehandlingSendtTilbakeTask.class);
     private OppgaveTjeneste oppgaveTjeneste;
 
     OpprettOppgaveForBehandlingSendtTilbakeTask() {
@@ -38,7 +38,7 @@ public class OpprettOppgaveForBehandlingSendtTilbakeTask extends GenerellProsess
         String oppgaveId = oppgaveTjeneste.opprettBehandleOppgaveForBehandlingMedPrioritetOgFrist(behandlingId,
             beskrivelse, true, 0);
         if (oppgaveId != null) {
-            log.info("Oppgave opprettet i GSAK for å behandle sak sendt tilbake. Oppgavenummer: {}", oppgaveId); //NOSONAR
+            LOG.info("Oppgave opprettet i GSAK for å behandle sak sendt tilbake. Oppgavenummer: {}", oppgaveId); //NOSONAR
         }
     }
 }

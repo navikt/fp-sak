@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 public class OppdragKjede {
 
-    private static final Logger logger = LoggerFactory.getLogger(OppdragKjede.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OppdragKjede.class);
     public static final OppdragKjede EMPTY = OppdragKjede.builder().build();
 
     private List<OppdragLinje> oppdragslinjer;
@@ -109,7 +109,7 @@ public class OppdragKjede {
 
             boolean overskriverSiste = siste.getPeriode().equals(linje.getPeriode());
             if (!overskriverSiste && ytelseBuilder.sisteTidspunkt() != null && !ytelseBuilder.sisteTidspunkt().isBefore(linje.getPeriode().getFom())) {
-                logger.info("Oppdragslinje med delytelseid {} overlappet med det som er gjeldende så langt. Dette skal vanligvis ikke skje, men kan skje på gamle data", linje.getDelytelseId());
+                LOG.info("Oppdragslinje med delytelseid {} overlappet med det som er gjeldende så langt. Dette skal vanligvis ikke skje, men kan skje på gamle data", linje.getDelytelseId());
             }
         }
 

@@ -17,7 +17,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class OpprettOppgaveSendTilInfotrygdTask extends GenerellProsessTask {
     public static final String TASKTYPE = "oppgavebehandling.opprettOppgaveSakTilInfotrygd";
-    private static final Logger log = LoggerFactory.getLogger(OpprettOppgaveSendTilInfotrygdTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OpprettOppgaveSendTilInfotrygdTask.class);
 
     private OppgaveTjeneste oppgaveTjeneste;
 
@@ -34,6 +34,6 @@ public class OpprettOppgaveSendTilInfotrygdTask extends GenerellProsessTask {
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         String oppgaveId = oppgaveTjeneste.opprettOppgaveSakSkalTilInfotrygd(behandlingId);
-        log.info("Oppgave opprettet i GSAK slik at Infotrygd kan behandle saken videre. Oppgavenummer: {}", oppgaveId);
+        LOG.info("Oppgave opprettet i GSAK slik at Infotrygd kan behandle saken videre. Oppgavenummer: {}", oppgaveId);
     }
 }

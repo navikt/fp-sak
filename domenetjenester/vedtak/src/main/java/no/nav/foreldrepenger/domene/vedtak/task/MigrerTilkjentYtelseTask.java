@@ -24,7 +24,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 @ProsessTask(MigrerTilkjentYtelseTask.TASKTYPE)
 public class MigrerTilkjentYtelseTask implements ProsessTaskHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(MigrerTilkjentYtelseTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MigrerTilkjentYtelseTask.class);
     public static final String TASKTYPE = "migrer.sendTilkjentYtelse";
 
     private static int ANTALL_PR_RUNDE = 10;
@@ -52,9 +52,9 @@ public class MigrerTilkjentYtelseTask implements ProsessTaskHandler {
         Long sisteBehandlingId = verdi == null ? Long.MAX_VALUE : Long.valueOf(verdi);
 
         List<BehandlingIdFagsakIdAktorId> behandlinger = behandlingRepository.hentBehandlingerForMigrering(sisteBehandlingId, ANTALL_PR_RUNDE);
-        logger.info("overfører {} behandlinger", behandlinger.size());
+        LOG.info("overfører {} behandlinger", behandlinger.size());
         for (BehandlingIdFagsakIdAktorId behandling : behandlinger) {
-            logger.info("Overfører behandlingId={} behandlingUuid={}", behandling.getBehandlingId(), behandling.getBehandlingUuid());
+            LOG.info("Overfører behandlingId={} behandlingUuid={}", behandling.getBehandlingId(), behandling.getBehandlingUuid());
 
             String fagsakYtelseType = behandling.getFagsakYtelseType();
             AktørId aktørId = new AktørId(behandling.getAktorId());
@@ -67,7 +67,7 @@ public class MigrerTilkjentYtelseTask implements ProsessTaskHandler {
             data.setNesteKjøringEtter(LocalDateTime.now().plus(DELAY_MELLOM_KJØRINGER));
             prosessTaskRepository.lagre(data);
         } else {
-            logger.info("siste migrer.sendTilkjentYtelse er ferdig");
+            LOG.info("siste migrer.sendTilkjentYtelse er ferdig");
         }
 
     }

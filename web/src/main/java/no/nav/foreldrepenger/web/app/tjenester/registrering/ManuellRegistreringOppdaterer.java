@@ -38,6 +38,7 @@ import no.nav.foreldrepenger.mottak.registrerer.DokumentRegistrererTjeneste;
 import no.nav.foreldrepenger.mottak.registrerer.ManuellRegistreringAksjonspunktDto;
 import no.nav.foreldrepenger.søknad.v3.SøknadConstants;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.svp.ManuellRegistreringSvangerskapspengerDto;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.felles.ws.JaxbHelper;
 import no.nav.vedtak.felles.xml.soeknad.v3.ObjectFactory;
 import no.nav.vedtak.felles.xml.soeknad.v3.Soeknad;
@@ -180,7 +181,7 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
                 SøknadConstants.ADDITIONAL_XSD_LOCATION,
                 SøknadConstants.ADDITIONAL_CLASSES);
         } catch (JAXBException | SAXException e) {
-            throw ManuellRegistreringFeil.FACTORY.marshallingFeil(e).toException();
+            throw new TekniskException("FP-453254", "Feil ved marshalling av søknadsskjema", e);
         }
         return søknadXml;
     }

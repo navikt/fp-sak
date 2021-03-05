@@ -35,7 +35,7 @@ public class OpprettOppgaveVurderKonsekvensTask extends GenerellProsessTask {
     public static final String PRIORITET_NORM = "normal";
     public static final String STANDARD_BESKRIVELSE = "Må behandle sak i VL!";
     public static final String KEY_GJELDENDE_AKTØR_ID = "aktuellAktoerId"; //Settes kun ved opphør av ytelse i Infotrygd ellers null
-    private static final Logger log = LoggerFactory.getLogger(OpprettOppgaveVurderKonsekvensTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OpprettOppgaveVurderKonsekvensTask.class);
 
     private OppgaveTjeneste oppgaveTjeneste;
 
@@ -65,6 +65,6 @@ public class OpprettOppgaveVurderKonsekvensTask extends GenerellProsessTask {
         }else {
             oppgaveId = oppgaveTjeneste.opprettMedPrioritetOgBeskrivelseBasertPåFagsakId(prosessTaskData.getFagsakId(), VURDER_KONS_FOR_YTELSE, behandlendeEnhet, beskrivelse, høyPrioritet);
         }
-        log.info("Oppgave opprettet i GSAK for å vurdere konsekvens for ytelse på enhet {}. Oppgavenummer: {}. Prioritet: {}", behandlendeEnhet, oppgaveId, prioritet); // NOSONAR
+        LOG.info("Oppgave opprettet i GSAK for å vurdere konsekvens for ytelse på enhet {}. Oppgavenummer: {}. Prioritet: {}", behandlendeEnhet, oppgaveId, prioritet); // NOSONAR
     }
 }

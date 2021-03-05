@@ -25,7 +25,7 @@ public class OpprettOppgaveVurderDokumentTask extends GenerellProsessTask {
     public static final String TASKTYPE = "oppgavebehandling.opprettOppgaveVurderDokument";
     public static final String KEY_BEHANDLENDE_ENHET = "behandlendEnhetsId";
     public static final String KEY_DOKUMENT_TYPE = "dokumentTypeId";
-    private static final Logger log = LoggerFactory.getLogger(OpprettOppgaveVurderDokumentTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OpprettOppgaveVurderDokumentTask.class);
 
     private OppgaveTjeneste oppgaveTjeneste;
 
@@ -51,6 +51,6 @@ public class OpprettOppgaveVurderDokumentTask extends GenerellProsessTask {
 
         String oppgaveId = oppgaveTjeneste.opprettMedPrioritetOgBeskrivelseBasertPåFagsakId(prosessTaskData.getFagsakId(),
             VURDER_DOKUMENT, behandlendeEnhet, "VL: " + beskrivelse, false);
-        log.info("Oppgave opprettet i GSAK for å vurdere dokument på enhet {}. Oppgavenummer: {}", behandlendeEnhet, oppgaveId);
+        LOG.info("Oppgave opprettet i GSAK for å vurdere dokument på enhet {}. Oppgavenummer: {}", behandlendeEnhet, oppgaveId);
     }
 }

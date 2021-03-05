@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.soap.sak.v1;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 
 import javax.enterprise.context.Dependent;
@@ -12,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -26,12 +24,12 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
 import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.binding.FinnSakListeSikkerhetsbegrensning;
 import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.binding.ForeldrepengesakV1;
-import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.informasjon.Aktoer;
 import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.informasjon.Behandlingstema;
 import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.informasjon.Sak;
 import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.informasjon.Saksstatus;
 import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.meldinger.FinnSakListeRequest;
 import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.meldinger.FinnSakListeResponse;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
 import no.nav.vedtak.felles.integrasjon.felles.ws.SoapWebService;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
@@ -48,7 +46,7 @@ import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 @SoapWebService(endpoint = "/sak/finnSak/v1", tjenesteBeskrivelseURL = "https://confluence.adeo.no/pages/viewpage.action?pageId=220528950")
 public class FinnSakService implements ForeldrepengesakV1 {
 
-    public static final Logger logger = LoggerFactory.getLogger(FinnSakService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FinnSakService.class);
 
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
@@ -67,7 +65,7 @@ public class FinnSakService implements ForeldrepengesakV1 {
 
     @Override
     public void ping() {
-        logger.debug("ping");
+        LOG.debug("ping");
     }
 
     @Override
@@ -75,27 +73,27 @@ public class FinnSakService implements ForeldrepengesakV1 {
     public FinnSakListeResponse finnSakListe(@TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) FinnSakListeRequest request)
             throws FinnSakListeSikkerhetsbegrensning {
 
-        Aktoer sakspart = request.getSakspart();
-        String aktørid = sakspart.getAktoerId();
+        var sakspart = request.getSakspart();
+        var aktørid = sakspart.getAktoerId();
 
-        List<Fagsak> fagsaker = fagsakRepository.hentForBruker(new AktørId(aktørid));
+        var fagsaker = fagsakRepository.hentForBruker(new AktørId(aktørid));
 
         return lagResponse(fagsaker);
     }
 
     // pkg scope for enhetstest
     FinnSakListeResponse lagResponse(List<Fagsak> fagsaker) {
-        FinnSakListeResponse response = new FinnSakListeResponse();
-        List<Sak> saksliste = response.getSakListe();
-        for (Fagsak fagsak : fagsaker) {
+        var response = new FinnSakListeResponse();
+        var saksliste = response.getSakListe();
+        for (var fagsak : fagsaker) {
             saksliste.add(lagEksternRepresentasjon(fagsak));
         }
         return response;
     }
 
     private Sak lagEksternRepresentasjon(Fagsak fagsak) {
-        Sak sak = new Sak();
-        FagsakStatus status = fagsak.getStatus();
+        var sak = new Sak();
+        var status = fagsak.getStatus();
         sak.setStatus(lagEksternRepresentasjon(status));
         sak.setBehandlingstema(lagEksternRepresentasjonBehandlingstema(fagsak));
         sak.setSakId(fagsak.getSaksnummer().getVerdi());
@@ -105,48 +103,45 @@ public class FinnSakService implements ForeldrepengesakV1 {
     }
 
     private Behandlingstema lagEksternRepresentasjonBehandlingstema(Fagsak fagsak) {
-        BehandlingTema behandlingTemaKodeliste = getBehandlingTema(fagsak);
+        var behandlingTemaKodeliste = getBehandlingTema(fagsak);
 
-        Behandlingstema behandlingstema = new Behandlingstema();
+        var behandlingstema = new Behandlingstema();
         behandlingstema.setValue(behandlingTemaKodeliste.getOffisiellKode());
         behandlingstema.setTermnavn(behandlingTemaKodeliste.getNavn());
         return behandlingstema;
     }
 
     private static Saksstatus lagEksternRepresentasjon(FagsakStatus status) {
-        FagsakStatus fagsakStatus = status;
-        Saksstatus saksstatus = new Saksstatus();
-        saksstatus.setValue(fagsakStatus.getKode()); // TODO (HUMLE): PK-41816 Endre når det bli klart hvilken kodemapping som
-                                                     // gjelder
-        saksstatus.setTermnavn(fagsakStatus.getNavn());
+        var saksstatus = new Saksstatus();
+        saksstatus.setValue(status.getKode());
+        saksstatus.setTermnavn(status.getNavn());
         return saksstatus;
     }
 
     private BehandlingTema getBehandlingTema(Fagsak fagsak) {
         if (!erStøttetYtelseType(fagsak.getYtelseType())) {
-            throw FinnSakServiceFeil.FACTORY.ikkeStøttetYtelsestype(fagsak.getYtelseType()).toException();
+            throw new TekniskException("FP-861850", "Ikke-støttet ytelsestype: " + fagsak.getYtelseType());
         }
 
-        BehandlingTema behandlingTema = getBehandlingsTemaForFagsak(fagsak);
+        var behandlingTema = getBehandlingsTemaForFagsak(fagsak);
         if (BehandlingTema.gjelderEngangsstønad(behandlingTema) ||
                 BehandlingTema.gjelderForeldrepenger(behandlingTema) ||
                 BehandlingTema.gjelderSvangerskapspenger(behandlingTema)) {
             return behandlingTema;
-        } else {
-            // det er riktig å rapportere på årsakstype, selv om koden over bruker
-            // BehandlingTema
-            throw FinnSakServiceFeil.FACTORY.ikkeStøttetÅrsakstype(behandlingTema).toException();
         }
+        // det er riktig å rapportere på årsakstype, selv om koden over bruker
+        // BehandlingTema
+        throw new TekniskException("FP-132949", "Ikke-støttet årsakstype: " + behandlingTema);
     }
 
     private BehandlingTema getBehandlingsTemaForFagsak(Fagsak s) {
-        Optional<Behandling> behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(s.getId());
-        if (!behandling.isPresent()) {
+        var behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(s.getId());
+        if (behandling.isEmpty()) {
             return BehandlingTema.fraFagsak(s, null);
         }
 
-        Behandling sisteBehandling = behandling.get();
-        final Optional<FamilieHendelseGrunnlagEntitet> grunnlag = familieGrunnlagRepository.hentAggregatHvisEksisterer(sisteBehandling.getId());
+        var sisteBehandling = behandling.get();
+        final var grunnlag = familieGrunnlagRepository.hentAggregatHvisEksisterer(sisteBehandling.getId());
         return BehandlingTema.fraFagsak(s, grunnlag.map(FamilieHendelseGrunnlagEntitet::getSøknadVersjon).orElse(null));
     }
 
@@ -160,7 +155,7 @@ public class FinnSakService implements ForeldrepengesakV1 {
 
         @Override
         public AbacDataAttributter apply(Object obj) {
-            FinnSakListeRequest req = (FinnSakListeRequest) obj;
+            var req = (FinnSakListeRequest) obj;
             return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, req.getSakspart().getAktoerId());
         }
     }

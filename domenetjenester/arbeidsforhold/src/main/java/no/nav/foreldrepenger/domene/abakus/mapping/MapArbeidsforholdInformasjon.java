@@ -121,7 +121,7 @@ final class MapArbeidsforholdInformasjon {
 
     static class MapTilDto {
 
-        private static final Logger log = LoggerFactory.getLogger(MapTilDto.class);
+        private static final Logger LOG = LoggerFactory.getLogger(MapTilDto.class);
 
         private List<Periode> map(List<ArbeidsforholdOverstyrtePerioder> perioder) {
             return perioder == null ? null
@@ -146,7 +146,7 @@ final class MapArbeidsforholdInformasjon {
             if ((internReferanse != null) && (eksternReferanse != null)) {
                 return new ArbeidsforholdReferanseDto(arbeidsgiver, new ArbeidsforholdRefDto(internReferanse, eksternReferanse));
             } else if ((internReferanse == null) && (eksternReferanse != null)) {
-                log.warn("Mangler internReferanse for eksternReferanse:" + eksternReferanse + ", arbeidsgiver=" + arbeidsgiver);
+                LOG.warn("Mangler internReferanse for eksternReferanse:" + eksternReferanse + ", arbeidsgiver=" + arbeidsgiver);
                 return null;
             } else if ((internReferanse == null) && (eksternReferanse == null)) {
                 return null;
@@ -185,7 +185,7 @@ final class MapArbeidsforholdInformasjon {
                 }
 
                 if ((eksternReferanse == null) || (eksternReferanse.getReferanse() == null)) {
-                    log.warn("Grunnlag=[ref='{}',aktiv={}] Mangler eksternReferanse for internReferanse={}", grunnlagRef, aktiv, ref);
+                    LOG.warn("Grunnlag=[ref='{}',aktiv={}] Mangler eksternReferanse for internReferanse={}", grunnlagRef, aktiv, ref);
                     return null;
                 }
                 return new ArbeidsforholdRefDto(ref.getReferanse(), eksternReferanse.getReferanse());

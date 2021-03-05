@@ -37,7 +37,7 @@ import no.nav.vedtak.util.Tuple;
 @Transactional
 public class ForvaltningFeriepengerRestTjeneste {
 
-    private static final Logger logger = LoggerFactory.getLogger(ForvaltningFeriepengerRestTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ForvaltningFeriepengerRestTjeneste.class);
 
     private FeriepengeRegeregnTjeneste feriepengeRegeregnTjeneste;
     private InformasjonssakRepository repository;

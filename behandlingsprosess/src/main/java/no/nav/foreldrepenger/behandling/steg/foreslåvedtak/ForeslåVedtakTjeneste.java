@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.domene.vedtak.impl.KlageAnkeVedtakTjeneste;
 @ApplicationScoped
 class ForeslåVedtakTjeneste {
 
-    private static final Logger logger = LoggerFactory.getLogger(ForeslåVedtakTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ForeslåVedtakTjeneste.class);
 
     private SjekkMotEksisterendeOppgaverTjeneste sjekkMotEksisterendeOppgaverTjeneste;
     private FagsakRepository fagsakRepository;
@@ -79,12 +79,12 @@ class ForeslåVedtakTjeneste {
         if (skalUtføreTotrinnsbehandling(behandling)) {
             if (!behandling.isToTrinnsBehandling()) {
                 behandling.setToTrinnsBehandling();
-                logger.info("To-trinn satt på behandling={}", behandling.getId());
+                LOG.info("To-trinn satt på behandling={}", behandling.getId());
             }
             aksjonspunktDefinisjoner.add(AksjonspunktDefinisjon.FORESLÅ_VEDTAK);
         } else {
             behandling.nullstillToTrinnsBehandling();
-            logger.info("To-trinn fjernet på behandling={}", behandling.getId());
+            LOG.info("To-trinn fjernet på behandling={}", behandling.getId());
             if (skalOppretteForeslåVedtakManuelt(behandling)) {
                 aksjonspunktDefinisjoner.add(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT);
             }

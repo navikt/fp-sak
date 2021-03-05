@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjeneste
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.FagsakRestTjeneste;
 
 public final class Redirect {
-    private static final Logger log = LoggerFactory.getLogger(Redirect.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Redirect.class);
 
     private Redirect() {
         // no ctor
@@ -85,7 +85,7 @@ public final class Redirect {
                 try {
                     URI rewritten = new URI(xForwardedProto, baseUri.getSchemeSpecificPart(), baseUri.getFragment())
                             .resolve(path);
-                    log.debug("Rewrote URI from '{}' to '{}'", location, rewritten);
+                    LOG.debug("Rewrote URI from '{}' to '{}'", location, rewritten);
                     newLocation = rewritten;
                 } catch (URISyntaxException e) {
                     throw new IllegalArgumentException(e.getMessage(), e);

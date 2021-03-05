@@ -24,7 +24,7 @@ import no.nav.vedtak.apptjeneste.AppServiceHandler;
 @ApplicationScoped
 public class RisikoklassifiseringConsumer implements AppServiceHandler, KafkaIntegration {
 
-    private static final Logger log = LoggerFactory.getLogger(RisikoklassifiseringConsumer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RisikoklassifiseringConsumer.class);
 
     private String topic;
     private KafkaStreams stream;
@@ -58,7 +58,7 @@ public class RisikoklassifiseringConsumer implements AppServiceHandler, KafkaInt
 
         // Sikkerhet
         if (streamProperties.harSattBrukernavn()) {
-            log.info("Using user name {} to authenticate against Kafka brokers ", streamProperties.getUsername());
+            LOG.info("Using user name {} to authenticate against Kafka brokers ", streamProperties.getUsername());
             props.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
             props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_SSL");
             String jaasTemplate = "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"%s\" password=\"%s\";";
@@ -81,14 +81,14 @@ public class RisikoklassifiseringConsumer implements AppServiceHandler, KafkaInt
     public void start() {
         addShutdownHooks();
         stream.start();
-        log.info("Starter konsumering av topic={}, tilstand={}", topic, stream.state());
+        LOG.info("Starter konsumering av topic={}, tilstand={}", topic, stream.state());
     }
 
     @Override
     public void stop() {
-        log.info("Starter shutdown av topic={}, tilstand={} med 10 sekunder timeout", topic, stream.state());
+        LOG.info("Starter shutdown av topic={}, tilstand={} med 10 sekunder timeout", topic, stream.state());
         stream.close(Duration.ofSeconds(10));
-        log.info("Shutdown av topic={}, tilstand={} med 10 sekunder timeout", topic, stream.state());
+        LOG.info("Shutdown av topic={}, tilstand={} med 10 sekunder timeout", topic, stream.state());
     }
 
     @Override
@@ -106,16 +106,16 @@ public class RisikoklassifiseringConsumer implements AppServiceHandler, KafkaInt
 
     private void addShutdownHooks() {
         stream.setStateListener((newState, oldState) -> {
-            log.info("From state={} to state={}", oldState, newState);
+            LOG.info("From state={} to state={}", oldState, newState);
 
             if (newState == KafkaStreams.State.ERROR) {
                 // if the stream has died there is no reason to keep spinning
-                log.warn("No reason to keep living, closing stream");
+                LOG.warn("No reason to keep living, closing stream");
                 stop();
             }
         });
         stream.setUncaughtExceptionHandler((t, e) -> {
-            log.error("Caught exception in stream, exiting", e);
+            LOG.error("Caught exception in stream, exiting", e);
             stop();
         });
     }

@@ -23,7 +23,7 @@ public class InnhentIAYIAbakusTask extends GenerellProsessTask {
     public static final String OVERSTYR_KEY = "overstyrt";
     public static final String OVERSTYR_VALUE = "overstyrt";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(InnhentIAYIAbakusTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(InnhentIAYIAbakusTask.class);
 
     private BehandlingRepository behandlingRepository;
     private RegisterdataInnhenter registerdataInnhenter;
@@ -44,7 +44,7 @@ public class InnhentIAYIAbakusTask extends GenerellProsessTask {
     protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         boolean overstyr = prosessTaskData.getPropertyValue(OVERSTYR_KEY) != null && OVERSTYR_VALUE.equals(prosessTaskData.getPropertyValue(OVERSTYR_KEY));
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        LOGGER.info("Innhenter IAY-opplysninger i abakus for behandling: {}", behandling.getId());
+        LOG.info("Innhenter IAY-opplysninger i abakus for behandling: {}", behandling.getId());
         if (overstyr) {
             registerdataInnhenter.innhentFullIAYIAbakus(behandling);
             return;

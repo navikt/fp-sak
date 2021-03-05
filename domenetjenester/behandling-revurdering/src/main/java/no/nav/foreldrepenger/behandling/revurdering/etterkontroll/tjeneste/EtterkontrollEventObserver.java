@@ -34,7 +34,7 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 @ApplicationScoped
 public class EtterkontrollEventObserver {
 
-    protected final Logger log = LoggerFactory.getLogger(this.getClass());
+    private static final Logger LOG = LoggerFactory.getLogger(EtterkontrollEventObserver.class);
 
     private EtterkontrollRepository etterkontrollRepository;
     private FamilieHendelseRepository familieHendelseRepository;
@@ -58,7 +58,7 @@ public class EtterkontrollEventObserver {
     }
 
     public void observerFamiliehendelseEvent(@Observes FamiliehendelseEvent event) {
-        log.debug("Mottatt familehendelseEvent for behandling {} ", event.getBehandlingId());// NOSONAR
+        LOG.debug("Mottatt familehendelseEvent for behandling {} ", event.getBehandlingId());// NOSONAR
         if (FamiliehendelseEvent.EventType.TERMIN_TIL_FØDSEL.equals(event.getEventType())) {
             etterkontrollRepository.avflaggDersomEksisterer(event.getFagsakId(), KontrollType.MANGLENDE_FØDSEL);
         }
@@ -70,7 +70,7 @@ public class EtterkontrollEventObserver {
             return;
         }
 
-        log.debug("Markerer behandling {} for etterkontroll på bakgrunn av opprettet vedtak {} om ytelse knyttet til termin", event.getBehandlingId(),
+        LOG.debug("Markerer behandling {} for etterkontroll på bakgrunn av opprettet vedtak {} om ytelse knyttet til termin", event.getBehandlingId(),
                 event.getVedtak().getId());// NOSONAR
         final Optional<FamilieHendelseGrunnlagEntitet> grunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
         if (grunnlag.isPresent()) {

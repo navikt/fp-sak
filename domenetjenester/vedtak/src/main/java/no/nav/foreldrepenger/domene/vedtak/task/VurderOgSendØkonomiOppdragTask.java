@@ -29,7 +29,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
 
-    private static final Logger log = LoggerFactory.getLogger(VurderOgSendØkonomiOppdragTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(VurderOgSendØkonomiOppdragTask.class);
 
     public static final String TASKTYPE = "iverksetteVedtak.oppdragTilØkonomi";
 
@@ -84,11 +84,11 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
         Optional<Oppdragskontroll> oppdragskontrollOpt;
 
         if (behandling.getFagsakYtelseType().equals(FagsakYtelseType.ENGANGSTØNAD)) {
-            log.info("Simulerer engangsstønad for behandlingId: {}", behandlingId);
+            LOG.info("Simulerer engangsstønad for behandlingId: {}", behandlingId);
             oppdragskontrollOpt = oppdragskontrollEngangsstønadTjeneste.opprettOppdrag(behandlingId, prosessTaskData.getId());
         } else {
             if (toggle.brukNyImpl()) {
-                log.info("Bruker ny implementasjon av kjernen i modulen fpsak.okonomistotte for behandlingId={}", behandlingId);
+                LOG.info("Bruker ny implementasjon av kjernen i modulen fpsak.okonomistotte for behandlingId={}", behandlingId);
                 var input = oppdragInputTjeneste.lagInput(behandlingId, prosessTaskData.getId());
                 oppdragskontrollOpt = nyOppdragskontrollTjeneste.opprettOppdrag(input);
             } else {
@@ -97,16 +97,16 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
         }
 
         if (oppdragskontrollOpt.isPresent()) {
-            log.info("Klargjør økonomioppdrag for behandling: {}", behandlingId); //$NON-NLS-1$
+            LOG.info("Klargjør økonomioppdrag for behandling: {}", behandlingId); //$NON-NLS-1$
             Oppdragskontroll oppdragskontroll = oppdragskontrollOpt.get();
             oppdragskontrollTjeneste.lagre(oppdragskontroll);
             oppdaterProsessTask(prosessTaskData);
 
             sendØkonomioppdragTask(prosessTaskData, behandlingId);
 
-            log.info("Økonomioppdrag er klargjort for behandling: {}", behandlingId); //$NON-NLS-1$
+            LOG.info("Økonomioppdrag er klargjort for behandling: {}", behandlingId); //$NON-NLS-1$
         } else {
-            log.info("Ikke aktuelt for behandling: {}", behandlingId); //$NON-NLS-1$
+            LOG.info("Ikke aktuelt for behandling: {}", behandlingId); //$NON-NLS-1$
         }
 
         sendTilkjentYtelse(prosessTaskData, behandlingId);
@@ -140,7 +140,7 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
 
     private void behandleHendelse(ProsessTaskHendelse prosessTaskHendelse, Long behandlingId) {
         if (prosessTaskHendelse == ProsessTaskHendelse.ØKONOMI_OPPDRAG_KVITTERING) {
-            log.info("Økonomioppdrag-kvittering mottatt for behandling: {}", behandlingId); //$NON-NLS-1$
+            LOG.info("Økonomioppdrag-kvittering mottatt for behandling: {}", behandlingId); //$NON-NLS-1$
         } else {
             throw new IllegalStateException("Uventet hendelse " + prosessTaskHendelse);
         }

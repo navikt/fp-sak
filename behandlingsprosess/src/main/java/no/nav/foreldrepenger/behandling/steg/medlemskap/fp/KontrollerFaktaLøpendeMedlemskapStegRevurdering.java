@@ -44,7 +44,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 @ApplicationScoped
 public class KontrollerFaktaLøpendeMedlemskapStegRevurdering implements KontrollerFaktaLøpendeMedlemskapSteg {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(KontrollerFaktaLøpendeMedlemskapStegRevurdering.class);
+    private static final Logger LOG = LoggerFactory.getLogger(KontrollerFaktaLøpendeMedlemskapStegRevurdering.class);
 
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private UtledVurderingsdatoerForMedlemskapTjeneste tjeneste;
@@ -82,7 +82,7 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurdering implements Kontrol
         var behandlingId = kontekst.getBehandlingId();
         List<AksjonspunktResultat> aksjonspunkter = new ArrayList<>();
         if (flytkontroll.uttaksProsessenSkalVente(kontekst.getBehandlingId())) {
-            LOGGER.info("Flytkontroll UTTAK: Setter behandling {} revurdering på vent grunnet berørt eller annen part", kontekst.getBehandlingId());
+            LOG.info("Flytkontroll UTTAK: Setter behandling {} revurdering på vent grunnet berørt eller annen part", kontekst.getBehandlingId());
             aksjonspunkter.add(AksjonspunktResultat.opprettForAksjonspunktMedFrist(AUTO_KØET_BEHANDLING, Venteårsak.VENT_ÅPEN_BEHANDLING, null));
         }
 

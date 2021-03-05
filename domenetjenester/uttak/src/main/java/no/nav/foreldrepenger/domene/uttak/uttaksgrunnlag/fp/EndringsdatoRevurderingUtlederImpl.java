@@ -37,7 +37,7 @@ import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
 @FagsakYtelseTypeRef("FP")
 public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderingUtleder {
 
-    private static final Logger log = LoggerFactory.getLogger(EndringsdatoRevurderingUtlederImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EndringsdatoRevurderingUtlederImpl.class);
     private static final Comparator<LocalDate> LOCAL_DATE_COMPARATOR = Comparator.comparing(LocalDate::toEpochDay);
 
     private FpUttakRepository fpUttakRepository;
@@ -66,7 +66,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
         var endringsdatoTypeEnumSet = utledEndringsdatoTyper(input);
         if (endringsdatoTypeEnumSet.isEmpty()) {
             endringsdatoTypeEnumSet.add(EndringsdatoType.FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK);
-            log.info("Kunne ikke utlede endringsdato for revurdering med behandlingId=" + behandlingId
+            LOG.info("Kunne ikke utlede endringsdato for revurdering med behandlingId=" + behandlingId
                 + ". Satte FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK.");
         }
         var endringsdato = utledEndringsdato(ref, endringsdatoTypeEnumSet, input.getYtelsespesifiktGrunnlag());

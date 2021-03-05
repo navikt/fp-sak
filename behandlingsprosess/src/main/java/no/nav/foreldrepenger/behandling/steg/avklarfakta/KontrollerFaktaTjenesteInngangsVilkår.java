@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.domene.registerinnhenting.KontrollerFaktaInngangsVi
 
 public abstract class KontrollerFaktaTjenesteInngangsVilkår implements KontrollerFaktaInngangsVilkårUtleder {
 
-    private static final Logger logger = LoggerFactory.getLogger(KontrollerFaktaTjenesteInngangsVilkår.class);
+    private static final Logger LOG = LoggerFactory.getLogger(KontrollerFaktaTjenesteInngangsVilkår.class);
 
     private KontrollerFaktaUtledere utlederTjeneste;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
@@ -74,7 +74,7 @@ public abstract class KontrollerFaktaTjenesteInngangsVilkår implements Kontroll
         boolean skalBeholde = behandlingskontrollTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(
                 ref.getFagsakYtelseType(), ref.getBehandlingType(), steg, apDef);
         if (!skalBeholde) {
-            logger.debug("Fjerner aksjonspunkt {} da det skal løses før startsteg {}.",
+            LOG.debug("Fjerner aksjonspunkt {} da det skal løses før startsteg {}.",
                     apDef.getKode(), steg.getKode()); // NOSONAR
         }
         return skalBeholde;

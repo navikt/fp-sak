@@ -26,7 +26,7 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 @ApplicationScoped
 public class SkjæringstidspunktUtils {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SkjæringstidspunktUtils.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SkjæringstidspunktUtils.class);
 
     private final Period grenseverdiFør;
     private final Period grenseverdiEtter;
@@ -62,7 +62,7 @@ public class SkjæringstidspunktUtils {
         final LocalDate oppgittHendelseDato = familieHendelseAggregat.getSøknadVersjon().getSkjæringstidspunkt();
 
         if (erEndringIPerioden(oppgittHendelseDato, gjeldendeHendelseDato)) {
-            LOGGER.info("STP registerinnhenting endring i perioden for fhgrunnlag {}", familieHendelseAggregat.getId());
+            LOG.info("STP registerinnhenting endring i perioden for fhgrunnlag {}", familieHendelseAggregat.getId());
             return gjeldendeHendelseDato;
         }
         return oppgittHendelseDato;

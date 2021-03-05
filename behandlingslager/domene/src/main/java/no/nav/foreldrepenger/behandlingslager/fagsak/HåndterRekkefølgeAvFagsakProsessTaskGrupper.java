@@ -27,7 +27,7 @@ import no.nav.vedtak.felles.prosesstask.impl.BasicCdiProsessTaskDispatcher.Prose
  */
 @ApplicationScoped
 public class HåndterRekkefølgeAvFagsakProsessTaskGrupper implements ProsessTaskLifecycleObserver {
-    private static final Logger log = LoggerFactory.getLogger(HåndterRekkefølgeAvFagsakProsessTaskGrupper.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HåndterRekkefølgeAvFagsakProsessTaskGrupper.class);
     private FagsakProsessTaskRepository repository;
     private ProsessTaskRepository prosessTaskRepository;
 
@@ -53,7 +53,7 @@ public class HåndterRekkefølgeAvFagsakProsessTaskGrupper implements ProsessTas
         boolean vetoed = blokkerendeTask.isPresent();
         if (vetoed) {
             ProsessTaskData blokker = prosessTaskRepository.finn(blokkerendeTask.get().getProsessTaskId());
-            log.info("Vetoer kjøring av prosesstask[{}] av type[{}] for fagsak [{}] , er blokkert av prosesstask[{}] av type[{}] for samme fagsak.",
+            LOG.info("Vetoer kjøring av prosesstask[{}] av type[{}] for fagsak [{}] , er blokkert av prosesstask[{}] av type[{}] for samme fagsak.",
                 ptData.getId(), ptData.getTaskType(), ptData.getFagsakId(), blokker.getId(), blokker.getTaskType());
 
             return new ProsessTaskVeto(false, ptData.getId(), blokker.getId(), getClass().getSimpleName()

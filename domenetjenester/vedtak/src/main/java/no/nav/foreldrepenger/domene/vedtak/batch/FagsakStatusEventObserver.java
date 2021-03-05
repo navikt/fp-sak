@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.domene.vedtak.OppdaterFagsakStatus;
 @ApplicationScoped
 public class FagsakStatusEventObserver {
 
-    protected final Logger log = LoggerFactory.getLogger(this.getClass());
+    private static final Logger LOG = LoggerFactory.getLogger(FagsakStatusEventObserver.class);
 
     private Instance<OppdaterFagsakStatus> oppdaterFagsakStatuser;
     private BehandlingRepository behandlingRepository;
@@ -37,7 +37,7 @@ public class FagsakStatusEventObserver {
     }
 
     public void observerBehandlingOpprettetEvent(@Observes BehandlingStatusEvent.BehandlingOpprettetEvent event) {
-        log.debug("Oppdaterer status på Fagsak etter endring i behandling {}", event.getBehandlingId());//NOSONAR
+        LOG.debug("Oppdaterer status på Fagsak etter endring i behandling {}", event.getBehandlingId());//NOSONAR
         Behandling behandling = behandlingRepository.hentBehandling(event.getBehandlingId());
         OppdaterFagsakStatus oppdaterFagsakStatus = FagsakYtelseTypeRef.Lookup.find(oppdaterFagsakStatuser, behandling.getFagsakYtelseType())
             .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + behandling.getFagsakYtelseType().getKode()));
@@ -45,7 +45,7 @@ public class FagsakStatusEventObserver {
     }
 
     public void observerBehandlingAvsluttetEvent(@Observes BehandlingStatusEvent.BehandlingAvsluttetEvent event) {
-        log.debug("Oppdaterer status på Fagsak etter endring i behandling {}", event.getBehandlingId());//NOSONAR
+        LOG.debug("Oppdaterer status på Fagsak etter endring i behandling {}", event.getBehandlingId());//NOSONAR
         Behandling behandling = behandlingRepository.hentBehandling(event.getBehandlingId());
         OppdaterFagsakStatus oppdaterFagsakStatus = FagsakYtelseTypeRef.Lookup.find(oppdaterFagsakStatuser, behandling.getFagsakYtelseType())
             .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + behandling.getFagsakYtelseType().getKode()));

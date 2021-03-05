@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.økonomistøtte;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.control.ActivateRequestContext;
@@ -27,7 +26,7 @@ public class BehandleØkonomioppdragKvittering {
     private ØkonomioppdragRepository økonomioppdragRepository;
     private BehandleNegativeKvitteringTjeneste behandleNegativeKvittering;
 
-    private static final Logger log = LoggerFactory.getLogger(BehandleØkonomioppdragKvittering.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BehandleØkonomioppdragKvittering.class);
 
     BehandleØkonomioppdragKvittering() {
         // for CDI
@@ -57,7 +56,7 @@ public class BehandleØkonomioppdragKvittering {
     public void behandleKvittering(ØkonomiKvittering kvittering, boolean oppdaterProsesstask) {
         Long behandlingId = kvittering.getBehandlingId();
 
-        log.info("Behandler økonomikvittering med resultatkode: {} i behandling: {}", kvittering.getAlvorlighetsgrad(), behandlingId); //$NON-NLS-1$
+        LOG.info("Behandler økonomikvittering med resultatkode: {} i behandling: {}", kvittering.getAlvorlighetsgrad(), behandlingId); //$NON-NLS-1$
 
         var oppdragUtenKvittering = økonomioppdragRepository.hentOppdragUtenKvittering(kvittering.getFagsystemId(), behandlingId);
 
@@ -75,21 +74,21 @@ public class BehandleØkonomioppdragKvittering {
         boolean erAlleKvitteringerMottatt = sjekkAlleKvitteringMottatt(oppdragskontroll.getOppdrag110Liste());
 
         if (erAlleKvitteringerMottatt) {
-            log.info("Alle økonomioppdrag-kvitteringer er mottatt for behandling: {}", behandlingId);
+            LOG.info("Alle økonomioppdrag-kvitteringer er mottatt for behandling: {}", behandlingId);
             oppdragskontroll.setVenterKvittering(false);
 
             if (oppdaterProsesstask) {
                 //Dersom kvittering viser positivt resultat: La Behandlingskontroll/TaskManager fortsette behandlingen - trigger prosesstask Behandling.Avslutte hvis brev er bekreftet levert
                 boolean alleViserPositivtResultat = erAlleKvitteringerMedPositivtResultat(behandlingId, oppdragskontroll);
                 if (alleViserPositivtResultat) {
-                    log.info("Alle økonomioppdrag-kvitteringer viser positivt resultat for behandling: {}", behandlingId);
+                    LOG.info("Alle økonomioppdrag-kvitteringer viser positivt resultat for behandling: {}", behandlingId);
                     hendelsesmottak.mottaHendelse(oppdragskontroll.getProsessTaskId(), ProsessTaskHendelse.ØKONOMI_OPPDRAG_KVITTERING);
                 } else {
-                    log.warn("Ikke alle økonomioppdrag-kvitteringer viser positivt resultat for behandling: {}", behandlingId);
+                    LOG.warn("Ikke alle økonomioppdrag-kvitteringer viser positivt resultat for behandling: {}", behandlingId);
                     behandleNegativeKvittering.nullstilleØkonomioppdragTask(oppdragskontroll.getProsessTaskId());
                 }
             } else {
-                log.info("Oppdaterer ikke prosesstask.");
+                LOG.info("Oppdaterer ikke prosesstask.");
             }
             økonomioppdragRepository.lagre(oppdragskontroll);
         }

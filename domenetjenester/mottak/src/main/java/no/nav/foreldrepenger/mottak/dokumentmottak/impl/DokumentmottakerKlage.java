@@ -31,7 +31,7 @@ import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 @DokumentGruppeRef("KLAGE")
 class DokumentmottakerKlage implements Dokumentmottaker {
 
-    private static final Logger logger = LoggerFactory.getLogger(DokumentmottakerKlage.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DokumentmottakerKlage.class);
 
     private BehandlingRepository behandlingRepository;
     private BehandlingOpprettingTjeneste behandlingOpprettingTjeneste;
@@ -74,7 +74,7 @@ class DokumentmottakerKlage implements Dokumentmottaker {
 
     private Optional<Behandling> opprettKlagebehandling(Fagsak fagsak) {
         if (behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId()).isEmpty()) { //#K2
-            Feilene.FACTORY.finnerIkkeEksisterendeBehandling(fagsak.getSaksnummer().toString()).log(logger);
+            Feilene.FACTORY.finnerIkkeEksisterendeBehandling(fagsak.getSaksnummer().toString()).log(LOG);
             return Optional.empty();
         }
         return Optional.of(behandlingOpprettingTjeneste.opprettBehandlingUtenHistorikk(fagsak, BehandlingType.KLAGE, BehandlingÅrsakType.UDEFINERT));

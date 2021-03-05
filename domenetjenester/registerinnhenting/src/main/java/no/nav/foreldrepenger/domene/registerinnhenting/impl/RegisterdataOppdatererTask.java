@@ -26,7 +26,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class RegisterdataOppdatererTask extends BehandlingProsessTask {
 
-    private static final Logger log = LoggerFactory.getLogger(RegisterdataOppdatererTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RegisterdataOppdatererTask.class);
 
     public static final String TASKTYPE = "behandlingskontroll.registerdataOppdaterBehandling";
 
@@ -56,12 +56,12 @@ public class RegisterdataOppdatererTask extends BehandlingProsessTask {
 
         // sjekk forhåndsbetingelser for å innhente registerdata
         if (behandling.erSaksbehandlingAvsluttet() || !behandling.erYtelseBehandling()) {
-            log.info("Behandling er avsluttet eller feil type, kan ikke innhente registerdata: behandlingId={} status={}", behandlingsId, behandling.getStatus());
+            LOG.info("Behandling er avsluttet eller feil type, kan ikke innhente registerdata: behandlingId={} status={}", behandlingsId, behandling.getStatus());
             return;
         }
 
         if (!behandlingskontrollTjeneste.erStegPassert(behandling, BehandlingStegType.INNHENT_REGISTEROPP)) {
-            log.info("Behandling har ikke etablert grunnlag, skal ikke innhente registerdata: behandlingId={}", behandlingsId);
+            LOG.info("Behandling har ikke etablert grunnlag, skal ikke innhente registerdata: behandlingId={}", behandlingsId);
             return;
         }
 

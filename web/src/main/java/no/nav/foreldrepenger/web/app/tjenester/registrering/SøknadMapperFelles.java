@@ -32,7 +32,7 @@ import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.MedInntektArbeid
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.RettigheterDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.UtenlandsoppholdDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.VirksomhetDto;
-import no.nav.vedtak.feil.FeilFactory;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Adopsjon;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.AnnenForelder;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.AnnenForelderMedNorskIdent;
@@ -103,7 +103,7 @@ public class SøknadMapperFelles {
 
         AnnenForelderMedNorskIdent annenForelderMedNorskIdent = new AnnenForelderMedNorskIdent();
         AktørId aktørId = personinfoAdapter.hentAktørForFnr(PersonIdent.fra(annenForelderDto.getFoedselsnummer()))
-            .orElseThrow(() -> FeilFactory.create(ManuellRegistreringFeil.class).feilVedhentingAvAktørId(annenForelderDto.getFoedselsnummer()).toException());
+            .orElseThrow(() -> new TekniskException("FP-453257", "Fant ikke aktør-ID for fødselsnummer"));
         annenForelderMedNorskIdent.setAktoerId(aktørId.getId());
 
         return annenForelderMedNorskIdent;

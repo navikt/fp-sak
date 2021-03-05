@@ -22,7 +22,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 @ApplicationScoped
 public class AvsluttBehandling {
 
-    private static final Logger log = LoggerFactory.getLogger(AvsluttBehandling.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AvsluttBehandling.class);
 
     private BehandlingRepository behandlingRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
@@ -50,7 +50,7 @@ public class AvsluttBehandling {
     }
 
     void avsluttBehandling(Long behandlingId) {
-        log.info("Avslutter behandling: {}", behandlingId); //$NON-NLS-1$
+        LOG.info("Avslutter behandling: {}", behandlingId); //$NON-NLS-1$
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
 
@@ -62,12 +62,12 @@ public class AvsluttBehandling {
 
         behandlingskontrollTjeneste.prosesserBehandlingGjenopptaHvisStegVenter(kontekst, BehandlingStegType.IVERKSETT_VEDTAK);
 
-        log.info("Har avsluttet behandling: {}", behandlingId); //$NON-NLS-1$
+        LOG.info("Har avsluttet behandling: {}", behandlingId); //$NON-NLS-1$
 
         // TODO (Fluoritt): Kunne vi flyttet dette ut i en Event observer (ref BehandlingStatusEvent) Hilsen FC.
         var ventendeBehandlingOpt = vurderBehandlingerUnderIverksettelse.finnBehandlingSomVenterIverksetting(behandling);
         ventendeBehandlingOpt.ifPresent(ventendeBehandling -> {
-            log.info("Fortsetter iverksetting av ventende behandling: {}", ventendeBehandling.getId()); //$NON-NLS-1$
+            LOG.info("Fortsetter iverksetting av ventende behandling: {}", ventendeBehandling.getId()); //$NON-NLS-1$
             opprettTaskForProsesserBehandling(ventendeBehandling);
         });
     }

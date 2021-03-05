@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
  */
 @ApplicationScoped
 public class BehandlingskontrollBehandlingEventObserver {
-    private static final Logger log = LoggerFactory.getLogger(BehandlingskontrollBehandlingEventObserver.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BehandlingskontrollBehandlingEventObserver.class);
 
     private BehandlingskontrollEventPubliserer eventPubliserer;
 
@@ -57,7 +57,7 @@ public class BehandlingskontrollBehandlingEventObserver {
             return;
         }
 
-        log.info("transisjon fra {} til {}", fraTilstand, tilTilstand);
+        LOG.info("transisjon fra {} til {}", fraTilstand, tilTilstand);
 
         // fyr behandling status event
         BehandlingStatus gammelStatus = null;

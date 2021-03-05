@@ -38,6 +38,7 @@ import no.nav.foreldrepenger.mottak.dokumentpersiterer.NamespaceRef;
 import no.nav.inntektsmelding.xml.kodeliste._2018xxyy.NaturalytelseKodeliste;
 import no.nav.inntektsmelding.xml.kodeliste._2018xxyy.ÅrsakInnsendingKodeliste;
 import no.nav.inntektsmelding.xml.kodeliste._2018xxyy.ÅrsakUtsettelseKodeliste;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.konfig.Tid;
 import no.seres.xsd.nav.inntektsmelding_m._201812.InntektsmeldingConstants;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.Arbeidsforhold;
@@ -122,7 +123,7 @@ public class MottattDokumentOversetterInntektsmelding implements MottattDokument
             builder.medBeløp(arbeidsforholdet.getBeregnetInntekt().getValue().getBeloep().getValue())
                 .medStartDatoPermisjon(wrapper.getStartDatoPermisjon().orElse(null));
         } else {
-            throw InntektsmeldingFeil.FACTORY.manglendeInformasjon().toException();
+            throw InntektsmeldingFeil.manglendeInformasjon();
         }
     }
 
@@ -134,10 +135,10 @@ public class MottattDokumentOversetterInntektsmelding implements MottattDokument
             builder.medArbeidsgiver(Arbeidsgiver.virksomhet(orgNummer));
         } else if (wrapper.getArbeidsgiverPrivat().isPresent()) {
             AktørId aktørIdArbeidsgiver = personinfoAdapter.hentAktørForFnr(new PersonIdent(wrapper.getArbeidsgiverPrivat().get().getArbeidsgiverFnr()))
-                .orElseThrow(() -> InntektsmeldingFeil.FACTORY.finnerIkkeArbeidsgiverITPS().toException());
+                .orElseThrow(() -> new TekniskException("FP-159641", "Fant ikke personident for arbeidsgiver som er privatperson i TPS"));
             builder.medArbeidsgiver(Arbeidsgiver.person(aktørIdArbeidsgiver));
         } else {
-            throw InntektsmeldingFeil.FACTORY.manglendeArbeidsgiver().toException();
+            throw new TekniskException("FP-183452", "Fant ikke informasjon om arbeidsgiver på inntektsmelding");
         }
     }
 

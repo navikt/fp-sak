@@ -42,7 +42,7 @@ import no.nav.vedtak.exception.TekniskException;
 @ApplicationScoped
 public class SimulerOppdragSteg implements BehandlingSteg {
 
-    private static final Logger logger = LoggerFactory.getLogger(SimulerOppdragSteg.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SimulerOppdragSteg.class);
 
     private static final int ÅPNINGSTID = 7;
     private static final int STENGETID = 21;
@@ -166,7 +166,7 @@ public class SimulerOppdragSteg implements BehandlingSteg {
     private boolean kanOppdatereEksisterendeTilbakekrevingsbehandling(Behandling behandling, SimuleringResultatDto simuleringResultatDto) {
         boolean harÅpenTilbakekreving = harÅpenTilbakekreving(behandling);
         if (!harÅpenTilbakekreving && simuleringResultatDto.harFeilutbetaling()) {
-            logger.info("Saksnummer {} har ikke åpen tilbakekreving og det er identifisert feilutbetaling. Simuleringsresultat: sumFeilutbetaling={}, sumInntrekk={}, slåttAvInntrekk={}",
+            LOG.info("Saksnummer {} har ikke åpen tilbakekreving og det er identifisert feilutbetaling. Simuleringsresultat: sumFeilutbetaling={}, sumInntrekk={}, slåttAvInntrekk={}",
                 behandling.getFagsak().getSaksnummer(), simuleringResultatDto.getSumFeilutbetaling(), simuleringResultatDto.getSumInntrekk(), simuleringResultatDto.isSlåttAvInntrekk());
         }
         return harÅpenTilbakekreving && (simuleringResultatDto.getSumFeilutbetaling() != 0);

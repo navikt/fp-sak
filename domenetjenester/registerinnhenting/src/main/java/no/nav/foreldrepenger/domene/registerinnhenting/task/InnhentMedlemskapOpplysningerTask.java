@@ -21,7 +21,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 public class InnhentMedlemskapOpplysningerTask extends BehandlingProsessTask {
 
     public static final String TASKTYPE = "innhentsaksopplysninger.medlemskap";
-    private static final Logger LOGGER = LoggerFactory.getLogger(InnhentMedlemskapOpplysningerTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(InnhentMedlemskapOpplysningerTask.class);
     private BehandlingRepository behandlingRepository;
     private RegisterdataInnhenter registerdataInnhenter;
 
@@ -40,7 +40,7 @@ public class InnhentMedlemskapOpplysningerTask extends BehandlingProsessTask {
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        LOGGER.info("Innhenter medlemskapsopplysninger for behandling: {}", behandling.getId());
+        LOG.info("Innhenter medlemskapsopplysninger for behandling: {}", behandling.getId());
         registerdataInnhenter.innhentMedlemskapsOpplysning(behandling);
     }
 }

@@ -20,7 +20,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class OpprettOppgaveGodkjennVedtakTask extends GenerellProsessTask {
     public static final String TASKTYPE = "oppgavebehandling.opprettOppgaveGodkjennVedtak";
-    private static final Logger log = LoggerFactory.getLogger(OpprettOppgaveGodkjennVedtakTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OpprettOppgaveGodkjennVedtakTask.class);
     private OppgaveTjeneste oppgaveTjeneste;
 
     OpprettOppgaveGodkjennVedtakTask() {
@@ -37,7 +37,7 @@ public class OpprettOppgaveGodkjennVedtakTask extends GenerellProsessTask {
     protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         String oppgaveId = oppgaveTjeneste.opprettBasertPåBehandlingId(behandlingId, GODKJENNE_VEDTAK);
         if (oppgaveId != null) {
-            log.info("Oppgave opprettet i GSAK for å godkjenne vedtak. Oppgavenummer: {}", oppgaveId); //NOSONAR
+            LOG.info("Oppgave opprettet i GSAK for å godkjenne vedtak. Oppgavenummer: {}", oppgaveId); //NOSONAR
         }
     }
 }

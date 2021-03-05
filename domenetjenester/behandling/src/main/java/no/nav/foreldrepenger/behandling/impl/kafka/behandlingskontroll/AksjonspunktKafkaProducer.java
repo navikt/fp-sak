@@ -25,7 +25,7 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 @ApplicationScoped
 public class AksjonspunktKafkaProducer {
 
-    private static final Logger log = LoggerFactory.getLogger(AksjonspunktKafkaProducer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AksjonspunktKafkaProducer.class);
     private static final String CALLID_NAME = "Nav-CallId";
 
     Producer<String, String> producer;
@@ -64,16 +64,16 @@ public class AksjonspunktKafkaProducer {
             producer.send(record)
                     .get();
         } catch (InterruptedException e) {
-            log.warn("Uventet feil ved sending til Kafka, topic:" + topic, e);
+            LOG.warn("Uventet feil ved sending til Kafka, topic:" + topic, e);
             Thread.currentThread().interrupt(); // reinterrupt
         } catch (ExecutionException e) {
-            log.warn("Uventet feil ved sending til Kafka, topic:" + topic, e);
+            LOG.warn("Uventet feil ved sending til Kafka, topic:" + topic, e);
         } catch (AuthenticationException | AuthorizationException e) {
-            log.warn("Feil i pålogging mot Kafka, topic:" + topic, e);
+            LOG.warn("Feil i pålogging mot Kafka, topic:" + topic, e);
         } catch (RetriableException e) {
-            log.warn("Fikk transient feil mot Kafka, kan prøve igjen, topic:" + topic, e);
+            LOG.warn("Fikk transient feil mot Kafka, kan prøve igjen, topic:" + topic, e);
         } catch (KafkaException e) {
-            log.warn("Fikk feil mot Kafka, topic:" + topic, e);
+            LOG.warn("Fikk feil mot Kafka, topic:" + topic, e);
         }
     }
 

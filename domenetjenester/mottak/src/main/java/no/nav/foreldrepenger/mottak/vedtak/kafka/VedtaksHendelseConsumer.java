@@ -26,7 +26,7 @@ import no.nav.vedtak.apptjeneste.AppServiceHandler;
 @ApplicationScoped
 public class VedtaksHendelseConsumer implements AppServiceHandler, KafkaIntegration {
 
-    private static final Logger log = LoggerFactory.getLogger(VedtaksHendelseConsumer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(VedtaksHendelseConsumer.class);
     private KafkaStreams stream;
     private String topic;
 
@@ -51,16 +51,16 @@ public class VedtaksHendelseConsumer implements AppServiceHandler, KafkaIntegrat
 
     private void addShutdownHooks() {
         stream.setStateListener((newState, oldState) -> {
-            log.info("{} :: From state={} to state={}", topic, oldState, newState);
+            LOG.info("{} :: From state={} to state={}", topic, oldState, newState);
 
             if (newState == KafkaStreams.State.ERROR) {
                 // if the stream has died there is no reason to keep spinning
-                log.warn("{} :: No reason to keep living, closing stream", topic);
+                LOG.warn("{} :: No reason to keep living, closing stream", topic);
                 stop();
             }
         });
         stream.setUncaughtExceptionHandler((t, e) -> {
-            log.error("{} :: Caught exception in stream, exiting", topic, e);
+            LOG.error("{} :: Caught exception in stream, exiting", topic, e);
             stop();
         });
     }
@@ -68,14 +68,14 @@ public class VedtaksHendelseConsumer implements AppServiceHandler, KafkaIntegrat
     private Properties setupProperties(VedtakStreamKafkaProperties streamProperties) {
         Properties props = new Properties();
 
-        log.info("Consuming topic='{}' with applicationId='{}'", streamProperties.getTopic(), streamProperties.getApplicationId());
+        LOG.info("Consuming topic='{}' with applicationId='{}'", streamProperties.getTopic(), streamProperties.getApplicationId());
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, streamProperties.getApplicationId());
         props.put(StreamsConfig.CLIENT_ID_CONFIG, streamProperties.getClientId());
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, streamProperties.getBootstrapServers());
 
         // Sikkerhet
         if (streamProperties.harSattBrukernavn()) {
-            log.info("Using user name {} to authenticate against Kafka brokers ", streamProperties.getUsername());
+            LOG.info("Using user name {} to authenticate against Kafka brokers ", streamProperties.getUsername());
             props.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
             props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT");
             String jaasTemplate = "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"%s\" password=\"%s\";";
@@ -111,7 +111,7 @@ public class VedtaksHendelseConsumer implements AppServiceHandler, KafkaIntegrat
         addShutdownHooks();
 
         stream.start();
-        log.info("Starter konsumering av topic={}, tilstand={}", topic, stream.state());
+        LOG.info("Starter konsumering av topic={}, tilstand={}", topic, stream.state());
     }
 
     public KafkaStreams.State getTilstand() {
@@ -125,9 +125,9 @@ public class VedtaksHendelseConsumer implements AppServiceHandler, KafkaIntegrat
 
     @Override
     public void stop() {
-        log.info("Starter shutdown av topic={}, tilstand={} med 10 sekunder timeout", topic, stream.state());
+        LOG.info("Starter shutdown av topic={}, tilstand={} med 10 sekunder timeout", topic, stream.state());
         stream.close(Duration.of(20, ChronoUnit.SECONDS));
-        log.info("Shutdown av topic={}, tilstand={} med 10 sekunder timeout", topic, stream.state());
+        LOG.info("Shutdown av topic={}, tilstand={} med 10 sekunder timeout", topic, stream.state());
     }
 
     @Override

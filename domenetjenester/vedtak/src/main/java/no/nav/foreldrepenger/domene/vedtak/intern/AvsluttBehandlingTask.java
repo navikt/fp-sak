@@ -18,7 +18,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 public class AvsluttBehandlingTask extends BehandlingProsessTask {
 
     public static final String TASKTYPE = "iverksetteVedtak.avsluttBehandling";
-    private static final Logger log = LoggerFactory.getLogger(AvsluttBehandlingTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AvsluttBehandlingTask.class);
     private AvsluttBehandling tjeneste;
 
     AvsluttBehandlingTask() {
@@ -34,7 +34,7 @@ public class AvsluttBehandlingTask extends BehandlingProsessTask {
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
         tjeneste.avsluttBehandling(behandlingId);
-        log.info("Utført for behandling: {}", behandlingId);
+        LOG.info("Utført for behandling: {}", behandlingId);
     }
 
 }

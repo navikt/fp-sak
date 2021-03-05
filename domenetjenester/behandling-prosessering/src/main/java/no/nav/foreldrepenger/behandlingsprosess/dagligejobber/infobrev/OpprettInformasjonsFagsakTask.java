@@ -49,7 +49,7 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
     public static final String BEHANDLING_AARSAK = "behandlingAarsak";
     public static final String FAGSAK_ID_MOR_KEY = "fagsakIdMor";
 
-    private static final Logger log = LoggerFactory.getLogger(OpprettInformasjonsFagsakTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OpprettInformasjonsFagsakTask.class);
     private static final Period FH_DIFF_PERIODE = Period.parse("P6W");
 
     private BehandlingOpprettingTjeneste behandlingOpprettingTjeneste;
@@ -106,7 +106,7 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
         kobleNyFagsakTilMors(Long.parseLong(prosessTaskData.getPropertyValue(FAGSAK_ID_MOR_KEY)), fagsak);
         Behandling behandling = opprettFørstegangsbehandlingInformasjonssak(fagsak, enhet, behandlingÅrsakType);
         behandlingOpprettingTjeneste.asynkStartBehandlingsprosess(behandling);
-        log.info("Opprettet fagsak/informasjon {} med behandling {}", fagsak.getSaksnummer().getVerdi(), behandling.getId()); // NOSONAR
+        LOG.info("Opprettet fagsak/informasjon {} med behandling {}", fagsak.getSaksnummer().getVerdi(), behandling.getId()); // NOSONAR
     }
 
     private Fagsak opprettNyFagsak(AktørId aktørId) {

@@ -36,7 +36,7 @@ import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @ApplicationScoped
 public class HendelsePublisererTjeneste {
-    private static final Logger log = LoggerFactory.getLogger(HendelsePublisererTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HendelsePublisererTjeneste.class);
     private static final String VEDTAK_PREFIX = "VT";
 
     private BehandlingRepository behandlingRepository;
@@ -56,12 +56,12 @@ public class HendelsePublisererTjeneste {
     }
 
     public void lagreVedtak(BehandlingVedtak vedtak) {
-        log.info("lagrer utgående hendelse for vedtak {}", vedtak.getId());
+        LOG.info("lagrer utgående hendelse for vedtak {}", vedtak.getId());
 
         Behandling behandling = behandlingRepository.hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
 
         if (hendelseEksistererAllerede(vedtak, behandling.getFagsakYtelseType())) {
-            log.debug("Skipper lagring av hendelse av vedtakId {} fordi den allerede eksisterer", vedtak.getId());
+            LOG.debug("Skipper lagring av hendelse av vedtakId {} fordi den allerede eksisterer", vedtak.getId());
             return;
         }
 

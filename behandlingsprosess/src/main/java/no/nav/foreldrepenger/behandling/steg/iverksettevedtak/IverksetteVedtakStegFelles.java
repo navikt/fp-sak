@@ -36,7 +36,7 @@ import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 @ApplicationScoped
 public class IverksetteVedtakStegFelles implements IverksetteVedtakSteg {
 
-    private static final Logger log = LoggerFactory.getLogger(IverksetteVedtakStegFelles.class);
+    private static final Logger LOG = LoggerFactory.getLogger(IverksetteVedtakStegFelles.class);
 
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
@@ -78,26 +78,26 @@ public class IverksetteVedtakStegFelles implements IverksetteVedtakSteg {
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
 
         if (IverksettingStatus.IVERKSATT.equals(vedtak.getIverksettingStatus())) {
-            log.info("Behandling {}: Iverksetting allerede fullført", kontekst.getBehandlingId());
+            LOG.info("Behandling {}: Iverksetting allerede fullført", kontekst.getBehandlingId());
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
         Optional<Venteårsak> venteårsakOpt = kanBegynneIverksetting(behandling);
         if (venteårsakOpt.filter(Venteårsak.VENT_TIDLIGERE_BEHANDLING::equals).isPresent()) {
-            log.info("Behandling {}: Iverksetting venter på annen behandling", behandlingId);
+            LOG.info("Behandling {}: Iverksetting venter på annen behandling", behandlingId);
             // Bruker transisjon startet for "prøv utførSteg senere". Stegstatus VENTER
             // betyr "under arbeid" (suspendert).
             // Behandlingsprosessen stopper og denne behandlingen blir plukket opp av
             // avsluttBehandling.
             return BehandleStegResultat.startet();
         }
-        log.info("Behandling {}: Iverksetter vedtak", behandlingId);
+        LOG.info("Behandling {}: Iverksetter vedtak", behandlingId);
         opprettProsessTaskIverksett.opprettIverksettingTasks(behandling);
         return BehandleStegResultat.settPåVent();
     }
 
     @Override
     public final BehandleStegResultat gjenopptaSteg(BehandlingskontrollKontekst kontekst) {
-        log.info("Behandling {}: Iverksetting fullført", kontekst.getBehandlingId());
+        LOG.info("Behandling {}: Iverksetting fullført", kontekst.getBehandlingId());
         return BehandleStegResultat.utførtUtenAksjonspunkter();
     }
 

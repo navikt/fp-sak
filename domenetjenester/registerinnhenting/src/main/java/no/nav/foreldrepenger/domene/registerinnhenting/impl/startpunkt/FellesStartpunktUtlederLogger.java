@@ -9,7 +9,7 @@ import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 
 class FellesStartpunktUtlederLogger {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FellesStartpunktUtlederLogger.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FellesStartpunktUtlederLogger.class);
 
     FellesStartpunktUtlederLogger() {
         // For CDI
@@ -32,14 +32,14 @@ class FellesStartpunktUtlederLogger {
     }
 
     static void skrivLoggMedStartpunkt(String klasseNavn, StartpunktType startpunkt, String endring, String id1, String id2) {
-        LOGGER.info("{}: Setter startpunkt til {}. Og har endring i {}. GrunnlagId1: {}, grunnlagId2: {}", klasseNavn, startpunkt.getKode(), endring, id1, id2);// NOSONAR //$NON-NLS-1$
+        LOG.info("{}: Setter startpunkt til {}. Og har endring i {}. GrunnlagId1: {}, grunnlagId2: {}", klasseNavn, startpunkt.getKode(), endring, id1, id2);// NOSONAR //$NON-NLS-1$
     }
 
     static void skrivLoggUtenStartpunkt(String klasseNavn, String endring, String id1, String id2) {
-        LOGGER.info("{}: Setter ikke startpunkt for endring i {}. GrunnlagId1: {}, grunnlagId2: {}", klasseNavn, endring, id1, id2);// NOSONAR //$NON-NLS-1$
+        LOG.info("{}: Setter ikke startpunkt for endring i {}. GrunnlagId1: {}, grunnlagId2: {}", klasseNavn, endring, id1, id2);// NOSONAR //$NON-NLS-1$
     }
 
     static void skrivLoggStartpunktIM(String klasseNavn, String endring, Long behandlingId, String orgnr) {
-        LOGGER.info("{}: Inntektsmelding endring {}. Behandling: {}, orgnr: {}", klasseNavn, endring, behandlingId, orgnr);// NOSONAR //$NON-NLS-1$
+        LOG.info("{}: Inntektsmelding endring {}. Behandling: {}, orgnr: {}", klasseNavn, endring, behandlingId, orgnr);// NOSONAR //$NON-NLS-1$
     }
 }

@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.RegisterdataCallback;
 @ApplicationScoped
 public class IAYRegisterdataTjeneste {
 
-    private static final Logger log = LoggerFactory.getLogger(IAYRegisterdataTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(IAYRegisterdataTjeneste.class);
 
     private InntektArbeidYtelseTjeneste iayTjeneste;
 

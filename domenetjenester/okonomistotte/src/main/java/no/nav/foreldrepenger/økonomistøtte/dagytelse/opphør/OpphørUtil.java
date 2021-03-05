@@ -25,7 +25,7 @@ import no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragInput;
 
 public class OpphørUtil {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpphørUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OpphørUtil.class);
 
     static Set<KodeKlassifik> finnKlassekoderSomIkkeErOpphørt(List<Oppdrag110> oppdrag110Liste) {
         return førsteAktiveDatoPrKodeKlassifik(oppdrag110Liste, false, null).keySet();
@@ -65,7 +65,7 @@ public class OpphørUtil {
                     if (linje.gjelderOpphør()) {
                         LocalDate opphørsdato = linje.getDatoStatusFom();
                         if (opphørsdato == null || tidligste == null) {
-                            LOGGER.warn("Opphør uten noe å opphøre: delytelse {} klasseKode {} fom {} tom {} opphørsdato {} tidligste {}",
+                            LOG.warn("Opphør uten noe å opphøre: delytelse {} klasseKode {} fom {} tom {} opphørsdato {} tidligste {}",
                                 linje.getDelytelseId(), linje.getKodeKlassifik(), linje.getDatoVedtakFom(), linje.getDatoVedtakTom(), linje.getDatoStatusFom(), tidligste);
                         }
                         if (!opphørsdato.isAfter(tidligste)) {

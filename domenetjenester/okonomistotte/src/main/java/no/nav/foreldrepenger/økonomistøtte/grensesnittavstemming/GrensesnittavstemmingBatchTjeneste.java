@@ -28,7 +28,7 @@ import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 public class GrensesnittavstemmingBatchTjeneste implements BatchTjeneste {
 
     private static final String BATCHNAVN = "BVL001";
-    private static final Logger log = LoggerFactory.getLogger(GrensesnittavstemmingBatchTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GrensesnittavstemmingBatchTjeneste.class);
     private ØkonomioppdragRepository økonomioppdragRepository;
     private GrensesnittavstemmingJmsProducer grensesnittavstemmingJmsProducer;
 
@@ -42,11 +42,11 @@ public class GrensesnittavstemmingBatchTjeneste implements BatchTjeneste {
     private void utførGrensesnittavstemming(LocalDate fomDato, LocalDate tomDato, String fagområde) {
         List<Oppdrag110> oppdragsliste = økonomioppdragRepository.hentOppdrag110ForPeriodeOgFagområde(fomDato, tomDato, KodeFagområde.fraKode(fagområde));
         if (oppdragsliste.isEmpty()) {
-            log.info("Ingen oppdrag funnet for periode {} - {} for fagområde {}. Grensesnittavstemming ikke utført.", fomDato, tomDato, fagområde); //NOSONAR
+            LOG.info("Ingen oppdrag funnet for periode {} - {} for fagområde {}. Grensesnittavstemming ikke utført.", fomDato, tomDato, fagområde); //NOSONAR
             return;
         }
         GrensesnittavstemmingMapper mapper = new GrensesnittavstemmingMapper(oppdragsliste, fagområde);
-        log.info("Starter grensesnittavstemming med id: {} for periode: {} - {} for fagområde {}. {} oppdrag funnet. ", mapper.getAvstemmingId(), fomDato, tomDato, fagområde, oppdragsliste.size()); //NOSONAR
+        LOG.info("Starter grensesnittavstemming med id: {} for periode: {} - {} for fagområde {}. {} oppdrag funnet. ", mapper.getAvstemmingId(), fomDato, tomDato, fagområde, oppdragsliste.size()); //NOSONAR
         String startmelding = mapper.lagStartmelding();
         logMelding("startmelding", startmelding);
         List<String> datameldinger = mapper.lagDatameldinger();
@@ -60,11 +60,11 @@ public class GrensesnittavstemmingBatchTjeneste implements BatchTjeneste {
             grensesnittavstemmingJmsProducer.sendGrensesnittavstemming(datamelding);
         }
         grensesnittavstemmingJmsProducer.sendGrensesnittavstemming(sluttmelding);
-        log.info("Fullført grensesnittavstemming med id: {}", mapper.getAvstemmingId()); //NOSONAR
+        LOG.info("Fullført grensesnittavstemming med id: {}", mapper.getAvstemmingId()); //NOSONAR
     }
 
     private void logMelding(String meldingtype, String melding) {
-        log.info("Opprettet {} med lengde {} tegn", meldingtype, melding.length()); //NOSONAR
+        LOG.info("Opprettet {} med lengde {} tegn", meldingtype, melding.length()); //NOSONAR
     }
 
     @Override

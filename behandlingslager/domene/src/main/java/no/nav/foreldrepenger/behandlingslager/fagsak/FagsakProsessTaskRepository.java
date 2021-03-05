@@ -39,7 +39,7 @@ import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEntitet;
 @ApplicationScoped
 public class FagsakProsessTaskRepository {
 
-    private static final Logger log = LoggerFactory.getLogger(FagsakProsessTaskRepository.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FagsakProsessTaskRepository.class);
 
     private EntityManager entityManager;
     private ProsessTaskRepository prosessTaskRepository;
@@ -57,7 +57,7 @@ public class FagsakProsessTaskRepository {
 
     public void lagre(FagsakProsessTask fagsakProsessTask) {
         ProsessTaskData ptData = prosessTaskRepository.finn(fagsakProsessTask.getProsessTaskId());
-        log.debug("Linker fagsak[{}] -> prosesstask[{}], tasktype=[{}] gruppeSekvensNr=[{}]", fagsakProsessTask.getFagsakId(), fagsakProsessTask.getProsessTaskId(), ptData.getTaskType(), fagsakProsessTask.getGruppeSekvensNr());
+        LOG.debug("Linker fagsak[{}] -> prosesstask[{}], tasktype=[{}] gruppeSekvensNr=[{}]", fagsakProsessTask.getFagsakId(), fagsakProsessTask.getProsessTaskId(), ptData.getTaskType(), fagsakProsessTask.getGruppeSekvensNr());
         EntityManager em = getEntityManager();
         em.persist(fagsakProsessTask);
         em.flush();
@@ -75,7 +75,7 @@ public class FagsakProsessTaskRepository {
 
     public void fjern(Long fagsakId, Long prosessTaskId, Long gruppeSekvensNr) {
         ProsessTaskData ptData = prosessTaskRepository.finn(prosessTaskId);
-        log.debug("Fjerner link fagsak[{}] -> prosesstask[{}], tasktype=[{}] gruppeSekvensNr=[{}]", fagsakId, prosessTaskId, ptData.getTaskType(), gruppeSekvensNr);
+        LOG.debug("Fjerner link fagsak[{}] -> prosesstask[{}], tasktype=[{}] gruppeSekvensNr=[{}]", fagsakId, prosessTaskId, ptData.getTaskType(), gruppeSekvensNr);
         EntityManager em = getEntityManager();
         Query query = em.createNativeQuery("delete from FAGSAK_PROSESS_TASK where prosess_task_id = :prosessTaskId and fagsak_id=:fagsakId");
         query.setParameter("prosessTaskId", prosessTaskId); // NOSONAR

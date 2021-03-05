@@ -36,7 +36,7 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.SøknadDtoFeil;
+import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
 public class PersonopplysningDtoTjeneste {
@@ -140,7 +140,7 @@ public class PersonopplysningDtoTjeneste {
 
         aggregat.getEktefelle().ifPresent(ektefelle -> {
             if (ektefelle.equals(søker)) {
-                throw SøknadDtoFeil.FACTORY.kanIkkeVæreSammePersonSomSøker().toException();
+                throw new TekniskException("FP-175810", "Ektefelle kan ikke være samme person som søker");
             }
             PersonopplysningDto ektefelleDto = enkelMapping(ektefelle, aggregat, RelasjonsRolleType.EKTE);
             dto.setEktefelle(ektefelleDto);
@@ -194,7 +194,7 @@ public class PersonopplysningDtoTjeneste {
 
         if (annenPartOpplysning != null) {
             if (søker.getAktørId().equals(annenPartOpplysning.getAktørId())) {
-                throw SøknadDtoFeil.FACTORY.kanIkkeVæreBådeFarOgMorTilEtBarn().toException();
+                throw new TekniskException("FP-113411", "Annen forelder på søknad kan ikke være samme person som søker");
             }
             var annenPartsRolle = utledRolleForAnnenPart(null, rolleForSøker, aggregat, annenPartOpplysning);
             return Optional.of(enkelMapping(annenPartOpplysning, aggregat, annenPartsRolle));

@@ -28,7 +28,7 @@ import no.nav.vedtak.util.env.Environment;
 @ApplicationScoped
 @TestOnlyMqDisabled
 public class ØkonomiNullProducer extends ØkonomioppdragJmsProducer {
-    private static final Logger logger = LoggerFactory.getLogger(ØkonomiNullProducer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ØkonomiNullProducer.class);
 
     private BehandleØkonomioppdragKvittering behandleØkonomioppdragKvittering;
 
@@ -46,14 +46,14 @@ public class ØkonomiNullProducer extends ØkonomioppdragJmsProducer {
         if (Environment.current().isProd()) {
             throw new IllegalStateException(ØkonomiNullProducer.class.getSimpleName() + " skal ikke brukes i prod");
         }
-        logger.info("Sender økonomiOppdrag ut i intet");
+        LOG.info("Sender økonomiOppdrag ut i intet");
 
         registrerKvittering(oppdragXML);
 
     }
 
     private void registrerKvittering(String oppdragXML) {
-        logger.info("Skal registrerer kvittering for økonomiOppdrag.");
+        LOG.info("Skal registrerer kvittering for økonomiOppdrag.");
         try {
             Document oppdragDocument = getDocument(oppdragXML);
             NodeList oppdrag110Noder = getNodes("/oppdrag/oppdrag-110", oppdragDocument, "oppdrag-110");
@@ -70,9 +70,9 @@ public class ØkonomiNullProducer extends ØkonomioppdragJmsProducer {
             kvittering.setBehandlingId(Long.parseLong(henvisning));
             kvittering.setAlvorlighetsgrad("00");
 
-            logger.info("Registrerer kvittering for økonomiOppdrag for fagsystemId {} og henvisning {}.", fagSystemId, henvisning);
+            LOG.info("Registrerer kvittering for økonomiOppdrag for fagsystemId {} og henvisning {}.", fagSystemId, henvisning);
             behandleØkonomioppdragKvittering.behandleKvittering(kvittering);
-            logger.info("Kvittering registrert for økonomiOppdrag for fagsystemId {} og henvisning {}.", fagSystemId, henvisning);
+            LOG.info("Kvittering registrert for økonomiOppdrag for fagsystemId {} og henvisning {}.", fagSystemId, henvisning);
         } catch (ParserConfigurationException | IOException | SAXException e) {
             throw new IllegalStateException("Exception under registrering av kvittering på sendt oppdrag", e);
         }

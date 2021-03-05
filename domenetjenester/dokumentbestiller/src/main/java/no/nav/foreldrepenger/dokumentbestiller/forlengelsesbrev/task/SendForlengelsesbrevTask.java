@@ -24,7 +24,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class SendForlengelsesbrevTask extends BehandlingProsessTask {
 
-    private static final Logger log = LoggerFactory.getLogger(SendForlengelsesbrevTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SendForlengelsesbrevTask.class);
 
     private BehandlingRepository behandlingRepository;
 
@@ -48,16 +48,16 @@ public class SendForlengelsesbrevTask extends BehandlingProsessTask {
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         if (behandlingsfristUtløpt(behandling)) {
             sendForlengelsesbrevOgOppdaterBehandling(behandling, kontekst);
-            log.info("Utført for behandling: {}", behandlingId);
+            LOG.info("Utført for behandling: {}", behandlingId);
         } else {
-            log.info("Ikke utført for behandling: {}, behandlingsfrist ikke utløpt", behandlingId);
+            LOG.info("Ikke utført for behandling: {}, behandlingsfrist ikke utløpt", behandlingId);
         }
     }
 
     private void sendForlengelsesbrevOgOppdaterBehandling(Behandling behandling, BehandlingskontrollKontekst kontekst) {
         behandling.setBehandlingstidFrist(LocalDate.now().plusWeeks(behandling.getType().getBehandlingstidFristUker()));
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
-        log.info("Brev ikke sendt for behandling: {}, automatisk utsendelse slått av for alle", behandling.getId());
+        LOG.info("Brev ikke sendt for behandling: {}, automatisk utsendelse slått av for alle", behandling.getId());
         // Pr mars 2020 er det ikke ønsket å sende ut forengelsesbrev da det tidligere skapte for mye støy.
         // Dersom det skal gjeninnføres må brevet bestilles via fp-formidling.
     }

@@ -22,7 +22,7 @@ import no.nav.vedtak.util.env.Environment;
 @ApplicationScoped
 public class ØkonomiImplementasjonVelger {
 
-    private static final Logger logger = LoggerFactory.getLogger(ØkonomiImplementasjonVelger.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ØkonomiImplementasjonVelger.class);
 
     private ØkonomioppdragJmsProducer økonomioppdragJmsProducer;
 
@@ -37,7 +37,7 @@ public class ØkonomiImplementasjonVelger {
             if (Environment.current().isProd()) {
                 throw new IllegalStateException("Skal ikke bruke test.only.disable.mq i produksjon. MQ er påkrevet i miljøet.");
             }
-            logger.warn("Bruker mock-implementasjon for integrasjon mot MQ siden flagget test.only.disable.mq er satt");
+            LOG.warn("Bruker mock-implementasjon for integrasjon mot MQ siden flagget test.only.disable.mq er satt");
             økonomioppdragJmsProducer = vtpØkonomiProducer;
         } else {
             økonomioppdragJmsProducer = mqØkonomiProducer;

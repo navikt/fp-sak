@@ -21,7 +21,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 public class SettRegisterdataInnhentetTidspunktTask extends BehandlingProsessTask {
 
     public static final String TASKTYPE = "innhentsaksopplysninger.oppdaterttidspunkt";
-    private static final Logger LOGGER = LoggerFactory.getLogger(SettRegisterdataInnhentetTidspunktTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SettRegisterdataInnhentetTidspunktTask.class);
     private BehandlingRepository behandlingRepository;
     private RegisterdataInnhenter registerdataInnhenter;
 
@@ -40,7 +40,7 @@ public class SettRegisterdataInnhentetTidspunktTask extends BehandlingProsessTas
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        LOGGER.info("Oppdaterer registerdata innhentet tidspunkt behandling med id={} og uuid={}", behandling.getId(), behandling.getUuid());
+        LOG.info("Oppdaterer registerdata innhentet tidspunkt behandling med id={} og uuid={}", behandling.getId(), behandling.getUuid());
         registerdataInnhenter.oppdaterSistOppdatertTidspunkt(behandling);
     }
 }

@@ -25,7 +25,7 @@ import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.rest.Fares
 @ApplicationScoped
 public class RisikovurderingTjeneste {
 
-    private static final Logger log = LoggerFactory.getLogger(RisikovurderingTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RisikovurderingTjeneste.class);
 
     private RisikoklassifiseringRepository risikoklassifiseringRepository;
     private BehandlingRepository behandlingRepository;
@@ -60,7 +60,7 @@ public class RisikovurderingTjeneste {
             if (!behandlingHarBlittRisikoklassifisert(beh.getId())) {
                 lagre(resultatWrapper, beh);
                 if (Kontrollresultat.HØY.equals(resultatWrapper.getKontrollresultatkode()) && behandlingHarPassertVurderFaresignaler(beh)) {
-                    log.info("Kontrollresultat HØY motatt for behandling med id {}. Behandlingens status var {}", beh.getId(), beh.getStatus().getKode());
+                    LOG.info("Kontrollresultat HØY motatt for behandling med id {}. Behandlingens status var {}", beh.getId(), beh.getStatus().getKode());
                 }
             }
         });

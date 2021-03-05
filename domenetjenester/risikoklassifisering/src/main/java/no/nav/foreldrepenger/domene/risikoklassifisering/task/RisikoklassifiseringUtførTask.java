@@ -19,7 +19,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class RisikoklassifiseringUtførTask implements ProsessTaskHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(RisikoklassifiseringUtførTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RisikoklassifiseringUtførTask.class);
 
     public static final String TASKTYPE = "risiko.klassifisering";
 
@@ -43,10 +43,10 @@ public class RisikoklassifiseringUtførTask implements ProsessTaskHandler {
             String eventJson = prosessTaskData.getPropertyValue(RISIKOKLASSIFISERING_JSON);
             String konsumentId = prosessTaskData.getPropertyValue(KONSUMENT_ID);
             kafkaProducer.publiserEvent(konsumentId, eventJson);
-            log.info("Publiser risikoklassifisering på kafka slik at fprisk kan klassifisere behandlingen. konsumentId :{} BehandlingsId: {}",
+            LOG.info("Publiser risikoklassifisering på kafka slik at fprisk kan klassifisere behandlingen. konsumentId :{} BehandlingsId: {}",
                 konsumentId, prosessTaskData.getBehandlingId());
         }catch (Exception e){
-            log.warn("Feil med publisering av meldingen til kafka. Feilen er ignorert og vil ikke påvirke behandlingsprosessen",e);
+            LOG.warn("Feil med publisering av meldingen til kafka. Feilen er ignorert og vil ikke påvirke behandlingsprosessen",e);
         }
     }
 

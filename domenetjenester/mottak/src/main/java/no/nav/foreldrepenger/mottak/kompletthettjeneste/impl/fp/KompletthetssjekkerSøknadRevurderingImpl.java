@@ -42,7 +42,7 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 @BehandlingTypeRef("BT-004")
 @FagsakYtelseTypeRef("FP")
 public class KompletthetssjekkerSøknadRevurderingImpl extends KompletthetssjekkerSøknadImpl {
-    private static final Logger LOGGER = LoggerFactory.getLogger(KompletthetssjekkerSøknadRevurderingImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(KompletthetssjekkerSøknadRevurderingImpl.class);
 
     private SøknadRepository søknadRepository;
     private DokumentArkivTjeneste dokumentArkivTjeneste;
@@ -102,7 +102,7 @@ public class KompletthetssjekkerSøknadRevurderingImpl extends Kompletthetssjekk
         manglendeVedlegg.addAll(manglendeVedleggUtsettelse);
 
         if (!manglendeVedlegg.isEmpty()) {
-            LOGGER.info("Revurdering {} er ikke komplett - mangler følgende vedlegg til søknad: {}", behandlingId,
+            LOG.info("Revurdering {} er ikke komplett - mangler følgende vedlegg til søknad: {}", behandlingId,
                 lagDokumentTypeString(manglendeVedlegg)); // NOSONAR //$NON-NLS-1$
         }
         return manglendeVedlegg;

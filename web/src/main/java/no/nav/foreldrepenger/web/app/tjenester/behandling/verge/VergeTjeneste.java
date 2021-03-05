@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.verge;
 
-import static no.nav.vedtak.feil.LogLevel.WARN;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -24,10 +22,7 @@ import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesser
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeBehandlingsmenyDto;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeBehandlingsmenyEnum;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
 public class VergeTjeneste {
@@ -73,10 +68,14 @@ public class VergeTjeneste {
 
     void opprettVergeAksjonspunktOgHoppTilbakeTilKofakHvisSenereSteg(Behandling behandling) {
         if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_VERGE)) {
-            throw VergeRestTjenesteFeil.FACTORY.harAlleredeAksjonspunktForVerge(behandling.getId()).toException();
+            var msg = String.format("Behandling %s har allerede aksjonspunkt 5030 for verge/fullmektig",
+                behandling.getId());
+            throw new TekniskException("FP-185321", msg);
         }
         if (!behandling.erYtelseBehandling()) {
-            throw VergeRestTjenesteFeil.FACTORY.erIkkeYtelsesbehandling(behandling.getId()).toException();
+            var msg = String.format("Behandling %s er ikke en ytelsesbehandling -"
+                    + " kan ikke registrere verge/fullmektig", behandling.getId());
+            throw new TekniskException("FP-185322", msg);
         }
         BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         behandlingskontrollTjeneste.lagreAksjonspunkterFunnet(kontekst, List.of(AksjonspunktDefinisjon.AVKLAR_VERGE));
@@ -109,16 +108,5 @@ public class VergeTjeneste {
         historikkinnslag.setFagsakId(behandling.getFagsakId());
         historikkInnslagTekstBuilder.build(historikkinnslag);
         historikkRepository.lagre(historikkinnslag);
-    }
-
-    private interface VergeRestTjenesteFeil extends DeklarerteFeil {
-        VergeTjeneste.VergeRestTjenesteFeil FACTORY = FeilFactory.create(
-            VergeTjeneste.VergeRestTjenesteFeil.class); // NOSONAR
-
-        @TekniskFeil(feilkode = "FP-185321", feilmelding = "Behandling %s har allerede aksjonspunkt 5030 for verge/fullmektig", logLevel = WARN)
-        Feil harAlleredeAksjonspunktForVerge(Long behandlingID);
-
-        @TekniskFeil(feilkode = "FP-185322", feilmelding = "Behandling %s er ikke en ytelsesbehandling - kan ikke registrere verge/fullmektig", logLevel = WARN)
-        Feil erIkkeYtelsesbehandling(Long behandlingID);
     }
 }

@@ -47,7 +47,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 public class AksjonspunktutlederForVurderOppgittOpptjening implements AksjonspunktUtleder {
 
     private static final List<AksjonspunktResultat> INGEN_AKSJONSPUNKTER = emptyList();
-    private static final Logger logger = LoggerFactory.getLogger(AksjonspunktutlederForVurderOppgittOpptjening.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AksjonspunktutlederForVurderOppgittOpptjening.class);
 
     private OpptjeningRepository opptjeningRepository;
     private InntektArbeidYtelseTjeneste iayTjeneste;
@@ -81,17 +81,17 @@ public class AksjonspunktutlederForVurderOppgittOpptjening implements Aksjonspun
                 fastsattOpptjeningOptional.get().getTom());
 
         if (harBrukerOppgittPerioderMed(oppgittOpptjening, opptjeningPeriode, finnRelevanteKoder()) == JA) {
-            logger.info("Utleder AP 5051 fra oppgitt opptjening");
+            LOG.info("Utleder AP 5051 fra oppgitt opptjening");
             return opprettListeForAksjonspunkt(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING);
         }
 
         if (harBrukerOppgittArbeidsforholdMed(ArbeidType.UTENLANDSK_ARBEIDSFORHOLD, opptjeningPeriode, oppgittOpptjening) == JA) {
-            logger.info("Utleder AP 5051 fra utlandsk arbeidsforhold");
+            LOG.info("Utleder AP 5051 fra utlandsk arbeidsforhold");
             return opprettListeForAksjonspunkt(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING);
         }
 
         if (harBrukerOppgittPerioderMed(oppgittOpptjening, opptjeningPeriode, Collections.singletonList(ArbeidType.FRILANSER)) == JA) {
-            logger.info("Utleder AP 5051 fra oppgitt eller bekreftet frilans: behandlingId={}", behandlingId);
+            LOG.info("Utleder AP 5051 fra oppgitt eller bekreftet frilans: behandlingId={}", behandlingId);
             return opprettListeForAksjonspunkt(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING);
         }
 
@@ -99,7 +99,7 @@ public class AksjonspunktutlederForVurderOppgittOpptjening implements Aksjonspun
             AktørId aktørId = param.getAktørId();
             if (manglerFerdiglignetNæringsinntekt(aktørId, oppgittOpptjening, inntektArbeidYtelseGrunnlagOptional.get(), opptjeningPeriode,
                     param.getSkjæringstidspunkt()) == JA) {
-                logger.info("Utleder AP 5051 fra oppgitt næringsdrift");
+                LOG.info("Utleder AP 5051 fra oppgitt næringsdrift");
                 return opprettListeForAksjonspunkt(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING);
             }
         }
