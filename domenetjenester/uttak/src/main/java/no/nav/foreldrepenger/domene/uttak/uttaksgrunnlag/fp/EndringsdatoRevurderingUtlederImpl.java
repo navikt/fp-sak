@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -33,7 +32,6 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.EndringsdatoRevurderingUtleder;
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.FastsettUttaksgrunnlagFeil;
 import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
-import no.nav.vedtak.exception.VLException;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef("FP")
@@ -64,27 +62,28 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
     @Override
     public LocalDate utledEndringsdato(UttakInput input) {
         var ref = input.getBehandlingReferanse();
-        Long behandlingId = ref.getBehandlingId();
-        EnumSet<EndringsdatoType> endringsdatoTypeEnumSet = utledEndringsdatoTyper(input);
+        var behandlingId = ref.getBehandlingId();
+        var endringsdatoTypeEnumSet = utledEndringsdatoTyper(input);
         if (endringsdatoTypeEnumSet.isEmpty()) {
             endringsdatoTypeEnumSet.add(EndringsdatoType.FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK);
-            log.info("Kunne ikke utlede endringsdato for revurdering med behandlingId=" + behandlingId + ". Satte FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK.");
+            log.info("Kunne ikke utlede endringsdato for revurdering med behandlingId=" + behandlingId
+                + ". Satte FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK.");
         }
-        Optional<LocalDate> endringsdato = utledEndringsdato(ref, endringsdatoTypeEnumSet, input.getYtelsespesifiktGrunnlag());
-        return endringsdato.orElseThrow(() -> kanIkkeUtledeException(behandlingId));
+        var endringsdato = utledEndringsdato(ref, endringsdatoTypeEnumSet, input.getYtelsespesifiktGrunnlag());
+        return endringsdato.orElseThrow(() -> FastsettUttaksgrunnlagFeil.kunneIkkeUtledeEndringsdato(behandlingId));
     }
 
     private Optional<LocalDate> utledEndringsdato(BehandlingReferanse ref,
                                                   EnumSet<EndringsdatoType> endringsdatoTypeEnumSet,
                                                   ForeldrepengerGrunnlag fpGrunnlag) {
-        LocalDate endringsdato = finnFørsteDato(endringsdatoTypeEnumSet, ref, fpGrunnlag);
+        var endringsdato = finnFørsteDato(endringsdatoTypeEnumSet, ref, fpGrunnlag);
         // Sjekk om endringsdato overlapper med tidligere vedtak. Hvis periode i tidligere vedtak er manuelt behandling så skal endringsdato flyttes
         // start av perioden
-        Optional<UttakResultatEntitet> uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(finnForrigeBehandling(ref));
+        var uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(finnForrigeBehandling(ref));
         if (uttakResultat.isEmpty()) {
             return Optional.of(endringsdato);
         }
-        Optional<UttakResultatPeriodeEntitet> vedtattPeriodeMedOverlapp = finnVedtattPeriodeMedOverlapp(endringsdato, uttakResultat.get());
+        var vedtattPeriodeMedOverlapp = finnVedtattPeriodeMedOverlapp(endringsdato, uttakResultat.get());
         if (vedtattPeriodeMedOverlapp.isPresent() && vedtattPeriodeMedOverlapp.get().isManueltBehandlet()) {
             return Optional.ofNullable(vedtattPeriodeMedOverlapp.get().getFom());
 
@@ -97,7 +96,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
             return utledEndringsdatoTypeBerørtBehandling(input);
         }
         var ref = input.getBehandlingReferanse();
-        EnumSet<EndringsdatoType> endringsdatoTypeEnumSet = EnumSet.noneOf(EndringsdatoType.class);
+        var endringsdatoTypeEnumSet = EnumSet.noneOf(EndringsdatoType.class);
         ForeldrepengerGrunnlag fpGrunnlag = input.getYtelsespesifiktGrunnlag();
         fødselHarSkjeddSidenForrigeBehandlingEndringsdato(ref, fpGrunnlag).ifPresent(endringsdatoTypeEnumSet::add);
         erEndringssøknadEndringsdato(input).ifPresent(endringsdatoTypeEnumSet::add);
@@ -122,67 +121,60 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
     }
 
     private Optional<EndringsdatoType> forrigeBehandlingUtenUttakEndringsdato(BehandlingReferanse ref) {
-        Optional<EndringsdatoType> endringsdatoType = Optional.empty();
         if (!forrigeBehandlingHarUttaksresultat(ref)) {
-            endringsdatoType = Optional.of(EndringsdatoType.FØRSTE_UTTAKSDATO_SØKNAD_FORRIGE_BEHANDLING);
+            return Optional.of(EndringsdatoType.FØRSTE_UTTAKSDATO_SØKNAD_FORRIGE_BEHANDLING);
         }
-        return endringsdatoType;
+        return Optional.empty();
     }
 
     private Optional<EndringsdatoType> adopsjonEndringsdato(ForeldrepengerGrunnlag fpGrunnlag) {
-        Optional<EndringsdatoType> endringsdatoType = Optional.empty();
         if (!fpGrunnlag.getFamilieHendelser().gjelderTerminFødsel()) {
-            endringsdatoType = Optional.ofNullable(finnEndringsdatoTypeVedAdopsjon(fpGrunnlag));
+            return Optional.ofNullable(finnEndringsdatoTypeVedAdopsjon(fpGrunnlag));
         }
-        return endringsdatoType;
+        return Optional.empty();
     }
 
     private Optional<EndringsdatoType> førsteUttaksdatoGjeldendeVedtakEndringsdato(UttakInput input) {
         var ref = input.getBehandlingReferanse();
-        Optional<EndringsdatoType> endringsdato = Optional.empty();
-        if (input.isBehandlingManueltOpprettet() ||
-            input.isOpplysningerOmDødEndret() ||
-            arbeidsforholdRelevantForUttakErEndret(input) ||
-            endretDekningsgrad(ref)) {
+        if (input.isBehandlingManueltOpprettet() || input.isOpplysningerOmDødEndret()
+            || arbeidsforholdRelevantForUttakErEndret(input) || endretDekningsgrad(ref)) {
 
-            endringsdato = Optional.of(EndringsdatoType.FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK);
-
+            return Optional.of(EndringsdatoType.FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK);
         }
-        return endringsdato;
+        return Optional.empty();
     }
 
     private Optional<EndringsdatoType> manueltSattFørsteUttaksdatoEndringsdato(BehandlingReferanse ref) {
-        Optional<EndringsdatoType> endringsdato = Optional.empty();
         if (harManueltSattFørsteUttaksdato(ref)) {
-            endringsdato = Optional.of(EndringsdatoType.MANUELT_SATT_FØRSTE_UTTAKSDATO);
+            return Optional.of(EndringsdatoType.MANUELT_SATT_FØRSTE_UTTAKSDATO);
         }
-        return endringsdato;
+        return Optional.empty();
     }
 
     private Optional<EndringsdatoType> erEndringssøknadEndringsdato(UttakInput input) {
-        Optional<EndringsdatoType> endringsdato = Optional.empty();
         if (input.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
             if (erFørsteUttaksdatoSøknadEtterSisteUttaksdatoGjeldendeVedtak(input.getBehandlingReferanse())) {
-                endringsdato = Optional.of(EndringsdatoType.SISTE_UTTAKSDATO_GJELDENDE_VEDTAK);
-            } else {
-                endringsdato = Optional.of(EndringsdatoType.FØRSTE_UTTAKSDATO_SØKNAD);
+                return Optional.of(EndringsdatoType.SISTE_UTTAKSDATO_GJELDENDE_VEDTAK);
             }
+            return Optional.of(EndringsdatoType.FØRSTE_UTTAKSDATO_SØKNAD);
         }
-        return endringsdato;
+        return Optional.empty();
     }
 
-    private Optional<EndringsdatoType> fødselHarSkjeddSidenForrigeBehandlingEndringsdato(BehandlingReferanse revurdering, ForeldrepengerGrunnlag fpGrunnlag) {
-        Optional<EndringsdatoType> endringsdato = Optional.empty();
+    private Optional<EndringsdatoType> fødselHarSkjeddSidenForrigeBehandlingEndringsdato(BehandlingReferanse revurdering,
+                                                                                         ForeldrepengerGrunnlag fpGrunnlag) {
         if (fødselHarSkjeddSidenForrigeBehandling(fpGrunnlag)) {
-            LocalDate fødselsdato = fpGrunnlag.getFamilieHendelser().getOverstyrtEllerBekreftet().orElseThrow().getFamilieHendelseDato(); // NOSONAR
-            Optional<LocalDate> førsteUttaksdato = finnFørsteUttaksdato(finnForrigeBehandling(revurdering));
+            var fødselsdato = fpGrunnlag.getFamilieHendelser()
+                .getOverstyrtEllerBekreftet()
+                .orElseThrow()
+                .getFamilieHendelseDato(); // NOSONAR
+            var førsteUttaksdato = finnFørsteUttaksdato(finnForrigeBehandling(revurdering));
             if (førsteUttaksdato.isEmpty() || fødselsdato.isBefore(førsteUttaksdato.get())) {
-                endringsdato = Optional.of(EndringsdatoType.FØDSELSDATO);
-            } else {
-                endringsdato = Optional.of(EndringsdatoType.FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK);
+                return Optional.of(EndringsdatoType.FØDSELSDATO);
             }
+            return Optional.of(EndringsdatoType.FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK);
         }
-        return endringsdato;
+        return Optional.empty();
     }
 
     private boolean endretDekningsgrad(BehandlingReferanse ref) {
@@ -190,9 +182,10 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
     }
 
     private boolean erFørsteUttaksdatoSøknadEtterSisteUttaksdatoGjeldendeVedtak(BehandlingReferanse revurdering) {
-        Long revurderingId = revurdering.getBehandlingId();
-        Long førstegangsBehandling = finnForrigeBehandling(revurdering);
-        if (finnSisteUttaksdatoGjeldendeVedtak(førstegangsBehandling).isPresent() && finnFørsteUttaksdatoSøknad(revurderingId).isPresent()) {
+        var revurderingId = revurdering.getBehandlingId();
+        var førstegangsBehandling = finnForrigeBehandling(revurdering);
+        if (finnSisteUttaksdatoGjeldendeVedtak(førstegangsBehandling).isPresent() && finnFørsteUttaksdatoSøknad(
+            revurderingId).isPresent()) {
             return finnFørsteUttaksdatoSøknad(revurderingId).get()
                 .isAfter(Virkedager.plusVirkedager(finnSisteUttaksdatoGjeldendeVedtak(førstegangsBehandling).get(), 1));
         }
@@ -204,19 +197,24 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
     }
 
     private boolean fødselHarSkjeddSidenForrigeBehandling(ForeldrepengerGrunnlag fpGrunnlag) {
-        Optional<LocalDate> fødselsdatoForrigeBehandling = fpGrunnlag.getOriginalBehandling().orElseThrow().getFamilieHendelser().getOverstyrtEllerBekreftet().flatMap(FamilieHendelse::getFødselsdato);
-        Optional<LocalDate> fødselsdatoRevurdering = fpGrunnlag.getFamilieHendelser().getOverstyrtEllerBekreftet().flatMap(FamilieHendelse::getFødselsdato);
+        var fødselsdatoForrigeBehandling = fpGrunnlag.getOriginalBehandling()
+            .orElseThrow()
+            .getFamilieHendelser()
+            .getOverstyrtEllerBekreftet()
+            .flatMap(FamilieHendelse::getFødselsdato);
+        var fødselsdatoRevurdering = fpGrunnlag.getFamilieHendelser()
+            .getOverstyrtEllerBekreftet()
+            .flatMap(FamilieHendelse::getFødselsdato);
         return fødselsdatoForrigeBehandling.isEmpty() && fødselsdatoRevurdering.isPresent();
     }
 
     private Optional<LocalDate> finnFørsteUttaksdato(Long behandlingId) {
-        Optional<UttakResultatEntitet> uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(behandlingId);
+        var uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(behandlingId);
         if (uttakResultat.isEmpty()) {
             return Optional.empty();
         }
-        List<UttakResultatPeriodeEntitet> uttakPerioder = uttakResultat.get()
-            .getGjeldendePerioder().getPerioder();
-        Optional<LocalDate> førsteDatoSomIkkeErTaptTilAnnenpart = uttakPerioder.stream()
+        var uttakPerioder = uttakResultat.get().getGjeldendePerioder().getPerioder();
+        var førsteDatoSomIkkeErTaptTilAnnenpart = uttakPerioder.stream()
             .filter(p -> !VedtaksperioderHelper.avslåttPgaAvTaptPeriodeTilAnnenpart(p))
             .min(Comparator.comparing(UttakResultatPeriodeEntitet::getFom))
             .map(UttakResultatPeriodeEntitet::getFom);
@@ -228,29 +226,29 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
     }
 
     private Optional<LocalDate> finnSisteUttaksdatoGjeldendeVedtak(Long revurderingId) {
-        Optional<UttakResultatEntitet> uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(revurderingId);
+        var uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(revurderingId);
         if (uttakResultat.isEmpty()) {
             return Optional.empty();
         }
-        List<UttakResultatPeriodeEntitet> uttakPerioder = uttakResultat.get()
-            .getGjeldendePerioder().getPerioder();
+        var uttakPerioder = uttakResultat.get().getGjeldendePerioder().getPerioder();
         return uttakPerioder.stream()
             .max(Comparator.comparing(UttakResultatPeriodeEntitet::getTom))
             .map(UttakResultatPeriodeEntitet::getTom);
     }
 
     private Optional<LocalDate> finnFørsteUttaksdatoSøknad(Long behandlingId) {
-        YtelseFordelingAggregat ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(behandlingId);
-        return ytelseFordelingAggregat.getOppgittFordeling().getOppgittePerioder().stream()
-            .map(OppgittPeriodeEntitet::getFom).min(LOCAL_DATE_COMPARATOR);
+        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(behandlingId);
+        return ytelseFordelingAggregat.getOppgittFordeling()
+            .getOppgittePerioder()
+            .stream()
+            .map(OppgittPeriodeEntitet::getFom)
+            .min(LOCAL_DATE_COMPARATOR);
     }
 
-    private Optional<UttakResultatPeriodeEntitet> finnVedtattPeriodeMedOverlapp(LocalDate førsteUttaksdatoSøknad, UttakResultatEntitet uttakResultat) {
-        List<UttakResultatPeriodeEntitet> uttakPerioder = uttakResultat.getGjeldendePerioder().getPerioder();
-        return uttakPerioder
-            .stream()
-            .filter(p -> p.overlapper(førsteUttaksdatoSøknad))
-            .findFirst();
+    private Optional<UttakResultatPeriodeEntitet> finnVedtattPeriodeMedOverlapp(LocalDate førsteUttaksdatoSøknad,
+                                                                                UttakResultatEntitet uttakResultat) {
+        var uttakPerioder = uttakResultat.getGjeldendePerioder().getPerioder();
+        return uttakPerioder.stream().filter(p -> p.overlapper(førsteUttaksdatoSøknad)).findFirst();
     }
 
     private boolean harManueltSattFørsteUttaksdato(BehandlingReferanse revurdering) {
@@ -266,50 +264,46 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
     private EndringsdatoType finnEndringsdatoTypeVedAdopsjon(ForeldrepengerGrunnlag fpGrunnlag) {
         if (fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse().getAnkomstNorge().isPresent()) {
             return EndringsdatoType.ANKOMST_NORGE_DATO;
-        } else {
-            return EndringsdatoType.OMSORGSOVERTAKELSEDATO;
         }
+        return EndringsdatoType.OMSORGSOVERTAKELSEDATO;
     }
 
-    private LocalDate finnFørsteDato(Set<EndringsdatoType> endringsdatoer, BehandlingReferanse ref, ForeldrepengerGrunnlag fpGrunnlag) {
+    private LocalDate finnFørsteDato(Set<EndringsdatoType> endringsdatoer,
+                                     BehandlingReferanse ref,
+                                     ForeldrepengerGrunnlag fpGrunnlag) {
         Set<LocalDate> datoer = new HashSet<>();
 
-        for (EndringsdatoType endringsdatoType : endringsdatoer) {
+        for (var endringsdatoType : endringsdatoer) {
             switch (endringsdatoType) {
-                case FØDSELSDATO:
-                    fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse().getFødselsdato().ifPresent(datoer::add);
-                    break;
-                case FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK:
-                    finnFørsteUttaksdato(finnForrigeBehandling(ref)).ifPresent(datoer::add);
-                    break;
-                case FØRSTE_UTTAKSDATO_SØKNAD:
-                    finnFørsteUttaksdatoSøknad(ref.getBehandlingId()).ifPresent(datoer::add);
-                    break;
-                case SISTE_UTTAKSDATO_GJELDENDE_VEDTAK:
-                    finnEndringsdatoForEndringssøknad(ref, datoer);
-                    break;
-                case ENDRINGSDATO_I_BEHANDLING_SOM_FØRTE_TIL_BERØRT_BEHANDLING:
-                    finnEndringsdatoForBerørtBehandling(ref, fpGrunnlag, datoer);
-                    break;
-                case MANUELT_SATT_FØRSTE_UTTAKSDATO:
-                    finnManueltSattFørsteUttaksdato(ref).ifPresent(datoer::add);
-                    break;
-                case OMSORGSOVERTAKELSEDATO:
-                    fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse().getOmsorgsovertakelse().ifPresent(datoer::add);
-                    break;
-                case ANKOMST_NORGE_DATO:
-                    fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse().getAnkomstNorge().ifPresent(datoer::add);
-                    break;
-                case FØRSTE_UTTAKSDATO_SØKNAD_FORRIGE_BEHANDLING:
-                    finnFørsteUttaksdatoSøknadForrigeBehandling(ref).ifPresent(datoer::add);
-                    break;
-                default:
-                    new IllegalStateException("Støtter ikke EndringsdatoType. " + endringsdatoType);
+                case FØDSELSDATO -> fpGrunnlag.getFamilieHendelser()
+                    .getGjeldendeFamilieHendelse()
+                    .getFødselsdato()
+                    .ifPresent(datoer::add);
+                case FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK -> finnFørsteUttaksdato(finnForrigeBehandling(ref)).ifPresent(
+                    datoer::add);
+                case FØRSTE_UTTAKSDATO_SØKNAD -> finnFørsteUttaksdatoSøknad(ref.getBehandlingId()).ifPresent(
+                    datoer::add);
+                case SISTE_UTTAKSDATO_GJELDENDE_VEDTAK -> finnEndringsdatoForEndringssøknad(ref, datoer);
+                case ENDRINGSDATO_I_BEHANDLING_SOM_FØRTE_TIL_BERØRT_BEHANDLING -> finnEndringsdatoForBerørtBehandling(
+                    ref, fpGrunnlag, datoer);
+                case MANUELT_SATT_FØRSTE_UTTAKSDATO -> finnManueltSattFørsteUttaksdato(ref).ifPresent(datoer::add);
+                case OMSORGSOVERTAKELSEDATO -> fpGrunnlag.getFamilieHendelser()
+                    .getGjeldendeFamilieHendelse()
+                    .getOmsorgsovertakelse()
+                    .ifPresent(datoer::add);
+                case ANKOMST_NORGE_DATO -> fpGrunnlag.getFamilieHendelser()
+                    .getGjeldendeFamilieHendelse()
+                    .getAnkomstNorge()
+                    .ifPresent(datoer::add);
+                case FØRSTE_UTTAKSDATO_SØKNAD_FORRIGE_BEHANDLING -> finnFørsteUttaksdatoSøknadForrigeBehandling(
+                    ref).ifPresent(datoer::add);
+                default -> new IllegalStateException("Støtter ikke EndringsdatoType. " + endringsdatoType);
             }
         }
 
-        Optional<LocalDate> tidligst = datoer.stream().min(LOCAL_DATE_COMPARATOR);
-        return tidligst.orElseThrow(() -> new IllegalStateException("Finner ikke endringsdato. " + endringsdatoer)); // NOSONAR
+        var tidligst = datoer.stream().min(LOCAL_DATE_COMPARATOR);
+        return tidligst.orElseThrow(
+            () -> new IllegalStateException("Finner ikke endringsdato. " + endringsdatoer)); // NOSONAR
     }
 
     private Optional<LocalDate> finnFørsteUttaksdatoSøknadForrigeBehandling(BehandlingReferanse revurdering) {
@@ -317,18 +311,21 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
     }
 
     private void finnEndringsdatoForEndringssøknad(BehandlingReferanse revurdering, Set<LocalDate> datoer) {
-        Optional<LocalDate> datoen = finnSisteUttaksdatoGjeldendeVedtak(finnForrigeBehandling(revurdering));
+        var datoen = finnSisteUttaksdatoGjeldendeVedtak(finnForrigeBehandling(revurdering));
         if (datoen.isPresent()) {
             datoer.add(Virkedager.plusVirkedager(datoen.get(), 1));
         }
     }
 
-    private void finnEndringsdatoForBerørtBehandling(BehandlingReferanse ref, ForeldrepengerGrunnlag fpGrunnlag, Set<LocalDate> datoer) {
+    private void finnEndringsdatoForBerørtBehandling(BehandlingReferanse ref,
+                                                     ForeldrepengerGrunnlag fpGrunnlag,
+                                                     Set<LocalDate> datoer) {
         var annenpartBehandling = fpGrunnlag.getAnnenpart()
-            .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Berørt behandling uten innvilget vedtak annen forelders behandling - skal ikke skje"))
+            .orElseThrow(() -> new IllegalStateException(
+                "Utviklerfeil: Berørt behandling uten innvilget vedtak annen forelders behandling - skal ikke skje"))
             .getGjeldendeVedtakBehandlingId();
-        Optional<LocalDate> annenpartsFørsteUttaksdato = finnFørsteUttaksdato(annenpartBehandling);
-        Optional<LocalDate> førsteUttaksdatoGjeldendeVedtak = finnFørsteUttaksdato(finnForrigeBehandling(ref));
+        var annenpartsFørsteUttaksdato = finnFørsteUttaksdato(annenpartBehandling);
+        var førsteUttaksdatoGjeldendeVedtak = finnFørsteUttaksdato(finnForrigeBehandling(ref));
 
         if (førsteUttaksdatoGjeldendeVedtak.isPresent() && annenpartsFørsteUttaksdato.isPresent()) {
             if (førsteUttaksdatoGjeldendeVedtak.get().isAfter(annenpartsFørsteUttaksdato.get())) {
@@ -348,10 +345,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
 
     private Long finnForrigeBehandling(BehandlingReferanse behandling) {
         return behandling.getOriginalBehandlingId()
-            .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Original behandling mangler på revurdering - skal ikke skje"));
-    }
-
-    private VLException kanIkkeUtledeException(Long behandlingId) {
-        return FastsettUttaksgrunnlagFeil.FACTORY.kunneIkkeUtledeEndringsdato(behandlingId).toException();
+            .orElseThrow(() -> new IllegalStateException(
+                "Utviklerfeil: Original behandling mangler på revurdering - skal ikke skje"));
     }
 }

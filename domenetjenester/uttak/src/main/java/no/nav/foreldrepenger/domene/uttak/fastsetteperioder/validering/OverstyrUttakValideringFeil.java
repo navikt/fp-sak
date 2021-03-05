@@ -1,29 +1,39 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering;
 
-import static no.nav.vedtak.feil.LogLevel.WARN;
-
 import no.nav.fpsak.tidsserie.LocalDateInterval;
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.exception.TekniskException;
 
-interface OverstyrUttakValideringFeil extends DeklarerteFeil {
+final class OverstyrUttakValideringFeil {
 
-    @TekniskFeil(feilkode = "FP-431111", feilmelding = "Uttaksperiode mangler begrunnelse", logLevel = WARN)
-    Feil periodeManglerBegrunnelse();
+    private OverstyrUttakValideringFeil() {
+    }
 
-    @TekniskFeil(feilkode = "FP-717234", feilmelding = "Uttaksperiode mangler resultat", logLevel = WARN)
-    Feil periodeManglerResultat();
+    static TekniskException periodeManglerBegrunnelse() {
+        return new TekniskException("FP-431111", "Uttaksperiode mangler begrunnelse");
+    }
 
-    @TekniskFeil(feilkode = "FP-138943", feilmelding = "Saksbehandler må sette utbetalingsgrad for alle arbeidsforhold for alle perioder som gikk til manuell behandling. Mangler for periode %s", logLevel = WARN)
-    Feil manglerUtbetalingsgrad(LocalDateInterval periode);
+    static TekniskException periodeManglerResultat() {
+        return new TekniskException("FP-717234", "Uttaksperiode mangler resultat");
+    }
 
-    @TekniskFeil(feilkode = "FP-634871", feilmelding = "Ugyldig splitting av periode", logLevel = WARN)
-    Feil ugyldigSplittingAvPeriode();
+    static TekniskException manglerUtbetalingsgrad(LocalDateInterval periode) {
+        var msg = String.format("""
+            Saksbehandler må sette utbetalingsgrad for alle arbeidsforhold for alle perioder
+            som gikk til manuell behandling. Mangler for periode %s
+            """, periode);
+        return new TekniskException("FP-138943", msg);
+    }
 
-    @TekniskFeil(feilkode = "FP-128621", feilmelding = "Trekkdager for periodene overskrider maks tilgjengelige dager på konto", logLevel = WARN)
-    Feil trekkdagerOverskriderKontoMaksDager();
+    static TekniskException ugyldigSplittingAvPeriode() {
+        return new TekniskException("FP-634871", "Ugyldig splitting av periode");
+    }
 
-    @TekniskFeil(feilkode = "FP-999187", feilmelding = "Perioder før endringsdato kan ikke endres", logLevel = WARN)
-    Feil perioderFørEndringsdatoKanIkkeEndres();
+    static TekniskException trekkdagerOverskriderKontoMaksDager() {
+        return new TekniskException("FP-128621",
+            "Trekkdager for periodene overskrider maks tilgjengelige dager på konto");
+    }
+
+    static TekniskException perioderFørEndringsdatoKanIkkeEndres() {
+        return new TekniskException("FP-999187", "Perioder før endringsdato kan ikke endres");
+    }
 }

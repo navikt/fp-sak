@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
-import no.nav.vedtak.feil.FeilFactory;
 
 class BareSplittetPerioderValidering implements OverstyrUttakPerioderValidering {
 
@@ -16,11 +15,11 @@ class BareSplittetPerioderValidering implements OverstyrUttakPerioderValidering 
 
     @Override
     public void utfør(List<ForeldrepengerUttakPeriode> nyePerioder) {
-        for (ForeldrepengerUttakPeriode nyPeriode : nyePerioder) {
+        for (var nyPeriode : nyePerioder) {
             validerAtAlleDagerINyErIOpprinnelig(nyPeriode);
         }
 
-        for (ForeldrepengerUttakPeriode opprinneligPeriode : opprinnelig) {
+        for (var opprinneligPeriode : opprinnelig) {
             validerAtAlleDagerIOpprinneligErINy(opprinneligPeriode, nyePerioder);
         }
     }
@@ -34,18 +33,18 @@ class BareSplittetPerioderValidering implements OverstyrUttakPerioderValidering 
     }
 
     private void validerAtAlleDagerIPeriodeFinnesIPerioder(ForeldrepengerUttakPeriode periode, List<ForeldrepengerUttakPeriode> perioder) {
-        LocalDate dato = periode.getTidsperiode().getFomDato();
+        var dato = periode.getTidsperiode().getFomDato();
         while (dato.isBefore(periode.getTidsperiode().getTomDato()) || dato.isEqual(periode.getTidsperiode().getTomDato())) {
             if (!datoFinnesBareEnGangIPerioder(dato, perioder)) {
-                throwException();
+                throw OverstyrUttakValideringFeil.ugyldigSplittingAvPeriode();
             }
             dato = dato.plusDays(1);
         }
     }
 
     private boolean datoFinnesBareEnGangIPerioder(LocalDate dato, List<ForeldrepengerUttakPeriode> perioder) {
-        int antallFunnet = 0;
-        for (ForeldrepengerUttakPeriode periode : perioder) {
+        var antallFunnet = 0;
+        for (var periode : perioder) {
             if (periode.getTidsperiode().encloses(dato)) {
                 antallFunnet++;
             }
@@ -53,7 +52,4 @@ class BareSplittetPerioderValidering implements OverstyrUttakPerioderValidering 
         return antallFunnet == 1;
     }
 
-    private void throwException() {
-        throw FeilFactory.create(OverstyrUttakValideringFeil.class).ugyldigSplittingAvPeriode().toException();
-    }
 }

@@ -1,16 +1,14 @@
 package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag;
 
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.exception.TekniskException;
 
-public interface FastsettUttaksgrunnlagFeil extends DeklarerteFeil {
+public final class FastsettUttaksgrunnlagFeil {
 
-    FastsettUttaksgrunnlagFeil FACTORY = FeilFactory.create(FastsettUttaksgrunnlagFeil.class);
+    private FastsettUttaksgrunnlagFeil() {
+    }
 
-    @TekniskFeil( feilkode = "FP-282721", feilmelding = "Kunne ikke utlede endringsdato for revurdering med behandlingId=%s", logLevel = LogLevel.ERROR)
-    Feil kunneIkkeUtledeEndringsdato(Long behandlingId);
-
+    public static TekniskException kunneIkkeUtledeEndringsdato(Long behandlingId) {
+        return new TekniskException("FP-282721",
+            "Kunne ikke utlede endringsdato for revurdering med behandlingId=" + behandlingId);
+    }
 }

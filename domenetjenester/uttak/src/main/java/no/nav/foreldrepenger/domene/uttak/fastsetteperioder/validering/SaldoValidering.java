@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.saldo.SaldoUtregning;
 import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Stønadskontotype;
-import no.nav.vedtak.feil.FeilFactory;
 
 public class SaldoValidering implements OverstyrUttakPerioderValidering {
 
@@ -32,7 +31,7 @@ public class SaldoValidering implements OverstyrUttakPerioderValidering {
         for (var stønadskontoType : saldoUtregning.stønadskontoer()) {
             var valideringResultat = valider(stønadskontoType);
             if (!valideringResultat.isGyldig()) {
-                throw FeilFactory.create(OverstyrUttakValideringFeil.class).trekkdagerOverskriderKontoMaksDager().toException();
+                throw OverstyrUttakValideringFeil.trekkdagerOverskriderKontoMaksDager();
             } else if (valideringResultat.isNegativPgaSamtidigUttak()) {
                 LOG.info("Saksbehandler går videre med negativ saldo pga samtidig uttak");
             }
