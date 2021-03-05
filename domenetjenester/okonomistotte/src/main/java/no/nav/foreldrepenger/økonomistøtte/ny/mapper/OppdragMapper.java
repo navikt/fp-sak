@@ -144,7 +144,12 @@ public class OppdragMapper {
 
     public LocalDate hentFørsteUttaksdato(Oppdrag nyttOppdrag) {
         MottakerOppdragKjedeOversikt tidligerOppdragForMottaker = tidligereOppdrag.filter(nyttOppdrag.getBetalingsmottaker());
-        return hentFørsteUtbetalingsdato(tidligerOppdragForMottaker);
+        MottakerOppdragKjedeOversikt utvidetMedNyttOppdrag = tidligerOppdragForMottaker.utvidMed(nyttOppdrag);
+        LocalDate førsteUtbetalingsdato = hentFørsteUtbetalingsdato(tidligerOppdragForMottaker);
+        if (førsteUtbetalingsdato != null) {
+            return førsteUtbetalingsdato;
+        }
+        return hentFørsteUtbetalingsdato(utvidetMedNyttOppdrag);
     }
 
     private LocalDate hentFørsteUtbetalingsdato(MottakerOppdragKjedeOversikt oppdrag) {
