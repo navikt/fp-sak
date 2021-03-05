@@ -56,7 +56,7 @@ public class OppdragMapper {
             .medAvstemming(Avstemming.ny());
 
         if (oppdrag.getBetalingsmottaker() == Betalingsmottaker.BRUKER && !oppdragErTilNyMottaker(oppdrag) && !erOpphørForMottaker(oppdrag)) {
-            builder.medOmpostering116(opprettOmpostering116(oppdrag.getEndringsdato(), input.brukInntrekk()));
+            builder.medOmpostering116(opprettOmpostering116(oppdrag, input.brukInntrekk()));
         }
 
         Oppdrag110 oppdrag110 = builder.build();
@@ -124,14 +124,52 @@ public class OppdragMapper {
         return oppdragslinje150;
     }
 
-    static Ompostering116 opprettOmpostering116(LocalDate endringsdatoBruker, boolean brukInntrekk) {
+    private Ompostering116 opprettOmpostering116(Oppdrag oppdrag, boolean brukInntrekk) {
         Ompostering116.Builder ompostering116Builder = new Ompostering116.Builder()
             .medTidspktReg(ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now()))
             .medOmPostering(brukInntrekk);
         if (brukInntrekk) {
-            ompostering116Builder.medDatoOmposterFom(endringsdatoBruker);
+            ompostering116Builder.medDatoOmposterFom(finnDatoOmposterFom(oppdrag));
         }
         return ompostering116Builder.build();
+    }
+
+    private LocalDate finnDatoOmposterFom(Oppdrag oppdrag) {
+        LocalDate endringsdato = oppdrag.getEndringsdato();
+        LocalDate korrigeringsdato = hentFørsteUttaksdato(oppdrag);
+        return korrigeringsdato.isAfter(endringsdato)
+            ? korrigeringsdato
+            : endringsdato;
+    }
+
+    public LocalDate hentFørsteUttaksdato(Oppdrag nyttOppdrag) {
+        MottakerOppdragKjedeOversikt tidligerOppdragForMottaker = tidligereOppdrag.filter(nyttOppdrag.getBetalingsmottaker());
+        MottakerOppdragKjedeOversikt utvidetMedNyttOppdrag = tidligerOppdragForMottaker.utvidMed(nyttOppdrag);
+        LocalDate førsteUtbetalingsdato = hentFørsteUtbetalingsdato(tidligerOppdragForMottaker);
+        if (førsteUtbetalingsdato != null) {
+            return førsteUtbetalingsdato;
+        }
+        return hentFørsteUtbetalingsdato(utvidetMedNyttOppdrag);
+    }
+
+    private LocalDate hentFørsteUtbetalingsdato(MottakerOppdragKjedeOversikt oppdrag) {
+        LocalDate førsteUtetalingsdato = null;
+        for (Map.Entry<KjedeNøkkel, OppdragKjede> entry : oppdrag.getKjeder().entrySet()) {
+            KjedeNøkkel nøkkel = entry.getKey();
+            if (nøkkel.getKlassekode().gjelderFeriepenger()) {
+                continue;
+            }
+            OppdragKjede kjede = entry.getValue();
+            List<YtelsePeriode> perioder = kjede.tilYtelse().getPerioder();
+            if (!perioder.isEmpty()) {
+                YtelsePeriode førstePeriode = perioder.get(0);
+                LocalDate fom = førstePeriode.getPeriode().getFom();
+                if (førsteUtetalingsdato == null || fom.isBefore(førsteUtetalingsdato)) {
+                    førsteUtetalingsdato = fom;
+                }
+            }
+        }
+        return førsteUtetalingsdato;
     }
 
 
@@ -151,7 +189,6 @@ public class OppdragMapper {
         for (Map.Entry<KjedeNøkkel, OppdragKjede> entry : oppdrag.getKjeder().entrySet()) {
             KjedeNøkkel nøkkel = entry.getKey();
             if (nøkkel.getKlassekode().gjelderFeriepenger()) {
-                //TODO?? kan være bedre å inkludere feriepenger for å få mer nøyaktig angivelse av tid for mottaker
                 continue;
             }
             OppdragKjede kjede = entry.getValue();
