@@ -169,7 +169,7 @@ public class Endringskontroller {
             .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + ref.getFagsakYtelseType().getKode()))
             .utledAksjonspunkterFomSteg(ref, fomSteg);
         List<Aksjonspunkt> avbrytes = behandling.getÅpneAksjonspunkter().stream()
-            .filter(ap -> !ap.erManueltOpprettet() && !ap.erAutopunkt())
+            .filter(ap -> !ap.erManueltOpprettet() && !ap.erAutopunkt() && !SPESIALHÅNDTERT_AKSJONSPUNKT.equals(ap.getAksjonspunktDefinisjon()))
             .filter(ap -> resultater.isEmpty() || resultater.stream().noneMatch(ar -> ap.getAksjonspunktDefinisjon().equals(ar.getAksjonspunktDefinisjon())))
             .filter(ap -> behandlingskontrollTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(ref.getFagsakYtelseType(), ref.getBehandlingType(), fomSteg, ap.getAksjonspunktDefinisjon()))
             .collect(Collectors.toList());
