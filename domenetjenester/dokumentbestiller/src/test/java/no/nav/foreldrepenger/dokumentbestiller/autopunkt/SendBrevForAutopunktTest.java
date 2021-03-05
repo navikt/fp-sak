@@ -153,7 +153,7 @@ public class SendBrevForAutopunktTest {
 
     @Test
     public void sendBrevForVenterFødselBareEnGang() {
-        doReturn(true).when(dokumentBehandlingTjeneste).erDokumentBestilt(behandling.getId(), DokumentMalType.FORLENGET_MEDL_DOK);
+        doReturn(true).when(dokumentBehandlingTjeneste).erDokumentBestilt(behandling.getId(), DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_MEDL);
         Aksjonspunkt spyAp = Mockito.spy(aksjonspunkt);
         sendBrevForAutopunkt.sendBrevForVenterPåFødsel(behandling, spyAp);
         Mockito.verify(dokumentBestillerTjeneste, times(0)).bestillDokument(Mockito.any(), Mockito.eq(HistorikkAktør.VEDTAKSLØSNINGEN),

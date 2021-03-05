@@ -85,9 +85,9 @@ public class BrevRestTjeneste {
             settBehandlingPåVent(Venteårsak.AVV_RESPONS_REVURDERING, behandlingId);
         } else if (DokumentMalType.INNHENT_DOK.equals(brevmalkode) || DokumentMalType.INNHENTE_OPPLYSNINGER.equals(brevmalkode)) {
             settBehandlingPåVent(Venteårsak.AVV_DOK, behandlingId);
-        } else if (DokumentMalType.FORLENGET_DOK.equals(brevmalkode)) {
+        } else if (DokumentMalType.FORLENGET_DOK.equals(brevmalkode) || DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID.equals(brevmalkode)) {
             dokumentBehandlingTjeneste.utvidBehandlingsfristManuelt(behandlingId);
-        } else if (DokumentMalType.FORLENGET_MEDL_DOK.equals(brevmalkode)) {
+        } else if (DokumentMalType.FORLENGET_MEDL_DOK.equals(brevmalkode) || DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_MEDL.equals(brevmalkode)) {
             dokumentBehandlingTjeneste.utvidBehandlingsfristManueltMedlemskap(behandlingId);
         }
     }
