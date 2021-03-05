@@ -30,7 +30,7 @@ public class FamilieHendelseGrunnlagBuilder {
 
     public FamilieHendelseGrunnlagBuilder medSøknadVersjon(FamilieHendelseBuilder hendelseBuilder) {
         if (Optional.ofNullable(kladd.getSøknadVersjon()).isPresent()) {
-            throw FamilieHendelseFeil.FACTORY.kanIkkeOppdatereSøknadVersjon().toException();
+            throw FamilieHendelseFeil.kanIkkeOppdatereSøknadVersjon();
         }
         kladd.setSøknadHendelse(hendelseBuilder.build());
         return this;
@@ -39,10 +39,11 @@ public class FamilieHendelseGrunnlagBuilder {
     public FamilieHendelseGrunnlagBuilder medBekreftetVersjon(FamilieHendelseBuilder hendelse) {
         if (hendelse == null) {
             kladd.setBekreftetHendelse(null);
-        } else if (!hendelse.getOpprinneligType().equals(HendelseVersjonType.BEKREFTET) || kladd.getBekreftetVersjon().isPresent() == hendelse.getErOppdatering()) {
+        } else if (!hendelse.getOpprinneligType().equals(HendelseVersjonType.BEKREFTET)
+            || kladd.getBekreftetVersjon().isPresent() == hendelse.getErOppdatering()) {
             kladd.setBekreftetHendelse(hendelse.build());
         } else {
-            throw FamilieHendelseFeil.FACTORY.måBasereSegPåEksisterendeVersjon().toException();
+            throw FamilieHendelseFeil.måBasereSegPåEksisterendeVersjon();
         }
         return this;
     }
@@ -50,10 +51,11 @@ public class FamilieHendelseGrunnlagBuilder {
     public FamilieHendelseGrunnlagBuilder medOverstyrtVersjon(FamilieHendelseBuilder hendelse) {
         if (hendelse == null) {
             kladd.setOverstyrtHendelse(null);
-        } else if (!hendelse.getOpprinneligType().equals(HendelseVersjonType.OVERSTYRT) || kladd.getOverstyrtVersjon().isPresent() == hendelse.getErOppdatering()) {
+        } else if (!hendelse.getOpprinneligType().equals(HendelseVersjonType.OVERSTYRT)
+            || kladd.getOverstyrtVersjon().isPresent() == hendelse.getErOppdatering()) {
             kladd.setOverstyrtHendelse(hendelse.build());
         } else {
-            throw FamilieHendelseFeil.FACTORY.måBasereSegPåEksisterendeVersjon().toException();
+            throw FamilieHendelseFeil.måBasereSegPåEksisterendeVersjon();
         }
         return this;
     }

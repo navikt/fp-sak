@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
+import no.nav.vedtak.exception.TekniskException;
 
 public class YtelseFordelingAggregat {
 
@@ -150,7 +151,8 @@ public class YtelseFordelingAggregat {
 
         public Builder medOverstyrtFordeling(OppgittFordelingEntitet fordeling) {
             if (fordeling != null && kladd.getOppgittFordeling() == null) {
-                throw YtelseFordelingFeil.FACTORY.kanIkkeOverstyreDetFinnesIkkeOrginalSøknadsperiode().toException();
+                throw new TekniskException("FP-852328",
+                    "Kan ikke overstyre søknadsperioder før det finnes noen søknadsperioder å overstyre.");
             }
             kladd.overstyrtFordeling = fordeling;
             return this;

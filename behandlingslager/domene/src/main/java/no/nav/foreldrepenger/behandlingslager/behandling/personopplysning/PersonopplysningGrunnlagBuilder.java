@@ -27,7 +27,7 @@ public class PersonopplysningGrunnlagBuilder {
                 && kladd.getRegisterVersjon().isPresent() == builder.gjelderOppdatering()) {
             kladd.setRegistrertePersonopplysninger(builder.build());
         } else {
-            throw PersonopplysningFeil.FACTORY.måBasereSegPåEksisterendeVersjon().toException();
+            throw PersonopplysningFeil.måBasereSegPåEksisterendeVersjon();
         }
         return this;
     }
@@ -39,7 +39,7 @@ public class PersonopplysningGrunnlagBuilder {
                 && kladd.getOverstyrtVersjon().isPresent() == builder.gjelderOppdatering()) {
             kladd.setOverstyrtePersonopplysninger(builder.build());
         } else {
-            throw PersonopplysningFeil.FACTORY.måBasereSegPåEksisterendeVersjon().toException();
+            throw PersonopplysningFeil.måBasereSegPåEksisterendeVersjon();
         }
         return this;
     }

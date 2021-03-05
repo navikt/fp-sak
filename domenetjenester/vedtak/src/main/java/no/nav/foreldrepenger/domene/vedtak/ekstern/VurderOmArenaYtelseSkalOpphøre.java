@@ -17,8 +17,6 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryFeil;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
@@ -61,16 +59,15 @@ public class VurderOmArenaYtelseSkalOpphøre {
     }
 
     void opprettOppgaveHvisArenaytelseSkalOpphøre(Long behandlingId, AktørId aktørId, LocalDate skjæringstidspunkt) {
-        BehandlingVedtak vedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId)
-            .orElseThrow(() -> BehandlingRepositoryFeil.FACTORY.fantIkkeBehandlingVedtak(behandlingId).toException());
+        var vedtak = behandlingVedtakRepository.hentForBehandling(behandlingId);
         if (!VedtakResultatType.INNVILGET.equals(vedtak.getVedtakResultatType())) {
             return;
         }
-        LocalDate vedtaksDato = vedtak.getVedtaksdato();
-        LocalDate startdatoFP = finnFørsteAnvistDatoFP(behandlingId).orElse(skjæringstidspunkt);
+        var vedtaksDato = vedtak.getVedtaksdato();
+        var startdatoFP = finnFørsteAnvistDatoFP(behandlingId).orElse(skjæringstidspunkt);
 
         if (vurderArenaYtelserOpphøres(behandlingId, aktørId, startdatoFP, vedtaksDato)) {
-            String oppgaveId = oppgaveTjeneste.opprettOppgaveStopUtbetalingAvARENAYtelse(behandlingId, startdatoFP);
+            var oppgaveId = oppgaveTjeneste.opprettOppgaveStopUtbetalingAvARENAYtelse(behandlingId, startdatoFP);
             log.info("Oppgave opprettet i GOSYS slik at NØS kan behandle saken videre. Oppgavenummer: {}", oppgaveId);
         }
     }
@@ -86,7 +83,7 @@ public class VurderOmArenaYtelseSkalOpphøre {
      * @return true hvis det finnes en overlappende ytelse i ARENA, ellers false
      */
     boolean vurderArenaYtelserOpphøres(Long behandlingId, AktørId aktørId, LocalDate førsteAnvistDatoFP, LocalDate vedtaksDato) {
-        LocalDate senesteInputDato = vedtaksDato.isAfter(førsteAnvistDatoFP) ? vedtaksDato : førsteAnvistDatoFP;
+        var senesteInputDato = vedtaksDato.isAfter(førsteAnvistDatoFP) ? vedtaksDato : førsteAnvistDatoFP;
         var arenaYtelser = hentArenaYtelser(behandlingId, aktørId, senesteInputDato);
 
         var arenaTimeline = new LocalDateTimeline<>(arenaYtelser.stream()
@@ -104,11 +101,11 @@ public class VurderOmArenaYtelseSkalOpphøre {
             return false;
         }
 
-        LocalDate sisteArenaAnvistDatoFørVedtaksdato = finnSisteArenaAnvistDatoFørVedtaksdato(arenaYtelser, vedtaksDato);
+        var sisteArenaAnvistDatoFørVedtaksdato = finnSisteArenaAnvistDatoFørVedtaksdato(arenaYtelser, vedtaksDato);
         if (sisteArenaAnvistDatoFørVedtaksdato == null) {
             return false;
         }
-        Optional<LocalDate> nesteArenaAnvistDatoEtterVedtaksdato = finnNesteArenaAnvistDatoEtterVedtaksdato(arenaYtelser, vedtaksDato, sisteArenaAnvistDatoFørVedtaksdato);
+        var nesteArenaAnvistDatoEtterVedtaksdato = finnNesteArenaAnvistDatoEtterVedtaksdato(arenaYtelser, vedtaksDato, sisteArenaAnvistDatoFørVedtaksdato);
         if (førsteAnvistDatoFP.isBefore(sisteArenaAnvistDatoFørVedtaksdato)) {
             return true;
         }

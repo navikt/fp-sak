@@ -46,7 +46,7 @@ public class FamilieHendelseRepository {
         if (aktivtFamilieHendelseGrunnlag.isPresent()) {
             return aktivtFamilieHendelseGrunnlag.get();
         }
-        throw FamilieHendelseFeil.FACTORY.fantIkkeForventetGrunnlagPåBehandling(behandlingId).toException();
+        throw FamilieHendelseFeil.fantIkkeForventetGrunnlagPåBehandling(behandlingId);
     }
 
     public Optional<FamilieHendelseGrunnlagEntitet> hentAggregatHvisEksisterer(Long behandlingId) {
@@ -292,9 +292,9 @@ public class FamilieHendelseRepository {
                 hendelseAggregat1.setType(type);
                 return hendelseAggregat1;
             }
-            throw FamilieHendelseFeil.FACTORY.ukjentVersjonstype().toException();
+            throw FamilieHendelseFeil.ukjentVersjonstype();
         }
-        throw FamilieHendelseFeil.FACTORY.aggregatKanIkkeVæreNull().toException();
+        throw FamilieHendelseFeil.aggregatKanIkkeVæreNull();
     }
 
     private FamilieHendelseBuilder getFamilieHendelseBuilderForType(FamilieHendelseGrunnlagEntitet aggregat, HendelseVersjonType type) {

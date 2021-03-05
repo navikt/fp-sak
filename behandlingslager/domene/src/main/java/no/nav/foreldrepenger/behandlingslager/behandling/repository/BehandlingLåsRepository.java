@@ -9,6 +9,7 @@ import javax.persistence.FlushModeType;
 import javax.persistence.LockModeType;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.vedtak.exception.TekniskException;
 
 /**
  * @see BehandlingLås
@@ -32,9 +33,8 @@ public class BehandlingLåsRepository {
             låsBehandling(behandlingId);
             BehandlingLås lås = new BehandlingLås(behandlingId);
             return lås;
-        } else {
-            return new BehandlingLås(null);
         }
+        return new BehandlingLås(null);
 
     }
 
@@ -43,9 +43,8 @@ public class BehandlingLåsRepository {
             Long behandlingId = låsBehandling(eksternBehandlingRef);
             BehandlingLås lås = new BehandlingLås(behandlingId);
             return lås;
-        } else {
-            return new BehandlingLås(null);
         }
+        return new BehandlingLås(null);
     }
 
     private void låsBehandling(final Long behandlingId) {
@@ -81,10 +80,11 @@ public class BehandlingLåsRepository {
         LockModeType lockMode = LockModeType.PESSIMISTIC_FORCE_INCREMENT;
         Object entity = entityManager.find(Behandling.class, id);
         if (entity == null) {
-            throw BehandlingRepositoryFeil.FACTORY.fantIkkeEntitetForLåsing(Behandling.class.getSimpleName(), id).toException();
-        } else {
-            entityManager.lock(entity, lockMode);
+            var msg = String.format("Fant ikke entitet for låsing [%s], id=%s.",
+                Behandling.class.getSimpleName(), id);
+            throw new TekniskException("FP-131239", msg);
         }
+        entityManager.lock(entity, lockMode);
         return entity;
     }
 

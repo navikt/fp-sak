@@ -15,6 +15,7 @@ import javax.persistence.Version;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 @Table(name = "UTTAK_RESULTAT")
@@ -76,7 +77,8 @@ public class UttakResultatEntitet extends BaseEntitet {
         private UttakResultatEntitet kladd;
 
         public Builder(Behandlingsresultat behandlingsresultat) {
-            Objects.requireNonNull(behandlingsresultat, "Må ha behandlingsresultat for å opprette UttakResultatEntitet"); // $NON-NLS-1$
+            Objects.requireNonNull(behandlingsresultat,
+                "Må ha behandlingsresultat for å opprette UttakResultatEntitet"); // $NON-NLS-1$
             kladd = new UttakResultatEntitet();
             kladd.behandlingsresultat = behandlingsresultat;
         }
@@ -100,7 +102,9 @@ public class UttakResultatEntitet extends BaseEntitet {
 
         public UttakResultatEntitet build() {
             if (kladd.getOverstyrtPerioder() != null && kladd.getOpprinneligPerioder() == null) {
-                throw UttakEntitetFeil.FACTORY.manueltFastettePerioderManglerEksisterendeResultat(kladd.behandlingsresultat.getBehandlingId()).toException();
+                var msg = "Behandling må ha eksisterende uttaksresultat ved lagring av manuelt fastsatte perioder. "
+                    + "Behandling id " + kladd.behandlingsresultat.getBehandlingId();
+                throw new TekniskException("FP-661902", msg);
             }
             return kladd;
         }

@@ -5,7 +5,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryFeil;
+import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
 public class FagsakLåsRepository {
@@ -78,15 +78,15 @@ public class FagsakLåsRepository {
             .getSingleResult();
 
         if (versjon == null) {
-            throw BehandlingRepositoryFeil.FACTORY.fantIkkeEntitetForLåsing(Fagsak.class.getSimpleName(), id).toException();
-        } else {
-            int updated = entityManager.createNativeQuery("update FAGSAK set versjon=versjon+1 where id=:fagsakId and versjon=:versjon")
-                .setParameter("fagsakId", id)
-                .setParameter("versjon", versjon)
-                .executeUpdate();
-            if (updated != 1) {
-                throw new IllegalStateException("Kunne ikke verifisere lås på Fagsak: " + id + ", fikk ikke oppdatert versjon " + versjon);
-            }
+            var msg = String.format("Fant ikke entitet for låsing [%s], id=%s.", Fagsak.class.getSimpleName(), id);
+            throw new TekniskException("FP-131239", msg);
+        }
+        int updated = entityManager.createNativeQuery("update FAGSAK set versjon=versjon+1 where id=:fagsakId and versjon=:versjon")
+            .setParameter("fagsakId", id)
+            .setParameter("versjon", versjon)
+            .executeUpdate();
+        if (updated != 1) {
+            throw new IllegalStateException("Kunne ikke verifisere lås på Fagsak: " + id + ", fikk ikke oppdatert versjon " + versjon);
         }
     }
 }

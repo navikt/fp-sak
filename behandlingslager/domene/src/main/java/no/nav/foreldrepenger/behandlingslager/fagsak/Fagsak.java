@@ -138,7 +138,7 @@ public class Fagsak extends BaseEntitet {
             this.brukerRolle = rolle;
         } else if (!rolle.equals(RelasjonsRolleType.UDEFINERT) && !brukerRolle.equals(rolle)) {
             if (!brukerRolle.equals(RelasjonsRolleType.UDEFINERT)) {
-                FagsakFeil.FACTORY.brukerHarSkiftetRolle(brukerRolle.getKode(), rolle.getKode()).log(LOGGER);
+                LOGGER.warn("Bruker har skiftet rolle fra '{}' til '{}", brukerRolle.getKode(), rolle.getKode());
             }
             this.brukerRolle = rolle;
         }

@@ -1,17 +1,15 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.personopplysning;
 
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.exception.TekniskException;
 
 
-public interface PersonopplysningFeil extends DeklarerteFeil  {
+final class PersonopplysningFeil {
 
-    PersonopplysningFeil FACTORY = FeilFactory.create(PersonopplysningFeil.class);
+    private PersonopplysningFeil() {
+    }
 
-    @TekniskFeil(feilkode = "FP-124903", feilmelding = "Må basere seg på eksisterende versjon av personopplysning", logLevel = LogLevel.WARN)
-    Feil måBasereSegPåEksisterendeVersjon();
+    static TekniskException måBasereSegPåEksisterendeVersjon() {
+        return new TekniskException("FP-124903", "Må basere seg på eksisterende versjon av personopplysning");
+    }
 }
 

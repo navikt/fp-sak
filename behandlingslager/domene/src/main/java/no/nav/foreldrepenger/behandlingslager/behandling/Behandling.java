@@ -59,7 +59,7 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.pip.PipBehandlingsData;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.vedtak.feil.FeilFactory;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 @SqlResultSetMappings(value = {
@@ -295,7 +295,9 @@ public class Behandling extends BaseEntitet {
     // kolonne, så emuleres her ved å tømme listen.
     public Behandlingsresultat getBehandlingsresultat() {
         if (this.behandlingsresultat.size() > 1) {
-            throw FeilFactory.create(BehandlingFeil.class).merEnnEttBehandlingsresultat(behandlingsresultat.size()).toException();
+            throw new TekniskException("FP-918665",
+                "Ugyldig antall behandlingsresultat, forventer maks 1 per behandling, men har "
+                    + behandlingsresultat.size());
         }
         return this.behandlingsresultat.isEmpty() ? null : this.behandlingsresultat.iterator().next();
     }
@@ -581,7 +583,8 @@ public class Behandling extends BaseEntitet {
         return getAksjonspunkterStream()
                 .filter(a -> a.getAksjonspunktDefinisjon().equals(definisjon))
                 .findFirst()
-                .orElseThrow(() -> FeilFactory.create(BehandlingFeil.class).aksjonspunktIkkeFunnet(definisjon.getKode()).toException());
+                .orElseThrow(
+                    () -> new TekniskException("FP-138032", "Behandling har ikke aksjonspunkt for definisjon " + definisjon.getKode()));
     }
 
     public Optional<Aksjonspunkt> getAksjonspunktFor(String aksjonspunktDefinisjonKode) {

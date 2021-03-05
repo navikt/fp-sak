@@ -24,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.laas.FagsakRelasjonLås;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
 public class FagsakRelasjonRepository {
@@ -205,15 +206,21 @@ public class FagsakRelasjonRepository {
         final FagsakLås fagsak2Lås = fagsakLåsRepository.taLås(fagsakTo.getId());
 
         if (!fagsakEn.getYtelseType().equals(fagsakTo.getYtelseType())) {
-            throw FagsakFeil.FACTORY.kanIkkeKobleSammenSakerMedUlikYtelseType(fagsakEn.getId(), fagsakEn.getYtelseType(),
-                fagsakTo.getId(), fagsakTo.getYtelseType()).toException();
+            var msg = String.format(
+                "Kan ikke koble sammen saker med forskjellig ytelse type. Prøver å koble sammen fagsakene %s (%s) og %s (%s).",
+                fagsakEn.getId(), fagsakEn.getYtelseType(), fagsakTo.getId(), fagsakTo.getYtelseType());
+            throw new TekniskException("FP-983410", msg);
         }
         if (fagsakEn.getId().equals(fagsakTo.getId())) {
-            throw FagsakFeil.FACTORY.kanIkkeKobleMedSegSelv(fagsakEn.getSaksnummer()).toException();
+            var msg = String.format("Prøver å koble fagsak med saksnummer %s sammen med seg selv",
+                fagsakEn.getSaksnummer());
+            throw new TekniskException("FP-831923", msg);
         }
         if (fagsakEn.getAktørId().equals(fagsakTo.getAktørId())) {
-            throw FagsakFeil.FACTORY.kanIkkeKobleSammenToSakerMedSammeAktørId(fagsakEn.getSaksnummer(),
-                fagsakTo.getSaksnummer(), fagsakEn.getAktørId()).toException();
+            var msg = String.format(
+                "Kan ikke koble sammen to saker med identisk aktørid. Prøver å koble sammen fagsakene %s og %s, aktør %s.",
+                fagsakEn.getSaksnummer(), fagsakTo.getSaksnummer(), fagsakEn.getAktørId());
+            throw new TekniskException("FP-102432", msg);
         }
 
         final Optional<FagsakRelasjon> fagsakRelasjon1 = finnRelasjonForHvisEksisterer(fagsakEn);
@@ -245,14 +252,12 @@ public class FagsakRelasjonRepository {
 
         final FagsakRelasjon fagsakRelasjon = finnRelasjonForHvisEksisterer(fagsakEn).orElse(null);
 
-        if (fagsakRelasjon == null || !fagsakRelasjon.getFagsakNrTo().isPresent()) {
-            throw FagsakFeil.FACTORY.sakeneErIkkeKoblet(fagsakEn.getSaksnummer(), fagsakTo.getSaksnummer()).toException();
-        }
-        if (!fagsakRelasjon.getFagsakNrEn().getId().equals(fagsakEn.getId())) {
-            throw FagsakFeil.FACTORY.sakeneErIkkeKoblet(fagsakEn.getSaksnummer(), fagsakTo.getSaksnummer()).toException();
-        }
-        if (!fagsakRelasjon.getFagsakNrTo().get().getId().equals(fagsakTo.getId())) {
-            throw FagsakFeil.FACTORY.sakeneErIkkeKoblet(fagsakEn.getSaksnummer(), fagsakTo.getSaksnummer()).toException();
+        if (fagsakRelasjon == null || fagsakRelasjon.getFagsakNrTo().isEmpty()
+            || !fagsakRelasjon.getFagsakNrEn().getId().equals(fagsakEn.getId())
+            || !fagsakRelasjon.getFagsakNrTo().get().getId().equals(fagsakTo.getId())) {
+            var msg = String.format("Fagsakene %s og %s er ikke koblet.", fagsakEn.getSaksnummer(),
+                fagsakTo.getSaksnummer());
+            throw new TekniskException("FP-102433", msg);
         }
 
         deaktiverEksisterendeRelasjon(fagsakRelasjon);

@@ -45,7 +45,8 @@ public class BehandlingVedtakRepository {
     }
 
     public BehandlingVedtak hentForBehandling(Long behandlingId) {
-        return hentForBehandlingHvisEksisterer(behandlingId).orElseThrow();
+        return hentForBehandlingHvisEksisterer(behandlingId).orElseThrow(() ->
+            new IllegalStateException("Finner ikke vedtak for behandling " + behandlingId));
     }
 
     public BehandlingVedtak hentBehandlingVedtakFraRevurderingensOriginaleBehandling(Behandling behandling) {

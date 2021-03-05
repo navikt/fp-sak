@@ -10,6 +10,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 
 @ApplicationScoped
@@ -28,8 +29,8 @@ public class YtelsesFordelingRepository {
     }
 
     public YtelseFordelingAggregat hentAggregat(Long behandlingId) {
-        return hentAggregatHvisEksisterer(behandlingId).orElseThrow(
-            () -> YtelseFordelingFeil.FACTORY.fantIkkeForventetGrunnlagPåBehandling(behandlingId).toException());
+        return hentAggregatHvisEksisterer(behandlingId).orElseThrow(() -> new TekniskException("FP-634781",
+                    "Fant ikke forventet YtelseFordeling grunnlag for behandling med id " + behandlingId));
 
     }
 
@@ -66,8 +67,10 @@ public class YtelsesFordelingRepository {
             .medPerioderUttakDokumentasjon(ytelseFordelingGrunnlagEntitet.getPerioderUttakDokumentasjon())
             .medAvklarteDatoer(ytelseFordelingGrunnlagEntitet.getAvklarteUttakDatoer())
             .medPerioderAnnenforelderHarRett(ytelseFordelingGrunnlagEntitet.getPerioderAnnenforelderHarRettEntitet())
-            .medOpprinneligeAktivitetskravPerioder(ytelseFordelingGrunnlagEntitet.getOpprinneligeAktivitetskravPerioder())
-            .medSaksbehandledeAktivitetskravPerioder(ytelseFordelingGrunnlagEntitet.getSaksbehandledeAktivitetskravPerioder())
+            .medOpprinneligeAktivitetskravPerioder(
+                ytelseFordelingGrunnlagEntitet.getOpprinneligeAktivitetskravPerioder())
+            .medSaksbehandledeAktivitetskravPerioder(
+                ytelseFordelingGrunnlagEntitet.getSaksbehandledeAktivitetskravPerioder())
             .build();
     }
 
@@ -215,8 +218,8 @@ public class YtelsesFordelingRepository {
 
     public Optional<YtelseFordelingGrunnlagEntitet> hentGrunnlagPåId(Long grunnlagId) {
         Objects.requireNonNull(grunnlagId, "grunnlagId");
-        var query = entityManager.createQuery(
-            "FROM YtelseFordelingGrunnlag gr " + "WHERE gr.id = :grunnlagId ", YtelseFordelingGrunnlagEntitet.class);
+        var query = entityManager.createQuery("FROM YtelseFordelingGrunnlag gr " + "WHERE gr.id = :grunnlagId ",
+            YtelseFordelingGrunnlagEntitet.class);
         query.setParameter("grunnlagId", grunnlagId);
         return HibernateVerktøy.hentUniktResultat(query);
     }

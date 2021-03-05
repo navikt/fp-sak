@@ -1,31 +1,35 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse;
 
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.exception.TekniskException;
 
-interface FamilieHendelseFeil extends DeklarerteFeil {
+final class FamilieHendelseFeil {
+    private FamilieHendelseFeil() {
+    }
 
-    FamilieHendelseFeil FACTORY = FeilFactory.create(FamilieHendelseFeil.class);
+    static TekniskException fantIkkeForventetGrunnlagPåBehandling(long behandlingId) {
+        return new TekniskException("FP-947392",
+            "Finner ikke FamilieHendelse grunnlag for behandling med id " + behandlingId);
+    }
 
-    @TekniskFeil(feilkode = "FP-947392", feilmelding = "Finner ikke FamilieHendelse grunnlag for behandling med id %s", logLevel = LogLevel.WARN)
-    Feil fantIkkeForventetGrunnlagPåBehandling(long behandlingId);
+    static TekniskException kanIkkeEndreTypePåHendelseFraTil(FamilieHendelseType fraType, FamilieHendelseType tilType) {
+        var msg = String.format("Kan ikke endre typen til '%s' når den er '%s'", fraType, tilType);
+        return new TekniskException("FP-903132", msg);
+    }
 
-    @TekniskFeil(feilkode = "FP-903132", feilmelding = "Kan ikke endre typen til '%s' når den er '%s'", logLevel = LogLevel.WARN)
-    Feil kanIkkeEndreTypePåHendelseFraTil(FamilieHendelseType fraType, FamilieHendelseType tilType);
+    static TekniskException måBasereSegPåEksisterendeVersjon() {
+        return new TekniskException("FP-124902", "Må basere seg på eksisterende versjon av familiehendelsen");
+    }
 
-    @TekniskFeil(feilkode = "FP-124902", feilmelding = "Må basere seg på eksisterende versjon av familiehendelsen", logLevel = LogLevel.WARN)
-    Feil måBasereSegPåEksisterendeVersjon();
+    static TekniskException kanIkkeOppdatereSøknadVersjon() {
+        return new TekniskException("FP-947231", "Kan ikke oppdatere søknadsversjonen etter at det har blitt satt.");
+    }
 
-    @TekniskFeil(feilkode = "FP-947231", feilmelding = "Kan ikke oppdatere søknadsversjonen etter at det har blitt satt.", logLevel = LogLevel.WARN)
-    Feil kanIkkeOppdatereSøknadVersjon();
+    static TekniskException aggregatKanIkkeVæreNull() {
+        return new TekniskException("FP-949165", "Aggregat kan ikke være null ved opprettelse av builder");
+    }
 
-    @TekniskFeil(feilkode = "FP-949165", feilmelding = "Aggregat kan ikke være null ved opprettelse av builder", logLevel = LogLevel.WARN)
-    Feil aggregatKanIkkeVæreNull();
-
-    @TekniskFeil(feilkode = "FP-536282", feilmelding = "Ukjent versjonstype ved opprettelse av builder", logLevel = LogLevel.WARN)
-    Feil ukjentVersjonstype();
+    static TekniskException ukjentVersjonstype() {
+        return new TekniskException("FP-536282", "Ukjent versjonstype ved opprettelse av builder");
+    }
 
 }

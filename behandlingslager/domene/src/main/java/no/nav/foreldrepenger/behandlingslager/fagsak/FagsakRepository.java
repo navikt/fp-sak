@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 import no.nav.vedtak.util.Tuple;
 
@@ -94,10 +95,14 @@ public class FagsakRepository {
 
         List<Fagsak> fagsaker = query.getResultList();
         if (fagsaker.size() > 1) {
-            throw FagsakFeil.FACTORY.flereEnnEnFagsakForSaksnummer(saksnummer).toException();
+            throw flereEnnEnFagsakFeil(saksnummer);
         }
 
         return fagsaker.isEmpty() ? Optional.empty() : Optional.of(fagsaker.get(0));
+    }
+
+    private TekniskException flereEnnEnFagsakFeil(Saksnummer saksnummer) {
+        return new TekniskException("FP-429883", "Det var flere enn en Fagsak for saksnummer: " + saksnummer);
     }
 
     public List<Tuple<Long, AktørId>> hentIkkeAvsluttedeFagsakerIPeriodeNaticve(LocalDate fom, LocalDate tom) {
@@ -160,7 +165,7 @@ public class FagsakRepository {
 
         List<Fagsak> fagsaker = query.getResultList();
         if (fagsaker.size() > 1) {
-            throw FagsakFeil.FACTORY.flereEnnEnFagsakForSaksnummer(saksnummer).toException();
+            throw flereEnnEnFagsakFeil(saksnummer);
         }
 
         return fagsaker.isEmpty() ? Optional.empty() : Optional.of(fagsaker.get(0));

@@ -1,21 +1,16 @@
 package no.nav.foreldrepenger.domene.vedtak.intern;
 
-import java.util.Optional;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryFeil;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.FortsettBehandlingTaskProperties;
@@ -56,11 +51,10 @@ public class AvsluttBehandling {
 
     void avsluttBehandling(Long behandlingId) {
         log.info("Avslutter behandling: {}", behandlingId); //$NON-NLS-1$
-        BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
 
-        BehandlingVedtak vedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
-            .orElseThrow(() -> BehandlingRepositoryFeil.FACTORY.fantIkkeBehandlingVedtak(behandlingId).toException());
+        var vedtak = behandlingVedtakRepository.hentForBehandling(behandling.getId());
         vedtak.setIverksettingStatus(IverksettingStatus.IVERKSATT);
 
         behandlingVedtakRepository.lagre(vedtak, kontekst.getSkriveLås());
@@ -71,7 +65,7 @@ public class AvsluttBehandling {
         log.info("Har avsluttet behandling: {}", behandlingId); //$NON-NLS-1$
 
         // TODO (Fluoritt): Kunne vi flyttet dette ut i en Event observer (ref BehandlingStatusEvent) Hilsen FC.
-        Optional<Behandling> ventendeBehandlingOpt = vurderBehandlingerUnderIverksettelse.finnBehandlingSomVenterIverksetting(behandling);
+        var ventendeBehandlingOpt = vurderBehandlingerUnderIverksettelse.finnBehandlingSomVenterIverksetting(behandling);
         ventendeBehandlingOpt.ifPresent(ventendeBehandling -> {
             log.info("Fortsetter iverksetting av ventende behandling: {}", ventendeBehandling.getId()); //$NON-NLS-1$
             opprettTaskForProsesserBehandling(ventendeBehandling);
@@ -79,7 +73,7 @@ public class AvsluttBehandling {
     }
 
     private void opprettTaskForProsesserBehandling(Behandling behandling) {
-        ProsessTaskData prosessTaskData = new ProsessTaskData(FortsettBehandlingTaskProperties.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(FortsettBehandlingTaskProperties.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setCallIdFraEksisterende();
         prosessTaskRepository.lagre(prosessTaskData);

@@ -88,7 +88,7 @@ public class FamilieHendelseBuilder {
             terminbekreftelseBuilder = null;
             return this;
         }
-        throw FamilieHendelseFeil.FACTORY.måBasereSegPåEksisterendeVersjon().toException();
+        throw FamilieHendelseFeil.måBasereSegPåEksisterendeVersjon();
     }
 
     public FamilieHendelseBuilder medAdopsjon(AdopsjonBuilder adopsjon) {
@@ -97,7 +97,7 @@ public class FamilieHendelseBuilder {
             adopsjonBuilder = null;
             return this;
         }
-        throw FamilieHendelseFeil.FACTORY.måBasereSegPåEksisterendeVersjon().toException();
+        throw FamilieHendelseFeil.måBasereSegPåEksisterendeVersjon();
     }
 
     /**
@@ -109,7 +109,7 @@ public class FamilieHendelseBuilder {
         if (hendelse.getType().equals(FamilieHendelseType.UDEFINERT) || hendelse.getType().equals(FamilieHendelseType.OMSORG)) {
             hendelse.setType(FamilieHendelseType.OMSORG);
         } else {
-            throw FamilieHendelseFeil.FACTORY.kanIkkeEndreTypePåHendelseFraTil(hendelse.getType(), FamilieHendelseType.OMSORG).toException();
+            throw FamilieHendelseFeil.kanIkkeEndreTypePåHendelseFraTil(hendelse.getType(), FamilieHendelseType.OMSORG);
         }
         return this;
     }
@@ -125,7 +125,7 @@ public class FamilieHendelseBuilder {
                 || hendelse.getType().equals(FamilieHendelseType.TERMIN)) {
             hendelse.setType(FamilieHendelseType.FØDSEL);
         } else {
-            throw FamilieHendelseFeil.FACTORY.kanIkkeEndreTypePåHendelseFraTil(hendelse.getType(), FamilieHendelseType.FØDSEL).toException();
+            throw FamilieHendelseFeil.kanIkkeEndreTypePåHendelseFraTil(hendelse.getType(), FamilieHendelseType.FØDSEL);
         }
         return this;
     }
