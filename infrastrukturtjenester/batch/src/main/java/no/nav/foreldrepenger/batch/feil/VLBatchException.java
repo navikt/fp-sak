@@ -1,11 +1,10 @@
 package no.nav.foreldrepenger.batch.feil;
 
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.feil.Feil;
 
 public class VLBatchException extends TekniskException {
 
-    public VLBatchException(Feil feil) {
-        super(feil);
+    public VLBatchException(String kode, String msg) {
+        super(kode, msg);
     }
 }

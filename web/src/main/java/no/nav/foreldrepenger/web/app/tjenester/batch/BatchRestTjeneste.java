@@ -91,10 +91,10 @@ public class BatchRestTjeneste {
                 logger.info("Starter batch {}", LoggerUtils.removeLineBreaks(name)); // NOSONAR
                 return Response.ok(batchTjeneste.launch(arguments)).build();
             } else {
-                throw BatchFeil.FACTORY.ugyldigeJobParametere(arguments).toException();
+                throw BatchFeil.ugyldigeJobParametere(arguments);
             }
         }
-        BatchFeil.FACTORY.ugyldiJobbNavnOppgitt(name).log(logger);
+        logger.warn("Ugyldig job-navn " + name);
         return Response.status(Response.Status.BAD_REQUEST).build();
     }
 

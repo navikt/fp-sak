@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.batch.BatchArguments;
 import no.nav.foreldrepenger.batch.BatchSupportTjeneste;
 import no.nav.foreldrepenger.batch.BatchTjeneste;
 import no.nav.foreldrepenger.batch.feil.BatchFeil;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
@@ -61,7 +62,7 @@ public class BatchRunnerTask implements ProsessTaskHandler {
         }
         final BatchTjeneste batchTjeneste = batchSupportTjeneste.finnBatchTjenesteForNavn(batchName);
         if (batchTjeneste == null) {
-            throw BatchFeil.FACTORY.ugyldiJobbNavnOppgitt(batchName).toException();
+            throw new TekniskException("FP-630260", "Ugyldig job-navn " + batchName);
         }
         final BatchArguments batchArguments = batchTjeneste.createArguments(parseJobParams(batchParams));
 
@@ -70,7 +71,7 @@ public class BatchRunnerTask implements ProsessTaskHandler {
             logger.info("Starter batch {}", logMessage);
             batchTjeneste.launch(batchArguments);
         } else {
-            throw BatchFeil.FACTORY.ugyldigeJobParametere(batchArguments).toException();
+            throw BatchFeil.ugyldigeJobParametere(batchArguments);
         }
     }
 
