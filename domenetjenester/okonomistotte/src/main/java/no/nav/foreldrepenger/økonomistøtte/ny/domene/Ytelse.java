@@ -25,7 +25,16 @@ public class Ytelse {
             if (ytelsePeriode.getPeriode().getTom().isBefore(fom)) {
                 continue;
             }
-            resultat.add(ytelsePeriode.getPeriode().getFom().isBefore(fom) ? ytelsePeriode.fraOgMed(fom) : ytelsePeriode);
+
+            if (ytelsePeriode.getPeriode().getFom().isBefore(fom)) {
+                if (ytelsePeriode.getSats().getSatsType() != SatsType.ENGANG) {
+                    resultat.add(ytelsePeriode.fraOgMed(fom));
+                } else {
+                    resultat.add(ytelsePeriode);
+                }
+            } else {
+                resultat.add(ytelsePeriode);
+            }
         }
         return resultat;
     }
@@ -94,20 +103,6 @@ public class Ytelse {
             }
             perioder = resultat;
         }
-
-        public int indexForPeriode(Periode p) {
-            for (int i = 0; i < perioder.size(); i++) {
-                if (perioder.get(i).getPeriode().equals(p)) {
-                    return i;
-                }
-            }
-            return -1;
-        }
-
-        public void overskrivPeriode(int indeks, YtelsePeriode periode) {
-            perioder.set(indeks, periode);
-        }
-
         public LocalDate sisteTidspunkt() {
             if (perioder.isEmpty()) {
                 return null;
