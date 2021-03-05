@@ -189,6 +189,45 @@ public class OppdragFactoryTest {
         assertLik(kjedeArbg.getOppdragslinjer().get(0), OppdragLinje.builder().medYtelsePeriode(arbeidsgiversYtelsePeriode).medDelytelseId(DelytelseId.parse("FooBar-102-100")).build());
     }
 
+    @Test
+    public void skal_ikke_endre_periode_for_feriepenger_hvis_felles_endringsdato_er_i_mai() {
+
+        var ytelseFom = LocalDate.of(2020, 4, 1);
+        var ytelseTom = LocalDate.of(2021, 6, 1);
+        var fellesEndringsdato = LocalDate.of(2020, 5, 15);
+
+        Betalingsmottaker arbeidsgiver = Betalingsmottaker.forArbeidsgiver("000000001");
+        KjedeNøkkel nøkkelYtelseTilArbeidsgiver = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPREFAG-IOP"), arbeidsgiver);
+        KjedeNøkkel nøkkelFeriepengerTilArbeidsgiver = KjedeNøkkel.lag(KodeKlassifik.FPF_FERIEPENGER_AG, arbeidsgiver, 2020);
+        YtelsePeriode arbeidsgiversYtelsePeriode1 = new YtelsePeriode(Periode.of(fellesEndringsdato, ytelseTom), Satsen.dagsats(102));
+        YtelsePeriode arbeidsgiversYtelsePeriode2 = new YtelsePeriode(Periode.of(ytelseFom, fellesEndringsdato.minusDays(1)), Satsen.dagsats(101));
+        YtelsePeriode arbeidsgiversFeriepengerPeriode = new YtelsePeriode(Periode.of(LocalDate.of(2020, 5, 1), LocalDate.of(2020, 5, 31)), Satsen.engang(101101));
+        GruppertYtelse målbilde = GruppertYtelse.builder()
+            .leggTilKjede(nøkkelFeriepengerTilArbeidsgiver, Ytelse.builder().leggTilPeriode(arbeidsgiversFeriepengerPeriode).build())
+            .leggTilKjede(nøkkelYtelseTilArbeidsgiver,
+                Ytelse.builder()
+                    .leggTilPeriode(arbeidsgiversYtelsePeriode1)
+                    .leggTilPeriode(arbeidsgiversYtelsePeriode2).build())
+            .build();
+
+        OverordnetOppdragKjedeOversikt tidligereOppdrag = new OverordnetOppdragKjedeOversikt(
+            Map.of(
+                nøkkelYtelseTilArbeidsgiver, OppdragKjede.builder()
+                    .medOppdragslinje(OppdragLinje.builder().medDelytelseId(DelytelseId.parse("FooBar-101-101"))
+                        .medYtelsePeriode(new YtelsePeriode(Periode.of(ytelseFom, ytelseTom), Satsen.dagsats(101))).build())
+                    .build(),
+                nøkkelFeriepengerTilArbeidsgiver, OppdragKjede.builder()
+                    .medOppdragslinje(OppdragLinje.builder().medDelytelseId(DelytelseId.parse("FooBar-101-102"))
+                        .medYtelsePeriode(arbeidsgiversFeriepengerPeriode).build())
+                    .build()
+            ));
+
+        oppdragFactory.setFellesEndringstidspunkt(fellesEndringsdato);
+        List<Oppdrag> resultat = oppdragFactory.lagOppdrag(tidligereOppdrag, målbilde);
+
+        assertThat(resultat).hasSize(1);
+    }
+
     private DelytelseId delytelseId(String suffix) {
         return DelytelseId.parse(saksnummer.getVerdi() + "-" + suffix);
     }
