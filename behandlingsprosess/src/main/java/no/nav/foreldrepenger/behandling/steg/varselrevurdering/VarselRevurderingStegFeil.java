@@ -1,15 +1,13 @@
 package no.nav.foreldrepenger.behandling.steg.varselrevurdering;
 
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.exception.TekniskException;
 
-public interface VarselRevurderingStegFeil extends DeklarerteFeil {
+public final class VarselRevurderingStegFeil {
 
-    VarselRevurderingStegFeil FACTORY = FeilFactory.create(VarselRevurderingStegFeil.class);
+    private VarselRevurderingStegFeil() {
+    }
 
-    @TekniskFeil(feilkode = "FP-139371", feilmelding = "Manger behandlingsårsak på revurdering", logLevel = LogLevel.ERROR)
-    Feil manglerBehandlingsårsakPåRevurdering();
+    public static TekniskException manglerBehandlingsårsakPåRevurdering() {
+        throw new TekniskException("FP-139371", "Manger behandlingsårsak på revurdering");
+    }
 }

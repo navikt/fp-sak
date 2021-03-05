@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.avklarfakta.fp;
 
-import static no.nav.foreldrepenger.behandling.steg.avklarfakta.VilkårUtlederFeil.FEILFACTORY;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -13,6 +11,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtleder;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederHolder;
 import no.nav.foreldrepenger.behandling.steg.avklarfakta.AksjonspunktUtlederForTilleggsopplysninger;
 import no.nav.foreldrepenger.behandling.steg.avklarfakta.KontrollerFaktaUtledere;
+import no.nav.foreldrepenger.behandling.steg.avklarfakta.VilkårUtlederFeil;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -45,7 +44,7 @@ class KontrollerFaktaUtledereTjenesteImpl implements KontrollerFaktaUtledere {
         Long behandlingId = ref.getBehandlingId();
         final Optional<FamilieHendelseGrunnlagEntitet> hendelseGrunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId);
         if (hendelseGrunnlag.isEmpty()) {
-            throw FEILFACTORY.behandlingsmotivKanIkkeUtledes(behandlingId).toException();
+            throw VilkårUtlederFeil.behandlingsmotivKanIkkeUtledes(behandlingId);
         }
 
         FamilieHendelseType familieHendelseType = hendelseGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)

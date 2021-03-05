@@ -1,15 +1,14 @@
 package no.nav.foreldrepenger.behandling.steg.avklarfakta;
 
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.exception.TekniskException;
 
-// TODO: PK-49128: Rename og ta ut overflødige metoder
-public interface VilkårUtlederFeil extends DeklarerteFeil {
-    VilkårUtlederFeil FEILFACTORY = FeilFactory.create(VilkårUtlederFeil.class);
+public final class VilkårUtlederFeil {
 
-    @TekniskFeil(feilkode = "FP-768019", feilmelding = "Kan ikke utlede vilkår for behandlingId %s, da behandlingsmotiv ikke kan avgjøres", logLevel = LogLevel.ERROR)
-    Feil behandlingsmotivKanIkkeUtledes(Long behandlingId);
+    private VilkårUtlederFeil() {
+    }
+
+    public static TekniskException behandlingsmotivKanIkkeUtledes(Long behandlingId) {
+        var msg = String.format("Kan ikke utlede vilkår for behandlingId %s, da behandlingsmotiv ikke kan avgjøres", behandlingId);
+        throw new TekniskException("FP-768019", msg);
+    }
 }

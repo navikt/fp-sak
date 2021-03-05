@@ -130,11 +130,11 @@ public class Vilkår extends BaseEntitet implements IndexKey {
      *
      * @return Avslagsårsak
      */
-    public Avslagsårsak getGjeldendeAvslagsårsak() {
+    public Optional<Avslagsårsak> getGjeldendeAvslagsårsak() {
         if (getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT)) {
-            return getAvslagsårsak();
+            return Optional.ofNullable(getAvslagsårsak());
         }
-        return null;
+        return Optional.empty();
     }
 
     public Long getId() {

@@ -50,7 +50,7 @@ public class VarselRevurderingStegImpl implements VarselRevurderingSteg {
         }
 
         if (behandling.getBehandlingÅrsaker().isEmpty()) {
-            throw VarselRevurderingStegFeil.FACTORY.manglerBehandlingsårsakPåRevurdering().toException();
+            throw VarselRevurderingStegFeil.manglerBehandlingsårsakPåRevurdering();
         }
 
         if (behandling.harBehandlingÅrsak(RE_AVVIK_ANTALL_BARN) || behandling.harBehandlingÅrsak(RE_MANGLER_FØDSEL_I_PERIODE)) {
