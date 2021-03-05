@@ -19,12 +19,11 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktKode;
 import no.nav.foreldrepenger.validering.FeltFeilDto;
-import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
 public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViolationException> {
 
-    private static final Logger log = LoggerFactory.getLogger(ConstraintViolationMapper.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ConstraintViolationMapper.class);
 
     @Override
     public Response toResponse(ConstraintViolationException exception) {
@@ -32,9 +31,8 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
 
         if (constraintViolations.isEmpty() && exception instanceof ResteasyViolationException) {
             String message = ((ResteasyViolationException) exception).getException().getMessage();
-            log.error(message);
-            Feil feil = FeltValideringFeil.FACTORY.feilIOppsettAvFeltvalidering();
-            return lagResponse(new FeilDto(FeilType.GENERELL_FEIL, feil.getFeilmelding()));
+            LOG.error(message);
+            return lagResponse(new FeilDto(FeilType.GENERELL_FEIL, "Det oppstod en serverfeil: Validering er feilkonfigurert."));
         }
 
         Collection<FeltFeilDto> feilene = new ArrayList<>();
@@ -45,11 +43,17 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
         }
         List<String> feltNavn = feilene.stream().map(FeltFeilDto::getNavn).collect(Collectors.toList());
 
-        Feil feil = erServerkall()
-                ? FeltValideringFeil.FACTORY.feltverdiKanIkkeValideresVedServerkall(feltNavn)
-                : FeltValideringFeil.FACTORY.feltverdiKanIkkeValideres(feltNavn);
-        feil.log(log);
-        return lagResponse(new FeilDto(feil.getFeilmelding(), feilene));
+        final String feilmelding;
+        if (erServerkall()) {
+            feilmelding = String.format("Det oppstod en valideringsfeil på felt %s ved kall fra server. "
+                + "Vennligst kontroller at alle feltverdier er korrekte.", feltNavn);
+            LOG.warn(feilmelding);
+        } else {
+            feilmelding = String.format("Det oppstod en valideringsfeil på felt %s. "
+                + "Vennligst kontroller at alle feltverdier er korrekte.", feltNavn);
+            LOG.error(feilmelding);
+        }
+        return lagResponse(new FeilDto(feilmelding, feilene));
     }
 
     private static boolean erServerkall() {

@@ -20,7 +20,7 @@ class PubliserEventTask implements ProsessTaskHandler {
     public static final String PROPERTY_EVENT = "event";
     public static final String PROPERTY_KEY = "topicKey";
 
-    private static final Logger log = LoggerFactory.getLogger(PubliserEventTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PubliserEventTask.class);
 
     private AksjonspunktKafkaProducer kafkaProducer;
 
@@ -37,7 +37,7 @@ class PubliserEventTask implements ProsessTaskHandler {
         String eventJson = prosessTaskData.getPropertyValue(PROPERTY_EVENT);
         String key = prosessTaskData.getPropertyValue(PROPERTY_KEY);
         kafkaProducer.sendJsonMedNøkkel(key, eventJson);
-        log.info("Publiser aksjonspunktevent på kafka slik at f.eks fplos kan fordele oppgaven for videre behandling. BehandlingsId: {}", key);
+        LOG.info("Publiser aksjonspunktevent på kafka slik at f.eks fplos kan fordele oppgaven for videre behandling. BehandlingsId: {}", key);
     }
 
     @Override

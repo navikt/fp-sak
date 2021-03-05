@@ -27,7 +27,7 @@ public class HåndterMottattDokumentTask extends FagsakProsessTask {
     public static final String BEHANDLING_ÅRSAK_TYPE_KEY = "arsakType";
     public static final String MOTTATT_DOKUMENT_ID_KEY = "mottattDokumentId";
 
-    private static final Logger log = org.slf4j.LoggerFactory.getLogger(HåndterMottattDokumentTask.class);
+    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(HåndterMottattDokumentTask.class);
 
     private InnhentDokumentTjeneste innhentDokumentTjeneste;
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
@@ -57,7 +57,7 @@ public class HåndterMottattDokumentTask extends FagsakProsessTask {
         if (prosessTaskData.getPropertyValue(BEHANDLING_ÅRSAK_TYPE_KEY) != null) {
             behandlingÅrsakType = BehandlingÅrsakType.fraKode(prosessTaskData.getPropertyValue(BEHANDLING_ÅRSAK_TYPE_KEY));
         }
-        log.info("HåndterMottattDokument taskId {} fagsakId {} behandlingId {} dokumentid {}", prosessTaskData.getId(), prosessTaskData.getFagsakId(), prosessTaskData.getBehandlingId(), mottattDokument.getId());
+        LOG.info("HåndterMottattDokument taskId {} fagsakId {} behandlingId {} dokumentid {}", prosessTaskData.getId(), prosessTaskData.getFagsakId(), prosessTaskData.getBehandlingId(), mottattDokument.getId());
         if (behandlingId != null) {
             innhentDokumentTjeneste.opprettFraTidligereBehandling(behandlingId, mottattDokument, behandlingÅrsakType);
         } else {

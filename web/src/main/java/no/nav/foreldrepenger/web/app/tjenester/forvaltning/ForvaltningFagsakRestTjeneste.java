@@ -68,7 +68,7 @@ import no.nav.vedtak.util.Tuple;
 @Transactional
 public class ForvaltningFagsakRestTjeneste {
 
-    private static final Logger logger = LoggerFactory.getLogger(ForvaltningFagsakRestTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ForvaltningFagsakRestTjeneste.class);
 
     private FagsakRepository fagsakRepository;
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
@@ -120,10 +120,10 @@ public class ForvaltningFagsakRestTjeneste {
         Saksnummer saksnummer = new Saksnummer(saksnummerDto.getVerdi());
         Fagsak fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
         if (fagsak == null || FagsakStatus.AVSLUTTET.equals(fagsak.getStatus())) {
-            ForvaltningRestTjenesteFeil.FACTORY.ugyldigeSakStatus(saksnummer.getVerdi()).log(logger);
+            LOG.warn("Fagsak allerede avsluttet " + saksnummer.getVerdi());
             return Response.status(Response.Status.BAD_REQUEST).build();
         } else {
-            logger.info("Avslutter fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
+            LOG.info("Avslutter fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
             OppdaterFagsakStatus oppdaterFagsakStatus = FagsakYtelseTypeRef.Lookup.find(oppdaterFagsakStatuser, fagsak.getYtelseType())
                     .orElseThrow(() -> new ForvaltningException("Ingen implementasjoner funnet for ytelse: " + fagsak.getYtelseType().getKode()));
             oppdaterFagsakStatus.avsluttFagsakUtenAktiveBehandlinger(fagsak);
@@ -174,7 +174,7 @@ public class ForvaltningFagsakRestTjeneste {
             Saksnummer saksnummer = new Saksnummer(abacSaksnummer.getVerdi());
             Optional<Fagsak> fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer);
             if (fagsak.isEmpty() || FagsakStatus.AVSLUTTET == fagsak.get().getStatus()) {
-                ForvaltningRestTjenesteFeil.FACTORY.ugyldigeSakStatus(saksnummer.getVerdi()).log(logger);
+                LOG.warn("Fagsak allerede avsluttet " + saksnummer.getVerdi());;
                 return Response.status(Response.Status.BAD_REQUEST).build();
             }
             opprettJusteringTask(fagsak.orElseThrow().getId(), fagsak.orElseThrow().getAktørId(), callId);
@@ -200,7 +200,7 @@ public class ForvaltningFagsakRestTjeneste {
             return Response.status(Response.Status.BAD_REQUEST).build();
         } else if (FagsakStatus.AVSLUTTET.equals(fagsak.getStatus())) {
             if (!fagsak.getSkalTilInfotrygd()) {
-                logger.info("Flagger Infotrygd for fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
+                LOG.info("Flagger Infotrygd for fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
                 fagsakRepository.fagsakSkalBehandlesAvInfotrygd(fagsak.getId());
             }
             return Response.ok().build();
@@ -209,13 +209,13 @@ public class ForvaltningFagsakRestTjeneste {
             if (behandlinger.isEmpty()) {
                 Response avslutning = avsluttFagsakUtenBehandling(saksnummerDto);
                 if (Response.Status.OK.equals(avslutning.getStatusInfo()) && !fagsak.getSkalTilInfotrygd()) {
-                    logger.info("Flagger Infotrygd for fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
+                    LOG.info("Flagger Infotrygd for fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
                     fagsakRepository.fagsakSkalBehandlesAvInfotrygd(fagsak.getId());
                 } else {
                     return avslutning;
                 }
             } else {
-                logger.info("Henlegger behandlinger og flagger Infotrygd for fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
+                LOG.info("Henlegger behandlinger og flagger Infotrygd for fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
                 behandlinger.forEach(behandling -> opprettHenleggelseTask(behandling, BehandlingResultatType.MANGLER_BEREGNINGSREGLER));
             }
             return Response.ok().build();
@@ -248,7 +248,7 @@ public class ForvaltningFagsakRestTjeneste {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         if (!fagsak.getSkalTilInfotrygd()) {
-            logger.info("Stenger fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
+            LOG.info("Stenger fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
             fagsakRepository.fagsakSkalBehandlesAvInfotrygd(fagsak.getId());
         }
         return Response.ok().build();
@@ -271,7 +271,7 @@ public class ForvaltningFagsakRestTjeneste {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         if (fagsak.getSkalTilInfotrygd()) {
-            logger.info("Gjenåpner fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
+            LOG.info("Gjenåpner fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
             fagsakRepository.fagsakSkalGjenåpnesForBruk(fagsak.getId());
         }
         return Response.ok().build();
@@ -298,7 +298,7 @@ public class ForvaltningFagsakRestTjeneste {
                 || FagsakStatus.AVSLUTTET.equals(fagsak1.getStatus()) || FagsakStatus.AVSLUTTET.equals(fagsak2.getStatus())) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         } else {
-            logger.info("Kobler sammen fagsaker med saksnummer: {} {}", saksnummer1.getVerdi(), saksnummer2.getVerdi()); // NOSONAR
+            LOG.info("Kobler sammen fagsaker med saksnummer: {} {}", saksnummer1.getVerdi(), saksnummer2.getVerdi()); // NOSONAR
             Behandling behandlingEn = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak1.getId())
                     .orElse(null);
             fagsakRelasjonTjeneste.kobleFagsaker(fagsak1, fagsak2, behandlingEn);
@@ -327,7 +327,7 @@ public class ForvaltningFagsakRestTjeneste {
                 !fagsakRelasjon.getFagsakNrTo().get().getId().equals(fagsak2.getId())) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         } else {
-            logger.info("Kobler fra hverandre fagsaker med saksnummer: {} {}", saksnummer1.getVerdi(), saksnummer2.getVerdi()); // NOSONAR
+            LOG.info("Kobler fra hverandre fagsaker med saksnummer: {} {}", saksnummer1.getVerdi(), saksnummer2.getVerdi()); // NOSONAR
             fagsakRelasjonTjeneste.fraKobleFagsaker(fagsak1, fagsak2);
             return Response.ok().build();
         }

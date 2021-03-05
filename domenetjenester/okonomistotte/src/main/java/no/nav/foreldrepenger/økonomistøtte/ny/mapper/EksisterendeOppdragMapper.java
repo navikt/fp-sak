@@ -33,7 +33,7 @@ import no.nav.vedtak.util.env.Environment;
 
 public class EksisterendeOppdragMapper {
 
-    private static final Logger logger = LoggerFactory.getLogger(EksisterendeOppdragMapper.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EksisterendeOppdragMapper.class);
 
     public static Map<KjedeNøkkel, OppdragKjede> tilKjeder(List<Oppdragskontroll> oppdragskontroll) {
         return oppdragTilKjeder(oppdragskontroll.stream().flatMap(ok -> ok.getOppdrag110Liste().stream()).collect(Collectors.toList()));
@@ -104,7 +104,7 @@ public class EksisterendeOppdragMapper {
         if (refDelytelseId != null && !nøkkel.equals(nøkkelMap.get(refDelytelseId))) {
             if (Environment.current().isProd()) {
                 //må kunne takle hvis dette finnes (gjør det i k9-oppdrag i hvert fall)
-                logger.warn("Linje med delytelseId {} peker på kjede med en annen nøkkel", delytelseId);
+                LOG.warn("Linje med delytelseId {} peker på kjede med en annen nøkkel", delytelseId);
             } else {
                 throw new IllegalArgumentException("Linje med delytelseId " + delytelseId + " peker på kjede med en annen nøkkel");
             }

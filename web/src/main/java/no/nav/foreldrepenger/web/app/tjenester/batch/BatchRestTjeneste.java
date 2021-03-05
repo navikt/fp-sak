@@ -38,7 +38,7 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 @Transactional
 public class BatchRestTjeneste {
 
-    private static final Logger logger = LoggerFactory.getLogger(BatchRestTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BatchRestTjeneste.class);
 
     private BatchSupportTjeneste batchSupportTjeneste;
 
@@ -88,13 +88,13 @@ public class BatchRestTjeneste {
         if (batchTjeneste != null) {
             final BatchArguments arguments = batchTjeneste.createArguments(args.getArguments());
             if (arguments.isValid()) {
-                logger.info("Starter batch {}", LoggerUtils.removeLineBreaks(name)); // NOSONAR
+                LOG.info("Starter batch {}", LoggerUtils.removeLineBreaks(name)); // NOSONAR
                 return Response.ok(batchTjeneste.launch(arguments)).build();
             } else {
                 throw BatchFeil.ugyldigeJobParametere(arguments);
             }
         }
-        logger.warn("Ugyldig job-navn " + name);
+        LOG.warn("Ugyldig job-navn " + name);
         return Response.status(Response.Status.BAD_REQUEST).build();
     }
 

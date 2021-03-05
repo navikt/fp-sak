@@ -44,7 +44,7 @@ import no.nav.foreldrepenger.mottak.kompletthettjeneste.KompletthetssjekkerInnte
 @ApplicationScoped
 public class KompletthetsjekkerFelles {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(KompletthetsjekkerFelles.class);
+    private static final Logger LOG = LoggerFactory.getLogger(KompletthetsjekkerFelles.class);
     /**
      * Disse konstantene ligger hardkodet (og ikke i KonfigVerdi), da endring i en eller flere av disse vil
      * sannsynnlig kreve kodeendring
@@ -145,7 +145,7 @@ public class KompletthetsjekkerFelles {
                 var skalIkkeSendeBrev = FagsakYtelseType.SVANGERSKAPSPENGER.equals(ref.getFagsakYtelseType()) &&
                     behandlingRepository.finnUnikBehandlingForBehandlingId(ref.getBehandlingId()).map(Behandling::getMigrertKilde).filter(Fagsystem.INFOTRYGD::equals).isPresent();
                 if (skalIkkeSendeBrev) {
-                    LOGGER.info("Sender ikke etterlys inntektsmelding brev for sak som er migrert fra Infotrygd. Gjelder behandlingId {}", ref.getBehandlingId());
+                    LOG.info("Sender ikke etterlys inntektsmelding brev for sak som er migrert fra Infotrygd. Gjelder behandlingId {}", ref.getBehandlingId());
                 } else {
                     sendBrev(ref.getBehandlingId(), DokumentMalType.ETTERLYS_INNTEKTSMELDING_DOK, null);
                 }
@@ -160,7 +160,7 @@ public class KompletthetsjekkerFelles {
                                                                            List<Inntektsmelding> inntektsmeldinger, List<ManglendeVedlegg> manglendeInntektsmeldinger) {
         List<ManglendeVedlegg> manglerFraAktiveArbeidsgivere = kompletthetssjekkerInntektsmelding.utledManglendeInntektsmeldingerFraGrunnlagForAutopunkt(ref);
         if (manglerFraAktiveArbeidsgivere.isEmpty()) {
-            LOGGER.info("ETTERLYS mangler ikke IM fra aktive arbeidsforhold behandlingId {} mottatt {} manglerTotalt {}", ref.getBehandlingId(), inntektsmeldinger.size(), manglendeInntektsmeldinger.size());
+            LOG.info("ETTERLYS mangler ikke IM fra aktive arbeidsforhold behandlingId {} mottatt {} manglerTotalt {}", ref.getBehandlingId(), inntektsmeldinger.size(), manglendeInntektsmeldinger.size());
             return Optional.empty();
         }
         var baseline = frist.minusWeeks(VENTEFRIST_ETTER_ETTERLYSNING_UKER).minusWeeks(VENTEFRIST_ETTER_MOTATT_DATO_UKER);
@@ -168,7 +168,7 @@ public class KompletthetsjekkerFelles {
             .map(Inntektsmelding::getInnsendingstidspunkt)
             .filter(baseline::isBefore)  // Filtrer ut IM sendt før søknad
             .min(Comparator.naturalOrder()).orElseGet(() -> frist.minusWeeks(VENTEFRIST_ETTER_MOTATT_DATO_UKER));
-        LOGGER.info("ETTERLYS behandlingId {} erSendtBrev {} manglerIm {} mottattIm {} manglerTot {}", ref.getBehandlingId(), erSendtBrev, manglerFraAktiveArbeidsgivere.size(), inntektsmeldinger.size(), manglendeInntektsmeldinger.size());
+        LOG.info("ETTERLYS behandlingId {} erSendtBrev {} manglerIm {} mottattIm {} manglerTot {}", ref.getBehandlingId(), erSendtBrev, manglerFraAktiveArbeidsgivere.size(), inntektsmeldinger.size(), manglendeInntektsmeldinger.size());
 
         // Vent N=3 døgn etter første mottatte IM. Bruk N+1 pga startofday.
         long venteantalldøgn = tidligstMottatt.toLocalDate().getDayOfWeek().getValue() > DayOfWeek.TUESDAY.getValue() ? 6 : 4;
@@ -203,7 +203,7 @@ public class KompletthetsjekkerFelles {
 
     private void loggManglendeInntektsmeldinger(Long behandlingId, List<ManglendeVedlegg> manglendeInntektsmeldinger) {
         String arbgivere = manglendeInntektsmeldinger.stream().map(ManglendeVedlegg::getArbeidsgiver).collect(Collectors.toList()).toString();
-        LOGGER.info("Behandling {} er ikke komplett - mangler IM fra arbeidsgivere: {}", behandlingId, arbgivere); // NOSONAR //$NON-NLS-1$
+        LOG.info("Behandling {} er ikke komplett - mangler IM fra arbeidsgivere: {}", behandlingId, arbgivere); // NOSONAR //$NON-NLS-1$
     }
 
     private void sendBrev(Long behandlingId, DokumentMalType dokumentMalType, String årsakskode) {

@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 @ApplicationScoped
 public class AksjonspunktKontrollRepository {
 
-    private static final Logger log = LoggerFactory.getLogger(AksjonspunktKontrollRepository.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AksjonspunktKontrollRepository.class);
 
     private static final Set<AksjonspunktDefinisjon> IKKE_AKTUELL_TOTRINN = Set.of(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL, AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT);
 
@@ -32,7 +32,7 @@ public class AksjonspunktKontrollRepository {
                                              BehandlingStegType stegType,
                                              LocalDateTime fristTid, Venteårsak venteårsak) {
 
-        log.info("Setter behandling på vent for steg={}, aksjonspunkt={}, fristTid={}, venteÅrsak={}", stegType, aksjonspunktDefinisjon, fristTid, venteårsak);
+        LOG.info("Setter behandling på vent for steg={}, aksjonspunkt={}, fristTid={}, venteÅrsak={}", stegType, aksjonspunktDefinisjon, fristTid, venteårsak);
 
         Aksjonspunkt aksjonspunkt;
         Optional<Aksjonspunkt> eksisterendeAksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(aksjonspunktDefinisjon);
@@ -79,7 +79,7 @@ public class AksjonspunktKontrollRepository {
         }
 
         Aksjonspunkt aksjonspunkt = adBuilder.buildFor(behandling);
-        log.info("Legger til aksjonspunkt: {}", aksjonspunktDefinisjon);
+        LOG.info("Legger til aksjonspunkt: {}", aksjonspunktDefinisjon);
         return aksjonspunkt;
     }
 
@@ -96,12 +96,12 @@ public class AksjonspunktKontrollRepository {
     }
 
     public void setReåpnet(Aksjonspunkt aksjonspunkt) {
-        log.info("Setter aksjonspunkt reåpnet: {}", aksjonspunkt.getAksjonspunktDefinisjon());
+        LOG.info("Setter aksjonspunkt reåpnet: {}", aksjonspunkt.getAksjonspunktDefinisjon());
         aksjonspunkt.setStatus(AksjonspunktStatus.OPPRETTET, aksjonspunkt.getBegrunnelse());
     }
 
     public void setReåpnetMedTotrinn(Aksjonspunkt aksjonspunkt, boolean setToTrinn) {
-        log.info("Setter aksjonspunkt reåpnet: {}", aksjonspunkt.getAksjonspunktDefinisjon());
+        LOG.info("Setter aksjonspunkt reåpnet: {}", aksjonspunkt.getAksjonspunktDefinisjon());
         aksjonspunkt.setStatus(AksjonspunktStatus.OPPRETTET, aksjonspunkt.getBegrunnelse());
         if (setToTrinn && !aksjonspunkt.isToTrinnsBehandling() && !IKKE_AKTUELL_TOTRINN.contains(aksjonspunkt.getAksjonspunktDefinisjon())) {
             aksjonspunkt.settToTrinnsFlag();
@@ -109,12 +109,12 @@ public class AksjonspunktKontrollRepository {
     }
 
     public void setTilAvbrutt(Aksjonspunkt aksjonspunkt) {
-        log.info("Setter aksjonspunkt avbrutt: {}", aksjonspunkt.getAksjonspunktDefinisjon());
+        LOG.info("Setter aksjonspunkt avbrutt: {}", aksjonspunkt.getAksjonspunktDefinisjon());
         aksjonspunkt.setStatus(AksjonspunktStatus.AVBRUTT, aksjonspunkt.getBegrunnelse());
     }
 
     public boolean setTilUtført(Aksjonspunkt aksjonspunkt, String begrunnelse) {
-        log.info("Setter aksjonspunkt utført: {}", aksjonspunkt.getAksjonspunktDefinisjon());
+        LOG.info("Setter aksjonspunkt utført: {}", aksjonspunkt.getAksjonspunktDefinisjon());
         return aksjonspunkt.setStatus(AksjonspunktStatus.UTFØRT, begrunnelse);
     }
 

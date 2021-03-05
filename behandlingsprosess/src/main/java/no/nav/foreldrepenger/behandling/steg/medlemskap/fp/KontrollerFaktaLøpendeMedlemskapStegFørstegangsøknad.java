@@ -26,7 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsa
 @ApplicationScoped
 public class KontrollerFaktaLøpendeMedlemskapStegFørstegangsøknad implements KontrollerFaktaLøpendeMedlemskapSteg {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(KontrollerFaktaLøpendeMedlemskapStegFørstegangsøknad.class);
+    private static final Logger LOG = LoggerFactory.getLogger(KontrollerFaktaLøpendeMedlemskapStegFørstegangsøknad.class);
 
     private BehandlingFlytkontroll flytkontroll;
 
@@ -42,7 +42,7 @@ public class KontrollerFaktaLøpendeMedlemskapStegFørstegangsøknad implements 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         if (flytkontroll.uttaksProsessenSkalVente(kontekst.getBehandlingId())) {
-            LOGGER.info("Flytkontroll UTTAK: Setter behandling {} førstegang på vent grunnet annen part", kontekst.getBehandlingId());
+            LOG.info("Flytkontroll UTTAK: Setter behandling {} førstegang på vent grunnet annen part", kontekst.getBehandlingId());
             var køAutopunkt = AksjonspunktResultat.opprettForAksjonspunktMedFrist(AUTO_KØET_BEHANDLING, Venteårsak.VENT_ÅPEN_BEHANDLING, null);
             return BehandleStegResultat.utførtMedAksjonspunktResultater(List.of(køAutopunkt));
         }

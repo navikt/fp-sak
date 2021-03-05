@@ -36,7 +36,7 @@ import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 @Transactional
 public class IAYRegisterdataCallbackRestTjeneste {
 
-    private static final Logger log = LoggerFactory.getLogger(IAYRegisterdataCallbackRestTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(IAYRegisterdataCallbackRestTjeneste.class);
 
     private IAYRegisterdataTjeneste iayTjeneste;
     private BehandlingLåsRepository låsRepository;
@@ -69,7 +69,7 @@ public class IAYRegisterdataCallbackRestTjeneste {
 
             iayTjeneste.håndterCallback(registerdataCallback);
         } else {
-            log.info("Mottatt registerdata callback på IAY-endepunkt for grunnlag av {}", dto);
+            LOG.info("Mottatt registerdata callback på IAY-endepunkt for grunnlag av {}", dto);
         }
 
         return Response.accepted().build();

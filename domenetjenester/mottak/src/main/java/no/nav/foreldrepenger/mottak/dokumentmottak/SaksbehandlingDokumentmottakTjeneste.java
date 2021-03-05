@@ -15,7 +15,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 @ApplicationScoped
 public class SaksbehandlingDokumentmottakTjeneste {
 
-    private static final Logger log = org.slf4j.LoggerFactory.getLogger(SaksbehandlingDokumentmottakTjeneste.class);
+    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(SaksbehandlingDokumentmottakTjeneste.class);
 
     private ProsessTaskRepository prosessTaskRepository;
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
@@ -44,7 +44,7 @@ public class SaksbehandlingDokumentmottakTjeneste {
     }
 
     public void opprettFraTidligereBehandling(MottattDokument mottattDokument, Behandling behandling, BehandlingÅrsakType behandlingÅrsakType) {
-        log.info("Oppretter håndtermottattdokumenttask fra tidligere behandling {} fagsak {} dokument {}", behandling.getId(), behandling.getFagsakId(), mottattDokument.getId());
+        LOG.info("Oppretter håndtermottattdokumenttask fra tidligere behandling {} fagsak {} dokument {}", behandling.getId(), behandling.getFagsakId(), mottattDokument.getId());
         ProsessTaskData prosessTaskData = new ProsessTaskData(HåndterMottattDokumentTask.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setProperty(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY, mottattDokument.getId().toString());

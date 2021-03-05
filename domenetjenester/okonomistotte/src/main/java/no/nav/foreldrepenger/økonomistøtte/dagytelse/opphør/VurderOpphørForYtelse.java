@@ -19,13 +19,13 @@ import no.nav.foreldrepenger.økonomistøtte.dagytelse.wrapper.TilkjentYtelsePer
 
 class VurderOpphørForYtelse {
 
-    private static final Logger log = LoggerFactory.getLogger(VurderOpphørForYtelse.class);
+    private static final Logger LOG = LoggerFactory.getLogger(VurderOpphørForYtelse.class);
 
     private VurderOpphørForYtelse() {
     }
 
     static boolean vurder(OppdragInput behandlingInfo, Oppdragslinje150 sisteOppdr150ForMottaker, Oppdragsmottaker mottaker) {
-        log.info("Vurder for endringsdato: {}, siste linje150: {} og mottaker: {}", behandlingInfo.getEndringsdato(), sisteOppdr150ForMottaker.getDelytelseId() + " " + sisteOppdr150ForMottaker.getKodeStatusLinje(), mottaker.getIdMaskert());
+        LOG.info("Vurder for endringsdato: {}, siste linje150: {} og mottaker: {}", behandlingInfo.getEndringsdato(), sisteOppdr150ForMottaker.getDelytelseId() + " " + sisteOppdr150ForMottaker.getKodeStatusLinje(), mottaker.getIdMaskert());
         List<TilkjentYtelsePeriode> forrigeTilkjentYtelsePeriodeListe = behandlingInfo.getForrigeTilkjentYtelsePerioder();
         Optional<LocalDate> endringsdatoOpt = behandlingInfo.getEndringsdato();
         if (forrigeTilkjentYtelsePeriodeListe.isEmpty()) {
@@ -39,7 +39,7 @@ class VurderOpphørForYtelse {
         }
         LocalDate endringsdato = endringsdatoOpt.get();
         var resultat = vurderOpphør(sisteOppdr150ForMottaker, mottaker, forrigeTilkjentYtelsePeriodeListe, endringsdato);
-        log.info("Vurderingsresultat: {}", resultat);
+        LOG.info("Vurderingsresultat: {}", resultat);
         return resultat;
     }
 

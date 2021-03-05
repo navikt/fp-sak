@@ -37,7 +37,7 @@ import no.nav.vedtak.konfig.KonfigVerdi;
  */
 @ApplicationScoped
 public class RegisterdataEndringshåndterer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RegisterdataEndringshåndterer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RegisterdataEndringshåndterer.class);
     private RegisterdataInnhenter registerdataInnhenter;
     private TemporalAmount oppdatereRegisterdataTidspunkt;
     private BehandlingRepository behandlingRepository;
@@ -114,7 +114,7 @@ public class RegisterdataEndringshåndterer {
     private void doReposisjonerBehandlingVedEndringer(Behandling behandling, EndringsresultatDiff endringsresultat, boolean utledÅrsaker) {
         boolean gåttOverTerminDatoOgIngenFødselsdato = isGåttOverTerminDatoOgIngenFødselsdato(behandling.getId());
         if (gåttOverTerminDatoOgIngenFødselsdato || endringsresultat.erSporedeFeltEndret()) {
-            LOGGER.info("Starter behandlingId={} på nytt. gåttOverTerminDatoOgIngenFødselsdato={}, {}",
+            LOG.info("Starter behandlingId={} på nytt. gåttOverTerminDatoOgIngenFødselsdato={}, {}",
                 behandling.getId(), gåttOverTerminDatoOgIngenFødselsdato, endringsresultat); // NOSONAR //$NON-NLS-1$
             if (utledÅrsaker) {
                 behandlingÅrsakTjeneste.lagHistorikkForRegisterEndringsResultat(behandling, endringsresultat);

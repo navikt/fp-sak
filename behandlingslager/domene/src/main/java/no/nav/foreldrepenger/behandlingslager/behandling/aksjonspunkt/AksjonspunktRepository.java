@@ -10,7 +10,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.Skjermlenke
  */
 public class AksjonspunktRepository {
 
-    private static final Logger log = LoggerFactory.getLogger(AksjonspunktRepository.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AksjonspunktRepository.class);
 
     public AksjonspunktRepository() {
     }
@@ -18,7 +18,7 @@ public class AksjonspunktRepository {
     public void setToTrinnsBehandlingKreves(Aksjonspunkt aksjonspunkt) {
         AksjonspunktDefinisjon apDef = aksjonspunkt.getAksjonspunktDefinisjon();
         if (apDef.getSkjermlenkeType() == null || SkjermlenkeType.UDEFINERT.equals(apDef.getSkjermlenkeType())) {
-            log.info("Aksjonspunkt prøver sette totrinnskontroll uten skjermlenke: {}", aksjonspunkt.getAksjonspunktDefinisjon());
+            LOG.info("Aksjonspunkt prøver sette totrinnskontroll uten skjermlenke: {}", aksjonspunkt.getAksjonspunktDefinisjon());
             if (AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL.equals(apDef) || AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT.equals(apDef)) {
                 return;
             }
@@ -27,7 +27,7 @@ public class AksjonspunktRepository {
             if (!aksjonspunkt.erÅpentAksjonspunkt()) {
                 aksjonspunkt.setStatus(AksjonspunktStatus.OPPRETTET, aksjonspunkt.getBegrunnelse());
             }
-            log.info("Setter totrinnskontroll kreves for aksjonspunkt: {}", aksjonspunkt.getAksjonspunktDefinisjon());
+            LOG.info("Setter totrinnskontroll kreves for aksjonspunkt: {}", aksjonspunkt.getAksjonspunktDefinisjon());
             aksjonspunkt.settToTrinnsFlag();
         }
     }

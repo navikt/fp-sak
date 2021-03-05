@@ -16,7 +16,7 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 public class EndringIArbeidsforholdId {
-    private static final Logger logger = LoggerFactory.getLogger(EndringIArbeidsforholdId.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EndringIArbeidsforholdId.class);
 
     private EndringIArbeidsforholdId() {
         // skjul public constructor
@@ -46,7 +46,7 @@ public class EndringIArbeidsforholdId {
 
             if (!vurderIM.isEmpty()) {
                 LeggTilResultat.leggTil(result, ENDRING_I_ARBEIDSFORHOLDS_ID, arbeidsgiver, vurderIM);
-                logger.info("Endring i arbeidsforholdsId: arbeidsgiver={}, fra arbeidsforholdRef={} til arbeidsforholdRef={}", arbeidsgiver,
+                LOG.info("Endring i arbeidsforholdsId: arbeidsgiver={}, fra arbeidsforholdRef={} til arbeidsforholdRef={}", arbeidsgiver,
                         eksisterendeRefSet, nyRefSet);
             }
         }

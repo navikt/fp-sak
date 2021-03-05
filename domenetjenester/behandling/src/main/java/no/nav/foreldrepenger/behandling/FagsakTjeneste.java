@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 @ApplicationScoped
 public class FagsakTjeneste {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FagsakTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FagsakTjeneste.class);
 
     private FagsakRepository fagsakRepository;
     private FagsakStatusEventPubliserer fagsakStatusEventPubliserer;
@@ -69,7 +69,7 @@ public class FagsakTjeneste {
         Optional<RelasjonsRolleType> oppgittRelasjonsRolle = søknadRepository.hentSøknadHvisEksisterer(behandling.getId())
                 .map(SøknadEntitet::getRelasjonsRolleType);
         if (oppgittRelasjonsRolle.isPresent()) {
-            LOGGER.info("oppdaterRelasjonsRolle fagsak har {} fra søknad {}", fagsak.getRelasjonsRolleType().getKode(),
+            LOG.info("oppdaterRelasjonsRolle fagsak har {} fra søknad {}", fagsak.getRelasjonsRolleType().getKode(),
                     oppgittRelasjonsRolle.get().getKode());
             fagsakRepository.oppdaterRelasjonsRolle(fagsak.getId(), oppgittRelasjonsRolle.get());
             return;
@@ -80,13 +80,13 @@ public class FagsakTjeneste {
         if (funnetRelasjon.isPresent()) {
             Optional<RelasjonsRolleType> brukerRolle = RelasjonsRolleType.fraKodeOptional(funnetRelasjon.get().getRelasjonsrolle().getKode());
             if (brukerRolle.isPresent()) {
-                LOGGER.info("oppdaterRelasjonsRolle fagsak har {} fra register {}", fagsak.getRelasjonsRolleType().getKode(),
+                LOG.info("oppdaterRelasjonsRolle fagsak har {} fra register {}", fagsak.getRelasjonsRolleType().getKode(),
                         brukerRolle.get().getKode());
                 fagsakRepository.oppdaterRelasjonsRolle(fagsak.getId(), brukerRolle.get());
                 return;
             }
         }
-        LOGGER.info("oppdaterRelasjonsRolle fagsak har {} ingen oppdatering", fagsak.getRelasjonsRolleType().getKode());
+        LOG.info("oppdaterRelasjonsRolle fagsak har {} ingen oppdatering", fagsak.getRelasjonsRolleType().getKode());
     }
 
     public Fagsak opprettFagsak(FagsakYtelseType ytelseType, NavBruker bruker) {

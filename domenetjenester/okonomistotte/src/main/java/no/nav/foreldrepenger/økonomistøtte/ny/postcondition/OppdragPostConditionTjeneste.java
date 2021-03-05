@@ -17,7 +17,6 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.event.Level;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
@@ -39,12 +38,11 @@ import no.nav.foreldrepenger.økonomistøtte.ny.tjeneste.EndringsdatoTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.util.SetUtil;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.feil.Feil;
 
 @ApplicationScoped
 public class OppdragPostConditionTjeneste {
 
-    private static final Logger logger = LoggerFactory.getLogger(OppdragPostConditionTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OppdragPostConditionTjeneste.class);
 
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
@@ -76,7 +74,7 @@ public class OppdragPostConditionTjeneste {
         try {
             sammenlignEffektAvOppdragMedTilkjentYtelseOgLoggAvvik(behandling, beregningsresultat);
         } catch (Exception e) {
-            logger.warn("Teknisk feil ved sammenligning av effekt av oppdrag mot tilkjent ytelse for " + behandling.getFagsak().getSaksnummer() + " behandling " + behandling.getId() + ". Dette bør undersøkes: " + e.getMessage(), e);
+            LOG.warn("Teknisk feil ved sammenligning av effekt av oppdrag mot tilkjent ytelse for " + behandling.getFagsak().getSaksnummer() + " behandling " + behandling.getId() + ". Dette bør undersøkes: " + e.getMessage(), e);
         }
     }
 
@@ -86,7 +84,7 @@ public class OppdragPostConditionTjeneste {
         for (var entry : resultat.entrySet()) {
             TekniskException feil = konverterTilFeil(behandling.getFagsak().getSaksnummer(), Long.toString(behandling.getId()), entry.getKey(), entry.getValue());
             if (feil != null) {
-                feil.log(logger);
+                feil.log(LOG);
                 if ("FP-767898".equals(feil.getKode())) {
                     altOk = false;
                 }

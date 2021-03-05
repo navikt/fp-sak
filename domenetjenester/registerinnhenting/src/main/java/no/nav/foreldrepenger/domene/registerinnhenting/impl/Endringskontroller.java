@@ -40,7 +40,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
  */
 @Dependent
 public class Endringskontroller {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Endringskontroller.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Endringskontroller.class);
     private static final Set<BehandlingStegType> STARTPUNKT_STEG_INNGANG_VILKÅR = StartpunktType.inngangsVilkårStartpunkt().stream().map(StartpunktType::getBehandlingSteg).collect(Collectors.toSet());
     private static final AksjonspunktDefinisjon SPESIALHÅNDTERT_AKSJONSPUNKT = AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_MANU;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
@@ -148,10 +148,10 @@ public class Endringskontroller {
     private void loggSpoleutfall(Behandling behandling, BehandlingStegType førSteg, BehandlingStegType etterSteg, boolean tilbakeført) {
         if (tilbakeført && !førSteg.equals(etterSteg)) {
             historikkinnslagTjeneste.opprettHistorikkinnslagForTilbakespoling(behandling, førSteg, etterSteg);
-            LOGGER.info("Behandling {} har mottatt en endring som medførte spoling tilbake. Før-steg {}, etter-steg {}", behandling.getId(),
+            LOG.info("Behandling {} har mottatt en endring som medførte spoling tilbake. Før-steg {}, etter-steg {}", behandling.getId(),
                 førSteg.getNavn(), etterSteg.getNavn());// NOSONAR //$NON-NLS-1$
         } else {
-            LOGGER.info("Behandling {} har mottatt en endring som ikke medførte spoling tilbake. Før-steg {}, etter-steg {}", behandling.getId(),
+            LOG.info("Behandling {} har mottatt en endring som ikke medførte spoling tilbake. Før-steg {}, etter-steg {}", behandling.getId(),
                 førSteg.getNavn(), etterSteg.getNavn());// NOSONAR //$NON-NLS-1$
         }
     }

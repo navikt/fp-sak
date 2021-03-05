@@ -17,7 +17,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 public class StartBerørtBehandlingTask extends GenerellProsessTask {
 
     public static final String TASKTYPE = "iverksetteVedtak.startBerørtBehandling";
-    private static final Logger log = LoggerFactory.getLogger(StartBerørtBehandlingTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StartBerørtBehandlingTask.class);
     private BerørtBehandlingKontroller tjeneste;
 
     StartBerørtBehandlingTask() {
@@ -34,6 +34,6 @@ public class StartBerørtBehandlingTask extends GenerellProsessTask {
     public void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
 
         tjeneste.vurderNesteOppgaveIBehandlingskø(behandlingId);
-        log.info("Utført for fagsak: {}", fagsakId);
+        LOG.info("Utført for fagsak: {}", fagsakId);
     }
 }

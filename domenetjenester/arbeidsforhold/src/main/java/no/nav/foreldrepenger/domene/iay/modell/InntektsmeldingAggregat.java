@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 
 public class InntektsmeldingAggregat extends BaseEntitet {
 
-    private static final Logger logger = LoggerFactory.getLogger(InntektsmeldingAggregat.class);
+    private static final Logger LOG = LoggerFactory.getLogger(InntektsmeldingAggregat.class);
     private static final String ALTINN_SYSTEM_NAVN = "AltinnPortal";
 
     @ChangeTracked
@@ -93,7 +93,7 @@ public class InntektsmeldingAggregat extends BaseEntitet {
         }
 
         inntektsmeldinger.stream().filter(it -> it.gjelderSammeArbeidsforhold(inntektsmelding) && !fjernet).findFirst().ifPresent(
-                e -> logger.info("Persistert inntektsmelding med journalpostid {} er nyere enn den mottatte med journalpostid {}. Ignoreres",
+                e -> LOG.info("Persistert inntektsmelding med journalpostid {} er nyere enn den mottatte med journalpostid {}. Ignoreres",
                         e.getJournalpostId(), inntektsmelding.getJournalpostId()));
     }
 

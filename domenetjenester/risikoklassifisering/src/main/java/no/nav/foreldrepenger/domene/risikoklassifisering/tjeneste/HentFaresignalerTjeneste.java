@@ -20,7 +20,7 @@ import no.nav.vedtak.util.LRUCache;
 
 @ApplicationScoped
 public class HentFaresignalerTjeneste {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HentFaresignalerTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HentFaresignalerTjeneste.class);
 
     private static final long CACHE_ELEMENT_LIVE_TIME_MS = TimeUnit.MILLISECONDS.convert(1, TimeUnit.HOURS);
     private LRUCache<String, FaresignalerRespons> faresignalerCache = new LRUCache<>(1000, CACHE_ELEMENT_LIVE_TIME_MS);
@@ -58,7 +58,7 @@ public class HentFaresignalerTjeneste {
             }
             return Optional.ofNullable(respons);
         } catch (Exception e) {
-            LOGGER.warn("Klarte ikke hente faresignaler fra fprisk", e);
+            LOG.warn("Klarte ikke hente faresignaler fra fprisk", e);
             return Optional.empty();
         }
     }

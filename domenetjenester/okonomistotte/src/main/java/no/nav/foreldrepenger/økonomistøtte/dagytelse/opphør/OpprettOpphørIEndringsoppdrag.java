@@ -15,21 +15,18 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.økonomistøtte.Oppdragsmottaker;
-import no.nav.foreldrepenger.økonomistøtte.OpprettOppdragTjeneste;
-import no.nav.foreldrepenger.økonomistøtte.SimulerOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.FinnStatusForMottakere;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.TidligereOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragInput;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdrag110.OpprettOppdrag110Tjeneste;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdragslinje150.Oppdragslinje150Util;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdragslinje150.OpprettOppdragslinje150Tjeneste;
-import no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdragslinje150.OpprettOppdragsmeldingerRelatertTil150;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.wrapper.TilkjentYtelseAndel;
 
 @ApplicationScoped
 public class OpprettOpphørIEndringsoppdrag {
 
-    private static final Logger log = LoggerFactory.getLogger(OpprettOpphørIEndringsoppdrag.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OpprettOpphørIEndringsoppdrag.class);
 
     private OppdragskontrollOpphør oppdragskontrollOpphør;
 
@@ -132,7 +129,7 @@ public class OpprettOpphørIEndringsoppdrag {
         boolean endringsdatoEtterSisteDatoAvAlleTidligereOppdrag = TidligereOppdragTjeneste.erEndringsdatoEtterSisteDatoAvAlleTidligereOppdrag(oppdragInput, sisteOppdr150, mottaker);
 
         if (endringsdatoEtterSisteDatoAvAlleTidligereOppdrag) {
-            log.info("Endringsdato etter siste oppdragsdato!");
+            LOG.info("Endringsdato etter siste oppdragsdato!");
             return Optional.empty();
         }
 
@@ -140,14 +137,14 @@ public class OpprettOpphørIEndringsoppdrag {
 
         boolean skalSendeOpphør = VurderOpphørForYtelse.vurder(oppdragInput, sisteOppdr150, mottaker);
         if (skalSendeOpphør) {
-            log.info("Skal sende opphør for ytelse for behandling: {}", oppdragInput.getBehandlingId());
+            LOG.info("Skal sende opphør for ytelse for behandling: {}", oppdragInput.getBehandlingId());
             LocalDate datoStatusFom = FinnOpphørFomDato.finnOpphørFom(tidligereOpp150ListeForArbgvren, oppdragInput, mottaker);
             nyOppdrag110 = kobleOppdrag110TilOppdragskontroll(oppdragskontroll, nyOppdrag110Builder);
             oppdragskontrollOpphør.opprettOppdragslinje150ForStatusOPPH(oppdragInput, sisteOppdr150, nyOppdrag110, datoStatusFom);
             nyOppdrag110Opt = Optional.of(nyOppdrag110);
         }
         if (!opphFørEndringsoppdrFeriepg || VurderOpphørForFeriepenger.vurder(oppdragInput, forrigeOppdrag110, mottaker)) {
-            log.info("Skal sende opphør for feriepenger for behandling: {} og mottaker: {}", oppdragInput.getBehandlingId(), mottaker.getIdMaskert());
+            LOG.info("Skal sende opphør for feriepenger for behandling: {} og mottaker: {}", oppdragInput.getBehandlingId(), mottaker.getIdMaskert());
             nyOppdrag110 = nyOppdrag110Opt
                 .orElseGet(() -> kobleOppdrag110TilOppdragskontroll(oppdragskontroll, nyOppdrag110Builder));
             oppdragskontrollOpphør.opprettOppdr150LinjeForFeriepengerOPPH(oppdragInput, nyOppdrag110,

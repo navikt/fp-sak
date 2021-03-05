@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 public class HendelseProducer {
 
-    private static final Logger log = LoggerFactory.getLogger(HendelseProducer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HendelseProducer.class);
 
     private final String topic;
     private final Producer<String, String> producer;
@@ -56,7 +56,7 @@ public class HendelseProducer {
     }
 
     private Producer<String, String> createProducer(Properties properties) {
-        log.info("Oppretter producer for topic='{}', keyClass='{}', valueClass='{}'", topic, StringSerializer.class.getName(), StringSerializer.class.getName());
+        LOG.info("Oppretter producer for topic='{}', keyClass='{}', valueClass='{}'", topic, StringSerializer.class.getName(), StringSerializer.class.getName());
         properties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         return new KafkaProducer<>(properties);

@@ -69,7 +69,7 @@ import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 @Default
 public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTjeneste {
 
-    private static final Logger log = LoggerFactory.getLogger(AbakusInntektArbeidYtelseTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbakusInntektArbeidYtelseTjeneste.class);
     private AbakusTjeneste abakusTjeneste;
     private BehandlingRepository behandlingRepository;
     private FagsakRepository fagsakRepository;
@@ -554,7 +554,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
                     gr.getEksternReferanse(), behandling.getUuid());
             grunnlagDto = tilDto.mapTilDto(gr);
         } catch (RuntimeException t) {
-            log.warn("Kunne ikke transformere til Dto: grunnlag=" + gr.getEksternReferanse() + ", behandling=" + behandling.getId(), t);
+            LOG.warn("Kunne ikke transformere til Dto: grunnlag=" + gr.getEksternReferanse() + ", behandling=" + behandling.getId(), t);
             throw t;
         }
         return grunnlagDto;

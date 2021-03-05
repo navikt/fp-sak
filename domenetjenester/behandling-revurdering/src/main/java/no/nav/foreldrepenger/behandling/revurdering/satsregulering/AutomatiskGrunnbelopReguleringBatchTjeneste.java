@@ -30,7 +30,7 @@ import no.nav.vedtak.util.Tuple;
  */
 @ApplicationScoped
 public class AutomatiskGrunnbelopReguleringBatchTjeneste implements BatchTjeneste {
-    private static final Logger log = LoggerFactory.getLogger(AutomatiskGrunnbelopReguleringBatchTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AutomatiskGrunnbelopReguleringBatchTjeneste.class);
     static final String BATCHNAME = "BVL071";
     private static final String EXECUTION_ID_SEPARATOR = "-";
 
@@ -69,7 +69,7 @@ public class AutomatiskGrunnbelopReguleringBatchTjeneste implements BatchTjenest
         if ((opprettRevurdering != null) && opprettRevurdering.getSkalRevurdere()) {
             tilVurdering.forEach(sak -> opprettReguleringTask(sak.getElement1(), sak.getElement2(), callId));
         } else {
-            tilVurdering.forEach(sak -> log.info("Skal revurdere sak {}", sak.getElement1()));
+            tilVurdering.forEach(sak -> LOG.info("Skal revurdere sak {}", sak.getElement1()));
         }
         return executionId + tilVurdering.size();
     }

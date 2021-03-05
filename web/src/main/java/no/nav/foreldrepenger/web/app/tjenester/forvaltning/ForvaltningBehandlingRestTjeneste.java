@@ -63,7 +63,7 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 @Transactional
 public class ForvaltningBehandlingRestTjeneste {
 
-    private static final Logger logger = LoggerFactory.getLogger(ForvaltningBehandlingRestTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ForvaltningBehandlingRestTjeneste.class);
 
     private BehandlingsoppretterTjeneste behandlingsoppretterTjeneste;
     private FagsakRepository fagsakRepository;
@@ -110,7 +110,7 @@ public class ForvaltningBehandlingRestTjeneste {
         } else {
             List<Behandling> behandlinger = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId());
             if (!behandlinger.isEmpty()) {
-                logger.info("Henlegger behandlinger for fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
+                LOG.info("Henlegger behandlinger for fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
                 behandlinger.forEach(behandling -> opprettHenleggelseTask(behandling, BehandlingResultatType.HENLAGT_FEILOPPRETTET));
             }
             return Response.ok().build();
@@ -141,17 +141,17 @@ public class ForvaltningBehandlingRestTjeneste {
         Fagsak fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
         if (fagsak == null || FagsakStatus.LØPENDE.equals(fagsak.getStatus()) || FagsakStatus.AVSLUTTET.equals(fagsak.getStatus()) ||
                 FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType())) {
-            logger.warn("Oppgitt fagsak {} er ukjent, ikke under behandling, eller engangsstønad", saksnummer.getVerdi()); // NOSONAR
+            LOG.warn("Oppgitt fagsak {} er ukjent, ikke under behandling, eller engangsstønad", saksnummer.getVerdi()); // NOSONAR
             return Response.status(Response.Status.BAD_REQUEST).build();
         } else {
             Optional<Behandling> behandling = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(fagsak.getId(),
                     BehandlingType.FØRSTEGANGSSØKNAD);
             if (behandling.isPresent() && !behandling.get().erAvsluttet()) {
-                logger.info("Henlegger og oppretter ny førstegangsbehandling for fagsak med saksnummer: {}", saksnummer.getVerdi()); // NOSONAR
+                LOG.info("Henlegger og oppretter ny førstegangsbehandling for fagsak med saksnummer: {}", saksnummer.getVerdi()); // NOSONAR
                 behandlingsoppretterTjeneste.henleggÅpenFørstegangsbehandlingOgOpprettNy(fagsak.getId(), saksnummer);
                 return Response.ok().build();
             }
-            logger.warn("Fant ingen åpen førstegangsbehandling for fagsak med saksnummer: {}", saksnummer.getVerdi()); // NOSONAR
+            LOG.warn("Fant ingen åpen førstegangsbehandling for fagsak med saksnummer: {}", saksnummer.getVerdi()); // NOSONAR
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
     }
@@ -171,7 +171,7 @@ public class ForvaltningBehandlingRestTjeneste {
         Saksnummer saksnummer = new Saksnummer(dto.getSaksnummer());
         Fagsak fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
         if (fagsak == null || FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType())) {
-            logger.warn("Oppgitt fagsak {} er ukjent, eller engangsstønad", saksnummer.getVerdi()); // NOSONAR
+            LOG.warn("Oppgitt fagsak {} er ukjent, eller engangsstønad", saksnummer.getVerdi()); // NOSONAR
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         Long fagsakId = fagsak.getId();
@@ -208,7 +208,7 @@ public class ForvaltningBehandlingRestTjeneste {
         Saksnummer saksnummer = new Saksnummer(saksnummerDto.getVerdi());
         Fagsak fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
         if (fagsak == null || !FagsakYtelseType.FORELDREPENGER.equals(fagsak.getYtelseType())) {
-            logger.warn("Oppgitt fagsak {} er ukjent eller annen ytelse enn FP", saksnummer.getVerdi()); // NOSONAR
+            LOG.warn("Oppgitt fagsak {} er ukjent eller annen ytelse enn FP", saksnummer.getVerdi()); // NOSONAR
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         berørtBehandlingTjeneste.opprettNyBerørtBehandling(fagsak);
@@ -229,20 +229,20 @@ public class ForvaltningBehandlingRestTjeneste {
             @NotNull @QueryParam("migrertFraInfotrygd") @Valid Boolean migrertFraInfotrygd) {
         var behandling = behandlingRepository.hentBehandling(dto.getBehandlingId());
         if (behandling == null) {
-            logger.warn("Oppgitt behandling {} er ukjent", dto.getBehandlingId()); // NOSONAR
+            LOG.warn("Oppgitt behandling {} er ukjent", dto.getBehandlingId()); // NOSONAR
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         if (behandling.getMigrertKilde().equals(Fagsystem.INFOTRYGD) && migrertFraInfotrygd) {
-            logger.warn("Oppgitt behandling {} er allerede satt til migrert fra Infotrygd", dto.getBehandlingId()); // NOSONAR
+            LOG.warn("Oppgitt behandling {} er allerede satt til migrert fra Infotrygd", dto.getBehandlingId()); // NOSONAR
             return Response.status(Response.Status.BAD_REQUEST).build();
 
         }
         if (behandling.getMigrertKilde().equals(Fagsystem.UDEFINERT) && !migrertFraInfotrygd) {
-            logger.warn("Oppgitt behandling {} er ikke satt til migrert fra Infotrygd", dto.getBehandlingId()); // NOSONAR
+            LOG.warn("Oppgitt behandling {} er ikke satt til migrert fra Infotrygd", dto.getBehandlingId()); // NOSONAR
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         if (behandling.erAvsluttet()) {
-            logger.warn("Behandling {} er avsluttet og kan derfor ikke oppdateres", dto.getBehandlingId()); // NOSONAR
+            LOG.warn("Behandling {} er avsluttet og kan derfor ikke oppdateres", dto.getBehandlingId()); // NOSONAR
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         if (migrertFraInfotrygd) {

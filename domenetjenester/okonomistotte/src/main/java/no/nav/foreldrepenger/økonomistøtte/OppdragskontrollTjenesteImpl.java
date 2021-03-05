@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.økonomistøtte.ny.mapper.Input;
 @Named("oppdragTjeneste")
 public class OppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste {
 
-    private static final Logger log = LoggerFactory.getLogger(OppdragskontrollTjenesteImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OppdragskontrollTjenesteImpl.class);
     private static final Long DUMMY_PT_ID_SIMULERING = -1L;
 
     private ØkonomioppdragRepository økonomioppdragRepository;

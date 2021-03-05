@@ -76,7 +76,7 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 @Transactional
 public class ForvaltningBeregningRestTjeneste {
     private static final Period MELDEKORT_PERIODE_UTV = Period.parse("P30D");
-    private static final Logger LOGGER = LoggerFactory.getLogger(ForvaltningBeregningRestTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ForvaltningBeregningRestTjeneste.class);
 
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private BehandlingRepository behandlingRepository;
@@ -130,7 +130,7 @@ public class ForvaltningBeregningRestTjeneste {
         var gjeldende = beregningsresultatRepository.finnGjeldendeSats(type);
         if (!sjekkVerdierOK(dto, gjeldende, brukTom))
             throw new ForvaltningException("Ulovlige verdier " + dto);
-        LOGGER.warn("SATSJUSTERTING: sjekk med produkteier om det er ventet, noter usedId i loggen {}", dto);
+        LOG.warn("SATSJUSTERTING: sjekk med produkteier om det er ventet, noter usedId i loggen {}", dto);
         gjeldende.setTomDato(dto.getSatsFom().minusDays(1));
         beregningsresultatRepository.lagreSats(gjeldende);
         var nysats = new BeregningSats(type, DatoIntervallEntitet.fraOgMedTilOgMed(dto.getSatsFom(), brukTom), dto.getSatsVerdi());
@@ -205,7 +205,7 @@ public class ForvaltningBeregningRestTjeneste {
                 .map(BeregningsgrunnlagGrunnlagEntitet::getBehandlingId)
                 .map(behandlingRepository::hentBehandling)
                 .collect(Collectors.toSet());
-        LOGGER.info("Fant {} behandlinger som må sjekkes", behandlinger.size());
+        LOG.info("Fant {} behandlinger som må sjekkes", behandlinger.size());
         Set<SaksnummerEnhetDto> liste = new HashSet<>();
         for (Behandling behandling : behandlinger) {
             BeregningsgrunnlagGrunnlagEntitet grunnlagEntitet = grunnlagList.stream().filter(gr -> gr.getBehandlingId().equals(behandling.getId()))

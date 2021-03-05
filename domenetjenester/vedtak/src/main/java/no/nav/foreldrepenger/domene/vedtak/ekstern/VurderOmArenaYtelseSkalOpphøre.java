@@ -33,7 +33,7 @@ import no.nav.fpsak.tidsserie.StandardCombinators;
 
 @ApplicationScoped
 public class VurderOmArenaYtelseSkalOpphøre {
-    private static final Logger log = LoggerFactory.getLogger(VurderOmArenaYtelseSkalOpphøre.class);
+    private static final Logger LOG = LoggerFactory.getLogger(VurderOmArenaYtelseSkalOpphøre.class);
 
     private static final long HALV_MELDEKORT_PERIODE = 9;
     private static final Period MELDEKORT_PERIODE = Period.ofDays(14);
@@ -68,7 +68,7 @@ public class VurderOmArenaYtelseSkalOpphøre {
 
         if (vurderArenaYtelserOpphøres(behandlingId, aktørId, startdatoFP, vedtaksDato)) {
             var oppgaveId = oppgaveTjeneste.opprettOppgaveStopUtbetalingAvARENAYtelse(behandlingId, startdatoFP);
-            log.info("Oppgave opprettet i GOSYS slik at NØS kan behandle saken videre. Oppgavenummer: {}", oppgaveId);
+            LOG.info("Oppgave opprettet i GOSYS slik at NØS kan behandle saken videre. Oppgavenummer: {}", oppgaveId);
         }
     }
 

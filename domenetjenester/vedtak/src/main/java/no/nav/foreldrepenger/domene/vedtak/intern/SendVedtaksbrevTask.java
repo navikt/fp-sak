@@ -19,7 +19,7 @@ public class SendVedtaksbrevTask extends BehandlingProsessTask {
 
     public static final String TASKTYPE = "iverksetteVedtak.sendVedtaksbrev";
 
-    private static final Logger log = LoggerFactory.getLogger(SendVedtaksbrevTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SendVedtaksbrevTask.class);
 
     private SendVedtaksbrev tjeneste;
 
@@ -36,6 +36,6 @@ public class SendVedtaksbrevTask extends BehandlingProsessTask {
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
         tjeneste.sendVedtaksbrev(behandlingId);
-        log.info("Utført for behandling: {}", behandlingId);
+        LOG.info("Utført for behandling: {}", behandlingId);
     }
 }

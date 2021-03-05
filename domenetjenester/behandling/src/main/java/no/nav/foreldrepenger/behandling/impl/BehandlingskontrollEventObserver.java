@@ -31,7 +31,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 @ApplicationScoped
 public class BehandlingskontrollEventObserver {
 
-    protected final Logger log = LoggerFactory.getLogger(this.getClass());
+    private static final Logger LOG = LoggerFactory.getLogger(BehandlingskontrollEventObserver.class);
 
     private ProsessTaskRepository prosessTaskRepository;
     private BehandlingRepository behandlingRepository;
@@ -51,7 +51,7 @@ public class BehandlingskontrollEventObserver {
             ProsessTaskData prosessTaskData = opprettProsessTask(event.getBehandlingId(), EventHendelse.BEHANDLINGSKONTROLL_EVENT);
             prosessTaskRepository.lagre(prosessTaskData);
         } catch (Exception ex) {
-            log.warn("Publisering av StoppetEvent feilet", ex);
+            LOG.warn("Publisering av StoppetEvent feilet", ex);
         }
     }
 
@@ -63,7 +63,7 @@ public class BehandlingskontrollEventObserver {
                 ProsessTaskData prosessTaskData = opprettProsessTask(event.getBehandlingId(), EventHendelse.AKSJONSPUNKT_OPPRETTET);
                 prosessTaskRepository.lagre(prosessTaskData);
             } catch (Exception ex) {
-                log.warn("Publisering av AksjonspunkterFunnetEvent feilet", ex);
+                LOG.warn("Publisering av AksjonspunkterFunnetEvent feilet", ex);
             }
         }
     }
@@ -73,7 +73,7 @@ public class BehandlingskontrollEventObserver {
             ProsessTaskData prosessTaskData = opprettProsessTask(event.getBehandlingId(), EventHendelse.AKSJONSPUNKT_AVBRUTT);
             prosessTaskRepository.lagre(prosessTaskData);
         } catch (Exception ex) {
-            log.warn("Publisering av BehandlingAvsluttetEvent feilet", ex);
+            LOG.warn("Publisering av BehandlingAvsluttetEvent feilet", ex);
         }
     }
 
@@ -82,7 +82,7 @@ public class BehandlingskontrollEventObserver {
             ProsessTaskData prosessTaskData = opprettProsessTask(event.getBehandlingId(), EventHendelse.AKSJONSPUNKT_HAR_ENDRET_BEHANDLENDE_ENHET);
             prosessTaskRepository.lagre(prosessTaskData);
         } catch (Exception ex) {
-            log.warn("Publisering av AksjonspunktHarEndretBehandlendeEnhetEvent feilet", ex);
+            LOG.warn("Publisering av AksjonspunktHarEndretBehandlendeEnhetEvent feilet", ex);
         }
     }
 

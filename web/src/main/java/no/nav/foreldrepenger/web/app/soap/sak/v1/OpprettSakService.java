@@ -50,7 +50,7 @@ import no.nav.vedtak.util.env.Environment;
 @SoapWebService(endpoint = "/sak/opprettSak/v1", tjenesteBeskrivelseURL = "https://confluence.adeo.no/pages/viewpage.action?pageId=220529015")
 public class OpprettSakService implements BehandleForeldrepengesakV1 {
 
-    private static final Logger logger = LoggerFactory.getLogger(OpprettSakService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OpprettSakService.class);
 
     private OpprettSakOrchestrator opprettSakOrchestrator;
     private FpfordelRestKlient fordelKlient;
@@ -78,7 +78,7 @@ public class OpprettSakService implements BehandleForeldrepengesakV1 {
 
     @Override
     public void ping() {
-        logger.debug("ping");
+        LOG.debug("ping");
     }
 
     @Override
@@ -107,7 +107,7 @@ public class OpprettSakService implements BehandleForeldrepengesakV1 {
         JournalpostVurderingDto vurdering = fordelKlient.utledYtelestypeFor(journalpostId);
         var btVurdering = BehandlingTema.finnForKodeverkEiersKode(vurdering.getBehandlingstemaOffisiellKode());
         var btOppgitt = BehandlingTema.fraFagsakHendelse(behandlingTema.getFagsakYtelseType(), null);
-        logger.info("FPSAK vurdering FPFORDEL ytelsedok {} vs ytelseoppgitt {}", btVurdering, btOppgitt);
+        LOG.info("FPSAK vurdering FPFORDEL ytelsedok {} vs ytelseoppgitt {}", btVurdering, btOppgitt);
         if (btVurdering.equals(btOppgitt) && (vurdering.getErFørstegangssøknad() || vurdering.getErInntektsmelding())) {
             if (vurdering.getErInntektsmelding() && BehandlingTema.FORELDREPENGER.equals(btVurdering)
                     && opprettSakOrchestrator.harAktivSak(aktørId, behandlingTema)) {

@@ -17,12 +17,12 @@ import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 
 public class JsonParseExceptionMapper implements ExceptionMapper<JsonParseException> {
 
-    private static final Logger log = LoggerFactory.getLogger(JsonParseExceptionMapper.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JsonParseExceptionMapper.class);
 
     @Override
     public Response toResponse(JsonParseException exception) {
         Feil feil = JsonMappingFeil.FACTORY.jsonParseFeil(exception.getMessage(), exception);
-        feil.log(log);
+        feil.log(LOG);
         return Response
             .status(Response.Status.BAD_REQUEST)
             .entity(new FeilDto(feil.getFeilmelding()))

@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public class Feriepengesammenligner {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Feriepengesammenligner.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Feriepengesammenligner.class);
     private final long behandlingId;
     private final Saksnummer saksnummer;
     private final BeregningsresultatEntitet nyttResultat;
@@ -51,7 +51,7 @@ public class Feriepengesammenligner {
                 gjeldendeFeriepengegrunnlag.get().getBeregningsresultatFeriepengerPrÅrListe());
         } else if (nyttFeriepengegrunnlag.isPresent() || gjeldendeFeriepengegrunnlag.isPresent()) {
             // Vet at kun en av de er present
-            LOGGER.info("{} grunnlag mangler for saksnummer {} behandling {} Gammelt {} Nytt {}",
+            LOG.info("{} grunnlag mangler for saksnummer {} behandling {} Gammelt {} Nytt {}",
                 AVVIK_KODE, saksnummer.getVerdi(), behandlingId, gjeldendeFeriepengegrunnlag.isPresent(), nyttFeriepengegrunnlag.isPresent());
             return true;
         }
@@ -66,7 +66,7 @@ public class Feriepengesammenligner {
                 gjeldendeFeriepengegrunnlag.get().getBeregningsresultatFeriepengerPrÅrListe());
         } else if (nyttFeriepengegrunnlag.isPresent() || gjeldendeFeriepengegrunnlag.isPresent()) {
             // Vet at kun en av de er present
-            LOGGER.info("{} grunnlag mangler for saksnummer {} behandling {} Gammelt {} Nytt {}",
+            LOG.info("{} grunnlag mangler for saksnummer {} behandling {} Gammelt {} Nytt {}",
                 AVVIK_KODE, saksnummer.getVerdi(), behandlingId, gjeldendeFeriepengegrunnlag.isPresent(), nyttFeriepengegrunnlag.isPresent());
             return true;
         }
@@ -88,7 +88,7 @@ public class Feriepengesammenligner {
 
         summert.entrySet().stream()
             .filter(e -> erAvvik(e.getValue()))
-            .forEach(e -> LOGGER.info("{} andel {} saksnummer {} behandling {} år {} mottaker {} diff {} gammel {} ny {}",
+            .forEach(e -> LOG.info("{} andel {} saksnummer {} behandling {} år {} mottaker {} diff {} gammel {} ny {}",
                 AVVIK_KODE, erAvvik(summertÅr.get(e.getKey().getOpptjent())) ? "tilkjent-simulert" : "omfordelt",
                 saksnummer, behandlingId, e.getKey().getOpptjent(), e.getKey().getMottaker(), e.getValue().longValue(),
                 tilkjent.getOrDefault(e.getKey(), Beløp.ZERO).getVerdi().longValue(),
@@ -105,11 +105,11 @@ public class Feriepengesammenligner {
         boolean ulikFOM = !Objects.equals(nytt.getFeriepengerPeriodeFom(), gjeldende.getFeriepengerPeriodeFom());
         boolean ulikTOM = !Objects.equals(nytt.getFeriepengerPeriodeTom(), gjeldende.getFeriepengerPeriodeTom());
         if (ulikFOM) {
-            LOGGER.info("{} feriepengeperiodeFOM saksnummer {} behandling {} Gammelt {} Nytt {}",
+            LOG.info("{} feriepengeperiodeFOM saksnummer {} behandling {} Gammelt {} Nytt {}",
                 AVVIK_KODE, saksnummer.getVerdi(), behandlingId, gjeldende.getFeriepengerPeriodeFom(), nytt.getFeriepengerPeriodeFom());
         }
         if (ulikTOM) {
-            LOGGER.info("{} feriepengeperiodeTOM saksnummer {} behandling {} Gammelt {} Nytt {}",
+            LOG.info("{} feriepengeperiodeTOM saksnummer {} behandling {} Gammelt {} Nytt {}",
                 AVVIK_KODE, saksnummer.getVerdi(), behandlingId, gjeldende.getFeriepengerPeriodeTom(), nytt.getFeriepengerPeriodeTom());
         }
     }

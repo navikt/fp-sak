@@ -14,11 +14,10 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveBehandlingKobling;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveBehandlingKoblingRepository;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
-import no.nav.vedtak.feil.Feil;
 
 public class OppgaveRedirectData {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OppgaveRedirectData.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OppgaveRedirectData.class);
 
     private Saksnummer saksnummer;
     private Long behandlingId;
@@ -28,7 +27,9 @@ public class OppgaveRedirectData {
                                     FagsakRepository fagsakRepository,
                                     OppgaveIdDto oppgaveId, SaksnummerDto saksnummerDto) {
         if (oppgaveId == null && saksnummerDto == null) {
-            return OppgaveRedirectData.medFeilmelding(logg(OppgaveRedirectServletFeil.FACTORY.sakKanIkkeÅpnesDaReferanseMangler()));
+            var feilmelding = "Sak kan ikke åpnes, da referanse mangler.";
+            LOG.warn(feilmelding);
+            return OppgaveRedirectData.medFeilmelding(feilmelding);
         } else if (oppgaveId == null) {
             Saksnummer saksnummer = new Saksnummer(saksnummerDto.getVerdi());
             return hentForFagsak(fagsakRepository,saksnummer);
@@ -39,7 +40,7 @@ public class OppgaveRedirectData {
         Saksnummer saksnummer = new Saksnummer(saksnummerDto.getVerdi());
         Optional<Fagsak> sak = fagsakRepository.hentSakGittSaksnummer(saksnummer);
         if (sak.isEmpty()) {
-            return OppgaveRedirectData.medFeilmelding(logg(OppgaveRedirectServletFeil.FACTORY.detFinnesIngenFagsak(saksnummer.getVerdi())));
+            return finnerIkkeSaksnummerRedirect(saksnummer);
         }
 
         Optional<OppgaveBehandlingKobling> oppgave = oppgaveBehandlingKoblingRepository.hentOppgaveBehandlingKobling(oppgaveId.getVerdi(), saksnummer);
@@ -48,7 +49,10 @@ public class OppgaveRedirectData {
             if (oppgaveSaksnummer != null && oppgaveSaksnummer.equals(saksnummer)) {
                 return OppgaveRedirectData.medSaksnummerOgBehandlingId(oppgaveSaksnummer, oppgave.get().getBehandlingId());
             }
-            return OppgaveRedirectData.medFeilmelding(logg(OppgaveRedirectServletFeil.FACTORY.oppgaveErIkkeRegistrertPåSak(oppgaveId.getVerdi(), saksnummer.getVerdi())));
+            var feilmelding = String.format("Oppgaven med %s er ikke registrert på sak %s", oppgaveId.getVerdi(),
+                saksnummer.getVerdi());
+            LOG.error(feilmelding);
+            return OppgaveRedirectData.medFeilmelding(feilmelding);
         }
 
         return OppgaveRedirectData.medSaksnummer(saksnummer);
@@ -59,13 +63,23 @@ public class OppgaveRedirectData {
         if (sak.isPresent()) {
             return OppgaveRedirectData.medSaksnummer(saksnummer);
         }
-        return OppgaveRedirectData.medFeilmelding(logg(OppgaveRedirectServletFeil.FACTORY.detFinnesIngenFagsak(saksnummer.getVerdi())));
+        return finnerIkkeSaksnummerRedirect(saksnummer);
+    }
+
+    private static OppgaveRedirectData finnerIkkeSaksnummerRedirect(Saksnummer saksnummer) {
+        var feilmelding = "Det finnes ingen sak med dette saksnummeret: " + saksnummer.getVerdi();
+        LOG.warn(feilmelding);
+        return OppgaveRedirectData.medFeilmelding(feilmelding);
     }
 
     private static OppgaveRedirectData hentForOppgave(OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository, String oppgaveId) {
         Optional<OppgaveBehandlingKobling> oppgave = oppgaveBehandlingKoblingRepository.hentOppgaveBehandlingKobling(oppgaveId);
         return oppgave.map(oppgaveBehandlingKobling -> OppgaveRedirectData.medSaksnummerOgBehandlingId(oppgaveBehandlingKobling.getSaksnummer(), oppgaveBehandlingKobling.getBehandlingId()))
-            .orElseGet(() -> OppgaveRedirectData.medFeilmelding(logg(OppgaveRedirectServletFeil.FACTORY.detFinnesIngenOppgaveMedDenneReferansen(oppgaveId))));
+            .orElseGet(() -> {
+                var feilmelding = "Det finnes ingen oppgave med denne referansen:" + oppgaveId;
+                LOG.warn(feilmelding);
+                return OppgaveRedirectData.medFeilmelding(feilmelding);
+            });
     }
 
     private static OppgaveRedirectData medSaksnummerOgBehandlingId(Saksnummer saksnummer, Long behandlingId) {
@@ -86,14 +100,10 @@ public class OppgaveRedirectData {
         try {
             data.feilmelding = URLEncoder.encode(feilmelding, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
-            data.feilmelding = logg(OppgaveRedirectServletFeil.FACTORY.kunneIkkeEncodeFeilmelding(feilmelding, e));
+            data.feilmelding = "Kunne ikke encode feilmelding " + feilmelding;
+            LOG.error(data.feilmelding, e);
         }
         return data;
-    }
-
-    static String logg(Feil feil) {
-        feil.log(LOGGER);
-        return feil.getFeilmelding();
     }
 
     Saksnummer getSaksnummer() {

@@ -23,7 +23,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 public class SendInformasjonsbrevOppholdBatchTjeneste implements BatchTjeneste {
 
     static final String BATCHNAVN = "BVL009";
-    private static final Logger log = LoggerFactory.getLogger(SendInformasjonsbrevOppholdBatchTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SendInformasjonsbrevOppholdBatchTjeneste.class);
     private InformasjonssakRepository informasjonssakRepository;
     private ProsessTaskRepository prosessTaskRepository;
 
@@ -46,7 +46,7 @@ public class SendInformasjonsbrevOppholdBatchTjeneste implements BatchTjeneste {
                 batchArguments.getTom());
         LocalTime baseline = LocalTime.now();
         saker.forEach(sak -> {
-            log.info("Oppretter informasjonssak-task for {}", sak.getAktørId().getId());
+            LOG.info("Oppretter informasjonssak-task for {}", sak.getAktørId().getId());
             ProsessTaskData data = new ProsessTaskData(OpprettInformasjonsFagsakTask.TASKTYPE);
             data.setAktørId(sak.getAktørId().getId());
             data.setCallIdFraEksisterende();

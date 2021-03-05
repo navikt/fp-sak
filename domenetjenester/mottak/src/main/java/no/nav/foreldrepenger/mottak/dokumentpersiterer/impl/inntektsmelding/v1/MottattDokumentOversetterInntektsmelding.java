@@ -115,7 +115,7 @@ public class MottattDokumentOversetterInntektsmelding implements MottattDokument
             builder.medBeløp(arbeidsforholdet.getBeregnetInntekt().getValue().getBeloep().getValue())
                 .medStartDatoPermisjon(wrapper.getStartDatoPermisjon().orElse(null));
         } else {
-            throw InntektsmeldingFeil.FACTORY.manglendeInformasjon().toException();
+            throw InntektsmeldingFeil.manglendeInformasjon();
         }
     }
 

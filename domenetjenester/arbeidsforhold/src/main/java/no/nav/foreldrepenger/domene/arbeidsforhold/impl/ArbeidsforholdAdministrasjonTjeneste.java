@@ -56,7 +56,7 @@ public class ArbeidsforholdAdministrasjonTjeneste {
     private VurderArbeidsforholdTjeneste vurderArbeidsforholdTjeneste;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
-    private static final Logger logger = LoggerFactory.getLogger(ArbeidsforholdAdministrasjonTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ArbeidsforholdAdministrasjonTjeneste.class);
 
     ArbeidsforholdAdministrasjonTjeneste() {
         // CDI
@@ -346,7 +346,7 @@ public class ArbeidsforholdAdministrasjonTjeneste {
                 throw new IllegalStateException("Forventer kun ett innslag i listen");
             }
             if (arbeidsforholdOverstyrtePerioder.isEmpty()) {
-               logger.info("Finner ingen match mot overstyrte perioder for dette arbeidsforholdet:"+ arbeidsgiver.getIdentifikator() + "med denne refen:"+ arbeidsforholdRef.getReferanse());
+               LOG.info("Finner ingen match mot overstyrte perioder for dette arbeidsforholdet:"+ arbeidsgiver.getIdentifikator() + "med denne refen:"+ arbeidsforholdRef.getReferanse());
                return Optional.empty();
             }
             wrapper.setFomDato(arbeidsforholdOverstyrtePerioder.get(0).getOverstyrtePeriode().getFomDato());

@@ -4,9 +4,9 @@ import java.util.List;
 
 import javax.xml.bind.JAXBElement;
 
-import no.nav.foreldrepenger.mottak.dokumentpersiterer.MottattDokumentFeil;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.MottattDokumentWrapper;
 import no.nav.foreldrepenger.søknad.v3.SøknadConstants;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Bruker;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Vedlegg;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Ytelse;
@@ -22,7 +22,8 @@ public class MottattDokumentWrapperSøknad extends MottattDokumentWrapper<Soekna
 
     public static void sjekkNødvendigeFeltEksisterer(Soeknad søknad) {
         if (søknad.getMottattDato() == null || søknad.getOmYtelse() == null || søknad.getSoeker() == null) {
-            throw MottattDokumentFeil.FACTORY.ukjentSoeknadXMLFormat(søknad.getClass().getCanonicalName()).toException();
+            throw new TekniskException("FP-921156", "Kjenner ikke igjen format på søknad XML med namespace "
+                + søknad.getClass().getCanonicalName());
         }
     }
 

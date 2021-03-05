@@ -38,7 +38,7 @@ public class Feriepengeavstemmer {
     private static final String AVVIK_KODE = "FP-110712";
     private static final String BRUKER = "Bruker";
     private static final String ARBGIVER = "ArbGiv";
-    private static final Logger LOGGER = LoggerFactory.getLogger(Feriepengeavstemmer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Feriepengeavstemmer.class);
     private HentOppdragMedPositivKvittering hentOppdragMedPositivKvittering;
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
@@ -80,7 +80,7 @@ public class Feriepengeavstemmer {
 
         summert.entrySet().stream()
             .filter(e -> Math.abs(e.getValue().longValue()) > 3)
-            .forEach(e -> LOGGER.info("{} andel {} saksnummer {} behandling {} år {} mottaker {} diff {} oppdrag {} tilkjent {}",
+            .forEach(e -> LOG.info("{} andel {} saksnummer {} behandling {} år {} mottaker {} diff {} oppdrag {} tilkjent {}",
                 AVVIK_KODE, erAvvik(summertÅr.get(e.getKey().getOpptjent())) ? "oppdrag-tilkjent" : "omfordelt",
                 saksnummer.getVerdi(), behandlingId, e.getKey().getOpptjent(), e.getKey().getMottaker(), e.getValue().longValue(),
                 oppdrag.getOrDefault(e.getKey(), BigDecimal.ZERO).longValue(), tilkjent.getOrDefault(e.getKey(), Beløp.ZERO).getVerdi().longValue()));
@@ -119,10 +119,10 @@ public class Feriepengeavstemmer {
             var forrige = gjeldendeOL.get(nøkkel);
             if (linje.gjelderOpphør()) {
                 if (forrige == null) {
-                    LOGGER.warn("Opphør uten noe å opphøre: delytelse {} klasseKode {} fom {} opphørsdato {} tidligste {}",
+                    LOG.warn("Opphør uten noe å opphøre: delytelse {} klasseKode {} fom {} opphørsdato {} tidligste {}",
                         linje.getDelytelseId(), linje.getKodeKlassifik(), linje.getDatoVedtakFom(), linje.getDatoStatusFom(), forrige);
                 } else if (forrige.intValue() != linje.getSats().getVerdi()) {
-                    LOGGER.warn("Avvik gjeldende beløp: delytelse {} klasseKode {} fom {} opphørt {} gjeldende {}",
+                    LOG.warn("Avvik gjeldende beløp: delytelse {} klasseKode {} fom {} opphørt {} gjeldende {}",
                         linje.getDelytelseId(), linje.getKodeKlassifik(), linje.getDatoVedtakFom(), linje.getSats(), forrige);
                 } else {
                     gjeldendeOL.remove(nøkkel);

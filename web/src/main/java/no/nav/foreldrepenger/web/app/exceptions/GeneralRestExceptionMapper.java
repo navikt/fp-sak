@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.exceptions;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.core.MediaType;
@@ -28,7 +27,7 @@ import no.nav.vedtak.log.util.LoggerUtils;
 @Provider
 public class GeneralRestExceptionMapper implements ExceptionMapper<ApplicationException> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GeneralRestExceptionMapper.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GeneralRestExceptionMapper.class);
 
     // FIXME Humle, ikke bruk feilkoder her, håndter som valideringsfeil, eller legg
     // til egen samtidig-oppdatering-feil Feil-rammeverket
@@ -67,12 +66,13 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<ApplicationEx
     }
 
     private static Response handleValideringsfeil(Valideringsfeil valideringsfeil) {
-        List<String> feltNavn = valideringsfeil.getFeltFeil().stream().map(felt -> felt.getNavn()).collect(Collectors.toList());
+        var feltNavn = valideringsfeil.getFeltFeil().stream()
+            .map(felt -> felt.getNavn())
+            .collect(Collectors.toList());
         return Response
                 .status(Response.Status.BAD_REQUEST)
-                .entity(new FeilDto(
-                        FeltValideringFeil.FACTORY.feltverdiKanIkkeValideres(feltNavn).getFeilmelding(),
-                        valideringsfeil.getFeltFeil()))
+                .entity(new FeilDto("Det oppstod valideringsfeil på felt " + feltNavn
+                    + ". Vennligst kontroller at alle feltverdier er korrekte.", valideringsfeil.getFeltFeil()))
                 .type(MediaType.APPLICATION_JSON)
                 .build();
     }
@@ -149,15 +149,15 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<ApplicationEx
         if (cause instanceof ManglerTilgangException) {
             // ikke logg
         } else if (cause instanceof VLException) {
-            ((VLException) cause).log(LOGGER);
+            ((VLException) cause).log(LOG);
         } else if (cause instanceof UnsupportedOperationException) {
             String message = cause.getMessage() != null ? LoggerUtils.removeLineBreaks(cause.getMessage()) : "";
-            LOGGER.info("Fikk ikke-implementert-feil: " + message, cause);
+            LOG.info("Fikk ikke-implementert-feil: " + message, cause);
         } else if (cause instanceof ForvaltningException) {
-            LOGGER.warn("Feil i bruk av forvaltningstjenester", cause);
+            LOG.warn("Feil i bruk av forvaltningstjenester", cause);
         } else {
             String message = cause.getMessage() != null ? LoggerUtils.removeLineBreaks(cause.getMessage()) : "";
-            LOGGER.error("Fikk uventet feil:" + message, cause);
+            LOG.error("Fikk uventet feil:" + message, cause);
         }
 
         // key for å tracke prosess -- nullstill denne

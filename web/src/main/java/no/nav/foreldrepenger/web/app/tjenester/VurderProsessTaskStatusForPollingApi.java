@@ -14,7 +14,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 
 public class VurderProsessTaskStatusForPollingApi {
-    private static final Logger log = LoggerFactory.getLogger(VurderProsessTaskStatusForPollingApi.class);
+    private static final Logger LOG = LoggerFactory.getLogger(VurderProsessTaskStatusForPollingApi.class);
 
     private ProsessTaskFeilmelder feilmelder;
     private Long entityId;
@@ -71,7 +71,7 @@ public class VurderProsessTaskStatusForPollingApi {
 
     private Optional<AsyncPollingStatus> håndterFeil(String gruppe, ProsessTaskData task, String callId) {
         Feil feil = feilmelder.feilIProsessTaskGruppe(callId, entityId, gruppe, task.getId(), task.getStatus());
-        feil.log(log);
+        feil.log(LOG);
 
         AsyncPollingStatus status = new AsyncPollingStatus(AsyncPollingStatus.Status.HALTED,
             null, task.getSisteFeil());
@@ -80,7 +80,7 @@ public class VurderProsessTaskStatusForPollingApi {
 
     private Optional<AsyncPollingStatus> ventPåSvar(String gruppe, ProsessTaskData task, String callId) {
         Feil feil = feilmelder.venterPåSvar(callId, entityId, gruppe, task.getId(), task.getStatus());
-        feil.log(log);
+        feil.log(LOG);
 
         AsyncPollingStatus status = new AsyncPollingStatus(
             AsyncPollingStatus.Status.DELAYED,
@@ -103,7 +103,7 @@ public class VurderProsessTaskStatusForPollingApi {
         } else {
             Feil feil = feilmelder.utsattKjøringAvProsessTask(
                callId, entityId, gruppe, task.getId(), task.getStatus(), task.getNesteKjøringEtter());
-            feil.log(log);
+            feil.log(LOG);
 
             AsyncPollingStatus status = new AsyncPollingStatus(
                 AsyncPollingStatus.Status.DELAYED,

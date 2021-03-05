@@ -71,7 +71,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 @FagsakYtelseTypeRef("FP")
 @ApplicationScoped
 class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
-    private static final Logger LOGGER = LoggerFactory.getLogger(KontrollerFaktaRevurderingStegImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(KontrollerFaktaRevurderingStegImpl.class);
 
     private static final StartpunktType DEFAULT_STARTPUNKT = StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT;
 
@@ -223,7 +223,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         if (behandlingskontrollTjeneste.erStegPassert(revurdering, startpunkt.getBehandlingSteg())) {
             startpunkt = DEFAULT_STARTPUNKT;
         }
-        LOGGER.info("KOFAKREV Revurdering {} har fått fastsatt startpunkt {} ", revurdering.getId(), startpunkt.getKode());// NOSONAR //$NON-NLS-1$
+        LOG.info("KOFAKREV Revurdering {} har fått fastsatt startpunkt {} ", revurdering.getId(), startpunkt.getKode());// NOSONAR //$NON-NLS-1$
         return startpunkt;
     }
 
@@ -281,10 +281,10 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
                     .map(BeregningsgrunnlagAktivitetStatus::getAktivitetStatus)
                     .anyMatch(SN_REGULERING::contains);
             if (over6G || erMilitærUnder3G || erNæringsdrivende) {
-                LOGGER.info("KOFAKREV Revurdering {} skal G-reguleres", revurdering.getId());
+                LOG.info("KOFAKREV Revurdering {} skal G-reguleres", revurdering.getId());
                 return finnStartpunktForGRegulering(revurdering);
             } else {
-                LOGGER.info("KOFAKREV Revurdering {} blir ikke G-regulert: brutto {} grense {}", revurdering.getId(), bruttoPrÅr, grenseverdi);
+                LOG.info("KOFAKREV Revurdering {} blir ikke G-regulert: brutto {} grense {}", revurdering.getId(), bruttoPrÅr, grenseverdi);
             }
         }
         return StartpunktType.UDEFINERT;

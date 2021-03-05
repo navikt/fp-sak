@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 public class LdapUtil {
 
-    private static final Logger logger = LoggerFactory.getLogger(LdapUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LdapUtil.class);
 
     private LdapUtil() {
         // SONAR - Add a private constructor to hide the implicit public one
@@ -32,12 +32,12 @@ public class LdapUtil {
                 for (Rdn rdn : ldapname.getRdns()) {
                     if ("CN".equalsIgnoreCase(rdn.getType())) {
                         String cn = rdn.getValue().toString();
-                        logger.debug("uid on DN form. Filtered from {} to {}", value, cn); //NOSONAR trusted source, validated SAML-token or LDAP memberOf
+                        LOG.debug("uid on DN form. Filtered from {} to {}", value, cn); //NOSONAR trusted source, validated SAML-token or LDAP memberOf
                         return cn;
                     }
                 }
             } catch (InvalidNameException e) { //NOSONAR
-                logger.debug("value not on DN form. Skipping filter. {}", e.getExplanation()); //NOSONAR trusted source
+                LOG.debug("value not on DN form. Skipping filter. {}", e.getExplanation()); //NOSONAR trusted source
             }
         }
         return value;

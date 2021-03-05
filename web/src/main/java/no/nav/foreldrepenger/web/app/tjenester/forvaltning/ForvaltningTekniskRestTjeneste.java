@@ -63,7 +63,7 @@ import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 @Transactional
 public class ForvaltningTekniskRestTjeneste {
 
-    private static final Logger logger = LoggerFactory.getLogger(ForvaltningTekniskRestTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ForvaltningTekniskRestTjeneste.class);
     private static final String MANGLER_AP = "Utvikler-feil: Har ikke aksjonspunkt av type: ";
 
     private BehandlingRepository behandlingRepository;
@@ -114,7 +114,7 @@ public class ForvaltningTekniskRestTjeneste {
         try {
             oppgaveTjeneste.ferdigstillOppgaveForForvaltning(behandlingIdDto.getBehandlingId(), oppgaveIdDto.getProsessTaskId().toString());
         } catch (Exception e) {
-            logger.info("Feil fra Gosys ved ferdigstillelse", e);
+            LOG.info("Feil fra Gosys ved ferdigstillelse", e);
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         return Response.ok().build();
@@ -136,7 +136,7 @@ public class ForvaltningTekniskRestTjeneste {
         try {
             oppgaveTjeneste.feilregistrerOppgaveForForvaltning(behandlingIdDto.getBehandlingId(), oppgaveIdDto.getProsessTaskId().toString());
         } catch (Exception e) {
-            logger.info("Feil fra Gosys ved ferdigstillelse", e);
+            LOG.info("Feil fra Gosys ved ferdigstillelse", e);
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         return Response.ok().build();
@@ -219,7 +219,7 @@ public class ForvaltningTekniskRestTjeneste {
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     public Response setBehandlingEntrinn(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         Long behandlingId = dto.getBehandlingId();
-        logger.info("Setter behandling={} til entrinn", behandlingId);
+        LOG.info("Setter behandling={} til entrinn", behandlingId);
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         var lås = behandlingRepository.taSkriveLås(behandling.getId());
 
@@ -239,7 +239,7 @@ public class ForvaltningTekniskRestTjeneste {
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     public Response setBehandlingTotrinn(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         Long behandlingId = dto.getBehandlingId();
-        logger.info("Setter behandling={} til totrinn", behandlingId);
+        LOG.info("Setter behandling={} til totrinn", behandlingId);
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         var lås = behandlingRepository.taSkriveLås(behandling.getId());
 
@@ -284,7 +284,7 @@ public class ForvaltningTekniskRestTjeneste {
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     public Response leggtilManglendeSøknadsGrunnlag(@BeanParam @Valid SøknadGrunnlagManglerDto dto) {
         Long behandlingId = dto.getBehandlingId();
-        logger.info("Setter behandling={} til totrinn", behandlingId);
+        LOG.info("Setter behandling={} til totrinn", behandlingId);
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         if (behandling == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();

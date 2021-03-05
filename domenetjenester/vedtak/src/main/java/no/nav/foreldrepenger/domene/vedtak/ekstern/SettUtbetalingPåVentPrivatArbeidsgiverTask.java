@@ -18,7 +18,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 @ProsessTask(SettUtbetalingPåVentPrivatArbeidsgiverTask.TASKTYPE)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class SettUtbetalingPåVentPrivatArbeidsgiverTask extends GenerellProsessTask {
-    private static final Logger log = LoggerFactory.getLogger(SettUtbetalingPåVentPrivatArbeidsgiverTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SettUtbetalingPåVentPrivatArbeidsgiverTask.class);
     public static final String TASKTYPE = "iverksetteVedtak.oppgaveUtbetalingPåVent";
 
     private BehandlingRepository behandlingRepository;
@@ -41,9 +41,9 @@ public class SettUtbetalingPåVentPrivatArbeidsgiverTask extends GenerellProsess
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
             vurderOmSetteUtbetalingPåVentPrivatArbeidsgiver.opprettOppgave(behandling);
-            log.info("SettUtbetalingPåVentPrivatArbeidsgiverTask: Vurderer for behandling: {}", behandlingId); //$NON-NLS-1$
+            LOG.info("SettUtbetalingPåVentPrivatArbeidsgiverTask: Vurderer for behandling: {}", behandlingId); //$NON-NLS-1$
         } else {
-            log.info("SettUtbetalingPåVentPrivatArbeidsgiverTask: Ikke aktuelt for behandling: {}", behandlingId); //$NON-NLS-1$
+            LOG.info("SettUtbetalingPåVentPrivatArbeidsgiverTask: Ikke aktuelt for behandling: {}", behandlingId); //$NON-NLS-1$
         }
 
     }

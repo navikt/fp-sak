@@ -26,7 +26,7 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 @ApplicationScoped
 public class DialogHendelseProducer {
 
-    private static final Logger log = LoggerFactory.getLogger(DialogHendelseProducer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DialogHendelseProducer.class);
 
     private static final Topic topic = TopicManifest.BRUKERDIALOG_INNTEKTSMELDING;
     private static final String CALLID_NAME = "Nav-CallId";
@@ -69,7 +69,7 @@ public class DialogHendelseProducer {
     }
 
     private Producer<String, String> createProducer(Properties properties) {
-        log.info("Oppretter producer for topic='{}', keyClass='{}', valueClass='{}'", topic.getTopic(), topic.getSerdeKey(), topic.getSerdeValue());
+        LOG.info("Oppretter producer for topic='{}', keyClass='{}', valueClass='{}'", topic.getTopic(), topic.getSerdeKey(), topic.getSerdeValue());
         properties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, topic.getSerdeKey().serializer().getClass().getName());
         properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, topic.getSerdeValue().serializer().getClass().getName());
         return new KafkaProducer<>(properties);

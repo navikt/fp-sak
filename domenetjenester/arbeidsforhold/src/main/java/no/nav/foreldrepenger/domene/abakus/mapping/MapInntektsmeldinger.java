@@ -66,7 +66,7 @@ public class MapInntektsmeldinger {
     }
 
     static class MapTilDto {
-        private static final Logger log = LoggerFactory.getLogger(MapTilDto.class);
+        private static final Logger LOG = LoggerFactory.getLogger(MapTilDto.class);
 
         MapTilDto() {
         }
@@ -109,7 +109,7 @@ public class MapInntektsmeldinger {
             } catch (IllegalStateException e) {
                 if (e.getMessage().startsWith("Mangler eksternReferanse for internReferanse:")) {
                     // Sukk, må håndtere at det ligger dritt her også ..
-                    log.warn("Mangler eksternReferanse for internReferanse={}, forkaster internReferanse. Antar feilmapping",
+                    LOG.warn("Mangler eksternReferanse for internReferanse={}, forkaster internReferanse. Antar feilmapping",
                             im.getArbeidsforholdRef());
                     eksternRef = null;
                 } else {

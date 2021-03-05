@@ -27,7 +27,7 @@ import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 @ApplicationScoped
 @FagsakYtelseTypeRef("FP")
 public class StartpunktTjenesteImpl implements StartpunktTjeneste {
-    private static final Logger LOGGER = LoggerFactory.getLogger(StartpunktTjenesteImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StartpunktTjenesteImpl.class);
 
     private Instance<StartpunktUtleder> utledere;
     private EndringsresultatSjekker endringsresultatSjekker;
@@ -53,7 +53,7 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
 
         EndringsresultatSnapshot snapshotOriginalBehandling = endringsresultatSjekker.opprettEndringsresultatPåBehandlingsgrunnlagSnapshot(origBehandlingId);
         EndringsresultatDiff diff = endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(revurdering.getId(), snapshotOriginalBehandling);
-        LOGGER.info("Endringsresultat ved revurdering={} er: {}", revurdering.getId(), diff);// NOSONAR //$NON-NLS-1$
+        LOG.info("Endringsresultat ved revurdering={} er: {}", revurdering.getId(), diff);// NOSONAR //$NON-NLS-1$
         return getStartpunktType(revurdering, diff, false);
     }
 

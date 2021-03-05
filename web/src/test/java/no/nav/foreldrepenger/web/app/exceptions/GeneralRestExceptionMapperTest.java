@@ -31,7 +31,7 @@ public class GeneralRestExceptionMapperTest {
 
     private static MemoryAppender logSniffer;
 
-    private GeneralRestExceptionMapper generalRestExceptionMapper = new GeneralRestExceptionMapper();
+    private final GeneralRestExceptionMapper generalRestExceptionMapper = new GeneralRestExceptionMapper();
 
     @BeforeEach
     public void setUp() {
@@ -55,7 +55,7 @@ public class GeneralRestExceptionMapperTest {
         FeilDto feilDto = (FeilDto) response.getEntity();
 
         assertThat(feilDto.getFeilmelding())
-                .isEqualTo("Det oppstod en valideringsfeil på felt [Et feltnavn]. Vennligst kontroller at alle feltverdier er korrekte.");
+                .isEqualTo("Det oppstod valideringsfeil på felt [Et feltnavn]. Vennligst kontroller at alle feltverdier er korrekte.");
         assertThat(feilDto.getFeltFeil()).hasSize(1);
         assertThat(feilDto.getFeltFeil().iterator().next()).isEqualTo(feltFeilDto);
     }
@@ -101,7 +101,6 @@ public class GeneralRestExceptionMapperTest {
 
         assertThat(feilDto.getFeilmelding()).contains("TEK_FEIL");
         assertThat(feilDto.getFeilmelding()).contains("en teknisk feilmelding");
-        System.out.println(logSniffer.getLoggedEvents());
         assertThat(logSniffer.search("en teknisk feilmelding", Level.WARN)).hasSize(1);
     }
 
@@ -117,7 +116,6 @@ public class GeneralRestExceptionMapperTest {
         FeilDto feilDto = (FeilDto) response.getEntity();
 
         assertThat(feilDto.getFeilmelding()).contains(feilmelding);
-        System.out.println(logSniffer.getLoggedEvents());
         assertThat(logSniffer.search(feilmelding, Level.ERROR)).hasSize(1);
     }
 

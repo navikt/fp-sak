@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.overstyring;
 
-import static no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktApplikasjonFeil.FACTORY;
-
 import java.util.Objects;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -20,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.FaktaUttakHistorikkTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.OverstyringFaktaUttakDto;
+import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = OverstyringFaktaUttakDto.SaksbehandlerOverstyrerFaktaUttakDto.class, adapter = Overstyringshåndterer.class)
@@ -44,7 +43,7 @@ public class FaktaUttakSaksbehandlerOverstyringshåndterer extends AbstractOvers
     @Override
     public OppdateringResultat håndterOverstyring(OverstyringFaktaUttakDto.SaksbehandlerOverstyrerFaktaUttakDto dto, Behandling behandling, BehandlingskontrollKontekst kontekst) {
         if (!kanAksjonspunktAktiveres(behandling)) {
-            throw FACTORY.kanIkkeAktivereAksjonspunkt(dto.getKode()).toException();
+            throw new TekniskException("FP-605445", "Kan ikke aktivere aksjonspunkt med kode: " + dto.getKode());
         }
         return faktaUttakOverstyringFelles.håndterOverstyring(dto, behandling);
     }

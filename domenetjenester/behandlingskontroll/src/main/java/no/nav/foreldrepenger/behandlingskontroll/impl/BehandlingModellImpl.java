@@ -47,7 +47,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
  */
 public class BehandlingModellImpl implements AutoCloseable, BehandlingModell {
 
-    private static final Logger logger = LoggerFactory.getLogger(BehandlingModellImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BehandlingModellImpl.class);
     private static final String ER_IKKE_DEFINERT_BLANT = " er ikke definert blant: ";
     private final BehandlingType behandlingType;
     /**
@@ -366,12 +366,12 @@ public class BehandlingModellImpl implements AutoCloseable, BehandlingModell {
         int idx = førsteSteg == null ? 0 : indexOf(førsteSteg.getKode());
         BehandlingStegModellImpl entry = steg.get(idx);
         while (entry != null) {
-            logger.debug("Prosesserer steg: {}", entry);
+            LOG.debug("Prosesserer steg: {}", entry);
             StegProsesseringResultat resultat = visitor.prosesser(entry);
 
             if (!kanFortsetteTilNeste(resultat)) {
                 // bryt flyten, og bli stående på dette steget
-                logger.debug("Avbryter etter steg: {}, transisjon={}", entry, resultat);
+                LOG.debug("Avbryter etter steg: {}, transisjon={}", entry, resultat);
                 return new BehandlingStegUtfall(entry.getBehandlingStegType(), resultat.getNyStegStatus());
             }
 
@@ -380,7 +380,7 @@ public class BehandlingModellImpl implements AutoCloseable, BehandlingModell {
         }
 
         // avslutter med null når ikke flere steg igjen.
-        logger.debug("Avslutter, ingen flere steg");
+        LOG.debug("Avslutter, ingen flere steg");
         return null;
 
     }

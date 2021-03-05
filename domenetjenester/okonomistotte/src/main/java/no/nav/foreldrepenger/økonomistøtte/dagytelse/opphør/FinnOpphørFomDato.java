@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.økonomistøtte.dagytelse.wrapper.TilkjentYtelseAnd
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.wrapper.TilkjentYtelsePeriode;
 
 class FinnOpphørFomDato {
-    private static final Logger logger = LoggerFactory.getLogger(FinnOpphørFomDato.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FinnOpphørFomDato.class);
     private FinnOpphørFomDato() {
     }
 
@@ -80,7 +80,7 @@ class FinnOpphørFomDato {
         }
         Optional<TilkjentYtelsePeriode> tilkjentYtelsePeriode = getFørstePeriodeMedArbeidsgiversandel(mottaker, forrigeTilkjentYtelseAndelListe);
         if(tilkjentYtelsePeriode.isEmpty()){
-            logger.info("mottaker = {}, tilkjentytelseandelListe = {} ", mottaker, forrigeTilkjentYtelseAndelListe);
+            LOG.info("mottaker = {}, tilkjentytelseandelListe = {} ", mottaker, forrigeTilkjentYtelseAndelListe);
             throw new IllegalStateException("Utvikler feil: Mangler beregningsresultat periode for arbeidsgiver andel");
         }
         return tilkjentYtelsePeriode.get();

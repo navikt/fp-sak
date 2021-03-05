@@ -15,7 +15,7 @@ import no.nav.vedtak.kontroll.v1.KontrollResultatV1;
 
 @ProsessTask(LesKontrollresultatTask.TASKTYPE)
 public class LesKontrollresultatTask implements ProsessTaskHandler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LesKontrollresultatTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LesKontrollresultatTask.class);
 
     public static final String TASKTYPE = "risiko.klassifisering.resultat";
 
@@ -39,7 +39,7 @@ public class LesKontrollresultatTask implements ProsessTaskHandler {
             KontrollResultatV1 kontraktResultat = KontrollSerialiseringUtil.deserialiser(payload, KontrollResultatV1.class);
             evaluerKontrollresultat(kontraktResultat);
         } catch (Exception e) {
-            LOGGER.warn("Klarte ikke behandle risikoklassifiseringresultat", e);
+            LOG.warn("Klarte ikke behandle risikoklassifiseringresultat", e);
         }
     }
 

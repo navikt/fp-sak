@@ -13,7 +13,7 @@ import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.Risikoklas
 @ApplicationScoped
 public class RisikoklassifiseringEventObserver {
 
-    protected final Logger log = LoggerFactory.getLogger(this.getClass());
+    private static final Logger LOG = LoggerFactory.getLogger(RisikoklassifiseringEventObserver.class);
 
     private Risikoklassifisering risikoklassifisering;
 
@@ -29,7 +29,7 @@ public class RisikoklassifiseringEventObserver {
         try {
             risikoklassifisering.opprettProsesstaskForRisikovurdering(event.getBehandlingRef());
         } catch (Exception ex) {
-            log.warn("Publisering av RisikoklassifiseringsTask feilet", ex);
+            LOG.warn("Publisering av RisikoklassifiseringsTask feilet", ex);
         }
     }
 }

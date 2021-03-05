@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 public abstract class ForeslåBehandlingsresultatStegFelles implements ForeslåBehandlingsresultatSteg {
 
-    private static final Logger logger = LoggerFactory.getLogger(ForeslåBehandlingsresultatStegFelles.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ForeslåBehandlingsresultatStegFelles.class);
 
     private BehandlingRepository behandlingRepository;
     private Instance<ForeslåBehandlingsresultatTjeneste> foreslåBehandlingsresultatTjeneste;
@@ -41,7 +41,7 @@ public abstract class ForeslåBehandlingsresultatStegFelles implements ForeslåB
         Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(kontekst.getBehandlingId());
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
-        logger.info("Foreslår behandlingsresultat for behandling {}", ref);
+        LOG.info("Foreslår behandlingsresultat for behandling {}", ref);
 
         var tjeneste = FagsakYtelseTypeRef.Lookup.find(foreslåBehandlingsresultatTjeneste, ref.getFagsakYtelseType()).orElseThrow();
         tjeneste.foreslåBehandlingsresultat(ref);

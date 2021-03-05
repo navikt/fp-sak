@@ -54,7 +54,7 @@ import no.nav.fpsak.tidsserie.LocalDateInterval;
 @ApplicationScoped
 public class RegisterdataInnhenter {
 
-    private static final Logger log = LoggerFactory.getLogger(RegisterdataInnhenter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RegisterdataInnhenter.class);
     private static final Set<RegisterdataType> FØRSTEGANGSSØKNAD_FP_SVP = Set.of(
         YTELSE,
         ARBEIDSFORHOLD,
@@ -190,7 +190,7 @@ public class RegisterdataInnhenter {
     }
 
     private void doInnhentIAYIAbakus(Behandling behandling, BehandlingType behandlingType, FagsakYtelseType fagsakYtelseType) {
-        log.info("Trigger innhenting i abakus for behandling med id={} og uuid={}", behandling.getId(), behandling.getUuid());
+        LOG.info("Trigger innhenting i abakus for behandling med id={} og uuid={}", behandling.getId(), behandling.getUuid());
         final var opplysningsperiode = opplysningsPeriodeTjeneste.beregn(behandling.getId(), fagsakYtelseType);
         var informasjonsElementer = utledBasertPå(behandlingType, fagsakYtelseType);
         final InnhentRegisterdataRequest innhentRegisterdataRequest = new InnhentRegisterdataRequest(behandling.getFagsak().getSaksnummer().getVerdi(),
@@ -201,7 +201,7 @@ public class RegisterdataInnhenter {
             informasjonsElementer);
 
         final var uuidDto = abakusTjeneste.innhentRegisterdata(innhentRegisterdataRequest);
-        log.info("Nytt aktivt grunnlag for behandling={} i abakus har uuid={}", behandling.getUuid(), uuidDto.toUuidReferanse());
+        LOG.info("Nytt aktivt grunnlag for behandling={} i abakus har uuid={}", behandling.getUuid(), uuidDto.toUuidReferanse());
         loggRepository.lagre(new AbakusInnhentingGrunnlagLogg(behandling.getId(), uuidDto.toUuidReferanse()));
     }
 

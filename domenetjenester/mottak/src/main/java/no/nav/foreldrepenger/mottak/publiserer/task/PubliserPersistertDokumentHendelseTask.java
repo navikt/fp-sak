@@ -33,7 +33,7 @@ public class PubliserPersistertDokumentHendelseTask extends GenerellProsessTask 
     public static final String TASKTYPE = "mottak.publiserPersistertDokument";
     public static final String MOTTATT_DOKUMENT_ID_KEY = "mottattDokumentId";
 
-    private static final Logger log = LoggerFactory.getLogger(PubliserPersistertDokumentHendelseTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PubliserPersistertDokumentHendelseTask.class);
 
     private FagsakRepository fagsakRepository;
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
@@ -61,7 +61,7 @@ public class PubliserPersistertDokumentHendelseTask extends GenerellProsessTask 
         Fagsak fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
         Optional<MottattDokument> dokumentOptional = mottatteDokumentTjeneste.hentMottattDokument(Long.valueOf(data.getPropertyValue(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY)));
         dokumentOptional.ifPresent(dokument -> inntektsmeldingTjeneste.hentInntektsMeldingFor(behandlingId, dokument.getJournalpostId()).ifPresent(inntektsmelding -> {
-            log.info("[DIALOG-HENDELSE] Inntektsmelding persistert : {}", inntektsmelding.getKanalreferanse());
+            LOG.info("[DIALOG-HENDELSE] Inntektsmelding persistert : {}", inntektsmelding.getKanalreferanse());
             InntektsmeldingInnsendingsårsak årsak = inntektsmelding.getInntektsmeldingInnsendingsårsak();
             if (årsak == null || InntektsmeldingInnsendingsårsak.UDEFINERT.equals(årsak)) {
                 årsak = InntektsmeldingInnsendingsårsak.NY;

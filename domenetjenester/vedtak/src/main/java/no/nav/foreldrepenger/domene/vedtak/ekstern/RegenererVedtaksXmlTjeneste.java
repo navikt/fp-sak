@@ -28,8 +28,8 @@ public class RegenererVedtaksXmlTjeneste {
 
     private FatteVedtakXmlTjeneste fpSakVedtakXmlTjeneste;
     private LagretVedtakRepository lagretVedtakRepository;
-    private final Logger log = LoggerFactory.getLogger(RegenererVedtaksXmlTjeneste.class);
-    private static Map<String, RegenererVedtaksXmlTjeneste.DokumentParserKonfig> SCHEMA_AND_CLASSES_TIL_STRUKTURERTE_DOKUMENTER = new HashMap<>();
+    private static final Logger LOG = LoggerFactory.getLogger(RegenererVedtaksXmlTjeneste.class);
+    private static final Map<String, RegenererVedtaksXmlTjeneste.DokumentParserKonfig> SCHEMA_AND_CLASSES_TIL_STRUKTURERTE_DOKUMENTER = new HashMap<>();
 
     static {
         SCHEMA_AND_CLASSES_TIL_STRUKTURERTE_DOKUMENTER.put(VedtakConstants.NAMESPACE, new RegenererVedtaksXmlTjeneste.DokumentParserKonfig(
@@ -57,15 +57,15 @@ public class RegenererVedtaksXmlTjeneste {
         try {
             namespace = retrieveNameSpaceOfXML(lagretVedtak.getXmlClob());
         } catch (XMLStreamException e) {
-            log.info("Kunne ikke utlede namespace for vedtak {}, med behandlingid {}.", lagretVedtak.getId(), behandling.getId(),e);
+            LOG.info("Kunne ikke utlede namespace for vedtak {}, med behandlingid {}.", lagretVedtak.getId(), behandling.getId(),e);
             return;
         }
         RegenererVedtaksXmlTjeneste.DokumentParserKonfig dokumentParserKonfig = SCHEMA_AND_CLASSES_TIL_STRUKTURERTE_DOKUMENTER.get(namespace);
         try {
             JaxbHelper.unmarshalAndValidateXMLWithStAX(dokumentParserKonfig.jaxbClass, lagretVedtak.getXmlClob(), dokumentParserKonfig.xsdLocation, dokumentParserKonfig.additionalXsd, dokumentParserKonfig.additionalClasses);
-            log.info("Vedtak med id {} og behandlingid {} gyldig ", lagretVedtak.getId(), behandling.getId());
+            LOG.info("Vedtak med id {} og behandlingid {} gyldig ", lagretVedtak.getId(), behandling.getId());
         } catch (JAXBException | XMLStreamException | SAXException e) {
-            log.info("Vedtak med id {} og behandlingid {} var ikke gyldig.", lagretVedtak.getId(), behandling.getId(),e);
+            LOG.info("Vedtak med id {} og behandlingid {} var ikke gyldig.", lagretVedtak.getId(), behandling.getId(),e);
             String vedtak = null;
             if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) || FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
                 vedtak = fpSakVedtakXmlTjeneste.opprettVedtakXml(behandling.getId());
@@ -89,15 +89,15 @@ public class RegenererVedtaksXmlTjeneste {
         try {
             namespace = retrieveNameSpaceOfXML(lagretVedtak.getXmlClob());
         } catch (XMLStreamException e) { // NOSONAR
-            log.info("Kunne ikke utlede namespace for vedtak {}, med behandlingid {}.", lagretVedtak.getId(), behandling.getId(),e);
+            LOG.info("Kunne ikke utlede namespace for vedtak {}, med behandlingid {}.", lagretVedtak.getId(), behandling.getId(),e);
             return false;
         }
         RegenererVedtaksXmlTjeneste.DokumentParserKonfig dokumentParserKonfig = SCHEMA_AND_CLASSES_TIL_STRUKTURERTE_DOKUMENTER.get(namespace);
         try {
             JaxbHelper.unmarshalAndValidateXMLWithStAX(dokumentParserKonfig.jaxbClass, lagretVedtak.getXmlClob(), dokumentParserKonfig.xsdLocation, dokumentParserKonfig.additionalXsd, dokumentParserKonfig.additionalClasses);
-            log.info("Vedtak med id {} og behandlingid {} gyldig ", lagretVedtak.getId(), behandling.getId());
+            LOG.info("Vedtak med id {} og behandlingid {} gyldig ", lagretVedtak.getId(), behandling.getId());
         } catch (JAXBException | XMLStreamException | SAXException e) {
-            log.info("Vedtak med id {} og behandlingid {} var ikke gyldig.", lagretVedtak.getId(), behandling.getId(),e);
+            LOG.info("Vedtak med id {} og behandlingid {} var ikke gyldig.", lagretVedtak.getId(), behandling.getId(),e);
             return false;
 
         }

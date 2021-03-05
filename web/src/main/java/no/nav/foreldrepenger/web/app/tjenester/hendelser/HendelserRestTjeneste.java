@@ -44,7 +44,7 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
 @Transactional
 public class HendelserRestTjeneste {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HendelserRestTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HendelserRestTjeneste.class);
 
     private HendelseSorteringRepository sorteringRepository;
     private HendelsemottakRepository hendelsemottakRepository;
@@ -78,7 +78,7 @@ public class HendelserRestTjeneste {
         HendelseDto hendelseDto = wrapperDto.getHendelse();
         var beskrivelse = String.format("Hendelse mottatt fra %s av typen %s med hendelseId: %s.",
                 hendelseDto.getAvsenderSystem(), hendelseDto.getHendelsetype(), hendelseDto.getId());
-        LOGGER.info(beskrivelse);
+        LOG.info(beskrivelse);
         if (!hendelsemottakRepository.hendelseErNy(hendelseDto.getId())) {
             return new EnkelRespons("Hendelse ble ignorert. Hendelse med samme ID er allerede registrert.");
         }
@@ -97,7 +97,7 @@ public class HendelserRestTjeneste {
     private EnkelRespons registrerHendelse(HendelseDto hendelse, String beskrivelse) {
         var hendelsType = ForretningshendelseType.fraKode(hendelse.getHendelsetype());
         if (ForretningshendelseType.UDEFINERT.equals(hendelsType)) {
-            LOGGER.warn("Kan ikke håndtere {}", beskrivelse);
+            LOG.warn("Kan ikke håndtere {}", beskrivelse);
             return new EnkelRespons("Ukjent hendelse");
         }
 

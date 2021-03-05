@@ -20,7 +20,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class VurderOppgaveArenaTask extends GenerellProsessTask {
 
-    private static final Logger log = LoggerFactory.getLogger(VurderOppgaveArenaTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(VurderOppgaveArenaTask.class);
 
     public static final String TASKTYPE = "iverksetteVedtak.oppgaveArena";
 
@@ -45,6 +45,6 @@ public class VurderOppgaveArenaTask extends GenerellProsessTask {
         AktørId aktørId = new AktørId(prosessTaskData.getAktørId());
         LocalDate skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId).getUtledetSkjæringstidspunkt();
         vurdereOmArenaYtelseSkalOpphøre.opprettOppgaveHvisArenaytelseSkalOpphøre(behandlingId, aktørId, skjæringstidspunkt);
-        log.info("VurderOppgaveArenaTask: Vurderer for behandling: {}", behandlingId); //$NON-NLS-1$
+        LOG.info("VurderOppgaveArenaTask: Vurderer for behandling: {}", behandlingId); //$NON-NLS-1$
     }
 }

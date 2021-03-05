@@ -55,7 +55,7 @@ public class VurderArbeidsforholdTjeneste {
 
     private static final Set<ArbeidType> ARBEIDSFORHOLD_TYPER = Stream.of(ORDINÆRT_ARBEIDSFORHOLD, FORENKLET_OPPGJØRSORDNING, MARITIMT_ARBEIDSFORHOLD)
             .collect(Collectors.toSet());
-    private static final Logger logger = LoggerFactory.getLogger(VurderArbeidsforholdTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(VurderArbeidsforholdTjeneste.class);
 
     private PåkrevdeInntektsmeldingerTjeneste påkrevdeInntektsmeldingerTjeneste;
 
@@ -193,7 +193,7 @@ public class VurderArbeidsforholdTjeneste {
                     final Arbeidsgiver arbeidsgiver = inntektsmelding.getArbeidsgiver();
                     final Set<InternArbeidsforholdRef> arbeidsforholdRefs = trekkUtRef(inntektsmelding);
                     LeggTilResultat.leggTil(result, AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD, arbeidsgiver, arbeidsforholdRefs);
-                    logger.info("Inntektsmelding uten kjent arbeidsforhold: arbeidsgiver={}, arbeidsforholdRef={}", arbeidsgiver, arbeidsforholdRefs);
+                    LOG.info("Inntektsmelding uten kjent arbeidsforhold: arbeidsgiver={}, arbeidsforholdRef={}", arbeidsgiver, arbeidsforholdRefs);
                 }
             }
         }
@@ -369,7 +369,7 @@ public class VurderArbeidsforholdTjeneste {
                         .map(Inntektsmelding::getArbeidsforholdRef)
                         .collect(Collectors.toSet());
             }
-            logger.info("Inntekter uten kjent arbeidsforhold: arbeidsgiver={}, arbeidsforholdRef={}", inntekt.getArbeidsgiver(), arbeidsforholdRefs);
+            LOG.info("Inntekter uten kjent arbeidsforhold: arbeidsgiver={}, arbeidsforholdRef={}", inntekt.getArbeidsgiver(), arbeidsforholdRefs);
         }
 
     }

@@ -19,7 +19,7 @@ import no.nav.vedtak.exception.IntegrasjonException;
 @ApplicationScoped
 public class PostnummerSynkroniseringTjeneste {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PostnummerSynkroniseringTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PostnummerSynkroniseringTjeneste.class);
 
     private static final String KODEVERK_POSTNUMMER = "Postnummer";
 
@@ -38,7 +38,7 @@ public class PostnummerSynkroniseringTjeneste {
     }
 
     public void synkroniserPostnummer() {
-        LOGGER.info("Synkroniserer kodeverk: {}", KODEVERK_POSTNUMMER); // NOSONAR
+        LOG.info("Synkroniserer kodeverk: {}", KODEVERK_POSTNUMMER); // NOSONAR
 
         LocalDate kodeverksDato = poststedKodeverkRepository.getPostnummerKodeverksDato();
 
@@ -46,9 +46,9 @@ public class PostnummerSynkroniseringTjeneste {
             KodeverkInfo pnrInfo = kodeverkTjeneste.hentGjeldendeKodeverk(KODEVERK_POSTNUMMER).orElseThrow();
             if (pnrInfo.getVersjonDato().isAfter(kodeverksDato)) {
                 lagreNyVersjon(pnrInfo);
-                LOGGER.info("Nye Postnummer lagret: versjon {} med dato {}", pnrInfo.getVersjon(), pnrInfo.getVersjonDato());
+                LOG.info("Nye Postnummer lagret: versjon {} med dato {}", pnrInfo.getVersjon(), pnrInfo.getVersjonDato());
             } else {
-                LOGGER.info("Har allerede Postnummer: versjon {} med dato {}", pnrInfo.getVersjon(), pnrInfo.getVersjonDato());
+                LOG.info("Har allerede Postnummer: versjon {} med dato {}", pnrInfo.getVersjon(), pnrInfo.getVersjonDato());
             }
         } catch (IntegrasjonException ex) {
             throw PoststedFeil.FACTORY.synkroniseringAvPoststedFeilet(ex).toException();

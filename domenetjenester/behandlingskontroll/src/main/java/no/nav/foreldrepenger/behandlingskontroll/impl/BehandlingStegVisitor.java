@@ -42,7 +42,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
  * Visitor for å traversere ett behandlingssteg.
  */
 class BehandlingStegVisitor {
-    private static final Logger log = org.slf4j.LoggerFactory.getLogger(BehandlingStegVisitor.class);
+    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(BehandlingStegVisitor.class);
 
     private final BehandlingRepository behandlingRepository;
     private final BehandlingskontrollKontekst kontekst;
@@ -96,7 +96,7 @@ class BehandlingStegVisitor {
 
         // Sett riktig status for steget før det utføres
         BehandlingStegStatus førStegStatus = behandling.getBehandlingStegStatus();
-        log.info("Prosesserer steg={}, stegStatus={}", stegType, førStegStatus);
+        LOG.info("Prosesserer steg={}, stegStatus={}", stegType, førStegStatus);
         // Vanlig prosessering skal ikke gjennomføres hvis steget VENTER.
         if (!gjenoppta && BehandlingStegStatus.VENTER.equals(førStegStatus)) {
             return StegProsesseringResultat.medMuligTransisjon(førStegStatus, BehandleStegResultat.settPåVent().getTransisjon());
@@ -137,7 +137,7 @@ class BehandlingStegVisitor {
             StegProsesseringResultat stegResultat,
             List<Aksjonspunkt> funnetAksjonspunkter) {
 
-        log.info("Avslutter steg={}, transisjon={} og funnet aksjonspunkter={}", stegType, stegResultat,
+        LOG.info("Avslutter steg={}, transisjon={} og funnet aksjonspunkter={}", stegType, stegResultat,
                 funnetAksjonspunkter.stream().map(Aksjonspunkt::getAksjonspunktDefinisjon).collect(Collectors.toList()));
 
         Optional<BehandlingStegTilstand> stegTilstandFør = behandling.getSisteBehandlingStegTilstand();
@@ -187,7 +187,7 @@ class BehandlingStegVisitor {
     }
 
     void markerOvergangTilNyttSteg(BehandlingStegType stegType, BehandlingStegTilstandSnapshot forrigeTilstand) {
-        log.info("Markerer nytt steg som aktivt: {}", stegType);
+        LOG.info("Markerer nytt steg som aktivt: {}", stegType);
 
         // Flytt aktivt steg til gjeldende steg hvis de ikke er like
         BehandlingStegStatus sluttStatusForAndreSteg = behandlingStegKonfigurasjon.getUtført();

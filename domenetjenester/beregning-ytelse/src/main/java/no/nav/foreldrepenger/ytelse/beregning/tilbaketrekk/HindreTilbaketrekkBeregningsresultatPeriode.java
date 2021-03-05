@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 
 class HindreTilbaketrekkBeregningsresultatPeriode {
-    private static final Logger LOGGER = LoggerFactory.getLogger(VurderArbeidsforholdTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(VurderArbeidsforholdTjeneste.class);
 
     private HindreTilbaketrekkBeregningsresultatPeriode() {
         // skjul public constructor
@@ -55,7 +55,7 @@ class HindreTilbaketrekkBeregningsresultatPeriode {
                 .forEach(builder -> builder.build(beregningsresultatPeriode));
 
             if(utbetaltDagsatsAvvikerFraBeregningsgrunnlag(bgDagsats, beregningsresultatPeriode)){
-                LOGGER.info("Dagsats som er feil: {} Tilhørende periode: {} Forrige andeler: {} BgAndeler: {} ", bgDagsats, beregningsresultatPeriode, forrigeAndeler, bgAndeler);
+                LOG.info("Dagsats som er feil: {} Tilhørende periode: {} Forrige andeler: {} BgAndeler: {} ", bgDagsats, beregningsresultatPeriode, forrigeAndeler, bgAndeler);
                 throw new IllegalStateException("Utviklerfeil: utbetDagsats er ulik bgDagsats");
             }
         }

@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 // Variasjoner av protokollen håndteres utenfro
 public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokumentmottaker {
 
-    private static final Logger log = org.slf4j.LoggerFactory.getLogger(DokumentmottakerYtelsesesrelatertDokument.class);
+    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(DokumentmottakerYtelsesesrelatertDokument.class);
 
     protected DokumentmottakerFelles dokumentmottakerFelles;
     Behandlingsoppretter behandlingsoppretter;
@@ -77,7 +77,7 @@ public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokum
 
         Behandling behandling = sisteYtelsesbehandling.get();
         boolean sisteYtelseErFerdigbehandlet = sisteYtelsesbehandling.map(Behandling::erSaksbehandlingAvsluttet).orElse(Boolean.FALSE);
-        log.info("DYD mottatt dokument {} for fagsak {} sistebehandling {} ferdig {}", mottattDokument.getId(), fagsak.getId(),
+        LOG.info("DYD mottatt dokument {} for fagsak {} sistebehandling {} ferdig {}", mottattDokument.getId(), fagsak.getId(),
             sisteYtelsesbehandling.map(Behandling::getId).orElse(0L), sisteYtelsesbehandling.map(Behandling::getStatus).orElse(BehandlingStatus.OPPRETTET).getKode());
         if (sisteYtelseErFerdigbehandlet) {
             Optional<Behandling> sisteAvsluttetBehandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId());

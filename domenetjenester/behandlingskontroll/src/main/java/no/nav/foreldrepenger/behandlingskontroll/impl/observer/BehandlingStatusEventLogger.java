@@ -11,7 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 
 @ApplicationScoped
 public class BehandlingStatusEventLogger {
-    private static final Logger log = LoggerFactory.getLogger(BehandlingStatusEventLogger.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BehandlingStatusEventLogger.class);
 
     BehandlingStatusEventLogger() {
         // for CDI
@@ -23,6 +23,6 @@ public class BehandlingStatusEventLogger {
 
         BehandlingStatus nyStatus = event.getNyStatus();
         String kode = nyStatus == null ? null : nyStatus.getKode();
-        log.info("Behandling status oppdatert; behandlingId [{}]; fagsakId [{}]; status [{}]]", behandlingId, fagsakId, kode);
+        LOG.info("Behandling status oppdatert; behandlingId [{}]; fagsakId [{}]; status [{}]]", behandlingId, fagsakId, kode);
     }
 }

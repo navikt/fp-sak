@@ -43,7 +43,7 @@ public class VedtakJsonFeedRestTjeneste {
     private static final String SVANGERSKAPSPENGER_PART_PATH = "/svangerskapspenger";
     public static final String SVANGERSKAPSPENGER_PATH = BASE_PATH + SVANGERSKAPSPENGER_PART_PATH; // NOSONAR TFP-2234
 
-    private static final Logger log = LoggerFactory.getLogger(VedtakJsonFeedRestTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(VedtakJsonFeedRestTjeneste.class);
 
     private VedtakFattetTjeneste tjeneste;
 
@@ -68,7 +68,7 @@ public class VedtakJsonFeedRestTjeneste {
             @DefaultValue("") @QueryParam("type") @Parameter(description = "Filtrerer på type hendelse") @Valid HendelseTypeParam hendelseTypeParam,
             @DefaultValue("") @QueryParam("aktoerId") @Parameter(description = "aktoerId") @Valid AktørParam aktørParam) {
         final VedtakDto dto = tjeneste.hentFpVedtak(sistLesteSekvensIdParam.get(), maxAntallParam.get(), hendelseTypeParam.get(), aktørParam.get());
-        log.info("VedtakFeed FP sekvens {} max {} type {} aktør {} antall {}", sistLesteSekvensIdParam.get(), maxAntallParam.get(),
+        LOG.info("VedtakFeed FP sekvens {} max {} type {} aktør {} antall {}", sistLesteSekvensIdParam.get(), maxAntallParam.get(),
                 hendelseTypeParam.get() == null ? "notype" : hendelseTypeParam.get(), aktørParam.get().isPresent() ? "angitt" : "tom",
                 dto.getElementer().size());
         return new FeedDto.Builder().medTittel("ForeldrepengerVedtak_v1").medElementer(dto.getElementer())
@@ -88,7 +88,7 @@ public class VedtakJsonFeedRestTjeneste {
             @DefaultValue("") @QueryParam("type") @Parameter(description = "Filtrerer på type hendelse") @Valid HendelseTypeParam hendelseTypeParam,
             @DefaultValue("") @QueryParam("aktoerId") @Parameter(description = "aktoerId") @Valid AktørParam aktørParam) {
         final VedtakDto dto = tjeneste.hentSvpVedtak(sistLesteSekvensIdParam.get(), maxAntallParam.get(), hendelseTypeParam.get(), aktørParam.get());
-        log.info("VedtakFeed SVP sekvens {} max {} type {} aktør {} antall {}", sistLesteSekvensIdParam.get(), maxAntallParam.get(),
+        LOG.info("VedtakFeed SVP sekvens {} max {} type {} aktør {} antall {}", sistLesteSekvensIdParam.get(), maxAntallParam.get(),
                 hendelseTypeParam.get() == null ? "notype" : hendelseTypeParam.get(), aktørParam.get().isPresent() ? "angitt" : "tom",
                 dto.getElementer().size());
         return new FeedDto.Builder().medTittel("SVPVedtak_v1").medElementer(dto.getElementer()).medInneholderFlereElementer(dto.isHarFlereElementer())
