@@ -9,7 +9,6 @@ import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
 import no.nav.vedtak.felles.xml.felles.v2.BooleanOpplysning;
 import no.nav.vedtak.felles.xml.felles.v2.DateOpplysning;
 import no.nav.vedtak.felles.xml.felles.v2.DecimalOpplysning;
@@ -21,6 +20,7 @@ import no.nav.vedtak.felles.xml.felles.v2.LongOpplysning;
 import no.nav.vedtak.felles.xml.felles.v2.ObjectFactory;
 import no.nav.vedtak.felles.xml.felles.v2.PeriodeOpplysning;
 import no.nav.vedtak.felles.xml.felles.v2.StringOpplysning;
+import no.nav.vedtak.xmlutils.DateUtil;
 
 public class VedtakXmlUtil {
     private static ObjectFactory fellesObjectFactory = new ObjectFactory();

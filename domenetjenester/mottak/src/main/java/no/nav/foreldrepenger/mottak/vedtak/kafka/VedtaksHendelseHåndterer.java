@@ -44,11 +44,6 @@ import no.nav.foreldrepenger.mottak.vedtak.overlapp.VurderOpphørAvYtelserTask;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.fpsak.tidsserie.StandardCombinators;
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.konfig.Tid;
@@ -109,7 +104,7 @@ public class VedtaksHendelseHåndterer {
             }
             handleMessageIntern(mottattVedtak);
         } catch (IOException e) {
-            YtelseFeil.FACTORY.parsingFeil(key, payload, e).log(LOG);
+            LOG.warn("FP-328773 Vedtatt-Ytelse Feil under parsing av vedtak. key={} payload={}", key, payload, e);
         } catch (Exception e) {
             LOG.warn("Vedtatt-Ytelse exception ved håndtering av vedtaksmelding, ignorerer key={}", LoggerUtils.removeLineBreaks(payload), e);
         }
@@ -225,14 +220,6 @@ public class VedtaksHendelseHåndterer {
 
         var fpTidslinje = new LocalDateTimeline<>(fpsegments, StandardCombinators::alwaysTrueForMatch).compress();
         return !fpTidslinje.intersection(ytelseTidslinje).getLocalDateIntervals().isEmpty();
-    }
-
-    private interface YtelseFeil extends DeklarerteFeil {
-
-        YtelseFeil FACTORY = FeilFactory.create(YtelseFeil.class);
-
-        @TekniskFeil(feilkode = "FP-328773", feilmelding = "Vedtatt-Ytelse Feil under parsing av vedtak. key={%s} payload={%s}", logLevel = LogLevel.WARN)
-        Feil parsingFeil(String key, String payload, IOException e);
     }
 
     void lagreProsesstaskFor(Behandling behandling, String taskType, int delaysecs) {

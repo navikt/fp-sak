@@ -25,7 +25,6 @@ import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.web.app.tjenester.VurderProsessTaskStatusForPollingApi;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
 import no.nav.foreldrepenger.web.app.util.LdapUtil;
-import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.felles.integrasjon.ldap.LdapBruker;
 import no.nav.vedtak.felles.integrasjon.ldap.LdapBrukeroppslag;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -35,8 +34,6 @@ import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
 @ApplicationScoped
 public class BehandlingsprosessTjeneste {
-
-    private static final BehandlingsprosessFeil FEIL = FeilFactory.create(BehandlingsprosessFeil.class);
 
     private BehandlingRepository behandlingRepository;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
@@ -148,7 +145,7 @@ public class BehandlingsprosessTjeneste {
         Long behandlingId = behandling.getId();
 
         Map<String, ProsessTaskData> nesteTask = prosesseringAsynkTjeneste.sjekkProsessTaskPågårForBehandling(behandling, gruppe);
-        return new VurderProsessTaskStatusForPollingApi(FEIL, behandlingId).sjekkStatusNesteProsessTask(gruppe, nesteTask);
+        return new VurderProsessTaskStatusForPollingApi(behandlingId).sjekkStatusNesteProsessTask(gruppe, nesteTask);
 
     }
 

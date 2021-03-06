@@ -23,11 +23,11 @@ import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.OppdragsLinje15
 import no.nav.foreldrepenger.økonomistøtte.BehandleØkonomioppdragKvittering;
 import no.nav.foreldrepenger.økonomistøtte.queue.ØkonomioppdragMeldingFeil;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomiKvittering;
-import no.nav.vedtak.felles.integrasjon.felles.ws.JaxbHelper;
 import no.nav.vedtak.felles.integrasjon.jms.InternalQueueConsumer;
 import no.nav.vedtak.felles.integrasjon.jms.JmsKonfig;
 import no.nav.vedtak.felles.integrasjon.jms.precond.DefaultDatabaseOppePreconditionChecker;
 import no.nav.vedtak.felles.integrasjon.jms.precond.PreconditionChecker;
+import no.nav.vedtak.xmlutils.JaxbHelper;
 
 @ApplicationScoped
 public class ØkonomioppdragAsyncJmsConsumerImpl extends InternalQueueConsumer implements ØkonomioppdragAsyncJmsConsumer {

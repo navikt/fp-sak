@@ -39,7 +39,7 @@ import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.LogLevel;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
 import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
-import no.nav.vedtak.felles.integrasjon.felles.ws.JaxbHelper;
+import no.nav.vedtak.xmlutils.JaxbHelper;
 
 public class GrensesnittavstemmingMapper {
     private ObjectFactory objectFactory;

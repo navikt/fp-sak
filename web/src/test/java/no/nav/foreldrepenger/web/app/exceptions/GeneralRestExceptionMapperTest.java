@@ -71,7 +71,7 @@ public class GeneralRestExceptionMapperTest {
         FeilDto feilDto = (FeilDto) response.getEntity();
 
         assertThat(feilDto.getType()).isEqualTo(FeilType.MANGLER_TILGANG_FEIL);
-        assertThat(feilDto.getFeilmelding()).isEqualTo("ManglerTilgangFeilmeldingKode");
+        assertThat(feilDto.getFeilmelding()).contains("ManglerTilgangFeilmeldingKode");
         assertThat(logSniffer.search("ManglerTilgangFeilmeldingKode", Level.WARN)).hasSize(0);
     }
 

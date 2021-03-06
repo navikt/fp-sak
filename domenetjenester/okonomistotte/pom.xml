@@ -30,8 +30,8 @@
 			</exclusions>
 		</dependency>
         <dependency>
-            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-            <artifactId>felles-integrasjon-webservice</artifactId>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-util</artifactId>
         </dependency>
 		<dependency>
 			<groupId>no.nav.foreldrepenger</groupId>

@@ -32,6 +32,7 @@ import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceCollection;
 import org.eclipse.jetty.webapp.Configuration;
 import org.eclipse.jetty.webapp.MetaData;
+import org.eclipse.jetty.webapp.WebAppConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
 import org.eclipse.jetty.webapp.WebXmlConfiguration;
@@ -55,6 +56,7 @@ abstract class AbstractJettyServer {
      * nedstrippet sett med Jetty configurations for raskere startup.
      */
     protected static final Configuration[] CONFIGURATIONS = new Configuration[] {
+            new WebAppConfiguration(),
             new WebInfConfiguration(),
             new WebXmlConfiguration(),
             new AnnotationConfiguration(),
@@ -157,7 +159,7 @@ abstract class AbstractJettyServer {
             .distinct()
             .collect(Collectors.toList());
 
-        metaData.setWebInfClassesDirs(resources);
+        metaData.setWebInfClassesResources(resources);
     }
 
     protected abstract List<Class<?>> getWebInfClasses();

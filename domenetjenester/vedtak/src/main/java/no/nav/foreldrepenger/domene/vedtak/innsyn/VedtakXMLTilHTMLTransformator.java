@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.domene.vedtak.innsyn;
 
 import static no.nav.foreldrepenger.domene.vedtak.innsyn.TransformerVedtakXmlFeil.FACTORY;
-import static no.nav.vedtak.felles.xml.XmlUtils.retrieveNameSpaceOfXML;
+import static no.nav.vedtak.xmlutils.XmlUtils.retrieveNameSpaceOfXML;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -28,8 +28,6 @@ import org.xml.sax.SAXException;
 
 import no.nav.foreldrepenger.vedtak.v1.ForeldrepengerVedtakConstants;
 import no.nav.foreldrepenger.vedtak.v2.VedtakConstants;
-import no.nav.vedtak.felles.integrasjon.felles.ws.JaxbHelper;
-import no.nav.vedtak.felles.xml.XmlUtils;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.es.v2.PersonopplysningerEngangsstoenad;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.Medlemskap;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.PersonopplysningerForeldrepenger;
@@ -39,6 +37,8 @@ import no.nav.vedtak.felles.xml.vedtak.v2.Personopplysninger;
 import no.nav.vedtak.felles.xml.vedtak.v2.TilkjentYtelse;
 import no.nav.vedtak.felles.xml.vedtak.v2.Vedtak;
 import no.nav.vedtak.felles.xml.vedtak.ytelse.fp.v2.YtelseForeldrepenger;
+import no.nav.vedtak.xmlutils.JaxbHelper;
+import no.nav.vedtak.xmlutils.XmlUtils;
 
 public class VedtakXMLTilHTMLTransformator {
 

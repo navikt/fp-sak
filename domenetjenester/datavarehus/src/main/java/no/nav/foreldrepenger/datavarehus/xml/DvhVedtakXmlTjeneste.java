@@ -23,9 +23,9 @@ import no.nav.foreldrepenger.domene.vedtak.xml.VedtakXmlFeil;
 import no.nav.foreldrepenger.domene.vedtak.xml.VedtakXmlTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.vedtak.v2.VedtakConstants;
-import no.nav.vedtak.felles.integrasjon.felles.ws.JaxbHelper;
 import no.nav.vedtak.felles.xml.vedtak.v2.ObjectFactory;
 import no.nav.vedtak.felles.xml.vedtak.v2.Vedtak;
+import no.nav.vedtak.xmlutils.JaxbHelper;
 
 @ApplicationScoped
 public class DvhVedtakXmlTjeneste {
@@ -69,12 +69,12 @@ public class DvhVedtakXmlTjeneste {
         vedtakXmlTjeneste.setVedtaksopplysninger(vedtak, fagsak, behandling);
         FagsakYtelseType ytelseType = fagsak.getYtelseType();
         String ikkeFunnet = "Ingen implementasjoner funnet for ytelse: " + ytelseType.getKode();
-        
+
         FagsakYtelseTypeRef.Lookup.find(personopplysningXmlTjenester, ytelseType).orElseThrow(() -> new IllegalStateException(ikkeFunnet))
             .setPersonopplysninger(vedtak, behandlingId, behandling.getAktørId(), skjæringstidspunkter);
-        
+
         behandlingsresultatXmlTjenester.setBehandlingresultat(vedtak, behandling);
-        
+
         FagsakYtelseTypeRef.Lookup.find(oppdragXmlTjenester, ytelseType).orElseThrow(() -> new IllegalStateException(ikkeFunnet))
             .setOppdrag(vedtak, behandling);
 

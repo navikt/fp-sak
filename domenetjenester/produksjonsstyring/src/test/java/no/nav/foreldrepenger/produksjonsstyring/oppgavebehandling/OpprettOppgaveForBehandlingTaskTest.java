@@ -34,6 +34,7 @@ import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOp
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OppgaveRestKlient;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavestatus;
+import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -89,7 +90,7 @@ public class OpprettOppgaveForBehandlingTaskTest {
         taskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         OpprettOppgaveForBehandlingTask task = new OpprettOppgaveForBehandlingTask(tjeneste);
 
-        when(oppgaveRestKlient.opprettetOppgave(any())).thenReturn(OPPGAVE);
+        when(oppgaveRestKlient.opprettetOppgave(any(OpprettOppgave.Builder.class))).thenReturn(OPPGAVE);
 
         List<OppgaveBehandlingKobling> oppgaver = oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(behandling.getId());
         assertThat(OppgaveBehandlingKobling.getAktivOppgaveMedÅrsak(OppgaveÅrsak.BEHANDLE_SAK, oppgaver)).isNotPresent();
@@ -119,7 +120,7 @@ public class OpprettOppgaveForBehandlingTaskTest {
         taskData.setBehandling(revurdering.getFagsakId(), revurdering.getId(), revurdering.getAktørId().getId());
         OpprettOppgaveForBehandlingTask task = new OpprettOppgaveForBehandlingTask(tjeneste);
 
-        when(oppgaveRestKlient.opprettetOppgave(any())).thenReturn(OPPGAVE);
+        when(oppgaveRestKlient.opprettetOppgave(any(OpprettOppgave.Builder.class))).thenReturn(OPPGAVE);
 
         // Skal ikke ha en oppgave av typen revurder fra før
         List<OppgaveBehandlingKobling> oppgaver = oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(behandling.getId());

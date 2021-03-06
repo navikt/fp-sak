@@ -81,14 +81,8 @@
             <artifactId>hendelser-inntektsmelding</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-            <artifactId>felles-integrasjon-webservice</artifactId>
-            <exclusions>
-            	<exclusion>
-            		<groupId>javax.xml.stream</groupId>
-            		<artifactId>stax-api</artifactId>
-            	</exclusion>
-            </exclusions>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-util</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>

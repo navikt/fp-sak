@@ -85,7 +85,7 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
     public void skal_opprette_oppgave_når_det_ikke_finnes_fra_før() {
         var behandling = lagBehandling();
         Long behandlingId = behandling.getId();
-        when(oppgaveRestKlient.opprettetOppgave(any())).thenReturn(OPPGAVE);
+        when(oppgaveRestKlient.opprettetOppgave(any(OpprettOppgave.Builder.class))).thenReturn(OPPGAVE);
         tjeneste.opprettBasertPåBehandlingId(behandlingId, OppgaveÅrsak.BEHANDLE_SAK);
         var oppgaveBehandlingKoblinger = oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(behandlingId);
         assertThat(oppgaveBehandlingKoblinger).hasSize(1);
@@ -100,7 +100,7 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
     public void skal_ikke_opprette_en_ny_oppgave_av_samme_type_når_det_finnes_fra_før_og_den_ikke_er_ferdigstilt() {
         var behandling = lagBehandling();
         Long behandlingId = behandling.getId();
-        when(oppgaveRestKlient.opprettetOppgave(any())).thenReturn(OPPGAVE);
+        when(oppgaveRestKlient.opprettetOppgave(any(OpprettOppgave.Builder.class))).thenReturn(OPPGAVE);
 
         tjeneste.opprettBasertPåBehandlingId(behandlingId, OppgaveÅrsak.BEHANDLE_SAK);
         var oppgaver = oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(behandlingId);
@@ -116,7 +116,7 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
     public void skal_opprette_en_ny_oppgave_når_det_finnes_fra_før_og_den_er_ferdigstilt() {
         var behandling = lagBehandling();
         Long behandlingId = behandling.getId();
-        when(oppgaveRestKlient.opprettetOppgave(any())).thenReturn(OPPGAVE);
+        when(oppgaveRestKlient.opprettetOppgave(any(OpprettOppgave.Builder.class))).thenReturn(OPPGAVE);
 
         tjeneste.opprettBasertPåBehandlingId(behandlingId, OppgaveÅrsak.BEHANDLE_SAK);
         var oppgaver = oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(behandlingId);
@@ -134,7 +134,7 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
     public void skal_kunne_opprette_en_ny_oppgave_med_en_annen_årsak_selv_om_det_finnes_en_aktiv_oppgave() {
         var behandling = lagBehandling();
         Long behandlingId = behandling.getId();
-        when(oppgaveRestKlient.opprettetOppgave(any())).thenReturn(OPPGAVE);
+        when(oppgaveRestKlient.opprettetOppgave(any(OpprettOppgave.Builder.class))).thenReturn(OPPGAVE);
 
         tjeneste.opprettBasertPåBehandlingId(behandlingId, OppgaveÅrsak.BEHANDLE_SAK);
         tjeneste.opprettBasertPåBehandlingId(behandlingId, OppgaveÅrsak.BEHANDLE_SAK);
@@ -151,7 +151,7 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
     public void skal_avslutte_oppgave() {
         var behandling = lagBehandling();
         Long behandlingId = behandling.getId();
-        when(oppgaveRestKlient.opprettetOppgave(any())).thenReturn(OPPGAVE);
+        when(oppgaveRestKlient.opprettetOppgave(any(OpprettOppgave.Builder.class))).thenReturn(OPPGAVE);
 
         tjeneste.opprettBasertPåBehandlingId(behandlingId, OppgaveÅrsak.BEHANDLE_SAK);
 

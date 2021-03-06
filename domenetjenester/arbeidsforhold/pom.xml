@@ -15,8 +15,8 @@
 	<dependencies>
 		<!-- for Bean validation -->
 		<dependency>
-			<groupId>javax.validation</groupId>
-			<artifactId>validation-api</artifactId>
+			<groupId>jakarta.validation</groupId>
+			<artifactId>jakarta.validation-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate.validator</groupId>
@@ -24,7 +24,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.glassfish</groupId>
-			<artifactId>javax.el</artifactId>
+			<artifactId>jakarta.el</artifactId>
 		</dependency>
 		<dependency>
 			<!-- trengs for integrasjon mellom Weld og Javax.El -->
@@ -64,16 +64,6 @@
         </dependency>
 
 		<!-- Test -->
-		<dependency>
-			<groupId>org.assertj</groupId>
-			<artifactId>assertj-core</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-core</artifactId>
-			<scope>test</scope>
-		</dependency>
 		<dependency>
 			<groupId>no.nav.foreldrepenger.felles</groupId>
 			<artifactId>felles-testutilities</artifactId>
