@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.økonomistøtte;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -11,17 +12,27 @@ import org.apache.commons.lang3.StringUtils;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingInntrekkEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.domene.person.pdl.AktørTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.økonomistøtte.ny.domene.Betalingsmottaker;
+import no.nav.foreldrepenger.økonomistøtte.ny.domene.KjedeNøkkel;
+import no.nav.foreldrepenger.økonomistøtte.ny.domene.Periode;
+import no.nav.foreldrepenger.økonomistøtte.ny.domene.Satsen;
+import no.nav.foreldrepenger.økonomistøtte.ny.domene.Ytelse;
+import no.nav.foreldrepenger.økonomistøtte.ny.domene.YtelsePeriode;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.GruppertYtelse;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.OverordnetOppdragKjedeOversikt;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.EksisterendeOppdragMapper;
@@ -34,6 +45,7 @@ public class OppdragInputTjeneste {
     private static final long DUMMY_PT_SIMULERING_ID = -1L;
     private static final String DEFAULT_ANSVARLIG_SAKSBEHANDLER = "VL";
 
+    private LegacyESBeregningRepository beregningRepository;
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
@@ -53,7 +65,8 @@ public class OppdragInputTjeneste {
                                 FamilieHendelseRepository familieHendelseRepository,
                                 TilbakekrevingRepository tilbakekrevingRepository,
                                 AktørTjeneste aktørTjeneste,
-                                ØkonomioppdragRepository økonomioppdragRepository) {
+                                ØkonomioppdragRepository økonomioppdragRepository,
+                                LegacyESBeregningRepository beregningRepository) {
         this.behandlingRepository = behandlingRepository;
         this.beregningsresultatRepository = beregningsresultatRepository;
         this.behandlingVedtakRepository = behandlingVedtakRepository;
@@ -61,27 +74,62 @@ public class OppdragInputTjeneste {
         this.tilbakekrevingRepository = tilbakekrevingRepository;
         this.aktørTjeneste = aktørTjeneste;
         this.økonomioppdragRepository = økonomioppdragRepository;
+        this.beregningRepository = beregningRepository;
     }
 
     public Input lagInput(long behandlingId, long prosessTaskId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var fagsak = behandling.getFagsak();
         var behandlingVedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId);
-        var familieYtelseType = finnFamilieYtelseType(behandlingId, fagsak.getYtelseType());
+
+        var tidligereOppdragskontroll = hentTidligereOppdragskontroll(fagsak.getSaksnummer());
+        var ytelseType = fagsak.getYtelseType();
 
         var inputBuilder = Input.builder()
             .medBehandlingId(behandlingId)
             .medSaksnummer(fagsak.getSaksnummer())
-            .medFagsakYtelseType(fagsak.getYtelseType())
+            .medFagsakYtelseType(ytelseType)
             .medVedtaksdato(behandlingVedtak.map(BehandlingVedtak::getVedtaksdato).orElse(LocalDate.now()))
             .medAnsvarligSaksbehandler(behandlingVedtak.map(BehandlingVedtak::getAnsvarligSaksbehandler).orElse(finnSaksbehandlerFra(behandling)))
             .medBrukerFnr(hentFnrBruker(behandling))
-            .medTilkjentYtelse(grupperYtelse(hentTilkjentYtelse(behandlingId), familieYtelseType))
+            .medTidligereOppdrag(mapTidligereOppdrag(tidligereOppdragskontroll))
+            .medTilkjentYtelse(ytelseType.equals(FagsakYtelseType.ENGANGSTØNAD)
+                ? grupperYtelseEngangsstønad(behandlingId, tidligereOppdragskontroll)
+                : grupperYtelse(hentTilkjentYtelse(behandlingId), getFamilieYtelseType(behandlingId, fagsak)))
             .medBrukInntrekk(hentBrukInntrekk(behandlingId))
             .medProsessTaskId(prosessTaskId)
-            .medTidligereOppdrag(mapTidligereOppdrag(hentTidligereOppdragskontroll(fagsak.getSaksnummer())))
             ;
         return inputBuilder.build();
+    }
+
+    private GruppertYtelse grupperYtelseEngangsstønad(long behandlingId, List<Oppdragskontroll> tidligereOppdragskontroll) {
+        var sats = hentSatsFraBehandling(behandlingId);
+        if (sats.isEmpty()) {
+           return GruppertYtelse.TOM;
+        } else
+        {
+            GruppertYtelse.builder()
+                .leggTilKjede(
+                    KjedeNøkkel.lag(gjelderFødsel(behandlingId) ? KodeKlassifik.ES_FØDSEL : KodeKlassifik.ES_ADOPSJON, Betalingsmottaker.BRUKER),
+                    Ytelse.builder()
+                        .leggTilPeriode(lagPeriode(vedtaksDato, Satsen.engang(sats)))
+                        .build()
+                );
+        }
+
+    }
+
+    protected YtelsePeriode lagPeriode(LocalDate referanseDato, Satsen sats) {
+        return new YtelsePeriode(Periode.of(referanseDato, referanseDato), sats);
+    }
+
+    private Optional<Long> hentSatsFraBehandling(long behandlingId) {
+        Optional<LegacyESBeregning> beregning = beregningRepository.getSisteBeregning(behandlingId);
+        return beregning.map(LegacyESBeregning::getBeregnetTilkjentYtelse);
+    }
+
+    private FamilieYtelseType getFamilieYtelseType(long behandlingId, Fagsak fagsak) {
+        return finnFamilieYtelseType(behandlingId, fagsak.getYtelseType());
     }
 
     public Input lagInput(long behandlingId) {

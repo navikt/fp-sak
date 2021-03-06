@@ -39,7 +39,7 @@ public class EksisterendeOppdragMapper {
         return oppdragTilKjeder(oppdragskontroll.stream().flatMap(ok -> ok.getOppdrag110Liste().stream()).collect(Collectors.toList()));
     }
 
-    public static Map<KjedeNøkkel, OppdragKjede> oppdragTilKjeder(List<Oppdrag110> tidligereOppdrag) {
+    private static Map<KjedeNøkkel, OppdragKjede> oppdragTilKjeder(List<Oppdrag110> tidligereOppdrag) {
         List<Oppdrag110> godkjenteOppdrag = sorterOgVelgKunGyldige(tidligereOppdrag);
         var buildere = lagOppdragskjedeBuildere(godkjenteOppdrag);
         return build(buildere);

@@ -152,8 +152,8 @@ public class Feriepengeavstemmer {
 
     public static class GrupperingNøkkel {
 
-        private Year opptjent;
-        private String mottaker;
+        private final Year opptjent;
+        private final String mottaker;
 
         public GrupperingNøkkel(Year opptjent, String mottaker) {
             this.opptjent = opptjent;

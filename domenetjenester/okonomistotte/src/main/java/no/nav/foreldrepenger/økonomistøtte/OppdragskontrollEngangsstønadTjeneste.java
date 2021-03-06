@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.kontantytelse.es.OppdragskontrollEngangsstønad;
@@ -28,7 +27,7 @@ import no.nav.foreldrepenger.økonomistøtte.ny.mapper.Input;
 @Dependent
 @FagsakYtelseTypeRef("ES")
 @Named("oppdragEngangstønadTjeneste")
-public class    OppdragskontrollEngangsstønadTjeneste implements OppdragskontrollTjeneste {
+public class OppdragskontrollEngangsstønadTjeneste implements OppdragskontrollTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(OppdragskontrollEngangsstønadTjeneste.class);
     private static final Long DUMMY_PT_ID_SIMULERING = -1L;
