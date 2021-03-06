@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.mottak.hendelser;
 
-import static no.nav.foreldrepenger.mottak.hendelser.ForretningshendelseMottakFeil.FEILFACTORY;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -139,7 +137,7 @@ public class ForretningshendelseMottak {
 
         // Case 4: Ytelsesbehandling finnes, men verken åpen eller innvilget. Antas å inntreffe sjelden
         if (sisteInnvilgedeYtelsesbehandling.isEmpty()) {
-            FEILFACTORY.finnesYtelsebehandlingSomVerkenErÅpenEllerInnvilget(hendelseType.getKode(), fagsakId).log(LOG);
+            LOG.info("FP-524248 Det finnes fagsak for ytelsesbehandling, men ingen åpen eller innvilget ytelsesesbehandling. Gjelder forretningshendelse '{}' på fagsakId {}.", hendelseType.getKode(), fagsakId);
             return;
         }
         Behandling innvilgetBehandling = sisteInnvilgedeYtelsesbehandling.get();

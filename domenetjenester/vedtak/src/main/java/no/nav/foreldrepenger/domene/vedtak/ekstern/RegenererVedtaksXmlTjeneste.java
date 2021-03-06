@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.domene.vedtak.ekstern;
 
-import static no.nav.vedtak.felles.xml.XmlUtils.retrieveNameSpaceOfXML;
+import static no.nav.vedtak.xmlutils.XmlUtils.retrieveNameSpaceOfXML;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.domene.vedtak.repo.LagretVedtakRepository;
 import no.nav.foreldrepenger.domene.vedtak.xml.FatteVedtakXmlTjeneste;
 import no.nav.foreldrepenger.vedtak.v1.ForeldrepengerVedtakConstants;
 import no.nav.foreldrepenger.vedtak.v2.VedtakConstants;
-import no.nav.vedtak.felles.integrasjon.felles.ws.JaxbHelper;
+import no.nav.vedtak.xmlutils.JaxbHelper;
 
 @ApplicationScoped
 public class RegenererVedtaksXmlTjeneste {

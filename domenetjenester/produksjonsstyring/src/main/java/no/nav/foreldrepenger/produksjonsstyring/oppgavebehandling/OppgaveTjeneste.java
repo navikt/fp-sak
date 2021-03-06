@@ -32,6 +32,7 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.historikk.Oppgavetyper;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.AvsluttOppgaveTask;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OppgaveRestKlient;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
@@ -140,7 +141,7 @@ public class OppgaveTjeneste {
         if (oppgave.isPresent()) {
             avsluttOppgave(oppgave.get());
         } else {
-            OppgaveFeilmeldinger.FACTORY.oppgaveMedÅrsakIkkeFunnet(oppgaveÅrsak.getKode(), behandlingId).log(LOG);
+            LOG.warn("FP-395338 Fant ikke oppgave med årsak={}, som skulle vært avsluttet på behandlingId={}.", oppgaveÅrsak.getKode(), behandlingId);
         }
     }
 
@@ -149,7 +150,7 @@ public class OppgaveTjeneste {
         if (oppgave.isPresent()) {
             avsluttOppgave(oppgave.get());
         } else {
-            OppgaveFeilmeldinger.FACTORY.oppgaveMedIdIkkeFunnet(oppgaveId, behandlingId).log(LOG);
+            LOG.warn("FP-395339 Fant ikke oppgave med id={}, som skulle vært avsluttet på behandlingId={}.", oppgaveId, behandlingId);
         }
     }
 
@@ -246,7 +247,7 @@ public class OppgaveTjeneste {
             LOG.info("FPSAK GOSYS fant {} oppgaver av type {}", oppgaver.size(), oppgavetype.getKode());
             return oppgaver != null && !oppgaver.isEmpty();
         } catch (Exception e) {
-            throw OppgaveFeilmeldinger.FACTORY.feilVedHentingAvOppgaver(oppgavetype.getKode()).toException();
+            throw new TekniskException("FP-395340", String.format("Feil ved henting av oppgaver for oppgavetype=%s.", oppgavetype.getKode()));
         }
     }
 
@@ -347,7 +348,7 @@ public class OppgaveTjeneste {
 
     private PersonIdent hentPersonInfo(AktørId aktørId) {
         return personinfoAdapter.hentFnr(aktørId)
-            .orElseThrow(() -> OppgaveFeilmeldinger.FACTORY.identIkkeFunnet(aktørId).toException());
+            .orElseThrow(() -> new TekniskException("FP-442142", String.format("Fant ingen ident for aktør %s.", aktørId)));
     }
 
     /*

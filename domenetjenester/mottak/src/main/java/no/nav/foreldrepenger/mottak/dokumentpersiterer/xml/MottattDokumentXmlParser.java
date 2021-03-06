@@ -1,13 +1,13 @@
 package no.nav.foreldrepenger.mottak.dokumentpersiterer.xml;
 
 import static no.nav.foreldrepenger.mottak.dokumentpersiterer.xml.MottattDokumentXmlParserFeil.FACTORY;
-import static no.nav.vedtak.felles.xml.XmlUtils.retrieveNameSpaceOfXML;
+import static no.nav.vedtak.xmlutils.XmlUtils.retrieveNameSpaceOfXML;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.MottattDokumentWrapper;
-import no.nav.vedtak.felles.integrasjon.felles.ws.JaxbHelper;
+import no.nav.vedtak.xmlutils.JaxbHelper;
 
 public final class MottattDokumentXmlParser {
 

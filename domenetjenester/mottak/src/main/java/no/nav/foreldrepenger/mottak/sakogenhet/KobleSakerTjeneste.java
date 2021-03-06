@@ -78,14 +78,14 @@ public class KobleSakerTjeneste {
         FagsakRelasjon fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak).orElse(null);
         // Allerede koblet
         if (fagsakRelasjon != null && fagsakRelasjon.getFagsakNrTo().isPresent()) {
-            HendelserFeil.FACTORY.fagsakAlleredeKoblet(fagsak.getSaksnummer()).log(LOG);
+            LOG.warn("FP-330623 Fagsak allerede koblet, saksnummer: {}", fagsak.getSaksnummer());
             return Optional.empty();
         }
 
         // Mangler familiehendelseinformasjon og mulighet for å finne samme barnekull.
         FamilieHendelseGrunnlagEntitet grunnlag = familieHendelseTjeneste.finnAggregat(behandling.getId()).orElse(null);
         if (grunnlag == null || FamilieHendelseType.UDEFINERT.equals(grunnlag.getGjeldendeVersjon().getType())) {
-            HendelserFeil.FACTORY.familiehendelseUtenDato(fagsak.getSaksnummer()).log(LOG);
+            LOG.warn("FP-388501 OBS varsle produkteier: Familiehendelse uten dato, saksnummer: {}", fagsak.getSaksnummer());
             return Optional.empty();
         }
 
@@ -105,7 +105,7 @@ public class KobleSakerTjeneste {
             return Optional.empty();
         } else if (aktuelleFagsaker.size() > 1) {
             String kandidater = aktuelleFagsaker.stream().map(f -> f.getSaksnummer().getVerdi()).collect(Collectors.joining(", "));
-            HendelserFeil.FACTORY.flereMuligeFagsakerÅKobleTil(fagsak.getSaksnummer(), kandidater).log(LOG);
+            LOG.warn("FP-059216 OBS varsle produkteier: Flere mulige fagsaker å koble til for saksnummer: {} kandidater: {}", fagsak.getSaksnummer(), kandidater);
             return Optional.empty();
         }
         return Optional.of(aktuelleFagsaker.get(0));

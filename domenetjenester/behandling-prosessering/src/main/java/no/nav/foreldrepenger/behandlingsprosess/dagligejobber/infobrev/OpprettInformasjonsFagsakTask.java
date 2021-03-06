@@ -32,7 +32,7 @@ import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettin
 import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveFeilmeldinger;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
@@ -161,7 +161,7 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
 
     private PersoninfoBasis hentPersonInfo(AktørId aktørId) {
         return personinfoAdapter.hentBrukerBasisForAktør(aktørId)
-                .orElseThrow(() -> OppgaveFeilmeldinger.FACTORY.identIkkeFunnet(aktørId).toException());
+                .orElseThrow(() -> new TekniskException("FP-442142", String.format("Fant ingen ident for aktør %s.", aktørId)));
     }
 
 }

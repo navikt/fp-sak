@@ -44,7 +44,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <fp-uttak.version>7.0.0</fp-uttak.version>
         <svp-uttak.version>2.1.1</svp-uttak.version>
-        <felles.version>3.0.91</felles.version>
+        <felles.version>3.1.11</felles.version>
         <prosesstask.version>2.5.15</prosesstask.version>
         <ukelonn.felles.version>1.0.8</ukelonn.felles.version>
 
@@ -54,6 +54,7 @@
         <abakus-kontrakt.version>1.3.2</abakus-kontrakt.version>
 
         <swaggercore.version>2.1.7</swaggercore.version>
+        <flyway.version>4.2.0</flyway.version>
         <!-- Hold samme som i felles -->
         <cxf.version>3.4.2</cxf.version>
     </properties>
@@ -566,27 +567,6 @@
                 <version>1.2.3</version>
             </dependency>
             <dependency>
-                <groupId>org.assertj</groupId>
-                <artifactId>assertj-core</artifactId>
-                <version>3.19.0</version>
-            </dependency>
-            <dependency>
-                <groupId>org.glassfish.jaxb</groupId>
-                <artifactId>jaxb-runtime</artifactId>
-                <version>2.4.0-b180830.0438</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.xml.bind</groupId>
-                <artifactId>jaxb-api</artifactId>
-                <version>2.4.0-b180830.0359</version>
-            </dependency>
-            <dependency>
-                <!-- velger en transitiv avhengighet - felles ikke enig med seg selv -->
-                <groupId>jakarta.xml.bind</groupId>
-                <artifactId>jakarta.xml.bind-api</artifactId>
-                <version>3.0.0</version>
-            </dependency>
-            <dependency>
                 <groupId>com.fasterxml.woodstox</groupId>
                 <artifactId>woodstox-core</artifactId>
                 <version>6.2.4</version>
@@ -600,16 +580,6 @@
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-params</artifactId>
                 <version>${jupiter.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter-api</artifactId>
-                <version>${jupiter.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-core</artifactId>
-                <version>3.8.0</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
@@ -629,16 +599,17 @@
                 <artifactId>javassist</artifactId>
                 <version>3.27.0-GA</version>
             </dependency>
-            <dependency>
-                <groupId>org.glassfish</groupId>
-                <artifactId>javax.el</artifactId>
-                <version>3.0.1-b12</version>
-            </dependency>
+
 
             <dependency>
                 <groupId>com.oracle.ojdbc</groupId>
                 <artifactId>ojdbc8</artifactId>
                 <version>19.3.0.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-core</artifactId>
+                <version>${flyway.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -653,10 +624,12 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -665,6 +638,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -699,7 +673,6 @@
                     <artifactId>buildnumber-maven-plugin</artifactId>
                     <version>1.4</version>
                 </plugin>
-
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>jaxb2-maven-plugin</artifactId>

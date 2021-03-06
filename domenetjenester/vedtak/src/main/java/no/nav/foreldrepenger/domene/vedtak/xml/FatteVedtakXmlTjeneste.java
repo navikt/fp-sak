@@ -15,9 +15,9 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.vedtak.v2.VedtakConstants;
-import no.nav.vedtak.felles.integrasjon.felles.ws.JaxbHelper;
 import no.nav.vedtak.felles.xml.vedtak.v2.ObjectFactory;
 import no.nav.vedtak.felles.xml.vedtak.v2.Vedtak;
+import no.nav.vedtak.xmlutils.JaxbHelper;
 
 @ApplicationScoped
 public class FatteVedtakXmlTjeneste {
@@ -60,7 +60,7 @@ public class FatteVedtakXmlTjeneste {
         String ikkeFunnet = "Ingen implementasjoner funnet for ytelse: " + ytelseType.getKode();
         FagsakYtelseTypeRef.Lookup.find(personopplysningXmlTjenester, ytelseType).orElseThrow(() -> new IllegalStateException(ikkeFunnet))
             .setPersonopplysninger(vedtak, behandling.getId(), behandling.getAktørId(), skjæringstidspunkter);
-        
+
         behandlingsresultatXmlTjenester.setBehandlingresultat(vedtak, behandling);
 
         return genererXml(behandlingId, vedtak);

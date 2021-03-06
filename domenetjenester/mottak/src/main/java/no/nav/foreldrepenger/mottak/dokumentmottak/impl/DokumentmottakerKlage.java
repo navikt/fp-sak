@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 
-import static no.nav.vedtak.feil.LogLevel.WARN;
-
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -21,10 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef
@@ -74,7 +68,7 @@ class DokumentmottakerKlage implements Dokumentmottaker {
 
     private Optional<Behandling> opprettKlagebehandling(Fagsak fagsak) {
         if (behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId()).isEmpty()) { //#K2
-            Feilene.FACTORY.finnerIkkeEksisterendeBehandling(fagsak.getSaksnummer().toString()).log(LOG);
+            LOG.warn("FP-683421 Fant ingen passende behandling for saksnummer {}", fagsak.getSaksnummer());
             return Optional.empty();
         }
         return Optional.of(behandlingOpprettingTjeneste.opprettBehandlingUtenHistorikk(fagsak, BehandlingType.KLAGE, BehandlingÅrsakType.UDEFINERT));
@@ -84,10 +78,4 @@ class DokumentmottakerKlage implements Dokumentmottaker {
         return behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(fagsak.getId(), BehandlingType.KLAGE).isPresent();
     }
 
-    interface Feilene extends DeklarerteFeil {
-        Feilene FACTORY = FeilFactory.create(Feilene.class);
-
-        @TekniskFeil(feilkode = "FP-683421", feilmelding = "Fant ingen passende behandling for saksnummer '%s'", logLevel = WARN)
-        Feil finnerIkkeEksisterendeBehandling(String saksnummer);
-    }
 }

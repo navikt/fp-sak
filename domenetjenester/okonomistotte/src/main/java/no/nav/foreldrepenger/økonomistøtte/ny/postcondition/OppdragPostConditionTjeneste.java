@@ -74,7 +74,8 @@ public class OppdragPostConditionTjeneste {
         try {
             sammenlignEffektAvOppdragMedTilkjentYtelseOgLoggAvvik(behandling, beregningsresultat);
         } catch (Exception e) {
-            LOG.warn("Teknisk feil ved sammenligning av effekt av oppdrag mot tilkjent ytelse for " + behandling.getFagsak().getSaksnummer() + " behandling " + behandling.getId() + ". Dette bør undersøkes: " + e.getMessage(), e);
+            LOG.warn("Teknisk feil ved sammenligning av effekt av oppdrag mot tilkjent ytelse for {} behandling {} . Dette bør undersøkes: {}",
+                behandling.getFagsak().getSaksnummer(), behandling.getId(), e.getMessage(), e);
         }
     }
 
@@ -84,7 +85,7 @@ public class OppdragPostConditionTjeneste {
         for (var entry : resultat.entrySet()) {
             TekniskException feil = konverterTilFeil(behandling.getFagsak().getSaksnummer(), Long.toString(behandling.getId()), entry.getKey(), entry.getValue());
             if (feil != null) {
-                feil.log(LOG);
+                LOG.warn(feil.getMessage());
                 if ("FP-767898".equals(feil.getKode())) {
                     altOk = false;
                 }

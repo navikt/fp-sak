@@ -48,12 +48,10 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SakPersonerDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.util.RestUtils;
 import no.nav.foreldrepenger.web.app.util.StringUtils;
-import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
 public class FagsakTjeneste {
-    private static FagsakProsessTaskFeil FEIL = FeilFactory.create(FagsakProsessTaskFeil.class);
 
     private FagsakRepository fagsakRepository;
 
@@ -95,7 +93,7 @@ public class FagsakTjeneste {
         if (fagsak.isPresent()) {
             Long fagsakId = fagsak.get().getId();
             Map<String, ProsessTaskData> nesteTask = prosesseringAsynkTjeneste.sjekkProsessTaskPågår(fagsakId, null, gruppe);
-            return new VurderProsessTaskStatusForPollingApi(FEIL, fagsakId).sjekkStatusNesteProsessTask(gruppe, nesteTask);
+            return new VurderProsessTaskStatusForPollingApi(fagsakId).sjekkStatusNesteProsessTask(gruppe, nesteTask);
         } else {
             return Optional.empty();
         }

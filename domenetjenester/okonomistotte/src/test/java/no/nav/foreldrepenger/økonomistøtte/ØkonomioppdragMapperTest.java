@@ -36,7 +36,7 @@ import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.OppdragsLinje150;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.TfradragTillegg;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.TkodeStatusLinje;
-import no.nav.vedtak.felles.integrasjon.felles.ws.DateUtil;
+import no.nav.vedtak.xmlutils.DateUtil;
 
 public class ØkonomioppdragMapperTest {
 
