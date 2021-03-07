@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
 public class InnsynTjeneste {
@@ -48,7 +49,8 @@ public class InnsynTjeneste {
 
     public Behandling opprettManueltInnsyn(Saksnummer saksnummer) {
         Fagsak fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer)
-            .orElseThrow(() -> InnsynFeil.FACTORY.tjenesteFinnerIkkeFagsakForInnsyn(saksnummer).toException());
+            .orElseThrow(() -> new TekniskException("FP-148968",
+                String.format("Finner ingen fagsak som kan gis innsyn for saksnummer: %s", saksnummer)));
 
         return behandlingOpprettingTjeneste.opprettBehandling(fagsak, BehandlingType.INNSYN);
     }

@@ -226,10 +226,5 @@ public class BehandlingsoppretterTjeneste {
         @FunksjonellFeil(feilkode = "FP-287882", feilmelding = "FagsakId %s har ingen mottatte søknader eller inntektsmeldinger som kan brukes til å opprette ny førstegangsbehandling", løsningsforslag = "", logLevel = ERROR)
         Feil ingenSøknadEllerImÅOppretteNyFørstegangsbehandlingPå(Long fagsakId);
 
-        @FunksjonellFeil(feilkode = "FP-066870", feilmelding = "Det eksisterer ingen avsluttede behandlinger for fagsakId %s", løsningsforslag = "", logLevel = INFO)
-        Feil kanIkkeOppretteKlage(Long fagsakId);
-
-        @FunksjonellFeil(feilkode = "FP-780304", feilmelding = "Det eksisterer ingen avsluttede behandlinger for fagsakId %s", løsningsforslag = "", logLevel = INFO)
-        Feil kanIkkeOppretteAnke(Long fagsakId);
     }
 }

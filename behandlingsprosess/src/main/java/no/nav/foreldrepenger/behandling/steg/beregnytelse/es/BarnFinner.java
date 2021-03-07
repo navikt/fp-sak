@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
+import no.nav.vedtak.exception.FunksjonellException;
 
 class BarnFinner {
 
@@ -38,7 +39,9 @@ class BarnFinner {
                 : barnSøktFor;
 
         if (barnKvalifisertForYtelse.isEmpty()) {
-            throw BeregneYtelseFeil.FACTORY.beregningsstegIkkeStøttetForBehandling().toException();
+            throw new FunksjonellException("FP-110705",
+                "Kan ikke beregne ytelse. Finner ikke barn som har rett til ytelse i behandlingsgrunnlaget.",
+                "Sjekk avklarte fakta i behandlingen. Oppdater fakta slik at det finnes barn ");
         }
         return barnKvalifisertForYtelse.size();
     }

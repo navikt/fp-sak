@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.fordeling;
 
-import static no.nav.vedtak.feil.LogLevel.WARN;
-
 import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -53,10 +51,7 @@ import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemFellesTjenest
 import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
 import no.nav.foreldrepenger.web.app.soap.sak.tjeneste.OpprettSakOrchestrator;
 import no.nav.foreldrepenger.web.app.soap.sak.tjeneste.OpprettSakTjeneste;
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -312,12 +307,13 @@ public class FordelRestTjeneste {
                 return Optional.empty();
             }
             if (deklarertLengde == null) {
-                throw JournalpostMottakFeil.FACTORY.manglerPayloadLength().toException();
+                throw new TekniskException("F-217605", "Input-validering-feil: Avsender sendte payload, men oppgav ikke lengde på innhold");
             }
             byte[] bytes = Base64.getUrlDecoder().decode(base64EncodedPayload);
             String streng = new String(bytes, Charset.forName("UTF-8"));
             if (streng.length() != deklarertLengde) {
-                throw JournalpostMottakFeil.FACTORY.feilPayloadLength(deklarertLengde, streng.length()).toException();
+                throw new TekniskException("F-483098", String.format("Input-validering-feil: Avsender oppgav at lengde på innhold var %s, men lengden var egentlig %s",
+                    deklarertLengde, streng.length()));
             }
             return Optional.of(streng);
         }
@@ -327,16 +323,6 @@ public class FordelRestTjeneste {
             return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.SAKSNUMMER, getSaksnummer());
         }
 
-        interface JournalpostMottakFeil extends DeklarerteFeil {
-
-            JournalpostMottakFeil FACTORY = FeilFactory.create(JournalpostMottakFeil.class);
-
-            @TekniskFeil(feilkode = "F-217605", feilmelding = "Input-validering-feil: Avsender sendte payload, men oppgav ikke lengde på innhold", logLevel = WARN)
-            Feil manglerPayloadLength();
-
-            @TekniskFeil(feilkode = "F-483098", feilmelding = "Input-validering-feil: Avsender oppgav at lengde på innhold var %s, men lengden var egentlig %s", logLevel = WARN)
-            Feil feilPayloadLength(Integer oppgitt, Integer faktisk);
-        }
     }
 
     public static class AbacJournalpostKnyttningDto extends JournalpostKnyttningDto implements AbacDto {

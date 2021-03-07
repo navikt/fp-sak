@@ -23,7 +23,8 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
-import no.nav.vedtak.feil.FeilFactory;
+import no.nav.vedtak.exception.ManglerTilgangException;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.mdc.MdcExtendedLogContext;
 import no.nav.vedtak.sikkerhet.abac.AbacAttributtSamling;
 import no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter;
@@ -54,8 +55,7 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
                 .filter(f -> !fagsakId.equals(f))
                 .collect(Collectors.toList());
         if (!fagsakerSomIkkeErForventet.isEmpty()) {
-            throw FeilFactory.create(PdpRequestBuilderFeil.class).ugyldigInputManglerSamsvarBehandlingFagsak(behandlingId, fagsakerSomIkkeErForventet)
-                    .toException();
+            throw new ManglerTilgangException("FP-280301", String.format("Ugyldig input. Ikke samsvar mellom behandlingId %s og fagsakId %s", behandlingId, fagsakerSomIkkeErForventet));
         }
     }
 
@@ -134,7 +134,7 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
         } else if (behandlingsIder.size() == 1) {
             return Optional.of(behandlingsIder.iterator().next());
         }
-        throw FeilFactory.create(PdpRequestBuilderFeil.class).ugyldigInputFlereBehandlingIder(behandlingsIder).toException();
+        throw new TekniskException("FP-621834", String.format("Ugyldig input. Støtter bare 0 eller 1 behandling, men har %s", behandlingsIder));
     }
 
     private Set<Long> utledFagsakIder(AbacAttributtSamling attributter, PipBehandlingsData behandlingData) {
