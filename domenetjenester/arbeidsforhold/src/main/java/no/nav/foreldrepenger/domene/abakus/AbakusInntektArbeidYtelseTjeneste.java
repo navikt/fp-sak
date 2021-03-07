@@ -59,11 +59,7 @@ import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
 @Default
@@ -228,7 +224,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
             InntektsmeldingerDto inntektsmeldingerDto = abakusTjeneste.hentInntektsmeldingDiff(req);
             return mapResult(inntektsmeldingerDto).getAlleInntektsmeldinger();
         } catch (IOException e) {
-            throw AbakusInntektArbeidYtelseTjenesteFeil.FEIL.feilVedKallTilAbakus("Hente inntektsmeldingdiff: " + e.getMessage(), e).toException();
+            throw feilVedKallTilAbakus("Hente inntektsmeldingdiff: " + e.getMessage(), e);
         }
     }
 
@@ -285,8 +281,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
         try {
             abakusTjeneste.lagreOppgittOpptjening(request);
         } catch (IOException e) {
-            throw AbakusInntektArbeidYtelseTjenesteFeil.FEIL.feilVedKallTilAbakus("Lagre oppgitt opptjening i abakus: " + e.getMessage(), e)
-                    .toException();
+            throw feilVedKallTilAbakus("Lagre oppgitt opptjening i abakus: " + e.getMessage(), e);
         }
     }
 
@@ -322,8 +317,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
         try {
             abakusTjeneste.lagreInntektsmeldinger(inntektsmeldingerMottattRequest);
         } catch (IOException e) {
-            throw AbakusInntektArbeidYtelseTjenesteFeil.FEIL.feilVedKallTilAbakus("Lagre mottatte inntektsmeldinger i abakus: " + e.getMessage(), e)
-                    .toException();
+            throw feilVedKallTilAbakus("Lagre mottatte inntektsmeldinger i abakus: " + e.getMessage(), e);
         }
     }
 
@@ -353,8 +347,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
         try {
             abakusTjeneste.kopierGrunnlag(request);
         } catch (IOException e) {
-            throw AbakusInntektArbeidYtelseTjenesteFeil.FEIL.feilVedKallTilAbakus("Lagre mottatte inntektsmeldinger i abakus: " + e.getMessage(), e)
-                    .toException();
+            throw feilVedKallTilAbakus("Lagre mottatte inntektsmeldinger i abakus: " + e.getMessage(), e);
         }
     }
 
@@ -397,8 +390,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
         try {
             return abakusTjeneste.hentUnikeUnntektsmeldinger(request);
         } catch (IOException e) {
-            throw AbakusInntektArbeidYtelseTjenesteFeil.FEIL
-                    .feilVedKallTilAbakus("Kunne ikke hente inntektsmeldinger fra Abakus: " + e.getMessage(), e).toException();
+            throw feilVedKallTilAbakus("Kunne ikke hente inntektsmeldinger fra Abakus: " + e.getMessage(), e);
         }
     }
 
@@ -406,8 +398,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
         try {
             return abakusTjeneste.hentRefusjonskravDatoer(request);
         } catch (IOException e) {
-            throw AbakusInntektArbeidYtelseTjenesteFeil.FEIL
-                    .feilVedKallTilAbakus("Kunne ikke hente inntektsmeldinger fra Abakus: " + e.getMessage(), e).toException();
+            throw feilVedKallTilAbakus("Kunne ikke hente inntektsmeldinger fra Abakus: " + e.getMessage(), e);
         }
     }
 
@@ -415,8 +406,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
         try {
             return abakusTjeneste.hentGrunnlag(request);
         } catch (IOException e) {
-            throw AbakusInntektArbeidYtelseTjenesteFeil.FEIL.feilVedKallTilAbakus("Kunne ikke hente grunnlag fra Abakus: " + e.getMessage(), e)
-                    .toException();
+            throw feilVedKallTilAbakus("Kunne ikke hente grunnlag fra Abakus: " + e.getMessage(), e);
         }
     }
 
@@ -424,8 +414,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
         try {
             return abakusTjeneste.hentGrunnlagSnapshot(request);
         } catch (IOException e) {
-            throw AbakusInntektArbeidYtelseTjenesteFeil.FEIL
-                    .feilVedKallTilAbakus("Kunne ikke hente grunnlag snapshot fra Abakus: " + e.getMessage(), e).toException();
+            throw feilVedKallTilAbakus("Kunne ikke hente grunnlag snapshot fra Abakus: " + e.getMessage(), e);
         }
     }
 
@@ -554,7 +543,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
                     gr.getEksternReferanse(), behandling.getUuid());
             grunnlagDto = tilDto.mapTilDto(gr);
         } catch (RuntimeException t) {
-            LOG.warn("Kunne ikke transformere til Dto: grunnlag=" + gr.getEksternReferanse() + ", behandling=" + behandling.getId(), t);
+            LOG.warn("Kunne ikke transformere til Dto: grunnlag={} behandling={}", gr.getEksternReferanse(), behandling.getId(), t);
             throw t;
         }
         return grunnlagDto;
@@ -564,16 +553,12 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
         try {
             abakusTjeneste.lagreGrunnlag(grunnlagDto);
         } catch (IOException e) {
-            throw AbakusInntektArbeidYtelseTjenesteFeil.FEIL.feilVedKallTilAbakus("Kunne ikke lagre grunnlag i Abakus: " + e.getMessage(), e)
-                    .toException();
+            throw feilVedKallTilAbakus("Kunne ikke lagre grunnlag i Abakus: " + e.getMessage(), e);
         }
     }
 
-    interface AbakusInntektArbeidYtelseTjenesteFeil extends DeklarerteFeil {
-        AbakusInntektArbeidYtelseTjenesteFeil FEIL = FeilFactory.create(AbakusInntektArbeidYtelseTjenesteFeil.class);
-
-        @TekniskFeil(feilkode = "FP-118669", feilmelding = "Feil ved kall til Abakus: %s", logLevel = LogLevel.WARN)
-        Feil feilVedKallTilAbakus(String feilmelding, Throwable t);
-
+    private static TekniskException feilVedKallTilAbakus(String feilmelding, Throwable t) {
+        return new TekniskException("FP-118669", String.format("Feil ved kall til Abakus: %s", feilmelding), t);
     }
+
 }

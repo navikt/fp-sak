@@ -41,13 +41,13 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdPSGrunnlag;
-import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdRestFeil;
 import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdSPGrunnlag;
 import no.nav.foreldrepenger.mottak.vedtak.spokelse.SpokelseKlient;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.fpsak.tidsserie.StandardCombinators;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
 import no.nav.vedtak.konfig.Tid;
 import no.nav.vedtak.util.env.Environment;
@@ -232,8 +232,9 @@ public class LoggOverlappEksterneYtelserTjeneste {
                     overlappene.addAll(finnGradertOverlapp(perioderFp, Fagsystem.K9SAK.getKode(), y.getType().getKode(), y.getSaksnummer(), ytelseTidslinje));
                 });
         } catch (Exception e) {
-            if (isProd)
-                throw InfotrygdRestFeil.FACTORY.feilfratjeneste("abakus").toException();
+            if (isProd) {
+                throw new TekniskException( "FP-180125", "Tjeneste abakus gir feil", e);
+            }
             LOG.info("Noe gikk galt mot abakus", e);
         }
     }

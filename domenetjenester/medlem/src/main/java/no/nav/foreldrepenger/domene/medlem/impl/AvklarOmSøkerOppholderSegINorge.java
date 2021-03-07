@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -62,7 +63,7 @@ public class AvklarOmSøkerOppholderSegINorge {
         if (harSøkerHattInntektINorgeDeSiste3Mnd(behandlingId, ref.getAktørId(), vurderingstidspunkt) == JA) {
             return Optional.empty();
         }
-        if (harTermindatoPassertMed14Dager(behandlingId) == NEI) {
+        if (!FagsakYtelseType.SVANGERSKAPSPENGER.equals(ref.getFagsakYtelseType()) && harTermindatoPassertMed14Dager(behandlingId) == NEI) {
             return Optional.of(VENT_PÅ_FØDSEL);
         }
         return Optional.of(MedlemResultat.AVKLAR_OPPHOLDSRETT);

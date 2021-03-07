@@ -147,15 +147,15 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<ApplicationEx
         if (cause instanceof ManglerTilgangException) {
             // ikke logg
         } else if (cause instanceof VLException) {
-            LOG.warn(cause.getMessage());
+            LOG.warn(cause.getMessage(), cause);
         } else if (cause instanceof UnsupportedOperationException) {
             String message = cause.getMessage() != null ? LoggerUtils.removeLineBreaks(cause.getMessage()) : "";
-            LOG.info("Fikk ikke-implementert-feil: " + message, cause);
+            LOG.info("Fikk ikke-implementert-feil: {}", message, cause);
         } else if (cause instanceof ForvaltningException) {
             LOG.warn("Feil i bruk av forvaltningstjenester", cause);
         } else {
             String message = cause.getMessage() != null ? LoggerUtils.removeLineBreaks(cause.getMessage()) : "";
-            LOG.error("Fikk uventet feil:" + message, cause);
+            LOG.error("Fikk uventet feil: " + message, cause);
         }
 
         // key for å tracke prosess -- nullstill denne

@@ -59,6 +59,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLås;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.vedtak.exception.TekniskException;
 
 /**
  * ALLE ENDRINGER I DENNE KLASSEN SKAL KLARERES OG KODE-REVIEWES MED ANSVARLIG
@@ -465,8 +466,8 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
                 .collect(Collectors.toList());
 
         if (aksjonspunkterSomMedførerTilbakehopp.size() > 1) {
-            throw BehandlingskontrollFeil.FACTORY.kanIkkeGjenopptaBehandlingFantFlereAksjonspunkterSomMedførerTilbakehopp(behandling.getId())
-                    .toException();
+            throw new TekniskException("FP-105126",
+                String.format("BehandlingId %s har flere enn et aksjonspunkt, hvor aksjonspunktet fører til tilbakehopp ved gjenopptakelse. Kan ikke gjenopptas.", behandling.getId()));
         }
         if (erHenleggelse) {
             settAutopunkterTilAvbrutt(kontekst, behandling);
@@ -521,7 +522,8 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
         Behandling behandling = hentBehandling(kontekst);
 
         if (behandling.erSaksbehandlingAvsluttet()) {
-            throw BehandlingskontrollFeil.FACTORY.kanIkkeHenleggeAvsluttetBehandling(behandling.getId()).toException();
+            throw new TekniskException( "FP-143308", String.format("BehandlingId %s er allerede avsluttet, kan ikke henlegges",
+                behandling.getId()));
         }
 
         // sett årsak

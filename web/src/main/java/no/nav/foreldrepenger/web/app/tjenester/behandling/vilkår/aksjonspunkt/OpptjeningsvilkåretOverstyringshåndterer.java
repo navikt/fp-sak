@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.inngangsvilkaar.InngangsvilkårTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt.dto.OverstyringOpptjeningsvilkåretDto;
+import no.nav.vedtak.exception.FunksjonellException;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = OverstyringOpptjeningsvilkåretDto.class, adapter = Overstyringshåndterer.class)
@@ -54,7 +55,9 @@ public class OpptjeningsvilkåretOverstyringshåndterer extends InngangsvilkårO
                     return;
                 }
             }
-            throw OverstyringFeil.FACTORY.opptjeningPreconditionFailed().toException();
+            throw new FunksjonellException( "FP-093923",
+                "Kan ikke overstyre vilkår. Det må være minst en aktivitet for at opptjeningsvilkåret skal kunne overstyres.",
+                "Sett på vent til det er mulig og manuelt legge inn aktiviteter ved overstyring.");
         }
     }
 }
