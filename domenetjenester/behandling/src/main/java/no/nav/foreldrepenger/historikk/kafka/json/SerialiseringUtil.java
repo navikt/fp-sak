@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import no.nav.foreldrepenger.historikk.kafka.feil.HistorikkFeil;
+import no.nav.vedtak.exception.TekniskException;
 
 public final class SerialiseringUtil {
 
@@ -27,7 +27,8 @@ public final class SerialiseringUtil {
         try {
             return OBJECT_MAPPER.readValue(melding, klassetype);
         } catch (IOException e) {
-            throw HistorikkFeil.FACTORY.klarteIkkeDeserialisere(klassetype.getName(), e).toException();
+            var msg = String.format("Klarte ikke deserialisere for klasse %s", klassetype.getName());
+            throw new TekniskException("FP-296632", msg, e);
         }
     }
 

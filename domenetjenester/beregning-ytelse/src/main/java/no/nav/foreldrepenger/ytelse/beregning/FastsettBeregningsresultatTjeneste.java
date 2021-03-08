@@ -3,48 +3,40 @@ package no.nav.foreldrepenger.ytelse.beregning;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import no.nav.folketrygdloven.beregningsgrunnlag.RegelmodellOversetter;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.ytelse.beregning.adapter.MapBeregningsresultatFraRegelTilVL;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.Beregningsresultat;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatRegelmodell;
 import no.nav.foreldrepenger.ytelse.beregning.regler.RegelFastsettBeregningsresultat;
-import no.nav.fpsak.nare.evaluation.Evaluation;
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
 public class FastsettBeregningsresultatTjeneste {
 
-    private JacksonJsonConfig jacksonJsonConfig = new JacksonJsonConfig();
+    private final JacksonJsonConfig jacksonJsonConfig = new JacksonJsonConfig();
     private MapBeregningsresultatFraRegelTilVL mapBeregningsresultatFraRegelTilVL;
 
     FastsettBeregningsresultatTjeneste() {
     }
 
     @Inject
-    public FastsettBeregningsresultatTjeneste(
-            MapBeregningsresultatFraRegelTilVL mapBeregningsresultatFraRegelTilVL) {
+    public FastsettBeregningsresultatTjeneste(MapBeregningsresultatFraRegelTilVL mapBeregningsresultatFraRegelTilVL) {
         this.mapBeregningsresultatFraRegelTilVL = mapBeregningsresultatFraRegelTilVL;
     }
 
     public BeregningsresultatEntitet fastsettBeregningsresultat(BeregningsresultatRegelmodell regelmodell) {
         // Kalle regel
-        RegelFastsettBeregningsresultat regel = new RegelFastsettBeregningsresultat();
-        no.nav.foreldrepenger.ytelse.beregning.regelmodell.Beregningsresultat outputContainer = no.nav.foreldrepenger.ytelse.beregning.regelmodell.Beregningsresultat
-                .builder().build();
-        Evaluation evaluation = regel.evaluer(regelmodell, outputContainer);
-        String sporing = RegelmodellOversetter.getSporing(evaluation);
+        var regel = new RegelFastsettBeregningsresultat();
+        var outputContainer = Beregningsresultat.builder().build();
+        var evaluation = regel.evaluer(regelmodell, outputContainer);
+        var sporing = RegelmodellOversetter.getSporing(evaluation);
 
         // Map tilbake til domenemodell fra regelmodell
-        BeregningsresultatEntitet beregningsresultat = BeregningsresultatEntitet.builder()
-                .medRegelInput(toJson(regelmodell))
-                .medRegelSporing(sporing)
-                .build();
+        var beregningsresultat = BeregningsresultatEntitet.builder()
+            .medRegelInput(toJson(regelmodell))
+            .medRegelSporing(sporing)
+            .build();
 
         mapBeregningsresultatFraRegelTilVL.mapFra(outputContainer, beregningsresultat);
 
@@ -52,15 +44,6 @@ public class FastsettBeregningsresultatTjeneste {
     }
 
     private String toJson(BeregningsresultatRegelmodell grunnlag) {
-        JacksonJsonConfig var10000 = this.jacksonJsonConfig;
-        FastsettBeregningsresultatFeil var10002 = FastsettBeregningsresultatFeil.FACTORY;
-        return var10000.toJson(grunnlag, var10002::jsonMappingFeilet);
-    }
-
-    interface FastsettBeregningsresultatFeil extends DeklarerteFeil {
-        FastsettBeregningsresultatFeil FACTORY = FeilFactory.create(FastsettBeregningsresultatFeil.class); // NOSONAR ok med konstant
-
-        @TekniskFeil(feilkode = "FP-563791", feilmelding = "JSON mapping feilet", logLevel = LogLevel.ERROR)
-        Feil jsonMappingFeilet(JsonProcessingException var1);
+        return jacksonJsonConfig.toJson(grunnlag, e -> new TekniskException("FP-563791", "JSON mapping feilet", e));
     }
 }

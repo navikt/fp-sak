@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import no.nav.vedtak.feil.Feil;
+import no.nav.vedtak.exception.TekniskException;
 
 class JacksonJsonConfig {
 
@@ -26,11 +26,11 @@ class JacksonJsonConfig {
         OM.registerModule(new JavaTimeModule());
     }
 
-    public String toJson(Object object, Function<JsonProcessingException, Feil> feilFactory) {
+    public String toJson(Object object, Function<JsonProcessingException, TekniskException> feilFactory) {
         try {
             return OM.writerWithDefaultPrettyPrinter().writeValueAsString(object);
         } catch (JsonProcessingException e) {
-            throw feilFactory.apply(e).toException();
+            throw feilFactory.apply(e);
         }
     }
 }

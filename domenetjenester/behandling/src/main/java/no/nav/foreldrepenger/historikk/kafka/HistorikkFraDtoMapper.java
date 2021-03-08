@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
-import no.nav.foreldrepenger.historikk.kafka.feil.HistorikkFeil;
 import no.nav.historikk.kodeverk.BrukerKjønnEnum;
 import no.nav.historikk.kodeverk.HistorikkAktørEnum;
 import no.nav.historikk.kodeverk.HistorikkInnslagFeltTypeEnum;
@@ -29,6 +28,7 @@ import no.nav.historikk.v1.HistorikkInnslagDel;
 import no.nav.historikk.v1.HistorikkInnslagDokumentLink;
 import no.nav.historikk.v1.HistorikkInnslagFelt;
 import no.nav.historikk.v1.HistorikkInnslagV1;
+import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
 public class HistorikkFraDtoMapper {
@@ -135,8 +135,8 @@ public class HistorikkFraDtoMapper {
         if ((dtoLink.getJournalpostId() != null) && JournalpostId.erGyldig(dtoLink.getJournalpostId().getVerdi())) {
             builder.medJournalpostId(new JournalpostId(dtoLink.getJournalpostId().getVerdi()));
         } else {
-            throw HistorikkFeil.FACTORY.ugyldigJournalpost(dtoLink.getJournalpostId() == null ? null : dtoLink.getJournalpostId().getVerdi())
-                    .toException();// Burde aldri skje
+            var journalpost = dtoLink.getJournalpostId() == null ? null : dtoLink.getJournalpostId().getVerdi();
+            throw new TekniskException("FP-164754", "Mottok ugyldig journalpost ID " + journalpost);
         }
         return builder.build();
     }

@@ -1,8 +1,10 @@
 package no.nav.foreldrepenger.ytelse.beregning.svp;
 
+import static no.nav.foreldrepenger.ytelse.beregning.FinnEndringsdatoFeil.behandlingErIkkeEnRevurdering;
+import static no.nav.foreldrepenger.ytelse.beregning.FinnEndringsdatoFeil.manglendeOriginalBehandling;
+
 import java.time.LocalDate;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -18,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFilter;
 import no.nav.foreldrepenger.ytelse.beregning.FinnEndringsdatoBeregningsresultatTjeneste;
-import no.nav.foreldrepenger.ytelse.beregning.FinnEndringsdatoFeil;
 import no.nav.foreldrepenger.ytelse.beregning.FinnEndringsdatoMellomPeriodeLister;
 
 @FagsakYtelseTypeRef("SVP")
@@ -35,31 +36,33 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImpl implements FinnEndri
 
     @Inject
     public FinnEndringsdatoBeregningsresultatTjenesteImpl(BehandlingRepositoryProvider repositoryProvider,
-                                                             FinnEndringsdatoMellomPeriodeLister finnEndringsdatoMellomPeriodeLister) {
+                                                          FinnEndringsdatoMellomPeriodeLister finnEndringsdatoMellomPeriodeLister) {
         this.beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
         this.svangerskapspengerRepository = repositoryProvider.getSvangerskapspengerRepository();
         this.finnEndringsdatoMellomPeriodeLister = finnEndringsdatoMellomPeriodeLister;
     }
 
     @Override
-    public Optional<LocalDate> finnEndringsdato(Behandling behandling, BeregningsresultatEntitet revurderingBeregningsresultat) {
+    public Optional<LocalDate> finnEndringsdato(Behandling behandling,
+                                                BeregningsresultatEntitet revurderingBeregningsresultat) {
         if (behandling.getType().equals(BehandlingType.REVURDERING)) {
             return finnEndringsdatoForRevurdering(behandling, revurderingBeregningsresultat);
-        } else {
-            throw FinnEndringsdatoFeil.FACTORY.behandlingErIkkeEnRevurdering(behandling.getId()).toException();
         }
+        throw behandlingErIkkeEnRevurdering(behandling.getId());
     }
 
-    private Optional<LocalDate> finnEndringsdatoForRevurdering(Behandling revurdering, BeregningsresultatEntitet revurderingBeregningsresultat) {
-        Long originalBehandlingId = revurdering.getOriginalBehandlingId()
-            .orElseThrow(() -> FinnEndringsdatoFeil.FACTORY.manglendeOriginalBehandling(revurdering.getId()).toException());
-        Optional<BeregningsresultatEntitet> originalBeregningsresultatFPOpt = beregningsresultatRepository.hentUtbetBeregningsresultat(originalBehandlingId);
+    private Optional<LocalDate> finnEndringsdatoForRevurdering(Behandling revurdering,
+                                                               BeregningsresultatEntitet revurderingBeregningsresultat) {
+        var originalBehandlingId = revurdering.getOriginalBehandlingId()
+            .orElseThrow(() -> manglendeOriginalBehandling(revurdering.getId()));
+        var originalBeregningsresultatFPOpt = beregningsresultatRepository.hentUtbetBeregningsresultat(
+            originalBehandlingId);
         if (originalBeregningsresultatFPOpt.isEmpty()) {
             return Optional.empty();
         }
-        BeregningsresultatEntitet originalBeregningsresultat = originalBeregningsresultatFPOpt.get();
-        List<BeregningsresultatPeriode> originalePerioder = originalBeregningsresultat.getBeregningsresultatPerioder();
-        List<BeregningsresultatPeriode> revurderingPerioder = revurderingBeregningsresultat.getBeregningsresultatPerioder();
+        var originalBeregningsresultat = originalBeregningsresultatFPOpt.get();
+        var originalePerioder = originalBeregningsresultat.getBeregningsresultatPerioder();
+        var revurderingPerioder = revurderingBeregningsresultat.getBeregningsresultatPerioder();
         if (originalePerioder.isEmpty()) {
             if (revurderingPerioder.isEmpty()) {
                 //Dersom det ikke er noen ny perioder i revurdering, så bruk første tilretteleggingsbehovsdato
@@ -68,7 +71,9 @@ public class FinnEndringsdatoBeregningsresultatTjenesteImpl implements FinnEndri
                     return new TilretteleggingFilter(grunnlagOpt.get()).getFørsteTilretteleggingsbehovdatoFiltrert();
                 }
             }
-            return revurderingPerioder.stream().map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom).min(Comparator.naturalOrder());
+            return revurderingPerioder.stream()
+                .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom)
+                .min(Comparator.naturalOrder());
         }
         if (revurderingPerioder.isEmpty()) {
             //Dersom det ikke er noen ny perioder i revurdering, så bruk første tilretteleggingsbehovsdato

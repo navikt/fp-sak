@@ -8,6 +8,7 @@ import javax.enterprise.context.ApplicationScoped;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepengerPrÅr;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
+import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
 public class SjekkOmPerioderHarEndringIAndeler {
@@ -44,7 +45,8 @@ public class SjekkOmPerioderHarEndringIAndeler {
                 Objects.equals(nyAndel.getDagsats(), gammelAndel.getDagsats()) &&
                 erLike(nyAndel.getBeregningsresultatFeriepengerPrÅrListe(), gammelAndel.getBeregningsresultatFeriepengerPrÅrListe())).count();
         if (antallAndelerSomKorresponderer > 1) {
-            throw FinnEndringsdatoFeil.FACTORY.fantFlereKorresponderendeAndelerFeil(nyAndel.getId()).toException();
+            throw new TekniskException("FP-655546", "Fant flere korresponderende andeler for andel med id "
+                + nyAndel.getId());
         }
         return antallAndelerSomKorresponderer == 1;
     }

@@ -2,12 +2,12 @@ package no.nav.foreldrepenger.ytelse.beregning;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.vedtak.exception.TekniskException;
 
 public final class BeregningsresultatOutputVerifiserer {
 
@@ -41,19 +41,22 @@ public final class BeregningsresultatOutputVerifiserer {
         verifiserDagsats(andel.getDagsats(), "beregningsresultatandel");
 
         if (!andel.erBrukerMottaker()) {
-            verifiserArbeidsgiver(andel.getArbeidsgiver());
+            var arbeidsgiver = andel.getArbeidsgiver()
+                .orElseThrow(() -> new TekniskException("FP-370745",
+                    "Postcondition feilet: Beregningsresultat i ugyldig "
+                        + "tilstand etter steg. Dagsats på andel skal til arbeidsgiver men arbeidsgiver er ikke satt"));
+            verifiserArbeidsgiver(arbeidsgiver);
         }
 
         if (!andel.getAktivitetStatus().erArbeidstaker() && !andel.erBrukerMottaker()) {
-            throw BeregningsresultatVerifisererFeil.FEILFACTORY.verifiserAtStatusSomIkkeErATIkkeKanHaUtbetalingTilArbeidsgiver(andel.getAktivitetStatus().getKode()).toException();
+            var msg = String.format(
+                "Postcondition feilet: Beregningsresultat i ugyldig tilstand etter steg. Andel med status %s skal "
+                    + "aldri ha utbetaling til arbeidsgiver", andel.getAktivitetStatus().getKode());
+            throw new TekniskException("FP-370747", msg);
         }
     }
 
-    private static void verifiserArbeidsgiver(Optional<Arbeidsgiver> arbeidsgiverOpt) {
-        if (arbeidsgiverOpt.isEmpty()) {
-            throw BeregningsresultatVerifisererFeil.FEILFACTORY.verifiserAtArbeidsgiverErSatt().toException();
-        }
-        Arbeidsgiver arbeidsgiver = arbeidsgiverOpt.get();
+    private static void verifiserArbeidsgiver(Arbeidsgiver arbeidsgiver) {
         if (arbeidsgiver.erAktørId()) {
             Objects.requireNonNull(arbeidsgiver.getAktørId(), "aktørId");
         } else {
@@ -63,7 +66,9 @@ public final class BeregningsresultatOutputVerifiserer {
 
     private static void verifiserDagsats(int dagsats, String obj) {
         if (dagsats < 0) {
-            throw BeregningsresultatVerifisererFeil.FEILFACTORY.verifiserIkkeNegativDagsats(obj).toException();
+            var msg = String.format("Postcondition feilet: Beregningsresultat i ugyldig tilstand etter steg. "
+                + "Dagsatsen på %s er mindre enn 0, men skulle ikke vært det.", obj);
+            throw new TekniskException("FP-370744", msg);
         }
     }
 

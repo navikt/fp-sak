@@ -1,26 +1,25 @@
 package no.nav.foreldrepenger.ytelse.beregning;
 
-import static no.nav.vedtak.feil.LogLevel.ERROR;
+import no.nav.vedtak.exception.TekniskException;
 
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+public final class FinnEndringsdatoFeil {
 
-public interface FinnEndringsdatoFeil extends DeklarerteFeil {
+    private FinnEndringsdatoFeil() {
+    }
 
-    FinnEndringsdatoFeil FACTORY = FeilFactory.create(FinnEndringsdatoFeil.class);
+    public static TekniskException behandlingErIkkeEnRevurdering(Long behandlingId) {
+        var msg = String.format("Behandlingen med id %s er ikke en revurdering", behandlingId);
+        return new TekniskException("FP-655544", msg);
+    }
 
-    @TekniskFeil(feilkode = "FP-655544", feilmelding = "Behandlingen med id %s er ikke en revurdering", logLevel = ERROR)
-    Feil behandlingErIkkeEnRevurdering(Long behandlingId);
+    public static TekniskException manglendeOriginalBehandling(Long behandlingId) {
+        var msg = String.format("Fant ikke en original behandling for revurdering med id %s", behandlingId);
+        return new TekniskException("FP-655545", msg);
+    }
 
-    @TekniskFeil(feilkode = "FP-655545", feilmelding = "Fant ikke en original behandling for revurdering med id %s", logLevel = ERROR)
-    Feil manglendeOriginalBehandling(Long behandlingId);
-
-    @TekniskFeil(feilkode = "FP-655542", feilmelding = "Fant ikke beregningsresultatperiode for beregningsresultat med id %s", logLevel = ERROR)
-    Feil manglendeBeregningsresultatPeriode(Long beregningsresultatId);
-
-    @TekniskFeil(feilkode = "FP-655546", feilmelding = "Fant flere korresponderende andeler for andel med id %s", logLevel = ERROR)
-    Feil fantFlereKorresponderendeAndelerFeil(Long beregningsresultatAndelId);
-
+    public static TekniskException manglendeBeregningsresultatPeriode(Long beregningsresultatId) {
+        var msg = String.format("Fant ikke beregningsresultatperiode for beregningsresultat med id %s",
+            beregningsresultatId);
+        return new TekniskException("FP-655542", msg);
+    }
 }

@@ -49,7 +49,6 @@ public class HentMedlemskapFraRegister {
         }
     }
 
-
     private Medlemskapsperiode mapFraMedlemsunntak(Medlemskapsunntak medlemsperiode) {
         return new Medlemskapsperiode.Builder()
             .medFom(medlemsperiode.getFraOgMed())

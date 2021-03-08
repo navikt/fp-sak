@@ -40,11 +40,7 @@ import no.nav.abakus.iaygrunnlag.request.OppgittOpptjeningMottattRequest;
 import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseGrunnlagDto;
 import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseGrunnlagSakSnapshotDto;
 import no.nav.abakus.vedtak.ytelse.Ytelse;
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.ObjectReaderResponseHandler;
 import no.nav.vedtak.konfig.KonfigVerdi;
@@ -84,7 +80,6 @@ public class AbakusTjeneste {
             @KonfigVerdi(value = "fpabakus.url") URI endpoint) {
         this.oidcRestClient = oidcRestClient;
         this.abakusEndpoint = endpoint;
-
         this.endpointArbeidsforholdIPeriode = toUri("/api/arbeidsforhold/v1/arbeidstaker");
         this.endpointGrunnlag = toUri("/api/iay/grunnlag/v1/");
         this.endpointMottaInntektsmeldinger = toUri("/api/iay/inntektsmeldinger/v1/motta");
@@ -117,9 +112,9 @@ public class AbakusTjeneste {
 
             return hentFraAbakus(endpoint, responseHandler, json);
         } catch (JsonProcessingException e) {
-            throw AbakusTjenesteFeil.FEIL.feilVedJsonParsing(e.getMessage()).toException();
+            throw feilVedJsonParsing(e.getMessage());
         } catch (IOException e) {
-            throw AbakusTjenesteFeil.FEIL.feilVedKallTilAbakus(e.getMessage()).toException();
+            throw feilVedKallTilAbakus(e.getMessage());
         }
     }
 
@@ -144,9 +139,9 @@ public class AbakusTjeneste {
             }
             return Arrays.asList(arbeidsforhold);
         } catch (JsonProcessingException e) {
-            throw AbakusTjenesteFeil.FEIL.feilVedJsonParsing(e.getMessage()).toException();
+            throw feilVedJsonParsing(e.getMessage());
         } catch (IOException e) {
-            throw AbakusTjenesteFeil.FEIL.feilVedKallTilAbakus(e.getMessage()).toException();
+            throw feilVedKallTilAbakus(e.getMessage());
         }
     }
 
@@ -199,9 +194,9 @@ public class AbakusTjeneste {
             }
             return Arrays.asList(ytelser);
         } catch (JsonProcessingException e) {
-            throw AbakusTjenesteFeil.FEIL.feilVedJsonParsing(e.getMessage()).toException();
+            throw feilVedJsonParsing(e.getMessage());
         } catch (IOException e) {
-            throw AbakusTjenesteFeil.FEIL.feilVedKallTilAbakus(e.getMessage()).toException();
+            throw feilVedKallTilAbakus(e.getMessage());
         }
     }
 
@@ -224,9 +219,9 @@ public class AbakusTjeneste {
                 String feilmelding = "Kunne ikke hente grunnlag fra abakus: " + httpPost.getURI()
                         + ", HTTP status=" + httpResponse.getStatusLine() + ". HTTP Errormessage=" + responseBody;
                 if (responseCode == HttpStatus.SC_BAD_REQUEST) {
-                    throw AbakusTjenesteFeil.FEIL.feilKallTilAbakus(feilmelding).toException();
+                    throw feilKallTilAbakus(feilmelding);
                 } else {
-                    throw AbakusTjenesteFeil.FEIL.feilVedKallTilAbakus(feilmelding).toException();
+                    throw feilVedKallTilAbakus(feilmelding);
                 }
             }
         } catch (RuntimeException re) {
@@ -251,9 +246,9 @@ public class AbakusTjeneste {
                         + ", HTTP status=" + httpResponse.getStatusLine() + ". HTTP Errormessage=" + responseBody;
 
                 if (responseCode == HttpStatus.SC_BAD_REQUEST) {
-                    throw AbakusTjenesteFeil.FEIL.feilKallTilAbakus(feilmelding).toException();
+                    throw feilKallTilAbakus(feilmelding);
                 } else {
-                    throw AbakusTjenesteFeil.FEIL.feilVedKallTilAbakus(feilmelding).toException();
+                    throw feilVedKallTilAbakus(feilmelding);
                 }
             }
         }
@@ -276,9 +271,9 @@ public class AbakusTjeneste {
                         + ", HTTP status=" + httpResponse.getStatusLine() + ". HTTP Errormessage=" + responseBody;
 
                 if (responseCode == HttpStatus.SC_BAD_REQUEST) {
-                    throw AbakusTjenesteFeil.FEIL.feilKallTilAbakus(feilmelding).toException();
+                    throw feilKallTilAbakus(feilmelding);
                 } else {
-                    throw AbakusTjenesteFeil.FEIL.feilVedKallTilAbakus(feilmelding).toException();
+                    throw feilVedKallTilAbakus(feilmelding);
                 }
             }
         }
@@ -300,9 +295,9 @@ public class AbakusTjeneste {
                         + ", HTTP status=" + httpResponse.getStatusLine() + ". HTTP Errormessage=" + responseBody;
 
                 if (responseCode == HttpStatus.SC_BAD_REQUEST) {
-                    throw AbakusTjenesteFeil.FEIL.feilKallTilAbakus(feilmelding).toException();
+                    throw feilKallTilAbakus(feilmelding);
                 } else {
-                    throw AbakusTjenesteFeil.FEIL.feilVedKallTilAbakus(feilmelding).toException();
+                    throw feilVedKallTilAbakus(feilmelding);
                 }
             }
         }
@@ -325,26 +320,23 @@ public class AbakusTjeneste {
                         + ", HTTP status=" + httpResponse.getStatusLine() + ". HTTP Errormessage=" + responseBody;
 
                 if (responseCode == HttpStatus.SC_BAD_REQUEST) {
-                    throw AbakusTjenesteFeil.FEIL.feilKallTilAbakus(feilmelding).toException();
+                    throw feilKallTilAbakus(feilmelding);
                 } else {
-                    throw AbakusTjenesteFeil.FEIL.feilVedKallTilAbakus(feilmelding).toException();
+                    throw feilVedKallTilAbakus(feilmelding);
                 }
             }
         }
     }
 
-    public interface AbakusTjenesteFeil extends DeklarerteFeil {
-        AbakusTjenesteFeil FEIL = FeilFactory.create(AbakusTjenesteFeil.class);
-
-        @TekniskFeil(feilkode = "FP-018669", feilmelding = "Feil ved kall til Abakus: %s", logLevel = LogLevel.ERROR)
-        Feil feilVedKallTilAbakus(String feilmelding);
-
-        @TekniskFeil(feilkode = "FP-918669", feilmelding = "Feil ved kall til Abakus: %s", logLevel = LogLevel.WARN)
-        Feil feilKallTilAbakus(String feilmelding);
-
-        @TekniskFeil(feilkode = "FP-851387", feilmelding = "Feil ved kall til Abakus: %s", logLevel = LogLevel.WARN)
-        Feil feilVedJsonParsing(String feilmelding);
-
+    private static TekniskException feilVedKallTilAbakus(String feilmelding) {
+        return new TekniskException("FP-018669", "Feil ved kall til Abakus: " + feilmelding);
     }
 
+    private static TekniskException feilKallTilAbakus(String feilmelding) {
+        return new TekniskException("FP-918669", "Feil ved kall til Abakus: " + feilmelding);
+    }
+
+    private static TekniskException feilVedJsonParsing(String feilmelding) {
+        return new TekniskException("FP-851387", "Feil ved kall til Abakus: " + feilmelding);
+    }
 }
