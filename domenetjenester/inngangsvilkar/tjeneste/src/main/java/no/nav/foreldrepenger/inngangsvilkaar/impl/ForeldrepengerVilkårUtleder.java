@@ -15,7 +15,8 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårT
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.OPPTJENINGSVILKÅRET;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.SØKERSOPPLYSNINGSPLIKT;
 import static no.nav.foreldrepenger.inngangsvilkaar.impl.UtledeteVilkår.forAvklartRelasjonsvilkårTilBarn;
-import static no.nav.foreldrepenger.inngangsvilkaar.impl.VilkårUtlederFeil.FEILFACTORY;
+import static no.nav.foreldrepenger.inngangsvilkaar.impl.VilkårUtlederFeil.behandlingsmotivKanIkkeUtledes;
+import static no.nav.foreldrepenger.inngangsvilkaar.impl.VilkårUtlederFeil.kunneIkkeUtledeVilkårFor;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,7 +43,7 @@ public class ForeldrepengerVilkårUtleder implements VilkårUtleder {
         BEREGNINGSGRUNNLAGVILKÅR);
 
     public ForeldrepengerVilkårUtleder() {
-        // TODO midlertidig instansiering for å kunne ha forskjellige VilkårUtledere for FP og ES
+
     }
 
     static {
@@ -63,8 +64,8 @@ public class ForeldrepengerVilkårUtleder implements VilkårUtleder {
     }
 
     private static UtledeteVilkår finnVilkår(Behandling behandling, Optional<FamilieHendelseType> hendelseType) {
-        if (!hendelseType.isPresent()) {
-            throw FEILFACTORY.behandlingsmotivKanIkkeUtledes(behandling.getId()).toException();
+        if (hendelseType.isEmpty()) {
+            throw behandlingsmotivKanIkkeUtledes(behandling.getId());
         }
 
         FamilieHendelseType type = hendelseType.get();
@@ -77,8 +78,7 @@ public class ForeldrepengerVilkårUtleder implements VilkårUtleder {
         }
 
         if (vilkår == null) {
-            throw FEILFACTORY.kunneIkkeUtledeVilkårFor(behandling.getId(), type.getNavn())
-                .toException();
+            throw kunneIkkeUtledeVilkårFor(behandling.getId(), type.getNavn());
         }
         return vilkår;
     }

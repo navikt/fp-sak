@@ -24,6 +24,7 @@ import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.binding.OpprettSak
 import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.feil.UgyldigInput;
 import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.meldinger.OpprettSakRequest;
 import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.meldinger.OpprettSakResponse;
+import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.felles.integrasjon.felles.ws.SoapWebService;
 import no.nav.vedtak.felles.integrasjon.felles.ws.VLFaultListenerUnntakKonfigurasjon;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
@@ -113,9 +114,11 @@ public class OpprettSakService implements BehandleForeldrepengesakV1 {
                 throw new OpprettSakUgyldigInput(faultInfo.getFeilmelding(), faultInfo);
             }
         } else if (BehandlingTema.UDEFINERT.equals(btVurdering) || btVurdering.equals(btOppgitt)) {
-            throw OpprettSakServiceFeil.FACTORY.ikkeStøttetDokumentType().toException();
+            throw new FunksjonellException("FP-785354", "Kan ikke opprette sak basert på oppgitt dokument",
+                "Journalføre dokument på annen sak");
         } else {
-            throw OpprettSakServiceFeil.FACTORY.inkonsistensTemaVsDokument().toException();
+            throw new FunksjonellException("FP-785356", "Dokument og valgt ytelsetype i uoverenstemmelse",
+                "Velg ytelsetype som samstemmer med dokument");
         }
     }
 

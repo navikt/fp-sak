@@ -71,10 +71,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.Prosess
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.UtvidetBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.VergeTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.FunksjonellFeil;
+import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
@@ -389,10 +386,12 @@ public class BehandlingRestTjeneste {
         behandlingsutredningTjeneste.kanEndreBehandling(behandlingId, behandlingVersjon);
         var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
         if (behandling.isBehandlingPåVent()) {
-            throw BehandlingRestTjenesteFeil.FACTORY.måTaAvVent(behandlingId).toException();
+            throw new FunksjonellException("FP-722320", "Behandling må tas av vent før den kan åpnes",
+                "Ta behandling av vent");
         }
         if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
-            throw BehandlingRestTjenesteFeil.FACTORY.erBerørtBehandling(behandlingId).toException();
+            throw new FunksjonellException("FP-722321", "Behandling er berørt må gjennomføres. BehandlingId=" + behandlingId,
+                "Behandle ferdig berørt og opprett revurdering");
         }
         behandlingsprosessTjeneste.asynkTilbakestillOgÅpneBehandlingForEndringer(behandlingId);
         behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
@@ -449,16 +448,5 @@ public class BehandlingRestTjeneste {
             .medKanSendeMelding(!b.isBehandlingPåVent())
             .medVergemeny(vergeTjeneste.utledBehandlingsmeny(b.getId()).getVergeBehandlingsmeny())
             .build();
-    }
-
-    private interface BehandlingRestTjenesteFeil extends DeklarerteFeil {
-        BehandlingRestTjenesteFeil FACTORY = FeilFactory.create(BehandlingRestTjenesteFeil.class); // NOSONAR
-
-
-        @FunksjonellFeil(feilkode = "FP-722320", feilmelding = "Behandling må tas av vent før den kan åpnes", løsningsforslag = "Ta behandling av vent")
-        Feil måTaAvVent(Long behandlingId);
-
-        @FunksjonellFeil(feilkode = "FP-722321", feilmelding = "Behandling er berørt må gjennomføres", løsningsforslag = "Behandle ferdig berørt og opprett revurdering")
-        Feil erBerørtBehandling(Long behandlingId);
     }
 }

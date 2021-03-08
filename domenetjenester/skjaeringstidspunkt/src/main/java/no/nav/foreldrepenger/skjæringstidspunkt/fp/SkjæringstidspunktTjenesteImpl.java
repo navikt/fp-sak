@@ -34,10 +34,10 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktFeil;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.konfig.Tid;
 
 @FagsakYtelseTypeRef("FP")
@@ -128,13 +128,13 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             if (førsteUttaksdagIForrigeVedtak.isEmpty() && førsteØnskedeUttaksdagIBehandling.isEmpty()) {
                 Optional<YtelseFordelingAggregat> ytelseFordelingForOriginalBehandling = hentYtelseFordelingAggregatFor(originalBehandling(behandling));
                 return finnFørsteØnskedeUttaksdagFor(ytelseFordelingForOriginalBehandling.map(YtelseFordelingAggregat::getOppgittFordeling))
-                    .orElseThrow(() -> SkjæringstidspunktFeil.FACTORY.finnerIkkeSkjæringstidspunktForForeldrepenger(behandling.getId()).toException());
+                    .orElseThrow(() -> finnerIkkeStpException(behandling.getId()));
             } else {
                 final LocalDate skjæringstidspunkt = utledTidligste(førsteØnskedeUttaksdagIBehandling.orElse(Tid.TIDENES_ENDE),
                     førsteUttaksdagIForrigeVedtak.orElse(Tid.TIDENES_ENDE));
                 if (skjæringstidspunkt.equals(Tid.TIDENES_ENDE)) {
                     // Fant da ikke noe skjæringstidspunkt i tidligere vedtak heller.
-                    throw SkjæringstidspunktFeil.FACTORY.finnerIkkeSkjæringstidspunktForForeldrepenger(behandling.getId()).toException();
+                    throw finnerIkkeStpException(behandling.getId());
                 }
                 return skjæringstidspunkt;
             }
@@ -143,9 +143,13 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
                 // Har ikke grunnlag for å avgjøre skjæringstidspunkt enda så gir midlertidig dagens dato. for at DTOer skal fungere.
                 return førsteØnskedeUttaksdagIBehandling.orElse(LocalDate.now());
             }
-            return førsteØnskedeUttaksdagIBehandling
-                .orElseThrow(() -> SkjæringstidspunktFeil.FACTORY.finnerIkkeSkjæringstidspunktForForeldrepenger(behandling.getId()).toException());
+            return førsteØnskedeUttaksdagIBehandling.orElseThrow(() -> finnerIkkeStpException(behandling.getId()));
         }
+    }
+
+    private TekniskException finnerIkkeStpException(Long behandlingId) {
+        return new TekniskException("FP-931232",
+            "Finner ikke skjæringstidspunkt for foreldrepenger som forventet for behandling=" + behandlingId);
     }
 
     private LocalDateInterval utledYtelseintervall(Behandling behandling, LocalDate skjæringsTidspunkt) {

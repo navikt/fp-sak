@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
@@ -35,13 +34,13 @@ import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
 import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
-import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.tilganger.TilgangerTjeneste;
+import no.nav.vedtak.exception.FunksjonellException;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = BekreftSvangerskapspengerDto.class, adapter = AksjonspunktOppdaterer.class)
@@ -77,14 +76,14 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         verifiserUnikeDatoer(dto);
 
         var behandling = param.getBehandling();
-        boolean termindatoEndret = oppdaterFamiliehendelse(dto, behandling);
-        boolean tilretteleggingEndret = oppdaterTilrettelegging(dto, behandling);
+        var termindatoEndret = oppdaterFamiliehendelse(dto, behandling);
+        var tilretteleggingEndret = oppdaterTilrettelegging(dto, behandling);
 
         oppdaterPermisjon(dto, param, behandling);
 
         if (termindatoEndret || tilretteleggingEndret) {
             var begrunnelse = dto.getBegrunnelse();
-            boolean erBegrunnelseEndret = param.erBegrunnelseEndret();
+            var erBegrunnelseEndret = param.erBegrunnelseEndret();
             historikkAdapter.tekstBuilder()
                 .medBegrunnelse(begrunnelse, erBegrunnelseEndret)
                 .medSkjermlenke(SkjermlenkeType.PUNKT_FOR_SVP_INNGANG);
@@ -95,9 +94,9 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
     }
 
     private void oppdaterPermisjon(BekreftSvangerskapspengerDto dto, AksjonspunktOppdaterParameter param, Behandling behandling) {
-        InntektArbeidYtelseGrunnlag iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId());
-        InntektArbeidYtelseAggregatBuilder saksbehandlet = InntektArbeidYtelseAggregatBuilder.oppdatere(finnAggregat(iayGrunnlag), VersjonType.SAKSBEHANDLET);
-        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = saksbehandlet.getAktørArbeidBuilder(param.getAktørId());
+        var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId());
+        var saksbehandlet = InntektArbeidYtelseAggregatBuilder.oppdatere(finnAggregat(iayGrunnlag), VersjonType.SAKSBEHANDLET);
+        var aktørArbeidBuilder = saksbehandlet.getAktørArbeidBuilder(param.getAktørId());
         dto.getBekreftetSvpArbeidsforholdList().forEach(arbeidsforhold -> oppdaterPermisjonForArbeid(param, iayGrunnlag, aktørArbeidBuilder, arbeidsforhold));
         inntektArbeidYtelseTjeneste.lagreIayAggregat(behandling.getId(), saksbehandlet);
     }
@@ -106,16 +105,16 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
                                             InntektArbeidYtelseGrunnlag iayGrunnlag,
                                             InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder,
                                             SvpArbeidsforholdDto arbeidsforhold) {
-        List<Yrkesaktivitet> yrkesaktiviteter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), iayGrunnlag.getAktørArbeidFraRegister(param.getAktørId()))
+        var yrkesaktiviteter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), iayGrunnlag.getAktørArbeidFraRegister(param.getAktørId()))
             .getYrkesaktiviteter().stream()
             .filter(ya -> ya.getArbeidsgiver() != null && ya.getArbeidsgiver().getIdentifikator().equals(arbeidsforhold.getArbeidsgiverReferanse()))
             .filter(ya -> ya.getArbeidsforholdRef().gjelderFor(InternArbeidsforholdRef.ref(arbeidsforhold.getInternArbeidsforholdReferanse())))
             .collect(Collectors.toList());
         yrkesaktiviteter.forEach(yrkesaktivitet -> {
-            List<VelferdspermisjonDto> velferdspermisjoner = arbeidsforhold.getVelferdspermisjoner();
+            var velferdspermisjoner = arbeidsforhold.getVelferdspermisjoner();
             if (velferdspermisjoner != null && harEndretPermisjonForYrkesaktivitet(yrkesaktivitet, velferdspermisjoner)) {
-                List<Permisjon> inkludertePermisjoner = finnGyldigePermisjoner(yrkesaktivitet, velferdspermisjoner);
-                    YrkesaktivitetBuilder yrkesaktivitetBuilder = aktørArbeidBuilder
+                var inkludertePermisjoner = finnGyldigePermisjoner(yrkesaktivitet, velferdspermisjoner);
+                var yrkesaktivitetBuilder = aktørArbeidBuilder
                         .getYrkesaktivitetBuilderForNøkkelAvType(Opptjeningsnøkkel.forArbeidsforholdIdMedArbeidgiver(yrkesaktivitet.getArbeidsforholdRef(), yrkesaktivitet.getArbeidsgiver()), yrkesaktivitet.getArbeidType())
                         .tilbakestillPermisjon();
                     inkludertePermisjoner.forEach(yrkesaktivitetBuilder::leggTilPermisjon);
@@ -137,7 +136,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
     }
 
     private Optional<InntektArbeidYtelseAggregat> finnAggregat(InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        Optional<InntektArbeidYtelseAggregat> saksbehandletVersjon = iayGrunnlag.getSaksbehandletVersjon();
+        var saksbehandletVersjon = iayGrunnlag.getSaksbehandletVersjon();
         if (saksbehandletVersjon.isPresent()) {
             return saksbehandletVersjon;
         }
@@ -145,15 +144,16 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
     }
 
     private void verifiserUnikeDatoer(BekreftSvangerskapspengerDto dto) {
-        List<SvpArbeidsforholdDto> bekreftedeArbeidsforhold = dto.getBekreftetSvpArbeidsforholdList();
+        var bekreftedeArbeidsforhold = dto.getBekreftetSvpArbeidsforholdList();
         for (var arbeidsforhold : bekreftedeArbeidsforhold) {
             if (arbeidsforhold.getSkalBrukes()) {
-                boolean harUliktAntallTilretteleggingDatoer = arbeidsforhold.getTilretteleggingDatoer().stream()
+                var harUliktAntallTilretteleggingDatoer = arbeidsforhold.getTilretteleggingDatoer().stream()
                     .map(SvpTilretteleggingDatoDto::getFom)
                     .collect(Collectors.toSet())
                     .size() != arbeidsforhold.getTilretteleggingDatoer().size();
                 if (harUliktAntallTilretteleggingDatoer) {
-                    throw SvangerskapsTjenesteFeil.FACTORY.kanIkkeHaLikeDatoerPåEttArbeidsforhold().toException();
+                    throw new FunksjonellException("FP-682318", "Forskjellige tilretteleggingstyper i ett arbeidsforhold "
+                        + "kan ikke løpe fra samme dato", "Avklar riktige FOM datoer for alle tilrettelegginger");
                 }
             }
         }
@@ -168,8 +168,8 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         var bekreftedeArbeidsforholdDtoer = dto.getBekreftetSvpArbeidsforholdList();
         var tilretteleggingerUfiltrert = new TilretteleggingFilter(svpGrunnlag).getAktuelleTilretteleggingerUfiltrert();
 
-        boolean erEndret = false;
-        for (SvpArbeidsforholdDto arbeidsforholdDto : bekreftedeArbeidsforholdDtoer) {
+        var erEndret = false;
+        for (var arbeidsforholdDto : bekreftedeArbeidsforholdDtoer) {
             if (mapTilretteleggingHvisEndret(arbeidsforholdDto, tilretteleggingerUfiltrert, oppdatertTilrettelegging)) {
                 erEndret = true;
             }
@@ -213,11 +213,13 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
 
         for (var datoDto : arbeidsforholdDto.getTilretteleggingDatoer()) {
             if (arbeidsforholdDto.getSkalBrukes() && delvisTilretteleggingUtenStillingsprosent(datoDto)) {
-                throw SvangerskapsTjenesteFeil.FACTORY.manglerStillingsprosentForDelvisTilrettelegging().toException();
+                throw new FunksjonellException("FP-128763", "Manlger Stillingsprosent ved delvis tilrettelegging",
+                    "Fyll ut stillingprosent");
             }
             //Sjekk om overstyring av utbetalingsgrad er lovlig
             if (datoDto.getOverstyrtUtbetalingsgrad() != null && !sjekkOmOverstyringErLovlig()) {
-                throw SvangerskapsTjenesteFeil.FACTORY.ingenTilgangTilOverstyringAvUtbetalingsgrad().toException();
+                throw new FunksjonellException("FP-682319", "Ansatt har ikke tilgang til å overstyre utbetalingsgrad.",
+                    "Ansatt med overstyring rolle må utføre denne endringen.");
             }
             var tilretteleggingFOM = new TilretteleggingFOM.Builder()
                 .medTilretteleggingType(datoDto.getType())
@@ -231,7 +233,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         historikkAdapter.tekstBuilder().medSkjermlenke(SkjermlenkeType.PUNKT_FOR_SVP_INNGANG);
 
         var overstyrtTilretteleggingEntitet = nyTilretteleggingEntitetBuilder.build();
-        boolean erEndret = oppdaterVedEndretTilretteleggingFOM(eksisterendeTilretteleggingEntitet, overstyrtTilretteleggingEntitet);
+        var erEndret = oppdaterVedEndretTilretteleggingFOM(eksisterendeTilretteleggingEntitet, overstyrtTilretteleggingEntitet);
 
         if (erEndret) {
             oppdatertTilretteleggingListe.add(overstyrtTilretteleggingEntitet);
@@ -255,10 +257,10 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
     private boolean oppdaterVedEndretTilretteleggingFOM(SvpTilretteleggingEntitet eksisterendeTilrettelegging,
                                                         SvpTilretteleggingEntitet overstyrtTilrettelegging) {
 
-        List<TilretteleggingFOM> fjernet = eksisterendeTilrettelegging.getTilretteleggingFOMListe().stream()
+        var fjernet = eksisterendeTilrettelegging.getTilretteleggingFOMListe().stream()
             .filter(fom -> !overstyrtTilrettelegging.getTilretteleggingFOMListe().contains(fom))
             .collect(Collectors.toList());
-        List<TilretteleggingFOM> lagtTil = overstyrtTilrettelegging.getTilretteleggingFOMListe().stream()
+        var lagtTil = overstyrtTilrettelegging.getTilretteleggingFOMListe().stream()
             .filter(fom -> !eksisterendeTilrettelegging.getTilretteleggingFOMListe().contains(fom))
             .collect(Collectors.toList());
 
@@ -266,10 +268,10 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
             return false;
         }
 
-        for (TilretteleggingFOM fomFjernet : fjernet) {
+        for (var fomFjernet : fjernet) {
             historikkAdapter.tekstBuilder().medEndretFelt(finnHistorikkFeltType(fomFjernet.getType()), formaterForHistorikk(fomFjernet), "fjernet");
         }
-        for (TilretteleggingFOM fomLagtTil : lagtTil) {
+        for (var fomLagtTil : lagtTil) {
             historikkAdapter.tekstBuilder().medEndretFelt(finnHistorikkFeltType(fomLagtTil.getType()), null, formaterForHistorikk(fomLagtTil));
         }
 
@@ -278,7 +280,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
     }
 
     private String formaterForHistorikk(TilretteleggingFOM fom) {
-        StringBuilder historikk = new StringBuilder().append(fom.getType().getNavn()).append(" fom: ").append(fom.getFomDato());
+        var historikk = new StringBuilder().append(fom.getType().getNavn()).append(" fom: ").append(fom.getFomDato());
         if (TilretteleggingType.DELVIS_TILRETTELEGGING.equals(fom.getType())) {
             historikk.append(", Stillingsprosent: ").append(fom.getStillingsprosent());
         }
@@ -302,22 +304,22 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
     }
 
     private boolean oppdaterFamiliehendelse(BekreftSvangerskapspengerDto dto, Behandling behandling) {
-        Long behandlingId = behandling.getId();
-        final FamilieHendelseGrunnlagEntitet grunnlag = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandlingId);
+        var behandlingId = behandling.getId();
+        final var grunnlag = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandlingId);
 
-        boolean termindatoOppdatert = oppdaterTermindato(dto, behandling, grunnlag);
-        boolean fødselsdatoOppdatert = oppdaterFødselsdato(dto, behandling, grunnlag);
+        var termindatoOppdatert = oppdaterTermindato(dto, behandling, grunnlag);
+        var fødselsdatoOppdatert = oppdaterFødselsdato(dto, behandling, grunnlag);
 
         return termindatoOppdatert || fødselsdatoOppdatert;
     }
 
     private boolean oppdaterFødselsdato(BekreftSvangerskapspengerDto dto, Behandling behandling, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
-        Optional<LocalDate> orginalFødselsdato = getFødselsdato(familieHendelseGrunnlag);
+        var orginalFødselsdato = getFødselsdato(familieHendelseGrunnlag);
 
-        boolean erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.FODSELSDATO, orginalFødselsdato.orElse(null), dto.getFødselsdato());
+        var erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.FODSELSDATO, orginalFødselsdato.orElse(null), dto.getFødselsdato());
 
         if (erEndret) {
-            final FamilieHendelseBuilder oppdatertOverstyrtHendelse = familieHendelseRepository.opprettBuilderFor(behandling);
+            final var oppdatertOverstyrtHendelse = familieHendelseRepository.opprettBuilderFor(behandling);
             oppdatertOverstyrtHendelse.tilbakestillBarn();
             if (dto.getFødselsdato() != null) {
                 oppdatertOverstyrtHendelse.medFødselsDato(dto.getFødselsdato());
@@ -334,11 +336,11 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
 
     private boolean oppdaterTermindato(BekreftSvangerskapspengerDto dto, Behandling behandling, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
 
-        LocalDate orginalTermindato = getTermindato(familieHendelseGrunnlag, behandling);
-        boolean erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.TERMINDATO, orginalTermindato, dto.getTermindato());
+        var orginalTermindato = getTermindato(familieHendelseGrunnlag, behandling);
+        var erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.TERMINDATO, orginalTermindato, dto.getTermindato());
 
         if (erEndret) {
-            final FamilieHendelseBuilder oppdatertOverstyrtHendelse = familieHendelseRepository.opprettBuilderFor(behandling);
+            final var oppdatertOverstyrtHendelse = familieHendelseRepository.opprettBuilderFor(behandling);
             oppdatertOverstyrtHendelse
                 .medTerminbekreftelse(oppdatertOverstyrtHendelse.getTerminbekreftelseBuilder()
                     .medTermindato(dto.getTermindato()));

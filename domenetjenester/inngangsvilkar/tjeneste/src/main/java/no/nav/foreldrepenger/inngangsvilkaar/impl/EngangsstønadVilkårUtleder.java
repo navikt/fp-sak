@@ -11,7 +11,8 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårT
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.SØKNADSFRISTVILKÅRET;
 import static no.nav.foreldrepenger.inngangsvilkaar.impl.UtledeteVilkår.forAvklartRelasjonsvilkårTilBarn;
 import static no.nav.foreldrepenger.inngangsvilkaar.impl.UtledeteVilkår.forPotensielleRelasjonsvilkårTilBarn;
-import static no.nav.foreldrepenger.inngangsvilkaar.impl.VilkårUtlederFeil.FEILFACTORY;
+import static no.nav.foreldrepenger.inngangsvilkaar.impl.VilkårUtlederFeil.behandlingsmotivKanIkkeUtledes;
+import static no.nav.foreldrepenger.inngangsvilkaar.impl.VilkårUtlederFeil.kunneIkkeUtledeVilkårFor;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,6 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.vedtak.exception.TekniskException;
 
 /*
  * Denne klassen for å utlede vilkår følger funksjonell flyt som vist i
@@ -69,23 +71,22 @@ public class EngangsstønadVilkårUtleder implements VilkårUtleder {
     }
 
     private static UtledeteVilkår finnVilkår(Behandling behandling, Optional<FamilieHendelseType> behandlingsmotiv1) {
-        if (!behandlingsmotiv1.isPresent()) {
-            throw FEILFACTORY.behandlingsmotivKanIkkeUtledes(behandling.getId()).toException();
+        if (behandlingsmotiv1.isEmpty()) {
+            throw behandlingsmotivKanIkkeUtledes(behandling.getId());
         }
 
         FamilieHendelseType behandlingsmotiv = behandlingsmotiv1.get();
         UtledeteVilkår vilkår = FAKTA_TIL_UTLEDETE_VILKÅR.get(behandlingsmotiv);
 
         if (vilkår == null) {
-            throw FEILFACTORY.kunneIkkeUtledeVilkårFor(behandling.getId(), behandlingsmotiv.getNavn())
-                .toException();
+            throw kunneIkkeUtledeVilkårFor(behandling.getId(), behandlingsmotiv.getNavn());
         }
         return vilkår;
     }
 
     private static void verifiserSomFagsakForEngangsstønad(Fagsak fagsak) {
         if (!FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType())) {
-            throw FEILFACTORY.støtterIkkeStønadstype(fagsak.getYtelseType().getNavn()).toException();
+            throw new TekniskException("FP-768012", "Støtter ikke stønadtype " + fagsak.getYtelseType().getNavn());
         }
     }
 

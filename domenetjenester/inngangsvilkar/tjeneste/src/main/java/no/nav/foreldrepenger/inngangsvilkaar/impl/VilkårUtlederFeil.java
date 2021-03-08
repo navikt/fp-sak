@@ -1,21 +1,23 @@
 package no.nav.foreldrepenger.inngangsvilkaar.impl;
 
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.exception.TekniskException;
 
-public interface VilkårUtlederFeil extends DeklarerteFeil {
-    VilkårUtlederFeil FEILFACTORY = FeilFactory.create(VilkårUtlederFeil.class);
+final class VilkårUtlederFeil {
 
-    @TekniskFeil(feilkode = "FP-768012", feilmelding = "Støtter ikke stønadtype %s.", logLevel = LogLevel.ERROR)
-    Feil støtterIkkeStønadstype(String stønadstype);
+    private VilkårUtlederFeil() {
+    }
 
-    @TekniskFeil(feilkode = "FP-768017", feilmelding = "Kan ikke utlede vilkår for behandlingId %s, da behandlingsmotiv ikke kan avgjøres", logLevel = LogLevel.ERROR)
-    Feil behandlingsmotivKanIkkeUtledes(Long behandlingId);
+    static TekniskException behandlingsmotivKanIkkeUtledes(Long behandlingId) {
+        var msg = String.format("Kan ikke utlede vilkår for behandlingId %s, da behandlingsmotiv ikke kan avgjøres",
+            behandlingId);
+        return new TekniskException("FP-768017", msg);
+    }
 
-    @TekniskFeil(feilkode = "FP-768018", feilmelding = "Kan ikke utlede vilkår for behandlingId %s. Mangler konfigurasjon for behandlingsmotiv %s", logLevel = LogLevel.ERROR)
-    Feil kunneIkkeUtledeVilkårFor(Long behandlingId, String behandlingsmotiv);
+    static TekniskException kunneIkkeUtledeVilkårFor(Long behandlingId, String behandlingsmotiv) {
+        var msg = String.format(
+            "Kan ikke utlede vilkår for behandlingId %s. Mangler konfigurasjon for behandlingsmotiv %s", behandlingId,
+            behandlingsmotiv);
+        return new TekniskException("FP-768018", msg);
+    }
 
 }

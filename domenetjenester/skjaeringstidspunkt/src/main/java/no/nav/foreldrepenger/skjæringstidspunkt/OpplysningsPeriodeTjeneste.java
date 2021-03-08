@@ -10,6 +10,7 @@ import org.threeten.extra.Interval;
 
 import no.nav.foreldrepenger.behandlingslager.IntervallUtil;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
@@ -75,7 +76,7 @@ public class OpplysningsPeriodeTjeneste {
         } else if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelseType)) {
             return beregnIntervalSVP(skjæringstidspunkt, tilOgMedIdag);
         }
-        throw SkjæringstidspunktFeil.FACTORY.kanIkkeUtledeOpplysningsperiodeForBehandling(behandlingId).toException();
+        throw new TekniskException("FP-783491", "Kan ikke utlede opplysningsperiode for %s");
     }
 
     private Interval beregnIntervalES(LocalDate skjæringstidspunkt, boolean tilOgMedIdag) {

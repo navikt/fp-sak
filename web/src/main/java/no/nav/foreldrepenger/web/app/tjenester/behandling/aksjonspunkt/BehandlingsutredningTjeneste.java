@@ -1,8 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt;
 
-import static no.nav.vedtak.feil.LogLevel.ERROR;
-import static no.nav.vedtak.feil.LogLevel.WARN;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
@@ -15,7 +12,6 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
@@ -25,10 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.FunksjonellFeil;
+import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
@@ -62,12 +55,11 @@ public class BehandlingsutredningTjeneste {
      * Hent behandlinger for angitt saksnummer (offisielt GSAK saksnummer)
      */
     public List<Behandling> hentBehandlingerForSaksnummer(Saksnummer saksnummer) {
-        List<Behandling> behandlinger = behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(saksnummer);
-        return behandlinger;
+        return behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(saksnummer);
     }
 
     public void settBehandlingPaVent(Long behandlingsId, LocalDate frist, Venteårsak venteårsak) {
-        AksjonspunktDefinisjon aksjonspunktDefinisjon = AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT;
+        var aksjonspunktDefinisjon = AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT;
         if (venteårsak == null) {
             venteårsak = Venteårsak.UDEFINERT;
         }
@@ -78,26 +70,27 @@ public class BehandlingsutredningTjeneste {
     private void doSetBehandlingPåVent(Long behandlingsId, AksjonspunktDefinisjon apDef, LocalDate frist,
                                        Venteårsak venteårsak) {
 
-        LocalDateTime fristTid = bestemFristForBehandlingVent(frist);
+        var fristTid = bestemFristForBehandlingVent(frist);
 
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingsId);
+        var behandling = behandlingRepository.hentBehandling(behandlingsId);
         oppgaveTjeneste.opprettTaskAvsluttOppgave(behandling);
-        BehandlingStegType behandlingStegFunnet = behandling.getAksjonspunktMedDefinisjonOptional(apDef)
+        var behandlingStegFunnet = behandling.getAksjonspunktMedDefinisjonOptional(apDef)
             .map(Aksjonspunkt::getBehandlingStegFunnet)
             .orElse(null); // Dersom autopunkt ikke allerede er opprettet, så er det ikke tilknyttet steg
         behandlingskontrollTjeneste.settBehandlingPåVent(behandling, apDef, behandlingStegFunnet, fristTid, venteårsak);
     }
 
     public void endreBehandlingPaVent(Long behandlingsId, LocalDate frist, Venteårsak venteårsak) {
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingsId);
+        var behandling = behandlingRepository.hentBehandling(behandlingsId);
         if (!behandling.isBehandlingPåVent()) {
-            throw BehandlingsutredningTjenesteFeil.FACTORY.kanIkkeEndreVentefristForBehandlingIkkePaVent(behandlingsId)
-                .toException();
+            var msg = String.format("BehandlingId %s er ikke satt på vent, og ventefrist kan derfor ikke oppdateres",
+                behandlingsId);
+            throw new FunksjonellException("FP-992332", msg, "Forsett saksbehandlingen");
         }
         if (venteårsak == null) {
             venteårsak = behandling.getVenteårsak();
         }
-        AksjonspunktDefinisjon aksjonspunktDefinisjon = behandling.getBehandlingPåVentAksjonspunktDefinisjon();
+        var aksjonspunktDefinisjon = behandling.getBehandlingPåVentAksjonspunktDefinisjon();
         doSetBehandlingPåVent(behandlingsId, aksjonspunktDefinisjon, frist, venteårsak);
     }
 
@@ -108,24 +101,15 @@ public class BehandlingsutredningTjeneste {
     }
 
     public void byttBehandlendeEnhet(Long behandlingId, OrganisasjonsEnhet enhet, String begrunnelse, HistorikkAktør aktør) {
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         behandlendeEnhetTjeneste.oppdaterBehandlendeEnhet(behandling, enhet, aktør, begrunnelse);
     }
 
     public void kanEndreBehandling(Long behandlingId, Long versjon) {
-        Boolean kanEndreBehandling = behandlingRepository.erVersjonUendret(behandlingId, versjon);
+        var kanEndreBehandling = behandlingRepository.erVersjonUendret(behandlingId, versjon);
         if (!kanEndreBehandling) {
-            throw BehandlingsutredningTjenesteFeil.FACTORY.endringerHarForekommetPåBehandlingen().toException();
+            throw new FunksjonellException("FP-837578", "Behandlingen er endret av en annen saksbehandler, eller har blitt oppdatert med ny informasjon av systemet.",
+                "Last inn behandlingen på nytt.");
         }
-    }
-
-    interface BehandlingsutredningTjenesteFeil extends DeklarerteFeil {
-        BehandlingsutredningTjenesteFeil FACTORY = FeilFactory.create(BehandlingsutredningTjenesteFeil.class); // NOSONAR
-
-        @FunksjonellFeil(feilkode = "FP-992332", feilmelding = "BehandlingId %s er ikke satt på vent, og ventefrist kan derfor ikke oppdateres", løsningsforslag = "Forsett saksbehandlingen", logLevel = ERROR)
-        Feil kanIkkeEndreVentefristForBehandlingIkkePaVent(Long behandlingId);
-
-        @FunksjonellFeil(feilkode = "FP-837578", feilmelding = "Behandlingen er endret av en annen saksbehandler, eller har blitt oppdatert med ny informasjon av systemet.", løsningsforslag = "Last inn behandlingen på nytt.", logLevel = WARN)
-        Feil endringerHarForekommetPåBehandlingen();
     }
 }
