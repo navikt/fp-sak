@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.økonomistøtte.simulering.tjeneste;
 
+import static no.nav.foreldrepenger.økonomistøtte.simulering.tjeneste.SimulerOppdragIntegrasjonTjenesteFeil.*;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -39,7 +41,7 @@ public class SimuleringIntegrasjonTjeneste {
             try {
                 restKlient.startSimulering(dto);
             } catch (IntegrasjonException e) {
-                throw SimulerOppdragIntegrasjonTjenesteFeil.FACTORY.startSimuleringFeiletMedFeilmelding(behandlingId, e).toException();
+                throw startSimuleringFeiletMedFeilmelding(behandlingId, e);
             }
         } else {
             LOG.info("Ingen oppdrag å simulere. {}", behandlingId);

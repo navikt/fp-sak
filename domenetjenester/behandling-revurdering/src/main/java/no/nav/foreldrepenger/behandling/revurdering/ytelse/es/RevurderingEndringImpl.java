@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.vedtak.feil.FeilFactory;
+import no.nav.vedtak.exception.TekniskException;
 
 /**
  * Sjekk om revurdering endrer utfall.
@@ -49,9 +49,7 @@ public class RevurderingEndringImpl implements RevurderingEndring {
             return false;
         }
         var originalBehandlingId = behandling.getOriginalBehandlingId()
-            .orElseThrow(() -> FeilFactory.create(RevurderingFeil.class)
-                .revurderingManglerOriginalBehandling(behandling.getId())
-                .toException());
+            .orElseThrow(() -> RevurderingFeil.revurderingManglerOriginalBehandling(behandling.getId()));
         var originalResultatType = getBehandlingResultatType(originalBehandlingId);
 
         // Forskjellig utfall
@@ -66,10 +64,8 @@ public class RevurderingEndringImpl implements RevurderingEndring {
             if (originalBeregning.isPresent() && nyBeregning.isPresent()) {
                 return harSammeBeregnetYtelse(nyBeregning.get(), originalBeregning.get());
             } else {
-                throw FeilFactory.create(RevurderingFeil.class)
-                    .behandlingManglerBeregning(
-                        originalBeregning.isPresent() ? behandling.getId() : originalBehandlingId)
-                    .toException();
+                var behandlingId = originalBeregning.isPresent() ? behandling.getId() : originalBehandlingId;
+                throw new TekniskException("FP-818307", String.format("Behandling med id %s mangler beregning", behandlingId));
             }
         }
         // Begge har utfall AVSLÅTT

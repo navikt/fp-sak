@@ -9,6 +9,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
 public class KompletthetsjekkerProvider {
@@ -23,9 +24,14 @@ public class KompletthetsjekkerProvider {
         }
 
         if (instance.isAmbiguous()) {
-            throw KompletthetFeil.FACTORY.flereImplementasjonerAvKompletthetsjekker(ytelseType.getKode(), behandlingType.getKode()).toException();
-        } else if (instance.isUnsatisfied()) {
-            throw KompletthetFeil.FACTORY.ingenImplementasjonerAvKompletthetssjekker(ytelseType.getKode(), behandlingType.getKode()).toException();
+            var msg = String.format("Mer enn en implementasjon funnet av Kompletthetsjekker for "
+                + "fagsakYtelseType=%s og behandlingType=%s", ytelseType.getKode(), behandlingType.getKode());
+            throw new TekniskException("FP-912911", msg);
+        }
+        if (instance.isUnsatisfied()) {
+            var msg = String.format("Fant ingen implementasjon av Kompletthetsjekker for fagsakYtelseType=%s "
+                    + "og behandlingType=%s", ytelseType.getKode(), behandlingType.getKode());
+            throw new TekniskException("FP-912910", msg);
         }
         Kompletthetsjekker minInstans = instance.get();
         if (minInstans.getClass().isAnnotationPresent(Dependent.class)) {

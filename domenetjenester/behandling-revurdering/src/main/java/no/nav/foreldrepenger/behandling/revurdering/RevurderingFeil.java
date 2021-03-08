@@ -1,21 +1,17 @@
 package no.nav.foreldrepenger.behandling.revurdering;
 
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.exception.TekniskException;
 
-public interface RevurderingFeil extends DeklarerteFeil {
-    RevurderingFeil FACTORY = FeilFactory.create(RevurderingFeil.class);
+public final class RevurderingFeil {
 
-    @TekniskFeil(feilkode = "FP-317517", feilmelding = "finner ingen behandling som kan revurderes for fagsak: %s", logLevel = LogLevel.WARN)
-    Feil tjenesteFinnerIkkeBehandlingForRevurdering(Long fagsakId);
+    private RevurderingFeil() {
+    }
 
-    @TekniskFeil(feilkode = "FP-186234", feilmelding = "Revurdering med id %s har ikke original behandling", logLevel = LogLevel.ERROR)
-    Feil revurderingManglerOriginalBehandling(Long behandlingId);
+    public static TekniskException tjenesteFinnerIkkeBehandlingForRevurdering(Long fagsakId) {
+        return new TekniskException("FP-317517", String.format("finner ingen behandling som kan revurderes for fagsak: %s", fagsakId));
+    }
 
-    @TekniskFeil(feilkode = "FP-818307", feilmelding = "Behandling med id %s mangler beregning", logLevel = LogLevel.ERROR)
-    Feil behandlingManglerBeregning(Long behandlingId);
-
+    public static TekniskException revurderingManglerOriginalBehandling(Long behandlingId) {
+        return new TekniskException("FP-186234", String.format("Revurdering med id %s har ikke original behandling", behandlingId));
+    }
 }

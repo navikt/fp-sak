@@ -54,7 +54,7 @@ public class SimuleringIntegrasjonTjenesteTest {
 
     @Test
     public void test_skalFeileNårOppdragsystemKasterException() {
-        doThrow(SimulerOppdragIntegrasjonTjenesteFeil.FACTORY.startSimuleringFeiletMedFeilmelding(BEHANDLING_ID, new RuntimeException()).toException())
+        doThrow(SimulerOppdragIntegrasjonTjenesteFeil.startSimuleringFeiletMedFeilmelding(BEHANDLING_ID, new RuntimeException()))
             .when(restKlientMock).startSimulering(any());
         assertThatThrownBy(() -> integrasjonTjeneste.startSimulering(BEHANDLING_ID, Collections.singletonList("test")))
             .isInstanceOf(TekniskException.class)

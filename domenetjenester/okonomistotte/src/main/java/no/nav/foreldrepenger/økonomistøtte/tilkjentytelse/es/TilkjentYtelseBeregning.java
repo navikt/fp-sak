@@ -16,11 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.kontrakter.tilkjentytelse.v1.TilkjentYtelsePeriodeV1;
 import no.nav.foreldrepenger.økonomistøtte.tilkjentytelse.YtelseTypeTilkjentYtelseTjeneste;
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.exception.TekniskException;
 
 @FagsakYtelseTypeRef("ES")
 @ApplicationScoped
@@ -49,7 +45,10 @@ public class TilkjentYtelseBeregning implements YtelseTypeTilkjentYtelseTjeneste
             return Collections.emptyList();
         }
         LegacyESBeregning beregning = beregningResultat.getSisteBeregning()
-            .orElseThrow(() -> TilkjentYtelseTjenesteFeil.FACTORY.manglerBeregning(behandlingId).toException());
+            .orElseThrow(() -> {
+                var msg = String.format("Behandlingen %s har ikke beregning", behandlingId);
+                return new TekniskException("FP-598399", msg);
+            });
 
         return MapperForTilkjentYtelse.mapTilkjentYtelse(beregning, vedtak.getVedtaksdato());
     }
@@ -67,12 +66,5 @@ public class TilkjentYtelseBeregning implements YtelseTypeTilkjentYtelseTjeneste
     @Override
     public LocalDate hentEndringstidspunkt(Long behandlingId) {
         return null; //alltid null for ES
-    }
-
-
-    interface TilkjentYtelseTjenesteFeil extends DeklarerteFeil {
-        static final TilkjentYtelseTjenesteFeil FACTORY =  FeilFactory.create(TilkjentYtelseTjenesteFeil.class);
-        @TekniskFeil(feilkode = "FP-598399", feilmelding = "Behandlingen %s har ikke beregning", logLevel = LogLevel.WARN)
-        Feil manglerBeregning(long behandlingId);
     }
 }

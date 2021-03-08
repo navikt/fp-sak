@@ -1,14 +1,13 @@
 package no.nav.foreldrepenger.økonomistøtte.simulering.tjeneste;
 
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.exception.TekniskException;
 
-public interface SimulerOppdragIntegrasjonTjenesteFeil extends DeklarerteFeil {
-    SimulerOppdragIntegrasjonTjenesteFeil FACTORY = FeilFactory.create(SimulerOppdragIntegrasjonTjenesteFeil.class);
+final class SimulerOppdragIntegrasjonTjenesteFeil {
 
-    @TekniskFeil(feilkode = "FP-423523", feilmelding = "Start simulering feilet for behandlingId: %s", logLevel = LogLevel.WARN)
-    Feil startSimuleringFeiletMedFeilmelding(Long behandlingId, Exception e);
+    private SimulerOppdragIntegrasjonTjenesteFeil() {
+    }
+
+    static TekniskException startSimuleringFeiletMedFeilmelding(Long behandlingId, Exception e) {
+        return new TekniskException("FP-423523", "Start simulering feilet for behandlingId: " + behandlingId, e);
+    }
 }

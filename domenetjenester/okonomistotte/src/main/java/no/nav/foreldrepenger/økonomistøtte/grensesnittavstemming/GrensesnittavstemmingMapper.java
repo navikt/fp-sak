@@ -34,11 +34,7 @@ import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.K
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.ObjectFactory;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.Periodedata;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.Totaldata;
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.xmlutils.JaxbHelper;
 
 public class GrensesnittavstemmingMapper {
@@ -124,9 +120,11 @@ public class GrensesnittavstemmingMapper {
 
     private String lagXmlMelding(Avstemmingsdata avstemmingsdata) {
         try {
-            return JaxbHelper.marshalAndValidateJaxb(GrensesnittavstemmingSkjemaConstants.JAXB_CLASS, avstemmingsdata, GrensesnittavstemmingSkjemaConstants.XSD_LOCATION);
+            return JaxbHelper.marshalAndValidateJaxb(GrensesnittavstemmingSkjemaConstants.JAXB_CLASS, avstemmingsdata,
+                GrensesnittavstemmingSkjemaConstants.XSD_LOCATION);
         } catch (JAXBException | SAXException e) {
-            throw GrensesnittavstemmingFeil.FACTORY.xmlgenereringsfeil(e).toException();
+            throw new TekniskException("FP-531167",
+                "Kan ikke opprette avstemmingsmelding. Problemer ved generering av xml", e);
         }
     }
 
@@ -289,13 +287,5 @@ public class GrensesnittavstemmingMapper {
 
     String getAvstemmingId() {
         return avstemmingId;
-    }
-
-    interface GrensesnittavstemmingFeil extends DeklarerteFeil {
-        GrensesnittavstemmingFeil FACTORY = FeilFactory.create(GrensesnittavstemmingFeil.class);
-
-        @TekniskFeil(feilkode = "FP-531167", feilmelding = "Kan ikke opprette avstemmingsmelding. Problemer ved generering av xml", logLevel = LogLevel.ERROR)
-        Feil xmlgenereringsfeil(Exception cause);
-
     }
 }

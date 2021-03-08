@@ -74,7 +74,7 @@ public class FatteVedtakXmlTjeneste {
                 VedtakConstants.ADDITIONAL_XSD_LOCATIONS,
                 VedtakConstants.ADDITIONAL_CLASSES);
         } catch (JAXBException | SAXException e) {
-            throw VedtakXmlFeil.FACTORY.serialiseringsfeil(behandlingId, e).toException();
+            throw VedtakXmlFeil.serialiseringsfeil(behandlingId, e);
         }
     }
 }

@@ -2,13 +2,7 @@ package no.nav.foreldrepenger.økonomistøtte;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
 
 public class OppdragskontrollPostConditionCheck {
 

@@ -21,8 +21,8 @@ import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag110;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.OppdragSkjemaConstants;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.OppdragsLinje150;
 import no.nav.foreldrepenger.økonomistøtte.BehandleØkonomioppdragKvittering;
-import no.nav.foreldrepenger.økonomistøtte.queue.ØkonomioppdragMeldingFeil;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomiKvittering;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.jms.InternalQueueConsumer;
 import no.nav.vedtak.felles.integrasjon.jms.JmsKonfig;
 import no.nav.vedtak.felles.integrasjon.jms.precond.DefaultDatabaseOppePreconditionChecker;
@@ -72,10 +72,10 @@ public class ØkonomioppdragAsyncJmsConsumerImpl extends InternalQueueConsumer i
                 loggKvitteringUtenLinjer(kvitteringsmelding);
             }
         } catch (SAXException | JAXBException e) { // NOSONAR
-            throw ØkonomioppdragMeldingFeil.FACTORY.uventetFeilVedProsesseringAvForsendelsesInfoXMLMedJaxb(message, e)
-                .toException();
+            throw new TekniskException("FP-595437", "Uventet feil med JAXB ved parsing av melding "
+                + "oppdragskjema.oppdrag: " + message, e);
         } catch (XMLStreamException e) { // NOSONAR
-            throw ØkonomioppdragMeldingFeil.FACTORY.uventetFeilVedProsesseringAvForsendelsesInfoXML(e).toException();
+            throw new TekniskException("FP-744861", "Feil i parsing av oppdragskjema.oppdrag", e);
         }
     }
 

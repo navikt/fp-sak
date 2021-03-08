@@ -8,6 +8,8 @@ import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.spi.CDI;
 
+import no.nav.vedtak.exception.TekniskException;
+
 public class AksjonspunktUtlederHolder {
 
     private final List<AksjonspunktUtleder> utledere;
@@ -25,9 +27,11 @@ public class AksjonspunktUtlederHolder {
         final Instance<? extends AksjonspunktUtleder> instance = CDI.current().select(aksjonspunktUtlederClass);
 
         if (instance.isAmbiguous()) {
-            throw AksjonspunktUtlederFeil.FACTORY.flereImplementasjonerAvAksjonspunktUtleder(aksjonspunktUtlederClass.getSimpleName()).toException();
-        } else if (instance.isUnsatisfied()) {
-            throw AksjonspunktUtlederFeil.FACTORY.fantIkkeAksjonspunktUtleder(aksjonspunktUtlederClass.getSimpleName()).toException();
+            throw new TekniskException("FP-191205", "Mer enn en implementasjon funnet for aksjonspunktutleder "
+                + aksjonspunktUtlederClass.getSimpleName());
+        }
+        if (instance.isUnsatisfied()) {
+            throw new TekniskException("FP-985832", "Ukjent aksjonspunktutleder " + aksjonspunktUtlederClass.getSimpleName());
         }
         AksjonspunktUtleder minInstans = instance.get();
 

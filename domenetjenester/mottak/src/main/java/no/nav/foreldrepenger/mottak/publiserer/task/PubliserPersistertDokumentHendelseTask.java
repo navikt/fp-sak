@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.HåndterMottattDokumentTask;
 import no.nav.foreldrepenger.mottak.json.JacksonJsonConfig;
 import no.nav.foreldrepenger.mottak.publiserer.producer.DialogHendelseProducer;
-import no.nav.foreldrepenger.mottak.publiserer.producer.PubliserPersistertDokumentHendelseFeil;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.hendelser.inntektsmelding.v1.InntektsmeldingV1;
@@ -76,7 +76,9 @@ public class PubliserPersistertDokumentHendelseTask extends GenerellProsessTask 
                 .medStartDato(inntektsmelding.getStartDatoPermisjon().orElse(null))
                 .medSaksnummer(fagsak.getSaksnummer().getVerdi())
                 .build();
-            producer.sendJsonMedNøkkel(inntektsmelding.getKanalreferanse(), JacksonJsonConfig.toJson(hendelse, PubliserPersistertDokumentHendelseFeil.FEILFACTORY::kanIkkeSerialisere));
+            var json = JacksonJsonConfig.toJson(hendelse,
+                e -> new TekniskException("FP-190496", "Kunne ikke serialisere til json.", e));
+            producer.sendJsonMedNøkkel(inntektsmelding.getKanalreferanse(), json);
         }));
     }
 }

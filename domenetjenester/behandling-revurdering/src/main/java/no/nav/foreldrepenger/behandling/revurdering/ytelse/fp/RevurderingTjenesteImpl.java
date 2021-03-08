@@ -9,7 +9,6 @@ import no.nav.foreldrepenger.behandling.revurdering.RevurderingEndring;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingFeil;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjenesteFelles;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
@@ -51,11 +50,11 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
 
     @Inject
     public RevurderingTjenesteImpl(BehandlingRepositoryProvider repositoryProvider,
-            BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-            InntektArbeidYtelseTjeneste iayTjeneste,
-            @FagsakYtelseTypeRef("FP") RevurderingEndring revurderingEndring,
-            RevurderingTjenesteFelles revurderingTjenesteFelles,
-            VergeRepository vergeRepository) {
+                                   BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                   InntektArbeidYtelseTjeneste iayTjeneste,
+                                   @FagsakYtelseTypeRef("FP") RevurderingEndring revurderingEndring,
+                                   RevurderingTjenesteFelles revurderingTjenesteFelles,
+                                   VergeRepository vergeRepository) {
         this.iayTjeneste = iayTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
@@ -70,34 +69,44 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
     }
 
     @Override
-    public Behandling opprettManuellRevurdering(Fagsak fagsak, BehandlingÅrsakType revurderingsÅrsak, OrganisasjonsEnhet enhet) {
-        Behandling behandling = opprettRevurdering(fagsak, List.of(revurderingsÅrsak), true, enhet);
-        BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+    public Behandling opprettManuellRevurdering(Fagsak fagsak,
+                                                BehandlingÅrsakType revurderingsÅrsak,
+                                                OrganisasjonsEnhet enhet) {
+        var behandling = opprettRevurdering(fagsak, List.of(revurderingsÅrsak), true, enhet);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         behandlingskontrollTjeneste.lagreAksjonspunkterFunnet(kontekst,
-                List.of(AksjonspunktDefinisjon.KONTROLL_AV_MANUELT_OPPRETTET_REVURDERINGSBEHANDLING));
+            List.of(AksjonspunktDefinisjon.KONTROLL_AV_MANUELT_OPPRETTET_REVURDERINGSBEHANDLING));
         return behandling;
     }
 
     @Override
-    public Behandling opprettAutomatiskRevurdering(Fagsak fagsak, BehandlingÅrsakType revurderingsÅrsak, OrganisasjonsEnhet enhet) {
+    public Behandling opprettAutomatiskRevurdering(Fagsak fagsak,
+                                                   BehandlingÅrsakType revurderingsÅrsak,
+                                                   OrganisasjonsEnhet enhet) {
         return opprettRevurdering(fagsak, List.of(revurderingsÅrsak), false, enhet);
     }
 
     @Override
-    public Behandling opprettAutomatiskRevurderingMultiÅrsak(Fagsak fagsak, List<BehandlingÅrsakType> revurderingsÅrsaker, OrganisasjonsEnhet enhet) {
+    public Behandling opprettAutomatiskRevurderingMultiÅrsak(Fagsak fagsak,
+                                                             List<BehandlingÅrsakType> revurderingsÅrsaker,
+                                                             OrganisasjonsEnhet enhet) {
         return opprettRevurdering(fagsak, revurderingsÅrsaker, false, enhet);
     }
 
-    private Behandling opprettRevurdering(Fagsak fagsak, List<BehandlingÅrsakType> revurderingsÅrsaker, boolean manueltOpprettet, OrganisasjonsEnhet enhet) {
-        Behandling origBehandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())
-                .orElseThrow(() -> RevurderingFeil.FACTORY.tjenesteFinnerIkkeBehandlingForRevurdering(fagsak.getId()).toException());
+    private Behandling opprettRevurdering(Fagsak fagsak,
+                                          List<BehandlingÅrsakType> revurderingsÅrsaker,
+                                          boolean manueltOpprettet,
+                                          OrganisasjonsEnhet enhet) {
+        var origBehandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())
+            .orElseThrow(() -> RevurderingFeil.tjenesteFinnerIkkeBehandlingForRevurdering(fagsak.getId()));
 
         // lås original behandling først
         behandlingskontrollTjeneste.initBehandlingskontroll(origBehandling);
 
         // deretter opprett revurdering
-        Behandling revurdering = revurderingTjenesteFelles.opprettRevurderingsbehandling(revurderingsÅrsaker, origBehandling, manueltOpprettet, enhet);
-        BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(revurdering);
+        var revurdering = revurderingTjenesteFelles.opprettRevurderingsbehandling(revurderingsÅrsaker, origBehandling,
+            manueltOpprettet, enhet);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(revurdering);
         behandlingskontrollTjeneste.opprettBehandling(kontekst, revurdering);
 
         // Kopier vilkår (samme vilkår vurderes i Revurdering)
@@ -111,8 +120,8 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
 
     @Override
     public void kopierAlleGrunnlagFraTidligereBehandling(Behandling original, Behandling ny) {
-        Long originalBehandlingId = original.getId();
-        Long nyBehandlingId = ny.getId();
+        var originalBehandlingId = original.getId();
+        var nyBehandlingId = ny.getId();
         familieHendelseRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
         personopplysningRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
         medlemskapRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
@@ -120,13 +129,14 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(originalBehandlingId);
         if (BehandlingType.REVURDERING.equals(ny.getType())) {
             ytelsesFordelingRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
-            ytelseFordelingAggregat.flatMap(YtelseFordelingAggregat::getGjeldendeAktivitetskravPerioder).ifPresent(entitet -> {
-                var yfa = ytelsesFordelingRepository.opprettBuilder(nyBehandlingId)
-                    .medOpprinneligeAktivitetskravPerioder(entitet)
-                    .medSaksbehandledeAktivitetskravPerioder(null)
-                    .build();
-                ytelsesFordelingRepository.lagre(nyBehandlingId, yfa);
-            });
+            ytelseFordelingAggregat.flatMap(YtelseFordelingAggregat::getGjeldendeAktivitetskravPerioder)
+                .ifPresent(entitet -> {
+                    var yfa = ytelsesFordelingRepository.opprettBuilder(nyBehandlingId)
+                        .medOpprinneligeAktivitetskravPerioder(entitet)
+                        .medSaksbehandledeAktivitetskravPerioder(null)
+                        .build();
+                    ytelsesFordelingRepository.lagre(nyBehandlingId, yfa);
+                });
         } else {
             // Kopierer kun oppgitt for ny 1gang. Bør kanskje kopiere alt?
             ytelseFordelingAggregat.ifPresent(yfa -> {
@@ -142,7 +152,8 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
             });
         }
         vergeRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
-        opptjeningIUtlandDokStatusRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
+        opptjeningIUtlandDokStatusRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId,
+            nyBehandlingId);
 
         // gjør til slutt, innebærer kall til abakus
         iayTjeneste.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);

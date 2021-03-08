@@ -29,12 +29,12 @@ import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.impl.KlageAnkeVedtakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.repo.LagretVedtakRepository;
 import no.nav.foreldrepenger.domene.vedtak.xml.FatteVedtakXmlTjeneste;
-import no.nav.foreldrepenger.domene.vedtak.xml.VedtakXmlFeil;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveForBehandlingSendtTilbakeTask;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.Totrinnsvurdering;
+import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
 public class FatteVedtakTjeneste {
@@ -171,8 +171,9 @@ public class FatteVedtakTjeneste {
             return;
         }
         if (!erKlarForVedtak(behandling)) {
-            throw VedtakXmlFeil.FACTORY.behandlingErIFeilTilstand(behandling.getId(), behandling.getStatus().getKode())
-                    .toException();
+            var msg = String.format("Vedtak-XML kan ikke utarbeides for behandling %s i tilstand %s", behandling.getId(),
+                behandling.getStatus().getKode());
+            throw new TekniskException("FP-142918", msg);
         }
         LagretVedtak lagretVedtak = LagretVedtak.builder()
                 .medBehandlingId(behandling.getId())
