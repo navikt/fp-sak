@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.domene.medlem.api.Medlemskapsperiode;
 import no.nav.foreldrepenger.domene.medlem.api.MedlemskapsperiodeKoder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.felles.integrasjon.medl2.Medlemskapsunntak;
 import no.nav.vedtak.felles.integrasjon.medl2.MedlemsunntakRestKlient;
 
@@ -44,7 +45,7 @@ public class HentMedlemskapFraRegister {
             LOG.info("MEDL2 REST RS {}", mups);
             return mups;
         } catch (Exception e) {
-            throw MedlemFeil.FACTORY.feilVedKallTilMedlem(e).toException();
+            throw new IntegrasjonException("FP-085791", "Feil ved kall til medlemskap tjenesten.", e);
         }
     }
 

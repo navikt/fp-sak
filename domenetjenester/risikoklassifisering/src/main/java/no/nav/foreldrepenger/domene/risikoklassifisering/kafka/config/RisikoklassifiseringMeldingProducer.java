@@ -16,6 +16,8 @@ import org.apache.kafka.common.errors.AuthorizationException;
 import org.apache.kafka.common.errors.RetriableException;
 import org.apache.kafka.common.serialization.StringSerializer;
 
+import no.nav.vedtak.exception.IntegrasjonException;
+import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
@@ -61,13 +63,13 @@ class RisikoklassifiseringMeldingProducer  {
             producer.send(record)
                 .get();
         } catch (InterruptedException | ExecutionException e) {
-            throw RisikoKafkaProducerFeil.FACTORY.uventetFeil(topic, e).toException();
+            throw new IntegrasjonException("FP-RISK-925469", "Uventet feil ved sending til Kafka, topic: " + topic, e);
         } catch (AuthenticationException | AuthorizationException e) {
-            throw RisikoKafkaProducerFeil.FACTORY.feilIPålogging(topic, e).toException();
+            throw new ManglerTilgangException("FP-RISK-821005", "Feil i pålogging mot Kafka, topic: " + topic, e);
         } catch (RetriableException e) {
-            throw RisikoKafkaProducerFeil.FACTORY.retriableExceptionMotKaka(topic, e).toException();
+            throw new IntegrasjonException("FP-RISK-127608", "Fikk transient feil mot Kafka, kan prøve igjen, topic: " + topic, e);
         } catch (KafkaException e) {
-            throw RisikoKafkaProducerFeil.FACTORY.annenExceptionMotKafka(topic, e).toException();
+            throw new IntegrasjonException("FP-RISK-811208", "Fikk feil mot Kafka, topic: " + topic, e);
         }
     }
 

@@ -15,6 +15,9 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.vedtak.exception.IntegrasjonException;
+import no.nav.vedtak.exception.ManglerTilgangException;
+
 public class HendelseProducer {
 
     private static final Logger LOG = LoggerFactory.getLogger(HendelseProducer.class);
@@ -27,7 +30,8 @@ public class HendelseProducer {
                             String schemaRegistryUrl,
                             String username,
                             String password) {
-        Properties properties = KafkaPropertiesUtil.opprettProperties(bootstrapServers, schemaRegistryUrl, getProducerClientId(topicName), username, password);
+        Properties properties = KafkaPropertiesUtil.opprettProperties(bootstrapServers, schemaRegistryUrl,
+            getProducerClientId(topicName), username, password);
 
         this.topic = topicName;
         this.producer = createProducer(properties);
@@ -43,16 +47,21 @@ public class HendelseProducer {
             var recordMetadata = producer.send(record).get(); //NOSONAR
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw HendelseKafkaProducerFeil.FACTORY.uventetFeil(topic, e).toException();
+            throw uventetException(e);
         } catch (ExecutionException e) {
-            throw HendelseKafkaProducerFeil.FACTORY.uventetFeil(topic, e).toException();
+            throw uventetException(e);
         } catch (AuthenticationException | AuthorizationException e) {
-            throw HendelseKafkaProducerFeil.FACTORY.feilIPålogging(topic, e).toException();
+            throw new ManglerTilgangException("FP-HENDELSE-821005", "Feil i pålogging mot Kafka, topic:" + topic, e);
         } catch (RetriableException e) {
-            throw HendelseKafkaProducerFeil.FACTORY.retriableExceptionMotKaka(topic, e).toException();
+            throw new IntegrasjonException("FP-HENDELSE-127608", "Fikk transient feil mot Kafka, kan prøve igjen,"
+                + " topic: " + topic, e);
         } catch (KafkaException e) {
-            throw HendelseKafkaProducerFeil.FACTORY.annenExceptionMotKafka(topic, e).toException();
+            throw new IntegrasjonException("FP-HENDELSE-811208", "Fikk feil mot Kafka, topic: " + topic, e);
         }
+    }
+
+    private IntegrasjonException uventetException(Exception e) {
+        return new IntegrasjonException("FP-HENDELSE-925469", "Uventet feil ved sending til Kafka, topic " + topic, e);
     }
 
     private Producer<String, String> createProducer(Properties properties) {
@@ -64,10 +73,6 @@ public class HendelseProducer {
 
     public void sendJson(String json) {
         runProducerWithSingleJson(new ProducerRecord<>(topic, json));
-    }
-
-    public void sendJsonMedNøkkel(String nøkkel, String json) {
-        runProducerWithSingleJson(new ProducerRecord<>(topic, nøkkel, json));
     }
 
     public String getProducerClientId(String topicName) {

@@ -18,6 +18,8 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.vedtak.exception.IntegrasjonException;
+import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
@@ -53,16 +55,20 @@ public class SakOgBehandlingHendelseProducer {
             var recordMetadata = producer.send(record).get(); //NOSONAR
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw SakOgBehandlingHendelseProducerFeil.FACTORY.uventetFeil(topic, e).toException();
+            throw uventetException(e);
         } catch (ExecutionException e) {
-            throw SakOgBehandlingHendelseProducerFeil.FACTORY.uventetFeil(topic, e).toException();
+            throw uventetException(e);
         } catch (AuthenticationException | AuthorizationException e) {
-            throw SakOgBehandlingHendelseProducerFeil.FACTORY.feilIPålogging(topic, e).toException();
+            throw new ManglerTilgangException("FP-HENDELSE-821007", "Feil i pålogging mot Kafka, topic: " + topic, e);
         } catch (RetriableException e) {
-            throw SakOgBehandlingHendelseProducerFeil.FACTORY.retriableExceptionMotKaka(topic, e).toException();
+            throw new IntegrasjonException("FP-HENDELSE-127610", "Fikk transient feil mot Kafka, kan prøve igjen, topic " + topic, e);
         } catch (KafkaException e) {
-            throw SakOgBehandlingHendelseProducerFeil.FACTORY.annenExceptionMotKafka(topic, e).toException();
+            throw new IntegrasjonException("FP-HENDELSE-811210", "Fikk feil mot Kafka, topic: " + topic, e);
         }
+    }
+
+    private IntegrasjonException uventetException(Exception e) {
+        return new IntegrasjonException("FP-HENDELSE-925471", "Uventet feil ved sending til Kafka, topic: " + topic, e);
     }
 
     private Producer<String, String> createProducer(Properties properties) {

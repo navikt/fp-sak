@@ -20,6 +20,9 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.familie.topic.Topic;
 import no.nav.familie.topic.TopicManifest;
+import no.nav.vedtak.exception.IntegrasjonException;
+import no.nav.vedtak.exception.ManglerTilgangException;
+import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
@@ -56,16 +59,22 @@ public class DialogHendelseProducer {
             var recordMetadata = producer.send(record).get(); //NOSONAR
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw DialogHendelseKafkaProducerFeil.FACTORY.uventetFeil(topic.getTopic(), e).toException();
+            throw uventetException(e);
         } catch (ExecutionException e) {
-            throw DialogHendelseKafkaProducerFeil.FACTORY.uventetFeil(topic.getTopic(), e).toException();
+            throw uventetException(e);
         } catch (AuthenticationException | AuthorizationException e) {
-            throw DialogHendelseKafkaProducerFeil.FACTORY.feilIPålogging(topic.getTopic(), e).toException();
+            throw new ManglerTilgangException("FP-HENDELSE-821006", "Feil i pålogging mot Kafka, topic:" + topic.getTopic(), e);
         } catch (RetriableException e) {
-            throw DialogHendelseKafkaProducerFeil.FACTORY.retriableExceptionMotKaka(topic.getTopic(), e).toException();
+            throw new IntegrasjonException("FP-HENDELSE-127609", "Fikk transient feil mot Kafka,"
+                + " kan prøve igjen, topic: " + topic.getTopic(), e);
         } catch (KafkaException e) {
-            throw DialogHendelseKafkaProducerFeil.FACTORY.annenExceptionMotKafka(topic.getTopic(), e).toException();
+            throw new IntegrasjonException("FP-HENDELSE-811209", "Fikk feil mot Kafka, topic: " + topic.getTopic(), e);
         }
+    }
+
+    private VLException uventetException(Exception e) {
+        return new IntegrasjonException("FP-HENDELSE-925470", "Uventet feil ved sending til Kafka, topic: "
+            + topic.getTopic(), e);
     }
 
     private Producer<String, String> createProducer(Properties properties) {

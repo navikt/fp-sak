@@ -9,8 +9,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -25,7 +23,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +55,6 @@ import no.nav.foreldrepenger.web.app.tjenester.dokument.dto.DokumentIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.dokument.dto.JournalpostIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.dokument.dto.MottattDokumentDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
-import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
@@ -110,8 +106,8 @@ public class DokumentRestTjeneste {
     @Deprecated
     public Collection<MottattDokumentDto> hentAlleMottatteDokumenterForBehandling(
             @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
-        Long behandlingId = behandlingIdDto.getBehandlingId();
-        Behandling behandling = behandlingId != null
+        var behandlingId = behandlingIdDto.getBehandlingId();
+        var behandling = behandlingId != null
                 ? behandlingRepository.hentBehandling(behandlingId)
                 : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
         return mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(behandling.getFagsakId()).stream()
@@ -136,36 +132,32 @@ public class DokumentRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Collection<DokumentDto> hentAlleDokumenterForSak(
             @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer") @Valid SaksnummerDto saksnummerDto) {
-        try {
-            Saksnummer saksnummer = new Saksnummer(saksnummerDto.getVerdi());
-            final Optional<Fagsak> fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer);
-            final Long fagsakId = fagsak.map(Fagsak::getId).orElse(null);
-            if (fagsakId == null) {
-                return new ArrayList<>();
-            }
-
-            Set<Long> åpneBehandlinger = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakId).stream().map(Behandling::getId)
-                    .collect(Collectors.toSet());
-
-            Map<JournalpostId, List<Inntektsmelding>> inntektsMeldinger = inntektsmeldingTjeneste
-                    .hentAlleInntektsmeldingerForAngitteBehandlinger(åpneBehandlinger).stream()
-                    .collect(Collectors.groupingBy(Inntektsmelding::getJournalpostId));
-            // Burde brukt map på dokumentid, men den lagres ikke i praksis.
-            Map<JournalpostId, List<MottattDokument>> mottatteIMDokument = mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(fagsakId)
-                    .stream()
-                    .filter(mdok -> DokumentTypeId.INNTEKTSMELDING.getKode().equals(mdok.getDokumentType().getKode()))
-                    .collect(Collectors.groupingBy(MottattDokument::getJournalpostId));
-
-            List<ArkivJournalPost> journalPostList = dokumentArkivTjeneste.hentAlleDokumenterForVisning(saksnummer);
-            List<DokumentDto> dokumentResultat = new ArrayList<>();
-            journalPostList.forEach(
-                    arkivJournalPost -> dokumentResultat.addAll(mapFraArkivJournalPost(arkivJournalPost, mottatteIMDokument, inntektsMeldinger)));
-            dokumentResultat.sort(Comparator.comparing(DokumentDto::getTidspunkt, Comparator.nullsFirst(Comparator.reverseOrder())));
-
-            return dokumentResultat;
-        } catch (ManglerTilgangException e) {
-            throw DokumentRestTjenesteFeil.FACTORY.applikasjonHarIkkeTilgangTilHentJournalpostListeTjeneste(e).toException();
+        var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
+        var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer);
+        var fagsakId = fagsak.map(Fagsak::getId).orElse(null);
+        if (fagsakId == null) {
+            return new ArrayList<>();
         }
+
+        var åpneBehandlinger = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakId).stream().map(Behandling::getId)
+                .collect(Collectors.toSet());
+
+        var inntektsMeldinger = inntektsmeldingTjeneste
+                .hentAlleInntektsmeldingerForAngitteBehandlinger(åpneBehandlinger).stream()
+                .collect(Collectors.groupingBy(Inntektsmelding::getJournalpostId));
+        // Burde brukt map på dokumentid, men den lagres ikke i praksis.
+        var mottatteIMDokument = mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(fagsakId)
+                .stream()
+                .filter(mdok -> DokumentTypeId.INNTEKTSMELDING.getKode().equals(mdok.getDokumentType().getKode()))
+                .collect(Collectors.groupingBy(MottattDokument::getJournalpostId));
+
+        var journalPostList = dokumentArkivTjeneste.hentAlleDokumenterForVisning(saksnummer);
+        List<DokumentDto> dokumentResultat = new ArrayList<>();
+        journalPostList.forEach(
+                arkivJournalPost -> dokumentResultat.addAll(mapFraArkivJournalPost(arkivJournalPost, mottatteIMDokument, inntektsMeldinger)));
+        dokumentResultat.sort(Comparator.comparing(DokumentDto::getTidspunkt, Comparator.nullsFirst(Comparator.reverseOrder())));
+
+        return dokumentResultat;
     }
 
     @GET
@@ -177,7 +169,7 @@ public class DokumentRestTjeneste {
             @NotNull @QueryParam("journalpostId") @Parameter(description = "Unik identifikator av journalposten (forsendelsenivå)") @Valid JournalpostIdDto journalpostId,
             @NotNull @QueryParam("dokumentId") @Parameter(description = "Unik identifikator av DokumentInfo/Dokumentbeskrivelse (dokumentnivå)") @Valid DokumentIdDto dokumentId) {
         try {
-            ResponseBuilder responseBuilder = Response.ok(
+            var responseBuilder = Response.ok(
                     new ByteArrayInputStream(
                             dokumentArkivTjeneste.hentDokument(new Saksnummer(saksnummer.getVerdi()), new JournalpostId(journalpostId.getJournalpostId()), dokumentId.getDokumentId())));
             responseBuilder.type("application/pdf");
@@ -188,8 +180,6 @@ public class DokumentRestTjeneste {
                 journalpostId.getJournalpostId(), dokumentId.getDokumentId());
             LOG.warn(feilmelding, e);
             return notFound(feilmelding);
-        } catch (ManglerTilgangException e) {
-            throw DokumentRestTjenesteFeil.FACTORY.applikasjonHarIkkeTilgangTilHentDokumentTjeneste(e).toException();
         }
     }
 
@@ -217,16 +207,16 @@ public class DokumentRestTjeneste {
     private DokumentDto mapFraArkivDokument(ArkivJournalPost arkivJournalPost, ArkivDokument arkivDokument,
             Map<JournalpostId, List<MottattDokument>> mottatteIMDokument,
             Map<JournalpostId, List<Inntektsmelding>> inntektsMeldinger) {
-        DokumentDto dto = new DokumentDto(arkivJournalPost, arkivDokument);
+        var dto = new DokumentDto(arkivJournalPost, arkivDokument);
         if (DokumentTypeId.INNTEKTSMELDING.equals(arkivDokument.getDokumentType())
                 && mottatteIMDokument.containsKey(arkivJournalPost.getJournalpostId())) {
-            List<Long> behandlinger = mottatteIMDokument.get(dto.getJournalpostId()).stream()
+            var behandlinger = mottatteIMDokument.get(dto.getJournalpostId()).stream()
                     .filter(imdok -> inntektsMeldinger.containsKey(dto.getJournalpostId()))
                     .map(MottattDokument::getBehandlingId)
                     .collect(Collectors.toList());
             dto.setBehandlinger(behandlinger);
 
-            Optional<String> navn = inntektsMeldinger.getOrDefault(dto.getJournalpostId(), Collections.emptyList())
+            var navn = inntektsMeldinger.getOrDefault(dto.getJournalpostId(), Collections.emptyList())
                     .stream()
                     .map((Inntektsmelding inn) -> {
                         var t = inn.getArbeidsgiver();

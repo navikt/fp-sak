@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.svp;
 
+import static no.nav.foreldrepenger.web.app.tjenester.behandling.svp.SvangerskapsTjenesteFeil.*;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +43,7 @@ import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.tilganger.TilgangerTjeneste;
 import no.nav.vedtak.exception.FunksjonellException;
+import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = BekreftSvangerskapspengerDto.class, adapter = AksjonspunktOppdaterer.class)
@@ -162,7 +165,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
     private boolean oppdaterTilrettelegging(BekreftSvangerskapspengerDto dto, Behandling behandling) {
 
         var svpGrunnlag = svangerskapspengerRepository.hentGrunnlag(behandling.getId()).orElseThrow(() -> {
-            throw SvangerskapsTjenesteFeil.FACTORY.kanIkkeFinneSvangerskapspengerGrunnlagForBehandling(behandling.getId()).toException();
+            throw kanIkkeFinneSvangerskapspengerGrunnlagForBehandling(behandling.getId());
         });
         var oppdatertTilrettelegging = new ArrayList<SvpTilretteleggingEntitet>();
         var bekreftedeArbeidsforholdDtoer = dto.getBekreftetSvpArbeidsforholdList();
@@ -176,7 +179,8 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         }
 
         if (oppdatertTilrettelegging.size() != tilretteleggingerUfiltrert.size()) {
-            throw SvangerskapsTjenesteFeil.FACTORY.overstyrteArbeidsforholdStemmerIkkeOverensMedSøknadsgrunnlag(behandling.getId()).toException();
+            throw new TekniskException("FP-564312", "Antall overstyrte arbeidsforhold for svangerskapspenger stemmer "
+                + "ikke overens med arbeidsforhold fra søknaden: " + behandling.getId());
         }
 
         if (erEndret) {
@@ -195,9 +199,9 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         var eksisterendeTilretteleggingEntitet = aktuelleTilrettelegingerListe.stream()
             .filter(a -> a.getId().equals(tilretteleggingId))
             .findFirst()
-            .orElseThrow(() -> {
-                throw SvangerskapsTjenesteFeil.FACTORY.kanIkkFinneTilretteleggingForSvangerskapspenger(tilretteleggingId).toException();
-            });
+            .orElseThrow(() -> new TekniskException("FP-572361",
+                "Finner ikke eksisterende tilrettelegging på svangerskapspengergrunnlag med identifikator: "
+                    + tilretteleggingId));
 
         var nyTilretteleggingEntitetBuilder = new SvpTilretteleggingEntitet.Builder()
             .medBehovForTilretteleggingFom(arbeidsforholdDto.getTilretteleggingBehovFom())
@@ -305,7 +309,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
 
     private boolean oppdaterFamiliehendelse(BekreftSvangerskapspengerDto dto, Behandling behandling) {
         var behandlingId = behandling.getId();
-        final var grunnlag = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandlingId);
+        var grunnlag = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandlingId);
 
         var termindatoOppdatert = oppdaterTermindato(dto, behandling, grunnlag);
         var fødselsdatoOppdatert = oppdaterFødselsdato(dto, behandling, grunnlag);
@@ -355,7 +359,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
 
     private TerminbekreftelseEntitet getGjeldendeTerminbekreftelse(FamilieHendelseGrunnlagEntitet grunnlag, Behandling behandling) {
         return grunnlag.getGjeldendeTerminbekreftelse()
-            .orElseThrow(() -> SvangerskapsTjenesteFeil.FACTORY.kanIkkeFinneTerminbekreftelsePåSvangerskapspengerSøknad(behandling.getId()).toException());
+            .orElseThrow(() -> kanIkkeFinneTerminbekreftelsePåSvangerskapspengerSøknad(behandling.getId()));
     }
 
     private boolean oppdaterVedEndretVerdi(HistorikkEndretFeltType historikkEndretFeltType, LocalDate original, LocalDate bekreftet) {

@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import no.nav.vedtak.feil.Feil;
+import no.nav.vedtak.exception.TekniskException;
 
 public class JsonObjectMapper {
 
@@ -29,11 +29,11 @@ public class JsonObjectMapper {
         OM.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
-    public static String toJson(Object object, Function<JsonProcessingException, Feil> feilFactory) {
+    public static String toJson(Object object, Function<JsonProcessingException, TekniskException> feilFactory) {
         try {
             return OM.writerWithDefaultPrettyPrinter().writeValueAsString(object);
         } catch (JsonProcessingException e) {
-            throw ((Feil)feilFactory.apply(e)).toException();
+            throw feilFactory.apply(e);
         }
     }
 

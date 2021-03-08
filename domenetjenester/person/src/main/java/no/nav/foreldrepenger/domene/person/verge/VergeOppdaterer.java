@@ -25,11 +25,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeType;
 import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.person.verge.dto.AvklarVergeDto;
-import no.nav.foreldrepenger.domene.personopplysning.OppdatererAksjonspunktFeil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
+import no.nav.vedtak.exception.IntegrasjonException;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = AvklarVergeDto.class, adapter = AksjonspunktOppdaterer.class)
@@ -70,7 +70,7 @@ public class VergeOppdaterer implements AksjonspunktOppdaterer<AvklarVergeDto> {
         } else if (dto.getOrganisasjonsnummer() != null) {
             vergeBuilder.medVergeOrganisasjon(opprettVergeOrganisasjon(dto));
         } else {
-            throw OppdatererAksjonspunktFeil.FACTORY.vergeIkkeFunnetITPS().toException();
+            throw new IntegrasjonException("FP-905999", "Verge med fnr ikke funnet i TPS, og organisasjonsnummer er heller ikke oppgitt.");
         }
 
         vergeRepository.lagreOgFlush(behandlingId, vergeBuilder);

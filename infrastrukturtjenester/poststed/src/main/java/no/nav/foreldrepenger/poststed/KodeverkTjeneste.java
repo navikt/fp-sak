@@ -23,6 +23,7 @@ import no.nav.tjeneste.virksomhet.kodeverk.v2.meldinger.FinnKodeverkListeRequest
 import no.nav.tjeneste.virksomhet.kodeverk.v2.meldinger.FinnKodeverkListeResponse;
 import no.nav.tjeneste.virksomhet.kodeverk.v2.meldinger.HentKodeverkRequest;
 import no.nav.tjeneste.virksomhet.kodeverk.v2.meldinger.HentKodeverkResponse;
+import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.felles.integrasjon.kodeverk.KodeverkConsumer;
 import no.nav.vedtak.util.Tuple;
 
@@ -75,7 +76,7 @@ public class KodeverkTjeneste {
                 kodeverkKodeMap = oversettFraHentKodeverkResponse(response);
             }
         } catch (HentKodeverkHentKodeverkKodeverkIkkeFunnet ex) {
-            throw PoststedFeil.FACTORY.hentPoststedKodeverkIkkeFunnet().toException();
+            throw new IntegrasjonException("FP-868814", "Kodeverk ikke funnet " + kodeverkNavn + " - " + kodeverkVersjon);
         }
         return kodeverkKodeMap;
     }
@@ -85,9 +86,9 @@ public class KodeverkTjeneste {
             return ((EnkeltKodeverk) response.getKodeverk()).getKode().stream()
                     .map(KodeverkTjeneste::oversettFraKode)
                     .collect(Collectors.toMap(KodeverkKode::getKode, kodeverkKode -> kodeverkKode));
-        } else {
-            throw PoststedFeil.FACTORY.hentPoststedKodeverkTypeIkkeStøttet(response.getKodeverk().getClass().getSimpleName()).toException();
         }
+        throw new IntegrasjonException("FP-402871", "Kodeverktype ikke støttet: "
+            + response.getKodeverk().getClass().getSimpleName());
     }
 
     private static KodeverkKode oversettFraKode(Kode kode) {

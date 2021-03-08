@@ -71,14 +71,14 @@ public class SvangerskapspengerTjeneste {
 
         Optional<TerminbekreftelseEntitet> terminbekreftelse = familieHendelseGrunnlag.get().getGjeldendeTerminbekreftelse();
         if (terminbekreftelse.isEmpty()) {
-            throw SvangerskapsTjenesteFeil.FACTORY.kanIkkeFinneTerminbekreftelsePåSvangerskapspengerSøknad(behandlingId).toException();
+            throw SvangerskapsTjenesteFeil.kanIkkeFinneTerminbekreftelsePåSvangerskapspengerSøknad(behandlingId);
         }
         dto.setTermindato(terminbekreftelse.get().getTermindato());
         familieHendelseGrunnlag.get().getGjeldendeVersjon().getFødselsdato().ifPresent(dto::setFødselsdato);
 
         Optional<SvpGrunnlagEntitet> svpGrunnlagOpt = svangerskapspengerRepository.hentGrunnlag(behandlingId);
         if (svpGrunnlagOpt.isEmpty()) {
-            throw SvangerskapsTjenesteFeil.FACTORY.kanIkkeFinneSvangerskapspengerGrunnlagForBehandling(behandlingId).toException();
+            throw SvangerskapsTjenesteFeil.kanIkkeFinneSvangerskapspengerGrunnlagForBehandling(behandlingId);
         }
         InntektArbeidYtelseGrunnlag iayGrunnlag = iayTjeneste.hentGrunnlag(behandlingId);
         var arbeidsforholdInformasjon = iayGrunnlag.getArbeidsforholdInformasjon()
