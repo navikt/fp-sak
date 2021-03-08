@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.domene.vedtak.xml;
 
 import no.nav.vedtak.exception.TekniskException;
 
-public class VedtakXmlFeil {
+public final class VedtakXmlFeil {
 
     private VedtakXmlFeil() {
     }
