@@ -45,7 +45,7 @@
         <fp-uttak.version>7.0.0</fp-uttak.version>
         <svp-uttak.version>2.1.1</svp-uttak.version>
         <felles.version>3.1.11</felles.version>
-        <prosesstask.version>2.5.15</prosesstask.version>
+        <prosesstask.version>2.5.16</prosesstask.version>
         <ukelonn.felles.version>1.0.8</ukelonn.felles.version>
 
         <fp-kontrakter.version>5.2.2</fp-kontrakter.version>
@@ -585,6 +585,16 @@
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-slf4j18-impl</artifactId>
                 <version>2.14.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.threeten</groupId>
+                <artifactId>threeten-extra</artifactId>
+                <version>1.5.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish</groupId>
+                <artifactId>jakarta.el</artifactId>
+                <version>3.0.3</version>
             </dependency>
 
 
