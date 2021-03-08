@@ -50,7 +50,7 @@ public class BeregningsgrunnlagInputTjeneste extends BeregningsgrunnlagInputFell
 
     @Override
     public YtelsespesifiktGrunnlag getYtelsespesifiktGrunnlag(BehandlingReferanse ref) {
-        var aktivitetGradering = beregningUttakTjeneste.utled(ref);
+        var aktivitetGradering = beregningUttakTjeneste.finnAktivitetGraderinger(ref);
         var saksnummer = ref.getSaksnummer();
         var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonHvisEksisterer(saksnummer);
         var dekningsgrad = fagsakRelasjon.map(FagsakRelasjon::getGjeldendeDekningsgrad)

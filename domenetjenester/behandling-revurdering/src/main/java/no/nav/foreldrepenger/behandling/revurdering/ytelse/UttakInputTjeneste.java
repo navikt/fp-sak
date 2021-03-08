@@ -103,7 +103,7 @@ public class UttakInputTjeneste {
     }
 
     private boolean finnesAndelerMedGraderingUtenBeregningsgrunnlag(BehandlingReferanse ref, BeregningsgrunnlagEntitet beregningsgrunnlag) {
-        var aktivitetGradering = beregningUttakTjeneste.utled(ref);
+        var aktivitetGradering = beregningUttakTjeneste.finnAktivitetGraderinger(ref);
         var andelerMedGraderingUtenBG = GraderingUtenBeregningsgrunnlagTjeneste
                 .finnAndelerMedGraderingUtenBG(BehandlingslagerTilKalkulusMapper.mapBeregningsgrunnlag(beregningsgrunnlag), aktivitetGradering);
 

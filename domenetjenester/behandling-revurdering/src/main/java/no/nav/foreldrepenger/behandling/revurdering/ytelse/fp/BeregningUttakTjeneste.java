@@ -61,7 +61,7 @@ public class BeregningUttakTjeneste {
         Optional<YtelseFordelingAggregat> yfAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(ref.getBehandlingId());
         return yfAggregat.map(this::finnSisteSøkteUttaksdag)
             .orElseGet(() -> ref.getOriginalBehandlingId()
-            .map(oid -> uttakTjeneste.hentUttak(oid))
+            .flatMap(oid -> uttakTjeneste.hentUttakHvisEksisterer(oid))
             .flatMap(this::finnSisteInnvilgedeUttak));
     }
 
@@ -80,7 +80,7 @@ public class BeregningUttakTjeneste {
             .max(Comparator.naturalOrder());
     }
 
-    public AktivitetGradering utled(BehandlingReferanse ref) {
+    public AktivitetGradering finnAktivitetGraderinger(BehandlingReferanse ref) {
         Optional<YtelseFordelingAggregat> ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(ref.getBehandlingId());
         return new AktivitetGradering(utled(ref, ytelseFordelingAggregat));
     }
