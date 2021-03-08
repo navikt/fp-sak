@@ -13,13 +13,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.KanIkkeUtledeGjeldendeFødselsdatoException;
 import no.nav.foreldrepenger.validering.FeltFeilDto;
 import no.nav.foreldrepenger.validering.Valideringsfeil;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningException;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.ManglerTilgangException;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.exception.VLException;
-import no.nav.vedtak.felles.jpa.TomtResultatException;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.log.util.LoggerUtils;
 
@@ -42,8 +43,8 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<ApplicationEx
         if (cause instanceof Valideringsfeil) {
             return handleValideringsfeil((Valideringsfeil) cause);
         }
-        if (cause instanceof TomtResultatException) {
-            return handleTomtResultatFeil((TomtResultatException) cause);
+        if (cause instanceof KanIkkeUtledeGjeldendeFødselsdatoException) {
+            return handleTomtResultatFeil((TekniskException) cause);
         }
 
         loggTilApplikasjonslogg(cause);
@@ -56,7 +57,7 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<ApplicationEx
         return handleGenerellFeil(cause, callId);
     }
 
-    private static Response handleTomtResultatFeil(TomtResultatException tomtResultatException) {
+    private static Response handleTomtResultatFeil(TekniskException tomtResultatException) {
         return Response
                 .status(Response.Status.NOT_FOUND)
                 .entity(new FeilDto(FeilType.TOMT_RESULTAT_FEIL, tomtResultatException.getMessage()))

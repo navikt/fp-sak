@@ -20,8 +20,6 @@ import no.nav.foreldrepenger.kontrakter.fordel.JournalpostVurderingDto;
 import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
 import no.nav.foreldrepenger.web.app.soap.sak.tjeneste.OpprettSakOrchestrator;
 import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.binding.BehandleForeldrepengesakV1;
-import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.binding.OpprettSakSakEksistererAllerede;
-import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.binding.OpprettSakSikkerhetsbegrensning;
 import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.binding.OpprettSakUgyldigInput;
 import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.feil.UgyldigInput;
 import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.meldinger.OpprettSakRequest;
@@ -85,7 +83,7 @@ public class OpprettSakService implements BehandleForeldrepengesakV1 {
     @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public OpprettSakResponse opprettSak(
             @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) OpprettSakRequest opprettSakRequest)
-            throws OpprettSakSakEksistererAllerede, OpprettSakSikkerhetsbegrensning, OpprettSakUgyldigInput {
+            throws OpprettSakUgyldigInput {
 
         if (opprettSakRequest.getSakspart().getAktoerId() == null) {
             UgyldigInput faultInfo = lagUgyldigInput("AktørId", null);
@@ -113,11 +111,8 @@ public class OpprettSakService implements BehandleForeldrepengesakV1 {
                     && opprettSakOrchestrator.harAktivSak(aktørId, behandlingTema)) {
                 UgyldigInput faultInfo = lagUgyldigInput("Journalpost", "Inntektsmelding når det finnes åpen Foreldrepengesak");
                 throw new OpprettSakUgyldigInput(faultInfo.getFeilmelding(), faultInfo);
-            } else {
-                return;
             }
-        }
-        if (BehandlingTema.UDEFINERT.equals(btVurdering) || btVurdering.equals(btOppgitt)) {
+        } else if (BehandlingTema.UDEFINERT.equals(btVurdering) || btVurdering.equals(btOppgitt)) {
             throw OpprettSakServiceFeil.FACTORY.ikkeStøttetDokumentType().toException();
         } else {
             throw OpprettSakServiceFeil.FACTORY.inkonsistensTemaVsDokument().toException();

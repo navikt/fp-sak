@@ -10,11 +10,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.LogLevel;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.exception.TekniskException;
 
 class JsonMapper {
 
@@ -29,12 +25,12 @@ class JsonMapper {
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         return mapper;
     }
-    
+
     static <T> T fromJson(String json, Class<T> clazz) {
         try {
             return MAPPER.readerFor(clazz).readValue(json);
         } catch (IOException e) {
-            throw JsonMapperFeil.FACTORY.ioExceptionVedLesing(e).toException();
+            throw new TekniskException("F-713321", "Fikk IO exception ved parsing av JSON", e);
         }
     }
 
@@ -42,18 +38,7 @@ class JsonMapper {
         try {
             return MAPPER.writeValueAsString(dto);
         } catch (JsonProcessingException e) {
-            throw JsonMapperFeil.FACTORY.kunneIkkeSerialisereJson(e).toException();
+            throw new TekniskException("F-228311", "Kunne ikke serialisere objekt til JSON", e);
         }
     }
-
-    interface JsonMapperFeil extends DeklarerteFeil {
-        JsonMapperFeil FACTORY = FeilFactory.create(JsonMapperFeil.class);
-
-        @TekniskFeil(feilkode = "F-228311", feilmelding = "Kunne ikke serialisere objekt til JSON", logLevel = LogLevel.WARN)
-        Feil kunneIkkeSerialisereJson(JsonProcessingException cause);
-        
-        @TekniskFeil(feilkode = "F-713321", feilmelding = "Fikk IO exception ved parsing av JSON", logLevel = LogLevel.WARN)
-        Feil ioExceptionVedLesing(IOException cause);
-    }
-
 }

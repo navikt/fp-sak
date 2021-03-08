@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.inngangsvilkaar.impl;
 
-import static no.nav.foreldrepenger.inngangsvilkaar.RegelintegrasjonFeil.FEILFACTORY;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -21,6 +19,7 @@ import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.fpsak.nare.evaluation.Resultat;
 import no.nav.fpsak.nare.evaluation.summary.EvaluationSerializer;
 import no.nav.fpsak.nare.evaluation.summary.EvaluationSummary;
+import no.nav.vedtak.exception.TekniskException;
 
 public class VilkårUtfallOversetter {
 
@@ -39,7 +38,8 @@ public class VilkårUtfallOversetter {
             VilkårJsonObjectMapper jsonMapper = new VilkårJsonObjectMapper();
             jsonGrunnlag = jsonMapper.writeValueAsString(grunnlag);
         } catch (IllegalArgumentException e) {
-            throw FEILFACTORY.kanIkkeSerialisereRegelinput(vilkårType.getKode(), e).toException();
+            throw new TekniskException("FP-384257", "Kunne ikke serialisere regelinput "
+                + "for vilkår: " + vilkårType.getKode(), e);
         }
         // kan hende det ikke burde ligge som info, men er veldig greit i de tilfellene FP ruller tilbake databasen for da har vi fortsatt regel
         // input!!

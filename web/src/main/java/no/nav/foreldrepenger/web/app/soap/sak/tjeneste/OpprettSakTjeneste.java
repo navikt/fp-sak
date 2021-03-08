@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
 @Transactional
@@ -34,8 +35,7 @@ public class OpprettSakTjeneste {
     }
 
     @Inject
-    public OpprettSakTjeneste(FagsakTjeneste fagsakTjeneste,
-                              NavBrukerTjeneste brukerTjeneste) {
+    public OpprettSakTjeneste(FagsakTjeneste fagsakTjeneste, NavBrukerTjeneste brukerTjeneste) {
         this.fagsakTjeneste = fagsakTjeneste;
         this.brukerTjeneste = brukerTjeneste;
     }
@@ -56,7 +56,7 @@ public class OpprettSakTjeneste {
 
         FagsakYtelseType fagsakYtelseType = behandlingTema.getFagsakYtelseType();
         if (FagsakYtelseType.UDEFINERT.equals(fagsakYtelseType)) {
-            throw OpprettSakFeil.FACTORY.ukjentBehandlingstemaKode(behandlingTema.getOffisiellKode()).toException();
+            throw new TekniskException("FP-106651", "Ukjent behandlingstemakode " + behandlingTema.getOffisiellKode());
         }
         return fagsakYtelseType;
     }
@@ -72,7 +72,8 @@ public class OpprettSakTjeneste {
                 return;
             } else {
                 //Knyttet til en annen fagsak
-                throw OpprettSakFeil.FACTORY.JournalpostAlleredeKnyttetTilAnnenFagsak(journalPostId, knyttetTilSaksnummer, saksnummer.getVerdi()).toException();
+                throw journalpostAlleredeKnyttetTilAnnenFagsak(journalPostId, knyttetTilSaksnummer,
+                    saksnummer.getVerdi());
             }
         }
 
@@ -81,7 +82,7 @@ public class OpprettSakTjeneste {
         if (fagsak.isPresent()) {
             fagsakTjeneste.lagreJournalPost(new Journalpost(journalPostId, fagsak.get()));
         } else {
-            throw OpprettSakFeil.FACTORY.finnerIkkeFagsakMedSaksnummer(saksnummer).toException();
+            throw new TekniskException("FP-840572", "Finner ikke fagsak med angitt saksnummer " + saksnummer);
         }
     }
 
@@ -102,13 +103,22 @@ public class OpprettSakTjeneste {
                 return;
             } else {
                 //Knyttet til en annen fagsak
-                throw OpprettSakFeil.FACTORY.JournalpostAlleredeKnyttetTilAnnenFagsak(journalpostId, journalpost.get().getFagsak().getSaksnummer(), fagsakId.toString()).toException();
+                throw journalpostAlleredeKnyttetTilAnnenFagsak(journalpostId,
+                    journalpost.get().getFagsak().getSaksnummer(), fagsakId.toString());
             }
         }
 
         //HER: Finnes ikke knytning mellom journalpost og sak. La oss opprette en:
         Fagsak fagsak = fagsakTjeneste.finnEksaktFagsak(fagsakId);
         fagsakTjeneste.lagreJournalPost(new Journalpost(journalpostId, fagsak));
+    }
+
+    private static TekniskException journalpostAlleredeKnyttetTilAnnenFagsak(JournalpostId journalPostId,
+                                                                             Saksnummer tilknyttetSak,
+                                                                             String forsøktSak) {
+        var msg = String.format("Journalpost-Fagsak knytning finnes allerede. Journalpost %s er knyttet "
+            + "mot fagsak %s. Forsøkt knyttet mot sak %s", journalPostId, tilknyttetSak, forsøktSak);
+        return new TekniskException("FP-863070", msg);
     }
 
 }

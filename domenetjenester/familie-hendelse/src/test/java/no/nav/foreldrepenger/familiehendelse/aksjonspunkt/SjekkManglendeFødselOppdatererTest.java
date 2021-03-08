@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.lenient;
 
 import java.time.LocalDate;
@@ -49,8 +49,6 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
-import no.nav.vedtak.felles.jpa.TomtResultatException;
-
 @ExtendWith(MockitoExtension.class)
 public class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
 
@@ -395,13 +393,10 @@ public class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest 
             true, false, List.of(uidentifiserteBarn));
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
 
-        try {
-            new SjekkManglendeFødselOppdaterer(lagMockHistory(), skjæringstidspunktTjeneste, familieHendelseTjeneste)
-                .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
-            fail("expected exception to be thrown");
-        } catch (Exception e) {
-            assertThat(e).isInstanceOf(TomtResultatException.class);
-        }
+        var oppdaterer = new SjekkManglendeFødselOppdaterer(lagMockHistory(),
+            skjæringstidspunktTjeneste, familieHendelseTjeneste);
+        assertThrows(KanIkkeUtledeGjeldendeFødselsdatoException.class, () -> oppdaterer
+            .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto)));
     }
 
     private void assertFelt(HistorikkinnslagDel historikkinnslagDel, HistorikkEndretFeltType historikkEndretFeltType, Object fraVerdi, Object tilVerdi) {

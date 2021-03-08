@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import no.nav.foreldrepenger.domene.risikoklassifisering.konsument.RisikoklassifiseringConsumerFeil;
+import no.nav.vedtak.exception.TekniskException;
 
 public class KontrollSerialiseringUtil {
 
@@ -31,7 +31,7 @@ public class KontrollSerialiseringUtil {
         try {
             return OBJECT_MAPPER.readValue(melding, klassetype);
         } catch (IOException e) {
-            throw RisikoklassifiseringConsumerFeil.FACTORY.klarteIkkeDeserialisere(klassetype.getName(), e).toException();
+            throw new TekniskException("FP-65747", "Klarte ikke deserialisere for klasse " + klassetype.getName(), e);
         }
     }
 
