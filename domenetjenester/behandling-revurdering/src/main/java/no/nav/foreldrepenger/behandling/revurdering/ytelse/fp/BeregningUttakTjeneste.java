@@ -26,28 +26,61 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.domene.modell.AktivitetStatus;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 
+/**
+ * Tjeneste som brukes av beregning for å populere beregningsgrunnlagInput med uttaksdata
+ */
 @ApplicationScoped
-public class AndelGraderingTjeneste {
+public class BeregningUttakTjeneste {
 
     private ForeldrepengerUttakTjeneste uttakTjeneste;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
 
-    AndelGraderingTjeneste() {
+    BeregningUttakTjeneste() {
         // CDI
     }
 
     @Inject
-    public AndelGraderingTjeneste(ForeldrepengerUttakTjeneste uttakTjeneste,
-            YtelsesFordelingRepository ytelsesFordelingRepository) {
+    public BeregningUttakTjeneste(ForeldrepengerUttakTjeneste uttakTjeneste,
+                                  YtelsesFordelingRepository ytelsesFordelingRepository) {
         this.uttakTjeneste = uttakTjeneste;
         this.ytelsesFordelingRepository = ytelsesFordelingRepository;
     }
 
-    public AktivitetGradering utled(BehandlingReferanse ref) {
+    /**
+     * Siden beregning kjøres før uttak må vi gjøre en estimering for når siste uttaksdag er.
+     * Vi ser på ytelsesfordelingen om vi har det, eller ser vi på forrige behandlings uttaksresultat.
+     * @param ref referanse til behandlingen
+     * @return
+     */
+    public Optional<LocalDate> finnSisteTilnærmedeUttaksdato(BehandlingReferanse ref) {
+        Optional<YtelseFordelingAggregat> yfAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(ref.getBehandlingId());
+        return yfAggregat.map(this::finnSisteSøkteUttaksdag)
+            .orElseGet(() -> ref.getOriginalBehandlingId()
+            .flatMap(oid -> uttakTjeneste.hentUttakHvisEksisterer(oid))
+            .flatMap(this::finnSisteInnvilgedeUttak));
+    }
+
+    private Optional<LocalDate> finnSisteInnvilgedeUttak(ForeldrepengerUttak uttak) {
+        return uttak.getGjeldendePerioder()
+            .stream()
+            .filter(ForeldrepengerUttakPeriode::harAktivtUttak)
+            .map(ForeldrepengerUttakPeriode::getTom)
+            .max(Comparator.naturalOrder());
+    }
+
+    private Optional<LocalDate> finnSisteSøkteUttaksdag(YtelseFordelingAggregat yfAggregat) {
+        return yfAggregat.getGjeldendeSøknadsperioder().getOppgittePerioder()
+            .stream()
+            .map(OppgittPeriodeEntitet::getTom)
+            .max(Comparator.naturalOrder());
+    }
+
+    public AktivitetGradering finnAktivitetGraderinger(BehandlingReferanse ref) {
         Optional<YtelseFordelingAggregat> ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(ref.getBehandlingId());
         return new AktivitetGradering(utled(ref, ytelseFordelingAggregat));
     }

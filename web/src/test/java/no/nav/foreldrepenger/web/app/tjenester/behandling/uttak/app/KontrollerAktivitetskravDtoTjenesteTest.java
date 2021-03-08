@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandling.YtelseMaksdatoTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.AndelGraderingTjeneste;
+import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.BeregningUttakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AktivitetskravPeriodeEntitet;
@@ -55,7 +55,7 @@ class KontrollerAktivitetskravDtoTjenesteTest {
         ytelsesFordelingRepository = new YtelsesFordelingRepository(entityManager);
         var ytelseFordelingTjeneste = new YtelseFordelingTjeneste(ytelsesFordelingRepository);
         var foreldrepengerUttakTjeneste = new ForeldrepengerUttakTjeneste(new FpUttakRepository(entityManager));
-        var andelGraderingTjeneste = new AndelGraderingTjeneste(
+        var andelGraderingTjeneste = new BeregningUttakTjeneste(
             foreldrepengerUttakTjeneste, ytelsesFordelingRepository);
         var uttakInputTjeneste = new UttakInputTjeneste(repositoryProvider, new HentOgLagreBeregningsgrunnlagTjeneste(entityManager),
             new AbakusInMemoryInntektArbeidYtelseTjeneste(), new SkjæringstidspunktTjenesteImpl(repositoryProvider,
