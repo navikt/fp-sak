@@ -62,13 +62,13 @@ public class BeregningUttakTjeneste {
         return yfAggregat.map(this::finnSisteSøkteUttaksdag)
             .orElseGet(() -> ref.getOriginalBehandlingId()
             .map(oid -> uttakTjeneste.hentUttak(oid))
-            .flatMap(this::finnSisteInnvilgedeUttakIForrigeBehandling));
+            .flatMap(this::finnSisteInnvilgedeUttak));
     }
 
-    private Optional<LocalDate> finnSisteInnvilgedeUttakIForrigeBehandling(ForeldrepengerUttak uttakIForrigeBehandling) {
-        return uttakIForrigeBehandling.getGjeldendePerioder()
+    private Optional<LocalDate> finnSisteInnvilgedeUttak(ForeldrepengerUttak uttak) {
+        return uttak.getGjeldendePerioder()
             .stream()
-            .filter(p -> p.harUtbetaling() || p.harTrekkdager() || p.erInnvilgetUtsettelse())
+            .filter(ForeldrepengerUttakPeriode::harAktivtUttak)
             .map(ForeldrepengerUttakPeriode::getTom)
             .max(Comparator.naturalOrder());
     }
