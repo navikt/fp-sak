@@ -4,7 +4,6 @@ import static java.lang.Long.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -32,7 +31,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostVurderingDto;
-import no.nav.foreldrepenger.web.app.soap.sak.tjeneste.OpprettSakFeil;
 import no.nav.foreldrepenger.web.app.soap.sak.tjeneste.OpprettSakOrchestrator;
 import no.nav.foreldrepenger.web.app.soap.sak.tjeneste.OpprettSakTjeneste;
 import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.binding.OpprettSakUgyldigInput;
@@ -103,8 +101,6 @@ public class OpprettSakServiceTest {
         AktørId aktorIdLong = new AktørId(valueOf(request.getSakspart().getAktoerId()));
 
         when(restKlient.utledYtelestypeFor(any())).thenReturn(new JournalpostVurderingDto(ES_GEN, true, false));
-        when(opprettSakTjeneste.opprettSakVL(any(AktørId.class), eq(FagsakYtelseType.ENGANGSTØNAD), eq(JOURNALPOST_ID)))
-                .thenThrow(OpprettSakFeil.FACTORY.finnerIkkePersonMedAktørId(aktorIdLong).toException());
 
         assertThrows(TekniskException.class, () -> service.opprettSak(request));
     }

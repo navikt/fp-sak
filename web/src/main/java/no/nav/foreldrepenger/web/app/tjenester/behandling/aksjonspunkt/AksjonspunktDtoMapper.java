@@ -82,7 +82,7 @@ class AksjonspunktDtoMapper {
     private static Boolean skalLøsesIStegKode(AksjonspunktDefinisjon def, String stegKode, BehandlingStegType steg) {
         if (BehandlingStegStatus.INNGANG.getKode().equals(stegKode)) {
             return steg.getAksjonspunktDefinisjonerInngang().contains(def);
-        } else
-            return BehandlingStegStatus.UTGANG.getKode().equals(stegKode) && steg.getAksjonspunktDefinisjonerUtgang().contains(def);
+        }
+        return BehandlingStegStatus.UTGANG.getKode().equals(stegKode) && steg.getAksjonspunktDefinisjonerUtgang().contains(def);
     }
 }

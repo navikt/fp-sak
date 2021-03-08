@@ -18,8 +18,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.dokumentbestiller.BrevFeil;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.util.env.Environment;
 
 public class VedtaksbrevUtleder {
@@ -69,7 +69,7 @@ public class VedtaksbrevUtleder {
             dokumentMal = velgNegativVedtaksmal(behandling, behandlingsresultat);
         }
         if (dokumentMal == null) {
-            throw BrevFeil.FACTORY.ingenBrevmalKonfigurert(behandling.getId()).toException();
+            throw new TekniskException("FP-666915", "Ingen brevmal konfigurert for behandling " + behandling.getId());
         }
         return dokumentMal;
     }

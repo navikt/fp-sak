@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.inngangsvilkaar.impl;
 
 import static java.util.stream.Collectors.toList;
-import static no.nav.foreldrepenger.inngangsvilkaar.RegelintegrasjonFeil.FEILFACTORY;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -62,6 +61,7 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.Medlemskapsv
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.PersonStatusType;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.søknadsfrist.SoeknadsfristvilkarGrunnlag;
 import no.nav.fpsak.nare.evaluation.Evaluation;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.konfig.Tid;
 
@@ -354,11 +354,9 @@ public class InngangsvilkårOversetter {
         final Optional<FamilieHendelseEntitet> bekreftetVersjon = familieGrunnlagRepository.hentAggregat(behandlingId).getGjeldendeBekreftetVersjon();
         final Optional<AdopsjonEntitet> adopsjon = bekreftetVersjon.flatMap(FamilieHendelseEntitet::getAdopsjon);
 
-        if (!adopsjon.isPresent()) {
-            throw FEILFACTORY.kanIkkeOversetteAdopsjonsgrunnlag(String.valueOf(behandlingId)).toException();
-        }
-        if (!bekreftetVersjon.isPresent()) {
-            throw FEILFACTORY.kanIkkeOversetteAdopsjonsgrunnlag(String.valueOf(behandlingId)).toException();
+        if (adopsjon.isEmpty()) {
+            throw new TekniskException("FP-384255", "Ikke mulig å oversette adopsjonsgrunnlag"
+                + " til regelmotor for behandlingId " + behandlingId);
         }
 
         List<BekreftetAdopsjonBarn> bekreftetAdopsjonBarn = bekreftetVersjon.get().getBarna().stream()

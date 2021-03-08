@@ -16,6 +16,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.dokumentbestilling.kodeverk.FagsakYtelseType;
 import no.nav.vedtak.felles.dokumentbestilling.v1.DokumentbestillingV1;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
@@ -60,7 +61,7 @@ public class DokumentBestillerKafkaTask implements ProsessTaskHandler {
         } else if (no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType.SVANGERSKAPSPENGER.equals(fpsakYtelseKode)) {
             return FagsakYtelseType.SVANGERSKAPSPENGER;
         }
-        throw DokumentbestillerKafkaFeil.FACTORY.fantIkkeYtelseType(fpsakYtelseKode.getKode()).toException();
+        throw new TekniskException("FP-533280", "Klarte ikke utlede ytelsetype: %s. Kan ikke bestille dokument");
     }
 
     @Override
