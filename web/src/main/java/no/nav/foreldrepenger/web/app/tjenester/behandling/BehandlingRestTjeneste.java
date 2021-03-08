@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling;
 
-import static no.nav.vedtak.feil.LogLevel.ERROR;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREATE;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.UPDATE;
@@ -52,6 +51,8 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
+import no.nav.foreldrepenger.web.app.exceptions.FeilDto;
+import no.nav.foreldrepenger.web.app.exceptions.FeilType;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsoppretterTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningTjeneste;
@@ -74,8 +75,6 @@ import no.nav.vedtak.feil.Feil;
 import no.nav.vedtak.feil.FeilFactory;
 import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
 import no.nav.vedtak.feil.deklarasjon.FunksjonellFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
-import no.nav.vedtak.felles.jpa.TomtResultatException;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
@@ -299,7 +298,7 @@ public class BehandlingRestTjeneste {
         BehandlingType kode = BehandlingType.fraKode(dto.getBehandlingType().getKode());
 
         if (funnetFagsak.isEmpty()) {
-            throw BehandlingRestTjenesteFeil.FACTORY.fantIkkeFagsak(saksnummer).toException();
+            return notFound(saksnummer);
         }
 
         Fagsak fagsak = funnetFagsak.get();
@@ -316,18 +315,21 @@ public class BehandlingRestTjeneste {
             String gruppe = behandlingOpprettingTjeneste.asynkStartBehandlingsprosess(behandling);
             return Redirect.tilBehandlingPollStatus(behandling.getUuid(), Optional.of(gruppe));
 
-        } else if (BehandlingType.ANKE.equals(kode)) {
+        }
+        if (BehandlingType.ANKE.equals(kode)) {
             Behandling behandling = behandlingOpprettingTjeneste.opprettBehandlingVedKlageinstans(fagsak, BehandlingType.ANKE);
             String gruppe = behandlingOpprettingTjeneste.asynkStartBehandlingsprosess(behandling);
             return Redirect.tilBehandlingPollStatus(behandling.getUuid(), Optional.of(gruppe));
 
-        } else if (BehandlingType.REVURDERING.equals(kode)) {
+        }
+        if (BehandlingType.REVURDERING.equals(kode)) {
             BehandlingÅrsakType behandlingÅrsakType = BehandlingÅrsakType.fraKode(dto.getBehandlingArsakType().getKode());
             Behandling behandling = behandlingsoppretterTjeneste.opprettRevurdering(fagsak, behandlingÅrsakType);
             String gruppe = behandlingsprosessTjeneste.asynkStartBehandlingsprosess(behandling);
             return Redirect.tilBehandlingPollStatus(behandling.getUuid(), Optional.of(gruppe));
 
-        } else if (BehandlingType.FØRSTEGANGSSØKNAD.equals(kode)) {
+        }
+        if (BehandlingType.FØRSTEGANGSSØKNAD.equals(kode)) {
             behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(fagsak.getId(), saksnummer, dto.getNyBehandlingEtterKlage());
             // ved førstegangssønad opprettes egen task for vurdere denne,
             // sender derfor ikke viderer til prosesser behandling (i motsetning til de
@@ -335,15 +337,22 @@ public class BehandlingRestTjeneste {
             // må også oppfriske hele sakskomplekset, så sender til fagsak poll url
             return Redirect.tilFagsakPollStatus(fagsak.getSaksnummer(), Optional.empty());
 
-        } else if (BehandlingType.KLAGE.equals(kode)) {
+        }
+        if (BehandlingType.KLAGE.equals(kode)) {
             Behandling behandling = behandlingOpprettingTjeneste.opprettBehandling(fagsak, BehandlingType.KLAGE);
             String gruppe = behandlingOpprettingTjeneste.asynkStartBehandlingsprosess(behandling);
             return Redirect.tilBehandlingPollStatus(behandling.getUuid(), Optional.of(gruppe));
 
-        } else {
-            throw new IllegalArgumentException("Støtter ikke opprette ny behandling for behandlingType:" + kode);
         }
+        throw new IllegalArgumentException("Støtter ikke opprette ny behandling for behandlingType:" + kode);
 
+    }
+
+    private Response notFound(Saksnummer saksnummer) {
+        return Response.status(Response.Status.NOT_FOUND)
+            .entity(new FeilDto(FeilType.TOMT_RESULTAT_FEIL, "Fant ikke fagsak med saksnummer " + saksnummer))
+            .type(MediaType.APPLICATION_JSON)
+            .build();
     }
 
     private static BehandlingResultatType tilHenleggBehandlingResultatType(String årsak) {
@@ -419,34 +428,32 @@ public class BehandlingRestTjeneste {
     private BehandlingOperasjonerDto lovligeOperasjoner(Behandling b) {
         if (b.erSaksbehandlingAvsluttet()) {
             return BehandlingOperasjonerDto.builder(b.getUuid()).build(); // Skal ikke foreta menyvalg lenger
-        } else if (BehandlingStatus.FATTER_VEDTAK.equals(b.getStatus())) {
+        }
+        if (BehandlingStatus.FATTER_VEDTAK.equals(b.getStatus())) {
             boolean tilgokjenning = b.getAnsvarligSaksbehandler() != null && !b.getAnsvarligSaksbehandler().equalsIgnoreCase(SubjectHandler.getSubjectHandler().getUid());
             return BehandlingOperasjonerDto.builder(b.getUuid()).medTilGodkjenning(tilgokjenning).build();
-        } else {
-            boolean kanÅpnesForEndring = b.erRevurdering() && !b.isBehandlingPåVent() &&
-                !b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING) && !b.erKøet() &&
-                !FagsakYtelseType.ENGANGSTØNAD.equals(b.getFagsakYtelseType());
-            boolean totrinnRetur = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(b).stream()
-                .anyMatch(tt -> !tt.isGodkjent());
-            return BehandlingOperasjonerDto.builder(b.getUuid())
-                .medTilGodkjenning(false)
-                .medFraBeslutter(!b.isBehandlingPåVent() && totrinnRetur)
-                .medKanBytteEnhet(!b.erKøet())
-                .medKanHenlegges(true)
-                .medKanSettesPaVent(!b.isBehandlingPåVent())
-                .medKanGjenopptas(b.isBehandlingPåVent() && !b.erKøet())
-                .medKanOpnesForEndringer(kanÅpnesForEndring)
-                .medKanSendeMelding(!b.isBehandlingPåVent())
-                .medVergemeny(vergeTjeneste.utledBehandlingsmeny(b.getId()).getVergeBehandlingsmeny())
-                .build();
         }
+        boolean kanÅpnesForEndring = b.erRevurdering() && !b.isBehandlingPåVent() &&
+            !b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING) && !b.erKøet() &&
+            !FagsakYtelseType.ENGANGSTØNAD.equals(b.getFagsakYtelseType());
+        boolean totrinnRetur = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(b).stream()
+            .anyMatch(tt -> !tt.isGodkjent());
+        return BehandlingOperasjonerDto.builder(b.getUuid())
+            .medTilGodkjenning(false)
+            .medFraBeslutter(!b.isBehandlingPåVent() && totrinnRetur)
+            .medKanBytteEnhet(!b.erKøet())
+            .medKanHenlegges(true)
+            .medKanSettesPaVent(!b.isBehandlingPåVent())
+            .medKanGjenopptas(b.isBehandlingPåVent() && !b.erKøet())
+            .medKanOpnesForEndringer(kanÅpnesForEndring)
+            .medKanSendeMelding(!b.isBehandlingPåVent())
+            .medVergemeny(vergeTjeneste.utledBehandlingsmeny(b.getId()).getVergeBehandlingsmeny())
+            .build();
     }
 
     private interface BehandlingRestTjenesteFeil extends DeklarerteFeil {
         BehandlingRestTjenesteFeil FACTORY = FeilFactory.create(BehandlingRestTjenesteFeil.class); // NOSONAR
 
-        @TekniskFeil(feilkode = "FP-760410", feilmelding = "Fant ikke fagsak med saksnummer %s", logLevel = ERROR, exceptionClass = TomtResultatException.class)
-        Feil fantIkkeFagsak(Saksnummer saksnummer);
 
         @FunksjonellFeil(feilkode = "FP-722320", feilmelding = "Behandling må tas av vent før den kan åpnes", løsningsforslag = "Ta behandling av vent")
         Feil måTaAvVent(Long behandlingId);

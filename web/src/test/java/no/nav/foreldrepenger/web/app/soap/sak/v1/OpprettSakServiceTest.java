@@ -1,10 +1,8 @@
 package no.nav.foreldrepenger.web.app.soap.sak.v1;
 
-import static java.lang.Long.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -32,7 +30,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostVurderingDto;
-import no.nav.foreldrepenger.web.app.soap.sak.tjeneste.OpprettSakFeil;
 import no.nav.foreldrepenger.web.app.soap.sak.tjeneste.OpprettSakOrchestrator;
 import no.nav.foreldrepenger.web.app.soap.sak.tjeneste.OpprettSakTjeneste;
 import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.binding.OpprettSakUgyldigInput;
@@ -41,7 +38,6 @@ import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.informasjon.Behand
 import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.meldinger.OpprettSakRequest;
 import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.meldinger.OpprettSakResponse;
 import no.nav.vedtak.exception.FunksjonellException;
-import no.nav.vedtak.exception.TekniskException;
 
 @ExtendWith(MockitoExtension.class)
 public class OpprettSakServiceTest {
@@ -98,22 +94,10 @@ public class OpprettSakServiceTest {
     }
 
     @Test
-    public void test_opprettSak_finner_ikke_bruker() {
-        OpprettSakRequest request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, ES_FOD);
-        AktørId aktorIdLong = new AktørId(valueOf(request.getSakspart().getAktoerId()));
-
-        when(restKlient.utledYtelestypeFor(any())).thenReturn(new JournalpostVurderingDto(ES_GEN, true, false));
-        when(opprettSakTjeneste.opprettSakVL(any(AktørId.class), eq(FagsakYtelseType.ENGANGSTØNAD), eq(JOURNALPOST_ID)))
-                .thenThrow(OpprettSakFeil.FACTORY.finnerIkkePersonMedAktørId(aktorIdLong).toException());
-
-        assertThrows(TekniskException.class, () -> service.opprettSak(request));
-    }
-
-    @Test
     public void test_opprettSak_ok_fødsel() throws Exception {
         OpprettSakRequest request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, ES_FOD);
 
-        final Long FAGSAKID = 1l;
+        final Long FAGSAKID = 1L;
         final Saksnummer expectedSakId = new Saksnummer("2");
 
         Fagsak fagsak = mockFagsak(FAGSAKID, expectedSakId);
@@ -128,7 +112,7 @@ public class OpprettSakServiceTest {
     public void test_opprettSak_ok_fødsel_udefinert_doktypesatt() throws Exception {
         OpprettSakRequest request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, ES_FOD);
 
-        final Long FAGSAKID = 1l;
+        final Long FAGSAKID = 1L;
         final Saksnummer expectedSakId = new Saksnummer("2");
 
         Fagsak fagsak = mockFagsak(FAGSAKID, expectedSakId);
@@ -151,7 +135,7 @@ public class OpprettSakServiceTest {
     public void test_opprettSak_unntak_klagedokument() {
         OpprettSakRequest request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, ES_FOD);
 
-        final Long FAGSAKID = 1l;
+        final Long FAGSAKID = 1L;
 
         Fagsak fagsak = mockFagsak(FAGSAKID, null);
         lenient().when(opprettSakTjeneste.opprettSakVL(AKTØR_ID, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
@@ -165,7 +149,7 @@ public class OpprettSakServiceTest {
     public void test_opprettSak_unntak_endring() {
         OpprettSakRequest request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, ES_FOD);
 
-        final Long FAGSAKID = 1l;
+        final Long FAGSAKID = 1L;
 
         Fagsak fagsak = mockFagsak(FAGSAKID, null);
         lenient().when(opprettSakTjeneste.opprettSakVL(AKTØR_ID, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
@@ -180,7 +164,7 @@ public class OpprettSakServiceTest {
     public void test_opprettSak_unntak_im() throws Exception {
         OpprettSakRequest request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, FP_FOD);
 
-        final Long FAGSAKID = 1l;
+        final Long FAGSAKID = 1L;
         final Saksnummer expectedSakId = new Saksnummer("2");
 
         Fagsak fagsak = mockFagsak(FAGSAKID, expectedSakId);
@@ -207,7 +191,7 @@ public class OpprettSakServiceTest {
     public void test_opprettSak_ok_adopsjon() throws Exception {
         OpprettSakRequest request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, ES_ADP);
 
-        final Long FAGSAKID = 1l;
+        final Long FAGSAKID = 1L;
         final Saksnummer expectedSakId = new Saksnummer("2");
 
         Fagsak fagsak = mockFagsak(FAGSAKID, expectedSakId);
@@ -222,7 +206,7 @@ public class OpprettSakServiceTest {
     public void test_opprettSak_unntak_klageelleramnnke() {
         OpprettSakRequest request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, ES_FOD);
 
-        final Long FAGSAKID = 1l;
+        final Long FAGSAKID = 1L;
 
         Fagsak fagsak = mockFagsak(FAGSAKID, null);
         lenient().when(opprettSakTjeneste.opprettSakVL(AKTØR_ID, FagsakYtelseType.ENGANGSTØNAD, JOURNALPOST_ID)).thenReturn(fagsak);
@@ -235,7 +219,7 @@ public class OpprettSakServiceTest {
     public void test_opprettSak_ok_annen_engangsstønad() throws Exception {
         OpprettSakRequest request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, ES_GEN);
 
-        final Long FAGSAKID = 1l;
+        final Long FAGSAKID = 1L;
         final Saksnummer expectedSakId = new Saksnummer("2");
 
         Fagsak fagsak = mockFagsak(FAGSAKID, expectedSakId);
@@ -250,7 +234,7 @@ public class OpprettSakServiceTest {
     public void test_opprettSak_ok_annen_engangsstønad_doktypesatt() throws Exception {
         OpprettSakRequest request = createOpprettSakRequest(JOURNALPOST, AKTØR_ID, ES_GEN);
 
-        final Long FAGSAKID = 1l;
+        final Long FAGSAKID = 1L;
         final Saksnummer expectedSakId = new Saksnummer("2");
 
         Fagsak fagsak = mockFagsak(FAGSAKID, expectedSakId);

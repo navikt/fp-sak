@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.domene.risikoklassifisering.json;
 
-import static no.nav.vedtak.feil.LogLevel.WARN;
-
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -13,10 +11,7 @@ import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.Faresignal
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.KontrollresultatWrapper;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.rest.FaresignalerRespons;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.rest.Faresignalgruppe;
-import no.nav.vedtak.feil.Feil;
-import no.nav.vedtak.feil.FeilFactory;
-import no.nav.vedtak.feil.deklarasjon.DeklarerteFeil;
-import no.nav.vedtak.feil.deklarasjon.TekniskFeil;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.kontroll.v1.KontrollResultatV1;
 
 @ApplicationScoped
@@ -28,7 +23,7 @@ public class KontrollresultatMapper {
 
     public KontrollresultatWrapper fraKontrakt(KontrollResultatV1 kontraktResultat) {
         if (kontraktResultat.getKontrollResultatkode() == null || kontraktResultat.getKontrollResultatkode().getKode() == null) {
-            throw Feilene.FACTORY.manglerKontrollresultatkode().toException();
+            throw manglerKontrollresultatkode();
         }
         String kode = kontraktResultat.getKontrollResultatkode().getKode();
         Kontrollresultat kontrollresultat = finnKontrollresultat(kode);
@@ -41,7 +36,7 @@ public class KontrollresultatMapper {
         }
         Kontrollresultat kontrollresultat = Kontrollresultat.fraKode(kode);
         if (kontrollresultat == null || Kontrollresultat.UDEFINERT.equals(kontrollresultat)) {
-            throw Feilene.FACTORY.udefinertKontrollresultat().toException();
+            throw udefinertKontrollresultat();
         }
         return kontrollresultat;
     }
@@ -49,7 +44,7 @@ public class KontrollresultatMapper {
     public FaresignalWrapper fraFaresignalRespons(FaresignalerRespons faresignalerRespons) {
         if (faresignalerRespons.getRisikoklasse() == null) {
             // Her ønsker vi ikke akseptere at risikoklasse er null
-            throw Feilene.FACTORY.manglerKontrollresultatkode().toException();
+            throw manglerKontrollresultatkode();
         }
         return FaresignalWrapper.builder()
             .medKontrollresultat(finnKontrollresultat(faresignalerRespons.getRisikoklasse()))
@@ -68,14 +63,11 @@ public class KontrollresultatMapper {
         return Optional.of(builder.build());
     }
 
-    interface Feilene extends DeklarerteFeil {
-        KontrollresultatMapper.Feilene FACTORY = FeilFactory.create(KontrollresultatMapper.Feilene.class);
-
-        @TekniskFeil(feilkode = "FP-42517", feilmelding = "Mangler kontrollresultatkode på kontrollresultat", logLevel = WARN)
-        Feil manglerKontrollresultatkode();
-
-        @TekniskFeil(feilkode = "FP-42518", feilmelding = "Udefinert kontrollresultat", logLevel = WARN)
-        Feil udefinertKontrollresultat();
+    private static TekniskException manglerKontrollresultatkode() {
+        return new TekniskException("FP-42517", "Mangler kontrollresultatkode på kontrollresultat");
     }
 
+    private static TekniskException udefinertKontrollresultat() {
+        return new TekniskException("FP-42518", "Udefinert kontrollresultat");
+    }
 }

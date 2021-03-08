@@ -27,6 +27,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
@@ -48,6 +51,8 @@ import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.web.app.exceptions.FeilDto;
+import no.nav.foreldrepenger.web.app.exceptions.FeilType;
 import no.nav.foreldrepenger.web.app.tjenester.dokument.dto.DokumentDto;
 import no.nav.foreldrepenger.web.app.tjenester.dokument.dto.DokumentIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.dokument.dto.JournalpostIdDto;
@@ -62,13 +67,14 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 @Transactional
 public class DokumentRestTjeneste {
 
+    private static final Logger LOG = LoggerFactory.getLogger(DokumentRestTjeneste.class);
+
     static final String BASE_PATH = "/dokument";
     private static final String MOTTATT_DOKUMENTER_PART_PATH = "/hent-mottattdokumentliste";
     public static final String MOTTATT_DOKUMENTER_PATH = BASE_PATH + MOTTATT_DOKUMENTER_PART_PATH;
     private static final String DOKUMENTER_PART_PATH = "/hent-dokumentliste";
     public static final String DOKUMENTER_PATH = BASE_PATH + DOKUMENTER_PART_PATH;
     private static final String DOKUMENT_PART_PATH = "/hent-dokument";
-    public static final String DOKUMENT_PATH = BASE_PATH + DOKUMENTER_PART_PATH; // NOSONAR TFP-2234
 
     private DokumentArkivTjeneste dokumentArkivTjeneste;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
@@ -178,10 +184,20 @@ public class DokumentRestTjeneste {
             responseBuilder.header("Content-Disposition", "filename=dokument.pdf");
             return responseBuilder.build();
         } catch (TekniskException e) {
-            throw DokumentRestTjenesteFeil.FACTORY.dokumentIkkeFunnet(journalpostId.getJournalpostId(), dokumentId.getDokumentId(), e).toException();
+            var feilmelding = String.format("Dokument ikke funnet for journalpostId= %s dokumentId= %s",
+                journalpostId.getJournalpostId(), dokumentId.getDokumentId());
+            LOG.warn(feilmelding, e);
+            return notFound(feilmelding);
         } catch (ManglerTilgangException e) {
             throw DokumentRestTjenesteFeil.FACTORY.applikasjonHarIkkeTilgangTilHentDokumentTjeneste(e).toException();
         }
+    }
+
+    private Response notFound(String feilmelding) {
+        return Response.status(Response.Status.NOT_FOUND)
+            .entity(new FeilDto(FeilType.TOMT_RESULTAT_FEIL, feilmelding))
+            .type(MediaType.APPLICATION_JSON)
+            .build();
     }
 
     private List<DokumentDto> mapFraArkivJournalPost(ArkivJournalPost arkivJournalPost, Map<JournalpostId, List<MottattDokument>> mottatteIMDokument,

@@ -1,17 +1,17 @@
 package no.nav.foreldrepenger.mottak.dokumentpersiterer.xml;
 
-import static no.nav.foreldrepenger.mottak.dokumentpersiterer.xml.MottattDokumentXmlParserFeil.FACTORY;
 import static no.nav.vedtak.xmlutils.XmlUtils.retrieveNameSpaceOfXML;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.MottattDokumentWrapper;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.xmlutils.JaxbHelper;
 
 public final class MottattDokumentXmlParser {
 
-    private static Map<String, DokumentParserKonfig> SCHEMA_AND_CLASSES_TIL_STRUKTURERTE_DOKUMENTER = new HashMap<>();
+    private static final Map<String, DokumentParserKonfig> SCHEMA_AND_CLASSES_TIL_STRUKTURERTE_DOKUMENTER = new HashMap<>();
 
     static {
         SCHEMA_AND_CLASSES_TIL_STRUKTURERTE_DOKUMENTER.put(no.seres.xsd.nav.inntektsmelding_m._201809.InntektsmeldingConstants.NAMESPACE,
@@ -37,7 +37,7 @@ public final class MottattDokumentXmlParser {
         try {
             DokumentParserKonfig dokumentParserKonfig = SCHEMA_AND_CLASSES_TIL_STRUKTURERTE_DOKUMENTER.get(namespace);
             if (dokumentParserKonfig == null) {
-                throw FACTORY.ukjentNamespace(namespace, new IllegalStateException()).toException();
+                throw new TekniskException("FP-958724", "Fant ikke xsd for namespacet " + namespace);
             }
             mottattDokument = JaxbHelper.unmarshalAndValidateXMLWithStAX(dokumentParserKonfig.jaxbClass,
                 xml,
@@ -46,8 +46,12 @@ public final class MottattDokumentXmlParser {
                 dokumentParserKonfig.additionalClasses);
             return MottattDokumentWrapper.tilXmlWrapper(mottattDokument);
         } catch (Exception e) {
-            throw FACTORY.uventetFeilVedParsingAvSoeknadsXml(namespace, e).toException();
+            throw parseException(namespace);
         }
+    }
+
+    private static TekniskException parseException(String namespace) {
+        return new TekniskException("FP-312346", "Feil ved parsing av ukjent journaldokument-type med namespace " + namespace);
     }
 
     private static String hentNamespace(String xml) {
@@ -55,7 +59,7 @@ public final class MottattDokumentXmlParser {
         try {
             namespace = retrieveNameSpaceOfXML(xml);
         } catch (Exception e) {
-            throw FACTORY.uventetFeilVedParsingAvSoeknadsXml("ukjent", e).toException(); //$NON-NLS-1$
+            throw parseException("ukjent");
         }
         return namespace;
     }

@@ -5,7 +5,6 @@ import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
-import static no.nav.foreldrepenger.inngangsvilkaar.RegelintegrasjonFeil.FEILFACTORY;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,6 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
+import no.nav.vedtak.exception.TekniskException;
 
 
 @ApplicationScoped
@@ -140,7 +140,7 @@ public class RegelOrkestrerer {
         } else if (oppfylt) {
             vilkårResultatType = VilkårResultatType.INNVILGET;
         } else {
-            throw FEILFACTORY.kanIkkeUtledeVilkårsresultatFraRegelmotor().toException();
+            throw new TekniskException("FP-384251", "Ikke mulig å utlede gyldig vilkårsresultat fra enkeltvilkår");
         }
 
         return vilkårResultatType;
