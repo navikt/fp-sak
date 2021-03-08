@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.AndelGraderingTjeneste;
+import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.BeregningUttakTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.HarEtablertYtelseFP;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.RevurderingBehandlingsresultatutleder;
 import no.nav.foreldrepenger.behandling.steg.foreslåresultat.AvslagsårsakTjeneste;
@@ -87,13 +87,13 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         fpUttakRepository = repositoryProvider.getFpUttakRepository();
         var uttakTjeneste = new ForeldrepengerUttakTjeneste(fpUttakRepository);
-        AndelGraderingTjeneste andelGraderingTjeneste = new AndelGraderingTjeneste(uttakTjeneste,
+        BeregningUttakTjeneste beregningUttakTjeneste = new BeregningUttakTjeneste(uttakTjeneste,
                 repositoryProvider.getYtelsesFordelingRepository());
         HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste = new HentOgLagreBeregningsgrunnlagTjeneste(
                 entityManager);
         UttakInputTjeneste uttakInputTjeneste = new UttakInputTjeneste(repositoryProvider, beregningsgrunnlagTjeneste,
                 new AbakusInMemoryInntektArbeidYtelseTjeneste(),
-                skjæringstidspunktTjeneste, medlemTjeneste, andelGraderingTjeneste);
+                skjæringstidspunktTjeneste, medlemTjeneste, beregningUttakTjeneste);
         revurderingBehandlingsresultatutleder = spy(new RevurderingBehandlingsresultatutleder(repositoryProvider,
                 beregningsgrunnlagTjeneste,
                 opphørUttakTjeneste,

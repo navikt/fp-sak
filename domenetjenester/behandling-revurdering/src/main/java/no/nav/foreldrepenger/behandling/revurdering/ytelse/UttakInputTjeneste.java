@@ -11,7 +11,7 @@ import javax.inject.Inject;
 
 import no.nav.folketrygdloven.kalkulator.guitjenester.GraderingUtenBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.AndelGraderingTjeneste;
+import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.BeregningUttakTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
@@ -46,7 +46,7 @@ public class UttakInputTjeneste {
     private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
     private SøknadRepository søknadRepository;
     private PersonopplysningRepository personopplysningRepository;
-    private AndelGraderingTjeneste andelGraderingTjeneste;
+    private BeregningUttakTjeneste beregningUttakTjeneste;
 
     @Inject
     public UttakInputTjeneste(BehandlingRepositoryProvider repositoryProvider,
@@ -54,7 +54,7 @@ public class UttakInputTjeneste {
             InntektArbeidYtelseTjeneste iayTjeneste,
             SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
             MedlemTjeneste medlemTjeneste,
-            AndelGraderingTjeneste andelGraderingTjeneste) {
+            BeregningUttakTjeneste beregningUttakTjeneste) {
         this.iayTjeneste = Objects.requireNonNull(iayTjeneste, "iayTjeneste");
         this.skjæringstidspunktTjeneste = Objects.requireNonNull(skjæringstidspunktTjeneste, "skjæringstidspunktTjeneste");
         this.medlemTjeneste = Objects.requireNonNull(medlemTjeneste, "medlemTjeneste");
@@ -62,7 +62,7 @@ public class UttakInputTjeneste {
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
-        this.andelGraderingTjeneste = andelGraderingTjeneste;
+        this.beregningUttakTjeneste = beregningUttakTjeneste;
     }
 
     UttakInputTjeneste() {
@@ -103,7 +103,7 @@ public class UttakInputTjeneste {
     }
 
     private boolean finnesAndelerMedGraderingUtenBeregningsgrunnlag(BehandlingReferanse ref, BeregningsgrunnlagEntitet beregningsgrunnlag) {
-        var aktivitetGradering = andelGraderingTjeneste.utled(ref);
+        var aktivitetGradering = beregningUttakTjeneste.utled(ref);
         var andelerMedGraderingUtenBG = GraderingUtenBeregningsgrunnlagTjeneste
                 .finnAndelerMedGraderingUtenBG(BehandlingslagerTilKalkulusMapper.mapBeregningsgrunnlag(beregningsgrunnlag), aktivitetGradering);
 

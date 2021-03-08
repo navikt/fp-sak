@@ -41,11 +41,11 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 
-public class AndelGraderingTjenesteTest {
+public class BeregningUttakTjenesteTest {
 
     private ForeldrepengerUttakTjeneste uttakTjeneste = Mockito.mock(ForeldrepengerUttakTjeneste.class);
     private YtelsesFordelingRepository ytelsesRepo = Mockito.mock(YtelsesFordelingRepository.class);
-    private AndelGraderingTjeneste tjeneste = new AndelGraderingTjeneste(uttakTjeneste, ytelsesRepo);
+    private BeregningUttakTjeneste tjeneste = new BeregningUttakTjeneste(uttakTjeneste, ytelsesRepo);
 
     private ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
 
