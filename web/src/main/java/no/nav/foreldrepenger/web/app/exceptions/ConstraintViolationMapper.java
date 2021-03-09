@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Path;
 import javax.ws.rs.core.MediaType;
@@ -30,34 +29,35 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
         var constraintViolations = exception.getConstraintViolations();
 
         if (constraintViolations.isEmpty() && exception instanceof ResteasyViolationException) {
-            String message = ((ResteasyViolationException) exception).getException().getMessage();
+            var message = ((ResteasyViolationException) exception).getException().getMessage();
             LOG.error(message);
             return lagResponse(new FeilDto(FeilType.GENERELL_FEIL, "Det oppstod en serverfeil: Validering er feilkonfigurert."));
         }
 
         Collection<FeltFeilDto> feilene = new ArrayList<>();
-        for (ConstraintViolation<?> constraintViolation : constraintViolations) {
-            String kode = getKode(constraintViolation.getLeafBean());
-            String feltNavn = getFeltNavn(constraintViolation.getPropertyPath());
+        for (var constraintViolation : constraintViolations) {
+            var kode = getKode(constraintViolation.getLeafBean());
+            var feltNavn = getFeltNavn(constraintViolation.getPropertyPath());
             feilene.add(new FeltFeilDto(feltNavn, constraintViolation.getMessage(), kode));
         }
-        List<String> feltNavn = feilene.stream().map(FeltFeilDto::getNavn).collect(Collectors.toList());
+        var feltNavn = feilene.stream().map(FeltFeilDto::getNavn).collect(Collectors.toList());
 
-        final String feilmelding;
-        if (erServerkall()) {
-            feilmelding = String.format("Det oppstod en valideringsfeil på felt %s ved kall fra server. "
-                + "Vennligst kontroller at alle feltverdier er korrekte.", feltNavn);
-            LOG.warn(feilmelding);
-        } else {
-            feilmelding = String.format("Det oppstod en valideringsfeil på felt %s. "
-                + "Vennligst kontroller at alle feltverdier er korrekte.", feltNavn);
-            LOG.error(feilmelding);
-        }
+        var feilmelding = feilmelding(feltNavn);
+        LOG.warn(feilmelding);
         return lagResponse(new FeilDto(feilmelding, feilene));
     }
 
+    private String feilmelding(List<String> feltNavn) {
+        if (erServerkall()) {
+            return String.format("Det oppstod en valideringsfeil på felt %s ved kall fra server. "
+                + "Vennligst kontroller at alle feltverdier er korrekte.", feltNavn);
+        }
+        return String.format("Det oppstod en valideringsfeil på felt %s. "
+            + "Vennligst kontroller at alle feltverdier er korrekte.", feltNavn);
+    }
+
     private static boolean erServerkall() {
-        String brukerUuid = SubjectHandler.getSubjectHandler().getUid();
+        var brukerUuid = SubjectHandler.getSubjectHandler().getUid();
         return brukerUuid != null && brukerUuid.startsWith("srv");
     }
 
