@@ -44,21 +44,6 @@ public abstract class FastsetteUttakDto extends BekreftetAksjonspunktDto {
 
     }
 
-    //TODO palfi fjern når alle AP er løst i prod
-    @JsonTypeName(AksjonspunktKodeDefinisjon.TILKNYTTET_STORTINGET_KODE)
-    public static class FastsetteUttakTilknyttetStortinget extends FastsetteUttakDto {
-
-        @SuppressWarnings("unused") // NOSONAR
-        private FastsetteUttakTilknyttetStortinget() {
-            // For Jackson
-        }
-
-        public FastsetteUttakTilknyttetStortinget(List<UttakResultatPeriodeLagreDto> perioder) {
-            super(perioder);
-        }
-
-    }
-
 
     @JsonTypeName(AksjonspunktKodeDefinisjon.KONTROLLER_REALITETSBEHANDLING_ELLER_KLAGE_KODE)
     public static class FastsetteUttakKontrollerRealitetsBehandlingEllerKlageDto extends FastsetteUttakDto {
