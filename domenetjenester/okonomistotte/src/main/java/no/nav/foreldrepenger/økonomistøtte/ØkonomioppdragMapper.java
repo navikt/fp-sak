@@ -29,8 +29,6 @@ import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.OppdragsLinje15
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.TfradragTillegg;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.TkodeStatusLinje;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.xmlutils.DateUtil;
-import no.nav.vedtak.xmlutils.JaxbHelper;
 
 
 public class ØkonomioppdragMapper {

@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 import no.nav.vedtak.exception.FunksjonellException;
+import no.nav.vedtak.feil.LogLevel;
 
 class BarnFinner {
 
@@ -41,7 +42,8 @@ class BarnFinner {
         if (barnKvalifisertForYtelse.isEmpty()) {
             throw new FunksjonellException("FP-110705",
                 "Kan ikke beregne ytelse. Finner ikke barn som har rett til ytelse i behandlingsgrunnlaget.",
-                "Sjekk avklarte fakta i behandlingen. Oppdater fakta slik at det finnes barn ");
+                //TODO palfi
+                "Sjekk avklarte fakta i behandlingen. Oppdater fakta slik at det finnes barn ", LogLevel.WARN, null);
         }
         return barnKvalifisertForYtelse.size();
     }
