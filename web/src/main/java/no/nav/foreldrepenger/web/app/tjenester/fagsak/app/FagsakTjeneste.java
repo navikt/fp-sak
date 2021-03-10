@@ -12,8 +12,6 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
-import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
@@ -130,10 +128,6 @@ public class FagsakTjeneste {
         return hentFagsakForSaksnummer(saksnummer).map(fagsak -> new FagsakBackendDto(fagsak, finnDekningsgrad(saksnummer)));
     }
 
-    public Optional<PersonDto> lagBrukerDto(Saksnummer saksnummer) {
-        return hentBruker(saksnummer).map(FagsakTjeneste::mapFraPersoninfoBasisTilPersonDto);
-    }
-
     public Optional<SakPersonerDto> lagSakPersonerDto(Saksnummer saksnummer) {
         var fagsak = hentFagsakForSaksnummer(saksnummer).orElse(null);
         var brukerinfo = hentBruker(saksnummer).orElse(null);
@@ -149,7 +143,7 @@ public class FagsakTjeneste {
             .orElseGet(() -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
                 .flatMap(b -> personopplysningTjeneste.hentOppgittAnnenPart(b.getId()))
                 .filter(ap -> ap.getAktørId() == null && ap.getUtenlandskFnrLand() != null && !Landkoder.UDEFINERT.equals(ap.getUtenlandskFnrLand()))
-                .map(ap -> new PersonDto(null, null, null, null, null, null, null, null, null))
+                .map(ap -> new PersonDto(null, null, null, null, null, null, null, null))
                 .orElse(null));
         var fh = hentFamilieHendelse(fagsak);
         return Optional.of(new SakPersonerDto(bruker, annenPart, fh.orElse(null)));
@@ -183,7 +177,6 @@ public class FagsakTjeneste {
             StringUtils.formaterMedStoreOgSmåBokstaver(pi.getNavn()),
             pi.getPersonIdent().getIdent(),
             pi.getKjønn(),
-            pi.getPersonstatus(),
             pi.getDiskresjonskode(),
             pi.getFødselsdato(),
             pi.getDødsdato(),
@@ -196,15 +189,10 @@ public class FagsakTjeneste {
     }
 
     private FagsakDto mapFraFagsakTilFagsakDto(Fagsak fagsak, boolean utenRevurderingSjekk) {
-        var kanRevurderingOpprettes = utenRevurderingSjekk ? null :
-            FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, fagsak.getYtelseType()).orElseThrow().kanRevurderingOpprettes(fagsak);
         var fh = hentFamilieHendelse(fagsak);
         return new FagsakDto(
             fagsak,
             fh.map(SakHendelseDto::getHendelseDato).orElse(null),
-            fh.map(SakHendelseDto::getAntallBarn).orElse(null),
-            kanRevurderingOpprettes,
-            fagsak.getSkalTilInfotrygd(),
             fagsak.getRelasjonsRolleType(),
             finnDekningsgrad(fagsak.getSaksnummer()),
             FagsakTjeneste.lagLenker(fagsak),
@@ -238,7 +226,6 @@ public class FagsakTjeneste {
     private static List<ResourceLink> lagLenkerEngangshent(Fagsak fagsak) {
         List<ResourceLink> lenkene = new ArrayList<>();
         var saksnummer = new SaksnummerDto(fagsak.getSaksnummer());
-        lenkene.add(get(FagsakRestTjeneste.BRUKER_PATH, "sak-bruker", saksnummer));
         lenkene.add(get(FagsakRestTjeneste.PERSONER_PATH, "sak-personer", saksnummer));
         return lenkene;
     }

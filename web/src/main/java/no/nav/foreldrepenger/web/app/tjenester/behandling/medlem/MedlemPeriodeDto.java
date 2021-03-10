@@ -7,13 +7,11 @@ import java.util.Set;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapManuellVurderingType;
 import no.nav.foreldrepenger.domene.medlem.api.VurderingsÅrsak;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonopplysningDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonopplysningMedlemDto;
 
 public class MedlemPeriodeDto {
 
     private LocalDate vurderingsdato;
-    private PersonopplysningDto personopplysninger;
     private Set<String> aksjonspunkter = Collections.emptySet();
     private Set<VurderingsÅrsak> årsaker = Collections.emptySet();
     private Boolean oppholdsrettVurdering;
@@ -93,10 +91,6 @@ public class MedlemPeriodeDto {
         this.medlemskapManuellVurderingType = medlemskapManuellVurderingType;
     }
 
-    void setPersonopplysninger(PersonopplysningDto personopplysninger) {
-        this.personopplysninger = personopplysninger;
-    }
-
     public PersonopplysningMedlemDto getPersonopplysningBruker() {
         return personopplysningBruker;
     }
@@ -124,10 +118,6 @@ public class MedlemPeriodeDto {
     @Override
     public int hashCode() {
         return Objects.hash(vurderingsdato);
-    }
-
-    public PersonopplysningDto getPersonopplysninger() {
-        return personopplysninger;
     }
 
     public String getBegrunnelse() {

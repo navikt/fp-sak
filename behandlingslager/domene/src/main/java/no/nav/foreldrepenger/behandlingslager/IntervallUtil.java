@@ -22,8 +22,4 @@ public final class IntervallUtil {
             fomDato.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant(),
             døgnstart.atZone(ZoneId.systemDefault()).toInstant());
     }
-
-    public static Interval tilIntervall(LocalDate dato) {
-        return byggIntervall(dato, dato);
-    }
 }

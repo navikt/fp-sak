@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoArbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoKjønn;
-import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
@@ -26,8 +25,6 @@ import no.nav.pdl.Doedsfall;
 import no.nav.pdl.DoedsfallResponseProjection;
 import no.nav.pdl.Foedsel;
 import no.nav.pdl.FoedselResponseProjection;
-import no.nav.pdl.Folkeregisterpersonstatus;
-import no.nav.pdl.FolkeregisterpersonstatusResponseProjection;
 import no.nav.pdl.HentPersonQueryRequest;
 import no.nav.pdl.Kjoenn;
 import no.nav.pdl.KjoennResponseProjection;
@@ -36,8 +33,6 @@ import no.nav.pdl.Navn;
 import no.nav.pdl.NavnResponseProjection;
 import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
-import no.nav.vedtak.felles.integrasjon.pdl.Pdl;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
@@ -64,7 +59,6 @@ public class PersonBasisTjeneste {
                 .navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn())
                 .foedsel(new FoedselResponseProjection().foedselsdato())
                 .doedsfall(new DoedsfallResponseProjection().doedsdato())
-                .folkeregisterpersonstatus(new FolkeregisterpersonstatusResponseProjection().status())
                 .kjoenn(new KjoennResponseProjection().kjoenn())
                 .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
 
@@ -79,9 +73,6 @@ public class PersonBasisTjeneste {
                 .map(Doedsfall::getDoedsdato)
                 .filter(Objects::nonNull)
                 .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
-        var pdlStatus = person.getFolkeregisterpersonstatus().stream()
-                .map(Folkeregisterpersonstatus::getStatus)
-                .findFirst().map(PersonstatusType::fraFregPersonstatus).orElse(PersonstatusType.UDEFINERT);
         return new PersoninfoBasis.Builder().medAktørId(aktørId).medPersonIdent(personIdent)
                 .medNavn(person.getNavn().stream().map(PersonBasisTjeneste::mapNavn).filter(Objects::nonNull).findFirst()
                         .orElseGet(() -> isProd ? null : "Navnløs i Folkeregister"))
@@ -89,7 +80,6 @@ public class PersonBasisTjeneste {
                 .medDødsdato(dødsdato)
                 .medDiskresjonsKode(getDiskresjonskode(person))
                 .medNavBrukerKjønn(mapKjønn(person))
-                .medPersonstatusType(pdlStatus)
                 .build();
     }
 

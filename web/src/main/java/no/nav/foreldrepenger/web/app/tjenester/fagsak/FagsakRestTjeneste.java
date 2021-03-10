@@ -42,7 +42,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.Prosess
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.app.FagsakTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakBackendDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakDto;
-import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.PersonDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SakPersonerDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SokefeltDto;
@@ -61,8 +60,6 @@ public class FagsakRestTjeneste {
     public static final String FAGSAK_BACKEND_PATH = BASE_PATH + FAGSAK_BACKEND_PART_PATH;
     private static final String STATUS_PART_PATH = "/status";
     public static final String STATUS_PATH = BASE_PATH + STATUS_PART_PATH;
-    private static final String BRUKER_PART_PATH = "/bruker";
-    public static final String BRUKER_PATH = BASE_PATH + BRUKER_PART_PATH;
     private static final String PERSONER_PART_PATH = "/personer";
     public static final String PERSONER_PATH = BASE_PATH + PERSONER_PART_PATH;
     private static final String RETTIGHETER_PART_PATH = "/rettigheter";
@@ -98,19 +95,6 @@ public class FagsakRestTjeneste {
         String gruppe = gruppeDto == null ? null : gruppeDto.getGruppe();
         Optional<AsyncPollingStatus> prosessTaskGruppePågår = fagsakTjeneste.sjekkProsessTaskPågår(saksnummer, gruppe);
         return Redirect.tilFagsakEllerPollStatus(saksnummer, prosessTaskGruppePågår.orElse(null));
-    }
-
-    @GET
-    @Path(BRUKER_PART_PATH)
-    @Operation(description = "Hent brukerdata for aktørId", tags = "fagsak", responses = {
-        @ApiResponse(responseCode = "200", description = "Returnerer person", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = PersonDto.class))),
-        @ApiResponse(responseCode = "404", description = "Person ikke tilgjengelig")
-    })
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public Response hentBrukerForFagsak(@NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
-        Saksnummer saksnummer = new Saksnummer(s.getVerdi());
-        return fagsakTjeneste.lagBrukerDto(saksnummer).map(b -> Response.ok(b).build())
-            .orElseGet(() -> Response.status(Response.Status.NOT_FOUND).build());
     }
 
     @GET
