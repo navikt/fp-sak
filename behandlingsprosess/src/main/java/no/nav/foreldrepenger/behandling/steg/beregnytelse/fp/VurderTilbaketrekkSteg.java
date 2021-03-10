@@ -19,9 +19,13 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BehandlingBeregningsresultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk.AksjonspunktutlederTilbaketrekk;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @BehandlingStegRef(kode = "VURDER_TILBAKETREKK")
 @BehandlingTypeRef("BT-004")
@@ -29,10 +33,12 @@ import no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk.AksjonspunktutlederTi
 @FagsakYtelseTypeRef("SVP")
 @ApplicationScoped
 public class VurderTilbaketrekkSteg implements BehandlingSteg {
+    private static final Logger LOGGER = LoggerFactory.getLogger(VurderTilbaketrekkSteg.class);
 
     private AksjonspunktutlederTilbaketrekk aksjonspunktutlederTilbaketrekk;
     private BehandlingRepository behandlingRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private BeregningsresultatRepository beregningsresultatRepository;
 
     VurderTilbaketrekkSteg() {
         // for CDI proxy
@@ -40,11 +46,13 @@ public class VurderTilbaketrekkSteg implements BehandlingSteg {
 
     @Inject
     public VurderTilbaketrekkSteg(AksjonspunktutlederTilbaketrekk aksjonspunktutlederTilbaketrekk,
-            BehandlingRepository behandlingRepository,
-            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                                  BehandlingRepository behandlingRepository,
+                                  SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                  BeregningsresultatRepository beregningsresultatRepository) {
         this.aksjonspunktutlederTilbaketrekk = aksjonspunktutlederTilbaketrekk;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingRepository = behandlingRepository;
+        this.beregningsresultatRepository = beregningsresultatRepository;
     }
 
     @Override
@@ -61,6 +69,29 @@ public class VurderTilbaketrekkSteg implements BehandlingSteg {
         Skjæringstidspunkt skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
         BehandlingReferanse ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
         List<AksjonspunktResultat> aksjonspunkter = aksjonspunktutlederTilbaketrekk.utledAksjonspunkterFor(new AksjonspunktUtlederInput(ref));
-        return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
+
+        if (aksjonspunkter.isEmpty()) {
+            return BehandleStegResultat.utførtUtenAksjonspunkter();
+        }
+
+        if (bleLøstIForrigeBehandling(ref)) {
+            return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
+        }
+
+        // Hvis en sak ikke hadde aksjonspunktet i forrige behandling skal den ikke få det, da alle nye
+        // tilfeller skal håndterers i beregning via aksjonspunkt 5059.
+        // At det fortsatt utledes skyldes feil i aksjonspunktutlederTilbaketrekk.
+        // Når alle saker som har hatt 5090 er avsluttet kan man avvikle alt relatert til tilbaketrekk.
+        LOGGER.info("FP-584196: Saksnummer {}. Behandling med id {} fikk utledet aksjonspunkt 5090, " +
+                "men forrige behandling med id {} gjorde ingen slik vurdering.", ref.getSaksnummer().getVerdi(),
+            ref.getBehandlingId(), ref.getOriginalBehandlingId().orElse(null));
+        return BehandleStegResultat.utførtUtenAksjonspunkter();
+    }
+
+    private boolean bleLøstIForrigeBehandling(BehandlingReferanse ref) {
+        Optional<Boolean> originalBeslutning = ref.getOriginalBehandlingId()
+            .flatMap(oid -> beregningsresultatRepository.hentBeregningsresultatAggregat(oid))
+            .flatMap(BehandlingBeregningsresultatEntitet::skalHindreTilbaketrekk);
+        return originalBeslutning.isPresent();
     }
 }

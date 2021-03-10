@@ -27,11 +27,11 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.foreldrepenger.ytelse.beregning.BeregnFeriepengerTjeneste;
 import no.nav.foreldrepenger.ytelse.beregning.FinnEndringsdatoBeregningsresultatTjeneste;
 import no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk.BRAndelSammenligning;
 import no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk.BeregningsresultatTidslinjetjeneste;
 import no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk.HindreTilbaketrekkNårAlleredeUtbetalt;
-import no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk.KopierFeriepenger;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 
 @BehandlingStegRef(kode = "BERYT_OPPDRAG")
@@ -47,6 +47,7 @@ public class HindreTilbaketrekkSteg implements BehandlingSteg {
     private BeregningsresultatTidslinjetjeneste beregningsresultatTidslinjetjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private Instance<FinnEndringsdatoBeregningsresultatTjeneste> finnEndringsdatoBeregningsresultatTjenesteInstances;
+    private Instance<BeregnFeriepengerTjeneste> beregnFeriepengerTjeneste;
 
     HindreTilbaketrekkSteg() {
         // for CDI proxy
@@ -54,16 +55,18 @@ public class HindreTilbaketrekkSteg implements BehandlingSteg {
 
     @Inject
     public HindreTilbaketrekkSteg(BehandlingRepositoryProvider repositoryProvider,
-            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-            @Any Instance<FinnEndringsdatoBeregningsresultatTjeneste> finnEndringsdatoBeregningsresultatTjenesteInstances,
-            BeregningsresultatTidslinjetjeneste beregningsresultatTidslinjetjeneste,
-            InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
+                                  SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                  @Any Instance<FinnEndringsdatoBeregningsresultatTjeneste> finnEndringsdatoBeregningsresultatTjenesteInstances,
+                                  BeregningsresultatTidslinjetjeneste beregningsresultatTidslinjetjeneste,
+                                  InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
+                                  @Any Instance<BeregnFeriepengerTjeneste> beregnFeriepengerTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.beregningsresultatTidslinjetjeneste = beregningsresultatTidslinjetjeneste;
         this.finnEndringsdatoBeregningsresultatTjenesteInstances = finnEndringsdatoBeregningsresultatTjenesteInstances;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
+        this.beregnFeriepengerTjeneste = beregnFeriepengerTjeneste;
     }
 
     @Override
@@ -83,7 +86,9 @@ public class HindreTilbaketrekkSteg implements BehandlingSteg {
             BeregningsresultatEntitet utbetBR = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(revurderingTY, brAndelTidslinje,
                     finnYrkesaktiviteter(behandlingReferanse), utledetSkjæringstidspunkt);
 
-            KopierFeriepenger.kopier(behandlingId, revurderingTY, utbetBR);
+            // Reberegn feriepenger
+            var feriepengerTjeneste = FagsakYtelseTypeRef.Lookup.find(beregnFeriepengerTjeneste, behandlingReferanse.getFagsakYtelseType()).orElseThrow();
+            feriepengerTjeneste.beregnFeriepenger(behandling, utbetBR);
 
             FinnEndringsdatoBeregningsresultatTjeneste finnEndringsdatoBeregningsresultatTjeneste = FagsakYtelseTypeRef.Lookup
                     .find(finnEndringsdatoBeregningsresultatTjenesteInstances, behandling.getFagsakYtelseType())
