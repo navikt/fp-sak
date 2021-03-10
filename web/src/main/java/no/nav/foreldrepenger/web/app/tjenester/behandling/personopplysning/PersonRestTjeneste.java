@@ -6,15 +6,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -26,7 +25,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
-import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.domene.person.verge.VergeDtoTjeneste;
@@ -50,8 +48,6 @@ public class PersonRestTjeneste {
     public static final String VERGE_BACKEND_PATH = BASE_PATH + VERGE_BACKEND_PART_PATH; // NOSONAR TFP-2234
     private static final String MEDLEMSKAP_V2_PART_PATH = "/person/medlemskap-v2";
     public static final String MEDLEMSKAP_V2_PATH = BASE_PATH + MEDLEMSKAP_V2_PART_PATH; // NOSONAR TFP-2234
-    private static final String PERSONOPPLYSNINGER_PART_PATH = "/person/personopplysninger";
-    public static final String PERSONOPPLYSNINGER_PATH = BASE_PATH + PERSONOPPLYSNINGER_PART_PATH; // NOSONAR TFP-2234
     private static final String PERSONOVERSIKT_PART_PATH = "/person/personoversikt";
     public static final String PERSONOVERSIKT_PATH = BASE_PATH + PERSONOVERSIKT_PART_PATH; // NOSONAR TFP-2234
     private static final String PERSONOPPLYSNINGER_TILBAKE_PART_PATH = "/person/personopplysninger-tilbake";
@@ -83,21 +79,6 @@ public class PersonRestTjeneste {
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
     }
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Path(VERGE_PART_PATH)
-    @Operation(description = "Returnerer informasjon om verge knyttet til søker for denne behandlingen", tags = "behandling - person", responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer Verge, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = VergeDto.class)))
-    })
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    @Deprecated
-    public VergeDto getVerge(@NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
-        Long behandlingId = getBehandlingsId(behandlingIdDto);
-        Optional<VergeDto> vergeDto = vergeRepository.hentAggregat(behandlingId).flatMap(vergeDtoTjenesteImpl::lagVergeDto);
-
-        return vergeDto.orElse(null);
-    }
-
     @GET
     @Path(VERGE_PART_PATH)
     @Operation(description = "Returnerer informasjon om verge knyttet til søker for denne behandlingen", tags = "behandling - person", responses = {
@@ -105,7 +86,10 @@ public class PersonRestTjeneste {
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public VergeDto getVerge(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        return getVerge(new BehandlingIdDto(uuidDto));
+        Long behandlingId = getBehandlingsId(uuidDto.getBehandlingUuid());
+        Optional<VergeDto> vergeDto = vergeRepository.hentAggregat(behandlingId).flatMap(vergeDtoTjenesteImpl::lagVergeDto);
+
+        return vergeDto.orElse(null);
     }
 
     @GET
@@ -115,40 +99,8 @@ public class PersonRestTjeneste {
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public VergeBackendDto getVergeBackend(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        Long behandlingId = getBehandlingsId(new BehandlingIdDto(uuidDto));
+        Long behandlingId = getBehandlingsId(uuidDto.getBehandlingUuid());
         return vergeRepository.hentAggregat(behandlingId).flatMap(vergeDtoTjenesteImpl::lagVergeBackendDto).orElse(null);
-    }
-
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Path(PERSONOPPLYSNINGER_PART_PATH)
-    @Operation(description = "Hent informasjon om personopplysninger søker i behandling", tags = "behandling - person", responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer Personopplysninger, null hvis ikke finnes (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = PersonopplysningDto.class)))
-    })
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    @Deprecated
-    public PersonopplysningDto getPersonopplysninger(
-            @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
-        Long behandlingId = getBehandlingsId(behandlingIdDto);
-        Optional<PersonopplysningDto> personopplysningDto = personopplysningDtoTjeneste.lagPersonopplysningDto(behandlingId, LocalDate.now());
-        if (personopplysningDto.isPresent()) {
-            PersonopplysningDto pers = personopplysningDto.get();
-            personopplysningFnrFinder.oppdaterMedPersonIdent(pers);
-            return pers;
-        } else {
-            return null;
-        }
-    }
-
-    @GET
-    @Path(PERSONOPPLYSNINGER_PART_PATH)
-    @Operation(description = "Hent informasjon om personopplysninger søker i behandling", tags = "behandling - person", responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer Personopplysninger, null hvis ikke finnes (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = PersonopplysningDto.class)))
-    })
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public PersonopplysningDto getPersonopplysninger(
-            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        return getPersonopplysninger(new BehandlingIdDto(uuidDto));
     }
 
     @GET
@@ -159,27 +111,8 @@ public class PersonRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public PersonopplysningTilbakeDto getPersonopplysningerTilbake(
         @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        var behandlingId = getBehandlingsId(new BehandlingIdDto(uuidDto));
+        var behandlingId = getBehandlingsId(uuidDto.getBehandlingUuid());
         return personopplysningDtoTjeneste.lagPersonopplysningTilbakeDto(behandlingId);
-    }
-
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Path(PERSONOVERSIKT_PART_PATH)
-    @Operation(description = "Hent oversikt over personopplysninger søker i behandling", tags = "behandling - person", responses = {
-        @ApiResponse(responseCode = "200", description = "Returnerer Personoversikt, null hvis ikke finnes (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = PersonoversiktDto.class)))
-    })
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    @Deprecated
-    public PersonoversiktDto getPersonoversikt(
-        @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
-        Long behandlingId = getBehandlingsId(behandlingIdDto);
-        var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
-        var brukDato = Optional.ofNullable(behandling.getAvsluttetDato()).map(LocalDateTime::toLocalDate).orElseGet(LocalDate::now);
-        Optional<PersonoversiktDto> personoversiktDto = personopplysningDtoTjeneste.lagPersonversiktDto(behandlingId, brukDato);
-        personoversiktDto.ifPresent(personopplysningFnrFinder::oppdaterMedPersonIdent);
-
-        return personoversiktDto.orElse(null);
     }
 
     @GET
@@ -190,20 +123,23 @@ public class PersonRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public PersonoversiktDto getPersonoversikt(
         @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        return getPersonoversikt(new BehandlingIdDto(uuidDto));
+        Long behandlingId = getBehandlingsId(uuidDto.getBehandlingUuid());
+        var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
+        var brukDato = Optional.ofNullable(behandling.getAvsluttetDato()).map(LocalDateTime::toLocalDate).orElseGet(LocalDate::now);
+        Optional<PersonoversiktDto> personoversiktDto = personopplysningDtoTjeneste.lagPersonversiktDto(behandlingId, brukDato);
+        personoversiktDto.ifPresent(personopplysningFnrFinder::oppdaterMedPersonIdent);
+
+        return personoversiktDto.orElse(null);
     }
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
+    @GET
     @Path(MEDLEMSKAP_V2_PART_PATH)
     @Operation(description = "Hent informasjon om medlemskap i Folketrygden for søker i behandling", tags = "behandling - person", responses = {
-        @ApiResponse(responseCode = "200", description = "Returnerer Medlemskap, null hvis ikke finnes (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = MedlemV2Dto.class)))
+            @ApiResponse(responseCode = "200", description = "Returnerer Medlemskap, null hvis ikke finnes (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = MedlemV2Dto.class)))
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    @Deprecated
-    public MedlemV2Dto hentMedlemskap(
-        @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
-        Long behandlingId = getBehandlingsId(behandlingIdDto);
+    public MedlemV2Dto hentMedlemskap(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        Long behandlingId = getBehandlingsId(uuidDto.getBehandlingUuid());
         var medlemDto = medlemDtoTjeneste.lagMedlemV2Dto(behandlingId);
         medlemDto.map(MedlemV2Dto::getPerioder).orElse(Set.of())
             .forEach(p -> {
@@ -213,20 +149,8 @@ public class PersonRestTjeneste {
         return medlemDto.orElse(null);
     }
 
-    @GET
-    @Path(MEDLEMSKAP_V2_PART_PATH)
-    @Operation(description = "Hent informasjon om medlemskap i Folketrygden for søker i behandling", tags = "behandling - person", responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer Medlemskap, null hvis ikke finnes (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = MedlemV2Dto.class)))
-    })
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    @Deprecated
-    public MedlemV2Dto hentMedlemskap(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        return hentMedlemskap(new BehandlingIdDto(uuidDto));
-    }
-
-    private Long getBehandlingsId(BehandlingIdDto behandlingIdDto) {
-        return Optional.ofNullable(behandlingIdDto.getBehandlingId())
-            .orElseGet(() ->  behandlingsprosessTjeneste.hentBehandling(behandlingIdDto.getBehandlingUuid()).getId());
+    private Long getBehandlingsId(UUID behandlingUuid) {
+        return behandlingsprosessTjeneste.hentBehandling(behandlingUuid).getId();
     }
 
 }

@@ -190,10 +190,10 @@ public class MedlemDtoTjeneste {
                                               LocalDate vurderingsdato, Set<VurderingsÅrsak> årsaker, String begrunnelse) {
         final MedlemPeriodeDto periodeDto = new MedlemPeriodeDto();
         periodeDto.setÅrsaker(årsaker);
-        personopplysningDtoTjeneste.lagPersonopplysningDto(behandlingId, vurderingsdato).ifPresent(periodeDto::setPersonopplysninger);
         personopplysningDtoTjeneste.lagPersonopplysningMedlemskapDto(behandlingId, vurderingsdato).ifPresent(periodeDto::setPersonopplysningBruker);
         personopplysningDtoTjeneste.lagAnnenpartPersonopplysningMedlemskapDto(behandlingId, vurderingsdato).ifPresent(periodeDto::setPersonopplysningAnnenPart);
         periodeDto.setVurderingsdato(vurderingsdato);
+        periodeDto.setBegrunnelse(begrunnelse);
 
         if (vurdertMedlemskapOpt.isPresent()) {
             final VurdertMedlemskap vurdertMedlemskap = vurdertMedlemskapOpt.get();

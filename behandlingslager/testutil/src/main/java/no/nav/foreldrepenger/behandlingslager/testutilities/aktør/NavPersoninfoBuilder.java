@@ -91,7 +91,6 @@ public class NavPersoninfoBuilder {
             .medFødselsdato(fødselsdato)
             .medNavBrukerKjønn(kjønn)
             .medDiskresjonsKode(diskresjonskode)
-            .medPersonstatusType(personstatusType)
             .build();
     }
 }

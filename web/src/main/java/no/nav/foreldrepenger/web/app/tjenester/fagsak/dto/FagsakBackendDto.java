@@ -1,20 +1,17 @@
 package no.nav.foreldrepenger.web.app.tjenester.fagsak.dto;
 
-import java.time.LocalDateTime;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
 public class FagsakBackendDto {
-    private Long saksnummer;
+    private String saksnummer;
     private String saksnummerString;
     private FagsakYtelseType sakstype;
+    private FagsakYtelseType fagsakYtelseType;
     private RelasjonsRolleType relasjonsRolleType;
     private FagsakStatus status;
-    private LocalDateTime opprettet;
-    private LocalDateTime endret;
     private Integer dekningsgrad;
     private String aktoerId;
 
@@ -25,18 +22,17 @@ public class FagsakBackendDto {
 
     public FagsakBackendDto(Fagsak fagsak,
                             Integer dekningsgrad) {
-        this.saksnummer = Long.parseLong(fagsak.getSaksnummer().getVerdi());
+        this.saksnummer = fagsak.getSaksnummer().getVerdi();
         this.saksnummerString = fagsak.getSaksnummer().getVerdi();
         this.sakstype = fagsak.getYtelseType();
+        this.fagsakYtelseType = fagsak.getYtelseType();
         this.status = fagsak.getStatus();
         this.relasjonsRolleType = fagsak.getRelasjonsRolleType();
-        this.opprettet = fagsak.getOpprettetTidspunkt();
-        this.endret = fagsak.getEndretTidspunkt();
         this.dekningsgrad = dekningsgrad;
         this.aktoerId = fagsak.getAktørId().getId();
     }
 
-    public Long getSaksnummer() {
+    public String  getSaksnummer() {
         return saksnummer;
     }
 
@@ -48,20 +44,16 @@ public class FagsakBackendDto {
         return sakstype;
     }
 
+    public FagsakYtelseType getFagsakYtelseType() {
+        return fagsakYtelseType;
+    }
+
     public FagsakStatus getStatus() {
         return status;
     }
 
     public RelasjonsRolleType getRelasjonsRolleType() {
         return relasjonsRolleType;
-    }
-
-    public LocalDateTime getOpprettet() {
-        return opprettet;
-    }
-
-    public LocalDateTime getEndret() {
-        return endret;
     }
 
     public Integer getDekningsgrad() {

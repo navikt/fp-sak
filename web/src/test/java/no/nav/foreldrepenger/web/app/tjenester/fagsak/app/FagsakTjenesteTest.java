@@ -99,7 +99,7 @@ public class FagsakTjenesteTest {
         var view = tjeneste.søkFagsakDto(FNR);
 
         assertThat(view).hasSize(1);
-        assertThat(view.get(0).getSaksnummer()).isEqualTo(Long.parseLong(fagsak.getSaksnummer().getVerdi()));
+        assertThat(view.get(0).getSaksnummer()).isEqualTo(fagsak.getSaksnummer().getVerdi());
         assertThat(view.get(0).getBarnFodt()).isEqualTo(fødselsdato);
         assertThat(view.get(0).getDekningsgrad()).isEqualTo(Dekningsgrad._100.getVerdi());
     }
@@ -123,7 +123,7 @@ public class FagsakTjenesteTest {
         var view = tjeneste.søkFagsakDto(SAKSNUMMER.getVerdi());
 
         assertThat(view).hasSize(1);
-        assertThat(view.get(0).getSaksnummer()).isEqualTo(Long.parseLong(fagsak.getSaksnummer().getVerdi()));
+        assertThat(view.get(0).getSaksnummer()).isEqualTo(fagsak.getSaksnummer().getVerdi());
         assertThat(view.get(0).getBarnFodt()).isEqualTo(fødselsdato);
         assertThat(view.get(0).getDekningsgrad()).isEqualTo(Dekningsgrad._80.getVerdi());
     }

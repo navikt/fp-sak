@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -11,8 +10,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
-import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -45,10 +44,10 @@ public class PersonopplysningDtoTjenesteTest {
         LocalDate enTilfeldigDato = LocalDate.of(1989, 9, 29);
         Behandling behandling = lagBehandling();
 
-        Optional<PersonopplysningDto> personopplysningDto = tjeneste.lagPersonopplysningDto(behandling.getId(), enTilfeldigDato);
+        var personopplysningDto = tjeneste.lagPersonversiktDto(behandling.getId(), enTilfeldigDato);
 
         assertThat(personopplysningDto).isPresent();
-        assertThat(personopplysningDto.get().getAvklartPersonstatus().getOverstyrtPersonstatus()).isEqualByComparingTo(PersonstatusType.UDEFINERT);
+        assertThat(personopplysningDto.get().getBruker().getSivilstand()).isEqualByComparingTo(SivilstandType.UOPPGITT);
     }
 
     private Behandling lagBehandling() {
