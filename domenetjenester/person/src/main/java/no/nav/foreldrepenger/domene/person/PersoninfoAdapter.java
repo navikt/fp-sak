@@ -10,7 +10,6 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.threeten.extra.Interval;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.GeografiskTilknytning;
@@ -28,6 +27,7 @@ import no.nav.foreldrepenger.domene.person.pdl.FødselTjeneste;
 import no.nav.foreldrepenger.domene.person.pdl.PersonBasisTjeneste;
 import no.nav.foreldrepenger.domene.person.pdl.PersoninfoTjeneste;
 import no.nav.foreldrepenger.domene.person.pdl.TilknytningTjeneste;
+import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
@@ -76,8 +76,8 @@ public class PersoninfoAdapter {
         return personinfoTjeneste.hentPersoninfo(aktørId, personIdent);
     }
 
-    public Personhistorikkinfo innhentPersonopplysningerHistorikk(AktørId aktørId, Interval interval) {
-        return personinfoTjeneste.hentPersoninfoHistorikk(aktørId, interval);
+    public Personhistorikkinfo innhentPersonopplysningerHistorikk(AktørId aktørId, SimpleLocalDateInterval interval) {
+        return personinfoTjeneste.hentPersoninfoHistorikk(aktørId, interval.getFomDato(), interval.getTomDato());
     }
 
     public List<AktørId> finnAktørIdForForeldreTil(PersonIdent personIdent) {

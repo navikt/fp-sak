@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.risikoklassifisering;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -10,7 +9,6 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.threeten.extra.Interval;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
@@ -24,6 +22,7 @@ import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.kafka.Anne
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.kafka.Opplysningsperiode;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.kafka.RequestWrapper;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.kafka.RisikovurderingRequest;
+import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -103,7 +102,7 @@ public class Risikoklassifisering {
     private RisikovurderingRequest opprettRequest(BehandlingReferanse ref, Long behandlingId) {
         LocalDate skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId)
             .getUtledetSkjæringstidspunkt();
-        Interval interval = opplysningsPeriodeTjeneste.beregn(behandlingId, ref.getFagsakYtelseType());
+        var interval = opplysningsPeriodeTjeneste.beregn(behandlingId, ref.getFagsakYtelseType());
         return RisikovurderingRequest.builder()
             .medSoekerAktoerId(new AktoerIdDto(ref.getAktørId().getId()))
             .medBehandlingstema(hentBehandlingTema(ref))
@@ -130,10 +129,8 @@ public class Risikoklassifisering {
         return null;
     }
 
-    private Opplysningsperiode leggTilOpplysningsperiode(Interval interval) {
-        LocalDate tilOgMed =
-            interval.getEnd() == null ? null : LocalDate.ofInstant(interval.getEnd(), ZoneId.systemDefault());
-        return new Opplysningsperiode(LocalDate.ofInstant(interval.getStart(), ZoneId.systemDefault()), tilOgMed);
+    private Opplysningsperiode leggTilOpplysningsperiode(SimpleLocalDateInterval interval) {
+        return new Opplysningsperiode(interval.getFomDato(), interval.getTomDato());
     }
 
     private String getJson(RequestWrapper risikovurderingRequest) throws IOException {

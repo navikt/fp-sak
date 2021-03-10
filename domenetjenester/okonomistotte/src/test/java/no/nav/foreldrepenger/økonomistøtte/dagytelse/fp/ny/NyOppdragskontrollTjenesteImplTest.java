@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.IntervallUtil;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
@@ -31,6 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringL
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
+import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragskontrollTestVerktøy;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdrag110.KodeFagområdeTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Betalingsmottaker;
@@ -254,11 +254,11 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
                 .collect(Collectors.toList());
             assertThat(oppdragslinje150Liste).hasSize(2);
             assertThat(oppdragslinje150Liste.stream()
-                .anyMatch(odl150 -> IntervallUtil.byggIntervall(odl150.getDatoVedtakFom(), odl150.getDatoVedtakTom())
-                    .equals(IntervallUtil.byggIntervall(NyOppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(23), NyOppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(30))))).isTrue();
+                .anyMatch(odl150 -> SimpleLocalDateInterval.fraOgMedTomNotNull(odl150.getDatoVedtakFom(), odl150.getDatoVedtakTom())
+                    .equals(SimpleLocalDateInterval.fraOgMedTomNotNull(NyOppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(23), NyOppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(30))))).isTrue();
             assertThat(oppdragslinje150Liste.stream()
-                .anyMatch(odl150 -> IntervallUtil.byggIntervall(odl150.getDatoVedtakFom(), odl150.getDatoVedtakTom())
-                    .equals(IntervallUtil.byggIntervall(NyOppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(16), NyOppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(22))))).isFalse();
+                .anyMatch(odl150 -> SimpleLocalDateInterval.fraOgMedTomNotNull(odl150.getDatoVedtakFom(), odl150.getDatoVedtakTom())
+                    .equals(SimpleLocalDateInterval.fraOgMedTomNotNull(NyOppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(16), NyOppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(22))))).isFalse();
         }
     }
 

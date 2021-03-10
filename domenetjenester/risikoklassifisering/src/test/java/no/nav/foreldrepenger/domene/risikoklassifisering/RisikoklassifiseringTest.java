@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -15,7 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.MDC;
-import org.threeten.extra.Interval;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
@@ -38,6 +36,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Oppgit
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
+import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -160,7 +159,7 @@ public class RisikoklassifiseringTest {
             .build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId())).thenReturn(skjæringstidspunkt);
         when(opplysningsPeriodeTjeneste.beregn(behandling.getId(), behandling.getFagsakYtelseType())).thenReturn(
-            Interval.of(Instant.now(), Instant.now()));
+            SimpleLocalDateInterval.fraOgMedTomNotNull(LocalDate.now(), LocalDate.now()));
         FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = byggFødselGrunnlag(BARN_TERMINDATO.minusDays(15),
             BARN_FØDSELSDATO.minusDays(10));
         when(familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())).thenReturn(

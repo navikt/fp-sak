@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.IntervallUtil;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
@@ -37,6 +36,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringL
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
+import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 
 public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTestBase {
 
@@ -184,11 +184,11 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
             .collect(Collectors.toList());
         assertThat(oppdragslinje150Liste).hasSize(2);
         assertThat(oppdragslinje150Liste.stream()
-            .anyMatch(odl150 -> IntervallUtil.byggIntervall(odl150.getDatoVedtakFom(), odl150.getDatoVedtakTom())
-                .equals(IntervallUtil.byggIntervall(OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(23), OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(30))))).isTrue();
+            .anyMatch(odl150 -> SimpleLocalDateInterval.fraOgMedTomNotNull(odl150.getDatoVedtakFom(), odl150.getDatoVedtakTom())
+                .equals(SimpleLocalDateInterval.fraOgMedTomNotNull(OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(23), OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(30))))).isTrue();
         assertThat(oppdragslinje150Liste.stream()
-            .anyMatch(odl150 -> IntervallUtil.byggIntervall(odl150.getDatoVedtakFom(), odl150.getDatoVedtakTom())
-                .equals(IntervallUtil.byggIntervall(OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(16), OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(22))))).isFalse();
+            .anyMatch(odl150 -> SimpleLocalDateInterval.fraOgMedTomNotNull(odl150.getDatoVedtakFom(), odl150.getDatoVedtakTom())
+                .equals(SimpleLocalDateInterval.fraOgMedTomNotNull(OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(16), OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(22))))).isFalse();
     }
 
     @Test

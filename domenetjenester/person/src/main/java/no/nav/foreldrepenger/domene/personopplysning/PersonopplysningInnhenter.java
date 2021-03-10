@@ -12,8 +12,6 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.threeten.extra.Interval;
-
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.Adresseinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.FamilierelasjonVL;
@@ -32,6 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
@@ -59,7 +58,7 @@ public class PersonopplysningInnhenter {
     }
 
     public void innhentPersonopplysninger(PersonInformasjonBuilder informasjonBuilder, AktørId søker, Optional<AktørId> annenPart,
-                                          Interval opplysningsperiode, List<LocalDateInterval> fødselsIntervaller) {
+                                          SimpleLocalDateInterval opplysningsperiode, List<LocalDateInterval> fødselsIntervaller) {
 
         // Fase 1 - Innhent persongalleri - søker, annenpart, relevante barn og ektefelle
         Map<PersonIdent, Personinfo> innhentet = new LinkedHashMap<>();

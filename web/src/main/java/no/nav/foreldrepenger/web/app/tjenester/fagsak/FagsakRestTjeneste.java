@@ -40,7 +40,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.Redirect;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.SakRettigheterDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.ProsessTaskGruppeIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.app.FagsakTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakBackendDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SakPersonerDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
@@ -142,13 +141,13 @@ public class FagsakRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Path(FAGSAK_BACKEND_PART_PATH)
     @Operation(description = "Hent fagsak for saksnummer", tags = "fagsak", responses = {
-        @ApiResponse(responseCode = "200", description = "Returnerer fagsak", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FagsakBackendDto.class))),
+        @ApiResponse(responseCode = "200", description = "Returnerer fagsak", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FagsakDto.class))),
         @ApiResponse(responseCode = "404", description = "Fagsak ikke tilgjengelig")
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response hentFagsakBackend(@NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
         var saksnummer = new Saksnummer(s.getVerdi());
-        return fagsakTjeneste.lagFagsakBackendDto(saksnummer).map(f -> Response.ok(f).build())
+        return fagsakTjeneste.hentFagsakDtoForSaksnummer(saksnummer).map(f -> Response.ok(f).build())
             .orElseGet(() -> Response.status(Response.Status.NOT_FOUND).build());
     }
 

@@ -37,6 +37,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.GraderingAvslagÅrsak;
@@ -49,7 +50,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
-import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
@@ -62,7 +62,7 @@ import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-import no.nav.foreldrepenger.domene.tid.IntervalUtils;
+import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
@@ -189,13 +189,13 @@ public class FastsettePerioderRegelAdapterTest {
         assertThat(mkPeriode.getAktiviteter()).hasSize(1);
         assertThat(mkPeriode.getAktiviteter().get(0).getTrekkonto()).isEqualTo(StønadskontoType.MØDREKVOTE);
         assertThat(mkPeriode.getAktiviteter().get(0).getTrekkdager()).isEqualTo(
-            new Trekkdager(new IntervalUtils(fødselsdato, fødselsdato.plusWeeks(5)).antallArbeidsdager()));
+            new Trekkdager(new SimpleLocalDateInterval(fødselsdato, fødselsdato.plusWeeks(5)).antallArbeidsdager()));
         // manglene søkt periode.. automatisk avslag og trekk dager
         assertThat(manglendeSøktPeriode.getResultatType()).isEqualTo(PeriodeResultatType.AVSLÅTT);
         assertThat(manglendeSøktPeriode.getAktiviteter()).hasSize(1);
         assertThat(manglendeSøktPeriode.getAktiviteter().get(0).getTrekkonto()).isEqualTo(StønadskontoType.MØDREKVOTE);
         assertThat(manglendeSøktPeriode.getAktiviteter().get(0).getTrekkdager()).isEqualTo(new Trekkdager(
-            new IntervalUtils(fødselsdato.plusWeeks(5).plusDays(1),
+            new SimpleLocalDateInterval(fødselsdato.plusWeeks(5).plusDays(1),
                 fødselsdato.plusWeeks(6).minusDays(1)).antallArbeidsdager()));
     }
 
@@ -1254,7 +1254,7 @@ public class FastsettePerioderRegelAdapterTest {
         assertThat(mkPeriode.getResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
         assertThat(mkPeriode.getGraderingAvslagÅrsak()).isEqualTo(GraderingAvslagÅrsak.GRADERING_FØR_UKE_7);
         assertThat(mkPeriode.getAktiviteter().get(0).getTrekkdager()).isEqualTo(
-            new Trekkdager(new IntervalUtils(fødselsdato, fødselsdato.plusWeeks(6).minusDays(1)).antallArbeidsdager()));
+            new Trekkdager(new SimpleLocalDateInterval(fødselsdato, fødselsdato.plusWeeks(6).minusDays(1)).antallArbeidsdager()));
     }
 
     @Test
@@ -1273,7 +1273,7 @@ public class FastsettePerioderRegelAdapterTest {
             .medErSøktGradering(false)
             .medArbeidsprosent(BigDecimal.TEN)
             .medTrekkdager(new Trekkdager(
-                new IntervalUtils(opprinneligFpff.getFom(), opprinneligFpff.getTom()).antallArbeidsdager()))
+                new SimpleLocalDateInterval(opprinneligFpff.getFom(), opprinneligFpff.getTom()).antallArbeidsdager()))
             .medUtbetalingsgrad(Utbetalingsgrad.TEN)
             .build();
         UttakResultatPeriodeEntitet opprinneligMødrekvote = new UttakResultatPeriodeEntitet.Builder(fødselsdato,
@@ -1283,7 +1283,7 @@ public class FastsettePerioderRegelAdapterTest {
             .medErSøktGradering(false)
             .medArbeidsprosent(BigDecimal.TEN)
             .medTrekkdager(new Trekkdager(
-                new IntervalUtils(opprinneligMødrekvote.getFom(), opprinneligMødrekvote.getTom()).antallArbeidsdager()))
+                new SimpleLocalDateInterval(opprinneligMødrekvote.getFom(), opprinneligMødrekvote.getTom()).antallArbeidsdager()))
             .medUtbetalingsgrad(Utbetalingsgrad.TEN)
             .build();
         opprinneligFpff.leggTilAktivitet(aktivitet1);
@@ -1349,12 +1349,12 @@ public class FastsettePerioderRegelAdapterTest {
         assertThat(resultatRevurdering.getPerioder().get(0).getAktiviteter().get(0).getTrekkonto()).isEqualTo(
             opprinneligFpff.getAktiviteter().get(0).getTrekkonto());
         assertThat(resultatRevurdering.getPerioder().get(1).getAktiviteter().get(0).getTrekkdager()).isEqualTo(
-            new Trekkdager(new IntervalUtils(opprinneligMødrekvote.getFom(),
+            new Trekkdager(new SimpleLocalDateInterval(opprinneligMødrekvote.getFom(),
                 revurderingSøknadsperiodeFellesperiode.getFom().minusDays(1)).antallArbeidsdager()));
         assertThat(resultatRevurdering.getPerioder().get(1).getAktiviteter().get(0).getTrekkonto()).isEqualTo(
             opprinneligMødrekvote.getAktiviteter().get(0).getTrekkonto());
         assertThat(resultatRevurdering.getPerioder().get(2).getAktiviteter().get(0).getTrekkdager()).isEqualTo(
-            new Trekkdager(new IntervalUtils(revurderingSøknadsperiodeFellesperiode.getFom(),
+            new Trekkdager(new SimpleLocalDateInterval(revurderingSøknadsperiodeFellesperiode.getFom(),
                 revurderingSøknadsperiodeFellesperiode.getTom()).antallArbeidsdager()));
         assertThat(resultatRevurdering.getPerioder().get(2).getAktiviteter().get(0).getTrekkonto()).isEqualTo(
             StønadskontoType.FELLESPERIODE);

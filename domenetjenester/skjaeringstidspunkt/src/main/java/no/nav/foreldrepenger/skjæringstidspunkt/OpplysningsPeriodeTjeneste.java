@@ -6,10 +6,8 @@ import java.time.Period;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.threeten.extra.Interval;
-
-import no.nav.foreldrepenger.behandlingslager.IntervallUtil;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
@@ -59,15 +57,15 @@ public class OpplysningsPeriodeTjeneste {
      * @param behandling behandlingen
      * @return intervallet
      */
-    public Interval beregn(Long behandlingId, FagsakYtelseType ytelseType) {
+    public SimpleLocalDateInterval beregn(Long behandlingId, FagsakYtelseType ytelseType) {
         return beregning(behandlingId, ytelseType, false);
     }
 
-    public Interval beregnTilOgMedIdag(Long behandlingId, FagsakYtelseType ytelseType) {
+    public SimpleLocalDateInterval beregnTilOgMedIdag(Long behandlingId, FagsakYtelseType ytelseType) {
         return beregning(behandlingId, ytelseType, true);
     }
 
-    private Interval beregning(Long behandlingId, FagsakYtelseType ytelseType, boolean tilOgMedIdag) {
+    private SimpleLocalDateInterval beregning(Long behandlingId, FagsakYtelseType ytelseType, boolean tilOgMedIdag) {
         final LocalDate skjæringstidspunkt = skjæringstidspunktTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandlingId);
         if (FagsakYtelseType.FORELDREPENGER.equals(ytelseType)) {
             return beregnIntervalFP(skjæringstidspunkt, tilOgMedIdag);
@@ -79,19 +77,19 @@ public class OpplysningsPeriodeTjeneste {
         throw new TekniskException("FP-783491", "Kan ikke utlede opplysningsperiode for %s");
     }
 
-    private Interval beregnIntervalES(LocalDate skjæringstidspunkt, boolean tilOgMedIdag) {
+    private SimpleLocalDateInterval beregnIntervalES(LocalDate skjæringstidspunkt, boolean tilOgMedIdag) {
         return beregnInterval(skjæringstidspunkt.minus(periodeFørES), skjæringstidspunkt.plus(periodeEtterES), tilOgMedIdag);
     }
 
-    private Interval beregnIntervalFP(LocalDate skjæringstidspunkt, boolean tilOgMedIdag) {
+    private SimpleLocalDateInterval beregnIntervalFP(LocalDate skjæringstidspunkt, boolean tilOgMedIdag) {
         return beregnInterval(skjæringstidspunkt.minus(periodeFørFP), skjæringstidspunkt.plus(periodeEtterFP), tilOgMedIdag);
     }
 
-    private Interval beregnIntervalSVP(LocalDate skjæringstidspunkt, boolean tilOgMedIdag) {
+    private SimpleLocalDateInterval beregnIntervalSVP(LocalDate skjæringstidspunkt, boolean tilOgMedIdag) {
         return beregnInterval(skjæringstidspunkt.minus(periodeFørSVP), skjæringstidspunkt.plus(periodeEtterSVP), tilOgMedIdag);
     }
 
-    private Interval beregnInterval(LocalDate fom, LocalDate tom, boolean tilOgMedIdag) {
-        return IntervallUtil.byggIntervall(fom, tilOgMedIdag && tom.isBefore(LocalDate.now()) ? LocalDate.now() : tom);
+    private SimpleLocalDateInterval beregnInterval(LocalDate fom, LocalDate tom, boolean tilOgMedIdag) {
+        return SimpleLocalDateInterval.fraOgMedTomNotNull(fom, tilOgMedIdag && tom.isBefore(LocalDate.now()) ? LocalDate.now() : tom);
     }
 }

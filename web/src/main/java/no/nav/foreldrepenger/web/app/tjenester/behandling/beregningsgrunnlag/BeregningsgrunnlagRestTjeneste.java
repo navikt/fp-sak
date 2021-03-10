@@ -9,9 +9,7 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -21,7 +19,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.BeregningsgrunnlagDto;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
-import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagGUIInputFelles;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputProvider;
@@ -30,9 +27,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.domene.rest.BeregningDtoTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.rest.BeregningDtoTjeneste;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 /**
@@ -69,35 +66,6 @@ public class BeregningsgrunnlagRestTjeneste {
         this.beregningDtoTjeneste = beregningDtoTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.iayTjeneste = iayTjeneste;
-    }
-
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Hent beregningsgrunnlag for angitt behandling", summary = ("Returnerer beregningsgrunnlag for behandling."), tags = "beregningsgrunnlag")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    @Path(BEREGNINGSGRUNNLAG_PART_PATH)
-    @Deprecated
-
-    public BeregningsgrunnlagDto hentBeregningsgrunnlag(
-            @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingId) {
-        Long id = behandlingId.getBehandlingId();
-        var behandling = id != null
-                ? behandlingRepository.hentBehandling(id)
-                : behandlingRepository.hentBehandling(behandlingId.getBehandlingUuid());
-        final var opptjening = opptjeningRepository.finnOpptjening(behandling.getId());
-        if (!opptjening.map(Opptjening::erOpptjeningPeriodeVilkårOppfylt).orElse(Boolean.FALSE)) {
-            return null;
-        }
-        Optional<InntektArbeidYtelseGrunnlag> iayGrunnlagOpt = iayTjeneste.finnGrunnlag(id);
-        return iayGrunnlagOpt.flatMap(iayGrunnlag -> {
-            var input = getInputTjeneste(behandling.getFagsakYtelseType()).lagInput(behandling, iayGrunnlag);
-            if (input.isPresent()) {
-                return beregningDtoTjeneste.lagBeregningsgrunnlagDto(input.get());
-            } else {
-                return Optional.empty();
-            }
-        }).orElse(null);
-
     }
 
     @GET

@@ -47,10 +47,6 @@ public class DatoIntervallEntitet extends AbstractLocalDateInterval {
         return DatoIntervallEntitet.fraOgMedTilOgMed(fom, finnTomDato(fom, antallArbeidsdager));
     }
 
-    public static DatoIntervallEntitet tilOgMedMinusArbeidsdager(LocalDate tom, int antallArbeidsdager) {
-        return DatoIntervallEntitet.fraOgMedTilOgMed(finnFomDato(tom, antallArbeidsdager), tom);
-    }
-
     @Override
     public LocalDate getFomDato() {
         return fomDato;
@@ -61,9 +57,5 @@ public class DatoIntervallEntitet extends AbstractLocalDateInterval {
         return tomDato;
     }
 
-    @Override
-    protected DatoIntervallEntitet lagNyPeriode(LocalDate fomDato, LocalDate tomDato) {
-        return fraOgMedTilOgMed(fomDato, tomDato);
-    }
 
 }

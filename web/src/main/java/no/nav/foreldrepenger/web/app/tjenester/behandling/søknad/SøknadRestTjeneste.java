@@ -80,22 +80,6 @@ public class SøknadRestTjeneste {
         return getSøknad(new BehandlingIdDto(uuidDto));
     }
 
-    @POST
-    @Path(SOKNAD_BACKEND_PART_PATH)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Hent informasjon om søknad", tags = "søknad", responses = {
-        @ApiResponse(responseCode = "200", description = "Returnerer forenklet søknad til andre applikasjoner", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = SoknadDto.class)))
-    })
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    @Deprecated
-    public SoknadBackendDto getSøknadBackend(@NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
-        Long behandlingId = behandlingIdDto.getBehandlingId();
-        Behandling behandling = behandlingId != null
-            ? behandlingRepository.hentBehandling(behandlingId)
-            : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
-        return dtoMapper.mapForBackend(behandling).orElse(null);
-    }
-
     @GET
     @Path(SOKNAD_BACKEND_PART_PATH)
     @Operation(description = "Hent informasjon om søknad", tags = "søknad", responses = {
@@ -103,6 +87,7 @@ public class SøknadRestTjeneste {
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public SoknadBackendDto getSøknadBackend(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        return getSøknadBackend(new BehandlingIdDto(uuidDto));
+        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
+        return dtoMapper.mapForBackend(behandling).orElse(null);
     }
 }

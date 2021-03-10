@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.personopplysning;
 
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -13,12 +12,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.threeten.extra.Interval;
-
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public class PersonopplysningerAggregat {
@@ -88,7 +86,7 @@ public class PersonopplysningerAggregat {
     }
 
     private boolean erGyldigIPeriode(DatoIntervallEntitet forPeriode, DatoIntervallEntitet periode) {
-        return periode.tilIntervall().overlaps(forPeriode.tilIntervall());
+        return periode.overlapper(forPeriode);
     }
 
     private boolean erIkkeSøker(AktørId aktørId, AktørId aktuellAktør) {
@@ -232,15 +230,10 @@ public class PersonopplysningerAggregat {
         return Optional.ofNullable(oppgittAnnenPart);
     }
 
-    public List<PersonopplysningEntitet> getAlleBarnFødtI(Interval fødselIntervall) {
+    public List<PersonopplysningEntitet> getAlleBarnFødtI(SimpleLocalDateInterval fødselIntervall) {
         return getBarnaTil(søkerAktørId).stream()
-                .filter(barn -> fødselIntervall.overlaps(byggInterval(barn.getFødselsdato())))
+                .filter(barn -> fødselIntervall.overlapper(SimpleLocalDateInterval.fraOgMedTomNotNull(barn.getFødselsdato(), barn.getFødselsdato())))
                 .collect(Collectors.toList());
-    }
-
-    private Interval byggInterval(LocalDate dato) {
-        return Interval.of(dato.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant(),
-            dato.atStartOfDay().plusDays(1).atZone(ZoneId.systemDefault()).toInstant());
     }
 
     public boolean søkerHarSammeAdresseSom(AktørId aktørId, RelasjonsRolleType relasjonsRolle) {

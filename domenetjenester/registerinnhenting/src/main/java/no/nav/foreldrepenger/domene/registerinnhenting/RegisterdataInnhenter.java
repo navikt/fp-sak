@@ -7,9 +7,7 @@ import static no.nav.abakus.iaygrunnlag.request.RegisterdataType.INNTEKT_SAMMENL
 import static no.nav.abakus.iaygrunnlag.request.RegisterdataType.LIGNET_NÆRING;
 import static no.nav.abakus.iaygrunnlag.request.RegisterdataType.YTELSE;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -20,7 +18,6 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.threeten.extra.Interval;
 
 import no.nav.abakus.iaygrunnlag.AktørIdPersonident;
 import no.nav.abakus.iaygrunnlag.Periode;
@@ -130,7 +127,7 @@ public class RegisterdataInnhenter {
     public void innhentPersoninformasjon(Behandling behandling) {
         AktørId søker = behandling.getNavBruker().getAktørId();
         var annenPart = finnAnnenPart(behandling.getId());
-        final Interval opplysningsperioden = opplysningsPeriodeTjeneste.beregnTilOgMedIdag(behandling.getId(), behandling.getFagsakYtelseType());
+        final var opplysningsperioden = opplysningsPeriodeTjeneste.beregnTilOgMedIdag(behandling.getId(), behandling.getFagsakYtelseType());
         var fødselsIntervall = familieHendelseTjeneste.forventetFødselsIntervaller(BehandlingReferanse.fra(behandling));
 
         final PersonInformasjonBuilder informasjonBuilder = personopplysningRepository.opprettBuilderForRegisterdata(behandling.getId());
@@ -154,11 +151,9 @@ public class RegisterdataInnhenter {
     }
 
     private List<MedlemskapPerioderEntitet> innhentMedlemskapsopplysninger(Behandling behandling) {
-        final Interval opplysningsperiode = opplysningsPeriodeTjeneste.beregn(behandling.getId(), behandling.getFagsakYtelseType());
-        var fom = LocalDateTime.ofInstant(opplysningsperiode.getStart(), ZoneId.systemDefault()).toLocalDate();
-        var tom = LocalDateTime.ofInstant(opplysningsperiode.getEnd(), ZoneId.systemDefault()).toLocalDate();
+        final var opplysningsperiode = opplysningsPeriodeTjeneste.beregn(behandling.getId(), behandling.getFagsakYtelseType());
 
-        return medlemTjeneste.finnMedlemskapPerioder(behandling.getAktørId(), fom, tom).stream()
+        return medlemTjeneste.finnMedlemskapPerioder(behandling.getAktørId(), opplysningsperiode.getFomDato(), opplysningsperiode.getTomDato()).stream()
             .map(this::lagMedlemskapPeriode)
             .collect(Collectors.toList());
     }
@@ -196,7 +191,7 @@ public class RegisterdataInnhenter {
         final InnhentRegisterdataRequest innhentRegisterdataRequest = new InnhentRegisterdataRequest(behandling.getFagsak().getSaksnummer().getVerdi(),
             behandling.getUuid(),
             KodeverkMapper.fraFagsakYtelseType(fagsakYtelseType),
-            new Periode(LocalDate.ofInstant(opplysningsperiode.getStart(), ZoneId.systemDefault()), LocalDate.ofInstant(opplysningsperiode.getEnd(), ZoneId.systemDefault())),
+            new Periode(opplysningsperiode.getFomDato(), opplysningsperiode.getTomDato()),
             new AktørIdPersonident(behandling.getAktørId().getId()),
             informasjonsElementer);
 
