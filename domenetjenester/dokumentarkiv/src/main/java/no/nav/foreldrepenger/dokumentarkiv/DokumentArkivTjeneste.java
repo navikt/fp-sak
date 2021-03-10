@@ -95,9 +95,13 @@ public class DokumentArkivTjeneste {
         return arkivDokument.getTilgjengeligSom().contains(VARIANT_FORMAT_ARKIV);
     }
 
-    public List<ArkivJournalPost> hentAlleJournalposterForSak(Saksnummer saksnummer) {
+    private List<ArkivJournalPost> hentAlleJournalposterForSakSjekkCache(Saksnummer saksnummer) {
         if (sakJournalCache.get(saksnummer.getVerdi()) != null && !sakJournalCache.get(saksnummer.getVerdi()).isEmpty())
             return sakJournalCache.get(saksnummer.getVerdi());
+        return hentAlleJournalposterForSak(saksnummer);
+    }
+
+    public List<ArkivJournalPost> hentAlleJournalposterForSak(Saksnummer saksnummer) {
         var query = new DokumentoversiktFagsakQueryRequest();
         query.setFagsak(new FagsakInput(saksnummer.getVerdi(), Fagsystem.FPSAK.getOffisiellKode()));
         query.setFoerste(1000);
@@ -129,12 +133,12 @@ public class DokumentArkivTjeneste {
 
     public Set<DokumentTypeId> hentDokumentTypeIdForSak(Saksnummer saksnummer, LocalDate mottattEtterDato) {
         if (LocalDate.MIN.equals(mottattEtterDato)) {
-            return hentAlleJournalposterForSak(saksnummer).stream()
+            return hentAlleJournalposterForSakSjekkCache(saksnummer).stream()
                 .filter(ajp -> Kommunikasjonsretning.INN.equals(ajp.getKommunikasjonsretning()))
                 .flatMap(jp -> ekstraherJournalpostDTID(jp).stream())
                 .collect(Collectors.toSet());
         } else {
-            return hentAlleJournalposterForSak(saksnummer).stream()
+            return hentAlleJournalposterForSakSjekkCache(saksnummer).stream()
                 .filter(ajp -> Kommunikasjonsretning.INN.equals(ajp.getKommunikasjonsretning()))
                 .filter(jpost -> jpost.getTidspunkt() != null && jpost.getTidspunkt().isAfter(mottattEtterDato.atStartOfDay()))
                 .flatMap(jp -> ekstraherJournalpostDTID(jp).stream())

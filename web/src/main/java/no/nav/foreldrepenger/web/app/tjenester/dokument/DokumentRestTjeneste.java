@@ -17,7 +17,6 @@ import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -30,7 +29,6 @@ import org.slf4j.LoggerFactory;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
-import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
@@ -98,22 +96,6 @@ public class DokumentRestTjeneste {
         this.behandlingRepository = behandlingRepository;
     }
 
-    @POST
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path(MOTTATT_DOKUMENTER_PART_PATH)
-    @Operation(description = "Henter listen av mottatte dokumenter knyttet til en fagsak", tags = "dokument")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    @Deprecated
-    public Collection<MottattDokumentDto> hentAlleMottatteDokumenterForBehandling(
-            @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
-        var behandlingId = behandlingIdDto.getBehandlingId();
-        var behandling = behandlingId != null
-                ? behandlingRepository.hentBehandling(behandlingId)
-                : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
-        return mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(behandling.getFagsakId()).stream()
-            .map(MottattDokumentDto::new)
-            .collect(Collectors.toList());
-    }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -122,7 +104,10 @@ public class DokumentRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Collection<MottattDokumentDto> hentAlleMottatteDokumenterForBehandling(
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        return hentAlleMottatteDokumenterForBehandling(new BehandlingIdDto(uuidDto));
+        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
+        return mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(behandling.getFagsakId()).stream()
+            .map(MottattDokumentDto::new)
+            .collect(Collectors.toList());
     }
 
     @GET

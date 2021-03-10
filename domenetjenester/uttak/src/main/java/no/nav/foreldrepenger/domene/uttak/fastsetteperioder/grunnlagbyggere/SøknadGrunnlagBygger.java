@@ -11,9 +11,9 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AktivitetskravPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUtenOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUttakDokumentasjonEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AktivitetskravPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.UttakDokumentasjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-import no.nav.foreldrepenger.domene.tid.IntervalUtils;
+import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.input.UttakYrkesaktiviteter;
@@ -183,10 +183,10 @@ public class SøknadGrunnlagBygger {
         for (int i = 0; i < size; i++) {
             OppgittPeriodeEntitet periode1 = søknadPerioder.get(i);
 
-            IntervalUtils p1 = new IntervalUtils(periode1.getFom(), periode1.getTom());
+            SimpleLocalDateInterval p1 = new SimpleLocalDateInterval(periode1.getFom(), periode1.getTom());
             for (int j = i + 1; j < size; j++) {
                 OppgittPeriodeEntitet periode2 = søknadPerioder.get(j);
-                IntervalUtils p2 = new IntervalUtils(periode2.getFom(), periode2.getTom());
+                SimpleLocalDateInterval p2 = new SimpleLocalDateInterval(periode2.getFom(), periode2.getTom());
                 if (p1.overlapper(p2)) {
                     throw new IllegalStateException("Støtter ikke å ha overlappende søknadsperioder, men fikk overlapp mellom periodene " + p1 + " og " + p2);
                 }

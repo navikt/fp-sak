@@ -20,7 +20,6 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.threeten.extra.Interval;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.Adresseinfo;
@@ -95,8 +94,6 @@ import no.nav.pdl.UtenlandskAdresseIFrittFormatResponseProjection;
 import no.nav.pdl.UtenlandskAdresseResponseProjection;
 import no.nav.pdl.Vegadresse;
 import no.nav.pdl.VegadresseResponseProjection;
-import no.nav.vedtak.felles.integrasjon.pdl.Pdl;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
@@ -221,10 +218,8 @@ public class PersoninfoTjeneste {
                 .build();
     }
 
-    public Personhistorikkinfo hentPersoninfoHistorikk(AktørId aktørId, Interval interval) {
+    public Personhistorikkinfo hentPersoninfoHistorikk(AktørId aktørId, LocalDate fom, LocalDate tom) {
 
-        var fom = LocalDateTime.ofInstant(interval.getStart(), ZoneId.systemDefault()).toLocalDate();
-        var tom = LocalDateTime.ofInstant(interval.getEnd(), ZoneId.systemDefault()).toLocalDate();
         var query = new HentPersonQueryRequest();
         query.setIdent(aktørId.getId());
 

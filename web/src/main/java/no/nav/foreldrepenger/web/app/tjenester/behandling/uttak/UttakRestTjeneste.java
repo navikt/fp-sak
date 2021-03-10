@@ -102,28 +102,17 @@ public class UttakRestTjeneste {
         this.kontrollerAktivitetskravDtoTjeneste = kontrollerAktivitetskravDtoTjeneste;
     }
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Path(STONADSKONTOER_PART_PATH)
-    @Operation(description = "Hent informasjon om stønadskontoer for behandling", summary = "Returnerer stønadskontoer for behandling", tags = "uttak")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    @Deprecated
-    public SaldoerDto getStonadskontoer(
-            @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
-        Behandling behandling = hentBehandling(behandlingIdDto);
-        if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
-            var uttakInput = uttakInputTjeneste.lagInput(behandling);
-            return saldoerDtoTjeneste.lagStønadskontoerDto(uttakInput);
-        }
-        return defaultSvar();
-    }
-
     @GET
     @Path(STONADSKONTOER_PART_PATH)
     @Operation(description = "Hent informasjon om stønadskontoer for behandling", summary = "Returnerer stønadskontoer for behandling", tags = "uttak")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public SaldoerDto getStonadskontoer(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        return getStonadskontoer(new BehandlingIdDto(uuidDto));
+        Behandling behandling = hentBehandling(uuidDto);
+        if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
+            var uttakInput = uttakInputTjeneste.lagInput(behandling);
+            return saldoerDtoTjeneste.lagStønadskontoerDto(uttakInput);
+        }
+        return defaultSvar();
     }
 
     @POST
@@ -146,18 +135,6 @@ public class UttakRestTjeneste {
         return new SaldoerDto(Optional.empty(), Map.of(), 0);
     }
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Path(KONTROLLER_FAKTA_PERIODER_PART_PATH)
-    @Operation(description = "Hent perioder for å kontrollere fakta ifbm uttak", tags = "uttak")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    @Deprecated
-    public KontrollerFaktaDataDto hentKontrollerFaktaPerioder(
-            @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
-        Behandling behandling = hentBehandling(behandlingIdDto);
-        return kontrollerFaktaPeriodeTjeneste.hentKontrollerFaktaPerioder(behandling.getId());
-    }
-
     @GET
     @Path(KONTROLLER_AKTIVTETSKRAV_PART_PATH)
     @Operation(description = "Hent perioder for å kontrollere aktivitetskrav", tags = "uttak")
@@ -173,19 +150,8 @@ public class UttakRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public KontrollerFaktaDataDto hentKontrollerFaktaPerioder(
         @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        return hentKontrollerFaktaPerioder(new BehandlingIdDto(uuidDto));
-    }
-
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Path(RESULTAT_PERIODER_PART_PATH)
-    @Operation(description = "Henter uttaksresultatperioder", summary = "Returnerer uttaksresultatperioder", tags = "uttak")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    @Deprecated
-    public UttakResultatPerioderDto hentUttakResultatPerioder(
-            @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
-        Behandling behandling = hentBehandling(behandlingIdDto);
-        return uttakResultatPerioderDtoTjeneste.mapFra(behandling).orElse(null);
+        Behandling behandling = hentBehandling(uuidDto);
+        return kontrollerFaktaPeriodeTjeneste.hentKontrollerFaktaPerioder(behandling.getId());
     }
 
     @GET
@@ -194,72 +160,40 @@ public class UttakRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public UttakResultatPerioderDto hentUttakResultatPerioder(
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        return hentUttakResultatPerioder(new BehandlingIdDto(uuidDto));
+        Behandling behandling = hentBehandling(uuidDto);
+        return uttakResultatPerioderDtoTjeneste.mapFra(behandling).orElse(null);
     }
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
+    @GET
     @Path(PERIODE_GRENSE_PART_PATH)
     @Operation(description = "Henter uttakperiodegrense", summary = "Returnerer uttakperiodegrense", tags = "uttak")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    @Deprecated
     public UttakPeriodegrenseDto hentUttakPeriodegrense(
-            @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
-        Behandling behandling = hentBehandling(behandlingIdDto);
+            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        Behandling behandling = hentBehandling(uuidDto);
         var input = uttakInputTjeneste.lagInput(behandling);
         return uttakPeriodegrenseDtoTjeneste.mapFra(input).orElse(null);
     }
 
     @GET
-    @Path(PERIODE_GRENSE_PART_PATH)
-    @Operation(description = "Henter uttakperiodegrense", summary = "Returnerer uttakperiodegrense", tags = "uttak")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public UttakPeriodegrenseDto hentUttakPeriodegrense(
-            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        return hentUttakPeriodegrense(new BehandlingIdDto(uuidDto));
-    }
-
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
     @Path(FAKTA_ARBEIDSFORHOLD_PART_PATH)
     @Operation(description = "Henter arbeidsforhold som er relevant for fakta uttak", summary = "Henter arbeidsforhold som er relevant for fakta uttak", tags = "uttak")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    @Deprecated
     public List<ArbeidsforholdDto> hentArbeidsforhold(
-            @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
-        Behandling behandling = hentBehandling(behandlingIdDto);
+            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        Behandling behandling = hentBehandling(uuidDto);
         var input = uttakInputTjeneste.lagInput(behandling);
         return FaktaUttakArbeidsforholdTjeneste.hentArbeidsforhold(input);
     }
 
     @GET
-    @Path(FAKTA_ARBEIDSFORHOLD_PART_PATH)
-    @Operation(description = "Henter arbeidsforhold som er relevant for fakta uttak", summary = "Henter arbeidsforhold som er relevant for fakta uttak", tags = "uttak")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public List<ArbeidsforholdDto> hentArbeidsforhold(
-            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        return hentArbeidsforhold(new BehandlingIdDto(uuidDto));
-    }
-
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
     @Path(RESULTAT_SVANGERSKAPSPENGER_PART_PATH)
     @Operation(description = "Henter svangerskapspenger uttaksresultat", summary = "Returnerer svangerskapspenger uttaksresultat", tags = "uttak")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    @Deprecated
     public SvangerskapspengerUttakResultatDto hentSvangerskapspengerUttakResultat(
-            @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
-        var behandling = hentBehandling(behandlingIdDto);
+            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        var behandling = hentBehandling(uuidDto);
         return svpUttakResultatDtoTjeneste.mapFra(behandling).orElse(null);
-    }
-
-    @GET
-    @Path(RESULTAT_SVANGERSKAPSPENGER_PART_PATH)
-    @Operation(description = "Henter svangerskapspenger uttaksresultat", summary = "Returnerer svangerskapspenger uttaksresultat", tags = "uttak")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public SvangerskapspengerUttakResultatDto hentSvangerskapspengerUttakResultat(
-            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        return hentSvangerskapspengerUttakResultat(new BehandlingIdDto(uuidDto));
     }
 
     private Behandling hentBehandling(BehandlingIdDto behandlingIdDto) {
@@ -267,5 +201,9 @@ public class UttakRestTjeneste {
         return behandlingIdDto.getBehandlingId() != null
                 ? behandlingRepository.hentBehandling(behandlingId)
                 : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
+    }
+
+    private Behandling hentBehandling(UuidDto uuidDto) {
+        return behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
     }
 }

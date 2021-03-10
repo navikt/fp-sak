@@ -3,9 +3,7 @@ package no.nav.foreldrepenger.inngangsvilkaar.impl;
 import static java.util.stream.Collectors.toList;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.Period;
-import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -14,8 +12,6 @@ import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-
-import org.threeten.extra.Interval;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
@@ -48,6 +44,7 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.medlem.MedlemskapPerioderTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.Kjoenn;
@@ -63,7 +60,6 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.søknadsfrist.Soeknadsf
 import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.konfig.KonfigVerdi;
-import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
 public class InngangsvilkårOversetter {
@@ -167,7 +163,7 @@ public class InngangsvilkårOversetter {
 
         PersonopplysningerAggregat personopplysninger = personopplysningTjeneste.hentPersonopplysninger(ref);
 
-        final Interval fødselIntervall = byggIntervall(fødselsdato.get(), fødselsdato.get());
+        final var fødselIntervall = byggIntervall(fødselsdato.get(), fødselsdato.get());
         List<PersonopplysningEntitet> alleBarnPåFødselsdato = personopplysninger.getAlleBarnFødtI(fødselIntervall);
 
         PersonopplysningEntitet søkerPersonopplysning = personopplysninger.getSøker();
@@ -187,11 +183,8 @@ public class InngangsvilkårOversetter {
         return ref.getRelasjonsRolleType();
     }
 
-    private Interval byggIntervall(LocalDate fomDato, LocalDate tomDato) {
-        LocalDateTime døgnstart = Tid.TIDENES_ENDE.equals(tomDato) ? tomDato.atStartOfDay() : tomDato.atStartOfDay().plusDays(1);
-        return Interval.of(
-            fomDato.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant(),
-            døgnstart.atZone(ZoneId.systemDefault()).toInstant());
+    private SimpleLocalDateInterval byggIntervall(LocalDate fomDato, LocalDate tomDato) {
+        return SimpleLocalDateInterval.fraOgMedTomNotNull(fomDato, tomDato);
     }
 
     public SoeknadsfristvilkarGrunnlag oversettTilRegelModellSøknad(BehandlingReferanse ref) {

@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
-import no.nav.foreldrepenger.domene.tid.IntervalUtils;
+import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.domene.uttak.fakta.KontrollerFaktaUttakFeil;
 
 final class SøknadsperiodeDokumentasjonKontrollerer {
@@ -94,7 +94,7 @@ final class SøknadsperiodeDokumentasjonKontrollerer {
     }
 
     private List<PeriodeUttakDokumentasjonEntitet> finnDokumentasjon(LocalDate fom, LocalDate tom) {
-        var søknadPeriode = new IntervalUtils(fom, tom);
+        var søknadPeriode = new SimpleLocalDateInterval(fom, tom);
         List<PeriodeUttakDokumentasjonEntitet> resultat = new ArrayList<>();
 
         for (var dokumentasjon : dokumentasjonPerioder) {

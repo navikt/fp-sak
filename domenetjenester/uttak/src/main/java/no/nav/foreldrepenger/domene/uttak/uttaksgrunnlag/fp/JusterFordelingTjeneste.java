@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
-import no.nav.foreldrepenger.domene.tid.IntervalUtils;
+import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
 
 class JusterFordelingTjeneste {
@@ -519,7 +519,7 @@ class JusterFordelingTjeneste {
     }
 
     private boolean overlapper(OppgittPeriodeEntitet p1, OppgittPeriodeEntitet p2) {
-        return new IntervalUtils(p1.getFom(), p1.getTom()).overlapper(new IntervalUtils(p2.getFom(), p2.getTom()));
+        return new SimpleLocalDateInterval(p1.getFom(), p1.getTom()).overlapper(new SimpleLocalDateInterval(p2.getFom(), p2.getTom()));
     }
 
     /**

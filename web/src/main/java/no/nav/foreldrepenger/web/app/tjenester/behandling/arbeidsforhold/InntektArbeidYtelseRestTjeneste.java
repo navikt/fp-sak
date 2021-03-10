@@ -19,9 +19,7 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -33,7 +31,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
-import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.UuidDto;
@@ -126,23 +123,6 @@ public class InntektArbeidYtelseRestTjeneste {
         this.svangerskapspengerRepository = svangerskapspengerRepository;
     }
 
-    @POST
-    @Path(INNTEKT_ARBEID_YTELSE_PART_PATH)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Hent informasjon om innhentet og avklart inntekter, arbeid og ytelser", summary = ("Returnerer info om innhentet og avklart inntekter/arbeid og ytelser for bruker, inkludert hva bruker har vedlagt søknad."), tags = "inntekt-arbeid-ytelse", responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer InntektArbeidYtelseDto, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = InntektArbeidYtelseDto.class)))
-    })
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    @Deprecated
-    public InntektArbeidYtelseDto getInntektArbeidYtelser(
-            @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
-        Long behandlingId = behandlingIdDto.getBehandlingId();
-        Behandling behandling = behandlingId != null
-                ? behandlingRepository.hentBehandling(behandlingId)
-                : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
-        return getInntektArbeidYtelserFraBehandling(behandling);
-    }
-
     @GET
     @Path(INNTEKT_ARBEID_YTELSE_PART_PATH)
     @Operation(description = "Hent informasjon om innhentet og avklart inntekter, arbeid og ytelser", summary = ("Returnerer info om innhentet og avklart inntekter/arbeid og ytelser for bruker, inkludert hva bruker har vedlagt søknad."), tags = "inntekt-arbeid-ytelse", responses = {
@@ -151,7 +131,8 @@ public class InntektArbeidYtelseRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public InntektArbeidYtelseDto getInntektArbeidYtelser(
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        return getInntektArbeidYtelser(new BehandlingIdDto(uuidDto));
+        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
+        return getInntektArbeidYtelserFraBehandling(behandling);
     }
 
     private InntektArbeidYtelseDto getInntektArbeidYtelserFraBehandling(Behandling behandling) {

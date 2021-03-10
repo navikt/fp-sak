@@ -22,8 +22,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 
-import org.threeten.extra.Interval;
-
 import javassist.Modifier;
 
 public class TraverseGraphConfig {
@@ -42,7 +40,7 @@ public class TraverseGraphConfig {
         Long.class, Double.class, Integer.class, Short.class, Byte.class, Boolean.class, //
         Long.TYPE, Double.TYPE, Integer.TYPE, Short.TYPE, Byte.TYPE, Boolean.TYPE, //
         BigInteger.class, BigDecimal.class, //
-        LocalDate.class, LocalDateTime.class, Interval.class, OffsetDateTime.class, ZonedDateTime.class, Instant.class,
+        LocalDate.class, LocalDateTime.class, OffsetDateTime.class, ZonedDateTime.class, Instant.class,
         UUID.class, URI.class, URL.class //
     );
 
@@ -74,7 +72,7 @@ public class TraverseGraphConfig {
         }
         return true;
     }
-    
+
     public void addRootClasses(Class<?>... moreRootClasses) {
         this.rootClasses = new HashSet<>(this.rootClasses);
         this.rootClasses.addAll(asList(moreRootClasses));
@@ -142,5 +140,5 @@ public class TraverseGraphConfig {
     public void valider(Node currentPath, Class<?> targetClass) {
         // template method, ingen sjekk her
     }
-    
+
 }

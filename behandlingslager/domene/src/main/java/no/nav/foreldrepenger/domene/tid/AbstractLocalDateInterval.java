@@ -6,15 +6,11 @@ import static java.time.temporal.ChronoUnit.DAYS;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.chrono.ChronoLocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import org.threeten.extra.Interval;
 
 import no.nav.vedtak.konfig.Tid;
 
@@ -76,17 +72,6 @@ public abstract class AbstractLocalDateInterval implements Comparable<AbstractLo
         return fom;
     }
 
-    public Interval tilIntervall() {
-        return getIntervall(getFomDato(), getTomDato());
-    }
-
-    private static Interval getIntervall(LocalDate fomDato, LocalDate tomDato) {
-        LocalDateTime døgnstart = TIDENES_ENDE.equals(tomDato) ? tomDato.atStartOfDay() : tomDato.atStartOfDay().plusDays(1);
-        return Interval.of(
-                fomDato.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant(),
-                døgnstart.atZone(ZoneId.systemDefault()).toInstant());
-    }
-
     public boolean erFørEllerLikPeriodeslutt(ChronoLocalDate dato) {
         return getTomDato() == null || getTomDato().isAfter(dato) || getTomDato().isEqual(dato);
     }
@@ -122,8 +107,11 @@ public abstract class AbstractLocalDateInterval implements Comparable<AbstractLo
         return DAYS.between(getFomDato(), getTomDato());
     }
 
-    public boolean overlapper(AbstractLocalDateInterval periode) {
-        return tilIntervall().overlaps(getIntervall(periode.getFomDato(), periode.getTomDato()));
+    public boolean overlapper(AbstractLocalDateInterval other) {
+        boolean fomBeforeOrEqual = this.getFomDato().isBefore(other.getTomDato()) || this.getFomDato().isEqual(other.getTomDato());
+        boolean tomAfterOrEqual = this.getTomDato().isAfter(other.getFomDato()) || this.getTomDato().isEqual(other.getFomDato());
+        boolean overlapper = fomBeforeOrEqual && tomAfterOrEqual;
+        return overlapper;
     }
 
     public int antallArbeidsdager() {
