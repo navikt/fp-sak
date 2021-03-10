@@ -61,7 +61,8 @@ public class AnnenPartGrunnlagBygger {
         var builder = utledBuilder(periode)
             .medSamtidigUttak(periode.isSamtidigUttak())
             .medFlerbarnsdager(periode.isFlerbarnsdager())
-            .medInnvilget(PeriodeResultatType.INNVILGET.equals(periode.getResultatType()));
+            .medInnvilget(PeriodeResultatType.INNVILGET.equals(periode.getResultatType()))
+            .medMottattDato(periode.getPeriodeSøknad().map(ps -> ps.getMottattDato()).orElse(null));
 
         for (var aktivitet : periode.getAktiviteter()) {
             var utbetalingsgrad = new Utbetalingsgrad(aktivitet.getUtbetalingsgrad().decimalValue());
