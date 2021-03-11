@@ -33,8 +33,8 @@ public class RyddBeregningsgrunnlagTest {
         var repositoryProvider = new RepositoryProvider(entityManager);
         beregningsgrunnlagRepository = repositoryProvider.getBeregningsgrunnlagRepository();
 
-        ScenarioForeldrepenger scenario = ScenarioForeldrepenger.nyttScenario();
-        referanse = scenario.lagre(repositoryProvider);
+        var scenario = ScenarioForeldrepenger.nyttScenario();
+        referanse = BehandlingReferanse.fra(scenario.lagre(repositoryProvider));
         var kontekst = new BehandlingskontrollKontekst(referanse.getFagsakId(), AktørId.dummy(), new BehandlingLås(referanse.getId()));
         ryddBeregningsgrunnlag = new RyddBeregningsgrunnlag(repositoryProvider.getBeregningsgrunnlagRepository(), kontekst);
     }
@@ -42,16 +42,16 @@ public class RyddBeregningsgrunnlagTest {
     @Test
     public void ryddForeslåBeregningsgrunnlagVedTilbakeføring_skalReaktivereForeslå() {
         // Arrange
-        BeregningsgrunnlagEntitet opprettet = opprettBeregningsgrunnlag();
+        var opprettet = opprettBeregningsgrunnlag();
         beregningsgrunnlagRepository.lagre(referanse.getId(), opprettet, BeregningsgrunnlagTilstand.OPPRETTET);
 
-        BeregningsgrunnlagEntitet kofakberut = opprettBeregningsgrunnlag();
+        var kofakberut = opprettBeregningsgrunnlag();
         beregningsgrunnlagRepository.lagre(referanse.getId(), kofakberut, BeregningsgrunnlagTilstand.KOFAKBER_UT);
 
-        BeregningsgrunnlagEntitet foreslått = opprettBeregningsgrunnlag();
+        var foreslått = opprettBeregningsgrunnlag();
         beregningsgrunnlagRepository.lagre(referanse.getId(), foreslått, BeregningsgrunnlagTilstand.FORESLÅTT);
 
-        BeregningsgrunnlagEntitet fastsatt = opprettBeregningsgrunnlag();
+        var fastsatt = opprettBeregningsgrunnlag();
         beregningsgrunnlagRepository.lagre(referanse.getId(), fastsatt, BeregningsgrunnlagTilstand.FASTSATT);
 
 
@@ -59,7 +59,7 @@ public class RyddBeregningsgrunnlagTest {
         ryddBeregningsgrunnlag.ryddForeslåBeregningsgrunnlagVedTilbakeføring();
 
         // Assert
-        BeregningsgrunnlagEntitet hentet = beregningsgrunnlagRepository.hentBeregningsgrunnlagAggregatForBehandling(referanse.getId());
+        var hentet = beregningsgrunnlagRepository.hentBeregningsgrunnlagAggregatForBehandling(referanse.getId());
         assertThat(hentet).isSameAs(foreslått);
     }
 

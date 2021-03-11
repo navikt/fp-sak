@@ -5,7 +5,7 @@ import java.util.List;
 import no.nav.folketrygdloven.kalkulator.output.BeregningAksjonspunktResultat;
 
 public class BeregningsgrunnlagVilkårOgAkjonspunktResultat {
-    private List<BeregningAksjonspunktResultat> aksjonspunkter;
+    private final List<BeregningAksjonspunktResultat> aksjonspunkter;
     private Boolean vilkårOppfylt;
     private String regelEvalueringVilkårVurdering;
     private String regelInputVilkårVurdering;

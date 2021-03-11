@@ -39,7 +39,10 @@ import no.nav.foreldrepenger.domene.typer.Beløp;
 /**
  * Skal etterhvert benytte seg av kontrakten som skal lages i ft-Kalkulus, benytter foreløping en, en-til-en mapping på klassenivå...
  */
-public class KalkulusTilBehandlingslagerMapper {
+public final class KalkulusTilBehandlingslagerMapper {
+
+    private KalkulusTilBehandlingslagerMapper() {
+    }
 
     public static BeregningsgrunnlagTilstand mapTilstand(no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
         return BeregningsgrunnlagTilstand.fraKode(beregningsgrunnlagTilstand.getKode());
@@ -48,12 +51,13 @@ public class KalkulusTilBehandlingslagerMapper {
     public static BeregningsgrunnlagEntitet mapBeregningsgrunnlag(BeregningsgrunnlagDto beregningsgrunnlagFraKalkulus,
                                                                   Optional<FaktaAggregatDto> faktaAggregat,
                                                                   Optional<RegelSporingAggregat> regelSporingAggregat) {
-        BeregningsgrunnlagEntitet.Builder builder = BeregningsgrunnlagEntitet.ny();
+        var builder = BeregningsgrunnlagEntitet.ny();
 
         //med
         builder.medGrunnbeløp(new Beløp(beregningsgrunnlagFraKalkulus.getGrunnbeløp().getVerdi()));
         builder.medOverstyring(beregningsgrunnlagFraKalkulus.isOverstyrt());
-        List<RegelSporingGrunnlag> regelSporingerGrunnlag = regelSporingAggregat.map(RegelSporingAggregat::getRegelsporingerGrunnlag).orElse(Collections.emptyList());
+        var regelSporingerGrunnlag = regelSporingAggregat.map(RegelSporingAggregat::getRegelsporingerGrunnlag)
+            .orElse(Collections.emptyList());
         leggTilRegelsporing(regelSporingerGrunnlag, builder, BeregningsgrunnlagRegelType.PERIODISERING);
         leggTilRegelsporing(regelSporingerGrunnlag, builder, BeregningsgrunnlagRegelType.PERIODISERING_NATURALYTELSE);
         leggTilRegelsporing(regelSporingerGrunnlag, builder, BeregningsgrunnlagRegelType.PERIODISERING_REFUSJON);
@@ -62,79 +66,105 @@ public class KalkulusTilBehandlingslagerMapper {
         leggTilRegelsporing(regelSporingerGrunnlag, builder, BeregningsgrunnlagRegelType.SKJÆRINGSTIDSPUNKT);
         builder.medSkjæringstidspunkt(beregningsgrunnlagFraKalkulus.getSkjæringstidspunkt());
         if (beregningsgrunnlagFraKalkulus.getSammenligningsgrunnlag() != null) {
-            builder.medSammenligningsgrunnlagOld(KalkulusTilBGMapper.mapSammenligningsgrunnlag(beregningsgrunnlagFraKalkulus.getSammenligningsgrunnlag()));
+            builder.medSammenligningsgrunnlagOld(KalkulusTilBGMapper.mapSammenligningsgrunnlag(
+                beregningsgrunnlagFraKalkulus.getSammenligningsgrunnlag()));
         }
 
         //lister
-        beregningsgrunnlagFraKalkulus.getAktivitetStatuser().forEach(beregningsgrunnlagAktivitetStatus -> builder.leggTilAktivitetStatus(KalkulusTilBGMapper.mapAktivitetStatus(beregningsgrunnlagAktivitetStatus)));
-        beregningsgrunnlagFraKalkulus.getBeregningsgrunnlagPerioder().forEach(beregningsgrunnlagPeriode -> builder.leggTilBeregningsgrunnlagPeriode(
-            KalkulusTilBGMapper.mapBeregningsgrunnlagPeriode(
-                beregningsgrunnlagPeriode,
-                faktaAggregat,
-                finnRegelsporingerForPeriode(regelSporingAggregat, beregningsgrunnlagPeriode.getPeriode()))));
-        builder.leggTilFaktaOmBeregningTilfeller(beregningsgrunnlagFraKalkulus.getFaktaOmBeregningTilfeller().stream().map(fakta -> FaktaOmBeregningTilfelle.fraKode(fakta.getKode())).collect(Collectors.toList()));
-        beregningsgrunnlagFraKalkulus.getSammenligningsgrunnlagPrStatusListe().forEach(sammenligningsgrunnlagPrStatus -> builder.leggTilSammenligningsgrunnlag(KalkulusTilBGMapper.mapSammenligningsgrunnlagMedStatus(sammenligningsgrunnlagPrStatus)));
+        beregningsgrunnlagFraKalkulus.getAktivitetStatuser()
+            .forEach(beregningsgrunnlagAktivitetStatus -> builder.leggTilAktivitetStatus(
+                KalkulusTilBGMapper.mapAktivitetStatus(beregningsgrunnlagAktivitetStatus)));
+        beregningsgrunnlagFraKalkulus.getBeregningsgrunnlagPerioder()
+            .forEach(beregningsgrunnlagPeriode -> builder.leggTilBeregningsgrunnlagPeriode(
+                KalkulusTilBGMapper.mapBeregningsgrunnlagPeriode(beregningsgrunnlagPeriode, faktaAggregat,
+                    finnRegelsporingerForPeriode(regelSporingAggregat, beregningsgrunnlagPeriode.getPeriode()))));
+        builder.leggTilFaktaOmBeregningTilfeller(beregningsgrunnlagFraKalkulus.getFaktaOmBeregningTilfeller()
+            .stream()
+            .map(fakta -> FaktaOmBeregningTilfelle.fraKode(fakta.getKode()))
+            .collect(Collectors.toList()));
+        beregningsgrunnlagFraKalkulus.getSammenligningsgrunnlagPrStatusListe()
+            .forEach(sammenligningsgrunnlagPrStatus -> builder.leggTilSammenligningsgrunnlag(
+                KalkulusTilBGMapper.mapSammenligningsgrunnlagMedStatus(sammenligningsgrunnlagPrStatus)));
 
         return builder.build();
     }
 
-    private static List<RegelSporingPeriode> finnRegelsporingerForPeriode(Optional<RegelSporingAggregat> regelSporingAggregat, Intervall periode) {
-        return regelSporingAggregat.stream().flatMap(rs -> rs.getRegelsporingPerioder().stream())
+    private static List<RegelSporingPeriode> finnRegelsporingerForPeriode(Optional<RegelSporingAggregat> regelSporingAggregat,
+                                                                          Intervall periode) {
+        return regelSporingAggregat.stream()
+            .flatMap(rs -> rs.getRegelsporingPerioder().stream())
             .filter(rs -> rs.getPeriode().overlapper(periode))
             .collect(Collectors.toList());
     }
 
-    private static void leggTilRegelsporing(List<RegelSporingGrunnlag> regelSporingerGrunnlag, BeregningsgrunnlagEntitet.Builder builder, BeregningsgrunnlagRegelType regelType) {
-        Optional<RegelSporingGrunnlag> regelLogg = regelSporingerGrunnlag.stream().filter(rs -> rs.getRegelType().getKode().equals(regelType.getKode())).findFirst();
-        regelLogg.ifPresent(regelSporingGrunnlag -> builder.medRegelSporing(
-            regelSporingGrunnlag.getRegelInput(),
+    private static void leggTilRegelsporing(List<RegelSporingGrunnlag> regelSporingerGrunnlag,
+                                            BeregningsgrunnlagEntitet.Builder builder,
+                                            BeregningsgrunnlagRegelType regelType) {
+        var regelLogg = regelSporingerGrunnlag.stream()
+            .filter(rs -> rs.getRegelType().getKode().equals(regelType.getKode()))
+            .findFirst();
+        regelLogg.ifPresent(regelSporingGrunnlag -> builder.medRegelSporing(regelSporingGrunnlag.getRegelInput(),
             regelSporingGrunnlag.getRegelEvaluering(),
             no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRegelType.fraKode(regelType.getKode())));
     }
 
     public static BeregningRefusjonOverstyringerEntitet mapRefusjonOverstyring(BeregningRefusjonOverstyringerDto refusjonOverstyringerFraKalkulus) {
-        BeregningRefusjonOverstyringerEntitet.Builder entitetBuilder = BeregningRefusjonOverstyringerEntitet.builder();
+        var entitetBuilder = BeregningRefusjonOverstyringerEntitet.builder();
 
         refusjonOverstyringerFraKalkulus.getRefusjonOverstyringer().forEach(beregningRefusjonOverstyring -> {
-            BeregningRefusjonOverstyringEntitet.Builder builder = BeregningRefusjonOverstyringEntitet.builder()
+            var builder = BeregningRefusjonOverstyringEntitet.builder()
                 .medArbeidsgiver(KalkulusTilIAYMapper.mapArbeidsgiver(beregningRefusjonOverstyring.getArbeidsgiver()))
                 .medFørsteMuligeRefusjonFom(beregningRefusjonOverstyring.getFørsteMuligeRefusjonFom().orElse(null));
-            beregningRefusjonOverstyring.getRefusjonPerioder().forEach(periode -> builder.leggTilRefusjonPeriode(mapRefusjonPeriode(periode)));
+            beregningRefusjonOverstyring.getRefusjonPerioder()
+                .forEach(periode -> builder.leggTilRefusjonPeriode(mapRefusjonPeriode(periode)));
             entitetBuilder.leggTilOverstyring(builder.build());
         });
         return entitetBuilder.build();
     }
 
     private static BeregningRefusjonPeriodeEntitet mapRefusjonPeriode(BeregningRefusjonPeriodeDto refusjonsperiode) {
-        return new BeregningRefusjonPeriodeEntitet(refusjonsperiode.getArbeidsforholdRef() == null ? null : KalkulusTilIAYMapper.mapArbeidsforholdRef(refusjonsperiode.getArbeidsforholdRef()), refusjonsperiode.getStartdatoRefusjon());
+        return new BeregningRefusjonPeriodeEntitet(
+            refusjonsperiode.getArbeidsforholdRef() == null ? null : KalkulusTilIAYMapper.mapArbeidsforholdRef(
+                refusjonsperiode.getArbeidsforholdRef()), refusjonsperiode.getStartdatoRefusjon());
     }
 
     public static BeregningAktivitetAggregatEntitet mapSaksbehandletAktivitet(BeregningAktivitetAggregatDto saksbehandletAktiviteterFraKalkulus) {
-        BeregningAktivitetAggregatEntitet.Builder entitetBuilder = BeregningAktivitetAggregatEntitet.builder();
-        entitetBuilder.medSkjæringstidspunktOpptjening(saksbehandletAktiviteterFraKalkulus.getSkjæringstidspunktOpptjening());
+        var entitetBuilder = BeregningAktivitetAggregatEntitet.builder();
+        entitetBuilder.medSkjæringstidspunktOpptjening(
+            saksbehandletAktiviteterFraKalkulus.getSkjæringstidspunktOpptjening());
         saksbehandletAktiviteterFraKalkulus.getBeregningAktiviteter().forEach(mapBeregningAktivitet(entitetBuilder));
         return entitetBuilder.build();
     }
 
     private static Consumer<BeregningAktivitetDto> mapBeregningAktivitet(BeregningAktivitetAggregatEntitet.Builder entitetBuilder) {
         return beregningAktivitet -> {
-            BeregningAktivitetEntitet.Builder builder = BeregningAktivitetEntitet.builder();
-            builder.medArbeidsforholdRef(beregningAktivitet.getArbeidsforholdRef() == null ? null : KalkulusTilIAYMapper.mapArbeidsforholdRef(beregningAktivitet.getArbeidsforholdRef()));
-            builder.medArbeidsgiver(beregningAktivitet.getArbeidsgiver() == null ? null : KalkulusTilIAYMapper.mapArbeidsgiver(beregningAktivitet.getArbeidsgiver()));
-            builder.medOpptjeningAktivitetType(OpptjeningAktivitetType.fraKode(beregningAktivitet.getOpptjeningAktivitetType().getKode()));
+            var builder = BeregningAktivitetEntitet.builder();
+            builder.medArbeidsforholdRef(
+                beregningAktivitet.getArbeidsforholdRef() == null ? null : KalkulusTilIAYMapper.mapArbeidsforholdRef(
+                    beregningAktivitet.getArbeidsforholdRef()));
+            builder.medArbeidsgiver(
+                beregningAktivitet.getArbeidsgiver() == null ? null : KalkulusTilIAYMapper.mapArbeidsgiver(
+                    beregningAktivitet.getArbeidsgiver()));
+            builder.medOpptjeningAktivitetType(
+                OpptjeningAktivitetType.fraKode(beregningAktivitet.getOpptjeningAktivitetType().getKode()));
             builder.medPeriode(mapDatoIntervall(beregningAktivitet.getPeriode()));
             entitetBuilder.leggTilAktivitet(builder.build());
         };
     }
 
     public static BeregningAktivitetOverstyringerEntitet mapAktivitetOverstyring(BeregningAktivitetOverstyringerDto beregningAktivitetOverstyringerFraKalkulus) {
-        BeregningAktivitetOverstyringerEntitet.Builder entitetBuilder = BeregningAktivitetOverstyringerEntitet.builder();
+        var entitetBuilder = BeregningAktivitetOverstyringerEntitet.builder();
         beregningAktivitetOverstyringerFraKalkulus.getOverstyringer().forEach(overstyring -> {
-            BeregningAktivitetOverstyringEntitet.Builder builder = BeregningAktivitetOverstyringEntitet.builder();
-            builder.medArbeidsforholdRef(overstyring.getArbeidsforholdRef() == null ? null : KalkulusTilIAYMapper.mapArbeidsforholdRef(overstyring.getArbeidsforholdRef()));
-            overstyring.getArbeidsgiver().ifPresent(arbeidsgiver -> builder.medArbeidsgiver(KalkulusTilIAYMapper.mapArbeidsgiver(arbeidsgiver)));
-            builder.medHandling(overstyring.getHandling() == null ? null : BeregningAktivitetHandlingType.fraKode(overstyring.getHandling().getKode()));
-            builder.medOpptjeningAktivitetType(OpptjeningAktivitetType.fraKode(overstyring.getOpptjeningAktivitetType().getKode()));
+            var builder = BeregningAktivitetOverstyringEntitet.builder();
+            builder.medArbeidsforholdRef(
+                overstyring.getArbeidsforholdRef() == null ? null : KalkulusTilIAYMapper.mapArbeidsforholdRef(
+                    overstyring.getArbeidsforholdRef()));
+            overstyring.getArbeidsgiver()
+                .ifPresent(arbeidsgiver -> builder.medArbeidsgiver(KalkulusTilIAYMapper.mapArbeidsgiver(arbeidsgiver)));
+            builder.medHandling(overstyring.getHandling() == null ? null : BeregningAktivitetHandlingType.fraKode(
+                overstyring.getHandling().getKode()));
+            builder.medOpptjeningAktivitetType(
+                OpptjeningAktivitetType.fraKode(overstyring.getOpptjeningAktivitetType().getKode()));
             builder.medPeriode(mapDatoIntervall(overstyring.getPeriode()));
             entitetBuilder.leggTilOverstyring(builder.build());
         });
@@ -145,20 +175,31 @@ public class KalkulusTilBehandlingslagerMapper {
         return ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(periode.getFomDato(), periode.getTomDato());
     }
 
-    public static BeregningsgrunnlagGrunnlagEntitet mapGrunnlag(BeregningsgrunnlagGrunnlagDto beregningsgrunnlagFraKalkulus, Optional<RegelSporingAggregat> regelSporingAggregat) {
-        BeregningsgrunnlagGrunnlagBuilder oppdatere = BeregningsgrunnlagGrunnlagBuilder.nytt();
+    public static BeregningsgrunnlagGrunnlagEntitet mapGrunnlag(BeregningsgrunnlagGrunnlagDto beregningsgrunnlagFraKalkulus,
+                                                                Optional<RegelSporingAggregat> regelSporingAggregat) {
+        var oppdatere = BeregningsgrunnlagGrunnlagBuilder.nytt();
 
-        beregningsgrunnlagFraKalkulus.getBeregningsgrunnlag().ifPresent(beregningsgrunnlagDto -> oppdatere.medBeregningsgrunnlag(mapBeregningsgrunnlag(beregningsgrunnlagDto, beregningsgrunnlagFraKalkulus.getFaktaAggregat(), regelSporingAggregat)));
-        beregningsgrunnlagFraKalkulus.getOverstyring().ifPresent(beregningAktivitetOverstyringerDto -> oppdatere.medOverstyring(mapAktivitetOverstyring(beregningAktivitetOverstyringerDto)));
-        oppdatere.medRegisterAktiviteter(mapRegisterAktiviteter(beregningsgrunnlagFraKalkulus.getRegisterAktiviteter()));
-        beregningsgrunnlagFraKalkulus.getSaksbehandletAktiviteter().ifPresent(beregningAktivitetAggregatDto -> oppdatere.medSaksbehandletAktiviteter(mapSaksbehandletAktivitet(beregningAktivitetAggregatDto)));
-        beregningsgrunnlagFraKalkulus.getRefusjonOverstyringer().ifPresent(beregningRefusjonOverstyringerDto -> oppdatere.medRefusjonOverstyring(mapRefusjonOverstyring(beregningRefusjonOverstyringerDto)));
+        beregningsgrunnlagFraKalkulus.getBeregningsgrunnlag()
+            .ifPresent(beregningsgrunnlagDto -> oppdatere.medBeregningsgrunnlag(
+                mapBeregningsgrunnlag(beregningsgrunnlagDto, beregningsgrunnlagFraKalkulus.getFaktaAggregat(),
+                    regelSporingAggregat)));
+        beregningsgrunnlagFraKalkulus.getOverstyring()
+            .ifPresent(beregningAktivitetOverstyringerDto -> oppdatere.medOverstyring(
+                mapAktivitetOverstyring(beregningAktivitetOverstyringerDto)));
+        oppdatere.medRegisterAktiviteter(
+            mapRegisterAktiviteter(beregningsgrunnlagFraKalkulus.getRegisterAktiviteter()));
+        beregningsgrunnlagFraKalkulus.getSaksbehandletAktiviteter()
+            .ifPresent(beregningAktivitetAggregatDto -> oppdatere.medSaksbehandletAktiviteter(
+                mapSaksbehandletAktivitet(beregningAktivitetAggregatDto)));
+        beregningsgrunnlagFraKalkulus.getRefusjonOverstyringer()
+            .ifPresent(beregningRefusjonOverstyringerDto -> oppdatere.medRefusjonOverstyring(
+                mapRefusjonOverstyring(beregningRefusjonOverstyringerDto)));
 
         return oppdatere.buildUtenIdOgTilstand();
     }
 
     public static BeregningAktivitetAggregatEntitet mapRegisterAktiviteter(BeregningAktivitetAggregatDto registerAktiviteter) {
-        BeregningAktivitetAggregatEntitet.Builder builder = BeregningAktivitetAggregatEntitet.builder();
+        var builder = BeregningAktivitetAggregatEntitet.builder();
         registerAktiviteter.getBeregningAktiviteter().forEach(mapBeregningAktivitet(builder));
         builder.medSkjæringstidspunktOpptjening(registerAktiviteter.getSkjæringstidspunktOpptjening());
         return builder.build();

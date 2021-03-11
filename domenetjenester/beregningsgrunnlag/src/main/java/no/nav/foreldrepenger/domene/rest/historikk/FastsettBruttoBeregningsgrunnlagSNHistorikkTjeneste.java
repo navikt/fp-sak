@@ -24,11 +24,11 @@ public class FastsettBruttoBeregningsgrunnlagSNHistorikkTjeneste {
     }
 
     public void lagHistorikk(AksjonspunktOppdaterParameter param, FastsettBruttoBeregningsgrunnlagSNDto dto) {
-        HistorikkInnslagTekstBuilder historikkDelBuilder = historikkAdapter.tekstBuilder();
+        var historikkDelBuilder = historikkAdapter.tekstBuilder();
         historikkDelBuilder.ferdigstillHistorikkinnslagDel();
         oppdaterVedEndretVerdi(historikkDelBuilder, dto.getBruttoBeregningsgrunnlag());
 
-        boolean erBegrunnelseEndret = param.erBegrunnelseEndret();
+        var erBegrunnelseEndret = param.erBegrunnelseEndret();
         historikkDelBuilder.medBegrunnelse(dto.getBegrunnelse(), erBegrunnelseEndret);
     }
 

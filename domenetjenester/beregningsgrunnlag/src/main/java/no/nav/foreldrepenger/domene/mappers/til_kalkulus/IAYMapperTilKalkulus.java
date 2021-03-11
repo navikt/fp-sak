@@ -95,7 +95,7 @@ public class IAYMapperTilKalkulus {
     }
 
     public static InntektArbeidYtelseGrunnlagDto mapGrunnlag(InntektArbeidYtelseGrunnlag iayGrunnlag, no.nav.foreldrepenger.domene.typer.AktørId aktørId) {
-        InntektArbeidYtelseGrunnlagDtoBuilder builder = InntektArbeidYtelseGrunnlagDtoBuilder.nytt();
+        var builder = InntektArbeidYtelseGrunnlagDtoBuilder.nytt();
         iayGrunnlag.getRegisterVersjon().ifPresent(aggregat -> builder.medData(mapAggregat(aggregat, VersjonTypeDto.REGISTER, aktørId)));
         iayGrunnlag.getSaksbehandletVersjon().ifPresent(aggregat -> builder.medData(mapAggregat(aggregat, VersjonTypeDto.SAKSBEHANDLET, aktørId)));
         iayGrunnlag.getInntektsmeldinger().ifPresent(aggregat -> builder.setInntektsmeldinger(mapInntektsmelding(aggregat, iayGrunnlag.getArbeidsforholdInformasjon())));
@@ -121,7 +121,7 @@ public class IAYMapperTilKalkulus {
     }
 
     private static OppgittOpptjeningDtoBuilder mapOppgittOpptjening(OppgittOpptjening oppgittOpptjening) {
-        OppgittOpptjeningDtoBuilder builder = OppgittOpptjeningDtoBuilder.ny();
+        var builder = OppgittOpptjeningDtoBuilder.ny();
         oppgittOpptjening.getFrilans().ifPresent(oppgittFrilans -> builder.leggTilFrilansOpplysninger(new OppgittFrilansDto(oppgittFrilans.getErNyoppstartet())));
 
         oppgittOpptjening.getAnnenAktivitet().forEach(oppgittAnnenAktivitet -> builder.leggTilAnnenAktivitet(new OppgittAnnenAktivitetDto(mapDatoIntervall(oppgittAnnenAktivitet.getPeriode()), ArbeidType.fraKode(oppgittAnnenAktivitet.getArbeidType().getKode()))));
@@ -141,7 +141,7 @@ public class IAYMapperTilKalkulus {
     }
 
     private static OppgittOpptjeningDtoBuilder.EgenNæringBuilder mapEgenNæring(OppgittEgenNæring oppgittEgenNæring) {
-        OppgittOpptjeningDtoBuilder.EgenNæringBuilder egenNæringBuilder = OppgittOpptjeningDtoBuilder.EgenNæringBuilder.ny()
+        var egenNæringBuilder = OppgittOpptjeningDtoBuilder.EgenNæringBuilder.ny()
             .medPeriode(mapDatoIntervall(oppgittEgenNæring.getPeriode()))
             .medBruttoInntekt(oppgittEgenNæring.getBruttoInntekt())
             .medEndringDato(oppgittEgenNæring.getEndringDato())
@@ -157,14 +157,14 @@ public class IAYMapperTilKalkulus {
     }
 
     private static ArbeidsforholdInformasjonDto mapArbeidsforholdInformasjon(ArbeidsforholdInformasjon arbeidsforholdInformasjon) {
-        ArbeidsforholdInformasjonDtoBuilder builder = ArbeidsforholdInformasjonDtoBuilder.builder(Optional.empty());
+        var builder = ArbeidsforholdInformasjonDtoBuilder.builder(Optional.empty());
         arbeidsforholdInformasjon.getArbeidsforholdReferanser().forEach(arbeidsforholdReferanse -> builder.leggTilNyReferanse(mapRefDto(arbeidsforholdReferanse)));
         arbeidsforholdInformasjon.getOverstyringer().forEach(arbeidsforholdOverstyring -> builder.leggTil(mapOverstyringerDto(arbeidsforholdOverstyring)));
         return builder.build();
     }
 
     private static ArbeidsforholdOverstyringDtoBuilder mapOverstyringerDto(ArbeidsforholdOverstyring arbeidsforholdOverstyring) {
-        ArbeidsforholdOverstyringDtoBuilder builder = ArbeidsforholdOverstyringDtoBuilder.oppdatere(Optional.empty());
+        var builder = ArbeidsforholdOverstyringDtoBuilder.oppdatere(Optional.empty());
         arbeidsforholdOverstyring.getArbeidsforholdOverstyrtePerioder().forEach(arbeidsforholdOverstyrtePerioder -> builder.leggTilOverstyrtPeriode(arbeidsforholdOverstyrtePerioder.getOverstyrtePeriode().getFomDato(), arbeidsforholdOverstyrtePerioder.getOverstyrtePeriode().getTomDato()));
         arbeidsforholdOverstyring.getBekreftetPermisjon().ifPresent(bekreftetPermisjon -> builder.medBekreftetPermisjon(mapBekreftetPermisjonDto(bekreftetPermisjon)));
         builder.medHandling(ArbeidsforholdHandlingType.fraKode(arbeidsforholdOverstyring.getHandling().getKode()));
@@ -189,14 +189,14 @@ public class IAYMapperTilKalkulus {
     }
 
     public static InntektsmeldingAggregatDto mapInntektsmelding(InntektsmeldingAggregat aggregat, Optional<ArbeidsforholdInformasjon> arbeidsforholdInformasjon) {
-        InntektsmeldingAggregatDto.InntektsmeldingAggregatDtoBuilder builder = InntektsmeldingAggregatDto.InntektsmeldingAggregatDtoBuilder.ny();
+        var builder = InntektsmeldingAggregatDto.InntektsmeldingAggregatDtoBuilder.ny();
         aggregat.getAlleInntektsmeldinger().forEach(inntektsmelding -> builder.leggTil(mapInntektsmeldingDto(inntektsmelding)));
         arbeidsforholdInformasjon.ifPresent(info -> builder.medArbeidsforholdInformasjonDto(mapArbeidsforholdInformasjon(info)));
         return builder.build();
     }
 
     public static InntektsmeldingDto mapInntektsmeldingDto(Inntektsmelding inntektsmelding) {
-        InntektsmeldingDtoBuilder builder = InntektsmeldingDtoBuilder.builder();
+        var builder = InntektsmeldingDtoBuilder.builder();
         builder.medArbeidsgiver(mapArbeidsgiver(inntektsmelding.getArbeidsgiver()));
         builder.medArbeidsforholdId(mapArbeidsforholdRef(inntektsmelding.getArbeidsforholdRef()));
         builder.medRefusjon(inntektsmelding.getRefusjonBeløpPerMnd() == null ? null : inntektsmelding.getRefusjonBeløpPerMnd().getVerdi(), inntektsmelding.getRefusjonOpphører());
@@ -223,7 +223,7 @@ public class IAYMapperTilKalkulus {
     }
 
     private static YrkesaktivitetDto mapYrkesaktivitet(Yrkesaktivitet yrkesaktivitet) {
-        YrkesaktivitetDtoBuilder dtoBuilder = YrkesaktivitetDtoBuilder.oppdatere(Optional.empty());
+        var dtoBuilder = YrkesaktivitetDtoBuilder.oppdatere(Optional.empty());
         yrkesaktivitet.getAlleAktivitetsAvtaler().forEach(aktivitetsAvtale -> dtoBuilder.leggTilAktivitetsAvtale(mapAktivitetsAvtale(aktivitetsAvtale)));
         dtoBuilder.medArbeidsforholdId(mapArbeidsforholdRef(yrkesaktivitet.getArbeidsforholdRef()));
         dtoBuilder.medArbeidsgiver(yrkesaktivitet.getArbeidsgiver() == null ? null : mapArbeidsgiver(yrkesaktivitet.getArbeidsgiver()));
@@ -233,13 +233,13 @@ public class IAYMapperTilKalkulus {
 
 
     private static InntektArbeidYtelseAggregatBuilder.AktørInntektBuilder mapAktørInntekt(AktørInntekt aktørInntekt){
-        InntektArbeidYtelseAggregatBuilder.AktørInntektBuilder builder = InntektArbeidYtelseAggregatBuilder.AktørInntektBuilder.oppdatere(Optional.empty());
+        var builder = InntektArbeidYtelseAggregatBuilder.AktørInntektBuilder.oppdatere(Optional.empty());
         aktørInntekt.getInntekt().forEach(inntekt -> builder.leggTilInntekt(mapInntekt(inntekt)));
         return builder;
     }
 
     private static InntektDtoBuilder mapInntekt(Inntekt inntekt) {
-        InntektDtoBuilder builder = InntektDtoBuilder.oppdatere(Optional.empty());
+        var builder = InntektDtoBuilder.oppdatere(Optional.empty());
         inntekt.getAlleInntektsposter().forEach(inntektspost -> builder.leggTilInntektspost(mapInntektspost(inntektspost)));
         builder.medArbeidsgiver(inntekt.getArbeidsgiver() == null ? null : mapArbeidsgiver(inntekt.getArbeidsgiver()));
         builder.medInntektsKilde(InntektskildeType.fraKode(inntekt.getInntektsKilde().getKode()));
@@ -247,7 +247,7 @@ public class IAYMapperTilKalkulus {
     }
 
     private static InntektspostDtoBuilder mapInntektspost(Inntektspost inntektspost) {
-        InntektspostDtoBuilder builder = InntektspostDtoBuilder.ny();
+        var builder = InntektspostDtoBuilder.ny();
         builder.medBeløp(inntektspost.getBeløp().getVerdi());
         builder.medInntektspostType(inntektspost.getInntektspostType().getKode());
         builder.medPeriode(inntektspost.getPeriode().getFomDato(), inntektspost.getPeriode().getTomDato());
@@ -258,13 +258,13 @@ public class IAYMapperTilKalkulus {
     }
 
     private static InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder mapAktørArbeid(AktørArbeid aktørArbeid) {
-        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder builder = InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder.oppdatere(Optional.empty());
+        var builder = InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder.oppdatere(Optional.empty());
         aktørArbeid.hentAlleYrkesaktiviteter().forEach(yrkesaktivitet -> builder.leggTilYrkesaktivitet(mapYrkesaktivitet(yrkesaktivitet)));
         return builder;
     }
 
     private static InntektArbeidYtelseAggregatBuilder mapAggregat(InntektArbeidYtelseAggregat aggregat, VersjonTypeDto versjonTypeDto, no.nav.foreldrepenger.domene.typer.AktørId aktørId) {
-        InntektArbeidYtelseAggregatBuilder builder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), versjonTypeDto);
+        var builder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), versjonTypeDto);
         aggregat.getAktørArbeid().stream().filter(aa -> aa.getAktørId().equals(aktørId)).findFirst().ifPresent(aktørArbeid -> builder.leggTilAktørArbeid(mapAktørArbeid(aktørArbeid)));
         aggregat.getAktørInntekt().stream().filter(ai -> ai.getAktørId().equals(aktørId)).findFirst().ifPresent((aktørInntekt -> builder.leggTilAktørInntekt(mapAktørInntekt(aktørInntekt))));
         aggregat.getAktørYtelse().stream().filter(ay -> ay.getAktørId().equals(aktørId)).findFirst().ifPresent((aktørYtelse -> builder.leggTilAktørYtelse(mapAktørYtelse(aktørYtelse))));
@@ -273,14 +273,14 @@ public class IAYMapperTilKalkulus {
     }
 
     private static InntektArbeidYtelseAggregatBuilder.AktørYtelseBuilder mapAktørYtelse(AktørYtelse aktørYtelse) {
-        InntektArbeidYtelseAggregatBuilder.AktørYtelseBuilder builder = InntektArbeidYtelseAggregatBuilder.AktørYtelseBuilder.oppdatere(Optional.empty());
+        var builder = InntektArbeidYtelseAggregatBuilder.AktørYtelseBuilder.oppdatere(Optional.empty());
         aktørYtelse.getAlleYtelser().forEach(ytelse -> builder.leggTilYtelse(mapYtelse(ytelse)));
         return builder;
 
     }
 
     private static YtelseDtoBuilder mapYtelse(Ytelse ytelse) {
-        YtelseDtoBuilder builder = YtelseDtoBuilder.oppdatere(Optional.empty());
+        var builder = YtelseDtoBuilder.oppdatere(Optional.empty());
         ytelse.getYtelseAnvist().forEach(ytelseAnvist -> builder.leggTilYtelseAnvist(mapYtelseAnvist(ytelseAnvist)));
         ytelse.getYtelseGrunnlag().flatMap(YtelseGrunnlag::getVedtaksDagsats).map(Beløp::getVerdi).ifPresent(builder::medVedtaksDagsats);
         builder.medBehandlingsTema(TemaUnderkategori.fraKode(ytelse.getBehandlingsTema().getKode()));
@@ -290,7 +290,7 @@ public class IAYMapperTilKalkulus {
     }
 
     private static YtelseAnvistDto mapYtelseAnvist(YtelseAnvist ytelseAnvist) {
-        YtelseAnvistDtoBuilder builder = YtelseAnvistDtoBuilder.ny();
+        var builder = YtelseAnvistDtoBuilder.ny();
         builder.medAnvistPeriode(Intervall.fraOgMedTilOgMed(ytelseAnvist.getAnvistFOM(), ytelseAnvist.getAnvistTOM()));
         ytelseAnvist.getBeløp().ifPresent(beløp -> builder.medBeløp(beløp.getVerdi()));
         ytelseAnvist.getDagsats().ifPresent(dagsats -> builder.medDagsats(dagsats.getVerdi()));
@@ -301,8 +301,8 @@ public class IAYMapperTilKalkulus {
     static no.nav.folketrygdloven.kalkulus.kodeverk.YtelseType mapUtbetaltYtelseTypeTilGrunnlag(YtelseType type) {
         if (type == null)
             return OffentligYtelseType.UDEFINERT;
-        String kodeverk = type.getKodeverk();
-        String kode = type.getKode();
+        var kodeverk = type.getKodeverk();
+        var kode = type.getKode();
         return switch (kodeverk) {
             case no.nav.foreldrepenger.domene.iay.modell.kodeverk.OffentligYtelseType.KODEVERK -> OffentligYtelseType.fraKode(kode);
             case no.nav.foreldrepenger.domene.iay.modell.kodeverk.NæringsinntektType.KODEVERK -> NæringsinntektType.fraKode(kode);

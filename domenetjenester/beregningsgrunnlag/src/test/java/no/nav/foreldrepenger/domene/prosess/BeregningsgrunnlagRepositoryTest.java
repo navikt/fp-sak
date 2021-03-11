@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
@@ -19,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -36,7 +34,6 @@ import no.nav.foreldrepenger.domene.modell.BeregningRefusjonOverstyringerEntitet
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagBuilder;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriodeRegelType;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriodeÅrsak;
@@ -72,26 +69,26 @@ public class BeregningsgrunnlagRepositoryTest {
     public void skal_kopiere_med_register_aktiviteter_fra_original_behandling() {
         // Arrange
         var behandling = opprettBehandling();
-        BeregningAktivitetAggregatEntitet beregningAktivitetAggregat = lagAktivitetAggregat();
-        BeregningsgrunnlagEntitet beregningsgrunnlag = buildBeregningsgrunnlag();
-        BeregningsgrunnlagGrunnlagBuilder builder = BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.empty())
+        var beregningAktivitetAggregat = lagAktivitetAggregat();
+        var beregningsgrunnlag = buildBeregningsgrunnlag();
+        var builder = BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.empty())
                 .medBeregningsgrunnlag(beregningsgrunnlag)
                 .medRegisterAktiviteter(beregningAktivitetAggregat);
         beregningsgrunnlagRepository.lagre(behandling.getId(), builder, BeregningsgrunnlagTilstand.FASTSATT);
-        Behandling revurdering = Behandling.nyBehandlingFor(behandling.getFagsak(), BehandlingType.REVURDERING)
+        var revurdering = Behandling.nyBehandlingFor(behandling.getFagsak(), BehandlingType.REVURDERING)
                 .medBehandlingÅrsak(
                         BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
                                 .medManueltOpprettet(false)
                                 .medOriginalBehandlingId(behandling.getId()))
                 .build();
-        BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
+        var lås = behandlingRepository.taSkriveLås(revurdering);
         behandlingRepository.lagre(revurdering, lås);
         // Act
         beregningsgrunnlagRepository.kopierGrunnlagFraEksisterendeBehandling(behandling.getId(), revurdering.getId(),
                 BeregningsgrunnlagTilstand.FASTSATT);
 
         // Assert
-        Optional<BeregningsgrunnlagGrunnlagEntitet> entitetOpt = beregningsgrunnlagRepository
+        var entitetOpt = beregningsgrunnlagRepository
                 .hentSisteBeregningsgrunnlagGrunnlagEntitet(revurdering.getId(),
                         BeregningsgrunnlagTilstand.FASTSATT);
         assertThat(entitetOpt).as("entitetOpt").hasValueSatisfying(entitet -> {
@@ -105,16 +102,16 @@ public class BeregningsgrunnlagRepositoryTest {
     public void lagreRegisterBeregningAktiviteterOgBeregningsgrunnlag() {
         // Arrange
         var behandling = opprettBehandling();
-        BeregningAktivitetAggregatEntitet beregningAktivitetAggregat = lagAktivitetAggregat();
-        BeregningsgrunnlagEntitet beregningsgrunnlag = buildBeregningsgrunnlag();
-        BeregningsgrunnlagGrunnlagBuilder builder = BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.empty())
+        var beregningAktivitetAggregat = lagAktivitetAggregat();
+        var beregningsgrunnlag = buildBeregningsgrunnlag();
+        var builder = BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.empty())
                 .medBeregningsgrunnlag(beregningsgrunnlag)
                 .medRegisterAktiviteter(beregningAktivitetAggregat);
         // Act
         beregningsgrunnlagRepository.lagre(behandling.getId(), builder, BeregningsgrunnlagTilstand.OPPRETTET);
 
         // Assert
-        Optional<BeregningsgrunnlagGrunnlagEntitet> entitetOpt = beregningsgrunnlagRepository
+        var entitetOpt = beregningsgrunnlagRepository
                 .hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId());
         assertThat(entitetOpt).as("entitetOpt").hasValueSatisfying(entitet -> {
             assertThat(entitet.erAktivt()).isTrue();
@@ -128,8 +125,8 @@ public class BeregningsgrunnlagRepositoryTest {
             BeregningAktivitetAggregatEntitet expectedAggregat) {
         assertThat(actualAggregat.getSkjæringstidspunktOpptjening()).isEqualTo(SKJÆRINGSTIDSPUNKT);
         assertThat(actualAggregat.getBeregningAktiviteter()).hasSize(expectedAggregat.getBeregningAktiviteter().size());
-        for (int i = 0; i < expectedAggregat.getBeregningAktiviteter().size(); i++) {
-            BeregningAktivitetEntitet expected = expectedAggregat.getBeregningAktiviteter().get(i);
+        for (var i = 0; i < expectedAggregat.getBeregningAktiviteter().size(); i++) {
+            var expected = expectedAggregat.getBeregningAktiviteter().get(i);
             assertThat(actualAggregat.getBeregningAktiviteter())
                     .as("expected.getBeregningAktiviteter().get(" + i + ")")
                     .anySatisfy(actual -> assertBeregningAktivitet(actual, expected));
@@ -147,13 +144,13 @@ public class BeregningsgrunnlagRepositoryTest {
     public void lagreSaksbehandletBeregningAktiviteterOgHentBeregningsgrunnlag() {
         // Arrange
         var behandling = opprettBehandling();
-        BeregningAktivitetAggregatEntitet beregningAktivitetAggregat = lagAktivitetAggregat();
+        var beregningAktivitetAggregat = lagAktivitetAggregat();
 
         // Act
         beregningsgrunnlagRepository.lagreSaksbehandledeAktiviteter(behandling.getId(), beregningAktivitetAggregat, STEG_OPPRETTET);
 
         // Assert
-        Optional<BeregningsgrunnlagGrunnlagEntitet> entitetOpt = beregningsgrunnlagRepository
+        var entitetOpt = beregningsgrunnlagRepository
                 .hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId());
         assertThat(entitetOpt).as("entitetOpt").hasValueSatisfying(entitet -> {
             assertThat(entitet.erAktivt()).isTrue();
@@ -166,22 +163,22 @@ public class BeregningsgrunnlagRepositoryTest {
     public void lagreOverstyring() {
         // Arrange
         var behandling = opprettBehandling();
-        BeregningAktivitetAggregatEntitet beregningAktivitetAggregat = lagAktivitetAggregat();
-        BeregningsgrunnlagEntitet beregningsgrunnlag = buildBeregningsgrunnlag();
-        BeregningsgrunnlagGrunnlagBuilder builder = BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.empty())
+        var beregningAktivitetAggregat = lagAktivitetAggregat();
+        var beregningsgrunnlag = buildBeregningsgrunnlag();
+        var builder = BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.empty())
                 .medBeregningsgrunnlag(beregningsgrunnlag)
                 .medRegisterAktiviteter(beregningAktivitetAggregat);
         // Act: Lagre BG
         beregningsgrunnlagRepository.lagre(behandling.getId(), builder, BeregningsgrunnlagTilstand.OPPRETTET);
 
         // Arrange: Overstyring
-        BeregningAktivitetOverstyringerEntitet beregningAktivitetOverstyringer = lagOverstyringer();
+        var beregningAktivitetOverstyringer = lagOverstyringer();
 
         // Act: Lagre overstyring
         beregningsgrunnlagRepository.lagre(behandling.getId(), beregningAktivitetOverstyringer);
 
         // Assert
-        Optional<BeregningsgrunnlagGrunnlagEntitet> entitetOpt = beregningsgrunnlagRepository
+        var entitetOpt = beregningsgrunnlagRepository
                 .hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId());
         assertThat(entitetOpt).as("entitetOpt").hasValueSatisfying(entitet -> {
             assertThat(entitet.erAktivt()).isTrue();
@@ -195,12 +192,12 @@ public class BeregningsgrunnlagRepositoryTest {
     public void skal_lagre_refusjon_overstrying() {
         // Arrange
         var behandling = opprettBehandling();
-        BeregningsgrunnlagEntitet beregningsgrunnlag = buildBeregningsgrunnlag();
-        BeregningRefusjonOverstyringEntitet overstyring = BeregningRefusjonOverstyringEntitet.builder()
+        var beregningsgrunnlag = buildBeregningsgrunnlag();
+        var overstyring = BeregningRefusjonOverstyringEntitet.builder()
                 .medArbeidsgiver(Arbeidsgiver.virksomhet("test123")).medFørsteMuligeRefusjonFom(LocalDate.now()).build();
-        BeregningRefusjonOverstyringerEntitet refusjon = BeregningRefusjonOverstyringerEntitet.builder().leggTilOverstyring(
+        var refusjon = BeregningRefusjonOverstyringerEntitet.builder().leggTilOverstyring(
                 overstyring).build();
-        BeregningsgrunnlagGrunnlagBuilder builder = BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.empty())
+        var builder = BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.empty())
                 .medBeregningsgrunnlag(beregningsgrunnlag)
                 .medRefusjonOverstyring(refusjon);
 
@@ -208,7 +205,7 @@ public class BeregningsgrunnlagRepositoryTest {
         beregningsgrunnlagRepository.lagre(behandling.getId(), builder, BeregningsgrunnlagTilstand.OPPRETTET);
 
         // Assert
-        Optional<BeregningsgrunnlagGrunnlagEntitet> entitetOpt = beregningsgrunnlagRepository
+        var entitetOpt = beregningsgrunnlagRepository
                 .hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId());
         assertThat(entitetOpt).as("entitetOpt").hasValueSatisfying(entitet -> {
             assertThat(entitet.erAktivt()).isTrue();
@@ -219,8 +216,8 @@ public class BeregningsgrunnlagRepositoryTest {
     }
 
     private void assertOverstyringer(BeregningAktivitetOverstyringerEntitet actual, BeregningAktivitetOverstyringerEntitet expected) {
-        List<BeregningAktivitetOverstyringEntitet> actualOverstyringer = actual.getOverstyringer();
-        List<BeregningAktivitetOverstyringEntitet> expectedOverstyringer = expected.getOverstyringer();
+        var actualOverstyringer = actual.getOverstyringer();
+        var expectedOverstyringer = expected.getOverstyringer();
         assertThat(actualOverstyringer).hasSize(expectedOverstyringer.size());
         assertThat(actualOverstyringer.get(0).getHandling()).isEqualTo(BeregningAktivitetHandlingType.IKKE_BENYTT);
         assertThat(actualOverstyringer.get(0).getOpptjeningAktivitetType()).isEqualTo(OpptjeningAktivitetType.ARBEID);
@@ -244,13 +241,13 @@ public class BeregningsgrunnlagRepositoryTest {
     }
 
     private BeregningAktivitetAggregatEntitet lagAktivitetAggregat() {
-        BeregningAktivitetEntitet a1 = BeregningAktivitetEntitet.builder()
+        var a1 = BeregningAktivitetEntitet.builder()
                 .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
                 .medArbeidsforholdRef(InternArbeidsforholdRef.nullRef())
                 .medOpptjeningAktivitetType(OpptjeningAktivitetType.FRILANS)
                 .medPeriode(ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now().minusMonths(8), LocalDate.now()))
                 .build();
-        BeregningAktivitetEntitet a2 = BeregningAktivitetEntitet.builder()
+        var a2 = BeregningAktivitetEntitet.builder()
                 .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
                 .medArbeidsforholdRef(ARBEIDSFORHOLD_ID)
                 .medOpptjeningAktivitetType(OpptjeningAktivitetType.ARBEID)
@@ -267,13 +264,13 @@ public class BeregningsgrunnlagRepositoryTest {
     public void lagreBeregningsgrunnlagOgHentBeregningsgrunnlagGrunnlag() {
         // Arrange
         var behandling = opprettBehandling();
-        BeregningsgrunnlagEntitet beregningsgrunnlag = buildBeregningsgrunnlag();
+        var beregningsgrunnlag = buildBeregningsgrunnlag();
 
         // Act
         beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag, STEG_OPPRETTET);
 
         // Assert
-        Optional<BeregningsgrunnlagGrunnlagEntitet> entitetOpt = beregningsgrunnlagRepository
+        var entitetOpt = beregningsgrunnlagRepository
                 .hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId());
         assertThat(entitetOpt).as("entitetOpt").hasValueSatisfying(entitet -> {
             assertThat(entitet.erAktivt()).isTrue();
@@ -286,17 +283,17 @@ public class BeregningsgrunnlagRepositoryTest {
     public void skalHentSisteBeregningsgrunnlagGrunnlag() {
         // Arrange
         var behandling = opprettBehandling();
-        BeregningsgrunnlagEntitet beregningsgrunnlag1 = buildBeregningsgrunnlag();
+        var beregningsgrunnlag1 = buildBeregningsgrunnlag();
         beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag1, STEG_OPPRETTET);
 
-        BeregningsgrunnlagEntitet beregningsgrunnlag2 = buildBeregningsgrunnlag();
+        var beregningsgrunnlag2 = buildBeregningsgrunnlag();
         beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag2, STEG_OPPRETTET);
 
-        BeregningsgrunnlagEntitet beregningsgrunnlag3 = buildBeregningsgrunnlag();
+        var beregningsgrunnlag3 = buildBeregningsgrunnlag();
         beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag3, BeregningsgrunnlagTilstand.FORESLÅTT);
 
         // Act
-        Optional<BeregningsgrunnlagGrunnlagEntitet> entitetOpt = beregningsgrunnlagRepository
+        var entitetOpt = beregningsgrunnlagRepository
                 .hentSisteBeregningsgrunnlagGrunnlagEntitet(behandling.getId(), STEG_OPPRETTET);
 
         // Assert
@@ -310,23 +307,23 @@ public class BeregningsgrunnlagRepositoryTest {
     public void skalReaktiverBeregningsgrunnlagGrunnlag() {
         // Arrange
         var behandling = opprettBehandling();
-        BeregningsgrunnlagEntitet beregningsgrunnlag1 = buildBeregningsgrunnlag();
-        BeregningsgrunnlagGrunnlagBuilder grBuilder = BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.empty())
+        var beregningsgrunnlag1 = buildBeregningsgrunnlag();
+        var grBuilder = BeregningsgrunnlagGrunnlagBuilder.oppdatere(Optional.empty())
                 .medBeregningsgrunnlag(beregningsgrunnlag1)
                 .medRegisterAktiviteter(BeregningAktivitetAggregatEntitet.builder()
                         .medSkjæringstidspunktOpptjening(LocalDate.now())
                         .build());
         beregningsgrunnlagRepository.lagre(behandling.getId(), grBuilder, STEG_OPPRETTET);
 
-        BeregningsgrunnlagEntitet beregningsgrunnlag2 = buildBeregningsgrunnlag();
+        var beregningsgrunnlag2 = buildBeregningsgrunnlag();
         beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag2, STEG_OPPRETTET);
 
-        BeregningsgrunnlagEntitet beregningsgrunnlag3 = buildBeregningsgrunnlag();
+        var beregningsgrunnlag3 = buildBeregningsgrunnlag();
         beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag3, BeregningsgrunnlagTilstand.FORESLÅTT);
 
         // Act
         beregningsgrunnlagRepository.reaktiverBeregningsgrunnlagGrunnlagEntitet(behandling.getId(), STEG_OPPRETTET);
-        Optional<BeregningsgrunnlagGrunnlagEntitet> entitetOpt = beregningsgrunnlagRepository
+        var entitetOpt = beregningsgrunnlagRepository
                 .hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId());
 
         assertThat(entitetOpt).as("entitetOpt").hasValueSatisfying(entitet -> {
@@ -340,16 +337,16 @@ public class BeregningsgrunnlagRepositoryTest {
     public void lagreOgHenteBeregningsgrunnlag() {
         // Arrange
         var behandling = opprettBehandling();
-        BeregningsgrunnlagEntitet beregningsgrunnlag = buildBeregningsgrunnlag();
+        var beregningsgrunnlag = buildBeregningsgrunnlag();
 
         // Act
         beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag, STEG_OPPRETTET);
 
         // Assert
-        Long id = beregningsgrunnlag.getId();
+        var id = beregningsgrunnlag.getId();
         assertThat(id).isNotNull();
 
-        Optional<BeregningsgrunnlagEntitet> beregningsgrunnlagLest = beregningsgrunnlagRepository
+        var beregningsgrunnlagLest = beregningsgrunnlagRepository
                 .hentBeregningsgrunnlagForBehandling(behandling.getId());
 
         assertThat(beregningsgrunnlagLest).isEqualTo(Optional.of(beregningsgrunnlag));
@@ -359,20 +356,20 @@ public class BeregningsgrunnlagRepositoryTest {
     public void lagreOgHenteBeregningsgrunnlagMedPrivatpersonSomArbgiver() {
         // Arrange
         var behandling = opprettBehandling();
-        AktørId aktørId = AktørId.dummy();
-        BeregningsgrunnlagEntitet beregningsgrunnlag = buildBeregningsgrunnlagPrivatpersonArbgiver(aktørId);
+        var aktørId = AktørId.dummy();
+        var beregningsgrunnlag = buildBeregningsgrunnlagPrivatpersonArbgiver(aktørId);
 
         // Act
         beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag, STEG_OPPRETTET);
 
         // Assert
-        Long id = beregningsgrunnlag.getId();
+        var id = beregningsgrunnlag.getId();
         assertThat(id).isNotNull();
-        BGAndelArbeidsforhold arbFor = beregningsgrunnlag.getBeregningsgrunnlagPerioder().get(0).getBeregningsgrunnlagPrStatusOgAndelList().get(0)
+        var arbFor = beregningsgrunnlag.getBeregningsgrunnlagPerioder().get(0).getBeregningsgrunnlagPrStatusOgAndelList().get(0)
                 .getBgAndelArbeidsforhold().get();
         assertThat(arbFor.getArbeidsgiver().getIdentifikator()).isEqualTo(aktørId.getId());
 
-        Optional<BeregningsgrunnlagEntitet> beregningsgrunnlagLest = beregningsgrunnlagRepository
+        var beregningsgrunnlagLest = beregningsgrunnlagRepository
                 .hentBeregningsgrunnlagForBehandling(behandling.getId());
 
         assertThat(beregningsgrunnlagLest).isEqualTo(Optional.of(beregningsgrunnlag));
@@ -383,11 +380,11 @@ public class BeregningsgrunnlagRepositoryTest {
     }
 
     private BeregningsgrunnlagEntitet buildBeregningsgrunnlagPrivatpersonArbgiver(AktørId aktørId) {
-        BeregningsgrunnlagEntitet beregningsgrunnlag = buildBeregningsgrunnlag();
-        BeregningsgrunnlagPrStatusOgAndel andel = beregningsgrunnlag.getBeregningsgrunnlagPerioder().get(0).getBeregningsgrunnlagPrStatusOgAndelList()
+        var beregningsgrunnlag = buildBeregningsgrunnlag();
+        var andel = beregningsgrunnlag.getBeregningsgrunnlagPerioder().get(0).getBeregningsgrunnlagPrStatusOgAndelList()
                 .get(0);
-        BGAndelArbeidsforhold bgArbFor = andel.getBgAndelArbeidsforhold().get();
-        BGAndelArbeidsforhold.Builder bgBuilder = BGAndelArbeidsforhold
+        var bgArbFor = andel.getBgAndelArbeidsforhold().get();
+        var bgBuilder = BGAndelArbeidsforhold
                 .builder(bgArbFor)
                 .medArbeidsgiver(Arbeidsgiver.person(aktørId));
         BeregningsgrunnlagPrStatusOgAndel.builder(andel).medBGAndelArbeidsforhold(bgBuilder)
@@ -399,34 +396,34 @@ public class BeregningsgrunnlagRepositoryTest {
     public void lagreBeregningsgrunnlagOgUnderliggendeTabeller(EntityManager em) {
         // Arrange
         var behandling = opprettBehandling();
-        BeregningsgrunnlagEntitet beregningsgrunnlag = buildBeregningsgrunnlag();
+        var beregningsgrunnlag = buildBeregningsgrunnlag();
 
         // Act
         beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag, STEG_OPPRETTET);
 
         // Assert
-        Long bgId = beregningsgrunnlag.getId();
+        var bgId = beregningsgrunnlag.getId();
         assertThat(bgId).isNotNull();
-        Long bgAktivitetStatusId = beregningsgrunnlag.getAktivitetStatuser().get(0).getId();
+        var bgAktivitetStatusId = beregningsgrunnlag.getAktivitetStatuser().get(0).getId();
         assertThat(bgAktivitetStatusId).isNotNull();
-        Long sammenlingningsgrId = beregningsgrunnlag.getSammenligningsgrunnlag().get().getId();
+        var sammenlingningsgrId = beregningsgrunnlag.getSammenligningsgrunnlag().get().getId();
         assertThat(sammenlingningsgrId).isNotNull();
-        BeregningsgrunnlagPeriode bgPeriodeLagret = beregningsgrunnlag.getBeregningsgrunnlagPerioder().get(0);
-        Long bgPeriodeId = bgPeriodeLagret.getId();
+        var bgPeriodeLagret = beregningsgrunnlag.getBeregningsgrunnlagPerioder().get(0);
+        var bgPeriodeId = bgPeriodeLagret.getId();
         assertThat(bgPeriodeId).isNotNull();
-        Long bgPrStatusOgAndelId = bgPeriodeLagret.getBeregningsgrunnlagPrStatusOgAndelList().get(0).getId();
+        var bgPrStatusOgAndelId = bgPeriodeLagret.getBeregningsgrunnlagPrStatusOgAndelList().get(0).getId();
         assertThat(bgPrStatusOgAndelId).isNotNull();
-        Long bgPeriodeÅrsakId = bgPeriodeLagret.getBeregningsgrunnlagPeriodeÅrsaker().get(0).getId();
+        var bgPeriodeÅrsakId = bgPeriodeLagret.getBeregningsgrunnlagPeriodeÅrsaker().get(0).getId();
         assertThat(bgPeriodeÅrsakId).isNotNull();
 
         em.flush();
         em.clear();
-        BeregningsgrunnlagEntitet beregningsgrunnlagLest = em.find(BeregningsgrunnlagEntitet.class, bgId);
-        BeregningsgrunnlagAktivitetStatus bgAktivitetStatusLest = em.find(BeregningsgrunnlagAktivitetStatus.class, bgAktivitetStatusId);
-        Sammenligningsgrunnlag sammenligningsgrunnlagLest = em.find(Sammenligningsgrunnlag.class, sammenlingningsgrId);
-        BeregningsgrunnlagPeriode bgPeriodeLest = em.find(BeregningsgrunnlagPeriode.class, bgPeriodeId);
-        BeregningsgrunnlagPrStatusOgAndel bgPrStatusOgAndelLest = em.find(BeregningsgrunnlagPrStatusOgAndel.class, bgPrStatusOgAndelId);
-        BeregningsgrunnlagPeriodeÅrsak bgPeriodeÅrsakLest = em.find(BeregningsgrunnlagPeriodeÅrsak.class, bgPeriodeÅrsakId);
+        var beregningsgrunnlagLest = em.find(BeregningsgrunnlagEntitet.class, bgId);
+        var bgAktivitetStatusLest = em.find(BeregningsgrunnlagAktivitetStatus.class, bgAktivitetStatusId);
+        var sammenligningsgrunnlagLest = em.find(Sammenligningsgrunnlag.class, sammenlingningsgrId);
+        var bgPeriodeLest = em.find(BeregningsgrunnlagPeriode.class, bgPeriodeId);
+        var bgPrStatusOgAndelLest = em.find(BeregningsgrunnlagPrStatusOgAndel.class, bgPrStatusOgAndelId);
+        var bgPeriodeÅrsakLest = em.find(BeregningsgrunnlagPeriodeÅrsak.class, bgPeriodeÅrsakId);
 
         assertThat(beregningsgrunnlag.getId()).isNotNull();
         assertThat(beregningsgrunnlagLest.getAktivitetStatuser()).hasSize(1);
@@ -446,17 +443,17 @@ public class BeregningsgrunnlagRepositoryTest {
     public void toBehandlingerKanHaSammeBeregningsgrunnlag() {
         // Arrange
         var behandling = opprettBehandling();
-        Behandling behandling2 = opprettBehandling();
-        BeregningsgrunnlagEntitet beregningsgrunnlag = buildBeregningsgrunnlag();
+        var behandling2 = opprettBehandling();
+        var beregningsgrunnlag = buildBeregningsgrunnlag();
 
         // Act
         beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag, STEG_OPPRETTET);
         beregningsgrunnlagRepository.lagre(behandling2.getId(), beregningsgrunnlag, STEG_OPPRETTET);
 
         // Assert
-        Optional<BeregningsgrunnlagEntitet> beregningsgrunnlagOpt1 = beregningsgrunnlagRepository
+        var beregningsgrunnlagOpt1 = beregningsgrunnlagRepository
                 .hentBeregningsgrunnlagForBehandling(behandling.getId());
-        Optional<BeregningsgrunnlagEntitet> beregningsgrunnlagOpt2 = beregningsgrunnlagRepository
+        var beregningsgrunnlagOpt2 = beregningsgrunnlagRepository
                 .hentBeregningsgrunnlagForBehandling(behandling2.getId());
         assertThat(beregningsgrunnlagOpt1).hasValueSatisfying(beregningsgrunnlag1 -> assertThat(beregningsgrunnlagOpt2)
                 .hasValueSatisfying(beregningsgrunnlag2 -> assertThat(beregningsgrunnlag1).isSameAs(beregningsgrunnlag2)));
@@ -470,9 +467,9 @@ public class BeregningsgrunnlagRepositoryTest {
     public void skalHenteRiktigBeregningsgrunnlagBasertPåId() {
         // Arrange
         var behandling = opprettBehandling();
-        Behandling behandling2 = opprettBehandling();
-        BeregningsgrunnlagEntitet beregningsgrunnlag = buildBeregningsgrunnlag();
-        BeregningsgrunnlagEntitet beregningsgrunnlag2 = BeregningsgrunnlagEntitet.builder(beregningsgrunnlag)
+        var behandling2 = opprettBehandling();
+        var beregningsgrunnlag = buildBeregningsgrunnlag();
+        var beregningsgrunnlag2 = BeregningsgrunnlagEntitet.builder(beregningsgrunnlag)
                 .medSkjæringstidspunkt(beregningsgrunnlag.getSkjæringstidspunkt().plusDays(1))
                 .build();
 
@@ -482,26 +479,26 @@ public class BeregningsgrunnlagRepositoryTest {
         beregningsgrunnlagRepository.lagre(behandling2.getId(), beregningsgrunnlag2, STEG_OPPRETTET);
 
         // Assert
-        Optional<BeregningsgrunnlagEntitet> beregningsgrunnlagOpt = beregningsgrunnlagRepository
+        var beregningsgrunnlagOpt = beregningsgrunnlagRepository
                 .hentBeregningsgrunnlagForId(beregningsgrunnlag2.getId());
         assertThat(beregningsgrunnlagOpt).hasValueSatisfying(bg -> assertThat(bg).isSameAs(beregningsgrunnlag2));
     }
 
-    private BeregningsgrunnlagPrStatusOgAndel buildBgPrStatusOgAndel(BeregningsgrunnlagPeriode beregningsgrunnlagPeriode) {
-        BGAndelArbeidsforhold.Builder bga = BGAndelArbeidsforhold
+    private void buildBgPrStatusOgAndel(BeregningsgrunnlagPeriode beregningsgrunnlagPeriode) {
+        var bga = BGAndelArbeidsforhold
                 .builder()
                 .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
                 .medNaturalytelseBortfaltPrÅr(BigDecimal.valueOf(3232.32))
                 .medArbeidsperiodeFom(LocalDate.now().minusYears(1))
                 .medArbeidsperiodeTom(LocalDate.now().plusYears(2));
-        return BeregningsgrunnlagPrStatusOgAndel.builder()
-                .medBGAndelArbeidsforhold(bga)
-                .medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
-                .medBeregningsperiode(LocalDate.now().minusDays(10), LocalDate.now().minusDays(5))
-                .medOverstyrtPrÅr(BigDecimal.valueOf(4444432.32))
-                .medAvkortetPrÅr(BigDecimal.valueOf(423.23))
-                .medRedusertPrÅr(BigDecimal.valueOf(52335))
-                .build(beregningsgrunnlagPeriode);
+        BeregningsgrunnlagPrStatusOgAndel.builder()
+            .medBGAndelArbeidsforhold(bga)
+            .medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
+            .medBeregningsperiode(LocalDate.now().minusDays(10), LocalDate.now().minusDays(5))
+            .medOverstyrtPrÅr(BigDecimal.valueOf(4444432.32))
+            .medAvkortetPrÅr(BigDecimal.valueOf(423.23))
+            .medRedusertPrÅr(BigDecimal.valueOf(52335))
+            .build(beregningsgrunnlagPeriode);
     }
 
     private BeregningsgrunnlagPeriode buildBeregningsgrunnlagPeriode(BeregningsgrunnlagEntitet beregningsgrunnlag) {
@@ -517,7 +514,7 @@ public class BeregningsgrunnlagRepositoryTest {
     }
 
     private BeregningsgrunnlagEntitet buildBeregningsgrunnlag() {
-        BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
+        var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
                 .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
                 .medGrunnbeløp(BigDecimal.valueOf(91425))
                 .medRegelloggSkjæringstidspunkt("input1", "clob1")
@@ -526,22 +523,22 @@ public class BeregningsgrunnlagRepositoryTest {
                 .build();
         buildSammenligningsgrunnlag(beregningsgrunnlag);
         buildBgAktivitetStatus(beregningsgrunnlag);
-        BeregningsgrunnlagPeriode bgPeriode = buildBeregningsgrunnlagPeriode(beregningsgrunnlag);
+        var bgPeriode = buildBeregningsgrunnlagPeriode(beregningsgrunnlag);
         buildBgPrStatusOgAndel(bgPeriode);
         return beregningsgrunnlag;
     }
 
-    private BeregningsgrunnlagAktivitetStatus buildBgAktivitetStatus(BeregningsgrunnlagEntitet beregningsgrunnlag) {
-        return BeregningsgrunnlagAktivitetStatus.builder()
-                .medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
-                .build(beregningsgrunnlag);
+    private void buildBgAktivitetStatus(BeregningsgrunnlagEntitet beregningsgrunnlag) {
+        BeregningsgrunnlagAktivitetStatus.builder()
+            .medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
+            .build(beregningsgrunnlag);
     }
 
-    private Sammenligningsgrunnlag buildSammenligningsgrunnlag(BeregningsgrunnlagEntitet beregningsgrunnlag) {
-        return Sammenligningsgrunnlag.builder()
-                .medSammenligningsperiode(LocalDate.now().minusDays(12), LocalDate.now().minusDays(6))
-                .medRapportertPrÅr(BigDecimal.valueOf(323212.12))
-                .medAvvikPromille(BigDecimal.valueOf(120))
-                .build(beregningsgrunnlag);
+    private void buildSammenligningsgrunnlag(BeregningsgrunnlagEntitet beregningsgrunnlag) {
+        Sammenligningsgrunnlag.builder()
+            .medSammenligningsperiode(LocalDate.now().minusDays(12), LocalDate.now().minusDays(6))
+            .medRapportertPrÅr(BigDecimal.valueOf(323212.12))
+            .medAvvikPromille(BigDecimal.valueOf(120))
+            .build(beregningsgrunnlag);
     }
 }

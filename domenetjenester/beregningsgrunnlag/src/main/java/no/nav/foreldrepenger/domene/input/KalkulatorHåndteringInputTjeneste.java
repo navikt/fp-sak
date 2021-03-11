@@ -26,33 +26,32 @@ public class KalkulatorHåndteringInputTjeneste {
 
     @Inject
     public KalkulatorHåndteringInputTjeneste(BeregningsgrunnlagRepository beregningsgrunnlagRepository,
-            BehandlingRepository behandlingRepository,
-            BeregningTilInputTjeneste beregningTilInputTjeneste) {
+                                             BehandlingRepository behandlingRepository,
+                                             BeregningTilInputTjeneste beregningTilInputTjeneste) {
         this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
         this.behandlingRepository = behandlingRepository;
         this.beregningTilInputTjeneste = beregningTilInputTjeneste;
     }
 
-    public HåndterBeregningsgrunnlagInput lagInput(Long behandlingId, BeregningsgrunnlagInput input, String aksjonspunktKode) {
+    public HåndterBeregningsgrunnlagInput lagInput(Long behandlingId,
+                                                   BeregningsgrunnlagInput input,
+                                                   String aksjonspunktKode) {
         Objects.requireNonNull(behandlingId, "behandlingId");
-        Optional<BeregningsgrunnlagGrunnlagEntitet> grunnlagFraForrigeOppdatering = beregningsgrunnlagRepository
-                .hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(
-                        behandlingId,
-                        behandlingRepository.hentBehandling(behandlingId).getOriginalBehandlingId(),
-                        MapHåndteringskodeTilTilstand.map(aksjonspunktKode));
+        var grunnlagFraForrigeOppdatering = beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(
+            behandlingId, behandlingRepository.hentBehandling(behandlingId).getOriginalBehandlingId(),
+            MapHåndteringskodeTilTilstand.map(aksjonspunktKode));
         return lagHåndteringBeregningsgrunnlagInput(input, aksjonspunktKode, grunnlagFraForrigeOppdatering);
 
     }
 
     private HåndterBeregningsgrunnlagInput lagHåndteringBeregningsgrunnlagInput(BeregningsgrunnlagInput input,
-            String håndteringKode,
-            Optional<BeregningsgrunnlagGrunnlagEntitet> grunnlagFraHåndteringTilstand) {
-        BeregningsgrunnlagInput inputMedBG = beregningTilInputTjeneste.lagInputMedVerdierFraBeregning(input);
+                                                                                String håndteringKode,
+                                                                                Optional<BeregningsgrunnlagGrunnlagEntitet> grunnlagFraHåndteringTilstand) {
+        var inputMedBG = beregningTilInputTjeneste.lagInputMedVerdierFraBeregning(input);
         return new HåndterBeregningsgrunnlagInput(inputMedBG,
-            no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand
-                        .fraKode(MapHåndteringskodeTilTilstand.map(håndteringKode).getKode()))
-                                .medForrigeGrunnlagFraHåndtering(
-                                        grunnlagFraHåndteringTilstand.map(BehandlingslagerTilKalkulusMapper::mapGrunnlag).orElse(null));
+            no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand.fraKode(
+                MapHåndteringskodeTilTilstand.map(håndteringKode).getKode())).medForrigeGrunnlagFraHåndtering(
+            grunnlagFraHåndteringTilstand.map(BehandlingslagerTilKalkulusMapper::mapGrunnlag).orElse(null));
     }
 
 }

@@ -25,7 +25,7 @@ import no.nav.foreldrepenger.domene.modell.SammenligningsgrunnlagPrStatus;
 
 public class BGMapperTilKalkulus {
     public static SammenligningsgrunnlagDto mapSammenligningsgrunnlag(Sammenligningsgrunnlag fraFpsak) {
-        SammenligningsgrunnlagDto.Builder builder = SammenligningsgrunnlagDto.builder();
+        var builder = SammenligningsgrunnlagDto.builder();
         builder.medAvvikPromilleNy(fraFpsak.getAvvikPromille());
         builder.medRapportertPrÅr(fraFpsak.getRapportertPrÅr());
         builder.medSammenligningsperiode(fraFpsak.getSammenligningsperiodeFom(), fraFpsak.getSammenligningsperiodeFom());
@@ -33,7 +33,7 @@ public class BGMapperTilKalkulus {
     }
 
     public static BeregningsgrunnlagAktivitetStatusDto.Builder mapAktivitetStatus(BeregningsgrunnlagAktivitetStatus fraFpsak) {
-        BeregningsgrunnlagAktivitetStatusDto.Builder builder = new BeregningsgrunnlagAktivitetStatusDto.Builder();
+        var builder = new BeregningsgrunnlagAktivitetStatusDto.Builder();
         builder.medAktivitetStatus(AktivitetStatus.fraKode(fraFpsak.getAktivitetStatus().getKode()));
         builder.medHjemmel(Hjemmel.fraKode(fraFpsak.getHjemmel().getKode()));
 
@@ -41,7 +41,7 @@ public class BGMapperTilKalkulus {
     }
 
     public static BeregningsgrunnlagPeriodeDto.Builder mapBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode fraFpsak) {
-        BeregningsgrunnlagPeriodeDto.Builder builder = new BeregningsgrunnlagPeriodeDto.Builder();
+        var builder = new BeregningsgrunnlagPeriodeDto.Builder();
 
         //med
         builder.medAvkortetPrÅr(fraFpsak.getAvkortetPrÅr());
@@ -57,7 +57,7 @@ public class BGMapperTilKalkulus {
     }
 
     public static SammenligningsgrunnlagPrStatusDto.Builder mapSammenligningsgrunnlagMedStatus(SammenligningsgrunnlagPrStatus fraFpsak) {
-        SammenligningsgrunnlagPrStatusDto.Builder builder = new SammenligningsgrunnlagPrStatusDto.Builder();
+        var builder = new SammenligningsgrunnlagPrStatusDto.Builder();
         builder.medAvvikPromilleNy(fraFpsak.getAvvikPromille());
         builder.medRapportertPrÅr(fraFpsak.getRapportertPrÅr());
         builder.medSammenligningsgrunnlagType(SammenligningsgrunnlagType.fraKode(fraFpsak.getSammenligningsgrunnlagType().getKode()));
@@ -67,7 +67,7 @@ public class BGMapperTilKalkulus {
     }
 
     private static BeregningsgrunnlagPrStatusOgAndelDto.Builder mapStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel fraFpsak) {
-        BeregningsgrunnlagPrStatusOgAndelDto.Builder builder = BeregningsgrunnlagPrStatusOgAndelDto.ny()
+        var builder = BeregningsgrunnlagPrStatusOgAndelDto.ny()
             .medAktivitetStatus(AktivitetStatus.fraKode(fraFpsak.getAktivitetStatus().getKode()))
             .medAndelsnr(fraFpsak.getAndelsnr())
             .medArbforholdType(fraFpsak.getArbeidsforholdType() == null ? null : OpptjeningAktivitetType.fraKode(fraFpsak.getArbeidsforholdType().getKode()))
@@ -102,7 +102,7 @@ public class BGMapperTilKalkulus {
     }
 
     private static BGAndelArbeidsforholdDto.Builder magBGAndelArbeidsforhold(BGAndelArbeidsforhold fraFpsak) {
-        BGAndelArbeidsforholdDto.Builder builder = BGAndelArbeidsforholdDto.builder();
+        var builder = BGAndelArbeidsforholdDto.builder();
         builder.medArbeidsforholdRef(IAYMapperTilKalkulus.mapArbeidsforholdRef(fraFpsak.getArbeidsforholdRef()));
         builder.medArbeidsgiver(IAYMapperTilKalkulus.mapArbeidsgiver(fraFpsak.getArbeidsgiver()));
         builder.medArbeidsperiodeFom(fraFpsak.getArbeidsperiodeFom());

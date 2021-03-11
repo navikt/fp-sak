@@ -50,7 +50,7 @@ public @interface FagsakYtelseTypeRef {
     String value() default "*";
 
     /** AnnotationLiteral som kan brukes ved CDI søk. */
-    public static class FagsakYtelseTypeRefLiteral extends AnnotationLiteral<FagsakYtelseTypeRef> implements FagsakYtelseTypeRef {
+    class FagsakYtelseTypeRefLiteral extends AnnotationLiteral<FagsakYtelseTypeRef> implements FagsakYtelseTypeRef {
 
         private String navn;
 
@@ -74,7 +74,7 @@ public @interface FagsakYtelseTypeRef {
     }
 
     @SuppressWarnings("unchecked")
-    public static final class Lookup {
+    final class Lookup {
 
         private Lookup() {
         }
@@ -132,7 +132,7 @@ public @interface FagsakYtelseTypeRef {
         }
 
         private static List<String> coalesce(String... vals) {
-            return Arrays.asList(vals).stream().filter(v -> v != null).distinct().collect(Collectors.toList());
+            return Arrays.stream(vals).filter(v -> v != null).distinct().collect(Collectors.toList());
         }
     }
 
@@ -145,7 +145,7 @@ public @interface FagsakYtelseTypeRef {
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ ElementType.TYPE, ElementType.PARAMETER, ElementType.FIELD })
     @Documented
-    public @interface ContainerOfFagsakYtelseTypeRef {
+    @interface ContainerOfFagsakYtelseTypeRef {
         FagsakYtelseTypeRef[] value();
     }
 }

@@ -16,7 +16,9 @@ import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand;
 
-/** Fasade tjeneste eksponert fra modul for å hente opp beregningsgrunnlag i andre moduler. */
+/**
+ * Fasade tjeneste eksponert fra modul for å hente opp beregningsgrunnlag i andre moduler.
+ */
 @ApplicationScoped
 public class HentOgLagreBeregningsgrunnlagTjeneste {
 
@@ -36,9 +38,10 @@ public class HentOgLagreBeregningsgrunnlagTjeneste {
     }
 
     public Optional<BeregningsgrunnlagGrunnlagEntitet> hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(Long behandlingId,
-                                                                                                   Optional<Long> originalBehandlingId,
-                                                                                                   BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
-        return beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(behandlingId, originalBehandlingId, beregningsgrunnlagTilstand);
+                                                                                                                 Optional<Long> originalBehandlingId,
+                                                                                                                 BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
+        return beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(behandlingId,
+            originalBehandlingId, beregningsgrunnlagTilstand);
     }
 
     public Optional<BeregningsgrunnlagGrunnlagEntitet> hentBeregningsgrunnlagGrunnlagEntitet(Long behandlingId) {
@@ -49,8 +52,10 @@ public class HentOgLagreBeregningsgrunnlagTjeneste {
         return beregningsgrunnlagRepository.hentBeregningsgrunnlagAggregatForBehandling(behandlingId);
     }
 
-    public Optional<BeregningsgrunnlagGrunnlagEntitet> hentSisteBeregningsgrunnlagGrunnlagEntitet(Long behandlingid, BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
-        return beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitet(behandlingid, beregningsgrunnlagTilstand);
+    public Optional<BeregningsgrunnlagGrunnlagEntitet> hentSisteBeregningsgrunnlagGrunnlagEntitet(Long behandlingid,
+                                                                                                  BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
+        return beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitet(behandlingid,
+            beregningsgrunnlagTilstand);
     }
 
     public Optional<BeregningsgrunnlagEntitet> hentBeregningsgrunnlagEntitetForId(Long beregningsgrunnlagId) {
@@ -62,7 +67,8 @@ public class HentOgLagreBeregningsgrunnlagTjeneste {
     }
 
     public void lagre(Long behandlingId, BeregningsgrunnlagGrunnlagDto fraKalkulus) {
-        BeregningsgrunnlagGrunnlagBuilder builder = BeregningsgrunnlagGrunnlagBuilder.kopi(beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(behandlingId));
+        var builder = BeregningsgrunnlagGrunnlagBuilder.kopi(
+            beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(behandlingId));
 
         fraKalkulus.getSaksbehandletAktiviteter()
             .map(KalkulusTilBehandlingslagerMapper::mapSaksbehandletAktivitet)
@@ -73,14 +79,16 @@ public class HentOgLagreBeregningsgrunnlagTjeneste {
             .ifPresent(builder::medRefusjonOverstyring);
 
         fraKalkulus.getBeregningsgrunnlag()
-            .map(beregningsgrunnlagFraKalkulus -> KalkulusTilBehandlingslagerMapper.mapBeregningsgrunnlag(beregningsgrunnlagFraKalkulus, fraKalkulus.getFaktaAggregat(), Optional.empty()))
+            .map(beregningsgrunnlagFraKalkulus -> KalkulusTilBehandlingslagerMapper.mapBeregningsgrunnlag(
+                beregningsgrunnlagFraKalkulus, fraKalkulus.getFaktaAggregat(), Optional.empty()))
             .ifPresent(builder::medBeregningsgrunnlag);
 
         fraKalkulus.getOverstyring()
             .map(KalkulusTilBehandlingslagerMapper::mapAktivitetOverstyring)
             .ifPresent(builder::medOverstyring);
 
-        beregningsgrunnlagRepository.lagre(behandlingId, builder, mapTilstand(fraKalkulus.getBeregningsgrunnlagTilstand()));
+        beregningsgrunnlagRepository.lagre(behandlingId, builder,
+            mapTilstand(fraKalkulus.getBeregningsgrunnlagTilstand()));
     }
 
 }

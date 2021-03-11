@@ -55,37 +55,45 @@ public class FaktaBeregningHistorikkHåndterer {
 
 
     /**
-     *  Lager historikk for bekreftelse av aksjonpunkt 5058 i fakta om beregning
-     *  @param param AksjonspunktOppdaterParameter for oppdatering
-     * @param dto Dto for bekreftelse av aksjonspunkt for fakta om beregning
-     * @param nyttBeregningsgrunnlag Aktivt og oppdatert beregningsgrunnlag
-     * @param forrigeGrunnlag Forrige beregningsgrunnlag lagret på veg ut av fakta om beregning (KOFAKBER_UT)
+     * Lager historikk for bekreftelse av aksjonpunkt 5058 i fakta om beregning
+     *
+     * @param param                       AksjonspunktOppdaterParameter for oppdatering
+     * @param dto                         Dto for bekreftelse av aksjonspunkt for fakta om beregning
+     * @param nyttBeregningsgrunnlag      Aktivt og oppdatert beregningsgrunnlag
+     * @param forrigeGrunnlag             Forrige beregningsgrunnlag lagret på veg ut av fakta om beregning (KOFAKBER_UT)
      * @param inntektArbeidYtelseGrunnlag
      */
-    public void lagHistorikk(AksjonspunktOppdaterParameter param, VurderFaktaOmBeregningDto dto,
-                             BeregningsgrunnlagEntitet nyttBeregningsgrunnlag, Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag, InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag) {
-        HistorikkInnslagTekstBuilder tekstBuilder = historikkAdapter.tekstBuilder();
-        håndterTilfelleHistorikk(param.getBehandlingId(), dto.getFakta(), nyttBeregningsgrunnlag, forrigeGrunnlag, tekstBuilder, inntektArbeidYtelseGrunnlag);
+    public void lagHistorikk(AksjonspunktOppdaterParameter param,
+                             VurderFaktaOmBeregningDto dto,
+                             BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
+                             Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
+                             InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag) {
+        var tekstBuilder = historikkAdapter.tekstBuilder();
+        håndterTilfelleHistorikk(param.getBehandlingId(), dto.getFakta(), nyttBeregningsgrunnlag, forrigeGrunnlag,
+            tekstBuilder, inntektArbeidYtelseGrunnlag);
         lagHistorikkInnslag(dto.getKode(), dto.getBegrunnelse(), tekstBuilder, param.erBegrunnelseEndret());
     }
 
     /**
-     *  Lager historikk for overstyring av inntekter i fakta om beregning. Lager også historikk for tilfeller ettersom disse også blir lagret når man overstyrer.
+     * Lager historikk for overstyring av inntekter i fakta om beregning. Lager også historikk for tilfeller ettersom disse også blir lagret når man overstyrer.
      *
-     * @param behandling Aktuell behandling
-     * @param dto Dto for bekreftelse av overstyringsaksjonspunk for fakta om beregning (overstyring av innekter)
-     * @param aktivtGrunnlag Det aktive og oppdaterte beregningsgrunnlaget
+     * @param behandling      Aktuell behandling
+     * @param dto             Dto for bekreftelse av overstyringsaksjonspunk for fakta om beregning (overstyring av innekter)
+     * @param aktivtGrunnlag  Det aktive og oppdaterte beregningsgrunnlaget
      * @param forrigeGrunnlag Det forrige grunnlaget som ble lagret i fakta om beregning
      */
-    public void lagHistorikkOverstyringInntekt(Behandling behandling, OverstyrBeregningsgrunnlagDto dto,
+    public void lagHistorikkOverstyringInntekt(Behandling behandling,
+                                               OverstyrBeregningsgrunnlagDto dto,
                                                BeregningsgrunnlagEntitet aktivtGrunnlag,
                                                Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag) {
 
-        HistorikkInnslagTekstBuilder tekstBuilder = historikkAdapter.tekstBuilder();
-        boolean endretBegrunnelse = true;
-        InntektArbeidYtelseGrunnlag iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId());
-        håndterTilfelleHistorikk(behandling.getId(), dto.getFakta(), aktivtGrunnlag, forrigeGrunnlag, tekstBuilder, iayGrunnlag);
-        faktaOmBeregningOverstyringHistorikkTjeneste.lagHistorikk(behandling.getId(), dto, tekstBuilder, aktivtGrunnlag, forrigeGrunnlag, iayGrunnlag);
+        var tekstBuilder = historikkAdapter.tekstBuilder();
+        var endretBegrunnelse = true;
+        var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId());
+        håndterTilfelleHistorikk(behandling.getId(), dto.getFakta(), aktivtGrunnlag, forrigeGrunnlag, tekstBuilder,
+            iayGrunnlag);
+        faktaOmBeregningOverstyringHistorikkTjeneste.lagHistorikk(behandling.getId(), dto, tekstBuilder, aktivtGrunnlag,
+            forrigeGrunnlag, iayGrunnlag);
         lagHistorikkInnslag(dto.getKode(), dto.getBegrunnelse(), tekstBuilder, endretBegrunnelse);
     }
 
@@ -101,12 +109,16 @@ public class FaktaBeregningHistorikkHåndterer {
             .filter(Optional::isPresent)
             .map(Optional::get)
             .collect(Collectors.toList())
-            .forEach(historikkTjeneste -> historikkTjeneste.lagHistorikk(behandlingId, dto, tekstBuilder, nyttBeregningsgrunnlag, forrigeGrunnlag, iayGrunnlag));
+            .forEach(historikkTjeneste -> historikkTjeneste.lagHistorikk(behandlingId, dto, tekstBuilder,
+                nyttBeregningsgrunnlag, forrigeGrunnlag, iayGrunnlag));
     }
 
-    private void lagHistorikkInnslag(String kode, String begrunnelse, HistorikkInnslagTekstBuilder tekstBuilder, boolean endretBegrunnelse) {
+    private void lagHistorikkInnslag(String kode,
+                                     String begrunnelse,
+                                     HistorikkInnslagTekstBuilder tekstBuilder,
+                                     boolean endretBegrunnelse) {
         tekstBuilder.ferdigstillHistorikkinnslagDel();
-        List<HistorikkinnslagDel> historikkDeler = tekstBuilder.getHistorikkinnslagDeler();
+        var historikkDeler = tekstBuilder.getHistorikkinnslagDeler();
         if (AksjonspunktKodeDefinisjon.OVERSTYRING_AV_BEREGNINGSGRUNNLAG_KODE.equals(kode)) {
             settBegrunnelseUtenDiffsjekk(historikkDeler, tekstBuilder, begrunnelse);
         } else {
@@ -118,7 +130,7 @@ public class FaktaBeregningHistorikkHåndterer {
     private void settBegrunnelseUtenDiffsjekk(List<HistorikkinnslagDel> historikkDeler,
                                               HistorikkInnslagTekstBuilder tekstBuilder,
                                               String begrunnelse) {
-        boolean erBegrunnelseSatt = historikkDeler.stream()
+        var erBegrunnelseSatt = historikkDeler.stream()
             .anyMatch(historikkDel -> historikkDel.getBegrunnelse().isPresent());
         if (!erBegrunnelseSatt) {
             tekstBuilder.medBegrunnelse(begrunnelse);
@@ -131,7 +143,7 @@ public class FaktaBeregningHistorikkHåndterer {
                                  HistorikkInnslagTekstBuilder tekstBuilder,
                                  String begrunnelse,
                                  boolean endretBegrunnelse) {
-        boolean erBegrunnelseSatt = historikkDeler.stream()
+        var erBegrunnelseSatt = historikkDeler.stream()
             .anyMatch(historikkDel -> historikkDel.getBegrunnelse().isPresent());
         if (!erBegrunnelseSatt) {
             if (endretBegrunnelse) {
@@ -142,11 +154,12 @@ public class FaktaBeregningHistorikkHåndterer {
         }
     }
 
-    private void settSkjermlenkeOmIkkjeSatt(List<HistorikkinnslagDel> historikkDeler, HistorikkInnslagTekstBuilder tekstBuilder) {
-        boolean erSkjermlenkeSatt = historikkDeler.stream()
+    private void settSkjermlenkeOmIkkjeSatt(List<HistorikkinnslagDel> historikkDeler,
+                                            HistorikkInnslagTekstBuilder tekstBuilder) {
+        var erSkjermlenkeSatt = historikkDeler.stream()
             .anyMatch(historikkDel -> historikkDel.getSkjermlenke().isPresent());
         if (!erSkjermlenkeSatt && !historikkDeler.isEmpty()) {
-            HistorikkinnslagDel.Builder builder = HistorikkinnslagDel.builder(tekstBuilder.getHistorikkinnslagDeler().get(0));
+            var builder = HistorikkinnslagDel.builder(tekstBuilder.getHistorikkinnslagDeler().get(0));
             HistorikkinnslagFelt.builder()
                 .medFeltType(HistorikkinnslagFeltType.SKJERMLENKE)
                 .medTilVerdi(SkjermlenkeType.FAKTA_OM_BEREGNING)

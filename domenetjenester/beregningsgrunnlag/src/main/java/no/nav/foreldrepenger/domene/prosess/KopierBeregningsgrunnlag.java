@@ -6,7 +6,6 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 
 import no.nav.folketrygdloven.kalkulator.output.BeregningAksjonspunktResultat;
-import no.nav.foreldrepenger.domene.modell.BeregningAktivitetAggregatEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
 
@@ -19,16 +18,18 @@ class KopierBeregningsgrunnlag {
 
     /**
      * Sjekker om det er mulig å kopiere beregningsgrunnlagGrunnlaget som ble bekreftet ved forrige saksbehandling om det har oppstått aksjonspunkter.
-     * @param aksjonspunkter Utledede aksjonspunkter for nytt beregningsgrunnlag
-     * @param nyttGrunnlag Nytt beregningsgrunnlagGrunnlag
-     * @param forrigeGrunnlag Forrige grunnlag som lagres i beregningsteget
+     *
+     * @param aksjonspunkter           Utledede aksjonspunkter for nytt beregningsgrunnlag
+     * @param nyttGrunnlag             Nytt beregningsgrunnlagGrunnlag
+     * @param forrigeGrunnlag          Forrige grunnlag som lagres i beregningsteget
      * @param forrigeBekreftetGrunnlag Forrige grunnlag som ble lagret etter saksbehandlers vurdering i steget
      */
     static boolean kanKopiereFraForrigeBekreftetGrunnlag(List<BeregningAksjonspunktResultat> aksjonspunkter,
                                                          BeregningsgrunnlagGrunnlagEntitet nyttGrunnlag,
                                                          Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
                                                          Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeBekreftetGrunnlag) {
-        boolean kanKopiereFraBekreftet = kanKopiereAktiviteter(aksjonspunkter, nyttGrunnlag, forrigeGrunnlag, forrigeBekreftetGrunnlag);
+        var kanKopiereFraBekreftet = kanKopiereAktiviteter(aksjonspunkter, nyttGrunnlag, forrigeGrunnlag,
+            forrigeBekreftetGrunnlag);
         if (kanKopiereFraBekreftet) {
             return forrigeBekreftetGrunnlag.isPresent();
         } else {
@@ -38,19 +39,17 @@ class KopierBeregningsgrunnlag {
 
     /**
      * Sjekker om det er mulig å kopiere beregningsgrunnlaget som ble bekreftet ved forrige saksbehandling om det har oppstått aksjonspunkter.
-     * @param aksjonspunkter Utledede aksjonspunkter for nytt beregningsgrunnlag
-     * @param nyttBg Nytt beregningsgrunnlag
-     * @param forrigeBeregningsgrunnlag Forrige beregningsgrunnlag som lagres i beregningsteget
+     *
+     * @param aksjonspunkter                     Utledede aksjonspunkter for nytt beregningsgrunnlag
+     * @param nyttBg                             Nytt beregningsgrunnlag
+     * @param forrigeBeregningsgrunnlag          Forrige beregningsgrunnlag som lagres i beregningsteget
      * @param forrigeBekreftetBeregningsgrunnlag Forrige beregningsgrunnlag som ble lagret etter saksbehandlers vurdering i steget
      */
     static boolean kanKopiereFraForrigeBekreftetGrunnlag(List<BeregningAksjonspunktResultat> aksjonspunkter,
                                                          BeregningsgrunnlagEntitet nyttBg,
                                                          Optional<BeregningsgrunnlagEntitet> forrigeBeregningsgrunnlag,
                                                          Optional<BeregningsgrunnlagEntitet> forrigeBekreftetBeregningsgrunnlag) {
-        boolean kanKopiereFraBekreftet = kanKopiereBeregningsgrunnlag(
-            aksjonspunkter,
-            nyttBg,
-            forrigeBeregningsgrunnlag);
+        var kanKopiereFraBekreftet = kanKopiereBeregningsgrunnlag(aksjonspunkter, nyttBg, forrigeBeregningsgrunnlag);
         if (kanKopiereFraBekreftet) {
             return forrigeBekreftetBeregningsgrunnlag.isPresent();
         } else {
@@ -62,15 +61,21 @@ class KopierBeregningsgrunnlag {
                                                  BeregningsgrunnlagGrunnlagEntitet nyttGrunnlag,
                                                  Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
                                                  Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeBekreftetGrunnlag) {
-        BeregningAktivitetAggregatEntitet nyttRegister = nyttGrunnlag.getRegisterAktiviteter();
-        Optional<BeregningAktivitetAggregatEntitet> forrigeRegister = forrigeGrunnlag.map(BeregningsgrunnlagGrunnlagEntitet::getRegisterAktiviteter);
-        return forrigeRegister.map(aktivitetAggregatEntitet -> !BeregningsgrunnlagDiffSjekker.harSignifikantDiffIAktiviteter(nyttRegister, aktivitetAggregatEntitet)).orElse(false)
-            && (!aksjonspunkter.isEmpty() || forrigeBekreftetGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getOverstyring).isPresent());
+        var nyttRegister = nyttGrunnlag.getRegisterAktiviteter();
+        var forrigeRegister = forrigeGrunnlag.map(BeregningsgrunnlagGrunnlagEntitet::getRegisterAktiviteter);
+        return forrigeRegister.map(
+            aktivitetAggregatEntitet -> !BeregningsgrunnlagDiffSjekker.harSignifikantDiffIAktiviteter(nyttRegister,
+                aktivitetAggregatEntitet)).orElse(false) && (!aksjonspunkter.isEmpty()
+            || forrigeBekreftetGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getOverstyring).isPresent());
     }
 
 
-    private static boolean kanKopiereBeregningsgrunnlag(List<BeregningAksjonspunktResultat> aksjonspunkter, BeregningsgrunnlagEntitet nyttBg, Optional<BeregningsgrunnlagEntitet> forrigeBeregningsgrunnlag) {
-        return forrigeBeregningsgrunnlag.map(bg -> !BeregningsgrunnlagDiffSjekker.harSignifikantDiffIBeregningsgrunnlag(nyttBg, bg)).orElse(false) && !aksjonspunkter.isEmpty();
+    private static boolean kanKopiereBeregningsgrunnlag(List<BeregningAksjonspunktResultat> aksjonspunkter,
+                                                        BeregningsgrunnlagEntitet nyttBg,
+                                                        Optional<BeregningsgrunnlagEntitet> forrigeBeregningsgrunnlag) {
+        return forrigeBeregningsgrunnlag.map(
+            bg -> !BeregningsgrunnlagDiffSjekker.harSignifikantDiffIBeregningsgrunnlag(nyttBg, bg)).orElse(false)
+            && !aksjonspunkter.isEmpty();
     }
 
 }

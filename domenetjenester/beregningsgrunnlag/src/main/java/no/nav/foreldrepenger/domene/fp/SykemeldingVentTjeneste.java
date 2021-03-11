@@ -1,14 +1,14 @@
 package no.nav.foreldrepenger.domene.fp;
 
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.foreldrepenger.domene.iay.modell.YtelseFilter;
+import java.time.LocalDate;
+import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.time.LocalDate;
-import java.util.Optional;
+
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.iay.modell.YtelseFilter;
 
 @ApplicationScoped
 public class SykemeldingVentTjeneste {
@@ -27,14 +27,14 @@ public class SykemeldingVentTjeneste {
     }
 
     public Optional<LocalDate> skalVentePåSykemelding(BehandlingReferanse referanse) {
-        boolean erFødendeKvinneSomSøkerForeldrepenger = besteberegningFødendeKvinneTjeneste.erFødendeKvinneSomSøkerForeldrepenger(referanse);
+        var erFødendeKvinneSomSøkerForeldrepenger = besteberegningFødendeKvinneTjeneste.erFødendeKvinneSomSøkerForeldrepenger(referanse);
 
         if (!erFødendeKvinneSomSøkerForeldrepenger) {
             return Optional.empty();
         }
 
-        InntektArbeidYtelseGrunnlag iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(referanse.getBehandlingUuid());
-        YtelseFilter filter = new YtelseFilter(iayGrunnlag.getAktørYtelseFraRegister(referanse.getAktørId()));
+        var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(referanse.getBehandlingUuid());
+        var filter = new YtelseFilter(iayGrunnlag.getAktørYtelseFraRegister(referanse.getAktørId()));
         return VentPåSykemelding.utledVenteFrist(filter, referanse.getSkjæringstidspunktOpptjening(), LocalDate.now());
     }
 }

@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.domene.input;
 
-import java.time.LocalDate;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -10,18 +8,18 @@ import javax.inject.Inject;
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.modell.behandling.KoblingReferanse;
 import no.nav.folketrygdloven.kalkulator.modell.behandling.Skjæringstidspunkt;
-import no.nav.foreldrepenger.domene.prosess.KalkulusKonfigInjecter;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulus.BehandlingslagerTilKalkulusMapper;
 import no.nav.foreldrepenger.domene.modell.BeregningAktivitetAggregatEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
+import no.nav.foreldrepenger.domene.prosess.KalkulusKonfigInjecter;
 
 @ApplicationScoped
 public class BeregningTilInputTjeneste {
 
     private static final String UTVIKLER_FEIL_SKAL_HA_BEREGNINGSGRUNNLAG_HER = "Utvikler-feil: skal ha beregningsgrunnlag her";
-    private static final Supplier<IllegalStateException> INGEN_BG_EXCEPTION_SUPPLIER = () -> new IllegalStateException(UTVIKLER_FEIL_SKAL_HA_BEREGNINGSGRUNNLAG_HER);
+    private static final Supplier<IllegalStateException> INGEN_BG_EXCEPTION_SUPPLIER = () -> new IllegalStateException(
+        UTVIKLER_FEIL_SKAL_HA_BEREGNINGSGRUNNLAG_HER);
 
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private KalkulusKonfigInjecter kalkulusKonfigInjecter;
@@ -42,15 +40,14 @@ public class BeregningTilInputTjeneste {
     }
 
     private BeregningsgrunnlagInput lagInputMedBeregningsgrunnlag(BeregningsgrunnlagInput input) {
-        Long behandlingId = input.getKoblingReferanse().getKoblingId();
-        Optional<BeregningsgrunnlagGrunnlagEntitet> grunnlagEntitetOpt = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(behandlingId);
+        var behandlingId = input.getKoblingReferanse().getKoblingId();
+        var grunnlagEntitetOpt = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(behandlingId);
         if (grunnlagEntitetOpt.isPresent()) {
-            BeregningsgrunnlagGrunnlagEntitet grunnlagEntitet = grunnlagEntitetOpt.get();
-            BeregningsgrunnlagEntitet beregningsgrunnlag = grunnlagEntitet.getBeregningsgrunnlag()
-                .orElseThrow(INGEN_BG_EXCEPTION_SUPPLIER);
-            var ref = oppdaterBehandlingreferanseMedSkjæringstidspunktBeregning(input.getKoblingReferanse(), grunnlagEntitet.getGjeldendeAktiviteter(), beregningsgrunnlag);
-            input = input
-                .medBehandlingReferanse(ref)
+            var grunnlagEntitet = grunnlagEntitetOpt.get();
+            var beregningsgrunnlag = grunnlagEntitet.getBeregningsgrunnlag().orElseThrow(INGEN_BG_EXCEPTION_SUPPLIER);
+            var ref = oppdaterBehandlingreferanseMedSkjæringstidspunktBeregning(input.getKoblingReferanse(),
+                grunnlagEntitet.getGjeldendeAktiviteter(), beregningsgrunnlag);
+            input = input.medBehandlingReferanse(ref)
                 .medBeregningsgrunnlagGrunnlag(BehandlingslagerTilKalkulusMapper.mapGrunnlag(grunnlagEntitet));
         }
         kalkulusKonfigInjecter.leggTilKonfigverdier(input);
@@ -59,15 +56,16 @@ public class BeregningTilInputTjeneste {
     }
 
     private KoblingReferanse oppdaterBehandlingreferanseMedSkjæringstidspunktBeregning(KoblingReferanse ref,
-                                                                                          BeregningAktivitetAggregatEntitet beregningAktivitetAggregat,
-                                                                                          BeregningsgrunnlagEntitet beregningsgrunnlag) {
-        LocalDate skjæringstidspunktOpptjening = beregningAktivitetAggregat.getSkjæringstidspunktOpptjening();
-        LocalDate førsteUttaksdato = ref.getFørsteUttaksdato();
-        LocalDate skjæringstidspunktBeregning = beregningsgrunnlag.getSkjæringstidspunkt();
-        Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder()
+                                                                                       BeregningAktivitetAggregatEntitet beregningAktivitetAggregat,
+                                                                                       BeregningsgrunnlagEntitet beregningsgrunnlag) {
+        var skjæringstidspunktOpptjening = beregningAktivitetAggregat.getSkjæringstidspunktOpptjening();
+        var førsteUttaksdato = ref.getFørsteUttaksdato();
+        var skjæringstidspunktBeregning = beregningsgrunnlag.getSkjæringstidspunkt();
+        var skjæringstidspunkt = Skjæringstidspunkt.builder()
             .medSkjæringstidspunktOpptjening(skjæringstidspunktOpptjening)
             .medFørsteUttaksdato(førsteUttaksdato)
-            .medSkjæringstidspunktBeregning(skjæringstidspunktBeregning).build();
+            .medSkjæringstidspunktBeregning(skjæringstidspunktBeregning)
+            .build();
         return ref.medSkjæringstidspunkt(skjæringstidspunkt);
     }
 

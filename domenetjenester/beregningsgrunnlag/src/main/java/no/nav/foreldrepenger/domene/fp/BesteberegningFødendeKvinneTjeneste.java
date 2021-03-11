@@ -1,9 +1,6 @@
 package no.nav.foreldrepenger.domene.fp;
 
-import java.time.LocalDate;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Optional;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -16,16 +13,16 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
-import no.nav.foreldrepenger.domene.opptjening.OpptjeningForBeregningTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktørYtelse;
-import no.nav.foreldrepenger.domene.iay.modell.Ytelse;
+import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
+import no.nav.foreldrepenger.domene.opptjening.OpptjeningForBeregningTjeneste;
 
 @ApplicationScoped
 public class BesteberegningFødendeKvinneTjeneste {
 
-    private static final Set<FamilieHendelseType> fødselHendelser = Set.of(FamilieHendelseType.FØDSEL, FamilieHendelseType.TERMIN);
+    private static final Set<FamilieHendelseType> fødselHendelser = Set.of(FamilieHendelseType.FØDSEL,
+        FamilieHendelseType.TERMIN);
 
     private FamilieHendelseRepository familieHendelseRepository;
     private OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste;
@@ -36,7 +33,9 @@ public class BesteberegningFødendeKvinneTjeneste {
     }
 
     @Inject
-    public BesteberegningFødendeKvinneTjeneste(FamilieHendelseRepository familieHendelseRepository, OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste, InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
+    public BesteberegningFødendeKvinneTjeneste(FamilieHendelseRepository familieHendelseRepository,
+                                               OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste,
+                                               InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
         this.familieHendelseRepository = familieHendelseRepository;
         this.opptjeningForBeregningTjeneste = opptjeningForBeregningTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
@@ -47,22 +46,22 @@ public class BesteberegningFødendeKvinneTjeneste {
             return false;
         }
 
-        Optional<OpptjeningAktiviteter> opptjeningForBeregning = opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(behandlingReferanse, inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.getBehandlingId()));
-        if (opptjeningForBeregning.isEmpty()) {
-            return false;
-        }
-
-        return brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(behandlingReferanse, opptjeningForBeregning.get());
+        var opptjeningForBeregning = opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(behandlingReferanse,
+            inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.getBehandlingId()));
+        return opptjeningForBeregning.map(
+            opptjeningAktiviteter -> brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(behandlingReferanse,
+                opptjeningAktiviteter)).orElse(false);
     }
 
     boolean erFødendeKvinneSomSøkerForeldrepenger(BehandlingReferanse behandlingReferanse) {
         if (!gjelderForeldrepenger(behandlingReferanse)) {
             return false;
         }
-        Optional<FamilieHendelseEntitet> familiehendelse = familieHendelseRepository
-            .hentAggregatHvisEksisterer(behandlingReferanse.getBehandlingId())
-            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon);
-        var familiehendelseType = familiehendelse.map(FamilieHendelseEntitet::getType).orElseThrow(() -> new IllegalStateException("Mangler FamilieHendelse#type for behandling: " + behandlingReferanse.getBehandlingId()));
+        var familiehendelse = familieHendelseRepository.hentAggregatHvisEksisterer(
+            behandlingReferanse.getBehandlingId()).map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon);
+        var familiehendelseType = familiehendelse.map(FamilieHendelseEntitet::getType)
+            .orElseThrow(() -> new IllegalStateException(
+                "Mangler FamilieHendelse#type for behandling: " + behandlingReferanse.getBehandlingId()));
         return erFødendeKvinne(behandlingReferanse.getRelasjonsRolleType(), familiehendelseType);
     }
 
@@ -72,19 +71,19 @@ public class BesteberegningFødendeKvinneTjeneste {
     }
 
     static boolean erFødendeKvinne(RelasjonsRolleType relasjonsRolleType, FamilieHendelseType type) {
-        boolean erMoren = RelasjonsRolleType.MORA.equals(relasjonsRolleType);
-        if (!erMoren) {
-            return false;
-        }
-        return fødselHendelser.contains(type);
+        var erMoren = RelasjonsRolleType.MORA.equals(relasjonsRolleType);
+        return erMoren && fødselHendelser.contains(type);
     }
 
     private boolean brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(BehandlingReferanse behandlingReferanse,
                                                                          OpptjeningAktiviteter opptjeningAktiviteter) {
-        LocalDate skjæringstidspunkt = behandlingReferanse.getUtledetSkjæringstidspunkt();
-        Collection<Ytelse> ytelser = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.getBehandlingId())
-            .getAktørYtelseFraRegister(behandlingReferanse.getAktørId()).map(AktørYtelse::getAlleYtelser).orElse(Collections.emptyList());
-        return DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(opptjeningAktiviteter, ytelser, skjæringstidspunkt);
+        var skjæringstidspunkt = behandlingReferanse.getUtledetSkjæringstidspunkt();
+        var ytelser = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.getBehandlingId())
+            .getAktørYtelseFraRegister(behandlingReferanse.getAktørId())
+            .map(AktørYtelse::getAlleYtelser)
+            .orElse(Collections.emptyList());
+        return DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(opptjeningAktiviteter, ytelser,
+            skjæringstidspunkt);
     }
 
 }

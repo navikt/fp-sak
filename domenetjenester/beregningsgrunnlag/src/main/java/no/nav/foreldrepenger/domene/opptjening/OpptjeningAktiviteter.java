@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 public class OpptjeningAktiviteter {
 
-    private List<OpptjeningPeriode> opptjeningPerioder = new ArrayList<>();
+    private final List<OpptjeningPeriode> opptjeningPerioder = new ArrayList<>();
 
     public OpptjeningAktiviteter(Collection<OpptjeningPeriode> perioder) {
         this.opptjeningPerioder.addAll(perioder);

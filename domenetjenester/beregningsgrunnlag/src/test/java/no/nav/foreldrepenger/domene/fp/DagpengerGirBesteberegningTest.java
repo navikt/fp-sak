@@ -1,23 +1,24 @@
 package no.nav.foreldrepenger.domene.fp;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
-import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
-import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
-import no.nav.foreldrepenger.domene.iay.modell.YtelseBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.Arbeidskategori;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-import no.nav.foreldrepenger.domene.typer.Beløp;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
+import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
+import no.nav.foreldrepenger.domene.iay.modell.YtelseBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.Arbeidskategori;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
+import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.Beløp;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 class DagpengerGirBesteberegningTest {
     private static final LocalDate STP = LocalDate.of(2020,6,2);
@@ -25,14 +26,14 @@ class DagpengerGirBesteberegningTest {
     @Test
     public void skal_gi_true_ved_sykepenger_på_dagpenger_på_stp() {
         // Arrange
-        DatoIntervallEntitet periode = DatoIntervallEntitet.fraOgMedTilOgMed(STP.minusDays(30), STP.plusDays(1));
-        YtelseBuilder ytelseBuilder = lagYtelse(RelatertYtelseType.SYKEPENGER, periode, RelatertYtelseTilstand.LØPENDE);
+        var periode = DatoIntervallEntitet.fraOgMedTilOgMed(STP.minusDays(30), STP.plusDays(1));
+        var ytelseBuilder = lagYtelse(RelatertYtelseType.SYKEPENGER, periode, RelatertYtelseTilstand.LØPENDE);
         lagYtelseAnvist(ytelseBuilder, periode);
         lagYtelseGrunnlag(ytelseBuilder, Arbeidskategori.DAGPENGER);
 
         // Act
-        no.nav.abakus.iaygrunnlag.Periode periode2 = new no.nav.abakus.iaygrunnlag.Periode(STP.minusDays(30), STP.plusDays(1));
-        boolean resultat = DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(
+        var periode2 = new no.nav.abakus.iaygrunnlag.Periode(STP.minusDays(30), STP.plusDays(1));
+        var resultat = DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(
             OpptjeningAktiviteter.fra(OpptjeningAktivitetType.FRILANS, periode2),
             Collections.singletonList(ytelseBuilder.build()),
             STP);
@@ -45,14 +46,14 @@ class DagpengerGirBesteberegningTest {
     @Test
     public void skal_gi_true_ved_sykepenger_på_dagpenger_dagen_før_stp() {
         // Arrange
-        DatoIntervallEntitet periode = DatoIntervallEntitet.fraOgMedTilOgMed(STP.minusDays(30), STP.minusDays(1));
-        YtelseBuilder ytelseBuilder = lagYtelse(RelatertYtelseType.SYKEPENGER, periode, RelatertYtelseTilstand.LØPENDE);
+        var periode = DatoIntervallEntitet.fraOgMedTilOgMed(STP.minusDays(30), STP.minusDays(1));
+        var ytelseBuilder = lagYtelse(RelatertYtelseType.SYKEPENGER, periode, RelatertYtelseTilstand.LØPENDE);
         lagYtelseAnvist(ytelseBuilder, periode);
         lagYtelseGrunnlag(ytelseBuilder, Arbeidskategori.DAGPENGER);
 
         // Act
-        no.nav.abakus.iaygrunnlag.Periode periode2 = new no.nav.abakus.iaygrunnlag.Periode(STP.minusDays(30), STP.plusDays(1));
-        boolean resultat = DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(
+        var periode2 = new no.nav.abakus.iaygrunnlag.Periode(STP.minusDays(30), STP.plusDays(1));
+        var resultat = DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(
             OpptjeningAktiviteter.fra(OpptjeningAktivitetType.FRILANS, periode2),
             Collections.singletonList(ytelseBuilder.build()),
             STP);
@@ -64,14 +65,14 @@ class DagpengerGirBesteberegningTest {
     @Test
     public void skal_gi_false_ved_sykepenger_på_dagpenger_2_dager_før_stp() {
         // Arrange
-        DatoIntervallEntitet periode = DatoIntervallEntitet.fraOgMedTilOgMed(STP.minusDays(30), STP.minusDays(2));
-        YtelseBuilder ytelseBuilder = lagYtelse(RelatertYtelseType.SYKEPENGER, periode, RelatertYtelseTilstand.LØPENDE);
+        var periode = DatoIntervallEntitet.fraOgMedTilOgMed(STP.minusDays(30), STP.minusDays(2));
+        var ytelseBuilder = lagYtelse(RelatertYtelseType.SYKEPENGER, periode, RelatertYtelseTilstand.LØPENDE);
         lagYtelseAnvist(ytelseBuilder, periode);
         lagYtelseGrunnlag(ytelseBuilder, Arbeidskategori.DAGPENGER);
 
         // Act
-        no.nav.abakus.iaygrunnlag.Periode periode2 = new no.nav.abakus.iaygrunnlag.Periode(STP.minusDays(30), STP.plusDays(1));
-        boolean resultat = DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(
+        var periode2 = new no.nav.abakus.iaygrunnlag.Periode(STP.minusDays(30), STP.plusDays(1));
+        var resultat = DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(
             OpptjeningAktiviteter.fra(OpptjeningAktivitetType.FRILANS, periode2),
             Collections.singletonList(ytelseBuilder.build()),
             STP);
@@ -83,8 +84,8 @@ class DagpengerGirBesteberegningTest {
     @Test
     public void skal_gi_true_ved_dagpenger_etter_stp() {
         // Act
-        no.nav.abakus.iaygrunnlag.Periode periode = new no.nav.abakus.iaygrunnlag.Periode(STP.minusDays(30), STP.plusDays(1));
-        boolean resultat = DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(
+        var periode = new no.nav.abakus.iaygrunnlag.Periode(STP.minusDays(30), STP.plusDays(1));
+        var resultat = DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(
             OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER, periode),
             Collections.emptyList(),
             STP);
@@ -96,8 +97,8 @@ class DagpengerGirBesteberegningTest {
     @Test
     public void skal_gi_true_ved_dagpenger_på_stp() {
         // Act
-        no.nav.abakus.iaygrunnlag.Periode periode = new no.nav.abakus.iaygrunnlag.Periode(STP.minusDays(30), STP);
-        boolean resultat = DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(
+        var periode = new no.nav.abakus.iaygrunnlag.Periode(STP.minusDays(30), STP);
+        var resultat = DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(
             OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER, periode),
             Collections.emptyList(),
             STP);
@@ -109,8 +110,8 @@ class DagpengerGirBesteberegningTest {
     @Test
     public void skal_gi_true_ved_dagpenger_dagen_før_stp() {
         // Act
-        no.nav.abakus.iaygrunnlag.Periode periode = new no.nav.abakus.iaygrunnlag.Periode(STP.minusDays(30), STP.minusDays(1));
-        boolean resultat = DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(
+        var periode = new no.nav.abakus.iaygrunnlag.Periode(STP.minusDays(30), STP.minusDays(1));
+        var resultat = DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(
             OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER, periode),
             Collections.emptyList(),
             STP);
@@ -122,8 +123,8 @@ class DagpengerGirBesteberegningTest {
     @Test
     public void skal_gi_false_ved_dagpenger_2_dager_før_stp() {
         // Act
-        no.nav.abakus.iaygrunnlag.Periode periode = new no.nav.abakus.iaygrunnlag.Periode(STP.minusDays(30), STP.minusDays(2));
-        boolean resultat = DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(
+        var periode = new no.nav.abakus.iaygrunnlag.Periode(STP.minusDays(30), STP.minusDays(2));
+        var resultat = DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(
             OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER, periode),
             Collections.emptyList(),
             STP);
@@ -135,15 +136,15 @@ class DagpengerGirBesteberegningTest {
     @Test
     public void når_stp_er_mandag_skal_vi_se_på_fredagen_før_for_sykepenger() {
         // Act
-        LocalDate mandagSTP = STP.minusDays(1);
-        DatoIntervallEntitet periode = DatoIntervallEntitet.fraOgMedTilOgMed(mandagSTP.minusDays(30), mandagSTP.minusDays(3));
-        YtelseBuilder ytelseBuilder = lagYtelse(RelatertYtelseType.SYKEPENGER, periode, RelatertYtelseTilstand.LØPENDE);
+        var mandagSTP = STP.minusDays(1);
+        var periode = DatoIntervallEntitet.fraOgMedTilOgMed(mandagSTP.minusDays(30), mandagSTP.minusDays(3));
+        var ytelseBuilder = lagYtelse(RelatertYtelseType.SYKEPENGER, periode, RelatertYtelseTilstand.LØPENDE);
         lagYtelseAnvist(ytelseBuilder, periode);
         lagYtelseGrunnlag(ytelseBuilder, Arbeidskategori.DAGPENGER);
 
         // Act
-        no.nav.abakus.iaygrunnlag.Periode periode2 = new no.nav.abakus.iaygrunnlag.Periode(STP.minusDays(30), STP.plusDays(1));
-        boolean resultat = DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(
+        var periode2 = new no.nav.abakus.iaygrunnlag.Periode(STP.minusDays(30), STP.plusDays(1));
+        var resultat = DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(
             OpptjeningAktiviteter.fra(OpptjeningAktivitetType.FRILANS, periode2),
             Collections.singletonList(ytelseBuilder.build()),
             mandagSTP);

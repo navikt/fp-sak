@@ -40,7 +40,7 @@ public class BehandlingslagerTilKalkulusMapper {
 
 
     public static BeregningsgrunnlagDto mapBeregningsgrunnlag(BeregningsgrunnlagEntitet beregningsgrunnlagFraFpsak) {
-        BeregningsgrunnlagDto.Builder builder = BeregningsgrunnlagDto.builder();
+        var builder = BeregningsgrunnlagDto.builder();
 
         //med
         builder.medGrunnbeløp(beregningsgrunnlagFraFpsak.getGrunnbeløp().getVerdi());
@@ -60,13 +60,13 @@ public class BehandlingslagerTilKalkulusMapper {
     }
 
     public static BeregningRefusjonOverstyringerDto mapRefusjonOverstyring(BeregningRefusjonOverstyringerEntitet refusjonOverstyringerFraFpsak) {
-        BeregningRefusjonOverstyringerDto.Builder dtoBuilder = BeregningRefusjonOverstyringerDto.builder();
+        var dtoBuilder = BeregningRefusjonOverstyringerDto.builder();
 
         refusjonOverstyringerFraFpsak.getRefusjonOverstyringer().forEach(beregningRefusjonOverstyring -> {
-            List<BeregningRefusjonPeriodeDto> refusjonsperioder = beregningRefusjonOverstyring.getRefusjonPerioder().stream()
+            var refusjonsperioder = beregningRefusjonOverstyring.getRefusjonPerioder().stream()
                 .map(BehandlingslagerTilKalkulusMapper::mapRefusjonperiode)
                 .collect(Collectors.toList());
-            BeregningRefusjonOverstyringDto dto = new BeregningRefusjonOverstyringDto(
+            var dto = new BeregningRefusjonOverstyringDto(
                 IAYMapperTilKalkulus.mapArbeidsgiver(beregningRefusjonOverstyring.getArbeidsgiver()),
                 beregningRefusjonOverstyring.getFørsteMuligeRefusjonFom().orElse(null),
                 refusjonsperioder);
@@ -81,7 +81,7 @@ public class BehandlingslagerTilKalkulusMapper {
 
 
     public static BeregningAktivitetAggregatDto mapSaksbehandletAktivitet(BeregningAktivitetAggregatEntitet saksbehandletAktiviteterFraFpsak) {
-        BeregningAktivitetAggregatDto.Builder dtoBuilder = BeregningAktivitetAggregatDto.builder();
+        var dtoBuilder = BeregningAktivitetAggregatDto.builder();
         dtoBuilder.medSkjæringstidspunktOpptjening(saksbehandletAktiviteterFraFpsak.getSkjæringstidspunktOpptjening());
         saksbehandletAktiviteterFraFpsak.getBeregningAktiviteter().forEach(mapAktivitet(dtoBuilder));
         return dtoBuilder.build();
@@ -89,7 +89,7 @@ public class BehandlingslagerTilKalkulusMapper {
 
     private static Consumer<BeregningAktivitetEntitet> mapAktivitet(BeregningAktivitetAggregatDto.Builder dtoBuilder) {
         return beregningAktivitet -> {
-            BeregningAktivitetDto.Builder builder = BeregningAktivitetDto.builder();
+            var builder = BeregningAktivitetDto.builder();
             builder.medArbeidsforholdRef(beregningAktivitet.getArbeidsforholdRef() == null ? null : IAYMapperTilKalkulus.mapArbeidsforholdRef(beregningAktivitet.getArbeidsforholdRef()));
             builder.medArbeidsgiver(beregningAktivitet.getArbeidsgiver() == null ? null : IAYMapperTilKalkulus.mapArbeidsgiver(beregningAktivitet.getArbeidsgiver()));
             builder.medOpptjeningAktivitetType(OpptjeningAktivitetType.fraKode(beregningAktivitet.getOpptjeningAktivitetType().getKode()));
@@ -103,9 +103,9 @@ public class BehandlingslagerTilKalkulusMapper {
     }
 
     public static BeregningAktivitetOverstyringerDto mapAktivitetOverstyring(BeregningAktivitetOverstyringerEntitet beregningAktivitetOverstyringerFraFpsak) {
-        BeregningAktivitetOverstyringerDto.Builder dtoBuilder = BeregningAktivitetOverstyringerDto.builder();
+        var dtoBuilder = BeregningAktivitetOverstyringerDto.builder();
         beregningAktivitetOverstyringerFraFpsak.getOverstyringer().forEach(overstyring -> {
-            BeregningAktivitetOverstyringDto.Builder builder = BeregningAktivitetOverstyringDto.builder();
+            var builder = BeregningAktivitetOverstyringDto.builder();
             builder.medArbeidsforholdRef(overstyring.getArbeidsforholdRef() == null ? null : IAYMapperTilKalkulus.mapArbeidsforholdRef(overstyring.getArbeidsforholdRef()));
             overstyring.getArbeidsgiver().ifPresent(arbeidsgiver -> builder.medArbeidsgiver(IAYMapperTilKalkulus.mapArbeidsgiver(arbeidsgiver)));
             builder.medHandling(overstyring.getHandling() == null ? null : BeregningAktivitetHandlingType.fraKode(overstyring.getHandling().getKode()));
@@ -117,7 +117,7 @@ public class BehandlingslagerTilKalkulusMapper {
     }
 
     public static BeregningsgrunnlagGrunnlagDto mapGrunnlag(BeregningsgrunnlagGrunnlagEntitet beregningsgrunnlagFraFpsak) {
-        BeregningsgrunnlagGrunnlagDtoBuilder oppdatere = BeregningsgrunnlagGrunnlagDtoBuilder.oppdatere(Optional.empty());
+        var oppdatere = BeregningsgrunnlagGrunnlagDtoBuilder.oppdatere(Optional.empty());
 
         beregningsgrunnlagFraFpsak.getBeregningsgrunnlag().ifPresent(beregningsgrunnlagDto -> oppdatere.medBeregningsgrunnlag(mapBeregningsgrunnlag(beregningsgrunnlagDto)));
         beregningsgrunnlagFraFpsak.getOverstyring().ifPresent(beregningAktivitetOverstyringerDto -> oppdatere.medOverstyring(mapAktivitetOverstyring(beregningAktivitetOverstyringerDto)));
@@ -129,7 +129,7 @@ public class BehandlingslagerTilKalkulusMapper {
     }
 
     private static BeregningAktivitetAggregatDto mapRegisterAktiviteter(BeregningAktivitetAggregatEntitet registerAktiviteter) {
-        BeregningAktivitetAggregatDto.Builder builder = BeregningAktivitetAggregatDto.builder();
+        var builder = BeregningAktivitetAggregatDto.builder();
         builder.medSkjæringstidspunktOpptjening(registerAktiviteter.getSkjæringstidspunktOpptjening());
         registerAktiviteter.getBeregningAktiviteter().forEach(mapAktivitet(builder));
         return builder.build();
@@ -139,7 +139,7 @@ public class BehandlingslagerTilKalkulusMapper {
         // I fakta om beregning settes alle faktaavklaringer på første periode og vi kan derfor bruke denne til å hente ut avklart fakta
         var førstePeriode = beregningsgrunnlagEntitet.getBeregningsgrunnlagPerioder().get(0);
         var andeler = førstePeriode.getBeregningsgrunnlagPrStatusOgAndelList();
-        FaktaAggregatDto.Builder faktaAggregatBuilder = FaktaAggregatDto.builder();
+        var faktaAggregatBuilder = FaktaAggregatDto.builder();
         mapFaktaArbeidsforhold(andeler).forEach(faktaAggregatBuilder::erstattEksisterendeEllerLeggTil);
         mapFaktaAktør(andeler, beregningsgrunnlagEntitet.getFaktaOmBeregningTilfeller())
             .ifPresent(faktaAggregatBuilder::medFaktaAktør);
@@ -151,7 +151,7 @@ public class BehandlingslagerTilKalkulusMapper {
             .filter(a -> a.getAktivitetStatus().erArbeidstaker())
             .filter(a -> a.getArbeidsgiver().isPresent())
             .map(a -> {
-                FaktaArbeidsforholdDto.Builder builder = new FaktaArbeidsforholdDto.Builder(IAYMapperTilKalkulus.mapArbeidsgiver(a.getArbeidsgiver().get()),
+                var builder = new FaktaArbeidsforholdDto.Builder(IAYMapperTilKalkulus.mapArbeidsgiver(a.getArbeidsgiver().get()),
                     a.getArbeidsforholdRef().map(IAYMapperTilKalkulus::mapArbeidsforholdRef).orElse(InternArbeidsforholdRefDto.nullRef()));
                 a.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getErTidsbegrensetArbeidsforhold).ifPresent(builder::medErTidsbegrenset);
                 a.mottarYtelse().ifPresent(builder::medHarMottattYtelse);
@@ -163,7 +163,7 @@ public class BehandlingslagerTilKalkulusMapper {
     }
 
     private static Optional<FaktaAktørDto> mapFaktaAktør(List<BeregningsgrunnlagPrStatusOgAndel> andeler, List<no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller) {
-        FaktaAktørDto.Builder faktaAktørBuilder = FaktaAktørDto.builder();
+        var faktaAktørBuilder = FaktaAktørDto.builder();
         mapEtterlønnSluttpakke(faktaOmBeregningTilfeller, faktaAktørBuilder);
         mapMottarFLYtelse(andeler, faktaOmBeregningTilfeller, faktaAktørBuilder);
         mapErNyIArbeidslivetSN(andeler, faktaOmBeregningTilfeller, faktaAktørBuilder);
@@ -175,7 +175,7 @@ public class BehandlingslagerTilKalkulusMapper {
     private static void mapErNyoppstartetFL(List<BeregningsgrunnlagPrStatusOgAndel> andeler,
                                             List<no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller,
                                             FaktaAktørDto.Builder faktaAktørBuilder) {
-        boolean harVurdertNyoppstartetFL = faktaOmBeregningTilfeller.stream().anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle.VURDER_NYOPPSTARTET_FL));
+        var harVurdertNyoppstartetFL = faktaOmBeregningTilfeller.stream().anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle.VURDER_NYOPPSTARTET_FL));
         if (harVurdertNyoppstartetFL) {
             andeler.stream().filter(a -> a.getAktivitetStatus().erFrilanser() && a.erNyoppstartet().isPresent())
                 .findFirst()
@@ -186,15 +186,15 @@ public class BehandlingslagerTilKalkulusMapper {
     }
 
     private static void mapSkalBesteberegnes(List<BeregningsgrunnlagPrStatusOgAndel> andeler, List<no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller, FaktaAktørDto.Builder faktaAktørBuilder) {
-        boolean harVurdertBesteberegning = faktaOmBeregningTilfeller.stream().anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle.VURDER_BESTEBEREGNING));
+        var harVurdertBesteberegning = faktaOmBeregningTilfeller.stream().anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle.VURDER_BESTEBEREGNING));
         if (harVurdertBesteberegning) {
-            boolean harFastsattBesteberegning = andeler.stream().anyMatch(a -> a.getBesteberegningPrÅr() != null);
+            var harFastsattBesteberegning = andeler.stream().anyMatch(a -> a.getBesteberegningPrÅr() != null);
             faktaAktørBuilder.medSkalBesteberegnes(harFastsattBesteberegning);
         }
     }
 
     private static void mapErNyIArbeidslivetSN(List<BeregningsgrunnlagPrStatusOgAndel> andeler, List<no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller, FaktaAktørDto.Builder faktaAktørBuilder) {
-        boolean harVurdertNyIArbeidslivetSN = faktaOmBeregningTilfeller.stream().anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle.VURDER_SN_NY_I_ARBEIDSLIVET));
+        var harVurdertNyIArbeidslivetSN = faktaOmBeregningTilfeller.stream().anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle.VURDER_SN_NY_I_ARBEIDSLIVET));
         if (harVurdertNyIArbeidslivetSN) {
             andeler.stream().filter(a -> a.getAktivitetStatus().erSelvstendigNæringsdrivende())
                 .findFirst()
@@ -204,7 +204,7 @@ public class BehandlingslagerTilKalkulusMapper {
     }
 
     private static void mapMottarFLYtelse(List<BeregningsgrunnlagPrStatusOgAndel> andeler, List<no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller, FaktaAktørDto.Builder faktaAktørBuilder) {
-        boolean harVurdertMottarYtelse = faktaOmBeregningTilfeller.stream().anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle.VURDER_MOTTAR_YTELSE));
+        var harVurdertMottarYtelse = faktaOmBeregningTilfeller.stream().anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle.VURDER_MOTTAR_YTELSE));
         if (harVurdertMottarYtelse) {
             andeler.stream().filter(a -> a.getAktivitetStatus().erFrilanser() && a.mottarYtelse().isPresent())
                 .findFirst()
@@ -215,8 +215,8 @@ public class BehandlingslagerTilKalkulusMapper {
     }
 
     private static void mapEtterlønnSluttpakke(List<no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller, FaktaAktørDto.Builder faktaAktørBuilder) {
-        boolean harVurdertEtterlønnSluttpakke = faktaOmBeregningTilfeller.stream().anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle.VURDER_ETTERLØNN_SLUTTPAKKE));
-        boolean harEtterlønnSlutpakke = faktaOmBeregningTilfeller.stream().anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle.FASTSETT_ETTERLØNN_SLUTTPAKKE));
+        var harVurdertEtterlønnSluttpakke = faktaOmBeregningTilfeller.stream().anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle.VURDER_ETTERLØNN_SLUTTPAKKE));
+        var harEtterlønnSlutpakke = faktaOmBeregningTilfeller.stream().anyMatch(tilfelle -> tilfelle.equals(no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle.FASTSETT_ETTERLØNN_SLUTTPAKKE));
         if (harVurdertEtterlønnSluttpakke) {
             faktaAktørBuilder.medMottarEtterlønnSluttpakke(harEtterlønnSlutpakke);
         }

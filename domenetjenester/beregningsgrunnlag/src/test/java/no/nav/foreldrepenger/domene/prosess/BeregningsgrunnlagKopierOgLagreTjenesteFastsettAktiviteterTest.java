@@ -14,13 +14,11 @@ import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.folketrygdloven.kalkulator.input.ForeldrepengerGrunnlag;
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
+import no.nav.folketrygdloven.kalkulator.input.ForeldrepengerGrunnlag;
 import no.nav.folketrygdloven.kalkulator.modell.gradering.AktivitetGradering;
-import no.nav.folketrygdloven.kalkulator.modell.iay.InntektArbeidYtelseGrunnlagDto;
 import no.nav.folketrygdloven.kalkulator.modell.opptjening.OpptjeningAktiviteterDto;
 import no.nav.folketrygdloven.kalkulator.modell.typer.InternArbeidsforholdRefDto;
-import no.nav.folketrygdloven.kalkulator.output.BeregningAksjonspunktResultat;
 import no.nav.folketrygdloven.kalkulator.steg.BeregningsgrunnlagTjeneste;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -30,20 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.domene.input.BeregningTilInputTjeneste;
-import no.nav.foreldrepenger.domene.input.KalkulatorStegProsesseringInputTjeneste;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulus.IAYMapperTilKalkulus;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulus.MapBehandlingRef;
-import no.nav.foreldrepenger.domene.prosess.testutilities.behandling.ScenarioForeldrepenger;
-import no.nav.foreldrepenger.domene.modell.BeregningAktivitetAggregatEntitet;
-import no.nav.foreldrepenger.domene.modell.BeregningAktivitetEntitet;
-import no.nav.foreldrepenger.domene.modell.BeregningAktivitetHandlingType;
-import no.nav.foreldrepenger.domene.modell.BeregningAktivitetOverstyringEntitet;
-import no.nav.foreldrepenger.domene.modell.BeregningAktivitetOverstyringerEntitet;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagBuilder;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -54,6 +38,20 @@ import no.nav.foreldrepenger.domene.iay.modell.OppgittAnnenAktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
+import no.nav.foreldrepenger.domene.input.BeregningTilInputTjeneste;
+import no.nav.foreldrepenger.domene.input.KalkulatorStegProsesseringInputTjeneste;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulus.IAYMapperTilKalkulus;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulus.MapBehandlingRef;
+import no.nav.foreldrepenger.domene.modell.BeregningAktivitetAggregatEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningAktivitetEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningAktivitetHandlingType;
+import no.nav.foreldrepenger.domene.modell.BeregningAktivitetOverstyringEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningAktivitetOverstyringerEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagBuilder;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.domene.prosess.testutilities.behandling.ScenarioForeldrepenger;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 
@@ -85,47 +83,49 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteFastsettAktiviteterTest {
 
     @BeforeEach
     public void setUp() {
-        KalkulusKonfigInjecter kalkulusKonfigInjecter = new KalkulusKonfigInjecter(5);
-        BeregningTilInputTjeneste beregningTilInputTjeneste = new BeregningTilInputTjeneste(beregningsgrunnlagRepository, kalkulusKonfigInjecter);
-        KalkulatorStegProsesseringInputTjeneste kalkulatorStegProsesseringInputTjeneste = new KalkulatorStegProsesseringInputTjeneste(
-                beregningsgrunnlagRepository, behandlingRepository, beregningTilInputTjeneste, new GrunnbeløpTjeneste(beregningsgrunnlagRepository),
-                kalkulusKonfigInjecter);
+        var kalkulusKonfigInjecter = new KalkulusKonfigInjecter(5);
+        var beregningTilInputTjeneste = new BeregningTilInputTjeneste(beregningsgrunnlagRepository,
+            kalkulusKonfigInjecter);
+        var kalkulatorStegProsesseringInputTjeneste = new KalkulatorStegProsesseringInputTjeneste(
+            beregningsgrunnlagRepository, behandlingRepository, beregningTilInputTjeneste,
+            new GrunnbeløpTjeneste(beregningsgrunnlagRepository), kalkulusKonfigInjecter);
         behandlingReferanse = lagBehandlingReferanse();
-        beregningsgrunnlagKopierOgLagreTjeneste = new BeregningsgrunnlagKopierOgLagreTjeneste(beregningsgrunnlagRepository,
-                beregningsgrunnlagTjeneste, kalkulatorStegProsesseringInputTjeneste);
+        beregningsgrunnlagKopierOgLagreTjeneste = new BeregningsgrunnlagKopierOgLagreTjeneste(
+            beregningsgrunnlagRepository, beregningsgrunnlagTjeneste, kalkulatorStegProsesseringInputTjeneste);
     }
 
     @Test
     public void skal_kunne_kjøre_fastsett_aktiviteter_første_gang_med_aksjonspunkt() {
         // Arrange
-        InntektArbeidYtelseGrunnlag iayGr = lagIAYGrunnlagForArbeidOgVentelønnVartpenger();
-        BeregningsgrunnlagInput input = lagBeregningsgrunnlagInput(behandlingReferanse, iayGr,
-                lagOpptjeningAktiviteterMedArbeidOgVentelønnVartpenger());
+        var iayGr = lagIAYGrunnlagForArbeidOgVentelønnVartpenger();
+        var input = lagBeregningsgrunnlagInput(behandlingReferanse, iayGr,
+            lagOpptjeningAktiviteterMedArbeidOgVentelønnVartpenger());
 
         // Act
-        List<BeregningAksjonspunktResultat> ap = beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsaktiviteter(input);
+        var ap = beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsaktiviteter(input);
 
         // Assert
-        Optional<BeregningsgrunnlagGrunnlagEntitet> bgMedAktiviteter = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(
-                behandlingReferanse.getBehandlingId());
+        var bgMedAktiviteter = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(
+            behandlingReferanse.getBehandlingId());
         assertThat(bgMedAktiviteter).isPresent();
-        assertThat(bgMedAktiviteter.get().getBeregningsgrunnlagTilstand()).isEqualTo(BeregningsgrunnlagTilstand.OPPRETTET);
+        assertThat(bgMedAktiviteter.get().getBeregningsgrunnlagTilstand()).isEqualTo(
+            BeregningsgrunnlagTilstand.OPPRETTET);
         assertThat(ap).hasSize(1);
     }
 
     @Test
     public void skal_kunne_kjøre_fastsett_aktiviteter_andre_gang_med_aksjonspunkt_uten_endringer_i_input() {
         // Arrange
-        InntektArbeidYtelseGrunnlag iayGr = lagIAYGrunnlagForArbeidOgVentelønnVartpenger();
-        BeregningsgrunnlagInput input = lagBeregningsgrunnlagInput(behandlingReferanse, iayGr,
-                lagOpptjeningAktiviteterMedArbeidOgVentelønnVartpenger());
+        var iayGr = lagIAYGrunnlagForArbeidOgVentelønnVartpenger();
+        var input = lagBeregningsgrunnlagInput(behandlingReferanse, iayGr,
+            lagOpptjeningAktiviteterMedArbeidOgVentelønnVartpenger());
 
         // Act: kjør første gang
-        List<BeregningAksjonspunktResultat> ap = beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsaktiviteter(input);
+        var ap = beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsaktiviteter(input);
 
         // Assert
-        Optional<BeregningsgrunnlagGrunnlagEntitet> bgMedAktiviteter = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(
-                behandlingReferanse.getBehandlingId());
+        var bgMedAktiviteter = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(
+            behandlingReferanse.getBehandlingId());
         assertThat(bgMedAktiviteter).isPresent();
         assertThat(ap).hasSize(1);
 
@@ -133,56 +133,59 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteFastsettAktiviteterTest {
         lagreSaksbehandletFjernArbeidOgDeaktiver(bgMedAktiviteter);
 
         // Act: kjør andre gang
-        List<BeregningAksjonspunktResultat> ap2 = beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsaktiviteter(input);
+        var ap2 = beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsaktiviteter(input);
 
         // Assert
-        Optional<BeregningsgrunnlagGrunnlagEntitet> bgMedSaksbehandlet = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(
-                behandlingReferanse.getBehandlingId());
+        var bgMedSaksbehandlet = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(
+            behandlingReferanse.getBehandlingId());
         assertThat(bgMedSaksbehandlet).isPresent();
         assertThat(ap2).hasSize(1);
         assertThat(bgMedSaksbehandlet.get().getSaksbehandletAktiviteter()).isPresent();
-        assertThat(bgMedSaksbehandlet.get().getBeregningsgrunnlagTilstand()).isEqualTo(BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER);
+        assertThat(bgMedSaksbehandlet.get().getBeregningsgrunnlagTilstand()).isEqualTo(
+            BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER);
     }
 
     @Test
     public void skal_ikkje_kopiere_om_man_ikkje_har_aksjonspunkt_eller_overstyring_i_input() {
         // Arrange
-        InntektArbeidYtelseGrunnlag iayGr = lagIAYGrunnlagForToArbeidsforhold();
-        BeregningsgrunnlagInput input = lagBeregningsgrunnlagInput(behandlingReferanse, iayGr, lagOpptjeningAktiviteterMedToArbeidsforhold());
+        var iayGr = lagIAYGrunnlagForToArbeidsforhold();
+        var input = lagBeregningsgrunnlagInput(behandlingReferanse, iayGr,
+            lagOpptjeningAktiviteterMedToArbeidsforhold());
 
         // Act: kjør første gang
-        List<BeregningAksjonspunktResultat> ap = beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsaktiviteter(input);
+        var ap = beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsaktiviteter(input);
 
         // Assert
-        Optional<BeregningsgrunnlagGrunnlagEntitet> bgMedAktiviteter = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(
-                behandlingReferanse.getBehandlingId());
+        var bgMedAktiviteter = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(
+            behandlingReferanse.getBehandlingId());
         assertThat(bgMedAktiviteter).isPresent();
         assertThat(ap).hasSize(0);
 
         // Act: kjør andre gang
-        List<BeregningAksjonspunktResultat> ap2 = beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsaktiviteter(input);
+        var ap2 = beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsaktiviteter(input);
 
         // Assert
-        Optional<BeregningsgrunnlagGrunnlagEntitet> bgMedAktiviteter2 = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(
-                behandlingReferanse.getBehandlingId());
+        var bgMedAktiviteter2 = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(
+            behandlingReferanse.getBehandlingId());
         assertThat(bgMedAktiviteter2).isPresent();
         assertThat(ap2).hasSize(0);
-        assertThat(bgMedAktiviteter2.get().getBeregningsgrunnlagTilstand()).isEqualTo(BeregningsgrunnlagTilstand.OPPRETTET);
+        assertThat(bgMedAktiviteter2.get().getBeregningsgrunnlagTilstand()).isEqualTo(
+            BeregningsgrunnlagTilstand.OPPRETTET);
     }
 
     @Test
     public void skal_kunne_kjøre_fastsett_aktiviteter_andre_gang_med_aksjonspunkt_med_endringer_i_input() {
         // Arrange
-        InntektArbeidYtelseGrunnlag iayGr = lagIAYGrunnlagForArbeidOgVentelønnVartpenger();
-        BeregningsgrunnlagInput input = lagBeregningsgrunnlagInput(behandlingReferanse, iayGr,
-                lagOpptjeningAktiviteterMedArbeidOgVentelønnVartpenger());
+        var iayGr = lagIAYGrunnlagForArbeidOgVentelønnVartpenger();
+        var input = lagBeregningsgrunnlagInput(behandlingReferanse, iayGr,
+            lagOpptjeningAktiviteterMedArbeidOgVentelønnVartpenger());
 
         // Act: kjør første gang
-        List<BeregningAksjonspunktResultat> ap = beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsaktiviteter(input);
+        var ap = beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsaktiviteter(input);
 
         // Assert
-        Optional<BeregningsgrunnlagGrunnlagEntitet> bgMedAktiviteter = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(
-                behandlingReferanse.getBehandlingId());
+        var bgMedAktiviteter = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(
+            behandlingReferanse.getBehandlingId());
         assertThat(bgMedAktiviteter).isPresent();
         assertThat(ap).hasSize(1);
 
@@ -190,34 +193,36 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteFastsettAktiviteterTest {
         lagreSaksbehandletFjernArbeidOgDeaktiver(bgMedAktiviteter);
 
         // Endre input
-        InntektArbeidYtelseGrunnlag iayGr2 = lagIAYGrunnlagForToArbeidsforholdOgVentelønnVartpenger();
-        BeregningsgrunnlagInput input2 = lagBeregningsgrunnlagInput(behandlingReferanse, iayGr2,
-                lagOpptjeningAktiviteterMedToArbeidsforholdOgVentelønnVartpenger());
+        var iayGr2 = lagIAYGrunnlagForToArbeidsforholdOgVentelønnVartpenger();
+        var input2 = lagBeregningsgrunnlagInput(behandlingReferanse, iayGr2,
+            lagOpptjeningAktiviteterMedToArbeidsforholdOgVentelønnVartpenger());
 
         // Act: kjør andre gang
-        List<BeregningAksjonspunktResultat> ap2 = beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsaktiviteter(input2);
+        var ap2 = beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsaktiviteter(input2);
 
         // Assert
-        Optional<BeregningsgrunnlagGrunnlagEntitet> bgUtenSaksbehandlet = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(
-                behandlingReferanse.getBehandlingId());
+        var bgUtenSaksbehandlet = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(
+            behandlingReferanse.getBehandlingId());
         assertThat(bgUtenSaksbehandlet).isPresent();
         assertThat(ap2).hasSize(1);
         assertThat(bgUtenSaksbehandlet.get().getSaksbehandletAktiviteter()).isEmpty();
-        assertThat(bgUtenSaksbehandlet.get().getBeregningsgrunnlagTilstand()).isEqualTo(BeregningsgrunnlagTilstand.OPPRETTET);
+        assertThat(bgUtenSaksbehandlet.get().getBeregningsgrunnlagTilstand()).isEqualTo(
+            BeregningsgrunnlagTilstand.OPPRETTET);
     }
 
     @Test
     public void skal_ta_vare_på_overstyringer_for_andre_kjøring_med_endringer_i_input() {
         // Arrange
-        InntektArbeidYtelseGrunnlag iayGr = lagIAYGrunnlagForToArbeidsforhold();
-        BeregningsgrunnlagInput input = lagBeregningsgrunnlagInput(behandlingReferanse, iayGr, lagOpptjeningAktiviteterMedToArbeidsforhold());
+        var iayGr = lagIAYGrunnlagForToArbeidsforhold();
+        var input = lagBeregningsgrunnlagInput(behandlingReferanse, iayGr,
+            lagOpptjeningAktiviteterMedToArbeidsforhold());
 
         // Act: kjør første gang
-        List<BeregningAksjonspunktResultat> ap = beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsaktiviteter(input);
+        var ap = beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsaktiviteter(input);
 
         // Assert
-        Optional<BeregningsgrunnlagGrunnlagEntitet> bgMedAktiviteter = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(
-                behandlingReferanse.getBehandlingId());
+        var bgMedAktiviteter = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(
+            behandlingReferanse.getBehandlingId());
         assertThat(bgMedAktiviteter).isPresent();
         assertThat(ap).hasSize(0);
 
@@ -225,34 +230,36 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteFastsettAktiviteterTest {
         lagreOverstyrtFjernEttArbeidsforholdOgDeaktiver(bgMedAktiviteter);
 
         // Endre input
-        InntektArbeidYtelseGrunnlag iayGr2 = lagIAYGrunnlagForToArbeidsforholdOgVentelønnVartpenger();
-        BeregningsgrunnlagInput input2 = lagBeregningsgrunnlagInput(behandlingReferanse, iayGr2,
-                lagOpptjeningAktiviteterMedToArbeidsforholdOgVentelønnVartpenger());
+        var iayGr2 = lagIAYGrunnlagForToArbeidsforholdOgVentelønnVartpenger();
+        var input2 = lagBeregningsgrunnlagInput(behandlingReferanse, iayGr2,
+            lagOpptjeningAktiviteterMedToArbeidsforholdOgVentelønnVartpenger());
 
         // Act: kjør andre gang
-        List<BeregningAksjonspunktResultat> ap2 = beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsaktiviteter(input2);
+        var ap2 = beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsaktiviteter(input2);
 
         // Assert
-        Optional<BeregningsgrunnlagGrunnlagEntitet> bgMedOverstyring = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(
-                behandlingReferanse.getBehandlingId());
+        var bgMedOverstyring = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(
+            behandlingReferanse.getBehandlingId());
         assertThat(bgMedOverstyring).isPresent();
         assertThat(ap2).hasSize(0);
         assertThat(bgMedOverstyring.get().getOverstyring()).isPresent();
-        assertThat(bgMedOverstyring.get().getBeregningsgrunnlagTilstand()).isEqualTo(BeregningsgrunnlagTilstand.OPPRETTET);
+        assertThat(bgMedOverstyring.get().getBeregningsgrunnlagTilstand()).isEqualTo(
+            BeregningsgrunnlagTilstand.OPPRETTET);
     }
 
     @Test
     public void skal_ta_vare_på_overstyringer_for_andre_kjøring_uten_endringer_i_input() {
         // Arrange
-        InntektArbeidYtelseGrunnlag iayGr = lagIAYGrunnlagForToArbeidsforhold();
-        BeregningsgrunnlagInput input = lagBeregningsgrunnlagInput(behandlingReferanse, iayGr, lagOpptjeningAktiviteterMedToArbeidsforhold());
+        var iayGr = lagIAYGrunnlagForToArbeidsforhold();
+        var input = lagBeregningsgrunnlagInput(behandlingReferanse, iayGr,
+            lagOpptjeningAktiviteterMedToArbeidsforhold());
 
         // Act: kjør første gang
-        List<BeregningAksjonspunktResultat> ap = beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsaktiviteter(input);
+        var ap = beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsaktiviteter(input);
 
         // Assert
-        Optional<BeregningsgrunnlagGrunnlagEntitet> bgMedAktiviteter = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(
-                behandlingReferanse.getBehandlingId());
+        var bgMedAktiviteter = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(
+            behandlingReferanse.getBehandlingId());
         assertThat(bgMedAktiviteter).isPresent();
         assertThat(ap).hasSize(0);
 
@@ -260,108 +267,109 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteFastsettAktiviteterTest {
         lagreOverstyrtFjernEttArbeidsforholdOgDeaktiver(bgMedAktiviteter);
 
         // Act: kjør andre gang
-        List<BeregningAksjonspunktResultat> ap2 = beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsaktiviteter(input);
+        var ap2 = beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsaktiviteter(input);
 
         // Assert
-        Optional<BeregningsgrunnlagGrunnlagEntitet> bgMedOverstyring = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(
-                behandlingReferanse.getBehandlingId());
+        var bgMedOverstyring = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(
+            behandlingReferanse.getBehandlingId());
         assertThat(bgMedOverstyring).isPresent();
         assertThat(ap2).hasSize(0);
         assertThat(bgMedOverstyring.get().getOverstyring()).isPresent();
-        assertThat(bgMedOverstyring.get().getBeregningsgrunnlagTilstand()).isEqualTo(BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER);
+        assertThat(bgMedOverstyring.get().getBeregningsgrunnlagTilstand()).isEqualTo(
+            BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER);
     }
 
     private void lagreSaksbehandletFjernArbeidOgDeaktiver(Optional<BeregningsgrunnlagGrunnlagEntitet> bgMedAktiviteter) {
-        BeregningsgrunnlagGrunnlagBuilder saksbehandletGrunnlag = BeregningsgrunnlagGrunnlagBuilder.kopi(bgMedAktiviteter)
-                .medSaksbehandletAktiviteter(BeregningAktivitetAggregatEntitet.builder()
-                        .medSkjæringstidspunktOpptjening(SKJÆRINGSTIDSPUNKT)
-                        .leggTilAktivitet(BeregningAktivitetEntitet.builder()
-                                .medOpptjeningAktivitetType(OpptjeningAktivitetType.VENTELØNN_VARTPENGER)
-                                .medPeriode(
-                                        ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusYears(1), SKJÆRINGSTIDSPUNKT.plusMonths(1)))
-                                .build())
-                        .build());
+        var saksbehandletGrunnlag = BeregningsgrunnlagGrunnlagBuilder.kopi(bgMedAktiviteter)
+            .medSaksbehandletAktiviteter(BeregningAktivitetAggregatEntitet.builder()
+                .medSkjæringstidspunktOpptjening(SKJÆRINGSTIDSPUNKT)
+                .leggTilAktivitet(BeregningAktivitetEntitet.builder()
+                    .medOpptjeningAktivitetType(OpptjeningAktivitetType.VENTELØNN_VARTPENGER)
+                    .medPeriode(ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusYears(1),
+                        SKJÆRINGSTIDSPUNKT.plusMonths(1)))
+                    .build())
+                .build());
         beregningsgrunnlagRepository.lagre(behandlingReferanse.getBehandlingId(), saksbehandletGrunnlag,
-                BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER);
+            BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER);
         beregningsgrunnlagRepository.deaktiverBeregningsgrunnlagGrunnlagEntitet(behandlingReferanse.getBehandlingId());
     }
 
     private void lagreOverstyrtFjernEttArbeidsforholdOgDeaktiver(Optional<BeregningsgrunnlagGrunnlagEntitet> bgMedAktiviteter) {
-        BeregningsgrunnlagGrunnlagBuilder saksbehandletGrunnlag = BeregningsgrunnlagGrunnlagBuilder.kopi(bgMedAktiviteter)
-                .medOverstyring(BeregningAktivitetOverstyringerEntitet.builder()
-                        .leggTilOverstyring(BeregningAktivitetOverstyringEntitet.builder()
-                                .medArbeidsgiver(VIRKSOMHET)
-                                .medOpptjeningAktivitetType(OpptjeningAktivitetType.ARBEID)
-                                .medHandling(BeregningAktivitetHandlingType.BENYTT)
-                                .medPeriode(
-                                        ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusYears(1), SKJÆRINGSTIDSPUNKT.plusMonths(1)))
-                                .build())
-                        .leggTilOverstyring(BeregningAktivitetOverstyringEntitet.builder()
-                                .medArbeidsgiver(VIRKSOMHET2)
-                                .medOpptjeningAktivitetType(OpptjeningAktivitetType.ARBEID)
-                                .medHandling(BeregningAktivitetHandlingType.IKKE_BENYTT)
-                                .medPeriode(
-                                        ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusYears(1), SKJÆRINGSTIDSPUNKT.plusMonths(1)))
-                                .build())
-                        .build());
+        var saksbehandletGrunnlag = BeregningsgrunnlagGrunnlagBuilder.kopi(bgMedAktiviteter)
+            .medOverstyring(BeregningAktivitetOverstyringerEntitet.builder()
+                .leggTilOverstyring(BeregningAktivitetOverstyringEntitet.builder()
+                    .medArbeidsgiver(VIRKSOMHET)
+                    .medOpptjeningAktivitetType(OpptjeningAktivitetType.ARBEID)
+                    .medHandling(BeregningAktivitetHandlingType.BENYTT)
+                    .medPeriode(ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusYears(1),
+                        SKJÆRINGSTIDSPUNKT.plusMonths(1)))
+                    .build())
+                .leggTilOverstyring(BeregningAktivitetOverstyringEntitet.builder()
+                    .medArbeidsgiver(VIRKSOMHET2)
+                    .medOpptjeningAktivitetType(OpptjeningAktivitetType.ARBEID)
+                    .medHandling(BeregningAktivitetHandlingType.IKKE_BENYTT)
+                    .medPeriode(ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusYears(1),
+                        SKJÆRINGSTIDSPUNKT.plusMonths(1)))
+                    .build())
+                .build());
         beregningsgrunnlagRepository.lagre(behandlingReferanse.getBehandlingId(), saksbehandletGrunnlag,
             BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER);
         beregningsgrunnlagRepository.deaktiverBeregningsgrunnlagGrunnlagEntitet(behandlingReferanse.getBehandlingId());
     }
 
     private BehandlingReferanse lagBehandlingReferanse() {
-        return ScenarioForeldrepenger.nyttScenario().lagre(repositoryProvider)
-                .medSkjæringstidspunkt(
-                        Skjæringstidspunkt.builder()
-                                .medFørsteUttaksdato(SKJÆRINGSTIDSPUNKT)
-                                .medSkjæringstidspunktOpptjening(SKJÆRINGSTIDSPUNKT)
-                                .medSkjæringstidspunktBeregning(SKJÆRINGSTIDSPUNKT)
-                                .medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
-                                .build());
+        var behandling = ScenarioForeldrepenger.nyttScenario().lagre(repositoryProvider);
+        return BehandlingReferanse.fra(behandling)
+            .medSkjæringstidspunkt(Skjæringstidspunkt.builder()
+                .medFørsteUttaksdato(SKJÆRINGSTIDSPUNKT)
+                .medSkjæringstidspunktOpptjening(SKJÆRINGSTIDSPUNKT)
+                .medSkjæringstidspunktBeregning(SKJÆRINGSTIDSPUNKT)
+                .medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
+                .build());
     }
 
     private InntektArbeidYtelseGrunnlag lagIAYGrunnlagForToArbeidsforholdOgVentelønnVartpenger() {
-        YrkesaktivitetBuilder arbeid = lagArbeidYA(VIRKSOMHET);
-        YrkesaktivitetBuilder arbeid2 = lagArbeidYA(VIRKSOMHET2);
-        InntektArbeidYtelseAggregatBuilder oppdatere = InntektArbeidYtelseAggregatBuilder.oppdatere(empty(), VersjonType.REGISTER)
-                .leggTilAktørArbeid(InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder.oppdatere(empty())
-                        .medAktørId(behandlingReferanse.getAktørId())
-                        .leggTilYrkesaktivitet(arbeid2)
-                        .leggTilYrkesaktivitet(arbeid));
+        var arbeid = lagArbeidYA(VIRKSOMHET);
+        var arbeid2 = lagArbeidYA(VIRKSOMHET2);
+        var oppdatere = InntektArbeidYtelseAggregatBuilder.oppdatere(empty(), VersjonType.REGISTER)
+            .leggTilAktørArbeid(InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder.oppdatere(empty())
+                .medAktørId(behandlingReferanse.getAktørId())
+                .leggTilYrkesaktivitet(arbeid2)
+                .leggTilYrkesaktivitet(arbeid));
 
         return InntektArbeidYtelseGrunnlagBuilder.nytt()
-                .medOppgittOpptjening(lagVentelønnVartpengerOppgittOpptjening())
-                .medData(oppdatere)
-                .medInntektsmeldinger(List.of(lagInntektsmelding(VIRKSOMHET), lagInntektsmelding(VIRKSOMHET2)))
-                .build();
+            .medOppgittOpptjening(lagVentelønnVartpengerOppgittOpptjening())
+            .medData(oppdatere)
+            .medInntektsmeldinger(List.of(lagInntektsmelding(VIRKSOMHET), lagInntektsmelding(VIRKSOMHET2)))
+            .build();
     }
 
     private InntektArbeidYtelseGrunnlag lagIAYGrunnlagForArbeidOgVentelønnVartpenger() {
-        YrkesaktivitetBuilder arbeid = lagArbeidYA(VIRKSOMHET);
-        InntektArbeidYtelseAggregatBuilder oppdatere = InntektArbeidYtelseAggregatBuilder.oppdatere(empty(), VersjonType.REGISTER)
-                .leggTilAktørArbeid(InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder.oppdatere(empty())
-                        .medAktørId(behandlingReferanse.getAktørId())
-                        .leggTilYrkesaktivitet(arbeid));
+        var arbeid = lagArbeidYA(VIRKSOMHET);
+        var oppdatere = InntektArbeidYtelseAggregatBuilder.oppdatere(empty(), VersjonType.REGISTER)
+            .leggTilAktørArbeid(InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder.oppdatere(empty())
+                .medAktørId(behandlingReferanse.getAktørId())
+                .leggTilYrkesaktivitet(arbeid));
 
         return InntektArbeidYtelseGrunnlagBuilder.nytt()
-                .medOppgittOpptjening(lagVentelønnVartpengerOppgittOpptjening())
-                .medData(oppdatere)
-                .medInntektsmeldinger(List.of(lagInntektsmelding(VIRKSOMHET)))
-                .build();
+            .medOppgittOpptjening(lagVentelønnVartpengerOppgittOpptjening())
+            .medData(oppdatere)
+            .medInntektsmeldinger(List.of(lagInntektsmelding(VIRKSOMHET)))
+            .build();
     }
 
     private InntektArbeidYtelseGrunnlag lagIAYGrunnlagForToArbeidsforhold() {
-        YrkesaktivitetBuilder arbeid = lagArbeidYA(VIRKSOMHET);
-        YrkesaktivitetBuilder arbeid2 = lagArbeidYA(VIRKSOMHET2);
-        InntektArbeidYtelseAggregatBuilder oppdatere = InntektArbeidYtelseAggregatBuilder.oppdatere(empty(), VersjonType.REGISTER)
-                .leggTilAktørArbeid(InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder.oppdatere(empty())
-                        .medAktørId(behandlingReferanse.getAktørId())
-                        .leggTilYrkesaktivitet(arbeid)
-                        .leggTilYrkesaktivitet(arbeid2));
+        var arbeid = lagArbeidYA(VIRKSOMHET);
+        var arbeid2 = lagArbeidYA(VIRKSOMHET2);
+        var oppdatere = InntektArbeidYtelseAggregatBuilder.oppdatere(empty(), VersjonType.REGISTER)
+            .leggTilAktørArbeid(InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder.oppdatere(empty())
+                .medAktørId(behandlingReferanse.getAktørId())
+                .leggTilYrkesaktivitet(arbeid)
+                .leggTilYrkesaktivitet(arbeid2));
         return InntektArbeidYtelseGrunnlagBuilder.nytt()
-                .medData(oppdatere)
-                .medInntektsmeldinger(List.of(lagInntektsmelding(VIRKSOMHET), lagInntektsmelding(VIRKSOMHET2)))
-                .build();
+            .medData(oppdatere)
+            .medInntektsmeldinger(List.of(lagInntektsmelding(VIRKSOMHET), lagInntektsmelding(VIRKSOMHET2)))
+            .build();
     }
 
     private Inntektsmelding lagInntektsmelding(Arbeidsgiver virksomhet) {
@@ -370,58 +378,60 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteFastsettAktiviteterTest {
 
     private YrkesaktivitetBuilder lagArbeidYA(Arbeidsgiver virksomhet) {
         return YrkesaktivitetBuilder.oppdatere(empty())
-                .medArbeidsgiver(virksomhet)
-                .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
-                        .medPeriode(no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusYears(1),
-                                SKJÆRINGSTIDSPUNKT.plusMonths(10))))
-                .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
-                        .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusYears(1), SKJÆRINGSTIDSPUNKT.plusMonths(10)))
-                        .medProsentsats(BigDecimal.valueOf(100)))
-                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
+            .medArbeidsgiver(virksomhet)
+            .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
+                .medPeriode(no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet.fraOgMedTilOgMed(
+                    SKJÆRINGSTIDSPUNKT.minusYears(1), SKJÆRINGSTIDSPUNKT.plusMonths(10))))
+            .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusYears(1),
+                    SKJÆRINGSTIDSPUNKT.plusMonths(10)))
+                .medProsentsats(BigDecimal.valueOf(100)))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
     }
 
     private OppgittOpptjeningBuilder lagVentelønnVartpengerOppgittOpptjening() {
         return OppgittOpptjeningBuilder.ny()
-                .leggTilAnnenAktivitet(new OppgittAnnenAktivitet(
-                        DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusYears(1), SKJÆRINGSTIDSPUNKT.plusMonths(1)),
-                        ArbeidType.VENTELØNN_VARTPENGER));
+            .leggTilAnnenAktivitet(new OppgittAnnenAktivitet(
+                DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusYears(1),
+                    SKJÆRINGSTIDSPUNKT.plusMonths(1)), ArbeidType.VENTELØNN_VARTPENGER));
     }
 
-    private BeregningsgrunnlagInput lagBeregningsgrunnlagInput(BehandlingReferanse behandlingReferanse, InntektArbeidYtelseGrunnlag iayGr,
-            OpptjeningAktiviteterDto opptjeningAktiviteter) {
-        InntektArbeidYtelseGrunnlagDto iayGrunnlag = IAYMapperTilKalkulus.mapGrunnlag(iayGr, behandlingReferanse.getAktørId());
-        no.nav.folketrygdloven.kalkulator.modell.behandling.KoblingReferanse behandlingReferanse1 = MapBehandlingRef.mapRef(behandlingReferanse);
-        return new BeregningsgrunnlagInput(behandlingReferanse1, iayGrunnlag,
-                opptjeningAktiviteter,
-                List.of(),
-                new ForeldrepengerGrunnlag(100, false, AktivitetGradering.INGEN_GRADERING));
+    private BeregningsgrunnlagInput lagBeregningsgrunnlagInput(BehandlingReferanse behandlingReferanse,
+                                                               InntektArbeidYtelseGrunnlag iayGr,
+                                                               OpptjeningAktiviteterDto opptjeningAktiviteter) {
+        var iayGrunnlag = IAYMapperTilKalkulus.mapGrunnlag(iayGr, behandlingReferanse.getAktørId());
+        var behandlingReferanse1 = MapBehandlingRef.mapRef(behandlingReferanse);
+        return new BeregningsgrunnlagInput(behandlingReferanse1, iayGrunnlag, opptjeningAktiviteter, List.of(),
+            new ForeldrepengerGrunnlag(100, false, AktivitetGradering.INGEN_GRADERING));
     }
 
     private OpptjeningAktiviteterDto lagOpptjeningAktiviteterMedArbeidOgVentelønnVartpenger() {
-        return new OpptjeningAktiviteterDto(List.of(lagOpptjeningAktivitetArbeid(ORG_NUMMER), lagOpptjeningAktivitetVentelønnVartpenger()));
+        return new OpptjeningAktiviteterDto(
+            List.of(lagOpptjeningAktivitetArbeid(ORG_NUMMER), lagOpptjeningAktivitetVentelønnVartpenger()));
     }
 
     private OpptjeningAktiviteterDto lagOpptjeningAktiviteterMedToArbeidsforholdOgVentelønnVartpenger() {
-        return new OpptjeningAktiviteterDto(List.of(
-                lagOpptjeningAktivitetArbeid(ORG_NUMMER),
-                lagOpptjeningAktivitetArbeid(ORG_NUMMER2),
+        return new OpptjeningAktiviteterDto(
+            List.of(lagOpptjeningAktivitetArbeid(ORG_NUMMER), lagOpptjeningAktivitetArbeid(ORG_NUMMER2),
                 lagOpptjeningAktivitetVentelønnVartpenger()));
     }
 
     private OpptjeningAktiviteterDto lagOpptjeningAktiviteterMedToArbeidsforhold() {
-        return new OpptjeningAktiviteterDto(List.of(
-                lagOpptjeningAktivitetArbeid(ORG_NUMMER),
-                lagOpptjeningAktivitetArbeid(ORG_NUMMER2)));
+        return new OpptjeningAktiviteterDto(
+            List.of(lagOpptjeningAktivitetArbeid(ORG_NUMMER), lagOpptjeningAktivitetArbeid(ORG_NUMMER2)));
     }
 
     private OpptjeningAktiviteterDto.OpptjeningPeriodeDto lagOpptjeningAktivitetArbeid(String orgNummer) {
-        return OpptjeningAktiviteterDto.nyPeriode(no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType.ARBEID,
-                Intervall.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT), orgNummer, null, InternArbeidsforholdRefDto.nyRef());
+        return OpptjeningAktiviteterDto.nyPeriode(
+            no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType.ARBEID,
+            Intervall.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT), orgNummer, null,
+            InternArbeidsforholdRefDto.nyRef());
     }
 
     private OpptjeningAktiviteterDto.OpptjeningPeriodeDto lagOpptjeningAktivitetVentelønnVartpenger() {
-        return OpptjeningAktiviteterDto.nyPeriode(no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType.VENTELØNN_VARTPENGER,
-                Intervall.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT));
+        return OpptjeningAktiviteterDto.nyPeriode(
+            no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType.VENTELØNN_VARTPENGER,
+            Intervall.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT));
     }
 
 }
