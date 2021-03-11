@@ -7,7 +7,6 @@ import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
@@ -24,14 +23,14 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
-import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryProviderForTest;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 
 public class EndringsdatoRevurderingUtlederTest {
 
     private static final LocalDate FØRSTE_DAG = LocalDate.now();
     private static final LocalDate SISTE_DAG = LocalDate.now().plusMonths(3);
 
-    private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryProviderForTest();
+    private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryStubProvider();
     private final BehandlingsresultatRepository behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
     private final SvangerskapspengerUttakResultatRepository uttakRepository = repositoryProvider.getSvangerskapspengerUttakResultatRepository();
     private final EndringsdatoRevurderingUtlederImpl utleder = new EndringsdatoRevurderingUtlederImpl(repositoryProvider);
@@ -39,13 +38,13 @@ public class EndringsdatoRevurderingUtlederTest {
     @Test
     public void skal_utlede_endringsdato_fra_uttak_resultat() {
         // Arrange
-        ScenarioMorSøkerSvangerskapspenger scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
-        Behandlingsresultat.Builder behandlingresultatBuilder = Behandlingsresultat.builder();
+        var scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
+        var behandlingresultatBuilder = Behandlingsresultat.builder();
         behandlingresultatBuilder.medBehandlingResultatType(BehandlingResultatType.INNVILGET);
         scenario.medBehandlingsresultat(behandlingresultatBuilder.build());
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
-        SvangerskapspengerUttakResultatPeriodeEntitet uttakPeriode = new SvangerskapspengerUttakResultatPeriodeEntitet
+        var uttakPeriode = new SvangerskapspengerUttakResultatPeriodeEntitet
             .Builder(FØRSTE_DAG, SISTE_DAG)
             .medRegelInput("{}")
             .medRegelEvaluering("{}")
@@ -54,13 +53,13 @@ public class EndringsdatoRevurderingUtlederTest {
             .medPeriodeResultatType(PeriodeResultatType.AVSLÅTT)
             .build();
 
-        SvangerskapspengerUttakResultatArbeidsforholdEntitet uttakArbeidsforhold = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder()
+        var uttakArbeidsforhold = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder()
             .medArbeidsforhold(Arbeidsgiver.person(AktørId.dummy()), null)
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
             .medPeriode(uttakPeriode)
             .build();
 
-        SvangerskapspengerUttakResultatEntitet uttakResultat = new SvangerskapspengerUttakResultatEntitet
+        var uttakResultat = new SvangerskapspengerUttakResultatEntitet
             .Builder(behandlingsresultatRepository.hent(behandling.getId()))
             .medUttakResultatArbeidsforhold(uttakArbeidsforhold)
             .build();
@@ -68,8 +67,8 @@ public class EndringsdatoRevurderingUtlederTest {
         uttakRepository.lagre(behandling.getId(), uttakResultat);
 
         // Act
-        UttakInput input = new UttakInput(BehandlingReferanse.fra(behandling), null, null);
-        LocalDate resultat = utleder.utledEndringsdato(input);
+        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, null);
+        var resultat = utleder.utledEndringsdato(input);
 
         // Assert
         assertThat(resultat).isEqualTo(FØRSTE_DAG);

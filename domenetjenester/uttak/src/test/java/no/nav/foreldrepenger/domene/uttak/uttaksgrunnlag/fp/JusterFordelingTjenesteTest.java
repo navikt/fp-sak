@@ -42,7 +42,7 @@ public class JusterFordelingTjenesteTest {
 
     @Test
     public void foreldrepenger_før_fødsel_forkortes_ved_for_tidlig_fødsel() {
-        LocalDate fødselsdato = LocalDate.of(2019, 1, 1);
+        var fødselsdato = LocalDate.of(2019, 1, 1);
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, fødselsdato.minusWeeks(3), fødselsdato.minusDays(1));
         var oppgittePerioder = List.of(fpff);
 
@@ -59,7 +59,7 @@ public class JusterFordelingTjenesteTest {
 
     @Test
     public void foreldrepenger_før_fødsel_forkortes_ved_for_tidlig_fødsel_flere_perioder() {
-        LocalDate fødselsdato = LocalDate.of(2019, 1, 14);
+        var fødselsdato = LocalDate.of(2019, 1, 14);
         var fpff1 = lagPeriode(FORELDREPENGER_FØR_FØDSEL, fødselsdato.minusWeeks(3), fødselsdato.minusWeeks(1));
         //Denne blir helt borte
         var fpff2 = lagPeriode(FORELDREPENGER_FØR_FØDSEL, fødselsdato.minusWeeks(1).plusDays(1),
@@ -79,7 +79,7 @@ public class JusterFordelingTjenesteTest {
     @Test
     public void antall_virkedager_for_periode_skal_være_det_samme_etter_justering() {
         //mandag
-        LocalDate termin = LocalDate.of(2018, 10, 1);
+        var termin = LocalDate.of(2018, 10, 1);
 
         var mødrekvote = lagPeriode(MØDREKVOTE, termin, termin.plusDays(4));
         var utsettelse = lagUtsettelse(termin.plusWeeks(1), termin.plusWeeks(2).minusDays(3));
@@ -111,7 +111,7 @@ public class JusterFordelingTjenesteTest {
     @Test
     public void siste_periode_blir_fjernet_helt() {
         //mandag
-        LocalDate termin = LocalDate.of(2018, 10, 1);
+        var termin = LocalDate.of(2018, 10, 1);
 
         var mødrekvote = lagPeriode(MØDREKVOTE, termin, termin.plusDays(4));
 
@@ -338,7 +338,7 @@ public class JusterFordelingTjenesteTest {
     @Test
     public void siste_periode_før_utsettelse_blir_fjernet_helt() {
         //mandag
-        LocalDate termin = LocalDate.of(2018, 10, 1);
+        var termin = LocalDate.of(2018, 10, 1);
 
         var mødrekvote = lagPeriode(MØDREKVOTE, termin, termin.plusDays(4));
         var utsettelse = lagUtsettelse(termin.plusWeeks(1), termin.plusWeeks(1).plusDays(4));
@@ -361,7 +361,7 @@ public class JusterFordelingTjenesteTest {
     @Test
     public void fødsel_før_termin_skal_ikke_skyve_manglende_perioder_i_helger_ut_i_virkedager() {
         //mandag
-        LocalDate termin = LocalDate.of(2019, 1, 14);
+        var termin = LocalDate.of(2019, 1, 14);
 
         //starter mandag, avslutter fredag
         var mødrekvote = lagPeriode(MØDREKVOTE, termin, termin.plusWeeks(6).minusDays(3));
@@ -389,7 +389,7 @@ public class JusterFordelingTjenesteTest {
     @Test
     public void søknadsperiode_i_helg_og_føder_før() {
         //lørdag
-        LocalDate termin = LocalDate.of(2019, 1, 12);
+        var termin = LocalDate.of(2019, 1, 12);
 
         //starter mandag, avslutter fredag
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termin.minusWeeks(3).plusDays(2), termin.minusDays(1));
@@ -424,7 +424,7 @@ public class JusterFordelingTjenesteTest {
     @Test
     public void søknadsperiode_i_helg_og_føder_etter() {
         //søndag
-        LocalDate termin = LocalDate.of(2019, 1, 13);
+        var termin = LocalDate.of(2019, 1, 13);
 
         //starter mandag, avslutter fredag
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termin.minusWeeks(3).plusDays(1), termin.minusDays(2));
@@ -460,7 +460,7 @@ public class JusterFordelingTjenesteTest {
     @Test
     public void familehendelse_i_helg_og_føder_før() {
         //torsdag
-        LocalDate termin = LocalDate.of(2019, 1, 10);
+        var termin = LocalDate.of(2019, 1, 10);
 
         //starter mandag, avslutter fredag
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termin.minusWeeks(3), termin.minusDays(1));
@@ -472,7 +472,7 @@ public class JusterFordelingTjenesteTest {
         var oppgittePerioder = List.of(fpff, mødrekvote, fellesperiode);
 
         //Fødsel lørdag
-        LocalDate justertFamilehendelse = termin.minusDays(5);
+        var justertFamilehendelse = termin.minusDays(5);
         var justertePerioder = justerFordelingTjeneste.juster(oppgittePerioder, termin, justertFamilehendelse);
 
         assertThat(justertePerioder).hasSize(3);
@@ -494,7 +494,7 @@ public class JusterFordelingTjenesteTest {
     @Test
     public void skal_flytte_igjennom_hull_når_fødsel_er_etter_familehendelse() {
         //mandag
-        LocalDate termin = LocalDate.of(2019, 1, 14);
+        var termin = LocalDate.of(2019, 1, 14);
         //starter mandag, avslutter torsdag
         var mødrekvote = lagPeriode(MØDREKVOTE, termin, termin.plusDays(3));
         //hull fom fredag tom tirsdag
@@ -504,7 +504,7 @@ public class JusterFordelingTjenesteTest {
         var oppgittePerioder = List.of(mødrekvote, fellesperiode);
 
         //Fødsel onsdag
-        LocalDate justertFamilehendelse = termin.plusDays(2);
+        var justertFamilehendelse = termin.plusDays(2);
         var justertePerioder = justerFordelingTjeneste.juster(oppgittePerioder, termin, justertFamilehendelse);
 
         assertThat(justertePerioder).hasSize(4);
@@ -530,7 +530,7 @@ public class JusterFordelingTjenesteTest {
     @Test
     public void skal_flytte_igjennom_hull_når_fødsel_er_før_familehendelse() {
         //mandag
-        LocalDate termin = LocalDate.of(2019, 1, 14);
+        var termin = LocalDate.of(2019, 1, 14);
         //starter mandag, avslutter torsdag
         var mødrekvote = lagPeriode(MØDREKVOTE, termin, termin.plusDays(3));
         //hull fom fredag tom tirsdag
@@ -540,7 +540,7 @@ public class JusterFordelingTjenesteTest {
         var oppgittePerioder = List.of(mødrekvote, fellesperiode);
 
         //Fødsel torsdag
-        LocalDate justertFamilehendelse = termin.minusDays(4);
+        var justertFamilehendelse = termin.minusDays(4);
         var justertePerioder = justerFordelingTjeneste.juster(oppgittePerioder, termin, justertFamilehendelse);
 
         assertThat(justertePerioder).hasSize(3);
@@ -566,7 +566,7 @@ public class JusterFordelingTjenesteTest {
     @Test
     public void familehendelse_i_helg_og_føder_etter() {
         //torsdag
-        LocalDate termin = LocalDate.of(2019, 1, 10);
+        var termin = LocalDate.of(2019, 1, 10);
 
         //starter mandag, avslutter fredag
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termin.minusWeeks(3), termin.minusDays(1));
@@ -578,7 +578,7 @@ public class JusterFordelingTjenesteTest {
         var oppgittePerioder = List.of(fpff, mødrekvote, fellesperiode);
 
         //Fødsel lørdag
-        LocalDate justertFamilehendelse = termin.plusDays(2);
+        var justertFamilehendelse = termin.plusDays(2);
         var justertePerioder = justerFordelingTjeneste.juster(oppgittePerioder, termin, justertFamilehendelse);
 
         assertThat(justertePerioder).hasSize(4);
@@ -608,7 +608,7 @@ public class JusterFordelingTjenesteTest {
     @Test
     public void fødsel_etter_termin_skal_ikke_skyve_manglende_perioder_i_helger_ut_i_virkedager() {
         //mandag
-        LocalDate termin = LocalDate.of(2018, 12, 10);
+        var termin = LocalDate.of(2018, 12, 10);
 
         //starter mandag, avslutter fredag
         var mødrekvote = lagPeriode(MØDREKVOTE, termin, termin.plusWeeks(7).minusDays(3));
@@ -638,13 +638,13 @@ public class JusterFordelingTjenesteTest {
 
     @Test
     public void foreldrepenger_før_fødsel_forsvinner_når_fødsel_er_4_uker_for_tidlig() {
-        LocalDate fødselsdato = LocalDate.of(2019, 1, 10);
+        var fødselsdato = LocalDate.of(2019, 1, 10);
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, fødselsdato.minusWeeks(3), fødselsdato.minusDays(1));
         var mk = lagPeriode(MØDREKVOTE, fødselsdato, fødselsdato.plusWeeks(6).minusDays(1));
         var oppgittePerioder = List.of(fpff, mk);
 
         //Føder en dag før termin
-        LocalDate nyFødselsdato = fødselsdato.minusDays(28);
+        var nyFødselsdato = fødselsdato.minusDays(28);
         var justertePerioder = justerFordelingTjeneste.juster(oppgittePerioder, fødselsdato, nyFødselsdato);
 
         //Periode skal flyttes 1 dag tidligere, men ikke før første uttak
@@ -658,7 +658,7 @@ public class JusterFordelingTjenesteTest {
 
     @Test
     public void sen_fødsel_der_familiehendelse_flyttes_innad_i_hull() {
-        LocalDate termin = LocalDate.of(2018, 10, 1);
+        var termin = LocalDate.of(2018, 10, 1);
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termin.minusWeeks(3), termin.minusDays(3));
         //hull mellom fpff og mødrekvote
         var mk = lagPeriode(MØDREKVOTE, termin.plusWeeks(1), termin.plusWeeks(7).minusDays(3));
@@ -666,7 +666,7 @@ public class JusterFordelingTjenesteTest {
 
         //Føder to dager etter termin. Familehendelsedato blir flyttet innad i hullet
         //Skal føre til at det ikke blir en endring i søknadsperiodene
-        LocalDate faktiskFødselsdato = termin.plusDays(4);
+        var faktiskFødselsdato = termin.plusDays(4);
         var justertePerioder = justerFordelingTjeneste.juster(oppgittePerioder, termin, faktiskFødselsdato);
 
         assertThat(justertePerioder).hasSize(2);
@@ -682,7 +682,7 @@ public class JusterFordelingTjenesteTest {
 
     @Test
     public void sen_fødsel_der_familiehendelse_flyttes_fra_ett_hull_til_et_annet() {
-        LocalDate termin = LocalDate.of(2019, 1, 15);
+        var termin = LocalDate.of(2019, 1, 15);
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, LocalDate.of(2018, 12, 24), LocalDate.of(2019, 1, 11));
         //hull mellom fpff og mødrekvote 14 - 16
         var mk = lagPeriode(MØDREKVOTE, LocalDate.of(2019, 1, 17), LocalDate.of(2019, 1, 18));
@@ -691,7 +691,7 @@ public class JusterFordelingTjenesteTest {
         var oppgittePerioder = List.of(fpff, mk, fellesperiode);
 
         //Føder en uke etter termin. Hopper over mødrekvote og inn i et annet hull
-        LocalDate faktiskFødselsdato = LocalDate.of(2019, 1, 21);
+        var faktiskFødselsdato = LocalDate.of(2019, 1, 21);
         var justertePerioder = justerFordelingTjeneste.juster(oppgittePerioder, termin, faktiskFødselsdato);
 
         assertThat(justertePerioder).hasSize(5);
@@ -719,7 +719,7 @@ public class JusterFordelingTjenesteTest {
 
     @Test
     public void tidlig_fødsel_der_familiehendelse_flyttes_innad_i_hull() {
-        LocalDate termin = LocalDate.of(2018, 10, 1);
+        var termin = LocalDate.of(2018, 10, 1);
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termin.minusWeeks(3), termin.minusWeeks(2));
         //hull mellom fpff og mødrekvote
         var mk = lagPeriode(MØDREKVOTE, termin.plusDays(1), termin.plusWeeks(7).minusDays(3));
@@ -727,7 +727,7 @@ public class JusterFordelingTjenesteTest {
 
         //Føder 5 dager før termin. Familehendelsedato blir flyttet innad i hullet
         //Skal føre til at det ikke blir en endring i søknadsperiodene
-        LocalDate faktiskFødselsdato = termin.minusDays(4);
+        var faktiskFødselsdato = termin.minusDays(4);
         var justertePerioder = justerFordelingTjeneste.juster(oppgittePerioder, termin, faktiskFødselsdato);
 
         assertThat(justertePerioder).hasSize(2);
@@ -743,14 +743,14 @@ public class JusterFordelingTjenesteTest {
 
     @Test
     public void tidlig_fødsel_der_familiehendelse_flyttes_til_ett_i_hull_ingen_virkedager_i_mellom() {
-        LocalDate termin = LocalDate.of(2018, 10, 1);
+        var termin = LocalDate.of(2018, 10, 1);
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termin.minusWeeks(3), termin.minusWeeks(2));
         //hull mellom fpff og mødrekvote
         var mk = lagPeriode(MØDREKVOTE, termin, termin.plusWeeks(7).minusDays(3));
         var oppgittePerioder = List.of(fpff, mk);
 
         //Føder 5 dager før termin. Familehendelsedato blir flyttet inn i hullet. Siden det ikke er noen virkdager i mellom termin og hull så skal søknadsperiodene beholdes
-        LocalDate faktiskFødselsdato = termin.minusDays(4);
+        var faktiskFødselsdato = termin.minusDays(4);
         var justertePerioder = justerFordelingTjeneste.juster(oppgittePerioder, termin, faktiskFødselsdato);
 
         assertThat(justertePerioder).hasSize(2);
@@ -766,7 +766,7 @@ public class JusterFordelingTjenesteTest {
 
     @Test
     public void sen_fødsel_der_familiehendelse_flyttes_til_en_utsettelse_virkedager_i_mellom() {
-        LocalDate termin = LocalDate.of(2019, 1, 14);
+        var termin = LocalDate.of(2019, 1, 14);
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, LocalDate.of(2018, 12, 24), LocalDate.of(2019, 1, 11));
         var mødrekvote1 = lagPeriode(MØDREKVOTE, LocalDate.of(2019, 1, 14), LocalDate.of(2019, 1, 18));
         var utsettelse = lagUtsettelse(LocalDate.of(2019, 1, 21), LocalDate.of(2019, 1, 25));
@@ -774,7 +774,7 @@ public class JusterFordelingTjenesteTest {
         var oppgittePerioder = List.of(fpff, mødrekvote1, utsettelse, mødrekvote2);
 
         //Familehendelsedato blir flyttet inn i utsettelsen.
-        LocalDate faktiskFødselsdato = LocalDate.of(2019, 1, 22);
+        var faktiskFødselsdato = LocalDate.of(2019, 1, 22);
         var justertePerioder = justerFordelingTjeneste.juster(oppgittePerioder, termin, faktiskFødselsdato);
 
         assertThat(justertePerioder).hasSize(4);
@@ -845,7 +845,7 @@ public class JusterFordelingTjenesteTest {
 
     @Test
     public void utsettelses_skal_ikke_flyttes_dersom_fødsel_før_termin() {
-        LocalDate fødselsdato = LocalDate.of(2019, 1, 17);
+        var fødselsdato = LocalDate.of(2019, 1, 17);
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, fødselsdato.minusWeeks(3), fødselsdato.minusDays(1));
         var mk = lagPeriode(MØDREKVOTE, fødselsdato, fødselsdato.plusWeeks(10).minusDays(1));
         var utsettelsePgaFerie = lagUtsettelse(fødselsdato.plusWeeks(10), fødselsdato.plusWeeks(14).minusDays(1));
@@ -854,7 +854,7 @@ public class JusterFordelingTjenesteTest {
 
 
         //Føder en uke før termin
-        LocalDate justertFødselsdato = fødselsdato.minusWeeks(1);
+        var justertFødselsdato = fødselsdato.minusWeeks(1);
         var justertePerioder = justerFordelingTjeneste.juster(oppgittePerioder, fødselsdato, justertFødselsdato);
 
         //Periodene skal flyttes 1 uke, utsettelse skal være uendret og fpff skal avkortes.
@@ -898,7 +898,7 @@ public class JusterFordelingTjenesteTest {
 
 
         //Føder en uke etter termin
-        LocalDate justertFødselsdato = fødselsdato.plusWeeks(1);
+        var justertFødselsdato = fødselsdato.plusWeeks(1);
         var justertePerioder = justerFordelingTjeneste.juster(oppgittePerioder, fødselsdato, justertFødselsdato);
 
         //Periodene skal flyttes 1 uke, utsettelse skal være uendret og fpff skal avkortes.
@@ -940,7 +940,7 @@ public class JusterFordelingTjenesteTest {
     @Test
     public void skal_flytte_gjennom_flere_utsettelser_med_helg_i_mellom() {
         //lørdag
-        LocalDate fødselsdato = LocalDate.of(2019, 1, 14);
+        var fødselsdato = LocalDate.of(2019, 1, 14);
         //mandag
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, fødselsdato.minusWeeks(3), fødselsdato.minusDays(1));
         var mk1 = lagPeriode(MØDREKVOTE, fødselsdato, fødselsdato.plusWeeks(6).minusDays(3));
@@ -950,7 +950,7 @@ public class JusterFordelingTjenesteTest {
         var oppgittePerioder = List.of(fpff, mk1, utsettelse1, utsettelse2, fp);
 
         //Føder en uke før termin
-        LocalDate justertFødselsdato = fødselsdato.minusWeeks(1);
+        var justertFødselsdato = fødselsdato.minusWeeks(1);
         var justertePerioder = justerFordelingTjeneste.juster(oppgittePerioder, fødselsdato, justertFødselsdato);
 
         assertThat(likePerioder(oppgittePerioder, justertePerioder)).isFalse();
@@ -990,7 +990,7 @@ public class JusterFordelingTjenesteTest {
 
     @Test
     public void skal_fjerne_perioder_med_helg() {
-        LocalDate termin = LocalDate.of(2019, 2, 23);
+        var termin = LocalDate.of(2019, 2, 23);
         var fpff = lagPeriode(FORELDREPENGER_FØR_FØDSEL, termin.minusWeeks(3), termin.minusDays(1));
         var mk1 = lagPeriode(MØDREKVOTE, termin, termin.plusDays(1));
         var mk2 = lagPeriode(MØDREKVOTE, termin.plusDays(2), termin.plusWeeks(6));
@@ -1099,7 +1099,7 @@ public class JusterFordelingTjenesteTest {
         if (perioder1.size() != perioder2.size()) {
             return false;
         }
-        for (int i = 0; i < perioder1.size(); i++) {
+        for (var i = 0; i < perioder1.size(); i++) {
             var oppgittPeriode1 = perioder1.get(i);
             var oppgittPeriode2 = perioder2.get(i);
             if (!oppgittPeriode1.getFom().equals(oppgittPeriode2.getFom()) || !oppgittPeriode1.getTom()

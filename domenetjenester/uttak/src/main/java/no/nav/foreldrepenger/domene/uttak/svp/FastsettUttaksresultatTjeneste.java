@@ -18,7 +18,7 @@ public class FastsettUttaksresultatTjeneste {
     private AvklarteDatoerTjeneste avklarteDatoerTjeneste;
     private UttaksresultatMapper uttaksresultatMapper;
     private RegelmodellSøknaderMapper regelmodellSøknaderMapper;
-    private FastsettPerioderTjeneste fastsettPerioderTjeneste = new FastsettPerioderTjeneste();
+    private final FastsettPerioderTjeneste fastsettPerioderTjeneste = new FastsettPerioderTjeneste();
 
     public FastsettUttaksresultatTjeneste() {
         // For CDI

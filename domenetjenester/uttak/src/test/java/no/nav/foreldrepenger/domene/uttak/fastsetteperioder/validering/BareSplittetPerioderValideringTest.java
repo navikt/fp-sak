@@ -23,96 +23,96 @@ public class BareSplittetPerioderValideringTest {
 
     @Test
     public void enPeriodeKanSplittesIToHvisSammeFomOgTom() {
-        LocalDate opprinneligFom = LocalDate.now();
-        LocalDate opprinneligTom = LocalDate.now().plusWeeks(3);
-        LocalDate førsteTom = opprinneligFom.plusWeeks(2);
-        LocalDate sisteFom = førsteTom.plusDays(1);
+        var opprinneligFom = LocalDate.now();
+        var opprinneligTom = LocalDate.now().plusWeeks(3);
+        var førsteTom = opprinneligFom.plusWeeks(2);
+        var sisteFom = førsteTom.plusDays(1);
         var opprinnelig = List.of(periodeMedDato(opprinneligFom, opprinneligTom));
         var nyePerioder = List.of(periodeMedDato(opprinneligFom, førsteTom), periodeMedDato(sisteFom, opprinneligTom));
 
-        BareSplittetPerioderValidering validering = new BareSplittetPerioderValidering(opprinnelig);
+        var validering = new BareSplittetPerioderValidering(opprinnelig);
         assertDoesNotThrow(() -> validering.utfør(nyePerioder));
     }
 
     @Test
     public void enPeriodeKanIkkeSplittesIToHvisFørsteFomFørOpprinneligFom() {
-        LocalDate opprinneligFom = LocalDate.now();
-        LocalDate opprinneligTom = LocalDate.now().plusWeeks(3);
-        LocalDate førsteFom = opprinneligFom.minusDays(1);
-        LocalDate førsteTom = opprinneligFom.plusWeeks(2);
-        LocalDate sisteFom = førsteTom.plusDays(1);
+        var opprinneligFom = LocalDate.now();
+        var opprinneligTom = LocalDate.now().plusWeeks(3);
+        var førsteFom = opprinneligFom.minusDays(1);
+        var førsteTom = opprinneligFom.plusWeeks(2);
+        var sisteFom = førsteTom.plusDays(1);
         var opprinnelig = List.of(periodeMedDato(opprinneligFom, opprinneligTom));
         var nyePerioder = List.of(periodeMedDato(førsteFom, førsteTom), periodeMedDato(sisteFom, opprinneligTom));
 
-        BareSplittetPerioderValidering validering = new BareSplittetPerioderValidering(opprinnelig);
+        var validering = new BareSplittetPerioderValidering(opprinnelig);
         assertThrows(TekniskException.class, () -> validering.utfør(nyePerioder));
     }
 
     @Test
     public void enPeriodeKanIkkeSplittesIToHvisFørsteFomEtterOpprinneligFom() {
-        LocalDate opprinneligFom = LocalDate.now();
-        LocalDate opprinneligTom = LocalDate.now().plusWeeks(3);
-        LocalDate førsteTom = opprinneligFom.plusWeeks(2);
-        LocalDate førsteFom = opprinneligFom.plusDays(1);
-        LocalDate sisteFom = førsteTom.plusDays(1);
+        var opprinneligFom = LocalDate.now();
+        var opprinneligTom = LocalDate.now().plusWeeks(3);
+        var førsteTom = opprinneligFom.plusWeeks(2);
+        var førsteFom = opprinneligFom.plusDays(1);
+        var sisteFom = førsteTom.plusDays(1);
         var opprinnelig = List.of(periodeMedDato(opprinneligFom, opprinneligTom));
         var nyePerioder = List.of(periodeMedDato(førsteFom, førsteTom), periodeMedDato(sisteFom, opprinneligTom));
 
-        BareSplittetPerioderValidering validering = new BareSplittetPerioderValidering(opprinnelig);
+        var validering = new BareSplittetPerioderValidering(opprinnelig);
         assertThrows(TekniskException.class, () -> validering.utfør(nyePerioder));
     }
 
     @Test
     public void enPeriodeKanIkkeSplittesIToHvisSisteTomFørOpprinneligTom() {
-        LocalDate opprinneligFom = LocalDate.now();
-        LocalDate opprinneligTom = LocalDate.now().plusWeeks(3);
-        LocalDate førsteTom = opprinneligFom.plusWeeks(2);
-        LocalDate sisteFom = førsteTom.plusDays(1);
-        LocalDate sisteTom = opprinneligTom.minusDays(1);
+        var opprinneligFom = LocalDate.now();
+        var opprinneligTom = LocalDate.now().plusWeeks(3);
+        var førsteTom = opprinneligFom.plusWeeks(2);
+        var sisteFom = førsteTom.plusDays(1);
+        var sisteTom = opprinneligTom.minusDays(1);
         var opprinnelig = List.of(periodeMedDato(opprinneligFom, opprinneligTom));
         var nyePerioder = List.of(periodeMedDato(opprinneligFom, førsteTom), periodeMedDato(sisteFom, sisteTom));
 
-        BareSplittetPerioderValidering validering = new BareSplittetPerioderValidering(opprinnelig);
+        var validering = new BareSplittetPerioderValidering(opprinnelig);
         assertThrows(TekniskException.class, () -> validering.utfør(nyePerioder));
     }
 
     @Test
     public void enPeriodeKanSplittesITreHvisFomOgTomStemmerMedOpprinnelig() {
-        LocalDate opprinneligFom = LocalDate.now();
-        LocalDate opprinneligTom = LocalDate.now().plusWeeks(10);
-        LocalDate førsteTom = opprinneligFom.plusWeeks(2);
-        LocalDate andreFom = førsteTom.plusDays(1);
-        LocalDate andreTom = andreFom.plusWeeks(2);
-        LocalDate tredjeFom = andreTom.plusDays(1);
+        var opprinneligFom = LocalDate.now();
+        var opprinneligTom = LocalDate.now().plusWeeks(10);
+        var førsteTom = opprinneligFom.plusWeeks(2);
+        var andreFom = førsteTom.plusDays(1);
+        var andreTom = andreFom.plusWeeks(2);
+        var tredjeFom = andreTom.plusDays(1);
         var opprinnelig = List.of(periodeMedDato(opprinneligFom, opprinneligTom));
         var nyePerioder = List.of(periodeMedDato(opprinneligFom, førsteTom),
             periodeMedDato(andreFom, andreTom),
             periodeMedDato(tredjeFom, opprinneligTom));
 
-        BareSplittetPerioderValidering validering = new BareSplittetPerioderValidering(opprinnelig);
+        var validering = new BareSplittetPerioderValidering(opprinnelig);
         assertDoesNotThrow(() -> validering.utfør(nyePerioder));
     }
 
     @Test
     public void enPeriodeKanIkkeSplittesIToLikePerioder() {
-        LocalDate opprinneligFom = LocalDate.now();
-        LocalDate opprinneligTom = LocalDate.now().plusWeeks(3);
+        var opprinneligFom = LocalDate.now();
+        var opprinneligTom = LocalDate.now().plusWeeks(3);
         var opprinnelig = List.of(periodeMedDato(opprinneligFom, opprinneligTom));
         var nyePerioder = List.of(periodeMedDato(opprinneligFom, opprinneligTom), periodeMedDato(opprinneligFom, opprinneligTom));
 
-        BareSplittetPerioderValidering validering = new BareSplittetPerioderValidering(opprinnelig);
+        var validering = new BareSplittetPerioderValidering(opprinnelig);
         assertThrows(TekniskException.class, () -> validering.utfør(nyePerioder));
     }
 
     @Test
     public void feilVedOverlappendePerioder() {
-        LocalDate førsteFom = LocalDate.now();
-        LocalDate førsteTom = LocalDate.now().plusDays(5);
-        LocalDate andreTom = førsteTom.plusDays(10);
+        var førsteFom = LocalDate.now();
+        var førsteTom = LocalDate.now().plusDays(5);
+        var andreTom = førsteTom.plusDays(10);
         var opprinnelig = List.of(periodeMedDato(førsteFom, andreTom));
         var nyePerioder = List.of(periodeMedDato(førsteFom, førsteFom), periodeMedDato(førsteTom, andreTom));
 
-        BareSplittetPerioderValidering validering = new BareSplittetPerioderValidering(opprinnelig);
+        var validering = new BareSplittetPerioderValidering(opprinnelig);
         assertThrows(TekniskException.class, () -> validering.utfør(nyePerioder));
     }
 

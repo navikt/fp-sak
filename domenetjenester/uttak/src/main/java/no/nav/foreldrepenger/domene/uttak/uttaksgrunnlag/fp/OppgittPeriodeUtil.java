@@ -26,8 +26,8 @@ class OppgittPeriodeUtil {
      * @return første dato fra søknad som ikke er en utsettelse.
      */
     static Optional<LocalDate> finnFørsteSøkteUttaksdato(List<OppgittPeriodeEntitet> oppgittePerioder) {
-        List<OppgittPeriodeEntitet> sortertePerioder = sorterEtterFom(oppgittePerioder);
-        List<OppgittPeriodeEntitet> perioderMedUttak = sortertePerioder
+        var sortertePerioder = sorterEtterFom(oppgittePerioder);
+        var perioderMedUttak = sortertePerioder
             .stream()
             .filter(p -> Årsak.UKJENT.equals(p.getÅrsak()) || !p.isOpphold())
             .collect(Collectors.toList());
@@ -40,7 +40,7 @@ class OppgittPeriodeUtil {
     }
 
     static Optional<LocalDate> finnFørsteSøknadsdato(List<OppgittPeriodeEntitet> perioder) {
-        List<OppgittPeriodeEntitet> sortertePerioder = sorterEtterFom(perioder);
+        var sortertePerioder = sorterEtterFom(perioder);
 
         if(sortertePerioder.size() > 0) {
             return Optional.of(sortertePerioder.get(0).getFom());

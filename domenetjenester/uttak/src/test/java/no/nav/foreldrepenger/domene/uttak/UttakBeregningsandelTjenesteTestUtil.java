@@ -10,7 +10,7 @@ import no.nav.foreldrepenger.domene.uttak.input.BeregningsgrunnlagStatus;
 
 public class UttakBeregningsandelTjenesteTestUtil {
 
-    private Set<BeregningsgrunnlagStatus> bgStatuser = new HashSet<>();
+    private final Set<BeregningsgrunnlagStatus> bgStatuser = new HashSet<>();
 
     public Set<BeregningsgrunnlagStatus> hentStatuser() {
         return this.bgStatuser;

@@ -23,30 +23,29 @@ public class StønadskontoRegelOversetter {
                                                 ForeldrepengerGrunnlag fpGrunnlag) {
 
         var familieHendelse = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse();
-        var annenForeldreHarRett = UttakOmsorgUtil.harAnnenForelderRett(ytelseFordelingAggregat, annenpartsGjeldendeUttaksplan);
+        var annenForeldreHarRett = UttakOmsorgUtil.harAnnenForelderRett(ytelseFordelingAggregat,
+            annenpartsGjeldendeUttaksplan);
 
         var grunnlagBuilder = BeregnKontoerGrunnlag.builder()
             .medAntallBarn(familieHendelse.getAntallBarn())
             .medDekningsgrad(map(fagsakRelasjon.getGjeldendeDekningsgrad().getVerdi()));
 
-        leggTilFamileHendelseDatoer(grunnlagBuilder, familieHendelse, fpGrunnlag.getFamilieHendelser().gjelderTerminFødsel());
+        leggTilFamileHendelseDatoer(grunnlagBuilder, familieHendelse,
+            fpGrunnlag.getFamilieHendelser().gjelderTerminFødsel());
 
         var aleneomsorg = UttakOmsorgUtil.harAleneomsorg(ytelseFordelingAggregat);
         if (relasjonsRolleType.equals(RelasjonsRolleType.MORA)) {
-            return grunnlagBuilder
-                .morRett(harSøkerRett)
+            return grunnlagBuilder.morRett(harSøkerRett)
                 .farRett(annenForeldreHarRett)
                 .morAleneomsorg(aleneomsorg)
                 .build();
         }
-        return grunnlagBuilder
-            .morRett(annenForeldreHarRett)
-            .farRett(harSøkerRett)
-            .farAleneomsorg(aleneomsorg)
-            .build();
+        return grunnlagBuilder.morRett(annenForeldreHarRett).farRett(harSøkerRett).farAleneomsorg(aleneomsorg).build();
     }
 
-    private void leggTilFamileHendelseDatoer(BeregnKontoerGrunnlag.Builder grunnlagBuilder, FamilieHendelse gjeldendeFamilieHendelse, boolean erFødsel) {
+    private void leggTilFamileHendelseDatoer(BeregnKontoerGrunnlag.Builder grunnlagBuilder,
+                                             FamilieHendelse gjeldendeFamilieHendelse,
+                                             boolean erFødsel) {
         if (erFødsel) {
             grunnlagBuilder.medFødselsdato(gjeldendeFamilieHendelse.getFødselsdato().orElse(null));
             grunnlagBuilder.medTermindato(gjeldendeFamilieHendelse.getTermindato().orElse(null));

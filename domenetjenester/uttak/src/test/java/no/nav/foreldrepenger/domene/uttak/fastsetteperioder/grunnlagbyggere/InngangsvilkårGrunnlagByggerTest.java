@@ -15,22 +15,21 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryProviderForTest;
-import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Inngangsvilkår;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 
 public class InngangsvilkårGrunnlagByggerTest {
 
-    private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryProviderForTest();
+    private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryStubProvider();
 
     @Test
     public void setterInngangsvilkåreneErOppfylt() {
-        InngangsvilkårGrunnlagBygger bygger = new InngangsvilkårGrunnlagBygger(repositoryProvider);
+        var bygger = new InngangsvilkårGrunnlagBygger(repositoryProvider);
 
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger
+        var scenario = ScenarioMorSøkerForeldrepenger
             .forFødsel();
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
-        VilkårResultat.Builder vilkårBuilder = VilkårResultat.builder();
+        var vilkårBuilder = VilkårResultat.builder();
         vilkårBuilder.leggTilVilkårResultat(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT, VilkårUtfallMerknad.UDEFINERT,
                 null, Avslagsårsak.UDEFINERT, false, false, null, null);
         vilkårBuilder.leggTilVilkårResultat(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT, VilkårUtfallMerknad.UDEFINERT,
@@ -41,7 +40,7 @@ public class InngangsvilkårGrunnlagByggerTest {
                 null, Avslagsårsak.UDEFINERT, false, false, null, null);
         lagreVilkår(behandling, vilkårBuilder);
 
-        Inngangsvilkår grunnlag = bygger.byggGrunnlag(input(behandling)).build();
+        var grunnlag = bygger.byggGrunnlag(input(behandling)).build();
 
         assertThat(grunnlag.erFødselsvilkåretOppfylt()).isTrue();
         assertThat(grunnlag.erAdopsjonOppfylt()).isTrue();
@@ -50,7 +49,7 @@ public class InngangsvilkårGrunnlagByggerTest {
     }
 
     private void lagreVilkår(Behandling behandling, VilkårResultat.Builder vilkårBuilder) {
-        Behandlingsresultat behandlingsresultat =  Behandlingsresultat.builderForInngangsvilkår().build();
+        var behandlingsresultat =  Behandlingsresultat.builderForInngangsvilkår().build();
         behandlingsresultat.medOppdatertVilkårResultat(vilkårBuilder.build());
         repositoryProvider.getBehandlingsresultatRepository().lagre(behandling.getId(),behandlingsresultat);
     }
@@ -61,12 +60,12 @@ public class InngangsvilkårGrunnlagByggerTest {
 
     @Test
     public void setterInngangsvilkåreneErAvslått() {
-        InngangsvilkårGrunnlagBygger bygger = new InngangsvilkårGrunnlagBygger(repositoryProvider);
+        var bygger = new InngangsvilkårGrunnlagBygger(repositoryProvider);
 
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var behandling = scenario.lagre(repositoryProvider);
 
-        VilkårResultat.Builder vilkårBuilder = VilkårResultat.builder();
+        var vilkårBuilder = VilkårResultat.builder();
         vilkårBuilder.leggTilVilkårResultat(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.IKKE_OPPFYLT, VilkårUtfallMerknad.UDEFINERT,
                 null, Avslagsårsak.UDEFINERT, false, false, null, null);
         vilkårBuilder.leggTilVilkårResultat(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT, VilkårUtfallMerknad.UDEFINERT,
@@ -77,7 +76,7 @@ public class InngangsvilkårGrunnlagByggerTest {
                 null, Avslagsårsak.UDEFINERT, false, false, null, null);
         lagreVilkår(behandling, vilkårBuilder);
 
-        Inngangsvilkår grunnlag = bygger.byggGrunnlag(input(behandling)).build();
+        var grunnlag = bygger.byggGrunnlag(input(behandling)).build();
 
         assertThat(grunnlag.erFødselsvilkåretOppfylt()).isFalse();
         assertThat(grunnlag.erAdopsjonOppfylt()).isFalse();

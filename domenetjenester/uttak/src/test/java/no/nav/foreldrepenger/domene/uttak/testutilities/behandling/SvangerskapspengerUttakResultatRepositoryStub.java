@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 
-class SvangerskapspengerUttakResultatRepositoryForTest extends SvangerskapspengerUttakResultatRepository {
+class SvangerskapspengerUttakResultatRepositoryStub extends SvangerskapspengerUttakResultatRepository {
 
     private final Map<Long, SvangerskapspengerUttakResultatEntitet> map = new ConcurrentHashMap<>();
 

@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
-import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryProviderForTest;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 
 class PersonopplysningerForUttakImplTest {
 
@@ -34,7 +34,7 @@ class PersonopplysningerForUttakImplTest {
 
         var dødsdato = LocalDate.of(2020, 1, 1);
 
-        var behandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(new UttakRepositoryProviderForTest());
+        var behandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(new UttakRepositoryStubProvider());
         var ref = BehandlingReferanse.fra(behandling);
 
         var personopplysningerAggregat = personOpplysningerMedDødsdato(dødsdato, behandling);
@@ -48,7 +48,7 @@ class PersonopplysningerForUttakImplTest {
         var personopplysningTjeneste = mock(PersonopplysningTjeneste.class);
         var personopplysninger = new PersonopplysningerForUttakImpl(personopplysningTjeneste);
 
-        var behandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(new UttakRepositoryProviderForTest());
+        var behandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(new UttakRepositoryStubProvider());
         var ref = BehandlingReferanse.fra(behandling);
 
         var personopplysningerAggregat = personOpplysningerMedDødsdato(null, behandling);
@@ -62,7 +62,7 @@ class PersonopplysningerForUttakImplTest {
         var personopplysningTjeneste = mock(PersonopplysningTjeneste.class);
         var personopplysninger = new PersonopplysningerForUttakImpl(personopplysningTjeneste);
 
-        var behandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(new UttakRepositoryProviderForTest());
+        var behandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(new UttakRepositoryStubProvider());
         var ref = BehandlingReferanse.fra(behandling);
 
         var personopplysningGrunnlagBuilder = PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty())
@@ -79,7 +79,7 @@ class PersonopplysningerForUttakImplTest {
         var personopplysningTjeneste = mock(PersonopplysningTjeneste.class);
         var personopplysninger = new PersonopplysningerForUttakImpl(personopplysningTjeneste);
 
-        var behandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(new UttakRepositoryProviderForTest());
+        var behandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(new UttakRepositoryStubProvider());
         var ref = BehandlingReferanse.fra(behandling);
 
         var personopplysningGrunnlagBuilder = PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty());
@@ -96,7 +96,7 @@ class PersonopplysningerForUttakImplTest {
         var personopplysningTjeneste = mock(PersonopplysningTjeneste.class);
         var personopplysninger = new PersonopplysningerForUttakImpl(personopplysningTjeneste);
 
-        var behandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(new UttakRepositoryProviderForTest());
+        var behandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(new UttakRepositoryStubProvider());
         var ref = BehandlingReferanse.fra(behandling);
 
         var aktørId = behandling.getAktørId();
@@ -126,7 +126,7 @@ class PersonopplysningerForUttakImplTest {
         var personopplysningTjeneste = mock(PersonopplysningTjeneste.class);
         var personopplysninger = new PersonopplysningerForUttakImpl(personopplysningTjeneste);
 
-        var behandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(new UttakRepositoryProviderForTest());
+        var behandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(new UttakRepositoryStubProvider());
         var ref = BehandlingReferanse.fra(behandling);
 
         var personopplysningGrunnlagBuilder = PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty())
@@ -143,7 +143,7 @@ class PersonopplysningerForUttakImplTest {
         var personopplysningTjeneste = mock(PersonopplysningTjeneste.class);
         var personopplysninger = new PersonopplysningerForUttakImpl(personopplysningTjeneste);
 
-        var behandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(new UttakRepositoryProviderForTest());
+        var behandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(new UttakRepositoryStubProvider());
         var ref = BehandlingReferanse.fra(behandling);
 
         var personopplysningGrunnlagBuilder = PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty())
@@ -161,7 +161,7 @@ class PersonopplysningerForUttakImplTest {
         var personopplysningTjeneste = mock(PersonopplysningTjeneste.class);
         var personopplysninger = new PersonopplysningerForUttakImpl(personopplysningTjeneste);
 
-        var behandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(new UttakRepositoryProviderForTest());
+        var behandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(new UttakRepositoryStubProvider());
         var ref = BehandlingReferanse.fra(behandling);
 
         var personopplysningGrunnlagBuilder = PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty())

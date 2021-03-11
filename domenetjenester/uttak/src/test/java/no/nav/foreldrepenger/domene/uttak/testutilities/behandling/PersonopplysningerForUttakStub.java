@@ -6,7 +6,7 @@ import java.util.Optional;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.domene.uttak.PersonopplysningerForUttak;
 
-public class PersonopplysningerForUttakForTest implements PersonopplysningerForUttak {
+public class PersonopplysningerForUttakStub implements PersonopplysningerForUttak {
 
     @Override
     public Optional<LocalDate> søkersDødsdato(BehandlingReferanse ref) {

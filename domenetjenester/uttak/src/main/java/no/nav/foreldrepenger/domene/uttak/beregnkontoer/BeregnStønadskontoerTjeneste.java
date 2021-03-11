@@ -72,8 +72,8 @@ public class BeregnStønadskontoerTjeneste {
     }
 
     public boolean inneholderEndringer(Stønadskontoberegning eksisterende, Stønadskontoberegning ny) {
-        for (Stønadskonto eksisterendeStønadskonto : eksisterende.getStønadskontoer()) {
-            Optional<Stønadskonto> likNyStønadskonto = finnKontoIStønadskontoberegning(ny, eksisterendeStønadskonto);
+        for (var eksisterendeStønadskonto : eksisterende.getStønadskontoer()) {
+            var likNyStønadskonto = finnKontoIStønadskontoberegning(ny, eksisterendeStønadskonto);
             if (likNyStønadskonto.isEmpty()) {
                 return true;
             }
@@ -89,7 +89,7 @@ public class BeregnStønadskontoerTjeneste {
     }
 
     private void oppdaterBehandlingsresultat(Long behandlingId) {
-        Behandlingsresultat behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
+        var behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
         var oppdaterBehandlingsresultat = Behandlingsresultat.builderEndreEksisterende(behandlingsresultat).medEndretStønadskonto(true).build();
         behandlingsresultatRepository.lagre(behandlingId, oppdaterBehandlingsresultat);
     }

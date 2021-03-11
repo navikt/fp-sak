@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.util.Tuple;
 
-class FagsakRepositoryForTest extends FagsakRepository {
+class FagsakRepositoryStub extends FagsakRepository {
 
     private static final AtomicLong ID = new AtomicLong(0L);
 

@@ -5,8 +5,6 @@ import static java.lang.Boolean.TRUE;
 import java.util.Objects;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAleneOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 
 public final class UttakOmsorgUtil {
@@ -15,7 +13,7 @@ public final class UttakOmsorgUtil {
     }
 
     public static boolean harAleneomsorg(YtelseFordelingAggregat ytelseFordelingAggregat) {
-        Optional<PerioderAleneOmsorgEntitet> perioderAleneOmsorg = ytelseFordelingAggregat.getPerioderAleneOmsorg();
+        var perioderAleneOmsorg = ytelseFordelingAggregat.getPerioderAleneOmsorg();
         if (perioderAleneOmsorg.isPresent()) {
             return !perioderAleneOmsorg.get().getPerioder().isEmpty();
         }
@@ -31,7 +29,7 @@ public final class UttakOmsorgUtil {
         if (annenForelderRettAvklaring.isPresent()) {
             return annenForelderRettAvklaring.get();
         }
-        OppgittRettighetEntitet oppgittRettighet = ytelseFordelingAggregat.getOppgittRettighet();
+        var oppgittRettighet = ytelseFordelingAggregat.getOppgittRettighet();
         Objects.requireNonNull(oppgittRettighet, "oppgittRettighet");
         return oppgittRettighet.getHarAnnenForeldreRett() == null || oppgittRettighet.getHarAnnenForeldreRett();
     }

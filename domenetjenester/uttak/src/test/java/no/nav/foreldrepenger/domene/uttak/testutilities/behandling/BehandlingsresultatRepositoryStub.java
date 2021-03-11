@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 
-class BehandlingsresultatRepositoryForTest extends BehandlingsresultatRepository {
+class BehandlingsresultatRepositoryStub extends BehandlingsresultatRepository {
 
     private final Map<Long, Behandlingsresultat> behandlingsresultatMap = new ConcurrentHashMap<>();
 

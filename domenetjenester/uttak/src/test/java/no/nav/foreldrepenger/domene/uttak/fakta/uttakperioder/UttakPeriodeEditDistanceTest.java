@@ -18,25 +18,25 @@ import no.nav.foreldrepenger.domene.uttak.fakta.wagnerfisher.WagnerFisher;
 
 public class UttakPeriodeEditDistanceTest {
 
-    private LocalDate startDato = LocalDate.of(2018, 4, 19);
+    private final LocalDate startDato = LocalDate.of(2018, 4, 19);
 
     @Test
     public void ingenEndringerPåPeriodene() {
-        List<UttakPeriodeEditDistance> opprinneligePerioder = opprettUttaksperioder();
-        List<UttakPeriodeEditDistance> gjeldendeUttaksperioder = opprettUttaksperioder();
+        var opprinneligePerioder = opprettUttaksperioder();
+        var gjeldendeUttaksperioder = opprettUttaksperioder();
 
-        List<EditDistanceOperasjon<UttakPeriodeEditDistance>> operasjoner = WagnerFisher.finnEnklesteSekvens(opprinneligePerioder, gjeldendeUttaksperioder);
+        var operasjoner = WagnerFisher.finnEnklesteSekvens(opprinneligePerioder, gjeldendeUttaksperioder);
         assertThat(operasjoner).isEmpty();
     }
 
     @Test
     public void avklareDokumentasjonAvUtsettelseErEndring() {
-        List<UttakPeriodeEditDistance> opprinneligePerioder = opprettUttaksperioder();
-        List<UttakPeriodeEditDistance> gjeldendeUttaksperioder = opprettUttaksperioder();
+        var opprinneligePerioder = opprettUttaksperioder();
+        var gjeldendeUttaksperioder = opprettUttaksperioder();
 
         gjeldendeUttaksperioder.get(2).setPeriodeErDokumentert(false);
 
-        List<EditDistanceOperasjon<UttakPeriodeEditDistance>> operasjoner = WagnerFisher.finnEnklesteSekvens(opprinneligePerioder, gjeldendeUttaksperioder);
+        var operasjoner = WagnerFisher.finnEnklesteSekvens(opprinneligePerioder, gjeldendeUttaksperioder);
         assertThat(operasjoner).hasSize(1);
         assertThat(operasjoner.get(0).erEndreOperasjon()).isTrue();
 
@@ -49,8 +49,8 @@ public class UttakPeriodeEditDistanceTest {
 
     @Test
     public void utsettelsePgaArbeidErTilpassetInntektsmelding() {
-        List<UttakPeriodeEditDistance> opprinneligePerioder = opprettUttaksperioder();
-        List<UttakPeriodeEditDistance> gjeldendeUttaksperioder = opprettUttaksperioder();
+        var opprinneligePerioder = opprettUttaksperioder();
+        var gjeldendeUttaksperioder = opprettUttaksperioder();
 
         //Endrer dato på foregående periode
         gjeldendeUttaksperioder.set(3, UttakPeriodeEditDistance.builder(OppgittPeriodeBuilder.ny()
@@ -66,7 +66,7 @@ public class UttakPeriodeEditDistanceTest {
             .medPeriodeErDokumentert(true)
             .build());
 
-        List<EditDistanceOperasjon<UttakPeriodeEditDistance>> operasjoner = WagnerFisher.finnEnklesteSekvens(opprinneligePerioder, gjeldendeUttaksperioder);
+        var operasjoner = WagnerFisher.finnEnklesteSekvens(opprinneligePerioder, gjeldendeUttaksperioder);
         assertThat(operasjoner).hasSize(2);
         assertThat(operasjoner.get(0).erEndreOperasjon()).isTrue();
         assertThat(operasjoner.get(1).erEndreOperasjon()).isTrue();
@@ -74,8 +74,8 @@ public class UttakPeriodeEditDistanceTest {
 
     @Test
     public void sletterUtsettelsePeriodeOgSetterInnFellesperiode() {
-        List<UttakPeriodeEditDistance> opprinneligePerioder = opprettUttaksperioder();
-        List<UttakPeriodeEditDistance> gjeldendeUttaksperioder = opprettUttaksperioder();
+        var opprinneligePerioder = opprettUttaksperioder();
+        var gjeldendeUttaksperioder = opprettUttaksperioder();
 
         //Endrer type på periode og setter til dokumentert
         gjeldendeUttaksperioder.set(4, UttakPeriodeEditDistance.builder(OppgittPeriodeBuilder.ny()
@@ -83,7 +83,7 @@ public class UttakPeriodeEditDistanceTest {
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE).build())
             .build());
 
-        List<EditDistanceOperasjon<UttakPeriodeEditDistance>> operasjoner = WagnerFisher.finnEnklesteSekvens(opprinneligePerioder, gjeldendeUttaksperioder);
+        var operasjoner = WagnerFisher.finnEnklesteSekvens(opprinneligePerioder, gjeldendeUttaksperioder);
         assertThat(operasjoner).hasSize(2);
         // Utsettelseperiode har blitt slettet
         assertThat(operasjoner.stream()
@@ -96,8 +96,8 @@ public class UttakPeriodeEditDistanceTest {
 
     @Test
     public void endrerUttaksperiodetypeFraFellesperiodeTilMødrekvote() {
-        List<UttakPeriodeEditDistance> opprinneligePerioder = opprettUttaksperioder();
-        List<UttakPeriodeEditDistance> gjeldendeUttaksperioder = opprettUttaksperioder();
+        var opprinneligePerioder = opprettUttaksperioder();
+        var gjeldendeUttaksperioder = opprettUttaksperioder();
 
         //Endrer type på periode
         gjeldendeUttaksperioder.set(3,
@@ -106,15 +106,15 @@ public class UttakPeriodeEditDistanceTest {
                 .medPeriodeType(UttakPeriodeType.MØDREKVOTE).build())
                 .build());
 
-        List<EditDistanceOperasjon<UttakPeriodeEditDistance>> operasjoner = WagnerFisher.finnEnklesteSekvens(opprinneligePerioder, gjeldendeUttaksperioder);
+        var operasjoner = WagnerFisher.finnEnklesteSekvens(opprinneligePerioder, gjeldendeUttaksperioder);
         assertThat(operasjoner).hasSize(1);
         assertThat(operasjoner.get(0).erEndreOperasjon()).isTrue();
     }
 
     @Test
     public void setterInnNyPeriodeOgJustererDatoPåPeriodenEtter() {
-        List<UttakPeriodeEditDistance> opprinneligePerioder = opprettUttaksperioder();
-        List<UttakPeriodeEditDistance> gjeldendeUttaksperioder = opprettUttaksperioder();
+        var opprinneligePerioder = opprettUttaksperioder();
+        var gjeldendeUttaksperioder = opprettUttaksperioder();
 
         // Endrer startdato på eksisterende periode
         gjeldendeUttaksperioder.set(3,
@@ -132,7 +132,7 @@ public class UttakPeriodeEditDistanceTest {
 
         gjeldendeUttaksperioder = gjeldendeUttaksperioder.stream().sorted(Comparator.comparing(p -> p.getPeriode().getFom())).collect(Collectors.toList());
 
-        List<EditDistanceOperasjon<UttakPeriodeEditDistance>> operasjoner = WagnerFisher.finnEnklesteSekvens(opprinneligePerioder, gjeldendeUttaksperioder);
+        var operasjoner = WagnerFisher.finnEnklesteSekvens(opprinneligePerioder, gjeldendeUttaksperioder);
         assertThat(operasjoner).hasSize(2);
         assertThat(operasjoner.stream().anyMatch(EditDistanceOperasjon::erSettInnOperasjon)).isTrue();
         assertThat(operasjoner.stream().anyMatch(EditDistanceOperasjon::erEndreOperasjon)).isTrue();

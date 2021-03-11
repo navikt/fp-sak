@@ -19,13 +19,13 @@ public class WagnerFisher {
     }
 
     public static <T extends EditDistanceLetter> List<EditDistanceOperasjon<T>> finnEnklesteSekvens(List<T> orginal, List<T> mål) {
-        int[][] cost = calculateEditDistanceCost(orginal, mål);
+        var cost = calculateEditDistanceCost(orginal, mål);
         return backtrack(orginal, mål, cost);
     }
 
     private static <T extends EditDistanceLetter> List<EditDistanceOperasjon<T>> backtrack(List<T> orginal, List<T> mål, int[][] cost) {
-        int i = orginal.size();
-        int j = mål.size();
+        var i = orginal.size();
+        var j = mål.size();
 
         List<EditDistanceOperasjon<T>> resultat = new ArrayList<>();
         while (j > 0 && i > 0) {
@@ -47,30 +47,30 @@ public class WagnerFisher {
             }
         }
         List<EditDistanceOperasjon<T>> sortertResultat = new ArrayList<>(resultat.size());
-        for (int x = resultat.size() - 1; x >= 0; x--) {
+        for (var x = resultat.size() - 1; x >= 0; x--) {
             sortertResultat.add(resultat.get(x));
         }
         return sortertResultat;
     }
 
     static <T extends EditDistanceLetter> int finnKost(List<T> orginal, List<T> mål) {
-        int[][] cost = calculateEditDistanceCost(orginal, mål);
+        var cost = calculateEditDistanceCost(orginal, mål);
         return cost[orginal.size()][mål.size()];
     }
 
     static <T extends EditDistanceLetter> int[][] calculateEditDistanceCost(List<T> s, List<T> t) {
-        int m = s.size();
-        int n = t.size();
-        int[][] cost = zeroArray(m + 1, n + 1);
+        var m = s.size();
+        var n = t.size();
+        var cost = zeroArray(m + 1, n + 1);
 
-        for (int i = 0; i < m; i++) {
+        for (var i = 0; i < m; i++) {
             cost[i + 1][0] = cost[i][0] + s.get(i).kostnadSlette(); //NOSONAR - konstant i oppslag er OK her
         }
-        for (int i = 0; i < n; i++) {
+        for (var i = 0; i < n; i++) {
             cost[0][i + 1] = cost[0][i] + t.get(i).kostnadSettInn(); //NOSONAR - konstant i oppslag er OK her
         }
-        for (int j = 1; j <= n; j++) {
-            for (int i = 1; i <= m; i++) {
+        for (var j = 1; j <= n; j++) {
+            for (var i = 1; i <= m; i++) {
                 if (s.get(i - 1).lik(t.get(j - 1))) {
                     cost[i][j] = cost[i - 1][j - 1];
                 } else {
@@ -97,8 +97,8 @@ public class WagnerFisher {
     }
 
     private static int min(int... x) {
-        int m = x[0];
-        for (int i = 1; i < x.length; i++) {
+        var m = x[0];
+        for (var i = 1; i < x.length; i++) {
             if (x[i] < m) {
                 m = x[i];
             }
@@ -107,8 +107,8 @@ public class WagnerFisher {
     }
 
     private static int[][] zeroArray(int sizeX, int sizeY) {
-        int[][] result = new int[sizeX][];
-        for (int i = 0; i < sizeX; i++) {
+        var result = new int[sizeX][];
+        for (var i = 0; i < sizeX; i++) {
             result[i] = new int[sizeY];
         }
         return result;

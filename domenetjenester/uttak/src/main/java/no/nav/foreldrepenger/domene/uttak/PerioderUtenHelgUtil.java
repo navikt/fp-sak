@@ -17,8 +17,7 @@ public final class PerioderUtenHelgUtil {
             return fom.plusDays(2);
         } else if (fom.getDayOfWeek() == DayOfWeek.SUNDAY) {
             return fom.plusDays(1);
-        } else {
-            return fom;
         }
+        return fom;
     }
 }

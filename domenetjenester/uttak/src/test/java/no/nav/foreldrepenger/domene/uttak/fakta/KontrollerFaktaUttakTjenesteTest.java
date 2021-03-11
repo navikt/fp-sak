@@ -18,34 +18,33 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.PersonopplysningerForUttak;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
+import no.nav.foreldrepenger.domene.uttak.fakta.omsorg.AnnenForelderHarRettAksjonspunktUtleder;
+import no.nav.foreldrepenger.domene.uttak.fakta.omsorg.AnnenForelderIkkeRettOgLøpendeVedtakAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.uttak.fakta.omsorg.BrukerHarAleneomsorgAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.uttak.fakta.omsorg.BrukerHarOmsorgAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.uttak.fakta.uttakperioder.AvklarFaktaUttakPerioderTjeneste;
+import no.nav.foreldrepenger.domene.uttak.fakta.uttakperioder.AvklarHendelseAksjonspunktUtleder;
+import no.nav.foreldrepenger.domene.uttak.fakta.uttakperioder.FørsteUttaksdatoAksjonspunktUtleder;
+import no.nav.foreldrepenger.domene.uttak.fakta.uttakperioder.GraderingAktivitetUtenBGAksjonspunktUtleder;
+import no.nav.foreldrepenger.domene.uttak.fakta.uttakperioder.GraderingUkjentAktivitetAksjonspunktUtleder;
+import no.nav.foreldrepenger.domene.uttak.fakta.uttakperioder.SøknadsperioderMåKontrolleresAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.input.YtelsespesifiktGrunnlag;
-import no.nav.foreldrepenger.domene.uttak.fakta.omsorg.AnnenForelderHarRettAksjonspunktUtleder;
-import no.nav.foreldrepenger.domene.uttak.fakta.omsorg.AnnenForelderIkkeRettOgLøpendeVedtakAksjonspunktUtleder;
-import no.nav.foreldrepenger.domene.uttak.fakta.uttakperioder.AvklarHendelseAksjonspunktUtleder;
-import no.nav.foreldrepenger.domene.uttak.fakta.uttakperioder.FørsteUttaksdatoAksjonspunktUtleder;
-import no.nav.foreldrepenger.domene.uttak.fakta.uttakperioder.GraderingAktivitetUtenBGAksjonspunktUtleder;
-import no.nav.foreldrepenger.domene.uttak.fakta.uttakperioder.GraderingUkjentAktivitetAksjonspunktUtleder;
-import no.nav.foreldrepenger.domene.uttak.fakta.uttakperioder.SøknadsperioderMåKontrolleresAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
-import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryProviderForTest;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 
 public class KontrollerFaktaUttakTjenesteTest {
 
-    private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryProviderForTest();
+    private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryStubProvider();
 
     private KontrollerFaktaUttakTjeneste tjeneste;
 
@@ -82,7 +81,7 @@ public class KontrollerFaktaUttakTjenesteTest {
     @Test
     public void aksjonspunkt_dersom_far_søker_og_ikke_oppgitt_omsorg_til_barnet() {
         //Arrange
-        Behandling behandling = opprettBehandlingForFarSomSøker();
+        var behandling = opprettBehandlingForFarSomSøker();
         //Act
         var familieHendelse = FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(new Barn()), 1);
         YtelsespesifiktGrunnlag fpGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
@@ -96,9 +95,9 @@ public class KontrollerFaktaUttakTjenesteTest {
 
     @Test
     public void automatisk_avklare_at_annen_forelder_ikke_har_rett_hvis_oppgitt_rett_og_annenpart_uten_norsk_id() {
-        ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
         var ref = BehandlingReferanse.fra(behandling);
         when(personopplysninger.oppgittAnnenpartUtenNorskID(ref)).thenReturn(true);
 
@@ -113,9 +112,9 @@ public class KontrollerFaktaUttakTjenesteTest {
 
     @Test
     public void automatisk_avklare_at_annen_forelder_ikke_har_rett_hvis_ikke_oppgitt_rett_og_annenpart_uten_norsk_id() {
-        ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medOppgittRettighet(new OppgittRettighetEntitet(false, true, false));
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
         var ref = BehandlingReferanse.fra(behandling);
         when(personopplysninger.oppgittAnnenpartUtenNorskID(ref)).thenReturn(true);
 
@@ -129,9 +128,9 @@ public class KontrollerFaktaUttakTjenesteTest {
 
     @Test
     public void ikke_automatisk_avklare_at_annen_forelder_ikke_har_rett_hvis_annen_forelder_er_i_tps() {
-        ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
         var ref = BehandlingReferanse.fra(behandling);
         when(personopplysninger.oppgittAnnenpartUtenNorskID(ref)).thenReturn(false);
 
@@ -145,9 +144,9 @@ public class KontrollerFaktaUttakTjenesteTest {
 
     @Test
     public void ikke_automatisk_avklare_at_annen_forelder_ikke_har_rett_hvis_annen_forelder_ikke_finnes() {
-        ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
         tjeneste.avklarOmAnnenForelderHarRett(BehandlingReferanse.fra(behandling));
 
@@ -159,10 +158,10 @@ public class KontrollerFaktaUttakTjenesteTest {
 
     private Behandling opprettBehandlingForFarSomSøker() {
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
-        OppgittRettighetEntitet rettighet = new OppgittRettighetEntitet(true, false, false);
+        var rettighet = new OppgittRettighetEntitet(true, false, false);
         scenario.medOppgittRettighet(rettighet);
 
-        OppgittPeriodeEntitet periode = OppgittPeriodeBuilder.ny()
+        var periode = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
             .medPeriode(LocalDate.now().plusWeeks(6), LocalDate.now().plusWeeks(10))
             .build();

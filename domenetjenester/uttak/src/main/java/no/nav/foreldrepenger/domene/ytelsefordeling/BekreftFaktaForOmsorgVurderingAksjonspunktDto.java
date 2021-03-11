@@ -7,9 +7,9 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 public class BekreftFaktaForOmsorgVurderingAksjonspunktDto {
 
-    private Boolean aleneomsorg;
-    private Boolean omsorg;
-    private List<DatoIntervallEntitet> ikkeOmsorgPerioder;
+    private final Boolean aleneomsorg;
+    private final Boolean omsorg;
+    private final List<DatoIntervallEntitet> ikkeOmsorgPerioder;
 
     public BekreftFaktaForOmsorgVurderingAksjonspunktDto(Boolean aleneomsorg,
                                                          Boolean omsorg,

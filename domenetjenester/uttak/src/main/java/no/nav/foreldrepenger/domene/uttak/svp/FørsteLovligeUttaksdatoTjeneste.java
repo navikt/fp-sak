@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.domene.uttak.svp;
 
-import java.time.LocalDate;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -34,7 +32,7 @@ public class FørsteLovligeUttaksdatoTjeneste {
     public SøknadsfristResultat utledFørsteLovligeUttaksdato(UttakInput input, LocalDateInterval uttaksgrenser) {
         var behandlingId = input.getBehandlingReferanse().getBehandlingId();
 
-        LocalDate søknadMottattDato = input.getSøknadMottattDato();
+        var søknadMottattDato = input.getSøknadMottattDato();
         //Sjekk søknadsfristregel
         var søknadsfristGrunnlag = new SøknadsfristGrunnlag.Builder()
             .medFørsteUttaksdato(uttaksgrenser.getFomDato())

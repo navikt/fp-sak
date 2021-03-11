@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryProviderForTest;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 
 class SkalKopiereUttakTjenesteTest {
 
@@ -56,7 +56,7 @@ class SkalKopiereUttakTjenesteTest {
     private boolean skalKopiereStegResultat(Set<BehandlingÅrsakType> årsaker,
                                             boolean arbeidEndret,
                                             boolean erRevurdering) {
-        var repoProvider = new UttakRepositoryProviderForTest();
+        var repoProvider = new UttakRepositoryStubProvider();
         var relevanteArbeidsforholdTjeneste = mock(RelevanteArbeidsforholdTjeneste.class);
         when(relevanteArbeidsforholdTjeneste.arbeidsforholdRelevantForUttakErEndretSidenForrigeBehandling(
             any())).thenReturn(arbeidEndret);

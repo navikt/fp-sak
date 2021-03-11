@@ -31,18 +31,21 @@ public class FastsettePerioderEndringTjeneste {
     }
 
     public List<UttakPeriodeEndringDto> finnEndringerMellomOpprinneligOgOverstyrt(Long uttakResultatId) {
-        UttakResultatEntitet uttakResultat = fpUttakRepository.hentUttakResultatPåId(uttakResultatId)
-            .orElseThrow(() -> new IllegalStateException("Fant ingen uttakresultat med id " + uttakResultatId.toString()));
+        var uttakResultat = fpUttakRepository.hentUttakResultatPåId(uttakResultatId)
+            .orElseThrow(
+                () -> new IllegalStateException("Fant ingen uttakresultat med id " + uttakResultatId.toString()));
         return lagEndringDto(uttakResultat);
     }
 
     public List<UttakPeriodeEndringDto> finnEndringerMellomOpprinneligOgOverstyrtForBehandling(Long behandlingId) {
-        UttakResultatEntitet uttakResultat = fpUttakRepository.hentUttakResultat(behandlingId);
+        var uttakResultat = fpUttakRepository.hentUttakResultat(behandlingId);
         return lagEndringDto(uttakResultat);
     }
 
     private List<UttakPeriodeEndringDto> lagEndringDto(UttakResultatEntitet uttakResultat) {
-        if (uttakResultat.getOverstyrtPerioder() == null || uttakResultat.getOverstyrtPerioder().getPerioder().isEmpty()) {
+        if (uttakResultat.getOverstyrtPerioder() == null || uttakResultat.getOverstyrtPerioder()
+            .getPerioder()
+            .isEmpty()) {
             return Collections.emptyList();
         }
 
@@ -55,9 +58,10 @@ public class FastsettePerioderEndringTjeneste {
 
     private List<UttakPeriodeEndringDto> finnEndringerAvOpprinnelig(UttakResultatEntitet uttakResultat) {
         List<UttakPeriodeEndringDto> perioderMedEndringer = new ArrayList<>();
-        for (UttakResultatPeriodeEntitet opprinneligPeriode : uttakResultat.getOpprinneligPerioder().getPerioder()) {
+        for (var opprinneligPeriode : uttakResultat.getOpprinneligPerioder().getPerioder()) {
             if (erSlettet(opprinneligPeriode, uttakResultat.getOverstyrtPerioder())) {
-                perioderMedEndringer.add(lagEndretDto(opprinneligPeriode.getFom(), opprinneligPeriode.getTom(), UttakPeriodeEndringDto.TypeEndring.SLETTET));
+                perioderMedEndringer.add(lagEndretDto(opprinneligPeriode.getFom(), opprinneligPeriode.getTom(),
+                    UttakPeriodeEndringDto.TypeEndring.SLETTET));
             }
         }
         return perioderMedEndringer;
@@ -65,27 +69,32 @@ public class FastsettePerioderEndringTjeneste {
 
     private List<UttakPeriodeEndringDto> finnEndringerAvOverstyrt(UttakResultatEntitet uttakResultat) {
         List<UttakPeriodeEndringDto> perioderMedEndringer = new ArrayList<>();
-        for (UttakResultatPeriodeEntitet overstyrtPeriode : uttakResultat.getOverstyrtPerioder().getPerioder()) {
+        for (var overstyrtPeriode : uttakResultat.getOverstyrtPerioder().getPerioder()) {
             if (erLagtTil(overstyrtPeriode, uttakResultat.getOpprinneligPerioder())) {
-                perioderMedEndringer.add(lagEndretDto(overstyrtPeriode.getFom(), overstyrtPeriode.getTom(), UttakPeriodeEndringDto.TypeEndring.LAGT_TIL));
+                perioderMedEndringer.add(lagEndretDto(overstyrtPeriode.getFom(), overstyrtPeriode.getTom(),
+                    UttakPeriodeEndringDto.TypeEndring.LAGT_TIL));
             } else if (erEndret(overstyrtPeriode, uttakResultat.getOpprinneligPerioder())) {
-                perioderMedEndringer.add(lagEndretDto(overstyrtPeriode.getFom(), overstyrtPeriode.getTom(), UttakPeriodeEndringDto.TypeEndring.ENDRET));
+                perioderMedEndringer.add(lagEndretDto(overstyrtPeriode.getFom(), overstyrtPeriode.getTom(),
+                    UttakPeriodeEndringDto.TypeEndring.ENDRET));
             }
         }
         return perioderMedEndringer;
     }
 
-    private boolean erSlettet(UttakResultatPeriodeEntitet opprinneligPeriode, UttakResultatPerioderEntitet overstyrtPerioder) {
-        for (UttakResultatPeriodeEntitet overstyrtPeriode : overstyrtPerioder.getPerioder()) {
-            if (overstyrtPeriode.getTom().isBefore(opprinneligPeriode.getTom()) && overstyrtPeriode.getFom().isEqual(opprinneligPeriode.getFom())) {
+    private boolean erSlettet(UttakResultatPeriodeEntitet opprinneligPeriode,
+                              UttakResultatPerioderEntitet overstyrtPerioder) {
+        for (var overstyrtPeriode : overstyrtPerioder.getPerioder()) {
+            if (overstyrtPeriode.getTom().isBefore(opprinneligPeriode.getTom()) && overstyrtPeriode.getFom()
+                .isEqual(opprinneligPeriode.getFom())) {
                 return true;
             }
         }
         return false;
     }
 
-    private boolean erEndret(UttakResultatPeriodeEntitet overstyrtPeriode, UttakResultatPerioderEntitet opprinneligePerioder) {
-        for (UttakResultatPeriodeEntitet opprinnelig : opprinneligePerioder.getPerioder()) {
+    private boolean erEndret(UttakResultatPeriodeEntitet overstyrtPeriode,
+                             UttakResultatPerioderEntitet opprinneligePerioder) {
+        for (var opprinnelig : opprinneligePerioder.getPerioder()) {
             if (erLik(opprinnelig, overstyrtPeriode)) {
                 return false;
             }
@@ -93,9 +102,11 @@ public class FastsettePerioderEndringTjeneste {
         return true;
     }
 
-    private boolean erLagtTil(UttakResultatPeriodeEntitet overstyrtPeriode, UttakResultatPerioderEntitet opprinneligePerioder) {
-        for (UttakResultatPeriodeEntitet opprinnligPeriode : opprinneligePerioder.getPerioder()) {
-            if (opprinnligPeriode.getFom().isEqual(overstyrtPeriode.getFom()) && opprinnligPeriode.getTom().isEqual(overstyrtPeriode.getTom())) {
+    private boolean erLagtTil(UttakResultatPeriodeEntitet overstyrtPeriode,
+                              UttakResultatPerioderEntitet opprinneligePerioder) {
+        for (var opprinnligPeriode : opprinneligePerioder.getPerioder()) {
+            if (opprinnligPeriode.getFom().isEqual(overstyrtPeriode.getFom()) && opprinnligPeriode.getTom()
+                .isEqual(overstyrtPeriode.getTom())) {
                 return false;
             }
         }
@@ -103,10 +114,9 @@ public class FastsettePerioderEndringTjeneste {
     }
 
     private boolean erLik(UttakResultatPeriodeEntitet periode1, UttakResultatPeriodeEntitet periode2) {
-        if (!Objects.equals(periode1.getFom(), periode2.getFom()) ||
-            !Objects.equals(periode1.getTom(), periode2.getTom()) ||
-            !Objects.equals(periode1.getResultatType(), periode2.getResultatType()) ||
-            !Objects.equals(periode1.getBegrunnelse(), periode2.getBegrunnelse())) {
+        if (!Objects.equals(periode1.getFom(), periode2.getFom()) || !Objects.equals(periode1.getTom(),
+            periode2.getTom()) || !Objects.equals(periode1.getResultatType(), periode2.getResultatType())
+            || !Objects.equals(periode1.getBegrunnelse(), periode2.getBegrunnelse())) {
             return false;
         }
 
@@ -114,9 +124,9 @@ public class FastsettePerioderEndringTjeneste {
             return false;
         }
 
-        for (UttakResultatPeriodeAktivitetEntitet aktivitet1 : periode1.getAktiviteter()) {
-            boolean fantLikAktivetet = false;
-            for (UttakResultatPeriodeAktivitetEntitet aktivitet2 : periode2.getAktiviteter()) {
+        for (var aktivitet1 : periode1.getAktiviteter()) {
+            var fantLikAktivetet = false;
+            for (var aktivitet2 : periode2.getAktiviteter()) {
                 if (erLik(aktivitet1, aktivitet2)) {
                     fantLikAktivetet = true;
                 }
@@ -128,20 +138,19 @@ public class FastsettePerioderEndringTjeneste {
         return true;
     }
 
-    private boolean erLik(UttakResultatPeriodeAktivitetEntitet aktivitet1, UttakResultatPeriodeAktivitetEntitet aktivitet2) {
-        return Objects.equals(aktivitet1.getFom(), aktivitet2.getFom()) &&
-            Objects.equals(aktivitet1.getTom(), aktivitet2.getTom()) &&
-            Objects.equals(aktivitet1.getTrekkonto(), aktivitet2.getTrekkonto()) &&
-            Objects.equals(aktivitet1.getTrekkdager(), aktivitet2.getTrekkdager()) &&
-            Objects.equals(aktivitet1.getArbeidsprosent(), aktivitet2.getArbeidsprosent()) &&
-            Objects.equals(aktivitet1.getUtbetalingsgrad(), aktivitet2.getUtbetalingsgrad());
+    private boolean erLik(UttakResultatPeriodeAktivitetEntitet aktivitet1,
+                          UttakResultatPeriodeAktivitetEntitet aktivitet2) {
+        return Objects.equals(aktivitet1.getFom(), aktivitet2.getFom()) && Objects.equals(aktivitet1.getTom(),
+            aktivitet2.getTom()) && Objects.equals(aktivitet1.getTrekkonto(), aktivitet2.getTrekkonto())
+            && Objects.equals(aktivitet1.getTrekkdager(), aktivitet2.getTrekkdager()) && Objects.equals(
+            aktivitet1.getArbeidsprosent(), aktivitet2.getArbeidsprosent()) && Objects.equals(
+            aktivitet1.getUtbetalingsgrad(), aktivitet2.getUtbetalingsgrad());
     }
 
 
-    private UttakPeriodeEndringDto lagEndretDto(LocalDate fom, LocalDate tom, UttakPeriodeEndringDto.TypeEndring endringType) {
-        return new UttakPeriodeEndringDto.Builder()
-            .medTypeEndring(endringType)
-            .medPeriode(fom, tom)
-            .build();
+    private UttakPeriodeEndringDto lagEndretDto(LocalDate fom,
+                                                LocalDate tom,
+                                                UttakPeriodeEndringDto.TypeEndring endringType) {
+        return new UttakPeriodeEndringDto.Builder().medTypeEndring(endringType).medPeriode(fom, tom).build();
     }
 }

@@ -6,7 +6,6 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -19,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeVurderingType;
 import no.nav.foreldrepenger.domene.uttak.fakta.wagnerfisher.EditDistanceOperasjon;
 import no.nav.foreldrepenger.domene.uttak.fakta.wagnerfisher.WagnerFisher;
-import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 
@@ -39,14 +37,14 @@ public class AvklarFaktaUttakPerioderTjeneste {
 
     public KontrollerFaktaData hentKontrollerFaktaPerioder(UttakInput input) {
         var ref = input.getBehandlingReferanse();
-        Long behandlingId = ref.getBehandlingId();
-        Optional<YtelseFordelingAggregat> ytelseFordeling = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId);
+        var behandlingId = ref.getBehandlingId();
+        var ytelseFordeling = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId);
 
         if (ytelseFordeling.isEmpty()) {
             return utenGrunnlagResultat();
         }
 
-        LocalDate fødselsDatoTilTidligOppstart = utledDatoForTidligOppstart(input);
+        var fødselsDatoTilTidligOppstart = utledDatoForTidligOppstart(input);
         return SøknadsperiodeDokumentasjonKontrollerer.kontrollerPerioder(ytelseFordeling.get(), fødselsDatoTilTidligOppstart);
     }
 
@@ -57,7 +55,7 @@ public class AvklarFaktaUttakPerioderTjeneste {
     private LocalDate utledDatoForTidligOppstart(UttakInput input) {
         var ref = input.getBehandlingReferanse();
         ForeldrepengerGrunnlag fpGrunnlag = input.getYtelsespesifiktGrunnlag();
-        FamilieHendelser familieHendelser = fpGrunnlag.getFamilieHendelser();
+        var familieHendelser = fpGrunnlag.getFamilieHendelser();
         if (!avklartFørsteUttaksdato(ref.getBehandlingId()) && erFarEllerMedmor(ref.getRelasjonsRolleType()) && familieHendelser.gjelderTerminFødsel()) {
             return familieHendelser.getGjeldendeFamilieHendelse().getFamilieHendelseDato();
         }
@@ -69,17 +67,17 @@ public class AvklarFaktaUttakPerioderTjeneste {
     }
 
     boolean finnesOverlappendePerioder(Long behandlingId) {
-        Optional<YtelseFordelingAggregat> ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId);
+        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId);
         if (ytelseFordelingAggregat.isPresent()) {
-            YtelseFordelingAggregat ytelseFordeling = ytelseFordelingAggregat.get();
-            List<OppgittPeriodeEntitet> perioder = ytelseFordeling.getGjeldendeSøknadsperioder().getOppgittePerioder()
+            var ytelseFordeling = ytelseFordelingAggregat.get();
+            var perioder = ytelseFordeling.getGjeldendeSøknadsperioder().getOppgittePerioder()
                 .stream()
                 .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
                 .collect(Collectors.toList());
 
-            for (int i = 0; i < perioder.size() - 1; i++) {
-                OppgittPeriodeEntitet oppgittPeriode = perioder.get(i);
-                OppgittPeriodeEntitet nestePeriode = perioder.get(i + 1);
+            for (var i = 0; i < perioder.size() - 1; i++) {
+                var oppgittPeriode = perioder.get(i);
+                var nestePeriode = perioder.get(i + 1);
                 if (!nestePeriode.getFom().isAfter(oppgittPeriode.getTom())) {
                     return true;
                 }
@@ -89,19 +87,19 @@ public class AvklarFaktaUttakPerioderTjeneste {
     }
 
     private List<UttakPeriodeEndringDto> finnEndringMellomOppgittOgGjeldendePerioder(YtelseFordelingAggregat ytelseFordelingAggregat) {
-        List<UttakPeriodeEditDistance> oppgittePerioder = ytelseFordelingAggregat.getOppgittFordeling().getOppgittePerioder()
+        var oppgittePerioder = ytelseFordelingAggregat.getOppgittFordeling().getOppgittePerioder()
             .stream()
             .map(UttakPeriodeEditDistance::new)
             .sorted(Comparator.comparing(p -> p.getPeriode().getFom()))
             .collect(Collectors.toList());
 
-        List<UttakPeriodeEditDistance> gjeldendePerioder = ytelseFordelingAggregat.getGjeldendeSøknadsperioder().getOppgittePerioder()
+        var gjeldendePerioder = ytelseFordelingAggregat.getGjeldendeSøknadsperioder().getOppgittePerioder()
             .stream()
             .map(this::mapPeriode)
             .sorted(Comparator.comparing(u -> u.getPeriode().getFom()))
             .collect(Collectors.toList());
 
-        List<EditDistanceOperasjon<UttakPeriodeEditDistance>> operasjoner = WagnerFisher.finnEnklesteSekvens(oppgittePerioder, gjeldendePerioder);
+        var operasjoner = WagnerFisher.finnEnklesteSekvens(oppgittePerioder, gjeldendePerioder);
 
         return operasjoner.stream()
             .map(this::mapFra)

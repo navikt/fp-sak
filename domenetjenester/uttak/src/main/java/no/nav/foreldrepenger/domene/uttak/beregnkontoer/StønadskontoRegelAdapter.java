@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.uttak.beregnkontoer;
 
 import static no.nav.foreldrepenger.domene.uttak.UttakEnumMapper.map;
 
-import java.util.Map;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -19,13 +18,12 @@ import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.regler.uttak.beregnkontoer.StønadskontoRegelOrkestrering;
 import no.nav.foreldrepenger.regler.uttak.beregnkontoer.StønadskontoResultat;
-import no.nav.foreldrepenger.regler.uttak.beregnkontoer.grunnlag.BeregnKontoerGrunnlag;
 
 @ApplicationScoped
 public class StønadskontoRegelAdapter {
 
-    private StønadskontoRegelOrkestrering stønadskontoRegel = new StønadskontoRegelOrkestrering();
-    private StønadskontoRegelOversetter stønadskontoRegelOversetter = new StønadskontoRegelOversetter();
+    private final StønadskontoRegelOrkestrering stønadskontoRegel = new StønadskontoRegelOrkestrering();
+    private final StønadskontoRegelOversetter stønadskontoRegelOversetter = new StønadskontoRegelOversetter();
 
     private BehandlingsresultatRepository behandlingsresultatRepository;
 
@@ -43,7 +41,8 @@ public class StønadskontoRegelAdapter {
                                                FagsakRelasjon fagsakRelasjon,
                                                Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan,
                                                ForeldrepengerGrunnlag ytelsespesifiktGrunnlag) {
-        var resultat = beregnKontoerMedResultat(ref, ytelseFordelingAggregat, fagsakRelasjon, annenpartsGjeldendeUttaksplan, ytelsespesifiktGrunnlag);
+        var resultat = beregnKontoerMedResultat(ref, ytelseFordelingAggregat, fagsakRelasjon,
+            annenpartsGjeldendeUttaksplan, ytelsespesifiktGrunnlag);
         return konverterTilStønadskontoberegning(resultat);
     }
 
@@ -52,22 +51,24 @@ public class StønadskontoRegelAdapter {
                                                          FagsakRelasjon fagsakRelasjon,
                                                          Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan,
                                                          ForeldrepengerGrunnlag ytelsespesifiktGrunnlag) {
-        boolean harSøkerRett = !behandlingsresultatRepository.hentHvisEksisterer(ref.getBehandlingId()).orElseThrow().isVilkårAvslått();
+        var harSøkerRett = !behandlingsresultatRepository.hentHvisEksisterer(ref.getBehandlingId())
+            .orElseThrow()
+            .isVilkårAvslått();
 
-        BeregnKontoerGrunnlag grunnlag = stønadskontoRegelOversetter.tilRegelmodell(ref.getRelasjonsRolleType(),
-            ytelseFordelingAggregat, harSøkerRett, fagsakRelasjon, annenpartsGjeldendeUttaksplan, ytelsespesifiktGrunnlag);
+        var grunnlag = stønadskontoRegelOversetter.tilRegelmodell(ref.getRelasjonsRolleType(), ytelseFordelingAggregat,
+            harSøkerRett, fagsakRelasjon, annenpartsGjeldendeUttaksplan, ytelsespesifiktGrunnlag);
 
         return stønadskontoRegel.beregnKontoer(grunnlag);
     }
 
     private Stønadskontoberegning konverterTilStønadskontoberegning(StønadskontoResultat stønadskontoResultat) {
-        Stønadskontoberegning.Builder stønadskontoberegningBuilder = Stønadskontoberegning.builder()
+        var stønadskontoberegningBuilder = Stønadskontoberegning.builder()
             .medRegelEvaluering(stønadskontoResultat.getEvalueringResultat())
             .medRegelInput(stønadskontoResultat.getInnsendtGrunnlag());
 
-        Map<no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Stønadskontotype, Integer> maksDagerStønadskonto = stønadskontoResultat.getStønadskontoer();
-        for (Map.Entry<no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Stønadskontotype, Integer> entry : maksDagerStønadskonto.entrySet()) {
-            Stønadskonto stønadskonto = Stønadskonto.builder()
+        var maksDagerStønadskonto = stønadskontoResultat.getStønadskontoer();
+        for (var entry : maksDagerStønadskonto.entrySet()) {
+            var stønadskonto = Stønadskonto.builder()
                 .medMaxDager(entry.getValue())
                 .medStønadskontoType(map(entry.getKey()))
                 .build();

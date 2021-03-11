@@ -25,7 +25,7 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.input.YtelsespesifiktGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryProviderForTest;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Datoer;
 
 public class DatoerGrunnlagByggerTest {
@@ -36,75 +36,75 @@ public class DatoerGrunnlagByggerTest {
 
     @BeforeEach
     void setUp() {
-        repositoryProvider = new UttakRepositoryProviderForTest();
+        repositoryProvider = new UttakRepositoryStubProvider();
         personopplysninger = mock(PersonopplysningerForUttak.class);
     }
 
     @Test
     public void skal_ha_familiehendelsedato() {
-        LocalDate familiehendelsedato = LocalDate.now().plusWeeks(3);
-        Behandling behandling = scenarioMedDatoer(ScenarioMorSøkerForeldrepenger.forFødsel(), null, førsteUttaksdato);
+        var familiehendelsedato = LocalDate.now().plusWeeks(3);
+        var behandling = scenarioMedDatoer(ScenarioMorSøkerForeldrepenger.forFødsel(), null, førsteUttaksdato);
 
-        FamilieHendelse familieHendelse = FamilieHendelse.forFødsel(null, familiehendelsedato, List.of(), 0);
-        Datoer grunnlag = byggGrunnlag(lagInput(behandling, familieHendelse));
+        var familieHendelse = FamilieHendelse.forFødsel(null, familiehendelsedato, List.of(), 0);
+        var grunnlag = byggGrunnlag(lagInput(behandling, familieHendelse));
         assertThat(grunnlag.getFamiliehendelse()).isEqualTo(familiehendelsedato);
     }
 
     @Test
     public void søker_har_ingen_dødsdato() {
         LocalDate søkersDødsdato = null;
-        Behandling behandling = scenarioMedDatoer(ScenarioMorSøkerForeldrepenger.forFødsel(), søkersDødsdato,
+        var behandling = scenarioMedDatoer(ScenarioMorSøkerForeldrepenger.forFødsel(), søkersDødsdato,
             førsteUttaksdato);
 
-        FamilieHendelse familieHendelse = FamilieHendelse.forFødsel(LocalDate.now(), null, List.of(), 0);
-        Datoer grunnlag = byggGrunnlag(lagInput(behandling, familieHendelse));
+        var familieHendelse = FamilieHendelse.forFødsel(LocalDate.now(), null, List.of(), 0);
+        var grunnlag = byggGrunnlag(lagInput(behandling, familieHendelse));
         assertThat(grunnlag.getDødsdatoer().getSøkersDødsdato()).isEqualTo(søkersDødsdato);
     }
 
     @Test
     public void søker_har_dødsdato() {
-        LocalDate familiehendelsedato = LocalDate.now().minusWeeks(1);
-        LocalDate søkersDødsdato = familiehendelsedato.plusDays(2);
-        Behandling behandling = scenarioMedDatoer(ScenarioMorSøkerForeldrepenger.forFødsel(), søkersDødsdato,
+        var familiehendelsedato = LocalDate.now().minusWeeks(1);
+        var søkersDødsdato = familiehendelsedato.plusDays(2);
+        var behandling = scenarioMedDatoer(ScenarioMorSøkerForeldrepenger.forFødsel(), søkersDødsdato,
             førsteUttaksdato);
 
         var familieHendelse = FamilieHendelse.forFødsel(familiehendelsedato, null, List.of(), 0);
-        Datoer grunnlag = byggGrunnlag(lagInput(behandling, familieHendelse));
+        var grunnlag = byggGrunnlag(lagInput(behandling, familieHendelse));
         assertThat(grunnlag.getDødsdatoer().getSøkersDødsdato()).isEqualTo(søkersDødsdato);
     }
 
     @Test
     public void barn_har_dødsdato() {
-        LocalDate familiehendelsedato = LocalDate.now().plusWeeks(3);
+        var familiehendelsedato = LocalDate.now().plusWeeks(3);
         LocalDate søkersDødsdato = null;
-        LocalDate barnsDødsdato = familiehendelsedato.plusWeeks(1);
-        Behandling behandling = scenarioMedDatoer(ScenarioMorSøkerForeldrepenger.forFødsel(), søkersDødsdato,
+        var barnsDødsdato = familiehendelsedato.plusWeeks(1);
+        var behandling = scenarioMedDatoer(ScenarioMorSøkerForeldrepenger.forFødsel(), søkersDødsdato,
             førsteUttaksdato);
 
-        FamilieHendelse familieHendelse = FamilieHendelse.forFødsel(null, familiehendelsedato,
+        var familieHendelse = FamilieHendelse.forFødsel(null, familiehendelsedato,
             List.of(new Barn(barnsDødsdato)), 1);
-        Datoer grunnlag = byggGrunnlag(lagInput(behandling, familieHendelse));
+        var grunnlag = byggGrunnlag(lagInput(behandling, familieHendelse));
         assertThat(grunnlag.getDødsdatoer().getBarnsDødsdato()).isEqualTo(barnsDødsdato);
         assertThat(grunnlag.getDødsdatoer().erAlleBarnDøde()).isTrue();
     }
 
     @Test
     public void barn_har_dødsdato_men_flere_barn() {
-        LocalDate familiehendelsedato = LocalDate.now().plusWeeks(3);
+        var familiehendelsedato = LocalDate.now().plusWeeks(3);
         LocalDate søkersDødsdato = null;
-        LocalDate barnsDødsdato = familiehendelsedato.plusWeeks(1);
-        Behandling behandling = scenarioMedDatoer(ScenarioMorSøkerForeldrepenger.forFødsel(), søkersDødsdato,
+        var barnsDødsdato = familiehendelsedato.plusWeeks(1);
+        var behandling = scenarioMedDatoer(ScenarioMorSøkerForeldrepenger.forFødsel(), søkersDødsdato,
             førsteUttaksdato);
-        FamilieHendelse familieHendelse = FamilieHendelse.forFødsel(null, familiehendelsedato,
+        var familieHendelse = FamilieHendelse.forFødsel(null, familiehendelsedato,
             List.of(new Barn(barnsDødsdato), new Barn()), 1);
-        Datoer grunnlag = byggGrunnlag(lagInput(behandling, familieHendelse));
+        var grunnlag = byggGrunnlag(lagInput(behandling, familieHendelse));
         assertThat(grunnlag.getDødsdatoer().getBarnsDødsdato()).isEqualTo(barnsDødsdato);
         assertThat(grunnlag.getDødsdatoer().erAlleBarnDøde()).isFalse();
     }
 
     private UttakInput lagInput(Behandling behandling, FamilieHendelse bekreftetFamilieHendelse) {
         var ref = BehandlingReferanse.fra(behandling, førsteUttaksdato);
-        FamilieHendelser familieHendelser = new FamilieHendelser().medBekreftetHendelse(bekreftetFamilieHendelse);
+        var familieHendelser = new FamilieHendelser().medBekreftetHendelse(bekreftetFamilieHendelse);
         YtelsespesifiktGrunnlag ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
             familieHendelser);
         return new UttakInput(ref, null, ytelsespesifiktGrunnlag);
@@ -113,7 +113,7 @@ public class DatoerGrunnlagByggerTest {
     private Behandling scenarioMedDatoer(AbstractTestScenario<?> scenario,
                                          LocalDate søkersDødsdato,
                                          LocalDate førsteLovligeUttaksdag) {
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
         leggTilSøkersDødsdato(behandling, søkersDødsdato);
         lagreUttaksperiodegrense(repositoryProvider.getUttaksperiodegrenseRepository(), førsteLovligeUttaksdag,

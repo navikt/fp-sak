@@ -36,19 +36,19 @@ public class SøknadsperiodeDokumentasjonKontrollererTest {
 
     @Test
     public void skal_si_at_periode_er_bekreftet_når_saksbehandler_allerede_er_vurdert() {
-        OppgittPeriodeBuilder vurdertPeriode = OppgittPeriodeBuilder.ny()
+        var vurdertPeriode = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medPeriode(FOM, TOM)
             .medVurdering(UttakPeriodeVurderingType.PERIODE_OK);
-        KontrollerFaktaPeriode kontrollert = kontroller(vurdertPeriode.build());
+        var kontrollert = kontroller(vurdertPeriode.build());
 
         assertThat(kontrollert.erBekreftet()).isTrue();
     }
 
     @Test
     public void skal_ta_med_dokumentasjonsperioder_når_saksbehandler_har_behandlet_perioden() {
-        Arbeidsgiver virksomhet = arbeidsgiver("orgnr");
-        OppgittPeriodeEntitet søktPeriode = OppgittPeriodeBuilder.ny()
+        var virksomhet = arbeidsgiver("orgnr");
+        var søktPeriode = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .medÅrsak(UtsettelseÅrsak.SYKDOM)
             .medPeriode(enDag, enDag.plusDays(7))
@@ -58,13 +58,13 @@ public class SøknadsperiodeDokumentasjonKontrollererTest {
             .medErArbeidstaker(true)
             .build();
 
-        List<PeriodeUttakDokumentasjonEntitet> dokumentasjonPerioder = List.of(
+        var dokumentasjonPerioder = List.of(
             lagDokumentasjon(enDag, enDag.plusDays(1), UttakDokumentasjonType.SYK_SØKER),
             lagDokumentasjon(enDag.plusDays(4), enDag.plusDays(7), UttakDokumentasjonType.SYK_SØKER)
         );
 
-        SøknadsperiodeDokumentasjonKontrollerer kontrollerer = new SøknadsperiodeDokumentasjonKontrollerer(dokumentasjonPerioder, null);
-        KontrollerFaktaPeriode resultat = kontrollerer.kontrollerSøknadsperiode(søktPeriode);
+        var kontrollerer = new SøknadsperiodeDokumentasjonKontrollerer(dokumentasjonPerioder, null);
+        var resultat = kontrollerer.kontrollerSøknadsperiode(søktPeriode);
 
         assertThat(resultat.getOppgittPeriode().getBegrunnelse().get()).isEqualTo("erstatter");
         assertThat(resultat.erBekreftet()).isTrue();
@@ -78,7 +78,7 @@ public class SøknadsperiodeDokumentasjonKontrollererTest {
     }
 
     private PeriodeUttakDokumentasjonEntitet lagDokumentasjon(LocalDate fom, LocalDate tom, UttakDokumentasjonType type) {
-        PeriodeUttakDokumentasjonEntitet periode = Mockito.mock(PeriodeUttakDokumentasjonEntitet.class);
+        var periode = Mockito.mock(PeriodeUttakDokumentasjonEntitet.class);
         when(periode.getDokumentasjonType()).thenReturn(type);
         when(periode.getPeriode()).thenReturn(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
         return periode;
@@ -86,8 +86,8 @@ public class SøknadsperiodeDokumentasjonKontrollererTest {
 
     @Test
     public void feriePeriodeFraSøknad() {
-        Arbeidsgiver arbeidsgiver = arbeidsgiver("orgnr");
-        OppgittPeriodeEntitet feriePeriode = OppgittPeriodeBuilder.ny()
+        var arbeidsgiver = arbeidsgiver("orgnr");
+        var feriePeriode = OppgittPeriodeBuilder.ny()
             .medÅrsak(UtsettelseÅrsak.FERIE)
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .medArbeidsgiver(arbeidsgiver)
@@ -95,7 +95,7 @@ public class SøknadsperiodeDokumentasjonKontrollererTest {
             .medPeriode(LocalDate.of(2018, 1, 13), LocalDate.of(2018, 1, 20))
             .build();
 
-        KontrollerFaktaPeriode kontrollert = kontroller(feriePeriode);
+        var kontrollert = kontroller(feriePeriode);
         assertThat(kontrollert.erBekreftet()).isTrue();
     }
 
@@ -109,65 +109,65 @@ public class SøknadsperiodeDokumentasjonKontrollererTest {
 
     @Test
     public void farEllerMedmorSøktOmTidligOppstartFellesperiodeEllerFedrekvote() {
-        OppgittPeriodeEntitet oppgittPeriode = OppgittPeriodeBuilder.ny()
+        var oppgittPeriode = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .medPeriode(FOM, FOM.plusWeeks(1))
             .build();
 
-        SøknadsperiodeDokumentasjonKontrollerer kontrollerer = new SøknadsperiodeDokumentasjonKontrollerer(List.of(), FOM.minusWeeks(5));
+        var kontrollerer = new SøknadsperiodeDokumentasjonKontrollerer(List.of(), FOM.minusWeeks(5));
 
-        KontrollerFaktaPeriode kontrollerFaktaPeriode = kontrollerer.kontrollerSøknadsperiode(oppgittPeriode);
+        var kontrollerFaktaPeriode = kontrollerer.kontrollerSøknadsperiode(oppgittPeriode);
         assertThat(kontrollerFaktaPeriode.erBekreftet()).isFalse();
         assertThat(kontrollerFaktaPeriode.isTidligOppstart()).isTrue();
     }
 
     @Test
     public void farEllerMedmorIkkeSøktOmTidligOppstartFellesperiodeEllerFedrekvote() {
-        OppgittPeriodeEntitet oppgittPeriode = OppgittPeriodeBuilder.ny()
+        var oppgittPeriode = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
             .medPeriode(FOM, FOM.plusWeeks(1))
             .build();
 
-        SøknadsperiodeDokumentasjonKontrollerer kontrollerer = new SøknadsperiodeDokumentasjonKontrollerer(List.of(), FOM.minusWeeks(7));
+        var kontrollerer = new SøknadsperiodeDokumentasjonKontrollerer(List.of(), FOM.minusWeeks(7));
 
-        KontrollerFaktaPeriode kontrollerFaktaPeriode = kontrollerer.kontrollerSøknadsperiode(oppgittPeriode);
+        var kontrollerFaktaPeriode = kontrollerer.kontrollerSøknadsperiode(oppgittPeriode);
         assertThat(kontrollerFaktaPeriode.erBekreftet()).isTrue();
         assertThat(kontrollerFaktaPeriode.isTidligOppstart()).isFalse();
     }
 
     @Test
     public void farEllerMedmorSøktOmTidligOppstartForeldrepenger() {
-        OppgittPeriodeEntitet oppgittPeriode = OppgittPeriodeBuilder.ny()
+        var oppgittPeriode = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .medPeriode(FOM, FOM.plusWeeks(1))
             .build();
 
-        SøknadsperiodeDokumentasjonKontrollerer kontrollerer = new SøknadsperiodeDokumentasjonKontrollerer(List.of(), FOM.minusWeeks(5));
+        var kontrollerer = new SøknadsperiodeDokumentasjonKontrollerer(List.of(), FOM.minusWeeks(5));
 
-        KontrollerFaktaPeriode kontrollerFaktaPeriode = kontrollerer.kontrollerSøknadsperiode(oppgittPeriode);
+        var kontrollerFaktaPeriode = kontrollerer.kontrollerSøknadsperiode(oppgittPeriode);
         assertThat(kontrollerFaktaPeriode.erBekreftet()).isFalse();
         assertThat(kontrollerFaktaPeriode.isTidligOppstart()).isTrue();
     }
 
     @Test
     public void farEllerMedmorSøktOmTidligOppstartMedFlerbarnsdager() {
-        OppgittPeriodeEntitet oppgittPeriode = OppgittPeriodeBuilder.ny()
+        var oppgittPeriode = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .medPeriode(FOM, FOM.plusWeeks(1))
             .medFlerbarnsdager(true)
             .build();
 
-        SøknadsperiodeDokumentasjonKontrollerer kontrollerer = new SøknadsperiodeDokumentasjonKontrollerer(List.of(), FOM.minusWeeks(5));
+        var kontrollerer = new SøknadsperiodeDokumentasjonKontrollerer(List.of(), FOM.minusWeeks(5));
 
-        KontrollerFaktaPeriode kontrollerFaktaPeriode = kontrollerer.kontrollerSøknadsperiode(oppgittPeriode);
+        var kontrollerFaktaPeriode = kontrollerer.kontrollerSøknadsperiode(oppgittPeriode);
         assertThat(kontrollerFaktaPeriode.erBekreftet()).isTrue();
         assertThat(kontrollerFaktaPeriode.isTidligOppstart()).isFalse();
     }
 
     @Test
     public void søktOmGraderingPeriode() {
-        Arbeidsgiver arbeidsgiver = arbeidsgiver("orgnr");
-        OppgittPeriodeEntitet graderingPeriode = OppgittPeriodeBuilder.ny()
+        var arbeidsgiver = arbeidsgiver("orgnr");
+        var graderingPeriode = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .medPeriode(FOM, TOM)
             .medArbeidsprosent(BigDecimal.valueOf(60))
@@ -175,14 +175,14 @@ public class SøknadsperiodeDokumentasjonKontrollererTest {
             .medErArbeidstaker(true)
             .build();
 
-        KontrollerFaktaPeriode kontrollerFaktaPeriode = kontroller(graderingPeriode);
+        var kontrollerFaktaPeriode = kontroller(graderingPeriode);
         assertThat(kontrollerFaktaPeriode.erBekreftet()).isTrue();
     }
 
     @Test
     public void gradertFrilansUtenVirksomhetOgHarITilleggEttArbeidsforhold() {
-        BigDecimal arbeidsprosent = BigDecimal.valueOf(60);
-        OppgittPeriodeEntitet graderingPeriode = OppgittPeriodeBuilder.ny()
+        var arbeidsprosent = BigDecimal.valueOf(60);
+        var graderingPeriode = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .medPeriode(FOM, TOM)
             .medArbeidsgiver(null)
@@ -190,15 +190,15 @@ public class SøknadsperiodeDokumentasjonKontrollererTest {
             .medErFrilanser(true)
             .build();
 
-        KontrollerFaktaPeriode kontrollerFaktaPeriode = kontroller(graderingPeriode);
+        var kontrollerFaktaPeriode = kontroller(graderingPeriode);
         assertThat(kontrollerFaktaPeriode.erBekreftet()).isTrue();
     }
 
     @Test
     public void gradertFrilansMedVirksomhet() {
-        Arbeidsgiver arbeidsgiver1 = arbeidsgiver("orgnr1");
-        BigDecimal arbeidsprosent = BigDecimal.valueOf(60);
-        OppgittPeriodeEntitet graderingPeriode = OppgittPeriodeBuilder.ny()
+        var arbeidsgiver1 = arbeidsgiver("orgnr1");
+        var arbeidsprosent = BigDecimal.valueOf(60);
+        var graderingPeriode = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .medPeriode(FOM, TOM)
             .medArbeidsgiver(arbeidsgiver1)
@@ -206,27 +206,27 @@ public class SøknadsperiodeDokumentasjonKontrollererTest {
             .medErFrilanser(true)
             .build();
 
-        KontrollerFaktaPeriode kontrollerFaktaPeriode = kontroller(graderingPeriode);
+        var kontrollerFaktaPeriode = kontroller(graderingPeriode);
         assertThat(kontrollerFaktaPeriode.erBekreftet()).isTrue();
     }
 
     @Test
     public void søktOmGraderingSelvstendigNæringsdrivende() {
-        OppgittPeriodeEntitet graderingPeriode = OppgittPeriodeBuilder.ny()
+        var graderingPeriode = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
             .medPeriode(FOM, TOM)
             .medArbeidsprosent(BigDecimal.valueOf(60))
             .medErSelvstendig(true)
             .build();
 
-        KontrollerFaktaPeriode kontrollerFaktaPeriode = kontroller(graderingPeriode);
+        var kontrollerFaktaPeriode = kontroller(graderingPeriode);
         assertThat(kontrollerFaktaPeriode.erBekreftet()).isTrue();
     }
 
     @Test
     public void graderingFraSøknadOgArbeidsgiverPrivatperson() {
         var arbeidsgiver = Arbeidsgiver.person(AktørId.dummy());
-        OppgittPeriodeEntitet graderingsperiode = OppgittPeriodeBuilder.ny()
+        var graderingsperiode = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .medPeriode(FOM, TOM)
             .medArbeidsprosent(BigDecimal.TEN)
@@ -234,14 +234,14 @@ public class SøknadsperiodeDokumentasjonKontrollererTest {
             .medErArbeidstaker(true)
             .build();
 
-        KontrollerFaktaPeriode kontrollerFaktaPeriode = kontroller(graderingsperiode);
+        var kontrollerFaktaPeriode = kontroller(graderingsperiode);
         assertThat(kontrollerFaktaPeriode.erBekreftet()).isTrue();
     }
 
     @Test
     public void utsettelsePgaArbeidFraSøknadOgArbeidsgiverPrivatperson() {
         var arbeidsgiver = Arbeidsgiver.person(AktørId.dummy());
-        OppgittPeriodeEntitet utsettelseArbeidPeriode = OppgittPeriodeBuilder.ny()
+        var utsettelseArbeidPeriode = OppgittPeriodeBuilder.ny()
             .medÅrsak(UtsettelseÅrsak.ARBEID)
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .medPeriode(FOM, TOM)
@@ -249,14 +249,14 @@ public class SøknadsperiodeDokumentasjonKontrollererTest {
             .medErArbeidstaker(true)
             .build();
 
-        KontrollerFaktaPeriode kontrollerFaktaPeriode = kontroller(utsettelseArbeidPeriode);
+        var kontrollerFaktaPeriode = kontroller(utsettelseArbeidPeriode);
         assertThat(kontrollerFaktaPeriode.erBekreftet()).isTrue();
     }
 
     @Test
     public void utsettelsePgaFerieFraSøknadOgArbeidsgiverPrivatperson() {
         var arbeidsgiver = Arbeidsgiver.person(AktørId.dummy());
-        OppgittPeriodeEntitet utsettelseFeriePeriode = OppgittPeriodeBuilder.ny()
+        var utsettelseFeriePeriode = OppgittPeriodeBuilder.ny()
             .medÅrsak(UtsettelseÅrsak.FERIE)
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .medPeriode(FOM, TOM)
@@ -264,13 +264,13 @@ public class SøknadsperiodeDokumentasjonKontrollererTest {
             .medErArbeidstaker(true)
             .build();
 
-        KontrollerFaktaPeriode kontrollerFaktaPeriode = kontroller(utsettelseFeriePeriode);
+        var kontrollerFaktaPeriode = kontroller(utsettelseFeriePeriode);
         assertThat(kontrollerFaktaPeriode.erBekreftet()).isTrue();
     }
 
     @Test
     public void graderingFraSøknadForFrilansMenBrukerErArbeidstakerITillegg() {
-        OppgittPeriodeEntitet graderingsperiode = OppgittPeriodeBuilder.ny()
+        var graderingsperiode = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medPeriode(FOM, TOM)
             .medArbeidsprosent(BigDecimal.TEN)
@@ -278,12 +278,12 @@ public class SøknadsperiodeDokumentasjonKontrollererTest {
             .medErFrilanser(true)
             .build();
 
-        KontrollerFaktaPeriode kontrollerFaktaPeriode = kontroller(graderingsperiode);
+        var kontrollerFaktaPeriode = kontroller(graderingsperiode);
         assertThat(kontrollerFaktaPeriode.erBekreftet()).isTrue();
     }
 
     private KontrollerFaktaPeriode kontroller(OppgittPeriodeEntitet oppgittPeriode) {
-        SøknadsperiodeDokumentasjonKontrollerer kontrollerer = new SøknadsperiodeDokumentasjonKontrollerer(List.of(), null);
+        var kontrollerer = new SøknadsperiodeDokumentasjonKontrollerer(List.of(), null);
         return kontrollerer.kontrollerSøknadsperiode(oppgittPeriode);
     }
 

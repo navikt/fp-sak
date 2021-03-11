@@ -22,14 +22,14 @@ import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryProviderForTest;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 
 public class UttakYrkesaktiviteterTest {
 
     @Test
     public void stillingsprosent_ved_flere_overlappende_aktivitetsavtaler_på_dato_skal_velge_stilling_med_maks() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        var behandling = scenario.lagre(new UttakRepositoryProviderForTest());
+        var behandling = scenario.lagre(new UttakRepositoryStubProvider());
         var dato = LocalDate.of(2020, 5, 4);
         var arbeidsgiver = Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG);
         var ansettelsesperiode = AktivitetsAvtaleBuilder.ny()
@@ -65,7 +65,7 @@ public class UttakYrkesaktiviteterTest {
     @Test
     public void skal_tåle_null_stillingsprosent_på_aktivitetsavtale() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        var behandling = scenario.lagre(new UttakRepositoryProviderForTest());
+        var behandling = scenario.lagre(new UttakRepositoryStubProvider());
         var dato = LocalDate.of(2020, 5, 4);
         var arbeidsgiver = Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG);
         var ansettelsesperiode = AktivitetsAvtaleBuilder.ny()

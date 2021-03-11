@@ -18,16 +18,16 @@ import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.domene.uttak.input.SvangerskapspengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.input.YtelsespesifiktGrunnlag;
-import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.PersonopplysningerForUttakForTest;
-import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryProviderForTest;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.PersonopplysningerForUttakStub;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 
 public class AvklarteDatoerTjenesteTest {
 
-    private final UttakRepositoryProviderForTest repositoryProvider = new UttakRepositoryProviderForTest();
+    private final UttakRepositoryStubProvider repositoryProvider = new UttakRepositoryStubProvider();
     private final InntektsmeldingTjeneste inntektsmeldingTjeneste = new InntektsmeldingTjeneste(
         new AbakusInMemoryInntektArbeidYtelseTjeneste());
     private final AvklarteDatoerTjeneste avklarteDatoerTjeneste = new AvklarteDatoerTjeneste(
-        repositoryProvider.getUttaksperiodegrenseRepository(), new PersonopplysningerForUttakForTest(),
+        repositoryProvider.getUttaksperiodegrenseRepository(), new PersonopplysningerForUttakStub(),
         inntektsmeldingTjeneste);
     private final GrunnlagOppretter grunnlagOppretter = new GrunnlagOppretter(repositoryProvider);
 

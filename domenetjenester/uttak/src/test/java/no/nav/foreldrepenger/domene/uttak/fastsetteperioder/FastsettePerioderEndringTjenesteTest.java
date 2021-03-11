@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -14,11 +13,11 @@ import org.mockito.Mockito;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
-import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
@@ -26,7 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntit
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.domene.uttak.fakta.uttakperioder.UttakPeriodeEndringDto;
 
 public class FastsettePerioderEndringTjenesteTest {
 
@@ -34,19 +32,19 @@ public class FastsettePerioderEndringTjenesteTest {
 
     @Test
     public void endretPeriodeSkalVæreEndring() {
-        UttakResultatPerioderEntitet opprinneligPerioder = new UttakResultatPerioderEntitet();
-        UttakResultatPeriodeEntitet opprinneligPeriode = enkeltPeriodeAktivitet(new Trekkdager(2), Utbetalingsgrad.TEN);
+        var opprinneligPerioder = new UttakResultatPerioderEntitet();
+        var opprinneligPeriode = enkeltPeriodeAktivitet(new Trekkdager(2), Utbetalingsgrad.TEN);
         opprinneligPerioder.leggTilPeriode(opprinneligPeriode);
-        UttakResultatPerioderEntitet overstyrtPerioder = new UttakResultatPerioderEntitet();
-        UttakResultatPeriodeEntitet overstyrtPeriode = enkeltPeriodeAktivitet(new Trekkdager(10), Utbetalingsgrad.ZERO);
+        var overstyrtPerioder = new UttakResultatPerioderEntitet();
+        var overstyrtPeriode = enkeltPeriodeAktivitet(new Trekkdager(10), Utbetalingsgrad.ZERO);
         overstyrtPerioder.leggTilPeriode(overstyrtPeriode);
-        UttakResultatEntitet uttakResultat = new UttakResultatEntitet.Builder(mock(Behandlingsresultat.class))
+        var uttakResultat = new UttakResultatEntitet.Builder(mock(Behandlingsresultat.class))
             .medOpprinneligPerioder(opprinneligPerioder)
             .medOverstyrtPerioder(overstyrtPerioder)
             .build();
-        FastsettePerioderEndringTjeneste tjeneste = tjeneste(uttakResultat);
+        var tjeneste = tjeneste(uttakResultat);
 
-        List<UttakPeriodeEndringDto> endringer = tjeneste.finnEndringerMellomOpprinneligOgOverstyrtForBehandling(BEHANDLING.getId());
+        var endringer = tjeneste.finnEndringerMellomOpprinneligOgOverstyrtForBehandling(BEHANDLING.getId());
 
         assertThat(endringer).hasSize(1);
         assertThat(endringer.get(0).getFom()).isEqualTo(opprinneligPeriode.getFom());
@@ -59,25 +57,25 @@ public class FastsettePerioderEndringTjenesteTest {
 
     @Test
     public void splittingAvPeriodeSkalGiEnSlettingOgToLagtTilEndringer() {
-        UttakResultatPerioderEntitet opprinneligPerioder = new UttakResultatPerioderEntitet();
-        UttakResultatPeriodeEntitet opprinneligPeriode = minimumPeriode().build();
+        var opprinneligPerioder = new UttakResultatPerioderEntitet();
+        var opprinneligPeriode = minimumPeriode().build();
         opprinneligPerioder.leggTilPeriode(opprinneligPeriode);
-        UttakResultatPerioderEntitet overstyrtPerioder = new UttakResultatPerioderEntitet();
-        UttakResultatPeriodeEntitet overstyrtPeriode1 = new UttakResultatPeriodeEntitet.Builder(LocalDate.now().minusMonths(1), LocalDate.now().minusWeeks(2))
+        var overstyrtPerioder = new UttakResultatPerioderEntitet();
+        var overstyrtPeriode1 = new UttakResultatPeriodeEntitet.Builder(LocalDate.now().minusMonths(1), LocalDate.now().minusWeeks(2))
             .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
-        UttakResultatPeriodeEntitet overstyrtPeriode2 = new UttakResultatPeriodeEntitet.Builder(LocalDate.now().minusWeeks(2).plusDays(1), LocalDate.now())
+        var overstyrtPeriode2 = new UttakResultatPeriodeEntitet.Builder(LocalDate.now().minusWeeks(2).plusDays(1), LocalDate.now())
             .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
         overstyrtPerioder.leggTilPeriode(overstyrtPeriode1);
         overstyrtPerioder.leggTilPeriode(overstyrtPeriode2);
-        UttakResultatEntitet uttakResultat = new UttakResultatEntitet.Builder(mock(Behandlingsresultat.class))
+        var uttakResultat = new UttakResultatEntitet.Builder(mock(Behandlingsresultat.class))
             .medOpprinneligPerioder(opprinneligPerioder)
             .medOverstyrtPerioder(overstyrtPerioder)
             .build();
-        FastsettePerioderEndringTjeneste tjeneste = tjeneste(uttakResultat);
+        var tjeneste = tjeneste(uttakResultat);
 
-        List<UttakPeriodeEndringDto> endringer = tjeneste.finnEndringerMellomOpprinneligOgOverstyrtForBehandling(BEHANDLING.getId());
+        var endringer = tjeneste.finnEndringerMellomOpprinneligOgOverstyrtForBehandling(BEHANDLING.getId());
 
         assertThat(endringer).hasSize(3);
         assertThat(endringer.get(0).getFom()).isEqualTo(opprinneligPeriode.getFom());
@@ -102,45 +100,45 @@ public class FastsettePerioderEndringTjenesteTest {
 
     @Test
     public void skalReturnereTomListeHvisOverstyrtErNull() {
-        UttakResultatPerioderEntitet opprinneligPerioder = new UttakResultatPerioderEntitet();
-        UttakResultatPeriodeEntitet opprinneligPeriode = enkeltPeriodeAktivitet(new Trekkdager(2), Utbetalingsgrad.ZERO);
+        var opprinneligPerioder = new UttakResultatPerioderEntitet();
+        var opprinneligPeriode = enkeltPeriodeAktivitet(new Trekkdager(2), Utbetalingsgrad.ZERO);
         opprinneligPerioder.leggTilPeriode(opprinneligPeriode);
-        UttakResultatEntitet uttakResultat = new UttakResultatEntitet.Builder(mock(Behandlingsresultat.class))
+        var uttakResultat = new UttakResultatEntitet.Builder(mock(Behandlingsresultat.class))
             .medOpprinneligPerioder(opprinneligPerioder)
             .medOverstyrtPerioder(null)
             .build();
-        FastsettePerioderEndringTjeneste tjeneste = tjeneste(uttakResultat);
+        var tjeneste = tjeneste(uttakResultat);
 
-        List<UttakPeriodeEndringDto> endringer = tjeneste.finnEndringerMellomOpprinneligOgOverstyrtForBehandling(BEHANDLING.getId());
+        var endringer = tjeneste.finnEndringerMellomOpprinneligOgOverstyrtForBehandling(BEHANDLING.getId());
 
         assertThat(endringer).isEmpty();
     }
 
     @Test
     public void endretPeriodeSkalVæreEndringFlereAktiviteter() {
-        UttakResultatPerioderEntitet opprinneligPerioder = new UttakResultatPerioderEntitet();
+        var opprinneligPerioder = new UttakResultatPerioderEntitet();
 
-        UttakResultatPeriodeEntitet opprinneligPeriode = minimumPeriode().build();
-        UttakResultatPeriodeAktivitetEntitet opprinneligAktivitet1 = periodeAktivitet(opprinneligPeriode, new Trekkdager(1));
-        UttakResultatPeriodeAktivitetEntitet opprinneligAktivitet2 = periodeAktivitet(opprinneligPeriode, new Trekkdager(1));
-        UttakResultatPeriodeAktivitetEntitet opprinneligAktivitet3 = periodeAktivitet(opprinneligPeriode, new Trekkdager(2));
+        var opprinneligPeriode = minimumPeriode().build();
+        var opprinneligAktivitet1 = periodeAktivitet(opprinneligPeriode, new Trekkdager(1));
+        var opprinneligAktivitet2 = periodeAktivitet(opprinneligPeriode, new Trekkdager(1));
+        var opprinneligAktivitet3 = periodeAktivitet(opprinneligPeriode, new Trekkdager(2));
         opprinneligPeriode.leggTilAktivitet(opprinneligAktivitet1);
         opprinneligPeriode.leggTilAktivitet(opprinneligAktivitet2);
         opprinneligPeriode.leggTilAktivitet(opprinneligAktivitet3);
 
         opprinneligPerioder.leggTilPeriode(opprinneligPeriode);
-        UttakResultatPerioderEntitet overstyrtPerioder = new UttakResultatPerioderEntitet();
-        UttakResultatPeriodeEntitet overstyrtPeriode = minimumPeriode().build();
+        var overstyrtPerioder = new UttakResultatPerioderEntitet();
+        var overstyrtPeriode = minimumPeriode().build();
         overstyrtPeriode.leggTilAktivitet(opprinneligAktivitet1);
         overstyrtPeriode.leggTilAktivitet(opprinneligAktivitet3);
         overstyrtPerioder.leggTilPeriode(overstyrtPeriode);
-        UttakResultatEntitet uttakResultat = new UttakResultatEntitet.Builder(mock(Behandlingsresultat.class))
+        var uttakResultat = new UttakResultatEntitet.Builder(mock(Behandlingsresultat.class))
             .medOpprinneligPerioder(opprinneligPerioder)
             .medOverstyrtPerioder(overstyrtPerioder)
             .build();
-        FastsettePerioderEndringTjeneste tjeneste = tjeneste(uttakResultat);
+        var tjeneste = tjeneste(uttakResultat);
 
-        List<UttakPeriodeEndringDto> endringer = tjeneste.finnEndringerMellomOpprinneligOgOverstyrtForBehandling(BEHANDLING.getId());
+        var endringer = tjeneste.finnEndringerMellomOpprinneligOgOverstyrtForBehandling(BEHANDLING.getId());
 
         assertThat(endringer).hasSize(1);
         assertThat(endringer.get(0).getFom()).isEqualTo(opprinneligPeriode.getFom());
@@ -152,7 +150,7 @@ public class FastsettePerioderEndringTjenesteTest {
     }
 
     private UttakResultatPeriodeAktivitetEntitet periodeAktivitet(UttakResultatPeriodeEntitet periode, Trekkdager trekkdager) {
-        UttakAktivitetEntitet uttakAktivitet = uttakAktivitet();
+        var uttakAktivitet = uttakAktivitet();
         return new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitet)
             .medArbeidsprosent(BigDecimal.ZERO)
             .medTrekkdager(trekkdager)
@@ -160,10 +158,10 @@ public class FastsettePerioderEndringTjenesteTest {
     }
 
     private UttakResultatPeriodeEntitet enkeltPeriodeAktivitet(Trekkdager trekkdager, Utbetalingsgrad utbetalingsgrad) {
-        UttakResultatPeriodeEntitet.Builder periodeBuilder = minimumPeriode();
-        UttakResultatPeriodeEntitet periode = periodeBuilder.build();
-        UttakAktivitetEntitet uttakAktivitet = uttakAktivitet();
-        UttakResultatPeriodeAktivitetEntitet periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitet)
+        var periodeBuilder = minimumPeriode();
+        var periode = periodeBuilder.build();
+        var uttakAktivitet = uttakAktivitet();
+        var periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitet)
             .medArbeidsprosent(BigDecimal.ZERO)
             .medTrekkdager(trekkdager)
             .medUtbetalingsgrad(utbetalingsgrad)
@@ -189,7 +187,7 @@ public class FastsettePerioderEndringTjenesteTest {
     }
 
     private FpUttakRepository uttakRepository(UttakResultatEntitet uttakResultat) {
-        FpUttakRepository mock = mock(FpUttakRepository.class);
+        var mock = mock(FpUttakRepository.class);
         when(mock.hentUttakResultat(Mockito.any())).thenReturn(uttakResultat);
         return mock;
     }

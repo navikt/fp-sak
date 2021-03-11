@@ -8,14 +8,14 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 
-class FpUttakRepositoryForTest extends FpUttakRepository {
+class FpUttakRepositoryStub extends FpUttakRepository {
 
     private final Map<Long, UttakResultatPerioderEntitet> opprinnelig = new ConcurrentHashMap<>();
     private final Map<Long, UttakResultatPerioderEntitet> overstyrt = new ConcurrentHashMap<>();
 
-    private final BehandlingsresultatRepositoryForTest behandlingsresultatRepository;
+    private final BehandlingsresultatRepositoryStub behandlingsresultatRepository;
 
-    FpUttakRepositoryForTest(BehandlingsresultatRepositoryForTest behandlingsresultatRepository) {
+    FpUttakRepositoryStub(BehandlingsresultatRepositoryStub behandlingsresultatRepository) {
         this.behandlingsresultatRepository = behandlingsresultatRepository;
     }
 

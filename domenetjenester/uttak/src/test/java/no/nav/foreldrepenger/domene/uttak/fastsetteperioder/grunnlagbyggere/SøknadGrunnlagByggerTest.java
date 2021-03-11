@@ -18,14 +18,14 @@ import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
-import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryProviderForTest;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Stønadskontotype;
 
 class SøknadGrunnlagByggerTest {
 
     @Test
     public void byggerSøknadsperioder() {
-        var repositoryProvider = new UttakRepositoryProviderForTest();
+        var repositoryProvider = new UttakRepositoryStubProvider();
         var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         var søknadGrunnlagBygger = new SøknadGrunnlagBygger(ytelsesFordelingRepository);
 
@@ -55,7 +55,7 @@ class SøknadGrunnlagByggerTest {
 
     @Test
     public void byggerAktivitetskravPerioder() {
-        var repositoryProvider = new UttakRepositoryProviderForTest();
+        var repositoryProvider = new UttakRepositoryStubProvider();
         var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         var søknadGrunnlagBygger = new SøknadGrunnlagBygger(ytelsesFordelingRepository);
 

@@ -19,11 +19,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryProviderForTest;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 
 public class BekreftFaktaForOmsorgAksjonspunktTest {
 
-    private final UttakRepositoryProviderForTest repositoryProvider = new UttakRepositoryProviderForTest();
+    private final UttakRepositoryStubProvider repositoryProvider = new UttakRepositoryStubProvider();
     private final YtelsesFordelingRepository ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
     private final BekreftFaktaForOmsorgAksjonspunkt bekreftFaktaForOmsorgAksjonspunkt = new BekreftFaktaForOmsorgAksjonspunkt(
         ytelsesFordelingRepository);

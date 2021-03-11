@@ -25,27 +25,27 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryProviderForTest;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.RettOgOmsorg;
 
 public class RettOgOmsorgGrunnlagByggerTest {
 
-    private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryProviderForTest();
+    private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryStubProvider();
 
     @Test
     public void skalLeggeTilHvemSomHarRett_SøkerMorHarRettAnnenForeldreHarIkkeRett() {
-        Behandling behandling = morMedRett(true, false);
+        var behandling = morMedRett(true, false);
 
-        RettOgOmsorg grunnlag = byggGrunnlag(behandling);
+        var grunnlag = byggGrunnlag(behandling);
         assertThat(grunnlag.getMorHarRett()).isTrue();
         assertThat(grunnlag.getFarHarRett()).isFalse();
     }
 
     @Test
     public void skalLeggeTilHvemSomHarRett_SøkerMorHarRettAnnenForeldreHarRett() {
-        Behandling behandling = morMedRett(true, true);
+        var behandling = morMedRett(true, true);
 
-        RettOgOmsorg grunnlag = byggGrunnlag(behandling);
+        var grunnlag = byggGrunnlag(behandling);
 
         assertThat(grunnlag.getMorHarRett()).isTrue();
         assertThat(grunnlag.getFarHarRett()).isTrue();
@@ -53,9 +53,9 @@ public class RettOgOmsorgGrunnlagByggerTest {
 
     @Test
     public void skalLeggeTilHvemSomHarRett_SøkerFarHarRettAnnenForeldreHarRett() {
-        Behandling behandling = farMedRett(true, true);
+        var behandling = farMedRett(true, true);
 
-        RettOgOmsorg grunnlag = byggGrunnlag(behandling);
+        var grunnlag = byggGrunnlag(behandling);
 
         assertThat(grunnlag.getMorHarRett()).isTrue();
         assertThat(grunnlag.getFarHarRett()).isTrue();
@@ -63,9 +63,9 @@ public class RettOgOmsorgGrunnlagByggerTest {
 
     @Test
     public void skalLeggeTilHvemSomHarRett_SøkerFarHarRettAnnenForeldreHarIkkeRett() {
-        Behandling behandling = farMedRett(true, false);
+        var behandling = farMedRett(true, false);
 
-        RettOgOmsorg grunnlag = byggGrunnlag(behandling);
+        var grunnlag = byggGrunnlag(behandling);
 
         assertThat(grunnlag.getMorHarRett()).isFalse();
         assertThat(grunnlag.getFarHarRett()).isTrue();
@@ -73,9 +73,9 @@ public class RettOgOmsorgGrunnlagByggerTest {
 
     @Test
     public void skalLeggeTilHvemSomHarRett_SøkerFarHarIkkeRettAnnenForeldreHarIkkeRett() {
-        Behandling behandling = farMedRett(false, false);
+        var behandling = farMedRett(false, false);
 
-        RettOgOmsorg grunnlag = byggGrunnlag(behandling);
+        var grunnlag = byggGrunnlag(behandling);
 
         assertThat(grunnlag.getMorHarRett()).isFalse();
         assertThat(grunnlag.getFarHarRett()).isFalse();
@@ -83,9 +83,9 @@ public class RettOgOmsorgGrunnlagByggerTest {
 
     @Test
     public void skalLeggeTilHvemSomHarRett_SøkerFarHarIkkeRettAnnenForeldreHarRett() {
-        Behandling behandling = farMedRett(false, true);
+        var behandling = farMedRett(false, true);
 
-        RettOgOmsorg grunnlag = byggGrunnlag(behandling);
+        var grunnlag = byggGrunnlag(behandling);
 
         assertThat(grunnlag.getMorHarRett()).isTrue();
         assertThat(grunnlag.getFarHarRett()).isFalse();
@@ -93,9 +93,9 @@ public class RettOgOmsorgGrunnlagByggerTest {
 
     @Test
     public void skalLeggeTilHvemSomHarRett_SøkerMorHarIkkeRettAnnenForeldreHarRett() {
-        Behandling behandling = morMedRett(false, true);
+        var behandling = morMedRett(false, true);
 
-        RettOgOmsorg grunnlag = byggGrunnlag(behandling);
+        var grunnlag = byggGrunnlag(behandling);
 
         assertThat(grunnlag.getMorHarRett()).isFalse();
         assertThat(grunnlag.getFarHarRett()).isTrue();
@@ -103,29 +103,29 @@ public class RettOgOmsorgGrunnlagByggerTest {
 
     @Test
     public void skalLeggeHarAleneomsorgHvisAleneomsorg() {
-        Behandling behandling = medAleneomsorg(true);
+        var behandling = medAleneomsorg(true);
 
-        RettOgOmsorg grunnlag = byggGrunnlag(behandling);
+        var grunnlag = byggGrunnlag(behandling);
 
         assertThat(grunnlag.getAleneomsorg()).isTrue();
     }
 
     @Test
     public void skalIkkeLeggeTilHarAleneomsorgHvisIkkeAleneomsorg() {
-        Behandling behandling = medAleneomsorg(false);
+        var behandling = medAleneomsorg(false);
 
-        RettOgOmsorg grunnlag = byggGrunnlag(behandling);
+        var grunnlag = byggGrunnlag(behandling);
 
         assertThat(grunnlag.getAleneomsorg()).isFalse();
     }
 
     private Behandling medAleneomsorg(boolean harAleneomsorg) {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medFordeling(new OppgittFordelingEntitet(Collections.emptyList(), true));
 
         scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
         if (harAleneomsorg) {
-            PerioderAleneOmsorgEntitet perioderAleneOmsorg = new PerioderAleneOmsorgEntitet(true);
+            var perioderAleneOmsorg = new PerioderAleneOmsorgEntitet(true);
             scenario.medPeriodeMedAleneomsorg(perioderAleneOmsorg);
         }
 
@@ -169,8 +169,8 @@ public class RettOgOmsorgGrunnlagByggerTest {
     }
 
     private RettOgOmsorg byggGrunnlag(Behandling behandling) {
-        RettOgOmsorgGrunnlagBygger bygger = grunnlagBygger();
-        ForeldrepengerGrunnlag fpGrunnlag = new ForeldrepengerGrunnlag();
+        var bygger = grunnlagBygger();
+        var fpGrunnlag = new ForeldrepengerGrunnlag();
         return bygger.byggGrunnlag(new UttakInput(BehandlingReferanse.fra(behandling), null, fpGrunnlag)).build();
     }
 

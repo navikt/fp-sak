@@ -13,11 +13,11 @@ public class PerioderUtenHelgUtilTest {
 
     private static final LocalDate SØNDAG_FØR_UKE_1 = LocalDate.of(2017, 1, 1);
 
-    private LocalDate fredagUke1 = dag(DayOfWeek.FRIDAY, 1);
-    private LocalDate lørdagUke1 = dag(DayOfWeek.SATURDAY, 1);
-    private LocalDate søndagUke1 = dag(DayOfWeek.SUNDAY, 1);
-    private LocalDate mandagUke2 = dag(DayOfWeek.MONDAY, 2);
-    private LocalDate tirsdagUke2 = dag(DayOfWeek.TUESDAY, 2);
+    private final LocalDate fredagUke1 = dag(DayOfWeek.FRIDAY, 1);
+    private final LocalDate lørdagUke1 = dag(DayOfWeek.SATURDAY, 1);
+    private final LocalDate søndagUke1 = dag(DayOfWeek.SUNDAY, 1);
+    private final LocalDate mandagUke2 = dag(DayOfWeek.MONDAY, 2);
+    private final LocalDate tirsdagUke2 = dag(DayOfWeek.TUESDAY, 2);
 
     @Test
     public void skal_si_at_datoer_er_like() {
