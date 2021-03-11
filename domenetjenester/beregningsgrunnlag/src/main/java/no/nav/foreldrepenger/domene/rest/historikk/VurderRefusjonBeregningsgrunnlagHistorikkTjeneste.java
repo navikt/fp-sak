@@ -56,21 +56,24 @@ public class VurderRefusjonBeregningsgrunnlagHistorikkTjeneste {
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
     }
 
-    public OppdateringResultat lagHistorikk(VurderRefusjonBeregningsgrunnlagDto dto, AksjonspunktOppdaterParameter param, Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag) {
-        Long behandlingId = param.getBehandlingId();
-        List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId).getArbeidsforholdOverstyringer();
-        HistorikkInnslagTekstBuilder tekstBuilder = historikkTjenesteAdapter.tekstBuilder();
-        List<BeregningRefusjonOverstyringEntitet> forrigeOverstyringer = forrigeGrunnlag
-            .flatMap(BeregningsgrunnlagGrunnlagEntitet::getRefusjonOverstyringer)
+    public OppdateringResultat lagHistorikk(VurderRefusjonBeregningsgrunnlagDto dto,
+                                            AksjonspunktOppdaterParameter param,
+                                            Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag) {
+        var behandlingId = param.getBehandlingId();
+        var arbeidsforholdOverstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId)
+            .getArbeidsforholdOverstyringer();
+        var tekstBuilder = historikkTjenesteAdapter.tekstBuilder();
+        var forrigeOverstyringer = forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getRefusjonOverstyringer)
             .map(BeregningRefusjonOverstyringerEntitet::getRefusjonOverstyringer)
             .orElse(Collections.emptyList());
-        Optional<BeregningsgrunnlagEntitet> forrigeBeregningsgrunnlag = forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
-        for (VurderRefusjonAndelBeregningsgrunnlagDto fastsattAndel : dto.getFastsatteAndeler()) {
-            Optional<LocalDate> forrigeRefusjonsstart = finnForrigeRefusjonsstartForArbeidsforhold(fastsattAndel, forrigeOverstyringer);
-            Optional<BigDecimal> forrigeDelvisRefusjonPrÅr = forrigeRefusjonsstart.isEmpty()
-                ? Optional.empty()
-                : finnForrigeDelvisRefusjon(fastsattAndel, forrigeRefusjonsstart.get(), forrigeBeregningsgrunnlag);
-            leggTilArbeidsforholdHistorikkinnslag(tekstBuilder, fastsattAndel, forrigeRefusjonsstart, forrigeDelvisRefusjonPrÅr, arbeidsforholdOverstyringer);
+        var forrigeBeregningsgrunnlag = forrigeGrunnlag.flatMap(
+            BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
+        for (var fastsattAndel : dto.getFastsatteAndeler()) {
+            var forrigeRefusjonsstart = finnForrigeRefusjonsstartForArbeidsforhold(fastsattAndel, forrigeOverstyringer);
+            Optional<BigDecimal> forrigeDelvisRefusjonPrÅr = forrigeRefusjonsstart.isEmpty() ? Optional.empty() : finnForrigeDelvisRefusjon(
+                fastsattAndel, forrigeRefusjonsstart.get(), forrigeBeregningsgrunnlag);
+            leggTilArbeidsforholdHistorikkinnslag(tekstBuilder, fastsattAndel, forrigeRefusjonsstart,
+                forrigeDelvisRefusjonPrÅr, arbeidsforholdOverstyringer);
         }
 
         lagHistorikkInnslag(dto, param, tekstBuilder);
@@ -81,51 +84,55 @@ public class VurderRefusjonBeregningsgrunnlagHistorikkTjeneste {
     private Optional<BigDecimal> finnForrigeDelvisRefusjon(VurderRefusjonAndelBeregningsgrunnlagDto fastsattAndel,
                                                            LocalDate forrigeRefusjonsstart,
                                                            Optional<BeregningsgrunnlagEntitet> forrigeBeregningsgrunnlag) {
-        List<BeregningsgrunnlagPeriode> forrigeBGPerioder = forrigeBeregningsgrunnlag
-            .map(BeregningsgrunnlagEntitet::getBeregningsgrunnlagPerioder)
+        var forrigeBGPerioder = forrigeBeregningsgrunnlag.map(BeregningsgrunnlagEntitet::getBeregningsgrunnlagPerioder)
             .orElse(Collections.emptyList());
-        List<BeregningsgrunnlagPrStatusOgAndel> andelerIForrugeGrunnlagFørRefusjonstart = forrigeBGPerioder.stream()
+        var andelerIForrugeGrunnlagFørRefusjonstart = forrigeBGPerioder.stream()
             .filter(bgp -> bgp.getBeregningsgrunnlagPeriodeFom().isBefore(forrigeRefusjonsstart))
             .findFirst()
             .map(BeregningsgrunnlagPeriode::getBeregningsgrunnlagPrStatusOgAndelList)
             .orElse(Collections.emptyList());
-        Optional<BeregningsgrunnlagPrStatusOgAndel> forrigeMatchendeAndel = andelerIForrugeGrunnlagFørRefusjonstart.stream()
-            .filter(andel -> andel.getArbeidsgiver().isPresent() && matcherAG(andel.getArbeidsgiver().get(), fastsattAndel)
-            && matcherReferanse(andel.getArbeidsforholdRef().orElse(InternArbeidsforholdRef.nullRef()), fastsattAndel))
+        var forrigeMatchendeAndel = andelerIForrugeGrunnlagFørRefusjonstart.stream()
+            .filter(
+                andel -> andel.getArbeidsgiver().isPresent() && matcherAG(andel.getArbeidsgiver().get(), fastsattAndel)
+                    && matcherReferanse(andel.getArbeidsforholdRef().orElse(InternArbeidsforholdRef.nullRef()),
+                    fastsattAndel))
             .findFirst();
 
         // Hvis saksbehandletRefusjonPrÅr var > 0 i denne andelen som ligger i en periode før forrige startdato for refusjon
         // betyr det at det var tidligere innvilget delvis refusjon
-        Optional<BigDecimal> forrigeSaksbehandletRefusjonPrÅr = forrigeMatchendeAndel
-            .flatMap(BeregningsgrunnlagPrStatusOgAndel::getBgAndelArbeidsforhold)
+        var forrigeSaksbehandletRefusjonPrÅr = forrigeMatchendeAndel.flatMap(
+            BeregningsgrunnlagPrStatusOgAndel::getBgAndelArbeidsforhold)
             .map(BGAndelArbeidsforhold::getSaksbehandletRefusjonPrÅr);
-        if (forrigeSaksbehandletRefusjonPrÅr.isPresent() && forrigeSaksbehandletRefusjonPrÅr.get().compareTo(BigDecimal.ZERO) > 0) {
+        if (forrigeSaksbehandletRefusjonPrÅr.isPresent()
+            && forrigeSaksbehandletRefusjonPrÅr.get().compareTo(BigDecimal.ZERO) > 0) {
             return forrigeSaksbehandletRefusjonPrÅr;
-        } else {
-            return Optional.empty();
         }
+        return Optional.empty();
     }
 
-    private Optional<LocalDate> finnForrigeRefusjonsstartForArbeidsforhold(VurderRefusjonAndelBeregningsgrunnlagDto fastsattAndel, List<BeregningRefusjonOverstyringEntitet> forrigeOverstyringer) {
-        List<BeregningRefusjonPeriodeEntitet> refusjonsperioderHosSammeAG = forrigeOverstyringer.stream()
+    private Optional<LocalDate> finnForrigeRefusjonsstartForArbeidsforhold(VurderRefusjonAndelBeregningsgrunnlagDto fastsattAndel,
+                                                                           List<BeregningRefusjonOverstyringEntitet> forrigeOverstyringer) {
+        var refusjonsperioderHosSammeAG = forrigeOverstyringer.stream()
             .filter(os -> matcherAG(os.getArbeidsgiver(), fastsattAndel))
             .findFirst()
             .map(BeregningRefusjonOverstyringEntitet::getRefusjonPerioder)
             .orElse(Collections.emptyList());
-        Optional<BeregningRefusjonPeriodeEntitet> first = refusjonsperioderHosSammeAG.stream().filter(rp -> matcherReferanse(rp.getArbeidsforholdRef(), fastsattAndel)).findFirst();
+        var first = refusjonsperioderHosSammeAG.stream()
+            .filter(rp -> matcherReferanse(rp.getArbeidsforholdRef(), fastsattAndel))
+            .findFirst();
         return first.map(BeregningRefusjonPeriodeEntitet::getStartdatoRefusjon);
     }
 
-    private boolean matcherReferanse(InternArbeidsforholdRef arbeidsforholdRef, VurderRefusjonAndelBeregningsgrunnlagDto fastsattAndel) {
+    private boolean matcherReferanse(InternArbeidsforholdRef arbeidsforholdRef,
+                                     VurderRefusjonAndelBeregningsgrunnlagDto fastsattAndel) {
         return Objects.equals(arbeidsforholdRef.getReferanse(), fastsattAndel.getInternArbeidsforholdRef());
     }
 
     private boolean matcherAG(Arbeidsgiver arbeidsgiver, VurderRefusjonAndelBeregningsgrunnlagDto fastsattAndel) {
         if (fastsattAndel.getArbeidsgiverOrgnr() != null) {
             return fastsattAndel.getArbeidsgiverOrgnr().equals(arbeidsgiver.getIdentifikator());
-        } else {
-            return Objects.equals(fastsattAndel.getArbeidsgiverAktoerId(), arbeidsgiver.getIdentifikator());
         }
+        return Objects.equals(fastsattAndel.getArbeidsgiverAktoerId(), arbeidsgiver.getIdentifikator());
     }
 
     private void leggTilArbeidsforholdHistorikkinnslag(HistorikkInnslagTekstBuilder historikkBuilder,
@@ -139,17 +146,24 @@ public class VurderRefusjonBeregningsgrunnlagHistorikkTjeneste {
         } else {
             ag = Arbeidsgiver.virksomhet(fastsattAndel.getArbeidsgiverOrgnr());
         }
-        Optional<InternArbeidsforholdRef> ref = fastsattAndel.getInternArbeidsforholdRef() == null ? Optional.empty() : Optional.of(InternArbeidsforholdRef.ref(fastsattAndel.getInternArbeidsforholdRef()));
-        String arbeidsforholdInfo = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(AktivitetStatus.ARBEIDSTAKER, Optional.of(ag), ref, arbeidsforholdOverstyringer);
-        LocalDate fraStartdato = forrigeRefusjonsstart.orElse(null);
-        LocalDate tilStartdato = fastsattAndel.getFastsattRefusjonFom();
-        historikkBuilder.medEndretFelt(HistorikkEndretFeltType.NY_STARTDATO_REFUSJON, arbeidsforholdInfo, fraStartdato, tilStartdato);
-        if (fastsattAndel.getDelvisRefusjonPrMndFørStart() != null && fastsattAndel.getDelvisRefusjonPrMndFørStart() != 0) {
-            Integer fraBeløpPrMnd = forrigeDelvisRefusjonPrÅr.map(forrigeDelvisRef -> forrigeDelvisRef.divide(MÅNEDER_I_ÅR, RoundingMode.HALF_EVEN))
+        Optional<InternArbeidsforholdRef> ref =
+            fastsattAndel.getInternArbeidsforholdRef() == null ? Optional.empty() : Optional.of(
+                InternArbeidsforholdRef.ref(fastsattAndel.getInternArbeidsforholdRef()));
+        var arbeidsforholdInfo = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(
+            AktivitetStatus.ARBEIDSTAKER, Optional.of(ag), ref, arbeidsforholdOverstyringer);
+        var fraStartdato = forrigeRefusjonsstart.orElse(null);
+        var tilStartdato = fastsattAndel.getFastsattRefusjonFom();
+        historikkBuilder.medEndretFelt(HistorikkEndretFeltType.NY_STARTDATO_REFUSJON, arbeidsforholdInfo, fraStartdato,
+            tilStartdato);
+        if (fastsattAndel.getDelvisRefusjonPrMndFørStart() != null
+            && fastsattAndel.getDelvisRefusjonPrMndFørStart() != 0) {
+            var fraBeløpPrMnd = forrigeDelvisRefusjonPrÅr.map(
+                forrigeDelvisRef -> forrigeDelvisRef.divide(MÅNEDER_I_ÅR, RoundingMode.HALF_EVEN))
                 .map(BigDecimal::intValue)
                 .orElse(null);
-            Integer tilBeløpPrMnd = fastsattAndel.getDelvisRefusjonPrMndFørStart();
-            historikkBuilder.medEndretFelt(HistorikkEndretFeltType.DELVIS_REFUSJON_FØR_STARTDATO, arbeidsforholdInfo, fraBeløpPrMnd, tilBeløpPrMnd);
+            var tilBeløpPrMnd = fastsattAndel.getDelvisRefusjonPrMndFørStart();
+            historikkBuilder.medEndretFelt(HistorikkEndretFeltType.DELVIS_REFUSJON_FØR_STARTDATO, arbeidsforholdInfo,
+                fraBeløpPrMnd, tilBeløpPrMnd);
         }
         if (!historikkBuilder.erSkjermlenkeSatt()) {
             historikkBuilder.medSkjermlenke(SkjermlenkeType.FAKTA_OM_FORDELING);
@@ -157,20 +171,26 @@ public class VurderRefusjonBeregningsgrunnlagHistorikkTjeneste {
         historikkBuilder.ferdigstillHistorikkinnslagDel();
     }
 
-    private void lagHistorikkInnslag(VurderRefusjonBeregningsgrunnlagDto dto, AksjonspunktOppdaterParameter param, HistorikkInnslagTekstBuilder tekstBuilder) {
+    private void lagHistorikkInnslag(VurderRefusjonBeregningsgrunnlagDto dto,
+                                     AksjonspunktOppdaterParameter param,
+                                     HistorikkInnslagTekstBuilder tekstBuilder) {
         tekstBuilder.ferdigstillHistorikkinnslagDel();
-        List<HistorikkinnslagDel> historikkDeler = tekstBuilder.getHistorikkinnslagDeler();
+        var historikkDeler = tekstBuilder.getHistorikkinnslagDeler();
         settBegrunnelse(param, historikkDeler, tekstBuilder, dto.getBegrunnelse());
         settSkjermlenkeOmIkkeSatt(historikkDeler, tekstBuilder);
     }
 
-    private void settBegrunnelse(AksjonspunktOppdaterParameter param, List<HistorikkinnslagDel> historikkDeler, HistorikkInnslagTekstBuilder tekstBuilder, String begrunnelse) {
-        boolean erBegrunnelseSatt = historikkDeler.stream()
+    private void settBegrunnelse(AksjonspunktOppdaterParameter param,
+                                 List<HistorikkinnslagDel> historikkDeler,
+                                 HistorikkInnslagTekstBuilder tekstBuilder,
+                                 String begrunnelse) {
+        var erBegrunnelseSatt = historikkDeler.stream()
             .anyMatch(historikkDel -> historikkDel.getBegrunnelse().isPresent());
         if (!erBegrunnelseSatt) {
-            boolean erBegrunnelseEndret = param.erBegrunnelseEndret();
+            var erBegrunnelseEndret = param.erBegrunnelseEndret();
             if (erBegrunnelseEndret) {
-                boolean erSkjermlenkeSatt = historikkDeler.stream().anyMatch(historikkDel -> historikkDel.getSkjermlenke().isPresent());
+                var erSkjermlenkeSatt = historikkDeler.stream()
+                    .anyMatch(historikkDel -> historikkDel.getSkjermlenke().isPresent());
                 tekstBuilder.medBegrunnelse(begrunnelse, true);
                 if (!erSkjermlenkeSatt) {
                     tekstBuilder.medSkjermlenke(SkjermlenkeType.FAKTA_OM_FORDELING);
@@ -180,8 +200,9 @@ public class VurderRefusjonBeregningsgrunnlagHistorikkTjeneste {
         }
     }
 
-    private void settSkjermlenkeOmIkkeSatt(List<HistorikkinnslagDel> historikkDeler, HistorikkInnslagTekstBuilder tekstBuilder) {
-        boolean erSkjermlenkeSatt = historikkDeler.stream()
+    private void settSkjermlenkeOmIkkeSatt(List<HistorikkinnslagDel> historikkDeler,
+                                           HistorikkInnslagTekstBuilder tekstBuilder) {
+        var erSkjermlenkeSatt = historikkDeler.stream()
             .anyMatch(historikkDel -> historikkDel.getSkjermlenke().isPresent());
         if (!erSkjermlenkeSatt && !historikkDeler.isEmpty()) {
             tekstBuilder.medSkjermlenke(SkjermlenkeType.FAKTA_OM_FORDELING);

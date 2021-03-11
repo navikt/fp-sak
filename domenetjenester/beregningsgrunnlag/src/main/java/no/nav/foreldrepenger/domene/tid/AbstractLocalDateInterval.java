@@ -8,8 +8,6 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.chrono.ChronoLocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 import no.nav.vedtak.konfig.Tid;
@@ -32,8 +30,8 @@ public abstract class AbstractLocalDateInterval implements Comparable<AbstractLo
         if (antallArbeidsdager < 1) {
             throw new IllegalArgumentException("Antall arbeidsdager må være 1 eller større.");
         }
-        LocalDate tom = fom;
-        int antallArbeidsdagerTmp = antallArbeidsdager;
+        var tom = fom;
+        var antallArbeidsdagerTmp = antallArbeidsdager;
 
         while (antallArbeidsdagerTmp > 0) {
             if (antallArbeidsdagerTmp > antallArbeidsdager) {
@@ -84,10 +82,9 @@ public abstract class AbstractLocalDateInterval implements Comparable<AbstractLo
     }
 
     public boolean overlapper(AbstractLocalDateInterval other) {
-        boolean fomBeforeOrEqual = this.getFomDato().isBefore(other.getTomDato()) || this.getFomDato().isEqual(other.getTomDato());
-        boolean tomAfterOrEqual = this.getTomDato().isAfter(other.getFomDato()) || this.getTomDato().isEqual(other.getFomDato());
-        boolean overlapper = fomBeforeOrEqual && tomAfterOrEqual;
-        return overlapper;
+        var fomBeforeOrEqual = this.getFomDato().isBefore(other.getTomDato()) || this.getFomDato().isEqual(other.getTomDato());
+        var tomAfterOrEqual = this.getTomDato().isAfter(other.getFomDato()) || this.getTomDato().isEqual(other.getFomDato());
+        return fomBeforeOrEqual && tomAfterOrEqual;
     }
 
     protected static boolean erArbeidsdag(LocalDate dato) {
@@ -107,12 +104,12 @@ public abstract class AbstractLocalDateInterval implements Comparable<AbstractLo
         if (!(object instanceof AbstractLocalDateInterval)) {
             return false;
         }
-        AbstractLocalDateInterval annen = (AbstractLocalDateInterval) object;
+        var annen = (AbstractLocalDateInterval) object;
         return likFom(annen) && likTom(annen);
     }
 
     private boolean likFom(AbstractLocalDateInterval annen) {
-        boolean likFom = Objects.equals(this.getFomDato(), annen.getFomDato());
+        var likFom = Objects.equals(this.getFomDato(), annen.getFomDato());
         if (this.getFomDato() == null || annen.getFomDato() == null) {
             return likFom;
         }
@@ -121,7 +118,7 @@ public abstract class AbstractLocalDateInterval implements Comparable<AbstractLo
     }
 
     private boolean likTom(AbstractLocalDateInterval annen) {
-        boolean likTom = Objects.equals(getTomDato(), annen.getTomDato());
+        var likTom = Objects.equals(getTomDato(), annen.getTomDato());
         if (this.getTomDato() == null || annen.getTomDato() == null) {
             return likTom;
         }

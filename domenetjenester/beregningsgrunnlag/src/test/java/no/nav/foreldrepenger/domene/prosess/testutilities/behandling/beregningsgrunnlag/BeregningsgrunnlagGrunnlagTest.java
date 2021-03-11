@@ -13,12 +13,11 @@ import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningAkti
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningAktivitetDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningAktivitetOverstyringDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningAktivitetOverstyringerDto;
-import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagGrunnlagDto;
 import no.nav.folketrygdloven.kalkulator.modell.beregningsgrunnlag.BeregningsgrunnlagGrunnlagDtoBuilder;
-import no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
 import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningAktivitetHandlingType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand;
+import no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType;
 public class BeregningsgrunnlagGrunnlagTest {
 
     private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
@@ -26,28 +25,28 @@ public class BeregningsgrunnlagGrunnlagTest {
 
     @Test
     public void skal_returnere_register() {
-        BeregningAktivitetDto beregningAktivitetSN = BeregningAktivitetDto.builder()
+        var beregningAktivitetSN = BeregningAktivitetDto.builder()
             .medPeriode(PERIODE)
             .medOpptjeningAktivitetType(OpptjeningAktivitetType.NÆRING)
             .build();
 
-        BeregningAktivitetDto beregningAktivitetAAP = BeregningAktivitetDto.builder()
+        var beregningAktivitetAAP = BeregningAktivitetDto.builder()
             .medPeriode(PERIODE)
             .medOpptjeningAktivitetType(OpptjeningAktivitetType.ARBEIDSAVKLARING)
             .build();
 
-        BeregningAktivitetAggregatDto registerAktiviteter = BeregningAktivitetAggregatDto.builder()
+        var registerAktiviteter = BeregningAktivitetAggregatDto.builder()
             .medSkjæringstidspunktOpptjening(SKJÆRINGSTIDSPUNKT)
             .leggTilAktivitet(beregningAktivitetSN)
             .leggTilAktivitet(beregningAktivitetAAP)
             .build();
 
-        BeregningsgrunnlagGrunnlagDto bgg = BeregningsgrunnlagGrunnlagDtoBuilder.oppdatere(Optional.empty())
+        var bgg = BeregningsgrunnlagGrunnlagDtoBuilder.oppdatere(Optional.empty())
             .medRegisterAktiviteter(registerAktiviteter)
             .build(BeregningsgrunnlagTilstand.OPPRETTET);
 
         // Act
-        BeregningAktivitetAggregatDto resultat = bgg.getGjeldendeAktiviteter();
+        var resultat = bgg.getGjeldendeAktiviteter();
 
         // Assert
         assertThat(resultat.getSkjæringstidspunktOpptjening()).isEqualTo(SKJÆRINGSTIDSPUNKT);
@@ -58,33 +57,33 @@ public class BeregningsgrunnlagGrunnlagTest {
 
     @Test
     public void skal_returnere_overstyringer() {
-        BeregningAktivitetDto beregningAktivitetSN = BeregningAktivitetDto.builder()
+        var beregningAktivitetSN = BeregningAktivitetDto.builder()
             .medPeriode(PERIODE)
             .medOpptjeningAktivitetType(OpptjeningAktivitetType.NÆRING)
             .build();
 
-        BeregningAktivitetDto beregningAktivitetAAP = BeregningAktivitetDto.builder()
+        var beregningAktivitetAAP = BeregningAktivitetDto.builder()
             .medPeriode(PERIODE)
             .medOpptjeningAktivitetType(OpptjeningAktivitetType.ARBEIDSAVKLARING)
             .build();
 
-        BeregningAktivitetAggregatDto registerAktiviteter = BeregningAktivitetAggregatDto.builder()
+        var registerAktiviteter = BeregningAktivitetAggregatDto.builder()
             .medSkjæringstidspunktOpptjening(SKJÆRINGSTIDSPUNKT)
             .leggTilAktivitet(beregningAktivitetSN)
             .leggTilAktivitet(beregningAktivitetAAP)
             .build();
 
-        BeregningAktivitetOverstyringDto overstyring = lagOverstyringForBA(beregningAktivitetAAP);
-        BeregningAktivitetOverstyringerDto overstyringerEntitet = BeregningAktivitetOverstyringerDto.builder()
+        var overstyring = lagOverstyringForBA(beregningAktivitetAAP);
+        var overstyringerEntitet = BeregningAktivitetOverstyringerDto.builder()
             .leggTilOverstyring(overstyring)
             .build();
-        BeregningsgrunnlagGrunnlagDto bgg = BeregningsgrunnlagGrunnlagDtoBuilder.oppdatere(Optional.empty())
+        var bgg = BeregningsgrunnlagGrunnlagDtoBuilder.oppdatere(Optional.empty())
             .medRegisterAktiviteter(registerAktiviteter)
             .medOverstyring(overstyringerEntitet)
             .build(BeregningsgrunnlagTilstand.OPPRETTET);
 
         // Act
-        BeregningAktivitetAggregatDto resultat = bgg.getGjeldendeAktiviteter();
+        var resultat = bgg.getGjeldendeAktiviteter();
 
         // Assert
         assertThat(resultat.getSkjæringstidspunktOpptjening()).isEqualTo(SKJÆRINGSTIDSPUNKT);
@@ -94,34 +93,34 @@ public class BeregningsgrunnlagGrunnlagTest {
 
     @Test
     public void skal_returnere_overstyringer_når_saksbehandlet_finnes() {
-        BeregningAktivitetDto beregningAktivitetSN = BeregningAktivitetDto.builder()
+        var beregningAktivitetSN = BeregningAktivitetDto.builder()
             .medPeriode(PERIODE)
             .medOpptjeningAktivitetType(OpptjeningAktivitetType.NÆRING)
             .build();
 
-        BeregningAktivitetDto beregningAktivitetAAP = BeregningAktivitetDto.builder()
+        var beregningAktivitetAAP = BeregningAktivitetDto.builder()
             .medPeriode(PERIODE)
             .medOpptjeningAktivitetType(OpptjeningAktivitetType.ARBEIDSAVKLARING)
             .build();
 
-        BeregningAktivitetAggregatDto registerAktiviteter = BeregningAktivitetAggregatDto.builder()
+        var registerAktiviteter = BeregningAktivitetAggregatDto.builder()
             .medSkjæringstidspunktOpptjening(SKJÆRINGSTIDSPUNKT)
             .leggTilAktivitet(beregningAktivitetSN)
             .leggTilAktivitet(beregningAktivitetAAP)
             .build();
 
-        BeregningAktivitetOverstyringDto overstyring = lagOverstyringForBA(beregningAktivitetAAP);
-        BeregningAktivitetOverstyringerDto overstyringerEntitet = BeregningAktivitetOverstyringerDto.builder()
+        var overstyring = lagOverstyringForBA(beregningAktivitetAAP);
+        var overstyringerEntitet = BeregningAktivitetOverstyringerDto.builder()
             .leggTilOverstyring(overstyring)
             .build();
-        BeregningsgrunnlagGrunnlagDto bgg = BeregningsgrunnlagGrunnlagDtoBuilder.oppdatere(Optional.empty())
+        var bgg = BeregningsgrunnlagGrunnlagDtoBuilder.oppdatere(Optional.empty())
             .medRegisterAktiviteter(registerAktiviteter)
             .medOverstyring(overstyringerEntitet)
             .medSaksbehandletAktiviteter(registerAktiviteter)
             .build(BeregningsgrunnlagTilstand.OPPRETTET);
 
         // Act
-        BeregningAktivitetAggregatDto resultat = bgg.getGjeldendeAktiviteter();
+        var resultat = bgg.getGjeldendeAktiviteter();
 
         // Assert
         assertThat(resultat.getSkjæringstidspunktOpptjening()).isEqualTo(SKJÆRINGSTIDSPUNKT);

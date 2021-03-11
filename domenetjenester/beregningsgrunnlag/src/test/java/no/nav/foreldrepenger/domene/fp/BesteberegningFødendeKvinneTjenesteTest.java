@@ -17,7 +17,6 @@ import org.mockito.Mock;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
@@ -25,16 +24,15 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.domene.prosess.RepositoryProvider;
-import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
-import no.nav.foreldrepenger.domene.opptjening.OpptjeningForBeregningTjeneste;
-import no.nav.foreldrepenger.domene.prosess.testutilities.behandling.ScenarioForeldrepenger;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.YtelseGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.Arbeidskategori;
+import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
+import no.nav.foreldrepenger.domene.opptjening.OpptjeningForBeregningTjeneste;
+import no.nav.foreldrepenger.domene.prosess.RepositoryProvider;
+import no.nav.foreldrepenger.domene.prosess.testutilities.behandling.ScenarioForeldrepenger;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 
@@ -42,7 +40,7 @@ import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 public class BesteberegningFødendeKvinneTjenesteTest {
 
     private static final String ORGNR = "973861778";
-    private static LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.of(2018, 7, 1);
+    private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.of(2018, 7, 1);
     private final RepositoryProvider repositoryProvider;
     private BehandlingReferanse behandlingReferanse;
     private static final ÅpenDatoIntervallEntitet OPPTJENINGSPERIODE = fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusYears(1),
@@ -66,8 +64,8 @@ public class BesteberegningFødendeKvinneTjenesteTest {
 
     @BeforeEach
     public void setUp() {
-        ScenarioForeldrepenger scenario = ScenarioForeldrepenger.nyttScenario();
-        behandlingReferanse = scenario.lagre(repositoryProvider);
+        var scenario = ScenarioForeldrepenger.nyttScenario();
+        behandlingReferanse = BehandlingReferanse.fra(scenario.lagre(repositoryProvider));
         behandling = behandlingRepository.hentBehandling(behandlingReferanse.getBehandlingId());
         inntektArbeidYtelseTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
         inntektArbeidYtelseTjeneste.lagreIayAggregat(behandlingReferanse.getBehandlingId(),
@@ -79,7 +77,7 @@ public class BesteberegningFødendeKvinneTjenesteTest {
     @Test
     public void skal_ikkje_gi_fødende_kvinne_for_adopsjon() {
         // Act
-        boolean erFødendeKvinne = BesteberegningFødendeKvinneTjeneste.erFødendeKvinne(RelasjonsRolleType.MORA, FamilieHendelseType.ADOPSJON);
+        var erFødendeKvinne = BesteberegningFødendeKvinneTjeneste.erFødendeKvinne(RelasjonsRolleType.MORA, FamilieHendelseType.ADOPSJON);
 
         // Assert
         assertThat(erFødendeKvinne).isFalse();
@@ -88,7 +86,7 @@ public class BesteberegningFødendeKvinneTjenesteTest {
     @Test
     public void skal_ikkje_gi_fødende_kvinne_for_far_fødsel() {
         // Act
-        boolean erFødendeKvinne = BesteberegningFødendeKvinneTjeneste.erFødendeKvinne(RelasjonsRolleType.FARA, FamilieHendelseType.FØDSEL);
+        var erFødendeKvinne = BesteberegningFødendeKvinneTjeneste.erFødendeKvinne(RelasjonsRolleType.FARA, FamilieHendelseType.FØDSEL);
 
         // Assert
         assertThat(erFødendeKvinne).isFalse();
@@ -97,7 +95,7 @@ public class BesteberegningFødendeKvinneTjenesteTest {
     @Test
     public void skal_gi_fødende_kvinne_for_mor_fødsel() {
         // Act
-        boolean erFødendeKvinne = BesteberegningFødendeKvinneTjeneste.erFødendeKvinne(RelasjonsRolleType.MORA, FamilieHendelseType.FØDSEL);
+        var erFødendeKvinne = BesteberegningFødendeKvinneTjeneste.erFødendeKvinne(RelasjonsRolleType.MORA, FamilieHendelseType.FØDSEL);
 
         // Assert
         assertThat(erFødendeKvinne).isTrue();
@@ -105,15 +103,15 @@ public class BesteberegningFødendeKvinneTjenesteTest {
 
     @Test
     public void skalGiBesteberegningNårDagpengerPåStp() {
-        BehandlingReferanse ref = lagBehandlingReferanseMedStp(behandlingReferanse);
+        var ref = lagBehandlingReferanseMedStp(behandlingReferanse);
         lagreFamilihendelseFødsel();
-        OpptjeningAktiviteter opptjeningAktiviteter = OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER,
+        var opptjeningAktiviteter = OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER,
                 new no.nav.abakus.iaygrunnlag.Periode(OPPTJENINGSPERIODE.getFomDato(), SKJÆRINGSTIDSPUNKT.plusDays(1)));
         when(opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(any(), any()))
                 .thenReturn(Optional.of(opptjeningAktiviteter));
 
         // Act
-        boolean resultat = besteberegningFødendeKvinneTjeneste.brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(ref);
+        var resultat = besteberegningFødendeKvinneTjeneste.brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(ref);
 
         // Assert
         assertThat(resultat).isTrue();
@@ -121,19 +119,19 @@ public class BesteberegningFødendeKvinneTjenesteTest {
 
     @Test
     public void skalGiBesteberegningNårSykepengerMedOvergangFraDagpenger() {
-        BehandlingReferanse ref = lagBehandlingReferanseMedStp(behandlingReferanse);
+        var ref = lagBehandlingReferanseMedStp(behandlingReferanse);
         lagreFamilihendelseFødsel();
-        OpptjeningAktiviteter opptjeningAktiviteter = OpptjeningAktiviteter.fraOrgnr(OpptjeningAktivitetType.ARBEID,
+        var opptjeningAktiviteter = OpptjeningAktiviteter.fraOrgnr(OpptjeningAktivitetType.ARBEID,
             new no.nav.abakus.iaygrunnlag.Periode(OPPTJENINGSPERIODE.getFomDato(), OPPTJENINGSPERIODE.getTomDato()), ORGNR);
         when(opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(any(), any()))
             .thenReturn(Optional.of(opptjeningAktiviteter));
 
-        InntektArbeidYtelseAggregatBuilder oppdatere = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
-        InntektArbeidYtelseAggregatBuilder.AktørYtelseBuilder aktørYtelseBuilder = oppdatere.getAktørYtelseBuilder(behandlingReferanse.getAktørId());
-        YtelseBuilder ytelseBuilder = YtelseBuilder.oppdatere(Optional.empty())
+        var oppdatere = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
+        var aktørYtelseBuilder = oppdatere.getAktørYtelseBuilder(behandlingReferanse.getAktørId());
+        var ytelseBuilder = YtelseBuilder.oppdatere(Optional.empty())
             .medPeriode(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10)))
             .medYtelseType(RelatertYtelseType.SYKEPENGER);
-        YtelseGrunnlagBuilder grunnlagBuilder = ytelseBuilder.getGrunnlagBuilder();
+        var grunnlagBuilder = ytelseBuilder.getGrunnlagBuilder();
         grunnlagBuilder.medArbeidskategori(Arbeidskategori.KOMBINASJON_ARBEIDSTAKER_OG_DAGPENGER);
         ytelseBuilder.medYtelseGrunnlag(grunnlagBuilder.build());
         aktørYtelseBuilder.leggTilYtelse(ytelseBuilder);
@@ -141,7 +139,7 @@ public class BesteberegningFødendeKvinneTjenesteTest {
         inntektArbeidYtelseTjeneste.lagreIayAggregat(behandlingReferanse.getBehandlingId(), oppdatere);
 
         // Act
-        boolean resultat = besteberegningFødendeKvinneTjeneste.brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(ref);
+        var resultat = besteberegningFødendeKvinneTjeneste.brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(ref);
 
         // Assert
         assertThat(resultat).isTrue();
@@ -150,20 +148,20 @@ public class BesteberegningFødendeKvinneTjenesteTest {
     @Test
     public void skalIkkeGiBesteberegningIkkeDagpengerPåStp() {
         lagreFamilihendelseFødsel();
-        OpptjeningAktiviteter opptjeningAktiviteter = OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER,
+        var opptjeningAktiviteter = OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER,
             new no.nav.abakus.iaygrunnlag.Periode(OPPTJENINGSPERIODE.getFomDato(), SKJÆRINGSTIDSPUNKT.minusDays(3)));
         when(opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(any(), any()))
                 .thenReturn(Optional.of(opptjeningAktiviteter));
-        BehandlingReferanse ref = lagBehandlingReferanseMedStp(behandlingReferanse);
+        var ref = lagBehandlingReferanseMedStp(behandlingReferanse);
         // Act
-        boolean resultat = besteberegningFødendeKvinneTjeneste.brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(ref);
+        var resultat = besteberegningFødendeKvinneTjeneste.brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(ref);
 
         // Assert
         assertThat(resultat).isFalse();
     }
 
     private void lagreFamilihendelseFødsel() {
-        FamilieHendelseBuilder familieHendelseBuilder = familieHendelseRepository.opprettBuilderFor(behandling)
+        var familieHendelseBuilder = familieHendelseRepository.opprettBuilderFor(behandling)
                 .medAntallBarn(1)
                 .medFødselsDato(SKJÆRINGSTIDSPUNKT.plusWeeks(3));
         familieHendelseRepository.lagre(behandlingReferanse.getBehandlingId(), familieHendelseBuilder);

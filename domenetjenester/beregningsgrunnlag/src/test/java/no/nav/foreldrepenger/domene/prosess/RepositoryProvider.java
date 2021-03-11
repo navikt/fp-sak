@@ -4,7 +4,6 @@ import java.util.Objects;
 
 import javax.persistence.EntityManager;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
@@ -15,9 +14,9 @@ import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
  */
 public class RepositoryProvider {
 
-    private EntityManager entityManager;
+    private final EntityManager entityManager;
 
-    public RepositoryProvider( EntityManager entityManager) {
+    public RepositoryProvider(EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
         this.entityManager = entityManager;
     }
@@ -29,10 +28,6 @@ public class RepositoryProvider {
     public FagsakRepository getFagsakRepository() {
         // bridge metode før sammenkobling medBehandling
         return new FagsakRepository(entityManager);
-    }
-
-    public HistorikkRepository getHistorikkRepository() {
-        return new HistorikkRepository(entityManager);
     }
 
     public BeregningsgrunnlagRepository getBeregningsgrunnlagRepository() {

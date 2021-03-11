@@ -19,20 +19,20 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
-import no.nav.folketrygdloven.kalkulator.adapter.vltilregelmodell.MapBeregningAktiviteterFraVLTilRegelK14;
-import no.nav.folketrygdloven.kalkulator.steg.fastsettskjæringstidspunkt.ytelse.k14.FastsettSkjæringstidspunktOgStatuserK14;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.abakus.iaygrunnlag.Periode;
-import no.nav.folketrygdloven.kalkulator.felles.BeregningsperiodeTjeneste;
 import no.nav.folketrygdloven.kalkulator.adapter.regelmodelltilvl.MapBGSkjæringstidspunktOgStatuserFraRegelTilVL;
+import no.nav.folketrygdloven.kalkulator.adapter.vltilregelmodell.MapBeregningAktiviteterFraVLTilRegelK14;
+import no.nav.folketrygdloven.kalkulator.felles.BeregningsperiodeTjeneste;
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.FastsettBeregningsaktiviteterInput;
 import no.nav.folketrygdloven.kalkulator.input.StegProsesseringInput;
 import no.nav.folketrygdloven.kalkulator.steg.fastsettskjæringstidspunkt.FastsettBeregningAktiviteter;
 import no.nav.folketrygdloven.kalkulator.steg.fastsettskjæringstidspunkt.FastsettSkjæringstidspunktOgStatuser;
+import no.nav.folketrygdloven.kalkulator.steg.fastsettskjæringstidspunkt.ytelse.k14.FastsettSkjæringstidspunktOgStatuserK14;
 import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
@@ -42,19 +42,6 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulus.IAYMapperTilKalkulus;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulus.MapBehandlingRef;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulus.OpptjeningMapperTilKalkulus;
-import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
-import no.nav.foreldrepenger.domene.prosess.testutilities.behandling.ScenarioForeldrepenger;
-import no.nav.foreldrepenger.domene.modell.AktivitetStatus;
-import no.nav.foreldrepenger.domene.modell.BeregningAktivitetAggregatEntitet;
-import no.nav.foreldrepenger.domene.modell.BeregningAktivitetEntitet;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
@@ -69,6 +56,19 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektPeriodeType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.VirksomhetType;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulus.IAYMapperTilKalkulus;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulus.MapBehandlingRef;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulus.OpptjeningMapperTilKalkulus;
+import no.nav.foreldrepenger.domene.modell.AktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.BeregningAktivitetAggregatEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningAktivitetEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
+import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
+import no.nav.foreldrepenger.domene.prosess.testutilities.behandling.ScenarioForeldrepenger;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
@@ -109,7 +109,8 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
     }
 
     private BehandlingReferanse opprettBehandling() {
-        return ScenarioForeldrepenger.nyttScenario().lagre(repositoryProvider);
+        var behandling = ScenarioForeldrepenger.nyttScenario().lagre(repositoryProvider);
+        return BehandlingReferanse.fra(behandling);
     }
 
     private BeregningsgrunnlagEntitet act(OpptjeningAktiviteter opptjeningAktiviteter, BehandlingReferanse behandling) {
@@ -478,7 +479,8 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
 
         Periode opptjeningPeriode = new Periode(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusYears(1), permisjonFom.minusDays(1));
         BehandlingReferanse ref = lagReferanseMedStp(opprettBehandling());
-        OpptjeningAktiviteter opptjeningAktiviteter = new OpptjeningAktiviteter(lagArbeidOgOpptjening(ORG_NUMMER, opptjeningPeriode.getFom(), opptjeningPeriode.getTom(), InternArbeidsforholdRef.nullRef(), ref));
+        OpptjeningAktiviteter opptjeningAktiviteter = new OpptjeningAktiviteter(lagArbeidOgOpptjening(ORG_NUMMER, opptjeningPeriode.getFom(),
+            opptjeningPeriode.getTom(), InternArbeidsforholdRef.nullRef(), ref));
 
         // Act
         var input = lagBeregningsgrunnlagInput(ref, opptjeningAktiviteter, List.of());

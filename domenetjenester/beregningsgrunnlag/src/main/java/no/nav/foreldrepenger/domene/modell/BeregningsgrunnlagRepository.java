@@ -46,7 +46,7 @@ public class BeregningsgrunnlagRepository {
 
     public Optional<BeregningsgrunnlagGrunnlagEntitet> hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(Long behandlingId, Optional<Long> originalBehandlingId,
                                                                                                                  BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
-        Optional<BeregningsgrunnlagGrunnlagEntitet> sisteBg = hentSisteBeregningsgrunnlagGrunnlagEntitet(behandlingId, beregningsgrunnlagTilstand);
+        var sisteBg = hentSisteBeregningsgrunnlagGrunnlagEntitet(behandlingId, beregningsgrunnlagTilstand);
         if (!sisteBg.isPresent() && originalBehandlingId.isPresent()) {
             return hentSisteBeregningsgrunnlagGrunnlagEntitet(originalBehandlingId.get(), beregningsgrunnlagTilstand);
         }
@@ -56,7 +56,7 @@ public class BeregningsgrunnlagRepository {
     public Optional<BeregningsgrunnlagGrunnlagEntitet> hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlingerEtterTidspunkt(Long behandlingId, Optional<Long> originalBehandlingId,
                                                                                                                  LocalDateTime opprettetEtter,
                                                                                                                  BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
-        Optional<BeregningsgrunnlagGrunnlagEntitet> sisteBg = hentSisteBeregningsgrunnlagGrunnlagEntitetOpprettetEtter(behandlingId, opprettetEtter, beregningsgrunnlagTilstand);
+        var sisteBg = hentSisteBeregningsgrunnlagGrunnlagEntitetOpprettetEtter(behandlingId, opprettetEtter, beregningsgrunnlagTilstand);
         if (!sisteBg.isPresent() && originalBehandlingId.isPresent()) {
             return hentSisteBeregningsgrunnlagGrunnlagEntitetOpprettetEtter(originalBehandlingId.get(), opprettetEtter, beregningsgrunnlagTilstand);
         }
@@ -79,7 +79,7 @@ public class BeregningsgrunnlagRepository {
      * Hent angitt beregningsgrunnlag basert på beregningsgrunnlag id (ikke behandling Id som ellers i interfacet her).
      */
     public Optional<BeregningsgrunnlagEntitet> hentBeregningsgrunnlagForId(Long beregningsgrunnlagId) {
-        TypedQuery<BeregningsgrunnlagEntitet> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
             "from Beregningsgrunnlag grunnlag " +
                 "where grunnlag.id = :beregningsgrunnlagId", BeregningsgrunnlagEntitet.class); //$NON-NLS-1$
         query.setParameter("beregningsgrunnlagId", beregningsgrunnlagId); //$NON-NLS-1$
@@ -92,7 +92,7 @@ public class BeregningsgrunnlagRepository {
      * @return Hvis det finnes en aktiv {@link BeregningsgrunnlagGrunnlagEntitet} returneres denne
      */
     public Optional<BeregningsgrunnlagGrunnlagEntitet> hentBeregningsgrunnlagGrunnlagEntitet(Long behandlingId) {
-        TypedQuery<BeregningsgrunnlagGrunnlagEntitet> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
             "from BeregningsgrunnlagGrunnlagEntitet grunnlag " +
                 "where grunnlag.behandlingId=:behandlingId " +
                 "and grunnlag.aktiv = :aktivt", BeregningsgrunnlagGrunnlagEntitet.class); //$NON-NLS-1$
@@ -108,7 +108,7 @@ public class BeregningsgrunnlagRepository {
      * @return Hvis det finnes et eller fler BeregningsgrunnlagGrunnlagEntitet som har blitt opprettet i {@code stegOpprettet} returneres den som ble opprettet sist
      */
     public Optional<BeregningsgrunnlagGrunnlagEntitet> hentSisteBeregningsgrunnlagGrunnlagEntitet(Long behandlingId, BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
-        TypedQuery<BeregningsgrunnlagGrunnlagEntitet> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
             "from BeregningsgrunnlagGrunnlagEntitet " +
                 "where behandlingId=:behandlingId " +
                 "and beregningsgrunnlagTilstand = :beregningsgrunnlagTilstand " +
@@ -128,7 +128,7 @@ public class BeregningsgrunnlagRepository {
      */
     public Optional<BeregningsgrunnlagGrunnlagEntitet> hentSisteBeregningsgrunnlagGrunnlagEntitetOpprettetEtter(Long behandlingId, LocalDateTime opprettetEtter,
                                                                                                                 BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
-        TypedQuery<BeregningsgrunnlagGrunnlagEntitet> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
             "from BeregningsgrunnlagGrunnlagEntitet " +
                 "where behandlingId=:behandlingId " +
                 "and beregningsgrunnlagTilstand = :beregningsgrunnlagTilstand " +
@@ -146,7 +146,7 @@ public class BeregningsgrunnlagRepository {
      * For analysering av meldekortfeil og opprydning av disse
      */
     public List<BeregningsgrunnlagGrunnlagEntitet> hentGrunnlagForPotensielleFeilMeldekort() {
-        TypedQuery<BeregningsgrunnlagGrunnlagEntitet> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
             "select gr from BeregningsgrunnlagGrunnlagEntitet gr " +
                 "INNER JOIN Beregningsgrunnlag bg ON gr.beregningsgrunnlag = bg " +
                 "INNER JOIN BeregningsgrunnlagAktivitetStatus aks ON aks.beregningsgrunnlag = bg " +
@@ -156,9 +156,9 @@ public class BeregningsgrunnlagRepository {
                 "and (aks.aktivitetStatus = :status1 OR aks.aktivitetStatus = :status2) " +
                 "and gr.aktiv = :aktivt", BeregningsgrunnlagGrunnlagEntitet.class); //$NON-NLS-1$
 
-        BeregningsgrunnlagTilstand beregningsgrunnlagTilstand = BeregningsgrunnlagTilstand.FASTSATT;
-        LocalDateTime opprettetFom = LocalDateTime.of(LocalDate.of(2020, 2, 10), LocalTime.NOON);
-        LocalDateTime opprettetTom = LocalDateTime.of(LocalDate.of(2020, 3, 10), LocalTime.NOON);
+        var beregningsgrunnlagTilstand = BeregningsgrunnlagTilstand.FASTSATT;
+        var opprettetFom = LocalDateTime.of(LocalDate.of(2020, 2, 10), LocalTime.NOON);
+        var opprettetTom = LocalDateTime.of(LocalDate.of(2020, 3, 10), LocalTime.NOON);
         query.setParameter("opprettetFom", opprettetFom); //$NON-NLS-1$
         query.setParameter("opprettetTom", opprettetTom); //$NON-NLS-1$
         query.setParameter("aktivt", true); //$NON-NLS-1$
@@ -176,7 +176,7 @@ public class BeregningsgrunnlagRepository {
      */
     @Deprecated
     public void opprettProsesstaskForTilbakerullingAvSakerBeregning() {
-        Query query = entityManager.createNativeQuery(
+        var query = entityManager.createNativeQuery(
             "INSERT INTO PROSESS_TASK (ID, TASK_TYPE, TASK_PARAMETERE) " +
                 "select seq_prosess_task.nextval, 'beregning.tilbakerullingAvSaker', 'behandlingId=' || BEH.ID from FPSAK.BEHANDLING BEH " +
                 "WHERE BEH.id in (" +
@@ -195,7 +195,7 @@ public class BeregningsgrunnlagRepository {
     }
 
     public BeregningSats finnEksaktSats(BeregningSatsType satsType, LocalDate dato) {
-        TypedQuery<BeregningSats> query = entityManager.createQuery("from BeregningSats where satsType=:satsType" + //$NON-NLS-1$
+        var query = entityManager.createQuery("from BeregningSats where satsType=:satsType" + //$NON-NLS-1$
                 " and periode.fomDato<=:dato" + //$NON-NLS-1$
                 " and periode.tomDato>=:dato", BeregningSats.class); //$NON-NLS-1$
 
@@ -211,9 +211,9 @@ public class BeregningsgrunnlagRepository {
         Objects.requireNonNull(beregningsgrunnlag, BEREGNING_AKTIVITET_AGGREGAT);
         Objects.requireNonNull(beregningsgrunnlagTilstand, BEREGNINGSGRUNNLAG_TILSTAND);
 
-        BeregningsgrunnlagGrunnlagBuilder builder = opprettGrunnlagBuilderFor(behandlingId);
+        var builder = opprettGrunnlagBuilderFor(behandlingId);
         builder.medBeregningsgrunnlag(beregningsgrunnlag);
-        BeregningsgrunnlagGrunnlagEntitet grunnlagEntitet = builder.build(behandlingId, beregningsgrunnlagTilstand);
+        var grunnlagEntitet = builder.build(behandlingId, beregningsgrunnlagTilstand);
         lagreOgFlush(behandlingId, grunnlagEntitet);
         return grunnlagEntitet;
     }
@@ -222,7 +222,7 @@ public class BeregningsgrunnlagRepository {
         Objects.requireNonNull(behandlingId, BEHANDLING_ID);
         Objects.requireNonNull(builder, BUILDER);
         Objects.requireNonNull(beregningsgrunnlagTilstand, BEREGNINGSGRUNNLAG_TILSTAND);
-        BeregningsgrunnlagGrunnlagEntitet grunnlagEntitet = builder.build(behandlingId, beregningsgrunnlagTilstand);
+        var grunnlagEntitet = builder.build(behandlingId, beregningsgrunnlagTilstand);
         lagreOgFlush(behandlingId, grunnlagEntitet);
         return grunnlagEntitet;
     }
@@ -234,7 +234,7 @@ public class BeregningsgrunnlagRepository {
         Objects.requireNonNull(beregningAktivitetAggregat, BEREGNING_AKTIVITET_AGGREGAT);
         Objects.requireNonNull(beregningsgrunnlagTilstand, BEREGNINGSGRUNNLAG_TILSTAND);
 
-        BeregningsgrunnlagGrunnlagBuilder builder = opprettGrunnlagBuilderFor(behandlingId);
+        var builder = opprettGrunnlagBuilderFor(behandlingId);
         builder.medSaksbehandletAktiviteter(beregningAktivitetAggregat);
         lagreOgFlush(behandlingId, builder.build(behandlingId, beregningsgrunnlagTilstand));
     }
@@ -242,9 +242,9 @@ public class BeregningsgrunnlagRepository {
     public void lagre(Long behandlingId, BeregningAktivitetOverstyringerEntitet beregningAktivitetOverstyringer) {
         Objects.requireNonNull(behandlingId, BEHANDLING_ID);
         Objects.requireNonNull(beregningAktivitetOverstyringer, BEREGNING_AKTIVITET_OVERSTYRING);
-        BeregningsgrunnlagTilstand beregningsgrunnlagTilstand = BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER;
+        var beregningsgrunnlagTilstand = BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER;
 
-        BeregningsgrunnlagGrunnlagBuilder builder = opprettGrunnlagBuilderFor(behandlingId);
+        var builder = opprettGrunnlagBuilderFor(behandlingId);
         builder.medOverstyring(beregningAktivitetOverstyringer);
         lagreOgFlush(behandlingId, builder.build(behandlingId, beregningsgrunnlagTilstand));
     }
@@ -252,8 +252,8 @@ public class BeregningsgrunnlagRepository {
     public void lagre(Long behandlingId, BeregningRefusjonOverstyringerEntitet beregningRefusjonOverstyringer) {
         Objects.requireNonNull(behandlingId, BEHANDLING_ID);
         Objects.requireNonNull(beregningRefusjonOverstyringer, BEREGNING_REFUSJON_OVERSTYRINGER);
-        BeregningsgrunnlagTilstand beregningsgrunnlagTilstand = BeregningsgrunnlagTilstand.KOFAKBER_UT;
-        BeregningsgrunnlagGrunnlagBuilder builder = opprettGrunnlagBuilderFor(behandlingId);
+        var beregningsgrunnlagTilstand = BeregningsgrunnlagTilstand.KOFAKBER_UT;
+        var builder = opprettGrunnlagBuilderFor(behandlingId);
         builder.medRefusjonOverstyring(beregningRefusjonOverstyringer);
         lagreOgFlush(behandlingId, builder.build(behandlingId, beregningsgrunnlagTilstand));
     }
@@ -263,7 +263,7 @@ public class BeregningsgrunnlagRepository {
         if (erLagret(nyttGrunnlag)) {
             throw new IllegalStateException("Kan ikke lagre ned et allerede lagret grunnlag.");
         }
-        Optional<BeregningsgrunnlagGrunnlagEntitet> tidligereAggregat = hentBeregningsgrunnlagGrunnlagEntitet(behandlingId);
+        var tidligereAggregat = hentBeregningsgrunnlagGrunnlagEntitet(behandlingId);
         if (tidligereAggregat.isPresent()) {
             if (tidligereAggregat.get().getBeregningsgrunnlagTilstand().erFør(nyttGrunnlag.getBeregningsgrunnlagTilstand())) {
                 KopierRegelsporing.kopierRegelsporingerTilGrunnlag(nyttGrunnlag, tidligereAggregat);
@@ -285,7 +285,7 @@ public class BeregningsgrunnlagRepository {
     }
 
     private void lagreGrunnlag(BeregningsgrunnlagGrunnlagEntitet nyttGrunnlag) {
-        BeregningAktivitetAggregatEntitet registerAktiviteter = nyttGrunnlag.getRegisterAktiviteter();
+        var registerAktiviteter = nyttGrunnlag.getRegisterAktiviteter();
         if (registerAktiviteter != null) {
             lagreBeregningAktivitetAggregat(registerAktiviteter);
         }
@@ -322,10 +322,9 @@ public class BeregningsgrunnlagRepository {
 
 
     private void lagreBeregningAktivitetAggregat(BeregningAktivitetAggregatEntitet aggregat) {
-        BeregningAktivitetAggregatEntitet entitet = aggregat;
-        if (entitet.getId() == null) {
-            entityManager.persist(entitet);
-            entitet.getBeregningAktiviteter().forEach(entityManager::persist);
+        if (aggregat.getId() == null) {
+            entityManager.persist(aggregat);
+            aggregat.getBeregningAktiviteter().forEach(entityManager::persist);
         }
     }
 
@@ -336,13 +335,13 @@ public class BeregningsgrunnlagRepository {
     }
 
     private BeregningsgrunnlagGrunnlagBuilder opprettGrunnlagBuilderFor(Long behandlingId) {
-        Optional<BeregningsgrunnlagGrunnlagEntitet> entitetOpt = hentBeregningsgrunnlagGrunnlagEntitet(behandlingId);
+        var entitetOpt = hentBeregningsgrunnlagGrunnlagEntitet(behandlingId);
         Optional<BeregningsgrunnlagGrunnlagEntitet> grunnlag = entitetOpt.isPresent() ? Optional.of(entitetOpt.get()) : Optional.empty();
         return BeregningsgrunnlagGrunnlagBuilder.kopi(grunnlag);
     }
 
     public void deaktiverBeregningsgrunnlagGrunnlagEntitet(Long behandlingId) {
-        Optional<BeregningsgrunnlagGrunnlagEntitet> entitetOpt = hentBeregningsgrunnlagGrunnlagEntitet(behandlingId);
+        var entitetOpt = hentBeregningsgrunnlagGrunnlagEntitet(behandlingId);
         entitetOpt.ifPresent(this::deaktiverBeregningsgrunnlagGrunnlagEntitet);
     }
 
@@ -357,26 +356,26 @@ public class BeregningsgrunnlagRepository {
     }
 
     public boolean reaktiverBeregningsgrunnlagGrunnlagEntitet(Long behandlingId, BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
-        Optional<BeregningsgrunnlagGrunnlagEntitet> aktivEntitetOpt = hentBeregningsgrunnlagGrunnlagEntitet(behandlingId);
+        var aktivEntitetOpt = hentBeregningsgrunnlagGrunnlagEntitet(behandlingId);
         aktivEntitetOpt.ifPresent(this::deaktiverBeregningsgrunnlagGrunnlagEntitet);
-        Optional<BeregningsgrunnlagGrunnlagEntitet> kontrollerFaktaEntitetOpt = hentSisteBeregningsgrunnlagGrunnlagEntitet(behandlingId, beregningsgrunnlagTilstand);
-        boolean reaktiverer = kontrollerFaktaEntitetOpt.isPresent();
+        var kontrollerFaktaEntitetOpt = hentSisteBeregningsgrunnlagGrunnlagEntitet(behandlingId, beregningsgrunnlagTilstand);
+        var reaktiverer = kontrollerFaktaEntitetOpt.isPresent();
         kontrollerFaktaEntitetOpt.ifPresent(entitet -> setAktivOgLagre(entitet, true));
         entityManager.flush();
         return reaktiverer;
     }
 
     public void kopierGrunnlagFraEksisterendeBehandling(Long gammelBehandlingId, Long nyBehandlingId, BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
-        Optional<BeregningsgrunnlagGrunnlagEntitet> beregningsgrunnlag = hentBeregningsgrunnlagGrunnlagEntitet(gammelBehandlingId);
+        var beregningsgrunnlag = hentBeregningsgrunnlagGrunnlagEntitet(gammelBehandlingId);
         beregningsgrunnlag.ifPresent(orig -> lagre(nyBehandlingId, BeregningsgrunnlagGrunnlagBuilder.kopi(orig), beregningsgrunnlagTilstand));
     }
 
     public boolean oppdaterGrunnlagMedGrunnbeløp(Long gammelBehandlingId, Long nyBehandlingId, BeregningsgrunnlagTilstand tilstand) {
-        Optional<BeregningsgrunnlagGrunnlagEntitet> beregningsgrunnlag = hentSisteBeregningsgrunnlagGrunnlagEntitet(gammelBehandlingId, tilstand);
+        var beregningsgrunnlag = hentSisteBeregningsgrunnlagGrunnlagEntitet(gammelBehandlingId, tilstand);
         if (beregningsgrunnlag.isPresent()) {
             if (beregningsgrunnlag.get().getBeregningsgrunnlag().isPresent()) {
-                BeregningsgrunnlagEntitet bg = beregningsgrunnlag.get().getBeregningsgrunnlag().orElseThrow(() -> new IllegalStateException("Skal ha BG"));
-                BeregningSats beregningSats = finnEksaktSats(BeregningSatsType.GRUNNBELØP, bg.getSkjæringstidspunkt());
+                var bg = beregningsgrunnlag.get().getBeregningsgrunnlag().orElseThrow(() -> new IllegalStateException("Skal ha BG"));
+                var beregningSats = finnEksaktSats(BeregningSatsType.GRUNNBELØP, bg.getSkjæringstidspunkt());
                 lagre(nyBehandlingId, BeregningsgrunnlagGrunnlagBuilder.kopi(beregningsgrunnlag.get())
                     .medBeregningsgrunnlag(BeregningsgrunnlagEntitet.builder(bg).medGrunnbeløp(BigDecimal.valueOf(beregningSats.getVerdi())).build()), tilstand);
             } else {
@@ -398,13 +397,13 @@ public class BeregningsgrunnlagRepository {
      */
     public Optional<BeregningsgrunnlagGrunnlagEntitet> hentBeregningsgrunnlagForPreutfylling(Long behandlingId, Optional<Long> originalBehandlingId,
                                                                                              BeregningsgrunnlagTilstand forrigeTilstand, BeregningsgrunnlagTilstand nesteTilstand) {
-        Optional<BeregningsgrunnlagGrunnlagEntitet> sisteBeregningsgrunnlag = hentBeregningsgrunnlagGrunnlagEntitet(behandlingId);
+        var sisteBeregningsgrunnlag = hentBeregningsgrunnlagGrunnlagEntitet(behandlingId);
 
         if (sisteBeregningsgrunnlag.isEmpty()) {
             return Optional.empty();
         }
 
-        BeregningsgrunnlagTilstand gjeldendeTilstand = sisteBeregningsgrunnlag.get().getBeregningsgrunnlagTilstand();
+        var gjeldendeTilstand = sisteBeregningsgrunnlag.get().getBeregningsgrunnlagTilstand();
 
         if (gjeldendeTilstand.erFør(forrigeTilstand)) {
             return Optional.empty();
@@ -414,8 +413,8 @@ public class BeregningsgrunnlagRepository {
             return sisteBeregningsgrunnlag;
         }
 
-        Optional<BeregningsgrunnlagGrunnlagEntitet> grunnlagMedNesteTilstandOpt = hentSisteBeregningsgrunnlagGrunnlagEntitet(behandlingId, nesteTilstand);
-        Optional<BeregningsgrunnlagGrunnlagEntitet> grunnlagMedForrigeTiltandOpt = hentSisteBeregningsgrunnlagGrunnlagEntitet(behandlingId, forrigeTilstand);
+        var grunnlagMedNesteTilstandOpt = hentSisteBeregningsgrunnlagGrunnlagEntitet(behandlingId, nesteTilstand);
+        var grunnlagMedForrigeTiltandOpt = hentSisteBeregningsgrunnlagGrunnlagEntitet(behandlingId, forrigeTilstand);
 
         if (grunnlagMedForrigeTiltandOpt.isEmpty() && originalBehandlingId.isPresent()) {
             grunnlagMedForrigeTiltandOpt = hentSisteBeregningsgrunnlagGrunnlagEntitet(originalBehandlingId.get(), forrigeTilstand);
@@ -425,11 +424,11 @@ public class BeregningsgrunnlagRepository {
             return grunnlagMedForrigeTiltandOpt;
         }
 
-        BeregningsgrunnlagGrunnlagEntitet forrigeTilstandGrunnlag = grunnlagMedForrigeTiltandOpt
+        var forrigeTilstandGrunnlag = grunnlagMedForrigeTiltandOpt
             .orElseThrow(() -> new IllegalArgumentException("Mangler beregningsgrunnlag med tilstand: " + forrigeTilstand + " for behandling " + behandlingId));
 
-        LocalDateTime nesteTilstandOpprettetTidspunkt = grunnlagMedNesteTilstandOpt.get().getOpprettetTidspunkt();
-        LocalDateTime forrigeTilstandOpprettetTitdspunkt = forrigeTilstandGrunnlag.getOpprettetTidspunkt();
+        var nesteTilstandOpprettetTidspunkt = grunnlagMedNesteTilstandOpt.get().getOpprettetTidspunkt();
+        var forrigeTilstandOpprettetTitdspunkt = forrigeTilstandGrunnlag.getOpprettetTidspunkt();
 
         if (nesteTilstandOpprettetTidspunkt.isAfter(forrigeTilstandOpprettetTitdspunkt)) {
             return grunnlagMedNesteTilstandOpt;

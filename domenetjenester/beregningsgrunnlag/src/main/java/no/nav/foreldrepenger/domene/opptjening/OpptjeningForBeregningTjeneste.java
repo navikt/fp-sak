@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.opptjening;
 
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -43,13 +42,13 @@ public class OpptjeningForBeregningTjeneste {
     List<OpptjeningsperiodeForSaksbehandling> hentRelevanteOpptjeningsaktiviteterForBeregning(BehandlingReferanse behandlingReferanse,
                                                                                               InntektArbeidYtelseGrunnlag iayGrunnlag) {
 
-        Long behandlingId = behandlingReferanse.getId();
+        var behandlingId = behandlingReferanse.getId();
 
         var opptjening = opptjeningsperioderTjeneste.hentOpptjeningHvisFinnes(behandlingId);
         if(opptjening.isEmpty()) {
             return Collections.emptyList();
         }
-        LocalDate opptjeningsperiodeFom = opptjening.map(Opptjening::getFom).orElseThrow();
+        var opptjeningsperiodeFom = opptjening.map(Opptjening::getFom).orElseThrow();
 
         var opptjeningsaktiviteterPerYtelse = new OpptjeningsaktiviteterPerYtelse(behandlingReferanse.getFagsakYtelseType());
         var aktiviteter = opptjeningsperioderTjeneste.mapPerioderForSaksbehandling(behandlingReferanse, iayGrunnlag, vurderOpptjening);

@@ -23,16 +23,18 @@ public class FastsettBruttoBeregningsgrunnlagSNNyIArbeidslivetHistorikkTjeneste 
         this.historikkAdapter = historikkAdapter;
     }
 
-    public void lagHistorikk(FastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetDto dto, AksjonspunktOppdaterParameter param) {
+    public void lagHistorikk(FastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetDto dto,
+                             AksjonspunktOppdaterParameter param) {
         oppdaterVedEndretVerdi(dto.getBruttoBeregningsgrunnlag());
-        boolean erBegrunnelseEndret = param.erBegrunnelseEndret();
+        var erBegrunnelseEndret = param.erBegrunnelseEndret();
         historikkAdapter.tekstBuilder()
             .medBegrunnelse(dto.getBegrunnelse(), erBegrunnelseEndret)
             .medSkjermlenke(SkjermlenkeType.BEREGNING_FORELDREPENGER);
     }
 
     private void oppdaterVedEndretVerdi(Integer bruttoNæringsInntekt) {
-        historikkAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.BRUTTO_NAERINGSINNTEKT, null, bruttoNæringsInntekt);
+        historikkAdapter.tekstBuilder()
+            .medEndretFelt(HistorikkEndretFeltType.BRUTTO_NAERINGSINNTEKT, null, bruttoNæringsInntekt);
     }
 
 }

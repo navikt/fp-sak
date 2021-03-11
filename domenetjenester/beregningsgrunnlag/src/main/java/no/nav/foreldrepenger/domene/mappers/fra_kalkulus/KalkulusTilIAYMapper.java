@@ -6,7 +6,10 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 
-public class KalkulusTilIAYMapper {
+public final class KalkulusTilIAYMapper {
+    private KalkulusTilIAYMapper() {
+    }
+
     public static InternArbeidsforholdRef mapArbeidsforholdRef(InternArbeidsforholdRefDto arbeidsforholdRef) {
         return InternArbeidsforholdRef.ref(arbeidsforholdRef.getReferanse());
     }

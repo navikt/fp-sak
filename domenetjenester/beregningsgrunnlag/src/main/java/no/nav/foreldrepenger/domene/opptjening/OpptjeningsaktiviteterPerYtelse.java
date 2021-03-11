@@ -24,7 +24,7 @@ public class OpptjeningsaktiviteterPerYtelse {
             OpptjeningAktivitetType.VENTELØNN_VARTPENGER,
             OpptjeningAktivitetType.ETTERLØNN_SLUTTPAKKE));
 
-    private Set<OpptjeningAktivitetType> ekskluderteAktiviteter;
+    private final Set<OpptjeningAktivitetType> ekskluderteAktiviteter;
 
     public OpptjeningsaktiviteterPerYtelse(FagsakYtelseType fagsakYtelseType) {
         ekskluderteAktiviteter = EKSKLUDERTE_AKTIVITETER_PER_YTELSE.get(fagsakYtelseType);

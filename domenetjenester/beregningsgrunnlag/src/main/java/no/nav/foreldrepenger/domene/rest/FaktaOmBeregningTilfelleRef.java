@@ -107,7 +107,7 @@ public @interface FaktaOmBeregningTilfelleRef {
         }
 
         private static List<String> coalesce(String... vals) {
-            return Arrays.asList(vals).stream().filter(v -> v != null).distinct().collect(Collectors.toList());
+            return Arrays.stream(vals).filter(v -> v != null).distinct().collect(Collectors.toList());
         }
     }
 

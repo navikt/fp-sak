@@ -131,16 +131,16 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
 
     public BigDecimal getBeregnetPrÅr() {
         return beregningsgrunnlagPrStatusOgAndelList.stream()
-                .filter(bgpsa -> bgpsa.getBeregnetPrÅr() != null)
                 .map(BeregningsgrunnlagPrStatusOgAndel::getBeregnetPrÅr)
+                .filter(beregnetPrÅr -> beregnetPrÅr != null)
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
     }
 
     void updateBruttoPrÅr() {
         bruttoPrÅr = beregningsgrunnlagPrStatusOgAndelList.stream()
-                .filter(bgpsa -> bgpsa.getBruttoPrÅr() != null)
                 .map(BeregningsgrunnlagPrStatusOgAndel::getBruttoPrÅr)
+                .filter(prÅr -> prÅr != null)
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
     }
@@ -202,7 +202,7 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
         } else if (!(obj instanceof BeregningsgrunnlagPeriode)) {
             return false;
         }
-        BeregningsgrunnlagPeriode other = (BeregningsgrunnlagPeriode) obj;
+        var other = (BeregningsgrunnlagPeriode) obj;
         return Objects.equals(this.periode.getFomDato(), other.periode.getFomDato())
                 && Objects.equals(this.periode.getTomDato(), other.periode.getTomDato())
                 && Objects.equals(this.getBruttoPrÅr(), other.getBruttoPrÅr())
@@ -346,7 +346,7 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
         public Builder leggTilPeriodeÅrsak(PeriodeÅrsak periodeÅrsak) {
             verifiserKanModifisere();
             if (!kladd.getPeriodeÅrsaker().contains(periodeÅrsak)) {
-                BeregningsgrunnlagPeriodeÅrsak.Builder bgPeriodeÅrsakBuilder = new BeregningsgrunnlagPeriodeÅrsak.Builder();
+                var bgPeriodeÅrsakBuilder = new BeregningsgrunnlagPeriodeÅrsak.Builder();
                 bgPeriodeÅrsakBuilder.medPeriodeÅrsak(periodeÅrsak);
                 bgPeriodeÅrsakBuilder.build(kladd);
             }
@@ -357,12 +357,11 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
             verifyStateForBuild();
             beregningsgrunnlag.leggTilBeregningsgrunnlagPeriode(kladd);
 
-            Long dagsatsSum = kladd.beregningsgrunnlagPrStatusOgAndelList.stream()
-                .filter(bgpsa -> bgpsa.getDagsats() != null)
+            kladd.dagsats = kladd.beregningsgrunnlagPrStatusOgAndelList.stream()
                 .map(BeregningsgrunnlagPrStatusOgAndel::getDagsats)
+                .filter(bgpsaDagsats -> bgpsaDagsats != null)
                 .reduce(Long::sum)
                 .orElse(null);
-            kladd.dagsats = dagsatsSum;
             built = true;
             return kladd;
         }

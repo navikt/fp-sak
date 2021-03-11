@@ -1,12 +1,10 @@
 package no.nav.foreldrepenger.domene.prosess.testutilities.behandling;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.NavBrukerBuilder;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 /**
@@ -14,23 +12,16 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
  */
 public class FagsakBuilder {
 
+    private final NavBrukerBuilder brukerBuilder = new NavBrukerBuilder();
+    private final RelasjonsRolleType rolle;
+    private final FagsakYtelseType fagsakYtelseType;
+
     private Saksnummer saksnummer;
-
-    private NavBrukerBuilder brukerBuilder = new NavBrukerBuilder();
-
-    private RelasjonsRolleType rolle;
-
     private Fagsak fagsak;
-
-    private FagsakYtelseType fagsakYtelseType;
 
     private FagsakBuilder(RelasjonsRolleType rolle, FagsakYtelseType fagsakYtelseType) {
         this.rolle = rolle;
         this.fagsakYtelseType = fagsakYtelseType;
-    }
-
-    private FagsakBuilder(Fagsak fagsak) {
-        this.fagsak = fagsak;
     }
 
     public FagsakBuilder medSaksnummer(Saksnummer saksnummer) {
@@ -45,29 +36,9 @@ public class FagsakBuilder {
         }
     }
 
-    public FagsakBuilder medBrukerAktørId(AktørId aktørId) {
-        validerFagsakIkkeSatt();
-        brukerBuilder.medAktørId(aktørId);
-        return this;
-    }
-
     public FagsakBuilder medBrukerKjønn(NavBrukerKjønn kjønn) {
         validerFagsakIkkeSatt();
         brukerBuilder.medKjønn(kjønn);
-        return this;
-    }
-
-    public NavBrukerBuilder getBrukerBuilder() {
-        return brukerBuilder;
-    }
-
-    public RelasjonsRolleType getRolle() {
-        return rolle;
-    }
-
-    public FagsakBuilder medBruker(NavBruker bruker) {
-        validerFagsakIkkeSatt();
-        brukerBuilder.medBruker(bruker);
         return this;
     }
 
@@ -76,13 +47,10 @@ public class FagsakBuilder {
     }
 
     public Fagsak build() {
-
-        if (fagsak != null) {
-            return fagsak;
-        } else {
+        if (fagsak == null) {
             fagsak = Fagsak.opprettNy(fagsakYtelseType, brukerBuilder.build(), rolle, saksnummer);
-            return fagsak;
         }
+        return fagsak;
 
     }
 }

@@ -17,14 +17,14 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 /** Enkel builder for å lage en enkel behandling for internt bruk her. */
 public class FagsakBehandlingBuilder {
 
-    private EntityManager em;
+    private final EntityManager em;
     private final BehandlingRepository behandlingRepository;
 
     private Fagsak fagsak;
 
     private final AktørId aktørId = AktørId.dummy();
 
-    private Map<AktørId, NavBruker> lagredeBrukere = new HashMap<>();
+    private final Map<AktørId, NavBruker> lagredeBrukere = new HashMap<>();
 
     public FagsakBehandlingBuilder(EntityManager em) {
         this.em = em;
@@ -32,13 +32,13 @@ public class FagsakBehandlingBuilder {
     }
 
     public Behandling opprettOgLagreFørstegangssøknad(FagsakYtelseType ytelse) {
-        Fagsak fagsak = opprettFagsak(ytelse);
+        var fagsak = opprettFagsak(ytelse);
         return opprettOgLagreFørstegangssøknad(fagsak);
     }
 
     public Behandling opprettOgLagreFørstegangssøknad(Fagsak fagsak) {
-        final Behandling.Builder builder = Behandling.forFørstegangssøknad(fagsak);
-        Behandling behandling = builder.build();
+        final var builder = Behandling.forFørstegangssøknad(fagsak);
+        var behandling = builder.build();
 
         lagreBehandling(behandling);
 
@@ -47,7 +47,7 @@ public class FagsakBehandlingBuilder {
     }
 
     private void lagreBehandling(Behandling behandling) {
-        BehandlingLås lås = taSkriveLås(behandling);
+        var lås = taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, lås);
     }
 
@@ -69,7 +69,7 @@ public class FagsakBehandlingBuilder {
         em.persist(bruker);
 
         // Opprett fagsak
-        String randomSaksnummer = System.nanoTime() + "";
+        var randomSaksnummer = System.nanoTime() + "";
         this.fagsak = Fagsak.opprettNy(ytelse, bruker, null, new Saksnummer(randomSaksnummer));
         em.persist(fagsak);
         em.flush();

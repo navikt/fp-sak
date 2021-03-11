@@ -38,8 +38,8 @@ public class VurderLønnsendringHistorikkTjeneste extends FaktaOmBeregningHistor
             .map(BeregningsgrunnlagPrStatusOgAndel::getBgAndelArbeidsforhold)
             .filter(Optional::isPresent)
             .map(Optional::get)
-            .filter(bgAndelArbeidsforhold -> bgAndelArbeidsforhold.erLønnsendringIBeregningsperioden() != null)
             .map(BGAndelArbeidsforhold::erLønnsendringIBeregningsperioden)
+            .filter(aBoolean -> aBoolean != null)
             .findFirst()
             .orElse(null);
     }
