@@ -19,7 +19,6 @@ public enum DokumentMalType implements Kodeverdi {
     FORLENGET_MEDL_DOK("FORLME", "Forlenget saksbehandlingstid - medlemskap"),
     FORLENGET_TIDLIG_SOK("FORLTS", "Forlenget saksbehandlingstid - Tidlig søknad"),
     FORLENGET_OPPTJENING("FOROPT", "Forlenget saksbehandlingstid - Venter Opptjening"),
-    INNSYNSKRAV_SVAR("INSSKR", "Svar på innsynskrav"),
     INNVILGELSE_FORELDREPENGER_DOK("INNVFP", "Innvilgelsesbrev Foreldrepenger"),
     OPPHØR_DOK("OPPHOR", "Opphør brev"),
     AVSLAG_FORELDREPENGER_DOK("AVSLFP", "Avslagsbrev Foreldrepenger"),
@@ -70,6 +69,8 @@ public enum DokumentMalType implements Kodeverdi {
     UENDRETUTFALL_DOK("UENDRE", "Uendret utfall"),
     @Deprecated
     INFO_TIL_ANNEN_FORELDER_DOK("INAFOR", "Informasjonsbrev til den andre forelderen"),
+    @Deprecated
+    INNSYNSKRAV_SVAR("INSSKR", "Svar på innsynskrav"),
     ;
 
     private static final Map<String, DokumentMalType> KODER = new LinkedHashMap<>();
