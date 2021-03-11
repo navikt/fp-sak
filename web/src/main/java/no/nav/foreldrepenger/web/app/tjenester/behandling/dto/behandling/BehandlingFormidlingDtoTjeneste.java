@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
@@ -103,25 +104,26 @@ public class BehandlingFormidlingDtoTjeneste {
     }
 
     public BehandlingFormidlingDto lagDtoForFormidling(Behandling behandling) {
-        BehandlingFormidlingDto dto = lagDto(behandling);
-        return dto;
+        return lagDto(behandling);
     }
 
-    private static Språkkode getSpråkkode(Behandling behandling, SøknadRepository søknadRepository) {
-        Optional<SøknadEntitet> søknadOpt = søknadRepository.hentSøknadHvisEksisterer(behandling.getId());
-        if (søknadOpt.isPresent()) {
-            return søknadOpt.get().getSpråkkode();
+    private static Språkkode getSpråkkode(Behandling behandling, SøknadRepository søknadRepository, BehandlingRepository behandlingRepository) {
+        if (!behandling.erYtelseBehandling()) {
+            return behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(behandling.getFagsakId())
+                .flatMap(s -> søknadRepository.hentSøknadHvisEksisterer(s.getId()))
+                .map(SøknadEntitet::getSpråkkode)
+                .orElseGet(()-> behandling.getFagsak().getNavBruker().getSpråkkode());
         } else {
-            return behandling.getFagsak().getNavBruker().getSpråkkode();
+            return søknadRepository.hentSøknadHvisEksisterer(behandling.getId()).map(SøknadEntitet::getSpråkkode).orElseGet(() -> behandling.getFagsak().getNavBruker().getSpråkkode());
         }
     }
 
     private void settStandardfelterForBrev(Behandling behandling, BehandlingFormidlingDto dto) {
         var vedtaksDato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
-            .map(bv -> bv.getVedtaksdato())
+            .map(BehandlingVedtak::getVedtaksdato)
             .orElse(null);
         BehandlingDtoUtil.setStandardfelter(behandling, dto, vedtaksDato);
-        dto.setSpråkkode(getSpråkkode(behandling, søknadRepository));
+        dto.setSpråkkode(getSpråkkode(behandling, søknadRepository, behandlingRepository));
         var behandlingsresultatDto = lagBehandlingsresultatDto(behandling);
         dto.setBehandlingsresultat(behandlingsresultatDto.orElse(null));
     }

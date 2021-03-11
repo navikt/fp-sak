@@ -151,12 +151,13 @@ public class BehandlingDtoTjeneste {
                                                   Optional<BehandlingsresultatDto> behandlingsresultatDto,
                                                   boolean erBehandlingMedGjeldendeVedtak,
                                                   SøknadRepository søknadRepository,
-                                                  LocalDate vedtaksdato) {
+                                                  LocalDate vedtaksdato,
+                                                  BehandlingRepository behandlingRepository) {
         BehandlingDto dto = new BehandlingDto();
         UuidDto uuidDto = new UuidDto(behandling.getUuid());
         BehandlingIdDto idDto = new BehandlingIdDto(behandling.getId());
         BehandlingDtoUtil.setStandardfelterMedGjeldendeVedtak(behandling, dto, erBehandlingMedGjeldendeVedtak, vedtaksdato);
-        dto.setSpråkkode(getSpråkkode(behandling, søknadRepository));
+        dto.setSpråkkode(getSpråkkode(behandling, søknadRepository, behandlingRepository));
         dto.setBehandlingsresultat(behandlingsresultatDto.orElse(null));
 
         // Felles for alle behandlingstyper
@@ -198,12 +199,14 @@ public class BehandlingDtoTjeneste {
         return dto;
     }
 
-    private static Språkkode getSpråkkode(Behandling behandling, SøknadRepository søknadRepository) {
-        Optional<SøknadEntitet> søknadOpt = søknadRepository.hentSøknadHvisEksisterer(behandling.getId());
-        if (søknadOpt.isPresent()) {
-            return søknadOpt.get().getSpråkkode();
+    private static Språkkode getSpråkkode(Behandling behandling, SøknadRepository søknadRepository, BehandlingRepository behandlingRepository) {
+        if (!behandling.erYtelseBehandling()) {
+            return behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(behandling.getFagsakId())
+                .flatMap(s -> søknadRepository.hentSøknadHvisEksisterer(s.getId()))
+                .map(SøknadEntitet::getSpråkkode)
+                .orElseGet(()-> behandling.getFagsak().getNavBruker().getSpråkkode());
         } else {
-            return behandling.getFagsak().getNavBruker().getSpråkkode();
+            return søknadRepository.hentSøknadHvisEksisterer(behandling.getId()).map(SøknadEntitet::getSpråkkode).orElseGet(() -> behandling.getFagsak().getNavBruker().getSpråkkode());
         }
     }
 
@@ -216,10 +219,10 @@ public class BehandlingDtoTjeneste {
         return behandlinger.stream().map(behandling -> {
             boolean erBehandlingMedGjeldendeVedtak = erBehandlingMedGjeldendeVedtak(behandling, behandlingMedGjeldendeVedtak);
             var behandlingsresultatDto = lagBehandlingsresultatDto(behandling);
-            var vedtaksdato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId()).map(bv -> bv.getVedtaksdato())
+            var vedtaksdato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId()).map(BehandlingVedtak::getVedtaksdato)
                 .orElse(null);
             return lagBehandlingDto(behandling, behandlingsresultatDto, erBehandlingMedGjeldendeVedtak,
-                søknadRepository, vedtaksdato);
+                søknadRepository, vedtaksdato, behandlingRepository);
         }).collect(Collectors.toList());
     }
 
@@ -245,10 +248,10 @@ public class BehandlingDtoTjeneste {
 
     private void settStandardfelterUtvidet(Behandling behandling, UtvidetBehandlingDto dto, boolean erBehandlingMedGjeldendeVedtak) {
         var vedtaksDato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
-            .map(bv -> bv.getVedtaksdato())
+            .map(BehandlingVedtak::getVedtaksdato)
             .orElse(null);
         BehandlingDtoUtil.settStandardfelterUtvidet(behandling, dto, erBehandlingMedGjeldendeVedtak, vedtaksDato);
-        dto.setSpråkkode(getSpråkkode(behandling, søknadRepository));
+        dto.setSpråkkode(getSpråkkode(behandling, søknadRepository, behandlingRepository));
         var behandlingsresultatDto = lagBehandlingsresultatDto(behandling);
         dto.setBehandlingsresultat(behandlingsresultatDto.orElse(null));
     }

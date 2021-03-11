@@ -105,14 +105,12 @@ public class BehandlingDtoForBackendTjeneste {
 
     private Språkkode getSpråkkode(Behandling behandling) {
         if (!behandling.erYtelseBehandling()) {
-            Behandling sisteYtelsesBehandling = behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(behandling.getFagsakId()).orElse(null);
-            if (sisteYtelsesBehandling==null) {
-                return behandling.getFagsak().getNavBruker().getSpråkkode();
-            } else {
-                return søknadRepository.hentSøknadHvisEksisterer(sisteYtelsesBehandling.getId()).map(SøknadEntitet::getSpråkkode).orElse(behandling.getFagsak().getNavBruker().getSpråkkode());
-            }
+            return behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(behandling.getFagsakId())
+                .flatMap(s -> søknadRepository.hentSøknadHvisEksisterer(s.getId()))
+                .map(SøknadEntitet::getSpråkkode)
+                .orElseGet(()-> behandling.getFagsak().getNavBruker().getSpråkkode());
         } else {
-            return søknadRepository.hentSøknadHvisEksisterer(behandling.getId()).map(SøknadEntitet::getSpråkkode).orElse(behandling.getFagsak().getNavBruker().getSpråkkode());
+            return søknadRepository.hentSøknadHvisEksisterer(behandling.getId()).map(SøknadEntitet::getSpråkkode).orElseGet(() -> behandling.getFagsak().getNavBruker().getSpråkkode());
         }
     }
 }
